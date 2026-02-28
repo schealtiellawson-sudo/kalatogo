@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KalaTogo — Ton talent, visible.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vert: #1B7A4A;
+    --vert-dark: #145c38;
+    --vert-light: #e8f5ee;
+    --or: #F0A500;
+    --or-light: #fff8e7;
+    --blanc: #F7F4EF;
+    --anthracite: #1C1C1C;
+    --gris: #6b7280;
+    --gris-light: #f3f4f6;
+    --white: #ffffff;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(27,122,74,0.10);
+    --shadow-lg: 0 8px 40px rgba(27,122,74,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--blanc);
+    color: var(--anthracite);
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(247,244,239,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(27,122,74,0.10);
+    padding: 0 24px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 22px;
+    color: var(--vert); text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .nav-logo span { color: var(--or); font-size: 14px; font-weight: 600; }
+
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px;
+    cursor: pointer; border: none; transition: all 0.2s; text-decoration: none;
+  }
+
+  .btn-primary { background: var(--vert); color: white; }
+  .btn-primary:hover { background: var(--vert-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+
+  .btn-secondary { background: transparent; color: var(--vert); border: 2px solid var(--vert); }
+  .btn-secondary:hover { background: var(--vert-light); }
+
+  .btn-or { background: var(--or); color: white; }
+  .btn-or:hover { background: #d4920a; transform: translateY(-1px); }
+
+  .btn-ghost { background: transparent; color: var(--gris); }
+  .btn-ghost:hover { color: var(--vert); background: var(--vert-light); }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 24px 60px;
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 60px; align-items: center;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--or-light); color: var(--or);
+    border: 1px solid rgba(240,165,0,0.3);
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 13px; font-weight: 600; margin-bottom: 24px;
+  }
+
+  .hero-badge::before { content: '✦'; }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 800; line-height: 1.1;
+    color: var(--anthracite); margin-bottom: 20px;
+  }
+
+  h1 .accent { color: var(--vert); }
+  h1 .accent-or { color: var(--or); }
+
+  .hero-sub {
+    font-size: 17px; color: var(--gris);
+    line-height: 1.7; margin-bottom: 36px;
+  }
+
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .hero-stats {
+    display: flex; gap: 32px; margin-top: 40px;
+    padding-top: 32px; border-top: 1px solid rgba(27,122,74,0.15);
+  }
+
+  .stat-item { }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 800; color: var(--vert);
+  }
+  .stat-label { font-size: 13px; color: var(--gris); margin-top: 2px; }
+
+  /* Hero visual */
+  .hero-visual {
+    position: relative;
+  }
+
+  .hero-card {
+    background: white; border-radius: 20px;
+    padding: 24px; box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+
+  .hero-card-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+  }
+
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--vert), var(--or));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    color: white; font-size: 20px; flex-shrink: 0;
+  }
+
+  .avatar.sm { width: 36px; height: 36px; font-size: 14px; }
+
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px;
+  }
+
+  .card-meta { font-size: 13px; color: var(--gris); margin-top: 2px; }
+
+  .badge-verified {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--vert-light); color: var(--vert);
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  .stars { color: var(--or); font-size: 14px; }
+
+  .hero-card-photos {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin: 16px 0;
+  }
+
+  .photo-placeholder {
+    aspect-ratio: 1; border-radius: 10px;
+    background: linear-gradient(135deg, var(--vert-light), var(--or-light));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 16px; border-top: 1px solid var(--gris-light);
+  }
+
+  .price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+  .price span { font-size: 13px; color: var(--gris); font-weight: 400; }
+
+  .floating-notif {
+    position: absolute; right: -20px; bottom: 60px;
+    background: white; border-radius: 14px;
+    padding: 12px 16px; box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 500;
+    animation: float 3s ease-in-out infinite;
+    white-space: nowrap;
+  }
+
+  .floating-notif2 {
+    position: absolute; left: -20px; top: 20px;
+    background: var(--or); color: white;
+    border-radius: 14px; padding: 10px 14px;
+    box-shadow: var(--shadow); font-size: 12px; font-weight: 600;
+    animation: float 3s ease-in-out infinite 1.5s;
+    white-space: nowrap;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--vert); }
+
+  /* ── SEARCH SECTION ── */
+  .search-section {
+    background: white; padding: 48px 24px;
+    border-top: 1px solid rgba(27,122,74,0.08);
+    border-bottom: 1px solid rgba(27,122,74,0.08);
+  }
+
+  .search-inner { max-width: 900px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 13px; font-weight: 600; color: var(--or);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 800; margin-bottom: 32px;
+  }
+
+  .search-box {
+    display: flex; gap: 12px;
+    background: var(--gris-light); border-radius: var(--radius);
+    padding: 8px; margin-bottom: 24px;
+  }
+
+  .search-box select, .search-box input {
+    flex: 1; border: none; background: transparent;
+    padding: 12px 16px; font-family: 'DM Sans', sans-serif;
+    font-size: 15px; color: var(--anthracite); outline: none;
+  }
+
+  .search-box select { border-right: 1px solid rgba(0,0,0,0.08); }
+
+  .search-box button {
+    background: var(--vert); color: white; border: none;
+    padding: 12px 24px; border-radius: 10px;
+    font-weight: 600; font-size: 15px; cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .search-box button:hover { background: var(--vert-dark); }
+
+  .metiers-grid {
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+
+  .metier-chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 100px;
+    border: 1.5px solid rgba(27,122,74,0.2);
+    background: white; cursor: pointer;
+    font-size: 14px; transition: all 0.2s;
+    color: var(--anthracite);
+  }
+
+  .metier-chip:hover, .metier-chip.active {
+    background: var(--vert); color: white;
+    border-color: var(--vert);
+  }
+
+  /* ── RESULTS GRID ── */
+  .results-section { padding: 48px 24px; max-width: 1100px; margin: 0 auto; }
+
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .results-count { font-size: 14px; color: var(--gris); }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .prestataire-card {
+    background: white; border-radius: 20px;
+    overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: all 0.3s; cursor: pointer;
+    border: 1.5px solid transparent;
+  }
+
+  .prestataire-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(27,122,74,0.2);
+  }
+
+  .card-top {
+    padding: 20px; display: flex;
+    align-items: flex-start; gap: 14px;
+  }
+
+  .card-info { flex: 1; }
+
+  .card-name-row {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap; margin-bottom: 4px;
+  }
+
+  .card-name-row h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px;
+  }
+
+  .card-quartier {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; color: var(--gris); margin-bottom: 6px;
+  }
+
+  .card-metier-badge {
+    display: inline-block;
+    background: var(--vert-light); color: var(--vert);
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  .card-rating {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 8px; font-size: 13px;
+  }
+
+  .dispo-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #10b981; display: inline-block;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .card-bottom {
+    padding: 14px 20px;
+    border-top: 1px solid var(--gris-light);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .card-price {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px; color: var(--vert);
+  }
+
+  .card-price span { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--gris); font-weight: 400; }
+
+  .btn-whatsapp {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; background: #25D366; color: white;
+    border-radius: 100px; font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.2s;
+  }
+
+  .btn-whatsapp:hover { background: #1da851; transform: scale(1.02); }
+
+  /* ── LOADING ── */
+  .loading {
+    display: flex; align-items: center; justify-content: center;
+    padding: 60px; gap: 12px; color: var(--gris);
+  }
+
+  .spinner {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 3px solid var(--vert-light);
+    border-top-color: var(--vert);
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── FORMULAIRE INSCRIPTION ── */
+  .form-page { max-width: 700px; margin: 0 auto; padding: 48px 24px; }
+
+  .form-header { margin-bottom: 40px; }
+
+  .form-steps {
+    display: flex; gap: 8px; margin-bottom: 32px;
+  }
+
+  .step {
+    flex: 1; height: 4px; border-radius: 4px;
+    background: var(--gris-light); transition: all 0.3s;
+  }
+
+  .step.active { background: var(--vert); }
+  .step.done { background: var(--or); }
+
+  .form-step { display: none; }
+  .form-step.active { display: block; }
+
+  .form-group { margin-bottom: 20px; }
+
+  label {
+    display: block; font-weight: 600; font-size: 14px;
+    margin-bottom: 8px; color: var(--anthracite);
+  }
+
+  label .required { color: var(--or); }
+
+  input, select, textarea {
+    width: 100%; padding: 14px 16px;
+    border: 2px solid rgba(0,0,0,0.08);
+    border-radius: 12px; font-family: 'DM Sans', sans-serif;
+    font-size: 15px; color: var(--anthracite);
+    background: white; outline: none; transition: all 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--vert);
+    box-shadow: 0 0 0 4px rgba(27,122,74,0.08);
+  }
+
+  textarea { resize: vertical; min-height: 100px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .form-nav {
+    display: flex; justify-content: space-between;
+    margin-top: 32px; gap: 12px;
+  }
+
+  .success-screen {
+    text-align: center; padding: 48px 24px;
+    display: none;
+  }
+
+  .success-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--vert); color: white;
+    font-size: 36px; display: flex; align-items: center;
+    justify-content: center; margin: 0 auto 24px;
+  }
+
+  /* ── PROFIL PAGE ── */
+  .profil-page { max-width: 800px; margin: 0 auto; padding: 32px 24px; }
+
+  .profil-hero {
+    background: white; border-radius: 24px;
+    padding: 32px; box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+
+  .profil-top {
+    display: flex; align-items: flex-start;
+    gap: 24px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+
+  .profil-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--vert), var(--or));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    color: white; font-size: 30px; flex-shrink: 0;
+  }
+
+  .profil-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800; margin-bottom: 6px;
+  }
+
+  .profil-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+
+  .profil-stats {
+    display: flex; gap: 24px; padding-top: 20px;
+    border-top: 1px solid var(--gris-light); flex-wrap: wrap;
+  }
+
+  .profil-stat { text-align: center; }
+  .profil-stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 22px; color: var(--vert);
+  }
+
+  .profil-stat-label { font-size: 12px; color: var(--gris); margin-top: 2px; }
+
+  .profil-actions {
+    display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--anthracite); color: white;
+    padding: 14px 20px; border-radius: 12px;
+    font-size: 14px; font-weight: 500;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s; z-index: 1000;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--vert); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 60px 24px; color: var(--gris);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 16px; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--anthracite); color: rgba(255,255,255,0.7);
+    padding: 40px 24px; text-align: center; margin-top: 80px;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 24px; color: white; margin-bottom: 8px;
+  }
+
+  .footer-logo span { color: var(--or); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding: 40px 20px; }
+    .hero-visual { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .search-box { flex-direction: column; }
+    .nav-links .btn-ghost { display: none; }
+    .floating-notif { display: none; }
+    .floating-notif2 { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" onclick="showPage('home')">
+    KALA <span>TOGO</span>
+  </a>
+  <div class="nav-links">
+    <button class="btn btn-ghost" onclick="showPage('search')">🔍 Chercher</button>
+    <button class="btn btn-secondary" onclick="showPage('inscription')">S'inscrire</button>
+    <button class="btn btn-primary" onclick="showPage('search')">Trouver un pro</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════ PAGE HOME ═══════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">Lomé, Togo · Lancé en 2026</div>
+      <h1>Ton <span class="accent">talent</span><br>mérite d'être<br><span class="accent-or">trouvé.</span></h1>
+      <p class="hero-sub">
+        KalaTogo connecte les meilleurs artisans et prestataires de Lomé avec les clients qui les cherchent. Gratuit pour commencer. Paiement sécurisé via TMoney et Flooz.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" onclick="showPage('inscription')" style="padding:14px 28px;font-size:16px;">
+          ✦ Créer mon profil
+        </button>
+        <button class="btn btn-secondary" onclick="showPage('search')" style="padding:14px 28px;font-size:16px;">
+          Trouver un professionnel
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num" id="stat-prestataires">—</div>
+          <div class="stat-label">Prestataires actifs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="stat-metiers">15+</div>
+          <div class="stat-label">Métiers disponibles</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">Lomé</div>
+          <div class="stat-label">Zone de couverture</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="floating-notif2">⚡ Disponible maintenant</div>
+        <div class="hero-card-header">
+          <div class="avatar">A</div>
+          <div>
+            <div class="card-name">Aminata Kokou</div>
+            <div class="card-meta">Esthéticienne · Adidogomé</div>
+            <div style="margin-top:4px;">
+              <span class="badge-verified">✓ Vérifié</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-card-photos">
+          <div class="photo-placeholder">💅</div>
+          <div class="photo-placeholder">✨</div>
+          <div class="photo-placeholder">💄</div>
+        </div>
+        <div style="font-size:13px;color:var(--gris);margin-bottom:12px;">
+          "Spécialiste coiffure, maquillage et soins du visage à domicile ou en salon."
+        </div>
+        <div class="card-footer">
+          <div>
+            <div class="price">3 000 <span>FCFA / séance</span></div>
+            <div class="stars">★★★★★ <span style="color:var(--gris)">4.9 (47 avis)</span></div>
+          </div>
+          <a href="#" class="btn-whatsapp">💬 WhatsApp</a>
+        </div>
+        <div class="floating-notif">
+          <div class="notif-dot"></div>
+          Nouveau client trouvé via KALA !
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Métiers populaires -->
+  <div class="search-section">
+    <div class="search-inner">
+      <div class="section-label">Parcourir par métier</div>
+      <h2>Que cherchez-vous ?</h2>
+      <div class="metiers-grid">
+        <div class="metier-chip" onclick="filterMetier('Coiffeur')">✂️ Coiffeur</div>
+        <div class="metier-chip" onclick="filterMetier('Esthéticienne')">💅 Esthéticienne</div>
+        <div class="metier-chip" onclick="filterMetier('Menuisier')">🪚 Menuisier</div>
+        <div class="metier-chip" onclick="filterMetier('Mécanicien')">🔧 Mécanicien</div>
+        <div class="metier-chip" onclick="filterMetier('Électricien')">⚡ Électricien</div>
+        <div class="metier-chip" onclick="filterMetier('Maçon')">🧱 Maçon</div>
+        <div class="metier-chip" onclick="filterMetier('Couturier')">🧵 Couturier</div>
+        <div class="metier-chip" onclick="filterMetier('Photographe')">📸 Photographe</div>
+        <div class="metier-chip" onclick="filterMetier('Cuisinier')">👨‍🍳 Cuisinier</div>
+        <div class="metier-chip" onclick="filterMetier('Plombier')">🔩 Plombier</div>
+        <div class="metier-chip" onclick="filterMetier('Peintre')">🎨 Peintre</div>
+        <div class="metier-chip" onclick="filterMetier('Informaticien')">💻 Informaticien</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prestataires récents -->
+  <div class="results-section">
+    <div class="results-header">
+      <div>
+        <div class="section-label">Nouveaux sur KalaTogo</div>
+        <h2 style="margin-bottom:0;">Prestataires récents</h2>
+      </div>
+      <button class="btn btn-secondary" onclick="showPage('search')">Voir tous →</button>
+    </div>
+    <div id="home-cards" class="cards-grid">
+      <div class="loading"><div class="spinner"></div> Chargement...</div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">KALA<span>TOGO</span></div>
+    <p style="margin-top:8px;font-size:14px;">Ton talent, visible. Tes clients, trouvés.</p>
+    <p style="margin-top:16px;font-size:12px;opacity:0.5;">© 2026 KalaTogo · Lomé, Togo</p>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════ PAGE SEARCH ═══════════════════════════════ -->
+<div id="page-search" class="page">
+  <div style="padding:32px 24px;max-width:1100px;margin:0 auto;">
+    <div class="section-label">Recherche</div>
+    <h2 style="margin-bottom:24px;">Trouver un professionnel</h2>
+
+    <div class="search-box">
+      <select id="search-metier" onchange="searchPrestataires()">
+        <option value="">Tous les métiers</option>
+        <option>Coiffeur/Coiffeuse</option>
+        <option>Esthéticienne</option>
+        <option>Menuisier</option>
+        <option>Mécanicien</option>
+        <option>Électricien</option>
+        <option>Maçon</option>
+        <option>Couturier/Couturière</option>
+        <option>Photographe</option>
+        <option>Cuisinier/Cuisinière</option>
+        <option>Masseur/Masseuse</option>
+        <option>Plombier</option>
+        <option>Peintre</option>
+        <option>Soudeur</option>
+        <option>Informaticien</option>
+        <option>Graphiste</option>
+        <option>Autre</option>
+      </select>
+      <select id="search-quartier" onchange="searchPrestataires()">
+        <option value="">Tous les quartiers</option>
+        <option>Adidogomé</option>
+        <option>Bè</option>
+        <option>Tokoin</option>
+        <option>Djidjolé</option>
+        <option>Akossombo</option>
+        <option>Hédzranawoé</option>
+        <option>Kégué</option>
+        <option>Agbalépédogan</option>
+        <option>Baguida</option>
+        <option>Agoè</option>
+        <option>Autre</option>
+      </select>
+      <button onclick="searchPrestataires()">🔍 Rechercher</button>
+    </div>
+
+    <div class="results-header">
+      <div class="results-count" id="results-count">Recherche en cours...</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;">
+        <input type="checkbox" id="dispo-filter" onchange="searchPrestataires()" style="width:auto;">
+        Disponibles maintenant
+      </label>
+    </div>
+
+    <div id="search-results" class="cards-grid">
+      <div class="loading"><div class="spinner"></div> Chargement...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE INSCRIPTION ═══════════════════════════════ -->
+<div id="page-inscription" class="page">
+  <div class="form-page">
+    <div class="form-header">
+      <div class="section-label">Rejoindre KalaTogo</div>
+      <h2>Crée ton profil professionnel</h2>
+      <p style="color:var(--gris);margin-top:8px;">Gratuit · 10 minutes · Visible immédiatement</p>
+    </div>
+
+    <div class="form-steps">
+      <div class="step active" id="step-bar-1"></div>
+      <div class="step" id="step-bar-2"></div>
+      <div class="step" id="step-bar-3"></div>
+    </div>
+
+    <div id="form-success" class="success-screen">
+      <div class="success-icon">✓</div>
+      <h2 style="margin-bottom:12px;">Profil créé avec succès !</h2>
+      <p style="color:var(--gris);margin-bottom:32px;">
+        Tu es maintenant visible sur KalaTogo. Les clients de Lomé peuvent te trouver.
+      </p>
+      <button class="btn btn-primary" onclick="showPage('search')" style="padding:14px 28px;">
+        Voir les autres prestataires
+      </button>
+    </div>
+
+    <form id="inscription-form" onsubmit="submitForm(event)">
+
+      <!-- ÉTAPE 1 — Infos personnelles -->
+      <div class="form-step active" id="step-1">
+        <h3 style="font-family:Syne,sans-serif;margin-bottom:24px;">1. Qui es-tu ?</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nom <span class="required">*</span></label>
+            <input type="text" id="f-nom" placeholder="Kofi" required>
+          </div>
+          <div class="form-group">
+            <label>Prénom <span class="required">*</span></label>
+            <input type="text" id="f-prenom" placeholder="Mensah" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Genre</label>
+            <select id="f-genre">
+              <option value="Non précisé">Non précisé</option>
+              <option value="Homme">Homme</option>
+              <option value="Femme">Femme</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date de naissance</label>
+            <input type="date" id="f-naissance">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Téléphone / WhatsApp <span class="required">*</span></label>
+          <input type="tel" id="f-tel" placeholder="+228 90 00 00 00" required>
+        </div>
+
+        <div class="form-group">
+          <label>Email (optionnel)</label>
+          <input type="email" id="f-email" placeholder="ton@email.com">
+        </div>
+
+        <div class="form-nav">
+          <div></div>
+          <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+            Continuer →
+          </button>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 2 — Ton métier -->
+      <div class="form-step" id="step-2">
+        <h3 style="font-family:Syne,sans-serif;margin-bottom:24px;">2. Ton métier</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Métier principal <span class="required">*</span></label>
+            <select id="f-metier" required>
+              <option value="">Choisir...</option>
+              <option>Coiffeur/Coiffeuse</option>
+              <option>Esthéticienne</option>
+              <option>Menuisier</option>
+              <option>Mécanicien</option>
+              <option>Électricien</option>
+              <option>Maçon</option>
+              <option>Couturier/Couturière</option>
+              <option>Photographe</option>
+              <option>Cuisinier/Cuisinière</option>
+              <option>Masseur/Masseuse</option>
+              <option>Plombier</option>
+              <option>Peintre</option>
+              <option>Soudeur</option>
+              <option>Informaticien</option>
+              <option>Graphiste</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quartier <span class="required">*</span></label>
+            <select id="f-quartier" required>
+              <option value="">Choisir...</option>
+              <option>Adidogomé</option>
+              <option>Bè</option>
+              <option>Tokoin</option>
+              <option>Djidjolé</option>
+              <option>Akossombo</option>
+              <option>Hédzranawoé</option>
+              <option>Kégué</option>
+              <option>Agbalépédogan</option>
+              <option>Baguida</option>
+              <option>Agoè</option>
+              <option>Cacaveli</option>
+              <option>Nyékonakpoè</option>
+              <option>Kodjoviakopé</option>
+              <option>Hanoukopé</option>
+              <option>Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description de tes services <span class="required">*</span></label>
+          <textarea id="f-description" placeholder="Décris ce que tu fais, comment tu travailles, ce qui te différencie..." required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tarif minimum (FCFA)</label>
+            <input type="number" id="f-tarif-min" placeholder="2000">
+          </div>
+          <div class="form-group">
+            <label>Tarif maximum (FCFA)</label>
+            <input type="number" id="f-tarif-max" placeholder="15000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Années d'expérience</label>
+          <select id="f-experience">
+            <option value="">Choisir...</option>
+            <option value="1">Moins d'1 an</option>
+            <option value="2">1 à 3 ans</option>
+            <option value="5">3 à 5 ans</option>
+            <option value="8">5 à 10 ans</option>
+            <option value="15">Plus de 10 ans</option>
+          </select>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn btn-ghost" onclick="nextStep(1)">← Retour</button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(3)">Continuer →</button>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 3 — Réseaux sociaux -->
+      <div class="form-step" id="step-3">
+        <h3 style="font-family:Syne,sans-serif;margin-bottom:24px;">3. Tes réseaux</h3>
+        <p style="color:var(--gris);margin-bottom:24px;font-size:14px;">
+          Connecte tes réseaux pour que tes vidéos TikTok apparaissent automatiquement sur ton profil.
+        </p>
+
+        <div class="form-group">
+          <label>TikTok (optionnel)</label>
+          <input type="url" id="f-tiktok" placeholder="https://tiktok.com/@toncompte">
+        </div>
+
+        <div class="form-group">
+          <label>Instagram (optionnel)</label>
+          <input type="url" id="f-instagram" placeholder="https://instagram.com/toncompte">
+        </div>
+
+        <div class="form-group">
+          <label>Niveau d'éducation</label>
+          <select id="f-education">
+            <option value="">Choisir...</option>
+            <option value="Aucun">Aucun</option>
+            <option value="Primaire">Primaire</option>
+            <option value="Collège">Collège</option>
+            <option value="Lycée">Lycée</option>
+            <option value="Université">Université</option>
+            <option value="Formation professionnelle">Formation professionnelle</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Comment tu as entendu parler de KalaTogo ?</label>
+          <select id="f-canal">
+            <option value="">Choisir...</option>
+            <option value="Ambassadeur terrain">Un ambassadeur m'a contacté</option>
+            <option value="TikTok">TikTok</option>
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="Bouche à oreille">Bouche à oreille</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn btn-ghost" onclick="nextStep(2)">← Retour</button>
+          <button type="submit" class="btn btn-or" style="padding:14px 28px;font-size:16px;" id="submit-btn">
+            ✦ Créer mon profil
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PAGE PROFIL ═══════════════════════════════ -->
+<div id="page-profil" class="page">
+  <div class="profil-page">
+    <button class="btn btn-ghost" onclick="showPage('search')" style="margin-bottom:20px;">← Retour</button>
+    <div id="profil-content">
+      <div class="loading"><div class="spinner"></div> Chargement du profil...</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG AIRTABLE
+// ══════════════════════════════════════════
+const AIRTABLE_TOKEN = 'patFdOUZvtxsOmvpH.a21aaa9924b0c94587faa3dd58b227da7702ffded3201589a9f0308732fc2474';
+const BASE_ID = 'applmj1RDrJkR8C4w';
+const TABLE_PRESTATAIRES = 'Prestataires';
+
+const AIRTABLE_URL = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_PRESTATAIRES)}`;
+const HEADERS = {
+  'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
+  'Content-Type': 'application/json'
+};
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+let currentPage = 'home';
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  currentPage = page;
+  window.scrollTo(0, 0);
+
+  if (page === 'home') loadHomeCards();
+  if (page === 'search') searchPrestataires();
+}
+
+// ══════════════════════════════════════════
+// FORMULAIRE MULTI-ÉTAPES
+// ══════════════════════════════════════════
+let currentStep = 1;
+
+function nextStep(step) {
+  // Validation basique
+  if (step > currentStep) {
+    if (currentStep === 1) {
+      if (!document.getElementById('f-nom').value || !document.getElementById('f-tel').value) {
+        showToast('Remplis les champs obligatoires', 'error');
+        return;
+      }
+    }
+    if (currentStep === 2) {
+      if (!document.getElementById('f-metier').value || !document.getElementById('f-quartier').value) {
+        showToast('Choisis ton métier et ton quartier', 'error');
+        return;
+      }
+    }
+  }
+
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  document.getElementById('step-bar-' + currentStep).classList.remove('active');
+  document.getElementById('step-bar-' + currentStep).classList.add('done');
+
+  currentStep = step;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  document.getElementById('step-bar-' + currentStep).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════════════
+// SUBMIT FORMULAIRE → AIRTABLE
+// ══════════════════════════════════════════
+async function submitForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = '⏳ Envoi en cours...';
+  btn.disabled = true;
+
+  const nom = document.getElementById('f-nom').value;
+  const prenom = document.getElementById('f-prenom').value;
+
+  const fields = {
+    'Nom complet': `${nom} ${prenom}`,
+    'Prénom': prenom,
+    'Genre': document.getElementById('f-genre').value,
+    'Numéro de téléphone': document.getElementById('f-tel').value,
+    'Email': document.getElementById('f-email').value || '',
+    'Métier principal': document.getElementById('f-metier').value,
+    'Quartier': document.getElementById('f-quartier').value,
+    'Description des services': document.getElementById('f-description').value,
+    'Statut du compte': 'En attente de validation',
+    'Abonnement': 'Base',
+    'Score KALA': 0,
+    'Canal d\'acquisition': document.getElementById('f-canal').value || 'Autre',
+  };
+
+  // Champs optionnels
+  const tarifMin = document.getElementById('f-tarif-min').value;
+  const tarifMax = document.getElementById('f-tarif-max').value;
+  const tiktok = document.getElementById('f-tiktok').value;
+  const instagram = document.getElementById('f-instagram').value;
+  const education = document.getElementById('f-education').value;
+  const experience = document.getElementById('f-experience').value;
+
+  if (tarifMin) fields['Tarif minimum FCFA'] = parseInt(tarifMin);
+  if (tarifMax) fields['Tarif maximum FCFA'] = parseInt(tarifMax);
+  if (tiktok) fields['Lien TikTok'] = tiktok;
+  if (instagram) fields['Lien Instagram'] = instagram;
+  if (education) fields['Niveau d\'éducation'] = education;
+  if (experience) fields['Années d\'expérience'] = parseInt(experience);
+
+  try {
+    const res = await fetch(AIRTABLE_URL, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ fields })
+    });
+
+    if (res.ok) {
+      document.getElementById('inscription-form').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+      document.querySelector('.form-steps').style.display = 'none';
+      showToast('Profil créé avec succès ! 🎉', 'success');
+    } else {
+      const err = await res.json();
+      console.error(err);
+      showToast('Erreur : ' + (err.error?.message || 'Réessaie'), 'error');
+      btn.textContent = '✦ Créer mon profil';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    showToast('Problème de connexion. Vérifie internet.', 'error');
+    btn.textContent = '✦ Créer mon profil';
+    btn.disabled = false;
+  }
+}
+
+// ══════════════════════════════════════════
+// CHARGER LES PRESTATAIRES
+// ══════════════════════════════════════════
+async function fetchPrestataires(metier = '', quartier = '', dispoNow = false) {
+  let formula = `{Statut du compte}='Actif'`;
+
+  if (metier) formula = `AND(${formula},{Métier principal}='${metier}')`;
+  if (quartier) formula = `AND(${formula},{Quartier}='${quartier}')`;
+  if (dispoNow) formula = `AND(${formula},{Disponible maintenant}=1)`;
+
+  const url = `${AIRTABLE_URL}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=50&sort[0][field]=Score%20KALA&sort[0][direction]=desc`;
+
+  const res = await fetch(url, { headers: HEADERS });
+  const data = await res.json();
+  return data.records || [];
+}
+
+async function loadHomeCards() {
+  const container = document.getElementById('home-cards');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+
+  try {
+    const records = await fetchPrestataires();
+    document.getElementById('stat-prestataires').textContent = records.length || '0';
+
+    if (records.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="icon">🌱</div>
+          <p>Les premiers prestataires arrivent bientôt.</p>
+          <button class="btn btn-primary" onclick="showPage('inscription')" style="margin-top:20px;">
+            Être le premier → 
+          </button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = records.slice(0, 6).map(r => renderCard(r)).join('');
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+      <div class="icon">📡</div>
+      <p>Connexion impossible. Vérifie ta connexion internet.</p>
+    </div>`;
+  }
+}
+
+async function searchPrestataires() {
+  const metier = document.getElementById('search-metier')?.value || '';
+  const quartier = document.getElementById('search-quartier')?.value || '';
+  const dispo = document.getElementById('dispo-filter')?.checked || false;
+  const container = document.getElementById('search-results');
+  const countEl = document.getElementById('results-count');
+
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Recherche...</div>';
+
+  try {
+    const records = await fetchPrestataires(metier, quartier, dispo);
+    countEl.textContent = `${records.length} prestataire${records.length > 1 ? 's' : ''} trouvé${records.length > 1 ? 's' : ''}`;
+
+    if (records.length === 0) {
+      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+        <div class="icon">🔍</div>
+        <p>Aucun prestataire trouvé pour ces critères.<br>Essaie d'élargir ta recherche.</p>
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = records.map(r => renderCard(r)).join('');
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+      <div class="icon">📡</div>
+      <p>Erreur de connexion.</p>
+    </div>`;
+  }
+}
+
+function renderCard(record) {
+  const f = record.fields;
+  const nom = f['Nom complet'] || 'Prestataire';
+  const initiale = nom.charAt(0).toUpperCase();
+  const metier = f['Métier principal'] || '';
+  const quartier = f['Quartier'] || '';
+  const tarifMin = f['Tarif minimum FCFA'];
+  const note = f['Note moyenne'] || 0;
+  const nbAvis = f['Nombre d\'avis reçus'] || 0;
+  const dispo = f['Disponible maintenant'];
+  const verifie = f['Badge vérifié'];
+  const tel = f['Numéro de téléphone'] || '';
+  const score = f['Score KALA'] || 0;
+
+  const metierEmoji = {
+    'Coiffeur/Coiffeuse': '✂️', 'Esthéticienne': '💅', 'Menuisier': '🪚',
+    'Mécanicien': '🔧', 'Électricien': '⚡', 'Maçon': '🧱',
+    'Couturier/Couturière': '🧵', 'Photographe': '📸',
+    'Cuisinier/Cuisinière': '👨‍🍳', 'Plombier': '🔩',
+    'Peintre': '🎨', 'Informaticien': '💻', 'Graphiste': '🖌️'
+  }[metier] || '⚡';
+
+  const waMsg = encodeURIComponent(`Bonjour, je t'ai trouvé sur KalaTogo. Je suis intéressé par ${metier}. Tu es disponible pour réserver via la plateforme ?`);
+  const waLink = `https://wa.me/${tel.replace(/\D/g, '')}?text=${waMsg}`;
+
+  const starsHtml = note > 0
+    ? `${'★'.repeat(Math.round(note))}${'☆'.repeat(5 - Math.round(note))} <span style="color:var(--gris)">(${nbAvis})</span>`
+    : `<span style="color:var(--gris);font-size:12px;">Pas encore d'avis</span>`;
+
+  return `
+    <div class="prestataire-card" onclick="showProfil('${record.id}')">
+      <div class="card-top">
+        <div class="avatar">${initiale}</div>
+        <div class="card-info">
+          <div class="card-name-row">
+            <h3>${nom}</h3>
+            ${verifie ? '<span class="badge-verified" style="font-size:11px;">✓</span>' : ''}
+            ${dispo ? '<span class="dispo-dot" title="Disponible maintenant"></span>' : ''}
+          </div>
+          <div class="card-quartier">📍 ${quartier}</div>
+          <span class="card-metier-badge">${metierEmoji} ${metier}</span>
+          <div class="card-rating">
+            <span class="stars" style="font-size:12px;">${starsHtml}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div>
+          ${tarifMin ? `<div class="card-price">${tarifMin.toLocaleString()} <span>FCFA</span></div>` : '<div style="font-size:13px;color:var(--gris);">Tarif à définir</div>'}
+          ${score > 0 ? `<div style="font-size:11px;color:var(--gris);margin-top:2px;">Score KALA: ${score}</div>` : ''}
+        </div>
+        ${tel ? `<a href="${waLink}" class="btn-whatsapp" onclick="event.stopPropagation()">💬 Contacter</a>` : ''}
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// PAGE PROFIL DÉTAILLÉ
+// ══════════════════════════════════════════
+async function showProfil(recordId) {
+  showPage('profil');
+  const container = document.getElementById('profil-content');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement du profil...</div>';
+
+  try {
+    const res = await fetch(`${AIRTABLE_URL}/${recordId}`, { headers: HEADERS });
+    const record = await res.json();
+    const f = record.fields;
+
+    const nom = f['Nom complet'] || 'Prestataire';
+    const initiale = nom.charAt(0).toUpperCase();
+    const metier = f['Métier principal'] || '';
+    const quartier = f['Quartier'] || '';
+    const description = f['Description des services'] || '';
+    const tarifMin = f['Tarif minimum FCFA'];
+    const tarifMax = f['Tarif maximum FCFA'];
+    const note = f['Note moyenne'] || 0;
+    const nbAvis = f['Nombre d\'avis reçus'] || 0;
+    const nbTransactions = f['Nombre de transactions'] || 0;
+    const score = f['Score KALA'] || 0;
+    const dispo = f['Disponible maintenant'];
+    const verifie = f['Badge vérifié'];
+    const tel = f['Numéro de téléphone'] || '';
+    const tiktok = f['Lien TikTok'] || '';
+    const instagram = f['Lien Instagram'] || '';
+    const experience = f['Années d\'expérience'] || '';
+    const abonnement = f['Abonnement'] || 'Base';
+
+    const waMsg = encodeURIComponent(`Bonjour ${nom}, je t'ai trouvé sur KalaTogo. Je suis intéressé par tes services de ${metier}. Tu es disponible ?`);
+    const waLink = `https://wa.me/${tel.replace(/\D/g, '')}?text=${waMsg}`;
+
+    container.innerHTML = `
+      <div class="profil-hero">
+        <div class="profil-top">
+          <div class="profil-avatar">${initiale}</div>
+          <div style="flex:1;">
+            <div class="profil-name">${nom}</div>
+            <div class="profil-badges">
+              ${verifie ? '<span class="badge-verified">✓ Vérifié KalaTogo</span>' : ''}
+              ${dispo ? '<span style="background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;">🟢 Disponible maintenant</span>' : ''}
+              ${abonnement !== 'Base' ? `<span style="background:var(--or-light);color:var(--or);padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;">⭐ ${abonnement}</span>` : ''}
+            </div>
+            <div style="font-size:15px;color:var(--gris);">📍 ${quartier} · ${metier}</div>
+            ${experience ? `<div style="font-size:14px;color:var(--gris);margin-top:4px;">🏆 ${experience} ans d'expérience</div>` : ''}
+          </div>
+        </div>
+
+        ${description ? `
+        <div style="background:var(--gris-light);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:600;color:var(--gris);margin-bottom:6px;">À PROPOS</div>
+          <p style="font-size:15px;line-height:1.6;">${description}</p>
+        </div>` : ''}
+
+        ${(tarifMin || tarifMax) ? `
+        <div style="background:var(--vert-light);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:600;color:var(--vert);margin-bottom:4px;">TARIFS</div>
+          <div style="font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:var(--vert);">
+            ${tarifMin ? tarifMin.toLocaleString() : '?'} ${tarifMax ? '→ ' + tarifMax.toLocaleString() : ''} FCFA
+          </div>
+        </div>` : ''}
+
+        <div class="profil-stats">
+          <div class="profil-stat">
+            <div class="profil-stat-num">${note > 0 ? note.toFixed(1) : '—'}</div>
+            <div class="profil-stat-label">Note / 5</div>
+          </div>
+          <div class="profil-stat">
+            <div class="profil-stat-num">${nbAvis}</div>
+            <div class="profil-stat-label">Avis</div>
+          </div>
+          <div class="profil-stat">
+            <div class="profil-stat-num">${nbTransactions}</div>
+            <div class="profil-stat-label">Prestations</div>
+          </div>
+          <div class="profil-stat">
+            <div class="profil-stat-num">${score}</div>
+            <div class="profil-stat-label">Score KALA</div>
+          </div>
+        </div>
+
+        <div class="profil-actions">
+          ${tel ? `<a href="${waLink}" class="btn-whatsapp" style="font-size:15px;padding:12px 20px;">💬 Contacter sur WhatsApp</a>` : ''}
+          ${tiktok ? `<a href="${tiktok}" target="_blank" class="btn btn-ghost">🎵 TikTok</a>` : ''}
+          ${instagram ? `<a href="${instagram}" target="_blank" class="btn btn-ghost">📸 Instagram</a>` : ''}
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">❌</div><p>Impossible de charger ce profil.</p></div>`;
+  }
+}
+
+// ══════════════════════════════════════════
+// FILTRE PAR MÉTIER (depuis home)
+// ══════════════════════════════════════════
+function filterMetier(metier) {
+  showPage('search');
+  setTimeout(() => {
+    document.getElementById('search-metier').value = metier;
+    searchPrestataires();
+  }, 100);
+}
+
+// ══════════════════════════════════════════
+// TOAST NOTIFICATIONS
+// ══════════════════════════════════════════
+function showToast(msg, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type === 'success' ? 'success' : ''} show`;
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+loadHomeCards();
+</script>
+</body>
+</html>
