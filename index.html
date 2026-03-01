@@ -1032,11 +1032,11 @@ async function submitForm(e) {
     'Métier principal': document.getElementById('f-metier').value,
     'Quartier': document.getElementById('f-quartier').value,
     'Description des services': document.getElementById('f-description').value,
-    'Statut du compte': 'En attente de validation',
-    'Abonnement': 'Base',
-    'Score KALA': 0,
-    'Canal d\'acquisition': document.getElementById('f-canal').value || 'Autre',
   };
+
+  // Champs optionnels supplementaires
+  const canal = document.getElementById('f-canal').value;
+  if (canal) fields['Canal d\'acquisition'] = canal;
 
   // Champs optionnels
   const tarifMin = document.getElementById('f-tarif-min').value;
