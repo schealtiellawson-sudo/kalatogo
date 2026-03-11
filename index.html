@@ -2790,7 +2790,7 @@ function loadAbonnement() {
 
 function upgradePlan(plan, amount) {
   if (!currentUser || !currentPrestataire) {
-    toast('Connecte-toi d'abord à ton espace', 'error');
+    toast("Connecte-toi d'abord à ton espace", 'error');
     return;
   }
 
@@ -2864,7 +2864,7 @@ async function onPaymentSuccess(plan) {
     } else {
       const err = await res.json();
       console.error('Airtable update error:', err);
-      toast('Paiement reçu mais erreur d'activation — contacte le support', 'error');
+      toast("Paiement reçu mais erreur d'activation — contacte le support", 'error');
     }
   } catch(err) {
     console.error('onPaymentSuccess error:', err);
