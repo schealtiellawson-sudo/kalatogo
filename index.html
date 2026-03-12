@@ -1072,7 +1072,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
         <div>
-          <div class="badge" style="background:rgba(232,148,10,0.2);color:var(--or);margin-bottom:20px;">💰 Programme de parrainage</div>
+          <div class="badge" style="background:rgba(232,148,10,0.2);color:var(--or);margin-bottom:20px;">💰 Programme de parrainage — 40% récurrents</div>
           <h2 style="font-family:Fraunces,serif;font-size:clamp(28px,4vw,46px);font-weight:900;color:white;line-height:1.1;margin-bottom:20px;">
             Pendant que tu<br>travailles,<br><em style="color:var(--or);">ton réseau te paie.</em>
           </h2>
@@ -1080,6 +1080,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             Fin de mois difficile. Loyer à payer. Frais de scolarité qui arrivent. Tu connais ça.
             <br><br>
             KalaTogo a une réponse : <strong style="color:white;">parraine des prestataires, touche 40% de leurs abonnements — chaque mois, automatiquement.</strong>
+          <br><br>
+          <span style="color:rgba(255,255,255,0.6);font-size:16px;">Tu as une communauté TikTok, Instagram ou WhatsApp ? <strong style="color:var(--or);">Ton réseau est ton capital.</strong> Transforme chaque abonné en revenu récurrent.</span>
           </p>
           <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin-bottom:28px;">
             C'est comme être agent Wave ou MTN MoMo — sauf que toi, tu n'as pas besoin d'argent de départ. Juste tes contacts.
@@ -1129,6 +1131,45 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             </p>
           </div>
           <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;" onclick="showPage('inscription')">Créer mon compte et parrainer →</button>
+        </div>
+      </div>
+
+      <!-- Bloc TikTok / Créateurs -->
+      <div style="background:linear-gradient(135deg,rgba(0,0,0,0.6),rgba(232,148,10,0.1));border:1.5px solid rgba(232,148,10,0.3);border-radius:20px;padding:28px;margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;">
+        <div>
+          <div style="font-size:32px;margin-bottom:12px;">🎵</div>
+          <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:white;margin-bottom:10px;">Tu crées du contenu sur TikTok ?</h3>
+          <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.7;margin-bottom:16px;">
+            TikTok est en explosion au Togo. Si tu as une communauté qui te regarde, tu peux transformer chaque vue en revenu.
+            Partage ton lien KALA dans ta bio ou dans tes vidéos — chaque prestataire qui s'inscrit via toi te rapporte <strong style="color:var(--or);">40% de revenu récurrent chaque mois.</strong>
+          </p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:8px;align-items:center;">
+              <span style="background:var(--or);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+              500 abonnés engagés → potentiel 10-20 parrainages/mois
+            </div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:8px;align-items:center;">
+              <span style="background:var(--or);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+              Revenu qui <strong style="color:var(--or);">croît chaque mois</strong> sans effort supplémentaire
+            </div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:8px;align-items:center;">
+              <span style="background:var(--or);width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+              Aucun capital requis — juste ton téléphone et ton réseau
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:14px;padding:16px;">
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">Avec 10 filleuls actifs</div>
+            <div style="font-family:Fraunces,serif;font-size:26px;font-weight:900;color:var(--or);">10 000 FCFA</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">chaque mois, automatiquement</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:14px;padding:16px;">
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">Avec 50 filleuls actifs</div>
+            <div style="font-family:Fraunces,serif;font-size:26px;font-weight:900;color:var(--or);">50 000 FCFA</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">≈ le SMIG togolais (52 500 FCFA)</div>
+          </div>
+          <button class="btn btn-or" style="width:100%;justify-content:center;" onclick="showPage('inscription')">Créer mon compte maintenant →</button>
         </div>
       </div>
 
@@ -1236,7 +1277,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(192,132,252,0.2);text-align:center;">
           <div style="width:60px;height:60px;background:linear-gradient(135deg,#c084fc,#9333ea);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 20px;">3️⃣</div>
           <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;">Touche tes 40% chaque mois</h3>
-          <p style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;">Quand ton filleul prend un abonnement Pro ou Patron, tu touches 40% de sa mensualité — et ça se répète chaque mois tant qu'il reste abonné. Sans rien faire de plus.</p>
+          <p style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;">Quand ton filleul prend l'abonnement Pro, tu touches 40% de sa mensualité — et ça se répète chaque mois tant qu'il reste abonné. Sans rien faire de plus.</p>
         </div>
       </div>
 
@@ -1944,49 +1985,43 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <!-- Plan Base -->
           <div id="plan-card-Base" style="background:white;border-radius:16px;padding:22px;box-shadow:var(--shadow);border:2px solid var(--vert-light);">
             <div style="font-size:32px;margin-bottom:10px;">🆓</div>
-            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-bottom:4px;">Plan Base</h3>
-            <div style="font-size:24px;font-weight:900;color:var(--vert);margin-bottom:4px;">Gratuit</div>
-            <p style="font-size:12px;color:var(--gris);margin-bottom:14px;">Pour débuter</p>
+            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-bottom:4px;">Plan Gratuit</h3>
+            <div style="font-size:24px;font-weight:900;color:var(--vert);margin-bottom:4px;">0 FCFA</div>
+            <p style="font-size:12px;color:var(--gris);margin-bottom:14px;">Pour démarrer sur KALA</p>
             <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:18px;">
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Profil visible</div>
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> 3 photos portfolio</div>
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Contact WhatsApp</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Profil visible dans les recherches</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Photos de réalisations</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Contact WhatsApp direct</div>
               <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Avis clients</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Programme parrainage 40%</div>
+              <div style="font-size:13px;color:#ccc;display:flex;gap:7px;"><span>✗</span> Priorité dans les résultats</div>
+              <div style="font-size:13px;color:#ccc;display:flex;gap:7px;"><span>✗</span> Badge Pro visible</div>
+              <div style="font-size:13px;color:#ccc;display:flex;gap:7px;"><span>✗</span> Page commerciale dédiée</div>
             </div>
             <button id="btn-plan-Base" class="btn btn-secondary" style="width:100%;justify-content:center;" disabled>Plan actuel</button>
           </div>
 
           <!-- Plan Pro -->
-          <div id="plan-card-Pro" style="background:white;border-radius:16px;padding:22px;box-shadow:var(--shadow-lg);border:2px solid var(--or);position:relative;">
-            <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--or);color:white;font-size:11px;font-weight:700;padding:3px 14px;border-radius:100px;white-space:nowrap;">⭐ POPULAIRE</div>
+          <div id="plan-card-Pro" style="background:linear-gradient(135deg,#fffbeb,#fff8e1);border-radius:16px;padding:22px;box-shadow:var(--shadow-lg);border:2px solid var(--or);position:relative;">
+            <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--or),#f59e0b);color:white;font-size:11px;font-weight:700;padding:4px 16px;border-radius:100px;white-space:nowrap;box-shadow:0 2px 8px rgba(232,148,10,0.4);">🔥 MEILLEUR CHOIX</div>
             <div style="font-size:32px;margin-bottom:10px;">🚀</div>
-            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-bottom:4px;">Plan Pro</h3>
-            <div style="font-size:24px;font-weight:900;color:var(--or);margin-bottom:4px;">2 500 <span style="font-size:14px;">FCFA</span></div>
-            <p style="font-size:12px;color:var(--gris);margin-bottom:14px;">par mois · ~4€</p>
-            <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:18px;">
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Tout du plan Base</div>
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Badge Pro visible</div>
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Priorité dans les résultats</div>
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Stats de vues</div>
-              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Support prioritaire</div>
+            <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:4px;">Plan Pro</h3>
+            <div style="font-size:28px;font-weight:900;color:var(--or);margin-bottom:2px;">2 500 <span style="font-size:14px;">FCFA</span></div>
+            <p style="font-size:12px;color:var(--gris);margin-bottom:16px;">par mois · ~4€ · Résiliable à tout moment</p>
+            <div style="background:rgba(232,148,10,0.1);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--or);font-weight:700;text-align:center;">
+              ⚡ Retour sur investissement dès 3 clients supplémentaires/mois
             </div>
-            <button id="btn-plan-Pro" class="btn btn-or" style="width:100%;justify-content:center;" onclick="upgradePlan('Pro',2500)">Passer au Pro →</button>
-          </div>
-
-          <!-- Plan Patron -->
-          <div id="plan-card-Patron" style="background:linear-gradient(135deg,#1a0a2e,#2d1254);border-radius:16px;padding:22px;box-shadow:var(--shadow-lg);border:2px solid #c084fc;">
-            <div style="font-size:32px;margin-bottom:10px;">👑</div>
-            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-bottom:4px;color:white;">Plan Patron</h3>
-            <div style="font-size:24px;font-weight:900;color:#c084fc;margin-bottom:4px;">6 500 <span style="font-size:14px;">FCFA</span></div>
-            <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:14px;">par mois · ~10€</p>
-            <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:18px;">
-              <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:7px;"><span style="color:#c084fc;">✓</span> Tout du plan Pro</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:7px;"><span style="color:#c084fc;">✓</span> Top du classement garanti</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:7px;"><span style="color:#c084fc;">✓</span> Page commerciale dédiée</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:7px;"><span style="color:#c084fc;">✓</span> Gestion avis prioritaire</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.8);display:flex;gap:7px;"><span style="color:#c084fc;">✓</span> Coaching visibilité offert</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Tout du plan Gratuit</strong></div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Badge ⭐ Pro visible</strong> par tous les clients</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Priorité absolue</strong> dans les résultats de recherche</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Top du classement</strong> garanti dans ton métier</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Page commerciale dédiée</strong> (ta landing page perso)</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Statistiques de vues et contacts reçus</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Gestion avis prioritaire</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Support KALA prioritaire</div>
             </div>
-            <button id="btn-plan-Patron" class="btn" style="width:100%;justify-content:center;background:#c084fc;color:white;" onclick="upgradePlan('Patron',6500)">Devenir Patron →</button>
+            <button id="btn-plan-Pro" class="btn btn-or" style="width:100%;justify-content:center;font-size:15px;" onclick="upgradePlan('Pro',2500)">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
           </div>
         </div>
 
@@ -2651,19 +2686,36 @@ async function fetchPrestataires(opts = {}) {
     ? (conditions.length === 1 ? conditions[0] : `AND(${conditions.join(',')})`)
     : '';
 
-  let url = `${AT_URL('Prestataires')}?maxRecords=50&sort[0][field]=Nom%20complet&sort[0][direction]=asc`;
+  let url = `${AT_URL('Prestataires')}?maxRecords=50&sort[0][field]=Note%20moyenne&sort[0][direction]=desc`;
   if (formula) url += `&filterByFormula=${encodeURIComponent(formula)}`;
 
   const res = await fetch(url, { headers: AT_HEADERS });
   if (!res.ok) throw new Error(`Airtable error ${res.status}`);
   const data = await res.json();
-  return data.records || [];
+  const records = data.records || [];
+
+  // ⭐ Algorithme priorité : Pro en tête, puis par note décroissante
+  records.sort((a, b) => {
+    const aPlan = a.fields['Abonnement'] || 'Base';
+    const bPlan = b.fields['Abonnement'] || 'Base';
+    const aIsPro = (aPlan === 'Pro' || aPlan === 'Patron');
+    const bIsPro = (bPlan === 'Pro' || bPlan === 'Patron');
+    const aDispo = a.fields['Disponible maintenant'] ? 1 : 0;
+    const bDispo = b.fields['Disponible maintenant'] ? 1 : 0;
+    const aNote = a.fields['Note moyenne'] || 0;
+    const bNote = b.fields['Note moyenne'] || 0;
+    // Ordre : Pro dispo > Pro non dispo > Base dispo > Base non dispo, puis par note
+    const aScore = (aIsPro ? 100 : 0) + (aDispo ? 10 : 0) + aNote;
+    const bScore = (bIsPro ? 100 : 0) + (bDispo ? 10 : 0) + bNote;
+    return bScore - aScore;
+  });
+  return records;
 }
 
 // Données de démo affichées si Airtable est inaccessible (preview uniquement)
 const MOCK_PRESTATAIRES = [
-  { id:'mock1', fields:{ 'Nom complet':'Aminata Kokou','Métier principal':'Esthéticienne','Quartier':'Adidogomé','Disponible maintenant':true,'Tarif minimum FCFA':3000,'Note moyenne':4.9,'Nombre d\'avis reçus':47,'Description des services':'Spécialiste onglerie, maquillage et soins visage. 5 ans d\'expérience à Lomé.' }},
-  { id:'mock2', fields:{ 'Nom complet':'Kofi Mensah','Métier principal':'Électricien','Quartier':'Tokoin','Disponible maintenant':true,'Tarif minimum FCFA':5000,'Note moyenne':4.7,'Nombre d\'avis reçus':31,'Description des services':'Installations électriques, dépannage, mise aux normes. Rapide et sérieux.' }},
+  { id:'mock1', fields:{ 'Nom complet':'Aminata Kokou','Métier principal':'Esthéticienne','Quartier':'Adidogomé','Disponible maintenant':true,'Tarif minimum FCFA':3000,'Note moyenne':4.9,'Nombre d\'avis reçus':47,'Description des services':'Spécialiste onglerie, maquillage et soins visage. 5 ans d\'expérience à Lomé.','Abonnement':'Pro' }},
+  { id:'mock2', fields:{ 'Nom complet':'Kofi Mensah','Métier principal':'Électricien','Quartier':'Tokoin','Disponible maintenant':true,'Tarif minimum FCFA':5000,'Note moyenne':4.7,'Nombre d\'avis reçus':31,'Description des services':'Installations électriques, dépannage, mise aux normes. Rapide et sérieux.','Abonnement':'Pro' }},
   { id:'mock3', fields:{ 'Nom complet':'Ama Sénamé','Métier principal':'Couturier/Couturière','Quartier':'Bè','Disponible maintenant':false,'Tarif minimum FCFA':2500,'Note moyenne':5.0,'Nombre d\'avis reçus':18,'Description des services':'Robes de fête, tenues africaines sur mesure, retouches.' }},
   { id:'mock4', fields:{ 'Nom complet':'Yaovi Agbeko','Métier principal':'Menuisier','Quartier':'Hédzranawoé','Disponible maintenant':true,'Tarif minimum FCFA':8000,'Note moyenne':4.5,'Nombre d\'avis reçus':22,'Description des services':'Meubles sur mesure, portes, fenêtres, agencement intérieur.' }},
   { id:'mock5', fields:{ 'Nom complet':'Akossiwa Dossou','Métier principal':'Coiffeur/Coiffeuse','Quartier':'Agoè','Disponible maintenant':true,'Tarif minimum FCFA':1500,'Note moyenne':4.8,'Nombre d\'avis reçus':63,'Description des services':'Tresses, tissages, soins capillaires naturels. Déplacement possible.' }},
@@ -2727,7 +2779,8 @@ function renderCard(record) {
         </div>
         <div class="pcard-badges">
           <span class="badge badge-vert" style="font-size:11px;">${emoji} ${metier}</span>
-          ${verifie ? '<span class="badge badge-or" style="font-size:11px;">✓ Vérifié</span>' : ''}
+          ${f['Abonnement'] === 'Pro' || f['Abonnement'] === 'Patron' ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,var(--or),#f59e0b);color:white;">⭐ Pro</span>' : ''}
+          ${verifie ? '<span class="badge" style="font-size:11px;background:var(--vert-light);color:var(--vert);">✓ Vérifié</span>' : ''}
         </div>
         <div class="pcard-rating">
           <span class="stars" style="font-size:13px;">${renderStars(note)}</span>
@@ -3427,7 +3480,7 @@ const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_VOTRE_CLE_ICI';
 
 const PLAN_CONFIG = {
   Pro:    { amount: 2500,  label: 'KalaTogo Plan Pro — 1 mois',    badge: '⭐ Pro',    color: 'var(--or)' },
-  Patron: { amount: 6500,  label: 'KalaTogo Plan Patron — 1 mois', badge: '👑 Patron', color: '#c084fc' }
+  // Patron plan removed — merged into Pro
 };
 
 function loadAbonnement() {
@@ -3540,7 +3593,7 @@ async function onPaymentSuccess(plan) {
       // Commission parrain — 20% si référé par quelqu'un
       const parrainCode = currentPrestataire.fields['Parrain Code'];
       if (parrainCode) {
-        const planAmounts = { Pro: 2500, Patron: 6500 };
+        const planAmounts = { Pro: 2500 };
         const commAmount = Math.floor((planAmounts[plan] || 0) * 0.40);
         if (commAmount > 0) await addCommissionToParrain(parrainCode, commAmount);
       }
@@ -3702,48 +3755,62 @@ initHome();
         <p style="color:rgba(255,255,255,0.6);font-size:16px;margin-top:12px;max-width:540px;margin-left:auto;margin-right:auto;">On ne cache rien. Voici exactement comment ça fonctionne financièrement.</p>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:48px;">
-        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(255,255,255,0.1);text-align:center;">
+      <!-- Tableau comparatif 2 plans -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:48px;max-width:860px;margin-left:auto;margin-right:auto;">
+
+        <!-- Plan Gratuit -->
+        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:32px;border:1.5px solid rgba(255,255,255,0.1);">
           <div style="font-size:40px;margin-bottom:16px;">🆓</div>
-          <h3 style="color:white;font-family:Fraunces,serif;font-size:20px;font-weight:700;margin-bottom:8px;">Plan Base</h3>
-          <div style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:var(--vert);margin-bottom:8px;">Gratuit</div>
-          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:16px;">Pour débuter sur KALA</p>
-          <div style="text-align:left;display:flex;flex-direction:column;gap:8px;">
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Profil visible sur KalaTogo</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Photos de réalisations</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Contact WhatsApp direct</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Système d'avis clients</div>
+          <h3 style="color:white;font-family:Fraunces,serif;font-size:22px;font-weight:700;margin-bottom:8px;">Plan Gratuit</h3>
+          <div style="font-family:Fraunces,serif;font-size:38px;font-weight:900;color:var(--vert);margin-bottom:8px;">0 FCFA</div>
+          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:20px;">Pour démarrer ta visibilité en ligne</p>
+          <div style="text-align:left;display:flex;flex-direction:column;gap:10px;">
+            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Profil visible sur KalaTogo</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Photos de réalisations (portfolio)</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Contact WhatsApp direct</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Système d'avis clients</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--vert);">✓</span> Programme parrainage 40%</div>
+            <div style="height:1px;background:rgba(255,255,255,0.08);margin:6px 0;"></div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Priorité dans les résultats</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Badge Pro visible</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Page commerciale dédiée</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Stats de vues et contacts</div>
           </div>
+          <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:24px;" onclick="showPage('inscription')">Commencer gratuitement</button>
         </div>
 
-        <div style="background:linear-gradient(135deg,rgba(27,122,74,0.2),rgba(232,148,10,0.1));border-radius:20px;padding:28px;border:1.5px solid var(--vert);text-align:center;position:relative;">
-          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--or);color:var(--noir);font-size:11px;font-weight:700;padding:4px 14px;border-radius:100px;white-space:nowrap;">⭐ POPULAIRE</div>
+        <!-- Plan Pro -->
+        <div style="background:linear-gradient(135deg,rgba(232,148,10,0.15),rgba(27,122,74,0.1));border-radius:20px;padding:32px;border:2px solid var(--or);position:relative;">
+          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--or),#f59e0b);color:white;font-size:11px;font-weight:800;padding:5px 18px;border-radius:100px;white-space:nowrap;box-shadow:0 4px 12px rgba(232,148,10,0.4);">🔥 PASSE AU NIVEAU SUPÉRIEUR</div>
           <div style="font-size:40px;margin-bottom:16px;">🚀</div>
-          <h3 style="color:white;font-family:Fraunces,serif;font-size:20px;font-weight:700;margin-bottom:8px;">Plan Pro</h3>
-          <div style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:var(--or);margin-bottom:4px;">2 500 <span style="font-size:18px;">FCFA</span></div>
-          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:16px;">par mois · ~4€</p>
-          <div style="text-align:left;display:flex;flex-direction:column;gap:8px;">
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Tout du plan Base</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Badge "Pro" visible</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Priorité dans les résultats</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Stats de vues et contacts</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Support prioritaire</div>
+          <h3 style="color:white;font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:8px;">Plan Pro</h3>
+          <div style="font-family:Fraunces,serif;font-size:38px;font-weight:900;color:var(--or);margin-bottom:4px;">2 500 <span style="font-size:18px;">FCFA</span></div>
+          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:8px;">par mois · environ 4€ · résiliable à tout moment</p>
+          <div style="background:rgba(232,148,10,0.15);border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:13px;color:var(--or);font-weight:700;">
+            ⚡ Amortissable dès 1 ou 2 clients supplémentaires par mois
           </div>
+          <div style="text-align:left;display:flex;flex-direction:column;gap:10px;">
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> <strong style="color:white;">Tout du plan Gratuit</strong></div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> <strong style="color:white;">Badge ⭐ Pro</strong> — vu par chaque client</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> <strong style="color:white;">Priorité absolue</strong> dans les résultats de recherche</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> <strong style="color:white;">Top du classement</strong> garanti dans ton métier</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> <strong style="color:white;">Page commerciale dédiée</strong> — ta propre vitrine</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Statistiques de vues et contacts reçus</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Gestion d'avis prioritaire</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.8);display:flex;gap:8px;"><span style="color:var(--or);">✓</span> Support KALA en priorité</div>
+          </div>
+          <button class="btn btn-or btn-lg" style="width:100%;justify-content:center;margin-top:24px;" onclick="showPage('inscription')">🚀 Démarrer en Pro →</button>
         </div>
+      </div>
 
-        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(255,255,255,0.1);text-align:center;">
-          <div style="font-size:40px;margin-bottom:16px;">👑</div>
-          <h3 style="color:white;font-family:Fraunces,serif;font-size:20px;font-weight:700;margin-bottom:8px;">Plan Patron</h3>
-          <div style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:#c084fc;margin-bottom:4px;">6 500 <span style="font-size:18px;">FCFA</span></div>
-          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:16px;">par mois · ~10€</p>
-          <div style="text-align:left;display:flex;flex-direction:column;gap:8px;">
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#c084fc;">✓</span> Tout du plan Pro</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#c084fc;">✓</span> Top du classement garanti</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#c084fc;">✓</span> Page commerciale dédiée</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#c084fc;">✓</span> Accès programme Ambassadeur</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#c084fc;">✓</span> Participation Tirage KALA</div>
-          </div>
-        </div>
+      <!-- Bloc ROI concret -->
+      <div style="background:rgba(27,122,74,0.1);border:1.5px solid rgba(27,122,74,0.3);border-radius:20px;padding:28px;max-width:860px;margin:0 auto 40px;text-align:center;">
+        <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;margin-bottom:10px;">🧮 Le calcul est simple</h3>
+        <p style="color:rgba(255,255,255,0.7);font-size:15px;line-height:1.8;max-width:640px;margin:0 auto;">
+          Le Plan Pro coûte <strong style="color:var(--or);">2 500 FCFA/mois</strong>. À Lomé, une prestation moyenne coûte entre 3 000 et 15 000 FCFA.<br>
+          <strong style="color:white;">1 à 2 nouveaux clients par mois suffisent pour l'amortir.</strong><br>
+          Le reste — 10, 20, 30 nouveaux clients — c'est du pur bénéfice.
+        </p>
       </div>
 
       <!-- Paiement TMoney/Flooz -->
@@ -4096,12 +4163,18 @@ initHome();
 <script>
 // FAQ DATA
 const faqData = [
-  { q: "C'est gratuit pour toujours ?", a: "Le plan Base est gratuit à vie. Tu crées ton profil, tu es visible, tu reçois des clients — sans payer un seul franc. Les plans Pro et Patron sont optionnels et te donnent plus de visibilité." },
-  { q: "Est-ce que KALA prend une commission sur mes prestations ?", a: "Non. Zéro commission sur tes prestations. Tu travailles, tu encaisses — entièrement. Tu négocie tes prix directement avec ton client. KALA ne touche jamais l'argent de tes prestations." },
+  { q: "C'est gratuit pour toujours ?", a: "Le plan Gratuit est à vie. Tu crées ton profil, tu es visible, tu reçois des clients — sans payer un seul franc. Le Plan Pro (2 500 FCFA/mois) est optionnel et te place en tête des résultats avec bien plus de visibilité." },
+  { q: "Quel est l'avantage concret du Plan Pro ?", a: "Sur KALA, les profils Pro apparaissent en PREMIER dans les résultats de recherche — avant tous les profils gratuits. Concrètement, quand un client cherche un coiffeur à Adidogomé, il voit les Pro en premier. Tu as aussi le badge ⭐ Pro visible, une page commerciale dédiée (ta propre vitrine cliquable), les stats de vues, et le top du classement garanti dans ton métier. À 2 500 FCFA/mois (~4€), c'est rentabilisé dès 1 ou 2 nouveaux clients." },
+  { q: "Est-ce que KALA prend une commission sur mes prestations ?", a: "Non. Zéro commission sur tes prestations. Tu travailles, tu encaisses — entièrement. Tu négocies tes prix directement avec ton client. KALA ne touche jamais l'argent de tes prestations." },
+  { q: "Comment fonctionne le programme de parrainage ?", a: "Dès ton inscription, tu reçois un lien de parrainage unique. Partage-le à des artisans, des prestataires de ton réseau. Quand l'un d'eux prend le Plan Pro, tu touches 40% de son abonnement chaque mois — automatiquement. 10 filleuls actifs = 10 000 FCFA/mois. 50 filleuls = 50 000 FCFA/mois. C'est une vraie source de revenu récurrent." },
+  { q: "Est-ce que le parrainage est réservé aux abonnés Pro ?", a: "Non. Le programme de parrainage est ouvert à TOUS les prestataires inscrits sur KALA — plan Gratuit inclus. Dès ton inscription, tu reçois ton code parrainage unique et tu peux commencer à parrainer. Les commissions de 40% sont valables pour tout le monde." },
+  { q: "Est-ce que je peux parrainer via TikTok ou Instagram ?", a: "Absolument — et c'est même la meilleure façon. Si tu as une communauté sur TikTok, Instagram ou WhatsApp, ton lien de parrainage peut devenir une vraie source de revenus mensuels. Chaque personne de ta communauté qui s'inscrit via ton lien te rapporte 40% de son abonnement chaque mois. Avec une audience de 500 à 1000 abonnés engagés, tu peux générer plusieurs dizaines de milliers de FCFA par mois de façon récurrente." },
+  { q: "Comment recevoir mes commissions de parrainage ?", a: "Tes commissions s'accumulent dans ton tableau de bord KALA (section Parrainage). Quand tu veux les retirer, tu fais une demande depuis le dashboard — paiement via TMoney, Flooz ou Wave sous 24-48h. Le minimum de retrait est de 500 FCFA." },
   { q: "Comment les clients me paient ?", a: "Directement — cash, TMoney, Flooz, comme vous voulez. Le paiement se règle entre toi et ton client. KALA ne s'interpose pas dans cette transaction." },
-  { q: "Est-ce que n'importe qui peut s'inscrire ?", a: "Tout prestataire sérieux peut s'inscrire. Menuisier, coiffeur, électricien, photographe, cuisinier, mécanicien... Si tu as un vrai métier, tu as ta place sur KALA. On vérifie les profils pour garantir la qualité." },
+  { q: "Est-ce que n'importe qui peut s'inscrire ?", a: "Tout prestataire sérieux peut s'inscrire. Menuisier, coiffeur, électricien, photographe, cuisinier, mécanicien, zémidjan, chauffeur voiture... Si tu as un vrai métier, tu as ta place sur KALA. On vérifie les profils pour garantir la qualité." },
   { q: "Est-ce que KALA est disponible en dehors de Lomé ?", a: "Pour l'instant on se concentre sur Lomé pour garantir la qualité. L'expansion vers d'autres villes du Togo, puis vers les pays voisins, est prévue en 2027." },
   { q: "Comment fonctionne le badge Vérifié ?", a: "L'équipe KALA vérifie manuellement les profils qui demandent la vérification. Identité, métier, numéro de téléphone actif. Une fois vérifié, ton badge ✓ est permanent et renforce ta crédibilité auprès des clients." },
+  { q: "Je suis créateur TikTok — est-ce que KALA peut m'intéresser ?", a: "Oui, directement. Sur TikTok au Togo, les artisans et prestataires qui montrent leur travail explosent. KALA t'offre deux choses : 1) Une plateforme professionnelle où tes abonnés TikTok peuvent te trouver et te contacter facilement. 2) Un programme de parrainage où chaque abonné TikTok que tu envoies sur KALA te rapporte 40% de revenu récurrent. Une communauté TikTok active est littéralement une machine à revenus passifs avec le système de parrainage KALA." },
 ];
 
 function renderFAQ() {
