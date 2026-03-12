@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KalaTogo — Ton talent mérite d'être trouvé</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -888,9 +890,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <div class="container hero-content">
       <div class="hero-grid">
         <div>
-          <div class="hero-eyebrow">✦ Lomé, Togo · Lancé 2026</div>
+          <div class="hero-eyebrow">✦ Togo · Partout dans le pays · Lancé 2026</div>
           <h1 class="hero-title">Ton <em>talent</em><br>mérite d'être<br><span class="gold">trouvé.</span> <span class="hero-live-badge"><span class="hero-live-dot"></span>En ligne</span></h1>
-          <p class="hero-sub">KalaTogo connecte les meilleurs artisans et prestataires de <strong style="color:var(--vert);">Lomé</strong> avec les clients qui les cherchent. <strong>Gratuit pour commencer.</strong> Visible dès aujourd'hui.</p>
+          <p class="hero-sub">KalaTogo connecte les meilleurs artisans et prestataires de <strong style="color:var(--vert);">tout le Togo</strong> avec les clients qui les cherchent. <strong>Gratuit pour commencer.</strong> Visible dès aujourd'hui.</p>
           <div class="hero-actions">
             <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">✦ Créer mon profil</button>
             <button class="btn btn-secondary btn-lg" onclick="showPage('search')">Trouver un pro</button>
@@ -948,8 +950,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <div class="metric-label">Métiers disponibles</div>
         </div>
         <div class="metric">
-          <div class="metric-num">12</div>
-          <div class="metric-label">Quartiers couverts</div>
+          <div class="metric-num">🇹🇬</div>
+          <div class="metric-label">Partout au Togo</div>
         </div>
         <div class="metric">
           <div class="metric-num">0%</div>
@@ -976,14 +978,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <option>Chauffeur</option><option>Livreur</option>
           <option>Informaticien</option><option>Graphiste</option><option>Autre</option>
         </select>
-        <select id="home-search-quartier">
-          <option value="">Tous les quartiers</option>
-          <option>Adidogomé</option><option>Bè</option><option>Tokoin</option>
-          <option>Djidjolé</option><option>Akossombo</option>
-          <option>Hédzranawoé</option><option>Kégué</option>
-          <option>Agbalépédogan</option><option>Baguida</option>
-          <option>Agoè</option><option>Cacaveli</option><option>Autre</option>
-        </select>
+        <select id="home-search-quartier"><option value="">Toutes les villes</option></select>
         <button class="search-bar-btn" onclick="doSearch()">🔍 Rechercher</button>
       </div>
       <div class="quick-filters">
@@ -1008,7 +1003,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
         <div>
           <div class="badge" style="background:rgba(232,148,10,0.2);color:var(--or);margin-bottom:16px;">🏍️ Chauffeurs & Zémidjans</div>
-          <h2 style="font-family:Fraunces,serif;font-size:clamp(24px,3vw,36px);font-weight:900;color:white;margin-bottom:16px;">Ta <em style="color:var(--or);">carte de visite digitale.</em><br>Visible par tout Lomé.</h2>
+          <h2 style="font-family:Fraunces,serif;font-size:clamp(24px,3vw,36px);font-weight:900;color:white;margin-bottom:16px;">Ta <em style="color:var(--or);">carte de visite digitale.</em><br>Visible dans tout le Togo.</h2>
           <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.7;margin-bottom:20px;">
             Fini d'attendre au garage ou au coin de rue. Avec KalaTogo, des clients te trouvent <strong style="color:white;">directement sur leur téléphone</strong> — même la nuit, même le weekend.
           </p>
@@ -1060,7 +1055,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   <section style="background:var(--vert);padding:72px 0;">
     <div class="container" style="text-align:center;">
       <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;margin-bottom:16px;">Ton talent mérite d'être trouvé.</h2>
-      <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;">Crée ton profil gratuit en 10 minutes et commence à recevoir des clients de tout Lomé.</p>
+      <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;">Crée ton profil gratuit en 10 minutes et commence à recevoir des clients de tout le Togo.</p>
       <button class="btn btn-or btn-lg" onclick="showPage('inscription')">✦ Créer mon profil gratuit</button>
     </div>
   </section>
@@ -1174,7 +1169,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </div>
       </div>
 
-      <!-- Témoignage fictif / social proof -->
+
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:52px;">
         <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
           <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
@@ -1230,7 +1225,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <div class="footer-grid">
         <div>
           <div class="footer-logo">KALA<span>TOGO</span></div>
-          <p class="footer-desc">La première plateforme togolaise qui connecte les artisans et prestataires de Lomé avec leurs clients.</p>
+          <p class="footer-desc">La première plateforme nationale qui connecte les artisans et prestataires du Togo avec leurs clients.</p>
         </div>
         <div class="footer-col">
           <h4>Plateforme</h4>
@@ -1246,7 +1241,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 KalaTogo · Lomé, Togo</span>
+        <span>© 2026 KalaTogo · Togo</span>
         <span>Fait avec ❤️ pour l'économie togolaise</span>
       </div>
     </div>
@@ -1259,7 +1254,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div class="badge" style="background:rgba(232,148,10,0.15);color:var(--or);margin-bottom:14px;">💰 Programme de parrainage</div>
         <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;">Gagne <em style="color:var(--or);">40% récurrents</em><br>en parrainant d'autres prestataires</h2>
         <p style="color:rgba(255,255,255,0.6);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">
-          Tu connais des artisans, des coiffeurs, des zémidjan, des menuisiers à Lomé ? Chaque fois qu'ils paient leur abonnement, toi tu touches 40%. Chaque mois. Automatiquement.
+          Tu connais des artisans, des coiffeurs, des zémidjan, des menuisiers au Togo ? Chaque fois qu'ils paient leur abonnement, toi tu touches 40%. Chaque mois. Automatiquement.
         </p>
       </div>
 
@@ -1346,14 +1341,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <option>Livreur</option><option>Informaticien</option>
           <option>Graphiste</option><option>Autre</option>
         </select>
-        <select id="s-quartier" onchange="loadSearch()">
-          <option value="">Tous les quartiers</option>
-          <option>Adidogomé</option><option>Bè</option><option>Tokoin</option>
-          <option>Djidjolé</option><option>Akossombo</option>
-          <option>Hédzranawoé</option><option>Kégué</option>
-          <option>Agbalépédogan</option><option>Baguida</option>
-          <option>Agoè</option><option>Cacaveli</option><option>Autre</option>
-        </select>
+        <select id="s-quartier" onchange="loadSearch()"><option value="">Toutes les villes</option></select>
         <button class="search-bar-btn" onclick="loadSearch()">🔍 Rechercher</button>
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;">
@@ -1410,7 +1398,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <div id="form-success" class="form-success">
       <div class="success-icon">✓</div>
       <h2 style="font-family:Fraunces,serif;font-size:28px;font-weight:900;margin-bottom:12px;">Profil créé !</h2>
-      <p style="color:var(--gris);margin-bottom:32px;">Tu es maintenant visible sur KalaTogo. Les clients de Lomé peuvent te trouver.</p>
+      <p style="color:var(--gris);margin-bottom:32px;">Tu es maintenant visible sur KalaTogo. Les clients de tout le Togo peuvent te trouver.</p>
       <button class="btn btn-primary btn-lg" onclick="showPage('search')">Voir les autres prestataires</button>
     </div>
 
@@ -1535,16 +1523,26 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             </select>
           </div>
           <div class="form-group">
-            <label>Quartier <span class="req">*</span></label>
-            <select id="f-quartier" required>
-              <option value="">Choisir...</option>
-              <option>Adidogomé</option><option>Bè</option><option>Tokoin</option>
-              <option>Djidjolé</option><option>Akossombo</option>
-              <option>Hédzranawoé</option><option>Kégué</option>
-              <option>Agbalépédogan</option><option>Baguida</option>
-              <option>Agoè</option><option>Cacaveli</option>
-              <option>Nyékonakpoè</option><option>Kodjoviakopé</option><option>Autre</option>
+            <label>Ville <span class="req">*</span></label>
+            <select id="f-ville" required onchange="buildQuartierOptions('f-ville','f-quartier')">
+              <option value="">Sélectionne ta ville</option>
             </select>
+            <label style="margin-top:12px;">Quartier / Zone</label>
+            <select id="f-quartier">
+              <option value="">D'abord choisir la ville ↑</option>
+            </select>
+            <!-- GÉOLOCALISATION -->
+            <div style="margin-top:16px;padding:16px;background:var(--vert-light);border-radius:12px;">
+              <label style="color:var(--vert);font-weight:700;">📍 Localisation GPS de ton commerce <span style="font-size:11px;color:var(--gris);font-weight:400;">(optionnel)</span></label>
+              <p style="font-size:12px;color:var(--gris);margin-bottom:10px;">Permets aux clients de te trouver sur la carte. Clique sur le bouton puis ajuste le marqueur.</p>
+              <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="detecterPosition()" id="btn-geolocate" style="flex:1;min-width:180px;">📍 Détecter ma position GPS</button>
+                <span id="geo-status" style="font-size:12px;color:var(--vert);font-weight:600;"></span>
+              </div>
+              <div id="map-inscription" style="height:220px;border-radius:10px;border:1.5px solid rgba(27,122,74,0.2);overflow:hidden;display:none;"></div>
+              <input type="hidden" id="f-latitude">
+              <input type="hidden" id="f-longitude">
+            </div>
           </div>
         </div>
 
@@ -1859,15 +1857,13 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
               </select>
             </div>
             <div class="form-group">
-              <label>Quartier</label>
+              <label>Ville</label>
+              <select id="edit-ville" onchange="buildQuartierOptions('edit-ville','edit-quartier')">
+                <option value="">Sélectionne ta ville</option>
+              </select>
+              <label style="margin-top:10px;">Quartier / Zone</label>
               <select id="edit-quartier">
-                <option value="">Choisir...</option>
-                <option>Adidogomé</option><option>Bè</option><option>Tokoin</option>
-                <option>Djidjolé</option><option>Akossombo</option>
-                <option>Hédzranawoé</option><option>Kégué</option>
-                <option>Agbalépédogan</option><option>Baguida</option>
-                <option>Agoè</option><option>Cacaveli</option>
-                <option>Nyékonakpoè</option><option>Kodjoviakopé</option><option>Autre</option>
+                <option value="">D'abord choisir la ville ↑</option>
               </select>
             </div>
           </div>
@@ -2718,8 +2714,8 @@ const MOCK_PRESTATAIRES = [
   { id:'mock1', fields:{ 'Nom complet':'Aminata Kokou','Métier principal':'Esthéticienne','Quartier':'Adidogomé','Disponible maintenant':true,'Tarif minimum FCFA':3000,'Note moyenne':4.9,'Nombre d\'avis reçus':47,'Description des services':'Spécialiste onglerie, maquillage et soins visage. 5 ans d\'expérience à Lomé.','Abonnement':'Pro' }},
   { id:'mock2', fields:{ 'Nom complet':'Kofi Mensah','Métier principal':'Électricien','Quartier':'Tokoin','Disponible maintenant':true,'Tarif minimum FCFA':5000,'Note moyenne':4.7,'Nombre d\'avis reçus':31,'Description des services':'Installations électriques, dépannage, mise aux normes. Rapide et sérieux.','Abonnement':'Pro' }},
   { id:'mock3', fields:{ 'Nom complet':'Ama Sénamé','Métier principal':'Couturier/Couturière','Quartier':'Bè','Disponible maintenant':false,'Tarif minimum FCFA':2500,'Note moyenne':5.0,'Nombre d\'avis reçus':18,'Description des services':'Robes de fête, tenues africaines sur mesure, retouches.' }},
-  { id:'mock4', fields:{ 'Nom complet':'Yaovi Agbeko','Métier principal':'Menuisier','Quartier':'Hédzranawoé','Disponible maintenant':true,'Tarif minimum FCFA':8000,'Note moyenne':4.5,'Nombre d\'avis reçus':22,'Description des services':'Meubles sur mesure, portes, fenêtres, agencement intérieur.' }},
-  { id:'mock5', fields:{ 'Nom complet':'Akossiwa Dossou','Métier principal':'Coiffeur/Coiffeuse','Quartier':'Agoè','Disponible maintenant':true,'Tarif minimum FCFA':1500,'Note moyenne':4.8,'Nombre d\'avis reçus':63,'Description des services':'Tresses, tissages, soins capillaires naturels. Déplacement possible.' }},
+  { id:'mock4', fields:{ 'Nom complet':'Yaovi Agbeko','Métier principal':'Menuisier','Quartier':'Kpalimé','Disponible maintenant':true,'Tarif minimum FCFA':8000,'Note moyenne':4.5,'Nombre d\'avis reçus':22,'Description des services':'Meubles sur mesure, portes, fenêtres, agencement intérieur.' }},
+  { id:'mock5', fields:{ 'Nom complet':'Akossiwa Dossou','Métier principal':'Coiffeur/Coiffeuse','Quartier':'Sokodé','Disponible maintenant':true,'Tarif minimum FCFA':1500,'Note moyenne':4.8,'Nombre d\'avis reçus':63,'Description des services':'Tresses, tissages, soins capillaires naturels. Déplacement possible.' }},
   { id:'mock6', fields:{ 'Nom complet':'Edem Kpadé','Métier principal':'Photographe','Quartier':'Cacaveli','Disponible maintenant':false,'Tarif minimum FCFA':15000,'Note moyenne':4.9,'Nombre d\'avis reçus':9,'Description des services':'Mariages, événements, portraits pro, retouche photo.' }}
 ];
 
@@ -2797,10 +2793,184 @@ function renderCard(record) {
     </div>`;
 }
 
+
+// ══════════════════════════════════════════
+// DONNÉES GÉOGRAPHIQUES — TOUT LE TOGO
+// ══════════════════════════════════════════
+const TOGO_LOCALITES = {
+  "Lomé — Adidogomé":["Zanguéra","Légbassito","Tokoin-Ouest","Centre","Autre"],
+  "Lomé — Agoè-Nyivé":["Anfamé","Djidjolé-Nord","Gbossimé","Agoè-Assiyéyé","Autre"],
+  "Lomé — Agbalépédogan":["Agbalépédogan","Koma","Nouveau Koma","Autre"],
+  "Lomé — Amoutivé":["Centre commercial","Kodjoviakopé","Autre"],
+  "Lomé — Baguida":["Baguida","Baguida-Plage","Abobo","Autre"],
+  "Lomé — Bè":["Bè","Bè-Kpota","Bè-Klikamé","Autre"],
+  "Lomé — Cacaveli":["Cacaveli","Wuiti","Zone Ambassades","Autre"],
+  "Lomé — Djidjolé":["Djidjolé","Djidjolé-Nord","Djidjolé-Sud","Autre"],
+  "Lomé — Hédzranawoé":["Hédzranawoé","Nukafu","Autre"],
+  "Lomé — Kégué":["Kégué","Kégué-Plage","Zébé","Autre"],
+  "Lomé — Kodjoviakopé":["Kodjoviakopé","Port","Zone portuaire","Autre"],
+  "Lomé — Lomé Centre":["Marché central","Plateau","Quartier administratif","Autre"],
+  "Lomé — Nyékonakpoè":["Nyékonakpoè","Akodésséwa","Autre"],
+  "Lomé — Tokoin":["Tokoin","Tokoin-Est","Tokoin-Forêt","CHU Tokoin","Autre"],
+  "Tsévié":["Centre","Tsévié-Gare","Tsévié-Nord","Tsévié-Sud","Agbatopé","Autre"],
+  "Aného":["Centre","Glidji","Aného-Plage","Adjonou","Autre"],
+  "Vogan":["Centre","Vogan-Gare","Agbanakin","Autre"],
+  "Tabligbo":["Centre","Tabligbo-Gare","Autre"],
+  "Kpémé":["Centre","Kpémé-Plage","Autre"],
+  "Aflao":["Centre","Frontière Ghana","Autre"],
+  "Noépé":["Centre","Noépé-Marché","Autre"],
+  "Kévé":["Centre","Autre"],
+  "Kpalimé":["Centre","Kpalimé-Gare","Kpalimé-Est","Kpalimé-Ouest","Kpimé-Séwi","Adéta","Autre"],
+  "Atakpamé":["Centre","Akaba","Awèta","Atakpamé-Gare","Atakpamé-Nord","Autre"],
+  "Notsé":["Centre","Notsé-Gare","Notsé-Marché","Autre"],
+  "Badou":["Centre","Badou-Marché","Tomégbé","Autre"],
+  "Amlamé":["Centre","Amlamé-Marché","Autre"],
+  "Anié":["Centre","Anié-Gare","Autre"],
+  "Sokodé":["Centre","Sokodé-Est","Sokodé-Ouest","Tchaoudjo","Kpaza","Farendé","Autre"],
+  "Sotouboua":["Centre","Kambolé","Autre"],
+  "Blitta":["Centre","Blitta-Gare","Blitta-Marché","Autre"],
+  "Tchamba":["Centre","Tchamba-Marché","Autre"],
+  "Kara":["Centre","Kara-Est","Kara-Ouest","Tomdè","Lama-Kara","Tchré","Autre"],
+  "Bassar":["Centre","Bassar-Marché","Bassar-Gare","Autre"],
+  "Niamtougou":["Centre","Niamtougou-Aéroport","Another"],
+  "Kandé":["Centre","Kandé-Marché","Autre"],
+  "Guérin-Kouka":["Centre","Autre"],
+  "Bafilo":["Centre","Bafilo-Marché","Autre"],
+  "Dapaong":["Centre","Dapaong-Est","Dapaong-Ouest","Mandouri","Dapaong-Marché","Autre"],
+  "Mango":["Centre","Mango-Marché","Autre"],
+  "Cinkassé":["Centre","Frontière Burkina/Ghana","Autre"],
+  "Tandjoaré":["Centre","Autre"],
+  "Autre":["Autre / Non précisé"]
+};
+
+const TOGO_REGIONS = {
+  "🏙️ Lomé et environs": ["Lomé — Adidogomé","Lomé — Agoè-Nyivé","Lomé — Agbalépédogan","Lomé — Amoutivé","Lomé — Baguida","Lomé — Bè","Lomé — Cacaveli","Lomé — Djidjolé","Lomé — Hédzranawoé","Lomé — Kégué","Lomé — Kodjoviakopé","Lomé — Lomé Centre","Lomé — Nyékonakpoè","Lomé — Tokoin"],
+  "🌊 Région Maritime": ["Tsévié","Aného","Vogan","Tabligbo","Kpémé","Aflao","Noépé","Kévé"],
+  "🌿 Région des Plateaux": ["Kpalimé","Atakpamé","Notsé","Badou","Amlamé","Anié"],
+  "🏔️ Région Centrale": ["Sokodé","Sotouboua","Blitta","Tchamba"],
+  "⛰️ Région de la Kara": ["Kara","Bassar","Niamtougou","Kandé","Guérin-Kouka","Bafilo"],
+  "🌾 Région des Savanes": ["Dapaong","Mango","Cinkassé","Tandjoaré"]
+};
+
+function buildVilleOptions(selectId, currentVal) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const isSearch = selectId.includes('search') || selectId === 's-quartier';
+  sel.innerHTML = '<option value="">' + (isSearch ? 'Toutes les villes' : 'Sélectionne ta ville') + '</option>';
+  for (const region in TOGO_REGIONS) {
+    const grp = document.createElement('optgroup');
+    grp.label = region;
+    TOGO_REGIONS[region].forEach(ville => {
+      const opt = document.createElement('option');
+      opt.value = ville;
+      opt.textContent = ville;
+      if (currentVal && (currentVal === ville || currentVal.startsWith(ville.split(' — ')[1] || ville))) opt.selected = true;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  }
+  const autreOpt = document.createElement('option');
+  autreOpt.value = 'Autre';
+  autreOpt.textContent = 'Autre (non listé)';
+  sel.appendChild(autreOpt);
+}
+
+function buildQuartierOptions(villeSelectId, quartierSelectId) {
+  const vSel = document.getElementById(villeSelectId);
+  const qSel = document.getElementById(quartierSelectId);
+  if (!vSel || !qSel) return;
+  const ville = vSel.value;
+  qSel.innerHTML = '';
+  const opts = ['Autre / Non précisé'];
+  if (ville && TOGO_LOCALITES[ville]) {
+    TOGO_LOCALITES[ville].forEach(q => {
+      const o = document.createElement('option');
+      o.value = q; o.textContent = q;
+      qSel.appendChild(o);
+    });
+    return;
+  }
+  opts.forEach(q => {
+    const o = document.createElement('option');
+    o.value = q; o.textContent = q;
+    qSel.appendChild(o);
+  });
+}
+
+function getVilleQuartier(villeId, quartierId) {
+  const v = document.getElementById(villeId)?.value || '';
+  const q = document.getElementById(quartierId)?.value || '';
+  if (!v || v === 'Autre') return 'Autre';
+  if (!q || q === 'Autre / Non précisé' || q === 'Autre') return v;
+  return v + ' — ' + q;
+}
+
+// ══════════════════════════════════════════
+// GÉOLOCALISATION + CARTE LEAFLET
+// ══════════════════════════════════════════
+let _mapInscr = null, _markerInscr = null;
+
+function detecterPosition() {
+  const btn = document.getElementById('btn-geolocate');
+  const status = document.getElementById('geo-status');
+  if (!navigator.geolocation) { if(status) status.textContent='❌ GPS non supporté'; return; }
+  if(btn) { btn.textContent='⏳ Localisation...'; btn.disabled=true; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    const latIn = document.getElementById('f-latitude');
+    const lonIn = document.getElementById('f-longitude');
+    if(latIn) latIn.value = lat.toFixed(6);
+    if(lonIn) lonIn.value = lon.toFixed(6);
+    if(status) status.textContent = '✅ Position enregistrée';
+    if(btn) { btn.textContent='✅ GPS détecté'; btn.disabled=false; }
+    _afficherCarteInscription(lat, lon);
+  }, err => {
+    if(status) status.textContent='❌ Impossible. Active le GPS.';
+    if(btn) { btn.textContent='📍 Détecter ma position GPS'; btn.disabled=false; }
+  }, {enableHighAccuracy:true, timeout:12000});
+}
+
+function _afficherCarteInscription(lat, lon) {
+  const div = document.getElementById('map-inscription');
+  if (!div) return;
+  div.style.display = 'block';
+  if (!_mapInscr) {
+    _mapInscr = L.map('map-inscription').setView([lat,lon],15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(_mapInscr);
+    _markerInscr = L.marker([lat,lon],{draggable:true}).addTo(_mapInscr);
+    _markerInscr.bindPopup('<b>📍 Ton commerce</b><br><small>Glisse pour ajuster</small>').openPopup();
+    _markerInscr.on('dragend', e => {
+      const p = e.target.getLatLng();
+      const li = document.getElementById('f-latitude'), lo = document.getElementById('f-longitude');
+      if(li) li.value = p.lat.toFixed(6);
+      if(lo) lo.value = p.lng.toFixed(6);
+    });
+  } else {
+    _mapInscr.setView([lat,lon],15);
+    _markerInscr.setLatLng([lat,lon]);
+  }
+  setTimeout(()=>_mapInscr.invalidateSize(),300);
+}
+
+function afficherCarteProfil(lat, lon, nom) {
+  const div = document.getElementById('map-profil');
+  if (!div || !lat || !lon || isNaN(lat) || isNaN(lon)) return;
+  div.style.display = 'block';
+  const map = L.map('map-profil').setView([lat,lon],15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+  L.marker([lat,lon]).addTo(map).bindPopup('📍 ' + (nom||'Prestataire')).openPopup();
+  setTimeout(()=>map.invalidateSize(),300);
+}
+
 // ══════════════════════════════════════════
 // HOME
 // ══════════════════════════════════════════
 async function initHome() {
+  buildVilleOptions('home-search-quartier');
+  buildVilleOptions('s-quartier');
+  buildVilleOptions('f-ville');
+  buildVilleOptions('edit-ville');
+
   const container = document.getElementById('home-cards');
   try {
     const records = await fetchPrestataires({});
@@ -3163,7 +3333,7 @@ function nextStep(step) {
     }
     if (currentStep === 2) {
       const metier = document.getElementById('f-metier').value;
-      const quartier = document.getElementById('f-quartier').value;
+      const quartier = getVilleQuartier('f-ville','f-quartier');
       const desc = document.getElementById('f-description').value;
       if (!metier || !quartier || !desc.trim()) { toast('Métier, quartier et description obligatoires', 'error'); return; }
       // Vérifier les 3 photos
@@ -3916,7 +4086,7 @@ initHome();
       <div class="footer-grid">
         <div>
           <div class="footer-logo">KALA<span>TOGO</span></div>
-          <p class="footer-desc">La première plateforme togolaise qui connecte les artisans et prestataires de Lomé avec leurs clients.</p>
+          <p class="footer-desc">La première plateforme nationale qui connecte les artisans et prestataires du Togo avec leurs clients.</p>
         </div>
         <div class="footer-col">
           <h4>Plateforme</h4>
@@ -3933,7 +4103,7 @@ initHome();
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 KalaTogo · Lomé, Togo</span>
+        <span>© 2026 KalaTogo · Togo</span>
         <span>Fait avec ❤️ pour l'économie togolaise</span>
       </div>
     </div>
@@ -4137,7 +4307,7 @@ initHome();
       <div class="footer-grid">
         <div>
           <div class="footer-logo">KALA<span>TOGO</span></div>
-          <p class="footer-desc">La première plateforme togolaise qui connecte les artisans et prestataires de Lomé avec leurs clients.</p>
+          <p class="footer-desc">La première plateforme nationale qui connecte les artisans et prestataires du Togo avec leurs clients.</p>
         </div>
         <div class="footer-col">
           <h4>Plateforme</h4>
@@ -4154,7 +4324,7 @@ initHome();
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 KalaTogo · Lomé, Togo</span>
+        <span>© 2026 KalaTogo · Togo</span>
         <span>Fait avec ❤️ pour l'économie togolaise</span>
       </div>
     </div>
@@ -4173,7 +4343,7 @@ const faqData = [
   { q: "Comment recevoir mes commissions de parrainage ?", a: "Tes commissions s'accumulent dans ton tableau de bord KALA (section Parrainage). Quand tu veux les retirer, tu fais une demande depuis le dashboard — paiement via TMoney, Flooz ou Wave sous 24-48h. Le minimum de retrait est de 500 FCFA." },
   { q: "Comment les clients me paient ?", a: "Directement — cash, TMoney, Flooz, comme vous voulez. Le paiement se règle entre toi et ton client. KALA ne s'interpose pas dans cette transaction." },
   { q: "Est-ce que n'importe qui peut s'inscrire ?", a: "Tout prestataire sérieux peut s'inscrire. Menuisier, coiffeur, électricien, photographe, cuisinier, mécanicien, zémidjan, chauffeur voiture... Si tu as un vrai métier, tu as ta place sur KALA. On vérifie les profils pour garantir la qualité." },
-  { q: "Est-ce que KALA est disponible en dehors de Lomé ?", a: "Pour l'instant on se concentre sur Lomé pour garantir la qualité. L'expansion vers d'autres villes du Togo, puis vers les pays voisins, est prévue en 2027." },
+  { q: "Est-ce que KALA couvre tout le Togo ?", a: "Oui — KalaTogo est disponible dans toutes les villes et régions du Togo. Lomé, Kpalimé, Sokodé, Kara, Atakpamé, Dapaong, Tsévié, Aného... Peu importe où tu travailles, tu peux créer ton profil et être trouvé par des clients proches de toi." },
   { q: "Comment fonctionne le badge Vérifié ?", a: "L'équipe KALA vérifie manuellement les profils qui demandent la vérification. Identité, métier, numéro de téléphone actif. Une fois vérifié, ton badge ✓ est permanent et renforce ta crédibilité auprès des clients." },
   { q: "Je suis créateur TikTok — est-ce que KALA peut m'intéresser ?", a: "Oui, directement. Sur TikTok au Togo, les artisans et prestataires qui montrent leur travail explosent. KALA t'offre deux choses : 1) Une plateforme professionnelle où tes abonnés TikTok peuvent te trouver et te contacter facilement. 2) Un programme de parrainage où chaque abonné TikTok que tu envoies sur KALA te rapporte 40% de revenu récurrent. Une communauté TikTok active est littéralement une machine à revenus passifs avec le système de parrainage KALA." },
 ];
