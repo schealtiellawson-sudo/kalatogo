@@ -118,11 +118,109 @@ nav {
 .hero {
   padding: 80px 0 60px;
   position:relative; overflow:hidden;
+  background: linear-gradient(160deg, #f0faf4 0%, #fff8ed 40%, #ffffff 100%);
 }
 
 .hero-bg {
   position:absolute; inset:0; z-index:0;
-  background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(27,122,74,0.06) 0%, transparent 70%);
+  background:
+    radial-gradient(ellipse 70% 60% at 80% 30%, rgba(27,122,74,0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 10% 80%, rgba(232,148,10,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 50% 50%, rgba(27,122,74,0.04) 0%, transparent 70%);
+  animation: heroBgPulse 8s ease-in-out infinite alternate;
+}
+@keyframes heroBgPulse {
+  0%   { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 1;   transform: scale(1.04); }
+}
+
+/* Particules décoratives flottantes */
+.hero-particles { position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.hero-particle {
+  position:absolute; border-radius:50%;
+  background:linear-gradient(135deg,rgba(27,122,74,0.15),rgba(232,148,10,0.10));
+  animation: particleFloat linear infinite;
+}
+.hp1 { width:180px; height:180px; top:-40px; right:8%; animation-duration:18s; animation-delay:-3s; }
+.hp2 { width:90px;  height:90px;  top:30%;  left:2%;  animation-duration:14s; animation-delay:-7s; opacity:0.7; }
+.hp3 { width:140px; height:140px; bottom:-20px; right:25%; animation-duration:20s; animation-delay:-1s; opacity:0.5; }
+.hp4 { width:60px;  height:60px;  top:10%;  left:30%; animation-duration:11s; animation-delay:-5s; opacity:0.6; }
+.hp5 { width:200px; height:200px; bottom:-60px; left:-40px; background:linear-gradient(135deg,rgba(232,148,10,0.08),rgba(27,122,74,0.06)); animation-duration:22s; animation-delay:-9s; }
+@keyframes particleFloat {
+  0%   { transform: translateY(0) rotate(0deg); }
+  50%  { transform: translateY(-30px) rotate(180deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+
+/* Points décoratifs grille */
+.hero-dots {
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background-image: radial-gradient(rgba(27,122,74,0.12) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 60% 80% at 70% 40%, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 80% at 70% 40%, black 0%, transparent 70%);
+}
+
+/* Animations d'entrée staggered */
+.hero-eyebrow { animation: heroSlideUp 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+h1.hero-title  { animation: heroSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+.hero-sub      { animation: heroSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s both; }
+.hero-actions  { animation: heroSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.3s both; }
+.hero-proof    { animation: heroSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.4s both; }
+.hero-visual   { animation: heroFadeIn  0.9s cubic-bezier(0.22,1,0.36,1) 0.2s both; }
+@keyframes heroSlideUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes heroFadeIn {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+/* Badge eyebrow amélioré */
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg, var(--or-light), rgba(27,122,74,0.08));
+  color:var(--or); border:1px solid rgba(232,148,10,0.25);
+  padding:7px 18px; border-radius:100px;
+  font-size:12px; font-weight:700; letter-spacing:1px;
+  text-transform:uppercase; margin-bottom:28px;
+  box-shadow: 0 2px 12px rgba(232,148,10,0.15);
+}
+
+/* Glow sur le mot "trouvé" */
+h1 .gold {
+  color:var(--or);
+  text-shadow: 0 0 40px rgba(232,148,10,0.25);
+}
+h1 em {
+  color:var(--vert);
+  position:relative;
+}
+h1 em::after {
+  content:'';
+  position:absolute; bottom:-4px; left:0; right:0;
+  height:3px; border-radius:2px;
+  background:linear-gradient(90deg, var(--vert), var(--or));
+  animation: underlineGrow 0.8s cubic-bezier(0.22,1,0.36,1) 0.5s both;
+  transform-origin: left;
+}
+@keyframes underlineGrow {
+  from { transform: scaleX(0); opacity:0; }
+  to   { transform: scaleX(1); opacity:1; }
+}
+
+/* Marqueur "live" animé */
+.hero-live-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(22,163,74,0.1); color:#16a34a;
+  border:1px solid rgba(22,163,74,0.2);
+  padding:4px 12px; border-radius:100px; font-size:11px; font-weight:700;
+  margin-left:10px;
+}
+.hero-live-dot {
+  width:6px; height:6px; border-radius:50%; background:#16a34a;
+  animation:pulse 2s infinite;
 }
 
 .hero-content { position:relative; z-index:1; }
@@ -778,12 +876,20 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   <!-- HERO -->
   <section class="hero">
     <div class="hero-bg"></div>
+    <div class="hero-dots"></div>
+    <div class="hero-particles">
+      <div class="hero-particle hp1"></div>
+      <div class="hero-particle hp2"></div>
+      <div class="hero-particle hp3"></div>
+      <div class="hero-particle hp4"></div>
+      <div class="hero-particle hp5"></div>
+    </div>
     <div class="container hero-content">
       <div class="hero-grid">
         <div>
           <div class="hero-eyebrow">✦ Lomé, Togo · Lancé 2026</div>
-          <h1>Ton <em>talent</em><br>mérite d'être<br><span class="gold">trouvé.</span></h1>
-          <p class="hero-sub">KalaTogo connecte les meilleurs artisans et prestataires de Lomé avec les clients qui les cherchent. Gratuit pour commencer.</p>
+          <h1 class="hero-title">Ton <em>talent</em><br>mérite d'être<br><span class="gold">trouvé.</span> <span class="hero-live-badge"><span class="hero-live-dot"></span>En ligne</span></h1>
+          <p class="hero-sub">KalaTogo connecte les meilleurs artisans et prestataires de <strong style="color:var(--vert);">Lomé</strong> avec les clients qui les cherchent. <strong>Gratuit pour commencer.</strong> Visible dès aujourd'hui.</p>
           <div class="hero-actions">
             <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">✦ Créer mon profil</button>
             <button class="btn btn-secondary btn-lg" onclick="showPage('search')">Trouver un pro</button>
@@ -973,7 +1079,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <p style="color:rgba(255,255,255,0.65);font-size:16px;line-height:1.7;margin-bottom:20px;">
             Fin de mois difficile. Loyer à payer. Frais de scolarité qui arrivent. Tu connais ça.
             <br><br>
-            KalaTogo a une réponse : <strong style="color:white;">parraine des prestataires, touche 20% de leurs abonnements — chaque mois, automatiquement.</strong>
+            KalaTogo a une réponse : <strong style="color:white;">parraine des prestataires, touche 40% de leurs abonnements — chaque mois, automatiquement.</strong>
           </p>
           <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin-bottom:28px;">
             C'est comme être agent Wave ou MTN MoMo — sauf que toi, tu n'as pas besoin d'argent de départ. Juste tes contacts.
@@ -993,28 +1099,28 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
                 <div style="font-weight:800;color:white;font-size:15px;">5 filleuls actifs</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.4);">= loyer 1 chambre à Lomé</div>
               </div>
-              <div class="parrain-comm-badge">2 500 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+              <div class="parrain-comm-badge">5 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
             </div>
             <div class="parrain-calc-row">
               <div>
                 <div style="font-weight:800;color:white;font-size:15px;">20 filleuls actifs</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.4);">= frais de scolarité couverts</div>
               </div>
-              <div class="parrain-comm-badge">10 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+              <div class="parrain-comm-badge">20 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
             </div>
             <div class="parrain-calc-row">
               <div>
                 <div style="font-weight:800;color:white;font-size:15px;">50 filleuls actifs</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.4);">= dépenses du mois + épargne</div>
               </div>
-              <div class="parrain-comm-badge" style="background:var(--or);">25 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+              <div class="parrain-comm-badge" style="background:var(--or);">50 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
             </div>
             <div class="parrain-calc-row">
               <div>
                 <div style="font-weight:800;color:white;font-size:15px;">100 filleuls actifs</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.4);">= plus que le SMIG togolais</div>
               </div>
-              <div class="parrain-comm-badge" style="background:#c084fc;">50 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+              <div class="parrain-comm-badge" style="background:#c084fc;">100 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
             </div>
           </div>
           <div style="margin-top:18px;padding:14px;background:rgba(27,122,74,0.15);border-radius:12px;border:1px solid rgba(27,122,74,0.3);">
@@ -1042,6 +1148,36 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
           <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Zémidjan le jour, parrain KALA le soir. Mon téléphone génère de l'argent pendant que je conduis. C'est la meilleure chose que j'ai faite cette année."</p>
           <div style="font-weight:700;color:white;font-size:13px;">Yaovi D. — Zémidjan, Tokoin</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"J'avais peur que ce soit compliqué. En réalité j'ai juste posté mon lien dans 3 groupes WhatsApp. Le mois suivant, 12 000 FCFA sur mon compte. Vraiment je n'y croyais pas."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Espoir K. — Électricien, Hédzranawoé</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Avec 40% de commission, c'est vraiment sérieux. J'ai parrainé 15 prestataires de mon salon et maintenant je touche plus de 15 000 FCFA par mois juste avec ça."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Mawuena T. — Esthéticienne, Adidogomé</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Mon garage c'est comme une famille. J'ai inscrit tous mes apprentis et collègues mécaniciens. Maintenant je touche des commissions sur eux chaque mois. C'est comme si ils me payaient un loyer."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Komi A. — Mécanicien, Agoè</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Je couds depuis 8 ans et je n'avais jamais entendu parler d'un revenu passif. KalaTogo m'a appris ce que ça veut dire. J'ai 9 filleuls actifs, ça couvre maintenant les fournitures de mes enfants."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Dorcas A. — Couturière, Bè</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"J'ai le réseau des menuisiers de tout Kégué. En 1 mois j'ai inscrit 22 collègues artisans. Maintenant chaque mois c'est automatique — l'argent rentre sans que je bouge."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Théo N. — Menuisier, Kégué</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Avec les 40% ça vaut vraiment le coup. J'ai convaincu des photographes, des graphistes, des informaticiens de mon réseau. Mes commissions augmentent chaque mois. Ça devient sérieux."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Afi D. — Photographe, Cacaveli</div>
         </div>
       </div>
     </div>
@@ -1073,6 +1209,77 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       </div>
     </div>
   </footer>
+
+  <!-- PARRAINAGE SECTION -->
+  <section class="section" style="background:linear-gradient(135deg,#0a1a12,#0f1f18);border-top:1px solid rgba(27,122,74,0.2);">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:52px;">
+        <div class="badge" style="background:rgba(232,148,10,0.15);color:var(--or);margin-bottom:14px;">💰 Programme de parrainage</div>
+        <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;">Gagne <em style="color:var(--or);">40% récurrents</em><br>en parrainant d'autres prestataires</h2>
+        <p style="color:rgba(255,255,255,0.6);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">
+          Tu connais des artisans, des coiffeurs, des zémidjan, des menuisiers à Lomé ? Chaque fois qu'ils paient leur abonnement, toi tu touches 40%. Chaque mois. Automatiquement.
+        </p>
+      </div>
+
+      <!-- 3 étapes du parrainage -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-bottom:52px;">
+        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(27,122,74,0.2);text-align:center;">
+          <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--vert),#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 20px;">1️⃣</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;">Crée ton profil</h3>
+          <p style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;">Inscris-toi sur KalaTogo. Tu reçois automatiquement un code parrainage unique — du style <strong style="color:var(--or);">KALAKOMI4821</strong>. C'est ton identifiant parrain.</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.2);text-align:center;">
+          <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--or),#f59e0b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 20px;">2️⃣</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;">Partage ton lien</h3>
+          <p style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;">Un seul clic pour copier ton lien ou le partager sur WhatsApp. Envoie-le à tes contacts artisans, dans tes groupes de quartier, à l'église, au marché — partout où tu connais des professionnels.</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(192,132,252,0.2);text-align:center;">
+          <div style="width:60px;height:60px;background:linear-gradient(135deg,#c084fc,#9333ea);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 20px;">3️⃣</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;">Touche tes 40% chaque mois</h3>
+          <p style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;">Quand ton filleul prend un abonnement Pro ou Patron, tu touches 40% de sa mensualité — et ça se répète chaque mois tant qu'il reste abonné. Sans rien faire de plus.</p>
+        </div>
+      </div>
+
+      <!-- Calculateur de gains -->
+      <div style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px;max-width:700px;margin:0 auto;">
+        <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:white;margin-bottom:6px;text-align:center;">💡 Combien tu peux gagner ?</h3>
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:24px;">40% de l'abonnement Pro (2 500 FCFA) = <strong style="color:var(--or);">1 000 FCFA par filleul actif par mois</strong></p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:rgba(27,122,74,0.1);border-radius:12px;">
+            <span style="color:rgba(255,255,255,0.8);font-weight:600;">5 filleuls actifs</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="color:rgba(255,255,255,0.4);font-size:12px;">≈ loyer d'une chambre</span>
+              <span style="background:var(--vert);color:white;padding:4px 14px;border-radius:100px;font-weight:800;">5 000 FCFA/mois</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:rgba(232,148,10,0.08);border-radius:12px;">
+            <span style="color:rgba(255,255,255,0.8);font-weight:600;">20 filleuls actifs</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="color:rgba(255,255,255,0.4);font-size:12px;">≈ frais de scolarité</span>
+              <span style="background:var(--vert);color:white;padding:4px 14px;border-radius:100px;font-weight:800;">20 000 FCFA/mois</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:rgba(232,148,10,0.12);border-radius:12px;">
+            <span style="color:rgba(255,255,255,0.8);font-weight:600;">50 filleuls actifs</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="color:rgba(255,255,255,0.4);font-size:12px;">≈ SMIG togolais (52 500 FCFA)</span>
+              <span style="background:var(--or);color:white;padding:4px 14px;border-radius:100px;font-weight:800;">50 000 FCFA/mois</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:rgba(192,132,252,0.08);border-radius:12px;">
+            <span style="color:rgba(255,255,255,0.8);font-weight:600;">100 filleuls actifs</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="color:rgba(255,255,255,0.4);font-size:12px;">= presque 2× le SMIG</span>
+              <span style="background:#c084fc;color:white;padding:4px 14px;border-radius:100px;font-weight:800;">100 000 FCFA/mois</span>
+            </div>
+          </div>
+        </div>
+        <p style="color:rgba(255,255,255,0.35);font-size:12px;text-align:center;margin-top:16px;">Tant que ton filleul garde son abonnement, tu touches. Chaque mois. Automatiquement.</p>
+        <button class="btn btn-or btn-lg" style="width:100%;justify-content:center;margin-top:20px;" onclick="showPage('inscription')">Créer mon compte et commencer à parrainer →</button>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -1800,7 +2007,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <div class="dash-section" id="ds-parrainage">
         <div class="dash-header">
           <h2>💰 Mon programme de parrainage</h2>
-          <p>Partage ton lien — touche 20% des abonnements de tes filleuls, chaque mois, automatiquement.</p>
+          <p>Partage ton lien — touche 40% des abonnements de tes filleuls, chaque mois, automatiquement.</p>
         </div>
 
         <!-- Carte gains -->
@@ -1843,27 +2050,27 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <!-- Calcul projection -->
         <div style="background:var(--noir);border-radius:20px;padding:24px;margin-bottom:20px;">
           <h3 style="color:white;font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:6px;">📊 Ce que tu peux gagner</h3>
-          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:18px;">Basé sur 20% des abonnements Pro (2 500 FCFA/mois)</p>
+          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:18px;">Basé sur 40% des abonnements Pro (2 500 FCFA/mois → 1 000 FCFA par filleul)</p>
           <div>
             <div class="parrain-calc-row">
               <span style="color:rgba(255,255,255,0.8);font-weight:600;">5 filleuls actifs</span>
-              <span class="parrain-comm-badge">2 500 FCFA/mois</span>
-            </div>
-            <div class="parrain-calc-row">
-              <span style="color:rgba(255,255,255,0.8);font-weight:600;">10 filleuls actifs</span>
               <span class="parrain-comm-badge">5 000 FCFA/mois</span>
             </div>
             <div class="parrain-calc-row">
-              <span style="color:rgba(255,255,255,0.8);font-weight:600;">20 filleuls actifs</span>
+              <span style="color:rgba(255,255,255,0.8);font-weight:600;">10 filleuls actifs</span>
               <span class="parrain-comm-badge">10 000 FCFA/mois</span>
             </div>
             <div class="parrain-calc-row">
+              <span style="color:rgba(255,255,255,0.8);font-weight:600;">20 filleuls actifs</span>
+              <span class="parrain-comm-badge">20 000 FCFA/mois</span>
+            </div>
+            <div class="parrain-calc-row">
               <span style="color:rgba(255,255,255,0.8);font-weight:600;">50 filleuls actifs</span>
-              <span class="parrain-comm-badge" style="background:var(--or);">25 000 FCFA/mois</span>
+              <span class="parrain-comm-badge" style="background:var(--or);">50 000 FCFA/mois</span>
             </div>
             <div class="parrain-calc-row">
               <span style="color:rgba(255,255,255,0.8);font-weight:600;">100 filleuls actifs</span>
-              <span class="parrain-comm-badge" style="background:#c084fc;">50 000 FCFA/mois</span>
+              <span class="parrain-comm-badge" style="background:#c084fc;">100 000 FCFA/mois</span>
             </div>
           </div>
           <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:14px;">Tant que ton filleul paie, toi tu reçois. Chaque mois. Automatiquement.</p>
@@ -3126,7 +3333,7 @@ async function loadParrainage() {
         const rf = r.fields;
         const plan = rf['Abonnement'] || 'Base';
         const date = rf['Created'] ? new Date(rf['Created']).toLocaleDateString('fr-FR') : '';
-        const comm = plan !== 'Base' ? Math.floor((plan === 'Patron' ? 6500 : 2500) * 0.20) : 0;
+        const comm = plan !== 'Base' ? Math.floor((plan === 'Patron' ? 6500 : 2500) * 0.40) : 0;
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:white;border-radius:10px;margin-bottom:8px;box-shadow:var(--shadow);">
           <div>
             <div style="font-weight:700;font-size:14px;">${rf['Nom complet'] || 'Prestataire'}</div>
@@ -3334,7 +3541,7 @@ async function onPaymentSuccess(plan) {
       const parrainCode = currentPrestataire.fields['Parrain Code'];
       if (parrainCode) {
         const planAmounts = { Pro: 2500, Patron: 6500 };
-        const commAmount = Math.floor((planAmounts[plan] || 0) * 0.20);
+        const commAmount = Math.floor((planAmounts[plan] || 0) * 0.40);
         if (commAmount > 0) await addCommissionToParrain(parrainCode, commAmount);
       }
     } else {
