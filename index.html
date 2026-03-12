@@ -614,6 +614,96 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   .dash-link { padding:8px 12px; font-size:13px; }
   .dashboard-main { padding:20px; }
 }
+
+/* ══ MOBILE GLOBAL ══ */
+@media (max-width:600px) {
+  .container { padding:0 16px; }
+  .section { padding:48px 0; }
+  h1 { font-size:36px !important; }
+  h2 { font-size:26px !important; }
+
+  /* NAV MOBILE */
+  nav { height:56px; }
+  .nav-links { gap:4px; }
+  .nav-link { font-size:12px; padding:6px 10px; }
+  .nav-logo { font-size:20px; }
+
+  /* HERO MOBILE */
+  .hero { padding:48px 0 36px; }
+  .hero-grid { grid-template-columns:1fr !important; gap:24px !important; }
+  .hero-visual { display:none !important; }
+  .hero-sub { font-size:15px; }
+  .hero-actions { flex-direction:column; }
+  .hero-actions .btn { width:100%; justify-content:center; }
+  .hero-metrics { grid-template-columns:repeat(2,1fr) !important; gap:12px !important; }
+  .hero-proof { flex-wrap:wrap; gap:8px; }
+  .btn-lg { padding:14px 24px; font-size:15px; }
+
+  /* SEARCH BAR MOBILE */
+  .search-bar { flex-direction:column; border-radius:12px; }
+  .search-bar select, .search-bar input { border-right:none !important; border-bottom:1px solid rgba(0,0,0,0.08); padding:14px 16px; max-width:100% !important; }
+  .search-bar-btn { border-radius:0 0 10px 10px; padding:14px; }
+  .quick-filters { gap:6px; }
+  .qf-chip { padding:6px 12px; font-size:12px; }
+
+  /* CARDS MOBILE */
+  .cards-grid { grid-template-columns:1fr !important; gap:14px !important; }
+  .pcard-photo { height:140px; }
+
+  /* INSCRIPTION MOBILE */
+  .form-row { flex-direction:column !important; gap:0 !important; }
+  .form-step { padding:20px 16px !important; }
+  .progress-bar { padding:16px !important; gap:6px !important; }
+  .pb-step-label { display:none; }
+
+  /* PROFIL PAGE MOBILE */
+  .profil-grid { grid-template-columns:1fr !important; gap:16px !important; }
+  .profil-photos { grid-template-columns:repeat(2,1fr) !important; }
+  .profil-header { flex-direction:column; text-align:center; }
+
+  /* DASHBOARD MOBILE */
+  .dashboard-layout { grid-template-columns:1fr !important; }
+  .dashboard-sidebar { padding:12px !important; gap:4px !important; flex-wrap:wrap !important; }
+  .dash-link { padding:8px 10px !important; font-size:12px !important; flex:0 0 auto; }
+  .dashboard-main { padding:16px !important; }
+  .stat-cards { grid-template-columns:repeat(2,1fr) !important; gap:10px !important; }
+  .stat-card { padding:14px !important; }
+  .stat-card-num { font-size:22px !important; }
+  .edit-form-section { padding:16px !important; }
+
+  /* FONCTIONNEMENT MOBILE */
+  .how-steps { grid-template-columns:1fr !important; }
+  .plans-grid { grid-template-columns:1fr !important; }
+
+  /* À PROPOS MOBILE */
+  .apropos-photo-grid { grid-template-columns:1fr 2fr !important; gap:20px !important; }
+
+  /* GENERAL */
+  .btn-sm { padding:7px 14px; font-size:12px; }
+  .footer-grid { grid-template-columns:1fr !important; gap:24px !important; }
+  .toast { right:12px; left:12px; max-width:100%; font-size:13px; }
+}
+
+/* ══ TABLET (601–900px) ══ */
+@media (min-width:601px) and (max-width:900px) {
+  .hero-grid { grid-template-columns:1fr !important; }
+  .hero-visual { display:none !important; }
+  .cards-grid { grid-template-columns:repeat(2,1fr) !important; }
+  .stat-cards { grid-template-columns:repeat(2,1fr) !important; }
+  .plans-grid { grid-template-columns:repeat(2,1fr) !important; }
+  .search-bar select { max-width:160px !important; }
+}
+
+/* ══ PARRAINAGE SECTION ══ */
+.parrain-calc-row { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-radius:12px; margin-bottom:8px; }
+.parrain-calc-row:nth-child(odd) { background:rgba(27,122,74,0.08); }
+.parrain-calc-row:nth-child(even) { background:rgba(232,148,10,0.08); }
+.parrain-comm-badge { background:var(--vert); color:white; padding:4px 14px; border-radius:100px; font-weight:800; font-size:14px; }
+@media (max-width:600px) {
+  .parrain-calc-row { flex-direction:column; gap:8px; text-align:center; }
+  .plans-grid-parrain { grid-template-columns:1fr !important; }
+}
+
 </style>
 </head>
 <body>
@@ -747,7 +837,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <div class="metric-label">Prestataires actifs</div>
         </div>
         <div class="metric">
-          <div class="metric-num">15+</div>
+          <div class="metric-num">22</div>
           <div class="metric-label">Métiers disponibles</div>
         </div>
         <div class="metric">
@@ -793,7 +883,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div class="qf-chip" onclick="quickFilter('Coiffeur/Coiffeuse')">✂️ Coiffeur</div>
         <div class="qf-chip" onclick="quickFilter('Masseur/Masseuse')">💆 Masseur</div>
         <div class="qf-chip" onclick="quickFilter('Carreleur')">🏠 Carreleur</div>
-        <div class="qf-chip" onclick="quickFilter('Chauffeur')">🚗 Chauffeur</div>
+        <div class="qf-chip" onclick="quickFilter('Chauffeur voiture')">🚗 Chauffeur</div>
+        <div class="qf-chip" onclick="quickFilter('Zémidjan')">🏍️ Zémidjan</div>
         <div class="qf-chip" onclick="quickFilter('Esthéticienne')">💅 Esthéticienne</div>
         <div class="qf-chip" onclick="quickFilter('Menuisier')">🪚 Menuisier</div>
         <div class="qf-chip" onclick="quickFilter('Mécanicien')">🔧 Mécanicien</div>
@@ -803,6 +894,44 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       </div>
     </div>
   </div>
+
+  <!-- CHAUFFEURS / ZEMIDJAN CTA -->
+  <section style="background:linear-gradient(135deg,#0f1410,#1a2820);padding:48px 0;">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
+        <div>
+          <div class="badge" style="background:rgba(232,148,10,0.2);color:var(--or);margin-bottom:16px;">🏍️ Chauffeurs & Zémidjans</div>
+          <h2 style="font-family:Fraunces,serif;font-size:clamp(24px,3vw,36px);font-weight:900;color:white;margin-bottom:16px;">Ta <em style="color:var(--or);">carte de visite digitale.</em><br>Visible par tout Lomé.</h2>
+          <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.7;margin-bottom:20px;">
+            Fini d'attendre au garage ou au coin de rue. Avec KalaTogo, des clients te trouvent <strong style="color:white;">directement sur leur téléphone</strong> — même la nuit, même le weekend.
+          </p>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+            <li style="display:flex;gap:10px;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--vert);">✓</span> Profil avec tes horaires, ton numéro WhatsApp, ta zone</li>
+            <li style="display:flex;gap:10px;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--vert);">✓</span> Les clients voient tes avis et te font confiance avant même d'appeler</li>
+            <li style="display:flex;gap:10px;color:rgba(255,255,255,0.8);font-size:14px;"><span style="color:var(--vert);">✓</span> Gratuit à créer — 0 commission sur tes courses</li>
+          </ul>
+          <button class="btn btn-or" onclick="showPage('inscription')" style="font-size:15px;padding:14px 28px;">🏍️ Créer mon profil chauffeur →</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:10px;">🏍️</div>
+            <div style="color:white;font-weight:800;font-size:15px;margin-bottom:4px;">Zémidjan</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;">Course rapide · Livraison · Urgent</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:10px;">🚗</div>
+            <div style="color:white;font-weight:800;font-size:15px;margin-bottom:4px;">Chauffeur voiture</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;">Longue distance · Aéroport · VIP</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;text-align:center;grid-column:1/-1;">
+            <div style="font-size:28px;margin-bottom:8px;">⭐</div>
+            <div style="color:var(--or);font-weight:900;font-size:20px;font-family:Fraunces,serif;">4.8/5</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:4px;">Note moyenne des chauffeurs sur KALA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- PRESTATAIRES RÉCENTS -->
   <section class="section">
@@ -826,6 +955,95 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;margin-bottom:16px;">Ton talent mérite d'être trouvé.</h2>
       <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;">Crée ton profil gratuit en 10 minutes et commence à recevoir des clients de tout Lomé.</p>
       <button class="btn btn-or btn-lg" onclick="showPage('inscription')">✦ Créer mon profil gratuit</button>
+    </div>
+  </section>
+
+
+  <!-- ══ SECTION PARRAINAGE — HOMEPAGE ══ -->
+  <section style="background:var(--noir);padding:80px 0;position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 80% 50%,rgba(27,122,74,0.15) 0%,transparent 60%);pointer-events:none;"></div>
+    <div class="container" style="position:relative;z-index:1;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
+        <div>
+          <div class="badge" style="background:rgba(232,148,10,0.2);color:var(--or);margin-bottom:20px;">💰 Programme de parrainage</div>
+          <h2 style="font-family:Fraunces,serif;font-size:clamp(28px,4vw,46px);font-weight:900;color:white;line-height:1.1;margin-bottom:20px;">
+            Pendant que tu<br>travailles,<br><em style="color:var(--or);">ton réseau te paie.</em>
+          </h2>
+          <p style="color:rgba(255,255,255,0.65);font-size:16px;line-height:1.7;margin-bottom:20px;">
+            Fin de mois difficile. Loyer à payer. Frais de scolarité qui arrivent. Tu connais ça.
+            <br><br>
+            KalaTogo a une réponse : <strong style="color:white;">parraine des prestataires, touche 20% de leurs abonnements — chaque mois, automatiquement.</strong>
+          </p>
+          <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin-bottom:28px;">
+            C'est comme être agent Wave ou MTN MoMo — sauf que toi, tu n'as pas besoin d'argent de départ. Juste tes contacts.
+          </p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-or btn-lg" onclick="showPage('inscription')">Commencer à parrainer →</button>
+            <button class="btn" style="background:rgba(255,255,255,0.1);color:white;padding:16px 28px;border-radius:100px;font-weight:700;" onclick="document.getElementById('parrain-calc-home').scrollIntoView({behavior:'smooth'})">Voir les gains ↓</button>
+          </div>
+        </div>
+
+        <!-- Calculateur visuel -->
+        <div id="parrain-calc-home" style="background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:24px;padding:28px;">
+          <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:18px;">📊 Tes gains mensuels estimés</div>
+          <div>
+            <div class="parrain-calc-row">
+              <div>
+                <div style="font-weight:800;color:white;font-size:15px;">5 filleuls actifs</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);">= loyer 1 chambre à Lomé</div>
+              </div>
+              <div class="parrain-comm-badge">2 500 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+            </div>
+            <div class="parrain-calc-row">
+              <div>
+                <div style="font-weight:800;color:white;font-size:15px;">20 filleuls actifs</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);">= frais de scolarité couverts</div>
+              </div>
+              <div class="parrain-comm-badge">10 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+            </div>
+            <div class="parrain-calc-row">
+              <div>
+                <div style="font-weight:800;color:white;font-size:15px;">50 filleuls actifs</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);">= dépenses du mois + épargne</div>
+              </div>
+              <div class="parrain-comm-badge" style="background:var(--or);">25 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+            </div>
+            <div class="parrain-calc-row">
+              <div>
+                <div style="font-weight:800;color:white;font-size:15px;">100 filleuls actifs</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);">= plus que le SMIG togolais</div>
+              </div>
+              <div class="parrain-comm-badge" style="background:#c084fc;">50 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
+            </div>
+          </div>
+          <div style="margin-top:18px;padding:14px;background:rgba(27,122,74,0.15);border-radius:12px;border:1px solid rgba(27,122,74,0.3);">
+            <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;">
+              💡 <strong style="color:white;">Ça rentre chaque mois.</strong> Tant que ton filleul garde son abonnement, toi tu touches. Sans rien faire de plus.
+            </p>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;" onclick="showPage('inscription')">Créer mon compte et parrainer →</button>
+        </div>
+      </div>
+
+      <!-- Témoignage fictif / social proof -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:52px;">
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"J'ai partagé mon lien dans mon groupe WhatsApp de quartier. En 2 semaines, 8 personnes ont créé leur profil. Maintenant je touche mes commissions chaque mois sans rien faire."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Koffi A. — Chauffeur voiture, Lomé</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Mes frais de scolarité du second semestre — couverts. J'ai juste partagé le lien à des collègues coiffeurs et mécaniciens de mon quartier."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Afiwa M. — Coiffeuse, Agbalépédogan</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Zémidjan le jour, parrain KALA le soir. Mon téléphone génère de l'argent pendant que je conduis. C'est la meilleure chose que j'ai faite cette année."</p>
+          <div style="font-weight:700;color:white;font-size:13px;">Yaovi D. — Zémidjan, Tokoin</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -875,8 +1093,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <option>Plombier</option><option>Peintre</option>
           <option>Soudeur</option><option>Carreleur</option>
           <option>Jardinier</option><option>Agent de sécurité</option>
-          <option>Chauffeur</option><option>Livreur</option>
-          <option>Informaticien</option><option>Graphiste</option><option>Autre</option>
+          <option>Chauffeur voiture</option><option>Zémidjan</option>
+          <option>Livreur</option><option>Informaticien</option>
+          <option>Graphiste</option><option>Autre</option>
         </select>
         <select id="s-quartier" onchange="loadSearch()">
           <option value="">Tous les quartiers</option>
@@ -1057,9 +1276,13 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
               <option>Menuisier</option><option>Mécanicien</option>
               <option>Électricien</option><option>Maçon</option>
               <option>Couturier/Couturière</option><option>Photographe</option>
-              <option>Cuisinier/Cuisinière</option><option>Plombier</option>
-              <option>Peintre</option><option>Informaticien</option>
-              <option>Graphiste</option><option>Soudeur</option><option>Autre</option>
+              <option>Cuisinier/Cuisinière</option><option>Masseur/Masseuse</option>
+              <option>Plombier</option><option>Peintre</option>
+              <option>Soudeur</option><option>Carreleur</option>
+              <option>Jardinier</option><option>Agent de sécurité</option>
+              <option>Chauffeur voiture</option><option>Zémidjan</option>
+              <option>Livreur</option><option>Informaticien</option>
+              <option>Graphiste</option><option>Autre</option>
             </select>
           </div>
           <div class="form-group">
@@ -1264,6 +1487,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <button class="dash-link" onclick="showDashSection('abonnement')" id="dl-abonnement">
         <span class="icon">💳</span> Mon abonnement
       </button>
+      <button class="dash-link" onclick="showDashSection('parrainage')" id="dl-parrainage" style="color:var(--or);font-weight:800;">
+        <span class="icon">🔗</span> Parrainage 💰
+      </button>
       <button class="dash-link" onclick="handleLogout()" style="color:#dc2626;" id="dl-logout">
         <span class="icon">🚪</span> Se déconnecter
       </button>
@@ -1378,8 +1604,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
                 <option>Plombier</option><option>Peintre</option>
                 <option>Soudeur</option><option>Carreleur</option>
                 <option>Jardinier</option><option>Agent de sécurité</option>
-                <option>Chauffeur</option><option>Livreur</option>
-                <option>Informaticien</option><option>Graphiste</option><option>Autre</option>
+                <option>Chauffeur voiture</option><option>Zémidjan</option>
+                <option>Livreur</option><option>Informaticien</option>
+                <option>Graphiste</option><option>Autre</option>
               </select>
             </div>
             <div class="form-group">
@@ -1569,6 +1796,90 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </div>
       </div>
 
+      <!-- ══ PARRAINAGE ══ -->
+      <div class="dash-section" id="ds-parrainage">
+        <div class="dash-header">
+          <h2>💰 Mon programme de parrainage</h2>
+          <p>Partage ton lien — touche 20% des abonnements de tes filleuls, chaque mois, automatiquement.</p>
+        </div>
+
+        <!-- Carte gains -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;">
+          <div class="stat-card" style="background:linear-gradient(135deg,var(--vert-dark),var(--vert));color:white;">
+            <div class="stat-card-num" id="p-comm-dispo" style="color:white;">0 FCFA</div>
+            <div class="stat-card-label" style="color:rgba(255,255,255,0.7);">Disponible à retirer</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-num" id="p-comm-total">0 FCFA</div>
+            <div class="stat-card-label">Commissions totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-num" id="p-nb-filleuls">0</div>
+            <div class="stat-card-label">Filleuls actifs</div>
+          </div>
+        </div>
+
+        <!-- Lien de parrainage -->
+        <div class="edit-form-section" style="margin-bottom:20px;">
+          <h3 style="margin-bottom:12px;">🔗 Ton lien de parrainage unique</h3>
+          <p style="font-size:14px;color:var(--gris);margin-bottom:14px;">Partage ce lien sur WhatsApp, TikTok, Facebook — chaque inscription via ton lien te rapporte des commissions récurrentes.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <div id="parrain-link-box" style="flex:1;min-width:200px;background:var(--gris-light);border-radius:10px;padding:12px 16px;font-size:13px;font-weight:700;color:var(--noir);word-break:break-all;">
+              Chargement...
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="copyParrainLink()" style="flex-shrink:0;">📋 Copier</button>
+            <button class="btn btn-wa btn-sm" onclick="shareParrainWhatsApp()" style="flex-shrink:0;">📱 WhatsApp</button>
+          </div>
+        </div>
+
+        <!-- Filleuls list -->
+        <div class="edit-form-section" style="margin-bottom:20px;">
+          <h3 style="margin-bottom:14px;">👥 Mes filleuls</h3>
+          <div id="filleuls-list">
+            <div class="loading"><div class="spinner"></div> Chargement...</div>
+          </div>
+        </div>
+
+        <!-- Calcul projection -->
+        <div style="background:var(--noir);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 style="color:white;font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:6px;">📊 Ce que tu peux gagner</h3>
+          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:18px;">Basé sur 20% des abonnements Pro (2 500 FCFA/mois)</p>
+          <div>
+            <div class="parrain-calc-row">
+              <span style="color:rgba(255,255,255,0.8);font-weight:600;">5 filleuls actifs</span>
+              <span class="parrain-comm-badge">2 500 FCFA/mois</span>
+            </div>
+            <div class="parrain-calc-row">
+              <span style="color:rgba(255,255,255,0.8);font-weight:600;">10 filleuls actifs</span>
+              <span class="parrain-comm-badge">5 000 FCFA/mois</span>
+            </div>
+            <div class="parrain-calc-row">
+              <span style="color:rgba(255,255,255,0.8);font-weight:600;">20 filleuls actifs</span>
+              <span class="parrain-comm-badge">10 000 FCFA/mois</span>
+            </div>
+            <div class="parrain-calc-row">
+              <span style="color:rgba(255,255,255,0.8);font-weight:600;">50 filleuls actifs</span>
+              <span class="parrain-comm-badge" style="background:var(--or);">25 000 FCFA/mois</span>
+            </div>
+            <div class="parrain-calc-row">
+              <span style="color:rgba(255,255,255,0.8);font-weight:600;">100 filleuls actifs</span>
+              <span class="parrain-comm-badge" style="background:#c084fc;">50 000 FCFA/mois</span>
+            </div>
+          </div>
+          <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:14px;">Tant que ton filleul paie, toi tu reçois. Chaque mois. Automatiquement.</p>
+        </div>
+
+        <!-- Retrait -->
+        <div class="edit-form-section" style="border:2px solid var(--vert);">
+          <h3 style="margin-bottom:8px;">💸 Retirer mes commissions</h3>
+          <p style="font-size:14px;color:var(--gris);margin-bottom:16px;">Minimum 500 FCFA. Paiement via TMoney, Flooz ou Wave sous 24h sur ton numéro enregistré.</p>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div style="font-size:24px;font-weight:900;color:var(--vert);font-family:Fraunces,serif;" id="retrait-amount-display">0 FCFA disponible</div>
+            <button class="btn btn-primary" id="retrait-btn" onclick="requestWithdrawal()">Demander le retrait →</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1737,6 +2048,7 @@ function showDashSection(section) {
   if (section === 'avis') loadDashAvis();
   if (section === 'photos') loadDashPhotos();
   if (section === 'abonnement') loadAbonnement();
+  if (section === 'parrainage') loadParrainage();
 }
 
 async function loadDashboard() {
@@ -2650,7 +2962,10 @@ async function submitInscription(e) {
     toast('Création du compte...', 'info');
     const { data: authData, error: authError } = await supa.auth.signUp({
       email, password: motDePasse,
-      options: { data: { nom_complet: `${nom} ${prenom}`.trim() } }
+      options: {
+        data: { nom_complet: `${nom} ${prenom}`.trim() },
+        emailRedirectTo: 'https://kalatogo.vercel.app'
+      }
     });
 
     if (authError && !authError.message.includes('already registered')) {
@@ -2669,11 +2984,15 @@ async function submitInscription(e) {
     }
 
     // Construire les champs Airtable
+    const parrainageCode = generateParrainCode(`${nom}${prenom}`);
+    const parrainRef = getRefFromURL();
     const fields = {
       'Nom complet': `${nom} ${prenom}`.trim(),
       'Prénom': prenom,
       'Abonnement': 'Base',
+      'Code Parrainage': parrainageCode,
     };
+    if (parrainRef) fields['Parrain Code'] = parrainRef;
 
     const description = document.getElementById('f-description').value.trim();
     const tiktok = document.getElementById('f-tiktok').value.trim();
@@ -2737,6 +3056,156 @@ async function submitInscription(e) {
     btn.textContent = '✦ Créer mon profil';
     btn.disabled = false;
   }
+}
+
+
+// ══════════════════════════════════════════
+// PARRAINAGE
+// ══════════════════════════════════════════
+
+function generateParrainCode(name) {
+  const clean = (name || 'USER').replace(/[^a-zA-Z]/g, '').toUpperCase().substring(0, 4).padEnd(4, 'X');
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return 'KALA' + clean + rand;
+}
+
+function getRefFromURL() {
+  try { return new URLSearchParams(window.location.search).get('ref') || ''; } catch { return ''; }
+}
+
+async function loadParrainage() {
+  if (!currentPrestataire) return;
+  let f = currentPrestataire.fields;
+
+  // Générer le code si manquant
+  if (!f['Code Parrainage']) {
+    const newCode = generateParrainCode(f['Nom complet']);
+    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Code Parrainage': newCode } })
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      currentPrestataire = updated;
+      f = currentPrestataire.fields;
+    }
+  }
+
+  const code = f['Code Parrainage'] || '';
+  const commDisp = f['Commission Disponible FCFA'] || 0;
+  const commTotal = f['Commission Totale FCFA'] || 0;
+  const refLink = 'https://kalatogo.vercel.app?ref=' + code;
+
+  // Mettre à jour les chiffres
+  document.getElementById('p-comm-dispo').textContent = commDisp.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('p-comm-total').textContent = commTotal.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('retrait-amount-display').textContent = commDisp.toLocaleString('fr-FR') + ' FCFA disponible';
+  document.getElementById('parrain-link-box').textContent = refLink;
+
+  // Bouton retrait
+  const retraitBtn = document.getElementById('retrait-btn');
+  if (retraitBtn) retraitBtn.disabled = commDisp < 500;
+
+  // Charger les filleuls
+  try {
+    const parrainFormula = encodeURIComponent("{Parrain Code}='" + code + "'");
+    const res = await fetch(AT_URL('Prestataires') + '?filterByFormula=' + parrainFormula, { headers: AT_HEADERS });
+    const data = await res.json();
+    const filleuls = data.records || [];
+    document.getElementById('p-nb-filleuls').textContent = filleuls.length;
+
+    const listEl = document.getElementById('filleuls-list');
+    if (filleuls.length === 0) {
+      listEl.innerHTML = `<div style="text-align:center;padding:24px;color:var(--gris);">
+        <div style="font-size:32px;margin-bottom:8px;">🔗</div>
+        <p style="font-weight:600;">Aucun filleul pour l'instant</p>
+        <p style="font-size:13px;margin-top:6px;">Partage ton lien sur WhatsApp — chaque inscription te rapporte !</p>
+      </div>`;
+    } else {
+      listEl.innerHTML = filleuls.map(r => {
+        const rf = r.fields;
+        const plan = rf['Abonnement'] || 'Base';
+        const date = rf['Created'] ? new Date(rf['Created']).toLocaleDateString('fr-FR') : '';
+        const comm = plan !== 'Base' ? Math.floor((plan === 'Patron' ? 6500 : 2500) * 0.20) : 0;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:white;border-radius:10px;margin-bottom:8px;box-shadow:var(--shadow);">
+          <div>
+            <div style="font-weight:700;font-size:14px;">${rf['Nom complet'] || 'Prestataire'}</div>
+            <div style="font-size:12px;color:var(--gris);">${rf['Métier principal'] || ''} ${date ? '· Inscrit le ' + date : ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="badge ${plan !== 'Base' ? 'badge-or' : 'badge-gris'}">${plan}</span>
+            ${comm > 0 ? `<div style="font-size:12px;color:var(--vert);font-weight:700;margin-top:4px;">+${comm} FCFA/mois</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+  } catch(err) {
+    console.error('loadParrainage filleuls:', err);
+    document.getElementById('filleuls-list').innerHTML = '<p style="color:var(--gris);font-size:14px;padding:12px;">Impossible de charger les filleuls.</p>';
+  }
+}
+
+function copyParrainLink() {
+  const f = currentPrestataire?.fields;
+  if (!f) return;
+  const link = 'https://kalatogo.vercel.app?ref=' + (f['Code Parrainage'] || '');
+  navigator.clipboard.writeText(link).then(() => toast('Lien copié ! 📋', 'success')).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = link; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    toast('Lien copié ! 📋', 'success');
+  });
+}
+
+function shareParrainWhatsApp() {
+  const f = currentPrestataire?.fields;
+  if (!f) return;
+  const code = f['Code Parrainage'] || '';
+  const nom = f['Nom complet']?.split(' ')[0] || 'moi';
+  const link = 'https://kalatogo.vercel.app?ref=' + code;
+  const msg = encodeURIComponent(`🔥 Je suis sur KalaTogo — la plateforme qui met en avant les pros de Lomé !\n\nInscris-toi via mon lien et commence à recevoir des clients : ${link}\n\n(c'est gratuit pour créer ton profil)`);
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+async function addCommissionToParrain(parrainCode, amount) {
+  try {
+    const formula = encodeURIComponent(`{Code Parrainage}='${parrainCode}'`);
+    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
+    const data = await res.json();
+    if (data.records?.length > 0) {
+      const parrain = data.records[0];
+      const currentComm = parrain.fields['Commission Disponible FCFA'] || 0;
+      const currentTotal = parrain.fields['Commission Totale FCFA'] || 0;
+      await fetch(`${AT_URL('Prestataires')}/${parrain.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: {
+          'Commission Disponible FCFA': currentComm + amount,
+          'Commission Totale FCFA': currentTotal + amount
+        }})
+      });
+    }
+  } catch(err) { console.error('addCommissionToParrain:', err); }
+}
+
+async function requestWithdrawal() {
+  if (!currentPrestataire) return;
+  const commDisp = currentPrestataire.fields['Commission Disponible FCFA'] || 0;
+  if (commDisp < 500) { toast('Minimum de retrait : 500 FCFA', 'error'); return; }
+  const btn = document.getElementById('retrait-btn');
+  btn.textContent = '⏳ Envoi...'; btn.disabled = true;
+  try {
+    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Demande Retrait': true } })
+    });
+    if (res.ok) {
+      toast("✅ Demande envoyée ! On te contacte sous 24h sur WhatsApp pour le virement.", 'success');
+      btn.textContent = 'Demande envoyée ✓';
+    } else {
+      toast('Erreur. Réessaie.', 'error');
+      btn.disabled = false; btn.textContent = 'Demander le retrait →';
+    }
+  } catch { toast('Problème de connexion', 'error'); btn.disabled = false; btn.textContent = 'Demander le retrait →'; }
 }
 
 // ══════════════════════════════════════════
@@ -2859,8 +3328,15 @@ async function onPaymentSuccess(plan) {
       const updated = await res.json();
       currentPrestataire = updated;
       toast(`🎉 Plan ${plan} activé ! Valide 30 jours.`, 'success');
-      loadAbonnement();      // rafraîchir l'affichage
-      loadDashOverview();    // mettre à jour les conseils
+      loadAbonnement();
+      loadDashOverview();
+      // Commission parrain — 20% si référé par quelqu'un
+      const parrainCode = currentPrestataire.fields['Parrain Code'];
+      if (parrainCode) {
+        const planAmounts = { Pro: 2500, Patron: 6500 };
+        const commAmount = Math.floor((planAmounts[plan] || 0) * 0.20);
+        if (commAmount > 0) await addCommissionToParrain(parrainCode, commAmount);
+      }
     } else {
       const err = await res.json();
       console.error('Airtable update error:', err);
