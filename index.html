@@ -757,7 +757,7 @@ h1 .gold { color:var(--or); }
 label { display:block; font-weight:700; font-size:14px; margin-bottom:8px; color:var(--gris-fonce); }
 label .req { color:var(--or); }
 
-input[type=text],input[type=tel],input[type=email],input[type=url],input[type=number],input[type=date],select,textarea {
+input[type=text],input[type=tel],input[type=email],input[type=url],input[type=number],input[type=date],input[type=password],select,textarea {
   width:100%; padding:14px 18px;
   border:2px solid rgba(0,0,0,0.08); border-radius:12px;
   font-family:'Cabinet Grotesk',sans-serif; font-size:15px;
@@ -876,8 +876,8 @@ footer {
 .auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:var(--gris-light); }
 .auth-switch { text-align:center; margin-top:20px; font-size:14px; color:var(--gris); }
 .auth-switch a { color:var(--vert); font-weight:700; cursor:pointer; text-decoration:none; }
-.pw-toggle { position:relative; }
-.pw-toggle input { padding-right:48px; }
+.pw-toggle { position:relative; width:100%; display:block; }
+.pw-toggle input { padding-right:48px; width:100%; box-sizing:border-box; }
 .pw-toggle-btn { position:absolute; right:16px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:18px; color:var(--gris); }
 
 /* ══ NAV CONNECTÉ ══ */
