@@ -154,6 +154,28 @@ nav {
 .nav-link { font-weight:600; font-size:14px; color:var(--gris-fonce); text-decoration:none; padding:8px 14px; border-radius:100px; transition:all 0.2s; cursor:pointer; background:none; border:none; font-family:inherit; }
 .nav-link:hover { color:var(--vert); background:var(--vert-light); }
 
+/* ── HAMBURGER MOBILE ── */
+.nav-burger { display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:6px; z-index:300; }
+.nav-burger span { display:block; width:22px; height:2px; background:var(--vert); border-radius:2px; transition:all 0.3s; }
+.nav-burger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity:0; }
+.nav-burger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+@media (max-width:700px) {
+  .nav-burger { display:flex; }
+  .nav-links {
+    display:none;
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(248,246,241,0.98); backdrop-filter:blur(20px);
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:12px; z-index:250; padding:24px;
+  }
+  .nav-links.open { display:flex; }
+  .nav-link { font-size:18px; padding:12px 24px; width:100%; text-align:center; border-radius:14px; }
+  #nav-guest { flex-direction:column; width:100%; gap:8px; }
+  #nav-guest button { width:100%; justify-content:center; }
+}
+
 /* ══════════════════════════════════════
    PAGE ACCUEIL
 ══════════════════════════════════════ */
@@ -1155,11 +1177,14 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 <nav>
   <div class="container nav-inner">
     <a class="nav-logo" onclick="showPage('home')" href="#">KALA<sup>TOGO</sup></a>
+    <button class="nav-burger" id="nav-burger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="nav-links" id="nav-links">
-      <button class="nav-link" onclick="showPage('home')">Accueil</button>
-      <button class="nav-link" onclick="showPage('search')">Trouver un pro</button>
-      <button class="nav-link" onclick="showPage('fonctionnement')">Comment ça marche</button>
-      <button class="nav-link" onclick="showPage('apropos')">À propos</button>
+      <button class="nav-link" onclick="showPage('home');closeMobileNav()">Accueil</button>
+      <button class="nav-link" onclick="showPage('search');closeMobileNav()">Trouver un pro</button>
+      <button class="nav-link" onclick="showPage('fonctionnement');closeMobileNav()">Comment ça marche</button>
+      <button class="nav-link" onclick="showPage('apropos');closeMobileNav()">À propos</button>
       <!-- Boutons non connecté -->
       <div id="nav-guest" style="display:flex;align-items:center;gap:6px;">
         <button class="nav-link btn btn-ghost btn-sm" onclick="showPage('login')">Se connecter</button>
@@ -4373,6 +4398,7 @@ function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(applyResponsiveGrids, 50);
   if (page === 'home') initHome();
   if (page === 'search') loadSearch();
   if (page === 'inscription') resetInscriptionForm();
@@ -7774,15 +7800,60 @@ async function onPaymentSuccess(plan, transId) {
 }
 
 // ══════════════════════════════════════════
+// NAV MOBILE
+// ══════════════════════════════════════════
+function toggleMobileNav() {
+  const links = document.getElementById('nav-links');
+  const burger = document.getElementById('nav-burger');
+  const open = links.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeMobileNav() {
+  document.getElementById('nav-links')?.classList.remove('open');
+  document.getElementById('nav-burger')?.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ══════════════════════════════════════════
+// FIX MOBILE GRIDS (inline styles)
+// ══════════════════════════════════════════
+function fixMobileGrids() {
+  if (window.innerWidth > 700) return;
+  document.querySelectorAll('[style*="grid-template-columns"]').forEach(el => {
+    const cols = el.style.gridTemplateColumns || '';
+    // Laisser les auto-fit/auto-fill (déjà responsives) et les grids 1-colonne
+    if (cols.includes('auto-fit') || cols.includes('auto-fill') || cols === '1fr') return;
+    // Forcer 1 colonne sur mobile pour tous les grids fixes multi-colonnes
+    el.dataset.origCols = cols;
+    el.style.gridTemplateColumns = '1fr';
+  });
+}
+function restoreDesktopGrids() {
+  document.querySelectorAll('[data-orig-cols]').forEach(el => {
+    el.style.gridTemplateColumns = el.dataset.origCols;
+    delete el.dataset.origCols;
+  });
+}
+function applyResponsiveGrids() {
+  if (window.innerWidth <= 700) {
+    fixMobileGrids();
+  } else {
+    restoreDesktopGrids();
+  }
+}
+window.addEventListener('resize', applyResponsiveGrids);
+
+// ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
 initAuth();
 initHome();
 // checkPaymentUrl doit s'exécuter APRÈS le parsing complet du DOM (l'élément #page-paiement-client est après ce script)
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', checkPaymentUrl);
+  document.addEventListener('DOMContentLoaded', () => { checkPaymentUrl(); applyResponsiveGrids(); });
 } else {
-  setTimeout(checkPaymentUrl, 0);
+  setTimeout(() => { checkPaymentUrl(); applyResponsiveGrids(); }, 0);
 }
 </script>
 
