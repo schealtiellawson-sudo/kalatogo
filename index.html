@@ -2472,6 +2472,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <button class="dash-link" onclick="showDashSection('paiement')" id="dl-paiement" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#1d4ed8;border:1.5px solid #bfdbfe;font-weight:800;">
         <span class="icon">💳</span> Encaisser
       </button>
+      <button class="dash-link" onclick="showDashSection('historique-paiements')" id="dl-historique-paiements">
+        <span class="icon">💰</span> Paiements reçus
+      </button>
       <h3>Clients</h3>
       <button class="dash-link" onclick="showDashSection('avis')" id="dl-avis">
         <span class="icon">⭐</span> Mes avis
@@ -3179,6 +3182,15 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </div>
       </div>
 
+      <!-- ══ HISTORIQUE PAIEMENTS ══ -->
+      <div class="dash-section" id="ds-historique-paiements">
+        <div class="dash-header">
+          <h2>💰 Historique des paiements</h2>
+          <p style="color:var(--gris);font-size:14px;margin-top:4px;">Tous les paiements reçus via KalaTogo</p>
+        </div>
+        <div id="payments-history-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+
       <!-- ══ MON ABONNEMENT ══ -->
       <div class="dash-section" id="ds-abonnement">
         <div class="dash-header">
@@ -3575,6 +3587,7 @@ function showDashSection(section) {
   if (section === 'avis') loadDashAvis();
   if (section === 'photos') loadDashPhotos();
   if (section === 'posts') loadDashPosts();
+  if (section === 'historique-paiements') loadHistoriquePaiements();
   if (section === 'abonnement') loadAbonnement();
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
@@ -5245,6 +5258,15 @@ function renderNotifications(recordId) {
     } else if (n.type === 'vue') {
       icon = '👁️'; bg = '#f0fdf4';
       msg = `Quelqu'un a consulté ton profil`;
+    } else if (n.type === 'rdv') {
+      icon = '📅'; bg = '#fff7ed';
+      msg = `<strong>${n.clientNom || 'Client'}</strong> a demandé un RDV le ${n.date || 'à une date'}`;
+    } else if (n.type === 'payment') {
+      icon = '💳'; bg = '#f0fdf4';
+      msg = `Paiement reçu : <strong>${n.montant?.toLocaleString('fr-FR')} FCFA</strong> pour ${n.desc || 'une prestation'}`;
+    } else if (n.type === 'avis') {
+      icon = '⭐'; bg = '#fef3c7';
+      msg = `<strong>${n.auteur || 'Client'}</strong> a laissé un avis : <em style="color:#888;">"${(n.texte||'').substring(0,50)}${(n.texte||'').length>50?'...':''}"</em>`;
     }
     return `<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-bottom:1px solid #f0f0f0;background:${n.read?'white':bg};transition:background 0.3s;">
       <div style="font-size:18px;flex-shrink:0;width:38px;height:38px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;">${icon}</div>
@@ -6822,12 +6844,24 @@ function filterAndRenderRDVs() {
   const monthFilter = document.getElementById('rdv-month-filter')?.value || '';
   const source = currentRdvTab === 'upcoming' ? _allDashRdvs.upcoming : _allDashRdvs.past;
   let filtered = source;
+
+  // ✅ Filtrer par recherche (nom, téléphone)
   if (search) filtered = filtered.filter(r => {
     const nom = (r.fields['Nom client'] || '').toLowerCase();
     const tel = (r.fields['Email client'] || '').toLowerCase();
-    return nom.includes(search) || tel.includes(search);
+    const msg = (r.fields['Message'] || '').toLowerCase();
+    return nom.includes(search) || tel.includes(search) || msg.includes(search);
   });
+
+  // ✅ Filtrer par mois
   if (monthFilter) filtered = filtered.filter(r => (r.fields['Date RDV'] || '').startsWith(monthFilter));
+
+  // ✅ Filtrer par statut (optionnel - ajouter checkbox si nécessaire)
+  const statusFilter = document.getElementById('rdv-status-filter')?.value;
+  if (statusFilter) {
+    filtered = filtered.filter(r => (r.fields['Statut'] || '') === statusFilter);
+  }
+
   const countEl = document.getElementById('rdv-count');
   if (countEl) countEl.textContent = filtered.length ? `${filtered.length} RDV` : '';
   renderRDVList(filtered);
@@ -7108,6 +7142,13 @@ async function submitRDV(containerId, btn) {
       }, typecast: true })
     });
     if (res.ok) {
+      // ✅ Envoyer notification au prestataire
+      pushNotif(rdvCalState.prestataire.id, {
+        type: 'rdv',
+        clientNom: nom,
+        date: rdvCalState.selectedDate,
+        time: rdvCalState.selectedSlot
+      });
       document.getElementById(containerId).innerHTML = `
         <div style="text-align:center;padding:30px 20px;">
           <div style="font-size:48px;margin-bottom:16px;">🎉</div>
@@ -7118,13 +7159,17 @@ async function submitRDV(containerId, btn) {
     } else {
       const err = await res.json();
       msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
-      msgEl.textContent = '❌ ' + (err.error?.message || 'Erreur, réessaie');
+      const errMsg = err.error?.message || 'Impossible de confirmer le RDV, réessaie';
+      msgEl.textContent = '❌ ' + errMsg;
       btn.disabled = false; btn.textContent = '✅ Confirmer le rendez-vous';
+      toast(errMsg, 'error');
     }
-  } catch {
+  } catch (e) {
+    console.error('RDV error:', e);
     msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
-    msgEl.textContent = '❌ Erreur de connexion';
+    msgEl.textContent = '❌ Erreur de connexion. Vérifie ta connexion et réessaie.';
     btn.disabled = false; btn.textContent = '✅ Confirmer le rendez-vous';
+    toast('Erreur réseau: impossible de créer le RDV', 'error');
   }
 }
 
@@ -7383,6 +7428,13 @@ function launchClientPayment() {
         const prestaId = new URLSearchParams(window.location.search).get('prestaid');
         if (rdvId && prestaId) {
           trackRDVPayment(prestaId, rdvId, amount, nom, new Date().toISOString().split('T')[0]);
+          // ✅ Notification au prestataire
+          pushNotif(prestaId, {
+            type: 'payment',
+            montant: amount,
+            clientNom: nom,
+            desc: desc
+          });
         }
 
         pageEl.innerHTML = `
@@ -7485,6 +7537,38 @@ function getRDVPaymentStatus(prestId, rdvId) {
   const key = `kala_rdv_payments_${prestId}`;
   const payments = JSON.parse(localStorage.getItem(key) || '[]');
   return payments.find(p => p.rdvId === rdvId);
+}
+
+// ══ HISTORIQUE PAIEMENTS ══
+function loadHistoriquePaiements() {
+  if (!currentPrestataire?.id) return;
+  const key = `kala_rdv_payments_${currentPrestataire.id}`;
+  const payments = JSON.parse(localStorage.getItem(key) || '[]');
+  const list = document.getElementById('payments-history-list');
+  if (!list) return;
+
+  if (payments.length === 0) {
+    list.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;text-align:center;">Aucun paiement enregistré pour l\'instant.</p>';
+    return;
+  }
+
+  const total = payments.reduce((sum, p) => sum + (p.montant || 0), 0);
+  list.innerHTML = `
+    <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:12px;color:#16a34a;font-weight:700;margin-bottom:4px;">💰 TOTAL REÇU</div>
+      <div style="font-size:28px;font-weight:900;color:var(--vert);">${total.toLocaleString('fr-FR')} FCFA</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px;">${payments.length} paiement${payments.length>1?'s':''}</div>
+    </div>
+    ${payments.map(p => {
+      const pDate = new Date(p.paymentDate).toLocaleDateString('fr-FR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+      return `<div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-weight:700;color:var(--noir);">${p.clientNom || 'Client'}</div>
+          <div style="font-size:12px;color:var(--gris);margin-top:2px;">${p.date || 'N/A'} à ${pDate}</div>
+        </div>
+        <div style="font-size:16px;font-weight:900;color:var(--vert);">${p.montant.toLocaleString('fr-FR')} FCFA</div>
+      </div>`;
+    }).join('')}`;
 }
 
 // ══ DASHBOARD MES POSTS ══
