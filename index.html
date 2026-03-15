@@ -852,6 +852,9 @@ footer {
   .hero-grid { grid-template-columns:1fr; gap:40px; }
   .hero-visual { display:none; }
   .profil-body { grid-template-columns:1fr; }
+  /* Sur mobile : sidebar (Informations, Réseaux sociaux) avant la colonne principale */
+  .profil-body > *:first-child { order:2; }
+  .profil-body > *:last-child  { order:1; }
   .footer-grid { grid-template-columns:1fr; gap:32px; }
   .form-row { grid-template-columns:1fr; }
   .nav-links .btn-ghost { display:none; }
