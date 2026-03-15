@@ -6857,7 +6857,14 @@ function renderRDVList(list) {
     const phone = f['Email client'] || '';
     const rawMsg = f['Message'] || '';
     const txMatch = rawMsg.match(/^\[TX:([^:]+):(\d+)FCFA\]\n?/);
-    const payBadge = txMatch ? `<span style="background:#dcfce7;color:#16a34a;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">💳 Payé ${parseInt(txMatch[2]).toLocaleString('fr-FR')} FCFA</span>` : '';
+
+    // ✅ Vérifier paiement via CinetPay (localStorage)
+    const paymentInfo = getRDVPaymentStatus(currentPrestataire?.id, r.id);
+    const payBadge = paymentInfo
+      ? `<span style="background:#dcfce7;color:#16a34a;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">✅ Payé ${paymentInfo.montant.toLocaleString('fr-FR')} FCFA</span>`
+      : txMatch
+      ? `<span style="background:#dcfce7;color:#16a34a;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">💳 Payé ${parseInt(txMatch[2]).toLocaleString('fr-FR')} FCFA</span>`
+      : '';
     const displayMsg = txMatch ? rawMsg.slice(txMatch[0].length) : rawMsg;
     return `
       <div class="rdv-card" id="rdv-card-${r.id}" style="transition:opacity .2s,transform .2s;">
@@ -7270,8 +7277,10 @@ function buildPaymentLink() {
   const desc = encodeURIComponent(document.getElementById('payment-link-desc')?.value || '');
   const prestaNom = encodeURIComponent(_paymentLinkState.prestaNom);
   const prestaId = _paymentLinkState.prestaId || '';
+  const rdvId = _paymentLinkState.rdvId || ''; // ✅ Inclure rdvId pour les paiements RDV
   const base = window.location.origin + window.location.pathname;
-  return `${base}?pay=1&amount=${amount}&presta=${prestaNom}&prestaid=${prestaId}&desc=${desc}`;
+  const rdvParam = rdvId ? `&rdvid=${rdvId}` : '';
+  return `${base}?pay=1&amount=${amount}&presta=${prestaNom}&prestaid=${prestaId}&desc=${desc}${rdvParam}`;
 }
 
 function updatePaymentLinkPreview() {
@@ -7369,6 +7378,13 @@ function launchClientPayment() {
     });
     CinetPay.waitResponse(function(data) {
       if (data.status === 'ACCEPTED') {
+        // ✅ Tracker le paiement RDV si présent dans l'URL
+        const rdvId = new URLSearchParams(window.location.search).get('rdvid');
+        const prestaId = new URLSearchParams(window.location.search).get('prestaid');
+        if (rdvId && prestaId) {
+          trackRDVPayment(prestaId, rdvId, amount, nom, new Date().toISOString().split('T')[0]);
+        }
+
         pageEl.innerHTML = `
           <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
             <div style="background:white;border-radius:24px;padding:40px 32px;max-width:420px;width:100%;text-align:center;">
@@ -7449,6 +7465,27 @@ const PLAN_CONFIG = {
   Pro:    { amount: 2500,  label: 'KalaTogo Plan Pro — 1 mois',    badge: '⭐ Pro',    color: 'var(--or)' },
   // Patron plan removed — merged into Pro
 };
+
+// ══ RDV PAYMENT TRACKING ══
+function trackRDVPayment(prestId, rdvId, montant, clientNom, date) {
+  const key = `kala_rdv_payments_${prestId}`;
+  const payments = JSON.parse(localStorage.getItem(key) || '[]');
+  payments.unshift({
+    rdvId,
+    montant,
+    clientNom,
+    date,
+    paymentDate: new Date().toISOString(),
+    status: 'confirmed'
+  });
+  localStorage.setItem(key, JSON.stringify(payments.slice(0, 100))); // garder 100 derniers
+}
+
+function getRDVPaymentStatus(prestId, rdvId) {
+  const key = `kala_rdv_payments_${prestId}`;
+  const payments = JSON.parse(localStorage.getItem(key) || '[]');
+  return payments.find(p => p.rdvId === rdvId);
+}
 
 // ══ DASHBOARD MES POSTS ══
 function loadDashPosts() {
