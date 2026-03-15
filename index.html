@@ -1038,12 +1038,64 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   .stat-card-num { font-size:22px !important; }
   .edit-form-section { padding:16px !important; }
 
+  /* ENCAISSER SECTION MOBILE */
+  .form-input { font-size:16px !important; padding:12px !important; }
+
+  /* MES POSTS STATS MOBILE */
+  #posts-count, #comments-count, #likes-count { font-size:24px !important; }
+
+  /* KPI CARDS MOBILE (Vue d'ensemble) */
+  .kpi-card { padding:12px !important; }
+  .kpi-value { font-size:24px !important; }
+
+  /* MODALS MOBILE */
+  .modal-overlay { padding:16px; }
+  .modal { padding:20px !important; max-width:95vw !important; }
+  .modal h2 { font-size:20px !important; }
+
+  /* TABLES/GRIDS MOBILE */
+  .render-grid, .render-list { grid-template-columns:1fr !important; }
+
+  /* BUTTONS MOBILE */
+  .btn { padding:12px 16px !important; font-size:14px !important; }
+  .btn-sm { padding:8px 12px !important; }
+
+  /* INPUTS MOBILE */
+  input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select {
+    font-size:16px !important; padding:12px !important;
+  }
+
+  /* FLEX COLS MOBILE */
+  [style*="flex:1"], .flex-row { flex-direction:column !important; width:100% !important; }
+
+  /* SPACING MOBILE */
+  .dash-header { gap:12px !important; }
+  .dash-header h2 { font-size:22px !important; }
+  .dash-header p { font-size:13px !important; }
+
   /* FONCTIONNEMENT MOBILE */
   .how-steps { grid-template-columns:1fr !important; }
   .plans-grid { grid-template-columns:1fr !important; }
 
   /* À PROPOS MOBILE */
   .apropos-photo-grid { grid-template-columns:1fr 2fr !important; gap:20px !important; }
+
+  /* PROFIL PUBLIC MOBILE */
+  .profil-page-bg { padding:0; }
+  .profil-grid { grid-template-columns:1fr !important; gap:12px !important; padding:16px; }
+  .profil-section { padding:16px !important; }
+  .profil-avatar-lg { width:72px !important; height:72px !important; font-size:28px !important; }
+  .profil-name { font-size:20px !important; }
+  .profil-photo { max-height:280px !important; }
+
+  /* PAGE PAIEMENT CLIENT */
+  #page-paiement-client .modal { max-width:100% !important; border-radius:0 !important; width:100% !important; height:100% !important; }
+  #page-paiement-client input { font-size:16px !important; margin-bottom:12px !important; }
+  #pay-amount-display { font-size:32px !important; }
+
+  /* RDV CONFIRMATION */
+  .rdv-confir-modal { max-width:95vw !important; }
+  .rdv-confir-modal h2 { font-size:18px !important; }
 
   /* GENERAL */
   .btn-sm { padding:7px 14px; font-size:12px; }
@@ -1059,6 +1111,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   .stat-cards { grid-template-columns:repeat(2,1fr) !important; }
   .plans-grid { grid-template-columns:repeat(2,1fr) !important; }
   .search-bar select { max-width:160px !important; }
+  .dashboard-sidebar { flex-wrap:wrap; }
+  .profil-grid { grid-template-columns:1fr 1fr !important; gap:12px !important; }
 }
 
 /* ══ PARRAINAGE SECTION ══ */
