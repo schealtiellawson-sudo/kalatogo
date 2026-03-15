@@ -3921,9 +3921,10 @@ function loadEditForm() {
   document.getElementById('edit-tel').value = f['Numéro de téléphone'] || '';
   document.getElementById('edit-description').value = f['Description des services'] || '';
   document.getElementById('edit-tiktok').value = f['Lien TikTok'] || '';
-  document.getElementById('edit-instagram').value = f['Lien Instagram'] || '';
-  // Charger les langues
-  const languesVal = f['Langues parlées'] || '';
+  // Charger Instagram + Langues depuis localStorage (champs pas encore dans Airtable)
+  const extras = getProfileExtras();
+  document.getElementById('edit-instagram').value = extras['instagram'] || f['_instagram'] || '';
+  const languesVal = extras['langues'] || f['_langues'] || '';
   document.getElementById('edit-langues').value = languesVal;
   // Cocher les checkboxes correspondantes
   document.querySelectorAll('#edit-langues-section input[type=checkbox]').forEach(cb => {
@@ -3973,16 +3974,20 @@ async function saveProfile() {
   const metier = document.getElementById('edit-metier').value;
   const quartier = document.getElementById('edit-quartier').value;
 
-  if (nom) fields['Nom complet'] = nom;
-  if (tel) fields['Numéro de téléphone'] = tel;
-  if (desc) fields['Description des services'] = desc;
-  if (tiktok) fields['Lien TikTok'] = tiktok;
-  if (instagram) fields['Lien Instagram'] = instagram;
-  if (langues) fields['Langues parlées'] = langues;
-  if (tarifMin) fields['Tarif minimum FCFA'] = parseInt(tarifMin);
-  if (tarifMax) fields['Tarif maximum FCFA'] = parseInt(tarifMax);
-  if (metier) fields['Métier principal'] = metier;
-  if (quartier) fields['Quartier'] = quartier;
+  if (nom)      fields['Nom complet']          = nom;
+  if (tel)      fields['Numéro de téléphone']  = tel;
+  if (desc)     fields['Description des services'] = desc;
+  if (tiktok)   fields['Lien TikTok']          = tiktok;
+  if (tarifMin) fields['Tarif minimum FCFA']   = parseInt(tarifMin);
+  if (tarifMax) fields['Tarif maximum FCFA']   = parseInt(tarifMax);
+  if (metier)   fields['Métier principal']     = metier;
+  if (quartier) fields['Quartier']             = quartier;
+
+  // ── Champs non encore créés dans Airtable → localStorage ──
+  const extras = getProfileExtras();
+  if (instagram !== undefined) extras['instagram'] = instagram;
+  if (langues   !== undefined) extras['langues']   = langues;
+  saveProfileExtras(extras);
 
   try {
     const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
@@ -3992,6 +3997,9 @@ async function saveProfile() {
     if (res.ok) {
       const updated = await res.json();
       currentPrestataire = updated;
+      // Réinjecter les extras dans le cache local pour que le profil public les affiche
+      currentPrestataire.fields['_instagram'] = extras['instagram'] || '';
+      currentPrestataire.fields['_langues']   = extras['langues']   || '';
       updateNavAuth(true);
       toast('✅ Profil mis à jour !', 'success');
     } else {
@@ -4002,6 +4010,17 @@ async function saveProfile() {
 
   btn.textContent = '💾 Sauvegarder les modifications';
   btn.disabled = false;
+}
+
+/* ── Helpers extras (Instagram, Langues) stockés en localStorage ── */
+function _extrasKey() {
+  return 'kala_extras_' + (currentPrestataire?.id || 'anon');
+}
+function getProfileExtras() {
+  try { return JSON.parse(localStorage.getItem(_extrasKey()) || '{}'); } catch { return {}; }
+}
+function saveProfileExtras(obj) {
+  localStorage.setItem(_extrasKey(), JSON.stringify(obj));
 }
 
 // ══ LOCALISATION DASHBOARD ══
@@ -5972,7 +5991,9 @@ async function showProfil(recordId) {
     const gpsLat = f['Latitude'] || null;
     const gpsLon = f['Longitude'] || null;
     const tiktok = f['Lien TikTok'] || '';
-    const instagram = f['Lien Instagram'] || '';
+    // Instagram et Langues stockés en localStorage (champs pas encore dans Airtable)
+    const _extras = (() => { try { return JSON.parse(localStorage.getItem('kala_extras_' + record.id) || '{}'); } catch { return {}; } })();
+    const instagram = _extras['instagram'] || f['_instagram'] || '';
     const experience = f['Années d\'expérience'] || '';
     const abonnement = f['Abonnement'] || 'Base';
     const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
@@ -6034,8 +6055,8 @@ async function showProfil(recordId) {
       ? '<p style="color:rgba(255,255,255,0.4);font-size:14px;text-align:center;padding:24px 0;">Pas encore d\'avis. Sois le premier !</p>'
       : avisRecords.slice(0, 3).map(a => renderAvis(a)).join('');
 
-    // Langues parlées
-    const langues = f['Langues parlées'] || '';
+    // Langues parlées (localStorage car champ inexistant dans Airtable)
+    const langues = _extras['langues'] || f['_langues'] || '';
     const languesSection = langues ? `
 <div class="profil-section profil-animate">
   <h3 style="margin-bottom:14px;">🌍 Langues parlées</h3>
