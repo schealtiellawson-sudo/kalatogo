@@ -1207,17 +1207,35 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 <div class="toast" id="toast"></div>
 
 <!-- MODAL CROP PHOTO (Cropper.js) -->
-<div class="modal-overlay" id="modal-crop" style="z-index:800;">
-  <div class="modal" style="max-width:520px;padding:28px;">
+<div class="modal-overlay" id="modal-crop" style="z-index:10000;">
+  <div class="modal" style="max-width:540px;padding:24px;">
     <button class="modal-close" onclick="cancelCrop()">✕</button>
-    <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:6px;">Recadrer la photo</h3>
-    <p style="color:var(--gris);font-size:14px;margin-bottom:20px;">Déplace et zoome pour cadrer parfaitement ta photo.</p>
-    <div style="width:100%;max-height:340px;overflow:hidden;border-radius:12px;background:#111;display:flex;align-items:center;justify-content:center;">
+    <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:4px;">✂️ Recadrer la photo</h3>
+    <p style="color:var(--gris);font-size:13px;margin-bottom:16px;">Pinch/zoom · Glisse pour repositionner</p>
+
+    <!-- Zone cropper -->
+    <div style="width:100%;height:320px;overflow:hidden;border-radius:12px;background:#111;position:relative;">
       <img id="crop-source-img" src="" alt="Recadrer" style="max-width:100%;display:block;">
     </div>
-    <div style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end;">
-      <button class="btn btn-ghost btn-sm" onclick="cancelCrop()">Annuler</button>
-      <button class="btn btn-primary" onclick="applyCrop()" style="min-width:140px;">✂️ Recadrer et valider</button>
+
+    <!-- Contrôles -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:8px;flex-wrap:wrap;">
+      <!-- Rotation -->
+      <div style="display:flex;gap:6px;">
+        <button onclick="_cropperInstance?.rotate(-90)" title="Rotation gauche"
+          style="background:#f3f4f6;border:none;width:36px;height:36px;border-radius:8px;font-size:16px;cursor:pointer;">↺</button>
+        <button onclick="_cropperInstance?.rotate(90)"  title="Rotation droite"
+          style="background:#f3f4f6;border:none;width:36px;height:36px;border-radius:8px;font-size:16px;cursor:pointer;">↻</button>
+        <button onclick="_cropperInstance?.scaleX(_cropperInstance.getData().scaleX === -1 ? 1 : -1)" title="Miroir horizontal"
+          style="background:#f3f4f6;border:none;width:36px;height:36px;border-radius:8px;font-size:14px;cursor:pointer;">⇆</button>
+        <button onclick="_cropperInstance?.reset()" title="Réinitialiser"
+          style="background:#f3f4f6;border:none;width:36px;height:36px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:700;">↺↺</button>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost btn-sm" onclick="cancelCrop()">Annuler</button>
+        <button class="btn btn-primary btn-sm" onclick="applyCrop()" style="min-width:120px;">✅ Valider</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3033,9 +3051,17 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-            <div id="edit-photo-preview" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:32px;font-weight:900;color:white;overflow:hidden;flex-shrink:0;border:3px solid rgba(27,122,74,0.2);"></div>
+            <!-- Aperçu + bouton recadrer superposé -->
+            <div style="position:relative;flex-shrink:0;">
+              <div id="edit-photo-preview" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:32px;font-weight:900;color:white;overflow:hidden;border:3px solid rgba(27,122,74,0.2);"></div>
+              <button id="btn-recadrer-profil" onclick="recadrerPhotoProfil()" title="Recadrer la photo actuelle"
+                style="display:none;position:absolute;bottom:0;right:0;background:#111;border:2px solid white;color:white;width:28px;height:28px;border-radius:50%;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;">✂️</button>
+            </div>
             <div style="flex:1;">
-              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('edit-photo-input').click()" style="margin-bottom:6px;">📸 Changer la photo de profil</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('edit-photo-input').click()">📸 Changer</button>
+                <button class="btn btn-secondary btn-sm" id="btn-recadrer-label" onclick="recadrerPhotoProfil()" style="display:none;">✂️ Recadrer</button>
+              </div>
               <input type="file" id="edit-photo-input" accept="image/*" style="display:none" onchange="uploadNewPhoto()">
               <p style="font-size:12px;color:var(--gris);margin:0;">JPG ou PNG · Max 5MB</p>
               <div id="photo-upload-status" style="margin-top:8px;font-size:13px;display:none;"></div>
@@ -4160,6 +4186,11 @@ function loadDashPhotos() {
   const photoUrl = f['WhatsApp'];
   if (photoUrl) {
     previewEl.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+    // Afficher le bouton ✂️ Recadrer
+    const btnR = document.getElementById('btn-recadrer-label');
+    const btnRIcon = document.getElementById('btn-recadrer-profil');
+    if (btnR)    { btnR.style.display    = 'inline-flex'; }
+    if (btnRIcon){ btnRIcon.style.display = 'flex'; }
   } else {
     const nom = f['Nom complet'] || 'P';
     previewEl.textContent = nom.charAt(0).toUpperCase();
@@ -4208,15 +4239,35 @@ function renderRealisationsGrid() {
   if (bar) bar.style.width = `${Math.round((filled / 3) * 100)}%`;
 }
 
-async function uploadNewPhoto() {
+function uploadNewPhoto() {
   const file = document.getElementById('edit-photo-input').files[0];
   if (!file || !currentPrestataire) return;
+  // Ouvrir le cropper avant l'upload
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget   = null;
+    _cropAspect   = 1; // carré pour photo de profil
+    _cropCallback = async (croppedBlob, croppedDataUrl) => {
+      await _doUploadProfilCrop(croppedBlob, croppedDataUrl);
+    };
+    _openCropModal(e.target.result, 1);
+  };
+  reader.readAsDataURL(file);
+  // Reset input pour pouvoir re-sélectionner le même fichier
+  document.getElementById('edit-photo-input').value = '';
+}
+
+async function _doUploadProfilCrop(blob, dataUrl) {
   const statusEl = document.getElementById('photo-upload-status');
   statusEl.style.display = 'block';
   statusEl.style.color = 'var(--gris)';
   statusEl.textContent = '⏳ Upload en cours...';
+  // Mise à jour de l'aperçu immédiatement
+  const previewEl = document.getElementById('edit-photo-preview');
+  if (previewEl) previewEl.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
 
-  const url = await uploadToImgBB(file);
+  const croppedFile = new File([blob], 'photo-profil.jpg', { type: 'image/jpeg' });
+  const url = await uploadToImgBB(croppedFile);
   if (url) {
     const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
       method: 'PATCH', headers: AT_HEADERS,
@@ -4224,11 +4275,12 @@ async function uploadNewPhoto() {
     });
     if (res.ok) {
       currentPrestataire.fields['WhatsApp'] = url;
-      const previewEl = document.getElementById('edit-photo-preview');
-      previewEl.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+      // Afficher le bouton Recadrer maintenant qu'une photo existe
+      document.getElementById('btn-recadrer-label')?.style && (document.getElementById('btn-recadrer-label').style.display = 'inline-flex');
       statusEl.style.color = 'var(--vert)';
       statusEl.textContent = '✅ Photo mise à jour !';
       toast('Photo de profil mise à jour !', 'success');
+      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
     }
   } else {
     statusEl.style.color = '#dc2626';
@@ -4236,19 +4288,33 @@ async function uploadNewPhoto() {
   }
 }
 
-async function uploadRealisationPhoto(slot) {
+function uploadRealisationPhoto(slot) {
   const file = document.getElementById(`real-input-${slot}`)?.files[0];
   if (!file || !currentPrestataire) return;
+  // Ouvrir le cropper avant l'upload (ratio libre pour réalisations)
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget   = null;
+    _cropAspect   = 1; // carré pour cohérence de la grille
+    _cropCallback = async (blob) => {
+      await _doUploadRealisationCrop(slot, blob);
+    };
+    _openCropModal(e.target.result, 1);
+  };
+  reader.readAsDataURL(file);
+  document.getElementById(`real-input-${slot}`).value = '';
+}
+
+async function _doUploadRealisationCrop(slot, blob) {
   const statusEl = document.getElementById('real-upload-status');
   statusEl.style.display = 'block';
   statusEl.style.color = 'var(--gris)';
   statusEl.textContent = `⏳ Upload photo ${slot} en cours...`;
-
-  // Animate slot as loading
   const slotEl = document.getElementById(`real-slot-${slot}`);
   if (slotEl) slotEl.style.opacity = '0.5';
 
-  const url = await uploadToImgBB(file);
+  const croppedFile = new File([blob], `realisation-${slot}.jpg`, { type: 'image/jpeg' });
+  const url = await uploadToImgBB(croppedFile);
   if (url) {
     const fieldName = `Photo Réalisation ${slot}`;
     const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
@@ -4272,8 +4338,6 @@ async function uploadRealisationPhoto(slot) {
     statusEl.style.color = '#dc2626';
     statusEl.textContent = '❌ Échec de l\'upload. Réessaie.';
   }
-  // Reset input so same file can be re-selected
-  document.getElementById(`real-input-${slot}`).value = '';
 }
 
 async function deleteRealisationPhoto(slot) {
@@ -4528,68 +4592,116 @@ function validateForm(formData) {
 // ══════════════════════════════════════════
 // UPLOAD PHOTO → IMGBB
 // ══════════════════════════════════════════
-// ── Cropper.js integration ──
+// ══════════════════════════════════════════
+// ── Cropper.js — système unifié avec callback ──
+// ══════════════════════════════════════════
 let _cropperInstance = null;
-let _cropTarget = null; // { previewId, placeholderId, zoneId, inputId }
+let _cropTarget     = null; // pour previewPhoto() (formulaire inscription)
+let _cropCallback   = null; // pour uploadNewPhoto / uploadRealisationPhoto
+let _cropAspect     = 1;    // ratio par défaut (1 = carré)
 
+/* ── Appelé depuis le formulaire d'inscription ── */
 function previewPhoto(inputId, previewId, placeholderId, zoneId) {
   const file = document.getElementById(inputId).files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
-    // Ouvrir modal crop
-    _cropTarget = { previewId, placeholderId, zoneId, inputId };
-    openCropModal(e.target.result);
+  reader.onload = e => {
+    _cropTarget   = { previewId, placeholderId, zoneId, inputId };
+    _cropCallback = null;
+    _cropAspect   = previewId.includes('profil') ? 1 : NaN;
+    _openCropModal(e.target.result);
   };
   reader.readAsDataURL(file);
 }
 
-function openCropModal(dataUrl) {
+/* ── Ouvre le modal avec une image (dataUrl) ── */
+function _openCropModal(dataUrl, aspect) {
+  if (aspect !== undefined) _cropAspect = aspect;
   const modal = document.getElementById('modal-crop');
-  const img = document.getElementById('crop-source-img');
+  const img   = document.getElementById('crop-source-img');
   if (!modal || !img) return;
-  img.src = dataUrl;
   modal.classList.add('active');
-  // Init cropper après que l'image soit chargée
+  img.src = dataUrl;
   img.onload = () => {
     if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
     _cropperInstance = new Cropper(img, {
-      aspectRatio: _cropTarget?.previewId?.includes('profil') ? 1 : NaN,
-      viewMode: 1,
-      autoCropArea: 0.85,
-      movable: true,
+      aspectRatio: _cropAspect,
+      viewMode:    1,
+      autoCropArea: 0.88,
+      movable:  true,
       zoomable: true,
       scalable: false,
-      rotatable: false,
+      rotatable: true,
     });
   };
 }
 
+/* ── Bouton "Appliquer" dans le modal ── */
 function applyCrop() {
-  if (!_cropperInstance || !_cropTarget) return;
-  const canvas = _cropperInstance.getCroppedCanvas({ maxWidth: 800, maxHeight: 800 });
-  const croppedUrl = canvas.toDataURL('image/jpeg', 0.88);
-  // Mettre à jour la prévisualisation
-  const prev = document.getElementById(_cropTarget.previewId);
-  const ph = document.getElementById(_cropTarget.placeholderId);
-  if (prev) { prev.src = croppedUrl; prev.style.display = 'block'; }
-  if (ph) ph.style.display = 'none';
-  if (_cropTarget.zoneId) document.getElementById(_cropTarget.zoneId)?.classList.add('has-file');
-  // Stocker le blob croppé sur l'input (via DataTransfer)
-  canvas.toBlob(blob => {
-    const dt = new DataTransfer();
-    dt.items.add(new File([blob], 'photo-cropee.jpg', { type: 'image/jpeg' }));
-    const input = document.getElementById(_cropTarget.inputId);
-    if (input) { try { input.files = dt.files; } catch(e) {} }
-  }, 'image/jpeg', 0.88);
-  cancelCrop();
+  if (!_cropperInstance) return;
+  const canvas = _cropperInstance.getCroppedCanvas({ maxWidth: 1000, maxHeight: 1000 });
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+  if (_cropCallback) {
+    // Flux dashboard : callback gère l'upload
+    canvas.toBlob(blob => {
+      const cb = _cropCallback;
+      cancelCrop();
+      cb(blob, dataUrl);
+    }, 'image/jpeg', 0.9);
+  } else if (_cropTarget) {
+    // Flux inscription : mise à jour de la prévisualisation + input
+    const prev = document.getElementById(_cropTarget.previewId);
+    const ph   = document.getElementById(_cropTarget.placeholderId);
+    if (prev) { prev.src = dataUrl; prev.style.display = 'block'; }
+    if (ph)   { ph.style.display = 'none'; }
+    if (_cropTarget.zoneId) document.getElementById(_cropTarget.zoneId)?.classList.add('has-file');
+    canvas.toBlob(blob => {
+      const dt = new DataTransfer();
+      dt.items.add(new File([blob], 'photo-cropee.jpg', { type: 'image/jpeg' }));
+      const input = document.getElementById(_cropTarget.inputId);
+      if (input) { try { input.files = dt.files; } catch(e) {} }
+    }, 'image/jpeg', 0.9);
+    cancelCrop();
+  }
 }
 
 function cancelCrop() {
   const modal = document.getElementById('modal-crop');
   if (modal) modal.classList.remove('active');
   if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
-  _cropTarget = null;
+  _cropTarget   = null;
+  _cropCallback = null;
+}
+
+/* ── Recadrer la photo de profil déjà en place ── */
+function recadrerPhotoProfil() {
+  const currentUrl = currentPrestataire?.fields['WhatsApp'];
+  if (!currentUrl) {
+    // Pas encore de photo → ouvrir simplement le file picker
+    document.getElementById('edit-photo-input').click();
+    return;
+  }
+  // Charger l'image existante via fetch pour éviter les problèmes CORS canvas
+  fetch(currentUrl)
+    .then(r => r.blob())
+    .then(blob => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        _cropTarget   = null;
+        _cropAspect   = 1;
+        _cropCallback = async (croppedBlob, croppedDataUrl) => {
+          await _doUploadProfilCrop(croppedBlob, croppedDataUrl);
+        };
+        _openCropModal(e.target.result, 1);
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(() => {
+      // Fallback CORS : laisser l'utilisateur re-sélectionner sa photo
+      toast('Ouvre ta galerie pour recadrer', 'info');
+      document.getElementById('edit-photo-input').click();
+    });
 }
 
 async function uploadToImgBB(file) {
