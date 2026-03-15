@@ -3413,7 +3413,6 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
                 <option value="">Tous les plans</option>
                 <option value="Base">Plan Base uniquement</option>
                 <option value="Pro">Plan Pro uniquement</option>
-                <option value="Patron">Plan Patron uniquement</option>
               </select>
               <input type="text" id="filleul-search" placeholder="🔍 Rechercher..." oninput="filterFilleuls()" style="font-size:13px;padding:6px 12px;border:1.5px solid #e5e7eb;border-radius:8px;width:160px;">
             </div>
@@ -4809,8 +4808,8 @@ async function fetchPrestataires(opts = {}) {
   records.sort((a, b) => {
     const aPlan = a.fields['Abonnement'] || 'Base';
     const bPlan = b.fields['Abonnement'] || 'Base';
-    const aIsPro = (aPlan === 'Pro' || aPlan === 'Patron');
-    const bIsPro = (bPlan === 'Pro' || bPlan === 'Patron');
+    const aIsPro = (aPlan === 'Pro');
+    const bIsPro = (bPlan === 'Pro');
     const aDispo = a.fields['Disponible maintenant'] ? 1 : 0;
     const bDispo = b.fields['Disponible maintenant'] ? 1 : 0;
     const aNote = a.fields['Note moyenne'] || 0;
@@ -4904,7 +4903,7 @@ function renderCard(record) {
         </div>
         <div class="pcard-badges">
           <span class="badge badge-vert" style="font-size:11px;">${emoji} ${metier}</span>
-          ${f['Abonnement'] === 'Pro' || f['Abonnement'] === 'Patron' ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,var(--or),#f59e0b);color:white;">⭐ Pro</span>' : ''}
+          ${f['Abonnement'] === 'Pro' ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,var(--or),#f59e0b);color:white;">⭐ Pro</span>' : ''}
           ${verifie ? '<span class="badge" style="font-size:11px;background:var(--vert-light);color:var(--vert);">✓ Vérifié</span>' : ''}
         </div>
         <div class="pcard-rating">
@@ -6994,7 +6993,7 @@ async function loadParrainage() {
 
 function _commParFilleul(plan) {
   if (plan === 'Pro')    return Math.floor(2500 * 0.40);
-  if (plan === 'Patron') return Math.floor(6500 * 0.40);
+
   return 0;
 }
 
@@ -7010,7 +7009,7 @@ function _renderFilleulsCRM(filleuls) {
   const kpiEl = document.getElementById('parrain-kpis');
   if (kpiEl) kpiEl.innerHTML = [
     { label:'Total filleuls',  val: total,                            color:'var(--vert)',   icon:'👥' },
-    { label:'Plan Pro/Patron', val: nbPro,                            color:'#f59e0b',       icon:'⭐' },
+    { label:'Plan Pro',        val: nbPro,                            color:'#f59e0b',       icon:'⭐' },
     { label:'Plan Base',       val: nbBase,                           color:'#6b7280',       icon:'🆓' },
     { label:'Revenus/mois',    val: commMois.toLocaleString('fr-FR') + ' FCFA', color:'#8b5cf6', icon:'💰' },
   ].map(k => `
@@ -7061,8 +7060,8 @@ function _renderFilleulsCRM(filleuls) {
       const comm = _commParFilleul(plan);
       const isPro = plan !== 'Base';
       const initiale = nom.charAt(0).toUpperCase();
-      const planColor = plan === 'Patron' ? '#8b5cf6' : plan === 'Pro' ? '#f59e0b' : '#9ca3af';
-      const planBg    = plan === 'Patron' ? '#f5f3ff' : plan === 'Pro' ? '#fffbeb' : '#f9fafb';
+      const planColor = plan === 'Pro' ? '#f59e0b' : '#9ca3af';
+      const planBg    = plan === 'Pro' ? '#fffbeb' : '#f9fafb';
 
       const waMsg = encodeURIComponent(`Bonjour ${nom} ! 👋\nJe vois que tu es encore sur le plan gratuit KALA. Pour seulement 2 500 FCFA/mois, le plan Pro te donne accès à plus de visibilité, le système de paiement et bien plus. Tu veux qu'on en parle ? 😊`);
 
@@ -8165,15 +8164,6 @@ function loadAbonnement() {
     document.getElementById('plan-card-Pro').style.border = '2px solid var(--vert)';
     document.getElementById('btn-plan-Pro').textContent = '✓ Plan actuel';
     document.getElementById('btn-plan-Pro').disabled = true;
-    document.getElementById('btn-plan-Base').textContent = 'Plan inférieur';
-    document.getElementById('btn-plan-Patron').textContent = 'Passer au Patron →';
-  } else if (plan === 'Patron') {
-    document.getElementById('plan-badge-actuel').textContent = '👑 Patron';
-    document.getElementById('plan-badge-actuel').style.background = 'rgba(192,132,252,0.25)';
-    document.getElementById('plan-card-Patron').style.border = '2px solid #c084fc';
-    document.getElementById('btn-plan-Patron').textContent = '✓ Plan actuel';
-    document.getElementById('btn-plan-Patron').disabled = true;
-    document.getElementById('btn-plan-Pro').textContent = 'Plan inférieur';
     document.getElementById('btn-plan-Base').textContent = 'Plan inférieur';
   }
 
