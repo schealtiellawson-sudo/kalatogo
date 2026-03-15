@@ -2412,6 +2412,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <button class="dash-link" onclick="showDashSection('photos')" id="dl-photos">
         <span class="icon">📸</span> Mes photos
       </button>
+      <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
+        <span class="icon">📝</span> Mes posts
+      </button>
       <button class="dash-link" onclick="showDashSection('paiement')" id="dl-paiement" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#1d4ed8;border:1.5px solid #bfdbfe;font-weight:800;">
         <span class="icon">💳</span> Encaisser
       </button>
@@ -2988,6 +2991,44 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </div>
       </div>
 
+      <!-- POSTS -->
+      <div class="dash-section" id="ds-posts">
+        <div class="dash-header">
+          <div>
+            <h2>📝 Mes posts</h2>
+            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Tes publications, commentaires et engagements</p>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;">
+          <div style="background:white;border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
+            <div style="font-size:32px;font-weight:900;color:var(--vert);" id="posts-count">0</div>
+            <div style="font-size:12px;color:var(--gris);margin-top:4px;font-weight:600;">Posts créés</div>
+          </div>
+          <div style="background:white;border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
+            <div style="font-size:32px;font-weight:900;color:var(--or);" id="comments-count">0</div>
+            <div style="font-size:12px;color:var(--gris);margin-top:4px;font-weight:600;">Commentaires</div>
+          </div>
+          <div style="background:white;border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
+            <div style="font-size:32px;font-weight:900;color:#ef4444;" id="likes-count">0</div>
+            <div style="font-size:12px;color:var(--gris);margin-top:4px;font-weight:600;">J'aime</div>
+          </div>
+        </div>
+
+        <!-- Commentaires reçus -->
+        <div class="edit-form-section" style="margin-bottom:20px;">
+          <h3 style="margin-bottom:14px;">💬 Commentaires reçus</h3>
+          <div id="posts-comments-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <!-- Likes reçus -->
+        <div class="edit-form-section">
+          <h3 style="margin-bottom:14px;">❤️ Likes reçus</h3>
+          <div id="posts-likes-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+
       <!-- AVIS -->
       <div class="dash-section" id="ds-avis">
         <div class="dash-header">
@@ -3473,6 +3514,7 @@ function showDashSection(section) {
   if (section === 'profil') { loadEditForm(); setTimeout(loadDashLocation, 200); _dashLocMap = null; _dashLocMarker = null; }
   if (section === 'avis') loadDashAvis();
   if (section === 'photos') loadDashPhotos();
+  if (section === 'posts') loadDashPosts();
   if (section === 'abonnement') loadAbonnement();
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
@@ -7237,6 +7279,81 @@ const PLAN_CONFIG = {
   Pro:    { amount: 2500,  label: 'KalaTogo Plan Pro — 1 mois',    badge: '⭐ Pro',    color: 'var(--or)' },
   // Patron plan removed — merged into Pro
 };
+
+// ══ DASHBOARD MES POSTS ══
+function loadDashPosts() {
+  if (!currentPrestataire?.id) return;
+  const key = `kala_posts_${currentPrestataire.id}`;
+  const posts = JSON.parse(localStorage.getItem(key) || '[]');
+
+  // Compter les stats
+  let totalComments = 0;
+  let totalLikes = 0;
+  const comments = [];
+  const likesByPost = {};
+
+  posts.forEach(post => {
+    totalLikes += post.likes || 0;
+    if (post.comments && post.comments.length > 0) {
+      post.comments.forEach(c => {
+        comments.push({ ...c, postId: post.id, postPreview: post.texte.substring(0, 50) });
+        totalComments++;
+      });
+    }
+    if (post.likes) {
+      likesByPost[post.id] = post.likes;
+    }
+  });
+
+  // Afficher les stats
+  document.getElementById('posts-count').textContent = posts.length;
+  document.getElementById('comments-count').textContent = totalComments;
+  document.getElementById('likes-count').textContent = totalLikes;
+
+  // Afficher commentaires récents (20 derniers)
+  const commentsList = document.getElementById('posts-comments-list');
+  const recentComments = comments.slice().reverse().slice(0, 20);
+  if (recentComments.length === 0) {
+    commentsList.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;">Aucun commentaire pour l\'instant.</p>';
+  } else {
+    commentsList.innerHTML = recentComments.map(c => {
+      const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      return `
+        <div style="background:#f9fafb;border-radius:10px;padding:12px;border-left:3px solid var(--vert);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div style="width:32px;height:32px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:13px;">${(c.auteur || '?').charAt(0).toUpperCase()}</div>`}
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:13px;color:var(--noir);">${c.auteur || 'Utilisateur'}</div>
+              <div style="font-size:11px;color:var(--gris);">${cDate}</div>
+            </div>
+          </div>
+          <div style="background:white;border-radius:8px;padding:10px;font-size:13px;color:var(--noir);margin-bottom:6px;line-height:1.5;">${c.texte}</div>
+          <div style="font-size:11px;color:var(--gris);">Sur: <strong>${c.postPreview}</strong></div>
+        </div>`;
+    }).join('');
+  }
+
+  // Afficher likes récents
+  const likesList = document.getElementById('posts-likes-list');
+  const likesEntries = Object.entries(likesByPost);
+  if (likesEntries.length === 0) {
+    likesList.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;">Aucun like pour l\'instant.</p>';
+  } else {
+    likesList.innerHTML = likesEntries.map(([postId, count]) => {
+      const post = posts.find(p => p.id === postId);
+      return `
+        <div style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-radius:10px;padding:12px;border-left:3px solid #ef4444;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:20px;">❤️</span>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#991b1b;">${count} personne${count > 1 ? 's' : ''} a${count > 1 ? 'iment' : ''} aimé</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--noir);">Post: <strong>${post?.texte?.substring(0, 60)}</strong></div>
+        </div>`;
+    }).join('');
+  }
+}
 
 function loadAbonnement() {
   if (!currentPrestataire) return;
