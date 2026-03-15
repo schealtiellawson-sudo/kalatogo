@@ -409,21 +409,15 @@ h1 .gold { color:var(--or); }
   background:white; border-radius:20px; overflow:hidden;
   box-shadow:var(--shadow); border:1.5px solid transparent;
   transition:all 0.3s; cursor:pointer;
+  border-top:4px solid #111;
 }
-.pcard:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:rgba(27,122,74,0.2); }
+.pcard:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:rgba(27,122,74,0.2); border-top-color:#111; }
 
-.pcard-photo {
-  height:160px; position:relative; overflow:hidden;
-  background:linear-gradient(135deg,var(--vert-light),var(--or-light));
-  display:flex; align-items:center; justify-content:center;
-}
-.pcard-photo img { width:100%; height:100%; object-fit:cover; }
-.pcard-photo-placeholder { font-size:48px; opacity:0.6; }
 .pcard-dispo {
-  position:absolute; top:12px; right:12px;
-  background:white; padding:4px 10px; border-radius:100px;
+  display:inline-flex; align-items:center; gap:5px;
+  background:#f0fdf4; padding:4px 10px; border-radius:100px;
   font-size:11px; font-weight:700; color:#16a34a;
-  display:flex; align-items:center; gap:5px;
+  border:1px solid #bbf7d0;
 }
 .dispo-dot { width:7px; height:7px; border-radius:50%; background:#16a34a; animation:pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
@@ -1030,7 +1024,6 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
   /* CARDS MOBILE */
   .cards-grid { grid-template-columns:1fr !important; gap:14px !important; }
-  .pcard-photo { height:140px; }
 
   /* INSCRIPTION MOBILE */
   .form-row { flex-direction:column !important; gap:0 !important; }
@@ -4731,19 +4724,14 @@ function renderCard(record) {
 
   return `
     <div class="pcard" onclick="showProfil('${record.id}')">
-      <div class="pcard-photo">
-        ${photoProfil
-          ? `<img src="${photoProfil}" alt="${nom}" loading="lazy">`
-          : `<div class="pcard-photo-placeholder">${emoji}</div>`}
-        ${dispo ? '<div class="pcard-dispo"><div class="dispo-dot"></div> Disponible</div>' : ''}
-      </div>
       <div class="pcard-body">
         <div class="pcard-top">
-          <div>
+          <div style="flex:1;min-width:0;">
             <div class="pcard-name">${nom}</div>
             <div class="pcard-meta">📍 ${quartier}</div>
+            ${dispo ? '<div class="pcard-dispo" style="margin-top:6px;"><div class="dispo-dot"></div> Disponible</div>' : ''}
           </div>
-          <div class="pcard-avatar">
+          <div class="pcard-avatar" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;">
             ${photoProfil ? `<img src="${photoProfil}" alt="${nom}">` : initiale}
           </div>
         </div>
@@ -4754,14 +4742,14 @@ function renderCard(record) {
         </div>
         <div class="pcard-rating">
           <span class="stars" style="font-size:13px;">${renderStars(note)}</span>
-          ${note > 0 ? `<span>${note.toFixed(1)} (${nbAvis} avis)</span>` : ''}
+          ${note > 0 ? `<span>${note.toFixed(1)} (${nbAvis} avis)</span>` : '<span style="font-size:12px;color:var(--gris);">Pas encore d\'avis</span>'}
         </div>
       </div>
       <div class="pcard-footer">
         <div class="pcard-price">
           ${tarifMin ? `${tarifMin.toLocaleString()} <span>FCFA</span>` : '<span style="font-size:13px;color:var(--gris);">Tarif à définir</span>'}
         </div>
-        ${tel ? `<a href="${waLink}" class="btn btn-wa btn-sm" onclick="event.stopPropagation()">💬 Contact</a>` : ''}
+        <button class="btn btn-sm" style="background:#111;color:white;border:none;font-weight:700;border-radius:100px;padding:8px 16px;font-size:13px;" onclick="event.stopPropagation();showProfil('${record.id}')">👤 Voir profil</button>
       </div>
     </div>`;
 }
@@ -5450,7 +5438,6 @@ function renderMetierBanner(metier, recordId, nom) {
 }
 
 function showAlbumsPage(recordId) {
-  // Trouve le record
   const allRecords = [...(window._allPrestataires || [])];
   let record = allRecords.find(r => r.id === recordId);
   if (!record && currentPrestataire?.id === recordId) record = currentPrestataire;
@@ -5460,59 +5447,108 @@ function showAlbumsPage(recordId) {
   const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
   const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
   const nom = f['Nom complet'] || 'Prestataire';
-
+  const metier = f['Métier principal'] || '';
   const allPhotos = [photoProfil, ...realisations].filter(Boolean);
-
   const albumPageId = 'albums-page-' + recordId;
 
-  // Crée ou affiche la page albums
-  let albumPage = document.getElementById(albumPageId);
-  if (!albumPage) {
-    albumPage = document.createElement('div');
-    albumPage.id = albumPageId;
-    albumPage.style.cssText = 'position:fixed;inset:0;background:#0d1117;z-index:9999;overflow-y:auto;';
-    albumPage.innerHTML = `
-      <div style="max-width:800px;margin:0 auto;padding:24px 16px;">
-        <!-- Header -->
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px;">
-          <button onclick="document.getElementById('${albumPageId}').remove()" style="background:rgba(255,255,255,0.08);border:none;color:white;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">←</button>
-          <div>
-            <h2 style="color:white;font-weight:800;margin:0;font-size:18px;">📸 Albums de ${nom.split(' ')[0]}</h2>
-            <p style="color:rgba(255,255,255,0.4);font-size:13px;margin:2px 0 0;">${allPhotos.length} photo${allPhotos.length !== 1 ? 's' : ''}</p>
+  // Toujours recréer pour afficher les données fraîches
+  const old = document.getElementById(albumPageId);
+  if (old) old.remove();
+
+  const albumPage = document.createElement('div');
+  albumPage.id = albumPageId;
+  albumPage.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;z-index:9999;overflow-y:auto;';
+
+  // Helper : item cliquable avec hover overlay
+  const photoItem = (url, photos, idx, size='1') => `
+    <div onclick="openLightboxSwipe(${JSON.stringify(photos)},${idx})"
+      style="grid-column:span ${size};aspect-ratio:1;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;background:#1a1a1a;">
+      <img src="${url}" loading="lazy"
+        style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:background 0.2s;"
+        onmouseenter="this.style.background='rgba(0,0,0,0.3)';this.previousElementSibling.style.transform='scale(1.06)'"
+        onmouseleave="this.style.background='rgba(0,0,0,0)';this.previousElementSibling.style.transform='scale(1)'">
+        <svg style="opacity:0;transition:opacity 0.2s;" width="32" height="32" fill="white" viewBox="0 0 24 24"><path d="M12 5c-7.633 0-9.927 6.617-9.948 6.684L1.946 12l.105.316C2.073 12.383 4.367 19 12 19s9.927-6.617 9.948-6.684l.106-.316-.105-.316C21.927 11.617 19.633 5 12 5zm0 11c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4zm0-6c-1.103 0-2 .897-2 2s.897 2 2 2 2-.897 2-2-.897-2-2-2z"/></svg>
+      </div>
+    </div>`;
+
+  // Grille réalisations : 1ère photo grande si ≥ 2 photos
+  let realisHtml = '';
+  if (realisations.length === 1) {
+    realisHtml = `<div style="display:grid;grid-template-columns:1fr;gap:4px;">${photoItem(realisations[0], realisations, 0)}</div>`;
+  } else if (realisations.length === 2) {
+    realisHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${realisations.map((p,i)=>photoItem(p,realisations,i)).join('')}</div>`;
+  } else {
+    // 3+ : première grande (2 cols), reste petite
+    realisHtml = `
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:4px;">
+        ${photoItem(realisations[0], realisations, 0, '1')}
+        <div style="display:grid;grid-template-rows:1fr 1fr;gap:4px;">
+          ${realisations.slice(1,3).map((p,i)=>photoItem(p,realisations,i+1)).join('')}
+        </div>
+      </div>`;
+  }
+
+  albumPage.innerHTML = `
+    <!-- Header avec dégradé -->
+    <div style="position:sticky;top:0;z-index:10;background:linear-gradient(to bottom,#0a0a0a 85%,transparent);padding:env(safe-area-inset-top,0px) 0 0;">
+      <div style="max-width:700px;margin:0 auto;padding:16px 16px 8px;display:flex;align-items:center;gap:12px;">
+        <button onclick="document.getElementById('${albumPageId}').remove()"
+          style="background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.2s;"
+          onmouseenter="this.style.background='rgba(255,255,255,0.18)'" onmouseleave="this.style.background='rgba(255,255,255,0.1)'">←</button>
+        ${photoProfil ? `<img src="${photoProfil}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);">` : ''}
+        <div style="flex:1;min-width:0;">
+          <div style="color:white;font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📸 ${nom.split(' ')[0]}</div>
+          <div style="color:rgba(255,255,255,0.4);font-size:12px;">${allPhotos.length} photo${allPhotos.length !== 1 ? 's' : ''}${metier ? ' · ' + metier : ''}</div>
+        </div>
+        <!-- Voir toutes les photos en mode grille -->
+        ${allPhotos.length > 1 ? `<button onclick="openLightboxSwipe(${JSON.stringify(allPhotos)},0)" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.7);padding:8px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">▶ Diaporama</button>` : ''}
+      </div>
+    </div>
+
+    <div style="max-width:700px;margin:0 auto;padding:8px 16px 40px;">
+
+      <!-- Section : Photo de profil -->
+      ${photoProfil ? `
+      <div style="margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:3px;height:18px;background:white;border-radius:2px;"></div>
+          <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Photo de profil</span>
+        </div>
+        <div onclick="openLightboxSwipe([${JSON.stringify(photoProfil)}],0)"
+          style="position:relative;width:100%;max-width:340px;aspect-ratio:3/4;cursor:pointer;overflow:hidden;border-radius:16px;background:#1a1a1a;">
+          <img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;"
+            onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 50%);border-radius:16px;"></div>
+          <div style="position:absolute;bottom:14px;left:14px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;display:flex;align-items:center;gap:6px;">
+            <div style="width:7px;height:7px;background:#22c55e;border-radius:50%;"></div>
+            <span style="color:white;font-size:11px;font-weight:700;">Photo principale</span>
           </div>
         </div>
+      </div>` : ''}
 
-        <!-- Album : Photos de moi -->
-        ${photoProfil ? `
-        <div style="margin-bottom:32px;">
-          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">📸 Photos de moi</div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:12px;overflow:hidden;">
-            <div onclick="openLightboxFull('${photoProfil}', '${nom}')" style="aspect-ratio:1;cursor:pointer;overflow:hidden;">
-              <img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">
-            </div>
+      <!-- Section : Réalisations -->
+      ${realisations.length > 0 ? `
+      <div style="margin-bottom:28px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:3px;height:18px;background:var(--or,#f59e0b);border-radius:2px;"></div>
+            <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Réalisations</span>
           </div>
-        </div>` : ''}
+          <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:3px 10px;border-radius:100px;">${realisations.length} photo${realisations.length !== 1 ? 's' : ''}</span>
+        </div>
+        ${realisHtml}
+      </div>` : ''}
 
-        <!-- Album : Réalisations -->
-        ${realisations.length > 0 ? `
-        <div style="margin-bottom:32px;">
-          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">🔨 Mes réalisations · ${realisations.length} photo${realisations.length !== 1 ? 's' : ''}</div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:12px;overflow:hidden;">
-            ${realisations.map((photo, i) => `
-              <div onclick="openLightboxFull('${photo}', 'Réalisation ${i+1}')" style="aspect-ratio:1;cursor:pointer;overflow:hidden;">
-                <img src="${photo}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">
-              </div>
-            `).join('')}
-          </div>
-        </div>` : ''}
+      ${allPhotos.length === 0 ? `
+      <div style="text-align:center;padding:80px 20px;">
+        <div style="font-size:48px;margin-bottom:16px;">📷</div>
+        <div style="color:rgba(255,255,255,0.3);font-size:15px;">Aucune photo pour l'instant</div>
+      </div>` : ''}
+    </div>
+  `;
 
-        ${allPhotos.length === 0 ? '<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);">Aucune photo pour l\'instant</div>' : ''}
-      </div>
-    `;
-    document.body.appendChild(albumPage);
-  } else {
-    albumPage.style.display = 'block';
-  }
+  document.body.appendChild(albumPage);
 }
 
 // ── PAGE RDV DÉDIÉE style Calendly ──
@@ -5656,17 +5692,107 @@ async function confirmRdvPage(recordId) {
   }
 }
 
-function openLightboxFull(url, title) {
+/* ── Lightbox globale avec swipe et navigation ── */
+window._lbPhotos = [];
+window._lbIndex  = 0;
+
+function openLightboxSwipe(photos, startIndex) {
+  window._lbPhotos = photos;
+  window._lbIndex  = startIndex;
+
+  // Supprimer ancienne instance
+  const old = document.getElementById('kala-lightbox');
+  if (old) old.remove();
+
   const lb = document.createElement('div');
-  lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;';
-  lb.onclick = () => lb.remove();
+  lb.id = 'kala-lightbox';
+  lb.style.cssText = [
+    'position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:999999;',
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;',
+    'touch-action:pan-y;user-select:none;'
+  ].join('');
+
   lb.innerHTML = `
-    <div style="max-width:90vw;max-height:90vh;position:relative;">
-      <img src="${url}" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;">
-      <div style="text-align:center;color:rgba(255,255,255,0.6);font-size:13px;margin-top:8px;">${title} · Cliquer pour fermer</div>
+    <!-- Bouton fermer -->
+    <button id="lb-close" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">✕</button>
+    <!-- Compteur -->
+    <div id="lb-count" style="position:absolute;top:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;z-index:2;"></div>
+    <!-- Image -->
+    <div style="position:relative;width:100%;display:flex;align-items:center;justify-content:center;flex:1;">
+      <button id="lb-prev" style="position:absolute;left:12px;background:rgba(255,255,255,0.12);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">‹</button>
+      <img id="lb-img" src="" style="max-width:92vw;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);transition:opacity 0.2s;">
+      <button id="lb-next" style="position:absolute;right:12px;background:rgba(255,255,255,0.12);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">›</button>
     </div>
+    <!-- Miniatures -->
+    <div id="lb-thumbs" style="display:flex;gap:6px;margin-top:16px;padding:0 16px;overflow-x:auto;max-width:100vw;scrollbar-width:none;"></div>
   `;
+
   document.body.appendChild(lb);
+  _lbRender();
+
+  // Boutons
+  document.getElementById('lb-close').onclick = () => lb.remove();
+  document.getElementById('lb-prev').onclick  = () => _lbNav(-1);
+  document.getElementById('lb-next').onclick  = () => _lbNav(1);
+
+  // Click fond pour fermer
+  lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
+
+  // Swipe touch
+  let touchX = null;
+  lb.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) _lbNav(dx < 0 ? 1 : -1);
+    touchX = null;
+  });
+}
+
+function _lbRender() {
+  const photos = window._lbPhotos;
+  const i = window._lbIndex;
+  const img = document.getElementById('lb-img');
+  const count = document.getElementById('lb-count');
+  const thumbs = document.getElementById('lb-thumbs');
+  const prev = document.getElementById('lb-prev');
+  const next = document.getElementById('lb-next');
+  if (!img) return;
+
+  img.style.opacity = '0';
+  img.src = photos[i];
+  img.onload = () => { img.style.opacity = '1'; };
+
+  count.textContent = `${i + 1} / ${photos.length}`;
+  prev.style.opacity = photos.length <= 1 ? '0' : '1';
+  next.style.opacity = photos.length <= 1 ? '0' : '1';
+
+  // Miniatures
+  thumbs.innerHTML = photos.map((p, idx) => `
+    <img src="${p}" onclick="window._lbIndex=${idx};_lbRender()"
+      style="width:48px;height:48px;object-fit:cover;border-radius:6px;cursor:pointer;flex-shrink:0;
+             border:2px solid ${idx === i ? 'white' : 'transparent'};opacity:${idx === i ? '1' : '0.45'};transition:all 0.2s;">
+  `).join('');
+}
+
+function _lbNav(dir) {
+  const len = window._lbPhotos.length;
+  if (len <= 1) return;
+  window._lbIndex = (window._lbIndex + dir + len) % len;
+  _lbRender();
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('kala-lightbox')) return;
+  if (e.key === 'ArrowLeft')  _lbNav(-1);
+  if (e.key === 'ArrowRight') _lbNav(1);
+  if (e.key === 'Escape') document.getElementById('kala-lightbox')?.remove();
+});
+
+// Compatibilité avec l'ancien appel openLightboxFull
+function openLightboxFull(url, title) {
+  openLightboxSwipe([url], 0);
 }
 
 async function showProfil(recordId) {
