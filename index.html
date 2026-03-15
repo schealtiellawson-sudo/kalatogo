@@ -4925,7 +4925,8 @@ async function submitPost(recordId) {
     photo: photoUrl,
     date: new Date().toISOString(),
     auteur: currentPrestataire?.fields?.['Nom complet'] || 'Moi',
-    auteurPhoto: currentPrestataire?.fields?.['Photo de profil'] || ''
+    auteurPhoto: currentPrestataire?.fields?.['Photo de profil'] || '',
+    auteurId: currentPrestataire?.id || null
   };
 
   // Sauvegarder en localStorage (simple, pas de backend)
@@ -4972,9 +4973,9 @@ function renderPostsFeed(recordId) {
       const cInit = (c.auteur || '?').charAt(0).toUpperCase();
       const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
       return `<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,0.06);">
-        ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(255,255,255,0.6);font-size:12px;flex-shrink:0;">${cInit}</div>`}
+        ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(255,255,255,0.6);font-size:12px;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${cInit}</div>`}
         <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 12px;">
-          <div style="font-weight:700;color:white;font-size:13px;margin-bottom:2px;">${c.auteur} <span style="font-weight:400;color:rgba(255,255,255,0.35);font-size:11px;">· ${cDate}</span></div>
+          <div style="font-weight:700;color:white;font-size:13px;margin-bottom:2px;cursor:${c.auteurId ? 'pointer' : 'default'};" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${c.auteur} <span style="font-weight:400;color:rgba(255,255,255,0.35);font-size:11px;">· ${cDate}</span></div>
           <div style="color:rgba(255,255,255,0.8);font-size:13px;line-height:1.5;">${c.texte.replace(/\n/g,'<br>')}</div>
         </div>
       </div>`;
@@ -4984,8 +4985,8 @@ function renderPostsFeed(recordId) {
     <div id="post-card-${p.id}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:12px;">
       <!-- Header -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        ${p.auteurPhoto ? `<img src="${p.auteurPhoto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">` : `<div style="width:38px;height:38px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;">${initiale}</div>`}
-        <div>
+        ${p.auteurPhoto ? `<img src="${p.auteurPhoto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">` : `<div style="width:38px;height:38px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">${initiale}</div>`}
+        <div style="cursor:${p.auteurId ? 'pointer' : 'default'};" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">
           <div style="font-weight:700;color:white;font-size:14px;">${p.auteur}</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.4);">${dateStr}</div>
         </div>
@@ -5122,6 +5123,12 @@ function toggleCommentBox(recordId, postId) {
 }
 
 function submitComment(recordId, postId) {
+  // ✅ VÉRIFICATION LOGIN REQUISE
+  if (!currentPrestataire) {
+    toast('Connecte-toi pour commenter', 'info');
+    return;
+  }
+
   const input = document.getElementById(`comment-input-${postId}`);
   const texte = input?.value?.trim();
   if (!texte) return;
@@ -5130,18 +5137,21 @@ function submitComment(recordId, postId) {
   const post = posts.find(p => p.id === postId);
   if (!post) return;
   if (!post.comments) post.comments = [];
-  const auteurCommentaire = currentPrestataire?.fields?.['Nom complet'] || 'Visiteur';
+  const auteurCommentaire = currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur';
   post.comments.push({
     id: Date.now().toString(),
     texte,
     auteur: auteurCommentaire,
     auteurPhoto: currentPrestataire?.fields?.['Photo de profil'] || '',
+    auteurId: currentPrestataire?.id || null,
     date: new Date().toISOString()
   });
   // Notif au propriétaire du profil
   pushNotif(recordId, { type: 'comment', auteur: auteurCommentaire, texte, postId });
   localStorage.setItem(key, JSON.stringify(posts));
   renderPostsFeed(recordId);
+  // Vider l'input
+  if (input) input.value = '';
   // Réouvrir la section commentaires après re-render
   setTimeout(() => {
     const s = document.getElementById(`comments-section-${postId}`);
