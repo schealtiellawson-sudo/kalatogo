@@ -163,17 +163,7 @@ nav {
 
 @media (max-width:700px) {
   .nav-burger { display:flex; }
-  .nav-links {
-    display:none;
-    position:fixed; top:0; left:0; right:0; bottom:0;
-    background:rgba(248,246,241,0.98); backdrop-filter:blur(20px);
-    flex-direction:column; align-items:center; justify-content:center;
-    gap:12px; z-index:250; padding:24px;
-  }
-  .nav-links.open { display:flex; }
-  .nav-link { font-size:18px; padding:12px 24px; width:100%; text-align:center; border-radius:14px; }
-  #nav-guest { flex-direction:column; width:100%; gap:8px; }
-  #nav-guest button { width:100%; justify-content:center; }
+  #nav-links-desktop { display:none !important; }
 }
 
 /* ══════════════════════════════════════
@@ -1177,14 +1167,11 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 <nav>
   <div class="container nav-inner">
     <a class="nav-logo" onclick="showPage('home')" href="#">KALA<sup>TOGO</sup></a>
-    <button class="nav-burger" id="nav-burger" onclick="toggleMobileNav()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="nav-links" id="nav-links">
-      <button class="nav-link" onclick="showPage('home');closeMobileNav()">Accueil</button>
-      <button class="nav-link" onclick="showPage('search');closeMobileNav()">Trouver un pro</button>
-      <button class="nav-link" onclick="showPage('fonctionnement');closeMobileNav()">Comment ça marche</button>
-      <button class="nav-link" onclick="showPage('apropos');closeMobileNav()">À propos</button>
+    <div class="nav-links" id="nav-links-desktop">
+      <button class="nav-link" onclick="showPage('home')">Accueil</button>
+      <button class="nav-link" onclick="showPage('search')">Trouver un pro</button>
+      <button class="nav-link" onclick="showPage('fonctionnement')">Comment ça marche</button>
+      <button class="nav-link" onclick="showPage('apropos')">À propos</button>
       <!-- Boutons non connecté -->
       <div id="nav-guest" style="display:flex;align-items:center;gap:6px;">
         <button class="nav-link btn btn-ghost btn-sm" onclick="showPage('login')">Se connecter</button>
@@ -1198,8 +1185,27 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </button>
       </div>
     </div>
+    <!-- Hamburger (hors nav-links-desktop pour rester visible sur mobile) -->
+    <button class="nav-burger" id="nav-burger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- MENU MOBILE (hors nav pour éviter le stacking context backdrop-filter) -->
+<div id="mobile-nav-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#f8f6f1;z-index:9000;flex-direction:column;overflow-y:auto;padding-top:env(safe-area-inset-top, 0px);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid rgba(0,0,0,0.08);">
+    <span style="font-family:Fraunces,serif;font-weight:900;font-size:22px;color:var(--vert);">KALA<sup style="font-size:11px;color:var(--or);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;">TOGO</sup></span>
+    <button onclick="closeMobileNav()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--gris-fonce);padding:6px;">✕</button>
+  </div>
+  <div style="padding:16px 20px;display:flex;flex-direction:column;gap:4px;flex:1;">
+    <button onclick="showPage('home');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏠 Accueil</button>
+    <button onclick="showPage('search');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🔍 Trouver un pro</button>
+    <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💡 Comment ça marche</button>
+    <button onclick="showPage('apropos');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">👤 À propos</button>
+    <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -7803,14 +7809,34 @@ async function onPaymentSuccess(plan, transId) {
 // NAV MOBILE
 // ══════════════════════════════════════════
 function toggleMobileNav() {
-  const links = document.getElementById('nav-links');
+  const overlay = document.getElementById('mobile-nav-overlay');
   const burger = document.getElementById('nav-burger');
-  const open = links.classList.toggle('open');
-  burger.classList.toggle('open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
+  const isOpen = overlay.style.display === 'flex';
+  if (isOpen) {
+    overlay.style.display = 'none';
+    burger.classList.remove('open');
+    document.body.style.overflow = '';
+  } else {
+    // Mettre à jour les boutons auth dans le menu mobile
+    const authEl = document.getElementById('mobile-nav-auth');
+    if (authEl) {
+      if (currentUser && currentPrestataire) {
+        const nom = currentPrestataire.fields['Nom complet'] || 'Mon espace';
+        authEl.innerHTML = `<button onclick="showPage('dashboard');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">👤 ${nom} — Dashboard</button>`;
+      } else {
+        authEl.innerHTML = `
+          <button onclick="showPage('login');closeMobileNav()" style="background:none;border:2px solid var(--vert);color:var(--vert);padding:14px;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">Se connecter</button>
+          <button onclick="showPage('inscription');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">S'inscrire gratuitement →</button>`;
+      }
+    }
+    overlay.style.display = 'flex';
+    overlay.scrollTop = 0;
+    burger.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }
 function closeMobileNav() {
-  document.getElementById('nav-links')?.classList.remove('open');
+  document.getElementById('mobile-nav-overlay').style.display = 'none';
   document.getElementById('nav-burger')?.classList.remove('open');
   document.body.style.overflow = '';
 }
