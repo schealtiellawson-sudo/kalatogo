@@ -5493,7 +5493,7 @@ function toggleCommentBox(recordId, postId) {
   if (!isVisible) document.getElementById(`comment-input-${postId}`)?.focus();
 }
 
-function submitComment(recordId, postId) {
+async function submitComment(recordId, postId) {
   // ✅ VÉRIFICATION LOGIN REQUISE
   if (!currentPrestataire) {
     toast('Connecte-toi pour commenter', 'info');
