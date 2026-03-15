@@ -3401,12 +3401,40 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           </div>
         </div>
 
-        <!-- Filleuls list -->
-        <div class="edit-form-section" data-lock-idx="1" style="margin-bottom:20px;">
-          <h3 style="margin-bottom:14px;">👥 Mes filleuls</h3>
+        <!-- KPI réseau -->
+        <div id="parrain-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;"></div>
+
+        <!-- CRM Filleuls -->
+        <div class="edit-form-section" data-lock-idx="1" style="margin-bottom:20px;padding:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+            <h3 style="margin:0;">👥 Mes filleuls</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <select id="filleul-filter-plan" onchange="filterFilleuls()" style="font-size:13px;padding:6px 12px;border:1.5px solid #e5e7eb;border-radius:8px;background:white;cursor:pointer;">
+                <option value="">Tous les plans</option>
+                <option value="Base">Plan Base uniquement</option>
+                <option value="Pro">Plan Pro uniquement</option>
+                <option value="Patron">Plan Patron uniquement</option>
+              </select>
+              <input type="text" id="filleul-search" placeholder="🔍 Rechercher..." oninput="filterFilleuls()" style="font-size:13px;padding:6px 12px;border:1.5px solid #e5e7eb;border-radius:8px;width:160px;">
+            </div>
+          </div>
+
+          <!-- Section relance upsell -->
+          <div id="parrain-upsell-banner" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span style="font-size:20px;">🎯</span>
+              <div style="flex:1;">
+                <div style="font-weight:800;font-size:14px;color:#92400e;">Opportunités d'upsell</div>
+                <div style="font-size:13px;color:#78350f;" id="upsell-desc">— filleuls encore en plan Base → relance-les pour passer Pro</div>
+              </div>
+              <button onclick="filterUpsell()" style="background:#f59e0b;color:white;border:none;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">Voir les → relancer</button>
+            </div>
+          </div>
+
           <div id="filleuls-list">
             <div class="loading"><div class="spinner"></div> Chargement...</div>
           </div>
+          <div id="filleuls-count" style="text-align:center;font-size:12px;color:var(--gris);margin-top:10px;"></div>
         </div>
 
         <!-- Calcul projection -->
@@ -6954,40 +6982,146 @@ async function loadParrainage() {
   // Charger les filleuls
   try {
     const parrainFormula = encodeURIComponent("{Parrain Code}='" + code + "'");
-    const res = await fetch(AT_URL('Prestataires') + '?filterByFormula=' + parrainFormula, { headers: AT_HEADERS });
+    const res = await fetch(AT_URL('Prestataires') + '?filterByFormula=' + parrainFormula + '&maxRecords=500', { headers: AT_HEADERS });
     const data = await res.json();
-    const filleuls = data.records || [];
-    document.getElementById('p-nb-filleuls').textContent = filleuls.length;
-
-    const listEl = document.getElementById('filleuls-list');
-    if (filleuls.length === 0) {
-      listEl.innerHTML = `<div style="text-align:center;padding:24px;color:var(--gris);">
-        <div style="font-size:32px;margin-bottom:8px;">🔗</div>
-        <p style="font-weight:600;">Aucun filleul pour l'instant</p>
-        <p style="font-size:13px;margin-top:6px;">Partage ton lien sur WhatsApp — chaque inscription te rapporte !</p>
-      </div>`;
-    } else {
-      listEl.innerHTML = filleuls.map(r => {
-        const rf = r.fields;
-        const plan = rf['Abonnement'] || 'Base';
-        const date = rf['Created'] ? new Date(rf['Created']).toLocaleDateString('fr-FR') : '';
-        const comm = plan !== 'Base' ? Math.floor((plan === 'Patron' ? 6500 : 2500) * 0.40) : 0;
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:white;border-radius:10px;margin-bottom:8px;box-shadow:var(--shadow);">
-          <div>
-            <div style="font-weight:700;font-size:14px;">${rf['Nom complet'] || 'Prestataire'}</div>
-            <div style="font-size:12px;color:var(--gris);">${rf['Métier principal'] || ''} ${date ? '· Inscrit le ' + date : ''}</div>
-          </div>
-          <div style="text-align:right;">
-            <span class="badge ${plan !== 'Base' ? 'badge-or' : 'badge-gris'}">${plan}</span>
-            ${comm > 0 ? `<div style="font-size:12px;color:var(--vert);font-weight:700;margin-top:4px;">+${comm} FCFA/mois</div>` : ''}
-          </div>
-        </div>`;
-      }).join('');
-    }
+    window._allFilleuls = data.records || [];
+    _renderFilleulsCRM(window._allFilleuls);
   } catch(err) {
     console.error('loadParrainage filleuls:', err);
     document.getElementById('filleuls-list').innerHTML = '<p style="color:var(--gris);font-size:14px;padding:12px;">Impossible de charger les filleuls.</p>';
   }
+}
+
+function _commParFilleul(plan) {
+  if (plan === 'Pro')    return Math.floor(2500 * 0.40);
+  if (plan === 'Patron') return Math.floor(6500 * 0.40);
+  return 0;
+}
+
+function _renderFilleulsCRM(filleuls) {
+  // ── KPI cards ──
+  const total    = filleuls.length;
+  const nbPro    = filleuls.filter(r => (r.fields['Abonnement']||'Base') !== 'Base').length;
+  const nbBase   = filleuls.filter(r => (r.fields['Abonnement']||'Base') === 'Base').length;
+  const commMois = filleuls.reduce((s,r) => s + _commParFilleul(r.fields['Abonnement']||'Base'), 0);
+
+  document.getElementById('p-nb-filleuls').textContent = total;
+
+  const kpiEl = document.getElementById('parrain-kpis');
+  if (kpiEl) kpiEl.innerHTML = [
+    { label:'Total filleuls',  val: total,                            color:'var(--vert)',   icon:'👥' },
+    { label:'Plan Pro/Patron', val: nbPro,                            color:'#f59e0b',       icon:'⭐' },
+    { label:'Plan Base',       val: nbBase,                           color:'#6b7280',       icon:'🆓' },
+    { label:'Revenus/mois',    val: commMois.toLocaleString('fr-FR') + ' FCFA', color:'#8b5cf6', icon:'💰' },
+  ].map(k => `
+    <div style="background:white;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border-top:3px solid ${k.color};">
+      <div style="font-size:20px;margin-bottom:4px;">${k.icon}</div>
+      <div style="font-size:20px;font-weight:900;font-family:Fraunces,serif;color:${k.color};">${k.val}</div>
+      <div style="font-size:12px;color:var(--gris);font-weight:600;">${k.label}</div>
+    </div>`).join('');
+
+  // ── Bannière upsell ──
+  const upsellBanner = document.getElementById('parrain-upsell-banner');
+  const upsellDesc   = document.getElementById('upsell-desc');
+  if (upsellBanner && nbBase > 0) {
+    upsellBanner.style.display = 'block';
+    if (upsellDesc) upsellDesc.textContent = `${nbBase} filleul${nbBase>1?'s':''} encore en plan Base → relance-les pour passer Pro (+${(nbBase * _commParFilleul('Pro')).toLocaleString('fr-FR')} FCFA/mois potentiel)`;
+  } else if (upsellBanner) { upsellBanner.style.display = 'none'; }
+
+  // ── Liste ──
+  const listEl = document.getElementById('filleuls-list');
+  const countEl = document.getElementById('filleuls-count');
+  if (!listEl) return;
+
+  if (filleuls.length === 0) {
+    listEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--gris);">
+      <div style="font-size:40px;margin-bottom:10px;">🔗</div>
+      <p style="font-weight:700;font-size:15px;margin-bottom:6px;">Aucun filleul pour l'instant</p>
+      <p style="font-size:13px;">Partage ton lien sur WhatsApp — chaque inscription te rapporte !</p>
+    </div>`;
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+
+  if (countEl) countEl.textContent = `${filleuls.length} filleul${filleuls.length>1?'s':''} affiché${filleuls.length>1?'s':''}`;
+
+  listEl.innerHTML = `
+    <!-- Header tableau -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding:8px 12px;background:#f9fafb;border-radius:10px;margin-bottom:6px;font-size:11px;font-weight:800;color:var(--gris);text-transform:uppercase;letter-spacing:0.05em;">
+      <div>Prestataire</div><div>Plan</div><div>Contact</div><div>Commission</div><div></div>
+    </div>
+    ${filleuls.map(r => {
+      const rf   = r.fields;
+      const plan = rf['Abonnement'] || 'Base';
+      const nom  = rf['Nom complet'] || 'Prestataire';
+      const tel  = rf['Numéro de téléphone'] || '';
+      const email= rf['Email'] || '';
+      const metier = rf['Métier principal'] || '';
+      const date = rf['Created'] ? new Date(rf['Created']).toLocaleDateString('fr-FR', {day:'numeric',month:'short',year:'numeric'}) : '';
+      const comm = _commParFilleul(plan);
+      const isPro = plan !== 'Base';
+      const initiale = nom.charAt(0).toUpperCase();
+      const planColor = plan === 'Patron' ? '#8b5cf6' : plan === 'Pro' ? '#f59e0b' : '#9ca3af';
+      const planBg    = plan === 'Patron' ? '#f5f3ff' : plan === 'Pro' ? '#fffbeb' : '#f9fafb';
+
+      const waMsg = encodeURIComponent(`Bonjour ${nom} ! 👋\nJe vois que tu es encore sur le plan gratuit KALA. Pour seulement 2 500 FCFA/mois, le plan Pro te donne accès à plus de visibilité, le système de paiement et bien plus. Tu veux qu'on en parle ? 😊`);
+
+      return `
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:12px;background:${isPro ? 'white' : '#fffbeb'};border:1.5px solid ${isPro ? '#f0f0f0' : '#fde68a'};border-radius:12px;margin-bottom:6px;transition:.15s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
+        <!-- Nom + métier -->
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:14px;flex-shrink:0;">${initiale}</div>
+          <div style="min-width:0;">
+            <div style="font-weight:700;font-size:14px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+            <div style="font-size:11px;color:var(--gris);">${metier}${date ? ' · '+date : ''}</div>
+          </div>
+        </div>
+        <!-- Plan -->
+        <div>
+          <span style="background:${planBg};color:${planColor};border:1.5px solid ${planColor}33;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:800;">${plan}</span>
+        </div>
+        <!-- Contact -->
+        <div style="font-size:12px;color:var(--gris);line-height:1.6;">
+          ${tel ? `<div>📞 ${tel}</div>` : ''}
+          ${email ? `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;" title="${email}">✉️ ${email}</div>` : ''}
+          ${!tel && !email ? '<span style="color:#d1d5db;">—</span>' : ''}
+        </div>
+        <!-- Commission -->
+        <div>
+          ${comm > 0
+            ? `<div style="font-weight:800;font-size:14px;color:var(--vert);">+${comm.toLocaleString('fr-FR')} FCFA</div><div style="font-size:10px;color:var(--gris);">par mois</div>`
+            : `<div style="font-size:12px;color:#f59e0b;font-weight:700;">0 FCFA<br><span style="font-size:10px;color:#9ca3af;">plan gratuit</span></div>`}
+        </div>
+        <!-- Actions -->
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
+          ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
+          ${email ? `<a href="mailto:${email}?subject=KALA Pro — Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+function filterFilleuls() {
+  const planFilter   = document.getElementById('filleul-filter-plan')?.value || '';
+  const searchVal    = (document.getElementById('filleul-search')?.value || '').toLowerCase();
+  const all          = window._allFilleuls || [];
+  let filtered = all.filter(r => {
+    const plan = r.fields['Abonnement'] || 'Base';
+    const nom  = (r.fields['Nom complet'] || '').toLowerCase();
+    const tel  = (r.fields['Numéro de téléphone'] || '').toLowerCase();
+    const met  = (r.fields['Métier principal'] || '').toLowerCase();
+    const matchPlan   = !planFilter || plan === planFilter;
+    const matchSearch = !searchVal || nom.includes(searchVal) || tel.includes(searchVal) || met.includes(searchVal);
+    return matchPlan && matchSearch;
+  });
+  _renderFilleulsCRM(filtered);
+}
+
+function filterUpsell() {
+  document.getElementById('filleul-filter-plan').value = 'Base';
+  document.getElementById('filleul-search').value = '';
+  filterFilleuls();
 }
 
 function copyParrainLink() {
