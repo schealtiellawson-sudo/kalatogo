@@ -4741,8 +4741,9 @@ function renderCard(record) {
           ${verifie ? '<span class="badge" style="font-size:11px;background:var(--vert-light);color:var(--vert);">✓ Vérifié</span>' : ''}
         </div>
         <div class="pcard-rating">
-          <span class="stars" style="font-size:13px;">${renderStars(note)}</span>
-          ${note > 0 ? `<span>${note.toFixed(1)} (${nbAvis} avis)</span>` : '<span style="font-size:12px;color:var(--gris);">Pas encore d\'avis</span>'}
+          ${note > 0
+            ? `<span class="stars" style="font-size:13px;">${renderStars(note)}</span><span>${note.toFixed(1)} (${nbAvis} avis)</span>`
+            : '<span style="font-size:12px;color:var(--gris);">Pas encore d\'avis</span>'}
         </div>
       </div>
       <div class="pcard-footer">
