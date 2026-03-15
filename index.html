@@ -5249,21 +5249,23 @@ async function submitPost(recordId) {
     } catch(e) { console.error('Upload img post failed', e); }
   }
 
-  const post = {
-    id: Date.now().toString(),
-    texte: texte || '',
-    photo: photoUrl,
-    date: new Date().toISOString(),
-    auteur: currentPrestataire?.fields?.['Nom complet'] || 'Moi',
-    auteurPhoto: currentPrestataire?.fields?.['Photo de profil'] || '',
-    auteurId: currentPrestataire?.id || null
-  };
-
-  // Sauvegarder en localStorage (simple, pas de backend)
-  const key = `kala_posts_${recordId}`;
-  const posts = JSON.parse(localStorage.getItem(key) || '[]');
-  posts.unshift(post);
-  localStorage.setItem(key, JSON.stringify(posts));
+  // Sauvegarder dans Airtable Posts
+  try {
+    await fetch(AT_URL('Posts'), {
+      method: 'POST', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: {
+        'Prestataire ID': recordId,
+        'Contenu':        texte || '',
+        'Type':           photoUrl ? 'photo' : 'text',
+        'Image URL':      photoUrl || '',
+        'Likes':          0,
+        'Date':           new Date().toISOString(),
+        'Auteur Nom':     currentPrestataire?.fields?.['Nom complet'] || '',
+        'Auteur Photo':   currentPrestataire?.fields?.['WhatsApp'] || '',
+        'Commentaires':   '[]'
+      }})
+    });
+  } catch(e) { toast('Erreur publication', 'error'); }
 
   // Vider le composer
   if (textarea) textarea.value = '';
@@ -5271,15 +5273,34 @@ async function submitPost(recordId) {
   if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
 
   // Recharger le feed
-  renderPostsFeed(recordId);
+  await renderPostsFeed(recordId);
 }
 
-function renderPostsFeed(recordId) {
+async function renderPostsFeed(recordId) {
   const feedEl = document.getElementById(`posts-feed-${recordId}`);
   if (!feedEl) return;
+  feedEl.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-size:13px;">⏳ Chargement...</div>`;
 
-  const key = `kala_posts_${recordId}`;
-  const posts = JSON.parse(localStorage.getItem(key) || '[]');
+  // Charger depuis Airtable
+  let posts = [];
+  try {
+    const filter = encodeURIComponent(`{Prestataire ID}='${recordId}'`);
+    const sort   = encodeURIComponent('sort[0][field]=Date&sort[0][direction]=desc');
+    const res = await fetch(`${AT_URL('Posts')}?filterByFormula=${filter}&${sort}&maxRecords=50`, { headers: AT_HEADERS });
+    const data = await res.json();
+    posts = (data.records || []).map(r => ({
+      id:          r.id,
+      texte:       r.fields['Contenu']      || '',
+      photo:       r.fields['Image URL']    || '',
+      date:        r.fields['Date']         || '',
+      auteur:      r.fields['Auteur Nom']   || '',
+      auteurPhoto: r.fields['Auteur Photo'] || '',
+      auteurId:    r.fields['Prestataire ID'] || null,
+      likes:       r.fields['Likes']        || 0,
+      comments:    (() => { try { return JSON.parse(r.fields['Commentaires'] || '[]'); } catch { return []; } })()
+    }));
+  } catch(e) { feedEl.innerHTML = `<div style="color:rgba(255,100,100,0.6);padding:16px;font-size:13px;">Erreur de chargement</div>`; return; }
+
   const likedKey = 'kala_liked';
   const liked = JSON.parse(localStorage.getItem(likedKey) || '[]');
 
@@ -5426,30 +5447,41 @@ function renderNotifications(recordId) {
   }).join('') + `</div>`;
 }
 
-function likePost(recordId, postId) {
-  const key = `kala_posts_${recordId}`;
+async function likePost(recordId, postId) {
   const likedKey = 'kala_liked';
-  const posts = JSON.parse(localStorage.getItem(key) || '[]');
-  const liked = JSON.parse(localStorage.getItem(likedKey) || '[]');
-  const likeId = `${recordId}_${postId}`;
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-  if (!post.likes) post.likes = 0;
-  if (liked.includes(likeId)) {
-    post.likes = Math.max(0, post.likes - 1);
+  const liked    = JSON.parse(localStorage.getItem(likedKey) || '[]');
+  const likeId   = `${recordId}_${postId}`;
+  const alreadyLiked = liked.includes(likeId);
+
+  // Lire le nombre de likes actuel depuis Airtable
+  let currentLikes = 0;
+  let postTexte = '';
+  try {
+    const r = await fetch(`${AT_URL('Posts')}/${postId}`, { headers: AT_HEADERS });
+    const data = await r.json();
+    currentLikes = data.fields?.['Likes'] || 0;
+    postTexte    = data.fields?.['Contenu'] || '';
+  } catch { return; }
+
+  const newLikes = alreadyLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+
+  // Mettre à jour dans Airtable
+  await fetch(`${AT_URL('Posts')}/${postId}`, {
+    method: 'PATCH', headers: AT_HEADERS,
+    body: JSON.stringify({ fields: { 'Likes': newLikes } })
+  });
+
+  // Mettre à jour localStorage liked
+  if (alreadyLiked) {
     localStorage.setItem(likedKey, JSON.stringify(liked.filter(l => l !== likeId)));
   } else {
-    post.likes = post.likes + 1;
     localStorage.setItem(likedKey, JSON.stringify([...liked, likeId]));
-    // Notif au propriétaire du profil
     pushNotif(recordId, {
       type: 'like',
       auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un visiteur',
-      postTexte: post.texte || '',
-      postId
+      postTexte, postId
     });
   }
-  localStorage.setItem(key, JSON.stringify(posts));
   renderPostsFeed(recordId);
 }
 
@@ -5484,37 +5516,40 @@ function submitComment(recordId, postId) {
     toast('Le commentaire est trop long (max 500 caractères)', 'error');
     return;
   }
-  const key = `kala_posts_${recordId}`;
-  const posts = JSON.parse(localStorage.getItem(key) || '[]');
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-  if (!post.comments) post.comments = [];
   const auteurCommentaire = currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur';
-  post.comments.push({
-    id: Date.now().toString(),
-    texte,
-    auteur: auteurCommentaire,
-    auteurPhoto: currentPrestataire?.fields?.['Photo de profil'] || '',
-    auteurId: currentPrestataire?.id || null,
-    date: new Date().toISOString()
-  });
-  // Notif au propriétaire du profil
+
+  // Lire les commentaires actuels depuis Airtable
+  try {
+    const r    = await fetch(`${AT_URL('Posts')}/${postId}`, { headers: AT_HEADERS });
+    const data = await r.json();
+    const comments = (() => { try { return JSON.parse(data.fields?.['Commentaires'] || '[]'); } catch { return []; } })();
+    comments.push({
+      id: Date.now().toString(), texte,
+      auteur: auteurCommentaire,
+      auteurPhoto: currentPrestataire?.fields?.['WhatsApp'] || '',
+      auteurId: currentPrestataire?.id || null,
+      date: new Date().toISOString()
+    });
+    await fetch(`${AT_URL('Posts')}/${postId}`, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Commentaires': JSON.stringify(comments) } })
+    });
+  } catch { toast('Erreur commentaire', 'error'); return; }
+
   pushNotif(recordId, { type: 'comment', auteur: auteurCommentaire, texte, postId });
-  localStorage.setItem(key, JSON.stringify(posts));
-  renderPostsFeed(recordId);
-  // Vider l'input
   if (input) input.value = '';
-  // Réouvrir la section commentaires après re-render
+  await renderPostsFeed(recordId);
   setTimeout(() => {
     const s = document.getElementById(`comments-section-${postId}`);
     if (s) s.style.display = 'block';
   }, 10);
 }
 
-function deletePost(recordId, postId) {
-  const key = `kala_posts_${recordId}`;
-  const posts = JSON.parse(localStorage.getItem(key) || '[]').filter(p => p.id !== postId);
-  localStorage.setItem(key, JSON.stringify(posts));
+async function deletePost(recordId, postId) {
+  if (!confirm('Supprimer cette publication ?')) return;
+  try {
+    await fetch(`${AT_URL('Posts')}/${postId}`, { method: 'DELETE', headers: AT_HEADERS });
+  } catch { toast('Erreur suppression', 'error'); return; }
   renderPostsFeed(recordId);
 }
 
@@ -6305,7 +6340,7 @@ async function showProfil(recordId) {
       </div>
     `;
 
-    // Charger le feed des posts après rendu
+    // Charger le feed des posts après rendu (async Airtable)
     setTimeout(() => renderPostsFeed(recordId), 100);
     // Mini map localisation
     if (gpsLat && gpsLon) setTimeout(() => initProfileMiniMap(gpsLat, gpsLon, `profil-minimap-${recordId}`), 300);
@@ -7883,10 +7918,23 @@ function loadHistoriquePaiements() {
 }
 
 // ══ DASHBOARD MES POSTS ══
-function loadDashPosts() {
+async function loadDashPosts() {
   if (!currentPrestataire?.id) return;
-  const key = `kala_posts_${currentPrestataire.id}`;
-  const posts = JSON.parse(localStorage.getItem(key) || '[]');
+  const prestId = currentPrestataire.id;
+
+  // Charger depuis Airtable
+  let posts = [];
+  try {
+    const filter = encodeURIComponent(`{Prestataire ID}='${prestId}'`);
+    const res = await fetch(`${AT_URL('Posts')}?filterByFormula=${filter}&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=100`, { headers: AT_HEADERS });
+    const data = await res.json();
+    posts = (data.records || []).map(r => ({
+      id:       r.id,
+      texte:    r.fields['Contenu']   || '',
+      likes:    r.fields['Likes']     || 0,
+      comments: (() => { try { return JSON.parse(r.fields['Commentaires'] || '[]'); } catch { return []; } })()
+    }));
+  } catch { /* silencieux */ }
 
   // Compter les stats
   let totalComments = 0;
@@ -7896,15 +7944,13 @@ function loadDashPosts() {
 
   posts.forEach(post => {
     totalLikes += post.likes || 0;
-    if (post.comments && post.comments.length > 0) {
+    if (post.comments?.length > 0) {
       post.comments.forEach(c => {
-        comments.push({ ...c, postId: post.id, postPreview: post.texte.substring(0, 50) });
+        comments.push({ ...c, postId: post.id, postPreview: (post.texte || '').substring(0, 50) });
         totalComments++;
       });
     }
-    if (post.likes) {
-      likesByPost[post.id] = post.likes;
-    }
+    if (post.likes) likesByPost[post.id] = post.likes;
   });
 
   // Afficher les stats
