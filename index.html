@@ -3461,7 +3461,13 @@ async function submitLogin() {
   const btn = document.getElementById('login-btn');
   const errEl = document.getElementById('login-error');
 
-  if (!email || !pw) { showLoginError('Email et mot de passe obligatoires'); return; }
+  // ✅ Validation stricte
+  if (!validateForm({
+    email: { type: 'email', value: email, name: 'Email' },
+    password: { type: 'password', value: pw, name: 'Mot de passe' }
+  })) {
+    return;
+  }
 
   btn.textContent = '⏳ Connexion...';
   btn.disabled = true;
@@ -4431,6 +4437,54 @@ function toast(msg, type = 'info') {
 }
 
 // ══════════════════════════════════════════
+// VALIDATION FORMULAIRES
+// ══════════════════════════════════════════
+
+const VALIDATORS = {
+  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+  phone: (v) => /^[\d+\s()-]{7,}$/.test(v.replace(/\s/g,'')),
+  name: (v) => v.trim().length >= 2,
+  password: (v) => v.length >= 6,
+  url: (v) => /^https?:\/\/.+\..+/.test(v),
+  number: (v) => !isNaN(v) && v > 0,
+  notEmpty: (v) => v && v.toString().trim().length > 0,
+};
+
+function validateField(fieldType, value, fieldName = '') {
+  const validator = VALIDATORS[fieldType];
+  if (!validator) return { valid: true };
+  const isValid = validator(value);
+  if (!isValid) {
+    const messages = {
+      email: 'Email invalide',
+      phone: 'Téléphone invalide (min 7 caractères)',
+      name: 'Nom trop court (min 2 caractères)',
+      password: 'Mot de passe trop court (min 6 caractères)',
+      url: 'URL invalide (https://...)',
+      number: 'Chiffre invalide',
+      notEmpty: `${fieldName} est requis`,
+    };
+    return { valid: false, error: messages[fieldType] };
+  }
+  return { valid: true };
+}
+
+function validateForm(formData) {
+  const errors = [];
+  Object.entries(formData).forEach(([field, { type, value, name }]) => {
+    const validation = validateField(type, value, name);
+    if (!validation.valid) {
+      errors.push(validation.error);
+    }
+  });
+  if (errors.length > 0) {
+    toast(errors[0], 'error');
+    return false;
+  }
+  return true;
+}
+
+// ══════════════════════════════════════════
 // UPLOAD PHOTO → IMGBB
 // ══════════════════════════════════════════
 // ── Cropper.js integration ──
@@ -4998,7 +5052,26 @@ async function submitPost(recordId) {
   const textarea = document.getElementById(`post-composer-${recordId}`);
   const imgInput = document.getElementById(`post-img-${recordId}`);
   const texte = textarea?.value?.trim();
-  if (!texte && !imgInput?.files[0]) return;
+
+  // ✅ Validation : minimum 10 caractères OU une image
+  if (!texte && !imgInput?.files[0]) {
+    toast('Écris au moins quelque chose ou ajoute une photo', 'error');
+    return;
+  }
+  if (texte && texte.length < 10) {
+    toast('Le texte doit faire au minimum 10 caractères', 'error');
+    return;
+  }
+  if (texte && texte.length > 2000) {
+    toast('Le post est trop long (max 2000 caractères)', 'error');
+    return;
+  }
+
+  // Vérifier taille image
+  if (imgInput?.files[0] && imgInput.files[0].size > 5 * 1024 * 1024) {
+    toast('L\'image est trop lourde (max 5 MB)', 'error');
+    return;
+  }
 
   const btn = document.querySelector(`#posts-section-${recordId} button[onclick*="submitPost"]`);
   if (btn) { btn.textContent = '...'; btn.disabled = true; }
@@ -5227,7 +5300,20 @@ function submitComment(recordId, postId) {
 
   const input = document.getElementById(`comment-input-${postId}`);
   const texte = input?.value?.trim();
-  if (!texte) return;
+
+  // ✅ Validation commentaire
+  if (!texte || texte.length === 0) {
+    toast('Écris un commentaire', 'error');
+    return;
+  }
+  if (texte.length < 3) {
+    toast('Le commentaire est trop court (min 3 caractères)', 'error');
+    return;
+  }
+  if (texte.length > 500) {
+    toast('Le commentaire est trop long (max 500 caractères)', 'error');
+    return;
+  }
   const key = `kala_posts_${recordId}`;
   const posts = JSON.parse(localStorage.getItem(key) || '[]');
   const post = posts.find(p => p.id === postId);
@@ -6027,9 +6113,10 @@ function setStars(val) {
 }
 
 async function submitAvis() {
-  const comment = document.getElementById('avis-comment').value;
-  if (!selectedStars) { toast('Choisis une note de 1 à 5 étoiles', 'error'); return; }
-  if (!comment.trim()) { toast('Écris un commentaire', 'error'); return; }
+  const comment = document.getElementById('avis-comment').value.trim();
+  if (!selectedStars || selectedStars < 1 || selectedStars > 5) { toast('Choisis une note de 1 à 5 étoiles', 'error'); return; }
+  if (comment.length < 10) { toast('Le commentaire doit faire au minimum 10 caractères', 'error'); return; }
+  if (comment.length > 1000) { toast('Le commentaire ne doit pas dépasser 1000 caractères', 'error'); return; }
   if (!currentAvisPrestataire) { toast('Erreur : prestataire introuvable', 'error'); return; }
 
   // Construire le préfixe auteur : [Nom|recID|photoURL] si connecté, [Nom] sinon
@@ -6039,11 +6126,17 @@ async function submitAvis() {
     const nom = (f['Nom complet'] || '').trim();
     const id  = currentPrestataire.id;
     const photo = (f['WhatsApp'] || '').trim();
+    if (!nom) { toast('Erreur : nom du profil manquant', 'error'); return; }
     commentFinal = `[${nom}|${id}|${photo}]\n${comment}`;
   } else {
     const nomInput = document.getElementById('avis-nom');
     const nom = nomInput ? nomInput.value.trim() : '';
-    if (!nom) { toast('Indique ton prénom pour publier', 'error'); nomInput?.focus(); return; }
+    if (!validateForm({
+      nom: { type: 'name', value: nom, name: 'Prénom' }
+    })) {
+      nomInput?.focus();
+      return;
+    }
     commentFinal = `[${nom}]\n${comment}`;
   }
 
@@ -6981,9 +7074,19 @@ async function submitRDV(containerId, btn) {
   const email = document.getElementById('rdv-email')?.value.trim();
   const message = document.getElementById('rdv-message')?.value.trim();
   const msgEl = document.getElementById('rdv-submit-msg');
-  if (!nom || !email) {
+
+  // ✅ Validation stricte
+  if (!validateForm({
+    nom: { type: 'name', value: nom, name: 'Nom' },
+    email: { type: 'email', value: email, name: 'Email' }
+  })) {
     msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
-    msgEl.textContent = '❌ Nom et email obligatoires'; return;
+    msgEl.textContent = '❌ Vérifiez vos infos'; return;
+  }
+
+  if (message && message.length > 500) {
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Le message est trop long (max 500 caractères)'; return;
   }
   btn.disabled = true; btn.textContent = '⏳ Confirmation en cours...';
   try {
@@ -7226,7 +7329,20 @@ function launchClientPayment() {
   const desc = pageEl?.dataset.desc || 'Prestation';
   const nom = document.getElementById('pay-client-nom')?.value.trim();
   const tel = document.getElementById('pay-client-tel')?.value.trim();
-  if (!nom || !tel) { toast('Entre ton nom et ton numéro', 'error'); return; }
+
+  // ✅ Validation stricte
+  if (!validateForm({
+    nom: { type: 'name', value: nom, name: 'Nom' },
+    tel: { type: 'phone', value: tel, name: 'Téléphone' }
+  })) {
+    return;
+  }
+
+  // Vérifier montant
+  if (!amount || amount < 100) {
+    toast('Montant invalide (min 100 FCFA)', 'error');
+    return;
+  }
 
   const transId = 'PAY_' + Date.now();
   try {
