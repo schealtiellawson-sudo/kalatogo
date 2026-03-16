@@ -404,6 +404,18 @@ h1 .gold { color:var(--or); }
 /* Chips Talents Digitaux — couleur indigo */
 .qf-chip-digital { border-color:rgba(99,102,241,0.3); color:#4f46e5; }
 .qf-chip-digital:hover { background:#6366f1; color:white; border-color:#6366f1; }
+/* Cartes catégories digitales sur la home */
+.digital-cat-card {
+  cursor:pointer; background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08); border-radius:14px;
+  padding:16px 12px; text-align:center; transition:all 0.2s;
+}
+.digital-cat-card:hover {
+  background:rgba(99,102,241,0.12); border-color:rgba(99,102,241,0.3);
+  transform:translateY(-2px);
+}
+.dcc-icon { font-size:26px; margin-bottom:8px; }
+.dcc-label { font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); line-height:1.35; }
 
 /* ══ CARDS PRESTATAIRES ══ */
 .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
@@ -1519,25 +1531,18 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
       <!-- Grille des catégories digitales -->
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:48px;">
-        ${[
-          {icon:'💻',label:'Développeur web/mobile'},
-          {icon:'🎨',label:'Graphiste / Designer'},
-          {icon:'📱',label:'Community Manager'},
-          {icon:'✍️',label:'Rédacteur / Copywriter'},
-          {icon:'📊',label:'Comptable / Data analyst'},
-          {icon:'⚖️',label:'Juriste / Conseil'},
-          {icon:'🎬',label:'Monteur vidéo'},
-          {icon:'🌟',label:'Modèle / Influenceur'},
-          {icon:'🤝',label:'Commercial terrain'},
-          {icon:'🏛️',label:'Architecte'},
-          {icon:'📋',label:'Expert Bureautique'},
-          {icon:'🗂️',label:'Chef de projet'},
-        ].map(c => `
-          <div onclick="quickFilter('${c.label.split('/')[0].trim()}')" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 12px;text-align:center;transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.12)';this.style.borderColor='rgba(99,102,241,0.3)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,0.08)'">
-            <div style="font-size:26px;margin-bottom:8px;">${c.icon}</div>
-            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);line-height:1.35;">${c.label}</div>
-          </div>
-        `).join('')}
+        <div onclick="quickFilter('Développeur web/mobile')" class="digital-cat-card"><div class="dcc-icon">💻</div><div class="dcc-label">Développeur web/mobile</div></div>
+        <div onclick="quickFilter('Graphiste')" class="digital-cat-card"><div class="dcc-icon">🎨</div><div class="dcc-label">Graphiste / Designer</div></div>
+        <div onclick="quickFilter('Community Manager')" class="digital-cat-card"><div class="dcc-icon">📱</div><div class="dcc-label">Community Manager</div></div>
+        <div onclick="quickFilter('Rédacteur / Copywriter')" class="digital-cat-card"><div class="dcc-icon">✍️</div><div class="dcc-label">Rédacteur / Copywriter</div></div>
+        <div onclick="quickFilter('Comptable')" class="digital-cat-card"><div class="dcc-icon">📊</div><div class="dcc-label">Comptable / Data analyst</div></div>
+        <div onclick="quickFilter('Juriste / Conseiller juridique')" class="digital-cat-card"><div class="dcc-icon">⚖️</div><div class="dcc-label">Juriste / Conseil</div></div>
+        <div onclick="quickFilter('Monteur vidéo professionnel')" class="digital-cat-card"><div class="dcc-icon">🎬</div><div class="dcc-label">Monteur vidéo</div></div>
+        <div onclick="quickFilter('Modèle photo / Influenceur')" class="digital-cat-card"><div class="dcc-icon">🌟</div><div class="dcc-label">Modèle / Influenceur</div></div>
+        <div onclick="quickFilter('Vendeur terrain / Commercial')" class="digital-cat-card"><div class="dcc-icon">🤝</div><div class="dcc-label">Commercial terrain</div></div>
+        <div onclick="quickFilter('Architecte / Urbaniste')" class="digital-cat-card"><div class="dcc-icon">🏛️</div><div class="dcc-label">Architecte</div></div>
+        <div onclick="quickFilter('Expert Excel / Bureautique')" class="digital-cat-card"><div class="dcc-icon">📋</div><div class="dcc-label">Expert Bureautique</div></div>
+        <div onclick="quickFilter('Chef de projet digital')" class="digital-cat-card"><div class="dcc-icon">🗂️</div><div class="dcc-label">Chef de projet</div></div>
       </div>
 
       <!-- Bandeau social proof -->
