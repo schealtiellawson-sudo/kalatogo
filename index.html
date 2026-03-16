@@ -2222,7 +2222,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <button class="btn btn-primary btn-lg" onclick="showPage('search')">Voir les autres prestataires</button>
     </div>
 
-    <form id="inscription-form" onsubmit="submitInscription(event)">
+    <form id="inscription-form" onsubmit="submitInscription(event)" autocomplete="off">
 
       <!-- ÉTAPE 1 -->
       <div class="form-step active" id="fs-1">
@@ -2244,7 +2244,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
         <div class="form-group">
           <label>Nom complet <span class="req">*</span></label>
-          <input type="text" id="f-nom" placeholder="Ex : Kofi Mensah" required>
+          <input type="text" id="f-nom" placeholder="Ex : Kofi Mensah" required autocomplete="off" name="kalatogo-nom">
         </div>
 
         <div class="form-row">
@@ -5081,11 +5081,15 @@ function resetInscriptionForm() {
   document.getElementById('fs-1')?.classList.add('active');
   document.getElementById('pb-1')?.classList.add('active');
 
-  // Vider les champs
-  ['f-nom','f-tel','f-email','f-description','f-tarif-min','f-tarif-max','f-tiktok','f-instagram'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
+  // Vider les champs — double reset pour contrer l'autofill Chrome
+  const _clearFields = () => {
+    ['f-nom','f-tel','f-email','f-description','f-tarif-min','f-tarif-max','f-tiktok','f-instagram','f-password'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  };
+  _clearFields();
+  setTimeout(_clearFields, 200); // Chrome autofill se déclenche après le rendu
   ['f-genre','f-metier','f-quartier','f-experience','f-dispo','f-education','f-canal'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.selectedIndex = 0;
