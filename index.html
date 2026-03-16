@@ -10,9 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.cinetpay.com/seamless/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Cropper.js pour le recadrage de photos -->
-<link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.css">
-<script src="https://unpkg.com/cropperjs"></script>
+<!-- Cropper.js v1.6.2 (CORS OK via cdnjs) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 <style>
 :root {
   --vert: #1B7A4A;
@@ -1208,14 +1208,14 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
 <!-- MODAL CROP PHOTO (Cropper.js) -->
 <div class="modal-overlay" id="modal-crop" style="z-index:10000;">
-  <div class="modal" style="max-width:540px;padding:24px;">
+  <div class="modal" style="max-width:540px;padding:24px;overflow:visible;">
     <button class="modal-close" onclick="cancelCrop()">✕</button>
     <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:4px;">✂️ Recadrer la photo</h3>
     <p style="color:var(--gris);font-size:13px;margin-bottom:16px;">Pinch/zoom · Glisse pour repositionner</p>
 
-    <!-- Zone cropper -->
-    <div style="width:100%;max-height:400px;border-radius:12px;background:#111;overflow:hidden;">
-      <img id="crop-source-img" src="" alt="Recadrer" style="display:block;max-width:100%;">
+    <!-- Zone cropper — pas de overflow:hidden pour que les handles soient visibles -->
+    <div style="width:100%;height:380px;border-radius:12px;background:#111;position:relative;">
+      <img id="crop-source-img" src="" alt="Recadrer" style="display:block;max-width:100%;max-height:100%;">
     </div>
 
     <!-- Contrôles -->
@@ -2531,6 +2531,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <button class="dash-link" onclick="showDashSection('abonnement')" id="dl-abonnement">
         <span class="icon">💳</span> Mon abonnement
       </button>
+      <button class="dash-link" onclick="showDashSection('favoris')" id="dl-favoris">
+        <span class="icon">❤️</span> Mes Favoris
+      </button>
       <button class="dash-link" onclick="showDashSection('parrainage')" id="dl-parrainage" style="color:var(--or);font-weight:800;">
         <span class="icon">🔗</span> Parrainage 💰
       </button>
@@ -3034,7 +3037,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <!-- PHOTOS -->
       <div class="dash-section" id="ds-photos">
         <div class="dash-header">
-          <h2>Mon album photos</h2>
+          <h2>📸 Mes Photos</h2>
           <p>Les photos augmentent tes chances de contact de 3×</p>
         </div>
         <div class="dash-explainer">
@@ -3055,7 +3058,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             <div style="position:relative;flex-shrink:0;">
               <div id="edit-photo-preview" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:32px;font-weight:900;color:white;overflow:hidden;border:3px solid rgba(27,122,74,0.2);"></div>
               <button id="btn-recadrer-profil" onclick="recadrerPhotoProfil()" title="Recadrer la photo actuelle"
-                style="display:none;position:absolute;bottom:0;right:0;background:#111;border:2px solid white;color:white;width:28px;height:28px;border-radius:50%;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;">✂️</button>
+                style="display:none;position:absolute;bottom:0;right:0;background:#111;border:2px solid white;color:white;width:28px;height:28px;border-radius:50%;font-size:13px;cursor:pointer;align-items:center;justify-content:center;line-height:1;">✂️</button>
             </div>
             <div style="flex:1;">
               <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
@@ -3099,6 +3102,23 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <input type="file" id="real-input-2" accept="image/*" style="display:none" onchange="uploadRealisationPhoto(2)">
           <input type="file" id="real-input-3" accept="image/*" style="display:none" onchange="uploadRealisationPhoto(3)">
         </div>
+
+        <!-- Albums personnalisés -->
+        <div style="background:white;border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-top:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🗂️</span>
+              <div>
+                <h3 style="font-family:Fraunces,serif;font-size:16px;font-weight:700;margin:0;">Mes albums</h3>
+                <p style="font-size:12px;color:var(--gris);margin:0;">Organise tes photos par catégorie</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="createAlbum()">➕ Nouvel album</button>
+          </div>
+          <div id="albums-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
+            <!-- populated by JS -->
+          </div>
+        </div>
       </div>
 
       <!-- POSTS -->
@@ -3136,6 +3156,22 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div class="edit-form-section">
           <h3 style="margin-bottom:14px;">❤️ Likes reçus</h3>
           <div id="posts-likes-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+
+      <!-- FAVORIS -->
+      <div class="dash-section" id="ds-favoris">
+        <div class="dash-header">
+          <div>
+            <h2>❤️ Mes Favoris</h2>
+            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Les profils que tu as sauvegardés</p>
+          </div>
+        </div>
+        <div id="favoris-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+          <div style="text-align:center;padding:40px;color:var(--gris);">
+            <div style="font-size:40px;margin-bottom:12px;">❤️</div>
+            <p>Chargement...</p>
+          </div>
         </div>
       </div>
 
@@ -3672,6 +3708,7 @@ function showDashSection(section) {
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
   if (section === 'notifications' && currentPrestataire?.id) renderNotifications(currentPrestataire.id);
+  if (section === 'favoris') loadFavoris();
 }
 
 async function loadDashboard() {
@@ -4237,6 +4274,8 @@ function loadDashPhotos() {
 
   // Réalisations grid
   renderRealisationsGrid();
+  // Albums personnalisés
+  renderAlbumsSection();
 }
 
 function renderRealisationsGrid() {
@@ -4258,9 +4297,10 @@ function renderRealisationsGrid() {
       ? `<div id="real-slot-${slot}" style="position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;background:#f5f5f5;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
            <img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 50%);opacity:0;transition:opacity 0.2s;" class="real-overlay" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0"></div>
-           <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:6px;padding:8px;justify-content:center;">
-             <button onclick="document.getElementById('real-input-${slot}').click()" title="Remplacer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;font-weight:600;color:#333;box-shadow:0 1px 4px rgba(0,0,0,0.2);">✏️</button>
-             <button onclick="deleteRealisationPhoto(${slot})" title="Supprimer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;font-weight:600;color:#dc2626;box-shadow:0 1px 4px rgba(0,0,0,0.2);">🗑️</button>
+           <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:4px;padding:6px;justify-content:center;">
+             <button onclick="document.getElementById('real-input-${slot}').click()" title="Remplacer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#333;box-shadow:0 1px 4px rgba(0,0,0,0.2);">✏️</button>
+             <button onclick="recadrerRealisationPhoto(${slot})" title="Recadrer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#555;box-shadow:0 1px 4px rgba(0,0,0,0.2);">✂️</button>
+             <button onclick="deleteRealisationPhoto(${slot})" title="Supprimer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#dc2626;box-shadow:0 1px 4px rgba(0,0,0,0.2);">🗑️</button>
            </div>
            <div style="position:absolute;top:8px;left:8px;background:rgba(27,122,74,0.85);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">Photo ${slot}</div>
          </div>`
@@ -4398,6 +4438,267 @@ async function deleteRealisationPhoto(slot) {
     if (slotEl) slotEl.style.opacity = '1';
     toast('Erreur lors de la suppression.', 'error');
   }
+}
+
+// ══ RECADRAGE RÉALISATION ══
+function recadrerRealisationPhoto(slot) {
+  const fieldName = `Photo Réalisation ${slot}`;
+  const currentUrl = currentPrestataire?.fields[fieldName];
+  if (!currentUrl) return;
+  fetch(currentUrl)
+    .then(r => r.blob())
+    .then(blob => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        _cropTarget = null;
+        _cropAspect = 1;
+        _cropCallback = async (croppedBlob) => {
+          await _doUploadRealisationCrop(slot, croppedBlob);
+        };
+        _openCropModal(e.target.result, 1);
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(() => toast('Impossible de charger la photo pour recadrage.', 'error'));
+}
+
+// ══ ALBUMS PERSONNALISÉS ══
+function _getAlbums() {
+  try {
+    const raw = currentPrestataire?.fields['Albums'] || '[]';
+    return JSON.parse(raw);
+  } catch(e) { return []; }
+}
+
+async function _saveAlbums(albums) {
+  const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+    method: 'PATCH', headers: AT_HEADERS,
+    body: JSON.stringify({ fields: { 'Albums': JSON.stringify(albums) } })
+  });
+  if (res.ok) currentPrestataire.fields['Albums'] = JSON.stringify(albums);
+  return res.ok;
+}
+
+function renderAlbumsSection() {
+  const grid = document.getElementById('albums-grid');
+  if (!grid) return;
+  const albums = _getAlbums();
+  if (albums.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 20px;color:var(--gris);">
+      <div style="font-size:36px;margin-bottom:10px;">🗂️</div>
+      <p style="font-size:14px;margin:0;">Aucun album.<br>Crée ton premier album !</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = albums.map(alb => {
+    const cover = alb.photos?.[0] || '';
+    const count = (alb.photos||[]).length;
+    return `<div onclick="openAlbumManager('${alb.id}')" style="border-radius:14px;overflow:hidden;background:#f8f8f8;border:1px solid #f0f0f0;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="aspect-ratio:1;overflow:hidden;position:relative;background:#eee;">
+        ${cover ? `<img src="${cover}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:0.2;">📷</div>`}
+      </div>
+      <div style="padding:10px 12px;">
+        <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${alb.nom}</div>
+        <div style="font-size:11px;color:var(--gris);margin-top:2px;">${count} photo${count !== 1 ? 's' : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createAlbum() {
+  const nom = prompt('Nom du nouvel album :');
+  if (!nom?.trim()) return;
+  const albums = _getAlbums();
+  const newAlbum = { id: 'alb_' + Date.now(), nom: nom.trim(), photos: [] };
+  albums.push(newAlbum);
+  const ok = await _saveAlbums(albums);
+  if (ok) {
+    renderAlbumsSection();
+    toast(`Album "${nom.trim()}" créé !`, 'success');
+    openAlbumManager(newAlbum.id);
+  } else {
+    toast('Erreur lors de la création.', 'error');
+  }
+}
+
+function openAlbumManager(albumId) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  const pageId = 'album-mgr-' + albumId;
+  const old = document.getElementById(pageId);
+  if (old) old.remove();
+  const page = document.createElement('div');
+  page.id = pageId;
+  page.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:10000;overflow-y:auto;';
+  page.innerHTML = `
+    <div style="position:sticky;top:0;z-index:10;background:white;border-bottom:1px solid #f0f0f0;padding:env(safe-area-inset-top,0) 0 0;">
+      <div style="max-width:700px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+        <button onclick="document.getElementById('${pageId}').remove();renderAlbumsSection();"
+          style="background:#f5f5f5;border:none;color:#333;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+        <div style="flex:1;min-width:0;">
+          <h2 id="album-mgr-title-${albumId}" style="font-size:17px;font-weight:800;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${alb.nom}</h2>
+          <div style="font-size:12px;color:var(--gris);" id="album-mgr-count-${albumId}">${(alb.photos||[]).length} photo${(alb.photos||[]).length!==1?'s':''}</div>
+        </div>
+        <button onclick="renameAlbum('${albumId}')" style="background:#f5f5f5;border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">✏️ Renommer</button>
+        <button onclick="deleteAlbum('${albumId}')" style="background:#fee2e2;border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;color:#dc2626;cursor:pointer;">🗑️</button>
+      </div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:20px 16px;">
+      <div id="album-photos-grid-${albumId}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px;"></div>
+      <button onclick="document.getElementById('album-file-${albumId}').click()"
+        style="width:100%;padding:14px;border:2px dashed rgba(27,122,74,0.3);background:rgba(27,122,74,0.04);border-radius:14px;font-size:14px;font-weight:600;color:var(--vert);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        ➕ Ajouter une photo
+      </button>
+      <div id="album-upload-status-${albumId}" style="text-align:center;margin-top:10px;font-size:13px;display:none;"></div>
+    </div>
+    <input type="file" id="album-file-${albumId}" accept="image/*" style="display:none" onchange="handleAlbumPhotoFile('${albumId}')">
+  `;
+  document.body.appendChild(page);
+  _renderAlbumPhotosGrid(albumId);
+}
+
+function _renderAlbumPhotosGrid(albumId) {
+  const grid = document.getElementById(`album-photos-grid-${albumId}`);
+  if (!grid) return;
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  const photos = alb.photos || [];
+  const countEl = document.getElementById(`album-mgr-count-${albumId}`);
+  if (countEl) countEl.textContent = `${photos.length} photo${photos.length!==1?'s':''}`;
+  if (photos.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--gris);">
+      <div style="font-size:40px;margin-bottom:12px;">📷</div>
+      <p style="margin:0;">Aucune photo dans cet album</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = photos.map((url, idx) => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;background:#f0f0f0;">
+      <img src="${url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.3)'" onmouseout="this.style.background='rgba(0,0,0,0)'"></div>
+      <div style="position:absolute;bottom:6px;left:0;right:0;display:flex;gap:4px;padding:0 6px;justify-content:center;">
+        <button onclick="cropAlbumPhoto('${albumId}',${idx})" title="Recadrer"
+          style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#333;">✂️</button>
+        <button onclick="deletePhotoFromAlbum('${albumId}',${idx})" title="Supprimer"
+          style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#dc2626;">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function handleAlbumPhotoFile(albumId) {
+  const inp = document.getElementById(`album-file-${albumId}`);
+  const file = inp?.files?.[0];
+  if (!file) return;
+  inp.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget = null;
+    _cropAspect = 1;
+    _cropCallback = async (blob) => { await _doUploadAlbumPhoto(albumId, blob); };
+    _openCropModal(e.target.result, 1);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function _doUploadAlbumPhoto(albumId, blob) {
+  const statusEl = document.getElementById(`album-upload-status-${albumId}`);
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = 'var(--gris)'; statusEl.textContent = '⏳ Upload en cours...'; }
+  const file = new File([blob], `album-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+  const url = await uploadToImgBB(file);
+  if (!url) {
+    if (statusEl) { statusEl.style.color = '#dc2626'; statusEl.textContent = '❌ Échec de l\'upload'; }
+    return;
+  }
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  alb.photos = alb.photos || [];
+  alb.photos.push(url);
+  const ok = await _saveAlbums(albums);
+  if (ok) {
+    _renderAlbumPhotosGrid(albumId);
+    renderAlbumsSection();
+    if (statusEl) { statusEl.style.color = 'var(--vert)'; statusEl.textContent = '✅ Photo ajoutée !'; setTimeout(()=>{ statusEl.style.display='none'; }, 2500); }
+    toast('Photo ajoutée à l\'album !', 'success');
+  } else {
+    if (statusEl) { statusEl.style.color = '#dc2626'; statusEl.textContent = '❌ Erreur Airtable'; }
+  }
+}
+
+async function deletePhotoFromAlbum(albumId, photoIdx) {
+  if (!confirm('Supprimer cette photo de l\'album ?')) return;
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  alb.photos.splice(photoIdx, 1);
+  const ok = await _saveAlbums(albums);
+  if (ok) { _renderAlbumPhotosGrid(albumId); renderAlbumsSection(); toast('Photo supprimée.', 'success'); }
+  else toast('Erreur lors de la suppression.', 'error');
+}
+
+async function renameAlbum(albumId) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  const nom = prompt('Nouveau nom de l\'album :', alb.nom);
+  if (!nom?.trim() || nom.trim() === alb.nom) return;
+  alb.nom = nom.trim();
+  const ok = await _saveAlbums(albums);
+  if (ok) {
+    const titleEl = document.getElementById(`album-mgr-title-${albumId}`);
+    if (titleEl) titleEl.textContent = alb.nom;
+    renderAlbumsSection();
+    toast(`Album renommé en "${alb.nom}"`, 'success');
+  } else { toast('Erreur lors du renommage.', 'error'); }
+}
+
+async function deleteAlbum(albumId) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  if (!confirm(`Supprimer l'album "${alb.nom}" et toutes ses photos ?`)) return;
+  const newAlbums = albums.filter(a => a.id !== albumId);
+  const ok = await _saveAlbums(newAlbums);
+  if (ok) {
+    document.getElementById('album-mgr-' + albumId)?.remove();
+    renderAlbumsSection();
+    toast(`Album "${alb.nom}" supprimé.`, 'success');
+  } else { toast('Erreur lors de la suppression.', 'error'); }
+}
+
+function cropAlbumPhoto(albumId, photoIdx) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb || !alb.photos[photoIdx]) return;
+  fetch(alb.photos[photoIdx])
+    .then(r => r.blob())
+    .then(blob => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        _cropTarget = null;
+        _cropAspect = 1;
+        _cropCallback = async (croppedBlob) => {
+          const statusEl = document.getElementById(`album-upload-status-${albumId}`);
+          if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = 'var(--gris)'; statusEl.textContent = '⏳ Recadrage en cours...'; }
+          const file = new File([croppedBlob], `album-crop-${Date.now()}.jpg`, { type: 'image/jpeg' });
+          const newUrl = await uploadToImgBB(file);
+          if (newUrl) {
+            alb.photos[photoIdx] = newUrl;
+            const ok = await _saveAlbums(albums);
+            if (ok) {
+              _renderAlbumPhotosGrid(albumId);
+              if (statusEl) { statusEl.style.color = 'var(--vert)'; statusEl.textContent = '✅ Photo recadrée !'; setTimeout(()=>{ statusEl.style.display='none'; }, 2500); }
+              toast('Photo recadrée !', 'success');
+            }
+          }
+        };
+        _openCropModal(e.target.result, 1);
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(() => toast('Impossible de charger la photo pour recadrage.', 'error'));
 }
 
 // ══ AVIS DASHBOARD ══
@@ -4659,35 +4960,47 @@ function _openCropModal(dataUrl, aspect) {
   const modal = document.getElementById('modal-crop');
   const img   = document.getElementById('crop-source-img');
   if (!modal || !img) return;
-  // D'abord afficher le modal, puis init Cropper (besoin du DOM visible pour les dimensions)
-  modal.classList.add('active');
-  // Détruire l'instance précédente
+
+  // 1. Détruire instance précédente
   if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
   img.src = '';
-  // Attendre que le modal soit rendu avant de charger l'image
-  requestAnimationFrame(() => {
-    img.onload = () => {
-      if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
-      _cropperInstance = new Cropper(img, {
-        aspectRatio:  _cropAspect,
-        viewMode:     1,
-        autoCropArea: 0.85,
-        movable:      true,
-        zoomable:     true,
-        scalable:     true,
-        rotatable:    true,
-        responsive:   true,
-        restore:      false,
-        guides:       true,
-        center:       true,
-        highlight:    true,
-        cropBoxMovable:   true,
-        cropBoxResizable: true,
-        toggleDragModeOnDblclick: false,
-      });
-    };
-    img.src = dataUrl;
-  });
+
+  // 2. Afficher le modal
+  modal.classList.add('active');
+
+  // 3. Double rAF + 150ms pour garantir que le modal est fully painted
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    setTimeout(() => {
+      img.onload = () => {
+        if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
+        // Cropper v1 API
+        _cropperInstance = new Cropper(img, {
+          aspectRatio:  _cropAspect,
+          viewMode:     1,
+          autoCropArea: 0.85,
+          movable:      true,
+          zoomable:     true,
+          scalable:     true,
+          rotatable:    true,
+          responsive:   true,
+          restore:      false,
+          guides:       true,
+          center:       true,
+          highlight:    true,
+          cropBoxMovable:   true,
+          cropBoxResizable: true,
+          minContainerHeight: 300,
+          toggleDragModeOnDblclick: false,
+        });
+      };
+      if (img.src !== dataUrl) {
+        img.src = dataUrl;
+      } else {
+        // Image déjà chargée — déclencher onload manuellement
+        img.dispatchEvent(new Event('load'));
+      }
+    }, 150);
+  }));
 }
 
 /* ── Bouton "Appliquer" dans le modal ── */
@@ -4767,7 +5080,7 @@ async function uploadToImgBB(file) {
     const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.success) {
-      console.log('✅ ImgBB upload réussi:', data.data.url);
+      // upload OK
       return data.data.url;
     } else {
       console.error('❌ ImgBB erreur:', data.error?.message || 'Upload failed');
@@ -5478,6 +5791,15 @@ function renderNotifications(recordId) {
     } else if (n.type === 'avis') {
       icon = '⭐'; bg = '#fef3c7';
       msg = `<strong>${n.auteur || 'Client'}</strong> a laissé un avis : <em style="color:#888;">"${(n.texte||'').substring(0,50)}${(n.texte||'').length>50?'...':''}"</em>`;
+    } else if (n.type === 'favori') {
+      icon = '❤️'; bg = '#fff1f2';
+      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> a ajouté ton profil à ses favoris`;
+    } else if (n.type === 'photo_like') {
+      icon = '📸'; bg = '#fff5f5';
+      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> a aimé une de tes photos`;
+    } else if (n.type === 'photo_comment') {
+      icon = '💬'; bg = '#eff6ff';
+      msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a commenté ta photo : <em style="color:#888;">"${(n.texte||'').substring(0,60)}"</em>`;
     }
     return `<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-bottom:1px solid #f0f0f0;background:${n.read?'white':bg};transition:background 0.3s;">
       <div style="font-size:18px;flex-shrink:0;width:38px;height:38px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;">${icon}</div>
@@ -5595,6 +5917,357 @@ async function deletePost(recordId, postId) {
   renderPostsFeed(recordId);
 }
 
+// ══════════════════════════════════════════
+// SYSTÈME DE FAVORIS
+// ══════════════════════════════════════════
+
+async function _getFavoriRecord(prestataireId) {
+  if (!currentUser) return null;
+  const userId = currentUser.id;
+  const filter = encodeURIComponent(`AND({User ID}='${userId}',{Prestataire Favori ID}='${prestataireId}')`);
+  try {
+    const res = await fetch(`${AT_URL('Favoris')}?filterByFormula=${filter}&maxRecords=1`, { headers: AT_HEADERS });
+    const data = await res.json();
+    return data.records?.[0] || null;
+  } catch { return null; }
+}
+
+async function updateFavBtn(prestataireId) {
+  const btn = document.getElementById(`fav-btn-${prestataireId}`);
+  if (!btn) return;
+  if (!currentUser) {
+    btn.innerHTML = '♡ Sauvegarder';
+    btn.style.background = 'rgba(255,255,255,0.12)';
+    return;
+  }
+  const rec = await _getFavoriRecord(prestataireId);
+  if (rec) {
+    btn.innerHTML = '❤️ Sauvegardé';
+    btn.style.background = 'rgba(239,68,68,0.25)';
+    btn.style.border = '1.5px solid rgba(239,68,68,0.5)';
+    btn.dataset.favId = rec.id;
+  } else {
+    btn.innerHTML = '♡ Sauvegarder';
+    btn.style.background = 'rgba(255,255,255,0.12)';
+    btn.style.border = '1.5px solid rgba(255,255,255,0.3)';
+    btn.dataset.favId = '';
+  }
+}
+
+async function toggleFavori(prestataireId) {
+  if (!currentUser) {
+    // Non connecté : incitation à s'inscrire
+    const msg = '❤️ Sauvegarde ce profil pour le retrouver facilement !\n\nCrée ton compte gratuit pour accéder à tes favoris sur tous tes appareils.';
+    if (confirm(msg)) showPage('inscription');
+    return;
+  }
+
+  const btn = document.getElementById(`fav-btn-${prestataireId}`);
+  const existingRec = await _getFavoriRecord(prestataireId);
+
+  if (existingRec) {
+    // Retirer des favoris
+    try {
+      await fetch(`${AT_URL('Favoris')}/${existingRec.id}`, { method: 'DELETE', headers: AT_HEADERS });
+      toast('Retiré des favoris', 'info');
+    } catch { toast('Erreur', 'error'); return; }
+  } else {
+    // Ajouter aux favoris
+    const record = window._currentProfilRecord || window._allPrestataires?.find(r => r.id === prestataireId);
+    const nom = record?.fields?.['Nom complet'] || '';
+    try {
+      await fetch(AT_URL('Favoris'), {
+        method: 'POST', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: {
+          'User ID': currentUser.id,
+          'Prestataire Favori ID': prestataireId,
+          'Nom Prestataire': nom,
+          'Date': new Date().toISOString()
+        }})
+      });
+      toast('❤️ Ajouté aux favoris !', 'success');
+      // Notifier le prestataire
+      pushNotif(prestataireId, { type: 'favori', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
+    } catch { toast('Erreur', 'error'); return; }
+  }
+  await updateFavBtn(prestataireId);
+}
+
+async function loadFavoris() {
+  if (!currentUser) return;
+  const container = document.getElementById('favoris-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris)"><div class="spinner"></div></div>';
+
+  try {
+    const filter = encodeURIComponent(`{User ID}='${currentUser.id}'`);
+    const res = await fetch(`${AT_URL('Favoris')}?filterByFormula=${filter}&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=50`, { headers: AT_HEADERS });
+    const data = await res.json();
+    const favRecords = data.records || [];
+
+    if (!favRecords.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;">
+          <div style="font-size:48px;margin-bottom:12px;">💔</div>
+          <h3 style="font-family:Fraunces,serif;color:var(--noir);margin-bottom:8px;">Aucun favori pour l'instant</h3>
+          <p style="font-size:14px;">Explore des profils et clique sur <strong>Sauvegarder</strong> pour les retrouver ici.</p>
+          <button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Explorer les prestataires</button>
+        </div>`;
+      return;
+    }
+
+    // Charger les détails de chaque prestataire favori
+    const ids = favRecords.map(r => r.fields['Prestataire Favori ID']).filter(Boolean);
+    const detailsMap = {};
+    await Promise.all(ids.map(async id => {
+      try {
+        const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS });
+        if (r.ok) { const d = await r.json(); detailsMap[id] = d; }
+      } catch {}
+    }));
+
+    container.innerHTML = favRecords.map(favRec => {
+      const pid = favRec.fields['Prestataire Favori ID'];
+      const pdata = detailsMap[pid];
+      if (!pdata) return '';
+      const f = pdata.fields;
+      const nom = f['Nom complet'] || '—';
+      const metier = f['Métier principal'] || '';
+      const quartier = f['Quartier'] || '';
+      const photo = f['WhatsApp'] || '';
+      const plan = f['Abonnement'] || 'Base';
+      const note = f['Note moyenne'] || 0;
+      const dispo = f['Disponible maintenant'];
+      const emoji = METIER_EMOJI[metier] || '⚡';
+      const dateAjout = favRec.fields['Date'] ? new Date(favRec.fields['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+      return `
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1.5px solid transparent;transition:border 0.2s;cursor:pointer;"
+          onmouseover="this.style.borderColor='var(--vert-light)'" onmouseout="this.style.borderColor='transparent'"
+          onclick="showProfil('${pid}');showPage('profil');">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="position:relative;flex-shrink:0;">
+              ${photo
+                ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(27,122,74,0.15);">`
+                : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${nom.charAt(0)}</div>`}
+              ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid white;"></div>' : ''}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;font-size:15px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+              <div style="font-size:12px;color:var(--gris);">${emoji} ${metier}${quartier ? ' · 📍 '+quartier : ''}</div>
+            </div>
+            ${plan !== 'Base' ? `<span style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;">★ PRO</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+            <div style="font-size:12px;color:var(--gris);">❤️ Ajouté le ${dateAjout}</div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showProfil('${pid}');showPage('profil');" style="font-size:11px;padding:4px 10px;">Voir le profil →</button>
+              <button onclick="event.stopPropagation();removeFavori('${favRec.id}','${pid}')" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;">✕</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;">Erreur: ${e.message}</div>`;
+  }
+}
+
+async function removeFavori(favId, prestataireId) {
+  try {
+    await fetch(`${AT_URL('Favoris')}/${favId}`, { method: 'DELETE', headers: AT_HEADERS });
+    toast('Retiré des favoris', 'info');
+    loadFavoris();
+    // Update button if profile is visible
+    updateFavBtn(prestataireId);
+  } catch { toast('Erreur', 'error'); }
+}
+
+// ══════════════════════════════════════════
+// PHOTOS — LIKES & COMMENTAIRES
+// ══════════════════════════════════════════
+
+// Cache local pour éviter trop de requêtes
+const _photoAvisCache = {};
+
+async function _getPhotoAvisRecord(prestatireId, slot) {
+  const cacheKey = `${prestatireId}_${slot}`;
+  try {
+    const filter = encodeURIComponent(`AND({Prestataire ID}='${prestatireId}',{Slot}='${slot}')`);
+    const res = await fetch(`${AT_URL('Photos Avis')}?filterByFormula=${filter}&maxRecords=1`, { headers: AT_HEADERS });
+    const data = await res.json();
+    const rec = data.records?.[0] || null;
+    _photoAvisCache[cacheKey] = rec;
+    return rec;
+  } catch { return null; }
+}
+
+async function _upsertPhotoAvis(prestatireId, slot, photoUrl, updater) {
+  const rec = await _getPhotoAvisRecord(prestatireId, slot);
+  const currentFields = rec?.fields || { 'Prestataire ID': prestatireId, 'Slot': slot, 'Photo URL': photoUrl, 'Likes': 0, 'Likeurs': '[]', 'Commentaires': '[]' };
+  const updatedFields = updater(currentFields);
+  if (rec) {
+    await fetch(`${AT_URL('Photos Avis')}/${rec.id}`, { method: 'PATCH', headers: AT_HEADERS, body: JSON.stringify({ fields: updatedFields }) });
+  } else {
+    await fetch(AT_URL('Photos Avis'), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify({ fields: { ...currentFields, ...updatedFields } }) });
+  }
+  // Invalider cache
+  delete _photoAvisCache[`${prestatireId}_${slot}`];
+}
+
+async function likePhoto(prestatireId, slot, photoUrl) {
+  if (!currentUser) {
+    if (confirm('❤️ Pour liker cette photo, crée ton compte KalaTogo gratuitement !')) showPage('inscription');
+    return;
+  }
+  const userId = currentUser.id;
+  const rec = await _getPhotoAvisRecord(prestatireId, slot);
+  const likeurs = (() => { try { return JSON.parse(rec?.fields?.['Likeurs'] || '[]'); } catch { return []; } })();
+  const alreadyLiked = likeurs.some(l => l.userId === userId);
+
+  await _upsertPhotoAvis(prestatireId, slot, photoUrl, fields => {
+    const likes = (() => { try { return JSON.parse(fields['Likeurs'] || '[]'); } catch { return []; } })();
+    const newLikes = alreadyLiked
+      ? likes.filter(l => l.userId !== userId)
+      : [...likes, { userId, nom: currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur', photo: currentPrestataire?.fields?.['WhatsApp'] || '' }];
+    return { 'Likes': newLikes.length, 'Likeurs': JSON.stringify(newLikes) };
+  });
+
+  if (!alreadyLiked) pushNotif(prestatireId, { type: 'photo_like', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Quelqu\'un' });
+
+  // Refresh display
+  const btn = document.getElementById(`photo-like-btn-${prestatireId}-${slot}`);
+  if (btn) {
+    const newRec = await _getPhotoAvisRecord(prestatireId, slot);
+    const count = newRec?.fields?.['Likes'] || 0;
+    const newLikeurs = (() => { try { return JSON.parse(newRec?.fields?.['Likeurs'] || '[]'); } catch { return []; } })();
+    const iLike = newLikeurs.some(l => l.userId === userId);
+    btn.innerHTML = `${iLike ? '❤️' : '🤍'} ${count > 0 ? count : ''}`;
+    btn.style.color = iLike ? '#ef4444' : '';
+  }
+}
+
+async function loadPhotoLikeCounts(prestatireId) {
+  const slots = ['profil', 'real1', 'real2', 'real3'];
+  for (const slot of slots) {
+    const rec = await _getPhotoAvisRecord(prestatireId, slot);
+    if (!rec) continue;
+    const count = rec.fields['Likes'] || 0;
+    if (count === 0) continue;
+    const likeurs = (() => { try { return JSON.parse(rec.fields['Likeurs'] || '[]'); } catch { return []; } })();
+    const iLike = currentUser && likeurs.some(l => l.userId === currentUser.id);
+    const btn = document.getElementById(`photo-like-btn-${prestatireId}-${slot}`);
+    if (btn) { btn.innerHTML = `${iLike ? '❤️' : '🤍'} ${count}`; btn.style.color = iLike ? '#ef4444' : ''; }
+    // Afficher count sur thumbnail
+    const countEl = document.getElementById(`photo-like-count-${prestatireId}-${slot}`);
+    if (countEl) countEl.textContent = count;
+  }
+}
+
+async function openPhotoWithComments(prestatireId, slot, photoUrl, nom) {
+  // Ouvre une lightbox enrichie avec likes et commentaires
+  const rec = await _getPhotoAvisRecord(prestatireId, slot);
+  const likes = rec?.fields?.['Likes'] || 0;
+  const likeurs = (() => { try { return JSON.parse(rec?.fields?.['Likeurs'] || '[]'); } catch { return []; } })();
+  const comments = (() => { try { return JSON.parse(rec?.fields?.['Commentaires'] || '[]'); } catch { return []; } })();
+  const iLike = currentUser && likeurs.some(l => l.userId === currentUser.id);
+  const userId = currentUser?.id;
+
+  // Remove old instance
+  document.getElementById('photo-comments-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'photo-comments-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999998;display:flex;flex-direction:column;';
+
+  overlay.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.1);">
+      <button onclick="document.getElementById('photo-comments-overlay').remove()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;">←</button>
+      <span style="color:white;font-weight:700;font-size:15px;">📸 ${nom}</span>
+      <div style="width:36px;"></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;padding:0 16px;">
+      <!-- Photo -->
+      <div style="text-align:center;padding:20px 0;">
+        <img src="${photoUrl}" style="max-width:100%;max-height:45vh;object-fit:contain;border-radius:12px;">
+      </div>
+      <!-- Like bar -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1);">
+        <button id="photo-like-btn-${prestatireId}-${slot}"
+          onclick="likePhoto('${prestatireId}','${slot}','${photoUrl}')"
+          style="background:none;border:none;color:${iLike ? '#ef4444' : 'rgba(255,255,255,0.7)'};font-size:22px;cursor:pointer;padding:0;display:flex;align-items:center;gap:6px;">
+          ${iLike ? '❤️' : '🤍'} <span style="font-size:14px;font-weight:700;">${likes > 0 ? likes : ''}</span>
+        </button>
+        <button onclick="document.getElementById('photo-comment-input').focus()"
+          style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer;padding:0;">💬</button>
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);">${comments.length > 0 ? comments.length + ' commentaire' + (comments.length > 1 ? 's' : '') : ''}</span>
+      </div>
+      <!-- Comments -->
+      <div id="photo-comments-list" style="padding:12px 0;flex:1;">
+        ${comments.length === 0 ? '<p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;padding:20px;">Aucun commentaire. Sois le premier !</p>' :
+          comments.map(c => {
+            const cDate = c.date ? new Date(c.date).toLocaleDateString('fr-FR', {day:'numeric',month:'short'}) : '';
+            return `
+              <div style="display:flex;gap:10px;margin-bottom:16px;">
+                ${c.auteurId
+                  ? `<div onclick="showProfil('${c.auteurId}');showPage('profil');document.getElementById('photo-comments-overlay').remove();" style="cursor:pointer;flex-shrink:0;">
+                      ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${(c.auteur||'?').charAt(0)}</div>`}
+                     </div>`
+                  : `<div style="width:36px;height:36px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;flex-shrink:0;">${(c.auteur||'?').charAt(0)}</div>`}
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                    <span style="font-weight:700;color:white;font-size:13px;${c.auteurId ? 'cursor:pointer;' : ''}"
+                      ${c.auteurId ? `onclick="showProfil('${c.auteurId}');showPage('profil');document.getElementById('photo-comments-overlay').remove();"` : ''}>
+                      ${c.auteur || 'Utilisateur'}
+                    </span>
+                    <span style="font-size:11px;color:rgba(255,255,255,0.4);">${cDate}</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:0;line-height:1.5;">${c.texte}</p>
+                </div>
+              </div>`;
+          }).join('')}
+      </div>
+    </div>
+    <!-- Input commentaire -->
+    <div style="border-top:1px solid rgba(255,255,255,0.1);padding:12px 16px;background:rgba(0,0,0,0.8);max-width:600px;width:100%;margin:0 auto;">
+      ${currentUser
+        ? `<div style="display:flex;gap:10px;align-items:center;">
+            <input id="photo-comment-input" type="text" placeholder="Ajoute un commentaire…" maxlength="300"
+              style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:10px 16px;color:white;font-size:14px;outline:none;"
+              onkeydown="if(event.key==='Enter')submitPhotoComment('${prestatireId}','${slot}','${photoUrl}')">
+            <button onclick="submitPhotoComment('${prestatireId}','${slot}','${photoUrl}')"
+              style="background:var(--vert);border:none;color:white;padding:10px 18px;border-radius:24px;font-weight:700;font-size:13px;cursor:pointer;">Publier</button>
+           </div>`
+        : `<div style="text-align:center;padding:8px;">
+            <span style="color:rgba(255,255,255,0.5);font-size:13px;">Pour commenter, </span>
+            <button onclick="showPage('inscription');document.getElementById('photo-comments-overlay').remove();" style="background:none;border:none;color:var(--or);font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;">crée ton compte</button>
+           </div>`}
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+async function submitPhotoComment(prestatireId, slot, photoUrl) {
+  if (!currentUser || !currentPrestataire) { toast('Connecte-toi pour commenter', 'error'); return; }
+  const input = document.getElementById('photo-comment-input');
+  const texte = (input?.value || '').trim();
+  if (!texte) return;
+  if (texte.length > 300) { toast('Commentaire trop long', 'error'); return; }
+
+  const auteur = currentPrestataire.fields['Nom complet'] || 'Utilisateur';
+  const auteurPhoto = currentPrestataire.fields['WhatsApp'] || '';
+  const auteurId = currentPrestataire.id;
+
+  await _upsertPhotoAvis(prestatireId, slot, photoUrl, fields => {
+    const comments = (() => { try { return JSON.parse(fields['Commentaires'] || '[]'); } catch { return []; } })();
+    comments.push({ id: Date.now().toString(), texte, auteur, auteurPhoto, auteurId, date: new Date().toISOString() });
+    return { 'Commentaires': JSON.stringify(comments) };
+  });
+
+  if (input) input.value = '';
+  pushNotif(prestatireId, { type: 'photo_comment', auteur, texte });
+  // Refresh overlay
+  openPhotoWithComments(prestatireId, slot, photoUrl, auteur);
+}
+
 // ── BANNIÈRE MÉTIER COLORÉE ──
 function renderMetierBanner(metier, recordId, nom) {
   const m = (metier || '').toLowerCase();
@@ -5635,6 +6308,10 @@ function renderMetierBanner(metier, recordId, nom) {
     <div class="profil-cover-overlay"></div>
     <div class="profil-cover-actions">
       <button class="profil-cover-btn" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</button>
+      <button class="profil-cover-btn" id="fav-btn-${recordId}" onclick="toggleFavori('${recordId}')"
+        style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);">
+        ♡ Sauvegarder
+      </button>
     </div>
   </div>`;
 }
@@ -5648,9 +6325,10 @@ function showAlbumsPage(recordId) {
   const f = record.fields;
   const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
   const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
+  const customAlbums = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch(e) { return []; } })();
   const nom = f['Nom complet'] || 'Prestataire';
   const metier = f['Métier principal'] || '';
-  const allPhotos = [photoProfil, ...realisations].filter(Boolean);
+  const allPhotos = [photoProfil, ...realisations, ...customAlbums.flatMap(a => a.photos || [])].filter(Boolean);
   const albumPageId = 'albums-page-' + recordId;
 
   // Toujours recréer pour afficher les données fraîches
@@ -5669,14 +6347,35 @@ function showAlbumsPage(recordId) {
   albumPage.id = albumPageId;
   albumPage.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;z-index:9999;overflow-y:auto;';
 
-  // Helper : item cliquable (référence window global, pas de JSON inline)
-  const photoItem = (url, globalKey, idx) => `
-    <div data-lbkey="${globalKey}" data-lbidx="${idx}"
-      style="aspect-ratio:1;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;background:#1a1a1a;">
-      <img src="${url}" loading="lazy"
-        style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;pointer-events:none;">
-      <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;pointer-events:none;"></div>
+  // Helper : item cliquable + slot pour likes/commentaires
+  const slotFromIdx = (key, idx) => {
+    if (key === profKey) return 'profil';
+    return 'real' + (idx + 1);
+  };
+  const photoItem = (url, globalKey, idx) => {
+    const slot = slotFromIdx(globalKey, idx);
+    return `
+    <div style="aspect-ratio:1;border-radius:10px;position:relative;background:#1a1a1a;overflow:hidden;">
+      <div data-lbkey="${globalKey}" data-lbidx="${idx}"
+        style="width:100%;height:100%;cursor:pointer;">
+        <img src="${url}" loading="lazy"
+          style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;pointer-events:none;">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;pointer-events:none;"></div>
+      </div>
+      <!-- Like count badge -->
+      <div style="position:absolute;bottom:6px;right:8px;display:flex;gap:8px;align-items:center;">
+        <button id="photo-like-btn-${recordId}-${slot}"
+          onclick="event.stopPropagation();likePhoto('${recordId}','${slot}','${url}')"
+          style="background:rgba(0,0,0,0.6);border:none;color:rgba(255,255,255,0.8);font-size:14px;padding:3px 8px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:4px;">
+          🤍
+        </button>
+        <button onclick="event.stopPropagation();openPhotoWithComments('${recordId}','${slot}','${url}','${nom}')"
+          style="background:rgba(0,0,0,0.6);border:none;color:rgba(255,255,255,0.8);font-size:14px;padding:3px 8px;border-radius:20px;cursor:pointer;">
+          💬
+        </button>
+      </div>
     </div>`;
+  };
 
   // Grille réalisations : 1ère photo grande si ≥ 3 photos
   let realisHtml = '';
@@ -5739,6 +6438,26 @@ function showAlbumsPage(recordId) {
         ${realisHtml}
       </div>` : ''}
 
+      ${customAlbums.filter(a => (a.photos||[]).length > 0).map(alb => {
+        const albKey = '_album_pub_' + recordId + '_' + alb.id;
+        window[albKey] = alb.photos;
+        const albGrid = alb.photos.length === 1
+          ? `<div style="display:grid;grid-template-columns:1fr;gap:4px;">${photoItem(alb.photos[0], albKey, 0)}</div>`
+          : alb.photos.length === 2
+            ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${alb.photos.map((p,i)=>photoItem(p,albKey,i)).join('')}</div>`
+            : `<div style="display:grid;grid-template-columns:2fr 1fr;gap:4px;">${photoItem(alb.photos[0],albKey,0)}<div style="display:grid;grid-template-rows:1fr 1fr;gap:4px;">${alb.photos.slice(1,3).map((p,i)=>photoItem(p,albKey,i+1)).join('')}</div></div>`;
+        return `<div style="margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:3px;height:18px;background:#a78bfa;border-radius:2px;"></div>
+              <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">${alb.nom}</span>
+            </div>
+            <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:3px 10px;border-radius:100px;">${alb.photos.length} photo${alb.photos.length !== 1 ? 's' : ''}</span>
+          </div>
+          ${albGrid}
+        </div>`;
+      }).join('')}
+
       ${allPhotos.length === 0 ? `
       <div style="text-align:center;padding:80px 20px;">
         <div style="font-size:48px;margin-bottom:16px;">📷</div>
@@ -5776,6 +6495,8 @@ function showAlbumsPage(recordId) {
   });
 
   document.body.appendChild(albumPage);
+  // Charger les likes sur les photos
+  setTimeout(() => loadPhotoLikeCounts(recordId), 400);
 }
 
 // ── PAGE RDV DÉDIÉE style Calendly ──
@@ -6249,6 +6970,10 @@ async function showProfil(recordId) {
                 ${tiktok ? `<a href="${tiktok}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
                 ${instagram ? `<a href="${instagram}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
                 <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
+                <button id="fav-btn-${recordId}" onclick="toggleFavori('${recordId}')"
+                  style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
+                  ♡ Sauvegarder
+                </button>
               </div>
             </div>
           </div>
@@ -6386,6 +7111,10 @@ async function showProfil(recordId) {
     setTimeout(() => renderPostsFeed(recordId), 100);
     // Mini map localisation
     if (gpsLat && gpsLon) setTimeout(() => initProfileMiniMap(gpsLat, gpsLon, `profil-minimap-${recordId}`), 300);
+    // Mettre à jour le bouton favoris
+    setTimeout(() => updateFavBtn(recordId), 200);
+    // Charger les stats photos (likes)
+    setTimeout(() => loadPhotoLikeCounts(recordId), 300);
 
     // Incrémenter les vues si pas le propriétaire
     if (record.id && currentUser?.id !== record.fields?.['User ID']) {
