@@ -3234,6 +3234,24 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <input type="file" id="real-input-3" accept="image/*" style="display:none" onchange="uploadRealisationPhoto(3)">
         </div>
 
+        <!-- Photos libres (standalone) -->
+        <div style="background:white;border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-top:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🖼️</span>
+              <div>
+                <h3 style="font-family:Fraunces,serif;font-size:16px;font-weight:700;margin:0;">Photos libres</h3>
+                <p style="font-size:12px;color:var(--gris);margin:0;">Photos sans album — visibles sur ton profil</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addLibrePhoto()">➕ Ajouter une photo</button>
+          </div>
+          <div id="libres-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;">
+            <!-- populated by JS -->
+          </div>
+          <input type="file" id="libre-file-input" accept="image/*" style="display:none" onchange="handleLibrePhotoFile()">
+        </div>
+
         <!-- Albums personnalisés -->
         <div style="background:white;border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-top:20px;">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
@@ -4619,21 +4637,115 @@ function renderAlbumsSection() {
       <div style="font-size:36px;margin-bottom:10px;">🗂️</div>
       <p style="font-size:14px;margin:0;">Aucun album.<br>Crée ton premier album !</p>
     </div>`;
+    renderLibresSection();
     return;
+  }
+  // Input caché partagé pour ajout rapide depuis la carte
+  let sharedInp = document.getElementById('album-quick-add-input');
+  if (!sharedInp) {
+    sharedInp = document.createElement('input');
+    sharedInp.type = 'file'; sharedInp.accept = 'image/*';
+    sharedInp.id = 'album-quick-add-input'; sharedInp.style.display = 'none';
+    sharedInp.onchange = () => handleAlbumPhotoFile(window._quickAddAlbumId);
+    document.body.appendChild(sharedInp);
   }
   grid.innerHTML = albums.map(alb => {
     const cover = alb.photos?.[0] || '';
     const count = (alb.photos||[]).length;
-    return `<div onclick="openAlbumManager('${alb.id}')" style="border-radius:14px;overflow:hidden;background:#f8f8f8;border:1px solid #f0f0f0;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div style="aspect-ratio:1;overflow:hidden;position:relative;background:#eee;">
-        ${cover ? `<img src="${cover}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:0.2;">📷</div>`}
+    return `<div style="border-radius:14px;overflow:hidden;background:#f8f8f8;border:1px solid #f0f0f0;position:relative;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div onclick="openAlbumManager('${alb.id}')" style="cursor:pointer;">
+        <div style="aspect-ratio:1;overflow:hidden;position:relative;background:#eee;">
+          ${cover ? `<img src="${cover}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:0.2;">📷</div>`}
+        </div>
+        <div style="padding:8px 12px 4px;">
+          <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${alb.nom}</div>
+          <div style="font-size:11px;color:var(--gris);margin-top:2px;">${count} photo${count !== 1 ? 's' : ''}</div>
+        </div>
       </div>
-      <div style="padding:10px 12px;">
-        <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${alb.nom}</div>
-        <div style="font-size:11px;color:var(--gris);margin-top:2px;">${count} photo${count !== 1 ? 's' : ''}</div>
-      </div>
+      <button onclick="event.stopPropagation();window._quickAddAlbumId='${alb.id}';document.getElementById('album-quick-add-input').value='';document.getElementById('album-quick-add-input').click()"
+        title="Ajouter une photo dans cet album"
+        style="width:100%;padding:6px 0 8px;border:none;background:rgba(27,122,74,0.07);color:var(--vert);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
+        ➕ Ajouter une photo
+      </button>
     </div>`;
   }).join('');
+  renderLibresSection();
+}
+
+// ── Photos libres (standalone, sans album) ──────────────────────────
+function _getLibrePhotos() {
+  // Stockées dans un album spécial __libres__ dans le même champ Albums
+  const albums = _getAlbums();
+  const lib = albums.find(a => a.id === '__libres__');
+  return lib ? lib.photos || [] : [];
+}
+
+async function _saveLibrePhotos(photos) {
+  let albums = _getAlbums();
+  const idx = albums.findIndex(a => a.id === '__libres__');
+  if (idx >= 0) albums[idx].photos = photos;
+  else albums.push({ id: '__libres__', nom: '__libres__', photos });
+  return _saveAlbums(albums);
+}
+
+function renderLibresSection() {
+  const grid = document.getElementById('libres-grid');
+  if (!grid) return;
+  const photos = _getLibrePhotos();
+  if (photos.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:28px 20px;color:var(--gris);">
+      <div style="font-size:32px;margin-bottom:8px;">🖼️</div>
+      <p style="font-size:13px;margin:0;">Aucune photo libre.<br>Ajoute ta première photo ici !</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = photos.map((url, idx) => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;background:#f0f0f0;">
+      <img src="${url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:4px;padding:6px;background:linear-gradient(transparent,rgba(0,0,0,0.5));justify-content:flex-end;">
+        <button onclick="deleteLibrePhoto(${idx})" title="Supprimer"
+          style="background:rgba(255,255,255,0.9);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;color:#dc2626;font-weight:700;">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function addLibrePhoto() {
+  document.getElementById('libre-file-input').value = '';
+  document.getElementById('libre-file-input').click();
+}
+
+function handleLibrePhotoFile() {
+  const inp = document.getElementById('libre-file-input');
+  const file = inp?.files?.[0];
+  if (!file) return;
+  inp.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget = null;
+    _cropAspect = NaN; // libre ratio
+    _cropCallback = async (blob) => {
+      const statusEl = document.createElement('div');
+      toast('Upload en cours...', 'info');
+      const url = await uploadToImgBB(blob instanceof Blob ? blob : await fetch(blob).then(r=>r.blob()));
+      if (!url) { toast('Erreur upload', 'error'); return; }
+      const photos = _getLibrePhotos();
+      photos.push(url);
+      const ok = await _saveLibrePhotos(photos);
+      if (ok) { renderLibresSection(); toast('Photo ajoutée !', 'success'); }
+      else toast('Erreur sauvegarde', 'error');
+    };
+    _openCropModal(e.target.result, NaN);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteLibrePhoto(idx) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  const photos = _getLibrePhotos();
+  photos.splice(idx, 1);
+  const ok = await _saveLibrePhotos(photos);
+  if (ok) { renderLibresSection(); toast('Photo supprimée', 'info'); }
+  else toast('Erreur', 'error');
 }
 
 async function createAlbum() {
