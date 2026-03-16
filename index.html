@@ -2244,7 +2244,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
         <div class="form-group">
           <label>Nom complet <span class="req">*</span></label>
-          <input type="text" id="f-nom" placeholder="Ex : Kofi Mensah" required autocomplete="off" name="kalatogo-nom">
+          <input type="text" id="f-nom" placeholder="Ex : Kofi Mensah" required autocomplete="new-password" name="kalatogo-nom-x">
         </div>
 
         <div class="form-row">
@@ -2424,11 +2424,11 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
               </optgroup>
             </select>
 
-            <!-- Champ portfolio — affiché uniquement pour les métiers digitaux -->
+            <!-- Champ diplômes/expérience — affiché uniquement pour les métiers digitaux -->
             <div id="portfolio-field" style="display:none;margin-top:16px;padding:16px;background:#eef2ff;border:1.5px solid #818cf8;border-radius:12px;">
-              <label style="color:#1e1b4b;font-weight:700;font-size:14px;display:block;margin-bottom:4px;">🎨 Lien vers ton portfolio / travaux</label>
-              <p style="font-size:12px;color:#374151;margin:0 0 10px;">Behance, GitHub, Dribbble, LinkedIn, Instagram pro... Montre ce que tu sais faire !</p>
-              <input type="url" id="f-portfolio" placeholder="https://..." style="width:100%;padding:10px 14px;background:#fff;border:1.5px solid #818cf8;border-radius:8px;color:#111827;font-size:14px;box-sizing:border-box;">
+              <label style="color:#1e1b4b;font-weight:700;font-size:14px;display:block;margin-bottom:4px;">🎓 Diplômes &amp; expériences</label>
+              <p style="font-size:12px;color:#374151;margin:0 0 10px;">Formations, certifications, années d'expérience... Décris ce qui fait ta valeur !</p>
+              <textarea id="f-diplomes" rows="3" placeholder="Ex : BTS Informatique 2022, 3 ans d'expérience en développement web, Certification Google Ads..." autocomplete="new-password" name="kala-diplomes" style="width:100%;padding:10px 14px;background:#fff;border:1.5px solid #818cf8;border-radius:8px;color:#111827;font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
             </div>
           </div>
           <div class="form-group">
@@ -2965,6 +2965,10 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <div class="form-group">
             <label>Description de tes services</label>
             <textarea id="edit-description" style="min-height:130px;"></textarea>
+          </div>
+          <div class="form-group" id="edit-diplomes-group" style="display:none;">
+            <label>🎓 Diplômes &amp; expériences <span style="font-size:12px;color:var(--gris);font-weight:400;">(Talents Digitaux)</span></label>
+            <textarea id="edit-diplomes" rows="3" placeholder="Ex : BTS Informatique 2022, 3 ans d'expérience en dev web..." style="min-height:90px;resize:vertical;"></textarea>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -4133,6 +4137,10 @@ function loadEditForm() {
   document.getElementById('edit-nom').value = f['Nom complet'] || '';
   document.getElementById('edit-tel').value = f['Numéro de téléphone'] || '';
   document.getElementById('edit-description').value = f['Description des services'] || '';
+  const editDiplomesEl = document.getElementById('edit-diplomes');
+  if (editDiplomesEl) editDiplomesEl.value = f['Diplomes'] || '';
+  const editDiplomesGroup = document.getElementById('edit-diplomes-group');
+  if (editDiplomesGroup) editDiplomesGroup.style.display = isDigitalMetier(f['Métier principal'] || '') ? 'block' : 'none';
   document.getElementById('edit-tiktok').value    = f['Lien TikTok']     || '';
   document.getElementById('edit-instagram').value = f['Lien Instagram']  || '';
   // Langues parlées — Airtable en priorité, fallback localStorage pour migration
@@ -4194,6 +4202,9 @@ async function saveProfile() {
   if (tarifMax)  fields['Tarif maximum FCFA']       = parseInt(tarifMax);
   if (metier)    fields['Métier principal']         = metier;
   if (quartier)  fields['Quartier']                 = quartier;
+  // Diplômes (Talents Digitaux)
+  const diplomes = document.getElementById('edit-diplomes')?.value.trim();
+  fields['Diplomes'] = diplomes || '';
   // Champs maintenant créés dans Airtable
   fields['Lien Instagram']  = instagram || '';
   fields['Langues parlées'] = langues   || '';
@@ -5083,7 +5094,7 @@ function resetInscriptionForm() {
 
   // Vider les champs — double reset pour contrer l'autofill Chrome
   const _clearFields = () => {
-    ['f-nom','f-tel','f-email','f-description','f-tarif-min','f-tarif-max','f-tiktok','f-instagram','f-password'].forEach(id => {
+    ['f-nom','f-tel','f-email','f-description','f-tarif-min','f-tarif-max','f-tiktok','f-instagram','f-password','f-diplomes'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -7060,6 +7071,7 @@ async function showProfil(recordId) {
     const metier = f['Métier principal'] || '';
     const quartier = f['Quartier'] || '';
     const description = f['Description des services'] || '';
+    const diplomes = f['Diplomes'] || '';
     const tarifMin = f['Tarif minimum FCFA'];
     const tarifMax = f['Tarif maximum FCFA'];
     const note = f['Note moyenne'] || 0;
@@ -7078,8 +7090,6 @@ async function showProfil(recordId) {
     const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
     const emoji = METIER_EMOJI[metier] || '⚡';
     const isDigital = isDigitalMetier(metier);
-    const lienPortfolio = f['Lien Portfolio'] || '';
-
     const waMsg = encodeURIComponent(`Bonjour ${nom}, je t'ai trouvé sur KalaTogo. Je suis intéressé par tes services de ${metier}. Tu es disponible ?`);
     const waLink = tel ? `https://wa.me/${tel}?text=${waMsg}` : '#';
 
@@ -7262,7 +7272,6 @@ async function showProfil(recordId) {
                 ${tel ? `<a href="tel:${tel}" class="btn-dark-outline">📞 Appeler</a>` : ''}
                 ${tiktok ? `<a href="${tiktok}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
                 ${instagram ? `<a href="${instagram}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
-                ${lienPortfolio ? `<a href="${lienPortfolio}" target="_blank" class="btn-dark-outline" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;">🎨 Portfolio</a>` : ''}
                 <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
                 <button id="fav-btn-${recordId}" onclick="toggleFavori('${recordId}')"
                   style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
@@ -7305,6 +7314,12 @@ async function showProfil(recordId) {
               <div class="profil-section">
                 <h3>À propos</h3>
                 ${descHtml}
+              </div>` : ''}
+
+              ${diplomes && isDigital ? `
+              <div class="profil-section">
+                <h3>🎓 Diplômes &amp; expériences</h3>
+                <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.8;white-space:pre-wrap;">${diplomes}</p>
               </div>` : ''}
 
               ${albumsPreview}
@@ -7880,9 +7895,9 @@ async function submitInscription(e) {
     if (genre && genre !== '') fields['Genre'] = genre;
     if (metier && metier !== '') fields['Métier principal'] = metier;
     if (quartier && quartier !== '') fields['Quartier'] = quartier;
-    // Portfolio et flag Talent Digital
-    const portfolio = document.getElementById('f-portfolio')?.value?.trim();
-    if (portfolio) fields['Lien Portfolio'] = portfolio;
+    // Diplômes/expériences et flag Talent Digital
+    const diplomes = document.getElementById('f-diplomes')?.value?.trim();
+    if (diplomes) fields['Diplomes'] = diplomes;
     if (metier && isDigitalMetier(metier)) fields['Talent Digital'] = true;
 
     const latVal = document.getElementById('f-latitude').value;
@@ -9440,11 +9455,27 @@ window.addEventListener('resize', applyResponsiveGrids);
 initAuth();
 initHome();
 // checkPaymentUrl doit s'exécuter APRÈS le parsing complet du DOM (l'élément #page-paiement-client est après ce script)
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { checkPaymentUrl(); applyResponsiveGrids(); });
-} else {
-  setTimeout(() => { checkPaymentUrl(); applyResponsiveGrids(); }, 0);
+function _fixAutocomplete() {
+  document.querySelectorAll('input[type="text"],input[type="email"],input[type="tel"],input[type="search"],input[type="number"],input:not([type])').forEach(inp => {
+    const ac = inp.getAttribute('autocomplete');
+    if (!ac || ac === 'off' || ac === 'on') {
+      inp.setAttribute('autocomplete', 'new-password');
+    }
+    if (!inp.getAttribute('name') || inp.getAttribute('name') === '') {
+      inp.setAttribute('name', 'kala-' + (inp.id || Math.random().toString(36).slice(2)));
+    }
+  });
 }
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { checkPaymentUrl(); applyResponsiveGrids(); _fixAutocomplete(); });
+} else {
+  setTimeout(() => { checkPaymentUrl(); applyResponsiveGrids(); _fixAutocomplete(); }, 0);
+}
+// Re-appliquer après chaque navigation (showPage crée du nouveau HTML)
+const _origShowPage = window.showPage;
+window.showPage = function(...args) { const r = _origShowPage?.(...args); setTimeout(_fixAutocomplete, 100); return r; };
+const _origShowDash = window.showDashSection;
+window.showDashSection = function(...args) { const r = _origShowDash?.(...args); setTimeout(_fixAutocomplete, 100); return r; };
 </script>
 
 <!-- ══════════════════════════════════════════
