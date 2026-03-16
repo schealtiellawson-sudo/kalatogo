@@ -401,6 +401,9 @@ h1 .gold { color:var(--or); }
   transition:all 0.2s; color:var(--gris-fonce);
 }
 .qf-chip:hover, .qf-chip.active { background:var(--vert); color:white; border-color:var(--vert); }
+/* Chips Talents Digitaux — couleur indigo */
+.qf-chip-digital { border-color:rgba(99,102,241,0.3); color:#4f46e5; }
+.qf-chip-digital:hover { background:#6366f1; color:white; border-color:#6366f1; }
 
 /* ══ CARDS PRESTATAIRES ══ */
 .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
@@ -475,6 +478,8 @@ h1 .gold { color:var(--or); }
   cursor:pointer; background:white; transition:all 0.2s; color:var(--gris-fonce);
 }
 .filter-dispo.active { background:var(--vert); color:white; border-color:var(--vert); }
+/* Bouton filtre digital actif */
+#digital-btn.active { background:#6366f1; color:white; border-color:#6366f1; }
 .results-meta { font-size:14px; color:var(--gris); margin-top:20px; font-weight:500; }
 
 /* ══════════════════════════════════════
@@ -1294,7 +1299,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div>
           <div class="hero-eyebrow">✦ Togo · Partout dans le pays · Lancé 2026</div>
           <h1 class="hero-title">Ton <em>talent</em><br>mérite d'être<br><span class="gold">trouvé.</span> <span class="hero-live-badge"><span class="hero-live-dot"></span>En ligne</span></h1>
-          <p class="hero-sub">KalaTogo connecte les meilleurs artisans et prestataires de <strong style="color:var(--vert);">tout le Togo</strong> avec les clients qui les cherchent. <strong>Gratuit pour commencer.</strong> Visible dès aujourd'hui.</p>
+          <p class="hero-sub">KalaTogo connecte artisans, prestataires de services <strong>et talents digitaux</strong> de <strong style="color:var(--vert);">tout le Togo</strong> avec les clients qui les cherchent. <strong>Gratuit pour commencer.</strong> Visible dès aujourd'hui.</p>
           <div class="hero-actions">
             <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">✦ Créer mon profil</button>
             <button class="btn btn-secondary btn-lg" onclick="showPage('search')">Trouver un pro</button>
@@ -1348,7 +1353,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <div class="metric-label">Prestataires actifs</div>
         </div>
         <div class="metric">
-          <div class="metric-num">64</div>
+          <div class="metric-num">80+</div>
           <div class="metric-label">Métiers disponibles</div>
         </div>
         <div class="metric">
@@ -1450,6 +1455,21 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             <option>Kinésithérapeute</option>
             <option>Opticien</option>
           </optgroup>
+          <optgroup label="🎓 Talents Digitaux">
+            <option>Développeur web/mobile</option>
+            <option>Community Manager</option>
+            <option>Rédacteur / Copywriter</option>
+            <option>Data analyst</option>
+            <option>Monteur vidéo professionnel</option>
+            <option>Motion designer</option>
+            <option>Expert Excel / Bureautique</option>
+            <option>Chef de projet digital</option>
+            <option>Juriste / Conseiller juridique</option>
+            <option>Modèle photo / Influenceur</option>
+            <option>Vendeur terrain / Commercial</option>
+            <option>Secrétaire / Assistante administrative</option>
+            <option>Architecte / Urbaniste</option>
+          </optgroup>
           <optgroup label="Divers">
             <option>Autre (préciser dans la description)</option>
           </optgroup>
@@ -1468,10 +1488,70 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div class="qf-chip" onclick="quickFilter('Mécanicien')">🔧 Mécanicien</div>
         <div class="qf-chip" onclick="quickFilter('Électricien')">⚡ Électricien</div>
         <div class="qf-chip" onclick="quickFilter('Photographe')">📸 Photographe</div>
-        <div class="qf-chip" onclick="quickFilter('Informaticien')">💻 Informaticien</div>
+        <div class="qf-chip" onclick="quickFilter('Informaticien/Technicien PC')">💻 Informaticien</div>
+        <div class="qf-chip qf-chip-digital" onclick="quickFilter('Développeur web/mobile')">🖥️ Développeur</div>
+        <div class="qf-chip qf-chip-digital" onclick="quickFilter('Graphiste')">🎨 Graphiste</div>
+        <div class="qf-chip qf-chip-digital" onclick="quickFilter('Community Manager')">📱 CM</div>
+        <div class="qf-chip qf-chip-digital" onclick="quickFilter('Comptable')">📊 Comptable</div>
       </div>
     </div>
   </div>
+
+  <!-- SECTION TALENTS DIGITAUX -->
+  <section style="background:#0d0d0d;padding:72px 0;border-top:1px solid rgba(255,255,255,0.06);">
+    <div class="container">
+      <!-- Header -->
+      <div style="text-align:center;margin-bottom:48px;">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:700;color:#a5b4fc;margin-bottom:20px;text-transform:uppercase;letter-spacing:0.5px;">
+          🎓 Nouveau
+        </div>
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,3.5vw,42px);font-weight:900;line-height:1.15;color:white;margin-bottom:16px;">
+          Tu as le diplôme.<br><em style="color:#818cf8;">KalaTogo t'apporte les clients.</em>
+        </h2>
+        <p style="font-size:16px;color:rgba(255,255,255,0.55);line-height:1.8;max-width:540px;margin:0 auto 32px;">
+          Graphiste, développeur, comptable, juriste, community manager — crée ton profil et reçois des demandes de clients à Lomé dès aujourd'hui. Tes compétences valent de l'argent. Prouve-le.
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-lg" onclick="showPage('inscription')" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">🎓 Créer mon profil Talent</button>
+          <button class="btn btn-secondary btn-lg" onclick="toggleDigitalFilter();showPage('search');" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;">Voir les talents →</button>
+        </div>
+      </div>
+
+      <!-- Grille des catégories digitales -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:48px;">
+        ${[
+          {icon:'💻',label:'Développeur web/mobile'},
+          {icon:'🎨',label:'Graphiste / Designer'},
+          {icon:'📱',label:'Community Manager'},
+          {icon:'✍️',label:'Rédacteur / Copywriter'},
+          {icon:'📊',label:'Comptable / Data analyst'},
+          {icon:'⚖️',label:'Juriste / Conseil'},
+          {icon:'🎬',label:'Monteur vidéo'},
+          {icon:'🌟',label:'Modèle / Influenceur'},
+          {icon:'🤝',label:'Commercial terrain'},
+          {icon:'🏛️',label:'Architecte'},
+          {icon:'📋',label:'Expert Bureautique'},
+          {icon:'🗂️',label:'Chef de projet'},
+        ].map(c => `
+          <div onclick="quickFilter('${c.label.split('/')[0].trim()}')" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 12px;text-align:center;transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.12)';this.style.borderColor='rgba(99,102,241,0.3)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="font-size:26px;margin-bottom:8px;">${c.icon}</div>
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);line-height:1.35;">${c.label}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Bandeau social proof -->
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(79,70,229,0.08));border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:28px 32px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#a5b4fc;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">💡 Pourquoi KalaTogo ?</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.7;margin:0;">
+            Chaque année, des centaines de diplômés togolais sortent des universités sans trouver d'employeur. KalaTogo transforme leurs compétences en revenus — sans intermédiaire, sans commission cachée.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('inscription')" style="background:linear-gradient(135deg,#6366f1,#4f46e5);white-space:nowrap;">Commencer gratuitement →</button>
+      </div>
+    </div>
+  </section>
 
   <!-- SECTION LOCALISATION — Feature différenciante -->
   <section style="background:linear-gradient(180deg,#f0f7f0 0%,#e8f5e8 100%);padding:80px 0;overflow:hidden;">
@@ -1787,6 +1867,14 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Je couds depuis 8 ans et je n'avais jamais entendu parler d'un revenu passif. KalaTogo m'a appris ce que ça veut dire. J'ai 9 filleuls actifs, ça couvre maintenant les fournitures de mes enfants."</p>
           <div style="font-weight:700;color:white;font-size:13px;">Dorcas A. — Couturière, Bè</div>
         </div>
+        <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:16px;padding:20px;">
+          <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
+          <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"J'ai mon diplôme de graphisme depuis 2 ans. Aucune entreprise ne répondait. J'ai créé mon profil KalaTogo, partagé dans mes groupes d'étudiants — j'ai eu mes 3 premiers clients en une semaine."</p>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="background:rgba(99,102,241,0.25);color:#a5b4fc;font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;">🎓 Talent Digital</span>
+            <div style="font-weight:700;color:white;font-size:13px;">Edem K. — Graphiste, Cacaveli</div>
+          </div>
+        </div>
         <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
           <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
           <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"J'ai le réseau des menuisiers de tout Kégué. En 1 mois j'ai inscrit 22 collègues artisans. Maintenant chaque mois c'est automatique — l'argent rentre sans que je bouge."</p>
@@ -2048,6 +2136,21 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             <option>Kinésithérapeute</option>
             <option>Opticien</option>
           </optgroup>
+          <optgroup label="🎓 Talents Digitaux">
+            <option>Développeur web/mobile</option>
+            <option>Community Manager</option>
+            <option>Rédacteur / Copywriter</option>
+            <option>Data analyst</option>
+            <option>Monteur vidéo professionnel</option>
+            <option>Motion designer</option>
+            <option>Expert Excel / Bureautique</option>
+            <option>Chef de projet digital</option>
+            <option>Juriste / Conseiller juridique</option>
+            <option>Modèle photo / Influenceur</option>
+            <option>Vendeur terrain / Commercial</option>
+            <option>Secrétaire / Assistante administrative</option>
+            <option>Architecte / Urbaniste</option>
+          </optgroup>
           <optgroup label="Divers">
             <option>Autre (préciser dans la description)</option>
           </optgroup>
@@ -2057,6 +2160,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;">
         <button class="filter-dispo" id="dispo-btn" onclick="toggleDispo()">🟢 Disponibles maintenant</button>
+        <button class="filter-dispo" id="digital-btn" onclick="toggleDigitalFilter()" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;">🎓 Talents Digitaux</button>
         <select class="filter-select" id="s-tarif" onchange="loadSearch()">
           <option value="">Tous les tarifs</option>
           <option value="5000">Moins de 5 000 FCFA</option>
@@ -2212,7 +2316,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div class="form-row">
           <div class="form-group">
             <label>Métier principal <span class="req">*</span></label>
-            <select id="f-metier" required>
+            <select id="f-metier" required onchange="onMetierChange(this.value)">
               <option value="">Choisir...</option>
               <optgroup label="Beauté &amp; Bien-être">
                 <option>Coiffeur/Coiffeuse</option>
@@ -2295,10 +2399,32 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
                 <option>Kinésithérapeute</option>
                 <option>Opticien</option>
               </optgroup>
+              <optgroup label="🎓 Talents Digitaux">
+                <option>Développeur web/mobile</option>
+                <option>Community Manager</option>
+                <option>Rédacteur / Copywriter</option>
+                <option>Data analyst</option>
+                <option>Monteur vidéo professionnel</option>
+                <option>Motion designer</option>
+                <option>Expert Excel / Bureautique</option>
+                <option>Chef de projet digital</option>
+                <option>Juriste / Conseiller juridique</option>
+                <option>Modèle photo / Influenceur</option>
+                <option>Vendeur terrain / Commercial</option>
+                <option>Secrétaire / Assistante administrative</option>
+                <option>Architecte / Urbaniste</option>
+              </optgroup>
               <optgroup label="Divers">
                 <option>Autre (préciser dans la description)</option>
               </optgroup>
             </select>
+
+            <!-- Champ portfolio — affiché uniquement pour les métiers digitaux -->
+            <div id="portfolio-field" style="display:none;margin-top:16px;padding:16px;background:rgba(99,102,241,0.08);border:1.5px solid rgba(99,102,241,0.25);border-radius:12px;">
+              <label style="color:#a5b4fc;font-weight:700;font-size:14px;">🎨 Lien vers ton portfolio / travaux</label>
+              <p style="font-size:12px;color:rgba(255,255,255,0.45);margin:6px 0 10px;">Behance, GitHub, Dribbble, LinkedIn, Instagram pro... Montre ce que tu sais faire !</p>
+              <input type="url" id="f-portfolio" placeholder="https://..." style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:white;font-size:14px;">
+            </div>
           </div>
           <div class="form-group">
             <label>Ville <span class="req">*</span></label>
@@ -5174,8 +5300,48 @@ const METIER_EMOJI = {
   'Brodeur/Brodeuse':'🧶','Repasseuse':'👔','Femme de ménage':'🧹',
   'Gardien/Vigile':'🔒','Laveur auto':'🚿','Tapissier':'🛋️',
   'Vitrier':'🪟','Kinésithérapeute':'💪','Opticien':'👓',
-  'Autre (préciser dans la description)':'✨'
+  'Autre (préciser dans la description)':'✨',
+  // Talents Digitaux
+  'Développeur web/mobile':'💻','Community Manager':'📱',
+  'Juriste / Conseiller juridique':'⚖️','Rédacteur / Copywriter':'✍️',
+  'Data analyst':'📊','Monteur vidéo professionnel':'🎬',
+  'Motion designer':'🎞️','Expert Excel / Bureautique':'📋',
+  'Chef de projet digital':'🗂️','Modèle photo / Influenceur':'🌟',
+  'Vendeur terrain / Commercial':'🤝','Secrétaire / Assistante administrative':'📝',
+  'Architecte / Urbaniste':'🏛️'
 };
+
+// ══ TALENTS DIGITAUX — liste de référence pour badge et filtre ══
+const DIGITAL_METIERS = new Set([
+  'Développeur web/mobile','Community Manager','Juriste / Conseiller juridique',
+  'Rédacteur / Copywriter','Data analyst','Monteur vidéo professionnel',
+  'Motion designer','Expert Excel / Bureautique','Chef de projet digital',
+  'Modèle photo / Influenceur','Vendeur terrain / Commercial',
+  'Secrétaire / Assistante administrative','Architecte / Urbaniste',
+  // Métiers déjà présents qui sont aussi digitaux/intellectuels
+  'Graphiste','Photographe','Vidéaste','Informaticien/Technicien PC',
+  'Réparateur téléphones','Formateur/Coach','Comptable',
+  'Traducteur (Ewe/Français/Anglais)','Agent immobilier',
+  'DJ/Animateur','Professeur particulier'
+]);
+
+function isDigitalMetier(metier) {
+  if (!metier) return false;
+  if (DIGITAL_METIERS.has(metier)) return true;
+  const m = metier.toLowerCase();
+  return ['développeur','graphiste','community','comptable','juriste',
+    'rédacteur','data','motion','architecte','monteur','modèle',
+    'commercial','bureautique','chef de projet','secrétaire',
+    'informaticien','community manager'].some(k => m.includes(k));
+}
+
+let digitalFilter = false;
+function toggleDigitalFilter() {
+  digitalFilter = !digitalFilter;
+  const btn = document.getElementById('digital-btn');
+  if (btn) btn.classList.toggle('active', digitalFilter);
+  loadSearch();
+}
 
 function renderStars(note) {
   if (!note || note === 0) return '<span style="color:var(--gris);font-size:12px;">Pas encore d\'avis</span>';
@@ -5510,7 +5676,9 @@ async function loadSearch() {
   const tarifMax = document.getElementById('s-tarif')?.value || '';
 
   try {
-    const records = await fetchPrestataires({ metier, quartier, dispo: dispoFilter, tarifMax: tarifMax ? parseInt(tarifMax) : null });
+    let records = await fetchPrestataires({ metier, quartier, dispo: dispoFilter, tarifMax: tarifMax ? parseInt(tarifMax) : null });
+    // Filtre Talents Digitaux côté client (pas de champ Airtable requis)
+    if (digitalFilter) records = records.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
     meta.textContent = `${records.length} prestataire${records.length !== 1 ? 's' : ''} trouvé${records.length !== 1 ? 's' : ''}`;
 
     if (records.length === 0) {
@@ -5525,11 +5693,12 @@ async function loadSearch() {
     container.innerHTML = records.map(r => renderCard(r)).join('');
   } catch (e) {
     console.warn('Airtable inaccessible recherche:', e?.message);
-    const filtered = MOCK_PRESTATAIRES.filter(r => {
+    let filtered = MOCK_PRESTATAIRES.filter(r => {
       if (metier && r.fields['Métier principal'] !== metier) return false;
       if (quartier && r.fields['Quartier'] !== quartier) return false;
       return true;
     });
+    if (digitalFilter) filtered = filtered.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
     meta.textContent = `${filtered.length} prestataire${filtered.length !== 1 ? 's' : ''} (démo)`;
     container.innerHTML = filtered.length
       ? filtered.map(r => renderCard(r)).join('')
@@ -6787,6 +6956,8 @@ async function showProfil(recordId) {
     const abonnement = f['Abonnement'] || 'Base';
     const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
     const emoji = METIER_EMOJI[metier] || '⚡';
+    const isDigital = isDigitalMetier(metier);
+    const lienPortfolio = f['Lien Portfolio'] || '';
 
     const waMsg = encodeURIComponent(`Bonjour ${nom}, je t'ai trouvé sur KalaTogo. Je suis intéressé par tes services de ${metier}. Tu es disponible ?`);
     const waLink = tel ? `https://wa.me/${tel}?text=${waMsg}` : '#';
@@ -6960,6 +7131,7 @@ async function showProfil(recordId) {
                 ${verifie ? '<span class="badge badge-vert">✓ Vérifié KalaTogo</span>' : ''}
                 ${abonnement !== 'Base' ? `<span class="badge badge-or">⭐ ${abonnement}</span>` : ''}
                 ${note > 0 ? `<span class="badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">${starsHtml(note)} ${note.toFixed(1)}</span>` : ''}
+                ${isDigital ? '<span class="badge" style="background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);">🎓 Talent Digital</span>' : ''}
               </div>
 
               <!-- Boutons d'action -->
@@ -6969,6 +7141,7 @@ async function showProfil(recordId) {
                 ${tel ? `<a href="tel:${tel}" class="btn-dark-outline">📞 Appeler</a>` : ''}
                 ${tiktok ? `<a href="${tiktok}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
                 ${instagram ? `<a href="${instagram}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
+                ${lienPortfolio ? `<a href="${lienPortfolio}" target="_blank" class="btn-dark-outline" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;">🎨 Portfolio</a>` : ''}
                 <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
                 <button id="fav-btn-${recordId}" onclick="toggleFavori('${recordId}')"
                   style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
@@ -7475,6 +7648,12 @@ function nextStep(step) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Affiche/masque le champ portfolio selon le métier choisi
+function onMetierChange(metier) {
+  const field = document.getElementById('portfolio-field');
+  if (field) field.style.display = isDigitalMetier(metier) ? 'block' : 'none';
+}
+
 async function submitInscription(e) {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
@@ -7580,6 +7759,10 @@ async function submitInscription(e) {
     if (genre && genre !== '') fields['Genre'] = genre;
     if (metier && metier !== '') fields['Métier principal'] = metier;
     if (quartier && quartier !== '') fields['Quartier'] = quartier;
+    // Portfolio et flag Talent Digital
+    const portfolio = document.getElementById('f-portfolio')?.value?.trim();
+    if (portfolio) fields['Lien Portfolio'] = portfolio;
+    if (metier && isDigitalMetier(metier)) fields['Talent Digital'] = true;
 
     const latVal = document.getElementById('f-latitude').value;
     const lonVal = document.getElementById('f-longitude').value;
@@ -7713,11 +7896,54 @@ async function loadParrainage() {
     const res = await fetch(AT_URL('Prestataires') + '?filterByFormula=' + parrainFormula + '&maxRecords=500', { headers: AT_HEADERS });
     const data = await res.json();
     window._allFilleuls = data.records || [];
-    _renderFilleulsCRM(window._allFilleuls);
+    await _loadFilleulsProgression(window._allFilleuls);
   } catch(err) {
     console.error('loadParrainage filleuls:', err);
     document.getElementById('filleuls-list').innerHTML = '<p style="color:var(--gris);font-size:14px;padding:12px;">Impossible de charger les filleuls.</p>';
   }
+}
+
+// ── Progression filleuls : enrichit chaque record avec _estPro et _hasPremierRdv ──
+// • _estPro        : calculé localement (r.fields['Abonnement']) — 0 requête Airtable
+// • _hasPremierRdv : 1 seule requête batch OR(ids…) par chunk de 50, fields[]=Prestataire+ID
+async function _loadFilleulsProgression(filleuls) {
+  if (!filleuls.length) { _renderFilleulsCRM(filleuls); return; }
+
+  // Étape 3 — estPro : déjà en mémoire, aucune requête réseau nécessaire
+  filleuls.forEach(r => {
+    r._estPro = (r.fields['Abonnement'] || 'Base') !== 'Base';
+  });
+
+  // Étape 2 — a_premier_rdv : requête batch chunked (max 50 IDs par requête pour rester < 8KB URL)
+  const CHUNK = 50;
+  const rdvSet = new Set(); // IDs prestataires ayant ≥1 RDV non-annulé
+  try {
+    const ids = filleuls.map(r => r.id);
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += CHUNK) chunks.push(ids.slice(i, i + CHUNK));
+
+    await Promise.all(chunks.map(async chunk => {
+      const orParts = chunk.map(id => `{Prestataire ID}='${id}'`).join(',');
+      // On ne récupère que le champ Prestataire ID — booléen uniquement, aucune donnée client
+      const formula = encodeURIComponent(`AND(OR(${orParts}),{Statut}!='Annulé')`);
+      const url = `${AT_URL('Rendez-vous')}?filterByFormula=${formula}&fields[]=Prestataire+ID&maxRecords=500`;
+      const res = await fetch(url, { headers: AT_HEADERS });
+      if (!res.ok) return; // cas limite : erreur réseau sur ce chunk → on ignore silencieusement
+      const data = await res.json();
+      (data.records || []).forEach(rec => {
+        const pid = rec.fields['Prestataire ID'];
+        if (pid) rdvSet.add(pid); // on ne stocke que l'ID, rien d'autre
+      });
+    }));
+  } catch(e) {
+    // cas limite : si le batch échoue entièrement, on affiche la liste sans barre RDV
+    console.error('_loadFilleulsProgression RDV batch:', e);
+  }
+
+  // Enrichir les records en mémoire (non-persisté, session uniquement)
+  filleuls.forEach(r => { r._hasPremierRdv = rdvSet.has(r.id); });
+
+  _renderFilleulsCRM(filleuls);
 }
 
 function _commParFilleul(plan) {
@@ -7788,6 +8014,8 @@ function _renderFilleulsCRM(filleuls) {
       const date = rf['Created'] ? new Date(rf['Created']).toLocaleDateString('fr-FR', {day:'numeric',month:'short',year:'numeric'}) : '';
       const comm = _commParFilleul(plan);
       const isPro = plan !== 'Base';
+      // Booléens de progression — valorisés par _loadFilleulsProgression (false par défaut si pas encore chargé)
+      const aRdv = !!r._hasPremierRdv;
       const initiale = nom.charAt(0).toUpperCase();
       const planColor = plan === 'Pro' ? '#f59e0b' : '#9ca3af';
       const planBg    = plan === 'Pro' ? '#fffbeb' : '#f9fafb';
@@ -7795,36 +8023,58 @@ function _renderFilleulsCRM(filleuls) {
       const waMsg = encodeURIComponent(`Bonjour ${nom} ! 👋\nJe vois que tu es encore sur le plan gratuit KALA. Pour seulement 2 500 FCFA/mois, le plan Pro te donne accès à plus de visibilité, le système de paiement et bien plus. Tu veux qu'on en parle ? 😊`);
 
       return `
-      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:12px;background:${isPro ? 'white' : '#fffbeb'};border:1.5px solid ${isPro ? '#f0f0f0' : '#fde68a'};border-radius:12px;margin-bottom:6px;transition:.15s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
-        <!-- Nom + métier -->
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:14px;flex-shrink:0;">${initiale}</div>
-          <div style="min-width:0;">
-            <div style="font-weight:700;font-size:14px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
-            <div style="font-size:11px;color:var(--gris);">${metier}${date ? ' · '+date : ''}</div>
+      <div style="border-radius:12px;margin-bottom:6px;border:1.5px solid ${isPro ? '#f0f0f0' : '#fde68a'};overflow:hidden;transition:.15s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
+        <!-- Ligne principale -->
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:12px;background:${isPro ? 'white' : '#fffbeb'};">
+          <!-- Nom + métier -->
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:14px;flex-shrink:0;">${initiale}</div>
+            <div style="min-width:0;">
+              <div style="font-weight:700;font-size:14px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+              <div style="font-size:11px;color:var(--gris);">${metier}${date ? ' · '+date : ''}</div>
+            </div>
+          </div>
+          <!-- Plan -->
+          <div>
+            <span style="background:${planBg};color:${planColor};border:1.5px solid ${planColor}33;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:800;">${plan}</span>
+          </div>
+          <!-- Contact -->
+          <div style="font-size:12px;color:var(--gris);line-height:1.6;">
+            ${tel ? `<div>📞 ${tel}</div>` : ''}
+            ${email ? `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;" title="${email}">✉️ ${email}</div>` : ''}
+            ${!tel && !email ? '<span style="color:#d1d5db;">—</span>' : ''}
+          </div>
+          <!-- Commission -->
+          <div>
+            ${comm > 0
+              ? `<div style="font-weight:800;font-size:14px;color:var(--vert);">+${comm.toLocaleString('fr-FR')} FCFA</div><div style="font-size:10px;color:var(--gris);">par mois</div>`
+              : `<div style="font-size:12px;color:#f59e0b;font-weight:700;">0 FCFA<br><span style="font-size:10px;color:#9ca3af;">plan gratuit</span></div>`}
+          </div>
+          <!-- Actions -->
+          <div style="display:flex;gap:4px;flex-shrink:0;">
+            ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
+            ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
+            ${email ? `<a href="mailto:${email}?subject=KALA Pro — Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
           </div>
         </div>
-        <!-- Plan -->
-        <div>
-          <span style="background:${planBg};color:${planColor};border:1.5px solid ${planColor}33;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:800;">${plan}</span>
-        </div>
-        <!-- Contact -->
-        <div style="font-size:12px;color:var(--gris);line-height:1.6;">
-          ${tel ? `<div>📞 ${tel}</div>` : ''}
-          ${email ? `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;" title="${email}">✉️ ${email}</div>` : ''}
-          ${!tel && !email ? '<span style="color:#d1d5db;">—</span>' : ''}
-        </div>
-        <!-- Commission -->
-        <div>
-          ${comm > 0
-            ? `<div style="font-weight:800;font-size:14px;color:var(--vert);">+${comm.toLocaleString('fr-FR')} FCFA</div><div style="font-size:10px;color:var(--gris);">par mois</div>`
-            : `<div style="font-size:12px;color:#f59e0b;font-weight:700;">0 FCFA<br><span style="font-size:10px;color:#9ca3af;">plan gratuit</span></div>`}
-        </div>
-        <!-- Actions -->
-        <div style="display:flex;gap:4px;flex-shrink:0;">
-          ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
-          ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
-          ${email ? `<a href="mailto:${email}?subject=KALA Pro — Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
+        <!-- Barre de progression filleul — 3 étapes — aucune donnée personnelle exposée -->
+        <div style="border-top:1px dashed #e5e7eb;padding:7px 12px;background:${isPro?'#fafafa':'#fffef5'};display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+          <!-- Étape 1 : Inscrit — toujours atteinte si le filleul est dans la liste -->
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:3px 8px;border-radius:100px;border:1px solid #bbf7d0;">
+            <span style="font-size:9px;">✓</span> Inscrit
+          </span>
+          <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
+          <!-- Étape 2 : Premier RDV booké (booléen uniquement, aucun détail du RDV) -->
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${aRdv?'#16a34a':'#9ca3af'};background:${aRdv?'#f0fdf4':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${aRdv?'#bbf7d0':'#e5e7eb'};">
+            <span style="font-size:9px;">${aRdv?'✓':'○'}</span> 1er RDV booké
+          </span>
+          ${aRdv ? `<span style="background:#dcfce7;color:#15803d;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
+          <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
+          <!-- Étape 3 : Passé en Pro (déjà connu depuis Abonnement, aucune requête supplémentaire) -->
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${isPro?'#d97706':'#9ca3af'};background:${isPro?'#fffbeb':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${isPro?'#fde68a':'#e5e7eb'};">
+            <span style="font-size:9px;">${isPro?'✓':'○'}</span> Plan Pro
+          </span>
+          ${isPro ? `<span style="background:#fef3c7;color:#d97706;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
         </div>
       </div>`;
     }).join('')}`;
