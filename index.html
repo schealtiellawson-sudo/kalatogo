@@ -2755,7 +2755,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <!-- Score KALA -->
           <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--or);position:relative;">
             <button onclick="toggleKpiTip('tip-score');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
-            <div id="tip-score" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">🏆 <strong>Le Score KALA = ta visibilité</strong><br>Plus ton score est élevé, plus tu apparais en haut des recherches. Profil complet (40pts) + note (30pts) + avis (20pts) + photos (10pts). Vise 80+ pour être Élite !</div>
+            <div id="tip-score" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">🏆 <strong>Le Score KALA = ta visibilité</strong><br>Profil complet (30pts) + note (25pts) + nb avis (15pts) + photos (10pts) + vues profil (10pts) + commentaires écrits (10pts) = 100 pts. Plus tu es actif, plus tu montes !</div>
             <div style="font-size:22px;margin-bottom:4px;">🏆</div>
             <div style="font-size:24px;font-weight:900;font-family:Fraunces,serif;color:var(--or);" id="kpi-score">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Score KALA</div>
@@ -4059,12 +4059,16 @@ async function loadDashOverview() {
   document.getElementById('kpi-note').textContent = note > 0 ? note.toFixed(1) + ' ★' : '—';
   document.getElementById('kpi-note-sub').textContent = note > 0 ? `Sur ${nbAvis} avis` : 'Pas encore d\'avis';
 
-  // ── Score KALA — calculé localement ──
-  const scoreComp  = Math.round(completion * 0.40);           // max 40 pts (complétude)
-  const scoreNote  = note > 0 ? Math.round((note / 5) * 30) : 0; // max 30 pts (note)
-  const scoreAvis  = Math.min(nbAvis * 2, 20);                // max 20 pts (nb avis)
-  const scorePhoto = (f['Photo Réalisation 1'] ? 4 : 0) + (f['Photo Réalisation 2'] ? 3 : 0) + (f['Photo Réalisation 3'] ? 3 : 0); // max 10
-  const score = Math.min(scoreComp + scoreNote + scoreAvis + scorePhoto, 100);
+  // ── Score KALA — calculé localement (6 composantes) ──
+  const scoreComp         = Math.round(completion * 0.30);                        // max 30 pts (complétude)
+  const scoreNote         = note > 0 ? Math.round((note / 5) * 25) : 0;          // max 25 pts (note moyenne)
+  const scoreAvis         = Math.min(nbAvis * 2, 15);                             // max 15 pts (nb avis reçus)
+  const scorePhoto        = (f['Photo Réalisation 1'] ? 4 : 0) + (f['Photo Réalisation 2'] ? 3 : 0) + (f['Photo Réalisation 3'] ? 3 : 0); // max 10 pts
+  const totalViewsAll     = JSON.parse(localStorage.getItem(`kala_views_${prestId}`) || '{"total":0}').total || 0;
+  const scoreVues         = Math.min(Math.floor(totalViewsAll / 10), 10);         // max 10 pts (1pt par tranche de 10 vues, plafonné à 100 vues)
+  const nbAvisAvecTexte   = avisRecs.filter(r => (r.fields['Commentaire'] || '').trim().length > 0).length;
+  const scoreCommentaires = Math.min(nbAvisAvecTexte * 2, 10);                    // max 10 pts (5 commentaires écrits = max)
+  const score = Math.min(scoreComp + scoreNote + scoreAvis + scorePhoto + scoreVues + scoreCommentaires, 100);
 
   document.getElementById('kpi-score').textContent = score || '—';
 
@@ -7441,11 +7445,14 @@ async function showProfil(recordId) {
     const _scoreComp  = [f['WhatsApp'], f['Description des services'], f['Tarif minimum FCFA'],
                          f['Numéro de téléphone'], f['Photo Réalisation 1'],
                          f['Disponible maintenant'], f['Latitude']].filter(Boolean).length;
+    const _nbAvisAvecTexte   = avisRecords.filter(r => (r.fields['Commentaire'] || '').trim().length > 0).length;
     const score = Math.min(
-      Math.round((_scoreComp / 7) * 40) +
-      (note > 0 ? Math.round((note / 5) * 30) : 0) +
-      Math.min(nbAvis * 2, 20) +
-      (f['Photo Réalisation 1'] ? 4 : 0) + (f['Photo Réalisation 2'] ? 3 : 0) + (f['Photo Réalisation 3'] ? 3 : 0),
+      Math.round((_scoreComp / 7) * 30) +
+      (note > 0 ? Math.round((note / 5) * 25) : 0) +
+      Math.min(nbAvis * 2, 15) +
+      (f['Photo Réalisation 1'] ? 4 : 0) + (f['Photo Réalisation 2'] ? 3 : 0) + (f['Photo Réalisation 3'] ? 3 : 0) +
+      Math.min(_nbAvisAvecTexte * 2, 10),
+      // Note : vues non incluses sur profil public (données locales par navigateur)
       100
     );
 
@@ -10250,7 +10257,7 @@ window.showDashSection = function(...args) { const r = _origShowDash?.(...args);
         <div style="padding:24px;background:var(--or-light);border-radius:16px;text-align:center;">
           <div style="font-size:32px;margin-bottom:12px;">🏆</div>
           <h4 style="font-weight:800;margin-bottom:8px;">Score KALA</h4>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">Un algorithme surveille les comportements. Les prestataires sérieux montent. Les autres descendent. Le mérite récompensé.</p>
+          <p style="font-size:13px;color:var(--gris);line-height:1.6;">Profil complet + note + avis + photos + vues + commentaires écrits = Score sur 100. Les prestataires sérieux montent. Le mérite récompensé.</p>
         </div>
       </div>
     </div>
