@@ -7075,8 +7075,8 @@ function showRdvPage(recordId) {
               <input id="rdv-client-tel-${recordId}" type="tel" placeholder="+228 XX XX XX XX" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:white;font-size:14px;font-family:inherit;outline:none;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
             </div>
             <div>
-              <label style="font-size:13px;color:rgba(255,255,255,0.5);display:block;margin-bottom:6px;">Message (optionnel)</label>
-              <textarea id="rdv-client-msg-${recordId}" placeholder="Décrivez brièvement votre besoin..." style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:white;font-size:14px;font-family:inherit;outline:none;resize:none;height:80px;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"></textarea>
+              <label style="font-size:13px;color:rgba(255,255,255,0.5);display:block;margin-bottom:6px;">Message *</label>
+              <textarea id="rdv-client-msg-${recordId}" placeholder="Décrivez brièvement votre besoin (min. 10 caractères)..." style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:white;font-size:14px;font-family:inherit;outline:none;resize:none;height:80px;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"></textarea>
             </div>
             <button onclick="confirmRdvPage('${recordId}')" style="background:var(--vert);color:white;border:none;padding:14px 24px;border-radius:100px;font-weight:800;font-size:15px;cursor:pointer;width:100%;transition:.2s;" onmouseenter="this.style.background='var(--vert-dark)'" onmouseleave="this.style.background='var(--vert)'">✅ Confirmer le rendez-vous →</button>
           </div>
@@ -7121,6 +7121,7 @@ async function confirmRdvPage(recordId) {
   const tel = telEl.value.trim();
   const msg = msgEl ? msgEl.value.trim() : '';
   if (!nom || !tel) { toast('Remplis ton nom et ton numéro', 'error'); return; }
+  if (!msg || msg.length < 10) { toast('Décris ton besoin en au moins 10 caractères', 'error'); return; }
 
   const prestNom = rdvCalState.prestataire.fields['Nom complet'] || rdvCalState.prestataire.fields['Nom'] || 'Prestataire';
   const btn = document.getElementById(`rdv-confirm-btn-${recordId}`) || document.querySelector(`#rdv-page-${recordId} button[onclick*="confirmRdvPage"]`);
@@ -8928,8 +8929,8 @@ function selectRDVSlot(heure) {
           <input id="rdv-email" type="email" placeholder="votre@email.com" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;box-sizing:border-box;">
         </div>
         <div>
-          <label style="font-size:13px;font-weight:700;color:var(--gris-fonce);display:block;margin-bottom:6px;">Message (optionnel)</label>
-          <textarea id="rdv-message" placeholder="Décrivez votre besoin..." rows="3" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
+          <label style="font-size:13px;font-weight:700;color:var(--gris-fonce);display:block;margin-bottom:6px;">Message *</label>
+          <textarea id="rdv-message" placeholder="Décrivez votre besoin (min. 10 caractères)..." rows="3" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
         </div>
         <button onclick="submitRDV('${containerId}',this)" style="width:100%;padding:14px;background:var(--vert);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">✅ Confirmer le rendez-vous</button>
         <div id="rdv-submit-msg" style="display:none;text-align:center;font-size:14px;font-weight:600;"></div>
@@ -8952,7 +8953,11 @@ async function submitRDV(containerId, btn) {
     msgEl.textContent = '❌ Vérifiez vos infos'; return;
   }
 
-  if (message && message.length > 500) {
+  if (!message || message.length < 10) {
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Décrivez votre besoin (minimum 10 caractères)'; return;
+  }
+  if (message.length > 500) {
     msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
     msgEl.textContent = '❌ Le message est trop long (max 500 caractères)'; return;
   }
