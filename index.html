@@ -2010,7 +2010,12 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <!-- Calculateur de gains -->
       <div style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px;max-width:700px;margin:0 auto;">
         <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:white;margin-bottom:6px;text-align:center;">💡 Combien tu peux gagner ?</h3>
-        <p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:24px;">40% de l'abonnement Pro (2 500 FCFA) = <strong style="color:var(--or);">1 000 FCFA par filleul actif par mois</strong></p>
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:8px;">40% de l'abonnement Pro (2 500 FCFA) = <strong style="color:var(--or);">1 000 FCFA par filleul actif par mois</strong></p>
+        <div style="background:rgba(232,148,10,0.12);border:1.5px solid rgba(232,148,10,0.35);border-radius:12px;padding:12px 16px;text-align:center;margin-bottom:24px;">
+          <span style="font-size:20px;">🎯</span>
+          <p style="color:var(--or);font-size:14px;font-weight:800;margin:4px 0 2px;">Parraine 3 pros → ton Plan Pro est remboursé</p>
+          <p style="color:rgba(255,255,255,0.5);font-size:12px;margin:0;">3 × 1 000 FCFA = 3 000 FCFA &gt; 2 500 FCFA/mois · Le 4ème, c'est du pur bonus 🚀</p>
+        </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:rgba(27,122,74,0.1);border-radius:12px;">
             <span style="color:rgba(255,255,255,0.8);font-weight:600;">5 filleuls actifs</span>
@@ -3659,7 +3664,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <!-- Retrait -->
         <div class="edit-form-section" style="border:2px solid var(--vert);">
           <h3 style="margin-bottom:8px;">💸 Retirer mes commissions</h3>
-          <p style="font-size:14px;color:var(--gris);margin-bottom:16px;">Minimum 500 FCFA. Paiement via TMoney, Flooz ou Wave sous 24h sur ton numéro enregistré.</p>
+          <p style="font-size:14px;color:var(--gris);margin-bottom:16px;">Minimum 3 000 FCFA (= 3 filleuls actifs). Paiement via TMoney ou Flooz sous 24h.</p>
           <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
             <div style="font-size:24px;font-weight:900;color:var(--vert);font-family:Fraunces,serif;" id="retrait-amount-display">0 FCFA disponible</div>
             <button class="btn btn-primary" id="retrait-btn" onclick="requestWithdrawal()">Demander le retrait →</button>
@@ -7307,10 +7312,7 @@ async function showProfil(recordId) {
     const diplomes = f['Diplomes'] || '';
     const tarifMin = f['Tarif minimum FCFA'];
     const tarifMax = f['Tarif maximum FCFA'];
-    const note = f['Note moyenne'] || 0;
-    const nbAvis = f['Nombre d\'avis reçus'] || 0;
     const nbTransactions = f['Nombre de transactions'] || 0;
-    const score = f['Score KALA'] || 0;
     const dispo = f['Disponible maintenant'];
     const verifie = f['Badge vérifié'];
     const tel = (f['Numéro de téléphone'] || '').replace(/\D/g,'');
@@ -7328,6 +7330,22 @@ async function showProfil(recordId) {
 
     // Charger les avis
     const avisRecords = await fetchAvis(recordId);
+
+    // Note moyenne + Score KALA calculés depuis les vrais avis (pas champs Airtable)
+    const nbAvis = avisRecords.length;
+    const note = nbAvis > 0
+      ? avisRecords.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0) / nbAvis
+      : 0;
+    const _scoreComp  = [f['WhatsApp'], f['Description des services'], f['Tarif minimum FCFA'],
+                         f['Numéro de téléphone'], f['Photo Réalisation 1'],
+                         f['Disponible maintenant'], f['Latitude']].filter(Boolean).length;
+    const score = Math.min(
+      Math.round((_scoreComp / 7) * 40) +
+      (note > 0 ? Math.round((note / 5) * 30) : 0) +
+      Math.min(nbAvis * 2, 20) +
+      (f['Photo Réalisation 1'] ? 4 : 0) + (f['Photo Réalisation 2'] ? 3 : 0) + (f['Photo Réalisation 3'] ? 3 : 0),
+      100
+    );
 
     // Photos pour la galerie
     const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
@@ -8268,7 +8286,7 @@ async function loadParrainage() {
 
   // Bouton retrait
   const retraitBtn = document.getElementById('retrait-btn');
-  if (retraitBtn) retraitBtn.disabled = commDisp < 500;
+  if (retraitBtn) retraitBtn.disabled = commDisp < 3000;
 
   // Charger les filleuls
   try {
@@ -9053,7 +9071,7 @@ async function addCommissionToParrain(parrainCode, amount) {
 function requestWithdrawal() {
   if (!currentPrestataire) return;
   const commDisp = currentPrestataire.fields['Commission Disponible FCFA'] || 0;
-  if (commDisp < 500) { toast('Minimum de retrait : 500 FCFA', 'error'); return; }
+  if (commDisp < 3000) { toast('Minimum de retrait : 3 000 FCFA (3 filleuls actifs)', 'error'); return; }
   // Pré-remplir le modal
   const phone = (currentPrestataire.fields['Numéro de téléphone'] || '').replace(/\D/g,'').replace(/^(228|00228)/, '');
   const el = document.getElementById('retrait-phone-input');
@@ -10420,7 +10438,7 @@ const faqData = [
   { q: "Comment devenir \"Commercial KALA\" et en faire un vrai métier ?", a: "Simple. Tu cibles les commerçants du Grand Marché, les coiffeurs d'Adidogomé, les mécaniciens d'Agoè, les restaurants de Bè. Tu leur montres comment KALA leur amène des clients sans qu'ils bougent de leur boutique. Tu les inscris. Ils paient. Tu touches ta commission chaque mois. Un bon commercial terrain peut inscrire 5 à 10 prestataires par semaine. À 40 filleuls actifs : 40 000 FCFA/mois en récurrent. À 100 filleuls : 100 000 FCFA. Sans plafond." },
   { q: "Je n'ai pas de réseau, est-ce que ça marche quand même ?", a: "Le réseau se construit. Commence par ta famille, tes amis, ton quartier. Un électricien de ton quartier, la coiffeuse de ta sœur, le mécanicien de ton père. 5 personnes de confiance, c'est déjà 5 000 FCFA/mois garanti. Ensuite tu élargis. Le grand commercial KALA d'aujourd'hui a commencé avec 3 contacts." },
   { q: "Est-ce que je peux parrainer via TikTok ou Instagram ?", a: "Absolument — et c'est même la meilleure façon. Si tu as une communauté sur TikTok, Instagram ou WhatsApp, ton lien de parrainage peut devenir une vraie source de revenus mensuels. Chaque personne de ta communauté qui s'inscrit via ton lien te rapporte 40% de son abonnement chaque mois. Avec une audience de 500 à 1000 abonnés engagés, tu peux générer plusieurs dizaines de milliers de FCFA par mois de façon récurrente." },
-  { q: "Comment recevoir mes commissions de parrainage ?", a: "Tes commissions s'accumulent dans ton tableau de bord KALA (section Parrainage). Quand tu veux les retirer, tu fais une demande depuis le dashboard — paiement via TMoney, Flooz ou Wave sous 24-48h. Le minimum de retrait est de 500 FCFA." },
+  { q: "Comment recevoir mes commissions de parrainage ?", a: "Tes commissions s'accumulent dans ton tableau de bord KALA (section Parrainage). Quand tu veux les retirer, tu fais une demande depuis le dashboard — paiement via TMoney, Flooz ou Wave sous 24-48h. Le minimum de retrait est de 3 000 FCFA (équivalent à 3 filleuls actifs)." },
   { q: "Comment les clients me paient ?", a: "Directement — cash, TMoney, Flooz, comme vous voulez. Le paiement se règle entre toi et ton client. KALA ne s'interpose pas dans cette transaction." },
   { q: "Est-ce que n'importe qui peut s'inscrire ?", a: "Tout prestataire sérieux peut s'inscrire. Menuisier, coiffeur, électricien, photographe, cuisinier, mécanicien, zémidjan, chauffeur voiture... Si tu as un vrai métier, tu as ta place sur KALA. On vérifie les profils pour garantir la qualité." },
   { q: "Est-ce que KALA couvre tout le Togo ?", a: "Oui — KalaTogo est disponible dans toutes les villes et régions du Togo. Lomé, Kpalimé, Sokodé, Kara, Atakpamé, Dapaong, Tsévié, Aného... Peu importe où tu travailles, tu peux créer ton profil et être trouvé par des clients proches de toi." },
@@ -10505,7 +10523,7 @@ loadSchealtielPhoto();
         <label class="form-label">Numéro de réception</label>
         <input type="tel" id="retrait-phone-input" class="form-input" placeholder="Ex: 90 00 00 00" style="font-size:16px;letter-spacing:1px;">
       </div>
-      <p style="font-size:12px;color:var(--gris);margin-top:8px;">Virement sous 24h après validation. Minimum 500 FCFA.</p>
+      <p style="font-size:12px;color:var(--gris);margin-top:8px;">Virement sous 24h après validation. Minimum 3 000 FCFA.</p>
     </div>
     <div class="modal-footer" style="display:flex;gap:10px;">
       <button class="btn" style="flex:1;" onclick="document.getElementById('modal-retrait').classList.remove('active')">Annuler</button>
