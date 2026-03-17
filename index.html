@@ -5941,8 +5941,7 @@ async function renderPostsFeed(recordId) {
   let posts = [];
   try {
     const filter = encodeURIComponent(`{Prestataire ID}='${recordId}'`);
-    const sort   = encodeURIComponent('sort[0][field]=Date&sort[0][direction]=desc');
-    const res = await fetch(`${AT_URL('Posts')}?filterByFormula=${filter}&${sort}&maxRecords=50`, { headers: AT_HEADERS });
+    const res = await fetch(`${AT_URL('Posts')}?filterByFormula=${filter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=50`, { headers: AT_HEADERS });
     const data = await res.json();
     posts = (data.records || []).map(r => ({
       id:          r.id,
