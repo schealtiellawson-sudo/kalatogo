@@ -48,6 +48,8 @@ body {
 .page { display:none; }
 .page.active { display:block; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes popIn { from { opacity:0; transform:scale(0.7); } to { opacity:1; transform:scale(1); } }
+@keyframes bounce { 0%,100% { transform:translateY(0); } 40% { transform:translateY(-12px); } 70% { transform:translateY(-6px); } }
 
 .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
 .section { padding: 72px 0; }
@@ -1380,6 +1382,14 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     </div>
   </section>
 
+  <!-- VITRINE PHRASE -->
+  <div style="background:var(--noir);padding:26px 20px;text-align:center;">
+    <div class="container">
+      <p style="font-family:Fraunces,serif;font-size:17px;font-weight:700;color:white;margin:0 0 6px;line-height:1.6;">"Au Togo, le meilleur marketing c'est quand une maman dit à sa voisine<br><em style="color:var(--or);">'Va voir Kofi — il travaille bien.'"</em></p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.45);margin:0;">KalaTogo, c'est ça — mais pour tout le pays, 24h/24, 7j/7.</p>
+    </div>
+  </div>
+
   <!-- BARRE RECHERCHE RAPIDE -->
   <div class="search-bar-section">
     <div class="container">
@@ -2695,43 +2705,75 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </div>
 
         <!-- KPI GRID -->
+        <div id="kpi-tooltip-overlay" onclick="closeAllKpiTips()" style="display:none;position:fixed;inset:0;z-index:998;"></div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;" id="kpi-grid">
-          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--vert);">
+
+          <!-- Vues -->
+          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--vert);position:relative;">
+            <button onclick="toggleKpiTip('tip-views');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
+            <div id="tip-views" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">👁️ <strong>Chaque vue = un client potentiel</strong><br>Une vue = quelqu'un a cliqué sur ton profil. Comme au marché de Lomé : tu dois être là où les gens passent. Plus tu es actif, plus tu apparais.</div>
             <div style="font-size:22px;margin-bottom:4px;">👁️</div>
             <div style="font-size:24px;font-weight:900;font-family:Fraunces,serif;color:var(--vert);" id="kpi-views">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Vues du profil</div>
             <div style="font-size:11px;color:var(--vert);margin-top:2px;" id="kpi-views-sub">7 derniers jours</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Chaque vue = client potentiel</div>
           </div>
-          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #25d366;">
+
+          <!-- WhatsApp -->
+          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #25d366;position:relative;">
+            <button onclick="toggleKpiTip('tip-wa');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
+            <div id="tip-wa" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">💬 <strong>Contacts directs = leads chauds</strong><br>Quelqu'un t'a contacté via WhatsApp depuis ton profil. Ces contacts sont très précieux — réponds dans les 5 minutes pour ne pas les perdre !</div>
             <div style="font-size:22px;margin-bottom:4px;">💬</div>
             <div style="font-size:24px;font-weight:900;font-family:Fraunces,serif;color:#25d366;" id="kpi-wa">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Contacts WhatsApp</div>
             <div style="font-size:11px;color:#25d366;margin-top:2px;" id="kpi-wa-sub">7 derniers jours</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Réponds vite — ils t'attendent</div>
           </div>
-          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #f59e0b;">
+
+          <!-- RDV -->
+          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #f59e0b;position:relative;">
+            <button onclick="toggleKpiTip('tip-rdv');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
+            <div id="tip-rdv" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">📅 <strong>RDV pris via KALA ce mois</strong><br>Des clients ont pris rendez-vous directement sur ta page. Confirme-les vite dans ton dashboard pour ne pas les perdre et construire ta réputation.</div>
             <div style="font-size:22px;margin-bottom:4px;">📅</div>
             <div style="font-size:24px;font-weight:900;font-family:Fraunces,serif;color:#f59e0b;" id="kpi-rdv">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">RDV ce mois</div>
             <div style="font-size:11px;color:#f59e0b;margin-top:2px;" id="kpi-rdv-sub">En attente / confirmés</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Confirme vite = client fidèle</div>
           </div>
-          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #8b5cf6;">
+
+          <!-- Note -->
+          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #8b5cf6;position:relative;">
+            <button onclick="toggleKpiTip('tip-note');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
+            <div id="tip-note" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">⭐ <strong>Ta réputation en chiffre</strong><br>Au Togo, le meilleur marketing c'est le bouche-à-oreille. Ta note numérique c'est pareil : quand une maman dit à sa voisine "il a 4.9 sur KALA", tout le monde veut te contacter !</div>
             <div style="font-size:22px;margin-bottom:4px;">⭐</div>
             <div style="font-size:24px;font-weight:900;font-family:Fraunces,serif;color:#8b5cf6;" id="kpi-note">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Note moyenne</div>
             <div style="font-size:11px;color:#8b5cf6;margin-top:2px;" id="kpi-note-sub">Pas encore d'avis</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Demande à tes clients de noter</div>
           </div>
-          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--or);">
+
+          <!-- Score KALA -->
+          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--or);position:relative;">
+            <button onclick="toggleKpiTip('tip-score');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
+            <div id="tip-score" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">🏆 <strong>Le Score KALA = ta visibilité</strong><br>Plus ton score est élevé, plus tu apparais en haut des recherches. Profil complet (40pts) + note (30pts) + avis (20pts) + photos (10pts). Vise 80+ pour être Élite !</div>
             <div style="font-size:22px;margin-bottom:4px;">🏆</div>
             <div style="font-size:24px;font-weight:900;font-family:Fraunces,serif;color:var(--or);" id="kpi-score">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Score KALA</div>
-            <div style="font-size:11px;color:var(--or);margin-top:2px;">/ 100</div>
+            <div style="font-size:11px;color:var(--or);margin-top:2px;font-weight:700;" id="kpi-score-level">/ 100</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;" id="kpi-score-next">Complète ton profil</div>
           </div>
-          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #06b6d4;">
+
+          <!-- Profil complété -->
+          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #06b6d4;position:relative;">
+            <button onclick="toggleKpiTip('tip-completion');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
+            <div id="tip-completion" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">📋 <strong>Profil complet = 3× plus de contacts</strong><br>Les clients font confiance aux profils complets. Photo + description + tarif + téléphone + localisation = profil solide. C'est comme une boutique bien rangée au marché.</div>
             <div style="font-size:22px;margin-bottom:4px;">📋</div>
             <div style="font-size:24px;font-weight:900;font-family:Fraunces,serif;color:#06b6d4;" id="kpi-completion">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Profil complété</div>
-            <div style="font-size:11px;color:#06b6d4;margin-top:2px;">%</div>
+            <div style="font-size:11px;color:#06b6d4;margin-top:2px;" id="kpi-completion-sub">%</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Profil complet = plus de visibilité</div>
           </div>
+
         </div>
 
         <!-- GRAPHIQUE VUES 7 jours -->
@@ -2767,7 +2809,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
                 <span style="font-size:10px;color:var(--gris);">/ 100</span>
               </div>
             </div>
-            <div id="score-gauge-label" style="font-size:12px;color:var(--gris);margin-top:10px;font-weight:600;">Calcul en cours...</div>
+            <div id="score-gauge-label" style="font-size:13px;color:var(--noir);margin-top:10px;font-weight:800;">Calcul en cours...</div>
+            <div id="score-gauge-next" style="font-size:11px;color:var(--gris);margin-top:4px;line-height:1.4;max-width:140px;"></div>
           </div>
 
           <!-- Actions prioritaires -->
@@ -4030,16 +4073,50 @@ async function loadDashOverview() {
   document.getElementById('stat-transactions').textContent = transactions;
   document.getElementById('kpi-cowrie').textContent = cowrie;
 
+  // ── Niveaux Score KALA ──
+  const kalaLevels = [
+    { min:0,  max:20,  emoji:'🌱', name:'Débutant'     },
+    { min:21, max:40,  emoji:'📚', name:'Apprenti'      },
+    { min:41, max:60,  emoji:'🔧', name:'Confirmé'      },
+    { min:61, max:80,  emoji:'💼', name:'Professionnel' },
+    { min:81, max:100, emoji:'⭐', name:'Élite'          },
+  ];
+  const currentLevel = kalaLevels.find(l => score >= l.min && score <= l.max) || kalaLevels[0];
+  const nextLevel    = kalaLevels.find(l => l.min > score);
+
   // ── Score gauge SVG ──
   const gauge     = document.getElementById('score-gauge-dash');
   const gaugeVal  = document.getElementById('score-gauge-val');
   const gaugeLabel= document.getElementById('score-gauge-label');
+  const gaugeNext = document.getElementById('score-gauge-next');
   if (gauge) {
     const pct = Math.min(score / 100, 1);
     gauge.setAttribute('stroke-dashoffset', 289 - 289 * pct);
     if (gaugeVal) gaugeVal.textContent = score || '0';
-    const labels = ['Débutant','En route','Bien','Excellent','Élite'];
-    if (gaugeLabel) gaugeLabel.textContent = score > 0 ? labels[Math.min(Math.floor(pct * 5), 4)] : 'Commence ton profil';
+    if (gaugeLabel) gaugeLabel.textContent = `${currentLevel.emoji} ${currentLevel.name}`;
+    if (gaugeNext) {
+      if (nextLevel) gaugeNext.textContent = `+${nextLevel.min - score} pts pour passer ${nextLevel.emoji} ${nextLevel.name}`;
+      else gaugeNext.textContent = '🏆 Tu es au sommet — reste-y !';
+    }
+  }
+
+  // ── Score KPI card ──
+  const scoreLevelEl = document.getElementById('kpi-score-level');
+  const scoreNextEl  = document.getElementById('kpi-score-next');
+  if (scoreLevelEl) scoreLevelEl.textContent = `${currentLevel.emoji} ${currentLevel.name}`;
+  if (scoreNextEl && nextLevel) scoreNextEl.textContent = `+${nextLevel.min - score} pts → ${nextLevel.emoji} ${nextLevel.name}`;
+  else if (scoreNextEl && !nextLevel) scoreNextEl.textContent = '⭐ Niveau maximum !';
+
+  // ── Célébration premier avis ──
+  if (nbAvis === 1) {
+    const celebKey = `kala_celebrated_first_avis_${prestId}`;
+    if (!localStorage.getItem(celebKey)) {
+      localStorage.setItem(celebKey, '1');
+      setTimeout(() => {
+        const m = document.getElementById('modal-celebration');
+        if (m) m.style.display = 'flex';
+      }, 900);
+    }
   }
 
   // ── Vues — bucket journalier localStorage ──
@@ -5286,6 +5363,31 @@ function toast(msg, type = 'info') {
   el.textContent = msg;
   el.className = `toast toast-${type} show`;
   setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── KPI Tooltips ──
+function toggleKpiTip(id) {
+  const tips = ['tip-views','tip-wa','tip-rdv','tip-note','tip-score','tip-completion'];
+  const isVisible = document.getElementById(id)?.style.display === 'block';
+  closeAllKpiTips();
+  if (!isVisible) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+    const overlay = document.getElementById('kpi-tooltip-overlay');
+    if (overlay) overlay.style.display = 'block';
+  }
+}
+function closeAllKpiTips() {
+  ['tip-views','tip-wa','tip-rdv','tip-note','tip-score','tip-completion'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  const overlay = document.getElementById('kpi-tooltip-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+function closeCelebration() {
+  const m = document.getElementById('modal-celebration');
+  if (m) m.style.display = 'none';
 }
 
 // ══════════════════════════════════════════
@@ -10565,6 +10667,20 @@ loadSchealtielPhoto();
       <button class="btn" style="flex:1;background:#25D366;color:white;border:none;" onclick="sharePaymentLinkWhatsApp()">📱 WhatsApp</button>
       <button class="btn btn-primary" style="flex:1;" onclick="copyPaymentLink()">📋 Copier le lien</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CÉLÉBRATION PREMIER AVIS ══ -->
+<div id="modal-celebration" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:24px;padding:32px 28px;max-width:360px;width:100%;text-align:center;position:relative;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;">
+    <div style="font-size:64px;margin-bottom:8px;animation:bounce 0.6s ease 0.5s both;">🎉</div>
+    <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin:0 0 10px;color:var(--noir);">Ton premier avis !</h2>
+    <p style="color:var(--gris);font-size:14px;line-height:1.6;margin:0 0 18px;">C'est le début de ta réputation sur KalaTogo. Au Togo, le meilleur marketing c'est quand un client satisfait parle de toi à ses amis. <strong style="color:var(--noir);">Continue comme ça !</strong></p>
+    <div style="background:linear-gradient(135deg,#fefce8,#fff7ed);border-radius:14px;padding:14px;margin-bottom:20px;border:1.5px solid rgba(232,148,10,0.2);">
+      <div style="font-size:13px;font-weight:800;color:var(--or);">🏆 Score KALA boosté !</div>
+      <div style="font-size:12px;color:var(--gris);margin-top:4px;line-height:1.5;">Chaque avis = +2 pts · Vise 5 avis pour passer au niveau Confirmé 🔧</div>
+    </div>
+    <button onclick="closeCelebration()" style="width:100%;padding:14px;background:var(--vert);color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:0.3px;">🚀 Je continue à progresser</button>
   </div>
 </div>
 
