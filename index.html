@@ -3497,8 +3497,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             </div>
             <button id="btn-plan-Pro" class="btn btn-or" style="width:100%;justify-content:center;font-size:15px;" onclick="upgradePlan('Pro',2500)">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
             <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:12px;">
-              <span style="font-size:11px;color:var(--gris);">Paiement sécurisé via</span>
-              <span style="background:#00A651;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">TMoney</span>
+              <span style="font-size:11px;color:var(--gris);">Paiement via</span>
+              <span style="background:#0066CC;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">Flooz</span>
               <span style="background:#0066CC;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">Flooz</span>
               <span style="background:#1A1F71;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">💳 Visa</span>
               <span style="background:#EB001B;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">Mastercard</span>
@@ -9501,50 +9501,167 @@ function loadAbonnement() {
   }
 }
 
-function upgradePlan(plan, amount) {
+// ══════════════════════════════════════════
+// PAIEMENT MANUEL FLOOZ — SYSTÈME CODES
+// ══════════════════════════════════════════
+
+const KALATOGO_FLOOZ = '97473040';
+const ADMIN_SECRET   = 'KALA2025';
+
+function generatePaymentCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'KAL-';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+async function upgradePlan(plan, amount) {
   if (!currentUser || !currentPrestataire) {
     toast('Connecte-toi pour continuer', 'error'); return;
   }
-  const f = currentPrestataire.fields;
-  const nom = (f['Nom'] || f['Nom complet'] || '').split(' ').slice(1).join(' ') || 'Client';
-  const prenom = (f['Prenom'] || f['Nom complet'] || '').split(' ')[0] || '';
-  const email = currentUser.email || 'noreply@kalatogo.com';
-  let phone = (f['Numéro de téléphone'] || '').replace(/\D/g, '');
-  if (phone.startsWith('228')) phone = phone.slice(3);
-  if (phone.startsWith('00228')) phone = phone.slice(5);
-
-  const transId = 'KALA_' + Date.now();
+  // Réutiliser le code existant si déjà en attente
+  let code = currentPrestataire.fields['Code Paiement'] || generatePaymentCode();
 
   try {
-    FedaPay.init({
-      public_key: FEDAPAY_PUBLIC_KEY,
-      transaction: {
-        amount: amount,
-        description: 'KalaTogo Plan Pro — 1 mois'
-      },
-      customer: {
-        email: email,
-        firstname: prenom || 'Client',
-        lastname: nom || '',
-        phone_number: {
-          number: phone || '90000000',
-          country: 'tg'
-        }
-      },
-      onComplete(resp) {
-        if (resp.reason === FedaPay.DIALOG_DISMISSED) {
-          toast('Paiement annulé', 'info');
-        } else if (resp.transaction && resp.transaction.status === 'approved') {
-          onPaymentSuccess(plan, transId);
-        } else {
-          toast('Paiement refusé ou annulé', 'error');
-        }
-      }
-    }).open();
+    await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Code Paiement': code, 'Plan Demande': plan } })
+    });
+    currentPrestataire.fields['Code Paiement'] = code;
+    currentPrestataire.fields['Plan Demande']  = plan;
+  } catch(e) { console.error('Code save failed', e); }
+
+  showPaiementManuelModal(plan, amount, code);
+}
+
+function showPaiementManuelModal(plan, amount, code) {
+  const body = document.getElementById('modal-paiement-body');
+  body.innerHTML = `
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:40px;margin-bottom:8px;">📱</div>
+      <p style="font-size:15px;color:var(--gris-fonce);line-height:1.6;">Envoie <strong style="color:var(--noir);font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA</strong> via Flooz au numéro ci-dessous avec ton code unique en note.</p>
+    </div>
+
+    <div style="background:#0066CC;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:1px;margin-bottom:4px;">NUMÉRO FLOOZ KALATOGO</div>
+      <div style="font-size:30px;font-weight:900;color:white;letter-spacing:3px;">${KALATOGO_FLOOZ}</div>
+      <button onclick="navigator.clipboard.writeText('${KALATOGO_FLOOZ}');toast('Numéro copié !','success')" style="margin-top:8px;background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier</button>
+    </div>
+
+    <div style="background:#f0fdf4;border:2px dashed #16a34a;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:#16a34a;letter-spacing:1px;margin-bottom:4px;">TON CODE UNIQUE (à mettre en note Flooz)</div>
+      <div style="font-size:34px;font-weight:900;color:#065f46;letter-spacing:4px;">${code}</div>
+      <button onclick="navigator.clipboard.writeText('${code}');toast('Code copié !','success')" style="margin-top:8px;background:#dcfce7;border:1px solid #86efac;color:#166534;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le code</button>
+    </div>
+
+    <div style="background:#fef9c3;border-radius:12px;padding:14px;font-size:13px;color:#713f12;line-height:1.8;">
+      <strong>📋 Comment faire :</strong><br>
+      1. Ouvre <strong>Flooz</strong> sur ton téléphone<br>
+      2. Envoie <strong>${amount.toLocaleString('fr-FR')} FCFA</strong> au <strong>${KALATOGO_FLOOZ}</strong><br>
+      3. Dans le champ <strong>Note/Motif</strong> écris : <strong>${code}</strong><br>
+      4. Ton Plan Pro sera activé dans les <strong>24h</strong> ⏱️
+    </div>
+    <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:14px;">Tu recevras une notification dès l'activation de ton plan.</p>
+  `;
+  document.getElementById('modal-paiement-manuel').classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// PANEL ADMIN — ACTIVATION BULK
+// ══════════════════════════════════════════
+
+function checkAdminUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('admin') === ADMIN_SECRET) showAdminPanel();
+}
+
+function showAdminPanel() {
+  document.getElementById('admin-panel').style.display = 'block';
+  document.getElementById('admin-content').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">⏳ Chargement...</div>';
+  loadAdminPending();
+}
+
+async function loadAdminPending() {
+  try {
+    const filter = encodeURIComponent(`{Code Paiement}!=''`);
+    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${filter}&maxRecords=200&sort%5B0%5D%5Bfield%5D=Nom%20complet`, { headers: AT_HEADERS });
+    const data = await res.json();
+    renderAdminPending(data.records || []);
   } catch(e) {
-    toast('Impossible d\'initialiser le paiement', 'error');
-    console.error(e);
+    document.getElementById('admin-content').innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur de chargement Airtable</div>';
   }
+}
+
+function renderAdminPending(records) {
+  const el = document.getElementById('admin-content');
+  if (records.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:80px;color:rgba(255,255,255,0.3);font-size:18px;">✅ Aucune demande en attente</div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <span style="color:rgba(255,255,255,0.5);font-size:14px;">${records.length} demande${records.length > 1 ? 's' : ''} en attente</span>
+      <button onclick="selectAllAdmin(true)" style="background:rgba(27,122,74,0.2);border:1px solid rgba(27,122,74,0.4);color:#4ade80;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;">☑ Tout sélectionner</button>
+      <button onclick="selectAllAdmin(false)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;">☐ Tout décocher</button>
+      <button onclick="activateSelected()" style="margin-left:auto;background:var(--vert);border:none;color:white;padding:10px 24px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:0.3px;">🚀 Activer la sélection</button>
+    </div>
+    <div id="admin-pending-list">
+      ${records.map(r => {
+        const f = r.fields;
+        const nom  = f['Nom complet'] || 'Inconnu';
+        const email = f['Email'] || '';
+        const code  = f['Code Paiement'] || '';
+        const plan  = f['Plan Demande'] || 'Pro';
+        const tel   = f['Numéro de téléphone'] || '';
+        return `
+          <label style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px;margin-bottom:10px;cursor:pointer;transition:.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.07)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)'">
+            <input type="checkbox" data-id="${r.id}" data-plan="${plan}" style="width:22px;height:22px;cursor:pointer;accent-color:var(--vert);flex-shrink:0;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;color:white;font-size:16px;">${nom}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">${email}${tel ? ' · ' + tel : ''}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:22px;font-weight:900;color:#4ade80;letter-spacing:3px;font-family:monospace;">${code}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;">Plan ${plan} · 2 500 FCFA</div>
+            </div>
+          </label>`;
+      }).join('')}
+    </div>`;
+}
+
+function selectAllAdmin(checked) {
+  document.querySelectorAll('#admin-pending-list input[type="checkbox"]').forEach(cb => cb.checked = checked);
+}
+
+async function activateSelected() {
+  const selected = [...document.querySelectorAll('#admin-pending-list input[type="checkbox"]:checked')];
+  if (selected.length === 0) { toast('Sélectionne au moins un compte', 'error'); return; }
+
+  const btn = document.querySelector('[onclick="activateSelected()"]');
+  if (btn) { btn.textContent = `⏳ Activation de ${selected.length} compte(s)...`; btn.disabled = true; }
+
+  const expiry = new Date();
+  expiry.setDate(expiry.getDate() + 30);
+  const expiryStr = expiry.toISOString().split('T')[0];
+
+  let success = 0, errors = 0;
+  for (const cb of selected) {
+    try {
+      const res = await fetch(`${AT_URL('Prestataires')}/${cb.dataset.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: {
+          'Abonnement':       cb.dataset.plan || 'Pro',
+          'Abonnement Expiry': expiryStr,
+          'Code Paiement':    ''
+        }})
+      });
+      if (res.ok) success++; else errors++;
+    } catch { errors++; }
+  }
+
+  if (btn) { btn.textContent = '🚀 Activer la sélection'; btn.disabled = false; }
+  toast(`✅ ${success} compte(s) activé(s)${errors ? ' · ' + errors + ' erreur(s)' : ''}`, success > 0 ? 'success' : 'error');
+  await loadAdminPending();
 }
 
 async function onPaymentSuccess(plan, transId) {
@@ -9669,9 +9786,9 @@ function _fixAutocomplete() {
   });
 }
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { checkPaymentUrl(); applyResponsiveGrids(); _fixAutocomplete(); });
+  document.addEventListener('DOMContentLoaded', () => { checkPaymentUrl(); checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); });
 } else {
-  setTimeout(() => { checkPaymentUrl(); applyResponsiveGrids(); _fixAutocomplete(); }, 0);
+  setTimeout(() => { checkPaymentUrl(); checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); }, 0);
 }
 // Re-appliquer après chaque navigation (showPage crée du nouveau HTML)
 const _origShowPage = window.showPage;
@@ -10405,6 +10522,31 @@ loadSchealtielPhoto();
       <button class="btn" style="flex:1;background:#25D366;color:white;border:none;" onclick="sharePaymentLinkWhatsApp()">📱 WhatsApp</button>
       <button class="btn btn-primary" style="flex:1;" onclick="copyPaymentLink()">📋 Copier le lien</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ MODAL PAIEMENT MANUEL FLOOZ ══ -->
+<div class="modal-overlay" id="modal-paiement-manuel">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3 class="modal-title">🚀 Passer au Plan Pro</h3>
+      <button class="modal-close" onclick="document.getElementById('modal-paiement-manuel').classList.remove('active')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-paiement-body"></div>
+  </div>
+</div>
+
+<!-- ══ PANEL ADMIN KALATOGO (accès via ?admin=KALA2025) ══ -->
+<div id="admin-panel" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:99999;overflow-y:auto;padding:32px 24px;">
+  <div style="max-width:800px;margin:0 auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-family:Fraunces,serif;color:white;font-size:28px;font-weight:900;margin:0;">⚙️ Admin KalaTogo</h1>
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin:4px 0 0;">Demandes Plan Pro en attente de validation</p>
+      </div>
+      <button onclick="loadAdminPending()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:10px 18px;border-radius:10px;cursor:pointer;font-size:13px;">🔄 Actualiser</button>
+    </div>
+    <div id="admin-content"></div>
   </div>
 </div>
 
