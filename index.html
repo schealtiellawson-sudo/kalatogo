@@ -4642,15 +4642,12 @@ async function _saveAlbums(albums) {
 function renderAlbumsSection() {
   const grid = document.getElementById('albums-grid');
   if (!grid) return;
-  const albums = _getAlbums();
-  if (albums.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 20px;color:var(--gris);">
-      <div style="font-size:36px;margin-bottom:10px;">🗂️</div>
-      <p style="font-size:14px;margin:0;">Aucun album.<br>Crée ton premier album !</p>
-    </div>`;
-    renderLibresSection();
-    return;
-  }
+  const allAlbums = _getAlbums();
+  // Albums normaux (excluire les albums systèmes)
+  const albums = allAlbums.filter(a => a.id !== '__libres__' && a.id !== '__publications__');
+  // Album Publications
+  const pubItems = _getPublicationsItems();
+
   // Input caché partagé pour ajout rapide depuis la carte
   let sharedInp = document.getElementById('album-quick-add-input');
   if (!sharedInp) {
@@ -4660,7 +4657,41 @@ function renderAlbumsSection() {
     sharedInp.onchange = () => handleAlbumPhotoFile(window._quickAddAlbumId);
     document.body.appendChild(sharedInp);
   }
-  grid.innerHTML = albums.map(alb => {
+
+  // Carte album Publications (auto-géré)
+  let pubCard = '';
+  if (pubItems.length > 0) {
+    const cover = pubItems[0];
+    const isVidCover = cover?.type === 'video';
+    const coverHtml = cover
+      ? (isVidCover
+          ? `<video src="${cover.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+             <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(0,0,0,0.2);">▶</div>`
+          : `<img src="${cover.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`)
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:0.2;">📱</div>`;
+    pubCard = `
+    <div style="border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid rgba(99,102,241,0.3);transition:transform 0.15s,box-shadow 0.15s;"
+         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(99,102,241,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div onclick="openPublicationsAlbum()" style="cursor:pointer;">
+        <div style="aspect-ratio:1;overflow:hidden;position:relative;background:#1e1b4b;">${coverHtml}</div>
+        <div style="padding:8px 12px 10px;">
+          <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:white;">📱 Publications</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${pubItems.length} média${pubItems.length !== 1 ? 's' : ''} · Auto-géré</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (albums.length === 0 && pubItems.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 20px;color:var(--gris);">
+      <div style="font-size:36px;margin-bottom:10px;">🗂️</div>
+      <p style="font-size:14px;margin:0;">Aucun album.<br>Crée ton premier album !</p>
+    </div>`;
+    renderLibresSection();
+    return;
+  }
+
+  grid.innerHTML = pubCard + albums.map(alb => {
     const cover = alb.photos?.[0] || '';
     const count = (alb.photos||[]).length;
     return `<div style="border-radius:14px;overflow:hidden;background:#f8f8f8;border:1px solid #f0f0f0;position:relative;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
@@ -4683,6 +4714,66 @@ function renderAlbumsSection() {
   renderLibresSection();
 }
 
+// Ouvre l'album Publications depuis le dashboard (viewer = owner)
+function openPublicationsAlbum() {
+  if (currentPrestataire) showPublicationsAlbumPage(currentPrestataire);
+}
+
+function showPublicationsAlbumPage(record) {
+  const f = record.fields;
+  const nom = f['Nom complet'] || '';
+  const customAlbums = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch { return []; } })();
+  const pub = customAlbums.find(a => a.id === '__publications__');
+  const items = pub ? pub.items || [] : [];
+  if (items.length === 0) { toast('Aucun média publié pour l\'instant', 'info'); return; }
+
+  const pageId = 'pub-album-page-' + record.id;
+  document.getElementById(pageId)?.remove();
+
+  const lbKey = '_pub_items_' + record.id;
+  window[lbKey] = items.map(it => ({ url: it.url, type: it.type }));
+
+  const page = document.createElement('div');
+  page.id = pageId;
+  page.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;z-index:9999;overflow-y:auto;';
+
+  const itemsHtml = items.map((it, idx) => {
+    const isVid = it.type === 'video';
+    const d = it.date ? new Date(it.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) : '';
+    return `<div data-pubidx="${idx}" style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1a1a1a;position:relative;cursor:pointer;">
+      ${isVid
+        ? `<video src="${it.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);font-size:28px;pointer-events:none;">▶</div>`
+        : `<img src="${it.url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">`
+      }
+      ${d ? `<div style="position:absolute;bottom:6px;left:8px;font-size:10px;color:rgba(255,255,255,0.55);background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:6px;pointer-events:none;">${d}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  page.innerHTML = `
+    <div style="position:sticky;top:0;z-index:10;background:linear-gradient(to bottom,#0a0a0a 85%,transparent);padding:env(safe-area-inset-top,0px) 0 0;">
+      <div style="max-width:700px;margin:0 auto;padding:16px 16px 8px;display:flex;align-items:center;gap:12px;">
+        <button onclick="document.getElementById('${pageId}').remove()"
+          style="background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+        <div style="flex:1;">
+          <div style="color:white;font-weight:800;font-size:17px;">📱 Publications</div>
+          <div style="color:rgba(255,255,255,0.4);font-size:12px;">${items.length} média${items.length !== 1 ? 's' : ''} · ordre chronologique inverse</div>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:8px 16px 40px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">${itemsHtml}</div>
+    </div>`;
+
+  page.addEventListener('click', e => {
+    const el = e.target.closest('[data-pubidx]');
+    if (!el) return;
+    openLightboxSwipe(window[lbKey], parseInt(el.dataset.pubidx) || 0);
+  });
+
+  document.body.appendChild(page);
+}
+
 // ── Photos libres (standalone, sans album) ──────────────────────────
 function _getLibrePhotos() {
   // Stockées dans un album spécial __libres__ dans le même champ Albums
@@ -4697,6 +4788,44 @@ async function _saveLibrePhotos(photos) {
   if (idx >= 0) albums[idx].photos = photos;
   else albums.push({ id: '__libres__', nom: '__libres__', photos });
   return _saveAlbums(albums);
+}
+
+// ── Album Publications auto (médias postés) ──────────────────────────
+function _getPublicationsItems() {
+  const albums = _getAlbums();
+  const pub = albums.find(a => a.id === '__publications__');
+  return pub ? pub.items || [] : [];
+}
+
+async function _addToPublicationsAlbum(url, type, postId) {
+  let albums = _getAlbums();
+  const newItem = { url, type, date: new Date().toISOString(), postId };
+  const idx = albums.findIndex(a => a.id === '__publications__');
+  if (idx >= 0) {
+    if (!albums[idx].items) albums[idx].items = [];
+    albums[idx].items.unshift(newItem);
+  } else {
+    albums.push({ id: '__publications__', nom: 'Publications', items: [newItem] });
+  }
+  return _saveAlbums(albums);
+}
+
+// ── Upload vidéo vers Supabase Storage ──────────────────────────────
+async function uploadMediaToSupabase(file) {
+  const ext = file.name.split('.').pop().toLowerCase() || (file.type.includes('video') ? 'mp4' : 'jpg');
+  const path = `posts/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { data: sessionData } = await supa.auth.getSession();
+  const token = sessionData?.session?.access_token || SUPA_KEY;
+  const res = await fetch(`${SUPA_URL}/storage/v1/object/kala-medias/${path}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': file.type, 'x-upsert': 'false' },
+    body: file
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Upload échoué (${res.status})`);
+  }
+  return `${SUPA_URL}/storage/v1/object/public/kala-medias/${path}`;
 }
 
 function renderLibresSection() {
@@ -5846,74 +5975,109 @@ let currentProfilId = null;
 // ══ SYSTÈME DE POSTS ══
 const _postsCache = {}; // { recordId: [{id, texte, photo, date, auteur}] }
 
-function previewPostImg(input, recordId) {
-  const file = input.files[0];
+function previewPostMedia(input, recordId) {
+  const file = input?.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const preview = document.getElementById(`post-img-preview-${recordId}`);
-    const img = document.getElementById(`post-img-preview-img-${recordId}`);
-    if (preview && img) { img.src = e.target.result; preview.style.display = 'flex'; preview.style.alignItems = 'center'; }
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearPostImg(recordId) {
-  const input = document.getElementById(`post-img-${recordId}`);
   const preview = document.getElementById(`post-img-preview-${recordId}`);
+  const imgEl   = document.getElementById(`post-img-preview-img-${recordId}`);
+  const vidEl   = document.getElementById(`post-img-preview-vid-${recordId}`);
+  if (!preview) return;
+
+  if (file.type.startsWith('video/')) {
+    // Vérifier durée max 3 min via metadata
+    const blobUrl = URL.createObjectURL(file);
+    const tmp = document.createElement('video');
+    tmp.preload = 'metadata';
+    tmp.onloadedmetadata = () => {
+      URL.revokeObjectURL(blobUrl);
+      if (tmp.duration > 180) {
+        toast('La vidéo doit faire moins de 3 minutes (180s)', 'error');
+        input.value = '';
+        return;
+      }
+      if (imgEl) imgEl.style.display = 'none';
+      if (vidEl) { vidEl.src = URL.createObjectURL(file); vidEl.style.display = 'block'; }
+      preview.style.display = 'flex';
+      preview.style.alignItems = 'center';
+    };
+    tmp.src = blobUrl;
+  } else {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (vidEl) vidEl.style.display = 'none';
+      if (imgEl) { imgEl.src = e.target.result; imgEl.style.display = 'block'; }
+      preview.style.display = 'flex';
+      preview.style.alignItems = 'center';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+// Compat alias
+function previewPostImg(input, recordId) { previewPostMedia(input, recordId); }
+
+function clearPostMedia(recordId) {
+  const input  = document.getElementById(`post-img-${recordId}`);
+  const preview = document.getElementById(`post-img-preview-${recordId}`);
+  const vidEl  = document.getElementById(`post-img-preview-vid-${recordId}`);
   if (input) input.value = '';
+  if (vidEl) { vidEl.pause?.(); vidEl.src = ''; vidEl.style.display = 'none'; }
   if (preview) preview.style.display = 'none';
 }
+function clearPostImg(recordId) { clearPostMedia(recordId); }
 
 async function submitPost(recordId) {
   const textarea = document.getElementById(`post-composer-${recordId}`);
-  const imgInput = document.getElementById(`post-img-${recordId}`);
+  const mediaInput = document.getElementById(`post-img-${recordId}`);
   const texte = textarea?.value?.trim();
+  const file  = mediaInput?.files[0];
+  const isVideo = file?.type?.startsWith('video/');
 
-  // ✅ Validation : minimum 10 caractères OU une image
-  if (!texte && !imgInput?.files[0]) {
-    toast('Écris au moins quelque chose ou ajoute une photo', 'error');
-    return;
-  }
-  if (texte && texte.length < 10) {
-    toast('Le texte doit faire au minimum 10 caractères', 'error');
-    return;
-  }
-  if (texte && texte.length > 2000) {
-    toast('Le post est trop long (max 2000 caractères)', 'error');
-    return;
-  }
-
-  // Vérifier taille image
-  if (imgInput?.files[0] && imgInput.files[0].size > 5 * 1024 * 1024) {
-    toast('L\'image est trop lourde (max 5 MB)', 'error');
-    return;
-  }
+  // Validation
+  if (!texte && !file) { toast('Écris quelque chose ou ajoute une photo / vidéo', 'error'); return; }
+  if (texte && texte.length < 10) { toast('Le texte doit faire au minimum 10 caractères', 'error'); return; }
+  if (texte && texte.length > 2000) { toast('Le post est trop long (max 2000 caractères)', 'error'); return; }
+  if (file && !isVideo && file.size > 5 * 1024 * 1024) { toast('L\'image est trop lourde (max 5 MB)', 'error'); return; }
+  if (isVideo && file.size > 500 * 1024 * 1024) { toast('La vidéo est trop lourde (max 500 MB)', 'error'); return; }
 
   const btn = document.querySelector(`#posts-section-${recordId} button[onclick*="submitPost"]`);
-  if (btn) { btn.textContent = '...'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
 
-  let photoUrl = '';
-  if (imgInput?.files[0]) {
+  let mediaUrl  = '';
+  let mediaType = 'text';
+
+  if (file) {
     try {
-      const formData = new FormData();
-      formData.append('image', imgInput.files[0]);
-      formData.append('key', IMGBB_KEY);
-      const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      photoUrl = data?.data?.url || '';
-    } catch(e) { console.error('Upload img post failed', e); }
+      if (isVideo) {
+        if (btn) btn.textContent = '📤 Upload vidéo...';
+        mediaUrl  = await uploadMediaToSupabase(file);
+        mediaType = 'video';
+      } else {
+        if (btn) btn.textContent = '📤 Upload photo...';
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('key', IMGBB_KEY);
+        const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        mediaUrl  = data?.data?.url || '';
+        mediaType = 'photo';
+      }
+    } catch(e) {
+      console.error('Upload media failed', e);
+      toast('Erreur upload : ' + (e.message || 'réessaie'), 'error');
+      if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
+      return;
+    }
   }
 
   // Sauvegarder dans Airtable Posts
   try {
-    await fetch(AT_URL('Posts'), {
+    const postRes = await fetch(AT_URL('Posts'), {
       method: 'POST', headers: AT_HEADERS,
       body: JSON.stringify({ fields: {
         'Prestataire ID': recordId,
         'Contenu':        texte || '',
-        'Type':           photoUrl ? 'photo' : 'text',
-        'Image URL':      photoUrl || '',
+        'Type':           mediaType,
+        'Image URL':      mediaUrl || '',
         'Likes':          0,
         'Date':           new Date().toISOString(),
         'Auteur Nom':     currentPrestataire?.fields?.['Nom complet'] || '',
@@ -5921,14 +6085,18 @@ async function submitPost(recordId) {
         'Commentaires':   '[]'
       }})
     });
+    // Auto-ajouter au album Publications si l'owner publie
+    if (mediaUrl && currentPrestataire?.id === recordId && postRes.ok) {
+      const postData = await postRes.json().catch(() => ({}));
+      await _addToPublicationsAlbum(mediaUrl, mediaType === 'video' ? 'video' : 'photo', postData.id || '');
+      currentPrestataire.fields['Albums'] = JSON.stringify(_getAlbums()); // sync local
+    }
   } catch(e) { toast('Erreur publication', 'error'); }
 
-  // Vider le composer
   if (textarea) textarea.value = '';
-  clearPostImg(recordId);
+  clearPostMedia(recordId);
   if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
 
-  // Recharger le feed
   await renderPostsFeed(recordId);
 }
 
@@ -5947,6 +6115,7 @@ async function renderPostsFeed(recordId) {
       id:          r.id,
       texte:       r.fields['Contenu']      || '',
       photo:       r.fields['Image URL']    || '',
+      mediaType:   r.fields['Type']         || 'text',
       date:        r.fields['Date']         || '',
       auteur:      r.fields['Auteur Nom']   || '',
       auteurPhoto: r.fields['Auteur Photo'] || '',
@@ -6000,7 +6169,14 @@ async function renderPostsFeed(recordId) {
       </div>
       <!-- Contenu -->
       ${p.texte ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;margin:0 0 ${p.photo ? '12px' : '0'};">${p.texte.replace(/\n/g,'<br>')}</p>` : ''}
-      ${p.photo ? `<img src="${p.photo}" onclick="openLightboxFull('${p.photo}','Publication')" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;cursor:pointer;margin-bottom:4px;">` : ''}
+      ${p.photo && p.mediaType === 'video'
+        ? `<video src="${p.photo}" controls playsinline preload="metadata"
+             style="width:100%;max-height:420px;border-radius:10px;background:#000;cursor:pointer;margin-bottom:4px;display:block;"
+             onclick="openLightboxMedia('${p.photo}','video')"></video>`
+        : p.photo
+          ? `<img src="${p.photo}" onclick="openLightboxMedia('${p.photo}','photo')" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;cursor:pointer;margin-bottom:4px;">`
+          : ''
+      }
       <!-- Actions (like + commenter) -->
       <div style="display:flex;gap:4px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);margin-top:10px;">
         <button onclick="likePost('${recordId}','${p.id}')" style="display:flex;align-items:center;gap:6px;background:${hasLiked ? 'rgba(239,68,68,0.15)' : 'transparent'};border:none;color:${hasLiked ? '#f87171' : 'rgba(255,255,255,0.5)'};padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;" onmouseenter="this.style.background='rgba(239,68,68,0.12)'" onmouseleave="this.style.background='${hasLiked ? 'rgba(239,68,68,0.15)' : 'transparent'}'">
@@ -6625,7 +6801,10 @@ function showAlbumsPage(recordId) {
   const f = record.fields;
   const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
   const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
-  const customAlbums = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch(e) { return []; } })();
+  const allAlbumsRaw = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch(e) { return []; } })();
+  const customAlbums = allAlbumsRaw.filter(a => a.id !== '__libres__' && a.id !== '__publications__');
+  const pubAlbum     = allAlbumsRaw.find(a => a.id === '__publications__');
+  const pubItems     = pubAlbum ? (pubAlbum.items || []) : [];
   const nom = f['Nom complet'] || 'Prestataire';
   const metier = f['Métier principal'] || '';
   const allPhotos = [photoProfil, ...realisations, ...customAlbums.flatMap(a => a.photos || [])].filter(Boolean);
@@ -6737,6 +6916,32 @@ function showAlbumsPage(recordId) {
         </div>
         ${realisHtml}
       </div>` : ''}
+
+      ${pubItems.length > 0 ? (() => {
+        const pubKey = '_pub_items_' + recordId;
+        window[pubKey] = pubItems.map(it => ({ url: it.url, type: it.type }));
+        const pubGrid = pubItems.slice(0, 9).map((it, idx) => {
+          const isVid = it.type === 'video';
+          return `<div data-lbkey="${pubKey}" data-lbidx="${idx}"
+            style="aspect-ratio:1;border-radius:8px;overflow:hidden;background:#1a1a1a;cursor:pointer;position:relative;">
+            ${isVid
+              ? `<video src="${it.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);font-size:22px;pointer-events:none;">▶</div>`
+              : `<img src="${it.url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">`
+            }
+          </div>`;
+        }).join('');
+        return `<div style="margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:3px;height:18px;background:#818cf8;border-radius:2px;"></div>
+              <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">📱 Publications</span>
+            </div>
+            <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:3px 10px;border-radius:100px;">${pubItems.length} média${pubItems.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">${pubGrid}</div>
+        </div>`;
+      })() : ''}
 
       ${customAlbums.filter(a => (a.photos||[]).length > 0).map(alb => {
         const albKey = '_album_pub_' + recordId + '_' + alb.id;
@@ -6940,15 +7145,20 @@ async function confirmRdvPage(recordId) {
   }
 }
 
-/* ── Lightbox globale avec swipe et navigation ── */
-window._lbPhotos = [];
-window._lbIndex  = 0;
+/* ── Lightbox globale avec swipe, navigation et support vidéo ── */
+window._lbItems = [];
+window._lbIndex = 0;
 
-function openLightboxSwipe(photos, startIndex) {
-  window._lbPhotos = photos;
+// Normalise strings ou objets {url,type} → toujours {url, type}
+function _lbNorm(items) {
+  return items.map(it => typeof it === 'string' ? { url: it, type: 'photo' } : it);
+}
+
+function openLightboxSwipe(items, startIndex) {
+  window._lbItems = _lbNorm(items);
+  window._lbPhotos = window._lbItems.map(it => it.url); // backward compat
   window._lbIndex  = startIndex;
 
-  // Supprimer ancienne instance
   const old = document.getElementById('kala-lightbox');
   if (old) old.remove();
 
@@ -6961,32 +7171,24 @@ function openLightboxSwipe(photos, startIndex) {
   ].join('');
 
   lb.innerHTML = `
-    <!-- Bouton fermer -->
     <button id="lb-close" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">✕</button>
-    <!-- Compteur -->
     <div id="lb-count" style="position:absolute;top:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;z-index:2;"></div>
-    <!-- Image -->
-    <div style="position:relative;width:100%;display:flex;align-items:center;justify-content:center;flex:1;">
+    <div style="position:relative;width:100%;display:flex;align-items:center;justify-content:center;flex:1;min-height:0;">
       <button id="lb-prev" style="position:absolute;left:12px;background:rgba(255,255,255,0.12);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">‹</button>
-      <img id="lb-img" src="" style="max-width:92vw;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);transition:opacity 0.2s;">
+      <div id="lb-media" style="display:flex;align-items:center;justify-content:center;max-width:92vw;max-height:82vh;"></div>
       <button id="lb-next" style="position:absolute;right:12px;background:rgba(255,255,255,0.12);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">›</button>
     </div>
-    <!-- Miniatures -->
     <div id="lb-thumbs" style="display:flex;gap:6px;margin-top:16px;padding:0 16px;overflow-x:auto;max-width:100vw;scrollbar-width:none;"></div>
   `;
 
   document.body.appendChild(lb);
   _lbRender();
 
-  // Boutons
   document.getElementById('lb-close').onclick = () => lb.remove();
   document.getElementById('lb-prev').onclick  = () => _lbNav(-1);
   document.getElementById('lb-next').onclick  = () => _lbNav(1);
-
-  // Click fond pour fermer
   lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
 
-  // Swipe touch
   let touchX = null;
   lb.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
   lb.addEventListener('touchend', e => {
@@ -6998,39 +7200,56 @@ function openLightboxSwipe(photos, startIndex) {
 }
 
 function _lbRender() {
-  const photos = window._lbPhotos;
-  const i = window._lbIndex;
-  const img = document.getElementById('lb-img');
-  const count = document.getElementById('lb-count');
+  const items  = window._lbItems || [];
+  const i      = window._lbIndex;
+  const item   = items[i] || { url: '', type: 'photo' };
+  const isVideo = item.type === 'video';
+
+  const media  = document.getElementById('lb-media');
+  const count  = document.getElementById('lb-count');
   const thumbs = document.getElementById('lb-thumbs');
-  const prev = document.getElementById('lb-prev');
-  const next = document.getElementById('lb-next');
-  if (!img) return;
+  const prev   = document.getElementById('lb-prev');
+  const next   = document.getElementById('lb-next');
+  if (!media) return;
 
-  img.style.opacity = '0';
-  img.src = photos[i];
-  img.onload = () => { img.style.opacity = '1'; };
+  // Pause vidéo précédente
+  media.querySelector('video')?.pause();
 
-  count.textContent = `${i + 1} / ${photos.length}`;
-  prev.style.opacity = photos.length <= 1 ? '0' : '1';
-  next.style.opacity = photos.length <= 1 ? '0' : '1';
+  if (isVideo) {
+    media.innerHTML = `<video src="${item.url}" controls autoplay playsinline
+      style="max-width:92vw;max-height:82vh;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);outline:none;background:#000;"></video>`;
+  } else {
+    media.innerHTML = `<img src="${item.url}"
+      style="max-width:92vw;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);opacity:0;transition:opacity 0.2s;">`;
+    const img = media.querySelector('img');
+    img.onload = () => { img.style.opacity = '1'; };
+  }
 
-  // Miniatures
-  thumbs.innerHTML = photos.map((p, idx) => `
-    <img src="${p}" onclick="window._lbIndex=${idx};_lbRender()"
-      style="width:48px;height:48px;object-fit:cover;border-radius:6px;cursor:pointer;flex-shrink:0;
+  count.textContent = items.length > 1 ? `${i + 1} / ${items.length}` : '';
+  prev.style.opacity = items.length <= 1 ? '0' : '1';
+  next.style.opacity = items.length <= 1 ? '0' : '1';
+
+  thumbs.innerHTML = items.map((it, idx) => {
+    const isVid = it.type === 'video';
+    return `<div onclick="window._lbIndex=${idx};_lbRender()"
+      style="width:48px;height:48px;border-radius:6px;overflow:hidden;cursor:pointer;flex-shrink:0;position:relative;
              border:2px solid ${idx === i ? 'white' : 'transparent'};opacity:${idx === i ? '1' : '0.45'};transition:all 0.2s;">
-  `).join('');
+      ${isVid
+        ? `<video src="${it.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);font-size:16px;pointer-events:none;">▶</div>`
+        : `<img src="${it.url}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">`
+      }
+    </div>`;
+  }).join('');
 }
 
 function _lbNav(dir) {
-  const len = window._lbPhotos.length;
+  const len = window._lbItems.length;
   if (len <= 1) return;
   window._lbIndex = (window._lbIndex + dir + len) % len;
   _lbRender();
 }
 
-// Keyboard navigation
 document.addEventListener('keydown', e => {
   if (!document.getElementById('kala-lightbox')) return;
   if (e.key === 'ArrowLeft')  _lbNav(-1);
@@ -7038,10 +7257,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.getElementById('kala-lightbox')?.remove();
 });
 
-// Compatibilité avec l'ancien appel openLightboxFull
-function openLightboxFull(url, title) {
-  openLightboxSwipe([url], 0);
-}
+// Compat anciens appels
+function openLightboxFull(url, title) { openLightboxSwipe([{ url, type: 'photo' }], 0); }
+function openLightboxMedia(url, type)  { openLightboxSwipe([{ url, type: type || 'photo' }], 0); }
 
 async function showProfil(recordId) {
   currentProfilId = recordId;
@@ -7198,14 +7416,15 @@ async function showProfil(recordId) {
         <textarea id="post-composer-${recordId}" placeholder="Partage une réalisation, une info, une offre spéciale..." style="width:100%;background:transparent;border:none;color:white;font-size:14px;line-height:1.6;resize:none;min-height:80px;outline:none;font-family:inherit;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);">
           <label style="cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;display:flex;align-items:center;gap:6px;">
-            <input type="file" accept="image/*" id="post-img-${recordId}" style="display:none;" onchange="previewPostImg(this,'${recordId}')">
-            📷 Photo
+            <input type="file" accept="image/*,video/*" id="post-img-${recordId}" style="display:none;" onchange="previewPostMedia(this,'${recordId}')">
+            📷 Photo&nbsp;/&nbsp;🎬 Vidéo
           </label>
           <button onclick="submitPost('${recordId}')" style="background:var(--vert);color:white;border:none;padding:8px 20px;border-radius:100px;font-weight:700;font-size:13px;cursor:pointer;">Publier</button>
         </div>
-        <div id="post-img-preview-${recordId}" style="margin-top:8px;display:none;">
-          <img id="post-img-preview-img-${recordId}" style="max-height:200px;border-radius:10px;object-fit:cover;">
-          <button onclick="clearPostImg('${recordId}')" style="background:rgba(255,0,0,0.2);border:none;color:white;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-left:8px;">✕</button>
+        <div id="post-img-preview-${recordId}" style="margin-top:8px;display:none;gap:8px;align-items:center;">
+          <img id="post-img-preview-img-${recordId}" style="max-height:200px;border-radius:10px;object-fit:cover;display:none;">
+          <video id="post-img-preview-vid-${recordId}" style="max-height:200px;border-radius:10px;max-width:100%;display:none;" controls muted playsinline></video>
+          <button onclick="clearPostMedia('${recordId}')" style="background:rgba(255,0,0,0.2);border:none;color:white;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;flex-shrink:0;">✕</button>
         </div>
       </div>
     </div>
