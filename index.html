@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.cinetpay.com/seamless/main.js"></script>
+<script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Cropper.js v1.6.2 (CORS OK via cdnjs) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
@@ -9232,58 +9232,47 @@ function launchClientPayment() {
 
   const transId = 'PAY_' + Date.now();
   try {
-    CinetPay.setConfig({
-      apikey: CINETPAY_API_KEY,
-      site_id: CINETPAY_SITE_ID,
-      notify_url: window.location.origin,
-      mode: CINETPAY_MODE,
-    });
-    CinetPay.getCheckout({
-      transaction_id: transId,
-      amount,
-      currency: 'XOF',
-      channels: 'ALL',
-      description: `${desc} — ${prestaNom}`,
-      customer_name: nom,
-      customer_surname: '',
-      customer_email: 'client@kalatogo.com',
-      customer_phone_number: tel.replace(/\D/g,'').replace(/^(228|00228)/,'') || '90000000',
-      customer_city: 'Lomé',
-      customer_country: 'TG',
-      customer_state: 'TG',
-      customer_zip_code: '00228',
-    });
-    CinetPay.waitResponse(function(data) {
-      if (data.status === 'ACCEPTED') {
-        // ✅ Tracker le paiement RDV si présent dans l'URL
-        const rdvId = new URLSearchParams(window.location.search).get('rdvid');
-        const prestaId = new URLSearchParams(window.location.search).get('prestaid');
-        if (rdvId && prestaId) {
-          trackRDVPayment(prestaId, rdvId, amount, nom, new Date().toISOString().split('T')[0]);
-          // ✅ Notification au prestataire
-          pushNotif(prestaId, {
-            type: 'payment',
-            montant: amount,
-            clientNom: nom,
-            desc: desc
-          });
+    FedaPay.init({
+      public_key: FEDAPAY_PUBLIC_KEY,
+      transaction: {
+        amount: amount,
+        description: `${desc} — ${prestaNom}`
+      },
+      customer: {
+        email: 'client@kalatogo.com',
+        firstname: nom,
+        lastname: '',
+        phone_number: {
+          number: tel.replace(/\D/g, '').replace(/^(228|00228)/, '') || '90000000',
+          country: 'tg'
         }
-
-        pageEl.innerHTML = `
-          <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
-            <div style="background:white;border-radius:24px;padding:40px 32px;max-width:420px;width:100%;text-align:center;">
-              <div style="font-size:64px;margin-bottom:16px;">✅</div>
-              <h2 style="font-family:Fraunces,serif;font-size:26px;font-weight:900;margin-bottom:10px;">Paiement réussi !</h2>
-              <p style="color:#6b7280;font-size:14px;margin-bottom:8px;">${amount.toLocaleString('fr-FR')} FCFA — ${desc}</p>
-              <p style="color:#6b7280;font-size:13px;">Réf. : <strong>${transId}</strong></p>
-              <button onclick="window.location.href=window.location.origin+window.location.pathname;" style="margin-top:24px;background:var(--vert);color:white;border:none;padding:14px 32px;border-radius:100px;font-weight:800;font-size:15px;cursor:pointer;">← Retour à KalaTogo</button>
-            </div>
-          </div>`;
-      } else {
-        toast('Paiement refusé ou annulé', 'error');
+      },
+      onComplete(resp) {
+        if (resp.reason === FedaPay.DIALOG_DISMISSED) {
+          toast('Paiement annulé', 'info');
+        } else if (resp.transaction && resp.transaction.status === 'approved') {
+          // ✅ Tracker le paiement RDV si présent dans l'URL
+          const rdvId = new URLSearchParams(window.location.search).get('rdvid');
+          const prestaId = new URLSearchParams(window.location.search).get('prestaid');
+          if (rdvId && prestaId) {
+            trackRDVPayment(prestaId, rdvId, amount, nom, new Date().toISOString().split('T')[0]);
+            pushNotif(prestaId, { type: 'payment', montant: amount, clientNom: nom, desc });
+          }
+          pageEl.innerHTML = `
+            <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+              <div style="background:white;border-radius:24px;padding:40px 32px;max-width:420px;width:100%;text-align:center;">
+                <div style="font-size:64px;margin-bottom:16px;">✅</div>
+                <h2 style="font-family:Fraunces,serif;font-size:26px;font-weight:900;margin-bottom:10px;">Paiement réussi !</h2>
+                <p style="color:#6b7280;font-size:14px;margin-bottom:8px;">${amount.toLocaleString('fr-FR')} FCFA — ${desc}</p>
+                <p style="color:#6b7280;font-size:13px;">Réf. : <strong>${transId}</strong></p>
+                <button onclick="window.location.href=window.location.origin+window.location.pathname;" style="margin-top:24px;background:var(--vert);color:white;border:none;padding:14px 32px;border-radius:100px;font-weight:800;font-size:15px;cursor:pointer;">← Retour à KalaTogo</button>
+              </div>
+            </div>`;
+        } else {
+          toast('Paiement refusé ou annulé', 'error');
+        }
       }
-    });
-    CinetPay.onError(() => toast('Erreur de paiement', 'error'));
+    }).open();
   } catch(e) {
     console.error(e);
     toast('Impossible d\'initialiser le paiement', 'error');
@@ -9338,12 +9327,10 @@ async function confirmWithdrawal() {
 }
 
 // ══════════════════════════════════════════
-// ABONNEMENT & CINETPAY
+// ABONNEMENT & FEDAPAY
 // ══════════════════════════════════════════
 
-const CINETPAY_API_KEY  = 'VOTRE_API_KEY_CINETPAY';
-const CINETPAY_SITE_ID  = 'VOTRE_SITE_ID_CINETPAY';
-const CINETPAY_MODE     = 'TEST'; // Passer à 'PRODUCTION' pour le live
+const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_VOTRE_CLE_FEDAPAY'; // Remplacer par pk_live_xxx en production
 
 const PLAN_CONFIG = {
   Pro:    { amount: 2500,  label: 'KalaTogo Plan Pro — 1 mois',    badge: '⭐ Pro',    color: 'var(--or)' },
@@ -9529,39 +9516,31 @@ function upgradePlan(plan, amount) {
   const transId = 'KALA_' + Date.now();
 
   try {
-    CinetPay.setConfig({
-      apikey: CINETPAY_API_KEY,
-      site_id: CINETPAY_SITE_ID,
-      notify_url: 'https://kalatogo.vercel.app',
-      mode: CINETPAY_MODE,
-    });
-    CinetPay.getCheckout({
-      transaction_id: transId,
-      amount: amount,
-      currency: 'XOF',
-      channels: 'ALL',
-      description: 'KalaTogo Plan Pro — 1 mois',
-      customer_name: nom || 'Client',
-      customer_surname: prenom || '',
-      customer_email: email,
-      customer_phone_number: phone || '90000000',
-      customer_address: 'Lomé, Togo',
-      customer_city: 'Lomé',
-      customer_country: 'TG',
-      customer_state: 'TG',
-      customer_zip_code: '00228',
-    });
-    CinetPay.waitResponse(function(data) {
-      if (data.status === 'ACCEPTED') {
-        onPaymentSuccess(plan, transId);
-      } else {
-        toast('Paiement refusé ou annulé', 'error');
+    FedaPay.init({
+      public_key: FEDAPAY_PUBLIC_KEY,
+      transaction: {
+        amount: amount,
+        description: 'KalaTogo Plan Pro — 1 mois'
+      },
+      customer: {
+        email: email,
+        firstname: prenom || 'Client',
+        lastname: nom || '',
+        phone_number: {
+          number: phone || '90000000',
+          country: 'tg'
+        }
+      },
+      onComplete(resp) {
+        if (resp.reason === FedaPay.DIALOG_DISMISSED) {
+          toast('Paiement annulé', 'info');
+        } else if (resp.transaction && resp.transaction.status === 'approved') {
+          onPaymentSuccess(plan, transId);
+        } else {
+          toast('Paiement refusé ou annulé', 'error');
+        }
       }
-    });
-    CinetPay.onError(function(data) {
-      console.error('CinetPay error:', data);
-      toast('Erreur lors du paiement', 'error');
-    });
+    }).open();
   } catch(e) {
     toast('Impossible d\'initialiser le paiement', 'error');
     console.error(e);
