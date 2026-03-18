@@ -1395,52 +1395,6 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     </div>
   </div>
 
-  <!-- VIDEO PRESENTATION -->
-  <div id="section-video" style="background:linear-gradient(180deg,#0f2019 0%,#0a1a10 100%);padding:60px 20px 56px;">
-    <div class="container" style="max-width:880px;">
-      <div style="text-align:center;margin-bottom:28px;">
-        <div style="display:inline-block;background:rgba(27,122,74,0.18);border:1px solid rgba(27,122,74,0.4);border-radius:20px;padding:5px 16px;font-size:13px;font-weight:700;color:#1B7A4A;margin-bottom:14px;letter-spacing:.5px;">▶ PRÉSENTATION</div>
-        <h2 style="font-family:Fraunces,serif;font-size:32px;font-weight:900;color:white;margin:0 0 10px;line-height:1.2;">Découvrez KalaTogo en <em style="color:#E8940A;">2 minutes</em></h2>
-        <p style="color:rgba(255,255,255,0.55);font-size:16px;margin:0;">Pourquoi des centaines de prestataires choisissent KalaTogo pour booster leur business.</p>
-      </div>
-
-      <!-- Lecteur vidéo -->
-      <div style="position:relative;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.6);background:#000;" id="kala-video-wrapper">
-        <video
-          id="kala-intro-video"
-          src="kala-presentation.mp4"
-          style="width:100%;display:block;border-radius:16px;"
-          controls
-          preload="metadata"
-          playsinline
-          onplay="document.getElementById('kala-play-overlay').style.display='none'"
-          onpause="document.getElementById('kala-play-overlay').style.display='flex'"
-          onended="document.getElementById('kala-play-overlay').style.display='flex'"
-        ></video>
-
-        <!-- Play overlay (click pour lancer) -->
-        <div id="kala-play-overlay"
-          onclick="document.getElementById('kala-intro-video').play();this.style.display='none'"
-          style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(0,0,0,0.35);border-radius:16px;transition:background .2s;"
-          onmouseenter="this.style.background='rgba(0,0,0,0.2)'"
-          onmouseleave="this.style.background='rgba(0,0,0,0.35)'"
-        >
-          <div style="width:76px;height:76px;background:#1B7A4A;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 40px rgba(27,122,74,0.6);transition:transform .2s;"
-            onmouseenter="this.style.transform='scale(1.1)'"
-            onmouseleave="this.style.transform='scale(1)'">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="white" style="margin-left:4px"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- CTA sous la vidéo -->
-      <div style="text-align:center;margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="showPage('inscription')" style="font-size:16px;padding:13px 32px;">✦ Créer mon profil gratuit</button>
-        <button class="btn btn-secondary" onclick="showPage('search')" style="font-size:16px;padding:13px 32px;">🔍 Trouver un prestataire</button>
-      </div>
-    </div>
-  </div>
-
   <!-- BARRE RECHERCHE RAPIDE -->
   <div class="search-bar-section">
     <div class="container">
