@@ -6727,34 +6727,37 @@ async function _getSuiviRecord(prestataireId) {
   } catch { return null; }
 }
 
-async function updateSuiviBtn(prestataireId) {
-  const btn1 = document.getElementById(`suivi-btn-${prestataireId}`);
-  if (!btn1) return;
-  if (!currentUser) {
-    [btn1].forEach(b => { if(b) { b.innerHTML = '➕ Suivre'; b.style.background = 'rgba(255,255,255,0.12)'; }});
-    return;
-  }
-  // Ne pas afficher le bouton sur son propre profil
-  if (currentPrestataire?.id === prestataireId) {
-    [btn1].forEach(b => { if(b) b.style.display = 'none'; });
-    return;
-  }
-  const rec = await _getSuiviRecord(prestataireId);
-  if (rec) {
-    [btn1].forEach(b => { if(b) {
-      b.innerHTML = '✓ Suivi';
-      b.style.background = 'rgba(27,122,74,0.35)';
-      b.style.border = '1.5px solid rgba(27,122,74,0.6)';
-      b.dataset.suiviId = rec.id;
-    }});
-  } else {
-    [btn1].forEach(b => { if(b) {
+function _setSuiviBtnState(prestataireId, following) {
+  // Cherche TOUS les boutons suivi pour ce prestataire (cover + actions)
+  const btns = document.querySelectorAll(`[data-suivi-prest="${prestataireId}"]`);
+  btns.forEach(b => {
+    if (following) {
+      b.innerHTML = '✅ Suivi';
+      b.style.cssText = b.style.cssText.replace(/background[^;]+;/g,'');
+      b.style.background = '#1B7A4A';
+      b.style.border = '2px solid #1B7A4A';
+      b.style.color = 'white';
+      b.style.fontWeight = '800';
+    } else {
       b.innerHTML = '➕ Suivre';
       b.style.background = 'rgba(255,255,255,0.12)';
       b.style.border = '1.5px solid rgba(255,255,255,0.3)';
-      b.dataset.suiviId = '';
-    }});
+      b.style.color = 'rgba(255,255,255,0.85)';
+      b.style.fontWeight = '600';
+    }
+  });
+}
+
+async function updateSuiviBtn(prestataireId) {
+  const btns = document.querySelectorAll(`[data-suivi-prest="${prestataireId}"]`);
+  if (!btns.length) return;
+  if (!currentUser) { _setSuiviBtnState(prestataireId, false); return; }
+  if (currentPrestataire?.id === prestataireId) {
+    btns.forEach(b => b.style.display = 'none');
+    return;
   }
+  const rec = await _getSuiviRecord(prestataireId);
+  _setSuiviBtnState(prestataireId, !!rec);
 }
 
 async function toggleSuivi(prestataireId) {
@@ -6762,14 +6765,17 @@ async function toggleSuivi(prestataireId) {
     if (confirm('➕ Suis ce prestataire pour voir ses publications dans ton fil !\n\nCrée ton compte gratuit pour commencer.')) showPage('inscription');
     return;
   }
-  const btn = document.getElementById(`suivi-btn-${prestataireId}`);
   const existingRec = await _getSuiviRecord(prestataireId);
   if (existingRec) {
+    // Optimistic UI — feedback immédiat
+    _setSuiviBtnState(prestataireId, false);
     try {
       await fetch(`${AT_URL('Abonnements')}/${existingRec.id}`, { method: 'DELETE', headers: AT_HEADERS });
       toast('Tu ne suis plus ce prestataire', 'info');
-    } catch { toast('Erreur', 'error'); return; }
+    } catch { _setSuiviBtnState(prestataireId, true); toast('Erreur', 'error'); return; }
   } else {
+    // Optimistic UI — feedback immédiat
+    _setSuiviBtnState(prestataireId, true);
     try {
       await fetch(AT_URL('Abonnements'), {
         method: 'POST', headers: AT_HEADERS,
@@ -6780,12 +6786,9 @@ async function toggleSuivi(prestataireId) {
         }})
       });
       toast('✅ Tu suis ce prestataire !', 'success');
-      // Notifier le prestataire
       pushNotif(prestataireId, { type: 'suivi', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
-    } catch { toast('Erreur', 'error'); return; }
+    } catch { _setSuiviBtnState(prestataireId, false); toast('Erreur', 'error'); return; }
   }
-  await updateSuiviBtn(prestataireId);
-  // Rafraîchir le compteur sur le profil
   loadFollowerCount(prestataireId);
 }
 
@@ -7192,8 +7195,8 @@ function renderMetierBanner(metier, recordId, nom) {
     <div class="profil-cover-overlay"></div>
     <div class="profil-cover-actions">
       <button class="profil-cover-btn" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</button>
-      <button class="profil-cover-btn" id="suivi-btn-${recordId}" onclick="toggleSuivi('${recordId}')"
-        style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);">
+      <button class="profil-cover-btn" data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
+        style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);font-weight:600;color:rgba(255,255,255,0.9);transition:all 0.2s;">
         ➕ Suivre
       </button>
     </div>
@@ -7916,7 +7919,7 @@ async function showProfil(recordId) {
                 ${tiktok ? `<a href="${tiktok}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
                 ${instagram ? `<a href="${instagram}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
                 <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
-                <button id="suivi-btn-${recordId}" onclick="toggleSuivi('${recordId}')"
+                <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
                   style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
                   ➕ Suivre
                 </button>
