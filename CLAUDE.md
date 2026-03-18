@@ -80,7 +80,7 @@ showDashSection('historique-paiements') → historique paiements reçus
 - ✅ Page "Mon Fil" (page-fil) — publications des prestataires suivis, accessible depuis la nav principale
 - ✅ Paiement Pro manuel Flooz/TMoney (numéro 97473040, code unique KAL-XXXXXX, validation admin)
 - ✅ Panel admin (kalatogo.vercel.app?admin=KALA2025) — activation bulk des comptes Pro
-- ✅ Encaissement client (lien de paiement partageable via FedaPay)
+- ✅ Encaissement client (lien de paiement partageable)
 
 ## Système de paiement Pro — fonctionnement
 1. Prestataire clique "Passer au Pro" → code `KAL-XXXXXX` généré + sauvé dans Airtable (`Code Paiement` + `Plan Demande`)
