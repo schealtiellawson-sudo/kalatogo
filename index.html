@@ -8,7 +8,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Cropper.js v1.6.2 (CORS OK via cdnjs) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
@@ -3593,10 +3592,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             <button id="btn-plan-Pro" class="btn btn-or" style="width:100%;justify-content:center;font-size:15px;" onclick="upgradePlan('Pro',2500)">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
             <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:12px;">
               <span style="font-size:11px;color:var(--gris);">Paiement via</span>
-              <span style="background:#0066CC;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">Flooz</span>
-              <span style="background:#0066CC;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">Flooz</span>
-              <span style="background:#1A1F71;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">💳 Visa</span>
-              <span style="background:#EB001B;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">Mastercard</span>
+              <span style="background:#0066CC;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">📲 Flooz</span>
+              <span style="background:#e8001a;color:white;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;">📱 TMoney</span>
             </div>
           </div>
         </div>
@@ -10171,26 +10168,30 @@ function showPaiementManuelModal(plan, amount, code) {
   body.innerHTML = `
     <div style="text-align:center;margin-bottom:20px;">
       <div style="font-size:40px;margin-bottom:8px;">📱</div>
-      <p style="font-size:15px;color:var(--gris-fonce);line-height:1.6;">Envoie <strong style="color:var(--noir);font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA</strong> via Flooz au numéro ci-dessous avec ton code unique en note.</p>
+      <p style="font-size:15px;color:var(--gris-fonce);line-height:1.6;">Envoie <strong style="color:var(--noir);font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA</strong> via <strong>Flooz</strong> ou <strong>TMoney</strong> au numéro ci-dessous — mets ton code unique en note.</p>
     </div>
 
-    <div style="background:#0066CC;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:1px;margin-bottom:4px;">NUMÉRO FLOOZ KALATOGO</div>
-      <div style="font-size:30px;font-weight:900;color:white;letter-spacing:3px;">${KALATOGO_FLOOZ}</div>
-      <button onclick="navigator.clipboard.writeText('${KALATOGO_FLOOZ}');toast('Numéro copié !','success')" style="margin-top:8px;background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier</button>
+    <div style="background:linear-gradient(135deg,#0066CC,#004a9e);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
+      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px;">
+        <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;">📲 Flooz</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;">📱 TMoney</span>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:1px;margin-bottom:4px;">NUMÉRO KALATOGO</div>
+      <div style="font-size:32px;font-weight:900;color:white;letter-spacing:3px;">${KALATOGO_FLOOZ}</div>
+      <button onclick="navigator.clipboard.writeText('${KALATOGO_FLOOZ}');toast('Numéro copié !','success')" style="margin-top:8px;background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le numéro</button>
     </div>
 
     <div style="background:#f0fdf4;border:2px dashed #16a34a;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:700;color:#16a34a;letter-spacing:1px;margin-bottom:4px;">TON CODE UNIQUE (à mettre en note Flooz)</div>
+      <div style="font-size:11px;font-weight:700;color:#16a34a;letter-spacing:1px;margin-bottom:4px;">TON CODE UNIQUE — mets-le en note/motif</div>
       <div style="font-size:34px;font-weight:900;color:#065f46;letter-spacing:4px;">${code}</div>
       <button onclick="navigator.clipboard.writeText('${code}');toast('Code copié !','success')" style="margin-top:8px;background:#dcfce7;border:1px solid #86efac;color:#166534;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le code</button>
     </div>
 
-    <div style="background:#fef9c3;border-radius:12px;padding:14px;font-size:13px;color:#713f12;line-height:1.8;">
+    <div style="background:#fef9c3;border-radius:12px;padding:14px;font-size:13px;color:#713f12;line-height:1.9;">
       <strong>📋 Comment faire :</strong><br>
-      1. Ouvre <strong>Flooz</strong> sur ton téléphone<br>
+      1. Ouvre <strong>Flooz</strong> ou <strong>TMoney</strong> sur ton téléphone<br>
       2. Envoie <strong>${amount.toLocaleString('fr-FR')} FCFA</strong> au <strong>${KALATOGO_FLOOZ}</strong><br>
-      3. Dans le champ <strong>Note/Motif</strong> écris : <strong>${code}</strong><br>
+      3. Dans le champ <strong>Note / Motif</strong> écris ton code : <strong>${code}</strong><br>
       4. Ton Plan Pro sera activé dans les <strong>24h</strong> ⏱️
     </div>
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:14px;">Tu recevras une notification dès l'activation de ton plan.</p>
@@ -10272,23 +10273,18 @@ async function activateSelected() {
   const btn = document.querySelector('[onclick="activateSelected()"]');
   if (btn) { btn.textContent = `⏳ Activation de ${selected.length} compte(s)...`; btn.disabled = true; }
 
-  const expiry = new Date();
-  expiry.setDate(expiry.getDate() + 30);
-  const expiryStr = expiry.toISOString().split('T')[0];
-
   let success = 0, errors = 0;
   for (const cb of selected) {
     try {
       const res = await fetch(`${AT_URL('Prestataires')}/${cb.dataset.id}`, {
         method: 'PATCH', headers: AT_HEADERS,
         body: JSON.stringify({ fields: {
-          'Abonnement':       cb.dataset.plan || 'Pro',
-          'Abonnement Expiry': expiryStr,
-          'Code Paiement':    ''
+          'Abonnement':    cb.dataset.plan || 'Pro',
+          'Code Paiement': ''
         }})
       });
-      if (res.ok) success++; else errors++;
-    } catch { errors++; }
+      if (res.ok) { success++; } else { const e = await res.json().catch(()=>{}); console.error('Airtable activate error', e); errors++; }
+    } catch(err) { console.error('Activate fetch error', err); errors++; }
   }
 
   if (btn) { btn.textContent = '🚀 Activer la sélection'; btn.disabled = false; }
@@ -10301,24 +10297,16 @@ async function onPaymentSuccess(plan, transId) {
   const cfg = PLAN_CONFIG[plan];
   if (!cfg || !currentPrestataire) return;
 
-  const expiry = new Date();
-  expiry.setDate(expiry.getDate() + 30);
-  const expiryStr = expiry.toISOString().split('T')[0];
-
   try {
     const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
       method: 'PATCH',
       headers: AT_HEADERS,
-      body: JSON.stringify({ fields: {
-        'Abonnement': plan,
-        'Abonnement Expiry': expiryStr,
-      }})
+      body: JSON.stringify({ fields: { 'Abonnement': plan } })
     });
     if (!res.ok) throw new Error('Airtable update failed');
 
     // Mettre à jour le cache local
     currentPrestataire.fields['Abonnement'] = plan;
-    currentPrestataire.fields['Abonnement Expiry'] = expiryStr;
 
     toast(`🎉 Bienvenue sur le plan ${plan} ! Transaction : ${transId}`, 'success');
     loadAbonnement();
