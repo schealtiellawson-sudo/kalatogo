@@ -1193,7 +1193,11 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">S'inscrire</button>
       </div>
       <!-- Boutons connecté (caché par défaut) -->
-      <div id="nav-user" style="display:none;">
+      <div id="nav-user" style="display:none;align-items:center;gap:8px;">
+        <button class="nav-link" id="nav-fil-btn" onclick="showPage('fil')" style="display:flex;align-items:center;gap:5px;font-weight:700;position:relative;">
+          📰 Mon Fil
+          <span id="nav-fil-badge" style="display:none;position:absolute;top:-4px;right:-6px;background:#ef4444;color:white;font-size:9px;font-weight:800;padding:2px 5px;border-radius:20px;line-height:1;">NEW</span>
+        </button>
         <button class="nav-user" onclick="showPage('dashboard')">
           <div class="nav-user-avatar" id="nav-avatar">?</div>
           <span class="nav-user-name" id="nav-username">Mon espace</span>
@@ -1216,6 +1220,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   <div style="padding:16px 20px;display:flex;flex-direction:column;gap:4px;flex:1;">
     <button onclick="showPage('home');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏠 Accueil</button>
     <button onclick="showPage('search');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🔍 Trouver un pro</button>
+    <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
     <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💡 Comment ça marche</button>
     <button onclick="showPage('apropos');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">👤 À propos</button>
     <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
@@ -2214,6 +2219,30 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 </div>
 
 <!-- ══════════════════════════════════════════
+     PAGE FIL D'ACTUALITÉ
+══════════════════════════════════════════ -->
+<div id="page-fil" class="page" style="background:#f8f6f1;min-height:100vh;">
+  <div style="background:white;border-bottom:1px solid #eee;padding:14px 0;position:sticky;top:0;z-index:100;">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <h2 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin:0;color:var(--noir);">📰 Mon Fil</h2>
+        <p style="font-size:12px;color:var(--gris);margin:2px 0 0;">Publications des pros que tu suis</p>
+      </div>
+      <button onclick="showDashSection('abonnements');showPage('dashboard')" style="background:none;border:1.5px solid var(--vert);color:var(--vert);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👥 Mes abonnements</button>
+    </div>
+    <!-- Tabs -->
+    <div class="container" style="display:flex;gap:0;margin-top:10px;border-bottom:2px solid #eee;">
+      <button id="tab-fil" onclick="switchFilTab('fil')" style="flex:1;background:none;border:none;padding:8px 0;font-size:14px;font-weight:700;color:var(--vert);border-bottom:2px solid var(--vert);margin-bottom:-2px;cursor:pointer;">Publications</button>
+      <button id="tab-abonnes" onclick="switchFilTab('abonnes')" style="flex:1;background:none;border:none;padding:8px 0;font-size:14px;font-weight:600;color:var(--gris);cursor:pointer;">Qui je suis</button>
+    </div>
+  </div>
+  <div class="container" style="padding-top:20px;padding-bottom:40px;">
+    <div id="fil-page-list" style="max-width:560px;margin:0 auto;"></div>
+    <div id="fil-abonnes-list" style="display:none;max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
      PAGE INSCRIPTION
 ══════════════════════════════════════════ -->
 <div id="page-inscription" class="page">
@@ -2676,13 +2705,6 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       </button>
       <button class="dash-link" onclick="showDashSection('abonnement')" id="dl-abonnement">
         <span class="icon">💳</span> Mon abonnement
-      </button>
-      <button class="dash-link" onclick="showDashSection('fil')" id="dl-fil" style="position:relative;">
-        <span class="icon">📰</span> Mon Fil
-        <span id="fil-badge" style="display:none;position:absolute;top:8px;right:10px;background:#ef4444;color:white;font-size:10px;font-weight:800;padding:2px 6px;border-radius:20px;">NEW</span>
-      </button>
-      <button class="dash-link" onclick="showDashSection('abonnements')" id="dl-abonnements">
-        <span class="icon">👥</span> Mes Abonnements
       </button>
       <button class="dash-link" onclick="showDashSection('parrainage')" id="dl-parrainage" style="color:var(--or);font-weight:800;">
         <span class="icon">🔗</span> Parrainage 💰
@@ -3788,9 +3810,14 @@ function updateNavAuth(connected) {
     const nom = currentPrestataire?.fields?.['Nom complet'] || currentUser.email?.split('@')[0] || 'Moi';
     document.getElementById('nav-username').textContent = nom.split(' ')[0];
     document.getElementById('nav-avatar').textContent = nom.charAt(0).toUpperCase();
+    // Afficher "Mon Fil" dans la nav mobile
+    const mobileFil = document.getElementById('mobile-fil-btn');
+    if (mobileFil) mobileFil.style.display = 'block';
   } else {
     guest.style.display = 'flex';
     user.style.display = 'none';
+    const mobileFil = document.getElementById('mobile-fil-btn');
+    if (mobileFil) mobileFil.style.display = 'none';
   }
 }
 
@@ -5319,6 +5346,10 @@ function showPage(page) {
   if (page === 'home') initHome();
   if (page === 'search') loadSearch();
   if (page === 'inscription') resetInscriptionForm();
+  if (page === 'fil') {
+    if (!currentUser) { showPage('login'); return; }
+    loadFilPage();
+  }
   if (page === 'fonctionnement' || page === 'apropos') { /* pages statiques */ }
   if (page === 'dashboard') {
     if (!currentUser) { showPage('login'); return; }
@@ -6966,6 +6997,165 @@ async function loadFil() {
   } catch(e) {
     container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);">Erreur: ${e.message}</div>`;
   }
+}
+
+// ── Page Fil standalone ──
+async function loadFilPage() {
+  // Affiche le badge mobile
+  const mobileFil = document.getElementById('mobile-fil-btn');
+  if (mobileFil) mobileFil.style.display = 'block';
+  // Masquer badge NEW
+  const nb = document.getElementById('nav-fil-badge');
+  if (nb) nb.style.display = 'none';
+  switchFilTab('fil');
+}
+
+function switchFilTab(tab) {
+  const listEl   = document.getElementById('fil-page-list');
+  const abonnesEl = document.getElementById('fil-abonnes-list');
+  const tabFil    = document.getElementById('tab-fil');
+  const tabAb     = document.getElementById('tab-abonnes');
+  if (tab === 'fil') {
+    if (listEl)    { listEl.style.display = 'block'; }
+    if (abonnesEl) { abonnesEl.style.display = 'none'; }
+    if (tabFil)  { tabFil.style.color = 'var(--vert)'; tabFil.style.borderBottom = '2px solid var(--vert)'; }
+    if (tabAb)   { tabAb.style.color = 'var(--gris)'; tabAb.style.borderBottom = 'none'; }
+    loadFilPageFeed();
+  } else {
+    if (listEl)    { listEl.style.display = 'none'; }
+    if (abonnesEl) { abonnesEl.style.display = 'grid'; }
+    if (tabFil)  { tabFil.style.color = 'var(--gris)'; tabFil.style.borderBottom = 'none'; }
+    if (tabAb)   { tabAb.style.color = 'var(--vert)'; tabAb.style.borderBottom = '2px solid var(--vert)'; }
+    loadFilPageAbonnes();
+  }
+}
+
+async function loadFilPageFeed() {
+  if (!currentUser) return;
+  const container = document.getElementById('fil-page-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);"><div class="spinner"></div></div>';
+  try {
+    const filter = encodeURIComponent(`{Abonné ID}='${currentUser.id}'`);
+    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&maxRecords=100`, { headers: AT_HEADERS });
+    const data = await res.json();
+    const suivis = data.records || [];
+    if (!suivis.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
+          <div style="font-size:56px;margin-bottom:16px;">📭</div>
+          <h3 style="font-family:Fraunces,serif;color:var(--noir);margin-bottom:8px;">Ton fil est vide</h3>
+          <p style="font-size:14px;line-height:1.6;">Suis des prestataires pour voir leurs publications ici.</p>
+          <button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button>
+        </div>`;
+      return;
+    }
+    const prestIds = suivis.map(r => r.fields['Prestataire ID']).filter(Boolean);
+    const orParts  = prestIds.map(id => `{Prestataire ID}='${id}'`).join(',');
+    const postFilter = encodeURIComponent(`OR(${orParts})`);
+    const postRes = await fetch(`${AT_URL('Posts')}?filterByFormula=${postFilter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=50`, { headers: AT_HEADERS });
+    const postData = await postRes.json();
+    const posts = postData.records || [];
+    if (!posts.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
+          <div style="font-size:56px;margin-bottom:16px;">🕐</div>
+          <h3 style="font-family:Fraunces,serif;color:var(--noir);margin-bottom:8px;">Pas encore de publications</h3>
+          <p style="font-size:14px;">Les pros que tu suis n'ont pas encore publié. Reviens bientôt !</p>
+        </div>`;
+      return;
+    }
+    const uniqueIds = [...new Set(posts.map(p => p.fields['Prestataire ID']).filter(Boolean))];
+    const prestMap = {};
+    await Promise.all(uniqueIds.map(async id => {
+      try { const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS }); if (r.ok) { const d = await r.json(); prestMap[id] = d; } } catch {}
+    }));
+    container.innerHTML = posts.map(post => {
+      const pf = post.fields;
+      const prestId = pf['Prestataire ID'];
+      const pf2 = prestMap[prestId]?.fields || {};
+      const nom = pf2['Nom complet'] || 'Prestataire';
+      const metier = pf2['Métier principal'] || '';
+      const photo = pf2['WhatsApp'] || '';
+      const contenu = pf['Contenu'] || '';
+      const mediaUrl = pf['Media URL'] || '';
+      const mediaType = pf['Media Type'] || '';
+      const datePost = pf['Date'] ? new Date(pf['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
+      let likes = 0; try { likes = JSON.parse(pf['Likeurs']||'[]').length; } catch { likes = pf['Likes']||0; }
+      const initiale = nom.charAt(0).toUpperCase();
+      return `
+        <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
+            ${photo ? `<img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(27,122,74,0.2);">` : `<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;">${initiale}</div>`}
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:14px;color:var(--noir);">${nom}</div>
+              <div style="font-size:11px;color:var(--gris);">${metier}${datePost ? ' · '+datePost : ''}</div>
+            </div>
+            <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
+          </div>
+          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${contenu}</div>` : ''}
+          ${mediaUrl && mediaType==='image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
+          ${mediaUrl && mediaType==='video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
+          <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
+            <button onclick="likePost('${post.id}',this)" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;">❤️ <span>${likes}</span></button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);">Erreur: ${e.message}</div>`;
+  }
+}
+
+async function loadFilPageAbonnes() {
+  if (!currentUser) return;
+  const container = document.getElementById('fil-abonnes-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><div class="spinner"></div></div>';
+  try {
+    const filter = encodeURIComponent(`{Abonné ID}='${currentUser.id}'`);
+    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=100`, { headers: AT_HEADERS });
+    const data = await res.json();
+    const recs = data.records || [];
+    if (!recs.length) {
+      container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;"><div style="font-size:48px;margin-bottom:12px;">👥</div><h3 style="font-family:Fraunces,serif;color:var(--noir);">Tu ne suis personne encore</h3><p style="font-size:14px;margin-top:8px;">Explore des profils et clique <strong>Suivre</strong>.</p><button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button></div>`;
+      return;
+    }
+    const ids = recs.map(r => r.fields['Prestataire ID']).filter(Boolean);
+    const detailsMap = {};
+    await Promise.all(ids.map(async id => {
+      try { const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS }); if (r.ok) { const d = await r.json(); detailsMap[id] = d; } } catch {}
+    }));
+    container.innerHTML = recs.map(rec => {
+      const pid = rec.fields['Prestataire ID'];
+      const f = detailsMap[pid]?.fields || {};
+      const nom = f['Nom complet'] || '—';
+      const metier = f['Métier principal'] || '';
+      const photo = f['WhatsApp'] || '';
+      const dispo = f['Disponible maintenant'];
+      return `
+        <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="showProfil('${pid}');showPage('profil');">
+          <div style="position:relative;flex-shrink:0;">
+            ${photo ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">` : `<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;">${nom.charAt(0)}</div>`}
+            ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid white;"></div>' : ''}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:800;font-size:14px;color:var(--noir);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nom}</div>
+            <div style="font-size:12px;color:var(--gris);">${metier}</div>
+          </div>
+          <button onclick="event.stopPropagation();toggleSuivi('${pid}');this.closest('div[onclick]').remove();" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;white-space:nowrap;">Se désabonner</button>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;">Erreur: ${e.message}</div>`;
+  }
+}
+
+// ── Afficher "Mon Fil" dans la nav quand connecté ──
+function showFilNav() {
+  const navFilBtn = document.getElementById('nav-fil-btn');
+  const mobileFil = document.getElementById('mobile-fil-btn');
+  if (navFilBtn) navFilBtn.style.display = 'flex';
+  if (mobileFil) mobileFil.style.display = 'block';
 }
 
 // ══════════════════════════════════════════
