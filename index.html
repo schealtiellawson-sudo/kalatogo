@@ -1178,6 +1178,17 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 </head>
 <body>
 
+<!-- OVERLAY INIT — masque le flash homepage pendant la restauration de session -->
+<div id="kala-init-overlay" style="position:fixed;inset:0;background:#fff;z-index:99999;display:flex;align-items:center;justify-content:center;transition:opacity 0.25s ease;">
+  <div style="text-align:center;">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-0.5px;color:#0f1410;">KALA<sup style="font-size:11px;font-weight:700;letter-spacing:1px;color:#1B7A4A;">TOGO</sup></div>
+    <div style="width:28px;height:3px;background:#1B7A4A;border-radius:2px;margin:10px auto 0;animation:kala-bar 1s ease-in-out infinite alternate;"></div>
+  </div>
+</div>
+<style>
+@keyframes kala-bar { from{width:16px;opacity:0.4} to{width:36px;opacity:1} }
+</style>
+
 <!-- NAV -->
 <nav>
   <div class="container nav-inner">
@@ -3873,6 +3884,13 @@ async function initAuth() {
   }
   // Restaurer la page APRÈS avoir chargé la session (currentUser est déjà défini)
   _restorePageFromURL();
+
+  // Masquer l'overlay de chargement — la bonne page est maintenant affichée
+  const overlay = document.getElementById('kala-init-overlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 260);
+  }
 
   // Écouter les changements de session
   supa.auth.onAuthStateChange(async (event, session) => {
