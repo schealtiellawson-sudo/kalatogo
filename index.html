@@ -806,6 +806,7 @@ textarea { resize:vertical; min-height:110px; }
 
 .form-success { text-align:center; padding:48px 24px; display:none; }
 .form-success.form-visible { display:block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .form-hidden { display:none !important; }
 
 .tiktok-tip {
@@ -2258,11 +2259,43 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <div class="progress-step" id="pb-3"></div>
     </div>
 
+    <!-- LOADING SCREEN -->
+    <div id="form-loading" style="display:none;text-align:center;padding:64px 24px;">
+      <div style="width:64px;height:64px;border:4px solid var(--vert-light);border-top:4px solid var(--vert);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 24px;"></div>
+      <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:12px;">Création de ton profil…</h3>
+      <p id="loading-step" style="color:var(--gris);font-size:15px;">Initialisation du compte…</p>
+      <p style="color:var(--gris);font-size:13px;margin-top:8px;">Cela peut prendre 10 à 20 secondes, ne ferme pas la page.</p>
+    </div>
+
     <div id="form-success" class="form-success">
       <div class="success-icon">✓</div>
-      <h2 style="font-family:Fraunces,serif;font-size:28px;font-weight:900;margin-bottom:12px;">Profil créé !</h2>
-      <p style="color:var(--gris);margin-bottom:32px;">Tu es maintenant visible sur KalaTogo. Les clients de tout le Togo peuvent te trouver.</p>
-      <button class="btn btn-primary btn-lg" onclick="showPage('search')">Voir les autres prestataires</button>
+      <h2 style="font-family:Fraunces,serif;font-size:28px;font-weight:900;margin-bottom:8px;">Compte créé avec succès ! 🎉</h2>
+
+      <!-- Email recap -->
+      <div style="background:var(--vert-light);border:1.5px solid var(--vert);border-radius:14px;padding:18px 20px;margin:20px 0;text-align:left;">
+        <p style="font-weight:700;color:var(--vert);margin-bottom:10px;">📧 Tes identifiants de connexion :</p>
+        <div style="background:white;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+          <span style="font-size:12px;color:var(--gris);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Email</span>
+          <div id="success-email" style="font-weight:800;font-size:16px;color:var(--noir);margin-top:2px;"></div>
+        </div>
+        <div style="background:white;border-radius:10px;padding:12px 16px;">
+          <span style="font-size:12px;color:var(--gris);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Mot de passe</span>
+          <div style="font-weight:800;font-size:16px;color:var(--noir);margin-top:2px;">Le mot de passe que tu viens de choisir</div>
+        </div>
+        <p style="font-size:12px;color:var(--gris);margin-top:10px;">💾 Note bien ces informations quelque part.</p>
+      </div>
+
+      <!-- Email confirmation notice -->
+      <div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
+        <p style="font-weight:700;color:#b45309;margin-bottom:6px;">📬 Vérifie ta boîte mail</p>
+        <p style="font-size:14px;color:#92400e;line-height:1.6;">Tu vas recevoir un email de confirmation de la part de KalaTogo. <strong>Clique sur le lien dans cet email</strong> pour activer ton compte et pouvoir te connecter.</p>
+        <p style="font-size:12px;color:#b45309;margin-top:8px;">Si tu ne vois pas l'email, vérifie tes spams.</p>
+      </div>
+
+      <p style="color:var(--gris);font-size:14px;margin-bottom:24px;">Tu es maintenant visible sur KalaTogo. Les clients de tout le Togo peuvent te trouver dès que ton email est confirmé.</p>
+
+      <button class="btn btn-primary btn-lg" onclick="showPage('dashboard')" style="width:100%;justify-content:center;margin-bottom:12px;">🚀 Accéder à mon espace</button>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('login')" style="width:100%;justify-content:center;">Se connecter avec mes identifiants</button>
     </div>
 
     <form id="inscription-form" onsubmit="submitInscription(event)" autocomplete="off">
@@ -8718,6 +8751,19 @@ async function submitInscription(e) {
   btn.textContent = '⏳ Envoi en cours...';
   btn.disabled = true;
 
+  // Afficher le loading screen
+  const loadingEl = document.getElementById('form-loading');
+  const formEl = document.getElementById('inscription-form');
+  const progressEl = document.querySelector('.progress-bar');
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (formEl) formEl.classList.add('form-hidden');
+  if (progressEl) progressEl.classList.add('form-hidden');
+
+  const setStep = (msg) => {
+    const el = document.getElementById('loading-step');
+    if (el) el.textContent = msg;
+  };
+
   try {
     const nom = document.getElementById('f-nom').value.trim();
     const email = document.getElementById('f-email').value.trim();
@@ -8740,7 +8786,7 @@ async function submitInscription(e) {
       return;
     }
 
-    toast('Création du compte...', 'info');
+    setStep('Création du compte Supabase…');
     const { data: authData, error: authError } = await supa.auth.signUp({
       email, password: motDePasse,
       options: {
@@ -8760,7 +8806,7 @@ async function submitInscription(e) {
     const profilFile = document.getElementById('upload-profil').files[0];
     let profilUrl = null;
     if (profilFile) {
-      toast('Upload de la photo de profil...', 'info');
+      setStep('Upload de ta photo de profil…');
       profilUrl = await uploadToImgBB(profilFile);
     }
 
@@ -8770,7 +8816,7 @@ async function submitInscription(e) {
     const r3File = document.getElementById('upload-r3').files[0];
     let photo1Url = null, photo2Url = null, photo3Url = null;
     if (r1File || r2File || r3File) {
-      toast('Upload des photos de réalisations...', 'info');
+      setStep('Upload des photos de réalisations…');
       [photo1Url, photo2Url, photo3Url] = await Promise.all([
         uploadToImgBB(r1File),
         uploadToImgBB(r2File),
@@ -8835,6 +8881,7 @@ async function submitInscription(e) {
     if (photo2Url) fields['Photo Réalisation 2'] = photo2Url;
     if (photo3Url) fields['Photo Réalisation 3'] = photo3Url;
 
+    setStep('Enregistrement de ton profil…');
     const res = await fetch(AT_URL('Prestataires'), {
       method: 'POST',
       headers: AT_HEADERS,
@@ -8849,18 +8896,27 @@ async function submitInscription(e) {
         updateNavAuth(true);
       }
       updateCommissionDisplay();
-      document.getElementById('inscription-form').classList.add('form-hidden');
+      // Cacher le loading, montrer le succès
+      if (loadingEl) loadingEl.style.display = 'none';
       document.getElementById('form-success').classList.add('form-visible');
-      document.querySelector('.progress-bar').classList.add('form-hidden');
+      // Afficher l'email dans la page de succès
+      const successEmailEl = document.getElementById('success-email');
+      if (successEmailEl) successEmailEl.textContent = email;
       toast('Profil créé avec succès ! 🎉', 'success');
     } else {
       const err = await res.json();
       console.error('Airtable error:', err);
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (formEl) formEl.classList.remove('form-hidden');
+      if (progressEl) progressEl.classList.remove('form-hidden');
       toast('Erreur Airtable : ' + (err.error?.message || JSON.stringify(err)), 'error');
       btn.textContent = '✦ Créer mon profil';
       btn.disabled = false;
     }
   } catch (err) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (formEl) formEl.classList.remove('form-hidden');
+    if (progressEl) progressEl.classList.remove('form-hidden');
     toast('Problème de connexion : ' + err.message, 'error');
     btn.textContent = '✦ Créer mon profil';
     btn.disabled = false;
