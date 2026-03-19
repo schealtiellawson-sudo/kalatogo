@@ -2688,6 +2688,34 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 </div>
 
 <!-- ══════════════════════════════════════════
+     PAGE EMAIL CONFIRMÉ
+══════════════════════════════════════════ -->
+<div id="page-email-confirme" class="page">
+  <div class="auth-page">
+    <div style="font-size:64px;text-align:center;margin-bottom:16px;">✅</div>
+    <h2 style="font-family:Fraunces,serif;font-size:28px;font-weight:900;text-align:center;margin-bottom:8px;">Email confirmé !</h2>
+    <p style="text-align:center;color:var(--gris);margin-bottom:28px;">Ton compte KalaTogo est maintenant actif. Tu peux accéder à ton espace professionnel.</p>
+
+    <div style="background:var(--vert-light);border:1.5px solid var(--vert);border-radius:14px;padding:18px 20px;margin-bottom:24px;">
+      <p style="font-weight:700;color:var(--vert);margin-bottom:10px;">🎉 Bienvenue sur KalaTogo !</p>
+      <ul style="color:var(--gris-fonce);font-size:14px;line-height:1.8;margin:0;padding-left:18px;">
+        <li>Complète ton profil pour apparaître dans les recherches</li>
+        <li>Ajoute tes photos de réalisations</li>
+        <li>Active ta disponibilité pour recevoir des clients</li>
+        <li>Partage ton lien de parrainage pour gagner des commissions</li>
+      </ul>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;margin-bottom:12px;" onclick="showPage('dashboard')">
+      🚀 Accéder à mon espace
+    </button>
+    <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;" onclick="showPage('home')">
+      Retour à l'accueil
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
      PAGE RESET MOT DE PASSE
 ══════════════════════════════════════════ -->
 <div id="page-reset-password" class="page">
@@ -3847,7 +3875,6 @@ async function initAuth() {
   // Écouter les changements de session
   supa.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
-      // Lien reset reçu → afficher la page de reset
       showPage('reset-password');
       return;
     }
@@ -3855,6 +3882,14 @@ async function initAuth() {
       currentUser = session.user;
       await loadCurrentPrestataire();
       updateNavAuth(true);
+      // Détecter si c'est une confirmation d'email (lien cliqué depuis la boîte mail)
+      const hash = window.location.hash;
+      if (hash.includes('type=signup') || hash.includes('type=email_change')) {
+        // Nettoyer l'URL
+        history.replaceState(null, '', window.location.pathname);
+        showPage('email-confirme');
+        return;
+      }
       // Si on était sur la page reset, rediriger vers le dashboard
       const activePage = document.querySelector('.page.active');
       if (activePage && activePage.id === 'page-reset-password') {
