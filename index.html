@@ -2408,31 +2408,30 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div class="step-label">Étape 2 sur 3</div>
         <div class="step-title">Ton métier</div>
 
-        <!-- Photos réalisations OBLIGATOIRES -->
+        <!-- Photos profil optionnelles -->
         <div class="form-group">
-          <label>Photos de tes réalisations <span class="req">*</span> <span style="font-weight:500;color:var(--gris);">(3 photos requises)</span></label>
+          <label>Tes photos <span style="font-weight:500;color:var(--gris);">(facultatif — tu pourras en ajouter plus tard)</span></label>
           <div style="background:var(--or-light);border:1.5px solid var(--or);border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
             <span style="font-size:18px;">💡</span>
-            <span style="font-size:13px;color:var(--gris-fonce);line-height:1.5;">Les prestataires avec 3 photos reçoivent <strong>3× plus de contacts.</strong> Montre ton meilleur travail !</span>
+            <span style="font-size:13px;color:var(--gris-fonce);line-height:1.5;">Les profils avec photos reçoivent <strong>3× plus de contacts.</strong> Ajoute des photos de toi, de ton travail ou de tes créations !</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
             <div class="upload-zone" id="zone-r1" style="padding:16px;position:relative;" onclick="document.getElementById('upload-r1').click()">
               <img id="prev-r1" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;display:none;">
-              <div id="ph-r1" style="text-align:center;"><div style="font-size:24px;">📸</div><div style="font-size:11px;color:var(--gris);margin-top:4px;font-weight:700;">Photo 1 <span style="color:var(--or);">*</span></div></div>
+              <div id="ph-r1" style="text-align:center;"><div style="font-size:24px;">📸</div><div style="font-size:11px;color:var(--gris);margin-top:4px;font-weight:700;">Photo 1</div></div>
               <input type="file" id="upload-r1" accept="image/*" style="display:none" onchange="previewPhoto('upload-r1','prev-r1','ph-r1','zone-r1')">
             </div>
             <div class="upload-zone" id="zone-r2" style="padding:16px;position:relative;" onclick="document.getElementById('upload-r2').click()">
               <img id="prev-r2" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;display:none;">
-              <div id="ph-r2" style="text-align:center;"><div style="font-size:24px;">📸</div><div style="font-size:11px;color:var(--gris);margin-top:4px;font-weight:700;">Photo 2 <span style="color:var(--or);">*</span></div></div>
+              <div id="ph-r2" style="text-align:center;"><div style="font-size:24px;">📸</div><div style="font-size:11px;color:var(--gris);margin-top:4px;font-weight:700;">Photo 2</div></div>
               <input type="file" id="upload-r2" accept="image/*" style="display:none" onchange="previewPhoto('upload-r2','prev-r2','ph-r2','zone-r2')">
             </div>
             <div class="upload-zone" id="zone-r3" style="padding:16px;position:relative;" onclick="document.getElementById('upload-r3').click()">
               <img id="prev-r3" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;display:none;">
-              <div id="ph-r3" style="text-align:center;"><div style="font-size:24px;">📸</div><div style="font-size:11px;color:var(--gris);margin-top:4px;font-weight:700;">Photo 3 <span style="color:var(--or);">*</span></div></div>
+              <div id="ph-r3" style="text-align:center;"><div style="font-size:24px;">📸</div><div style="font-size:11px;color:var(--gris);margin-top:4px;font-weight:700;">Photo 3</div></div>
               <input type="file" id="upload-r3" accept="image/*" style="display:none" onchange="previewPhoto('upload-r3','prev-r3','ph-r3','zone-r3')">
             </div>
           </div>
-          <div id="photos-error" style="color:#dc2626;font-size:13px;margin-top:8px;display:none;">⚠️ Les 3 photos sont obligatoires pour créer ton profil.</div>
         </div>
 
         <div class="form-row">
@@ -8882,18 +8881,6 @@ function nextStep(step) {
       const quartier = getVilleQuartier('f-ville','f-quartier');
       const desc = document.getElementById('f-description').value;
       if (!metier || !quartier || !desc.trim()) { toast('Métier, quartier et description obligatoires', 'error'); return; }
-      // Vérifier les 3 photos
-      const r1 = window._inscCroppedFiles['upload-r1'] || document.getElementById('upload-r1').files[0];
-      const r2 = window._inscCroppedFiles['upload-r2'] || document.getElementById('upload-r2').files[0];
-      const r3 = window._inscCroppedFiles['upload-r3'] || document.getElementById('upload-r3').files[0];
-      const photosError = document.getElementById('photos-error');
-      if (!r1 || !r2 || !r3) {
-        photosError.style.display = 'block';
-        photosError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        toast('Les 3 photos de réalisations sont obligatoires', 'error');
-        return;
-      }
-      photosError.style.display = 'none';
     }
   }
 
@@ -8978,17 +8965,17 @@ async function submitInscription(e) {
       profilUrl = await uploadToImgBB(profilFile);
     }
 
-    // Upload 3 photos réalisations
+    // Upload photos (toutes optionnelles)
     const r1File = window._inscCroppedFiles['upload-r1'] || document.getElementById('upload-r1').files[0];
     const r2File = window._inscCroppedFiles['upload-r2'] || document.getElementById('upload-r2').files[0];
     const r3File = window._inscCroppedFiles['upload-r3'] || document.getElementById('upload-r3').files[0];
     let photo1Url = null, photo2Url = null, photo3Url = null;
     if (r1File || r2File || r3File) {
-      setStep('Upload des photos de réalisations…');
+      setStep('Upload des photos…');
       [photo1Url, photo2Url, photo3Url] = await Promise.all([
-        uploadToImgBB(r1File),
-        uploadToImgBB(r2File),
-        uploadToImgBB(r3File)
+        r1File ? uploadToImgBB(r1File) : Promise.resolve(null),
+        r2File ? uploadToImgBB(r2File) : Promise.resolve(null),
+        r3File ? uploadToImgBB(r3File) : Promise.resolve(null)
       ]);
     }
 
