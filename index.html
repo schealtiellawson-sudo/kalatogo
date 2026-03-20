@@ -5768,6 +5768,7 @@ function validateForm(formData) {
 // ══════════════════════════════════════════
 let _cropperInstance = null;
 let _cropTarget     = null; // pour previewPhoto() (formulaire inscription)
+window._inscCroppedFiles = {}; // stockage blobs croppés inscription (fix mobile DataTransfer)
 let _cropCallback   = null; // pour uploadNewPhoto / uploadRealisationPhoto
 let _cropAspect     = 1;    // ratio par défaut (1 = carré)
 
@@ -5854,11 +5855,13 @@ function applyCrop() {
     if (prev) { prev.src = dataUrl; prev.style.display = 'block'; }
     if (ph)   { ph.style.display = 'none'; }
     if (_cropTarget.zoneId) document.getElementById(_cropTarget.zoneId)?.classList.add('has-file');
+    const inputId = _cropTarget.inputId;
     canvas.toBlob(blob => {
-      const dt = new DataTransfer();
-      dt.items.add(new File([blob], 'photo-cropee.jpg', { type: 'image/jpeg' }));
-      const input = document.getElementById(_cropTarget.inputId);
-      if (input) { try { input.files = dt.files; } catch(e) {} }
+      // Stocker le blob pour usage à l'upload (fix mobile — DataTransfer non supporté sur Android)
+      window._inscCroppedFiles[inputId] = new File([blob], 'photo-cropee.jpg', { type: 'image/jpeg' });
+      // Tenter aussi l'assignation native (desktop)
+      const input = document.getElementById(inputId);
+      if (input) { try { const dt = new DataTransfer(); dt.items.add(window._inscCroppedFiles[inputId]); input.files = dt.files; } catch(e) {} }
     }, 'image/jpeg', 0.9);
     cancelCrop();
   }
@@ -8880,9 +8883,9 @@ function nextStep(step) {
       const desc = document.getElementById('f-description').value;
       if (!metier || !quartier || !desc.trim()) { toast('Métier, quartier et description obligatoires', 'error'); return; }
       // Vérifier les 3 photos
-      const r1 = document.getElementById('upload-r1').files[0];
-      const r2 = document.getElementById('upload-r2').files[0];
-      const r3 = document.getElementById('upload-r3').files[0];
+      const r1 = window._inscCroppedFiles['upload-r1'] || document.getElementById('upload-r1').files[0];
+      const r2 = window._inscCroppedFiles['upload-r2'] || document.getElementById('upload-r2').files[0];
+      const r3 = window._inscCroppedFiles['upload-r3'] || document.getElementById('upload-r3').files[0];
       const photosError = document.getElementById('photos-error');
       if (!r1 || !r2 || !r3) {
         photosError.style.display = 'block';
@@ -8968,7 +8971,7 @@ async function submitInscription(e) {
     }
 
     // Upload photo profil
-    const profilFile = document.getElementById('upload-profil').files[0];
+    const profilFile = window._inscCroppedFiles['upload-profil'] || document.getElementById('upload-profil').files[0];
     let profilUrl = null;
     if (profilFile) {
       setStep('Upload de ta photo de profil…');
@@ -8976,9 +8979,9 @@ async function submitInscription(e) {
     }
 
     // Upload 3 photos réalisations
-    const r1File = document.getElementById('upload-r1').files[0];
-    const r2File = document.getElementById('upload-r2').files[0];
-    const r3File = document.getElementById('upload-r3').files[0];
+    const r1File = window._inscCroppedFiles['upload-r1'] || document.getElementById('upload-r1').files[0];
+    const r2File = window._inscCroppedFiles['upload-r2'] || document.getElementById('upload-r2').files[0];
+    const r3File = window._inscCroppedFiles['upload-r3'] || document.getElementById('upload-r3').files[0];
     let photo1Url = null, photo2Url = null, photo3Url = null;
     if (r1File || r2File || r3File) {
       setStep('Upload des photos de réalisations…');
