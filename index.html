@@ -2931,7 +2931,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           </div>
 
           <!-- WhatsApp -->
-          <div class="kpi-card" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #25d366;position:relative;">
+          <div class="kpi-card" id="kpi-card-wa" style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border-left:4px solid #25d366;position:relative;overflow:hidden;">
             <button onclick="toggleKpiTip('tip-wa');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid #d1d5db;background:white;font-size:10px;font-weight:700;color:var(--gris);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
             <div id="tip-wa" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">💬 <strong>Contacts directs = leads chauds</strong><br>Quelqu'un t'a contacté via WhatsApp depuis ton profil. Ces contacts sont très précieux — réponds dans les 5 minutes pour ne pas les perdre !</div>
             <div style="font-size:22px;margin-bottom:4px;">💬</div>
@@ -2939,6 +2939,11 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Contacts WhatsApp</div>
             <div style="font-size:11px;color:#25d366;margin-top:2px;" id="kpi-wa-sub">7 derniers jours</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Réponds vite — ils t'attendent</div>
+            <!-- Overlay Pro lock (affiché pour Base) -->
+            <div id="kpi-wa-lock" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.88);backdrop-filter:blur(3px);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;" onclick="showDashSection('abonnement')">
+              <div style="font-size:20px;">🔒</div>
+              <div style="font-size:11px;font-weight:700;color:var(--or);text-align:center;">Débloque avec<br>le Plan Pro</div>
+            </div>
           </div>
 
           <!-- RDV -->
@@ -3001,6 +3006,29 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           </div>
           <div id="dash-chart-svg" style="width:100%;overflow:hidden;"></div>
           <div id="dash-chart-labels" style="display:flex;justify-content:space-between;margin-top:6px;"></div>
+        </div>
+
+        <!-- QR CODE PRO (affiché seulement en Pro) -->
+        <div id="dash-qr-block" style="display:none;background:white;border-radius:20px;padding:22px;box-shadow:var(--shadow);margin-bottom:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <div>
+              <h3 style="font-family:Fraunces,serif;font-size:16px;font-weight:700;margin:0;">📲 Ton QR Code Pro</h3>
+              <p style="font-size:12px;color:var(--gris);margin:3px 0 0;">Imprime-le, colle-le en boutique — les clients scannent et trouvent ton profil</p>
+            </div>
+            <span style="background:rgba(232,148,10,0.15);color:var(--or);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;border:1px solid rgba(232,148,10,0.3);">⭐ Pro</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+            <div id="dash-qr-img" style="width:120px;height:120px;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.1);flex-shrink:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
+              <img id="dash-qr-src" style="width:100%;height:100%;object-fit:contain;" alt="QR Code">
+            </div>
+            <div style="flex:1;min-width:200px;">
+              <p style="font-size:13px;color:var(--gris-fonce);line-height:1.7;margin:0 0 12px;">📌 Colle ce QR code sur :<br>• Ta vitrine / boutique<br>• Tes cartes de visite<br>• Tes flyers<br>• Tes emballages</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick="downloadQRCode()" style="padding:9px 16px;background:var(--vert);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">⬇️ Télécharger</button>
+                <button onclick="printQRCode()" style="padding:9px 16px;background:white;color:var(--vert);border:1.5px solid var(--vert);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🖨️ Imprimer</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- SCORE KALA + ACTIONS -->
@@ -4369,8 +4397,9 @@ async function loadDashOverview() {
 
   // ── Note moyenne — calculée depuis Airtable Avis ──
   let note = 0, nbAvis = 0;
+  let avisRecs = [];
   try {
-    const avisRecs = await fetchAvis(prestId);
+    avisRecs = await fetchAvis(prestId);
     nbAvis = avisRecs.length;
     if (nbAvis > 0) {
       const sum = avisRecs.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0);
@@ -4448,9 +4477,34 @@ async function loadDashOverview() {
   const totalViews = f['Nombre de vues'] || 0;
   document.getElementById('kpi-views').textContent = totalViews;
 
-  // ── WhatsApp clics — champ Airtable ──
+  // ── WhatsApp clics — champ Airtable (Pro only visible complet) ──
   const totalWa = f['Contacts WhatsApp'] || 0;
-  document.getElementById('kpi-wa').textContent = totalWa;
+  const isPro = (f['Abonnement'] || 'Base') !== 'Base';
+  const waLockEl = document.getElementById('kpi-wa-lock');
+  if (isPro) {
+    document.getElementById('kpi-wa').textContent = totalWa;
+    if (waLockEl) waLockEl.style.display = 'none';
+  } else {
+    document.getElementById('kpi-wa').textContent = '?';
+    if (waLockEl) waLockEl.style.display = 'flex';
+  }
+
+  // ── QR Code Pro ──
+  const qrBlock = document.getElementById('dash-qr-block');
+  if (qrBlock) {
+    if (isPro) {
+      qrBlock.style.display = 'block';
+      const profilUrl = `https://kalatogo.vercel.app/?profil=${prestId}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(profilUrl)}&color=1b7a4a&bgcolor=ffffff`;
+      const qrImg = document.getElementById('dash-qr-src');
+      if (qrImg) qrImg.src = qrUrl;
+      // Stocker l'URL QR pour téléchargement
+      window._kalaQrUrl = qrUrl;
+      window._kalaQrNom = f['Nom complet'] || 'profil';
+    } else {
+      qrBlock.style.display = 'none';
+    }
+  }
 
   // ── RDV ce mois (Airtable) ──
   try {
@@ -8409,6 +8463,7 @@ async function showProfil(recordId) {
               <div class="profil-badges">
                 ${verifie ? '<span class="badge badge-vert">✓ Vérifié KalaTogo</span>' : ''}
                 ${abonnement !== 'Base' ? `<span class="badge badge-or">⭐ ${abonnement}</span>` : ''}
+                ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Fondateur</span>' : ''}
                 ${note > 0 ? `<span class="badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">${starsHtml(note)} ${note.toFixed(1)}</span>` : ''}
                 ${isDigital ? '<span class="badge" style="background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);">🎓 Talent Digital</span>' : ''}
               </div>
@@ -8421,6 +8476,7 @@ async function showProfil(recordId) {
                 ${tiktok ? `<a href="${tiktok}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
                 ${instagram ? `<a href="${instagram}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
                 <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
+                ${abonnement !== 'Base' && tel ? `<button onclick="showClientPayModal('${tel}','${nom}','${f["Tarif minimum FCFA"]||0}')" style="background:linear-gradient(135deg,rgba(232,148,10,0.2),rgba(232,148,10,0.1));border:1.5px solid rgba(232,148,10,0.5);color:#E8940A;padding:10px 18px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(232,148,10,0.25)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(232,148,10,0.2),rgba(232,148,10,0.1))'">💳 Payer via Flooz/TMoney</button>` : ''}
                 <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
                   style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
                   ➕ Suivre
@@ -8466,6 +8522,23 @@ async function showProfil(recordId) {
               <div class="profil-section">
                 <h3>À propos</h3>
                 ${descHtml}
+              </div>` : ''}
+
+              ${abonnement !== 'Base' && tel ? `
+              <div class="profil-section" style="background:linear-gradient(135deg,rgba(232,148,10,0.08),rgba(255,200,0,0.05));border:1.5px solid rgba(232,148,10,0.2);border-radius:16px;padding:20px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                  <div style="font-size:24px;">💳</div>
+                  <div>
+                    <h3 style="margin:0;font-size:16px;color:rgba(255,255,255,0.95);">Payer via Flooz / TMoney</h3>
+                    <p style="font-size:12px;color:rgba(255,255,255,0.5);margin:2px 0 0;">Paiement direct — rapide &amp; sécurisé</p>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                  <span style="background:rgba(255,255,255,0.1);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);">📲 Flooz</span>
+                  <span style="background:rgba(255,255,255,0.1);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.8);">📱 TMoney</span>
+                  ${f['Tarif minimum FCFA'] ? `<span style="background:rgba(232,148,10,0.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:#E8940A;">À partir de ${parseInt(f['Tarif minimum FCFA']).toLocaleString('fr-FR')} FCFA</span>` : ''}
+                </div>
+                <button onclick="showClientPayModal('${tel}','${nom}','${f['Tarif minimum FCFA']||0}')" style="width:100%;padding:12px;background:linear-gradient(135deg,#E8940A,#d4820a);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none;">💳 Envoyer le paiement</button>
               </div>` : ''}
 
               ${diplomes && isDigital ? `
@@ -10435,6 +10508,73 @@ async function loadDashPosts() {
   }
 }
 
+// ══════════════════════════════════════════
+// PAIEMENT CLIENT FLOOZ/TMONEY (sur profil public)
+// ══════════════════════════════════════════
+let _clientPayState = {};
+
+function showClientPayModal(tel, nom, tarifMin) {
+  _clientPayState = { tel, nom };
+  document.getElementById('cpm-nom').textContent = `💳 Payer ${nom}`;
+  document.getElementById('cpm-tel').textContent = tel;
+  const amountEl = document.getElementById('cpm-amount');
+  if (tarifMin && parseInt(tarifMin) > 0) amountEl.value = parseInt(tarifMin);
+  else amountEl.value = '';
+  // Bouton copier
+  const copyBtn = document.getElementById('cpm-copy-btn');
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(tel).then(() => toast('Numéro copié !', 'success'));
+    };
+  }
+  document.getElementById('modal-client-pay').style.display = 'flex';
+}
+
+function confirmClientPay() {
+  const amount = parseInt(document.getElementById('cpm-amount').value);
+  if (!amount || amount < 100) {
+    toast('Indique le montant envoyé', 'error');
+    return;
+  }
+  document.getElementById('modal-client-pay').style.display = 'none';
+  toast(`✅ Paiement de ${amount.toLocaleString('fr-FR')} FCFA confirmé — Merci !`, 'success');
+}
+
+// ══════════════════════════════════════════
+// QR CODE PRO — fonctions
+// ══════════════════════════════════════════
+function downloadQRCode() {
+  if (!window._kalaQrUrl) return;
+  const a = document.createElement('a');
+  a.href = window._kalaQrUrl;
+  a.download = `qr-kalatogo-${(window._kalaQrNom||'profil').replace(/\s+/g,'-').toLowerCase()}.png`;
+  a.target = '_blank';
+  a.click();
+  toast('QR Code téléchargé !', 'success');
+}
+
+function printQRCode() {
+  if (!window._kalaQrUrl) return;
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html><html><head><title>QR Code KalaTogo</title>
+    <style>
+      body{font-family:sans-serif;text-align:center;padding:40px;background:#fff;}
+      img{width:300px;height:300px;border-radius:16px;}
+      h2{font-size:22px;margin:20px 0 6px;color:#1b7a4a;}
+      p{font-size:14px;color:#555;margin:0;}
+      .logo{font-size:28px;font-weight:900;color:#1b7a4a;margin-bottom:20px;}
+    </style></head><body>
+    <div class="logo">✦ KalaTogo</div>
+    <img src="${window._kalaQrUrl}" alt="QR Code">
+    <h2>${window._kalaQrNom || 'Mon profil'}</h2>
+    <p>Scanne pour voir mon profil sur KalaTogo</p>
+    <script>window.onload=()=>window.print()<\/script>
+    </body></html>
+  `);
+  win.document.close();
+}
+
 function loadAbonnement() {
   if (!currentPrestataire) return;
   const plan = currentPrestataire.fields['Abonnement'] || 'Base';
@@ -10458,6 +10598,14 @@ function loadAbonnement() {
   } else if (plan !== 'Base') {
     document.getElementById('plan-expiry-actuel').textContent = 'Renouvellement manuel requis';
   }
+
+  // Afficher/masquer les features Pro dans le dashboard
+  const proFeatureEls = document.querySelectorAll('.pro-feature-hint');
+  proFeatureEls.forEach(el => {
+    if (plan !== 'Base') {
+      el.style.display = 'none'; // Masquer les hints "Passer au Pro"
+    }
+  });
 }
 
 // ══════════════════════════════════════════
@@ -11660,6 +11808,40 @@ loadSchealtielPhoto();
       <div style="font-size:12px;color:var(--gris);margin-top:4px;line-height:1.5;">Chaque avis = +2 pts · Vise 5 avis pour passer au niveau Confirmé 🔧</div>
     </div>
     <button onclick="closeCelebration()" style="width:100%;padding:14px;background:var(--vert);color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:0.3px;">🚀 Je continue à progresser</button>
+  </div>
+</div>
+
+<!-- ══ MODAL PAIEMENT CLIENT FLOOZ/TMONEY (sur profil public) ══ -->
+<div id="modal-client-pay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:white;border-radius:24px;padding:28px;max-width:420px;width:100%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <button onclick="document.getElementById('modal-client-pay').style.display='none'" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:none;background:#f5f5f5;font-size:16px;cursor:pointer;">✕</button>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:40px;margin-bottom:8px;">💳</div>
+      <h3 style="font-family:Fraunces,serif;font-size:20px;margin:0 0 6px;" id="cpm-nom">Payer le prestataire</h3>
+      <p style="font-size:14px;color:var(--gris);margin:0;">Paiement direct via Flooz ou TMoney</p>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:0.08em;">Montant à payer (FCFA)</label>
+      <input type="number" id="cpm-amount" class="form-input" placeholder="Ex: 5 000" min="100" style="margin-top:6px;font-size:22px;font-weight:700;text-align:center;">
+    </div>
+    <div style="background:linear-gradient(135deg,#0066CC,#004a9e);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:1px;margin-bottom:4px;">ENVOIE À CE NUMÉRO</div>
+      <div style="font-size:30px;font-weight:900;color:white;letter-spacing:3px;" id="cpm-tel">—</div>
+      <div style="display:flex;gap:6px;justify-content:center;margin-top:8px;">
+        <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;">📲 Flooz</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;">📱 TMoney</span>
+      </div>
+      <button id="cpm-copy-btn" style="margin-top:8px;background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le numéro</button>
+    </div>
+    <div style="background:#fef9c3;border-radius:12px;padding:14px;font-size:13px;color:#713f12;line-height:1.8;margin-bottom:16px;">
+      <strong>Comment payer :</strong><br>
+      1. Note le numéro ci-dessus<br>
+      2. Ouvre <strong>Flooz</strong> ou <strong>TMoney</strong> sur ton téléphone<br>
+      3. Envoie le montant au numéro<br>
+      4. Dis-lui que tu as payé ! 📲
+    </div>
+    <button onclick="confirmClientPay()" style="width:100%;padding:14px;background:linear-gradient(135deg,#E8940A,#d4820a);color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;">✅ J'ai effectué le paiement</button>
+    <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:10px;">En cliquant, tu confirmes avoir envoyé le paiement au prestataire.</p>
   </div>
 </div>
 
