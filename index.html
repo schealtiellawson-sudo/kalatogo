@@ -2308,6 +2308,11 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
   <div class="container" style="padding-top:32px;padding-bottom:60px;">
     <div id="search-map"></div>
+    <div id="search-map-notice" style="display:none;align-items:center;gap:10px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:10px 16px;margin-top:10px;font-size:13px;color:#92400e;">
+      <span style="font-size:18px;">ℹ️</span>
+      <span id="search-map-notice-text"></span>
+      <button onclick="toggleMapView()" style="margin-left:auto;background:#111;color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">📋 Voir tous</button>
+    </div>
     <div id="search-cards" class="cards-grid">
       <div class="loading"><div class="spinner"></div> Chargement...</div>
     </div>
@@ -6565,6 +6570,8 @@ function toggleMapView() {
     btn.classList.remove('active');
     mapEl.style.display = 'none';
     cardsEl.style.display = 'grid';
+    const noticeEl = document.getElementById('search-map-notice');
+    if (noticeEl) noticeEl.style.display = 'none';
     if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
   }
 }
@@ -6599,13 +6606,15 @@ function renderSearchMap(records) {
   }
 
   let _activeMarker = null;
+  let countWithGPS = 0, countWithoutGPS = 0;
 
   const bounds = [];
   records.forEach(r => {
     const f = r.fields;
     const lat = parseFloat(f['GPS Lat'] || 0);
     const lon = parseFloat(f['GPS Lon'] || 0);
-    if (!lat || !lon) return;
+    if (!lat || !lon) { countWithoutGPS++; return; }
+    countWithGPS++;
     bounds.push([lat, lon]);
 
     const nom = f['Nom complet'] || 'Prestataire';
@@ -6698,6 +6707,19 @@ function renderSearchMap(records) {
     _searchMapInstance.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
   } else if (bounds.length === 1) {
     _searchMapInstance.setView(bounds[0], 14);
+  }
+
+  // Bandeau informatif si des prestataires sont hors carte
+  const noticeEl = document.getElementById('search-map-notice');
+  const noticeText = document.getElementById('search-map-notice-text');
+  if (noticeEl && noticeText) {
+    if (countWithoutGPS > 0) {
+      const total = countWithGPS + countWithoutGPS;
+      noticeText.innerHTML = `<strong>${countWithGPS} prestataire${countWithGPS > 1 ? 's' : ''} sur ${total}</strong> sont visibles sur la carte. <strong>${countWithoutGPS}</strong> autre${countWithoutGPS > 1 ? 's' : ''} (talents digitaux, sans adresse fixe) n'apparaissent pas ici — utilise la <strong>vue liste</strong> pour les voir tous.`;
+      noticeEl.style.display = 'flex';
+    } else {
+      noticeEl.style.display = 'none';
+    }
   }
 }
 
