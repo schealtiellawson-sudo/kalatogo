@@ -9381,7 +9381,7 @@ async function submitInscription(e) {
       }
     });
 
-    if (authError && !authError.message.includes('already registered')) {
+    if (authError && !authError.message.includes('already registered') && !authError.message.toLowerCase().includes('rate limit')) {
       toast('Erreur compte : ' + authError.message, 'error');
       btn.textContent = '✦ Créer mon profil';
       btn.disabled = false;
