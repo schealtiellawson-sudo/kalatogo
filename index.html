@@ -2368,6 +2368,16 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <p>Gratuit · 2 minutes · Visible immédiatement</p>
     </div>
 
+    <!-- Bannière Badge Fondateur -->
+    <div id="fondateur-banner" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #f59e0b;border-radius:16px;padding:14px 18px;margin-bottom:20px;text-align:center;display:none;">
+      <div style="font-size:22px;margin-bottom:4px;">🏅</div>
+      <div style="font-weight:800;font-size:15px;color:#92400e;">Badge Fondateur disponible</div>
+      <div style="font-size:13px;color:#b45309;margin-top:4px;">Il reste <strong id="fondateur-spots">...</strong> places sur 1 000 — réservé aux premiers inscrits. Tu l'obtiendras automatiquement.</div>
+      <div style="margin-top:8px;background:#f59e0b;border-radius:100px;height:6px;overflow:hidden;">
+        <div id="fondateur-bar" style="height:100%;background:#92400e;transition:width 0.5s;width:0%;"></div>
+      </div>
+    </div>
+
     <div class="progress-bar">
       <div class="progress-step active" id="pb-1"></div>
       <div class="progress-step" id="pb-2"></div>
@@ -5708,6 +5718,12 @@ function showPage(page) {
   if (page === 'fil') {
     if (!currentUser) { localStorage.setItem('kala_pending_page','fil'); showPage('login'); return; }
     loadFilPage();
+  }
+  if (page === 'inscription') {
+    setTimeout(() => loadFounderCounter(), 300);
+  }
+  if (page === 'home') {
+    setTimeout(() => loadFounderCounter(), 500);
   }
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
@@ -9270,6 +9286,51 @@ function onMetierChange(metier) {
   if (field) field.style.display = isDigitalMetier(metier) ? 'block' : 'none';
 }
 
+// ── Compteur prestataires pour badge Fondateur ──────────────────────
+async function countPrestataires() {
+  const cacheKey = 'kala_prest_count';
+  const cacheTime = 'kala_prest_count_ts';
+  const cached = localStorage.getItem(cacheKey);
+  const ts = parseInt(localStorage.getItem(cacheTime) || '0');
+  if (cached && Date.now() - ts < 30 * 60 * 1000) return parseInt(cached);
+  let total = 0, offset = null;
+  try {
+    do {
+      let url = AT_URL('Prestataires') + '?pageSize=100&fields[]=Nom+complet';
+      if (offset) url += '&offset=' + encodeURIComponent(offset);
+      const r = await fetch(url, { headers: AT_HEADERS });
+      if (!r.ok) break;
+      const d = await r.json();
+      total += (d.records || []).length;
+      offset = d.offset || null;
+    } while (offset && total < 1100);
+  } catch(e) { return 0; }
+  localStorage.setItem(cacheKey, total.toString());
+  localStorage.setItem(cacheTime, Date.now().toString());
+  return total;
+}
+
+async function loadFounderCounter() {
+  const total = await countPrestataires();
+  const remaining = Math.max(0, 1000 - total);
+  const pct = Math.min(100, (total / 1000) * 100);
+  // Bannière page inscription
+  const banner = document.getElementById('fondateur-banner');
+  const spotsEl = document.getElementById('fondateur-spots');
+  const barEl = document.getElementById('fondateur-bar');
+  if (banner && remaining > 0) {
+    banner.style.display = 'block';
+    if (spotsEl) spotsEl.textContent = remaining.toLocaleString('fr-FR');
+    if (barEl) barEl.style.width = pct + '%';
+  }
+  // CTA accueil
+  const ctaSpots = document.getElementById('cta-spots');
+  if (ctaSpots) ctaSpots.textContent = remaining > 0 ? remaining.toLocaleString('fr-FR') : '0 (complet)';
+  const ctaCounter = document.getElementById('cta-fondateur-counter');
+  if (ctaCounter && remaining === 0) ctaCounter.style.background = 'rgba(255,255,255,0.08)';
+  return total;
+}
+
 async function submitInscription(e) {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
@@ -9405,6 +9466,12 @@ async function submitInscription(e) {
     if (photo1Url) fields['Photo Réalisation 1'] = photo1Url;
     if (photo2Url) fields['Photo Réalisation 2'] = photo2Url;
     if (photo3Url) fields['Photo Réalisation 3'] = photo3Url;
+
+    setStep('Vérification du badge Fondateur…');
+    const totalPrest = await countPrestataires();
+    if (totalPrest < 1000) {
+      fields['Badge Fondateur'] = true;
+    }
 
     setStep('Enregistrement de ton profil…');
     const res = await fetch(AT_URL('Prestataires'), {
@@ -11660,7 +11727,13 @@ window.showDashSection = function(...args) { const r = _origShowDash?.(...args);
   <section style="background:linear-gradient(135deg,var(--vert-dark),var(--vert));padding:72px 0;">
     <div class="container" style="text-align:center;">
       <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;margin-bottom:16px;">Chaque jour qui passe, c'est un client qui ne te trouve pas.</h2>
-      <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:32px;">Pendant que tu lis ces lignes, un autre prestataire de ton quartier crée son profil. Il va apparaître avant toi. Prendre tes clients. Les premiers inscrits obtiennent le badge Fondateur à vie — une marque de confiance permanente que les retardataires n'auront jamais. 2 minutes. Gratuit. TMoney ou Flooz pour le Pro.</p>
+      <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:20px;">Pendant que tu lis ces lignes, un autre prestataire de ton quartier crée son profil. Il va apparaître avant toi. Et prendre tes clients.</p>
+      <div id="cta-fondateur-counter" style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,200,0,0.5);border-radius:100px;padding:10px 20px;margin-bottom:24px;">
+        <span style="font-size:18px;">🏅</span>
+        <span style="color:white;font-weight:700;font-size:15px;">Badge Fondateur — <span id="cta-spots">...</span> places restantes sur 1 000</span>
+      </div>
+      <br>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:28px;">Le badge Fondateur c'est une marque de confiance permanente sur ton profil. Une fois les 1 000 places prises, il disparaît pour toujours.</p>
       <button class="btn btn-or btn-lg" onclick="showPage('inscription')">✦ Créer mon profil maintenant — c'est gratuit</button>
     </div>
   </section>
