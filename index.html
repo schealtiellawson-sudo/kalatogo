@@ -6597,7 +6597,7 @@ function renderSearchMap(records) {
 
     const nom = f['Nom complet'] || 'Prestataire';
     const metier = f['Métier principal'] || '';
-    const note = f['Note moyenne'] ? `⭐ ${f['Note moyenne'].toFixed(1)}` : 'Pas d'avis';
+    const note = f['Note moyenne'] ? `⭐ ${f['Note moyenne'].toFixed(1)}` : 'Pas encore d\'avis';
     const isPro = f['Abonnement'] === 'Pro';
     const emoji = METIER_EMOJI[metier] || '⚡';
     const dispo = f['Disponible maintenant'];
