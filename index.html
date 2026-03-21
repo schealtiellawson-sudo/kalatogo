@@ -494,6 +494,15 @@ h1 .gold { color:var(--or); }
 /* Bouton filtre digital actif */
 #digital-btn.active { background:#6366f1; color:white; border-color:#6366f1; }
 .results-meta { font-size:14px; color:var(--gris); margin-top:20px; font-weight:500; }
+.pcard-distance { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--vert); background:#f0fdf4; border-radius:20px; padding:2px 8px; margin-top:4px; }
+#search-map { width:100%; height:520px; border-radius:18px; overflow:hidden; display:none; box-shadow:0 4px 24px rgba(0,0,0,0.10); margin-top:0; }
+.map-toggle-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }
+.map-toggle-btn { display:flex; align-items:center; gap:7px; background:white; border:1.5px solid #e2e8f0; border-radius:100px; padding:8px 18px; font-size:13px; font-weight:700; cursor:pointer; color:#111; transition:background .15s,border-color .15s; }
+.map-toggle-btn:hover, .map-toggle-btn.active { background:#111; color:white; border-color:#111; }
+.leaflet-popup-content { font-family:inherit; min-width:200px; }
+.map-popup-name { font-weight:800; font-size:15px; margin-bottom:2px; }
+.map-popup-meta { font-size:12px; color:#64748b; margin-bottom:6px; }
+.map-popup-btn { display:block; width:100%; background:#111; color:white; border:none; border-radius:8px; padding:8px 0; font-size:13px; font-weight:700; cursor:pointer; margin-top:8px; }
 
 /* ══════════════════════════════════════
    PAGE PROFIL
@@ -2287,11 +2296,15 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <option value="20000">Moins de 20 000 FCFA</option>
         </select>
       </div>
-      <div class="results-meta" id="results-meta">Chargement...</div>
+      <div class="map-toggle-bar">
+        <div class="results-meta" id="results-meta">Chargement...</div>
+        <button class="map-toggle-btn" id="map-toggle-btn" onclick="toggleMapView()">🗺️ Vue carte</button>
+      </div>
     </div>
   </div>
 
   <div class="container" style="padding-top:32px;padding-bottom:60px;">
+    <div id="search-map"></div>
     <div id="search-cards" class="cards-grid">
       <div class="loading"><div class="spinner"></div> Chargement...</div>
     </div>
@@ -6178,6 +6191,31 @@ function renderStars(note) {
   return '★'.repeat(full) + '☆'.repeat(5 - full);
 }
 
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = x => x * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function formatDistance(m) {
+  if (m < 1000) return `${Math.round(m / 10) * 10} m`;
+  if (m < 10000) return `${(m / 1000).toFixed(1).replace('.',',')} km`;
+  return `${Math.round(m / 1000)} km`;
+}
+function getUserLocation() {
+  if (window._userLat !== undefined) return;
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    window._userLat = pos.coords.latitude;
+    window._userLon = pos.coords.longitude;
+    if (window._lastSearchRecords) {
+      const c = document.getElementById('search-cards');
+      if (c && c.style.display !== 'none') c.innerHTML = window._lastSearchRecords.map(r => renderCard(r)).join('');
+    }
+  }, () => {}, { timeout: 6000 });
+}
+
 function renderCard(record) {
   const f = record.fields;
   const nom = f['Nom complet'] || 'Prestataire';
@@ -6193,6 +6231,14 @@ function renderCard(record) {
   const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
   const emoji = METIER_EMOJI[metier] || '⚡';
 
+  // Distance badge
+  let distBadge = '';
+  const pLat = parseFloat(f['GPS Lat'] || 0), pLon = parseFloat(f['GPS Lon'] || 0);
+  if (pLat && pLon && window._userLat !== undefined) {
+    const d = haversineDistance(window._userLat, window._userLon, pLat, pLon);
+    distBadge = `<span class="pcard-distance">📍 à ${formatDistance(d)}</span>`;
+  }
+
   const waMsg = encodeURIComponent(`Bonjour ${nom}, je t'ai trouvé sur KalaTogo. Je suis intéressé par tes services de ${metier}. Tu es disponible ?`);
   const waLink = tel ? `https://wa.me/${tel}?text=${waMsg}` : '#';
 
@@ -6203,6 +6249,7 @@ function renderCard(record) {
           <div style="flex:1;min-width:0;">
             <div class="pcard-name">${nom}</div>
             <div class="pcard-meta">📍 ${quartier}</div>
+            ${distBadge}
             ${dispo ? '<div class="pcard-dispo" style="margin-top:6px;"><div class="dispo-dot"></div> Disponible</div>' : ''}
           </div>
           <div class="pcard-avatar" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;">
@@ -6495,10 +6542,95 @@ function quickFilter(metier) {
   }, 100);
 }
 
+// ── Map view state ──────────────────────────────────────────────
+let _mapViewActive = false;
+let _searchMapInstance = null;
+
+function toggleMapView() {
+  _mapViewActive = !_mapViewActive;
+  const btn = document.getElementById('map-toggle-btn');
+  const mapEl = document.getElementById('search-map');
+  const cardsEl = document.getElementById('search-cards');
+  if (_mapViewActive) {
+    btn.textContent = '📋 Vue liste';
+    btn.classList.add('active');
+    mapEl.style.display = 'block';
+    cardsEl.style.display = 'none';
+    renderSearchMap(window._lastSearchRecords || []);
+  } else {
+    btn.textContent = '🗺️ Vue carte';
+    btn.classList.remove('active');
+    mapEl.style.display = 'none';
+    cardsEl.style.display = 'grid';
+    if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
+  }
+}
+
+function renderSearchMap(records) {
+  if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
+  const mapEl = document.getElementById('search-map');
+  if (!mapEl) return;
+
+  // Center: Lomé by default, or user location if available
+  const centerLat = window._userLat || 6.1375;
+  const centerLon = window._userLon || 1.2123;
+
+  _searchMapInstance = L.map('search-map', { zoomControl: true }).setView([centerLat, centerLon], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+  }).addTo(_searchMapInstance);
+
+  // User marker
+  if (window._userLat) {
+    L.circleMarker([window._userLat, window._userLon], {
+      radius: 9, color: '#111', fillColor: '#22c55e', fillOpacity: 1, weight: 2
+    }).addTo(_searchMapInstance).bindPopup('<strong>📍 Ma position</strong>');
+  }
+
+  const bounds = [];
+  records.forEach(r => {
+    const f = r.fields;
+    const lat = parseFloat(f['GPS Lat'] || 0);
+    const lon = parseFloat(f['GPS Lon'] || 0);
+    if (!lat || !lon) return;
+    bounds.push([lat, lon]);
+
+    const nom = f['Nom complet'] || 'Prestataire';
+    const metier = f['Métier principal'] || '';
+    const note = f['Note moyenne'] ? `⭐ ${f['Note moyenne'].toFixed(1)}` : 'Pas d'avis';
+    const isPro = f['Abonnement'] === 'Pro';
+    const emoji = METIER_EMOJI[metier] || '⚡';
+    const dispo = f['Disponible maintenant'];
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="background:${isPro ? '#f59e0b' : '#111'};color:white;border-radius:100px;padding:5px 11px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid white;">${emoji} ${metier.split('/')[0]}</div>`,
+      iconAnchor: [0, 0]
+    });
+
+    const marker = L.marker([lat, lon], { icon }).addTo(_searchMapInstance);
+    marker.bindPopup(`
+      <div class="leaflet-popup-content" style="min-width:180px;">
+        <div class="map-popup-name">${nom}${isPro ? ' ⭐' : ''}</div>
+        <div class="map-popup-meta">${emoji} ${metier} • ${f['Quartier'] || ''}</div>
+        <div class="map-popup-meta">${note}${dispo ? ' • 🟢 Dispo' : ''}</div>
+        <button class="map-popup-btn" onclick="showProfil('${r.id}')">👤 Voir le profil</button>
+      </div>
+    `);
+  });
+
+  if (bounds.length > 1) {
+    _searchMapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+  } else if (bounds.length === 1) {
+    _searchMapInstance.setView(bounds[0], 14);
+  }
+}
+
 async function loadSearch() {
   const container = document.getElementById('search-cards');
   const meta = document.getElementById('results-meta');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Recherche...</div>';
+  getUserLocation();
 
   const metier = document.getElementById('s-metier')?.value || '';
   const quartier = document.getElementById('s-quartier')?.value || '';
@@ -6508,6 +6640,7 @@ async function loadSearch() {
     let records = await fetchPrestataires({ metier, quartier, dispo: dispoFilter, tarifMax: tarifMax ? parseInt(tarifMax) : null });
     // Filtre Talents Digitaux côté client (pas de champ Airtable requis)
     if (digitalFilter) records = records.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
+    window._lastSearchRecords = records;
     meta.textContent = `${records.length} prestataire${records.length !== 1 ? 's' : ''} trouvé${records.length !== 1 ? 's' : ''}`;
 
     if (records.length === 0) {
@@ -6516,10 +6649,12 @@ async function loadSearch() {
         <h3>Aucun résultat</h3>
         <p>Essaie d'élargir ta recherche ou de changer les filtres.</p>
       </div>`;
+      if (_mapViewActive) renderSearchMap([]);
       return;
     }
 
     container.innerHTML = records.map(r => renderCard(r)).join('');
+    if (_mapViewActive) renderSearchMap(records);
   } catch (e) {
     console.warn('Airtable inaccessible recherche:', e?.message);
     let filtered = MOCK_PRESTATAIRES.filter(r => {
@@ -6528,10 +6663,12 @@ async function loadSearch() {
       return true;
     });
     if (digitalFilter) filtered = filtered.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
+    window._lastSearchRecords = filtered;
     meta.textContent = `${filtered.length} prestataire${filtered.length !== 1 ? 's' : ''} (démo)`;
     container.innerHTML = filtered.length
       ? filtered.map(r => renderCard(r)).join('')
       : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🔍</div><h3>Aucun résultat</h3><p>Essaie d'autres filtres.</p></div>`;
+    if (_mapViewActive) renderSearchMap(filtered);
   }
 }
 
