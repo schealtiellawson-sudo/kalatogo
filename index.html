@@ -495,7 +495,10 @@ h1 .gold { color:var(--or); }
 #digital-btn.active { background:#6366f1; color:white; border-color:#6366f1; }
 .results-meta { font-size:14px; color:var(--gris); margin-top:20px; font-weight:500; }
 .pcard-distance { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--vert); background:#f0fdf4; border-radius:20px; padding:2px 8px; margin-top:4px; }
-#search-map { width:100%; height:520px; border-radius:18px; overflow:hidden; display:none; box-shadow:0 4px 24px rgba(0,0,0,0.10); margin-top:0; }
+#search-map { width:100%; height:580px; border-radius:18px; overflow:hidden; display:none; box-shadow:0 4px 24px rgba(0,0,0,0.10); margin-top:0; }
+#search-map .leaflet-popup-content-wrapper { border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,.18); padding:14px 20px; border:none; }
+#search-map .leaflet-popup-tip-container { display:none; }
+#search-map .leaflet-popup-content { margin:0; }
 .map-toggle-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }
 .map-toggle-btn { display:flex; align-items:center; gap:7px; background:white; border:1.5px solid #e2e8f0; border-radius:100px; padding:8px 18px; font-size:13px; font-weight:700; cursor:pointer; color:#111; transition:background .15s,border-color .15s; }
 .map-toggle-btn:hover, .map-toggle-btn.active { background:#111; color:white; border-color:#111; }
@@ -6571,21 +6574,31 @@ function renderSearchMap(records) {
   const mapEl = document.getElementById('search-map');
   if (!mapEl) return;
 
-  // Center: Lomé by default, or user location if available
   const centerLat = window._userLat || 6.1375;
   const centerLon = window._userLon || 1.2123;
 
-  _searchMapInstance = L.map('search-map', { zoomControl: true }).setView([centerLat, centerLon], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap', maxZoom: 19
+  _searchMapInstance = L.map('search-map', { zoomControl: false }).setView([centerLat, centerLon], 13);
+
+  // Carto Voyager — tuiles propres style Airbnb
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://carto.com/">CARTO</a> © OpenStreetMap',
+    subdomains: 'abcd', maxZoom: 19
   }).addTo(_searchMapInstance);
 
-  // User marker
+  L.control.zoom({ position: 'bottomright' }).addTo(_searchMapInstance);
+
+  // Marqueur position utilisateur — point bleu
   if (window._userLat) {
-    L.circleMarker([window._userLat, window._userLon], {
-      radius: 9, color: '#111', fillColor: '#22c55e', fillOpacity: 1, weight: 2
+    L.divIcon && L.marker([window._userLat, window._userLon], {
+      icon: L.divIcon({
+        className: '',
+        html: `<div style="width:16px;height:16px;background:#2563eb;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(37,99,235,.5);"></div>`,
+        iconSize: [16,16], iconAnchor: [8,8]
+      })
     }).addTo(_searchMapInstance).bindPopup('<strong>📍 Ma position</strong>');
   }
+
+  let _activeMarker = null;
 
   const bounds = [];
   records.forEach(r => {
@@ -6596,31 +6609,93 @@ function renderSearchMap(records) {
     bounds.push([lat, lon]);
 
     const nom = f['Nom complet'] || 'Prestataire';
+    const initiale = nom.charAt(0).toUpperCase();
     const metier = f['Métier principal'] || '';
-    const note = f['Note moyenne'] ? `⭐ ${f['Note moyenne'].toFixed(1)}` : 'Pas encore d\'avis';
-    const isPro = f['Abonnement'] === 'Pro';
     const emoji = METIER_EMOJI[metier] || '⚡';
+    const note = f['Note moyenne'];
+    const noteStr = note ? `⭐ ${note.toFixed(1)}` : 'Pas encore d\'avis';
+    const tarif = f['Tarif minimum FCFA'];
+    const isPro = f['Abonnement'] === 'Pro';
     const dispo = f['Disponible maintenant'];
+    const photo = f['Photo de profil']?.[0]?.url || '';
 
-    const icon = L.divIcon({
+    // Bordure : vert si dispo, or si Pro, noir sinon
+    const borderColor = dispo ? '#22c55e' : isPro ? '#f59e0b' : '#111';
+    const size = 52;
+
+    const makeIcon = (active) => L.divIcon({
       className: '',
-      html: `<div style="background:${isPro ? '#f59e0b' : '#111'};color:white;border-radius:100px;padding:5px 11px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid white;">${emoji} ${metier.split('/')[0]}</div>`,
-      iconAnchor: [0, 0]
+      html: `
+        <div style="
+          position:relative;
+          width:${size}px;height:${size}px;
+          border-radius:50%;
+          border:3px solid ${active ? '#111' : borderColor};
+          box-shadow:${active ? '0 4px 20px rgba(0,0,0,.40)' : '0 2px 10px rgba(0,0,0,.22)'};
+          overflow:hidden;
+          background:#f1f5f9;
+          transform:${active ? 'scale(1.18)' : 'scale(1)'};
+          transition:transform .15s;
+          cursor:pointer;
+        ">
+          ${photo
+            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;background:${isPro ? '#f59e0b' : '#1b7a4a'};">${initiale}</div>`
+          }
+          ${dispo ? `<div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:#22c55e;"></div>` : ''}
+        </div>
+        <div style="
+          position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+          width:0;height:0;
+          border-left:6px solid transparent;
+          border-right:6px solid transparent;
+          border-top:8px solid ${active ? '#111' : borderColor};
+        "></div>
+      `,
+      iconSize: [size, size + 8],
+      iconAnchor: [size/2, size + 8]
     });
 
-    const marker = L.marker([lat, lon], { icon }).addTo(_searchMapInstance);
-    marker.bindPopup(`
-      <div class="leaflet-popup-content" style="min-width:180px;">
-        <div class="map-popup-name">${nom}${isPro ? ' ⭐' : ''}</div>
-        <div class="map-popup-meta">${emoji} ${metier} • ${f['Quartier'] || ''}</div>
-        <div class="map-popup-meta">${note}${dispo ? ' • 🟢 Dispo' : ''}</div>
-        <button class="map-popup-btn" onclick="showProfil('${r.id}')">👤 Voir le profil</button>
+    const marker = L.marker([lat, lon], { icon: makeIcon(false) }).addTo(_searchMapInstance);
+
+    // Popup card style Airbnb
+    const popupHtml = `
+      <div style="font-family:inherit;width:220px;">
+        <div style="width:220px;height:128px;border-radius:10px 10px 0 0;overflow:hidden;background:#f1f5f9;margin:-14px -20px 10px -20px;">
+          ${photo
+            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:900;color:white;background:${isPro ? '#f59e0b' : '#1b7a4a'};">${initiale}</div>`
+          }
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+          <div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;">${nom}</div>
+          ${isPro ? '<span style="background:#f59e0b;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">⭐ Pro</span>' : ''}
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:3px;">${emoji} ${metier} · ${f['Quartier'] || 'Lomé'}</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:10px;">${noteStr}${dispo ? ' · <span style="color:#22c55e;font-weight:700;">Dispo</span>' : ''}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:13px;font-weight:800;">${tarif ? `${tarif.toLocaleString('fr-FR')} <span style="font-weight:400;font-size:11px;">FCFA</span>` : '<span style="font-size:11px;color:#94a3b8;">Tarif libre</span>'}</div>
+          <button onclick="showProfil('${r.id}')" style="background:#111;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;">Voir profil</button>
+        </div>
       </div>
-    `);
+    `;
+
+    marker.bindPopup(popupHtml, { maxWidth: 240, offset: [0, -8] });
+
+    marker.on('click', () => {
+      if (_activeMarker && _activeMarker !== marker) _activeMarker._kalaSetInactive();
+      marker.setIcon(makeIcon(true));
+      marker._kalaSetInactive = () => marker.setIcon(makeIcon(false));
+      _activeMarker = marker;
+    });
+    marker.on('popupclose', () => {
+      marker.setIcon(makeIcon(false));
+      if (_activeMarker === marker) _activeMarker = null;
+    });
   });
 
   if (bounds.length > 1) {
-    _searchMapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    _searchMapInstance.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
   } else if (bounds.length === 1) {
     _searchMapInstance.setView(bounds[0], 14);
   }
