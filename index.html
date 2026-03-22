@@ -5048,7 +5048,7 @@ async function loadDashOverview() {
   }
 
   // ── Vues — champ Airtable (total) ──
-  const totalViews = f['Nombre de vues'] || 0;
+  const totalViews = f['Nombre de vues profil'] || 0;
   document.getElementById('kpi-views').textContent = totalViews;
 
   // ── WhatsApp clics — champ Airtable (Pro only visible complet) ──
@@ -7441,7 +7441,7 @@ async function submitPost(recordId) {
         'Likes':          0,
         'Date':           new Date().toISOString(),
         'Auteur Nom':     currentPrestataire?.fields?.['Nom complet'] || '',
-        'Auteur Photo':   currentPrestataire?.fields?.['WhatsApp'] || '',
+        'Auteur Photo':   currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || '',
         'Commentaires':   '[]'
       }})
     });
@@ -7732,7 +7732,7 @@ async function submitComment(recordId, postId) {
     comments.push({
       id: Date.now().toString(), texte,
       auteur: auteurCommentaire,
-      auteurPhoto: currentPrestataire?.fields?.['WhatsApp'] || '',
+      auteurPhoto: currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || '',
       auteurId: currentPrestataire?.id || null,
       date: new Date().toISOString()
     });
@@ -12153,7 +12153,7 @@ function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
   document.getElementById('modal-cand-submit-btn').disabled = false;
   // Afficher le résumé du profil
   const score = calculScoreKala(currentPrestataire);
-  const photo = f['Photo Profil'] || '';
+  const photo = f['Photo de profil']?.[0]?.url || '';
   document.getElementById('modal-cand-profil').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:900;overflow:hidden;flex-shrink:0;">
@@ -12206,7 +12206,7 @@ async function submitCandidature() {
     const offreTitre = offreData.fields?.['Titre'] || '';
 
     const score = calculScoreKala(currentPrestataire);
-    const photo = f['Photo Profil'] || '';
+    const photo = f['Photo de profil']?.[0]?.url || '';
 
     const body = {
       fields: {
@@ -12341,7 +12341,7 @@ async function loadMesCandidatures() {
 function loadCVKala() {
   if (!currentPrestataire) return;
   const f = currentPrestataire.fields;
-  const photo = f['Photo Profil'] || '';
+  const photo = f['Photo de profil']?.[0]?.url || '';
   const score = calculScoreKala(currentPrestataire);
 
   const photoEl = document.getElementById('cv-photo');
@@ -12371,7 +12371,7 @@ function genererCVPDF() {
   if (!currentPrestataire) return;
   const f = currentPrestataire.fields;
   const score = calculScoreKala(currentPrestataire);
-  const photo = f['Photo Profil'] || '';
+  const photo = f['Photo de profil']?.[0]?.url || '';
   const win = window.open('', '_blank');
   win.document.write(`<!DOCTYPE html><html><head><title>CV KALA — ${f['Nom complet']||''}</title>
   <style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1a1a;}
