@@ -9280,6 +9280,7 @@ async function showProfil(recordId) {
                 ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Fondateur</span>' : ''}
                 ${note > 0 ? `<span class="badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">${starsHtml(note)} ${note.toFixed(1)}</span>` : ''}
                 ${isDigital ? '<span class="badge" style="background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);">🎓 Talent Digital</span>' : ''}
+                ${f['Mode Emploi'] ? '<span class="badge" style="background:rgba(27,122,74,0.2);color:#4ade80;border:1px solid rgba(27,122,74,0.4);">💼 Ouvert aux opportunités</span>' : ''}
               </div>
 
               <!-- Boutons d'action -->
