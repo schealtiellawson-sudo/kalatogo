@@ -1199,6 +1199,35 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 </div>
 <style>
 @keyframes kala-bar { from{width:16px;opacity:0.4} to{width:36px;opacity:1} }
+
+/* ══ EMPLOI BADGES & CARDS ══ */
+.offre-card {
+  background:white;border-radius:16px;padding:20px;box-shadow:var(--shadow);
+  border:1.5px solid #e5e7eb;transition:all 0.2s;cursor:default;
+}
+.offre-card:hover { transform:translateY(-2px);box-shadow:var(--shadow-lg); }
+.badge-urgente {
+  display:inline-flex;align-items:center;gap:4px;
+  background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;
+  padding:3px 10px;border-radius:100px;font-size:11px;font-weight:800;
+  text-transform:uppercase;letter-spacing:0.5px;
+  animation:pulse-urgente 2s infinite;
+}
+@keyframes pulse-urgente {
+  0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.3);}
+  50%{box-shadow:0 0 0 4px rgba(220,38,38,0);}
+}
+.badge-cdi { background:#dcfce7;color:#166534; }
+.badge-cdd { background:#fed7aa;color:#9a3412; }
+.badge-stage { background:#dbeafe;color:#1e40af; }
+.badge-mission { background:#fef3c7;color:#92400e; }
+.badge-benevole { background:#f3e8ff;color:#6b21a8; }
+.badge-alternance { background:#e0f2fe;color:#0369a1; }
+.statut-badge { display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700; }
+.statut-attente { background:#f3f4f6;color:#6b7280; }
+.statut-vue { background:#dbeafe;color:#1e40af; }
+.statut-retenue { background:#dcfce7;color:#166534; }
+.statut-refusee { background:#fef2f2;color:#dc2626; }
 </style>
 
 <!-- NAV -->
@@ -1208,6 +1237,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <div class="nav-links" id="nav-links-desktop">
       <button class="nav-link" onclick="showPage('home')">Accueil</button>
       <button class="nav-link" onclick="showPage('search')">Trouver un pro</button>
+      <button class="nav-link" onclick="showPage('emploi')" style="color:var(--vert);font-weight:700;">💼 Offres d'emploi</button>
       <button class="nav-link" onclick="showPage('fonctionnement')">Comment ça marche</button>
       <button class="nav-link" onclick="showPage('apropos')">À propos</button>
       <!-- Boutons non connecté -->
@@ -1244,6 +1274,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <button onclick="showPage('home');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏠 Accueil</button>
     <button onclick="showPage('search');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🔍 Trouver un pro</button>
     <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
+    <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 Offres d'emploi</button>
     <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💡 Comment ça marche</button>
     <button onclick="showPage('apropos');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">👤 À propos</button>
     <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
@@ -1339,12 +1370,13 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <div class="container hero-content">
       <div class="hero-grid">
         <div>
-          <div class="hero-eyebrow">✦ 86,4% des pros togolais sont invisibles en ligne — tu en fais partie ?</div>
-          <h1 class="hero-title">Chaque jour sans<br><em>visibilité,</em><br><span class="gold">c'est des clients perdus.</span> <span class="hero-live-badge"><span class="hero-live-dot"></span>En ligne</span></h1>
-          <p class="hero-sub">46% des jeunes sans emploi malgré les diplômes. TikTok coupé en 2025 — des business arrêtés du jour au lendemain. Le bouche-à-oreille ne suffit plus. <strong>Tu mérites une infrastructure qui t'appartient.</strong> KalaTogo — ton profil pro, visible partout au Togo. <strong>Gratuit. Dès aujourd'hui.</strong></p>
-          <div class="hero-actions">
-            <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">✦ Créer mon profil</button>
-            <button class="btn btn-secondary btn-lg" onclick="showPage('search')">Trouver un pro</button>
+          <div class="hero-eyebrow">✦ La marketplace de l'emploi et des services au Togo</div>
+          <h1 class="hero-title">Trouve du travail.<br><em>Trouve des clients.</em><br><span class="gold">Sans piston.</span> <span class="hero-live-badge"><span class="hero-live-dot"></span>En ligne</span></h1>
+          <p class="hero-sub">KalaTogo connecte les Togolais qui ont des compétences avec ceux qui en ont besoin. Prestataires, employeurs, candidats — tout le monde trouve sa place.</p>
+          <div class="hero-actions" style="flex-wrap:wrap;gap:10px;">
+            <button class="btn btn-primary btn-lg" onclick="showPage('emploi')" style="background:var(--vert);">🎯 Je cherche du travail →</button>
+            <button class="btn btn-or btn-lg" onclick="showPage('search')">🔧 Je cherche un professionnel →</button>
+            <button class="btn btn-dark btn-lg" onclick="showDashSection('recrut-publier');showPage('dashboard')">👔 Je recrute →</button>
           </div>
           <div class="hero-proof">
             <div class="proof-avatars">
@@ -2159,6 +2191,106 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     </div>
   </section>
 
+  <!-- SECTION : LE PROBLÈME -->
+  <section style="background:#f8f6f1;padding:72px 0 56px;">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <div class="badge" style="background:rgba(220,38,38,0.1);color:#dc2626;margin-bottom:14px;">La réalité togolaise</div>
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;max-width:660px;margin:0 auto;">Le problème qu'on résout</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1000px;margin:0 auto;">
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(220,38,38,0.12);box-shadow:0 2px 16px rgba(0,0,0,0.05);">
+          <div style="font-family:Fraunces,serif;font-size:48px;font-weight:900;color:#dc2626;margin-bottom:8px;">46%</div>
+          <p style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">des jeunes sans emploi</p>
+          <p style="font-size:13px;color:var(--gris);line-height:1.6;">"T'as le diplôme mais pas de travail"</p>
+        </div>
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(220,38,38,0.12);box-shadow:0 2px 16px rgba(0,0,0,0.05);">
+          <div style="font-family:Fraunces,serif;font-size:48px;font-weight:900;color:#dc2626;margin-bottom:8px;">87%</div>
+          <p style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">des travailleurs invisibles</p>
+          <p style="font-size:13px;color:var(--gris);line-height:1.6;">"Je suis artisan mais personne ne sait que j'existe à 2km"</p>
+        </div>
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(220,38,38,0.12);box-shadow:0 2px 16px rgba(0,0,0,0.05);">
+          <div style="font-size:48px;margin-bottom:8px;">🚫</div>
+          <p style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">Sans piston = sans chance</p>
+          <p style="font-size:13px;color:var(--gris);line-height:1.6;">"Le recrutement formel est fermé sans connexions"</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION : KALA C'EST LE PONT -->
+  <section style="background:var(--noir);padding:72px 0;">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;color:white;max-width:800px;margin:0 auto;">Les prestataires existent. Les recruteurs existent. Les candidats existent.<br><em style="color:var(--or);">Le problème c'est qu'ils ne se trouvent pas.</em></h2>
+        <p style="color:rgba(255,255,255,0.6);font-size:17px;margin-top:16px;">KalaTogo est le pont.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;">
+        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(27,122,74,0.3);text-align:center;">
+          <div style="font-size:36px;margin-bottom:12px;">🔧</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;">Pour les prestataires</h3>
+          <p style="font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7;">Crée ton profil, sois trouvé par des clients ET des employeurs</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;width:100%;justify-content:center;" onclick="showPage('inscription')">Créer mon profil →</button>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.3);text-align:center;">
+          <div style="font-size:36px;margin-bottom:12px;">👔</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;">Pour les recruteurs</h3>
+          <p style="font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7;">Trouve les bons profils, vérifiés, notés, dans ton quartier</p>
+          <button class="btn btn-or btn-sm" style="margin-top:16px;width:100%;justify-content:center;" onclick="showDashSection('recrut-publier');showPage('dashboard')">Publier une offre →</button>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:28px;border:1.5px solid rgba(99,102,241,0.3);text-align:center;">
+          <div style="font-size:36px;margin-bottom:12px;">🎯</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:white;margin-bottom:10px;">Pour les chercheurs d'emploi</h3>
+          <p style="font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7;">Postule en 1 clic avec ton profil KalaTogo</p>
+          <button class="btn btn-sm" style="margin-top:16px;width:100%;justify-content:center;background:#6366f1;color:white;" onclick="showPage('emploi')">Voir les offres →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION : COMMENT ÇA MARCHE (3 étapes) -->
+  <section style="background:white;padding:72px 0;">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px;">
+        <div class="badge badge-vert" style="margin-bottom:14px;">Simple · Gratuit · Togolais</div>
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;">Comment ça marche ?</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px;max-width:900px;margin:0 auto;">
+        <div style="text-align:center;">
+          <div style="width:60px;height:60px;background:var(--vert);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 20px;color:white;font-family:Fraunces,serif;font-weight:900;font-size:22px;">1</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;">Crée ton profil en 2 minutes</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Gratuit. Nom, métier, quartier, photo. Tu es visible immédiatement.</p>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:60px;height:60px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-family:Fraunces,serif;font-weight:900;font-size:22px;margin:0 auto 20px;">2</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;">Active "Je cherche du travail" ou publie une offre</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Un simple toggle dans ton dashboard. Les opportunités arrivent à toi.</p>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:26px;margin:0 auto 20px;">💬</div>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;">Connecte-toi directement via WhatsApp</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Pas d'intermédiaire. Contact direct. Tu négocies comme tu veux.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION : OFFRES D'EMPLOI RÉCENTES -->
+  <section style="background:var(--blanc);padding:72px 0;">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="badge badge-vert" style="margin-bottom:8px;">Nouvelles opportunités</div>
+          <h2 style="font-family:Fraunces,serif;font-size:32px;font-weight:900;">Offres d'emploi récentes</h2>
+        </div>
+        <button class="btn btn-secondary" onclick="showPage('emploi')">Voir toutes les offres →</button>
+      </div>
+      <div id="home-offres-emploi" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
+        <div class="loading"><div class="spinner"></div> Chargement des offres...</div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -2315,6 +2447,88 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <div id="search-map"></div>
     <div id="search-cards" class="cards-grid">
       <div class="loading"><div class="spinner"></div> Chargement...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE EMPLOI
+══════════════════════════════════════════ -->
+<div id="page-emploi" class="page">
+  <!-- HERO -->
+  <section style="background:var(--noir);padding:60px 0 40px;position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 30% 50%,rgba(27,122,74,0.15) 0%,transparent 70%);"></div>
+    <div class="container" style="position:relative;z-index:1;">
+      <div style="max-width:700px;">
+        <div class="badge" style="background:rgba(27,122,74,0.2);color:#4ade80;margin-bottom:16px;">💼 Marketplace Emploi KalaTogo</div>
+        <h1 style="color:white;font-size:clamp(28px,4vw,48px);margin-bottom:14px;">Offres d'emploi au Togo</h1>
+        <p style="color:rgba(255,255,255,0.7);font-size:16px;margin-bottom:24px;">Postule en 1 clic avec ton profil KalaTogo. Pas de CV Word. Pas de piston.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-or" onclick="showDashSection('recrut-publier');showPage('dashboard')">📢 Publier une offre →</button>
+          <span style="color:rgba(255,255,255,0.4);font-size:13px;">Réservé aux comptes Pro</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTRES -->
+  <div style="background:white;border-bottom:1px solid #e5e7eb;padding:16px 0;position:sticky;top:68px;z-index:100;">
+    <div class="container">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="emploi-search-q" placeholder="🔍 Rechercher (titre, métier...)" style="flex:1;min-width:200px;padding:10px 16px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;" oninput="filterOffres()">
+        <select id="emploi-filter-metier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;background:white;cursor:pointer;">
+          <option value="">Tous les métiers</option>
+          <option>Plombier</option><option>Électricien</option><option>Menuisier</option><option>Maçon</option>
+          <option>Peintre</option><option>Soudeur</option><option>Mécanicien</option><option>Coiffeur</option>
+          <option>Couturier</option><option>Cuisinier</option><option>Photographe</option><option>Graphiste</option>
+          <option>Développeur web</option><option>Commercial/Agent</option><option>Gardien</option>
+          <option>Chauffeur</option><option>Enseignant/Formateur</option><option>Comptable</option>
+          <option>Secrétaire</option><option>Agent de sécurité</option><option>Infirmier</option><option>Autre</option>
+        </select>
+        <select id="emploi-filter-quartier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;background:white;cursor:pointer;">
+          <option value="">Tous les quartiers</option>
+          <option>Lomé Centre</option><option>Adidogomé</option><option>Tokoin</option><option>Bè</option>
+          <option>Agoè</option><option>Hédzranawoé</option><option>Kodjoviakopé</option><option>Djidjolé</option>
+          <option>Nyékonakpoè</option><option>Cassablanca</option><option>Avédji</option><option>Attiégou</option><option>Autre</option>
+        </select>
+        <select id="emploi-filter-contrat" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;background:white;cursor:pointer;">
+          <option value="">Tous les contrats</option>
+          <option>CDI</option><option>CDD</option><option>Mission ponctuelle</option><option>Stage</option><option>Bénévole</option><option>Alternance</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTE OFFRES -->
+  <div class="container" style="padding-top:32px;padding-bottom:60px;">
+    <div id="emploi-count" style="font-size:13px;color:var(--gris);margin-bottom:16px;"></div>
+    <div id="emploi-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
+      <div class="loading"><div class="spinner"></div> Chargement des offres...</div>
+    </div>
+    <!-- Pagination -->
+    <div id="emploi-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:36px;flex-wrap:wrap;"></div>
+  </div>
+</div>
+
+<!-- MODAL CANDIDATURE -->
+<div class="modal-overlay" id="modal-candidature" style="display:none;z-index:10001;">
+  <div class="modal" style="max-width:500px;">
+    <button class="modal-close" onclick="document.getElementById('modal-candidature').style.display='none'">✕</button>
+    <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:6px;">📨 Postuler à cette offre</h3>
+    <p id="modal-cand-titre" style="color:var(--gris);font-size:14px;margin-bottom:20px;"></p>
+
+    <!-- Profil auto-rempli -->
+    <div id="modal-cand-profil" style="background:var(--blanc);border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid #e5e7eb;"></div>
+
+    <!-- Message optionnel -->
+    <label style="font-weight:700;font-size:14px;display:block;margin-bottom:6px;">Message au recruteur (optionnel)</label>
+    <textarea id="modal-cand-message" placeholder="Parle de ta motivation, ton expérience pertinente..." style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px;font-size:14px;font-family:inherit;resize:vertical;min-height:100px;outline:none;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+
+    <div id="modal-cand-error" style="color:#dc2626;font-size:13px;margin-top:8px;display:none;"></div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-candidature').style.display='none'" style="flex:1;justify-content:center;">Annuler</button>
+      <button class="btn btn-primary" id="modal-cand-submit-btn" onclick="submitCandidature()" style="flex:2;justify-content:center;">✅ Envoyer ma candidature</button>
     </div>
   </div>
 </div>
@@ -2923,6 +3137,29 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <button class="dash-link" onclick="showDashSection('historique-paiements')" id="dl-historique-paiements">
         <span class="icon">💰</span> Paiements reçus
       </button>
+      <h3>Emploi</h3>
+      <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
+        <span class="icon">💼</span> Mode Emploi
+      </button>
+      <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
+        <span class="icon">📋</span> Mes candidatures
+      </button>
+      <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
+        <span class="icon">📄</span> Mon CV KALA
+      </button>
+      <!-- Recrutement (Pro only) -->
+      <div id="dl-recrut-section" style="display:none;">
+        <h3>Recrutement</h3>
+        <button class="dash-link" onclick="showDashSection('recrut-publier')" id="dl-recrut-publier" style="color:var(--or);font-weight:700;">
+          <span class="icon">📢</span> Publier une offre
+        </button>
+        <button class="dash-link" onclick="showDashSection('recrut-offres')" id="dl-recrut-offres">
+          <span class="icon">📂</span> Mes offres
+        </button>
+        <button class="dash-link" onclick="showDashSection('recrut-candidatures')" id="dl-recrut-candidatures">
+          <span class="icon">👥</span> Candidatures reçues
+        </button>
+      </div>
       <h3>Clients</h3>
       <button class="dash-link" onclick="showDashSection('avis')" id="dl-avis">
         <span class="icon">⭐</span> Mes avis
@@ -3859,6 +4096,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
               <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Gestion avis prioritaire</div>
               <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> Support KALA prioritaire</div>
               <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Programme parrainage 40%</strong> — revenus récurrents à vie</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Publier des offres d'emploi</strong> — recrutez des profils vérifiés</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Accès aux candidatures</strong> — gérez vos recrutements</div>
+              <div style="font-size:13px;color:var(--gris-fonce);display:flex;gap:7px;"><span style="color:var(--or);">✓</span> <strong>Badge Recruteur Vérifié</strong> sur vos offres publiées</div>
             </div>
             <button id="btn-plan-Pro" class="btn btn-or" style="width:100%;justify-content:center;font-size:15px;" onclick="upgradePlan('Pro',2500)">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
             <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:12px;">
@@ -4027,6 +4267,209 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
             <div style="font-size:24px;font-weight:900;color:var(--vert);font-family:Fraunces,serif;" id="retrait-amount-display">0 FCFA disponible</div>
             <button class="btn btn-primary" id="retrait-btn" onclick="requestWithdrawal()">Demander le retrait →</button>
           </div>
+        </div>
+      </div>
+
+      <!-- EMPLOI : MODE EMPLOI -->
+      <div class="dash-section" id="ds-emploi-mode">
+        <div class="dash-header">
+          <h2>💼 Mode Emploi</h2>
+          <p>Indique que tu es ouvert aux opportunités d'emploi — les recruteurs pourront te trouver.</p>
+        </div>
+
+        <div id="emploi-mode-individuel-only" style="display:none;background:#fef3dc;border:1.5px solid var(--or);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <p style="font-size:14px;color:#92400e;">⚠️ Le mode emploi est réservé aux profils individuels. Si ton compte est un commerce ou restaurant, crée un second compte avec ton profil personnel pour postuler à des emplois.</p>
+        </div>
+
+        <div id="emploi-mode-toggle-wrap" style="background:white;border-radius:20px;padding:32px;box-shadow:var(--shadow);text-align:center;max-width:480px;margin:0 auto;">
+          <div style="font-size:48px;margin-bottom:16px;">🎯</div>
+          <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:8px;">Je suis ouvert aux opportunités d'emploi</h3>
+          <p style="font-size:14px;color:var(--gris);margin-bottom:24px;line-height:1.7;">Quand activé :<br>• Badge "Ouvert aux opportunités" sur ton profil public<br>• Ton profil apparaît dans les recherches des recruteurs<br>• Tu peux postuler aux offres d'emploi</p>
+
+          <!-- Toggle stylé -->
+          <label style="display:inline-flex;align-items:center;gap:16px;cursor:pointer;">
+            <span style="font-weight:700;font-size:16px;" id="emploi-mode-label-off">Désactivé</span>
+            <div style="position:relative;width:64px;height:34px;" onclick="toggleModeEmploi()">
+              <input type="checkbox" id="emploi-mode-checkbox" style="opacity:0;width:0;height:0;position:absolute;">
+              <div id="emploi-mode-track" style="position:absolute;inset:0;background:#e5e7eb;border-radius:100px;transition:background 0.3s;"></div>
+              <div id="emploi-mode-thumb" style="position:absolute;top:3px;left:3px;width:28px;height:28px;background:white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:transform 0.3s;"></div>
+            </div>
+            <span style="font-weight:700;font-size:16px;color:var(--vert);" id="emploi-mode-label-on">Activé</span>
+          </label>
+
+          <p style="font-size:12px;color:var(--gris);margin-top:20px;" id="emploi-mode-status-text">Mode emploi désactivé</p>
+        </div>
+      </div>
+
+      <!-- EMPLOI : MES CANDIDATURES -->
+      <div class="dash-section" id="ds-emploi-candidatures">
+        <div class="dash-header">
+          <h2>📋 Mes candidatures</h2>
+          <p>Toutes tes candidatures à des offres d'emploi.</p>
+        </div>
+        <div id="mes-candidatures-list">
+          <div class="loading"><div class="spinner"></div> Chargement...</div>
+        </div>
+      </div>
+
+      <!-- EMPLOI : MON CV KALA -->
+      <div class="dash-section" id="ds-emploi-cv">
+        <div class="dash-header">
+          <h2>📄 Mon CV KalaTogo</h2>
+          <p>Généré automatiquement depuis ton profil. Plus ton profil est complet, plus ton CV est fort.</p>
+        </div>
+        <div id="cv-kala-preview" style="background:white;border-radius:16px;padding:28px;box-shadow:var(--shadow);max-width:600px;margin:0 auto;">
+          <div style="text-align:center;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--gris);letter-spacing:1px;text-transform:uppercase;">CV KALATOGO</div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:2px solid var(--vert-light);">
+            <div id="cv-photo" style="width:72px;height:72px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:28px;color:white;font-weight:900;flex-shrink:0;overflow:hidden;"></div>
+            <div>
+              <div id="cv-nom" style="font-family:Fraunces,serif;font-size:22px;font-weight:900;"></div>
+              <div id="cv-metier" style="color:var(--vert);font-weight:700;font-size:15px;"></div>
+              <div id="cv-quartier" style="color:var(--gris);font-size:13px;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:20px;">
+            <div style="background:var(--vert-light);border-radius:10px;padding:10px 16px;text-align:center;flex:1;">
+              <div id="cv-score" style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:var(--vert);">—</div>
+              <div style="font-size:11px;color:var(--gris);font-weight:700;">Score KALA</div>
+            </div>
+            <div style="background:var(--or-light);border-radius:10px;padding:10px 16px;text-align:center;flex:1;">
+              <div id="cv-note" style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:var(--or);">—</div>
+              <div style="font-size:11px;color:var(--gris);font-weight:700;">Note /5</div>
+            </div>
+            <div style="background:#ede9fe;border-radius:10px;padding:10px 16px;text-align:center;flex:1;">
+              <div id="cv-avis" style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#7c3aed;">—</div>
+              <div style="font-size:11px;color:var(--gris);font-weight:700;">Avis</div>
+            </div>
+          </div>
+          <div id="cv-description" style="font-size:14px;color:var(--gris-fonce);line-height:1.7;margin-bottom:20px;"></div>
+          <div id="cv-photos" style="display:flex;gap:8px;margin-bottom:20px;"></div>
+          <div style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--gris);">
+            <span id="cv-wa" style="font-weight:600;"></span>
+            <span>·</span>
+            <span id="cv-exp" style="font-weight:600;"></span>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:20px;">
+          <button class="btn btn-primary" onclick="genererCVPDF()">⬇️ Télécharger mon CV (PDF)</button>
+        </div>
+      </div>
+
+      <!-- RECRUTEMENT : PUBLIER UNE OFFRE -->
+      <div class="dash-section" id="ds-recrut-publier">
+        <div class="dash-header">
+          <h2>📢 Publier une offre d'emploi</h2>
+          <p>Trouve les bons profils parmi les prestataires KalaTogo.</p>
+        </div>
+
+        <!-- Lock pour non-Pro -->
+        <div id="recrut-pro-lock" style="display:none;background:linear-gradient(135deg,#fef3dc,#fffbeb);border:2px solid var(--or);border-radius:16px;padding:28px;text-align:center;margin-bottom:20px;">
+          <div style="font-size:40px;margin-bottom:12px;">🔒</div>
+          <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:8px;">Fonctionnalité réservée au Plan Pro</h3>
+          <p style="color:var(--gris);font-size:14px;margin-bottom:16px;">Passe au Plan Pro pour publier des offres d'emploi et accéder à la liste des candidats.</p>
+          <button class="btn btn-or" onclick="showDashSection('abonnement')">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
+        </div>
+
+        <div id="recrut-form-wrap">
+          <div style="background:white;border-radius:16px;padding:28px;box-shadow:var(--shadow);max-width:600px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+              <div style="grid-column:1/-1;">
+                <label class="form-label">Titre du poste *</label>
+                <input type="text" id="recrut-titre" placeholder="Ex: Électricien qualifié pour chantier" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Métier recherché *</label>
+                <select id="recrut-metier" class="form-input">
+                  <option value="">Choisir...</option>
+                  <option>Plombier</option><option>Électricien</option><option>Menuisier</option><option>Maçon</option>
+                  <option>Peintre</option><option>Soudeur</option><option>Mécanicien</option><option>Coiffeur</option>
+                  <option>Couturier</option><option>Cuisinier</option><option>Photographe</option><option>Graphiste</option>
+                  <option>Développeur web</option><option>Commercial/Agent</option><option>Gardien</option>
+                  <option>Chauffeur</option><option>Enseignant/Formateur</option><option>Comptable</option>
+                  <option>Secrétaire</option><option>Agent de sécurité</option><option>Infirmier</option><option>Autre</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Quartier</label>
+                <select id="recrut-quartier" class="form-input">
+                  <option value="">Choisir...</option>
+                  <option>Lomé Centre</option><option>Adidogomé</option><option>Tokoin</option><option>Bè</option>
+                  <option>Agoè</option><option>Hédzranawoé</option><option>Kodjoviakopé</option><option>Djidjolé</option>
+                  <option>Nyékonakpoè</option><option>Cassablanca</option><option>Avédji</option><option>Attiégou</option><option>Autre</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Type de contrat *</label>
+                <select id="recrut-contrat" class="form-input">
+                  <option value="">Choisir...</option>
+                  <option>CDI</option><option>CDD</option><option>Mission ponctuelle</option><option>Stage</option><option>Bénévole</option><option>Alternance</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Expérience requise</label>
+                <select id="recrut-experience" class="form-input">
+                  <option value="">Peu importe</option>
+                  <option>Aucune</option><option>1-2 ans</option><option>3-5 ans</option><option>5+ ans</option>
+                </select>
+              </div>
+              <div style="grid-column:1/-1;">
+                <label class="form-label">Description du poste *</label>
+                <textarea id="recrut-description" placeholder="Décris le poste, les missions, les horaires, les conditions..." class="form-input" style="min-height:120px;resize:vertical;"></textarea>
+              </div>
+              <div>
+                <label class="form-label">Salaire min (FCFA)</label>
+                <input type="number" id="recrut-salaire-min" placeholder="Ex: 50000" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Salaire max (FCFA)</label>
+                <input type="number" id="recrut-salaire-max" placeholder="Ex: 100000" class="form-input">
+              </div>
+              <div style="grid-column:1/-1;display:flex;gap:20px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px;">
+                  <input type="checkbox" id="recrut-afficher-salaire" style="width:18px;height:18px;accent-color:var(--vert);"> Afficher le salaire
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px;">
+                  <input type="checkbox" id="recrut-urgente" style="width:18px;height:18px;accent-color:#dc2626;"> Offre urgente
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px;">
+                  <input type="checkbox" id="recrut-teletravail" style="width:18px;height:18px;accent-color:var(--vert);"> Télétravail possible
+                </label>
+              </div>
+              <div>
+                <label class="form-label">Date d'expiration</label>
+                <input type="date" id="recrut-expiration" class="form-input">
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="publierOffre()" style="width:100%;justify-content:center;">📢 Publier l'offre</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECRUTEMENT : MES OFFRES -->
+      <div class="dash-section" id="ds-recrut-offres">
+        <div class="dash-header">
+          <h2>📂 Mes offres publiées</h2>
+          <p>Gérez vos offres d'emploi et suivez les candidatures.</p>
+        </div>
+        <div id="mes-offres-list">
+          <div class="loading"><div class="spinner"></div> Chargement...</div>
+        </div>
+      </div>
+
+      <!-- RECRUTEMENT : CANDIDATURES REÇUES -->
+      <div class="dash-section" id="ds-recrut-candidatures">
+        <div class="dash-header">
+          <h2>👥 Candidatures reçues</h2>
+          <p>Les candidats qui ont postulé à vos offres.</p>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-weight:700;font-size:14px;margin-right:8px;">Filtrer par offre :</label>
+          <select id="recrut-cand-filter-offre" onchange="loadCandidaturesRecues(this.value)" class="form-input" style="max-width:300px;display:inline-block;">
+            <option value="">Toutes les offres</option>
+          </select>
+        </div>
+        <div id="candidatures-recues-list">
+          <div class="loading"><div class="spinner"></div> Chargement...</div>
         </div>
       </div>
 
@@ -4300,6 +4743,12 @@ function showDashSection(section) {
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
   if (section === 'fil') loadFil();
+  if (section === 'emploi-mode') loadEmploiMode();
+  if (section === 'emploi-candidatures') loadMesCandidatures();
+  if (section === 'emploi-cv') loadCVKala();
+  if (section === 'recrut-publier') initRecrutPublier();
+  if (section === 'recrut-offres') loadMesOffres();
+  if (section === 'recrut-candidatures') loadCandidaturesRecues();
 }
 
 async function loadDashboard() {
@@ -4311,6 +4760,10 @@ async function loadDashboard() {
   document.getElementById('dash-welcome').textContent = `Bonjour ${nom.split(' ')[0]} 👋`;
   loadDashOverview();
   updateNotifBadge(currentPrestataire?.id);
+  // Afficher section recrutement pour Pro
+  const isPro = currentPrestataire?.fields?.['Abonnement'] === 'Pro';
+  const recrutSection = document.getElementById('dl-recrut-section');
+  if (recrutSection) recrutSection.style.display = isPro ? 'block' : 'none';
 }
 
 // ══ MÉTRIQUES QUOTIDIENNES (localStorage) ══
@@ -5708,12 +6161,13 @@ function showPage(page) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi'];
   if (publicPages.includes(page))  localStorage.setItem('kala_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('kala_last_page', page);
 
   if (page === 'home') initHome();
   if (page === 'search') loadSearch();
+  if (page === 'emploi') showPageEmploi();
   if (page === 'inscription') resetInscriptionForm();
   if (page === 'fil') {
     if (!currentUser) { localStorage.setItem('kala_pending_page','fil'); showPage('login'); return; }
@@ -5730,6 +6184,8 @@ function showPage(page) {
       setTimeout(() => {
         const faqContainer = document.getElementById('faq-list');
         if (faqContainer && faqContainer.children.length === 0 && typeof renderFAQ === 'function') renderFAQ();
+        // Show default tab
+        switchFonctTab('client');
       }, 80);
     }
   }
@@ -11392,8 +11848,680 @@ if (document.readyState === 'loading') {
 // Re-appliquer après chaque navigation (showPage crée du nouveau HTML)
 const _origShowPage = window.showPage;
 window.showPage = function(...args) { const r = _origShowPage?.(...args); setTimeout(_fixAutocomplete, 100); return r; };
+// ── Score KALA simplifié (synchrone, depuis les champs Airtable) ──
+function calculScoreKala(presta) {
+  if (!presta) return 0;
+  const f = presta.fields;
+  const note = f['Note moyenne'] || 0;
+  const nbAvis = f['Nombre d\'avis reçus'] || 0;
+  const vues = f['Nombre de vues profil'] || 0;
+  const completion = f['Profil complété %'] ? Math.round(f['Profil complété %'] * 100) : 0;
+  const photos = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean).length;
+  const scoreComp  = Math.round(completion * 0.30);
+  const scoreNote  = Math.round((note / 5) * 25);
+  const scoreAvis  = Math.min(nbAvis * 2, 15);
+  const scorePhoto = Math.min(photos * 3, 10);
+  const scoreVues  = Math.min(Math.floor(vues / 10), 10);
+  return Math.min(scoreComp + scoreNote + scoreAvis + scorePhoto + scoreVues, 100);
+}
+
+// ── Onglets page fonctionnement ──
+function switchFonctTab(tab) {
+  const tabs = ['client','emploi','recrut','presta'];
+  tabs.forEach(t => {
+    const section = document.getElementById('tab-' + t);
+    const btn = document.getElementById('tab-btn-' + t);
+    if (section) section.style.display = t === tab ? 'block' : 'none';
+    if (btn) {
+      if (t === tab) {
+        btn.style.background = 'var(--vert)';
+        btn.style.color = 'white';
+        btn.style.borderColor = 'var(--vert)';
+      } else {
+        btn.style.background = 'white';
+        btn.style.color = 'var(--gris-fonce)';
+        btn.style.borderColor = '#e5e7eb';
+      }
+    }
+  });
+}
+
 const _origShowDash = window.showDashSection;
 window.showDashSection = function(...args) { const r = _origShowDash?.(...args); setTimeout(_fixAutocomplete, 100); return r; };
+
+// ══════════════════════════════════════════
+// MARKETPLACE EMPLOI
+// ══════════════════════════════════════════
+
+let _offresCache = [];
+let _offresCurrent = []; // filtered
+let _offresPage = 1;
+const _OFFRES_PER_PAGE = 12;
+let _currentOffreId = null;
+
+// ── Charger les offres depuis Airtable ──
+async function loadOffresEmploi(filtres = {}) {
+  const url = AT_URL("Offres d'Emploi");
+  let formula = "AND({Active}=1";
+  if (filtres.metier) formula += `,{Métier}="${filtres.metier}"`;
+  if (filtres.quartier) formula += `,{Quartier}="${filtres.quartier}"`;
+  if (filtres.contrat) formula += `,{Type de contrat}="${filtres.contrat}"`;
+  formula += ")";
+  const params = new URLSearchParams({ filterByFormula: formula, sort: '[{"field":"Urgente","direction":"desc"},{"field":"Créée le","direction":"desc"}]', maxRecords: 200 });
+  const r = await fetch(url + '?' + params, { headers: AT_HEADERS });
+  const data = await r.json();
+  return data.records || [];
+}
+
+// ── Rendu d'une carte offre ──
+function renderOffreEmploi(offre) {
+  const f = offre.fields;
+  const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : '?';
+  const contrat = f['Type de contrat'] || '';
+  const contratClass = { 'CDI':'badge-cdi','CDD':'badge-cdd','Stage':'badge-stage','Mission ponctuelle':'badge-mission','Bénévole':'badge-benevole','Alternance':'badge-alternance' }[contrat] || 'badge-gris';
+  const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
+    ? `${(f['Salaire min FCFA']).toLocaleString()}${f['Salaire max FCFA'] ? ' – ' + f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
+    : 'À négocier';
+
+  return `<div class="offre-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
+      <div>
+        ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span> ' : ''}
+        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">${f['Titre'] || 'Sans titre'}</h3>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;">
+      🏢 ${f['Recruteur Nom'] || 'Recruteur'}
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+      ${f['Quartier'] ? `<span class="badge badge-gris">📍 ${f['Quartier']}</span>` : ''}
+      ${contrat ? `<span class="badge ${contratClass}">${contrat}</span>` : ''}
+      ${f['Expérience requise'] ? `<span class="badge badge-gris">💼 ${f['Expérience requise']}</span>` : ''}
+      ${f['Télétravail possible'] ? `<span class="badge" style="background:#e0f2fe;color:#0369a1;">💻 Télétravail</span>` : ''}
+    </div>
+    <div style="font-size:15px;font-weight:800;color:var(--vert);margin-bottom:14px;">💰 ${salaire}</div>
+    ${f['Description'] ? `<p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${f['Description']}</p>` : ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+      <span style="font-size:12px;color:var(--gris);">Il y a ${joursDepuis === 0 ? "aujourd'hui" : joursDepuis + ' jour(s)'}</span>
+      <div style="display:flex;gap:8px;">
+        ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${f['Recruteur WhatsApp'].replace(/\D/g,'')}?text=Bonjour, j'ai vu votre offre '${encodeURIComponent(f['Titre']||'')}' sur KalaTogo" target="_blank" class="btn btn-wa btn-sm">💬 Contacter</a>` : ''}
+        <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${offre.id}','${(f['Titre']||'').replace(/'/g,"\\'")}','${(f['Recruteur ID']||'')}')">✅ Postuler en 1 clic</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Page emploi principale ──
+async function showPageEmploi() {
+  const container = document.getElementById('emploi-list');
+  if (!container) return;
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement des offres...</div>';
+  document.getElementById('emploi-count').textContent = '';
+  try {
+    _offresCache = await loadOffresEmploi();
+    _offresCurrent = _offresCache;
+    _offresPage = 1;
+    renderOffresPage();
+  } catch(e) {
+    container.innerHTML = '<p style="text-align:center;color:var(--gris);padding:40px;">Erreur de chargement des offres.</p>';
+  }
+}
+
+function renderOffresPage() {
+  const container = document.getElementById('emploi-list');
+  const countEl = document.getElementById('emploi-count');
+  if (!container) return;
+  const total = _offresCurrent.length;
+  const start = (_offresPage - 1) * _OFFRES_PER_PAGE;
+  const end = Math.min(start + _OFFRES_PER_PAGE, total);
+  const page = _offresCurrent.slice(start, end);
+
+  countEl.textContent = `${total} offre${total > 1 ? 's' : ''} trouvée${total > 1 ? 's' : ''}`;
+
+  if (page.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--gris);"><div style="font-size:48px;margin-bottom:16px;">💼</div><p style="font-size:16px;font-weight:600;">Aucune offre pour ces critères</p><p style="margin-top:8px;font-size:14px;">Essaie d\'autres filtres ou reviens plus tard.</p></div>';
+    document.getElementById('emploi-pagination').innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = page.map(renderOffreEmploi).join('');
+
+  // Pagination
+  const totalPages = Math.ceil(total / _OFFRES_PER_PAGE);
+  let paginHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    paginHTML += `<button onclick="_offresPage=${i};renderOffresPage();window.scrollTo({top:200})" style="width:36px;height:36px;border-radius:50%;border:2px solid ${i===_offresPage?'var(--vert)':'#e5e7eb'};background:${i===_offresPage?'var(--vert)':'white'};color:${i===_offresPage?'white':'var(--gris-fonce)'};font-weight:700;cursor:pointer;transition:.15s;">${i}</button>`;
+  }
+  document.getElementById('emploi-pagination').innerHTML = paginHTML;
+}
+
+function filterOffres() {
+  const q = (document.getElementById('emploi-search-q')?.value || '').toLowerCase();
+  const metier = document.getElementById('emploi-filter-metier')?.value || '';
+  const quartier = document.getElementById('emploi-filter-quartier')?.value || '';
+  const contrat = document.getElementById('emploi-filter-contrat')?.value || '';
+
+  _offresCurrent = _offresCache.filter(o => {
+    const f = o.fields;
+    if (metier && f['Métier'] !== metier) return false;
+    if (quartier && f['Quartier'] !== quartier) return false;
+    if (contrat && f['Type de contrat'] !== contrat) return false;
+    if (q) {
+      const haystack = ((f['Titre']||'') + ' ' + (f['Description']||'') + ' ' + (f['Métier']||'')).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+  _offresPage = 1;
+  renderOffresPage();
+}
+
+// ── Offres récentes (homepage) ──
+async function loadHomeOffresEmploi() {
+  const container = document.getElementById('home-offres-emploi');
+  if (!container) return;
+  try {
+    const offres = await loadOffresEmploi({});
+    const recent = offres.slice(0, 4);
+    if (recent.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><p>Aucune offre disponible pour l\'instant.</p><button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="showPage(\'inscription\')">Publier une offre →</button></div>';
+      return;
+    }
+    container.innerHTML = recent.map(renderOffreEmploi).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="text-align:center;color:var(--gris);padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+// Appeler depuis initHome
+const _origInitHome = window.initHome;
+window.initHome = function() {
+  if (_origInitHome) _origInitHome();
+  setTimeout(loadHomeOffresEmploi, 400);
+};
+
+// ── Modal de candidature ──
+function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
+  _currentOffreId = offreId;
+  const modal = document.getElementById('modal-candidature');
+  document.getElementById('modal-cand-titre').textContent = offreTitre;
+  document.getElementById('modal-cand-message').value = '';
+  document.getElementById('modal-cand-error').style.display = 'none';
+
+  if (!currentUser || !currentPrestataire) {
+    document.getElementById('modal-cand-profil').innerHTML = '<p style="text-align:center;color:var(--gris);font-size:14px;">🔒 <a onclick="showPage(\'login\')" style="color:var(--vert);cursor:pointer;font-weight:700;">Connecte-toi</a> pour postuler à cette offre.</p>';
+    document.getElementById('modal-cand-submit-btn').disabled = true;
+    modal.style.display = 'flex';
+    return;
+  }
+
+  const f = currentPrestataire.fields;
+  const typeProfil = f['Type de profil'] || '';
+  if (typeProfil && typeProfil !== 'Individuel' && typeProfil.toLowerCase().includes('commerce')) {
+    document.getElementById('modal-cand-profil').innerHTML = '<div style="background:#fef3dc;border:1.5px solid var(--or);border-radius:10px;padding:12px;font-size:13px;color:#92400e;">⚠️ Les offres d\'emploi sont réservées aux profils individuels. Tu peux créer un second compte avec ton profil personnel.</div>';
+    document.getElementById('modal-cand-submit-btn').disabled = true;
+    modal.style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('modal-cand-submit-btn').disabled = false;
+  // Afficher le résumé du profil
+  const score = calculScoreKala(currentPrestataire);
+  const photo = f['Photo Profil'] || '';
+  document.getElementById('modal-cand-profil').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:900;overflow:hidden;flex-shrink:0;">
+        ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (f['Nom complet']||'?')[0]}
+      </div>
+      <div>
+        <div style="font-weight:800;font-size:15px;">${f['Nom complet']||'—'}</div>
+        <div style="color:var(--vert);font-size:13px;font-weight:600;">${f['Métier principal']||''}</div>
+        <div style="font-size:12px;color:var(--gris);">Score KALA : <strong>${score}/100</strong> · 📍 ${f['Quartier']||''}</div>
+      </div>
+    </div>`;
+
+  modal.style.display = 'flex';
+  // Stocker le recruteur ID pour la soumission
+  modal.dataset.recruteurId = recruteurId;
+}
+
+async function submitCandidature() {
+  if (!currentUser || !currentPrestataire) { toast('Connecte-toi pour postuler', 'error'); return; }
+  const f = currentPrestataire.fields;
+  const typeProfil = f['Type de profil'] || '';
+  if (typeProfil && typeProfil !== 'Individuel' && typeProfil.toLowerCase().includes('commerce')) {
+    toast('Les offres d\'emploi sont réservées aux profils individuels', 'error'); return;
+  }
+
+  const message = document.getElementById('modal-cand-message').value;
+  const btn = document.getElementById('modal-cand-submit-btn');
+  const errEl = document.getElementById('modal-cand-error');
+  const modal = document.getElementById('modal-candidature');
+  const recruteurId = modal.dataset.recruteurId || '';
+
+  // Vérifier si déjà candidaté
+  const checkUrl = AT_URL('Candidatures');
+  const checkParams = new URLSearchParams({ filterByFormula: `AND({Offre ID}="${_currentOffreId}",{Candidat ID}="${currentPrestataire.id}")`, maxRecords: 1 });
+  const checkR = await fetch(checkUrl + '?' + checkParams, { headers: AT_HEADERS });
+  const checkData = await checkR.json();
+  if (checkData.records?.length > 0) {
+    errEl.textContent = 'Tu as déjà postulé à cette offre.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi...';
+
+  // Récupérer le titre de l'offre
+  const offreR = await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, { headers: AT_HEADERS });
+  const offreData = await offreR.json();
+  const offreTitre = offreData.fields?.['Titre'] || '';
+
+  const score = calculScoreKala(currentPrestataire);
+  const photo = f['Photo Profil'] || '';
+
+  const body = {
+    fields: {
+      'Offre ID': _currentOffreId,
+      'Offre Titre': offreTitre,
+      'Candidat ID': currentPrestataire.id,
+      'Candidat Nom': f['Nom complet'] || '',
+      'Candidat Métier': f['Métier principal'] || '',
+      'Candidat WhatsApp': f['WhatsApp'] || f['Numéro de téléphone'] || '',
+      'Candidat Score KALA': score,
+      'Candidat Photo': photo,
+      'Message': message,
+      'Statut': 'En attente',
+      'Date candidature': new Date().toISOString(),
+      'Recruteur ID': recruteurId
+    }
+  };
+
+  try {
+    const r = await fetch(AT_URL('Candidatures'), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify(body) });
+    const data = await r.json();
+    if (data.id) {
+      // Incrémenter Nb candidatures sur l'offre
+      await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { 'Nb candidatures': (offreData.fields?.['Nb candidatures'] || 0) + 1 } })
+      });
+      toast('✅ Candidature envoyée avec succès !', 'success');
+      document.getElementById('modal-candidature').style.display = 'none';
+    } else {
+      throw new Error(data.error?.message || 'Erreur');
+    }
+  } catch(e) {
+    errEl.textContent = 'Erreur : ' + e.message;
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✅ Envoyer ma candidature';
+}
+
+// ── Dashboard : Mode Emploi ──
+async function loadEmploiMode() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const typeProfil = f['Type de profil'] || '';
+  const isCommerce = typeProfil && typeProfil !== 'Individuel' && (typeProfil.toLowerCase().includes('commerce') || typeProfil.toLowerCase().includes('restaurant'));
+
+  document.getElementById('emploi-mode-individuel-only').style.display = isCommerce ? 'block' : 'none';
+  document.getElementById('emploi-mode-toggle-wrap').style.opacity = isCommerce ? '0.5' : '1';
+  document.getElementById('emploi-mode-toggle-wrap').style.pointerEvents = isCommerce ? 'none' : 'auto';
+
+  const actif = !!f['Mode Emploi'];
+  _updateEmploiModeUI(actif);
+}
+
+function _updateEmploiModeUI(actif) {
+  const track = document.getElementById('emploi-mode-track');
+  const thumb = document.getElementById('emploi-mode-thumb');
+  const statusText = document.getElementById('emploi-mode-status-text');
+  const labelOn = document.getElementById('emploi-mode-label-on');
+  const labelOff = document.getElementById('emploi-mode-label-off');
+
+  if (track) track.style.background = actif ? 'var(--vert)' : '#e5e7eb';
+  if (thumb) thumb.style.transform = actif ? 'translateX(30px)' : 'translateX(0)';
+  if (statusText) statusText.textContent = actif ? '✅ Mode emploi activé — tu apparais dans les recherches des recruteurs' : 'Mode emploi désactivé';
+  if (labelOn) labelOn.style.opacity = actif ? '1' : '0.4';
+  if (labelOff) labelOff.style.opacity = actif ? '0.4' : '1';
+  if (currentPrestataire) currentPrestataire.fields['Mode Emploi'] = actif;
+}
+
+async function toggleModeEmploi() {
+  if (!currentPrestataire) return;
+  const actif = !currentPrestataire.fields['Mode Emploi'];
+  _updateEmploiModeUI(actif);
+  try {
+    await fetch(AT_URL('Prestataires') + '/' + currentPrestataire.id, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Mode Emploi': actif } })
+    });
+    toast(actif ? '✅ Mode emploi activé !' : 'Mode emploi désactivé', 'info');
+  } catch(e) {
+    _updateEmploiModeUI(!actif);
+    toast('Erreur de sauvegarde', 'error');
+  }
+}
+
+// ── Dashboard : Mes candidatures ──
+async function loadMesCandidatures() {
+  if (!currentPrestataire) return;
+  const container = document.getElementById('mes-candidatures-list');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    const params = new URLSearchParams({ filterByFormula: `{Candidat ID}="${currentPrestataire.id}"`, sort: '[{"field":"Date candidature","direction":"desc"}]', maxRecords: 100 });
+    const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
+    const data = await r.json();
+    const cands = data.records || [];
+
+    if (cands.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gris);">
+        <div style="font-size:48px;margin-bottom:16px;">📋</div>
+        <p style="font-size:16px;font-weight:600;">Tu n'as pas encore postulé à une offre.</p>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="showPage('emploi')">Découvrir les offres →</button>
+      </div>`;
+      return;
+    }
+
+    const statutClass = { 'En attente':'statut-attente', 'Vue':'statut-vue', 'Retenue':'statut-retenue', 'Refusée':'statut-refusee' };
+    container.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr style="border-bottom:2px solid #e5e7eb;text-align:left;">
+        <th style="padding:10px 12px;">Offre</th>
+        <th style="padding:10px 12px;">Entreprise</th>
+        <th style="padding:10px 12px;">Date</th>
+        <th style="padding:10px 12px;">Statut</th>
+      </tr></thead>
+      <tbody>${cands.map(c => {
+        const f = c.fields;
+        const d = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+        const sc = statutClass[f['Statut']] || 'statut-attente';
+        return `<tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:12px;">${f['Offre Titre']||'—'}</td>
+          <td style="padding:12px;color:var(--gris);">${f['Recruteur ID']||'—'}</td>
+          <td style="padding:12px;color:var(--gris);">${d}</td>
+          <td style="padding:12px;"><span class="statut-badge ${sc}">${f['Statut']||'En attente'}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  } catch(e) {
+    container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+// ── Dashboard : CV KalaTogo ──
+function loadCVKala() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const photo = f['Photo Profil'] || '';
+  const score = calculScoreKala(currentPrestataire);
+
+  const photoEl = document.getElementById('cv-photo');
+  if (photoEl) {
+    photoEl.innerHTML = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (f['Nom complet']||'?')[0];
+  }
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('cv-nom', f['Nom complet'] || '—');
+  set('cv-metier', f['Métier principal'] || '');
+  set('cv-quartier', '📍 ' + (f['Quartier'] || ''));
+  set('cv-score', score);
+  set('cv-note', f['Note moyenne'] ? Number(f['Note moyenne']).toFixed(1) : '—');
+  set('cv-avis', f['Nombre d\'avis reçus'] || '—');
+  set('cv-description', f['Description des services'] || 'Aucune description renseignée.');
+  set('cv-wa', f['WhatsApp'] ? '📱 ' + f['WhatsApp'] : '');
+  set('cv-exp', f['Années d\'expérience'] ? f['Années d\'expérience'] + ' ans d\'expérience' : '');
+
+  // Photos réalisations
+  const photosEl = document.getElementById('cv-photos');
+  if (photosEl) {
+    const photos = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
+    photosEl.innerHTML = photos.map(p => `<img src="${p}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;">`).join('');
+  }
+}
+
+function genererCVPDF() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const score = calculScoreKala(currentPrestataire);
+  const photo = f['Photo Profil'] || '';
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>CV KALA — ${f['Nom complet']||''}</title>
+  <style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1a1a;}
+  h1{font-size:28px;margin:0;}h2{font-size:16px;color:#1B7A4A;border-bottom:2px solid #1B7A4A;padding-bottom:6px;}
+  .header{display:flex;gap:20px;align-items:center;margin-bottom:28px;border-bottom:3px solid #1B7A4A;padding-bottom:20px;}
+  .avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;}
+  .badge-kala{display:inline-block;background:#1B7A4A;color:white;padding:4px 14px;border-radius:100px;font-size:13px;font-weight:bold;}
+  .score{font-size:24px;font-weight:900;color:#1B7A4A;} .gris{color:#666;font-size:13px;}
+  .photos{display:flex;gap:8px;} .photo-real{width:120px;height:100px;object-fit:cover;border-radius:8px;}
+  @media print{body{margin:0;}}</style></head><body>
+  <div class="header">
+    ${photo ? `<img src="${photo}" class="avatar">` : ''}
+    <div>
+      <h1>${f['Nom complet']||'—'}</h1>
+      <div style="color:#1B7A4A;font-weight:bold;font-size:16px;">${f['Métier principal']||''}</div>
+      <div class="gris">📍 ${f['Quartier']||''} · ${f['WhatsApp']||f['Numéro de téléphone']||''}</div>
+      <div style="margin-top:6px;"><span class="badge-kala">Score KALA : ${score}/100</span></div>
+    </div>
+  </div>
+  ${f['Description des services'] ? `<h2>À propos</h2><p>${f['Description des services']}</p>` : ''}
+  <div style="display:flex;gap:20px;margin:16px 0;">
+    <div><strong>Note :</strong> ${f['Note moyenne'] ? Number(f['Note moyenne']).toFixed(1) + '/5' : '—'}</div>
+    <div><strong>Avis :</strong> ${f['Nombre d\'avis reçus']||0}</div>
+    <div><strong>Expérience :</strong> ${f['Années d\'expérience'] ? f['Années d\'expérience'] + ' ans' : '—'}</div>
+  </div>
+  ${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).length > 0 ? `<h2>Réalisations</h2><div class="photos">${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).map(p=>`<img src="${p}" class="photo-real">`).join('')}</div>` : ''}
+  <p style="margin-top:28px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:10px;">CV généré par KalaTogo · kalatogo.vercel.app · ${new Date().toLocaleDateString('fr-FR')}</p>
+  <script>window.onload=()=>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ── Dashboard : Publier une offre ──
+function initRecrutPublier() {
+  if (!currentPrestataire) return;
+  const isPro = currentPrestataire.fields?.['Abonnement'] === 'Pro';
+  const lockEl = document.getElementById('recrut-pro-lock');
+  const formEl = document.getElementById('recrut-form-wrap');
+  if (lockEl) lockEl.style.display = isPro ? 'none' : 'block';
+  if (formEl) formEl.style.display = isPro ? 'block' : 'none';
+}
+
+async function publierOffre() {
+  if (!currentPrestataire) return;
+  if (currentPrestataire.fields?.['Abonnement'] !== 'Pro') {
+    toast('Fonctionnalité réservée au Plan Pro', 'error'); return;
+  }
+  const f = currentPrestataire.fields;
+  const get = id => document.getElementById(id)?.value?.trim() || '';
+  const getChk = id => document.getElementById(id)?.checked || false;
+
+  const titre = get('recrut-titre');
+  const metier = get('recrut-metier');
+  const contrat = get('recrut-contrat');
+  const description = get('recrut-description');
+
+  if (!titre || !metier || !contrat || !description) {
+    toast('Remplis les champs obligatoires (*, titre, métier, contrat, description)', 'error'); return;
+  }
+
+  const body = {
+    fields: {
+      'Titre': titre,
+      'Métier': metier,
+      'Quartier': get('recrut-quartier') || undefined,
+      'Type de contrat': contrat,
+      'Expérience requise': get('recrut-experience') || undefined,
+      'Description': description,
+      'Salaire min FCFA': Number(get('recrut-salaire-min')) || undefined,
+      'Salaire max FCFA': Number(get('recrut-salaire-max')) || undefined,
+      'Salaire affiché': getChk('recrut-afficher-salaire'),
+      'Urgente': getChk('recrut-urgente'),
+      'Télétravail possible': getChk('recrut-teletravail'),
+      'Date expiration': get('recrut-expiration') || undefined,
+      'Recruteur ID': currentPrestataire.id,
+      'Recruteur Nom': f['Nom complet'] || '',
+      'Recruteur WhatsApp': f['WhatsApp'] || f['Numéro de téléphone'] || '',
+      'Active': true,
+      'Vues': 0,
+      'Nb candidatures': 0,
+      'Créée le': new Date().toISOString()
+    }
+  };
+
+  // Enlever les champs undefined
+  Object.keys(body.fields).forEach(k => body.fields[k] === undefined && delete body.fields[k]);
+
+  try {
+    const r = await fetch(AT_URL("Offres d'Emploi"), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify(body) });
+    const data = await r.json();
+    if (data.id) {
+      toast('✅ Offre publiée avec succès !', 'success');
+      // Reset form
+      ['recrut-titre','recrut-description','recrut-salaire-min','recrut-salaire-max','recrut-expiration'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      ['recrut-metier','recrut-quartier','recrut-contrat','recrut-experience'].forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+      ['recrut-afficher-salaire','recrut-urgente','recrut-teletravail'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+      setTimeout(() => showDashSection('recrut-offres'), 500);
+    } else {
+      throw new Error(data.error?.message || 'Erreur');
+    }
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  }
+}
+
+// ── Dashboard : Mes offres ──
+async function loadMesOffres() {
+  if (!currentPrestataire) return;
+  const container = document.getElementById('mes-offres-list');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    const params = new URLSearchParams({ filterByFormula: `{Recruteur ID}="${currentPrestataire.id}"`, sort: '[{"field":"Créée le","direction":"desc"}]', maxRecords: 50 });
+    const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
+    const data = await r.json();
+    const offres = data.records || [];
+
+    if (offres.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gris);">
+        <div style="font-size:48px;margin-bottom:16px;">📂</div>
+        <p>Tu n'as pas encore publié d'offre.</p>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="showDashSection('recrut-publier')">📢 Publier ma première offre →</button>
+      </div>`;
+      return;
+    }
+
+    // Mettre à jour le filtre dans candidatures reçues
+    const filterSelect = document.getElementById('recrut-cand-filter-offre');
+    if (filterSelect) {
+      filterSelect.innerHTML = '<option value="">Toutes les offres</option>' + offres.map(o => `<option value="${o.id}">${o.fields['Titre']||'Sans titre'}</option>`).join('');
+    }
+
+    container.innerHTML = offres.map(o => {
+      const f = o.fields;
+      return `<div style="background:white;border-radius:14px;padding:20px;box-shadow:var(--shadow);border:1.5px solid #e5e7eb;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-bottom:4px;">${f['Titre']||'Sans titre'}</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              ${f['Métier'] ? `<span class="badge badge-vert">${f['Métier']}</span>` : ''}
+              ${f['Type de contrat'] ? `<span class="badge badge-gris">${f['Type de contrat']}</span>` : ''}
+              ${f['Active'] ? '<span class="badge" style="background:#dcfce7;color:#166534;">● Active</span>' : '<span class="badge" style="background:#f3f4f6;color:#6b7280;">● Inactive</span>'}
+              ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span>' : ''}
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="text-align:center;background:var(--vert-light);border-radius:10px;padding:8px 14px;">
+              <div style="font-size:20px;font-weight:900;color:var(--vert);">${f['Vues']||0}</div>
+              <div style="font-size:11px;color:var(--gris);">Vues</div>
+            </div>
+            <div style="text-align:center;background:var(--or-light);border-radius:10px;padding:8px 14px;">
+              <div style="font-size:20px;font-weight:900;color:var(--or);">${f['Nb candidatures']||0}</div>
+              <div style="font-size:11px;color:var(--gris);">Candidatures</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-secondary" onclick="showDashSection('recrut-candidatures');document.getElementById('recrut-cand-filter-offre').value='${o.id}';loadCandidaturesRecues('${o.id}')">👥 Voir candidatures</button>
+          <button class="btn btn-sm" style="background:${f['Active']?'#fee2e2':'#dcfce7'};color:${f['Active']?'#dc2626':'#166534'};border:none;" onclick="toggleOffreActive('${o.id}',${!f['Active']})">${f['Active']?'⏸ Désactiver':'▶ Réactiver'}</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+async function toggleOffreActive(offreId, actif) {
+  await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { method: 'PATCH', headers: AT_HEADERS, body: JSON.stringify({ fields: { 'Active': actif } }) });
+  toast(actif ? 'Offre réactivée' : 'Offre désactivée', 'info');
+  loadMesOffres();
+}
+
+// ── Dashboard : Candidatures reçues ──
+async function loadCandidaturesRecues(offreId = null) {
+  if (!currentPrestataire) return;
+  const container = document.getElementById('candidatures-recues-list');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    let formula = `{Recruteur ID}="${currentPrestataire.id}"`;
+    if (offreId) formula = `AND({Recruteur ID}="${currentPrestataire.id}",{Offre ID}="${offreId}")`;
+    const params = new URLSearchParams({ filterByFormula: formula, sort: '[{"field":"Date candidature","direction":"desc"}]', maxRecords: 100 });
+    const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
+    const data = await r.json();
+    const cands = data.records || [];
+
+    if (cands.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--gris);"><div style="font-size:48px;margin-bottom:16px;">👥</div><p>Aucune candidature reçue pour cette sélection.</p></div>';
+      return;
+    }
+
+    const statutClass = { 'En attente':'statut-attente', 'Vue':'statut-vue', 'Retenue':'statut-retenue', 'Refusée':'statut-refusee' };
+    container.innerHTML = cands.map(c => {
+      const f = c.fields;
+      const sc = statutClass[f['Statut']] || 'statut-attente';
+      const d = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+      const photo = f['Candidat Photo'] || '';
+      return `<div style="background:white;border-radius:14px;padding:18px;box-shadow:var(--shadow);border:1.5px solid #e5e7eb;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:18px;color:white;font-weight:900;overflow:hidden;flex-shrink:0;">
+            ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (f['Candidat Nom']||'?')[0]}
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:800;font-size:15px;">${f['Candidat Nom']||'—'}</div>
+            <div style="color:var(--vert);font-size:13px;">${f['Candidat Métier']||''}</div>
+            <div style="font-size:12px;color:var(--gris);">Score KALA : ${f['Candidat Score KALA']||0}/100 · ${d}</div>
+          </div>
+          <span class="statut-badge ${sc}">${f['Statut']||'En attente'}</span>
+        </div>
+        <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:8px;font-style:italic;">Offre : ${f['Offre Titre']||'—'}</div>
+        ${f['Message'] ? `<div style="background:var(--blanc);border-radius:8px;padding:10px;font-size:13px;color:var(--gris-fonce);margin-bottom:12px;line-height:1.6;">"${f['Message']}"</div>` : ''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${f['Candidat WhatsApp'] ? `<a href="https://wa.me/${f['Candidat WhatsApp'].replace(/\D/g,'')}" target="_blank" class="btn btn-wa btn-sm">💬 WhatsApp</a>` : ''}
+          <button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:none;" onclick="updateStatutCandidature('${c.id}','Retenue')">✅ Retenir</button>
+          <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:none;" onclick="updateStatutCandidature('${c.id}','Refusée')">✗ Refuser</button>
+          <button class="btn btn-sm" style="background:#dbeafe;color:#1e40af;border:none;" onclick="updateStatutCandidature('${c.id}','Vue')">👁 Marquer vue</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+async function updateStatutCandidature(candidatureId, statut) {
+  try {
+    await fetch(AT_URL('Candidatures') + '/' + candidatureId, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Statut': statut } })
+    });
+    toast(`Statut mis à jour : ${statut}`, 'success');
+    const offreId = document.getElementById('recrut-cand-filter-offre')?.value || null;
+    loadCandidaturesRecues(offreId);
+  } catch(e) {
+    toast('Erreur de mise à jour', 'error');
+  }
+}
 </script>
 
 <!-- ══════════════════════════════════════════
@@ -11419,8 +12547,25 @@ window.showDashSection = function(...args) { const r = _origShowDash?.(...args);
     </div>
   </section>
 
+  <!-- ONGLETS COMMENT CA MARCHE -->
+  <section style="background:white;padding:56px 0 0;">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:32px;">
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;">Comment ça marche ?</h2>
+        <p style="color:var(--gris);font-size:16px;margin-top:8px;">Selon ta situation, voici comment KalaTogo t'aide.</p>
+      </div>
+      <!-- Onglets -->
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:36px;flex-wrap:wrap;">
+        <button id="tab-btn-client" onclick="switchFonctTab('client')" style="padding:10px 22px;border-radius:100px;border:2px solid var(--vert);background:var(--vert);color:white;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">🔍 Je cherche un pro</button>
+        <button id="tab-btn-emploi" onclick="switchFonctTab('emploi')" style="padding:10px 22px;border-radius:100px;border:2px solid #e5e7eb;background:white;color:var(--gris-fonce);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">🎯 Je cherche du travail</button>
+        <button id="tab-btn-recrut" onclick="switchFonctTab('recrut')" style="padding:10px 22px;border-radius:100px;border:2px solid #e5e7eb;background:white;color:var(--gris-fonce);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">👔 Je recrute</button>
+        <button id="tab-btn-presta" onclick="switchFonctTab('presta')" style="padding:10px 22px;border-radius:100px;border:2px solid #e5e7eb;background:white;color:var(--gris-fonce);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">🔧 Je suis prestataire</button>
+      </div>
+    </div>
+  </section>
+
   <!-- POUR LES CLIENTS -->
-  <section class="section" style="background:white;">
+  <section id="tab-client" class="section" style="background:white;">
     <div class="container">
       <div style="text-align:center;margin-bottom:52px;">
         <div class="badge badge-vert" style="margin-bottom:14px;">Pour les clients</div>
@@ -11458,8 +12603,84 @@ window.showDashSection = function(...args) { const r = _origShowDash?.(...args);
     </div>
   </div>
 
+  <!-- POUR LES CHERCHEURS D'EMPLOI -->
+  <section id="tab-emploi" class="section" style="background:var(--blanc);display:none;">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:52px;">
+        <div class="badge" style="background:#ede9fe;color:#7c3aed;margin-bottom:14px;">Pour les chercheurs d'emploi</div>
+        <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;">Ton profil KALA, <em style="color:#7c3aed;">c'est ton CV.</em></h2>
+        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:540px;margin-left:auto;margin-right:auto;">Plus besoin de Word, plus besoin de piston. Postule aux offres d'emploi en 1 clic avec ton profil KalaTogo déjà rempli.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:900px;margin:0 auto;">
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
+          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">📱</div>
+          <div style="font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 1</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Crée ton profil gratuitement</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">En 2 minutes. Photo, métier, quartier, description. Ton profil devient ton CV visible par tous les recruteurs.</p>
+        </div>
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
+          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">🎯</div>
+          <div style="font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 2</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Active "Ouvert aux opportunités"</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Un simple toggle dans ton dashboard. Les recruteurs te voient. Tu apparais dans leurs recherches.</p>
+        </div>
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
+          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">✅</div>
+          <div style="font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 3</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Postule en 1 clic</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Ton profil est envoyé automatiquement. Le recruteur te contacte sur WhatsApp si tu l'intéresses.</p>
+        </div>
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
+          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">💬</div>
+          <div style="font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 4</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Contact direct WhatsApp</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Pas d'intermédiaire. Le recruteur et toi en direct. Vous vous mettez d'accord comme des adultes.</p>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px;">
+        <button class="btn btn-primary btn-lg" onclick="showPage('emploi')">🎯 Voir les offres d'emploi →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- POUR LES RECRUTEURS -->
+  <section id="tab-recrut" class="section" style="background:white;display:none;">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:52px;">
+        <div class="badge badge-or" style="margin-bottom:14px;">Pour les recruteurs</div>
+        <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;">Trouve les bons profils. <em style="color:var(--or);">Sans intermédiaire.</em></h2>
+        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:540px;margin-left:auto;margin-right:auto;">Les candidats sont là. Vérifiés. Notés. Dans ton quartier. Publie une offre et reçois des candidatures directement.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:900px;margin:0 auto;">
+        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.1);">
+          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 1</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Crée ton compte (gratuit)</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">En 2 minutes. Ou passe directement au Plan Pro pour publier des offres d'emploi.</p>
+        </div>
+        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.1);">
+          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 2</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Publie ton offre d'emploi</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Métier, quartier, salaire, type de contrat. En quelques minutes, ton offre est visible par tous les candidats KalaTogo.</p>
+        </div>
+        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.1);">
+          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 3</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Reçois des candidatures vérifiées</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Chaque candidat a un profil vérifié, noté, avec score KALA. Tu vois qui est sérieux en un coup d'œil.</p>
+        </div>
+        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.1);">
+          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 4</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Contacte directement sur WhatsApp</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Retiens ou refuse les candidats. Contact direct WhatsApp pour les entretiens. Simple.</p>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px;">
+        <button class="btn btn-or btn-lg" onclick="showDashSection('recrut-publier');showPage('dashboard')">👔 Publier une offre (Plan Pro) →</button>
+      </div>
+    </div>
+  </section>
+
   <!-- POUR LES PRESTATAIRES -->
-  <section class="section" style="background:var(--blanc);">
+  <section id="tab-presta" class="section" style="background:var(--blanc);display:none;">
     <div class="container">
       <div style="text-align:center;margin-bottom:52px;">
         <div class="badge badge-or" style="margin-bottom:14px;">Pour les prestataires</div>
@@ -11908,6 +13129,34 @@ window.showDashSection = function(...args) { const r = _origShowDash?.(...args);
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- MISSION REWRITTEN -->
+  <section style="background:white;padding:72px 0;">
+    <div class="container" style="max-width:760px;margin:0 auto;text-align:center;">
+      <div class="badge badge-vert" style="margin-bottom:20px;">Notre mission</div>
+      <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;margin-bottom:24px;line-height:1.3;">Le pont entre ceux qui ont des compétences<br>et ceux qui en ont besoin.</h2>
+      <p style="font-size:17px;color:var(--gris-fonce);line-height:1.8;margin-bottom:20px;">KalaTogo est né d'un constat simple : au Togo, les compétences existent mais restent invisibles.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;margin:32px 0;">
+        <div style="background:var(--vert-light);border-radius:16px;padding:20px;text-align:center;">
+          <div style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:var(--vert);">87%</div>
+          <p style="font-size:13px;color:var(--gris);margin-top:4px;">des travailleurs dans l'informel</p>
+        </div>
+        <div style="background:#fef3dc;border-radius:16px;padding:20px;text-align:center;">
+          <div style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:var(--or);">46%</div>
+          <p style="font-size:13px;color:var(--gris);margin-top:4px;">des jeunes sans emploi</p>
+        </div>
+        <div style="background:#fef2f2;border-radius:16px;padding:20px;text-align:center;">
+          <div style="font-size:32px;">🚫</div>
+          <p style="font-size:13px;color:var(--gris);margin-top:4px;">le piston comme seule voie</p>
+        </div>
+      </div>
+      <blockquote style="border-left:4px solid var(--vert);padding:16px 24px;background:var(--blanc);border-radius:0 12px 12px 0;text-align:left;font-size:16px;line-height:1.8;color:var(--gris-fonce);margin:0;">
+        "Des artisans talentueux cherchent des clients. Des candidats qualifiés cherchent du travail. Des entreprises cherchent des profils fiables.<br>
+        Ils ne se trouvent pas.<br><br>
+        <strong>KalaTogo est le pont.</strong> Pas de piston. Pas de connexion politique. Juste ton profil, tes compétences, et ceux qui en ont besoin."
+      </blockquote>
     </div>
   </section>
 
