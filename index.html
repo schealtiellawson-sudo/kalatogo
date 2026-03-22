@@ -1451,19 +1451,19 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <div class="hero-metrics">
         <div class="metric">
           <div class="metric-num" id="m-prestataires">—</div>
-          <div class="metric-label">Prestataires actifs</div>
+          <div class="metric-label">Prestataires inscrits</div>
         </div>
         <div class="metric">
-          <div class="metric-num">80+</div>
-          <div class="metric-label">Métiers disponibles</div>
+          <div class="metric-num" id="m-offres-actives">—</div>
+          <div class="metric-label">Offres d'emploi actives</div>
         </div>
         <div class="metric">
-          <div class="metric-num">🇹🇬</div>
-          <div class="metric-label">Partout au Togo</div>
+          <div class="metric-num" style="color:var(--or);" id="m-fondateur-restants">—</div>
+          <div class="metric-label">🏅 Places Fondateur restantes</div>
         </div>
         <div class="metric">
-          <div class="metric-num" id="home-commission-display">—</div>
-          <div class="metric-label">Commissions ce mois</div>
+          <div class="metric-num" id="m-fcfa-commissions">—</div>
+          <div class="metric-label">FCFA versés en commissions</div>
         </div>
       </div>
     </div>
@@ -7043,30 +7043,38 @@ async function initHome() {
   updateCommissionDisplay();
 }
 
-// Mettre à jour l'affichage des commissions sur la homepage
+// Stats dynamiques homepage (offres actives, places fondateur, commissions)
 async function updateCommissionDisplay() {
-  const displayEl = document.getElementById('home-commission-display');
-  if (!displayEl) return;
+  const offreEl = document.getElementById('m-offres-actives');
+  const fondateurEl = document.getElementById('m-fondateur-restants');
+  const commEl = document.getElementById('m-fcfa-commissions');
 
+  // 1. Offres d'emploi actives
   try {
-    // Si l'utilisateur est connecté, afficher ses propres commissions
-    if (currentPrestataire && currentPrestataire.fields) {
-      const commDisp = currentPrestataire.fields['Commission Disponible FCFA'] || 0;
-      displayEl.textContent = commDisp.toLocaleString('fr-FR') + ' CFA';
-      return;
-    }
+    const params = new URLSearchParams({ filterByFormula: '{Active}=1', pageSize: 100 });
+    const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
+    const data = await r.json();
+    const nb = data.records?.length || 0;
+    if (offreEl) offreEl.textContent = nb > 0 ? nb + '+' : '0';
+  } catch(e) { if (offreEl) offreEl.textContent = '0'; }
 
-    // Sinon, afficher la somme totale des commissions de tous les prestataires
+  // 2. Places Fondateur restantes
+  try {
+    const total = await countPrestataires();
+    const restants = Math.max(0, 1000 - total);
+    if (fondateurEl) fondateurEl.textContent = restants.toLocaleString('fr-FR');
+  } catch(e) { if (fondateurEl) fondateurEl.textContent = '—'; }
+
+  // 3. FCFA versés en commissions
+  try {
     const records = await fetchPrestataires({});
-    const totalComm = records.reduce((sum, r) => {
-      return sum + (r.fields['Commission Disponible FCFA'] || 0);
-    }, 0);
-
-    displayEl.textContent = totalComm.toLocaleString('fr-FR') + ' CFA';
-  } catch (e) {
-    console.warn('Erreur calcul commissions:', e);
-    displayEl.textContent = '—';
-  }
+    const totalPaye = records.reduce((s, r) => s + (r.fields['Commission Totale FCFA'] || 0), 0);
+    if (commEl) {
+      commEl.textContent = totalPaye >= 1000000
+        ? (totalPaye / 1000000).toFixed(1) + 'M CFA'
+        : totalPaye.toLocaleString('fr-FR') + ' CFA';
+    }
+  } catch(e) { if (commEl) commEl.textContent = '—'; }
 }
 
 // ══════════════════════════════════════════
