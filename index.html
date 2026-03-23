@@ -1265,6 +1265,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
       <button class="nav-link" onclick="showPage('home')">Accueil</button>
       <button class="nav-link" onclick="showPage('search')">Trouver un pro</button>
       <button class="nav-link" onclick="showPage('emploi')" style="color:var(--vert);font-weight:700;">💼 Offres d'emploi</button>
+      <button class="nav-link" onclick="showPage('tutoriels')">🎬 Tutoriels vidéo</button>
       <button class="nav-link" onclick="showPage('fonctionnement')">Comment ça marche</button>
       <button class="nav-link" onclick="showPage('apropos')">À propos</button>
       <!-- Boutons non connecté -->
@@ -1302,6 +1303,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <button onclick="showPage('search');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🔍 Trouver un pro</button>
     <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
     <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 Offres d'emploi</button>
+    <button onclick="showPage('tutoriels');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🎬 Tutoriels vidéo</button>
     <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💡 Comment ça marche</button>
     <button onclick="showPage('apropos');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">👤 À propos</button>
     <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
@@ -13693,6 +13695,157 @@ loadSchealtielPhoto();
       <input type="tel" id="pay-client-tel" placeholder="Votre téléphone" class="form-input" style="margin-bottom:20px;">
       <button onclick="launchClientPayment()" style="width:100%;background:linear-gradient(135deg,var(--vert),var(--vert-dark,#145f3a));color:white;border:none;padding:16px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(27,122,74,0.3);">Payer maintenant →</button>
       <button onclick="document.getElementById('page-paiement-client').style.display='none';" style="margin-top:14px;background:none;border:none;font-size:13px;color:var(--gris);cursor:pointer;">← Retour</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE TUTORIELS ══ -->
+<div id="page-tutoriels" class="page" style="background:#f8f6f1;min-height:100vh;padding:48px 24px;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="badge badge-vert" style="justify-content:center;margin-bottom:16px;">
+        <span>🎬 Apprenez à utiliser KalaTogo</span>
+      </div>
+      <h1 style="font-family:Fraunces,serif;font-size:48px;font-weight:900;margin:0 0 16px;color:var(--noir);">Tutoriels vidéo</h1>
+      <p style="font-size:18px;color:var(--gris);max-width:600px;margin:0 auto;">Découvrez comment utiliser KalaTogo pour développer votre activité et générer des revenus.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:48px;">
+      <!-- Vidéo 1 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-01.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Tu es bon. Personne ne le sait.</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Ton talent existe, mais sans KalaTogo, les clients ne le connaissent pas. Découvre comment changer ça.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 2 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-02.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Ton profil, c'est ton CV vivant</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Ton profil KalaTogo remplace le CV papier. Montre tes réalisations, tes avis, ta note — tout en un clic.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 3 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-03.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Pourquoi lui il est toujours plein</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Le secret des prestataires qui gagnent le plus ? Un profil optimisé et des avis solides.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 4 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-04.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Le client à 200 mètres</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">La géolocalisation de KalaTogo te met en avant pour les clients proches de toi. Automatiquement.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 5 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-05.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Tu cherches du travail</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">KalaTogo n'est pas juste pour les prestataires indépendants. C'est aussi ta plateforme pour trouver du travail.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 6 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-06.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Ton CV en 1 clic</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Génère ton CV PDF directement depuis ton profil KalaTogo. Tout ce qu'il te faut pour postuler.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 7 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-07.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Plan Pro — 2 500 FCFA/mois</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Avec le Plan Pro, tu débloques les offres d'emploi, les statistiques avancées, et bien plus.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 8 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-08.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Tu veux embaucher</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Publie une offre d'emploi sur KalaTogo et reçois les candidatures directement. Sans intermédiaire.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 9 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-09.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Arrête de gérer à l'aveugle</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Tes statistiques sur KalaTogo : vues, clics, avis, clients. Tout pour prendre les bonnes décisions.</p>
+        </div>
+      </div>
+
+      <!-- Vidéo 10 -->
+      <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all 0.3s;">
+        <div style="background:#0d1117;padding-bottom:56.25%;position:relative;overflow:hidden;">
+          <video style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <source src="https://pub-3f3f986c2e4f4983b408d61a8a299fc6.r2.dev/video-10.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="padding:20px;">
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Tour complet du dashboard</h3>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Visite guidée complète du tableau de bord KalaTogo. Chaque fonctionnalité expliquée en détail.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:16px;padding:36px 24px;text-align:center;border:2px solid var(--vert-light);">
+      <h2 style="font-family:Fraunces,serif;font-size:32px;font-weight:900;margin:0 0 16px;color:var(--noir);">Prêt à démarrer ?</h2>
+      <p style="font-size:16px;color:var(--gris);margin:0 0 24px;max-width:600px;margin-left:auto;margin-right:auto;">Crée ton profil KalaTogo gratuitement et commence à trouver des clients, des opportunités, ou le travail que tu cherches.</p>
+      <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">✦ Créer mon profil maintenant</button>
     </div>
   </div>
 </div>
