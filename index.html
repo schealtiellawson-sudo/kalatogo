@@ -901,8 +901,9 @@ footer {
 
 /* ══ RESPONSIVE ══ */
 @media (max-width: 768px) {
-  .hero-grid { grid-template-columns:1fr; gap:40px; }
-  .hero-visual { display:none; }
+  .hero-grid { grid-template-columns:1fr; gap:32px; }
+  .hero-visual { display:block; margin:0 auto; max-width:100%; }
+  .hero-card-main { max-width:100% !important; border-radius:12px !important; }
   .profil-body { grid-template-columns:1fr; }
   /* Sur mobile : sidebar (Informations, Réseaux sociaux) avant la colonne principale */
   .profil-body > *:first-child { order:2; }
@@ -1065,7 +1066,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   /* HERO MOBILE */
   .hero { padding:48px 0 36px; }
   .hero-grid { grid-template-columns:1fr !important; gap:24px !important; }
-  .hero-visual { display:none !important; }
+  .hero-visual { display:block !important; margin:0 auto; max-width:100%; }
+  .hero-card-main { max-width:100% !important; border-radius:12px !important; }
+  .float-notif { font-size:12px !important; padding:8px 12px !important; }
   .hero-sub { font-size:15px; }
   .hero-actions { flex-direction:column; }
   .hero-actions .btn { width:100%; justify-content:center; }
@@ -1172,7 +1175,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 /* ══ TABLET (601–900px) ══ */
 @media (min-width:601px) and (max-width:900px) {
   .hero-grid { grid-template-columns:1fr !important; }
-  .hero-visual { display:none !important; }
+  .hero-visual { display:block !important; margin:0 auto; max-width:100%; }
+  .hero-card-main { max-width:100% !important; }
   .cards-grid { grid-template-columns:repeat(2,1fr) !important; }
   .stat-cards { grid-template-columns:repeat(2,1fr) !important; }
   .plans-grid { grid-template-columns:repeat(2,1fr) !important; }
