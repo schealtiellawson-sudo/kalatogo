@@ -7972,17 +7972,18 @@ async function toggleSuivi(prestataireId) {
     // Optimistic UI — feedback immédiat
     _setSuiviBtnState(prestataireId, true);
     try {
-      await fetch(AT_URL('Abonnements'), {
+      const res = await fetch(AT_URL('Abonnements'), {
         method: 'POST', headers: AT_HEADERS,
         body: JSON.stringify({ fields: {
           'Abonné ID': currentUser.id,
           'Prestataire ID': prestataireId,
-          'Date': new Date().toISOString()
+          'Date': new Date().toISOString().split('T')[0]
         }})
       });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || 'Erreur Airtable'); }
       toast('✅ Tu suis ce prestataire !', 'success');
       pushNotif(prestataireId, { type: 'suivi', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
-    } catch { _setSuiviBtnState(prestataireId, false); toast('Erreur', 'error'); return; }
+    } catch(e) { _setSuiviBtnState(prestataireId, false); toast('Erreur : ' + e.message, 'error'); return; }
   }
   loadFollowerCount(prestataireId);
 }
@@ -8034,7 +8035,7 @@ async function loadAbonnements() {
       const nom = f['Nom complet'] || '—';
       const metier = f['Métier principal'] || '';
       const quartier = f['Quartier'] || '';
-      const photo = f['WhatsApp'] || '';
+      const photo = f['Photo de profil']?.[0]?.url || '';
       const plan = f['Abonnement'] || 'Base';
       const dispo = f['Disponible maintenant'];
       const emoji = METIER_EMOJI?.[metier] || '⚡';
