@@ -2476,6 +2476,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         </select>
         <select id="s-quartier" onchange="loadSearch()"><option value="">Toutes les villes</option></select>
         <button class="search-bar-btn" onclick="loadSearch()">🔍 Rechercher</button>
+        <input type="text" id="s-text" placeholder="Nom, prénom, description..." oninput="loadSearch()" style="flex:1;padding:10px 16px;border:none;background:transparent;font-size:15px;font-family:inherit;outline:none;color:var(--noir);min-width:140px;">
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;">
         <button class="filter-dispo" id="dispo-btn" onclick="toggleDispo()">🟢 Disponibles maintenant</button>
@@ -2485,6 +2486,13 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
           <option value="5000">Moins de 5 000 FCFA</option>
           <option value="10000">Moins de 10 000 FCFA</option>
           <option value="20000">Moins de 20 000 FCFA</option>
+        </select>
+        <select class="filter-select" id="s-tri" onchange="loadSearch()">
+          <option value="">Trier par défaut</option>
+          <option value="note">⭐ Meilleures notes</option>
+          <option value="vues">👁 Plus de vues</option>
+          <option value="avis">💬 Plus recommandés</option>
+          <option value="tarif-asc">💰 Tarif croissant</option>
         </select>
       </div>
       <div class="map-toggle-bar">
@@ -7280,6 +7288,21 @@ async function loadSearch() {
     let records = await fetchPrestataires({ metier, quartier, dispo: dispoFilter, tarifMax: tarifMax ? parseInt(tarifMax) : null });
     // Filtre Talents Digitaux côté client (pas de champ Airtable requis)
     if (digitalFilter) records = records.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
+    // Filtre texte libre
+    const textQ = (document.getElementById('s-text')?.value || '').trim().toLowerCase();
+    if (textQ) records = records.filter(r => {
+      const f = r.fields;
+      return (f['Nom complet']||'').toLowerCase().includes(textQ)
+          || (f['Métier principal']||'').toLowerCase().includes(textQ)
+          || (f['Description des services']||'').toLowerCase().includes(textQ)
+          || (f['Quartier']||'').toLowerCase().includes(textQ);
+    });
+    // Tri
+    const tri = document.getElementById('s-tri')?.value || '';
+    if (tri === 'note') records.sort((a,b) => (b.fields['Note moyenne']||0) - (a.fields['Note moyenne']||0));
+    else if (tri === 'vues') records.sort((a,b) => (b.fields['Nombre de vues profil']||0) - (a.fields['Nombre de vues profil']||0));
+    else if (tri === 'avis') records.sort((a,b) => (b.fields["Nombre d'avis reçus"]||0) - (a.fields["Nombre d'avis reçus"]||0));
+    else if (tri === 'tarif-asc') records.sort((a,b) => (a.fields['Tarif minimum FCFA']||0) - (b.fields['Tarif minimum FCFA']||0));
     window._lastSearchRecords = records;
     meta.textContent = `${records.length} prestataire${records.length !== 1 ? 's' : ''} trouvé${records.length !== 1 ? 's' : ''}`;
 
@@ -11980,7 +12003,11 @@ async function loadOffresEmploi(filtres = {}) {
   if (filtres.quartier) formula += `,{Quartier}="${filtres.quartier}"`;
   if (filtres.contrat) formula += `,{Type de contrat}="${filtres.contrat}"`;
   formula += ")";
-  const params = new URLSearchParams({ filterByFormula: formula, sort: '[{"field":"Urgente","direction":"desc"},{"field":"Créée le","direction":"desc"}]', maxRecords: 200 });
+  const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
+  params.append('sort[0][field]', 'Urgente');
+  params.append('sort[0][direction]', 'desc');
+  params.append('sort[1][field]', 'Créée le');
+  params.append('sort[1][direction]', 'desc');
   const r = await fetch(url + '?' + params, { headers: AT_HEADERS });
   const data = await r.json();
   return data.records || [];
@@ -12208,7 +12235,8 @@ async function submitCandidature() {
         'Message': message,
         'Statut': 'En attente',
         'Date candidature': new Date().toISOString(),
-        'Recruteur ID': recruteurId
+        'Recruteur ID': recruteurId,
+        'Recruteur Nom': offreData.fields?.['Recruteur Nom'] || ''
       }
     };
 
@@ -12285,7 +12313,9 @@ async function loadMesCandidatures() {
   const container = document.getElementById('mes-candidatures-list');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   try {
-    const params = new URLSearchParams({ filterByFormula: `{Candidat ID}="${currentPrestataire.id}"`, sort: '[{"field":"Date candidature","direction":"desc"}]', maxRecords: 100 });
+    const params = new URLSearchParams({ filterByFormula: `{Candidat ID}="${currentPrestataire.id}"`, maxRecords: 100 });
+    params.append('sort[0][field]', 'Date candidature');
+    params.append('sort[0][direction]', 'desc');
     const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
     const data = await r.json();
     const cands = data.records || [];
@@ -12303,7 +12333,7 @@ async function loadMesCandidatures() {
     container.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
       <thead><tr style="border-bottom:2px solid #e5e7eb;text-align:left;">
         <th style="padding:10px 12px;">Offre</th>
-        <th style="padding:10px 12px;">Entreprise</th>
+        <th style="padding:10px 12px;">Recruteur</th>
         <th style="padding:10px 12px;">Date</th>
         <th style="padding:10px 12px;">Statut</th>
       </tr></thead>
@@ -12313,7 +12343,7 @@ async function loadMesCandidatures() {
         const sc = statutClass[f['Statut']] || 'statut-attente';
         return `<tr style="border-bottom:1px solid #f3f4f6;">
           <td style="padding:12px;">${f['Offre Titre']||'—'}</td>
-          <td style="padding:12px;color:var(--gris);">${f['Recruteur ID']||'—'}</td>
+          <td style="padding:12px;color:var(--gris);">${f['Recruteur Nom']||'—'}</td>
           <td style="padding:12px;color:var(--gris);">${d}</td>
           <td style="padding:12px;"><span class="statut-badge ${sc}">${f['Statut']||'En attente'}</span></td>
         </tr>`;
@@ -12469,7 +12499,9 @@ async function loadMesOffres() {
   const container = document.getElementById('mes-offres-list');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   try {
-    const params = new URLSearchParams({ filterByFormula: `{Recruteur ID}="${currentPrestataire.id}"`, sort: '[{"field":"Créée le","direction":"desc"}]', maxRecords: 50 });
+    const params = new URLSearchParams({ filterByFormula: `{Recruteur ID}="${currentPrestataire.id}"`, maxRecords: 50 });
+    params.append('sort[0][field]', 'Créée le');
+    params.append('sort[0][direction]', 'desc');
     const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
     const data = await r.json();
     const offres = data.records || [];
@@ -12538,7 +12570,9 @@ async function loadCandidaturesRecues(offreId = null) {
   try {
     let formula = `{Recruteur ID}="${currentPrestataire.id}"`;
     if (offreId) formula = `AND({Recruteur ID}="${currentPrestataire.id}",{Offre ID}="${offreId}")`;
-    const params = new URLSearchParams({ filterByFormula: formula, sort: '[{"field":"Date candidature","direction":"desc"}]', maxRecords: 100 });
+    const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 100 });
+    params.append('sort[0][field]', 'Date candidature');
+    params.append('sort[0][direction]', 'desc');
     const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
     const data = await r.json();
     const cands = data.records || [];
