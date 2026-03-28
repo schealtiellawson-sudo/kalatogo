@@ -12548,6 +12548,7 @@ async function loadMesOffres() {
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
           <button class="btn btn-sm btn-secondary" onclick="showDashSection('recrut-candidatures');document.getElementById('recrut-cand-filter-offre').value='${o.id}';loadCandidaturesRecues('${o.id}')">👥 Voir candidatures</button>
           <button class="btn btn-sm" style="background:${f['Active']?'#fee2e2':'#dcfce7'};color:${f['Active']?'#dc2626':'#166534'};border:none;" onclick="toggleOffreActive('${o.id}',${!f['Active']})">${f['Active']?'⏸ Désactiver':'▶ Réactiver'}</button>
+          <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;" onclick="supprimerOffre('${o.id}','${(f['Titre']||'cette offre').replace(/'/g,"\\'")}')">🗑 Supprimer</button>
         </div>
       </div>`;
     }).join('');
@@ -12560,6 +12561,22 @@ async function toggleOffreActive(offreId, actif) {
   await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { method: 'PATCH', headers: AT_HEADERS, body: JSON.stringify({ fields: { 'Active': actif } }) });
   toast(actif ? 'Offre réactivée' : 'Offre désactivée', 'info');
   loadMesOffres();
+}
+
+async function supprimerOffre(offreId, titrte) {
+  if (!confirm(`Supprimer l'offre "${titrte}" ? Cette action est irréversible.`)) return;
+  try {
+    const r = await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { method: 'DELETE', headers: AT_HEADERS });
+    const data = await r.json();
+    if (data.deleted) {
+      toast('✅ Offre supprimée', 'success');
+      loadMesOffres();
+    } else {
+      throw new Error(data.error?.message || 'Erreur');
+    }
+  } catch(e) {
+    toast('Erreur lors de la suppression : ' + e.message, 'error');
+  }
 }
 
 // ── Dashboard : Candidatures reçues ──
