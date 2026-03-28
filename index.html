@@ -12031,7 +12031,7 @@ function renderOffreEmploi(offre) {
       </div>
     </div>
     <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;">
-      🏢 ${f['Recruteur Nom'] || 'Recruteur'}
+      ${f['Recruteur ID'] ? `<span onclick="showProfil('${f['Recruteur ID']}');showPage('profil')" style="cursor:pointer;color:var(--vert);text-decoration:underline;text-underline-offset:3px;">🏢 ${f['Recruteur Nom'] || 'Recruteur'}</span>` : `🏢 ${f['Recruteur Nom'] || 'Recruteur'}`}
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
       ${f['Quartier'] ? `<span class="badge badge-gris">📍 ${f['Quartier']}</span>` : ''}
