@@ -3,7 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KalaTogo — Le seul endroit au Togo où ton travail parle plus fort que tes connexions</title>
+<meta name="google-site-verification" content="lXOGmTJAXq9qRgT3GoiQIXYHzI_515w89aDfHhi2msw" />
+<title>KalaTogo — Trouver un prestataire ou un emploi à Lomé, Togo</title>
+<meta name="description" content="Artisans, prestataires et chercheurs d'emploi à Lomé — crée ton profil gratuit en 2 minutes et sois trouvé par des clients de tout le Togo. Sans piston.">
+<meta name="keywords" content="emploi Lomé, trouver prestataire Togo, artisan Lomé, électricien Lomé, mécanicien Lomé, coiffeur Lomé, offre emploi Togo, freelance Togo, marketplace Togo">
+<meta property="og:title" content="KalaTogo — Trouver un prestataire ou un emploi à Lomé, Togo">
+<meta property="og:description" content="Artisans, prestataires et chercheurs d'emploi à Lomé — crée ton profil gratuit en 2 minutes et sois trouvé par des clients de tout le Togo. Sans piston.">
+<meta property="og:url" content="https://kalatogo.com">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_TG">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2771,6 +2779,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
         <div class="form-group">
           <label>Nom complet <span class="req">*</span></label>
           <input type="text" id="f-nom" placeholder="Ex : Kofi Mensah" required autocomplete="new-password" name="kalatogo-nom-x">
+          <small style="color:#888;font-size:12px;margin-top:4px;display:block;">Ton nom et prénom si tu t'inscris pour toi-même, ou le nom de ta boutique / entreprise si tu crées un compte professionnel.</small>
         </div>
 
         <div class="form-row">
@@ -9976,7 +9985,7 @@ async function submitInscription(e) {
       }
     });
 
-    if (authError && !authError.message.includes('already registered') && !authError.message.toLowerCase().includes('rate limit')) {
+    if (authError && !authError.message.includes('already registered') && !authError.message.toLowerCase().includes('rate limit') && !authError.message.toLowerCase().includes('sending confirmation email')) {
       toast('Erreur compte : ' + authError.message, 'error');
       btn.textContent = '✦ Créer mon profil';
       btn.disabled = false;
