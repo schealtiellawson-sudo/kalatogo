@@ -11649,7 +11649,7 @@ function loadAbonnement() {
 // PAIEMENT MANUEL FLOOZ — SYSTÈME CODES
 // ══════════════════════════════════════════
 
-const WOLO MARKET_FLOOZ = '97473040';
+const WOLO_FLOOZ = '97473040';
 const ADMIN_SECRET   = 'WOLO2025';
 
 function generatePaymentCode() {
@@ -11692,8 +11692,8 @@ function showPaiementManuelModal(plan, amount, code) {
         <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;">📱 TMoney</span>
       </div>
       <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:1px;margin-bottom:4px;">NUMÉRO WOLO MARKET</div>
-      <div style="font-size:32px;font-weight:900;color:white;letter-spacing:3px;">${WOLO MARKET_FLOOZ}</div>
-      <button onclick="navigator.clipboard.writeText('${WOLO MARKET_FLOOZ}');toast('Numéro copié !','success')" style="margin-top:8px;background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le numéro</button>
+      <div style="font-size:32px;font-weight:900;color:white;letter-spacing:3px;">${WOLO_FLOOZ}</div>
+      <button onclick="navigator.clipboard.writeText('${WOLO_FLOOZ}');toast('Numéro copié !','success')" style="margin-top:8px;background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le numéro</button>
     </div>
 
     <div style="background:#f0fdf4;border:2px dashed #16a34a;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
@@ -11705,7 +11705,7 @@ function showPaiementManuelModal(plan, amount, code) {
     <div style="background:#fef9c3;border-radius:12px;padding:14px;font-size:13px;color:#713f12;line-height:1.9;">
       <strong>📋 Comment faire :</strong><br>
       1. Ouvre <strong>Flooz</strong> ou <strong>TMoney</strong> sur ton téléphone<br>
-      2. Envoie <strong>${amount.toLocaleString('fr-FR')} FCFA</strong> au <strong>${WOLO MARKET_FLOOZ}</strong><br>
+      2. Envoie <strong>${amount.toLocaleString('fr-FR')} FCFA</strong> au <strong>${WOLO_FLOOZ}</strong><br>
       3. Dans le champ <strong>Note / Motif</strong> écris ton code : <strong>${code}</strong><br>
       4. Ton Plan Pro sera activé dans les <strong>24h</strong> ⏱️
     </div>
