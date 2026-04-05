@@ -4619,19 +4619,6 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 let currentUser = null;
 let currentPrestataire = null; // record Airtable du user connecté
 
-// Vérifier session au chargement
-async function initAuth() {
-  const { data: { session } } = await supa.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-    await loadCurrentPrestataire();
-    updateNavAuth(true);
-  }
-  // Restaurer la page APRÈS avoir chargé la session (currentUser est déjà défini)
-  _restorePageFromURL();
-
-  // Masquer l'overlay de chargement — la bonne page est maintenant affichée
-  
 // ── MIGRATION kala_ → wolo_ localStorage ──
 (function migrateKalaToWolo() {
   if (localStorage.getItem('wolo_migrated')) return;
@@ -4648,7 +4635,19 @@ async function initAuth() {
   localStorage.setItem('wolo_migrated', '1');
 })();
 
-const overlay = document.getElementById('wolo-init-overlay');
+// Vérifier session au chargement
+async function initAuth() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    await loadCurrentPrestataire();
+    updateNavAuth(true);
+  }
+  // Restaurer la page APRÈS avoir chargé la session (currentUser est déjà défini)
+  _restorePageFromURL();
+
+  // Masquer l'overlay de chargement — la bonne page est maintenant affichée
+  const overlay = document.getElementById('wolo-init-overlay');
   if (overlay) {
     overlay.style.opacity = '0';
     setTimeout(() => overlay.remove(), 260);
