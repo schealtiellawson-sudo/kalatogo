@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projet
 
-KalaTogo — Application web SPA pour trouver des prestataires de services au Togo. Un seul fichier `index.html` (~14 000 lignes, ~2 MB). Déployé sur Vercel à https://kalatogo.com.
+WOLO Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~14 000 lignes, ~2 MB). Déployé sur Vercel à https://wolomarket.vercel.app.
 
 ## Commandes
 
@@ -18,7 +18,7 @@ git commit -m "description"
 git push
 
 # Panel admin
-# https://kalatogo.com?admin=KALA2025
+# https://wolomarket.vercel.app?admin=WOLO2025
 ```
 
 ## Stack technique
@@ -32,6 +32,13 @@ git push
 - **Paiement Pro** : Manuel Flooz/TMoney (numéro `97473040`), validation admin via panel
 - **Vidéos** : Cloudflare R2 (hébergement), URLs dans `videos-urls.json`
 - **Déploiement** : Vercel (auto sur push main)
+
+## Charte visuelle WOLO Market
+
+- **Palette** : Noir chaud `#0f1410`, Or `#E8940A`, Crème `#F8F6F1` — ZÉRO vert
+- **Typographies** : Fraunces (titres), Space Mono (données/chiffres), Cabinet Grotesk (corps)
+- **Logo** : SVG inline — cercle noir + W or + ligne or + MARKET espacé
+- **Variables CSS** : `--wolo-*` (nouvelles) + aliases `--vert` → `#E8940A` pour compat
 
 ## Architecture navigation
 
@@ -82,10 +89,12 @@ showDashSection('historique-paiements') → historique paiements
 - **Optimistic UI** : `_setSuiviBtnState()` donne feedback immédiat avant retour API, rollback si erreur.
 - **Photos Avis** : identifiées par slot (`profil`, `real1`, `real2`, `real3`).
 - **Listes de métiers** : dupliquées en plusieurs endroits (recherche home, recherche page, inscription, dashboard edit) — penser à toutes les mettre à jour.
-- **localStorage** : préfixé `kala_` (notifs, paylinks, rdv_payments, daily, locmode, liked, extras).
+- **localStorage** : préfixé `wolo_` — migration automatique des anciennes clés `kala_` au premier chargement.
 - **Pas de champ `Nom` dans Airtable** — utiliser `Nom complet` partout.
+- **Codes parrainage** : préfixe `WOLO`, format `WOLOxxxx1234`.
+- **Admin secret** : `WOLO2025` — accès panel admin via `?admin=WOLO2025`.
 
-## Score KALA (max 100 pts)
+## Score WOLO (max 100 pts)
 
 ```
 completion × 0.30     (max 30) — % profil rempli
@@ -98,10 +107,10 @@ min(nbAvisTexte×2,10) (max 10) — avis avec commentaire texte
 
 ## Paiement Pro — flux
 
-1. Prestataire clique "Passer au Pro" → code `KAL-XXXXXX` généré + sauvé dans Airtable
+1. Prestataire clique "Passer au Pro" → code `WOL-XXXXXX` généré + sauvé dans Airtable
 2. Modal affiche le numéro **97473040** (Flooz/TMoney) + code en note
 3. Prestataire envoie 2 500 FCFA
-4. Admin sur `?admin=KALA2025` → voit demandes en attente → active
+4. Admin sur `?admin=WOLO2025` → voit demandes en attente → active
 5. Airtable passe `Abonnement: Pro`, efface `Code Paiement`
 
 ## Plans tarifaires
