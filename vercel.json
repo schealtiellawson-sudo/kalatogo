@@ -1,0 +1,5 @@
+{
+  "crons": [
+    { "path": "/api/cron/maj-scores-inactivite", "schedule": "0 2 * * *" }
+  ]
+}
