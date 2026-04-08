@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>${prenom_client} t'a laissé un avis ${note}★ sur WOLO Market.</title>
+<!-- Subject: ${prenom_client} t'a laissé un avis ${note}★ sur WOLO Market. -->
+<!-- Preheader: Ton Score WOLO vient de changer. Voici ce qu'il a dit. -->
+</head>
+<body style="font-family:Arial,sans-serif;background:#F8F6F1;margin:0;padding:24px;color:#0f1410;">
+<div style="max-width:600px;margin:0 auto;background:white;border-radius:12px;padding:32px;border-top:4px solid #E8940A;">
+<p style="display:none;max-height:0;overflow:hidden;">Ton Score WOLO vient de changer. Voici ce qu'il a dit.</p>
+<h1 style="font-family:Georgia,serif;font-size:24px;">${prenom},</h1>
+<p><strong>${prenom_client}</strong> vient de noter ton profil.</p>
+<p><strong>Note :</strong> ${note}★/5<br>
+<strong>Commentaire :</strong> "${commentaire}"</p>
+<p><strong>Ton Score WOLO actuel :</strong> ${score}/100<br>
+Avis totaux : ${nb_avis} · Moyenne : ${moyenne}★</p>
+<p style="text-align:center;margin:32px 0;"><a href="${lien_profil}" style="background:#E8940A;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;">→ Voir mon profil</a></p>
+<hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
+<p style="font-size:12px;color:#666;">WOLO Market · Bénin · Togo</p>
+</div>
+</body>
+</html>
