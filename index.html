@@ -18910,6 +18910,27 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:64px; }
 .wolo-v2-pwa-banner .wv2-pwa-close { background:none; border:none; color:rgba(248,246,241,.5); cursor:pointer; font-size:18px; padding:4px; }
 @media (min-width:769px) { .wolo-v2-pwa-banner { bottom:20px; left:auto; right:20px; max-width:380px; } }
 
+/* ══ Section 4 : Refonte .pcard (override additif, préserve markup JS) ══ */
+.pcard {
+  border-radius:12px !important;
+  border-top:none !important;
+  border:1px solid rgba(15,20,16,.06) !important;
+  box-shadow:0 4px 20px rgba(15,20,16,.06) !important;
+  font-family:'Poppins', sans-serif;
+  transition:all .2s ease !important;
+}
+.pcard:hover {
+  transform:translateY(-3px) !important;
+  border-color:var(--wv2-or) !important;
+  box-shadow:0 12px 32px rgba(15,20,16,.12) !important;
+}
+.pcard .pcard-name { color:var(--wv2-noir-texte); font-weight:700 !important; font-size:16px !important; font-family:'Poppins',sans-serif; }
+.pcard .pcard-meta { color:var(--wv2-gris-texte); font-size:13px !important; font-family:'Poppins',sans-serif; }
+.pcard .pcard-rating { font-family:'Poppins',sans-serif; }
+.pcard .pcard-footer { border-top:1px solid rgba(15,20,16,.06) !important; }
+.pcard .pcard-price { color:var(--wv2-or) !important; font-family:'Fraunces',serif !important; }
+.pcard .pcard-avatar { background:linear-gradient(135deg,var(--wv2-or),var(--wv2-or-hover)) !important; }
+
 /* ══ Section 6 : WOLO Pay Hero ══ */
 .wv2-pay-hero { background:var(--wv2-dark); padding:72px 24px; border-top:1px solid rgba(232,148,10,.15); border-bottom:1px solid rgba(232,148,10,.15); }
 .wv2-pay-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center; }
