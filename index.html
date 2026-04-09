@@ -5554,9 +5554,6 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
             <i data-lucide="file-text"></i> <span>Mes posts</span>
           </button>
-          <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
-            <i data-lucide="file-user"></i> <span>Mon CV WOLO</span>
-          </button>
         </div>
       </div>
 
@@ -5594,7 +5591,10 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           <div class="dash-subgroup">
             <div class="dash-subgroup-lbl">Je cherche</div>
             <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
-              <i data-lucide="search"></i> <span>CV WOLO / Emploi</span>
+              <i data-lucide="search"></i> <span>Trouver un emploi</span>
+            </button>
+            <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
+              <i data-lucide="file-user"></i> <span>Mon CV WOLO</span>
             </button>
             <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
               <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
@@ -8775,12 +8775,21 @@ const AT_HEADERS = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'app
 // ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
-function showPage(page) {
+function showPage(page, _fromPop) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   document.querySelectorAll('.nav-link[data-nav]').forEach(b => b.classList.toggle('active', b.getAttribute('data-nav') === page));
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(applyResponsiveGrids, 50);
+  // History API : push state pour que le bouton Back de Chrome fonctionne
+  try {
+    if (!_fromPop) {
+      const cur = history.state && history.state.page;
+      if (cur !== page) {
+        history.pushState({ page: page }, '', '#' + page);
+      }
+    }
+  } catch(e) {}
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
@@ -19184,9 +19193,13 @@ body.wolo-v2-active .profil-cover {
   aspect-ratio:3/1 !important; min-height:0 !important;
   border-radius:0 0 20px 20px; position:relative;
 }
+/* Fix: pas de cover rendu → avatar ne doit plus chevaucher le bouton Retour */
+body.wolo-v2-active #page-profil .profil-hero-section { padding-top:24px !important; }
 body.wolo-v2-active .profil-avatar-wrap {
-  margin-top:-44px !important; z-index:3; position:relative;
+  margin-top:0 !important; z-index:1; position:relative;
 }
+#page-profil > div:first-child { position:relative; z-index:5; }
+#page-profil > div:first-child button { position:relative; z-index:6; }
 body.wolo-v2-active .profil-avatar-lg {
   width:88px !important; height:88px !important;
   border:4px solid var(--wv2-dark) !important;
@@ -19267,6 +19280,27 @@ body.wolo-v2-active .btn-pay-pro-v2 {
 (function(){
   document.addEventListener('DOMContentLoaded', function(){
     try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
+
+    // History API — bouton Back Chrome
+    try {
+      window.addEventListener('popstate', function(e){
+        var page = (e.state && e.state.page) || (location.hash || '').replace('#','') || 'home';
+        if (typeof showPage === 'function') {
+          try { showPage(page, true); } catch(err) { console.warn('popstate showPage', err); }
+        }
+      });
+      // État initial : remplace l'entrée courante avec la page active
+      var initialHash = (location.hash || '').replace('#','');
+      if (initialHash && !history.state) {
+        history.replaceState({ page: initialHash }, '', '#' + initialHash);
+      } else if (!history.state) {
+        var active = document.querySelector('.page.active');
+        if (active) {
+          var id = active.id.replace('page-','');
+          history.replaceState({ page: id }, '', '#' + id);
+        }
+      }
+    } catch(e) { console.warn('history init', e); }
 
     // Visit counter
     try {
