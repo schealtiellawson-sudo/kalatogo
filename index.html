@@ -15211,23 +15211,7 @@ async function injectSprint6Upgrade(){
   host.appendChild(block);
 }
 
-async function sp6ApplyCode(){
-  const code = (document.getElementById('sp6-code-parrain')?.value || '').trim().toUpperCase();
-  const msg = document.getElementById('sp6-code-msg');
-  if (!code){ msg.textContent=''; return; }
-  msg.style.color = 'rgba(248,246,241,.6)';
-  msg.textContent = 'Vérification...';
-  try{
-    const r = await fetch('/api/wolo-pay/parrainage-apply', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ user_id: currentUser.id, code })
-    });
-    const d = await r.json();
-    if (!r.ok){ msg.style.color='#ef4444'; msg.textContent = d.error || 'Code invalide'; return; }
-    msg.style.color='#4ade80';
-    msg.innerHTML = `✅ Code appliqué · ${d.parrain_nom} recevra 1 000 FCFA de commission`;
-  }catch(e){ msg.style.color='#ef4444'; msg.textContent='Erreur réseau'; }
-}
+// sp6ApplyCode supprimé : parrainage = lien d'affiliation uniquement (capture auto via ?ref=)
 
 async function sp6PayWithCredit(){
   if (!confirm('Confirmer : 2 500 FCFA seront débités de ton Crédit WOLO pour activer ton Plan Pro pendant 1 mois ?')) return;
