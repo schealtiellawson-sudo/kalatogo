@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" ry="96" fill="#0f1410"/>
+  <text x="256" y="288" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="288" fill="#E8940A">W</text>
+  <rect x="144" y="336" width="224" height="10" rx="5" fill="#E8940A"/>
+  <text x="256" y="416" text-anchor="middle" font-family="'Space Mono', monospace" font-size="38" letter-spacing="8" fill="#F8F6F1">MARKET</text>
+</svg>
