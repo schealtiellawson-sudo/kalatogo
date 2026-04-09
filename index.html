@@ -3043,6 +3043,108 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
   color:#E8940A !important;
 }
 
+/* ══ FIX CONTRASTE ROBUSTE : toute card à fond clair inline → dark glass + texte crème ══ */
+#page-dashboard [style*="background:white"],
+#page-dashboard [style*="background: white"],
+#page-dashboard [style*="background:#fff"],
+#page-dashboard [style*="background: #fff"],
+#page-dashboard [style*="background:#FFF"],
+#page-dashboard [style*="background: #FFF"],
+#page-dashboard [style*="background:#ffffff"],
+#page-dashboard [style*="background: #ffffff"],
+#page-dashboard [style*="background:#FFFFFF"],
+#page-dashboard [style*="background-color:white"],
+#page-dashboard [style*="background-color: white"],
+#page-dashboard [style*="background-color:#fff"],
+#page-dashboard [style*="background-color: #fff"],
+#page-dashboard [style*="background-color:#ffffff"],
+#page-dashboard [style*="background-color: #ffffff"],
+#page-dashboard [style*="background:var(--blanc)"],
+#page-dashboard [style*="background: var(--blanc)"],
+#page-dashboard [style*="background:var(--creme)"],
+#page-dashboard [style*="background: var(--creme)"],
+#page-dashboard [style*="background:#f8f6f1"],
+#page-dashboard [style*="background: #f8f6f1"],
+#page-dashboard [style*="background:#F8F6F1"],
+#page-dashboard [style*="background: #F8F6F1"],
+#page-dashboard [style*="background:#fef3dc"],
+#page-dashboard [style*="background: #fef3dc"],
+#page-dashboard [style*="background:#fffbeb"],
+#page-dashboard [style*="background: #fffbeb"]{
+  background:rgba(255,255,255,.04) !important;
+  border:1px solid rgba(232,148,10,.2) !important;
+  color:#F8F6F1 !important;
+}
+/* Force tous les descendants directs/indirects de ces cards à hériter en crème lisible */
+#page-dashboard [style*="background:white"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background: white"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background:#fff"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background:#ffffff"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background-color:#fff"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background-color:white"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background:var(--blanc)"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background:var(--creme)"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background:#f8f6f1"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background:#fef3dc"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost),
+#page-dashboard [style*="background:#fffbeb"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button):not(.btn):not(.btn-primary):not(.btn-or):not(.btn-ghost){
+  color:#F8F6F1 !important;
+}
+/* Les textes explicitement gris foncé / noir à l'intérieur de ces cards → crème atténuée */
+#page-dashboard [style*="background:white"] [style*="color:var(--gris)"],
+#page-dashboard [style*="background: white"] [style*="color:var(--gris)"],
+#page-dashboard [style*="background:#fff"] [style*="color:var(--gris)"],
+#page-dashboard [style*="background:white"] [style*="color:#92400e"],
+#page-dashboard [style*="background:white"] [style*="color:#374151"],
+#page-dashboard [style*="background:white"] [style*="color:#111827"],
+#page-dashboard [style*="background:white"] [style*="color:#1f2937"]{
+  color:rgba(248,246,241,.75) !important;
+}
+/* Titres dans ces cards restent or */
+#page-dashboard [style*="background:white"] h1,
+#page-dashboard [style*="background:white"] h2,
+#page-dashboard [style*="background:white"] h3,
+#page-dashboard [style*="background:white"] h4,
+#page-dashboard [style*="background:#fff"] h1,
+#page-dashboard [style*="background:#fff"] h2,
+#page-dashboard [style*="background:#fff"] h3,
+#page-dashboard [style*="background:#fff"] h4,
+#page-dashboard [style*="background:var(--blanc)"] h1,
+#page-dashboard [style*="background:var(--blanc)"] h2,
+#page-dashboard [style*="background:var(--blanc)"] h3,
+#page-dashboard [style*="background:var(--blanc)"] h4{
+  color:#E8940A !important;
+}
+/* Cas spécifique emploi-mode toggle : pastille track + thumb visibles sur dark */
+#page-dashboard #emploi-mode-toggle-wrap{
+  background:rgba(255,255,255,.04) !important;
+  border:1px solid rgba(232,148,10,.25) !important;
+  box-shadow:0 0 20px rgba(232,148,10,.08) !important;
+}
+#page-dashboard #emploi-mode-toggle-wrap #emploi-mode-track{
+  background:rgba(255,255,255,.18) !important;
+}
+#page-dashboard #emploi-mode-toggle-wrap #emploi-mode-thumb{
+  background:#F8F6F1 !important;
+}
+#page-dashboard #emploi-mode-toggle-wrap #emploi-mode-label-off,
+#page-dashboard #emploi-mode-toggle-wrap #emploi-mode-label-on,
+#page-dashboard #emploi-mode-toggle-wrap #emploi-mode-status-text{
+  color:#F8F6F1 !important;
+}
+#page-dashboard #emploi-mode-toggle-wrap.is-on #emploi-mode-label-on,
+#page-dashboard #emploi-mode-toggle-wrap [id="emploi-mode-label-on"]{
+  color:#E8940A !important;
+}
+
+/* Dernier filet de sécurité : tout texte direct dans une .dash-section reste crème lisible */
+#page-dashboard .dash-section > *,
+#page-dashboard .dash-section p,
+#page-dashboard .dash-section span:not([class*="badge"]):not(.parrain-comm-badge),
+#page-dashboard .dash-section label,
+#page-dashboard .dash-section li{
+  color:#F8F6F1;
+}
+
 /* ════════════════ SPRINT 5 — Plan Pro Juillet, Countdown, Mur gagnants ════════════════ */
 .wolo-gains-juillet{background:linear-gradient(160deg,#0f1410,#1a1f1c);border:1px solid rgba(232,148,10,0.35);border-radius:20px;padding:28px 26px;margin-bottom:24px;color:#F8F6F1;position:relative;overflow:hidden;}
 .wolo-gains-juillet::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(232,148,10,0.12),transparent 60%);pointer-events:none;}
