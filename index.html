@@ -4450,6 +4450,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           <a>📧 contact@wolomarket.com</a>
           <a>📱 WhatsApp</a>
           <a>🎵 TikTok @WOLOMarket</a>
+          <a onclick="showPage('cgu')" style="cursor:pointer;">📄 CGU</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -14297,7 +14298,8 @@ async function confirmClientPay() {
           id: Date.now().toString(),
           type: 'client_payment',
           montant: amount,
-          message: `💳 Paiement reçu — ${amount.toLocaleString('fr-FR')} FCFA via Flooz/TMoney`,
+          titre: 'Paiement reçu',
+          message: `${(nom||'Un client').split(' ')[0]} t'a payé ${amount.toLocaleString('fr-FR')} FCFA · Disponible sur ton Crédit WOLO`,
           date: new Date().toISOString(),
           read: false
         });
@@ -16199,6 +16201,7 @@ async function updateStatutCandidature(candidatureId, statut) {
           <a>📧 contact@wolomarket.com</a>
           <a>📱 WhatsApp</a>
           <a>🎵 TikTok @WOLOMarket</a>
+          <a onclick="showPage('cgu')" style="cursor:pointer;">📄 CGU</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -16586,6 +16589,7 @@ async function updateStatutCandidature(candidatureId, statut) {
           <a>📧 contact@wolomarket.com</a>
           <a>📱 WhatsApp</a>
           <a>🎵 TikTok @WOLOMarket</a>
+          <a onclick="showPage('cgu')" style="cursor:pointer;">📄 CGU</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -19686,6 +19690,131 @@ body.wolo-v2-active .btn-pay-pro-v2 {
       var mo = new MutationObserver(function(){ patchProfil(); });
       mo.observe(container, { childList:true, subtree:true });
     }
+  });
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     SPRINT 2 — PAGE CGU
+════════════════════════════════════════════ -->
+<div id="page-cgu" class="page" style="display:none;">
+  <section style="background:#0f1410;padding:80px 24px;min-height:90vh;">
+    <div class="container" style="max-width:820px;color:#F8F6F1;">
+      <button onclick="showPage('home')" style="background:transparent;border:1px solid rgba(232,148,10,0.4);color:#E8940A;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:32px;">← Retour</button>
+      <h1 style="font-family:'Fraunces',serif;font-size:clamp(32px,5vw,48px);font-weight:900;color:#F8F6F1;margin:0 0 12px;">Conditions Générales d'Utilisation</h1>
+      <p style="color:rgba(248,246,241,0.6);font-size:14px;margin:0 0 40px;">WOLO DIGITAL SERVICES SARL · Cotonou, Bénin · En vigueur au 2026</p>
+
+      <article style="margin-bottom:40px;">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;color:#E8940A;margin:0 0 14px;">Article 1 — Objet</h2>
+        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.8);margin:0;">Les présentes CGU régissent l'utilisation de la plateforme WOLO Market, accessible depuis le Bénin, le Togo et tout pays où le service est proposé. L'utilisateur reconnaît en avoir pris connaissance et les accepter sans réserve lors de la création de son compte.</p>
+      </article>
+
+      <article style="margin-bottom:40px;">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;color:#E8940A;margin:0 0 14px;">Article 2 — Accès au service</h2>
+        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.8);margin:0;">L'accès à WOLO Market est gratuit. Certaines fonctionnalités avancées (Plan Pro, WOLO Pay commerçant, parrainage rémunéré) nécessitent un abonnement mensuel dont le tarif est indiqué sur la plateforme. L'utilisateur est responsable de la confidentialité de ses identifiants.</p>
+      </article>
+
+      <article style="margin-bottom:40px;">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;color:#E8940A;margin:0 0 14px;">Article 3 — Nature du Crédit WOLO</h2>
+        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0 0 14px;">Le Crédit WOLO est un avoir commercial attaché au compte de l'utilisateur sur la plateforme WOLO Market, opérée par WOLO DIGITAL SERVICES SARL, société de droit béninois domiciliée à Cotonou.</p>
+        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0 0 14px;">Le Crédit WOLO n'est pas un compte bancaire, n'est pas un dépôt bancaire, n'est pas un portefeuille électronique au sens de la réglementation BCEAO, et ne constitue pas de la monnaie électronique au sens de l'Instruction n°008-05-2015 de la BCEAO.</p>
+        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0 0 14px;">WOLO DIGITAL SERVICES SARL n'est pas un établissement de crédit, n'accepte pas de dépôts au sens bancaire, et n'émet pas de monnaie électronique. L'utilisateur reconnaît et accepte expressément cette qualification.</p>
+        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0;">Le Crédit WOLO peut être utilisé pour régler des services sur la plateforme WOLO Market ou être restitué à son titulaire sous forme de remboursement d'avoir non consommé vers un compte mobile money désigné par l'utilisateur.</p>
+      </article>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SPRINT 2 — ONBOARDING + NOTIF TEMPLATES
+════════════════════════════════════════════ -->
+<script>
+// ── Templates de notifications WOLO ──
+window.WOLO_NOTIF_TEMPLATES = {
+  paiement_recu:   { titre: "Paiement reçu",                      corps: "{prenom} t'a payé {montant} FCFA · Disponible sur ton Crédit WOLO" },
+  transfert_recu:  { titre: "Crédit WOLO reçu",                   corps: "{nom} t'a envoyé {montant} FCFA" },
+  commission:      { titre: "Commission reçue",                   corps: "Tu as reçu {montant} FCFA · {filleul} vient de renouveler son Plan Pro" },
+  rappel_abo:      { titre: "Ton Plan Pro expire dans 3 jours",   corps: "Renouvelle maintenant pour ne pas perdre ton QR code et tes statistiques" },
+  bourse:          { titre: "Tirage dans 24h",                    corps: "Tu es éligible à la Bourse de Croissance. Le tirage a lieu vendredi à 18h00." }
+};
+window.woloNotif = function(key, vars){
+  var tpl = window.WOLO_NOTIF_TEMPLATES[key];
+  if (!tpl) return { titre:'', corps:'' };
+  var fill = function(s){ return s.replace(/\{(\w+)\}/g, function(_,k){ return (vars && vars[k] != null) ? vars[k] : ''; }); };
+  return { titre: fill(tpl.titre), corps: fill(tpl.corps) };
+};
+
+// ── Onboarding 3 écrans ──
+(function(){
+  var STORAGE_KEY = 'wolo_onboarding_done';
+
+  function buildOnboarding(){
+    if (document.getElementById('wolo-onboarding-modal')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'wolo-onboarding-modal';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,20,16,0.96);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Poppins,sans-serif;';
+    wrap.innerHTML = ''
+      + '<div style="max-width:460px;width:100%;background:linear-gradient(180deg,#1F2937 0%,#0f1410 100%);border:1px solid rgba(232,148,10,0.3);border-radius:24px;padding:40px 28px 32px;text-align:center;color:#F8F6F1;box-shadow:0 30px 80px rgba(0,0,0,0.6);">'
+      +   '<div id="wolo-onb-icon" style="width:88px;height:88px;margin:0 auto 24px;border-radius:50%;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.4);display:flex;align-items:center;justify-content:center;"></div>'
+      +   '<h2 id="wolo-onb-title" style="font-family:Fraunces,serif;font-size:26px;font-weight:900;margin:0 0 14px;color:#F8F6F1;line-height:1.2;"></h2>'
+      +   '<p id="wolo-onb-text" style="font-size:15px;line-height:1.65;color:rgba(248,246,241,0.8);margin:0 0 30px;"></p>'
+      +   '<div id="wolo-onb-dots" style="display:flex;gap:8px;justify-content:center;margin-bottom:24px;"></div>'
+      +   '<div id="wolo-onb-btns" style="display:flex;flex-direction:column;gap:10px;"></div>'
+      + '</div>';
+    document.body.appendChild(wrap);
+
+    var steps = [
+      { icon:'hard-hat',   title:'Bienvenue sur WOLO Market.', text:'Ton profil professionnel gratuit en 2 minutes. Tes clients te trouvent. Tu reçois des paiements. Tu gagnes en visibilité chaque jour.', primary:'Commencer' },
+      { icon:'wallet',     title:'WOLO Pay est inclus.',       text:"Dès aujourd'hui, tu as un Crédit WOLO. Recharge-le. Utilise-le pour payer tes achats chez les commerçants WOLO. Entre membres WOLO — zéro frais. Jamais.", primary:'Suivant' },
+      { icon:'badge-check',title:'Passe Pro pour être payé.',  text:"Le Plan Pro à 2 500 FCFA/mois te donne ton QR code commerçant, tes statistiques de paiement, et l'accès à la Bourse de Croissance.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
+    ];
+    var idx = 0;
+
+    function render(){
+      var s = steps[idx];
+      document.getElementById('wolo-onb-icon').innerHTML = '<i data-lucide="'+s.icon+'" style="width:42px;height:42px;color:#E8940A;"></i>';
+      document.getElementById('wolo-onb-title').textContent = s.title;
+      document.getElementById('wolo-onb-text').textContent = s.text;
+      var dots = steps.map(function(_,i){
+        return '<span style="width:'+(i===idx?'24px':'8px')+';height:8px;border-radius:100px;background:'+(i===idx?'#E8940A':'rgba(248,246,241,0.25)')+';transition:all .25s;"></span>';
+      }).join('');
+      document.getElementById('wolo-onb-dots').innerHTML = dots;
+      var btns = '<button id="wolo-onb-primary" style="background:#E8940A;color:#0f1410;border:none;padding:14px 24px;border-radius:100px;font-weight:800;font-size:15px;cursor:pointer;">'+s.primary+'</button>';
+      if (s.secondary) {
+        btns += '<button id="wolo-onb-secondary" style="background:transparent;color:rgba(248,246,241,0.7);border:1px solid rgba(248,246,241,0.25);padding:12px 24px;border-radius:100px;font-weight:700;font-size:14px;cursor:pointer;">'+s.secondary+'</button>';
+      }
+      document.getElementById('wolo-onb-btns').innerHTML = btns;
+      if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch(e){} }
+
+      document.getElementById('wolo-onb-primary').onclick = function(){
+        if (idx < steps.length - 1) { idx++; render(); }
+        else { close(); if (typeof showPage === 'function') showPage('inscription'); }
+      };
+      var sec = document.getElementById('wolo-onb-secondary');
+      if (sec) sec.onclick = function(){ close(); };
+    }
+
+    function close(){
+      try { localStorage.setItem(STORAGE_KEY, '1'); } catch(e){}
+      var el = document.getElementById('wolo-onboarding-modal');
+      if (el) el.remove();
+    }
+
+    render();
+  }
+
+  window.showWoloOnboarding = function(){ buildOnboarding(); };
+
+  // Auto-trigger après inscription (1er login)
+  document.addEventListener('DOMContentLoaded', function(){
+    try {
+      var done = localStorage.getItem(STORAGE_KEY);
+      var justSigned = localStorage.getItem('wolo_just_signed_up');
+      if (!done && justSigned === '1') {
+        localStorage.removeItem('wolo_just_signed_up');
+        setTimeout(buildOnboarding, 600);
+      }
+    } catch(e){}
   });
 })();
 </script>
