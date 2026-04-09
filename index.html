@@ -2840,6 +2840,47 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
   color:#E8940A !important;
   border:1px solid rgba(232,148,10,.4) !important;
   box-shadow:0 0 20px rgba(232,148,10,.15);
+  border-left:3px solid #E8940A !important;
+}
+
+/* ══ Dashboard sidebar — groupes collapsibles (pattern wv2) ══ */
+.dash-group { display:flex; flex-direction:column; margin-bottom:4px; }
+.dash-group-head {
+  display:flex; align-items:center; gap:10px;
+  padding:11px 12px; border-radius:10px;
+  background:transparent; border:1px solid transparent;
+  color:#F8F6F1; font-family:'Cabinet Grotesk',sans-serif;
+  font-size:13px; font-weight:700; letter-spacing:.02em;
+  cursor:pointer; text-align:left; width:100%;
+  transition:all .2s;
+}
+.dash-group-head:hover { background:rgba(232,148,10,.08); color:#E8940A; border-color:rgba(232,148,10,.2); }
+.dash-group-head i.lucide, .dash-group-head svg { width:16px; height:16px; flex-shrink:0; }
+.dash-group-head .dash-group-lbl { flex:1; }
+.dash-group-head .dash-chev { width:14px; height:14px; transition:transform .25s; opacity:.7; }
+.dash-group.open > .dash-group-head .dash-chev { transform:rotate(90deg); }
+.dash-group.open > .dash-group-head { color:#E8940A; }
+.dash-group-body {
+  display:none; flex-direction:column; gap:2px;
+  padding:4px 0 8px 14px; margin-left:10px;
+  border-left:1px solid rgba(232,148,10,.15);
+}
+.dash-group.open > .dash-group-body { display:flex; }
+.dash-group-body .dash-link { font-size:13px; padding:8px 12px; }
+.dash-subgroup { margin-top:6px; }
+.dash-subgroup-lbl {
+  font-family:'Space Mono',monospace;
+  font-size:9px; font-weight:700; letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:rgba(232,148,10,.6);
+  padding:6px 12px 4px;
+}
+
+/* Mobile : sidebar dashboard en accordéon, groupes restent collapsibles */
+@media (max-width:768px){
+  #page-dashboard .dashboard-sidebar { display:block !important; flex-wrap:initial !important; }
+  #page-dashboard .dash-group-body { padding-left:10px; }
+  #page-dashboard .dash-link { padding:10px 12px !important; font-size:13px !important; flex:initial !important; }
 }
 
 /* Cards / widgets — cible tous les blocs à fond blanc/clair inline */
@@ -5477,80 +5518,133 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
 <div id="page-dashboard" class="page">
   <div class="dashboard-layout">
 
-    <!-- Sidebar -->
+    <!-- Sidebar collapsible (refonte sprint 2026-04-09) -->
     <div class="dashboard-sidebar">
-      <h3>Mon espace</h3>
-      <button class="dash-link" onclick="viewMyProfile()" style="background:linear-gradient(135deg,var(--vert-light),var(--or-light));color:var(--vert);font-weight:800;border:2px solid var(--vert);">
-        <span class="icon">👤</span> Mon Profil Public
+      <button class="dash-link" onclick="viewMyProfile()" style="font-weight:800;border:1px solid rgba(232,148,10,.4) !important;background:linear-gradient(135deg, rgba(232,148,10,.18), rgba(232,148,10,.06)) !important;color:#E8940A !important;">
+        <i data-lucide="user-circle"></i> <span>Mon Profil Public</span>
       </button>
       <button class="dash-link active" onclick="showDashSection('overview')" id="dl-overview">
-        <span class="icon">📊</span> Vue d'ensemble
+        <i data-lucide="layout-dashboard"></i> <span>Vue d'ensemble</span>
       </button>
       <button class="dash-link" onclick="showDashSection('notifications')" id="dl-notifications" style="position:relative;">
-        <span class="icon">🔔</span> Activité
+        <i data-lucide="bell"></i> <span>Activité</span>
         <span id="notif-badge" style="display:none;background:#ef4444;color:white;border-radius:100px;font-size:10px;font-weight:800;padding:1px 7px;margin-left:auto;line-height:1.6;">0</span>
       </button>
       <button class="dash-link" onclick="showDashSection('dispo')" id="dl-dispo">
-        <span class="icon">🟢</span> Disponibilité
+        <i data-lucide="circle-dot"></i> <span>Disponibilité</span>
       </button>
-        <button class="dash-link" onclick="showDashSection('rdv')" id="dl-rdv">
-          <span class="icon">📅</span> Mon Agenda
+      <button class="dash-link" onclick="showDashSection('rdv')" id="dl-rdv">
+        <i data-lucide="calendar"></i> <span>Mon Agenda</span>
+      </button>
+
+      <!-- Mon profil -->
+      <div class="dash-group" data-group="profil">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
+          <i data-lucide="user"></i>
+          <span class="dash-group-lbl">Mon profil</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
         </button>
-      <button class="dash-link" onclick="showDashSection('profil')" id="dl-profil">
-        <span class="icon">✏️</span> Modifier mon profil
-      </button>
-      <button class="dash-link" onclick="showDashSection('photos')" id="dl-photos">
-        <span class="icon">📸</span> Mes photos
-      </button>
-      <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
-        <span class="icon">📝</span> Mes posts
-      </button>
-      <button class="dash-link" onclick="showDashSection('paiement')" id="dl-paiement" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#1d4ed8;border:1.5px solid #bfdbfe;font-weight:800;">
-        <span class="icon">💳</span> Encaisser
-      </button>
-      <button class="dash-link" onclick="showDashSection('historique-paiements')" id="dl-historique-paiements">
-        <span class="icon">💰</span> Paiements reçus
-      </button>
-      <h3>Emploi</h3>
-      <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
-        <span class="icon">💼</span> CV WOLO / Emploi
-      </button>
-      <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
-        <span class="icon">📋</span> Mes candidatures
-      </button>
-      <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
-        <span class="icon">📄</span> Mon CV WOLO
-      </button>
-      <!-- Recrutement (Pro only) -->
-      <div id="dl-recrut-section" style="display:none;">
-        <h3>Recrutement</h3>
-        <button class="dash-link" onclick="showDashSection('recrut-publier')" id="dl-recrut-publier" style="color:var(--or);font-weight:700;">
-          <span class="icon">📢</span> Publier une offre
-        </button>
-        <button class="dash-link" onclick="showDashSection('recrut-offres')" id="dl-recrut-offres">
-          <span class="icon">📂</span> Mes offres
-        </button>
-        <button class="dash-link" onclick="showDashSection('recrut-candidatures')" id="dl-recrut-candidatures">
-          <span class="icon">👥</span> Candidatures reçues
-        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('profil')" id="dl-profil">
+            <i data-lucide="edit-3"></i> <span>Modifier mon profil</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('photos')" id="dl-photos">
+            <i data-lucide="image"></i> <span>Mes photos</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
+            <i data-lucide="file-text"></i> <span>Mes posts</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
+            <i data-lucide="file-user"></i> <span>Mon CV WOLO</span>
+          </button>
+        </div>
       </div>
-      <h3>Clients</h3>
-      <button class="dash-link" onclick="showDashSection('avis')" id="dl-avis">
-        <span class="icon">⭐</span> Mes avis
-      </button>
-      <h3>Compte</h3>
-      <button class="dash-link" onclick="showDashSection('securite')" id="dl-securite">
-        <span class="icon">🔒</span> Sécurité
-      </button>
-      <button class="dash-link" onclick="showDashSection('abonnement')" id="dl-abonnement">
-        <span class="icon">💳</span> Mon abonnement
-      </button>
-      <button class="dash-link" onclick="showDashSection('parrainage')" id="dl-parrainage" style="color:var(--or);font-weight:800;">
-        <span class="icon">🔗</span> Parrainage 💰
-      </button>
-      <button class="dash-link" onclick="handleLogout()" style="color:#dc2626;" id="dl-logout">
-        <span class="icon">🚪</span> Se déconnecter
-      </button>
+
+      <!-- Finances -->
+      <div class="dash-group" data-group="finances">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
+          <i data-lucide="wallet"></i>
+          <span class="dash-group-lbl">Finances</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('paiement')" id="dl-paiement">
+            <i data-lucide="credit-card"></i> <span>Encaisser</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('historique-paiements')" id="dl-historique-paiements">
+            <i data-lucide="receipt"></i> <span>Paiements reçus</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('abonnement')" id="dl-abonnement">
+            <i data-lucide="badge-check"></i> <span>Mon abonnement</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('parrainage')" id="dl-parrainage">
+            <i data-lucide="gift"></i> <span>Parrainage</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Emploi & Recrutement -->
+      <div class="dash-group" data-group="emploi">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
+          <i data-lucide="briefcase"></i>
+          <span class="dash-group-lbl">Emploi &amp; Recrutement</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <div class="dash-subgroup">
+            <div class="dash-subgroup-lbl">Je cherche</div>
+            <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
+              <i data-lucide="search"></i> <span>CV WOLO / Emploi</span>
+            </button>
+            <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
+              <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
+            </button>
+          </div>
+          <div class="dash-subgroup" id="dl-recrut-section" style="display:none;">
+            <div class="dash-subgroup-lbl">Je recrute</div>
+            <button class="dash-link" onclick="showDashSection('recrut-publier')" id="dl-recrut-publier">
+              <i data-lucide="megaphone"></i> <span>Publier une offre</span>
+            </button>
+            <button class="dash-link" onclick="showDashSection('recrut-offres')" id="dl-recrut-offres">
+              <i data-lucide="folder-open"></i> <span>Mes offres</span>
+            </button>
+            <button class="dash-link" onclick="showDashSection('recrut-candidatures')" id="dl-recrut-candidatures">
+              <i data-lucide="users"></i> <span>Candidatures reçues</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clients -->
+      <div class="dash-group" data-group="clients">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
+          <i data-lucide="heart"></i>
+          <span class="dash-group-lbl">Clients</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('avis')" id="dl-avis">
+            <i data-lucide="star"></i> <span>Mes avis</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Compte -->
+      <div class="dash-group" data-group="compte">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
+          <i data-lucide="settings"></i>
+          <span class="dash-group-lbl">Compte</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('securite')" id="dl-securite">
+            <i data-lucide="shield"></i> <span>Sécurité</span>
+          </button>
+          <button class="dash-link" onclick="handleLogout()" id="dl-logout" style="color:#dc2626;">
+            <i data-lucide="log-out"></i> <span>Se déconnecter</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Main -->
@@ -7212,11 +7306,28 @@ function viewMyProfile() {
 // ══════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════
+function toggleDashGroup(head){
+  var g = head.closest('.dash-group');
+  if (!g) return;
+  g.classList.toggle('open');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
+  // Ouvre par défaut le groupe "Mon profil"
+  var first = document.querySelector('.dashboard-sidebar .dash-group[data-group="profil"]');
+  if (first) first.classList.add('open');
+});
+function openDashGroupContaining(linkEl){
+  if (!linkEl) return;
+  var g = linkEl.closest('.dash-group');
+  if (g) g.classList.add('open');
+}
 function showDashSection(section) {
   document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.dash-link').forEach(l => l.classList.remove('active'));
   document.getElementById('ds-' + section)?.classList.add('active');
-  document.getElementById('dl-' + section)?.classList.add('active');
+  var linkEl = document.getElementById('dl-' + section);
+  if (linkEl) { linkEl.classList.add('active'); openDashGroupContaining(linkEl); }
 
   if (section === 'overview') loadDashOverview();
   if (section === 'dispo') { loadDispo(); initDispoEditor(); renderDispoEditor(); }
@@ -19001,10 +19112,9 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:64px; }
     padding:20px 14px; z-index:900; overflow-y:auto;
     font-family:'Poppins',sans-serif;
   }
-  body.wolo-v2-active { padding-left:240px; }
-  body.wolo-v2-active > nav:not(.mobile-bottom-nav) { left:240px; }
-  body.wolo-v2-active .mobile-bottom-nav { display:none !important; }
 }
+/* wv2-sidebar globale désactivée — voir dashboard-sidebar collapsible pour la nav dashboard */
+.wv2-sidebar { display:none !important; }
 .wv2-sidebar-item {
   display:flex; align-items:center; gap:12px;
   padding:12px 14px; border-radius:10px;
@@ -19229,8 +19339,9 @@ body.wolo-v2-active .btn-pay-pro-v2 {
 </script>
 
 <script>
-// ══ WOLO v2 — Section 3 : Sidebar desktop 240px ══
+// ══ WOLO v2 — Section 3 : Sidebar desktop 240px (DÉSACTIVÉ — remplacé par dashboard-sidebar collapsible) ══
 (function(){
+  if (true) return; // désactivation : la sidebar globale faisait doublon avec la nav
   document.addEventListener('DOMContentLoaded', function(){
     if (document.querySelector('.wv2-sidebar')) return;
     var items = [
