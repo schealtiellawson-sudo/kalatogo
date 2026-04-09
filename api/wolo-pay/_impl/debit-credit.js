@@ -1,10 +1,10 @@
 // ================================================================
 // WOLO Pay — Payer abonnement Pro via Crédit WOLO
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { debiterCreditWolo } from '../utils/credit.js';
-import { traiterPaiementAbonnement } from '../paiements/abonnement.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { debiterCreditWolo } from '../../_utils/credit.js';
+import { traiterPaiementAbonnement } from '../../paiements/abonnement.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 const MONTANT_PRO_DEFAULT = 2500;
 

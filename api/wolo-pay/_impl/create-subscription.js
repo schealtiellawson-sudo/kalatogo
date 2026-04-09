@@ -5,9 +5,9 @@
 // Body : { user_id, email?, nom?, montant?, methode? }
 // methode : 'fedapay' (défaut) | 'credit_wolo'
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { creerTransactionFedaPay } from '../fedapay.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { creerTransactionFedaPay } from '../../_lib/fedapay.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 const MONTANT_PRO_DEFAULT = 2500;
 

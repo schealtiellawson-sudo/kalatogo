@@ -1,8 +1,8 @@
 // ================================================================
 // WOLO Pay — Transfert P2P Crédit WOLO
 // ================================================================
-import { debiterCreditWolo, crediterCreditWolo, envoyerNotification } from '../utils/credit.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { debiterCreditWolo, crediterCreditWolo, envoyerNotification } from '../../_utils/credit.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

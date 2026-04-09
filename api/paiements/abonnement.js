@@ -7,7 +7,7 @@
 // Garantit le traitement du parrainage dans tous les cas.
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
-import { crediterCreditWolo, envoyerNotification } from '../utils/credit.js';
+import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
 
 export async function traiterPaiementAbonnement({ user_id, paiement_id, montant, methode = 'fedapay' }) {
   // 0. Idempotence : si déjà PAYÉ et parrainage_traite, ne rien faire

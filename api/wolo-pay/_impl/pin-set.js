@@ -2,9 +2,9 @@
 // WOLO Pay — Créer / réinitialiser le PIN
 // POST /api/wolo-pay/pin-set  { user_id, pin }
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { hashPin } from '../_lib/pin.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { hashPin } from '../../_lib/pin.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

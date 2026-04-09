@@ -3,7 +3,7 @@
 // ================================================================
 // GET /api/wolo-pay/history?user_id=xxx&statut=PAYÉ&limit=50
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
+import { supabase } from '../../_lib/supabase.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });

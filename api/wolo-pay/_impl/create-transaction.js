@@ -5,9 +5,9 @@
 // Body : { merchant_id, merchant_email?, montant, operateur?, mode_paiement?, pays_client?, description? }
 // Retour : { ok, transaction, fedapay? }
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { creerTransactionFedaPay } from '../fedapay.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { creerTransactionFedaPay } from '../../_lib/fedapay.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 const TAUX_FRAIS = 0.015;
 

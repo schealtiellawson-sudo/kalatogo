@@ -2,9 +2,9 @@
 // WOLO Pay — Transfert par email (pratique pour l'UI Envoyer)
 // POST /api/wolo-pay/transfer-by-email { from_user_id, to_email, montant, description }
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { debiterCreditWolo, crediterCreditWolo, envoyerNotification } from '../utils/credit.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { debiterCreditWolo, crediterCreditWolo, envoyerNotification } from '../../_utils/credit.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

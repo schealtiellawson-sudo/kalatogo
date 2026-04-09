@@ -6,7 +6,7 @@
 // préfixe de reference_interne (WP- / ABO-).
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
-import { crediterCreditWolo, envoyerNotification } from '../utils/credit.js';
+import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
 import { traiterPaiementAbonnement } from '../paiements/abonnement.js';
 
 export default async function handler(req, res) {

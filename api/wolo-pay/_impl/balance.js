@@ -3,8 +3,8 @@
 // ================================================================
 // GET /api/wolo-pay/balance?user_id=xxx&email=yyy&limit=20
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });

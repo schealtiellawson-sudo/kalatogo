@@ -2,9 +2,9 @@
 // WOLO Pay — Retrait Crédit WOLO vers mobile money
 // POST /api/wolo-pay/recuperer { user_id, montant, operateur, telephone }
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { debiterCreditWolo, envoyerNotification } from '../utils/credit.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { debiterCreditWolo, envoyerNotification } from '../../_utils/credit.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 const MIN_WITHDRAWAL = 1000;
 const FRAIS_GRATUIT = 0.02;

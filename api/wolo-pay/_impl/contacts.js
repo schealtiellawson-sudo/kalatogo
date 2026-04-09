@@ -5,7 +5,7 @@
 // PATCH  /api/wolo-pay/contacts { id, surnom }
 // DELETE /api/wolo-pay/contacts?id=xxx
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
+import { supabase } from '../../_lib/supabase.js';
 
 export default async function handler(req, res) {
   try {

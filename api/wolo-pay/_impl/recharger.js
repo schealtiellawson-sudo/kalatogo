@@ -2,9 +2,9 @@
 // WOLO Pay — Recharger Crédit WOLO depuis mobile money
 // POST /api/wolo-pay/recharger { user_id, montant, operateur, telephone }
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { creerTransactionFedaPay } from '../fedapay.js';
-import { ensureUserProvisioned } from '../_lib/provisioning.js';
+import { supabase } from '../../_lib/supabase.js';
+import { creerTransactionFedaPay } from '../../_lib/fedapay.js';
+import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 const PLAFOND_MAX = 200000;
 

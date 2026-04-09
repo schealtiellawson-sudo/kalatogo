@@ -2,8 +2,8 @@
 // WOLO Pay — Vérifier PIN (3 tentatives → blocage 30 min)
 // POST /api/wolo-pay/pin-verify  { user_id, pin }
 // ================================================================
-import { supabase } from '../_lib/supabase.js';
-import { verifyPin } from '../_lib/pin.js';
+import { supabase } from '../../_lib/supabase.js';
+import { verifyPin } from '../../_lib/pin.js';
 
 const MAX_ATTEMPTS = 3;
 const LOCK_MINUTES = 30;

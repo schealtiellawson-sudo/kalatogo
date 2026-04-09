@@ -6,7 +6,7 @@
 supabase/migrations/20260409_wolo_pay_infra.sql   → 8 tables + RLS + triggers
 api/_lib/supabase.js                              → client Supabase service role
 api/fedapay.js                                    → wrapper FedaPay (sandbox/live)
-api/utils/credit.js                               → crediter/debiter Crédit WOLO + notif
+api/_utils/credit.js                               → crediter/debiter Crédit WOLO + notif
 api/paiements/abonnement.js                       → traiterPaiementAbonnement() central
 api/webhooks/fedapay.js                           → webhook FedaPay (WP- et ABO-)
 ```
