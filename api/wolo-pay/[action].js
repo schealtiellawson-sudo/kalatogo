@@ -15,8 +15,16 @@ import recuperer from './_impl/recuperer.js';
 import searchUser from './_impl/search-user.js';
 import transfer from './_impl/transfer.js';
 import transferByEmail from './_impl/transfer-by-email.js';
+import merchantPublic from './_impl/merchant-public.js';
+import createPaymentLink from './_impl/create-payment-link.js';
+import processPublicPay from './_impl/process-public-pay.js';
+import stats from './_impl/stats.js';
 
 const handlers = {
+  'merchant-public': merchantPublic,
+  'create-payment-link': createPaymentLink,
+  'process-public-pay': processPublicPay,
+  'stats': stats,
   'balance': balance,
   'contacts': contacts,
   'create-subscription': createSubscription,

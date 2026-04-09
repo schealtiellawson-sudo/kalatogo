@@ -5667,6 +5667,15 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           <button class="dash-link" onclick="showDashSection('paiement')" id="dl-paiement">
             <i data-lucide="credit-card"></i> <span>Encaisser (WOLO Pay)</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('qr-code')" id="dl-qr-code">
+            <i data-lucide="qr-code"></i> <span>Mon QR Code</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('lien-paiement')" id="dl-lien-paiement">
+            <i data-lucide="link"></i> <span>Lien de paiement</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('stats-pro')" id="dl-stats-pro">
+            <i data-lucide="bar-chart-3"></i> <span>Statistiques Pro</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('historique-paiements')" id="dl-historique-paiements">
             <i data-lucide="receipt"></i> <span>Paiements reçus</span>
           </button>
@@ -6626,7 +6635,87 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
         .dash-link-hl { background:linear-gradient(90deg, rgba(232,148,10,0.18), transparent) !important; border-left:3px solid #E8940A !important; }
       </style>
 
-      <div class="dash-section" id="ds-credit-wolo">
+      <!-- ══ SPRINT 5 — QR CODE ══ -->
+      <div class="dash-section" id="ds-qr-code" style="display:none">
+        <div style="max-width:520px;margin:0 auto;padding:20px 16px;color:#F8F6F1">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><button onclick="showDashSection('credit-wolo')" style="background:none;border:none;color:#E8940A;cursor:pointer;font-size:20px">←</button><h2 style="font-family:Poppins;font-size:18px;margin:0">Mon QR Code</h2></div>
+          <p style="color:rgba(248,246,241,.6);font-size:13px;margin-bottom:20px">Affiche-le dans ta boutique ou montre-le à tes clients</p>
+          <div id="qr-pro-gate" style="display:none;background:#1a1f1b;border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:28px;text-align:center">
+            <div style="font-size:48px;margin-bottom:14px">🔒</div>
+            <div style="font-family:Fraunces;font-size:22px;margin-bottom:10px">Réservé aux membres Pro</div>
+            <p style="color:rgba(248,246,241,.65);margin-bottom:18px">Passe au Plan Pro pour générer ton QR code permanent et recevoir des paiements.</p>
+            <button class="cw-btn-primary" onclick="showDashSection('abonnement')">Passer au Plan Pro</button>
+          </div>
+          <div id="qr-host" style="display:none">
+            <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.4);text-align:center">
+              <div id="qr-canvas" style="display:inline-block"></div>
+              <div style="margin-top:14px;font-family:Poppins;font-weight:700;color:#1a1f1b" id="qr-name">—</div>
+              <div style="font-size:13px;color:#6b7280" id="qr-metier">—</div>
+              <div style="font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-top:4px">WOLO PAY</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px">
+              <button class="cw-btn-primary" onclick="qrPrint()"><i data-lucide="printer"></i> PDF A5</button>
+              <button class="cw-btn-primary" onclick="qrShare()"><i data-lucide="share-2"></i> Partager</button>
+              <button class="cw-btn-primary" onclick="qrDownload()"><i data-lucide="download"></i> PNG</button>
+            </div>
+            <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:10px;padding:14px;margin-top:18px;font-size:13px;line-height:1.5;color:rgba(248,246,241,.85)">
+              <i data-lucide="info" style="color:#E8940A"></i> Ton client scanne ce QR code, entre le montant exact, et confirme avec son PIN. L'argent arrive sur ton Crédit WOLO en moins de 60 secondes.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SPRINT 5 — LIEN DE PAIEMENT ══ -->
+      <div class="dash-section" id="ds-lien-paiement" style="display:none">
+        <div style="max-width:520px;margin:0 auto;padding:20px 16px;color:#F8F6F1">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><button onclick="showDashSection('credit-wolo')" style="background:none;border:none;color:#E8940A;cursor:pointer;font-size:20px">←</button><h2 style="font-family:Poppins;font-size:18px;margin:0">Créer une demande de paiement</h2></div>
+          <p style="color:rgba(248,246,241,.6);font-size:13px;margin-bottom:20px">Pour une livraison, un devis, un paiement à distance</p>
+          <div id="lp-pro-gate" style="display:none;background:#1a1f1b;border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:28px;text-align:center">
+            <div style="font-size:48px;margin-bottom:14px">🔒</div>
+            <div style="font-family:Fraunces;font-size:22px">Réservé aux membres Pro</div>
+            <button class="cw-btn-primary" style="margin-top:16px" onclick="showDashSection('abonnement')">Passer au Plan Pro</button>
+          </div>
+          <div id="lp-host" style="display:none">
+            <div style="background:#1a1f1b;border-radius:14px;padding:18px;margin-bottom:16px">
+              <label style="display:block;font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:6px">MONTANT (FCFA)</label>
+              <input type="number" id="lp-montant" placeholder="5000" style="width:100%;background:#0f1410;border:1px solid rgba(255,255,255,.1);color:#F8F6F1;padding:14px;border-radius:10px;font-size:18px;font-family:'Space Mono';margin-bottom:14px">
+              <label style="display:block;font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:6px">DESCRIPTION (optionnel)</label>
+              <input type="text" id="lp-desc" placeholder="Ex : livraison chaise bureau" style="width:100%;background:#0f1410;border:1px solid rgba(255,255,255,.1);color:#F8F6F1;padding:14px;border-radius:10px;font-size:14px">
+              <button class="cw-btn-primary" style="margin-top:14px;width:100%" onclick="lpGenerate()">Générer le lien</button>
+            </div>
+            <div id="lp-result" style="display:none;background:rgba(232,148,10,.08);border:1px solid #E8940A;border-radius:12px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:8px">LIEN GÉNÉRÉ</div>
+              <div id="lp-url" style="font-size:12px;word-break:break-all;color:#F8F6F1;margin-bottom:12px;padding:10px;background:#0f1410;border-radius:6px"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button class="cw-btn-primary" onclick="lpWhatsApp()"><i data-lucide="message-circle"></i> WhatsApp</button>
+                <button class="cw-btn-primary" onclick="lpCopy()"><i data-lucide="copy"></i> Copier</button>
+              </div>
+              <div style="font-size:11px;color:rgba(248,246,241,.5);margin-top:10px;text-align:center">Expire dans 24h ou après paiement</div>
+            </div>
+            <div style="font-family:'Space Mono';font-size:11px;color:#E8940A;letter-spacing:2px;margin:20px 0 10px">HISTORIQUE DES LIENS</div>
+            <div id="lp-history"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SPRINT 5 — STATISTIQUES PRO ══ -->
+      <div class="dash-section" id="ds-stats-pro" style="display:none">
+        <div style="max-width:640px;margin:0 auto;padding:20px 16px;color:#F8F6F1">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><button onclick="showDashSection('credit-wolo')" style="background:none;border:none;color:#E8940A;cursor:pointer;font-size:20px">←</button><h2 style="font-family:Poppins;font-size:18px;margin:0">Statistiques Pro</h2></div>
+          <p style="color:rgba(248,246,241,.6);font-size:13px;margin-bottom:20px">Tes encaissements WOLO Pay en temps réel</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+            <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px"><div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px">AUJOURD'HUI</div><div id="st-today" style="font-family:'Space Mono';font-size:22px;font-weight:700;margin-top:6px">0 FCFA</div><div id="st-today-n" style="font-size:11px;color:rgba(248,246,241,.5)">0 transaction</div></div>
+            <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px"><div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px">CETTE SEMAINE</div><div id="st-week" style="font-family:'Space Mono';font-size:22px;font-weight:700;margin-top:6px">0 FCFA</div><div id="st-week-n" style="font-size:11px;color:rgba(248,246,241,.5)">0 transaction</div></div>
+            <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px"><div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px">CE MOIS</div><div id="st-month" style="font-family:'Space Mono';font-size:22px;font-weight:700;margin-top:6px">0 FCFA</div><div id="st-month-n" style="font-size:11px;color:rgba(248,246,241,.5)">0 transaction</div></div>
+            <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px"><div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px">TOTAL</div><div id="st-total" style="font-family:'Space Mono';font-size:22px;font-weight:700;margin-top:6px">0 FCFA</div><div id="st-total-n" style="font-size:11px;color:rgba(248,246,241,.5)">0 transaction</div></div>
+          </div>
+          <div style="background:#1a1f1b;border-radius:12px;padding:18px;margin-bottom:20px"><div style="font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:12px">7 DERNIERS JOURS</div><canvas id="stats-chart" height="140"></canvas></div>
+          <div style="font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:10px">DERNIÈRES TRANSACTIONS</div>
+          <div id="st-recent"></div>
+        </div>
+      </div>
+
+      <div class="dash-section" id="ds-credit-wolo"
         <div class="cw-wrap">
           <div class="cw-header">
             <button class="cw-icon-btn" onclick="showDashSection('profil')" aria-label="Retour"><i data-lucide="arrow-left"></i></button>
@@ -7578,6 +7667,9 @@ function showDashSection(section) {
   if (section === 'historique-paiements') loadHistoriquePaiements();
   if (section === 'abonnement') loadWoloCreditWidget();
   if (section === 'credit-wolo') loadCreditWoloSection();
+  if (section === 'qr-code') loadQrCodeSection();
+  if (section === 'lien-paiement') loadLienPaiementSection();
+  if (section === 'stats-pro') loadStatsProSection();
   if (section === 'abonnement') loadAbonnement();
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
@@ -14627,6 +14719,159 @@ function cwExportPDF(){
   }).catch(()=>toast('Erreur chargement PDF','error'));
 }
 function cwOpenSettings(){ toast('Paramètres à venir','info'); }
+
+// ══════════════════════════════════════════════════════════
+// ══ SPRINT 5 — QR CODE / LIEN PAIEMENT / STATS PRO       ══
+// ══════════════════════════════════════════════════════════
+function _loadScript(src){ return new Promise((ok,ko)=>{ if (document.querySelector(`script[src="${src}"]`)) return ok(); const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=ko; document.head.appendChild(s); }); }
+function _isPro(){ return (currentPrestataire?.fields?.['Abonnement']||'').toLowerCase()==='pro'; }
+function _payUrl(){ return `${location.origin}/pay/${currentUser?.id||''}`; }
+
+async function loadQrCodeSection(){
+  if (!currentUser?.id) return;
+  const pro = _isPro();
+  document.getElementById('qr-pro-gate').style.display = pro ? 'none' : 'block';
+  document.getElementById('qr-host').style.display = pro ? 'block' : 'none';
+  if (!pro) return;
+  await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js');
+  const qr = qrcode(0, 'H');
+  qr.addData(_payUrl());
+  qr.make();
+  document.getElementById('qr-canvas').innerHTML = qr.createImgTag(6, 8);
+  const img = document.querySelector('#qr-canvas img');
+  if (img){ img.style.borderRadius='8px'; img.id='qr-img'; }
+  document.getElementById('qr-name').textContent = currentPrestataire?.fields?.['Nom complet'] || currentUser.email?.split('@')[0] || 'Commerçant';
+  document.getElementById('qr-metier').textContent = currentPrestataire?.fields?.['Métier principal'] || '—';
+  if (window.lucide) lucide.createIcons();
+}
+function qrDownload(){
+  const img = document.getElementById('qr-img'); if (!img) return;
+  const a = document.createElement('a'); a.href = img.src; a.download = 'wolo-qr-code.png'; a.click();
+  toast('QR téléchargé','success');
+}
+async function qrShare(){
+  const img = document.getElementById('qr-img'); if (!img) return;
+  try{
+    const blob = await (await fetch(img.src)).blob();
+    const file = new File([blob],'wolo-qr.png',{type:'image/png'});
+    if (navigator.share && navigator.canShare?.({files:[file]})){
+      await navigator.share({files:[file], title:'Mon QR WOLO Pay', text:'Scanne pour me payer'});
+    } else {
+      await navigator.clipboard.writeText(_payUrl());
+      toast('Lien copié','success');
+    }
+  }catch(e){ toast('Partage annulé','info'); }
+}
+async function qrPrint(){
+  await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({format:'a5', unit:'mm'});
+  // Bande or
+  doc.setFillColor(232,148,10); doc.rect(0,0,148,8,'F');
+  // Logo
+  doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(15,20,16);
+  doc.text('W · WOLO MARKET', 74, 22, {align:'center'});
+  // QR
+  const img = document.getElementById('qr-img');
+  if (img) doc.addImage(img.src, 'PNG', 34, 30, 80, 80);
+  // Nom
+  doc.setFontSize(16);
+  doc.text(document.getElementById('qr-name').textContent, 74, 120, {align:'center'});
+  doc.setFontSize(11); doc.setTextColor(107,114,128);
+  doc.text(document.getElementById('qr-metier').textContent, 74, 127, {align:'center'});
+  doc.setFontSize(12); doc.setTextColor(232,148,10); doc.setFont('helvetica','bold');
+  doc.text('Payez-moi avec WOLO Pay', 74, 136, {align:'center'});
+  // Instructions
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81);
+  doc.text('1. Scannez ce QR code   2. Entrez le montant   3. Confirmez avec votre PIN', 74, 150, {align:'center'});
+  // Footer
+  doc.setFontSize(9); doc.setTextColor(156,163,175);
+  doc.text('WOLO Market · wolomarket.com', 74, 200, {align:'center'});
+  doc.save('wolo-qr-a5.pdf');
+  toast('PDF A5 généré','success');
+}
+
+// ── Lien de paiement ──
+async function loadLienPaiementSection(){
+  if (!currentUser?.id) return;
+  const pro = _isPro();
+  document.getElementById('lp-pro-gate').style.display = pro ? 'none' : 'block';
+  document.getElementById('lp-host').style.display = pro ? 'block' : 'none';
+  if (!pro) return;
+  if (window.lucide) lucide.createIcons();
+  // Charger historique
+  try{
+    const r = await fetch(`/api/wolo-pay/create-payment-link?merchant_id=${currentUser.id}`);
+    const d = await r.json();
+    const host = document.getElementById('lp-history');
+    if (!d.links?.length){ host.innerHTML='<div style="color:rgba(248,246,241,.5);font-size:13px;padding:8px 0">Aucun lien généré</div>'; return; }
+    host.innerHTML = d.links.map(l=>{
+      const col = l.statut==='PAID'?'#10b981':l.statut==='EXPIRED'?'#6b7280':'#E8940A';
+      return `<div style="background:#1a1f1b;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div style="font-family:'Space Mono';font-weight:700">${l.montant.toLocaleString('fr-FR')} FCFA</div><div style="font-size:11px;color:rgba(248,246,241,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.description||'—'}</div></div><div style="font-size:10px;font-weight:700;color:${col};letter-spacing:1px">${l.statut}</div></div>`;
+    }).join('');
+  }catch(e){}
+}
+let _lpLast = null;
+async function lpGenerate(){
+  const montant = parseInt(document.getElementById('lp-montant').value||0,10);
+  const description = document.getElementById('lp-desc').value.trim();
+  if (montant < 100) return toast('Min 100 FCFA','error');
+  try{
+    const r = await fetch('/api/wolo-pay/create-payment-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({merchant_id:currentUser.id,montant,description})});
+    const d = await r.json(); if (!r.ok) throw new Error(d.error);
+    _lpLast = d;
+    document.getElementById('lp-url').textContent = d.url;
+    document.getElementById('lp-result').style.display='block';
+    loadLienPaiementSection();
+    toast('Lien généré','success');
+  }catch(e){ toast('Erreur: '+e.message,'error'); }
+}
+function lpWhatsApp(){
+  if (!_lpLast) return;
+  const desc = document.getElementById('lp-desc').value.trim() || 'ma prestation';
+  const msg = `Bonjour ! Voici le lien pour régler ${desc} :\n👉 ${_lpLast.url}\nMontant : ${_lpLast.link.montant.toLocaleString('fr-FR')} FCFA · Ce lien expire dans 24h.`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
+function lpCopy(){
+  if (!_lpLast) return;
+  navigator.clipboard.writeText(_lpLast.url).then(()=>toast('Lien copié','success'));
+}
+
+// ── Stats Pro ──
+async function loadStatsProSection(){
+  if (!currentUser?.id) return;
+  try{
+    const r = await fetch(`/api/wolo-pay/stats?merchant_id=${currentUser.id}`);
+    const d = await r.json(); if (!d.ok) return;
+    const s = d.stats;
+    const fmt = n => n.toLocaleString('fr-FR').replace(/,/g,' ') + ' FCFA';
+    document.getElementById('st-today').textContent = fmt(s.today.sum);
+    document.getElementById('st-today-n').textContent = `${s.today.count} transaction${s.today.count>1?'s':''}`;
+    document.getElementById('st-week').textContent = fmt(s.week.sum);
+    document.getElementById('st-week-n').textContent = `${s.week.count} transaction${s.week.count>1?'s':''}`;
+    document.getElementById('st-month').textContent = fmt(s.month.sum);
+    document.getElementById('st-month-n').textContent = `${s.month.count} transaction${s.month.count>1?'s':''}`;
+    document.getElementById('st-total').textContent = fmt(s.total.sum);
+    document.getElementById('st-total-n').textContent = `${s.total.count} transaction${s.total.count>1?'s':''}`;
+    // Chart
+    await _loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js');
+    const ctx = document.getElementById('stats-chart').getContext('2d');
+    if (window._statsChart) window._statsChart.destroy();
+    const labels = ['J-6','J-5','J-4','J-3','J-2','Hier','Aujourd\'hui'];
+    window._statsChart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ data: d.perDay.map(p=>p.amount), backgroundColor: '#E8940A', borderRadius: 6 }] },
+      options: { plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#F8F6F1'}}, y:{ticks:{color:'rgba(248,246,241,.5)'}} } }
+    });
+    // Recent
+    const host = document.getElementById('st-recent');
+    if (!d.recent.length){ host.innerHTML='<div style="color:rgba(248,246,241,.5);font-size:13px;padding:8px 0">Aucune transaction</div>'; return; }
+    host.innerHTML = d.recent.map(t=>{
+      const date = new Date(t.created_at).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      return `<div style="background:#1a1f1b;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div style="font-size:13px">${date} · <span style="color:#E8940A;text-transform:uppercase;font-size:10px">${t.mode_paiement}</span></div><div style="font-size:10px;color:rgba(248,246,241,.5);font-family:'Space Mono';cursor:pointer" onclick="navigator.clipboard.writeText('${t.reference_interne}').then(()=>toast('Copié','success'))">${t.reference_interne}</div></div><div style="font-family:'Space Mono';font-weight:700;color:#10b981">+${fmt(t.montant)}</div></div>`;
+    }).join('');
+  }catch(e){ console.warn('[stats]',e); }
+}
 
 // ══ HISTORIQUE PAIEMENTS ══
 function loadHistoriquePaiements() {

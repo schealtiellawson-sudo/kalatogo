@@ -2,5 +2,8 @@
   "crons": [
     { "path": "/api/cron/maj-scores-inactivite", "schedule": "0 2 * * *" },
     { "path": "/api/cron/coup-du-jour", "schedule": "0 8 * * *" }
+  ],
+  "rewrites": [
+    { "source": "/pay/:id", "destination": "/pay.html" }
   ]
 }

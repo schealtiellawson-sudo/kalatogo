@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Payer · WOLO Pay</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Poppins:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --or:#E8940A; --noir:#0f1410; --creme:#F8F6F1; --rouge:#8b1a1a; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#111614;color:var(--creme);font-family:Poppins,sans-serif;min-height:100vh;font-size:16px}
+.wrap{max-width:440px;margin:0 auto;padding:20px 18px 40px;min-height:100vh}
+.logo-top{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px}
+.logo-top .logo-circle{width:34px;height:34px;border-radius:50%;background:var(--noir);display:flex;align-items:center;justify-content:center;color:var(--or);font-family:Fraunces;font-weight:900;font-size:18px;border:2px solid var(--or)}
+.logo-top span{font-family:'Space Mono';letter-spacing:3px;font-size:12px;color:var(--or);text-transform:uppercase}
+.merchant-card{background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:18px;padding:22px;display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.merchant-avatar{width:72px;height:72px;border-radius:50%;background:rgba(232,148,10,.15);color:var(--or);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;border:2px solid rgba(232,148,10,.4);flex-shrink:0}
+.merchant-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.m-name{font-family:Poppins;font-weight:700;font-size:20px;color:var(--creme);margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.badge-pro{background:var(--or);color:var(--noir);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px}
+.m-metier{font-size:14px;color:rgba(248,246,241,.65)}
+.m-loc{font-size:13px;color:rgba(248,246,241,.5);display:flex;align-items:center;gap:4px;margin-top:3px}
+.label{font-family:'Space Mono';font-size:11px;color:var(--or);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:block}
+.amount-wrap{background:#1a1f1b;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;margin-bottom:16px}
+.amount-input{width:100%;background:transparent;border:none;color:var(--creme);font-family:'Space Mono';font-size:38px;font-weight:700;text-align:center;outline:none;padding:8px 0}
+.amount-input::placeholder{color:rgba(248,246,241,.25)}
+.quick-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.quick-row button{background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);color:var(--creme);padding:11px 0;border-radius:10px;font-size:13px;font-family:'Space Mono';cursor:pointer;min-height:44px}
+.fees-box{background:rgba(232,148,10,.08);border:1px solid var(--or);border-radius:10px;padding:14px 16px;margin-bottom:18px;display:none}
+.fees-box.show{display:block}
+.fees-row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(248,246,241,.85)}
+.fees-row.total{border-top:1px dashed rgba(232,148,10,.35);padding-top:10px;margin-top:6px;font-weight:700;color:var(--creme);font-size:16px;font-family:'Space Mono'}
+.fees-row .v{font-family:'Space Mono'}
+.fees-recv{font-size:12px;color:rgba(248,246,241,.6);margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.1)}
+.op-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.op-btn{background:#1a1f1b;border:1px solid rgba(255,255,255,.08);color:var(--creme);padding:16px;border-radius:12px;cursor:pointer;text-align:left;min-height:64px;font-size:14px;font-family:Poppins}
+.op-btn:hover,.op-btn.active{border-color:var(--or);background:rgba(232,148,10,.08)}
+.op-btn .op-lbl{font-weight:600}
+.op-btn .op-sub{font-size:11px;color:rgba(248,246,241,.5);margin-top:3px}
+.btn-primary{width:100%;background:var(--or);color:var(--noir);border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;font-family:Poppins;cursor:pointer;min-height:52px;margin-top:8px}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-ghost{width:100%;background:transparent;color:rgba(248,246,241,.6);border:none;padding:12px;font-size:14px;cursor:pointer;margin-top:6px}
+/* Confirm screen */
+.confirm-screen{display:none;position:fixed;inset:0;background:var(--noir);z-index:50;overflow-y:auto;padding:30px 18px}
+.confirm-screen.show{display:block}
+.confirm-screen .wrap-c{max-width:440px;margin:0 auto}
+.shield{width:72px;height:72px;border-radius:50%;background:rgba(232,148,10,.15);border:2px solid var(--or);display:flex;align-items:center;justify-content:center;margin:10px auto 20px;color:var(--or);font-size:32px}
+.confirm-title{font-family:Fraunces;font-size:26px;text-align:center;color:var(--creme);margin-bottom:22px}
+.recap{background:#1a1f1b;border-radius:14px;padding:18px;margin-bottom:16px}
+.recap-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;color:rgba(248,246,241,.8)}
+.recap-row.big{border-top:1px dashed rgba(255,255,255,.15);margin-top:8px;padding-top:12px;font-family:'Space Mono';font-size:17px;font-weight:700;color:var(--or)}
+.warning{background:rgba(139,26,26,.25);border:1px solid #8b1a1a;border-radius:10px;padding:14px;font-size:13px;line-height:1.5;color:#fecaca;margin-bottom:18px;text-align:center}
+.warning b{color:#fca5a5}
+/* Waiting */
+.waiting{text-align:center;padding:40px 20px}
+.spinner{width:48px;height:48px;border:3px solid rgba(232,148,10,.2);border-top-color:var(--or);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Success */
+.success-screen{display:none;text-align:center;padding:40px 20px}
+.success-screen.show{display:block}
+.circle-ok{width:120px;height:120px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:white;font-size:64px;animation:pulse 1.4s ease-out}
+@keyframes pulse{0%{transform:scale(.6);opacity:0}50%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+.success-amount{font-family:'Space Mono';font-size:36px;font-weight:700;color:var(--creme);margin:10px 0}
+.ref-box{background:#1a1f1b;border:1px dashed rgba(232,148,10,.4);padding:10px 16px;border-radius:10px;display:inline-block;font-family:'Space Mono';font-size:13px;color:var(--or);margin-top:14px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap" id="main-view">
+  <div class="logo-top"><div class="logo-circle">W</div><span>WOLO PAY</span></div>
+
+  <div id="merchant-host">
+    <div class="merchant-card"><div class="merchant-avatar">?</div><div><div class="m-name">Chargement…</div></div></div>
+  </div>
+
+  <div class="amount-wrap">
+    <span class="label">Montant à payer (FCFA)</span>
+    <input type="number" id="amount-in" class="amount-input" placeholder="0" inputmode="numeric" min="100">
+    <div class="quick-row">
+      <button onclick="setAmt(500)">500</button>
+      <button onclick="setAmt(1000)">1 000</button>
+      <button onclick="setAmt(2000)">2 000</button>
+      <button onclick="setAmt(5000)">5 000</button>
+    </div>
+  </div>
+
+  <div class="fees-box" id="fees-box">
+    <div class="fees-row"><span>Montant de la prestation</span><span class="v" id="f-prest">0 FCFA</span></div>
+    <div class="fees-row"><span>Frais de traitement WOLO (1,5%)</span><span class="v" id="f-frais">0 FCFA</span></div>
+    <div class="fees-row total"><span>Total à payer</span><span class="v" id="f-total">0 FCFA</span></div>
+    <div class="fees-recv"><span id="f-recv-name">Le commerçant</span> recevra <b id="f-recv-amt">0 FCFA</b> sur son Crédit WOLO</div>
+  </div>
+
+  <span class="label">Comment veux-tu payer ?</span>
+  <div class="op-grid">
+    <button class="op-btn" data-op="mtn_bj" onclick="pickOp(this)"><div class="op-lbl">MTN Bénin</div><div class="op-sub">Mobile Money</div></button>
+    <button class="op-btn" data-op="moov_bj" onclick="pickOp(this)"><div class="op-lbl">Moov Bénin</div><div class="op-sub">Mobile Money</div></button>
+    <button class="op-btn" data-op="mtn_tg" onclick="pickOp(this)"><div class="op-lbl">Yas Togo</div><div class="op-sub">Mobile Money</div></button>
+    <button class="op-btn" data-op="moov_tg" onclick="pickOp(this)"><div class="op-lbl">Moov Togo</div><div class="op-sub">Mobile Money</div></button>
+  </div>
+
+  <button class="btn-primary" id="btn-go" onclick="goConfirm()" disabled>Continuer</button>
+</div>
+
+<!-- Confirm -->
+<div class="confirm-screen" id="confirm-screen">
+  <div class="wrap-c">
+    <div class="shield">🛡</div>
+    <div class="confirm-title">Confirme ton paiement</div>
+    <div class="recap">
+      <div class="recap-row"><span>Tu paies à</span><span id="c-name">—</span></div>
+      <div class="recap-row"><span>Métier</span><span id="c-metier">—</span></div>
+      <div class="recap-row"><span>Montant prestation</span><span id="c-prest">—</span></div>
+      <div class="recap-row"><span>Frais de traitement</span><span id="c-frais">—</span></div>
+      <div class="recap-row big"><span>Total débité</span><span id="c-total">—</span></div>
+    </div>
+    <div class="warning"><b>Ce paiement est DÉFINITIF.</b><br>Une fois confirmé, il ne peut pas être annulé.<br>Vérifie le montant avant de continuer.</div>
+    <button class="btn-primary" onclick="doPay()">Confirmer avec mon PIN</button>
+    <button class="btn-ghost" onclick="closeConfirm()">Annuler</button>
+
+    <div id="waiting" class="waiting" style="display:none">
+      <div class="spinner"></div>
+      <div>Une notification a été envoyée sur ton téléphone.<br>Entre ton code PIN Mobile Money pour confirmer.</div>
+      <div style="font-size:12px;color:rgba(248,246,241,.5);margin-top:14px">En attente de confirmation…</div>
+    </div>
+
+    <div id="success" class="success-screen">
+      <div class="circle-ok">✓</div>
+      <div style="font-family:Fraunces;font-size:24px">Paiement envoyé !</div>
+      <div class="success-amount" id="s-amount">0 FCFA</div>
+      <div id="s-to">—</div>
+      <div class="ref-box" id="s-ref" onclick="navigator.clipboard.writeText(this.textContent).then(()=>this.style.color='#10b981')">Réf : —</div>
+      <button class="btn-primary" style="margin-top:24px" onclick="location.reload()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MERCHANT_ID = location.pathname.split('/pay/')[1]?.replace(/\/$/,'') || new URLSearchParams(location.search).get('id');
+const TOKEN = new URLSearchParams(location.search).get('t');
+let MERCHANT = null, LINK = null, SEL_OP = null;
+function fmt(n){ return (Number(n)||0).toLocaleString('fr-FR').replace(/,/g,' ')+' FCFA'; }
+
+async function loadMerchant(){
+  try{
+    const r = await fetch(`/api/wolo-pay/merchant-public?id=${MERCHANT_ID}${TOKEN?'&token='+TOKEN:''}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error||'Commerçant introuvable');
+    MERCHANT = d.merchant; LINK = d.link;
+    const initials = (MERCHANT.email||'?').slice(0,2).toUpperCase();
+    const badge = MERCHANT.plan==='pro' ? '<span class="badge-pro">PRO</span>' : '';
+    document.getElementById('merchant-host').innerHTML = `
+      <div class="merchant-card">
+        <div class="merchant-avatar">${MERCHANT.photo_url?`<img src="${MERCHANT.photo_url}">`:initials}</div>
+        <div>
+          <div class="m-name">${MERCHANT.email?.split('@')[0]||'Commerçant'} ${badge}</div>
+          <div class="m-metier">${MERCHANT.metier||'Prestataire WOLO'}</div>
+          <div class="m-loc">📍 ${[MERCHANT.quartier,MERCHANT.ville].filter(Boolean).join(' · ')||'Bénin / Togo'}</div>
+        </div>
+      </div>`;
+    document.getElementById('f-recv-name').textContent = (MERCHANT.email?.split('@')[0]||'Le commerçant');
+    if (LINK && !LINK.error){
+      document.getElementById('amount-in').value = LINK.montant;
+      document.getElementById('amount-in').readOnly = true;
+      recalc();
+    } else if (LINK?.error){
+      alert(LINK.error);
+    }
+  }catch(e){
+    document.getElementById('merchant-host').innerHTML = `<div class="merchant-card"><div class="merchant-avatar">!</div><div><div class="m-name">Erreur</div><div class="m-metier">${e.message}</div></div></div>`;
+  }
+}
+function setAmt(v){ document.getElementById('amount-in').value=v; recalc(); }
+function recalc(){
+  const m = parseInt(document.getElementById('amount-in').value||0,10);
+  const box = document.getElementById('fees-box');
+  const btn = document.getElementById('btn-go');
+  if (m>=100){
+    const frais = Math.ceil(m*0.015);
+    box.classList.add('show');
+    document.getElementById('f-prest').textContent = fmt(m);
+    document.getElementById('f-frais').textContent = fmt(frais);
+    document.getElementById('f-total').textContent = fmt(m+frais);
+    document.getElementById('f-recv-amt').textContent = fmt(m);
+    btn.disabled = !SEL_OP;
+  } else {
+    box.classList.remove('show'); btn.disabled = true;
+  }
+}
+function pickOp(el){
+  document.querySelectorAll('.op-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); SEL_OP = el.dataset.op; recalc();
+}
+document.getElementById('amount-in').addEventListener('input', recalc);
+
+function goConfirm(){
+  const m = parseInt(document.getElementById('amount-in').value||0,10);
+  const frais = Math.ceil(m*0.015);
+  document.getElementById('c-name').textContent = MERCHANT.email?.split('@')[0]||'Commerçant';
+  document.getElementById('c-metier').textContent = MERCHANT.metier||'Prestataire';
+  document.getElementById('c-prest').textContent = fmt(m);
+  document.getElementById('c-frais').textContent = fmt(frais);
+  document.getElementById('c-total').textContent = fmt(m+frais);
+  document.getElementById('confirm-screen').classList.add('show');
+}
+function closeConfirm(){ document.getElementById('confirm-screen').classList.remove('show'); }
+
+async function doPay(){
+  document.querySelector('#confirm-screen .recap').style.display='none';
+  document.querySelector('#confirm-screen .warning').style.display='none';
+  document.querySelectorAll('#confirm-screen .btn-primary, #confirm-screen .btn-ghost').forEach(b=>b.style.display='none');
+  document.getElementById('waiting').style.display='block';
+  const m = parseInt(document.getElementById('amount-in').value||0,10);
+  try{
+    const r = await fetch('/api/wolo-pay/process-public-pay',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ merchant_id: MERCHANT_ID, montant: m, operateur: SEL_OP, token: TOKEN })
+    });
+    const d = await r.json();
+    if (!r.ok || !d.ok) throw new Error(d.error||'Échec');
+    // fake latency to show waiting
+    await new Promise(r=>setTimeout(r,900));
+    document.getElementById('waiting').style.display='none';
+    const succ = document.getElementById('success');
+    succ.classList.add('show');
+    document.getElementById('s-amount').textContent = fmt(m);
+    document.getElementById('s-to').textContent = `${MERCHANT.email?.split('@')[0]||'Le commerçant'} a bien reçu ${fmt(m)}`;
+    document.getElementById('s-ref').textContent = `Réf : ${d.reference}`;
+  }catch(e){
+    document.getElementById('waiting').innerHTML = `<div style="font-size:48px;color:#ef4444">✕</div><div style="margin-top:14px">Paiement non abouti</div><div style="color:rgba(248,246,241,.6);margin-top:6px">${e.message}</div><button class="btn-primary" style="margin-top:24px" onclick="location.reload()">Réessayer</button>`;
+  }
+}
+
+loadMerchant();
+</script>
+</body>
+</html>
