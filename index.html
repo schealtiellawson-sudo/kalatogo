@@ -7882,16 +7882,27 @@ async function loadDashOverview() {
   document.getElementById('kpi-note').textContent = note > 0 ? note.toFixed(1) + ' ★' : '—';
   document.getElementById('kpi-note-sub').textContent = note > 0 ? `Sur ${nbAvis} avis` : 'Pas encore d\'avis';
 
-  // ── Score WOLO — calculé localement (6 composantes) ──
-  const scoreComp         = Math.round(completion * 0.30);                        // max 30 pts (complétude)
-  const scoreNote         = note > 0 ? Math.round((note / 5) * 25) : 0;          // max 25 pts (note moyenne)
-  const scoreAvis         = Math.min(nbAvis * 2, 15);                             // max 15 pts (nb avis reçus)
-  const scorePhoto        = (f['Photo Réalisation 1'] ? 4 : 0) + (f['Photo Réalisation 2'] ? 3 : 0) + (f['Photo Réalisation 3'] ? 3 : 0); // max 10 pts
-  const totalViewsAll     = JSON.parse(localStorage.getItem(`wolo_views_${prestId}`) || '{"total":0}').total || 0;
-  const scoreVues         = Math.min(Math.floor(totalViewsAll / 10), 10);         // max 10 pts (1pt par tranche de 10 vues, plafonné à 100 vues)
-  const nbAvisAvecTexte   = avisRecs.filter(r => (r.fields['Commentaire'] || '').trim().length > 0).length;
-  const scoreCommentaires = Math.min(nbAvisAvecTexte * 2, 10);                    // max 10 pts (5 commentaires écrits = max)
-  const score = Math.min(scoreComp + scoreNote + scoreAvis + scorePhoto + scoreVues + scoreCommentaires, 100);
+  // ── Score WOLO — Sprint 7 (6 composantes, même formule que cron serveur) ──
+  // 1. Profil complet (max 30) : Photo 8, Bio 7, Métier 5, Ville+Quartier 5, Numéro 5
+  const scoreComp = (f['Photo Profil'] ? 8 : 0)
+    + ((f['Description des services'] || '').trim().length > 10 ? 7 : 0)
+    + (f['Métier principal'] ? 5 : 0)
+    + (f['Quartier'] || f['Ville'] ? 5 : 0)
+    + (f['Numéro de téléphone'] || f['WhatsApp'] ? 5 : 0);
+  // 2. Note moyenne (max 25) : paliers
+  const scoreNote = note >= 4.5 ? 25 : note >= 4.0 ? 20 : note >= 3.0 ? 12 : 0;
+  // 3. Nombre d'avis (max 15) : paliers
+  const scoreAvis = nbAvis >= 21 ? 15 : nbAvis >= 11 ? 13 : nbAvis >= 6 ? 11 : nbAvis >= 3 ? 7 : nbAvis >= 1 ? 3 : 0;
+  // 4. Photos publiées (max 10) : paliers
+  let nbPhotosTotal = (f['Photo Réalisation 1'] ? 1 : 0) + (f['Photo Réalisation 2'] ? 1 : 0) + (f['Photo Réalisation 3'] ? 1 : 0);
+  try { const alb = JSON.parse(f['Albums'] || '[]'); for (const a of alb) nbPhotosTotal += (a.photos || []).length; } catch {}
+  const scorePhoto = nbPhotosTotal >= 6 ? 10 : nbPhotosTotal >= 3 ? 6 : nbPhotosTotal >= 1 ? 3 : 0;
+  // 5. Vues profil (max 10) : progressif 0-100
+  const totalViewsAll = JSON.parse(localStorage.getItem(`wolo_views_${prestId}`) || '{"total":0}').total || 0;
+  const scoreVues = totalViewsAll >= 100 ? 10 : Math.round((totalViewsAll / 100) * 10);
+  // 6. Activité récente (max 10) : basé sur dernière connexion
+  let scoreActivite = 10; // par défaut connecté maintenant
+  const score = Math.min(scoreComp + scoreNote + scoreAvis + scorePhoto + scoreVues + scoreActivite, 100);
 
   document.getElementById('kpi-score').textContent = score || '—';
 
@@ -12580,7 +12591,7 @@ async function showProfil(recordId) {
 
     // Incrémenter les vues si pas le propriétaire
     if (record.id && currentUser?.id !== record.fields?.['User ID']) {
-      // Compteur total
+      // Compteur total (localStorage legacy)
       const viewsKey = `wolo_views_${record.id}`;
       const viewsData = JSON.parse(localStorage.getItem(viewsKey) || '{"total":0,"week":0}');
       viewsData.total = (viewsData.total || 0) + 1;
@@ -12595,6 +12606,12 @@ async function showProfil(recordId) {
       else dailyData.push({ date: today, val: 1 });
       const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
       localStorage.setItem(dailyKey, JSON.stringify(dailyData.filter(x => x.date >= cutoff.toISOString().split('T')[0])));
+
+      // Sprint 7 — Tracking serveur : incrémenter vues_mois sur Supabase
+      const profilUserId = record.fields?.['User ID'];
+      if (profilUserId && typeof supa !== 'undefined') {
+        supa.rpc('increment_vues_mois', { p_user_id: profilUserId }).catch(() => {});
+      }
     }
 
   } catch (e) {
