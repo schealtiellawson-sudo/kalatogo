@@ -6616,6 +6616,18 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           <p>Gère ton plan et augmente ta visibilité sur WOLO Market</p>
         </div>
 
+        <!-- Widget Crédit WOLO -->
+        <div id="wolo-credit-widget" style="background:linear-gradient(135deg,#0f1410,#1a1f1a);border:1px solid rgba(232,148,10,0.3);border-radius:20px;padding:22px;margin-bottom:18px;color:#F8F6F1;display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;margin-bottom:6px;">💳 Crédit WOLO</div>
+              <div id="wolo-credit-solde" style="font-family:'Space Mono',monospace;font-size:30px;font-weight:900;color:#F5B82E;">0 FCFA</div>
+              <div id="wolo-credit-sub" style="font-size:12px;color:rgba(248,246,241,0.55);margin-top:2px;">Solde disponible</div>
+            </div>
+            <button onclick="payAbonnementWithCredit()" id="btn-pay-credit" style="background:linear-gradient(135deg,#E8940A,#C47A08);color:#0f1410;border:none;padding:11px 18px;border-radius:100px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">Payer Pro avec mon Crédit</button>
+          </div>
+        </div>
+
         <!-- Plan actuel -->
         <div id="plan-actuel-card" style="background:linear-gradient(135deg,var(--vert-dark),var(--vert));border-radius:20px;padding:24px;margin-bottom:24px;color:white;">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
@@ -7433,6 +7445,7 @@ function showDashSection(section) {
   if (section === 'photos') loadDashPhotos();
   if (section === 'posts') loadDashPosts();
   if (section === 'historique-paiements') loadHistoriquePaiements();
+  if (section === 'abonnement') loadWoloCreditWidget();
   if (section === 'abonnement') loadAbonnement();
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
@@ -14120,6 +14133,53 @@ function getRDVPaymentStatus(prestId, rdvId) {
   const key = `wolo_rdv_payments_${prestId}`;
   const payments = JSON.parse(localStorage.getItem(key) || '[]');
   return payments.find(p => p.rdvId === rdvId);
+}
+
+// ══ WOLO PAY — Widget Crédit WOLO ══
+async function loadWoloCreditWidget() {
+  if (!currentUser?.id) return;
+  const widget = document.getElementById('wolo-credit-widget');
+  if (!widget) return;
+  try {
+    const res = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}`);
+    const data = await res.json();
+    if (!data.ok || !data.credit) return;
+    widget.style.display = 'block';
+    const solde = data.credit.solde_disponible || 0;
+    document.getElementById('wolo-credit-solde').textContent = solde.toLocaleString('fr-FR') + ' FCFA';
+    const btn = document.getElementById('btn-pay-credit');
+    if (solde < 2500) {
+      btn.disabled = true;
+      btn.style.opacity = '0.45';
+      btn.style.cursor = 'not-allowed';
+      btn.textContent = 'Solde insuffisant';
+    }
+  } catch (e) {
+    console.warn('[wolo-credit]', e);
+  }
+}
+
+async function payAbonnementWithCredit() {
+  if (!currentUser?.id) { toast('Connecte-toi', 'error'); return; }
+  if (!confirm('Payer ton Plan Pro 2 500 FCFA avec ton Crédit WOLO ?')) return;
+  const btn = document.getElementById('btn-pay-credit');
+  const old = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Traitement...';
+  try {
+    const res = await fetch('/api/wolo-pay/debit-credit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, montant: 2500 })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Échec');
+    toast('✅ Plan Pro activé !', 'success');
+    loadWoloCreditWidget();
+    setTimeout(() => location.reload(), 1200);
+  } catch (e) {
+    toast('Erreur : ' + e.message, 'error');
+    btn.disabled = false; btn.textContent = old;
+  }
 }
 
 // ══ HISTORIQUE PAIEMENTS ══
