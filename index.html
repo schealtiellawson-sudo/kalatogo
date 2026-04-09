@@ -2775,6 +2775,17 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
   border:1px solid rgba(232,148,10,.2) !important;
   color:#F8F6F1 !important;
 }
+/* Exceptions — sections qui doivent garder un fond clair (aperçu CV, etc.) */
+#page-dashboard #ds-emploi-cv #cv-wolo-preview,
+#page-dashboard #ds-emploi-cv #cv-wolo-preview *{
+  background:#ffffff !important;
+  color:#1a1f1c !important;
+}
+#page-dashboard #ds-emploi-cv #cv-wolo-preview #cv-nom{ color:#0f1410 !important; }
+#page-dashboard #ds-emploi-cv #cv-wolo-preview #cv-metier{ color:#E8940A !important; }
+#page-dashboard #ds-emploi-cv #cv-wolo-preview #cv-quartier,
+#page-dashboard #ds-emploi-cv #cv-wolo-preview .cv-gris{ color:#6b7280 !important; }
+#page-dashboard #ds-emploi-cv #cv-wolo-preview #cv-photo{ background:#E8940A !important; color:#fff !important; }
 #page-dashboard .edit-form-section,
 #page-dashboard .dash-card,
 #page-dashboard .card{
@@ -6636,7 +6647,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
       </style>
 
       <!-- ══ SPRINT 5 — QR CODE ══ -->
-      <div class="dash-section" id="ds-qr-code" style="display:none">
+      <div class="dash-section" id="ds-qr-code">
         <div style="max-width:520px;margin:0 auto;padding:20px 16px;color:#F8F6F1">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><button onclick="showDashSection('credit-wolo')" style="background:none;border:none;color:#E8940A;cursor:pointer;font-size:20px">←</button><h2 style="font-family:Poppins;font-size:18px;margin:0">Mon QR Code</h2></div>
           <p style="color:rgba(248,246,241,.6);font-size:13px;margin-bottom:20px">Affiche-le dans ta boutique ou montre-le à tes clients</p>
@@ -6666,7 +6677,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
       </div>
 
       <!-- ══ SPRINT 5 — LIEN DE PAIEMENT ══ -->
-      <div class="dash-section" id="ds-lien-paiement" style="display:none">
+      <div class="dash-section" id="ds-lien-paiement">
         <div style="max-width:520px;margin:0 auto;padding:20px 16px;color:#F8F6F1">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><button onclick="showDashSection('credit-wolo')" style="background:none;border:none;color:#E8940A;cursor:pointer;font-size:20px">←</button><h2 style="font-family:Poppins;font-size:18px;margin:0">Créer une demande de paiement</h2></div>
           <p style="color:rgba(248,246,241,.6);font-size:13px;margin-bottom:20px">Pour une livraison, un devis, un paiement à distance</p>
@@ -6699,7 +6710,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
       </div>
 
       <!-- ══ SPRINT 5 — STATISTIQUES PRO ══ -->
-      <div class="dash-section" id="ds-stats-pro" style="display:none">
+      <div class="dash-section" id="ds-stats-pro">
         <div style="max-width:640px;margin:0 auto;padding:20px 16px;color:#F8F6F1">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><button onclick="showDashSection('credit-wolo')" style="background:none;border:none;color:#E8940A;cursor:pointer;font-size:20px">←</button><h2 style="font-family:Poppins;font-size:18px;margin:0">Statistiques Pro</h2></div>
           <p style="color:rgba(248,246,241,.6);font-size:13px;margin-bottom:20px">Tes encaissements WOLO Pay en temps réel</p>
@@ -6715,7 +6726,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
         </div>
       </div>
 
-      <div class="dash-section" id="ds-credit-wolo"
+      <div class="dash-section" id="ds-credit-wolo">
         <div class="cw-wrap">
           <div class="cw-header">
             <button class="cw-icon-btn" onclick="showDashSection('profil')" aria-label="Retour"><i data-lucide="arrow-left"></i></button>
