@@ -14792,68 +14792,206 @@ function _loadScript(src){ return new Promise((ok,ko)=>{ if (document.querySelec
 function _isPro(){ return (currentPrestataire?.fields?.['Abonnement']||'').toLowerCase()==='pro'; }
 function _payUrl(){ return `${location.origin}/pay/${currentUser?.id||''}`; }
 
+// Sprint 6 — Pancarte QR premium
+function _buildPancarteHTML(){
+  const nom = currentPrestataire?.fields?.['Nom complet'] || currentUser?.email?.split('@')[0] || 'Commerçant';
+  const metier = currentPrestataire?.fields?.['Métier principal'] || '';
+  const quartier = currentPrestataire?.fields?.['Quartier'] || '';
+  const ville = currentPrestataire?.fields?.['Ville'] || '';
+  const photo = currentPrestataire?.fields?.['WhatsApp'] || currentPrestataire?.fields?.['Photo Profil'] || '';
+  const note = currentPrestataire?.fields?.['Note moyenne'] || 0;
+  const nbAvis = currentPrestataire?.fields?.['Nombre d\'avis'] || 0;
+  const stars = note >= 1 ? '★'.repeat(Math.round(note)) + '☆'.repeat(5-Math.round(note)) : '';
+  const lieu = [quartier, ville].filter(Boolean).join(' · ');
+
+  return `
+    <div id="wolo-pancarte" style="width:480px;background:#F8F6F1;font-family:Poppins,system-ui,sans-serif;color:#0f1410;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+      <!-- Bande supérieure noire avec logo -->
+      <div style="background:#0f1410;padding:22px 20px;text-align:center;border-bottom:3px solid #E8940A">
+        <div style="display:inline-flex;align-items:center;gap:10px">
+          <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:28px;font-weight:900;color:#0f1410">W</div>
+          <div style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#F8F6F1;letter-spacing:4px">MARKET</div>
+        </div>
+      </div>
+
+      <!-- Zone commerçant -->
+      <div style="padding:22px 20px 14px;text-align:center;background:#fff">
+        ${photo ? `<img src="${photo}" crossorigin="anonymous" style="width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #E8940A;margin-bottom:10px">` : `<div style="width:92px;height:92px;border-radius:50%;background:#E8940A;color:#fff;font-family:Fraunces,serif;font-size:40px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">${(nom[0]||'W').toUpperCase()}</div>`}
+        <div style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:2px">${nom}</div>
+        <div style="font-size:13px;color:#6b7280">${metier}</div>
+        ${lieu?`<div style="font-size:12px;color:#9ca3af;margin-top:2px">${lieu}</div>`:''}
+        ${stars?`<div style="font-size:14px;color:#E8940A;margin-top:4px">${stars} <span style="color:#9ca3af;font-size:11px">(${nbAvis})</span></div>`:''}
+      </div>
+
+      <!-- QR code -->
+      <div style="background:#fff;padding:10px 20px 24px;text-align:center">
+        <div id="qr-canvas" style="display:inline-block;padding:14px;background:#fff;border:2px solid #0f1410;border-radius:12px;position:relative"></div>
+      </div>
+
+      <!-- Bandeau or -->
+      <div style="background:#E8940A;padding:14px;text-align:center">
+        <div style="font-family:Poppins;font-weight:800;font-size:17px;color:#fff;letter-spacing:.5px">Scannez pour me payer</div>
+      </div>
+
+      <!-- Instructions -->
+      <div style="background:#F8F6F1;padding:18px 20px">
+        <div style="display:flex;justify-content:space-around;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="text-align:center;flex:1">
+            <div style="width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid #E8940A;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 4px">📱</div>
+            <div style="font-size:11px;font-weight:700;color:#0f1410">Scannez</div>
+          </div>
+          <div style="color:#E8940A;font-size:18px">→</div>
+          <div style="text-align:center;flex:1">
+            <div style="width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid #E8940A;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 4px">💰</div>
+            <div style="font-size:11px;font-weight:700;color:#0f1410">Montant</div>
+          </div>
+          <div style="color:#E8940A;font-size:18px">→</div>
+          <div style="text-align:center;flex:1">
+            <div style="width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid #E8940A;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 4px">✓</div>
+            <div style="font-size:11px;font-weight:700;color:#0f1410">Payé</div>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:11px;color:#6b7280;line-height:1.5">Paiement sécurisé · Instantané<br>Zéro espèces · Zéro problème de monnaie</div>
+      </div>
+
+      <!-- Footer -->
+      <div style="background:#0f1410;padding:14px;text-align:center;border-top:2px solid #E8940A">
+        <div style="font-family:'Space Mono',monospace;font-size:11px;color:#E8940A;letter-spacing:1px">wolomarket.vercel.app</div>
+        <div style="font-size:10px;color:rgba(248,246,241,.5);margin-top:2px">WOLO Pay · Paiement garanti</div>
+      </div>
+    </div>
+  `;
+}
+
 async function loadQrCodeSection(){
   if (!currentUser?.id) return;
   const pro = _isPro();
   document.getElementById('qr-pro-gate').style.display = pro ? 'none' : 'block';
-  document.getElementById('qr-host').style.display = pro ? 'block' : 'none';
+  const host = document.getElementById('qr-host');
+  host.style.display = pro ? 'block' : 'none';
   if (!pro) return;
+
+  // Reconstruire le host avec la pancarte premium
+  host.innerHTML = `
+    <div id="pancarte-wrap" style="display:flex;justify-content:center;margin-bottom:16px;max-height:560px;overflow:auto">
+      ${_buildPancarteHTML()}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <button class="cw-btn-primary" onclick="qrFullscreen()">⛶ Plein écran</button>
+      <button class="cw-btn-primary" onclick="qrPrint()">📄 PDF A5</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
+      <button class="cw-btn-primary" onclick="qrDownload()">⬇ PNG HD</button>
+      <button class="cw-btn-primary" onclick="qrShare()">↗ Partager</button>
+    </div>
+    <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:10px;padding:14px;font-size:13px;line-height:1.5;color:rgba(248,246,241,.85)">
+      ℹ️ Affiche cette pancarte dans ta boutique ou montre-la à tes clients. Ils scannent, entrent le montant, tu reçois l'argent en 60 secondes sur ton Crédit WOLO.
+    </div>
+  `;
+
+  // Générer le QR à l'intérieur
   await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js');
   const qr = qrcode(0, 'H');
   qr.addData(_payUrl());
   qr.make();
-  document.getElementById('qr-canvas').innerHTML = qr.createImgTag(6, 8);
-  const img = document.querySelector('#qr-canvas img');
-  if (img){ img.style.borderRadius='8px'; img.id='qr-img'; }
-  document.getElementById('qr-name').textContent = currentPrestataire?.fields?.['Nom complet'] || currentUser.email?.split('@')[0] || 'Commerçant';
-  document.getElementById('qr-metier').textContent = currentPrestataire?.fields?.['Métier principal'] || '—';
-  if (window.lucide) lucide.createIcons();
-}
-function qrDownload(){
-  const img = document.getElementById('qr-img'); if (!img) return;
-  const a = document.createElement('a'); a.href = img.src; a.download = 'wolo-qr-code.png'; a.click();
-  toast('QR téléchargé','success');
-}
-async function qrShare(){
-  const img = document.getElementById('qr-img'); if (!img) return;
-  try{
-    const blob = await (await fetch(img.src)).blob();
-    const file = new File([blob],'wolo-qr.png',{type:'image/png'});
-    if (navigator.share && navigator.canShare?.({files:[file]})){
-      await navigator.share({files:[file], title:'Mon QR WOLO Pay', text:'Scanne pour me payer'});
-    } else {
-      await navigator.clipboard.writeText(_payUrl());
-      toast('Lien copié','success');
+  const qrCanvas = document.getElementById('qr-canvas');
+  if (qrCanvas){
+    qrCanvas.innerHTML = qr.createImgTag(7, 0);
+    const img = qrCanvas.querySelector('img');
+    if (img){
+      img.id = 'qr-img';
+      img.style.cssText = 'display:block;width:260px;height:260px';
+      // Logo W au centre
+      const logo = document.createElement('div');
+      logo.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#E8940A;color:#0f1410;font-family:Fraunces,serif;font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;border:3px solid #fff';
+      logo.textContent = 'W';
+      qrCanvas.appendChild(logo);
     }
-  }catch(e){ toast('Partage annulé','info'); }
+  }
 }
+
+async function _renderPancarteToCanvas(scale=2){
+  await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  const el = document.getElementById('wolo-pancarte');
+  if (!el) throw new Error('Pancarte introuvable');
+  return await html2canvas(el, { scale, backgroundColor:'#F8F6F1', useCORS:true, allowTaint:true });
+}
+
+async function qrDownload(){
+  try{
+    const canvas = await _renderPancarteToCanvas(3);
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'wolo-pancarte.png';
+    a.click();
+    toast('Pancarte téléchargée','success');
+  }catch(e){ console.error(e); toast('Erreur export','error'); }
+}
+
+async function qrShare(){
+  try{
+    const canvas = await _renderPancarteToCanvas(2);
+    canvas.toBlob(async blob => {
+      const file = new File([blob],'wolo-pancarte.png',{type:'image/png'});
+      if (navigator.share && navigator.canShare?.({files:[file]})){
+        try { await navigator.share({files:[file], title:'Ma pancarte WOLO Pay', text:'Paye-moi en scannant'}); }
+        catch(e){ toast('Partage annulé','info'); }
+      } else {
+        await navigator.clipboard.writeText(_payUrl());
+        toast('Lien copié','success');
+      }
+    },'image/png');
+  }catch(e){ toast('Erreur partage','error'); }
+}
+
 async function qrPrint(){
-  await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({format:'a5', unit:'mm'});
-  // Bande or
-  doc.setFillColor(232,148,10); doc.rect(0,0,148,8,'F');
-  // Logo
-  doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(15,20,16);
-  doc.text('W · WOLO MARKET', 74, 22, {align:'center'});
-  // QR
-  const img = document.getElementById('qr-img');
-  if (img) doc.addImage(img.src, 'PNG', 34, 30, 80, 80);
-  // Nom
-  doc.setFontSize(16);
-  doc.text(document.getElementById('qr-name').textContent, 74, 120, {align:'center'});
-  doc.setFontSize(11); doc.setTextColor(107,114,128);
-  doc.text(document.getElementById('qr-metier').textContent, 74, 127, {align:'center'});
-  doc.setFontSize(12); doc.setTextColor(232,148,10); doc.setFont('helvetica','bold');
-  doc.text('Payez-moi avec WOLO Pay', 74, 136, {align:'center'});
-  // Instructions
-  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(55,65,81);
-  doc.text('1. Scannez ce QR code   2. Entrez le montant   3. Confirmez avec votre PIN', 74, 150, {align:'center'});
-  // Footer
-  doc.setFontSize(9); doc.setTextColor(156,163,175);
-  doc.text('WOLO Market · wolomarket.com', 74, 200, {align:'center'});
-  doc.save('wolo-qr-a5.pdf');
-  toast('PDF A5 généré','success');
+  try{
+    const canvas = await _renderPancarteToCanvas(3);
+    await _loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({format:'a5', unit:'mm', orientation:'portrait'});
+    // Calcul ratio pour centrer la pancarte sur A5 (148×210)
+    const imgData = canvas.toDataURL('image/png');
+    const w = 128; // largeur utile
+    const ratio = canvas.height / canvas.width;
+    const h = w * ratio;
+    const x = (148 - w) / 2;
+    const y = (210 - h) / 2;
+    doc.addImage(imgData, 'PNG', x, y, w, h);
+    doc.save('wolo-pancarte-a5.pdf');
+    toast('PDF A5 généré','success');
+  }catch(e){ console.error(e); toast('Erreur PDF','error'); }
+}
+
+let _wakeLock = null;
+async function qrFullscreen(){
+  const pancarte = document.getElementById('wolo-pancarte');
+  if (!pancarte) return;
+  const clone = pancarte.cloneNode(true);
+  clone.style.width = 'min(92vw, 520px)';
+  clone.style.boxShadow = '0 20px 80px rgba(232,148,10,.4)';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'qr-fullscreen';
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s';
+  overlay.appendChild(clone);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '✕';
+  closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;border:none;font-size:22px;cursor:pointer;z-index:2';
+  closeBtn.onclick = () => {
+    overlay.remove();
+    if (_wakeLock) { try{ _wakeLock.release(); }catch(e){} _wakeLock=null; }
+  };
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+
+  // Wake lock : empêche la mise en veille
+  try {
+    if ('wakeLock' in navigator) {
+      _wakeLock = await navigator.wakeLock.request('screen');
+    }
+  } catch(e){}
 }
 
 // ── Lien de paiement ──
@@ -14959,10 +15097,88 @@ async function injectSprint6Upgrade(){
   const manquant = Math.max(0, 2500 - solde);
   const soldeOK = solde >= 2500;
 
+  const rowOk = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:#F8F6F1"><span style="color:#4ade80;font-weight:700">✓</span><span>${txt}</span></div>`;
+  const rowKo = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:rgba(248,246,241,.4)"><span style="color:#ef4444">✗</span><span style="text-decoration:line-through">${txt}</span></div>`;
+  const sectionTitle = t => `<div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin:14px 0 4px;padding-bottom:4px;border-bottom:1px solid rgba(232,148,10,.15)">${t}</div>`;
+
   const block = document.createElement('div');
   block.id = 'sp6-upgrade-block';
-  block.style.cssText = 'max-width:640px;margin:24px auto;padding:0 16px;color:#F8F6F1';
+  block.style.cssText = 'max-width:720px;margin:24px auto;padding:0 16px;color:#F8F6F1';
   block.innerHTML = `
+    <!-- Bannière gains mensuels -->
+    <div style="background:#0f1410;border:2px solid #E8940A;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+      <div style="font-size:40px;margin-bottom:6px">🏆</div>
+      <div style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:4px">400 000 FCFA à gagner chaque mois</div>
+      <div style="font-size:12px;color:rgba(248,246,241,.6);margin-bottom:14px">Réservé exclusivement aux membres Pro</div>
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Space Mono'">300 000 FCFA / mois</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🥇 WOLO Awards</span><strong style="color:#E8940A;font-family:'Space Mono'">100 000 FCFA / mois</strong></div>
+      </div>
+      <div style="font-size:10px;color:rgba(248,246,241,.45);font-style:italic">Tirage chaque dernier vendredi du mois · 18h00 WAT</div>
+    </div>
+
+    <!-- Tableau comparaison -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px">
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:700;margin-bottom:2px">Gratuit</div>
+        <div style="font-family:'Space Mono';font-size:18px;font-weight:700;color:rgba(248,246,241,.75);margin-bottom:8px">0 FCFA<span style="font-size:11px;color:rgba(248,246,241,.5)">/mois</span></div>
+        ${sectionTitle('WOLO PAY')}
+        ${rowOk('Crédit WOLO (recharger · dépenser · transférer)')}
+        ${rowOk('Payer les commerçants (QR · identifiant)')}
+        ${rowOk('Envoyer de l\'argent à tes proches')}
+        ${rowOk('Contacts favoris')}
+        ${rowOk('Retrait mobile money (frais 2%)')}
+        ${rowKo('Recevoir paiements par QR code')}
+        ${rowKo('QR code commerçant')}
+        ${rowKo('Lien de paiement')}
+        ${rowKo('Retrait gratuit')}
+        ${rowKo('Statistiques paiements')}
+        ${sectionTitle('MARKETPLACE')}
+        ${rowOk('Profil visible')}
+        ${rowOk('Avis clients')}
+        ${rowOk('Score WOLO (consulter)')}
+        ${rowKo('À la Une homepage')}
+        ${rowKo('Top 50 WOLO')}
+        ${rowKo('Badge Pro')}
+        ${sectionTitle('RÉCOMPENSES')}
+        ${rowKo('Bourse de Croissance (300 000 FCFA/mois)')}
+        ${rowKo('WOLO Awards (100 000 FCFA/mois)')}
+        ${rowKo('Éligible tirages mensuels')}
+      </div>
+      <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#E8940A;color:#fff;font-size:9px;font-weight:800;padding:3px 12px;border-radius:100px;letter-spacing:1px">RECOMMANDÉ</div>
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:700;color:#E8940A;margin-bottom:2px;margin-top:4px">Pro</div>
+        <div style="font-family:'Space Mono';font-size:18px;font-weight:700;color:#E8940A">2 500 FCFA<span style="font-size:11px">/mois</span></div>
+        <div style="font-size:10px;color:rgba(248,246,241,.5);margin-bottom:8px">Soit 83 FCFA par jour</div>
+        ${sectionTitle('WOLO PAY')}
+        ${rowOk('Tout ce qui est Gratuit +')}
+        ${rowOk('Recevoir paiements clients en 60s')}
+        ${rowOk('QR code commerçant premium (pancarte)')}
+        ${rowOk('Lien de paiement livraisons / distance')}
+        ${rowOk('Retrait mobile money <strong>GRATUIT</strong>')}
+        ${rowOk('Stats paiements (jour · semaine · mois)')}
+        ${rowOk('Export historique PDF')}
+        ${sectionTitle('MARKETPLACE')}
+        ${rowOk('<strong>Badge Pro</strong> visible')}
+        ${rowOk('Priorité résultats de recherche')}
+        ${rowOk('À la Une homepage')}
+        ${rowOk('Éligible Top 50 WOLO')}
+        ${rowOk('Score WOLO complet + détails')}
+        ${sectionTitle('RÉCOMPENSES')}
+        ${rowOk('<strong>Bourse de Croissance 300 000 FCFA/mois</strong>')}
+        ${rowOk('<strong>WOLO Awards 100 000 FCFA/mois</strong>')}
+        ${rowOk('Tirages chaque dernier vendredi du mois')}
+        ${rowOk('Commissions parrainage (1 000 FCFA/filleul/mois)')}
+      </div>
+    </div>
+
+    <!-- Total gains possibles -->
+    <div style="background:rgba(232,148,10,.1);border:1px solid #E8940A;border-radius:12px;padding:16px;text-align:center;margin-bottom:20px">
+      <div style="font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:4px">POTENTIEL MENSUEL</div>
+      <div style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#E8940A">400 000 FCFA si tu gagnes tout</div>
+      <div style="font-size:11px;color:rgba(248,246,241,.55);margin-top:4px">Les gains sont versés en Crédit WOLO · disponibles immédiatement</div>
+    </div>
+
     <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:20px;margin-bottom:16px">
       <div style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:6px">Choisis ton mode de paiement</div>
       <div style="font-size:13px;color:rgba(248,246,241,.6);margin-bottom:18px">Plan Pro — 2 500 FCFA / mois · Résiliable à tout moment</div>
@@ -15055,8 +15271,9 @@ function sp6ShowSuccess(){
     <div style="max-width:360px;width:100%">
       <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">📱 <strong>Ton QR code est prêt</strong> — va dans Paiements › Mon QR Code</div>
       <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">🛡️ <strong>Paiements sécurisés</strong> — ton argent est protégé</div>
-      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;font-size:13px;color:#F8F6F1">🏆 <strong>Éligible à la Bourse de Croissance</strong> — prochain tirage vendredi 18h00</div>
-      <button onclick="this.closest('[style*=fixed]').remove();showDashSection('qr-code')" style="width:100%;background:#E8940A;color:#0f1410;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Voir mon QR Code →</button>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">🏆 <strong>Bourse de Croissance 300 000 FCFA</strong> — prochain tirage vendredi 18h00</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;font-size:13px;color:#F8F6F1">🥇 <strong>WOLO Awards 100 000 FCFA</strong> — tirage mensuel dernier vendredi</div>
+      <button onclick="this.closest('[style*=fixed]').remove();showDashSection('qr-code')" style="width:100%;background:#E8940A;color:#0f1410;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Voir ma pancarte WOLO Pay →</button>
       <button onclick="this.closest('[style*=fixed]').remove();showDashSection('credit-wolo')" style="width:100%;background:transparent;color:rgba(248,246,241,.7);border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:600;cursor:pointer">Aller au dashboard</button>
     </div>`;
   document.body.appendChild(overlay);
