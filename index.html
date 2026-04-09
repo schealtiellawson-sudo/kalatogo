@@ -18989,6 +18989,45 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:64px; }
   .wv2-bcd-num { font-size:22px; }
   .wv2-bcd-sep { font-size:20px; }
 }
+
+/* ══ Section 3 — Sidebar desktop 240px ══ */
+.wv2-sidebar { display:none; }
+@media (min-width:1025px) {
+  .wv2-sidebar {
+    display:flex; flex-direction:column;
+    position:fixed; top:64px; left:0; bottom:0; width:240px;
+    background:var(--wv2-dark);
+    border-right:1px solid rgba(232,148,10,.2);
+    padding:20px 14px; z-index:900; overflow-y:auto;
+    font-family:'Poppins',sans-serif;
+  }
+  body.wolo-v2-active { padding-left:240px; }
+  body.wolo-v2-active > nav:not(.mobile-bottom-nav) { left:240px; }
+  body.wolo-v2-active .mobile-bottom-nav { display:none !important; }
+}
+.wv2-sidebar-item {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; border-radius:10px;
+  color:rgba(248,246,241,.78); cursor:pointer;
+  background:none; border:none; width:100%; text-align:left;
+  font-family:inherit; font-size:14px; font-weight:500;
+  transition:all .15s;
+}
+.wv2-sidebar-item:hover { background:rgba(232,148,10,.08); color:var(--wv2-creme); }
+.wv2-sidebar-item.active { background:rgba(232,148,10,.12); color:var(--wv2-or); }
+.wv2-sidebar-item i { width:20px; height:20px; flex-shrink:0; }
+.wv2-sidebar-item .wv2-chev { margin-left:auto; width:16px; height:16px; transition:transform .2s; }
+.wv2-sidebar-item.open .wv2-chev { transform:rotate(90deg); }
+.wv2-sidebar-sub { display:none; padding:4px 0 6px 40px; flex-direction:column; gap:2px; }
+.wv2-sidebar-sub.open { display:flex; }
+.wv2-sidebar-sub button {
+  background:none; border:none; text-align:left; padding:8px 10px;
+  color:rgba(248,246,241,.6); font-family:inherit; font-size:13px;
+  cursor:pointer; border-radius:8px;
+}
+.wv2-sidebar-sub button:hover { color:var(--wv2-or); background:rgba(232,148,10,.06); }
+.wv2-sidebar-sep { height:1px; background:rgba(232,148,10,.12); margin:14px 6px; }
+.wv2-sidebar-foot { margin-top:auto; padding:14px 6px; font-family:'Space Mono',monospace; font-size:10px; color:rgba(248,246,241,.35); letter-spacing:1px; }
 </style>
 
 <!-- WOLO v2 — PWA install banner (shown after 2nd visit) -->
@@ -19075,9 +19114,72 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:64px; }
 })();
 </script>
 
+<script>
+// ══ WOLO v2 — Section 3 : Sidebar desktop 240px ══
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    if (document.querySelector('.wv2-sidebar')) return;
+    var items = [
+      { key:'home', label:'Accueil', icon:'home', page:'home' },
+      { key:'credit', label:'Crédit', icon:'wallet', page:'search' },
+      { key:'pay', label:'Payer', icon:'qr-code', page:'dashboard' },
+      { key:'profil', label:'Profil', icon:'user', page:'dashboard', sub:[
+          { label:'Mes photos', action:"showDashSection('photos');showPage('dashboard')" },
+          { label:'Mon CV', action:"showDashSection('profil');showPage('dashboard')" },
+          { label:'Mes avis', action:"showDashSection('avis');showPage('dashboard')" }
+      ]},
+      { key:'plus', label:'Plus', icon:'layout-grid', page:'feed', sub:[
+          { label:'Fil social', action:"showPage('feed')" },
+          { label:'À propos', action:"showPage('about')" },
+          { label:'Notifications', action:"showDashSection('notifications');showPage('dashboard')" }
+      ]}
+    ];
+    var aside = document.createElement('aside');
+    aside.className = 'wv2-sidebar';
+    aside.setAttribute('aria-label','Navigation principale');
+    var html = '';
+    items.forEach(function(it){
+      var hasSub = it.sub && it.sub.length;
+      html += '<button class="wv2-sidebar-item" data-wv2sb="'+it.key+'" data-page="'+it.page+'"'+(hasSub?' data-has-sub="1"':'')+'>'
+           + '<i data-lucide="'+it.icon+'"></i><span>'+it.label+'</span>'
+           + (hasSub ? '<i data-lucide="chevron-right" class="wv2-chev"></i>' : '')
+           + '</button>';
+      if (hasSub) {
+        html += '<div class="wv2-sidebar-sub">';
+        it.sub.forEach(function(s){
+          html += '<button type="button" onclick="'+s.action+'">'+s.label+'</button>';
+        });
+        html += '</div>';
+      }
+    });
+    html += '<div class="wv2-sidebar-sep"></div><div class="wv2-sidebar-foot">WOLO MARKET · v2</div>';
+    aside.innerHTML = html;
+    document.body.appendChild(aside);
+
+    aside.querySelectorAll('.wv2-sidebar-item').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        var hasSub = btn.getAttribute('data-has-sub') === '1';
+        var page = btn.getAttribute('data-page');
+        if (hasSub) {
+          btn.classList.toggle('open');
+          var sub = btn.nextElementSibling;
+          if (sub && sub.classList.contains('wv2-sidebar-sub')) sub.classList.toggle('open');
+        }
+        if (page && typeof showPage === 'function') {
+          try { showPage(page); } catch(e){}
+        }
+        aside.querySelectorAll('.wv2-sidebar-item').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+      });
+    });
+    try { if (window.lucide) lucide.createIcons(); } catch(e){}
+  });
+})();
+</script>
+
 <!-- TODO wolo-v2 — Sections reportées (risque de casser JS existant) :
   * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wolo-v2-header + body.wolo-v2-active prêtes à l'emploi.
-  * Sidebar desktop 240px : non injectée (risque de conflit avec layout existant).
+  * Sidebar desktop 240px : LIVRÉ (Sprint1 S3) — injection JS DOMContentLoaded.
   * Hero homepage override : classe .wolo-v2-hero disponible mais non appliquée pour ne pas casser le hero existant avec hero-orbit-scene, particles, metrics.
   * Section WOLO Pay Hero, Catégories, Profils en Vedette, Bourse Croissance : à ajouter manuellement dans #home page.
   * Page profil commerçant (banner/avatar/score détaillé/galerie/avis) : refonte nécessite refactoring du markup existant — reporté.
