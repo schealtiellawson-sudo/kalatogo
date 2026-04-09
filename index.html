@@ -3245,11 +3245,15 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
 <!-- WOLO v2 — Header fixe 64px -->
 <header class="wolo-v2-header" role="banner">
   <button type="button" class="wv2-logo" onclick="showPage('home')" aria-label="WOLO Market — Accueil">
-    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="32" cy="32" r="30" fill="#0f1410" stroke="#E8940A" stroke-width="2"/>
-      <text x="32" y="43" font-family="Georgia, serif" font-size="30" font-weight="700" fill="#E8940A" text-anchor="middle">W</text>
+    <svg viewBox="0 0 280 72" xmlns="http://www.w3.org/2000/svg" height="36" aria-hidden="true">
+      <circle cx="36" cy="36" r="34" fill="#0f1410" stroke="#E8940A" stroke-width="2"/>
+      <circle cx="36" cy="36" r="27" fill="#0f1410"/>
+      <text x="36" y="46" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#E8940A" text-anchor="middle">W</text>
+      <text x="84" y="32" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#FFFFFF" letter-spacing="-0.5">WOLO</text>
+      <rect x="84" y="38" width="188" height="1.5" fill="#E8940A"/>
+      <text x="86" y="58" font-family="'Space Mono', monospace" font-size="11" font-weight="400" fill="#FFFFFF" letter-spacing="7">MARKET</text>
+      <circle cx="270" cy="48" r="4" fill="#E8940A"/>
     </svg>
-    <span class="wv2-logo-text">WOLO Market</span>
   </button>
   <label class="wv2-search">
     <i data-lucide="search" style="width:16px;height:16px;color:rgba(248,246,241,.55);" aria-hidden="true"></i>
@@ -3273,9 +3277,9 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
         <circle cx="36" cy="36" r="34" fill="#0f1410" stroke="#0f1410" stroke-width="2"/>
         <circle cx="36" cy="36" r="27" fill="#0f1410"/>
         <text x="36" y="46" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#E8940A" text-anchor="middle">W</text>
-        <text x="84" y="32" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#0f1410" letter-spacing="-0.5">WOLO</text>
+        <text x="84" y="32" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#FFFFFF" letter-spacing="-0.5">WOLO</text>
         <rect x="84" y="38" width="188" height="1.5" fill="#E8940A"/>
-        <text x="86" y="58" font-family="Georgia, serif" font-size="13" font-weight="400" fill="#0f1410" letter-spacing="7" opacity="0.8">MARKET</text>
+        <text x="86" y="58" font-family="'Space Mono', monospace" font-size="11" font-weight="400" fill="#FFFFFF" letter-spacing="7">MARKET</text>
         <circle cx="270" cy="48" r="4" fill="#E8940A"/>
       </svg>
     </a>
@@ -19091,7 +19095,7 @@ document.addEventListener('DOMContentLoaded', () => { if (document.getElementByI
 .wolo-v2-header .wv2-bell { position:relative; background:none; border:none; color:var(--wv2-creme); cursor:pointer; padding:8px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .2s; }
 .wolo-v2-header .wv2-bell:hover { background:rgba(232,148,10,.1); }
 .wolo-v2-header .wv2-bell .wv2-badge { position:absolute; top:4px; right:4px; width:8px; height:8px; background:#ef4444; border-radius:50%; border:2px solid #0f1410; }
-.wolo-v2-header .wv2-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#E8940A,#C47A08); display:flex; align-items:center; justify-content:center; color:#0f1410; font-weight:700; font-size:13px; font-family:'Poppins',sans-serif; cursor:pointer; border:2px solid rgba(232,148,10,.4); }
+.wolo-v2-header .wv2-avatar { width:32px; height:32px; border-radius:50%; background:#0f1410; display:flex; align-items:center; justify-content:center; color:#E8940A; font-weight:700; font-size:14px; font-family:Georgia, serif; cursor:pointer; border:2px solid #E8940A; }
 
 body.wolo-v2-active { padding-top:64px; }
 /* Garde le legacy <nav> fonctionnel (contient showPage + auth hooks), juste le décale sous le header v2 */
