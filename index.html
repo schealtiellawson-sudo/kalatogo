@@ -5661,8 +5661,11 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           <i data-lucide="chevron-right" class="dash-chev"></i>
         </button>
         <div class="dash-group-body">
+          <button class="dash-link dash-link-hl" onclick="showDashSection('credit-wolo')" id="dl-credit-wolo">
+            <i data-lucide="wallet"></i> <span>Crédit WOLO</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('paiement')" id="dl-paiement">
-            <i data-lucide="credit-card"></i> <span>Encaisser</span>
+            <i data-lucide="credit-card"></i> <span>Encaisser (WOLO Pay)</span>
           </button>
           <button class="dash-link" onclick="showDashSection('historique-paiements')" id="dl-historique-paiements">
             <i data-lucide="receipt"></i> <span>Paiements reçus</span>
@@ -6536,6 +6539,134 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
             </div>
           </div>
           <button class="btn btn-primary" onclick="changePassword()">→ Enregistrer le nouveau mot de passe</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           WOLO PAY — Crédit WOLO Dashboard (Sprint 4)
+           ══════════════════════════════════════════════════════════════ -->
+      <style>
+        #ds-credit-wolo { background:#0f1410; color:#F8F6F1; border-radius:18px; padding:0; margin:0; overflow:hidden; }
+        #ds-credit-wolo .cw-wrap { padding:20px 18px 28px; max-width:520px; margin:0 auto; }
+        #ds-credit-wolo .cw-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+        #ds-credit-wolo .cw-header h2 { font-family:Poppins,sans-serif; font-size:18px; font-weight:700; color:#F8F6F1; margin:0; letter-spacing:0.5px; }
+        #ds-credit-wolo .cw-icon-btn { width:40px; height:40px; border-radius:50%; background:rgba(232,148,10,0.12); border:none; color:#E8940A; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        #ds-credit-wolo .cw-solde-card { background:#1a1f1b; border:1px solid rgba(232,148,10,0.3); border-radius:16px; padding:24px; margin-bottom:22px; }
+        #ds-credit-wolo .cw-solde-label { font-family:'Space Mono',monospace; font-size:11px; color:#E8940A; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px; }
+        #ds-credit-wolo .cw-solde-montant { font-family:'Space Mono',monospace; font-size:36px; font-weight:700; color:#F8F6F1; line-height:1.1; }
+        #ds-credit-wolo .cw-plafond-bar-wrap { margin-top:14px; }
+        #ds-credit-wolo .cw-plafond-txt { font-family:'Space Mono',monospace; font-size:11px; color:rgba(248,246,241,0.55); margin-bottom:6px; }
+        #ds-credit-wolo .cw-plafond-bar { height:4px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
+        #ds-credit-wolo .cw-plafond-fill { height:100%; background:#E8940A; border-radius:4px; transition:width .3s; }
+        #ds-credit-wolo .cw-quick-row { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:24px; }
+        #ds-credit-wolo .cw-quick-btn { background:rgba(232,148,10,0.1); border:1px solid rgba(232,148,10,0.3); border-radius:12px; padding:14px 6px; color:#F8F6F1; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; min-height:72px; transition:background .15s; }
+        #ds-credit-wolo .cw-quick-btn:hover { background:rgba(232,148,10,0.18); }
+        #ds-credit-wolo .cw-quick-btn .cw-qb-lbl { font-size:11px; font-weight:600; }
+        #ds-credit-wolo .cw-section-lbl { font-family:'Space Mono',monospace; font-size:10px; color:#E8940A; text-transform:uppercase; letter-spacing:3px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+        #ds-credit-wolo .cw-section-lbl a { color:#E8940A; text-decoration:none; letter-spacing:1px; font-size:10px; }
+        #ds-credit-wolo .cw-contacts { display:flex; gap:12px; overflow-x:auto; padding:4px 2px 14px; margin-bottom:22px; scrollbar-width:none; }
+        #ds-credit-wolo .cw-contacts::-webkit-scrollbar { display:none; }
+        #ds-credit-wolo .cw-contact { flex:0 0 64px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; user-select:none; }
+        #ds-credit-wolo .cw-contact .cw-avatar { width:48px; height:48px; border-radius:50%; background:rgba(232,148,10,0.15); color:#E8940A; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; border:1px solid rgba(232,148,10,0.3); }
+        #ds-credit-wolo .cw-contact .cw-surnom { font-size:10px; color:#F8F6F1; text-align:center; max-width:64px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        #ds-credit-wolo .cw-contact-add .cw-avatar { background:transparent; border:1.5px dashed rgba(232,148,10,0.5); color:#E8940A; font-size:22px; }
+        #ds-credit-wolo .cw-tx-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+        #ds-credit-wolo .cw-tx-item:last-child { border-bottom:none; }
+        #ds-credit-wolo .cw-tx-avatar { width:36px; height:36px; border-radius:50%; background:rgba(232,148,10,0.12); color:#E8940A; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+        #ds-credit-wolo .cw-tx-body { flex:1; min-width:0; }
+        #ds-credit-wolo .cw-tx-desc { font-size:14px; color:#F8F6F1; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        #ds-credit-wolo .cw-tx-date { font-family:'Space Mono',monospace; font-size:11px; color:rgba(248,246,241,0.5); margin-top:2px; }
+        #ds-credit-wolo .cw-tx-amount { font-family:'Space Mono',monospace; font-size:14px; font-weight:700; white-space:nowrap; }
+        #ds-credit-wolo .cw-tx-amount.plus { color:#4ade80; }
+        #ds-credit-wolo .cw-tx-amount.minus { color:rgba(248,246,241,0.55); }
+
+        /* Modal flux */
+        .cw-modal { position:fixed; inset:0; background:rgba(15,20,16,0.92); backdrop-filter:blur(6px); z-index:9999; display:none; align-items:flex-end; justify-content:center; }
+        .cw-modal.active { display:flex; }
+        .cw-modal-box { background:#0f1410; color:#F8F6F1; width:100%; max-width:520px; border-radius:24px 24px 0 0; border-top:1px solid rgba(232,148,10,0.3); padding:22px 22px 28px; max-height:90vh; overflow-y:auto; }
+        @media(min-width:768px){ .cw-modal { align-items:center; } .cw-modal-box { border-radius:24px; } }
+        .cw-modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+        .cw-modal-head h3 { font-family:Poppins,sans-serif; font-size:17px; font-weight:700; color:#F8F6F1; margin:0; }
+        .cw-modal-close { background:none; border:none; color:#F8F6F1; cursor:pointer; font-size:24px; padding:4px 10px; }
+        .cw-step-dots { display:flex; gap:6px; justify-content:center; margin-bottom:18px; }
+        .cw-step-dots span { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.15); }
+        .cw-step-dots span.active { background:#E8940A; width:24px; border-radius:4px; }
+        .cw-input { width:100%; min-height:52px; padding:16px; background:#1a1f1b; border:1px solid rgba(232,148,10,0.25); border-radius:12px; color:#F8F6F1; font-size:16px; font-family:inherit; margin-bottom:12px; }
+        .cw-input:focus { outline:none; border-color:#E8940A; }
+        .cw-btn { display:block; width:100%; min-height:52px; background:#E8940A; color:#0f1410; border:none; border-radius:12px; font-weight:700; font-size:16px; cursor:pointer; margin-top:10px; }
+        .cw-btn:disabled { opacity:0.4; cursor:not-allowed; }
+        .cw-btn-ghost { background:transparent; border:1px solid rgba(232,148,10,0.35); color:#F8F6F1; }
+        .cw-op-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+        .cw-op-card { background:#1a1f1b; border:1.5px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px 10px; text-align:center; cursor:pointer; color:#F8F6F1; min-height:80px; display:flex; flex-direction:column; justify-content:center; gap:4px; }
+        .cw-op-card.active { border-color:#E8940A; background:rgba(232,148,10,0.1); }
+        .cw-op-card .cw-op-title { font-size:13px; font-weight:700; }
+        .cw-op-card .cw-op-sub { font-size:11px; color:rgba(248,246,241,0.55); }
+        .cw-amount-big { font-family:'Space Mono',monospace; font-size:40px; font-weight:700; text-align:center; color:#F8F6F1; margin:18px 0; letter-spacing:1px; }
+        .cw-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
+        .cw-key { min-height:52px; background:#1a1f1b; border:1px solid rgba(255,255,255,0.08); border-radius:12px; color:#F8F6F1; font-size:20px; font-weight:600; cursor:pointer; font-family:'Space Mono',monospace; }
+        .cw-key:active { background:#E8940A; color:#0f1410; }
+        .cw-quick-amounts { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+        .cw-quick-amount { flex:1; min-width:70px; padding:10px 8px; background:rgba(232,148,10,0.1); border:1px solid rgba(232,148,10,0.25); border-radius:10px; color:#E8940A; font-family:'Space Mono',monospace; font-weight:700; cursor:pointer; }
+        .cw-recap { background:#1a1f1b; border-radius:14px; padding:16px; margin-bottom:14px; }
+        .cw-recap-row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
+        .cw-recap-row .cw-recap-lbl { color:rgba(248,246,241,0.6); }
+        .cw-recap-row .cw-recap-val { color:#F8F6F1; font-family:'Space Mono',monospace; font-weight:700; }
+        .cw-pin-dots { display:flex; gap:14px; justify-content:center; margin:24px 0; }
+        .cw-pin-dot { width:16px; height:16px; border-radius:50%; background:rgba(255,255,255,0.15); border:1.5px solid rgba(232,148,10,0.3); }
+        .cw-pin-dot.filled { background:#E8940A; border-color:#E8940A; }
+        .cw-pin-msg { text-align:center; color:#F8F6F1; font-size:13px; margin-bottom:14px; }
+        .cw-pin-err { text-align:center; color:#ef4444; font-size:13px; margin-bottom:10px; min-height:18px; }
+        .cw-success-anim { text-align:center; padding:30px 10px; }
+        .cw-success-circle { width:92px; height:92px; border-radius:50%; background:#4ade80; display:inline-flex; align-items:center; justify-content:center; color:#0f1410; font-size:46px; font-weight:900; animation:cwPulse .6s ease-out; margin-bottom:16px; }
+        @keyframes cwPulse { 0%{transform:scale(0)} 60%{transform:scale(1.15)} 100%{transform:scale(1)} }
+        .cw-search-result { background:#1a1f1b; padding:12px; border-radius:12px; margin-bottom:8px; display:flex; align-items:center; gap:10px; cursor:pointer; }
+        .cw-search-result:hover { background:rgba(232,148,10,0.1); }
+        .cw-search-result .cw-sr-avatar { width:38px; height:38px; border-radius:50%; background:rgba(232,148,10,0.15); color:#E8940A; display:flex; align-items:center; justify-content:center; font-weight:700; }
+        .cw-empty { text-align:center; padding:24px 10px; color:rgba(248,246,241,0.45); font-size:13px; }
+        .dash-link-hl { background:linear-gradient(90deg, rgba(232,148,10,0.18), transparent) !important; border-left:3px solid #E8940A !important; }
+      </style>
+
+      <div class="dash-section" id="ds-credit-wolo">
+        <div class="cw-wrap">
+          <div class="cw-header">
+            <button class="cw-icon-btn" onclick="showDashSection('profil')" aria-label="Retour"><i data-lucide="arrow-left"></i></button>
+            <h2>Crédit WOLO</h2>
+            <button class="cw-icon-btn" onclick="cwOpenSettings()" aria-label="Paramètres"><i data-lucide="settings"></i></button>
+          </div>
+
+          <div class="cw-solde-card">
+            <div class="cw-solde-label">Crédit WOLO disponible</div>
+            <div class="cw-solde-montant" id="cw-solde-montant">— FCFA</div>
+            <div class="cw-plafond-bar-wrap">
+              <div class="cw-plafond-txt" id="cw-plafond-txt">— / 200 000 FCFA utilisés</div>
+              <div class="cw-plafond-bar"><div class="cw-plafond-fill" id="cw-plafond-fill" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div class="cw-quick-row">
+            <button class="cw-quick-btn" onclick="cwOpenFlow('recharger')"><i data-lucide="arrow-down-circle"></i><div class="cw-qb-lbl">Recharger</div></button>
+            <button class="cw-quick-btn" onclick="cwOpenFlow('envoyer')"><i data-lucide="send"></i><div class="cw-qb-lbl">Envoyer</div></button>
+            <button class="cw-quick-btn" onclick="cwOpenFlow('recuperer')"><i data-lucide="arrow-up-circle"></i><div class="cw-qb-lbl">Récupérer</div></button>
+            <button class="cw-quick-btn" onclick="cwOpenFlow('historique')"><i data-lucide="clock"></i><div class="cw-qb-lbl">Historique</div></button>
+          </div>
+
+          <div class="cw-section-lbl">MES PROCHES</div>
+          <div class="cw-contacts" id="cw-contacts"></div>
+
+          <div class="cw-section-lbl">DERNIÈRES TRANSACTIONS <a href="#" onclick="event.preventDefault();cwOpenFlow('historique')">Voir tout</a></div>
+          <div id="cw-recent"></div>
+        </div>
+      </div>
+
+      <!-- Modal générique flows WOLO Pay -->
+      <div class="cw-modal" id="cw-modal">
+        <div class="cw-modal-box">
+          <div class="cw-modal-head">
+            <h3 id="cw-modal-title">WOLO Pay</h3>
+            <button class="cw-modal-close" onclick="cwCloseModal()">×</button>
+          </div>
+          <div class="cw-step-dots" id="cw-step-dots"></div>
+          <div id="cw-modal-body"></div>
         </div>
       </div>
 
@@ -7446,6 +7577,7 @@ function showDashSection(section) {
   if (section === 'posts') loadDashPosts();
   if (section === 'historique-paiements') loadHistoriquePaiements();
   if (section === 'abonnement') loadWoloCreditWidget();
+  if (section === 'credit-wolo') loadCreditWoloSection();
   if (section === 'abonnement') loadAbonnement();
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
@@ -14210,6 +14342,291 @@ async function payAbonnementWithCredit() {
     btn.disabled = false; btn.textContent = old;
   }
 }
+
+// ══════════════════════════════════════════════════════════
+// ══ WOLO PAY — Dashboard Crédit WOLO (Sprint 4)           ══
+// ══════════════════════════════════════════════════════════
+const CW = {
+  solde: 0,
+  plafond: 200000,
+  contacts: [],
+  mouvements: [],
+  flow: null,      // 'recharger'|'envoyer'|'recuperer'|'historique'
+  step: 0,
+  data: {},        // form data across steps
+  pinBuf: '',
+  pinMode: null,   // 'create'|'verify'|'confirm'
+  pinCallback: null
+};
+
+function cwMoney(n){ return (Number(n)||0).toLocaleString('fr-FR').replace(/,/g,' ') + ' FCFA'; }
+function cwInitials(s){ return (s||'?').trim().slice(0,2).toUpperCase(); }
+function cwBeep(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); const g=a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value=880; g.gain.value=0.05; o.start(); setTimeout(()=>{o.stop();a.close();},120);}catch(e){} }
+function cwHaptic(ms=40){ try{ navigator.vibrate?.(ms); }catch(e){} }
+
+async function loadCreditWoloSection(){
+  if (!currentUser?.id) return;
+  await Promise.all([cwLoadBalance(), cwLoadContacts(), cwLoadRecent()]);
+}
+
+async function cwLoadBalance(){
+  try{
+    const r = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}&email=${encodeURIComponent(currentUser.email||'')}`);
+    const d = await r.json();
+    if (!d.ok) return;
+    CW.solde = d.credit?.solde_disponible || 0;
+    CW.mouvements = d.mouvements || [];
+    const el = document.getElementById('cw-solde-montant');
+    if (el) el.textContent = cwMoney(CW.solde);
+    const bar = document.getElementById('cw-plafond-fill');
+    if (bar) bar.style.width = Math.min(100, (CW.solde/CW.plafond)*100) + '%';
+    const lbl = document.getElementById('cw-plafond-label');
+    if (lbl) lbl.textContent = `${cwMoney(CW.solde)} / ${cwMoney(CW.plafond)}`;
+  }catch(e){ console.warn('[cw-balance]',e); }
+}
+
+async function cwLoadContacts(){
+  try{
+    const r = await fetch(`/api/wolo-pay/contacts?user_id=${currentUser.id}`);
+    const d = await r.json();
+    CW.contacts = d.contacts || [];
+    const host = document.getElementById('cw-contacts');
+    if (!host) return;
+    if (!CW.contacts.length){
+      host.innerHTML = '<div class="cw-add-contact" onclick="cwAddContact()"><i data-lucide="user-plus"></i><span>Ajouter</span></div>';
+    } else {
+      host.innerHTML = CW.contacts.map(c => `
+        <div class="cw-contact" onclick="cwQuickSend('${c.contact_user_id}','${(c.surnom||c.email||'').replace(/'/g,"\\'")}')">
+          <div class="cw-avatar">${cwInitials(c.surnom||c.email)}</div>
+          <div class="cw-contact-name">${(c.surnom||c.email||'').slice(0,12)}</div>
+        </div>`).join('') + '<div class="cw-add-contact" onclick="cwAddContact()"><i data-lucide="user-plus"></i><span>Ajouter</span></div>';
+    }
+    if (window.lucide) lucide.createIcons();
+  }catch(e){ console.warn('[cw-contacts]',e); }
+}
+
+async function cwLoadRecent(){
+  const host = document.getElementById('cw-recent');
+  if (!host) return;
+  const list = (CW.mouvements||[]).slice(0,8);
+  if (!list.length){ host.innerHTML = '<div class="cw-empty">Aucune transaction récente</div>'; return; }
+  host.innerHTML = list.map(m => {
+    const isCredit = (m.type||'').startsWith('credit');
+    const sign = isCredit ? '+' : '−';
+    const color = isCredit ? '#10b981' : '#E8940A';
+    const d = m.created_at ? new Date(m.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) : '';
+    return `<div class="cw-tx"><div class="cw-tx-icon" style="color:${color}">${sign}</div>
+      <div class="cw-tx-main"><div class="cw-tx-desc">${m.description||m.type}</div><div class="cw-tx-date">${d}</div></div>
+      <div class="cw-tx-amount" style="color:${color}">${sign}${cwMoney(m.montant)}</div></div>`;
+  }).join('');
+}
+
+// ── Modal flow engine ──
+function cwOpenFlow(type){
+  CW.flow = type; CW.step = 0; CW.data = {};
+  if (type === 'historique'){ cwRenderHistorique(); return; }
+  document.getElementById('cw-modal').style.display = 'flex';
+  cwRenderStep();
+}
+function cwCloseModal(){
+  document.getElementById('cw-modal').style.display = 'none';
+  CW.flow = null; CW.step = 0; CW.data = {}; CW.pinBuf = '';
+}
+function cwNextStep(){ CW.step++; cwRenderStep(); }
+function cwPrevStep(){ if (CW.step>0){ CW.step--; cwRenderStep(); } }
+
+function cwRenderStep(){
+  const titles = {
+    recharger: ['Opérateur','Montant','Téléphone','Confirmer'],
+    envoyer: ['Destinataire','Montant','Confirmer'],
+    recuperer: ['Opérateur','Téléphone','Montant','Confirmer']
+  };
+  const t = titles[CW.flow]; if (!t) return;
+  document.getElementById('cw-modal-title').textContent = { recharger:'Recharger', envoyer:'Envoyer', recuperer:'Récupérer' }[CW.flow];
+  const dots = t.map((_,i) => `<div class="cw-dot ${i===CW.step?'active':''} ${i<CW.step?'done':''}"></div>`).join('');
+  document.getElementById('cw-step-dots').innerHTML = dots;
+  const body = document.getElementById('cw-modal-body');
+  const step = CW.step;
+  if (CW.flow === 'recharger'){
+    if (step===0) body.innerHTML = cwOperateurPicker();
+    else if (step===1) body.innerHTML = cwMontantInput(500);
+    else if (step===2) body.innerHTML = cwTelInput();
+    else if (step===3) body.innerHTML = cwConfirm(`Recharger ${cwMoney(CW.data.montant)} depuis ${CW.data.telephone}`, () => cwSubmitRecharger());
+  } else if (CW.flow === 'envoyer'){
+    if (step===0) body.innerHTML = cwEmailPicker();
+    else if (step===1) body.innerHTML = cwMontantInput(100, CW.solde);
+    else if (step===2) body.innerHTML = cwConfirm(`Envoyer ${cwMoney(CW.data.montant)} à ${CW.data.to_email}`, () => cwSubmitEnvoyer());
+  } else if (CW.flow === 'recuperer'){
+    if (step===0) body.innerHTML = cwOperateurPicker();
+    else if (step===1) body.innerHTML = cwTelInput();
+    else if (step===2) body.innerHTML = cwMontantInput(1000, CW.solde);
+    else if (step===3){
+      const plan = (window.currentPrestataire?.fields?.['Abonnement']||'').toLowerCase();
+      const frais = plan==='pro' ? 0 : Math.ceil(CW.data.montant*0.02);
+      body.innerHTML = cwConfirm(`Retirer ${cwMoney(CW.data.montant-frais)} (frais ${cwMoney(frais)}) vers ${CW.data.telephone}`, () => cwSubmitRecuperer());
+    }
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+function cwOperateurPicker(){
+  const ops = [
+    {v:'mtn_bj',l:'MTN Bénin'},{v:'moov_bj',l:'Moov Bénin'},
+    {v:'mtn_tg',l:'Yas Togo'},{v:'moov_tg',l:'Moov Togo'}
+  ];
+  return `<div class="cw-list">${ops.map(o=>`<button class="cw-list-btn" onclick="CW.data.operateur='${o.v}';cwNextStep()">${o.l}</button>`).join('')}</div>`;
+}
+function cwMontantInput(min, max){
+  return `<div class="cw-field">
+    <label>Montant (FCFA)</label>
+    <input type="number" id="cw-in-montant" min="${min}" ${max?`max="${max}"`:''} placeholder="${min}" inputmode="numeric">
+    <div class="cw-hint">Min ${cwMoney(min)}${max?` · Dispo ${cwMoney(max)}`:''}</div>
+  </div>
+  <button class="cw-btn-primary" onclick="(function(){const v=parseInt(document.getElementById('cw-in-montant').value||0,10);if(v<${min}){toast('Min ${min}','error');return;}${max?`if(v>${max}){toast('Solde insuffisant','error');return;}`:''}CW.data.montant=v;cwNextStep();})()">Continuer</button>`;
+}
+function cwTelInput(){
+  return `<div class="cw-field"><label>Téléphone</label><input type="tel" id="cw-in-tel" placeholder="+228 90 00 00 00"></div>
+  <button class="cw-btn-primary" onclick="(function(){const v=document.getElementById('cw-in-tel').value.trim();if(v.length<8){toast('Téléphone invalide','error');return;}CW.data.telephone=v;cwNextStep();})()">Continuer</button>`;
+}
+function cwEmailPicker(){
+  return `<div class="cw-field"><label>Email destinataire</label><input type="email" id="cw-in-email" placeholder="email@wolomarket.com"></div>
+  <button class="cw-btn-primary" onclick="(function(){const v=document.getElementById('cw-in-email').value.trim();if(!/@/.test(v)){toast('Email invalide','error');return;}CW.data.to_email=v;cwNextStep();})()">Continuer</button>`;
+}
+function cwConfirm(texte, cb){
+  window._cwConfirmCb = cb;
+  return `<div class="cw-confirm-txt">${texte}</div>
+    <button class="cw-btn-primary" onclick="cwAskPin(window._cwConfirmCb)">Confirmer avec PIN</button>
+    <button class="cw-btn-ghost" onclick="cwPrevStep()">Retour</button>`;
+}
+
+// ── PIN ──
+async function cwAskPin(onSuccess){
+  try{
+    const r = await fetch(`/api/wolo-pay/pin-verify?user_id=${currentUser.id}`);
+    // pin-verify is POST only; we'll just try verify first and fallback to create
+  }catch(e){}
+  // Show keypad
+  const body = document.getElementById('cw-modal-body');
+  CW.pinBuf = ''; CW.pinCallback = onSuccess;
+  body.innerHTML = `<div class="cw-pin-title">Entre ton PIN WOLO Pay</div>
+    <div class="cw-pin-dots" id="cw-pin-dots">${'<div class="cw-pin-dot"></div>'.repeat(4)}</div>
+    <div class="cw-keypad">
+      ${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="cwPinPush('${n}')">${n}</button>`).join('')}
+      <button onclick="cwPinPush('back')"><i data-lucide="delete"></i></button>
+      <button onclick="cwPinPush('0')">0</button>
+      <button onclick="cwCloseModal()"><i data-lucide="x"></i></button>
+    </div>`;
+  if (window.lucide) lucide.createIcons();
+}
+function cwPinPush(k){
+  cwHaptic(20);
+  if (k==='back'){ CW.pinBuf = CW.pinBuf.slice(0,-1); }
+  else if (CW.pinBuf.length < 6) CW.pinBuf += k;
+  const dots = document.getElementById('cw-pin-dots');
+  if (dots) dots.innerHTML = Array.from({length:Math.max(4,CW.pinBuf.length)}).map((_,i)=>`<div class="cw-pin-dot ${i<CW.pinBuf.length?'filled':''}"></div>`).join('');
+  if (CW.pinBuf.length === 4) cwPinSubmit();
+}
+async function cwPinSubmit(){
+  const pin = CW.pinBuf;
+  try{
+    const r = await fetch('/api/wolo-pay/pin-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,pin})});
+    const d = await r.json();
+    if (r.status===404 || d.code==='NO_PIN'){
+      // Create PIN flow
+      if (!confirm('Aucun PIN défini. Créer ton PIN WOLO Pay avec ces chiffres ?')){ CW.pinBuf=''; cwAskPin(CW.pinCallback); return; }
+      await fetch('/api/wolo-pay/pin-set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,pin})});
+      toast('PIN créé','success');
+      if (CW.pinCallback) CW.pinCallback();
+      return;
+    }
+    if (!r.ok || !d.ok){
+      if (r.status===423){ toast('Compte verrouillé 30 min','error'); cwCloseModal(); return; }
+      toast(`PIN incorrect (${d.remaining??'?'} essais)`,'error');
+      CW.pinBuf=''; cwAskPin(CW.pinCallback); return;
+    }
+    if (CW.pinCallback) CW.pinCallback();
+  }catch(e){ toast('Erreur PIN','error'); }
+}
+
+// ── Submissions ──
+async function cwSubmitRecharger(){
+  try{
+    const r = await fetch('/api/wolo-pay/recharger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,email:currentUser.email,montant:CW.data.montant,operateur:CW.data.operateur,telephone:CW.data.telephone})});
+    const d = await r.json(); if (!r.ok) throw new Error(d.error);
+    cwBeep(); cwHaptic(80); toast('Rechargement en cours','success'); cwCloseModal(); loadCreditWoloSection();
+  }catch(e){ toast('Erreur: '+e.message,'error'); }
+}
+async function cwSubmitEnvoyer(){
+  try{
+    const r = await fetch('/api/wolo-pay/transfer-by-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from_user_id:currentUser.id,to_email:CW.data.to_email,montant:CW.data.montant})});
+    const d = await r.json(); if (!r.ok) throw new Error(d.error);
+    cwBeep(); cwHaptic(80); toast('Transfert effectué','success'); cwCloseModal(); loadCreditWoloSection();
+  }catch(e){ toast('Erreur: '+e.message,'error'); }
+}
+async function cwSubmitRecuperer(){
+  try{
+    const r = await fetch('/api/wolo-pay/recuperer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,email:currentUser.email,montant:CW.data.montant,operateur:CW.data.operateur,telephone:CW.data.telephone})});
+    const d = await r.json(); if (!r.ok) throw new Error(d.error);
+    cwBeep(); cwHaptic(80); toast('Retrait en cours (24h)','success'); cwCloseModal(); loadCreditWoloSection();
+  }catch(e){ toast('Erreur: '+e.message,'error'); }
+}
+
+// ── Contacts CRUD ──
+async function cwAddContact(){
+  const email = prompt('Email du contact WOLO :'); if (!email) return;
+  const surnom = prompt('Surnom (max 12 caractères) :','')||'';
+  try{
+    const s = await fetch(`/api/wolo-pay/search-user?q=${encodeURIComponent(email)}`);
+    const sd = await s.json();
+    const u = (sd.users||[]).find(x=>x.email===email);
+    if (!u){ toast('Utilisateur introuvable','error'); return; }
+    const r = await fetch('/api/wolo-pay/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,contact_user_id:u.id,surnom:surnom.slice(0,12)})});
+    if (!r.ok) throw new Error('Échec');
+    toast('Contact ajouté','success'); cwLoadContacts();
+  }catch(e){ toast('Erreur: '+e.message,'error'); }
+}
+function cwQuickSend(contactId, label){
+  CW.flow='envoyer'; CW.step=1; CW.data={to_email:label}; // prefill ; user confirms montant
+  document.getElementById('cw-modal').style.display='flex';
+  cwRenderStep();
+}
+
+// ── Historique + PDF ──
+function cwRenderHistorique(){
+  document.getElementById('cw-modal').style.display='flex';
+  document.getElementById('cw-modal-title').textContent='Historique';
+  document.getElementById('cw-step-dots').innerHTML='';
+  const body = document.getElementById('cw-modal-body');
+  const list = CW.mouvements||[];
+  body.innerHTML = `<div class="cw-hist-list">${list.map(m=>{
+    const isC = (m.type||'').startsWith('credit');
+    const sign = isC?'+':'−'; const col = isC?'#10b981':'#E8940A';
+    const d = m.created_at ? new Date(m.created_at).toLocaleString('fr-FR') : '';
+    return `<div class="cw-tx"><div class="cw-tx-main"><div class="cw-tx-desc">${m.description||m.type}</div><div class="cw-tx-date">${d}</div></div><div class="cw-tx-amount" style="color:${col}">${sign}${cwMoney(m.montant)}</div></div>`;
+  }).join('')||'<div class="cw-empty">Aucun mouvement</div>'}</div>
+  <button class="cw-btn-primary" onclick="cwExportPDF()"><i data-lucide="download"></i> Exporter en PDF</button>`;
+  if (window.lucide) lucide.createIcons();
+}
+function cwExportPDF(){
+  const loadJs = src => new Promise((ok,ko)=>{ if (window.jspdf) return ok(); const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=ko; document.head.appendChild(s); });
+  loadJs('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js').then(()=>{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16); doc.text('Historique Crédit WOLO', 14, 18);
+    doc.setFontSize(10); doc.text(`${currentUser?.email||''} · ${new Date().toLocaleString('fr-FR')}`, 14, 26);
+    doc.text(`Solde actuel : ${cwMoney(CW.solde)}`, 14, 34);
+    let y = 46;
+    (CW.mouvements||[]).forEach(m=>{
+      if (y>280){ doc.addPage(); y=20; }
+      const isC = (m.type||'').startsWith('credit');
+      const d = m.created_at ? new Date(m.created_at).toLocaleDateString('fr-FR') : '';
+      doc.text(`${d}  ${isC?'+':'-'}${cwMoney(m.montant)}  ${(m.description||m.type||'').slice(0,50)}`, 14, y);
+      y += 7;
+    });
+    doc.save(`credit-wolo-${new Date().toISOString().slice(0,10)}.pdf`);
+  }).catch(()=>toast('Erreur chargement PDF','error'));
+}
+function cwOpenSettings(){ toast('Paramètres à venir','info'); }
 
 // ══ HISTORIQUE PAIEMENTS ══
 function loadHistoriquePaiements() {
