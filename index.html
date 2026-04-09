@@ -19068,6 +19068,80 @@ body.wolo-v2-active #page-home > .hero { display:none; }
 .wv2-hero-v2-count .wv2-dot { width:8px; height:8px; border-radius:50%; background:var(--wv2-or); animation:wv2-pulse 2s infinite; }
 .wv2-fade-up { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
 .wv2-fade-up.wv2-in { opacity:1; transform:translateY(0); }
+
+/* ══ Section 9 — Profil commerçant v2 ══ */
+body.wolo-v2-active .profil-cover {
+  aspect-ratio:3/1 !important; min-height:0 !important;
+  border-radius:0 0 20px 20px; position:relative;
+}
+body.wolo-v2-active .profil-avatar-wrap {
+  margin-top:-44px !important; z-index:3; position:relative;
+}
+body.wolo-v2-active .profil-avatar-lg {
+  width:88px !important; height:88px !important;
+  border:4px solid var(--wv2-dark) !important;
+  box-shadow:0 6px 20px rgba(0,0,0,.35) !important;
+  background:linear-gradient(135deg,var(--wv2-or),var(--wv2-or-hover)) !important;
+}
+body.wolo-v2-active .profil-cover-btn {
+  background:rgba(15,20,16,.55) !important;
+  border:1px solid rgba(232,148,10,.35) !important;
+  color:var(--wv2-or) !important;
+  backdrop-filter:blur(6px);
+}
+body.wolo-v2-active .badge-pro,
+body.wolo-v2-active .badge-verifie,
+body.wolo-v2-active .badge-top50 {
+  background:linear-gradient(135deg,var(--wv2-or),var(--wv2-or-hover)) !important;
+  color:var(--wv2-dark) !important;
+  font-weight:700 !important;
+  border:none !important;
+}
+body.wolo-v2-active .profil-section { font-family:'Poppins',sans-serif; }
+body.wolo-v2-active .profil-section h2,
+body.wolo-v2-active .profil-section h3 { font-family:'Fraunces',serif; }
+body.wolo-v2-active .score-bar,
+body.wolo-v2-active .score-bar-fill,
+body.wolo-v2-active [class*="score"] [class*="fill"] {
+  background:linear-gradient(90deg,var(--wv2-or),var(--wv2-or-hover)) !important;
+}
+body.wolo-v2-active .galerie-grid,
+body.wolo-v2-active .photos-grid {
+  display:grid !important;
+  grid-template-columns:repeat(3,1fr) !important;
+  gap:6px !important;
+}
+body.wolo-v2-active .galerie-grid > *,
+body.wolo-v2-active .photos-grid > * {
+  aspect-ratio:1/1 !important;
+  overflow:hidden; border-radius:6px;
+}
+body.wolo-v2-active .galerie-grid img,
+body.wolo-v2-active .photos-grid img {
+  width:100% !important; height:100% !important; object-fit:cover !important;
+}
+.wv2-profil-avis-summary {
+  display:flex; gap:24px; align-items:center; padding:18px 0;
+  border-top:1px solid rgba(232,148,10,.15);
+  border-bottom:1px solid rgba(232,148,10,.15);
+  margin-bottom:20px; font-family:'Poppins',sans-serif;
+}
+.wv2-profil-avis-note {
+  font-family:'Fraunces',serif; font-size:56px; font-weight:900;
+  color:var(--wv2-or); line-height:1;
+}
+.wv2-profil-avis-note-sub { font-size:12px; color:var(--wv2-gris-texte); margin-top:4px; }
+.wv2-profil-avis-dist { flex:1; display:flex; flex-direction:column; gap:4px; }
+.wv2-profil-avis-dist-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--wv2-gris-texte); }
+.wv2-profil-avis-dist-row .wv2-dist-bar { flex:1; height:6px; background:rgba(15,20,16,.08); border-radius:3px; overflow:hidden; }
+.wv2-profil-avis-dist-row .wv2-dist-fill { height:100%; background:linear-gradient(90deg,var(--wv2-or),var(--wv2-or-hover)); }
+body.wolo-v2-active .btn-pay-pro-v2 {
+  background:linear-gradient(135deg,var(--wv2-or),var(--wv2-or-hover)) !important;
+  color:var(--wv2-dark) !important; font-weight:800 !important;
+  padding:14px 28px !important; border-radius:100px !important;
+  border:none !important; box-shadow:0 8px 24px rgba(232,148,10,.35);
+  font-family:'Poppins',sans-serif;
+}
 </style>
 
 <!-- WOLO v2 — PWA install banner (shown after 2nd visit) -->
@@ -19265,6 +19339,74 @@ body.wolo-v2-active #page-home > .hero { display:none; }
     } catch(e){ section.classList.add('wv2-in'); }
   });
 })();
+
+// ══ WOLO v2 — Section 9 : Patch showProfil (banner/avatar/distribution avis/bouton Pro) ══
+(function(){
+  function patchProfil(){
+    var container = document.getElementById('profil-content');
+    if (!container) return;
+    if (container.querySelector('.wv2-profil-avis-summary')) return;
+    var avisSection = null;
+    container.querySelectorAll('.profil-section').forEach(function(sec){
+      var h = sec.querySelector('h2,h3');
+      if (h && /avis/i.test(h.textContent)) avisSection = sec;
+    });
+    if (!avisSection) return;
+    var dist = [0,0,0,0,0]; var total = 0;
+    avisSection.querySelectorAll('[data-note]').forEach(function(el){
+      var n = parseInt(el.getAttribute('data-note'),10);
+      if (n>=1&&n<=5) { dist[5-n]++; total++; }
+    });
+    var avg = '—';
+    if (total > 0) {
+      var sum = 0; for (var i=0;i<5;i++) sum += (5-i)*dist[i];
+      avg = (sum/total).toFixed(1);
+    } else {
+      var globalNote = avisSection.querySelector('[class*="note"]');
+      if (globalNote) { var m = globalNote.textContent.match(/(\d+[.,]\d+|\d+)/); if (m) avg = m[1].replace(',','.'); }
+    }
+    var summary = document.createElement('div');
+    summary.className = 'wv2-profil-avis-summary';
+    var max = Math.max.apply(null, dist) || 1;
+    var rows = '';
+    for (var k=0;k<5;k++) {
+      var star = 5-k;
+      var pct = total ? (dist[k]/max*100) : 0;
+      rows += '<div class="wv2-profil-avis-dist-row"><span>'+star+'★</span><div class="wv2-dist-bar"><div class="wv2-dist-fill" style="width:'+pct+'%"></div></div><span>'+dist[k]+'</span></div>';
+    }
+    summary.innerHTML = '<div style="text-align:center"><div class="wv2-profil-avis-note">'+avg+'</div><div class="wv2-profil-avis-note-sub">'+(total||0)+' avis vérifiés</div></div>'
+                     + '<div class="wv2-profil-avis-dist">'+rows+'</div>';
+    var firstContent = avisSection.querySelector('h2,h3');
+    if (firstContent && firstContent.nextSibling) {
+      avisSection.insertBefore(summary, firstContent.nextSibling);
+    } else {
+      avisSection.appendChild(summary);
+    }
+    container.querySelectorAll('button,a').forEach(function(b){
+      var t = (b.textContent || '').toLowerCase();
+      if (/payer ce prestataire|payer le prestataire|fedapay/.test(t)) {
+        b.classList.add('btn-pay-pro-v2');
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    if (typeof window.showProfil === 'function' && !window._wv2ProfilHooked) {
+      window._wv2ProfilHooked = true;
+      var orig = window.showProfil;
+      window.showProfil = async function(){
+        var r = await orig.apply(this, arguments);
+        setTimeout(patchProfil, 300);
+        setTimeout(patchProfil, 900);
+        return r;
+      };
+    }
+    var container = document.getElementById('profil-content');
+    if (container) {
+      var mo = new MutationObserver(function(){ patchProfil(); });
+      mo.observe(container, { childList:true, subtree:true });
+    }
+  });
+})();
 </script>
 
 <!-- TODO wolo-v2 — Sections reportées (risque de casser JS existant) :
@@ -19272,7 +19414,7 @@ body.wolo-v2-active #page-home > .hero { display:none; }
   * Sidebar desktop 240px : LIVRÉ (Sprint1 S3) — injection JS DOMContentLoaded.
   * Hero homepage v2 : LIVRÉ (Sprint1 S5) — wv2-hero-v2 injecté avant .hero legacy masqué via CSS.
   * Section WOLO Pay Hero, Catégories, Profils en Vedette, Bourse Croissance : à ajouter manuellement dans #home page.
-  * Page profil commerçant (banner/avatar/score détaillé/galerie/avis) : refonte nécessite refactoring du markup existant — reporté.
+  * Page profil commerçant : LIVRÉ (Sprint1 S9) — hook showProfil + override CSS + distribution avis injectée.
   * Card commerçant : nouvelle classe .wolo-v2-card disponible, ne remplace pas .pcard existante (JS de rendu dépend de .pcard).
 -->
 
