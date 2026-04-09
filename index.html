@@ -3065,6 +3065,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
     <div class="nav-links" id="nav-links-desktop">
       <button class="nav-link" data-nav="home" onclick="showPage('home')">Accueil</button>
       <button class="nav-link" data-nav="search" onclick="showPage('search')">Trouver un pro</button>
+      <button class="nav-link" data-nav="feed" onclick="showPage('feed')">📰 Feed WOLO <span class="feed-badge" id="feed-notif-count"></span></button>
       <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOLO Jobs</button>
       <!-- Tutoriels masqués -->
       <button class="nav-link" data-nav="fonctionnement" onclick="showPage('fonctionnement')">Comment ça marche</button>
@@ -3129,6 +3130,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
     <button onclick="showPage('home');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏠 Accueil</button>
     <button onclick="showPage('search');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🔍 Trouver un pro</button>
     <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
+    <button onclick="showPage('feed');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Feed WOLO</button>
     <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 WOLO Jobs</button>
     <!-- Tutoriels masqués -->
     <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💡 Comment ça marche</button>
@@ -4710,6 +4712,33 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
       <button class="btn btn-primary" id="modal-cand-submit-btn" onclick="submitCandidature()" style="flex:2;justify-content:center;">→ Envoyer ma candidature</button>
     </div>
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:10px;line-height:1.5;">Ton profil WOLO complet est joint automatiquement.<br>Le recruteur reçoit ta candidature immédiatement.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE FEED WOLO (Sprint 6)
+══════════════════════════════════════════ -->
+<div id="page-feed" class="page">
+  <div class="wolo-feed-page">
+    <!-- Stories WOLO -->
+    <div class="wolo-stories-bar" id="wolo-stories"></div>
+    <!-- Onglets Feed -->
+    <div class="feed-onglets">
+      <button class="feed-onglet active" data-feed="pour-toi">Pour toi</button>
+      <button class="feed-onglet" data-feed="abonnements">Abonnements</button>
+      <button class="feed-onglet" data-feed="ma-ville">Ma ville</button>
+      <button class="feed-onglet feed-onglet-recruteur" data-feed="talent-radar" style="display:none;">🎯 Talent Radar</button>
+    </div>
+    <!-- Bouton publier -->
+    <div class="feed-publier-zone" id="feed-publier-zone"></div>
+    <!-- Coup du Jour -->
+    <div class="coup-du-jour-container" id="coup-du-jour"></div>
+    <!-- Liste des posts -->
+    <div class="feed-liste" id="feed-liste">
+      <div class="feed-loading" style="padding:40px 16px;text-align:center;color:rgba(248,246,241,0.5);font-family:Georgia,serif;">Chargement du feed...</div>
+    </div>
+    <!-- Infinite scroll sentinel -->
+    <div id="feed-sentinel" style="height:1px;"></div>
   </div>
 </div>
 
@@ -8488,13 +8517,14 @@ function showPage(page) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
   if (page === 'home') initHome();
   if (page === 'search') loadSearch();
   if (page === 'emploi') showPageEmploi();
+  if (page === 'feed') { try { initFeedWOLO(); } catch(e){ console.warn('feed init', e); } }
   if (page === 'inscription') resetInscriptionForm();
   if (page === 'fil') {
     if (!currentUser) { localStorage.setItem('wolo_pending_page','fil'); showPage('login'); return; }
@@ -17248,6 +17278,1084 @@ document.addEventListener('DOMContentLoaded',()=>{
     chargerNbProLive();
     afficherMurGagnants();
   }
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     SPRINT 6 — FEED WOLO (mobile bottom nav + CSS + JS)
+══════════════════════════════════════════ -->
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+  <button class="mobile-nav-item" onclick="showPage('home')">🏠<span>Accueil</span></button>
+  <button class="mobile-nav-item" onclick="showPage('search')">🔍<span>Chercher</span></button>
+  <button class="mobile-nav-item mobile-nav-center" onclick="showPage('feed')">
+    <span class="mobile-nav-feed-btn">📰</span>
+    <span>Feed</span>
+  </button>
+  <button class="mobile-nav-item" onclick="showPage('emploi')">💼<span>Jobs</span></button>
+  <button class="mobile-nav-item" onclick="showPage('dashboard')">👤<span>Moi</span></button>
+</nav>
+
+<style>
+/* ====== SPRINT 6 — Feed WOLO ====== */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #0f1410;
+  border-top: 1px solid rgba(232, 148, 10, 0.15);
+  height: 64px;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: flex; }
+  body { padding-bottom: 64px; }
+}
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  color: rgba(248, 246, 241, 0.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.2s ease;
+}
+.mobile-nav-item.active,
+.mobile-nav-item:hover { color: #E8940A; }
+.mobile-nav-center .mobile-nav-feed-btn {
+  width: 44px; height: 44px;
+  background: #E8940A;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-top: -16px;
+  box-shadow: 0 4px 16px rgba(232, 148, 10, 0.4);
+}
+.feed-badge {
+  display: none;
+  background: #E8940A;
+  color: #0f1410;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  margin-left: 4px;
+}
+.feed-badge.visible { display: inline; }
+
+/* Page feed */
+#page-feed { background: #0f1410; min-height: 100vh; color: #F8F6F1; }
+.wolo-feed-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 0 80px;
+}
+
+/* Stories */
+.wolo-stories-bar {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(232, 148, 10, 0.1);
+}
+.stories-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 4px 16px;
+  scrollbar-width: none;
+}
+.stories-scroll::-webkit-scrollbar { display: none; }
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.story-ring {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #E8940A, #F5B82E);
+}
+.story-ring.bourse { background: linear-gradient(135deg, #E8940A, #C47A08); }
+.story-avatar {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 2px solid #0f1410;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.story-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.story-emoji { font-size: 24px; }
+.story-label {
+  font-size: 11px;
+  color: rgba(248, 246, 241, 0.7);
+  max-width: 64px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.story-votes {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: #E8940A;
+}
+
+/* Onglets */
+.feed-onglets {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(232, 148, 10, 0.1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.feed-onglets::-webkit-scrollbar { display: none; }
+.feed-onglet {
+  flex-shrink: 0;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(248, 246, 241, 0.5);
+  font-family: Georgia, serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.feed-onglet.active,
+.feed-onglet:hover {
+  color: #F8F6F1;
+  border-bottom-color: #E8940A;
+}
+
+/* Zone publication */
+.publier-zone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(248, 246, 241, 0.08);
+}
+.publier-invite {
+  padding: 20px 16px;
+  text-align: center;
+  border-bottom: 1px solid rgba(248, 246, 241, 0.08);
+  color: rgba(248,246,241,0.7);
+}
+.publier-invite p { margin-bottom: 12px; font-size: 13px; }
+.publier-photo {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(232, 148, 10, 0.3);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.publier-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(248, 246, 241, 0.1);
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: rgba(248, 246, 241, 0.4);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.publier-btn:hover { border-color: rgba(232, 148, 10, 0.3); background: rgba(232, 148, 10, 0.05); }
+.publier-btn-icon {
+  background: rgba(232, 148, 10, 0.1);
+  border: 1px solid rgba(232, 148, 10, 0.2);
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; flex-shrink: 0;
+  color: #E8940A;
+}
+
+/* Post */
+.feed-post {
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(248, 246, 241, 0.06);
+  transition: background 0.2s ease;
+}
+.feed-post:hover { background: rgba(255, 255, 255, 0.01); }
+.post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.post-auteur-link { display: flex; align-items: center; gap: 10px; text-decoration: none; cursor: pointer; background:none; border:none; padding:0; }
+.post-auteur-photo { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(232, 148, 10, 0.25); object-fit: cover; }
+.post-auteur-info strong { display: block; font-family: Georgia, serif; font-size: 15px; color: #F8F6F1; text-align: left; }
+.post-auteur-info span { font-size: 12px; color: rgba(248, 246, 241, 0.5); }
+.post-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.post-date { font-size: 11px; color: rgba(248, 246, 241, 0.35); font-family: 'Space Mono', monospace; }
+.post-badge-coup {
+  display: inline-block;
+  background: #E8940A;
+  color: #0f1410;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.post-badge-verifie { font-size: 11px; color: rgba(248, 246, 241, 0.6); }
+.post-media { border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+.post-img { width: 100%; max-height: 480px; object-fit: cover; display: block; }
+.post-video { width: 100%; max-height: 480px; background: #000; }
+.post-contenu { font-size: 14px; color: rgba(248, 246, 241, 0.8); line-height: 1.6; margin-bottom: 12px; }
+.post-actions { display: flex; justify-content: space-between; align-items: center; }
+.post-actions-left { display: flex; gap: 8px; }
+.action-btn {
+  background: none;
+  border: none;
+  color: rgba(248, 246, 241, 0.6);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+}
+.action-btn:hover { background: rgba(248, 246, 241, 0.05); color: #F8F6F1; }
+.action-btn.liked { color: #E8940A; }
+.post-contact-btn {
+  font-size: 13px;
+  padding: 8px 16px;
+  background: #E8940A;
+  color: #0f1410;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
+}
+.post-delete-btn {
+  background: none;
+  border: 1px solid rgba(248,246,241,0.15);
+  color: rgba(248,246,241,0.6);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* Commentaires */
+.post-commentaires { margin-top: 12px; border-top: 1px solid rgba(248, 246, 241, 0.06); padding-top: 12px; }
+.commentaire { display: flex; gap: 8px; margin-bottom: 10px; }
+.commentaire-photo { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
+.commentaire-corps strong { font-size: 13px; color: #F8F6F1; margin-right: 6px; }
+.commentaire-corps p { font-size: 13px; color: rgba(248, 246, 241, 0.75); display: inline; margin:0; }
+.commentaire-corps span { display: block; font-size: 10px; color: rgba(248, 246, 241, 0.3); margin-top: 2px; font-family: 'Space Mono', monospace; }
+.commentaire-form { display: flex; gap: 8px; margin-top: 10px; }
+.commentaire-form input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(248,246,241,0.1);
+  border-radius: 20px;
+  padding: 8px 14px;
+  color: #F8F6F1;
+  font-size: 13px;
+  font-family: inherit;
+}
+.commentaire-form button {
+  background: #E8940A;
+  color: #0f1410;
+  border: none;
+  border-radius: 50%;
+  width: 36px; height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Coup du Jour */
+.coup-du-jour-card {
+  margin: 16px;
+  background: linear-gradient(135deg, rgba(232,148,10,0.1), rgba(15,20,16,0.8));
+  border: 1px solid rgba(232,148,10,0.35);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.coup-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid rgba(232,148,10,0.15); }
+.coup-badge { font-family: 'Space Mono', monospace; font-size: 10px; color: #E8940A; letter-spacing: 3px; }
+.coup-date { font-size: 11px; color: rgba(248,246,241,0.4); font-family: 'Space Mono', monospace; text-transform: capitalize; }
+.coup-media { position: relative; }
+.coup-photo { width: 100%; max-height: 360px; object-fit: cover; display: block; }
+.coup-video { width: 100%; max-height: 360px; }
+.coup-verifie {
+  position: absolute;
+  bottom: 10px; right: 10px;
+  background: rgba(15,20,16,0.85);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: rgba(248,246,241,0.8);
+}
+.coup-footer { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+.coup-auteur { display: flex; align-items: center; gap: 10px; }
+.coup-auteur-photo { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #E8940A; object-fit: cover; }
+.coup-actions { display: flex; gap: 8px; align-items: center; }
+.coup-cta {
+  font-size: 13px;
+  padding: 8px 16px;
+  background: #E8940A;
+  color: #0f1410;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+/* Modal publication */
+.wolo-popup-overlay,
+.wolo-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .wolo-modal-overlay, .wolo-popup-overlay { align-items: center; }
+}
+.wolo-modal, .wolo-popup {
+  background: #1a2018;
+  border: 1px solid rgba(232,148,10,0.25);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #F8F6F1;
+}
+.wolo-popup { padding: 28px 24px; text-align: center; position: relative; max-width: 420px; border-radius: 16px; }
+.wolo-popup h3 { font-family: Georgia, serif; font-size: 20px; color: #F8F6F1; margin-bottom: 8px; }
+.wolo-popup p { color: rgba(248,246,241,0.7); font-size: 13px; margin-bottom: 18px; }
+.wolo-popup .popup-close { position: absolute; top: 12px; right: 14px; background: none; border: none; color: rgba(248,246,241,0.5); font-size: 20px; cursor: pointer; }
+.wolo-popup .wolo-btn-primary { display: inline-block; background: #E8940A; color: #0f1410; border: none; border-radius: 8px; padding: 12px 24px; font-weight: 700; cursor: pointer; text-decoration: none; font-family: inherit; }
+.wolo-popup .popup-login { margin-top: 14px; font-size: 12px; }
+.wolo-popup .popup-login a { color: #E8940A; cursor: pointer; text-decoration: underline; }
+@media (min-width: 768px) {
+  .wolo-modal { border-radius: 16px; }
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 20px 0; margin-bottom: 16px; }
+.modal-header h3 { font-family: Georgia, serif; font-size: 18px; color: #F8F6F1; }
+.modal-header button { background: none; border: none; color: rgba(248,246,241,0.5); font-size: 20px; cursor: pointer; }
+.modal-body { padding: 0 20px; }
+.upload-zone {
+  border: 2px dashed rgba(232,148,10,0.25);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.upload-zone:hover { border-color: rgba(232,148,10,0.5); background: rgba(232,148,10,0.04); }
+.upload-icon { font-size: 32px; display: block; margin-bottom: 8px; }
+.modal-body textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(248,246,241,0.1);
+  border-radius: 8px;
+  padding: 12px;
+  color: #F8F6F1;
+  font-size: 14px;
+  resize: none;
+  font-family: Georgia, serif;
+}
+.char-count { display: block; text-align: right; font-size: 11px; color: rgba(248,246,241,0.3); margin-top: 4px; font-family: 'Space Mono', monospace; }
+.modal-footer { display: flex; gap: 12px; padding: 20px; border-top: 1px solid rgba(248,246,241,0.06); margin-top: 16px; justify-content: flex-end; }
+.btn-annuler {
+  background: none;
+  border: 1px solid rgba(248,246,241,0.15);
+  color: rgba(248,246,241,0.7);
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.preview-media { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; }
+.wolo-btn-primary {
+  background: #E8940A;
+  color: #0f1410;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  font-family: inherit;
+}
+
+/* Talent radar */
+.talent-radar-section { padding: 16px; border-bottom: 1px solid rgba(248,246,241,0.06); }
+.talent-radar-section .eyebrow { display:block; font-family: 'Space Mono', monospace; font-size: 10px; color: #E8940A; letter-spacing: 2px; margin-bottom: 12px; }
+.talent-radar-grid { display: grid; gap: 12px; }
+.talent-radar-card { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(248,246,241,0.06); }
+.talent-photo { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.talent-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.talent-info strong { color: #F8F6F1; font-size: 14px; font-family: Georgia, serif; }
+.talent-info span { font-size: 11px; color: rgba(248,246,241,0.5); }
+.talent-actions { display: flex; flex-direction: column; gap: 6px; }
+.btn-epingler { background: none; border: 1px solid rgba(232,148,10,0.3); color: #E8940A; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-family: inherit; }
+
+.feed-etat-vide { padding: 48px 24px; text-align: center; color: rgba(248,246,241,0.5); font-family: Georgia, serif; }
+.feed-etat-vide .emoji { font-size: 42px; display: block; margin-bottom: 12px; }
+.feed-etat-vide p { margin: 6px 0; font-size: 14px; }
+/* ====== FIN SPRINT 6 ====== */
+</style>
+
+<script>
+/* ══════════════════════════════════════════
+   SPRINT 6 — FEED WOLO (JS)
+   ══════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  // Globals
+  window.feedPage = 0;
+  window.feedChargement = false;
+  window.feedFini = false;
+  window.feedOngletActif = 'pour-toi';
+
+  function _sb() { return window.supabase || null; }
+  async function _currentUser() {
+    if (window.currentUser && window.currentUser.id) return window.currentUser;
+    try {
+      const sb = _sb(); if (!sb) return null;
+      const { data } = await sb.auth.getUser();
+      return data?.user || null;
+    } catch(e) { return null; }
+  }
+
+  window.escapeHtml = window.escapeHtml || function(str) {
+    if (str == null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  };
+
+  window.getDateRelative = function(dateStr) {
+    if (!dateStr) return '';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    if (m < 1) return 'à l\'instant';
+    if (m < 60) return `il y a ${m}min`;
+    if (h < 24) return `il y a ${h}h`;
+    return `il y a ${Math.floor(h/24)}j`;
+  };
+
+  if (typeof window.majActiviteEtScore !== 'function') {
+    window.majActiviteEtScore = async function(/*userId, type*/) { /* no-op */ };
+  }
+
+  // Popup inscription (redirige vers showPage inscription)
+  window.verifierConnexionOuPopup = async function(action) {
+    action = action || 'interagir';
+    const user = await _currentUser();
+    if (user) return user;
+    const popup = document.createElement('div');
+    popup.className = 'wolo-popup-overlay';
+    popup.innerHTML = `
+      <div class="wolo-popup">
+        <button class="popup-close" onclick="this.closest('.wolo-popup-overlay').remove()">✕</button>
+        <h3>Crée ton compte pour ${escapeHtml(action)}</h3>
+        <p>Gratuit · 30 secondes · Sans carte bancaire.</p>
+        <a class="wolo-btn-primary" onclick="document.querySelector('.wolo-popup-overlay')?.remove(); showPage('inscription');">→ Créer mon compte gratuit</a>
+        <p class="popup-login">Déjà un compte ? <a onclick="document.querySelector('.wolo-popup-overlay')?.remove(); showPage('login');">Se connecter</a></p>
+      </div>
+    `;
+    document.body.appendChild(popup);
+    return null;
+  };
+
+  // Stories
+  window.chargerStoriesWOLO = async function() {
+    const container = document.getElementById('wolo-stories');
+    if (!container) return;
+    const sb = _sb();
+    let aLaUne = [];
+    try {
+      if (sb) {
+        const r = await sb.from('Une_Selections').select('*, profiles(*)').eq('Active', true).limit(3);
+        aLaUne = r.data || [];
+      }
+    } catch(e) { aLaUne = []; }
+    const stories = [
+      { type: 'bourse', label: '🏆 Bourse', sousTitre: '🏆 Tirage', bg: '#E8940A' },
+      ...aLaUne.map(p => ({
+        type: 'une',
+        label: (p.profiles?.nom || 'Pro').split(' ')[0],
+        sousTitre: '⭐ À la Une',
+        photo: p.profiles?.photo_url
+      }))
+    ];
+    container.innerHTML = `
+      <div class="stories-scroll">
+        ${stories.map(s => `
+          <div class="story-item">
+            <div class="story-ring ${s.type === 'bourse' ? 'bourse' : ''}">
+              <div class="story-avatar" style="background:${s.photo ? 'transparent' : (s.bg || '#1a2018')}">
+                ${s.photo
+                  ? `<img src="${escapeHtml(s.photo)}" alt="${escapeHtml(s.label)}" loading="lazy">`
+                  : `<span class="story-emoji">${s.sousTitre.split(' ')[0]}</span>`}
+              </div>
+            </div>
+            <span class="story-label">${escapeHtml(s.label)}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  };
+
+  // Coup du jour
+  window.chargerCoupDuJour = async function() {
+    const container = document.getElementById('coup-du-jour');
+    if (!container) return;
+    container.innerHTML = '';
+    const sb = _sb(); if (!sb) return;
+    const aujourd_hui = new Date().toISOString().slice(0,10);
+    let post = null;
+    try {
+      const r = await sb.from('wolo_posts')
+        .select('*, profiles(nom, metier, quartier, pays, photo_url)')
+        .eq('coup_du_jour', true)
+        .eq('coup_du_jour_date', aujourd_hui)
+        .eq('actif', true)
+        .limit(1)
+        .maybeSingle();
+      post = r.data;
+    } catch(e) { post = null; }
+    if (!post) return;
+    const p = post.profiles || { nom: 'Prestataire', metier: '', quartier: '' };
+    container.innerHTML = `
+      <div class="coup-du-jour-card">
+        <div class="coup-header">
+          <span class="coup-badge">⭐ COUP DU JOUR</span>
+          <span class="coup-date">${new Date().toLocaleDateString('fr-FR', { weekday:'long' })}</span>
+        </div>
+        <div class="coup-media">
+          ${post.media_type === 'video'
+            ? `<video src="${escapeHtml(post.media_url)}" controls playsinline class="coup-video"></video>`
+            : `<img src="${escapeHtml(post.media_url || '')}" class="coup-photo" alt="Réalisation" loading="lazy">`}
+          ${post.verifie_client ? '<span class="coup-verifie">✅ Vérifié par le client</span>' : ''}
+        </div>
+        <div class="coup-footer">
+          <div class="coup-auteur">
+            <img src="${escapeHtml(p.photo_url || '')}" class="coup-auteur-photo" alt="${escapeHtml(p.nom||'')}" onerror="this.style.display='none'">
+            <div>
+              <strong>${escapeHtml(p.nom||'Prestataire')}</strong><br>
+              <span style="font-size:12px;color:rgba(248,246,241,0.5);">${escapeHtml(p.metier||'')} · ${escapeHtml(p.quartier||'')} ${p.pays === 'Togo' ? '🇹🇬' : '🇧🇯'}</span>
+            </div>
+          </div>
+          <div class="coup-actions">
+            <button onclick="toggleLike('${post.id}', this)" class="action-btn">❤️ <span id="likes-${post.id}">${post.nb_likes||0}</span></button>
+            <button class="coup-cta" onclick="contacterAuteur('${post.auteur_id}')">Contacter →</button>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  // Render post
+  window.renderPost = function(post, currentUser) {
+    const p = post.profiles || { nom: 'Prestataire', metier: '', quartier: '' };
+    const isOwner = currentUser && currentUser.id === post.auteur_id;
+    const dateRelative = getDateRelative(post.created_at);
+    return `
+      <article class="feed-post" data-post-id="${post.id}">
+        <div class="post-header">
+          <button class="post-auteur-link" onclick="contacterAuteur('${post.auteur_id}')">
+            <img src="${escapeHtml(p.photo_url || '')}" class="post-auteur-photo" alt="${escapeHtml(p.nom||'')}" loading="lazy" onerror="this.style.visibility='hidden'">
+            <div class="post-auteur-info">
+              <strong>${escapeHtml(p.nom || 'Prestataire')}</strong>
+              <span>${escapeHtml(p.metier||'')} · ${escapeHtml(p.quartier||'')} ${p.pays === 'Togo' ? '🇹🇬' : '🇧🇯'}</span>
+            </div>
+          </button>
+          <div class="post-header-right">
+            <span class="post-date">${dateRelative}</span>
+            ${post.coup_du_jour ? '<span class="post-badge-coup">⭐ COUP DU JOUR</span>' : ''}
+            ${post.verifie_client ? '<span class="post-badge-verifie">✅ Vérifié</span>' : ''}
+          </div>
+        </div>
+        ${post.media_url ? `
+          <div class="post-media">
+            ${post.media_type === 'video'
+              ? `<video src="${escapeHtml(post.media_url)}" controls playsinline class="post-video"></video>`
+              : `<img src="${escapeHtml(post.media_url)}" class="post-img" alt="Réalisation" loading="lazy">`}
+          </div>` : ''}
+        ${post.contenu ? `<p class="post-contenu">${escapeHtml(post.contenu)}</p>` : ''}
+        <div class="post-actions">
+          <div class="post-actions-left">
+            <button class="action-btn like-btn ${post.user_a_like ? 'liked' : ''}" onclick="toggleLike('${post.id}', this)">
+              <span class="like-icon">${post.user_a_like ? '❤️' : '🤍'}</span>
+              <span class="like-count" id="likes-${post.id}">${post.nb_likes||0}</span>
+            </button>
+            <button class="action-btn" onclick="afficherCommentaires('${post.id}')">💬 <span>${post.nb_commentaires||0}</span></button>
+            <button class="action-btn" onclick="partagerPost('${post.id}', ${JSON.stringify(p.nom||'').replace(/"/g,'&quot;')}, ${JSON.stringify(p.metier||'').replace(/"/g,'&quot;')}, ${JSON.stringify(p.quartier||'').replace(/"/g,'&quot;')})">📤</button>
+          </div>
+          <div class="post-actions-right">
+            ${!isOwner
+              ? `<button class="post-contact-btn" onclick="contacterAuteur('${post.auteur_id}')">Contacter →</button>`
+              : `<button onclick="supprimerPost('${post.id}')" class="post-delete-btn">Supprimer</button>`}
+          </div>
+        </div>
+        <div class="post-commentaires" id="commentaires-${post.id}" style="display:none;">
+          <div class="commentaires-liste" id="liste-${post.id}"></div>
+          <div class="commentaire-form">
+            <input type="text" placeholder="Ajoute un commentaire..." id="input-commentaire-${post.id}" onkeydown="if(event.key==='Enter') publierCommentaire('${post.id}')">
+            <button onclick="publierCommentaire('${post.id}')">→</button>
+          </div>
+        </div>
+      </article>
+    `;
+  };
+
+  window.contacterAuteur = function(auteurId) {
+    try { localStorage.setItem('wolo_last_profil_id', auteurId); } catch(e){}
+    if (typeof showProfil === 'function') showProfil(auteurId);
+    else showPage('profil');
+  };
+
+  window.afficherEtatVideFeed = function(onglet) {
+    const liste = document.getElementById('feed-liste');
+    if (!liste) return;
+    const messages = {
+      'pour-toi': { e: '📭', t: 'Aucun post pour le moment', s: 'Sois le premier à publier une réalisation.' },
+      'abonnements': { e: '👥', t: 'Tu ne suis personne encore', s: 'Suis des prestataires pour voir leurs posts ici.' },
+      'ma-ville': { e: '🏙️', t: 'Rien dans ta ville pour l\'instant', s: 'Les nouveaux posts de ta ville apparaîtront ici.' },
+      'talent-radar': { e: '🎯', t: 'Aucune demande active', s: 'Les demandes de prestataires s\'afficheront ici.' }
+    };
+    const m = messages[onglet] || messages['pour-toi'];
+    liste.innerHTML = `<div class="feed-etat-vide"><span class="emoji">${m.e}</span><p><strong>${m.t}</strong></p><p>${m.s}</p></div>`;
+  };
+
+  window.chargerFeed = async function(reset) {
+    if (window.feedChargement || (window.feedFini && !reset)) return;
+    window.feedChargement = true;
+    const sb = _sb();
+    if (!sb) { window.feedChargement = false; afficherEtatVideFeed(window.feedOngletActif); return; }
+
+    if (reset) {
+      window.feedPage = 0;
+      window.feedFini = false;
+      const liste = document.getElementById('feed-liste');
+      if (liste) liste.innerHTML = '';
+    }
+
+    const user = await _currentUser();
+    const limite = 10;
+    const offset = window.feedPage * limite;
+
+    try {
+      let query = sb.from('wolo_posts')
+        .select('*, profiles!auteur_id(id, nom, metier, quartier, pays, photo_url, score_wolo)')
+        .eq('actif', true)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limite - 1);
+
+      if (window.feedOngletActif === 'abonnements') {
+        if (!user) {
+          afficherEtatVideFeed('abonnements');
+          window.feedChargement = false; window.feedFini = true; return;
+        }
+        const { data: abos } = await sb.from('wolo_abonnements').select('suivi_id').eq('suiveur_id', user.id);
+        const ids = (abos || []).map(a => a.suivi_id);
+        if (ids.length === 0) {
+          afficherEtatVideFeed('abonnements');
+          window.feedChargement = false; window.feedFini = true; return;
+        }
+        query = query.in('auteur_id', ids);
+      }
+
+      if (window.feedOngletActif === 'ma-ville' && user) {
+        try {
+          const { data: profil } = await sb.from('profiles').select('ville').eq('id', user.id).maybeSingle();
+          if (profil?.ville) query = query.eq('ville', profil.ville);
+        } catch(e) {}
+      }
+
+      if (window.feedOngletActif === 'talent-radar') {
+        query = query.eq('type', 'cherche_prestataire');
+      }
+
+      const { data: posts, error } = await query;
+      if (error) throw error;
+
+      if (!posts || posts.length === 0) {
+        if (window.feedPage === 0) afficherEtatVideFeed(window.feedOngletActif);
+        window.feedFini = true;
+        window.feedChargement = false;
+        return;
+      }
+      if (posts.length < limite) window.feedFini = true;
+
+      const liste = document.getElementById('feed-liste');
+      posts.forEach(p => liste.insertAdjacentHTML('beforeend', renderPost(p, user)));
+      window.feedPage++;
+    } catch(e) {
+      console.warn('chargerFeed error', e);
+      if (window.feedPage === 0) afficherEtatVideFeed(window.feedOngletActif);
+      window.feedFini = true;
+    }
+    window.feedChargement = false;
+  };
+
+  // Likes
+  window.toggleLike = async function(postId, btn) {
+    const user = await verifierConnexionOuPopup('liker ce post');
+    if (!user) return;
+    const sb = _sb(); if (!sb) return;
+    const isLiked = btn.classList.contains('liked');
+    const countEl = document.getElementById(`likes-${postId}`);
+    const current = parseInt(countEl?.textContent || '0') || 0;
+    try {
+      if (isLiked) {
+        await sb.from('wolo_likes').delete().eq('post_id', postId).eq('user_id', user.id);
+        await sb.from('wolo_posts').update({ nb_likes: Math.max(0, current - 1) }).eq('id', postId);
+        btn.classList.remove('liked');
+        const ic = btn.querySelector('.like-icon'); if (ic) ic.textContent = '🤍';
+        if (countEl) countEl.textContent = Math.max(0, current - 1);
+      } else {
+        await sb.from('wolo_likes').insert({ post_id: postId, user_id: user.id });
+        await sb.from('wolo_posts').update({ nb_likes: current + 1 }).eq('id', postId);
+        btn.classList.add('liked');
+        const ic = btn.querySelector('.like-icon'); if (ic) ic.textContent = '❤️';
+        if (countEl) countEl.textContent = current + 1;
+        majActiviteEtScore(user.id, 'like');
+      }
+    } catch(e) { console.warn('toggleLike', e); }
+  };
+
+  window.afficherCommentaires = async function(postId) {
+    const user = await verifierConnexionOuPopup('commenter');
+    if (!user) return;
+    const zone = document.getElementById(`commentaires-${postId}`);
+    if (!zone) return;
+    zone.style.display = zone.style.display === 'none' ? 'block' : 'none';
+    if (zone.style.display === 'none') return;
+    const sb = _sb(); if (!sb) return;
+    try {
+      const { data: commentaires } = await sb.from('wolo_commentaires')
+        .select('*, profiles!auteur_id(nom, photo_url)')
+        .eq('post_id', postId).eq('actif', true)
+        .order('created_at', { ascending: true }).limit(20);
+      const liste = document.getElementById(`liste-${postId}`);
+      if (!liste) return;
+      liste.innerHTML = (commentaires || []).map(c => {
+        const cp = c.profiles || { nom: 'Utilisateur' };
+        return `
+          <div class="commentaire">
+            <img src="${escapeHtml(cp.photo_url || '')}" class="commentaire-photo" alt="" onerror="this.style.visibility='hidden'">
+            <div class="commentaire-corps">
+              <strong>${escapeHtml(cp.nom || 'Utilisateur')}</strong>
+              <p>${escapeHtml(c.contenu)}</p>
+              <span>${getDateRelative(c.created_at)}</span>
+            </div>
+          </div>`;
+      }).join('') || '<p style="font-size:12px;color:rgba(248,246,241,0.4);">Aucun commentaire. Sois le premier.</p>';
+    } catch(e) { console.warn(e); }
+  };
+
+  window.publierCommentaire = async function(postId) {
+    const user = await verifierConnexionOuPopup('commenter');
+    if (!user) return;
+    const input = document.getElementById(`input-commentaire-${postId}`);
+    const contenu = input?.value?.trim();
+    if (!contenu) return;
+    const sb = _sb(); if (!sb) return;
+    try {
+      await sb.from('wolo_commentaires').insert({ post_id: postId, auteur_id: user.id, contenu });
+      // Increment count (fetch + update)
+      const { data: cur } = await sb.from('wolo_posts').select('nb_commentaires').eq('id', postId).maybeSingle();
+      await sb.from('wolo_posts').update({ nb_commentaires: (cur?.nb_commentaires || 0) + 1 }).eq('id', postId);
+      input.value = '';
+      // Re-open comments (toggle twice to refresh)
+      const zone = document.getElementById(`commentaires-${postId}`);
+      if (zone) zone.style.display = 'none';
+      afficherCommentaires(postId);
+      majActiviteEtScore(user.id, 'commentaire');
+    } catch(e) { console.warn(e); }
+  };
+
+  window.partagerPost = function(postId, nom, metier, quartier) {
+    const url = `${window.location.origin}${window.location.pathname}#feed-${postId}`;
+    const message = encodeURIComponent(
+      `👷 Regarde le travail de ${nom} sur WOLO Market :\n${url}\n\n` +
+      `${nom} est ${metier} à ${quartier}.\nContacte-le directement sur la plateforme.`
+    );
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  };
+
+  window.supprimerPost = async function(postId) {
+    if (!confirm('Supprimer ce post ?')) return;
+    const sb = _sb(); if (!sb) return;
+    try {
+      await sb.from('wolo_posts').update({ actif: false }).eq('id', postId);
+      const el = document.querySelector(`[data-post-id="${postId}"]`);
+      if (el) el.remove();
+    } catch(e) { console.warn(e); }
+  };
+
+  // Zone publication
+  window.afficherZonePublication = async function() {
+    const zone = document.getElementById('feed-publier-zone');
+    if (!zone) return;
+    const user = await _currentUser();
+    if (!user) {
+      zone.innerHTML = `
+        <div class="publier-invite">
+          <p>Partage tes réalisations avec la communauté WOLO.</p>
+          <a class="wolo-btn-primary" onclick="showPage('inscription')">→ Créer mon compte gratuit</a>
+        </div>`;
+      return;
+    }
+    let photoUrl = '';
+    try {
+      const sb = _sb();
+      if (sb) {
+        const { data } = await sb.from('profiles').select('photo_url').eq('id', user.id).maybeSingle();
+        photoUrl = data?.photo_url || '';
+      }
+    } catch(e) {}
+    zone.innerHTML = `
+      <div class="publier-zone">
+        <img src="${escapeHtml(photoUrl)}" class="publier-photo" alt="Moi" onerror="this.style.visibility='hidden'">
+        <button class="publier-btn" onclick="ouvrirModalPublication()">Partage une réalisation...</button>
+        <button class="publier-btn-icon" onclick="ouvrirModalPublication()">📷</button>
+      </div>`;
+  };
+
+  window.ouvrirModalPublication = async function() {
+    const user = await verifierConnexionOuPopup('publier');
+    if (!user) return;
+    const modal = document.createElement('div');
+    modal.className = 'wolo-modal-overlay';
+    modal.id = 'modal-publication';
+    modal.innerHTML = `
+      <div class="wolo-modal">
+        <div class="modal-header">
+          <h3>Partage une réalisation</h3>
+          <button onclick="document.getElementById('modal-publication').remove()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('media-input').click()">
+            <input type="file" id="media-input" accept="image/*,video/*" style="display:none" onchange="previewMedia(this)">
+            <div id="upload-placeholder">
+              <span class="upload-icon">📷</span>
+              <p>Ajoute une photo ou vidéo de ta réalisation</p>
+              <span style="font-size:11px;color:rgba(248,246,241,0.4);">JPG, PNG, MP4 · Max 50MB</span>
+            </div>
+            <div id="upload-preview" style="display:none"></div>
+          </div>
+          <textarea id="post-description" placeholder="Décris ta réalisation (optionnel)..." rows="3" maxlength="500"></textarea>
+          <span class="char-count" id="char-count">0/500</span>
+        </div>
+        <div class="modal-footer">
+          <button onclick="document.getElementById('modal-publication').remove()" class="btn-annuler">Annuler</button>
+          <button onclick="publierPost()" class="wolo-btn-primary" id="btn-publier">Publier ma réalisation</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    document.getElementById('post-description').addEventListener('input', function(){
+      document.getElementById('char-count').textContent = `${this.value.length}/500`;
+    });
+  };
+
+  window.previewMedia = function(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = document.getElementById('upload-preview');
+      const placeholder = document.getElementById('upload-placeholder');
+      if (file.type.startsWith('video/')) {
+        preview.innerHTML = `<video src="${e.target.result}" controls class="preview-media"></video>`;
+      } else {
+        preview.innerHTML = `<img src="${e.target.result}" class="preview-media" alt="Preview">`;
+      }
+      placeholder.style.display = 'none';
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.publierPost = async function() {
+    const btn = document.getElementById('btn-publier');
+    if (btn) { btn.disabled = true; btn.textContent = 'Publication en cours...'; }
+    const sb = _sb(); if (!sb) return;
+    const user = await _currentUser();
+    if (!user) { btn && (btn.disabled = false); return; }
+    let profil = {};
+    try {
+      const r = await sb.from('profiles').select('ville, quartier, pays, metier').eq('id', user.id).maybeSingle();
+      profil = r.data || {};
+    } catch(e) {}
+    const fileInput = document.getElementById('media-input');
+    const description = document.getElementById('post-description').value.trim();
+    let mediaUrl = null, mediaType = null;
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      const file = fileInput.files[0];
+      mediaType = file.type.startsWith('video/') ? 'video' : 'photo';
+      try {
+        const fileName = `posts/${user.id}/${Date.now()}.${file.name.split('.').pop()}`;
+        const { data: uploadData, error: upErr } = await sb.storage.from('wolo-media').upload(fileName, file, { upsert: false });
+        if (!upErr && uploadData) {
+          const { data: pub } = sb.storage.from('wolo-media').getPublicUrl(fileName);
+          mediaUrl = pub?.publicUrl || null;
+        }
+      } catch(e) { console.warn('upload', e); }
+    }
+    if (!mediaUrl && !description) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Publier ma réalisation'; }
+      alert('Ajoute au moins une photo ou un texte.');
+      return;
+    }
+    try {
+      const { error } = await sb.from('wolo_posts').insert({
+        auteur_id: user.id,
+        type: 'realisation',
+        contenu: description || null,
+        media_url: mediaUrl,
+        media_type: mediaType,
+        ville: profil.ville,
+        quartier: profil.quartier,
+        pays: profil.pays,
+        metier: profil.metier
+      });
+      if (!error) {
+        document.getElementById('modal-publication')?.remove();
+        majActiviteEtScore(user.id, 'post');
+        chargerFeed(true);
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = 'Publier ma réalisation'; }
+      }
+    } catch(e) {
+      console.warn(e);
+      if (btn) { btn.disabled = false; btn.textContent = 'Publier ma réalisation'; }
+    }
+  };
+
+  // Talent radar
+  window.chargerTalentRadar = async function(userId) {
+    const sb = _sb(); if (!sb) return;
+    try {
+      const { data: talents } = await sb.from('profiles').select('*')
+        .eq('cherche_emploi', true).order('score_wolo', { ascending: false }).limit(10);
+      const liste = document.getElementById('feed-liste');
+      if (!liste) return;
+      if (!talents || talents.length === 0) { afficherEtatVideFeed('talent-radar'); return; }
+      liste.innerHTML = `
+        <div class="talent-radar-section">
+          <span class="eyebrow">🎯 TALENTS DISPONIBLES MAINTENANT</span>
+          <div class="talent-radar-grid">
+            ${talents.map(t => `
+              <div class="talent-radar-card">
+                <img src="${escapeHtml(t.photo_url||'')}" class="talent-photo" alt="${escapeHtml(t.nom||'')}" onerror="this.style.visibility='hidden'">
+                <div class="talent-info">
+                  <strong>${escapeHtml(t.nom||'')}</strong>
+                  <span>${escapeHtml(t.metier||'')} · ${escapeHtml(t.quartier||'')} ${t.pays === 'Togo' ? '🇹🇬' : '🇧🇯'}</span>
+                  <span>⭐ ${t.note_moyenne || '—'}/5 · ${t.nb_avis || 0} avis</span>
+                </div>
+                <div class="talent-actions">
+                  <button onclick="epinglerTalent('${t.id}', this)" class="btn-epingler">📌 Épingler</button>
+                  <button class="wolo-btn-primary" onclick="contacterAuteur('${t.id}')">Voir →</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    } catch(e) { console.warn(e); afficherEtatVideFeed('talent-radar'); }
+  };
+
+  window.epinglerTalent = async function(talentId, btn) {
+    const user = await verifierConnexionOuPopup('épingler un talent');
+    if (!user) return;
+    const sb = _sb(); if (!sb) return;
+    try {
+      const { error } = await sb.from('wolo_epingles').insert({ recruteur_id: user.id, talent_id: talentId });
+      if (!error && btn) { btn.textContent = '✓ Épinglé'; btn.disabled = true; btn.style.color = '#E8940A'; }
+    } catch(e) { console.warn(e); }
+  };
+
+  // Notifications feed (quota)
+  window.envoyerNotificationFeed = async function(userId, type, titre, corps, url) {
+    const sb = _sb(); if (!sb) return;
+    const heure = new Date().getHours();
+    if (heure >= 22 || heure < 7) return;
+    const aujourd_hui = new Date().toISOString().slice(0,10);
+    try {
+      const { count } = await sb.from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('created_at', `${aujourd_hui}T00:00:00`)
+        .in('type', ['feed_like','feed_commentaire','coup_du_jour']);
+      if ((count || 0) >= 3) return;
+      await sb.from('notifications').insert({ user_id: userId, type, titre, corps, url, lu: false });
+    } catch(e) { console.warn(e); }
+  };
+
+  // Configurer onglets selon profil
+  window.configurerOnglets = async function() {
+    const user = await _currentUser();
+    const ongletRecruteur = document.querySelector('.feed-onglet-recruteur');
+    if (!ongletRecruteur) return;
+    if (!user) { ongletRecruteur.style.display = 'none'; return; }
+    const sb = _sb();
+    try {
+      if (sb) {
+        const { data } = await sb.from('profiles').select('type_profil').eq('id', user.id).maybeSingle();
+        ongletRecruteur.style.display = data?.type_profil === 'recruteur' ? 'block' : 'none';
+      }
+    } catch(e) { ongletRecruteur.style.display = 'none'; }
+  };
+
+  // Init feed (appelé par showPage('feed'))
+  window.initFeedWOLO = function() {
+    chargerStoriesWOLO();
+    chargerCoupDuJour();
+    chargerFeed(true);
+    afficherZonePublication();
+    configurerOnglets();
+    if (window.__feedInited) return;
+    window.__feedInited = true;
+    // Infinite scroll
+    const sentinel = document.getElementById('feed-sentinel');
+    if (sentinel && 'IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) chargerFeed();
+      }, { threshold: 0.1 });
+      obs.observe(sentinel);
+    }
+    // Onglet clicks
+    document.querySelectorAll('.feed-onglet').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.feed-onglet').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        window.feedOngletActif = btn.dataset.feed;
+        if (window.feedOngletActif === 'talent-radar') {
+          _currentUser().then(u => u ? chargerTalentRadar(u.id) : afficherEtatVideFeed('talent-radar'));
+        } else {
+          chargerFeed(true);
+        }
+      });
+    });
+  };
 })();
 </script>
 
