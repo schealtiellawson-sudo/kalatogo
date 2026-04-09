@@ -17444,15 +17444,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 <!-- ══════════════════════════════════════════
      SPRINT 6 — FEED WOLO (mobile bottom nav + CSS + JS)
 ══════════════════════════════════════════ -->
-<nav class="mobile-bottom-nav" id="mobile-bottom-nav">
-  <button class="mobile-nav-item" onclick="showPage('home')">🏠<span>Accueil</span></button>
-  <button class="mobile-nav-item" onclick="showPage('search')">🔍<span>Chercher</span></button>
-  <button class="mobile-nav-item mobile-nav-center" onclick="showPage('feed')">
-    <span class="mobile-nav-feed-btn">📰</span>
-    <span>Feed</span>
+<nav class="mobile-bottom-nav wv2-bnav" id="mobile-bottom-nav" aria-label="Navigation principale">
+  <button class="mobile-nav-item" data-wv2bnav="home" onclick="showPage('home')"><i data-lucide="home"></i><span>Accueil</span></button>
+  <button class="mobile-nav-item" data-wv2bnav="credit" onclick="showPage('search')"><i data-lucide="wallet"></i><span>Crédit</span></button>
+  <button class="mobile-nav-item mobile-nav-center" data-wv2bnav="pay" onclick="showPage('dashboard')" aria-label="Payer">
+    <span class="mobile-nav-feed-btn"><i data-lucide="qr-code"></i></span>
+    <span>Payer</span>
   </button>
-  <button class="mobile-nav-item" onclick="showPage('emploi')">💼<span>Jobs</span></button>
-  <button class="mobile-nav-item" onclick="showPage('dashboard')">👤<span>Moi</span></button>
+  <button class="mobile-nav-item" data-wv2bnav="profil" onclick="showPage('dashboard')"><i data-lucide="user"></i><span>Profil</span></button>
+  <button class="mobile-nav-item" data-wv2bnav="plus" onclick="showPage('feed')"><i data-lucide="layout-grid"></i><span>Plus</span></button>
 </nav>
 
 <style>
@@ -18822,9 +18822,13 @@ body.wolo-v2-active { padding-top:64px; }
     background:var(--wv2-dark) !important;
     border-top:1px solid rgba(232,148,10,.25) !important;
   }
-  .mobile-bottom-nav .mobile-nav-item { font-family:'Poppins',sans-serif; font-size:10px; font-weight:500; }
+  .mobile-bottom-nav .mobile-nav-item { font-family:'Poppins',sans-serif; font-size:11px; font-weight:500; gap:4px; }
   .mobile-bottom-nav .mobile-nav-item.active { color:var(--wv2-or-active) !important; }
 }
+.wv2-bnav .mobile-nav-item i { width:22px; height:22px; }
+.wv2-bnav .mobile-nav-center .mobile-nav-feed-btn { width:56px !important; height:56px !important; background:var(--wv2-or) !important; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(232,148,10,.4); transform:translateY(-10px); color:var(--wv2-dark); }
+.wv2-bnav .mobile-nav-center .mobile-nav-feed-btn i { width:26px; height:26px; stroke-width:2.5; }
+.wv2-bnav .mobile-nav-center span:last-child { margin-top:-4px; }
 
 /* ══ Hero v2 override (via class wolo-v2-hero-overlay, pas appliqué automatiquement — safe) ══ */
 .wolo-v2-hero {
