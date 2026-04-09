@@ -7693,6 +7693,8 @@ function showDashSection(section) {
   if (section === 'qr-code') loadQrCodeSection();
   if (section === 'lien-paiement') loadLienPaiementSection();
   if (section === 'stats-pro') loadStatsProSection();
+  if (section === 'abonnement') injectSprint6Upgrade();
+  if (section === 'parrainage') injectSprint6Parrainage();
   if (section === 'abonnement') loadAbonnement();
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
@@ -14894,6 +14896,173 @@ async function loadStatsProSection(){
       return `<div style="background:#1a1f1b;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div style="font-size:13px">${date} · <span style="color:#E8940A;text-transform:uppercase;font-size:10px">${t.mode_paiement}</span></div><div style="font-size:10px;color:rgba(248,246,241,.5);font-family:'Space Mono';cursor:pointer" onclick="navigator.clipboard.writeText('${t.reference_interne}').then(()=>toast('Copié','success'))">${t.reference_interne}</div></div><div style="font-family:'Space Mono';font-weight:700;color:#10b981">+${fmt(t.montant)}</div></div>`;
     }).join('');
   }catch(e){ console.warn('[stats]',e); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// SPRINT 6 — Upgrade Pro (2 options paiement + parrainage) + Dashboard parrainage
+// ════════════════════════════════════════════════════════════════
+async function injectSprint6Upgrade(){
+  const host = document.getElementById('ds-abonnement');
+  if (!host || host.querySelector('#sp6-upgrade-block')) return;
+  if (!currentUser?.id) return;
+
+  // Récupérer solde Crédit WOLO
+  let solde = 0;
+  try{
+    const r = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}`);
+    const d = await r.json();
+    solde = d?.credit?.solde_disponible || 0;
+  }catch(e){}
+
+  const frais = Math.round(2500 * 0.015); // 38 FCFA
+  const total = 2500 + frais;
+  const manquant = Math.max(0, 2500 - solde);
+  const soldeOK = solde >= 2500;
+
+  const block = document.createElement('div');
+  block.id = 'sp6-upgrade-block';
+  block.style.cssText = 'max-width:640px;margin:24px auto;padding:0 16px;color:#F8F6F1';
+  block.innerHTML = `
+    <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:6px">Choisis ton mode de paiement</div>
+      <div style="font-size:13px;color:rgba(248,246,241,.6);margin-bottom:18px">Plan Pro — 2 500 FCFA / mois · Résiliable à tout moment</div>
+
+      <!-- Code parrainage -->
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px">
+        <div style="font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:8px">CODE PARRAINAGE (optionnel)</div>
+        <div style="display:flex;gap:8px">
+          <input id="sp6-code-parrain" placeholder="WOLO-XXXXXX" style="flex:1;background:#0f1410;border:1px solid rgba(255,255,255,.1);color:#F8F6F1;padding:10px 12px;border-radius:8px;font-family:'Space Mono';text-transform:uppercase">
+          <button onclick="sp6ApplyCode()" style="background:#E8940A;color:#0f1410;border:none;padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer">Appliquer</button>
+        </div>
+        <div id="sp6-code-msg" style="font-size:12px;margin-top:6px;min-height:16px"></div>
+      </div>
+
+      <!-- Option A : Crédit WOLO -->
+      <div style="background:${soldeOK?'rgba(74,222,128,.05)':'rgba(255,255,255,.02)'};border:1px solid ${soldeOK?'rgba(74,222,128,.3)':'rgba(255,255,255,.1)'};border-radius:12px;padding:16px;margin-bottom:12px;opacity:${soldeOK?1:.6}">
+        ${soldeOK?'<div style="display:inline-block;background:#4ade80;color:#0f1410;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;margin-bottom:10px;letter-spacing:1px">RECOMMANDÉ · ZÉRO FRAIS</div>':''}
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px">💳 Payer avec mon Crédit WOLO</div>
+        <div style="font-size:12px;color:rgba(248,246,241,.6);margin-bottom:10px">Solde actuel : <strong style="color:#F8F6F1;font-family:'Space Mono'">${solde.toLocaleString('fr-FR')} FCFA</strong></div>
+        ${soldeOK ? `
+          <div style="font-size:12px;color:rgba(248,246,241,.8);margin-bottom:12px">2 500 FCFA seront déduits immédiatement · Activation instantanée · Zéro frais</div>
+          <button onclick="sp6PayWithCredit()" style="width:100%;background:#4ade80;color:#0f1410;border:none;padding:14px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer">Payer avec mon Crédit WOLO →</button>
+        ` : `
+          <div style="font-size:12px;color:#ef4444;margin-bottom:10px">Solde insuffisant · il te manque ${manquant.toLocaleString('fr-FR')} FCFA</div>
+          <button onclick="showDashSection('credit-wolo')" style="width:100%;background:rgba(232,148,10,.15);color:#E8940A;border:1px solid #E8940A;padding:12px;border-radius:10px;font-weight:700;cursor:pointer">Recharger mon Crédit WOLO →</button>
+        `}
+      </div>
+
+      <!-- Option B : Mobile Money -->
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px">📱 Payer avec Mobile Money</div>
+        <div style="font-size:11px;color:rgba(248,246,241,.5);margin-bottom:12px">MTN Mobile Money · Moov Money · TMoney · Flooz</div>
+        <div style="background:#0f1410;border-radius:8px;padding:12px;font-family:'Space Mono';font-size:12px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;padding:3px 0"><span>Abonnement Pro</span><span>2 500 FCFA</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;color:rgba(248,246,241,.6)"><span>Frais traitement (1,5%)</span><span>${frais} FCFA</span></div>
+          <div style="height:1px;background:rgba(232,148,10,.3);margin:6px 0"></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;color:#E8940A;font-weight:700"><span>Total à payer</span><span>${total.toLocaleString('fr-FR')} FCFA</span></div>
+        </div>
+        <div style="font-size:11px;color:rgba(248,246,241,.5);margin-bottom:10px">WOLO DIGITAL SERVICES SARL recevra 2 500 FCFA</div>
+        <button onclick="sp6PayFedapay()" style="width:100%;background:rgba(255,255,255,.05);color:rgba(248,246,241,.5);border:1px dashed rgba(255,255,255,.2);padding:14px;border-radius:10px;font-weight:700;cursor:not-allowed" disabled>🕒 Mobile Money — Bientôt disponible</button>
+      </div>
+    </div>
+  `;
+  host.appendChild(block);
+}
+
+async function sp6ApplyCode(){
+  const code = (document.getElementById('sp6-code-parrain')?.value || '').trim().toUpperCase();
+  const msg = document.getElementById('sp6-code-msg');
+  if (!code){ msg.textContent=''; return; }
+  msg.style.color = 'rgba(248,246,241,.6)';
+  msg.textContent = 'Vérification...';
+  try{
+    const r = await fetch('/api/wolo-pay/parrainage-apply', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id: currentUser.id, code })
+    });
+    const d = await r.json();
+    if (!r.ok){ msg.style.color='#ef4444'; msg.textContent = d.error || 'Code invalide'; return; }
+    msg.style.color='#4ade80';
+    msg.innerHTML = `✅ Code appliqué · ${d.parrain_nom} recevra 1 000 FCFA de commission`;
+  }catch(e){ msg.style.color='#ef4444'; msg.textContent='Erreur réseau'; }
+}
+
+async function sp6PayWithCredit(){
+  if (!confirm('Confirmer : 2 500 FCFA seront débités de ton Crédit WOLO pour activer ton Plan Pro pendant 1 mois ?')) return;
+  try{
+    const r = await fetch('/api/wolo-pay/debit-credit', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email, montant: 2500 })
+    });
+    const d = await r.json();
+    if (!r.ok) return toast(d.error || 'Échec paiement','error');
+    sp6ShowSuccess();
+  }catch(e){ toast('Erreur réseau','error'); }
+}
+
+function sp6PayFedapay(){
+  toast('Mobile Money bientôt disponible. Utilise ton Crédit WOLO pour activer ton Plan Pro.','info');
+}
+
+function sp6ShowSuccess(){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#0f1410;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;animation:fadeIn .3s';
+  const dateFin = new Date(); dateFin.setMonth(dateFin.getMonth()+1);
+  overlay.innerHTML = `
+    <div style="font-size:80px;margin-bottom:16px;animation:bounceDown .6s">⭐</div>
+    <div style="font-family:Fraunces,serif;font-size:32px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es Pro !</div>
+    <div style="font-size:14px;color:rgba(248,246,241,.7);margin-bottom:28px">Ton Plan Pro est actif jusqu'au ${dateFin.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+    <div style="max-width:360px;width:100%">
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">📱 <strong>Ton QR code est prêt</strong> — va dans Paiements › Mon QR Code</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">🛡️ <strong>Paiements sécurisés</strong> — ton argent est protégé</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;font-size:13px;color:#F8F6F1">🏆 <strong>Éligible à la Bourse de Croissance</strong> — prochain tirage vendredi 18h00</div>
+      <button onclick="this.closest('[style*=fixed]').remove();showDashSection('qr-code')" style="width:100%;background:#E8940A;color:#0f1410;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Voir mon QR Code →</button>
+      <button onclick="this.closest('[style*=fixed]').remove();showDashSection('credit-wolo')" style="width:100%;background:transparent;color:rgba(248,246,241,.7);border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:600;cursor:pointer">Aller au dashboard</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function injectSprint6Parrainage(){
+  const host = document.getElementById('ds-parrainage');
+  if (!host || host.querySelector('#sp6-parrain-block')) return;
+  if (!currentUser?.id) return;
+  try{
+    const r = await fetch(`/api/wolo-pay/parrainage-stats?user_id=${currentUser.id}`);
+    const d = await r.json();
+    if (!d.ok) return;
+
+    const block = document.createElement('div');
+    block.id = 'sp6-parrain-block';
+    block.style.cssText = 'max-width:720px;margin:20px auto;padding:0 16px;color:#F8F6F1';
+    const code = d.code_parrainage || 'WOLO-??????';
+    const shareMsg = `Rejoins WOLO Market ! Utilise mon code ${code} pour créer ton profil Pro et être payé par QR code. 👉 https://wolomarket.vercel.app/?ref=${code}`;
+
+    block.innerHTML = `
+      <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:20px;margin-bottom:16px">
+        <div style="font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:8px">MON CODE DE PARRAINAGE</div>
+        <div style="font-family:'Space Mono';font-size:28px;font-weight:900;color:#E8940A;letter-spacing:2px;margin-bottom:14px">${code}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="navigator.clipboard.writeText('${code}').then(()=>toast('Code copié','success'))" style="flex:1;min-width:140px;background:rgba(232,148,10,.15);color:#E8940A;border:1px solid #E8940A;padding:10px;border-radius:8px;font-weight:700;cursor:pointer">📋 Copier</button>
+          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent(${JSON.stringify(shareMsg)}),'_blank')" style="flex:1;min-width:140px;background:#25D366;color:white;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer">📱 WhatsApp</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:#1a1f1b;border-radius:12px;padding:14px;text-align:center"><div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:1px">FILLEULS</div><div style="font-family:'Space Mono';font-size:22px;font-weight:700;margin-top:4px">${d.filleuls_actifs}</div></div>
+        <div style="background:#1a1f1b;border-radius:12px;padding:14px;text-align:center"><div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:1px">TOTAL REÇU</div><div style="font-family:'Space Mono';font-size:16px;font-weight:700;margin-top:4px">${d.total_commissions.toLocaleString('fr-FR')} FCFA</div></div>
+        <div style="background:#1a1f1b;border-radius:12px;padding:14px;text-align:center"><div style="font-size:10px;color:#E8940A;font-family:'Space Mono';letter-spacing:1px">CE MOIS</div><div style="font-family:'Space Mono';font-size:16px;font-weight:700;margin-top:4px">${d.ce_mois.toLocaleString('fr-FR')} FCFA</div></div>
+      </div>
+      <div style="font-size:11px;color:#E8940A;font-family:'Space Mono';letter-spacing:2px;margin-bottom:10px">HISTORIQUE COMMISSIONS</div>
+      <div>
+        ${d.historique.length ? d.historique.map(h=>`
+          <div style="background:#1a1f1b;border-radius:8px;padding:12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:13px">${h.filleul}</div><div style="font-size:11px;color:rgba(248,246,241,.5)">${new Date(h.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+            <div style="font-family:'Space Mono';font-weight:700;color:#4ade80">+${h.montant.toLocaleString('fr-FR')} FCFA</div>
+          </div>
+        `).join('') : '<div style="color:rgba(248,246,241,.5);font-size:13px;text-align:center;padding:16px">Aucune commission reçue pour le moment</div>'}
+      </div>
+    `;
+    host.insertBefore(block, host.firstChild);
+  }catch(e){ console.warn('[parrainage sprint6]',e); }
 }
 
 // ══ HISTORIQUE PAIEMENTS ══

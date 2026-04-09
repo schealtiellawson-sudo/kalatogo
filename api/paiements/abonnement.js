@@ -53,7 +53,8 @@ export async function traiterPaiementAbonnement({ user_id, paiement_id, montant,
 
   // 4. Si parrain : commission
   if (parrainage) {
-    const commission = Math.floor(montant * Number(parrainage.taux_commission || 0.10));
+    // Sprint 6 : taux 40% (1 000 FCFA sur 2 500 FCFA)
+    const commission = Math.floor(montant * Number(parrainage.taux_commission || 0.40));
 
     if (commission > 0) {
       await crediterCreditWolo({

@@ -19,12 +19,18 @@ import merchantPublic from './_impl/merchant-public.js';
 import createPaymentLink from './_impl/create-payment-link.js';
 import processPublicPay from './_impl/process-public-pay.js';
 import stats from './_impl/stats.js';
+import parrainageStats from './_impl/parrainage-stats.js';
+import parrainageApply from './_impl/parrainage-apply.js';
+import abonnementFedapay from './_impl/abonnement-fedapay.js';
 
 const handlers = {
   'merchant-public': merchantPublic,
   'create-payment-link': createPaymentLink,
   'process-public-pay': processPublicPay,
   'stats': stats,
+  'parrainage-stats': parrainageStats,
+  'parrainage-apply': parrainageApply,
+  'abonnement-fedapay': abonnementFedapay,
   'balance': balance,
   'contacts': contacts,
   'create-subscription': createSubscription,
