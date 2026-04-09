@@ -18663,5 +18663,203 @@ window.wolotlSelect = wolotlSelect;
 document.addEventListener('DOMContentLoaded', () => { if (document.getElementById('tl-detail-panel')) wolotlSelect(0); });
 </script>
 
+<!-- ══════════════════════════════════════════
+     SPRINT 1 — WOLO v2 DESIGN SYSTEM (surcouche)
+     Additive only. Ne casse aucun JS/ID existant.
+══════════════════════════════════════════ -->
+<style id="wolo-v2-design-system">
+:root {
+  --wv2-dark: #0f1410;
+  --wv2-creme: #F8F6F1;
+  --wv2-or: #E8940A;
+  --wv2-or-hover: #C47A08;
+  --wv2-or-active: #F5B82E;
+  --wv2-noir-texte: #1F2937;
+  --wv2-gris-texte: #6B7280;
+  --wv2-blanc: #FFFFFF;
+}
+.h1-fraunces { font-family:'Fraunces', Georgia, serif; font-weight:900; font-size:clamp(32px,5vw,56px); line-height:1.05; letter-spacing:-0.02em; color:var(--wv2-creme); }
+.h2-fraunces { font-family:'Fraunces', Georgia, serif; font-weight:700; font-size:clamp(24px,3.5vw,40px); line-height:1.15; color:var(--wv2-creme); }
+.h2-fraunces.italic { font-style:italic; color:var(--wv2-or); }
+.text-mono { font-family:'Space Mono', monospace; letter-spacing:0.5px; }
+.btn-wolo-primary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 28px; border-radius:100px; border:none;
+  background:var(--wv2-or); color:var(--wv2-dark);
+  font-family:'Poppins', sans-serif; font-weight:700; font-size:15px;
+  cursor:pointer; transition:all .2s; text-decoration:none; min-height:48px;
+}
+.btn-wolo-primary:hover { background:var(--wv2-or-hover); transform:translateY(-2px); box-shadow:0 8px 24px rgba(232,148,10,.35); }
+.btn-wolo-primary:active { background:var(--wv2-or-active); }
+.btn-wolo-secondary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 28px; border-radius:100px;
+  background:transparent; color:var(--wv2-or); border:2px solid var(--wv2-or);
+  font-family:'Poppins', sans-serif; font-weight:700; font-size:15px;
+  cursor:pointer; transition:all .2s; text-decoration:none; min-height:48px;
+}
+.btn-wolo-secondary:hover { background:rgba(232,148,10,.08); }
+
+/* ══ Header fixe v2 ══ */
+.wolo-v2-header {
+  position:fixed; top:0; left:0; right:0; height:64px;
+  background:#0f1410; border-bottom:1px solid rgba(232,148,10,.2);
+  display:flex; align-items:center; gap:16px; padding:0 20px;
+  z-index:1000;
+}
+.wolo-v2-header .wv2-logo { display:flex; align-items:center; gap:10px; cursor:pointer; background:none; border:none; padding:0; }
+.wolo-v2-header .wv2-logo svg { width:32px; height:32px; }
+.wolo-v2-header .wv2-logo-text { font-family:'Fraunces', serif; font-weight:900; font-size:18px; color:var(--wv2-or); letter-spacing:-0.02em; }
+.wolo-v2-header .wv2-search {
+  flex:1; max-width:560px; margin:0 auto;
+  display:flex; align-items:center; gap:10px;
+  background:rgba(248,246,241,.06); border:1px solid rgba(232,148,10,.25);
+  border-radius:100px; padding:10px 18px; color:var(--wv2-creme);
+  font-family:'Poppins', sans-serif; font-size:14px;
+}
+.wolo-v2-header .wv2-search input {
+  flex:1; background:none; border:none; outline:none; color:var(--wv2-creme);
+  font-family:inherit; font-size:14px;
+}
+.wolo-v2-header .wv2-search input::placeholder { color:rgba(248,246,241,.45); }
+.wolo-v2-header .wv2-actions { display:flex; align-items:center; gap:12px; }
+.wolo-v2-header .wv2-bell { position:relative; background:none; border:none; color:var(--wv2-creme); cursor:pointer; padding:8px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .2s; }
+.wolo-v2-header .wv2-bell:hover { background:rgba(232,148,10,.1); }
+.wolo-v2-header .wv2-bell .wv2-badge { position:absolute; top:4px; right:4px; width:8px; height:8px; background:#ef4444; border-radius:50%; border:2px solid #0f1410; }
+.wolo-v2-header .wv2-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#E8940A,#C47A08); display:flex; align-items:center; justify-content:center; color:#0f1410; font-weight:700; font-size:13px; font-family:'Poppins',sans-serif; cursor:pointer; border:2px solid rgba(232,148,10,.4); }
+
+body.wolo-v2-active { padding-top:64px; }
+@media (max-width: 640px) {
+  .wolo-v2-header .wv2-logo-text { display:none; }
+  .wolo-v2-header .wv2-search { padding:8px 14px; }
+}
+
+/* ══ Bottom Nav v2 (override léger, garde IDs existants) ══ */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    background:var(--wv2-dark) !important;
+    border-top:1px solid rgba(232,148,10,.25) !important;
+  }
+  .mobile-bottom-nav .mobile-nav-item { font-family:'Poppins',sans-serif; font-size:10px; font-weight:500; }
+  .mobile-bottom-nav .mobile-nav-item.active { color:var(--wv2-or-active) !important; }
+}
+
+/* ══ Hero v2 override (via class wolo-v2-hero-overlay, pas appliqué automatiquement — safe) ══ */
+.wolo-v2-hero {
+  background:var(--wv2-dark); padding:80px 24px 64px; text-align:center; position:relative; overflow:hidden;
+}
+.wolo-v2-hero .wv2-hero-inner { max-width:820px; margin:0 auto; position:relative; z-index:2; }
+.wolo-v2-hero .wv2-hero-sub { color:rgba(248,246,241,.72); font-family:'Poppins',sans-serif; font-size:17px; line-height:1.7; margin:24px 0 32px; }
+.wolo-v2-hero .wv2-hero-cta { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.wolo-v2-hero .wv2-hero-counter {
+  margin-top:36px; display:inline-flex; align-items:center; gap:10px;
+  font-family:'Space Mono', monospace; font-size:13px;
+  color:rgba(248,246,241,.6); padding:10px 20px;
+  border:1px solid rgba(232,148,10,.2); border-radius:100px;
+  background:rgba(232,148,10,.04);
+}
+.wolo-v2-hero .wv2-hero-counter strong { color:var(--wv2-or); font-weight:700; }
+.wolo-v2-hero .wv2-hero-counter .wv2-pulse { width:8px; height:8px; border-radius:50%; background:var(--wv2-or); box-shadow:0 0 0 0 rgba(232,148,10,.6); animation:wv2-pulse 2s infinite; }
+@keyframes wv2-pulse { 0%{box-shadow:0 0 0 0 rgba(232,148,10,.6)} 70%{box-shadow:0 0 0 10px rgba(232,148,10,0)} 100%{box-shadow:0 0 0 0 rgba(232,148,10,0)} }
+
+/* ══ Card commerçant v2 (nouvelle classe, ne touche pas .pcard) ══ */
+.wolo-v2-card {
+  width:100%; max-width:320px; border-radius:12px; overflow:hidden;
+  background:var(--wv2-blanc); box-shadow:0 4px 20px rgba(15,20,16,.08);
+  transition:all .2s; position:relative; border:1px solid transparent;
+  font-family:'Poppins', sans-serif;
+}
+.wolo-v2-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(15,20,16,.14); border-color:var(--wv2-or); }
+.wolo-v2-card .wv2-card-img { aspect-ratio:4/3; background:#eee center/cover; position:relative; }
+.wolo-v2-card .wv2-card-pro { position:absolute; top:12px; right:12px; background:var(--wv2-or); color:var(--wv2-dark); font-size:10px; font-weight:700; padding:4px 10px; border-radius:100px; letter-spacing:0.5px; }
+.wolo-v2-card .wv2-card-body { padding:16px; }
+.wolo-v2-card .wv2-card-name { font-weight:700; font-size:16px; color:var(--wv2-noir-texte); margin:0 0 2px; }
+.wolo-v2-card .wv2-card-job { font-size:13px; color:var(--wv2-gris-texte); margin:0 0 6px; }
+.wolo-v2-card .wv2-card-loc { display:flex; align-items:center; gap:4px; font-size:12px; color:var(--wv2-gris-texte); margin-bottom:10px; }
+.wolo-v2-card .wv2-card-score { height:3px; background:#f0f0f0; border-radius:2px; margin:10px 0; overflow:hidden; }
+.wolo-v2-card .wv2-card-score-fill { height:100%; background:var(--wv2-or); }
+.wolo-v2-card .wv2-card-actions { display:flex; gap:8px; align-items:center; }
+.wolo-v2-card .wv2-card-actions .btn-wolo-primary { flex:1; justify-content:center; padding:10px 16px; font-size:13px; min-height:40px; }
+.wolo-v2-card .wv2-card-share { width:40px; height:40px; border-radius:50%; background:rgba(232,148,10,.08); border:none; color:var(--wv2-or); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+/* ══ PWA install banner ══ */
+.wolo-v2-pwa-banner {
+  position:fixed; bottom:80px; left:16px; right:16px;
+  background:var(--wv2-dark); border:1px solid var(--wv2-or);
+  border-radius:16px; padding:14px 16px;
+  display:none; align-items:center; gap:12px;
+  z-index:999; box-shadow:0 12px 40px rgba(0,0,0,.4);
+  font-family:'Poppins',sans-serif;
+}
+.wolo-v2-pwa-banner.show { display:flex; }
+.wolo-v2-pwa-banner .wv2-pwa-icon { width:40px; height:40px; border-radius:10px; background:var(--wv2-or); display:flex; align-items:center; justify-content:center; color:var(--wv2-dark); flex-shrink:0; font-family:'Fraunces',serif; font-weight:900; font-size:22px; }
+.wolo-v2-pwa-banner .wv2-pwa-text { flex:1; color:var(--wv2-creme); font-size:13px; line-height:1.4; }
+.wolo-v2-pwa-banner .wv2-pwa-install { background:var(--wv2-or); color:var(--wv2-dark); border:none; padding:8px 14px; border-radius:100px; font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; }
+.wolo-v2-pwa-banner .wv2-pwa-close { background:none; border:none; color:rgba(248,246,241,.5); cursor:pointer; font-size:18px; padding:4px; }
+@media (min-width:769px) { .wolo-v2-pwa-banner { bottom:20px; left:auto; right:20px; max-width:380px; } }
+</style>
+
+<!-- WOLO v2 — PWA install banner (shown after 2nd visit) -->
+<div class="wolo-v2-pwa-banner" id="woloV2PwaBanner" role="dialog" aria-label="Installer WOLO Market">
+  <div class="wv2-pwa-icon">W</div>
+  <div class="wv2-pwa-text">Ajoute WOLO Market à ton écran d'accueil pour un accès instantané.</div>
+  <button class="wv2-pwa-install" id="woloV2PwaInstallBtn">Installer</button>
+  <button class="wv2-pwa-close" id="woloV2PwaCloseBtn" aria-label="Fermer">×</button>
+</div>
+
+<script>
+// ══ WOLO v2 — Lucide init + PWA + visit counter ══
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
+
+    // Visit counter
+    try {
+      var visits = parseInt(localStorage.getItem('wolo_visits') || '0', 10) + 1;
+      localStorage.setItem('wolo_visits', String(visits));
+      var dismissed = localStorage.getItem('wolo_pwa_dismissed') === '1';
+      var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      if (visits >= 2 && !dismissed && !isStandalone) {
+        setTimeout(function(){
+          var b = document.getElementById('woloV2PwaBanner');
+          if (b) b.classList.add('show');
+        }, 2500);
+      }
+    } catch(e){}
+
+    // beforeinstallprompt capture
+    var deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e){
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+    var installBtn = document.getElementById('woloV2PwaInstallBtn');
+    var closeBtn = document.getElementById('woloV2PwaCloseBtn');
+    if (installBtn) installBtn.addEventListener('click', async function(){
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        try { await deferredPrompt.userChoice; } catch(e){}
+        deferredPrompt = null;
+      }
+      try { localStorage.setItem('wolo_pwa_dismissed','1'); } catch(e){}
+      var b = document.getElementById('woloV2PwaBanner'); if (b) b.classList.remove('show');
+    });
+    if (closeBtn) closeBtn.addEventListener('click', function(){
+      try { localStorage.setItem('wolo_pwa_dismissed','1'); } catch(e){}
+      var b = document.getElementById('woloV2PwaBanner'); if (b) b.classList.remove('show');
+    });
+  });
+})();
+</script>
+
+<!-- TODO wolo-v2 — Sections reportées (risque de casser JS existant) :
+  * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wolo-v2-header + body.wolo-v2-active prêtes à l'emploi.
+  * Sidebar desktop 240px : non injectée (risque de conflit avec layout existant).
+  * Hero homepage override : classe .wolo-v2-hero disponible mais non appliquée pour ne pas casser le hero existant avec hero-orbit-scene, particles, metrics.
+  * Section WOLO Pay Hero, Catégories, Profils en Vedette, Bourse Croissance : à ajouter manuellement dans #home page.
+  * Page profil commerçant (banner/avatar/score détaillé/galerie/avis) : refonte nécessite refactoring du markup existant — reporté.
+  * Card commerçant : nouvelle classe .wolo-v2-card disponible, ne remplace pas .pcard existante (JS de rendu dépend de .pcard).
+-->
+
 </body>
 </html>
