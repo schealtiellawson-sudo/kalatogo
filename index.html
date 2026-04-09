@@ -19028,6 +19028,46 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:64px; }
 .wv2-sidebar-sub button:hover { color:var(--wv2-or); background:rgba(232,148,10,.06); }
 .wv2-sidebar-sep { height:1px; background:rgba(232,148,10,.12); margin:14px 6px; }
 .wv2-sidebar-foot { margin-top:auto; padding:14px 6px; font-family:'Space Mono',monospace; font-size:10px; color:rgba(248,246,241,.35); letter-spacing:1px; }
+
+/* ══ Section 5 — Hero homepage v2 ══ */
+body.wolo-v2-active #page-home > .hero { display:none; }
+.wv2-hero-v2 {
+  background:var(--wv2-dark); padding:96px 24px 88px;
+  text-align:center; position:relative; overflow:hidden;
+  border-bottom:1px solid rgba(232,148,10,.15);
+}
+.wv2-hero-v2::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at center top, rgba(232,148,10,.12), transparent 60%);
+  pointer-events:none;
+}
+.wv2-hero-v2-inner { max-width:860px; margin:0 auto; position:relative; z-index:2; }
+.wv2-hero-v2 h1 {
+  font-family:'Fraunces',serif; font-weight:900;
+  font-size:clamp(40px,6.5vw,76px); line-height:1.02;
+  color:var(--wv2-creme); margin:0 0 6px; letter-spacing:-0.02em;
+}
+.wv2-hero-v2 h2 {
+  font-family:'Fraunces',serif; font-style:italic; font-weight:700;
+  font-size:clamp(32px,5.2vw,62px); line-height:1.05;
+  color:var(--wv2-or); margin:0 0 28px; letter-spacing:-0.01em;
+}
+.wv2-hero-v2 p.wv2-hero-v2-sub {
+  font-family:'Poppins',sans-serif; font-size:17px; line-height:1.7;
+  color:rgba(248,246,241,.74); max-width:600px; margin:0 auto 36px;
+}
+.wv2-hero-v2-ctas { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:32px; }
+.wv2-hero-v2-count {
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'Space Mono',monospace; font-size:13px;
+  color:rgba(248,246,241,.62); padding:10px 20px;
+  border:1px solid rgba(232,148,10,.25); border-radius:100px;
+  background:rgba(232,148,10,.04);
+}
+.wv2-hero-v2-count strong { color:var(--wv2-or); font-weight:700; }
+.wv2-hero-v2-count .wv2-dot { width:8px; height:8px; border-radius:50%; background:var(--wv2-or); animation:wv2-pulse 2s infinite; }
+.wv2-fade-up { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+.wv2-fade-up.wv2-in { opacity:1; transform:translateY(0); }
 </style>
 
 <!-- WOLO v2 — PWA install banner (shown after 2nd visit) -->
@@ -19175,12 +19215,62 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:64px; }
     try { if (window.lucide) lucide.createIcons(); } catch(e){}
   });
 })();
+
+// ══ WOLO v2 — Section 5 : Hero homepage v2 ══
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var home = document.getElementById('page-home');
+    if (!home || home.querySelector('.wv2-hero-v2')) return;
+    var legacyHero = home.querySelector(':scope > .hero');
+    var section = document.createElement('section');
+    section.className = 'wv2-hero-v2 wv2-fade-up';
+    section.innerHTML = ''
+      + '<div class="wv2-hero-v2-inner">'
+      +   '<h1>Ton travail parle.</h1>'
+      +   '<h2>Pas tes connexions.</h2>'
+      +   '<p class="wv2-hero-v2-sub">WOLO Market connecte les artisans, prestataires et commerçants de Cotonou et Lomé avec leurs clients. Sans piston.</p>'
+      +   '<div class="wv2-hero-v2-ctas">'
+      +     '<button class="btn-wolo-primary" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button>'
+      +     '<button class="btn-wolo-secondary" onclick="showPage(\'search\')">Voir les prestataires</button>'
+      +   '</div>'
+      +   '<div class="wv2-hero-v2-count"><span class="wv2-dot"></span><strong id="wv2-hero-count">1 247</strong>&nbsp;prestataires actifs aujourd\'hui</div>'
+      + '</div>';
+    if (legacyHero && legacyHero.parentNode) {
+      legacyHero.parentNode.insertBefore(section, legacyHero);
+    } else {
+      home.insertBefore(section, home.firstChild);
+    }
+    // Sync count from existing hooks if loadHomeStats has run
+    try {
+      var m = document.getElementById('m-prestataires');
+      if (m && m.textContent && m.textContent !== '—') {
+        document.getElementById('wv2-hero-count').textContent = m.textContent;
+      }
+      if (m) {
+        var obs = new MutationObserver(function(){
+          var v = m.textContent;
+          if (v && v !== '—') {
+            var t = document.getElementById('wv2-hero-count');
+            if (t) t.textContent = v;
+          }
+        });
+        obs.observe(m, { childList:true, characterData:true, subtree:true });
+      }
+    } catch(e){}
+    try {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ if (en.isIntersecting) en.target.classList.add('wv2-in'); });
+      }, { threshold:0.15 });
+      io.observe(section);
+    } catch(e){ section.classList.add('wv2-in'); }
+  });
+})();
 </script>
 
 <!-- TODO wolo-v2 — Sections reportées (risque de casser JS existant) :
   * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wolo-v2-header + body.wolo-v2-active prêtes à l'emploi.
   * Sidebar desktop 240px : LIVRÉ (Sprint1 S3) — injection JS DOMContentLoaded.
-  * Hero homepage override : classe .wolo-v2-hero disponible mais non appliquée pour ne pas casser le hero existant avec hero-orbit-scene, particles, metrics.
+  * Hero homepage v2 : LIVRÉ (Sprint1 S5) — wv2-hero-v2 injecté avant .hero legacy masqué via CSS.
   * Section WOLO Pay Hero, Catégories, Profils en Vedette, Bourse Croissance : à ajouter manuellement dans #home page.
   * Page profil commerçant (banner/avatar/score détaillé/galerie/avis) : refonte nécessite refactoring du markup existant — reporté.
   * Card commerçant : nouvelle classe .wolo-v2-card disponible, ne remplace pas .pcard existante (JS de rendu dépend de .pcard).
