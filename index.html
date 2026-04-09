@@ -13838,15 +13838,43 @@ function updateEncaPreview() {
   }
 }
 
-function encaCopyLink() {
-  const amount = parseInt(document.getElementById('enca-amount')?.value || 0);
-  if (amount < 100) { toast('Entre un montant valide (min. 100 FCFA)', 'error'); return; }
-  const link = buildEncaLink();
-  encaSaveHistory(amount, document.getElementById('enca-desc')?.value || '', link);
-  navigator.clipboard.writeText(link).then(() => toast('✅ Lien copié !', 'success'));
+async function encaPersistToApi(amount, desc, clientNom, clientTel) {
+  // Persist en Supabase + Airtable via /api/wolo-pay/create-transaction
+  if (!currentUser?.id) return null;
+  try {
+    const r = await fetch('/api/wolo-pay/create-transaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        merchant_id: currentUser.id,
+        merchant_email: currentUser.email || null,
+        montant: amount,
+        operateur: 'mtn_bj',
+        mode_paiement: 'lien_paiement',
+        description: desc || 'Encaissement WOLO',
+        client_nom: clientNom || null
+      })
+    });
+    const j = await r.json();
+    if (j.ok) return j.transaction;
+    console.warn('[enca persist]', j);
+  } catch (e) { console.warn('[enca persist]', e); }
+  return null;
 }
 
-function encaShareWhatsApp() {
+async function encaCopyLink() {
+  const amount = parseInt(document.getElementById('enca-amount')?.value || 0);
+  if (amount < 100) { toast('Entre un montant valide (min. 100 FCFA)', 'error'); return; }
+  const desc = document.getElementById('enca-desc')?.value || '';
+  const clientNom = document.getElementById('enca-client-nom')?.value?.trim() || '';
+  const clientTel = document.getElementById('enca-client-tel')?.value?.trim() || '';
+  const link = buildEncaLink();
+  encaSaveHistory(amount, desc, link);
+  encaPersistToApi(amount, desc, clientNom, clientTel);
+  navigator.clipboard.writeText(link).then(() => toast('✅ Lien copié & enregistré', 'success'));
+}
+
+async function encaShareWhatsApp() {
   const amount = parseInt(document.getElementById('enca-amount')?.value || 0);
   if (amount < 100) { toast('Entre un montant valide (min. 100 FCFA)', 'error'); return; }
   const desc = document.getElementById('enca-desc')?.value || 'prestation';
@@ -13854,6 +13882,7 @@ function encaShareWhatsApp() {
   const clientTel = document.getElementById('enca-client-tel')?.value?.trim() || '';
   const link = buildEncaLink();
   encaSaveHistory(amount, desc, link);
+  encaPersistToApi(amount, desc, clientNom, clientTel);
   const salut = clientNom ? `Bonjour ${clientNom} 👋` : 'Bonjour 👋';
   const prestaNom = currentPrestataire?.fields['Nom complet'] || currentPrestataire?.fields['Nom'] || '';
   const msg = encodeURIComponent(`${salut}\n\nVoici ton lien de paiement sécurisé pour *${desc}* — *${amount.toLocaleString('fr-FR')} FCFA*.\n\nTu peux payer par Flooz, TMoney ou carte bancaire 👇\n${link}\n\nMerci ! — ${prestaNom}`);
@@ -14141,7 +14170,7 @@ async function loadWoloCreditWidget() {
   const widget = document.getElementById('wolo-credit-widget');
   if (!widget) return;
   try {
-    const res = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}`);
+    const res = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}&email=${encodeURIComponent(currentUser.email||'')}`);
     const data = await res.json();
     if (!data.ok || !data.credit) return;
     widget.style.display = 'block';

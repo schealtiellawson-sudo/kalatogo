@@ -1,17 +1,14 @@
 // ================================================================
-// WOLO Pay — Transfert P2P entre deux Crédit WOLO
+// WOLO Pay — Transfert P2P Crédit WOLO
 // ================================================================
-// POST /api/wolo-pay/transfer
-// Body : { from_user_id, to_user_id, montant, description? }
-// ================================================================
-import { supabase } from '../_lib/supabase.js';
 import { debiterCreditWolo, crediterCreditWolo, envoyerNotification } from '../utils/credit.js';
+import { ensureUserProvisioned } from '../_lib/provisioning.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    const { from_user_id, to_user_id, montant, description } =
-      typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { from_user_id, to_user_id, montant, description } = body;
 
     if (!from_user_id || !to_user_id || !montant || montant <= 0) {
       return res.status(400).json({ error: 'from_user_id, to_user_id, montant > 0 requis' });
@@ -20,7 +17,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Impossible de transférer vers soi-même' });
     }
 
-    // 1. Débit émetteur
+    await ensureUserProvisioned({ user_id: from_user_id });
+    await ensureUserProvisioned({ user_id: to_user_id });
+
     await debiterCreditWolo({
       user_id: from_user_id,
       montant,
@@ -29,21 +28,19 @@ export default async function handler(req, res) {
       destinataire_id: to_user_id
     });
 
-    // 2. Crédit destinataire
     try {
       await crediterCreditWolo({
         user_id: to_user_id,
         montant,
-        type: 'credit_transfert',
+        type: 'credit_paiement',
         description: description || 'Transfert WOLO reçu',
         destinataire_id: from_user_id
       });
     } catch (e) {
-      // rollback
       await crediterCreditWolo({
         user_id: from_user_id,
         montant,
-        type: 'credit_rollback',
+        type: 'credit_paiement',
         description: 'Rollback transfert échoué'
       });
       throw e;
