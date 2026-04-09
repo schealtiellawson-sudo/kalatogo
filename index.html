@@ -12911,6 +12911,8 @@ async function submitInscription(e) {
         updateNavAuth(true);
       }
       updateCommissionDisplay();
+      // Flag onboarding 3 écrans (consommé au prochain DOMContentLoaded ou login)
+      try { localStorage.setItem('wolo_just_signed_up','1'); } catch(e){}
       // Cacher le loading, montrer le succès
       if (loadingEl) loadingEl.style.display = 'none';
       document.getElementById('form-success').classList.add('form-visible');
@@ -12918,6 +12920,8 @@ async function submitInscription(e) {
       const successEmailEl = document.getElementById('success-email');
       if (successEmailEl) successEmailEl.textContent = email;
       toast('Profil créé avec succès ! 🎉', 'success');
+      // Lancer l'onboarding immédiatement si présent (sans attendre un reload)
+      try { if (typeof window.showWoloOnboarding === 'function' && !localStorage.getItem('wolo_onboarding_done')) { localStorage.removeItem('wolo_just_signed_up'); setTimeout(window.showWoloOnboarding, 800); } } catch(e){}
     } else {
       const err = await res.json();
       console.error('Airtable error:', err);
@@ -13779,7 +13783,7 @@ async function submitRDV(containerId, btn) {
   }
 }
 
-async function addCommissionToParrain(parrainCode, amount) {
+async function addCommissionToParrain(parrainCode, amount, filleulNom) {
   try {
     const formula = encodeURIComponent(`{Code Parrainage}='${parrainCode}'`);
     const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
@@ -13795,6 +13799,15 @@ async function addCommissionToParrain(parrainCode, amount) {
           'Commission Totale FCFA': currentTotal + amount
         }})
       });
+      // Notif commission via template WOLO_NOTIF_TEMPLATES.commission
+      try {
+        if (window.woloNotifPush) {
+          await window.woloNotifPush(parrain.id, 'commission', {
+            montant: (amount || 0).toLocaleString('fr-FR'),
+            filleul: filleulNom || 'Un filleul'
+          });
+        }
+      } catch(e) { console.warn('notif commission:', e); }
     }
   } catch(err) { console.error('addCommissionToParrain:', err); }
 }
@@ -14564,7 +14577,8 @@ async function activateSelected() {
         // Rétrocommission parrain 40% = 1 000 FCFA sur 2 500 FCFA
         const parrainCode = cb.dataset.parrain;
         if (parrainCode) {
-          await addCommissionToParrain(parrainCode, Math.floor(2500 * 0.40));
+          const filleulNom = cb.dataset.nom || cb.closest('label')?.querySelector('.nom')?.textContent || '';
+          await addCommissionToParrain(parrainCode, Math.floor(2500 * 0.40), filleulNom);
         }
       } else { const e = await res.json().catch(()=>{}); console.error('Airtable activate error', e); errors++; }
     } catch(err) { console.error('Activate fetch error', err); errors++; }
@@ -14713,8 +14727,9 @@ async function onPaymentSuccess(plan, transId) {
     const parrainCode = currentPrestataire.fields['Parrain Code'];
     if (parrainCode) {
       const commission = Math.floor((cfg.amount || 0) * 0.40);
-      await addCommissionToParrain(parrainCode, commission);
+      await addCommissionToParrain(parrainCode, commission, currentPrestataire.fields['Nom complet'] || '');
     }
+    // TODO sprint3 : brancher woloNotifPush('transfert_recu', ...) quand WOLO Pay P2P sera actif
   } catch(err) {
     console.error('onPaymentSuccess:', err);
     toast('Paiement reçu mais erreur de mise à jour. Contacte le support.', 'error');
@@ -19747,6 +19762,84 @@ window.woloNotif = function(key, vars){
   var fill = function(s){ return s.replace(/\{(\w+)\}/g, function(_,k){ return (vars && vars[k] != null) ? vars[k] : ''; }); };
   return { titre: fill(tpl.titre), corps: fill(tpl.corps) };
 };
+
+// ── Helper central : push une notif dans le champ Notifications d'un prestataire ──
+// Utilise les templates WOLO_NOTIF_TEMPLATES (clé + variables).
+// Ex : window.woloNotifPush(recId, 'commission', { montant: 1000, filleul: 'Koffi' })
+window.woloNotifPush = async function(prestataireId, key, vars){
+  try {
+    if (!prestataireId || !key) return false;
+    if (typeof AT_URL !== 'function' || typeof AT_HEADERS === 'undefined') return false;
+    var tpl = window.woloNotif(key, vars || {});
+    if (!tpl || !tpl.titre) return false;
+    var res = await fetch(AT_URL('Prestataires') + '/' + prestataireId, { headers: AT_HEADERS });
+    if (!res.ok) return false;
+    var data = await res.json();
+    var notifs = [];
+    try { notifs = JSON.parse(data.fields['Notifications'] || '[]'); } catch(e) { notifs = []; }
+    notifs.unshift({
+      id: Date.now().toString(),
+      type: key,
+      titre: tpl.titre,
+      message: tpl.corps,
+      corps: tpl.corps,
+      date: new Date().toISOString(),
+      read: false,
+      lu: false
+    });
+    await fetch(AT_URL('Prestataires') + '/' + prestataireId, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Notifications': JSON.stringify(notifs.slice(0, 50)) } })
+    });
+    return true;
+  } catch(err) { console.warn('woloNotifPush:', err); return false; }
+};
+
+// Helper transfert P2P — à brancher au Sprint 3 WOLO Pay
+window.woloNotifTransfert = function(prestataireId, fromName, montant){
+  return window.woloNotifPush(prestataireId, 'transfert_recu', {
+    nom: fromName || 'Un membre WOLO',
+    montant: (montant || 0).toLocaleString('fr-FR')
+  });
+};
+
+// ── Cron client-side : rappel J-3 expiration Pro + bourse J-1 ──
+// Vérifie une seule fois par jour au chargement si currentPrestataire est Pro.
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      try {
+        if (!window.currentPrestataire || !window.currentPrestataire.fields) return;
+        var f = window.currentPrestataire.fields;
+        var today = new Date().toISOString().slice(0,10);
+
+        // A) Rappel expiration Pro J-3
+        if ((f['Abonnement']||'Base') !== 'Base' && f['Abonnement Expiry']) {
+          var lastAbo = localStorage.getItem('wolo_notif_rappel_abo_date');
+          if (lastAbo !== today) {
+            var expiry = new Date(f['Abonnement Expiry']);
+            var diffDays = Math.ceil((expiry - new Date()) / (1000*60*60*24));
+            if (diffDays === 3) {
+              window.woloNotifPush(window.currentPrestataire.id, 'rappel_abo', {});
+              localStorage.setItem('wolo_notif_rappel_abo_date', today);
+            }
+          }
+        }
+
+        // B) Bourse de Croissance — tirage vendredi 18h WAT, notif à J-1 (jeudi)
+        var now = new Date();
+        var isThursday = now.getDay() === 4;
+        if (isThursday && (f['Abonnement']||'Base') !== 'Base') {
+          var lastBourse = localStorage.getItem('wolo_notif_bourse_date');
+          if (lastBourse !== today) {
+            window.woloNotifPush(window.currentPrestataire.id, 'bourse', {});
+            localStorage.setItem('wolo_notif_bourse_date', today);
+          }
+        }
+      } catch(e) { console.warn('cron notif client:', e); }
+    }, 3000);
+  });
+})();
 
 // ── Onboarding 3 écrans ──
 (function(){
