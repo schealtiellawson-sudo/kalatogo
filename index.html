@@ -7694,7 +7694,6 @@ function showDashSection(section) {
   if (section === 'lien-paiement') loadLienPaiementSection();
   if (section === 'stats-pro') loadStatsProSection();
   if (section === 'abonnement') injectSprint6Upgrade();
-  if (section === 'parrainage') injectSprint6Parrainage();
   if (section === 'abonnement') loadAbonnement();
   if (section === 'parrainage') loadParrainage();
   if (section === 'paiement') loadEncaisser();
@@ -13146,6 +13145,18 @@ async function submitInscription(e) {
         updateNavAuth(true);
       }
       updateCommissionDisplay();
+      // Sprint 6 — Applique automatiquement le parrainage via Supabase si ?ref= en attente
+      try {
+        const pendingRef = localStorage.getItem('wolo_ref');
+        if (pendingRef && authData?.user?.id) {
+          fetch('/api/wolo-pay/parrainage-apply', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ user_id: authData.user.id, code: pendingRef })
+          }).then(r=>r.json()).then(d=>{
+            if (d?.ok) localStorage.removeItem('wolo_ref');
+          }).catch(()=>{});
+        }
+      } catch(e) { console.warn('[parrainage auto]', e); }
       // Flag onboarding 3 écrans (consommé au prochain DOMContentLoaded ou login)
       try { localStorage.setItem('wolo_just_signed_up','1'); } catch(e){}
       // Cacher le loading, montrer le succès
@@ -13189,34 +13200,63 @@ function generateParrainCode(name) {
 }
 
 function getRefFromURL() {
-  try { return new URLSearchParams(window.location.search).get('ref') || ''; } catch { return ''; }
+  try {
+    // 1) URL courante ?ref=
+    const urlRef = new URLSearchParams(window.location.search).get('ref');
+    if (urlRef) {
+      try { localStorage.setItem('wolo_ref', urlRef); } catch(e) {}
+      return urlRef;
+    }
+    // 2) Fallback localStorage (capturé plus tôt dans le parcours)
+    return localStorage.getItem('wolo_ref') || '';
+  } catch { return ''; }
 }
+
+// Capture ?ref= dès le chargement (avant toute navigation)
+(function captureRefAtLoad(){
+  try{
+    const r = new URLSearchParams(window.location.search).get('ref');
+    if (r) localStorage.setItem('wolo_ref', r);
+  }catch(e){}
+})();
 
 async function loadParrainage() {
   if (!currentPrestataire) return;
   let f = currentPrestataire.fields;
 
-  // Générer le code si manquant
-  if (!f['Code Parrainage']) {
-    const newCode = generateParrainCode(f['Nom complet']);
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Code Parrainage': newCode } })
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      currentPrestataire = updated;
-      f = currentPrestataire.fields;
+  // Sprint 6 — Supabase = source de vérité pour le code parrainage
+  // On récupère WOLO-XXXXXX depuis Supabase et on synchronise Airtable si différent
+  let supabaseCode = '';
+  try {
+    if (currentUser?.id) {
+      const r = await fetch(`/api/wolo-pay/parrainage-stats?user_id=${currentUser.id}`);
+      const d = await r.json();
+      if (d?.ok) supabaseCode = d.code_parrainage || '';
     }
+  } catch(e) { console.warn('[parrainage] supabase fetch:', e); }
+
+  // Sync Supabase → Airtable si besoin (révoque les anciens codes KALASCHE* / WOLOxxxx)
+  if (supabaseCode && f['Code Parrainage'] !== supabaseCode) {
+    try {
+      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { 'Code Parrainage': supabaseCode } })
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        currentPrestataire = updated;
+        f = currentPrestataire.fields;
+      }
+    } catch(e) { console.warn('[parrainage] sync airtable:', e); }
   }
 
   const plan = f['Abonnement'] || 'Base';
   const isBase = plan === 'Base';
 
-  const code = f['Code Parrainage'] || '';
+  const code = supabaseCode || f['Code Parrainage'] || '';
   const commDisp = f['Commission Disponible FCFA'] || 0;
   const commTotal = f['Commission Totale FCFA'] || 0;
-  const refLink = 'https://wolomarket.com?ref=' + code;
+  const refLink = 'https://wolomarket.vercel.app?ref=' + code;
 
   // Mettre à jour les chiffres
   document.getElementById('p-comm-dispo').textContent = commDisp.toLocaleString('fr-FR') + ' FCFA';
@@ -15022,7 +15062,7 @@ function sp6ShowSuccess(){
   document.body.appendChild(overlay);
 }
 
-async function injectSprint6Parrainage(){
+async function injectSprint6Parrainage_DEPRECATED(){ return; // remplacé par loadParrainage Supabase-sync
   const host = document.getElementById('ds-parrainage');
   if (!host || host.querySelector('#sp6-parrain-block')) return;
   if (!currentUser?.id) return;
