@@ -17846,6 +17846,130 @@ document.addEventListener('DOMContentLoaded',()=>{
 .feed-etat-vide .emoji { font-size: 42px; display: block; margin-bottom: 12px; }
 .feed-etat-vide p { margin: 6px 0; font-size: 14px; }
 /* ====== FIN SPRINT 6 ====== */
+
+/* ══════════════════════════════════════════════════════════════
+   A11y — WCAG AA (Contraste 4.5:1) + WCAG 2.5.5 Target Size 44px
+   Sprint A11y — 2026-04-09
+   Override final pour respecter l'accessibilité sans casser les layouts.
+   ══════════════════════════════════════════════════════════════ */
+
+/* --- 1. Target Size 44x44 minimum (WCAG 2.5.5) --- */
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+a.btn,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[onclick]:not(span):not(small):not(i):not(svg):not(path):not(li):not(tr):not(td):not(img) {
+  min-height: 44px;
+  min-width: 44px;
+  box-sizing: border-box;
+}
+
+/* Exceptions : close buttons modals (X), petits icônes — viser 32px+ */
+.modal-close,
+.close-btn,
+.btn-close,
+.modal .close,
+[class*="close"][onclick],
+.notif-close,
+.toast-close {
+  min-height: 32px !important;
+  min-width: 32px !important;
+}
+
+/* --- 2. Font-size minimum 14px sur boutons (11/12px → 14px) --- */
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+a.btn,
+input[type="button"],
+input[type="submit"] {
+  font-size: 14px;
+}
+
+/* Boutons avec font-size explicite 11/12px forcés à 14px */
+button[style*="font-size:11px"],
+button[style*="font-size: 11px"],
+button[style*="font-size:12px"],
+button[style*="font-size: 12px"],
+.btn[style*="font-size:11px"],
+.btn[style*="font-size:12px"] {
+  font-size: 14px !important;
+}
+
+/* --- 3. Contraste AA — Or #E8940A interdit sur fond crème/blanc --- */
+/* Règle : sur fond crème/blanc, texte = #0f1410 ou #1F2937.
+   L'or ne s'utilise que sur fond sombre, ou en fond avec texte noir. */
+
+/* Inverser badges/statuts or-sur-creme → noir-sur-or (ratio 7.9:1 AAA) */
+.badge-cdi {
+  background: #E8940A !important;
+  color: #0f1410 !important;
+}
+.statut-retenue {
+  background: #E8940A !important;
+  color: #0f1410 !important;
+}
+
+/* Distance pcard : or sur crème → noir sur or */
+.pcard-distance {
+  background: #E8940A !important;
+  color: #0f1410 !important;
+}
+
+/* Boutons "épingler" et similaires sur fond sombre : OK (fond sombre du feed)
+   mais ceux qui pourraient être sur fond clair → forcer lisibilité */
+.btn-epingler {
+  color: #F8F6F1 !important;
+  background: rgba(232,148,10,0.15) !important;
+  border-color: #E8940A !important;
+}
+
+/* Modal paiement FedaPay — forcer contraste AA sur tout texte or */
+#modal-paiement-pro .or-text,
+#modal-paiement *[style*="color:#E8940A"],
+#modal-paiement *[style*="color: #E8940A"],
+.modal-paiement-fedapay [style*="color:#E8940A"] {
+  color: #0f1410 !important;
+  background: #E8940A !important;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* Boutons FedaPay dans modal paiement — fond or + texte noir */
+#modal-paiement-pro button,
+#modal-paiement button,
+.modal-fedapay button,
+.btn-fedapay,
+.btn-payer-pro {
+  background: #E8940A !important;
+  color: #0f1410 !important;
+  font-weight: 800;
+  font-size: 15px !important;
+  min-height: 48px;
+}
+
+/* Labels/meta : 11px → 13px minimum pour lisibilité */
+.meta,
+.pstat-label,
+.avis-date,
+.star-labels,
+small.meta {
+  font-size: 13px;
+}
+
+/* Forcer noir sur crème pour tous les contenus texte dans les cards claires */
+.card[style*="background:#F8F6F1"] .or-text,
+.card[style*="background:#fff"] .or-text {
+  color: #0f1410 !important;
+}
 </style>
 
 <script>
