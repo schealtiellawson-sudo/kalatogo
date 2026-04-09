@@ -15983,11 +15983,44 @@ async function updateStatutCandidature(candidatureId, statut) {
           <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;margin-top:12px;">Le talent est là. <strong>Ce qui manque, c'est la visibilité.</strong></p>
         </div>
 
+<section class="wolo-timeline-section" id="expansion">
+  <div class="wolo-timeline-inner">
+    <div class="tl-header" data-anim="up">
+      <span class="tl-eyebrow">WOLO MARKET · EXPANSION CONTINENTALE</span>
+      <h2 class="tl-title">De Lomé au continent — en 18 mois.</h2>
+    </div>
+    <div class="tl-track-wrap" data-anim="up" data-anim-delay="1">
+      <svg class="tl-line-svg" viewBox="0 0 640 12" preserveAspectRatio="none" aria-hidden="true">
+        <line class="tl-line-bg" x1="40" y1="6" x2="600" y2="6"/>
+        <line class="tl-line-fill" id="tl-line-fill" x1="40" y1="6" x2="600" y2="6"/>
+      </svg>
+      <div class="tl-nodes" id="tl-nodes">
+        <div class="tl-node tl-active" data-index="0" onclick="wolotlSelect(0)">
+          <div class="tl-dot-wrap"><div class="tl-dot-ring"></div><div class="tl-dot"><span class="tl-flag">🇹🇬</span></div></div>
+          <div class="tl-label"><span class="tl-node-title">Togo · Bénin</span><span class="tl-node-date">Mai 2026</span><span class="tl-badge tl-badge-live">En cours</span></div>
+        </div>
+        <div class="tl-node tl-upcoming" data-index="1" onclick="wolotlSelect(1)">
+          <div class="tl-dot-wrap"><div class="tl-dot-ring"></div><div class="tl-dot"><span class="tl-flag">🌍</span></div></div>
+          <div class="tl-label"><span class="tl-node-title">Afrique de l'Ouest</span><span class="tl-node-date">Fin 2026</span><span class="tl-badge tl-badge-soon">Q3–Q4 2026</span></div>
+        </div>
+        <div class="tl-node tl-future" data-index="2" onclick="wolotlSelect(2)">
+          <div class="tl-dot-wrap"><div class="tl-dot-ring"></div><div class="tl-dot"><span class="tl-flag">🌍</span></div></div>
+          <div class="tl-label"><span class="tl-node-title">Le Continent</span><span class="tl-node-date">2027</span><span class="tl-badge tl-badge-future">2027</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-progress-wrap" data-anim="up" data-anim-delay="2">
+      <div class="tl-progress-bar"><div class="tl-progress-fill" id="tl-progress-fill" style="width:18%"></div></div>
+      <div class="tl-progress-labels"><span>Mai 2026</span><span id="tl-progress-label">Lancement — Togo + Bénin</span><span>2027</span></div>
+    </div>
+    <div class="tl-detail-panel" id="tl-detail-panel" data-anim="up" data-anim-delay="3"></div>
+  </div>
+</section>
+
         <div style="position:relative;">
           <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--or);border:3px solid white;box-shadow:0 0 0 3px var(--or-light);"></div>
           <div style="font-size:12px;font-weight:700;color:var(--or);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">WOLO Market · L'infrastructure économique</div>
-          <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:700;margin-bottom:12px;">Bénin et Togo d'abord. Côte d'Ivoire et Sénégal ensuite. Puis le continent.</h3>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;"><strong>Bénin + Togo — c'est le lancement.</strong><br>Côte d'Ivoire + Sénégal — c'est la suite.<br>L'Afrique de l'Ouest. Puis le continent.</p>
+          <p style="font-size:17px;color:var(--gris-fonce);line-height:1.8;font-style:italic;">Ce n'est pas un plan. C'est une architecture.<br>WOLO Market est construit dès aujourd'hui<br>pour fonctionner dans chaque pays d'Afrique.<br><strong style="color:var(--or);font-style:normal;">Un nom. Un système. Un continent.</strong></p>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;">
             <button class="btn btn-primary" onclick="showPage('inscription')">→ Créer mon profil WOLO — c'est gratuit</button>
             <a href="mailto:contact@wolomarket.com?subject=Agent%20Terrain%20WOLO%20Market" class="btn btn-secondary">→ Devenir Agent Terrain WOLO Market</a>
@@ -17296,6 +17329,62 @@ document.addEventListener('DOMContentLoaded',()=>{
 </nav>
 
 <style>
+/* ====== TIMELINE EXPANSION ====== */
+@keyframes wolo-tl-pulse { 0%{transform:scale(1);opacity:.6} 100%{transform:scale(2.4);opacity:0} }
+@keyframes wolo-tl-dash { from{stroke-dashoffset:600} to{stroke-dashoffset:0} }
+@keyframes wolo-tl-shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes wolo-tl-fade-up { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.wolo-timeline-section { padding:80px 0 60px; position:relative; background:#0f1410; margin:40px -24px; }
+.wolo-timeline-inner { max-width:720px; margin:0 auto; padding:0 24px; }
+.tl-header { text-align:center; margin-bottom:48px; }
+.tl-eyebrow { display:block; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:4px; color:#E8940A; margin-bottom:12px; }
+.tl-title { font-family:Fraunces,Georgia,serif; font-size:clamp(22px,3vw,32px); font-weight:700; color:#F8F6F1; margin:0; }
+.tl-track-wrap { position:relative; padding:0 8px; margin-bottom:8px; }
+.tl-line-svg { width:100%; height:12px; display:block; overflow:visible; }
+.tl-line-bg { stroke:rgba(248,246,241,.1); stroke-width:2; fill:none; }
+.tl-line-fill { stroke:#E8940A; stroke-width:2.5; fill:none; stroke-dasharray:600; stroke-dashoffset:0; animation:wolo-tl-dash 1.8s cubic-bezier(.4,0,.2,1) .4s both; }
+.tl-nodes { display:flex; justify-content:space-between; position:relative; margin-top:-30px; }
+.tl-node { display:flex; flex-direction:column; align-items:center; cursor:pointer; flex:1; position:relative; transition:opacity .2s ease; }
+.tl-node:hover { opacity:1!important; }
+.tl-dot-wrap { position:relative; width:52px; height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.tl-dot-ring { position:absolute; inset:0; border-radius:50%; background:#E8940A; opacity:0; }
+.tl-node.tl-active .tl-dot-ring { animation:wolo-tl-pulse 1.8s ease-out infinite; }
+.tl-dot { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; position:relative; z-index:2; border:2px solid; transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease; }
+.tl-flag { font-size:18px; line-height:1; }
+.tl-node:hover .tl-dot { transform:scale(1.18); }
+.tl-node.tl-active .tl-dot { border-color:#E8940A; background:rgba(232,148,10,.12); box-shadow:0 0 0 5px rgba(232,148,10,.15); }
+.tl-node.tl-upcoming .tl-dot { border-color:rgba(248,246,241,.25); background:rgba(248,246,241,.05); opacity:.75; }
+.tl-node.tl-future .tl-dot { border-color:rgba(248,246,241,.12); background:rgba(248,246,241,.03); opacity:.45; }
+.tl-label { text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.tl-node-title { font-family:Georgia,serif; font-size:13px; font-weight:700; color:#F8F6F1; white-space:nowrap; }
+.tl-node.tl-upcoming .tl-node-title, .tl-node.tl-future .tl-node-title { color:rgba(248,246,241,.55); }
+.tl-node-date { font-family:'Space Mono',monospace; font-size:10px; color:rgba(248,246,241,.35); }
+.tl-badge { display:inline-block; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:1.5px; padding:2px 8px; border-radius:4px; margin-top:2px; }
+.tl-badge-live { background:rgba(232,148,10,.15); color:#E8940A; border:1px solid rgba(232,148,10,.35); }
+.tl-badge-soon { background:rgba(248,246,241,.05); color:rgba(248,246,241,.45); border:1px solid rgba(248,246,241,.1); }
+.tl-badge-future { background:rgba(248,246,241,.03); color:rgba(248,246,241,.25); border:1px solid rgba(248,246,241,.08); }
+.tl-progress-wrap { margin:20px 0 0; }
+.tl-progress-bar { height:2px; background:rgba(248,246,241,.08); border-radius:1px; overflow:hidden; margin-bottom:8px; }
+.tl-progress-fill { height:100%; border-radius:1px; background:linear-gradient(90deg,#C47A08,#E8940A,#F5B82E); background-size:200% 100%; animation:wolo-tl-shimmer 2.5s linear infinite; transition:width .6s cubic-bezier(.4,0,.2,1); }
+.tl-progress-labels { display:flex; justify-content:space-between; font-family:'Space Mono',monospace; font-size:10px; color:rgba(248,246,241,.3); }
+.tl-progress-labels span:nth-child(2) { color:rgba(248,246,241,.5); }
+.tl-detail-panel { margin-top:28px; border:1px solid rgba(232,148,10,.2); border-radius:12px; background:rgba(232,148,10,.04); padding:24px 28px; min-height:130px; animation:wolo-tl-fade-up .35s ease both; }
+.tl-panel-eyebrow { display:block; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:#E8940A; margin-bottom:8px; }
+.tl-panel-title { font-family:Fraunces,Georgia,serif; font-size:20px; font-weight:700; color:#F8F6F1; margin:0 0 14px; }
+.tl-panel-countries { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.tl-country-chip { display:inline-flex; align-items:center; gap:5px; font-size:12px; padding:4px 12px; border-radius:6px; font-family:Georgia,serif; }
+.tl-country-chip.on { color:#F8F6F1; background:rgba(232,148,10,.1); border:1px solid rgba(232,148,10,.3); }
+.tl-country-chip.off { color:rgba(248,246,241,.4); background:rgba(248,246,241,.04); border:1px solid rgba(248,246,241,.08); }
+.tl-panel-stat { font-size:13px; color:rgba(248,246,241,.6); line-height:1.7; border-top:1px solid rgba(248,246,241,.06); padding-top:12px; margin:0; }
+.tl-panel-stat strong { color:#E8940A; font-weight:600; }
+@media (max-width:600px) {
+  .tl-node-title { font-size:11px; white-space:normal; text-align:center; max-width:80px; }
+  .tl-dot { width:34px; height:34px; }
+  .tl-flag { font-size:15px; }
+  .tl-detail-panel { padding:16px 18px; }
+  .tl-panel-title { font-size:17px; }
+}
+
 /* ====== SPRINT 6 — Feed WOLO ====== */
 .mobile-bottom-nav {
   display: none;
@@ -18357,6 +18446,51 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
   };
 })();
+</script>
+
+<script>
+// ====== TIMELINE EXPANSION ======
+const WOLO_TL_PANELS = [
+  { eyebrow:'PHASE 1 · LANCEMENT', title:'Togo + Bénin simultanément',
+    countries:[{flag:'🇹🇬',name:'Lomé, Togo',on:true},{flag:'🇧🇯',name:'Cotonou, Bénin',on:true}],
+    stat:'Lancement mai 2026 · <strong>400 000 FCFA distribués en juillet</strong> · 10 agents terrain · Bourse de Croissance · WOLO Awards Battle · Domiciliation juridique Cotonou',
+    progress:18, progressLabel:'Lancement — Togo + Bénin' },
+  { eyebrow:'PHASE 2 · EXPANSION OUEST-AFRICAINE', title:"Toute l'Afrique de l'Ouest",
+    countries:[{flag:'🇹🇬',name:'Togo',on:true},{flag:'🇧🇯',name:'Bénin',on:true},{flag:'🇨🇮',name:"Côte d'Ivoire",on:true},{flag:'🇸🇳',name:'Sénégal',on:true},{flag:'🇬🇭',name:'Ghana',on:true},{flag:'🇳🇬',name:'Nigeria',on:true},{flag:'🇲🇱',name:'Mali',on:false},{flag:'🇧🇫',name:'Burkina',on:false}],
+    stat:'Fin 2026 · Déclencheur : validation terrain Togo + Bénin · <strong>3 000–3 500 FCFA/mois</strong> pour les nouveaux marchés · Même plateforme, adaptation locale · Agents terrain par pays',
+    progress:62, progressLabel:"Expansion Afrique de l'Ouest" },
+  { eyebrow:'PHASE 3 · CONTINENT', title:"Toute l'Afrique",
+    countries:[{flag:'🌍',name:'Afrique Centrale',on:true},{flag:'🌍',name:"Afrique de l'Est",on:true},{flag:'🌍',name:'Afrique du Nord',on:true},{flag:'🌍',name:'Afrique Australe',on:true}],
+    stat:'2027 · Un nom universel — WOLO signifie grandir en Yoruba · <strong>Architecture multi-pays déjà en place dès le premier jour</strong> · Même ADN, mêmes mécaniques de récompenses · Le continent entier',
+    progress:100, progressLabel:'Le Continent — 2027' }
+];
+let WOLO_TL_CURRENT = 0;
+function wolotlSelect(index) {
+  WOLO_TL_CURRENT = index;
+  const nodes = document.querySelectorAll('.tl-node');
+  nodes.forEach((node, i) => {
+    node.classList.remove('tl-active','tl-upcoming','tl-future');
+    const ring = node.querySelector('.tl-dot-ring');
+    if (i <= index) node.classList.add('tl-active');
+    else if (i === index + 1) { node.classList.add('tl-upcoming'); if(ring){ring.style.animation='none';ring.style.opacity='0';} }
+    else { node.classList.add('tl-future'); if(ring){ring.style.animation='none';ring.style.opacity='0';} }
+    if (ring && i === index) { ring.style.animation=''; ring.style.opacity=''; }
+  });
+  const panel = WOLO_TL_PANELS[index];
+  const fillEl = document.getElementById('tl-progress-fill');
+  const labEl = document.getElementById('tl-progress-label');
+  if (fillEl) fillEl.style.width = panel.progress + '%';
+  if (labEl) labEl.textContent = panel.progressLabel;
+  const countriesHtml = panel.countries.map(c => `<span class="tl-country-chip ${c.on?'on':'off'}">${c.flag} ${c.name}</span>`).join('');
+  const detailPanel = document.getElementById('tl-detail-panel');
+  if (!detailPanel) return;
+  detailPanel.style.animation = 'none';
+  void detailPanel.offsetWidth;
+  detailPanel.style.animation = 'wolo-tl-fade-up 0.35s ease both';
+  detailPanel.innerHTML = `<span class="tl-panel-eyebrow">${panel.eyebrow}</span><p class="tl-panel-title">${panel.title}</p><div class="tl-panel-countries">${countriesHtml}</div><p class="tl-panel-stat">${panel.stat}</p>`;
+}
+window.wolotlSelect = wolotlSelect;
+document.addEventListener('DOMContentLoaded', () => { if (document.getElementById('tl-detail-panel')) wolotlSelect(0); });
 </script>
 
 </body>
