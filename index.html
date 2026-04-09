@@ -779,9 +779,9 @@ h1 .gold { color:var(--or); }
 
 .pcard-dispo {
   display:inline-flex; align-items:center; gap:5px;
-  background:#f0fdf4; padding:4px 10px; border-radius:100px;
+  background:#F8F6F1; padding:4px 10px; border-radius:100px;
   font-size:11px; font-weight:700; color:#E8940A;
-  border:1px solid #bbf7d0;
+  border:1px solid #E8940A;
 }
 .dispo-dot { width:7px; height:7px; border-radius:50%; background:#E8940A; animation:pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
@@ -842,7 +842,7 @@ h1 .gold { color:var(--or); }
 /* Bouton filtre digital actif */
 #digital-btn.active { background:#6366f1; color:white; border-color:#6366f1; }
 .results-meta { font-size:14px; color:var(--gris); margin-top:20px; font-weight:500; }
-.pcard-distance { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--vert); background:#f0fdf4; border-radius:20px; padding:2px 8px; margin-top:4px; }
+.pcard-distance { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--vert); background:#F8F6F1; border-radius:20px; padding:2px 8px; margin-top:4px; }
 #search-map { width:100%; height:580px; border-radius:18px; overflow:hidden; display:none; box-shadow:0 4px 24px rgba(0,0,0,0.10); margin-top:0; }
 #search-map .leaflet-popup-content-wrapper { border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,.18); padding:14px 20px; border:none; }
 #search-map .leaflet-popup-tip-container { display:none; }
@@ -908,7 +908,7 @@ h1 .gold { color:var(--or); }
 .profil-online-badge {
   position:absolute; bottom:6px; right:6px;
   width:22px; height:22px; border-radius:50%;
-  background:#22c55e; border:3px solid #111;
+  background:#E8940A; border:3px solid #111;
 }
 .profil-online-badge.offline { background:#6b7a72; }
 
@@ -940,7 +940,7 @@ h1 .gold { color:var(--or); }
 .profil-status-text {
   font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:14px;
 }
-.profil-status-dot { width:9px; height:9px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 6px #22c55e; }
+.profil-status-dot { width:9px; height:9px; border-radius:50%; background:#E8940A; display:inline-block; box-shadow:0 0 6px #E8940A; }
 .profil-status-dot.offline { background:#6b7a72; box-shadow:none; }
 
 /* Boutons d'action */
@@ -1312,8 +1312,8 @@ footer {
 .dash-header p { color:var(--gris); font-size:14px; margin-top:4px; }
 
 .dash-explainer {
-  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-  border-left: 4px solid #22c55e;
+  background: linear-gradient(135deg, #F8F6F1, #F8F6F1);
+  border-left: 4px solid #E8940A;
   border-radius: 0 12px 12px 0;
   padding: 14px 16px;
   margin-bottom: 24px;
@@ -1784,7 +1784,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.3);}
   50%{box-shadow:0 0 0 4px rgba(220,38,38,0);}
 }
-.badge-cdi { background:#dcfce7;color:#166534; }
+.badge-cdi { background:#F8F6F1;color:#E8940A; }
 .badge-cdd { background:#fed7aa;color:#9a3412; }
 .badge-stage { background:#dbeafe;color:#1e40af; }
 .badge-mission { background:#fef3c7;color:#92400e; }
@@ -1793,7 +1793,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 .statut-badge { display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700; }
 .statut-attente { background:#f3f4f6;color:#6b7280; }
 .statut-vue { background:#dbeafe;color:#1e40af; }
-.statut-retenue { background:#dcfce7;color:#166534; }
+.statut-retenue { background:#F8F6F1;color:#E8940A; }
 .statut-refusee { background:#fef2f2;color:#dc2626; }
 
 /* ══════════════════════════════════════════════
@@ -2922,7 +2922,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
 #page-dashboard [role="progressbar"]{
   accent-color:#E8940A;
 }
-#page-dashboard [style*="background:linear-gradient"][style*="#10b981"],
+#page-dashboard [style*="background:linear-gradient"][style*="#E8940A"],
 #page-dashboard [style*="background:linear-gradient"][style*="22c55e"]{
   background:linear-gradient(90deg,#E8940A,#FFB84D) !important;
 }
@@ -3320,7 +3320,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
               <div class="oc-badge">🔥 Pro</div>
             </div>
             <div class="orbit-card oc-3">
-              <div class="oc-avatar" style="background:linear-gradient(135deg,#10b981,#059669);">🔨</div>
+              <div class="oc-avatar" style="background:linear-gradient(135deg,#E8940A,#E8940A);">🔨</div>
               <div class="oc-info"><div class="oc-name">Théo N.</div><div class="oc-job">Menuisier · Kégué</div></div>
               <div class="oc-badge">⭐ 4.8</div>
             </div>
@@ -3351,7 +3351,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
               <!-- Dots voyageurs sur les lignes -->
               <circle r="3" fill="#E8940A" class="conn-dot cd-1"><animateMotion dur="2.5s" repeatCount="indefinite" path="M250,250 L250,40"/></circle>
               <circle r="3" fill="#6366f1" class="conn-dot cd-2"><animateMotion dur="3s" repeatCount="indefinite" path="M250,250 L432,145"/></circle>
-              <circle r="3" fill="#10b981" class="conn-dot cd-3"><animateMotion dur="2.8s" repeatCount="indefinite" path="M250,250 L432,355"/></circle>
+              <circle r="3" fill="#E8940A" class="conn-dot cd-3"><animateMotion dur="2.8s" repeatCount="indefinite" path="M250,250 L432,355"/></circle>
               <circle r="3" fill="#f43f5e" class="conn-dot cd-4"><animateMotion dur="3.2s" repeatCount="indefinite" path="M250,250 L250,460"/></circle>
               <circle r="3" fill="#E8940A" class="conn-dot cd-5"><animateMotion dur="2.6s" repeatCount="indefinite" path="M250,250 L68,355"/></circle>
               <circle r="3" fill="#8b5cf6" class="conn-dot cd-6"><animateMotion dur="2.9s" repeatCount="indefinite" path="M250,250 L68,145"/></circle>
@@ -3768,10 +3768,10 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
               <line x1="0" y1="185" x2="400" y2="168" stroke="#F5B82E" stroke-width="2"/>
               <line x1="125" y1="0" x2="142" y2="300" stroke="#F5B82E" stroke-width="2.5"/>
               <line x1="268" y1="0" x2="282" y2="300" stroke="#F5B82E" stroke-width="2"/>
-              <line x1="0" y1="52" x2="400" y2="62" stroke="#22c55e" stroke-width="1.2" opacity="0.6"/>
-              <line x1="0" y1="245" x2="400" y2="232" stroke="#22c55e" stroke-width="1.2" opacity="0.6"/>
-              <line x1="62" y1="0" x2="75" y2="300" stroke="#22c55e" stroke-width="1.2" opacity="0.6"/>
-              <line x1="342" y1="0" x2="356" y2="300" stroke="#22c55e" stroke-width="1.2" opacity="0.6"/>
+              <line x1="0" y1="52" x2="400" y2="62" stroke="#E8940A" stroke-width="1.2" opacity="0.6"/>
+              <line x1="0" y1="245" x2="400" y2="232" stroke="#E8940A" stroke-width="1.2" opacity="0.6"/>
+              <line x1="62" y1="0" x2="75" y2="300" stroke="#E8940A" stroke-width="1.2" opacity="0.6"/>
+              <line x1="342" y1="0" x2="356" y2="300" stroke="#E8940A" stroke-width="1.2" opacity="0.6"/>
               <rect x="18" y="128" width="82" height="38" fill="#1a3528" rx="5" opacity="0.8"/>
               <rect x="18" y="58" width="62" height="34" fill="#1a3528" rx="5" opacity="0.8"/>
               <rect x="160" y="72" width="75" height="48" fill="#1a3528" rx="5" opacity="0.8"/>
@@ -5601,7 +5601,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           </div>
 
           <!-- Actions prioritaires -->
-          <div style="background:linear-gradient(135deg,#f0fdf4,#fefce8);border-radius:20px;padding:22px;box-shadow:var(--shadow);">
+          <div style="background:linear-gradient(135deg,#F8F6F1,#fefce8);border-radius:20px;padding:22px;box-shadow:var(--shadow);">
             <h3 style="font-family:Fraunces,serif;font-size:15px;font-weight:700;margin:0 0 12px;">💡 Actions prioritaires</h3>
             <div id="dash-actions" style="display:flex;flex-direction:column;gap:8px;"></div>
           </div>
@@ -6270,18 +6270,18 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           </div>
 
           <!-- Aperçu du lien -->
-          <div id="enca-preview" style="display:none;margin-top:18px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:16px;">
+          <div id="enca-preview" style="display:none;margin-top:18px;background:#F8F6F1;border:1.5px solid #E8940A;border-radius:14px;padding:16px;">
             <div style="font-size:11px;font-weight:700;color:var(--vert);letter-spacing:0.08em;margin-bottom:8px;">✓ LIEN DE PAIEMENT PRÊT</div>
             <div id="enca-link-display" style="font-size:12px;color:#374151;word-break:break-all;background:white;border-radius:8px;padding:10px;border:1px solid #d1fae5;margin-bottom:12px;"></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-              <span style="background:#dcfce7;color:#E8940A;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;">📱 TMoney</span>
+              <span style="background:#F8F6F1;color:#E8940A;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;">📱 TMoney</span>
               <span style="background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;">📲 Flooz</span>
               <span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;">📱 MTN Money</span>
               <span style="background:#fce7f3;color:#9d174d;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;">📲 Moov Money</span>
               <span style="background:#ede9fe;color:#7c3aed;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;">💳 Visa / Mastercard</span>
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <button onclick="encaCopyLink()" style="flex:1;min-width:120px;padding:11px;background:white;border:1.5px solid #86efac;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;color:var(--vert);">📋 Copier le lien</button>
+              <button onclick="encaCopyLink()" style="flex:1;min-width:120px;padding:11px;background:white;border:1.5px solid #E8940A;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;color:var(--vert);">📋 Copier le lien</button>
               <button onclick="encaShareWhatsApp()" style="flex:2;min-width:160px;padding:11px;background:#25D366;color:white;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">📱 Envoyer sur WhatsApp</button>
             </div>
           </div>
@@ -6498,7 +6498,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
               <div style="font-size:11px;color:rgba(255,255,255,0.6);">FCFA ≈ 1 SMIG</div>
             </div>
             <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:10px;text-align:center;">
-              <div style="font-size:22px;font-weight:900;color:#22c55e;">×2-3</div>
+              <div style="font-size:22px;font-weight:900;color:#E8940A;">×2-3</div>
               <div style="font-size:11px;color:rgba(255,255,255,0.6);">le SMIG avec 50 filleuls actifs</div>
             </div>
           </div>
@@ -6507,16 +6507,16 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           </p>
           <div style="display:flex;flex-direction:column;gap:8px;">
             <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
-              <span style="color:#22c55e;font-weight:900;">✓</span> Zéro capital requis — juste ton téléphone et ta voix
+              <span style="color:#E8940A;font-weight:900;">✓</span> Zéro capital requis — juste ton téléphone et ta voix
             </div>
             <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
-              <span style="color:#22c55e;font-weight:900;">✓</span> Revenus récurrents — tant que tes filleuls restent actifs, tu touches
+              <span style="color:#E8940A;font-weight:900;">✓</span> Revenus récurrents — tant que tes filleuls restent actifs, tu touches
             </div>
             <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
-              <span style="color:#22c55e;font-weight:900;">✓</span> Horaires libres — tu travailles comme tu veux, où tu veux
+              <span style="color:#E8940A;font-weight:900;">✓</span> Horaires libres — tu travailles comme tu veux, où tu veux
             </div>
             <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
-              <span style="color:#22c55e;font-weight:900;">✓</span> Évolutif — 10 filleuls, 50, 100... les paliers n'ont pas de plafond
+              <span style="color:#E8940A;font-weight:900;">✓</span> Évolutif — 10 filleuls, 50, 100... les paliers n'ont pas de plafond
             </div>
           </div>
         </div>
@@ -7273,7 +7273,7 @@ async function loadDashOverview() {
   const dispo = f['Disponible maintenant'];
   const dot = document.getElementById('dash-dispo-dot');
   const txt = document.getElementById('dash-dispo-txt');
-  if (dot) dot.style.background = dispo ? '#22c55e' : '#9ca3af';
+  if (dot) dot.style.background = dispo ? '#E8940A' : '#9ca3af';
   if (txt) txt.textContent = dispo ? '⭐ Disponible' : '🟡 Invisible';
 
   // ── Profil complété % — calculé localement ──
@@ -9580,7 +9580,7 @@ function renderSearchMap(records) {
     const photo = f['Photo de profil']?.[0]?.url || '';
 
     // Bordure : vert si dispo, or si Pro, noir sinon
-    const borderColor = dispo ? '#22c55e' : isPro ? '#f59e0b' : '#111';
+    const borderColor = dispo ? '#E8940A' : isPro ? '#f59e0b' : '#111';
     const size = 52;
 
     const makeIcon = (active) => L.divIcon({
@@ -9602,7 +9602,7 @@ function renderSearchMap(records) {
             ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;display:block;">`
             : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;background:${isPro ? '#f59e0b' : '#E8940A'};">${initiale}</div>`
           }
-          ${dispo ? `<div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:#22c55e;"></div>` : ''}
+          ${dispo ? `<div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:#E8940A;"></div>` : ''}
         </div>
         <div style="
           position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
@@ -9632,7 +9632,7 @@ function renderSearchMap(records) {
           ${isPro ? '<span style="background:#f59e0b;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">⭐ Pro</span>' : ''}
         </div>
         <div style="font-size:12px;color:#64748b;margin-bottom:3px;">${emoji} ${metier} · ${f['Quartier'] || 'Lomé'}</div>
-        <div style="font-size:12px;color:#64748b;margin-bottom:10px;">${noteStr}${dispo ? ' · <span style="color:#22c55e;font-weight:700;">Dispo</span>' : ''}</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:10px;">${noteStr}${dispo ? ' · <span style="color:#E8940A;font-weight:700;">Dispo</span>' : ''}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:13px;font-weight:800;">${tarif ? `${tarif.toLocaleString('fr-FR')} <span style="font-weight:400;font-size:11px;">FCFA</span>` : '<span style="font-size:11px;color:#94a3b8;">Tarif libre</span>'}</div>
           <button onclick="showProfil('${r.id}')" style="background:#111;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;">Voir profil</button>
@@ -10079,22 +10079,22 @@ function renderNotifications(recordId) {
       icon = '💬'; bg = '#eff6ff';
       msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a commenté : <em style="color:#888;">"${(n.texte||'').substring(0,60)}${(n.texte||'').length>60?'...':''}"</em>`;
     } else if (n.type === 'vue') {
-      icon = '👁️'; bg = '#f0fdf4';
+      icon = '👁️'; bg = '#F8F6F1';
       msg = `Quelqu'un a consulté ton profil`;
     } else if (n.type === 'rdv') {
       icon = '📅'; bg = '#fff7ed';
       msg = `<strong>${n.clientNom || 'Client'}</strong> a demandé un RDV le ${n.date || 'à une date'}`;
     } else if (n.type === 'payment') {
-      icon = '💳'; bg = '#f0fdf4';
+      icon = '💳'; bg = '#F8F6F1';
       msg = `Paiement reçu : <strong>${n.montant?.toLocaleString('fr-FR')} FCFA</strong> pour ${n.desc || 'une prestation'}`;
     } else if (n.type === 'client_payment') {
-      icon = '💳'; bg = '#dcfce7';
+      icon = '💳'; bg = '#F8F6F1';
       msg = `<strong style='color:#E8940A;'>💸 Paiement Flooz/TMoney — ${(n.montant||0).toLocaleString('fr-FR')} FCFA</strong> confirmé par un client via ton profil`;
     } else if (n.type === 'avis') {
       icon = '⭐'; bg = '#fef3c7';
       msg = `<strong>${n.auteur || 'Client'}</strong> a laissé un avis : <em style="color:#888;">"${(n.texte||'').substring(0,50)}${(n.texte||'').length>50?'...':''}"</em>`;
     } else if (n.type === 'suivi') {
-      icon = '👥'; bg = '#f0fdf4';
+      icon = '👥'; bg = '#F8F6F1';
       msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> suit maintenant ton profil`;
     } else if (n.type === 'favori') {
       icon = '❤️'; bg = '#fff1f2';
@@ -10354,7 +10354,7 @@ async function loadFavoris() {
               ${photo
                 ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);">`
                 : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${nom.charAt(0)}</div>`}
-              ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid white;"></div>' : ''}
+              ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:800;font-size:15px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
@@ -10527,7 +10527,7 @@ async function loadAbonnements() {
               ${photo
                 ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);">`
                 : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${nom.charAt(0)}</div>`}
-              ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid white;"></div>' : ''}
+              ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:800;font-size:15px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
@@ -10779,7 +10779,7 @@ async function loadFilPageAbonnes() {
         <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="showProfil('${pid}');showPage('profil');">
           <div style="position:relative;flex-shrink:0;">
             ${photo ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">` : `<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;">${nom.charAt(0)}</div>`}
-            ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid white;"></div>' : ''}
+            ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
           </div>
           <div style="flex:1;min-width:0;">
             <div style="font-weight:800;font-size:14px;color:var(--noir);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nom}</div>
@@ -11001,7 +11001,7 @@ function renderMetierBanner(metier, recordId, nom) {
     { keys:['photographe','vidéaste'],       color:'#831843', color2:'#be185d', emoji:'📸' },
     { keys:['informaticien','développeur','tech'], color:'#134e4a', color2:'#0f766e', emoji:'💻' },
     { keys:['cuisinier','cuisinière','chef','restaurateur','traiteur'], color:'#7f1d1d', color2:'#dc2626', emoji:'👨‍🍳' },
-    { keys:['zémidjan','chauffeur','taxi'],  color:'#064e3b', color2:'#059669', emoji:'🏍️' },
+    { keys:['zémidjan','chauffeur','taxi'],  color:'#E8940A', color2:'#E8940A', emoji:'🏍️' },
     { keys:['esthéticienne','esthéticien','beauté','nail'], color:'#831843', color2:'#ec4899', emoji:'💅' },
     { keys:['couturier','couturière','tailleur'], color:'#312e81', color2:'#4f46e5', emoji:'🧵' },
     { keys:['masseur','masseuse','spa'],     color:'#134e4a', color2:'#0d9488', emoji:'💆' },
@@ -11143,7 +11143,7 @@ function showAlbumsPage(recordId) {
           <img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;pointer-events:none;">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 50%);border-radius:16px;pointer-events:none;"></div>
           <div style="position:absolute;bottom:14px;left:14px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;display:flex;align-items:center;gap:6px;pointer-events:none;">
-            <div style="width:7px;height:7px;background:#22c55e;border-radius:50%;"></div>
+            <div style="width:7px;height:7px;background:#E8940A;border-radius:50%;"></div>
             <span style="color:white;font-size:11px;font-weight:700;">Photo principale</span>
           </div>
         </div>
@@ -12634,7 +12634,7 @@ async function loadParrainage() {
 
   const features = [
     { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes — chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wolomarket.com?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
-    { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+2 500 FCFA</div></div>`).join('')}</div>` },
+    { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#F8F6F1;border:1px solid #E8940A;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+2 500 FCFA</div></div>`).join('')}</div>` },
     { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#6b7280;">5 filleuls</span><span style="color:var(--or);font-weight:800;">12 500 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">20 filleuls</span><span style="color:var(--or);font-weight:800;">50 000 FCFA/mois</span></div></div>` },
   ];
 
@@ -12825,23 +12825,23 @@ function _renderFilleulsCRM(filleuls) {
           </div>
           <!-- Actions -->
           <div style="display:flex;gap:4px;flex-shrink:0;">
-            ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
-            ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
+            ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#F8F6F1;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
+            ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#F8F6F1;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
             ${email ? `<a href="mailto:${email}?subject=WOLO Pro — Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
           </div>
         </div>
         <!-- Barre de progression filleul — 3 étapes — aucune donnée personnelle exposée -->
         <div style="border-top:1px dashed #e5e7eb;padding:7px 12px;background:${isPro?'#fafafa':'#fffef5'};display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
           <!-- Étape 1 : Inscrit — toujours atteinte si le filleul est dans la liste -->
-          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#E8940A;background:#f0fdf4;padding:3px 8px;border-radius:100px;border:1px solid #bbf7d0;">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#E8940A;background:#F8F6F1;padding:3px 8px;border-radius:100px;border:1px solid #E8940A;">
             <span style="font-size:9px;">✓</span> Inscrit
           </span>
           <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
           <!-- Étape 2 : Premier RDV booké (booléen uniquement, aucun détail du RDV) -->
-          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${aRdv?'#E8940A':'#9ca3af'};background:${aRdv?'#f0fdf4':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${aRdv?'#bbf7d0':'#e5e7eb'};">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${aRdv?'#E8940A':'#9ca3af'};background:${aRdv?'#F8F6F1':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${aRdv?'#E8940A':'#e5e7eb'};">
             <span style="font-size:9px;">${aRdv?'✓':'○'}</span> 1er RDV booké
           </span>
-          ${aRdv ? `<span style="background:#dcfce7;color:#15803d;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
+          ${aRdv ? `<span style="background:#F8F6F1;color:#E8940A;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
           <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
           <!-- Étape 3 : Passé en Pro (déjà connu depuis Abonnement, aucune requête supplémentaire) -->
           <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${isPro?'#d97706':'#9ca3af'};background:${isPro?'#fffbeb':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${isPro?'#fde68a':'#e5e7eb'};">
@@ -13141,9 +13141,9 @@ function renderRDVList(list) {
     // ✅ Vérifier paiement via CinetPay (localStorage)
     const paymentInfo = getRDVPaymentStatus(currentPrestataire?.id, r.id);
     const payBadge = paymentInfo
-      ? `<span style="background:#dcfce7;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">✅ Payé ${paymentInfo.montant.toLocaleString('fr-FR')} FCFA</span>`
+      ? `<span style="background:#F8F6F1;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">✅ Payé ${paymentInfo.montant.toLocaleString('fr-FR')} FCFA</span>`
       : txMatch
-      ? `<span style="background:#dcfce7;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">💳 Payé ${parseInt(txMatch[2]).toLocaleString('fr-FR')} FCFA</span>`
+      ? `<span style="background:#F8F6F1;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">💳 Payé ${parseInt(txMatch[2]).toLocaleString('fr-FR')} FCFA</span>`
       : '';
     const displayMsg = txMatch ? rawMsg.slice(txMatch[0].length) : rawMsg;
     return `
@@ -13795,7 +13795,7 @@ function loadHistoriquePaiements() {
 
   const total = payments.reduce((sum, p) => sum + (p.montant || 0), 0);
   list.innerHTML = `
-    <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:16px;margin-bottom:16px;">
+    <div style="background:linear-gradient(135deg,#F8F6F1,#F8F6F1);border-radius:12px;padding:16px;margin-bottom:16px;">
       <div style="font-size:12px;color:#E8940A;font-weight:700;margin-bottom:4px;">💰 TOTAL REÇU</div>
       <div style="font-size:28px;font-weight:900;color:var(--vert);">${total.toLocaleString('fr-FR')} FCFA</div>
       <div style="font-size:11px;color:#6b7280;margin-top:4px;">${payments.length} paiement${payments.length>1?'s':''}</div>
@@ -14045,7 +14045,8 @@ function loadAbonnement() {
 // PAIEMENT MANUEL FLOOZ — SYSTÈME CODES
 // ══════════════════════════════════════════
 
-const WOLO_FLOOZ = '97473040';
+// TODO Sprint 6 : intégration FedaPay paiement abonnement Pro
+const WOLO_FLOOZ = '';
 const ADMIN_SECRET   = 'WOLO2025';
 
 function generatePaymentCode() {
@@ -14075,37 +14076,30 @@ async function upgradePlan(plan, amount) {
 }
 
 function showPaiementManuelModal(plan, amount, code) {
+  // TODO Sprint 6 : intégration FedaPay paiement abonnement Pro
   const body = document.getElementById('modal-paiement-body');
   body.innerHTML = `
     <div style="text-align:center;margin-bottom:20px;">
-      <div style="font-size:40px;margin-bottom:8px;">📱</div>
-      <p style="font-size:15px;color:var(--gris-fonce);line-height:1.6;">Envoie <strong style="color:var(--noir);font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA</strong> via <strong>Flooz</strong> ou <strong>TMoney</strong> au numéro ci-dessous — mets ton code unique en note.</p>
+      <div style="font-size:40px;margin-bottom:8px;">🔒</div>
+      <p style="font-size:15px;color:var(--gris-fonce);line-height:1.6;">Montant du Plan Pro : <strong style="color:var(--noir);font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA / mois</strong></p>
     </div>
 
-    <div style="background:linear-gradient(135deg,#0066CC,#004a9e);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
-      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px;">
-        <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;">📲 Flooz</span>
-        <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;color:white;">📱 TMoney</span>
-      </div>
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:1px;margin-bottom:4px;">NUMÉRO WOLO MARKET</div>
-      <div style="font-size:32px;font-weight:900;color:white;letter-spacing:3px;">${WOLO_FLOOZ}</div>
-      <button onclick="navigator.clipboard.writeText('${WOLO_FLOOZ}');toast('Numéro copié !','success')" style="margin-top:8px;background:rgba(255,255,255,0.2);border:none;color:white;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le numéro</button>
+    <div style="background:linear-gradient(135deg,#0f1410,#1F2937);border-radius:14px;padding:22px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:#E8940A;letter-spacing:1px;margin-bottom:8px;">PAIEMENT SÉCURISÉ</div>
+      <div style="font-size:20px;font-weight:900;color:#FFFFFF;line-height:1.4;">Paiement sécurisé via FedaPay<br><span style="color:#E8940A;">(bientôt disponible)</span></div>
     </div>
 
-    <div style="background:#f0fdf4;border:2px dashed #E8940A;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:700;color:#E8940A;letter-spacing:1px;margin-bottom:4px;">TON CODE UNIQUE — mets-le en note/motif</div>
-      <div style="font-size:34px;font-weight:900;color:#065f46;letter-spacing:4px;">${code}</div>
-      <button onclick="navigator.clipboard.writeText('${code}');toast('Code copié !','success')" style="margin-top:8px;background:#dcfce7;border:1px solid #86efac;color:#166534;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le code</button>
+    <div style="background:#F8F6F1;border:2px dashed #E8940A;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:#E8940A;letter-spacing:1px;margin-bottom:4px;">TON CODE DE RÉFÉRENCE</div>
+      <div style="font-size:34px;font-weight:900;color:#E8940A;letter-spacing:4px;">${code}</div>
+      <button onclick="navigator.clipboard.writeText('${code}');toast('Code copié !','success')" style="margin-top:8px;background:#F8F6F1;border:1px solid #E8940A;color:#E8940A;padding:5px 16px;border-radius:100px;font-size:12px;cursor:pointer;">📋 Copier le code</button>
     </div>
 
     <div style="background:#fef9c3;border-radius:12px;padding:14px;font-size:13px;color:#713f12;line-height:1.9;">
-      <strong>📋 Comment faire :</strong><br>
-      1. Ouvre <strong>Flooz</strong> ou <strong>TMoney</strong> sur ton téléphone<br>
-      2. Envoie <strong>${amount.toLocaleString('fr-FR')} FCFA</strong> au <strong>${WOLO_FLOOZ}</strong><br>
-      3. Dans le champ <strong>Note / Motif</strong> écris ton code : <strong>${code}</strong><br>
-      4. Ton Plan Pro sera activé dans les <strong>24h</strong> ⏱️
+      <strong>ℹ️ Info :</strong><br>
+      L'intégration FedaPay arrive très prochainement. Tu recevras une notification dès que le paiement en ligne sera disponible.
     </div>
-    <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:14px;">Tu recevras une notification dès l'activation de ton plan.</p>
+    <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:14px;">Ton Plan Pro sera activé dès validation du paiement.</p>
   `;
   document.getElementById('modal-paiement-manuel').classList.add('active');
 }
@@ -15087,7 +15081,7 @@ async function loadMesOffres() {
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               ${f['Métier'] ? `<span class="badge badge-vert">${f['Métier']}</span>` : ''}
               ${f['Type de contrat'] ? `<span class="badge badge-gris">${f['Type de contrat']}</span>` : ''}
-              ${f['Active'] ? '<span class="badge" style="background:#dcfce7;color:#166534;">● Active</span>' : '<span class="badge" style="background:#f3f4f6;color:#6b7280;">● Inactive</span>'}
+              ${f['Active'] ? '<span class="badge" style="background:#F8F6F1;color:#E8940A;">● Active</span>' : '<span class="badge" style="background:#f3f4f6;color:#6b7280;">● Inactive</span>'}
               ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span>' : ''}
             </div>
           </div>
@@ -15104,7 +15098,7 @@ async function loadMesOffres() {
         </div>
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
           <button class="btn btn-sm btn-secondary" onclick="showDashSection('recrut-candidatures');document.getElementById('recrut-cand-filter-offre').value='${o.id}';loadCandidaturesRecues('${o.id}')">👥 Voir candidatures</button>
-          <button class="btn btn-sm" style="background:${f['Active']?'#fee2e2':'#dcfce7'};color:${f['Active']?'#dc2626':'#166534'};border:none;" onclick="toggleOffreActive('${o.id}',${!f['Active']})">${f['Active']?'⏸ Désactiver':'▶ Réactiver'}</button>
+          <button class="btn btn-sm" style="background:${f['Active']?'#fee2e2':'#F8F6F1'};color:${f['Active']?'#dc2626':'#E8940A'};border:none;" onclick="toggleOffreActive('${o.id}',${!f['Active']})">${f['Active']?'⏸ Désactiver':'▶ Réactiver'}</button>
           <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;" onclick="supprimerOffre('${o.id}','${(f['Titre']||'cette offre').replace(/'/g,"\\'")}')">🗑 Supprimer</button>
         </div>
       </div>`;
@@ -15189,7 +15183,7 @@ async function loadCandidaturesRecues(offreId = null) {
         ${f['Message'] ? `<div style="background:var(--blanc);border-radius:8px;padding:10px;font-size:13px;color:var(--gris-fonce);margin-bottom:12px;line-height:1.6;">"${f['Message']}"</div>` : ''}
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           ${f['Candidat WhatsApp'] ? `<a href="https://wa.me/${f['Candidat WhatsApp'].replace(/\D/g,'')}" target="_blank" class="btn btn-wa btn-sm">💬 WhatsApp</a>` : ''}
-          <button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:none;" onclick="updateStatutCandidature('${c.id}','Retenue')">✅ Retenir</button>
+          <button class="btn btn-sm" style="background:#F8F6F1;color:#E8940A;border:none;" onclick="updateStatutCandidature('${c.id}','Retenue')">✅ Retenir</button>
           <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:none;" onclick="updateStatutCandidature('${c.id}','Refusée')">✗ Refuser</button>
           <button class="btn btn-sm" style="background:#dbeafe;color:#1e40af;border:none;" onclick="updateStatutCandidature('${c.id}','Vue')">👁 Marquer vue</button>
         </div>
@@ -16412,11 +16406,11 @@ loadSchealtielPhoto();
         <label class="form-label">Description de la prestation</label>
         <input type="text" id="payment-link-desc" class="form-input" placeholder="Ex: Coiffure tresses — séance du 15/03" oninput="updatePaymentLinkPreview()">
       </div>
-      <div id="payment-link-preview" style="display:none;margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;">
+      <div id="payment-link-preview" style="display:none;margin-top:16px;background:#F8F6F1;border:1px solid #E8940A;border-radius:12px;padding:14px;">
         <div style="font-size:11px;font-weight:700;color:var(--vert);margin-bottom:6px;">APERÇU DU LIEN</div>
         <div id="payment-link-url" style="font-size:12px;color:#374151;word-break:break-all;margin-bottom:10px;"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <span style="background:#dcfce7;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">📱 TMoney</span>
+          <span style="background:#F8F6F1;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">📱 TMoney</span>
           <span style="background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">📲 Flooz</span>
           <span style="background:#ede9fe;color:#7c3aed;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">💳 Visa/Mastercard</span>
         </div>
@@ -16517,7 +16511,7 @@ loadSchealtielPhoto();
       <p id="pay-desc" style="font-size:14px;color:var(--gris);margin-bottom:20px;"></p>
       <div id="pay-amount-display" style="font-size:40px;font-weight:900;font-family:Fraunces,serif;color:var(--vert);margin-bottom:24px;"></div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;">
-        <span style="background:#dcfce7;color:#E8940A;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;">📱 TMoney</span>
+        <span style="background:#F8F6F1;color:#E8940A;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;">📱 TMoney</span>
         <span style="background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;">📲 Flooz</span>
         <span style="background:#ede9fe;color:#7c3aed;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;">💳 Visa/Mastercard</span>
       </div>

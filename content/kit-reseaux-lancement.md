@@ -1,10 +1,6 @@
 <!--
 RÈGLE ABSOLUE WOLO MARKET — NE JAMAIS VIOLER
-Aucune référence directe ou indirecte à :
-- Gouvernements (Togo, Bénin, ou tout autre pays)
-- Institutions publiques (FAIEJ, PROVONAT, ministères)
-- Politiques publiques d'emploi ou d'entrepreneuriat
-- Comparaisons défavorables avec des programmes d'État
+Aucune référence directe ou indirecte à des institutions publiques ou programmes d'État.
 WOLO Market est une solution privée. Copywriting centré sur la douleur du marché et la solution WOLO uniquement.
 -->
 

@@ -29,7 +29,7 @@ git push
 - **Photos** : ImgBB (upload via API)
 - **Crop photos** : Cropper.js v1.6.2 (CDN)
 - **Cartes** : Leaflet.js + OpenStreetMap
-- **Paiement Pro** : Manuel Flooz/TMoney (numéro `97473040`), validation admin via panel
+- **Paiement Pro** : FedaPay (intégration Sprint 6 — actuellement placeholder "bientôt disponible"), validation admin via panel
 - **Vidéos** : Cloudflare R2 (hébergement), URLs dans `videos-urls.json`
 - **Déploiement** : Vercel (auto sur push main)
 
@@ -108,7 +108,7 @@ min(nbAvisTexte×2,10) (max 10) — avis avec commentaire texte
 ## Paiement Pro — flux
 
 1. Prestataire clique "Passer au Pro" → code `WOL-XXXXXX` généré + sauvé dans Airtable
-2. Modal affiche le numéro **97473040** (Flooz/TMoney) + code en note
+2. Modal affiche placeholder "Paiement sécurisé via FedaPay (bientôt disponible)" + code de référence
 3. Prestataire envoie 2 500 FCFA
 4. Admin sur `?admin=WOLO2025` → voit demandes en attente → active
 5. Airtable passe `Abonnement: Pro`, efface `Code Paiement`
