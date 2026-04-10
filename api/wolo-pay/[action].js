@@ -22,6 +22,10 @@ import stats from './_impl/stats.js';
 import parrainageStats from './_impl/parrainage-stats.js';
 import parrainageApply from './_impl/parrainage-apply.js';
 import abonnementFedapay from './_impl/abonnement-fedapay.js';
+import recompensesStatus from './_impl/recompenses-status.js';
+import awardsCandidats from './_impl/awards-candidats.js';
+import awardsVote from './_impl/awards-vote.js';
+import awardsCandidater from './_impl/awards-candidater.js';
 
 const handlers = {
   'merchant-public': merchantPublic,
@@ -31,6 +35,10 @@ const handlers = {
   'parrainage-stats': parrainageStats,
   'parrainage-apply': parrainageApply,
   'abonnement-fedapay': abonnementFedapay,
+  'recompenses-status': recompensesStatus,
+  'awards-candidats': awardsCandidats,
+  'awards-vote': awardsVote,
+  'awards-candidater': awardsCandidater,
   'balance': balance,
   'contacts': contacts,
   'create-subscription': createSubscription,
