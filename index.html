@@ -3696,6 +3696,9 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
     </div>
   </section>
 
+  <!-- Gagnants du mois (Sprint 7) — rempli dynamiquement -->
+  <section id="home-gagnants" style="display:none;background:#0f1410;padding:40px 0;border-top:1px solid rgba(232,148,10,.15);border-bottom:1px solid rgba(232,148,10,.15);"></section>
+
   <!-- VITRINE PHRASE -->
   <div style="background:var(--noir);padding:26px 20px;text-align:center;">
     <div class="container">
@@ -9172,7 +9175,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
@@ -9191,6 +9194,7 @@ function showPage(page, _fromPop) {
   if (page === 'home') {
     setTimeout(() => loadFounderCounter(), 500);
   }
+  if (page === 'recompenses') loadPageRecompenses();
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
       setTimeout(() => {
@@ -10016,6 +10020,9 @@ async function initHome() {
   buildVilleOptions('s-quartier');
   buildVilleOptions('f-ville');
   buildVilleOptions('edit-ville');
+
+  // Sprint 7 : gagnants du mois sur la homepage
+  setTimeout(() => loadHomeGagnants(), 500);
 
   const container = document.getElementById('home-cards');
   try {
@@ -15529,6 +15536,162 @@ function _widgetPalmares(palmares) {
   return html;
 }
 
+// ══ PAGE /recompenses (Sprint 7 Phase 5) ══
+async function loadPageRecompenses() {
+  const plan = currentPrestataire?.fields?.['Abonnement'] || 'Base';
+  const isBase = plan === 'Base' || !currentUser;
+  const ctaPro = document.getElementById('recomp-cta-pro');
+  if (ctaPro) ctaPro.style.display = isBase ? 'block' : 'none';
+
+  try {
+    // Charger le statut si connecté Pro
+    if (currentUser?.id && !isBase) {
+      const r = await fetch(`/api/wolo-pay/recompenses-status?user_id=${currentUser.id}`);
+      const d = await r.json();
+      if (d.ok) {
+        // Widget Bourse
+        const bw = document.getElementById('recomp-bourse-widget');
+        if (bw) {
+          const tirage = new Date(d.tirage_date);
+          const rest = Math.max(0, tirage - new Date());
+          const j = Math.floor(rest / 86400000), h = Math.floor((rest % 86400000) / 3600000), m = Math.floor((rest % 3600000) / 60000);
+          const cd = rest > 0 ? `${j}j ${h}h ${m}min` : 'Tirage imminent';
+          bw.innerHTML = _widgetBourse(d.bourse, cd);
+        }
+        // Palmarès Bourse
+        const pb = document.getElementById('recomp-palmares-bourse');
+        if (pb && d.palmares.bourse.length > 0) pb.innerHTML = _widgetPalmares({ bourse: d.palmares.bourse, awards: [] });
+        // Palmarès Awards
+        const pa = document.getElementById('recomp-palmares-awards');
+        if (pa && d.palmares.awards.length > 0) pa.innerHTML = _widgetPalmares({ bourse: [], awards: d.palmares.awards });
+      }
+    }
+
+    // Charger les candidats WOLO Awards (public)
+    const mois = new Date().toISOString().slice(0, 7);
+    const rc = await fetch(`/api/wolo-pay/awards-candidats?mois=${mois}`);
+    const dc = await rc.json();
+
+    const host = document.getElementById('recomp-awards-candidats');
+    if (host && dc.ok && dc.candidats.length > 0) {
+      host.innerHTML = `
+        <h3 style="font-size:12px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:2px;margin-bottom:12px">CANDIDATS DU MOIS</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
+          ${dc.candidats.map(c => `
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;text-align:center">
+              <div style="width:56px;height:56px;border-radius:50%;background:rgba(232,148,10,.15);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden">
+                ${c.photo ? `<img src="${c.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : '👤'}
+              </div>
+              <div style="font-weight:700;font-size:14px;color:#F8F6F1;margin-bottom:4px">${c.nom}</div>
+              <div style="font-size:11px;color:rgba(248,246,241,.4);margin-bottom:10px">${c.pays === 'BJ' ? '🇧🇯 Bénin' : '🇹🇬 Togo'}</div>
+              <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:#E8940A;margin-bottom:10px">${c.nb_votes} vote${c.nb_votes > 1 ? 's' : ''}</div>
+              ${c.gagnant ? '<div style="background:#E8940A;color:#0f1410;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;display:inline-block">🏆 GAGNANT</div>' :
+                c.vice_champion ? '<div style="background:#c084fc;color:white;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;display:inline-block">🥈 VICE-CHAMPION</div>' :
+                `<button onclick="voterAwards('${c.id}')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;width:100%;font-size:13px" id="vote-btn-${c.id}">Voter</button>`}
+            </div>
+          `).join('')}
+        </div>`;
+    } else if (host) {
+      host.innerHTML = '<p style="color:rgba(248,246,241,.4);font-size:14px;text-align:center;padding:20px">Aucun candidat ce mois — les candidatures sont ouvertes !</p>';
+    }
+
+    // Countdown
+    const cdHost = document.getElementById('recomp-awards-countdown');
+    if (cdHost) {
+      const tirageDateObj = getLastFridayOfMonth(new Date());
+      tirageDateObj.setUTCHours(17, 0, 0, 0);
+      const rest = Math.max(0, tirageDateObj - new Date());
+      const j = Math.floor(rest / 86400000), h = Math.floor((rest % 86400000) / 3600000);
+      cdHost.innerHTML = rest > 0
+        ? `<div style="background:rgba(232,148,10,.08);border-radius:10px;padding:12px;font-family:'Space Mono',monospace;font-size:14px;color:#E8940A;font-weight:700">⏱️ Résultats dans ${j}j ${h}h</div>`
+        : '';
+    }
+
+  } catch(e) { console.warn('[page recompenses]', e); }
+}
+
+function getLastFridayOfMonth(d) {
+  const y = d.getFullYear(), m = d.getMonth();
+  const last = new Date(y, m + 1, 0);
+  const dow = last.getDay();
+  last.setDate(last.getDate() - ((dow >= 5) ? dow - 5 : dow + 2));
+  return last;
+}
+
+async function voterAwards(candidatId) {
+  if (!currentUser) {
+    localStorage.setItem('wolo_pending_vote', candidatId);
+    toast('Crée un compte pour voter', 'info');
+    showPage('inscription');
+    return;
+  }
+  const btn = document.getElementById('vote-btn-' + candidatId);
+  if (btn) { btn.disabled = true; btn.textContent = 'Vote en cours...'; }
+
+  try {
+    const r = await fetch('/api/wolo-pay/awards-vote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ votant_id: currentUser.id, candidat_id: candidatId })
+    });
+    const d = await r.json();
+    if (d.deja_vote) {
+      toast('Tu as déjà voté ce mois', 'info');
+      if (btn) { btn.textContent = 'Déjà voté'; btn.style.opacity = '0.5'; }
+      return;
+    }
+    if (!r.ok) throw new Error(d.error);
+    toast('Vote enregistré ! 🗳️', 'success');
+    if (btn) { btn.textContent = '✓ Voté'; btn.style.background = '#4ade80'; btn.style.color = '#0f1410'; btn.style.border = 'none'; }
+  } catch(e) {
+    toast(e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Voter'; }
+  }
+}
+
+// ══ HOMEPAGE — GAGNANTS DU MOIS (Sprint 7 Phase 6) ══
+async function loadHomeGagnants() {
+  const host = document.getElementById('home-gagnants');
+  if (!host) return;
+  try {
+    const mois = new Date().toISOString().slice(0, 7);
+    // Mois précédent pour afficher les derniers gagnants
+    const d = new Date(); d.setMonth(d.getMonth() - 1);
+    const moisPrec = d.toISOString().slice(0, 7);
+    const moisLabel = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+    const r = await fetch(`/api/wolo-pay/recompenses-status?user_id=public`);
+    const data = await r.json();
+    if (!data.ok) return;
+
+    const bourse = data.palmares.bourse.find(g => g.mois === moisPrec || g.mois === mois);
+    const awards = data.palmares.awards.find(g => g.mois === moisPrec || g.mois === mois);
+
+    if (!bourse && !awards) { host.style.display = 'none'; return; }
+
+    const bloc = (emoji, titre, nom, montant, metier) => `
+      <div style="flex:1;min-width:260px;background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.2);border-radius:16px;padding:20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">${emoji}</div>
+        <div style="font-size:12px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:6px">${titre}</div>
+        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:4px">${nom}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#E8940A">${montant.toLocaleString('fr-FR')} FCFA remportés</div>
+      </div>`;
+
+    host.style.display = 'block';
+    host.innerHTML = `
+      <div style="max-width:860px;margin:0 auto;padding:0 16px">
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(20px,3vw,28px);font-weight:900;color:#F8F6F1;text-align:center;margin-bottom:20px">🏆 Gagnants du mois de ${moisLabel}</h2>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:16px">
+          ${bourse ? bloc('🏆', 'BOURSE DE CROISSANCE', bourse.nom, bourse.montant) : ''}
+          ${awards ? bloc('🥇', 'WOLO AWARDS', awards.nom, awards.montant) : ''}
+        </div>
+        <div style="text-align:center">
+          <button onclick="showPage('recompenses')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">Voir les conditions pour gagner le mois prochain →</button>
+        </div>
+      </div>`;
+  } catch(e) { console.warn('[home gagnants]', e); }
+}
+
 // ══ HISTORIQUE PAIEMENTS ══
 function loadHistoriquePaiements() {
   if (!currentPrestataire?.id) return;
@@ -18268,6 +18431,79 @@ loadSchealtielPhoto();
       <button id="admin-tab-retraits" onclick="switchAdminTab('retraits')" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;">💸 Retraits commissions</button>
     </div>
     <div id="admin-content"></div>
+  </div>
+</div>
+
+<!-- ══ PAGE RÉCOMPENSES (Sprint 7) ══ -->
+<div id="page-recompenses" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;">
+  <div style="max-width:860px;margin:0 auto;padding:24px 16px;">
+
+    <!-- Header -->
+    <div style="text-align:center;padding:40px 0 30px">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:12px">RÉCOMPENSES MENSUELLES</div>
+      <h1 style="font-family:Fraunces,serif;font-size:clamp(28px,5vw,42px);font-weight:900;color:#F8F6F1;margin:0 0 10px">400 000 FCFA distribués<br>chaque mois</h1>
+      <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto">Bourse de Croissance (300 000 FCFA) pour le plus méritant.<br>WOLO Awards (100 000 FCFA) pour le plus populaire.</p>
+    </div>
+
+    <!-- Section Bourse -->
+    <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:28px 24px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <span style="font-size:32px">🏆</span>
+        <div>
+          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">Bourse de Croissance</h2>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">300 000 FCFA / mois</p>
+        </div>
+      </div>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Pour les prestataires les plus actifs et les mieux notés. Pas de chance pure — ton Score WOLO, tes avis clients et ta constance décident de ton éligibilité.</p>
+
+      <!-- Widget état du membre connecté -->
+      <div id="recomp-bourse-widget"></div>
+
+      <!-- Conditions -->
+      <div style="margin-top:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:16px">
+        <h3 style="font-size:13px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</h3>
+        <div style="display:grid;gap:8px;font-size:13px;color:rgba(248,246,241,.7)">
+          <div>✓ Plan Pro actif depuis au moins 2 mois consécutifs</div>
+          <div>✓ Score WOLO ≥ 80 points sur 100</div>
+          <div>✓ Au moins 4 avis clients sur les 30 derniers jours</div>
+          <div>✓ Note moyenne ≥ 4,2 étoiles</div>
+          <div>✓ Aucun avis fabriqué (vérification anti-manipulation)</div>
+          <div>✓ Pas de victoire les 3 derniers mois</div>
+        </div>
+      </div>
+
+      <!-- Palmarès Bourse -->
+      <div id="recomp-palmares-bourse" style="margin-top:20px"></div>
+    </div>
+
+    <!-- Section Awards -->
+    <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:28px 24px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <span style="font-size:32px">🥇</span>
+        <div>
+          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">WOLO Awards</h2>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">100 000 FCFA / mois</p>
+        </div>
+      </div>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Le meilleur prestataire du mois élu par la communauté. Soumets ta vidéo de présentation, récolte des votes, deviens le champion.</p>
+
+      <!-- Candidats du mois -->
+      <div id="recomp-awards-candidats" style="margin-bottom:16px"></div>
+
+      <!-- Countdown -->
+      <div id="recomp-awards-countdown" style="text-align:center;margin-bottom:16px"></div>
+
+      <!-- Palmarès Awards -->
+      <div id="recomp-palmares-awards" style="margin-top:20px"></div>
+    </div>
+
+    <!-- CTA Pro -->
+    <div id="recomp-cta-pro" style="display:none;text-align:center;background:linear-gradient(135deg,rgba(232,148,10,.08),rgba(232,148,10,.02));border:2px solid rgba(232,148,10,.3);border-radius:16px;padding:28px 20px">
+      <div style="font-size:28px;margin-bottom:8px">🔒</div>
+      <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Réservé aux membres Pro</h3>
+      <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px">Passe au Plan Pro pour participer aux récompenses mensuelles.</p>
+      <button onclick="showPage('dashboard');setTimeout(()=>showDashSection('abonnement'),300)" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Passer au Pro — 2 500 FCFA/mois →</button>
+    </div>
   </div>
 </div>
 
