@@ -3289,6 +3289,24 @@ span[style*="background:#F8F6F1"] {
 /* Avantages texte sombre → crème */
 .avantage-item { color:#F8F6F1 !important; }
 
+/* ── SPRINT 8 — Remaining base CSS white→dark overrides ── */
+/* Search page filter bar */
+.search-results-bar, .search-filters-sticky { background:#0f1410 !important; border-color:rgba(232,148,10,0.15) !important; }
+.filter-chip, .filter-select { background:rgba(255,255,255,0.06) !important; color:#F8F6F1 !important; border-color:rgba(232,148,10,0.15) !important; }
+/* Toggle + dispo */
+.dispo-wrap { background:rgba(255,255,255,0.04) !important; border-color:rgba(232,148,10,0.1) !important; }
+.toggle-slider { background:rgba(255,255,255,0.15) !important; }
+.toggle-slider:before { background:#F8F6F1 !important; }
+input:checked + .toggle-slider { background:#E8940A !important; }
+/* Score profil page */
+.profil-score-bar { background:rgba(255,255,255,0.08) !important; }
+/* Pages globales */
+#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil { background:#0f1410 !important; color:#F8F6F1 !important; }
+/* Fonctionnement page sections */
+#page-fonctionnement section { background:#0f1410 !important; }
+#page-fonctionnement h2, #page-fonctionnement h3 { color:#F8F6F1 !important; }
+#page-fonctionnement p { color:rgba(248,246,241,0.65) !important; }
+
 /* ════════════════ SPRINT 5 — Plan Pro Juillet, Countdown, Mur gagnants ════════════════ */
 .wolo-gains-juillet{background:linear-gradient(160deg,#0f1410,#1a1f1c);border:1px solid rgba(232,148,10,0.35);border-radius:20px;padding:28px 26px;margin-bottom:24px;color:#F8F6F1;position:relative;overflow:hidden;}
 .wolo-gains-juillet::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(232,148,10,0.12),transparent 60%);pointer-events:none;}
@@ -5064,11 +5082,11 @@ span[style*="background:#F8F6F1"] {
   </section>
 
   <!-- FILTRES -->
-  <div style="background:white;border-bottom:1px solid #e5e7eb;padding:16px 0;position:sticky;top:68px;z-index:100;">
+  <div style="background:rgba(15,20,16,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,148,10,0.15);padding:16px 0;position:sticky;top:68px;z-index:100;">
     <div class="container">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <input type="text" id="emploi-search-q" placeholder="🔍 Rechercher (titre, métier...)" style="flex:1;min-width:200px;padding:10px 16px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;" oninput="filterOffres()">
-        <select id="emploi-filter-metier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;background:white;cursor:pointer;">
+        <input type="text" id="emploi-search-q" placeholder="🔍 Rechercher (titre, métier...)" style="flex:1;min-width:200px;padding:10px 16px;border:1.5px solid rgba(232,148,10,0.2);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:rgba(255,255,255,0.06);color:#F8F6F1;" oninput="filterOffres()">
+        <select id="emploi-filter-metier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid rgba(232,148,10,0.2);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.06);cursor:pointer;color:#F8F6F1;">
           <option value="">Tous les métiers</option>
           <option>Plombier</option><option>Électricien</option><option>Menuisier</option><option>Maçon</option>
           <option>Peintre</option><option>Soudeur</option><option>Mécanicien</option><option>Coiffeur</option>
@@ -5323,19 +5341,19 @@ span[style*="background:#F8F6F1"] {
 <!-- ══════════════════════════════════════════
      PAGE FIL D'ACTUALITÉ
 ══════════════════════════════════════════ -->
-<div id="page-fil" class="page" style="background:#f8f6f1;min-height:100vh;">
-  <div style="background:white;border-bottom:1px solid #eee;padding:14px 0;position:sticky;top:0;z-index:100;">
+<div id="page-fil" class="page" style="background:#0f1410;min-height:100vh;color:#F8F6F1;">
+  <div style="background:rgba(15,20,16,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,148,10,0.15);padding:14px 0;position:sticky;top:0;z-index:100;">
     <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
       <div>
-        <h2 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin:0;color:var(--noir);">📰 Mon Fil</h2>
-        <p style="font-size:12px;color:var(--gris);margin:2px 0 0;">Publications des pros que tu suis</p>
+        <h2 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin:0;color:#F8F6F1;">📰 Mon Fil</h2>
+        <p style="font-size:12px;color:rgba(248,246,241,0.5);margin:2px 0 0;">Publications des pros que tu suis</p>
       </div>
       <button onclick="showDashSection('abonnements');showPage('dashboard')" style="background:none;border:1.5px solid var(--vert);color:var(--vert);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👥 Mes abonnements</button>
     </div>
     <!-- Tabs -->
-    <div class="container" style="display:flex;gap:0;margin-top:10px;border-bottom:2px solid #eee;">
+    <div class="container" style="display:flex;gap:0;margin-top:10px;border-bottom:2px solid rgba(232,148,10,0.15);">
       <button id="tab-fil" onclick="switchFilTab('fil')" style="flex:1;background:none;border:none;padding:8px 0;font-size:14px;font-weight:700;color:var(--vert);border-bottom:2px solid var(--vert);margin-bottom:-2px;cursor:pointer;">Publications</button>
-      <button id="tab-abonnes" onclick="switchFilTab('abonnes')" style="flex:1;background:none;border:none;padding:8px 0;font-size:14px;font-weight:600;color:var(--gris);cursor:pointer;">Qui je suis</button>
+      <button id="tab-abonnes" onclick="switchFilTab('abonnes')" style="flex:1;background:none;border:none;padding:8px 0;font-size:14px;font-weight:600;color:rgba(248,246,241,0.5);cursor:pointer;">Qui je suis</button>
     </div>
   </div>
   <div class="container" style="padding-top:20px;padding-bottom:40px;">
@@ -5364,10 +5382,10 @@ span[style*="background:#F8F6F1"] {
     </div>
 
     <!-- Bannière Badge Fondateur -->
-    <div id="fondateur-banner" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #f59e0b;border-radius:16px;padding:14px 18px;margin-bottom:20px;text-align:center;display:none;">
+    <div id="fondateur-banner" style="background:rgba(232,148,10,0.08);border:2px solid rgba(232,148,10,0.4);border-radius:16px;padding:14px 18px;margin-bottom:20px;text-align:center;display:none;">
       <div style="font-size:22px;margin-bottom:4px;">🏅</div>
-      <div style="font-weight:800;font-size:15px;color:#92400e;">🏅 Tu arrives parmi les premiers.</div>
-      <div style="font-size:13px;color:#b45309;margin-top:4px;">Les 1 000 premiers inscrits obtiennent le Badge Fondateur WOLO Market. Visible sur ton profil pour toujours — Bénin et Togo confondus. Quand WOLO Market comptera 50 000 prestataires — les clients sauront que tu étais là dès le début. Il reste <strong id="fondateur-spots">...</strong> places.</div>
+      <div style="font-weight:800;font-size:15px;color:#E8940A;">🏅 Tu arrives parmi les premiers.</div>
+      <div style="font-size:13px;color:rgba(248,246,241,0.7);margin-top:4px;">Les 1 000 premiers inscrits obtiennent le Badge Fondateur WOLO Market. Visible sur ton profil pour toujours — Bénin et Togo confondus. Quand WOLO Market comptera 50 000 prestataires — les clients sauront que tu étais là dès le début. Il reste <strong id="fondateur-spots">...</strong> places.</div>
       <div style="margin-top:8px;background:#f59e0b;border-radius:100px;height:6px;overflow:hidden;">
         <div id="fondateur-bar" style="height:100%;background:#92400e;transition:width 0.5s;width:0%;"></div>
       </div>
@@ -17483,11 +17501,11 @@ async function updateStatutCandidature(candidatureId, statut) {
   </section>
 
   <!-- ONGLETS COMMENT CA MARCHE -->
-  <section style="background:white;padding:56px 0 0;">
+  <section style="background:#0f1410;padding:56px 0 0;">
     <div class="container">
       <div style="text-align:center;margin-bottom:32px;">
-        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;">Comment ça marche ?</h2>
-        <p style="color:var(--gris);font-size:16px;margin-top:8px;">Choisis ton profil — on t'explique tout en 60 secondes.</p>
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;color:#F8F6F1;">Comment ça marche ?</h2>
+        <p style="color:rgba(248,246,241,0.55);font-size:16px;margin-top:8px;">Choisis ton profil — on t'explique tout en 60 secondes.</p>
       </div>
       <!-- Onglets -->
       <div style="display:flex;gap:8px;justify-content:center;margin-bottom:36px;flex-wrap:wrap;">
@@ -18865,7 +18883,7 @@ loadSchealtielPhoto();
 </div>
 
 <!-- ══ PAGE TUTORIELS ══ -->
-<div id="page-tutoriels" class="page" style="display:none !important;background:#f8f6f1;min-height:100vh;padding:48px 24px;">
+<div id="page-tutoriels" class="page" style="display:none !important;background:#0f1410;min-height:100vh;padding:48px 24px;color:#F8F6F1;">
   <div class="container">
     <div style="text-align:center;margin-bottom:48px;">
       <div class="badge badge-vert" style="justify-content:center;margin-bottom:16px;">
