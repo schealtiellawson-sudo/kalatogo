@@ -7563,8 +7563,10 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
 const SUPA_URL = 'https://wikgdksyeygwpmqzmhez.supabase.co';
 const SUPA_KEY = 'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+window.supabase = supa; // exposer pour le feed IIFE (_sb())
 
 let currentUser = null;
+window.currentUser = null;
 let currentPrestataire = null; // record Airtable du user connecté
 
 // ── MIGRATION kala_ → wolo_ localStorage ──
@@ -7588,6 +7590,7 @@ async function initAuth() {
   const { data: { session } } = await supa.auth.getSession();
   if (session?.user) {
     currentUser = session.user;
+    window.currentUser = currentUser;
     await loadCurrentPrestataire();
     updateNavAuth(true);
   }
@@ -7609,6 +7612,7 @@ async function initAuth() {
     }
     if (event === 'SIGNED_IN' && session?.user) {
       currentUser = session.user;
+      window.currentUser = currentUser;
       await loadCurrentPrestataire();
       updateNavAuth(true);
       // Détecter si c'est une confirmation d'email (lien cliqué depuis la boîte mail)
@@ -7632,6 +7636,7 @@ async function initAuth() {
       }
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
+      window.currentUser = null;
       currentPrestataire = null;
       updateNavAuth(false);
     }
@@ -7702,6 +7707,7 @@ async function submitLogin() {
   }
 
   currentUser = data.user;
+  window.currentUser = currentUser;
   await loadCurrentPrestataire();
   updateNavAuth(true);
   toast('Connexion réussie ! Bienvenue 🎉', 'success');
@@ -7789,6 +7795,7 @@ async function submitResetPassword() {
 async function handleLogout() {
   await supa.auth.signOut();
   currentUser = null;
+  window.currentUser = null;
   currentPrestataire = null;
   updateNavAuth(false);
   toast('Déconnecté avec succès', 'info');
@@ -13326,6 +13333,7 @@ async function submitInscription(e) {
       currentPrestataire = record;
       if (authData?.user) {
         currentUser = authData.user;
+        window.currentUser = currentUser;
         updateNavAuth(true);
       }
       updateCommissionDisplay();
