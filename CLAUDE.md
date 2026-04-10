@@ -50,6 +50,7 @@ showPage('dashboard')   → tableau de bord (connecté)
 showPage('login')       → connexion
 showPage('inscription') → inscription (3 étapes)
 showPage('fil')         → fil d'actualité (posts des prestataires suivis)
+showPage('recompenses') → page récompenses (Bourse + Awards)
 
 showDashSection('profil')               → modifier son profil
 showDashSection('photos')               → gérer photos/albums
@@ -63,6 +64,7 @@ showDashSection('abonnement')           → paiement Pro
 showDashSection('abonnements')          → prestataires suivis
 showDashSection('paiement')             → encaisser un paiement client
 showDashSection('historique-paiements') → historique paiements
+showDashSection('recompenses')          → récompenses (Bourse + Awards widgets)
 ```
 
 ## Tables Airtable
@@ -77,6 +79,15 @@ showDashSection('historique-paiements') → historique paiements
 | `Favoris` | User ID, Prestataire Favori ID, Nom Prestataire, Date |
 | `Photos Avis` | Prestataire ID, Slot, Photo URL, Likes, Likeurs (JSON), Commentaires (JSON) |
 | `Abonnements` | Abonné ID, Prestataire ID, Date |
+
+### Tables Supabase (Sprint 7 — Récompenses)
+
+| Table | Description |
+|---|---|
+| `bourse_croissance` | Éligibilité + tirages mensuels (300k FCFA). Champs : user_id, mois, eligible, score_wolo, nb_avis, note_moyenne, pro_mois_consecutifs, gagnant |
+| `wolo_awards` | Candidatures WOLO Awards (100k FCFA). Champs : user_id, mois, pays (BJ/TG), video_url, video_validee, nb_votes, gagnant, vice_champion |
+| `votes_awards` | Votes (1 vote/personne/mois). UNIQUE(votant_id, mois) |
+| `gains_recompenses` | Historique des gains versés. Types : bourse_croissance, wolo_awards |
 
 ## Points techniques critiques
 
@@ -94,15 +105,25 @@ showDashSection('historique-paiements') → historique paiements
 - **Codes parrainage** : préfixe `WOLO`, format `WOLOxxxx1234`.
 - **Admin secret** : `WOLO2025` — accès panel admin via `?admin=WOLO2025`.
 
-## Score WOLO (max 100 pts)
+## Score WOLO (max 100 pts) — Sprint 7
 
 ```
-completion × 0.30     (max 30) — % profil rempli
-note/5 × 25           (max 25) — note moyenne
-min(nbAvis × 2, 15)   (max 15) — nombre d'avis
-photos                (max 10) — photos de réalisations
-min(floor(vues/10),10)(max 10) — vues du profil
-min(nbAvisTexte×2,10) (max 10) — avis avec commentaire texte
+Profil complet         : 30 pts
+  Photo de profil        : 8 pts
+  Bio renseignée         : 7 pts
+  Métier renseigné       : 5 pts
+  Ville et quartier      : 5 pts
+  Numéro vérifié         : 5 pts
+
+Note moyenne clients   : 25 pts (paliers 5★=25, 4★=20, 3★=12, <3=0)
+Nombre d'avis          : 15 pts (paliers 1-2=3, 3-5=7, 6-10=11, 11-20=13, 21+=15)
+Photos publiées        : 10 pts (paliers 1-2=3, 3-5=6, 6+=10)
+Vues du profil         : 10 pts (progressif 0-100 vues = 0-10 pts)
+Activité récente       : 10 pts (≤3j=10, 4-7j=7, 8-14j=4, 14j+=0)
+
+Pente douce : -1pt/jour après 14j sans connexion
+Alerte push envoyée à J+10 d'inactivité
+Recalcul : cron horaire api/cron/score-wolo.js
 ```
 
 ## Paiement Pro — flux
