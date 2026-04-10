@@ -55,6 +55,46 @@ export default async function handler(req, res) {
       }
     }
 
+    // ── Réalisations Vérifiées auto-tag ──
+    // Un post est vérifié si l'auteur a reçu un avis >= 4 étoiles dans les 48h
+    let verifications = 0;
+    try {
+      const il_y_a_48h = new Date(Date.now() - 48 * 3600000).toISOString();
+      // Posts des 48 dernières heures non encore vérifiés
+      const { data: postsRecents } = await supabase
+        .from('wolo_posts')
+        .select('id, auteur_id, created_at')
+        .eq('actif', true)
+        .eq('verifie_client', false)
+        .gte('created_at', il_y_a_48h);
+
+      if (postsRecents && postsRecents.length > 0) {
+        for (const post of postsRecents) {
+          // Chercher un avis >= 4 étoiles pour cet auteur dans les 48h autour du post
+          const postDate = new Date(post.created_at);
+          const avant48h = new Date(postDate.getTime() - 48 * 3600000).toISOString();
+          const apres48h = new Date(postDate.getTime() + 48 * 3600000).toISOString();
+
+          const { data: avisVerif } = await supabase
+            .from('avis')
+            .select('id')
+            .eq('prestataire_id', post.auteur_id)
+            .gte('note', 4)
+            .gte('created_at', avant48h)
+            .lte('created_at', apres48h)
+            .limit(1);
+
+          if (avisVerif && avisVerif.length > 0) {
+            await supabase
+              .from('wolo_posts')
+              .update({ verifie_client: true })
+              .eq('id', post.id);
+            verifications++;
+          }
+        }
+      }
+    } catch(e) { console.warn('[score-wolo] verif posts', e); }
+
     // Reset vues_mois au 1er du mois
     const now = new Date();
     if (now.getUTCDate() === 1 && now.getUTCHours() === 0) {
@@ -66,6 +106,7 @@ export default async function handler(req, res) {
       total: resultats.length,
       updates,
       alertes,
+      verifications,
       timestamp: now.toISOString()
     });
   } catch (err) {

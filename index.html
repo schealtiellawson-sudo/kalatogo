@@ -3286,6 +3286,7 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
       <button class="nav-link" data-nav="search" onclick="showPage('search')">Trouver un pro</button>
       <button class="nav-link" data-nav="feed" onclick="showPage('feed')">📰 Feed WOLO <span class="feed-badge" id="feed-notif-count"></span></button>
       <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOLO Jobs</button>
+      <button class="nav-link" data-nav="match" onclick="showPage('match')">🤝 WOLO Match</button>
       <!-- Tutoriels masqués -->
       <button class="nav-link" data-nav="fonctionnement" onclick="showPage('fonctionnement')">Comment ça marche</button>
       <button class="nav-link" data-nav="apropos" onclick="showPage('apropos')">À propos</button>
@@ -5039,14 +5040,75 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
 ══════════════════════════════════════════ -->
 <div id="page-feed" class="page">
   <div class="wolo-feed-page">
+    <!-- Header feed -->
+    <div class="feed-header-bar">
+      <div class="feed-header-left">
+        <img src="" alt="" class="feed-logo" onclick="showPage('home')" style="width:28px;height:28px;cursor:pointer;">
+        <span class="feed-header-title" onclick="showPage('home')">WOLO Market</span>
+      </div>
+      <div class="feed-header-right">
+        <button class="feed-header-icon" onclick="showPage('search')" aria-label="Recherche">🔍</button>
+        <button class="feed-header-icon feed-notif-icon" onclick="showPage('dashboard');showDashSection('notifications')" aria-label="Notifications">
+          🔔<span class="feed-notif-badge" id="feed-notif-badge" style="display:none;"></span>
+        </button>
+      </div>
+    </div>
     <!-- Stories WOLO -->
     <div class="wolo-stories-bar" id="wolo-stories"></div>
     <!-- Onglets Feed -->
-    <div class="feed-onglets">
+    <div class="feed-onglets" id="feed-onglets-bar">
       <button class="feed-onglet active" data-feed="pour-toi">Pour toi</button>
       <button class="feed-onglet" data-feed="abonnements">Abonnements</button>
       <button class="feed-onglet" data-feed="ma-ville">Ma ville</button>
-      <button class="feed-onglet feed-onglet-recruteur" data-feed="talent-radar" style="display:none;">🎯 Talent Radar</button>
+      <button class="feed-onglet" data-feed="talent-radar">🎯 Talent Radar</button>
+    </div>
+    <!-- Sous-filtres Ma ville -->
+    <div class="feed-sous-filtres" id="feed-sous-filtres" style="display:none;">
+      <button class="sous-filtre active" data-sf="tous">Tous</button>
+      <button class="sous-filtre" data-sf="artisans">Artisans</button>
+      <button class="sous-filtre" data-sf="services">Services</button>
+      <button class="sous-filtre" data-sf="commerce">Commerce</button>
+    </div>
+    <!-- Filtres Talent Radar -->
+    <div class="talent-filtres" id="talent-filtres" style="display:none;">
+      <select id="talent-filtre-metier" class="talent-select">
+        <option value="">Tous les métiers</option>
+        <option value="Coiffeur">Coiffeur</option>
+        <option value="Couturier">Couturier</option>
+        <option value="Électricien">Électricien</option>
+        <option value="Plombier">Plombier</option>
+        <option value="Mécanicien">Mécanicien</option>
+        <option value="Photographe">Photographe</option>
+        <option value="Peintre">Peintre</option>
+        <option value="Menuisier">Menuisier</option>
+        <option value="Maçon">Maçon</option>
+        <option value="Carreleur">Carreleur</option>
+        <option value="Soudeur">Soudeur</option>
+        <option value="Décorateur">Décorateur</option>
+        <option value="Traiteur">Traiteur</option>
+        <option value="DJ">DJ</option>
+        <option value="Coach sportif">Coach sportif</option>
+        <option value="Développeur">Développeur</option>
+        <option value="Graphiste">Graphiste</option>
+      </select>
+      <select id="talent-filtre-ville" class="talent-select">
+        <option value="">Toutes les villes</option>
+        <option value="Lomé">Lomé</option>
+        <option value="Cotonou">Cotonou</option>
+      </select>
+      <select id="talent-filtre-note" class="talent-select">
+        <option value="0">Note minimum</option>
+        <option value="3">⭐ 3+</option>
+        <option value="4">⭐ 4+</option>
+        <option value="4.5">⭐ 4.5+</option>
+      </select>
+      <label class="talent-toggle-label">
+        <input type="checkbox" id="talent-filtre-pro"> Pro uniquement
+      </label>
+      <div class="talent-tabs-sub">
+        <button class="talent-sub-tab active" data-ttab="profils" onclick="switchTalentTab('profils')">Profils</button>
+        <button class="talent-sub-tab" data-ttab="epingles" onclick="switchTalentTab('epingles')">📌 Mes épingles</button>
+      </div>
     </div>
     <!-- Bouton publier -->
     <div class="feed-publier-zone" id="feed-publier-zone"></div>
@@ -5058,6 +5120,77 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
     </div>
     <!-- Infinite scroll sentinel -->
     <div id="feed-sentinel" style="height:1px;"></div>
+    <!-- Bouton flottant publier -->
+    <button class="feed-fab" id="feed-fab" onclick="ouvrirModalPublication()" aria-label="Publier">
+      <span>+</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE WOLO MATCH
+══════════════════════════════════════════ -->
+<div id="page-match" class="page">
+  <div class="wolo-match-page">
+    <div class="match-hero">
+      <span class="eyebrow" style="color:#E8940A;letter-spacing:3px;font-family:'Space Mono',monospace;font-size:10px;">WOLO MATCH</span>
+      <h1 style="font-family:Fraunces,serif;font-size:28px;color:#F8F6F1;margin:8px 0;">Trouve le prestataire parfait</h1>
+      <p style="color:rgba(248,246,241,0.6);font-size:14px;">Décris ton besoin, on te connecte avec les meilleurs pros de ta ville.</p>
+    </div>
+    <div class="match-form-card" id="match-form-card">
+      <div class="match-field">
+        <label>Que cherches-tu ?</label>
+        <textarea id="match-description" rows="3" placeholder="Ex: Je cherche un plombier pour installer un chauffe-eau..." maxlength="500"></textarea>
+      </div>
+      <div class="match-field-row">
+        <div class="match-field" style="flex:1;">
+          <label>Métier recherché</label>
+          <select id="match-metier">
+            <option value="">Sélectionner...</option>
+            <option value="Coiffeur">Coiffeur</option>
+            <option value="Couturier">Couturier</option>
+            <option value="Électricien">Électricien</option>
+            <option value="Plombier">Plombier</option>
+            <option value="Mécanicien">Mécanicien</option>
+            <option value="Photographe">Photographe</option>
+            <option value="Peintre">Peintre</option>
+            <option value="Menuisier">Menuisier</option>
+            <option value="Maçon">Maçon</option>
+            <option value="Carreleur">Carreleur</option>
+            <option value="Soudeur">Soudeur</option>
+            <option value="Décorateur">Décorateur</option>
+            <option value="Traiteur">Traiteur</option>
+            <option value="DJ">DJ</option>
+            <option value="Coach sportif">Coach sportif</option>
+            <option value="Développeur">Développeur</option>
+            <option value="Graphiste">Graphiste</option>
+          </select>
+        </div>
+        <div class="match-field" style="flex:1;">
+          <label>Ville</label>
+          <select id="match-ville">
+            <option value="">Toutes</option>
+            <option value="Lomé">Lomé</option>
+            <option value="Cotonou">Cotonou</option>
+          </select>
+        </div>
+      </div>
+      <div class="match-field">
+        <label>Budget maximum (FCFA, optionnel)</label>
+        <input type="number" id="match-budget" placeholder="Ex: 50000" min="0" step="1000">
+      </div>
+      <button class="wolo-btn-primary" style="width:100%;padding:14px;font-size:15px;border-radius:10px;" onclick="lancerWoloMatch()">🔍 Trouver un prestataire</button>
+    </div>
+    <!-- Résultats -->
+    <div id="match-resultats" style="display:none;">
+      <h3 style="font-family:Fraunces,serif;color:#F8F6F1;font-size:18px;margin:24px 0 16px;padding:0 16px;">Prestataires correspondants</h3>
+      <div id="match-resultats-liste" class="match-resultats-grid"></div>
+    </div>
+    <!-- Mes demandes -->
+    <div id="match-mes-demandes" style="margin-top:32px;padding:0 16px;">
+      <h3 style="font-family:Fraunces,serif;color:#F8F6F1;font-size:18px;margin-bottom:16px;">Mes demandes en cours</h3>
+      <div id="match-demandes-liste"></div>
+    </div>
   </div>
 </div>
 
@@ -5762,6 +5895,9 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
         <div class="dash-group-body">
           <button class="dash-link" onclick="showDashSection('avis')" id="dl-avis">
             <i data-lucide="star"></i> <span>Mes avis</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('wolo-match')" id="dl-wolo-match">
+            <i data-lucide="handshake"></i> <span>Demandes WOLO Match</span>
           </button>
         </div>
       </div>
@@ -6550,6 +6686,17 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
           <p>Ce que tes clients disent de toi</p>
         </div>
         <div id="dash-avis-list">
+          <div class="loading"><div class="spinner"></div> Chargement...</div>
+        </div>
+      </div>
+
+      <!-- WOLO MATCH — DEMANDES PRESTATAIRE -->
+      <div class="dash-section" id="ds-wolo-match">
+        <div class="dash-header">
+          <h2>🤝 Demandes WOLO Match</h2>
+          <p>Les clients qui cherchent un prestataire avec ton profil. Montre ton intérêt pour être contacté.</p>
+        </div>
+        <div id="dash-match-liste" style="margin-top:16px;">
           <div class="loading"><div class="spinner"></div> Chargement...</div>
         </div>
       </div>
@@ -7721,6 +7868,7 @@ function showDashSection(section) {
   if (section === 'recrut-publier') initRecrutPublier();
   if (section === 'recrut-offres') loadMesOffres();
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
+  if (section === 'wolo-match') loadDashWoloMatch();
 }
 
 async function loadDashboard() {
@@ -9175,7 +9323,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
@@ -9195,6 +9343,7 @@ function showPage(page, _fromPop) {
     setTimeout(() => loadFounderCounter(), 500);
   }
   if (page === 'recompenses') loadPageRecompenses();
+  if (page === 'match') { try { initWoloMatch(); } catch(e){ console.warn('match init', e); } }
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
       setTimeout(() => {
@@ -19851,6 +20000,243 @@ document.addEventListener('DOMContentLoaded',()=>{
 .feed-etat-vide { padding: 48px 24px; text-align: center; color: rgba(248,246,241,0.5); font-family: Georgia, serif; }
 .feed-etat-vide .emoji { font-size: 42px; display: block; margin-bottom: 12px; }
 .feed-etat-vide p { margin: 6px 0; font-size: 14px; }
+
+/* ====== Sprint 8 — Feed Social enrichi ====== */
+
+/* Feed header bar */
+.feed-header-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid rgba(232,148,10,0.1);
+  position: sticky; top: 0; z-index: 200; background: #0f1410;
+}
+.feed-header-left { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.feed-header-title { font-family: 'Space Mono', monospace; font-size: 14px; color: #E8940A; letter-spacing: 2px; font-weight: 700; }
+.feed-header-right { display: flex; gap: 4px; }
+.feed-header-icon {
+  background: none; border: none; font-size: 20px; cursor: pointer;
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; position: relative;
+}
+.feed-header-icon:hover { background: rgba(232,148,10,0.08); }
+.feed-notif-badge {
+  position: absolute; top: 6px; right: 6px; width: 8px; height: 8px;
+  background: #E8940A; border-radius: 50%; border: 2px solid #0f1410;
+}
+
+/* Sous-filtres Ma ville */
+.feed-sous-filtres {
+  display: flex; gap: 8px; padding: 10px 16px;
+  border-bottom: 1px solid rgba(232,148,10,0.08); overflow-x: auto; scrollbar-width: none;
+}
+.feed-sous-filtres::-webkit-scrollbar { display: none; }
+.sous-filtre {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(248,246,241,0.1);
+  color: rgba(248,246,241,0.6); padding: 6px 16px; border-radius: 20px;
+  font-size: 13px; cursor: pointer; white-space: nowrap; font-family: inherit;
+  transition: all .2s;
+}
+.sous-filtre.active, .sous-filtre:hover {
+  background: rgba(232,148,10,0.15); border-color: #E8940A; color: #E8940A;
+}
+
+/* Talent Radar filtres */
+.talent-filtres {
+  padding: 12px 16px; border-bottom: 1px solid rgba(232,148,10,0.08);
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.talent-select {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(248,246,241,0.12);
+  color: #F8F6F1; padding: 8px 12px; border-radius: 8px; font-size: 13px;
+  font-family: inherit; cursor: pointer; min-width: 0;
+}
+.talent-select option { background: #1a2018; color: #F8F6F1; }
+.talent-toggle-label {
+  display: flex; align-items: center; gap: 6px; font-size: 13px;
+  color: rgba(248,246,241,0.7); cursor: pointer; white-space: nowrap;
+}
+.talent-toggle-label input[type="checkbox"] { accent-color: #E8940A; width: 16px; height: 16px; }
+.talent-tabs-sub {
+  width: 100%; display: flex; gap: 0; margin-top: 8px;
+  border-top: 1px solid rgba(248,246,241,0.06); padding-top: 8px;
+}
+.talent-sub-tab {
+  flex: 1; background: none; border: none; border-bottom: 2px solid transparent;
+  color: rgba(248,246,241,0.5); padding: 8px; font-size: 13px; cursor: pointer;
+  font-family: inherit; transition: all .2s;
+}
+.talent-sub-tab.active { color: #E8940A; border-bottom-color: #E8940A; }
+
+/* Talent Radar cards améliorées */
+.talent-radar-card {
+  display: flex; align-items: center; gap: 14px; padding: 16px;
+  background: rgba(255,255,255,0.03); border-radius: 12px;
+  border: 1px solid rgba(248,246,241,0.06); transition: border-color .2s;
+}
+.talent-radar-card:hover { border-color: rgba(232,148,10,0.25); }
+.talent-score-badge {
+  font-family: 'Space Mono', monospace; font-size: 11px; color: #E8940A;
+  background: rgba(232,148,10,0.1); padding: 2px 8px; border-radius: 10px;
+  white-space: nowrap;
+}
+.talent-pro-badge {
+  font-size: 9px; background: #E8940A; color: #0f1410; padding: 2px 6px;
+  border-radius: 3px; font-weight: 700; letter-spacing: 1px;
+}
+
+/* Bouton flottant publier */
+.feed-fab {
+  position: fixed; bottom: 80px; right: 20px; z-index: 500;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: #E8940A; color: #0f1410; border: none;
+  box-shadow: 0 4px 20px rgba(232,148,10,0.4);
+  cursor: pointer; font-size: 28px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, box-shadow .2s;
+}
+.feed-fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(232,148,10,0.6); }
+.feed-fab span { line-height: 1; margin-top: -2px; }
+
+/* Post multi-photos carrousel */
+.post-photos-carousel {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+  gap: 0; border-radius: 8px; scrollbar-width: none;
+}
+.post-photos-carousel::-webkit-scrollbar { display: none; }
+.post-photos-carousel img {
+  width: 100%; flex-shrink: 0; scroll-snap-align: start;
+  max-height: 480px; object-fit: cover;
+}
+.post-photo-dots {
+  display: flex; justify-content: center; gap: 6px; margin-top: 8px;
+}
+.post-photo-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(248,246,241,0.2); transition: background .2s;
+}
+.post-photo-dot.active { background: #E8940A; }
+
+/* Badge Réalisation Vérifiée */
+.post-badge-verifie {
+  font-size: 11px; color: #7dcea0; background: rgba(40,80,50,0.3);
+  padding: 3px 8px; border-radius: 4px; display: inline-block;
+}
+
+/* Suggestions follow */
+.feed-suggestions {
+  padding: 20px 16px; border-bottom: 1px solid rgba(248,246,241,0.06);
+}
+.feed-suggestions h4 {
+  font-family: Georgia, serif; font-size: 15px; color: rgba(248,246,241,0.7);
+  margin-bottom: 14px;
+}
+.suggestion-card {
+  display: flex; align-items: center; gap: 12px; padding: 12px;
+  background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 8px;
+  border: 1px solid rgba(248,246,241,0.04);
+}
+.suggestion-photo { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(232,148,10,0.25); }
+.suggestion-info { flex: 1; }
+.suggestion-info strong { display: block; font-size: 14px; color: #F8F6F1; font-family: Georgia, serif; }
+.suggestion-info span { font-size: 12px; color: rgba(248,246,241,0.5); }
+.suggestion-follow-btn {
+  background: #E8940A; color: #0f1410; border: none; padding: 8px 14px;
+  border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: opacity .2s;
+}
+.suggestion-follow-btn:disabled { opacity: 0.5; }
+.suggestion-follow-btn.following { background: rgba(232,148,10,0.15); color: #E8940A; border: 1px solid #E8940A; }
+
+/* WOLO Match page */
+#page-match { background: #0f1410; min-height: 100vh; color: #F8F6F1; }
+.wolo-match-page { max-width: 680px; margin: 0 auto; padding: 0 0 80px; }
+.match-hero { padding: 40px 20px 24px; text-align: center; }
+.match-form-card {
+  margin: 0 16px; padding: 24px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(232,148,10,0.2); border-radius: 16px;
+}
+.match-field { margin-bottom: 16px; }
+.match-field label {
+  display: block; font-size: 13px; color: rgba(248,246,241,0.7);
+  margin-bottom: 6px; font-family: Georgia, serif;
+}
+.match-field textarea, .match-field input, .match-field select {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(248,246,241,0.12); border-radius: 8px;
+  padding: 12px; color: #F8F6F1; font-size: 14px; font-family: inherit;
+  box-sizing: border-box;
+}
+.match-field textarea { resize: none; }
+.match-field select option { background: #1a2018; }
+.match-field-row { display: flex; gap: 12px; }
+.match-resultats-grid { display: grid; gap: 12px; padding: 0 16px; }
+.match-result-card {
+  display: flex; align-items: center; gap: 14px; padding: 16px;
+  background: rgba(255,255,255,0.03); border-radius: 12px;
+  border: 1px solid rgba(248,246,241,0.06);
+}
+.match-result-photo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(232,148,10,0.3); }
+.match-result-info { flex: 1; }
+.match-result-info strong { display: block; font-size: 15px; color: #F8F6F1; font-family: Georgia, serif; }
+.match-result-info span { display: block; font-size: 12px; color: rgba(248,246,241,0.5); margin-top: 2px; }
+.match-result-score {
+  font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700;
+  color: #E8940A; text-align: center; min-width: 48px;
+}
+.match-result-score small { display: block; font-size: 9px; color: rgba(248,246,241,0.4); font-weight: 400; }
+.match-demande-card {
+  padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px;
+  border: 1px solid rgba(248,246,241,0.06); margin-bottom: 12px;
+}
+.match-demande-card .match-statut {
+  font-size: 11px; padding: 3px 10px; border-radius: 10px;
+  font-family: 'Space Mono', monospace; display: inline-block;
+}
+.match-statut.ouvert { background: rgba(232,148,10,0.15); color: #E8940A; }
+.match-statut.en_cours { background: rgba(100,180,120,0.15); color: #7dcea0; }
+.match-statut.ferme { background: rgba(248,246,241,0.08); color: rgba(248,246,241,0.4); }
+
+/* Épingle card */
+.epingle-card {
+  display: flex; align-items: flex-start; gap: 12px; padding: 14px;
+  background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px;
+  border: 1px solid rgba(232,148,10,0.12);
+}
+.epingle-note-input {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(248,246,241,0.1);
+  border-radius: 6px; padding: 6px 10px; color: #F8F6F1; font-size: 12px;
+  font-family: inherit; margin-top: 6px;
+}
+
+/* Multi-photos upload */
+.upload-thumbs {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+}
+.upload-thumb {
+  width: 64px; height: 64px; border-radius: 8px; object-fit: cover;
+  border: 1px solid rgba(232,148,10,0.3);
+}
+.upload-add-more {
+  width: 64px; height: 64px; border-radius: 8px; background: rgba(232,148,10,0.08);
+  border: 2px dashed rgba(232,148,10,0.3); display: flex; align-items: center;
+  justify-content: center; color: #E8940A; font-size: 24px; cursor: pointer;
+}
+
+/* Story "Ma Story" */
+.story-add {
+  width: 64px; height: 64px; border-radius: 50%; background: rgba(232,148,10,0.1);
+  border: 2px dashed rgba(232,148,10,0.4); display: flex; align-items: center;
+  justify-content: center; font-size: 24px; color: #E8940A; cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .match-field-row { flex-direction: column; gap: 0; }
+  .talent-filtres { flex-direction: column; }
+  .talent-select { width: 100%; }
+  .feed-fab { bottom: 70px; right: 16px; width: 50px; height: 50px; font-size: 24px; }
+}
+/* ====== FIN Sprint 8 CSS ====== */
+
 /* ====== FIN SPRINT 6 ====== */
 
 /* ══════════════════════════════════════════════════════════════
@@ -19980,7 +20366,7 @@ small.meta {
 
 <script>
 /* ══════════════════════════════════════════
-   SPRINT 6 — FEED WOLO (JS)
+   SPRINT 8 — FEED SOCIAL WOLO (JS enrichi)
    ══════════════════════════════════════════ */
 (function(){
   'use strict';
@@ -19990,6 +20376,8 @@ small.meta {
   window.feedChargement = false;
   window.feedFini = false;
   window.feedOngletActif = 'pour-toi';
+  window.feedSousFiltre = 'tous';
+  window.feedTalentTab = 'profils';
 
   function _sb() { return window.supabase || null; }
   async function _currentUser() {
@@ -20041,38 +20429,68 @@ small.meta {
     return null;
   };
 
-  // Stories
+  // Stories enrichies (Ma Story + suivis + Pro vedette)
   window.chargerStoriesWOLO = async function() {
     const container = document.getElementById('wolo-stories');
     if (!container) return;
     const sb = _sb();
-    let aLaUne = [];
+    const user = await _currentUser();
+    let aLaUne = [], suivis = [];
+
     try {
       if (sb) {
         const r = await sb.from('Une_Selections').select('*, profiles(*)').eq('Active', true).limit(3);
         aLaUne = r.data || [];
       }
     } catch(e) { aLaUne = []; }
+
+    // Stories des membres suivis
+    if (sb && user) {
+      try {
+        const { data: abos } = await sb.from('wolo_abonnements').select('suivi_id').eq('suiveur_id', user.id).limit(10);
+        if (abos && abos.length > 0) {
+          const ids = abos.map(a => a.suivi_id);
+          const { data: profils } = await sb.from('profiles').select('id, nom, photo_url').in('id', ids);
+          suivis = (profils || []).map(p => ({
+            type: 'suivi', label: (p.nom || 'Pro').split(' ')[0],
+            photo: p.photo_url, id: p.id
+          }));
+        }
+      } catch(e) {}
+    }
+
     const stories = [
-      { type: 'bourse', label: '🏆 Bourse', sousTitre: '🏆 Tirage', bg: '#E8940A' },
+      // Ma Story (si connecté)
+      ...(user ? [{ type: 'ma-story', label: 'Ma Story', action: 'ouvrirModalPublication()' }] : []),
+      // Bourse
+      { type: 'bourse', label: '🏆 Bourse', sousTitre: '🏆 Tirage', bg: '#E8940A', action: "showPage('recompenses')" },
+      // Suivis
+      ...suivis,
+      // À la Une
       ...aLaUne.map(p => ({
         type: 'une',
         label: (p.profiles?.nom || 'Pro').split(' ')[0],
         sousTitre: '⭐ À la Une',
-        photo: p.profiles?.photo_url
+        photo: p.profiles?.photo_url,
+        id: p.profiles?.id
       }))
     ];
+
     container.innerHTML = `
       <div class="stories-scroll">
         ${stories.map(s => `
-          <div class="story-item">
-            <div class="story-ring ${s.type === 'bourse' ? 'bourse' : ''}">
-              <div class="story-avatar" style="background:${s.photo ? 'transparent' : (s.bg || '#1a2018')}">
-                ${s.photo
-                  ? `<img src="${escapeHtml(s.photo)}" alt="${escapeHtml(s.label)}" loading="lazy">`
-                  : `<span class="story-emoji">${s.sousTitre.split(' ')[0]}</span>`}
+          <div class="story-item" onclick="${s.action || (s.id ? `contacterAuteur('${s.id}')` : '')}">
+            ${s.type === 'ma-story' ? `
+              <div class="story-add">+</div>
+            ` : `
+              <div class="story-ring ${s.type === 'bourse' ? 'bourse' : ''}" style="${s.type === 'suivi' ? 'background:linear-gradient(135deg,#E8940A,#F5B82E)' : ''}">
+                <div class="story-avatar" style="background:${s.photo ? 'transparent' : (s.bg || '#1a2018')}">
+                  ${s.photo
+                    ? `<img src="${escapeHtml(s.photo)}" alt="${escapeHtml(s.label)}" loading="lazy">`
+                    : `<span class="story-emoji">${(s.sousTitre || '').split(' ')[0] || '⭐'}</span>`}
+                </div>
               </div>
-            </div>
+            `}
             <span class="story-label">${escapeHtml(s.label)}</span>
           </div>
         `).join('')}
@@ -20129,11 +20547,31 @@ small.meta {
     `;
   };
 
-  // Render post
+  // Render post (multi-photos + badges enrichis)
   window.renderPost = function(post, currentUser) {
     const p = post.profiles || { nom: 'Prestataire', metier: '', quartier: '' };
     const isOwner = currentUser && currentUser.id === post.auteur_id;
     const dateRelative = getDateRelative(post.created_at);
+    const photos = post.photos || (post.media_url ? [post.media_url] : []);
+    const hasMultiPhotos = photos.length > 1;
+
+    let mediaHtml = '';
+    if (post.media_type === 'video' && post.media_url) {
+      mediaHtml = `<div class="post-media"><video src="${escapeHtml(post.media_url)}" controls playsinline class="post-video"></video></div>`;
+    } else if (hasMultiPhotos) {
+      mediaHtml = `
+        <div class="post-media">
+          <div class="post-photos-carousel" id="carousel-${post.id}">
+            ${photos.map(url => `<img src="${escapeHtml(url)}" class="post-img" alt="Réalisation" loading="lazy">`).join('')}
+          </div>
+          <div class="post-photo-dots">
+            ${photos.map((_, i) => `<div class="post-photo-dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
+          </div>
+        </div>`;
+    } else if (photos.length === 1) {
+      mediaHtml = `<div class="post-media"><img src="${escapeHtml(photos[0])}" class="post-img" alt="Réalisation" loading="lazy"></div>`;
+    }
+
     return `
       <article class="feed-post" data-post-id="${post.id}">
         <div class="post-header">
@@ -20147,15 +20585,11 @@ small.meta {
           <div class="post-header-right">
             <span class="post-date">${dateRelative}</span>
             ${post.coup_du_jour ? '<span class="post-badge-coup">⭐ COUP DU JOUR</span>' : ''}
-            ${post.verifie_client ? '<span class="post-badge-verifie">✅ Vérifié</span>' : ''}
+            ${post.verifie_client ? '<span class="post-badge-verifie" title="Un client vérifié a confirmé la qualité de cette réalisation">✅ Réalisation Vérifiée</span>' : ''}
+            ${p.score_wolo >= 70 ? `<span class="talent-score-badge">Score ${p.score_wolo}</span>` : ''}
           </div>
         </div>
-        ${post.media_url ? `
-          <div class="post-media">
-            ${post.media_type === 'video'
-              ? `<video src="${escapeHtml(post.media_url)}" controls playsinline class="post-video"></video>`
-              : `<img src="${escapeHtml(post.media_url)}" class="post-img" alt="Réalisation" loading="lazy">`}
-          </div>` : ''}
+        ${mediaHtml}
         ${post.contenu ? `<p class="post-contenu">${escapeHtml(post.contenu)}</p>` : ''}
         <div class="post-actions">
           <div class="post-actions-left">
@@ -20189,17 +20623,61 @@ small.meta {
     else showPage('profil');
   };
 
-  window.afficherEtatVideFeed = function(onglet) {
+  window.afficherEtatVideFeed = async function(onglet) {
     const liste = document.getElementById('feed-liste');
     if (!liste) return;
     const messages = {
       'pour-toi': { e: '📭', t: 'Aucun post pour le moment', s: 'Sois le premier à publier une réalisation.' },
-      'abonnements': { e: '👥', t: 'Tu ne suis personne encore', s: 'Suis des prestataires pour voir leurs posts ici.' },
+      'abonnements': { e: '👥', t: 'Tu ne suis personne encore', s: 'Suis des prestataires pour voir leurs publications ici' },
       'ma-ville': { e: '🏙️', t: 'Rien dans ta ville pour l\'instant', s: 'Les nouveaux posts de ta ville apparaîtront ici.' },
-      'talent-radar': { e: '🎯', t: 'Aucune demande active', s: 'Les demandes de prestataires s\'afficheront ici.' }
+      'talent-radar': { e: '🎯', t: 'Aucun profil trouvé', s: 'Ajuste les filtres pour découvrir des talents.' }
     };
     const m = messages[onglet] || messages['pour-toi'];
     liste.innerHTML = `<div class="feed-etat-vide"><span class="emoji">${m.e}</span><p><strong>${m.t}</strong></p><p>${m.s}</p></div>`;
+
+    // Suggestions de Pro à suivre si onglet abonnements et vide
+    if (onglet === 'abonnements') {
+      const sb = _sb();
+      if (!sb) return;
+      try {
+        const { data: pros } = await sb.from('profiles')
+          .select('id, nom, metier, photo_url, quartier, pays, score_wolo')
+          .eq('abonnement', 'Pro')
+          .order('score_wolo', { ascending: false })
+          .limit(5);
+        if (pros && pros.length > 0) {
+          liste.insertAdjacentHTML('beforeend', `
+            <div class="feed-suggestions">
+              <h4>Suggestions de prestataires à suivre</h4>
+              ${pros.map(pr => `
+                <div class="suggestion-card">
+                  <img src="${escapeHtml(pr.photo_url||'')}" class="suggestion-photo" alt="" onerror="this.style.visibility='hidden'">
+                  <div class="suggestion-info">
+                    <strong>${escapeHtml(pr.nom||'Prestataire')}</strong>
+                    <span>${escapeHtml(pr.metier||'')} · ${escapeHtml(pr.quartier||'')} ${pr.pays==='Togo'?'🇹🇬':'🇧🇯'}</span>
+                  </div>
+                  <button class="suggestion-follow-btn" onclick="suivreSuggestion('${pr.id}', this)">Suivre</button>
+                </div>
+              `).join('')}
+            </div>
+          `);
+        }
+      } catch(e) { console.warn('suggestions', e); }
+    }
+  };
+
+  window.suivreSuggestion = async function(profilId, btn) {
+    const user = await verifierConnexionOuPopup('suivre');
+    if (!user) return;
+    const sb = _sb(); if (!sb) return;
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await sb.from('wolo_abonnements').insert({ suiveur_id: user.id, suivi_id: profilId });
+      btn.textContent = '✓ Suivi'; btn.classList.add('following');
+    } catch(e) {
+      btn.disabled = false; btn.textContent = 'Suivre';
+      console.warn('suivre', e);
+    }
   };
 
   window.chargerFeed = async function(reset) {
@@ -20219,12 +20697,37 @@ small.meta {
     const limite = 10;
     const offset = window.feedPage * limite;
 
+    // Afficher/masquer sous-filtres et filtres talent
+    const sousFiltres = document.getElementById('feed-sous-filtres');
+    const talentFiltres = document.getElementById('talent-filtres');
+    if (sousFiltres) sousFiltres.style.display = window.feedOngletActif === 'ma-ville' ? 'flex' : 'none';
+    if (talentFiltres) talentFiltres.style.display = window.feedOngletActif === 'talent-radar' ? 'flex' : 'none';
+
+    // Talent Radar = charger profils, pas des posts
+    if (window.feedOngletActif === 'talent-radar') {
+      window.feedChargement = false;
+      if (window.feedTalentTab === 'epingles') {
+        chargerMesEpingles(user);
+      } else {
+        chargerTalentRadar(user?.id);
+      }
+      return;
+    }
+
     try {
       let query = sb.from('wolo_posts')
-        .select('*, profiles!auteur_id(id, nom, metier, quartier, pays, photo_url, score_wolo)')
+        .select('*, profiles!auteur_id(id, nom, metier, quartier, pays, photo_url, score_wolo, abonnement)')
         .eq('actif', true)
-        .order('created_at', { ascending: false })
         .range(offset, offset + limite - 1);
+
+      if (window.feedOngletActif === 'pour-toi') {
+        // Algorithme Pour toi : coups du jour en tête, puis vérifiés, puis score élevé, puis récents
+        query = query.order('coup_du_jour', { ascending: false })
+                     .order('verifie_client', { ascending: false })
+                     .order('created_at', { ascending: false });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
 
       if (window.feedOngletActif === 'abonnements') {
         if (!user) {
@@ -20240,15 +20743,23 @@ small.meta {
         query = query.in('auteur_id', ids);
       }
 
-      if (window.feedOngletActif === 'ma-ville' && user) {
-        try {
-          const { data: profil } = await sb.from('profiles').select('ville').eq('id', user.id).maybeSingle();
-          if (profil?.ville) query = query.eq('ville', profil.ville);
-        } catch(e) {}
-      }
-
-      if (window.feedOngletActif === 'talent-radar') {
-        query = query.eq('type', 'cherche_prestataire');
+      if (window.feedOngletActif === 'ma-ville') {
+        if (user) {
+          try {
+            const { data: profil } = await sb.from('profiles').select('ville').eq('id', user.id).maybeSingle();
+            if (profil?.ville) query = query.eq('ville', profil.ville);
+          } catch(e) {}
+        }
+        // Sous-filtre métier
+        if (window.feedSousFiltre && window.feedSousFiltre !== 'tous') {
+          const metierMap = {
+            'artisans': ['Coiffeur','Couturier','Menuisier','Maçon','Soudeur','Carreleur','Peintre','Décorateur'],
+            'services': ['Électricien','Plombier','Photographe','DJ','Coach sportif','Développeur','Graphiste'],
+            'commerce': ['Traiteur','Commerce','Vente','Restaurant']
+          };
+          const metiers = metierMap[window.feedSousFiltre] || [];
+          if (metiers.length > 0) query = query.in('metier', metiers);
+        }
       }
 
       const { data: posts, error } = await query;
@@ -20262,8 +20773,39 @@ small.meta {
       }
       if (posts.length < limite) window.feedFini = true;
 
+      // Marquer les posts likés par l'utilisateur
+      let likedPostIds = new Set();
+      if (user && posts.length > 0) {
+        try {
+          const postIds = posts.map(p => p.id);
+          const { data: likes } = await sb.from('wolo_likes').select('post_id').eq('user_id', user.id).in('post_id', postIds);
+          likedPostIds = new Set((likes || []).map(l => l.post_id));
+        } catch(e) {}
+      }
+
       const liste = document.getElementById('feed-liste');
-      posts.forEach(p => liste.insertAdjacentHTML('beforeend', renderPost(p, user)));
+      posts.forEach(p => {
+        p.user_a_like = likedPostIds.has(p.id);
+        liste.insertAdjacentHTML('beforeend', renderPost(p, user));
+      });
+
+      // Setup carrousel scroll dots
+      posts.forEach(p => {
+        const photos = p.photos || (p.media_url ? [p.media_url] : []);
+        if (photos.length > 1) {
+          const carousel = document.getElementById(`carousel-${p.id}`);
+          if (carousel) {
+            carousel.addEventListener('scroll', () => {
+              const scrollLeft = carousel.scrollLeft;
+              const width = carousel.offsetWidth;
+              const idx = Math.round(scrollLeft / width);
+              const dots = carousel.parentElement.querySelectorAll('.post-photo-dot');
+              dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+            });
+          }
+        }
+      });
+
       window.feedPage++;
     } catch(e) {
       console.warn('chargerFeed error', e);
@@ -20401,6 +20943,7 @@ small.meta {
   window.ouvrirModalPublication = async function() {
     const user = await verifierConnexionOuPopup('publier');
     if (!user) return;
+    window._postFiles = [];
     const modal = document.createElement('div');
     modal.className = 'wolo-modal-overlay';
     modal.id = 'modal-publication';
@@ -20412,20 +20955,21 @@ small.meta {
         </div>
         <div class="modal-body">
           <div class="upload-zone" id="upload-zone" onclick="document.getElementById('media-input').click()">
-            <input type="file" id="media-input" accept="image/*,video/*" style="display:none" onchange="previewMedia(this)">
+            <input type="file" id="media-input" accept="image/*,video/*" multiple style="display:none" onchange="previewMultiMedia(this)">
             <div id="upload-placeholder">
               <span class="upload-icon">📷</span>
-              <p>Ajoute une photo ou vidéo de ta réalisation</p>
-              <span style="font-size:11px;color:rgba(248,246,241,0.4);">JPG, PNG, MP4 · Max 50MB</span>
+              <p>Ajoute des photos ou une vidéo</p>
+              <span style="font-size:11px;color:rgba(248,246,241,0.4);">JPG, PNG, MP4 · Plusieurs photos possibles</span>
             </div>
             <div id="upload-preview" style="display:none"></div>
           </div>
-          <textarea id="post-description" placeholder="Décris ta réalisation (optionnel)..." rows="3" maxlength="500"></textarea>
+          <div class="upload-thumbs" id="upload-thumbs" style="display:none;"></div>
+          <textarea id="post-description" placeholder="Décris ta réalisation, partage un conseil..." rows="3" maxlength="500"></textarea>
           <span class="char-count" id="char-count">0/500</span>
         </div>
         <div class="modal-footer">
           <button onclick="document.getElementById('modal-publication').remove()" class="btn-annuler">Annuler</button>
-          <button onclick="publierPost()" class="wolo-btn-primary" id="btn-publier">Publier ma réalisation</button>
+          <button onclick="publierPost()" class="wolo-btn-primary" id="btn-publier">Publier</button>
         </div>
       </div>`;
     document.body.appendChild(modal);
@@ -20434,23 +20978,42 @@ small.meta {
     });
   };
 
-  window.previewMedia = function(input) {
-    const file = input.files && input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const preview = document.getElementById('upload-preview');
-      const placeholder = document.getElementById('upload-placeholder');
-      if (file.type.startsWith('video/')) {
+  // Multi-photos preview
+  window.previewMultiMedia = function(input) {
+    const files = input.files;
+    if (!files || files.length === 0) return;
+    window._postFiles = window._postFiles || [];
+    for (let i = 0; i < files.length; i++) window._postFiles.push(files[i]);
+    const preview = document.getElementById('upload-preview');
+    const placeholder = document.getElementById('upload-placeholder');
+    const thumbs = document.getElementById('upload-thumbs');
+
+    if (window._postFiles.length === 1 && window._postFiles[0].type.startsWith('video/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
         preview.innerHTML = `<video src="${e.target.result}" controls class="preview-media"></video>`;
-      } else {
-        preview.innerHTML = `<img src="${e.target.result}" class="preview-media" alt="Preview">`;
-      }
-      placeholder.style.display = 'none';
-      preview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+        placeholder.style.display = 'none'; preview.style.display = 'block';
+      };
+      reader.readAsDataURL(window._postFiles[0]);
+      return;
+    }
+
+    placeholder.style.display = 'none';
+    preview.style.display = 'none';
+    thumbs.style.display = 'flex';
+    thumbs.innerHTML = '';
+    window._postFiles.forEach((f, idx) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        thumbs.insertAdjacentHTML('beforeend', `<img src="${e.target.result}" class="upload-thumb" alt="Photo ${idx+1}">`);
+      };
+      reader.readAsDataURL(f);
+    });
+    thumbs.insertAdjacentHTML('beforeend', `<div class="upload-add-more" onclick="document.getElementById('media-input').click()">+</div>`);
   };
+
+  // Legacy single preview (backward compat)
+  window.previewMedia = window.previewMultiMedia;
 
   window.publierPost = async function() {
     const btn = document.getElementById('btn-publier');
@@ -20463,63 +21026,91 @@ small.meta {
       const r = await sb.from('profiles').select('ville, quartier, pays, metier').eq('id', user.id).maybeSingle();
       profil = r.data || {};
     } catch(e) {}
-    const fileInput = document.getElementById('media-input');
     const description = document.getElementById('post-description').value.trim();
-    let mediaUrl = null, mediaType = null;
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-      const file = fileInput.files[0];
-      mediaType = file.type.startsWith('video/') ? 'video' : 'photo';
+    const files = window._postFiles || [];
+    let photos = [], mediaUrl = null, mediaType = null;
+
+    // Upload chaque fichier
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const isVideo = file.type.startsWith('video/');
       try {
-        const fileName = `posts/${user.id}/${Date.now()}.${file.name.split('.').pop()}`;
+        const fileName = `posts/${user.id}/${Date.now()}_${i}.${file.name.split('.').pop()}`;
         const { data: uploadData, error: upErr } = await sb.storage.from('wolo-media').upload(fileName, file, { upsert: false });
         if (!upErr && uploadData) {
           const { data: pub } = sb.storage.from('wolo-media').getPublicUrl(fileName);
-          mediaUrl = pub?.publicUrl || null;
+          const url = pub?.publicUrl;
+          if (url) {
+            if (isVideo) { mediaUrl = url; mediaType = 'video'; }
+            else photos.push(url);
+          }
         }
       } catch(e) { console.warn('upload', e); }
     }
-    if (!mediaUrl && !description) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Publier ma réalisation'; }
+
+    // Backward compat: si 1 seule photo, mettre aussi en media_url
+    if (photos.length === 1 && !mediaUrl) { mediaUrl = photos[0]; mediaType = 'photo'; }
+    else if (photos.length > 1 && !mediaUrl) { mediaUrl = photos[0]; mediaType = 'photo'; }
+
+    if (!mediaUrl && photos.length === 0 && !description) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Publier'; }
       alert('Ajoute au moins une photo ou un texte.');
       return;
     }
     try {
-      const { error } = await sb.from('wolo_posts').insert({
+      const postData = {
         auteur_id: user.id,
         type: 'realisation',
         contenu: description || null,
         media_url: mediaUrl,
         media_type: mediaType,
         ville: profil.ville,
-        quartier: profil.quartier,
         pays: profil.pays,
         metier: profil.metier
-      });
+      };
+      if (photos.length > 0) postData.photos = photos;
+
+      const { error } = await sb.from('wolo_posts').insert(postData);
       if (!error) {
         document.getElementById('modal-publication')?.remove();
-        majActiviteEtScore(user.id, 'post');
+        window._postFiles = [];
+        if (typeof majActiviteEtScore === 'function') majActiviteEtScore(user.id, 'post');
         chargerFeed(true);
       } else {
-        if (btn) { btn.disabled = false; btn.textContent = 'Publier ma réalisation'; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Publier'; }
       }
     } catch(e) {
       console.warn(e);
-      if (btn) { btn.disabled = false; btn.textContent = 'Publier ma réalisation'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Publier'; }
     }
   };
 
-  // Talent radar
+  // Talent Radar avec filtres
   window.chargerTalentRadar = async function(userId) {
     const sb = _sb(); if (!sb) return;
+    const liste = document.getElementById('feed-liste');
+    if (!liste) return;
+
+    // Lire les filtres
+    const filtreMetier = document.getElementById('talent-filtre-metier')?.value || '';
+    const filtreVille = document.getElementById('talent-filtre-ville')?.value || '';
+    const filtreNote = parseFloat(document.getElementById('talent-filtre-note')?.value || '0');
+    const filtrePro = document.getElementById('talent-filtre-pro')?.checked || false;
+
     try {
-      const { data: talents } = await sb.from('profiles').select('*')
-        .eq('cherche_emploi', true).order('score_wolo', { ascending: false }).limit(10);
-      const liste = document.getElementById('feed-liste');
-      if (!liste) return;
+      let query = sb.from('profiles').select('*')
+        .order('score_wolo', { ascending: false }).limit(20);
+      if (filtreMetier) query = query.eq('metier', filtreMetier);
+      if (filtreVille) query = query.eq('ville', filtreVille);
+      if (filtreNote > 0) query = query.gte('note_moyenne', filtreNote);
+      if (filtrePro) query = query.eq('abonnement', 'Pro');
+
+      const { data: talents } = await query;
       if (!talents || talents.length === 0) { afficherEtatVideFeed('talent-radar'); return; }
+
       liste.innerHTML = `
         <div class="talent-radar-section">
-          <span class="eyebrow">🎯 TALENTS DISPONIBLES MAINTENANT</span>
+          <span class="eyebrow">🎯 ${talents.length} PROFIL${talents.length > 1 ? 'S' : ''} DISPONIBLE${talents.length > 1 ? 'S' : ''}</span>
           <div class="talent-radar-grid">
             ${talents.map(t => `
               <div class="talent-radar-card">
@@ -20528,10 +21119,14 @@ small.meta {
                   <strong>${escapeHtml(t.nom||'')}</strong>
                   <span>${escapeHtml(t.metier||'')} · ${escapeHtml(t.quartier||'')} ${t.pays === 'Togo' ? '🇹🇬' : '🇧🇯'}</span>
                   <span>⭐ ${t.note_moyenne || '—'}/5 · ${t.nb_avis || 0} avis</span>
+                  <div style="display:flex;gap:6px;margin-top:4px;">
+                    <span class="talent-score-badge">Score ${t.score_wolo || 0}</span>
+                    ${t.abonnement === 'Pro' ? '<span class="talent-pro-badge">PRO</span>' : ''}
+                  </div>
                 </div>
                 <div class="talent-actions">
                   <button onclick="epinglerTalent('${t.id}', this)" class="btn-epingler">📌 Épingler</button>
-                  <button class="wolo-btn-primary" onclick="contacterAuteur('${t.id}')">Voir →</button>
+                  <button class="wolo-btn-primary" style="font-size:12px;padding:6px 12px;" onclick="contacterAuteur('${t.id}')">Voir →</button>
                 </div>
               </div>
             `).join('')}
@@ -20540,14 +21135,78 @@ small.meta {
     } catch(e) { console.warn(e); afficherEtatVideFeed('talent-radar'); }
   };
 
+  // Épingler un talent
   window.epinglerTalent = async function(talentId, btn) {
     const user = await verifierConnexionOuPopup('épingler un talent');
     if (!user) return;
     const sb = _sb(); if (!sb) return;
     try {
-      const { error } = await sb.from('wolo_epingles').insert({ recruteur_id: user.id, talent_id: talentId });
-      if (!error && btn) { btn.textContent = '✓ Épinglé'; btn.disabled = true; btn.style.color = '#E8940A'; }
+      const noteInput = prompt('Ajoute une note personnelle (optionnel) :');
+      await sb.from('wolo_epingles').upsert({
+        recruteur_id: user.id, profil_id: talentId, note: noteInput || null
+      }, { onConflict: 'recruteur_id,profil_id' });
+      if (btn) { btn.textContent = '✓ Épinglé'; btn.disabled = true; btn.style.color = '#E8940A'; }
     } catch(e) { console.warn(e); }
+  };
+
+  // Mes épingles
+  window.chargerMesEpingles = async function(user) {
+    const liste = document.getElementById('feed-liste');
+    if (!liste) return;
+    if (!user) { liste.innerHTML = '<div class="feed-etat-vide"><span class="emoji">📌</span><p><strong>Connecte-toi pour voir tes épingles</strong></p></div>'; return; }
+    const sb = _sb(); if (!sb) return;
+    try {
+      const { data: epingles } = await sb.from('wolo_epingles')
+        .select('*, profiles:profil_id(id, nom, metier, photo_url, quartier, pays, score_wolo, note_moyenne, nb_avis)')
+        .eq('recruteur_id', user.id)
+        .order('created_at', { ascending: false });
+      if (!epingles || epingles.length === 0) {
+        liste.innerHTML = '<div class="feed-etat-vide"><span class="emoji">📌</span><p><strong>Aucun profil épinglé</strong></p><p>Épingle des profils depuis l\'onglet Profils pour les retrouver ici.</p></div>';
+        return;
+      }
+      liste.innerHTML = `
+        <div class="talent-radar-section">
+          <span class="eyebrow">📌 MES ÉPINGLES (${epingles.length})</span>
+          <div class="talent-radar-grid">
+            ${epingles.map(ep => {
+              const t = ep.profiles || {};
+              return `
+                <div class="epingle-card">
+                  <img src="${escapeHtml(t.photo_url||'')}" class="talent-photo" alt="" onerror="this.style.visibility='hidden'">
+                  <div class="talent-info" style="flex:1;">
+                    <strong>${escapeHtml(t.nom||'')}</strong>
+                    <span>${escapeHtml(t.metier||'')} · ${escapeHtml(t.quartier||'')} ${t.pays==='Togo'?'🇹🇬':'🇧🇯'}</span>
+                    <span>⭐ ${t.note_moyenne||'—'}/5 · Score ${t.score_wolo||0}</span>
+                    ${ep.note ? `<span style="color:#E8940A;font-style:italic;font-size:11px;">📝 ${escapeHtml(ep.note)}</span>` : ''}
+                  </div>
+                  <div class="talent-actions">
+                    <button class="wolo-btn-primary" style="font-size:12px;padding:6px 12px;" onclick="contacterAuteur('${t.id}')">Voir →</button>
+                    <button class="btn-epingler" onclick="retirerEpingle('${ep.id}', this)" style="color:#ff6b6b;border-color:rgba(255,107,107,0.3);">✕</button>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    } catch(e) { console.warn(e); }
+  };
+
+  window.retirerEpingle = async function(epingleId, btn) {
+    if (!confirm('Retirer cette épingle ?')) return;
+    const sb = _sb(); if (!sb) return;
+    try {
+      await sb.from('wolo_epingles').delete().eq('id', epingleId);
+      const card = btn.closest('.epingle-card');
+      if (card) card.remove();
+    } catch(e) { console.warn(e); }
+  };
+
+  window.switchTalentTab = function(tab) {
+    window.feedTalentTab = tab;
+    document.querySelectorAll('.talent-sub-tab').forEach(b => b.classList.toggle('active', b.dataset.ttab === tab));
+    _currentUser().then(u => {
+      if (tab === 'epingles') chargerMesEpingles(u);
+      else chargerTalentRadar(u?.id);
+    });
   };
 
   // Notifications feed (quota)
@@ -20567,53 +21226,268 @@ small.meta {
     } catch(e) { console.warn(e); }
   };
 
-  // Configurer onglets selon profil
-  window.configurerOnglets = async function() {
-    const user = await _currentUser();
-    const ongletRecruteur = document.querySelector('.feed-onglet-recruteur');
-    if (!ongletRecruteur) return;
-    if (!user) { ongletRecruteur.style.display = 'none'; return; }
-    const sb = _sb();
-    try {
-      if (sb) {
-        const { data } = await sb.from('profiles').select('type_profil').eq('id', user.id).maybeSingle();
-        ongletRecruteur.style.display = data?.type_profil === 'recruteur' ? 'block' : 'none';
-      }
-    } catch(e) { ongletRecruteur.style.display = 'none'; }
-  };
-
   // Init feed (appelé par showPage('feed'))
   window.initFeedWOLO = function() {
     chargerStoriesWOLO();
     chargerCoupDuJour();
     chargerFeed(true);
     afficherZonePublication();
-    configurerOnglets();
+
+    // FAB visibility
+    const fab = document.getElementById('feed-fab');
+    if (fab) fab.style.display = 'flex';
+
     if (window.__feedInited) return;
     window.__feedInited = true;
+
     // Infinite scroll
     const sentinel = document.getElementById('feed-sentinel');
     if (sentinel && 'IntersectionObserver' in window) {
       const obs = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) chargerFeed();
+        if (entries[0].isIntersecting && window.feedOngletActif !== 'talent-radar') chargerFeed();
       }, { threshold: 0.1 });
       obs.observe(sentinel);
     }
+
     // Onglet clicks
     document.querySelectorAll('.feed-onglet').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.feed-onglet').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         window.feedOngletActif = btn.dataset.feed;
-        if (window.feedOngletActif === 'talent-radar') {
-          _currentUser().then(u => u ? chargerTalentRadar(u.id) : afficherEtatVideFeed('talent-radar'));
-        } else {
-          chargerFeed(true);
-        }
+        chargerFeed(true);
       });
     });
+
+    // Sous-filtres Ma ville
+    document.querySelectorAll('.sous-filtre').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sous-filtre').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        window.feedSousFiltre = btn.dataset.sf;
+        chargerFeed(true);
+      });
+    });
+
+    // Talent Radar filtres change
+    ['talent-filtre-metier','talent-filtre-ville','talent-filtre-note','talent-filtre-pro'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => {
+        _currentUser().then(u => chargerTalentRadar(u?.id));
+      });
+    });
+
+    // Vérifier notifications non lues
+    checkFeedNotifications();
+  };
+
+  // Badge notification feed
+  window.checkFeedNotifications = async function() {
+    const badge = document.getElementById('feed-notif-badge');
+    if (!badge) return;
+    const user = await _currentUser();
+    if (!user) { badge.style.display = 'none'; return; }
+    const sb = _sb(); if (!sb) return;
+    try {
+      const { count } = await sb.from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id).eq('lu', false);
+      badge.style.display = (count && count > 0) ? 'block' : 'none';
+    } catch(e) { badge.style.display = 'none'; }
+  };
+
+  // ══ WOLO MATCH ══
+  window.initWoloMatch = async function() {
+    const user = await _currentUser();
+    if (user) chargerMesDemandesMatch(user.id);
+  };
+
+  window.lancerWoloMatch = async function() {
+    const user = await verifierConnexionOuPopup('créer une demande');
+    if (!user) return;
+    const sb = _sb(); if (!sb) return;
+    const description = document.getElementById('match-description')?.value?.trim();
+    const metier = document.getElementById('match-metier')?.value;
+    const ville = document.getElementById('match-ville')?.value;
+    const budget = parseInt(document.getElementById('match-budget')?.value) || null;
+
+    if (!description || !metier) { alert('Remplis au moins la description et le métier.'); return; }
+
+    try {
+      // 1. Créer la demande
+      await sb.from('wolo_match_demandes').insert({
+        client_id: user.id,
+        description, metier_recherche: metier, ville: ville || null, budget_max: budget, statut: 'ouvert'
+      });
+
+      // 2. Chercher les prestataires correspondants
+      let query = sb.from('profiles')
+        .select('id, nom, metier, photo_url, quartier, pays, score_wolo, note_moyenne, nb_avis, abonnement')
+        .ilike('metier', `%${metier}%`)
+        .order('score_wolo', { ascending: false })
+        .limit(10);
+      if (ville) query = query.eq('ville', ville);
+
+      const { data: pros } = await query;
+      const container = document.getElementById('match-resultats');
+      const liste = document.getElementById('match-resultats-liste');
+      if (!pros || pros.length === 0) {
+        container.style.display = 'block';
+        liste.innerHTML = '<div class="feed-etat-vide"><span class="emoji">😕</span><p><strong>Aucun prestataire trouvé</strong></p><p>Essaie avec un autre métier ou une autre ville.</p></div>';
+        return;
+      }
+
+      container.style.display = 'block';
+      liste.innerHTML = pros.map(pr => `
+        <div class="match-result-card">
+          <img src="${escapeHtml(pr.photo_url||'')}" class="match-result-photo" alt="" onerror="this.style.visibility='hidden'">
+          <div class="match-result-info">
+            <strong>${escapeHtml(pr.nom||'')} ${pr.abonnement==='Pro'?'<span class="talent-pro-badge">PRO</span>':''}</strong>
+            <span>${escapeHtml(pr.metier||'')} · ${escapeHtml(pr.quartier||'')} ${pr.pays==='Togo'?'🇹🇬':'🇧🇯'}</span>
+            <span>⭐ ${pr.note_moyenne||'—'}/5 · ${pr.nb_avis||0} avis</span>
+          </div>
+          <div class="match-result-score">
+            ${pr.score_wolo||0}
+            <small>Score</small>
+          </div>
+          <button class="wolo-btn-primary" style="font-size:13px;padding:8px 14px;" onclick="contacterAuteur('${pr.id}')">Contacter</button>
+        </div>
+      `).join('');
+
+      // 3. Notifier les prestataires correspondants (max 5)
+      const top5 = pros.slice(0, 5);
+      for (const pr of top5) {
+        try {
+          await envoyerNotificationFeed(pr.id, 'wolo_match', '🤝 Nouvelle demande WOLO Match',
+            `Un client cherche un ${metier}${ville ? ' à ' + ville : ''}. Regarde si ça correspond !`,
+            '#dashboard');
+        } catch(e) {}
+      }
+
+      // Refresh mes demandes
+      chargerMesDemandesMatch(user.id);
+    } catch(e) { console.warn('match', e); alert('Erreur lors de la création de la demande.'); }
+  };
+
+  window.chargerMesDemandesMatch = async function(userId) {
+    const container = document.getElementById('match-demandes-liste');
+    if (!container) return;
+    const sb = _sb(); if (!sb) return;
+    try {
+      const { data: demandes } = await sb.from('wolo_match_demandes')
+        .select('*').eq('client_id', userId)
+        .order('created_at', { ascending: false }).limit(10);
+      if (!demandes || demandes.length === 0) {
+        container.innerHTML = '<p style="color:rgba(248,246,241,0.4);font-size:13px;">Aucune demande pour le moment.</p>';
+        return;
+      }
+      container.innerHTML = demandes.map(d => `
+        <div class="match-demande-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <strong style="color:#F8F6F1;font-family:Georgia,serif;">${escapeHtml(d.metier_recherche)}</strong>
+            <span class="match-statut ${d.statut}">${d.statut === 'ouvert' ? '🟢 Ouvert' : d.statut === 'en_cours' ? '🟡 En cours' : '⚪ Fermé'}</span>
+          </div>
+          <p style="font-size:13px;color:rgba(248,246,241,0.7);margin:0 0 8px;">${escapeHtml(d.description)}</p>
+          <div style="display:flex;gap:12px;font-size:12px;color:rgba(248,246,241,0.4);">
+            ${d.ville ? `<span>📍 ${escapeHtml(d.ville)}</span>` : ''}
+            ${d.budget_max ? `<span>💰 Budget max: ${d.budget_max.toLocaleString()} FCFA</span>` : ''}
+            <span>${getDateRelative(d.created_at)}</span>
+          </div>
+          ${d.statut === 'ouvert' ? `<button onclick="fermerDemande('${d.id}')" style="margin-top:8px;background:none;border:1px solid rgba(248,246,241,0.15);color:rgba(248,246,241,0.5);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Fermer la demande</button>` : ''}
+        </div>
+      `).join('');
+    } catch(e) { console.warn(e); }
+  };
+
+  window.fermerDemande = async function(demandeId) {
+    if (!confirm('Fermer cette demande ?')) return;
+    const sb = _sb(); if (!sb) return;
+    try {
+      await sb.from('wolo_match_demandes').update({ statut: 'fermé' }).eq('id', demandeId);
+      const user = await _currentUser();
+      if (user) chargerMesDemandesMatch(user.id);
+    } catch(e) { console.warn(e); }
   };
 })();
+</script>
+
+<script>
+// ====== SPRINT 8 — Dashboard WOLO Match ======
+async function loadDashWoloMatch() {
+  const container = document.getElementById('dash-match-liste');
+  if (!container) return;
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+
+  const sb = _sb();
+  if (!sb || !currentUser) { container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Connecte-toi pour voir les demandes.</p>'; return; }
+
+  try {
+    // Récupérer le métier et la ville du prestataire
+    const { data: profil } = await sb.from('profiles').select('metier, ville').eq('id', currentUser.id).maybeSingle();
+    if (!profil || !profil.metier) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><h3>Renseigne ton métier</h3><p>Pour recevoir des demandes WOLO Match, renseigne ton métier dans ton profil.</p></div>';
+      return;
+    }
+
+    // Chercher les demandes correspondant au métier
+    let query = sb.from('wolo_match_demandes')
+      .select('*, profiles:client_id(nom, photo_url)')
+      .eq('statut', 'ouvert')
+      .ilike('metier_recherche', `%${profil.metier}%`)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    const { data: demandes } = await query;
+    if (!demandes || demandes.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><h3>Aucune demande pour le moment</h3><p>Les clients qui cherchent un ' + escapeHtml(profil.metier) + ' apparaîtront ici.</p></div>';
+      return;
+    }
+
+    container.innerHTML = demandes.map(d => {
+      const client = d.profiles || { nom: 'Client' };
+      return `
+        <div class="match-demande-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(248,246,241,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'">
+            <div>
+              <strong style="color:#F8F6F1;font-size:14px;">${escapeHtml(client.nom||'Client')}</strong>
+              <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span>
+            </div>
+          </div>
+          <p style="color:rgba(248,246,241,0.8);font-size:14px;margin:0 0 10px;">${escapeHtml(d.description)}</p>
+          <div style="display:flex;gap:12px;font-size:12px;color:rgba(248,246,241,0.5);margin-bottom:12px;">
+            <span>🔧 ${escapeHtml(d.metier_recherche)}</span>
+            ${d.ville ? `<span>📍 ${escapeHtml(d.ville)}</span>` : ''}
+            ${d.budget_max ? `<span>💰 Max ${d.budget_max.toLocaleString()} FCFA</span>` : ''}
+          </div>
+          <button class="wolo-btn-primary" style="font-size:13px;padding:8px 16px;" onclick="repondreMatch('${d.id}', '${d.client_id}')">Je suis intéressé →</button>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    console.warn('[loadDashWoloMatch]', e);
+    container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Erreur de chargement.</p>';
+  }
+}
+
+async function repondreMatch(demandeId, clientId) {
+  const sb = _sb();
+  if (!sb || !currentUser) return;
+  try {
+    // Mettre à jour le statut
+    await sb.from('wolo_match_demandes').update({ statut: 'en_cours' }).eq('id', demandeId);
+    // Notifier le client
+    const { data: profil } = await sb.from('profiles').select('nom, metier').eq('id', currentUser.id).maybeSingle();
+    const nom = profil?.nom || 'Un prestataire';
+    const metier = profil?.metier || '';
+    if (typeof envoyerNotificationFeed === 'function') {
+      await envoyerNotificationFeed(clientId, 'wolo_match', '🤝 Un prestataire est intéressé !',
+        `${nom} (${metier}) est intéressé par ta demande WOLO Match.`, '#dashboard');
+    }
+    alert('Ta réponse a été envoyée ! Le client sera notifié.');
+    loadDashWoloMatch();
+  } catch(e) { console.warn(e); }
+}
 </script>
 
 <script>
