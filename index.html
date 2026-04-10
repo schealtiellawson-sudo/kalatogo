@@ -363,24 +363,25 @@ h1 {
   font-family:'Fraunces',serif;
   font-size:clamp(40px,5vw,62px);
   font-weight:900; line-height:1.05;
-  color:var(--noir); margin-bottom:24px;
+  color:#F8F6F1; margin-bottom:24px;
 }
 h1 em { color:var(--vert); font-style:italic; }
 h1 .gold { color:var(--or); }
 
-.hero-sub { font-size:17px; line-height:1.7; color:#1a1a1a; margin-bottom:36px; max-width:480px; }
+.hero-sub { font-size:17px; line-height:1.7; color:rgba(248,246,241,0.7); margin-bottom:36px; max-width:480px; }
+.hero-title { color:#F8F6F1; }
 
 .hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:44px; }
 
 .hero-proof {
   display:flex; align-items:center; gap:16px;
-  padding:16px 20px; background:white; border-radius:14px;
-  box-shadow:var(--shadow); border:1px solid rgba(232,148,10,0.1);
+  padding:16px 20px; background:rgba(255,255,255,0.04); border-radius:14px;
+  box-shadow:var(--shadow); border:1px solid rgba(232,148,10,0.15);
   width:fit-content;
 }
 .proof-avatars { display:flex; }
 .proof-avatar {
-  width:32px; height:32px; border-radius:50%; border:2px solid white;
+  width:32px; height:32px; border-radius:50%; border:2px solid rgba(248,246,241,0.3);
   background:linear-gradient(135deg,var(--vert),var(--or));
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:700; color:white; margin-left:-8px;
@@ -393,8 +394,8 @@ h1 .gold { color:var(--or); }
 .hero-visual { position:relative; }
 
 .hero-card-main {
-  background:white; border-radius:24px; padding:24px;
-  box-shadow:var(--shadow-lg); border:1px solid rgba(232,148,10,0.08);
+  background:rgba(255,255,255,0.04); border-radius:24px; padding:24px;
+  box-shadow:var(--shadow-lg); border:1px solid rgba(232,148,10,0.15);
 }
 
 .hc-header { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
@@ -428,7 +429,7 @@ h1 .gold { color:var(--or); }
   animation:float 3s ease-in-out infinite;
 }
 .float-notif.top { top:-16px; right:20px; }
-.float-notif.bottom { bottom:-16px; left:20px; background:white; color:var(--noir); border:1px solid var(--gris-light); }
+.float-notif.bottom { bottom:-16px; left:20px; background:rgba(15,20,16,0.95); color:#F8F6F1; border:1px solid rgba(232,148,10,0.2); }
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
 /* Métriques hero */
@@ -822,13 +823,13 @@ h1 .gold { color:var(--or); }
 /* ══ EMPTY STATE ══ */
 .empty-state { text-align:center; padding:80px 24px; color:var(--gris); }
 .empty-icon { font-size:56px; margin-bottom:16px; }
-.empty-state h3 { font-family:'Fraunces',serif; font-size:22px; color:var(--noir); margin-bottom:8px; }
+.empty-state h3 { font-family:'Fraunces',serif; font-size:22px; color:#F8F6F1; margin-bottom:8px; }
 
 /* ══════════════════════════════════════
    PAGE RECHERCHE
 ══════════════════════════════════════ */
 .search-page-header {
-  background:white; padding:32px 0;
+  background:#0f1410; padding:32px 0;
   border-bottom:1px solid rgba(232,148,10,0.08);
 }
 .search-filters {
@@ -837,15 +838,15 @@ h1 .gold { color:var(--or); }
 .filter-select {
   padding:10px 16px; border:2px solid rgba(232,148,10,0.2);
   border-radius:100px; font-family:'Cabinet Grotesk',sans-serif;
-  font-size:14px; font-weight:600; background:white; outline:none;
-  cursor:pointer; transition:border-color 0.2s; color:var(--gris-fonce);
+  font-size:14px; font-weight:600; background:rgba(255,255,255,0.06); outline:none;
+  cursor:pointer; transition:border-color 0.2s; color:#F8F6F1;
 }
 .filter-select:focus { border-color:var(--vert); }
 .filter-dispo {
   display:flex; align-items:center; gap:8px;
   padding:10px 16px; border:2px solid rgba(232,148,10,0.2);
   border-radius:100px; font-size:14px; font-weight:600;
-  cursor:pointer; background:white; transition:all 0.2s; color:var(--gris-fonce);
+  cursor:pointer; background:rgba(255,255,255,0.06); transition:all 0.2s; color:#F8F6F1;
 }
 .filter-dispo.active { background:var(--vert); color:white; border-color:var(--vert); }
 /* Bouton filtre digital actif */
@@ -1351,8 +1352,8 @@ footer {
 
 .dispo-toggle {
   display:flex; align-items:center; gap:16px;
-  padding:20px 24px; background:white; border-radius:16px;
-  box-shadow:var(--shadow); margin-bottom:20px;
+  padding:20px 24px; background:rgba(255,255,255,0.04); border-radius:16px;
+  box-shadow:var(--shadow); margin-bottom:20px; border:1px solid rgba(232,148,10,0.12);
 }
 .toggle-switch {
   position:relative; width:52px; height:28px; flex-shrink:0;
@@ -1777,8 +1778,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
 /* ══ EMPLOI BADGES & CARDS ══ */
 .offre-card {
-  background:white;border-radius:16px;padding:20px;box-shadow:var(--shadow);
-  border:1.5px solid #e5e7eb;transition:all 0.2s;cursor:default;
+  background:rgba(255,255,255,0.04);border-radius:16px;padding:20px;box-shadow:var(--shadow);
+  border:1.5px solid rgba(232,148,10,0.12);transition:all 0.2s;cursor:default;color:#F8F6F1;
 }
 .offre-card:hover { transform:translateY(-2px);box-shadow:var(--shadow-lg); }
 .badge-urgente {
@@ -1792,7 +1793,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.3);}
   50%{box-shadow:0 0 0 4px rgba(220,38,38,0);}
 }
-.badge-cdi { background:#F8F6F1;color:#E8940A; }
+.badge-cdi { background:rgba(232,148,10,0.1);color:#E8940A; }
 .badge-cdd { background:#fed7aa;color:#9a3412; }
 .badge-stage { background:#dbeafe;color:#1e40af; }
 .badge-mission { background:#fef3c7;color:#92400e; }
@@ -1801,7 +1802,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 .statut-badge { display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700; }
 .statut-attente { background:#f3f4f6;color:#6b7280; }
 .statut-vue { background:#dbeafe;color:#1e40af; }
-.statut-retenue { background:#F8F6F1;color:#E8940A; }
+.statut-retenue { background:rgba(232,148,10,0.1);color:#E8940A; }
 .statut-refusee { background:#fef2f2;color:#dc2626; }
 
 /* ══════════════════════════════════════════════
@@ -3301,11 +3302,256 @@ input:checked + .toggle-slider { background:#E8940A !important; }
 /* Score profil page */
 .profil-score-bar { background:rgba(255,255,255,0.08) !important; }
 /* Pages globales */
-#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil { background:#0f1410 !important; color:#F8F6F1 !important; }
+#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-home { background:#0f1410 !important; color:#F8F6F1 !important; }
 /* Fonctionnement page sections */
 #page-fonctionnement section { background:#0f1410 !important; }
 #page-fonctionnement h2, #page-fonctionnement h3 { color:#F8F6F1 !important; }
 #page-fonctionnement p { color:rgba(248,246,241,0.65) !important; }
+
+/* ════ GLOBAL DARK — Override ALL inline white/cream backgrounds site-wide ════ */
+/* Catch-all: any element with inline background:white/cream → dark glass */
+/* Exclude: a (CTA links), #wolo-pancarte descendants (print), toggle thumbs, lightbox close */
+[style*="background:white"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *):not(.lightbox-close):not(#emploi-mode-thumb),
+[style*="background: white"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *):not(.lightbox-close):not(#emploi-mode-thumb),
+[style*="background:#fff"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *):not(.lightbox-close):not(#qr-canvas),
+[style*="background: #fff"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *):not(.lightbox-close),
+[style*="background:#FFF"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *):not(.lightbox-close),
+[style*="background: #FFF"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background:#ffffff"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background: #ffffff"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background:#FFFFFF"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background:var(--blanc)"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background: var(--blanc)"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background:#f8f6f1"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background: #f8f6f1"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background:#F8F6F1"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background: #F8F6F1"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background:#fdf8f0"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *),
+[style*="background:#fff8ed"]:not(a):not(#wolo-pancarte):not(#wolo-pancarte *) {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(232,148,10,0.12) !important;
+  color: #F8F6F1 !important;
+}
+
+/* Children of overridden containers: ensure text is cream */
+[style*="background:white"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button.btn-primary):not(.btn-or),
+[style*="background: white"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button.btn-primary):not(.btn-or),
+[style*="background:#fff"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button.btn-primary):not(.btn-or),
+[style*="background:#ffffff"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button.btn-primary):not(.btn-or),
+[style*="background:var(--blanc)"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button.btn-primary):not(.btn-or),
+[style*="background:#F8F6F1"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button.btn-primary):not(.btn-or),
+[style*="background:#f8f6f1"] *:not(svg):not(path):not(circle):not(rect):not(line):not(polygon):not(button.btn-primary):not(.btn-or) {
+  color: #F8F6F1 !important;
+}
+
+/* Headings in overridden containers */
+[style*="background:white"] h1, [style*="background:white"] h2, [style*="background:white"] h3, [style*="background:white"] h4,
+[style*="background:#fff"] h1, [style*="background:#fff"] h2, [style*="background:#fff"] h3, [style*="background:#fff"] h4,
+[style*="background:var(--blanc)"] h1, [style*="background:var(--blanc)"] h2, [style*="background:var(--blanc)"] h3,
+[style*="background:#F8F6F1"] h1, [style*="background:#F8F6F1"] h2, [style*="background:#F8F6F1"] h3 {
+  color: #F8F6F1 !important;
+}
+
+/* Buttons inside overridden containers — keep readable */
+[style*="background:white"] button:not(.btn-primary):not(.btn-or),
+[style*="background:#fff"] button:not(.btn-primary):not(.btn-or),
+[style*="background:var(--blanc)"] button:not(.btn-primary):not(.btn-or) {
+  color: #F8F6F1 !important;
+}
+
+/* Selects inside overridden containers */
+[style*="background:white"] select,
+[style*="background:#fff"] select,
+[style*="background:var(--blanc)"] select {
+  background: rgba(255,255,255,0.06) !important;
+  color: #F8F6F1 !important;
+  border-color: rgba(232,148,10,0.2) !important;
+}
+
+/* Inputs inside overridden containers */
+[style*="background:white"] input,
+[style*="background:#fff"] input,
+[style*="background:var(--blanc)"] input {
+  background: rgba(255,255,255,0.06) !important;
+  color: #F8F6F1 !important;
+  border-color: rgba(232,148,10,0.2) !important;
+}
+
+/* Fonctionnement page: sections and tabs */
+#page-fonctionnement section,
+#tab-client, #tab-emploi, #tab-recrut, #tab-presta {
+  background: #0f1410 !important;
+  color: #F8F6F1 !important;
+}
+#page-fonctionnement button,
+#tab-client button, #tab-emploi button, #tab-recrut button, #tab-presta button {
+  background: rgba(255,255,255,0.04) !important;
+  color: #F8F6F1 !important;
+  border-color: rgba(232,148,10,0.15) !important;
+}
+#page-fonctionnement button:hover,
+#tab-client button:hover, #tab-emploi button:hover, #tab-recrut button:hover, #tab-presta button:hover {
+  border-color: #E8940A !important;
+}
+
+/* À propos page sections */
+#page-apropos section {
+  background: #0f1410 !important;
+  color: #F8F6F1 !important;
+}
+#page-apropos h1, #page-apropos h2, #page-apropos h3, #page-apropos h4 { color: #F8F6F1 !important; }
+#page-apropos p { color: rgba(248,246,241,0.7) !important; }
+#page-apropos a[style*="background:white"],
+#page-apropos a[style*="background: white"] {
+  background: rgba(255,255,255,0.04) !important;
+  color: #F8F6F1 !important;
+}
+#page-apropos blockquote {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: #E8940A !important;
+  color: rgba(248,246,241,0.8) !important;
+}
+
+/* Tutoriels page */
+#page-tutoriels { background:#0f1410 !important; }
+#page-tutoriels h2, #page-tutoriels h3 { color:#F8F6F1 !important; }
+#page-tutoriels p { color:rgba(248,246,241,0.65) !important; }
+
+/* KPI cards in dashboard */
+.kpi-card, [class*="kpi-card"] {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(232,148,10,0.15) !important;
+  color: #F8F6F1 !important;
+}
+.kpi-card *, [class*="kpi-card"] * { color: #F8F6F1 !important; }
+
+/* Emploi filter selects */
+#page-emploi select,
+#page-search select {
+  background: rgba(255,255,255,0.06) !important;
+  color: #F8F6F1 !important;
+  border-color: rgba(232,148,10,0.2) !important;
+}
+
+/* Modal overlays dark */
+.modal-content, .modal-body, [class*="modal"] > div:not(.modal-backdrop) {
+  color: #F8F6F1 !important;
+}
+
+/* Retrait method cards */
+.retrait-method-card {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(232,148,10,0.15) !important;
+  color: #F8F6F1 !important;
+}
+
+/* Plan card */
+[id*="plan-card"] {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(232,148,10,0.2) !important;
+  color: #F8F6F1 !important;
+}
+[id*="plan-card"] * { color: #F8F6F1 !important; }
+
+/* Float notifs */
+.float-notif { background: rgba(15,20,16,0.95) !important; color: #F8F6F1 !important; border-color: rgba(232,148,10,0.2) !important; }
+
+/* Badge cream → dark gold */
+.badge-cdi, .statut-retenue { background: rgba(232,148,10,0.1) !important; color: #E8940A !important; }
+
+/* Pancarte QR — keep light for print purposes (intentional light bg) */
+#wolo-pancarte, #wolo-pancarte * { /* keep as-is for printing */ }
+
+/* Homepage sections that may have inline light bg */
+.section[style*="background:white"],
+.section[style*="background:var(--blanc)"],
+section[style*="background:white"],
+section[style*="background:var(--blanc)"] {
+  background: #0f1410 !important;
+  color: #F8F6F1 !important;
+}
+section[style*="background:white"] h1, section[style*="background:white"] h2, section[style*="background:white"] h3,
+section[style*="background:var(--blanc)"] h1, section[style*="background:var(--blanc)"] h2, section[style*="background:var(--blanc)"] h3 {
+  color: #F8F6F1 !important;
+}
+section[style*="background:white"] p, section[style*="background:var(--blanc)"] p {
+  color: rgba(248,246,241,0.7) !important;
+}
+
+/* Emploi mode toggle */
+#emploi-mode-toggle-wrap {
+  background: rgba(255,255,255,0.04) !important;
+  color: #F8F6F1 !important;
+}
+
+/* CV WOLO preview */
+#cv-wolo-preview {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(232,148,10,0.15) !important;
+  color: #F8F6F1 !important;
+}
+
+/* Admin panel items */
+.admin-card, [id*="admin"] div[style*="background:white"] {
+  background: rgba(255,255,255,0.04) !important;
+  color: #F8F6F1 !important;
+}
+
+/* Fix sticky headers (page-fil, etc) */
+[style*="background:white"][style*="sticky"],
+div[style*="position:sticky"][style*="background:white"],
+div[style*="position:sticky"][style*="background:#fff"] {
+  background: #0f1410 !important;
+  border-color: rgba(232,148,10,0.1) !important;
+}
+
+/* Light gray backgrounds → dark */
+[style*="background:#f3f4f6"]:not(.lightbox-close):not(#wolo-pancarte *),
+[style*="background:#f5f5f5"]:not(#wolo-pancarte *) {
+  background: rgba(255,255,255,0.06) !important;
+  color: #F8F6F1 !important;
+}
+
+/* À propos page — light colored cards → dark */
+#page-apropos [style*="background:#fff5f5"],
+#page-apropos [style*="background:var(--vert-light)"] {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(232,148,10,0.12) !important;
+}
+#page-apropos [style*="background:#fff5f5"] h3 { color: #f87171 !important; }
+#page-apropos [style*="background:var(--vert-light)"] h3 { color: #E8940A !important; }
+#page-apropos li { color: rgba(248,246,241,0.75) !important; }
+
+/* Global dark text override — catch inline dark text colors */
+[style*="color:var(--noir)"]:not(#wolo-pancarte *) { color: #F8F6F1 !important; }
+[style*="color:#111827"]:not(#wolo-pancarte *) { color: #F8F6F1 !important; }
+[style*="color:#1f2937"]:not(#wolo-pancarte *) { color: rgba(248,246,241,0.85) !important; }
+[style*="color:#374151"]:not(#wolo-pancarte *) { color: rgba(248,246,241,0.7) !important; }
+[style*="color:var(--gris-fonce)"]:not(#wolo-pancarte *) { color: rgba(248,246,241,0.7) !important; }
+[style*="color:#333"]:not(#wolo-pancarte *) { color: #F8F6F1 !important; }
+[style*="color:#111"]:not(a):not(#wolo-pancarte *) { color: #F8F6F1 !important; }
+
+/* Fonctionnement — Ce que WOLO est/n'est pas + stat cards */
+#page-fonctionnement [style*="background:var(--vert-light)"],
+#page-fonctionnement [style*="background:var(--or-light)"],
+#page-fonctionnement [style*="background:#fff5f5"] {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(232,148,10,0.12) !important;
+}
+#page-fonctionnement li { color: rgba(248,246,241,0.75) !important; }
+
+/* Guarantee section cards */
+[style*="background:var(--vert-light)"][style*="border-radius:16px"],
+[style*="background:var(--or-light)"][style*="border-radius:16px"] {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+/* Emploi page cards generated via JS */
+.offre-card h3, .offre-card h4 { color: #F8F6F1 !important; }
+.offre-card p, .offre-card span { color: rgba(248,246,241,0.7) !important; }
+
+/* Info tip → dark */
+.info-tip { background: rgba(232,148,10,0.06) !important; color: rgba(248,246,241,0.8) !important; border-color: rgba(232,148,10,0.25) !important; }
 
 /* ════════════════ SPRINT 5 — Plan Pro Juillet, Countdown, Mur gagnants ════════════════ */
 .wolo-gains-juillet{background:linear-gradient(160deg,#0f1410,#1a1f1c);border:1px solid rgba(232,148,10,0.35);border-radius:20px;padding:28px 26px;margin-bottom:24px;color:#F8F6F1;position:relative;overflow:hidden;}
@@ -3326,7 +3572,7 @@ input:checked + .toggle-slider { background:#E8940A !important; }
 .gains-condition{font-size:12px;color:rgba(248,246,241,0.55);margin-top:14px;text-align:center;font-style:italic;}
 
 .wolo-avantages-pro{list-style:none;padding:0;margin:0 0 18px 0;display:flex;flex-direction:column;gap:9px;}
-.avantage-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#1a1a1a;line-height:1.5;}
+.avantage-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#F8F6F1;line-height:1.5;}
 .avantage-star{color:#E8940A;font-weight:900;flex-shrink:0;}
 .avantage-icon{flex-shrink:0;}
 .avantage-texte{flex:1;}
@@ -9172,18 +9418,18 @@ function openAlbumManager(albumId) {
   if (old) old.remove();
   const page = document.createElement('div');
   page.id = pageId;
-  page.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:10000;overflow-y:auto;';
+  page.style.cssText = 'position:fixed;inset:0;background:#0f1410;z-index:10000;overflow-y:auto;color:#F8F6F1;';
   page.innerHTML = `
-    <div style="position:sticky;top:0;z-index:10;background:white;border-bottom:1px solid #f0f0f0;padding:env(safe-area-inset-top,0) 0 0;">
+    <div style="position:sticky;top:0;z-index:10;background:#0f1410;border-bottom:1px solid rgba(232,148,10,0.1);padding:env(safe-area-inset-top,0) 0 0;">
       <div style="max-width:700px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:10px;">
         <button onclick="document.getElementById('${pageId}').remove();renderAlbumsSection();"
-          style="background:#f5f5f5;border:none;color:#333;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+          style="background:rgba(255,255,255,0.06);border:none;color:#F8F6F1;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
         <div style="flex:1;min-width:0;">
-          <h2 id="album-mgr-title-${albumId}" style="font-size:17px;font-weight:800;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${alb.nom}</h2>
-          <div style="font-size:12px;color:var(--gris);" id="album-mgr-count-${albumId}">${(alb.photos||[]).length} photo${(alb.photos||[]).length!==1?'s':''}</div>
+          <h2 id="album-mgr-title-${albumId}" style="font-size:17px;font-weight:800;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#F8F6F1;">${alb.nom}</h2>
+          <div style="font-size:12px;color:rgba(248,246,241,0.5);" id="album-mgr-count-${albumId}">${(alb.photos||[]).length} photo${(alb.photos||[]).length!==1?'s':''}</div>
         </div>
-        <button onclick="renameAlbum('${albumId}')" style="background:#f5f5f5;border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">✏️ Renommer</button>
-        <button onclick="deleteAlbum('${albumId}')" style="background:#fee2e2;border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;color:#dc2626;cursor:pointer;">🗑️</button>
+        <button onclick="renameAlbum('${albumId}')" style="background:rgba(255,255,255,0.06);border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;color:#F8F6F1;">✏️ Renommer</button>
+        <button onclick="deleteAlbum('${albumId}')" style="background:rgba(220,38,38,0.15);border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;color:#f87171;cursor:pointer;">🗑️</button>
       </div>
     </div>
     <div style="max-width:700px;margin:0 auto;padding:20px 16px;">
