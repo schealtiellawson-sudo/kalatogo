@@ -71,8 +71,8 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Cabinet Grotesk', sans-serif;
-  background: var(--blanc);
-  color: var(--noir);
+  background: #0f1410;
+  color: #F8F6F1;
   overflow-x: hidden;
 }
 
@@ -201,19 +201,19 @@ body {
 /* ══ NAV ══ */
 nav {
   position:sticky; top:0; z-index:200;
-  background:rgba(248,246,241,0.92); backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(232,148,10,0.1);
+  background:rgba(15,20,16,0.92); backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(232,148,10,0.15);
   height:68px; display:flex; align-items:center;
 }
 .nav-inner { display:flex; align-items:center; justify-content:space-between; width:100%; }
 .nav-logo {
   font-family:'Fraunces',serif; font-weight:900; font-size:24px;
-  color:var(--noir); text-decoration:none; display:flex; align-items:center; gap:4px;
+  color:#F8F6F1; text-decoration:none; display:flex; align-items:center; gap:4px;
 }
-.nav-logo sup { font-size:11px; color:var(--noir); font-family:'Cabinet Grotesk',sans-serif; font-weight:700; margin-top:-8px; }
+.nav-logo sup { font-size:11px; color:#F8F6F1; font-family:'Cabinet Grotesk',sans-serif; font-weight:700; margin-top:-8px; }
 .nav-links { display:flex; align-items:center; gap:8px; }
-.nav-link { font-weight:600; font-size:14px; color:var(--gris-fonce); text-decoration:none; padding:8px 14px; border-radius:100px; transition:all 0.2s; cursor:pointer; background:none; border:none; font-family:inherit; }
-.nav-link:hover { color:var(--vert); background:var(--vert-light); }
+.nav-link { font-weight:600; font-size:14px; color:rgba(248,246,241,0.7); text-decoration:none; padding:8px 14px; border-radius:100px; transition:all 0.2s; cursor:pointer; background:none; border:none; font-family:inherit; }
+.nav-link:hover { color:#E8940A; background:rgba(232,148,10,0.08); }
 
 /* ── HAMBURGER MOBILE ── */
 .nav-burger { display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:6px; z-index:300; }
@@ -233,7 +233,7 @@ nav {
 .hero {
   padding: 100px 0 80px;
   position:relative; overflow:visible;
-  background: linear-gradient(160deg, #fdf8f0 0%, #fff8ed 40%, #ffffff 100%);
+  background: #0f1410;
 }
 .hero::before {
   content: '';
@@ -727,20 +727,20 @@ h1 .gold { color:var(--or); }
 
 /* ══ BARRE DE RECHERCHE ══ */
 .search-bar-section {
-  background:white; padding:32px 0;
-  border-bottom:1px solid rgba(232,148,10,0.08);
-  box-shadow:0 4px 24px rgba(0,0,0,0.04);
+  background:#0f1410; padding:32px 0;
+  border-bottom:1px solid rgba(232,148,10,0.15);
+  box-shadow:0 4px 24px rgba(0,0,0,0.2);
 }
 .search-bar {
-  display:flex; gap:0; background:var(--gris-light);
+  display:flex; gap:0; background:rgba(255,255,255,0.06);
   border-radius:16px; overflow:hidden;
-  border:2px solid transparent; transition:border-color 0.2s;
+  border:2px solid rgba(232,148,10,0.15); transition:border-color 0.2s;
 }
 .search-bar:focus-within { border-color:var(--vert); }
 .search-bar select, .search-bar input {
   flex:1; border:none; background:transparent;
   padding:16px 20px; font-family:'Cabinet Grotesk',sans-serif;
-  font-size:15px; font-weight:500; color:var(--noir); outline:none;
+  font-size:15px; font-weight:500; color:#F8F6F1; outline:none;
 }
 .search-bar select { border-right:1px solid rgba(0,0,0,0.08); max-width:220px; }
 .search-bar-btn {
@@ -754,8 +754,8 @@ h1 .gold { color:var(--or); }
 .quick-filters { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
 .qf-chip {
   padding:7px 16px; border-radius:100px; border:1.5px solid rgba(232,148,10,0.2);
-  background:white; font-size:13px; font-weight:600; cursor:pointer;
-  transition:all 0.2s; color:var(--gris-fonce);
+  background:rgba(255,255,255,0.06); font-size:13px; font-weight:600; cursor:pointer;
+  transition:all 0.2s; color:#F8F6F1;
 }
 .qf-chip:hover, .qf-chip.active { background:var(--vert); color:white; border-color:var(--vert); }
 /* Chips Talents Digitaux — couleur indigo */
@@ -778,18 +778,18 @@ h1 .gold { color:var(--or); }
 .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
 
 .pcard {
-  background:white; border-radius:20px; overflow:hidden;
-  box-shadow:var(--shadow); border:1.5px solid transparent;
+  background:rgba(255,255,255,0.04); border-radius:20px; overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3); border:1.5px solid rgba(232,148,10,0.1);
   transition:all 0.3s; cursor:pointer;
-  border-top:4px solid #111;
+  border-top:4px solid #E8940A;
 }
-.pcard:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:rgba(232,148,10,0.2); border-top-color:#111; }
+.pcard:hover { transform:translateY(-4px); box-shadow:0 8px 32px rgba(0,0,0,0.4); border-color:rgba(232,148,10,0.3); border-top-color:#E8940A; }
 
 .pcard-dispo {
   display:inline-flex; align-items:center; gap:5px;
-  background:#F8F6F1; padding:4px 10px; border-radius:100px;
+  background:rgba(232,148,10,0.1); padding:4px 10px; border-radius:100px;
   font-size:11px; font-weight:700; color:#E8940A;
-  border:1px solid #E8940A;
+  border:1px solid rgba(232,148,10,0.3);
 }
 .dispo-dot { width:7px; height:7px; border-radius:50%; background:#E8940A; animation:pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
@@ -1100,7 +1100,7 @@ h1 .gold { color:var(--or); }
 .tarif-label { font-size:13px; color:rgba(255,255,255,0.5); margin-top:4px; font-weight:600; }
 
 /* Sidebar card hors profil dark (contexte normal) */
-.sidebar-card { background:white; border-radius:20px; padding:24px; box-shadow:var(--shadow); margin-bottom:20px; }
+.sidebar-card { background:rgba(255,255,255,0.04); border-radius:20px; padding:24px; box-shadow:var(--shadow); margin-bottom:20px; border:1px solid rgba(232,148,10,0.1); }
 .sidebar-card h4 { font-weight:800; font-size:15px; margin-bottom:16px; }
 
 /* À propos - voir plus */
@@ -1156,9 +1156,9 @@ label .req { color:var(--or); }
 
 input[type=text],input[type=tel],input[type=email],input[type=url],input[type=number],input[type=date],input[type=password],select,textarea {
   width:100%; padding:14px 18px;
-  border:2px solid rgba(0,0,0,0.08); border-radius:12px;
+  border:2px solid rgba(232,148,10,0.15); border-radius:12px;
   font-family:'Cabinet Grotesk',sans-serif; font-size:15px;
-  color:var(--noir); background:white; outline:none; transition:all 0.2s;
+  color:#F8F6F1; background:rgba(255,255,255,0.06); outline:none; transition:all 0.2s;
 }
 input:focus,select:focus,textarea:focus {
   border-color:var(--vert);
@@ -1233,8 +1233,8 @@ footer {
 }
 .modal-overlay.active { display:flex; animation:fadeIn 0.2s ease; }
 .modal {
-  background:white; border-radius:24px; padding:36px; max-width:520px; width:100%;
-  box-shadow:0 20px 60px rgba(0,0,0,0.2); position:relative;
+  background:#0f1410; border-radius:24px; padding:36px; max-width:520px; width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4); position:relative; border:1px solid rgba(232,148,10,0.2); color:#F8F6F1;
 }
 .modal-close { position:absolute; top:16px; right:16px; background:var(--gris-light); border:none; border-radius:100px; width:32px; height:32px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; color:var(--gris); transition:all 0.2s; }
 .modal-close:hover { background:var(--gris-fonce); color:white; }
@@ -1297,14 +1297,14 @@ footer {
 /* ══ DASHBOARD ══ */
 .dashboard-layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 68px); }
 .dashboard-sidebar {
-  background:white; border-right:1px solid var(--gris-light);
+  background:#0a0e0c; border-right:1px solid rgba(232,148,10,0.1);
   padding:32px 20px; position:sticky; top:68px; height:calc(100vh - 68px); overflow-y:auto;
 }
-.dashboard-sidebar h3 { font-size:11px; font-weight:700; color:var(--gris); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-left:12px; }
+.dashboard-sidebar h3 { font-size:11px; font-weight:700; color:rgba(248,246,241,0.4); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-left:12px; }
 .dashboard-sidebar h3:first-child { margin-top:0; }
 .dash-link {
   display:flex; align-items:center; gap:10px; padding:10px 12px;
-  border-radius:10px; font-size:14px; font-weight:600; color:var(--gris-fonce);
+  border-radius:10px; font-size:14px; font-weight:600; color:rgba(248,246,241,0.7);
   cursor:pointer; transition:all 0.2s; border:none; background:none; width:100%; text-align:left;
   font-family:'Cabinet Grotesk',sans-serif;
 }
@@ -1312,7 +1312,7 @@ footer {
 .dash-link.active { background:var(--vert); color:white; }
 .dash-link .icon { font-size:16px; width:20px; text-align:center; }
 
-.dashboard-main { padding:36px; background:var(--blanc); }
+.dashboard-main { padding:36px; background:#0f1410; }
 .dash-section { display:none; }
 .dash-section.active { display:block; animation:fadeIn 0.3s ease; }
 .dash-header { margin-bottom:28px; }
@@ -1320,18 +1320,18 @@ footer {
 .dash-header p { color:var(--gris); font-size:14px; margin-top:4px; }
 
 .dash-explainer {
-  background: linear-gradient(135deg, #F8F6F1, #F8F6F1);
+  background: rgba(232,148,10,0.06);
   border-left: 4px solid #E8940A;
   border-radius: 0 12px 12px 0;
   padding: 14px 16px;
   margin-bottom: 24px;
   font-size: 13px;
   line-height: 1.7;
-  color: #1a1a1a;
+  color: #F8F6F1;
 }
 
 .stat-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; margin-bottom:28px; }
-.stat-card { background:white; border-radius:16px; padding:20px; box-shadow:var(--shadow); }
+.stat-card { background:rgba(255,255,255,0.04); border-radius:16px; padding:20px; box-shadow:var(--shadow); border:1px solid rgba(232,148,10,0.1); }
 .stat-card-num { font-family:'Fraunces',serif; font-size:32px; font-weight:900; color:var(--vert); }
 .stat-card-label { font-size:13px; color:var(--gris); margin-top:4px; }
 .stat-card-trend { font-size:12px; font-weight:700; margin-top:8px; }
@@ -1371,7 +1371,7 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 .dispo-info h4 { font-weight:800; font-size:15px; margin-bottom:2px; }
 .dispo-info p { font-size:13px; color:var(--gris); }
 
-.edit-form-section { background:white; border-radius:20px; padding:28px; box-shadow:var(--shadow); }
+.edit-form-section { background:rgba(255,255,255,0.04); border-radius:20px; padding:28px; box-shadow:var(--shadow); border:1px solid rgba(232,148,10,0.1); }
 .edit-form-section h3 { font-family:'Fraunces',serif; font-size:18px; font-weight:700; margin-bottom:20px; }
 
 .avis-dash-item { padding:16px; background:var(--gris-light); border-radius:12px; margin-bottom:12px; }
@@ -1763,9 +1763,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
     <svg viewBox="0 0 280 72" xmlns="http://www.w3.org/2000/svg" height="40">
       <circle cx="36" cy="36" r="34" fill="#0f1410" stroke="#E8940A" stroke-width="2"/>
             <text x="36" y="46" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#E8940A" text-anchor="middle">W</text>
-      <text x="84" y="32" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#0f1410" letter-spacing="-0.5">WOLO</text>
+      <text x="84" y="32" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#F8F6F1" letter-spacing="-0.5">WOLO</text>
       <rect x="84" y="38" width="188" height="1.5" fill="#E8940A"/>
-      <text x="86" y="58" font-family="Georgia, serif" font-size="13" font-weight="400" fill="#0f1410" letter-spacing="7" opacity="0.8">MARKET</text>
+      <text x="86" y="58" font-family="Georgia, serif" font-size="13" font-weight="400" fill="#F8F6F1" letter-spacing="7" opacity="0.8">MARKET</text>
       <circle cx="270" cy="48" r="4" fill="#E8940A"/>
     </svg>
     <div style="width:28px;height:3px;background:#E8940A;border-radius:2px;margin:10px auto 0;animation:wolo-bar 1s ease-in-out infinite alternate;"></div>
@@ -3251,6 +3251,43 @@ span[style*="background:#F8F6F1"] {
 /* Barre recherche rapide — fond sombre */
 .search-bar-section { background:#0f1410 !important; }
 
+/* ── SPRINT 8 — Global dark: toutes les classes CSS à fond blanc/clair ── */
+.rdv-card { background:rgba(255,255,255,0.04) !important; border:1px solid rgba(232,148,10,0.1); color:#F8F6F1; }
+.rdv-slot-btn { background:rgba(255,255,255,0.04) !important; color:#E8940A !important; border-color:rgba(232,148,10,0.3) !important; }
+.rdv-tab { background:rgba(255,255,255,0.04) !important; color:#F8F6F1 !important; border-color:rgba(232,148,10,0.15) !important; }
+.rdv-tab.active { background:var(--vert) !important; color:white !important; }
+.time-sel { background:rgba(255,255,255,0.06) !important; color:#F8F6F1 !important; border-color:rgba(232,148,10,0.2) !important; }
+.rdv-nav-btn { background:rgba(255,255,255,0.06) !important; color:#F8F6F1 !important; border-color:rgba(232,148,10,0.2) !important; }
+.sidebar-card { background:rgba(255,255,255,0.04) !important; border:1px solid rgba(232,148,10,0.12) !important; color:#F8F6F1 !important; }
+.edit-form-section { background:rgba(255,255,255,0.04) !important; border:1px solid rgba(232,148,10,0.12) !important; color:#F8F6F1 !important; }
+.map-toggle-btn { background:rgba(255,255,255,0.06) !important; color:#F8F6F1 !important; border-color:rgba(232,148,10,0.2) !important; }
+.search-bar select, .search-bar input { color:#F8F6F1 !important; }
+.qf-chip { background:rgba(255,255,255,0.06) !important; color:#F8F6F1 !important; border-color:rgba(232,148,10,0.2) !important; }
+.qf-chip:hover, .qf-chip.active { background:var(--vert) !important; color:white !important; }
+
+/* Profil cards (prestataires récents, search) sur fond dark */
+.pcard { background:rgba(255,255,255,0.04) !important; border:1px solid rgba(232,148,10,0.1) !important; }
+.pcard-distance { background:rgba(232,148,10,0.1) !important; color:#E8940A !important; }
+
+/* Login modal */
+.login-card { background:#0f1410 !important; border:1px solid rgba(232,148,10,0.2) !important; color:#F8F6F1 !important; }
+.login-card input { background:rgba(255,255,255,0.06) !important; color:#F8F6F1 !important; border-color:rgba(232,148,10,0.2) !important; }
+
+/* Pages sans fond explicite */
+#page-search { background:#0f1410; }
+#page-login { background:#0f1410; }
+#page-inscription { background:#0f1410; }
+#page-profil { background:#0f1410; }
+#page-emploi { background:#0f1410; }
+#page-cgu { background:#0f1410; color:#F8F6F1; }
+#page-fil { background:#0f1410; }
+
+/* Loading overlay dark */
+.loading-overlay, #loading-overlay { background:#0f1410 !important; }
+
+/* Avantages texte sombre → crème */
+.avantage-item { color:#F8F6F1 !important; }
+
 /* ════════════════ SPRINT 5 — Plan Pro Juillet, Countdown, Mur gagnants ════════════════ */
 .wolo-gains-juillet{background:linear-gradient(160deg,#0f1410,#1a1f1c);border:1px solid rgba(232,148,10,0.35);border-radius:20px;padding:28px 26px;margin-bottom:24px;color:#F8F6F1;position:relative;overflow:hidden;}
 .wolo-gains-juillet::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(232,148,10,0.12),transparent 60%);pointer-events:none;}
@@ -3422,9 +3459,9 @@ span[style*="background:#F8F6F1"] {
     <svg viewBox="0 0 280 72" xmlns="http://www.w3.org/2000/svg" height="32">
       <circle cx="36" cy="36" r="34" fill="#0f1410" stroke="#E8940A" stroke-width="2"/>
             <text x="36" y="46" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#E8940A" text-anchor="middle">W</text>
-      <text x="84" y="32" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#0f1410" letter-spacing="-0.5">WOLO</text>
+      <text x="84" y="32" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#F8F6F1" letter-spacing="-0.5">WOLO</text>
       <rect x="84" y="38" width="188" height="1.5" fill="#E8940A"/>
-      <text x="86" y="58" font-family="Georgia, serif" font-size="13" font-weight="400" fill="#0f1410" letter-spacing="7" opacity="0.8">MARKET</text>
+      <text x="86" y="58" font-family="Georgia, serif" font-size="13" font-weight="400" fill="#F8F6F1" letter-spacing="7" opacity="0.8">MARKET</text>
       <circle cx="270" cy="48" r="4" fill="#E8940A"/>
     </svg>
     <button onclick="closeMobileNav()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--gris-fonce);padding:6px;">✕</button>
@@ -4079,7 +4116,7 @@ span[style*="background:#F8F6F1"] {
   </section>
 
   <!-- SECTION LOCALISATION — Feature différenciante -->
-  <section style="background:linear-gradient(180deg,#f0f7f0 0%,#e8f5e8 100%);padding:80px 0;overflow:hidden;">
+  <section style="background:#0f1410;padding:80px 0;overflow:hidden;border-top:1px solid rgba(232,148,10,0.1);">
     <div class="container">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
         <!-- Texte -->
@@ -4087,24 +4124,24 @@ span[style*="background:#F8F6F1"] {
           <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);border-radius:100px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--vert);margin-bottom:20px;text-transform:uppercase;letter-spacing:0.5px;">
             📍 Fonctionnalité clé
           </div>
-          <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,3.5vw,42px);font-weight:900;line-height:1.15;color:var(--noir);margin-bottom:18px;">
-            Fini les rues sans noms.<br><em style="color:var(--vert);">Sois trouvable</em> en un tap.
+          <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,3.5vw,42px);font-weight:900;line-height:1.15;color:#F8F6F1;margin-bottom:18px;">
+            Fini les rues sans noms.<br><em style="color:#E8940A;">Sois trouvable</em> en un tap.
           </h2>
-          <p style="font-size:16px;color:#4a5568;line-height:1.8;margin-bottom:28px;">
+          <p style="font-size:16px;color:rgba(248,246,241,0.7);line-height:1.8;margin-bottom:28px;">
             À Cotonou, les adresses se donnent par rapport au carrefour le plus proche. À Lomé, les rues n'ont pas toujours de panneau. "Tu passes le feu, tu tournes après la pharmacie bleue..." Résultat : des clients qui abandonnent en chemin. De l'argent qui ne rentre jamais. Avec WOLO Market, tu envoies un lien. Le client ouvre Google Maps. Il arrive. Que tu sois à Fidjrossè ou à Hédzranawoé.
           </p>
           <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:32px;">
             <div style="display:flex;align-items:flex-start;gap:14px;">
               <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🗺️</div>
-              <div><div style="font-weight:800;font-size:14px;color:var(--noir);margin-bottom:3px;">Itinéraire direct depuis Google Maps</div><div style="font-size:13px;color:#718096;">Le visiteur clique et arrive chez toi depuis n'importe où au Bénin et au Togo — sans explications.</div></div>
+              <div><div style="font-weight:800;font-size:14px;color:#F8F6F1;margin-bottom:3px;">Itinéraire direct depuis Google Maps</div><div style="font-size:13px;color:rgba(248,246,241,0.55);">Le visiteur clique et arrive chez toi depuis n'importe où au Bénin et au Togo — sans explications.</div></div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:14px;">
               <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏍️</div>
-              <div><div style="font-weight:800;font-size:14px;color:var(--noir);margin-bottom:3px;">Un lien. Le zem arrive. Fini le "tu connais le carrefour là-bas ?"</div><div style="font-size:13px;color:#718096;">Un point GPS, et c'est réglé.</div></div>
+              <div><div style="font-weight:800;font-size:14px;color:#F8F6F1;margin-bottom:3px;">Un lien. Le zem arrive. Fini le "tu connais le carrefour là-bas ?"</div><div style="font-size:13px;color:rgba(248,246,241,0.55);">Un point GPS, et c'est réglé.</div></div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:14px;">
               <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📡</div>
-              <div><div style="font-weight:800;font-size:14px;color:var(--noir);margin-bottom:3px;">Mode déplacement — plombier, livreur, taxi-moto</div><div style="font-size:13px;color:#718096;">Update ta position GPS depuis ton dashboard en 1 clic.</div></div>
+              <div><div style="font-weight:800;font-size:14px;color:#F8F6F1;margin-bottom:3px;">Mode déplacement — plombier, livreur, taxi-moto</div><div style="font-size:13px;color:rgba(248,246,241,0.55);">Update ta position GPS depuis ton dashboard en 1 clic.</div></div>
             </div>
           </div>
           <button class="btn btn-primary btn-lg" onclick="showPage('inscription')" style="font-size:15px;">📍 Activer ma localisation — C'est gratuit</button>
@@ -4151,7 +4188,7 @@ span[style*="background:#F8F6F1"] {
             </div>
           </div>
           <!-- Badges flottants -->
-          <div style="position:absolute;top:-18px;right:-18px;background:white;border-radius:16px;padding:12px 16px;box-shadow:0 8px 28px rgba(0,0,0,0.1);font-size:13px;font-weight:700;color:#374151;white-space:nowrap;">
+          <div style="position:absolute;top:-18px;right:-18px;background:rgba(15,20,16,0.9);border:1px solid rgba(232,148,10,0.3);border-radius:16px;padding:12px 16px;box-shadow:0 8px 28px rgba(0,0,0,0.3);font-size:13px;font-weight:700;color:#F8F6F1;white-space:nowrap;">
             🏍️ Dis la route au zémidjan →
           </div>
           <div style="position:absolute;bottom:-18px;left:-18px;background:var(--vert);border-radius:16px;padding:12px 16px;box-shadow:0 8px 28px rgba(232,148,10,0.35);font-size:13px;font-weight:700;color:white;white-space:nowrap;">
@@ -4204,12 +4241,12 @@ span[style*="background:#F8F6F1"] {
   </section>
 
   <!-- PRESTATAIRES RÉCENTS -->
-  <section class="section">
+  <section class="section" style="background:#0f1410;border-top:1px solid rgba(232,148,10,0.08);">
     <div class="container">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
         <div>
           <div class="badge badge-vert" style="margin-bottom:12px;">Nouveaux</div>
-          <h2 style="font-family:Fraunces,serif;font-size:32px;font-weight:900;">Prestataires récents</h2>
+          <h2 style="font-family:Fraunces,serif;font-size:32px;font-weight:900;color:#F8F6F1;">Prestataires récents</h2>
         </div>
         <button class="btn btn-secondary" onclick="showPage('search')">Voir tous →</button>
       </div>
@@ -4686,27 +4723,27 @@ span[style*="background:#F8F6F1"] {
   </section>
 
   <!-- SECTION : LE PROBLÈME -->
-  <section style="background:#f8f6f1;padding:72px 0 56px;">
+  <section style="background:#0f1410;padding:72px 0 56px;border-top:1px solid rgba(232,148,10,0.08);">
     <div class="container">
       <div style="text-align:center;margin-bottom:48px;">
-        <div class="badge" style="background:rgba(220,38,38,0.1);color:#dc2626;margin-bottom:14px;">La réalité ouest-africaine</div>
-        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;max-width:660px;margin:0 auto;">Le problème qu'on résout</h2>
+        <div class="badge" style="background:rgba(248,113,113,0.1);color:#f87171;margin-bottom:14px;">La réalité ouest-africaine</div>
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;max-width:660px;margin:0 auto;color:#F8F6F1;">Le problème qu'on résout</h2>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1000px;margin:0 auto;">
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(220,38,38,0.12);box-shadow:0 2px 16px rgba(0,0,0,0.05);">
-          <div style="font-family:Fraunces,serif;font-size:48px;font-weight:900;color:#dc2626;margin-bottom:8px;">46%</div>
-          <p style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">des jeunes sans emploi</p>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">"T'as le diplôme mais pas de travail"</p>
+        <div style="background:rgba(255,255,255,0.04);border-radius:20px;padding:28px;border:1.5px solid rgba(248,113,113,0.15);box-shadow:0 2px 16px rgba(0,0,0,0.2);">
+          <div style="font-family:Fraunces,serif;font-size:48px;font-weight:900;color:#f87171;margin-bottom:8px;">46%</div>
+          <p style="font-size:15px;font-weight:700;color:#F8F6F1;margin-bottom:6px;">des jeunes sans emploi</p>
+          <p style="font-size:13px;color:rgba(248,246,241,0.5);line-height:1.6;">"T'as le diplôme mais pas de travail"</p>
         </div>
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(220,38,38,0.12);box-shadow:0 2px 16px rgba(0,0,0,0.05);">
-          <div style="font-family:Fraunces,serif;font-size:48px;font-weight:900;color:#dc2626;margin-bottom:8px;">87%</div>
-          <p style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">des travailleurs invisibles</p>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">"Je suis artisan mais personne ne sait que j'existe à 2km"</p>
+        <div style="background:rgba(255,255,255,0.04);border-radius:20px;padding:28px;border:1.5px solid rgba(248,113,113,0.15);box-shadow:0 2px 16px rgba(0,0,0,0.2);">
+          <div style="font-family:Fraunces,serif;font-size:48px;font-weight:900;color:#f87171;margin-bottom:8px;">87%</div>
+          <p style="font-size:15px;font-weight:700;color:#F8F6F1;margin-bottom:6px;">des travailleurs invisibles</p>
+          <p style="font-size:13px;color:rgba(248,246,241,0.5);line-height:1.6;">"Je suis artisan mais personne ne sait que j'existe à 2km"</p>
         </div>
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(220,38,38,0.12);box-shadow:0 2px 16px rgba(0,0,0,0.05);">
+        <div style="background:rgba(255,255,255,0.04);border-radius:20px;padding:28px;border:1.5px solid rgba(248,113,113,0.15);box-shadow:0 2px 16px rgba(0,0,0,0.2);">
           <div style="font-size:48px;margin-bottom:8px;">🚫</div>
-          <p style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">Pas de réseau = pas de chance</p>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">"Tu peux être le meilleur — si personne ne te connaît, personne ne te trouve"</p>
+          <p style="font-size:15px;font-weight:700;color:#F8F6F1;margin-bottom:6px;">Pas de réseau = pas de chance</p>
+          <p style="font-size:13px;color:rgba(248,246,241,0.5);line-height:1.6;">"Tu peux être le meilleur — si personne ne te connaît, personne ne te trouve"</p>
         </div>
       </div>
     </div>
@@ -4743,39 +4780,39 @@ span[style*="background:#F8F6F1"] {
   </section>
 
   <!-- SECTION : COMMENT ÇA MARCHE (3 étapes) -->
-  <section style="background:white;padding:72px 0;">
+  <section style="background:#0f1410;padding:72px 0;border-top:1px solid rgba(232,148,10,0.08);">
     <div class="container">
       <div style="text-align:center;margin-bottom:48px;">
         <div class="badge badge-vert" style="margin-bottom:14px;">Simple · Gratuit · Bénin & Togo</div>
-        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;">Comment ça marche ?</h2>
+        <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;color:#F8F6F1;">Comment ça marche ?</h2>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px;max-width:900px;margin:0 auto;">
         <div style="text-align:center;">
           <div style="width:60px;height:60px;background:var(--vert);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 20px;color:white;font-family:Fraunces,serif;font-weight:900;font-size:22px;">1</div>
-          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;">Crée ton profil en 2 minutes</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Gratuit. Nom. Métier. Quartier. Photo. Tu apparais immédiatement dans les résultats de recherche quand quelqu'un cherche ton métier à Cotonou ou à Lomé.</p>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;color:#F8F6F1;">Crée ton profil en 2 minutes</h3>
+          <p style="font-size:14px;color:rgba(248,246,241,0.55);line-height:1.7;">Gratuit. Nom. Métier. Quartier. Photo. Tu apparais immédiatement dans les résultats de recherche quand quelqu'un cherche ton métier à Cotonou ou à Lomé.</p>
         </div>
         <div style="text-align:center;">
           <div style="width:60px;height:60px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-family:Fraunces,serif;font-weight:900;font-size:22px;margin:0 auto 20px;">2</div>
-          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;">Active "Je cherche du travail" ou publie une offre</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Un simple toggle dans ton dashboard. Les opportunités arrivent à toi.</p>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;color:#F8F6F1;">Active "Je cherche du travail" ou publie une offre</h3>
+          <p style="font-size:14px;color:rgba(248,246,241,0.55);line-height:1.7;">Un simple toggle dans ton dashboard. Les opportunités arrivent à toi.</p>
         </div>
         <div style="text-align:center;">
           <div style="width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:26px;margin:0 auto 20px;">💬</div>
-          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;">Le client te contacte directement sur WhatsApp</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Pas de commission. Pas d'intermédiaire qui garde la relation. L'argent va directement dans ta caisse. Tu négocies comme tu veux.</p>
+          <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;margin-bottom:8px;color:#F8F6F1;">Le client te contacte directement sur WhatsApp</h3>
+          <p style="font-size:14px;color:rgba(248,246,241,0.55);line-height:1.7;">Pas de commission. Pas d'intermédiaire qui garde la relation. L'argent va directement dans ta caisse. Tu négocies comme tu veux.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- SECTION : OFFRES D'EMPLOI RÉCENTES -->
-  <section style="background:var(--blanc);padding:72px 0;">
+  <section style="background:#0f1410;padding:72px 0;border-top:1px solid rgba(232,148,10,0.08);">
     <div class="container">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
         <div>
           <div class="badge badge-vert" style="margin-bottom:8px;">Nouvelles opportunités</div>
-          <h2 style="font-family:Fraunces,serif;font-size:32px;font-weight:900;">WOLO Jobs — offres récentes</h2>
+          <h2 style="font-family:Fraunces,serif;font-size:32px;font-weight:900;color:#F8F6F1;">WOLO Jobs — offres récentes</h2>
         </div>
         <button class="btn btn-secondary" onclick="showPage('emploi')">Voir toutes les offres →</button>
       </div>
