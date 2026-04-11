@@ -8,6 +8,8 @@
     { "path": "/api/cron/awards-resultat", "schedule": "0 17 * * 5" }
   ],
   "rewrites": [
-    { "source": "/pay/:id", "destination": "/pay.html" }
+    { "source": "/profil/:slug", "destination": "/api/profil-seo" },
+    { "source": "/pay/:id", "destination": "/pay.html" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
   ]
 }
