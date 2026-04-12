@@ -3,7 +3,7 @@
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
 import { debiterCreditWolo } from '../../_utils/credit.js';
-import { traiterPaiementAbonnement } from '../../paiements/abonnement.js';
+import { traiterPaiementAbonnement } from '../../_lib/abonnement.js';
 import { ensureUserProvisioned } from '../../_lib/provisioning.js';
 
 const MONTANT_PRO_DEFAULT = 2500;

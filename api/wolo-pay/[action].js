@@ -27,6 +27,7 @@ import recompensesStatus from './_impl/recompenses-status.js';
 import awardsCandidats from './_impl/awards-candidats.js';
 import awardsVote from './_impl/awards-vote.js';
 import awardsCandidater from './_impl/awards-candidater.js';
+import adminVerify from './_impl/admin-verify.js';
 
 // Endpoints publics (pas besoin d'authentification)
 const PUBLIC_ACTIONS = new Set([
@@ -34,6 +35,7 @@ const PUBLIC_ACTIONS = new Set([
   'process-public-pay',  // Paiement public via lien/QR
   'awards-candidats',    // Liste publique des candidats Awards
   'awards-vote',         // Vote public
+  'admin-verify',        // Gère sa propre auth via token
 ]);
 
 const handlers = {
@@ -48,6 +50,7 @@ const handlers = {
   'awards-candidats': awardsCandidats,
   'awards-vote': awardsVote,
   'awards-candidater': awardsCandidater,
+  'admin-verify': adminVerify,
   'balance': balance,
   'contacts': contacts,
   'create-subscription': createSubscription,

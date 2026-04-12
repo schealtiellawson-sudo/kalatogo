@@ -7,7 +7,7 @@
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
 import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
-import { traiterPaiementAbonnement } from '../paiements/abonnement.js';
+import { traiterPaiementAbonnement } from '../_lib/abonnement.js';
 import { createHmac, timingSafeEqual } from 'crypto';
 
 export default async function handler(req, res) {

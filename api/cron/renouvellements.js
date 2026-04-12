@@ -4,7 +4,7 @@
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
 import { debiterCreditWolo, envoyerNotification } from '../_utils/credit.js';
-import { traiterPaiementAbonnement } from '../paiements/abonnement.js';
+import { traiterPaiementAbonnement } from '../_lib/abonnement.js';
 
 const MONTANT_PRO = 2500;
 

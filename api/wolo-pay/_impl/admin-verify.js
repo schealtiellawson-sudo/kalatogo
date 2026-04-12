@@ -1,11 +1,10 @@
 // ================================================================
-// Vérification admin — remplace le secret hardcodé dans le frontend
-// POST /api/admin-verify { token: "supabase_jwt" }
-// Vérifie que l'utilisateur connecté est dans la liste ADMIN_EMAILS
+// Admin verify — vérifie que l'utilisateur est dans ADMIN_EMAILS
+// Action: POST /api/wolo-pay/admin-verify { token }
 // ================================================================
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req, res) {
+export default async function adminVerify(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

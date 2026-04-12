@@ -16964,7 +16964,7 @@ function loadAbonnement() {
 
 // TODO Sprint 6 : intégration FedaPay paiement abonnement Pro
 const WOLO_FLOOZ = '';
-// Admin : vérifié côté serveur via /api/admin-verify (plus de secret hardcodé)
+// Admin : vérifié côté serveur via /api/wolo-pay/admin-verify (plus de secret hardcodé)
 
 function generatePaymentCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -17032,7 +17032,7 @@ async function checkAdminUrl() {
   try {
     const { data: { session } } = await supa.auth.getSession();
     if (!session) { toast('Connecte-toi pour accéder au panel admin', 'error'); return; }
-    const r = await fetch('/api/admin-verify', {
+    const r = await fetch('/api/wolo-pay/admin-verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: session.access_token })
