@@ -9901,12 +9901,27 @@ async function changePassword() {
 // ══════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════
-const AT_TOKEN = 'patFdOUZvtxsOmvpH.a21aaa9924b0c94587faa3dd58b227da7702ffded3201589a9f0308732fc2474';
-const AT_BASE = 'applmj1RDrJkR8C4w';
-const IMGBB_KEY = 'cb31eda019064c4745d010659291de12'; // clé imgbb personnelle
+// ══ SÉCURITÉ : Les clés API sont côté serveur (env vars Vercel) ══
+// Le frontend utilise le proxy /api/airtable-proxy/ et /api/imgbb-proxy
+const AT_URL = (table) => `/api/airtable-proxy/${encodeURIComponent(table)}`;
+const AT_HEADERS = { 'Content-Type': 'application/json' };
 
-const AT_URL = (table) => `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(table)}`;
-const AT_HEADERS = { 'Authorization': `Bearer ${AT_TOKEN}`, 'Content-Type': 'application/json' };
+// Fonction utilitaire anti-XSS
+function escapeHtml(str) {
+  if (!str) return '';
+  const s = String(str);
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Fetch authentifié pour WOLO Pay — ajoute le JWT Supabase automatiquement
+async function woloFetch(url, opts = {}) {
+  const { data: { session } } = await supa.auth.getSession();
+  const headers = { ...(opts.headers || {}) };
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+  return fetch(url, { ...opts, headers });
+}
 
 // ══════════════════════════════════════════
 // NAVIGATION
@@ -10329,9 +10344,8 @@ async function uploadToImgBB(file) {
   if (!file) return null;
   const formData = new FormData();
   formData.append('image', file);
-  formData.append('key', IMGBB_KEY);
   try {
-    const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+    const res = await fetch('/api/imgbb-proxy', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.success) {
       // upload OK
@@ -10533,18 +10547,19 @@ function getUserLocation() {
 
 function renderCard(record) {
   const f = record.fields;
-  const nom = f['Nom complet'] || 'Prestataire';
+  const nom = escapeHtml(f['Nom complet'] || 'Prestataire');
   const initiale = nom.charAt(0).toUpperCase();
-  const metier = f['Métier principal'] || '';
-  const quartier = f['Quartier'] || '';
+  const metier = escapeHtml(f['Métier principal'] || '');
+  const quartier = escapeHtml(f['Quartier'] || '');
   const tarifMin = f['Tarif minimum FCFA'];
   const note = f['Note moyenne'] || 0;
   const nbAvis = f['Nombre d\'avis reçus'] || 0;
   const dispo = f['Disponible maintenant'];
   const verifie = f['Badge vérifié'];
   const tel = (f['Numéro de téléphone'] || '').replace(/\D/g,'');
-  const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
-  const emoji = METIER_EMOJI[metier] || '⚡';
+  const rawPhoto = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
+  const photoProfil = escapeHtml(rawPhoto);
+  const emoji = METIER_EMOJI[f['Métier principal']] || '⚡';
 
   // Distance badge
   let distBadge = '';
@@ -10563,8 +10578,9 @@ function renderCard(record) {
   const topRank = f['Rang Top 50'] || 0;
   const champion = f['Champion WOLO'] || '';
 
+  const safeId = escapeHtml(record.id);
   return `
-    <div class="pcard" onclick="showProfil('${record.id}')">
+    <div class="pcard" onclick="showProfil('${safeId}')">
       <div class="pcard-body">
         <div class="pcard-top">
           <div style="flex:1;min-width:0;">
@@ -11298,8 +11314,7 @@ async function submitPost(recordId) {
         if (btn) btn.textContent = '📤 Upload photo...';
         const formData = new FormData();
         formData.append('image', file);
-        formData.append('key', IMGBB_KEY);
-        const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+        const res = await fetch('/api/imgbb-proxy', { method: 'POST', body: formData });
         const data = await res.json();
         mediaUrl  = data?.data?.url || '';
         mediaType = 'photo';
@@ -14091,7 +14106,7 @@ async function submitInscription(e) {
       try {
         const pendingRef = localStorage.getItem('wolo_ref');
         if (pendingRef && authData?.user?.id) {
-          fetch('/api/wolo-pay/parrainage-apply', {
+          woloFetch('/api/wolo-pay/parrainage-apply', {
             method:'POST', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({ user_id: authData.user.id, code: pendingRef })
           }).then(r=>r.json()).then(d=>{
@@ -14173,7 +14188,7 @@ async function loadParrainage() {
   let supabaseCode = '';
   try {
     if (currentUser?.id) {
-      const r = await fetch(`/api/wolo-pay/parrainage-stats?user_id=${currentUser.id}`);
+      const r = await woloFetch(`/api/wolo-pay/parrainage-stats?user_id=${currentUser.id}`);
       const d = await r.json();
       if (d?.ok) supabaseCode = d.code_parrainage || '';
     }
@@ -15073,7 +15088,7 @@ async function encaPersistToApi(amount, desc, clientNom, clientTel) {
   // Persist en Supabase + Airtable via /api/wolo-pay/create-transaction
   if (!currentUser?.id) return null;
   try {
-    const r = await fetch('/api/wolo-pay/create-transaction', {
+    const r = await woloFetch('/api/wolo-pay/create-transaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -15401,7 +15416,7 @@ async function loadWoloCreditWidget() {
   const widget = document.getElementById('wolo-credit-widget');
   if (!widget) return;
   try {
-    const res = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}&email=${encodeURIComponent(currentUser.email||'')}`);
+    const res = await woloFetch(`/api/wolo-pay/balance?user_id=${currentUser.id}&email=${encodeURIComponent(currentUser.email||'')}`);
     const data = await res.json();
     if (!data.ok || !data.credit) return;
     widget.style.display = 'block';
@@ -15426,7 +15441,7 @@ async function payAbonnementWithCredit() {
   const old = btn.textContent;
   btn.disabled = true; btn.textContent = '⏳ Traitement...';
   try {
-    const res = await fetch('/api/wolo-pay/debit-credit', {
+    const res = await woloFetch('/api/wolo-pay/debit-credit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: currentUser.id, montant: 2500 })
@@ -15470,7 +15485,7 @@ async function loadCreditWoloSection(){
 
 async function cwLoadBalance(){
   try{
-    const r = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}&email=${encodeURIComponent(currentUser.email||'')}`);
+    const r = await woloFetch(`/api/wolo-pay/balance?user_id=${currentUser.id}&email=${encodeURIComponent(currentUser.email||'')}`);
     const d = await r.json();
     if (!d.ok) return;
     CW.solde = d.credit?.solde_disponible || 0;
@@ -15486,7 +15501,7 @@ async function cwLoadBalance(){
 
 async function cwLoadContacts(){
   try{
-    const r = await fetch(`/api/wolo-pay/contacts?user_id=${currentUser.id}`);
+    const r = await woloFetch(`/api/wolo-pay/contacts?user_id=${currentUser.id}`);
     const d = await r.json();
     CW.contacts = d.contacts || [];
     const host = document.getElementById('cw-contacts');
@@ -15601,7 +15616,7 @@ function cwConfirm(texte, cb){
 // ── PIN ──
 async function cwAskPin(onSuccess){
   try{
-    const r = await fetch(`/api/wolo-pay/pin-verify?user_id=${currentUser.id}`);
+    const r = await woloFetch(`/api/wolo-pay/pin-verify?user_id=${currentUser.id}`);
     // pin-verify is POST only; we'll just try verify first and fallback to create
   }catch(e){}
   // Show keypad
@@ -15628,12 +15643,12 @@ function cwPinPush(k){
 async function cwPinSubmit(){
   const pin = CW.pinBuf;
   try{
-    const r = await fetch('/api/wolo-pay/pin-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,pin})});
+    const r = await woloFetch('/api/wolo-pay/pin-verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,pin})});
     const d = await r.json();
     if (r.status===404 || d.code==='NO_PIN'){
       // Create PIN flow
       if (!confirm('Aucun PIN défini. Créer ton PIN WOLO Pay avec ces chiffres ?')){ CW.pinBuf=''; cwAskPin(CW.pinCallback); return; }
-      await fetch('/api/wolo-pay/pin-set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,pin})});
+      await woloFetch('/api/wolo-pay/pin-set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,pin})});
       toast('PIN créé','success');
       if (CW.pinCallback) CW.pinCallback();
       return;
@@ -15650,21 +15665,21 @@ async function cwPinSubmit(){
 // ── Submissions ──
 async function cwSubmitRecharger(){
   try{
-    const r = await fetch('/api/wolo-pay/recharger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,email:currentUser.email,montant:CW.data.montant,operateur:CW.data.operateur,telephone:CW.data.telephone})});
+    const r = await woloFetch('/api/wolo-pay/recharger',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,email:currentUser.email,montant:CW.data.montant,operateur:CW.data.operateur,telephone:CW.data.telephone})});
     const d = await r.json(); if (!r.ok) throw new Error(d.error);
     cwBeep(); cwHaptic(80); toast('Rechargement en cours','success'); cwCloseModal(); loadCreditWoloSection();
   }catch(e){ toast('Erreur: '+e.message,'error'); }
 }
 async function cwSubmitEnvoyer(){
   try{
-    const r = await fetch('/api/wolo-pay/transfer-by-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from_user_id:currentUser.id,to_email:CW.data.to_email,montant:CW.data.montant})});
+    const r = await woloFetch('/api/wolo-pay/transfer-by-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from_user_id:currentUser.id,to_email:CW.data.to_email,montant:CW.data.montant})});
     const d = await r.json(); if (!r.ok) throw new Error(d.error);
     cwBeep(); cwHaptic(80); toast('Transfert effectué','success'); cwCloseModal(); loadCreditWoloSection();
   }catch(e){ toast('Erreur: '+e.message,'error'); }
 }
 async function cwSubmitRecuperer(){
   try{
-    const r = await fetch('/api/wolo-pay/recuperer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,email:currentUser.email,montant:CW.data.montant,operateur:CW.data.operateur,telephone:CW.data.telephone})});
+    const r = await woloFetch('/api/wolo-pay/recuperer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,email:currentUser.email,montant:CW.data.montant,operateur:CW.data.operateur,telephone:CW.data.telephone})});
     const d = await r.json(); if (!r.ok) throw new Error(d.error);
     cwBeep(); cwHaptic(80); toast('Retrait en cours (24h)','success'); cwCloseModal(); loadCreditWoloSection();
   }catch(e){ toast('Erreur: '+e.message,'error'); }
@@ -15675,11 +15690,11 @@ async function cwAddContact(){
   const email = prompt('Email du contact WOLO :'); if (!email) return;
   const surnom = prompt('Surnom (max 12 caractères) :','')||'';
   try{
-    const s = await fetch(`/api/wolo-pay/search-user?q=${encodeURIComponent(email)}`);
+    const s = await woloFetch(`/api/wolo-pay/search-user?q=${encodeURIComponent(email)}`);
     const sd = await s.json();
     const u = (sd.users||[]).find(x=>x.email===email);
     if (!u){ toast('Utilisateur introuvable','error'); return; }
-    const r = await fetch('/api/wolo-pay/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,contact_user_id:u.id,surnom:surnom.slice(0,12)})});
+    const r = await woloFetch('/api/wolo-pay/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:currentUser.id,contact_user_id:u.id,surnom:surnom.slice(0,12)})});
     if (!r.ok) throw new Error('Échec');
     toast('Contact ajouté','success'); cwLoadContacts();
   }catch(e){ toast('Erreur: '+e.message,'error'); }
@@ -15947,7 +15962,7 @@ async function loadLienPaiementSection(){
   if (window.lucide) lucide.createIcons();
   // Charger historique
   try{
-    const r = await fetch(`/api/wolo-pay/create-payment-link?merchant_id=${currentUser.id}`);
+    const r = await woloFetch(`/api/wolo-pay/create-payment-link?merchant_id=${currentUser.id}`);
     const d = await r.json();
     const host = document.getElementById('lp-history');
     if (!d.links?.length){ host.innerHTML='<div style="color:rgba(248,246,241,.5);font-size:13px;padding:8px 0">Aucun lien généré</div>'; return; }
@@ -15963,7 +15978,7 @@ async function lpGenerate(){
   const description = document.getElementById('lp-desc').value.trim();
   if (montant < 100) return toast('Min 100 FCFA','error');
   try{
-    const r = await fetch('/api/wolo-pay/create-payment-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({merchant_id:currentUser.id,montant,description})});
+    const r = await woloFetch('/api/wolo-pay/create-payment-link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({merchant_id:currentUser.id,montant,description})});
     const d = await r.json(); if (!r.ok) throw new Error(d.error);
     _lpLast = d;
     document.getElementById('lp-url').textContent = d.url;
@@ -15987,7 +16002,7 @@ function lpCopy(){
 async function loadStatsProSection(){
   if (!currentUser?.id) return;
   try{
-    const r = await fetch(`/api/wolo-pay/stats?merchant_id=${currentUser.id}`);
+    const r = await woloFetch(`/api/wolo-pay/stats?merchant_id=${currentUser.id}`);
     const d = await r.json(); if (!d.ok) return;
     const s = d.stats;
     const fmt = n => n.toLocaleString('fr-FR').replace(/,/g,' ') + ' FCFA';
@@ -16030,7 +16045,7 @@ async function injectSprint6Upgrade(){
   // Récupérer solde Crédit WOLO
   let solde = 0;
   try{
-    const r = await fetch(`/api/wolo-pay/balance?user_id=${currentUser.id}`);
+    const r = await woloFetch(`/api/wolo-pay/balance?user_id=${currentUser.id}`);
     const d = await r.json();
     solde = d?.credit?.solde_disponible || 0;
   }catch(e){}
@@ -16163,7 +16178,7 @@ async function injectSprint6Upgrade(){
 async function sp6PayWithCredit(){
   if (!confirm('Confirmer : 2 500 FCFA seront débités de ton Crédit WOLO pour activer ton Plan Pro pendant 1 mois ?')) return;
   try{
-    const r = await fetch('/api/wolo-pay/debit-credit', {
+    const r = await woloFetch('/api/wolo-pay/debit-credit', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email, montant: 2500 })
     });
@@ -16201,7 +16216,7 @@ async function injectSprint6Parrainage_DEPRECATED(){ return; // remplacé par lo
   if (!host || host.querySelector('#sp6-parrain-block')) return;
   if (!currentUser?.id) return;
   try{
-    const r = await fetch(`/api/wolo-pay/parrainage-stats?user_id=${currentUser.id}`);
+    const r = await woloFetch(`/api/wolo-pay/parrainage-stats?user_id=${currentUser.id}`);
     const d = await r.json();
     if (!d.ok) return;
 
@@ -16262,7 +16277,7 @@ async function loadRecompensesWidgets() {
   host.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(248,246,241,.5)">Chargement des récompenses...</div>';
 
   try {
-    const r = await fetch(`/api/wolo-pay/recompenses-status?user_id=${currentUser.id}`);
+    const r = await woloFetch(`/api/wolo-pay/recompenses-status?user_id=${currentUser.id}`);
     const d = await r.json();
     if (!d.ok) throw new Error(d.error);
 
@@ -16456,7 +16471,7 @@ async function loadPageRecompenses() {
   try {
     // Charger le statut si connecté Pro
     if (currentUser?.id && !isBase) {
-      const r = await fetch(`/api/wolo-pay/recompenses-status?user_id=${currentUser.id}`);
+      const r = await woloFetch(`/api/wolo-pay/recompenses-status?user_id=${currentUser.id}`);
       const d = await r.json();
       if (d.ok) {
         // Widget Bourse
@@ -16479,7 +16494,7 @@ async function loadPageRecompenses() {
 
     // Charger les candidats WOLO Awards (public)
     const mois = new Date().toISOString().slice(0, 7);
-    const rc = await fetch(`/api/wolo-pay/awards-candidats?mois=${mois}`);
+    const rc = await woloFetch(`/api/wolo-pay/awards-candidats?mois=${mois}`);
     const dc = await rc.json();
 
     const host = document.getElementById('recomp-awards-candidats');
@@ -16539,7 +16554,7 @@ async function voterAwards(candidatId) {
   if (btn) { btn.disabled = true; btn.textContent = 'Vote en cours...'; }
 
   try {
-    const r = await fetch('/api/wolo-pay/awards-vote', {
+    const r = await woloFetch('/api/wolo-pay/awards-vote', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ votant_id: currentUser.id, candidat_id: candidatId })
@@ -16577,8 +16592,8 @@ async function chargerCompteurMetiers() {
     let allMetiers = [];
     let offset = '';
     do {
-      const url = `https://api.airtable.com/v0/applmj1RDrJkR8C4w/Prestataires?fields%5B%5D=M%C3%A9tier%20principal&pageSize=100${offset ? '&offset='+offset : ''}`;
-      const r = await fetch(url, { headers: { 'Authorization': 'Bearer ' + AT_TOKEN } });
+      const url = `${AT_URL('Prestataires')}?fields%5B%5D=M%C3%A9tier%20principal&pageSize=100${offset ? '&offset='+offset : ''}`;
+      const r = await fetch(url, { headers: AT_HEADERS });
       const d = await r.json();
       if (d.records) d.records.forEach(rec => { if (rec.fields['Métier principal']) allMetiers.push(rec.fields['Métier principal']); });
       offset = d.offset || '';
@@ -16633,7 +16648,7 @@ async function loadHomeGagnants() {
     const moisPrec = d.toISOString().slice(0, 7);
     const moisLabel = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
-    const r = await fetch(`/api/wolo-pay/recompenses-status?user_id=public`);
+    const r = await woloFetch(`/api/wolo-pay/recompenses-status?user_id=public`);
     const data = await r.json();
     if (!data.ok) return;
 
@@ -16933,7 +16948,7 @@ function loadAbonnement() {
 
 // TODO Sprint 6 : intégration FedaPay paiement abonnement Pro
 const WOLO_FLOOZ = '';
-const ADMIN_SECRET   = 'WOLO2025';
+// Admin : vérifié côté serveur via /api/admin-verify (plus de secret hardcodé)
 
 function generatePaymentCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -16994,9 +17009,22 @@ function showPaiementManuelModal(plan, amount, code) {
 // PANEL ADMIN — ACTIVATION BULK
 // ══════════════════════════════════════════
 
-function checkAdminUrl() {
+async function checkAdminUrl() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('admin') === ADMIN_SECRET) showAdminPanel();
+  if (!params.has('admin')) return;
+  // Vérification admin côté serveur via JWT Supabase
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) { toast('Connecte-toi pour accéder au panel admin', 'error'); return; }
+    const r = await fetch('/api/admin-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: session.access_token })
+    });
+    const d = await r.json();
+    if (d.ok) showAdminPanel();
+    else toast('Accès admin refusé', 'error');
+  } catch (e) { console.error('[admin]', e); }
 }
 
 function showAdminPanel() {
@@ -19482,7 +19510,7 @@ loadSchealtielPhoto();
   </div>
 </div>
 
-<!-- ══ PANEL ADMIN WOLO MARKET (accès via ?admin=WOLO2025) ══ -->
+<!-- ══ PANEL ADMIN WOLO MARKET (accès via ?admin + auth Supabase) ══ -->
 <div id="admin-panel" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:99999;overflow-y:auto;padding:32px 24px;">
   <div style="max-width:800px;margin:0 auto;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
@@ -20089,9 +20117,8 @@ async function _awardsFetchAirtable(table, params=''){
       if(!r.ok)return [];
       const d=await r.json();return d.records||[];
     }
-    const token=window.AIRTABLE_TOKEN||'';
-    if(!token){console.warn('[Awards] Pas de wrapper ni token Airtable');return [];}
-    const r=await fetch(`https://api.airtable.com/v0/applmj1RDrJkR8C4w/${encodeURIComponent(table)}`+(params?('?'+params):''),{headers:{Authorization:`Bearer ${token}`}});
+    // Fallback : utiliser aussi le proxy Airtable
+    const r=await fetch(`/api/airtable-proxy/${encodeURIComponent(table)}`+(params?('?'+params):''),{headers:{'Content-Type':'application/json'}});
     if(!r.ok)return [];
     const d=await r.json();return d.records||[];
   }catch(e){console.warn('[Awards] fetch fail',e);return [];}

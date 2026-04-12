@@ -7,7 +7,10 @@
 //   APP_URL             https://wolomarket.vercel.app
 // ================================================================
 
-const FEDAPAY_SECRET_KEY = process.env.FEDAPAY_SECRET_KEY || 'sk_sandbox_PLACEHOLDER';
+const FEDAPAY_SECRET_KEY = process.env.FEDAPAY_SECRET_KEY;
+if (!FEDAPAY_SECRET_KEY) {
+  console.error('[fedapay] FEDAPAY_SECRET_KEY env var manquant');
+}
 const FEDAPAY_BASE_URL = process.env.FEDAPAY_ENV === 'live'
   ? 'https://api.fedapay.com/v1'
   : 'https://sandbox-api.fedapay.com/v1';

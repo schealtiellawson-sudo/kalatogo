@@ -3,7 +3,7 @@
 // Utilisé par le cron horaire + endpoint dashboard
 // ================================================================
 
-const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID || 'applmj1RDrJkR8C4w';
+const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_KEY  = process.env.AIRTABLE_API_KEY;
 const AT_BASE_URL   = `https://api.airtable.com/v0/${AIRTABLE_BASE}`;
 const AT_HEADERS    = { Authorization: `Bearer ${AIRTABLE_KEY}`, 'Content-Type': 'application/json' };

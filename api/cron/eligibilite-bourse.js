@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     for (const p of (profiles || [])) profileMap[p.id] = p;
 
     // 3. Récupérer les avis des 30 derniers jours depuis Airtable
-    const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID || 'applmj1RDrJkR8C4w';
+    const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
     const AT_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE}`;
     const AT_HEADERS = { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` };
 
@@ -193,6 +193,6 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('[cron/eligibilite-bourse]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

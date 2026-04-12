@@ -63,6 +63,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, paiement, fedapay });
   } catch (err) {
     console.error('[create-subscription]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

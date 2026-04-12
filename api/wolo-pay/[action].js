@@ -2,6 +2,7 @@
 // WOLO Pay — Router unique (consolide tous les endpoints)
 // Vercel route: /api/wolo-pay/<action>  →  req.query.action
 // ================================================================
+import { requireAuth } from '../_lib/auth.js';
 import balance from './_impl/balance.js';
 import contacts from './_impl/contacts.js';
 import createSubscription from './_impl/create-subscription.js';
@@ -26,6 +27,14 @@ import recompensesStatus from './_impl/recompenses-status.js';
 import awardsCandidats from './_impl/awards-candidats.js';
 import awardsVote from './_impl/awards-vote.js';
 import awardsCandidater from './_impl/awards-candidater.js';
+
+// Endpoints publics (pas besoin d'authentification)
+const PUBLIC_ACTIONS = new Set([
+  'merchant-public',     // Affichage public du commerçant
+  'process-public-pay',  // Paiement public via lien/QR
+  'awards-candidats',    // Liste publique des candidats Awards
+  'awards-vote',         // Vote public
+]);
 
 const handlers = {
   'merchant-public': merchantPublic,
@@ -57,6 +66,15 @@ const handlers = {
 export default async function handler(req, res) {
   const action = req.query.action;
   const fn = handlers[action];
-  if (!fn) return res.status(404).json({ error: `Unknown action: ${action}` });
+  if (!fn) return res.status(404).json({ error: 'Action inconnue' });
+
+  // Vérifier l'authentification pour les endpoints protégés
+  if (!PUBLIC_ACTIONS.has(action)) {
+    const user = await requireAuth(req, res);
+    if (!user) return; // 401 déjà envoyé par requireAuth
+    // Injecter l'utilisateur authentifié dans la requête
+    req.authenticatedUser = user;
+  }
+
   return fn(req, res);
 }

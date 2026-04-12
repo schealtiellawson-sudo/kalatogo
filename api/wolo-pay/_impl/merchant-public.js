@@ -26,6 +26,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, merchant: { ...p, plan: abo?.plan || 'gratuit' }, link });
   } catch (err) {
     console.error('[merchant-public]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

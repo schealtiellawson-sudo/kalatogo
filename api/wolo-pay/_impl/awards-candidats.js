@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     }
 
     // Enrichir avec Airtable (photo, métier)
-    const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID || 'applmj1RDrJkR8C4w';
+    const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
     const AT_HEADERS = { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` };
 
     const enrichis = (candidats || []).map(c => {
@@ -56,6 +56,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, mois, candidats: enrichis });
   } catch (err) {
     console.error('[awards-candidats]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

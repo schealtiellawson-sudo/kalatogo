@@ -2,7 +2,7 @@
 // Airtable backup sync — duplication Supabase → Airtable
 // Fire-and-forget : n'échoue jamais le flux principal
 // ================================================================
-const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID || 'applmj1RDrJkR8C4w';
+const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 
 async function airtableRequest(method, table, body) {

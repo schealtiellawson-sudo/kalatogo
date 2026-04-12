@@ -40,6 +40,6 @@ export default async function handler(req, res) {
     return res.status(503).json({ error: 'FedaPay non implémenté' });
   } catch (err) {
     console.error('[abonnement-fedapay]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

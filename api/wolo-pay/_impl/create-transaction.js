@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     // Miroir Airtable (best effort, non bloquant)
     try {
       const AT_TOKEN = process.env.AIRTABLE_TOKEN;
-      const AT_BASE = process.env.AIRTABLE_BASE_ID || 'applmj1RDrJkR8C4w';
+      const AT_BASE = process.env.AIRTABLE_BASE_ID;
       if (AT_TOKEN) {
         await fetch(`https://api.airtable.com/v0/${AT_BASE}/WOLO%20Pay%20%E2%80%94%20Transactions`, {
           method: 'POST',
@@ -94,6 +94,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, transaction: tx, fedapay });
   } catch (err) {
     console.error('[create-transaction]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

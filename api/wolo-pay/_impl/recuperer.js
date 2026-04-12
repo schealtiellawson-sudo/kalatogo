@@ -70,6 +70,6 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('[recuperer]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

@@ -12,6 +12,11 @@ export default async function handler(req, res) {
     const { user_id, email, limit = 20 } = req.query;
     if (!user_id) return res.status(400).json({ error: 'user_id requis' });
 
+    // Sécurité : vérifier que l'utilisateur consulte son propre solde
+    if (req.authenticatedUser && req.authenticatedUser.user_id !== user_id) {
+      return res.status(403).json({ error: 'Opération non autorisée' });
+    }
+
     await ensureUserProvisioned({ user_id, email: email || null });
 
     const { data: credit } = await supabase
@@ -36,6 +41,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, credit, mouvements: mouvements || [], abonnement });
   } catch (err) {
     console.error('[balance]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

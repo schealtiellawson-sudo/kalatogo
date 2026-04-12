@@ -13,6 +13,11 @@ export default async function handler(req, res) {
     if (!from_user_id || !to_user_id || !montant || montant <= 0) {
       return res.status(400).json({ error: 'from_user_id, to_user_id, montant > 0 requis' });
     }
+
+    // Sécurité : vérifier que l'expéditeur est bien l'utilisateur authentifié
+    if (req.authenticatedUser && req.authenticatedUser.user_id !== from_user_id) {
+      return res.status(403).json({ error: 'Opération non autorisée' });
+    }
     if (from_user_id === to_user_id) {
       return res.status(400).json({ error: 'Impossible de transférer vers soi-même' });
     }
@@ -55,6 +60,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('[transfer]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

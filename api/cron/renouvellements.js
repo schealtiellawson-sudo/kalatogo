@@ -9,6 +9,11 @@ import { traiterPaiementAbonnement } from '../paiements/abonnement.js';
 const MONTANT_PRO = 2500;
 
 export default async function handler(req, res) {
+  // Sécurité : vérifier le secret CRON de Vercel
+  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   try {
     const now = new Date();
     const in3days = new Date(now.getTime() + 3 * 86400000);
@@ -121,6 +126,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, ...results });
   } catch (err) {
     console.error('[cron/renouvellements]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

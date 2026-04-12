@@ -139,6 +139,7 @@ const MERCHANT_ID = location.pathname.split('/pay/')[1]?.replace(/\/$/,'') || ne
 const TOKEN = new URLSearchParams(location.search).get('t');
 let MERCHANT = null, LINK = null, SEL_OP = null;
 function fmt(n){ return (Number(n)||0).toLocaleString('fr-FR').replace(/,/g,' ')+' FCFA'; }
+function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 async function loadMerchant(){
   try{
@@ -146,15 +147,19 @@ async function loadMerchant(){
     const d = await r.json();
     if (!d.ok) throw new Error(d.error||'Commerçant introuvable');
     MERCHANT = d.merchant; LINK = d.link;
-    const initials = (MERCHANT.email||'?').slice(0,2).toUpperCase();
+    const initials = esc((MERCHANT.email||'?').slice(0,2).toUpperCase());
     const badge = MERCHANT.plan==='pro' ? '<span class="badge-pro">PRO</span>' : '';
+    const safePhoto = esc(MERCHANT.photo_url||'');
+    const safeName = esc(MERCHANT.email?.split('@')[0]||'Commerçant');
+    const safeMetier = esc(MERCHANT.metier||'Prestataire WOLO');
+    const safeLoc = esc([MERCHANT.quartier,MERCHANT.ville].filter(Boolean).join(' · ')||'Bénin / Togo');
     document.getElementById('merchant-host').innerHTML = `
       <div class="merchant-card">
-        <div class="merchant-avatar">${MERCHANT.photo_url?`<img src="${MERCHANT.photo_url}">`:initials}</div>
+        <div class="merchant-avatar">${safePhoto?`<img src="${safePhoto}">`:initials}</div>
         <div>
-          <div class="m-name">${MERCHANT.email?.split('@')[0]||'Commerçant'} ${badge}</div>
-          <div class="m-metier">${MERCHANT.metier||'Prestataire WOLO'}</div>
-          <div class="m-loc">📍 ${[MERCHANT.quartier,MERCHANT.ville].filter(Boolean).join(' · ')||'Bénin / Togo'}</div>
+          <div class="m-name">${safeName} ${badge}</div>
+          <div class="m-metier">${safeMetier}</div>
+          <div class="m-loc">📍 ${safeLoc}</div>
         </div>
       </div>`;
     document.getElementById('f-recv-name').textContent = (MERCHANT.email?.split('@')[0]||'Le commerçant');
@@ -166,7 +171,7 @@ async function loadMerchant(){
       alert(LINK.error);
     }
   }catch(e){
-    document.getElementById('merchant-host').innerHTML = `<div class="merchant-card"><div class="merchant-avatar">!</div><div><div class="m-name">Erreur</div><div class="m-metier">${e.message}</div></div></div>`;
+    document.getElementById('merchant-host').innerHTML = `<div class="merchant-card"><div class="merchant-avatar">!</div><div><div class="m-name">Erreur</div><div class="m-metier">${esc(e.message)}</div></div></div>`;
   }
 }
 function setAmt(v){ document.getElementById('amount-in').value=v; recalc(); }
@@ -226,7 +231,7 @@ async function doPay(){
     document.getElementById('s-to').textContent = `${MERCHANT.email?.split('@')[0]||'Le commerçant'} a bien reçu ${fmt(m)}`;
     document.getElementById('s-ref').textContent = `Réf : ${d.reference}`;
   }catch(e){
-    document.getElementById('waiting').innerHTML = `<div style="font-size:48px;color:#ef4444">✕</div><div style="margin-top:14px">Paiement non abouti</div><div style="color:rgba(248,246,241,.6);margin-top:6px">${e.message}</div><button class="btn-primary" style="margin-top:24px" onclick="location.reload()">Réessayer</button>`;
+    document.getElementById('waiting').innerHTML = `<div style="font-size:48px;color:#ef4444">✕</div><div style="margin-top:14px">Paiement non abouti</div><div style="color:rgba(248,246,241,.6);margin-top:6px">${esc(e.message)}</div><button class="btn-primary" style="margin-top:24px" onclick="location.reload()">Réessayer</button>`;
   }
 }
 

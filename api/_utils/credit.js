@@ -31,7 +31,8 @@ export async function crediterCreditWolo({
   const solde_apres = Math.min(solde_avant + montant, credit.plafond_max);
   const montantEffectif = solde_apres - solde_avant;
 
-  // 2. Mise à jour solde + totaux
+  // 2. Mise à jour solde atomique — on ajoute .eq('solde_disponible', solde_avant)
+  // pour détecter les modifications concurrentes (optimistic locking)
   const patch = {
     solde_disponible: solde_apres,
     total_recu: (credit.total_recu || 0) + montantEffectif,
@@ -41,12 +42,17 @@ export async function crediterCreditWolo({
     patch.total_commissions = (credit.total_commissions || 0) + montantEffectif;
   }
 
-  const { error: errUpd } = await supabase
+  const { data: updated, error: errUpd } = await supabase
     .from('wolo_credit')
     .update(patch)
-    .eq('user_id', user_id);
+    .eq('user_id', user_id)
+    .eq('solde_disponible', solde_avant)
+    .select()
+    .single();
 
-  if (errUpd) throw errUpd;
+  if (errUpd || !updated) {
+    throw new Error('CONFLIT_CONCURRENT — réessayez');
+  }
 
   // 3. Enregistrer le mouvement
   const { error: errMvt } = await supabase
@@ -104,11 +110,18 @@ export async function debiterCreditWolo({
     patch.total_depense = (credit.total_depense || 0) + montant;
   }
 
-  const { error: errUpd } = await supabase
+  // Optimistic locking : on vérifie que le solde n'a pas changé
+  const { data: updated, error: errUpd } = await supabase
     .from('wolo_credit')
     .update(patch)
-    .eq('user_id', user_id);
-  if (errUpd) throw errUpd;
+    .eq('user_id', user_id)
+    .eq('solde_disponible', solde_avant)
+    .select()
+    .single();
+
+  if (errUpd || !updated) {
+    throw new Error('CONFLIT_CONCURRENT — réessayez');
+  }
 
   const { error: errMvt } = await supabase
     .from('wolo_credit_mouvements')

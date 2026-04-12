@@ -15,6 +15,24 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Vérification de la signature FedaPay (si configurée)
+    const webhookSecret = process.env.FEDAPAY_WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const signature = req.headers['x-fedapay-signature'] || req.headers['x-webhook-signature'] || '';
+      if (!signature) {
+        console.error('[webhook fedapay] Signature manquante');
+        return res.status(403).json({ error: 'Signature manquante' });
+      }
+      // Vérification HMAC SHA256
+      const crypto = await import('crypto');
+      const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      const expected = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+        console.error('[webhook fedapay] Signature invalide');
+        return res.status(403).json({ error: 'Signature invalide' });
+      }
+    }
+
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
     // On ne traite que les transactions approuvées
@@ -105,6 +123,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ received: true, unknown_prefix: true });
   } catch (err) {
     console.error('[webhook fedapay] erreur:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

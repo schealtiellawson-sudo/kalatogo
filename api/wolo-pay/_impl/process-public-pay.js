@@ -37,24 +37,19 @@ export default async function handler(req, res) {
       taux_frais: 0.015,
       operateur: operateur || 'credit_wolo',
       mode_paiement: token ? 'lien' : 'qr',
-      statut: 'PAID',
+      statut: 'EN_ATTENTE',
       reference_interne,
       pays_client: (operateur||'').endsWith('_tg') ? 'TG' : 'BJ'
     }).select().single();
     if (error) throw error;
 
-    // Créditer le commerçant
-    await crediterCreditWolo({
-      user_id: merchant_id,
-      montant,
-      type: 'credit_paiement',
-      description: `Paiement ${token?'lien':'QR'} ${reference_interne}`
-    });
+    // NE PAS créditer immédiatement — le webhook FedaPay confirmera le paiement
+    // et déclenchera le crédit via webhooks/fedapay.js
 
-    // Marquer le lien comme PAYÉ
+    // Marquer le lien comme EN_COURS (pas PAID tant que le webhook n'a pas confirmé)
     if (token) {
       await supabase.from('wolo_payment_links')
-        .update({ statut: 'PAID', paid_at: new Date().toISOString(), transaction_id: tx.id })
+        .update({ statut: 'EN_COURS', transaction_id: tx.id })
         .eq('token', token);
     }
 
@@ -67,6 +62,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, transaction: tx, reference: reference_interne });
   } catch (err) {
     console.error('[process-public-pay]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur de traitement du paiement' });
   }
 }

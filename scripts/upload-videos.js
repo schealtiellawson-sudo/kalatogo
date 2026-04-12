@@ -9,9 +9,14 @@ const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
 
-// Configuration Supabase
-const SUPABASE_URL = 'https://wikgdksyeygwpmqzmhez.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
+// Configuration Supabase (via variables d'environnement)
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://wikgdksyeygwpmqzmhez.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+if (!SUPABASE_KEY) {
+  console.error('❌ Variable SUPABASE_SERVICE_KEY manquante. Exécuter avec :');
+  console.error('   SUPABASE_SERVICE_KEY=xxx node scripts/upload-videos.js');
+  process.exit(1);
+}
 const BUCKET_NAME = 'videos';
 
 // Vidéos à uploader

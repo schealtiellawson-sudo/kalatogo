@@ -15,6 +15,11 @@ export default async function handler(req, res) {
     const { user_id, email = null, montant = MONTANT_PRO_DEFAULT } = body;
     if (!user_id) return res.status(400).json({ error: 'user_id requis' });
 
+    // Sécurité : vérifier que l'utilisateur agit sur son propre compte
+    if (req.authenticatedUser && req.authenticatedUser.user_id !== user_id) {
+      return res.status(403).json({ error: 'Opération non autorisée' });
+    }
+
     await ensureUserProvisioned({ user_id, email });
 
     const { data: abonnement } = await supabase
@@ -65,6 +70,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, paiement, result });
   } catch (err) {
     console.error('[debit-credit]', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Erreur interne' });
   }
 }

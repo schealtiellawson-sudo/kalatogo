@@ -17,8 +17,8 @@ git add index.html
 git commit -m "description"
 git push
 
-# Panel admin
-# https://wolomarket.vercel.app?admin=WOLO2025
+# Panel admin (nécessite un compte Supabase admin + ?admin dans l'URL)
+# https://wolomarket.vercel.app?admin
 ```
 
 ## Stack technique
@@ -103,7 +103,7 @@ showDashSection('recompenses')          → récompenses (Bourse + Awards widget
 - **localStorage** : préfixé `wolo_` — migration automatique des anciennes clés `kala_` au premier chargement.
 - **Pas de champ `Nom` dans Airtable** — utiliser `Nom complet` partout.
 - **Codes parrainage** : préfixe `WOLO`, format `WOLOxxxx1234`.
-- **Admin secret** : `WOLO2025` — accès panel admin via `?admin=WOLO2025`.
+- **Admin** : accès panel admin via `?admin` dans l'URL + authentification Supabase (vérifié côté serveur via `/api/admin-verify`). Les emails admin sont dans la variable d'environnement `ADMIN_EMAILS`.
 
 ## Score WOLO (max 100 pts) — Sprint 7
 
@@ -131,7 +131,7 @@ Recalcul : cron horaire api/cron/score-wolo.js
 1. Prestataire clique "Passer au Pro" → code `WOL-XXXXXX` généré + sauvé dans Airtable
 2. Modal affiche placeholder "Paiement sécurisé via FedaPay (bientôt disponible)" + code de référence
 3. Prestataire envoie 2 500 FCFA
-4. Admin sur `?admin=WOLO2025` → voit demandes en attente → active
+4. Admin connecté sur `?admin` → voit demandes en attente → active
 5. Airtable passe `Abonnement: Pro`, efface `Code Paiement`
 
 ## Plans tarifaires
