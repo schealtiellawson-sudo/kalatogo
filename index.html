@@ -5574,16 +5574,24 @@ div[style*="position:sticky"][style*="background:#fff"] {
 </div>
 
 <!-- ══════════════════════════════════════════
-     PAGE WOLO MATCH
+     PAGE WOLO MATCH — Bidirectionnel
 ══════════════════════════════════════════ -->
 <div id="page-match" class="page">
   <div class="wolo-match-page">
     <div class="match-hero">
       <span class="eyebrow" style="color:#E8940A;letter-spacing:3px;font-family:'Space Mono',monospace;font-size:10px;">WOLO MATCH</span>
-      <h1 style="font-family:Fraunces,serif;font-size:28px;color:#F8F6F1;margin:8px 0;">Trouve le prestataire parfait</h1>
-      <p style="color:rgba(248,246,241,0.6);font-size:14px;">Décris ton besoin, on te connecte avec les meilleurs pros de ta ville.</p>
+      <h1 style="font-family:Fraunces,serif;font-size:28px;color:#F8F6F1;margin:8px 0;">Le bon match. Sans piston.</h1>
+      <p style="color:rgba(248,246,241,0.6);font-size:14px;max-width:480px;margin:0 auto;line-height:1.6;">Tu cherches un pro pour un chantier ? Ou tu cherches du travail dans ton métier ?<br>WOLO Match te connecte avec la bonne personne — en 30 secondes.</p>
     </div>
-    <div class="match-form-card" id="match-form-card">
+
+    <!-- SÉLECTEUR DE MODE -->
+    <div class="match-mode-toggle" style="display:flex;gap:0;margin:0 16px 20px;border-radius:12px;overflow:hidden;border:1px solid rgba(232,148,10,0.25);">
+      <button id="match-mode-client" class="match-mode-btn match-mode-active" onclick="switchMatchMode('client')" style="flex:1;padding:14px 16px;background:rgba(232,148,10,0.15);color:#E8940A;border:none;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.5px;cursor:pointer;transition:all .2s;">🔍 JE CHERCHE UN PRESTATAIRE</button>
+      <button id="match-mode-travail" class="match-mode-btn" onclick="switchMatchMode('travail')" style="flex:1;padding:14px 16px;background:rgba(255,255,255,0.02);color:rgba(248,246,241,0.5);border:none;border-left:1px solid rgba(232,148,10,0.15);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.5px;cursor:pointer;transition:all .2s;">💼 JE CHERCHE DU TRAVAIL</button>
+    </div>
+
+    <!-- FORMULAIRE MODE CLIENT (cherche un prestataire) -->
+    <div class="match-form-card" id="match-form-client">
       <div class="match-field">
         <label>Que cherches-tu ?</label>
         <textarea id="match-description" rows="3" placeholder="Ex: Je cherche un plombier pour installer un chauffe-eau..." maxlength="500"></textarea>
@@ -5627,15 +5635,74 @@ div[style*="position:sticky"][style*="background:#fff"] {
       </div>
       <button class="wolo-btn-primary" style="width:100%;padding:14px;font-size:15px;border-radius:10px;" onclick="lancerWoloMatch()">🔍 Trouver un prestataire</button>
     </div>
-    <!-- Résultats -->
+
+    <!-- FORMULAIRE MODE TRAVAIL (cherche du travail) -->
+    <div class="match-form-card" id="match-form-travail" style="display:none;">
+      <div class="match-field">
+        <label>Ton métier / spécialité</label>
+        <select id="match-travail-metier">
+          <option value="">Sélectionner ton métier...</option>
+          <option value="Coiffeur">Coiffeur</option>
+          <option value="Couturier">Couturier</option>
+          <option value="Électricien">Électricien</option>
+          <option value="Plombier">Plombier</option>
+          <option value="Mécanicien">Mécanicien</option>
+          <option value="Photographe">Photographe</option>
+          <option value="Peintre">Peintre</option>
+          <option value="Menuisier">Menuisier</option>
+          <option value="Maçon">Maçon</option>
+          <option value="Carreleur">Carreleur</option>
+          <option value="Soudeur">Soudeur</option>
+          <option value="Décorateur">Décorateur</option>
+          <option value="Traiteur">Traiteur</option>
+          <option value="DJ">DJ</option>
+          <option value="Coach sportif">Coach sportif</option>
+          <option value="Développeur">Développeur</option>
+          <option value="Graphiste">Graphiste</option>
+        </select>
+      </div>
+      <div class="match-field">
+        <label>Ta ville</label>
+        <select id="match-travail-ville">
+          <option value="">Toutes</option>
+          <option value="Lomé">Lomé</option>
+          <option value="Cotonou">Cotonou</option>
+        </select>
+      </div>
+      <div class="match-field">
+        <label>Présente-toi en quelques mots (optionnel)</label>
+        <textarea id="match-travail-description" rows="3" placeholder="Ex: Plombier depuis 8 ans, spécialisé chauffe-eau et installations sanitaires..." maxlength="500"></textarea>
+      </div>
+      <button class="wolo-btn-primary" style="width:100%;padding:14px;font-size:15px;border-radius:10px;" onclick="lancerWoloMatchTravail()">💼 Voir les offres qui me correspondent</button>
+      <p style="text-align:center;font-size:11px;color:rgba(248,246,241,0.35);margin-top:10px;">Tu dois avoir un compte WOLO Market pour voir les résultats.</p>
+    </div>
+
+    <!-- Résultats mode client -->
     <div id="match-resultats" style="display:none;">
       <h3 style="font-family:Fraunces,serif;color:#F8F6F1;font-size:18px;margin:24px 0 16px;padding:0 16px;">Prestataires correspondants</h3>
       <div id="match-resultats-liste" class="match-resultats-grid"></div>
     </div>
+
+    <!-- Résultats mode travail -->
+    <div id="match-resultats-travail" style="display:none;">
+      <h3 style="font-family:Fraunces,serif;color:#F8F6F1;font-size:18px;margin:24px 0 16px;padding:0 16px;">Offres qui correspondent à ton profil</h3>
+      <div id="match-travail-liste" class="match-resultats-grid"></div>
+    </div>
+
     <!-- Mes demandes -->
     <div id="match-mes-demandes" style="margin-top:32px;padding:0 16px;">
       <h3 style="font-family:Fraunces,serif;color:#F8F6F1;font-size:18px;margin-bottom:16px;">Mes demandes en cours</h3>
       <div id="match-demandes-liste"></div>
+    </div>
+
+    <!-- Explication WOLO Match -->
+    <div style="margin:40px 16px 0;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;">
+      <h3 style="font-family:Fraunces,serif;font-size:18px;color:#E8940A;margin:0 0 12px;">Comment fonctionne WOLO Match ?</h3>
+      <div style="font-size:13px;color:rgba(248,246,241,0.65);line-height:1.7;">
+        <p style="margin:0 0 10px;"><strong style="color:#F8F6F1;">Tu cherches un prestataire ?</strong><br>Décris ton besoin, choisis le métier et la ville. WOLO Match te montre les meilleurs pros disponibles, classés par Score WOLO. Le prestataire est notifié instantanément.</p>
+        <p style="margin:0 0 10px;"><strong style="color:#F8F6F1;">Tu cherches du travail ?</strong><br>Sélectionne ton métier et ta ville. WOLO Match te montre toutes les demandes de clients qui cherchent exactement ton profil. Tu réponds en un clic.</p>
+        <p style="margin:0;"><strong style="color:#E8940A;">Pas de piston. Pas de réseau. Juste le match.</strong></p>
+      </div>
     </div>
   </div>
 </div>
@@ -22398,6 +22465,91 @@ small.meta {
       const user = await _currentUser();
       if (user) chargerMesDemandesMatch(user.id);
     } catch(e) { console.warn(e); }
+  };
+
+  // ====== WOLO MATCH — Mode switch + Mode Travail ======
+  window.switchMatchMode = function(mode) {
+    const btnClient = document.getElementById('match-mode-client');
+    const btnTravail = document.getElementById('match-mode-travail');
+    const formClient = document.getElementById('match-form-client');
+    const formTravail = document.getElementById('match-form-travail');
+    const resClient = document.getElementById('match-resultats');
+    const resTravail = document.getElementById('match-resultats-travail');
+
+    if (mode === 'client') {
+      btnClient.style.background = 'rgba(232,148,10,0.15)';
+      btnClient.style.color = '#E8940A';
+      btnTravail.style.background = 'rgba(255,255,255,0.02)';
+      btnTravail.style.color = 'rgba(248,246,241,0.5)';
+      formClient.style.display = '';
+      formTravail.style.display = 'none';
+      if (resClient) resClient.style.display = 'none';
+      if (resTravail) resTravail.style.display = 'none';
+    } else {
+      btnTravail.style.background = 'rgba(232,148,10,0.15)';
+      btnTravail.style.color = '#E8940A';
+      btnClient.style.background = 'rgba(255,255,255,0.02)';
+      btnClient.style.color = 'rgba(248,246,241,0.5)';
+      formClient.style.display = 'none';
+      formTravail.style.display = '';
+      if (resClient) resClient.style.display = 'none';
+      if (resTravail) resTravail.style.display = 'none';
+    }
+  };
+
+  window.lancerWoloMatchTravail = async function() {
+    const user = await verifierConnexionOuPopup('voir les offres');
+    if (!user) return;
+    const sb = _sb(); if (!sb) return;
+    const metier = document.getElementById('match-travail-metier')?.value;
+    const ville = document.getElementById('match-travail-ville')?.value;
+    const description = document.getElementById('match-travail-description')?.value?.trim();
+
+    if (!metier) { alert('Sélectionne ton métier pour voir les offres.'); return; }
+
+    try {
+      // Chercher les demandes ouvertes correspondant au métier
+      let query = sb.from('wolo_match_demandes')
+        .select('*, profiles:client_id(nom, photo_url)')
+        .eq('statut', 'ouvert')
+        .ilike('metier_recherche', `%${metier}%`)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (ville) query = query.eq('ville', ville);
+
+      const { data: demandes } = await query;
+      const container = document.getElementById('match-resultats-travail');
+      const liste = document.getElementById('match-travail-liste');
+      if (!demandes || demandes.length === 0) {
+        container.style.display = 'block';
+        liste.innerHTML = '<div class="feed-etat-vide"><span class="emoji">😕</span><p><strong>Aucune offre trouvée pour le moment</strong></p><p>Pas encore de demandes en ' + escapeHtml(metier) + (ville ? ' à ' + escapeHtml(ville) : '') + '.<br>Crée ton profil WOLO Market pour être visible quand un client cherchera.</p><button class="wolo-btn-primary" style="margin-top:12px;font-size:13px;padding:10px 20px;" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button></div>';
+        return;
+      }
+
+      container.style.display = 'block';
+      liste.innerHTML = demandes.map(d => {
+        const client = d.profiles || { nom: 'Client' };
+        return `
+          <div class="match-result-card" style="flex-direction:column;align-items:stretch;gap:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <img src="${escapeHtml(client.photo_url||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.3);" alt="" onerror="this.style.visibility='hidden'">
+              <div style="flex:1;">
+                <strong style="color:#F8F6F1;font-size:14px;font-family:Georgia,serif;">${escapeHtml(client.nom||'Client')}</strong>
+                <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span>
+              </div>
+              <span style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(232,148,10,0.15);color:#E8940A;font-family:'Space Mono',monospace;">🟢 Ouvert</span>
+            </div>
+            <p style="color:rgba(248,246,241,0.8);font-size:14px;margin:0;line-height:1.6;">${escapeHtml(d.description)}</p>
+            <div style="display:flex;gap:12px;font-size:12px;color:rgba(248,246,241,0.5);">
+              <span>🔧 ${escapeHtml(d.metier_recherche)}</span>
+              ${d.ville ? '<span>📍 ' + escapeHtml(d.ville) + '</span>' : ''}
+              ${d.budget_max ? '<span>💰 Budget max: ' + d.budget_max.toLocaleString() + ' FCFA</span>' : ''}
+            </div>
+            <button class="wolo-btn-primary" style="font-size:13px;padding:10px 16px;width:100%;" onclick="repondreMatch('${d.id}', '${d.client_id}')">💼 Je suis intéressé — répondre</button>
+          </div>
+        `;
+      }).join('');
+    } catch(e) { console.warn('[matchTravail]', e); alert('Erreur lors de la recherche.'); }
   };
 })();
 </script>
