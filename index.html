@@ -815,10 +815,12 @@ h1 .gold { color:var(--or); }
 
 .pcard-footer {
   padding:14px 20px; border-top:1px solid var(--gris-light);
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  flex-wrap:wrap;
 }
-.pcard-price { font-family:'Fraunces',serif; font-weight:700; font-size:17px; color:var(--vert); }
+.pcard-price { font-family:'Fraunces',serif; font-weight:700; font-size:17px; color:var(--vert); min-width:0; }
 .pcard-price span { font-family:'Cabinet Grotesk',sans-serif; font-size:12px; color:var(--gris); font-weight:500; }
+.pcard-footer .btn { white-space:nowrap; flex-shrink:0; max-width:100%; font-size:12px !important; padding:8px 14px !important; }
 
 /* ══ EMPTY STATE ══ */
 .empty-state { text-align:center; padding:80px 24px; color:var(--gris); }
@@ -7933,6 +7935,17 @@ div[style*="position:sticky"][style*="background:#fff"] {
               <div>
                 <label class="form-label">Date d'expiration</label>
                 <input type="date" id="recrut-expiration" class="form-input">
+              </div>
+              <div style="grid-column:1/-1;">
+                <label class="form-label">Photos du poste <span style="font-weight:500;color:#6b7280;">— Jusqu'à 3 photos pour illustrer le lieu de travail, l'équipe ou le matériel.</span></label>
+                <div id="recrut-photos-container" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                  <label id="recrut-photo-add" style="width:100px;height:100px;border:2px dashed rgba(232,148,10,0.4);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;background:rgba(255,255,255,0.04);" onmouseover="this.style.borderColor='#E8940A'" onmouseout="this.style.borderColor='rgba(232,148,10,0.4)'">
+                    <span style="font-size:28px;color:#E8940A;">+</span>
+                    <span style="font-size:11px;color:#6b7280;margin-top:2px;">Ajouter</span>
+                    <input type="file" accept="image/*" multiple style="display:none;" onchange="handleRecrutPhotos(this)">
+                  </label>
+                </div>
+                <div id="recrut-photos-previews" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;"></div>
               </div>
             </div>
             <button class="btn btn-primary" onclick="publierOffre()" style="width:100%;justify-content:center;">📢 Publier sur WOLO Jobs</button>
@@ -17849,6 +17862,40 @@ function initRecrutPublier() {
   if (formEl) formEl.style.display = isPro ? 'block' : 'none';
 }
 
+// ── Photos offre d'emploi (max 3) ──
+const _recrutPhotosFiles = [];
+function handleRecrutPhotos(input) {
+  const files = Array.from(input.files);
+  const remaining = 3 - _recrutPhotosFiles.length;
+  if (remaining <= 0) { toast('Maximum 3 photos', 'error'); input.value = ''; return; }
+  const toAdd = files.slice(0, remaining);
+  toAdd.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    _recrutPhotosFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const idx = _recrutPhotosFiles.indexOf(file);
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;width:100px;height:100px;border-radius:12px;overflow:hidden;';
+      wrap.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">
+        <button onclick="removeRecrutPhoto(${idx},this.parentElement)" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);color:white;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>`;
+      document.getElementById('recrut-photos-previews').appendChild(wrap);
+      if (_recrutPhotosFiles.length >= 3) document.getElementById('recrut-photo-add').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+function removeRecrutPhoto(idx, el) {
+  _recrutPhotosFiles.splice(idx, 1);
+  el.remove();
+  document.getElementById('recrut-photo-add').style.display = '';
+  // Re-index buttons
+  document.getElementById('recrut-photos-previews').querySelectorAll('button').forEach((btn, i) => {
+    btn.setAttribute('onclick', `removeRecrutPhoto(${i},this.parentElement)`);
+  });
+}
+
 async function publierOffre() {
   if (!currentPrestataire) return;
   if (currentPrestataire.fields?.['Abonnement'] !== 'Pro') {
@@ -17865,6 +17912,16 @@ async function publierOffre() {
 
   if (!titre || !metier || !contrat || !description) {
     toast('Remplis les champs obligatoires (*, titre, métier, contrat, description)', 'error'); return;
+  }
+
+  // Upload photos si présentes
+  let photoUrls = [];
+  if (_recrutPhotosFiles.length > 0) {
+    toast('Upload des photos en cours…', 'info');
+    for (const file of _recrutPhotosFiles) {
+      const url = await uploadToImgBB(file);
+      if (url) photoUrls.push(url);
+    }
   }
 
   const body = {
@@ -17891,6 +17948,11 @@ async function publierOffre() {
     }
   };
 
+  // Ajouter les photos au body
+  if (photoUrls.length > 0) body.fields['Photo 1'] = photoUrls[0];
+  if (photoUrls.length > 1) body.fields['Photo 2'] = photoUrls[1];
+  if (photoUrls.length > 2) body.fields['Photo 3'] = photoUrls[2];
+
   // Enlever les champs undefined
   Object.keys(body.fields).forEach(k => body.fields[k] === undefined && delete body.fields[k]);
 
@@ -17910,6 +17972,10 @@ async function publierOffre() {
       ['recrut-titre','recrut-description','recrut-salaire-min','recrut-salaire-max','recrut-expiration'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
       ['recrut-metier','recrut-quartier','recrut-contrat','recrut-experience'].forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
       ['recrut-afficher-salaire','recrut-urgente','recrut-teletravail'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+      // Reset photos
+      _recrutPhotosFiles.length = 0;
+      document.getElementById('recrut-photos-previews').innerHTML = '';
+      document.getElementById('recrut-photo-add').style.display = '';
       setTimeout(() => showDashSection('recrut-offres'), 500);
     } else {
       throw new Error(data.error?.message || 'Erreur');
@@ -19008,20 +19074,20 @@ async function updateStatutCandidature(candidatureId, statut) {
       <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,4vw,40px);font-weight:900;margin-bottom:24px;line-height:1.3;">Le pont entre ceux qui ont des compétences<br>et ceux qui en ont besoin.</h2>
       <p style="font-size:17px;color:var(--gris-fonce);line-height:1.8;margin-bottom:20px;">Le nom WOLO vient du Yoruba — « grandir, s'élever ». C'est exactement ce qu'on vient faire. Pour chaque artisan. Chaque diplômé. Chaque recruteur. Dans chaque quartier. Dans chaque pays.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;margin:32px 0;">
-        <div style="background:var(--vert-light);border-radius:16px;padding:20px;text-align:center;">
+        <div style="background:rgba(232,148,10,0.12);border-radius:16px;padding:20px;text-align:center;">
           <div style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:var(--vert);">87%</div>
           <p style="font-size:13px;color:var(--gris);margin-top:4px;">des travailleurs dans l'informel</p>
         </div>
-        <div style="background:#fef3dc;border-radius:16px;padding:20px;text-align:center;">
+        <div style="background:rgba(232,148,10,0.12);border-radius:16px;padding:20px;text-align:center;">
           <div style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:var(--or);">46%</div>
           <p style="font-size:13px;color:var(--gris);margin-top:4px;">des jeunes sans emploi</p>
         </div>
-        <div style="background:#fef2f2;border-radius:16px;padding:20px;text-align:center;">
+        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;text-align:center;">
           <div style="font-size:32px;">🚫</div>
           <p style="font-size:13px;color:var(--gris);margin-top:4px;">le réseau comme seule voie</p>
         </div>
       </div>
-      <blockquote style="border-left:4px solid var(--vert);padding:16px 24px;background:var(--blanc);border-radius:0 12px 12px 0;text-align:left;font-size:16px;line-height:1.8;color:var(--gris-fonce);margin:0;">
+      <blockquote style="border-left:4px solid var(--vert);padding:16px 24px;background:rgba(255,255,255,0.04);border-radius:0 12px 12px 0;text-align:left;font-size:16px;line-height:1.8;color:#F8F6F1;margin:0;">
         "Des artisans talentueux cherchent des clients. Des candidats qualifiés cherchent du travail. Des entreprises cherchent des profils fiables.<br>
         Ils ne se trouvent pas.<br><br>
         <strong>WOLO Market construit ce territoire.</strong> Pays par pays. Quartier par quartier. Bénin + Togo — c'est le lancement. Côte d'Ivoire + Sénégal — c'est la suite. Ghana + Nigeria — c'est l'ambition."
