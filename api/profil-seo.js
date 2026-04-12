@@ -36,8 +36,8 @@ export default async function handler(req, res) {
   let matched = null;
   let matchedAvis = [];
   try {
-    const fields = ['Nom complet','Métier principal','Ville','Quartier','Description des services',
-                    'WhatsApp','Photo de profil','Numéro de téléphone','Latitude','Longitude'].map(f => `fields%5B%5D=${encodeURIComponent(f)}`).join('&');
+    const fields = ['Nom complet','Métier principal','Quartier','Description des services',
+                    'WhatsApp','Photo de profil','Numéro de téléphone'].map(f => `fields%5B%5D=${encodeURIComponent(f)}`).join('&');
     let offset = '';
     do {
       const url = `${AT_URL}/Prestataires?${fields}&pageSize=100${offset ? '&offset=' + offset : ''}`;
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       const data = await r.json();
       for (const rec of (data.records || [])) {
         const f = rec.fields;
-        const s = buildSlug(f['Nom complet'], f['Métier principal'], f['Ville']);
+        const s = buildSlug(f['Nom complet'], f['Métier principal'], '');
         if (s === slug) { matched = rec; break; }
       }
       if (matched) break;
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   const f = matched.fields;
   const nom = f['Nom complet'] || '';
   const metier = f['Métier principal'] || '';
-  const ville = f['Ville'] || '';
+  const ville = f['Quartier'] || '';
   const quartier = f['Quartier'] || '';
   const bio = f['Description des services'] || '';
   const photo = f['WhatsApp'] || (f['Photo de profil'] && f['Photo de profil'][0]?.url) || '';

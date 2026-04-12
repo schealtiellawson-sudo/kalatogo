@@ -16,12 +16,11 @@ function buildSlug(nom, metier, ville) {
 
 export default async function handler(req, res) {
   try {
-    const fields = encodeURIComponent('Nom complet,Métier principal,Ville');
     let allRecords = [];
     let offset = '';
 
     do {
-      const url = `${AT_URL}/Prestataires?fields%5B%5D=Nom%20complet&fields%5B%5D=M%C3%A9tier%20principal&fields%5B%5D=Ville&pageSize=100${offset ? '&offset=' + offset : ''}`;
+      const url = `${AT_URL}/Prestataires?fields%5B%5D=Nom%20complet&fields%5B%5D=M%C3%A9tier%20principal&pageSize=100${offset ? '&offset=' + offset : ''}`;
       const r = await fetch(url, { headers: AT_HEADERS });
       const data = await r.json();
       allRecords = allRecords.concat(data.records || []);
@@ -34,7 +33,7 @@ export default async function handler(req, res) {
       .filter(r => r.fields['Nom complet'])
       .map(r => {
         const f = r.fields;
-        const slug = buildSlug(f['Nom complet'], f['Métier principal'], f['Ville']);
+        const slug = buildSlug(f['Nom complet'], f['Métier principal'], '');
         return `  <url>
     <loc>https://wolomarket.com/profil/${slug}</loc>
     <lastmod>${today}</lastmod>
