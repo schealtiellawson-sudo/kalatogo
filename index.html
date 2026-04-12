@@ -10342,10 +10342,20 @@ function recadrerPhotoProfil() {
 
 async function uploadToImgBB(file) {
   if (!file) return null;
-  const formData = new FormData();
-  formData.append('image', file);
+  // Convertir le fichier en base64 pour le proxy serveur
+  const toBase64 = (f) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(f);
+  });
   try {
-    const res = await fetch('/api/imgbb-proxy', { method: 'POST', body: formData });
+    const base64 = await toBase64(file);
+    const res = await fetch('/api/imgbb-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64 })
+    });
     const data = await res.json();
     if (data.success) {
       // upload OK
@@ -11312,9 +11322,15 @@ async function submitPost(recordId) {
         mediaType = 'video';
       } else {
         if (btn) btn.textContent = '📤 Upload photo...';
-        const formData = new FormData();
-        formData.append('image', file);
-        const res = await fetch('/api/imgbb-proxy', { method: 'POST', body: formData });
+        const toB64 = (f) => new Promise((resolve, reject) => {
+          const r = new FileReader(); r.onload = () => resolve(r.result.split(',')[1]); r.onerror = reject; r.readAsDataURL(f);
+        });
+        const b64 = await toB64(file);
+        const res = await fetch('/api/imgbb-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: b64 })
+        });
         const data = await res.json();
         mediaUrl  = data?.data?.url || '';
         mediaType = 'photo';

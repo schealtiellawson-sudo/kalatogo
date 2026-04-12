@@ -5,7 +5,9 @@
 
 export const config = {
   api: {
-    bodyParser: false, // On gère le multipart nous-mêmes
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
   },
 };
 
@@ -21,30 +23,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Lire le body brut
-    const chunks = [];
-    for await (const chunk of req) {
-      chunks.push(chunk);
-    }
-    const rawBody = Buffer.concat(chunks);
+    // Le frontend envoie l'image en base64 dans le body JSON
+    // ou en FormData — on supporte les deux
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const image = body?.image;
 
-    // Extraire le boundary du Content-Type
-    const contentType = req.headers['content-type'] || '';
-
-    // Reconstruire le FormData avec la clé API injectée côté serveur
-    // On parse le multipart pour extraire l'image, puis on renvoie à ImgBB
-    const boundary = contentType.split('boundary=')[1];
-    if (!boundary) {
-      return res.status(400).json({ error: 'Content-Type multipart/form-data requis' });
+    if (!image) {
+      return res.status(400).json({ error: 'Champ image requis' });
     }
 
-    // Forward vers ImgBB en ajoutant la clé dans l'URL
-    const imgbbUrl = `https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`;
+    // Forward vers ImgBB avec la clé injectée côté serveur
+    const formBody = new URLSearchParams();
+    formBody.append('key', IMGBB_KEY);
+    formBody.append('image', image);
 
-    const response = await fetch(imgbbUrl, {
+    const response = await fetch('https://api.imgbb.com/1/upload', {
       method: 'POST',
-      headers: { 'Content-Type': contentType },
-      body: rawBody
+      body: formBody
     });
 
     const data = await response.json();

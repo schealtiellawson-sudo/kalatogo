@@ -12,7 +12,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
  * @returns {{ user_id: string, email: string } | null}
  */
 export async function verifyAuth(req) {
-  const authHeader = req.headers.authorization || req.headers.Authorization || '';
+  const authHeader = req.headers.authorization || '';
   const token = authHeader.replace(/^Bearer\s+/i, '');
 
   if (!token) return null;
@@ -26,7 +26,7 @@ export async function verifyAuth(req) {
     if (error || !user) return null;
 
     return { user_id: user.id, email: user.email };
-  } catch {
+  } catch (e) {
     return null;
   }
 }

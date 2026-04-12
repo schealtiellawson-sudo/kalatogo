@@ -8,6 +8,7 @@
 import { supabase } from '../_lib/supabase.js';
 import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
 import { traiterPaiementAbonnement } from '../paiements/abonnement.js';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -24,10 +25,9 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Signature manquante' });
       }
       // Vérification HMAC SHA256
-      const crypto = await import('crypto');
       const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-      const expected = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
-      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      const expected = createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+      if (!timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
         console.error('[webhook fedapay] Signature invalide');
         return res.status(403).json({ error: 'Signature invalide' });
       }
