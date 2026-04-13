@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="lXOGmTJAXq9qRgT3GoiQIXYHzI_515w89aDfHhi2msw" />
-<title>WOLO Market — Trouve un prestataire ou un emploi au Bénin et au Togo</title>
+<title>WOLO Market — Visibilité. Paiements. Revenus. Bénin & Togo.</title>
 <meta name="description" content="WOLO Market : trouve un coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, paiement sécurisé. Sans piston.">
 <meta name="keywords" content="emploi Cotonou, emploi Lomé, prestataire Bénin, artisan Togo, marketplace Bénin, marketplace Togo, trouver prestataire Cotonou, trouver emploi Lomé, WOLO Market">
 <meta property="og:title" content="WOLO Market — Ton travail parle. Pas tes connexions.">
@@ -3205,6 +3205,133 @@ nav .nav-logo circle[fill="#0f1410"] { fill: #0f1410; stroke: #E8940A; }
 .hero::before { display:none !important; }
 .hero-bg { background:#0f1410 !important; }
 
+/* ══ HERO CINÉMATIQUE — séquence animée 55s ══ */
+.hero-cine {
+  position:relative;
+  border-radius:20px;
+  overflow:hidden;
+  aspect-ratio:4/5;
+  max-width:420px;
+  margin:0 auto;
+  background:#0a0d0b;
+  box-shadow:0 12px 60px rgba(0,0,0,0.6),0 0 0 1px rgba(232,148,10,0.12);
+  cursor:pointer;
+}
+.hc-scene {
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;
+  opacity:0;transform:scale(0.97);
+  transition:opacity 0.8s cubic-bezier(0.22,1,0.36,1),transform 0.8s cubic-bezier(0.22,1,0.36,1);
+  pointer-events:none;z-index:1;
+}
+.hc-scene.hc-active {
+  opacity:1;transform:scale(1);pointer-events:auto;z-index:2;
+}
+.hc-bg {
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  animation:hcBgPulse 4s ease-in-out infinite alternate;
+}
+@keyframes hcBgPulse { 0%{opacity:0.6;} 100%{opacity:1;} }
+.hc-eyebrow {
+  position:relative;z-index:1;
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:3px;
+  color:rgba(248,246,241,0.45);text-transform:uppercase;margin-bottom:16px;
+  animation:hcSlideUp 0.6s cubic-bezier(0.22,1,0.36,1) both;
+}
+.hc-big {
+  position:relative;z-index:1;
+  font-family:'Fraunces',Georgia,serif;font-size:clamp(22px,5vw,32px);font-weight:900;
+  color:#F8F6F1;line-height:1.2;margin-bottom:14px;
+  animation:hcSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+}
+.hc-big em { color:#E8940A;font-style:italic; }
+.hc-sub {
+  position:relative;z-index:1;
+  font-size:14px;color:rgba(248,246,241,0.6);line-height:1.6;max-width:320px;
+  animation:hcSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+}
+.hc-stat {
+  position:relative;z-index:1;
+  margin-top:20px;padding:12px 20px;border-radius:12px;
+  background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.15);
+  font-size:13px;color:rgba(248,246,241,0.7);
+  animation:hcSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+}
+.hc-stat-num { font-family:'Space Mono',monospace;font-size:28px;font-weight:900;color:#f87171;display:block;margin-bottom:4px; }
+.hc-logo-reveal {
+  position:relative;z-index:1;
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,#E8940A,#d97706);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-size:42px;font-weight:900;color:#0f1410;
+  margin-bottom:20px;
+  box-shadow:0 0 60px rgba(232,148,10,0.4);
+  animation:hcLogoIn 0.8s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes hcLogoIn { 0%{transform:scale(0) rotate(-20deg);opacity:0;} 100%{transform:scale(1) rotate(0);opacity:1;} }
+.hc-features { position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;margin-top:16px;width:100%;max-width:300px; }
+.hc-feat {
+  display:flex;align-items:center;gap:10px;text-align:left;
+  padding:10px 14px;border-radius:10px;
+  background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.12);
+  font-size:12px;color:rgba(248,246,241,0.75);line-height:1.4;
+  opacity:0;transform:translateX(-20px);
+}
+.hc-feat span { font-size:18px;flex-shrink:0; }
+.hc-scene.hc-active .hc-feat-1 { animation:hcFeatIn 0.5s 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+.hc-scene.hc-active .hc-feat-2 { animation:hcFeatIn 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+.hc-scene.hc-active .hc-feat-3 { animation:hcFeatIn 0.5s 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
+@keyframes hcFeatIn { to { opacity:1;transform:translateX(0); } }
+@keyframes hcSlideUp { 0%{transform:translateY(20px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+.hc-real-grid {
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:320px;
+  animation:hcSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.15s both;
+}
+.hc-real-card {
+  border-radius:10px;overflow:hidden;background:#1a1f1b;
+  border:1px solid rgba(232,148,10,0.1);position:relative;
+}
+.hc-real-card img { width:100%;aspect-ratio:1;object-fit:cover;display:block; }
+.hc-real-card .hc-rc-info {
+  position:absolute;bottom:0;left:0;right:0;padding:6px 8px;
+  background:linear-gradient(transparent,rgba(0,0,0,0.85));
+}
+.hc-real-card .hc-rc-name { font-size:11px;font-weight:700;color:#F8F6F1; }
+.hc-real-card .hc-rc-job { font-size:9px;color:rgba(248,246,241,0.5); }
+.hc-cta {
+  position:relative;z-index:1;
+  margin-top:20px;padding:14px 28px;border:none;border-radius:100px;
+  background:linear-gradient(135deg,#E8940A,#d97706);color:#0f1410;
+  font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;
+  box-shadow:0 4px 24px rgba(232,148,10,0.4);
+  animation:hcSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.3s both,hcCtaPulse 2s ease-in-out infinite 1s;
+}
+@keyframes hcCtaPulse { 0%,100%{box-shadow:0 4px 24px rgba(232,148,10,0.4);} 50%{box-shadow:0 4px 36px rgba(232,148,10,0.6);} }
+.hc-cta:hover { transform:translateY(-2px);box-shadow:0 6px 32px rgba(232,148,10,0.5); }
+.hc-progress {
+  position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(248,246,241,0.06);z-index:10;
+}
+.hc-progress-bar {
+  height:100%;width:0;background:linear-gradient(90deg,#E8940A,#f59e0b);
+  transition:width 0.3s linear;
+}
+.hc-dots {
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:10;
+  display:flex;gap:6px;
+}
+.hc-dot {
+  width:6px;height:6px;border-radius:50%;background:rgba(248,246,241,0.2);
+  cursor:pointer;transition:all 0.3s;border:none;padding:0;
+}
+.hc-dot.hc-dot-active { background:#E8940A;transform:scale(1.3); }
+@media(max-width:600px){
+  .hero-cine { aspect-ratio:3/4;border-radius:16px; }
+  .hc-scene { padding:24px 18px; }
+  .hc-big { font-size:clamp(18px,5vw,26px); }
+  .hc-real-grid { grid-template-columns:1fr 1fr;gap:6px; }
+}
+
 /* Section douleur, map notice, fondateur, etc. */
 #search-map-notice { background:rgba(232,148,10,.08) !important; border-color:rgba(232,148,10,.25) !important; color:#F8F6F1 !important; }
 #fondateur-banner { background:rgba(232,148,10,.08) !important; border-color:#E8940A !important; color:#F8F6F1 !important; }
@@ -3887,86 +4014,66 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </div>
         </div>
 
-        <div class="hero-visual hero-orbit-scene" data-anim="scale" data-anim-delay="2">
-          <!-- Cercle orbital principal -->
-          <div class="orbit-container">
-            <!-- Anneau externe qui tourne -->
-            <div class="orbit-ring orbit-ring-1"></div>
-            <div class="orbit-ring orbit-ring-2"></div>
-            <div class="orbit-ring orbit-ring-3"></div>
-
-            <!-- Centre : Logo W pulsant -->
-            <div class="orbit-center">
-              <div class="orbit-center-glow"></div>
-              <div class="orbit-center-logo">W</div>
-              <div class="orbit-center-label">WOLO</div>
+        <!-- ══ HERO CINÉMATIQUE — 55 sec ══ -->
+        <div class="hero-visual" data-anim="scale" data-anim-delay="2">
+          <div class="hero-cine" id="hero-cine">
+            <!-- Scène 1 — Le problème (0-8s) -->
+            <div class="hc-scene hc-s1 hc-active">
+              <div class="hc-bg" style="background:radial-gradient(ellipse at 30% 40%,rgba(248,113,113,0.12),transparent 70%);"></div>
+              <div class="hc-eyebrow">LOMÉ · COTONOU · 2026</div>
+              <div class="hc-big">Personne ne sait<br>que tu existes.</div>
+              <div class="hc-sub">Le menuisier d'Akpakpa travaille depuis 15 ans.<br>Son voisin ne sait même pas qu'il est là.</div>
+              <div class="hc-stat"><span class="hc-stat-num">92%</span> des artisans n'ont aucune présence en ligne</div>
             </div>
-
-            <!-- Profils orbitaux flottants -->
-            <div class="orbit-card oc-1">
-              <div class="oc-avatar" style="background:linear-gradient(135deg,#E8940A,#C47A08);">✂️</div>
-              <div class="oc-info"><div class="oc-name">Afiwa M.</div><div class="oc-job">Coiffeuse · Adidogomé</div></div>
-              <div class="oc-badge">⭐ 4.9</div>
+            <!-- Scène 2 — La douleur (8-16s) -->
+            <div class="hc-scene hc-s2">
+              <div class="hc-bg" style="background:radial-gradient(ellipse at 70% 60%,rgba(248,113,113,0.1),transparent 70%);"></div>
+              <div class="hc-eyebrow">LE VRAI PROBLÈME</div>
+              <div class="hc-big">Le piston.<br>Le réseau.<br><em>Le silence.</em></div>
+              <div class="hc-sub">Celui qui a des connexions mange.<br>Celui qui travaille bien — attend.</div>
             </div>
-            <div class="orbit-card oc-2">
-              <div class="oc-avatar" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">⚡</div>
-              <div class="oc-info"><div class="oc-name">Kodjo A.</div><div class="oc-job">Électricien · Akpakpa</div></div>
-              <div class="oc-badge">🔥 Pro</div>
+            <!-- Scène 3 — Le pivot (16-22s) -->
+            <div class="hc-scene hc-s3">
+              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.15),transparent 60%);"></div>
+              <div class="hc-logo-reveal">W</div>
+              <div class="hc-big" style="color:#E8940A;">Et si ton travail<br>parlait pour toi ?</div>
             </div>
-            <div class="orbit-card oc-3">
-              <div class="oc-avatar" style="background:linear-gradient(135deg,#E8940A,#E8940A);">🔨</div>
-              <div class="oc-info"><div class="oc-name">Théo N.</div><div class="oc-job">Menuisier · Kégué</div></div>
-              <div class="oc-badge">⭐ 4.8</div>
+            <!-- Scène 4 — La solution (22-34s) -->
+            <div class="hc-scene hc-s4">
+              <div class="hc-bg" style="background:radial-gradient(ellipse at 40% 30%,rgba(232,148,10,0.1),transparent 70%);"></div>
+              <div class="hc-eyebrow" style="color:#E8940A;">WOLO MARKET</div>
+              <div class="hc-big">2 minutes.<br>Tu existes en ligne.<br><em>Pour tout Cotonou.<br>Pour tout Lomé.</em></div>
+              <div class="hc-features">
+                <div class="hc-feat hc-feat-1"><span>👁️</span> Visibilité — ton profil pro, visible sur tous les téléphones</div>
+                <div class="hc-feat hc-feat-2"><span>💰</span> Paiements — QR code, Mobile Money, irrévocable</div>
+                <div class="hc-feat hc-feat-3"><span>📈</span> Revenus — 1 000 FCFA par filleul actif chaque mois</div>
+              </div>
             </div>
-            <div class="orbit-card oc-4">
-              <div class="oc-avatar" style="background:linear-gradient(135deg,#f43f5e,#e11d48);">🎨</div>
-              <div class="oc-info"><div class="oc-name">Edem K.</div><div class="oc-job">Graphiste · Cacaveli</div></div>
-              <div class="oc-badge">⭐ 4.7</div>
+            <!-- Scène 5 — Vrais prestataires (34-44s) -->
+            <div class="hc-scene hc-s5">
+              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 40%,rgba(232,148,10,0.08),transparent 70%);"></div>
+              <div class="hc-eyebrow" style="color:#E8940A;">ILS SONT DÉJÀ LÀ</div>
+              <div class="hc-real-grid" id="hc-real-profiles"></div>
+              <div class="hc-sub" style="margin-top:12px;font-size:13px;">Vrais profils. Vraies photos. Vrais avis.</div>
             </div>
-            <div class="orbit-card oc-5">
-              <div class="oc-avatar" style="background:linear-gradient(135deg,#E8940A,#d97706);">🏍️</div>
-              <div class="oc-info"><div class="oc-name">Yaovi D.</div><div class="oc-job">Zémidjan · Tokoin</div></div>
-              <div class="oc-badge">📍 GPS</div>
+            <!-- Scène 6 — Preuve sociale (44-50s) -->
+            <div class="hc-scene hc-s6">
+              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.12),transparent 60%);"></div>
+              <div class="hc-eyebrow" style="color:#E8940A;">400 000 FCFA DISTRIBUÉS CHAQUE MOIS</div>
+              <div class="hc-big">Pas les plus connectés.<br><em>Les plus sérieux.</em></div>
+              <div class="hc-sub">Bourse de Croissance · WOLO Awards · Parrainage 40%</div>
             </div>
-            <div class="orbit-card oc-6">
-              <div class="oc-avatar" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">👗</div>
-              <div class="oc-info"><div class="oc-name">Dorcas A.</div><div class="oc-job">Couturière · Bè</div></div>
-              <div class="oc-badge">⭐ 5.0</div>
+            <!-- Scène 7 — CTA final (50-55s) -->
+            <div class="hc-scene hc-s7">
+              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.2),transparent 50%);"></div>
+              <div class="hc-big" style="font-size:clamp(20px,4vw,28px);">Ton travail parle.<br>Pas tes connexions.<br><em style="color:#E8940A;font-size:1.3em;">Sans piston.</em></div>
+              <button class="hc-cta" onclick="showPage('inscription')">✦ Créer mon profil — gratuit · 2 min</button>
+              <div class="hc-sub" style="margin-top:10px;font-size:11px;opacity:0.5;">WOLO Market t'appartient.</div>
             </div>
-
-            <!-- Lignes de connexion SVG animées -->
-            <svg class="orbit-connections" viewBox="0 0 500 500" fill="none">
-              <line x1="250" y1="250" x2="250" y2="40" class="conn-line cl-1"/>
-              <line x1="250" y1="250" x2="432" y2="145" class="conn-line cl-2"/>
-              <line x1="250" y1="250" x2="432" y2="355" class="conn-line cl-3"/>
-              <line x1="250" y1="250" x2="250" y2="460" class="conn-line cl-4"/>
-              <line x1="250" y1="250" x2="68" y2="355" class="conn-line cl-5"/>
-              <line x1="250" y1="250" x2="68" y2="145" class="conn-line cl-6"/>
-              <!-- Dots voyageurs sur les lignes -->
-              <circle r="3" fill="#E8940A" class="conn-dot cd-1"><animateMotion dur="2.5s" repeatCount="indefinite" path="M250,250 L250,40"/></circle>
-              <circle r="3" fill="#6366f1" class="conn-dot cd-2"><animateMotion dur="3s" repeatCount="indefinite" path="M250,250 L432,145"/></circle>
-              <circle r="3" fill="#E8940A" class="conn-dot cd-3"><animateMotion dur="2.8s" repeatCount="indefinite" path="M250,250 L432,355"/></circle>
-              <circle r="3" fill="#f43f5e" class="conn-dot cd-4"><animateMotion dur="3.2s" repeatCount="indefinite" path="M250,250 L250,460"/></circle>
-              <circle r="3" fill="#E8940A" class="conn-dot cd-5"><animateMotion dur="2.6s" repeatCount="indefinite" path="M250,250 L68,355"/></circle>
-              <circle r="3" fill="#8b5cf6" class="conn-dot cd-6"><animateMotion dur="2.9s" repeatCount="indefinite" path="M250,250 L68,145"/></circle>
-            </svg>
-
-            <!-- Notifications live popup -->
-            <div class="orbit-notif on-1">📲 Nouveau client trouvé à Cotonou</div>
-            <div class="orbit-notif on-2">⭐ Avis 5/5 reçu — Hédzranawoé</div>
-            <div class="orbit-notif on-3">🏍️ Course demandée — Tokoin</div>
-            <div class="orbit-notif on-4">🔥 +1 inscription Pro — Lomé</div>
-            <div class="orbit-notif on-5">💼 Offre d'emploi — Akpakpa</div>
-
-            <!-- Particules de fond -->
-            <div class="orbit-sparkle os-1"></div>
-            <div class="orbit-sparkle os-2"></div>
-            <div class="orbit-sparkle os-3"></div>
-            <div class="orbit-sparkle os-4"></div>
-            <div class="orbit-sparkle os-5"></div>
-            <div class="orbit-sparkle os-6"></div>
-            <div class="orbit-sparkle os-7"></div>
-            <div class="orbit-sparkle os-8"></div>
+            <!-- Barre de progression -->
+            <div class="hc-progress"><div class="hc-progress-bar" id="hc-progress-bar"></div></div>
+            <!-- Dots navigation -->
+            <div class="hc-dots" id="hc-dots"></div>
           </div>
         </div>
       </div>
@@ -3982,7 +4089,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
         <div class="metric" data-anim="up" data-anim-delay="3">
           <div class="metric-num" style="color:var(--or);" id="m-fondateur-restants" data-compteur>—</div>
-          <div class="metric-label">🏅 Places Fondateur restantes</div>
+          <div class="metric-label">🏅 Rejoins les premiers fondateurs</div>
         </div>
         <div class="metric" data-anim="up" data-anim-delay="4">
           <div class="metric-num" id="m-fcfa-commissions" data-compteur data-compteur-suffix=" FCFA">—</div>
@@ -4326,7 +4433,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <div class="container" style="max-width:960px;">
       <div style="text-align:center;margin-bottom:40px;">
         <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:#E8940A;margin-bottom:14px;">LE CONSTAT</span>
-        <h2 data-anim="up" style="font-family:Fraunces,serif;font-size:clamp(26px,3.5vw,38px);font-weight:900;color:white;line-height:1.15;margin:0;">Le talent existe. Le client aussi.<br><em style="color:#E8940A;">Ils ne se trouvent pas.</em></h2>
+        <h2 data-anim="up" style="font-family:Fraunces,serif;font-size:clamp(26px,3.5vw,38px);font-weight:900;color:white;line-height:1.15;margin:0;">Le travail existe. Le client aussi.<br><em style="color:#E8940A;">Ils ne se trouvent pas.</em></h2>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:36px;">
         <div data-anim="up" data-anim-delay="1" style="background:rgba(255,255,255,.04);border:1px solid rgba(248,246,241,.08);border-radius:16px;padding:24px 20px;text-align:center;">
@@ -4352,7 +4459,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       </div>
       <div data-anim="up" style="text-align:center;padding:28px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.25);border-radius:16px;margin-bottom:32px;">
         <p style="font-family:Fraunces,serif;font-size:clamp(20px,2.5vw,28px);font-weight:900;color:#E8940A;margin:0;">WOLO Market est le pont.</p>
-        <p style="font-size:14px;color:rgba(248,246,241,.55);margin:8px 0 0;">Entre Cotonou et Lomé. Entre le talent et le client. Entre le travail et l'argent.</p>
+        <p style="font-size:14px;color:rgba(248,246,241,.55);margin:8px 0 0;">Entre Cotonou et Lomé. Entre le pro et le client. Entre le travail et l'argent.</p>
       </div>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">Créer mon profil WOLO — gratuit</button>
@@ -4373,7 +4480,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <div style="font-size:36px;margin-bottom:12px;">😔</div>
           <div data-compteur data-compteur-suffix="%" style="font-family:Fraunces,serif;font-size:40px;font-weight:900;color:#f87171;margin-bottom:8px;">92</div>
           <p style="font-size:15px;font-weight:700;color:#F8F6F1;margin-bottom:6px;">Des Togolais et près de 8 Béninois sur 10 ont manqué de revenus en espèces dans l'année.</p>
-          <p style="font-size:13px;color:rgba(248,246,241,.5);line-height:1.6;">Ton talent est réel. Mais sans clients réguliers — la caisse reste vide.</p>
+          <p style="font-size:13px;color:rgba(248,246,241,.5);line-height:1.6;">Ton travail est réel. Mais sans clients réguliers — la caisse reste vide.</p>
         </div>
         <div data-anim="up" data-anim-delay="2" style="background:rgba(255,255,255,.03);border-radius:20px;padding:28px;border:1px solid rgba(220,38,38,0.15);">
           <div style="font-size:36px;margin-bottom:12px;">📵</div>
@@ -4602,7 +4709,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
           <button class="btn btn-primary btn-lg" onclick="showPage('inscription')" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">🎓 Créer mon profil Talent</button>
-          <button class="btn btn-secondary btn-lg" onclick="toggleDigitalFilter();showPage('search');" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;">Voir les talents →</button>
+          <button class="btn btn-secondary btn-lg" onclick="toggleDigitalFilter();showPage('search');" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;">Voir les pros →</button>
         </div>
       </div>
 
@@ -4789,7 +4896,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
   <!-- CTA INSCRIPTION -->
   <section style="background:var(--vert);padding:72px 0;">
     <div class="container" style="text-align:center;">
-      <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;margin-bottom:16px;">Le problème au Bénin et au Togo, ce n'est pas ton talent.<br><em>C'est que personne ne te trouve.</em></h2>
+      <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;margin-bottom:16px;">Le problème au Bénin et au Togo, ce n'est pas ton travail.<br><em>C'est que personne ne te trouve.</em></h2>
       <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;">Crée ton profil gratuit en 2 minutes et commence à recevoir des clients de tout le Bénin et du Togo.</p>
       <button class="btn btn-or btn-lg" onclick="showPage('inscription')">✦ Créer mon profil gratuit</button>
     </div>
@@ -5082,7 +5189,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
               <circle cx="270" cy="48" r="4" fill="#E8940A"/>
             </svg>
           </div>
-          <p class="footer-desc">Au Bénin et au Togo, le talent n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
+          <p class="footer-desc">Au Bénin et au Togo, le travail n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
         </div>
         <div class="footer-col">
           <h4>WOLO Market</h4>
@@ -17046,6 +17153,113 @@ async function voterAwards(candidatId) {
   }
 }
 
+// ══ HERO CINÉMATIQUE — séquence 55 sec (7 scènes) ══
+(function(){
+  const DURATIONS = [8000, 8000, 6000, 12000, 10000, 6000, 5000]; // durée par scène en ms
+  const TOTAL = DURATIONS.reduce((a,b)=>a+b,0);
+  let current = 0, timer = null, startTime = 0, paused = false;
+
+  function initHeroCine(){
+    const wrap = document.getElementById('hero-cine');
+    if(!wrap) return;
+    const scenes = wrap.querySelectorAll('.hc-scene');
+    const dotsC = document.getElementById('hc-dots');
+    const bar = document.getElementById('hc-progress-bar');
+    if(!scenes.length) return;
+
+    // Créer dots
+    if(dotsC){
+      dotsC.innerHTML = DURATIONS.map((_,i) =>
+        `<button class="hc-dot${i===0?' hc-dot-active':''}" data-i="${i}" aria-label="Scène ${i+1}"></button>`
+      ).join('');
+      dotsC.addEventListener('click', e => {
+        const dot = e.target.closest('.hc-dot');
+        if(dot) goTo(parseInt(dot.dataset.i));
+      });
+    }
+
+    // Pause/play au clic
+    wrap.addEventListener('click', e => {
+      if(e.target.closest('.hc-cta') || e.target.closest('.hc-dot')) return;
+      paused = !paused;
+      if(!paused) play();
+    });
+
+    function goTo(idx){
+      current = idx;
+      scenes.forEach((s,i) => s.classList.toggle('hc-active', i===current));
+      if(dotsC) dotsC.querySelectorAll('.hc-dot').forEach((d,i) => d.classList.toggle('hc-dot-active', i===current));
+      clearTimeout(timer);
+      paused = false;
+      play();
+    }
+
+    function play(){
+      if(paused) return;
+      startTime = Date.now();
+      updateProgress();
+      timer = setTimeout(() => {
+        current = (current + 1) % scenes.length;
+        scenes.forEach((s,i) => s.classList.toggle('hc-active', i===current));
+        if(dotsC) dotsC.querySelectorAll('.hc-dot').forEach((d,i) => d.classList.toggle('hc-dot-active', i===current));
+        play();
+      }, DURATIONS[current]);
+    }
+
+    function updateProgress(){
+      if(!bar) return;
+      const elapsed = DURATIONS.slice(0,current).reduce((a,b)=>a+b,0);
+      function frame(){
+        if(paused) return;
+        const now = Date.now();
+        const sceneElapsed = now - startTime;
+        const totalElapsed = elapsed + Math.min(sceneElapsed, DURATIONS[current]);
+        bar.style.width = (totalElapsed / TOTAL * 100) + '%';
+        if(sceneElapsed < DURATIONS[current]) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // Charger vrais prestataires dans scène 5
+    chargerHeroCineProfiles();
+
+    // Observer pour ne lancer que quand visible
+    const obs = new IntersectionObserver(entries => {
+      if(entries[0].isIntersecting && !paused) { play(); obs.disconnect(); }
+    }, {threshold:0.3});
+    obs.observe(wrap);
+  }
+
+  async function chargerHeroCineProfiles(){
+    const grid = document.getElementById('hc-real-profiles');
+    if(!grid) return;
+    try {
+      const url = `https://api.airtable.com/v0/applmj1RDrJkR8C4w/Prestataires?maxRecords=6&sort%5B0%5D%5Bfield%5D=Score%20WOLO&sort%5B0%5D%5Bdirection%5D=desc&filterByFormula=AND({Photo Profil}!='',{Nom complet}!='',{Métier principal}!='')`;
+      const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + AIRTABLE_TOKEN } });
+      const data = await resp.json();
+      const records = (data.records || []).slice(0, 6);
+      if(!records.length) return;
+      grid.innerHTML = records.map(r => {
+        const f = r.fields;
+        const photo = f['Photo Profil'] || '';
+        const nom = (f['Nom complet'] || '').split(' ')[0];
+        const metier = f['Métier principal'] || '';
+        return `<div class="hc-real-card" onclick="voirProfil('${r.id}')">
+          <img src="${photo}" alt="${nom}" onerror="this.parentElement.style.display='none'">
+          <div class="hc-rc-info">
+            <div class="hc-rc-name">${nom}</div>
+            <div class="hc-rc-job">${metier}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { console.warn('[hero-cine-profiles]', e); }
+  }
+
+  // Lancer quand DOM prêt
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHeroCine);
+  else setTimeout(initHeroCine, 100);
+})();
+
 // ══ HOMEPAGE — COMPTEURS MÉTIERS TEMPS RÉEL (Sprint 8) ══
 async function chargerCompteurMetiers() {
   const metierMap = {
@@ -19274,7 +19488,7 @@ async function updateStatutCandidature(candidatureId, statut) {
               <circle cx="270" cy="48" r="4" fill="#E8940A"/>
             </svg>
           </div>
-          <p class="footer-desc">Au Bénin et au Togo, le talent n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
+          <p class="footer-desc">Au Bénin et au Togo, le travail n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
         </div>
         <div class="footer-col">
           <h4>WOLO Market</h4>
@@ -19519,7 +19733,7 @@ async function updateStatutCandidature(candidatureId, statut) {
           <div style="font-size:12px;font-weight:700;color:var(--vert);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Fin 2025 · Le retour définitif</div>
           <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:700;margin-bottom:12px;">Il aurait pu rester en Europe. Il a choisi de revenir construire.</h3>
           <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Fin 2025, je prends la décision : je quitte la France définitivement. Pas un voyage — un retour.<br><br>Et en posant les pieds à Lomé, tout ce que j'avais vu enfant m'a frappé avec une force nouvelle. Un maçon excellent assis devant sa maison à attendre. Une coiffeuse talentueuse que personne ne cherche au-delà de sa rue. Des entrepreneurs sérieux, capables — et pourtant invisibles. Des artisans qui n'ont aucun moyen de recevoir un paiement sécurisé. Qui perdent des clients par manque de monnaie. Qui n'ont pas de vitrine.<br><br>Aujourd'hui, j'accompagne déjà des entrepreneurs togolais : je les aide à se structurer, à trouver des clients, à scaler. Et chaque échange confirme exactement la même réalité.<br><br>Le talent est là.<br>Ce qui manque, c'est la visibilité.<br>Ce qui manque, c'est le paiement sécurisé.<br>Ce qui manque, c'est un endroit qui récompense ceux qui travaillent vraiment.</p>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;margin-top:12px;">Le talent est là. <strong>Ce qui manque, c'est la visibilité.</strong></p>
+          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;margin-top:12px;">Le travail est là. <strong>Ce qui manque, c'est la visibilité.</strong></p>
         </div>
 
         <div style="position:relative;">
@@ -19632,7 +19846,7 @@ async function updateStatutCandidature(candidatureId, statut) {
         </div>
       </div>
       <blockquote style="border-left:4px solid var(--vert);padding:16px 24px;background:rgba(255,255,255,0.04);border-radius:0 12px 12px 0;text-align:left;font-size:16px;line-height:1.8;color:#F8F6F1;margin:0;">
-        "Des artisans talentueux cherchent des clients. Des candidats qualifiés cherchent du travail. Des entreprises cherchent des profils fiables.<br>
+        "Des artisans qualifiés cherchent des clients. Des candidats qualifiés cherchent du travail. Des entreprises cherchent des profils fiables.<br>
         Ils ne se trouvent pas.<br>Et quand ils se trouvent — le paiement bloque. La confiance n'est pas là.<br><br>
         <strong>WOLO Market construit ce territoire.</strong> Avec la visibilité. Avec le paiement sécurisé. Avec les récompenses pour ceux qui méritent.<br><br>Pays par pays. Quartier par quartier. Bénin + Togo — c'est le lancement. Côte d'Ivoire + Sénégal — c'est la suite. Ghana + Nigeria — c'est l'ambition."
       </blockquote>
@@ -19705,7 +19919,7 @@ async function updateStatutCandidature(candidatureId, statut) {
               <circle cx="270" cy="48" r="4" fill="#E8940A"/>
             </svg>
           </div>
-          <p class="footer-desc">Au Bénin et au Togo, le talent n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
+          <p class="footer-desc">Au Bénin et au Togo, le travail n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
         </div>
         <div class="footer-col">
           <h4>WOLO Market</h4>
@@ -20224,7 +20438,7 @@ loadSchealtielPhoto();
         </div>
         <div style="padding:20px;">
           <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Créer ton profil WOLO Market en 2 minutes</h3>
-          <p style="font-size:14px;color:var(--gris);margin:0;">Ton talent existe, mais sans WOLO Market, les clients ne le connaissent pas. Découvre comment changer ça.</p>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Ton travail existe, mais sans WOLO Market, les clients ne le connaissent pas. Découvre comment changer ça.</p>
         </div>
       </div>
 
@@ -24072,31 +24286,35 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:0; }
 /* ══ Section 5 — Hero homepage v2 ══ */
 body.wolo-v2-active #page-home > .hero { display:none; }
 .wv2-hero-v2 {
-  background:var(--wv2-dark); padding:96px 24px 88px;
-  text-align:center; position:relative; overflow:hidden;
+  background:var(--wv2-dark); padding:72px 24px 64px;
+  text-align:left; position:relative; overflow:hidden;
   border-bottom:1px solid rgba(232,148,10,.15);
 }
 .wv2-hero-v2::before {
   content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at center top, rgba(232,148,10,.12), transparent 60%);
+  background:radial-gradient(ellipse at 20% top, rgba(232,148,10,.12), transparent 60%);
   pointer-events:none;
 }
-.wv2-hero-v2-inner { max-width:860px; margin:0 auto; position:relative; z-index:2; }
+.wv2-hero-v2-inner {
+  max-width:1200px; margin:0 auto; position:relative; z-index:2;
+  display:grid; grid-template-columns:1fr 420px; gap:48px; align-items:center;
+}
+.wv2-hero-v2-text { display:flex; flex-direction:column; }
 .wv2-hero-v2 h1 {
   font-family:'Fraunces',serif; font-weight:900;
-  font-size:clamp(40px,6.5vw,76px); line-height:1.02;
+  font-size:clamp(36px,5.5vw,64px); line-height:1.02;
   color:var(--wv2-creme); margin:0 0 6px; letter-spacing:-0.02em;
 }
 .wv2-hero-v2 h2 {
   font-family:'Fraunces',serif; font-style:italic; font-weight:700;
-  font-size:clamp(32px,5.2vw,62px); line-height:1.05;
-  color:var(--wv2-or); margin:0 0 28px; letter-spacing:-0.01em;
+  font-size:clamp(28px,4.5vw,52px); line-height:1.05;
+  color:var(--wv2-or); margin:0 0 24px; letter-spacing:-0.01em;
 }
 .wv2-hero-v2 p.wv2-hero-v2-sub {
-  font-family:'Poppins',sans-serif; font-size:17px; line-height:1.7;
-  color:rgba(248,246,241,.74); max-width:600px; margin:0 auto 36px;
+  font-family:'Poppins',sans-serif; font-size:16px; line-height:1.7;
+  color:rgba(248,246,241,.74); max-width:520px; margin:0 0 32px;
 }
-.wv2-hero-v2-ctas { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:32px; }
+.wv2-hero-v2-ctas { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px; }
 .wv2-hero-v2-count {
   display:inline-flex; align-items:center; gap:10px;
   font-family:'Space Mono',monospace; font-size:13px;
@@ -24108,6 +24326,14 @@ body.wolo-v2-active #page-home > .hero { display:none; }
 .wv2-hero-v2-count .wv2-dot { width:8px; height:8px; border-radius:50%; background:var(--wv2-or); animation:wv2-pulse 2s infinite; }
 .wv2-fade-up { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
 .wv2-fade-up.wv2-in { opacity:1; transform:translateY(0); }
+@media(max-width:900px){
+  .wv2-hero-v2-inner { grid-template-columns:1fr; gap:32px; }
+  .wv2-hero-v2 { text-align:center; padding:48px 16px 40px; }
+  .wv2-hero-v2-text { align-items:center; }
+  .wv2-hero-v2 p.wv2-hero-v2-sub { margin-left:auto; margin-right:auto; }
+  .wv2-hero-v2-ctas { justify-content:center; }
+  .wv2-hero-v2 .hero-cine { max-width:360px; margin:0 auto; }
+}
 
 /* ══ Section 9 — Profil commerçant v2 ══ */
 body.wolo-v2-active .profil-cover {
@@ -24392,15 +24618,24 @@ window.addEventListener('beforeinstallprompt', function(e){
     section.className = 'wv2-hero-v2 wv2-fade-up wv2-in';
     section.innerHTML = ''
       + '<div class="wv2-hero-v2-inner">'
-      +   '<h1>Ton travail parle.</h1>'
-      +   '<h2><em style="font-style:italic;color:#E8940A;">Pas tes connexions.</em></h2>'
-      +   '<p class="wv2-hero-v2-sub">WOLO Market connecte les artisans, prestataires et commerçants de Cotonou et Lomé avec leurs clients. Sans piston. Sans recommandation. Ton profil, tes avis, ton Score WOLO — c\'est ça qui parle.</p>'
-      +   '<div class="wv2-hero-v2-ctas">'
-      +     '<button class="btn-wolo-primary" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button>'
-      +     '<button class="btn-wolo-secondary" onclick="showPage(\'search\')">Explorer les prestataires</button>'
+      +   '<div class="wv2-hero-v2-text">'
+      +     '<h1>Ton travail parle.</h1>'
+      +     '<h2><em style="font-style:italic;color:#E8940A;">Pas tes connexions.</em></h2>'
+      +     '<p class="wv2-hero-v2-sub">WOLO Market connecte les artisans, prestataires et commerçants de Cotonou et Lomé avec leurs clients. Sans piston. Sans recommandation. Ton profil, tes avis, ton Score WOLO — c\'est ça qui parle.</p>'
+      +     '<div class="wv2-hero-v2-ctas">'
+      +       '<button class="btn-wolo-primary" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button>'
+      +       '<button class="btn-wolo-secondary" onclick="showPage(\'search\')">Explorer les prestataires</button>'
+      +     '</div>'
+      +     '<div class="wv2-hero-v2-count"><span class="wv2-dot"></span><strong id="wv2-hero-count">1 247</strong>&nbsp;prestataires actifs aujourd\'hui</div>'
       +   '</div>'
-      +   '<div class="wv2-hero-v2-count"><span class="wv2-dot"></span><strong id="wv2-hero-count">1 247</strong>&nbsp;prestataires actifs aujourd\'hui</div>'
+      +   '<div id="wv2-hero-cine-slot"></div>'
       + '</div>';
+    // Déplacer le hero-cine dans le slot v2
+    setTimeout(function(){
+      var cine = document.getElementById('hero-cine');
+      var slot = document.getElementById('wv2-hero-cine-slot');
+      if (cine && slot) slot.appendChild(cine);
+    }, 50);
     if (legacyHero && legacyHero.parentNode) {
       legacyHero.parentNode.insertBefore(section, legacyHero);
     } else {
@@ -24859,7 +25094,7 @@ window.woloNotifTransfert = function(prestataireId, fromName, montant){
 </style>
 <div class="wolo-wa-float">
   <span class="wolo-wa-label">Besoin d'aide ?</span>
-  <a href="https://wa.me/22890000000?text=Bonjour%20WOLO%20Market%20!%20J'ai%20besoin%20d'aide." target="_blank" rel="noopener" aria-label="Contacter WOLO Market sur WhatsApp">
+  <a href="https://wa.me/22897473040?text=Bonjour%20WOLO%20Market%20!%20J'ai%20besoin%20d'aide." target="_blank" rel="noopener" aria-label="Contacter WOLO Market sur WhatsApp">
     <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   </a>
 </div>
