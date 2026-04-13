@@ -1807,9 +1807,16 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 /* ══ EMPLOI BADGES & CARDS ══ */
 .offre-card {
   background:rgba(255,255,255,0.04);border-radius:16px;padding:20px;box-shadow:var(--shadow);
-  border:1.5px solid rgba(232,148,10,0.12);transition:all 0.2s;cursor:default;color:#F8F6F1;
+  border:1.5px solid rgba(232,148,10,0.12);transition:all 0.2s;cursor:pointer;color:#F8F6F1;
+  overflow:hidden;
 }
 .offre-card:hover { transform:translateY(-2px);box-shadow:var(--shadow-lg); }
+.offre-card .offre-actions { display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-start; }
+.offre-card .offre-actions .btn { white-space:nowrap;font-size:12px;padding:8px 14px; }
+@media(max-width:600px) {
+  .offre-card .offre-actions { flex-direction:column; }
+  .offre-card .offre-actions .btn { width:100%;justify-content:center;text-align:center; }
+}
 .badge-urgente {
   display:inline-flex;align-items:center;gap:4px;
   background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;
@@ -5817,6 +5824,14 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <button class="btn btn-primary" id="modal-cand-submit-btn" onclick="submitCandidature()" style="flex:2;justify-content:center;">→ Envoyer ma candidature</button>
     </div>
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:10px;line-height:1.5;">Ton profil WOLO complet est joint automatiquement.<br>Le recruteur reçoit ta candidature immédiatement.</p>
+  </div>
+</div>
+
+<!-- MODAL DÉTAIL OFFRE D'EMPLOI — style page Indeed -->
+<div class="modal-overlay" id="modal-offre-detail" style="display:none;z-index:10000;">
+  <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+    <button class="modal-close" onclick="document.getElementById('modal-offre-detail').style.display='none'">✕</button>
+    <div id="offre-detail-content"></div>
   </div>
 </div>
 
@@ -18649,7 +18664,7 @@ function renderOffreEmploi(offre) {
   const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
   const nbCand = f['Nb candidatures'] || 0;
 
-  return `<div class="offre-card">
+  return `<div class="offre-card" onclick="showOffreDetail('${offre.id}')">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <div>
         ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span> ' : ''}
@@ -18669,15 +18684,76 @@ function renderOffreEmploi(offre) {
     <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 ${salaire}</div>
     ${f['Description'] ? `<p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${f['Description']}</p>` : ''}
     <div style="font-size:12px;color:var(--gris);margin-bottom:12px;">👥 <strong>${nbCand}</strong> candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
-      <span style="font-size:12px;color:var(--gris);">Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</span>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-sm" style="background:#fef3dc;color:#E8940A;border:1px solid #f3d38a;" onclick="partagerOffre('${(f['Titre']||'').replace(/'/g,"\\'")}','${offre.id}')">📤 Partager</button>
-        ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${f['Recruteur WhatsApp'].replace(/\D/g,'')}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-wa btn-sm">💬 Contacter</a>` : ''}
-        <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${offre.id}','${(f['Titre']||'').replace(/'/g,"\\'")}','${(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOLO</button>
-      </div>
+    <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</div>
+    <div class="offre-actions" onclick="event.stopPropagation();">
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('${(f['Titre']||'').replace(/'/g,"\\'")}','${offre.id}')">📤 Partager</button>
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${f['Recruteur WhatsApp'].replace(/\D/g,'')}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;">💬 Contacter</a>` : ''}
+      <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${offre.id}','${(f['Titre']||'').replace(/'/g,"\\'")}','${(f['Recruteur ID']||'')}')">→ Postuler</button>
     </div>
   </div>`;
+}
+
+// ── Page détail offre (style Indeed) ──
+function showOffreDetail(offreId) {
+  const offre = (_offresCache || []).find(o => o.id === offreId);
+  if (!offre) { toast('Offre introuvable', 'error'); return; }
+  const f = offre.fields;
+  const contrat = f['Type de contrat'] || 'Non précisé';
+  const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
+    ? `${(f['Salaire min FCFA']).toLocaleString()}${f['Salaire max FCFA'] ? ' – ' + f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
+    : 'À négocier';
+  const _loc = ((f['Quartier']||'') + ' ' + (f['Ville']||'')).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','natitingou'].some(v=>_loc.includes(v));
+  const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
+  const nbCand = f['Nb candidatures'] || 0;
+  const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : '?';
+  const desc = (f['Description'] || 'Pas de description fournie par le recruteur.').replace(/\n/g, '<br>');
+
+  const container = document.getElementById('offre-detail-content');
+  container.innerHTML = `
+    <div style="margin-bottom:24px;">
+      ${f['Urgente'] ? '<span style="display:inline-block;background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🔴 URGENTE</span>' : ''}
+      <h2 style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#F8F6F1;line-height:1.3;margin:0 0 8px;">${f['Titre'] || 'Sans titre'}</h2>
+      <div style="font-size:13px;color:rgba(248,246,241,0.6);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        ${f['Recruteur ID'] ? `<span onclick="showProfil('${f['Recruteur ID']}');showPage('profil');document.getElementById('modal-offre-detail').style.display='none'" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;font-weight:600;">🏢 ${f['Recruteur Nom'] || 'Recruteur'}</span>` : `🏢 ${f['Recruteur Nom'] || 'Recruteur'}`}
+        ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOLO">✓ Vérifié</span>' : ''}
+        <span>· Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+      <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
+        <div style="font-size:11px;color:rgba(248,246,241,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Salaire</div>
+        <div style="font-size:16px;font-weight:800;color:#E8940A;">💰 ${salaire}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
+        <div style="font-size:11px;color:rgba(248,246,241,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contrat</div>
+        <div style="font-size:15px;font-weight:700;color:#F8F6F1;">${contrat}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
+        <div style="font-size:11px;color:rgba(248,246,241,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lieu</div>
+        <div style="font-size:15px;font-weight:700;color:#F8F6F1;">${_flag} ${f['Quartier'] || f['Ville'] || 'Non précisé'}</div>
+      </div>
+    </div>
+
+    ${f['Expérience requise'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:rgba(248,246,241,0.7);">💼 Expérience requise : ${f['Expérience requise']}</span></div>` : ''}
+    ${f['Télétravail possible'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(232,148,10,0.08);border:1px solid rgba(232,148,10,0.2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:#E8940A;">💻 Télétravail possible</span></div>` : ''}
+
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;margin-bottom:24px;">
+      <h3 style="font-family:Fraunces,serif;font-size:17px;font-weight:800;color:#F8F6F1;margin:0 0 12px;">Description du poste</h3>
+      <div style="font-size:14px;color:rgba(248,246,241,0.75);line-height:1.8;">${desc}</div>
+    </div>
+
+    <div style="font-size:13px;color:rgba(248,246,241,0.5);margin-bottom:20px;">👥 <strong style="color:#F8F6F1;">${nbCand}</strong> candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" style="flex:2;justify-content:center;min-width:200px;padding:14px;" onclick="document.getElementById('modal-offre-detail').style.display='none';ouvrirModalCandidature('${offre.id}','${(f['Titre']||'').replace(/'/g,"\\'")}','${(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOLO</button>
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${f['Recruteur WhatsApp'].replace(/\D/g,'')}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${(f['Titre']||'').replace(/'/g,"\\'")}','${offre.id}')">📤 Partager</button>
+    </div>
+  `;
+
+  document.getElementById('modal-offre-detail').style.display = 'flex';
 }
 
 // ── Page emploi principale ──
