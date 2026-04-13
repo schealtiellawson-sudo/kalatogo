@@ -6410,7 +6410,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <i data-lucide="star"></i> <span>Mes avis</span>
           </button>
           <button class="dash-link" onclick="showDashSection('wolo-match')" id="dl-wolo-match">
-            <i data-lucide="handshake"></i> <span>Demandes WOLO Match</span>
+            <i data-lucide="handshake"></i> <span>WOLO Match</span>
           </button>
         </div>
       </div>
@@ -7203,14 +7203,48 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
       </div>
 
-      <!-- WOLO MATCH — DEMANDES PRESTATAIRE -->
+      <!-- WOLO MATCH — DASHBOARD COMPLET -->
       <div class="dash-section" id="ds-wolo-match">
         <div class="dash-header">
-          <h2>🤝 Demandes WOLO Match</h2>
-          <p>Les clients qui cherchent un prestataire avec ton profil. Montre ton intérêt pour être contacté.</p>
+          <h2>🤝 WOLO Match</h2>
+          <p>Toutes tes connexions — demandes reçues, demandes envoyées, candidatures.</p>
         </div>
-        <div id="dash-match-liste" style="margin-top:16px;">
-          <div class="loading"><div class="spinner"></div> Chargement...</div>
+
+        <!-- Tabs Match Dashboard -->
+        <div style="display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid rgba(232,148,10,0.2);margin-bottom:20px;">
+          <button id="dash-match-tab-recues" onclick="switchDashMatchTab('recues')" style="flex:1;padding:10px;background:rgba(232,148,10,0.12);color:#E8940A;border:none;font-size:12px;font-weight:700;font-family:'Space Mono',monospace;cursor:pointer;">📥 Demandes reçues</button>
+          <button id="dash-match-tab-envoyees" onclick="switchDashMatchTab('envoyees')" style="flex:1;padding:10px;background:rgba(255,255,255,0.02);color:rgba(248,246,241,0.5);border:none;border-left:1px solid rgba(232,148,10,0.15);font-size:12px;font-weight:700;font-family:'Space Mono',monospace;cursor:pointer;">📤 Mes demandes</button>
+          <button id="dash-match-tab-candidatures" onclick="switchDashMatchTab('candidatures')" style="flex:1;padding:10px;background:rgba(255,255,255,0.02);color:rgba(248,246,241,0.5);border:none;border-left:1px solid rgba(232,148,10,0.15);font-size:12px;font-weight:700;font-family:'Space Mono',monospace;cursor:pointer;">💼 Mes candidatures</button>
+        </div>
+
+        <!-- Tab : Demandes reçues (prestataire) -->
+        <div id="dash-match-panel-recues">
+          <p style="font-size:13px;color:rgba(248,246,241,0.45);margin-bottom:12px;">Les clients qui cherchent un prestataire avec ton profil.</p>
+          <div id="dash-match-liste" style="margin-top:8px;">
+            <div class="loading"><div class="spinner"></div> Chargement...</div>
+          </div>
+        </div>
+
+        <!-- Tab : Mes demandes envoyées (client) -->
+        <div id="dash-match-panel-envoyees" style="display:none;">
+          <p style="font-size:13px;color:rgba(248,246,241,0.45);margin-bottom:12px;">Les demandes de prestataires que tu as publiées.</p>
+          <div id="dash-match-mes-demandes">
+            <div class="loading"><div class="spinner"></div> Chargement...</div>
+          </div>
+        </div>
+
+        <!-- Tab : Mes candidatures (chercheur d'emploi) -->
+        <div id="dash-match-panel-candidatures" style="display:none;">
+          <p style="font-size:13px;color:rgba(248,246,241,0.45);margin-bottom:12px;">Les offres auxquelles tu as répondu via WOLO Match.</p>
+          <div id="dash-match-candidatures">
+            <div class="loading"><div class="spinner"></div> Chargement...</div>
+          </div>
+        </div>
+
+        <!-- CTA vers WOLO Match -->
+        <div style="margin-top:20px;padding:16px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:12px;text-align:center;">
+          <p style="font-size:13px;color:rgba(248,246,241,0.6);margin:0 0 10px;">Tu cherches un prestataire ou du travail ?</p>
+          <button class="wolo-btn-primary" style="font-size:13px;padding:10px 24px;" onclick="showPage('match')">Ouvrir WOLO Match →</button>
         </div>
       </div>
 
@@ -22555,71 +22589,161 @@ small.meta {
 </script>
 
 <script>
-// ====== SPRINT 8 — Dashboard WOLO Match ======
-async function loadDashWoloMatch() {
+// ====== SPRINT 8 — Dashboard WOLO Match (3 tabs) ======
+
+// Tab switcher
+window.switchDashMatchTab = function(tab) {
+  const tabs = ['recues','envoyees','candidatures'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('dash-match-tab-' + t);
+    const panel = document.getElementById('dash-match-panel-' + t);
+    if (t === tab) {
+      btn.style.background = 'rgba(232,148,10,0.12)';
+      btn.style.color = '#E8940A';
+      panel.style.display = '';
+    } else {
+      btn.style.background = 'rgba(255,255,255,0.02)';
+      btn.style.color = 'rgba(248,246,241,0.5)';
+      panel.style.display = 'none';
+    }
+  });
+  // Charger les données du tab actif
+  if (tab === 'recues') loadDashMatchRecues();
+  if (tab === 'envoyees') loadDashMatchEnvoyees();
+  if (tab === 'candidatures') loadDashMatchCandidatures();
+};
+
+// Tab 1 : Demandes reçues (prestataire — les clients qui cherchent ton profil)
+async function loadDashMatchRecues() {
   const container = document.getElementById('dash-match-liste');
   if (!container) return;
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
-
   const sb = _sb();
   if (!sb || !currentUser) { container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Connecte-toi pour voir les demandes.</p>'; return; }
-
   try {
-    // Récupérer le métier et la ville du prestataire
     const { data: profil } = await sb.from('profiles').select('metier, ville').eq('id', currentUser.id).maybeSingle();
     if (!profil || !profil.metier) {
       container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><h3>Renseigne ton métier</h3><p>Pour recevoir des demandes WOLO Match, renseigne ton métier dans ton profil.</p></div>';
       return;
     }
-
-    // Chercher les demandes correspondant au métier
-    let query = sb.from('wolo_match_demandes')
+    const { data: demandes } = await sb.from('wolo_match_demandes')
       .select('*, profiles:client_id(nom, photo_url)')
       .eq('statut', 'ouvert')
       .ilike('metier_recherche', `%${profil.metier}%`)
-      .order('created_at', { ascending: false })
-      .limit(20);
-
-    const { data: demandes } = await query;
+      .order('created_at', { ascending: false }).limit(20);
     if (!demandes || demandes.length === 0) {
       container.innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><h3>Aucune demande pour le moment</h3><p>Les clients qui cherchent un ' + escapeHtml(profil.metier) + ' apparaîtront ici.</p></div>';
       return;
     }
-
     container.innerHTML = demandes.map(d => {
       const client = d.profiles || { nom: 'Client' };
-      return `
-        <div class="match-demande-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(248,246,241,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'">
-            <div>
-              <strong style="color:#F8F6F1;font-size:14px;">${escapeHtml(client.nom||'Client')}</strong>
-              <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span>
-            </div>
-          </div>
-          <p style="color:rgba(248,246,241,0.8);font-size:14px;margin:0 0 10px;">${escapeHtml(d.description)}</p>
-          <div style="display:flex;gap:12px;font-size:12px;color:rgba(248,246,241,0.5);margin-bottom:12px;">
-            <span>🔧 ${escapeHtml(d.metier_recherche)}</span>
-            ${d.ville ? `<span>📍 ${escapeHtml(d.ville)}</span>` : ''}
-            ${d.budget_max ? `<span>💰 Max ${d.budget_max.toLocaleString()} FCFA</span>` : ''}
-          </div>
-          <button class="wolo-btn-primary" style="font-size:13px;padding:8px 16px;" onclick="repondreMatch('${d.id}', '${d.client_id}')">Je suis intéressé →</button>
+      return `<div class="match-demande-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(248,246,241,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'">
+          <div><strong style="color:#F8F6F1;font-size:14px;">${escapeHtml(client.nom||'Client')}</strong>
+          <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span></div>
         </div>
-      `;
+        <p style="color:rgba(248,246,241,0.8);font-size:14px;margin:0 0 10px;">${escapeHtml(d.description)}</p>
+        <div style="display:flex;gap:12px;font-size:12px;color:rgba(248,246,241,0.5);margin-bottom:12px;">
+          <span>🔧 ${escapeHtml(d.metier_recherche)}</span>
+          ${d.ville ? '<span>📍 '+escapeHtml(d.ville)+'</span>' : ''}
+          ${d.budget_max ? '<span>💰 Max '+d.budget_max.toLocaleString()+' FCFA</span>' : ''}
+        </div>
+        <button class="wolo-btn-primary" style="font-size:13px;padding:8px 16px;" onclick="repondreMatch('${d.id}','${d.client_id}')">Je suis intéressé →</button>
+      </div>`;
     }).join('');
-  } catch(e) {
-    console.warn('[loadDashWoloMatch]', e);
-    container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Erreur de chargement.</p>';
-  }
+  } catch(e) { console.warn('[loadDashMatchRecues]',e); container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Erreur de chargement.</p>'; }
+}
+
+// Tab 2 : Mes demandes envoyées (en tant que client)
+async function loadDashMatchEnvoyees() {
+  const container = document.getElementById('dash-match-mes-demandes');
+  if (!container) return;
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  const sb = _sb();
+  if (!sb || !currentUser) { container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Connecte-toi.</p>'; return; }
+  try {
+    const { data: demandes } = await sb.from('wolo_match_demandes')
+      .select('*').eq('client_id', currentUser.id)
+      .order('created_at', { ascending: false }).limit(20);
+    if (!demandes || demandes.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📤</div><h3>Aucune demande envoyée</h3><p>Utilise <a href="#" onclick="event.preventDefault();showPage(\'match\')" style="color:#E8940A;">WOLO Match</a> pour trouver un prestataire.</p></div>';
+      return;
+    }
+    container.innerHTML = demandes.map(d => {
+      const statutLabel = d.statut === 'ouvert' ? '🟢 Ouvert' : d.statut === 'en_cours' ? '🟡 Un prestataire a répondu !' : '⚪ Fermé';
+      const statutClass = d.statut === 'en_cours' ? 'color:#E8940A;font-weight:700;' : d.statut === 'ouvert' ? 'color:rgba(248,246,241,0.6);' : 'color:rgba(248,246,241,0.35);';
+      return `<div class="match-demande-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(248,246,241,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="color:#F8F6F1;font-family:Georgia,serif;font-size:15px;">🔧 ${escapeHtml(d.metier_recherche)}</strong>
+          <span style="font-size:12px;${statutClass}">${statutLabel}</span>
+        </div>
+        <p style="color:rgba(248,246,241,0.75);font-size:14px;margin:0 0 10px;line-height:1.6;">${escapeHtml(d.description)}</p>
+        <div style="display:flex;gap:12px;font-size:12px;color:rgba(248,246,241,0.4);">
+          ${d.ville ? '<span>📍 '+escapeHtml(d.ville)+'</span>' : ''}
+          ${d.budget_max ? '<span>💰 Budget max: '+d.budget_max.toLocaleString()+' FCFA</span>' : ''}
+          <span>${getDateRelative(d.created_at)}</span>
+        </div>
+        ${d.statut === 'ouvert' ? '<button onclick="fermerDemande(\''+d.id+'\')" style="margin-top:10px;background:none;border:1px solid rgba(248,246,241,0.15);color:rgba(248,246,241,0.5);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;">Fermer la demande</button>' : ''}
+      </div>`;
+    }).join('');
+  } catch(e) { console.warn('[loadDashMatchEnvoyees]',e); container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Erreur.</p>'; }
+}
+
+// Tab 3 : Mes candidatures (offres auxquelles j'ai répondu)
+async function loadDashMatchCandidatures() {
+  const container = document.getElementById('dash-match-candidatures');
+  if (!container) return;
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  const sb = _sb();
+  if (!sb || !currentUser) { container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Connecte-toi.</p>'; return; }
+  try {
+    // Chercher les demandes en_cours où le prestataire a répondu (respondent_id)
+    // Fallback: chercher les demandes en_cours correspondant au métier du prestataire
+    const { data: profil } = await sb.from('profiles').select('metier').eq('id', currentUser.id).maybeSingle();
+    if (!profil || !profil.metier) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">💼</div><h3>Renseigne ton métier</h3><p>Pour candidater sur WOLO Match, renseigne ton métier dans ton profil.</p></div>';
+      return;
+    }
+    const { data: demandes } = await sb.from('wolo_match_demandes')
+      .select('*, profiles:client_id(nom, photo_url)')
+      .eq('statut', 'en_cours')
+      .ilike('metier_recherche', `%${profil.metier}%`)
+      .order('created_at', { ascending: false }).limit(20);
+    if (!demandes || demandes.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">💼</div><h3>Aucune candidature</h3><p>Utilise <a href="#" onclick="event.preventDefault();showPage(\'match\')" style="color:#E8940A;">WOLO Match</a> en mode "Je cherche du travail" pour répondre à des offres.</p></div>';
+      return;
+    }
+    container.innerHTML = demandes.map(d => {
+      const client = d.profiles || { nom: 'Client' };
+      return `<div class="match-demande-card" style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.15);border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'">
+          <div style="flex:1;"><strong style="color:#F8F6F1;font-size:14px;">${escapeHtml(client.nom||'Client')}</strong>
+          <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span></div>
+          <span style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(232,148,10,0.15);color:#E8940A;font-family:'Space Mono',monospace;">🟡 En cours</span>
+        </div>
+        <p style="color:rgba(248,246,241,0.8);font-size:14px;margin:0 0 10px;line-height:1.6;">${escapeHtml(d.description)}</p>
+        <div style="display:flex;gap:12px;font-size:12px;color:rgba(248,246,241,0.5);">
+          <span>🔧 ${escapeHtml(d.metier_recherche)}</span>
+          ${d.ville ? '<span>📍 '+escapeHtml(d.ville)+'</span>' : ''}
+          ${d.budget_max ? '<span>💰 '+d.budget_max.toLocaleString()+' FCFA</span>' : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.warn('[loadDashMatchCandidatures]',e); container.innerHTML = '<p style="color:rgba(248,246,241,0.5);">Erreur.</p>'; }
+}
+
+// Legacy wrapper — charge le tab par défaut (recues)
+async function loadDashWoloMatch() {
+  loadDashMatchRecues();
 }
 
 async function repondreMatch(demandeId, clientId) {
   const sb = _sb();
   if (!sb || !currentUser) return;
   try {
-    // Mettre à jour le statut
     await sb.from('wolo_match_demandes').update({ statut: 'en_cours' }).eq('id', demandeId);
-    // Notifier le client
     const { data: profil } = await sb.from('profiles').select('nom, metier').eq('id', currentUser.id).maybeSingle();
     const nom = profil?.nom || 'Un prestataire';
     const metier = profil?.metier || '';
@@ -22628,7 +22752,7 @@ async function repondreMatch(demandeId, clientId) {
         `${nom} (${metier}) est intéressé par ta demande WOLO Match.`, '#dashboard');
     }
     alert('Ta réponse a été envoyée ! Le client sera notifié.');
-    loadDashWoloMatch();
+    loadDashMatchRecues();
   } catch(e) { console.warn(e); }
 }
 </script>
