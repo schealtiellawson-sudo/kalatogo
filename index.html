@@ -4,15 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="lXOGmTJAXq9qRgT3GoiQIXYHzI_515w89aDfHhi2msw" />
-<title>WOLO Market — Visibilité. Paiements. Revenus. Bénin & Togo.</title>
-<meta name="description" content="Artisans, prestataires et chercheurs d'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. WOLO Market connecte le Bénin et le Togo. Sans piston.">
+<title>WOLO Market — Trouve un prestataire ou un emploi au Bénin et au Togo</title>
+<meta name="description" content="WOLO Market : trouve un coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, paiement sécurisé. Sans piston.">
 <meta name="keywords" content="emploi Cotonou, emploi Lomé, prestataire Bénin, artisan Togo, marketplace Bénin, marketplace Togo, trouver prestataire Cotonou, trouver emploi Lomé, WOLO Market">
-<meta property="og:title" content="WOLO Market — Visibilité. Paiements. Revenus. Bénin & Togo.">
-<meta property="og:description" content="Artisans, prestataires et chercheurs d'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. WOLO Market connecte le Bénin et le Togo. Sans piston.">
+<meta property="og:title" content="WOLO Market — Ton travail parle. Pas tes connexions.">
+<meta property="og:description" content="Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, WOLO Pay, 400 000 FCFA distribués chaque mois.">
 <meta property="og:url" content="https://wolomarket.com">
 <meta property="og:type" content="website">
-<meta property="og:locale" content="fr_BJ">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:locale:alternate" content="fr_BJ">
 <meta property="og:locale:alternate" content="fr_TG">
+<meta property="og:image" content="https://wolomarket.com/icons/wolo-512.svg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -696,6 +699,27 @@ h1 .gold { color:var(--or); }
   100% { opacity: 0; transform: translateY(-30px) scale(0); }
 }
 
+/* ══ Section Vedette ══ */
+.vedette-section { background:#0f1410; padding:72px 0 64px; border-top:1px solid rgba(232,148,10,0.08); position:relative; overflow:hidden; }
+.vedette-section::before { content:''; position:absolute; top:-60px; right:-80px; width:300px; height:300px; background:radial-gradient(circle,rgba(232,148,10,0.06) 0%,transparent 70%); pointer-events:none; }
+.vedette-eyebrow { font-family:'Liberation Mono','Space Mono',monospace; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#E8940A; margin-bottom:10px; }
+.vedette-title { font-family:'Lora','Fraunces',serif; font-size:32px; font-weight:700; font-style:italic; color:#F8F6F1; margin-bottom:40px; }
+.vedette-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.vedette-card { background:rgba(248,246,241,0.04); border:1px solid rgba(232,148,10,0.10); border-radius:16px; padding:24px 20px; cursor:pointer; transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s; display:flex; flex-direction:column; align-items:center; text-align:center; }
+.vedette-card:hover { transform:translateY(-4px); border-color:rgba(232,148,10,0.30); box-shadow:0 8px 32px rgba(232,148,10,0.10); }
+.vedette-avatar { width:72px; height:72px; border-radius:50%; overflow:hidden; margin-bottom:14px; border:2px solid rgba(232,148,10,0.25); background:rgba(232,148,10,0.08); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#E8940A; }
+.vedette-avatar img { width:100%; height:100%; object-fit:cover; }
+.vedette-nom { font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; color:#F8F6F1; margin-bottom:4px; }
+.vedette-metier { font-size:13px; color:rgba(248,246,241,0.6); margin-bottom:4px; }
+.vedette-ville { font-size:12px; color:rgba(248,246,241,0.45); margin-bottom:8px; }
+.vedette-stars { font-size:13px; color:#E8940A; }
+.vedette-cta { text-align:center; margin-top:36px; }
+.vedette-cta a { font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; color:#E8940A; text-decoration:none; cursor:pointer; transition:opacity 0.2s; }
+.vedette-cta a:hover { opacity:0.8; }
+.vedette-loading { text-align:center; color:rgba(248,246,241,0.4); font-size:14px; padding:40px 0; }
+@media(max-width:900px){ .vedette-grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:600px){ .vedette-grid{grid-template-columns:1fr 1fr;gap:14px;} .vedette-title{font-size:24px;} .vedette-card{padding:18px 14px;} .vedette-avatar{width:56px;height:56px;} }
+
 /* Mobile responsive orbit */
 @media (max-width: 900px) {
   .orbit-container { width: 340px; height: 340px; }
@@ -807,8 +831,8 @@ h1 .gold { color:var(--or); }
   overflow:hidden;
 }
 .pcard-avatar img { width:100%; height:100%; object-fit:cover; }
-.pcard-name { font-weight:800; font-size:16px; margin-bottom:3px; }
-.pcard-meta { font-size:13px; color:var(--gris); display:flex; align-items:center; gap:5px; }
+.pcard-name { font-weight:800; font-size:16px; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pcard-meta { font-size:13px; color:var(--gris); display:flex; align-items:center; gap:5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .pcard-badges { display:flex; gap:6px; margin:8px 0; flex-wrap:wrap; }
 .pcard-rating { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--gris); margin-top:6px; }
 .stars { color:var(--or); letter-spacing:1px; }
@@ -818,7 +842,7 @@ h1 .gold { color:var(--or); }
   display:flex; align-items:center; justify-content:space-between; gap:8px;
   flex-wrap:wrap;
 }
-.pcard-price { font-family:'Fraunces',serif; font-weight:700; font-size:17px; color:var(--vert); min-width:0; }
+.pcard-price { font-family:'Fraunces',serif; font-weight:700; font-size:17px; color:var(--vert); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .pcard-price span { font-family:'Cabinet Grotesk',sans-serif; font-size:12px; color:var(--gris); font-weight:500; }
 .pcard-footer .btn { white-space:nowrap; flex-shrink:0; max-width:100%; font-size:12px !important; padding:8px 14px !important; }
 
@@ -1407,10 +1431,11 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   .nav-logo { font-size:20px; }
 
   /* HERO MOBILE */
-  .hero { padding:48px 0 36px; }
+  .hero { padding:48px 0 36px; overflow-x:hidden; }
   .hero-grid { grid-template-columns:1fr !important; gap:24px !important; }
-  .hero-visual { display:flex !important; margin:0 auto; max-width:100%; justify-content:center; }
-  .hero-sub { font-size:15px; }
+  .hero-visual { display:flex !important; margin:0 auto; max-width:100%; justify-content:center; overflow:hidden; }
+  .hero-sub { font-size:15px; word-break:break-word; }
+  .hero h1 { word-break:break-word; overflow-wrap:break-word; }
   .hero-actions { flex-direction:column; }
   .hero-actions .btn { width:100%; justify-content:center; }
   .hero-metrics { grid-template-columns:repeat(2,1fr) !important; gap:12px !important; }
@@ -1440,8 +1465,9 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 
   /* DASHBOARD MOBILE */
   .dashboard-layout { grid-template-columns:1fr !important; }
-  .dashboard-sidebar { padding:12px !important; gap:4px !important; flex-wrap:wrap !important; }
-  .dash-link { padding:8px 10px !important; font-size:12px !important; flex:0 0 auto; }
+  .dashboard-sidebar { padding:12px !important; gap:4px !important; flex-wrap:nowrap !important; overflow-x:auto !important; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .dashboard-sidebar::-webkit-scrollbar { display:none; }
+  .dash-link { padding:8px 10px !important; font-size:12px !important; flex:0 0 auto; white-space:nowrap; }
   .dashboard-main { padding:16px !important; }
   .stat-cards { grid-template-columns:repeat(2,1fr) !important; gap:10px !important; }
   .stat-card { padding:14px !important; }
@@ -3304,7 +3330,7 @@ input:checked + .toggle-slider { background:#E8940A !important; }
 /* Score profil page */
 .profil-score-bar { background:rgba(255,255,255,0.08) !important; }
 /* Pages globales */
-#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-home { background:#0f1410 !important; color:#F8F6F1 !important; }
+#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-awards-profil, #page-home, #page-a-propos, #page-agent-wolo, #page-influenceurs { background:#0f1410 !important; color:#F8F6F1 !important; }
 /* Fonctionnement page sections */
 #page-fonctionnement section { background:#0f1410 !important; }
 #page-fonctionnement h2, #page-fonctionnement h3 { color:#F8F6F1 !important; }
@@ -3678,6 +3704,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <button class="nav-link" data-nav="feed" onclick="showPage('feed')">📰 Feed WOLO <span class="feed-badge" id="feed-notif-count"></span></button>
       <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOLO Jobs</button>
       <button class="nav-link" data-nav="match" onclick="showPage('match')">🤝 WOLO Match</button>
+      <button class="nav-link" data-nav="awards" onclick="showPage('awards')">🏆 Awards</button>
       <!-- Tutoriels masqués -->
       <button class="nav-link" data-nav="fonctionnement" onclick="showPage('fonctionnement')">Comment ça marche</button>
       <button class="nav-link" data-nav="apropos" onclick="showPage('apropos')">À propos</button>
@@ -3855,7 +3882,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
               <div class="proof-avatar">M</div>
             </div>
             <div class="proof-text">
-              <strong id="proof-count">0</strong> fondateurs déjà inscrits
+              <strong id="proof-count">0</strong> prestataires déjà inscrits
             </div>
           </div>
         </div>
@@ -3966,6 +3993,22 @@ div[style*="position:sticky"][style*="background:#fff"] {
   </section>
 
   <!-- ══════════════════════════════════════════
+       SECTION VEDETTE : Prestataires en vedette
+  ══════════════════════════════════════════ -->
+  <section class="vedette-section" id="vedette-section">
+    <div class="container">
+      <div class="vedette-eyebrow">ILS SONT SUR WOLO MARKET</div>
+      <h2 class="vedette-title">Des prestataires près de chez toi.</h2>
+      <div id="vedette-grid" class="vedette-grid">
+        <div class="vedette-loading">Chargement des prestataires...</div>
+      </div>
+      <div class="vedette-cta">
+        <a onclick="showPage('search')">Voir tous les prestataires &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
        WOLO v2 — SECTION 6 : WOLO PAY HERO
   ══════════════════════════════════════════ -->
   <section class="wv2-pay-hero" aria-labelledby="wv2-pay-title">
@@ -4017,16 +4060,16 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <p class="wv2-cats-sub">Trouve vite. Choisis bien.</p>
       </div>
       <div class="wv2-cats-grid" role="list" id="wv2-cats-grid">
-        <button class="wv2-cat" role="listitem" data-cat-metier="Menuisier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="hammer"></i></span><span class="wv2-cat-lbl">Menuiserie</span><span class="wv2-cat-cnt" data-cat-count="Menuisier">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Électricien" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="zap"></i></span><span class="wv2-cat-lbl">Électricité</span><span class="wv2-cat-cnt" data-cat-count="Électricien">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Coiffeur" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="scissors"></i></span><span class="wv2-cat-lbl">Coiffure</span><span class="wv2-cat-cnt" data-cat-count="Coiffeur">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Couturier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="shirt"></i></span><span class="wv2-cat-lbl">Couture</span><span class="wv2-cat-cnt" data-cat-count="Couturier">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Plombier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="wrench"></i></span><span class="wv2-cat-lbl">Plomberie</span><span class="wv2-cat-cnt" data-cat-count="Plombier">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Informaticien" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="laptop"></i></span><span class="wv2-cat-lbl">Informatique</span><span class="wv2-cat-cnt" data-cat-count="Informaticien">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Transport" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="bike"></i></span><span class="wv2-cat-lbl">Transport</span><span class="wv2-cat-cnt" data-cat-count="Transport">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Cuisinier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="chef-hat"></i></span><span class="wv2-cat-lbl">Cuisine</span><span class="wv2-cat-cnt" data-cat-count="Cuisinier">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Nettoyage" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="sparkles"></i></span><span class="wv2-cat-lbl">Nettoyage</span><span class="wv2-cat-cnt" data-cat-count="Nettoyage">—</span></button>
-        <button class="wv2-cat" role="listitem" data-cat-metier="Autre" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="more-horizontal"></i></span><span class="wv2-cat-lbl">Autre</span><span class="wv2-cat-cnt" data-cat-count="Autre">—</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Menuisier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="hammer"></i></span><span class="wv2-cat-lbl">Menuiserie</span><span class="wv2-cat-cnt" data-cat-count="Menuisier">—</span><span class="wv2-cat-seo">Menuisiers qualifies a Lome et Cotonou</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Électricien" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="zap"></i></span><span class="wv2-cat-lbl">Électricité</span><span class="wv2-cat-cnt" data-cat-count="Électricien">—</span><span class="wv2-cat-seo">Electriciens disponibles pres de chez toi</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Coiffeur" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="scissors"></i></span><span class="wv2-cat-lbl">Coiffure</span><span class="wv2-cat-cnt" data-cat-count="Coiffeur">—</span><span class="wv2-cat-seo">Trouve une coiffeuse pres de chez toi a Lome ou Cotonou</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Couturier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="shirt"></i></span><span class="wv2-cat-lbl">Couture</span><span class="wv2-cat-cnt" data-cat-count="Couturier">—</span><span class="wv2-cat-seo">Couturiers et couturieres disponibles maintenant</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Plombier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="wrench"></i></span><span class="wv2-cat-lbl">Plomberie</span><span class="wv2-cat-cnt" data-cat-count="Plombier">—</span><span class="wv2-cat-seo">Plombiers verifies pour depannage rapide</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Informaticien" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="laptop"></i></span><span class="wv2-cat-lbl">Informatique</span><span class="wv2-cat-cnt" data-cat-count="Informaticien">—</span><span class="wv2-cat-seo">Techniciens informatique et developpeurs</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Transport" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="bike"></i></span><span class="wv2-cat-lbl">Transport</span><span class="wv2-cat-cnt" data-cat-count="Transport">—</span><span class="wv2-cat-seo">Chauffeurs et livreurs a Lome et Cotonou</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Cuisinier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="chef-hat"></i></span><span class="wv2-cat-lbl">Cuisine</span><span class="wv2-cat-cnt" data-cat-count="Cuisinier">—</span><span class="wv2-cat-seo">Cuisiniers et traiteurs pour tous evenements</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Nettoyage" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="sparkles"></i></span><span class="wv2-cat-lbl">Nettoyage</span><span class="wv2-cat-cnt" data-cat-count="Nettoyage">—</span><span class="wv2-cat-seo">Services de nettoyage et menage a domicile</span></button>
+        <button class="wv2-cat" role="listitem" data-cat-metier="Autre" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="more-horizontal"></i></span><span class="wv2-cat-lbl">Autre</span><span class="wv2-cat-cnt" data-cat-count="Autre">—</span><span class="wv2-cat-seo">Tous les autres metiers disponibles</span></button>
       </div>
     </div>
   </section>
@@ -4038,7 +4081,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <div class="container wv2-bourse-inner">
       <span class="wv2-bourse-eyebrow"><i data-lucide="trophy" style="width:14px;height:14px;"></i> RÉCOMPENSES WOLO</span>
       <h2 id="wv2-bourse-title" class="wv2-bourse-h2">400 000 FCFA distribués chaque mois.</h2>
-      <p class="wv2-bourse-sub">300 000 FCFA — Bourse de Croissance pour le prestataire le plus méritant.<br>100 000 FCFA — WOLO Awards, battle Bénin vs Togo.<br>Pas les plus connectés. Les plus sérieux.</p>
+      <p class="wv2-bourse-sub">300 000 FCFA — Bourse de Croissance pour le prestataire le plus méritant.<br>100 000 FCFA — WOLO Awards · 50K ✂️ Coiffure + 50K 👗 Couture · Battle Bénin vs Togo.<br>Pas les plus connectés. Les plus sérieux.</p>
       <div class="wv2-bourse-cd" aria-live="polite">
         <div class="wv2-bcd-unit"><div class="wv2-bcd-num" data-wv2bcd="j">00</div><div class="wv2-bcd-lbl">Jours</div></div>
         <div class="wv2-bcd-sep">:</div>
@@ -4053,13 +4096,13 @@ div[style*="position:sticky"][style*="background:#fff"] {
   </section>
 
   <!-- ══════════════════════════════════════════
-       WOLO v2 — POURQUOI WOLO (Sprint 2)
+       SECTION À PROPOS — Homepage
   ══════════════════════════════════════════ -->
-  <section class="wv2-pourquoi" style="background:#0f1410;padding:72px 24px;border-top:1px solid rgba(232,148,10,.15);">
+  <section style="background:#0f1410;padding:72px 24px;border-top:1px solid rgba(232,148,10,.15);">
     <div class="container" style="max-width:780px;text-align:center;">
-      <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;padding:6px 14px;border:1px solid rgba(232,148,10,.35);border-radius:100px;">POURQUOI WOLO</span>
-      <h2 style="font-family:'Fraunces',serif;font-size:clamp(26px,4vw,40px);font-weight:900;color:#F8F6F1;line-height:1.15;margin:0 0 22px;">86% des travailleurs de Lomé et Cotonou sont invisibles en ligne.</h2>
-      <p style="font-family:'Poppins',sans-serif;font-size:16px;line-height:1.75;color:rgba(248,246,241,0.75);margin:0;">Pas de site web. Pas de page pro. Juste WhatsApp et le bouche à oreille. WOLO Market change ça. Ton profil est ton vitrine. Tes avis sont ta réputation. Ton Score WOLO est ta crédibilité.</p>
+      <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;padding:6px 14px;border:1px solid rgba(232,148,10,.35);border-radius:100px;">À PROPOS</span>
+      <h2 style="font-family:'Lora',serif;font-style:italic;font-size:clamp(26px,4vw,40px);font-weight:700;color:#F8F6F1;line-height:1.15;margin:0 0 22px;">WOLO Market rend visible l'économie invisible.</h2>
+      <p style="font-family:'Poppins',sans-serif;font-size:16px;line-height:1.75;color:rgba(248,246,241,0.75);margin:0;">WOLO connecte les travailleurs de l'économie informelle au Bénin et au Togo avec des clients. Sans piston. Sans réseau. Juste le travail. Le nom WOLO vient du Mina et signifie "travail". La plateforme appartient à ses utilisateurs.</p>
     </div>
   </section>
 
@@ -4088,6 +4131,159 @@ div[style*="position:sticky"][style*="background:#fff"] {
       </div>
     </div>
   </section>
+
+<!-- SECTION STORYTELLING — Histoires vraies -->
+<section style="background:#0f1410;padding:60px 24px;border-top:1px solid rgba(232,148,10,.08);">
+  <div class="container" style="max-width:900px;">
+    <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">HISTOIRES VRAIES</span>
+    <h2 style="font-family:Fraunces,serif;font-size:clamp(22px,3vw,32px);color:#F8F6F1;font-weight:900;margin:0 0 32px;">Ils sont sur WOLO Market.<br>Leur travail parle pour eux.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+      <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:22px;">
+        <div style="font-size:24px;margin-bottom:10px;">&#9986;&#65039;</div>
+        <h3 style="font-family:Georgia,serif;font-size:16px;color:#F8F6F1;margin:0 0 8px;">Afi, coiffeuse &agrave; B&egrave;-Kpota</h3>
+        <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Afi coiffe depuis 12 ans. Ses clientes viennent de son quartier. Jamais plus loin. Depuis WOLO Market, elle re&ccedil;oit des demandes d'Agbal&eacute;p&eacute;dogan, de Tokoin. Son t&eacute;l&eacute;phone sonne pour des mariages qu'elle n'aurait jamais eus.</p>
+      </div>
+      <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:22px;">
+        <div style="font-size:24px;margin-bottom:10px;">&#128295;</div>
+        <h3 style="font-family:Georgia,serif;font-size:16px;color:#F8F6F1;margin:0 0 8px;">Kodjo, soudeur &agrave; Adidogom&eacute;</h3>
+        <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Kodjo fabrique des portails depuis 8 ans. Personne ne sait qu'il existe &agrave; 300 m&egrave;tres. Sur WOLO Market, sa premi&egrave;re photo de portail a re&ccedil;u 4 demandes de devis en une semaine. Sans piston. Sans conna&icirc;tre personne.</p>
+      </div>
+      <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:22px;">
+        <div style="font-size:24px;margin-bottom:10px;">&#129717;</div>
+        <h3 style="font-family:Georgia,serif;font-size:16px;color:#F8F6F1;margin:0 0 8px;">Mensah, menuisier &agrave; Akpakpa</h3>
+        <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Mensah travaille le bois depuis 15 ans &agrave; Akpakpa, Cotonou. Ses meubles sont beaux. Mais ses clients venaient uniquement du bouche-&agrave;-oreille. Avec son profil WOLO, il re&ccedil;oit des commandes de Cadj&egrave;houn et Ganhi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION TÉMOIGNAGES -->
+<section style="background:#F8F6F1;padding:60px 24px;border-top:1px solid rgba(232,148,10,.15);">
+  <div class="container" style="max-width:900px;">
+    <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">ILS TÉMOIGNENT</span>
+    <h2 style="font-family:'Lora',serif;font-style:italic;font-size:clamp(22px,3vw,32px);color:#0f1410;font-weight:700;margin:0 0 32px;">Ce qu'ils disent de WOLO Market.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+      <div style="background:#fff;border:1px solid rgba(232,148,10,0.15);border-radius:16px;padding:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:20px;font-weight:700;color:#0f1410;">F</div>
+          <div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;color:#0f1410;">Fatoumata</div>
+            <div style="font-size:12px;color:rgba(15,20,16,0.55);">Coiffeuse — Lomé</div>
+          </div>
+        </div>
+        <p style="font-family:'Lora',serif;font-style:italic;font-size:14px;line-height:1.7;color:rgba(15,20,16,0.75);margin:0;">"Depuis que je suis sur WOLO Market, je reçois 3 à 4 nouveaux clients par semaine. Avant, c'était que le bouche-à-oreille."</p>
+      </div>
+      <div style="background:#fff;border:1px solid rgba(232,148,10,0.15);border-radius:16px;padding:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:20px;font-weight:700;color:#0f1410;">K</div>
+          <div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;color:#0f1410;">Koffi</div>
+            <div style="font-size:12px;color:rgba(15,20,16,0.55);">Mécanicien — Cotonou</div>
+          </div>
+        </div>
+        <p style="font-family:'Lora',serif;font-style:italic;font-size:14px;line-height:1.7;color:rgba(15,20,16,0.75);margin:0;">"J'ai mis mon profil un samedi, le lundi j'avais déjà un rendez-vous. WOLO c'est simple et ça marche."</p>
+      </div>
+      <div style="background:#fff;border:1px solid rgba(232,148,10,0.15);border-radius:16px;padding:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:20px;font-weight:700;color:#0f1410;">A</div>
+          <div>
+            <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;color:#0f1410;">Akossiwa</div>
+            <div style="font-size:12px;color:rgba(15,20,16,0.55);">Couturière — Lomé</div>
+          </div>
+        </div>
+        <p style="font-family:'Lora',serif;font-style:italic;font-size:14px;line-height:1.7;color:rgba(15,20,16,0.75);margin:0;">"Mes clientes me trouvent maintenant même depuis Agbalépédogan. Mon atelier ne désemplit plus."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION WOLO PAY — Paiement définitif -->
+<section style="background:linear-gradient(180deg,#0f1410,#121815);padding:60px 24px;border-top:1px solid rgba(232,148,10,.08);">
+  <div class="container" style="max-width:900px;text-align:center;">
+    <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">💳 WOLO PAY</span>
+    <h2 style="font-family:Fraunces,serif;font-size:clamp(24px,3.5vw,38px);font-weight:900;color:#F8F6F1;line-height:1.2;margin:0 0 14px;">Paiement définitif.<br>Personne ne peut l'annuler.</h2>
+    <p style="font-size:15px;color:rgba(248,246,241,0.65);margin-bottom:36px;max-width:640px;margin-left:auto;margin-right:auto;line-height:1.7;">Fini le problème de monnaie. Fini l'argent qui disparaît. WOLO Pay, c'est le paiement entre toi et ton client — QR code, Mobile Money — en 60 secondes. Irrévocable.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;text-align:left;">
+      <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:14px;padding:20px;">
+        <div style="font-size:24px;margin-bottom:8px;">🆓</div>
+        <h3 style="font-family:Georgia,serif;font-size:15px;color:#E8940A;margin:0 0 6px;">Zéro frais</h3>
+        <p style="font-size:12px;color:rgba(248,246,241,0.55);line-height:1.5;margin:0;">Entre membres WOLO Market, aucun frais. Jamais. Tu encaisses 100%, ton client paye 100%.</p>
+      </div>
+      <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:14px;padding:20px;">
+        <div style="font-size:24px;margin-bottom:8px;">📱</div>
+        <h3 style="font-family:Georgia,serif;font-size:15px;color:#E8940A;margin:0 0 6px;">QR Code permanent</h3>
+        <p style="font-size:12px;color:rgba(248,246,241,0.55);line-height:1.5;margin:0;">Ton QR code de paiement ne change jamais. Imprime-le, colle-le dans ton atelier. Les clients scannent et paient.</p>
+      </div>
+      <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:14px;padding:20px;">
+        <div style="font-size:24px;margin-bottom:8px;">⚡</div>
+        <h3 style="font-family:Georgia,serif;font-size:15px;color:#E8940A;margin:0 0 6px;">60 secondes</h3>
+        <p style="font-size:12px;color:rgba(248,246,241,0.55);line-height:1.5;margin:0;">Le client scanne, confirme, c'est payé. Pas de monnaie. Pas d'attente. Pas de litige.</p>
+      </div>
+      <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:14px;padding:20px;">
+        <div style="font-size:24px;margin-bottom:8px;">🔒</div>
+        <h3 style="font-family:Georgia,serif;font-size:15px;color:#E8940A;margin:0 0 6px;">Irrévocable</h3>
+        <p style="font-size:12px;color:rgba(248,246,241,0.55);line-height:1.5;margin:0;">Une fois payé, c'est définitif. Personne ne peut annuler. Ni le client, ni la banque, ni personne.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION COMMENT ÇA MARCHE -->
+<section style="background:#0f1410;padding:60px 24px;border-top:1px solid rgba(232,148,10,.08);">
+  <div class="container" style="max-width:900px;text-align:center;">
+    <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">🚀 COMMENT ÇA MARCHE</span>
+    <h2 style="font-family:Fraunces,serif;font-size:clamp(22px,3vw,32px);color:#F8F6F1;font-weight:900;margin:0 0 32px;">3 étapes. 2 minutes. Gratuit.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;text-align:left;">
+      <div style="position:relative;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;">
+        <div style="position:absolute;top:-12px;left:20px;background:#E8940A;color:#0f1410;font-size:14px;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;">1</div>
+        <h3 style="font-family:Georgia,serif;font-size:16px;color:#F8F6F1;margin:12px 0 8px;">Crée ton profil</h3>
+        <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Ton nom, ton métier, ta ville, une photo de ton travail. 2 minutes. Gratuit. Comme Afi la coiffeuse de Bè-Kpota — son profil lui a amené 4 nouvelles clientes en une semaine.</p>
+      </div>
+      <div style="position:relative;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;">
+        <div style="position:absolute;top:-12px;left:20px;background:#E8940A;color:#0f1410;font-size:14px;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;">2</div>
+        <h3 style="font-family:Georgia,serif;font-size:16px;color:#F8F6F1;margin:12px 0 8px;">Les clients te trouvent</h3>
+        <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Quand quelqu'un à Lomé ou Cotonou cherche ton métier, ton profil apparaît. Avec tes photos, tes avis, ton Score WOLO. Sans piston. Sans connaître personne.</p>
+      </div>
+      <div style="position:relative;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;">
+        <div style="position:absolute;top:-12px;left:20px;background:#E8940A;color:#0f1410;font-size:14px;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;">3</div>
+        <h3 style="font-family:Georgia,serif;font-size:16px;color:#F8F6F1;margin:12px 0 8px;">Tu encaisses avec WOLO Pay</h3>
+        <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Ton client scanne ton QR code, paye en Mobile Money. Tu reçois l'argent. Définitif. Zéro frais entre membres. Fini le problème de monnaie.</p>
+      </div>
+    </div>
+    <button class="wolo-btn-primary" style="margin-top:28px;font-size:15px;padding:14px 32px;" onclick="showPage('inscription')">Créer mon profil — c'est gratuit</button>
+  </div>
+</section>
+
+<!-- SECTION POURQUOI WOLO -->
+<section style="background:linear-gradient(180deg,#121815,#0f1410);padding:60px 24px;border-top:1px solid rgba(232,148,10,.08);">
+  <div class="container" style="max-width:800px;text-align:center;">
+    <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">💡 LA DIFFÉRENCE</span>
+    <h2 style="font-family:Fraunces,serif;font-size:clamp(22px,3vw,32px);color:#F8F6F1;font-weight:900;margin:0 0 12px;">Pourquoi WOLO Market<br>et pas Facebook ou WhatsApp ?</h2>
+    <p style="font-size:15px;color:rgba(248,246,241,0.6);margin-bottom:32px;line-height:1.7;">Les réseaux sociaux appartiennent à l'étranger. Ils coupent quand ils veulent — juin 2025, tout le Togo l'a vécu.<br>WOLO Market t'appartient.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left;max-width:600px;margin:0 auto;">
+      <div style="padding:16px;border-radius:12px;background:rgba(180,60,60,0.06);border:1px solid rgba(180,60,60,0.15);">
+        <h4 style="color:rgba(248,246,241,0.5);font-size:13px;margin:0 0 10px;">❌ Facebook / WhatsApp</h4>
+        <ul style="font-size:12px;color:rgba(248,246,241,0.45);line-height:1.8;margin:0;padding-left:16px;">
+          <li>Pas de profil professionnel</li>
+          <li>Pas de système d'avis</li>
+          <li>Pas de paiement sécurisé</li>
+          <li>Coupé quand le gouvernement décide</li>
+          <li>Ton travail noyé dans les memes</li>
+        </ul>
+      </div>
+      <div style="padding:16px;border-radius:12px;background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.15);">
+        <h4 style="color:#E8940A;font-size:13px;margin:0 0 10px;">✅ WOLO Market</h4>
+        <ul style="font-size:12px;color:rgba(248,246,241,0.65);line-height:1.8;margin:0;padding-left:16px;">
+          <li>Profil pro avec photos et avis</li>
+          <li>Score WOLO vérifié</li>
+          <li>WOLO Pay — paiement irrévocable</li>
+          <li>Construit pour l'Afrique, par l'Afrique</li>
+          <li>400 000 FCFA distribués chaque mois</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
   <!-- B. Countdown prochain tirage (home) -->
   <section style="background:#0a0e0c;padding:28px 0;">
@@ -4402,7 +4598,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           Tu as le diplôme.<br><em style="color:#818cf8;">WOLO Market t'apporte les clients.</em>
         </h2>
         <p style="font-size:16px;color:rgba(255,255,255,0.55);line-height:1.8;max-width:540px;margin:0 auto 32px;">
-          Ton problème ce n'est pas tes compétences. C'est que personne ne sait que tu existes. Le graphiste qui a moins de talent que toi a des clients. Pourquoi ? Parce qu'il a une vitrine. Toi tu n'en as pas. Aujourd'hui tu en as une.
+          Ton problème ce n'est pas tes compétences. C'est que personne ne sait que tu existes. Le graphiste qui a moins d'expérience que toi a des clients. Pourquoi ? Parce qu'il a une vitrine. Toi tu n'en as pas. Aujourd'hui tu en as une.
         </p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
           <button class="btn btn-primary btn-lg" onclick="showPage('inscription')" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">🎓 Créer mon profil Talent</button>
@@ -4442,7 +4638,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
   <!-- SECTION JEUNES TALENTS — DOULEUR CHÔMAGE -->
   <section style="background:#0f1410;padding:80px 0;border-top:1px solid rgba(232,148,10,0.08);">
     <div class="container" style="max-width:720px;text-align:center;">
-      <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:3px;margin-bottom:16px;">POUR LES JEUNES TALENTS</div>
+      <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:3px;margin-bottom:16px;">POUR LES JEUNES PROS</div>
       <h2 style="font-family:Fraunces,serif;font-size:clamp(26px,3.5vw,40px);font-weight:900;color:#F8F6F1;line-height:1.2;margin-bottom:24px;">Tu as une comp&eacute;tence.<br><em style="color:#E8940A;">WOLO Market te donne les clients.</em></h2>
       <p style="font-size:16px;color:rgba(248,246,241,0.65);line-height:1.9;margin-bottom:36px;">Tu sais coiffer. Tu sais coudre. Tu r&eacute;pares des t&eacute;l&eacute;phones. Tu fais de la vid&eacute;o. Tu n'as pas besoin d'un bureau, d'un patron, ou d'un dipl&ocirc;me en marketing. Tu as besoin d'une vitrine. WOLO Market est cette vitrine. Gratuite. Visible imm&eacute;diatement. Pour tout Cotonou. Pour tout Lom&eacute;.</p>
       <button class="btn btn-primary btn-lg" onclick="showPage('inscription')" style="font-size:15px;">Cr&eacute;er mon profil gratuit &mdash; 2 minutes</button>
@@ -4619,13 +4815,13 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </h2>
 
           <p style="color:rgba(255,255,255,0.75);font-size:16px;line-height:1.8;margin-bottom:10px;">
-            Tu travailles déjà pour ton argent. Voilà comment faire travailler ton réseau pour toi. Que tu sois à Cotonou ou à Lomé. Tu parles de WOLO Market à 3 artisans de ton quartier. Ils s'inscrivent en Pro. Ton abonnement est remboursé. À partir du 4ème — c'est du bonus pur. <strong style="color:white;">Pas une mise de départ. Pas de capital. Juste ton téléphone et les gens que tu connais déjà.</strong>
+            Tu connais un bon plombier ? Envoie-lui ton lien WOLO. S'il passe Pro, tu gagnes 1 000 FCFA chaque mois qu'il reste abonn&eacute;. <strong style="color:white;">10 filleuls Pro = 10 000 FCFA/mois. R&eacute;current. Permanent.</strong>
           </p>
           <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7;margin-bottom:10px;">
-            C'est ça, le programme de parrainage WOLO. Tu parraines des artisans, commerçants, prestataires autour de toi — et tu touches <strong style="color:var(--or);">40% de leur abonnement mensuel, tant qu'ils restent actifs.</strong>
+            Le m&eacute;canicien de ton quartier &agrave; Ago&egrave;. La coiffeuse en face du march&eacute; d'H&eacute;dzranawou&eacute;. Le restaurateur de Kodjoviakop&eacute;. Tu leur parles de WOLO Market. Ils s'inscrivent en Pro. Tu touches <strong style="color:var(--or);">40% de leur abonnement mensuel, tant qu'ils restent actifs.</strong>
           </p>
           <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.7;margin-bottom:24px;">
-            📍 Le mécanicien de ton quartier à Agoè ou à Menontin. La coiffeuse en face du marché d'Hédzranawoé ou de Dantokpa. Le restaurateur de Kodjoviakopé. Chacun inscrit = revenus récurrents pour toi.
+            3 filleuls Pro = ton abonnement rembours&eacute;. &Agrave; partir du 4&egrave;me &mdash; c'est du bonus pur. Pas une mise de d&eacute;part. Pas de capital. Juste ton t&eacute;l&eacute;phone et les gens que tu connais d&eacute;j&agrave;.
           </p>
 
           <!-- Proof social rapide -->
@@ -4653,7 +4849,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <div class="parrain-calc-row" style="border:1px solid rgba(232,148,10,0.4);background:rgba(232,148,10,0.1);border-radius:12px;padding:10px;">
               <div>
                 <div style="font-weight:800;color:white;font-size:15px;">3 filleuls actifs</div>
-                <div style="font-size:12px;color:rgba(100,255,150,0.7);">→ ton abonnement est remboursé. Tu es à zéro risque.</div>
+                <div style="font-size:12px;color:rgba(232,148,10,0.8);">→ ton abonnement est remboursé. Tu es à zéro risque.</div>
               </div>
               <div class="parrain-comm-badge" style="background:rgba(232,148,10,0.6);">3 000 FCFA<span style="font-size:10px;opacity:0.7;">/mois</span></div>
             </div>
@@ -4789,7 +4985,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
           <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
             <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
-            <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Ce qui m'a motivé c'est le Badge Fondateur. Je voulais être parmi les premiers. Pour l'instant j'ai eu 1 client via la plateforme. Mais je sens que la plateforme monte — chaque jour il y a de nouveaux profils. J'ai bien fait de m'inscrire tôt."</p>
+            <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Ce qui m'a motivé c'est le Badge Fondateur. Je voulais être parmi les premiers. Pour l'instant j'ai eu 1 client via WOLO Market. Mais je sens que ça monte — chaque jour il y a de nouveaux profils. J'ai bien fait de m'inscrire tôt."</p>
             <div style="font-weight:700;color:white;font-size:13px;">Komi A. — Mécanicien, Agoè</div>
           </div>
           <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
@@ -4809,7 +5005,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </div>
           <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;">
             <div style="color:var(--or);font-size:18px;margin-bottom:10px;">★★★★★</div>
-            <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Je suis inscrit depuis 2 semaines. Pas encore de client via la plateforme. Mais j'ai complété mon profil, mis mes photos, activé ma localisation GPS. Un ami a cherché 'menuisier Kégué' et m'a trouvé en premier. Ça veut dire que le jour où quelqu'un cherche vraiment — je suis là."</p>
+            <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.6;margin-bottom:12px;">"Je suis inscrit depuis 2 semaines. Pas encore de client via WOLO Market. Mais j'ai complété mon profil, mis mes photos, activé ma localisation GPS. Un ami a cherché 'menuisier Kégué' et m'a trouvé en premier. Ça veut dire que le jour où quelqu'un cherche vraiment — je suis là."</p>
             <div style="font-weight:700;color:white;font-size:13px;">Théo N. — Menuisier, Kégué</div>
           </div>
         </div>
@@ -4858,7 +5054,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);">Kégué · Menuisier</div>
               </div>
             </div>
-            <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.7;margin-bottom:14px;">"Pas encore de client via la plateforme. Mais un ami a cherché 'menuisier Kégué' et m'a trouvé en premier. Le jour où quelqu'un cherche vraiment — je suis là."</p>
+            <p style="color:rgba(255,255,255,0.75);font-size:14px;line-height:1.7;margin-bottom:14px;">"Pas encore de client via WOLO Market. Mais un ami a cherché 'menuisier Kégué' et m'a trouvé en premier. Le jour où quelqu'un cherche vraiment — je suis là."</p>
             <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(192,132,252,0.15);border-radius:10px;">
               <span style="font-size:20px;">📍</span>
               <span style="font-size:13px;font-weight:700;color:#c084fc;">Pas encore de client — mais visible. C'est déjà ça.</span>
@@ -4889,10 +5085,13 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <p class="footer-desc">Au Bénin et au Togo, le talent n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
         </div>
         <div class="footer-col">
-          <h4>Plateforme</h4>
+          <h4>WOLO Market</h4>
           <a onclick="showPage('search')">Trouver un pro</a>
           <a onclick="showPage('inscription')">S'inscrire</a>
           <a onclick="showPage('home')">Comment ça marche</a>
+          <a onclick="showPage('a-propos')" style="cursor:pointer;">À propos</a>
+          <a onclick="showPage('agent-wolo')" style="cursor:pointer;">Devenir Agent</a>
+          <a onclick="showPage('influenceurs')" style="cursor:pointer;">Influenceurs</a>
         </div>
         <div class="footer-col">
           <h4>Contact</h4>
@@ -4944,7 +5143,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <!-- Calculateur de gains -->
       <div style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px;max-width:700px;margin:0 auto;">
         <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:white;margin-bottom:6px;text-align:center;">💡 Combien tu peux gagner ?</h3>
-        <p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:8px;">40% de l'abonnement Pro (2 500 FCFA) = <strong style="color:var(--or);">1 000 FCFA par filleul actif par mois</strong></p>
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;margin-bottom:8px;">40% de l'abonnement Pro (2 500 FCFA) = <strong style="color:var(--or);font-size:15px;">1 000 FCFA/mois par filleul Pro</strong></p>
+        <p style="color:rgba(255,255,255,0.5);font-size:12px;text-align:center;margin-bottom:12px;">Récurrent — chaque mois tant que ton filleul reste Pro</p>
         <div style="background:rgba(232,148,10,0.12);border:1.5px solid rgba(232,148,10,0.35);border-radius:12px;padding:12px 16px;text-align:center;margin-bottom:24px;">
           <span style="font-size:20px;">🎯</span>
           <p style="color:var(--or);font-size:14px;font-weight:800;margin:4px 0 2px;">Parraine 3 pros → ton Plan Pro est remboursé</p>
@@ -5006,9 +5206,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div class="juillet-plus">+</div>
         <div class="juillet-bloc">
           <div class="bloc-icon">⚔️</div>
-          <div class="bloc-montant">100 000 FCFA</div>
-          <div class="bloc-titre">WOLO Awards Battle</div>
-          <div class="bloc-desc">Pour le champion de la Battle Bénin vs Togo. Vote populaire + jury.</div>
+          <div class="bloc-montant">50 000 FCFA × 2</div>
+          <div class="bloc-titre">WOLO Awards</div>
+          <div class="bloc-desc">Champion ✂️ Coiffure + Champion 👗 Couture · Battle Bénin vs Togo</div>
         </div>
       </div>
 
@@ -5040,9 +5240,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div class="wolo-juillet-plus">+</div>
         <div class="wolo-juillet-bloc">
           <div class="icon">⚔️</div>
-          <div class="label">WOLO Awards</div>
-          <div class="montant">100 000 FCFA</div>
-          <div class="desc">Pour le champion de la Battle Bénin vs Togo.</div>
+          <div class="label">WOLO Awards · ✂️ + 👗</div>
+          <div class="montant">50 000 FCFA / catégorie</div>
+          <div class="desc">Champion ✂️ Coiffure + Champion 👗 Couture · Battle Bénin vs Togo</div>
         </div>
       </div>
 
@@ -5163,6 +5363,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="awards-header">
         <span class="eyebrow">BATTLE BÉNIN VS TOGO</span>
         <h2 class="awards-titre">⚔️ WOLO Awards</h2>
+        <div class="awards-filtres-cat" style="display:flex;gap:8px;justify-content:center;margin:12px 0;"><button class="awards-filtre active" data-cat="coiffure" onclick="filtrerAwardsCat('coiffure')">✂️ Coiffure</button><button class="awards-filtre" data-cat="couture" onclick="filtrerAwardsCat('couture')">👗 Couture</button></div>
         <p class="awards-sous-titre"></p>
       </div>
       <div class="awards-filtres-pays" style="display:none">
@@ -5204,7 +5405,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <div class="container">
       <div style="font-size:12px;font-weight:700;color:#E8940A;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">BÉNIN · TOGO · PARTOUT OÙ TU ES</div>
       <h2 style="font-family:Fraunces,serif;font-size:28px;font-weight:900;margin-bottom:8px;">Trouve le bon professionnel.<br>Maintenant. Sans piston.</h2>
-      <p style="font-size:14px;color:var(--gris);margin-bottom:20px;">Artisans, prestataires, talents digitaux — vérifiés, notés, disponibles à Cotonou et à Lomé.</p>
+      <p style="font-size:14px;color:var(--gris);margin-bottom:20px;">Artisans, prestataires, pros du digital — vérifiés, notés, disponibles à Cotonou et à Lomé.</p>
       <div class="search-bar">
         <select id="s-metier" onchange="loadSearch()">
           <option value="">Quel métier cherches-tu ?</option>
@@ -5325,7 +5526,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </select>
         <select id="s-quartier" onchange="loadSearch()"><option value="">Toutes les villes</option></select>
         <button class="search-bar-btn" onclick="loadSearch()">Trouver maintenant →</button>
-        <input type="text" id="s-text" placeholder="Nom, prénom, description..." oninput="loadSearch()" style="flex:1;padding:10px 16px;border:none;background:transparent;font-size:15px;font-family:inherit;outline:none;color:var(--noir);min-width:140px;">
+        <input type="text" id="s-text" placeholder="Nom, prénom, description..." oninput="rechercheDebounce(loadSearch)" style="flex:1;padding:10px 16px;border:none;background:transparent;font-size:15px;font-family:inherit;outline:none;color:var(--noir);min-width:140px;">
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;">
         <select class="filter-select" id="s-pays" onchange="loadSearch()" style="padding:8px 14px;border-radius:100px;border:1.5px solid rgba(232,148,10,0.4);background:white;font-weight:700;color:#E8940A;font-family:inherit;cursor:pointer;">
@@ -5401,7 +5602,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
   <div style="background:rgba(15,20,16,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,148,10,0.15);padding:16px 0;position:sticky;top:68px;z-index:100;">
     <div class="container">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <input type="text" id="emploi-search-q" placeholder="🔍 Rechercher (titre, métier...)" style="flex:1;min-width:200px;padding:10px 16px;border:1.5px solid rgba(232,148,10,0.2);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:rgba(255,255,255,0.06);color:#F8F6F1;" oninput="filterOffres()">
+        <input type="text" id="emploi-search-q" placeholder="🔍 Rechercher (titre, métier...)" style="flex:1;min-width:200px;padding:10px 16px;border:1.5px solid rgba(232,148,10,0.2);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:rgba(255,255,255,0.06);color:#F8F6F1;" oninput="rechercheDebounce(filterOffres)">
         <select id="emploi-filter-metier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid rgba(232,148,10,0.2);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.06);cursor:pointer;color:#F8F6F1;">
           <option value="">Tous les métiers</option>
           <option>Plombier</option><option>Électricien</option><option>Menuisier</option><option>Maçon</option>
@@ -5816,6 +6017,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <p style="color:var(--gris);font-size:14px;margin-bottom:24px;">Tu es maintenant visible sur WOLO Market. Les clients de tout le Bénin et du Togo peuvent te trouver dès que ton email est confirmé.</p>
 
       <button class="btn btn-primary btn-lg" onclick="showPage('dashboard')" style="width:100%;justify-content:center;margin-bottom:12px;">🚀 Accéder à mon espace</button>
+      <!-- Point 58/59 — Bouton WhatsApp post-inscription -->
+      <button class="btn btn-sm" onclick="shareInscriptionWhatsApp()" style="width:100%;justify-content:center;margin-bottom:12px;background:#25d366;color:white;border:none;font-weight:800;">📱 Partager sur WhatsApp</button>
       <button class="btn btn-ghost btn-sm" onclick="showPage('login')" style="width:100%;justify-content:center;">Se connecter avec mes identifiants</button>
     </div>
 
@@ -7609,6 +7812,11 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <div id="plan-card-Pro" style="background:linear-gradient(135deg,#1a1f1b,#0f1410);color:#F8F6F1;border-radius:16px;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.5);border:2px solid var(--or);position:relative;">
             <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--or),#f59e0b);color:white;font-size:11px;font-weight:700;padding:4px 16px;border-radius:100px;white-space:nowrap;box-shadow:0 2px 8px rgba(232,148,10,0.4);">🔥 MEILLEUR CHOIX</div>
 
+            <!-- Proposition de valeur Pro -->
+            <div style="background:rgba(232,148,10,0.12);border:1.5px solid rgba(232,148,10,0.3);border-radius:14px;padding:16px 20px;margin:20px 0 18px;text-align:center;">
+              <p style="font-family:Fraunces,serif;font-size:17px;font-weight:900;color:#F8F6F1;margin:0;line-height:1.5;">2 500 FCFA/mois. Un seul nouveau client par mois et ton abonnement est remboursé 10 fois.</p>
+            </div>
+
             <!-- A1. Bloc gains juillet (en tête) -->
             <div class="wolo-gains-juillet">
               <div class="gains-eyebrow">🏆 CHAQUE MOIS · PERMANENT</div>
@@ -7621,9 +7829,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
                 </div>
                 <div class="gains-plus">+</div>
                 <div class="gain-bloc">
-                  <div class="gain-label">WOLO Awards Battle</div>
-                  <div class="gain-montant">100 000<span class="gain-devise">FCFA</span></div>
-                  <div class="gain-sub">Champion Bénin vs Togo</div>
+                  <div class="gain-label">WOLO Awards</div>
+                  <div class="gain-montant">50 000<span class="gain-devise">FCFA</span> × 2</div>
+                  <div class="gain-sub">✂️ Coiffure + 👗 Couture</div>
                 </div>
               </div>
               <div class="gains-total">
@@ -7644,11 +7852,13 @@ div[style*="position:sticky"][style*="background:#fff"] {
 
             <!-- A2. Liste avantages Pro refondue -->
             <ul class="wolo-avantages-pro">
-              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Ticket d'entrée à la Bourse de Croissance</strong> — <span class="montant-or">300 000 FCFA</span> chaque mois</span></li>
-              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Participation à la Battle WOLO Awards</strong> — <span class="montant-or">100 000 FCFA</span> chaque mois</span></li>
+              <li class="avantage-item"><span class="avantage-icon">💸</span><span class="avantage-texte"><strong>WOLO Pay zéro frais entre membres</strong> — envoie et reçois sans payer de commission</span></li>
+              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Bourse de Croissance</strong> — <span class="montant-or">300 000 FCFA/mois</span> pour le membre Pro le plus méritant</span></li>
+              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>WOLO Awards</strong> — <span class="montant-or">50 000 FCFA × 2 catégories</span> (✂️ Coiffure + 👗 Couture) chaque mois</span></li>
+              <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité dans les résultats de recherche</strong> — tu apparais avant les profils gratuits</span></li>
               <li class="avantage-item"><span class="avantage-icon">⭐</span><span class="avantage-texte"><strong>Badge Pro visible</strong> par tous les clients</span></li>
-              <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité absolue</strong> dans les résultats de recherche</span></li>
-              <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Programme parrainage 40%</strong> — revenus récurrents à vie</span></li>
+              <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Parrainage actif</strong> — 1 000 FCFA/filleul/mois, récurrent, à vie</span></li>
+              <li class="avantage-item"><span class="avantage-icon">📈</span><span class="avantage-texte"><strong>Score WOLO boosté</strong> — monte plus vite dans le classement</span></li>
               <li class="avantage-item"><span class="avantage-icon">💼</span><span class="avantage-texte"><strong>Publier des offres d'emploi</strong> — recrute des profils vérifiés</span></li>
               <li class="avantage-item"><span class="avantage-icon">📊</span><span class="avantage-texte">Statistiques de vues et contacts reçus</span></li>
               <li class="avantage-item"><span class="avantage-icon">🎯</span><span class="avantage-texte">Support WOLO prioritaire et gestion d'avis</span></li>
@@ -7674,7 +7884,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div class="wolo-countdown-bloc" data-countdown="dash">
           <div class="countdown-eyebrow">⏱️ Tirage Bourse de Croissance</div>
           <div class="countdown-titre">Prochain tirage dans <span data-cd-jours>—</span> jours</div>
-          <div class="countdown-sub">400 000 FCFA distribués chaque mois — Bourse 300K + Awards 100K</div>
+          <div class="countdown-sub">400 000 FCFA distribués chaque mois — Bourse 300K + Awards 50K×2</div>
           <div class="countdown-timer" data-cd-timer>
             <div class="count-unit"><div class="count-num" data-cd-j>00</div><div class="count-label">Jours</div></div>
             <div class="count-sep">:</div>
@@ -7739,7 +7949,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="dash-section" id="ds-recompenses">
         <div class="dash-header">
           <h2>🏆 Récompenses mensuelles</h2>
-          <p>Bourse de Croissance (300 000 FCFA) + WOLO Awards (100 000 FCFA) — chaque mois.</p>
+          <p>Bourse de Croissance (300 000 FCFA) + WOLO Awards (50 000 FCFA × 2 catégories) — chaque mois.</p>
         </div>
         <div id="recompenses-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
       </div>
@@ -7800,6 +8010,15 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <div class="stat-card-num" id="p-nb-filleuls">0</div>
             <div class="stat-card-label">Filleuls actifs</div>
           </div>
+          <!-- Point 48 — Tracking agent terrain -->
+          <div class="stat-card">
+            <div class="stat-card-num" id="p-nb-filleuls-pro" style="color:#E8940A;">0</div>
+            <div class="stat-card-label">Filleuls Pro (payants)</div>
+          </div>
+          <div class="stat-card" style="border:1.5px solid rgba(232,148,10,0.3);">
+            <div class="stat-card-num" id="p-gains-estimes" style="color:#E8940A;">0 FCFA</div>
+            <div class="stat-card-label">Gains estimes / mois</div>
+          </div>
         </div>
 
         <!-- Lien de parrainage -->
@@ -7812,6 +8031,15 @@ div[style*="position:sticky"][style*="background:#fff"] {
             </div>
             <button class="btn btn-primary btn-sm" onclick="copyParrainLink()" style="flex-shrink:0;">📋 Copier</button>
             <button class="btn btn-wa btn-sm" onclick="shareParrainWhatsApp()" style="flex-shrink:0;">📱 WhatsApp</button>
+            <button class="btn btn-sm" onclick="showParrainQR()" style="flex-shrink:0;background:rgba(232,148,10,0.15);color:#E8940A;border:1px solid rgba(232,148,10,0.4);">📱 Afficher mon QR</button>
+            <button class="btn btn-sm" onclick="genererVisuelParrainage()" style="flex-shrink:0;background:rgba(232,148,10,0.15);color:#E8940A;border:1px solid rgba(232,148,10,0.4);">📸 Générer mon visuel</button>
+          </div>
+          <!-- Point 46 — QR / Lien grand format pour agent terrain -->
+          <div id="parrain-qr-display" style="display:none;margin-top:16px;background:rgba(232,148,10,0.06);border:2px solid rgba(232,148,10,0.4);border-radius:16px;padding:24px;text-align:center;">
+            <p style="font-size:12px;color:rgba(255,255,255,0.5);font-family:'Liberation Mono',monospace;letter-spacing:2px;margin-bottom:12px;">LIEN DE PARRAINAGE AGENT</p>
+            <div id="parrain-qr-link" style="font-size:18px;font-weight:900;color:#E8940A;word-break:break-all;margin-bottom:16px;font-family:'Space Mono',monospace;line-height:1.6;padding:16px;background:rgba(0,0,0,0.3);border-radius:12px;"></div>
+            <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:14px;">Montre ce lien au prestataire ou dicte-le. Chaque inscription via ce lien est comptabilisee.</p>
+            <button class="btn btn-primary btn-sm" onclick="copyParrainLink()" style="margin:0 auto;">📋 Copier le lien</button>
           </div>
         </div>
 
@@ -7854,10 +8082,11 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div class="edit-form-section" data-lock-idx="2" style="padding:0;margin-bottom:20px;border:none;background:transparent;">
         <div style="background:var(--noir);border-radius:20px;padding:24px;">
           <h3 style="color:white;font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:6px;">📊 Ce que tu peux gagner</h3>
-          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:18px;">Basé sur 40% des abonnements Pro (2 500 FCFA/mois → 1 000 FCFA par filleul)</p>
+          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:6px;">Basé sur 40% des abonnements Pro (2 500 FCFA/mois) = <strong style="color:#E8940A;">1 000 FCFA/mois par filleul Pro</strong></p>
+          <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:18px;">Récurrent — chaque mois tant que ton filleul reste Pro</p>
           <div>
             <div class="parrain-calc-row" style="border:1px solid rgba(232,148,10,0.4);background:rgba(232,148,10,0.1);border-radius:10px;padding:8px;">
-              <span style="color:rgba(100,255,150,0.9);font-weight:700;">3 filleuls → abonnement remboursé</span>
+              <span style="color:rgba(232,148,10,0.9);font-weight:700;">3 filleuls → abonnement remboursé</span>
               <span class="parrain-comm-badge" style="background:rgba(232,148,10,0.6);">3 000 FCFA/mois</span>
             </div>
             <div class="parrain-calc-row">
@@ -7885,6 +8114,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
         </div>
 
+        <!-- Point 49 — Guide Agent Terrain --><div style="background:rgba(232,148,10,0.06);border:2px solid rgba(232,148,10,0.35);border-radius:16px;padding:20px 24px;margin-bottom:24px;"><h3 style="color:#E8940A;font-weight:900;margin-bottom:14px;font-size:16px;font-family:Lora,serif;font-style:italic;">Guide Agent Terrain</h3><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">1.</span><span>Va dans les marches, les salons de coiffure, les ateliers de couture</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">2.</span><span>Montre WOLO Market sur ton telephone</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">3.</span><span>Aide le prestataire a creer son profil</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">4.</span><span><strong style="color:#E8940A;">Chaque prestataire Pro inscrit = 1 000 FCFA/mois pour toi</strong></span></div></div><p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px;">Ton lien de parrainage trace automatiquement chaque inscription.</p></div>
         <!-- Retrait -->
         <div class="edit-form-section" style="border:2px solid var(--vert);">
           <h3 style="margin-bottom:8px;">💸 Récupérer mes Frais de traitement</h3>
@@ -8086,7 +8316,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="dash-section" id="ds-recrut-offres">
         <div class="dash-header">
           <h2>📂 Mes offres publiées</h2>
-          <p>Gérez vos offres d'emploi et suivez les candidatures.</p>
+          <p>Gère tes offres d'emploi et suis les candidatures.</p>
         </div>
         <div id="mes-offres-list">
           <div class="loading"><div class="spinner"></div> Chargement...</div>
@@ -8097,7 +8327,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="dash-section" id="ds-recrut-candidatures">
         <div class="dash-header">
           <h2>👥 Candidatures reçues</h2>
-          <p>Les candidats qui ont postulé à vos offres.</p>
+          <p>Les candidats qui ont postulé à tes offres.</p>
         </div>
         <div style="margin-bottom:16px;">
           <label style="font-weight:700;font-size:14px;margin-right:8px;">Filtrer par offre :</label>
@@ -10074,7 +10304,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wolo','influenceurs'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
@@ -10094,6 +10324,8 @@ function showPage(page, _fromPop) {
     setTimeout(() => loadFounderCounter(), 500);
   }
   if (page === 'recompenses') loadPageRecompenses();
+  if (page === 'awards') loadPageAwards();
+  if (page === 'awards-profil') { /* loaded via showAwardsProfil */ }
   if (page === 'match') { try { initWoloMatch(); } catch(e){ console.warn('match init', e); } }
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
@@ -10728,7 +10960,7 @@ function renderCard(record) {
             ${dispo ? '<div class="pcard-dispo" style="margin-top:6px;"><div class="dispo-dot" style="background:#E8940A;"></div> <span style="color:#E8940A;">Disponible</span></div>' : '<div style="margin-top:6px;font-size:12px;color:var(--gris);display:flex;align-items:center;gap:5px;"><div style="width:7px;height:7px;border-radius:50%;background:#d1d5db;"></div> Occupé</div>'}
           </div>
           <div class="pcard-avatar" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;">
-            ${photoProfil ? `<img src="${photoProfil}" alt="${nom}">` : initiale}
+            ${photoProfil ? `<img src="${photoProfil}" alt="${nom}" loading="lazy">` : initiale}
           </div>
         </div>
         <div class="pcard-badges">
@@ -10736,6 +10968,7 @@ function renderCard(record) {
           ${verifie ? '<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;border:1px solid #f3d38a;">✓ Vérifié</span>' : ''}
           ${topRank && topRank <= 50 ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">🏆 TOP ${topRank}</span>` : ''}
           ${champion ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">⚔️ Champion ${champion}</span>` : ''}
+          ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="font-size:11px;background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Fondateur</span>' : ''}
         </div>
         <div class="pcard-rating">
           ${note > 0
@@ -10967,6 +11200,8 @@ function afficherCarteProfil(lat, lon, nom) {
 // ══════════════════════════════════════════
 // HOME
 // ══════════════════════════════════════════
+async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;try{const url=`${AT_URL('Prestataires')}?maxRecords=6&sort[0][field]=Note%20moyenne&sort[0][direction]=desc&filterByFormula=${encodeURIComponent("AND({Photo de profil}!='',{Nom complet}!='')")}`;const res=await fetch(url,{headers:AT_HEADERS});if(!res.ok)throw new Error('Airtable '+res.status);const data=await res.json();let records=data.records||[];if(records.length===0){const url2=`${AT_URL('Prestataires')}?maxRecords=6&sort[0][field]=Note%20moyenne&sort[0][direction]=desc&filterByFormula=${encodeURIComponent("{Nom complet}!=''")}`;const res2=await fetch(url2,{headers:AT_HEADERS});if(res2.ok){const d2=await res2.json();records=d2.records||[];}}if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,6).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(248,246,241,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(248,246,241,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
+
 async function initHome() {
   buildVilleOptions('home-search-quartier');
   buildVilleOptions('s-quartier');
@@ -10978,6 +11213,9 @@ async function initHome() {
 
   // Sprint 8 : compteurs métiers temps réel Airtable
   setTimeout(() => chargerCompteurMetiers(), 300);
+
+  // Prestataires en vedette
+  setTimeout(() => loadHomeVedette(), 200);
 
   const container = document.getElementById('home-cards');
   try {
@@ -11173,7 +11411,7 @@ function renderSearchMap(records) {
           cursor:pointer;
         ">
           ${photo
-            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">`
             : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;background:${isPro ? '#f59e0b' : '#E8940A'};">${initiale}</div>`
           }
           ${dispo ? `<div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:#E8940A;"></div>` : ''}
@@ -11197,7 +11435,7 @@ function renderSearchMap(records) {
       <div style="font-family:inherit;width:220px;">
         <div style="width:220px;height:128px;border-radius:10px 10px 0 0;overflow:hidden;background:#f1f5f9;margin:-14px -20px 10px -20px;">
           ${photo
-            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">`
+            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`
             : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:900;color:white;background:${isPro ? '#f59e0b' : '#E8940A'};">${initiale}</div>`
           }
         </div>
@@ -11248,6 +11486,12 @@ function renderSearchMap(records) {
   }
 }
 
+let _rechercheTimer;
+function rechercheDebounce(fn, delay=300) {
+  clearTimeout(_rechercheTimer);
+  _rechercheTimer = setTimeout(fn, delay);
+}
+
 async function loadSearch() {
   const container = document.getElementById('search-cards');
   const meta = document.getElementById('results-meta');
@@ -11256,6 +11500,21 @@ async function loadSearch() {
 
   const metier = document.getElementById('s-metier')?.value || '';
   const quartier = document.getElementById('s-quartier')?.value || '';
+
+  // Point 52 — SEO: meta descriptions dynamiques par metier
+  (function updateSEOMeta() {
+    var seoMetier = metier || '';
+    var seoVille = quartier || '';
+    var metaDesc = document.querySelector('meta[name="description"]');
+    if (seoMetier) {
+      var titre = seoMetier + (seoVille ? ' a ' + seoVille : ' a Lome et Cotonou') + ' — WOLO Market';
+      document.title = titre;
+      if (metaDesc) metaDesc.setAttribute('content', 'Trouve un ' + seoMetier.toLowerCase() + (seoVille ? ' a ' + seoVille : ' a Lome ou Cotonou') + '. Profils verifies, avis clients, contact direct. WOLO Market — sans piston.');
+    } else {
+      document.title = 'Trouver un prestataire — WOLO Market';
+      if (metaDesc) metaDesc.setAttribute('content', 'Trouve un prestataire de confiance a Lome ou Cotonou. Coiffure, couture, mecanique, plomberie et plus. WOLO Market — sans piston.');
+    }
+  })();
   const tarifMax = document.getElementById('s-tarif')?.value || '';
 
   try {
@@ -11576,7 +11835,7 @@ async function renderPostsFeed(recordId) {
              style="width:100%;max-height:420px;border-radius:10px;background:#000;cursor:pointer;margin-bottom:4px;display:block;"
              onclick="openLightboxMedia('${p.photo}','video')"></video>`
         : p.photo
-          ? `<img src="${p.photo}" onclick="openLightboxMedia('${p.photo}','photo')" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;cursor:pointer;margin-bottom:4px;">`
+          ? `<img src="${p.photo}" onclick="openLightboxMedia('${p.photo}','photo')" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;cursor:pointer;margin-bottom:4px;" loading="lazy">`
           : ''
       }
       <!-- Actions (like + commenter) -->
@@ -12206,7 +12465,7 @@ async function loadFil() {
             <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
           </div>
           ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${contenu}</div>` : ''}
-          ${mediaUrl && mediaType === 'image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
+          ${mediaUrl && mediaType === 'image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
           ${mediaUrl && mediaType === 'video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
           <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
             <button onclick="likePost('${post.id}',this)" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;padding:4px 0;">
@@ -12316,7 +12575,7 @@ async function loadFilPageFeed() {
             <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
           </div>
           ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${contenu}</div>` : ''}
-          ${mediaUrl && mediaType==='image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
+          ${mediaUrl && mediaType==='image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
           ${mediaUrl && mediaType==='video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
           <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
             <button onclick="likePost('${post.id}',this)" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;">❤️ <span>${likes}</span></button>
@@ -13266,7 +13525,7 @@ async function showProfil(recordId) {
   <h3 style="margin:0 0 12px;font-size:16px;">📸 Le travail de ${nom.split(' ')[0]} — en images.</h3>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
     <div onclick="showAlbumsPage('${recordId}')" style="cursor:pointer;border-radius:14px;overflow:hidden;position:relative;height:110px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
-      ${realisations[0] ? `<img src="${realisations[0]}" style="width:100%;height:100%;object-fit:cover;">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">🔨</div>`}
+      ${realisations[0] ? `<img src="${realisations[0]}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">🔨</div>`}
       <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.1) 55%);pointer-events:none;"></div>
       <div style="position:absolute;bottom:10px;left:12px;">
         <div style="font-weight:800;color:white;font-size:13px;">Mes réalisations</div>
@@ -13331,7 +13590,7 @@ async function showProfil(recordId) {
             <!-- Avatar + badge online -->
             <div class="profil-avatar-wrap">
               <div class="profil-avatar-lg ${abonnement !== 'Base' ? 'premium' : ''}">
-                ${photoProfil ? `<img src="${photoProfil}" alt="${nom}">` : initiale}
+                ${photoProfil ? `<img src="${photoProfil}" alt="${nom}" loading="lazy">` : initiale}
               </div>
               <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>
             </div>
@@ -14294,6 +14553,16 @@ async function submitInscription(e) {
 // PARRAINAGE
 // ══════════════════════════════════════════
 
+// Point 58/59 — Partager son profil sur WhatsApp apres inscription
+function shareInscriptionWhatsApp() {
+  var msg = encodeURIComponent("Je viens de creer mon profil sur WOLO Market ! 🎉 Trouve des prestataires de confiance a Lome et Cotonou — coiffure, couture, mecanique et plus.\n\n👉 wolomarket.vercel.app\n\nSans piston. Juste le travail.");
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+// TODO Sprint 14: Rappel WhatsApp 48h post-inscription via cron api/cron/rappel-48h.js
+// Si le prestataire n'a pas complete son profil (pas de photo, pas de bio) apres 48h,
+// envoyer un rappel via WhatsApp Business API
+
 function generateParrainCode(name) {
   const clean = (name || 'USER').replace(/[^a-zA-Z]/g, '').toUpperCase().substring(0, 4).padEnd(4, 'X');
   const rand = Math.floor(1000 + Math.random() * 9000);
@@ -14471,6 +14740,11 @@ function _renderFilleulsCRM(filleuls) {
   const commMois = filleuls.reduce((s,r) => s + _commParFilleul(r.fields['Abonnement']||'Base'), 0);
 
   document.getElementById('p-nb-filleuls').textContent = total;
+  // Point 48 — Tracking agent terrain
+  var _nbProEl = document.getElementById('p-nb-filleuls-pro');
+  if (_nbProEl) _nbProEl.textContent = nbPro;
+  var _gainsEl = document.getElementById('p-gains-estimes');
+  if (_gainsEl) _gainsEl.textContent = (nbPro * 1000).toLocaleString('fr-FR') + ' FCFA';
 
   const kpiEl = document.getElementById('parrain-kpis');
   if (kpiEl) kpiEl.innerHTML = [
@@ -14629,8 +14903,61 @@ function shareParrainWhatsApp() {
   const box = document.getElementById('parrain-link-box');
   const link = (box?.textContent || '').trim();
   if (!link || link === 'Chargement...') return;
-  const msg = encodeURIComponent(`Salut ! Je t'invite sur WOLO Market.\n\nLa plateforme des artisans et prestataires\nde Cotonou et Lomé. Crée ton profil gratuit\nen 2 minutes — et commence à recevoir\ndes clients que tu n'aurais jamais trouvés\npar le bouche-à-oreille.\n\n🏆 400 000 FCFA distribués chaque mois\naux membres les plus actifs.\n\n👉 ${link}`);
+  const msg = encodeURIComponent(`Yo ! Inscris-toi sur WOLO Market avec mon lien et deviens visible direct : ${link}. C'est gratuit, et si tu passes Pro, je gagne aussi. 💰`);
   window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+// Point 43 — Visuel partageable parrainage (Canvas 1080x1080)
+function genererVisuelParrainage(){
+  var box=document.getElementById('parrain-link-box');
+  var link=(box?.textContent||'').trim();
+  if(!link||link==='Chargement...'){toast('Lien non chargé.','error');return;}
+  var cv=document.createElement('canvas');cv.width=1080;cv.height=1080;
+  var ctx=cv.getContext('2d');
+  ctx.fillStyle='#0f1410';ctx.fillRect(0,0,1080,1080);
+  ctx.strokeStyle='#E8940A';ctx.lineWidth=4;ctx.strokeRect(40,40,1000,1000);
+  ctx.beginPath();ctx.arc(540,180,70,0,Math.PI*2);ctx.fillStyle='#E8940A';ctx.fill();
+  ctx.fillStyle='#0f1410';ctx.font='bold 72px Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('W',540,180);
+  ctx.fillStyle='#E8940A';ctx.font='700 24px monospace';ctx.fillText('WOLO MARKET',540,280);
+  ctx.fillStyle='#F8F6F1';ctx.font='italic 700 52px Georgia,serif';ctx.fillText('Rejoins WOLO Market',540,400);
+  ctx.fillStyle='rgba(248,246,241,0.75)';ctx.font='400 28px sans-serif';
+  ctx.fillText('Inscris-toi avec mon lien',540,470);ctx.fillText('et deviens visible',540,510);
+  ctx.fillStyle='rgba(232,148,10,0.12)';ctx.strokeStyle='rgba(232,148,10,0.5)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(140,580,800,80,16);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#E8940A';ctx.font='bold 26px monospace';ctx.fillText(link,540,622);
+  ctx.fillStyle='rgba(248,246,241,0.6)';ctx.font='400 22px sans-serif';
+  ctx.fillText("C'est gratuit. Et si tu passes Pro,",540,760);ctx.fillText('je gagne aussi.',540,795);
+  ctx.fillStyle='rgba(248,246,241,0.3)';ctx.font='400 18px monospace';ctx.fillText('wolomarket.vercel.app',540,1000);
+  var dataUrl=cv.toDataURL('image/png');
+  var modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+  var waUrl='https://wa.me/?text='+encodeURIComponent('Rejoins WOLO Market ! '+link);
+  modal.innerHTML='<div style="max-width:400px;width:100%;text-align:center;">'
+    +'<img src="'+dataUrl+'" style="width:100%;border-radius:16px;margin-bottom:16px;box-shadow:0 8px 32px rgba(232,148,10,0.3);" alt="Visuel parrainage">'
+    +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'
+    +'<a href="'+dataUrl+'" download="wolo-parrainage.png" class="btn btn-primary btn-sm" style="text-decoration:none;">Telecharger PNG</a>'
+    +'<button class="btn btn-wa btn-sm _vwa">WhatsApp</button>'
+    +'<button class="btn btn-sm _vcl" style="background:rgba(255,255,255,0.1);color:#F8F6F1;border:1px solid rgba(255,255,255,0.2);">Fermer</button>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+  modal.querySelector('._vcl').onclick=function(){modal.remove();};
+  modal.querySelector('._vwa').onclick=function(){window.open(waUrl,'_blank');};
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+}
+
+// Point 46 — Afficher le lien de parrainage en grand format (agent terrain)
+function showParrainQR() {
+  const display = document.getElementById('parrain-qr-display');
+  const linkEl = document.getElementById('parrain-qr-link');
+  const box = document.getElementById('parrain-link-box');
+  const link = (box?.textContent || '').trim();
+  if (!display) return;
+  if (display.style.display === 'none') {
+    if (linkEl) linkEl.textContent = link;
+    display.style.display = 'block';
+  } else {
+    display.style.display = 'none';
+  }
 }
 
 // ══════════════════════════════════════════
@@ -15104,7 +15431,7 @@ async function submitRDV(containerId, btn) {
     email: { type: 'email', value: email, name: 'Email' }
   })) {
     msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
-    msgEl.textContent = '❌ Vérifiez vos infos'; return;
+    msgEl.textContent = '❌ Vérifie tes infos'; return;
   }
 
   if (!message || message.length < 10) {
@@ -16214,7 +16541,7 @@ async function injectSprint6Upgrade(){
       <div style="font-size:12px;color:rgba(248,246,241,.6);margin-bottom:14px">Réservé exclusivement aux membres Pro</div>
       <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 10px">
         <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Space Mono'">300 000 FCFA / mois</strong></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🥇 WOLO Awards</span><strong style="color:#E8940A;font-family:'Space Mono'">100 000 FCFA / mois</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🥇 WOLO Awards</span><strong style="color:#E8940A;font-family:'Space Mono'">50 000 FCFA × 2 catégories</strong></div>
       </div>
       <div style="font-size:10px;color:rgba(248,246,241,.45);font-style:italic">Tirage chaque dernier vendredi du mois · 18h00 WAT</div>
     </div>
@@ -16244,7 +16571,7 @@ async function injectSprint6Upgrade(){
         ${rowKo('Badge Pro')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowKo('Bourse de Croissance (300 000 FCFA/mois)')}
-        ${rowKo('WOLO Awards (100 000 FCFA/mois)')}
+        ${rowKo('WOLO Awards (50K ✂️ + 50K 👗)')}
         ${rowKo('Éligible tirages mensuels')}
       </div>
       <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
@@ -16268,7 +16595,7 @@ async function injectSprint6Upgrade(){
         ${rowOk('Score WOLO complet + détails')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowOk('<strong>Bourse de Croissance 300 000 FCFA/mois</strong>')}
-        ${rowOk('<strong>WOLO Awards 100 000 FCFA/mois</strong>')}
+        ${rowOk('<strong>WOLO Awards 50K ✂️ Coiffure + 50K 👗 Couture</strong>')}
         ${rowOk('Tirages chaque dernier vendredi du mois')}
         ${rowOk('Commissions parrainage (1 000 FCFA/filleul/mois)')}
       </div>
@@ -16333,7 +16660,7 @@ async function sp6PayWithCredit(){
 }
 
 function sp6PayFedapay(){
-  toast('WOLO Pay Mobile Money arrive très bientôt. En attendant, utilise ton Crédit WOLO pour activer ton Plan Pro.','info');
+  toast('Paiement définitif. Fini le problème de monnaie. WOLO Pay Mobile Money arrive très bientôt. En attendant, utilise ton Crédit WOLO.','info');
 }
 
 function sp6ShowSuccess(){
@@ -16348,7 +16675,7 @@ function sp6ShowSuccess(){
       <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">📱 <strong>Ton QR code est prêt</strong> — va dans Paiements › Mon QR Code</div>
       <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">🛡️ <strong>Paiements sécurisés</strong> — ton argent est protégé</div>
       <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">🏆 <strong>Bourse de Croissance 300 000 FCFA</strong> — prochain tirage vendredi 18h00</div>
-      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;font-size:13px;color:#F8F6F1">🥇 <strong>WOLO Awards 100 000 FCFA</strong> — tirage mensuel dernier vendredi</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;font-size:13px;color:#F8F6F1">🥇 <strong>WOLO Awards 50 000 FCFA × 2</strong> — ✂️ Coiffure + 👗 Couture · dernier vendredi</div>
       <button onclick="this.closest('[style*=fixed]').remove();showDashSection('qr-code')" style="width:100%;background:#E8940A;color:#0f1410;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Voir ma pancarte WOLO Pay →</button>
       <button onclick="this.closest('[style*=fixed]').remove();showDashSection('credit-wolo')" style="width:100%;background:transparent;color:rgba(248,246,241,.7);border:1px solid rgba(255,255,255,.15);padding:12px;border-radius:10px;font-weight:600;cursor:pointer">Aller au dashboard</button>
     </div>`;
@@ -16368,7 +16695,7 @@ async function injectSprint6Parrainage_DEPRECATED(){ return; // remplacé par lo
     block.id = 'sp6-parrain-block';
     block.style.cssText = 'max-width:720px;margin:20px auto;padding:0 16px;color:#F8F6F1';
     const code = d.code_parrainage || 'WOLO-??????';
-    const shareMsg = `Salut ! Je t'invite sur WOLO Market.\n\nLa plateforme des artisans et prestataires\nde Cotonou et Lomé. Crée ton profil gratuit\nen 2 minutes — et commence à recevoir\ndes clients que tu n'aurais jamais trouvés\npar le bouche-à-oreille.\n\n🏆 400 000 FCFA distribués chaque mois\naux membres les plus actifs.\n\n👉 https://wolomarket.com?ref=${code}`;
+    const shareMsg = `Salut ! Je t'invite sur WOLO Market.\n\nTa vitrine en ligne pour artisans et prestataires\nde Cotonou et Lomé. Crée ton profil gratuit\nen 2 minutes — et commence à recevoir\ndes clients que tu n'aurais jamais trouvés\npar le bouche-à-oreille.\n\n🏆 400 000 FCFA distribués chaque mois\naux membres les plus actifs.\n\n👉 https://wolomarket.com?ref=${code}`;
 
     block.innerHTML = `
       <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:20px;margin-bottom:16px">
@@ -16412,7 +16739,7 @@ async function loadRecompensesWidgets() {
       <div style="text-align:center;padding:40px 20px">
         <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 4px 14px rgba(245,158,11,0.3);">🔒</div>
         <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Réservé aux membres Pro</h3>
-        <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">Les récompenses mensuelles (Bourse de Croissance 300 000 FCFA + WOLO Awards 100 000 FCFA) sont exclusivement réservées aux membres Plan Pro.</p>
+        <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">Les récompenses mensuelles (Bourse de Croissance 300 000 FCFA + WOLO Awards 50 000 FCFA × 2 catégories) sont exclusivement réservées aux membres Plan Pro.</p>
         <button onclick="showDashSection('abonnement')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.35)">Passer au Pro — 2 500 FCFA/mois →</button>
       </div>`;
     return;
@@ -16520,8 +16847,8 @@ function _widgetAwards(awards, countdown) {
     return `
       <div style="background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.05));border:2px solid #E8940A;border-radius:16px;padding:24px;text-align:center">
         <div style="font-size:48px;margin-bottom:8px">🥇</div>
-        <h3 style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:8px">Champion des WOLO Awards !</h3>
-        <div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:900;color:#F8F6F1;margin-bottom:12px">${montant.toLocaleString('fr-FR')} FCFA</div>
+        <h3 style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:8px">Champion WOLO Awards !</h3>
+        <div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:900;color:#F8F6F1;margin-bottom:12px">${montant.toLocaleString('fr-FR')} FCFA${candidature?.categorie === 'coiffure' ? ' ✂️ Coiffure' : ' 👗 Couture'}</div>
         <p style="color:rgba(248,246,241,.7);font-size:14px;margin-bottom:20px">Élu par la communauté WOLO</p>
         <button onclick="showDashSection('credit-wolo')" style="background:#E8940A;color:#0f1410;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Voir mon Crédit WOLO</button>
       </div>`;
@@ -16531,7 +16858,7 @@ function _widgetAwards(awards, countdown) {
     return `
       <div style="background:rgba(192,132,252,.05);border:2px solid rgba(192,132,252,.4);border-radius:16px;padding:24px;text-align:center">
         <div style="font-size:36px;margin-bottom:8px">🥈</div>
-        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#c084fc;margin-bottom:8px">Vice-champion des WOLO Awards !</h3>
+        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#c084fc;margin-bottom:8px">Vice-champion WOLO Awards !</h3>
         <p style="color:rgba(248,246,241,.7);font-size:14px">Badge spécial visible sur ton profil pendant 30 jours</p>
       </div>`;
   }
@@ -16556,6 +16883,7 @@ function _widgetAwards(awards, countdown) {
           ⏱️ Résultats dans ${countdown}
         </div>
         <p style="font-size:12px;color:rgba(248,246,241,.4);margin-top:8px">Partage ta vidéo pour récolter des votes</p>
+        <div style="display:flex;gap:8px;margin-top:12px;"><button class="wolo-btn-primary" style="font-size:12px;padding:8px 14px;flex:1;" onclick="genererStoryCampagne('${candidature.id}')">📸 Générer ma Story</button><button style="flex:1;background:rgba(248,246,241,0.06);border:1px solid rgba(248,246,241,0.12);color:rgba(248,246,241,0.7);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;" onclick="showAwardsProfil('${candidature.id}')">Voir ma page →</button></div>
       </div>`;
   }
 
@@ -16572,7 +16900,7 @@ function _widgetAwards(awards, countdown) {
   return `
     <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;text-align:center">
       <div style="font-size:36px;margin-bottom:8px">🥇</div>
-      <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:8px">WOLO Awards · 100 000 FCFA/mois</h3>
+      <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:8px">WOLO Awards · 50K ✂️ + 50K 👗 / mois</h3>
       <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:16px">Le meilleur prestataire du mois élu par la communauté. Soumets ta vidéo de présentation (60 sec) pour participer.</p>
       <button onclick="showPage('recompenses')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">En savoir plus →</button>
     </div>`;
@@ -16764,7 +17092,7 @@ async function chargerCompteurMetiers() {
     document.querySelectorAll('[data-cat-count]').forEach(el => {
       const cat = el.getAttribute('data-cat-count');
       const n = counts[cat] || 0;
-      el.textContent = n > 0 ? n + ' pro' + (n > 1 ? 's' : '') : 'Bientôt';
+      el.textContent = n > 0 ? n + ' pro' + (n > 1 ? 's' : '') : '0 pro';
     });
 
     // Trier les cards par nombre de pros (les plus populaires en premier)
@@ -17131,7 +17459,7 @@ function showPaiementManuelModal(plan, amount, code) {
 
     <div style="background:linear-gradient(135deg,#0f1410,#1F2937);border-radius:14px;padding:22px;text-align:center;margin-bottom:14px;">
       <div style="font-size:13px;font-weight:700;color:#E8940A;letter-spacing:1px;margin-bottom:8px;">PAIEMENT SÉCURISÉ</div>
-      <div style="font-size:20px;font-weight:900;color:#FFFFFF;line-height:1.4;">Paiement sécurisé via WOLO Pay<br><span style="color:#E8940A;">Zéro frais entre membres</span></div>
+      <div style="font-size:20px;font-weight:900;color:#FFFFFF;line-height:1.4;">Paiement définitif. Personne ne peut l'annuler.<br><span style="color:#E8940A;">Zéro frais entre membres WOLO. Jamais.</span></div>
     </div>
 
     <div style="background:#F8F6F1;border:2px dashed #E8940A;border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;">
@@ -17142,7 +17470,7 @@ function showPaiementManuelModal(plan, amount, code) {
 
     <div style="background:#fef9c3;border-radius:12px;padding:14px;font-size:13px;color:#713f12;line-height:1.9;">
       <strong>ℹ️ Info :</strong><br>
-      WOLO Pay Mobile Money arrive très bientôt. Tu recevras une notification dès que le paiement en ligne sera disponible.
+      Fini le problème de monnaie. WOLO Pay Mobile Money arrive très bientôt. Tu recevras une notification dès que le paiement en ligne sera disponible.
     </div>
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:14px;">Ton Plan Pro sera activé dès validation du paiement.</p>
   `;
@@ -17767,7 +18095,7 @@ function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
   document.getElementById('modal-cand-profil').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:900;overflow:hidden;flex-shrink:0;">
-        ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (f['Nom complet']||'?')[0]}
+        ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Nom complet']||'?')[0]}
       </div>
       <div>
         <div style="font-weight:800;font-size:15px;">${f['Nom complet']||'—'}</div>
@@ -17966,7 +18294,7 @@ function loadCVWolo() {
 
   const photoEl = document.getElementById('cv-photo');
   if (photoEl) {
-    photoEl.innerHTML = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (f['Nom complet']||'?')[0];
+    photoEl.innerHTML = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Nom complet']||'?')[0];
   }
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('cv-nom', f['Nom complet'] || '—');
@@ -18018,7 +18346,7 @@ function genererCVPDF() {
     <div><strong>Avis :</strong> ${f['Nombre d\'avis reçus']||0}</div>
     <div><strong>Expérience :</strong> ${f['Années d\'expérience'] ? f['Années d\'expérience'] + ' ans' : '—'}</div>
   </div>
-  ${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).length > 0 ? `<h2>Réalisations</h2><div class="photos">${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).map(p=>`<img src="${p}" class="photo-real">`).join('')}</div>` : ''}
+  ${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).length > 0 ? `<h2>Réalisations</h2><div class="photos">${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).map(p=>`<img src="${p}" class="photo-real" loading="lazy">`).join('')}</div>` : ''}
   <p style="margin-top:28px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:10px;">CV généré par WOLO Market · wolomarket.com · ${new Date().toLocaleDateString('fr-FR')}</p>
   <script>window.onload=()=>window.print();<\/script></body></html>`);
   win.document.close();
@@ -18283,7 +18611,7 @@ async function loadCandidaturesRecues(offreId = null) {
       return `<div style="background:white;border-radius:14px;padding:18px;box-shadow:var(--shadow);border:1.5px solid #e5e7eb;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
           <div style="width:48px;height:48px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:18px;color:white;font-weight:900;overflow:hidden;flex-shrink:0;">
-            ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (f['Candidat Nom']||'?')[0]}
+            ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Candidat Nom']||'?')[0]}
           </div>
           <div style="flex:1;">
             <div style="font-weight:800;font-size:15px;">${f['Candidat Nom']||'—'}</div>
@@ -18657,8 +18985,8 @@ async function updateStatutCandidature(candidatureId, statut) {
               <div class="wolo-pro-gains-item">
                 <div class="icon">⚔️</div>
                 <div class="label">WOLO Awards</div>
-                <div class="montant" data-compteur="100000">100 000 FCFA</div>
-                <div class="desc">champion Bénin vs Togo</div>
+                <div class="montant" data-compteur="100000">50 000 FCFA × 2</div>
+                <div class="desc">✂️ Coiffure + 👗 Couture · Bénin vs Togo</div>
               </div>
             </div>
             <div class="wolo-pro-gains-total">
@@ -18697,8 +19025,8 @@ async function updateStatutCandidature(candidatureId, statut) {
             <div class="wolo-pro-feature-item wolo-feature-highlight">
               <div class="icon">⚔️</div>
               <div class="body">
-                <div class="titre">WOLO Awards — Battle Bénin vs Togo</div>
-                <div class="sous">Le champion d'un pays affronte celui de l'autre · <span class="wolo-feature-montant">100 000 FCFA</span> chaque mois</div>
+                <div class="titre">WOLO Awards — ✂️ Coiffure + 👗 Couture</div>
+                <div class="sous">2 champions par mois · Battle Bénin vs Togo · <span class="wolo-feature-montant">50 000 FCFA</span> par catégorie</div>
               </div>
             </div>
             <div class="wolo-pro-feature-item">
@@ -18845,11 +19173,11 @@ async function updateStatutCandidature(candidatureId, statut) {
       <h2>Les vraies questions Pro</h2>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">C'est vrai qu'on peut gagner 300 000 FCFA chaque mois juste en étant Pro ?</button>
-        <div class="wolo-faq-reponse"><p>Oui. 400 000 FCFA distribués chaque mois au total. 300 000 FCFA pour la Bourse de Croissance (Score WOLO ≥ 80, 4 avis clients récents, 2 mois Pro consécutifs). 100 000 FCFA pour les WOLO Awards (battle Bénin vs Togo, vote populaire). Le tirage est public. Le gagnant est annoncé en live. Permanent.</p></div>
+        <div class="wolo-faq-reponse"><p>Oui. 400 000 FCFA distribués chaque mois au total. 300 000 FCFA pour la Bourse de Croissance (Score WOLO ≥ 80, 4 avis clients récents, 2 mois Pro consécutifs). 100 000 FCFA pour les WOLO Awards — 50K ✂️ Champion Coiffure + 50K 👗 Champion Couture (battle Bénin vs Togo). Le tirage est public. Le gagnant est annoncé en live. Permanent.</p></div>
       </div>
       <div class="wolo-faq-item">
-        <button class="wolo-faq-question" type="button">Et les 100 000 FCFA des WOLO Awards ?</button>
-        <div class="wolo-faq-reponse"><p>Battle mensuelle thématique. Chaque pays désigne son champion. Le champion Togo affronte le champion Bénin en finale. 100 000 FCFA chaque mois. Pour candidater : Plan Pro depuis 2 mois. Une vidéo de 60 secondes. Ta communauté vote pour toi. Ton quartier, ta famille, tes clients. Chaque votant doit créer un compte — gratuit. Tu recrutes tes supporters, ils rejoignent WOLO Market. Tout le monde gagne.</p></div>
+        <button class="wolo-faq-question" type="button">Comment fonctionnent les WOLO Awards ?</button>
+        <div class="wolo-faq-reponse"><p>2 catégories : ✂️ Coiffure et 👗 Couture. Chaque catégorie a son champion — 50 000 FCFA chacun. Battle Bénin vs Togo dans chaque catégorie. Pour candidater : Plan Pro depuis 2 mois. Soumets ta photo de réalisation. Ta communauté vote pour toi. Ton quartier, ta famille, tes clients. Chaque votant doit créer un compte — gratuit. Tu recrutes tes supporters, ils rejoignent WOLO Market. Tout le monde gagne.</p></div>
       </div>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">Pourquoi faut-il 2 mois Pro pour participer au tirage ?</button>
@@ -18865,7 +19193,7 @@ async function updateStatutCandidature(candidatureId, statut) {
       </div>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">2 500 FCFA par mois pour quoi exactement ?</button>
-        <div class="wolo-faq-reponse"><p>Pour apparaître en premier dans les résultats — toujours. Pour pouvoir gagner 300 000 FCFA chaque mois via la Bourse de Croissance. Pour candidater aux WOLO Awards et gagner 100 000 FCFA chaque mois. Pour passer À la Une devant tous les visiteurs. Pour figurer dans le Top 50 WOLO Bénin-Togo. Pour toucher 40% des abonnements de tes filleuls à vie. Et pour voir exactement combien de clients t'ont cherché et trouvé ton concurrent. 2 500 FCFA. Moins qu'une recharge MTN Mobile Money. Résiliable n'importe quand. Sans explication à donner.</p></div>
+        <div class="wolo-faq-reponse"><p>Pour apparaître en premier dans les résultats — toujours. Pour pouvoir gagner 300 000 FCFA chaque mois via la Bourse de Croissance. Pour candidater aux WOLO Awards (50K ✂️ + 50K 👗) chaque mois. Pour passer À la Une devant tous les visiteurs. Pour figurer dans le Top 50 WOLO Bénin-Togo. Pour toucher 40% des abonnements de tes filleuls à vie. Et pour voir exactement combien de clients t'ont cherché et trouvé ton concurrent. 2 500 FCFA. Moins qu'une recharge MTN Mobile Money. Résiliable n'importe quand. Sans explication à donner.</p></div>
       </div>
     </div>
   </section>
@@ -18949,11 +19277,14 @@ async function updateStatutCandidature(candidatureId, statut) {
           <p class="footer-desc">Au Bénin et au Togo, le talent n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
         </div>
         <div class="footer-col">
-          <h4>Plateforme</h4>
+          <h4>WOLO Market</h4>
           <a onclick="showPage('search')">Trouver un pro</a>
           <a onclick="showPage('inscription')">S'inscrire</a>
           <a onclick="showPage('fonctionnement')">Comment ça marche</a>
           <a onclick="showPage('apropos')">À propos</a>
+          <a onclick="showPage('a-propos')" style="cursor:pointer;">À propos (institutionnel)</a>
+          <a onclick="showPage('agent-wolo')" style="cursor:pointer;">Devenir Agent</a>
+          <a onclick="showPage('influenceurs')" style="cursor:pointer;">Influenceurs</a>
         </div>
         <div class="footer-col">
           <h4>Contact</h4>
@@ -18989,7 +19320,7 @@ async function updateStatutCandidature(candidatureId, statut) {
 
     <div class="container" style="position:relative;z-index:1;padding-top:80px;padding-bottom:80px;">
       <div style="max-width:600px;">
-        <div class="badge" style="background:rgba(232,148,10,0.2);color:#F5B82E;margin-bottom:24px;">L'HISTOIRE · LA MISSION · LA PLATEFORME</div>
+        <div class="badge" style="background:rgba(232,148,10,0.2);color:#F5B82E;margin-bottom:24px;">L'HISTOIRE · LA MISSION · WOLO MARKET</div>
         <h1 style="color:white;font-size:clamp(36px,5vw,60px);line-height:1.05;margin-bottom:20px;">
           WOLO Market n'est pas une startup tech.<br><span style="color:var(--or);font-style:italic;">C'est une réponse à une injustice.</span>
         </h1>
@@ -19044,7 +19375,7 @@ async function updateStatutCandidature(candidatureId, statut) {
       <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;text-transform:uppercase;margin-bottom:16px;padding:6px 14px;border:1px solid rgba(232,148,10,0.35);border-radius:100px;">CE QU'EST WOLO MARKET</span>
       <h2 style="font-family:'Fraunces',serif;font-size:clamp(28px,4.5vw,44px);font-weight:900;color:#F8F6F1;line-height:1.15;margin:0 0 8px;">Visibilité. Paiements. Revenus.</h2>
       <p style="font-family:'Fraunces',serif;font-size:20px;color:rgba(248,246,241,0.6);margin:0 0 24px;">Tout au même endroit.</p>
-      <p style="font-family:'Poppins',sans-serif;font-size:16px;line-height:1.8;color:rgba(248,246,241,0.75);margin:0 auto 40px;max-width:700px;">WOLO Market est la plateforme économique des artisans, prestataires et commerçants de Cotonou et Lomé. Pas une appli de plus. Une infrastructure. Construite pour le marché ouest-africain. Opérationnelle dès aujourd'hui.</p>
+      <p style="font-family:'Poppins',sans-serif;font-size:16px;line-height:1.8;color:rgba(248,246,241,0.75);margin:0 auto 40px;max-width:700px;">WOLO Market rend visibles les artisans, prestataires et commerçants de Cotonou et Lomé. Pas une appli de plus. Un outil concret, construit pour le marché ouest-africain. Opérationnel dès aujourd'hui.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;text-align:left;">
         <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,0.25);border-radius:12px;padding:24px;">
           <div style="font-size:28px;margin-bottom:12px;color:#E8940A;">
@@ -19076,7 +19407,7 @@ async function updateStatutCandidature(candidatureId, statut) {
     <div class="container" style="max-width:820px;">
       <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:18px;padding:6px 14px;border:1px solid rgba(232,148,10,0.4);border-radius:100px;">🇧🇯 DOMICILIATION</span>
       <h2 style="font-family:'Fraunces',serif;font-size:clamp(28px,4.5vw,44px);font-weight:900;color:#F8F6F1;line-height:1.15;margin:0 0 24px;">Pourquoi le Bénin.</h2>
-      <p style="font-family:'Poppins',sans-serif;font-size:16px;line-height:1.8;color:rgba(248,246,241,0.8);margin:0;">WOLO Market est domicilié à Cotonou, Bénin — et ce n'est pas un hasard.<br><br>Le Bénin est aujourd'hui le pays d'Afrique de l'Ouest qui a le plus avancé dans la digitalisation de son économie. Sous la présidence de Patrice Talon, les réformes structurelles ont fait du pays un modèle régional en matière d'inclusion financière.<br><br>En 2025, le Bénin est devenu le premier pays de l'UEMOA à voir ses fintechs locales obtenir l'agrément de la BCEAO — preuve d'une vision nationale claire et ambitieuse.<br><br>WOLO Pay, notre infrastructure de paiement, opère dans ce cadre réglementaire solide. WOLO Market s'inscrit dans cette vision.<br><br>Nous construisons depuis le Bénin, pour le Bénin, pour le Togo, et pour le continent.</p>
+      <p style="font-family:'Poppins',sans-serif;font-size:16px;line-height:1.8;color:rgba(248,246,241,0.8);margin:0;">WOLO Market est domicilié à Cotonou, Bénin — et ce n'est pas un hasard.<br><br>Le Bénin est aujourd'hui le pays d'Afrique de l'Ouest qui a le plus avancé dans la digitalisation de son économie. Sous la présidence de Patrice Talon, les réformes structurelles ont fait du pays un modèle régional en matière d'inclusion financière.<br><br>En 2025, le Bénin est devenu le premier pays de l'UEMOA à voir ses fintechs locales obtenir l'agrément de la BCEAO — preuve d'une vision nationale claire et ambitieuse.<br><br>WOLO Pay, notre système de paiement, opère dans ce cadre réglementaire solide. WOLO Market s'inscrit dans cette vision.<br><br>Nous construisons depuis le Bénin, pour le Bénin, pour le Togo, et pour le continent.</p>
     </div>
   </section>
 
@@ -19106,7 +19437,7 @@ async function updateStatutCandidature(candidatureId, statut) {
         </div>
         <div style="text-align:center;padding:28px;background:var(--blanc);border-radius:20px;border:1.5px solid rgba(220,38,38,0.1);">
           <div style="font-family:Fraunces,serif;font-size:44px;font-weight:900;color:#dc2626;margin-bottom:8px;">0</div>
-          <p style="font-size:14px;color:var(--gris-fonce);font-weight:600;line-height:1.5;">plateforme qui répondait à tout ça, construite pour le marché togolais, avant WOLO Market.</p>
+          <p style="font-size:14px;color:var(--gris-fonce);font-weight:600;line-height:1.5;">solution qui répondait à tout ça, construite pour le marché togolais, avant WOLO Market.</p>
         </div>
       </div>
 
@@ -19130,19 +19461,19 @@ async function updateStatutCandidature(candidatureId, statut) {
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Une promesse de plus qui ne se concrétise jamais</li>
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Une appli pensée pour Londres ou Paris</li>
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Un réseau social où tu postes dans le vide</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Une plateforme qui prend une commission sur tes prestations</li>
+            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Un service qui prend une commission sur tes prestations</li>
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Quelque chose qui disparaît si Facebook ou TikTok sont coupés</li>
           </ul>
         </div>
         <div style="background:rgba(232,148,10,0.08);border:1.5px solid rgba(232,148,10,0.2);border-radius:20px;padding:28px;">
           <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:16px;">Ce que WOLO Market est :</h3>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Une infrastructure locale construite pour le marché ouest-africain — Cotonou, Lomé, et au-delà</li>
+            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Un outil local construit pour le marché ouest-africain — Cotonou, Lomé, et au-delà</li>
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Un profil professionnel qui remplace le CV et le bouche-à-oreille</li>
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Un système de paiement sécurisé intégré — garanti, traçable, irrévocable</li>
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Une source de revenus passifs via le parrainage</li>
             <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Une compétition mensuelle où les meilleurs gagnent jusqu'à 400 000 FCFA</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Une plateforme indépendante — visible 24h/24, même quand les réseaux sont coupés</li>
+            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Un service indépendant — visible 24h/24, même quand les réseaux sont coupés</li>
           </ul>
         </div>
       </div>
@@ -19180,20 +19511,20 @@ async function updateStatutCandidature(candidatureId, statut) {
           <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--or);border:3px solid white;box-shadow:0 0 0 3px var(--or-light);"></div>
           <div style="font-size:12px;font-weight:700;color:var(--or);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">La France · Closing, direction commerciale, growth</div>
           <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:700;margin-bottom:12px;">Closing, direction commerciale, growth.</h3>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Grandir dans un cadre familial compliqué, dans une France qui ne vous donne rien facilement, ça forge ou ça brise. J'ai choisi d'être forgé.<br><br>J'ai appris la vente, le marketing, le closing high ticket. J'ai ouvert des boîtes, fermé des boîtes, recommencé. J'ai accompagné des entrepreneurs, construit des systèmes de vente à plusieurs milliers d'euros, managé des équipes.<br><br>Et à chaque résultat, la même question revenait, de plus en plus forte : <em style="color:var(--or);">tout ça pour construire quoi, exactement ?</em></p>
+          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Grandir dans un cadre familial compliqué, dans une France qui ne te donne rien facilement, ça forge ou ça brise. J'ai choisi d'être forgé.<br><br>J'ai appris la vente, le marketing, le closing high ticket. J'ai ouvert des boîtes, fermé des boîtes, recommencé. J'ai accompagné des entrepreneurs, construit des systèmes de vente à plusieurs milliers d'euros, managé des équipes.<br><br>Et à chaque résultat, la même question revenait, de plus en plus forte : <em style="color:var(--or);">tout ça pour construire quoi, exactement ?</em></p>
         </div>
 
         <div style="margin-bottom:44px;position:relative;">
           <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--vert);border:3px solid white;box-shadow:0 0 0 3px var(--vert-light);"></div>
           <div style="font-size:12px;font-weight:700;color:var(--vert);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Fin 2025 · Le retour définitif</div>
           <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:700;margin-bottom:12px;">Il aurait pu rester en Europe. Il a choisi de revenir construire.</h3>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Fin 2025, je prends la décision : je quitte la France définitivement. Pas un voyage — un retour.<br><br>Et en posant les pieds à Lomé, tout ce que j'avais vu enfant m'a frappé avec une force nouvelle. Un maçon excellent assis devant sa maison à attendre. Une coiffeuse talentueuse que personne ne cherche au-delà de sa rue. Des entrepreneurs sérieux, capables — et pourtant invisibles. Des artisans qui n'ont aucun moyen de recevoir un paiement sécurisé. Qui perdent des clients par manque de monnaie. Qui n'ont pas de vitrine.<br><br>Aujourd'hui, j'accompagne déjà des entrepreneurs togolais : je les aide à se structurer, à trouver des clients, à scaler. Et chaque échange confirme exactement la même réalité.<br><br>Le talent est là.<br>Ce qui manque, c'est la visibilité.<br>Ce qui manque, c'est l'infrastructure de paiement.<br>Ce qui manque, c'est une plateforme qui récompense ceux qui travaillent vraiment.</p>
+          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Fin 2025, je prends la décision : je quitte la France définitivement. Pas un voyage — un retour.<br><br>Et en posant les pieds à Lomé, tout ce que j'avais vu enfant m'a frappé avec une force nouvelle. Un maçon excellent assis devant sa maison à attendre. Une coiffeuse talentueuse que personne ne cherche au-delà de sa rue. Des entrepreneurs sérieux, capables — et pourtant invisibles. Des artisans qui n'ont aucun moyen de recevoir un paiement sécurisé. Qui perdent des clients par manque de monnaie. Qui n'ont pas de vitrine.<br><br>Aujourd'hui, j'accompagne déjà des entrepreneurs togolais : je les aide à se structurer, à trouver des clients, à scaler. Et chaque échange confirme exactement la même réalité.<br><br>Le talent est là.<br>Ce qui manque, c'est la visibilité.<br>Ce qui manque, c'est le paiement sécurisé.<br>Ce qui manque, c'est un endroit qui récompense ceux qui travaillent vraiment.</p>
           <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;margin-top:12px;">Le talent est là. <strong>Ce qui manque, c'est la visibilité.</strong></p>
         </div>
 
         <div style="position:relative;">
           <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--or);border:3px solid white;box-shadow:0 0 0 3px var(--or-light);"></div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">WOLO Market · L'infrastructure économique</div>
+          <div style="font-size:12px;font-weight:700;color:var(--or);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">WOLO Market · Le socle économique</div>
           <p style="font-size:17px;color:var(--gris-fonce);line-height:1.8;font-style:italic;">Ce n'est pas un plan. C'est une architecture.<br>WOLO Market est construit dès aujourd'hui<br>pour fonctionner dans chaque pays d'Afrique.<br><strong style="color:var(--or);font-style:normal;">Un nom. Un système. Un continent.</strong></p>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;">
             <button class="btn btn-primary" onclick="showPage('inscription')">→ Créer mon profil WOLO — c'est gratuit</button>
@@ -19313,7 +19644,7 @@ async function updateStatutCandidature(candidatureId, statut) {
     <div class="container" style="text-align:center;max-width:700px;">
       <div class="badge" style="background:rgba(255,255,255,0.15);color:white;margin-bottom:20px;">La vision</div>
       <h2 style="font-family:Fraunces,serif;font-size:36px;font-weight:900;color:white;margin-bottom:20px;">WOLO Market aujourd'hui — Bénin & Togo.<br>Demain, toute l'Afrique de l'Ouest.</h2>
-      <p style="color:rgba(255,255,255,0.8);font-size:17px;line-height:1.7;margin-bottom:36px;">On commence au Bénin et au Togo. On valide, on perfectionne, on prouve que ça marche dans nos rues, avec nos artisans, pour nos gens.<br><br>On prouve qu'un artisan peut être trouvé, payé, et récompensé — depuis son téléphone, sans banque, sans intermédiaire, sans piston.<br><br>Puis on porte ce modèle dans toute l'Afrique de l'Ouest — Côte d'Ivoire, Sénégal, Ghana, Nigeria. Parce que ce problème de visibilité et de paiement, il est identique à Abidjan, à Dakar, à Accra.<br><br>L'Afrique a les talents. Il lui manquait la plateforme.</p>
+      <p style="color:rgba(255,255,255,0.8);font-size:17px;line-height:1.7;margin-bottom:36px;">On commence au Bénin et au Togo. On valide, on perfectionne, on prouve que ça marche dans nos rues, avec nos artisans, pour nos gens.<br><br>On prouve qu'un artisan peut être trouvé, payé, et récompensé — depuis son téléphone, sans banque, sans intermédiaire, sans piston.<br><br>Puis on porte ce modèle dans toute l'Afrique de l'Ouest — Côte d'Ivoire, Sénégal, Ghana, Nigeria. Parce que ce problème de visibilité et de paiement, il est identique à Abidjan, à Dakar, à Accra.<br><br>L'Afrique a les pros. Il lui manquait l'outil.</p>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px;">
         <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;text-align:center;">
           <div style="font-size:22px;margin-bottom:6px;">🇹🇬</div>
@@ -19377,11 +19708,14 @@ async function updateStatutCandidature(candidatureId, statut) {
           <p class="footer-desc">Au Bénin et au Togo, le talent n'a jamais manqué. Ce qui manquait, c'était l'endroit où le montrer. WOLO Market, c'est cet endroit. Pour les artisans de Bè, les commerciaux d'Akpakpa, les coiffeuses d'Adidogomé — et tous ceux que personne ne cherchait encore.</p>
         </div>
         <div class="footer-col">
-          <h4>Plateforme</h4>
+          <h4>WOLO Market</h4>
           <a onclick="showPage('search')">Trouver un pro</a>
           <a onclick="showPage('inscription')">S'inscrire</a>
           <a onclick="showPage('fonctionnement')">Comment ça marche</a>
           <a onclick="showPage('apropos')">À propos</a>
+          <a onclick="showPage('a-propos')" style="cursor:pointer;">À propos (institutionnel)</a>
+          <a onclick="showPage('agent-wolo')" style="cursor:pointer;">Devenir Agent</a>
+          <a onclick="showPage('influenceurs')" style="cursor:pointer;">Influenceurs</a>
         </div>
         <div class="footer-col">
           <h4>Contact</h4>
@@ -19409,7 +19743,7 @@ const faqData = [
   },
   {
     q: "TikTok et Facebook ont été bloqués en 2025. WOLO Market peut aussi disparaître du jour au lendemain ?",
-    a: "C'est exactement la bonne question. TikTok et Facebook appartiennent à des entreprises américaines — si elles ferment ou si l'accès est coupé, tu perds tout en 24h. Des milliers de business togolais l'ont vécu en juin 2025. WOLO Market est une plateforme 100% togolaise, hébergée indépendamment. Ton profil t'appartient. Aucun réseau étranger entre toi et tes clients."
+    a: "C'est exactement la bonne question. TikTok et Facebook appartiennent à des entreprises américaines — si elles ferment ou si l'accès est coupé, tu perds tout en 24h. Des milliers de business togolais l'ont vécu en juin 2025. WOLO Market est 100% togolais, hébergé indépendamment. Ton profil t'appartient. Aucun réseau étranger entre toi et tes clients."
   },
   {
     q: "J'ai un bon bouche-à-oreille dans mon quartier. WOLO m'apporte quoi en plus ?",
@@ -19421,7 +19755,7 @@ const faqData = [
   },
   {
     q: "Je n'ai pas de smartphone récent. Ça marche quand même ?",
-    a: "Oui. WOLO Market est conçu pour les téléphones de la zone — pas les iPhone dernière génération. Si tu peux ouvrir WhatsApp, tu peux utiliser WOLO. Plateforme légère, testée en 2G/3G. Lomé, Kpalimé, Sokodé, Kara — ça marche partout. Même avec le réseau qui coupe."
+    a: "Oui. WOLO Market est conçu pour les téléphones de la zone — pas les iPhone dernière génération. Si tu peux ouvrir WhatsApp, tu peux utiliser WOLO. Léger, testé en 2G/3G. Lomé, Kpalimé, Sokodé, Kara — ça marche partout. Même avec le réseau qui coupe."
   },
   {
     q: "Comment mes clients me trouvent concrètement ?",
@@ -19449,7 +19783,7 @@ const faqData = [
   },
   {
     q: "Je suis déjà sur Instagram et Facebook. WOLO m'apporte quoi en plus ?",
-    a: "Facebook et Instagram ne sont pas cherchés par des clients avec un besoin MAINTENANT. Personne ne tape 'coiffeur Adidogomé disponible aujourd'hui' sur Instagram. Sur WOLO, si. Et Facebook a été coupé en 2025. WOLO c'est une plateforme de recherche intentionnelle — les gens viennent avec une intention d'achat. C'est fondamentalement différent des réseaux sociaux."
+    a: "Facebook et Instagram ne sont pas cherchés par des clients avec un besoin MAINTENANT. Personne ne tape 'coiffeur Adidogomé disponible aujourd'hui' sur Instagram. Sur WOLO, si. Et Facebook a été coupé en 2025. WOLO c'est un moteur de recherche intentionnel — les gens viennent avec une intention d'achat. C'est fondamentalement différent des réseaux sociaux."
   },
   {
     q: "Comment fonctionne le Score WOLO ?",
@@ -19674,6 +20008,106 @@ loadSchealtielPhoto();
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     PAGE WOLO AWARDS — /awards
+══════════════════════════════════════════ -->
+<div id="page-awards" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;">
+  <div style="max-width:720px;margin:0 auto;padding:0 16px;">
+
+    <!-- HEADER -->
+    <div style="text-align:center;padding:40px 0 24px;">
+      <span style="display:inline-block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:#E8940A;margin-bottom:8px;">⚔️ WOLO AWARDS</span>
+      <h1 id="awards-page-titre" style="font-family:Fraunces,serif;font-size:clamp(24px,4vw,36px);font-weight:900;color:#F8F6F1;margin:0 0 8px;"></h1>
+      <p style="color:rgba(248,246,241,0.6);font-size:14px;line-height:1.6;max-width:480px;margin:0 auto;">La meilleure coiffeuse et la meilleure couturière du Bénin et du Togo.<br>Élues par la communauté. 50 000 FCFA par catégorie.</p>
+
+      <!-- Countdown -->
+      <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;">
+        <div style="text-align:center;"><div id="aw-cd-j" style="font-family:'Space Mono',monospace;font-size:24px;color:#E8940A;font-weight:700;">00</div><div style="font-size:10px;color:rgba(248,246,241,0.4);">Jours</div></div>
+        <div style="color:rgba(248,246,241,0.2);font-size:24px;padding-top:2px;">:</div>
+        <div style="text-align:center;"><div id="aw-cd-h" style="font-family:'Space Mono',monospace;font-size:24px;color:#E8940A;font-weight:700;">00</div><div style="font-size:10px;color:rgba(248,246,241,0.4);">Heures</div></div>
+        <div style="color:rgba(248,246,241,0.2);font-size:24px;padding-top:2px;">:</div>
+        <div style="text-align:center;"><div id="aw-cd-m" style="font-family:'Space Mono',monospace;font-size:24px;color:#E8940A;font-weight:700;">00</div><div style="font-size:10px;color:rgba(248,246,241,0.4);">Min</div></div>
+        <div style="color:rgba(248,246,241,0.2);font-size:24px;padding-top:2px;">:</div>
+        <div style="text-align:center;"><div id="aw-cd-s" style="font-family:'Space Mono',monospace;font-size:24px;color:#E8940A;font-weight:700;">00</div><div style="font-size:10px;color:rgba(248,246,241,0.4);">Sec</div></div>
+      </div>
+      <p style="font-size:11px;color:rgba(248,246,241,0.35);margin-top:8px;">Résultats : dernier vendredi du mois · 18h00</p>
+    </div>
+
+    <!-- RECHERCHE -->
+    <div style="margin-bottom:20px;">
+      <input type="text" id="awards-search" placeholder="Rechercher une candidate par nom..." oninput="filtrerAwardsRecherche(this.value)" style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(232,148,10,0.2);border-radius:10px;color:#F8F6F1;font-size:14px;box-sizing:border-box;font-family:inherit;">
+    </div>
+
+    <!-- SCOREBOARD BATTLE PAYS -->
+    <div id="awards-scoreboard" style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:16px;margin-bottom:20px;">
+      <!-- Coiffure -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:#E8940A;margin-bottom:6px;font-family:'Space Mono',monospace;">✂️ COIFFURE</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:#F8F6F1;min-width:60px;">🇹🇬 <span id="aw-sc-coif-tg">0</span></span>
+          <div style="flex:1;height:8px;background:rgba(248,246,241,0.08);border-radius:4px;overflow:hidden;display:flex;">
+            <div id="aw-bar-coif-tg" style="height:100%;background:#E8940A;transition:width .5s;width:50%;"></div>
+            <div id="aw-bar-coif-bj" style="height:100%;background:#c94a4a;transition:width .5s;width:50%;"></div>
+          </div>
+          <span style="font-size:12px;color:#F8F6F1;min-width:60px;text-align:right;"><span id="aw-sc-coif-bj">0</span> 🇧🇯</span>
+        </div>
+      </div>
+      <!-- Couture -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#E8940A;margin-bottom:6px;font-family:'Space Mono',monospace;">👗 COUTURE</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:#F8F6F1;min-width:60px;">🇹🇬 <span id="aw-sc-cout-tg">0</span></span>
+          <div style="flex:1;height:8px;background:rgba(248,246,241,0.08);border-radius:4px;overflow:hidden;display:flex;">
+            <div id="aw-bar-cout-tg" style="height:100%;background:#E8940A;transition:width .5s;width:50%;"></div>
+            <div id="aw-bar-cout-bj" style="height:100%;background:#c94a4a;transition:width .5s;width:50%;"></div>
+          </div>
+          <span style="font-size:12px;color:#F8F6F1;min-width:60px;text-align:right;"><span id="aw-sc-cout-bj">0</span> 🇧🇯</span>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-size:11px;color:rgba(248,246,241,0.35);"><span id="aw-total-votes">0</span> votes ce mois</div>
+    </div>
+
+    <!-- STATUT VOTE PERSONNEL -->
+    <div id="awards-mon-vote" style="display:none;background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;text-align:center;font-size:13px;color:#F8F6F1;"></div>
+
+    <!-- FILTRES -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+      <button class="aw-filtre aw-filtre-active" onclick="filtrerAwards('coiffure',null)" data-awf="coiffure">✂️ Coiffure</button>
+      <button class="aw-filtre" onclick="filtrerAwards('couture',null)" data-awf="couture">👗 Couture</button>
+      <span style="width:1px;background:rgba(248,246,241,0.1);margin:0 4px;"></span>
+      <button class="aw-filtre" onclick="filtrerAwards(null,'TG')" data-awf="TG">🇹🇬 Togo</button>
+      <button class="aw-filtre" onclick="filtrerAwards(null,'BJ')" data-awf="BJ">🇧🇯 Bénin</button>
+      <button class="aw-filtre" onclick="filtrerAwards(null,null)" data-awf="all">Tous</button>
+    </div>
+
+    <!-- LISTE CANDIDATES -->
+    <div id="awards-liste" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="loading"><div class="spinner"></div> Chargement des candidates...</div>
+    </div>
+
+    <!-- ENCADRÉ AVANT VOTE -->
+    <div style="margin-top:24px;background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:14px;padding:20px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:8px;">🗳️</div>
+      <h3 style="font-family:Fraunces,serif;font-size:18px;color:#F8F6F1;margin:0 0 8px;">Vote pour ta favorite</h3>
+      <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0 0 14px;">1 vote par personne par mois · 30 secondes · Gratuit<br>Pour voter, crée un compte WOLO Market gratuit.</p>
+      <button class="wolo-btn-primary" style="font-size:14px;padding:12px 28px;" onclick="showPage('inscription')">Voter maintenant — gratuit</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE INDIVIDUELLE AWARDS /awards/[slug]
+══════════════════════════════════════════ -->
+<div id="page-awards-profil" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;">
+  <div style="max-width:600px;margin:0 auto;padding:0 16px;">
+    <button onclick="showPage('awards')" style="background:none;border:none;color:rgba(248,246,241,0.6);font-size:13px;cursor:pointer;padding:16px 0;">← Retour aux Awards</button>
+    <div id="awards-profil-content">
+      <div class="loading"><div class="spinner"></div> Chargement...</div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ PAGE RÉCOMPENSES (Sprint 7) ══ -->
 <div id="page-recompenses" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;">
   <div style="max-width:860px;margin:0 auto;padding:24px 16px;">
@@ -19682,7 +20116,7 @@ loadSchealtielPhoto();
     <div style="text-align:center;padding:40px 0 30px">
       <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:12px">RÉCOMPENSES MENSUELLES</div>
       <h1 style="font-family:Fraunces,serif;font-size:clamp(28px,5vw,42px);font-weight:900;color:#F8F6F1;margin:0 0 10px">400 000 FCFA distribués<br>chaque mois</h1>
-      <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto">Bourse de Croissance (300 000 FCFA) pour le plus méritant.<br>WOLO Awards (100 000 FCFA) pour le plus populaire.</p>
+      <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto">Bourse de Croissance (300 000 FCFA) pour le plus méritant.<br>WOLO Awards (50 000 FCFA × 2 catégories) — ✂️ Coiffure + 👗 Couture.</p>
     </div>
 
     <!-- Section Bourse -->
@@ -19722,10 +20156,10 @@ loadSchealtielPhoto();
         <span style="font-size:32px">🥇</span>
         <div>
           <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">WOLO Awards</h2>
-          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">100 000 FCFA / mois</p>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">50 000 FCFA × 2 catégories / mois</p>
         </div>
       </div>
-      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Le meilleur prestataire du mois élu par la communauté. Soumets ta vidéo de présentation, récolte des votes, deviens le champion.</p>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Deux champions par mois — ✂️ Coiffure et 👗 Couture. Élus par la communauté. Battle Bénin vs Togo. Soumets ta photo de réalisation, récolte des votes.</p>
 
       <!-- Candidats du mois -->
       <div id="recomp-awards-candidats" style="margin-bottom:16px"></div>
@@ -19842,7 +20276,7 @@ loadSchealtielPhoto();
         </div>
         <div style="padding:20px;">
           <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Le programme de parrainage WOLO — 40% récurrents expliqués</h3>
-          <p style="font-size:14px;color:var(--gris);margin:0;">WOLO Market n'est pas juste pour les prestataires indépendants. C'est aussi ta plateforme pour trouver du travail.</p>
+          <p style="font-size:14px;color:var(--gris);margin:0;">WOLO Market n'est pas juste pour les prestataires indépendants. C'est aussi ta vitrine pour trouver du travail.</p>
         </div>
       </div>
 
@@ -20283,10 +20717,10 @@ function getPhaseAwards(){
 }
 function getHeaderAwards(){
   const phase=getPhaseAwards();
-  if(phase==='pre-lancement')return {titre:'⚔️ WOLO Awards',sous:'Les votes ouvrent chaque mois. Qui sera le champion Togo vs Bénin ?',fomo:'Inscris-toi Pro pour participer.'};
-  if(phase==='votes-ouverts')return {titre:'⚔️ WOLO Awards — Votes ouverts',sous:'Vote pour ton pro préféré. 1 vote gratuit, les suivants payants.',fomo:'Clôture des votes le 20 du mois à 23h59.'};
-  if(phase==='finale')return {titre:'🔥 Finale WOLO Awards',sous:'Top 3 en lice. Derniers votes avant le couronnement.',fomo:'Résultats le 25 à 18h00.'};
-  return {titre:'🏆 Champions du mois',sous:'Voici les gagnants WOLO Awards.',fomo:'Prochain round : début du mois prochain.'};
+  if(phase==='pre-lancement')return {titre:'⚔️ WOLO Awards',sous:'✂️ Coiffure + 👗 Couture — Qui seront les 2 champions ?',fomo:'Inscris-toi Pro pour participer.'};
+  if(phase==='votes-ouverts')return {titre:'⚔️ WOLO Awards — Votes ouverts',sous:'Vote pour ton pro préféré · ✂️ Coiffure ou 👗 Couture.',fomo:'Clôture des votes le 20 du mois à 23h59.'};
+  if(phase==='finale')return {titre:'🔥 Finale WOLO Awards',sous:'Top 3 en lice · ✂️ Coiffure + 👗 Couture. Derniers votes.',fomo:'Résultats le 25 à 18h00.'};
+  return {titre:'🏆 Champions du mois',sous:'Voici les gagnants WOLO Awards · ✂️ Coiffure + 👗 Couture.',fomo:'Prochain round : début du mois prochain.'};
 }
 
 // --- Récupération candidats ---
@@ -20332,7 +20766,7 @@ async function voterPourCandidat(candidatId,userId){
   if(typeof supabase==='undefined'||!supabase)return;
   try{
     const {data:existing}=await supabase.from('votes_awards').select('id').eq('candidat_id',candidatId).eq('user_id',userId);
-    if(existing&&existing.length>0){alert('Tu as déjà voté gratuitement. Les votes suivants sont payants (bientôt dispo).');return;}
+    if(existing&&existing.length>0){alert('Tu as déjà voté pour ce candidat ce mois-ci. Un seul vote gratuit par candidat.');return;}
     await supabase.from('votes_awards').insert({candidat_id:candidatId,user_id:userId,gratuit:true});
     alert('✅ Vote enregistré. Merci !');
     afficherSectionAwards();
@@ -20368,7 +20802,7 @@ async function afficherTop50(paysFiltre){
   container.innerHTML='<div class="awards-vide">Chargement du Top 50…</div>';
   let list=await calculerEtSauvegarderTop50();
   if(paysFiltre&&paysFiltre!=='tous')list=list.filter(p=>(p.pays||'').toLowerCase().includes(paysFiltre.toLowerCase()));
-  if(!list.length){container.innerHTML='<div class="awards-vide">Top 50 bientôt disponible.</div>';return;}
+  if(!list.length){container.innerHTML='<div class="awards-vide">Aucun prestataire classé pour le moment. Active ton profil pour apparaître ici.</div>';return;}
   container.innerHTML=list.map((p,i)=>{
     const rang=i+1;const rangCls=rang<=3?`rang-${rang}`:'';const top10=rang<=10?'<span class="badge-top10">TOP 10</span>':'';
     const score=p.score_wolo||0;
@@ -20869,8 +21303,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 .post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
 .post-auteur-link { display: flex; align-items: center; gap: 10px; text-decoration: none; cursor: pointer; background:none; border:none; padding:0; }
 .post-auteur-photo { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid rgba(232, 148, 10, 0.25); object-fit: cover; }
-.post-auteur-info strong { display: block; font-family: Georgia, serif; font-size: 15px; color: #F8F6F1; text-align: left; }
-.post-auteur-info span { font-size: 12px; color: rgba(248, 246, 241, 0.5); }
+.post-auteur-info strong { display: block; font-family: Georgia, serif; font-size: 15px; color: #F8F6F1; text-align: left; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.post-auteur-info span { font-size: 12px; color: rgba(248, 246, 241, 0.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; max-width:200px; }
 .post-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .post-date { font-size: 11px; color: rgba(248, 246, 241, 0.35); font-family: 'Space Mono', monospace; }
 .post-badge-coup {
@@ -20887,7 +21321,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 .post-media { border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
 .post-img { width: 100%; max-height: 480px; object-fit: cover; display: block; }
 .post-video { width: 100%; max-height: 480px; background: #000; }
-.post-contenu { font-size: 14px; color: rgba(248, 246, 241, 0.8); line-height: 1.6; margin-bottom: 12px; }
+.post-contenu { font-size: 14px; color: rgba(248, 246, 241, 0.8); line-height: 1.6; margin-bottom: 12px; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
 .post-actions { display: flex; justify-content: space-between; align-items: center; }
 .post-actions-left { display: flex; gap: 8px; }
 .action-btn {
@@ -21988,7 +22422,7 @@ small.meta {
     const url = `${window.location.origin}${window.location.pathname}#feed-${postId}`;
     const message = encodeURIComponent(
       `👷 Regarde le travail de ${nom} sur WOLO Market :\n${url}\n\n` +
-      `${nom} est ${metier} à ${quartier}.\nContacte-le directement sur la plateforme.`
+      `${nom} est ${metier} à ${quartier}.\nContacte-le directement sur WOLO Market.`
     );
     window.open(`https://wa.me/?text=${message}`, '_blank');
   };
@@ -22758,6 +23192,565 @@ async function repondreMatch(demandeId, clientId) {
 </script>
 
 <script>
+// ====== SPRINT 13 — WOLO AWARDS COMPLET ======
+(function(){
+  var _awCat = 'coiffure', _awPays = null, _awData = [];
+
+  function getMoisActuel(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1); }
+
+  function getNextLastFridayTs(){
+    var now=new Date(),y=now.getFullYear(),m=now.getMonth();
+    function lastFri(yr,mo){var d=new Date(yr,mo+1,0);while(d.getDay()!==5)d.setDate(d.getDate()-1);d.setHours(18,0,0,0);return d;}
+    var t=lastFri(y,m);if(now>=t){m++;if(m>11){m=0;y++;}t=lastFri(y,m);}return t.getTime();
+  }
+
+  function pad(n){ return n<10?'0'+n:''+n; }
+
+  function tickAwardsCountdown(){
+    var diff=Math.max(0,getNextLastFridayTs()-Date.now());
+    var s=Math.floor(diff/1000),j=Math.floor(s/86400);s-=j*86400;
+    var h=Math.floor(s/3600);s-=h*3600;var m=Math.floor(s/60);s-=m*60;
+    var ej=document.getElementById('aw-cd-j'),eh=document.getElementById('aw-cd-h'),
+        em=document.getElementById('aw-cd-m'),es=document.getElementById('aw-cd-s');
+    if(ej)ej.textContent=pad(j);if(eh)eh.textContent=pad(h);
+    if(em)em.textContent=pad(m);if(es)es.textContent=pad(s);
+  }
+
+  // Titre dynamique avec mois
+  function setAwardsTitre(){
+    var el=document.getElementById('awards-page-titre');if(!el)return;
+    var mois=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    var d=new Date();el.textContent='WOLO Awards — '+mois[d.getMonth()]+' '+d.getFullYear();
+  }
+
+  window.loadPageAwards = async function(){
+    setAwardsTitre();
+    tickAwardsCountdown();
+    setInterval(tickAwardsCountdown, 1000);
+    await chargerCandidatsAwards();
+    await afficherMonVoteAwards();
+    actualiserScoreboard();
+  };
+
+  async function chargerCandidatsAwards(){
+    var sb=_sb();if(!sb)return;
+    var mois=getMoisActuel();
+    try{
+      var {data}=await sb.from('wolo_awards')
+        .select('*, profiles:user_id(nom, photo_url, metier, quartier, ville, pays, note_moyenne, nb_avis, abonnement)')
+        .eq('mois',mois).order('nb_votes',{ascending:false});
+      _awData=data||[];
+      rendreListeAwards();
+    }catch(e){console.warn('[awards]',e);document.getElementById('awards-liste').innerHTML='<p style="color:rgba(248,246,241,0.5);">Erreur de chargement.</p>';}
+  }
+
+  function rendreListeAwards(){
+    var liste=document.getElementById('awards-liste');if(!liste)return;
+    var filtered=_awData.filter(function(c){
+      if(_awCat && c.categorie!==_awCat) return false;
+      if(_awPays && c.pays!==_awPays) return false;
+      return true;
+    });
+    if(filtered.length===0){
+      liste.innerHTML='<div style="text-align:center;padding:40px 0;"><div style="font-size:40px;margin-bottom:12px;">🏆</div><p style="color:rgba(248,246,241,0.5);font-size:14px;">Aucune candidature pour le moment.<br>Les WOLO Awards ouvrent chaque mois.</p></div>';
+      return;
+    }
+    var maxVotes=Math.max.apply(null,filtered.map(function(c){return c.nb_votes||0;}))||1;
+    liste.innerHTML=filtered.map(function(c,i){
+      var p=c.profiles||{};
+      var catEmoji=c.categorie==='coiffure'?'✂️':'👗';
+      var paysFlag=c.pays==='TG'?'🇹🇬':'🇧🇯';
+      var pct=Math.round(((c.nb_votes||0)/maxVotes)*100);
+      var isLeader=i===0;
+      var slug=(p.nom||'candidat').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+c.categorie;
+      return '<div class="aw-candidate-card'+(isLeader?' aw-candidate-leader':'')+'" data-aw-id="'+c.id+'">'
+        +'<div style="display:flex;gap:14px;align-items:flex-start;">'
+          +'<div style="position:relative;flex-shrink:0;">'
+            +(c.photo_url?'<img src="'+escapeHtml(c.photo_url)+'" style="width:80px;height:80px;border-radius:12px;object-fit:cover;border:2px solid '+(isLeader?'#E8940A':'rgba(248,246,241,0.1)')+';" alt="" onerror="this.style.visibility=\'hidden\'">':'<div style="width:80px;height:80px;border-radius:12px;background:rgba(232,148,10,0.08);display:flex;align-items:center;justify-content:center;font-size:32px;">'+catEmoji+'</div>')
+            +(isLeader?'<div style="position:absolute;top:-6px;right:-6px;background:#E8940A;color:#0f1410;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;">★ 1er</div>':'')
+          +'</div>'
+          +'<div style="flex:1;min-width:0;">'
+            +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
+              +'<strong style="color:#F8F6F1;font-family:Georgia,serif;font-size:15px;">'+escapeHtml(p.nom||'Candidat')+'</strong>'
+              +'<span style="font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(232,148,10,0.1);color:#E8940A;font-family:\'Space Mono\',monospace;">'+catEmoji+' '+paysFlag+'</span>'
+              +(i<3?'<span style="font-size:10px;color:rgba(248,246,241,0.4);">#'+(i+1)+'</span>':'')
+            +'</div>'
+            +'<div style="font-size:12px;color:rgba(248,246,241,0.5);margin-top:4px;">'+escapeHtml(p.metier||'')+' · '+escapeHtml(p.quartier||p.ville||'')+' '+paysFlag+'</div>'
+            +(p.note_moyenne?'<div style="font-size:12px;color:#E8940A;margin-top:2px;">⭐ '+p.note_moyenne+'/5 · '+( p.nb_avis||0)+' avis</div>':'')
+            +'<div class="aw-progress"><div class="aw-progress-fill" style="width:'+pct+'%;"></div></div>'
+            +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+              +'<span style="font-family:\'Space Mono\',monospace;font-size:14px;color:#E8940A;font-weight:700;">'+(c.nb_votes||0)+' vote'+(( c.nb_votes||0)>1?'s':'')+'</span>'
+              +'<div style="display:flex;gap:6px;">'
+                +'<button class="aw-vote-btn" onclick="event.stopPropagation();voterAwardsPage(\''+c.id+'\')">🗳️ Voter</button>'
+                +'<button style="background:rgba(248,246,241,0.06);border:1px solid rgba(248,246,241,0.1);color:rgba(248,246,241,0.6);padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;" onclick="event.stopPropagation();showAwardsProfil(\''+c.id+'\')">Voir →</button>'
+              +'</div>'
+            +'</div>'
+          +'</div>'
+        +'</div>'
+        +(c.description?'<p style="font-size:13px;color:rgba(248,246,241,0.6);margin:10px 0 0;line-height:1.5;border-top:1px solid rgba(248,246,241,0.05);padding-top:10px;">'+escapeHtml(c.description)+'</p>':'')
+      +'</div>';
+    }).join('');
+  }
+
+  function actualiserScoreboard(){
+    var coifTG=0,coifBJ=0,coutTG=0,coutBJ=0;
+    _awData.forEach(function(c){
+      var v=c.nb_votes||0;
+      if(c.categorie==='coiffure'){if(c.pays==='TG')coifTG+=v;else coifBJ+=v;}
+      else{if(c.pays==='TG')coutTG+=v;else coutBJ+=v;}
+    });
+    var total=coifTG+coifBJ+coutTG+coutBJ;
+    // Coiffure bars
+    var coifTotal=coifTG+coifBJ||1;
+    var el;
+    if(el=document.getElementById('aw-sc-coif-tg'))el.textContent=coifTG;
+    if(el=document.getElementById('aw-sc-coif-bj'))el.textContent=coifBJ;
+    if(el=document.getElementById('aw-bar-coif-tg'))el.style.width=Math.round(coifTG/coifTotal*100)+'%';
+    if(el=document.getElementById('aw-bar-coif-bj'))el.style.width=Math.round(coifBJ/coifTotal*100)+'%';
+    // Couture bars
+    var coutTotal=coutTG+coutBJ||1;
+    if(el=document.getElementById('aw-sc-cout-tg'))el.textContent=coutTG;
+    if(el=document.getElementById('aw-sc-cout-bj'))el.textContent=coutBJ;
+    if(el=document.getElementById('aw-bar-cout-tg'))el.style.width=Math.round(coutTG/coutTotal*100)+'%';
+    if(el=document.getElementById('aw-bar-cout-bj'))el.style.width=Math.round(coutBJ/coutTotal*100)+'%';
+    if(el=document.getElementById('aw-total-votes'))el.textContent=total;
+  }
+
+  async function afficherMonVoteAwards(){
+    var el=document.getElementById('awards-mon-vote');if(!el)return;
+    var sb=_sb();if(!sb)return;
+    try{
+      var user=await _currentUser();if(!user){el.style.display='none';return;}
+      var mois=getMoisActuel();
+      var {data}=await sb.from('votes_awards').select('candidat_id').eq('votant_id',user.id).eq('mois',mois).maybeSingle();
+      if(data){
+        var candidat=_awData.find(function(c){return c.id===data.candidat_id;});
+        var nom=candidat&&candidat.profiles?candidat.profiles.nom:'une candidate';
+        el.innerHTML='✅ Tu as voté pour <strong>'+escapeHtml(nom)+'</strong> ce mois. Reviens le mois prochain !';
+        el.style.display='block';
+        // Disable all vote buttons
+        document.querySelectorAll('.aw-vote-btn').forEach(function(b){b.disabled=true;b.textContent='Voté ✓';});
+      }else{
+        el.innerHTML='🗳️ Tu n\'as pas encore voté ce mois. <strong>1 vote gratuit</strong> — choisis bien !';
+        el.style.display='block';
+      }
+    }catch(e){el.style.display='none';}
+  }
+
+  window.filtrerAwards = function(cat, pays){
+    if(cat!==undefined) _awCat=cat;
+    if(pays!==undefined) _awPays=pays;
+    // Active state
+    document.querySelectorAll('.aw-filtre').forEach(function(b){b.classList.remove('aw-filtre-active');});
+    if(_awCat) document.querySelector('[data-awf="'+_awCat+'"]')?.classList.add('aw-filtre-active');
+    if(_awPays) document.querySelector('[data-awf="'+_awPays+'"]')?.classList.add('aw-filtre-active');
+    if(!_awCat&&!_awPays) document.querySelector('[data-awf="all"]')?.classList.add('aw-filtre-active');
+    rendreListeAwards();
+  };
+
+  window.filtrerAwardsRecherche = function(q){
+    if(!q||q.length<2){rendreListeAwards();return;}
+    var liste=document.getElementById('awards-liste');if(!liste)return;
+    var ql=q.toLowerCase();
+    var results=_awData.filter(function(c){
+      var p=c.profiles||{};
+      return (p.nom||'').toLowerCase().includes(ql)||(p.metier||'').toLowerCase().includes(ql);
+    });
+    if(results.length===0){liste.innerHTML='<p style="text-align:center;color:rgba(248,246,241,0.5);padding:20px;">Aucun résultat pour "'+escapeHtml(q)+'"</p>';return;}
+    // Temporarily override data for rendering
+    var backup=_awData;_awData=results;_awCat=null;_awPays=null;rendreListeAwards();_awData=backup;
+  };
+
+  window.voterAwardsPage = async function(candidatId){
+    var sb=_sb();if(!sb)return;
+    var user=await verifierConnexionOuPopup('voter aux WOLO Awards');
+    if(!user)return;
+    var mois=getMoisActuel();
+    try{
+      // Check self-vote
+      var candidat=_awData.find(function(c){return c.id===candidatId;});
+      if(candidat&&candidat.user_id===user.id){
+        if(typeof toast==='function')toast('Tu ne peux pas voter pour ta propre candidature.','error');
+        else alert('Tu ne peux pas voter pour ta propre candidature.');
+        return;
+      }
+      // Check already voted
+      var {data:existing}=await sb.from('votes_awards').select('id').eq('votant_id',user.id).eq('mois',mois);
+      if(existing&&existing.length>0){
+        if(typeof toast==='function')toast('Tu as déjà voté ce mois. 1 vote par personne par mois.','info');
+        else alert('Tu as déjà voté ce mois.');
+        return;
+      }
+      // Insert vote
+      var {error}=await sb.from('votes_awards').insert({votant_id:user.id,candidat_id:candidatId,mois:mois});
+      if(error){
+        if(error.message&&error.message.includes('récent'))alert('Ton compte est trop récent pour voter. Réessaie dans quelques minutes.');
+        else if(error.message&&error.message.includes('propre'))alert('Tu ne peux pas voter pour ta propre candidature.');
+        else{ console.warn(error); alert('Erreur lors du vote.'); }
+        return;
+      }
+      if(typeof toast==='function')toast('Vote enregistré ! 🗳️','success');
+      else alert('Vote enregistré !');
+      // Refresh
+      await chargerCandidatsAwards();
+      await afficherMonVoteAwards();
+      actualiserScoreboard();
+      // CTA post-vote : partage WhatsApp
+      var nom=candidat&&candidat.profiles?candidat.profiles.nom:'la candidate';
+      setTimeout(function(){
+        var shareDiv=document.createElement('div');
+        shareDiv.style.cssText='position:fixed;bottom:20px;left:16px;right:16px;background:#0f1410;border:2px solid #E8940A;border-radius:14px;padding:16px;z-index:9999;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);';
+        shareDiv.innerHTML='<p style="color:#F8F6F1;font-size:14px;margin:0 0 10px;">✅ Tu as voté ! Aide <strong>'+escapeHtml(nom)+'</strong> à gagner :</p>'
+          +'<a href="https://wa.me/?text='+encodeURIComponent('Je viens de voter pour '+nom+' aux WOLO Awards ! 🏆\n\n50 000 FCFA pour la meilleure du Bénin et du Togo.\nVote aussi, c\'est gratuit (30 sec) :\n👉 wolomarket.com/awards')+'" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:white;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">Partager sur WhatsApp</a>'
+          +'<button onclick="this.parentNode.remove()" style="display:block;margin:8px auto 0;background:none;border:none;color:rgba(248,246,241,0.4);font-size:12px;cursor:pointer;">Fermer</button>';
+        document.body.appendChild(shareDiv);
+        setTimeout(function(){if(shareDiv.parentNode)shareDiv.remove();},15000);
+      },500);
+    }catch(e){console.warn('[vote]',e);alert('Erreur lors du vote.');}
+  };
+
+  // Page individuelle candidate
+  window.showAwardsProfil = async function(candidatId){
+    showPage('awards-profil');
+    var container=document.getElementById('awards-profil-content');
+    if(!container)return;
+    container.innerHTML='<div class="loading"><div class="spinner"></div> Chargement...</div>';
+    var sb=_sb();if(!sb)return;
+    try{
+      var {data:c}=await sb.from('wolo_awards')
+        .select('*, profiles:user_id(id, nom, photo_url, metier, quartier, ville, pays, note_moyenne, nb_avis, abonnement, score_wolo)')
+        .eq('id',candidatId).maybeSingle();
+      if(!c){container.innerHTML='<p style="color:rgba(248,246,241,0.5);text-align:center;padding:40px;">Candidature non trouvée.</p>';return;}
+      var p=c.profiles||{};
+      var catEmoji=c.categorie==='coiffure'?'✂️':'👗';
+      var catNom=c.categorie==='coiffure'?'Coiffure':'Couture';
+      var paysFlag=c.pays==='TG'?'🇹🇬 Togo':'🇧🇯 Bénin';
+      // Calculate rank
+      var mois=getMoisActuel();
+      var {data:allCat}=await sb.from('wolo_awards').select('id,nb_votes').eq('mois',mois).eq('categorie',c.categorie).order('nb_votes',{ascending:false});
+      var rang=1;if(allCat){for(var i=0;i<allCat.length;i++){if(allCat[i].id===c.id){rang=i+1;break;}}}
+      var leader=allCat&&allCat[0]?allCat[0].nb_votes||1:1;
+      var pctLeader=Math.round(((c.nb_votes||0)/leader)*100);
+      // Days remaining
+      var daysLeft=Math.max(0,Math.ceil((getNextLastFridayTs()-Date.now())/86400000));
+
+      container.innerHTML=''
+        // Hero photo
+        +(c.photo_url?'<div style="margin:16px 0;border-radius:16px;overflow:hidden;border:2px solid rgba(232,148,10,0.2);"><img src="'+escapeHtml(c.photo_url)+'" style="width:100%;max-height:400px;object-fit:cover;display:block;" alt="Réalisation '+escapeHtml(p.nom||'')+'"></div>':'')
+        // Badges
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">'
+          +'<span style="padding:4px 12px;border-radius:8px;background:rgba(232,148,10,0.1);color:#E8940A;font-size:12px;font-family:\'Space Mono\',monospace;">'+catEmoji+' '+catNom+'</span>'
+          +'<span style="padding:4px 12px;border-radius:8px;background:rgba(248,246,241,0.06);color:rgba(248,246,241,0.7);font-size:12px;">'+paysFlag+'</span>'
+          +'<span style="padding:4px 12px;border-radius:8px;background:rgba(232,148,10,0.06);color:rgba(248,246,241,0.5);font-size:12px;">#'+rang+' au classement</span>'
+        +'</div>'
+        // Name
+        +'<h2 style="font-family:Fraunces,serif;font-size:24px;color:#F8F6F1;margin:0 0 4px;">'+escapeHtml(p.nom||'Candidat')+'</h2>'
+        +'<p style="font-size:14px;color:rgba(248,246,241,0.5);margin:0 0 16px;">'+escapeHtml(p.metier||'')+' · '+escapeHtml(p.quartier||p.ville||'')+' '+(c.pays==='TG'?'🇹🇬':'🇧🇯')+'</p>'
+        +(p.note_moyenne?'<div style="font-size:14px;color:#E8940A;margin-bottom:16px;">⭐ '+p.note_moyenne+'/5 · '+(p.nb_avis||0)+' avis</div>':'')
+        // Stats
+        +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">'
+          +'<div style="text-align:center;padding:14px;background:rgba(232,148,10,0.04);border-radius:10px;border:1px solid rgba(232,148,10,0.1);"><div style="font-family:\'Space Mono\',monospace;font-size:22px;color:#E8940A;font-weight:700;">'+(c.nb_votes||0)+'</div><div style="font-size:11px;color:rgba(248,246,241,0.4);margin-top:2px;">votes</div></div>'
+          +'<div style="text-align:center;padding:14px;background:rgba(248,246,241,0.03);border-radius:10px;border:1px solid rgba(248,246,241,0.06);"><div style="font-family:\'Space Mono\',monospace;font-size:22px;color:#F8F6F1;font-weight:700;">'+pctLeader+'%</div><div style="font-size:11px;color:rgba(248,246,241,0.4);margin-top:2px;">du leader</div></div>'
+          +'<div style="text-align:center;padding:14px;background:rgba(248,246,241,0.03);border-radius:10px;border:1px solid rgba(248,246,241,0.06);"><div style="font-family:\'Space Mono\',monospace;font-size:22px;color:#F8F6F1;font-weight:700;">'+daysLeft+'</div><div style="font-size:11px;color:rgba(248,246,241,0.4);margin-top:2px;">jours restants</div></div>'
+        +'</div>'
+        // Progress bar
+        +'<div class="aw-progress" style="height:8px;margin-bottom:20px;"><div class="aw-progress-fill" style="width:'+pctLeader+'%;"></div></div>'
+        // Description
+        +(c.description?'<div style="padding:16px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(248,246,241,0.06);margin-bottom:20px;"><h3 style="font-family:Georgia,serif;font-size:14px;color:rgba(248,246,241,0.7);margin:0 0 8px;">Sa réalisation</h3><p style="font-size:14px;color:rgba(248,246,241,0.8);line-height:1.6;margin:0;">'+escapeHtml(c.description)+'</p></div>':'')
+        // Vote CTA
+        +'<div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.25);border-radius:14px;padding:20px;text-align:center;margin-bottom:20px;">'
+          +'<h3 style="font-family:Fraunces,serif;font-size:18px;color:#F8F6F1;margin:0 0 8px;">Vote pour '+escapeHtml((p.nom||'').split(' ')[0]||'cette candidate')+' — c\'est gratuit</h3>'
+          +'<p style="font-size:13px;color:rgba(248,246,241,0.5);margin:0 0 14px;">1 vote par personne par mois · Compte WOLO Market requis</p>'
+          +'<button class="aw-vote-btn" style="font-size:15px;padding:14px 32px;" onclick="voterAwardsPage(\''+c.id+'\')">🗳️ Voter pour '+escapeHtml((p.nom||'').split(' ')[0]||'elle')+' — gratuit</button>'
+        +'</div>'
+        // Profil link
+        +(p.id?'<div style="text-align:center;"><button onclick="chargerProfil(\''+p.id+'\')" style="background:none;border:1px solid rgba(248,246,241,0.15);color:rgba(248,246,241,0.6);padding:10px 20px;border-radius:8px;font-size:13px;cursor:pointer;">Voir son profil WOLO Market complet →</button></div>':'');
+    }catch(e){console.warn('[awards-profil]',e);container.innerHTML='<p style="color:rgba(248,246,241,0.5);">Erreur.</p>';}
+  };
+
+  // URL hash support for awards
+  window.addEventListener('hashchange', function(){
+    var h=location.hash;
+    if(h.startsWith('#awards/')){
+      var slug=h.replace('#awards/','');
+      // Find candidate by slug-like match
+      showPage('awards');
+      setTimeout(function(){
+        var found=_awData.find(function(c){
+          var p=c.profiles||{};
+          var s=(p.nom||'').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+c.categorie;
+          return s===slug||c.id===slug;
+        });
+        if(found)showAwardsProfil(found.id);
+      },500);
+    }
+  });
+})();
+</script>
+
+<script>
+// ====== SPRINT 13 — STORY DE CAMPAGNE AWARDS ======
+window.genererStoryCampagne = async function(candidatureId) {
+  var sb = _sb(); if (!sb) return;
+  var user = await _currentUser(); if (!user) return;
+
+  // Fetch candidature + profile data
+  try {
+    var { data: c } = await sb.from('wolo_awards')
+      .select('*, profiles:user_id(nom, photo_url, metier, quartier, ville, pays, note_moyenne, nb_avis)')
+      .eq('id', candidatureId).maybeSingle();
+    if (!c) { alert('Candidature non trouvée.'); return; }
+
+    var p = c.profiles || {};
+    var catEmoji = c.categorie === 'coiffure' ? '✂️' : '👗';
+    var catNom = c.categorie === 'coiffure' ? 'Coiffure' : 'Couture';
+
+    // Show loading modal
+    var modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;';
+    modal.innerHTML = '<div style="background:#0f1410;border:1px solid rgba(232,148,10,0.3);border-radius:16px;padding:24px;max-width:400px;width:100%;text-align:center;max-height:90vh;overflow-y:auto;" id="story-modal-inner"><div class="loading"><div class="spinner"></div><p style="color:rgba(248,246,241,0.6);margin-top:12px;">Génération de ta Story...</p></div></div>';
+    modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+    document.body.appendChild(modal);
+
+    // Create canvas 1080x1920
+    var canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1920;
+    var ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#0f1410';
+    ctx.fillRect(0, 0, 1080, 1920);
+
+    // Load images
+    function loadImg(src) {
+      return new Promise(function(resolve) {
+        if (!src) { resolve(null); return; }
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() { resolve(img); };
+        img.onerror = function() { resolve(null); };
+        img.src = src;
+      });
+    }
+
+    var [photoReal, photoAvatar] = await Promise.all([
+      loadImg(c.photo_url),
+      loadImg(p.photo_url)
+    ]);
+
+    // ══ ZONE 1: LOGO (15% = 288px) ══
+    // Draw WOLO logo
+    ctx.save();
+    // Circle
+    var logoX = 540, logoY = 120, logoR = 40;
+    ctx.strokeStyle = '#E8940A';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(logoX - 80, logoY, logoR, 0, Math.PI * 2);
+    ctx.stroke();
+    // W inside circle
+    ctx.fillStyle = '#E8940A';
+    ctx.font = 'bold 36px Fraunces, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('W', logoX - 80, logoY + 2);
+    // WOLO text
+    ctx.font = '900 42px Fraunces, Georgia, serif';
+    ctx.fillStyle = '#F8F6F1';
+    ctx.textAlign = 'left';
+    ctx.fillText('WOLO', logoX - 25, logoY - 8);
+    // MARKET text
+    ctx.font = '600 14px "Space Mono", monospace';
+    ctx.fillStyle = 'rgba(248,246,241,0.6)';
+    ctx.letterSpacing = '4px';
+    ctx.fillText('M A R K E T', logoX - 25, logoY + 22);
+    // Line
+    ctx.strokeStyle = '#E8940A';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(logoX - 25, logoY + 10);
+    ctx.lineTo(logoX + 160, logoY + 10);
+    ctx.stroke();
+    // AWARDS badge
+    ctx.fillStyle = '#E8940A';
+    roundRect(ctx, logoX + 170, logoY - 14, 110, 28, 14);
+    ctx.fill();
+    ctx.fillStyle = '#0f1410';
+    ctx.font = 'bold 13px "Space Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('AWARDS', logoX + 225, logoY + 2);
+    ctx.restore();
+
+    // Separator
+    ctx.fillStyle = 'rgba(232,148,10,0.15)';
+    ctx.fillRect(80, 220, 920, 1);
+
+    // Category badge under logo
+    ctx.fillStyle = 'rgba(232,148,10,0.1)';
+    roundRect(ctx, 390, 240, 300, 36, 18);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(232,148,10,0.3)';
+    ctx.lineWidth = 1;
+    roundRect(ctx, 390, 240, 300, 36, 18);
+    ctx.stroke();
+    ctx.fillStyle = '#E8940A';
+    ctx.font = '700 14px "Space Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(catEmoji + ' ' + catNom.toUpperCase() + ' · 50 000 FCFA', 540, 262);
+
+    // ══ ZONE 2: PHOTO (42% = ~806px, from y=288 to y=1094) ══
+    if (photoReal) {
+      var sy = 288, sh = 806;
+      // Draw photo covering full width
+      var scale = Math.max(1080 / photoReal.width, sh / photoReal.height);
+      var sw = photoReal.width * scale;
+      var sht = photoReal.height * scale;
+      ctx.drawImage(photoReal, (1080 - sw) / 2, sy + (sh - sht) / 2, sw, sht);
+      // Gradient overlay bottom
+      var grad = ctx.createLinearGradient(0, sy + sh - 200, 0, sy + sh);
+      grad.addColorStop(0, 'rgba(15,20,16,0)');
+      grad.addColorStop(1, 'rgba(15,20,16,0.95)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, sy + sh - 200, 1080, 200);
+    }
+
+    // ══ ZONE 3: ÉTOILES (5% = ~96px, at y=1094) ══
+    var starsY = 1120;
+    var note = p.note_moyenne || 0;
+    ctx.font = '32px serif';
+    ctx.textAlign = 'center';
+    var starsStr = '';
+    for (var s = 1; s <= 5; s++) {
+      starsStr += s <= Math.round(note) ? '★' : '☆';
+    }
+    ctx.fillStyle = '#E8940A';
+    ctx.fillText(starsStr, 540, starsY);
+
+    // ══ ZONE 4: IDENTITÉ (15% = ~288px, at y=1150) ══
+    var idY = 1170;
+    ctx.fillStyle = 'rgba(232,148,10,0.08)';
+    ctx.strokeStyle = 'rgba(232,148,10,0.4)';
+    ctx.lineWidth = 1;
+    roundRect(ctx, 80, idY, 920, 140, 16);
+    ctx.fill();
+    roundRect(ctx, 80, idY, 920, 140, 16);
+    ctx.stroke();
+
+    // Avatar
+    if (photoAvatar) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(160, idY + 70, 34, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(photoAvatar, 126, idY + 36, 68, 68);
+      ctx.restore();
+      // Border
+      ctx.strokeStyle = '#E8940A';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(160, idY + 70, 35, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Name
+    ctx.fillStyle = '#F8F6F1';
+    ctx.font = 'bold 28px Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(p.nom || 'Candidat', 220, idY + 55);
+
+    // Metier + Ville
+    ctx.fillStyle = '#E8940A';
+    ctx.font = '16px "Space Mono", monospace';
+    ctx.fillText((p.metier || '') + ' · ' + (p.ville || '') + ' ' + (c.pays === 'TG' ? '🇹🇬' : '🇧🇯'), 220, idY + 90);
+
+    // ══ ZONE 5: APPEL AU VOTE (15% = ~288px, at y=1340) ══
+    var voteY = 1360;
+    ctx.fillStyle = '#F8F6F1';
+    ctx.font = 'bold 32px Fraunces, Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Mon travail est en compétition.', 540, voteY);
+
+    ctx.fillStyle = '#E8940A';
+    ctx.font = 'bold 36px Fraunces, Georgia, serif';
+    ctx.fillText('50 000 FCFA', 540, voteY + 55);
+
+    ctx.fillStyle = 'rgba(248,246,241,0.6)';
+    ctx.font = '20px Fraunces, Georgia, serif';
+    ctx.fillText('pour ' + (c.categorie === 'coiffure' ? 'la meilleure coiffeuse' : 'la meilleure couturière'), 540, voteY + 95);
+    ctx.fillText('du Bénin et du Togo.', 540, voteY + 125);
+
+    ctx.fillStyle = '#F8F6F1';
+    ctx.font = 'bold 22px "Space Mono", monospace';
+    ctx.fillText('1 vote = 30 secondes. Gratuit.', 540, voteY + 180);
+
+    ctx.fillStyle = 'rgba(248,246,241,0.4)';
+    ctx.font = '18px Fraunces, Georgia, serif';
+    ctx.fillText('Ça peut tout changer.', 540, voteY + 215);
+
+    // ══ ZONE 6: BAS (8% = ~154px, at y=1766) ══
+    var footY = 1780;
+    ctx.fillStyle = 'rgba(232,148,10,0.25)';
+    ctx.fillRect(80, footY, 920, 1);
+
+    ctx.fillStyle = 'rgba(248,246,241,0.35)';
+    ctx.font = '14px "Space Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('voter ici →', 540, footY + 40);
+
+    ctx.fillStyle = '#E8940A';
+    ctx.font = 'bold 22px "Space Mono", monospace';
+    var slug = (p.nom || 'candidat').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + c.categorie;
+    ctx.fillText('wolomarket.com/awards', 540, footY + 75);
+
+    // Helper: roundRect
+    function roundRect(c, x, y, w, h, r) {
+      c.beginPath();
+      c.moveTo(x + r, y);
+      c.lineTo(x + w - r, y);
+      c.quadraticCurveTo(x + w, y, x + w, y + r);
+      c.lineTo(x + w, y + h - r);
+      c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      c.lineTo(x + r, y + h);
+      c.quadraticCurveTo(x, y + h, x, y + h - r);
+      c.lineTo(x, y + r);
+      c.quadraticCurveTo(x, y, x + r, y);
+      c.closePath();
+    }
+
+    // Render to PNG
+    var dataUrl = canvas.toDataURL('image/png');
+    var moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    var now = new Date();
+    var filename = 'WOLO-Awards-' + (p.nom || 'Candidat').split(' ')[0] + '-' + moisNoms[now.getMonth()] + '-' + now.getFullYear() + '.png';
+
+    // WhatsApp share message
+    var shareMsg = encodeURIComponent(
+      'Salut ! 👋\n\nJe participe aux WOLO Awards ce mois.\n50 000 FCFA pour ' + (c.categorie === 'coiffure' ? 'la meilleure coiffeuse' : 'la meilleure couturière') + ' du Bénin et du Togo.\n\n👉 Vote pour moi ici (30 sec, gratuit) :\nwolomarket.com/awards/' + slug + '\n\nMerci ! Ça compte vraiment. 🙏'
+    );
+
+    // Show result in modal
+    var inner = document.getElementById('story-modal-inner');
+    if (inner) {
+      inner.innerHTML = ''
+        + '<h3 style="font-family:Fraunces,serif;color:#F8F6F1;font-size:18px;margin:0 0 16px;">Ta Story de campagne</h3>'
+        + '<div style="border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid rgba(232,148,10,0.2);"><img src="' + dataUrl + '" style="width:100%;display:block;" alt="Story WOLO Awards"></div>'
+        + '<div style="display:flex;flex-direction:column;gap:10px;">'
+          + '<a href="' + dataUrl + '" download="' + filename + '" style="display:block;background:#E8940A;color:#0f1410;padding:14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;text-decoration:none;">⬇️ Télécharger ma Story</a>'
+          + '<a href="https://wa.me/?text=' + shareMsg + '" target="_blank" rel="noopener" style="display:block;background:#25D366;color:white;padding:14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;text-decoration:none;">💬 Partager sur WhatsApp</a>'
+          + '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:none;border:1px solid rgba(248,246,241,0.15);color:rgba(248,246,241,0.5);padding:10px;border-radius:8px;font-size:13px;cursor:pointer;">Fermer</button>'
+        + '</div>';
+    }
+  } catch (e) {
+    console.warn('[genererStoryCampagne]', e);
+    alert('Erreur lors de la génération de la Story.');
+    var m = document.querySelector('[style*="fixed"][style*="10000"]');
+    if (m) m.remove();
+  }
+};
+</script>
+
+<script>
 // ====== TIMELINE EXPANSION ======
 const WOLO_TL_PANELS = [
   { eyebrow:'PHASE 1 · LANCEMENT', title:'Togo + Bénin simultanément',
@@ -22766,7 +23759,7 @@ const WOLO_TL_PANELS = [
     progress:18, progressLabel:'Lancement — Togo + Bénin' },
   { eyebrow:'PHASE 2 · EXPANSION OUEST-AFRICAINE', title:"Toute l'Afrique de l'Ouest",
     countries:[{flag:'🇹🇬',name:'Togo',on:true},{flag:'🇧🇯',name:'Bénin',on:true},{flag:'🇨🇮',name:"Côte d'Ivoire",on:true},{flag:'🇸🇳',name:'Sénégal',on:true},{flag:'🇬🇭',name:'Ghana',on:true},{flag:'🇳🇬',name:'Nigeria',on:true},{flag:'🇲🇱',name:'Mali',on:false},{flag:'🇧🇫',name:'Burkina',on:false}],
-    stat:'Fin 2026 · Déclencheur : validation terrain Togo + Bénin · <strong>3 000–3 500 FCFA/mois</strong> pour les nouveaux marchés · Même plateforme, adaptation locale · Agents terrain par pays',
+    stat:'Fin 2026 · Déclencheur : validation terrain Togo + Bénin · <strong>3 000–3 500 FCFA/mois</strong> pour les nouveaux marchés · Même outil, adaptation locale · Agents terrain par pays',
     progress:62, progressLabel:"Expansion Afrique de l'Ouest" },
   { eyebrow:'PHASE 3 · CONTINENT', title:"Toute l'Afrique",
     countries:[{flag:'🌍',name:'Afrique Centrale',on:true},{flag:'🌍',name:"Afrique de l'Est",on:true},{flag:'🌍',name:'Afrique du Nord',on:true},{flag:'🌍',name:'Afrique Australe',on:true}],
@@ -22928,6 +23921,19 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:0; }
 .wolo-v2-card .wv2-card-actions .btn-wolo-primary { flex:1; justify-content:center; padding:10px 16px; font-size:13px; min-height:40px; }
 .wolo-v2-card .wv2-card-share { width:40px; height:40px; border-radius:50%; background:rgba(232,148,10,.08); border:none; color:var(--wv2-or); cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
+/* ══ Awards page ══ */
+.aw-filtre { padding:8px 14px;border-radius:8px;border:1px solid rgba(248,246,241,0.1);background:rgba(255,255,255,0.02);color:rgba(248,246,241,0.5);font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .2s; }
+.aw-filtre:hover { border-color:rgba(232,148,10,0.3);color:#E8940A; }
+.aw-filtre-active { background:rgba(232,148,10,0.12);border-color:rgba(232,148,10,0.3);color:#E8940A; }
+.aw-candidate-card { background:rgba(255,255,255,0.03);border:1px solid rgba(248,246,241,0.06);border-radius:14px;padding:16px;transition:all .2s; }
+.aw-candidate-card:hover { border-color:rgba(232,148,10,0.25); }
+.aw-candidate-leader { border-color:rgba(232,148,10,0.3);background:rgba(232,148,10,0.04); }
+.aw-vote-btn { background:#E8940A;color:#0f1410;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s; }
+.aw-vote-btn:hover { background:#d4830a;transform:scale(1.02); }
+.aw-vote-btn:disabled { background:rgba(248,246,241,0.1);color:rgba(248,246,241,0.4);cursor:default;transform:none; }
+.aw-progress { height:6px;background:rgba(248,246,241,0.06);border-radius:3px;overflow:hidden;margin:8px 0; }
+.aw-progress-fill { height:100%;background:linear-gradient(90deg,#E8940A,#d4830a);border-radius:3px;transition:width .5s; }
+
 /* ══ PWA install banner ══ */
 .wolo-v2-pwa-banner {
   position:fixed; bottom:80px; left:16px; right:16px;
@@ -23000,6 +24006,7 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:0; }
 .wv2-cat-ico i { width:24px; height:24px; }
 .wv2-cat-lbl { font-size:13px; font-weight:600; color:#F8F6F1; }
 .wv2-cat-cnt { font-size:11px; color:rgba(248,246,241,.45); font-family:'Space Mono',monospace; }
+.wv2-cat-seo { display:block; font-size:10px; color:rgba(248,246,241,.3); line-height:1.4; margin-top:4px; font-weight:400; }
 @media (max-width:900px) { .wv2-cats-grid { grid-template-columns:repeat(4,1fr); } }
 @media (max-width:700px) {
   .wv2-cats-grid { display:flex; overflow-x:auto; gap:14px; padding:0 20px 8px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
@@ -23521,6 +24528,140 @@ window.addEventListener('beforeinstallprompt', function(e){
         <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0 0 14px;">WOLO DIGITAL SERVICES SARL n'est pas un établissement de crédit, n'accepte pas de dépôts au sens bancaire, et n'émet pas de monnaie électronique. L'utilisateur reconnaît et accepte expressément cette qualification.</p>
         <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0;">Le Crédit WOLO peut être utilisé pour régler des services sur la plateforme WOLO Market ou être restitué à son titulaire sous forme de remboursement d'avoir non consommé vers un compte mobile money désigné par l'utilisateur.</p>
       </article>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE INSTITUTIONNELLE — À PROPOS DE WOLO MARKET
+════════════════════════════════════════════ -->
+<div id="page-a-propos" class="page" style="display:none;">
+  <!-- Hero -->
+  <section style="background:#0f1410;padding:100px 24px 60px;text-align:center;">
+    <div class="container" style="max-width:820px;">
+      <button onclick="showPage('home')" style="background:transparent;border:1px solid rgba(232,148,10,0.4);color:#E8940A;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:32px;">← Retour</button>
+      <h1 style="font-family:'Lora',serif;font-style:italic;font-size:clamp(32px,5vw,52px);font-weight:700;color:#E8940A;line-height:1.15;margin:0 0 24px;">WOLO Market rend visible l'économie invisible.</h1>
+    </div>
+  </section>
+  <!-- Mission -->
+  <section style="background:#0f1410;padding:48px 24px;">
+    <div class="container" style="max-width:720px;text-align:center;">
+      <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">NOTRE MISSION</span>
+      <p style="font-family:'Lora',serif;font-size:20px;line-height:1.7;color:rgba(248,246,241,0.85);margin:0;">Connecter les travailleurs invisibles de l'économie informelle africaine avec des clients. Sans piston. Sans réseau. Juste le travail.</p>
+    </div>
+  </section>
+  <!-- Valeurs -->
+  <section style="background:#0f1410;padding:48px 24px;border-top:1px solid rgba(232,148,10,.08);">
+    <div class="container" style="max-width:900px;">
+      <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:24px;text-align:center;display:block;">NOS VALEURS</span>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;">
+        <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:12px;">🤝</div>
+          <h3 style="font-family:'Lora',serif;font-size:18px;color:#E8940A;margin:0 0 10px;">Sans piston</h3>
+          <p style="font-size:14px;color:rgba(248,246,241,0.65);line-height:1.6;margin:0;">Ton travail parle. Pas tes connexions. Chaque prestataire est visible sur la base de ce qu'il fait, pas de qui il connaît.</p>
+        </div>
+        <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:12px;">👁️</div>
+          <h3 style="font-family:'Lora',serif;font-size:18px;color:#E8940A;margin:0 0 10px;">Transparent</h3>
+          <p style="font-size:14px;color:rgba(248,246,241,0.65);line-height:1.6;margin:0;">Avis vérifiés. Score public. Prix affichés. Pas de zone grise. Ce que tu vois, c'est ce que tu obtiens.</p>
+        </div>
+        <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:12px;">📍</div>
+          <h3 style="font-family:'Lora',serif;font-size:18px;color:#E8940A;margin:0 0 10px;">Local d'abord</h3>
+          <p style="font-size:14px;color:rgba(248,246,241,0.65);line-height:1.6;margin:0;">Construit au Togo, pour le Togo et le Bénin. Chaque fonctionnalité est pensée pour le marché ouest-africain.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Origine -->
+  <section style="background:#0f1410;padding:48px 24px;border-top:1px solid rgba(232,148,10,.08);">
+    <div class="container" style="max-width:720px;text-align:center;">
+      <h2 style="font-family:'Lora',serif;font-style:italic;font-size:clamp(22px,3vw,32px);color:#F8F6F1;font-weight:700;margin:0 0 16px;">Créé au Togo, pour l'Afrique de l'Ouest.</h2>
+      <p style="font-size:15px;color:rgba(248,246,241,0.65);line-height:1.7;margin:0 0 28px;">WOLO Market est né à Lomé. Le nom WOLO vient du Mina et signifie "travail". La plateforme couvre aujourd'hui le Togo et le Bénin, avec une expansion prévue vers toute l'Afrique de l'Ouest.</p>
+      <button class="wolo-btn-primary" style="font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;" onclick="showPage('inscription')">Rejoins WOLO Market →</button>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE — DEVENIR AGENT WOLO
+════════════════════════════════════════════ -->
+<div id="page-agent-wolo" class="page" style="display:none;">
+  <!-- Hero -->
+  <section style="background:#0f1410;padding:100px 24px 60px;text-align:center;">
+    <div class="container" style="max-width:820px;">
+      <button onclick="showPage('home')" style="background:transparent;border:1px solid rgba(232,148,10,0.4);color:#E8940A;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:32px;">← Retour</button>
+      <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">PROGRAMME AGENT</span>
+      <h1 style="font-family:'Lora',serif;font-style:italic;font-size:clamp(28px,5vw,48px);font-weight:700;color:#F8F6F1;line-height:1.15;margin:0 0 16px;">Deviens Agent WOLO.</h1>
+      <p style="font-size:18px;color:rgba(248,246,241,0.75);line-height:1.6;margin:0;">Gagne de l'argent en inscrivant des prestataires.</p>
+    </div>
+  </section>
+  <!-- 3 étapes -->
+  <section style="background:#0f1410;padding:48px 24px;border-top:1px solid rgba(232,148,10,.08);">
+    <div class="container" style="max-width:900px;">
+      <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:24px;text-align:center;display:block;">COMMENT ÇA MARCHE</span>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;">
+        <div style="position:relative;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;text-align:center;">
+          <div style="background:#E8940A;color:#0f1410;font-size:16px;font-weight:900;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">1</div>
+          <h3 style="font-family:'Lora',serif;font-size:17px;color:#F8F6F1;margin:0 0 8px;">Inscription</h3>
+          <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Crée ton compte WOLO Market et active le Plan Pro pour débloquer le parrainage.</p>
+        </div>
+        <div style="position:relative;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;text-align:center;">
+          <div style="background:#E8940A;color:#0f1410;font-size:16px;font-weight:900;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">2</div>
+          <h3 style="font-family:'Lora',serif;font-size:17px;color:#F8F6F1;margin:0 0 8px;">Terrain avec lien</h3>
+          <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Partage ton lien de parrainage avec les prestataires de ton quartier. Aide-les à s'inscrire.</p>
+        </div>
+        <div style="position:relative;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;text-align:center;">
+          <div style="background:#E8940A;color:#0f1410;font-size:16px;font-weight:900;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">3</div>
+          <h3 style="font-family:'Lora',serif;font-size:17px;color:#F8F6F1;margin:0 0 8px;">Commission</h3>
+          <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Chaque filleul qui passe au Plan Pro te rapporte une commission récurrente.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Avantages -->
+  <section style="background:#0f1410;padding:48px 24px;border-top:1px solid rgba(232,148,10,.08);">
+    <div class="container" style="max-width:720px;text-align:center;">
+      <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.15);border-radius:16px;padding:32px;">
+        <div style="font-size:36px;margin-bottom:12px;">💰</div>
+        <h3 style="font-family:'Lora',serif;font-size:24px;color:#E8940A;margin:0 0 12px;">1 000 FCFA / filleul Pro / mois</h3>
+        <p style="font-size:15px;color:rgba(248,246,241,0.7);line-height:1.7;margin:0;">Commission récurrente. Tant que ton filleul reste au Plan Pro, tu touches ta commission chaque mois. Pas de plafond. Pas de limite.</p>
+      </div>
+      <a href="https://wa.me/22890000000?text=Bonjour%2C%20je%20veux%20devenir%20Agent%20WOLO" target="_blank" style="display:inline-block;margin-top:28px;background:#E8940A;color:#0f1410;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;border-radius:100px;text-decoration:none;cursor:pointer;">Devenir Agent →</a>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE — PROGRAMME INFLUENCEURS WOLO
+════════════════════════════════════════════ -->
+<div id="page-influenceurs" class="page" style="display:none;">
+  <!-- Hero -->
+  <section style="background:#0f1410;padding:100px 24px 60px;text-align:center;">
+    <div class="container" style="max-width:820px;">
+      <button onclick="showPage('home')" style="background:transparent;border:1px solid rgba(232,148,10,0.4);color:#E8940A;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:32px;">← Retour</button>
+      <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;">PROGRAMME INFLUENCEURS</span>
+      <h1 style="font-family:'Lora',serif;font-style:italic;font-size:clamp(28px,5vw,48px);font-weight:700;color:#F8F6F1;line-height:1.15;margin:0 0 16px;">Ton audience peut changer la vie d'un prestataire.</h1>
+      <p style="font-size:18px;color:rgba(248,246,241,0.75);line-height:1.6;margin:0;">Partage WOLO Market. Gagne des commissions. Fais un vrai impact.</p>
+    </div>
+  </section>
+  <!-- Programme -->
+  <section style="background:#0f1410;padding:48px 24px;border-top:1px solid rgba(232,148,10,.08);">
+    <div class="container" style="max-width:720px;text-align:center;">
+      <span style="display:inline-block;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:24px;">LE PROGRAMME</span>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;text-align:left;">
+        <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:24px;">
+          <div style="font-size:28px;margin-bottom:10px;">📢</div>
+          <h3 style="font-family:'Lora',serif;font-size:16px;color:#E8940A;margin:0 0 8px;">Partage WOLO</h3>
+          <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Parle de WOLO Market à ton audience. TikTok, Instagram, YouTube — peu importe le format. Utilise ton lien de parrainage unique.</p>
+        </div>
+        <div style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;padding:24px;">
+          <div style="font-size:28px;margin-bottom:10px;">💸</div>
+          <h3 style="font-family:'Lora',serif;font-size:16px;color:#E8940A;margin:0 0 8px;">Gagne 40% de commissions</h3>
+          <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">Pour chaque filleul qui passe au Plan Pro grâce à toi, tu touches 40% — soit 1 000 FCFA/mois, de manière récurrente.</p>
+        </div>
+      </div>
+      <a href="https://wa.me/22890000000?text=Bonjour%2C%20je%20veux%20rejoindre%20le%20programme%20Influenceurs%20WOLO" target="_blank" style="display:inline-block;margin-top:32px;background:#E8940A;color:#0f1410;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;border-radius:100px;text-decoration:none;cursor:pointer;">Rejoindre le programme →</a>
     </div>
   </section>
 </div>
