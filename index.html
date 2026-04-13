@@ -24150,19 +24150,19 @@ body.wolo-v2-active > nav:not(.mobile-bottom-nav) { top:0; }
 
 /* ══ PWA install banner ══ */
 .wolo-v2-pwa-banner {
-  position:fixed; bottom:80px; left:16px; right:16px;
-  background:var(--wv2-dark); border:1px solid var(--wv2-or);
-  border-radius:16px; padding:14px 16px;
-  display:none; align-items:center; gap:12px;
-  z-index:999; box-shadow:0 12px 40px rgba(0,0,0,.4);
+  position:fixed; bottom:12px; left:12px; right:12px;
+  background:var(--wv2-dark); border:1px solid rgba(232,148,10,0.3);
+  border-radius:12px; padding:8px 10px;
+  display:none; align-items:center; gap:8px;
+  z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.4);
   font-family:'Poppins',sans-serif;
 }
 .wolo-v2-pwa-banner.show { display:flex; }
-.wolo-v2-pwa-banner .wv2-pwa-icon { width:40px; height:40px; border-radius:10px; background:#0f1410; display:flex; align-items:center; justify-content:center; color:#E8940A; flex-shrink:0; font-family:'Fraunces',serif; font-weight:900; font-size:22px; border:2px solid #E8940A; }
-.wolo-v2-pwa-banner .wv2-pwa-text { flex:1; color:var(--wv2-creme); font-size:13px; line-height:1.4; }
-.wolo-v2-pwa-banner .wv2-pwa-install { background:var(--wv2-or); color:var(--wv2-dark); border:none; padding:8px 14px; border-radius:100px; font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; }
-.wolo-v2-pwa-banner .wv2-pwa-close { background:none; border:none; color:rgba(248,246,241,.5); cursor:pointer; font-size:18px; padding:4px; }
-@media (min-width:769px) { .wolo-v2-pwa-banner { bottom:20px; left:auto; right:20px; max-width:380px; } }
+.wolo-v2-pwa-banner .wv2-pwa-icon { width:28px; height:28px; border-radius:7px; background:#0f1410; display:flex; align-items:center; justify-content:center; color:#E8940A; flex-shrink:0; font-family:'Fraunces',serif; font-weight:900; font-size:15px; border:1.5px solid #E8940A; }
+.wolo-v2-pwa-banner .wv2-pwa-text { flex:1; color:var(--wv2-creme); font-size:11px; line-height:1.3; }
+.wolo-v2-pwa-banner .wv2-pwa-install { background:var(--wv2-or); color:var(--wv2-dark); border:none; padding:6px 12px; border-radius:100px; font-weight:700; font-size:11px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.wolo-v2-pwa-banner .wv2-pwa-close { background:none; border:none; color:rgba(248,246,241,.5); cursor:pointer; font-size:16px; padding:2px; line-height:1; }
+@media (min-width:769px) { .wolo-v2-pwa-banner { bottom:16px; left:auto; right:16px; max-width:320px; } }
 
 /* ══ Section 4 : Refonte .pcard (override additif, préserve markup JS) ══ */
 .pcard {
