@@ -28,6 +28,7 @@ import awardsCandidats from './_impl/awards-candidats.js';
 import awardsVote from './_impl/awards-vote.js';
 import awardsCandidater from './_impl/awards-candidater.js';
 import adminVerify from './_impl/admin-verify.js';
+import agentsTerrain from './_impl/agents-terrain.js';
 
 // Endpoints publics (pas besoin d'authentification)
 const PUBLIC_ACTIONS = new Set([
@@ -36,6 +37,7 @@ const PUBLIC_ACTIONS = new Set([
   'awards-candidats',    // Liste publique des candidats Awards
   'awards-vote',         // Vote public
   'admin-verify',        // Gère sa propre auth via token
+  'agents-terrain',      // Gère sa propre auth via token admin
 ]);
 
 const handlers = {
@@ -51,6 +53,7 @@ const handlers = {
   'awards-vote': awardsVote,
   'awards-candidater': awardsCandidater,
   'admin-verify': adminVerify,
+  'agents-terrain': agentsTerrain,
   'balance': balance,
   'contacts': contacts,
   'create-subscription': createSubscription,
