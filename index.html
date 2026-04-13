@@ -23191,6 +23191,30 @@ body.wolo-v2-active .btn-pay-pro-v2 {
 
 <script>
 // ══ WOLO v2 — Lucide init + PWA + visit counter ══
+
+// ── Service Worker registration (required for PWA install prompt) ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(function(e){ console.warn('SW reg failed', e); });
+}
+
+// ── beforeinstallprompt — capture globally BEFORE DOMContentLoaded ──
+var _woloDeferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _woloDeferredInstallPrompt = e;
+  // Si la bannière est déjà visible, on est bon
+  // Si pas encore, on la montrera au DOMContentLoaded
+  var b = document.getElementById('woloV2PwaBanner');
+  if (b && !b.classList.contains('show')) {
+    var dismissed = false;
+    try { dismissed = localStorage.getItem('wolo_pwa_dismissed') === '1'; } catch(e){}
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (!dismissed && !isStandalone) {
+      b.classList.add('show');
+    }
+  }
+});
+
 (function(){
   document.addEventListener('DOMContentLoaded', function(){
     try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
@@ -23203,7 +23227,6 @@ body.wolo-v2-active .btn-pay-pro-v2 {
           try { showPage(page, true); } catch(err) { console.warn('popstate showPage', err); }
         }
       });
-      // État initial : remplace l'entrée courante avec la page active
       var initialHash = (location.hash || '').replace('#','');
       if (initialHash && !history.state) {
         history.replaceState({ page: initialHash }, '', '#' + initialHash);
@@ -23216,33 +23239,36 @@ body.wolo-v2-active .btn-pay-pro-v2 {
       }
     } catch(e) { console.warn('history init', e); }
 
-    // Visit counter
+    // Visit counter + PWA banner display
     try {
       var visits = parseInt(localStorage.getItem('wolo_visits') || '0', 10) + 1;
       localStorage.setItem('wolo_visits', String(visits));
       var dismissed = localStorage.getItem('wolo_pwa_dismissed') === '1';
       var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      if (visits >= 2 && !dismissed && !isStandalone) {
+      if (!dismissed && !isStandalone) {
         setTimeout(function(){
           var b = document.getElementById('woloV2PwaBanner');
-          if (b) b.classList.add('show');
-        }, 2500);
+          if (b && !b.classList.contains('show')) b.classList.add('show');
+        }, 3000);
       }
     } catch(e){}
 
-    // beforeinstallprompt capture
-    var deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', function(e){
-      e.preventDefault();
-      deferredPrompt = e;
-    });
+    // Install + Close buttons
     var installBtn = document.getElementById('woloV2PwaInstallBtn');
     var closeBtn = document.getElementById('woloV2PwaCloseBtn');
     if (installBtn) installBtn.addEventListener('click', async function(){
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        try { await deferredPrompt.userChoice; } catch(e){}
-        deferredPrompt = null;
+      if (_woloDeferredInstallPrompt) {
+        _woloDeferredInstallPrompt.prompt();
+        try { await _woloDeferredInstallPrompt.userChoice; } catch(e){}
+        _woloDeferredInstallPrompt = null;
+      } else {
+        // Fallback : instructions manuelles pour iOS/navigateurs sans beforeinstallprompt
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+          alert('Pour installer WOLO Market :\n\n1. Appuie sur le bouton Partager (↑) en bas de Safari\n2. Choisis "Sur l\'écran d\'accueil"\n3. Confirme "Ajouter"');
+        } else {
+          alert('Pour installer WOLO Market :\n\nOuvre le menu de ton navigateur (⋮) et choisis "Installer l\'application" ou "Ajouter à l\'écran d\'accueil".');
+        }
       }
       try { localStorage.setItem('wolo_pwa_dismissed','1'); } catch(e){}
       var b = document.getElementById('woloV2PwaBanner'); if (b) b.classList.remove('show');
