@@ -6725,6 +6725,23 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
       </div>
 
+      <!-- Admin : Agents Terrain (visible uniquement admin) -->
+      <div class="dash-group" data-group="admin-agents" id="dash-admin-agents-group" style="display:none;">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.3);background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));">
+          <i data-lucide="shield-check"></i>
+          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Admin</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('agents-terrain')" id="dl-agents-terrain">
+            <i data-lucide="users"></i> <span>Agents Terrain</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('battle')" id="dl-battle">
+            <i data-lucide="swords"></i> <span>Battle H vs F</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Compte -->
       <div class="dash-group" data-group="compte">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
@@ -7555,6 +7572,106 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div style="margin-top:20px;padding:16px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:12px;text-align:center;">
           <p style="font-size:13px;color:rgba(248,246,241,0.6);margin:0 0 10px;">Tu cherches un prestataire ou du travail ?</p>
           <button class="wolo-btn-primary" style="font-size:13px;padding:10px 24px;" onclick="showPage('match')">Ouvrir WOLO Match →</button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           ADMIN — AGENTS TERRAIN (visible uniquement admin)
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-agents-terrain">
+        <div class="dash-header">
+          <h2 style="font-family:Fraunces,serif;font-weight:900;">Agents Terrain</h2>
+          <p style="color:var(--gris);font-size:13px;">Gère tes agents de terrain. Recherche par téléphone ou nom pour ajouter un agent.</p>
+        </div>
+
+        <!-- Recherche + Ajout -->
+        <div class="edit-form-section" style="border:1px solid rgba(232,148,10,.2);background:rgba(232,148,10,.04);border-radius:14px;padding:18px;">
+          <h3 style="font-size:14px;color:#E8940A;margin-bottom:12px;">Ajouter un agent</h3>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input type="text" id="agent-search-input" placeholder="Téléphone ou nom du prestataire..." style="flex:1;padding:10px 14px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(0,0,0,.3);color:#F8F6F1;font-size:14px;" oninput="searchAgentDebounced()">
+            <button onclick="searchAgentNow()" style="padding:10px 18px;background:#E8940A;color:#0f1410;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;">Chercher</button>
+          </div>
+          <div id="agent-search-results" style="display:none;max-height:300px;overflow-y:auto;"></div>
+        </div>
+
+        <!-- Stats résumé -->
+        <div id="agents-stats-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:16px;">
+          <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:14px;text-align:center;">
+            <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#E8940A;" id="agents-total-count">0</div>
+            <div style="font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;">Agents actifs</div>
+          </div>
+          <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:14px;text-align:center;">
+            <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#F8F6F1;" id="agents-total-filleuls">0</div>
+            <div style="font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;">Inscrits total</div>
+          </div>
+          <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:14px;text-align:center;">
+            <div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:900;color:#F8F6F1;" id="agents-total-comm">0</div>
+            <div style="font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;">Commissions FCFA</div>
+          </div>
+        </div>
+
+        <!-- Liste agents par ville -->
+        <div style="margin-top:20px;">
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button onclick="filterAgentsVille('')" id="agents-filter-all" class="btn" style="padding:6px 14px;font-size:12px;border-radius:8px;background:#E8940A;color:#0f1410;border:none;font-weight:700;cursor:pointer;">Tous</button>
+            <button onclick="filterAgentsVille('Lomé')" id="agents-filter-lome" class="btn" style="padding:6px 14px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.08);color:#F8F6F1;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Lomé</button>
+            <button onclick="filterAgentsVille('Cotonou')" id="agents-filter-cotonou" class="btn" style="padding:6px 14px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.08);color:#F8F6F1;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Cotonou</button>
+          </div>
+          <div id="agents-list" style="display:flex;flex-direction:column;gap:8px;">
+            <div style="text-align:center;padding:40px;color:var(--gris);">Chargement...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           ADMIN — BATTLE H vs F (visible uniquement admin)
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-battle">
+        <div class="dash-header">
+          <h2 style="font-family:Fraunces,serif;font-weight:900;">Battle H vs F</h2>
+          <p style="color:var(--gris);font-size:13px;">Scoreboard temps réel — l'équipe gagnante touche le fixe doublé (60 000 FCFA).</p>
+        </div>
+
+        <!-- Sélecteur ville -->
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+          <button onclick="loadBattle('')" id="battle-filter-all" style="padding:8px 18px;font-size:13px;border-radius:10px;background:#E8940A;color:#0f1410;border:none;font-weight:700;cursor:pointer;">Toutes les villes</button>
+          <button onclick="loadBattle('Lomé')" id="battle-filter-lome" style="padding:8px 18px;font-size:13px;border-radius:10px;background:rgba(255,255,255,.08);color:#F8F6F1;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Lomé</button>
+          <button onclick="loadBattle('Cotonou')" id="battle-filter-cotonou" style="padding:8px 18px;font-size:13px;border-radius:10px;background:rgba(255,255,255,.08);color:#F8F6F1;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Cotonou</button>
+        </div>
+
+        <!-- Scoreboard -->
+        <div id="battle-scoreboard" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+          <!-- Équipe Hommes -->
+          <div style="background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(59,130,246,.04));border:2px solid rgba(59,130,246,.3);border-radius:16px;padding:20px;text-align:center;">
+            <div style="font-size:32px;margin-bottom:4px;">♂</div>
+            <div style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#3b82f6;">Équipe Hommes</div>
+            <div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:900;color:#F8F6F1;margin:12px 0;" id="battle-h-score">0</div>
+            <div style="font-size:12px;color:var(--gris);">inscrits</div>
+            <div style="margin-top:8px;font-family:'Space Mono',monospace;font-size:14px;color:#3b82f6;" id="battle-h-comm">0 FCFA</div>
+          </div>
+          <!-- Équipe Femmes -->
+          <div style="background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));border:2px solid rgba(232,148,10,.3);border-radius:16px;padding:20px;text-align:center;">
+            <div style="font-size:32px;margin-bottom:4px;">♀</div>
+            <div style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#E8940A;">Équipe Femmes</div>
+            <div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:900;color:#F8F6F1;margin:12px 0;" id="battle-f-score">0</div>
+            <div style="font-size:12px;color:var(--gris);">inscrits</div>
+            <div style="margin-top:8px;font-family:'Space Mono',monospace;font-size:14px;color:#E8940A;" id="battle-f-comm">0 FCFA</div>
+          </div>
+        </div>
+
+        <!-- Bannière gagnant -->
+        <div id="battle-winner-banner" style="display:none;background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.05));border:2px solid #E8940A;border-radius:14px;padding:16px;text-align:center;margin-bottom:20px;">
+          <div style="font-size:28px;">🏆</div>
+          <div style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#E8940A;" id="battle-winner-text"></div>
+          <div style="font-size:12px;color:var(--gris);margin-top:4px;">Fixe doublé : 60 000 FCFA</div>
+        </div>
+
+        <!-- Classement individuel -->
+        <div>
+          <h3 style="font-family:Fraunces,serif;font-size:16px;font-weight:800;color:#F8F6F1;margin-bottom:12px;">Classement individuel</h3>
+          <div id="battle-ranking" style="display:flex;flex-direction:column;gap:6px;">
+            <div style="text-align:center;padding:30px;color:var(--gris);">Chargement...</div>
+          </div>
         </div>
       </div>
 
@@ -8771,6 +8888,8 @@ function showDashSection(section) {
   if (section === 'recrut-offres') loadMesOffres();
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
   if (section === 'wolo-match') loadDashWoloMatch();
+  if (section === 'agents-terrain') loadAgentsTerrain();
+  if (section === 'battle') loadBattle('');
 }
 
 async function loadDashboard() {
@@ -8807,6 +8926,9 @@ async function loadDashboard() {
   const isPro = currentPrestataire?.fields?.['Abonnement'] === 'Pro';
   const recrutSection = document.getElementById('dl-recrut-section');
   if (recrutSection) recrutSection.style.display = isPro ? 'block' : 'none';
+
+  // Vérification admin pour section Agents Terrain
+  checkAdminForDashboard();
 }
 
 // ══ MÉTRIQUES QUOTIDIENNES (localStorage) ══
@@ -17689,6 +17811,321 @@ function showPaiementManuelModal(plan, amount, code) {
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:14px;">Ton Plan Pro sera activé dès validation du paiement.</p>
   `;
   document.getElementById('modal-paiement-manuel').classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// ADMIN — AGENTS TERRAIN + BATTLE H vs F
+// ══════════════════════════════════════════
+
+let _agentsTerrainCache = [];
+let _agentsVilleFilter = '';
+let _isAdminDash = false;
+let _agentSearchTimer = null;
+
+async function checkAdminForDashboard() {
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) return;
+    const r = await fetch('/api/wolo-pay/admin-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: session.access_token })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      _isAdminDash = true;
+      const grp = document.getElementById('dash-admin-agents-group');
+      if (grp) grp.style.display = 'block';
+    }
+  } catch (e) { console.error('[admin-dash]', e); }
+}
+
+async function _adminToken() {
+  const { data: { session } } = await supa.auth.getSession();
+  return session?.access_token || '';
+}
+
+async function _agentsAPI(action, extra = {}) {
+  const token = await _adminToken();
+  const r = await fetch('/api/wolo-pay/agents-terrain', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, token, ...extra })
+  });
+  return r.json();
+}
+
+// ── AGENTS TERRAIN : chargement ──
+async function loadAgentsTerrain() {
+  if (!_isAdminDash) return;
+  const d = await _agentsAPI('list');
+  if (!d.ok) { toast('Erreur chargement agents', 'error'); return; }
+  _agentsTerrainCache = d.agents || [];
+  renderAgentsList();
+  renderAgentsStats();
+}
+
+function renderAgentsStats() {
+  const actifs = _agentsTerrainCache.filter(a => a.actif);
+  const totalFilleuls = actifs.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
+  const totalComm = actifs.reduce((s, a) => s + (a.total_commissions || 0), 0);
+  document.getElementById('agents-total-count').textContent = actifs.length;
+  document.getElementById('agents-total-filleuls').textContent = totalFilleuls.toLocaleString('fr-FR');
+  document.getElementById('agents-total-comm').textContent = totalComm.toLocaleString('fr-FR');
+}
+
+function filterAgentsVille(ville) {
+  _agentsVilleFilter = ville;
+  // UI boutons
+  ['all', 'lome', 'cotonou'].forEach(k => {
+    const btn = document.getElementById('agents-filter-' + k);
+    if (!btn) return;
+    const active = (k === 'all' && !ville) || (k === 'lome' && ville === 'Lomé') || (k === 'cotonou' && ville === 'Cotonou');
+    btn.style.background = active ? '#E8940A' : 'rgba(255,255,255,.08)';
+    btn.style.color = active ? '#0f1410' : '#F8F6F1';
+    btn.style.border = active ? 'none' : '1px solid rgba(255,255,255,.12)';
+  });
+  renderAgentsList();
+}
+
+function renderAgentsList() {
+  const container = document.getElementById('agents-list');
+  let agents = _agentsTerrainCache.filter(a => a.actif);
+  if (_agentsVilleFilter) agents = agents.filter(a => a.ville === _agentsVilleFilter);
+
+  if (!agents.length) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun agent trouvé. Utilise la recherche ci-dessus pour en ajouter.</div>';
+    return;
+  }
+
+  // Trier par filleuls desc
+  agents.sort((a, b) => (b.nb_filleuls || 0) - (a.nb_filleuls || 0));
+
+  container.innerHTML = agents.map((a, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:${a.genre === 'F' ? 'rgba(232,148,10,.15)' : 'rgba(59,130,246,.15)'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:${a.genre === 'F' ? '#E8940A' : '#3b82f6'};">${i + 1}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:14px;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.nom}</div>
+        <div style="font-size:11px;color:var(--gris);">${a.ville} · ${a.genre === 'F' ? 'Femme' : 'Homme'} · ${a.telephone || '—'}</div>
+      </div>
+      <div style="text-align:right;min-width:80px;">
+        <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:900;color:#F8F6F1;">${a.nb_filleuls || 0}</div>
+        <div style="font-size:10px;color:var(--gris);">inscrits</div>
+      </div>
+      <div style="text-align:right;min-width:90px;">
+        <div style="font-family:'Space Mono',monospace;font-size:13px;color:#E8940A;">${(a.total_commissions || 0).toLocaleString('fr-FR')}</div>
+        <div style="font-size:10px;color:var(--gris);">FCFA</div>
+      </div>
+      <button onclick="removeAgent('${a.id}')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:4px;" title="Retirer cet agent">✕</button>
+    </div>
+  `).join('');
+}
+
+async function removeAgent(agentId) {
+  if (!confirm('Retirer cet agent terrain ?')) return;
+  const d = await _agentsAPI('remove', { agent_id: agentId });
+  if (d.ok) {
+    toast('Agent retiré', 'info');
+    loadAgentsTerrain();
+  } else {
+    toast(d.error || 'Erreur', 'error');
+  }
+}
+
+// ── RECHERCHE PRESTATAIRE POUR AJOUT ──
+function searchAgentDebounced() {
+  clearTimeout(_agentSearchTimer);
+  _agentSearchTimer = setTimeout(searchAgentNow, 400);
+}
+
+async function searchAgentNow() {
+  const q = document.getElementById('agent-search-input')?.value?.trim();
+  const container = document.getElementById('agent-search-results');
+  if (!q || q.length < 2) { container.style.display = 'none'; return; }
+
+  container.style.display = 'block';
+  container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--gris);font-size:13px;">Recherche en cours...</div>';
+
+  const d = await _agentsAPI('search', { q });
+  if (!d.ok || !d.results?.length) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--gris);font-size:13px;">Aucun prestataire trouvé pour "' + q + '"</div>';
+    return;
+  }
+
+  // Vérifier lesquels sont déjà agents
+  const existingTels = new Set(_agentsTerrainCache.map(a => a.telephone).filter(Boolean));
+
+  container.innerHTML = d.results.map(r => {
+    const isAlready = existingTels.has(r.telephone);
+    return `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);${isAlready ? 'opacity:.5;' : ''}">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);overflow:hidden;flex-shrink:0;">
+          ${r.photo ? `<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>'}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13px;color:#F8F6F1;">${r.nom}</div>
+          <div style="font-size:11px;color:var(--gris);">${r.telephone || '—'} · ${r.metier || '—'} · ${r.quartier || '—'}</div>
+          <div style="font-size:10px;color:${r.abonnement === 'Pro' ? '#E8940A' : 'var(--gris)'};">${r.abonnement} ${r.code_parrainage ? '· Code: ' + r.code_parrainage : ''}</div>
+        </div>
+        ${isAlready
+          ? '<span style="font-size:11px;color:var(--gris);white-space:nowrap;">Déjà agent</span>'
+          : `<div style="display:flex;gap:4px;">
+              <button onclick="addAgentModal('${encodeURIComponent(JSON.stringify(r))}')" style="padding:6px 12px;background:#E8940A;color:#0f1410;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">+ Ajouter</button>
+            </div>`
+        }
+      </div>
+    `;
+  }).join('');
+}
+
+function addAgentModal(encodedData) {
+  const r = JSON.parse(decodeURIComponent(encodedData));
+  // Déterminer le genre depuis Airtable ou demander
+  const genreFromAirtable = r.genre;
+  const hasGenre = genreFromAirtable === 'Homme' || genreFromAirtable === 'Femme' || genreFromAirtable === 'H' || genreFromAirtable === 'F';
+
+  const modalHtml = `
+    <div id="modal-add-agent" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;">
+      <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:400px;width:100%;">
+        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin:0 0 4px;">Ajouter comme agent</h3>
+        <p style="font-size:13px;color:var(--gris);margin:0 0 16px;">${r.nom} · ${r.telephone || '—'}</p>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px;color:var(--gris);display:block;margin-bottom:4px;">Ville</label>
+          <select id="add-agent-ville" style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:#F8F6F1;font-size:14px;">
+            <option value="Lomé">Lomé</option>
+            <option value="Cotonou">Cotonou</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="font-size:12px;color:var(--gris);display:block;margin-bottom:4px;">Genre</label>
+          <select id="add-agent-genre" style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:#F8F6F1;font-size:14px;">
+            <option value="H" ${hasGenre && (genreFromAirtable === 'Homme' || genreFromAirtable === 'H') ? 'selected' : ''}>Homme</option>
+            <option value="F" ${hasGenre && (genreFromAirtable === 'Femme' || genreFromAirtable === 'F') ? 'selected' : ''}>Femme</option>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="confirmAddAgent('${encodeURIComponent(JSON.stringify(r))}')" style="flex:1;padding:12px;background:#E8940A;color:#0f1410;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">Confirmer</button>
+          <button onclick="document.getElementById('modal-add-agent')?.remove()" style="flex:1;padding:12px;background:rgba(255,255,255,.08);color:#F8F6F1;border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;cursor:pointer;">Annuler</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+async function confirmAddAgent(encodedData) {
+  const r = JSON.parse(decodeURIComponent(encodedData));
+  const ville = document.getElementById('add-agent-ville')?.value || 'Lomé';
+  const genre = document.getElementById('add-agent-genre')?.value || 'H';
+
+  document.getElementById('modal-add-agent')?.remove();
+
+  const d = await _agentsAPI('add', {
+    airtable_id: r.airtable_id,
+    nom: r.nom,
+    telephone: r.telephone,
+    email: r.email,
+    ville,
+    genre,
+    code_parrainage: r.code_parrainage,
+    user_id: null
+  });
+
+  if (d.ok) {
+    toast(`${r.nom} ajouté comme agent terrain (${ville}, ${genre === 'F' ? 'Femme' : 'Homme'})`, 'success');
+    document.getElementById('agent-search-input').value = '';
+    document.getElementById('agent-search-results').style.display = 'none';
+    loadAgentsTerrain();
+  } else {
+    toast(d.error || 'Erreur ajout agent', 'error');
+  }
+}
+
+// ── BATTLE H vs F ──
+let _battleVilleFilter = '';
+
+function loadBattle(ville) {
+  _battleVilleFilter = ville;
+  // UI boutons
+  ['all', 'lome', 'cotonou'].forEach(k => {
+    const btn = document.getElementById('battle-filter-' + k);
+    if (!btn) return;
+    const active = (k === 'all' && !ville) || (k === 'lome' && ville === 'Lomé') || (k === 'cotonou' && ville === 'Cotonou');
+    btn.style.background = active ? '#E8940A' : 'rgba(255,255,255,.08)';
+    btn.style.color = active ? '#0f1410' : '#F8F6F1';
+    btn.style.border = active ? 'none' : '1px solid rgba(255,255,255,.12)';
+  });
+  renderBattle();
+}
+
+function renderBattle() {
+  let agents = _agentsTerrainCache.filter(a => a.actif);
+  if (_battleVilleFilter) agents = agents.filter(a => a.ville === _battleVilleFilter);
+
+  const hommes = agents.filter(a => a.genre === 'H');
+  const femmes = agents.filter(a => a.genre === 'F');
+
+  const hScore = hommes.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
+  const fScore = femmes.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
+  const hComm = hommes.reduce((s, a) => s + (a.total_commissions || 0), 0);
+  const fComm = femmes.reduce((s, a) => s + (a.total_commissions || 0), 0);
+
+  document.getElementById('battle-h-score').textContent = hScore;
+  document.getElementById('battle-f-score').textContent = fScore;
+  document.getElementById('battle-h-comm').textContent = hComm.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('battle-f-comm').textContent = fComm.toLocaleString('fr-FR') + ' FCFA';
+
+  // Bannière gagnant
+  const banner = document.getElementById('battle-winner-banner');
+  const winnerText = document.getElementById('battle-winner-text');
+  if (hScore > 0 || fScore > 0) {
+    banner.style.display = 'block';
+    if (hScore > fScore) {
+      winnerText.textContent = 'Équipe Hommes en tête !';
+      winnerText.style.color = '#3b82f6';
+    } else if (fScore > hScore) {
+      winnerText.textContent = 'Équipe Femmes en tête !';
+      winnerText.style.color = '#E8940A';
+    } else {
+      winnerText.textContent = 'Égalité parfaite !';
+      winnerText.style.color = '#F8F6F1';
+    }
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Classement individuel
+  const allSorted = [...agents].sort((a, b) => (b.nb_filleuls || 0) - (a.nb_filleuls || 0));
+  const rankContainer = document.getElementById('battle-ranking');
+
+  if (!allSorted.length) {
+    rankContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun agent. Ajoute des agents dans l\'onglet Agents Terrain.</div>';
+    return;
+  }
+
+  const medals = ['🥇', '🥈', '🥉'];
+  rankContainer.innerHTML = allSorted.map((a, i) => {
+    const teamColor = a.genre === 'F' ? '#E8940A' : '#3b82f6';
+    const teamBg = a.genre === 'F' ? 'rgba(232,148,10,.08)' : 'rgba(59,130,246,.08)';
+    const teamBorder = a.genre === 'F' ? 'rgba(232,148,10,.2)' : 'rgba(59,130,246,.2)';
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${teamBg};border:1px solid ${teamBorder};border-radius:10px;">
+        <div style="font-size:${i < 3 ? '20px' : '14px'};width:28px;text-align:center;font-weight:900;color:${i < 3 ? '#E8940A' : 'var(--gris)'};">${i < 3 ? medals[i] : (i + 1)}</div>
+        <div style="width:28px;height:28px;border-radius:50%;background:${teamColor};display:flex;align-items:center;justify-content:center;font-size:12px;color:white;font-weight:900;">${a.genre}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13px;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.nom}</div>
+          <div style="font-size:10px;color:var(--gris);">${a.ville}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:900;color:#F8F6F1;">${a.nb_filleuls || 0}</div>
+          <div style="font-size:9px;color:var(--gris);">inscrits</div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 // ══════════════════════════════════════════

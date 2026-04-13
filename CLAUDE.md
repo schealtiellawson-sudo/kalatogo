@@ -62,6 +62,8 @@ showDashSection('parrainage')           → parrainage
 showDashSection('notifications')        → notifications
 showDashSection('abonnement')           → paiement Pro
 showDashSection('abonnements')          → prestataires suivis
+showDashSection('agents-terrain')       → gestion agents terrain (admin only)
+showDashSection('battle')               → scoreboard Battle H vs F (admin only)
 showDashSection('paiement')             → encaisser un paiement client
 showDashSection('historique-paiements') → historique paiements
 showDashSection('recompenses')          → récompenses (Bourse + Awards widgets)
@@ -79,6 +81,7 @@ showDashSection('recompenses')          → récompenses (Bourse + Awards widget
 | `Favoris` | User ID, Prestataire Favori ID, Nom Prestataire, Date |
 | `Photos Avis` | Prestataire ID, Slot, Photo URL, Likes, Likeurs (JSON), Commentaires (JSON) |
 | `Abonnements` | Abonné ID, Prestataire ID, Date |
+| `Agents Terrain` | Nom, Téléphone, Email, Ville (Lomé/Cotonou), Genre (H/F), Code Parrainage, Actif, Supabase ID, User ID, Date Ajout |
 
 ### Tables Supabase (Sprint 7 — Récompenses)
 
@@ -88,6 +91,7 @@ showDashSection('recompenses')          → récompenses (Bourse + Awards widget
 | `wolo_awards` | Candidatures WOLO Awards (100k FCFA). Champs : user_id, mois, pays (BJ/TG), video_url, video_validee, nb_votes, gagnant, vice_champion |
 | `votes_awards` | Votes (1 vote/personne/mois). UNIQUE(votant_id, mois) |
 | `gains_recompenses` | Historique des gains versés. Types : bourse_croissance, wolo_awards |
+| `agents_terrain` | Agents de terrain pour le lancement. Champs : user_id, airtable_id, nom, telephone, email, ville (Lomé/Cotonou), genre (H/F), code_parrainage, actif. Backup Airtable via syncToAirtable(). |
 
 ## Points techniques critiques
 
@@ -104,6 +108,7 @@ showDashSection('recompenses')          → récompenses (Bourse + Awards widget
 - **Pas de champ `Nom` dans Airtable** — utiliser `Nom complet` partout.
 - **Codes parrainage** : préfixe `WOLO`, format `WOLOxxxx1234`.
 - **Admin** : accès panel admin via `?admin` dans l'URL + authentification Supabase (vérifié côté serveur via `/api/admin-verify`). Les emails admin sont dans la variable d'environnement `ADMIN_EMAILS`.
+- **Agents Terrain** : section dashboard admin-only (`showDashSection('agents-terrain')` et `showDashSection('battle')`). Recherche prestataire par téléphone/nom, ajout comme agent avec ville + genre. Scoreboard Battle H vs F. API : `/api/wolo-pay/agents-terrain` (POST, actions: list/search/add/remove/update).
 
 ## Score WOLO (max 100 pts) — Sprint 7
 
