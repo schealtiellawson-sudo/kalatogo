@@ -1,2 +1,3 @@
 videos
 .vercel
+.env*.local
