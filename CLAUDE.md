@@ -93,6 +93,33 @@ showDashSection('recompenses')          → récompenses (Bourse + Awards widget
 | `gains_recompenses` | Historique des gains versés. Types : bourse_croissance, wolo_awards |
 | `agents_terrain` | Agents de terrain pour le lancement. Champs : user_id, airtable_id, nom, telephone, email, ville (Lomé/Cotonou), genre (H/F), code_parrainage, actif. Backup Airtable via syncToAirtable(). |
 
+## WOLO Jobs — Tables Airtable
+
+| Table | Champs clés |
+|---|---|
+| `Offres d'Emploi` | Titre, Métier, Quartier, Ville, Type de contrat, Description, Salaire min/max FCFA, Recruteur ID/Nom/WhatsApp/vérifié, Active, Vues, Nb candidatures, Photo 1/2/3, Expérience requise, Urgente, Télétravail, Date expiration |
+| `Candidatures` | Offre ID/Titre, Candidat ID/Nom/Métier/WhatsApp/Score WOLO/Photo, Message, Statut (En attente/Vue/Retenue/Refusée), Date candidature, Recruteur ID/Nom |
+
+### Sections dashboard WOLO Jobs
+```
+showDashSection('emploi-mode')          → toggle disponibilité emploi
+showDashSection('emploi-candidatures')  → mes candidatures envoyées
+showDashSection('emploi-cv')            → mon CV WOLO (preview)
+showDashSection('recrut-publier')       → publier une offre
+showDashSection('recrut-offres')        → mes offres publiées
+showDashSection('recrut-candidatures')  → candidatures reçues
+```
+
+### Fonctions JS clés WOLO Jobs
+- `loadOffresEmploi(filtres)` — charge offres (~l.18740)
+- `renderOffreEmploi(offre)` — carte offre (~l.18758)
+- `showOffreDetail(offreId)` — détail offre (~l.18801)
+- `submitCandidature()` — soumettre candidature (~l.19046)
+- `publierOffre()` — publier offre (~l.19333)
+- `loadMesOffres()` — mes offres (~l.19423)
+- `loadCandidaturesRecues(offreId)` — candidatures reçues (~l.19520)
+- `updateStatutCandidature(id, statut)` — màj statut (~l.19572)
+
 ## Points techniques critiques
 
 - **Le fichier est TRÈS gros** (~14 000 lignes). Toujours utiliser Grep pour localiser le code avant d'éditer. Ne jamais lire le fichier entier.
