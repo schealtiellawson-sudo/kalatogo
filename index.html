@@ -8625,7 +8625,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
               </div>
               <div>
                 <label class="form-label">Où se passe le travail ? <span style="font-weight:500;color:#6b7280;">— Quartier précis de préférence. Les candidats à Cotonou et Lomé cherchent par quartier.</span></label>
-                <select id="recrut-quartier" class="form-input">
+                <select id="job-quartier" class="form-input">
                   <option value="">Choisir...</option>
                   <option>Lomé Centre</option><option>Adidogomé</option><option>Tokoin</option><option>Bè</option>
                   <option>Agoè</option><option>Hédzranawoé</option><option>Kodjoviakopé</option><option>Djidjolé</option>
@@ -19362,7 +19362,7 @@ async function publierOffre() {
     fields: {
       'Titre': titre,
       'Métier': metier,
-      'Quartier': get('recrut-quartier') || undefined,
+      'Quartier': get('job-quartier') || undefined,
       'Type de contrat': contrat,
       'Expérience requise': get('recrut-experience') || undefined,
       'Description': description,
@@ -19395,7 +19395,7 @@ async function publierOffre() {
     const data = await r.json();
     if (data.id) {
       toast('✅ Offre publiée avec succès !', 'success');
-      const _ville = get('recrut-quartier') || 'ta zone';
+      const _ville = get('job-quartier') || 'ta zone';
       const _confDiv = document.createElement('div');
       _confDiv.className = 'modal-overlay active';
       _confDiv.style.zIndex = '10002';
@@ -19404,7 +19404,7 @@ async function publierOffre() {
       _confDiv.onclick = e => { if (e.target === _confDiv) _confDiv.remove(); };
       // Reset form
       ['recrut-titre','recrut-description','recrut-salaire-min','recrut-salaire-max','recrut-expiration'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-      ['recrut-metier','recrut-quartier','recrut-contrat','recrut-experience'].forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+      ['recrut-metier','job-quartier','recrut-contrat','recrut-experience'].forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
       ['recrut-afficher-salaire','recrut-urgente','recrut-teletravail'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
       // Reset photos
       _recrutPhotosFiles.length = 0;
