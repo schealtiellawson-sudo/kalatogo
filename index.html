@@ -6755,6 +6755,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </div>
           <div class="dash-subgroup" id="dl-recrut-section" style="display:none;">
             <div class="dash-subgroup-lbl">Je recrute</div>
+            <button class="dash-link" onclick="showDashSection('recrut-dashboard')" id="dl-recrut-dashboard">
+              <i data-lucide="layout-dashboard"></i> <span>Tableau de bord</span>
+            </button>
             <button class="dash-link" onclick="showDashSection('recrut-publier')" id="dl-recrut-publier">
               <i data-lucide="megaphone"></i> <span>Publier une offre</span>
             </button>
@@ -8589,31 +8592,97 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
       </div>
 
+      <!-- DASHBOARD GLOBAL RECRUTEUR -->
+      <div class="dash-section" id="ds-recrut-dashboard">
+        <div class="dash-header" style="margin-bottom:28px;">
+          <h2 style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#F8F6F1;margin:0 0 6px;">Tableau de bord recruteur</h2>
+          <p style="font-family:Poppins,sans-serif;font-size:13px;color:rgba(248,246,241,.5);margin:0;">Vue d'ensemble de ton activité recrutement.</p>
+        </div>
+        <!-- KPI ROW 1 -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:10px;">
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="rd-kpi-offres-actives" style="font-family:'Space Mono',monospace;font-size:30px;font-weight:900;color:#E8940A;line-height:1;">—</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Offres actives</div>
+          </div>
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="rd-kpi-offres-inactives" style="font-family:'Space Mono',monospace;font-size:30px;font-weight:900;color:rgba(248,246,241,.4);line-height:1;">—</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Offres inactives</div>
+          </div>
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="rd-kpi-total-cand" style="font-family:'Space Mono',monospace;font-size:30px;font-weight:900;color:#3b82f6;line-height:1;">—</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Candidatures</div>
+          </div>
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="rd-kpi-taux" style="font-family:'Space Mono',monospace;font-size:30px;font-weight:900;color:#22c55e;line-height:1;">—</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Taux conversion</div>
+          </div>
+        </div>
+        <!-- KPI ROW 2 -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:24px;">
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="rd-kpi-vues-totales" style="font-family:'Space Mono',monospace;font-size:30px;font-weight:900;color:#F8F6F1;line-height:1;">—</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Vues totales</div>
+          </div>
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="rd-kpi-retenues" style="font-family:'Space Mono',monospace;font-size:30px;font-weight:900;color:#22c55e;line-height:1;">—</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Retenues</div>
+          </div>
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="rd-kpi-top-offre" style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#E8940A;line-height:1.3;word-break:break-word;">—</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Offre la + vue</div>
+          </div>
+        </div>
+        <!-- ACTIONS RAPIDES -->
+        <div style="margin-bottom:28px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:rgba(248,246,241,.35);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Actions rapides</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="showDashSection('recrut-publier')" style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;background:#E8940A;color:#0f1410;border:none;border-radius:10px;padding:11px 18px;cursor:pointer;">📢 Publier une offre</button>
+            <button onclick="showDashSection('recrut-offres')" style="font-family:Poppins,sans-serif;font-size:13px;font-weight:600;background:rgba(248,246,241,.07);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:10px;padding:11px 18px;cursor:pointer;">📂 Mes offres</button>
+            <button onclick="showDashSection('recrut-candidatures')" style="font-family:Poppins,sans-serif;font-size:13px;font-weight:600;background:rgba(248,246,241,.07);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:10px;padding:11px 18px;cursor:pointer;">👥 Candidatures</button>
+          </div>
+        </div>
+        <!-- DERNIÈRES CANDIDATURES -->
+        <div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:rgba(248,246,241,.35);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Dernières candidatures reçues</div>
+          <div id="rd-latest-cand" style="display:flex;flex-direction:column;gap:8px;">
+            <div style="text-align:center;padding:40px;color:rgba(248,246,241,.3);font-family:Poppins,sans-serif;font-size:13px;">Chargement...</div>
+          </div>
+        </div>
+      </div>
+
       <!-- RECRUTEMENT : PUBLIER UNE OFFRE -->
       <div class="dash-section" id="ds-recrut-publier">
-        <div class="dash-header">
-          <h2>📢 Publie ton offre. Trouve ton profil.</h2>
-          <p>Les bons candidats sont déjà sur WOLO Market. Ils t'attendent sans le savoir. <strong style="color:#E8940A;">WOLO Match</strong> les identifie dès que tu publies.</p>
+        <div class="dash-header" style="margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+            <div style="width:3px;height:36px;background:#E8940A;border-radius:2px;flex-shrink:0;"></div>
+            <h2 style="font-family:Fraunces,serif;font-size:clamp(20px,3vw,26px);font-weight:700;color:#F8F6F1;margin:0;line-height:1.2;">Publie ton offre. Trouve ton profil.</h2>
+          </div>
+          <p style="color:rgba(248,246,241,.5);font-family:Poppins,sans-serif;font-size:14px;margin:0;">Les bons candidats sont déjà sur WOLO Market — <span style="color:#E8940A;font-weight:600;">WOLO Match</span> les amène directement à toi.</p>
         </div>
 
-        <!-- Lock pour non-Pro -->
-        <div id="recrut-pro-lock" style="display:none;background:linear-gradient(135deg,#fef3dc,#fffbeb);border:2px solid var(--or);border-radius:16px;padding:28px;text-align:center;margin-bottom:20px;">
-          <div style="font-size:40px;margin-bottom:12px;">🔒</div>
-          <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;margin-bottom:8px;">Fonctionnalité réservée au Plan Pro</h3>
-          <p style="color:var(--gris);font-size:14px;margin-bottom:16px;">Passe au Plan Pro pour publier des offres d'emploi et accéder à la liste des candidats.</p>
-          <button class="btn btn-or" onclick="showDashSection('abonnement')">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
+        <!-- Lock Pro (thème sombre) -->
+        <div id="recrut-pro-lock" style="display:none;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.35);border-radius:16px;padding:32px 28px;max-width:640px;margin-bottom:24px;text-align:center;">
+          <div style="font-size:36px;margin-bottom:12px;">🔒</div>
+          <h3 style="font-family:Fraunces,serif;font-size:20px;color:#F8F6F1;margin:0 0 8px;">Fonctionnalité Pro</h3>
+          <p style="color:rgba(248,246,241,.6);font-family:Poppins,sans-serif;font-size:14px;margin:0 0 20px;line-height:1.6;">La publication d'offres est réservée aux comptes Pro.<br>Passe au Pro pour recruter sur WOLO Jobs.</p>
+          <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#0f1410;border:none;border-radius:10px;padding:12px 28px;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
         </div>
 
         <div id="recrut-form-wrap">
-          <div style="background:white;border-radius:16px;padding:28px;box-shadow:var(--shadow);max-width:600px;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-              <div style="grid-column:1/-1;">
-                <label class="form-label">Quel profil cherches-tu ? * <span style="font-weight:500;color:#6b7280;">— Sois précis(e), les candidats lisent le titre en premier.</span></label>
-                <input type="text" id="recrut-titre" placeholder="Ex : Électricien expérimenté pour chantier à Cotonou" class="form-input">
-              </div>
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(232,148,10,.12);border-radius:16px;padding:28px;max-width:640px;">
+
+            <!-- SECTION 1 : L'ESSENTIEL -->
+            <p style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">01 — L'essentiel</p>
+
+            <div style="margin-bottom:18px;">
+              <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Titre du poste <span style="color:rgba(248,246,241,.35);font-weight:400;">— sois précis, c'est ce que voient les candidats</span></label>
+              <input id="recrut-titre" type="text" placeholder="Ex : Électricien expérimenté pour chantier à Cotonou" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;">
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
               <div>
-                <label class="form-label">Métier recherché *</label>
-                <select id="recrut-metier" class="form-input">
+                <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Métier recherché *</label>
+                <select id="recrut-metier" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;">
                   <option value="">Choisir...</option>
                   <option>Plombier</option><option>Électricien</option><option>Menuisier</option><option>Maçon</option>
                   <option>Peintre</option><option>Soudeur</option><option>Mécanicien</option><option>Coiffeur</option>
@@ -8624,68 +8693,90 @@ div[style*="position:sticky"][style*="background:#fff"] {
                 </select>
               </div>
               <div>
-                <label class="form-label">Où se passe le travail ? <span style="font-weight:500;color:#6b7280;">— Quartier précis de préférence. Les candidats à Cotonou et Lomé cherchent par quartier.</span></label>
-                <select id="job-quartier" class="form-input">
+                <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Quartier</label>
+                <select id="job-quartier" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;">
                   <option value="">Choisir...</option>
                   <option>Lomé Centre</option><option>Adidogomé</option><option>Tokoin</option><option>Bè</option>
                   <option>Agoè</option><option>Hédzranawoé</option><option>Kodjoviakopé</option><option>Djidjolé</option>
                   <option>Nyékonakpoè</option><option>Cassablanca</option><option>Avédji</option><option>Attiégou</option><option>Autre</option>
                 </select>
               </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">
               <div>
-                <label class="form-label">Type de contrat *</label>
-                <select id="recrut-contrat" class="form-input">
+                <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Type de contrat *</label>
+                <select id="recrut-contrat" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;">
                   <option value="">Choisir...</option>
                   <option>CDI</option><option>CDD</option><option>Freelance</option><option>Mission ponctuelle</option><option>Stage</option><option>Bénévole</option><option>Alternance</option>
                 </select>
               </div>
               <div>
-                <label class="form-label">Expérience requise</label>
-                <select id="recrut-experience" class="form-input">
+                <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Expérience requise</label>
+                <select id="recrut-experience" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;">
                   <option value="">Peu importe</option>
                   <option>Aucune</option><option>1-2 ans</option><option>3-5 ans</option><option>5+ ans</option>
                 </select>
               </div>
-              <div style="grid-column:1/-1;">
-                <label class="form-label">Description du poste * <span style="font-weight:500;color:#6b7280;">— Décris le travail réel. Les horaires. Le salaire si possible. Les offres transparentes reçoivent 3× plus de candidatures sérieuses.</span></label>
-                <textarea id="recrut-description" placeholder="Décris le travail réel. Les horaires. Le salaire si possible. Les offres transparentes reçoivent 3× plus de candidatures sérieuses." class="form-input" style="min-height:120px;resize:vertical;"></textarea>
+            </div>
+
+            <!-- SECTION 2 : DÉTAILS -->
+            <div style="border-top:1px solid rgba(232,148,10,.08);margin-bottom:28px;"></div>
+            <p style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">02 — Détails</p>
+
+            <div style="margin-bottom:18px;">
+              <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Description du poste * <span style="color:rgba(248,246,241,.35);font-weight:400;">— missions, conditions, ce que tu attends</span></label>
+              <textarea id="recrut-description" placeholder="Décris le travail réel. Les horaires. Le salaire si possible. Les offres transparentes reçoivent 3× plus de candidatures sérieuses." style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;min-height:120px;resize:vertical;"></textarea>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;">
+              <div>
+                <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Salaire min <span style="color:rgba(248,246,241,.35);font-weight:400;">FCFA</span></label>
+                <input type="number" id="recrut-salaire-min" placeholder="Ex: 50000" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;">
               </div>
               <div>
-                <label class="form-label">Salaire min (FCFA)</label>
-                <input type="number" id="recrut-salaire-min" placeholder="Ex: 50000" class="form-input">
-              </div>
-              <div>
-                <label class="form-label">Salaire max (FCFA)</label>
-                <input type="number" id="recrut-salaire-max" placeholder="Ex: 100000" class="form-input">
-              </div>
-              <div style="grid-column:1/-1;display:flex;gap:20px;flex-wrap:wrap;">
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px;">
-                  <input type="checkbox" id="recrut-afficher-salaire" style="width:18px;height:18px;accent-color:var(--vert);"> Afficher le salaire
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px;">
-                  <input type="checkbox" id="recrut-urgente" style="width:18px;height:18px;accent-color:#dc2626;"> Offre urgente
-                </label>
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px;">
-                  <input type="checkbox" id="recrut-teletravail" style="width:18px;height:18px;accent-color:var(--vert);"> Télétravail possible
-                </label>
-              </div>
-              <div>
-                <label class="form-label">Date d'expiration</label>
-                <input type="date" id="recrut-expiration" class="form-input">
-              </div>
-              <div style="grid-column:1/-1;">
-                <label class="form-label">Photos du poste <span style="font-weight:500;color:#6b7280;">— Jusqu'à 3 photos pour illustrer le lieu de travail, l'équipe ou le matériel.</span></label>
-                <div id="recrut-photos-container" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
-                  <label id="recrut-photo-add" style="width:100px;height:100px;border:2px dashed rgba(232,148,10,0.4);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;background:rgba(255,255,255,0.04);" onmouseover="this.style.borderColor='#E8940A'" onmouseout="this.style.borderColor='rgba(232,148,10,0.4)'">
-                    <span style="font-size:28px;color:#E8940A;">+</span>
-                    <span style="font-size:11px;color:#6b7280;margin-top:2px;">Ajouter</span>
-                    <input type="file" accept="image/*" multiple style="display:none;" onchange="handleRecrutPhotos(this)">
-                  </label>
-                </div>
-                <div id="recrut-photos-previews" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;"></div>
+                <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Salaire max <span style="color:rgba(248,246,241,.35);font-weight:400;">FCFA</span></label>
+                <input type="number" id="recrut-salaire-max" placeholder="Ex: 100000" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;width:100%;outline:none;box-sizing:border-box;">
               </div>
             </div>
-            <button class="btn btn-primary" onclick="publierOffre()" style="width:100%;justify-content:center;">📢 Publier sur WOLO Jobs</button>
+
+            <!-- SECTION 3 : OPTIONS -->
+            <div style="border-top:1px solid rgba(232,148,10,.08);margin-bottom:28px;"></div>
+            <p style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">03 — Options</p>
+
+            <div style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:18px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:600;">
+                <input type="checkbox" id="recrut-afficher-salaire" style="width:16px;height:16px;accent-color:#E8940A;"> Afficher le salaire
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:600;">
+                <input type="checkbox" id="recrut-urgente" style="width:16px;height:16px;accent-color:#E8940A;"> 🔴 Offre urgente
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:600;">
+                <input type="checkbox" id="recrut-teletravail" style="width:16px;height:16px;accent-color:#E8940A;"> Télétravail possible
+              </label>
+            </div>
+
+            <div style="margin-bottom:28px;">
+              <label style="display:block;color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Date d'expiration</label>
+              <input type="date" id="recrut-expiration" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Poppins,sans-serif;outline:none;box-sizing:border-box;max-width:240px;color-scheme:dark;">
+            </div>
+
+            <!-- SECTION 4 : PHOTOS -->
+            <div style="border-top:1px solid rgba(232,148,10,.08);margin-bottom:28px;"></div>
+            <p style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">04 — Photos <span style="color:rgba(248,246,241,.35);font-weight:400;letter-spacing:0;text-transform:none;font-size:11px;">(max 3)</span></p>
+
+            <div id="recrut-photos-container" style="margin-bottom:24px;">
+              <label id="recrut-photo-add" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed rgba(232,148,10,.3);border-radius:12px;padding:24px 20px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='#E8940A'" onmouseout="this.style.borderColor='rgba(232,148,10,.3)'">
+                <span style="font-size:28px;">📷</span>
+                <span style="color:rgba(248,246,241,.7);font-family:Poppins,sans-serif;font-size:13px;font-weight:600;">Ajouter des photos</span>
+                <span style="color:rgba(248,246,241,.35);font-family:Poppins,sans-serif;font-size:12px;">PNG, JPG — max 5 Mo par photo</span>
+                <input type="file" accept="image/*" multiple style="display:none;" onchange="handleRecrutPhotos(this)">
+              </label>
+              <div id="recrut-photos-previews" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;"></div>
+            </div>
+
+            <!-- BOUTON CTA -->
+            <button onclick="publierOffre()" style="width:100%;background:#E8940A;color:#0f1410;border:none;border-radius:12px;padding:15px 24px;font-family:Poppins,sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">📢 Publier sur WOLO Jobs</button>
             <div id="talents-recommandes-container"></div>
           </div>
         </div>
@@ -8693,11 +8784,38 @@ div[style*="position:sticky"][style*="background:#fff"] {
 
       <!-- RECRUTEMENT : MES OFFRES -->
       <div class="dash-section" id="ds-recrut-offres">
-        <div class="dash-header">
-          <h2>📂 Mes offres publiées</h2>
-          <p>Gère tes offres d'emploi et suis les candidatures.</p>
+        <div class="dash-header" style="margin-bottom:24px;">
+          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:700;color:#F8F6F1;margin:0 0 6px;">Mes offres d'emploi</h2>
+          <p style="font-family:Poppins,sans-serif;font-size:13px;color:rgba(248,246,241,.5);margin:0;">Gère, modifie et suis tes offres publiées.</p>
         </div>
-        <div id="mes-offres-list">
+        <!-- MINI KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;">
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div id="offres-kpi-total" style="font-family:'Space Mono',monospace;font-size:28px;font-weight:900;color:#E8940A;line-height:1;">0</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Total</div>
+          </div>
+          <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px;text-align:center;">
+            <div id="offres-kpi-actives" style="font-family:'Space Mono',monospace;font-size:28px;font-weight:900;color:#22c55e;line-height:1;">0</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Actives</div>
+          </div>
+          <div style="background:rgba(248,246,241,.04);border:1px solid rgba(248,246,241,.1);border-radius:12px;padding:16px;text-align:center;">
+            <div id="offres-kpi-inactives" style="font-family:'Space Mono',monospace;font-size:28px;font-weight:900;color:rgba(248,246,241,.45);line-height:1;">0</div>
+            <div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Inactives</div>
+          </div>
+        </div>
+        <!-- FILTRES -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px;">
+          <select id="offres-filter-statut" onchange="filterMesOffres()" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#F8F6F1;padding:9px 14px;font-family:Poppins,sans-serif;font-size:13px;outline:none;cursor:pointer;flex:1;min-width:140px;">
+            <option value="">Toutes les offres</option>
+            <option value="actives">Actives</option>
+            <option value="inactives">Inactives</option>
+            <option value="urgentes">Urgentes</option>
+          </select>
+          <input id="offres-search" type="text" placeholder="Rechercher une offre..." oninput="filterMesOffres()" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#F8F6F1;padding:9px 14px;font-family:Poppins,sans-serif;font-size:13px;outline:none;flex:2;min-width:180px;">
+          <button onclick="showDashSection('recrut-publier')" style="background:#E8940A;color:#0f1410;border:none;border-radius:10px;padding:9px 18px;font-family:Poppins,sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">📢 Nouvelle offre</button>
+        </div>
+        <!-- CONTAINER -->
+        <div id="mes-offres-container">
           <div class="loading"><div class="spinner"></div> Chargement...</div>
         </div>
       </div>
@@ -9095,6 +9213,7 @@ function showDashSection(section) {
   if (section === 'recrut-publier') initRecrutPublier();
   if (section === 'recrut-offres') loadMesOffres();
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
+  if (section === 'recrut-dashboard') loadRecrutDashboard();
   if (section === 'wolo-match') loadDashWoloMatch();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
@@ -19472,68 +19591,176 @@ async function publierOffre() {
   }
 }
 
-// ── Dashboard : Mes offres ──
+// ── Dashboard : Mes offres (version enrichie) ──
+let allMesOffres = [];
+
 async function loadMesOffres() {
   if (!currentPrestataire) return;
-  const container = document.getElementById('mes-offres-list');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  const container = document.getElementById('mes-offres-container');
+  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   try {
     const params = new URLSearchParams({ filterByFormula: `{Recruteur ID}="${currentPrestataire.id}"`, maxRecords: 50 });
     params.append('sort[0][field]', 'Créée le');
     params.append('sort[0][direction]', 'desc');
     const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
     const data = await r.json();
-    const offres = data.records || [];
+    allMesOffres = data.records || [];
 
-    if (offres.length === 0) {
-      container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gris);">
-        <div style="font-size:48px;margin-bottom:16px;">📂</div>
-        <p>Tu n'as pas encore publié d'offre.</p>
-        <button class="btn btn-primary" style="margin-top:16px;" onclick="showDashSection('recrut-publier')">📢 Publier ma première offre →</button>
-      </div>`;
-      return;
-    }
+    // KPIs
+    const total = allMesOffres.length;
+    const actives = allMesOffres.filter(o => o.fields['Active']).length;
+    const _set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    _set('offres-kpi-total', total);
+    _set('offres-kpi-actives', actives);
+    _set('offres-kpi-inactives', total - actives);
 
-    // Mettre à jour le filtre dans candidatures reçues
+    // Mettre à jour filtre candidatures
     const filterSelect = document.getElementById('recrut-cand-filter-offre');
     if (filterSelect) {
-      filterSelect.innerHTML = '<option value="">Toutes les offres</option>' + offres.map(o => `<option value="${o.id}">${o.fields['Titre']||'Sans titre'}</option>`).join('');
+      filterSelect.innerHTML = '<option value="">Toutes les offres</option>' + allMesOffres.map(o => `<option value="${o.id}">${o.fields['Titre']||'Sans titre'}</option>`).join('');
     }
-
-    container.innerHTML = offres.map(o => {
-      const f = o.fields;
-      return `<div style="background:white;border-radius:14px;padding:20px;box-shadow:var(--shadow);border:1.5px solid #e5e7eb;margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
-          <div>
-            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-bottom:4px;">${f['Titre']||'Sans titre'}</h3>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              ${f['Métier'] ? `<span class="badge badge-vert">${f['Métier']}</span>` : ''}
-              ${f['Type de contrat'] ? `<span class="badge badge-gris">${f['Type de contrat']}</span>` : ''}
-              ${f['Active'] ? '<span class="badge" style="background:#F8F6F1;color:#E8940A;">● Active</span>' : '<span class="badge" style="background:#f3f4f6;color:#6b7280;">● Inactive</span>'}
-              ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span>' : ''}
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;align-items:center;">
-            <div style="text-align:center;background:var(--vert-light);border-radius:10px;padding:8px 14px;">
-              <div style="font-size:20px;font-weight:900;color:var(--vert);">${f['Vues']||0}</div>
-              <div style="font-size:11px;color:var(--gris);">Vues</div>
-            </div>
-            <div style="text-align:center;background:var(--or-light);border-radius:10px;padding:8px 14px;">
-              <div style="font-size:20px;font-weight:900;color:var(--or);">${f['Nb candidatures']||0}</div>
-              <div style="font-size:11px;color:var(--gris);">Candidatures</div>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-          <button class="btn btn-sm btn-secondary" onclick="showDashSection('recrut-candidatures');loadCandidaturesRecues().then(()=>{document.getElementById('recrut-cand-filter-offre').value='${o.id}';filterRecrutCandidatures();})">👥 Voir candidatures</button>
-          <button class="btn btn-sm" style="background:${f['Active']?'#fee2e2':'#F8F6F1'};color:${f['Active']?'#dc2626':'#E8940A'};border:none;" onclick="toggleOffreActive('${o.id}',${!f['Active']})">${f['Active']?'⏸ Désactiver':'▶ Réactiver'}</button>
-          <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;" onclick="supprimerOffre('${o.id}','${(f['Titre']||'cette offre').replace(/'/g,"\\'")}')">🗑 Supprimer</button>
-        </div>
-      </div>`;
-    }).join('');
+    filterMesOffres();
   } catch(e) {
-    container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
+    if (container) container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
   }
+}
+
+function filterMesOffres() {
+  const statut = (document.getElementById('offres-filter-statut') || {}).value || '';
+  const search = ((document.getElementById('offres-search') || {}).value || '').toLowerCase().trim();
+  const filtered = allMesOffres.filter(o => {
+    const f = o.fields;
+    if (statut === 'actives' && !f['Active']) return false;
+    if (statut === 'inactives' && f['Active']) return false;
+    if (statut === 'urgentes' && !f['Urgente']) return false;
+    if (search && !(f['Titre']||'').toLowerCase().includes(search) && !(f['Métier']||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  renderMesOffres(filtered);
+}
+
+function renderMesOffres(offres) {
+  const container = document.getElementById('mes-offres-container');
+  if (!container) return;
+  if (offres.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:60px;color:rgba(248,246,241,.4);">
+      <div style="font-size:48px;margin-bottom:16px;">📂</div>
+      <p style="font-family:Poppins,sans-serif;font-size:15px;margin-bottom:20px;">${allMesOffres.length === 0 ? "Tu n'as pas encore publié d'offre." : "Aucune offre ne correspond à ce filtre."}</p>
+      ${allMesOffres.length === 0 ? `<button onclick="showDashSection('recrut-publier')" style="background:#E8940A;color:#0f1410;border:none;border-radius:10px;padding:12px 24px;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">📢 Publier ma première offre →</button>` : ''}
+    </div>`;
+    return;
+  }
+  container.innerHTML = offres.map(o => {
+    const f = o.fields;
+    const isActive = !!f['Active'];
+    const titre = (f['Titre']||'Sans titre').replace(/'/g,"\\'");
+    return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.12);border-radius:14px;padding:20px;margin-bottom:14px;transition:border-color .2s;" onmouseenter="this.style.borderColor='rgba(232,148,10,.3)'" onmouseleave="this.style.borderColor='rgba(232,148,10,.12)'">
+      <div style="margin-bottom:12px;">
+        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin:0 0 10px;">${f['Titre']||'Sans titre'}</h3>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;">
+          ${f['Métier'] ? `<span style="background:rgba(232,148,10,.15);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">${f['Métier']}</span>` : ''}
+          ${f['Type de contrat'] ? `<span style="background:rgba(248,246,241,.08);color:rgba(248,246,241,.6);border-radius:20px;padding:3px 11px;font-size:12px;">${f['Type de contrat']}</span>` : ''}
+          ${f['Quartier'] ? `<span style="background:rgba(248,246,241,.05);color:rgba(248,246,241,.45);border-radius:20px;padding:3px 11px;font-size:11px;">📍 ${f['Quartier']}</span>` : ''}
+          ${isActive ? `<span style="background:rgba(34,197,94,.12);color:#22c55e;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">● Active</span>` : `<span style="background:rgba(248,246,241,.06);color:rgba(248,246,241,.35);border-radius:20px;padding:3px 11px;font-size:12px;">● Inactive</span>`}
+          ${f['Urgente'] ? `<span style="background:rgba(220,38,38,.15);color:#ef4444;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;">🔴 URGENTE</span>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(248,246,241,.05);border-radius:8px;padding:7px 13px;">
+          <span style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#F8F6F1;">${f['Vues']||0}</span>
+          <span style="font-size:11px;color:rgba(248,246,241,.4);">vues</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(232,148,10,.07);border-radius:8px;padding:7px 13px;">
+          <span style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#E8940A;">${f['Nb candidatures']||0}</span>
+          <span style="font-size:11px;color:rgba(232,148,10,.6);">candidature${(f['Nb candidatures']||0)!==1?'s':''}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="showDashSection('recrut-candidatures');loadCandidaturesRecues().then(()=>{const s=document.getElementById('recrut-cand-filter-offre');if(s){s.value='${o.id}';filterRecrutCandidatures();}})" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">👥 Candidatures</button>
+        <button onclick="ouvrirEditionOffre('${o.id}')" style="background:rgba(248,246,241,.06);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Modifier</button>
+        <button onclick="partagerOffre('${titre}','${o.id}')" style="background:rgba(248,246,241,.06);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📤 Partager</button>
+        <button onclick="toggleOffreActive('${o.id}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(34,197,94,.08)'};color:${isActive?'#ef4444':'#22c55e'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(34,197,94,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
+        <button onclick="supprimerOffre('${o.id}','${titre}')" style="background:rgba(220,38,38,.07);color:#ef4444;border:1px solid rgba(220,38,38,.18);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🗑 Supprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function ouvrirEditionOffre(offreId) {
+  const offre = allMesOffres.find(o => o.id === offreId);
+  if (!offre) { toast('Offre introuvable', 'error'); return; }
+  const f = offre.fields;
+  const metiersOpts = ['Plombier','Électricien','Menuisier','Maçon','Peintre','Soudeur','Mécanicien','Coiffeur','Couturier','Cuisinier','Photographe','Graphiste','Développeur web','Commercial/Agent','Gardien','Chauffeur','Enseignant/Formateur','Comptable','Secrétaire','Agent de sécurité','Infirmier','Autre'];
+  const quartiersOpts = ['Lomé Centre','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Cassablanca','Avédji','Attiégou','Autre'];
+  const contratsOpts = ['CDI','CDD','Freelance','Mission ponctuelle','Stage','Bénévole','Alternance'];
+  const expOpts = ['Aucune','1-2 ans','3-5 ans','5+ ans'];
+  const selOpts = (list, val) => list.map(v => `<option value="${v}"${v===val?' selected':''}>${v}</option>`).join('');
+  const iS = 'width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#F8F6F1;padding:10px 14px;font-family:Poppins,sans-serif;font-size:13px;outline:none;';
+  const lS = 'display:block;font-family:Poppins,sans-serif;font-size:12px;color:rgba(248,246,241,.5);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;';
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-edition-offre';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `<div style="background:#1a1e1b;border:1px solid rgba(232,148,10,.2);border-radius:20px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;padding:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;">
+      <div><h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;margin:0 0 4px;">Modifier l'offre</h3><p style="font-size:12px;color:rgba(248,246,241,.4);margin:0;">Modifications enregistrées sur Airtable.</p></div>
+      <button onclick="document.getElementById('modal-edition-offre').remove()" style="background:rgba(248,246,241,.08);border:none;border-radius:8px;color:rgba(248,246,241,.6);font-size:18px;width:36px;height:36px;cursor:pointer;">×</button>
+    </div>
+    <div style="margin-bottom:16px;"><label style="${lS}">Titre *</label><input id="edit-offre-titre" type="text" value="${(f['Titre']||'').replace(/"/g,'&quot;')}" style="${iS}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><label style="${lS}">Métier</label><select id="edit-offre-metier" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(metiersOpts, f['Métier']||'')}</select></div>
+      <div><label style="${lS}">Quartier</label><select id="edit-offre-quartier" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(quartiersOpts, f['Quartier']||'')}</select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><label style="${lS}">Contrat</label><select id="edit-offre-contrat" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(contratsOpts, f['Type de contrat']||'')}</select></div>
+      <div><label style="${lS}">Expérience</label><select id="edit-offre-experience" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(expOpts, f['Expérience requise']||'')}</select></div>
+    </div>
+    <div style="margin-bottom:16px;"><label style="${lS}">Description</label><textarea id="edit-offre-description" rows="4" style="${iS}resize:vertical;">${f['Description']||''}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><label style="${lS}">Salaire min (FCFA)</label><input id="edit-offre-salaire-min" type="number" value="${f['Salaire min FCFA']||''}" style="${iS}"></div>
+      <div><label style="${lS}">Salaire max (FCFA)</label><input id="edit-offre-salaire-max" type="number" value="${f['Salaire max FCFA']||''}" style="${iS}"></div>
+    </div>
+    <div style="display:flex;gap:20px;margin-bottom:24px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(248,246,241,.7);"><input id="edit-offre-urgente" type="checkbox" ${f['Urgente']?'checked':''} style="accent-color:#E8940A;"> 🔴 Urgente</label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(248,246,241,.7);"><input id="edit-offre-teletravail" type="checkbox" ${f['Télétravail']?'checked':''} style="accent-color:#E8940A;"> 🏠 Télétravail</label>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="document.getElementById('modal-edition-offre').remove()" style="background:rgba(248,246,241,.06);color:rgba(248,246,241,.6);border:1px solid rgba(248,246,241,.12);border-radius:10px;padding:11px 22px;font-size:13px;font-weight:600;cursor:pointer;">Annuler</button>
+      <button onclick="sauvegarderEditionOffre('${offreId}')" style="background:#E8940A;color:#0f1410;border:none;border-radius:10px;padding:11px 22px;font-size:13px;font-weight:700;cursor:pointer;">💾 Enregistrer</button>
+    </div>
+  </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+async function sauvegarderEditionOffre(offreId) {
+  const g = id => document.getElementById(id);
+  const titre = (g('edit-offre-titre')||{}).value?.trim();
+  if (!titre) { toast('Le titre est obligatoire', 'error'); return; }
+  const fields = {
+    'Titre': titre,
+    'Métier': (g('edit-offre-metier')||{}).value||'',
+    'Quartier': (g('edit-offre-quartier')||{}).value||'',
+    'Type de contrat': (g('edit-offre-contrat')||{}).value||'',
+    'Expérience requise': (g('edit-offre-experience')||{}).value||'',
+    'Description': (g('edit-offre-description')||{}).value?.trim()||'',
+    'Urgente': !!(g('edit-offre-urgente')||{}).checked,
+    'Télétravail': !!(g('edit-offre-teletravail')||{}).checked,
+  };
+  const sMin = parseInt((g('edit-offre-salaire-min')||{}).value||'0', 10);
+  const sMax = parseInt((g('edit-offre-salaire-max')||{}).value||'0', 10);
+  if (sMin > 0) fields['Salaire min FCFA'] = sMin;
+  if (sMax > 0) fields['Salaire max FCFA'] = sMax;
+  try {
+    const r = await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { method: 'PATCH', headers: AT_HEADERS, body: JSON.stringify({ fields }) });
+    const data = await r.json();
+    if (data.id) {
+      toast('Offre mise à jour ✓', 'success');
+      const modal = document.getElementById('modal-edition-offre');
+      if (modal) modal.remove();
+      await loadMesOffres();
+    } else { throw new Error(data.error?.message||'Erreur'); }
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
 }
 
 async function toggleOffreActive(offreId, actif) {
@@ -19858,6 +20085,62 @@ async function notifyCandidatStatut(candidatureId, nouveauStatut) {
     });
   } catch(err) {
     console.warn('[notifyCandidatStatut] Erreur silencieuse:', err);
+  }
+}
+
+// ── Dashboard Global Recruteur ──
+async function loadRecrutDashboard() {
+  if (!currentPrestataire?.id) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  ['rd-kpi-offres-actives','rd-kpi-offres-inactives','rd-kpi-total-cand','rd-kpi-taux','rd-kpi-vues-totales','rd-kpi-retenues','rd-kpi-top-offre'].forEach(id => set(id, '…'));
+  const latestEl = document.getElementById('rd-latest-cand');
+  if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(248,246,241,.3);font-size:13px;">Chargement...</div>';
+  try {
+    const rid = currentPrestataire.id;
+    const [offresRes, candsRes] = await Promise.all([
+      fetch(AT_URL("Offres d'Emploi") + `?filterByFormula=${encodeURIComponent(`{Recruteur ID}="${rid}"`)}`, { headers: AT_HEADERS }),
+      fetch(AT_URL('Candidatures') + `?filterByFormula=${encodeURIComponent(`{Recruteur ID}="${rid}"`)}&sort[0][field]=Date candidature&sort[0][direction]=desc`, { headers: AT_HEADERS })
+    ]);
+    const offres = (await offresRes.json()).records || [];
+    const cands = (await candsRes.json()).records || [];
+    const offresActives = offres.filter(o => o.fields['Active']).length;
+    const vuesTotales = offres.reduce((s, o) => s + (Number(o.fields['Vues'])||0), 0);
+    const retenues = cands.filter(c => c.fields['Statut'] === 'Retenue').length;
+    let topOffre = offres.sort((a,b) => (Number(b.fields['Vues'])||0) - (Number(a.fields['Vues'])||0))[0];
+
+    set('rd-kpi-offres-actives', offresActives);
+    set('rd-kpi-offres-inactives', offres.length - offresActives);
+    set('rd-kpi-total-cand', cands.length);
+    set('rd-kpi-taux', vuesTotales > 0 ? (cands.length / vuesTotales * 100).toFixed(1) + '%' : '0%');
+    set('rd-kpi-vues-totales', vuesTotales);
+    set('rd-kpi-retenues', retenues);
+    set('rd-kpi-top-offre', topOffre ? (topOffre.fields['Titre']||'—').substring(0,28) + (topOffre.fields['Titre']?.length > 28 ? '…' : '') : '—');
+
+    // 5 dernières candidatures
+    if (!latestEl) return;
+    const latest = cands.slice(0, 5);
+    if (latest.length === 0) { latestEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(248,246,241,.3);font-size:13px;">Aucune candidature pour l\'instant.</div>'; return; }
+    const scMap = { 'Retenue':'#22c55e', 'Vue':'#3b82f6', 'Refusée':'#ef4444' };
+    latestEl.innerHTML = latest.map(c => {
+      const f = c.fields, photo = f['Candidat Photo']||'', nom = f['Candidat Nom']||'Candidat';
+      const statut = f['Statut']||'En attente', sc = scMap[statut]||'rgba(248,246,241,.45)';
+      const date = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '';
+      const offre = (f['Offre Titre']||'').substring(0,32) + ((f['Offre Titre']||'').length > 32 ? '…' : '');
+      return `<div style="display:flex;align-items:center;gap:12px;background:rgba(248,246,241,.03);border:1px solid rgba(248,246,241,.07);border-radius:10px;padding:12px 14px;">
+        ${photo ? `<img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,.25);flex-shrink:0;">` : `<div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#E8940A;">${nom[0].toUpperCase()}</div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+          <div style="font-size:11px;color:rgba(248,246,241,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f['Candidat Métier']||''}${f['Candidat Métier']&&offre?' · ':''}${offre}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:${sc};text-transform:uppercase;letter-spacing:.5px;">${statut}</div>
+          <div style="font-size:10px;color:rgba(248,246,241,.3);margin-top:2px;">${date}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(err) {
+    console.error('[loadRecrutDashboard]', err);
+    if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;font-size:13px;">Erreur de chargement.</div>';
   }
 }
 </script>
