@@ -25993,7 +25993,10 @@ function updateRecrutQuartiers() {
   var ville = document.getElementById('recrut-ville').value;
   var qSel = document.getElementById('recrut-quartier');
   qSel.innerHTML = '';
-  var quartiers = RECRUT_QUARTIERS[ville];
+  // Match par contenu pour éviter les problèmes d'encodage accents
+  var quartiers = null;
+  if (ville.indexOf('Lom') > -1) quartiers = RECRUT_QUARTIERS['Lomé (Togo)'];
+  else if (ville.indexOf('Coton') > -1) quartiers = RECRUT_QUARTIERS['Cotonou (Bénin)'];
   if (!quartiers) {
     qSel.innerHTML = '<option value="">— Choisis d\'abord ta ville —</option>';
     return;
