@@ -25866,13 +25866,14 @@ window.addEventListener('beforeinstallprompt', function(e){
       </form>
 
       <!-- MERCI -->
-      <div id="recrut-merci" style="display:none;text-align:center;padding:60px 0;">
+      <div id="recrut-merci" style="display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px;min-height:100vh;position:fixed;top:0;left:0;right:0;bottom:0;background:#0f1410;z-index:9999;">
         <div style="font-size:48px;color:#E8940A;margin-bottom:16px;">✓</div>
         <h2 style="font-family:'Fraunces',serif;font-size:28px;color:#F8F6F1;margin:0 0 14px;font-weight:900;">Candidature reçue.</h2>
-        <p style="font-family:'Poppins',sans-serif;font-size:16px;color:rgba(248,246,241,0.6);line-height:1.7;margin:0 0 24px;max-width:480px;margin-left:auto;margin-right:auto;">On traite les candidatures dans les 48h. Tu recevras un message WhatsApp de l'équipe WOLO.</p>
+        <p style="font-family:'Poppins',sans-serif;font-size:16px;color:rgba(248,246,241,0.6);line-height:1.7;margin:0 0 24px;max-width:480px;margin-left:auto;margin-right:auto;">On revient vers toi sur WhatsApp dans les jours qui suivent.</p>
         <div style="width:50px;height:3px;background:#E8940A;margin:24px auto;"></div>
-        <p style="font-family:'Poppins',sans-serif;font-size:14px;color:rgba(248,246,241,0.5);margin:0 0 24px;">En attendant — découvre la plateforme que tu vas représenter.</p>
-        <button onclick="showPage('home')" style="background:#E8940A;color:#0f1410;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;border:none;cursor:pointer;margin-bottom:14px;">→ Découvrir WOLO Market</button>
+        <p style="font-family:'Fraunces',serif;font-style:italic;font-size:20px;color:#F8F6F1;margin:0 0 10px;font-weight:700;">En attendant — crée ton compte WOLO Market.</p>
+        <p style="font-family:'Poppins',sans-serif;font-size:14px;color:rgba(248,246,241,0.5);margin:0 0 28px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.7;">Les candidats qui connaissent déjà la plateforme ont une longueur d'avance. Crée ton profil, explore l'écosystème, et montre-nous que tu es déjà dedans.</p>
+        <button onclick="showPage('inscription')" style="background:#E8940A;color:#0f1410;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;border:none;cursor:pointer;margin-bottom:14px;">→ Créer mon compte gratuitement</button>
         <br>
         <a href="https://wa.me/?text=Tu%20cherches%20du%20travail%20s%C3%A9rieux%20%C3%A0%20Lom%C3%A9%20ou%20Cotonou%20%3F%0A%0APas%20un%20truc%20flou.%20Pas%20un%20stage%20non%20pay%C3%A9.%0AUn%20vrai%20travail%20de%20terrain.%0A%0A100%20000%20FCFA%20atteignable%20d%C3%A8s%20le%20premier%20mois.%0APas%20de%20dipl%C3%B4me%20exig%C3%A9%20%E2%80%94%20juste%20du%20s%C3%A9rieux.%0A20%20places.%20Pas%20une%20de%20plus.%0A%0APostule%20en%202%20minutes%20%3A%0A%F0%9F%91%89%20wolomarket.com%2Frecrutement-agents" target="_blank" style="display:inline-block;width:100%;max-width:400px;background:#25d366;color:white;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;padding:14px 24px;border-radius:12px;text-decoration:none;text-align:center;box-sizing:border-box;margin-top:10px;">📲 Partager cette opportunité</a>
       </div>
@@ -26059,9 +26060,10 @@ async function submitRecrutement(e) {
 
     if (!res.ok) throw new Error('Airtable error');
 
-    document.getElementById('recrutement-form').style.display = 'none';
-    document.getElementById('recrut-merci').style.display = 'block';
-    document.getElementById('recrut-merci').scrollIntoView({ behavior: 'smooth' });
+    // Masquer TOUT le contenu de la page recrutement sauf le merci
+    document.getElementById('recrut-form-wrap').style.display = 'none';
+    document.getElementById('recrut-merci').style.display = 'flex';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     toast('Candidature envoyée !', 'success');
 
   } catch(err) {
