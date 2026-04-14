@@ -26012,6 +26012,16 @@ async function submitRecrutement(e) {
   btn.textContent = 'Envoi en cours...';
 
   try {
+    // Validation indicatif téléphone vs ville
+    var tel = document.getElementById('recrut-tel').value.trim();
+    var ville = document.getElementById('recrut-ville').value;
+    if (!tel.startsWith('+')) { toast('Ajoute l\'indicatif pays (+228 ou +229) avant ton numéro', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
+    var is228 = tel.startsWith('+228');
+    var is229 = tel.startsWith('+229');
+    if (!is228 && !is229) { toast('Indicatif invalide. Utilise +228 (Togo) ou +229 (Bénin)', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
+    if (is228 && ville.indexOf('Cotonou') > -1) { toast('Tu as mis +228 (Togo) mais choisi Cotonou (Bénin). Vérifie ton numéro ou ta ville.', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
+    if (is229 && ville.indexOf('Lomé') > -1) { toast('Tu as mis +229 (Bénin) mais choisi Lomé (Togo). Vérifie ton numéro ou ta ville.', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
+
     // Upload photos to ImgBB
     var photoFiles = document.getElementById('recrut-photos').files;
     if (!photoFiles || photoFiles.length === 0) { toast('Ajoute au moins 1 photo', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
