@@ -25865,8 +25865,8 @@ window.addEventListener('beforeinstallprompt', function(e){
         </div>
 
         <div style="grid-column:1/-1;">
-          <label for="recrut-photos" style="display:block;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;color:rgba(248,246,241,0.7);margin-bottom:6px;">PHOTOS (1 à 2) *</label>
-          <p style="font-family:'Poppins',sans-serif;font-size:12px;color:rgba(248,246,241,0.4);margin:0 0 8px;">1 à 2 photos nettes — portrait ou mi-corps</p>
+          <label for="recrut-photos" style="display:block;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;color:rgba(248,246,241,0.7);margin-bottom:6px;">PHOTOS (1 à 3) *</label>
+          <p style="font-family:'Poppins',sans-serif;font-size:12px;color:rgba(248,246,241,0.4);margin:0 0 8px;">1 à 3 photos nettes — portrait ou mi-corps</p>
           <input type="file" id="recrut-photos" required accept="image/*" multiple style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(232,148,10,0.15);color:#F8F6F1;padding:14px 16px;border-radius:10px;font-size:15px;font-family:'Poppins',sans-serif;box-sizing:border-box;">
         </div>
 
@@ -26057,10 +26057,10 @@ async function submitRecrutement(e) {
     // Upload photos to ImgBB
     var photoFiles = document.getElementById('recrut-photos').files;
     if (!photoFiles || photoFiles.length === 0) { toast('Ajoute au moins 1 photo', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
-    if (photoFiles.length > 2) { toast('Maximum 2 photos', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
+    if (photoFiles.length > 3) { toast('Maximum 3 photos', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
 
     var photoUrls = [];
-    for (var i = 0; i < Math.min(photoFiles.length, 2); i++) {
+    for (var i = 0; i < Math.min(photoFiles.length, 3); i++) {
       var url = await uploadToImgBB(photoFiles[i]);
       if (url) photoUrls.push(url);
     }
@@ -26164,7 +26164,7 @@ function renderCandKPIs() {
         var count = all.filter(function(r){ return (r.fields['Quartier']||'').indexOf(q) > -1 && r.fields['Ville'] === ville; }).length;
         var bg = count > 0 ? 'rgba(232,148,10,.15)' : 'rgba(255,255,255,.04)';
         var color = count > 0 ? '#E8940A' : 'rgba(248,246,241,.3)';
-        html += '<div onclick="document.getElementById(\'cand-f-search\').value=\'' + q + '\';filterCandidatures()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:' + bg + ';border:1px solid ' + (count > 0 ? 'rgba(232,148,10,.25)' : 'rgba(255,255,255,.06)') + ';border-radius:8px;cursor:pointer;font-family:Poppins,sans-serif;font-size:12px;">';
+        html += '<div onclick="var s=document.getElementById(\'cand-f-search\');if(s.value===\'' + q + '\'){s.value=\'\'}else{s.value=\'' + q + '\'}filterCandidatures()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:' + bg + ';border:1px solid ' + (count > 0 ? 'rgba(232,148,10,.25)' : 'rgba(255,255,255,.06)') + ';border-radius:8px;cursor:pointer;font-family:Poppins,sans-serif;font-size:12px;">';
         html += '<span style="color:' + color + ';font-weight:600;">' + q + '</span>';
         html += '<span style="font-family:Space Mono,monospace;font-size:11px;font-weight:900;color:' + color + ';">' + count + '</span>';
         html += '</div>';
@@ -26366,6 +26366,23 @@ async function validateAgent(recordId) {
   }
 }
 
+// ── PHOTO LIGHTBOX ──
+function openPhotoLightbox(url) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);z-index:100000;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:20px;';
+  overlay.onclick = function(){ overlay.remove(); };
+  var img = document.createElement('img');
+  img.src = url;
+  img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:16px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.6);';
+  var closeBtn = document.createElement('div');
+  closeBtn.innerHTML = '✕';
+  closeBtn.style.cssText = 'position:absolute;top:20px;right:24px;color:#F8F6F1;font-size:28px;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border-radius:50%;';
+  closeBtn.onclick = function(){ overlay.remove(); };
+  overlay.appendChild(img);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+}
+
 // ── DETAIL MODAL ──
 function showCandDetail(recordId) {
   var rec = _candCache.find(function(r){ return r.id === recordId; });
@@ -26375,11 +26392,11 @@ function showCandDetail(recordId) {
   var statut = f['Statut'] || 'En attente';
   var html = '';
 
-  // Photos en grand
+  // Photos en grand (cliquables pour lightbox)
   if (photos.length) {
     html += '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">';
     photos.forEach(function(url) {
-      html += '<img src="' + url + '" style="width:' + (photos.length === 1 ? '220px' : '160px') + ';height:' + (photos.length === 1 ? '280px' : '200px') + ';border-radius:14px;object-fit:cover;border:2px solid rgba(232,148,10,.15);">';
+      html += '<img src="' + url + '" onclick="openPhotoLightbox(\'' + url.replace(/'/g,"\\'") + '\')" style="width:' + (photos.length === 1 ? '220px' : '160px') + ';height:' + (photos.length === 1 ? '280px' : '200px') + ';border-radius:14px;object-fit:cover;border:2px solid rgba(232,148,10,.15);cursor:pointer;transition:transform .15s;" onmouseover="this.style.transform=\'scale(1.03)\'" onmouseout="this.style.transform=\'scale(1)\'">';
     });
     html += '</div>';
   }
