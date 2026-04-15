@@ -2,19 +2,37 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 🚧 EN COURS — WOLO Business Suite (Phases A → G)
+## ✅ LIVRÉ — WOLO Business Suite (Phases A → G, commit 58ff6dc)
 
-Refonte dashboard pour créer un flow 100% continu Recrutement → Intégration → Équipe → Paie → Finances. **Plan complet** : `/docs/BUSINESS-SUITE-PLAN.md`.
+Flow continu Recrutement → Intégration → Équipe → Paie → Finances. **Plan** : `/docs/BUSINESS-SUITE-PLAN.md`, **schéma Airtable** : `/docs/AIRTABLE-SCHEMA-BUSINESS-SUITE.md`.
 
-- **Phase A** ✅ : plan doc committé, roadmap architecturale définie
-- **Phase B** ⏭️ (prochaine) : Vue Kanban Pipeline Talent (Offres → Candidats → Équipe active, drag & drop)
-- **Phase C** : Module Équipe + flow d'invitation compte WOLO (token + landing `/invite/:token`)
-- **Phase D** : WOLO Pay Payroll + fiches de paie PDF (1-clic paiement équipe)
-- **Phase E** : Espace employé "Mon Emploi" (widget finances pro, bulletins, annonces reçues)
-- **Phase F** : Annonces équipe + Congés
-- **Phase G** : Finances (CA journalier + dépenses + graphs évolution mensuelle)
+- **A** ✅ Plan + roadmap
+- **B** ✅ Pipeline Kanban Talent
+- **C** ✅ Équipe + invitation WhatsApp (`/invite.html?token=`)
+- **D** ✅ Paie + bulletins PDF (`paie-pay` + `paie-bulletin`)
+- **E** ✅ Mon emploi (vue employé : bulletins + annonces)
+- **F** ✅ Annonces équipe (`annonces-broadcast`)
+- **G** ✅ Finances (CA journalier + dépenses)
 
-**Polymorphie** : le système s'adapte à tout type d'entreprise (solopreneur / commerçant / BTP / services / PME) via un wizard "Décris ton activité" qui active les modules pertinents. Un compte WOLO peut cumuler plusieurs casquettes (patron + employé + solo + candidat).
+### Composants frontend (tous sous `/components/`)
+`pipeline-kanban.js`, `equipe-dashboard.js`, `paie-dashboard.js`, `mon-emploi.js`, `annonces-patron.js`, `finances-dashboard.js`
+
+### Endpoints consolidés dans `/api/wolo-pay/[action].js`
+Contrainte Vercel Hobby = **12 functions max**. Implémentations sous `/api/wolo-pay/_impl/` (préfixe `_` = non-routable, ne compte pas). Actions ajoutées :
+- `invitation-create` / `invitation-get` (public) / `invitation-accept` (public)
+- `paie-pay` / `paie-bulletin` (public, retourne HTML print-ready)
+- `annonces-broadcast`
+
+⚠️ **NE PAS créer de nouveaux fichiers dans `/api/*/`** sans consolider dans le router — on est à 12/12.
+
+### Tables Airtable créées (8)
+`Employes`, `Invitations_Employes`, `Fiches_Paie`, `Paiements_Salaire`, `Annonces_Equipe`, `Conges`, `CA_Journalier`, `Depenses`
+
+### Patterns établis
+- IIFE + state closure + `window.loadXxx` pour chaque composant
+- `const wFetch = window.woloFetch || fetch` pour auth-fallback
+- Filtrage Airtable : `{Patron ID}='${patronId}'` via `filterByFormula`
+- Polymorphie : un compte WOLO cumule patron + employé + solo + candidat
 
 ## Projet
 
