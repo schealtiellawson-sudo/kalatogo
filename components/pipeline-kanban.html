@@ -1,0 +1,132 @@
+<!-- ══════════════════════════════════════════
+     WOLO Business — Pipeline Talent Kanban (Phase B)
+     Section à intégrer dans index.html dashboard-main
+     ID: ds-talent-pipeline (accessible via showDashSection('talent-pipeline'))
+     ══════════════════════════════════════════ -->
+
+<div id="ds-talent-pipeline" class="dash-section">
+
+  <div class="kanban-wrap">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:#F8F6F1;margin:0 0 4px;">Pipeline Talent</h1>
+        <p style="font-family:'Poppins',sans-serif;font-size:13px;color:rgba(248,246,241,.5);margin:0;">
+          De l'offre publiée à l'employé intégré — tout le parcours en 1 vue.
+        </p>
+      </div>
+      <button onclick="showDashSection('talent-offre-new')" style="background:#E8940A;color:#0f1410;border:none;padding:10px 20px;border-radius:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <i data-lucide="plus"></i> Publier une offre
+      </button>
+    </div>
+
+    <!-- KPIs -->
+    <div id="kanban-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px;">
+      <!-- Rendus dynamiquement par loadPipelineKanban() -->
+    </div>
+
+    <!-- Toolbar -->
+    <div class="kanban-toolbar">
+      <select id="kanban-filter-offre" onchange="filterPipelineKanban()">
+        <option value="">Toutes les offres</option>
+      </select>
+      <select id="kanban-filter-ville" onchange="filterPipelineKanban()">
+        <option value="">Toutes les villes</option>
+        <option value="Lomé">Lomé</option>
+        <option value="Cotonou">Cotonou</option>
+      </select>
+      <input type="text" id="kanban-search" oninput="filterPipelineKanban()" placeholder="Rechercher nom, métier...">
+      <div class="kanban-view-toggle">
+        <button id="kanban-btn-kanban" class="active" onclick="setPipelineView('kanban')">◫ Kanban</button>
+        <button id="kanban-btn-table" onclick="setPipelineView('table')">☰ Tableau</button>
+        <button id="kanban-btn-grid" onclick="setPipelineView('grid')">◻ Grille</button>
+      </div>
+    </div>
+
+    <!-- Board (vue Kanban par défaut) -->
+    <div id="kanban-board" class="kanban-board">
+      <div class="kanban-col" data-col="offre" data-col-label="📢 Offres en ligne">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">📢</span> Offres en ligne
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+      <div class="kanban-col" data-col="nouveau" data-col-label="👀 À examiner">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">👀</span> À examiner
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+      <div class="kanban-col" data-col="shortlist" data-col-label="⭐ Shortlist">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">⭐</span> Shortlist
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+      <div class="kanban-col" data-col="entretien" data-col-label="📞 Entretien">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">📞</span> Entretien
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+      <div class="kanban-col" data-col="retenu" data-col-label="✅ Retenu">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">✅</span> Retenu
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+      <div class="kanban-col" data-col="onboarding" data-col-label="🎯 Onboarding">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">🎯</span> Onboarding
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+      <div class="kanban-col" data-col="equipe" data-col-label="💼 Équipe active">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">💼</span> Équipe active
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+      <div class="kanban-col" data-col="parti" data-col-label="🚪 Parti">
+        <div class="kanban-col-head">
+          <span class="kanban-col-head-emoji">🚪</span> Parti
+          <span class="kanban-col-count" data-col-count>0</span>
+        </div>
+        <div class="kanban-col-cards" data-col-body></div>
+      </div>
+    </div>
+
+    <!-- Vue Tableau (masquée par défaut) -->
+    <div id="kanban-table-view" style="display:none;" class="kanban-table-wrap">
+      <table class="kanban-table">
+        <thead>
+          <tr>
+            <th>Photo</th>
+            <th>Nom</th>
+            <th>Poste / Offre</th>
+            <th>Ville</th>
+            <th>Étape</th>
+            <th>Score</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="kanban-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Vue Grille (masquée par défaut) -->
+    <div id="kanban-grid-view" style="display:none;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
+      <!-- Rendu dynamique -->
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invitation WOLO Market</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Poppins:wght@400;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0f1410;color:#F8F6F1;font-family:'Poppins',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+    .card{max-width:480px;width:100%;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.2);border-radius:18px;padding:32px;}
+    .logo{width:48px;height:48px;border-radius:50%;background:#0f1410;border:1px solid #E8940A;display:flex;align-items:center;justify-content:center;color:#E8940A;font-family:'Fraunces',serif;font-weight:900;font-size:24px;margin-bottom:20px;}
+    h1{font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin-bottom:8px;line-height:1.2;}
+    .sub{font-size:13px;color:rgba(248,246,241,.6);margin-bottom:24px;}
+    .pill{display:inline-block;background:rgba(232,148,10,.12);color:#E8940A;font-family:'Space Mono',monospace;font-size:11px;padding:4px 10px;border-radius:8px;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+    .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;}
+    .row strong{color:rgba(248,246,241,.55);font-size:11px;text-transform:uppercase;letter-spacing:1px;}
+    .cta{display:block;width:100%;background:#E8940A;color:#0f1410;border:none;padding:14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;margin-top:24px;font-family:inherit;text-decoration:none;text-align:center;}
+    .cta:hover{filter:brightness(1.05);}
+    .err{color:#ef4444;font-size:13px;margin-top:14px;text-align:center;}
+    .muted{color:rgba(248,246,241,.4);font-size:11px;margin-top:18px;text-align:center;}
+  </style>
+</head>
+<body>
+  <div class="card" id="invite-card">
+    <div class="logo">W</div>
+    <div id="invite-content">
+      <p style="color:rgba(248,246,241,.5);">Chargement de l'invitation…</p>
+    </div>
+  </div>
+
+<script>
+(async function(){
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token');
+  const card = document.getElementById('invite-content');
+  if (!token) {
+    card.innerHTML = '<h1>Lien invalide</h1><p class="sub">Aucun token fourni.</p>';
+    return;
+  }
+  try {
+    const r = await fetch('/api/invitations/' + encodeURIComponent(token));
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Invitation introuvable');
+
+    if (data.statut === 'Acceptée') {
+      card.innerHTML = `<span class="pill">Déjà acceptée</span>
+        <h1>Tu es déjà dans l'équipe ✓</h1>
+        <p class="sub">Connecte-toi à WOLO Market pour voir ton emploi.</p>
+        <a class="cta" href="/">Aller sur WOLO Market</a>`;
+      return;
+    }
+
+    card.innerHTML = `<span class="pill">Invitation</span>
+      <h1>${data.patronNom || 'Un patron'} t'invite à rejoindre son équipe</h1>
+      <p class="sub">Sur WOLO Market — sans piston, juste le travail.</p>
+      <div class="row"><strong>Poste</strong><span>${data.postePrevu || '—'}</span></div>
+      <div class="row"><strong>Salaire</strong><span>${data.salairePrevu ? Number(data.salairePrevu).toLocaleString('fr-FR') + ' FCFA/mois' : 'À discuter'}</span></div>
+      <div class="row"><strong>Ton WhatsApp</strong><span>${data.whatsapp || '—'}</span></div>
+      <a class="cta" href="/?invite=${encodeURIComponent(token)}">Créer mon compte WOLO</a>
+      <p class="muted">2 minutes — tu seras automatiquement relié à ${data.patronNom || 'ton patron'}.</p>`;
+  } catch(e) {
+    card.innerHTML = `<h1>Invitation introuvable</h1><p class="sub">${e.message}</p>
+      <a class="cta" href="/">Aller sur WOLO Market</a>`;
+  }
+})();
+</script>
+</body>
+</html>
