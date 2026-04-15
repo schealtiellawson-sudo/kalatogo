@@ -11494,7 +11494,7 @@ function afficherCarteProfil(lat, lon, nom) {
 // ══════════════════════════════════════════
 // HOME
 // ══════════════════════════════════════════
-async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;try{const url=`${AT_URL('Prestataires')}?maxRecords=12&sort[0][field]=Note%20moyenne&sort[0][direction]=desc&filterByFormula=${encodeURIComponent("AND({Photo Profil}!='',{Nom complet}!='',{Métier principal}!='')")}`;const res=await fetch(url,{headers:AT_HEADERS});if(!res.ok)throw new Error('Airtable '+res.status);const data=await res.json();let records=data.records||[];if(records.length===0){const url2=`${AT_URL('Prestataires')}?maxRecords=12&sort[0][field]=Note%20moyenne&sort[0][direction]=desc&filterByFormula=${encodeURIComponent("AND({Nom complet}!='',{Métier principal}!='')")}`;const res2=await fetch(url2,{headers:AT_HEADERS});if(res2.ok){const d2=await res2.json();records=d2.records||[];}}if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,12).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['Photo Profil']||f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(248,246,241,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(248,246,241,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
+async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;try{const url=`${AT_URL('Prestataires')}?maxRecords=12&sort[0][field]=Note%20moyenne&sort[0][direction]=desc&filterByFormula=${encodeURIComponent("AND({Nom complet}!='',{Métier principal}!='')")}`;const res=await fetch(url,{headers:AT_HEADERS});if(!res.ok)throw new Error('Airtable '+res.status);const data=await res.json();let records=data.records||[];if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,12).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['Photo Profil']||f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(248,246,241,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(248,246,241,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
 
 async function initHome() {
   buildVilleOptions('home-search-quartier');
@@ -17450,8 +17450,8 @@ async function voterAwards(candidatId) {
     const grid = document.getElementById('hc-real-profiles');
     if(!grid) return;
     try {
-      const url = `https://api.airtable.com/v0/applmj1RDrJkR8C4w/Prestataires?maxRecords=6&sort%5B0%5D%5Bfield%5D=Score%20WOLO&sort%5B0%5D%5Bdirection%5D=desc&filterByFormula=AND({Photo Profil}!='',{Nom complet}!='',{Métier principal}!='')`;
-      const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + AIRTABLE_TOKEN } });
+      const url = `/api/airtable-proxy/Prestataires?maxRecords=6&sort%5B0%5D%5Bfield%5D=Score%20WOLO&sort%5B0%5D%5Bdirection%5D=desc&filterByFormula=${encodeURIComponent("AND({Nom complet}!='',{Métier principal}!='')")}`;
+      const resp = await fetch(url);
       const data = await resp.json();
       const records = (data.records || []).slice(0, 6);
       if(!records.length) return;
@@ -21973,7 +21973,7 @@ function getHeaderAwards(){
 
 // --- Récupération candidats ---
 async function getCandidatsAwards(pays){
-  const params='maxRecords=50&sort[0][field]=Votes&sort[0][direction]=desc'+(pays?('&filterByFormula='+encodeURIComponent(`{Pays}='${pays}'`)):'');
+  const params='maxRecords=50&sort[0][field]=Nb_Votes&sort[0][direction]=desc'+(pays?('&filterByFormula='+encodeURIComponent(`{Pays}='${pays}'`)):'');
   const recs=await _awardsFetchAirtable(AWARDS_TABLE,params);
   return recs.map(r=>({id:r.id,...(r.fields||{})}));
 }
@@ -21999,7 +21999,7 @@ async function afficherSectionAwards(pays){
       <div class="award-card-header"><span class="award-rang">#${i+1}</span>${c.Pays?`<span class="award-pays-badge">${c.Pays}</span>`:''}${i===0?'<span class="award-champion-badge">★ Leader</span>':''}</div>
       ${media}
       <div class="award-info"><strong class="award-nom">${c['Nom complet']||'—'}</strong><span class="award-metier">${c.Metier||c['Métier']||''}</span></div>
-      <div class="award-votes"><span class="award-nb-votes">${c.Votes||0}</span><span class="award-votes-label">votes</span></div>
+      <div class="award-votes"><span class="award-nb-votes">${c.Nb_Votes||c.Votes||0}</span><span class="award-votes-label">votes</span></div>
       <button class="award-vote-btn match-btn" data-candidat-id="${c.id}" onclick="gererClicVote('${c.id}')">Voter</button>
     </div>`;
   }).join('');
@@ -22220,7 +22220,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       var fn=window._awardsFetchAirtable||null;
       var records=[];
       if(fn){
-        records=await fn('WOLO_Gagnants','sort[0][field]=Date&sort[0][direction]=desc&maxRecords=6');
+        records=await fn('Bourse_Gagnants','sort[0][field]=Date&sort[0][direction]=desc&maxRecords=6');
       }
       if(records && records.length){
         html='<h3 style="font-family:Fraunces,serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Ils ont déjà gagné</h3>';
