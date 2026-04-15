@@ -1,9 +1,4 @@
-// ════════════════════════════════════════════
-// POST /api/paie/pay
-// Paye un employé : crée Paiements_Salaire + Fiches_Paie
-// Body: { patronId, employeId, mois (YYYY-MM), montant }
-// ════════════════════════════════════════════
-
+// POST /api/wolo-pay/paie-pay — paye employé + crée Paiements_Salaire + Fiches_Paie
 const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 
@@ -70,7 +65,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ paiementId: paiement.id, ficheId: fiche.id });
   } catch (err) {
-    console.error('[paie/pay]', err.message);
+    console.error('[paie-pay]', err.message);
     return res.status(500).json({ error: err.message });
   }
 }

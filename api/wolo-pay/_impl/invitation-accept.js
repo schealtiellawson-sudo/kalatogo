@@ -1,9 +1,4 @@
-// ════════════════════════════════════════════
-// POST /api/invitations/accept
-// Accepte une invitation : crée la fiche Employes + marque l'invitation Acceptée
-// Body: { token, userId, nomComplet, photo? }
-// ════════════════════════════════════════════
-
+// POST /api/wolo-pay/invitation-accept — crée fiche Employes + marque invitation acceptée
 const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 
@@ -31,7 +26,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Trouver l'invitation
     const formula = encodeURIComponent(`{Token}='${token}'`);
     const invData = await airtable(`Invitations_Employes?filterByFormula=${formula}&maxRecords=1`);
     const inv = invData.records?.[0];
@@ -40,7 +34,6 @@ export default async function handler(req, res) {
       return res.status(409).json({ error: 'Invitation déjà acceptée' });
     }
 
-    // 2. Créer la fiche employé
     const empData = await airtable('Employes', {
       method: 'POST',
       body: JSON.stringify({
@@ -59,7 +52,6 @@ export default async function handler(req, res) {
       })
     });
 
-    // 3. Marquer l'invitation acceptée
     await airtable(`Invitations_Employes/${inv.id}`, {
       method: 'PATCH',
       body: JSON.stringify({
@@ -73,7 +65,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ employeId: empData.id });
   } catch (err) {
-    console.error('[invitations/accept]', err.message);
+    console.error('[invitation-accept]', err.message);
     return res.status(500).json({ error: err.message });
   }
 }

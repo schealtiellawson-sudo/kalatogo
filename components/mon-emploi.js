@@ -95,7 +95,7 @@
             <div style="font-weight:700;font-size:13px;">${f['Mois'] || '—'}</div>
             <div style="font-size:11px;color:rgba(248,246,241,.55);font-family:'Space Mono',monospace;">${formatFCFA(f['Net FCFA'] || f['Salaire FCFA'] || 0)}</div>
           </div>
-          <button onclick="window.open('/api/paie/bulletin/${fi.id}','_blank')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">📄 PDF</button>
+          <button onclick="window.open('/api/wolo-pay/paie-bulletin?id=${encodeURIComponent(fi.id)}','_blank')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">📄 PDF</button>
         </div>`;
       }).join('')}
     </div>`;

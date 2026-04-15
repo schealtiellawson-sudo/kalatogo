@@ -1,9 +1,4 @@
-// ════════════════════════════════════════════
-// POST /api/annonces/broadcast
-// Diffuse une annonce à toute l'équipe d'un patron
-// Body: { patronId, titre, message, whatsapp (bool) }
-// ════════════════════════════════════════════
-
+// POST /api/wolo-pay/annonces-broadcast — diffuse annonce à toute l'équipe du patron
 const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 
@@ -31,7 +26,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Compter les destinataires
     const formula = encodeURIComponent(`AND({Patron ID}='${patronId}',{Statut}='Actif')`);
     const empData = await airtable(`Employes?filterByFormula=${formula}`);
     const nbDest = empData.records?.length || 0;
@@ -51,12 +45,9 @@ export default async function handler(req, res) {
       })
     });
 
-    // TODO Phase F : envoi WhatsApp réel via Twilio/Wassenger
-    // Pour le MVP : on stocke seulement, l'employé voit dans Mon emploi
-
     return res.status(200).json({ id: ann.id, nbDestinataires: nbDest });
   } catch (err) {
-    console.error('[annonces/broadcast]', err.message);
+    console.error('[annonces-broadcast]', err.message);
     return res.status(500).json({ error: err.message });
   }
 }

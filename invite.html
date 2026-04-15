@@ -41,7 +41,7 @@
     return;
   }
   try {
-    const r = await fetch('/api/invitations/' + encodeURIComponent(token));
+    const r = await fetch('/api/wolo-pay/invitation-get?token=' + encodeURIComponent(token));
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || 'Invitation introuvable');
 

@@ -29,6 +29,12 @@ import awardsVote from './_impl/awards-vote.js';
 import awardsCandidater from './_impl/awards-candidater.js';
 import adminVerify from './_impl/admin-verify.js';
 import agentsTerrain from './_impl/agents-terrain.js';
+import invitationCreate from './_impl/invitation-create.js';
+import invitationGet from './_impl/invitation-get.js';
+import invitationAccept from './_impl/invitation-accept.js';
+import paiePay from './_impl/paie-pay.js';
+import paieBulletin from './_impl/paie-bulletin.js';
+import annoncesBroadcast from './_impl/annonces-broadcast.js';
 
 // Endpoints publics (pas besoin d'authentification)
 const PUBLIC_ACTIONS = new Set([
@@ -39,6 +45,9 @@ const PUBLIC_ACTIONS = new Set([
   'recompenses-status',  // Palmarès public (user_id=public) OU user authentifié (handler filtre)
   'admin-verify',        // Gère sa propre auth via token
   'agents-terrain',      // Gère sa propre auth via token admin
+  'invitation-get',      // Lien WhatsApp public, pas encore de compte
+  'invitation-accept',   // Nouveau compte créé via le lien
+  'paie-bulletin',       // Bulletin HTML ouvert par l'employé
 ]);
 
 const handlers = {
@@ -68,6 +77,12 @@ const handlers = {
   'search-user': searchUser,
   'transfer': transfer,
   'transfer-by-email': transferByEmail,
+  'invitation-create': invitationCreate,
+  'invitation-get': invitationGet,
+  'invitation-accept': invitationAccept,
+  'paie-pay': paiePay,
+  'paie-bulletin': paieBulletin,
+  'annonces-broadcast': annoncesBroadcast,
 };
 
 export default async function handler(req, res) {

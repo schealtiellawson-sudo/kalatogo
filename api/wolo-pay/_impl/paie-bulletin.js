@@ -1,9 +1,4 @@
-// ════════════════════════════════════════════
-// GET /api/paie/bulletin/:id
-// Génère un bulletin de paie HTML imprimable depuis Fiches_Paie
-// (Version MVP : HTML print-ready, le navigateur peut sauvegarder en PDF)
-// ════════════════════════════════════════════
-
+// GET /api/wolo-pay/paie-bulletin?id=xxx — HTML imprimable d'un bulletin
 const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 
@@ -11,7 +6,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
   if (!AIRTABLE_KEY || !AIRTABLE_BASE) return res.status(500).send('Config manquante');
 
-  const { id } = req.query;
+  const id = req.query.id;
   if (!id) return res.status(400).send('ID requis');
 
   try {
@@ -56,7 +51,7 @@ export default async function handler(req, res) {
   </div>
 </body></html>`);
   } catch (err) {
-    console.error('[paie/bulletin]', err.message);
+    console.error('[paie-bulletin]', err.message);
     return res.status(500).send('Erreur serveur');
   }
 }

@@ -106,7 +106,8 @@
     if (!titre || !msg) { if (statusEl) statusEl.textContent = '⚠️ Titre et message requis.'; return; }
     if (statusEl) statusEl.textContent = 'Diffusion…';
     try {
-      const res = await fetch('/api/annonces/broadcast', {
+      const wFetch = window.woloFetch || fetch;
+      const res = await wFetch('/api/wolo-pay/annonces-broadcast', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ patronId: window.currentPrestataire.id, titre, message: msg, whatsapp: pushWA })

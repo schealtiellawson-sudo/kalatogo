@@ -137,7 +137,8 @@
     if (!confirm(`Payer ${formatFCFA(salaire)} à ${nom} pour ${state.mois} via WOLO Pay ?`)) return;
     try {
       const patronId = window.currentPrestataire.id;
-      const res = await fetch('/api/paie/pay', {
+      const wFetch = window.woloFetch || fetch;
+      const res = await wFetch('/api/wolo-pay/paie-pay', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ patronId, employeId: empId, mois: state.mois, montant: salaire })
@@ -153,7 +154,7 @@
 
   window.downloadBulletin = function(ficheId){
     if (!ficheId) return alert('Bulletin introuvable.');
-    window.open('/api/paie/bulletin/' + ficheId, '_blank');
+    window.open('/api/wolo-pay/paie-bulletin?id=' + encodeURIComponent(ficheId), '_blank');
   };
 
   window.loadPaieDashboard = loadPaieDashboard;

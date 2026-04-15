@@ -1,20 +1,12 @@
-// ════════════════════════════════════════════
-// POST /api/invitations/create
-// Crée une invitation employé + token unique
-// ════════════════════════════════════════════
-
+// POST /api/wolo-pay/invitation-create — crée invitation employé + token unique
 import crypto from 'crypto';
 
 const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée' });
-  }
-  if (!AIRTABLE_KEY || !AIRTABLE_BASE) {
-    return res.status(500).json({ error: 'Configuration serveur incomplète' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
+  if (!AIRTABLE_KEY || !AIRTABLE_BASE) return res.status(500).json({ error: 'Config manquante' });
 
   const { patronId, patronNom, nomPrevu, whatsapp, postePrevu, salairePrevu } = req.body || {};
   if (!patronId || !nomPrevu || !whatsapp || !postePrevu) {
@@ -46,12 +38,12 @@ export default async function handler(req, res) {
     });
     const data = await response.json();
     if (!response.ok) {
-      console.error('[invitations/create] Airtable error', data);
+      console.error('[invitation-create]', data);
       return res.status(response.status).json({ error: data.error?.message || 'Erreur Airtable' });
     }
     return res.status(200).json({ token, recordId: data.id });
   } catch (err) {
-    console.error('[invitations/create]', err.message);
+    console.error('[invitation-create]', err.message);
     return res.status(502).json({ error: 'Erreur serveur' });
   }
 }

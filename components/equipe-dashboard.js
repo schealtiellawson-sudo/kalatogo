@@ -191,7 +191,8 @@
     try {
       const patronId = window.currentPrestataire?.id;
       const patronNom = window.currentPrestataire?.fields?.['Nom complet'] || 'Ton patron';
-      const res = await fetch('/api/invitations/create', {
+      const wFetch = window.woloFetch || fetch;
+      const res = await wFetch('/api/wolo-pay/invitation-create', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
