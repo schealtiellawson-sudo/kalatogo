@@ -8916,7 +8916,27 @@ function openDashGroupContaining(linkEl){
   var g = linkEl.closest('.dash-group');
   if (g) g.classList.add('open');
 }
+// ── ALIAS RÉTROCOMPAT — WOLO Business Suite (Phase A) ──
+// Permet d'utiliser les nouveaux IDs sans casser les anciens liens/bookmarks.
+// Ajout progressif à mesure que les phases B→G remplacent les sections.
+window.DASH_SECTION_ALIASES = {
+  // Emploi & Recrutement (Phase B)
+  'talent-offres': 'recrut-offres',
+  'talent-offre-new': 'recrut-publier',
+  'talent-pipeline': 'recrut-candidatures',
+  'talent-dashboard': 'recrut-dashboard',
+  'jobs-dispo': 'emploi-mode',
+  'jobs-cv': 'emploi-cv',
+  'jobs-envoyees': 'emploi-candidatures'
+  // Phase C-G ajouteront talent-equipe, rh-paie, finance-ca, employe-*, etc.
+};
+
 function showDashSection(section) {
+  // Résolution alias (si pointe vers une section pas encore renommée)
+  if (window.DASH_SECTION_ALIASES && window.DASH_SECTION_ALIASES[section]) {
+    section = window.DASH_SECTION_ALIASES[section];
+  }
+
   document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.dash-link').forEach(l => l.classList.remove('active'));
   document.getElementById('ds-' + section)?.classList.add('active');

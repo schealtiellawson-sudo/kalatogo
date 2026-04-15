@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚧 EN COURS — WOLO Business Suite (Phases A → G)
+
+Refonte dashboard pour créer un flow 100% continu Recrutement → Intégration → Équipe → Paie → Finances. **Plan complet** : `/docs/BUSINESS-SUITE-PLAN.md`.
+
+- **Phase A** ✅ : plan doc committé, roadmap architecturale définie
+- **Phase B** ⏭️ (prochaine) : Vue Kanban Pipeline Talent (Offres → Candidats → Équipe active, drag & drop)
+- **Phase C** : Module Équipe + flow d'invitation compte WOLO (token + landing `/invite/:token`)
+- **Phase D** : WOLO Pay Payroll + fiches de paie PDF (1-clic paiement équipe)
+- **Phase E** : Espace employé "Mon Emploi" (widget finances pro, bulletins, annonces reçues)
+- **Phase F** : Annonces équipe + Congés
+- **Phase G** : Finances (CA journalier + dépenses + graphs évolution mensuelle)
+
+**Polymorphie** : le système s'adapte à tout type d'entreprise (solopreneur / commerçant / BTP / services / PME) via un wizard "Décris ton activité" qui active les modules pertinents. Un compte WOLO peut cumuler plusieurs casquettes (patron + employé + solo + candidat).
+
 ## Projet
 
 WOLO Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~14 000 lignes, ~2 MB). Déployé sur Vercel à https://wolomarket.vercel.app.
