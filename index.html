@@ -7420,6 +7420,14 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <div id="cand-quartiers-grid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
           </div>
 
+          <!-- INFO CANAL DE COMMUNICATION -->
+          <div style="background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;font-family:Poppins,sans-serif;">
+            <div style="font-size:20px;">💬</div>
+            <div style="flex:1;font-size:12px;color:rgba(248,246,241,.7);line-height:1.5;">
+              <strong style="color:#25D366;">Canal candidat = WhatsApp.</strong> Les candidats postulent via formulaire public (pas de compte) — un message marketé s'ouvre automatiquement sur WhatsApp quand tu changes leur statut (Présélectionné, Validé, Refusé).
+            </div>
+          </div>
+
           <!-- FILTRES -->
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center;">
             <select id="cand-f-statut" onchange="filterCandidatures()" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;">
@@ -26603,6 +26611,24 @@ function renderCandTable(records) {
 }
 
 // ── UPDATE STATUS ──
+// Marketing WhatsApp templates per status (candidat n'a pas d'espace → WhatsApp = seul canal)
+window.CAND_WA_TEMPLATES = {
+  'Présélectionné': function(f){
+    return 'Salut ' + (f['Prénom']||'') + ' !\n\n' +
+           'Ta candidature agent terrain WOLO Market nous a marqués.\n\n' +
+           'Tu passes à l\'étape suivante — tu es **présélectionné(e)** parmi les meilleurs profils de ' + (f['Ville']||'ta ville') + '.\n\n' +
+           'Prochaine étape : un court échange pour valider ta motivation. On te recontacte cette semaine.\n\n' +
+           'À très vite.\n— L\'équipe WOLO Market';
+  },
+  'Refusé': function(f){
+    return 'Salut ' + (f['Prénom']||'') + ',\n\n' +
+           'Merci d\'avoir postulé comme agent terrain WOLO Market.\n\n' +
+           'Cette fois-ci, ta candidature n\'a pas été retenue pour la vague de lancement — mais on garde ton profil. On recrute tout au long de 2026 au fur et à mesure que WOLO grandit dans ta ville.\n\n' +
+           'Continue de nous suivre sur wolomarket.com — et reste dispo, on peut revenir vers toi.\n\n' +
+           'Merci pour ton intérêt.\n— L\'équipe WOLO Market';
+  }
+};
+
 async function updateCandStatus(recordId, status) {
   try {
     var res = await fetch('/api/airtable-proxy/' + encodeURIComponent('Agents Terrain'), {
@@ -26616,6 +26642,21 @@ async function updateCandStatus(recordId, status) {
     if (rec) rec.fields['Statut'] = status;
     renderCandKPIs();
     filterCandidatures();
+
+    // WhatsApp notification marketée pour Présélectionné + Refusé
+    var tpl = window.CAND_WA_TEMPLATES[status];
+    if (tpl && rec) {
+      var tel = (rec.fields['Téléphone']||'').replace(/\s/g,'').replace(/^\+/,'');
+      if (tel) {
+        var msg = encodeURIComponent(tpl(rec.fields));
+        // Laisser le temps au toast + rerender, puis ouvrir WA
+        setTimeout(function(){
+          if (confirm('Envoyer le message "' + status + '" à ' + (rec.fields['Prénom']||'') + ' sur WhatsApp ?')) {
+            window.open('https://wa.me/' + tel + '?text=' + msg, '_blank');
+          }
+        }, 200);
+      }
+    }
   } catch(err) {
     console.error('updateCandStatus error:', err);
     toast('Erreur mise à jour', 'error');
