@@ -13,9 +13,10 @@ export default async function handler(req, res) {
   try {
     const now = new Date();
     const moisCourant = now.toISOString().slice(0, 7);
+    const isPublic = user_id === 'public';
 
     // ── Bourse de Croissance ──
-    const { data: bourse } = await supabase
+    const { data: bourse } = isPublic ? { data: null } : await supabase
       .from('bourse_croissance')
       .select('*')
       .eq('user_id', user_id)
@@ -67,7 +68,7 @@ export default async function handler(req, res) {
     }
 
     // ── WOLO Awards ──
-    const { data: candidature } = await supabase
+    const { data: candidature } = isPublic ? { data: null } : await supabase
       .from('wolo_awards')
       .select('*')
       .eq('user_id', user_id)
@@ -93,7 +94,7 @@ export default async function handler(req, res) {
     }
 
     // Vote de l'utilisateur ce mois
-    const { data: monVote } = await supabase
+    const { data: monVote } = isPublic ? { data: null } : await supabase
       .from('votes_awards')
       .select('candidat_id')
       .eq('votant_id', user_id)

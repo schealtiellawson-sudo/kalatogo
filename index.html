@@ -17551,8 +17551,9 @@ async function loadHomeGagnants() {
     const moisLabel = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
     const r = await woloFetch(`/api/wolo-pay/recompenses-status?user_id=public`);
+    if (!r.ok) { host.style.display = 'none'; return; }
     const data = await r.json();
-    if (!data.ok) return;
+    if (!data.ok) { host.style.display = 'none'; return; }
 
     const bourse = data.palmares.bourse.find(g => g.mois === moisPrec || g.mois === mois);
     const awards = data.palmares.awards.find(g => g.mois === moisPrec || g.mois === mois);
@@ -22220,7 +22221,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       var fn=window._awardsFetchAirtable||null;
       var records=[];
       if(fn){
-        records=await fn('Bourse_Gagnants','sort[0][field]=Date&sort[0][direction]=desc&maxRecords=6');
+        records=await fn('Bourse_Gagnants','sort[0][field]=Date_Tirage&sort[0][direction]=desc&maxRecords=6&filterByFormula='+encodeURIComponent('{Actif}=1'));
       }
       if(records && records.length){
         html='<h3 style="font-family:Fraunces,serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Ils ont déjà gagné</h3>';
