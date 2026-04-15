@@ -36,6 +36,7 @@ const PUBLIC_ACTIONS = new Set([
   'process-public-pay',  // Paiement public via lien/QR
   'awards-candidats',    // Liste publique des candidats Awards
   'awards-vote',         // Vote public
+  'recompenses-status',  // Palmarès public (user_id=public) OU user authentifié (handler filtre)
   'admin-verify',        // Gère sa propre auth via token
   'agents-terrain',      // Gère sa propre auth via token admin
 ]);
