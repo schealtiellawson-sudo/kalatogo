@@ -17,6 +17,11 @@
     podiumCat: 'coiffure',          // coiffure | couture
     photos: [],
     duelPair: [],
+    duelQueue: [],
+    duelIndex: 0,
+    duelCount: 0,
+    duelStreak: 0,
+    duelAnimating: false,
     roulette: null,
     swipeIndex: 0,
     theme: null,

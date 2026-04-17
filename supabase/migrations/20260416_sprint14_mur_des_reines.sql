@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS feed_photos (
   nb_vues             integer DEFAULT 0,
   boost_until         timestamptz,                       -- épinglée top-feed jusqu'à cette date
   video_validee       boolean DEFAULT true,              -- admin peut masquer
+  duel_wins           integer DEFAULT 0,                 -- victoires en duels infinis
+  duel_losses         integer DEFAULT 0,                 -- défaites en duels infinis
   created_at          timestamptz DEFAULT now()
 );
 
@@ -35,6 +37,13 @@ CREATE INDEX IF NOT EXISTS idx_feed_ville ON feed_photos(ville, created_at DESC)
 CREATE INDEX IF NOT EXISTS idx_feed_categorie ON feed_photos(categorie, mois);
 CREATE INDEX IF NOT EXISTS idx_feed_awards ON feed_photos(mois, categorie, is_awards_candidate) WHERE is_awards_candidate = true;
 CREATE INDEX IF NOT EXISTS idx_feed_boost ON feed_photos(boost_until) WHERE boost_until IS NOT NULL;
+
+-- Ajout colonnes duels (si table existe déjà)
+DO $$ BEGIN
+  ALTER TABLE feed_photos ADD COLUMN IF NOT EXISTS duel_wins integer DEFAULT 0;
+  ALTER TABLE feed_photos ADD COLUMN IF NOT EXISTS duel_losses integer DEFAULT 0;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
 
 -- ════════════════════════════════════════
 -- 2) LIKES_PHOTOS — likes sur chaque photo
