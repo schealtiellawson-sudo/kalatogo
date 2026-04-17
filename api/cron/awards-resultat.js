@@ -1,7 +1,8 @@
 // ================================================================
-// CRON — Résultat WOLO Awards (dernier vendredi du mois 18h WAT)
+// CRON — Awards + Duels hebdo (vendredi 18h WAT)
 // Vercel schedule : 0 17 * * 5  (vendredi 17h UTC = 18h WAT)
-// Le handler vérifie si c'est le dernier vendredi du mois
+// 1. Chaque vendredi : clôturer anciens duels + créer nouveaux
+// 2. Dernier vendredi du mois : résultat Mur des Reines (Awards)
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
 import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
@@ -15,13 +16,86 @@ function isLastFridayOfMonth() {
   return nextFriday.getUTCMonth() !== now.getUTCMonth();
 }
 
+function getSemaine() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  const diff = (now - start) / 86400000;
+  const week = Math.ceil((diff + start.getDay() + 1) / 7);
+  return `${now.getFullYear()}-${String(week).padStart(2, '0')}`;
+}
+
+async function genererDuelsHebdo() {
+  const semaine = getSemaine();
+
+  const { data: existing } = await supabase
+    .from('duels_quartiers')
+    .select('id')
+    .eq('semaine', semaine)
+    .limit(1);
+  if (existing?.length > 0) return { skip: true, semaine };
+
+  await supabase
+    .from('duels_quartiers')
+    .update({ statut: 'termine' })
+    .eq('statut', 'actif');
+
+  const { data: photos } = await supabase
+    .from('feed_photos')
+    .select('quartier, ville, pays')
+    .eq('video_validee', true)
+    .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString());
+
+  const quartiers = {};
+  const villes = {};
+  for (const p of (photos || [])) {
+    if (p.quartier) quartiers[p.quartier] = (quartiers[p.quartier] || 0) + 1;
+    if (p.ville) villes[p.ville] = (villes[p.ville] || 0) + 1;
+  }
+
+  const duels = [];
+
+  // Duel Togo vs Bénin (toujours)
+  duels.push({ semaine, type: 'ville', nom_a: 'Lomé', nom_b: 'Cotonou', pays: 'BOTH' });
+
+  // Duel Coiffure vs Couture (toujours)
+  duels.push({ semaine, type: 'categorie', nom_a: 'Coiffure', nom_b: 'Couture', pays: 'BOTH' });
+
+  // Duels quartiers — prendre les 4 quartiers les plus actifs, faire 2 duels
+  const topQuartiers = Object.entries(quartiers)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([q]) => q);
+
+  if (topQuartiers.length >= 2) {
+    duels.push({ semaine, type: 'quartier', nom_a: topQuartiers[0], nom_b: topQuartiers[1], pays: 'BOTH' });
+  }
+  if (topQuartiers.length >= 4) {
+    duels.push({ semaine, type: 'quartier', nom_a: topQuartiers[2], nom_b: topQuartiers[3], pays: 'BOTH' });
+  }
+
+  if (duels.length > 0) {
+    await supabase.from('duels_quartiers').insert(duels);
+  }
+
+  return { created: duels.length, semaine };
+}
+
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'unauthorized' });
   }
 
+  // Chaque vendredi : générer les duels de la semaine
+  let duelsResult = {};
+  try {
+    duelsResult = await genererDuelsHebdo();
+  } catch (err) {
+    console.error('[cron/duels]', err);
+    duelsResult = { error: err.message };
+  }
+
   if (!isLastFridayOfMonth()) {
-    return res.status(200).json({ ok: true, message: 'Pas le dernier vendredi du mois', skip: true });
+    return res.status(200).json({ ok: true, message: 'Pas le dernier vendredi du mois — duels seuls', duels: duelsResult });
   }
 
   try {
@@ -68,8 +142,8 @@ export default async function handler(req, res) {
     // 6. Notification gagnant
     await envoyerNotification({
       user_id: gagnant.user_id,
-      titre: '🥇 Tu es le champion des WOLO Awards !',
-      corps: `100 000 FCFA ont été crédités sur ton Crédit WOLO. La communauté t'a élu meilleur prestataire de ${moisCourant}.`
+      titre: '👑 Tu es la Reine du Mur des Reines !',
+      corps: `100 000 FCFA ont été crédités sur ton Crédit WOLO. La communauté t'a élue Reine du mois de ${moisCourant}.`
     });
 
     // 7. Vice-champion (2e)
@@ -83,8 +157,8 @@ export default async function handler(req, res) {
 
       await envoyerNotification({
         user_id: viceChampion.user_id,
-        titre: '🥈 Vice-champion des WOLO Awards !',
-        corps: `Tu termines 2e des WOLO Awards de ${moisCourant}. Un badge spécial est affiché sur ton profil pendant 30 jours.`
+        titre: '🥈 Vice-Reine du Mur des Reines !',
+        corps: `Tu termines 2e du Mur des Reines de ${moisCourant}. Un badge spécial est affiché sur ton profil pendant 30 jours.`
       });
     }
 
@@ -96,6 +170,7 @@ export default async function handler(req, res) {
       vice_champion_id: viceChampion?.user_id || null,
       nb_candidats: candidats.length,
       montant: MONTANT_AWARDS,
+      duels: duelsResult,
     });
   } catch (err) {
     console.error('[cron/awards-resultat]', err);

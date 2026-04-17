@@ -135,7 +135,6 @@
     root.innerHTML = `
       <div class="mur-container" style="color:#F8F6F1;font-family:'Poppins',sans-serif;max-width:1100px;margin:0 auto;padding:0 16px;">
         ${heroHTML()}
-        ${statsBarHTML()}
         ${tabsHTML()}
         <div class="mur-body" style="padding:20px 0 80px;">
           ${state.loading ? loaderHTML() : contentHTML()}
@@ -528,6 +527,7 @@
       </div>
     `;
     return `
+      ${statsBarHTML()}
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">
         ${state.photos.map(photoCardHTML).join('')}
       </div>
