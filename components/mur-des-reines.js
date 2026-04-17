@@ -213,6 +213,18 @@
     const b = state.badges;
     const niv = b.niveau_meta || {};
     const streak = b.streak || {};
+    const hasPosted = (b.nb_photos || 0) > 0;
+
+    if (!hasPosted) {
+      return `
+        <div style="background:rgba(232,148,10,.06);border:1px dashed rgba(232,148,10,.25);border-radius:14px;padding:20px 24px;margin-bottom:20px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:8px;">📸</div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:6px;">Poste ta première photo pour débloquer tes stats</div>
+          <p style="font-size:13px;color:rgba(248,246,241,.6);margin:0 0 12px;max-width:500px;display:inline-block;">Niveau, série, badges — tout commence avec ta première photo. Clique sur le bouton 📸 en bas à droite.</p>
+        </div>
+      `;
+    }
+
     const progPct = b.next ? Math.min(100, Math.round((b.next.actuel / b.next.seuil) * 100)) : 100;
     return `
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
