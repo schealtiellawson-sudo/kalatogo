@@ -214,15 +214,7 @@
     const streak = b.streak || {};
     const hasPosted = (b.nb_photos || 0) > 0;
 
-    if (!hasPosted) {
-      return `
-        <div style="background:rgba(232,148,10,.06);border:1px dashed rgba(232,148,10,.25);border-radius:14px;padding:20px 24px;margin-bottom:20px;text-align:center;">
-          <div style="font-size:28px;margin-bottom:8px;">📸</div>
-          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:6px;">Poste ta première photo pour débloquer tes stats</div>
-          <p style="font-size:13px;color:rgba(248,246,241,.6);margin:0 0 12px;max-width:500px;display:inline-block;">Niveau, série, badges — tout commence avec ta première photo. Clique sur le bouton 📸 en bas à droite.</p>
-        </div>
-      `;
-    }
+    if (!hasPosted) return '';
 
     const progPct = b.next ? Math.min(100, Math.round((b.next.actuel / b.next.seuil) * 100)) : 100;
     return `
@@ -587,27 +579,27 @@
 
   window.murSwipeNext = () => { state.swipeIndex++; render(); };
   window.murSwipeLike = async (photoId) => {
-    if (!window.currentUser?.id) { window.showPage && window.showPage('login'); return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     state.swipeIndex++;
     render();
   };
   window.murDuelVote = async (photoId) => {
-    if (!window.currentUser?.id) { window.showPage && window.showPage('login'); return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     await loadDiscover(); render();
   };
   window.murDuelVoteGlobal = async (duelId, choix) => {
-    if (!window.currentUser?.id) { window.showPage && window.showPage('login'); return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     await fn(`${API}/duels-list`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, duel_id: duelId, choix }) }).catch(()=>{});
     await loadPodium(); render();
   };
 
   window.murToggleLike = async (photoId, btn) => {
-    if (!window.currentUser?.id) { window.showPage && window.showPage('login'); return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     try {
       const r = await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).then(r => r.json());
@@ -622,7 +614,7 @@
   };
 
   window.murShareWhatsApp = async (photoId) => {
-    if (!window.currentUser?.id) { window.showPage && window.showPage('login'); return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     try {
       const r = await fn(`${API}/vote-share`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).then(r => r.json());
@@ -699,7 +691,7 @@
   // UPLOAD PHOTO (Poster)
   // ──────────────────────────────────────────
   window.murOpenPoster = () => {
-    if (!window.currentUser?.id) { window.showPage && window.showPage('login'); return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
     const existing = document.getElementById('mur-poster-modal');
     if (existing) existing.remove();
     const t = state.theme || {};
