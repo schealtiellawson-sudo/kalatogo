@@ -151,16 +151,50 @@
     const jours = cd.jours_restants != null ? cd.jours_restants : '—';
     const themeCur = state.categorie === 'couture' ? (t.theme_couture || '—') : (t.theme_coiffure || '—');
     return `
-      <div class="mur-hero" style="background:linear-gradient(135deg,#0f1410 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,.3);border-radius:20px;padding:28px 24px;margin:16px 0 24px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(232,148,10,.3) 0%,transparent 70%);"></div>
-        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:8px;">LE MUR DES REINES · ${monthLabel()}</div>
-        <h1 style="font-family:'Fraunces',serif;font-size:clamp(26px,5vw,36px);font-weight:900;margin:0 0 8px;line-height:1.15;">
-          Ici, c'est chez nous.<br>
-          <span style="color:#E8940A;">Les femmes qui tressent, qui cousent, qui font vibrer Lomé et Cotonou.</span>
+      <div class="mur-hero" style="background:linear-gradient(135deg,#0f1410 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,.3);border-radius:20px;padding:32px 24px;margin:16px 0 24px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(232,148,10,.25) 0%,transparent 70%);"></div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">LE MUR DES REINES · ${monthLabel()}</div>
+        <h1 style="font-family:'Fraunces',serif;font-size:clamp(26px,5vw,36px);font-weight:900;margin:0 0 12px;line-height:1.15;">
+          Ta grand-mère t'a appris.<br>
+          Ta mère t'a appris.<br>
+          <span style="color:#E8940A;">Maintenant, tout Lomé et Cotonou regardent.</span>
         </h1>
-        <p style="margin:0 0 16px;color:rgba(248,246,241,.75);font-size:15px;max-width:700px;">
-          Poste ta plus belle coupe. Ta plus belle tenue. Laisse les sœurs voter. Remporte <strong style="color:#E8940A;">50 000 F</strong> — mais surtout, fais voir ce que tu sais faire.
+        <p style="margin:0 0 14px;color:rgba(248,246,241,.8);font-size:15px;max-width:720px;line-height:1.7;">
+          Au Togo et au Bénin, quasiment chaque femme sait tresser ou coudre. C'est culturel. C'est dans l'ADN.<br>
+          Le Mur des Reines, c'est <strong style="color:#F8F6F1;">TON</strong> espace pour montrer ce talent au monde.
         </p>
+
+        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;margin-bottom:18px;max-width:720px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:10px;">COMMENT ÇA MARCHE</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <span style="font-size:20px;flex-shrink:0;">📸</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">1. Poste ta photo</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Ta plus belle tresse, ta plus belle tenue. Pas besoin d'être pro — juste tes mains.</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <span style="font-size:20px;flex-shrink:0;">💛</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">2. La communauté vote</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Partage ton lien WhatsApp. Ton quartier, ta famille, tes amies — tout le monde peut voter gratuitement.</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <span style="font-size:20px;flex-shrink:0;">👑</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">3. Deviens Reine du mois</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;"><strong style="color:#E8940A;">50 000 F</strong> Reine Coiffure + <strong style="color:#E8940A;">50 000 F</strong> Reine Couture. Chaque mois. 2 gagnantes.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin:0 0 16px;color:rgba(248,246,241,.65);font-size:13px;font-style:italic;max-width:600px;">
+          Les Nana Benz ont bâti des empires avec du wax. Le Kanvô béninois est patrimoine national. Ce talent est dans tes mains depuis toujours — le Mur des Reines le rend visible.
+        </p>
+
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <span style="background:rgba(232,148,10,.15);border:1px solid rgba(232,148,10,.3);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;color:#E8940A;">
             🎯 Thème du mois : ${themeCur}
