@@ -34,6 +34,47 @@ Contrainte Vercel Hobby = **12 functions max**. Implémentations sous `/api/wolo
 - Filtrage Airtable : `{Patron ID}='${patronId}'` via `filterByFormula`
 - Polymorphie : un compte WOLO cumule patron + employé + solo + candidat
 
+## ✅ LIVRÉ — Sprint 14 : Le Mur des Reines (Gamification Awards)
+
+Refonte complète de WOLO Awards → "Le Mur des Reines". Toutes les femmes (pas que les pros) postent coiffure/couture, la communauté vote, 2 Reines du mois gagnent 50K FCFA chacune.
+
+### Composant frontend
+`/components/mur-des-reines.js` — IIFE, `window.loadMurDesReines`, tabs: feed | discover | podium | moi
+
+### Endpoints ajoutés (consolidés dans le router existant)
+- `feed-list` (public) / `feed-post` / `feed-like` / `feed-comment`
+- `feed-discover` (public) — modes: swipe, duel, roulette
+- `badges-list` (public) / `leaderboard` (public) / `duels-list` / `theme-mois` (public)
+- `vote-share` / `boost-acheter`
+
+### Tables Supabase créées (10)
+`feed_photos`, `likes_photos`, `commentaires_photos`, `themes_mensuels`, `streaks_wolo`, `badges_wolo`, `duels_quartiers`, `duels_votes`, `partages_whatsapp`, `boosts_photos`
+
+### Views Supabase
+`hall_of_fame`, `leaderboard_quartier_7j`, `leaderboard_ville_mois`
+
+### Fonctions Supabase
+`maj_streak_user(uuid)`, `calc_niveau_user(uuid)`
+
+### Migration
+`/supabase/migrations/20260416_sprint14_mur_des_reines.sql`
+
+### Gamification
+- 16 types de badges (premiere_photo → legende)
+- 5 niveaux (Apprentie → Légende)
+- Streak système (×1/×2/×3 multiplicateur à 1/3/7 jours)
+- Duels quartier/ville/catégorie (hebdomadaires)
+- Boost photo payant (500 FCFA / 24h via WOLO Pay)
+- Partage WhatsApp avec tracking + badge virale_100
+- Thème du mois avec hashtag (#ReineDAvril etc.)
+
+### Copywriting global mis à jour
+- "WOLO Awards" → "Le Mur des Reines" partout dans index.html
+- Storytelling : "Ta grand-mère t'a appris. Ta mère t'a appris. Maintenant, le monde regarde."
+- Hashtags : #MurDesReines #ReineWOLO #TalentAfricain
+- Email template : `emails/08-wolo-awards.html`
+- Kit réseaux : `content/kit-reseaux-lancement.md` (10 scripts TikTok REINE01-10)
+
 ## Projet
 
 WOLO Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~14 000 lignes, ~2 MB). Déployé sur Vercel à https://wolomarket.vercel.app.

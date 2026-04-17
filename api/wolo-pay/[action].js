@@ -35,6 +35,18 @@ import invitationAccept from './_impl/invitation-accept.js';
 import paiePay from './_impl/paie-pay.js';
 import paieBulletin from './_impl/paie-bulletin.js';
 import annoncesBroadcast from './_impl/annonces-broadcast.js';
+// Sprint 14 — Mur des Reines
+import feedList from './_impl/feed-list.js';
+import feedPost from './_impl/feed-post.js';
+import feedLike from './_impl/feed-like.js';
+import feedComment from './_impl/feed-comment.js';
+import feedDiscover from './_impl/feed-discover.js';
+import badgesList from './_impl/badges-list.js';
+import leaderboard from './_impl/leaderboard.js';
+import duelsList from './_impl/duels-list.js';
+import themeMois from './_impl/theme-mois.js';
+import voteShare from './_impl/vote-share.js';
+import boostAcheter from './_impl/boost-acheter.js';
 
 // Endpoints publics (pas besoin d'authentification)
 const PUBLIC_ACTIONS = new Set([
@@ -48,6 +60,12 @@ const PUBLIC_ACTIONS = new Set([
   'invitation-get',      // Lien WhatsApp public, pas encore de compte
   'invitation-accept',   // Nouveau compte créé via le lien
   'paie-bulletin',       // Bulletin HTML ouvert par l'employé
+  // Sprint 14 — Mur des Reines (lecture publique, écriture auth)
+  'feed-list',           // Browse public
+  'feed-discover',       // Swipe/duel/roulette public
+  'badges-list',         // Voir badges d'un user public
+  'leaderboard',         // Classements publics
+  'theme-mois',          // Thème du mois public
 ]);
 
 const handlers = {
@@ -83,6 +101,18 @@ const handlers = {
   'paie-pay': paiePay,
   'paie-bulletin': paieBulletin,
   'annonces-broadcast': annoncesBroadcast,
+  // Sprint 14
+  'feed-list': feedList,
+  'feed-post': feedPost,
+  'feed-like': feedLike,
+  'feed-comment': feedComment,
+  'feed-discover': feedDiscover,
+  'badges-list': badgesList,
+  'leaderboard': leaderboard,
+  'duels-list': duelsList,
+  'theme-mois': themeMois,
+  'vote-share': voteShare,
+  'boost-acheter': boostAcheter,
 };
 
 export default async function handler(req, res) {
