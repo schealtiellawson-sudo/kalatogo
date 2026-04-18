@@ -1823,6 +1823,14 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 </div>
 <style>
 @keyframes wolo-bar { from{width:16px;opacity:0.4} to{width:36px;opacity:1} }
+</style>
+<script>
+setTimeout(function(){
+  var o = document.getElementById('wolo-init-overlay');
+  if (o) { o.style.opacity='0'; setTimeout(function(){ o.remove(); }, 300); }
+}, 5000);
+</script>
+<style>
 
 /* ══ EMPLOI BADGES & CARDS ══ */
 .offre-card {
