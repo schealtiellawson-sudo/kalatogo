@@ -17124,9 +17124,6 @@ function genererCVPDF() {
   ${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).length > 0 ? `<h2>Réalisations</h2><div class="photos">${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).map(p=>`<img src="${p}" class="photo-real" loading="lazy">`).join('')}</div>` : ''}
   <p style="margin-top:28px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:10px;">CV généré par WOLO Market · wolomarket.com · ${new Date().toLocaleDateString('fr-FR')}</p>
   <script>window.onload=()=>window.print();<\/script>
-<!-- FedaPay SDK -->
-<script>window._FEDAPAY_PUBLIC_KEY = '';</script>
-<script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 </body></html>`);
   win.document.close();
 }
