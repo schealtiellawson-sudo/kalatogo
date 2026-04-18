@@ -3467,7 +3467,7 @@ input:checked + .toggle-slider { background:#E8940A !important; }
 /* Score profil page */
 .profil-score-bar { background:rgba(255,255,255,0.08) !important; }
 /* Pages globales */
-#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-awards-profil, #page-home, #page-a-propos, #page-agent-wolo, #page-influenceurs { background:#0f1410 !important; color:#F8F6F1 !important; }
+#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-awards-profil, #page-king-queen, #page-home, #page-a-propos, #page-agent-wolo, #page-influenceurs { background:#0f1410 !important; color:#F8F6F1 !important; }
 /* Fonctionnement page sections */
 #page-fonctionnement section { background:#0f1410 !important; }
 #page-fonctionnement h2, #page-fonctionnement h3 { color:#F8F6F1 !important; }
@@ -3842,6 +3842,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOLO Jobs</button>
       <button class="nav-link" data-nav="match" onclick="showPage('match')">🤝 WOLO Match</button>
       <button class="nav-link" data-nav="awards" onclick="showPage('awards')">🏆 Awards</button>
+      <button class="nav-link" data-nav="king-queen" onclick="showPage('king-queen')">👑 King & Queen</button>
       <!-- Tutoriels masqués -->
       <button class="nav-link" data-nav="fonctionnement" onclick="showPage('fonctionnement')">Comment ça marche</button>
       <button class="nav-link" data-nav="apropos" onclick="showPage('apropos')">À propos</button>
@@ -5237,7 +5238,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
 
       <div style="text-align:center;">
         <button onclick="showPage('awards')" style="padding:14px 32px;background:#E8940A;color:#0f1410;border:none;border-radius:999px;font-weight:900;font-size:15px;cursor:pointer;">Entrer sur le Mur des Reines →</button>
-        <div style="margin-top:12px;font-size:12px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace;">#MurDesReines · #ReineWOLO · #TalentAfricain</div>
+        <button onclick="showPage('king-queen')" style="padding:14px 32px;background:transparent;color:#E8940A;border:2px solid #E8940A;border-radius:999px;font-weight:900;font-size:15px;cursor:pointer;margin-left:12px;">👑 King & Queen →</button>
+        <div style="margin-top:12px;font-size:12px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace;">#MurDesReines · #KingQueenWOLO · #TalentAfricain</div>
       </div>
     </div>
   </section>
@@ -6439,6 +6441,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </button>
           <button class="dash-link" onclick="showDashSection('recompenses')" id="dl-recompenses">
             <i data-lucide="trophy"></i> <span>Récompenses</span>
+          </button>
+          <button class="dash-link" onclick="showPage('king-queen')" id="dl-king-queen">
+            <i data-lucide="crown"></i> <span>King & Queen</span>
           </button>
         </div>
       </div>
@@ -10681,7 +10686,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','king-queen','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
@@ -10702,6 +10707,7 @@ function showPage(page, _fromPop) {
   }
   if (page === 'recompenses') loadPageRecompenses();
   if (page === 'awards') loadPageAwards();
+  if (page === 'king-queen') loadPageKingQueen();
   if (page === 'awards-profil') { /* loaded via showAwardsProfil */ }
   if (page === 'match') { try { initWoloMatch(); } catch(e){ console.warn('match init', e); } }
   if (page === 'recrutement-agents') { /* static page, no init needed */ }
@@ -17283,7 +17289,8 @@ function _widgetAwards(awards, countdown) {
       <div style="font-size:36px;margin-bottom:8px">👑</div>
       <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Le Mur des Reines · 50K ✂️ + 50K 👗 / mois</h3>
       <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:16px">Toutes les femmes postent. La communauté vote. Poste ta plus belle photo — coiffure ou tenue — et deviens Reine du mois.</p>
-      <button onclick="showPage('awards')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">Entrer sur le Mur des Reines →</button>
+      <button onclick="showPage('awards')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%;margin-bottom:10px">Entrer sur le Mur des Reines →</button>
+      <button onclick="showPage('king-queen')" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">👑 King & Queen WOLO →</button>
     </div>`;
 }
 
@@ -21312,6 +21319,16 @@ loadSchealtielPhoto();
 </div>
 
 <!-- ══════════════════════════════════════════
+     PAGE KING & QUEEN WOLO
+     Tout est rendu par components/king-queen.js
+══════════════════════════════════════════ -->
+<div id="page-king-queen" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;">
+  <div id="king-queen-root">
+    <div style="padding:40px;text-align:center;color:rgba(248,246,241,0.5);">Chargement…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
      PAGE INDIVIDUELLE AWARDS /awards/[slug]
 ══════════════════════════════════════════ -->
 <div id="page-awards-profil" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;">
@@ -24444,9 +24461,14 @@ async function repondreMatch(demandeId, clientId) {
   }
 
   window.loadPageAwards = async function(){
-    // Sprint 14 — Le Mur des Reines (composant externe)
     if (typeof window.loadMurDesReines === 'function') {
       window.loadMurDesReines();
+    }
+  };
+
+  window.loadPageKingQueen = async function(){
+    if (typeof window.loadKingQueen === 'function') {
+      window.loadKingQueen();
     }
   };
 
@@ -26924,6 +26946,7 @@ window.woloNotifTransfert = function(prestataireId, fromName, montant){
 <script src="components/pipeline-kanban.js"></script>
 <script src="components/equipe-dashboard.js"></script>
 <script src="components/mur-des-reines.js"></script>
+<script src="components/king-queen.js"></script>
 <script src="components/paie-dashboard.js"></script>
 <script src="components/annonces-patron.js"></script>
 <script src="components/finance-ca.js"></script>
