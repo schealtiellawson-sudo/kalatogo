@@ -58,7 +58,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(airtableUrl, fetchOptions);
+    let response = await fetch(airtableUrl, fetchOptions);
+
+    // Retry on 429 (Airtable rate limit: 5 req/s)
+    if (response.status === 429) {
+      await new Promise(r => setTimeout(r, 1200));
+      response = await fetch(airtableUrl, fetchOptions);
+      if (response.status === 429) {
+        await new Promise(r => setTimeout(r, 2500));
+        response = await fetch(airtableUrl, fetchOptions);
+      }
+    }
+
     const data = await response.json();
     return res.status(response.status).json(data);
   } catch (err) {

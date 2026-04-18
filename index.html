@@ -7800,12 +7800,17 @@ function updateNavAuth(connected) {
   }
 }
 
-async function loadCurrentPrestataire() {
+async function loadCurrentPrestataire(retries) {
   if (!currentUser?.email) return;
+  retries = retries || 0;
   try {
     const email = currentUser.email;
     const formula = encodeURIComponent(`{Email}='${email}'`);
     const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
+    if (res.status === 429 && retries < 3) {
+      await new Promise(r => setTimeout(r, 1500 * (retries + 1)));
+      return loadCurrentPrestataire(retries + 1);
+    }
     const data = await res.json();
     if (data.records?.length > 0) {
       currentPrestataire = data.records[0];
