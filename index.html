@@ -16503,7 +16503,6 @@ window.addEventListener('resize', applyResponsiveGrids);
 // ══════════════════════════════════════════
 initAuth();
 initHome();
-// checkPaymentUrl doit s'exécuter APRÈS le parsing complet du DOM (l'élément #page-paiement-client est après ce script)
 function _fixAutocomplete() {
   document.querySelectorAll('input[type="text"],input[type="email"],input[type="tel"],input[type="search"],input[type="number"],input:not([type])').forEach(inp => {
     const ac = inp.getAttribute('autocomplete');
@@ -16516,9 +16515,9 @@ function _fixAutocomplete() {
   });
 }
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { checkPaymentUrl(); checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); });
+  document.addEventListener('DOMContentLoaded', () => { checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); });
 } else {
-  setTimeout(() => { checkPaymentUrl(); checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); }, 0);
+  setTimeout(() => { checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); }, 0);
 }
 // Re-appliquer après chaque navigation (showPage crée du nouveau HTML)
 const _origShowPage = window.showPage;
