@@ -40,7 +40,7 @@ export default async function handler(req, res) {
           'Mois': mois,
           'Montant FCFA': montant,
           'Date': new Date().toISOString().split('T')[0],
-          'Méthode': 'WOLO Pay',
+          'Méthode': 'Virement bancaire',
           'Statut': 'Payé'
         }
       })

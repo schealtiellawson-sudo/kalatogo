@@ -157,7 +157,10 @@
           <input id="inv-poste" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="Ex : Couturière senior">
 
           <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">Salaire mensuel (FCFA, optionnel)</label>
-          <input id="inv-salaire" type="number" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:20px;font-family:inherit;" placeholder="50000">
+          <input id="inv-salaire" type="number" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="50000">
+
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">IBAN / RIB (pour virement salaire)</label>
+          <input id="inv-iban" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:20px;font-family:inherit;font-family:'Space Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
 
           <div style="display:flex;gap:10px;">
             <button onclick="closeInviteEmployeModal()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(248,246,241,.15);color:#F8F6F1;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;">Annuler</button>
@@ -179,6 +182,7 @@
     const wa = document.getElementById('inv-wa')?.value.trim();
     const poste = document.getElementById('inv-poste')?.value.trim();
     const salaire = parseInt(document.getElementById('inv-salaire')?.value || '0') || 0;
+    const iban = document.getElementById('inv-iban')?.value.trim();
     const statusEl = document.getElementById('inv-status');
 
     if (!nom || !wa || !poste) {
@@ -198,7 +202,7 @@
         body: JSON.stringify({
           patronId, patronNom,
           nomPrevu: nom, whatsapp: wa, postePrevu: poste,
-          salairePrevu: salaire
+          salairePrevu: salaire, iban: iban
         })
       });
       const data = await res.json();
@@ -237,8 +241,56 @@
   };
 
   window.openEmployeDetail = function(empId){
-    // TODO Module 2+ : fiche détaillée avec paie, documents, notes
-    alert('Fiche détaillée employé — à venir (Module 2 : paie & documents)');
+    const emp = state.employes.find(e => e.id === empId);
+    if (!emp) return;
+    const f = emp.fields || {};
+    const modal = document.createElement('div');
+    modal.id = 'employe-detail-modal';
+    modal.innerHTML = `
+      <div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)document.getElementById('employe-detail-modal')?.remove()">
+        <div style="background:#0f1410;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:460px;width:100%;font-family:'Poppins',sans-serif;color:#F8F6F1;">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+            <div style="width:56px;height:56px;border-radius:50%;background:${f['Photo'] ? 'url('+f['Photo']+') center/cover' : 'rgba(232,148,10,.15)'};flex-shrink:0;"></div>
+            <div>
+              <h2 style="font-family:'Fraunces',serif;font-size:20px;margin:0;">${f['Nom complet'] || 'Employé'}</h2>
+              <p style="font-size:12px;color:rgba(248,246,241,.5);margin:2px 0 0;">${f['Poste'] || '—'}${f['Salaire FCFA'] ? ' · ' + Number(f['Salaire FCFA']).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</p>
+            </div>
+          </div>
+
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">IBAN / RIB</label>
+          <input id="emp-iban" type="text" value="${f['IBAN'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:'Space Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
+
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">Salaire mensuel (FCFA)</label>
+          <input id="emp-salaire" type="number" value="${f['Salaire FCFA'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:20px;font-family:inherit;" placeholder="50000">
+
+          <div style="display:flex;gap:10px;">
+            <button onclick="document.getElementById('employe-detail-modal')?.remove()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(248,246,241,.15);color:#F8F6F1;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;">Fermer</button>
+            <button onclick="saveEmployeDetail('${empId}')" style="flex:2;background:#E8940A;border:none;color:#0f1410;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Enregistrer</button>
+          </div>
+          <div id="emp-detail-status" style="font-size:11px;color:rgba(248,246,241,.55);margin-top:10px;text-align:center;"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  };
+
+  window.saveEmployeDetail = async function(empId){
+    const iban = document.getElementById('emp-iban')?.value.trim();
+    const salaire = parseInt(document.getElementById('emp-salaire')?.value || '0') || 0;
+    const statusEl = document.getElementById('emp-detail-status');
+    if (statusEl) statusEl.textContent = 'Enregistrement…';
+    try {
+      const res = await fetch('/api/airtable-proxy/Employes/' + empId, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ fields: { 'IBAN': iban, 'Salaire FCFA': salaire } })
+      });
+      if (!res.ok) throw new Error('Erreur sauvegarde');
+      if (statusEl) statusEl.textContent = '✅ Enregistré.';
+      setTimeout(() => { document.getElementById('employe-detail-modal')?.remove(); loadEquipeDashboard(); }, 1000);
+    } catch(e){
+      if (statusEl) statusEl.textContent = '❌ ' + e.message;
+    }
   };
 
   window.loadEquipeDashboard = loadEquipeDashboard;

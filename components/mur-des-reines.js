@@ -394,7 +394,15 @@
   function duelHTML(){
     if (!state.duelPair || state.duelPair.length < 2) return emptyFeedHTML('Pas assez de photos pour un duel.');
     return `
-      <div style="text-align:center;margin-bottom:16px;"><div style="font-family:'Fraunces',serif;font-size:20px;font-weight:900;">Laquelle tu préfères ?</div><div style="font-size:12px;color:rgba(248,246,241,.5);margin-top:4px;">1 clic = 1 vote. Ensuite on tire au sort 2 nouvelles.</div></div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:900;">Laquelle tu préfères ?</div>
+        <div style="font-size:12px;color:rgba(248,246,241,.5);margin-top:4px;">1 clic = 1 vote. Ensuite on tire au sort 2 nouvelles.</div>
+        ${state.duelCount > 0 && state.duelCount % 5 === 0 ? `
+          <div style="margin-top:10px;">
+            <button onclick="murShareGeneral()" style="padding:8px 16px;background:#25D366;color:white;border:none;border-radius:999px;font-weight:700;cursor:pointer;font-size:12px;">📲 Envoie ce duel à une amie</button>
+          </div>
+        ` : ''}
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:680px;margin:0 auto;">
         ${state.duelPair.map(p => `
           <button onclick="murDuelVote('${p.id}')" style="padding:0;border:2px solid rgba(232,148,10,.25);background:#0f1410;border-radius:14px;overflow:hidden;cursor:pointer;">
@@ -616,6 +624,11 @@
         btn.innerHTML = btn.innerHTML.replace(/🤍|❤️/, liked ? '❤️' : '🤍');
       }
     } catch(e){ console.warn('[mur] like', e); }
+  };
+
+  window.murShareGeneral = () => {
+    const msg = encodeURIComponent(`👑 Le Mur des Reines — WOLO Market\n\nCoiffure ou Couture ? Vote pour ta Reine du mois.\n50 000 FCFA pour la Reine Coiffure. 50 000 FCFA pour la Reine Couture.\n\nTout le monde vote gratuitement !\n\n👉 https://wolomarket.com/#awards\n\n#MurDesReines #ReineWOLO #WOLOMarket`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
   };
 
   window.murShareWhatsApp = async (photoId) => {

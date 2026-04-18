@@ -47,7 +47,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
           <div>
             <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin:0 0 4px;">Paie & bulletins</h1>
-            <p style="font-size:13px;color:rgba(248,246,241,.5);margin:0;">Paye ton équipe via WOLO Pay. Génère les bulletins en 1 clic.</p>
+            <p style="font-size:13px;color:rgba(248,246,241,.5);margin:0;">Paye ton équipe par virement bancaire. Coche, génère le bulletin, c'est fait.</p>
           </div>
           <input type="month" value="${state.mois}" onchange="changePaieMois(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:9px 12px;color:#F8F6F1;font-family:inherit;">
         </div>
@@ -88,7 +88,7 @@
         </tbody>
       </table>
     </div>
-    <p style="font-size:11px;color:rgba(248,246,241,.35);margin-top:12px;">Module 2 — MVP. Le paiement WOLO Pay s'effectue via ton solde. Les bulletins PDF sont générés côté serveur à la demande.</p>`;
+    <p style="font-size:11px;color:rgba(248,246,241,.35);margin-top:12px;">Effectue tes virements bancaires, coche quand c'est fait, et génère les bulletins en 1 clic.</p>`;
   }
 
   function rowHTML(emp){
@@ -96,20 +96,30 @@
     const nom = f['Nom complet'] || '—';
     const poste = f['Poste'] || '—';
     const salaire = parseInt(f['Salaire FCFA'])||0;
+    const iban = f['IBAN'] || '';
     const fiche = state.fiches.find(x => x.fields?.['Employe ID'] === emp.id);
     const paiement = state.paiements.find(x => x.fields?.['Employe ID'] === emp.id);
     const paye = !!paiement;
     return `<tr style="border-top:1px solid rgba(255,255,255,.04);">
-      <td style="padding:10px;font-weight:600;">${nom}</td>
+      <td style="padding:10px;">
+        <div style="font-weight:600;">${nom}</div>
+        ${iban ? `<div style="font-size:10px;color:rgba(248,246,241,.4);font-family:'Space Mono',monospace;margin-top:2px;">${iban}</div>` : `<div style="font-size:10px;color:#ef4444;margin-top:2px;">IBAN manquant</div>`}
+      </td>
       <td style="padding:10px;color:rgba(248,246,241,.6);">${poste}</td>
       <td style="padding:10px;text-align:right;font-family:'Space Mono',monospace;">${formatFCFA(salaire)}</td>
       <td style="padding:10px;text-align:center;">
-        <span style="background:${paye ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.12)'};color:${paye ? '#22c55e' : '#ef4444'};font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;">${paye ? 'Payé' : 'En attente'}</span>
+        ${paye
+          ? `<span style="background:rgba(34,197,94,.15);color:#22c55e;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;">Viré ✓</span>`
+          : `<label style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" onchange="marquerVirement('${emp.id}', ${salaire}, '${nom.replace(/'/g,"\\'")}')" style="accent-color:#E8940A;width:16px;height:16px;cursor:pointer;">
+              <span style="font-size:11px;color:rgba(248,246,241,.6);">Viré</span>
+            </label>`
+        }
       </td>
       <td style="padding:10px;text-align:center;">
         ${paye
           ? `<button onclick="downloadBulletin('${fiche?.id || ''}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">📄 Bulletin</button>`
-          : `<button onclick="payerEmploye('${emp.id}', ${salaire}, '${nom.replace(/'/g,"\\'")}')" style="background:#E8940A;color:#0f1410;border:none;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">💸 Payer</button>`
+          : `<span style="font-size:10px;color:rgba(248,246,241,.3);">Coche d'abord</span>`
         }
       </td>
     </tr>`;
@@ -133,8 +143,12 @@
 
   window.changePaieMois = function(v){ state.mois = v; loadPaieDashboard(); };
 
-  window.payerEmploye = async function(empId, salaire, nom){
-    if (!confirm(`Payer ${formatFCFA(salaire)} à ${nom} pour ${state.mois} via WOLO Pay ?`)) return;
+  window.marquerVirement = async function(empId, salaire, nom){
+    if (!confirm(`Confirmer que tu as viré ${formatFCFA(salaire)} à ${nom} pour ${state.mois} ?\n\nCette action génère le bulletin de paie.`)) {
+      const cb = event?.target;
+      if (cb) cb.checked = false;
+      return;
+    }
     try {
       const patronId = window.currentPrestataire.id;
       const wFetch = window.woloFetch || fetch;
@@ -144,11 +158,13 @@
         body: JSON.stringify({ patronId, employeId: empId, mois: state.mois, montant: salaire })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Erreur paiement');
-      alert('✅ Paiement effectué. Bulletin généré.');
+      if (!res.ok) throw new Error(data.error || 'Erreur');
+      if (typeof showToast === 'function') showToast('Virement enregistré. Bulletin généré.');
       loadPaieDashboard();
     } catch(e){
-      alert('❌ ' + e.message + '\n(Module 2 backend en cours — placeholder actif)');
+      const cb = event?.target;
+      if (cb) cb.checked = false;
+      if (typeof showToast === 'function') showToast('Erreur : ' + e.message, 'error');
     }
   };
 

@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════
-// King & Queen WOLO — Concours beauté/charme
-// Duels Tinder infini + Classement + Finale TG vs BJ
+// King & Queen WOLO — Concours beauté/charme mensuel
+// Duels infinis + Classement + Finale TG vs BJ
 // ══════════════════════════════════════════
 
 (function(){
@@ -102,14 +102,13 @@
     return `
       <div style="background:linear-gradient(135deg,#0f1410 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,.3);border-radius:20px;padding:32px 24px;margin:16px 0 24px;position:relative;overflow:hidden;">
         <div style="position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(232,148,10,.25) 0%,transparent 70%);"></div>
-        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">KING & QUEEN WOLO · ${monthLabel()}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">NOUVEAU · CHAQUE MOIS</div>
         <h1 style="font-family:'Fraunces',serif;font-size:clamp(26px,5vw,36px);font-weight:900;margin:0 0 12px;line-height:1.15;">
-          Qui est le plus beau ?<br>
-          Qui est la plus belle ?<br>
-          <span style="color:#E8940A;">Togo vs Bénin. Toi tu décides.</span>
+          Togo contre Bénin.<br>
+          <span style="color:#E8940A;">Qui mérite la couronne ?</span>
         </h1>
-        <p style="margin:0 0 14px;color:rgba(248,246,241,.8);font-size:15px;max-width:720px;line-height:1.7;">
-          Poste tes 3 plus belles photos. La communauté swipe et vote. À la fin du mois, le King et la Queen gagnent <strong style="color:#E8940A;">50 000 FCFA chacun</strong>. Duel final : Togo vs Bénin.
+        <p style="margin:0 0 20px;color:rgba(248,246,241,.8);font-size:15px;max-width:720px;line-height:1.7;">
+          En Afrique de l'Ouest, on aime les concours. On aime se mesurer. King & Queen WOLO, c'est le premier duel photo mensuel entre les deux pays — et c'est toi qui décides. Poste. Vote. Gagne. Tu participes gratuitement, tu votes gratuitement. Mais le jour où ton nom sort ? Il faut être Pro pour toucher les 50 000 F. Et le Pro, c'est 2 500 F/mois. Moins qu'une recharge. Plus qu'un ticket de loterie — parce qu'ici, c'est ton talent qui parle.
         </p>
 
         <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;margin-bottom:18px;max-width:720px;">
@@ -118,25 +117,30 @@
             <div style="display:flex;align-items:flex-start;gap:10px;">
               <span style="font-size:20px;flex-shrink:0;">📸</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">1. Poste 3 photos</div>
-                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Selfie, tenue, charme — c'est toi. Hommes et femmes. Pas de catégorie, juste toi.</div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">1. Poste tes 3 photos</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Selfie, tenue, charme. Hommes et femmes. Zéro catégorie, juste toi.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
               <span style="font-size:20px;flex-shrink:0;">⚔️</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">2. La communauté swipe</div>
-                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Duels Tinder infini. Swipe à droite pour voter. Des milliers de duels chaque jour.</div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">2. La communauté swipe et vote</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Duels infinis. Swipe pour voter. Tout le monde vote, hommes et femmes.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
               <span style="font-size:20px;flex-shrink:0;">👑</span>
               <div>
                 <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">3. Duel final TG vs BJ</div>
-                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Le meilleur homme Togo vs Bénin → <strong style="color:#E8940A;">King 50 000 F</strong>. Idem femmes → <strong style="color:#E8940A;">Queen 50 000 F</strong>.</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Le meilleur homme → <strong style="color:#E8940A;">King 50 000 F</strong>. La meilleure femme → <strong style="color:#E8940A;">Queen 50 000 F</strong>.</div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px 18px;margin-bottom:18px;max-width:720px;text-align:center;">
+          <div style="font-size:14px;color:#F8F6F1;line-height:1.6;">Jouer = <strong style="color:#4ade80;">gratuit</strong>. Voter = <strong style="color:#4ade80;">gratuit</strong>. Encaisser = <strong style="color:#E8940A;">Pro</strong>.</div>
+          <div style="font-size:12px;color:rgba(248,246,241,.5);margin-top:4px;">Passe au Pro maintenant et joue ta chance dès ce mois-ci.</div>
         </div>
 
         <div style="display:flex;gap:12px;flex-wrap:wrap;">
@@ -148,9 +152,7 @@
             <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:#E8940A;">50 000 F</div>
             <div style="font-size:11px;color:rgba(248,246,241,.6);">👑 Queen du mois</div>
           </div>
-          <div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:12px 16px;text-align:center;min-width:120px;">
-            <div style="font-size:11px;color:rgba(248,246,241,.5);line-height:1.5;">Éligible aux gains :<br><strong style="color:#E8940A;">Pro 2+ mois</strong></div>
-          </div>
+          <button onclick="showPage('dashboard');setTimeout(()=>showDashSection('abonnement'),300)" style="background:#E8940A;color:#0f1410;border:none;padding:12px 20px;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;min-width:120px;">Passer au Pro →</button>
         </div>
       </div>
     `;
@@ -232,8 +234,16 @@
           <div style="font-size:48px;margin-bottom:12px;">🔥</div>
           <h3 style="font-family:'Fraunces',serif;margin:0 0 8px;">Tu as voté ${state.duelCount} fois !</h3>
           <p style="color:rgba(248,246,241,.6);margin-bottom:6px;">Série actuelle : ${state.duelStreak} 🔥</p>
-          <p style="color:rgba(248,246,241,.5);font-size:13px;">Recharge de nouvelles paires…</p>
-          <button onclick="kqReloadDuels()" style="margin-top:16px;padding:12px 28px;background:#E8940A;color:#0f1410;border:none;border-radius:999px;font-weight:700;cursor:pointer;">⚔️ Continuer les duels</button>
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px;margin:16px auto;max-width:400px;">
+            <p style="color:#E8940A;font-weight:700;font-size:14px;margin:0 0 10px;text-align:center;">Défie tes amis !</p>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+              <button onclick="kqShareWhatsApp()" style="padding:10px 18px;background:#25D366;color:white;border:none;border-radius:999px;font-weight:700;cursor:pointer;font-size:13px;">📲 WhatsApp</button>
+              <button onclick="kqShareTikTok()" style="padding:10px 18px;background:#010101;color:white;border:1px solid rgba(255,255,255,.2);border-radius:999px;font-weight:700;cursor:pointer;font-size:13px;">🎵 TikTok</button>
+              <button onclick="kqCopyLink()" style="padding:10px 18px;background:rgba(255,255,255,.06);color:#F8F6F1;border:1px solid rgba(232,148,10,.25);border-radius:999px;font-weight:700;cursor:pointer;font-size:13px;">📋 Copier le lien</button>
+            </div>
+            <p style="font-size:11px;color:rgba(248,246,241,.4);margin:8px 0 0;text-align:center;">Plus il y a de votants, plus la couronne a de valeur.</p>
+          </div>
+          <button onclick="kqReloadDuels()" style="margin-top:12px;padding:12px 28px;background:#E8940A;color:#0f1410;border:none;border-radius:999px;font-weight:700;cursor:pointer;">⚔️ Continuer les duels</button>
         </div>
       `;
     }
@@ -255,7 +265,15 @@
 
         <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
           <button onclick="kqSkipDuel()" style="padding:10px 20px;border-radius:999px;border:1px solid rgba(248,246,241,.15);background:transparent;color:rgba(248,246,241,.6);cursor:pointer;font-size:13px;">⏭️ Passer</button>
+          <button onclick="kqShareWhatsApp()" style="padding:10px 20px;border-radius:999px;border:1px solid #25D366;background:transparent;color:#25D366;cursor:pointer;font-size:13px;">📲 Partager</button>
         </div>
+        ${state.duelCount > 0 && state.duelCount % 5 === 0 ? `
+          <div style="background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.25);border-radius:14px;padding:14px;margin-top:16px;text-align:center;max-width:500px;margin-left:auto;margin-right:auto;">
+            <div style="font-size:14px;color:#25D366;font-weight:700;margin-bottom:4px;">Tu kiffes ? Tes amis aussi vont kiffer.</div>
+            <div style="font-size:12px;color:rgba(248,246,241,.5);">Envoie le lien sur WhatsApp — plus on vote, plus c'est chaud 🔥</div>
+            <button onclick="kqShareWhatsApp()" style="margin-top:10px;padding:8px 20px;background:#25D366;color:white;border:none;border-radius:999px;font-weight:700;cursor:pointer;font-size:12px;">📲 Envoyer à mes amis</button>
+          </div>
+        ` : ''}
       </div>
     `;
   }
@@ -577,8 +595,21 @@
   window.kqOpenUpload = (slot) => openUploadModal(slot);
   window.kqSubmitPhoto = (slot) => submitPhoto(slot);
   window.kqShareWhatsApp = () => {
-    const msg = encodeURIComponent(`Je participe au King & Queen WOLO ! 👑\n\nViens voter pour moi et gagne ta place aussi.\n50 000 FCFA pour le King. 50 000 FCFA pour la Queen.\n\n👉 https://wolomarket.com\n\n#KingQueenWOLO #WOLOMarket`);
+    const msg = encodeURIComponent(`👑 King & Queen WOLO — Togo vs Bénin !\n\nViens voter : qui mérite la couronne ?\n50 000 F pour le King. 50 000 F pour la Queen. Chaque mois.\n\nTu votes gratuitement. Tu participes gratuitement. Tu gagnes si t'es Pro.\n\n👉 https://wolomarket.com/#king-queen\n\n#KingQueenWOLO #WOLOMarket`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
+  };
+  window.kqShareTikTok = () => {
+    const url = 'https://wolomarket.com/#king-queen';
+    if (navigator.clipboard) { navigator.clipboard.writeText(url); }
+    if (typeof toast === 'function') toast('Lien copié ! Colle-le dans ta bio TikTok ou en commentaire.', 'success');
+    window.open('https://www.tiktok.com/@WOLOMarket', '_blank');
+  };
+  window.kqCopyLink = () => {
+    const url = 'https://wolomarket.com/#king-queen';
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      if (typeof toast === 'function') toast('Lien copié !', 'success');
+    }
   };
 
 })();
