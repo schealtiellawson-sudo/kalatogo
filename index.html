@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="lXOGmTJAXq9qRgT3GoiQIXYHzI_515w89aDfHhi2msw" />
 <title>WOLO Market — Visibilité. Emploi. Revenus. Bénin & Togo.</title>
-<meta name="description" content="WOLO Market : trouve un coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, paiement sécurisé. Sans piston.">
+<meta name="description" content="WOLO Market : trouve un prestataire ou un emploi à Lomé et Cotonou. Profils vérifiés, avis clients. 500 000 FCFA distribués chaque mois. Sans piston.">
 <meta name="keywords" content="emploi Cotonou, emploi Lomé, prestataire Bénin, artisan Togo, marketplace Bénin, marketplace Togo, trouver prestataire Cotonou, trouver emploi Lomé, WOLO Market">
 <meta property="og:title" content="WOLO Market — Ton travail parle. Pas tes connexions.">
 <meta property="og:description" content="Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.">
@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=Space+Mono&family=Cabinet+Grotesk:wght@400;500;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- WOLO v2 — PWA + Lucide Icons -->
 <link rel="manifest" href="/manifest.json">
@@ -1539,6 +1540,27 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   .btn-sm { padding:7px 14px; font-size:12px; }
   .footer-grid { grid-template-columns:1fr !important; gap:24px !important; }
   .toast { right:12px; left:12px; max-width:100%; font-size:13px; }
+
+  /* CATÉGORIES GRID MOBILE */
+  .wv2-cats-grid { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
+  .wv2-cat { padding:12px 8px !important; }
+  .wv2-cat-lbl { font-size:11px !important; }
+
+  /* AWARDS HOMEPAGE MOBILE */
+  .wolo-awards-section { padding:48px 0 !important; }
+  .wolo-awards-section [style*="grid-template-columns:repeat(auto-fit,minmax(220px"] { grid-template-columns:repeat(2,1fr) !important; gap:10px !important; }
+
+  /* BOURSE COUNTDOWN MOBILE */
+  .wv2-bourse-h2 { font-size:22px !important; }
+  .wv2-bourse-sub { font-size:12px !important; }
+  .wv2-bcd-num { font-size:22px !important; min-width:44px !important; }
+
+  /* TOP 50 MOBILE */
+  .top50-grid { grid-template-columns:1fr !important; }
+  .top50-header { flex-direction:column !important; gap:12px !important; }
+
+  /* HIDE NAV DESKTOP ON MOBILE */
+  #nav-links-desktop { display:none !important; }
 }
 
 /* ══ TABLET (601–900px) ══ */
@@ -4016,57 +4038,30 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </div>
         </div>
 
-        <!-- ══ HERO CINÉMATIQUE — 55 sec ══ -->
+        <!-- ══ HERO CINÉMATIQUE — 15 sec (3 scènes) ══ -->
         <div class="hero-visual" data-anim="scale" data-anim-delay="2">
           <div class="hero-cine" id="hero-cine">
-            <!-- Scène 1 — Le problème (0-8s) -->
+            <!-- Scène 1 — Le problème (0-5s) -->
             <div class="hc-scene hc-s1 hc-active">
               <div class="hc-bg" style="background:radial-gradient(ellipse at 30% 40%,rgba(248,113,113,0.12),transparent 70%);"></div>
               <div class="hc-eyebrow">LOMÉ · COTONOU · 2026</div>
               <div class="hc-big">Personne ne sait<br>que tu existes.</div>
-              <div class="hc-sub">Le menuisier d'Akpakpa travaille depuis 15 ans.<br>Son voisin ne sait même pas qu'il est là.</div>
+              <div class="hc-sub">Celui qui a des connexions mange.<br>Celui qui travaille bien — attend.</div>
               <div class="hc-stat"><span class="hc-stat-num">92%</span> des artisans n'ont aucune présence en ligne</div>
             </div>
-            <!-- Scène 2 — La douleur (8-16s) -->
+            <!-- Scène 2 — La solution (5-11s) -->
             <div class="hc-scene hc-s2">
-              <div class="hc-bg" style="background:radial-gradient(ellipse at 70% 60%,rgba(248,113,113,0.1),transparent 70%);"></div>
-              <div class="hc-eyebrow">LE VRAI PROBLÈME</div>
-              <div class="hc-big">Le piston.<br>Le réseau.<br><em>Le silence.</em></div>
-              <div class="hc-sub">Celui qui a des connexions mange.<br>Celui qui travaille bien — attend.</div>
-            </div>
-            <!-- Scène 3 — Le pivot (16-22s) -->
-            <div class="hc-scene hc-s3">
               <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.15),transparent 60%);"></div>
               <div class="hc-logo-reveal">W</div>
-              <div class="hc-big" style="color:#E8940A;">Et si ton travail<br>parlait pour toi ?</div>
-            </div>
-            <!-- Scène 4 — La solution (22-34s) -->
-            <div class="hc-scene hc-s4">
-              <div class="hc-bg" style="background:radial-gradient(ellipse at 40% 30%,rgba(232,148,10,0.1),transparent 70%);"></div>
-              <div class="hc-eyebrow" style="color:#E8940A;">WOLO MARKET</div>
-              <div class="hc-big">2 minutes.<br>Tu existes en ligne.<br><em>Pour tout Cotonou.<br>Pour tout Lomé.</em></div>
+              <div class="hc-big" style="color:#E8940A;">2 minutes.<br>Tu existes en ligne.</div>
               <div class="hc-features">
-                <div class="hc-feat hc-feat-1"><span>👁️</span> Visibilité — ton profil pro, visible sur tous les téléphones</div>
-                <div class="hc-feat hc-feat-2"><span>🏆</span> Récompenses — 500 000 FCFA distribués chaque mois</div>
-                <div class="hc-feat hc-feat-3"><span>📈</span> Revenus — 1 000 FCFA par filleul actif chaque mois</div>
+                <div class="hc-feat hc-feat-1"><span>👁️</span> Visibilité — ton profil pro, visible partout</div>
+                <div class="hc-feat hc-feat-2"><span>🏆</span> 500 000 FCFA distribués chaque mois</div>
+                <div class="hc-feat hc-feat-3"><span>📈</span> Parrainage — 1 000 FCFA par filleul actif</div>
               </div>
             </div>
-            <!-- Scène 5 — Vrais prestataires (34-44s) -->
-            <div class="hc-scene hc-s5">
-              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 40%,rgba(232,148,10,0.08),transparent 70%);"></div>
-              <div class="hc-eyebrow" style="color:#E8940A;">ILS SONT DÉJÀ LÀ</div>
-              <div class="hc-real-grid" id="hc-real-profiles"></div>
-              <div class="hc-sub" style="margin-top:12px;font-size:13px;">Vrais profils. Vraies photos. Vrais avis.</div>
-            </div>
-            <!-- Scène 6 — Preuve sociale (44-50s) -->
-            <div class="hc-scene hc-s6">
-              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.12),transparent 60%);"></div>
-              <div class="hc-eyebrow" style="color:#E8940A;">500 000 FCFA DISTRIBUÉS CHAQUE MOIS</div>
-              <div class="hc-big">Pas les plus connectés.<br><em>Les plus sérieux.</em></div>
-              <div class="hc-sub">Bourse de Croissance · Mur des Reines · King & Queen · Parrainage 40%</div>
-            </div>
-            <!-- Scène 7 — CTA final (50-55s) -->
-            <div class="hc-scene hc-s7">
+            <!-- Scène 3 — CTA final (11-15s) -->
+            <div class="hc-scene hc-s3">
               <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.2),transparent 50%);"></div>
               <div class="hc-big" style="font-size:clamp(20px,4vw,28px);">Ton travail parle.<br>Pas tes connexions.<br><em style="color:#E8940A;font-size:1.3em;">Sans piston.</em></div>
               <button class="hc-cta" onclick="showPage('inscription')">✦ Créer mon profil — gratuit · 2 min</button>
@@ -4268,6 +4263,30 @@ div[style*="position:sticky"][style*="background:#fff"] {
     </div>
   </section>
 
+  <!-- PARRAINAGE COMPACT -->
+  <section style="background:linear-gradient(135deg,#0f1410,#1a1f1c);padding:40px 0;border-top:1px solid rgba(232,148,10,0.15);">
+    <div class="container" style="max-width:900px;">
+      <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;justify-content:center;">
+        <div style="flex:1;min-width:280px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:#E8940A;margin-bottom:8px;">⭐ PARRAINAGE PRO</div>
+          <h3 style="font-family:Fraunces,serif;font-size:clamp(18px,2.5vw,24px);font-weight:900;color:#F8F6F1;margin:0 0 8px;">Tu travailles. Ton réseau <em style="color:#E8940A;">te paie aussi.</em></h3>
+          <p style="font-size:13px;color:rgba(248,246,241,0.6);line-height:1.6;margin:0;">1 000 FCFA/mois par filleul Pro actif. 10 filleuls = 10 000 FCFA/mois récurrents. Commission 40% permanente.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-shrink:0;">
+          <div style="background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.25);border-radius:12px;padding:12px 16px;text-align:center;">
+            <div style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#E8940A;">10K</div>
+            <div style="font-size:10px;color:rgba(248,246,241,0.5);">FCFA/mois<br>10 filleuls</div>
+          </div>
+          <div style="background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.25);border-radius:12px;padding:12px 16px;text-align:center;">
+            <div style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#E8940A;">50K</div>
+            <div style="font-size:10px;color:rgba(248,246,241,0.5);">FCFA/mois<br>50 filleuls</div>
+          </div>
+        </div>
+        <button class="btn btn-or" onclick="showPage('inscription')" style="white-space:nowrap;flex-shrink:0;">Passer Pro — 2 500 FCFA/mois →</button>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <div class="container">
       <div class="footer-grid">
@@ -4291,6 +4310,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <a onclick="showPage('fonctionnement')" style="cursor:pointer;">Comment ça marche</a>
           <a onclick="showPage('emploi')" style="cursor:pointer;">WOLO Jobs</a>
           <a onclick="showPage('recompenses')" style="cursor:pointer;">Récompenses</a>
+          <a onclick="showPage('apropos')" style="cursor:pointer;">À propos</a>
           <a onclick="showPage('agent-wolo')" style="cursor:pointer;">Devenir Agent</a>
         </div>
         <div class="footer-col">
@@ -8766,7 +8786,7 @@ function loadDashPhotos() {
   const previewEl = document.getElementById('edit-photo-preview');
   const photoUrl = f['WhatsApp'];
   if (photoUrl) {
-    previewEl.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+    previewEl.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
     // Afficher le bouton ✂️ Recadrer
     const btnR = document.getElementById('btn-recadrer-label');
     const btnRIcon = document.getElementById('btn-recadrer-profil');
@@ -8848,7 +8868,7 @@ async function _doUploadProfilCrop(blob, dataUrl) {
   statusEl.textContent = '⏳ Upload en cours...';
   // Mise à jour de l'aperçu immédiatement
   const previewEl = document.getElementById('edit-photo-preview');
-  if (previewEl) previewEl.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+  if (previewEl) previewEl.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
 
   const croppedFile = new File([blob], 'photo-profil.jpg', { type: 'image/jpeg' });
   const url = await uploadToImgBB(croppedFile);
@@ -9654,7 +9674,7 @@ async function generateStory(avisId, note, auteur, commentaire) {
         <div style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:4px;">\u2B50 Ta Story est pr\u00eate !</div>
         <p style="font-size:13px;color:rgba(248,246,241,0.5);">Partage-la sur tes r\u00e9seaux pour attirer de nouveaux clients.</p>
       </div>
-      <img src="${dataUrl}" style="width:100%;display:block;" alt="Story WOLO Market">
+      <img src="${dataUrl}" style="width:100%;display:block;" alt="Story WOLO Market" loading="lazy">
       <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
         <a href="${dataUrl}" download="${filename}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;">\u2B07\uFE0F T\u00e9l\u00e9charger ma Story</a>
         <button onclick="window.open('https://wa.me/?text=${waMsg}','_blank')" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">\uD83D\uDCF1 Partager sur WhatsApp</button>
@@ -9712,9 +9732,26 @@ async function woloFetch(url, opts = {}) {
 // ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
+const _seoPageMeta = {
+  home:         { title: 'WOLO Market — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois. Sans piston.' },
+  search:       { title: 'Trouver un pro — WOLO Market', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
+  emploi:       { title: 'WOLO Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOLO Market.' },
+  recompenses:  { title: 'Récompenses WOLO — 500 000 FCFA/mois', desc: 'Bourse de Croissance, Mur des Reines, King & Queen. 500 000 FCFA distribués chaque mois aux meilleurs.' },
+  awards:       { title: 'Le Mur des Reines — WOLO Awards', desc: 'Poste ta plus belle coiffure ou couture. La communauté vote, 2 reines gagnent 50 000 FCFA chaque mois.' },
+  'king-queen': { title: 'King & Queen WOLO — Duel Togo vs Bénin', desc: 'Vote pour le King et la Queen du mois. 50 000 FCFA chacun. Duel final Togo vs Bénin.' },
+  inscription:  { title: 'Inscription gratuite — WOLO Market', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
+  fonctionnement: { title: 'Comment ça marche — WOLO Market', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
+};
+function _updateSeoMeta(page) {
+  const m = _seoPageMeta[page]; if (!m) return;
+  document.title = m.title;
+  const desc = document.querySelector('meta[name="description"]'); if (desc) desc.content = m.desc;
+  const ogT = document.querySelector('meta[property="og:title"]'); if (ogT) ogT.content = m.title;
+  const ogD = document.querySelector('meta[property="og:description"]'); if (ogD) ogD.content = m.desc;
+}
 function showPage(page, _fromPop) {
-  // Réinitialiser les meta SEO si on quitte un profil
   if (page !== 'profil' && typeof _resetSeoMeta === 'function') _resetSeoMeta();
+  _updateSeoMeta(page);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   document.querySelectorAll('.nav-link[data-nav]').forEach(b => b.classList.toggle('active', b.getAttribute('data-nav') === page));
@@ -11260,7 +11297,7 @@ async function renderPostsFeed(recordId) {
       const cInit = (c.auteur || '?').charAt(0).toUpperCase();
       const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
       return `<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,0.06);">
-        ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(255,255,255,0.6);font-size:12px;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${cInit}</div>`}
+        ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');" loading="lazy">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(255,255,255,0.6);font-size:12px;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${cInit}</div>`}
         <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 12px;">
           <div style="font-weight:700;color:white;font-size:13px;margin-bottom:2px;cursor:${c.auteurId ? 'pointer' : 'default'};" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${c.auteur} <span style="font-weight:400;color:rgba(255,255,255,0.35);font-size:11px;">· ${cDate}</span></div>
           <div style="color:rgba(255,255,255,0.8);font-size:13px;line-height:1.5;">${c.texte.replace(/\n/g,'<br>')}</div>
@@ -11272,7 +11309,7 @@ async function renderPostsFeed(recordId) {
     <div id="post-card-${p.id}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:12px;">
       <!-- Header -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        ${p.auteurPhoto ? `<img src="${p.auteurPhoto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">` : `<div style="width:38px;height:38px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">${initiale}</div>`}
+        ${p.auteurPhoto ? `<img src="${p.auteurPhoto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');" loading="lazy">` : `<div style="width:38px;height:38px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">${initiale}</div>`}
         <div style="cursor:${p.auteurId ? 'pointer' : 'default'};" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">
           <div style="font-weight:700;color:white;font-size:14px;">${p.auteur}</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.4);">${dateStr}</div>
@@ -11641,7 +11678,7 @@ async function loadFavoris() {
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
             <div style="position:relative;flex-shrink:0;">
               ${photo
-                ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);">`
+                ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
                 : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${nom.charAt(0)}</div>`}
               ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
             </div>
@@ -11814,7 +11851,7 @@ async function loadAbonnements() {
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
             <div style="position:relative;flex-shrink:0;">
               ${photo
-                ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);">`
+                ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
                 : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${nom.charAt(0)}</div>`}
               ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
             </div>
@@ -11907,7 +11944,7 @@ async function loadFil() {
         <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.08);border:1px solid #f0f0f0;margin-bottom:14px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
             ${photoProfil
-              ? `<img src="${photoProfil}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);">`
+              ? `<img src="${photoProfil}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);" loading="lazy">`
               : `<div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;font-size:16px;">${initiale}</div>`}
             <div style="flex:1;">
               <div style="font-weight:800;font-size:14px;color:var(--noir);">${nom}</div>
@@ -12018,7 +12055,7 @@ async function loadFilPageFeed() {
       return `
         <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:14px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
-            ${photo ? `<img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);">` : `<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;">${initiale}</div>`}
+            ${photo ? `<img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);" loading="lazy">` : `<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;">${initiale}</div>`}
             <div style="flex:1;">
               <div style="font-weight:800;font-size:14px;color:var(--noir);">${nom}</div>
               <div style="font-size:11px;color:var(--gris);">${metier}${datePost ? ' · '+datePost : ''}</div>
@@ -12067,7 +12104,7 @@ async function loadFilPageAbonnes() {
       return `
         <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="showProfil('${pid}');showPage('profil');">
           <div style="position:relative;flex-shrink:0;">
-            ${photo ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">` : `<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;">${nom.charAt(0)}</div>`}
+            ${photo ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:Fraunces,serif;">${nom.charAt(0)}</div>`}
             ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
           </div>
           <div style="flex:1;min-width:0;">
@@ -12196,7 +12233,7 @@ async function openPhotoWithComments(prestatireId, slot, photoUrl, nom) {
     <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;padding:0 16px;">
       <!-- Photo -->
       <div style="text-align:center;padding:20px 0;">
-        <img src="${photoUrl}" style="max-width:100%;max-height:45vh;object-fit:contain;border-radius:12px;">
+        <img src="${photoUrl}" style="max-width:100%;max-height:45vh;object-fit:contain;border-radius:12px;" loading="lazy">
       </div>
       <!-- Like bar -->
       <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1);">
@@ -12218,7 +12255,7 @@ async function openPhotoWithComments(prestatireId, slot, photoUrl, nom) {
               <div style="display:flex;gap:10px;margin-bottom:16px;">
                 ${c.auteurId
                   ? `<div onclick="showProfil('${c.auteurId}');showPage('profil');document.getElementById('photo-comments-overlay').remove();" style="cursor:pointer;flex-shrink:0;">
-                      ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${(c.auteur||'?').charAt(0)}</div>`}
+                      ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${(c.auteur||'?').charAt(0)}</div>`}
                      </div>`
                   : `<div style="width:36px;height:36px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;flex-shrink:0;">${(c.auteur||'?').charAt(0)}</div>`}
                 <div style="flex:1;">
@@ -12410,7 +12447,7 @@ function showAlbumsPage(recordId) {
       <div style="max-width:700px;margin:0 auto;padding:16px 16px 8px;display:flex;align-items:center;gap:12px;">
         <button onclick="document.getElementById('${albumPageId}').remove()"
           style="background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
-        ${photoProfil ? `<img src="${photoProfil}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);">` : ''}
+        ${photoProfil ? `<img src="${photoProfil}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" loading="lazy">` : ''}
         <div style="flex:1;min-width:0;">
           <div style="color:white;font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📸 ${nom.split(' ')[0]}</div>
           <div style="color:rgba(255,255,255,0.4);font-size:12px;">${allPhotos.length} photo${allPhotos.length !== 1 ? 's' : ''}${metier ? ' · ' + metier : ''}</div>
@@ -12429,7 +12466,7 @@ function showAlbumsPage(recordId) {
         </div>
         <div data-lbkey="${profKey}" data-lbidx="0"
           style="position:relative;width:100%;max-width:340px;aspect-ratio:3/4;cursor:pointer;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-          <img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;pointer-events:none;">
+          <img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;pointer-events:none;" loading="lazy">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 50%);border-radius:16px;pointer-events:none;"></div>
           <div style="position:absolute;bottom:14px;left:14px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;display:flex;align-items:center;gap:6px;pointer-events:none;">
             <div style="width:7px;height:7px;background:#E8940A;border-radius:50%;"></div>
@@ -12563,7 +12600,7 @@ function showRdvPage(recordId) {
     <div style="background:#111827;border-bottom:1px solid rgba(255,255,255,0.08);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;">
       <button onclick="document.getElementById('${pageId}').style.display='none'" style="background:rgba(255,255,255,0.08);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
       <div style="display:flex;align-items:center;gap:10px;">
-        ${photoProfil ? `<img src="${photoProfil}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;">${initiale}</div>`}
+        ${photoProfil ? `<img src="${photoProfil}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;">${initiale}</div>`}
         <div>
           <div style="font-weight:800;color:white;font-size:15px;">${nom}</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.45);">${metier}${quartier ? ' · ' + quartier : ''}</div>
@@ -12577,7 +12614,7 @@ function showRdvPage(recordId) {
       <div style="padding-right:32px;border-right:1px solid rgba(255,255,255,0.08);">
         <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Prendre rendez-vous</div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-          ${photoProfil ? `<img src="${photoProfil}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.4);">` : `<div style="width:56px;height:56px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:22px;">${initiale}</div>`}
+          ${photoProfil ? `<img src="${photoProfil}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.4);" loading="lazy">` : `<div style="width:56px;height:56px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:22px;">${initiale}</div>`}
           <div>
             <div style="font-weight:900;color:white;font-size:18px;font-family:Fraunces,serif;">${nom}</div>
             <div style="font-size:13px;color:rgba(255,255,255,0.5);">${metier}</div>
@@ -12754,7 +12791,7 @@ function _lbRender() {
       style="max-width:92vw;max-height:82vh;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);outline:none;background:#000;"></video>`;
   } else {
     media.innerHTML = `<img src="${item.url}"
-      style="max-width:92vw;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);opacity:0;transition:opacity 0.2s;">`;
+      style="max-width:92vw;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);opacity:0;transition:opacity 0.2s;" loading="lazy">`;
     const img = media.querySelector('img');
     img.onload = () => { img.style.opacity = '1'; };
   }
@@ -12771,7 +12808,7 @@ function _lbRender() {
       ${isVid
         ? `<video src="${it.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);font-size:16px;pointer-events:none;">▶</div>`
-        : `<img src="${it.url}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">`
+        : `<img src="${it.url}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;" loading="lazy">`
       }
     </div>`;
   }).join('');
@@ -12984,7 +13021,7 @@ async function showProfil(recordId) {
       </div>
     </div>
     <div onclick="showAlbumsPage('${recordId}')" style="cursor:pointer;border-radius:14px;overflow:hidden;position:relative;height:110px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
-      ${photoProfil ? `<img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">📸</div>`}
+      ${photoProfil ? `<img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">📸</div>`}
       <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.1) 55%);pointer-events:none;"></div>
       <div style="position:absolute;bottom:10px;left:12px;">
         <div style="font-weight:800;color:white;font-size:13px;">Photos de moi</div>
@@ -13297,7 +13334,7 @@ async function showProfil(recordId) {
             const ini = (ff['Nom complet']||'?').charAt(0).toUpperCase();
             return `<div onclick="showProfil('${r.id}')" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;transition:.2s;" onmouseenter="this.style.background='rgba(232,148,10,0.08)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)'">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;overflow:hidden;flex-shrink:0;">${pp ? `<img src="${pp}" style="width:100%;height:100%;object-fit:cover;">` : ini}</div>
+                <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;overflow:hidden;flex-shrink:0;">${pp ? `<img src="${pp}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ini}</div>
                 <div style="flex:1;min-width:0;">
                   <div style="font-weight:800;color:white;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ff['Nom complet']||''}</div>
                   <div style="font-size:11px;color:rgba(255,255,255,0.5);">📍 ${ff['Quartier']||''}</div>
@@ -13397,7 +13434,7 @@ function renderAvis(record) {
   const { nom, auteurId, photo, comment } = parseAvisCommentaire(rawComment);
 
   const avatarHtml = photo
-    ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+    ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
     : `<span style="font-weight:800;color:white;font-size:14px;">${nom.charAt(0).toUpperCase()}</span>`;
 
   const authorOnclick = auteurId ? `onclick="closeModal();showProfil('${auteurId}')"` : '';
@@ -13436,7 +13473,7 @@ function openModalAvis(prestatairesId, prestataireNom) {
     const photo = f['WhatsApp'] || '';
     const initiale = nom.charAt(0).toUpperCase();
     const avatarHtml = photo
-      ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
       : `<span style="font-weight:800;color:white;font-size:15px;">${initiale}</span>`;
     section.innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,0.07);border:1.5px solid rgba(232,148,10,0.2);border-radius:12px;padding:10px 14px;">
@@ -15710,7 +15747,7 @@ function _buildPancarteHTML(){
 
       <!-- Zone commerçant -->
       <div style="padding:22px 20px 14px;text-align:center;background:#fff">
-        ${photo ? `<img src="${photo}" crossorigin="anonymous" style="width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #E8940A;margin-bottom:10px">` : `<div style="width:92px;height:92px;border-radius:50%;background:#E8940A;color:#fff;font-family:Fraunces,serif;font-size:40px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">${(nom[0]||'W').toUpperCase()}</div>`}
+        ${photo ? `<img src="${photo}" crossorigin="anonymous" style="width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #E8940A;margin-bottom:10px" loading="lazy">` : `<div style="width:92px;height:92px;border-radius:50%;background:#E8940A;color:#fff;font-family:Fraunces,serif;font-size:40px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">${(nom[0]||'W').toUpperCase()}</div>`}
         <div style="font-family:Fraunces,serif;font-size:22px;font-weight:900;margin-bottom:2px">${nom}</div>
         <div style="font-size:13px;color:#6b7280">${metier}</div>
         ${lieu?`<div style="font-size:12px;color:#9ca3af;margin-top:2px">${lieu}</div>`:''}
@@ -16411,7 +16448,7 @@ async function loadPageRecompenses() {
           ${dc.candidats.map(c => `
             <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;text-align:center">
               <div style="width:56px;height:56px;border-radius:50%;background:rgba(232,148,10,.15);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden">
-                ${c.photo ? `<img src="${c.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : '👤'}
+                ${c.photo ? `<img src="${c.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" loading="lazy">` : '👤'}
               </div>
               <div style="font-weight:700;font-size:14px;color:#F8F6F1;margin-bottom:4px">${c.nom}</div>
               <div style="font-size:11px;color:rgba(248,246,241,.4);margin-bottom:10px">${c.pays === 'BJ' ? '🇧🇯 Bénin' : '🇹🇬 Togo'}</div>
@@ -16482,7 +16519,7 @@ async function voterAwards(candidatId) {
 
 // ══ HERO CINÉMATIQUE — séquence 55 sec (7 scènes) ══
 (function(){
-  const DURATIONS = [8000, 8000, 6000, 12000, 10000, 6000, 5000]; // durée par scène en ms
+  const DURATIONS = [5000, 6000, 4000]; // 3 scènes, 15 sec total
   const TOTAL = DURATIONS.reduce((a,b)=>a+b,0);
   let current = 0, timer = null, startTime = 0, paused = false;
 
@@ -16572,7 +16609,7 @@ async function voterAwards(candidatId) {
         const nom = (f['Nom complet'] || '').split(' ')[0];
         const metier = f['Métier principal'] || '';
         return `<div class="hc-real-card" onclick="voirProfil('${r.id}')">
-          <img src="${photo}" alt="${nom}" onerror="this.parentElement.style.display='none'">
+          <img src="${photo}" alt="${nom}" onerror="this.parentElement.style.display='none'" loading="lazy">
           <div class="hc-rc-info">
             <div class="hc-rc-name">${nom}</div>
             <div class="hc-rc-job">${metier}</div>
@@ -16778,7 +16815,7 @@ async function loadDashPosts() {
       return `
         <div style="background:#f9fafb;border-radius:10px;padding:12px;border-left:3px solid var(--vert);">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-            ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div style="width:32px;height:32px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:13px;">${(c.auteur || '?').charAt(0).toUpperCase()}</div>`}
+            ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:32px;height:32px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:13px;">${(c.auteur || '?').charAt(0).toUpperCase()}</div>`}
             <div style="flex:1;min-width:0;">
               <div style="font-weight:700;font-size:13px;color:var(--noir);">${c.auteur || 'Utilisateur'}</div>
               <div style="font-size:11px;color:var(--gris);">${cDate}</div>
@@ -16914,7 +16951,7 @@ function printQRCode() {
     </style><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230f1410'/><text y='65' x='50' font-family='Georgia' font-size='52' font-weight='700' fill='%23E8940A' text-anchor='middle'>W</text></svg>">
 </head><body>
     <div class="logo">✦ WOLO Market</div>
-    <img src="${window._woloQrUrl}" alt="QR Code">
+    <img src="${window._woloQrUrl}" alt="QR Code" loading="lazy">
     <h2>${window._woloQrNom || 'Mon profil'}</h2>
     <p>Scanne pour voir mon profil sur WOLO Market</p>
     <script>window.onload=()=>window.print()<\/script>
@@ -17166,7 +17203,7 @@ async function searchAgentNow() {
     return `
       <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);${isAlready ? 'opacity:.5;' : ''}">
         <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);overflow:hidden;flex-shrink:0;">
-          ${r.photo ? `<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>'}
+          ${r.photo ? `<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>'}
         </div>
         <div style="flex:1;min-width:0;">
           <div style="font-weight:700;font-size:13px;color:#F8F6F1;">${r.nom}</div>
@@ -18259,7 +18296,7 @@ function loadCVWolo() {
   const photosEl = document.getElementById('cv-photos');
   if (photosEl) {
     const photos = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
-    photosEl.innerHTML = photos.map(p => `<img src="${p}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;">`).join('');
+    photosEl.innerHTML = photos.map(p => `<img src="${p}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" loading="lazy">`).join('');
   }
 }
 
@@ -18280,7 +18317,7 @@ function genererCVPDF() {
   @media print{body{margin:0;}}</style><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230f1410'/><text y='65' x='50' font-family='Georgia' font-size='52' font-weight='700' fill='%23E8940A' text-anchor='middle'>W</text></svg>">
 </head><body>
   <div class="header">
-    ${photo ? `<img src="${photo}" class="avatar">` : ''}
+    ${photo ? `<img src="${photo}" class="avatar" loading="lazy">` : ''}
     <div>
       <h1>${f['Nom complet']||'—'}</h1>
       <div style="color:#E8940A;font-weight:bold;font-size:16px;">${f['Métier principal']||''}</div>
@@ -18325,7 +18362,7 @@ function handleRecrutPhotos(input) {
       const idx = _recrutPhotosFiles.indexOf(file);
       const wrap = document.createElement('div');
       wrap.style.cssText = 'position:relative;width:100px;height:100px;border-radius:12px;overflow:hidden;';
-      wrap.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">
+      wrap.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
         <button onclick="removeRecrutPhoto(${idx},this.parentElement)" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);color:white;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>`;
       document.getElementById('recrut-photos-previews').appendChild(wrap);
       if (_recrutPhotosFiles.length >= 3) document.getElementById('recrut-photo-add').style.display = 'none';
@@ -18818,7 +18855,7 @@ function renderRecrutCandidatures(cands) {
               <td style="padding:10px 12px;">
                 <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:#E8940A;font-weight:900;overflow:hidden;cursor:${photo ? 'pointer' : 'default'};"
                   ${photo ? `onclick="openPhotoLightbox('${photo}')"` : ''}>
-                  ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (f['Candidat Nom']||'?')[0].toUpperCase()}
+                  ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Candidat Nom']||'?')[0].toUpperCase()}
                 </div>
               </td>
               <td style="padding:10px 12px;color:#F8F6F1;font-weight:700;white-space:nowrap;">${f['Candidat Nom']||'—'}</td>
@@ -18969,7 +19006,7 @@ async function loadRecrutDashboard() {
       const date = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '';
       const offre = (f['Offre Titre']||'').substring(0,32) + ((f['Offre Titre']||'').length > 32 ? '…' : '');
       return `<div style="display:flex;align-items:center;gap:12px;background:rgba(248,246,241,.03);border:1px solid rgba(248,246,241,.07);border-radius:10px;padding:12px 14px;">
-        ${photo ? `<img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,.25);flex-shrink:0;">` : `<div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#E8940A;">${nom[0].toUpperCase()}</div>`}
+        ${photo ? `<img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,.25);flex-shrink:0;" loading="lazy">` : `<div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#E8940A;">${nom[0].toUpperCase()}</div>`}
         <div style="flex:1;min-width:0;">
           <div style="font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
           <div style="font-size:11px;color:rgba(248,246,241,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f['Candidat Métier']||''}${f['Candidat Métier']&&offre?' · ':''}${offre}</div>
@@ -22341,7 +22378,7 @@ small.meta {
         </div>
         <div class="coup-footer">
           <div class="coup-auteur">
-            <img src="${escapeHtml(p.photo_url || '')}" class="coup-auteur-photo" alt="${escapeHtml(p.nom||'')}" onerror="this.style.display='none'">
+            <img src="${escapeHtml(p.photo_url || '')}" class="coup-auteur-photo" alt="${escapeHtml(p.nom||'')}" onerror="this.style.display='none'" loading="lazy">
             <div>
               <strong>${escapeHtml(p.nom||'Prestataire')}</strong><br>
               <span style="font-size:12px;color:rgba(248,246,241,0.5);">${escapeHtml(p.metier||'')} · ${escapeHtml(p.quartier||'')} ${p.pays === 'Togo' ? '🇹🇬' : '🇧🇯'}</span>
@@ -22460,7 +22497,7 @@ small.meta {
               <h4>Suggestions de prestataires à suivre</h4>
               ${pros.map(pr => `
                 <div class="suggestion-card">
-                  <img src="${escapeHtml(pr.photo_url||'')}" class="suggestion-photo" alt="" onerror="this.style.visibility='hidden'">
+                  <img src="${escapeHtml(pr.photo_url||'')}" class="suggestion-photo" alt="" onerror="this.style.visibility='hidden'" loading="lazy">
                   <div class="suggestion-info">
                     <strong>${escapeHtml(pr.nom||'Prestataire')}</strong>
                     <span>${escapeHtml(pr.metier||'')} · ${escapeHtml(pr.quartier||'')} ${pr.pays==='Togo'?'🇹🇬':'🇧🇯'}</span>
@@ -22669,7 +22706,7 @@ small.meta {
         const cp = c.profiles || { nom: 'Utilisateur' };
         return `
           <div class="commentaire">
-            <img src="${escapeHtml(cp.photo_url || '')}" class="commentaire-photo" alt="" onerror="this.style.visibility='hidden'">
+            <img src="${escapeHtml(cp.photo_url || '')}" class="commentaire-photo" alt="" onerror="this.style.visibility='hidden'" loading="lazy">
             <div class="commentaire-corps">
               <strong>${escapeHtml(cp.nom || 'Utilisateur')}</strong>
               <p>${escapeHtml(c.contenu)}</p>
@@ -22743,7 +22780,7 @@ small.meta {
     } catch(e) {}
     zone.innerHTML = `
       <div class="publier-zone">
-        <img src="${escapeHtml(photoUrl)}" class="publier-photo" alt="Moi" onerror="this.style.visibility='hidden'">
+        <img src="${escapeHtml(photoUrl)}" class="publier-photo" alt="Moi" onerror="this.style.visibility='hidden'" loading="lazy">
         <button class="publier-btn" onclick="ouvrirModalPublication()">Partage une réalisation...</button>
         <button class="publier-btn-icon" onclick="ouvrirModalPublication()">📷</button>
       </div>`;
@@ -22923,7 +22960,7 @@ small.meta {
           <div class="talent-radar-grid">
             ${talents.map(t => `
               <div class="talent-radar-card">
-                <img src="${escapeHtml(t.photo_url||'')}" class="talent-photo" alt="${escapeHtml(t.nom||'')}" onerror="this.style.visibility='hidden'">
+                <img src="${escapeHtml(t.photo_url||'')}" class="talent-photo" alt="${escapeHtml(t.nom||'')}" onerror="this.style.visibility='hidden'" loading="lazy">
                 <div class="talent-info">
                   <strong>${escapeHtml(t.nom||'')}</strong>
                   <span>${escapeHtml(t.metier||'')} · ${escapeHtml(t.quartier||'')} ${t.pays === 'Togo' ? '🇹🇬' : '🇧🇯'}</span>
@@ -22981,7 +23018,7 @@ small.meta {
               const t = ep.profiles || {};
               return `
                 <div class="epingle-card">
-                  <img src="${escapeHtml(t.photo_url||'')}" class="talent-photo" alt="" onerror="this.style.visibility='hidden'">
+                  <img src="${escapeHtml(t.photo_url||'')}" class="talent-photo" alt="" onerror="this.style.visibility='hidden'" loading="lazy">
                   <div class="talent-info" style="flex:1;">
                     <strong>${escapeHtml(t.nom||'')}</strong>
                     <span>${escapeHtml(t.metier||'')} · ${escapeHtml(t.quartier||'')} ${t.pays==='Togo'?'🇹🇬':'🇧🇯'}</span>
@@ -23149,7 +23186,7 @@ small.meta {
       container.style.display = 'block';
       liste.innerHTML = pros.map(pr => `
         <div class="match-result-card">
-          <img src="${escapeHtml(pr.photo_url||'')}" class="match-result-photo" alt="" onerror="this.style.visibility='hidden'">
+          <img src="${escapeHtml(pr.photo_url||'')}" class="match-result-photo" alt="" onerror="this.style.visibility='hidden'" loading="lazy">
           <div class="match-result-info">
             <strong>${escapeHtml(pr.nom||'')} ${pr.abonnement==='Pro'?'<span class="talent-pro-badge">PRO</span>':''}</strong>
             <span>${escapeHtml(pr.metier||'')} · ${escapeHtml(pr.quartier||'')} ${pr.pays==='Togo'?'🇹🇬':'🇧🇯'}</span>
@@ -23283,7 +23320,7 @@ small.meta {
         return `
           <div class="match-result-card" style="flex-direction:column;align-items:stretch;gap:12px;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <img src="${escapeHtml(client.photo_url||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.3);" alt="" onerror="this.style.visibility='hidden'">
+              <img src="${escapeHtml(client.photo_url||'')}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.3);" alt="" onerror="this.style.visibility='hidden'" loading="lazy">
               <div style="flex:1;">
                 <strong style="color:#F8F6F1;font-size:14px;font-family:Georgia,serif;">${escapeHtml(client.nom||'Client')}</strong>
                 <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span>
@@ -23356,7 +23393,7 @@ async function loadDashMatchRecues() {
       const client = d.profiles || { nom: 'Client' };
       return `<div class="match-demande-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(248,246,241,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'">
+          <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'" loading="lazy">
           <div><strong style="color:#F8F6F1;font-size:14px;">${escapeHtml(client.nom||'Client')}</strong>
           <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span></div>
         </div>
@@ -23435,7 +23472,7 @@ async function loadDashMatchCandidatures() {
       const client = d.profiles || { nom: 'Client' };
       return `<div class="match-demande-card" style="background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.15);border-radius:12px;padding:16px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'">
+          <img src="${escapeHtml(client.photo_url||'')}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" alt="" onerror="this.style.visibility='hidden'" loading="lazy">
           <div style="flex:1;"><strong style="color:#F8F6F1;font-size:14px;">${escapeHtml(client.nom||'Client')}</strong>
           <span style="display:block;font-size:11px;color:rgba(248,246,241,0.4);">${getDateRelative(d.created_at)}</span></div>
           <span style="font-size:11px;padding:3px 10px;border-radius:10px;background:rgba(232,148,10,0.15);color:#E8940A;font-family:'Space Mono',monospace;">🟡 En cours</span>
