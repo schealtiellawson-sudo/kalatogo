@@ -7850,6 +7850,13 @@ async function loadCurrentPrestataire(retries) {
     const data = await res.json();
     if (data.records?.length > 0) {
       currentPrestataire = data.records[0];
+      // Normalise le champ Abonnement (singleSelect peut retourner un objet {name, id, color})
+      // pour que tout le code qui compare === 'Pro' continue à marcher
+      const ab = currentPrestataire.fields?.['Abonnement'];
+      if (ab && typeof ab === 'object' && ab.name) {
+        currentPrestataire.fields['Abonnement'] = ab.name;
+      }
+      window.currentPrestataire = currentPrestataire; // exposer pour les composants
       updateCommissionDisplay();
     }
   } catch(e) { console.error('loadCurrentPrestataire:', e); }
