@@ -75,12 +75,8 @@
   // ----------------------------------------------------------------
   // SCORING CANDIDAT ↔ OFFRE
   // ----------------------------------------------------------------
-  async function scoreCandidat(candidatureRecord, offreRecord) {
-    const c = candidatureRecord.fields;
-    const o = offreRecord.fields;
-    showAiModal({ title: 'Analyse IA candidat', loading: true });
-
-    const input = `OFFRE:
+  function _buildScoreInput(c, o) {
+    return `OFFRE:
 Titre: ${o['Titre'] || ''}
 Métier: ${o['Métier'] || ''}
 Quartier: ${o['Quartier'] || ''}, ${o['Ville'] || ''}
@@ -93,14 +89,50 @@ Nom: ${c['Candidat Nom'] || ''}
 Métier: ${c['Candidat Métier'] || ''}
 Score WOLO: ${c['Candidat Score WOLO'] || 0}/100
 Message: ${c['Message'] || ''}`;
+  }
 
+  function _candidatureCacheKey(candidatureId) { return 'wolo_ai_score_' + candidatureId; }
+  const SCORE_CACHE_TTL_MS = 7 * 24 * 3600 * 1000;
+
+  function getCachedScore(candidatureId) {
+    try {
+      const raw = localStorage.getItem(_candidatureCacheKey(candidatureId));
+      if (!raw) return null;
+      const o = JSON.parse(raw);
+      if (Date.now() - o.t > SCORE_CACHE_TTL_MS) return null;
+      return o.r;
+    } catch { return null; }
+  }
+
+  function setCachedScore(candidatureId, result) {
+    try { localStorage.setItem(_candidatureCacheKey(candidatureId), JSON.stringify({ t: Date.now(), r: result })); } catch {}
+  }
+
+  async function scoreCandidat(candidatureRecord, offreRecord) {
+    const c = candidatureRecord.fields;
+    const o = offreRecord.fields;
+    showAiModal({ title: 'Analyse IA candidat', loading: true });
+
+    const input = _buildScoreInput(c, o);
     try {
       const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
       const { result, provider, cached, quota } = await query('score-candidat', input, plan);
+      setCachedScore(candidatureRecord.id, result);
       renderScoreResult(result, { provider, cached, quota });
     } catch (err) {
       renderError(err);
     }
+  }
+
+  // Variante sans modal — utilisée pour le scoring en batch / prefetch
+  async function scoreCandidatSilent(candidatureRecord, offreRecord) {
+    const c = candidatureRecord.fields;
+    const o = offreRecord.fields;
+    const input = _buildScoreInput(c, o);
+    const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
+    const { result } = await query('score-candidat', input, plan);
+    setCachedScore(candidatureRecord.id, result);
+    return result;
   }
 
   function renderScoreResult(r, meta) {
@@ -275,6 +307,9 @@ Description: ${offreFields['Description'] || ''}`;
   window.woloAi = {
     query,
     scoreCandidat,
+    scoreCandidatSilent,
+    getCachedScore,
+    setCachedScore,
     ameliorerCv,
     preparerEntretien,
     analyserAnnonce,

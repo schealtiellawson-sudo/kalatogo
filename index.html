@@ -7673,10 +7673,11 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <input type="text" id="recrut-cand-search" oninput="filterRecrutCandidatures()" placeholder="Rechercher nom, métier..." style="flex:1;min-width:160px;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;outline:none;">
         </div>
 
-        <!-- SPRINT C : VUE TOGGLE + COMPTEUR -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <!-- SPRINT C : VUE TOGGLE + COMPTEUR + SCORING BATCH -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
           <div id="recrut-cand-count" style="font-family:'Space Mono',monospace;font-size:11px;color:rgba(248,246,241,.4);text-transform:uppercase;letter-spacing:1px;">0 candidatures</div>
-          <div style="display:flex;gap:4px;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button id="recrut-batch-score" onclick="batchScoreCandidatures()" title="Calcule le score IA pour les candidatures non scorées (max 5)" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(168,85,247,.3);background:rgba(168,85,247,.12);color:#c084fc;font-size:12px;font-weight:700;font-family:Poppins,sans-serif;cursor:pointer;">🤖 Scorer en lot</button>
             <button id="recrut-view-grid" onclick="setRecrutCandView('grid')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.15);background:#E8940A;color:#0f1410;font-size:12px;font-weight:700;font-family:Poppins,sans-serif;cursor:pointer;">◻ Grille</button>
             <button id="recrut-view-table" onclick="setRecrutCandView('table')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.15);background:rgba(255,255,255,.06);color:#F8F6F1;font-size:12px;font-family:Poppins,sans-serif;cursor:pointer;">☰ Liste</button>
           </div>
@@ -17669,6 +17670,10 @@ function renderRecrutCandidatures(cands) {
         const ageJ    = _ageJours(f['Date candidature']);
         const ghosted = statut === 'En attente' && ageJ >= 14;
         const cardBorder = ghosted ? 'rgba(239,68,68,.4)' : 'rgba(232,148,10,.12)';
+        const aiCache = window.woloAi?.getCachedScore?.(c.id);
+        const aiScore = aiCache?.score;
+        const aiJust  = (aiCache?.justification || '').replace(/"/g,'&quot;');
+        const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
 
         return `<div style="background:rgba(255,255,255,.04);border:1px solid ${cardBorder};border-radius:14px;padding:18px;position:relative;">
           <span style="position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>
@@ -17681,8 +17686,9 @@ function renderRecrutCandidatures(cands) {
             <div style="flex:1;min-width:0;">
               <div style="font-weight:800;font-size:15px;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f['Candidat Nom']||'—'}</div>
               <div style="color:#E8940A;font-size:13px;margin:2px 0;">${f['Candidat Métier']||''}</div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.3);color:${scoreColor};">⚡ ${score}/100</span>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.3);color:${scoreColor};" title="Score WOLO du candidat">⚡ ${score}/100</span>
+                ${aiScore != null ? `<span onclick="scoreCandidatRecru('${c.id}')" style="cursor:pointer;font-size:11px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(168,85,247,.18);color:${aiColor};border:1px solid rgba(168,85,247,.3);" title="${aiJust}">🤖 ${aiScore}</span>` : ''}
                 <span style="font-size:11px;color:rgba(248,246,241,.4);">${date}</span>
               </div>
             </div>
@@ -17727,6 +17733,9 @@ function renderRecrutCandidatures(cands) {
             const ageJ    = _ageJours(f['Date candidature']);
             const ghosted = statut === 'En attente' && ageJ >= 14;
             const rowBg   = ghosted ? 'rgba(239,68,68,.04)' : 'transparent';
+            const aiCache = window.woloAi?.getCachedScore?.(c.id);
+            const aiScore = aiCache?.score;
+            const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
             return `<tr style="border-bottom:1px solid rgba(255,255,255,.05);background:${rowBg};transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='${rowBg}'">
               <td style="padding:10px 12px;">
                 <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:#E8940A;font-weight:900;overflow:hidden;cursor:${photo ? 'pointer' : 'default'};"
@@ -17737,7 +17746,7 @@ function renderRecrutCandidatures(cands) {
               <td style="padding:10px 12px;color:#F8F6F1;font-weight:700;white-space:nowrap;">${f['Candidat Nom']||'—'}</td>
               <td style="padding:10px 12px;color:#E8940A;white-space:nowrap;">${f['Candidat Métier']||'—'}</td>
               <td style="padding:10px 12px;color:rgba(248,246,241,.6);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f['Offre Titre']||'—'}</td>
-              <td style="padding:10px 12px;white-space:nowrap;"><span style="font-weight:700;color:${scoreColor};">${score}/100</span></td>
+              <td style="padding:10px 12px;white-space:nowrap;"><span style="font-weight:700;color:${scoreColor};">${score}</span>${aiScore != null ? `<span style="margin-left:6px;font-weight:800;color:${aiColor};font-size:12px;" title="Score IA">🤖 ${aiScore}</span>` : ''}</td>
               <td style="padding:10px 12px;white-space:nowrap;"><span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>${ghosted ? `<span style="margin-left:6px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.15);color:#f87171;">⏰ ${ageJ}j</span>` : ''}</td>
               <td style="padding:10px 12px;color:rgba(248,246,241,.5);white-space:nowrap;">${date}</td>
               <td style="padding:10px 12px;white-space:nowrap;">
@@ -17759,6 +17768,41 @@ function renderRecrutCandidatures(cands) {
       </table>
     </div>`;
   }
+}
+
+// ── Score IA en batch : prefetch les candidatures non scorées (max 5/run pour préserver le quota) ──
+async function batchScoreCandidatures() {
+  if (!window.woloAi) { toast('Module IA non chargé', 'error'); return; }
+  if (!Array.isArray(allRecrutCandidatures) || allRecrutCandidatures.length === 0) {
+    toast('Aucune candidature à scorer', 'info'); return;
+  }
+  const cibles = allRecrutCandidatures
+    .filter(c => !window.woloAi.getCachedScore(c.id))
+    .slice(0, 5);
+  if (cibles.length === 0) {
+    toast('Toutes les candidatures sont déjà scorées', 'info');
+    return;
+  }
+  const btn = document.getElementById('recrut-batch-score');
+  if (btn) { btn.disabled = true; btn.textContent = `🤖 Scoring 0/${cibles.length}…`; }
+  let done = 0, errors = 0;
+  for (const c of cibles) {
+    const offre = await _getOffreById(c.fields['Offre ID']);
+    if (!offre) { errors++; continue; }
+    try {
+      await window.woloAi.scoreCandidatSilent(c, offre);
+      done++;
+      if (btn) btn.textContent = `🤖 Scoring ${done}/${cibles.length}…`;
+    } catch (e) {
+      errors++;
+      // Quota dépassé → on arrête
+      if (e?.status === 429) { toast('Quota IA atteint pour aujourd\'hui', 'error'); break; }
+    }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '🤖 Scorer en lot'; }
+  toast(`${done} candidature${done>1?'s':''} scorée${done>1?'s':''}${errors?` · ${errors} erreur${errors>1?'s':''}`:''}`, done>0 ? 'success' : 'error');
+  // Re-render avec les nouveaux scores
+  filterRecrutCandidatures();
 }
 
 // ── Anti-ghosting : score réactivité recruteur ──
