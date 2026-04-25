@@ -4772,6 +4772,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <div id="emploi-count" style="font-size:13px;color:var(--gris);"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button id="emploi-view-list" onclick="setEmploiView('list')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#0f1410;font-size:12px;font-weight:700;cursor:pointer;">☰ Liste</button>
+        <button id="emploi-view-map" onclick="setEmploiView('map')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">🗺️ Carte</button>
         <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gris);cursor:pointer;">
           <input type="checkbox" id="emploi-tri-match" onchange="toggleTriMatch()" style="accent-color:#c084fc;"> 🤖 Trier par match IA
         </label>
@@ -4781,6 +4783,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <div id="emploi-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
       <div class="loading"><div class="spinner"></div> Chargement des offres...</div>
     </div>
+    <div id="emploi-map" style="display:none;height:560px;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.08);"></div>
     <!-- Pagination -->
     <div id="emploi-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:36px;flex-wrap:wrap;"></div>
   </div>
@@ -16771,6 +16774,122 @@ async function showPageEmploi() {
     _offresCache = []; _offresCurrent = []; _offresPage = 1;
     renderOffresPage();
   }
+}
+
+// ── Vue carte des offres (Leaflet) ──
+const _OFFRES_VILLE_CENTRES = {
+  lome:     { lat: 6.1725, lon: 1.2314 },
+  cotonou:  { lat: 6.3654, lon: 2.4183 },
+  porto:    { lat: 6.4969, lon: 2.6289 },
+  parakou:  { lat: 9.3372, lon: 2.6303 },
+  kara:     { lat: 9.5511, lon: 1.1861 },
+  sokode:   { lat: 8.9833, lon: 1.1333 },
+};
+
+const _OFFRES_QUARTIER_COORDS = {
+  // Lomé
+  'Hédzranawoé': [6.176, 1.236], 'Adidogomé': [6.157, 1.155], 'Bè': [6.123, 1.235],
+  'Tokoin': [6.143, 1.223], 'Nyékonakpoè': [6.123, 1.220], 'Cassablanca': [6.135, 1.190],
+  'Kégué': [6.198, 1.220], 'Agoè': [6.205, 1.211], 'Kodjoviakopé': [6.131, 1.217],
+  'Djidjolé': [6.155, 1.205], 'Avédji': [6.165, 1.165], 'Attiégou': [6.180, 1.195],
+  // Cotonou
+  'Akpakpa': [6.378, 2.435], 'Cadjèhoun': [6.359, 2.405], 'Gbégamey': [6.367, 2.395],
+  'Dantokpa': [6.371, 2.428], 'Fidjrossè': [6.347, 2.391], 'Cocotomey': [6.344, 2.378],
+  'Sainte-Rita': [6.371, 2.391], 'Vèdoko': [6.378, 2.391],
+};
+
+function _getOffreCoords(f) {
+  if (f.Latitude && f.Longitude) return { lat: f.Latitude, lon: f.Longitude };
+  const q = f['Quartier'];
+  if (q && _OFFRES_QUARTIER_COORDS[q]) {
+    const [lat, lon] = _OFFRES_QUARTIER_COORDS[q];
+    return { lat, lon };
+  }
+  const ville = (f['Ville'] || '').toLowerCase();
+  for (const k in _OFFRES_VILLE_CENTRES) {
+    if (ville.includes(k)) {
+      const c = _OFFRES_VILLE_CENTRES[k];
+      // jitter aléatoire pour éviter empilement (~ 1km)
+      const seed = (f['Titre'] || '').length;
+      return { lat: c.lat + (((seed * 31) % 100) - 50) / 5000, lon: c.lon + (((seed * 17) % 100) - 50) / 5000 };
+    }
+  }
+  // fallback Lomé
+  return { lat: 6.1725 + (Math.random() - 0.5) / 50, lon: 1.2314 + (Math.random() - 0.5) / 50 };
+}
+
+let _emploiMap = null;
+let _emploiMarkers = [];
+let _emploiViewMode = 'list';
+
+function setEmploiView(mode) {
+  _emploiViewMode = mode;
+  const list = document.getElementById('emploi-list');
+  const map = document.getElementById('emploi-map');
+  const pagination = document.getElementById('emploi-pagination');
+  const btnList = document.getElementById('emploi-view-list');
+  const btnMap = document.getElementById('emploi-view-map');
+  const onStyle  = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#0f1410;font-size:12px;font-weight:700;cursor:pointer;';
+  const offStyle = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;';
+  if (mode === 'map') {
+    list.style.display = 'none';
+    pagination.style.display = 'none';
+    map.style.display = 'block';
+    if (btnMap) btnMap.style.cssText = onStyle;
+    if (btnList) btnList.style.cssText = offStyle;
+    initEmploiMap();
+  } else {
+    list.style.display = 'grid';
+    pagination.style.display = '';
+    map.style.display = 'none';
+    if (btnList) btnList.style.cssText = onStyle;
+    if (btnMap) btnMap.style.cssText = offStyle;
+  }
+}
+
+function initEmploiMap() {
+  const cont = document.getElementById('emploi-map');
+  if (!cont || typeof L === 'undefined') return;
+  if (!_emploiMap) {
+    _emploiMap = L.map('emploi-map').setView([6.20, 1.74], 8); // entre Lomé et Cotonou
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap',
+    }).addTo(_emploiMap);
+  }
+  // Clear markers existants
+  _emploiMarkers.forEach(m => _emploiMap.removeLayer(m));
+  _emploiMarkers = [];
+  const offres = _offresCurrent || [];
+  if (offres.length === 0) {
+    setTimeout(() => _emploiMap.invalidateSize(), 100);
+    return;
+  }
+  const bounds = L.latLngBounds([]);
+  offres.forEach(o => {
+    const f = o.fields;
+    const { lat, lon } = _getOffreCoords(f);
+    const isUrgent = !!f['Urgente'];
+    const html = `<div style="background:${isUrgent ? '#dc2626' : '#E8940A'};color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3);">${isUrgent ? '!' : '💼'}</div>`;
+    const icon = L.divIcon({ html, className: 'emploi-pin', iconSize: [28, 28], iconAnchor: [14, 14] });
+    const m = L.marker([lat, lon], { icon }).addTo(_emploiMap);
+    const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
+      ? `${f['Salaire min FCFA'].toLocaleString()}${f['Salaire max FCFA'] ? '-'+f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
+      : 'À négocier';
+    const popup = `<div style="font-family:Poppins,sans-serif;min-width:180px;">
+      <div style="font-weight:800;margin-bottom:4px;">${(f['Titre']||'').replace(/</g,'&lt;')}</div>
+      <div style="font-size:12px;color:#666;margin-bottom:4px;">📍 ${(f['Quartier']||f['Ville']||'').replace(/</g,'&lt;')}</div>
+      <div style="font-size:12px;color:#E8940A;font-weight:700;margin-bottom:8px;">💰 ${salaire}</div>
+      <button onclick="setEmploiView('list');showOffreDetail('${o.id}')" style="background:#E8940A;color:#0f1410;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">→ Voir détail</button>
+    </div>`;
+    m.bindPopup(popup);
+    _emploiMarkers.push(m);
+    bounds.extend([lat, lon]);
+  });
+  if (_emploiMarkers.length > 0) {
+    _emploiMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+  }
+  setTimeout(() => _emploiMap.invalidateSize(), 100);
 }
 
 let _triParMatch = false;
