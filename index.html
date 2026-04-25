@@ -13314,6 +13314,16 @@ async function showProfil(recordId) {
       }
     }
 
+    // Bouton signaler (anti-arnaque) — affiché uniquement si on n'est pas sur son propre profil
+    if (!currentPrestataire || currentPrestataire.id !== recordId) {
+      const flagDiv = document.createElement('div');
+      flagDiv.style.cssText = 'text-align:center;margin:24px 0 8px;';
+      const userId = record.fields?.['User ID'] || '';
+      const safeName = (record.fields?.['Nom complet'] || 'ce prestataire').replace(/'/g,"\\'");
+      flagDiv.innerHTML = `<button onclick="window.woloSignalement?.open({targetUserId:'${userId}',contextLabel:'Profil : ${safeName}'})" style="background:none;border:none;color:rgba(248,246,241,.4);font-size:12px;cursor:pointer;text-decoration:underline;font-family:Poppins,sans-serif;">🚨 Signaler ce profil</button>`;
+      container.appendChild(flagDiv);
+    }
+
   } catch (e) {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Profil introuvable</h3><p>${e.message}</p></div>`;
   }
@@ -17046,8 +17056,16 @@ async function toggleModeEmploi() {
 
 // ── Dashboard : Mes candidatures ──
 async function loadMesCandidatures() {
-  if (!currentPrestataire) return;
   const container = document.getElementById('mes-candidatures-list');
+  if (!container) return;
+  if (!currentPrestataire) {
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(248,246,241,.5);font-family:Poppins,sans-serif;">
+      <div style="font-size:36px;margin-bottom:10px;">🔒</div>
+      <p style="margin:0 0 6px;">Ton profil n'est pas encore chargé.</p>
+      <p style="margin:0;font-size:12px;color:rgba(248,246,241,.35);">Recharge la page si ça persiste.</p>
+    </div>`;
+    return;
+  }
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   try {
     const params = new URLSearchParams({ filterByFormula: `{Candidat ID}="${currentPrestataire.id}"`, maxRecords: 100 });
@@ -17562,9 +17580,16 @@ let recrutCandView = 'grid';
 
 // ── Dashboard : Candidatures reçues (version enrichie) ──
 async function loadCandidaturesRecues() {
-  if (!currentPrestataire) return;
   const container = document.getElementById('recrut-cand-container');
   if (!container) return;
+  if (!currentPrestataire) {
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(248,246,241,.5);font-family:Poppins,sans-serif;">
+      <div style="font-size:36px;margin-bottom:10px;">🔒</div>
+      <p style="margin:0 0 6px;">Ton profil n'est pas encore chargé.</p>
+      <p style="margin:0;font-size:12px;color:rgba(248,246,241,.35);">Recharge la page si ça persiste.</p>
+    </div>`;
+    return;
+  }
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   try {
     const formula = `{Recruteur ID}="${currentPrestataire.id}"`;
