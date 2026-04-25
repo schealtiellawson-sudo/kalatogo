@@ -34,6 +34,15 @@ import duelsList from './_impl/duels-list.js';
 import themeMois from './_impl/theme-mois.js';
 import voteShare from './_impl/vote-share.js';
 import boostAcheter from './_impl/boost-acheter.js';
+// IA Router (T1-T4 consolidés)
+import aiQuery from './_impl/ai-query.js';
+// Messagerie + entretiens + signalement (Sprint I)
+import threadList from './_impl/thread-list.js';
+import messageList from './_impl/message-list.js';
+import messageSend from './_impl/message-send.js';
+import entretienList from './_impl/entretien-list.js';
+import entretienUpsert from './_impl/entretien-upsert.js';
+import signalementCreate from './_impl/signalement-create.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -78,6 +87,13 @@ const handlers = {
   'theme-mois': themeMois,
   'vote-share': voteShare,
   'boost-acheter': boostAcheter,
+  'ai-query': aiQuery,
+  'thread-list': threadList,
+  'message-list': messageList,
+  'message-send': messageSend,
+  'entretien-list': entretienList,
+  'entretien-upsert': entretienUpsert,
+  'signalement-create': signalementCreate,
 };
 
 export default async function handler(req, res) {

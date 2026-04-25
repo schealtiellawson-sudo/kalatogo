@@ -7519,7 +7519,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
               <div id="recrut-photos-previews" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;"></div>
             </div>
 
-            <!-- BOUTON CTA -->
+            <!-- BOUTON ANALYSE IA + CTA -->
+            <button type="button" onclick="analyserAnnonceAvantPublication()" style="width:100%;background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);border-radius:12px;padding:12px 24px;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">🤖 Analyser mon annonce avec l'IA</button>
             <button onclick="publierOffre()" style="width:100%;background:#E8940A;color:#0f1410;border:none;border-radius:12px;padding:15px 24px;font-family:Poppins,sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">📢 Publier sur WOLO Jobs</button>
             <div id="talents-recommandes-container"></div>
           </div>
@@ -7626,6 +7627,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:700;color:#F8F6F1;margin:0 0 6px;">Candidatures reçues</h2>
           <p style="font-family:Poppins,sans-serif;font-size:13px;color:rgba(248,246,241,.5);margin:0;">Les candidats qui ont postulé à tes offres.</p>
         </div>
+
+        <!-- ANTI-GHOSTING WIDGET -->
+        <div id="recrut-ghost-widget" style="margin-bottom:20px;"></div>
 
         <!-- SPRINT A : KPI CARDS -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px;">
@@ -16701,6 +16705,9 @@ function showOffreDetail(offreId) {
       ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${f['Recruteur WhatsApp'].replace(/\D/g,'')}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${(f['Titre']||'').replace(/'/g,"\\'")}','${offre.id}')">📤 Partager</button>
     </div>
+    <div style="margin-top:12px;text-align:center;">
+      <button onclick="window.woloSignalement?.open({offreId:'${offre.id}',contextLabel:'Offre : ${(f['Titre']||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(248,246,241,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Signaler cette offre</button>
+    </div>
   `;
 
   document.getElementById('modal-offre-detail').style.display = 'flex';
@@ -17041,28 +17048,65 @@ async function loadMesCandidatures() {
     }
 
     const statutClass = { 'En attente':'statut-attente', 'Vue':'statut-vue', 'Retenue':'statut-retenue', 'Refusée':'statut-refusee' };
+    window._mesCandidatures = cands;
     container.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
       <thead><tr style="border-bottom:2px solid #e5e7eb;text-align:left;">
         <th style="padding:10px 12px;">Offre</th>
         <th style="padding:10px 12px;">Recruteur</th>
         <th style="padding:10px 12px;">Date</th>
         <th style="padding:10px 12px;">Statut</th>
+        <th style="padding:10px 12px;">Actions</th>
       </tr></thead>
       <tbody>${cands.map(c => {
         const f = c.fields;
         const d = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
         const sc = statutClass[f['Statut']] || 'statut-attente';
+        const isRetenue = f['Statut'] === 'Retenue';
         return `<tr style="border-bottom:1px solid #f3f4f6;">
           <td style="padding:12px;">${f['Offre Titre']||'—'}</td>
           <td style="padding:12px;color:var(--gris);">${f['Recruteur Nom']||'—'}</td>
           <td style="padding:12px;color:var(--gris);">${d}</td>
           <td style="padding:12px;"><span class="statut-badge ${sc}">${f['Statut']||'En attente'}</span></td>
+          <td style="padding:12px;white-space:nowrap;">
+            <button onclick="openMessagerieCandidat('${c.id}')" title="Messagerie" style="padding:5px 9px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:13px;">💬</button>
+            ${isRetenue ? `<button onclick="preparerEntretienCandidat('${c.id}')" title="Préparer entretien (IA)" style="padding:5px 9px;border-radius:6px;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;font-size:13px;margin-left:4px;">🤖</button>` : ''}
+            <button onclick="signalerOffreCandidat('${c.id}')" title="Signaler" style="padding:5px 9px;border-radius:6px;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;font-size:13px;margin-left:4px;">🚨</button>
+          </td>
         </tr>`;
       }).join('')}</tbody>
     </table></div>`;
   } catch(e) {
     container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
   }
+}
+
+// ── Helpers Sprint H/I — actions candidat sur ses candidatures ──
+function _findMaCandidature(id) {
+  return (window._mesCandidatures || []).find(c => c.id === id);
+}
+function openMessagerieCandidat(candidatureId) {
+  if (!window.woloMessagerie) { toast('Module messagerie non chargé', 'error'); return; }
+  const c = _findMaCandidature(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  window.woloMessagerie.open({ candidature: c, role: 'candidat' });
+}
+async function preparerEntretienCandidat(candidatureId) {
+  if (!window.woloAi) { toast('Module IA non chargé', 'error'); return; }
+  const c = _findMaCandidature(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  const offre = await _getOffreById(c.fields['Offre ID']);
+  if (!offre) { toast('Offre liée introuvable', 'error'); return; }
+  window.woloAi.preparerEntretien(offre);
+}
+function signalerOffreCandidat(candidatureId) {
+  if (!window.woloSignalement) { toast('Module signalement non chargé', 'error'); return; }
+  const c = _findMaCandidature(candidatureId);
+  if (!c) return;
+  window.woloSignalement.open({
+    offreId: c.fields['Offre ID'],
+    candidatureId,
+    contextLabel: `Offre : ${c.fields['Offre Titre'] || ''}`,
+  });
 }
 
 // ── Dashboard : CV WOLO ──
@@ -17175,6 +17219,28 @@ function removeRecrutPhoto(idx, el) {
   document.getElementById('recrut-photos-previews').querySelectorAll('button').forEach((btn, i) => {
     btn.setAttribute('onclick', `removeRecrutPhoto(${i},this.parentElement)`);
   });
+}
+
+// IA — Analyser l'annonce avant publication (sprint H)
+function analyserAnnonceAvantPublication() {
+  if (!window.woloAi) { toast('Module IA non chargé', 'error'); return; }
+  const get = id => document.getElementById(id)?.value?.trim() || '';
+  const fields = {
+    'Titre': get('recrut-titre'),
+    'Métier': get('recrut-metier'),
+    'Quartier': get('job-quartier'),
+    'Ville': get('recrut-ville'),
+    'Type de contrat': get('recrut-contrat'),
+    'Expérience requise': get('recrut-experience'),
+    'Description': get('recrut-description'),
+    'Salaire min FCFA': get('recrut-salaire-min'),
+    'Salaire max FCFA': get('recrut-salaire-max'),
+  };
+  if (!fields['Titre'] || !fields['Description']) {
+    toast('Remplis au moins le titre et la description avant l\'analyse', 'error');
+    return;
+  }
+  window.woloAi.analyserAnnonce(fields);
 }
 
 async function publierOffre() {
@@ -17503,6 +17569,9 @@ async function loadCandidaturesRecues() {
     setKpi('recrut-kpi-retenues', retenues);
     setKpi('recrut-kpi-refusees', refusees);
 
+    // Anti-ghosting widget
+    renderAntiGhostingWidget(allRecrutCandidatures);
+
     // Peupler dropdown offres
     const selOffre = document.getElementById('recrut-cand-filter-offre');
     if (selOffre) {
@@ -17597,9 +17666,13 @@ function renderRecrutCandidatures(cands) {
         const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : 'rgba(248,246,241,.4)';
         const candId  = f['Candidat ID'] || '';
         const wa      = f['Candidat WhatsApp'] || '';
+        const ageJ    = _ageJours(f['Date candidature']);
+        const ghosted = statut === 'En attente' && ageJ >= 14;
+        const cardBorder = ghosted ? 'rgba(239,68,68,.4)' : 'rgba(232,148,10,.12)';
 
-        return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.12);border-radius:14px;padding:18px;position:relative;">
+        return `<div style="background:rgba(255,255,255,.04);border:1px solid ${cardBorder};border-radius:14px;padding:18px;position:relative;">
           <span style="position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>
+          ${ghosted ? `<span style="position:absolute;top:14px;left:14px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.18);color:#f87171;">⏰ ${ageJ}j sans réponse</span>` : ''}
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
             <div style="width:56px;height:56px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:22px;color:#E8940A;font-weight:900;overflow:hidden;flex-shrink:0;cursor:${photo ? 'pointer' : 'default'};"
               ${photo ? `onclick="openPhotoLightbox('${photo}')"` : ''}>
@@ -17617,11 +17690,15 @@ function renderRecrutCandidatures(cands) {
           <div style="font-size:12px;color:rgba(248,246,241,.5);font-style:italic;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Offre : ${f['Offre Titre']||'—'}</div>
           ${f['Message'] ? `<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:10px;font-size:12px;color:rgba(248,246,241,.7);margin-bottom:12px;line-height:1.6;max-height:72px;overflow:hidden;">"${f['Message']}"</div>` : ''}
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+            <button onclick="scoreCandidatRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;">🤖 Score IA</button>
+            <button onclick="openMessagerieRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;">💬 Message</button>
+            <button onclick="openEntretienRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">📅 Entretien</button>
             ${wa ? `<a href="https://wa.me/${wa.replace(/\D/g,'')}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;">💬 WhatsApp</a>` : ''}
             <button onclick="updateStatutCandidature('${c.id}','Retenue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;">✓ Retenir</button>
             <button onclick="updateStatutCandidature('${c.id}','Refusée')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;">✗ Refuser</button>
             <button onclick="updateStatutCandidature('${c.id}','Vue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">👁 Vue</button>
             ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;">↗ Profil</button>` : ''}
+            <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;">🚨</button>
           </div>
         </div>`;
       }).join('') + '</div>';
@@ -17647,7 +17724,10 @@ function renderRecrutCandidatures(cands) {
             const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : 'rgba(248,246,241,.4)';
             const candId  = f['Candidat ID'] || '';
             const wa      = f['Candidat WhatsApp'] || '';
-            return `<tr style="border-bottom:1px solid rgba(255,255,255,.05);transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='transparent'">
+            const ageJ    = _ageJours(f['Date candidature']);
+            const ghosted = statut === 'En attente' && ageJ >= 14;
+            const rowBg   = ghosted ? 'rgba(239,68,68,.04)' : 'transparent';
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,.05);background:${rowBg};transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='${rowBg}'">
               <td style="padding:10px 12px;">
                 <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:#E8940A;font-weight:900;overflow:hidden;cursor:${photo ? 'pointer' : 'default'};"
                   ${photo ? `onclick="openPhotoLightbox('${photo}')"` : ''}>
@@ -17658,15 +17738,19 @@ function renderRecrutCandidatures(cands) {
               <td style="padding:10px 12px;color:#E8940A;white-space:nowrap;">${f['Candidat Métier']||'—'}</td>
               <td style="padding:10px 12px;color:rgba(248,246,241,.6);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f['Offre Titre']||'—'}</td>
               <td style="padding:10px 12px;white-space:nowrap;"><span style="font-weight:700;color:${scoreColor};">${score}/100</span></td>
-              <td style="padding:10px 12px;white-space:nowrap;"><span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span></td>
+              <td style="padding:10px 12px;white-space:nowrap;"><span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>${ghosted ? `<span style="margin-left:6px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.15);color:#f87171;">⏰ ${ageJ}j</span>` : ''}</td>
               <td style="padding:10px 12px;color:rgba(248,246,241,.5);white-space:nowrap;">${date}</td>
               <td style="padding:10px 12px;white-space:nowrap;">
-                <div style="display:flex;gap:4px;">
-                  ${wa ? `<a href="https://wa.me/${wa.replace(/\D/g,'')}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">💬</a>` : ''}
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                  <button onclick="scoreCandidatRecru('${c.id}')" title="Score IA" style="padding:4px 8px;border-radius:6px;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;font-size:12px;">🤖</button>
+                  <button onclick="openMessagerieRecru('${c.id}')" title="Message" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:12px;">💬</button>
+                  <button onclick="openEntretienRecru('${c.id}')" title="Planifier entretien" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">📅</button>
+                  ${wa ? `<a href="https://wa.me/${wa.replace(/\D/g,'')}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">📱</a>` : ''}
                   <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;">✓</button>
                   <button onclick="updateStatutCandidature('${c.id}','Refusée')" title="Refuser" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;">✗</button>
                   <button onclick="updateStatutCandidature('${c.id}','Vue')" title="Marquer vue" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">👁</button>
                   ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" title="Voir profil" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-size:12px;">↗</button>` : ''}
+                  <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;font-size:12px;">🚨</button>
                 </div>
               </td>
             </tr>`;
@@ -17675,6 +17759,72 @@ function renderRecrutCandidatures(cands) {
       </table>
     </div>`;
   }
+}
+
+// ── Anti-ghosting : score réactivité recruteur ──
+function _ageJours(dateIso) {
+  if (!dateIso) return 0;
+  return Math.floor((Date.now() - new Date(dateIso).getTime()) / 86400000);
+}
+
+function calcScoreVisibilite(cands) {
+  const total = cands.length;
+  if (total === 0) return { score: 100, vieilles: 0, repondues: 0, total: 0, tauxReponse: 100 };
+  const vieilles = cands.filter(c => {
+    const s = c.fields['Statut'] || 'En attente';
+    return s === 'En attente' && _ageJours(c.fields['Date candidature']) >= 14;
+  }).length;
+  const repondues = cands.filter(c => ['Vue','Retenue','Refusée'].includes(c.fields['Statut'])).length;
+  const tauxReponse = Math.round((repondues / total) * 100);
+  // Score = 100 - 60% pénalité ghosting + 40% bonus taux de réponse
+  const ghostingPct = (vieilles / total) * 100;
+  const score = Math.max(0, Math.min(100, Math.round(100 - ghostingPct * 0.6 - (100 - tauxReponse) * 0.4)));
+  return { score, vieilles, repondues, total, tauxReponse };
+}
+
+function renderAntiGhostingWidget(cands) {
+  const wrap = document.getElementById('recrut-ghost-widget');
+  if (!wrap) return;
+  const m = calcScoreVisibilite(cands || []);
+  if (m.total === 0) { wrap.innerHTML = ''; return; }
+  const color = m.score >= 70 ? '#22c55e' : m.score >= 40 ? '#E8940A' : '#f87171';
+  const label = m.score >= 70 ? 'Réactif ✓' : m.score >= 40 ? 'À surveiller' : 'Risque ghosting';
+  const bg = m.score >= 70 ? 'rgba(34,197,94,.06)' : m.score >= 40 ? 'rgba(232,148,10,.08)' : 'rgba(239,68,68,.08)';
+  const border = m.score >= 70 ? 'rgba(34,197,94,.25)' : m.score >= 40 ? 'rgba(232,148,10,.25)' : 'rgba(239,68,68,.3)';
+  wrap.innerHTML = `
+    <div style="background:${bg};border:1px solid ${border};border-radius:14px;padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:18px;font-family:Poppins,sans-serif;">
+      <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:200px;">
+        <div style="width:62px;height:62px;border-radius:50%;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:22px;font-weight:900;color:${color};border:2px solid ${color};flex-shrink:0;">${m.score}</div>
+        <div>
+          <div style="font-size:11px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1.5px;font-family:'Space Mono',monospace;">Score réactivité</div>
+          <div style="font-size:16px;font-weight:800;color:${color};">${label}</div>
+          <div style="font-size:12px;color:rgba(248,246,241,.55);margin-top:2px;">${m.tauxReponse}% des candidatures traitées · ${m.repondues}/${m.total}</div>
+        </div>
+      </div>
+      ${m.vieilles > 0 ? `
+        <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;flex:1;min-width:220px;">
+          <div style="font-size:13px;color:#f87171;font-weight:700;margin-bottom:4px;">⚠️ ${m.vieilles} candidature${m.vieilles>1?'s':''} en attente depuis 14j+</div>
+          <div style="font-size:12px;color:rgba(248,246,241,.6);margin-bottom:8px;">Réponds-leur même par un refus poli — ton score visibilité augmente, les candidats arrêtent d'attendre.</div>
+          <button onclick="filterGhostedCandidatures()" style="background:#f87171;color:#0f1410;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Filtrer les concernées</button>
+        </div>
+      ` : `<div style="font-size:12px;color:rgba(248,246,241,.45);font-style:italic;flex:1;min-width:200px;">Aucun candidat en attente depuis longtemps. 👏</div>`}
+    </div>
+  `;
+}
+
+function filterGhostedCandidatures() {
+  const sel = document.getElementById('recrut-cand-filter-statut');
+  if (sel) sel.value = 'En attente';
+  const search = document.getElementById('recrut-cand-search');
+  if (search) search.value = '';
+  // Active un filtre custom : seulement cands >14j en attente
+  const filtered = (allRecrutCandidatures || []).filter(c => {
+    const s = c.fields['Statut'] || 'En attente';
+    return s === 'En attente' && _ageJours(c.fields['Date candidature']) >= 14;
+  });
+  const countEl = document.getElementById('recrut-cand-count');
+  if (countEl) countEl.textContent = filtered.length + ' candidature' + (filtered.length !== 1 ? 's ghostées' : ' ghostée');
+  renderRecrutCandidatures(filtered);
 }
 
 function setRecrutCandView(view) {
@@ -17701,6 +17851,87 @@ async function updateStatutCandidature(candidatureId, statut) {
     toast('Erreur de mise à jour', 'error');
   }
 }
+
+// ── Helpers Sprint H/I — Score IA, messagerie, entretien depuis cards candidatures ──
+function _findCandidatureById(id) {
+  return (allRecrutCandidatures || []).find(c => c.id === id);
+}
+
+async function _getOffreById(offreId) {
+  if (!offreId) return null;
+  const cached = (window.allMesOffres || []).find(o => o.id === offreId);
+  if (cached) return cached;
+  try {
+    const r = await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { headers: AT_HEADERS });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) { return null; }
+}
+
+async function scoreCandidatRecru(candidatureId) {
+  if (!window.woloAi) { toast('Module IA non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  const offre = await _getOffreById(c.fields['Offre ID']);
+  if (!offre) { toast('Offre liée introuvable', 'error'); return; }
+  window.woloAi.scoreCandidat(c, offre);
+}
+
+function openMessagerieRecru(candidatureId) {
+  if (!window.woloMessagerie) { toast('Module messagerie non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  window.woloMessagerie.open({ candidature: c, role: 'recruteur' });
+}
+
+function openEntretienRecru(candidatureId) {
+  if (!window.woloEntretien) { toast('Module entretien non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  window.woloEntretien.open({ candidature: c, onSaved: () => loadCandidaturesRecues() });
+}
+
+function signalerCandidat(candidatureId) {
+  if (!window.woloSignalement) { toast('Module signalement non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  window.woloSignalement.open({
+    candidatureId,
+    contextLabel: c ? `Candidature : ${c.fields['Candidat Nom'] || ''}` : '',
+  });
+}
+
+// Notif candidat sur planification entretien (réutilise Prestataires.Notifications JSON)
+window.notifyCandidatEntretien = async function(candidature, body) {
+  try {
+    const f = candidature.fields || {};
+    const candidatId = f['Candidat ID'];
+    if (!candidatId) return;
+    const resPrest = await fetch(AT_URL('Prestataires') + '/' + candidatId, { headers: AT_HEADERS });
+    if (!resPrest.ok) return;
+    const prestataire = await resPrest.json();
+    const labels = { presentiel: 'présentiel', visio: 'visio', telephone: 'téléphone' };
+    const date = new Date(body.date_heure).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const nouvelleNotif = {
+      id: 'notif_' + Date.now(),
+      type: 'entretien_planifie',
+      titre: 'Tu as un entretien !',
+      message: `Entretien ${labels[body.type] || ''} le ${date} pour « ${f['Offre Titre'] || 'une offre'} ». Sois prêt.`,
+      date: new Date().toISOString(),
+      lu: false,
+      lien: 'emploi-candidatures'
+    };
+    let notifs = [];
+    try { const raw = prestataire.fields?.['Notifications']; if (raw) notifs = JSON.parse(raw); } catch(e) {}
+    notifs.unshift(nouvelleNotif);
+    notifs = notifs.slice(0, 50);
+    await fetch(AT_URL('Prestataires') + '/' + candidatId, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { Notifications: JSON.stringify(notifs) } })
+    });
+  } catch (err) {
+    console.warn('[notifyCandidatEntretien]', err);
+  }
+};
 
 // ── Sprint E : Notification candidat sur changement statut ──
 async function notifyCandidatStatut(candidatureId, nouveauStatut) {
@@ -24759,6 +24990,12 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 <script src="components/annonces-patron.js"></script>
 <script src="components/finance-ca.js"></script>
 <script src="components/mon-emploi.js"></script>
+
+<!-- ═════ Sprint H/I — IA + Messagerie + Entretiens + Signalement ═════ -->
+<script src="components/ai-helper.js"></script>
+<script src="components/messagerie.js"></script>
+<script src="components/entretien.js"></script>
+<script src="components/signalement.js"></script>
 
 
 <!-- FedaPay SDK -->

@@ -2,6 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ✅ LIVRÉ — Sprint H/I : IA + Messagerie + Entretiens + Signalement (2026-04-25)
+
+Branchement frontend des 6 handlers backend qui existaient mais n'étaient pas routés ni utilisés. Les tables Supabase étaient déjà créées par la migration `20260424_messagerie_entretiens.sql`.
+
+### Routage `/api/wolo-pay/[action].js` (6 nouvelles actions)
+`thread-list`, `message-list`, `message-send`, `entretien-list`, `entretien-upsert`, `signalement-create` — toutes auth-only, branchées dans le router consolidé.
+
+### Composants frontend ajoutés
+- `/components/ai-helper.js` (existait, n'était pas chargé) — `window.woloAi.scoreCandidat`, `ameliorerCv`, `preparerEntretien`, `analyserAnnonce`
+- `/components/messagerie.js` — `window.woloMessagerie.open({ candidature, role })`, polling 8s, templates recruteur (convocation/refus/demande_docs)
+- `/components/entretien.js` — `window.woloEntretien.open({ candidature, onSaved })`, type présentiel/visio/téléphone, notif candidat via `Prestataires.Notifications` JSON
+- `/components/signalement.js` — `window.woloSignalement.open({ targetUserId|offreId|candidatureId, contextLabel })`, motifs arnaque/ghosting/fake_offre/harcelement/autre
+
+### Boutons branchés dans `index.html`
+- **Cards candidatures recruteur** (grid + table, `renderRecrutCandidatures`) : 🤖 Score IA, 💬 Message, 📅 Entretien, 🚨 Signaler
+- **Modale détail offre** (`showOffreDetail`) : "🚨 Signaler cette offre" en bas
+- **Table mes candidatures** (`loadMesCandidatures`) : 💬 Message, 🤖 Préparer entretien (si Retenue), 🚨 Signaler
+- **Formulaire publier offre** (`ds-recrut-publier`) : "🤖 Analyser mon annonce avec l'IA" au-dessus du CTA
+
+### Helpers ajoutés (index.html, après `updateStatutCandidature`)
+`scoreCandidatRecru`, `openMessagerieRecru`, `openEntretienRecru`, `signalerCandidat`, `_getOffreById`, `notifyCandidatEntretien`, `openMessagerieCandidat`, `preparerEntretienCandidat`, `signalerOffreCandidat`, `analyserAnnonceAvantPublication`.
+
+### ⚠️ Pré-requis pour activation prod
+1. **Migration appliquée** : exécuter `20260424_messagerie_entretiens.sql` sur la DB Supabase de prod si pas déjà fait.
+2. **Clés API IA** (au moins une) : `GEMINI_API_KEY` / `GROQ_API_KEY` / `CEREBRAS_API_KEY` / `MISTRAL_API_KEY` dans les env vars Vercel. Sinon l'IA renvoie 503.
+3. **Champs Airtable optionnels** : pour la messagerie + entretiens, le record Candidatures peut contenir `Candidat User ID` et `Recruteur User ID` (UUIDs Supabase). Sans eux, le composant affiche un message d'erreur clair et propose le fallback WhatsApp. Recommandé : ajouter ces champs et les peupler à la création de candidature/offre.
+
 ## ✅ LIVRÉ — WOLO Business Suite (Phases A → G, commit 58ff6dc)
 
 Flow continu Recrutement → Intégration → Équipe → Paie → Finances. **Plan** : `/docs/BUSINESS-SUITE-PLAN.md`, **schéma Airtable** : `/docs/AIRTABLE-SCHEMA-BUSINESS-SUITE.md`.
@@ -64,8 +91,9 @@ Refonte complète de WOLO Awards → "Le Mur des Reines". Toutes les femmes (pas
 - 5 niveaux (Apprentie → Légende)
 - Streak système (×1/×2/×3 multiplicateur à 1/3/7 jours)
 - Duels quartier/ville/catégorie (hebdomadaires)
-- Boost photo payant (500 FCFA / 24h via WOLO Pay)
-- Partage WhatsApp avec tracking + badge virale_100
+- Boost photo payant (500 FCFA / 24h)
+- Partage WhatsApp/TikTok avec tracking + badge virale_100
+- Prompt partage viral tous les 5 votes de duel
 - Thème du mois avec hashtag (#ReineDAvril etc.)
 
 ### Copywriting global mis à jour
@@ -75,9 +103,66 @@ Refonte complète de WOLO Awards → "Le Mur des Reines". Toutes les femmes (pas
 - Email template : `emails/08-wolo-awards.html`
 - Kit réseaux : `content/kit-reseaux-lancement.md` (10 scripts TikTok REINE01-10)
 
+## ✅ LIVRÉ — King & Queen WOLO
+
+Composant de duels communautaires. Hommes et femmes s'affrontent par catégorie (Coiffure, Couture, etc.). 500K FCFA/mois en jeu.
+
+### Composant frontend
+`/components/king-queen.js` — IIFE, `window.loadKingQueen`
+
+### Viralité intégrée
+- Boutons partage WhatsApp/TikTok/Copie après chaque batch de duels
+- Bouton "Partager" pendant les duels actifs
+- Prompt viral tous les 5 votes : "Tu kiffes ? Tes amis aussi vont kiffer."
+- Fonctions : `kqShareWhatsApp()`, `kqShareTikTok()`, `kqCopyLink()`
+
+## ✅ LIVRÉ — Refonte Parrainage / Affiliation
+
+Section parrainage entièrement refondue en section vendeuse :
+- Simulateur interactif (slider 1-500 filleuls) avec barre SMIG
+- Tableau paliers étendu (3→500 filleuls, gains mensuels/annuels)
+- 3 profils terrain (étudiant UCAO, mama Dantokpa, coiffeuse Bè)
+- 3 profils influenceurs (5K, 50K, 500K+ followers)
+- Fonction JS : `updateParrainSimulator(val)` (script inline après section)
+- Comparaison au SMIG Togo/Bénin (52 500 FCFA)
+
+⚠️ **TERMINOLOGIE** : JAMAIS "agent terrain" ou "agent" côté utilisateur. Uniquement "parrainage", "affiliation", "invite tes amis". La section admin `ds-agents-terrain` reste interne.
+
+## ✅ LIVRÉ — Paie par virement bancaire
+
+Conversion de WOLO Pay → virement bancaire dans Business Suite Paie :
+- `paie-dashboard.js` : checkbox "Viré" au lieu de bouton payer, `marquerVirement()` remplace `payerEmploye()`
+- `equipe-dashboard.js` : champ IBAN dans modal invitation + modal détail employé avec édition IBAN/salaire
+- `paie-pay.js` : méthode = "Virement bancaire"
+- Champ IBAN dans table Airtable `Employes`
+
+## ✅ LIVRÉ — Nettoyage WOLO Pay
+
+- 20 fichiers supprimés (17 `_impl/` + 3 libs mortes)
+- CSS mort retiré (#page-paiement-client, WOLO Pay Hero)
+- Fonctions JS mortes retirées (woloNotifTransfert, checkPaymentUrl)
+- Sidebar dashboard : "Finances" → "Mon abonnement" + groupe "Récompenses" séparé
+- Footers : "Devenir Agent" retiré, "À propos" → "Notre Histoire"
+
+## ✅ LIVRÉ — Hotfixes post-déploiement
+
+### Bug critique : `</script>` dans les template literals
+Deux template literals JS (QR code `printQRCode()` et CV print `emploi-cv`) contenaient des balises `<script>` FedaPay SDK non échappées. Le navigateur les interprétait comme la fermeture du bloc `<script>` principal → tout le JS après était parsé comme du HTML → modal "Ajouter comme agent" apparaissait, template literals (`${r.nom}`) affichés en clair, site cassé.
+- Fix : retrait des doublons FedaPay (le vrai SDK est en fin de fichier lignes 24760-24761)
+- Failsafe overlay : le loader `#wolo-init-overlay` se retire après 5s même si `initAuth()` échoue
+
+### `checkPaymentUrl()` manquante
+Fonction supprimée avec le nettoyage WOLO Pay mais encore appelée dans le bloc d'init → erreur fatale JS. Retirée des appels `DOMContentLoaded`.
+
+### Retry Airtable 429 (rate limit)
+Airtable free tier = 5 req/s. Le dashboard envoie trop de requêtes en parallèle → 429 → `currentPrestataire = undefined` → "Profil non trouvé".
+- `api/airtable-proxy.js` : retry automatique (2 tentatives, backoff 1.2s/2.5s)
+- `loadCurrentPrestataire()` : retry côté frontend (3 tentatives, backoff progressif)
+- ⚠️ **Problème partiellement résolu** — à investiguer si le profil public reste instable
+
 ## Projet
 
-WOLO Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~14 000 lignes, ~2 MB). Déployé sur Vercel à https://wolomarket.vercel.app.
+WOLO Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~24 700 lignes). Déployé sur Vercel à https://wolomarket.vercel.app.
 
 ## Commandes
 
