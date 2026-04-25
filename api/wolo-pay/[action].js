@@ -43,6 +43,7 @@ import messageSend from './_impl/message-send.js';
 import entretienList from './_impl/entretien-list.js';
 import entretienUpsert from './_impl/entretien-upsert.js';
 import signalementCreate from './_impl/signalement-create.js';
+import signalementList from './_impl/signalement-list.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -94,6 +95,7 @@ const handlers = {
   'entretien-list': entretienList,
   'entretien-upsert': entretienUpsert,
   'signalement-create': signalementCreate,
+  'signalement-list': signalementList,
 };
 
 export default async function handler(req, res) {

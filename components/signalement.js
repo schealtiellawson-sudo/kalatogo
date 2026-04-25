@@ -42,13 +42,16 @@
 
     overlay.innerHTML = `
       <div style="background:#0f1410;border:1px solid rgba(239,68,68,.4);border-radius:16px;max-width:460px;width:100%;padding:24px;max-height:90vh;overflow-y:auto;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:10px;color:#f87171;text-transform:uppercase;letter-spacing:2px;">Signalement</div>
             <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#F8F6F1;margin:4px 0 0;">Signaler un problème</h3>
             ${contextLabel ? `<div style="font-size:11px;color:rgba(248,246,241,.4);margin-top:4px;">${escapeHtml(contextLabel)}</div>` : ''}
           </div>
           <button id="wolo-flag-close" style="background:none;border:none;color:rgba(248,246,241,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+        </div>
+        <div style="text-align:right;margin-bottom:14px;">
+          <button type="button" onclick="window.woloSignalement.openHistory()" style="background:rgba(255,255,255,.05);color:rgba(248,246,241,.7);border:1px solid rgba(255,255,255,.1);padding:5px 11px;border-radius:8px;font-size:11px;cursor:pointer;">📋 Mes signalements précédents</button>
         </div>
 
         <form id="wolo-flag-form" style="display:flex;flex-direction:column;gap:14px;font-family:Poppins,sans-serif;font-size:13px;color:#F8F6F1;">
@@ -231,5 +234,79 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
     `;
   }
 
-  window.woloSignalement = { open, close };
+  // ----------------------------------------------------------------
+  // HISTORIQUE — Mes signalements
+  // ----------------------------------------------------------------
+  const STATUT_BADGE = {
+    nouveau:  { label: 'Nouveau',  bg: 'rgba(232,148,10,.15)', color: '#E8940A' },
+    en_cours: { label: 'En cours', bg: 'rgba(96,165,250,.15)', color: '#60a5fa' },
+    resolu:   { label: 'Résolu',   bg: 'rgba(34,197,94,.15)',  color: '#22c55e' },
+    rejete:   { label: 'Rejeté',   bg: 'rgba(255,255,255,.06)', color: 'rgba(248,246,241,.5)' },
+  };
+  const MOTIF_LABEL = {
+    arnaque: '💸 Arnaque', ghosting: '👻 Ghosting', fake_offre: '🚩 Fausse offre',
+    harcelement: '⚠️ Harcèlement', autre: '📝 Autre',
+  };
+
+  async function openHistory() {
+    if (!window.currentUser?.id) {
+      window.toast?.('Connecte-toi pour voir tes signalements', 'error');
+      return;
+    }
+    close();
+    const overlay = document.createElement('div');
+    overlay.id = 'wolo-flag-modal';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.innerHTML = `
+      <div style="background:#0f1410;border:1px solid rgba(232,148,10,.25);border-radius:16px;max-width:560px;width:100%;padding:24px;max-height:85vh;overflow-y:auto;font-family:Poppins,sans-serif;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Historique</div>
+            <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#F8F6F1;margin:4px 0 0;">Mes signalements</h3>
+          </div>
+          <button onclick="document.getElementById('wolo-flag-modal').remove()" style="background:none;border:none;color:rgba(248,246,241,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+        </div>
+        <div id="wolo-flag-list">
+          <div style="text-align:center;padding:30px;color:rgba(248,246,241,.4);font-size:13px;">Chargement…</div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    try {
+      const res = await wFetch()(API('signalement-list'));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Erreur chargement');
+      const list = data.signalements || [];
+      const container = document.getElementById('wolo-flag-list');
+      if (!container) return;
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:rgba(248,246,241,.5);font-size:13px;">
+          <div style="font-size:36px;margin-bottom:10px;">✓</div>
+          Tu n'as fait aucun signalement. Reste vigilant.
+        </div>`;
+        return;
+      }
+      container.innerHTML = list.map(s => {
+        const st = STATUT_BADGE[s.statut] || STATUT_BADGE.nouveau;
+        const date = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR') : '—';
+        const target = s.target_offre_airtable_id ? 'Offre' : s.target_candidature_airtable_id ? 'Candidature' : 'Profil';
+        return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.1);border-radius:12px;padding:14px;margin-bottom:10px;color:#F8F6F1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-weight:700;font-size:14px;">${MOTIF_LABEL[s.motif] || s.motif}</div>
+            <span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${st.bg};color:${st.color};">${st.label}</span>
+          </div>
+          <div style="font-size:11px;color:rgba(248,246,241,.45);margin-bottom:8px;">${target} · ${date}</div>
+          ${s.description ? `<div style="font-size:12px;color:rgba(248,246,241,.7);line-height:1.5;background:rgba(0,0,0,.2);padding:8px 10px;border-radius:6px;">${escapeHtml(s.description)}</div>` : ''}
+          ${s.mediation_result ? `<div style="margin-top:8px;font-size:11px;color:#c084fc;">🤖 Médiation IA disponible</div>` : ''}
+        </div>`;
+      }).join('');
+    } catch (e) {
+      const c = document.getElementById('wolo-flag-list');
+      if (c) c.innerHTML = `<div style="padding:18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#f87171;font-size:13px;">${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  window.woloSignalement = { open, openHistory, close };
 })();
