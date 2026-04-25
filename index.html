@@ -5727,6 +5727,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
               <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
             </button>
+            <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens">
+              <i data-lucide="calendar-check"></i> <span>Mes entretiens</span>
+            </button>
           </div>
           <div class="dash-subgroup" id="dl-recrut-section" style="display:none;">
             <div class="dash-subgroup-lbl">Je recrute</div>
@@ -5741,6 +5744,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
             </button>
             <button class="dash-link" onclick="showDashSection('recrut-candidatures')" id="dl-recrut-candidatures">
               <i data-lucide="users"></i> <span>Candidatures reçues</span>
+            </button>
+            <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens-recru">
+              <i data-lucide="calendar-clock"></i> <span>Mes entretiens</span>
             </button>
             <button class="dash-link" onclick="showDashSection('talent-pipeline')" id="dl-talent-pipeline">
               <i data-lucide="kanban-square"></i> <span>Pipeline Talent</span>
@@ -7619,6 +7625,17 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div id="ds-finance-ca" class="dash-section"><div id="finance-ca-root"></div></div>
       <div id="ds-mon-emploi" class="dash-section"><div id="mon-emploi-root"></div></div>
 
+      <!-- MES ENTRETIENS (chercheur + recruteur) -->
+      <div class="dash-section" id="ds-mes-entretiens">
+        <div class="dash-header" style="margin-bottom:24px;">
+          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:700;color:#F8F6F1;margin:0 0 6px;">Mes entretiens</h2>
+          <p style="font-family:Poppins,sans-serif;font-size:13px;color:rgba(248,246,241,.5);margin:0;">Tes entretiens à venir et passés (côté candidat ou recruteur).</p>
+        </div>
+        <div id="mes-entretiens-container" style="min-height:200px;">
+          <div style="text-align:center;padding:60px 20px;color:rgba(248,246,241,.35);font-family:Poppins,sans-serif;font-size:13px;">Chargement…</div>
+        </div>
+      </div>
+
       <!-- RECRUTEMENT : CANDIDATURES REÇUES -->
       <div class="dash-section" id="ds-recrut-candidatures">
 
@@ -8033,6 +8050,7 @@ function showDashSection(section) {
   if (section === 'recrut-publier') initRecrutPublier();
   if (section === 'recrut-offres') loadMesOffres();
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
+  if (section === 'mes-entretiens' && typeof loadMesEntretiens === 'function') loadMesEntretiens();
   if (section === 'recrut-dashboard') loadRecrutDashboard();
   if (section === 'wolo-match') loadDashWoloMatch();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
@@ -25039,6 +25057,7 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 <script src="components/ai-helper.js"></script>
 <script src="components/messagerie.js"></script>
 <script src="components/entretien.js"></script>
+<script src="components/entretiens-list.js"></script>
 <script src="components/signalement.js"></script>
 
 
