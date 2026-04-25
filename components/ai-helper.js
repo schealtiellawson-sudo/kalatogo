@@ -135,6 +135,25 @@ Message: ${c['Message'] || ''}`;
     return result;
   }
 
+  // Pour le candidat : score d'une offre par rapport à son profil (sans candidature)
+  // Utilise une clé cache stable "match_<prestId>_<offreId>" pour éviter de re-calculer.
+  async function scoreOffreForCandidat(prestataire, offreRecord) {
+    const fakeCandidature = {
+      id: `match_${prestataire.id}_${offreRecord.id}`,
+      fields: {
+        'Candidat Nom':         prestataire.fields['Nom complet'] || '',
+        'Candidat Métier':      prestataire.fields['Métier principal'] || '',
+        'Candidat Score WOLO':  prestataire.fields['Score WOLO'] || 0,
+        'Message':              prestataire.fields['Description des services'] || '',
+      },
+    };
+    return scoreCandidatSilent(fakeCandidature, offreRecord);
+  }
+
+  function getMatchScore(prestataireId, offreId) {
+    return getCachedScore(`match_${prestataireId}_${offreId}`);
+  }
+
   function renderScoreResult(r, meta) {
     const score = r?.score || 0;
     const color = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : '#f87171';
@@ -308,8 +327,10 @@ Description: ${offreFields['Description'] || ''}`;
     query,
     scoreCandidat,
     scoreCandidatSilent,
+    scoreOffreForCandidat,
     getCachedScore,
     setCachedScore,
+    getMatchScore,
     ameliorerCv,
     preparerEntretien,
     analyserAnnonce,

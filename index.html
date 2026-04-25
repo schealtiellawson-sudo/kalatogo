@@ -4769,7 +4769,15 @@ div[style*="position:sticky"][style*="background:#fff"] {
 
   <!-- LISTE OFFRES -->
   <div class="container" style="padding-top:32px;padding-bottom:60px;">
-    <div id="emploi-count" style="font-size:13px;color:var(--gris);margin-bottom:16px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div id="emploi-count" style="font-size:13px;color:var(--gris);"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gris);cursor:pointer;">
+          <input type="checkbox" id="emploi-tri-match" onchange="toggleTriMatch()" style="accent-color:#c084fc;"> 🤖 Trier par match IA
+        </label>
+        <button id="emploi-batch-match" onclick="batchMatchOffres()" title="Calcule le score IA d'adéquation pour les offres affichées (max 5)" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🤖 Trouver mes meilleurs matches</button>
+      </div>
+    </div>
     <div id="emploi-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
       <div class="loading"><div class="spinner"></div> Chargement des offres...</div>
     </div>
@@ -16647,10 +16655,16 @@ function renderOffreEmploi(offre) {
   const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
   const nbCand = f['Nb candidatures'] || 0;
 
+  // Score IA match (si calculé via "Trouver mes meilleurs matches")
+  const _matchCache = (window.currentPrestataire && window.woloAi)
+    ? window.woloAi.getMatchScore(window.currentPrestataire.id, offre.id) : null;
+  const _matchScore = _matchCache?.score;
+  const _matchColor = _matchScore >= 70 ? '#22c55e' : _matchScore >= 40 ? '#E8940A' : '#f87171';
   return `<div class="offre-card" onclick="showOffreDetail('${offre.id}')">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <div>
         ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span> ' : ''}
+        ${_matchScore != null ? `<span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(168,85,247,.15);color:${_matchColor};border:1px solid rgba(168,85,247,.3);">🤖 Match ${_matchScore}/100</span>` : ''}
         <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">${f['Titre'] || 'Sans titre'}</h3>
       </div>
     </div>
@@ -16759,10 +16773,56 @@ async function showPageEmploi() {
   }
 }
 
+let _triParMatch = false;
+
+function toggleTriMatch() {
+  _triParMatch = document.getElementById('emploi-tri-match')?.checked || false;
+  _offresPage = 1;
+  renderOffresPage();
+}
+
+async function batchMatchOffres() {
+  if (!window.woloAi) { toast('Module IA non chargé', 'error'); return; }
+  if (!currentPrestataire) { toast('Connecte-toi pour activer le match IA', 'error'); return; }
+  // Cibles : offres affichées non encore scorées (max 5/run)
+  const cibles = (_offresCurrent || []).filter(o =>
+    !window.woloAi.getMatchScore(currentPrestataire.id, o.id)
+  ).slice(0, 5);
+  if (cibles.length === 0) { toast('Tes matches sont déjà calculés. Active "Trier par match IA" 👆', 'info'); return; }
+  const btn = document.getElementById('emploi-batch-match');
+  if (btn) { btn.disabled = true; }
+  let done = 0, errors = 0;
+  for (const o of cibles) {
+    if (btn) btn.textContent = `🤖 Match ${done}/${cibles.length}…`;
+    try {
+      await window.woloAi.scoreOffreForCandidat(currentPrestataire, o);
+      done++;
+    } catch (e) {
+      errors++;
+      if (e?.status === 429) { toast('Quota IA atteint pour aujourd\'hui', 'error'); break; }
+    }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '🤖 Trouver mes meilleurs matches'; }
+  toast(`${done} offre${done>1?'s':''} matchée${done>1?'s':''}${errors?` · ${errors} erreur${errors>1?'s':''}`:''}`, done>0 ? 'success' : 'error');
+  const cb = document.getElementById('emploi-tri-match');
+  if (cb && !cb.checked) { cb.checked = true; _triParMatch = true; }
+  renderOffresPage();
+}
+
 function renderOffresPage() {
   const container = document.getElementById('emploi-list');
   const countEl = document.getElementById('emploi-count');
   if (!container) return;
+
+  // Tri par match IA si activé
+  if (_triParMatch && currentPrestataire && window.woloAi) {
+    _offresCurrent = [..._offresCurrent].sort((a, b) => {
+      const sa = window.woloAi.getMatchScore(currentPrestataire.id, a.id)?.score ?? -1;
+      const sb = window.woloAi.getMatchScore(currentPrestataire.id, b.id)?.score ?? -1;
+      return sb - sa;
+    });
+  }
+
   const total = _offresCurrent.length;
   const start = (_offresPage - 1) * _OFFRES_PER_PAGE;
   const end = Math.min(start + _OFFRES_PER_PAGE, total);
