@@ -7850,14 +7850,31 @@ async function loadCurrentPrestataire(retries) {
     const data = await res.json();
     if (data.records?.length > 0) {
       currentPrestataire = data.records[0];
-      // Normalise le champ Abonnement (singleSelect peut retourner un objet {name, id, color})
-      // pour que tout le code qui compare === 'Pro' continue à marcher
+      // Normalise Abonnement (singleSelect → string) pour que tout le code === 'Pro' marche
       const ab = currentPrestataire.fields?.['Abonnement'];
+      const rawType = typeof ab;
+      const rawJson = JSON.stringify(ab);
       if (ab && typeof ab === 'object' && ab.name) {
         currentPrestataire.fields['Abonnement'] = ab.name;
+      } else if (typeof ab === 'string' && ab.toLowerCase() === 'pro') {
+        currentPrestataire.fields['Abonnement'] = 'Pro';
       }
-      window.currentPrestataire = currentPrestataire; // exposer pour les composants
+      window.currentPrestataire = currentPrestataire;
+      const finalAb = currentPrestataire.fields['Abonnement'];
+      const isPro = finalAb === 'Pro';
+      console.log('[wolo] currentPrestataire chargé', { id: currentPrestataire.id, abonnement: finalAb, raw: rawJson, type: rawType, isPro });
+      // Banner debug temporaire (5s)
+      setTimeout(() => {
+        if (typeof toast === 'function') {
+          toast(`Plan détecté : ${finalAb || '(vide)'} · isPro=${isPro} · id=${currentPrestataire.id.slice(-6)}`, isPro ? 'success' : 'info');
+        }
+      }, 1500);
       updateCommissionDisplay();
+    } else {
+      console.warn('[wolo] currentPrestataire NON trouvé pour email', currentUser.email);
+      setTimeout(() => {
+        if (typeof toast === 'function') toast(`Aucun profil Airtable trouvé pour ${currentUser.email}`, 'error');
+      }, 1500);
     }
   } catch(e) { console.error('loadCurrentPrestataire:', e); }
 }
