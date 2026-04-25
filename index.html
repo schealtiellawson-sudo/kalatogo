@@ -4778,6 +4778,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <input type="checkbox" id="emploi-tri-match" onchange="toggleTriMatch()" style="accent-color:#c084fc;"> 🤖 Trier par match IA
         </label>
         <button id="emploi-batch-match" onclick="batchMatchOffres()" title="Calcule le score IA d'adéquation pour les offres affichées (max 5)" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🤖 Trouver mes meilleurs matches</button>
+        <button onclick="ouvrirAlertesModal()" title="Active une alerte sur cette recherche" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🔔 Mes alertes</button>
       </div>
     </div>
     <div id="emploi-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
@@ -16772,10 +16773,128 @@ async function showPageEmploi() {
     _offresCurrent = _offresCache;
     _offresPage = 1;
     renderOffresPage();
+    checkAlertesNouvelles(_offresCache);
   } catch(e) {
     _offresCache = []; _offresCurrent = []; _offresPage = 1;
     renderOffresPage();
   }
+}
+
+// ── Alertes recherche (localStorage) ──
+const _ALERTES_KEY = 'wolo_alertes_v1';
+
+function _getAlertes() {
+  try { return JSON.parse(localStorage.getItem(_ALERTES_KEY) || '[]'); } catch { return []; }
+}
+function _saveAlertes(arr) { try { localStorage.setItem(_ALERTES_KEY, JSON.stringify(arr)); } catch {} }
+
+function alerteMatch(offre, alerte) {
+  const f = offre.fields;
+  if (alerte.metier && f['Métier'] !== alerte.metier) return false;
+  if (alerte.quartier && f['Quartier'] !== alerte.quartier) return false;
+  if (alerte.contrat && f['Type de contrat'] !== alerte.contrat) return false;
+  return true;
+}
+
+function checkAlertesNouvelles(offres) {
+  const alertes = _getAlertes();
+  if (alertes.length === 0) return;
+  let totalNew = 0;
+  alertes.forEach(a => {
+    const lastCheck = a.lastCheck ? new Date(a.lastCheck).getTime() : 0;
+    const matches = offres.filter(o => {
+      if (!alerteMatch(o, a)) return false;
+      const created = o.fields['Créée le'] ? new Date(o.fields['Créée le']).getTime() : 0;
+      return created > lastCheck;
+    });
+    a.lastCheck = new Date().toISOString();
+    a.lastNew = matches.length;
+    totalNew += matches.length;
+  });
+  _saveAlertes(alertes);
+  if (totalNew > 0) {
+    setTimeout(() => {
+      toast(`🔔 ${totalNew} nouvelle${totalNew>1?'s':''} offre${totalNew>1?'s':''} pour tes alertes`, 'success');
+    }, 800);
+  }
+}
+
+function ajouterAlerte() {
+  const metier   = document.getElementById('emploi-filter-metier')?.value || '';
+  const quartier = document.getElementById('emploi-filter-quartier')?.value || '';
+  const contrat  = document.getElementById('emploi-filter-contrat')?.value || '';
+  if (!metier && !quartier && !contrat) {
+    toast('Choisis au moins un filtre (métier, ville ou contrat) avant d\'activer l\'alerte', 'error');
+    return;
+  }
+  const alertes = _getAlertes();
+  // Évite les doublons
+  if (alertes.some(a => a.metier === metier && a.quartier === quartier && a.contrat === contrat)) {
+    toast('Alerte déjà active pour cette combinaison', 'info');
+    return;
+  }
+  alertes.push({
+    id: 'al_' + Date.now(),
+    metier, quartier, contrat,
+    created: new Date().toISOString(),
+    lastCheck: new Date().toISOString(),
+  });
+  _saveAlertes(alertes);
+  toast('🔔 Alerte activée. Au prochain visit, on te dit si de nouvelles offres correspondent.', 'success');
+  renderAlertesModalContent();
+}
+
+function supprimerAlerte(id) {
+  const alertes = _getAlertes().filter(a => a.id !== id);
+  _saveAlertes(alertes);
+  renderAlertesModalContent();
+  toast('Alerte supprimée', 'info');
+}
+
+function ouvrirAlertesModal() {
+  const overlay = document.createElement('div');
+  overlay.id = 'wolo-alertes-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.innerHTML = `
+    <div style="background:#0f1410;border:1px solid rgba(232,148,10,.3);border-radius:16px;max-width:520px;width:100%;padding:24px;max-height:85vh;overflow-y:auto;font-family:Poppins,sans-serif;color:#F8F6F1;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+        <div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Alertes</div>
+          <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;margin:4px 0 0;">Mes alertes recherche</h3>
+        </div>
+        <button onclick="document.getElementById('wolo-alertes-modal').remove()" style="background:none;border:none;color:rgba(248,246,241,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:rgba(248,246,241,.65);">
+        💡 Active une alerte sur tes filtres actuels. Au prochain visit, on te dit s'il y a de nouvelles offres correspondantes.
+      </div>
+      <button onclick="ajouterAlerte()" style="width:100%;background:#E8940A;color:#0f1410;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;margin-bottom:14px;">🔔 Activer une alerte sur les filtres actuels</button>
+      <div id="wolo-alertes-list"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  renderAlertesModalContent();
+}
+
+function renderAlertesModalContent() {
+  const list = document.getElementById('wolo-alertes-list');
+  if (!list) return;
+  const alertes = _getAlertes();
+  if (alertes.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(248,246,241,.4);font-size:13px;">Aucune alerte active.</div>`;
+    return;
+  }
+  list.innerHTML = `<div style="font-size:11px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Alertes actives (${alertes.length})</div>` +
+    alertes.map(a => {
+      const parts = [];
+      if (a.metier)   parts.push(`<span style="background:rgba(232,148,10,.15);color:#E8940A;padding:3px 9px;border-radius:14px;font-size:11px;">${a.metier}</span>`);
+      if (a.quartier) parts.push(`<span style="background:rgba(248,246,241,.06);color:rgba(248,246,241,.7);padding:3px 9px;border-radius:14px;font-size:11px;">📍 ${a.quartier}</span>`);
+      if (a.contrat)  parts.push(`<span style="background:rgba(248,246,241,.06);color:rgba(248,246,241,.7);padding:3px 9px;border-radius:14px;font-size:11px;">${a.contrat}</span>`);
+      return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.1);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1;">${parts.join('') || '<span style="color:rgba(248,246,241,.4);font-size:11px;">Aucun filtre</span>'}</div>
+        <button onclick="supprimerAlerte('${a.id}')" style="background:rgba(239,68,68,.1);color:#f87171;border:none;padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;">Supprimer</button>
+      </div>`;
+    }).join('');
 }
 
 // ── Vue carte des offres (Leaflet) ──
