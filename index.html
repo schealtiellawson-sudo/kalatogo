@@ -7849,47 +7849,82 @@ function isProUser(prestataire) {
 }
 window.isProUser = isProUser;
 
+function _prestCacheKey(email) { return 'wolo_prest_cache_' + email; }
+function _readPrestCache(email) {
+  try {
+    const raw = localStorage.getItem(_prestCacheKey(email));
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    return o && o.record ? o.record : null;
+  } catch { return null; }
+}
+function _writePrestCache(email, record) {
+  try { localStorage.setItem(_prestCacheKey(email), JSON.stringify({ t: Date.now(), record })); } catch {}
+}
+
 async function loadCurrentPrestataire(retries) {
   if (!currentUser?.email) return;
   retries = retries || 0;
+  const email = currentUser.email;
+
   try {
-    const email = currentUser.email;
     const formula = encodeURIComponent(`{Email}='${email}'`);
     const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
-    if (res.status === 429 && retries < 3) {
-      await new Promise(r => setTimeout(r, 1500 * (retries + 1)));
-      return loadCurrentPrestataire(retries + 1);
+
+    // Rate limit Airtable (429) ou erreur quota mensuel : retry plus agressif + fallback cache
+    if (!res.ok) {
+      console.warn('[wolo] loadCurrentPrestataire HTTP', res.status, 'retry', retries);
+      if (retries < 5) {
+        const wait = 1500 * Math.pow(1.6, retries); // 1.5s, 2.4s, 3.8s, 6.1s, 9.8s
+        await new Promise(r => setTimeout(r, wait));
+        return loadCurrentPrestataire(retries + 1);
+      }
+      // Tous les retries échoués → fallback cache localStorage
+      const cached = _readPrestCache(email);
+      if (cached) {
+        currentPrestataire = cached;
+        window.currentPrestataire = currentPrestataire;
+        console.log('[wolo] fallback cache localStorage utilisé', cached.id);
+        updateCommissionDisplay();
+        return;
+      }
+      throw new Error('Airtable indisponible (status ' + res.status + ') et pas de cache local');
     }
+
     const data = await res.json();
     if (data.records?.length > 0) {
       currentPrestataire = data.records[0];
-      // Normalise Abonnement (singleSelect → string) pour que tout le code === 'Pro' marche
       const ab = currentPrestataire.fields?.['Abonnement'];
-      const rawType = typeof ab;
-      const rawJson = JSON.stringify(ab);
       if (ab && typeof ab === 'object' && ab.name) {
         currentPrestataire.fields['Abonnement'] = ab.name;
-      } else if (typeof ab === 'string' && ab.toLowerCase() === 'pro') {
-        currentPrestataire.fields['Abonnement'] = 'Pro';
       }
       window.currentPrestataire = currentPrestataire;
-      const finalAb = currentPrestataire.fields['Abonnement'];
-      const isPro = finalAb === 'Pro';
-      console.log('[wolo] currentPrestataire chargé', { id: currentPrestataire.id, abonnement: finalAb, raw: rawJson, type: rawType, isPro });
-      // Banner debug temporaire (5s)
-      setTimeout(() => {
-        if (typeof toast === 'function') {
-          toast(`Plan détecté : ${finalAb || '(vide)'} · isPro=${isPro} · id=${currentPrestataire.id.slice(-6)}`, isPro ? 'success' : 'info');
-        }
-      }, 1500);
+      _writePrestCache(email, currentPrestataire); // cache pour fallback futur
+      console.log('[wolo] currentPrestataire chargé', currentPrestataire.id, '· Abonnement:', currentPrestataire.fields['Abonnement']);
       updateCommissionDisplay();
     } else {
-      console.warn('[wolo] currentPrestataire NON trouvé pour email', currentUser.email);
-      setTimeout(() => {
-        if (typeof toast === 'function') toast(`Aucun profil Airtable trouvé pour ${currentUser.email}`, 'error');
-      }, 1500);
+      // Pas de record pour cet email → essayer le cache local
+      const cached = _readPrestCache(email);
+      if (cached) {
+        currentPrestataire = cached;
+        window.currentPrestataire = currentPrestataire;
+        console.log('[wolo] aucun record API mais cache local trouvé', cached.id);
+        updateCommissionDisplay();
+        return;
+      }
+      console.warn('[wolo] aucun profil Airtable pour email', email);
     }
-  } catch(e) { console.error('loadCurrentPrestataire:', e); }
+  } catch (e) {
+    console.error('loadCurrentPrestataire:', e);
+    // Dernier recours : cache local
+    const cached = _readPrestCache(email);
+    if (cached) {
+      currentPrestataire = cached;
+      window.currentPrestataire = currentPrestataire;
+      console.log('[wolo] fallback cache après exception', cached.id);
+      updateCommissionDisplay();
+    }
+  }
 }
 
 // ══ CONNEXION ══
