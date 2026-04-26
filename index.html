@@ -8522,17 +8522,21 @@ async function updateDispo() {
   updateDispoUI(dispo);
 
   try {
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Disponible maintenant': dispo } })
-    });
-    if (res.ok) {
+    if (window.supaPrest) {
+      await window.supaPrest.update(currentPrestataire.id, { 'Disponible maintenant': dispo });
       currentPrestataire.fields['Disponible maintenant'] = dispo;
       toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
     } else {
-      toast('Erreur de sauvegarde', 'error');
+      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { 'Disponible maintenant': dispo } })
+      });
+      if (res.ok) {
+        currentPrestataire.fields['Disponible maintenant'] = dispo;
+        toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
+      } else { toast('Erreur de sauvegarde', 'error'); }
     }
-  } catch { toast('Problème de connexion', 'error'); }
+  } catch (e) { toast('Problème de connexion : ' + e.message, 'error'); }
 }
 
 // ══ MODIFIER PROFIL ══
@@ -8615,20 +8619,32 @@ async function saveProfile() {
   fields['Langues parlées'] = langues   || '';
 
   try {
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields })
-    });
-    if (res.ok) {
-      const updated = await res.json();
+    if (window.supaPrest) {
+      const updated = await window.supaPrest.update(currentPrestataire.id, fields);
       currentPrestataire = updated;
+      window.currentPrestataire = updated;
       updateNavAuth(true);
       toast('✅ Profil mis à jour !', 'success');
     } else {
-      const err = await res.json();
-      toast('Erreur : ' + (err.error?.message || 'Réessaie'), 'error');
+      // Fallback Airtable
+      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields })
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        currentPrestataire = updated;
+        updateNavAuth(true);
+        toast('✅ Profil mis à jour !', 'success');
+      } else {
+        const err = await res.json();
+        toast('Erreur : ' + (err.error?.message || 'Réessaie'), 'error');
+      }
     }
-  } catch { toast('Problème de connexion', 'error'); }
+  } catch (e) {
+    console.error('saveProfile:', e);
+    toast('Erreur sauvegarde : ' + (e.message || 'Réessaie'), 'error');
+  }
 
   btn.textContent = '💾 Sauvegarder les modifications';
   btn.disabled = false;
@@ -8729,10 +8745,12 @@ async function saveDashLocation() {
   const btn = document.querySelector('#dash-loc-pin-area button[onclick*="saveDashLocation"]');
   if (btn) { btn.textContent = '⏳ Enregistrement...'; btn.disabled = true; }
   try {
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
-    });
+    const res = await (window.supaPrest
+      ? window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon }).then(() => ({ ok: true, json: async () => ({}) }))
+      : fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+          method: 'PATCH', headers: AT_HEADERS,
+          body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
+        }));
     const data = await res.json();
     if (res.ok) {
       currentPrestataire.fields['Latitude'] = lat;
@@ -8913,18 +8931,30 @@ async function _doUploadProfilCrop(blob, dataUrl) {
   const croppedFile = new File([blob], 'photo-profil.jpg', { type: 'image/jpeg' });
   const url = await uploadToImgBB(croppedFile);
   if (url) {
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'WhatsApp': url } })
-    });
-    if (res.ok) {
+    let savedOk = false;
+    try {
+      if (window.supaPrest) {
+        await window.supaPrest.update(currentPrestataire.id, { 'WhatsApp': url, 'Photo de profil': url });
+        savedOk = true;
+      } else {
+        const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+          method: 'PATCH', headers: AT_HEADERS,
+          body: JSON.stringify({ fields: { 'WhatsApp': url } })
+        });
+        savedOk = res.ok;
+      }
+    } catch (e) { console.error('photo profil save:', e); }
+    if (savedOk) {
       currentPrestataire.fields['WhatsApp'] = url;
-      // Afficher le bouton Recadrer maintenant qu'une photo existe
+      currentPrestataire.fields['Photo de profil'] = url;
       document.getElementById('btn-recadrer-label')?.style && (document.getElementById('btn-recadrer-label').style.display = 'inline-flex');
       statusEl.style.color = 'var(--vert)';
       statusEl.textContent = '✅ Photo mise à jour !';
       toast('Photo de profil mise à jour !', 'success');
       setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    } else {
+      statusEl.style.color = '#dc2626';
+      statusEl.textContent = '❌ Erreur sauvegarde. Réessaie.';
     }
   } else {
     statusEl.style.color = '#dc2626';
@@ -14012,15 +14042,48 @@ async function submitInscription(e) {
     }
 
     setStep('Enregistrement de ton profil…');
-    const res = await fetch(AT_URL('Prestataires'), {
-      method: 'POST',
-      headers: AT_HEADERS,
-      body: JSON.stringify({ fields, typecast: true })
-    });
+    // Lier le record Supabase au user_id pour passer la RLS
+    if (authData?.user?.id) {
+      fields['User ID'] = authData.user.id;
+    } else if (currentUser?.id) {
+      fields['User ID'] = currentUser.id;
+    }
 
-    if (res.ok) {
-      const record = await res.json();
+    let record = null;
+    let createOk = false;
+    try {
+      if (window.supaPrest) {
+        record = await window.supaPrest.create(fields);
+        createOk = true;
+      }
+    } catch (eSupa) {
+      console.error('[wolo] supaPrest.create failed, fallback Airtable:', eSupa);
+    }
+
+    if (!createOk) {
+      // Fallback Airtable temporaire (à retirer en push 4)
+      const res = await fetch(AT_URL('Prestataires'), {
+        method: 'POST',
+        headers: AT_HEADERS,
+        body: JSON.stringify({ fields, typecast: true })
+      });
+      if (res.ok) { record = await res.json(); createOk = true; }
+      else {
+        const err = await res.json();
+        console.error('Airtable error:', err);
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (formEl) formEl.classList.remove('form-hidden');
+        if (progressEl) progressEl.classList.remove('form-hidden');
+        toast('Erreur enregistrement : ' + (err.error?.message || JSON.stringify(err)), 'error');
+        btn.textContent = '✦ Créer mon profil';
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    if (createOk) {
       currentPrestataire = record;
+      window.currentPrestataire = record;
       if (authData?.user) {
         currentUser = authData.user;
         window.currentUser = currentUser;
@@ -14059,15 +14122,6 @@ async function submitInscription(e) {
       } catch(e) { console.warn('[parrainage post-inscription]', e); }
       // Lancer l'onboarding immédiatement si présent (sans attendre un reload)
       try { if (typeof window.showWoloOnboarding === 'function' && !localStorage.getItem('wolo_onboarding_done')) { localStorage.removeItem('wolo_just_signed_up'); setTimeout(window.showWoloOnboarding, 800); } } catch(e){}
-    } else {
-      const err = await res.json();
-      console.error('Airtable error:', err);
-      if (loadingEl) loadingEl.style.display = 'none';
-      if (formEl) formEl.classList.remove('form-hidden');
-      if (progressEl) progressEl.classList.remove('form-hidden');
-      toast('Erreur Airtable : ' + (err.error?.message || JSON.stringify(err)), 'error');
-      btn.textContent = '✦ Créer mon profil';
-      btn.disabled = false;
     }
   } catch (err) {
     if (loadingEl) loadingEl.style.display = 'none';
