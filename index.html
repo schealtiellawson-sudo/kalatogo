@@ -10280,24 +10280,46 @@ async function uploadToImgBB(file) {
 // AIRTABLE — FETCH PRESTATAIRES
 // ══════════════════════════════════════════
 async function fetchPrestataires(opts = {}) {
-  let conditions = [];
+  let records = [];
 
-  if (opts.metier) conditions.push(`{Métier principal}='${opts.metier}'`);
-  if (opts.quartier) conditions.push(`{Quartier}='${opts.quartier}'`);
-  if (opts.dispo) conditions.push(`{Disponible maintenant}=1`);
-  if (opts.tarifMax) conditions.push(`{Tarif minimum FCFA}<=${opts.tarifMax}`);
+  if (window.supaPrest) {
+    try {
+      records = await window.supaPrest.list({
+        metier: opts.metier || undefined,
+        quartier: opts.quartier || undefined,
+        disponible: opts.dispo || undefined,
+        limit: 50,
+        orderBy: 'note_moyenne',
+        orderDir: 'desc',
+      });
+      // Filtre tarif max côté client (pas d'opérateur Supabase pour le min de tarif_min)
+      if (opts.tarifMax) {
+        records = records.filter(r => {
+          const t = r.fields?.['Tarif minimum FCFA'];
+          return t == null || t <= opts.tarifMax;
+        });
+      }
+    } catch (e) {
+      console.error('[fetchPrestataires] supaPrest échoué, fallback Airtable:', e);
+    }
+  }
 
-  let formula = conditions.length
-    ? (conditions.length === 1 ? conditions[0] : `AND(${conditions.join(',')})`)
-    : '';
-
-  let url = `${AT_URL('Prestataires')}?maxRecords=50&sort[0][field]=Note%20moyenne&sort[0][direction]=desc`;
-  if (formula) url += `&filterByFormula=${encodeURIComponent(formula)}`;
-
-  const res = await fetch(url, { headers: AT_HEADERS });
-  if (!res.ok) throw new Error(`Airtable error ${res.status}`);
-  const data = await res.json();
-  const records = data.records || [];
+  if (records.length === 0 && !window.supaPrest) {
+    let conditions = [];
+    if (opts.metier) conditions.push(`{Métier principal}='${opts.metier}'`);
+    if (opts.quartier) conditions.push(`{Quartier}='${opts.quartier}'`);
+    if (opts.dispo) conditions.push(`{Disponible maintenant}=1`);
+    if (opts.tarifMax) conditions.push(`{Tarif minimum FCFA}<=${opts.tarifMax}`);
+    let formula = conditions.length
+      ? (conditions.length === 1 ? conditions[0] : `AND(${conditions.join(',')})`)
+      : '';
+    let url = `${AT_URL('Prestataires')}?maxRecords=50&sort[0][field]=Note%20moyenne&sort[0][direction]=desc`;
+    if (formula) url += `&filterByFormula=${encodeURIComponent(formula)}`;
+    const res = await fetch(url, { headers: AT_HEADERS });
+    if (!res.ok) throw new Error(`Airtable error ${res.status}`);
+    const data = await res.json();
+    records = data.records || [];
+  }
 
   // ⭐ Algorithme priorité : Pro en tête, puis par note décroissante
   records.sort((a, b) => {
@@ -10744,7 +10766,7 @@ function afficherCarteProfil(lat, lon, nom) {
 // ══════════════════════════════════════════
 // HOME
 // ══════════════════════════════════════════
-async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;try{const url=`${AT_URL('Prestataires')}?maxRecords=12&sort[0][field]=Note%20moyenne&sort[0][direction]=desc&filterByFormula=${encodeURIComponent("AND({Nom complet}!='',{Métier principal}!='')")}`;const res=await fetch(url,{headers:AT_HEADERS});if(!res.ok)throw new Error('Airtable '+res.status);const data=await res.json();let records=data.records||[];if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,12).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['Photo Profil']||f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(248,246,241,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(248,246,241,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
+async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;try{let records=[];if(window.supaPrest){records=await window.supaPrest.list({limit:30,orderBy:'note_moyenne',orderDir:'desc'});records=records.filter(r=>r.fields?.['Nom complet']&&r.fields?.['Métier principal']);}else{const url=`${AT_URL('Prestataires')}?maxRecords=12&sort[0][field]=Note%20moyenne&sort[0][direction]=desc&filterByFormula=${encodeURIComponent("AND({Nom complet}!='',{Métier principal}!='')")}`;const res=await fetch(url,{headers:AT_HEADERS});if(!res.ok)throw new Error('Airtable '+res.status);const data=await res.json();records=data.records||[];}if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,12).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['Photo Profil']||f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(248,246,241,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(248,246,241,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
 
 async function initHome() {
   buildVilleOptions('home-search-quartier');
@@ -12910,9 +12932,15 @@ async function showProfil(recordId) {
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
 
   try {
-    const res = await fetch(`${AT_URL('Prestataires')}/${recordId}`, { headers: AT_HEADERS });
-    if (!res.ok) throw new Error('Profil introuvable');
-    const record = await res.json();
+    let record = null;
+    if (window.supaPrest) {
+      record = await window.supaPrest.findById(recordId);
+      if (!record) throw new Error('Profil introuvable');
+    } else {
+      const res = await fetch(`${AT_URL('Prestataires')}/${recordId}`, { headers: AT_HEADERS });
+      if (!res.ok) throw new Error('Profil introuvable');
+      record = await res.json();
+    }
     window._currentProfilRecord = record; // stocké pour showRdvPage / showAlbumsPage
     // Tracker la vue (throttlé à 1h par profil, sauf si c'est le propriétaire)
     if (!currentPrestataire || currentPrestataire.id !== recordId) {
@@ -13859,17 +13887,25 @@ async function countPrestataires() {
   const cached = localStorage.getItem(cacheKey);
   const ts = parseInt(localStorage.getItem(cacheTime) || '0');
   if (cached && Date.now() - ts < 30 * 60 * 1000) return parseInt(cached);
-  let total = 0, offset = null;
+  let total = 0;
   try {
-    do {
-      let url = AT_URL('Prestataires') + '?pageSize=100&fields[]=Nom+complet';
-      if (offset) url += '&offset=' + encodeURIComponent(offset);
-      const r = await fetch(url, { headers: AT_HEADERS });
-      if (!r.ok) break;
-      const d = await r.json();
-      total += (d.records || []).length;
-      offset = d.offset || null;
-    } while (offset && total < 1100);
+    if (window.supabase) {
+      const { count, error } = await window.supabase
+        .from('wolo_prestataires').select('*', { count: 'exact', head: true });
+      if (error) throw error;
+      total = count || 0;
+    } else {
+      let offset = null;
+      do {
+        let url = AT_URL('Prestataires') + '?pageSize=100&fields[]=Nom+complet';
+        if (offset) url += '&offset=' + encodeURIComponent(offset);
+        const r = await fetch(url, { headers: AT_HEADERS });
+        if (!r.ok) break;
+        const d = await r.json();
+        total += (d.records || []).length;
+        offset = d.offset || null;
+      } while (offset && total < 1100);
+    }
   } catch(e) { return 0; }
   localStorage.setItem(cacheKey, total.toString());
   localStorage.setItem(cacheTime, Date.now().toString());
