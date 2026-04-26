@@ -7864,67 +7864,68 @@ function _writePrestCache(email, record) {
 
 async function loadCurrentPrestataire(retries) {
   if (!currentUser?.email) return;
-  retries = retries || 0;
   const email = currentUser.email;
+  retries = retries || 0;
 
-  try {
-    const formula = encodeURIComponent(`{Email}='${email}'`);
-    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
-
-    // Rate limit Airtable (429) ou erreur quota mensuel : retry plus agressif + fallback cache
-    if (!res.ok) {
-      console.warn('[wolo] loadCurrentPrestataire HTTP', res.status, 'retry', retries);
-      if (retries < 5) {
-        const wait = 1500 * Math.pow(1.6, retries); // 1.5s, 2.4s, 3.8s, 6.1s, 9.8s
-        await new Promise(r => setTimeout(r, wait));
-        return loadCurrentPrestataire(retries + 1);
+  // Bascule Supabase : la table wolo_prestataires remplace Airtable Prestataires.
+  // Plus de quota mensuel à craindre.
+  if (window.supaPrest) {
+    try {
+      const record = await window.supaPrest.findByEmail(email);
+      if (record) {
+        currentPrestataire = record;
+        window.currentPrestataire = currentPrestataire;
+        _writePrestCache(email, currentPrestataire);
+        console.log('[wolo] currentPrestataire chargé via Supabase', record.id, '· Abonnement:', record.fields?.['Abonnement']);
+        updateCommissionDisplay();
+        return;
       }
-      // Tous les retries échoués → fallback cache localStorage
+      // Aucun record Supabase pour cet email → essayer cache local
       const cached = _readPrestCache(email);
       if (cached) {
         currentPrestataire = cached;
         window.currentPrestataire = currentPrestataire;
-        console.log('[wolo] fallback cache localStorage utilisé', cached.id);
+        console.log('[wolo] aucun record Supabase, fallback cache local', cached.id);
         updateCommissionDisplay();
         return;
       }
-      throw new Error('Airtable indisponible (status ' + res.status + ') et pas de cache local');
+      console.warn('[wolo] Aucun profil Supabase pour', email, '— l\'utilisateur doit s\'inscrire');
+      return;
+    } catch (e) {
+      console.error('[wolo] loadCurrentPrestataire (Supabase) :', e);
+      if (retries < 3) {
+        await new Promise(r => setTimeout(r, 1000 * (retries + 1)));
+        return loadCurrentPrestataire(retries + 1);
+      }
+      const cached = _readPrestCache(email);
+      if (cached) {
+        currentPrestataire = cached;
+        window.currentPrestataire = currentPrestataire;
+        updateCommissionDisplay();
+      }
+      return;
     }
+  }
 
+  // Fallback Airtable si supaPrest pas encore chargé (sécurité défensive)
+  console.warn('[wolo] supaPrest non chargé, fallback Airtable');
+  try {
+    const formula = encodeURIComponent(`{Email}='${email}'`);
+    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
+    if (!res.ok && retries < 3) {
+      await new Promise(r => setTimeout(r, 1500 * (retries + 1)));
+      return loadCurrentPrestataire(retries + 1);
+    }
     const data = await res.json();
     if (data.records?.length > 0) {
       currentPrestataire = data.records[0];
       const ab = currentPrestataire.fields?.['Abonnement'];
-      if (ab && typeof ab === 'object' && ab.name) {
-        currentPrestataire.fields['Abonnement'] = ab.name;
-      }
+      if (ab && typeof ab === 'object' && ab.name) currentPrestataire.fields['Abonnement'] = ab.name;
       window.currentPrestataire = currentPrestataire;
-      _writePrestCache(email, currentPrestataire); // cache pour fallback futur
-      console.log('[wolo] currentPrestataire chargé', currentPrestataire.id, '· Abonnement:', currentPrestataire.fields['Abonnement']);
-      updateCommissionDisplay();
-    } else {
-      // Pas de record pour cet email → essayer le cache local
-      const cached = _readPrestCache(email);
-      if (cached) {
-        currentPrestataire = cached;
-        window.currentPrestataire = currentPrestataire;
-        console.log('[wolo] aucun record API mais cache local trouvé', cached.id);
-        updateCommissionDisplay();
-        return;
-      }
-      console.warn('[wolo] aucun profil Airtable pour email', email);
-    }
-  } catch (e) {
-    console.error('loadCurrentPrestataire:', e);
-    // Dernier recours : cache local
-    const cached = _readPrestCache(email);
-    if (cached) {
-      currentPrestataire = cached;
-      window.currentPrestataire = currentPrestataire;
-      console.log('[wolo] fallback cache après exception', cached.id);
+      _writePrestCache(email, currentPrestataire);
       updateCommissionDisplay();
     }
-  }
+  } catch (e) { console.error('loadCurrentPrestataire fallback:', e); }
 }
 
 // ══ CONNEXION ══
@@ -25707,6 +25708,9 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 <script src="components/entretien.js"></script>
 <script src="components/entretiens-list.js"></script>
 <script src="components/signalement.js"></script>
+
+<!-- ═════ Migration Supabase Prestataires ═════ -->
+<script src="components/supa-prest.js"></script>
 
 
 <!-- FedaPay SDK -->
