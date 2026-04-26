@@ -115,7 +115,7 @@ Message: ${c['Message'] || ''}`;
 
     const input = _buildScoreInput(c, o);
     try {
-      const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
+      const plan = window.isProUser && window.isProUser() ? 'pro' : 'gratuit';
       const { result, provider, cached, quota } = await query('score-candidat', input, plan);
       setCachedScore(candidatureRecord.id, result);
       renderScoreResult(result, { provider, cached, quota });
@@ -129,7 +129,7 @@ Message: ${c['Message'] || ''}`;
     const c = candidatureRecord.fields;
     const o = offreRecord.fields;
     const input = _buildScoreInput(c, o);
-    const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
+    const plan = window.isProUser && window.isProUser() ? 'pro' : 'gratuit';
     const { result } = await query('score-candidat', input, plan);
     setCachedScore(candidatureRecord.id, result);
     return result;
@@ -193,7 +193,7 @@ Message: ${c['Message'] || ''}`;
   async function ameliorerCv(sectionText, onApply) {
     showAiModal({ title: 'Amélioration CV', loading: true });
     try {
-      const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
+      const plan = window.isProUser && window.isProUser() ? 'pro' : 'gratuit';
       const { result, provider, quota } = await query('cv-help', sectionText, plan);
       const improved = typeof result === 'string' ? result : JSON.stringify(result);
       const id = 'ai-cv-result-' + Date.now();
@@ -227,7 +227,7 @@ Métier: ${offre.fields?.['Métier'] || ''}
 Expérience requise: ${offre.fields?.['Expérience requise'] || 'non précisée'}
 Description: ${offre.fields?.['Description'] || ''}`;
     try {
-      const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
+      const plan = window.isProUser && window.isProUser() ? 'pro' : 'gratuit';
       const { result, provider, cached, quota } = await query('interview-prep', input, plan);
       const questions = result?.questions || [];
       const html = questions.length
@@ -265,7 +265,7 @@ Salaire max: ${offreFields['Salaire max FCFA'] || '—'}
 Expérience: ${offreFields['Expérience requise'] || '—'}
 Description: ${offreFields['Description'] || ''}`;
     try {
-      const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
+      const plan = window.isProUser && window.isProUser() ? 'pro' : 'gratuit';
       const { result, provider, cached, quota } = await query('annonce-qualite', input, plan);
       const score = result?.score || 0;
       const color = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : '#f87171';

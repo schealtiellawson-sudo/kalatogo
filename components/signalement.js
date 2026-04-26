@@ -142,7 +142,7 @@ Motif signalé : ${motif}
 Description par le plaignant : ${desc || '(non précisée)'}
 
 Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose néanmoins une médiation neutre basée sur le motif.`;
-      const plan = window.currentPrestataire?.fields?.['Abonnement'] === 'Pro' ? 'pro' : 'gratuit';
+      const plan = window.isProUser && window.isProUser() ? 'pro' : 'gratuit';
       const res = await wFetch()(API('ai-query'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -7836,6 +7836,19 @@ function updateNavAuth(connected) {
   }
 }
 
+// Helper robuste : détecte le plan Pro quel que soit le format renvoyé par Airtable
+// (string "Pro", objet singleSelect {name:"Pro"}, array [{name:"Pro"}], etc.)
+function isProUser(prestataire) {
+  prestataire = prestataire || (typeof currentPrestataire !== 'undefined' ? currentPrestataire : null);
+  if (!prestataire) return false;
+  let ab = prestataire.fields?.['Abonnement'];
+  if (ab == null) return false;
+  if (Array.isArray(ab)) ab = ab[0];
+  if (typeof ab === 'object') ab = ab.name || ab.value || '';
+  return String(ab).trim().toLowerCase() === 'pro';
+}
+window.isProUser = isProUser;
+
 async function loadCurrentPrestataire(retries) {
   if (!currentUser?.email) return;
   retries = retries || 0;
@@ -8132,10 +8145,10 @@ async function loadDashboard() {
   } catch(e){}
   loadDashOverview();
   updateNotifBadge(currentPrestataire?.id);
-  // Afficher section recrutement pour Pro
-  const isPro = currentPrestataire?.fields?.['Abonnement'] === 'Pro';
+  // Afficher la sidebar "Je recrute" pour tous les users connectés.
+  // Le gating Pro reste sur les actions individuelles (publier offre, KYC, etc.)
   const recrutSection = document.getElementById('dl-recrut-section');
-  if (recrutSection) recrutSection.style.display = isPro ? 'block' : 'none';
+  if (recrutSection) recrutSection.style.display = 'block';
 
   // Vérification admin pour section Agents Terrain
   checkAdminForDashboard();
@@ -10429,7 +10442,7 @@ function renderCard(record) {
           </div>
         </div>
         <div class="pcard-badges">
-          ${f['Abonnement'] === 'Pro' ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,#E8940A,#f59e0b);color:white;">⭐ Pro</span>' : ''}
+          ${isProUser({fields:f}) ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,#E8940A,#f59e0b);color:white;">⭐ Pro</span>' : ''}
           ${verifie ? '<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;border:1px solid #f3d38a;">✓ Vérifié</span>' : ''}
           ${topRank && topRank <= 50 ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">🏆 TOP ${topRank}</span>` : ''}
           ${champion ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">⚔️ Champion ${champion}</span>` : ''}
@@ -10866,7 +10879,7 @@ function renderSearchMap(records) {
     const note = f['Note moyenne'];
     const noteStr = note ? `⭐ ${note.toFixed(1)}` : 'Pas encore d\'avis';
     const tarif = f['Tarif minimum FCFA'];
-    const isPro = f['Abonnement'] === 'Pro';
+    const isPro = isProUser({fields:f});
     const dispo = f['Disponible maintenant'];
     const photo = f['Photo de profil']?.[0]?.url || '';
 
@@ -17541,7 +17554,7 @@ function genererCVPDF() {
 // ── Dashboard : Publier une offre ──
 function initRecrutPublier() {
   if (!currentPrestataire) return;
-  const isPro = currentPrestataire.fields?.['Abonnement'] === 'Pro';
+  const isPro = isProUser();
   const lockEl = document.getElementById('recrut-pro-lock');
   const formEl = document.getElementById('recrut-form-wrap');
   if (lockEl) lockEl.style.display = isPro ? 'none' : 'block';
@@ -17606,7 +17619,7 @@ function analyserAnnonceAvantPublication() {
 
 async function publierOffre() {
   if (!currentPrestataire) return;
-  if (currentPrestataire.fields?.['Abonnement'] !== 'Pro') {
+  if (!isProUser()) {
     toast('Fonctionnalité réservée au Plan Pro', 'error'); return;
   }
   const f = currentPrestataire.fields;
