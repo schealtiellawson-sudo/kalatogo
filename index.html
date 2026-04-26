@@ -18565,9 +18565,15 @@ window.notifyCandidatEntretien = async function(candidature, body) {
     const f = candidature.fields || {};
     const candidatId = f['Candidat ID'];
     if (!candidatId) return;
-    const resPrest = await fetch(AT_URL('Prestataires') + '/' + candidatId, { headers: AT_HEADERS });
-    if (!resPrest.ok) return;
-    const prestataire = await resPrest.json();
+    let prestataire = null;
+    if (window.supaPrest) {
+      prestataire = await window.supaPrest.findById(candidatId);
+    }
+    if (!prestataire) {
+      const resPrest = await fetch(AT_URL('Prestataires') + '/' + candidatId, { headers: AT_HEADERS });
+      if (!resPrest.ok) return;
+      prestataire = await resPrest.json();
+    }
     const labels = { presentiel: 'présentiel', visio: 'visio', telephone: 'téléphone' };
     const date = new Date(body.date_heure).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
     const nouvelleNotif = {
@@ -18583,10 +18589,14 @@ window.notifyCandidatEntretien = async function(candidature, body) {
     try { const raw = prestataire.fields?.['Notifications']; if (raw) notifs = JSON.parse(raw); } catch(e) {}
     notifs.unshift(nouvelleNotif);
     notifs = notifs.slice(0, 50);
-    await fetch(AT_URL('Prestataires') + '/' + candidatId, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { Notifications: JSON.stringify(notifs) } })
-    });
+    if (window.supaPrest) {
+      await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
+    } else {
+      await fetch(AT_URL('Prestataires') + '/' + candidatId, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { Notifications: JSON.stringify(notifs) } })
+      });
+    }
   } catch (err) {
     console.warn('[notifyCandidatEntretien]', err);
   }
@@ -18595,7 +18605,7 @@ window.notifyCandidatEntretien = async function(candidature, body) {
 // ── Sprint E : Notification candidat sur changement statut ──
 async function notifyCandidatStatut(candidatureId, nouveauStatut) {
   try {
-    // Récupérer la candidature
+    // Récupérer la candidature (toujours sur Airtable — table non migrée)
     const resCand = await fetch(AT_URL('Candidatures') + '/' + candidatureId, { headers: AT_HEADERS });
     if (!resCand.ok) { console.warn('[notifyCandidatStatut] Candidature introuvable:', candidatureId); return; }
     const candidature = await resCand.json();
@@ -18605,12 +18615,17 @@ async function notifyCandidatStatut(candidatureId, nouveauStatut) {
     const recruteurNom = fields['Recruteur Nom'] || 'Le recruteur';
     if (!candidatId) { console.warn('[notifyCandidatStatut] Pas de Candidat ID'); return; }
 
-    // Récupérer le prestataire (candidat)
-    const resPrest = await fetch(AT_URL('Prestataires') + '/' + candidatId, { headers: AT_HEADERS });
-    if (!resPrest.ok) { console.warn('[notifyCandidatStatut] Prestataire introuvable:', candidatId); return; }
-    const prestataire = await resPrest.json();
+    // Récupérer le prestataire (candidat) — Supabase si possible
+    let prestataire = null;
+    if (window.supaPrest) {
+      prestataire = await window.supaPrest.findById(candidatId);
+    }
+    if (!prestataire) {
+      const resPrest = await fetch(AT_URL('Prestataires') + '/' + candidatId, { headers: AT_HEADERS });
+      if (!resPrest.ok) { console.warn('[notifyCandidatStatut] Prestataire introuvable:', candidatId); return; }
+      prestataire = await resPrest.json();
+    }
 
-    // Construire la notification selon le statut
     let titre, message;
     switch (nouveauStatut) {
       case 'Retenue':
@@ -18637,17 +18652,20 @@ async function notifyCandidatStatut(candidatureId, nouveauStatut) {
       lien: 'emploi-candidatures'
     };
 
-    // Lire notifications existantes + ajouter en tête + limiter à 50
     let notifs = [];
     try { const raw = prestataire.fields?.['Notifications']; if (raw) notifs = JSON.parse(raw); } catch(e) {}
     notifs.unshift(nouvelleNotif);
     notifs = notifs.slice(0, 50);
 
-    // PATCH le prestataire
-    await fetch(AT_URL('Prestataires') + '/' + candidatId, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { Notifications: JSON.stringify(notifs) } })
-    });
+    // Update — Supabase si possible
+    if (window.supaPrest) {
+      await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
+    } else {
+      await fetch(AT_URL('Prestataires') + '/' + candidatId, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { Notifications: JSON.stringify(notifs) } })
+      });
+    }
   } catch(err) {
     console.warn('[notifyCandidatStatut] Erreur silencieuse:', err);
   }
@@ -18780,11 +18798,15 @@ Pays : Togo ou Bénin
 async function appliquerKycVerification() {
   if (!currentPrestataire?.id) return;
   try {
-    const res = await fetch(AT_URL('Prestataires') + '/' + currentPrestataire.id, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Recruteur vérifié': true } }),
-    });
-    if (!res.ok) throw new Error('Erreur PATCH Airtable');
+    if (window.supaPrest) {
+      await window.supaPrest.update(currentPrestataire.id, { 'Recruteur vérifié': true });
+    } else {
+      const res = await fetch(AT_URL('Prestataires') + '/' + currentPrestataire.id, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { 'Recruteur vérifié': true } }),
+      });
+      if (!res.ok) throw new Error('Erreur PATCH Airtable');
+    }
     if (currentPrestataire.fields) currentPrestataire.fields['Recruteur vérifié'] = true;
     toast('Badge "Entreprise vérifiée" appliqué ✓', 'success');
     document.getElementById('wolo-kyc-modal')?.remove();

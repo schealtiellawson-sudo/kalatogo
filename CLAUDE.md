@@ -2,6 +2,32 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ✅ LIVRÉ — Migration Prestataires Airtable → Supabase (2026-04-26)
+
+Bascule complète de la table `Prestataires` vers Supabase pour éliminer la dépendance au quota mensuel API Airtable (PUBLIC_API_BILLING_LIMIT_EXCEEDED).
+
+### Migration SQL
+`supabase/migrations/20260426_wolo_prestataires.sql` — table `wolo_prestataires` avec ~45 colonnes mappées d'Airtable, RLS (SELECT public, INSERT/UPDATE self), 10 indexes, vue `wolo_prestataires_airtable_compat`.
+
+### Helper frontend
+`/components/supa-prest.js` — `window.supaPrest.{findByEmail, findById, findByUserId, create, update, list}`. Renvoie des objets au format Airtable `{id, fields, createdTime}` pour minimiser le refactoring (~25 fonctions).
+
+### Fonctions migrées (avec fallback Airtable défensif)
+- **Lecture profil** : `loadCurrentPrestataire`, `showProfil`, `loadHomeVedette`, `fetchPrestataires`, `countPrestataires`
+- **Écriture profil** : `submitInscription` (création 3 étapes), `saveProfile` (édition), `toggleDispo`, `saveDashLocation` (GPS), `_doUploadProfilCrop` (photo profil)
+- **Notifications candidat** : `notifyCandidatStatut`, `notifyCandidatEntretien` (lecture+update Notifications JSON)
+- **KYC** : `appliquerKycVerification` (badge "Recruteur vérifié")
+
+### Gating Pro
+Helper `window.isProUser(prestataire?)` — gère string / objet singleSelect / array. Sidebar "Je recrute" maintenant toujours visible (gating reste sur les actions individuelles).
+
+### ⚠️ Pré-requis prod
+1. Exécuter `supabase/migrations/20260426_wolo_prestataires.sql` sur la DB prod
+2. Si tu veux migrer les data Airtable existantes : utiliser la vue `wolo_prestataires_airtable_compat` ou un script CSV import
+
+### À faire en V1.1 si besoin
+Migrer aussi `Offres d'Emploi`, `Candidatures`, `Avis`, `RDV` vers Supabase (toujours sur Airtable pour l'instant).
+
 ## ✅ LIVRÉ — Sprint H/I : IA + Messagerie + Entretiens + Signalement (2026-04-25)
 
 Branchement frontend des 6 handlers backend qui existaient mais n'étaient pas routés ni utilisés. Les tables Supabase étaient déjà créées par la migration `20260424_messagerie_entretiens.sql`.
