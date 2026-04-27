@@ -2,6 +2,77 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚧 À FAIRE PROCHAINE SESSION — Reprendre ici
+
+### Contexte rapide
+On vient de livrer 15 push en une session monstre :
+- Sprint H/I (IA + messagerie + entretiens + signalement + anti-ghosting + matches IA + KYC + alertes + mes signalements + carte interactive + top candidats IA)
+- Migration `Prestataires` Airtable → Supabase complète (4 push, commits `479af59` `c6832db` `2a2620c` `508d5a5`)
+
+Le user a hit le quota mensuel Airtable (PUBLIC_API_BILLING_LIMIT_EXCEEDED) → on a basculé la table Prestataires sur Supabase. Migration **livrée mais PAS encore appliquée par le user en prod**.
+
+### To-do prioritaire (faire valider par le user dans cet ordre)
+
+**1. ⚠️ CRITIQUE — Exécuter la migration SQL Supabase**
+- Le user doit aller sur https://supabase.com/dashboard → SQL Editor
+- Lancer `supabase/migrations/20260426_wolo_prestataires.sql`
+- Vérif : `SELECT COUNT(*) FROM wolo_prestataires;` retourne `0`
+- Sans ça, **rien ne marche** (loadCurrentPrestataire plante)
+
+**2. Supprimer l'ancien profil de test**
+- Auth Supabase → Users → delete `schealtiellawson@gmail.com`
+- Airtable Prestataires → delete sa ligne (optionnel, plus utilisé pour la lecture)
+
+**3. Recréer un profil test via inscription**
+- https://wolomarket.vercel.app → Inscription (3 étapes)
+- Le record sera créé direct dans `wolo_prestataires` Supabase avec `user_id = auth.users.id`
+
+**4. Tester ces flows un par un**
+| Test | Doit marcher |
+|---|---|
+| Login | profil chargé via Supabase (console : `[wolo] currentPrestataire chargé via Supabase`) |
+| Modifier profil | sauvegarde immédiate |
+| Toggle "Disponible" | switch sauvegardé |
+| GPS (saveDashLocation) | position enregistrée |
+| Profil public d'un autre user | s'affiche |
+| Recherche prestataires (fetchPrestataires) | listings + filtres |
+| Vedettes home (loadHomeVedette) | grid affiché |
+| Sidebar "Je recrute" | toujours visible (peu importe plan) |
+| KYC IA → Appliquer le badge | écriture Supabase OK |
+
+**5. Pour activer le mode Pro test**
+- Supabase Table Editor → `wolo_prestataires` → ligne user → champ `abonnement` → `Pro` → Save
+- Recharge wolomarket → "Je recrute" toujours visible mais features Pro débloquées (publier offre, etc.)
+
+**6. Tests des features Sprint H/I (après migration validée)**
+Voir la check-list complète dans la session précédente. Ordre rapide :
+- Page Trouver un emploi → toggle Liste/Carte, 🤖 Trouver mes meilleurs matches, 🔔 Mes alertes
+- Dashboard recruteur → bandeau KYC + 🤖 Vérifier mon entreprise
+- Mes offres → 🤖 Top candidats IA sur une card
+- Candidatures reçues → widget anti-ghosting + 🤖💬📅🚨 sur les cards
+- Mes entretiens (sidebar) → liste à venir + historique
+
+### Pré-requis prod restants (à confirmer avec le user)
+- Migration `20260424_messagerie_entretiens.sql` appliquée ? (sinon messagerie/entretiens/signalement plantent)
+- Au moins 1 clé API IA dans Vercel env (`GEMINI_API_KEY` / `GROQ_API_KEY` / `CEREBRAS_API_KEY` / `MISTRAL_API_KEY`) ? (sinon toutes les features 🤖 retournent 503)
+- Champs `Candidat User ID` + `Recruteur User ID` ajoutés dans Airtable `Candidatures` ? (sinon messagerie/entretien refuse)
+
+### Si on continue le projet
+Features pas encore faites (V1.1+) :
+- Migrer aussi `Offres d'Emploi`, `Candidatures`, `Avis`, `RDV` vers Supabase (si quota Airtable continue de poser problème)
+- Templates messages CRUD (table `wolo_message_templates` existe déjà, juste UI à créer)
+- OCR Vision pour le KYC (Gemini Vision API)
+- Tests de compétences
+- Cooptation rémunérée
+- Notifications push (au-delà du JSON localStorage)
+
+### À NE PAS faire
+- Ne pas relancer le user sur les boutons "Plan détecté" debug — c'est résolu
+- Ne pas remettre du code Airtable Prestataires sans fallback Supabase
+- Ne pas créer de nouveaux fichiers `/api/*/` sans consolider dans le router (12/12 functions Vercel Hobby)
+
+---
+
 ## ✅ LIVRÉ — Migration Prestataires Airtable → Supabase (2026-04-26)
 
 Bascule complète de la table `Prestataires` vers Supabase pour éliminer la dépendance au quota mensuel API Airtable (PUBLIC_API_BILLING_LIMIT_EXCEEDED).
