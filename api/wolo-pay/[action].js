@@ -47,6 +47,8 @@ import signalementList from './_impl/signalement-list.js';
 // WhatsApp sequences (V1.1 — 2026-04-28)
 import whatsappEnqueue from './_impl/whatsapp-enqueue.js';
 import whatsappFlush from './_impl/whatsapp-flush.js';
+// Mains les Plus Demandées — stats des pros taguées
+import feedTagStats from './_impl/feed-tag-stats.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -63,6 +65,7 @@ const PUBLIC_ACTIONS = new Set([
   'leaderboard',
   'theme-mois',
   'whatsapp-flush',           // protégé par CRON_SECRET header
+  'feed-tag-stats',           // public (visible sur profil pro)
 ]);
 
 const handlers = {
@@ -102,6 +105,7 @@ const handlers = {
   'signalement-list': signalementList,
   'whatsapp-enqueue': whatsappEnqueue,
   'whatsapp-flush': whatsappFlush,
+  'feed-tag-stats': feedTagStats,
 };
 
 export default async function handler(req, res) {

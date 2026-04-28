@@ -825,48 +825,66 @@
     }
   };
 
-  let selectedFile = null;
+  let selectedFiles = [];
   async function onFileChange(e){
-    const f = e.target.files?.[0];
-    if (!f) return;
-    selectedFile = f;
+    const files = Array.from(e.target.files || []).slice(0, 3);  // max 3 photos
+    if (!files.length) return;
+    selectedFiles = files;
     const prev = document.getElementById('murPreview');
     if (prev) {
-      const url = URL.createObjectURL(f);
+      // Mosaïque : 1ère grande, 2 autres en bandeau
+      const urls = files.map(f => URL.createObjectURL(f));
       prev.style.display = 'block';
-      prev.style.backgroundImage = `url('${url}')`;
+      prev.style.backgroundImage = `url('${urls[0]}')`;
+      // Petits indicateurs des autres photos
+      const ind = document.getElementById('murPhotosIndicator');
+      if (ind) ind.textContent = `📸 ${files.length} photo${files.length > 1 ? 's' : ''} sélectionnée${files.length > 1 ? 's' : ''}`;
     }
   }
 
   window.murSubmitPhoto = async () => {
     const btn = document.getElementById('murSubmitBtn');
     const msg = document.getElementById('murSubmitMsg');
-    if (!selectedFile) { if (msg) msg.textContent = 'Choisis une photo.'; return; }
+    if (!selectedFiles.length) { if (msg) msg.textContent = 'Choisis au moins une photo.'; return; }
     btn.disabled = true; btn.textContent = 'Envoi…';
 
     const cat = document.querySelector('input[name="murCat"]:checked')?.value || 'coiffure';
     const desc = document.getElementById('murDesc')?.value || '';
+    const tagPro = (document.getElementById('murTag')?.value || '').trim();
     const isAwards = document.getElementById('murAwards')?.checked || false;
 
+    if (isAwards && !tagPro) {
+      if (msg) msg.textContent = '⚠️ Pour candidater au Mur des Reines, le tag de la coiffeuse / couturière est obligatoire (sinon ta photo n\'est pas éligible).';
+      btn.disabled = false; btn.textContent = 'Poster sur le mur ✨';
+      return;
+    }
+
     try {
-      // Upload ImgBB
-      const fd = new FormData();
-      fd.append('image', selectedFile);
-      const up = await fetch('/api/imgbb-proxy', { method:'POST', body: fd }).then(r => r.json());
-      if (!up?.url) throw new Error('Upload échoué');
+      // Upload toutes les photos via ImgBB en parallèle
+      btn.textContent = `Upload 1/${selectedFiles.length}…`;
+      const uploads = await Promise.all(selectedFiles.map(async (f, i) => {
+        const fd = new FormData();
+        fd.append('image', f);
+        const up = await fetch('/api/imgbb-proxy', { method:'POST', body: fd }).then(r => r.json());
+        if (!up?.url) throw new Error(`Upload photo ${i+1} échoué`);
+        return up.url;
+      }));
+      btn.textContent = 'Envoi…';
 
       // Poster
       const fn = window.woloFetch || fetch;
       const prof = window.currentPrestataire?.fields || {};
       const r = await fn(`${API}/feed-post`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
         user_id: window.currentUser.id,
-        photo_url: up.url,
+        photo_url: uploads[0],                  // photo principale (compat)
+        photos_url: uploads,                    // toutes les photos (jsonb 1-3)
         description: desc,
         categorie: cat,
         quartier: prof['Quartier'] || null,
         ville: prof['Ville'] || null,
         pays: prof['Pays'] || null,
         is_awards_candidate: isAwards,
+        tag_pro_libre: tagPro || null,         // tag manuel (nom libre, futur lookup auto)
       }) }).then(r => r.json());
 
       if (r?.error) { msg.textContent = r.error; btn.disabled = false; btn.textContent = 'Poster sur le mur ✨'; return; }
