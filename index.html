@@ -5697,6 +5697,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('photos')" id="dl-photos">
             <i data-lucide="image"></i> <span>Mes photos</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('widgets-metier')" id="dl-widgets-metier">
+            <i data-lucide="layers"></i> <span>Mes services métier</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
             <i data-lucide="file-text"></i> <span>Mes posts</span>
           </button>
@@ -6544,6 +6547,17 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <!-- populated by JS -->
           </div>
         </div>
+      </div>
+
+      <!-- WIDGETS MÉTIER (modulaire — selon métier principal) -->
+      <div class="dash-section" id="ds-widgets-metier">
+        <div class="dash-header">
+          <div>
+            <h2>🧰 Mes services métier · Adapté à ton activité</h2>
+            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Selon ton métier, ajoute ici tes prestations (avec prix), ton portfolio, tes demandes de devis ou de réservations. <em>Sans piston. Ton travail parle.</em></p>
+          </div>
+        </div>
+        <div id="widgets-metier-host" style="margin-top:14px;"></div>
       </div>
 
       <!-- POSTS -->
@@ -8174,6 +8188,16 @@ function showDashSection(section) {
   if (section === 'rh-annonces' && typeof loadAnnoncesPatron === 'function') loadAnnoncesPatron();
   if (section === 'finance-ca' && typeof loadFinanceCA === 'function') loadFinanceCA();
   if (section === 'mon-emploi' && typeof loadMonEmploi === 'function') loadMonEmploi();
+  // ── Widgets métier (modulaire selon Métier principal) ──
+  if (section === 'widgets-metier' && window.WoloWidgetsRunner && currentPrestataire) {
+    const host = document.getElementById('widgets-metier-host');
+    if (host) {
+      host.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement…</div>';
+      window.WoloWidgetsRunner.injectOnDashboard(currentPrestataire, host).catch(e => {
+        host.innerHTML = `<div style="color:#ff8080;font-size:13px;padding:14px;">Erreur : ${e.message}</div>`;
+      });
+    }
+  }
 }
 
 async function loadDashboard() {
@@ -13547,6 +13571,17 @@ async function showProfil(recordId) {
         supa.rpc('increment_vues_mois', { p_user_id: profilUserId }).catch(() => {});
       }
     }
+
+    // ── Widgets métier (réservation table, devis, portfolio, prestations…) ──
+    try {
+      if (window.WoloWidgetsRunner) {
+        const widgetsHost = document.createElement('div');
+        widgetsHost.id = 'profil-widgets-metier';
+        widgetsHost.style.cssText = 'margin-top:18px;';
+        container.appendChild(widgetsHost);
+        await window.WoloWidgetsRunner.injectOnProfile(record, widgetsHost);
+      }
+    } catch (e) { console.warn('[widgets-metier] inject profil', e); }
 
     // Bouton signaler (anti-arnaque) — affiché uniquement si on n'est pas sur son propre profil
     if (!currentPrestataire || currentPrestataire.id !== recordId) {
@@ -26028,6 +26063,13 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 <!-- ═════ Migration Supabase Prestataires ═════ -->
 <script src="components/supa-prest.js"></script>
 
+<!-- ═════ Widgets métier (système modulaire 2026-04-27) ═════ -->
+<script src="components/widgets-metier-config.js"></script>
+<script src="components/widgets-metier-runner.js"></script>
+<script src="components/widget-prestations.js"></script>
+<script src="components/widget-portfolio.js"></script>
+<script src="components/widget-reservation-table.js"></script>
+<script src="components/widget-devis-chantier.js"></script>
 
 <!-- FedaPay SDK -->
 <script>window._FEDAPAY_PUBLIC_KEY = '';</script>

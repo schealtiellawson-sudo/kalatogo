@@ -2,7 +2,7 @@
 // WOLO Market — Router API unique (consolide tous les endpoints)
 // Vercel route: /api/wolo-pay/<action>  →  req.query.action
 // ================================================================
-import { requireAuth } from '../_lib/auth.js';
+import { requireAuth, verifyAuth } from '../_lib/auth.js';
 // Parrainage & Abonnement
 import parrainageStats from './_impl/parrainage-stats.js';
 import parrainageApply from './_impl/parrainage-apply.js';
@@ -49,6 +49,19 @@ import whatsappEnqueue from './_impl/whatsapp-enqueue.js';
 import whatsappFlush from './_impl/whatsapp-flush.js';
 // Mains les Plus Demandées — stats des pros taguées
 import feedTagStats from './_impl/feed-tag-stats.js';
+// Widgets métier (2026-04-27) — prestations / portfolio / résa table / devis chantier
+import prestationList from './_impl/prestation-list.js';
+import prestationUpsert from './_impl/prestation-upsert.js';
+import prestationDelete from './_impl/prestation-delete.js';
+import portfolioList from './_impl/portfolio-list.js';
+import portfolioUpsert from './_impl/portfolio-upsert.js';
+import portfolioDelete from './_impl/portfolio-delete.js';
+import reservationTableCreate from './_impl/reservation-table-create.js';
+import reservationTableList from './_impl/reservation-table-list.js';
+import reservationTableUpdate from './_impl/reservation-table-update.js';
+import devisChantierCreate from './_impl/devis-chantier-create.js';
+import devisChantierList from './_impl/devis-chantier-list.js';
+import devisChantierUpdate from './_impl/devis-chantier-update.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -66,6 +79,18 @@ const PUBLIC_ACTIONS = new Set([
   'theme-mois',
   'whatsapp-flush',           // protégé par CRON_SECRET header
   'feed-tag-stats',           // public (visible sur profil pro)
+  // Widgets métier — catalogues lisibles par tous + create de demandes ouvert
+  'prestation-list',
+  'portfolio-list',
+  'reservation-table-create',
+  'devis-chantier-create',
+]);
+
+// Public mais on tente de récupérer le user authentifié si présent
+// (ex: une demande de devis tag son client_user_id si connecté).
+const OPTIONAL_AUTH_ACTIONS = new Set([
+  'reservation-table-create',
+  'devis-chantier-create',
 ]);
 
 const handlers = {
@@ -106,6 +131,19 @@ const handlers = {
   'whatsapp-enqueue': whatsappEnqueue,
   'whatsapp-flush': whatsappFlush,
   'feed-tag-stats': feedTagStats,
+  // Widgets métier
+  'prestation-list': prestationList,
+  'prestation-upsert': prestationUpsert,
+  'prestation-delete': prestationDelete,
+  'portfolio-list': portfolioList,
+  'portfolio-upsert': portfolioUpsert,
+  'portfolio-delete': portfolioDelete,
+  'reservation-table-create': reservationTableCreate,
+  'reservation-table-list': reservationTableList,
+  'reservation-table-update': reservationTableUpdate,
+  'devis-chantier-create': devisChantierCreate,
+  'devis-chantier-list': devisChantierList,
+  'devis-chantier-update': devisChantierUpdate,
 };
 
 export default async function handler(req, res) {
@@ -117,6 +155,12 @@ export default async function handler(req, res) {
     const user = await requireAuth(req, res);
     if (!user) return;
     req.authenticatedUser = user;
+  } else if (OPTIONAL_AUTH_ACTIONS.has(action)) {
+    // Auth optionnelle : si un Bearer valide est passé, on l'attache.
+    try {
+      const user = await verifyAuth(req);
+      if (user) req.authenticatedUser = user;
+    } catch (e) { /* silencieux */ }
   }
 
   return fn(req, res);
