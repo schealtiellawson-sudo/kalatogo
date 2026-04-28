@@ -3493,7 +3493,7 @@ input:checked + .toggle-slider { background:#E8940A !important; }
 /* Score profil page */
 .profil-score-bar { background:rgba(255,255,255,0.08) !important; }
 /* Pages globales */
-#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-awards-profil, #page-king-queen, #page-home, #page-a-propos, #page-agent-wolo, #page-influenceurs { background:#0f1410 !important; color:#F8F6F1 !important; }
+#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-awards-profil, #page-home, #page-a-propos, #page-agent-wolo, #page-influenceurs { background:#0f1410 !important; color:#F8F6F1 !important; }
 /* Fonctionnement page sections */
 #page-fonctionnement section { background:#0f1410 !important; }
 #page-fonctionnement h2, #page-fonctionnement h3 { color:#F8F6F1 !important; }
@@ -4147,7 +4147,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <div class="container wv2-bourse-inner">
       <span class="wv2-bourse-eyebrow"><i data-lucide="trophy" style="width:14px;height:14px;"></i> RÉCOMPENSES WOLO</span>
       <h2 id="wv2-bourse-title" class="wv2-bourse-h2">500 000 FCFA. Distribués chaque mois.</h2>
-      <p class="wv2-bourse-sub">Pas une promesse. Un virement. Chaque mois. Automatique.<br>300 000 FCFA — Bourse de Croissance · Le prestataire le plus sérieux du mois.<br>100 000 FCFA — Le Mur des Reines · 50K ✂️ Coiffure + 50K 👗 Couture.<br>100 000 FCFA — King &amp; Queen WOLO · 50K King + 50K Queen · Duel final Togo vs Bénin.<br>Sans piston. Sans connexion. Ton talent parle.</p>
+      <p class="wv2-bourse-sub">Pas une promesse. Un virement. Chaque mois. Automatique.<br>300 000 FCFA — Bourse de Croissance · Le prestataire le plus sérieux du mois (Pro).<br>200 000 FCFA — Le Mur des Reines · 100K ✂️ Reine Coiffure + 100K 👗 Reine Couture · 1 par pays · Toutes les femmes du Togo et du Bénin peuvent gagner.<br>+ 1 000 000 FCFA en décembre — finale annuelle Bénin vs Togo.<br>Sans piston. Sans connexion. Ton talent parle.</p>
       <div class="wv2-bourse-cd" aria-live="polite">
         <div class="wv2-bcd-unit"><div class="wv2-bcd-num" data-wv2bcd="j">00</div><div class="wv2-bcd-lbl">Jours</div></div>
         <div class="wv2-bcd-sep">:</div>
@@ -4235,9 +4235,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
       </div>
 
       <div style="text-align:center;">
-        <button onclick="showPage('awards')" style="padding:14px 32px;background:#E8940A;color:#0f1410;border:none;border-radius:999px;font-weight:900;font-size:15px;cursor:pointer;">Entrer sur le Mur des Reines →</button>
-        <button onclick="showPage('king-queen')" style="padding:14px 32px;background:transparent;color:#E8940A;border:2px solid #E8940A;border-radius:999px;font-weight:900;font-size:15px;cursor:pointer;margin-left:12px;">👑 King & Queen →</button>
-        <div style="margin-top:12px;font-size:12px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace;">#MurDesReines · #KingQueenWOLO · #TalentAfricain</div>
+        <button onclick="showPage('awards')" style="padding:14px 32px;background:#E8940A;color:#0f1410;border:none;border-radius:999px;font-weight:900;font-size:15px;cursor:pointer;">Poste ta photo · Deviens Reine du mois →</button>
+        <div style="margin-top:12px;font-size:12px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace;">#MurDesReines · #ReineWOLO · #TalentAfricain</div>
       </div>
     </div>
   </section>
@@ -5400,6 +5399,27 @@ div[style*="position:sticky"][style*="background:#fff"] {
               <p style="font-size:12px;color:var(--gris);margin:0 0 10px;">Formations, certifications, années d'expérience... Décris ce qui fait ta valeur !</p>
               <textarea id="f-diplomes" rows="3" placeholder="Ex : BTS Informatique 2022, 3 ans d'expérience en développement web, Certification Google Ads..." autocomplete="new-password" name="wolo-diplomes" style="width:100%;padding:10px 14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;color:#111827;font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
             </div>
+
+            <!-- Statut artisan — affiché pour Coiffeuses & Couturières -->
+            <div id="statut-artisan-field" style="display:none;margin-top:16px;background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:12px;padding:14px 16px;">
+              <label style="font-weight:700;font-size:14px;display:block;margin-bottom:4px;color:#0f1410;">👩‍🎨 Quel est ton statut ?</label>
+              <p style="font-size:12px;color:var(--gris);margin:0 0 12px;">Important pour t'envoyer les bons conseils. Sois honnête — il n'y a pas de jugement.</p>
+              <div style="display:grid;gap:8px;">
+                <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'apprentie')">
+                  <input type="radio" name="f-statut-artisan" value="apprentie" style="margin-top:3px;flex-shrink:0;">
+                  <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>🎓 Apprentie</strong> — j'apprends dans un salon ou chez une couturière. Je paie ma patronne pour me former. Je travaille pour elle plusieurs jours par semaine. Je cherche mes propres clientes à côté.</span>
+                </label>
+                <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'patronne')">
+                  <input type="radio" name="f-statut-artisan" value="patronne" style="margin-top:3px;flex-shrink:0;">
+                  <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>👑 Cheffe de salon / Patronne</strong> — je dirige mon propre salon ou atelier. J'ai (ou j'aurai) des apprenties.</span>
+                </label>
+                <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'independante')">
+                  <input type="radio" name="f-statut-artisan" value="independante" style="margin-top:3px;flex-shrink:0;">
+                  <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>💪 Indépendante</strong> — je travaille seule, à mon compte (à domicile, à la maison, à la commande, sans salon).</span>
+                </label>
+              </div>
+              <input type="hidden" id="f-statut-artisan" value="">
+            </div>
           </div>
           <div class="form-group">
             <label>Ville <span class="req">*</span></label>
@@ -5714,9 +5734,6 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showPage('awards')" id="dl-awards">
             <i data-lucide="sparkles"></i> <span>Le Mur des Reines</span>
           </button>
-          <button class="dash-link" onclick="showPage('king-queen')" id="dl-king-queen">
-            <i data-lucide="crown"></i> <span>King & Queen</span>
-          </button>
         </div>
       </div>
 
@@ -5833,6 +5850,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
 
     <!-- Main -->
     <div class="dashboard-main">
+
+      <!-- BANDEAU APPRENTIE — auto-injecté par injectApprentieBanner() -->
+      <div id="apprentie-banner-host"></div>
 
       <!-- VUE D'ENSEMBLE -->
       <div class="dash-section active" id="ds-overview">
@@ -6946,22 +6966,16 @@ div[style*="position:sticky"][style*="background:#fff"] {
                 <div class="gains-plus">+</div>
                 <div class="gain-bloc">
                   <div class="gain-label">Le Mur des Reines</div>
-                  <div class="gain-montant">50 000<span class="gain-devise">FCFA</span> × 2</div>
-                  <div class="gain-sub">✂️ Coiffure + 👗 Couture</div>
-                </div>
-                <div class="gains-plus">+</div>
-                <div class="gain-bloc">
-                  <div class="gain-label">King & Queen WOLO</div>
-                  <div class="gain-montant">50 000<span class="gain-devise">FCFA</span> × 2</div>
-                  <div class="gain-sub">👑 King + 👑 Queen · Duel TG vs BJ</div>
+                  <div class="gain-montant">100 000<span class="gain-devise">FCFA</span> × 2</div>
+                  <div class="gain-sub">✂️ Reine Coiffure + 👗 Reine Couture · 1 par pays/mois</div>
                 </div>
               </div>
               <div class="gains-total">
                 <div class="gains-total-label">Total distribué chaque mois</div>
                 <div class="gains-total-montant">500 000 FCFA</div>
-                <div class="gains-total-context">≈ 7,6× le SMIG togolais et béninois — chaque mois</div>
+                <div class="gains-total-context">≈ 7,6× le SMIG togolais et béninois — chaque mois<br>+ 1 000 000 FCFA en décembre — finale annuelle Bénin vs Togo</div>
               </div>
-              <div class="gains-condition">⚠️ Pour participer : il faut être Pro <strong>depuis au moins 2 mois</strong>. Plus tu t'inscris tôt, plus tu as de chances.</div>
+              <div class="gains-condition">⚠️ Bourse réservée Pro (2 mois consécutifs minimum). <strong>Le Mur des Reines est ouvert à toutes les femmes du Togo et du Bénin</strong> — pas besoin d'être Pro pour gagner.</div>
             </div>
 
             <div style="font-size:32px;margin-bottom:10px;">🚀</div>
@@ -6974,9 +6988,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
 
             <!-- A2. Liste avantages Pro refondue -->
             <ul class="wolo-avantages-pro">
-              <li class="avantage-item"><span class="avantage-icon">🏆</span><span class="avantage-texte"><strong>Éligible aux prix King & Queen WOLO</strong> — 100 000 FCFA pour le King et la Queen du mois</span></li>
               <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Bourse de Croissance</strong> — <span class="montant-or">300 000 FCFA/mois</span> pour le membre Pro le plus méritant</span></li>
-              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Le Mur des Reines</strong> — <span class="montant-or">50 000 FCFA × 2 catégories</span> (✂️ Coiffure + 👗 Couture) · Tout le monde vote</span></li>
+              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Le Mur des Reines</strong> — <span class="montant-or">100 000 FCFA × 2 catégories</span> (✂️ Reine Coiffure Bénin/Togo + 👗 Reine Couture Bénin/Togo) · Ouvert à toutes les femmes B/T</span></li>
+              <li class="avantage-item"><span class="avantage-icon">🏆</span><span class="avantage-texte"><strong>Finale annuelle décembre</strong> — <span class="montant-or">500 000 FCFA × 2</span> Reines de l'Année (Bénin vs Togo)</span></li>
               <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité dans les résultats de recherche</strong> — tu apparais avant les profils gratuits</span></li>
               <li class="avantage-item"><span class="avantage-icon">⭐</span><span class="avantage-texte"><strong>Badge Pro visible</strong> par tous les clients</span></li>
               <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Parrainage actif</strong> — 1 000 FCFA/filleul/mois, récurrent, à vie</span></li>
@@ -7006,7 +7020,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div class="wolo-countdown-bloc" data-countdown="dash">
           <div class="countdown-eyebrow">⏱️ Tirage Bourse de Croissance</div>
           <div class="countdown-titre">Prochain tirage dans <span data-cd-jours>—</span> jours</div>
-          <div class="countdown-sub">500 000 FCFA distribués chaque mois — Bourse 300K + Awards 100K + King & Queen 100K</div>
+          <div class="countdown-sub">500 000 FCFA distribués chaque mois — Bourse 300K (Pro) + Mur des Reines 200K (toutes les femmes B/T) · + 1M FCFA en finale décembre</div>
           <div class="countdown-timer" data-cd-timer>
             <div class="count-unit"><div class="count-num" data-cd-j>00</div><div class="count-label">Jours</div></div>
             <div class="count-sep">:</div>
@@ -7071,7 +7085,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="dash-section" id="ds-recompenses">
         <div class="dash-header">
           <h2>🏆 Récompenses mensuelles</h2>
-          <p>Bourse de Croissance (300K) + Le Mur des Reines (50K × 2) + King & Queen WOLO (50K × 2) — chaque mois.</p>
+          <p>Bourse de Croissance (300K, Pro) + Le Mur des Reines (100K × 2, ouvert à toutes les femmes B/T) — chaque mois. + 1M FCFA en finale décembre.</p>
         </div>
         <div id="recompenses-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
       </div>
@@ -8181,6 +8195,7 @@ async function loadDashboard() {
   } catch(e){}
   loadDashOverview();
   updateNotifBadge(currentPrestataire?.id);
+  injectApprentieBanner();
   // Afficher la sidebar "Je recrute" pour tous les users connectés.
   // Le gating Pro reste sur les actions individuelles (publier offre, KYC, etc.)
   const recrutSection = document.getElementById('dl-recrut-section');
@@ -8188,6 +8203,46 @@ async function loadDashboard() {
 
   // Vérification admin pour section Agents Terrain
   checkAdminForDashboard();
+}
+
+// ══ BANDEAU APPRENTIE — storytelling "ton lundi toute la semaine" ══
+// S'affiche pour les coiffeuses/couturières qui se sont déclarées apprenties à l'inscription.
+// Dismissible avec mémoire locale par user.
+function injectApprentieBanner() {
+  const host = document.getElementById('apprentie-banner-host');
+  if (!host || !currentPrestataire) return;
+  const f = currentPrestataire.fields || {};
+  const metier = (f['Métier principal'] || '').toLowerCase();
+  const statut = (f['Statut Artisan'] || '').toLowerCase();
+  const isCible = /coiff|coutur|tress/.test(metier);
+  if (!isCible) { host.innerHTML = ''; return; }
+  // Si la prestataire n'est PAS apprentie (patronne ou indépendante explicite), pas de bandeau
+  if (statut === 'patronne' || statut === 'independante') { host.innerHTML = ''; return; }
+  // Si la prestataire a explicitement dismiss, on respecte
+  const dismissKey = `wolo_apprentie_banner_dismissed_${currentPrestataire.id}`;
+  if (localStorage.getItem(dismissKey) === '1') { host.innerHTML = ''; return; }
+  const isApprentieDeclaree = statut === 'apprentie';
+  host.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(232,148,10,0.12) 0%,rgba(232,148,10,0.04) 100%);border:1px solid rgba(232,148,10,0.3);border-left:4px solid #E8940A;border-radius:14px;padding:18px 22px;margin-bottom:22px;position:relative;">
+      <button onclick="dismissApprentieBanner()" aria-label="Fermer" style="position:absolute;top:10px;right:12px;background:transparent;border:none;color:rgba(248,246,241,0.5);font-size:18px;cursor:pointer;line-height:1;padding:4px 8px;">×</button>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:8px;">${isApprentieDeclaree ? 'POUR TOI, APPRENTIE' : 'TU ES APPRENTIE OU INDÉPENDANTE ?'}</div>
+      <p style="margin:0 0 12px;font-family:'Lora',serif;font-size:15px;line-height:1.65;color:#F8F6F1;font-style:italic;">
+        ${isApprentieDeclaree
+          ? '« Tu travailles pour Madame du mardi au samedi, tu n\'es pas payée. Tes seuls clients perso, tu les fais le lundi de repos.<br><strong style="font-style:normal;color:#E8940A;">WOLO Market, c\'est ton lundi. Toute la semaine.</strong> »'
+          : '« On sait qu\'au Togo et au Bénin, des dizaines de milliers de coiffeuses et couturières sont apprenties — elles paient pour apprendre, travaillent gratis. <strong style="font-style:normal;color:#E8940A;">Si c\'est ton cas, ajoute-le à ton profil pour recevoir nos conseils dédiés.</strong> »'}
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${isApprentieDeclaree
+          ? '<button onclick="showDashSection(\'photos\')" style="background:#E8940A;color:#0f1410;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Ajouter 3 photos de mon travail →</button><button onclick="showPage(\'awards\')" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,0.4);padding:9px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;">Tenter Le Mur des Reines (100K)</button>'
+          : '<button onclick="showDashSection(\'profil\');setTimeout(()=>{const sel=document.getElementById(\'dash-statut-artisan\');if(sel){sel.scrollIntoView({behavior:\'smooth\',block:\'center\'});sel.focus();}},400);" style="background:#E8940A;color:#0f1410;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Renseigner mon statut →</button>'}
+      </div>
+    </div>`;
+}
+function dismissApprentieBanner() {
+  if (!currentPrestataire) return;
+  localStorage.setItem(`wolo_apprentie_banner_dismissed_${currentPrestataire.id}`, '1');
+  const host = document.getElementById('apprentie-banner-host');
+  if (host) host.innerHTML = '';
 }
 
 // ══ MÉTRIQUES QUOTIDIENNES (localStorage) ══
@@ -9806,9 +9861,8 @@ const _seoPageMeta = {
   home:         { title: 'WOLO Market — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois. Sans piston.' },
   search:       { title: 'Trouver un pro — WOLO Market', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOLO Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOLO Market.' },
-  recompenses:  { title: 'Récompenses WOLO — 500 000 FCFA/mois', desc: 'Bourse de Croissance, Mur des Reines, King & Queen. 500 000 FCFA distribués chaque mois aux meilleurs.' },
-  awards:       { title: 'Le Mur des Reines — WOLO Awards', desc: 'Poste ta plus belle coiffure ou couture. La communauté vote, 2 reines gagnent 50 000 FCFA chaque mois.' },
-  'king-queen': { title: 'King & Queen WOLO — Duel Togo vs Bénin', desc: 'Vote pour le King et la Queen du mois. 50 000 FCFA chacun. Duel final Togo vs Bénin.' },
+  recompenses:  { title: 'Récompenses WOLO — 500 000 FCFA/mois', desc: 'Bourse de Croissance + Le Mur des Reines. 500 000 FCFA distribués chaque mois aux meilleures, plus 1M FCFA en finale décembre.' },
+  awards:       { title: 'Le Mur des Reines — Bénin & Togo', desc: 'Poste ta plus belle photo coiffure ou couture. La communauté vote. 2 reines couronnées chaque mois — 100 000 FCFA chacune. Toutes les femmes peuvent gagner.' },
   inscription:  { title: 'Inscription gratuite — WOLO Market', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche — WOLO Market', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
 };
@@ -9839,7 +9893,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','king-queen','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
@@ -9860,7 +9914,6 @@ function showPage(page, _fromPop) {
   }
   if (page === 'recompenses') loadPageRecompenses();
   if (page === 'awards') loadPageAwards();
-  if (page === 'king-queen') loadPageKingQueen();
   if (page === 'awards-profil') { /* loaded via showAwardsProfil */ }
   if (page === 'match') { try { initWoloMatch(); } catch(e){ console.warn('match init', e); } }
   if (page === 'recrutement-agents') { /* static page, no init needed */ }
@@ -13878,6 +13931,35 @@ function nextStep(step) {
 function onMetierChange(metier) {
   const field = document.getElementById('portfolio-field');
   if (field) field.style.display = isDigitalMetier(metier) ? 'block' : 'none';
+
+  // Statut artisan (Apprentie / Patronne / Indépendante) — visible pour coiffeuses & couturières
+  const sa = document.getElementById('statut-artisan-field');
+  if (sa) {
+    const m = (metier || '').toLowerCase();
+    const isCible = /coiff|coutur|tress/.test(m);
+    sa.style.display = isCible ? 'block' : 'none';
+    if (!isCible) {
+      const hidden = document.getElementById('f-statut-artisan');
+      if (hidden) hidden.value = '';
+      document.querySelectorAll('input[name="f-statut-artisan"]').forEach(r => { r.checked = false; });
+    }
+  }
+}
+
+// Sélection visuelle d'une option statut artisan
+function onStatutArtisanSelect(labelEl, value) {
+  document.querySelectorAll('#statut-artisan-field label').forEach(l => {
+    l.style.borderColor = '#e5e7eb';
+    l.style.background = 'white';
+  });
+  if (labelEl) {
+    labelEl.style.borderColor = '#E8940A';
+    labelEl.style.background = 'rgba(232,148,10,0.08)';
+    const radio = labelEl.querySelector('input[type=radio]');
+    if (radio) radio.checked = true;
+  }
+  const hidden = document.getElementById('f-statut-artisan');
+  if (hidden) hidden.value = value || '';
 }
 
 // ── Compteur prestataires pour badge Fondateur ──────────────────────
@@ -14058,6 +14140,12 @@ async function submitInscription(e) {
     if (diplomes) fields['Diplomes'] = diplomes;
     if (metier && isDigitalMetier(metier)) fields['Talent Digital'] = true;
 
+    // Statut Artisan (Apprentie / Patronne / Indépendante) — pour coiffeuses & couturières
+    const statutArtisan = document.getElementById('f-statut-artisan')?.value?.trim();
+    if (statutArtisan && /coiff|coutur|tress/i.test(metier)) {
+      fields['Statut Artisan'] = statutArtisan;
+    }
+
     const latVal = document.getElementById('f-latitude').value;
     const lonVal = document.getElementById('f-longitude').value;
     if (latVal && lonVal) {
@@ -14140,6 +14228,38 @@ async function submitInscription(e) {
       } catch(e) { console.warn('[parrainage auto]', e); }
       // Flag onboarding 3 écrans (consommé au prochain DOMContentLoaded ou login)
       try { localStorage.setItem('wolo_just_signed_up','1'); } catch(e){}
+      // Enqueue séquence WhatsApp d'onboarding (A_onboarding) — non bloquant
+      try {
+        if (authData?.user?.id && tel) {
+          const phoneNorm = tel.replace(/[^\d+]/g, '');
+          const prenom = (nom || '').split(' ')[0] || 'sœur';
+          const villeStr = document.getElementById('f-ville')?.value || '';
+          // Séquence A — Onboarding (toutes inscriptions)
+          woloFetch('/api/wolo-pay/whatsapp-enqueue', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              user_id: authData.user.id,
+              phone: phoneNorm,
+              sequence: 'A_onboarding',
+              payload: { prenom, ville: villeStr }
+            })
+          }).catch(e => console.warn('[wa enqueue A]', e));
+          // Séquence B — Apprentie (uniquement si statut = apprentie)
+          if (statutArtisan === 'apprentie') {
+            setTimeout(() => {
+              woloFetch('/api/wolo-pay/whatsapp-enqueue', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                  user_id: authData.user.id,
+                  phone: phoneNorm,
+                  sequence: 'B_apprentie',
+                  payload: { prenom, ville: villeStr }
+                })
+              }).catch(e => console.warn('[wa enqueue B]', e));
+            }, 800);
+          }
+        }
+      } catch(e) { console.warn('[whatsapp enqueue]', e); }
       // Cacher le loading, montrer le succès
       if (loadingEl) loadingEl.style.display = 'none';
       document.getElementById('form-success').classList.add('form-visible');
@@ -15178,8 +15298,8 @@ async function injectSprint6Upgrade(){
       <div style="font-size:12px;color:rgba(248,246,241,.6);margin-bottom:14px">Réservé exclusivement aux membres Pro</div>
       <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 10px">
         <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Space Mono'">300 000 FCFA</strong></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">👑 Le Mur des Reines</span><strong style="color:#E8940A;font-family:'Space Mono'">50 000 × 2</strong></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">👑 King & Queen WOLO</span><strong style="color:#E8940A;font-family:'Space Mono'">50 000 × 2</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">👑 Le Mur des Reines</span><strong style="color:#E8940A;font-family:'Space Mono'">100 000 × 2</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Finale annuelle décembre</span><strong style="color:#E8940A;font-family:'Space Mono'">500 000 × 2</strong></div>
       </div>
     </div>
 
@@ -15193,9 +15313,8 @@ async function injectSprint6Upgrade(){
         ${rowKo('Badge Pro')}
         ${rowKo('Priorité résultats')}
         ${sectionTitle('RÉCOMPENSES')}
-        ${rowKo('Bourse 300 000 FCFA/mois')}
-        ${rowKo('Mur des Reines 50K × 2')}
-        ${rowKo('King & Queen 50K × 2')}
+        ${rowKo('Bourse 300 000 FCFA/mois (Pro only)')}
+        ${rowOk('Mur des Reines 100K × 2 — ouvert à toutes les femmes')}
         ${rowKo('Commissions parrainage')}
       </div>
       <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
@@ -15209,8 +15328,8 @@ async function injectSprint6Upgrade(){
         ${rowOk('À la Une homepage')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowOk('<strong>Bourse 300 000 FCFA/mois</strong>')}
-        ${rowOk('<strong>Mur des Reines 50K × 2</strong>')}
-        ${rowOk('<strong>King & Queen 50K × 2</strong>')}
+        ${rowOk('<strong>Mur des Reines 100K × 2</strong>')}
+        ${rowOk('<strong>Finale annuelle décembre 500K × 2</strong>')}
         ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
       </div>
     </div>
@@ -15246,8 +15365,8 @@ function sp6ShowSuccess(){
     <div style="font-size:14px;color:rgba(248,246,241,.7);margin-bottom:28px">Ton Plan Pro est actif jusqu'au ${dateFin.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
     <div style="max-width:360px;width:100%">
       <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">🏆 <strong>Bourse de Croissance 300 000 FCFA</strong> — prochain tirage vendredi 18h00</div>
-      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">👑 <strong>Mur des Reines 50 000 FCFA × 2</strong> — ✂️ Coiffure + 👗 Couture · Tout le monde vote</div>
-      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;font-size:13px;color:#F8F6F1">👑 <strong>King & Queen WOLO 50 000 FCFA × 2</strong> — King + Queen du mois · Duel final Togo vs Bénin</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#F8F6F1">👑 <strong>Mur des Reines 100 000 FCFA × 2</strong> — ✂️ Reine Coiffure + 👗 Reine Couture · 1 par pays/mois</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;font-size:13px;color:#F8F6F1">🏆 <strong>Finale annuelle décembre 500 000 FCFA × 2</strong> — Reine de l'Année Coiffure + Reine de l'Année Couture · Bénin vs Togo</div>
       <button onclick="this.closest('[style*=fixed]').remove();showDashSection('profil')" style="width:100%;background:#E8940A;color:#0f1410;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Aller au dashboard →</button>
     </div>`;
   document.body.appendChild(overlay);
@@ -15269,7 +15388,7 @@ async function loadRecompensesWidgets() {
       <div style="text-align:center;padding:40px 20px">
         <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 4px 14px rgba(245,158,11,0.3);">🔒</div>
         <h3 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Réservé aux membres Pro</h3>
-        <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">Les récompenses mensuelles (Bourse de Croissance 300 000 FCFA + Le Mur des Reines 50 000 FCFA × 2 catégories) sont exclusivement réservées aux membres Plan Pro.</p>
+        <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">La Bourse de Croissance (300 000 FCFA/mois) est réservée aux membres Pro. Le Mur des Reines (100 000 FCFA × 2 catégories) est ouvert à toutes les femmes du Togo et du Bénin — pas besoin d'être Pro pour gagner.</p>
         <button onclick="showDashSection('abonnement')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.35)">Passer au Pro — 2 500 FCFA/mois →</button>
       </div>`;
     return;
@@ -15430,10 +15549,9 @@ function _widgetAwards(awards, countdown) {
   return `
     <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;text-align:center">
       <div style="font-size:36px;margin-bottom:8px">👑</div>
-      <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Le Mur des Reines · 50K ✂️ + 50K 👗 / mois</h3>
-      <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:16px">Toutes les femmes postent. La communauté vote. Poste ta plus belle photo — coiffure ou tenue — et deviens Reine du mois.</p>
-      <button onclick="showPage('awards')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%;margin-bottom:10px">Entrer sur le Mur des Reines →</button>
-      <button onclick="showPage('king-queen')" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">👑 King & Queen WOLO →</button>
+      <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Le Mur des Reines · 100K ✂️ + 100K 👗 / mois</h3>
+      <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:16px">Toutes les femmes du Togo et du Bénin postent. 1 Reine par pays chaque mois — talent garanti par construction. La communauté vote. Pas besoin d'être Pro pour gagner.</p>
+      <button onclick="showPage('awards')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">Poste ta photo · Deviens Reine →</button>
     </div>`;
 }
 
@@ -19209,24 +19327,17 @@ async function loadRecrutDashboard() {
               <div class="wolo-pro-gains-item">
                 <div class="icon">👑</div>
                 <div class="label">Le Mur des Reines</div>
-                <div class="montant">50 000 FCFA × 2</div>
-                <div class="desc">✂️ Coiffure + 👗 Couture</div>
-              </div>
-              <div class="wolo-pro-gains-plus">+</div>
-              <div class="wolo-pro-gains-item">
-                <div class="icon">🏆</div>
-                <div class="label">King & Queen WOLO</div>
-                <div class="montant">50 000 FCFA × 2</div>
-                <div class="desc">👑 King + 👑 Queen · Duel final Togo vs Bénin</div>
+                <div class="montant">100 000 FCFA × 2</div>
+                <div class="desc">✂️ Reine Coiffure + 👗 Reine Couture · 1 par pays/mois</div>
               </div>
             </div>
             <div class="wolo-pro-gains-total">
               <div class="total-label">TOTAL CHAQUE MOIS</div>
               <div class="total-amount">500 000 FCFA</div>
-              <div class="total-sub">= 7,6× le SMIG · Aucune marketplace ouest-africaine ne reverse autant.</div>
+              <div class="total-sub">= 7,6× le SMIG · + 1 000 000 FCFA en décembre — finale annuelle Bénin vs Togo.</div>
             </div>
             <div class="wolo-pro-gains-warning">
-              ⚠️ Réservé aux membres Pro depuis au moins 2 mois. Plus tôt tu t'inscris, plus vite tu es éligible. <strong>Chaque semaine d'attente coûte ta place.</strong>
+              ⚠️ Bourse réservée Pro (2 mois consécutifs minimum). <strong>Le Mur des Reines est ouvert à toutes les femmes du Togo et du Bénin</strong> — pas besoin d'être Pro pour gagner les 100K.
             </div>
           </div>
 
@@ -19257,14 +19368,14 @@ async function loadRecrutDashboard() {
               <div class="icon">👑</div>
               <div class="body">
                 <div class="titre">Le Mur des Reines — ✂️ Coiffure + 👗 Couture</div>
-                <div class="sous">2 Reines par mois · Toutes les femmes Togo &amp; Bénin · <span class="wolo-feature-montant">50 000 FCFA</span> par catégorie</div>
+                <div class="sous">2 Reines par mois (1 Bénin + 1 Togo) · Toutes les femmes B/T peuvent gagner · <span class="wolo-feature-montant">100 000 FCFA</span> par Reine</div>
               </div>
             </div>
             <div class="wolo-pro-feature-item wolo-feature-highlight">
-              <div class="icon">👑</div>
+              <div class="icon">🏆</div>
               <div class="body">
-                <div class="titre">King & Queen WOLO — Togo vs Bénin</div>
-                <div class="sous">Duel final chaque mois · Un King + une Queen couronnés · <span class="wolo-feature-montant">50 000 FCFA</span> chacun · Tout le monde vote</div>
+                <div class="titre">Finale annuelle décembre — Bénin vs Togo</div>
+                <div class="sous">Reine de l'Année Coiffure + Reine de l'Année Couture · <span class="wolo-feature-montant">500 000 FCFA</span> chacune · La consécration de tes 12 photos de victoire</div>
               </div>
             </div>
             <div class="wolo-pro-feature-item">
@@ -19411,11 +19522,11 @@ async function loadRecrutDashboard() {
       <h2>Les vraies questions Pro</h2>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">C'est vrai qu'on peut gagner 300 000 FCFA chaque mois juste en étant Pro ?</button>
-        <div class="wolo-faq-reponse"><p>Oui. 500 000 FCFA distribués chaque mois au total. 300 000 FCFA pour la Bourse de Croissance (Score WOLO ≥ 80, 4 avis clients récents, 2 mois Pro consécutifs). 100 000 FCFA pour Le Mur des Reines — 50K ✂️ Reine Coiffure + 50K 👗 Reine Couture. 100 000 FCFA pour King & Queen WOLO — 50K pour le King + 50K pour la Queen. Duel final Togo vs Bénin. Toute la communauté vote. Le résultat est public. Permanent.</p></div>
+        <div class="wolo-faq-reponse"><p>Oui. 500 000 FCFA distribués chaque mois au total. <strong>300 000 FCFA</strong> pour la Bourse de Croissance — réservée aux membres Pro (Score WOLO ≥ 80, 4 avis clients récents, 2 mois Pro consécutifs). <strong>200 000 FCFA</strong> pour Le Mur des Reines — 100K ✂️ Reine Coiffure + 100K 👗 Reine Couture, alternance par mois, 1 Reine Bénin + 1 Reine Togo par construction, ouvert à toutes les femmes B/T. Et en plus, en décembre : <strong>1 000 000 FCFA</strong> pour la finale annuelle (Reine de l'Année Coiffure 500K + Reine de l'Année Couture 500K). Toute la communauté vote. Le résultat est public. Permanent.</p></div>
       </div>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">Comment fonctionne Le Mur des Reines ?</button>
-        <div class="wolo-faq-reponse"><p>2 catégories : ✂️ Coiffure et 👗 Couture. Chaque catégorie a sa Reine du mois — 50 000 FCFA chacune. Toutes les femmes du Togo et du Bénin peuvent poster — pas besoin d'être pro. Ta grand-mère t'a appris, ta mère t'a appris : c'est ton talent. Tu postes ta plus belle photo, tu partages le lien WhatsApp, ta communauté vote. Ton quartier, ta famille, tes amies. Mode Découvrir : swipe, duels entre quartiers, roulette. Tout le monde peut voter gratuitement.</p></div>
+        <div class="wolo-faq-reponse"><p>Chaque mois alterne entre 2 catégories — ✂️ Coiffure (mois impairs) et 👗 Couture (mois pairs). On couronne 2 Reines : 1 du Bénin et 1 du Togo, par construction (impossible qu'un pays rafle tout). Chaque Reine gagne <strong>100 000 FCFA</strong> = un trimestre de loyer à Bè ou une machine Singer pro. Toutes les femmes du Togo et du Bénin peuvent poster — pas besoin d'être Pro pour gagner. Tu postes ta photo (3 photos max comme sur Tinder), tu tagges la coiffeuse / couturière qui a fait le travail, et le moteur de duels tourne automatiquement. +10 pts au gagnant du duel, +1 au perdant, bonus de streak. À la fin de l'année, en décembre, les 6 Reines de chaque pays s'affrontent dans la <strong>Finale annuelle Bénin vs Togo — 500 000 FCFA × 2</strong>.</p></div>
       </div>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">Pourquoi faut-il 2 mois Pro pour participer au tirage ?</button>
@@ -19431,19 +19542,15 @@ async function loadRecrutDashboard() {
       </div>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">2 500 FCFA par mois pour quoi exactement ?</button>
-        <div class="wolo-faq-reponse"><p>Pour apparaître en premier dans les résultats — toujours. Pour pouvoir gagner 300 000 FCFA chaque mois via la Bourse de Croissance. Pour candidater au Mur des Reines (50K ✂️ + 50K 👗) chaque mois. Pour être éligible au King & Queen WOLO (50K + 50K). Pour passer À la Une devant tous les visiteurs. Pour figurer dans le Top 50 WOLO Bénin-Togo. Pour toucher 40% des abonnements de tes filleuls à vie. Et pour voir exactement combien de clients t'ont cherché et trouvé ton concurrent. 2 500 FCFA. Moins qu'une recharge MTN Mobile Money. Résiliable n'importe quand. Sans explication à donner.</p></div>
+        <div class="wolo-faq-reponse"><p>Pour apparaître en premier dans les résultats — toujours. Pour pouvoir gagner 300 000 FCFA chaque mois via la Bourse de Croissance. Pour passer À la Une devant tous les visiteurs. Pour figurer dans le Top 50 WOLO Bénin-Togo. Pour toucher 40% des abonnements de tes filleuls à vie. Et pour voir exactement combien de clients t'ont cherché et trouvé ton concurrent. 2 500 FCFA. Moins qu'une recharge MTN Mobile Money. Résiliable n'importe quand. Sans explication à donner.</p></div>
       </div>
       <div class="wolo-faq-item">
-        <button class="wolo-faq-question" type="button">C'est quoi King & Queen WOLO exactement ?</button>
-        <div class="wolo-faq-reponse"><p>Chaque mois, un duel final oppose Togo et Bénin. Les membres postent leurs plus belles photos. Tout le monde vote — hommes et femmes, Pro ou gratuit. La communauté entière décide. À la fin du mois : un King (homme) et une Queen (femme) sont couronnés. 50 000 FCFA chacun. Ton nom reste gravé dans le classement WOLO — pour toujours.</p></div>
+        <button class="wolo-faq-question" type="button">Faut-il être Pro pour gagner Le Mur des Reines ?</button>
+        <div class="wolo-faq-reponse"><p>Non. Le Mur des Reines est <strong>ouvert à toutes les femmes du Togo et du Bénin</strong> — Pro ou gratuit, peu importe. C'est notre concours d'acquisition : on rend visible le talent, on récompense au mérite, et on espère que les gagnantes deviendront ambassadrices de WOLO. Seule la Bourse de Croissance (300 000 FCFA) reste réservée aux membres Pro depuis 2 mois minimum.</p></div>
       </div>
       <div class="wolo-faq-item">
-        <button class="wolo-faq-question" type="button">Je peux voter et jouer même si je suis en plan gratuit ?</button>
-        <div class="wolo-faq-reponse"><p>Oui. Tout le monde peut jouer. Tout le monde peut voter. Tu participes aux duels, tu swipes, tu votes pour tes favoris — c'est 100% gratuit. Mais le jour où ton nom sort gagnant ? Il faut être Pro pour toucher les 50 000 FCFA. Pas Pro = tu gagnes la couronne mais pas l'argent. C'est pour ça que les malins passent Pro avant de jouer.</p></div>
-      </div>
-      <div class="wolo-faq-item">
-        <button class="wolo-faq-question" type="button">Quelle différence entre Le Mur des Reines et King & Queen ?</button>
-        <div class="wolo-faq-reponse"><p>Le Mur des Reines est réservé aux femmes — 2 catégories : Coiffure et Couture. Chaque mois, une Reine par catégorie gagne 50 000 FCFA. King & Queen est ouvert à tous — hommes et femmes. C'est un duel Togo contre Bénin. Un King et une Queen sont couronnés chaque mois. Tu peux participer aux deux en même temps si tu es éligible.</p></div>
+        <button class="wolo-faq-question" type="button">Comment se passe la finale annuelle de décembre ?</button>
+        <div class="wolo-faq-reponse"><p>De juin à novembre, on couronne 12 Reines mensuelles : 6 Bénin (3 Coiffure + 3 Couture) et 6 Togo (3 Coiffure + 3 Couture). En décembre, leurs photos de victoire s'affrontent dans une <strong>Finale Bénin vs Togo</strong>. Deux Reines de l'Année sont consacrées : Reine Coiffure de l'Année et Reine Couture de l'Année. <strong>500 000 FCFA pour chacune</strong>. La communauté entière vote, hommes et femmes, partout dans le pays et la diaspora.</p></div>
       </div>
     </div>
   </section>
@@ -19645,7 +19752,7 @@ async function loadRecrutDashboard() {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7s5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"></path><path d="M6 9l6 11 6-11"></path></svg>
           </div>
           <h3 style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:10px;">REVENUS</h3>
-          <p style="font-size:14px;line-height:1.7;color:rgba(248,246,241,0.75);margin:0;">500 000 FCFA distribués chaque mois — 300K Bourse de Croissance + 100K Le Mur des Reines + 100K King & Queen WOLO. 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton réseau aussi.</p>
+          <p style="font-size:14px;line-height:1.7;color:rgba(248,246,241,0.75);margin:0;">500 000 FCFA distribués chaque mois — 300K Bourse de Croissance (Pro) + 200K Le Mur des Reines (ouvert à toutes les femmes B/T). + 1 000 000 FCFA en finale décembre (Bénin vs Togo). 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton réseau aussi.</p>
         </div>
       </div>
     </div>
@@ -20053,12 +20160,12 @@ const faqData = [
     a: "Non. WOLO s'ajoute à ce que tu fais déjà. Les clients te trouvent sur WOLO, te contactent sur WhatsApp — comme avant, mais en beaucoup plus grand. Tu gardes ta façon de travailler, tes prix, tes habitudes. Tu ajoutes juste une vitrine permanente visible par tout le Bénin et le Togo. Rien ne change — sauf le nombre de clients."
   },
   {
-    q: "C'est quoi King & Queen WOLO ? Et comment je gagne 50 000 FCFA ?",
-    a: "Chaque mois, un grand duel oppose Togo et Bénin. Tu postes ta photo, toute la communauté vote — hommes et femmes. À la fin du mois, un King et une Queen sont couronnés. 50 000 FCFA chacun. Jouer est gratuit, voter est gratuit. Mais pour encaisser les gains il faut être Pro. Les gagnants sont affichés publiquement dans le classement WOLO — ton nom reste pour toujours."
+    q: "C'est quoi Le Mur des Reines exactement ?",
+    a: "Un concours mensuel pour les femmes du Togo et du Bénin — coiffure et couture, en alternance. 2 Reines par mois (1 Bénin + 1 Togo, par construction). 100 000 FCFA chacune. Et en décembre, finale annuelle Bénin vs Togo : 500 000 FCFA × 2 (Reine de l'Année Coiffure + Reine de l'Année Couture). Tu postes ta photo (3 photos max, comme Tinder), tu tagges la coiffeuse / couturière qui a fait le travail (obligatoire), et le moteur de duels tourne. Tu peux aussi te tagger toi-même si tu es l'apprentie ou la pro."
   },
   {
-    q: "Je peux participer aux récompenses WOLO sans être Pro ?",
-    a: "Tu peux jouer à tout : Le Mur des Reines, King & Queen, les duels, les votes — tout est gratuit. Mais les gains (Bourse 300K, Mur des Reines 50K×2, King & Queen 50K×2) sont réservés aux membres Pro. Tu imagines — ton nom sort et tu n'es pas Pro ? Tu perds 50 000 FCFA. 2 500 FCFA d'abonnement contre 50 000 FCFA de gains potentiels. Le calcul est vite fait."
+    q: "Faut-il être Pro pour gagner Le Mur des Reines ?",
+    a: "Non — Le Mur des Reines est <strong>ouvert à toutes les femmes du Togo et du Bénin</strong>. Pro ou gratuit, peu importe. C'est notre concours d'acquisition. Seule la Bourse de Croissance (300 000 FCFA) reste réservée aux membres Pro depuis 2 mois minimum. Tu peux gagner les 100 000 FCFA mensuels du Mur des Reines même en plan gratuit."
   }
 ];
 
@@ -20208,15 +20315,7 @@ loadSchealtielPhoto();
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     PAGE KING & QUEEN WOLO
-     Tout est rendu par components/king-queen.js
-══════════════════════════════════════════ -->
-<div id="page-king-queen" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;">
-  <div id="king-queen-root">
-    <div style="padding:40px;text-align:center;color:rgba(248,246,241,0.5);">Chargement…</div>
-  </div>
-</div>
+<!-- Page King & Queen retirée 2026-04-28 — refondue dans Le Mur des Reines (finale annuelle Bénin vs Togo en décembre) -->
 
 <!-- ══════════════════════════════════════════
      PAGE INDIVIDUELLE AWARDS /awards/[slug]
@@ -20238,7 +20337,7 @@ loadSchealtielPhoto();
     <div style="text-align:center;padding:40px 0 30px">
       <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:12px">RÉCOMPENSES MENSUELLES</div>
       <h1 style="font-family:Fraunces,serif;font-size:clamp(28px,5vw,42px);font-weight:900;color:#F8F6F1;margin:0 0 10px">500 000 FCFA distribués<br>chaque mois</h1>
-      <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto">Bourse de Croissance (300K) · Le Mur des Reines (50K × 2) · King & Queen WOLO (50K × 2).<br>Chaque mois. Pour les membres Pro.</p>
+      <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto">Bourse de Croissance (300K, Pro) · Le Mur des Reines (100K × 2 Reines, ouvert à toutes les femmes B/T).<br>Chaque mois. + 1M FCFA en finale décembre — Bénin vs Togo.</p>
     </div>
 
     <!-- Section Bourse -->
@@ -20278,10 +20377,10 @@ loadSchealtielPhoto();
         <span style="font-size:32px">👑</span>
         <div>
           <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">Le Mur des Reines</h2>
-          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">50 000 FCFA × 2 catégories / mois</p>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">100 000 FCFA × 2 Reines / mois (1 Bénin + 1 Togo) · Ouvert à toutes les femmes B/T</p>
         </div>
       </div>
-      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Les femmes du Togo et du Bénin postent leurs plus belles photos — ✂️ Coiffure ou 👗 Couture. Pas besoin d'être pro. Ta grand-mère t'a appris, ta mère t'a appris : montre ton talent. La communauté vote. Deux Reines par mois. 50 000 FCFA chacune.</p>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour. Et le pays regarde.</strong><br><br>Chaque mois alterne entre ✂️ Coiffure (mois impairs) et 👗 Couture (mois pairs). 2 Reines couronnées : 1 du Bénin, 1 du Togo. <strong>100 000 FCFA chacune</strong> = un trimestre de loyer à Bè, une machine Singer pro, une formation BTS, le cahier de l'année pour 3 enfants. Pas une loterie. Ton talent. Ouvert à toutes les femmes du Togo et du Bénin — pas besoin d'être Pro.</p>
 
       <div style="text-align:center;margin:16px 0">
         <button onclick="showPage('awards')" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Entrer sur le Mur des Reines →</button>
@@ -20298,30 +20397,30 @@ loadSchealtielPhoto();
     </div>
 
 
-    <!-- Section King & Queen WOLO -->
+    <!-- Section Finale Annuelle Décembre -->
     <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:28px 24px;margin-bottom:24px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-        <span style="font-size:32px">👑</span>
+        <span style="font-size:32px">🏆</span>
         <div>
-          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">King & Queen WOLO</h2>
-          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">50 000 FCFA × 2 (King + Queen) / mois</p>
+          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">Finale annuelle décembre — Bénin vs Togo</h2>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">500 000 FCFA × 2 — Reine de l'Année Coiffure + Reine de l'Année Couture</p>
         </div>
       </div>
-      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Le duel final Togo vs Bénin. Chaque mois, un King et une Queen sont couronnés parmi les prestataires les plus votés. 50 000 FCFA pour le King. 50 000 FCFA pour la Queen. Le talent n'a pas de frontière.</p>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">De juin à novembre, on couronne 12 Reines mensuelles — 6 Bénin, 6 Togo. En décembre, leurs photos de victoire s'affrontent. Deux Reines de l'Année sont consacrées : <strong>Reine Coiffure de l'Année</strong> et <strong>Reine Couture de l'Année</strong>. <strong>500 000 FCFA chacune.</strong> Élues sur leur travail. Pas sur leurs amis.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
         <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:28px;margin-bottom:4px">🤴</div>
-          <div style="font-family:Fraunces,serif;font-weight:900;color:#E8940A;font-size:16px">King</div>
-          <div style="font-size:12px;color:rgba(248,246,241,.6)">50 000 FCFA / mois</div>
+          <div style="font-size:28px;margin-bottom:4px">✂️</div>
+          <div style="font-family:Fraunces,serif;font-weight:900;color:#E8940A;font-size:16px">Reine de l'Année Coiffure</div>
+          <div style="font-size:12px;color:rgba(248,246,241,.6)">500 000 FCFA — décembre</div>
         </div>
         <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:28px;margin-bottom:4px">👸</div>
-          <div style="font-family:Fraunces,serif;font-weight:900;color:#E8940A;font-size:16px">Queen</div>
-          <div style="font-size:12px;color:rgba(248,246,241,.6)">50 000 FCFA / mois</div>
+          <div style="font-size:28px;margin-bottom:4px">👗</div>
+          <div style="font-family:Fraunces,serif;font-weight:900;color:#E8940A;font-size:16px">Reine de l'Année Couture</div>
+          <div style="font-size:12px;color:rgba(248,246,241,.6)">500 000 FCFA — décembre</div>
         </div>
       </div>
       <div style="text-align:center">
-        <button onclick="showPage('king-queen')" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Voir le King & Queen WOLO →</button>
+        <button onclick="showPage('awards')" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Poste ta photo · Vise la finale →</button>
       </div>
     </div>
 
@@ -23362,11 +23461,7 @@ async function repondreMatch(demandeId, clientId) {
     }
   };
 
-  window.loadPageKingQueen = async function(){
-    if (typeof window.loadKingQueen === 'function') {
-      window.loadKingQueen();
-    }
-  };
+  // window.loadPageKingQueen retiré 2026-04-28 — page-king-queen supprimée (refondue dans Mur des Reines)
 
   async function chargerCandidatsAwards(){
     var sb=_sb();if(!sb)return;
@@ -23537,7 +23632,7 @@ async function repondreMatch(demandeId, clientId) {
         var shareDiv=document.createElement('div');
         shareDiv.style.cssText='position:fixed;bottom:20px;left:16px;right:16px;background:#0f1410;border:2px solid #E8940A;border-radius:14px;padding:16px;z-index:9999;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);';
         shareDiv.innerHTML='<p style="color:#F8F6F1;font-size:14px;margin:0 0 10px;">✅ Tu as voté ! Aide <strong>'+escapeHtml(nom)+'</strong> à gagner :</p>'
-          +'<a href="https://wa.me/?text='+encodeURIComponent('Je viens de voter pour '+nom+' sur Le Mur des Reines ! 👑\n\n50 000 FCFA pour la Reine du mois — Bénin et Togo.\nVote aussi, c\'est gratuit (30 sec) :\n👉 wolomarket.com/awards\n\n#MurDesReines #ReineWOLO')+'" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:white;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">Partager sur WhatsApp</a>'
+          +'<a href="https://wa.me/?text='+encodeURIComponent('Je viens de voter pour '+nom+' sur Le Mur des Reines ! 👑\n\n100 000 FCFA × 2 Reines chaque mois — 1 Bénin + 1 Togo.\n+ 1 000 000 FCFA en finale décembre.\nVote aussi, c\'est gratuit (30 sec) :\n👉 wolomarket.com/awards\n\n#MurDesReines #ReineWOLO')+'" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:white;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">Partager sur WhatsApp</a>'
           +'<button onclick="this.parentNode.remove()" style="display:block;margin:8px auto 0;background:none;border:none;color:rgba(248,246,241,0.4);font-size:12px;cursor:pointer;">Fermer</button>';
         document.body.appendChild(shareDiv);
         setTimeout(function(){if(shareDiv.parentNode)shareDiv.remove();},15000);
@@ -24660,7 +24755,7 @@ window.addEventListener('beforeinstallprompt', function(e){
         <h2 style="font-family:'Fraunces',serif;font-size:22px;color:#E8940A;margin:0 0 14px;">Article 3 — Paiements et abonnements</h2>
         <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0 0 14px;">Les paiements sur WOLO Market (abonnement Plan Pro, commissions de parrainage) sont traités par FedaPay, prestataire de paiement agréé opérant au Bénin et au Togo. WOLO DIGITAL SERVICES SARL ne collecte, ne stocke et ne traite aucune donnée de paiement directement.</p>
         <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0 0 14px;">Les modes de paiement acceptés incluent : MTN Mobile Money, Moov Money (Bénin), TMoney, Flooz (Togo). Aucune carte bancaire n'est requise.</p>
-        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0;">Les gains issus des récompenses mensuelles (Bourse de Croissance, Mur des Reines, King & Queen WOLO) sont versés par virement bancaire ou mobile money au bénéficiaire dans un délai de 48 heures suivant la proclamation des résultats.</p>
+        <p style="font-size:15px;line-height:1.75;color:rgba(248,246,241,0.85);margin:0;">Les gains issus des récompenses mensuelles (Bourse de Croissance, Mur des Reines, finale annuelle décembre) sont versés par virement bancaire ou mobile money au bénéficiaire dans un délai de 48 heures suivant la proclamation des résultats.</p>
       </article>
     </div>
   </section>
@@ -24707,6 +24802,43 @@ window.addEventListener('beforeinstallprompt', function(e){
       </div>
     </div>
   </section>
+  <!-- POUR LES APPRENTIES (storytelling fort) -->
+  <section style="background:linear-gradient(180deg,#0f1410 0%,#15191a 100%);padding:64px 24px;border-top:1px solid rgba(232,148,10,.12);">
+    <div class="container" style="max-width:760px;">
+      <span style="display:block;text-align:center;font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:20px;">POUR LES APPRENTIES</span>
+      <h2 style="font-family:'Lora',serif;font-style:italic;font-size:clamp(26px,4vw,38px);color:#F8F6F1;font-weight:700;margin:0 0 28px;text-align:center;line-height:1.25;">L'invisible dans l'invisible.</h2>
+
+      <div style="background:rgba(232,148,10,0.05);border-left:3px solid #E8940A;padding:24px 28px;border-radius:0 16px 16px 0;margin-bottom:32px;">
+        <p style="font-family:'Lora',serif;font-size:18px;line-height:1.75;color:rgba(248,246,241,0.92);margin:0;font-style:italic;">
+          Tu as payé 80 000 FCFA à Madame Adjo pour qu'elle t'apprenne la couture.<br>
+          Tu travailles pour elle du mardi au samedi.<br>
+          <strong style="color:#E8940A;font-style:normal;">Tu n'es pas payée.</strong><br>
+          Tes seuls clients perso, tu les fais le lundi de repos.<br>
+          <strong style="color:#F8F6F1;font-style:normal;">WOLO Market, c'est ton lundi. Toute la semaine.</strong>
+        </p>
+      </div>
+
+      <p style="font-size:15px;color:rgba(248,246,241,0.75);line-height:1.85;margin:0 0 18px;">Au Togo et au Bénin, des dizaines de milliers de jeunes femmes paient leur patronne pour apprendre la coiffure ou la couture. Elles travaillent six jours sur sept dans son salon. Pendant des mois. <strong style="color:#F8F6F1;">Sans recevoir un seul franc.</strong></p>
+
+      <p style="font-size:15px;color:rgba(248,246,241,0.75);line-height:1.85;margin:0 0 18px;">La seule façon pour elles de gagner leur vie — c'est de se construire un carnet de clientes personnelles. Le lundi de repos. Le soir après le salon. Le dimanche. Avec leurs propres moyens. Sans vitrine. Sans visibilité. Sans rien.</p>
+
+      <p style="font-size:15px;color:rgba(248,246,241,0.85);line-height:1.85;margin:0 0 28px;">WOLO Market existe pour ça aussi. Pour qu'une apprentie de 22 ans dans un salon de Bè ou de Tokpa puisse <strong style="color:#E8940A;">avoir une vitrine professionnelle</strong>, gratuite, visible dans tout le pays. Pour qu'elle puisse poster ses propres réalisations, recevoir ses propres avis, prendre ses propres rendez-vous. Pour que son travail — qui souvent est attribué à sa patronne — devienne <strong style="color:#F8F6F1;">enfin visible sous son nom</strong>.</p>
+
+      <div style="background:rgba(34,197,94,0.05);border:1px dashed rgba(34,197,94,0.3);border-radius:14px;padding:18px 22px;margin-bottom:28px;">
+        <div style="font-family:'Liberation Mono',monospace;font-size:11px;letter-spacing:2px;color:#22c55e;margin-bottom:8px;">CE QUE WOLO TE DONNE, APPRENTIE</div>
+        <ul style="margin:0;padding-left:20px;font-size:14px;color:rgba(248,246,241,0.78);line-height:1.85;">
+          <li>Une vitrine professionnelle indépendante de ton salon</li>
+          <li>Tes photos, tes avis, ton score — sous ton nom à toi</li>
+          <li>Des clientes qui te trouvent toi (pas Madame Adjo)</li>
+          <li>Le Mur des Reines pour gagner 100 000 FCFA — même en plan gratuit</li>
+          <li>Un carnet de RDV partagé avec tes clientes perso, géré depuis ton téléphone</li>
+        </ul>
+      </div>
+
+      <p style="font-size:15px;color:rgba(248,246,241,0.7);line-height:1.85;margin:0;text-align:center;font-style:italic;">Ton travail t'appartient. Ton temps t'appartient. Tes clientes t'appartiennent.</p>
+    </div>
+  </section>
+
   <!-- Origine -->
   <section style="background:#0f1410;padding:48px 24px;border-top:1px solid rgba(232,148,10,.08);">
     <div class="container" style="max-width:720px;text-align:center;">
@@ -25739,7 +25871,7 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 
     var steps = [
       { icon:'hard-hat',   title:'Bienvenue sur WOLO Market.', text:'Ton profil professionnel gratuit en 2 minutes. Tes clients te trouvent. Tu gagnes en visibilité chaque jour.', primary:'Commencer' },
-      { icon:'trophy',     title:'Gagne jusqu\'à 500 000 FCFA/mois.',       text:"Bourse de Croissance, Mur des Reines, King & Queen WOLO — chaque mois, les membres Pro gagnent. Ton travail te paye.", primary:'Suivant' },
+      { icon:'trophy',     title:'Gagne jusqu\'à 500 000 FCFA/mois.',       text:"Bourse de Croissance (Pro) + Mur des Reines (toutes les femmes B/T). Chaque mois. + 1M FCFA en finale décembre. Ton talent te paye.", primary:'Suivant' },
       { icon:'badge-check',title:'Passe Pro — 2 500 FCFA/mois.',  text:"Badge Pro, priorité recherche, éligible aux 3 programmes de récompenses, commissions parrainage. Soit 83 FCFA par jour.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
     ];
     var idx = 0;
@@ -25808,7 +25940,7 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 <script src="components/pipeline-kanban.js"></script>
 <script src="components/equipe-dashboard.js"></script>
 <script src="components/mur-des-reines.js"></script>
-<script src="components/king-queen.js"></script>
+<!-- King & Queen retiré 2026-04-28 — refondu dans Le Mur des Reines (finale annuelle décembre) -->
 <script src="components/paie-dashboard.js"></script>
 <script src="components/annonces-patron.js"></script>
 <script src="components/finance-ca.js"></script>

@@ -1,6 +1,9 @@
 videos
 .vercel
 .env*.local
+.env.production
+.env.development
+.env
 node_modules
 .DS_Store
 **/.DS_Store

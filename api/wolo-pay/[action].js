@@ -44,6 +44,9 @@ import entretienList from './_impl/entretien-list.js';
 import entretienUpsert from './_impl/entretien-upsert.js';
 import signalementCreate from './_impl/signalement-create.js';
 import signalementList from './_impl/signalement-list.js';
+// WhatsApp sequences (V1.1 — 2026-04-28)
+import whatsappEnqueue from './_impl/whatsapp-enqueue.js';
+import whatsappFlush from './_impl/whatsapp-flush.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -59,6 +62,7 @@ const PUBLIC_ACTIONS = new Set([
   'badges-list',
   'leaderboard',
   'theme-mois',
+  'whatsapp-flush',           // protégé par CRON_SECRET header
 ]);
 
 const handlers = {
@@ -96,6 +100,8 @@ const handlers = {
   'entretien-upsert': entretienUpsert,
   'signalement-create': signalementCreate,
   'signalement-list': signalementList,
+  'whatsapp-enqueue': whatsappEnqueue,
+  'whatsapp-flush': whatsappFlush,
 };
 
 export default async function handler(req, res) {

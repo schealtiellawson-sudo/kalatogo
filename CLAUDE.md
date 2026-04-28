@@ -2,7 +2,63 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 🚧 À FAIRE PROCHAINE SESSION — Reprendre ici
+## 🚧 SESSION 2026-04-28 — Refonte Mur des Reines + suppression King & Queen
+
+### Ce qui a été livré aujourd'hui (en code, NON committé)
+- **3 migrations Supabase appliquées en prod** via Management API : `wolo_prestataires`, `ai_infrastructure` (ai_cache, ai_quota_log), `messagerie_entretiens` (wolo_threads, messages, entretiens, signalements, message_templates). Vérification : 22 tables `wolo_*`/`ai_*` présentes en prod.
+- **Migration `20260416_sprint14_mur_des_reines.sql` skippée** (référence table `profiles` au lieu de `wolo_prestataires` — schéma incompatible, à reprendre si on relance feed_photos).
+- **GEMINI_API_KEY ajoutée à Vercel prod** + redeploy effectué (déploiement `dpl_7xcSUEdqLCQMuYMR5gpsXbLkAehk`).
+- **Suppression complète King & Queen WOLO** de `index.html` (sidebar, sections, page-king-queen, FAQ, footer, recompenses, onboarding tour, ToS, meta SEO, publicPages, showPage, script include). Page route + composant orphelins. Le fichier `components/king-queen.js` n'est plus chargé mais n'est PAS supprimé (au cas où).
+- **Refonte copy Le Mur des Reines** :
+  - Pricing : 50K → **100 000 FCFA × 2 Reines/mois** (1 Bénin + 1 Togo, alternance Coiffure mois impair / Couture mois pair)
+  - **Finale annuelle décembre** : 500K × 2 (Reine de l'Année Coiffure + Reine de l'Année Couture, Bénin vs Togo)
+  - **Ouvert à toutes les femmes B/T** (pas Pro-only, c'est l'outil d'acquisition). Bourse de Croissance reste Pro-only.
+  - Hero rewrite : *"Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour. Et le pays regarde."*
+  - 6 nouveaux blocs dans `components/mur-des-reines.js` : stakes (100K = trimestre loyer), comment ça marche (3 photos + tag + duels), calendrier 3 phases (1-15 / 16-25 / 26-30), diaspora, finale annuelle décembre, bonus invisibles (profil épinglé, badge à vie, priorité Bourse).
+  - Onglets renommés : Le feed → À la Une / Découvrir → Les Duels / Le podium → Le Podium / Mon mur → Mes Photos.
+  - Modale upload : 3 photos (multi), **tag obligatoire** de la coiffeuse/couturière, disclaimer consentement modèle.
+  - CTA partout : "Entrer sur le Mur des Reines →" → "Poste ta photo · Deviens Reine du mois →"
+
+### ✅ V1.1 livré dans cette même session (2026-04-28 suite)
+1. **Storytelling apprenties** ✅ — section À Propos *"L'invisible dans l'invisible"* avec citation *"Tu as payé 80 000 FCFA à Madame Adjo... WOLO Market c'est ton lundi toute la semaine"* + bloc 5 bénéfices.
+2. **Bandeau dashboard apprentie** ✅ — fonction `injectApprentieBanner()` auto-détecte coiffeuse/couturière, distingue apprentie déclarée vs cible non déclarée, dismissible localStorage.
+3. **Détection apprentie inscription** ✅ — bloc 3 options (Apprentie / Cheffe de salon / Indépendante) avec descriptifs anti-confusion. Affiché uniquement pour Coiffeuse/Couturière. Champ `Statut Artisan` sauvegardé.
+4. **Colonne SQL `statut_artisan`** ✅ — ajoutée à `wolo_prestataires` (CHECK constraint apprentie/patronne/independante) + mapping `supa-prest.js`.
+5. **Migration MdR DB v2** ✅ — `20260428_mur_des_reines_v2.sql` (411 lignes) pushée prod. Adaptée `profiles` → `auth.users` + `wolo_prestataires`. Vues + fonctions corrigées. Nouvelles tables `duels_photos` + `classement_reines_mois`.
+6. **Mécanique tag obligatoire** ✅ — colonnes `tag_pro_user_id` + `tag_pro_libre` dans `feed_photos`. `feed-post.js` v2 valide tag obligatoire pour candidats Awards. `feed-list.js` v2 enrichit avec données pro taguée. Plus de gating Pro pour candidater (ouvert à toutes).
+7. **Système duels +10/+1/+20 streak + shuffle bag** ✅ — `duels_photos` avec trigger SQL `update_feed_duel_stats` (auto-update wins/losses/streak/points sur feed_photos). `feed-discover.js` v2 utilise `voter_session` pour le shuffle bag (exclut paires déjà votées dans les 6h).
+8. **Séquences WhatsApp A/B/C** ✅ — Migration `20260428_whatsapp_sequences.sql` pushée prod. 2 tables (`wolo_whatsapp_templates` + `wolo_whatsapp_queue`). 15 templates seed (5 onboarding + 5 apprentie + 5 concours). Endpoints `/api/wolo-pay/whatsapp-enqueue` + `/whatsapp-flush` (cron). Cron Vercel à 9h/12h/15h/18h. Provider auto : WhatsApp Cloud API si `WHATSAPP_CLOUD_TOKEN` env, sinon Twilio si `TWILIO_*`, sinon mode log. Trigger après inscription (séquence A toujours, séquence B si statut=apprentie).
+
+### ⏭️ Reste à faire (commit + activation)
+- **Commit + push prod** des changements de cette session (en attente validation user)
+- **Activer WhatsApp en prod** : ajouter `WHATSAPP_CLOUD_TOKEN` + `WHATSAPP_PHONE_ID` (Meta Business) OU `TWILIO_SID` + `TWILIO_TOKEN` + `TWILIO_FROM` dans Vercel env. Sans ça, les messages restent en mode log (status=`sent`, provider=`log`) — utile pour test sans coût.
+- **Mécanique "Mains les Plus Demandées"** (visibilité gratuite des pros taguées) — UI à coder dans `feed-list.js` côté frontend pour afficher le compteur de tags reçus.
+- **Champ "Statut Artisan" éditable dans dashboard** — actuellement saisi à l'inscription seulement, ajouter dans `ds-profil` pour permettre changement après coup.
+- **3 scripts TikTok APPRENTIE01-03 dans Notion** (reporté à plus tard sur demande user)
+
+### Crédits API exposés en chat (à RÉGÉNÉRER après commit)
+- Supabase Personal Access Token : `sbp_62da29bde3edb1fa6465b20b43afe597eeca3166`
+- Gemini API Key : `AIzaSyCKdPlSftDOltyj4Ef_qDdhXCQaDTDrum8` (utilisée dans Vercel env GEMINI_API_KEY)
+- → User doit régénérer ces deux après validation des changements.
+
+### Décisions stratégiques validées (à NE PAS revenir dessus)
+- King & Queen tué (cassait le brand "Sans piston", redondance avec MdR)
+- Mur des Reines pivote en outil d'acquisition massive (ouvert à toutes les femmes B/T, pas Pro-only)
+- Mécanique Option A : quota pays + alternance catégorie (12 Bénin + 12 Togo/an garantis)
+- Pas de "Mains d'Or" payantes pour les pros — uniquement visibilité gratuite (boost profil + badge "Taguée par X reines")
+- Duels = moteur principal de scoring viral, partage WhatsApp = bonus accessoire (+2 pts/nouveau votant, cap 30/mois)
+- Photos coiffure : selfie OU cliente (visage autorisé), disclaimer consentement
+- Photos couture : tenue portée par toi ou modèle, visage libre, tag couturière obligatoire
+
+### État Airtable
+- Quota mensuel API EXPLOSÉ (PUBLIC_API_BILLING_LIMIT_EXCEEDED)
+- Migration partielle effectuée (Prestataires → Supabase, helper supa-prest.js)
+- User en réflexion : migrer TOUT (Offres d'Emploi, Candidatures, Avis, RDV, Posts, etc.) vers Supabase ou attendre reset mensuel ?
+- Décision en attente.
+
+---
+
+## 🚧 SESSION ANTÉRIEURE (2026-04-26) — Migration Prestataires + Sprint H/I
 
 ### Contexte rapide
 On vient de livrer 15 push en une session monstre :

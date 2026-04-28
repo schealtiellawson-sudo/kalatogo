@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   try {
     let query = supabase
       .from('feed_photos')
-      .select('id, user_id, mois, photo_url, description, categorie, quartier, ville, pays, theme_mois, is_awards_candidate, nb_likes, nb_commentaires, nb_shares, nb_vues, boost_until, created_at')
+      .select('id, user_id, mois, photo_url, photos_url, description, categorie, quartier, ville, pays, theme_mois, is_awards_candidate, tag_pro_user_id, tag_pro_libre, nb_likes, nb_commentaires, nb_shares, nb_vues, duel_wins, duel_losses, duel_streak, duel_points, boost_until, created_at')
       .eq('video_validee', true);
 
     if (mois) query = query.eq('mois', mois);
@@ -54,15 +54,18 @@ export default async function handler(req, res) {
     const { data: photos, error } = await query;
     if (error) throw error;
 
-    // Enrichir avec profiles (nom + avatar)
+    // Enrichir avec wolo_prestataires (nom + avatar + métier + statut artisan)
+    // Inclut aussi les tag_pro_user_id pour afficher la pro taguée
     const userIds = [...new Set((photos || []).map(p => p.user_id))];
-    let profilesMap = {};
-    if (userIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, nom_complet, avatar_url, pays, metier')
-        .in('id', userIds);
-      for (const p of (profiles || [])) profilesMap[p.id] = p;
+    const tagIds = [...new Set((photos || []).map(p => p.tag_pro_user_id).filter(Boolean))];
+    const allIds = [...new Set([...userIds, ...tagIds])];
+    let presMap = {};
+    if (allIds.length > 0) {
+      const { data: prestataires } = await supabase
+        .from('wolo_prestataires')
+        .select('user_id, nom_complet, photo_profil, metier_principal, ville, statut_artisan')
+        .in('user_id', allIds);
+      for (const p of (prestataires || [])) presMap[p.user_id] = p;
     }
 
     // Si viewer_id fourni : savoir quelles photos il a liked
@@ -77,13 +80,22 @@ export default async function handler(req, res) {
     }
 
     const enrichis = (photos || []).map(p => {
-      const prof = profilesMap[p.user_id] || {};
+      const pres = presMap[p.user_id] || {};
+      const tagPres = p.tag_pro_user_id ? presMap[p.tag_pro_user_id] : null;
+      const ville = p.ville || pres.ville || '';
       return {
         ...p,
-        user_nom: prof.nom_complet || '—',
-        user_avatar: prof.avatar_url || '',
-        user_metier: prof.metier || '',
-        user_pays: prof.pays || p.pays || '',
+        photos_url: Array.isArray(p.photos_url) ? p.photos_url : (p.photos_url || [p.photo_url]),
+        user_nom: pres.nom_complet || '—',
+        user_avatar: pres.photo_profil || '',
+        user_metier: pres.metier_principal || '',
+        user_pays: p.pays || (ville && /cotonou|porto/i.test(ville) ? 'BJ' : ville ? 'TG' : ''),
+        user_statut: pres.statut_artisan || null,
+        // Pro taguée (si présente)
+        tag_pro_nom: tagPres?.nom_complet || p.tag_pro_libre || null,
+        tag_pro_avatar: tagPres?.photo_profil || null,
+        tag_pro_metier: tagPres?.metier_principal || null,
+        tag_pro_on_wolo: !!tagPres,
         liked_by_me: likedSet.has(p.id),
         is_boosted: p.boost_until && new Date(p.boost_until) > new Date(),
       };

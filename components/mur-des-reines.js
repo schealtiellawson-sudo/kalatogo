@@ -154,49 +154,105 @@
     const cd = state.countdown || {};
     const jours = cd.jours_restants != null ? cd.jours_restants : '—';
     const themeCur = state.categorie === 'couture' ? (t.theme_couture || '—') : (t.theme_coiffure || '—');
+    // Calendrier 2026 : alternance Coiffure (impair) / Couture (pair)
+    const moisIdx = new Date().getMonth(); // 0-11
+    const moisNom = ['Janv','Févr','Mars','Avril','Mai','Juin','Juillet','Août','Sept','Oct','Nov','Déc'][moisIdx];
+    const isFinaleMois = moisIdx === 11;
+    const isCoiffureMois = (moisIdx + 1) % 2 === 1;  // mois impairs = coiffure
+    const catActive = isFinaleMois ? 'FINALE ANNUELLE' : (isCoiffureMois ? '✂️ COIFFURE' : '👗 COUTURE');
     return `
       <div class="mur-hero" style="background:linear-gradient(135deg,#0f1410 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,.3);border-radius:20px;padding:32px 24px;margin:16px 0 24px;position:relative;overflow:hidden;">
         <div style="position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(232,148,10,.25) 0%,transparent 70%);"></div>
-        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">LE MUR DES REINES · ${monthLabel()}</div>
-        <h1 style="font-family:'Fraunces',serif;font-size:clamp(26px,5vw,36px);font-weight:900;margin:0 0 12px;line-height:1.15;">
-          Ta grand-mère t'a appris.<br>
-          Ta mère t'a appris.<br>
-          <span style="color:#E8940A;">Maintenant, tout Lomé et Cotonou regardent.</span>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">LE MUR DES REINES · ${moisNom.toUpperCase()} 2026 · ${catActive}</div>
+        <h1 style="font-family:'Fraunces',serif;font-size:clamp(26px,5vw,38px);font-weight:900;margin:0 0 14px;line-height:1.15;">
+          Ta grand-mère a tressé pour nourrir.<br>
+          Ta mère a cousu pour t'envoyer à l'école.<br>
+          <span style="color:#E8940A;">Maintenant c'est ton tour. Et le pays regarde.</span>
         </h1>
-        <p style="margin:0 0 14px;color:rgba(248,246,241,.8);font-size:15px;max-width:720px;line-height:1.7;">
-          Au Togo et au Bénin, quasiment chaque femme sait tresser ou coudre. C'est culturel. C'est dans l'ADN.<br>
-          Le Mur des Reines, c'est <strong style="color:#F8F6F1;">TON</strong> espace pour montrer ce talent au monde.
+        <p style="margin:0 0 18px;color:rgba(248,246,241,.85);font-size:15px;max-width:720px;line-height:1.75;">
+          Les Nana Benz ont tenu Lomé avec du wax. Ta mère a tenu sa maison avec une aiguille. Aujourd'hui, on rend cet héritage visible. <strong style="color:#F8F6F1;">Et on le paye 100 000 FCFA.</strong>
         </p>
 
+        <!-- BLOC STAKES (100K = …) -->
+        <div style="background:rgba(232,148,10,.08);border-left:3px solid #E8940A;padding:14px 18px;margin-bottom:18px;border-radius:0 12px 12px 0;max-width:720px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:6px;">CE QUE 100 000 FCFA REPRÉSENTENT</div>
+          <p style="margin:0;font-size:14px;color:rgba(248,246,241,.85);line-height:1.7;">Un trimestre de loyer à Bè · une machine Singer pro · une formation BTS · le cahier de l'année pour 3 enfants. <strong style="color:#F8F6F1;">Pas une loterie. Ton talent.</strong></p>
+        </div>
+
+        <!-- BLOC COMMENT ÇA MARCHE -->
         <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;margin-bottom:18px;max-width:720px;">
           <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:10px;">COMMENT ÇA MARCHE</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
             <div style="display:flex;align-items:flex-start;gap:10px;">
               <span style="font-size:20px;flex-shrink:0;">📸</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">1. Poste ta photo</div>
-                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Ta plus belle tresse, ta plus belle tenue. Pas besoin d'être pro — juste tes mains.</div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">1. Poste 3 photos</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Ta plus belle coupe ou ta plus belle tenue. Tag obligatoire de la coiffeuse / couturière.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <span style="font-size:20px;flex-shrink:0;">💛</span>
+              <span style="font-size:20px;flex-shrink:0;">⚔️</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">2. La communauté vote</div>
-                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Partage ton lien WhatsApp. Ton quartier, ta famille, tes amies — tout le monde peut voter gratuitement.</div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">2. Le moteur de duels tourne</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Ta photo passe en duel face à d'autres. +10 pts si elle gagne, +1 si elle perd, +20 streak après 3 duels.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
               <span style="font-size:20px;flex-shrink:0;">👑</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">3. Deviens Reine du mois</div>
-                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;"><strong style="color:#E8940A;">50 000 F</strong> Reine Coiffure + <strong style="color:#E8940A;">50 000 F</strong> Reine Couture. Chaque mois. 2 gagnantes.</div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">3. 2 Reines couronnées</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;"><strong style="color:#E8940A;">100 000 F</strong> Reine Bénin + <strong style="color:#E8940A;">100 000 F</strong> Reine Togo (1 par pays par construction).</div>
               </div>
             </div>
           </div>
         </div>
 
-        <p style="margin:0 0 16px;color:rgba(248,246,241,.65);font-size:13px;font-style:italic;max-width:600px;">
-          Les Nana Benz ont bâti des empires avec du wax. Le Kanvô béninois est patrimoine national. Ce talent est dans tes mains depuis toujours — le Mur des Reines le rend visible.
+        <!-- BLOC CALENDRIER 3 PHASES -->
+        <div style="background:rgba(248,246,241,.04);border:1px solid rgba(248,246,241,.1);border-radius:14px;padding:14px 18px;margin-bottom:18px;max-width:720px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:10px;">📅 CALENDRIER DU MOIS</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">
+            <div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px 12px;">
+              <div style="font-size:11px;color:#E8940A;font-weight:700;">📸 1 → 15</div>
+              <div style="font-size:12px;color:rgba(248,246,241,.7);margin-top:2px;">Poste ta photo</div>
+            </div>
+            <div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px 12px;">
+              <div style="font-size:11px;color:#E8940A;font-weight:700;">⚔️ 16 → 25</div>
+              <div style="font-size:12px;color:rgba(248,246,241,.7);margin-top:2px;">La communauté duel-vote</div>
+            </div>
+            <div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px 12px;">
+              <div style="font-size:11px;color:#E8940A;font-weight:700;">👑 26 → 30</div>
+              <div style="font-size:12px;color:rgba(248,246,241,.7);margin-top:2px;">Couronnement + virement</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOC DIASPORA -->
+        <div style="background:rgba(34,197,94,.05);border:1px dashed rgba(34,197,94,.3);border-radius:14px;padding:14px 18px;margin-bottom:18px;max-width:720px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#22c55e;margin-bottom:6px;">📲 LA DIASPORA AUSSI</div>
+          <p style="margin:0;font-size:13px;color:rgba(248,246,241,.8);line-height:1.6;"><strong style="color:#F8F6F1;">Ta cousine à Paris ? Ta tante à Bruxelles ?</strong> Elles peuvent voter. Partage le lien WhatsApp. Une voix de Cotonou compte autant qu'une voix de Brooklyn.</p>
+        </div>
+
+        <!-- BLOC FINALE ANNUELLE DÉCEMBRE -->
+        <div style="background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));border:2px solid rgba(232,148,10,.4);border-radius:14px;padding:16px 18px;margin-bottom:18px;max-width:720px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:6px;">🏆 DÉCEMBRE 2026 — FINALE ANNUELLE</div>
+          <p style="margin:0 0 8px;font-size:14px;color:rgba(248,246,241,.85);line-height:1.6;">12 Reines mensuelles s'affrontent en décembre. Bénin vs Togo.</p>
+          <p style="margin:0;font-size:13px;color:#E8940A;font-weight:800;">Reine de l'Année Coiffure : 500 000 FCFA · Reine de l'Année Couture : 500 000 FCFA · Élues sur leur travail. Pas sur leurs amis.</p>
+        </div>
+
+        <!-- BLOC BONUS INVISIBLES -->
+        <div style="background:rgba(248,246,241,.03);border:1px solid rgba(248,246,241,.08);border-radius:14px;padding:14px 18px;margin-bottom:18px;max-width:720px;">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(248,246,241,.5);margin-bottom:8px;">🎁 CE QUE LA REINE GAGNE VRAIMENT</div>
+          <ul style="margin:0;padding-left:18px;font-size:13px;color:rgba(248,246,241,.75);line-height:1.85;">
+            <li>100 000 FCFA virés direct (Mobile Money / virement bancaire)</li>
+            <li>Profil épinglé page d'accueil pendant 30 jours</li>
+            <li>Badge <strong style="color:#E8940A;">"Reine ${isCoiffureMois ? 'Coiffure' : 'Couture'} · ${moisNom} 2026"</strong> à vie sur ton profil pro</li>
+            <li>Priorité Bourse de Croissance le mois suivant (si Pro)</li>
+            <li>Ticket direct pour la finale annuelle décembre</li>
+          </ul>
+        </div>
+
+        <p style="margin:0 0 16px;color:rgba(248,246,241,.55);font-size:12px;font-style:italic;max-width:600px;">
+          Ouvert à toutes les femmes du Togo et du Bénin. Pas besoin d'être Pro pour gagner. Ta grand-mère, ta mère, ton talent — c'est ton héritage.
         </p>
 
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
@@ -250,10 +306,10 @@
 
   function tabsHTML(){
     const tabs = [
-      { id: 'feed',     lbl: '📜 Le feed',     hint: 'Les photos du jour' },
-      { id: 'discover', lbl: '🎲 Découvrir',   hint: 'Swipe / Duel / Roulette' },
-      { id: 'podium',   lbl: '👑 Le podium',   hint: 'Top + Duels + Hall of Fame' },
-      { id: 'moi',      lbl: '✨ Mon mur',     hint: 'Mes photos et badges' },
+      { id: 'feed',     lbl: '📜 À la Une',     hint: 'Les photos du jour' },
+      { id: 'discover', lbl: '⚔️ Les Duels',    hint: 'Vote · Swipe · Roulette' },
+      { id: 'podium',   lbl: '👑 Le Podium',    hint: 'Top + Duels + Hall of Fame' },
+      { id: 'moi',      lbl: '✨ Mes Photos',   hint: 'Mes photos et badges' },
     ];
     return `
       <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;">
@@ -443,8 +499,8 @@
   function podiumContentHTML(){
     return `
       <div style="display:flex;gap:8px;margin-bottom:20px;">
-        <button onclick="murSetPodiumCat('coiffure')" style="flex:1;padding:12px;border-radius:12px;border:1px solid ${state.podiumCat === 'coiffure' ? '#E8940A' : 'rgba(232,148,10,.2)'};background:${state.podiumCat === 'coiffure' ? 'rgba(232,148,10,.15)' : 'transparent'};color:${state.podiumCat === 'coiffure' ? '#E8940A' : '#F8F6F1'};font-weight:700;cursor:pointer;">✂️ Podium Coiffure · 50 000 F</button>
-        <button onclick="murSetPodiumCat('couture')" style="flex:1;padding:12px;border-radius:12px;border:1px solid ${state.podiumCat === 'couture' ? '#E8940A' : 'rgba(232,148,10,.2)'};background:${state.podiumCat === 'couture' ? 'rgba(232,148,10,.15)' : 'transparent'};color:${state.podiumCat === 'couture' ? '#E8940A' : '#F8F6F1'};font-weight:700;cursor:pointer;">👗 Podium Couture · 50 000 F</button>
+        <button onclick="murSetPodiumCat('coiffure')" style="flex:1;padding:12px;border-radius:12px;border:1px solid ${state.podiumCat === 'coiffure' ? '#E8940A' : 'rgba(232,148,10,.2)'};background:${state.podiumCat === 'coiffure' ? 'rgba(232,148,10,.15)' : 'transparent'};color:${state.podiumCat === 'coiffure' ? '#E8940A' : '#F8F6F1'};font-weight:700;cursor:pointer;">✂️ Podium Coiffure · 100 000 F × 2</button>
+        <button onclick="murSetPodiumCat('couture')" style="flex:1;padding:12px;border-radius:12px;border:1px solid ${state.podiumCat === 'couture' ? '#E8940A' : 'rgba(232,148,10,.2)'};background:${state.podiumCat === 'couture' ? 'rgba(232,148,10,.15)' : 'transparent'};color:${state.podiumCat === 'couture' ? '#E8940A' : '#F8F6F1'};font-weight:700;cursor:pointer;">👗 Podium Couture · 100 000 F × 2</button>
       </div>
       <h3 style="font-family:'Fraunces',serif;margin:8px 0 12px;">Top 10 du mois</h3>
       ${state.photos.length === 0 ? `<div style="padding:30px;text-align:center;color:rgba(248,246,241,.5);">Aucune candidate encore. Les premières postent maintenant.</div>` : `
@@ -627,7 +683,7 @@
   };
 
   window.murShareGeneral = () => {
-    const msg = encodeURIComponent(`👑 Le Mur des Reines — WOLO Market\n\nCoiffure ou Couture ? Vote pour ta Reine du mois.\n50 000 FCFA pour la Reine Coiffure. 50 000 FCFA pour la Reine Couture.\n\nTout le monde vote gratuitement !\n\n👉 https://wolomarket.com/#awards\n\n#MurDesReines #ReineWOLO #WOLOMarket`);
+    const msg = encodeURIComponent(`👑 Le Mur des Reines — WOLO Market\n\nCoiffure ou Couture ? Vote pour ta Reine du mois.\n100 000 FCFA × 2 Reines (1 Bénin + 1 Togo) chaque mois.\n+ 1 000 000 FCFA en finale décembre — Bénin vs Togo.\n\nTout le monde vote gratuitement !\nTa cousine à Paris ? Ta tante à Bruxelles ? Elles peuvent voter aussi.\n\n👉 https://wolomarket.com/#awards\n\n#MurDesReines #ReineWOLO #WOLOMarket`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   };
 
@@ -730,14 +786,19 @@
             <label style="flex:1;"><input type="radio" name="murCat" value="libre" style="display:none;" onchange="murToggleCatRadio(this)"><div class="murCatBtn" data-cat="libre" style="padding:10px;border-radius:10px;border:1px solid rgba(232,148,10,.2);background:transparent;color:#F8F6F1;text-align:center;cursor:pointer;font-weight:700;font-size:13px;">📷 Libre</div></label>
           </div>
           <div id="murThemeIndicator" style="background:rgba(232,148,10,.08);border-left:3px solid #E8940A;padding:10px 12px;font-size:12px;margin-bottom:14px;">🎯 Thème du mois : <strong>${escapeHtml(t.theme_coiffure || '—')}</strong></div>
-          <label style="display:block;font-size:11px;color:rgba(248,246,241,.6);margin-bottom:6px;letter-spacing:1px;">PHOTO (format carré ou 4:5 recommandé)</label>
-          <input type="file" id="murFile" accept="image/*" style="width:100%;padding:10px;border-radius:10px;border:1px dashed rgba(232,148,10,.3);background:rgba(232,148,10,.05);color:#F8F6F1;margin-bottom:14px;">
+          <label style="display:block;font-size:11px;color:rgba(248,246,241,.6);margin-bottom:6px;letter-spacing:1px;">PHOTOS (jusqu'à 3 photos · format carré ou 4:5 recommandé)</label>
+          <input type="file" id="murFile" accept="image/*" multiple style="width:100%;padding:10px;border-radius:10px;border:1px dashed rgba(232,148,10,.3);background:rgba(232,148,10,.05);color:#F8F6F1;margin-bottom:6px;">
+          <div style="font-size:11px;color:rgba(248,246,241,.45);margin-bottom:14px;font-style:italic;">📸 Tu peux poster jusqu'à 3 photos — comme sur Tinder. La 1ère = principale, les 2 autres = détails (côté, dos, accessoire, posture).</div>
           <div id="murPreview" style="margin-bottom:14px;display:none;aspect-ratio:4/5;background:#1a1f1a center/cover;border-radius:12px;"></div>
+          <label style="display:block;font-size:11px;color:rgba(248,246,241,.6);margin-bottom:6px;letter-spacing:1px;">TAG DE LA COIFFEUSE / COUTURIÈRE <span style="color:#E8940A;">— OBLIGATOIRE</span></label>
+          <input type="text" id="murTag" placeholder="Ex: @reine_des_tresses_cotonou ou nom de la couturière" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#1a1f1a;color:#F8F6F1;margin-bottom:6px;">
+          <div style="font-size:11px;color:rgba(248,246,241,.55);margin-bottom:14px;line-height:1.5;">💛 Sans tag, ta photo n'est pas éligible. Si tu es l'apprentie ou la pro, tu peux te tagger toi-même.</div>
           <label style="display:block;font-size:11px;color:rgba(248,246,241,.6);margin-bottom:6px;letter-spacing:1px;">LÉGENDE (facultative · 500 char max)</label>
-          <textarea id="murDesc" rows="3" maxlength="500" placeholder="Qui t'as appris ? Ça a pris combien de temps ? Raconte." style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(248,246,241,.1);background:#1a1f1a;color:#F8F6F1;margin-bottom:14px;resize:vertical;"></textarea>
+          <textarea id="murDesc" rows="3" maxlength="500" placeholder="Qui t'as appris ? Ça a pris combien de temps ? Raconte." style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(248,246,241,.1);background:#1a1f1a;color:#F8F6F1;margin-bottom:8px;resize:vertical;"></textarea>
+          <div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.18);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:rgba(248,246,241,.65);line-height:1.55;">⚠️ Si une autre personne porte la coupe ou la tenue sur la photo, assure-toi qu'elle a donné son accord pour figurer sur Le Mur des Reines.</div>
           <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(248,246,241,.75);margin-bottom:16px;cursor:pointer;">
             <input type="checkbox" id="murAwards" style="margin-top:3px;">
-            <span>📣 <strong>Candidater officiellement pour les WOLO Awards</strong> (50 000 F · nécessite Plan Pro depuis 2 mois+)</span>
+            <span>📣 <strong>Candidater officiellement pour Le Mur des Reines</strong> (100 000 F × 2 Reines/mois — ouvert à toutes les femmes B/T)</span>
           </label>
           <button onclick="murSubmitPhoto()" id="murSubmitBtn" style="width:100%;padding:14px;border-radius:12px;border:none;background:#E8940A;color:#0f1410;font-weight:900;font-size:15px;cursor:pointer;">Poster sur le mur ✨</button>
           <div id="murSubmitMsg" style="margin-top:10px;font-size:12px;text-align:center;color:rgba(248,246,241,.6);"></div>

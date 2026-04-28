@@ -1,7 +1,16 @@
 // ================================================================
-// Mur des Reines — Poster une photo
+// Mur des Reines — Poster une photo (v2 2026-04-28)
 // POST /api/wolo-pay/feed-post
-// Body: { user_id, photo_url, description?, categorie, quartier?, ville?, pays?, theme_mois?, is_awards_candidate? }
+// Body: {
+//   user_id, photo_url, photos_url?, description?,
+//   categorie, quartier?, ville?, pays?, theme_mois?,
+//   is_awards_candidate?, tag_pro_user_id?, tag_pro_libre?
+// }
+//
+// Règles :
+//  - Tag obligatoire si is_awards_candidate (tag_pro_user_id OU tag_pro_libre)
+//  - photos_url = jusqu'à 3 photos (Tinder-like) — 1ère = principale
+//  - Plus de gating Pro pour candidater (Mur des Reines ouvert à toutes)
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
 
@@ -11,6 +20,7 @@ export default async function handler(req, res) {
   const {
     user_id,
     photo_url,
+    photos_url,                   // tableau jusqu'à 3 photos
     description = '',
     categorie,                    // 'coiffure' | 'couture' | 'libre'
     quartier,
@@ -18,6 +28,8 @@ export default async function handler(req, res) {
     pays,
     theme_mois,
     is_awards_candidate = false,
+    tag_pro_user_id,              // user_id de la coiffeuse / couturière taguée
+    tag_pro_libre,                // nom libre si la pro n'est pas sur WOLO
   } = req.body || {};
 
   if (!user_id || !photo_url || !categorie) {
@@ -26,6 +38,22 @@ export default async function handler(req, res) {
   if (!['coiffure','couture','libre'].includes(categorie)) {
     return res.status(400).json({ error: 'categorie invalide' });
   }
+
+  // Tag obligatoire pour candidater aux Reines
+  const wantsAwards = is_awards_candidate === true || is_awards_candidate === 'true';
+  if (wantsAwards && !tag_pro_user_id && !tag_pro_libre) {
+    return res.status(400).json({
+      error: 'Tag de la coiffeuse / couturière obligatoire pour candidater au Mur des Reines (sinon ta photo n\'est pas éligible).'
+    });
+  }
+
+  // Normaliser photos_url
+  let photosArr = [];
+  if (Array.isArray(photos_url)) photosArr = photos_url.slice(0, 3);
+  else if (typeof photos_url === 'string' && photos_url.trim()) {
+    try { const p = JSON.parse(photos_url); if (Array.isArray(p)) photosArr = p.slice(0, 3); } catch(_){}
+  }
+  if (photosArr.length === 0) photosArr = [photo_url];
 
   try {
     const mois = new Date().toISOString().slice(0, 7);
@@ -43,21 +71,9 @@ export default async function handler(req, res) {
       }
     }
 
-    // Si candidature Awards officielle : vérifier Plan Pro
-    if (is_awards_candidate === true || is_awards_candidate === 'true') {
-      const { data: abo } = await supabase
-        .from('abonnements')
-        .select('id, created_at')
-        .eq('user_id', user_id)
-        .eq('plan', 'pro')
-        .eq('statut', 'actif')
-        .maybeSingle();
-
-      if (!abo) {
-        return res.status(403).json({ error: 'Plan Pro requis pour candidater aux Awards' });
-      }
-
-      // 1 candidature/mois/catégorie
+    // Mur des Reines = OUVERT à toutes les femmes B/T (pas de gating Pro)
+    // Seule règle : 1 candidature/mois/catégorie pour éviter le spam
+    if (wantsAwards) {
       const { data: dejaCandidate } = await supabase
         .from('feed_photos')
         .select('id')
@@ -90,14 +106,17 @@ export default async function handler(req, res) {
       .insert({
         user_id,
         mois,
-        photo_url,
+        photo_url,                                     // photo principale (compat)
+        photos_url: photosArr,                         // jusqu'à 3 photos (jsonb)
         description: (description || '').slice(0, 500),
         categorie,
         quartier: quartier || null,
         ville: ville || null,
         pays: pays || null,
         theme_mois: themeFinal || null,
-        is_awards_candidate: !!is_awards_candidate,
+        is_awards_candidate: wantsAwards,
+        tag_pro_user_id: tag_pro_user_id || null,
+        tag_pro_libre: (tag_pro_libre || '').slice(0, 100) || null,
       })
       .select()
       .single();

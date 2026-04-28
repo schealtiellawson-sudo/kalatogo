@@ -53,6 +53,7 @@
     'Date de naissance': 'date_naissance',
     'User ID': 'user_id',
     'Tags': 'tags',
+    'Statut Artisan': 'statut_artisan',
   };
 
   function _supa() { return window.supabase || window.supa; }
