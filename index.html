@@ -6062,8 +6062,10 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="dash-section" id="ds-notifications">
         <div class="dash-header">
           <h2>🔔 Mon activité</h2>
-          <p>Likes, commentaires et vues sur ton profil</p>
+          <p>Messages du fondateur, likes, commentaires et vues sur ton profil</p>
         </div>
+        <!-- Boîte du Fondateur (messages de Schealtiel) -->
+        <div id="fondateur-inbox-block" style="display:none;margin-bottom:24px;"></div>
         <div id="notifs-list">
           <div style="text-align:center;padding:48px 0;color:#999;">
             <div style="font-size:48px;margin-bottom:12px;">🔔</div>
@@ -11570,7 +11572,12 @@ function updateNotifBadge(recordId) {
   if (!recordId) return;
   const key = `wolo_notifs_${recordId}`;
   const notifs = JSON.parse(localStorage.getItem(key) || '[]');
-  const unread = notifs.filter(n => !n.read).length;
+  let unread = notifs.filter(n => !n.read).length;
+  // Ajouter les messages du fondateur non lus depuis Supabase notifications
+  try {
+    const fondateur = _getFondateurMessages();
+    unread += fondateur.filter(m => !m.read).length;
+  } catch(e){}
   const badge = document.getElementById('notif-badge');
   if (badge) {
     if (unread > 0) {
@@ -11582,7 +11589,76 @@ function updateNotifBadge(recordId) {
   }
 }
 
+// ══ BOÎTE DU FONDATEUR — Messages de Schealtiel ══
+function _getFondateurMessages() {
+  const raw = window.currentPrestataire?.fields?.['Notifications'];
+  if (!raw) return [];
+  let arr = [];
+  try { arr = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch(e) { return []; }
+  if (!Array.isArray(arr)) return [];
+  return arr.filter(m => m && m.type === 'message_fondateur');
+}
+
+function renderFondateurInbox() {
+  const block = document.getElementById('fondateur-inbox-block');
+  if (!block || !window.currentPrestataire) return;
+  const messages = _getFondateurMessages();
+  if (messages.length === 0) { block.style.display = 'none'; block.innerHTML = ''; return; }
+  block.style.display = 'block';
+  const unreadCount = messages.filter(m => !m.read).length;
+  block.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(232,148,10,0.08) 0%,rgba(232,148,10,0.02) 100%);border:1px solid rgba(232,148,10,0.25);border-radius:16px;padding:18px 20px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:#E8940A;color:#0f1410;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;font-family:'Fraunces',serif;flex-shrink:0;">S</div>
+        <div style="flex:1;">
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:800;color:#F8F6F1;">📬 Messages de Schealtiel</div>
+          <div style="font-size:12px;color:rgba(248,246,241,0.55);">Fondateur · WOLO Market${unreadCount > 0 ? ` · <span style="color:#E8940A;font-weight:700;">${unreadCount} non-lu${unreadCount > 1 ? 's' : ''}</span>` : ''}</div>
+        </div>
+        <a href="https://wa.me/22890000000?text=${encodeURIComponent('Salut Schealtiel — j\\'ai vu ton message sur WOLO et je voulais te dire...')}" target="_blank" style="background:#25D366;color:white;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">💬 WhatsApp</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${messages.map(m => {
+          const dateStr = new Date(m.created_at || Date.now()).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+          const unreadDot = !m.read ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#E8940A;margin-right:6px;"></span>' : '';
+          return `<div onclick="markFondateurMessageRead('${m.id}')" style="background:${m.read ? 'rgba(248,246,241,0.04)' : 'rgba(232,148,10,0.08)'};border:1px solid ${m.read ? 'rgba(248,246,241,0.08)' : 'rgba(232,148,10,0.25)'};border-radius:12px;padding:14px 16px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+              <div style="font-weight:700;font-size:14px;color:#F8F6F1;">${unreadDot}${(m.title || 'Message').replace(/</g,'&lt;')}</div>
+              <div style="font-size:11px;color:rgba(248,246,241,0.45);white-space:nowrap;">${dateStr}</div>
+            </div>
+            <div style="font-size:13px;line-height:1.65;color:rgba(248,246,241,0.78);white-space:pre-line;">${(m.body || '').replace(/</g,'&lt;')}</div>
+            <div style="margin-top:10px;font-size:11px;color:rgba(232,148,10,0.7);font-style:italic;">— ${(m.from || 'Schealtiel').replace(/</g,'&lt;')}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+async function markFondateurMessageRead(msgId) {
+  if (!window.currentPrestataire) return;
+  const raw = window.currentPrestataire.fields?.['Notifications'];
+  let arr = [];
+  try { arr = typeof raw === 'string' ? JSON.parse(raw) : (raw || []); } catch(e) { return; }
+  if (!Array.isArray(arr)) return;
+  let changed = false;
+  arr = arr.map(m => {
+    if (m && m.id === msgId && !m.read) { changed = true; return { ...m, read: true }; }
+    return m;
+  });
+  if (!changed) return;
+  // Update Supabase + state local
+  try {
+    if (window.supaPrest) {
+      await window.supaPrest.update(window.currentPrestataire.id, { 'Notifications': arr });
+    }
+    window.currentPrestataire.fields['Notifications'] = arr;
+    renderFondateurInbox();
+    updateNotifBadge(window.currentPrestataire.id);
+  } catch(e) { console.warn('[mark fondateur read]', e); }
+}
+
 function renderNotifications(recordId) {
+  // Boîte du Fondateur d'abord (Supabase notifications)
+  renderFondateurInbox();
   const key = `wolo_notifs_${recordId}`;
   const notifs = JSON.parse(localStorage.getItem(key) || '[]');
   // Marquer tout comme lu
