@@ -4202,12 +4202,12 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div style="text-align:center;margin-bottom:32px;">
         <span class="eyebrow" style="display:block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">LE MUR DES REINES · WOLO AWARDS</span>
         <h2 style="font-family:'Fraunces',serif;font-size:clamp(28px,5vw,40px);font-weight:900;color:#F8F6F1;margin:0 0 14px;line-height:1.15;">
-          Ta grand-mère t'a appris.<br>
-          Ta mère t'a appris.<br>
-          <span style="color:#E8940A;">Maintenant, le monde regarde.</span>
+          Ta grand-mère a tressé pour nourrir.<br>
+          Ta mère a cousu pour t'envoyer à l'école.<br>
+          <span style="color:#E8940A;">Maintenant c'est ton tour. Et le pays regarde.</span>
         </h2>
         <p style="max-width:680px;margin:0 auto;color:rgba(248,246,241,.75);font-size:15px;line-height:1.7;">
-          Au Togo et au Bénin, quasiment chaque femme sait tresser. Chaque femme sait coudre. C'est dans la main. C'est dans le sang. Ici, tu poses ta plus belle coupe, ta plus belle tenue — tout le monde vote, la meilleure gagne <strong style="color:#E8940A;">50 000 F</strong> chaque mois. Pas besoin d'être pro. <strong>T'es une femme africaine : tu sais déjà.</strong>
+          Au Togo et au Bénin, chaque femme sait tresser ou coudre. C'est dans la main. C'est dans le sang. Ici, tu poses ta plus belle coupe ou ta plus belle tenue — la communauté vote en duel, et 2 Reines sont couronnées chaque mois (1 Bénin + 1 Togo). <strong style="color:#E8940A;">100 000 FCFA chacune.</strong> + 1 000 000 FCFA en finale décembre. <strong>Pas besoin d'être Pro. Toutes les femmes B/T peuvent gagner.</strong>
         </p>
       </div>
 
@@ -4224,8 +4224,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
         <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:18px;text-align:center;">
           <div style="font-size:30px;margin-bottom:4px;">👑</div>
-          <div style="font-family:'Fraunces',serif;font-weight:900;font-size:16px;color:#F8F6F1;margin-bottom:4px;">50 000 F / mois</div>
-          <div style="font-size:12px;color:rgba(248,246,241,.55);">✂️ Coiffure + 👗 Couture · 2 reines chaque mois.</div>
+          <div style="font-family:'Fraunces',serif;font-weight:900;font-size:16px;color:#F8F6F1;margin-bottom:4px;">100 000 FCFA × 2</div>
+          <div style="font-size:12px;color:rgba(248,246,241,.55);">1 Reine Bénin + 1 Reine Togo / mois · Alternance Coiffure / Couture · + 1M FCFA finale décembre.</div>
         </div>
         <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:18px;text-align:center;">
           <div style="font-size:30px;margin-bottom:4px;">🎲</div>
@@ -24011,7 +24011,7 @@ window.genererStoryCampagne = async function(candidatureId) {
     ctx.fillStyle = '#E8940A';
     ctx.font = '700 14px "Space Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(catEmoji + ' ' + catNom.toUpperCase() + ' · 50 000 FCFA', 540, 262);
+    ctx.fillText(catEmoji + ' ' + catNom.toUpperCase() + ' · 100 000 FCFA × 2', 540, 262);
 
     // ══ ZONE 2: PHOTO (42% = ~806px, from y=288 to y=1094) ══
     if (photoReal) {
@@ -24087,12 +24087,12 @@ window.genererStoryCampagne = async function(candidatureId) {
 
     ctx.fillStyle = '#E8940A';
     ctx.font = 'bold 36px Fraunces, Georgia, serif';
-    ctx.fillText('50 000 FCFA', 540, voteY + 55);
+    ctx.fillText('100 000 FCFA × 2', 540, voteY + 55);
 
     ctx.fillStyle = 'rgba(248,246,241,0.6)';
     ctx.font = '20px Fraunces, Georgia, serif';
-    ctx.fillText('pour ' + (c.categorie === 'coiffure' ? 'la meilleure coiffeuse' : 'la meilleure couturière'), 540, voteY + 95);
-    ctx.fillText('du Bénin et du Togo.', 540, voteY + 125);
+    ctx.fillText('1 Reine ' + (c.categorie === 'coiffure' ? 'Coiffure' : 'Couture') + ' Bénin', 540, voteY + 95);
+    ctx.fillText('+ 1 Reine ' + (c.categorie === 'coiffure' ? 'Coiffure' : 'Couture') + ' Togo · Chaque mois.', 540, voteY + 125);
 
     ctx.fillStyle = '#F8F6F1';
     ctx.font = 'bold 22px "Space Mono", monospace';
@@ -24140,7 +24140,7 @@ window.genererStoryCampagne = async function(candidatureId) {
 
     // WhatsApp share message
     var shareMsg = encodeURIComponent(
-      'Salut ! 👋\n\nJe suis sur Le Mur des Reines ce mois.\n50 000 FCFA pour ' + (c.categorie === 'coiffure' ? 'la Reine Coiffure' : 'la Reine Couture') + ' du Bénin et du Togo.\n\n👉 Vote pour moi ici (30 sec, gratuit) :\nwolomarket.com/awards/' + slug + '\n\nMerci ! Ça compte vraiment. 🙏\n#MurDesReines #ReineWOLO'
+      'Salut ! 👋\n\nJe suis sur Le Mur des Reines ce mois.\n100 000 FCFA pour ' + (c.categorie === 'coiffure' ? 'la Reine Coiffure' : 'la Reine Couture') + ' Bénin + 100K Togo.\n+ 1M FCFA en finale décembre (Bénin vs Togo).\n\n👉 Vote pour moi ici (30 sec, gratuit) :\nwolomarket.com/awards/' + slug + '\n\nMerci ! Ça compte vraiment. 🙏\n#MurDesReines #ReineWOLO'
     );
 
     // Show result in modal
