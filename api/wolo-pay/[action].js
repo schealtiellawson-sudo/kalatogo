@@ -62,6 +62,22 @@ import reservationTableUpdate from './_impl/reservation-table-update.js';
 import devisChantierCreate from './_impl/devis-chantier-create.js';
 import devisChantierList from './_impl/devis-chantier-list.js';
 import devisChantierUpdate from './_impl/devis-chantier-update.js';
+// Widgets métier (V1.1 — 5 widgets restants)
+import commandeFaconCreate from './_impl/commande-facon-create.js';
+import commandeFaconList from './_impl/commande-facon-list.js';
+import commandeFaconUpdate from './_impl/commande-facon-update.js';
+import rdvMecanoCreate from './_impl/rdv-mecano-create.js';
+import rdvMecanoList from './_impl/rdv-mecano-list.js';
+import rdvMecanoUpdate from './_impl/rdv-mecano-update.js';
+import commandePatisserieCreate from './_impl/commande-patisserie-create.js';
+import commandePatisserieList from './_impl/commande-patisserie-list.js';
+import commandePatisserieUpdate from './_impl/commande-patisserie-update.js';
+import reservationChambreCreate from './_impl/reservation-chambre-create.js';
+import reservationChambreList from './_impl/reservation-chambre-list.js';
+import reservationChambreUpdate from './_impl/reservation-chambre-update.js';
+import coursOffresList from './_impl/cours-offres-list.js';
+import coursOffresUpsert from './_impl/cours-offres-upsert.js';
+import coursOffresDelete from './_impl/cours-offres-delete.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -84,6 +100,11 @@ const PUBLIC_ACTIONS = new Set([
   'portfolio-list',
   'reservation-table-create',
   'devis-chantier-create',
+  'commande-facon-create',
+  'rdv-mecano-create',
+  'commande-patisserie-create',
+  'reservation-chambre-create',
+  'cours-offres-list',
 ]);
 
 // Public mais on tente de récupérer le user authentifié si présent
@@ -91,6 +112,10 @@ const PUBLIC_ACTIONS = new Set([
 const OPTIONAL_AUTH_ACTIONS = new Set([
   'reservation-table-create',
   'devis-chantier-create',
+  'commande-facon-create',
+  'rdv-mecano-create',
+  'commande-patisserie-create',
+  'reservation-chambre-create',
 ]);
 
 const handlers = {
@@ -144,6 +169,22 @@ const handlers = {
   'devis-chantier-create': devisChantierCreate,
   'devis-chantier-list': devisChantierList,
   'devis-chantier-update': devisChantierUpdate,
+  // Widgets métier (5 restants V1.1)
+  'commande-facon-create': commandeFaconCreate,
+  'commande-facon-list': commandeFaconList,
+  'commande-facon-update': commandeFaconUpdate,
+  'rdv-mecano-create': rdvMecanoCreate,
+  'rdv-mecano-list': rdvMecanoList,
+  'rdv-mecano-update': rdvMecanoUpdate,
+  'commande-patisserie-create': commandePatisserieCreate,
+  'commande-patisserie-list': commandePatisserieList,
+  'commande-patisserie-update': commandePatisserieUpdate,
+  'reservation-chambre-create': reservationChambreCreate,
+  'reservation-chambre-list': reservationChambreList,
+  'reservation-chambre-update': reservationChambreUpdate,
+  'cours-offres-list': coursOffresList,
+  'cours-offres-upsert': coursOffresUpsert,
+  'cours-offres-delete': coursOffresDelete,
 };
 
 export default async function handler(req, res) {
