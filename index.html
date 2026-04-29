@@ -5400,24 +5400,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
               <textarea id="f-diplomes" rows="3" placeholder="Ex : BTS Informatique 2022, 3 ans d'expérience en développement web, Certification Google Ads..." autocomplete="new-password" name="wolo-diplomes" style="width:100%;padding:10px 14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;color:#111827;font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
             </div>
 
-            <!-- Statut artisan — affiché pour Coiffeuses & Couturières -->
+            <!-- Statut socio-économique — auto-rendu par renderStatutsForMetier() depuis WoloMetierStatuts -->
             <div id="statut-artisan-field" style="display:none;margin-top:16px;background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:12px;padding:14px 16px;">
-              <label style="font-weight:700;font-size:14px;display:block;margin-bottom:4px;color:#0f1410;">👩‍🎨 Quel est ton statut ?</label>
-              <p style="font-size:12px;color:var(--gris);margin:0 0 12px;">Important pour t'envoyer les bons conseils. Sois honnête — il n'y a pas de jugement.</p>
-              <div style="display:grid;gap:8px;">
-                <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'apprentie')">
-                  <input type="radio" name="f-statut-artisan" value="apprentie" style="margin-top:3px;flex-shrink:0;">
-                  <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>🎓 Apprentie</strong> — j'apprends dans un salon ou chez une couturière. Je paie ma patronne pour me former. Je travaille pour elle plusieurs jours par semaine. Je cherche mes propres clientes à côté.</span>
-                </label>
-                <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'patronne')">
-                  <input type="radio" name="f-statut-artisan" value="patronne" style="margin-top:3px;flex-shrink:0;">
-                  <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>👑 Cheffe de salon / Patronne</strong> — je dirige mon propre salon ou atelier. J'ai (ou j'aurai) des apprenties.</span>
-                </label>
-                <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'independante')">
-                  <input type="radio" name="f-statut-artisan" value="independante" style="margin-top:3px;flex-shrink:0;">
-                  <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>💪 Indépendante</strong> — je travaille seule, à mon compte (à domicile, à la maison, à la commande, sans salon).</span>
-                </label>
-              </div>
+              <!-- contenu rendu dynamiquement selon le métier choisi -->
               <input type="hidden" id="f-statut-artisan" value="">
             </div>
           </div>
@@ -6326,16 +6311,10 @@ div[style*="position:sticky"][style*="background:#fff"] {
                   <option>Autre (préciser dans la description)</option>
                 </optgroup>
               </select>
-              <!-- Statut Artisan : visible pour Coiffeuse/Couturière -->
+              <!-- Statut socio-économique — auto-rendu par renderStatutsForMetier() depuis WoloMetierStatuts -->
               <div id="edit-statut-artisan-wrap" style="display:none;margin-top:12px;background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:10px;padding:12px;">
-                <label style="font-weight:700;font-size:13px;color:#F8F6F1;display:block;margin-bottom:6px;">👩‍🎨 Mon statut</label>
-                <p style="font-size:11px;color:rgba(248,246,241,.55);margin:0 0 10px;line-height:1.5;">Sélectionne ton statut pour recevoir les bons conseils sur WhatsApp et débloquer le bandeau apprentie.</p>
-                <select id="edit-statut-artisan" style="width:100%;">
-                  <option value="">— Non précisé —</option>
-                  <option value="apprentie">🎓 Apprentie (j'apprends dans un salon, je paie pour me former)</option>
-                  <option value="patronne">👑 Cheffe de salon / Patronne (j'ai mon salon, j'ai des apprenties)</option>
-                  <option value="independante">💪 Indépendante (je travaille seule, à mon compte)</option>
-                </select>
+                <!-- contenu rendu dynamiquement selon le métier -->
+                <input type="hidden" id="edit-statut-artisan" value="">
               </div>
             </div>
             <div class="form-group">
@@ -8242,37 +8221,46 @@ async function loadDashboard() {
   checkAdminForDashboard();
 }
 
-// ══ BANDEAU APPRENTIE — storytelling "ton lundi toute la semaine" ══
-// S'affiche pour les coiffeuses/couturières qui se sont déclarées apprenties à l'inscription.
+// ══ BANDEAU APPRENTI — généralisé pour TOUS les métiers via WoloMetierStatuts ══
+// S'affiche si le statut est de type "apprenti" (peu importe le métier).
+// Si le statut n'est pas renseigné mais que le métier a une option apprenti → invite à le renseigner.
 // Dismissible avec mémoire locale par user.
 function injectApprentieBanner() {
   const host = document.getElementById('apprentie-banner-host');
-  if (!host || !currentPrestataire) return;
+  if (!host || !currentPrestataire) { if(host) host.innerHTML=''; return; }
   const f = currentPrestataire.fields || {};
-  const metier = (f['Métier principal'] || '').toLowerCase();
+  const metier = f['Métier principal'] || '';
   const statut = (f['Statut Artisan'] || '').toLowerCase();
-  const isCible = /coiff|coutur|tress/.test(metier);
-  if (!isCible) { host.innerHTML = ''; return; }
-  // Si la prestataire n'est PAS apprentie (patronne ou indépendante explicite), pas de bandeau
-  if (statut === 'patronne' || statut === 'independante') { host.innerHTML = ''; return; }
-  // Si la prestataire a explicitement dismiss, on respecte
+
+  // Détection apprenti via WoloMetierStatuts (plus de regex hardcodé sur coiff/coutur)
+  const W = window.WoloMetierStatuts;
+  const isApprentiDeclare = W ? W.isApprentiStatut(statut) : ['apprenti','apprentie'].includes(statut);
+  // Si statut renseigné et NON apprenti → pas de bandeau (patron / indépendant / etc.)
+  if (statut && !isApprentiDeclare) { host.innerHTML = ''; return; }
+  // Si pas de statut + métier sans option apprenti → pas de bandeau
+  let metierAUneOptionApprenti = false;
+  if (W && metier) {
+    const cfg = W.getStatutsFor(metier);
+    metierAUneOptionApprenti = (cfg?.statuts || []).some(s => W.isApprentiStatut(s.value));
+  }
+  if (!statut && !metierAUneOptionApprenti) { host.innerHTML = ''; return; }
+  // Dismiss
   const dismissKey = `wolo_apprentie_banner_dismissed_${currentPrestataire.id}`;
   if (localStorage.getItem(dismissKey) === '1') { host.innerHTML = ''; return; }
-  const isApprentieDeclaree = statut === 'apprentie';
+
+  const eyebrow = isApprentiDeclare ? 'POUR TOI, EN APPRENTISSAGE' : 'TU ES EN APPRENTISSAGE ?';
+  const messageHtml = isApprentiDeclare
+    ? '« Tu travailles pour ton patron / ta patronne plusieurs jours par semaine. Tu n\'es pas (ou peu) payé(e). Tes seuls clients perso, tu les fais sur ton temps de repos.<br><strong style="font-style:normal;color:#E8940A;">WOLO Market, c\'est ton temps à toi. Toute la semaine.</strong> »'
+    : '« Au Togo et au Bénin, des dizaines de milliers de jeunes en formation paient pour apprendre, travaillent gratis. <strong style="font-style:normal;color:#E8940A;">Si c\'est ton cas, renseigne ton statut pour recevoir les conseils adaptés.</strong> »';
+  const ctasHtml = isApprentiDeclare
+    ? '<button onclick="showDashSection(\'photos\')" style="background:#E8940A;color:#0f1410;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Ajouter 3 photos de mon travail →</button><button onclick="showDashSection(\'parrainage\')" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,0.4);padding:9px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;">Voir le parrainage 40%</button>'
+    : '<button onclick="showDashSection(\'profil\');setTimeout(()=>{const w=document.getElementById(\'edit-statut-artisan-wrap\');if(w){w.scrollIntoView({behavior:\'smooth\',block:\'center\'});}},400);" style="background:#E8940A;color:#0f1410;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Renseigner mon statut →</button>';
   host.innerHTML = `
     <div style="background:linear-gradient(135deg,rgba(232,148,10,0.12) 0%,rgba(232,148,10,0.04) 100%);border:1px solid rgba(232,148,10,0.3);border-left:4px solid #E8940A;border-radius:14px;padding:18px 22px;margin-bottom:22px;position:relative;">
       <button onclick="dismissApprentieBanner()" aria-label="Fermer" style="position:absolute;top:10px;right:12px;background:transparent;border:none;color:rgba(248,246,241,0.5);font-size:18px;cursor:pointer;line-height:1;padding:4px 8px;">×</button>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:8px;">${isApprentieDeclaree ? 'POUR TOI, APPRENTIE' : 'TU ES APPRENTIE OU INDÉPENDANTE ?'}</div>
-      <p style="margin:0 0 12px;font-family:'Lora',serif;font-size:15px;line-height:1.65;color:#F8F6F1;font-style:italic;">
-        ${isApprentieDeclaree
-          ? '« Tu travailles pour Madame du mardi au samedi, tu n\'es pas payée. Tes seuls clients perso, tu les fais le lundi de repos.<br><strong style="font-style:normal;color:#E8940A;">WOLO Market, c\'est ton lundi. Toute la semaine.</strong> »'
-          : '« On sait qu\'au Togo et au Bénin, des dizaines de milliers de coiffeuses et couturières sont apprenties — elles paient pour apprendre, travaillent gratis. <strong style="font-style:normal;color:#E8940A;">Si c\'est ton cas, ajoute-le à ton profil pour recevoir nos conseils dédiés.</strong> »'}
-      </p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;">
-        ${isApprentieDeclaree
-          ? '<button onclick="showDashSection(\'photos\')" style="background:#E8940A;color:#0f1410;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Ajouter 3 photos de mon travail →</button><button onclick="showPage(\'awards\')" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,0.4);padding:9px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;">Tenter Le Mur des Reines (100K)</button>'
-          : '<button onclick="showDashSection(\'profil\');setTimeout(()=>{const sel=document.getElementById(\'dash-statut-artisan\');if(sel){sel.scrollIntoView({behavior:\'smooth\',block:\'center\'});sel.focus();}},400);" style="background:#E8940A;color:#0f1410;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Renseigner mon statut →</button>'}
-      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:8px;">${eyebrow}</div>
+      <p style="margin:0 0 12px;font-family:'Lora',serif;font-size:15px;line-height:1.65;color:#F8F6F1;font-style:italic;">${messageHtml}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">${ctasHtml}</div>
     </div>`;
 }
 function dismissApprentieBanner() {
@@ -8663,15 +8651,25 @@ function loadEditForm() {
     for (let opt of quartierSel.options) { if (opt.value === f['Quartier']) { opt.selected = true; break; } }
   }
 
-  // Statut Artisan : visible pour Coiffeuse/Couturière + pré-rempli
-  const editStatutWrap = document.getElementById('edit-statut-artisan-wrap');
-  const editStatutSel = document.getElementById('edit-statut-artisan');
+  // Statut socio-économique : rendu dynamiquement selon le métier via WoloMetierStatuts
   const editToggleStatut = () => {
-    if (!editStatutWrap) return;
-    const m = (metierSel?.value || '').toLowerCase();
-    editStatutWrap.style.display = /coiff|coutur|tress/.test(m) ? 'block' : 'none';
+    const m = metierSel?.value || '';
+    renderStatutsForMetier(m, 'edit-statut-artisan-wrap', 'edit-statut-artisan');
+    // Pré-sélectionner la valeur courante si elle existe encore dans les options du nouveau métier
+    if (f['Statut Artisan']) {
+      const hidden = document.getElementById('edit-statut-artisan');
+      if (hidden) hidden.value = f['Statut Artisan'];
+      const radio = document.querySelector(`#edit-statut-artisan-wrap input[type=radio][value="${f['Statut Artisan']}"]`);
+      if (radio) {
+        radio.checked = true;
+        const lbl = radio.closest('label');
+        if (lbl) {
+          lbl.style.borderColor = '#E8940A';
+          lbl.style.background = 'rgba(232,148,10,0.08)';
+        }
+      }
+    }
   };
-  if (editStatutSel && f['Statut Artisan']) editStatutSel.value = f['Statut Artisan'];
   editToggleStatut();
   if (metierSel && !metierSel._statutListenerAttached) {
     metierSel.addEventListener('change', editToggleStatut);
@@ -8719,12 +8717,13 @@ async function saveProfile() {
   if (metier)    fields['Métier principal']         = metier;
   if (quartier)  fields['Quartier']                 = quartier;
 
-  // Statut Artisan (Coiffeuse / Couturière uniquement)
+  // Statut socio-économique : sauvé pour TOUS les métiers (apprenti / patron / indépendant / etc.)
   const editStatut = document.getElementById('edit-statut-artisan')?.value || '';
-  if (/coiff|coutur|tress/i.test(metier)) {
+  if (editStatut !== '') {
     fields['Statut Artisan'] = editStatut || null;
-    // Si on vient de passer en apprentie, on remet à zéro le dismiss du bandeau
-    if (editStatut === 'apprentie') {
+    // Si on vient de passer en apprenti(e), on remet à zéro le dismiss du bandeau
+    const W = window.WoloMetierStatuts;
+    if (W && W.isApprentiStatut(editStatut)) {
       try { localStorage.removeItem(`wolo_apprentie_banner_dismissed_${currentPrestataire.id}`); } catch(e){}
     }
   }
@@ -14110,28 +14109,48 @@ function nextStep(step) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Affiche/masque le champ portfolio selon le métier choisi
+// Affiche/masque le champ portfolio selon le métier choisi + rend dynamiquement
+// les statuts (Apprenti / Patron / Indépendant / etc.) depuis WoloMetierStatuts.
 function onMetierChange(metier) {
   const field = document.getElementById('portfolio-field');
   if (field) field.style.display = isDigitalMetier(metier) ? 'block' : 'none';
 
-  // Statut artisan (Apprentie / Patronne / Indépendante) — visible pour coiffeuses & couturières
-  const sa = document.getElementById('statut-artisan-field');
-  if (sa) {
-    const m = (metier || '').toLowerCase();
-    const isCible = /coiff|coutur|tress/.test(m);
-    sa.style.display = isCible ? 'block' : 'none';
-    if (!isCible) {
-      const hidden = document.getElementById('f-statut-artisan');
-      if (hidden) hidden.value = '';
-      document.querySelectorAll('input[name="f-statut-artisan"]').forEach(r => { r.checked = false; });
-    }
-  }
+  // Statut socio-économique — affiché pour TOUS les métiers via WoloMetierStatuts
+  renderStatutsForMetier(metier, 'statut-artisan-field', 'f-statut-artisan');
 }
 
-// Sélection visuelle d'une option statut artisan
-function onStatutArtisanSelect(labelEl, value) {
-  document.querySelectorAll('#statut-artisan-field label').forEach(l => {
+// Rend les options de statut dynamiquement selon le métier choisi.
+// containerId = wrapper div, hiddenId = input hidden qui stocke la valeur sélectionnée.
+function renderStatutsForMetier(metier, containerId, hiddenId) {
+  const sa = document.getElementById(containerId);
+  if (!sa) return;
+  if (!metier) { sa.style.display = 'none'; return; }
+  const cfg = (window.WoloMetierStatuts && window.WoloMetierStatuts.getStatutsFor)
+    ? window.WoloMetierStatuts.getStatutsFor(metier)
+    : null;
+  if (!cfg || !cfg.statuts || !cfg.statuts.length) { sa.style.display = 'none'; return; }
+  sa.style.display = 'block';
+  const radioName = hiddenId === 'f-statut-artisan' ? 'f-statut-artisan' : 'edit-statut-radio';
+  // Construit le HTML
+  const optsHtml = cfg.statuts.map(s => `
+    <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'${s.value}','${containerId}','${hiddenId}')">
+      <input type="radio" name="${radioName}" value="${s.value}" style="margin-top:3px;flex-shrink:0;">
+      <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>${s.emoji || ''} ${(s.label || s.value).replace(/</g,'&lt;')}</strong> — ${(s.description || '').replace(/</g,'&lt;')}</span>
+    </label>
+  `).join('');
+  sa.innerHTML = `
+    <label style="font-weight:700;font-size:14px;display:block;margin-bottom:4px;color:#0f1410;">👩‍🎨 Quel est ton statut ?</label>
+    <p style="font-size:12px;color:var(--gris);margin:0 0 12px;">${(cfg.intro || 'Important pour t\'envoyer les bons conseils. Sois honnête — il n\'y a pas de jugement.').replace(/</g,'&lt;')}</p>
+    <div style="display:grid;gap:8px;">${optsHtml}</div>
+    <input type="hidden" id="${hiddenId}" value="">
+  `;
+}
+
+// Sélection visuelle d'une option statut + sauvegarde value dans hidden input
+function onStatutArtisanSelect(labelEl, value, containerId, hiddenId) {
+  containerId = containerId || 'statut-artisan-field';
+  hiddenId = hiddenId || 'f-statut-artisan';
+  document.querySelectorAll('#' + containerId + ' label').forEach(l => {
     l.style.borderColor = '#e5e7eb';
     l.style.background = 'white';
   });
@@ -14141,7 +14160,7 @@ function onStatutArtisanSelect(labelEl, value) {
     const radio = labelEl.querySelector('input[type=radio]');
     if (radio) radio.checked = true;
   }
-  const hidden = document.getElementById('f-statut-artisan');
+  const hidden = document.getElementById(hiddenId);
   if (hidden) hidden.value = value || '';
 }
 
@@ -14323,9 +14342,9 @@ async function submitInscription(e) {
     if (diplomes) fields['Diplomes'] = diplomes;
     if (metier && isDigitalMetier(metier)) fields['Talent Digital'] = true;
 
-    // Statut Artisan (Apprentie / Patronne / Indépendante) — pour coiffeuses & couturières
+    // Statut socio-économique — pour TOUS les métiers (apprenti / patron / indépendant / freelance / etc.)
     const statutArtisan = document.getElementById('f-statut-artisan')?.value?.trim();
-    if (statutArtisan && /coiff|coutur|tress/i.test(metier)) {
+    if (statutArtisan) {
       fields['Statut Artisan'] = statutArtisan;
     }
 
@@ -26138,6 +26157,9 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 
 <!-- ═════ Migration Supabase Prestataires ═════ -->
 <script src="components/supa-prest.js"></script>
+
+<!-- ═════ Mapping métier → statuts socio-économiques (V1.1 — 2026-04-29) ═════ -->
+<script src="components/metier-statuts-config.js"></script>
 
 <!-- ═════ Widgets métier (système modulaire 2026-04-27) ═════ -->
 <script src="components/widgets-metier-config.js"></script>
