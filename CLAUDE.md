@@ -29,12 +29,57 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 7. **Système duels +10/+1/+20 streak + shuffle bag** ✅ — `duels_photos` avec trigger SQL `update_feed_duel_stats` (auto-update wins/losses/streak/points sur feed_photos). `feed-discover.js` v2 utilise `voter_session` pour le shuffle bag (exclut paires déjà votées dans les 6h).
 8. **Séquences WhatsApp A/B/C** ✅ — Migration `20260428_whatsapp_sequences.sql` pushée prod. 2 tables (`wolo_whatsapp_templates` + `wolo_whatsapp_queue`). 15 templates seed (5 onboarding + 5 apprentie + 5 concours). Endpoints `/api/wolo-pay/whatsapp-enqueue` + `/whatsapp-flush` (cron). Cron Vercel à 9h/12h/15h/18h. Provider auto : WhatsApp Cloud API si `WHATSAPP_CLOUD_TOKEN` env, sinon Twilio si `TWILIO_*`, sinon mode log. Trigger après inscription (séquence A toujours, séquence B si statut=apprentie).
 
-### ⏭️ Reste à faire (commit + activation)
-- **Commit + push prod** des changements de cette session (en attente validation user)
-- **Activer WhatsApp en prod** : ajouter `WHATSAPP_CLOUD_TOKEN` + `WHATSAPP_PHONE_ID` (Meta Business) OU `TWILIO_SID` + `TWILIO_TOKEN` + `TWILIO_FROM` dans Vercel env. Sans ça, les messages restent en mode log (status=`sent`, provider=`log`) — utile pour test sans coût.
-- **Mécanique "Mains les Plus Demandées"** (visibilité gratuite des pros taguées) — UI à coder dans `feed-list.js` côté frontend pour afficher le compteur de tags reçus.
-- **Champ "Statut Artisan" éditable dans dashboard** — actuellement saisi à l'inscription seulement, ajouter dans `ds-profil` pour permettre changement après coup.
-- **3 scripts TikTok APPRENTIE01-03 dans Notion** (reporté à plus tard sur demande user)
+### ✅ TOUT V1.1 livré + push prod (3 commits)
+- `c309248` : K&Q retiré + MdR refonte + WhatsApp séquences + apprenties
+- `e2fbdb5` : 3 photos multi-upload + Statut Artisan dashboard + Mains d'Or badge
+- `b21a93a` : widgets métier (8 verticales) + migration Airtable Jobs/Avis/RDV (SQL)
+
+### ✅ DB Supabase prod (toutes migrations appliquées via Management API)
+- `20260424_ai_infrastructure.sql` (ai_cache, ai_quota_log)
+- `20260424_messagerie_entretiens.sql` (5 tables messagerie/entretiens/signalements)
+- `20260426_wolo_prestataires.sql` (wolo_prestataires + view compat)
+- `20260427_widgets_metier.sql` (9 tables widgets : prestations_catalogue, portfolio_projets, reservations_table, devis_chantier, commande_facon, rdv_mecano, commande_patisserie, reservation_chambre, cours_offres)
+- `20260428_mur_des_reines_v2.sql` (feed_photos enrichi + duels_photos + classement_reines_mois)
+- `20260428_whatsapp_sequences.sql` (15 templates onboarding/apprentie/concours)
+- `20260428_whatsapp_metier_sequences.sql` (38 templates métier : 7 séquences × 5-7 messages)
+- `20260428_airtable_jobs_avis_rdv.sql` (4 tables : wolo_offres_emploi, wolo_candidatures, wolo_avis, wolo_rdv + vues compat)
+- Colonne `statut_artisan` ajoutée à wolo_prestataires
+- Total : **48 tables** dans le schéma public + 53 templates WhatsApp seedés
+
+### 📚 Rapports stratégiques livrés (sub-agents)
+- `/STRATEGIE-AUDIT-2026-04-28.md` — audit produit complet, score 64/100→81/100 si top 10 propositions appliquées (acquisition, rétention, monétisation, UX, etc.)
+- `/BEAUTE-COUTURE-VERTICAL-2026-04-28.md` — verticale Beauté/Couture + 38 templates WhatsApp métier + verdict "Reines + Bâtisseurs" (combo Coiffure/Couture + Construction au lancement)
+
+### 🚧 Reste à faire pour passer en V1.2 (priorisé)
+
+**Activations (user actions)**
+- **WhatsApp Cloud OU Twilio en prod** : ajouter `WHATSAPP_CLOUD_TOKEN` + `WHATSAPP_PHONE_ID` (Meta) OU `TWILIO_SID/TOKEN/FROM` dans Vercel env. Sans ça, mode log (status=sent, provider=log) — utile pour test sans coût.
+- **Régénérer credentials exposés** : Gemini API Key (`AIzaSyCKdPlSftDOltyj4Ef_qDdhXCQaDTDrum8`) + Supabase PAT actif (`sbp_6a944ed0c1157acd6a56186ea6f5a02a9b5eb02a`). Régénère les deux après stabilisation.
+
+**Décisions stratégiques à trancher (issues du rapport Beauté/Couture)**
+1. Verticale phare lancement = combo "Reines + Bâtisseurs" (Coiffure/Couture + Construction) ou Beauté seul ?
+2. Plan Pro Salon 5 000 F lancé le 8 juin OU repoussé V1.1 ?
+3. Module "Mon premier client" subventionné -30% (budget 30K F/mois) — activer dès le 8 juin ?
+4. MoU partenariat ONG (Bluemind/Heal by Hair/ProEmploi) avant 8 juin pour anticiper concurrence ?
+5. Mur des Reines : ancrer le récit dans la **technique métier** (pas la beauté physique) pour éviter dérive concours de beauté.
+
+**Implémentations restantes (V1.1 → V1.2)**
+- 5 widgets métier secondaires (commande_facon, rdv_mecano, commande_patisserie, reservation_chambre, cours_offres) : tables + config OK, manque les composants frontend (suivre pattern `widget-reservation-table.js`)
+- Migrer le code applicatif (loadOffresEmploi, submitCandidature, fetchAvis, loadDashRDV) pour utiliser `wolo_offres_emploi` / `wolo_candidatures` / `wolo_avis` / `wolo_rdv` au lieu des tables Airtable (les tables Supabase sont en place avec vues compat)
+- Helpers JS frontend (`supa-offres.js`, `supa-candidatures.js`, `supa-avis.js`, `supa-rdv.js`) sur le pattern de `supa-prest.js`
+- Intégrer ImgBB upload direct dans widget-portfolio.js et widget-devis-chantier.js (actuellement attendent URLs string)
+- Notification WhatsApp auto au pro à la création de demande (réservation table, devis chantier) — utiliser `wolo_whatsapp_queue` existant
+- Dashboard recruteur : tester les Sprints A→F en live sur prod (déjà livrés en code)
+- 3 scripts TikTok APPRENTIE01-03 dans Notion (mis de côté sur demande user, à reprendre)
+
+### 📝 MÉMOS pour future stratégie réseaux sociaux (note user 2026-04-29)
+- **Posts Instagram, Reels, interviews vidéo** : appuyer ÉNORMÉMENT sur la douleur des apprenties coiffeuses/couturières
+- Storytelling brut : 84h/semaine, 0 FCFA, 120-200K payés à la patronne
+- Faire interviews vraies apprenties (avec consentement, anonymisable)
+- Format Reel : *"Le système de l'apprentissage au Togo"* en mode pédagogique
+- Hooks : *"On t'a dit que c'était normal de payer pour travailler 3 ans gratis ?"*
+- Frères/maris dans le copy (cible diaspora qui finance la nièce/cousine apprentie)
+- À intégrer lors du prochain sprint marketing/social (séquence virale 30 jours)
 
 ### Crédits API exposés en chat (à RÉGÉNÉRER après commit)
 - Supabase Personal Access Token : `sbp_62da29bde3edb1fa6465b20b43afe597eeca3166`

@@ -109,15 +109,14 @@
           try {
             await R._api('reservation-table-update', { id: r.id, statut });
             r.statut = statut;
-            row.replace(div);
+            const fresh = row(r);
+            div.parentNode && div.parentNode.replaceChild(fresh, div);
           } catch (e) { alert(e.message); }
         };
-        const replace = (newDiv) => div.parentNode.replaceChild(newDiv, div);
         div.querySelector('[data-act="confirm"]')?.addEventListener('click', () => send('confirmee'));
         div.querySelector('[data-act="refuse"]')?.addEventListener('click', () => send('refusee'));
         return div;
       }
-      function row2(r) { return row(r); }
       function refresh() {
         listEl.innerHTML = '';
         if (!list.length) {
