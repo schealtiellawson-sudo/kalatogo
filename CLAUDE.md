@@ -2,6 +2,92 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI
+
+### 🔴 5 actions manuelles que le user (Schealtiel) doit faire AVANT lancement 8 juin (~2h total)
+
+```
+☐ 1. Générer VAPID keys + add Vercel env (push notifications)         (5 min)
+☐ 2. Régénérer Supabase PAT + Gemini API key (sécurité credentials)    (5 min)
+☐ 3. Test inscription end-to-end 4 personas                             (30 min)
+☐ 4. Remplacer numéro WhatsApp placeholder +22890000000                 (2 min)
+☐ 5. Déclaration APDP Togo + Bénin (RGPD local légal)                   (1-2h)
+```
+
+### Détail action 1 — VAPID keys (push notifications PWA)
+```bash
+cd /Users/schealtiellawson/Documents/04\ -\ WOLO\ MARKET/Projet/wolomarket/repo
+npx web-push generate-vapid-keys
+vercel env add VAPID_PUBLIC_KEY production
+vercel env add VAPID_PRIVATE_KEY production
+vercel deploy --prod --yes
+```
+Sans ça, push notifs tombent en silence (mais Boîte Fondateur + email Resend continuent à fonctionner).
+
+### Détail action 2 — Régénérer credentials exposés en chat
+- 🔗 https://supabase.com/dashboard/account/tokens → revoke ancien + nouveau
+- 🔗 https://aistudio.google.com/app/apikey → delete + créer + `vercel env rm/add GEMINI_API_KEY production`
+
+### Détail action 3 — Tests E2E 4 personas (à faire ensemble next session)
+Pour chaque persona, créer compte sur https://wolomarket.vercel.app/ et vérifier :
+- ✅ Bloc Statut adapté au métier apparaît à l'inscription
+- ✅ Message Schealtiel apparaît dans dashboard "Mon activité" dès J+0
+- ✅ Pas d'erreur JS console (F12 → Console)
+
+| Persona | Métier | Quartier | Statut à choisir |
+|---|---|---|---|
+| Mariam | Coiffeuse | Bè (Lomé) | Apprentie |
+| Kodjo | Mécanicien moto | Akpakpa (Cotonou) | Patron de garage |
+| Akossiwa | Photographe | Lomé | Freelance débutant |
+| Madame Adjo | Restaurant | Cotonou | Patronne |
+
+Vérifier aussi :
+- Recruteur publie offre → candidat postule → IA score → CSV export → entretien
+- Client cherche prestataire → réserve table / demande devis chantier → message Boîte Fondateur arrive au pro
+
+### Détail action 4 — Numéro WhatsApp placeholder
+Dans `repo/index.html` chercher `22890000000` (placeholder du bouton "Parler à Schealtiel"). Remplacer par vrai numéro WhatsApp Business + `git push` + redeploy.
+
+### Détail action 5 — APDP
+- Togo : https://apdp.gouv.tg/
+- Bénin : https://apdp.bj/
+
+### 🟠 Actions optionnelles (peuvent attendre post-lancement)
+- ☐ Activer Meta WhatsApp Cloud API (vrai push WhatsApp — sinon Boîte Fondateur seule)
+- ☐ MoU partenariat ONG (Bluemind / Heal by Hair / ProEmploi) — risque concurrentiel V2
+- ☐ Domaine custom wolomarket.com → pointer vers Vercel
+- ☐ Comptes social media + Make.com automation
+- ☐ Sauvegarder rapports stratégiques (3 .md du dossier parent) dans `repo/docs/` pour git-track
+
+### 📊 État au 29 avril 2026 (fin session)
+
+**Code en prod (https://wolomarket.vercel.app)** :
+- Dernier deploy : `db5a400` Ready
+- 4 commits poussés ce jour : `f0761b9`, `1c5f3ba`, `2580dc3`, `db5a400`
+- Migration Airtable→Supabase **code livré** (helpers + 6 fonctions refactorées avec fallback)
+- PWA + push notifications **prêts** (manque VAPID keys env)
+- Monitoring + alerting **opérationnel**
+- Dashboard recruteur UX final (CSV + tri IA + filtres avancés)
+- Top Mains + Battle Bénin vs Togo **publics**
+- Système Statut socio-économique 60+ métiers AOC
+- Boîte du Fondateur (157 templates / 35 séquences)
+- Widgets métier (9 verticales auto-injectées)
+
+**DB Supabase prod** :
+- 50+ tables wolo_*, ai_cache, push_subscriptions, errors_log, etc.
+- 157 templates WhatsApp/Inbox seedés (8 familles métier × 3-4 statuts)
+- 49 statuts socio-économiques acceptés (constraint élargi)
+
+**Reste à faire en V1.1 (post-lancement)** :
+- ⏳ Page "Mon emploi" employé (audit final inachevé — agent stallé)
+- ⏳ Mécanique tag obligatoire UI raffinée (badge "Mains d'Or" en classement)
+- ⏳ Tests de compétences par métier (V1.1)
+- ⏳ Multi-employeurs (V1.1)
+
+---
+
 ## ✅ SESSION 2026-04-29 — Top Mains les Plus Demandées + Battle Bénin vs Togo (gameplay public viral)
 
 Deux features publiques virales adossées au Mur des Reines.
