@@ -128,6 +128,60 @@
     return v.toLocaleString('fr-FR') + ' FCFA';
   }
 
+  // ============================================================
+  // Upload ImgBB partagé par les widgets (portfolio, devis chantier…).
+  // Convertit chaque File → base64 → POST /api/imgbb-proxy → URL publique.
+  // Retourne { urls: [...], errors: [...] }.
+  // ============================================================
+  function _fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result || '';
+        const idx = String(result).indexOf(',');
+        resolve(idx >= 0 ? String(result).slice(idx + 1) : String(result));
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadPhotos(files, opts = {}) {
+    const max = opts.max || 6;
+    const list = Array.from(files || []).slice(0, max);
+    const urls = [];
+    const errors = [];
+    for (const f of list) {
+      if (!f || !f.type || !f.type.startsWith('image/')) {
+        errors.push({ name: f && f.name, error: 'Fichier non image' });
+        continue;
+      }
+      // Limite de taille : 5 Mo (sinon ImgBB rejette).
+      if (f.size > 5 * 1024 * 1024) {
+        errors.push({ name: f.name, error: 'Trop lourd (>5 Mo)' });
+        continue;
+      }
+      try {
+        const base64 = await _fileToBase64(f);
+        const wFetch = window.woloFetch || fetch;
+        const res = await wFetch('/api/imgbb-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64 }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data && data.success && data.data && data.data.url) {
+          urls.push(data.data.url);
+        } else {
+          errors.push({ name: f.name, error: (data && data.error && data.error.message) || 'Upload échoué' });
+        }
+      } catch (e) {
+        errors.push({ name: f.name, error: e.message || String(e) });
+      }
+    }
+    return { urls, errors };
+  }
+
   window.WoloWidgetsRunner = {
     register,
     injectOnProfile,
@@ -135,5 +189,6 @@
     _api: api,
     _escapeHtml: escapeHtml,
     _fmtFcfa: fmtFcfa,
+    _uploadPhotos: uploadPhotos,
   };
 })();

@@ -11828,13 +11828,19 @@ function renderFondateurInbox() {
   if (messages.length === 0) { block.style.display = 'none'; block.innerHTML = ''; return; }
   block.style.display = 'block';
   const unreadCount = messages.filter(m => !m.read).length;
+  // Trier : non-lus d'abord, puis par date desc.
+  messages.sort((a, b) => {
+    const ar = a.read ? 1 : 0, br = b.read ? 1 : 0;
+    if (ar !== br) return ar - br;
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
   block.innerHTML = `
     <div style="background:linear-gradient(135deg,rgba(232,148,10,0.08) 0%,rgba(232,148,10,0.02) 100%);border:1px solid rgba(232,148,10,0.25);border-radius:16px;padding:18px 20px;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
-        <div style="width:46px;height:46px;border-radius:50%;background:#E8940A;color:#0f1410;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;font-family:'Fraunces',serif;flex-shrink:0;">S</div>
+        <div style="width:46px;height:46px;border-radius:50%;background:#E8940A;color:#0f1410;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;font-family:'Fraunces',serif;flex-shrink:0;">📬</div>
         <div style="flex:1;">
-          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:800;color:#F8F6F1;">📬 Messages de Schealtiel</div>
-          <div style="font-size:12px;color:rgba(248,246,241,0.55);">Fondateur · WOLO Market${unreadCount > 0 ? ` · <span style="color:#E8940A;font-weight:700;">${unreadCount} non-lu${unreadCount > 1 ? 's' : ''}</span>` : ''}</div>
+          <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:800;color:#F8F6F1;">Boîte du Fondateur</div>
+          <div style="font-size:12px;color:rgba(248,246,241,0.55);">Messages de Schealtiel + demandes clients${unreadCount > 0 ? ` · <span style="color:#E8940A;font-weight:700;">${unreadCount} non-lu${unreadCount > 1 ? 's' : ''}</span>` : ''}</div>
         </div>
         <a href="https://wa.me/22890000000?text=${encodeURIComponent("Salut Schealtiel — j'ai vu ton message sur WOLO et je voulais te dire...")}" target="_blank" style="background:#25D366;color:white;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">💬 WhatsApp</a>
       </div>
@@ -11842,13 +11848,17 @@ function renderFondateurInbox() {
         ${messages.map(m => {
           const dateStr = new Date(m.created_at || Date.now()).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
           const unreadDot = !m.read ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#E8940A;margin-right:6px;"></span>' : '';
-          return `<div onclick="markFondateurMessageRead('${m.id}')" style="background:${m.read ? 'rgba(248,246,241,0.04)' : 'rgba(232,148,10,0.08)'};border:1px solid ${m.read ? 'rgba(248,246,241,0.08)' : 'rgba(232,148,10,0.25)'};border-radius:12px;padding:14px 16px;cursor:pointer;">
+          const isDemande = m.type === 'demande_client';
+          const fromTxt = isDemande ? 'Demande client · WOLO Market' : ('— ' + (m.from || 'Schealtiel'));
+          const sectionTarget = (m.action_url && m.action_url.indexOf('section=') >= 0)
+            ? (m.action_url.split('section=')[1] || '').replace(/['"]/g,'') : '';
+          return `<div onclick="_handleFondateurMessageClick('${m.id}','${sectionTarget}')" style="background:${m.read ? 'rgba(248,246,241,0.04)' : 'rgba(232,148,10,0.08)'};border:1px solid ${m.read ? 'rgba(248,246,241,0.08)' : 'rgba(232,148,10,0.25)'};border-radius:12px;padding:14px 16px;cursor:pointer;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
               <div style="font-weight:700;font-size:14px;color:#F8F6F1;">${unreadDot}${(m.title || 'Message').replace(/</g,'&lt;')}</div>
               <div style="font-size:11px;color:rgba(248,246,241,0.45);white-space:nowrap;">${dateStr}</div>
             </div>
             <div style="font-size:13px;line-height:1.65;color:rgba(248,246,241,0.78);white-space:pre-line;">${(m.body || '').replace(/</g,'&lt;')}</div>
-            <div style="margin-top:10px;font-size:11px;color:rgba(232,148,10,0.7);font-style:italic;">— ${(m.from || 'Schealtiel').replace(/</g,'&lt;')}</div>
+            <div style="margin-top:10px;font-size:11px;color:${isDemande ? 'rgba(255,200,80,0.85)' : 'rgba(232,148,10,0.7)'};font-style:italic;">${fromTxt.replace(/</g,'&lt;')}</div>
           </div>`;
         }).join('')}
       </div>
@@ -11876,6 +11886,16 @@ async function markFondateurMessageRead(msgId) {
     renderFondateurInbox();
     updateNotifBadge(window.currentPrestataire.id);
   } catch(e) { console.warn('[mark fondateur read]', e); }
+}
+
+// Click handler unique pour les cartes de la Boîte du Fondateur :
+// - marque le message comme lu
+// - bascule vers la section dashboard liée si action_url=#dashboard?section=...
+function _handleFondateurMessageClick(msgId, sectionTarget) {
+  if (sectionTarget && typeof showDashSection === 'function') {
+    try { showDashSection(sectionTarget); } catch(_) {}
+  }
+  if (typeof markFondateurMessageRead === 'function') markFondateurMessageRead(msgId);
 }
 
 function renderNotifications(recordId) {
@@ -13939,9 +13959,19 @@ let selectedStars = 0;
 let currentAvisPrestataire = null;
 
 async function fetchAvis(prestatairesId) {
+  // Migration progressive : Supabase d'abord, fallback Airtable si quota épuisé
+  if (window.supaAvis && prestatairesId) {
+    try {
+      const records = await window.supaAvis.list({ prestataire_id: prestatairesId, validated: true, limit: 200 });
+      if (records && records.length > 0) {
+        // Récupère également les avis liés via l'ancien airtable_record_id
+        return records;
+      }
+      // Si vide, on tente Airtable au cas où des données legacy ne sont pas migrées
+    } catch (e) { console.warn('[fetchAvis supa fail, fallback Airtable]', e?.message || e); }
+  }
   try {
-    // Airtable ne filtre pas par record ID sur un champ liaison via formule.
-    // On récupère tous les avis visibles et on filtre côté client.
+    // FALLBACK Airtable (compat ancien stockage)
     const visibleFilter = encodeURIComponent(`{Avis visible}=1`);
     const sortParam = `sort%5B0%5D%5Bfield%5D=Date%20de%20l%27avis&sort%5B0%5D%5Bdirection%5D=desc`;
     let allRecords = [];
@@ -13955,7 +13985,6 @@ async function fetchAvis(prestatairesId) {
       if (!data.offset) break;
       offsetParam = `&offset=${data.offset}`;
     }
-    // Filtrer par prestataire ID dans le tableau du champ liaison
     return allRecords.filter(r => (r.fields['Prestataire évalué'] || []).includes(prestatairesId));
   } catch { return []; }
 }
@@ -15290,19 +15319,35 @@ async function loadDashRDV() {
   const container = document.getElementById('rdv-list-container');
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   const now = new Date().toISOString().split('T')[0];
-  const formula = encodeURIComponent(`{Prestataire ID}='${currentPrestataire.id}'`);
-  try {
-    const res = await fetch(`${AT_URL('Rendez-vous')}?filterByFormula=${formula}&sort[0][field]=Date%20RDV&sort[0][direction]=asc&maxRecords=200`, { headers: AT_HEADERS });
-    const data = await res.json();
-    const rdvs = (data.records || []);
-    _allDashRdvs.all = rdvs;
-    _allDashRdvs.upcoming = rdvs.filter(r => r.fields['Date RDV'] >= now && r.fields['Statut'] !== 'Annulé');
-    _allDashRdvs.past = rdvs.filter(r => r.fields['Date RDV'] < now || r.fields['Statut'] === 'Annulé');
-    populateRDVMonthFilter(rdvs);
-    filterAndRenderRDVs();
-  } catch(e) {
-    if (container) container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>${e.message}</p></div>`;
+  // Migration progressive Supabase
+  let rdvs = [];
+  if (window.supaRdv) {
+    try {
+      rdvs = await window.supaRdv.list({ prestataire_id: currentPrestataire.id, limit: 500 });
+    } catch (e) { console.warn('[loadDashRDV supa fail, fallback Airtable]', e?.message || e); }
   }
+  if (!rdvs.length) {
+    try {
+      const formula = encodeURIComponent(`{Prestataire ID}='${currentPrestataire.id}'`);
+      const res = await fetch(`${AT_URL('Rendez-vous')}?filterByFormula=${formula}&sort[0][field]=Date%20RDV&sort[0][direction]=asc&maxRecords=200`, { headers: AT_HEADERS });
+      if (res.ok) {
+        const data = await res.json();
+        rdvs = data.records || [];
+      }
+    } catch(e) {
+      if (container) container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>${e.message}</p></div>`;
+      return;
+    }
+  }
+  // Normaliser le champ "Date RDV" pour compat Supabase (date_rdv) et Airtable
+  rdvs.forEach(r => {
+    if (!r.fields['Date RDV'] && r.fields['Date']) r.fields['Date RDV'] = r.fields['Date'];
+  });
+  _allDashRdvs.all = rdvs;
+  _allDashRdvs.upcoming = rdvs.filter(r => (r.fields['Date RDV']||'') >= now && r.fields['Statut'] !== 'Annulé');
+  _allDashRdvs.past = rdvs.filter(r => (r.fields['Date RDV']||'') < now || r.fields['Statut'] === 'Annulé');
+  populateRDVMonthFilter(rdvs);
+  filterAndRenderRDVs();
 }
 
 function populateRDVMonthFilter(rdvs) {
@@ -17583,22 +17628,41 @@ let _offresPage = 1;
 const _OFFRES_PER_PAGE = 12;
 let _currentOffreId = null;
 
-// ── Charger les offres depuis Airtable ──
+// ── Charger les offres : Supabase d'abord, fallback Airtable ──
 async function loadOffresEmploi(filtres = {}) {
-  const url = AT_URL("Offres d'Emploi");
-  let formula = "AND({Active}=1";
-  if (filtres.metier) formula += `,{Métier}="${filtres.metier}"`;
-  if (filtres.quartier) formula += `,{Quartier}="${filtres.quartier}"`;
-  if (filtres.contrat) formula += `,{Type de contrat}="${filtres.contrat}"`;
-  formula += ")";
-  const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
-  params.append('sort[0][field]', 'Urgente');
-  params.append('sort[0][direction]', 'desc');
-  params.append('sort[1][field]', 'Créée le');
-  params.append('sort[1][direction]', 'desc');
-  const r = await fetch(url + '?' + params, { headers: AT_HEADERS });
-  const data = await r.json();
-  return data.records || [];
+  if (window.supaOffres) {
+    try {
+      const opts = { active: true, limit: 200, orderBy: 'created_at', orderDir: 'desc' };
+      if (filtres.metier) opts.metier = filtres.metier;
+      if (filtres.quartier) opts.quartier = filtres.quartier;
+      const records = await window.supaOffres.list(opts);
+      let filtered = records;
+      if (filtres.contrat) filtered = filtered.filter(r => r.fields['Type de contrat'] === filtres.contrat);
+      filtered.sort((a, b) => {
+        const ua = a.fields['Urgente'] ? 1 : 0;
+        const ub = b.fields['Urgente'] ? 1 : 0;
+        if (ua !== ub) return ub - ua;
+        return new Date(b.createdTime) - new Date(a.createdTime);
+      });
+      if (filtered.length > 0) return filtered;
+    } catch (e) { console.warn('[loadOffresEmploi supa fail, fallback Airtable]', e?.message || e); }
+  }
+  try {
+    const url = AT_URL("Offres d'Emploi");
+    let formula = "AND({Active}=1";
+    if (filtres.metier) formula += `,{Métier}="${filtres.metier}"`;
+    if (filtres.quartier) formula += `,{Quartier}="${filtres.quartier}"`;
+    if (filtres.contrat) formula += `,{Type de contrat}="${filtres.contrat}"`;
+    formula += ")";
+    const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
+    params.append('sort[0][field]', 'Urgente');
+    params.append('sort[0][direction]', 'desc');
+    params.append('sort[1][field]', 'Créée le');
+    params.append('sort[1][direction]', 'desc');
+    const r = await fetch(url + '?' + params, { headers: AT_HEADERS });
+    const data = await r.json();
+    return data.records || [];
+  } catch (e) { return []; }
 }
 
 // ── Rendu d'une carte offre ──
@@ -18193,12 +18257,27 @@ async function submitCandidature() {
   const modal = document.getElementById('modal-candidature');
   const recruteurId = modal.dataset.recruteurId || '';
 
-  // Vérifier si déjà candidaté
-  const checkUrl = AT_URL('Candidatures');
-  const checkParams = new URLSearchParams({ filterByFormula: `AND({Offre ID}="${_currentOffreId}",{Candidat ID}="${currentPrestataire.id}")`, maxRecords: 1 });
-  const checkR = await fetch(checkUrl + '?' + checkParams, { headers: AT_HEADERS });
-  const checkData = await checkR.json();
-  if (checkData.records?.length > 0) {
+  // Vérifier si déjà candidaté (via Supabase d'abord)
+  let alreadyApplied = false;
+  if (window.supaCandidatures) {
+    try {
+      const userId = window.currentUser?.id;
+      if (userId) {
+        const existing = await window.supaCandidatures.list({ candidat_user_id: userId, limit: 50 });
+        alreadyApplied = (existing || []).some(c => (c.fields['Offre ID'] === _currentOffreId) || (c.fields['offre_id'] === _currentOffreId));
+      }
+    } catch (e) { /* fallback Airtable */ }
+  }
+  if (!alreadyApplied) {
+    try {
+      const checkUrl = AT_URL('Candidatures');
+      const checkParams = new URLSearchParams({ filterByFormula: `AND({Offre ID}="${_currentOffreId}",{Candidat ID}="${currentPrestataire.id}")`, maxRecords: 1 });
+      const checkR = await fetch(checkUrl + '?' + checkParams, { headers: AT_HEADERS });
+      const checkData = await checkR.json();
+      if (checkData.records?.length > 0) alreadyApplied = true;
+    } catch (e) { /* tolérant */ }
+  }
+  if (alreadyApplied) {
     errEl.textContent = 'Tu as déjà postulé à cette offre.';
     errEl.style.display = 'block';
     return;
@@ -18208,34 +18287,60 @@ async function submitCandidature() {
   btn.textContent = '⏳ Envoi...';
 
   try {
-    // Récupérer le titre de l'offre
-    const offreR = await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, { headers: AT_HEADERS });
-    const offreData = await offreR.json();
-    const offreTitre = offreData.fields?.['Titre'] || '';
+    // Récupérer le titre de l'offre (Supabase d'abord)
+    let offreTitre = '';
+    let offreRecruteurNom = '';
+    let offreNbCandidatures = 0;
+    if (window.supaOffres) {
+      try {
+        const o = await window.supaOffres.findById(_currentOffreId);
+        if (o) {
+          offreTitre = o.fields['Titre'] || '';
+          offreRecruteurNom = o.fields['Recruteur Nom'] || '';
+          offreNbCandidatures = o.fields['Nb candidatures'] || 0;
+        }
+      } catch (e) { /* fallback */ }
+    }
+    let offreData = { fields: { 'Titre': offreTitre, 'Recruteur Nom': offreRecruteurNom, 'Nb candidatures': offreNbCandidatures } };
+    if (!offreTitre) {
+      const offreR = await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, { headers: AT_HEADERS });
+      offreData = await offreR.json();
+      offreTitre = offreData.fields?.['Titre'] || '';
+    }
 
     const score = calculScoreWolo(currentPrestataire);
     const photo = f['Photo de profil']?.[0]?.url || '';
 
-    const body = {
-      fields: {
-        'Offre ID': _currentOffreId,
-        'Offre Titre': offreTitre,
-        'Candidat ID': currentPrestataire.id,
-        'Candidat Nom': f['Nom complet'] || '',
-        'Candidat Métier': f['Métier principal'] || '',
-        'Candidat WhatsApp': f['WhatsApp'] || f['Numéro de téléphone'] || '',
-        'Candidat Score WOLO': score,
-        'Candidat Photo': photo,
-        'Message': message,
-        'Statut': 'En attente',
-        'Date candidature': new Date().toISOString(),
-        'Recruteur ID': recruteurId,
-        'Recruteur Nom': offreData.fields?.['Recruteur Nom'] || ''
-      }
+    const candidatureFields = {
+      'Offre ID': _currentOffreId,
+      'Offre Titre': offreTitre,
+      'Candidat ID': currentPrestataire.id,
+      'Candidat User ID': window.currentUser?.id,
+      'Candidat Nom': f['Nom complet'] || '',
+      'Candidat Métier': f['Métier principal'] || '',
+      'Candidat WhatsApp': f['WhatsApp'] || f['Numéro de téléphone'] || '',
+      'Candidat Score WOLO': score,
+      'Candidat Photo': photo,
+      'Message': message,
+      'Statut': 'En attente',
+      'Date candidature': new Date().toISOString(),
+      'Recruteur ID': recruteurId,
+      'Recruteur Nom': offreData.fields?.['Recruteur Nom'] || ''
     };
 
-    const r = await fetch(AT_URL('Candidatures'), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify(body) });
-    const data = await r.json();
+    let data = null;
+    // 1. Tenter Supabase
+    if (window.supaCandidatures) {
+      try {
+        const created = await window.supaCandidatures.create(candidatureFields);
+        if (created?.id) data = { id: created.id };
+      } catch (e) { console.warn('[submitCandidature supa fail, fallback Airtable]', e?.message || e); }
+    }
+    // 2. Fallback Airtable
+    if (!data) {
+      const r = await fetch(AT_URL('Candidatures'), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify({ fields: candidatureFields }) });
+      data = await r.json();
+    }
     if (data.id) {
       await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, {
         method: 'PATCH', headers: AT_HEADERS,
@@ -18595,9 +18700,22 @@ async function publierOffre() {
   Object.keys(body.fields).forEach(k => body.fields[k] === undefined && delete body.fields[k]);
 
   try {
-    const r = await fetch(AT_URL("Offres d'Emploi"), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify(body) });
-    const data = await r.json();
-    if (data.id) {
+    let createdId = null;
+    // 1. Tenter Supabase
+    if (window.supaOffres) {
+      try {
+        const fields = { ...body.fields, 'Recruteur User ID': window.currentUser?.id || undefined };
+        const created = await window.supaOffres.create(fields);
+        if (created?.id) createdId = created.id;
+      } catch (e) { console.warn('[publierOffre supa fail, fallback Airtable]', e?.message || e); }
+    }
+    // 2. Fallback Airtable
+    let data = createdId ? { id: createdId } : null;
+    if (!createdId) {
+      const r = await fetch(AT_URL("Offres d'Emploi"), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify(body) });
+      data = await r.json();
+    }
+    if (data?.id) {
       toast('✅ Offre publiée avec succès !', 'success');
       const _ville = get('job-quartier') || 'ta zone';
       const _confDiv = document.createElement('div');
@@ -18631,12 +18749,25 @@ async function loadMesOffres() {
   const container = document.getElementById('mes-offres-container');
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   try {
-    const params = new URLSearchParams({ filterByFormula: `{Recruteur ID}="${currentPrestataire.id}"`, maxRecords: 50 });
-    params.append('sort[0][field]', 'Créée le');
-    params.append('sort[0][direction]', 'desc');
-    const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
-    const data = await r.json();
-    allMesOffres = data.records || [];
+    let records = [];
+    // 1. Supabase d'abord (par recruteur_user_id ou recruteur_prestataire_id)
+    if (window.supaOffres) {
+      try {
+        const userId = window.currentUser?.id;
+        if (userId) records = await window.supaOffres.list({ recruteur_user_id: userId, limit: 100 });
+        if (!records.length) records = await window.supaOffres.list({ recruteur_prestataire_id: currentPrestataire.id, limit: 100 });
+      } catch (e) { console.warn('[loadMesOffres supa fail, fallback Airtable]', e?.message || e); }
+    }
+    // 2. Fallback Airtable
+    if (!records.length) {
+      const params = new URLSearchParams({ filterByFormula: `{Recruteur ID}="${currentPrestataire.id}"`, maxRecords: 50 });
+      params.append('sort[0][field]', 'Créée le');
+      params.append('sort[0][direction]', 'desc');
+      const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
+      const data = await r.json();
+      records = data.records || [];
+    }
+    allMesOffres = records;
 
     // KPIs
     const total = allMesOffres.length;

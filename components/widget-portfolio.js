@@ -86,7 +86,9 @@
       function openForm(p) {
         const isEdit = !!p && p.id;
         const f = p || {};
-        const photosCsv = Array.isArray(f.photos) ? f.photos.join('\n') : '';
+        const MAX_PHOTOS = 6;
+        // Photos courantes (URLs) — modifiables : on retire / on ajoute via upload ou URLs.
+        const photosState = Array.isArray(f.photos) ? f.photos.slice(0, MAX_PHOTOS) : [];
         const ov = document.createElement('div');
         ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
         ov.innerHTML = `
@@ -98,8 +100,22 @@
             <input id="wpf-cat" value="${esc(f.categorie || '')}" placeholder="Logo, Mariage, Portrait…" style="width:100%;padding:10px;background:#16201a;border:1px solid rgba(232,148,10,.2);border-radius:8px;color:#F8F6F1;margin-bottom:10px;">
             <label style="display:block;font-size:12px;color:rgba(248,246,241,.7);margin-bottom:4px;">Description</label>
             <textarea id="wpf-desc" rows="2" style="width:100%;padding:10px;background:#16201a;border:1px solid rgba(232,148,10,.2);border-radius:8px;color:#F8F6F1;margin-bottom:10px;">${esc(f.description || '')}</textarea>
-            <label style="display:block;font-size:12px;color:rgba(248,246,241,.7);margin-bottom:4px;">URLs photos (1 par ligne, ImgBB)</label>
-            <textarea id="wpf-photos" rows="4" placeholder="https://i.ibb.co/...\nhttps://i.ibb.co/..." style="width:100%;padding:10px;background:#16201a;border:1px solid rgba(232,148,10,.2);border-radius:8px;color:#F8F6F1;margin-bottom:10px;font-family:'Space Mono',monospace;font-size:12px;">${esc(photosCsv)}</textarea>
+
+            <label style="display:block;font-size:12px;color:rgba(248,246,241,.7);margin-bottom:6px;">Photos du projet (max ${MAX_PHOTOS})</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+              <label id="wpf-upload-btn" style="background:#E8940A;color:#0f1410;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+                <span>📷 Téléverser</span>
+                <input id="wpf-file" type="file" accept="image/*" multiple style="display:none;">
+              </label>
+              <button type="button" id="wpf-url-toggle" style="background:none;border:1px solid rgba(248,246,241,.2);color:#F8F6F1;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;">+ URL</button>
+              <span id="wpf-upload-status" style="font-size:11px;color:rgba(248,246,241,.55);"></span>
+            </div>
+            <div id="wpf-thumbs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-bottom:10px;"></div>
+            <div id="wpf-url-row" style="display:none;gap:6px;margin-bottom:10px;">
+              <input id="wpf-url-input" placeholder="https://i.ibb.co/..." style="flex:1;padding:8px;background:#16201a;border:1px solid rgba(232,148,10,.2);border-radius:8px;color:#F8F6F1;font-family:'Space Mono',monospace;font-size:12px;">
+              <button type="button" id="wpf-url-add" style="background:#E8940A;color:#0f1410;border:none;border-radius:8px;padding:0 14px;font-weight:700;cursor:pointer;font-size:12px;">Ajouter</button>
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
               <div>
                 <label style="display:block;font-size:12px;color:rgba(248,246,241,.7);margin-bottom:4px;">Prix indicatif (FCFA)</label>
@@ -116,16 +132,63 @@
             </div>
           </div>`;
         document.body.appendChild(ov);
+
+        const thumbsEl = ov.querySelector('#wpf-thumbs');
+        const statusEl = ov.querySelector('#wpf-upload-status');
+        function renderThumbs() {
+          thumbsEl.innerHTML = photosState.map((url, i) => `
+            <div style="position:relative;aspect-ratio:1/1;background:#000 url('${esc(url)}') center/cover;border-radius:8px;border:1px solid rgba(232,148,10,.25);">
+              <button type="button" data-idx="${i}" class="wpf-thumb-del" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;line-height:1;">×</button>
+            </div>`).join('');
+          thumbsEl.querySelectorAll('.wpf-thumb-del').forEach(b => {
+            b.onclick = () => {
+              const i = parseInt(b.dataset.idx, 10);
+              photosState.splice(i, 1);
+              renderThumbs();
+            };
+          });
+        }
+        renderThumbs();
+
+        // Upload via input file (multiple)
+        ov.querySelector('#wpf-file').addEventListener('change', async (ev) => {
+          const files = ev.target.files;
+          if (!files || !files.length) return;
+          const remaining = MAX_PHOTOS - photosState.length;
+          if (remaining <= 0) { statusEl.textContent = `Limite ${MAX_PHOTOS} atteinte.`; return; }
+          statusEl.textContent = 'Upload en cours…';
+          try {
+            const { urls, errors } = await R._uploadPhotos(files, { max: remaining });
+            urls.forEach(u => photosState.push(u));
+            renderThumbs();
+            if (errors.length) statusEl.textContent = `${urls.length} ajoutée(s), ${errors.length} en erreur.`;
+            else statusEl.textContent = `${urls.length} ajoutée(s).`;
+          } catch (e) { statusEl.textContent = 'Erreur : ' + e.message; }
+          ev.target.value = '';
+        });
+        // Fallback URL : ouvrir / fermer la rangée + ajouter une URL.
+        const urlRow = ov.querySelector('#wpf-url-row');
+        ov.querySelector('#wpf-url-toggle').onclick = () => {
+          urlRow.style.display = (urlRow.style.display === 'flex') ? 'none' : 'flex';
+        };
+        ov.querySelector('#wpf-url-add').onclick = () => {
+          const inp = ov.querySelector('#wpf-url-input');
+          const u = (inp.value || '').trim();
+          if (!u) return;
+          if (photosState.length >= MAX_PHOTOS) { statusEl.textContent = `Limite ${MAX_PHOTOS} atteinte.`; return; }
+          photosState.push(u);
+          inp.value = '';
+          renderThumbs();
+        };
+
         ov.querySelector('#wpf-cancel').onclick = () => ov.remove();
         ov.querySelector('#wpf-save').onclick = async () => {
-          const photosArr = ov.querySelector('#wpf-photos').value
-            .split(/\r?\n/).map(s => s.trim()).filter(Boolean);
           const payload = {
             id: isEdit ? f.id : undefined,
             titre: ov.querySelector('#wpf-titre').value.trim(),
             categorie: ov.querySelector('#wpf-cat').value.trim() || null,
             description: ov.querySelector('#wpf-desc').value.trim() || null,
-            photos: photosArr,
+            photos: photosState.slice(0, MAX_PHOTOS),
             prix_indicatif_fcfa: parseInt(ov.querySelector('#wpf-prix').value, 10) || null,
             date_realisation: ov.querySelector('#wpf-date').value || null,
           };
