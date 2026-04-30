@@ -2,6 +2,116 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ✅ SESSION 2026-04-29 — Notifications Push Web (PWA / VAPID)
+
+Notifications push natives dans le navigateur + sur mobile installé en PWA. Quand un nouveau message inbox est créé (whatsapp-flush → fallback inbox), une notif push est envoyée à toutes les souscriptions du user. Stack 100% gratuite : VAPID + library `web-push` (npm) + Service Worker natif. **Aucun service tiers** (pas de FCM, pas de OneSignal).
+
+### Migration SQL
+- `supabase/migrations/20260429_push_subscriptions.sql` — table `wolo_push_subscriptions` (id, user_id FK auth.users, endpoint UNIQUE, p256dh_key, auth_key, user_agent, created_at, updated_at) + RLS self-only (SELECT/INSERT/UPDATE/DELETE) + trigger updated_at.
+
+### Endpoints (consolidés dans `/api/wolo-pay/[action].js`)
+- `POST push-subscribe` — auth requise, enregistre la souscription du user (upsert sur endpoint).
+- `GET push-vapid-public` — public, retourne la VAPID public key.
+- `POST push-send` — public mais protégé par `CRON_SECRET` header. Sert aux tests manuels. La prod l'appelle via l'export `sendPushToUser()` du module `_impl/push-send.js`.
+
+Module `_impl/push-send.js` : import dynamique de `web-push`, configuration VAPID lazy, parcours des souscriptions du user, supprime auto les endpoints morts (404/410).
+
+### Service Worker (`sw.js` v2)
+Écoute `push` → `showNotification(title, { body, icon, badge, tag, data: { url } })`.
+Écoute `notificationclick` → focus la fenêtre WOLO existante (et navigue vers l'URL data.url) ou en ouvre une nouvelle (`/#dashboard` par défaut).
+
+### Frontend (`index.html`)
+- Card "🔔 Active les notifications" en haut de `ds-notifications` (Activité), affichée via `updatePushCard()` quand l'utilisateur ouvre la section.
+- Fonction globale `enablePushNotifications()` :
+  1. Demande la permission Notification ;
+  2. Récupère la VAPID key via `/api/wolo-pay/push-vapid-public` ;
+  3. `pushManager.subscribe({ userVisibleOnly: true, applicationServerKey })` ;
+  4. POST sur `/api/wolo-pay/push-subscribe` avec le JWT Supabase via `woloFetch()`.
+- Auto-prompt 1× après login (`_maybeAutoPromptPush`) → toast discret 6s après ouverture, suggère la card. Pas de popup natif intempestif.
+
+### Hook côté serveur
+`_impl/whatsapp-flush.js` appelle `sendPushToUser()` quand un message tombe dans l'inbox du fondateur (fallback inbox). Best-effort, ne bloque pas le flush en cas d'échec push. La VAPID private key reste serveur uniquement (jamais frontend).
+
+### Variables d'env Vercel à ajouter (CRITIQUE pour activer la feature)
+- `VAPID_PUBLIC_KEY`
+- `VAPID_PRIVATE_KEY`
+- `VAPID_SUBJECT` (optionnel, défaut `mailto:contact@wolomarket.com`)
+
+Génération :
+```bash
+npx web-push generate-vapid-keys
+# → copier publicKey + privateKey dans Vercel env (Production + Preview)
+```
+
+Sans ces clés, `push-vapid-public` retourne 503 et `sendPushToUser` retourne `{ sent: 0 }` silencieusement (pas d'erreur, le flux inbox/email continue).
+
+### Dépendance npm ajoutée
+`package.json` : `"web-push": "^3.6.7"`. Vercel installe automatiquement au build. Pas d'augmentation du nombre de fonctions Vercel (tout consolidé dans le router `[action].js`).
+
+### Pré-requis prod
+1. Appliquer `20260429_push_subscriptions.sql` sur Supabase prod (Management API ou SQL Editor).
+2. Générer + ajouter `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` dans Vercel env (Production + Preview).
+3. `npm install` local pour MAJ `package-lock.json` avant push (Vercel build le fera de toute façon).
+4. Redeploy Vercel.
+
+### Test manuel
+1. Ouvrir https://wolomarket.com → login → dashboard → "Mon activité".
+2. Cliquer "Activer" sur la card or 🔔 → permission navigateur → souscription enregistrée.
+3. POST `/api/wolo-pay/push-send` avec header `X-Cron-Secret: <CRON_SECRET>` et body `{"user_id":"<uuid>","title":"Test","body":"Hello"}` → notification visible immédiatement (même app fermée si PWA installée).
+4. Sur Chrome desktop : `chrome://settings/content/notifications` pour révoquer/diagnostiquer.
+
+### TODO V1.1 / V1.2
+- Sur iOS : Web Push ne fonctionne **que** si l'utilisateur a installé la PWA via "Ajouter à l'écran d'accueil" (Safari 16.4+). Communiquer ça dans la card si user iOS détecté.
+- Hook les autres événements vers push : `notifyCandidatStatut`, `notifyCandidatEntretien`, nouveaux likes/commentaires importants.
+- Rate-limit côté serveur (max 5 push / user / heure pour éviter le spam si bug ailleurs).
+- Toggle fin "Quels types de notifications recevoir" dans Préférences.
+
+---
+
+## ✅ SESSION 2026-04-29 — Dashboard Recruteur : Polish UX final (Sprints A→F++)
+
+Polish UX final livré sur la section `ds-recrut-candidatures` (lignes ~7674-7790) avant lancement.
+
+### Ajouts UI (HTML)
+Nouvelle 2ᵉ rangée de filtres juste sous la barre existante (offre / statut / quartier / recherche) :
+
+- `recrut-cand-filter-age` — Tranche d'âge : 18-25 / 26-35 / 36-45 / 45+
+- `recrut-cand-filter-exp` — Expérience : Junior (0-2) / Confirmé (3-5) / Senior (5+)
+- `recrut-cand-filter-distance` — Distance candidat ↔ offre : <2 km / 2-5 km / >5 km / Même quartier
+- `recrut-cand-sort` — Tri : Récent (défaut) / 🤖 Score IA ↓↑ / ⚡ Score WOLO ↓ / Plus ancien
+- Bouton `↺ Reset` pour vider tous les filtres + tri
+
+Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté de "🤖 Scorer en lot".
+
+### Ajouts JS (~ligne 18505)
+- `recrutCandSort` (état tri courant) + `recrutCandFiltered` (cache du dernier rendu, source de l'export)
+- `_woloAiScoreFor(c)` — lit le champ `Score IA` / `score_ia` persisté, fallback cache local `window.woloAi.getCachedScore`
+- `_woloAgeFromDateNaissance(dateIso)` — calcul d'âge précis
+- `_WOLO_QUARTIER_COORDS` + `_woloDistanceQuartiers(qA, qB)` — distance haversine entre quartiers Lomé / Cotonou (~30 quartiers couverts)
+- `_sortRecrutCandidatures(list, mode)` — applique le tri demandé, gère les nulls IA (renvoyés en fin)
+- `setRecrutCandSort(mode)` / `resetRecrutFilters()` — handlers UI
+- `_saveRecrutFilters()` / `_restoreRecrutFilters()` — persistance localStorage sous la clé `wolo_recrut_filters_<user_id>` (offre, statut, quartier, search, age, exp, distance, sort, view)
+- `_csvEscape(v)` + `exportCandidaturesCSV()` — export du tableau filtré, BOM UTF-8 pour Excel, fichier `candidatures-recues-YYYY-MM-DD.csv`, colonnes : Date · Nom · Métier · Quartier · Score WOLO · Score IA · Statut · Offre · WhatsApp
+
+### Câblage
+- `loadCandidaturesRecues()` appelle `_restoreRecrutFilters()` avant le fetch pour restaurer la session précédente
+- `filterRecrutCandidatures()` applique les 3 nouveaux filtres + le tri, alimente `recrutCandFiltered`, sauvegarde l'état
+- `setRecrutCandView()` sauvegarde le mode grille/tableau
+
+### Champs Airtable lus (Candidatures)
+- `Candidat Date naissance` (ou `Candidat Date de naissance` en fallback)
+- `Candidat Années expérience` (avec fallbacks `Candidat Annees experience`, `Candidat Experience`)
+- `Candidat Quartier` + `Offre Quartier` (ou `Quartier Offre`, `Quartier`)
+- `Score IA` / `score_ia` + cache `window.woloAi`
+- Existants : `Candidat Nom/Métier/Score WOLO/Photo/WhatsApp/ID`, `Offre ID/Titre`, `Statut`, `Date candidature`
+
+### Tests rapides
+1. **Export CSV** : ouvrir `ds-recrut-candidatures`, appliquer un filtre, cliquer ⤓ Export CSV → fichier téléchargé avec virgules + accents corrects.
+2. **Tri Score IA** : cliquer "🤖 Scorer en lot" puis dropdown Tri → Score IA ↓ → les cards remontent par score décroissant ; les non-scorés vont en fin.
+3. **Filtres avancés** : sélectionner Tranche d'âge 26-35 + Expérience Confirmé + Distance <2 km combinés → KPI fixes mais le compteur "X candidatures" descend.
+4. **Persistance** : changer filtres + tri, recharger la page, revenir sur la section → filtres restaurés.
+5. **Reset** : cliquer ↺ Reset → tous les filtres se vident, tri = Récent.
+
 ## 🚧 SESSION 2026-04-28 — Refonte Mur des Reines + suppression King & Queen
 
 ### Ce qui a été livré aujourd'hui (en code, NON committé)

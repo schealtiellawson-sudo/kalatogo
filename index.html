@@ -6049,6 +6049,17 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <h2>🔔 Mon activité</h2>
           <p>Messages du fondateur, likes, commentaires et vues sur ton profil</p>
         </div>
+        <!-- Activation notifications push (PWA) -->
+        <div id="wolo-push-card" style="display:none;margin-bottom:18px;background:linear-gradient(135deg,#0f1410 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,0.35);border-radius:14px;padding:16px 18px;color:#F8F6F1;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <div style="font-size:30px;line-height:1;">🔔</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:800;margin-bottom:4px;">Active les notifications</div>
+              <div id="wolo-push-status" style="font-size:13px;line-height:1.55;color:rgba(248,246,241,0.72);">Reçois les messages de Schealtiel sur ton téléphone — même quand l'app est fermée.</div>
+            </div>
+            <button id="wolo-push-btn" type="button" onclick="enablePushNotifications()" style="background:#E8940A;color:#0f1410;border:none;padding:10px 16px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;">Activer</button>
+          </div>
+        </div>
         <!-- Boîte du Fondateur (messages de Schealtiel) -->
         <div id="fondateur-inbox-block" style="display:none;margin-bottom:24px;"></div>
         <div id="notifs-list">
@@ -7707,7 +7718,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
 
         <!-- SPRINT B : FILTRES AVANCÉS -->
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center;">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center;">
           <select id="recrut-cand-filter-offre" onchange="filterRecrutCandidatures()" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;flex:1;min-width:160px;max-width:260px;cursor:pointer;outline:none;">
             <option value="">Toutes les offres</option>
           </select>
@@ -7724,10 +7735,43 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <input type="text" id="recrut-cand-search" oninput="filterRecrutCandidatures()" placeholder="Rechercher nom, métier..." style="flex:1;min-width:160px;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;outline:none;">
         </div>
 
-        <!-- SPRINT C : VUE TOGGLE + COMPTEUR + SCORING BATCH -->
+        <!-- SPRINT B+ : FILTRES AVANCÉS (âge, expérience, distance) + TRI -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center;">
+          <select id="recrut-cand-filter-age" onchange="filterRecrutCandidatures()" title="Tranche d'âge candidat" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;cursor:pointer;outline:none;">
+            <option value="">Tous les âges</option>
+            <option value="18-25">18 – 25 ans</option>
+            <option value="26-35">26 – 35 ans</option>
+            <option value="36-45">36 – 45 ans</option>
+            <option value="45+">45 ans et +</option>
+          </select>
+          <select id="recrut-cand-filter-exp" onchange="filterRecrutCandidatures()" title="Expérience candidat" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;cursor:pointer;outline:none;">
+            <option value="">Toute expérience</option>
+            <option value="junior">Junior (0 – 2 ans)</option>
+            <option value="confirme">Confirmé (3 – 5 ans)</option>
+            <option value="senior">Senior (5 ans et +)</option>
+          </select>
+          <select id="recrut-cand-filter-distance" onchange="filterRecrutCandidatures()" title="Distance candidat / lieu de l'offre" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#F8F6F1;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;cursor:pointer;outline:none;">
+            <option value="">Toutes distances</option>
+            <option value="lt2">Moins de 2 km</option>
+            <option value="2to5">2 – 5 km</option>
+            <option value="gt5">Plus de 5 km</option>
+            <option value="same">Même quartier</option>
+          </select>
+          <select id="recrut-cand-sort" onchange="setRecrutCandSort(this.value)" title="Trier les candidatures" style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);color:#E8940A;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Poppins,sans-serif;cursor:pointer;outline:none;font-weight:700;">
+            <option value="recent">↓ Récent (défaut)</option>
+            <option value="ai_desc">🤖 Score IA décroissant</option>
+            <option value="ai_asc">🤖 Score IA croissant</option>
+            <option value="wolo_desc">⚡ Score WOLO décroissant</option>
+            <option value="ancien">↑ Plus ancien</option>
+          </select>
+          <button onclick="resetRecrutFilters()" title="Réinitialiser tous les filtres" style="padding:9px 12px;border-radius:10px;border:1px solid rgba(248,246,241,.15);background:transparent;color:rgba(248,246,241,.6);font-size:12px;font-family:Poppins,sans-serif;cursor:pointer;">↺ Reset</button>
+        </div>
+
+        <!-- SPRINT C : VUE TOGGLE + COMPTEUR + SCORING BATCH + EXPORT CSV -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
           <div id="recrut-cand-count" style="font-family:'Space Mono',monospace;font-size:11px;color:rgba(248,246,241,.4);text-transform:uppercase;letter-spacing:1px;">0 candidatures</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button id="recrut-export-csv" onclick="exportCandidaturesCSV()" title="Exporter les candidatures filtrées en CSV" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.12);color:#22c55e;font-size:12px;font-weight:700;font-family:Poppins,sans-serif;cursor:pointer;">⤓ Export CSV</button>
             <button id="recrut-batch-score" onclick="batchScoreCandidatures()" title="Calcule le score IA pour les candidatures non scorées (max 5)" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(168,85,247,.3);background:rgba(168,85,247,.12);color:#c084fc;font-size:12px;font-weight:700;font-family:Poppins,sans-serif;cursor:pointer;">🤖 Scorer en lot</button>
             <button id="recrut-view-grid" onclick="setRecrutCandView('grid')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.15);background:#E8940A;color:#0f1410;font-size:12px;font-weight:700;font-family:Poppins,sans-serif;cursor:pointer;">◻ Grille</button>
             <button id="recrut-view-table" onclick="setRecrutCandView('table')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.15);background:rgba(255,255,255,.06);color:#F8F6F1;font-size:12px;font-family:Poppins,sans-serif;cursor:pointer;">☰ Liste</button>
@@ -7785,6 +7829,7 @@ async function initAuth() {
     window.currentUser = currentUser;
     await loadCurrentPrestataire();
     updateNavAuth(true);
+    try { _maybeAutoPromptPush(); } catch (e) {}
   }
   // Restaurer la page APRÈS avoir chargé la session (currentUser est déjà défini)
   _restorePageFromURL();
@@ -8147,7 +8192,7 @@ function showDashSection(section) {
   if (section === 'abonnement') { injectSprint6Upgrade(); loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
   if (section === 'parrainage') loadParrainage();
-  if (section === 'notifications' && currentPrestataire?.id) renderNotifications(currentPrestataire.id);
+  if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} }
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
   if (section === 'fil') loadFil();
@@ -9916,6 +9961,179 @@ async function woloFetch(url, opts = {}) {
 }
 
 // ══════════════════════════════════════════
+// NOTIFICATIONS PUSH WEB (PWA / VAPID)
+// ══════════════════════════════════════════
+// VAPID public key vient de /api/wolo-pay/push-vapid-public.
+// Service Worker /sw.js gère l'événement 'push' + 'notificationclick'.
+// Souscription stockée côté serveur dans wolo_push_subscriptions.
+
+function _urlBase64ToUint8Array(b64) {
+  var padding = '='.repeat((4 - b64.length % 4) % 4);
+  var base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+  var raw = window.atob(base64);
+  var arr = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+async function _woloGetVapidKey() {
+  try {
+    const r = await fetch('/api/wolo-pay/push-vapid-public');
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j?.publicKey || null;
+  } catch (e) { return null; }
+}
+
+function _woloPushSupported() {
+  return typeof window !== 'undefined'
+    && 'serviceWorker' in navigator
+    && 'PushManager' in window
+    && 'Notification' in window;
+}
+
+async function updatePushCard() {
+  // Affiche/cache la card "Activer notifications" selon état navigateur + abonnement
+  var card = document.getElementById('wolo-push-card');
+  var btn = document.getElementById('wolo-push-btn');
+  var status = document.getElementById('wolo-push-status');
+  if (!card || !btn || !status) return;
+  if (!_woloPushSupported()) {
+    card.style.display = 'block';
+    btn.style.display = 'none';
+    status.textContent = "Ton navigateur ne supporte pas les notifications push. Installe l'app pour recevoir les messages.";
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    card.style.display = 'block';
+    btn.style.display = 'none';
+    status.innerHTML = "Notifications bloquées. Active-les dans les <strong>réglages du navigateur</strong> (icône à gauche de la barre d'adresse).";
+    return;
+  }
+  try {
+    var reg = await navigator.serviceWorker.ready;
+    var sub = await reg.pushManager.getSubscription();
+    if (sub && Notification.permission === 'granted') {
+      card.style.display = 'block';
+      btn.textContent = 'Activées ✓';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.style.cursor = 'default';
+      status.textContent = "Tu reçois les messages de Schealtiel directement sur ton téléphone.";
+      return;
+    }
+  } catch (e) { /* continue, propose activation */ }
+  card.style.display = 'block';
+  btn.style.display = 'inline-block';
+  btn.disabled = false;
+  btn.textContent = 'Activer';
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
+  status.textContent = "Reçois les messages de Schealtiel sur ton téléphone — même quand l'app est fermée.";
+}
+
+async function enablePushNotifications() {
+  var btn = document.getElementById('wolo-push-btn');
+  var status = document.getElementById('wolo-push-status');
+  function setStatus(msg) { if (status) status.textContent = msg; }
+
+  if (!_woloPushSupported()) {
+    setStatus("Ton navigateur ne supporte pas les notifications push.");
+    return false;
+  }
+  if (!window.currentUser) {
+    setStatus("Connecte-toi d'abord pour activer les notifications.");
+    return false;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    // 1. Permission
+    var perm = Notification.permission;
+    if (perm === 'default') perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      setStatus("Permission refusée. Tu peux la réactiver dans les réglages du navigateur.");
+      if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
+      return false;
+    }
+
+    // 2. Service Worker prêt
+    var reg = await navigator.serviceWorker.ready;
+
+    // 3. VAPID public key
+    var vapidPub = await _woloGetVapidKey();
+    if (!vapidPub) {
+      setStatus("Service push non disponible côté serveur (clé VAPID manquante).");
+      if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
+      return false;
+    }
+
+    // 4. Souscrire (ou réutiliser souscription existante)
+    var sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: _urlBase64ToUint8Array(vapidPub),
+      });
+    }
+
+    // 5. Envoyer au backend
+    var r = await woloFetch('/api/wolo-pay/push-subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscription: sub.toJSON ? sub.toJSON() : sub,
+        userAgent: navigator.userAgent || '',
+      }),
+    });
+    if (!r.ok) {
+      var t = await r.text().catch(() => '');
+      console.warn('[push-subscribe]', r.status, t);
+      setStatus("Erreur enregistrement souscription. Réessaie dans un instant.");
+      if (btn) { btn.disabled = false; btn.textContent = 'Réessayer'; }
+      return false;
+    }
+
+    try { localStorage.setItem('wolo_push_enabled', '1'); } catch (e) {}
+    setStatus("Notifications activées. Tu recevras les messages de Schealtiel sur ce téléphone.");
+    if (btn) { btn.textContent = 'Activées ✓'; btn.style.opacity = '0.7'; btn.style.cursor = 'default'; }
+    if (typeof toast === 'function') toast('🔔 Notifications activées');
+    return true;
+  } catch (err) {
+    console.warn('[enablePush]', err);
+    setStatus("Erreur : " + (err?.message || err));
+    if (btn) { btn.disabled = false; btn.textContent = 'Réessayer'; }
+    return false;
+  }
+}
+
+// Auto-prompt léger 1× après inscription complète (J+0).
+// Ne s'auto-déclenche que si user authentifié + jamais activé + jamais refusé navigateur.
+function _maybeAutoPromptPush() {
+  try {
+    if (!_woloPushSupported()) return;
+    if (!window.currentUser) return;
+    var prompted = false;
+    try { prompted = localStorage.getItem('wolo_push_prompted') === '1'; } catch(e){}
+    if (prompted) return;
+    if (Notification.permission !== 'default') return;
+    // Délai 6s après ouverture dashboard pour laisser le user respirer
+    setTimeout(function () {
+      var card = document.getElementById('wolo-push-card');
+      // Affiche la card visuellement même si on n'est pas sur la section Activité
+      try { localStorage.setItem('wolo_push_prompted', '1'); } catch(e){}
+      // On préfère un toast discret avec CTA plutôt qu'un popup natif d'emblée
+      if (typeof toast === 'function') {
+        toast("🔔 Active les notifications dans 'Mon activité' pour recevoir les messages du fondateur.");
+      }
+    }, 6000);
+  } catch (e) { /* silent */ }
+}
+
+window.enablePushNotifications = enablePushNotifications;
+window.updatePushCard = updatePushCard;
+
+// ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
 const _seoPageMeta = {
@@ -9954,7 +10172,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents','battle'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
@@ -9974,6 +10192,7 @@ function showPage(page, _fromPop) {
     setTimeout(() => loadFounderCounter(), 500);
   }
   if (page === 'recompenses') loadPageRecompenses();
+  if (page === 'battle') loadBattlePage();
   if (page === 'awards') loadPageAwards();
   if (page === 'awards-profil') { /* loaded via showAwardsProfil */ }
   if (page === 'match') { try { initWoloMatch(); } catch(e){ console.warn('match init', e); } }
@@ -11588,14 +11807,16 @@ function updateNotifBadge(recordId) {
   }
 }
 
-// ══ BOÎTE DU FONDATEUR — Messages de Schealtiel ══
+// ══ BOÎTE DU FONDATEUR — Messages de Schealtiel + demandes clients ══
 function _getFondateurMessages() {
   const raw = window.currentPrestataire?.fields?.['Notifications'];
   if (!raw) return [];
   let arr = [];
   try { arr = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch(e) { return []; }
   if (!Array.isArray(arr)) return [];
-  return arr.filter(m => m && m.type === 'message_fondateur');
+  // Affiche les messages de Schealtiel ET les demandes clients pushées
+  // par les endpoints widgets (réservations, devis, commandes, RDV…).
+  return arr.filter(m => m && (m.type === 'message_fondateur' || m.type === 'demande_client'));
 }
 
 function renderFondateurInbox() {
@@ -15791,6 +16012,9 @@ async function loadPageRecompenses() {
   const ctaPro = document.getElementById('recomp-cta-pro');
   if (ctaPro) ctaPro.style.display = isBase ? 'block' : 'none';
 
+  // Section Top Mains les Plus Demandées (publique)
+  try { loadTopMains(); } catch(e) { console.warn('[topmains init]', e); }
+
   try {
     // Charger le statut si connecté Pro
     if (currentUser?.id && !isBase) {
@@ -18469,6 +18693,61 @@ async function supprimerOffre(offreId, titrte) {
 // ── Dashboard Recruteur : état global ──
 let allRecrutCandidatures = [];
 let recrutCandView = 'grid';
+let recrutCandSort = 'recent'; // recent | ai_desc | ai_asc | wolo_desc | ancien
+let recrutCandFiltered = []; // dernier set affiché (utilisé par exportCandidaturesCSV)
+
+// ── Coordonnées approximatives quartiers Lomé / Cotonou (lat, lon) ──
+// Pour calcul de distance entre quartier candidat et quartier offre
+const _WOLO_QUARTIER_COORDS = {
+  // Lomé
+  'Adidogome': [6.1656, 1.1856], 'Agbalépédogan': [6.1700, 1.2333], 'Agoè': [6.2000, 1.2167],
+  'Agoé-Nyivé': [6.2000, 1.2167], 'Akodessewa': [6.1500, 1.2667], 'Bè': [6.1333, 1.2500],
+  'Cacavéli': [6.2167, 1.2167], 'Doumassessé': [6.1833, 1.2167], 'Gbényédzi': [6.1833, 1.2333],
+  'Hédzranawoé': [6.1833, 1.2167], 'Kégué': [6.1833, 1.2000], 'Kodjoviakopé': [6.1333, 1.2000],
+  'Lomé II': [6.1500, 1.2167], 'Nyékonakpoè': [6.1500, 1.2167], 'Tokoin': [6.1500, 1.2167],
+  'Totsi': [6.2167, 1.1833], 'Avenou': [6.1667, 1.2333], 'Adidoadin': [6.1667, 1.1833],
+  // Cotonou
+  'Akpakpa': [6.3667, 2.4333], 'Cadjehoun': [6.3500, 2.4000], 'Cocotomey': [6.4000, 2.3500],
+  'Dantokpa': [6.3667, 2.4333], 'Fidjrossè': [6.3500, 2.3833], 'Gbégamey': [6.3667, 2.4000],
+  'Godomey': [6.4000, 2.3500], 'Houéyiho': [6.3500, 2.4000], 'Jéricho': [6.3500, 2.4000],
+  'Ladji': [6.3833, 2.4333], 'Menontin': [6.3667, 2.4000], 'Saint-Michel': [6.3500, 2.4167],
+  'Sainte-Rita': [6.3500, 2.4167], 'Vodjè': [6.3500, 2.4000], 'Zogbo': [6.3500, 2.4000],
+  'Calavi': [6.4500, 2.3500], 'Aïdjèdo': [6.3667, 2.4500], 'Pk3': [6.3833, 2.4167],
+  'Pk10': [6.4167, 2.4000]
+};
+
+function _woloDistanceQuartiers(qA, qB) {
+  if (!qA || !qB) return null;
+  if (qA === qB) return 0;
+  const a = _WOLO_QUARTIER_COORDS[qA]; const b = _WOLO_QUARTIER_COORDS[qB];
+  if (!a || !b) return null;
+  const toRad = d => d * Math.PI / 180;
+  const R = 6371; // km
+  const dLat = toRad(b[0] - a[0]); const dLon = toRad(b[1] - a[1]);
+  const lat1 = toRad(a[0]); const lat2 = toRad(b[0]);
+  const x = Math.sin(dLat/2)**2 + Math.sin(dLon/2)**2 * Math.cos(lat1) * Math.cos(lat2);
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+}
+
+function _woloAgeFromDateNaissance(dateIso) {
+  if (!dateIso) return null;
+  const d = new Date(dateIso);
+  if (isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age;
+}
+
+function _woloAiScoreFor(c) {
+  // Score IA : prioriser le champ persisté `Score IA` / `score_ia`, sinon cache local
+  const f = c.fields || {};
+  const persisted = f['Score IA'] ?? f['score_ia'] ?? null;
+  if (persisted != null && persisted !== '') return Number(persisted);
+  const cached = window.woloAi?.getCachedScore?.(c.id);
+  return cached?.score ?? null;
+}
 
 // ── Dashboard : Candidatures reçues (version enrichie) ──
 async function loadCandidaturesRecues() {
@@ -18483,6 +18762,8 @@ async function loadCandidaturesRecues() {
     return;
   }
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  // Restaure les filtres + tri persistés AVANT le fetch (le dropdown offre sera complété ensuite)
+  _restoreRecrutFilters();
   try {
     const formula = `{Recruteur ID}="${currentPrestataire.id}"`;
     const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
@@ -18548,8 +18829,11 @@ function filterRecrutCandidatures() {
   const statut   = document.getElementById('recrut-cand-filter-statut')?.value  || '';
   const quartier = document.getElementById('recrut-cand-filter-quartier')?.value || '';
   const search   = (document.getElementById('recrut-cand-search')?.value || '').toLowerCase().trim();
+  const ageBand  = document.getElementById('recrut-cand-filter-age')?.value || '';
+  const expBand  = document.getElementById('recrut-cand-filter-exp')?.value || '';
+  const distBand = document.getElementById('recrut-cand-filter-distance')?.value || '';
 
-  const filtered = allRecrutCandidatures.filter(c => {
+  let filtered = allRecrutCandidatures.filter(c => {
     const f = c.fields;
     if (offre    && f['Offre ID']          !== offre)    return false;
     if (statut   && (f['Statut'] || 'En attente') !== statut)  return false;
@@ -18562,13 +18846,200 @@ function filterRecrutCandidatures() {
       ].join(' ').toLowerCase();
       if (!haystack.includes(search)) return false;
     }
+    // Tranche d'âge (depuis Candidat Date naissance)
+    if (ageBand) {
+      const age = _woloAgeFromDateNaissance(f['Candidat Date naissance'] || f['Candidat Date de naissance']);
+      if (age == null) return false;
+      if (ageBand === '18-25' && !(age >= 18 && age <= 25)) return false;
+      if (ageBand === '26-35' && !(age >= 26 && age <= 35)) return false;
+      if (ageBand === '36-45' && !(age >= 36 && age <= 45)) return false;
+      if (ageBand === '45+'   && !(age > 45))               return false;
+    }
+    // Expérience (depuis Candidat Années expérience)
+    if (expBand) {
+      const exp = Number(f['Candidat Années expérience'] ?? f['Candidat Annees experience'] ?? f['Candidat Experience'] ?? NaN);
+      if (!Number.isFinite(exp)) return false;
+      if (expBand === 'junior'   && !(exp <= 2)) return false;
+      if (expBand === 'confirme' && !(exp >= 3 && exp <= 5)) return false;
+      if (expBand === 'senior'   && !(exp > 5))  return false;
+    }
+    // Distance candidat <-> quartier de l'offre
+    if (distBand) {
+      const qCand  = f['Candidat Quartier'];
+      const qOffre = f['Offre Quartier'] || f['Quartier Offre'] || f['Quartier'];
+      if (!qCand || !qOffre) return false;
+      if (distBand === 'same') {
+        if (qCand !== qOffre) return false;
+      } else {
+        const km = _woloDistanceQuartiers(qCand, qOffre);
+        if (km == null) return false;
+        if (distBand === 'lt2'  && !(km < 2))                return false;
+        if (distBand === '2to5' && !(km >= 2 && km <= 5))    return false;
+        if (distBand === 'gt5'  && !(km > 5))                return false;
+      }
+    }
     return true;
   });
+
+  // Tri
+  filtered = _sortRecrutCandidatures(filtered, recrutCandSort);
+
+  recrutCandFiltered = filtered;
 
   const countEl = document.getElementById('recrut-cand-count');
   if (countEl) countEl.textContent = filtered.length + ' candidature' + (filtered.length !== 1 ? 's' : '');
 
+  // Persiste l'état
+  _saveRecrutFilters();
+
   renderRecrutCandidatures(filtered);
+}
+
+function _sortRecrutCandidatures(list, mode) {
+  const arr = list.slice();
+  const dateOf = c => {
+    const d = c.fields?.['Date candidature'];
+    return d ? new Date(d).getTime() : 0;
+  };
+  switch (mode) {
+    case 'ai_desc':
+      arr.sort((a,b) => {
+        const sa = _woloAiScoreFor(a); const sb = _woloAiScoreFor(b);
+        if (sa == null && sb == null) return dateOf(b) - dateOf(a);
+        if (sa == null) return 1;
+        if (sb == null) return -1;
+        return sb - sa;
+      });
+      break;
+    case 'ai_asc':
+      arr.sort((a,b) => {
+        const sa = _woloAiScoreFor(a); const sb = _woloAiScoreFor(b);
+        if (sa == null && sb == null) return dateOf(b) - dateOf(a);
+        if (sa == null) return 1;
+        if (sb == null) return -1;
+        return sa - sb;
+      });
+      break;
+    case 'wolo_desc':
+      arr.sort((a,b) => (Number(b.fields?.['Candidat Score WOLO']||0)) - (Number(a.fields?.['Candidat Score WOLO']||0)));
+      break;
+    case 'ancien':
+      arr.sort((a,b) => dateOf(a) - dateOf(b));
+      break;
+    case 'recent':
+    default:
+      arr.sort((a,b) => dateOf(b) - dateOf(a));
+  }
+  return arr;
+}
+
+function setRecrutCandSort(mode) {
+  recrutCandSort = mode || 'recent';
+  filterRecrutCandidatures();
+}
+
+function resetRecrutFilters() {
+  ['recrut-cand-filter-offre','recrut-cand-filter-statut','recrut-cand-filter-quartier',
+   'recrut-cand-filter-age','recrut-cand-filter-exp','recrut-cand-filter-distance'
+  ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const search = document.getElementById('recrut-cand-search'); if (search) search.value = '';
+  const sortEl = document.getElementById('recrut-cand-sort'); if (sortEl) sortEl.value = 'recent';
+  recrutCandSort = 'recent';
+  filterRecrutCandidatures();
+}
+
+// ── Persistance localStorage des filtres + tri ──
+function _recrutFiltersKey() {
+  const uid = (typeof currentUser !== 'undefined' && currentUser?.id)
+    ? currentUser.id
+    : (currentPrestataire?.id || 'anon');
+  return 'wolo_recrut_filters_' + uid;
+}
+
+function _saveRecrutFilters() {
+  try {
+    const state = {
+      offre:    document.getElementById('recrut-cand-filter-offre')?.value    || '',
+      statut:   document.getElementById('recrut-cand-filter-statut')?.value   || '',
+      quartier: document.getElementById('recrut-cand-filter-quartier')?.value || '',
+      search:   document.getElementById('recrut-cand-search')?.value          || '',
+      age:      document.getElementById('recrut-cand-filter-age')?.value      || '',
+      exp:      document.getElementById('recrut-cand-filter-exp')?.value      || '',
+      distance: document.getElementById('recrut-cand-filter-distance')?.value || '',
+      sort:     recrutCandSort,
+      view:     recrutCandView
+    };
+    localStorage.setItem(_recrutFiltersKey(), JSON.stringify(state));
+  } catch (e) { /* localStorage indispo, on ignore */ }
+}
+
+function _restoreRecrutFilters() {
+  try {
+    const raw = localStorage.getItem(_recrutFiltersKey());
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+    set('recrut-cand-filter-statut',   s.statut);
+    set('recrut-cand-filter-quartier', s.quartier);
+    set('recrut-cand-search',          s.search);
+    set('recrut-cand-filter-age',      s.age);
+    set('recrut-cand-filter-exp',      s.exp);
+    set('recrut-cand-filter-distance', s.distance);
+    set('recrut-cand-sort',            s.sort);
+    // Note : l'offre est repeuplée dynamiquement, on tente aussi mais elle peut être vide
+    set('recrut-cand-filter-offre',    s.offre);
+    if (s.sort) recrutCandSort = s.sort;
+    if (s.view) recrutCandView = s.view;
+  } catch (e) { /* JSON cassé, on ignore */ }
+}
+
+// ── Export CSV des candidatures filtrées ──
+function _csvEscape(v) {
+  if (v == null) return '';
+  const s = String(v);
+  if (/[",\n;\r]/.test(s)) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function exportCandidaturesCSV() {
+  const list = Array.isArray(recrutCandFiltered) && recrutCandFiltered.length
+    ? recrutCandFiltered
+    : (allRecrutCandidatures || []);
+  if (!list.length) {
+    if (typeof toast === 'function') toast('Aucune candidature à exporter', 'info');
+    return;
+  }
+  const headers = ['Date','Nom','Métier','Quartier','Score WOLO','Score IA','Statut','Offre','WhatsApp'];
+  const rows = list.map(c => {
+    const f = c.fields || {};
+    const dateRaw = f['Date candidature'];
+    const date = dateRaw ? new Date(dateRaw).toLocaleDateString('fr-FR') : '';
+    const aiScore = _woloAiScoreFor(c);
+    return [
+      date,
+      f['Candidat Nom'] || '',
+      f['Candidat Métier'] || '',
+      f['Candidat Quartier'] || '',
+      f['Candidat Score WOLO'] ?? '',
+      aiScore ?? '',
+      f['Statut'] || 'En attente',
+      f['Offre Titre'] || '',
+      f['Candidat WhatsApp'] || ''
+    ].map(_csvEscape).join(',');
+  });
+  // BOM UTF-8 pour Excel
+  const csv = '﻿' + headers.map(_csvEscape).join(',') + '\n' + rows.join('\n');
+  const today = new Date().toISOString().slice(0,10);
+  const filename = 'candidatures-recues-' + today + '.csv';
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  if (typeof toast === 'function') toast(list.length + ' candidature' + (list.length>1?'s':'') + ' exportée' + (list.length>1?'s':''), 'success');
 }
 
 function renderRecrutCandidatures(cands) {
@@ -18814,6 +19285,7 @@ function setRecrutCandView(view) {
   const inactiveStyle = 'background:transparent;color:rgba(248,246,241,.5);border:1px solid rgba(248,246,241,.15);';
   if (btnGrid)  btnGrid.style.cssText  = (view === 'grid'  ? activeStyle : inactiveStyle) + 'padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
   if (btnTable) btnTable.style.cssText = (view === 'table' ? activeStyle : inactiveStyle) + 'padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
+  _saveRecrutFilters();
   filterRecrutCandidatures();
 }
 
@@ -20599,6 +21071,40 @@ loadSchealtielPhoto();
     </div>
 
 
+    <!-- Section Top Mains les Plus Demandées -->
+    <div id="recomp-top-mains" style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:28px 24px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <span style="font-size:32px">🙌</span>
+        <div>
+          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">Top Mains les Plus Demandées</h2>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">CLASSEMENT MENSUEL · TAGUÉES PAR LES REINES</p>
+        </div>
+      </div>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Chaque photo postée sur Le Mur des Reines tag la coiffeuse ou la couturière qui a fait le travail. Plus tu es taguée, plus tu remontes. <strong>Sans piston. Ton talent parle.</strong></p>
+
+      <!-- Filtres -->
+      <div id="topmains-filters" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;align-items:center">
+        <div style="display:inline-flex;background:rgba(255,255,255,.04);border-radius:100px;padding:4px;gap:4px">
+          <button class="tm-cat-btn" data-cat="coiffure" style="background:#E8940A;color:#0f1410;border:none;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">✂️ Coiffure</button>
+          <button class="tm-cat-btn" data-cat="couture" style="background:transparent;color:#F8F6F1;border:none;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">👗 Couture</button>
+        </div>
+        <div style="display:inline-flex;background:rgba(255,255,255,.04);border-radius:100px;padding:4px;gap:4px;margin-left:auto">
+          <button class="tm-pays-btn" data-pays="" style="background:#E8940A;color:#0f1410;border:none;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Tous</button>
+          <button class="tm-pays-btn" data-pays="BJ" style="background:transparent;color:#F8F6F1;border:none;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🇧🇯 Bénin</button>
+          <button class="tm-pays-btn" data-pays="TG" style="background:transparent;color:#F8F6F1;border:none;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🇹🇬 Togo</button>
+        </div>
+      </div>
+
+      <!-- Podium top 3 -->
+      <div id="topmains-podium" style="margin-bottom:18px"></div>
+
+      <!-- Liste 4-10 -->
+      <div id="topmains-list"></div>
+
+      <!-- État vide -->
+      <div id="topmains-empty" style="display:none;text-align:center;padding:30px 16px;color:rgba(248,246,241,.55);font-size:14px">Pas encore de classement ce mois-ci. Les photos arrivent.</div>
+    </div>
+
     <!-- Section Finale Annuelle Décembre -->
     <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:28px 24px;margin-bottom:24px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
@@ -20632,6 +21138,39 @@ loadSchealtielPhoto();
       <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Réservé aux membres Pro</h3>
       <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px">Passe au Plan Pro pour participer aux récompenses mensuelles.</p>
       <button onclick="showPage('dashboard');setTimeout(()=>showDashSection('abonnement'),300)" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Passer au Pro — 2 500 FCFA/mois →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ PAGE BATTLE — Bénin vs Togo (publique virale) ══ -->
+<div id="page-battle" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;color:#F8F6F1;">
+  <div style="max-width:980px;margin:0 auto;padding:32px 16px;">
+
+    <!-- Header dramatique -->
+    <div style="text-align:center;padding:30px 0 24px">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:14px">CHAQUE MOIS · MISE À JOUR EN DIRECT</div>
+      <h1 style="font-family:Fraunces,serif;font-style:italic;font-size:clamp(34px,7vw,64px);font-weight:900;color:#F8F6F1;margin:0 0 10px;line-height:1.05">🇧🇯 BÉNIN <span style="color:#E8940A">vs</span> TOGO 🇹🇬</h1>
+      <p style="font-size:15px;color:rgba(248,246,241,.65);max-width:560px;margin:0 auto;line-height:1.6">Les talents s'affrontent. Les pays comptent les points. <strong style="color:#E8940A">Sans piston. Ton talent parle.</strong></p>
+      <div id="battle-leader-banner" style="margin-top:18px;font-family:'Space Mono',monospace;font-size:13px;color:#F8F6F1;letter-spacing:1px"></div>
+    </div>
+
+    <!-- 2 cards côte-à-côte -->
+    <div id="battle-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px"></div>
+
+    <!-- Bouton partage WhatsApp viral -->
+    <div style="text-align:center;margin:8px 0 28px">
+      <button id="battle-share-btn" onclick="shareBattleWhatsApp()" style="background:#25D366;color:#fff;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(37,211,102,.25)">📲 Partager sur WhatsApp</button>
+      <button onclick="loadBattlePage()" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:14px 22px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:8px">↻ Actualiser</button>
+    </div>
+
+    <!-- Top villes par pays -->
+    <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0 0 16px;text-align:center">Top 5 villes par pays</h2>
+    <div id="battle-villes" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:30px"></div>
+
+    <!-- Footer brand -->
+    <div style="text-align:center;padding:24px 0;color:rgba(248,246,241,.4);font-size:12px;font-family:'Space Mono',monospace">
+      Mis à jour automatiquement chaque heure · <span id="battle-updated-at"></span>
     </div>
   </div>
 </div>
@@ -26157,6 +26696,11 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 
 <!-- ═════ Migration Supabase Prestataires ═════ -->
 <script src="components/supa-prest.js"></script>
+<!-- Migration Airtable→Supabase : Offres Emploi + Candidatures + Avis + RDV (V1.1 — 2026-04-29) -->
+<script src="components/supa-offres.js"></script>
+<script src="components/supa-candidatures.js"></script>
+<script src="components/supa-avis.js"></script>
+<script src="components/supa-rdv.js"></script>
 
 <!-- ═════ Mapping métier → statuts socio-économiques (V1.1 — 2026-04-29) ═════ -->
 <script src="components/metier-statuts-config.js"></script>

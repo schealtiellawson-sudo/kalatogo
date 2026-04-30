@@ -13,6 +13,7 @@
 // Sécurité : si CRON_SECRET défini, doit être passé en header X-Cron-Secret.
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
+import { sendPushToUser } from './push-send.js';
 
 const BATCH = 30;
 
@@ -231,6 +232,20 @@ export default async function handler(req, res) {
           if (inbox?.ok) {
             inboxed++;
             provider = 'inbox';
+            // 4c.bis. Push web (PWA) — best-effort, ne bloque pas
+            try {
+              const title = inferTitle(m.template_key, finalContent);
+              const previewBody = String(finalContent || '').slice(0, 180);
+              await sendPushToUser(m.user_id, {
+                title,
+                body: previewBody,
+                url: 'https://wolomarket.com/#dashboard',
+                tag: 'fondateur-' + m.template_key,
+                data: { template_key: m.template_key },
+              });
+            } catch (pushErr) {
+              console.warn('[whatsapp-flush] push fail', pushErr?.message);
+            }
             // Email en doublon (premiers messages = milestones critiques pour réveiller)
             const isMilestone = ['A1_bienvenue','A4_concours','PED1_parrainage_40pct','PED3_recompenses','PED8_recap'].includes(m.template_key);
             if (isMilestone && inbox.email) {
@@ -264,6 +279,16 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('[whatsapp-flush]', err);
+    // Log dans wolo_errors_log pour remonter dans l'agrégat monitoring
+    try {
+      await supabase.from('wolo_errors_log').insert({
+        source: 'cron',
+        error_msg: String(err.message || err).slice(0, 1000),
+        stack: String(err.stack || '').slice(0, 4000),
+        url: '/api/wolo-pay/whatsapp-flush',
+        context: { handler: 'whatsapp-flush' },
+      });
+    } catch (_) { /* silencieux : on n'aggrave pas */ }
     return res.status(500).json({ error: 'Erreur interne', detail: err.message });
   }
 }

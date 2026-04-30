@@ -49,6 +49,10 @@ import whatsappEnqueue from './_impl/whatsapp-enqueue.js';
 import whatsappFlush from './_impl/whatsapp-flush.js';
 // Mains les Plus Demandées — stats des pros taguées
 import feedTagStats from './_impl/feed-tag-stats.js';
+// Top Mains les Plus Demandées (classement public mensuel)
+import topMainsList from './_impl/top-mains-list.js';
+// Battle Bénin vs Togo (scoreboard public viral)
+import battleScore from './_impl/battle-score.js';
 // Widgets métier (2026-04-27) — prestations / portfolio / résa table / devis chantier
 import prestationList from './_impl/prestation-list.js';
 import prestationUpsert from './_impl/prestation-upsert.js';
@@ -78,6 +82,14 @@ import reservationChambreUpdate from './_impl/reservation-chambre-update.js';
 import coursOffresList from './_impl/cours-offres-list.js';
 import coursOffresUpsert from './_impl/cours-offres-upsert.js';
 import coursOffresDelete from './_impl/cours-offres-delete.js';
+// Notifications push web (PWA — VAPID)
+import pushSubscribe from './_impl/push-subscribe.js';
+import pushSend from './_impl/push-send.js';
+import pushVapidPublic from './_impl/push-vapid-public.js';
+// Monitoring (2026-04-29)
+import errorReport from './_impl/error-report.js';
+import healthCheck from './_impl/health-check.js';
+import healthMetrics from './_impl/health-metrics.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -95,6 +107,8 @@ const PUBLIC_ACTIONS = new Set([
   'theme-mois',
   'whatsapp-flush',           // protégé par CRON_SECRET header
   'feed-tag-stats',           // public (visible sur profil pro)
+  'top-mains-list',           // public (page Top Mains les Plus Demandées)
+  'battle-score',             // public (page Bénin vs Togo)
   // Widgets métier — catalogues lisibles par tous + create de demandes ouvert
   'prestation-list',
   'portfolio-list',
@@ -105,6 +119,15 @@ const PUBLIC_ACTIONS = new Set([
   'commande-patisserie-create',
   'reservation-chambre-create',
   'cours-offres-list',
+  // Notifications push : VAPID public key lisible par tous
+  'push-vapid-public',
+  // push-send protégé par CRON_SECRET (vérifié dans le handler lui-même)
+  'push-send',
+  // Monitoring : log d'erreur frontend (rate-limit IP) + health check public
+  'error-report',
+  'health-check',
+  // health-metrics protégé par CRON_SECRET (vérifié dans le handler)
+  'health-metrics',
 ]);
 
 // Public mais on tente de récupérer le user authentifié si présent
@@ -156,6 +179,8 @@ const handlers = {
   'whatsapp-enqueue': whatsappEnqueue,
   'whatsapp-flush': whatsappFlush,
   'feed-tag-stats': feedTagStats,
+  'top-mains-list': topMainsList,
+  'battle-score': battleScore,
   // Widgets métier
   'prestation-list': prestationList,
   'prestation-upsert': prestationUpsert,
@@ -185,6 +210,14 @@ const handlers = {
   'cours-offres-list': coursOffresList,
   'cours-offres-upsert': coursOffresUpsert,
   'cours-offres-delete': coursOffresDelete,
+  // Notifications push (PWA — VAPID)
+  'push-subscribe': pushSubscribe,
+  'push-send': pushSend,
+  'push-vapid-public': pushVapidPublic,
+  // Monitoring (2026-04-29)
+  'error-report':   errorReport,
+  'health-check':   healthCheck,
+  'health-metrics': healthMetrics,
 };
 
 export default async function handler(req, res) {

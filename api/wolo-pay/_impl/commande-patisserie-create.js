@@ -1,4 +1,6 @@
 import { pick, insertPublic } from '../../_lib/widgets-helpers.js';
+import { supabase } from '../../_lib/supabase.js';
+import { notifyPro } from '../../_lib/notify-pro.js';
 const FIELDS = [
   'pro_user_id','client_nom','client_telephone','type_produit','saveurs',
   'nb_personnes','message_personnalise','photo_inspiration','date_evenement',
@@ -13,5 +15,7 @@ export default async function handler(req, res) {
   if (req.authenticatedUser?.user_id) payload.client_user_id = req.authenticatedUser.user_id;
   const data = await insertPublic('wolo_commande_patisserie', payload, res);
   if (!data) return;
+  try { await notifyPro(supabase, payload.pro_user_id, 'commande_patisserie', payload); }
+  catch (e) { console.warn('[commande-patisserie-create] notifyPro failed:', e.message); }
   return res.status(200).json({ commande: data });
 }
