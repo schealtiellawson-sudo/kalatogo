@@ -4,16 +4,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-04-30)
 
-### 🔴 5 actions manuelles que le user (Schealtiel) doit faire AVANT lancement 8 juin (~2h total)
+### 🔴 Inscription — EN COURS DE FIX (reprendre ici en priorité)
+
+**Commits pushés en session 2026-04-30 :**
+- `9eee635` — Migration `20260430_fix_auth_trigger.sql` appliquée via Supabase SQL Editor ✅ + auto-signIn dans submitInscription
+- `2f97289` — Fix cas "already registered" dans auto-signIn
+
+**Action manuelle EN ATTENTE (critique) :**
+→ Supabase Dashboard > projet Wolo > **Authentication > Settings > Email** > désactiver **"Confirm email"** > Save
+→ SANS ça le signUp retourne session=null et supaPrest.create() peut encore échouer
+
+**Quand on reprend :**
+1. Vérifier que "Confirm email" est OFF dans Supabase Auth Settings
+2. Tester inscription complète (nouvel email) sur wolomarket.vercel.app
+3. Vérifier profil créé dans Supabase > Table Editor > `wolo_prestataires`
+4. Tester login avec le compte créé → dashboard doit s'ouvrir
+
+**Erreurs résolues en session :**
+- "Database error saving new user" : trigger handle_new_auth_user() résilient (EXCEPTION blocks par INSERT)
+- "PUBLIC_API_BILLING_LIMIT_EXCEEDED" : auto-signIn force session avant insert Supabase → élimine fallback Airtable
+
+---
+
+### 🔴 Actions manuelles avant lancement 8 juin
 
 ```
-☐ 1. Générer VAPID keys + add Vercel env (push notifications)         (5 min)
-☐ 2. Régénérer Supabase PAT + Gemini API key (sécurité credentials)    (5 min)
-☐ 3. Test inscription end-to-end 4 personas                             (30 min)
-☐ 4. Remplacer numéro WhatsApp placeholder +22890000000                 (2 min)
-☐ 5. Déclaration APDP Togo + Bénin (RGPD local légal)                   (1-2h)
+✅ 0. Migration 20260430_fix_auth_trigger.sql appliquée dans Supabase SQL Editor
+⏳ 1. Désactiver "Confirm email" dans Supabase Auth Settings             (2 min)
+⏳ 2. Générer VAPID keys + add Vercel env (push notifications)           (5 min)
+⏳ 3. Régénérer Supabase PAT + Gemini API key (sécurité credentials)     (5 min)
+⏳ 4. Test inscription end-to-end 4 personas (BLOQÉ jusqu'au fix email)  (30 min)
+⏳ 5. Remplacer numéro WhatsApp placeholder +22890000000                  (2 min)
+⏳ 6. Déclaration APDP Togo + Bénin (RGPD local légal)                   (1-2h)
 ```
 
 ### Détail action 1 — VAPID keys (push notifications PWA)
