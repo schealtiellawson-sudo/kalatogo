@@ -14526,13 +14526,15 @@ async function submitInscription(e) {
       return;
     }
 
-    // Si email confirmation activée → session null → forcer signIn pour activer auth.uid()
-    if (!authData?.session && !authError) {
+    // Si email confirmation activée OU email déjà enregistré → session null → forcer signIn
+    const alreadyRegistered = authError?.message?.includes('already registered');
+    if (!authData?.session || alreadyRegistered) {
       setStep('Connexion automatique…');
       const { data: signInData, error: signInErr } = await supa.auth.signInWithPassword({ email, password: motDePasse });
       if (!signInErr && signInData?.session) {
+        if (!authData) authData = {};
         authData.session = signInData.session;
-        if (signInData.user) authData.user = signInData.user;
+        authData.user = signInData.user;
       }
     }
 
