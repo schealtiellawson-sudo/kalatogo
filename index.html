@@ -14526,6 +14526,16 @@ async function submitInscription(e) {
       return;
     }
 
+    // Si email confirmation activée → session null → forcer signIn pour activer auth.uid()
+    if (!authData?.session && !authError) {
+      setStep('Connexion automatique…');
+      const { data: signInData, error: signInErr } = await supa.auth.signInWithPassword({ email, password: motDePasse });
+      if (!signInErr && signInData?.session) {
+        authData.session = signInData.session;
+        if (signInData.user) authData.user = signInData.user;
+      }
+    }
+
     // Upload photo profil
     const profilFile = window._inscCroppedFiles['upload-profil'] || document.getElementById('upload-profil').files[0];
     let profilUrl = null;
