@@ -2,6 +2,53 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ✅ SESSION 2026-04-29 — Top Mains les Plus Demandées + Battle Bénin vs Togo (gameplay public viral)
+
+Deux features publiques virales adossées au Mur des Reines.
+
+### Endpoint `/api/wolo-pay/top-mains-list` (public)
+Classement mensuel des coiffeuses/couturières les plus taguées sur les photos du Mur des Reines.
+- Query : `?categorie=coiffure|couture` `?pays=BJ|TG` `?mois=YYYY-MM` `?limit=10`
+- Source : `feed_photos` (group by `tag_pro_user_id` filtré par `mois` + `categorie` + `video_validee=true`) enrichi par `wolo_prestataires`
+- Renvoie : `{ ok, mois, categorie, pays, pros: [{ user_id, nom, photo_profil, metier, ville, pays, count, rang, emoji }] }` (top 1-3 = 👑🥈🥉, 4+ = ⭐)
+- Implémentation : `api/wolo-pay/_impl/top-mains-list.js`
+
+### Endpoint `/api/wolo-pay/battle-score` (public)
+Scoreboard public Bénin vs Togo agrégé sur le mois courant.
+- Source : `wolo_prestataires` (classement ville → pays), `feed_photos` (mois courant + pays), `duels_photos` (votes attribués au pays de la photo gagnante), `wolo_awards` (gagnantes du mois)
+- Score = `prestataires*1 + photos*3 + votes*1 + gagnantes*50`
+- Renvoie : `{ ok, mois, benin: {...}, togo: {...}, leader: 'BJ'|'TG'|'tie', score_total, updated_at }` + top 5 villes par pays
+- Implémentation : `api/wolo-pay/_impl/battle-score.js`
+
+### Câblage router
+Les 2 endpoints sont importés dans `api/wolo-pay/[action].js` et déclarés dans `PUBLIC_ACTIONS`. Pas de nouveau fichier dans `api/*/` (Vercel Hobby reste à 12/12 functions).
+
+### Page publique `#battle` (page-battle)
+- Header dramatique "🇧🇯 BÉNIN vs TOGO 🇹🇬" + banner leader live
+- 2 cards côte-à-côte (prestataires actifs / photos du Mur / votes / Reines du mois) avec halo or sur le pays leader
+- CTA partage WhatsApp viral : "🇧🇯 BÉNIN MÈNE BÉNIN MÈNE 🇧🇯 sur WOLO Market — viens voter pour ton pays" (texte adaptatif selon leader)
+- Top 5 villes par pays (cards séparées Bénin/Togo)
+- Auto-refresh chaque heure via `setTimeout` + check `page-battle.active`
+- JS : `window.loadBattlePage()`, `window.shareBattleWhatsApp()`, `window._battleData`
+
+### Section "Top Mains les Plus Demandées" sur page Récompenses
+Ajoutée dans `#page-recompenses`, juste après la section Mur des Reines, avant la Finale Annuelle Décembre. Filtres catégorie (coiffure/couture) + pays (Tous/BJ/TG). Podium top 3 visuel + liste rangs 4-10. Click pro → `goToPro(userId)` (fallback `showProfil` ou `search`).
+- IDs DOM : `#recomp-top-mains` `#topmains-filters` `#topmains-podium` `#topmains-list` `#topmains-empty`
+- JS : `window.loadTopMains()`, `window._topMainsState`, `_tmRefreshButtons()`
+- Auto-déclenché au début de `loadPageRecompenses()`
+
+### Navigation
+- Desktop nav : bouton "🇧🇯 vs 🇹🇬" ajouté entre Récompenses et boutons auth
+- Mobile nav : bouton "🇧🇯 vs 🇹🇬 Battle" ajouté sous Récompenses
+- `publicPages` : `'battle'` ajouté à la liste
+- `showPage` : `if (page === 'battle') loadBattlePage();`
+
+### URLs
+- `https://wolomarket.com/#battle` — page publique Battle
+- `https://wolomarket.com/#recompenses` (section Top Mains intégrée)
+- `https://wolomarket.com/api/wolo-pay/top-mains-list?categorie=coiffure&pays=BJ&limit=10`
+- `https://wolomarket.com/api/wolo-pay/battle-score`
+
 ## ✅ SESSION 2026-04-29 — Notifications Push Web (PWA / VAPID)
 
 Notifications push natives dans le navigateur + sur mobile installé en PWA. Quand un nouveau message inbox est créé (whatsapp-flush → fallback inbox), une notif push est envoyée à toutes les souscriptions du user. Stack 100% gratuite : VAPID + library `web-push` (npm) + Service Worker natif. **Aucun service tiers** (pas de FCM, pas de OneSignal).

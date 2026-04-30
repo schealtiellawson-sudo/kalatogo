@@ -3866,6 +3866,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <button class="nav-link" data-nav="search" onclick="showPage('search')">Trouver un pro</button>
       <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOLO Jobs</button>
       <button class="nav-link" data-nav="recompenses" onclick="showPage('recompenses')">🏆 Récompenses</button>
+      <button class="nav-link" data-nav="battle" onclick="showPage('battle')">🇧🇯 vs 🇹🇬</button>
       <!-- Boutons non connecté -->
       <div id="nav-guest" style="display:flex;align-items:center;gap:6px;">
         <button class="nav-link btn btn-ghost btn-sm" onclick="showPage('login')">Se connecter</button>
@@ -3927,6 +3928,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
     <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 WOLO Jobs</button>
     <button onclick="showPage('recompenses');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏆 Récompenses</button>
+    <button onclick="showPage('battle');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🇧🇯 vs 🇹🇬 Battle</button>
     <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 </div>
@@ -16080,6 +16082,251 @@ async function loadPageRecompenses() {
     }
 
   } catch(e) { console.warn('[page recompenses]', e); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TOP MAINS LES PLUS DEMANDÉES — section publique sur Récompenses
+// ════════════════════════════════════════════════════════════════
+window._topMainsState = { categorie: 'coiffure', pays: '' };
+
+function _tmEscape(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function loadTopMains() {
+  const host = document.getElementById('recomp-top-mains');
+  if (!host) return;
+
+  // Bind boutons
+  host.querySelectorAll('.tm-cat-btn').forEach(btn => {
+    btn.onclick = () => {
+      window._topMainsState.categorie = btn.dataset.cat;
+      _tmRefreshButtons();
+      loadTopMains();
+    };
+  });
+  host.querySelectorAll('.tm-pays-btn').forEach(btn => {
+    btn.onclick = () => {
+      window._topMainsState.pays = btn.dataset.pays || '';
+      _tmRefreshButtons();
+      loadTopMains();
+    };
+  });
+  _tmRefreshButtons();
+
+  const podiumEl = document.getElementById('topmains-podium');
+  const listEl = document.getElementById('topmains-list');
+  const emptyEl = document.getElementById('topmains-empty');
+  if (!podiumEl || !listEl || !emptyEl) return;
+
+  podiumEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(248,246,241,.4);font-size:13px">Chargement…</div>';
+  listEl.innerHTML = '';
+  emptyEl.style.display = 'none';
+
+  const { categorie, pays } = window._topMainsState;
+  const params = new URLSearchParams({ categorie, limit: '10' });
+  if (pays) params.set('pays', pays);
+
+  try {
+    const fn = window.woloFetch || fetch;
+    const r = await fn(`/api/wolo-pay/top-mains-list?${params.toString()}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Erreur');
+
+    const pros = d.pros || [];
+    if (pros.length === 0) {
+      podiumEl.innerHTML = '';
+      listEl.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+
+    const top3 = pros.slice(0, 3);
+    const rest = pros.slice(3, 10);
+
+    // Podium top 3
+    podiumEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(${top3.length},1fr);gap:10px">
+        ${top3.map(p => `
+          <div onclick="goToPro('${_tmEscape(p.user_id)}')" style="cursor:pointer;background:linear-gradient(180deg,rgba(232,148,10,.12),rgba(232,148,10,.02));border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:18px 12px;text-align:center;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="font-size:28px;line-height:1">${p.emoji}</div>
+            <div style="margin:8px auto;width:64px;height:64px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #E8940A">
+              ${p.photo_profil ? `<img src="${_tmEscape(p.photo_profil)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">` : '<span style="font-size:24px">👤</span>'}
+            </div>
+            <div style="font-family:Fraunces,serif;font-weight:900;font-size:14px;color:#F8F6F1;margin-bottom:2px">${_tmEscape(p.nom)}</div>
+            <div style="font-size:11px;color:rgba(248,246,241,.45)">${_tmEscape(p.metier)}${p.ville ? ' · ' + _tmEscape(p.ville) : ''}</div>
+            <div style="margin-top:10px;font-family:'Space Mono',monospace;font-size:18px;font-weight:800;color:#E8940A">${p.count}</div>
+            <div style="font-size:10px;color:rgba(248,246,241,.45);font-family:'Space Mono',monospace;letter-spacing:1px">TAG${p.count > 1 ? 'S' : ''} CE MOIS</div>
+          </div>
+        `).join('')}
+      </div>`;
+
+    // Liste 4-10
+    if (rest.length > 0) {
+      listEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+          ${rest.map(p => `
+            <div onclick="goToPro('${_tmEscape(p.user_id)}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 14px;transition:background .15s" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+              <div style="font-family:'Space Mono',monospace;font-size:14px;font-weight:800;color:#E8940A;min-width:32px">#${p.rang}</div>
+              <div style="width:42px;height:42px;border-radius:50%;background:rgba(232,148,10,.1);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+                ${p.photo_profil ? `<img src="${_tmEscape(p.photo_profil)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">` : '<span style="font-size:18px">👤</span>'}
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:14px;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_tmEscape(p.nom)} ${p.emoji}</div>
+                <div style="font-size:11px;color:rgba(248,246,241,.45)">${_tmEscape(p.metier)}${p.ville ? ' · ' + _tmEscape(p.ville) : ''}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:800;color:#E8940A">${p.count}</div>
+                <div style="font-size:10px;color:rgba(248,246,241,.4);font-family:'Space Mono',monospace">tag${p.count > 1 ? 's' : ''}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    } else {
+      listEl.innerHTML = '';
+    }
+  } catch (err) {
+    console.warn('[loadTopMains]', err);
+    podiumEl.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(248,246,241,.4);font-size:13px">Erreur de chargement.</div>';
+  }
+}
+
+function _tmRefreshButtons() {
+  const { categorie, pays } = window._topMainsState;
+  document.querySelectorAll('#topmains-filters .tm-cat-btn').forEach(b => {
+    const active = b.dataset.cat === categorie;
+    b.style.background = active ? '#E8940A' : 'transparent';
+    b.style.color = active ? '#0f1410' : '#F8F6F1';
+    b.style.fontWeight = active ? 800 : 700;
+  });
+  document.querySelectorAll('#topmains-filters .tm-pays-btn').forEach(b => {
+    const active = (b.dataset.pays || '') === (pays || '');
+    b.style.background = active ? '#E8940A' : 'transparent';
+    b.style.color = active ? '#0f1410' : '#F8F6F1';
+    b.style.fontWeight = active ? 800 : 700;
+  });
+}
+
+function goToPro(userId) {
+  if (!userId) return;
+  // Ouvre le profil pro (page existante ou search filtré)
+  try {
+    if (typeof showProfil === 'function') return showProfil(userId);
+  } catch(e) {}
+  showPage('search');
+}
+
+// ════════════════════════════════════════════════════════════════
+// BATTLE BÉNIN vs TOGO — page publique virale
+// ════════════════════════════════════════════════════════════════
+window._battleData = null;
+
+async function loadBattlePage() {
+  const cardsEl = document.getElementById('battle-cards');
+  const villesEl = document.getElementById('battle-villes');
+  const leaderEl = document.getElementById('battle-leader-banner');
+  const updatedEl = document.getElementById('battle-updated-at');
+  if (!cardsEl) return;
+
+  cardsEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(248,246,241,.4)">Chargement du score…</div>';
+  if (villesEl) villesEl.innerHTML = '';
+
+  try {
+    const fn = window.woloFetch || fetch;
+    const r = await fn('/api/wolo-pay/battle-score');
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Erreur');
+    window._battleData = d;
+
+    const { benin, togo, leader } = d;
+    const fmt = n => Number(n || 0).toLocaleString('fr-FR');
+
+    // Banner leader
+    if (leaderEl) {
+      if (leader === 'BJ') leaderEl.innerHTML = '<span style="color:#E8940A">🇧🇯 LE BÉNIN MÈNE</span> · ' + fmt(d.score_total.BJ) + ' pts';
+      else if (leader === 'TG') leaderEl.innerHTML = '<span style="color:#E8940A">🇹🇬 LE TOGO MÈNE</span> · ' + fmt(d.score_total.TG) + ' pts';
+      else leaderEl.innerHTML = '⚖️ ÉGALITÉ PARFAITE · ' + fmt(d.score_total.BJ) + ' pts partout';
+    }
+
+    // 2 cards
+    const card = (pays, label, flag, data, isLeader) => `
+      <div style="background:${isLeader ? 'linear-gradient(180deg,rgba(232,148,10,.18),rgba(232,148,10,.02))' : 'rgba(255,255,255,.03)'};border:2px solid ${isLeader ? '#E8940A' : 'rgba(255,255,255,.08)'};border-radius:18px;padding:24px 18px;text-align:center;position:relative">
+        ${isLeader ? '<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#E8940A;color:#0f1410;font-family:&quot;Space Mono&quot;,monospace;font-size:10px;font-weight:800;letter-spacing:1px;padding:4px 12px;border-radius:100px">👑 LEADER</div>' : ''}
+        <div style="font-size:54px;line-height:1;margin-bottom:6px">${flag}</div>
+        <h3 style="font-family:Fraunces,serif;font-weight:900;font-size:24px;color:#F8F6F1;margin:4px 0 14px">${label}</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
+            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.prestataires)}</div>
+            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">PROS ACTIFS</div>
+          </div>
+          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
+            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.photos)}</div>
+            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">PHOTOS DU MUR</div>
+          </div>
+          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
+            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.votes)}</div>
+            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">VOTES ÉMIS</div>
+          </div>
+          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
+            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.gagnantes_mois)}</div>
+            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">REINE${data.gagnantes_mois > 1 ? 'S' : ''} DU MOIS</div>
+          </div>
+        </div>
+      </div>`;
+
+    cardsEl.innerHTML =
+      card('BJ', 'Bénin', '🇧🇯', benin, leader === 'BJ') +
+      card('TG', 'Togo', '🇹🇬', togo, leader === 'TG');
+
+    // Top villes
+    if (villesEl) {
+      const vCard = (label, flag, top) => {
+        const items = (top || []).map((v, i) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:6px">
+            <span style="font-size:13px;color:#F8F6F1"><strong style="color:#E8940A;font-family:'Space Mono',monospace">${i + 1}.</strong> ${_tmEscape(v.ville)}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:13px;color:#E8940A;font-weight:800">${v.count}</span>
+          </div>
+        `).join('') || '<div style="text-align:center;padding:14px;color:rgba(248,246,241,.4);font-size:12px">Pas encore de données</div>';
+        return `
+          <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px">
+            <h3 style="font-family:Fraunces,serif;font-weight:900;font-size:17px;color:#F8F6F1;margin:0 0 12px;text-align:center">${flag} ${label}</h3>
+            ${items}
+          </div>`;
+      };
+      villesEl.innerHTML = vCard('Bénin', '🇧🇯', benin.top_villes) + vCard('Togo', '🇹🇬', togo.top_villes);
+    }
+
+    if (updatedEl) {
+      try { updatedEl.textContent = new Date(d.updated_at).toLocaleString('fr-FR'); }
+      catch(e) { updatedEl.textContent = d.updated_at; }
+    }
+
+    // Auto-refresh chaque heure si on reste sur la page
+    if (window._battleRefreshTimer) clearTimeout(window._battleRefreshTimer);
+    window._battleRefreshTimer = setTimeout(() => {
+      const stillOn = document.getElementById('page-battle');
+      if (stillOn && stillOn.classList.contains('active')) loadBattlePage();
+    }, 60 * 60 * 1000);
+  } catch (err) {
+    console.warn('[loadBattlePage]', err);
+    cardsEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:rgba(248,246,241,.5);font-size:14px">Impossible de charger le score. Réessaie plus tard.</div>';
+  }
+}
+
+function shareBattleWhatsApp() {
+  const d = window._battleData;
+  let txt;
+  if (d && d.leader === 'BJ') {
+    txt = '🇧🇯 BÉNIN MÈNE BÉNIN MÈNE 🇧🇯 sur WOLO Market — viens voter pour ton pays';
+  } else if (d && d.leader === 'TG') {
+    txt = '🇹🇬 TOGO MÈNE TOGO MÈNE 🇹🇬 sur WOLO Market — viens voter pour ton pays';
+  } else {
+    txt = '🇧🇯 BÉNIN vs 🇹🇬 TOGO — qui mène sur WOLO Market ? Viens voter pour ton pays';
+  }
+  const url = (typeof location !== 'undefined' ? location.origin : 'https://wolomarket.com') + '/#battle';
+  const message = txt + '\n' + url;
+  const wa = 'https://wa.me/?text=' + encodeURIComponent(message);
+  window.open(wa, '_blank');
 }
 
 function getLastFridayOfMonth(d) {
