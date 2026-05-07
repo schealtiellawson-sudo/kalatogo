@@ -4,7 +4,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-04-30)
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-07)
+
+### ✅ SESSION 2026-05-07 — Simplification + Sprint sécurité/UX/brand complet
+
+**6 commits poussés ce jour** :
+- `fe7e013` — Simplification MVP : retrait Business Suite Phases B→G (89 lignes nettoyées)
+- `871ee72` — Sidebar splittée Mon emploi / Je recrute + masquage Mes posts
+- `5e544ef` — Sprint 1 vague 1 : sécurité backend + brand purge (Schealtiel/agent/talent)
+- `01c7308` — Sprint 1 vague 2 : ~65 escapeHtml + ID mismatch UUID/recXXX
+- `51b37be` — Sprint 1 vague 3 : migration JS candidatures Airtable→Supabase
+- `b47d082` — Sprint 1 vague 4 : UX fixes Mariam (templates desc, tarif presets, wizard premier pas, race condition init)
+
+**Audits réalisés (3 angles)** :
+- UX friction (avatar Mariam coiffeuse apprentie) : 6.3/10 avant fixes, 8/10 après
+- Code & sécurité : 5.5/10 avant fixes, 7.5/10 après
+- Brand voice : 7/10 avant fixes, 8.5/10 après
+
+**Bugs critiques fixés** :
+- 🔒 S1 — Proxy Airtable auth + whitelist tables (PATCH/DELETE require JWT + email match)
+- 🔒 S2 — XSS stockée dans rendus (escapeHtml partout : offres, candidatures, profil, favoris, abonnements)
+- 🔒 S3 — Migration `20260507_fix_rls_avis_rdv.sql` créée (à appliquer manuellement)
+- 🎨 B1 — "Schealtiel" purgé du DOM public (9 occurrences → "WOLO" / "le fondateur")
+- 🎨 B2 — "agent terrain" purgé (11 occurrences → "Pionniers WOLO")
+- 🎨 B3 — "talent" → "travail" / "pros" (11 occurrences)
+- 📅 Date "4 mai" / "18 mai" → "8 juin 2026" partout
+- 🔄 ID mismatch UUID Supabase vs recXXX Airtable géré (filtres OR + branches conditionnelles)
+- 🔄 loadMesCandidatures, loadCandidaturesRecues, notifyCandidatStatut migrés Supabase + fallback Airtable
+- 🪄 Inscription step 2 : description optionnelle + 16 templates métier, tarif en 5 presets, statut artisan obligatoire pour métiers configurés
+- 🚀 Wizard "Premier pas" dashboard J+0 à J+7 (3 cards : Photos, GPS, Partage WhatsApp)
+- 💬 Toasts génériques "Erreur" → brand voice ("Ça a calé. Réessaie dans 2 secondes.")
+- ⚡ Race condition init scripts fixée : 6 helpers Supabase chargés AVANT bloc inline
+
+---
+
+### 🔴 ACTIONS MANUELLES CRITIQUES AVANT 8 JUIN (ordre prio)
+
+```
+⏳ 1. Désactiver "Confirm email" dans Supabase Auth Settings             (2 min)
+⏳ 2. Appliquer migration 20260507_fix_rls_avis_rdv.sql dans SQL Editor  (3 min)
+⏳ 3. Remplacer +22890000000 par vrai WhatsApp (6 occurrences)           (3 min)
+⏳ 4. Tester proxy Airtable sécurisé (5 curl du récap S1)                (10 min)
+⏳ 5. Générer VAPID keys + add Vercel env                                (5 min)
+⏳ 6. Régénérer Supabase PAT + Gemini API key                            (5 min)
+⏳ 7. Tests E2E 4 personas en prod                                       (30 min)
+⏳ 8. APDP Togo + Bénin                                                  (1-2h)
+```
+
+### 🟠 RESTE À FAIRE (V1.1 post-lancement)
+- 8 majeurs identifiés dans audit code (gating Pro côté serveur, findByEmail lowercase, race condition init partielle, etc.)
+- Frictions UX secondaires (date naissance 3 dropdowns, hero cinématique perf 3G, multi-employeur)
+- signalement.js contextLabel (composant externe)
+- Refactor variable CSS `--vert` → `--or` (cosmétique)
+
+---
 
 ### 🔴 Inscription — EN COURS DE FIX (reprendre ici en priorité)
 
