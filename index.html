@@ -33,6 +33,13 @@
 <!-- Cropper.js v1.6.2 (CORS OK via cdnjs) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<!-- U6 — Helpers Supabase + config statuts métier chargés tôt (avant le bloc <script> inline qui appelle initAuth) pour éviter race condition -->
+<script src="components/supa-prest.js"></script>
+<script src="components/supa-offres.js"></script>
+<script src="components/supa-candidatures.js"></script>
+<script src="components/supa-avis.js"></script>
+<script src="components/supa-rdv.js"></script>
+<script src="components/metier-statuts-config.js"></script>
 <!-- WOLO Business Suite Phases B→G retirées 2026-05-07 — report V1.2 (simplification MVP 8 juin) -->
 <style>
 :root {
@@ -4730,8 +4737,10 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <option value="">Tous les métiers</option>
           <option>Plombier</option><option>Électricien</option><option>Menuisier</option><option>Maçon</option>
           <option>Peintre</option><option>Soudeur</option><option>Mécanicien</option><option>Coiffeur</option>
-          <option>Couturier</option><option>Cuisinier</option><option>Photographe</option><option>Graphiste</option>
-          <option>Développeur web</option><option>Commercial/Agent</option><option>Gardien</option>
+          <option>Couturier</option><option>Cuisinier</option>
+          <option>Photographe</option><option>Vidéaste</option><option>Graphiste</option>
+          <option>Développeur web</option><option>Web/IT</option><option>Community Manager</option>
+          <option>Commercial/Agent</option><option>Gardien</option>
           <option>Chauffeur</option><option>Enseignant/Formateur</option><option>Comptable</option>
           <option>Secrétaire</option><option>Agent de sécurité</option><option>Infirmier</option><option>Autre</option>
         </select>
@@ -5150,14 +5159,20 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <p style="font-size:12px;color:var(--gris);margin-top:10px;">💾 Note bien ces informations quelque part.</p>
       </div>
 
-      <!-- Email confirmation notice -->
-      <div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
+      <!-- U4 — Email confirmation notice (affiché seulement si session non créée immédiatement) -->
+      <div id="post-inscription-verify-email" style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
         <p style="font-weight:700;color:#b45309;margin-bottom:6px;">📬 Vérifie ta boîte mail</p>
         <p style="font-size:14px;color:#92400e;line-height:1.6;">Tu vas recevoir un email de confirmation de la part de WOLO Market. <strong>Clique sur le lien dans cet email</strong> pour activer ton compte et pouvoir te connecter.</p>
         <p style="font-size:12px;color:#b45309;margin-top:8px;">Si tu ne vois pas l'email, vérifie tes spams.</p>
       </div>
 
-      <p style="color:var(--gris);font-size:14px;margin-bottom:24px;">Tu es maintenant visible sur WOLO Market. Les clients de tout le Bénin et du Togo peuvent te trouver dès que ton email est confirmé.</p>
+      <!-- U4 — Bloc affiché si session créée immédiatement (Confirm email désactivé côté Supabase) -->
+      <div id="post-inscription-already-logged" style="display:none;background:rgba(232,148,10,0.08);border:1.5px solid rgba(232,148,10,0.4);border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
+        <p style="font-weight:800;color:#0f1410;margin-bottom:6px;">✅ Compte créé — t'es connecté(e).</p>
+        <p style="font-size:14px;color:#0f1410;line-height:1.6;">Bienvenue. Ton profil est en ligne. Les clients de Cotonou et Lomé peuvent déjà te trouver.</p>
+      </div>
+
+      <p id="post-inscription-fallback-msg" style="color:var(--gris);font-size:14px;margin-bottom:24px;">Tu es maintenant visible sur WOLO Market. Les clients de tout le Bénin et du Togo peuvent te trouver dès que ton email est confirmé.</p>
 
       <!-- PARRAINAGE AUTOMATISÉ POST-INSCRIPTION -->
       <div id="post-inscription-parrainage" style="display:none;background:linear-gradient(135deg,#0f1410,#1a1f1b);border:1.5px solid rgba(232,148,10,.3);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center;">
@@ -5433,18 +5448,30 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
 
         <div class="form-group">
-          <label>Description de tes services <span class="req">*</span></label>
-          <textarea id="f-description" placeholder="Décris ce que tu fais, ton expérience, ce qui te différencie..." required></textarea>
+          <label>Description de tes services <span style="font-weight:500;color:var(--gris);">(facultatif — tu peux remplir plus tard)</span></label>
+          <div style="display:flex;justify-content:flex-end;margin-bottom:6px;">
+            <button type="button" onclick="woloFillDescTemplate()" style="background:rgba(232,148,10,.12);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">💡 Aide-moi à écrire</button>
+          </div>
+          <textarea id="f-description" placeholder="Décris ce que tu fais, ton expérience, ce qui te différencie... (ou clique sur 💡 Aide-moi)"></textarea>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Tarif minimum (FCFA)</label>
-            <input type="number" id="f-tarif-min" placeholder="2000">
+            <label>Tarif de départ (FCFA)</label>
+            <select id="f-tarif-preset" onchange="woloApplyTarifPreset(this.value)">
+              <option value="">Choisir...</option>
+              <option value="unsure">Je ne sais pas encore</option>
+              <option value="500">Petit budget (à partir de 500 F)</option>
+              <option value="2500">Standard (à partir de 2 500 F)</option>
+              <option value="5000">Premium (à partir de 5 000 F)</option>
+              <option value="devis">Sur devis</option>
+            </select>
+            <input type="hidden" id="f-tarif-min" value="">
+            <input type="hidden" id="f-tarif-max" value="">
+            <input type="hidden" id="f-tarif-label" value="">
           </div>
           <div class="form-group">
-            <label>Tarif maximum (FCFA)</label>
-            <input type="number" id="f-tarif-max" placeholder="15000">
+            <label style="font-size:12px;color:var(--gris);">Tu peux ajuster tes tarifs réels plus tard depuis ton dashboard.</label>
           </div>
         </div>
 
@@ -5848,6 +5875,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <span id="dash-dispo-txt">Invisible</span>
           </div>
         </div>
+
+        <!-- U2 — Wizard Premier pas (J+0 à J+7) — injecté dynamiquement -->
+        <div id="wolo-premier-pas-wizard" style="display:none;margin-bottom:20px;"></div>
 
         <!-- KPI GRID -->
         <div id="kpi-tooltip-overlay" onclick="closeAllKpiTips()" style="display:none;position:fixed;inset:0;z-index:998;"></div>
@@ -8347,10 +8377,180 @@ function renderDashChart(days = 7) {
   }
 }
 
+// ══════════════════════════════════════════
+// U2 — Wizard "Premier pas" (J+0 à J+7)
+// Affiche 3 cards d'onboarding au-dessus des KPI tant que toutes les actions
+// ne sont pas faites OU pendant les 7 premiers jours.
+// ══════════════════════════════════════════
+function renderPremierPasWizard() {
+  if (!currentPrestataire) return;
+  const wrap = document.getElementById('wolo-premier-pas-wizard');
+  if (!wrap) return;
+  const f = currentPrestataire.fields || {};
+  const userId = (window.currentUser && window.currentUser.id) || currentPrestataire.id || 'anon';
+  const dismissedKey = 'wolo_premier_pas_dismissed_' + userId;
+  if (localStorage.getItem(dismissedKey) === '1') { wrap.style.display = 'none'; return; }
+
+  // Combien de photos déjà uploadées
+  let nbPhotos = 0;
+  if (f['Photo Réalisation 1']) nbPhotos++;
+  if (f['Photo Réalisation 2']) nbPhotos++;
+  if (f['Photo Réalisation 3']) nbPhotos++;
+  try {
+    const alb = JSON.parse(f['Albums'] || '[]');
+    for (const a of alb) nbPhotos += (a.photos || []).length;
+  } catch(e) {}
+  const photosOk = nbPhotos >= 3;
+
+  // GPS
+  const gpsOk = !!(f['Latitude'] && f['Longitude']);
+
+  // Partage WhatsApp — flag local
+  const shareKey = 'wolo_premier_pas_share_' + userId;
+  const shareOk = localStorage.getItem(shareKey) === '1';
+
+  // Calcul J+X depuis création
+  let daysSince = 0;
+  try {
+    const created = currentPrestataire.createdTime ? new Date(currentPrestataire.createdTime) : null;
+    if (created) daysSince = Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
+  } catch(e) {}
+  const within7d = daysSince < 7;
+
+  const allDone = photosOk && gpsOk && shareOk;
+  // Masquer le wizard si tout est fait ET on est passé J+7 (sinon afficher message succès)
+  if (allDone && !within7d) { wrap.style.display = 'none'; return; }
+
+  const doneCount = (photosOk ? 1 : 0) + (gpsOk ? 1 : 0) + (shareOk ? 1 : 0);
+  const progressPct = Math.round((doneCount / 3) * 100);
+
+  // Code parrainage / lien WhatsApp
+  const parrainCode = f['Code Parrainage'] || '';
+  const profilUrl = parrainCode ? `https://wolomarket.com?ref=${encodeURIComponent(parrainCode)}` : 'https://wolomarket.com';
+  const prenom = (f['Nom complet'] || '').split(' ')[0] || '';
+
+  if (allDone) {
+    wrap.style.display = 'block';
+    wrap.innerHTML = `
+      <div style="background:linear-gradient(135deg,#0f1410,#1a1f1b);border:1.5px solid rgba(232,148,10,.4);border-radius:16px;padding:18px 20px;color:#F8F6F1;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="font-size:28px;flex-shrink:0;">✅</div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:4px;">T'as bien démarré.</div>
+          <div style="font-size:13px;color:rgba(248,246,241,0.75);line-height:1.55;">La suite c'est de recevoir tes premiers clients. Ton travail parle. Pas tes connexions.</div>
+        </div>
+        <button onclick="dismissPremierPasWizard()" style="background:transparent;color:rgba(248,246,241,0.6);border:1px solid rgba(248,246,241,0.2);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Masquer</button>
+      </div>
+    `;
+    return;
+  }
+
+  // Construit les 3 cards
+  const cards = [];
+  // Card 1 — Photos
+  if (!photosOk) {
+    cards.push(`
+      <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">📸</div>
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:900;color:#0f1410;line-height:1.3;">Ajoute ${3 - nbPhotos} photo${3 - nbPhotos > 1 ? 's' : ''} de plus</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">3 photos = 3× plus de contacts. Montre ton travail.</div>
+        <button onclick="showDashSection('photos')" style="margin-top:auto;background:#E8940A;color:#0f1410;border:none;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Aller à mes photos</button>
+      </div>
+    `);
+  } else {
+    cards.push(`
+      <div style="background:rgba(232,148,10,0.08);border-radius:14px;padding:16px;border:1.5px solid rgba(232,148,10,.3);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">✅</div>
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:900;color:#0f1410;">Photos OK</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">${nbPhotos} photo${nbPhotos > 1 ? 's' : ''} en ligne. Continue d'en ajouter pour rester en haut.</div>
+      </div>
+    `);
+  }
+  // Card 2 — GPS
+  if (!gpsOk) {
+    cards.push(`
+      <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">📍</div>
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:900;color:#0f1410;line-height:1.3;">Active ton GPS</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Sois trouvable sur la carte. Les clients à 500 m te trouveront en 30 secondes.</div>
+        <button onclick="if(typeof saveDashLocation==='function'){saveDashLocation()}else{showDashSection('profil')}" style="margin-top:auto;background:#0f1410;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Activer ma position</button>
+      </div>
+    `);
+  } else {
+    cards.push(`
+      <div style="background:rgba(232,148,10,0.08);border-radius:14px;padding:16px;border:1.5px solid rgba(232,148,10,.3);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">✅</div>
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:900;color:#0f1410;">GPS activé</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Tu es visible sur la carte de Cotonou et de Lomé.</div>
+      </div>
+    `);
+  }
+  // Card 3 — Partage WhatsApp
+  if (!shareOk) {
+    const waText = `Salut, je suis sur WOLO Market. Le travail des Béninois et Togolais, sans piston. Mon profil ${prenom ? '— ' + prenom : ''} : ${profilUrl}`;
+    const waUrl = 'https://wa.me/?text=' + encodeURIComponent(waText);
+    cards.push(`
+      <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">📲</div>
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:900;color:#0f1410;line-height:1.3;">Partage ton profil sur WhatsApp</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Tes premiers clients viennent de tes contacts. Lance la machine.</div>
+        <button onclick="markPremierPasShared('${waUrl.replace(/'/g, '%27')}')" style="margin-top:auto;background:#25d366;color:white;border:none;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Partager maintenant</button>
+      </div>
+    `);
+  } else {
+    cards.push(`
+      <div style="background:rgba(232,148,10,0.08);border-radius:14px;padding:16px;border:1.5px solid rgba(232,148,10,.3);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">✅</div>
+        <div style="font-family:Fraunces,serif;font-size:16px;font-weight:900;color:#0f1410;">Profil partagé</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Continue à partager dès que tu peux. Chaque WhatsApp = 1 client potentiel.</div>
+      </div>
+    `);
+  }
+
+  wrap.style.display = 'block';
+  wrap.innerHTML = `
+    <div style="background:linear-gradient(135deg,#0f1410,#1a1f1b);border:1.5px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 20px;color:#F8F6F1;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div>
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:#E8940A;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">PREMIER PAS</div>
+          <div style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;line-height:1.2;margin-top:2px;">3 actions pour démarrer fort</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:#E8940A;font-weight:700;">${doneCount} / 3 fait</div>
+          <button onclick="dismissPremierPasWizard()" style="background:transparent;color:rgba(248,246,241,0.55);border:1px solid rgba(248,246,241,0.18);padding:6px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;" title="Masquer ce guide">Plus tard</button>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.08);border-radius:100px;height:6px;overflow:hidden;margin-bottom:16px;">
+        <div style="height:100%;background:#E8940A;transition:width 0.5s;width:${progressPct}%;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+        ${cards.join('')}
+      </div>
+    </div>
+  `;
+}
+
+function dismissPremierPasWizard() {
+  const userId = (window.currentUser && window.currentUser.id) || (currentPrestataire && currentPrestataire.id) || 'anon';
+  try { localStorage.setItem('wolo_premier_pas_dismissed_' + userId, '1'); } catch(e) {}
+  const wrap = document.getElementById('wolo-premier-pas-wizard');
+  if (wrap) wrap.style.display = 'none';
+}
+
+function markPremierPasShared(waUrl) {
+  const userId = (window.currentUser && window.currentUser.id) || (currentPrestataire && currentPrestataire.id) || 'anon';
+  try { localStorage.setItem('wolo_premier_pas_share_' + userId, '1'); } catch(e) {}
+  try { window.open(waUrl.replace(/%27/g, "'"), '_blank'); } catch(e) {}
+  // Re-render pour marquer la card comme done
+  setTimeout(() => { try { renderPremierPasWizard(); } catch(e) {} }, 200);
+}
+
 async function loadDashOverview() {
   if (!currentPrestataire) return;
   const f = currentPrestataire.fields;
   const prestId = currentPrestataire.id;
+
+  // U2 — Wizard Premier pas (avant les KPI)
+  try { renderPremierPasWizard(); } catch(e) { console.warn('[premier-pas]', e); }
 
   // Date
   const now = new Date();
@@ -9406,7 +9606,7 @@ function handleLibrePhotoFile() {
       photos.push(url);
       const ok = await _saveLibrePhotos(photos);
       if (ok) { renderLibresSection(); toast('Photo ajoutée !', 'success'); }
-      else toast('Erreur sauvegarde', 'error');
+      else toast('La sauvegarde a calé. Tente encore.', 'error');
     };
     _openCropModal(e.target.result, NaN);
   };
@@ -9419,7 +9619,7 @@ async function deleteLibrePhoto(idx) {
   photos.splice(idx, 1);
   const ok = await _saveLibrePhotos(photos);
   if (ok) { renderLibresSection(); toast('Photo supprimée', 'info'); }
-  else toast('Erreur', 'error');
+  else toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
 }
 
 async function createAlbum() {
@@ -9681,9 +9881,9 @@ async function deleteDashAvis(avisId) {
       toast('Avis supprimé.', 'success');
     } else {
       if (card) card.style.opacity = '1';
-      toast('Erreur lors de la suppression', 'error');
+      toast('Suppression bloquée. Réessaie.', 'error');
     }
-  } catch { if (card) card.style.opacity = '1'; toast('Erreur réseau', 'error'); }
+  } catch { if (card) card.style.opacity = '1'; toast('Le réseau a tremblé. On retente.', 'error'); }
 }
 
 // ══ STORY RÉALISATION VÉRIFIÉE ══
@@ -12061,7 +12261,7 @@ async function toggleFavori(prestataireId) {
     try {
       await fetch(`${AT_URL('Favoris')}/${existingRec.id}`, { method: 'DELETE', headers: AT_HEADERS });
       toast('Retiré des favoris', 'info');
-    } catch { toast('Erreur', 'error'); return; }
+    } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   } else {
     // Ajouter aux favoris
     const record = window._currentProfilRecord || window._allPrestataires?.find(r => r.id === prestataireId);
@@ -12079,7 +12279,7 @@ async function toggleFavori(prestataireId) {
       toast('❤️ Ajouté aux favoris !', 'success');
       // Notifier le prestataire
       pushNotif(prestataireId, { type: 'favori', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
-    } catch { toast('Erreur', 'error'); return; }
+    } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   }
   await updateFavBtn(prestataireId);
 }
@@ -12175,7 +12375,7 @@ async function removeFavori(favId, prestataireId) {
     loadFavoris();
     // Update button if profile is visible
     updateFavBtn(prestataireId);
-  } catch { toast('Erreur', 'error'); }
+  } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
 }
 
 // ══════════════════════════════════════════
@@ -12237,7 +12437,7 @@ async function toggleSuivi(prestataireId) {
     try {
       await fetch(`${AT_URL('Abonnements')}/${existingRec.id}`, { method: 'DELETE', headers: AT_HEADERS });
       toast('Tu ne suis plus ce prestataire', 'info');
-    } catch { _setSuiviBtnState(prestataireId, true); toast('Erreur', 'error'); return; }
+    } catch { _setSuiviBtnState(prestataireId, true); toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   } else {
     // Optimistic UI — feedback immédiat
     _setSuiviBtnState(prestataireId, true);
@@ -14357,12 +14557,70 @@ function renderStatutsForMetier(metier, containerId, hiddenId) {
       <span style="font-size:13px;line-height:1.5;color:#0f1410;"><strong>${s.emoji || ''} ${(s.label || s.value).replace(/</g,'&lt;')}</strong> — ${(s.description || '').replace(/</g,'&lt;')}</span>
     </label>
   `).join('');
+  // Statut OBLIGATOIRE pour les métiers où une config statut existe (asterisque rouge)
   sa.innerHTML = `
-    <label style="font-weight:700;font-size:14px;display:block;margin-bottom:4px;color:#0f1410;">👩‍🎨 Quel est ton statut ?</label>
+    <label style="font-weight:700;font-size:14px;display:block;margin-bottom:4px;color:#0f1410;">👩‍🎨 Quel est ton statut ? <span class="req" style="color:#dc2626;">*</span></label>
     <p style="font-size:12px;color:var(--gris);margin:0 0 12px;">${(cfg.intro || 'Important pour t\'envoyer les bons conseils. Sois honnête — il n\'y a pas de jugement.').replace(/</g,'&lt;')}</p>
     <div style="display:grid;gap:8px;">${optsHtml}</div>
     <input type="hidden" id="${hiddenId}" value="">
   `;
+}
+
+// ══════════════════════════════════════════
+// U1 — Helpers Step 2 inscription : templates description + presets tarifs
+// ══════════════════════════════════════════
+window.WOLO_DESC_TEMPLATES = {
+  'Coiffeur/Coiffeuse': "Je tresse, fais des nattes, défrisages et soin du cuir chevelu. Je peux venir à domicile.",
+  'Coiffeuse': "Je tresse, fais des nattes, défrisages et soin du cuir chevelu. Je peux venir à domicile.",
+  'Couturier/Couturière': "Je couds des tenues africaines sur mesure, retouches, robes de fête. Je travaille en atelier ou à domicile.",
+  'Couturière': "Je couds des tenues africaines sur mesure, retouches, robes de fête. Je travaille en atelier ou à domicile.",
+  'Mécanicien moto': "Je répare motos toutes marques. Vidange, freins, embrayage, démarreur, électricité. Devis gratuit.",
+  'Mécanicien auto': "Je répare voitures toutes marques. Vidange, freins, embrayage, démarreur, diagnostic électronique. Devis gratuit.",
+  'Photographe': "Photographe événements (mariages, baptêmes, anniv) et portrait studio. Livraison rapide.",
+  'Restaurant': "Cuisine du terroir béninois/togolais. Plats à emporter ou sur place. Service midi et soir.",
+  'Restaurateur': "Cuisine du terroir béninois/togolais. Plats à emporter ou sur place. Service midi et soir.",
+  'Maçon': "Maçonnerie générale, parpaings, chape, crépi, finitions. Petits ou gros chantiers.",
+  'Pâtissier/Boulanger': "Pâtisseries et viennoiseries fraîches. Gâteaux d'anniversaire et de mariage sur commande.",
+  'Cuisinier/Cuisinière à domicile': "Je cuisine à domicile pour tes événements (baptêmes, mariages, anniversaires). Plats traditionnels ou sur mesure.",
+  'Plombier': "Installation, réparation et entretien plomberie. Fuites, WC, chauffe-eau, débouchage. Intervention rapide.",
+  'Électricien': "Installation et dépannage électrique. Tableau, prises, éclairage, courts-circuits. Devis gratuit.",
+  'Soudeur': "Soudure métallique : portails, rampes, grilles, structures. Travail soigné, prix discuté.",
+  'Menuisier': "Meubles sur mesure, portes, fenêtres, placards. Bois massif ou panneau. Atelier équipé.",
+  'Vendeur de rue/Étale': "Articles à prix juste, qualité contrôlée. Livraison possible dans le quartier."
+};
+
+function woloFillDescTemplate() {
+  const ta = document.getElementById('f-description');
+  if (!ta) return;
+  const metierEl = document.getElementById('f-metier');
+  const metier = metierEl ? metierEl.value : '';
+  const tpls = window.WOLO_DESC_TEMPLATES || {};
+  const defaultTpl = "Décris en 1-2 lignes ce que tu fais le mieux. Tes prix de départ. Si tu te déplaces ou pas.";
+  const tpl = tpls[metier] || defaultTpl;
+  ta.value = tpl;
+  // place le curseur à la fin pour personnalisation rapide
+  ta.focus();
+  try { ta.setSelectionRange(tpl.length, tpl.length); } catch(e) {}
+  if (window.toast) toast('Texte d\'exemple ajouté — personnalise-le si tu veux', 'success');
+}
+
+function woloApplyTarifPreset(presetVal) {
+  const minEl = document.getElementById('f-tarif-min');
+  const maxEl = document.getElementById('f-tarif-max');
+  const labelEl = document.getElementById('f-tarif-label');
+  if (!minEl || !maxEl || !labelEl) return;
+  const map = {
+    'unsure':  { label: 'Je ne sais pas encore', min: '', max: '' },
+    '500':     { label: 'Petit budget (à partir de 500 F)', min: '500', max: '' },
+    '2500':    { label: 'Standard (à partir de 2 500 F)', min: '2500', max: '' },
+    '5000':    { label: 'Premium (à partir de 5 000 F)', min: '5000', max: '' },
+    'devis':   { label: 'Sur devis', min: '', max: '' }
+  };
+  const m = map[presetVal];
+  if (!m) { minEl.value = ''; maxEl.value = ''; labelEl.value = ''; return; }
+  minEl.value = m.min;
+  maxEl.value = m.max;
+  labelEl.value = m.label;
 }
 
 // Sélection visuelle d'une option statut + sauvegarde value dans hidden input
@@ -14575,9 +14833,28 @@ async function submitInscription(e) {
 
     // Statut socio-économique — pour TOUS les métiers (apprenti / patron / indépendant / freelance / etc.)
     const statutArtisan = document.getElementById('f-statut-artisan')?.value?.trim();
+    // U1 — Statut OBLIGATOIRE pour les métiers où une config statut existe
+    if (window.WoloMetierStatuts && window.WoloMetierStatuts.getStatutsFor && metier) {
+      const cfgStatut = window.WoloMetierStatuts.getStatutsFor(metier);
+      if (cfgStatut && cfgStatut.statuts && cfgStatut.statuts.length && !statutArtisan) {
+        toast('Choisis ton statut (Apprentie / Patronne / Indépendante…)', 'error');
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (formEl) formEl.classList.remove('form-hidden');
+        if (progressEl) progressEl.classList.remove('form-hidden');
+        btn.textContent = '✦ Créer mon profil';
+        btn.disabled = false;
+        // scroll vers bloc statut
+        const statutEl = document.getElementById('statut-artisan-field');
+        if (statutEl && statutEl.scrollIntoView) statutEl.scrollIntoView({ behavior:'smooth', block:'center' });
+        return;
+      }
+    }
     if (statutArtisan) {
       fields['Statut Artisan'] = statutArtisan;
     }
+    // U1 — Sauvegarder le label tarif preset si choisi (en plus des min/max numériques)
+    const tarifLabel = document.getElementById('f-tarif-label')?.value?.trim();
+    if (tarifLabel) fields['Tarif label'] = tarifLabel;
 
     const latVal = document.getElementById('f-latitude').value;
     const lonVal = document.getElementById('f-longitude').value;
@@ -14699,6 +14976,22 @@ async function submitInscription(e) {
       // Afficher l'email dans la page de succès
       const successEmailEl = document.getElementById('success-email');
       if (successEmailEl) successEmailEl.textContent = email;
+      // U4 — Si session créée immédiatement, masquer le bloc "Vérifie ton email"
+      try {
+        const verifyBlock = document.getElementById('post-inscription-verify-email');
+        const loggedBlock = document.getElementById('post-inscription-already-logged');
+        const fallbackMsg = document.getElementById('post-inscription-fallback-msg');
+        const sessionOk = !!(authData && authData.session);
+        if (sessionOk) {
+          if (verifyBlock) verifyBlock.style.display = 'none';
+          if (loggedBlock) loggedBlock.style.display = 'block';
+          if (fallbackMsg) fallbackMsg.style.display = 'none';
+        } else {
+          if (verifyBlock) verifyBlock.style.display = 'block';
+          if (loggedBlock) loggedBlock.style.display = 'none';
+          if (fallbackMsg) fallbackMsg.style.display = 'block';
+        }
+      } catch(e) { console.warn('[U4 verify-email toggle]', e); }
       toast('Profil créé avec succès ! 🎉', 'success');
       // Afficher le bloc parrainage post-inscription avec le lien personnalisé
       try {
@@ -15463,7 +15756,7 @@ async function deleteRDV(rdvId) {
     } else throw new Error();
   } catch {
     if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
-    toast('Erreur lors de la suppression', 'error');
+    toast('Suppression bloquée. Réessaie.', 'error');
   }
 }
 
@@ -16993,7 +17286,7 @@ async function removeAgent(agentId) {
     toast('Agent retiré', 'info');
     loadAgentsTerrain();
   } else {
-    toast(d.error || 'Erreur', 'error');
+    toast(d.error || 'Ça a calé. Réessaie dans 2 secondes.', 'error');
   }
 }
 
@@ -27154,16 +27447,11 @@ window.woloNotifPush = async function(prestataireId, key, vars){
 <script src="components/entretiens-list.js"></script>
 <script src="components/signalement.js"></script>
 
-<!-- ═════ Migration Supabase Prestataires ═════ -->
-<script src="components/supa-prest.js"></script>
-<!-- Migration Airtable→Supabase : Offres Emploi + Candidatures + Avis + RDV (V1.1 — 2026-04-29) -->
-<script src="components/supa-offres.js"></script>
-<script src="components/supa-candidatures.js"></script>
-<script src="components/supa-avis.js"></script>
-<script src="components/supa-rdv.js"></script>
+<!-- ═════ Migration Supabase Prestataires + Offres/Candidatures/Avis/RDV ═════ -->
+<!-- U6 — Déplacés en haut du fichier (après Cropper.js) pour éviter race condition avec initAuth -->
 
-<!-- ═════ Mapping métier → statuts socio-économiques (V1.1 — 2026-04-29) ═════ -->
-<script src="components/metier-statuts-config.js"></script>
+<!-- ═════ Mapping métier → statuts socio-économiques (V1.1 — 2026-04-29) — U6: déplacé en haut -->
+<!-- (chargé en tête du fichier avec les supa-*.js) -->
 
 <!-- ═════ Widgets métier (système modulaire 2026-04-27) ═════ -->
 <script src="components/widgets-metier-config.js"></script>
