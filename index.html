@@ -12122,37 +12122,43 @@ async function loadFavoris() {
       const pdata = detailsMap[pid];
       if (!pdata) return '';
       const f = pdata.fields;
-      const nom = f['Nom complet'] || '—';
-      const metier = f['Métier principal'] || '';
-      const quartier = f['Quartier'] || '';
+      const nomRaw = f['Nom complet'] || '—';
+      const metierRaw = f['Métier principal'] || '';
+      const quartierRaw = f['Quartier'] || '';
       const photo = f['WhatsApp'] || '';
       const plan = f['Abonnement'] || 'Base';
       const note = f['Note moyenne'] || 0;
       const dispo = f['Disponible maintenant'];
-      const emoji = METIER_EMOJI[metier] || '⚡';
+      const emoji = METIER_EMOJI[metierRaw] || '⚡';
       const dateAjout = favRec.fields['Date'] ? new Date(favRec.fields['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+      const nom = escapeHtml(nomRaw);
+      const metier = escapeHtml(metierRaw);
+      const quartier = escapeHtml(quartierRaw);
+      const photoSafe = encodeURI(photo || '');
+      const pidSafe = escapeHtml(pid || '');
+      const favIdSafe = escapeHtml(favRec.id || '');
       return `
         <div style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1.5px solid transparent;transition:border 0.2s;cursor:pointer;"
           onmouseover="this.style.borderColor='var(--vert-light)'" onmouseout="this.style.borderColor='transparent'"
-          onclick="showProfil('${pid}');showPage('profil');">
+          onclick="showProfil('${pidSafe}');showPage('profil');">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
             <div style="position:relative;flex-shrink:0;">
               ${photo
-                ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
-                : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${nom.charAt(0)}</div>`}
+                ? `<img src="${photoSafe}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
+                : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${escapeHtml(nomRaw.charAt(0))}</div>`}
               ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:800;font-size:15px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
-              <div style="font-size:12px;color:var(--gris);">${emoji} ${metier}${quartier ? ' · 📍 '+quartier : ''}</div>
+              <div style="font-size:12px;color:var(--gris);">${emoji} ${metier}${quartierRaw ? ' · 📍 '+quartier : ''}</div>
             </div>
             ${plan !== 'Base' ? `<span style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;">★ PRO</span>` : ''}
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
             <div style="font-size:12px;color:var(--gris);">❤️ Ajouté le ${dateAjout}</div>
             <div style="display:flex;gap:6px;">
-              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showProfil('${pid}');showPage('profil');" style="font-size:11px;padding:4px 10px;">Voir le profil →</button>
-              <button onclick="event.stopPropagation();removeFavori('${favRec.id}','${pid}')" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;">✕</button>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showProfil('${pidSafe}');showPage('profil');" style="font-size:11px;padding:4px 10px;">Voir le profil →</button>
+              <button onclick="event.stopPropagation();removeFavori('${favIdSafe}','${pidSafe}')" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;">✕</button>
             </div>
           </div>
         </div>`;
@@ -12296,36 +12302,41 @@ async function loadAbonnements() {
       const pdata = detailsMap[pid];
       if (!pdata) return '';
       const f = pdata.fields;
-      const nom = f['Nom complet'] || '—';
-      const metier = f['Métier principal'] || '';
-      const quartier = f['Quartier'] || '';
+      const nomRaw = f['Nom complet'] || '—';
+      const metierRaw = f['Métier principal'] || '';
+      const quartierRaw = f['Quartier'] || '';
       const photo = f['Photo de profil']?.[0]?.url || '';
       const plan = f['Abonnement'] || 'Base';
       const dispo = f['Disponible maintenant'];
-      const emoji = METIER_EMOJI?.[metier] || '⚡';
+      const emoji = METIER_EMOJI?.[metierRaw] || '⚡';
       const dateAjout = rec.fields['Date'] ? new Date(rec.fields['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+      const nom = escapeHtml(nomRaw);
+      const metier = escapeHtml(metierRaw);
+      const quartier = escapeHtml(quartierRaw);
+      const photoSafe = encodeURI(photo || '');
+      const pidSafe = escapeHtml(pid || '');
       return `
         <div style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1.5px solid transparent;transition:border 0.2s;cursor:pointer;"
           onmouseover="this.style.borderColor='var(--vert-light)'" onmouseout="this.style.borderColor='transparent'"
-          onclick="showProfil('${pid}');showPage('profil');">
+          onclick="showProfil('${pidSafe}');showPage('profil');">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
             <div style="position:relative;flex-shrink:0;">
               ${photo
-                ? `<img src="${photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
-                : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${nom.charAt(0)}</div>`}
+                ? `<img src="${photoSafe}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
+                : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:20px;font-weight:900;color:white;">${escapeHtml(nomRaw.charAt(0))}</div>`}
               ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:800;font-size:15px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
-              <div style="font-size:12px;color:var(--gris);">${emoji} ${metier}${quartier ? ' · 📍 '+quartier : ''}</div>
+              <div style="font-size:12px;color:var(--gris);">${emoji} ${metier}${quartierRaw ? ' · 📍 '+quartier : ''}</div>
             </div>
             ${plan !== 'Base' ? `<span style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;">★ PRO</span>` : ''}
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
             <div style="font-size:12px;color:var(--gris);">Suivi depuis le ${dateAjout}</div>
             <div style="display:flex;gap:6px;">
-              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showProfil('${pid}');showPage('profil');" style="font-size:11px;padding:4px 10px;">Voir →</button>
-              <button onclick="event.stopPropagation();toggleSuivi('${pid}');this.closest('[onclick]').remove();" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;">Se désabonner</button>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showProfil('${pidSafe}');showPage('profil');" style="font-size:11px;padding:4px 10px;">Voir →</button>
+              <button onclick="event.stopPropagation();toggleSuivi('${pidSafe}');this.closest('[onclick]').remove();" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;">Se désabonner</button>
             </div>
           </div>
         </div>`;
@@ -13321,12 +13332,25 @@ async function showProfil(recordId) {
     }
     const f = record.fields;
 
-    const nom = f['Nom complet'] || 'Prestataire';
-    const initiale = nom.charAt(0).toUpperCase();
-    const metier = f['Métier principal'] || '';
-    const quartier = f['Quartier'] || '';
-    const description = f['Description des services'] || '';
-    const diplomes = f['Diplomes'] || '';
+    // Valeurs brutes (utilisées pour calculs / SEO / open graph / window.open)
+    const nomRaw = f['Nom complet'] || 'Prestataire';
+    const metierRaw = f['Métier principal'] || '';
+    const quartierRaw = f['Quartier'] || '';
+    const descriptionRaw = f['Description des services'] || '';
+    const diplomesRaw = f['Diplomes'] || '';
+    const experienceRaw = f['Années d\'expérience'] || '';
+    const abonnementRaw = f['Abonnement'] || 'Base';
+
+    // Versions échappées pour innerHTML
+    const nom = escapeHtml(nomRaw);
+    const initiale = escapeHtml(nomRaw.charAt(0).toUpperCase());
+    const metier = escapeHtml(metierRaw);
+    const quartier = escapeHtml(quartierRaw);
+    const description = escapeHtml(descriptionRaw);
+    const diplomes = escapeHtml(diplomesRaw);
+    const experience = escapeHtml(experienceRaw);
+    const abonnement = escapeHtml(abonnementRaw);
+
     const tarifMin = f['Tarif minimum FCFA'];
     const tarifMax = f['Tarif maximum FCFA'];
     const nbTransactions = f['Nombre de transactions'] || 0;
@@ -13337,12 +13361,14 @@ async function showProfil(recordId) {
     const gpsLon = f['Longitude'] || null;
     const tiktok    = f['Lien TikTok']    || '';
     const instagram = f['Lien Instagram'] || '';
-    const experience = f['Années d\'expérience'] || '';
-    const abonnement = f['Abonnement'] || 'Base';
     const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
-    const emoji = METIER_EMOJI[metier] || '⚡';
-    const isDigital = isDigitalMetier(metier);
-    const waMsg = encodeURIComponent(`Bonjour ${nom}, je t'ai trouvé sur WOLO Market. Je suis intéressé par tes services de ${metier}. Tu es disponible ?`);
+    // URLs pour href (encodage URI pour éviter d'introduire JS)
+    const tiktokSafe = encodeURI(tiktok);
+    const instagramSafe = encodeURI(instagram);
+    const photoProfilSafe = encodeURI(photoProfil);
+    const emoji = METIER_EMOJI[metierRaw] || '⚡';
+    const isDigital = isDigitalMetier(metierRaw);
+    const waMsg = encodeURIComponent(`Bonjour ${nomRaw}, je t'ai trouvé sur WOLO Market. Je suis intéressé par tes services de ${metierRaw}. Tu es disponible ?`);
     const waLink = tel ? `https://wa.me/${tel}?text=${waMsg}` : '#';
 
     // Charger les avis
@@ -13374,13 +13400,13 @@ async function showProfil(recordId) {
 
     // ── SEO : meta tags dynamiques + Schema.org ──
     const _seoVille = f['Ville'] || '';
-    const _seoSlug = _buildProfilSlug(nom, metier, _seoVille);
+    const _seoSlug = _buildProfilSlug(nomRaw, metierRaw, _seoVille);
     const _seoUrl = `https://wolomarket.com/profil/${_seoSlug}`;
-    document.title = `${nom} — ${metier} à ${_seoVille} · WOLO Market`;
+    document.title = `${nomRaw} — ${metierRaw} à ${_seoVille} · WOLO Market`;
     _setMeta('description', nbAvis > 0
-      ? `${nom}, ${metier} à ${quartier}, ${_seoVille}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOLO Market.`
-      : `${nom}, ${metier} à ${quartier}, ${_seoVille}. Contacte-le directement sur WOLO Market.`);
-    _setOg('og:title', `${nom} — ${metier} à ${_seoVille}`);
+      ? `${nomRaw}, ${metierRaw} à ${quartierRaw}, ${_seoVille}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOLO Market.`
+      : `${nomRaw}, ${metierRaw} à ${quartierRaw}, ${_seoVille}. Contacte-le directement sur WOLO Market.`);
+    _setOg('og:title', `${nomRaw} — ${metierRaw} à ${_seoVille}`);
     _setOg('og:description', nbAvis > 0
       ? `${note.toFixed(1)}/5 étoiles · ${nbAvis} avis · Score WOLO ${score}/100. Trouve les meilleurs prestataires de Cotonou et Lomé.`
       : `Trouve les meilleurs prestataires de Cotonou et Lomé.`);
@@ -13391,9 +13417,9 @@ async function showProfil(recordId) {
     const _seoCountry = (_seoVille.toLowerCase().includes('lom') || _seoVille.toLowerCase().includes('kara')) ? 'TG' : 'BJ';
     const _seoSchema = {
       '@context': 'https://schema.org', '@type': 'LocalBusiness',
-      name: `${nom} — ${metier}`,
-      description: (description || '').slice(0, 300),
-      address: { '@type': 'PostalAddress', addressLocality: _seoVille, addressRegion: quartier, addressCountry: _seoCountry },
+      name: `${nomRaw} — ${metierRaw}`,
+      description: (descriptionRaw || '').slice(0, 300),
+      address: { '@type': 'PostalAddress', addressLocality: _seoVille, addressRegion: quartierRaw, addressCountry: _seoCountry },
       url: _seoUrl,
       ...(tel ? { telephone: tel } : {}),
       ...(photoProfil ? { image: photoProfil } : {}),
@@ -13438,12 +13464,12 @@ async function showProfil(recordId) {
       return html;
     };
 
-    // Description avec "Voir plus"
-    const descShort = description.length > 200 ? description.slice(0, 200) + '…' : description;
-    const descHtml = description ? `
-      <p class="description-text" id="desc-short-${recordId}">${descShort}</p>
-      ${description.length > 200 ? `
-        <p class="description-text" id="desc-full-${recordId}" style="display:none;">${description}</p>
+    // Description avec "Voir plus" — découpe sur le raw, escape ensuite
+    const _descShortSafe = descriptionRaw.length > 200 ? escapeHtml(descriptionRaw.slice(0, 200)) + '…' : escapeHtml(descriptionRaw);
+    const descHtml = descriptionRaw ? `
+      <p class="description-text" id="desc-short-${recordId}">${_descShortSafe}</p>
+      ${descriptionRaw.length > 200 ? `
+        <p class="description-text" id="desc-full-${recordId}" style="display:none;">${escapeHtml(descriptionRaw)}</p>
         <button class="voir-plus-btn" onclick="toggleDesc('${recordId}')">
           <span id="voir-plus-label-${recordId}">Voir plus ▾</span>
         </button>
@@ -13468,7 +13494,7 @@ async function showProfil(recordId) {
     ${langues.split(',').map(l => l.trim()).filter(Boolean).map(l => {
       const flags = {'Français':'🇫🇷','Ewe':'🇹🇬','Mina':'🇹🇬','Kabiyè':'🇹🇬','Haoussa':'🇳🇬','Anglais':'🇬🇧','Allemand':'🇩🇪','Arabe':'🇸🇦','Yoruba':'🇳🇬'};
       const flag = flags[l] || '🗣️';
-      return `<span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);padding:6px 14px;border-radius:100px;font-size:13px;font-weight:600;">${flag} ${l}</span>`;
+      return `<span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);padding:6px 14px;border-radius:100px;font-size:13px;font-weight:600;">${flag} ${escapeHtml(l)}</span>`;
     }).join('')}
   </div>
 </div>` : '';
@@ -13487,7 +13513,7 @@ async function showProfil(recordId) {
       </div>
     </div>
     <div onclick="showAlbumsPage('${recordId}')" style="cursor:pointer;border-radius:14px;overflow:hidden;position:relative;height:110px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
-      ${photoProfil ? `<img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">📸</div>`}
+      ${photoProfil ? `<img src="${photoProfilSafe}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">📸</div>`}
       <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.1) 55%);pointer-events:none;"></div>
       <div style="position:absolute;bottom:10px;left:12px;">
         <div style="font-weight:800;color:white;font-size:13px;">Photos de moi</div>
@@ -13543,8 +13569,8 @@ async function showProfil(recordId) {
           <div class="profil-top">
             <!-- Avatar + badge online -->
             <div class="profil-avatar-wrap">
-              <div class="profil-avatar-lg ${abonnement !== 'Base' ? 'premium' : ''}">
-                ${photoProfil ? `<img src="${photoProfil}" alt="${nom}" loading="lazy">` : initiale}
+              <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}">
+                ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
               </div>
               <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>
             </div>
@@ -13574,11 +13600,11 @@ async function showProfil(recordId) {
               <!-- Badges -->
               <div class="profil-badges">
                 ${verifie ? '<span class="badge badge-vert">✓ Vérifié WOLO</span>' : ''}
-                ${abonnement !== 'Base' ? `<span class="badge badge-or">⭐ ${abonnement}</span>` : ''}
+                ${abonnementRaw !== 'Base' ? `<span class="badge badge-or">⭐ ${abonnement}</span>` : ''}
                 ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Membre Fondateur WOLO</span>' : ''}
-                ${(abonnement !== 'Base' && score >= 80) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.25),rgba(245,158,11,0.15));color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 Éligible Bourse de Croissance</span>' : ''}
-                ${f['Rang Top 50'] && f['Rang Top 50'] <= 50 ? `<span class="badge" style="background:rgba(232,148,10,0.25);color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 TOP ${f['Rang Top 50']} WOLO ${(quartier||'').toLowerCase().includes('cotonou')?'🇧🇯':'🇹🇬'}</span>` : ''}
-                ${f['Champion WOLO'] ? `<span class="badge" style="background:rgba(232,148,10,0.2);color:#E8940A;border:1px solid rgba(232,148,10,0.4);">⚔️ Champion WOLO ${f['Champion WOLO']}</span>` : ''}
+                ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.25),rgba(245,158,11,0.15));color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 Éligible Bourse de Croissance</span>' : ''}
+                ${f['Rang Top 50'] && f['Rang Top 50'] <= 50 ? `<span class="badge" style="background:rgba(232,148,10,0.25);color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 TOP ${f['Rang Top 50']} WOLO ${(quartierRaw||'').toLowerCase().includes('cotonou')?'🇧🇯':'🇹🇬'}</span>` : ''}
+                ${f['Champion WOLO'] ? `<span class="badge" style="background:rgba(232,148,10,0.2);color:#E8940A;border:1px solid rgba(232,148,10,0.4);">⚔️ Champion WOLO ${escapeHtml(f['Champion WOLO'])}</span>` : ''}
                 ${note > 0 ? `<span class="badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">${starsHtml(note)} ${note.toFixed(1)}</span>` : ''}
                 ${isDigital ? '<span class="badge" style="background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);">🎓 Pro du Web</span>' : ''}
                 ${f['Mode Emploi'] ? '<span class="badge" style="background:rgba(232,148,10,0.2);color:#F5B82E;border:1px solid rgba(232,148,10,0.4);">💼 Ouvert aux opportunités</span>' : ''}
@@ -13589,8 +13615,8 @@ async function showProfil(recordId) {
                 <a href="javascript:void(0)" class="btn-rdv" onclick="showRdvPage('${recordId}')">📅 Prendre RDV</a>
                 ${tel ? `<a href="${waLink}" class="btn btn-wa" target="_blank">💬 WhatsApp</a>` : ''}
                 ${tel ? `<a href="tel:${tel}" class="btn-dark-outline">📞 Appeler</a>` : ''}
-                ${tiktok ? `<a href="${tiktok}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
-                ${instagram ? `<a href="${instagram}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
+                ${tiktok ? `<a href="${tiktokSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
+                ${instagram ? `<a href="${instagramSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
                 <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
                 <!-- Paiement profil — activé quand FedaPay sera connecté -->
                 <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
@@ -13704,7 +13730,7 @@ async function showProfil(recordId) {
                     </a>
                   </div>` : quartier ? `
                   <div>
-                    <a href="https://www.google.com/maps/search/${encodeURIComponent(quartier + ' ' + metier + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                    <a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
                       🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →
                     </a>
                   </div>` : ''}
@@ -13721,8 +13747,8 @@ async function showProfil(recordId) {
               <div class="sidebar-card">
                 <h4>Réseaux sociaux</h4>
                 <div style="display:flex;flex-direction:column;gap:8px;">
-                  ${tiktok ? `<a href="${tiktok}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
-                  ${instagram ? `<a href="${instagram}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
+                  ${tiktok ? `<a href="${tiktokSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
+                  ${instagram ? `<a href="${instagramSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
                 </div>
               </div>` : ''}
             </div>
@@ -13771,7 +13797,7 @@ async function showProfil(recordId) {
       const box = document.getElementById(`profils-similaires-${recordId}`);
       if (!box) return;
       try {
-        const similar = await fetchPrestataires({ metier });
+        const similar = await fetchPrestataires({ metier: metierRaw });
         const filtered = (similar || []).filter(r => r.id !== recordId).slice(0, 4);
         if (filtered.length === 0) {
           box.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.35);font-size:13px;grid-column:1/-1;">Pas d'autre ${metier || 'prestataire'} pour l'instant.</div>`;
@@ -13779,13 +13805,17 @@ async function showProfil(recordId) {
           box.innerHTML = filtered.map(r => {
             const ff = r.fields;
             const pp = ff['WhatsApp'] || ff['Photo de profil']?.[0]?.url || '';
-            const ini = (ff['Nom complet']||'?').charAt(0).toUpperCase();
-            return `<div onclick="showProfil('${r.id}')" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;transition:.2s;" onmouseenter="this.style.background='rgba(232,148,10,0.08)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)'">
+            const ppSafe = encodeURI(pp || '');
+            const ini = escapeHtml((ff['Nom complet']||'?').charAt(0).toUpperCase());
+            const _safeNomR = escapeHtml(ff['Nom complet']||'');
+            const _safeQuartierR = escapeHtml(ff['Quartier']||'');
+            const _safeIdR = escapeHtml(r.id);
+            return `<div onclick="showProfil('${_safeIdR}')" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;transition:.2s;" onmouseenter="this.style.background='rgba(232,148,10,0.08)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)'">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;overflow:hidden;flex-shrink:0;">${pp ? `<img src="${pp}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ini}</div>
+                <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;overflow:hidden;flex-shrink:0;">${pp ? `<img src="${ppSafe}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ini}</div>
                 <div style="flex:1;min-width:0;">
-                  <div style="font-weight:800;color:white;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ff['Nom complet']||''}</div>
-                  <div style="font-size:11px;color:rgba(255,255,255,0.5);">📍 ${ff['Quartier']||''}</div>
+                  <div style="font-weight:800;color:white;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_safeNomR}</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.5);">📍 ${_safeQuartierR}</div>
                 </div>
               </div>
               ${ff['Tarif minimum FCFA'] ? `<div style="font-size:12px;color:#E8940A;font-weight:700;">À partir de ${parseInt(ff['Tarif minimum FCFA']).toLocaleString('fr-FR')} FCFA</div>` : ''}
@@ -15562,7 +15592,7 @@ function selectRDVSlot(heure) {
       <div style="background:var(--vert-light);border-radius:12px;padding:14px;margin-bottom:20px;">
         <div style="font-weight:800;font-size:15px;text-transform:capitalize;">📅 ${dateLabel}</div>
         <div style="font-size:15px;color:var(--vert);font-weight:700;margin-top:4px;">⏰ ${heure}</div>
-        <div style="font-size:13px;color:var(--gris);margin-top:4px;">avec ${prestataire.fields['Nom complet'] || ''}</div>
+        <div style="font-size:13px;color:var(--gris);margin-top:4px;">avec ${escapeHtml(prestataire.fields['Nom complet'] || '')}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px;">
         <div>
@@ -17633,32 +17663,42 @@ function renderOffreEmploi(offre) {
     ? window.woloAi.getMatchScore(window.currentPrestataire.id, offre.id) : null;
   const _matchScore = _matchCache?.score;
   const _matchColor = _matchScore >= 70 ? '#22c55e' : _matchScore >= 40 ? '#E8940A' : '#f87171';
-  return `<div class="offre-card" onclick="showOffreDetail('${offre.id}')">
+  const _safeTitre = escapeHtml(f['Titre'] || 'Sans titre');
+  const _safeRecruteurNom = escapeHtml(f['Recruteur Nom'] || 'Recruteur');
+  const _safeRecruteurId = escapeHtml(f['Recruteur ID'] || '');
+  const _safeQuartier = escapeHtml(f['Quartier'] || (_isBJ ? 'Cotonou' : 'Lomé'));
+  const _safeContrat = escapeHtml(contrat);
+  const _safeExp = escapeHtml(f['Expérience requise'] || '');
+  const _safeDesc = escapeHtml(f['Description'] || '');
+  const _safeOffreId = escapeHtml(offre.id);
+  const _waNumOffre = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
+  const _titreJsArg = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  return `<div class="offre-card" onclick="showOffreDetail('${_safeOffreId}')">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <div>
         ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span> ' : ''}
         ${_matchScore != null ? `<span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(168,85,247,.15);color:${_matchColor};border:1px solid rgba(168,85,247,.3);">🤖 Match ${_matchScore}/100</span>` : ''}
-        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">${f['Titre'] || 'Sans titre'}</h3>
+        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">${_safeTitre}</h3>
       </div>
     </div>
     <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-      ${f['Recruteur ID'] ? `<span onclick="showProfil('${f['Recruteur ID']}');showPage('profil')" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;">🏢 ${f['Recruteur Nom'] || 'Recruteur'}</span>` : `🏢 ${f['Recruteur Nom'] || 'Recruteur'}`}
+      ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurId}');showPage('profil')" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;">🏢 ${_safeRecruteurNom}</span>` : `🏢 ${_safeRecruteurNom}`}
       ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOLO">✓</span>' : ''}
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
-      <span class="badge badge-gris">${_flag} ${f['Quartier'] || (_isBJ ? 'Cotonou' : 'Lomé')}</span>
-      ${contrat ? `<span class="badge ${contratClass}">${contrat}</span>` : ''}
-      ${f['Expérience requise'] ? `<span class="badge badge-gris">💼 ${f['Expérience requise']}</span>` : ''}
+      <span class="badge badge-gris">${_flag} ${_safeQuartier}</span>
+      ${contrat ? `<span class="badge ${contratClass}">${_safeContrat}</span>` : ''}
+      ${f['Expérience requise'] ? `<span class="badge badge-gris">💼 ${_safeExp}</span>` : ''}
       ${f['Télétravail possible'] ? `<span class="badge" style="background:#fef3dc;color:#E8940A;">💻 Télétravail</span>` : ''}
     </div>
     <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 ${salaire}</div>
-    ${f['Description'] ? `<p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${f['Description']}</p>` : ''}
+    ${f['Description'] ? `<p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${_safeDesc}</p>` : ''}
     <div style="font-size:12px;color:var(--gris);margin-bottom:12px;">👥 <strong>${nbCand}</strong> candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</div>
     <div class="offre-actions" onclick="event.stopPropagation();">
-      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('${(f['Titre']||'').replace(/'/g,"\\'")}','${offre.id}')">📤 Partager</button>
-      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${f['Recruteur WhatsApp'].replace(/\D/g,'')}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;">💬 Contacter</a>` : ''}
-      <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${offre.id}','${(f['Titre']||'').replace(/'/g,"\\'")}','${(f['Recruteur ID']||'')}')">→ Postuler</button>
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('${_titreJsArg}','${_safeOffreId}')">📤 Partager</button>
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;">💬 Contacter</a>` : ''}
+      <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler</button>
     </div>
   </div>`;
 }
@@ -17677,15 +17717,25 @@ function showOffreDetail(offreId) {
   const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
   const nbCand = f['Nb candidatures'] || 0;
   const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : '?';
-  const desc = (f['Description'] || 'Pas de description fournie par le recruteur.').replace(/\n/g, '<br>');
+  // Description : escape avant le replace pour éviter XSS, puis convertir les sauts de ligne
+  const desc = escapeHtml(f['Description'] || 'Pas de description fournie par le recruteur.').replace(/\n/g, '<br>');
+  const _safeTitreD = escapeHtml(f['Titre'] || 'Sans titre');
+  const _safeRecruteurNomD = escapeHtml(f['Recruteur Nom'] || 'Recruteur');
+  const _safeRecruteurIdD = escapeHtml(f['Recruteur ID'] || '');
+  const _safeContratD = escapeHtml(contrat);
+  const _safeLieuD = escapeHtml(f['Quartier'] || f['Ville'] || 'Non précisé');
+  const _safeExpD = escapeHtml(f['Expérience requise'] || '');
+  const _safeOffreIdD = escapeHtml(offre.id);
+  const _waNumD = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
+  const _titreJsArgD = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
 
   const container = document.getElementById('offre-detail-content');
   container.innerHTML = `
     <div style="margin-bottom:24px;">
       ${f['Urgente'] ? '<span style="display:inline-block;background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🔴 URGENTE</span>' : ''}
-      <h2 style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#F8F6F1;line-height:1.3;margin:0 0 8px;">${f['Titre'] || 'Sans titre'}</h2>
+      <h2 style="font-family:Fraunces,serif;font-size:24px;font-weight:900;color:#F8F6F1;line-height:1.3;margin:0 0 8px;">${_safeTitreD}</h2>
       <div style="font-size:13px;color:rgba(248,246,241,0.6);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        ${f['Recruteur ID'] ? `<span onclick="showProfil('${f['Recruteur ID']}');showPage('profil');document.getElementById('modal-offre-detail').style.display='none'" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;font-weight:600;">🏢 ${f['Recruteur Nom'] || 'Recruteur'}</span>` : `🏢 ${f['Recruteur Nom'] || 'Recruteur'}`}
+        ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurIdD}');showPage('profil');document.getElementById('modal-offre-detail').style.display='none'" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;font-weight:600;">🏢 ${_safeRecruteurNomD}</span>` : `🏢 ${_safeRecruteurNomD}`}
         ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOLO">✓ Vérifié</span>' : ''}
         <span>· Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</span>
       </div>
@@ -17698,15 +17748,15 @@ function showOffreDetail(offreId) {
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
         <div style="font-size:11px;color:rgba(248,246,241,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contrat</div>
-        <div style="font-size:15px;font-weight:700;color:#F8F6F1;">${contrat}</div>
+        <div style="font-size:15px;font-weight:700;color:#F8F6F1;">${_safeContratD}</div>
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
         <div style="font-size:11px;color:rgba(248,246,241,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lieu</div>
-        <div style="font-size:15px;font-weight:700;color:#F8F6F1;">${_flag} ${f['Quartier'] || f['Ville'] || 'Non précisé'}</div>
+        <div style="font-size:15px;font-weight:700;color:#F8F6F1;">${_flag} ${_safeLieuD}</div>
       </div>
     </div>
 
-    ${f['Expérience requise'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:rgba(248,246,241,0.7);">💼 Expérience requise : ${f['Expérience requise']}</span></div>` : ''}
+    ${f['Expérience requise'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:rgba(248,246,241,0.7);">💼 Expérience requise : ${_safeExpD}</span></div>` : ''}
     ${f['Télétravail possible'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(232,148,10,0.08);border:1px solid rgba(232,148,10,0.2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:#E8940A;">💻 Télétravail possible</span></div>` : ''}
 
     <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;margin-bottom:24px;">
@@ -17717,12 +17767,12 @@ function showOffreDetail(offreId) {
     <div style="font-size:13px;color:rgba(248,246,241,0.5);margin-bottom:20px;">👥 <strong style="color:#F8F6F1;">${nbCand}</strong> candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-primary" style="flex:2;justify-content:center;min-width:200px;padding:14px;" onclick="document.getElementById('modal-offre-detail').style.display='none';ouvrirModalCandidature('${offre.id}','${(f['Titre']||'').replace(/'/g,"\\'")}','${(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOLO</button>
-      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${f['Recruteur WhatsApp'].replace(/\D/g,'')}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
-      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${(f['Titre']||'').replace(/'/g,"\\'")}','${offre.id}')">📤 Partager</button>
+      <button class="btn btn-primary" style="flex:2;justify-content:center;min-width:200px;padding:14px;" onclick="document.getElementById('modal-offre-detail').style.display='none';ouvrirModalCandidature('${_safeOffreIdD}','${_titreJsArgD}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOLO</button>
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumD}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOLO Market" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${_titreJsArgD}','${_safeOffreIdD}')">📤 Partager</button>
     </div>
     <div style="margin-top:12px;text-align:center;">
-      <button onclick="window.woloSignalement?.open({offreId:'${offre.id}',contextLabel:'Offre : ${(f['Titre']||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(248,246,241,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Signaler cette offre</button>
+      <button onclick="window.woloSignalement?.open({offreId:'${_safeOffreIdD}',contextLabel:'Offre : ${_titreJsArgD.replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(248,246,241,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Signaler cette offre</button>
     </div>
   `;
 
@@ -18217,7 +18267,9 @@ async function submitCandidature() {
       }
     } catch (e) { /* fallback Airtable */ }
   }
-  if (!alreadyApplied) {
+  // Skip Airtable check if l'offre est un UUID Supabase — pas dans Airtable
+  const _isOffreAirtable = typeof _currentOffreId === 'string' && _currentOffreId.startsWith('rec');
+  if (!alreadyApplied && _isOffreAirtable) {
     try {
       const checkUrl = AT_URL('Candidatures');
       const checkParams = new URLSearchParams({ filterByFormula: `AND({Offre ID}="${_currentOffreId}",{Candidat ID}="${currentPrestataire.id}")`, maxRecords: 1 });
@@ -18291,10 +18343,21 @@ async function submitCandidature() {
       data = await r.json();
     }
     if (data.id) {
-      await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { 'Nb candidatures': (offreData.fields?.['Nb candidatures'] || 0) + 1 } })
-      });
+      // Incrémenter Nb candidatures :
+      // — si l'offre est un UUID Supabase (pas un recXXX Airtable), tenter Supabase
+      // — sinon PATCH Airtable
+      try {
+        if (_isOffreAirtable) {
+          await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, {
+            method: 'PATCH', headers: AT_HEADERS,
+            body: JSON.stringify({ fields: { 'Nb candidatures': (offreData.fields?.['Nb candidatures'] || 0) + 1 } })
+          });
+        } else if (window.supaOffres?.incrementCandidatures) {
+          await window.supaOffres.incrementCandidatures(_currentOffreId);
+        } else if (window.supaOffres?.update) {
+          await window.supaOffres.update(_currentOffreId, { 'Nb candidatures': (offreData.fields?.['Nb candidatures'] || 0) + 1 });
+        }
+      } catch (e) { console.warn('[submitCandidature increment Nb candidatures]', e?.message || e); }
       document.getElementById('modal-candidature').style.display = 'none';
       // Show confirmation overlay
       const _confDiv = document.createElement('div');
@@ -18407,11 +18470,14 @@ async function loadMesCandidatures() {
         const d = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
         const sc = statutClass[f['Statut']] || 'statut-attente';
         const isRetenue = f['Statut'] === 'Retenue';
+        const _safeOffreTitreM = escapeHtml(f['Offre Titre']||'—');
+        const _safeRecruteurNomM = escapeHtml(f['Recruteur Nom']||'—');
+        const _safeStatutM = escapeHtml(f['Statut']||'En attente');
         return `<tr style="border-bottom:1px solid #f3f4f6;">
-          <td style="padding:12px;">${f['Offre Titre']||'—'}</td>
-          <td style="padding:12px;color:var(--gris);">${f['Recruteur Nom']||'—'}</td>
+          <td style="padding:12px;">${_safeOffreTitreM}</td>
+          <td style="padding:12px;color:var(--gris);">${_safeRecruteurNomM}</td>
           <td style="padding:12px;color:var(--gris);">${d}</td>
-          <td style="padding:12px;"><span class="statut-badge ${sc}">${f['Statut']||'En attente'}</span></td>
+          <td style="padding:12px;"><span class="statut-badge ${sc}">${_safeStatutM}</span></td>
           <td style="padding:12px;white-space:nowrap;">
             <button onclick="openMessagerieCandidat('${c.id}')" title="Messagerie" style="padding:5px 9px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:13px;">💬</button>
             ${isRetenue ? `<button onclick="preparerEntretienCandidat('${c.id}')" title="Préparer entretien (IA)" style="padding:5px 9px;border-radius:6px;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;font-size:13px;margin-left:4px;">🤖</button>` : ''}
@@ -18729,7 +18795,7 @@ async function loadMesOffres() {
     // Mettre à jour filtre candidatures
     const filterSelect = document.getElementById('recrut-cand-filter-offre');
     if (filterSelect) {
-      filterSelect.innerHTML = '<option value="">Toutes les offres</option>' + allMesOffres.map(o => `<option value="${o.id}">${o.fields['Titre']||'Sans titre'}</option>`).join('');
+      filterSelect.innerHTML = '<option value="">Toutes les offres</option>' + allMesOffres.map(o => `<option value="${escapeHtml(o.id)}">${escapeHtml(o.fields['Titre']||'Sans titre')}</option>`).join('');
     }
     filterMesOffres();
   } catch(e) {
@@ -18765,14 +18831,19 @@ function renderMesOffres(offres) {
   container.innerHTML = offres.map(o => {
     const f = o.fields;
     const isActive = !!f['Active'];
-    const titre = (f['Titre']||'Sans titre').replace(/'/g,"\\'");
+    const titre = (f['Titre']||'Sans titre').replace(/'/g,"\\'").replace(/</g,'&lt;');
+    const _safeTitreO = escapeHtml(f['Titre']||'Sans titre');
+    const _safeMetierO = escapeHtml(f['Métier']||'');
+    const _safeContratO = escapeHtml(f['Type de contrat']||'');
+    const _safeQuartierO = escapeHtml(f['Quartier']||'');
+    const _safeIdO = escapeHtml(o.id);
     return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.12);border-radius:14px;padding:20px;margin-bottom:14px;transition:border-color .2s;" onmouseenter="this.style.borderColor='rgba(232,148,10,.3)'" onmouseleave="this.style.borderColor='rgba(232,148,10,.12)'">
       <div style="margin-bottom:12px;">
-        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin:0 0 10px;">${f['Titre']||'Sans titre'}</h3>
+        <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:900;color:#F8F6F1;margin:0 0 10px;">${_safeTitreO}</h3>
         <div style="display:flex;gap:7px;flex-wrap:wrap;">
-          ${f['Métier'] ? `<span style="background:rgba(232,148,10,.15);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">${f['Métier']}</span>` : ''}
-          ${f['Type de contrat'] ? `<span style="background:rgba(248,246,241,.08);color:rgba(248,246,241,.6);border-radius:20px;padding:3px 11px;font-size:12px;">${f['Type de contrat']}</span>` : ''}
-          ${f['Quartier'] ? `<span style="background:rgba(248,246,241,.05);color:rgba(248,246,241,.45);border-radius:20px;padding:3px 11px;font-size:11px;">📍 ${f['Quartier']}</span>` : ''}
+          ${f['Métier'] ? `<span style="background:rgba(232,148,10,.15);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">${_safeMetierO}</span>` : ''}
+          ${f['Type de contrat'] ? `<span style="background:rgba(248,246,241,.08);color:rgba(248,246,241,.6);border-radius:20px;padding:3px 11px;font-size:12px;">${_safeContratO}</span>` : ''}
+          ${f['Quartier'] ? `<span style="background:rgba(248,246,241,.05);color:rgba(248,246,241,.45);border-radius:20px;padding:3px 11px;font-size:11px;">📍 ${_safeQuartierO}</span>` : ''}
           ${isActive ? `<span style="background:rgba(34,197,94,.12);color:#22c55e;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">● Active</span>` : `<span style="background:rgba(248,246,241,.06);color:rgba(248,246,241,.35);border-radius:20px;padding:3px 11px;font-size:12px;">● Inactive</span>`}
           ${f['Urgente'] ? `<span style="background:rgba(220,38,38,.15);color:#ef4444;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;">🔴 URGENTE</span>` : ''}
         </div>
@@ -18788,12 +18859,12 @@ function renderMesOffres(offres) {
         </div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button onclick="showDashSection('recrut-candidatures');loadCandidaturesRecues().then(()=>{const s=document.getElementById('recrut-cand-filter-offre');if(s){s.value='${o.id}';filterRecrutCandidatures();}})" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">👥 Candidatures</button>
-        <button onclick="topCandidatsForOffre('${o.id}')" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🤖 Top candidats IA</button>
-        <button onclick="ouvrirEditionOffre('${o.id}')" style="background:rgba(248,246,241,.06);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Modifier</button>
-        <button onclick="partagerOffre('${titre}','${o.id}')" style="background:rgba(248,246,241,.06);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📤 Partager</button>
-        <button onclick="toggleOffreActive('${o.id}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(34,197,94,.08)'};color:${isActive?'#ef4444':'#22c55e'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(34,197,94,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
-        <button onclick="supprimerOffre('${o.id}','${titre}')" style="background:rgba(220,38,38,.07);color:#ef4444;border:1px solid rgba(220,38,38,.18);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🗑 Supprimer</button>
+        <button onclick="showDashSection('recrut-candidatures');loadCandidaturesRecues().then(()=>{const s=document.getElementById('recrut-cand-filter-offre');if(s){s.value='${_safeIdO}';filterRecrutCandidatures();}})" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">👥 Candidatures</button>
+        <button onclick="topCandidatsForOffre('${_safeIdO}')" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🤖 Top candidats IA</button>
+        <button onclick="ouvrirEditionOffre('${_safeIdO}')" style="background:rgba(248,246,241,.06);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Modifier</button>
+        <button onclick="partagerOffre('${titre}','${_safeIdO}')" style="background:rgba(248,246,241,.06);color:#F8F6F1;border:1px solid rgba(248,246,241,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📤 Partager</button>
+        <button onclick="toggleOffreActive('${_safeIdO}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(34,197,94,.08)'};color:${isActive?'#ef4444':'#22c55e'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(34,197,94,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
+        <button onclick="supprimerOffre('${_safeIdO}','${titre}')" style="background:rgba(220,38,38,.07);color:#ef4444;border:1px solid rgba(220,38,38,.18);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🗑 Supprimer</button>
       </div>
     </div>`;
   }).join('');
@@ -19092,7 +19163,13 @@ async function loadCandidaturesRecues() {
   // Restaure les filtres + tri persistés AVANT le fetch (le dropdown offre sera complété ensuite)
   _restoreRecrutFilters();
   try {
-    const formula = `{Recruteur ID}="${currentPrestataire.id}"`;
+    // ID mismatch fix : `currentPrestataire.id` peut être soit un UUID Supabase soit un recXXX Airtable.
+    // On cherche les candidatures qui matchent l'un OU l'autre (Recruteur ID ou Recruteur User ID).
+    const recId = currentPrestataire.id || '';
+    const userId = window.currentUser?.id || '';
+    const idsToTry = [recId, userId].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+    const orParts = idsToTry.map(id => `OR({Recruteur ID}="${id}",{Recruteur User ID}="${id}")`);
+    const formula = orParts.length > 1 ? `OR(${orParts.join(',')})` : (orParts[0] || `{Recruteur ID}="${recId}"`);
     const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
     params.append('sort[0][field]', 'Date candidature');
     params.append('sort[0][direction]', 'desc');
@@ -19128,7 +19205,7 @@ async function loadCandidaturesRecues() {
       const currentOffre = selOffre.value;
       selOffre.innerHTML = '<option value="">Toutes les offres</option>' +
         Object.entries(offresMap).map(([id, titre]) =>
-          `<option value="${id}" ${id === currentOffre ? 'selected' : ''}>${titre}</option>`
+          `<option value="${escapeHtml(id)}" ${id === currentOffre ? 'selected' : ''}>${escapeHtml(titre)}</option>`
         ).join('');
     }
 
@@ -19142,7 +19219,7 @@ async function loadCandidaturesRecues() {
       )].sort();
       const currentQ = selQuartier.value;
       selQuartier.innerHTML = '<option value="">Tous les quartiers</option>' +
-        quartiers.map(q => `<option value="${q}" ${q === currentQ ? 'selected' : ''}>${q}</option>`).join('');
+        quartiers.map(q => `<option value="${escapeHtml(q)}" ${q === currentQ ? 'selected' : ''}>${escapeHtml(q)}</option>`).join('');
     }
 
     filterRecrutCandidatures();
@@ -19408,17 +19485,23 @@ function renderRecrutCandidatures(cands) {
         const aiJust  = (aiCache?.justification || '').replace(/"/g,'&quot;');
         const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
 
+        const _safeCandNom = escapeHtml(f['Candidat Nom']||'—');
+        const _safeCandMetier = escapeHtml(f['Candidat Métier']||'');
+        const _safeOffreTitre = escapeHtml(f['Offre Titre']||'—');
+        const _safeMessage = escapeHtml(f['Message']||'');
+        const _safePhotoUrl = encodeURI(photo || '');
+        const _safeWa = encodeURIComponent((wa||'').replace(/\D/g,''));
         return `<div style="background:rgba(255,255,255,.04);border:1px solid ${cardBorder};border-radius:14px;padding:18px;position:relative;">
           <span style="position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>
           ${ghosted ? `<span style="position:absolute;top:14px;left:14px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.18);color:#f87171;">⏰ ${ageJ}j sans réponse</span>` : ''}
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
             <div style="width:56px;height:56px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:22px;color:#E8940A;font-weight:900;overflow:hidden;flex-shrink:0;cursor:${photo ? 'pointer' : 'default'};"
-              ${photo ? `onclick="openPhotoLightbox('${photo}')"` : ''}>
-              ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Candidat Nom']||'?')[0].toUpperCase()}
+              ${photo ? `onclick="openPhotoLightbox('${_safePhotoUrl}')"` : ''}>
+              ${photo ? `<img src="${_safePhotoUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : escapeHtml((f['Candidat Nom']||'?')[0].toUpperCase())}
             </div>
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:800;font-size:15px;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f['Candidat Nom']||'—'}</div>
-              <div style="color:#E8940A;font-size:13px;margin:2px 0;">${f['Candidat Métier']||''}</div>
+              <div style="font-weight:800;font-size:15px;color:#F8F6F1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_safeCandNom}</div>
+              <div style="color:#E8940A;font-size:13px;margin:2px 0;">${_safeCandMetier}</div>
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                 <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.3);color:${scoreColor};" title="Score WOLO du candidat">⚡ ${score}/100</span>
                 ${aiScore != null ? `<span onclick="scoreCandidatRecru('${c.id}')" style="cursor:pointer;font-size:11px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(168,85,247,.18);color:${aiColor};border:1px solid rgba(168,85,247,.3);" title="${aiJust}">🤖 ${aiScore}</span>` : ''}
@@ -19426,13 +19509,13 @@ function renderRecrutCandidatures(cands) {
               </div>
             </div>
           </div>
-          <div style="font-size:12px;color:rgba(248,246,241,.5);font-style:italic;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Offre : ${f['Offre Titre']||'—'}</div>
-          ${f['Message'] ? `<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:10px;font-size:12px;color:rgba(248,246,241,.7);margin-bottom:12px;line-height:1.6;max-height:72px;overflow:hidden;">"${f['Message']}"</div>` : ''}
+          <div style="font-size:12px;color:rgba(248,246,241,.5);font-style:italic;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Offre : ${_safeOffreTitre}</div>
+          ${f['Message'] ? `<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:10px;font-size:12px;color:rgba(248,246,241,.7);margin-bottom:12px;line-height:1.6;max-height:72px;overflow:hidden;">"${_safeMessage}"</div>` : ''}
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
             <button onclick="scoreCandidatRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;">🤖 Score IA</button>
             <button onclick="openMessagerieRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;">💬 Message</button>
             <button onclick="openEntretienRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">📅 Entretien</button>
-            ${wa ? `<a href="https://wa.me/${wa.replace(/\D/g,'')}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;">💬 WhatsApp</a>` : ''}
+            ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;">💬 WhatsApp</a>` : ''}
             <button onclick="updateStatutCandidature('${c.id}','Retenue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;">✓ Retenir</button>
             <button onclick="updateStatutCandidature('${c.id}','Refusée')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;">✗ Refuser</button>
             <button onclick="updateStatutCandidature('${c.id}','Vue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">👁 Vue</button>
@@ -19469,16 +19552,21 @@ function renderRecrutCandidatures(cands) {
             const aiCache = window.woloAi?.getCachedScore?.(c.id);
             const aiScore = aiCache?.score;
             const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
+            const _safeCandNomT = escapeHtml(f['Candidat Nom']||'—');
+            const _safeCandMetierT = escapeHtml(f['Candidat Métier']||'—');
+            const _safeOffreTitreT = escapeHtml(f['Offre Titre']||'—');
+            const _safePhotoUrlT = encodeURI(photo || '');
+            const _safeWaT = encodeURIComponent((wa||'').replace(/\D/g,''));
             return `<tr style="border-bottom:1px solid rgba(255,255,255,.05);background:${rowBg};transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='${rowBg}'">
               <td style="padding:10px 12px;">
                 <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:#E8940A;font-weight:900;overflow:hidden;cursor:${photo ? 'pointer' : 'default'};"
-                  ${photo ? `onclick="openPhotoLightbox('${photo}')"` : ''}>
-                  ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Candidat Nom']||'?')[0].toUpperCase()}
+                  ${photo ? `onclick="openPhotoLightbox('${_safePhotoUrlT}')"` : ''}>
+                  ${photo ? `<img src="${_safePhotoUrlT}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : escapeHtml((f['Candidat Nom']||'?')[0].toUpperCase())}
                 </div>
               </td>
-              <td style="padding:10px 12px;color:#F8F6F1;font-weight:700;white-space:nowrap;">${f['Candidat Nom']||'—'}</td>
-              <td style="padding:10px 12px;color:#E8940A;white-space:nowrap;">${f['Candidat Métier']||'—'}</td>
-              <td style="padding:10px 12px;color:rgba(248,246,241,.6);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f['Offre Titre']||'—'}</td>
+              <td style="padding:10px 12px;color:#F8F6F1;font-weight:700;white-space:nowrap;">${_safeCandNomT}</td>
+              <td style="padding:10px 12px;color:#E8940A;white-space:nowrap;">${_safeCandMetierT}</td>
+              <td style="padding:10px 12px;color:rgba(248,246,241,.6);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_safeOffreTitreT}</td>
               <td style="padding:10px 12px;white-space:nowrap;"><span style="font-weight:700;color:${scoreColor};">${score}</span>${aiScore != null ? `<span style="margin-left:6px;font-weight:800;color:${aiColor};font-size:12px;" title="Score IA">🤖 ${aiScore}</span>` : ''}</td>
               <td style="padding:10px 12px;white-space:nowrap;"><span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>${ghosted ? `<span style="margin-left:6px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.15);color:#f87171;">⏰ ${ageJ}j</span>` : ''}</td>
               <td style="padding:10px 12px;color:rgba(248,246,241,.5);white-space:nowrap;">${date}</td>
@@ -19487,7 +19575,7 @@ function renderRecrutCandidatures(cands) {
                   <button onclick="scoreCandidatRecru('${c.id}')" title="Score IA" style="padding:4px 8px;border-radius:6px;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;font-size:12px;">🤖</button>
                   <button onclick="openMessagerieRecru('${c.id}')" title="Message" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:12px;">💬</button>
                   <button onclick="openEntretienRecru('${c.id}')" title="Planifier entretien" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">📅</button>
-                  ${wa ? `<a href="https://wa.me/${wa.replace(/\D/g,'')}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">📱</a>` : ''}
+                  ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">📱</a>` : ''}
                   <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;">✓</button>
                   <button onclick="updateStatutCandidature('${c.id}','Refusée')" title="Refuser" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;">✗</button>
                   <button onclick="updateStatutCandidature('${c.id}','Vue')" title="Marquer vue" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">👁</button>
