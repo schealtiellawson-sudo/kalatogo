@@ -18439,12 +18439,33 @@ async function loadMesCandidatures() {
   }
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   try {
-    const params = new URLSearchParams({ filterByFormula: `{Candidat ID}="${currentPrestataire.id}"`, maxRecords: 100 });
-    params.append('sort[0][field]', 'Date candidature');
-    params.append('sort[0][direction]', 'desc');
-    const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
-    const data = await r.json();
-    const cands = data.records || [];
+    let cands = [];
+    if (window.supaCandidatures) {
+      // Supabase : on filtre sur candidat_user_id (UUID Supabase auth)
+      const userId = window.currentUser?.id || '';
+      if (userId) {
+        try {
+          cands = await window.supaCandidatures.list({ candidat_user_id: userId, limit: 100 });
+        } catch (e) {
+          console.warn('[loadMesCandidatures supa fail]', e?.message || e);
+          cands = [];
+        }
+      }
+      // Pas de fallback Airtable si Supabase a répondu (même tableau vide) — évite double-affichage
+    } else {
+      // Fallback Airtable (helper non chargé) : matcher Candidat ID OU Candidat User ID
+      const recId = currentPrestataire.id || '';
+      const userId = window.currentUser?.id || '';
+      const idsToTry = [recId, userId].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+      const orParts = idsToTry.map(id => `OR({Candidat ID}="${id}",{Candidat User ID}="${id}")`);
+      const formula = orParts.length > 1 ? `OR(${orParts.join(',')})` : (orParts[0] || `{Candidat ID}="${recId}"`);
+      const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 100 });
+      params.append('sort[0][field]', 'Date candidature');
+      params.append('sort[0][direction]', 'desc');
+      const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
+      const data = await r.json();
+      cands = data.records || [];
+    }
 
     if (cands.length === 0) {
       container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gris);">
@@ -19165,17 +19186,32 @@ async function loadCandidaturesRecues() {
   try {
     // ID mismatch fix : `currentPrestataire.id` peut être soit un UUID Supabase soit un recXXX Airtable.
     // On cherche les candidatures qui matchent l'un OU l'autre (Recruteur ID ou Recruteur User ID).
-    const recId = currentPrestataire.id || '';
-    const userId = window.currentUser?.id || '';
-    const idsToTry = [recId, userId].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
-    const orParts = idsToTry.map(id => `OR({Recruteur ID}="${id}",{Recruteur User ID}="${id}")`);
-    const formula = orParts.length > 1 ? `OR(${orParts.join(',')})` : (orParts[0] || `{Recruteur ID}="${recId}"`);
-    const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
-    params.append('sort[0][field]', 'Date candidature');
-    params.append('sort[0][direction]', 'desc');
-    const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
-    const data = await r.json();
-    allRecrutCandidatures = data.records || [];
+    if (window.supaCandidatures) {
+      const userId = window.currentUser?.id || '';
+      let recs = [];
+      if (userId) {
+        try {
+          recs = await window.supaCandidatures.list({ recruteur_user_id: userId, limit: 200 });
+        } catch (e) {
+          console.warn('[loadCandidaturesRecues supa fail]', e?.message || e);
+          recs = [];
+        }
+      }
+      allRecrutCandidatures = recs;
+      // Pas de fallback Airtable si Supabase a répondu (même []) — évite double-affichage
+    } else {
+      const recId = currentPrestataire.id || '';
+      const userId = window.currentUser?.id || '';
+      const idsToTry = [recId, userId].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+      const orParts = idsToTry.map(id => `OR({Recruteur ID}="${id}",{Recruteur User ID}="${id}")`);
+      const formula = orParts.length > 1 ? `OR(${orParts.join(',')})` : (orParts[0] || `{Recruteur ID}="${recId}"`);
+      const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
+      params.append('sort[0][field]', 'Date candidature');
+      params.append('sort[0][direction]', 'desc');
+      const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
+      const data = await r.json();
+      allRecrutCandidatures = data.records || [];
+    }
 
     // KPI cards
     const total     = allRecrutCandidatures.length;
@@ -19812,10 +19848,20 @@ window.notifyCandidatEntretien = async function(candidature, body) {
 // ── Sprint E : Notification candidat sur changement statut ──
 async function notifyCandidatStatut(candidatureId, nouveauStatut) {
   try {
-    // Récupérer la candidature (toujours sur Airtable — table non migrée)
-    const resCand = await fetch(AT_URL('Candidatures') + '/' + candidatureId, { headers: AT_HEADERS });
-    if (!resCand.ok) { console.warn('[notifyCandidatStatut] Candidature introuvable:', candidatureId); return; }
-    const candidature = await resCand.json();
+    // Récupérer la candidature : Supabase d'abord, fallback Airtable
+    let candidature = null;
+    if (window.supaCandidatures) {
+      try {
+        candidature = await window.supaCandidatures.findById(candidatureId);
+      } catch (e) {
+        console.warn('[notifyCandidatStatut supa fail]', e?.message || e);
+      }
+    }
+    if (!candidature) {
+      const resCand = await fetch(AT_URL('Candidatures') + '/' + candidatureId, { headers: AT_HEADERS });
+      if (!resCand.ok) { console.warn('[notifyCandidatStatut] Candidature introuvable:', candidatureId); return; }
+      candidature = await resCand.json();
+    }
     const fields = candidature.fields || {};
     const candidatId = fields['Candidat ID'];
     const offreTitre = fields['Offre Titre'] || 'une offre';
