@@ -5686,9 +5686,10 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('widgets-metier')" id="dl-widgets-metier">
             <i data-lucide="layers"></i> <span>Mes services métier</span>
           </button>
-          <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
+          <!-- Mes posts masqué 2026-05-07 — report V1.1 (redondant avec Mur des Reines + feed home) -->
+          <!--<button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
             <i data-lucide="file-text"></i> <span>Mes posts</span>
-          </button>
+          </button>-->
         </div>
       </div>
 
@@ -5726,48 +5727,53 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
       </div>
 
-      <!-- Emploi & Recrutement -->
-      <div class="dash-group" data-group="emploi">
+      <!-- Mon emploi (candidat) -->
+      <div class="dash-group" data-group="mon-emploi-candidat">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
-          <i data-lucide="briefcase"></i>
-          <span class="dash-group-lbl">Emploi &amp; Recrutement</span>
+          <i data-lucide="search"></i>
+          <span class="dash-group-lbl">Mon emploi</span>
           <i data-lucide="chevron-right" class="dash-chev"></i>
         </button>
         <div class="dash-group-body">
-          <div class="dash-subgroup">
-            <div class="dash-subgroup-lbl">Je cherche</div>
-            <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
-              <i data-lucide="search"></i> <span>Trouver un emploi</span>
-            </button>
-            <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
-              <i data-lucide="file-user"></i> <span>Mon CV WOLO</span>
-            </button>
-            <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
-              <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
-            </button>
-            <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens">
-              <i data-lucide="calendar-check"></i> <span>Mes entretiens</span>
-            </button>
-          </div>
-          <div class="dash-subgroup" id="dl-recrut-section" style="display:none;">
-            <div class="dash-subgroup-lbl">Je recrute</div>
-            <button class="dash-link" onclick="showDashSection('recrut-dashboard')" id="dl-recrut-dashboard">
-              <i data-lucide="layout-dashboard"></i> <span>Tableau de bord</span>
-            </button>
-            <button class="dash-link" onclick="showDashSection('recrut-publier')" id="dl-recrut-publier">
-              <i data-lucide="megaphone"></i> <span>Publier une offre</span>
-            </button>
-            <button class="dash-link" onclick="showDashSection('recrut-offres')" id="dl-recrut-offres">
-              <i data-lucide="folder-open"></i> <span>Mes offres</span>
-            </button>
-            <button class="dash-link" onclick="showDashSection('recrut-candidatures')" id="dl-recrut-candidatures">
-              <i data-lucide="users"></i> <span>Candidatures reçues</span>
-            </button>
-            <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens-recru">
-              <i data-lucide="calendar-clock"></i> <span>Mes entretiens</span>
-            </button>
-            <!-- Pipeline Talent / Équipe / Paie / Annonces / CA reportés V1.2 (simplification MVP 8 juin) -->
-          </div>
+          <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
+            <i data-lucide="search"></i> <span>Trouver un emploi</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
+            <i data-lucide="file-user"></i> <span>Mon CV WOLO</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
+            <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens">
+            <i data-lucide="calendar-check"></i> <span>Mes entretiens</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Je recrute (recruteur) -->
+      <div class="dash-group" data-group="je-recrute" id="dl-recrut-section" style="display:none;">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
+          <i data-lucide="briefcase"></i>
+          <span class="dash-group-lbl">Je recrute</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('recrut-dashboard')" id="dl-recrut-dashboard">
+            <i data-lucide="layout-dashboard"></i> <span>Tableau de bord</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('recrut-publier')" id="dl-recrut-publier">
+            <i data-lucide="megaphone"></i> <span>Publier une offre</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('recrut-offres')" id="dl-recrut-offres">
+            <i data-lucide="folder-open"></i> <span>Mes offres</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('recrut-candidatures')" id="dl-recrut-candidatures">
+            <i data-lucide="users"></i> <span>Candidatures reçues</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens-recru">
+            <i data-lucide="calendar-clock"></i> <span>Mes entretiens</span>
+          </button>
+          <!-- Pipeline Talent / Équipe / Paie / Annonces / CA reportés V1.2 (simplification MVP 8 juin) -->
         </div>
       </div>
 
