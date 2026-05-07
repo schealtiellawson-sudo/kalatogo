@@ -15,13 +15,9 @@ import awardsCandidater from './_impl/awards-candidater.js';
 // Admin
 import adminVerify from './_impl/admin-verify.js';
 import agentsTerrain from './_impl/agents-terrain.js';
-// Business Suite
-import invitationCreate from './_impl/invitation-create.js';
-import invitationGet from './_impl/invitation-get.js';
-import invitationAccept from './_impl/invitation-accept.js';
-import paiePay from './_impl/paie-pay.js';
-import paieBulletin from './_impl/paie-bulletin.js';
-import annoncesBroadcast from './_impl/annonces-broadcast.js';
+// Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP 8 juin)
+// Imports retirés : invitation-create / invitation-get / invitation-accept / paie-pay / paie-bulletin / annonces-broadcast
+// Les fichiers _impl/ sont conservés pour réactivation future
 // Sprint 14 — Mur des Reines + King & Queen
 import feedList from './_impl/feed-list.js';
 import feedPost from './_impl/feed-post.js';
@@ -97,9 +93,6 @@ const PUBLIC_ACTIONS = new Set([
   'recompenses-status',
   'admin-verify',
   'agents-terrain',
-  'invitation-get',
-  'invitation-accept',
-  'paie-bulletin',
   'feed-list',
   'feed-discover',
   'badges-list',
@@ -151,12 +144,6 @@ const handlers = {
   'awards-candidater': awardsCandidater,
   'admin-verify': adminVerify,
   'agents-terrain': agentsTerrain,
-  'invitation-create': invitationCreate,
-  'invitation-get': invitationGet,
-  'invitation-accept': invitationAccept,
-  'paie-pay': paiePay,
-  'paie-bulletin': paieBulletin,
-  'annonces-broadcast': annoncesBroadcast,
   'feed-list': feedList,
   'feed-post': feedPost,
   'feed-like': feedLike,
