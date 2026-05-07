@@ -22,7 +22,7 @@ export async function callGemini({ system, user, jsonMode = false, maxTokens = 1
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY missing');
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
   const body = {
     system_instruction: system ? { parts: [{ text: system }] } : undefined,
     contents: [{ role: 'user', parts: [{ text: user }] }],
