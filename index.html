@@ -5183,7 +5183,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <input id="post-inscription-ref-link" readonly style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.25);border-radius:10px;padding:10px 12px;color:#F8F6F1;font-family:'Space Mono',monospace;font-size:12px;" value="">
           <button onclick="navigator.clipboard.writeText(document.getElementById('post-inscription-ref-link').value);toast('Lien copié !','success')" style="background:#E8940A;color:#0f1410;border:none;padding:10px 14px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;">Copier</button>
         </div>
-        <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Je viens de créer mon profil sur WOLO Market ! 🎉 Inscris-toi avec mon lien et on gagne ensemble :\n\n👉 '+document.getElementById('post-inscription-ref-link').value+'\n\nTon travail parle. Pas tes connexions. Sans piston.'),'_blank')" style="width:100%;background:#25d366;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">📱 Partager mon lien sur WhatsApp</button>
+        <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Salut 👋\n\nJe suis sur WOLO Market — la marketplace des pros à Lomé et Cotonou. Mes clients me trouvent enfin, sans piston.\n\nToi aussi tu travailles ? Inscris-toi avec mon lien :\n🔗 '+document.getElementById('post-inscription-ref-link').value+'\n\nCe que tu peux gagner sur WOLO :\n✅ Plus de clients chaque semaine (sans réseau, sans piston)\n✅ Jusqu’à 500 000 FCFA/mois (Bourse de Croissance + Mur des Reines)\n✅ 1 000 FCFA/mois × ami que tu invites Pro — à vie\n\nFais le calcul : 50 amis Pro = 50 000 FCFA/mois automatique. Sans bouger.\n\nSans piston. Ton travail parle.'),'_blank')" style="width:100%;background:#25d366;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">📱 Partager mon lien sur WhatsApp</button>
         <p style="font-size:11px;color:rgba(248,246,241,0.4);margin-top:8px;">5 filleuls Pro = 5 000 FCFA/mois · 20 filleuls Pro = 20 000 FCFA/mois</p>
       </div>
 
@@ -15022,7 +15022,7 @@ async function submitInscription(e) {
 
 // Point 58/59 — Partager son profil sur WhatsApp apres inscription
 function shareInscriptionWhatsApp() {
-  var msg = encodeURIComponent("Je viens de creer mon profil sur WOLO Market ! 🎉 Trouve des prestataires de confiance a Lome et Cotonou — coiffure, couture, mecanique et plus.\n\n👉 wolomarket.com\n\nSans piston. Juste le travail.");
+  var msg = encodeURIComponent("Au Togo et au Bénin :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Le menuisier de Bè a 15 ans d’expérience. Personne ne sait qu’il existe à 500 m.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano. Sans contact c’est l’arnaque.\n\nWOLO Market règle ça.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Les pros de ton quartier — enfin trouvables. Avis vérifiés. GPS. WhatsApp direct.\n\nT’es pro ? Crée ton profil gratuit. Tes clients te trouvent. 500 000 FCFA versés chaque mois aux meilleurs.\n\n🔗 wolomarket.com\n\nSans piston. Ton travail parle.");
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
