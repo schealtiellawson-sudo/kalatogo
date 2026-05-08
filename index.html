@@ -5183,7 +5183,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <input id="post-inscription-ref-link" readonly style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.25);border-radius:10px;padding:10px 12px;color:#F8F6F1;font-family:'Space Mono',monospace;font-size:12px;" value="">
           <button onclick="navigator.clipboard.writeText(document.getElementById('post-inscription-ref-link').value);toast('Lien copié !','success')" style="background:#E8940A;color:#0f1410;border:none;padding:10px 14px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;">Copier</button>
         </div>
-        <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Salut 👋\n\nJe suis sur WOLO Market — la marketplace des pros à Lomé et Cotonou. Mes clients me trouvent enfin.\n\nToi aussi tu travailles ? Inscris-toi avec mon lien :\n🔗 '+document.getElementById('post-inscription-ref-link').value+'\n\nCe que tu peux gagner sur WOLO :\n✅ Plus de clients chaque semaine (sans réseau)\n✅ Jusqu’à 500 000 FCFA/mois (Bourse de Croissance + Mur des Reines)\n✅ 1 000 FCFA/mois × ami que tu invites Pro — à vie\n\nFais le calcul : 50 amis Pro = 50 000 FCFA/mois automatique. Sans bouger.\n\nTon travail parle.'),'_blank')" style="width:100%;background:#25d366;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">📱 Partager mon lien sur WhatsApp</button>
+        <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Salut 👋\n\nTu galères à trouver des clients ? Tu fais ton travail bien mais à 500 m de chez toi personne sait que tu existes ?\n\nJe suis sur WOLO Market — la marketplace des pros à Lomé et Cotonou. GPS, WhatsApp direct, avis vérifiés. Mes clients me trouvent enfin.\n\nCrée ton profil gratuit avec mon lien :\n🔗 '+document.getElementById('post-inscription-ref-link').value+'\n\nCe que ça change pour toi :\n✅ Tes premiers vrais clients (sans connaître personne)\n✅ Jusqu’à 500 000 FCFA/mois en récompenses (Bourse + Mur des Reines)\n✅ 1 000 FCFA/mois × ami que tu invites Pro — chaque mois, à vie\n\n30 amis sur WOLO = 30 000 FCFA chaque mois automatique. C’est un vrai revenu. Sans bouger de chez toi.\n\nTon travail parle. Pas tes connexions.'),'_blank')" style="width:100%;background:#25d366;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">📱 Partager mon lien sur WhatsApp</button>
         <p style="font-size:11px;color:rgba(248,246,241,0.4);margin-top:8px;">5 filleuls Pro = 5 000 FCFA/mois · 20 filleuls Pro = 20 000 FCFA/mois</p>
       </div>
 
@@ -5424,9 +5424,15 @@ div[style*="position:sticky"][style*="background:#fff"] {
             </div>
           </div>
           <div class="form-group">
-            <label>Ville <span class="req">*</span></label>
+            <label>Pays <span class="req">*</span></label>
+            <select id="f-pays" required onchange="buildVilleOptions('f-ville', null, this.value); document.getElementById('f-quartier').innerHTML='<option value=\'\'>D\'abord choisir la ville ↑</option>'">
+              <option value="">Sélectionne ton pays</option>
+              <option value="TG">🇹🇬 Togo</option>
+              <option value="BJ">🇧🇯 Bénin</option>
+            </select>
+            <label style="margin-top:12px;">Ville <span class="req">*</span></label>
             <select id="f-ville" required onchange="buildQuartierOptions('f-ville','f-quartier')">
-              <option value="">Sélectionne ta ville</option>
+              <option value="">D'abord choisir le pays ↑</option>
             </select>
             <label style="margin-top:12px;">Quartier / Zone</label>
             <select id="f-quartier">
@@ -11124,12 +11130,22 @@ const TOGO_REGIONS = {
   "🌾 Région des Savanes": ["Dapaong","Mango","Cinkassé","Tandjoaré"]
 };
 
-function buildVilleOptions(selectId, currentVal) {
+// Mapping pays → régions affichées (TG = Togo, BJ = Bénin)
+const PAYS_REGIONS = {
+  'TG': ['🏙️ Lomé et environs', '🌊 Région Maritime', '🌿 Région des Plateaux', '🏔️ Région Centrale', '⛰️ Région de la Kara', '🌾 Région des Savanes'],
+  'BJ': ['🏙️ Cotonou et environs', '🌴 Sud Bénin', '🌳 Nord Bénin']
+};
+
+function buildVilleOptions(selectId, currentVal, paysCode) {
   const sel = document.getElementById(selectId);
   if (!sel) return;
   const isSearch = selectId.includes('search') || selectId === 's-quartier';
   sel.innerHTML = '<option value="">' + (isSearch ? 'Toutes les villes' : 'Sélectionne ta ville') + '</option>';
-  for (const region in TOGO_REGIONS) {
+  // Si paysCode fourni, filtrer les régions du pays. Sinon, afficher tout (rétrocompatibilité).
+  const regionsToShow = paysCode && PAYS_REGIONS[paysCode]
+    ? PAYS_REGIONS[paysCode].filter(r => TOGO_REGIONS[r])
+    : Object.keys(TOGO_REGIONS);
+  for (const region of regionsToShow) {
     const grp = document.createElement('optgroup');
     grp.label = region;
     TOGO_REGIONS[region].forEach(ville => {
@@ -11242,7 +11258,7 @@ async function loadHomeVedette(){const grid=document.getElementById('vedette-gri
 async function initHome() {
   buildVilleOptions('home-search-quartier');
   buildVilleOptions('s-quartier');
-  buildVilleOptions('f-ville');
+  // f-ville maintenant cascadé : peuplé seulement après sélection du pays (champ #f-pays)
   buildVilleOptions('edit-ville');
 
   // Sprint 7 : gagnants du mois sur la homepage
@@ -15022,7 +15038,7 @@ async function submitInscription(e) {
 
 // Point 58/59 — Partager son profil sur WhatsApp apres inscription
 function shareInscriptionWhatsApp() {
-  var msg = encodeURIComponent("Au Togo et au Bénin :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Le menuisier de Bè a 15 ans d’expérience. Personne ne sait qu’il existe à 500 m.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano. Sans contact c’est l’arnaque.\n\nWOLO Market règle ça.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Les pros de ton quartier — enfin trouvables. Avis vérifiés. GPS. WhatsApp direct.\n\nT’es pro ? Crée ton profil gratuit. Tes clients te trouvent. 500 000 FCFA versés chaque mois aux meilleurs.\n\n🔗 wolomarket.com\n\nTon travail parle.");
+  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOLO Market règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier — enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. 500 000 FCFA versés chaque mois aux meilleurs.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wolomarket.com\n\nTon travail parle. Pas tes connexions.");
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
@@ -27369,9 +27385,11 @@ window.woloNotifPush = async function(prestataireId, key, vars){
     document.body.appendChild(wrap);
 
     var steps = [
-      { icon:'hard-hat',   title:'Bienvenue sur WOLO Market.', text:'Ton profil professionnel gratuit en 2 minutes. Tes clients te trouvent. Tu gagnes en visibilité chaque jour.', primary:'Commencer' },
-      { icon:'trophy',     title:'Gagne jusqu\'à 500 000 FCFA/mois.',       text:"Bourse de Croissance (Pro) + Mur des Reines (toutes les femmes B/T). Chaque mois. + 1M FCFA en finale décembre. Ton travail te paye.", primary:'Suivant' },
-      { icon:'badge-check',title:'Passe Pro — 2 500 FCFA/mois.',  text:"Badge Pro, priorité recherche, éligible aux 3 programmes de récompenses, commissions parrainage. Soit 83 FCFA par jour.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
+      { icon:'hard-hat',   title:'Le travail ne paye pas. On change ça.', text:"Au Togo et au Bénin, le travail ne manque pas. C’est l’argent qui circule pas. À partir d’aujourd’hui, tes clients te trouvent. Ton business tourne. Ton travail paye.", primary:'Commencer' },
+      { icon:'map-pin',    title:'Tes clients te trouvent. Sans réseau.', text:"Le client de Bè qui cherche un coiffeur. La famille d’Akpakpa qui veut un mécano. La mariée d’Adidogomé qui cherche une couturière. Avec ton GPS, ton WhatsApp et tes avis vérifiés, ils te trouvent en 30 secondes.", primary:'Suivant' },
+      { icon:'trophy',     title:'500 000 FCFA versés chaque mois.', text:"Pas une promesse. Un virement. Bourse de Croissance pour les pros sérieux + Mur des Reines pour les femmes du Bénin et du Togo. + 1 000 000 FCFA en finale décembre. Ton travail te paye enfin.", primary:'Suivant' },
+      { icon:'users',      title:'Un vrai revenu. Sans bouger de chez toi.', text:"Tes amis sans boulot ? Invite-les avec ton lien. Quand ils s’activent en Pro, tu touches 1 000 FCFA/mois pour chacun. À vie. 30 amis = 30 000 FCFA chaque mois automatique. Limite un vrai salaire.", primary:'Suivant' },
+      { icon:'badge-check',title:'Passe Pro — 2 500 FCFA/mois.', text:"1 cliente de plus dans le mois et c’est remboursé 10 fois. Badge Pro, priorité recherche, éligible aux 3 programmes (Bourse 300K + Mur des Reines 200K + parrainage). 83 FCFA par jour. Le prix d’un café au coin de la rue.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
     ];
     var idx = 0;
 
