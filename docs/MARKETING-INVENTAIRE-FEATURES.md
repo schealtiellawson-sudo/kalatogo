@@ -8,7 +8,7 @@
 > - **Akossiwa** — photographe freelance 26 ans, Lomé, missions ponctuelles
 > - **Madame Adjo** — patronne restau 45 ans, Cotonou, recrute serveurs + reçoit réservations
 >
-> **Charte voix** : direct, brut, "tu" pas "vous". Phrases canoniques : *"WOLO Market t'appartient"*, *"Ton travail parle. Pas tes connexions."*, *"Sans piston."*
+> **Charte voix** : direct, brut, "tu" pas "vous". Phrases canoniques : *"WOLO Market t'appartient"*, *"Ton travail parle. Pas tes connexions."*
 
 ---
 
@@ -424,7 +424,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 **Pain point résolu** : Pas de carte, pas de filtres, pas d'app. Pôle Emploi version africaine.
 
 **Hook marketing** :
-- Punch : *"Toutes les offres. Sans piston."*
+- Punch : *"Toutes les offres."*
 - Émotion : *"3 offres serveur près de chez Akossiwa. Sans connaître personne au resto."*
 - Viral : *"LinkedIn Jobs pour le vrai monde."*
 
@@ -1023,7 +1023,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Format suggéré** : 30 scripts TikTok REINE01-30 (existant), Reel mensuel résultat.
 
-**Phrase canonique** : *"Sans piston."*
+**Phrase canonique** : *"Ton travail parle."*
 
 **État** : ✅ Live (refonte 2026-04-28)
 
@@ -1862,7 +1862,7 @@ Les 10 features qui se prêtent à un récit personnage / coup de poing émotion
 | 3 | Storytelling apprentie | Mariam, 19 ans, paie pour bosser. WOLO lui rend ses lundis. Son lundi devient sa semaine entière. |
 | 4 | Recrutement Kodjo apprenti | Kodjo, 32 ans, recrute son apprenti. 14h offre. 21h embauche. Sans groupe WhatsApp. |
 | 5 | Akossiwa freelance photo | 26 ans, 200 photos dans WhatsApp. Elle uploade 12 mariages. Le studio appelle le lendemain. |
-| 6 | Madame Adjo serveur weekend | Vendredi midi son serveur lâche. 17h elle a sa relève. Sans intermédiaire. Sans piston. |
+| 6 | Madame Adjo serveur weekend | Vendredi midi son serveur lâche. 17h elle a sa relève. Sans intermédiaire. |
 | 7 | Battle Bénin vs Togo | Le Bénin mène. Lomé se réveille. La cousine de Mariam la pousse à poster. Score s'inverse. |
 | 8 | Parrainage étudiant UCAO | Étudiant 21 ans. 47 amis Pro parrainés. 47 000 F/mois. Plus que son SMIG futur. |
 | 9 | Badge Fondateur 1 000 | Pionnier en 2026. Quand WOLO aura 50 000 prestas, sa fille verra son badge. |
@@ -1876,7 +1876,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **8 juin 2026** (lancement)
 
 | Jour | Date | Plateforme | Format | Feature | Hook |
 |---|---|---|---|---|---|
-| J-7 | 1 juin | IG + TikTok | Reel teaser 30s | Lancement 8 juin | "Le 8 juin, l'économie du Togo et du Bénin change. Sans piston." |
+| J-7 | 1 juin | IG + TikTok | Reel teaser 30s | Lancement 8 juin | "Le 8 juin, l'économie du Togo et du Bénin change." |
 | J-3 | 5 juin | IG | Story countdown | Lancement | "Plus que 3 jours. Plus que 1 000 places Fondateurs." |
 | J-1 | 7 juin | TikTok | Reel | Storytelling apprentie | "Tu paies 80K à ta patronne. T'as pas un jour à toi. Demain ça change." |
 | J0 | 8 juin | IG + TikTok + WhatsApp | Reel + Story + Broadcast | Lancement officiel | "C'est ouvert. WOLO Market t'appartient." |

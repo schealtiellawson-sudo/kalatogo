@@ -72,7 +72,7 @@ INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) 
 
 Tu travailles dur chez Madame du mardi au samedi. Tu mérites tes propres clientes en plus.
 
-WOLO Market c''est ton dimanche à toi. Tes clientes perso. Sans piston.
+WOLO Market c''est ton dimanche à toi. Tes clientes perso.
 
 → {url_dashboard}'),
 
@@ -452,7 +452,7 @@ Caution intégralement remboursée si aucune ne répond dans les délais.
 
 Juste les meilleures de {quartier} classées par avis vrais et qualité du travail. Si vous avez besoin demain, vous savez où chercher.
 
-Sans piston. Le travail parle.
+Le travail parle.
 
 → {url_recherche}')
 

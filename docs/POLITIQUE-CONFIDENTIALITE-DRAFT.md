@@ -8,7 +8,7 @@ Tes données c'est ta vie. On le sait. Voilà exactement ce qu'on garde, pourquo
 
 ## C'est quoi WOLO Market ?
 
-WOLO Market, c'est une marketplace qui rend visible le travail. On connecte les coiffeuses, mécaniciens, couturiers, photographes, restauratrices et tous les pros invisibles du Togo et du Bénin avec des clients qui les cherchent. Sans piston. Sans réseau. Juste le travail.
+WOLO Market, c'est une marketplace qui rend visible le travail. On connecte les coiffeuses, mécaniciens, couturiers, photographes, restauratrices et tous les pros invisibles du Togo et du Bénin avec des clients qui les cherchent. Sans réseau. Juste le travail.
 
 Pour faire ça, on a besoin de quelques infos sur toi. Pas pour les vendre. Pas pour t'inonder de pubs. Juste pour faire tourner la plateforme.
 

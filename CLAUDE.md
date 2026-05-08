@@ -407,7 +407,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 - → User doit régénérer ces deux après validation des changements.
 
 ### Décisions stratégiques validées (à NE PAS revenir dessus)
-- King & Queen tué (cassait le brand "Sans piston", redondance avec MdR)
+- King & Queen tué (redondance avec MdR)
 - Mur des Reines pivote en outil d'acquisition massive (ouvert à toutes les femmes B/T, pas Pro-only)
 - Mécanique Option A : quota pays + alternance catégorie (12 Bénin + 12 Togo/an garantis)
 - Pas de "Mains d'Or" payantes pour les pros — uniquement visibilité gratuite (boost profil + badge "Taguée par X reines")
