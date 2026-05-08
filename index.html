@@ -6359,9 +6359,15 @@ div[style*="position:sticky"][style*="background:#fff"] {
               </div>
             </div>
             <div class="form-group">
-              <label>Ville</label>
+              <label>Pays</label>
+              <select id="edit-pays" onchange="buildVilleOptions('edit-ville', null, this.value); document.getElementById('edit-quartier').innerHTML='<option value=\'\'>D\'abord choisir la ville ↑</option>'">
+                <option value="">Sélectionne ton pays</option>
+                <option value="TG">🇹🇬 Togo</option>
+                <option value="BJ">🇧🇯 Bénin</option>
+              </select>
+              <label style="margin-top:10px;">Ville</label>
               <select id="edit-ville" onchange="buildQuartierOptions('edit-ville','edit-quartier')">
-                <option value="">Sélectionne ta ville</option>
+                <option value="">D'abord choisir le pays ↑</option>
               </select>
               <label style="margin-top:10px;">Quartier / Zone</label>
               <select id="edit-quartier">
@@ -8836,8 +8842,26 @@ function loadEditForm() {
   if (f['Métier principal']) {
     for (let opt of metierSel.options) { if (opt.value === f['Métier principal']) { opt.selected = true; break; } }
   }
-  if (f['Quartier']) {
-    for (let opt of quartierSel.options) { if (opt.value === f['Quartier']) { opt.selected = true; break; } }
+
+  // Cascade Pays > Ville > Quartier — peupler edit-pays/edit-ville/edit-quartier depuis le profil
+  const villeActuelle = f['Ville'] || '';
+  const quartierActuel = f['Quartier'] || '';
+  // Inférer le pays depuis la ville (BJ ou TG)
+  const _vLow = (villeActuelle + ' ' + quartierActuel).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','calavi','bohicon','lokossa','natitingou','djougou','kandi','malanville','nikki','tchaourou','savè','sèmè','allada','comé'].some(b => _vLow.includes(b));
+  const paysCode = _isBJ ? 'BJ' : (villeActuelle ? 'TG' : '');
+  const editPaysSel = document.getElementById('edit-pays');
+  if (editPaysSel && paysCode) {
+    editPaysSel.value = paysCode;
+    // Peupler les villes du pays
+    buildVilleOptions('edit-ville', villeActuelle, paysCode);
+    // Peupler les quartiers de la ville
+    buildQuartierOptions('edit-ville', 'edit-quartier');
+    // Re-sélectionner le quartier
+    const qSel = document.getElementById('edit-quartier');
+    if (qSel && quartierActuel) {
+      for (let opt of qSel.options) { if (opt.value === quartierActuel) { opt.selected = true; break; } }
+    }
   }
 
   // Statut socio-économique : rendu dynamiquement selon le métier via WoloMetierStatuts
@@ -11258,8 +11282,7 @@ async function loadHomeVedette(){const grid=document.getElementById('vedette-gri
 async function initHome() {
   buildVilleOptions('home-search-quartier');
   buildVilleOptions('s-quartier');
-  // f-ville maintenant cascadé : peuplé seulement après sélection du pays (champ #f-pays)
-  buildVilleOptions('edit-ville');
+  // f-ville et edit-ville maintenant cascadés : peuplés seulement après sélection du pays (#f-pays / #edit-pays)
 
   // Sprint 7 : gagnants du mois sur la homepage
   setTimeout(() => loadHomeGagnants(), 500);
