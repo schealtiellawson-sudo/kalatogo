@@ -16373,6 +16373,10 @@ async function loadPageRecompenses() {
   // Section Top Mains les Plus Demandées (publique)
   try { loadTopMains(); } catch(e) { console.warn('[topmains init]', e); }
 
+  // 🆕 Section TikTok partagée + Checklists dynamiques (si user connecté)
+  try { renderTikTokSharedSection(); } catch(e) { console.warn('[tiktok shared]', e); }
+  try { loadChecklistsRecompenses(); } catch(e) { console.warn('[checklists recompenses]', e); }
+
   try {
     // Charger le statut si connecté Pro
     if (currentUser?.id && !isBase) {
@@ -16447,6 +16451,138 @@ window._topMainsState = { categorie: 'coiffure', pays: '' };
 
 function _tmEscape(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ════════════════════════════════════════════════════════════════
+// 🆕 Refonte Récompenses 2026-05-15 — TikTok partagé + Checklists
+// ════════════════════════════════════════════════════════════════
+
+function renderTikTokSharedSection() {
+  const box = document.getElementById('recomp-tiktok-shared');
+  if (!box) return;
+  if (!currentUser || !currentPrestataire) {
+    box.style.display = 'none';
+    return;
+  }
+  box.style.display = 'block';
+
+  const f = currentPrestataire.fields || {};
+  const wolo = Boolean(f.tiktok_suivi_wolomarket || f['Tiktok Suivi Wolomarket']);
+  const sche = Boolean(f.tiktok_suivi_schealtiel || f['Tiktok Suivi Schealtiel']);
+
+  const iconW = document.getElementById('tiktok-icon-wolomarket');
+  const iconS = document.getElementById('tiktok-icon-schealtiel');
+  const btnW = document.getElementById('tiktok-btn-wolomarket');
+  const btnS = document.getElementById('tiktok-btn-schealtiel');
+
+  if (iconW) iconW.textContent = wolo ? '✅' : '❌';
+  if (iconS) iconS.textContent = sche ? '✅' : '❌';
+  if (btnW) {
+    btnW.innerHTML = wolo ? '✓ Suivi (annuler)' : '☐ J’ai suivi';
+    btnW.style.background = wolo ? '#E8940A' : 'transparent';
+    btnW.style.color = wolo ? '#0f1410' : '#E8940A';
+  }
+  if (btnS) {
+    btnS.innerHTML = sche ? '✓ Suivi (annuler)' : '☐ J’ai suivi';
+    btnS.style.background = sche ? '#E8940A' : 'transparent';
+    btnS.style.color = sche ? '#0f1410' : '#E8940A';
+  }
+}
+
+async function toggleTikTokSuivi(field) {
+  if (!currentPrestataire) {
+    toast('Connecte-toi pour valider', 'error');
+    return;
+  }
+  const f = currentPrestataire.fields || {};
+  const newVal = !Boolean(f[field] || f[field.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase())]);
+  try {
+    if (window.supaPrest && typeof window.supaPrest.update === 'function') {
+      await window.supaPrest.update(currentPrestataire.id, { [field]: newVal });
+    }
+    currentPrestataire.fields[field] = newVal;
+    renderTikTokSharedSection();
+    loadChecklistsRecompenses(); // refresh ratio
+    toast(newVal ? 'Merci ! Tu marques +1 condition.' : 'Décoché.', 'success');
+  } catch (e) {
+    console.warn('[toggleTikTokSuivi]', e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+
+async function loadChecklistsRecompenses() {
+  if (!currentUser) return;
+  // MdR
+  try {
+    const r = await woloFetch('/api/wolo-pay/mdr-eligibilite');
+    const d = await r.json();
+    renderChecklist('mdr', d);
+  } catch (e) {
+    console.warn('[mdr-eligibilite fetch]', e);
+  }
+  // Bourse
+  try {
+    const r = await woloFetch('/api/wolo-pay/bourse-eligibilite');
+    const d = await r.json();
+    renderChecklist('bourse', d);
+  } catch (e) {
+    console.warn('[bourse-eligibilite fetch]', e);
+  }
+}
+
+function renderChecklist(prefix, d) {
+  const box = document.getElementById(prefix + '-checklist-dynamic');
+  const listEl = document.getElementById(prefix + '-conditions-list');
+  const badge = document.getElementById(prefix + '-ratio-badge');
+  const status = document.getElementById(prefix + '-status-msg');
+  if (!box || !listEl) return;
+  box.style.display = 'block';
+
+  if (d.raison === 'profil_introuvable') {
+    listEl.innerHTML = '<div>Profil pas encore créé. <a href="#inscription" style="color:#E8940A">Inscris-toi →</a></div>';
+    if (badge) badge.textContent = '—';
+    return;
+  }
+
+  const labels = (prefix === 'mdr') ? {
+    profil_complet: 'Profil complet (photo + métier + ville/quartier + numéro)',
+    metier_ok: 'Métier compatible (Coiffeuse mois impair · Couturière mois pair)',
+    photo_du_mois: '≥ 1 photo de réalisation sur ton profil ce mois',
+    avis_30j: '≥ 1 avis client sur les 30 derniers jours',
+    activite_recente: 'Connexion récente (≤ 14 jours)',
+    tiktok_wolomarket: 'Suivre @wolomarket sur TikTok',
+    tiktok_schealtiel: 'Suivre @schealtiellawson sur TikTok',
+  } : {
+    plan_pro_actif: 'Plan Pro actif ce mois-ci',
+    profil_complet: 'Profil complet (photo + métier + ville/quartier + numéro)',
+    score_wolo_80: 'Score WOLO ≥ 80/100',
+    avis_3_sur_30j: '≥ 3 avis clients sur les 30 derniers jours',
+    note_42: 'Note moyenne ≥ 4.2★ sur 30 jours',
+    activite_recente: 'Connexion récente (≤ 14 jours)',
+    pas_gagne_recent: 'Pas gagné dans les 3 derniers mois',
+    tiktok_wolomarket: 'Suivre @wolomarket sur TikTok',
+    tiktok_schealtiel: 'Suivre @schealtiellawson sur TikTok',
+  };
+
+  const conds = d.conditions || {};
+  const items = Object.entries(labels).map(([key, label]) => {
+    const ok = Boolean(conds[key]);
+    return '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:16px;width:22px;text-align:center">' + (ok ? '✅' : '❌') + '</span><span style="' + (ok ? 'color:#F8F6F1' : 'color:rgba(248,246,241,.65)') + '">' + escapeHtml(label) + '</span></div>';
+  }).join('');
+  listEl.innerHTML = items;
+
+  if (badge) badge.textContent = d.ratio || '—';
+
+  if (status) {
+    if (d.eligible) {
+      status.innerHTML = '🔥 <strong style="color:#22c55e">Tu es dans le pool du tirage !</strong> Tirage le 30 du mois à 18h.';
+      status.style.color = '#22c55e';
+    } else {
+      const manque = Object.entries(conds).filter(([,v]) => !v).length;
+      status.innerHTML = 'Il te manque <strong style="color:#E8940A">' + manque + ' condition' + (manque > 1 ? 's' : '') + '</strong> pour entrer au tirage. Complète-les ↑';
+      status.style.color = 'rgba(248,246,241,.7)';
+    }
+  }
 }
 
 async function loadTopMains() {
@@ -21693,8 +21829,42 @@ loadSchealtielPhoto();
     <!-- Header -->
     <div style="text-align:center;padding:40px 0 30px">
       <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:12px">RÉCOMPENSES MENSUELLES</div>
-      <h1 style="font-family:Fraunces,serif;font-size:clamp(28px,5vw,42px);font-weight:900;color:#F8F6F1;margin:0 0 10px">500 000 FCFA distribués<br>chaque mois</h1>
-      <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto">Bourse de Croissance (300K, Pro) · La Bourse des Mains d'Or (100K × 2 Reines, ouvert à toutes les femmes B/T).<br>Chaque mois. + 1M FCFA en finale décembre — Bénin vs Togo.</p>
+      <h1 style="font-family:Fraunces,serif;font-size:clamp(28px,5vw,42px);font-weight:900;color:#F8F6F1;margin:0 0 10px">800 000 FCFA distribués<br>chaque mois</h1>
+      <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto"><strong>Bourse de Croissance</strong> (300K × 2 — 1 Togo + 1 Bénin, Pro) · <strong>Bourse des Mains d'Or</strong> (100K × 2 — 1 Togo + 1 Bénin, ouvert à toutes les femmes coiffeuses/couturières).<br>Tirage 100% aléatoire le 30 du mois.</p>
+    </div>
+
+    <!-- 🎵 Section TikTok partagée (conditions communes Bourse + Mains d'Or) -->
+    <div id="recomp-tiktok-shared" style="background:linear-gradient(135deg,rgba(232,148,10,0.12),rgba(232,148,10,0.04));border:1.5px solid rgba(232,148,10,0.35);border-radius:20px;padding:24px;margin-bottom:24px;display:none">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
+        <span style="font-size:28px">🎵</span>
+        <div style="flex:1">
+          <h2 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;margin:0">Connecte tes TikTok WOLO</h2>
+          <p style="font-size:12px;color:rgba(248,246,241,.65);margin:4px 0 0">Valable pour les <strong>2 récompenses</strong> · 1 fois pour toutes</p>
+        </div>
+      </div>
+      <p style="color:rgba(248,246,241,.7);font-size:13px;line-height:1.6;margin:12px 0 18px">Suivre nos comptes TikTok est la condition la plus simple. C'est gratuit, ça t'expose à d'autres pros et clients, et c'est l'algorithme qui s'occupe du reste.</p>
+
+      <!-- Row 1 : @wolomarket -->
+      <div id="tiktok-row-wolomarket" style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(232,148,10,0.18);border-radius:14px;padding:14px;margin-bottom:10px;flex-wrap:wrap">
+        <span id="tiktok-icon-wolomarket" style="font-size:22px;width:32px;text-align:center">❌</span>
+        <div style="flex:1;min-width:140px">
+          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@wolomarket sur TikTok</div>
+          <div style="font-size:11px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace">CONDITION OBLIGATOIRE</div>
+        </div>
+        <a href="https://www.tiktok.com/@wolomarket" target="_blank" rel="noopener" style="background:#E8940A;color:#0f1410;border:none;padding:10px 16px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block">🎵 Aller suivre</a>
+        <button onclick="toggleTikTokSuivi('tiktok_suivi_wolomarket')" id="tiktok-btn-wolomarket" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:100px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">☐ J'ai suivi</button>
+      </div>
+
+      <!-- Row 2 : @schealtiellawson -->
+      <div id="tiktok-row-schealtiel" style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(232,148,10,0.18);border-radius:14px;padding:14px;flex-wrap:wrap">
+        <span id="tiktok-icon-schealtiel" style="font-size:22px;width:32px;text-align:center">❌</span>
+        <div style="flex:1;min-width:140px">
+          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@schealtiellawson sur TikTok</div>
+          <div style="font-size:11px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace">CONDITION OBLIGATOIRE</div>
+        </div>
+        <a href="https://www.tiktok.com/@schealtiellawson" target="_blank" rel="noopener" style="background:#E8940A;color:#0f1410;border:none;padding:10px 16px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block">🎵 Aller suivre</a>
+        <button onclick="toggleTikTokSuivi('tiktok_suivi_schealtiel')" id="tiktok-btn-schealtiel" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:100px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">☐ J'ai suivi</button>
+      </div>
     </div>
 
     <!-- Section Bourse -->
@@ -21706,21 +21876,34 @@ loadSchealtielPhoto();
           <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">300 000 FCFA / mois</p>
         </div>
       </div>
-      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">Pour les prestataires les plus actifs et les mieux notés. Pas de chance pure — ton Score WOLO, tes avis clients et ta constance décident de ton éligibilité.</p>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:8px"><strong style="color:#E8940A;font-size:16px;font-family:Fraunces,serif">Pas le plus connu. Le plus sérieux.</strong></p>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">L'algorithme ne triche pas. Il regarde ton travail : tes avis, ta note, ta constance. 1 gagnant Togo + 1 gagnant Bénin chaque mois. Tirage 100% aléatoire parmi les sérieux. <strong>300 000 FCFA = 6 mois de SMIG en 48h.</strong></p>
 
-      <!-- Widget état du membre connecté -->
+      <!-- Widget état du membre connecté (V1, legacy) -->
       <div id="recomp-bourse-widget"></div>
 
-      <!-- Conditions -->
+      <!-- 🆕 Checklist dynamique Bourse de Croissance -->
+      <div id="bourse-checklist-dynamic" style="margin-top:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:18px;display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3 style="font-size:13px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px;margin:0">🏆 MES CHANCES DE GAGNER CE MOIS</h3>
+          <span id="bourse-ratio-badge" style="background:rgba(232,148,10,0.15);color:#E8940A;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:800;font-family:'Space Mono',monospace">—</span>
+        </div>
+        <div id="bourse-conditions-list" style="display:grid;gap:8px;font-size:13px;color:rgba(248,246,241,.85)">Chargement…</div>
+        <div id="bourse-status-msg" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,0.15);font-size:13px;color:rgba(248,246,241,.7);font-style:italic"></div>
+      </div>
+
+      <!-- Conditions affichées pour tous (publique) -->
       <div style="margin-top:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:16px">
         <h3 style="font-size:13px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</h3>
         <div style="display:grid;gap:8px;font-size:13px;color:rgba(248,246,241,.7)">
-          <div>✓ Plan Pro actif depuis au moins 2 mois consécutifs</div>
+          <div>✓ Plan Pro actif <strong>ce mois-ci</strong></div>
+          <div>✓ Profil complet (photo + métier + ville/quartier + numéro)</div>
           <div>✓ Score WOLO ≥ 80 points sur 100</div>
-          <div>✓ Au moins 4 avis clients sur les 30 derniers jours</div>
-          <div>✓ Note moyenne ≥ 4,2 étoiles</div>
-          <div>✓ Aucun avis fabriqué (vérification anti-manipulation)</div>
-          <div>✓ Pas de victoire les 3 derniers mois</div>
+          <div>✓ Au moins <strong>3 avis clients</strong> sur les 30 derniers jours</div>
+          <div>✓ Note moyenne ≥ 4,2 étoiles sur 30 jours</div>
+          <div>✓ Connexion récente (≤ 14 jours)</div>
+          <div>✓ Pas gagné les 3 derniers mois</div>
+          <div>✓ Suivre @wolomarket et @schealtiellawson sur TikTok</div>
         </div>
       </div>
 
@@ -21737,10 +21920,20 @@ loadSchealtielPhoto();
           <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">100 000 FCFA × 2 Reines / mois (1 Bénin + 1 Togo) · Ouvert à toutes les femmes B/T</p>
         </div>
       </div>
-      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour. Et le pays regarde.</strong><br><br>Chaque mois alterne entre ✂️ Coiffure (mois impairs) et 👗 Couture (mois pairs). 2 Reines couronnées : 1 du Bénin, 1 du Togo. <strong>100 000 FCFA chacune</strong> = un trimestre de loyer à Bè, une machine Singer pro, une formation BTS, le cahier de l'année pour 3 enfants. Pas une loterie. Ton travail. Ouvert à toutes les femmes du Togo et du Bénin — pas besoin d'être Pro.</p>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour. Et le pays regarde.</strong><br><br>Une machine Singer neuve coûte 95 000 FCFA. La Bourse des Mains d'Or paie <strong>100 000 FCFA × 2 chaque mois</strong> (1 Togo + 1 Bénin). Mois impair = ✂️ Coiffure, mois pair = 👗 Couture. Tirage 100% aléatoire le 30 du mois. <strong>Pas besoin d'être Pro</strong> — gratuit pour toutes les femmes du Togo et du Bénin.</p>
+
+      <!-- 🆕 Checklist dynamique Bourse des Mains d'Or -->
+      <div id="mdr-checklist-dynamic" style="margin-bottom:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:18px;display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3 style="font-size:13px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px;margin:0">👑 MES CHANCES DE GAGNER CE MOIS</h3>
+          <span id="mdr-ratio-badge" style="background:rgba(232,148,10,0.15);color:#E8940A;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:800;font-family:'Space Mono',monospace">—</span>
+        </div>
+        <div id="mdr-conditions-list" style="display:grid;gap:8px;font-size:13px;color:rgba(248,246,241,.85)">Chargement…</div>
+        <div id="mdr-status-msg" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,0.15);font-size:13px;color:rgba(248,246,241,.7);font-style:italic"></div>
+      </div>
 
       <div style="text-align:center;margin:16px 0">
-        <button onclick="showPage('awards')" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Entrer sur la Bourse des Mains d'Or →</button>
+        <button onclick="showPage('awards')" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Poster ma photo · Tenter ma chance →</button>
       </div>
 
       <!-- Candidats du mois -->
