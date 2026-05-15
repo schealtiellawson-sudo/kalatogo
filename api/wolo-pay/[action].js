@@ -23,13 +23,10 @@ import feedList from './_impl/feed-list.js';
 import feedPost from './_impl/feed-post.js';
 import feedLike from './_impl/feed-like.js';
 import feedComment from './_impl/feed-comment.js';
-import feedDiscover from './_impl/feed-discover.js';
-import badgesList from './_impl/badges-list.js';
-import leaderboard from './_impl/leaderboard.js';
-import duelsList from './_impl/duels-list.js';
 import themeMois from './_impl/theme-mois.js';
-import voteShare from './_impl/vote-share.js';
-import boostAcheter from './_impl/boost-acheter.js';
+// Endpoints jeux désinscrits 2026-05-15 (refonte récompenses : tirage aléatoire simple) :
+// feed-discover (mode duel), badges-list, leaderboard, duels-list, vote-share, boost-acheter
+// Fichiers _impl/ conservés sur disque
 // IA Router (T1-T4 consolidés)
 import aiQuery from './_impl/ai-query.js';
 // Messagerie + entretiens + signalement (Sprint I)
@@ -47,8 +44,8 @@ import whatsappFlush from './_impl/whatsapp-flush.js';
 import feedTagStats from './_impl/feed-tag-stats.js';
 // Top Mains les Plus Demandées (classement public mensuel)
 import topMainsList from './_impl/top-mains-list.js';
-// Battle Bénin vs Togo (scoreboard public viral)
-import battleScore from './_impl/battle-score.js';
+// Battle Bénin vs Togo désinscrite 2026-05-15 (refonte récompenses : 1 gagnante par pays au tirage MdR)
+// Fichier _impl/battle-score.js conservé sur disque pour historique
 // Widgets métier (2026-04-27) — prestations / portfolio / résa table / devis chantier
 import prestationList from './_impl/prestation-list.js';
 import prestationUpsert from './_impl/prestation-upsert.js';
@@ -94,14 +91,10 @@ const PUBLIC_ACTIONS = new Set([
   'admin-verify',
   'agents-terrain',
   'feed-list',
-  'feed-discover',
-  'badges-list',
-  'leaderboard',
   'theme-mois',
   'whatsapp-flush',           // protégé par CRON_SECRET header
   'feed-tag-stats',           // public (visible sur profil pro)
   'top-mains-list',           // public (page Top Mains les Plus Demandées)
-  'battle-score',             // public (page Bénin vs Togo)
   // Widgets métier — catalogues lisibles par tous + create de demandes ouvert
   'prestation-list',
   'portfolio-list',
@@ -148,13 +141,8 @@ const handlers = {
   'feed-post': feedPost,
   'feed-like': feedLike,
   'feed-comment': feedComment,
-  'feed-discover': feedDiscover,
-  'badges-list': badgesList,
-  'leaderboard': leaderboard,
-  'duels-list': duelsList,
   'theme-mois': themeMois,
-  'vote-share': voteShare,
-  'boost-acheter': boostAcheter,
+  // Endpoints jeux désinscrits 2026-05-15 : feed-discover, badges-list, leaderboard, duels-list, vote-share, boost-acheter
   'ai-query': aiQuery,
   'thread-list': threadList,
   'message-list': messageList,
@@ -167,7 +155,6 @@ const handlers = {
   'whatsapp-flush': whatsappFlush,
   'feed-tag-stats': feedTagStats,
   'top-mains-list': topMainsList,
-  'battle-score': battleScore,
   // Widgets métier
   'prestation-list': prestationList,
   'prestation-upsert': prestationUpsert,

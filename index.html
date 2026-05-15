@@ -3872,7 +3872,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <button class="nav-link" data-nav="search" onclick="showPage('search')">Trouver un pro</button>
       <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOLO Jobs</button>
       <button class="nav-link" data-nav="recompenses" onclick="showPage('recompenses')">🏆 Récompenses</button>
-      <button class="nav-link" data-nav="battle" onclick="showPage('battle')">🇧🇯 vs 🇹🇬</button>
+<!-- Battle Bénin vs Togo retiré 2026-05-15 — refonte récompenses : 1 gagnante par pays au tirage MdR -->
       <!-- Boutons non connecté -->
       <div id="nav-guest" style="display:flex;align-items:center;gap:6px;">
         <button class="nav-link btn btn-ghost btn-sm" onclick="showPage('login')">Se connecter</button>
@@ -3934,7 +3934,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
     <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 WOLO Jobs</button>
     <button onclick="showPage('recompenses');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏆 Récompenses</button>
-    <button onclick="showPage('battle');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🇧🇯 vs 🇹🇬 Battle</button>
+<!-- Battle Bénin vs Togo retiré 2026-05-15 (mobile nav) -->
     <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 </div>
@@ -10340,7 +10340,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents','battle'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wolo','influenceurs','recrutement-agents','admin-agents'];
   if (publicPages.includes(page))  localStorage.setItem('wolo_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wolo_last_page', page);
 
@@ -10360,7 +10360,7 @@ function showPage(page, _fromPop) {
     setTimeout(() => loadFounderCounter(), 500);
   }
   if (page === 'recompenses') loadPageRecompenses();
-  if (page === 'battle') loadBattlePage();
+  // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
   if (page === 'awards') loadPageAwards();
   if (page === 'awards-profil') { /* loaded via showAwardsProfil */ }
   if (page === 'match') { try { initWoloMatch(); } catch(e){ console.warn('match init', e); } }
@@ -16572,118 +16572,6 @@ function goToPro(userId) {
   showPage('search');
 }
 
-// ════════════════════════════════════════════════════════════════
-// BATTLE BÉNIN vs TOGO — page publique virale
-// ════════════════════════════════════════════════════════════════
-window._battleData = null;
-
-async function loadBattlePage() {
-  const cardsEl = document.getElementById('battle-cards');
-  const villesEl = document.getElementById('battle-villes');
-  const leaderEl = document.getElementById('battle-leader-banner');
-  const updatedEl = document.getElementById('battle-updated-at');
-  if (!cardsEl) return;
-
-  cardsEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(248,246,241,.4)">Chargement du score…</div>';
-  if (villesEl) villesEl.innerHTML = '';
-
-  try {
-    const fn = window.woloFetch || fetch;
-    const r = await fn('/api/wolo-pay/battle-score');
-    const d = await r.json();
-    if (!d.ok) throw new Error(d.error || 'Erreur');
-    window._battleData = d;
-
-    const { benin, togo, leader } = d;
-    const fmt = n => Number(n || 0).toLocaleString('fr-FR');
-
-    // Banner leader
-    if (leaderEl) {
-      if (leader === 'BJ') leaderEl.innerHTML = '<span style="color:#E8940A">🇧🇯 LE BÉNIN MÈNE</span> · ' + fmt(d.score_total.BJ) + ' pts';
-      else if (leader === 'TG') leaderEl.innerHTML = '<span style="color:#E8940A">🇹🇬 LE TOGO MÈNE</span> · ' + fmt(d.score_total.TG) + ' pts';
-      else leaderEl.innerHTML = '⚖️ ÉGALITÉ PARFAITE · ' + fmt(d.score_total.BJ) + ' pts partout';
-    }
-
-    // 2 cards
-    const card = (pays, label, flag, data, isLeader) => `
-      <div style="background:${isLeader ? 'linear-gradient(180deg,rgba(232,148,10,.18),rgba(232,148,10,.02))' : 'rgba(255,255,255,.03)'};border:2px solid ${isLeader ? '#E8940A' : 'rgba(255,255,255,.08)'};border-radius:18px;padding:24px 18px;text-align:center;position:relative">
-        ${isLeader ? '<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#E8940A;color:#0f1410;font-family:&quot;Space Mono&quot;,monospace;font-size:10px;font-weight:800;letter-spacing:1px;padding:4px 12px;border-radius:100px">👑 LEADER</div>' : ''}
-        <div style="font-size:54px;line-height:1;margin-bottom:6px">${flag}</div>
-        <h3 style="font-family:Fraunces,serif;font-weight:900;font-size:24px;color:#F8F6F1;margin:4px 0 14px">${label}</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
-          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
-            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.prestataires)}</div>
-            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">PROS ACTIFS</div>
-          </div>
-          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
-            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.photos)}</div>
-            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">PHOTOS DU MUR</div>
-          </div>
-          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
-            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.votes)}</div>
-            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">VOTES ÉMIS</div>
-          </div>
-          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px 8px">
-            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:#E8940A">${fmt(data.gagnantes_mois)}</div>
-            <div style="font-size:10px;color:rgba(248,246,241,.55);letter-spacing:.5px">REINE${data.gagnantes_mois > 1 ? 'S' : ''} DU MOIS</div>
-          </div>
-        </div>
-      </div>`;
-
-    cardsEl.innerHTML =
-      card('BJ', 'Bénin', '🇧🇯', benin, leader === 'BJ') +
-      card('TG', 'Togo', '🇹🇬', togo, leader === 'TG');
-
-    // Top villes
-    if (villesEl) {
-      const vCard = (label, flag, top) => {
-        const items = (top || []).map((v, i) => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:6px">
-            <span style="font-size:13px;color:#F8F6F1"><strong style="color:#E8940A;font-family:'Space Mono',monospace">${i + 1}.</strong> ${_tmEscape(v.ville)}</span>
-            <span style="font-family:'Space Mono',monospace;font-size:13px;color:#E8940A;font-weight:800">${v.count}</span>
-          </div>
-        `).join('') || '<div style="text-align:center;padding:14px;color:rgba(248,246,241,.4);font-size:12px">Pas encore de données</div>';
-        return `
-          <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px">
-            <h3 style="font-family:Fraunces,serif;font-weight:900;font-size:17px;color:#F8F6F1;margin:0 0 12px;text-align:center">${flag} ${label}</h3>
-            ${items}
-          </div>`;
-      };
-      villesEl.innerHTML = vCard('Bénin', '🇧🇯', benin.top_villes) + vCard('Togo', '🇹🇬', togo.top_villes);
-    }
-
-    if (updatedEl) {
-      try { updatedEl.textContent = new Date(d.updated_at).toLocaleString('fr-FR'); }
-      catch(e) { updatedEl.textContent = d.updated_at; }
-    }
-
-    // Auto-refresh chaque heure si on reste sur la page
-    if (window._battleRefreshTimer) clearTimeout(window._battleRefreshTimer);
-    window._battleRefreshTimer = setTimeout(() => {
-      const stillOn = document.getElementById('page-battle');
-      if (stillOn && stillOn.classList.contains('active')) loadBattlePage();
-    }, 60 * 60 * 1000);
-  } catch (err) {
-    console.warn('[loadBattlePage]', err);
-    cardsEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:rgba(248,246,241,.5);font-size:14px">Impossible de charger le score. Réessaie plus tard.</div>';
-  }
-}
-
-function shareBattleWhatsApp() {
-  const d = window._battleData;
-  let txt;
-  if (d && d.leader === 'BJ') {
-    txt = '🇧🇯 BÉNIN MÈNE BÉNIN MÈNE 🇧🇯 sur WOLO Market — viens voter pour ton pays';
-  } else if (d && d.leader === 'TG') {
-    txt = '🇹🇬 TOGO MÈNE TOGO MÈNE 🇹🇬 sur WOLO Market — viens voter pour ton pays';
-  } else {
-    txt = '🇧🇯 BÉNIN vs 🇹🇬 TOGO — qui mène sur WOLO Market ? Viens voter pour ton pays';
-  }
-  const url = (typeof location !== 'undefined' ? location.origin : 'https://wolomarket.com') + '/#battle';
-  const message = txt + '\n' + url;
-  const wa = 'https://wa.me/?text=' + encodeURIComponent(message);
-  window.open(wa, '_blank');
-}
 
 function getLastFridayOfMonth(d) {
   const y = d.getFullYear(), m = d.getMonth();
@@ -21937,38 +21825,6 @@ loadSchealtielPhoto();
   </div>
 </div>
 
-
-<!-- ══ PAGE BATTLE — Bénin vs Togo (publique virale) ══ -->
-<div id="page-battle" class="page" style="background:#0f1410;min-height:100vh;padding:0 0 80px;color:#F8F6F1;">
-  <div style="max-width:980px;margin:0 auto;padding:32px 16px;">
-
-    <!-- Header dramatique -->
-    <div style="text-align:center;padding:30px 0 24px">
-      <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:14px">CHAQUE MOIS · MISE À JOUR EN DIRECT</div>
-      <h1 style="font-family:Fraunces,serif;font-style:italic;font-size:clamp(34px,7vw,64px);font-weight:900;color:#F8F6F1;margin:0 0 10px;line-height:1.05">🇧🇯 BÉNIN <span style="color:#E8940A">vs</span> TOGO 🇹🇬</h1>
-      <p style="font-size:15px;color:rgba(248,246,241,.65);max-width:560px;margin:0 auto;line-height:1.6">Les pros s'affrontent. Les pays comptent les points. <strong style="color:#E8940A">Ton travail parle.</strong></p>
-      <div id="battle-leader-banner" style="margin-top:18px;font-family:'Space Mono',monospace;font-size:13px;color:#F8F6F1;letter-spacing:1px"></div>
-    </div>
-
-    <!-- 2 cards côte-à-côte -->
-    <div id="battle-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px"></div>
-
-    <!-- Bouton partage WhatsApp viral -->
-    <div style="text-align:center;margin:8px 0 28px">
-      <button id="battle-share-btn" onclick="shareBattleWhatsApp()" style="background:#25D366;color:#fff;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(37,211,102,.25)">📲 Partager sur WhatsApp</button>
-      <button onclick="loadBattlePage()" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:14px 22px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:8px">↻ Actualiser</button>
-    </div>
-
-    <!-- Top villes par pays -->
-    <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0 0 16px;text-align:center">Top 5 villes par pays</h2>
-    <div id="battle-villes" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:30px"></div>
-
-    <!-- Footer brand -->
-    <div style="text-align:center;padding:24px 0;color:rgba(248,246,241,.4);font-size:12px;font-family:'Space Mono',monospace">
-      Mis à jour automatiquement chaque heure · <span id="battle-updated-at"></span>
-    </div>
-  </div>
-</div>
 
 
 <!-- ══ PAGE TUTORIELS ══ -->
