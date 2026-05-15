@@ -1,5 +1,5 @@
 # Bourse des Mains d'Or — Recherche + Copywriting complet
-> Document stratégique pour le lancement de la Bourse des Mains d'Or — concours mensuel WOLO Market pour les coiffeuses et couturières du Togo et du Bénin. Production : 2026-05-15. Lancement cible : 8 juin 2026.
+> Document stratégique pour le lancement de la Bourse des Mains d'Or — concours mensuel WOLO Market pour les coiffeuses et couturières du Togo et du Bénin. Production : 2026-05-15. Lancement cible : début juillet 2026.
 
 ---
 
@@ -848,7 +848,7 @@ Variantes :
 
 ## 9. CALENDRIER ÉDITORIAL 30 JOURS PRÉ-LANCEMENT
 
-> Hypothèse : J = 8 juin 2026 (lancement WOLO Market + ouverture officielle Bourse des Mains d'Or). J-30 = 9 mai 2026. Premier tirage Bourse : 30 juin 2026.
+> Hypothèse : J = début juillet 2026 (lancement WOLO Market + ouverture officielle Bourse des Mains d'Or). J-30 = 9 mai 2026. Premier tirage Bourse : 30 juin 2026.
 
 | Jour | Date | Plateforme | Format | Hook utilisé / contenu | Asset à produire |
 |---|---|---|---|---|---|
@@ -882,7 +882,7 @@ Variantes :
 | J-3 | 5 juin | TikTok | Reel 30s | Vidéo 10 — compte à rebours | Reel |
 | J-2 | 6 juin | Instagram | Carrousel 3 slides | Récap mécanique complète + dates | 3 visuels HTML |
 | J-1 | 7 juin | Instagram + TikTok + WhatsApp | Triple post | "Demain on ouvre. Bourse des Mains d'Or live." | Pack visuels |
-| **J = 8 juin** | **8 juin 2026** | **TOUTES PLATEFORMES** | **Lancement officiel** | Hook IG #10 + Email base complète | **Pack lancement** |
+| **J = début juillet** | **début juillet 2026** | **TOUTES PLATEFORMES** | **Lancement officiel** | Hook IG #10 + Email base complète | **Pack lancement** |
 
 ---
 
@@ -971,7 +971,7 @@ C'est tout.
 
 ---
 
-*Document produit le 2026-05-15 pour WOLO Market. Lancement Bourse des Mains d'Or : 8 juin 2026. Premier tirage : 30 juin 2026.*
+*Document produit le 2026-05-15 pour WOLO Market. Lancement Bourse des Mains d'Or : début juillet 2026. Premier tirage : 30 juin 2026.*
 
 *Sources principales :*
 - *[BIT/OIT — Apprentissage informel Bénin (300 000 jeunes)](http://ciaris.ilo.org/skills/pubs/WCMS_853119/lang--fr/index.htm)*

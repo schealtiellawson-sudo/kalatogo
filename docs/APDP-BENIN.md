@@ -2,7 +2,7 @@
 
 **Plateforme** : WOLO Market
 **Responsable de traitement** : Schealtiel Kpomblawoun
-**Date estimée de soumission** : mai 2026 (avant lancement public le 8 juin 2026)
+**Date estimée de soumission** : mai 2026 (avant lancement public le début juillet 2026)
 **Version du dossier** : 1.0
 **Cadre légal** : Loi N°2017-20 du 20 avril 2018 portant Code du Numérique en République du Bénin (Livre V — Protection des données à caractère personnel, articles 391 et suivants)
 **Autorité** : Autorité de Protection des Données Personnelles (APDP Bénin) — https://apdp.bj/ — Service en ligne : https://service.apdp.bj/

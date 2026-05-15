@@ -15,7 +15,7 @@ import awardsCandidater from './_impl/awards-candidater.js';
 // Admin
 import adminVerify from './_impl/admin-verify.js';
 import agentsTerrain from './_impl/agents-terrain.js';
-// Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP 8 juin)
+// Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP début juillet)
 // Imports retirés : invitation-create / invitation-get / invitation-accept / paie-pay / paie-bulletin / annonces-broadcast
 // Les fichiers _impl/ sont conservés pour réactivation future
 // Sprint 14 — Bourse des Mains d'Or + King & Queen

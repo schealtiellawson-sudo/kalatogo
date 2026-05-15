@@ -28,7 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 🎨 B1 — "Schealtiel" purgé du DOM public (9 occurrences → "WOLO" / "le fondateur")
 - 🎨 B2 — "agent terrain" purgé (11 occurrences → "Pionniers WOLO")
 - 🎨 B3 — "talent" → "travail" / "pros" (11 occurrences)
-- 📅 Date "4 mai" / "18 mai" → "8 juin 2026" partout
+- 📅 Date "4 mai" / "18 mai" → "début juillet 2026" partout
 - 🔄 ID mismatch UUID Supabase vs recXXX Airtable géré (filtres OR + branches conditionnelles)
 - 🔄 loadMesCandidatures, loadCandidaturesRecues, notifyCandidatStatut migrés Supabase + fallback Airtable
 - 🪄 Inscription step 2 : description optionnelle + 16 templates métier, tarif en 5 presets, statut artisan obligatoire pour métiers configurés
@@ -81,7 +81,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-### 🔴 Actions manuelles avant lancement 8 juin
+### 🔴 Actions manuelles avant lancement début juillet
 
 ```
 ✅ 0. Migration 20260430_fix_auth_trigger.sql appliquée dans Supabase SQL Editor
@@ -378,9 +378,9 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 
 **Décisions stratégiques à trancher (issues du rapport Beauté/Couture)**
 1. Verticale phare lancement = combo "Reines + Bâtisseurs" (Coiffure/Couture + Construction) ou Beauté seul ?
-2. Plan Pro Salon 5 000 F lancé le 8 juin OU repoussé V1.1 ?
-3. Module "Mon premier client" subventionné -30% (budget 30K F/mois) — activer dès le 8 juin ?
-4. MoU partenariat ONG (Bluemind/Heal by Hair/ProEmploi) avant 8 juin pour anticiper concurrence ?
+2. Plan Pro Salon 5 000 F lancé début juillet OU repoussé V1.1 ?
+3. Module "Mon premier client" subventionné -30% (budget 30K F/mois) — activer dès début juillet ?
+4. MoU partenariat ONG (Bluemind/Heal by Hair/ProEmploi) avant début juillet pour anticiper concurrence ?
 5. Bourse des Mains d'Or : ancrer le récit dans la **technique métier** (pas la beauté physique) pour éviter dérive concours de beauté.
 
 **Implémentations restantes (V1.1 → V1.2)**

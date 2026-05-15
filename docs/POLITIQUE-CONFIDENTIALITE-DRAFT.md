@@ -1,6 +1,6 @@
 # Politique de confidentialité — WOLO Market
 
-**Dernière mise à jour : 8 juin 2026**
+**Dernière mise à jour : début juillet 2026**
 
 Tes données c'est ta vie. On le sait. Voilà exactement ce qu'on garde, pourquoi, et comment tu peux nous demander de tout effacer.
 
@@ -247,4 +247,4 @@ WOLO Market t'appartient. Tes données aussi.
 
 ---
 
-*Politique de confidentialité — WOLO Market — Version 1.0 — 8 juin 2026*
+*Politique de confidentialité — WOLO Market — Version 1.0 — début juillet 2026*

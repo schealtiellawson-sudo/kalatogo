@@ -1,6 +1,6 @@
 # CHECKLIST AVANT SOUMISSION APDP TOGO + BÉNIN
 
-**Cible** : pouvoir soumettre simultanément les déclarations APDP Togo et APDP Bénin avant le lancement WOLO Market du 8 juin 2026.
+**Cible** : pouvoir soumettre simultanément les déclarations APDP Togo et APDP Bénin avant le lancement WOLO Market du début juillet 2026.
 **Owner** : Schealtiel Kpomblawoun (fondateur)
 **Mise à jour** : 7 mai 2026
 
@@ -163,7 +163,7 @@
 1. **Représentation locale Bénin** : sans représentant local désigné, le dossier sera probablement rejeté ou bloqué. À trancher avant soumission.
 2. **RCCM ou statut juridique** : sans entité juridique constituée, l'APDP peut refuser le dépôt par une personne physique seule.
 3. **Anonymisation IA** : non implémentée à ce jour selon le brief. Critique pour la conformité — doit être livrée avant soumission.
-4. **Délai de traitement** : prévoir 30-60 jours, donc soumettre **au plus tard le 10 mai 2026** pour avoir un récépissé avant le lancement du 8 juin (en pratique : un dépôt avec accusé de réception suffit pour démarrer, l'autorisation peut arriver après).
+4. **Délai de traitement** : prévoir 30-60 jours, donc soumettre **au plus tard le 10 mai 2026** pour avoir un récépissé avant le lancement de début juillet (en pratique : un dépôt avec accusé de réception suffit pour démarrer, l'autorisation peut arriver après).
 5. **Frais réels** : à confirmer impérativement, les estimations ci-dessus sont indicatives.
 
 ---

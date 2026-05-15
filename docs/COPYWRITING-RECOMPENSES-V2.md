@@ -1,6 +1,6 @@
 # Bourse de Croissance — Recherche + Copywriting refresh
 > Document stratégique pour le refresh complet du copywriting de la Bourse de Croissance — WOLO Market.
-> Production : 2026-05-15 — Lancement cible : 8 juin 2026 — Auteur : Chef stratégie WOLO Market.
+> Production : 2026-05-15 — Lancement cible : début juillet 2026 — Auteur : Chef stratégie WOLO Market.
 
 ---
 
@@ -888,7 +888,7 @@ Variante :
 
 ## 8. CALENDRIER ÉDITORIAL 30 JOURS PRÉ-LANCEMENT
 
-> **Hypothèse** : J-30 = 9 mai 2026 → J0 = 8 juin 2026 (lancement officiel).
+> **Hypothèse** : J-30 = 9 mai 2026 → J0 = début juillet 2026 (lancement officiel).
 > **Cadence** : 1 post/jour minimum, 2-3 sur les jours pivots.
 
 | Jour | Date | Plateforme | Format | Hook / Sujet |
@@ -925,7 +925,7 @@ Variante :
 | J-1 | 07/06 | Instagram + TikTok + WhatsApp | Multi-format | "Demain. 18h. Premier tirage." |
 | J0 | 08/06 | Lancement officiel | Live + push | Tirage en live à 18h |
 
-> **Note opérationnelle** : le 1er tirage officiel après lancement est prévu le 30 juin 2026. Le 8 juin = ouverture des éligibilités et début du chronomètre.
+> **Note opérationnelle** : le 1er tirage officiel après lancement est prévu le 31 juillet 2026. Début juillet = ouverture des éligibilités et début du chronomètre.
 
 ---
 

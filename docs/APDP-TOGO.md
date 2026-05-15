@@ -2,7 +2,7 @@
 
 **Plateforme** : WOLO Market
 **Responsable de traitement** : Schealtiel Kpomblawoun
-**Date estimée de soumission** : mai 2026 (avant lancement public le 8 juin 2026)
+**Date estimée de soumission** : mai 2026 (avant lancement public le début juillet 2026)
 **Version du dossier** : 1.0
 **Cadre légal** : Loi N°2019-014 du 29 octobre 2019 relative à la protection des données à caractère personnel (Togo)
 **Autorité** : Autorité de Protection des Données Personnelles (APDP Togo) — https://apdp.gouv.tg/

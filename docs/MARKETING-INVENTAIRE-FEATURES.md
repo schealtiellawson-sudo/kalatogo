@@ -999,7 +999,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Hook marketing** :
 - Punch : *"300 000 FCFA. Chaque mois. Un Pro tiré au sort."*
-- Émotion : *"Mariam est passée Pro le 8 juin. Le 30 juin, elle a vu les 5 conditions ✅. Le 5 juillet, elle priait."*
+- Émotion : *"Mariam est passée Pro début juillet. Le 30 juin, elle a vu les 5 conditions ✅. Le 5 juillet, elle priait."*
 - Viral : *"Le seul concours où ton boulot suffit pour gagner."*
 
 **Format suggéré** : Reel TikTok mensuel "le tirage du mois", post Instagram du gagnant.
@@ -1858,7 +1858,7 @@ Les 10 features qui se prêtent à un récit personnage / coup de poing émotion
 | # | Feature | Pitch storytelling |
 |---|---|---|
 | 1 | Bourse des Mains d'Or | Mariam, apprentie 19 ans, paye 80 000 F à Madame Bea. Elle poste sa première tresse. La communauté vote. Reine du mois. 100 000 F. Premier salaire de sa vie. |
-| 2 | Bourse de Croissance | Kodjo, mécano moto, est passé Pro le 8 juin. Il a coché 5 conditions. 300 000 F. Il achète 4 nouvelles motos. |
+| 2 | Bourse de Croissance | Kodjo, mécano moto, est passé Pro début juillet. Il a coché 5 conditions. 300 000 F. Il achète 4 nouvelles motos. |
 | 3 | Storytelling apprentie | Mariam, 19 ans, paie pour bosser. WOLO lui rend ses lundis. Son lundi devient sa semaine entière. |
 | 4 | Recrutement Kodjo apprenti | Kodjo, 32 ans, recrute son apprenti. 14h offre. 21h embauche. Sans groupe WhatsApp. |
 | 5 | Akossiwa freelance photo | 26 ans, 200 photos dans WhatsApp. Elle uploade 12 mariages. Le studio appelle le lendemain. |
@@ -1872,14 +1872,14 @@ Les 10 features qui se prêtent à un récit personnage / coup de poing émotion
 
 ## ANNEXE C — Calendrier 90 jours de contenu social
 
-Planning quotidien (1 contenu/jour) sur 90 jours, du **8 juin 2026** (lancement) au **5 septembre 2026**.
+Planning quotidien (1 contenu/jour) sur 90 jours, du **début juillet 2026** (lancement) au **5 septembre 2026**.
 
 | Jour | Date | Plateforme | Format | Feature | Hook |
 |---|---|---|---|---|---|
-| J-7 | 1 juin | IG + TikTok | Reel teaser 30s | Lancement 8 juin | "Le 8 juin, l'économie du Togo et du Bénin change." |
+| J-7 | 1 juin | IG + TikTok | Reel teaser 30s | Lancement début juillet | "Début juillet, l'économie du Togo et du Bénin change." |
 | J-3 | 5 juin | IG | Story countdown | Lancement | "Plus que 3 jours. Plus que 1 000 places Fondateurs." |
 | J-1 | 7 juin | TikTok | Reel | Storytelling apprentie | "Tu paies 80K à ta patronne. T'as pas un jour à toi. Demain ça change." |
-| J0 | 8 juin | IG + TikTok + WhatsApp | Reel + Story + Broadcast | Lancement officiel | "C'est ouvert. WOLO Market t'appartient." |
+| J0 | 1 juillet | IG + TikTok + WhatsApp | Reel + Story + Broadcast | Lancement officiel | "C'est ouvert. WOLO Market t'appartient." |
 | J1 | 9 juin | TikTok | Reel demo | Inscription 3 étapes | "3 étapes. 90 secondes. T'es visible." |
 | J2 | 10 juin | IG | Carrousel 5 slides | Profil pro public | "Ton profil. Ton lien. Tes albums." |
 | J3 | 11 juin | TikTok | Reel | Bourse des Mains d'Or | "100 000 F × 2. Chaque mois. Ouvert à toutes." |
@@ -1889,7 +1889,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **8 juin 2026** (lancement)
 | J7 | 15 juin | TikTok + IG | Reel témoignage | Kodjo recrute | "Kodjo a recruté son apprenti en 4h." |
 | J8 | 16 juin | TikTok | Reel | Score IA recruteur | "Indeed Premium 89€. WOLO IA 0F." |
 | J9 | 17 juin | IG | Carrousel | Widgets métier 9 verticales | "9 boutons. 60 métiers. 1 marketplace." |
-| J10 | 18 juin | TikTok | Reel | Akossiwa portfolio | "Behance pour le vrai monde." |
+| J10 | 11 juillet | TikTok | Reel | Akossiwa portfolio | "Behance pour le vrai monde." |
 | J11 | 19 juin | IG | Post storytelling | Madame Adjo réservation | "Vendredi midi, son serveur lâche. 17h, relève trouvée." |
 | J12 | 20 juin | TikTok | Reel | Parrainage simulateur | "Glisse à 53 filleuls. T'es au SMIG. À vie." |
 | J13 | 21 juin | IG | Story | CV WOLO PDF | "Un clic. Un CV. Ton lien." |
@@ -1899,7 +1899,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **8 juin 2026** (lancement)
 | J17 | 25 juin | IG | Carrousel | Dashboard recruteur | "Trello pour recruter." |
 | J18 | 26 juin | TikTok | Reel TOG/BJ | Rivalité gentille | "Cotonou vs Lomé. Qui gagne juin ?" |
 | J19 | 27 juin | IG | Story | Boîte du Fondateur | "Le boss t'écrit perso. Pas un robot." |
-| J20 | 28 juin | TikTok | Reel | Géoloc GPS | "À 200m de toi. Pas à 20 km." |
+| J20 | 21 juillet | TikTok | Reel | Géoloc GPS | "À 200m de toi. Pas à 20 km." |
 | J21 | 29 juin | IG | Post | Toggle dispo maintenant | "Disponible. Maintenant. Point." |
 | J22 | 30 juin | TikTok | Reel | 1ère Reine du mois | "Reine de juin : Aïcha de Cotonou. 100 000 F." |
 | J23 | 1 juil | IG | Carrousel | Top Mains | "Le Top 10 où tu peux pas tricher." |
