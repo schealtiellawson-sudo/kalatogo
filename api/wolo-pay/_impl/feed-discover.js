@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Mode Découvrir (swipe / duel infini / roulette)
+// Bourse des Mains d'Or — Mode Découvrir (swipe / duel infini / roulette)
 // GET  /api/wolo-pay/feed-discover?mode=swipe|duel|roulette&categorie=&viewer_id=&voter_session=&batch=10
 // POST /api/wolo-pay/feed-discover  Body: { winner_id, loser_id, voter_id?, voter_session? }
 //

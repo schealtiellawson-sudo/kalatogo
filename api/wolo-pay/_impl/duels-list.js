@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Duels hebdo (quartier/ville/catégorie)
+// Bourse des Mains d'Or — Duels hebdo (quartier/ville/catégorie)
 // GET /api/wolo-pay/duels-list?semaine=&viewer_id=
 // POST /api/wolo-pay/duels-list  Body: { user_id, duel_id, choix: 'a'|'b' }
 // ================================================================

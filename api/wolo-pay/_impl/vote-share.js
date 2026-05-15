@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Générer un lien de partage WhatsApp
+// Bourse des Mains d'Or — Générer un lien de partage WhatsApp
 // POST /api/wolo-pay/vote-share  Body: { user_id, photo_id?, candidature_id? }
 // GET  /api/wolo-pay/vote-share?token=xxx  (tracker le clic)
 // ================================================================
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       const shareUrl = `${baseUrl}/?r=${partage.token}`;
 
       // Message WhatsApp pré-écrit
-      const msg = `Salut 💛 J'ai posté ma plus belle photo sur WOLO Awards — Le Mur des Reines. Vote pour moi en 10 secondes ?\n\n${shareUrl}\n\n#MurDesReines #ReineWOLO`;
+      const msg = `Salut 💛 J'ai posté ma plus belle photo sur WOLO Awards — La Bourse des Mains d'Or. Vote pour moi en 10 secondes ?\n\n${shareUrl}\n\n#MurDesReines #ReineWOLO`;
 
       const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 

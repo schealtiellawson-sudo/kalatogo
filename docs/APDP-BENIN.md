@@ -45,7 +45,7 @@ WOLO Market est une marketplace numérique dont la mission est de rendre visible
 5. Gestion des avis et de la réputation.
 6. Notifications transactionnelles.
 7. Lutte contre la fraude et modération.
-8. Concours communautaires (Mur des Reines, King & Queen).
+8. Concours communautaires (Bourse des Mains d'Or, King & Queen).
 9. Statistiques agrégées et anonymisées.
 10. Matching candidat/offre par IA avec anonymisation préalable des données personnelles.
 
@@ -223,7 +223,7 @@ Upload de photos soumis à **consentement explicite** lors de l'inscription. Sup
 
 **Opt-in explicite** via permission native du navigateur (VAPID). Révocation à tout moment.
 
-### 11.5 Concours Mur des Reines / King & Queen
+### 11.5 Concours Bourse des Mains d'Or / King & Queen
 
 Photos rendues publiques avec consentement séparé. Retrait possible à tout moment.
 

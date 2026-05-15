@@ -18,7 +18,7 @@ import agentsTerrain from './_impl/agents-terrain.js';
 // Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP 8 juin)
 // Imports retirés : invitation-create / invitation-get / invitation-accept / paie-pay / paie-bulletin / annonces-broadcast
 // Les fichiers _impl/ sont conservés pour réactivation future
-// Sprint 14 — Mur des Reines + King & Queen
+// Sprint 14 — Bourse des Mains d'Or + King & Queen
 import feedList from './_impl/feed-list.js';
 import feedPost from './_impl/feed-post.js';
 import feedLike from './_impl/feed-like.js';

@@ -43,7 +43,7 @@ C''est pas un bonus. C''est un revenu que tu construis.
 
 🏆 **Bourse de Croissance** : 300 000 FCFA pour le membre Pro le plus méritant (Score WOLO ≥ 80, 4 avis récents, 2 mois Pro)
 
-👑 **Le Mur des Reines** : 100 000 FCFA × 2 (Reine Coiffure + Reine Couture, 1 par pays)
+👑 **La Bourse des Mains d'Or** : 100 000 FCFA × 2 (Reine Coiffure + Reine Couture, 1 par pays)
 → Ouvert à toutes les femmes du Togo et du Bénin, pas besoin d''être Pro
 
 🏆 **+ Décembre** : finale annuelle 500 000 FCFA × 2 — Reine de l''Année Bénin vs Togo

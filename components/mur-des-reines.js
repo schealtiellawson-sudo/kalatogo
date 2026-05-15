@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════
-// WOLO Awards — Le Mur des Reines
+// WOLO Awards — La Bourse des Mains d'Or
 // Sprint 14 — Feed viral + Découvrir + Podium + Gamification
 // ══════════════════════════════════════════
 
@@ -163,7 +163,7 @@
     return `
       <div class="mur-hero" style="background:linear-gradient(135deg,#0f1410 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,.3);border-radius:20px;padding:32px 24px;margin:16px 0 24px;position:relative;overflow:hidden;">
         <div style="position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(232,148,10,.25) 0%,transparent 70%);"></div>
-        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">LE MUR DES REINES · ${moisNom.toUpperCase()} 2026 · ${catActive}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">LE BOURSE DES MAINS D'OR · ${moisNom.toUpperCase()} 2026 · ${catActive}</div>
         <h1 style="font-family:'Fraunces',serif;font-size:clamp(26px,5vw,38px);font-weight:900;margin:0 0 14px;line-height:1.15;">
           Ta grand-mère a tressé pour nourrir.<br>
           Ta mère a cousu pour t'envoyer à l'école.<br>
@@ -648,27 +648,27 @@
 
   window.murSwipeNext = () => { state.swipeIndex++; render(); };
   window.murSwipeLike = async (photoId) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     state.swipeIndex++;
     render();
   };
   window.murDuelVote = async (photoId) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     await loadDiscover(); render();
   };
   window.murDuelVoteGlobal = async (duelId, choix) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     await fn(`${API}/duels-list`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, duel_id: duelId, choix }) }).catch(()=>{});
     await loadPodium(); render();
   };
 
   window.murToggleLike = async (photoId, btn) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     try {
       const r = await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).then(r => r.json());
@@ -683,12 +683,12 @@
   };
 
   window.murShareGeneral = () => {
-    const msg = encodeURIComponent(`👑 Le Mur des Reines — WOLO Market\n\nCoiffure ou Couture ? Vote pour ta Reine du mois.\n100 000 FCFA × 2 Reines (1 Bénin + 1 Togo) chaque mois.\n+ 1 000 000 FCFA en finale décembre — Bénin vs Togo.\n\nTout le monde vote gratuitement !\nTa cousine à Paris ? Ta tante à Bruxelles ? Elles peuvent voter aussi.\n\n👉 https://wolomarket.com/#awards\n\n#MurDesReines #ReineWOLO #WOLOMarket`);
+    const msg = encodeURIComponent(`👑 La Bourse des Mains d'Or — WOLO Market\n\nCoiffure ou Couture ? Vote pour ta Reine du mois.\n100 000 FCFA × 2 Reines (1 Bénin + 1 Togo) chaque mois.\n+ 1 000 000 FCFA en finale décembre — Bénin vs Togo.\n\nTout le monde vote gratuitement !\nTa cousine à Paris ? Ta tante à Bruxelles ? Elles peuvent voter aussi.\n\n👉 https://wolomarket.com/#awards\n\n#MurDesReines #ReineWOLO #WOLOMarket`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   };
 
   window.murShareWhatsApp = async (photoId) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.woloFetch || fetch;
     try {
       const r = await fn(`${API}/vote-share`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).then(r => r.json());
@@ -765,7 +765,7 @@
   // UPLOAD PHOTO (Poster)
   // ──────────────────────────────────────────
   window.murOpenPoster = () => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Mur des Reines');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const existing = document.getElementById('mur-poster-modal');
     if (existing) existing.remove();
     const t = state.theme || {};
@@ -795,10 +795,10 @@
           <div style="font-size:11px;color:rgba(248,246,241,.55);margin-bottom:14px;line-height:1.5;">💛 Sans tag, ta photo n'est pas éligible. Si tu es l'apprentie ou la pro, tu peux te tagger toi-même.</div>
           <label style="display:block;font-size:11px;color:rgba(248,246,241,.6);margin-bottom:6px;letter-spacing:1px;">LÉGENDE (facultative · 500 char max)</label>
           <textarea id="murDesc" rows="3" maxlength="500" placeholder="Qui t'as appris ? Ça a pris combien de temps ? Raconte." style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(248,246,241,.1);background:#1a1f1a;color:#F8F6F1;margin-bottom:8px;resize:vertical;"></textarea>
-          <div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.18);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:rgba(248,246,241,.65);line-height:1.55;">⚠️ Si une autre personne porte la coupe ou la tenue sur la photo, assure-toi qu'elle a donné son accord pour figurer sur Le Mur des Reines.</div>
+          <div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.18);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:rgba(248,246,241,.65);line-height:1.55;">⚠️ Si une autre personne porte la coupe ou la tenue sur la photo, assure-toi qu'elle a donné son accord pour figurer sur La Bourse des Mains d'Or.</div>
           <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(248,246,241,.75);margin-bottom:16px;cursor:pointer;">
             <input type="checkbox" id="murAwards" style="margin-top:3px;">
-            <span>📣 <strong>Candidater officiellement pour Le Mur des Reines</strong> (100 000 F × 2 Reines/mois — ouvert à toutes les femmes B/T)</span>
+            <span>📣 <strong>Candidater officiellement pour La Bourse des Mains d'Or</strong> (100 000 F × 2 Reines/mois — ouvert à toutes les femmes B/T)</span>
           </label>
           <button onclick="murSubmitPhoto()" id="murSubmitBtn" style="width:100%;padding:14px;border-radius:12px;border:none;background:#E8940A;color:#0f1410;font-weight:900;font-size:15px;cursor:pointer;">Poster sur le mur ✨</button>
           <div id="murSubmitMsg" style="margin-top:10px;font-size:12px;text-align:center;color:rgba(248,246,241,.6);"></div>
@@ -854,7 +854,7 @@
     const isAwards = document.getElementById('murAwards')?.checked || false;
 
     if (isAwards && !tagPro) {
-      if (msg) msg.textContent = '⚠️ Pour candidater au Mur des Reines, le tag de la coiffeuse / couturière est obligatoire (sinon ta photo n\'est pas éligible).';
+      if (msg) msg.textContent = '⚠️ Pour candidater au Bourse des Mains d'Or, le tag de la coiffeuse / couturière est obligatoire (sinon ta photo n\'est pas éligible).';
       btn.disabled = false; btn.textContent = 'Poster sur le mur ✨';
       return;
     }

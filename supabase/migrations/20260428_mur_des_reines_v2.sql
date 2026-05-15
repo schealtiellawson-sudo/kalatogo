@@ -1,5 +1,5 @@
 -- ================================================================
--- Sprint 14 v2 — Le Mur des Reines (corrigé 2026-04-28)
+-- Sprint 14 v2 — La Bourse des Mains d'Or (corrigé 2026-04-28)
 -- Adapté de 20260416_sprint14_mur_des_reines.sql
 -- Différences :
 --   - profiles → wolo_prestataires
@@ -510,5 +510,5 @@ DO $$ BEGIN
 END $$;
 
 -- ════════════════════════════════════════
--- FIN migration v2 — Le Mur des Reines
+-- FIN migration v2 — La Bourse des Mains d'Or
 -- ════════════════════════════════════════

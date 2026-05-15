@@ -76,7 +76,7 @@ Ton tour. Ajoute tes photos, active ta disponibilité, et observe.
 
 → {url_dashboard}'),
 
-('A4_concours', 'A_onboarding', 4, 120, '{prenom}, Le Mur des Reines commence le 1er du mois 👑
+('A4_concours', 'A_onboarding', 4, 120, '{prenom}, La Bourse des Mains d'Or commence le 1er du mois 👑
 
 100 000 FCFA × 2 Reines (1 Bénin + 1 Togo). Pas besoin d''être Pro — toutes les femmes B/T peuvent gagner.
 
@@ -126,7 +126,7 @@ Elle commence comme toi. Aujourd''hui elle gagne sa vie.
 
 → {url_dashboard}'),
 
-('B4_concours_apprenties', 'B_apprentie', 4, 168, '{prenom}, Le Mur des Reines est ouvert aux apprenties aussi.
+('B4_concours_apprenties', 'B_apprentie', 4, 168, '{prenom}, La Bourse des Mains d'Or est ouvert aux apprenties aussi.
 
 100 000 FCFA si tu gagnes. Pas besoin d''être patronne. Pas besoin d''être Pro.
 
@@ -151,7 +151,7 @@ ON CONFLICT (key) DO NOTHING;
 -- SEED — Séquence C : Concours mensuel
 -- ================================================================
 INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) VALUES
-('C1_ouverture', 'C_concours', 1, 0, '👑 {prenom}, Le Mur des Reines de {mois_nom} est OUVERT.
+('C1_ouverture', 'C_concours', 1, 0, '👑 {prenom}, La Bourse des Mains d'Or de {mois_nom} est OUVERT.
 
 Catégorie active : {categorie_active} ({pays_emoji} 1 Bénin + 1 Togo couronnées en fin de mois).
 

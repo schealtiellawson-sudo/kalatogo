@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Thème du mois courant
+// Bourse des Mains d'Or — Thème du mois courant
 // GET /api/wolo-pay/theme-mois?mois=YYYY-MM
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';

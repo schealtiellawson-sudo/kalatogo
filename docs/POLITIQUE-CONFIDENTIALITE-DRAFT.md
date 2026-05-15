@@ -42,7 +42,7 @@ Les numéros de récépissé sont affichés en bas du site dès qu'on les a.
 - Ton **email**
 - Ton **mot de passe** (jamais en clair, on le hash avec bcrypt — même nous on peut pas le lire)
 - Ta **date de naissance** (pour vérifier que tu as au moins 16 ans)
-- Ton **genre** (pour les concours Mur des Reines et King & Queen)
+- Ton **genre** (pour les concours Bourse des Mains d'Or et King & Queen)
 - Ton **numéro WhatsApp** (c'est comme ça que les clients te contactent)
 
 ### Quand tu remplis ton profil pro
@@ -100,7 +100,7 @@ Ces données on les garde 12 mois max et c'est uniquement pour la sécurité.
 2. **Pour te connecter aux clients** : c'est le cœur de WOLO. Sans ton métier, tes photos et ta zone, on peut pas te rendre visible.
 3. **Pour la messagerie** : pour que tu puisses parler à un client ou un recruteur.
 4. **Pour la sécurité** : détecter les fraudes, les faux profils, les arnaques.
-5. **Pour les concours** : Mur des Reines, King & Queen, distribution de récompenses.
+5. **Pour les concours** : Bourse des Mains d'Or, King & Queen, distribution de récompenses.
 6. **Pour l'amélioration du service** : statistiques globales anonymisées, scoring IA pour matcher candidat et offre.
 7. **Pour respecter la loi** : factures, comptabilité, obligations légales togolaises et béninoises.
 
@@ -199,7 +199,7 @@ Si tu as moins de 16 ans : on supprime ton compte dès qu'on s'en aperçoit.
 
 ### Tes photos
 
-Tu mets une photo de profil. Tu mets des photos de tes réalisations. Tu mets des photos pour le concours Mur des Reines. À chaque fois, c'est **toi qui décides** et tu peux supprimer chaque photo à tout moment.
+Tu mets une photo de profil. Tu mets des photos de tes réalisations. Tu mets des photos pour le concours Bourse des Mains d'Or. À chaque fois, c'est **toi qui décides** et tu peux supprimer chaque photo à tout moment.
 
 On n'utilise **aucun outil de reconnaissance faciale**.
 
@@ -219,7 +219,7 @@ Avant de passer ta candidature à l'IA, on remplace ton nom, ton numéro et ton 
 
 ---
 
-## Concours Mur des Reines et King & Queen
+## Concours Bourse des Mains d'Or et King & Queen
 
 Si tu participes, tu acceptes que ta photo et ton métier soient affichés publiquement pendant le concours. Tu peux retirer ta participation à tout moment, et la photo est retirée dans la foulée.
 

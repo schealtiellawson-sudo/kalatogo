@@ -2,7 +2,7 @@
 // CRON — Awards + Duels hebdo (vendredi 18h WAT)
 // Vercel schedule : 0 17 * * 5  (vendredi 17h UTC = 18h WAT)
 // 1. Chaque vendredi : clôturer anciens duels + créer nouveaux
-// 2. Dernier vendredi du mois : résultat Mur des Reines (Awards)
+// 2. Dernier vendredi du mois : résultat Bourse des Mains d'Or (Awards)
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
 import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
@@ -142,7 +142,7 @@ export default async function handler(req, res) {
     // 6. Notification gagnant
     await envoyerNotification({
       user_id: gagnant.user_id,
-      titre: '👑 Tu es la Reine du Mur des Reines !',
+      titre: '👑 Tu es la Reine du Bourse des Mains d'Or !',
       corps: `100 000 FCFA ont été crédités sur ton Crédit WOLO. La communauté t'a élue Reine du mois de ${moisCourant}.`
     });
 
@@ -157,8 +157,8 @@ export default async function handler(req, res) {
 
       await envoyerNotification({
         user_id: viceChampion.user_id,
-        titre: '🥈 Vice-Reine du Mur des Reines !',
-        corps: `Tu termines 2e du Mur des Reines de ${moisCourant}. Un badge spécial est affiché sur ton profil pendant 30 jours.`
+        titre: '🥈 Vice-Reine du Bourse des Mains d'Or !',
+        corps: `Tu termines 2e du Bourse des Mains d'Or de ${moisCourant}. Un badge spécial est affiché sur ton profil pendant 30 jours.`
       });
     }
 

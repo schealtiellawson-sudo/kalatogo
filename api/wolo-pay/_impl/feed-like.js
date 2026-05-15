@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Toggle like sur une photo
+// Bourse des Mains d'Or — Toggle like sur une photo
 // POST /api/wolo-pay/feed-like
 // Body: { user_id, photo_id }
 // ================================================================

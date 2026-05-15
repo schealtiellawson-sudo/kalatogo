@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Leaderboard par quartier/ville
+// Bourse des Mains d'Or — Leaderboard par quartier/ville
 // GET /api/wolo-pay/leaderboard?type=quartier|ville|pays&scope=7j|mois&filtre=&limit=10
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';

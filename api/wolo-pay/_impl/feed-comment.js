@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Commentaires
+// Bourse des Mains d'Or — Commentaires
 // GET /api/wolo-pay/feed-comment?photo_id=&limit=20
 // POST /api/wolo-pay/feed-comment  Body: { user_id, photo_id, contenu }
 // ================================================================

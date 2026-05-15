@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Acheter un boost pour remonter une photo
+// Bourse des Mains d'Or — Acheter un boost pour remonter une photo
 // POST /api/wolo-pay/boost-acheter
 // Body: { user_id, photo_id, duree_h? (default 24), prix_fcfa? (default 500) }
 // Utilise le solde WOLO Pay du user (débit)

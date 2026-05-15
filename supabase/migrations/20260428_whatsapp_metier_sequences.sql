@@ -104,7 +104,7 @@ C''est maintenant ou jamais.
 → {url_dashboard}'),
 
 ('MAC5_mur_reines', 'M_apprentie_coiffure', 5, 168,
-'👑 {prenom}, Le Mur des Reines de ce mois est ouvert.
+'👑 {prenom}, La Bourse des Mains d'Or de ce mois est ouvert.
 
 100 000 FCFA pour la Reine Coiffure. Apprentie autorisée. Pas besoin d''être Pro.
 
@@ -174,7 +174,7 @@ Ajoute 3 photos + ton délai standard (ex : robe pagne 5 jours). 10 minutes max.
 → {url_dashboard}'),
 
 ('MACO5_mur_reines_couture', 'M_apprentie_couture', 5, 168,
-'👑 {prenom}, ce mois c''est Couture sur Le Mur des Reines.
+'👑 {prenom}, ce mois c''est Couture sur La Bourse des Mains d'Or.
 
 100 000 FCFA pour la Reine Couture. Apprentie autorisée. Ta plus belle robe + le tag de Madame Adjo (ou ton tag).
 
@@ -296,7 +296,7 @@ WOLO Carnet : tableau commandes + dates promises + alerte automatique 48h avant.
 ('MPCO4_reines_mariage', 'M_patronne_couture', 4, 336,
 'Madame, les Reines Couture WOLO sont devenues les références mariage à {ville}.
 
-Ta meilleure apprentie en photo Mur des Reines = ton atelier mentionné direct dans la galerie. Pub gratuite massive.
+Ta meilleure apprentie en photo Bourse des Mains d'Or = ton atelier mentionné direct dans la galerie. Pub gratuite massive.
 
 Pousse {nom_apprentie} à poster.
 
@@ -349,7 +349,7 @@ Les clientes filtrent par "à <2km". Sans GPS, tu disparais des résultats — p
 ('MIC4_mur_reines_indep', 'M_indep_coiffure', 4, 216,
 '👑 {prenom}, tu fais des coiffures hors salon = tu as des décors variés (chez la cliente, lumière naturelle, événement).
 
-Le Mur des Reines récompense l''originalité. Tes photos sortent du lot vs photo de salon banal. 100 000 FCFA si tu gagnes.
+La Bourse des Mains d'Or récompense l''originalité. Tes photos sortent du lot vs photo de salon banal. 100 000 FCFA si tu gagnes.
 
 → {url_awards}'),
 
@@ -398,7 +398,7 @@ Les clientes filtrent par délai. Sans = elles passent à la suivante. C''est to
 ('MICO4_mur_reines_couture', 'M_indep_couture', 4, 216,
 '👑 {prenom}, couturière indépendante = liberté de styles.
 
-Le Mur des Reines récompense l''originalité, pas le prêt-à-porter. 100 000 FCFA pour la Reine Couture. Ta dernière création + ton tag.
+La Bourse des Mains d'Or récompense l''originalité, pas le prêt-à-porter. 100 000 FCFA pour la Reine Couture. Ta dernière création + ton tag.
 
 → {url_awards}'),
 

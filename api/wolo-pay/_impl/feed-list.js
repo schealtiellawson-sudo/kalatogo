@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Liste des photos du feed
+// Bourse des Mains d'Or — Liste des photos du feed
 // GET /api/wolo-pay/feed-list?mois=&ville=&quartier=&categorie=&tri=&user_id=&limit=&offset=
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';

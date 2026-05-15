@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Poster une photo (v2 2026-04-28)
+// Bourse des Mains d'Or — Poster une photo (v2 2026-04-28)
 // POST /api/wolo-pay/feed-post
 // Body: {
 //   user_id, photo_url, photos_url?, description?,
@@ -10,7 +10,7 @@
 // Règles :
 //  - Tag obligatoire si is_awards_candidate (tag_pro_user_id OU tag_pro_libre)
 //  - photos_url = jusqu'à 3 photos (Tinder-like) — 1ère = principale
-//  - Plus de gating Pro pour candidater (Mur des Reines ouvert à toutes)
+//  - Plus de gating Pro pour candidater (Bourse des Mains d'Or ouvert à toutes)
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
 
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
   const wantsAwards = is_awards_candidate === true || is_awards_candidate === 'true';
   if (wantsAwards && !tag_pro_user_id && !tag_pro_libre) {
     return res.status(400).json({
-      error: 'Tag de la coiffeuse / couturière obligatoire pour candidater au Mur des Reines (sinon ta photo n\'est pas éligible).'
+      error: 'Tag de la coiffeuse / couturière obligatoire pour candidater au Bourse des Mains d'Or (sinon ta photo n\'est pas éligible).'
     });
   }
 
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Mur des Reines = OUVERT à toutes les femmes B/T (pas de gating Pro)
+    // Bourse des Mains d'Or = OUVERT à toutes les femmes B/T (pas de gating Pro)
     // Seule règle : 1 candidature/mois/catégorie pour éviter le spam
     if (wantsAwards) {
       const { data: dejaCandidate } = await supabase

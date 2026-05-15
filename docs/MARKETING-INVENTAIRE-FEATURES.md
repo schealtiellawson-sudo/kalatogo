@@ -1008,7 +1008,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 ---
 
-### 57. Mur des Reines (concours coiffure/couture mensuel)
+### 57. Bourse des Mains d'Or (concours coiffure/couture mensuel)
 
 **Ce que ça fait** : Toutes les femmes du Bénin/Togo postent leurs photos coiffure/couture. La communauté vote. 2 Reines/mois gagnent 100 000 FCFA chacune.
 
@@ -1828,7 +1828,7 @@ Classement par puissance virale ET capacité à transformer un visiteur en inscr
 
 | # | Feature | Pourquoi acquisition |
 |---|---|---|
-| 1 | Mur des Reines (100K × 2 / mois) | Récit fort + jackpot mensuel + ouvert à toutes |
+| 1 | Bourse des Mains d'Or (100K × 2 / mois) | Récit fort + jackpot mensuel + ouvert à toutes |
 | 2 | Battle Bénin vs Togo | Fierté nationale = mobilisation virale gratuite |
 | 3 | Parrainage 40% / 1 000 F/filleul | Modèle pyramide légal = chaque inscrit recrute 5 amis |
 | 4 | Simulateur parrainage 1-500 filleuls | Visualisation = décision en 30s |
@@ -1857,7 +1857,7 @@ Les 10 features qui se prêtent à un récit personnage / coup de poing émotion
 
 | # | Feature | Pitch storytelling |
 |---|---|---|
-| 1 | Mur des Reines | Mariam, apprentie 19 ans, paye 80 000 F à Madame Bea. Elle poste sa première tresse. La communauté vote. Reine du mois. 100 000 F. Premier salaire de sa vie. |
+| 1 | Bourse des Mains d'Or | Mariam, apprentie 19 ans, paye 80 000 F à Madame Bea. Elle poste sa première tresse. La communauté vote. Reine du mois. 100 000 F. Premier salaire de sa vie. |
 | 2 | Bourse de Croissance | Kodjo, mécano moto, est passé Pro le 8 juin. Il a coché 5 conditions. 300 000 F. Il achète 4 nouvelles motos. |
 | 3 | Storytelling apprentie | Mariam, 19 ans, paie pour bosser. WOLO lui rend ses lundis. Son lundi devient sa semaine entière. |
 | 4 | Recrutement Kodjo apprenti | Kodjo, 32 ans, recrute son apprenti. 14h offre. 21h embauche. Sans groupe WhatsApp. |
@@ -1882,7 +1882,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **8 juin 2026** (lancement)
 | J0 | 8 juin | IG + TikTok + WhatsApp | Reel + Story + Broadcast | Lancement officiel | "C'est ouvert. WOLO Market t'appartient." |
 | J1 | 9 juin | TikTok | Reel demo | Inscription 3 étapes | "3 étapes. 90 secondes. T'es visible." |
 | J2 | 10 juin | IG | Carrousel 5 slides | Profil pro public | "Ton profil. Ton lien. Tes albums." |
-| J3 | 11 juin | TikTok | Reel | Mur des Reines | "100 000 F × 2. Chaque mois. Ouvert à toutes." |
+| J3 | 11 juin | TikTok | Reel | Bourse des Mains d'Or | "100 000 F × 2. Chaque mois. Ouvert à toutes." |
 | J4 | 12 juin | IG | Post Or | Compteur Fondateur | "743 places. C'est tout." |
 | J5 | 13 juin | TikTok | Reel storytelling | Mariam apprentie | "L'invisible dans l'invisible." |
 | J6 | 14 juin | IG | Story | Battle Bénin vs Togo | "Score actuel : 🇧🇯 mène. Réplique 🇹🇬 ?" |
@@ -1951,7 +1951,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **8 juin 2026** (lancement)
 | J69 | 16 août | TikTok | Reel | Export CSV recruteur | "Excel-ready. Comptable content." |
 | J70 | 17 août | IG | Story | Niveaux progression | "Niveau Reine. Mariam le voit." |
 | J71 | 18 août | TikTok | Reel | Comparaison Indeed | "Indeed : ghost. WOLO : on te répond." |
-| J72 | 19 août | IG | Carrousel | Mur des Reines stratégie | "3 photos + tag obligatoire." |
+| J72 | 19 août | IG | Carrousel | Bourse des Mains d'Or stratégie | "3 photos + tag obligatoire." |
 | J73 | 20 août | TikTok | Reel | Témoignage 3 mois | "3 mois après. Salon ouvert. 4 employées." |
 | J74 | 21 août | IG | Post | Reine de août | "Reine août : Sandrine de Bè. 100 000 F." |
 | J75 | 22 août | TikTok | Reel | Battle finale août | "Qui de 🇧🇯 ou 🇹🇬 a gagné août ?" |

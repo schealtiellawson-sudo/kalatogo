@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Badges + niveau + streak d'un user
+// Bourse des Mains d'Or — Badges + niveau + streak d'un user
 // GET /api/wolo-pay/badges-list?user_id=xxx
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';

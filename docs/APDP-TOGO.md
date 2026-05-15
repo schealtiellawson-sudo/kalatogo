@@ -47,7 +47,7 @@ WOLO Market est une marketplace numérique dont la mission est de rendre visible
 5. Gestion des avis et de la réputation.
 6. Notifications transactionnelles (push web, email).
 7. Lutte contre la fraude et modération de la plateforme.
-8. Concours communautaires (Mur des Reines, King & Queen).
+8. Concours communautaires (Bourse des Mains d'Or, King & Queen).
 9. Statistiques d'usage agrégées et anonymisées.
 10. Amélioration des services et matching candidat/offre par intelligence artificielle (avec anonymisation des données personnelles avant transmission aux fournisseurs IA).
 
@@ -197,7 +197,7 @@ Un DPO externe certifié sera désigné dès franchissement des seuils légaux o
 
 ### 11.2 Photos et vidéos
 
-L'upload de photos (profil, réalisations, concours Mur des Reines) est soumis à un **consentement explicite** lors de l'inscription. Chaque utilisateur peut supprimer chacune de ses photos à tout moment depuis son tableau de bord. Aucun outil de reconnaissance faciale n'est utilisé.
+L'upload de photos (profil, réalisations, concours Bourse des Mains d'Or) est soumis à un **consentement explicite** lors de l'inscription. Chaque utilisateur peut supprimer chacune de ses photos à tout moment depuis son tableau de bord. Aucun outil de reconnaissance faciale n'est utilisé.
 
 ### 11.3 Géolocalisation
 
@@ -211,7 +211,7 @@ Le rayon de mobilité affiché publiquement est paramétrable (1 km à 50 km).
 
 Les notifications push (VAPID) sont activées **uniquement après opt-in explicite** via la permission native du navigateur. L'utilisateur peut révoquer la permission à tout moment dans les paramètres du navigateur ou dans le tableau de bord WOLO.
 
-### 11.5 Concours Mur des Reines / King & Queen
+### 11.5 Concours Bourse des Mains d'Or / King & Queen
 
 Les photos soumises aux concours mensuels sont rendues publiques sur la plateforme avec consentement explicite séparé. La participation peut être retirée à tout moment.
 

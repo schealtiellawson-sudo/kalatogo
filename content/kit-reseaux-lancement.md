@@ -24,9 +24,9 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 > Chaque mois, nous distribuons **400 000 FCFA** à nos membres :
 >
 > - 🏆 300 000 FCFA — Bourse de Croissance pour le membre Pro le plus méritant
-> - 👑 100 000 FCFA — Le Mur des Reines · 50K ✂️ Coiffure + 50K 👗 Couture
+> - 👑 100 000 FCFA — La Bourse des Mains d'Or · 50K ✂️ Coiffure + 50K 👗 Couture
 >
-> **Le Mur des Reines**, c'est quoi ? Toutes les femmes du Togo et du Bénin postent leur plus belle coiffure ou tenue. La communauté vote. 2 Reines du mois. 50 000 FCFA chacune.
+> **La Bourse des Mains d'Or**, c'est quoi ? Toutes les femmes du Togo et du Bénin postent leur plus belle coiffure ou tenue. La communauté vote. 2 Reines du mois. 50 000 FCFA chacune.
 >
 > Pas besoin d'être coiffeuse ou couturière de métier. Ta grand-mère t'a appris. Ta mère t'a appris. C'est ton talent.
 >
@@ -40,7 +40,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 >
 > 400 000 FCFA distribués chaque mois.
 >
-> 300 000 FCFA Bourse de Croissance + 100 000 FCFA Le Mur des Reines (50K Coiffure + 50K Couture).
+> 300 000 FCFA Bourse de Croissance + 100 000 FCFA La Bourse des Mains d'Or (50K Coiffure + 50K Couture).
 >
 > Tu sais tresser ? Tu sais coudre ? Poste ta photo. La communauté vote. Deviens Reine du mois.
 >
@@ -64,13 +64,13 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 >
 > #WOLOMarket #JeRejoinsEnPro
 
-### Post 2 — Mur des Reines teaser
+### Post 2 — Bourse des Mains d'Or teaser
 
 > Ta grand-mère t'a appris à tresser.
 > Ta mère t'a appris à coudre.
 > Maintenant, le monde regarde.
 >
-> **Le Mur des Reines** sur WOLO Market.
+> **La Bourse des Mains d'Or** sur WOLO Market.
 > Poste ta photo. La communauté vote. 50 000 FCFA par catégorie.
 >
 > Pas besoin d'être pro. C'est culturel. C'est africain. C'est toi.
@@ -97,18 +97,18 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 ---
 
-## CAMPAGNE MUR DES REINES — EN CONTINU
+## CAMPAGNE BOURSE DES MAINS D'OR — EN CONTINU
 
 ### Post Instagram Dark — Appel à participation
 
-**Visuel :** fond noir #0f1410, barre or gauche, titre Fraunces "Le Mur des Reines", sous-titre "Toutes les femmes. Pas juste les pros."
+**Visuel :** fond noir #0f1410, barre or gauche, titre Fraunces "La Bourse des Mains d'Or", sous-titre "Toutes les femmes. Pas juste les pros."
 
 > Au Togo, on dit qu'une femme qui ne sait pas tresser n'a pas de mère.
 > Au Bénin, le pagne se transmet de grand-mère en petite-fille.
 >
 > Ce savoir-faire, il est dans tes mains. Depuis toujours.
 >
-> **Le Mur des Reines** te donne un mur où le montrer au monde.
+> **La Bourse des Mains d'Or** te donne un mur où le montrer au monde.
 >
 > ✂️ Coiffure · 👗 Couture · 📸 Poste ta photo · 👑 Deviens Reine du mois
 >
@@ -124,7 +124,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 > SWIPE. DUEL. ROULETTE.
 >
-> Le Mode Découvrir du Mur des Reines.
+> Le Mode Découvrir du Bourse des Mains d'Or.
 >
 > Swipe les photos des femmes de ton quartier.
 > Vote dans les duels Quartier vs Quartier.
@@ -157,7 +157,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 **Slide 1 (Dark):** "Ta grand-mère t'a appris. Ta mère t'a appris. Maintenant, le monde regarde."
 **Slide 2 (Or):** "Au Bénin, les Nana Benz ont bâti des empires avec du tissu. Au Togo, les tresses racontent l'histoire d'un peuple."
-**Slide 3 (Dark):** "Ce talent est dans tes mains depuis l'enfance. Le Mur des Reines te donne un mur pour le montrer."
+**Slide 3 (Dark):** "Ce talent est dans tes mains depuis l'enfance. La Bourse des Mains d'Or te donne un mur pour le montrer."
 **Slide 4 (Or):** "📸 Poste · 👑 Vote · 🏆 50K FCFA · Chaque mois · 2 Reines"
 **Slide 5 (Dark):** "Pas besoin d'être coiffeuse de métier. Pas besoin de salon. Juste tes mains. → wolomarket.com/awards"
 
@@ -173,7 +173,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Instructions pour les femmes :**
 1. Filme-toi en train de tresser ou de coudre (ou montre le résultat final)
 2. Utilise le son tendance du moment
-3. Texte sur la vidéo : "Ma grand-mère m'a appris. Maintenant je suis sur Le Mur des Reines."
+3. Texte sur la vidéo : "Ma grand-mère m'a appris. Maintenant je suis sur La Bourse des Mains d'Or."
 4. Hashtag obligatoire : #MurDesReines
 5. Lien en bio : wolomarket.com/awards
 
@@ -183,7 +183,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 **Format :** Reel 60s
 **Hook (3 sec) :** "Au Togo et au Bénin, quasiment TOUTES les femmes savent tresser ou coudre. Mais personne ne les voit."
-**Corps :** "Depuis petite, ta grand-mère t'a mis les mains dans les cheveux. Ta mère t'a montré comment couper le tissu. Tu sais faire ça depuis toujours. Mais y'a pas d'endroit pour le montrer. Pas de réseau, pas de piston, pas de salon chic. Le Mur des Reines c'est ça : un mur où TOUTES les femmes postent leur plus belle coiffure ou tenue. La communauté vote. 50 000 FCFA pour la Reine Coiffure. 50 000 FCFA pour la Reine Couture. Chaque mois."
+**Corps :** "Depuis petite, ta grand-mère t'a mis les mains dans les cheveux. Ta mère t'a montré comment couper le tissu. Tu sais faire ça depuis toujours. Mais y'a pas d'endroit pour le montrer. Pas de réseau, pas de piston, pas de salon chic. La Bourse des Mains d'Or c'est ça : un mur où TOUTES les femmes postent leur plus belle coiffure ou tenue. La communauté vote. 50 000 FCFA pour la Reine Coiffure. 50 000 FCFA pour la Reine Couture. Chaque mois."
 **CTA :** "Lien en bio. Poste ta photo. #MurDesReines"
 **Caption :** Ta grand-mère t'a appris. Ta mère t'a appris. Maintenant montre au monde. #MurDesReines #ReineWOLO #TalentAfricain
 **Hashtags :** #MurDesReines #ReineWOLO #TalentAfricain #CoiffureAfricaine #CoutureAfricaine #WOLOMarket
@@ -192,7 +192,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 **Format :** Reel 45s
 **Hook :** "50 000 FCFA. Juste pour avoir posté une photo de tresse. Chaque mois."
-**Corps :** "Le Mur des Reines sur WOLO Market. Tu postes ta photo — ta plus belle tresse, ta plus belle tenue. Les gens votent. Ton quartier te soutient. Ta famille partage. 2 gagnantes par mois. Coiffure et Couture. 50K chacune."
+**Corps :** "La Bourse des Mains d'Or sur WOLO Market. Tu postes ta photo — ta plus belle tresse, ta plus belle tenue. Les gens votent. Ton quartier te soutient. Ta famille partage. 2 gagnantes par mois. Coiffure et Couture. 50K chacune."
 **CTA :** "C'est sur wolomarket.com. Lien en bio."
 **Caption :** 50K pour ta tresse. 50K pour ta couture. Chaque mois. #MurDesReines #ReineWOLO
 **Hashtags :** #MurDesReines #ReineWOLO #50KFCFA #TalentAfricain
@@ -201,7 +201,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 **Format :** Reel 60s
 **Hook :** "Les Nana Benz du Togo. Elles ont bâti des empires avec du wax. Elles conduisaient des Mercedes quand les hommes prenaient le taxi."
-**Corps :** "Elles n'avaient pas de diplôme. Pas de réseau. Juste leurs mains et leur sens du business. Au Bénin, le Kanvô — le tissu labellisé par l'État — c'est la fierté nationale. Ce talent, il est dans ton ADN. Le Mur des Reines, c'est l'espace où tu le montres au monde. Poste ta photo. Coiffure ou couture. La communauté vote. 50 000 FCFA par catégorie."
+**Corps :** "Elles n'avaient pas de diplôme. Pas de réseau. Juste leurs mains et leur sens du business. Au Bénin, le Kanvô — le tissu labellisé par l'État — c'est la fierté nationale. Ce talent, il est dans ton ADN. La Bourse des Mains d'Or, c'est l'espace où tu le montres au monde. Poste ta photo. Coiffure ou couture. La communauté vote. 50 000 FCFA par catégorie."
 **CTA :** "Tu es la prochaine Nana Benz. wolomarket.com. #MurDesReines"
 **Caption :** Les Nana Benz ont commencé avec leurs mains. Toi aussi. #MurDesReines #NanaBenz #ReineWOLO
 **Hashtags :** #MurDesReines #ReineWOLO #NanaBenz #TalentAfricain #WaxAfrique
@@ -212,14 +212,14 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook :** "Il y a un mode sur WOLO Market dont personne ne parle encore."
 **Corps :** "Mode Découvrir. 3 options : Swipe — tu découvres les photos une par une et tu votes. Duel — 2 photos face à face, tu choisis. Roulette — une photo au hasard, tu votes ou tu passes. C'est gratuit. C'est addictif. Et tu fais gagner les femmes de ton quartier."
 **CTA :** "wolomarket.com/awards. Essaye le Mode Découvrir."
-**Caption :** Swipe. Duel. Roulette. Le Mode Découvrir du Mur des Reines. #MurDesReines #ReineWOLO
+**Caption :** Swipe. Duel. Roulette. Le Mode Découvrir du Bourse des Mains d'Or. #MurDesReines #ReineWOLO
 **Hashtags :** #MurDesReines #ReineWOLO #ModeDecouvrir #WOLOMarket
 
 ### REINE05 — Hook : "Challenge : Montre-moi ce que ta mère t'a appris"
 
 **Format :** Reel 30s (UGC challenge)
 **Hook :** "Challenge #MaGrandMèreMaAppris"
-**Corps :** "Montre ce que ta mère ou ta grand-mère t'a appris. Tresses, couture, pagne, tout compte. Filme le résultat. Poste-le sur Le Mur des Reines. Tague 3 amies. La plus votée gagne 50 000 FCFA."
+**Corps :** "Montre ce que ta mère ou ta grand-mère t'a appris. Tresses, couture, pagne, tout compte. Filme le résultat. Poste-le sur La Bourse des Mains d'Or. Tague 3 amies. La plus votée gagne 50 000 FCFA."
 **CTA :** "Commence maintenant. Tague 3 sœurs."
 **Caption :** Ma grand-mère m'a appris à tresser à 6 ans. Et toi ? Montre-nous. #MaGrandMèreMaAppris #MurDesReines #ReineWOLO
 **Hashtags :** #MaGrandMèreMaAppris #MurDesReines #ReineWOLO #TalentAfricain #Challenge
@@ -228,7 +228,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 **Format :** Reel 45s
 **Hook :** "Tokoin vs Bè. Dantokpa vs Ganhi. Quel quartier a les meilleures tresseuses ?"
-**Corps :** "Sur Le Mur des Reines, chaque semaine c'est un duel de quartiers. Les femmes d'un quartier postent. Les femmes de l'autre postent. La communauté vote. C'est la fierté du quartier qui est en jeu. Ton quartier compte sur toi."
+**Corps :** "Sur La Bourse des Mains d'Or, chaque semaine c'est un duel de quartiers. Les femmes d'un quartier postent. Les femmes de l'autre postent. La communauté vote. C'est la fierté du quartier qui est en jeu. Ton quartier compte sur toi."
 **CTA :** "Représente ton quartier. wolomarket.com/awards"
 **Caption :** Ton quartier a besoin de toi. Poste ta photo et représente. #MurDesReines #QuartierVsQuartier #ReineWOLO
 **Hashtags :** #MurDesReines #QuartierVsQuartier #ReineWOLO #Lomé #Cotonou
@@ -237,15 +237,15 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 **Format :** Reel 45s (storytelling)
 **Hook :** "Elle a posté une photo de tresse. 3 semaines plus tard, 50 000 FCFA sur son TMoney."
-**Corps :** "[Prénom], [quartier], [ville]. Elle tresse depuis qu'elle a 8 ans. Sa mère lui a appris. Sa grand-mère avant. Un jour elle a posté sa plus belle tresse sur Le Mur des Reines. Son quartier a voté. Ses amies ont partagé sur WhatsApp. À la fin du mois : Reine Coiffure. 50 000 FCFA."
+**Corps :** "[Prénom], [quartier], [ville]. Elle tresse depuis qu'elle a 8 ans. Sa mère lui a appris. Sa grand-mère avant. Un jour elle a posté sa plus belle tresse sur La Bourse des Mains d'Or. Son quartier a voté. Ses amies ont partagé sur WhatsApp. À la fin du mois : Reine Coiffure. 50 000 FCFA."
 **CTA :** "La prochaine Reine, c'est peut-être toi. wolomarket.com"
-**Caption :** De ses mains à 50 000 FCFA. Le Mur des Reines, c'est réel. #MurDesReines #ReineWOLO #50KFCFA
+**Caption :** De ses mains à 50 000 FCFA. La Bourse des Mains d'Or, c'est réel. #MurDesReines #ReineWOLO #50KFCFA
 **Hashtags :** #MurDesReines #ReineWOLO #50KFCFA #TalentAfricain
 
 ### REINE08 — Hook : "16 badges à débloquer"
 
 **Format :** Reel 30s
-**Hook :** "Il y a 16 badges secrets sur Le Mur des Reines."
+**Hook :** "Il y a 16 badges secrets sur La Bourse des Mains d'Or."
 **Corps :** "Première Photo. 100 likes. Série Rouge 7 jours. Virale 100 partages. Mentor. Ambassadrice. Reine. Légende. Chaque badge te donne un niveau. Plus ton niveau est haut, plus tes photos sont vues. Le badge Légende = 5 victoires + 30 jours de streak. Personne ne l'a encore."
 **CTA :** "Sois la première Légende. wolomarket.com/awards"
 **Caption :** 16 badges. 5 niveaux. 1 Légende. Qui sera la première ? #MurDesReines #BadgesWOLO #ReineWOLO
@@ -254,7 +254,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 ### REINE09 — Hook : "Boost ta photo pour 500 FCFA"
 
 **Format :** Reel 30s
-**Hook :** "500 FCFA. 24 heures en haut du Mur des Reines."
+**Hook :** "500 FCFA. 24 heures en haut du Bourse des Mains d'Or."
 **Corps :** "Le boost photo sur WOLO Market. Tu payes 500 FCFA avec ton solde WOLO Pay. Pendant 24h, ta photo apparaît en premier. Plus de vues. Plus de votes. Plus de chances de devenir Reine. 500 FCFA. C'est le prix d'un café."
 **CTA :** "wolomarket.com/awards"
 **Caption :** 500 FCFA = 24h tout en haut. Le boost qui change tout. #MurDesReines #BoostWOLO #ReineWOLO
@@ -287,7 +287,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 >
 > 50 000 FCFA chacune. Votées par la communauté. Aucun jury. Aucun piston.
 >
-> Le Mur des Reines continue le mois prochain. Poste ta photo dès maintenant.
+> La Bourse des Mains d'Or continue le mois prochain. Poste ta photo dès maintenant.
 >
 > 👉 wolomarket.com/awards
 >

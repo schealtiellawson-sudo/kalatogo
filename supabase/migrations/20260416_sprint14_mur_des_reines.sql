@@ -1,5 +1,5 @@
 -- ================================================================
--- Sprint 14 — Le Mur des Reines
+-- Sprint 14 — La Bourse des Mains d'Or
 -- WOLO Awards refondu : feed viral + découverte + gamification + duels
 -- À coller dans Supabase SQL Editor (ordre important)
 -- ================================================================
@@ -449,5 +449,5 @@ DO $$ BEGIN
 END $$;
 
 -- ════════════════════════════════════════
--- FIN migration Sprint 14 — Le Mur des Reines
+-- FIN migration Sprint 14 — La Bourse des Mains d'Or
 -- ════════════════════════════════════════

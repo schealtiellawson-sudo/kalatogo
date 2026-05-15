@@ -1,5 +1,5 @@
 // ================================================================
-// Mur des Reines — Stats de tags pour une pro (coiffeuse / couturière)
+// Bourse des Mains d'Or — Stats de tags pour une pro (coiffeuse / couturière)
 // GET /api/wolo-pay/feed-tag-stats?user_id=<uuid>&mois=YYYY-MM
 //
 // Retourne :

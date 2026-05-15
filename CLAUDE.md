@@ -167,10 +167,10 @@ Dans `repo/index.html` chercher `22890000000` (placeholder du bouton "Parler à 
 
 ## ✅ SESSION 2026-04-29 — Top Mains les Plus Demandées + Battle Bénin vs Togo (gameplay public viral)
 
-Deux features publiques virales adossées au Mur des Reines.
+Deux features publiques virales adossées au Bourse des Mains d'Or.
 
 ### Endpoint `/api/wolo-pay/top-mains-list` (public)
-Classement mensuel des coiffeuses/couturières les plus taguées sur les photos du Mur des Reines.
+Classement mensuel des coiffeuses/couturières les plus taguées sur les photos du Bourse des Mains d'Or.
 - Query : `?categorie=coiffure|couture` `?pays=BJ|TG` `?mois=YYYY-MM` `?limit=10`
 - Source : `feed_photos` (group by `tag_pro_user_id` filtré par `mois` + `categorie` + `video_validee=true`) enrichi par `wolo_prestataires`
 - Renvoie : `{ ok, mois, categorie, pays, pros: [{ user_id, nom, photo_profil, metier, ville, pays, count, rang, emoji }] }` (top 1-3 = 👑🥈🥉, 4+ = ⭐)
@@ -195,7 +195,7 @@ Les 2 endpoints sont importés dans `api/wolo-pay/[action].js` et déclarés dan
 - JS : `window.loadBattlePage()`, `window.shareBattleWhatsApp()`, `window._battleData`
 
 ### Section "Top Mains les Plus Demandées" sur page Récompenses
-Ajoutée dans `#page-recompenses`, juste après la section Mur des Reines, avant la Finale Annuelle Décembre. Filtres catégorie (coiffure/couture) + pays (Tous/BJ/TG). Podium top 3 visuel + liste rangs 4-10. Click pro → `goToPro(userId)` (fallback `showProfil` ou `search`).
+Ajoutée dans `#page-recompenses`, juste après la section Bourse des Mains d'Or, avant la Finale Annuelle Décembre. Filtres catégorie (coiffure/couture) + pays (Tous/BJ/TG). Podium top 3 visuel + liste rangs 4-10. Click pro → `goToPro(userId)` (fallback `showProfil` ou `search`).
 - IDs DOM : `#recomp-top-mains` `#topmains-filters` `#topmains-podium` `#topmains-list` `#topmains-empty`
 - JS : `window.loadTopMains()`, `window._topMainsState`, `_tmRefreshButtons()`
 - Auto-déclenché au début de `loadPageRecompenses()`
@@ -322,14 +322,14 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 4. **Persistance** : changer filtres + tri, recharger la page, revenir sur la section → filtres restaurés.
 5. **Reset** : cliquer ↺ Reset → tous les filtres se vident, tri = Récent.
 
-## 🚧 SESSION 2026-04-28 — Refonte Mur des Reines + suppression King & Queen
+## 🚧 SESSION 2026-04-28 — Refonte Bourse des Mains d'Or + suppression King & Queen
 
 ### Ce qui a été livré aujourd'hui (en code, NON committé)
 - **3 migrations Supabase appliquées en prod** via Management API : `wolo_prestataires`, `ai_infrastructure` (ai_cache, ai_quota_log), `messagerie_entretiens` (wolo_threads, messages, entretiens, signalements, message_templates). Vérification : 22 tables `wolo_*`/`ai_*` présentes en prod.
 - **Migration `20260416_sprint14_mur_des_reines.sql` skippée** (référence table `profiles` au lieu de `wolo_prestataires` — schéma incompatible, à reprendre si on relance feed_photos).
 - **GEMINI_API_KEY ajoutée à Vercel prod** + redeploy effectué (déploiement `dpl_7xcSUEdqLCQMuYMR5gpsXbLkAehk`).
 - **Suppression complète King & Queen WOLO** de `index.html` (sidebar, sections, page-king-queen, FAQ, footer, recompenses, onboarding tour, ToS, meta SEO, publicPages, showPage, script include). Page route + composant orphelins. Le fichier `components/king-queen.js` n'est plus chargé mais n'est PAS supprimé (au cas où).
-- **Refonte copy Le Mur des Reines** :
+- **Refonte copy La Bourse des Mains d'Or** :
   - Pricing : 50K → **100 000 FCFA × 2 Reines/mois** (1 Bénin + 1 Togo, alternance Coiffure mois impair / Couture mois pair)
   - **Finale annuelle décembre** : 500K × 2 (Reine de l'Année Coiffure + Reine de l'Année Couture, Bénin vs Togo)
   - **Ouvert à toutes les femmes B/T** (pas Pro-only, c'est l'outil d'acquisition). Bourse de Croissance reste Pro-only.
@@ -337,7 +337,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
   - 6 nouveaux blocs dans `components/mur-des-reines.js` : stakes (100K = trimestre loyer), comment ça marche (3 photos + tag + duels), calendrier 3 phases (1-15 / 16-25 / 26-30), diaspora, finale annuelle décembre, bonus invisibles (profil épinglé, badge à vie, priorité Bourse).
   - Onglets renommés : Le feed → À la Une / Découvrir → Les Duels / Le podium → Le Podium / Mon mur → Mes Photos.
   - Modale upload : 3 photos (multi), **tag obligatoire** de la coiffeuse/couturière, disclaimer consentement modèle.
-  - CTA partout : "Entrer sur le Mur des Reines →" → "Poste ta photo · Deviens Reine du mois →"
+  - CTA partout : "Entrer sur la Bourse des Mains d'Or →" → "Poste ta photo · Deviens Reine du mois →"
 
 ### ✅ V1.1 livré dans cette même session (2026-04-28 suite)
 1. **Storytelling apprenties** ✅ — section À Propos *"L'invisible dans l'invisible"* avec citation *"Tu as payé 80 000 FCFA à Madame Adjo... WOLO Market c'est ton lundi toute la semaine"* + bloc 5 bénéfices.
@@ -381,7 +381,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 2. Plan Pro Salon 5 000 F lancé le 8 juin OU repoussé V1.1 ?
 3. Module "Mon premier client" subventionné -30% (budget 30K F/mois) — activer dès le 8 juin ?
 4. MoU partenariat ONG (Bluemind/Heal by Hair/ProEmploi) avant 8 juin pour anticiper concurrence ?
-5. Mur des Reines : ancrer le récit dans la **technique métier** (pas la beauté physique) pour éviter dérive concours de beauté.
+5. Bourse des Mains d'Or : ancrer le récit dans la **technique métier** (pas la beauté physique) pour éviter dérive concours de beauté.
 
 **Implémentations restantes (V1.1 → V1.2)**
 - 5 widgets métier secondaires (commande_facon, rdv_mecano, commande_patisserie, reservation_chambre, cours_offres) : tables + config OK, manque les composants frontend (suivre pattern `widget-reservation-table.js`)
@@ -408,7 +408,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 
 ### Décisions stratégiques validées (à NE PAS revenir dessus)
 - King & Queen tué (redondance avec MdR)
-- Mur des Reines pivote en outil d'acquisition massive (ouvert à toutes les femmes B/T, pas Pro-only)
+- Bourse des Mains d'Or pivote en outil d'acquisition massive (ouvert à toutes les femmes B/T, pas Pro-only)
 - Mécanique Option A : quota pays + alternance catégorie (12 Bénin + 12 Togo/an garantis)
 - Pas de "Mains d'Or" payantes pour les pros — uniquement visibilité gratuite (boost profil + badge "Taguée par X reines")
 - Duels = moteur principal de scoring viral, partage WhatsApp = bonus accessoire (+2 pts/nouveau votant, cap 30/mois)
@@ -579,9 +579,9 @@ Contrainte Vercel Hobby = **12 functions max**. Implémentations sous `/api/wolo
 - Filtrage Airtable : `{Patron ID}='${patronId}'` via `filterByFormula`
 - Polymorphie : un compte WOLO cumule patron + employé + solo + candidat
 
-## ✅ LIVRÉ — Sprint 14 : Le Mur des Reines (Gamification Awards)
+## ✅ LIVRÉ — Sprint 14 : La Bourse des Mains d'Or (Gamification Awards)
 
-Refonte complète de WOLO Awards → "Le Mur des Reines". Toutes les femmes (pas que les pros) postent coiffure/couture, la communauté vote, 2 Reines du mois gagnent 50K FCFA chacune.
+Refonte complète de WOLO Awards → "La Bourse des Mains d'Or". Toutes les femmes (pas que les pros) postent coiffure/couture, la communauté vote, 2 Reines du mois gagnent 50K FCFA chacune.
 
 ### Composant frontend
 `/components/mur-des-reines.js` — IIFE, `window.loadMurDesReines`, tabs: feed | discover | podium | moi
@@ -615,7 +615,7 @@ Refonte complète de WOLO Awards → "Le Mur des Reines". Toutes les femmes (pas
 - Thème du mois avec hashtag (#ReineDAvril etc.)
 
 ### Copywriting global mis à jour
-- "WOLO Awards" → "Le Mur des Reines" partout dans index.html
+- "WOLO Awards" → "La Bourse des Mains d'Or" partout dans index.html
 - Storytelling : "Ta grand-mère t'a appris. Ta mère t'a appris. Maintenant, le monde regarde."
 - Hashtags : #MurDesReines #ReineWOLO #TalentAfricain
 - Email template : `emails/08-wolo-awards.html`

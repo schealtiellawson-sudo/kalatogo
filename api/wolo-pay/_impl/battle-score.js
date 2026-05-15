@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       else if (c === 'TG') prestTG++;
     }
 
-    // 2) Photos Mur des Reines du mois courant par pays
+    // 2) Photos Bourse des Mains d'Or du mois courant par pays
     const { data: photos, error: errPhotos } = await supabase
       .from('feed_photos')
       .select('id, pays, ville')
