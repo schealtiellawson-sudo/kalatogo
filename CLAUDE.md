@@ -4,7 +4,70 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-07)
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-16)
+
+---
+
+### ✅ SESSION 2026-05-08 → 2026-05-16 — Refonte Récompenses + UX onboarding + Brand
+
+**Lancement décalé** : 8 juin 2026 → **début juillet 2026** (mis à jour partout dans le code + docs)
+
+**~20 commits poussés cette session** :
+- Actions manuelles automatisées via Supabase Management API (Confirm email OFF, RLS avis/rdv, site_url update)
+- VAPID keys générées + ajoutées à Vercel (push notifications actives en prod)
+- Gemini API key régénérée + model `gemini-2.0-flash` → `gemini-2.5-flash`
+- Numéro WhatsApp réel `+33743606916` (6 placeholders remplacés)
+- Suppression 4 users fantômes Supabase (SQL nuke avec cascade FK)
+- Drafts APDP Togo + Bénin + Politique confidentialité (4 fichiers `docs/APDP-*.md`)
+- Inventaire marketing 107 features (`docs/MARKETING-INVENTAIRE-FEATURES.md`)
+- Purge totale **"Sans piston"** (32 occurrences → 0 — phrase abandonnée par décision fondateur)
+- 5 slides onboarding réécrites (narration douleur → solution, parrainage = vrai revenu)
+- 2 messages WhatsApp réécrits (douleurs profondes : "travail manque pas, argent circule pas")
+- Cascade **Pays → Ville → Quartier** (inscription + edit profil) — `f-pays`/`edit-pays`
+
+**🏆 REFONTE COMPLÈTE BOURSE DES MAINS D'OR (ex-Mur des Reines)**
+
+Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "Bourse de Croissance")
+
+3 docs de copywriting livrés par agents recherche net :
+- `docs/COPYWRITING-CONCOURS-FEMMES-V2.md` (~10 200 mots, sources OIT/Banque mondiale + storytelling Mariam/Akossiwa/Madame Tchika + 30 hooks)
+- `docs/COPYWRITING-RECOMPENSES-V2.md` (~9 287 mots, sources Afrobarometer/OBHDP/Persée + storytelling Kodjo/Awa/Issaka)
+- Phrase noyau Bourse : *"Pas le plus connu. Le plus sérieux."*
+- Phrase Mains d'Or : *"Une machine Singer neuve coûte 95 000 FCFA. La Bourse des Mains d'Or paie 100 000 FCFA."*
+
+**Sprints refonte technique (3 commits atomiques)** :
+1. Sprint 1 — Renommage massif `Mur des Reines` → `Bourse des Mains d'Or` (30 fichiers, 134 occurrences)
+2. Sprint 2 — Suppression Battle Bénin vs Togo (page #battle + fonctions JS + nav) + désinscription 6 endpoints jeux (feed-discover, duels-list, badges-list, leaderboard, vote-share, boost-acheter) — fichiers _impl/ conservés
+3. Sprint 3 — Migration SQL `20260515_refonte_recompenses.sql` (2 colonnes TikTok + drop 7 tables jeux) + 4 nouveaux endpoints (mdr-eligibilite, mdr-tirage-mensuel, bourse-eligibilite, bourse-tirage-mensuel) + UI page Récompenses refondue
+
+**Nouveau modèle Récompenses validé** :
+- **Bourse de Croissance** (300K × 2/mois — 1 Togo + 1 Bénin) : pour pros sérieux/focus/dévoués. 9 conditions (Plan Pro CE mois au lieu de 2 mois, profil complet, Score WOLO ≥ 80, ≥ 3 avis/30j (au lieu de 4), note ≥ 4.2★/30j, activité ≤ 14j, pas gagné 3 derniers mois, 2 TikTok)
+- **Bourse des Mains d'Or** (100K × 2/mois — 1 Togo + 1 Bénin) : pour toutes femmes coiffeuses/couturières (PAS Pro requis). 7 conditions (profil complet, métier alterné mois pair/impair, ≥ 1 photo réalisation sur profil ce mois, ≥ 1 avis sur 30j, activité ≤ 14j, 2 TikTok)
+- Tirage **100% aléatoire** le 30 du mois (via cron CRON_SECRET)
+- 2 cases TikTok déclaratives (honor system) sur page Récompenses, partagées entre les 2 récompenses
+- Section TikTok + 2 checklists dynamiques (ratio X/N) en haut de #page-recompenses
+- Décembre : finale annuelle 500K × 2 (Coiffure + Couture)
+- **Total versé : 800 000 FCFA/mois** (300K × 2 + 100K × 2)
+
+**Supprimé totalement** :
+- Page publique Battle Bénin vs Togo
+- Système Mur des Reines original (duels, swipes, points, streaks, badges, boost photo payant)
+- 7 tables Supabase (duels_*, streaks_wolo, badges_wolo, boosts_photos, partages_whatsapp)
+- 3 fonctions/triggers SQL (maj_streak_user, calc_niveau_user, update_feed_duel_stats)
+- 3 vues SQL (hall_of_fame, leaderboard_*)
+
+**Conservé** :
+- Top Mains les Plus Demandées (classement passif des coiffeuses/couturières les plus taguées)
+- Feed photos avec tag obligatoire de la pro
+- Battle H vs F (admin dashboard pour scoreboard Pionniers WOLO Hommes/Femmes) — différent de la Battle publique virée
+
+**URLs TikTok placeholders** : `@wolomarket` et `@schealtiellawson` (à créer par fondateur, puis search/replace 30 sec)
+
+**Actions Supabase appliquées (✅ par fondateur)** :
+- `20260507_fix_rls_avis_rdv.sql` ✅
+- `20260515_refonte_recompenses.sql` ✅
+
+---
 
 ### ✅ SESSION 2026-05-07 — Simplification + Sprint sécurité/UX/brand complet
 
@@ -38,17 +101,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-### 🔴 ACTIONS MANUELLES CRITIQUES AVANT 8 JUIN (ordre prio)
+### 🔴 ACTIONS MANUELLES CRITIQUES AVANT DÉBUT JUILLET (status au 2026-05-16)
 
 ```
-⏳ 1. Désactiver "Confirm email" dans Supabase Auth Settings             (2 min)
-⏳ 2. Appliquer migration 20260507_fix_rls_avis_rdv.sql dans SQL Editor  (3 min)
-⏳ 3. Remplacer +22890000000 par vrai WhatsApp (6 occurrences)           (3 min)
-⏳ 4. Tester proxy Airtable sécurisé (5 curl du récap S1)                (10 min)
-⏳ 5. Générer VAPID keys + add Vercel env                                (5 min)
-⏳ 6. Régénérer Supabase PAT + Gemini API key                            (5 min)
-⏳ 7. Tests E2E 4 personas en prod                                       (30 min)
-⏳ 8. APDP Togo + Bénin                                                  (1-2h)
+✅ 1. "Confirm email" OFF Supabase                                       (via API Management)
+✅ 2. Migration 20260507_fix_rls_avis_rdv.sql                           (appliquée)
+✅ 3. Numéro WhatsApp +33743606916 (6 occurrences remplacées)
+✅ 4. VAPID keys (Vercel env Production)
+✅ 5. Gemini API key régénérée + model 2.5-flash
+✅ 6. Migration 20260515_refonte_recompenses.sql                        (appliquée)
+⏳ 7. Créer comptes TikTok @wolomarket + @schealtiellawson + me donner URLs (~5 min)
+⏳ 8. Tests E2E 4 personas en navigation privée                          (30 min — à faire ensemble)
+⏳ 9. RCCM Togo (en attente carte ID togolaise)                          (30 min CFE)
+⏳ 10. APDP Togo + Bénin (drafts prêts dans docs/APDP-*.md)              (1-2h après RCCM)
 ```
 
 ### 🟠 RESTE À FAIRE (V1.1 post-lancement)
@@ -56,6 +121,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Frictions UX secondaires (date naissance 3 dropdowns, hero cinématique perf 3G, multi-employeur)
 - signalement.js contextLabel (composant externe)
 - Refactor variable CSS `--vert` → `--or` (cosmétique)
+- Cron Vercel pour tirage mensuel automatique (mdr-tirage-mensuel + bourse-tirage-mensuel) — Vercel Hobby = 1 cron/jour, à orchestrer
+- Cascade Pays/Ville/Quartier sur page Recherche client (search) — actuellement ancien dropdown mélangé
 
 ---
 
