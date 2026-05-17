@@ -10308,8 +10308,8 @@ const _seoPageMeta = {
   home:         { title: 'WOLO Market — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.' },
   search:       { title: 'Trouver un pro — WOLO Market', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOLO Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOLO Market.' },
-  recompenses:  { title: 'Récompenses WOLO — 500 000 FCFA/mois', desc: 'Bourse de Croissance + La Bourse des Mains d'Or. 500 000 FCFA distribués chaque mois aux meilleures, plus 1M FCFA en finale décembre.' },
-  awards:       { title: 'La Bourse des Mains d'Or — Bénin & Togo', desc: 'Poste ta plus belle photo coiffure ou couture. La communauté vote. 2 reines couronnées chaque mois — 100 000 FCFA chacune. Toutes les femmes peuvent gagner.' },
+  recompenses:  { title: 'Récompenses WOLO — 500 000 FCFA/mois', desc: 'Bourse de Croissance + La Bourse des Mains d\'Or. 500 000 FCFA distribués chaque mois aux meilleures, plus 1M FCFA en finale décembre.' },
+  awards:       { title: 'La Bourse des Mains d\'Or — Bénin & Togo', desc: 'Poste ta plus belle photo coiffure ou couture. La communauté vote. 2 reines couronnées chaque mois — 100 000 FCFA chacune. Toutes les femmes peuvent gagner.' },
   inscription:  { title: 'Inscription gratuite — WOLO Market', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche — WOLO Market', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
 };
@@ -16095,7 +16095,7 @@ async function injectSprint6Upgrade(){
         ${rowKo('Priorité résultats')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowKo('Bourse 300 000 FCFA/mois (Pro only)')}
-        ${rowOk('Bourse des Mains d'Or 100K × 2 — ouvert à toutes les femmes')}
+        ${rowOk('Bourse des Mains d\'Or 100K × 2 — ouvert à toutes les femmes')}
         ${rowKo('Commissions parrainage')}
       </div>
       <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
@@ -16109,7 +16109,7 @@ async function injectSprint6Upgrade(){
         ${rowOk('À la Une homepage')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowOk('<strong>Bourse 300 000 FCFA/mois</strong>')}
-        ${rowOk('<strong>Bourse des Mains d'Or 100K × 2</strong>')}
+        ${rowOk('<strong>Bourse des Mains d\'Or 100K × 2</strong>')}
         ${rowOk('<strong>Finale annuelle décembre 500K × 2</strong>')}
         ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
       </div>
@@ -16478,12 +16478,12 @@ function renderTikTokSharedSection() {
   if (iconW) iconW.textContent = wolo ? '✅' : '❌';
   if (iconS) iconS.textContent = sche ? '✅' : '❌';
   if (btnW) {
-    btnW.innerHTML = wolo ? '✓ Suivi (annuler)' : '☐ J’ai suivi';
+    btnW.innerHTML = wolo ? '✓ Suivi (annuler)' : "☐ J'ai suivi";
     btnW.style.background = wolo ? '#E8940A' : 'transparent';
     btnW.style.color = wolo ? '#0f1410' : '#E8940A';
   }
   if (btnS) {
-    btnS.innerHTML = sche ? '✓ Suivi (annuler)' : '☐ J’ai suivi';
+    btnS.innerHTML = sche ? '✓ Suivi (annuler)' : "☐ J'ai suivi";
     btnS.style.background = sche ? '#E8940A' : 'transparent';
     btnS.style.color = sche ? '#0f1410' : '#E8940A';
   }
@@ -22534,10 +22534,10 @@ function getPhaseAwards(){
 }
 function getHeaderAwards(){
   const phase=getPhaseAwards();
-  if(phase==='pre-lancement')return {titre:'👑 La Bourse des Mains d'Or',sous:'✂️ Coiffure + 👗 Couture — Qui seront les 2 Reines du mois ?',fomo:'Poste ta photo pour participer.'};
-  if(phase==='votes-ouverts')return {titre:'👑 Bourse des Mains d'Or — Votes ouverts',sous:'Vote pour ta Reine préférée · ✂️ Coiffure ou 👗 Couture.',fomo:'Clôture des votes le 20 du mois à 23h59.'};
-  if(phase==='finale')return {titre:'🔥 Finala Bourse des Mains d'Or',sous:'Top 3 en lice · ✂️ Coiffure + 👗 Couture. Derniers votes.',fomo:'Résultats le 25 à 18h00.'};
-  return {titre:'👑 Reines du mois',sous:'Voici les gagnantes du Bourse des Mains d'Or · ✂️ Coiffure + 👗 Couture.',fomo:'Prochain round : début du mois prochain.'};
+  if(phase==='pre-lancement')return {titre:'👑 La Bourse des Mains d\'Or',sous:'✂️ Coiffure + 👗 Couture — Qui seront les 2 Reines du mois ?',fomo:'Poste ta photo pour participer.'};
+  if(phase==='votes-ouverts')return {titre:'👑 Bourse des Mains d\'Or — Votes ouverts',sous:'Vote pour ta Reine préférée · ✂️ Coiffure ou 👗 Couture.',fomo:'Clôture des votes le 20 du mois à 23h59.'};
+  if(phase==='finale')return {titre:'🔥 Finala Bourse des Mains d\'Or',sous:'Top 3 en lice · ✂️ Coiffure + 👗 Couture. Derniers votes.',fomo:'Résultats le 25 à 18h00.'};
+  return {titre:'👑 Reines du mois',sous:'Voici les gagnantes du Bourse des Mains d\'Or · ✂️ Coiffure + 👗 Couture.',fomo:'Prochain round : début du mois prochain.'};
 }
 
 // --- Récupération candidats ---
@@ -25037,7 +25037,7 @@ async function repondreMatch(demandeId, clientId) {
   function setAwardsTitre(){
     var el=document.getElementById('awards-page-titre');if(!el)return;
     var mois=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-    var d=new Date();el.textContent='La Bourse des Mains d'Or — '+mois[d.getMonth()]+' '+d.getFullYear();
+    var d=new Date();el.textContent='La Bourse des Mains d\'Or — '+mois[d.getMonth()]+' '+d.getFullYear();
   }
 
   window.loadPageAwards = async function(){
@@ -25068,7 +25068,7 @@ async function repondreMatch(demandeId, clientId) {
       return true;
     });
     if(filtered.length===0){
-      liste.innerHTML='<div style="text-align:center;padding:40px 0;"><div style="font-size:40px;margin-bottom:12px;">👑</div><p style="color:rgba(248,246,241,0.5);font-size:14px;">Aucune candidature pour le moment.<br>La Bourse des Mains d'Or ouvre chaque mois.</p></div>';
+      liste.innerHTML='<div style="text-align:center;padding:40px 0;"><div style="font-size:40px;margin-bottom:12px;">👑</div><p style="color:rgba(248,246,241,0.5);font-size:14px;">Aucune candidature pour le moment.<br>La Bourse des Mains d\'Or ouvre chaque mois.</p></div>';
       return;
     }
     var maxVotes=Math.max.apply(null,filtered.map(function(c){return c.nb_votes||0;}))||1;
@@ -25179,7 +25179,7 @@ async function repondreMatch(demandeId, clientId) {
 
   window.voterAwardsPage = async function(candidatId){
     var sb=_sb();if(!sb)return;
-    var user=await verifierConnexionOuPopup('voter au Bourse des Mains d'Or');
+    var user=await verifierConnexionOuPopup('voter au Bourse des Mains d\'Or');
     if(!user)return;
     var mois=getMoisActuel();
     try{
@@ -25217,7 +25217,7 @@ async function repondreMatch(demandeId, clientId) {
         var shareDiv=document.createElement('div');
         shareDiv.style.cssText='position:fixed;bottom:20px;left:16px;right:16px;background:#0f1410;border:2px solid #E8940A;border-radius:14px;padding:16px;z-index:9999;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);';
         shareDiv.innerHTML='<p style="color:#F8F6F1;font-size:14px;margin:0 0 10px;">✅ Tu as voté ! Aide <strong>'+escapeHtml(nom)+'</strong> à gagner :</p>'
-          +'<a href="https://wa.me/?text='+encodeURIComponent('Je viens de voter pour '+nom+' sur La Bourse des Mains d'Or ! 👑\n\n100 000 FCFA × 2 Reines chaque mois — 1 Bénin + 1 Togo.\n+ 1 000 000 FCFA en finale décembre.\nVote aussi, c\'est gratuit (30 sec) :\n👉 wolomarket.com/awards\n\n#MurDesReines #ReineWOLO')+'" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:white;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">Partager sur WhatsApp</a>'
+          +'<a href="https://wa.me/?text='+encodeURIComponent('Je viens de voter pour '+nom+' sur La Bourse des Mains d\'Or ! 👑\n\n100 000 FCFA × 2 Reines chaque mois — 1 Bénin + 1 Togo.\n+ 1 000 000 FCFA en finale décembre.\nVote aussi, c\'est gratuit (30 sec) :\n👉 wolomarket.com/awards\n\n#MurDesReines #ReineWOLO')+'" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:white;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">Partager sur WhatsApp</a>'
           +'<button onclick="this.parentNode.remove()" style="display:block;margin:8px auto 0;background:none;border:none;color:rgba(248,246,241,0.4);font-size:12px;cursor:pointer;">Fermer</button>';
         document.body.appendChild(shareDiv);
         setTimeout(function(){if(shareDiv.parentNode)shareDiv.remove();},15000);
@@ -25542,7 +25542,7 @@ window.genererStoryCampagne = async function(candidatureId) {
 
     // WhatsApp share message
     var shareMsg = encodeURIComponent(
-      'Salut ! 👋\n\nJe suis sur La Bourse des Mains d'Or ce mois.\n100 000 FCFA pour ' + (c.categorie === 'coiffure' ? 'la Reine Coiffure' : 'la Reine Couture') + ' Bénin + 100K Togo.\n+ 1M FCFA en finale décembre (Bénin vs Togo).\n\n👉 Vote pour moi ici (30 sec, gratuit) :\nwolomarket.com/awards/' + slug + '\n\nMerci ! Ça compte vraiment. 🙏\n#MurDesReines #ReineWOLO'
+      'Salut ! 👋\n\nJe suis sur La Bourse des Mains d\'Or ce mois.\n100 000 FCFA pour ' + (c.categorie === 'coiffure' ? 'la Reine Coiffure' : 'la Reine Couture') + ' Bénin + 100K Togo.\n+ 1M FCFA en finale décembre (Bénin vs Togo).\n\n👉 Vote pour moi ici (30 sec, gratuit) :\nwolomarket.com/awards/' + slug + '\n\nMerci ! Ça compte vraiment. 🙏\n#MurDesReines #ReineWOLO'
     );
 
     // Show result in modal
@@ -25550,7 +25550,7 @@ window.genererStoryCampagne = async function(candidatureId) {
     if (inner) {
       inner.innerHTML = ''
         + '<h3 style="font-family:Fraunces,serif;color:#F8F6F1;font-size:18px;margin:0 0 16px;">Ta Story de campagne</h3>'
-        + '<div style="border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid rgba(232,148,10,0.2);"><img src="' + dataUrl + '" style="width:100%;display:block;" alt="Story Bourse des Mains d'Or"></div>'
+        + '<div style="border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid rgba(232,148,10,0.2);"><img src="' + dataUrl + '" style="width:100%;display:block;" alt="Story Bourse des Mains d\'Or"></div>'
         + '<div style="display:flex;flex-direction:column;gap:10px;">'
           + '<a href="' + dataUrl + '" download="' + filename + '" style="display:block;background:#E8940A;color:#0f1410;padding:14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;text-decoration:none;">⬇️ Télécharger ma Story</a>'
           + '<a href="https://wa.me/?text=' + shareMsg + '" target="_blank" rel="noopener" style="display:block;background:#25D366;color:white;padding:14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;text-decoration:none;">💬 Partager sur WhatsApp</a>'
@@ -25571,7 +25571,7 @@ window.genererStoryCampagne = async function(candidatureId) {
 const WOLO_TL_PANELS = [
   { eyebrow:'PHASE 1 · LANCEMENT', title:'Togo + Bénin simultanément',
     countries:[{flag:'🇹🇬',name:'Lomé, Togo',on:true},{flag:'🇧🇯',name:'Cotonou, Bénin',on:true}],
-    stat:'Lancement juin 2026 · <strong>500 000 FCFA distribués chaque mois</strong> · 20 pionniers WOLO · Bourse de Croissance · La Bourse des Mains d'Or · Domiciliation juridique Cotonou',
+    stat:'Lancement juin 2026 · <strong>500 000 FCFA distribués chaque mois</strong> · 20 pionniers WOLO · Bourse de Croissance · La Bourse des Mains d\'Or · Domiciliation juridique Cotonou',
     progress:18, progressLabel:'Lancement — Togo + Bénin' },
   { eyebrow:'PHASE 2 · EXPANSION OUEST-AFRICAINE', title:"Toute l'Afrique de l'Ouest",
     countries:[{flag:'🇹🇬',name:'Togo',on:true},{flag:'🇧🇯',name:'Bénin',on:true},{flag:'🇨🇮',name:"Côte d'Ivoire",on:true},{flag:'🇸🇳',name:'Sénégal',on:true},{flag:'🇬🇭',name:'Ghana',on:true},{flag:'🇳🇬',name:'Nigeria',on:true},{flag:'🇲🇱',name:'Mali',on:false},{flag:'🇧🇫',name:'Burkina',on:false}],
