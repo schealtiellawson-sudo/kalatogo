@@ -883,9 +883,9 @@ h1 .gold { color:var(--or); }
   border-radius:100px; font-size:14px; font-weight:600;
   cursor:pointer; background:rgba(255,255,255,0.06); transition:all 0.2s; color:#F8F6F1;
 }
-.filter-dispo.active { background:var(--vert); color:white; border-color:var(--vert); }
+.filter-dispo.active { background:var(--vert); color:#0f1410 !important; border-color:var(--vert); }
 /* Bouton filtre digital actif */
-#digital-btn.active { background:#6366f1; color:white; border-color:#6366f1; }
+#digital-btn.active { background:#6366f1; color:white !important; border-color:#6366f1; }
 .results-meta { font-size:14px; color:var(--gris); margin-top:20px; font-weight:500; }
 .pcard-distance { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--vert); background:#F8F6F1; border-radius:20px; padding:2px 8px; margin-top:4px; }
 #search-map { width:100%; height:580px; border-radius:18px; overflow:hidden; display:none; box-shadow:0 4px 24px rgba(0,0,0,0.10); margin-top:0; }
@@ -3903,13 +3903,13 @@ div[style*="position:sticky"][style*="background:#fff"] {
   <div class="wolo-ticker-inner">
     <span>🏆 BOURSE DE CROISSANCE · 300 000 FCFA À GAGNER CE MOIS</span>
     <span aria-hidden="true">·</span>
-    <span>⚔️ BATTLE BÉNIN VS TOGO · 100 000 FCFA POUR LE CHAMPION</span>
+    <span>👑 BOURSE DES MAINS D'OR · 200 000 FCFA POUR LES REINES DU MOIS</span>
     <span aria-hidden="true">·</span>
     <span>⭐ TOP 50 WOLO · LE CLASSEMENT DES MEILLEURS DU BÉNIN ET DU TOGO</span>
     <span aria-hidden="true">·</span>
     <span>🏆 BOURSE DE CROISSANCE · 300 000 FCFA À GAGNER CE MOIS</span>
     <span aria-hidden="true">·</span>
-    <span>⚔️ BATTLE BÉNIN VS TOGO · 100 000 FCFA POUR LE CHAMPION</span>
+    <span>👑 BOURSE DES MAINS D'OR · 200 000 FCFA POUR LES REINES DU MOIS</span>
     <span aria-hidden="true">·</span>
     <span>⭐ TOP 50 WOLO · LE CLASSEMENT DES MEILLEURS DU BÉNIN ET DU TOGO</span>
     <span aria-hidden="true">·</span>
@@ -20827,7 +20827,7 @@ async function loadRecrutDashboard() {
             <div class="wolo-pro-gains-total">
               <div class="total-label">TOTAL CHAQUE MOIS</div>
               <div class="total-amount">500 000 FCFA</div>
-              <div class="total-sub">= 7,6× le SMIG · + 1 000 000 FCFA en décembre — finale annuelle Bénin vs Togo.</div>
+              <div class="total-sub">= 7,6× le SMIG togolais et béninois — chaque mois.</div>
             </div>
             <div class="wolo-pro-gains-warning">
               ⚠️ Bourse réservée Pro (2 mois consécutifs minimum). <strong>La Bourse des Mains d'Or est ouvert à toutes les femmes du Togo et du Bénin</strong> — pas besoin d'être Pro pour gagner les 100K.
@@ -20867,8 +20867,8 @@ async function loadRecrutDashboard() {
             <div class="wolo-pro-feature-item wolo-feature-highlight">
               <div class="icon">🏆</div>
               <div class="body">
-                <div class="titre">Finale annuelle décembre — Bénin vs Togo</div>
-                <div class="sous">Reine de l'Année Coiffure + Reine de l'Année Couture · <span class="wolo-feature-montant">500 000 FCFA</span> chacune · La consécration de tes 12 photos de victoire</div>
+                <div class="titre">Finale annuelle décembre</div>
+                <div class="sous">Reine de l'Année Coiffure + Reine de l'Année Couture · <span class="wolo-feature-montant">500 000 FCFA</span> chacune · Tirage automatique parmi les Reines de l'année</div>
               </div>
             </div>
             <div class="wolo-pro-feature-item">
@@ -21015,11 +21015,11 @@ async function loadRecrutDashboard() {
       <h2>Les vraies questions Pro</h2>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">C'est vrai qu'on peut gagner 300 000 FCFA chaque mois juste en étant Pro ?</button>
-        <div class="wolo-faq-reponse"><p>Oui. 500 000 FCFA distribués chaque mois au total. <strong>300 000 FCFA</strong> pour la Bourse de Croissance — réservée aux membres Pro (Score WOLO ≥ 80, 4 avis clients récents, 2 mois Pro consécutifs). <strong>200 000 FCFA</strong> pour La Bourse des Mains d'Or — 100K ✂️ Reine Coiffure + 100K 👗 Reine Couture, alternance par mois, 1 Reine Bénin + 1 Reine Togo par construction, ouvert à toutes les femmes B/T. Et en plus, en décembre : <strong>1 000 000 FCFA</strong> pour la finale annuelle (Reine de l'Année Coiffure 500K + Reine de l'Année Couture 500K). Toute la communauté vote. Le résultat est public. Permanent.</p></div>
+        <div class="wolo-faq-reponse"><p>Oui. 800 000 FCFA distribués chaque mois au total. <strong>600 000 FCFA</strong> pour la Bourse de Croissance — 300K × 2 gagnants (1 Togo + 1 Bénin), réservée aux membres Pro (Score WOLO ≥ 80, avis clients récents, 2 mois Pro consécutifs). <strong>200 000 FCFA</strong> pour La Bourse des Mains d'Or — 100K ✂️ Reine Coiffure + 100K 👗 Reine Couture, alternance par mois, 1 Reine Bénin + 1 Reine Togo par construction, ouvert à toutes les femmes B/T. Tirage 100% automatique le 30 du mois — pas besoin de faire quoi que ce soit, si tu es éligible tu participes.</p></div>
       </div>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">Comment fonctionne La Bourse des Mains d'Or ?</button>
-        <div class="wolo-faq-reponse"><p>Chaque mois alterne entre 2 catégories — ✂️ Coiffure (mois impairs) et 👗 Couture (mois pairs). On couronne 2 Reines : 1 du Bénin et 1 du Togo, par construction (impossible qu'un pays rafle tout). Chaque Reine gagne <strong>100 000 FCFA</strong> = un trimestre de loyer à Bè ou une machine Singer pro. Toutes les femmes du Togo et du Bénin peuvent poster — pas besoin d'être Pro pour gagner. Tu postes ta photo (3 photos max comme sur Tinder), tu tagges la coiffeuse / couturière qui a fait le travail, et le moteur de duels tourne automatiquement. +10 pts au gagnant du duel, +1 au perdant, bonus de streak. À la fin de l'année, en décembre, les 6 Reines de chaque pays s'affrontent dans la <strong>Finale annuelle Bénin vs Togo — 500 000 FCFA × 2</strong>.</p></div>
+        <div class="wolo-faq-reponse"><p>Chaque mois alterne entre 2 catégories — ✂️ Coiffure (mois impairs) et 👗 Couture (mois pairs). On couronne 2 Reines : 1 du Bénin et 1 du Togo, par construction (impossible qu'un pays rafle tout). Chaque Reine gagne <strong>100 000 FCFA</strong> = un trimestre de loyer à Bè ou une machine Singer pro. Toutes les femmes du Togo et du Bénin peuvent gagner — pas besoin d'être Pro. Le tirage est 100% automatique le 30 du mois parmi toutes les femmes éligibles (profil complet, métier concerné, au moins 1 photo de réalisation ce mois, au moins 1 avis reçu, active depuis moins de 14 jours).</p></div>
       </div>
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">Pourquoi faut-il 2 mois Pro pour participer au tirage ?</button>
@@ -21040,10 +21040,6 @@ async function loadRecrutDashboard() {
       <div class="wolo-faq-item">
         <button class="wolo-faq-question" type="button">Faut-il être Pro pour gagner La Bourse des Mains d'Or ?</button>
         <div class="wolo-faq-reponse"><p>Non. La Bourse des Mains d'Or est <strong>ouvert à toutes les femmes du Togo et du Bénin</strong> — Pro ou gratuit, peu importe. C'est notre concours d'acquisition : on rend visible le travail, on récompense au mérite, et on espère que les gagnantes deviendront ambassadrices de WOLO. Seule la Bourse de Croissance (300 000 FCFA) reste réservée aux membres Pro depuis 2 mois minimum.</p></div>
-      </div>
-      <div class="wolo-faq-item">
-        <button class="wolo-faq-question" type="button">Comment se passe la finale annuelle de décembre ?</button>
-        <div class="wolo-faq-reponse"><p>De juin à novembre, on couronne 12 Reines mensuelles : 6 Bénin (3 Coiffure + 3 Couture) et 6 Togo (3 Coiffure + 3 Couture). En décembre, leurs photos de victoire s'affrontent dans une <strong>Finale Bénin vs Togo</strong>. Deux Reines de l'Année sont consacrées : Reine Coiffure de l'Année et Reine Couture de l'Année. <strong>500 000 FCFA pour chacune</strong>. La communauté entière vote, hommes et femmes, partout dans le pays et la diaspora.</p></div>
       </div>
     </div>
   </section>
@@ -21246,7 +21242,7 @@ async function loadRecrutDashboard() {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7s5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"></path><path d="M6 9l6 11 6-11"></path></svg>
           </div>
           <h3 style="font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:10px;">REVENUS</h3>
-          <p style="font-size:14px;line-height:1.7;color:rgba(248,246,241,0.75);margin:0;">500 000 FCFA distribués chaque mois — 300K Bourse de Croissance (Pro) + 200K La Bourse des Mains d'Or (ouvert à toutes les femmes B/T). + 1 000 000 FCFA en finale décembre (Bénin vs Togo). 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton réseau aussi.</p>
+          <p style="font-size:14px;line-height:1.7;color:rgba(248,246,241,0.75);margin:0;">800 000 FCFA distribués chaque mois — 600K Bourse de Croissance (300K × 2 gagnants, Pro) + 200K La Bourse des Mains d'Or (100K × 2 Reines, ouvert à toutes les femmes B/T). 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton réseau aussi.</p>
         </div>
       </div>
     </div>
@@ -21934,9 +21930,6 @@ loadSchealtielPhoto();
         <div id="mdr-status-msg" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,0.15);font-size:13px;color:rgba(248,246,241,.7);font-style:italic"></div>
       </div>
 
-      <div style="text-align:center;margin:16px 0">
-        <button onclick="showPage('awards')" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Poster ma photo · Tenter ma chance →</button>
-      </div>
 
       <!-- Candidats du mois -->
       <div id="recomp-awards-candidats" style="margin-bottom:16px"></div>
@@ -21983,38 +21976,12 @@ loadSchealtielPhoto();
       <div id="topmains-empty" style="display:none;text-align:center;padding:30px 16px;color:rgba(248,246,241,.55);font-size:14px">Pas encore de classement ce mois-ci. Les photos arrivent.</div>
     </div>
 
-    <!-- Section Finale Annuelle Décembre -->
-    <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:28px 24px;margin-bottom:24px">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-        <span style="font-size:32px">🏆</span>
-        <div>
-          <h2 style="font-family:Fraunces,serif;font-size:22px;font-weight:900;color:#F8F6F1;margin:0">Finale annuelle décembre — Bénin vs Togo</h2>
-          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Space Mono',monospace">500 000 FCFA × 2 — Reine de l'Année Coiffure + Reine de l'Année Couture</p>
-        </div>
-      </div>
-      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">De juin à novembre, on couronne 12 Reines mensuelles — 6 Bénin, 6 Togo. En décembre, leurs photos de victoire s'affrontent. Deux Reines de l'Année sont consacrées : <strong>Reine Coiffure de l'Année</strong> et <strong>Reine Couture de l'Année</strong>. <strong>500 000 FCFA chacune.</strong> Élues sur leur travail. Pas sur leurs amis.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-        <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:28px;margin-bottom:4px">✂️</div>
-          <div style="font-family:Fraunces,serif;font-weight:900;color:#E8940A;font-size:16px">Reine de l'Année Coiffure</div>
-          <div style="font-size:12px;color:rgba(248,246,241,.6)">500 000 FCFA — décembre</div>
-        </div>
-        <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:28px;margin-bottom:4px">👗</div>
-          <div style="font-family:Fraunces,serif;font-weight:900;color:#E8940A;font-size:16px">Reine de l'Année Couture</div>
-          <div style="font-size:12px;color:rgba(248,246,241,.6)">500 000 FCFA — décembre</div>
-        </div>
-      </div>
-      <div style="text-align:center">
-        <button onclick="showPage('awards')" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Poste ta photo · Vise la finale →</button>
-      </div>
-    </div>
 
     <!-- CTA Pro -->
     <div id="recomp-cta-pro" style="display:none;text-align:center;background:linear-gradient(135deg,rgba(232,148,10,.08),rgba(232,148,10,.02));border:2px solid rgba(232,148,10,.3);border-radius:16px;padding:28px 20px">
       <div style="font-size:28px;margin-bottom:8px">🔒</div>
       <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;margin-bottom:8px">Réservé aux membres Pro</h3>
-      <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px">Passe au Plan Pro pour participer aux récompenses mensuelles.</p>
+      <p style="color:rgba(248,246,241,.6);font-size:14px;margin-bottom:20px">Passe au Plan Pro pour être éligible à la Bourse de Croissance (300 000 FCFA/mois).</p>
       <button onclick="showPage('dashboard');setTimeout(()=>showDashSection('abonnement'),300)" style="background:#E8940A;color:#0f1410;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Passer au Pro — 2 500 FCFA/mois →</button>
     </div>
   </div>
