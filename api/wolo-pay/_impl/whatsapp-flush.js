@@ -115,7 +115,7 @@ async function sendToInbox(supa, userId, templateKey, content) {
     title: inferTitle(templateKey, content),
     body: content,
     from: 'Schealtiel · Fondateur WOZALI',
-    avatar: 'https://wolomarket.vercel.app/icons/founder-avatar.png',
+    avatar: 'https://wozali.vercel.app/icons/founder-avatar.png',
     created_at: new Date().toISOString(),
     read: false,
   };

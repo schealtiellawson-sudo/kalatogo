@@ -30,7 +30,7 @@ CREATE TABLE profiles (
 ```
 FEDAPAY_SECRET_KEY=sk_sandbox_XXXXXXXX
 FEDAPAY_ENV=sandbox
-APP_URL=https://wolomarket.vercel.app
+APP_URL=https://wozali.vercel.app
 SUPABASE_URL=https://wikgdksyeygwpmqzmhez.supabase.co
 SUPABASE_SERVICE_KEY=XXXX   # service_role, jamais exposé côté client
 ```
@@ -38,7 +38,7 @@ SUPABASE_SERVICE_KEY=XXXX   # service_role, jamais exposé côté client
 Pour passer en production : `sk_sandbox_*` → `sk_live_*` et `FEDAPAY_ENV=live`.
 
 ### 3. Configurer le webhook dans FedaPay Dashboard
-URL : `https://wolomarket.vercel.app/api/webhooks/fedapay`
+URL : `https://wozali.vercel.app/api/webhooks/fedapay`
 Événements : `transaction.approved`
 
 ### 4. Dépendance

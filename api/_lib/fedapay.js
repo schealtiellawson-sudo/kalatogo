@@ -4,7 +4,7 @@
 // ENV :
 //   FEDAPAY_SECRET_KEY  sk_sandbox_xxx | sk_live_xxx
 //   FEDAPAY_ENV         'sandbox' (défaut) | 'live'
-//   APP_URL             https://wolomarket.vercel.app
+//   APP_URL             https://wozali.vercel.app
 // ================================================================
 
 const FEDAPAY_SECRET_KEY = process.env.FEDAPAY_SECRET_KEY;

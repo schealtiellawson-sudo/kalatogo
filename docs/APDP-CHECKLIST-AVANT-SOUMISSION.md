@@ -28,7 +28,7 @@
 - [ ] **Cookie banner** : à évaluer
   - Si WOZALI ne pose pas de cookies tiers de tracking (analytics, pub) : pas de banner obligatoire, mais mention dans la Politique de confidentialité
   - Si Vercel Analytics ou Google Analytics ajoutés : banner obligatoire
-  - Action : auditer les cookies actuels (DevTools > Application > Cookies sur wolomarket.vercel.app)
+  - Action : auditer les cookies actuels (DevTools > Application > Cookies sur wozali.vercel.app)
 
 ---
 

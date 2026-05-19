@@ -310,6 +310,6 @@ Hashtags : #WOZALIMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOZALI #
 **Notes de production :**
 - Toujours utiliser la palette or/noir/crème, ZÉRO vert.
 - Police montants : Space Mono. Police titres : Fraunces.
-- CTA toujours : `wolomarket.com` (JAMAIS wolomarket.vercel.app).
+- CTA toujours : `wolomarket.com` (JAMAIS wozali.vercel.app).
 - Hashtag obligatoire sur chaque post : #MurDesReines
 - Créer les visuels en HTML (PAS Canva).

@@ -95,7 +95,7 @@ export default async function handler(req, res) {
     const nomAuteur = gagnant.profiles?.nom || 'Prestataire';
     const whatsappMessage = encodeURIComponent(
       `🌟 Mon post est le Coup du Jour sur WOZALI !\n` +
-      `Découvre mon profil 👉 https://wolomarket.vercel.app/#profil-${gagnant.auteur_id}\n` +
+      `Découvre mon profil 👉 https://wozali.vercel.app/#profil-${gagnant.auteur_id}\n` +
       `${nomAuteur} sur WOZALI`
     );
 
