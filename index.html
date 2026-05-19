@@ -16473,26 +16473,23 @@ function renderTikTokSharedSection() {
   box.style.display = 'block';
 
   const f = currentPrestataire.fields || {};
-  const wolo = Boolean(f.tiktok_suivi_wolomarket || f['Tiktok Suivi Wolomarket']);
-  const sche = Boolean(f.tiktok_suivi_schealtiel || f['Tiktok Suivi Schealtiel']);
-
-  const iconW = document.getElementById('tiktok-icon-wolomarket');
-  const iconS = document.getElementById('tiktok-icon-schealtiel');
-  const btnW = document.getElementById('tiktok-btn-wolomarket');
-  const btnS = document.getElementById('tiktok-btn-schealtiel');
-
-  if (iconW) iconW.textContent = wolo ? '✅' : '❌';
-  if (iconS) iconS.textContent = sche ? '✅' : '❌';
-  if (btnW) {
-    btnW.innerHTML = wolo ? '✓ Suivi (annuler)' : "☐ J'ai suivi";
-    btnW.style.background = wolo ? '#E8940A' : 'transparent';
-    btnW.style.color = wolo ? '#0f1410' : '#E8940A';
-  }
-  if (btnS) {
-    btnS.innerHTML = sche ? '✓ Suivi (annuler)' : "☐ J'ai suivi";
-    btnS.style.background = sche ? '#E8940A' : 'transparent';
-    btnS.style.color = sche ? '#0f1410' : '#E8940A';
-  }
+  const slots = [
+    { key: 'tiktok_suivi_wolomarket',  iconId: 'tiktok-icon-wolomarket', btnId: 'tiktok-btn-wolomarket' },
+    { key: 'tiktok_suivi_schealtiel',  iconId: 'tiktok-icon-schealtiel',  btnId: 'tiktok-btn-schealtiel' },
+    { key: 'insta_suivi_wolomarket',   iconId: 'insta-icon-wolomarket',   btnId: 'insta-btn-wolomarket' },
+    { key: 'insta_suivi_schealtiel',   iconId: 'insta-icon-schealtiel',   btnId: 'insta-btn-schealtiel' },
+  ];
+  slots.forEach(({ key, iconId, btnId }) => {
+    const ok = Boolean(f[key]);
+    const icon = document.getElementById(iconId);
+    const btn  = document.getElementById(btnId);
+    if (icon) icon.textContent = ok ? '✅' : '⭕';
+    if (btn) {
+      btn.innerHTML = ok ? '✓ Déclaré' : '☐ Déclaré';
+      btn.style.background = ok ? '#E8940A' : 'transparent';
+      btn.style.color = ok ? '#0f1410' : '#E8940A';
+    }
+  });
 }
 
 async function toggleTikTokSuivi(field) {
@@ -16556,8 +16553,10 @@ function renderChecklist(prefix, d) {
     photo_du_mois: '≥ 1 photo de réalisation sur ton profil ce mois',
     avis_30j: '≥ 1 avis client sur les 30 derniers jours',
     activite_recente: 'Connexion récente (≤ 14 jours)',
-    tiktok_wolomarket: 'Suivre @wolomarket sur TikTok',
-    tiktok_schealtiel: 'Suivre @schealtiellawson sur TikTok',
+    tiktok_wolomarket: '⚡ Bonus — Suivre @wolomarket sur TikTok',
+    tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
+    insta_suivi_wolomarket: '⚡ Bonus — Suivre @wolomarket sur Instagram',
+    insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
   } : {
     plan_pro_actif: 'Plan Pro actif ce mois-ci',
     profil_complet: 'Profil complet (photo + métier + ville/quartier + numéro)',
@@ -16566,8 +16565,10 @@ function renderChecklist(prefix, d) {
     note_42: 'Note moyenne ≥ 4.2★ sur 30 jours',
     activite_recente: 'Connexion récente (≤ 14 jours)',
     pas_gagne_recent: 'Pas gagné dans les 3 derniers mois',
-    tiktok_wolomarket: 'Suivre @wolomarket sur TikTok',
-    tiktok_schealtiel: 'Suivre @schealtiellawson sur TikTok',
+    tiktok_wolomarket: '⚡ Bonus — Suivre @wolomarket sur TikTok',
+    tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
+    insta_suivi_wolomarket: '⚡ Bonus — Suivre @wolomarket sur Instagram',
+    insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
   };
 
   const conds = d.conditions || {};
@@ -21910,37 +21911,57 @@ loadSchealtielPhoto();
       <p style="font-size:15px;color:rgba(248,246,241,.6);max-width:520px;margin:0 auto"><strong>Bourse de Croissance</strong> (300K — 1 gagnant, Togo ou Bénin, Pro) · <strong>Bourse des Mains d'Or</strong> (100K × 2 — 1 Togo + 1 Bénin, ouvert à toutes les femmes coiffeuses/couturières).<br>Tirage 100% aléatoire le 30 du mois.</p>
     </div>
 
-    <!-- 🎵 Section TikTok partagée (conditions communes Bourse + Mains d'Or) -->
-    <div id="recomp-tiktok-shared" style="background:linear-gradient(135deg,rgba(232,148,10,0.12),rgba(232,148,10,0.04));border:1.5px solid rgba(232,148,10,0.35);border-radius:20px;padding:24px;margin-bottom:24px;display:none">
+    <!-- ⚡ Section Boost Social (TikTok + Instagram — bonus non-obligatoire) -->
+    <div id="recomp-tiktok-shared" style="background:linear-gradient(135deg,rgba(232,148,10,0.10),rgba(232,148,10,0.03));border:1.5px solid rgba(232,148,10,0.28);border-radius:20px;padding:24px;margin-bottom:24px;display:none">
       <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px">
-        <span style="font-size:28px">🎵</span>
+        <span style="font-size:28px">⚡</span>
         <div style="flex:1">
-          <h2 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;margin:0">Connecte tes TikTok WOLO</h2>
-          <p style="font-size:12px;color:rgba(248,246,241,.65);margin:4px 0 0">Valable pour les <strong>2 récompenses</strong> · 1 fois pour toutes</p>
+          <h2 style="font-family:Fraunces,serif;font-size:20px;font-weight:900;color:#F8F6F1;margin:0">Booste tes chances</h2>
+          <p style="font-size:12px;color:rgba(248,246,241,.65);margin:4px 0 0">Optionnel · Valable pour les <strong>2 récompenses</strong> · À déclarer une seule fois</p>
         </div>
       </div>
-      <p style="color:rgba(248,246,241,.7);font-size:13px;line-height:1.6;margin:12px 0 18px">Suivre nos comptes TikTok est la condition la plus simple. C'est gratuit, ça t'expose à d'autres pros et clients, et c'est l'algorithme qui s'occupe du reste.</p>
+      <p style="color:rgba(248,246,241,.7);font-size:13px;line-height:1.6;margin:12px 0 18px">Pas une condition — mais chaque compte suivi et déclaré ici augmente légèrement tes chances lors du tirage. C'est gratuit, ça prend 30 secondes, et ça t'expose à d'autres pros et clients.</p>
 
-      <!-- Row 1 : @wolomarket -->
-      <div id="tiktok-row-wolomarket" style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(232,148,10,0.18);border-radius:14px;padding:14px;margin-bottom:10px;flex-wrap:wrap">
-        <span id="tiktok-icon-wolomarket" style="font-size:22px;width:32px;text-align:center">❌</span>
+      <!-- TikTok -->
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(248,246,241,.4);margin-bottom:8px">🎵 TIKTOK</div>
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:14px;margin-bottom:8px;flex-wrap:wrap">
+        <span id="tiktok-icon-wolomarket" style="font-size:20px;width:28px;text-align:center">⭕</span>
         <div style="flex:1;min-width:140px">
-          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@wolomarket sur TikTok</div>
-          <div style="font-size:11px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace">CONDITION OBLIGATOIRE</div>
+          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@wolomarket</div>
+          <div style="font-size:10px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px">BONUS · +CHANCES</div>
         </div>
-        <a href="https://www.tiktok.com/@wolomarket" target="_blank" rel="noopener" style="background:#E8940A;color:#0f1410;border:none;padding:10px 16px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block">🎵 Aller suivre</a>
-        <button onclick="toggleTikTokSuivi('tiktok_suivi_wolomarket')" id="tiktok-btn-wolomarket" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:100px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">☐ J'ai suivi</button>
+        <a href="https://www.tiktok.com/@wolomarket" target="_blank" rel="noopener" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:8px 14px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block">Suivre →</a>
+        <button onclick="toggleTikTokSuivi('tiktok_suivi_wolomarket')" id="tiktok-btn-wolomarket" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:14px;margin-bottom:16px;flex-wrap:wrap">
+        <span id="tiktok-icon-schealtiel" style="font-size:20px;width:28px;text-align:center">⭕</span>
+        <div style="flex:1;min-width:140px">
+          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@schealtiellawson</div>
+          <div style="font-size:10px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px">BONUS · +CHANCES</div>
+        </div>
+        <a href="https://www.tiktok.com/@schealtiellawson" target="_blank" rel="noopener" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:8px 14px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block">Suivre →</a>
+        <button onclick="toggleTikTokSuivi('tiktok_suivi_schealtiel')" id="tiktok-btn-schealtiel" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
       </div>
 
-      <!-- Row 2 : @schealtiellawson -->
-      <div id="tiktok-row-schealtiel" style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(232,148,10,0.18);border-radius:14px;padding:14px;flex-wrap:wrap">
-        <span id="tiktok-icon-schealtiel" style="font-size:22px;width:32px;text-align:center">❌</span>
+      <!-- Instagram -->
+      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(248,246,241,.4);margin-bottom:8px">📸 INSTAGRAM</div>
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:14px;margin-bottom:8px;flex-wrap:wrap">
+        <span id="insta-icon-wolomarket" style="font-size:20px;width:28px;text-align:center">⭕</span>
         <div style="flex:1;min-width:140px">
-          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@schealtiellawson sur TikTok</div>
-          <div style="font-size:11px;color:rgba(248,246,241,.5);font-family:'Space Mono',monospace">CONDITION OBLIGATOIRE</div>
+          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@wolomarket</div>
+          <div style="font-size:10px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px">BONUS · +CHANCES</div>
         </div>
-        <a href="https://www.tiktok.com/@schealtiellawson" target="_blank" rel="noopener" style="background:#E8940A;color:#0f1410;border:none;padding:10px 16px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block">🎵 Aller suivre</a>
-        <button onclick="toggleTikTokSuivi('tiktok_suivi_schealtiel')" id="tiktok-btn-schealtiel" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:100px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">☐ J'ai suivi</button>
+        <a href="https://www.instagram.com/wolomarket" target="_blank" rel="noopener" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:8px 14px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block">Suivre →</a>
+        <button onclick="toggleTikTokSuivi('insta_suivi_wolomarket')" id="insta-btn-wolomarket" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:14px;flex-wrap:wrap">
+        <span id="insta-icon-schealtiel" style="font-size:20px;width:28px;text-align:center">⭕</span>
+        <div style="flex:1;min-width:140px">
+          <div style="font-weight:700;color:#F8F6F1;font-size:14px">@schealtiellawson</div>
+          <div style="font-size:10px;color:#E8940A;font-family:'Space Mono',monospace;letter-spacing:1px">BONUS · +CHANCES</div>
+        </div>
+        <a href="https://www.instagram.com/schealtiellawson" target="_blank" rel="noopener" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:8px 14px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block">Suivre →</a>
+        <button onclick="toggleTikTokSuivi('insta_suivi_schealtiel')" id="insta-btn-schealtiel" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
       </div>
     </div>
 
@@ -21980,8 +22001,8 @@ loadSchealtielPhoto();
           <div>✓ Note moyenne ≥ 4,2 étoiles sur 30 jours</div>
           <div>✓ Connexion récente (≤ 14 jours)</div>
           <div>✓ Pas gagné les 3 derniers mois</div>
-          <div>✓ Suivre @wolomarket et @schealtiellawson sur TikTok</div>
         </div>
+        <div style="margin-top:12px;background:rgba(232,148,10,.06);border-radius:8px;padding:10px;font-size:12px;color:rgba(248,246,241,.6);">⚡ <strong style="color:#E8940A;">Bonus facultatif</strong> — Suivre @wolomarket et @schealtiellawson sur TikTok et Instagram augmente légèrement tes chances. Pas obligatoire.</div>
       </div>
 
       <!-- Palmarès Bourse -->
@@ -22009,8 +22030,8 @@ loadSchealtielPhoto();
           <div>✓ Au moins <strong>1 photo de réalisation</strong> sur ton profil ce mois-ci</div>
           <div>✓ Au moins <strong>1 avis client</strong> reçu sur les 30 derniers jours</div>
           <div>✓ Connexion récente (≤ 14 jours)</div>
-          <div>✓ Suivre @wolomarket et @schealtiellawson sur TikTok</div>
         </div>
+        <div style="margin-top:12px;background:rgba(232,148,10,.06);border-radius:8px;padding:10px;font-size:12px;color:rgba(248,246,241,.6);">⚡ <strong style="color:#E8940A;">Bonus facultatif</strong> — Suivre @wolomarket et @schealtiellawson sur TikTok et Instagram augmente légèrement tes chances. Pas obligatoire.</div>
       </div>
 
       <!-- 🆕 Checklist dynamique Bourse des Mains d'Or -->
