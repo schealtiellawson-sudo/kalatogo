@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO supaAvis — adaptateur Supabase pour les Avis clients
+// WOZALI supaAvis — adaptateur Supabase pour les Avis clients
 // Format de retour Airtable {id, fields, createdTime}
 // ================================================================
 (function () {

@@ -7,7 +7,7 @@
 -- 1) Colonne code_parrainage sur profiles
 alter table public.profiles add column if not exists code_parrainage text unique;
 
--- 2) Fonction génération code WOLO-XXXXXX
+-- 2) Fonction génération code WOZALI-XXXXXX
 create or replace function public.generate_code_parrainage() returns text
 language plpgsql as $$
 declare
@@ -15,7 +15,7 @@ declare
   c int;
 begin
   loop
-    code := 'WOLO-' || upper(substring(md5(random()::text || clock_timestamp()::text) from 1 for 6));
+    code := 'WOZALI-' || upper(substring(md5(random()::text || clock_timestamp()::text) from 1 for 6));
     select count(*) into c from public.profiles where code_parrainage = code;
     exit when c = 0;
   end loop;

@@ -97,7 +97,7 @@ async function sendAlertEmail({ total, byCounts, topMsgs }) {
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
     <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#0f1410;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">!</div>
     <div>
-      <div style="font-weight:700;color:#F8F6F1;font-size:16px;">Alerte monitoring WOLO Market</div>
+      <div style="font-weight:700;color:#F8F6F1;font-size:16px;">Alerte monitoring WOZALI</div>
       <div style="font-size:12px;color:rgba(248,246,241,0.55);">Dernières 24h</div>
     </div>
   </div>
@@ -122,9 +122,9 @@ async function sendAlertEmail({ total, byCounts, topMsgs }) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'WOLO Monitoring <monitoring@wolomarket.com>',
+        from: 'WOZALI Monitoring <monitoring@wozali.com>',
         to: [ADMIN_EMAIL],
-        subject: `[WOLO Alerte] ${total} erreurs / 24h`,
+        subject: `[WOZALI Alerte] ${total} erreurs / 24h`,
         html,
       }),
     });

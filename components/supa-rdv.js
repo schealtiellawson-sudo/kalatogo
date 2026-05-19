@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO supaRdv — adaptateur Supabase pour les Rendez-vous
+// WOZALI supaRdv — adaptateur Supabase pour les Rendez-vous
 // Format de retour Airtable {id, fields, createdTime}
 // ================================================================
 (function () {

@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 2) Jour J : tentative de débit Crédit WOLO
+    // 2) Jour J : tentative de débit Crédit WOZALI
     const { data: echus = [] } = await supabase
       .from('abonnements')
       .select('id, user_id, date_fin')
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     const results = { notifies: expBientot.length, renouveles: 0, echecs: 0, expires: 0 };
 
     for (const abo of echus) {
-      // Vérifie solde Crédit WOLO
+      // Vérifie solde Crédit WOZALI
       const { data: credit } = await supabase
         .from('wolo_credit')
         .select('solde_disponible')
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
           await envoyerNotification({
             user_id: abo.user_id,
             titre: 'Plan Pro renouvelé ✅',
-            corps: `2 500 FCFA débités de ton Crédit WOLO · Valide encore 1 mois`
+            corps: `2 500 FCFA débités de ton Crédit WOZALI · Valide encore 1 mois`
           });
 
           results.renouveles++;
@@ -109,14 +109,14 @@ export default async function handler(req, res) {
           await envoyerNotification({
             user_id: abo.user_id,
             titre: 'Plan Pro expiré',
-            corps: 'Ton QR code est désactivé. Recharge ton Crédit WOLO et réactive ton Plan Pro.'
+            corps: 'Ton QR code est désactivé. Recharge ton Crédit WOZALI et réactive ton Plan Pro.'
           });
           results.expires++;
         } else {
           await envoyerNotification({
             user_id: abo.user_id,
-            titre: 'Crédit WOLO insuffisant',
-            corps: 'Ton Crédit WOLO est insuffisant pour renouveler. Recharge maintenant pour éviter l\'expiration dans 48h.'
+            titre: 'Crédit WOZALI insuffisant',
+            corps: 'Ton Crédit WOZALI est insuffisant pour renouveler. Recharge maintenant pour éviter l\'expiration dans 48h.'
           });
           results.echecs++;
         }

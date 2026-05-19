@@ -1,5 +1,5 @@
 -- ================================================================
--- WOLO Market — Notifications Push Web (PWA)
+-- WOZALI — Notifications Push Web (PWA)
 -- Date : 2026-04-29
 -- Stocke les souscriptions Web Push (VAPID) par utilisateur.
 -- 1 user peut avoir plusieurs souscriptions (mobile + desktop + autre).

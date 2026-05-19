@@ -126,7 +126,7 @@ export async function notifyPro(supabase, proUserId, subType, payload = {}) {
     sub_type: subType,
     title,
     body,
-    from: 'WOLO Market',
+    from: 'WOZALI',
     created_at: new Date().toISOString(),
     read: false,
     action_url: `#dashboard?section=${meta.section}`,

@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════
-// WOLO Business Suite — Module 3 : Mon emploi (vue employé)
+// WOZALI Business Suite — Module 3 : Mon emploi (vue employé)
 // Tables Airtable : Employes + Fiches_Paie + Paiements_Salaire + Annonces_Equipe
 // ══════════════════════════════════════════
 
@@ -14,7 +14,7 @@
     root.innerHTML = skeletonHTML();
 
     if (!window.currentPrestataire?.id) {
-      root.innerHTML = `<div style="padding:40px;text-align:center;color:rgba(248,246,241,.5);">Connecte-toi pour voir ton emploi.</div>`;
+      root.innerHTML = `<div style="padding:40px;text-align:center;color:rgba(252, 224, 168,.5);">Connecte-toi pour voir ton emploi.</div>`;
       return;
     }
 
@@ -59,10 +59,10 @@
     const dernierMois = state.paiements[0]?.fields?.['Mois'] || '—';
 
     root.innerHTML = `
-      <div style="font-family:'Poppins',sans-serif;color:#F8F6F1;">
+      <div style="font-family:'Geist',sans-serif;color:#FCE0A8;">
         <div style="margin-bottom:20px;">
           <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin:0 0 4px;">Mon emploi</h1>
-          <p style="font-size:13px;color:rgba(248,246,241,.5);margin:0;">${poste} chez <strong>${patronNom}</strong></p>
+          <p style="font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">${poste} chez <strong>${patronNom}</strong></p>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px;">
@@ -93,9 +93,9 @@
         return `<div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div style="font-weight:700;font-size:13px;">${f['Mois'] || '—'}</div>
-            <div style="font-size:11px;color:rgba(248,246,241,.55);font-family:'Space Mono',monospace;">${formatFCFA(f['Net FCFA'] || f['Salaire FCFA'] || 0)}</div>
+            <div style="font-size:11px;color:rgba(252, 224, 168,.55);font-family:'Geist Mono',monospace;">${formatFCFA(f['Net FCFA'] || f['Salaire FCFA'] || 0)}</div>
           </div>
-          <button onclick="window.open('/api/wolo-pay/paie-bulletin?id=${encodeURIComponent(fi.id)}','_blank')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">📄 PDF</button>
+          <button onclick="window.open('/api/wolo-pay/paie-bulletin?id=${encodeURIComponent(fi.id)}','_blank')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">📄 PDF</button>
         </div>`;
       }).join('')}
     </div>`;
@@ -108,30 +108,30 @@
         return `<div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px;">
           <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;">
             <div style="font-weight:700;font-size:13px;">${f['Titre'] || 'Annonce'}</div>
-            <span style="font-size:10px;color:rgba(248,246,241,.4);font-family:'Space Mono',monospace;white-space:nowrap;">${f['Date'] ? new Date(f['Date']).toLocaleDateString('fr-FR') : ''}</span>
+            <span style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace;white-space:nowrap;">${f['Date'] ? new Date(f['Date']).toLocaleDateString('fr-FR') : ''}</span>
           </div>
-          <div style="font-size:12px;color:rgba(248,246,241,.7);line-height:1.4;">${f['Message'] || ''}</div>
+          <div style="font-size:12px;color:rgba(252, 224, 168,.7);line-height:1.4;">${f['Message'] || ''}</div>
         </div>`;
       }).join('')}
     </div>`;
   }
 
   function emptyMini(msg){
-    return `<div style="background:rgba(232,148,10,.03);border:1px dashed rgba(232,148,10,.2);border-radius:10px;padding:20px;text-align:center;font-size:12px;color:rgba(248,246,241,.5);">${msg}</div>`;
+    return `<div style="background:rgba(232,148,10,.03);border:1px dashed rgba(232,148,10,.2);border-radius:10px;padding:20px;text-align:center;font-size:12px;color:rgba(252, 224, 168,.5);">${msg}</div>`;
   }
 
   function noEmployeHTML(){
-    return `<div style="padding:40px;text-align:center;color:rgba(248,246,241,.55);font-family:'Poppins',sans-serif;">
+    return `<div style="padding:40px;text-align:center;color:rgba(252, 224, 168,.55);font-family:'Geist',sans-serif;">
       <div style="font-size:48px;opacity:.4;margin-bottom:12px;">💼</div>
-      <h3 style="font-family:'Fraunces',serif;font-size:20px;margin:0 0 8px;color:#F8F6F1;">Tu n'es pas (encore) employé sur WOLO.</h3>
+      <h3 style="font-family:'Fraunces',serif;font-size:20px;margin:0 0 8px;color:#FCE0A8;">Tu n'es pas (encore) employé sur WOZALI.</h3>
       <p style="font-size:13px;max-width:420px;margin:0 auto;">Si tu attends une invitation d'un patron, vérifie ton WhatsApp. Si tu es prestataire, va dans <strong>Mon équipe</strong>.</p>
     </div>`;
   }
 
   function kpiCard(label, val, color){
     return `<div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;">
-      <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:900;color:${color};line-height:1.1;">${val}</div>
-      <div style="font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">${label}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:20px;font-weight:900;color:${color};line-height:1.1;">${val}</div>
+      <div style="font-size:10px;color:rgba(252, 224, 168,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">${label}</div>
     </div>`;
   }
 
@@ -141,7 +141,7 @@
   }
 
   function skeletonHTML(){
-    return `<div style="padding:40px;text-align:center;color:rgba(248,246,241,.4);">Chargement de ton emploi…</div>`;
+    return `<div style="padding:40px;text-align:center;color:rgba(252, 224, 168,.4);">Chargement de ton emploi…</div>`;
   }
 
   window.loadMonEmploi = loadMonEmploi;

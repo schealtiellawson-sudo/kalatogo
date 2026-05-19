@@ -1,5 +1,5 @@
 -- ================================================================
--- WOLO Pay — Sprint 4 · PIN + backfill + contacts favoris
+-- WOZALI Pay — Sprint 4 · PIN + backfill + contacts favoris
 -- ================================================================
 
 -- ---- Backfill Sprint 3 (auth.users -> profiles + wolo_credit + abonnements)

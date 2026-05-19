@@ -1,4 +1,4 @@
-# SPRINT 6 — AUDIT Feed Social WOLO Market
+# SPRINT 6 — AUDIT Feed Social WOZALI Market
 
 Date : 2026-04-09
 
@@ -16,14 +16,14 @@ Date : 2026-04-09
   dans Supabase Studio → Storage → New bucket (public = true)
 
 ## Navigation
-- [x] Onglet "📰 Feed WOLO" ajouté dans nav desktop (entre "Trouver un pro" et "WOLO Jobs")
+- [x] Onglet "📰 Feed WOZALI" ajouté dans nav desktop (entre "Trouver un pro" et "WOZALI Jobs")
 - [x] Onglet ajouté dans menu hamburger mobile
 - [x] Bottom navigation mobile (`<nav class="mobile-bottom-nav">`) avec 5 items
 - [x] Feed est l'onglet central (bouton or surélevé)
 - [x] `publicPages` array updated to include `'feed'`
 
 ## Feed principal
-- [x] Stories WOLO (Bourse + À la Une) — dégradation gracieuse si table vide
+- [x] Stories WOZALI (Bourse + À la Une) — dégradation gracieuse si table vide
 - [x] 4 onglets (Pour toi / Abonnements / Ma ville / Talent Radar)
 - [x] Onglet Talent Radar visible uniquement si profile.type_profil = 'recruteur'
 - [x] Infinite scroll via IntersectionObserver

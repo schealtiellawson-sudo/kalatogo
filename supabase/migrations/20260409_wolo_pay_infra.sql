@@ -1,5 +1,5 @@
 -- ================================================================
--- WOLO Pay — Infrastructure base de données
+-- WOZALI Pay — Infrastructure base de données
 -- Sprint 3 · 2026-04-09
 -- ================================================================
 -- Pré-requis : table `profiles` déjà créée (Supabase Auth)
@@ -7,7 +7,7 @@
 -- ================================================================
 
 -- ----------------------------------------------------------------
--- TABLE 1 : Transactions WOLO Pay
+-- TABLE 1 : Transactions WOZALI Pay
 -- ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS wolo_transactions (
   id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS wolo_transactions (
 );
 
 -- ----------------------------------------------------------------
--- TABLE 2 : Crédit WOLO par utilisateur
+-- TABLE 2 : Crédit WOZALI par utilisateur
 -- ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS wolo_credit (
   user_id           uuid REFERENCES profiles(id) PRIMARY KEY,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS wolo_credit (
 );
 
 -- ----------------------------------------------------------------
--- TABLE 3 : Historique des mouvements de Crédit WOLO
+-- TABLE 3 : Historique des mouvements de Crédit WOZALI
 -- ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS wolo_credit_mouvements (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -1,6 +1,6 @@
 # DÉCLARATION DE TRAITEMENT DE DONNÉES À CARACTÈRE PERSONNEL — APDP TOGO
 
-**Plateforme** : WOLO Market
+**Plateforme** : WOZALI
 **Responsable de traitement** : Schealtiel Kpomblawoun
 **Date estimée de soumission** : mai 2026 (avant lancement public le début juillet 2026)
 **Version du dossier** : 1.0
@@ -20,8 +20,8 @@
 | Numéro RCCM / patente | [À COMPLÉTER] |
 | Adresse du siège | [À COMPLÉTER : adresse complète, Lomé, Togo] |
 | Téléphone | [À COMPLÉTER] |
-| Email officiel | contact@wolomarket.com |
-| Site internet | https://wolomarket.com |
+| Email officiel | contact@wozali.com |
+| Site internet | https://wozali.com |
 | Représentant légal | Schealtiel Kpomblawoun, fondateur |
 | Pièce d'identité | [À COMPLÉTER : CNI ou passeport — joindre copie certifiée] |
 
@@ -31,7 +31,7 @@
 
 ### 2.1 Finalité principale
 
-WOLO Market est une marketplace numérique dont la mission est de rendre visible l'économie informelle en Afrique de l'Ouest, en commençant par le Togo (Lomé) et le Bénin (Cotonou). La plateforme met en relation :
+WOZALI est une marketplace numérique dont la mission est de rendre visible l'économie informelle en Afrique de l'Ouest, en commençant par le Togo (Lomé) et le Bénin (Cotonou). La plateforme met en relation :
 
 - des **prestataires de services** (artisans, indépendants, micro-entrepreneurs informels et formels) qui publient un profil professionnel ;
 - des **clients** qui recherchent un prestataire à proximité ;
@@ -165,7 +165,7 @@ Conformément aux articles 33 à 46 de la Loi N°2019-014, les personnes concern
 
 | Droit | Modalité d'exercice | Délai de réponse |
 |---|---|---|
-| Droit d'accès (art. 36) | Email à contact@wolomarket.com avec copie d'identité | 30 jours |
+| Droit d'accès (art. 36) | Email à contact@wozali.com avec copie d'identité | 30 jours |
 | Droit de rectification (art. 38) | Directement dans le tableau de bord OU email | Immédiat / 30 jours |
 | Droit à l'effacement (art. 39) | Bouton "Supprimer mon compte" dans le tableau de bord OU email | Immédiat / 30 jours |
 | Droit d'opposition (art. 40) | Email | 30 jours |
@@ -173,7 +173,7 @@ Conformément aux articles 33 à 46 de la Loi N°2019-014, les personnes concern
 | Droit de retrait du consentement | Désactivation des opt-ins dans le tableau de bord | Immédiat |
 | Droit de plainte | Saisine directe de l'APDP Togo | — |
 
-**Procédure interne** : tout email reçu à contact@wolomarket.com est traité sous 7 jours ouvrés en première réponse, et clos dans les 30 jours conformément à la loi.
+**Procédure interne** : tout email reçu à contact@wozali.com est traité sous 7 jours ouvrés en première réponse, et clos dans les 30 jours conformément à la loi.
 
 ---
 
@@ -182,7 +182,7 @@ Conformément aux articles 33 à 46 de la Loi N°2019-014, les personnes concern
 Pour le MVP et jusqu'au seuil de désignation obligatoire (art. 23 Loi 2019-014 — à confirmer auprès de l'APDP), les fonctions de DPO sont assumées par le RT lui-même :
 
 - **Nom** : Schealtiel Kpomblawoun
-- **Email DPO** : dpo@wolomarket.com (alias dédié)
+- **Email DPO** : dpo@wozali.com (alias dédié)
 - **Téléphone** : [À COMPLÉTER]
 
 Un DPO externe certifié sera désigné dès franchissement des seuils légaux ou contractuels (recommandation : avant 50 000 utilisateurs actifs).
@@ -209,7 +209,7 @@ Le rayon de mobilité affiché publiquement est paramétrable (1 km à 50 km).
 
 ### 11.4 Notifications push
 
-Les notifications push (VAPID) sont activées **uniquement après opt-in explicite** via la permission native du navigateur. L'utilisateur peut révoquer la permission à tout moment dans les paramètres du navigateur ou dans le tableau de bord WOLO.
+Les notifications push (VAPID) sont activées **uniquement après opt-in explicite** via la permission native du navigateur. L'utilisateur peut révoquer la permission à tout moment dans les paramètres du navigateur ou dans le tableau de bord WOZALI.
 
 ### 11.5 Concours Bourse des Mains d'Or / King & Queen
 
@@ -223,8 +223,8 @@ Le scoring IA candidat-offre est un outil **d'aide à la décision**, jamais une
 
 ## SECTION 12 — ANNEXES À JOINDRE AU DOSSIER
 
-1. Politique de confidentialité publiée sur https://wolomarket.com/confidentialite (voir `POLITIQUE-CONFIDENTIALITE-DRAFT.md`).
-2. CGU publiées sur https://wolomarket.com/cgu.
+1. Politique de confidentialité publiée sur https://wozali.com/confidentialite (voir `POLITIQUE-CONFIDENTIALITE-DRAFT.md`).
+2. CGU publiées sur https://wozali.com/cgu.
 3. Schéma fonctionnel de la plateforme (annexe technique).
 4. Schéma des flux de données et des sous-traitants.
 5. Copie de la pièce d'identité du RT.
@@ -238,9 +238,9 @@ Le scoring IA candidat-offre est un outil **d'aide à la décision**, jamais une
 
 - [ ] Constituer l'entité juridique (entreprise individuelle / SARL) et obtenir le RCCM ou la patente Togo.
 - [ ] Compléter l'adresse du siège social à Lomé.
-- [ ] Publier la Politique de confidentialité sur https://wolomarket.com/confidentialite.
-- [ ] Publier les CGU sur https://wolomarket.com/cgu.
-- [ ] Activer l'email contact@wolomarket.com et dpo@wolomarket.com (Resend ou redirection Gmail).
+- [ ] Publier la Politique de confidentialité sur https://wozali.com/confidentialite.
+- [ ] Publier les CGU sur https://wozali.com/cgu.
+- [ ] Activer l'email contact@wozali.com et dpo@wozali.com (Resend ou redirection Gmail).
 - [ ] Vérifier que la fonctionnalité "Supprimer mon compte" est opérationnelle dans le tableau de bord.
 - [ ] Vérifier que la fonctionnalité "Exporter mes données" est opérationnelle (JSON).
 - [ ] Préparer une copie certifiée de la CNI / passeport du fondateur.
@@ -251,4 +251,4 @@ Le scoring IA candidat-offre est un outil **d'aide à la décision**, jamais une
 
 ---
 
-*Fin du dossier APDP Togo — Version 1.0 — WOLO Market*
+*Fin du dossier APDP Togo — Version 1.0 — WOZALI*

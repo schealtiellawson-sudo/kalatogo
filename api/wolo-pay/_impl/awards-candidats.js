@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Awards — Liste des candidats du mois
+// WOZALI Awards — Liste des candidats du mois
 // GET /api/wolo-pay/awards-candidats?mois=YYYY-MM&pays=BJ|TG
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';

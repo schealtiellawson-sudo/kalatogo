@@ -90,7 +90,7 @@ export default async function handler(req, res) {
       const rang = idx + 1;
       return {
         user_id: uid,
-        nom: pres.nom_complet || 'Pro WOLO',
+        nom: pres.nom_complet || 'Pro WOZALI',
         photo_profil: pres.photo_profil || '',
         metier: pres.metier_principal || (categorie === 'coiffure' ? 'Coiffeuse' : 'Couturière'),
         ville,

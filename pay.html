@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Payer · WOLO Pay</title>
+<title>Payer · WOZALI Pay</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Poppins:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root { --or:#E8940A; --noir:#0f1410; --creme:#F8F6F1; --rouge:#8b1a1a; }
@@ -66,7 +66,7 @@ html,body{background:#111614;color:var(--creme);font-family:Poppins,sans-serif;m
 </head>
 <body>
 <div class="wrap" id="main-view">
-  <div class="logo-top"><div class="logo-circle">W</div><span>WOLO PAY</span></div>
+  <div class="logo-top"><div class="logo-circle">W</div><span>WOZALI PAY</span></div>
 
   <div id="merchant-host">
     <div class="merchant-card"><div class="merchant-avatar">?</div><div><div class="m-name">Chargement…</div></div></div>
@@ -85,9 +85,9 @@ html,body{background:#111614;color:var(--creme);font-family:Poppins,sans-serif;m
 
   <div class="fees-box" id="fees-box">
     <div class="fees-row"><span>Montant de la prestation</span><span class="v" id="f-prest">0 FCFA</span></div>
-    <div class="fees-row"><span>Frais de traitement WOLO (1,5%)</span><span class="v" id="f-frais">0 FCFA</span></div>
+    <div class="fees-row"><span>Frais de traitement WOZALI (1,5%)</span><span class="v" id="f-frais">0 FCFA</span></div>
     <div class="fees-row total"><span>Total à payer</span><span class="v" id="f-total">0 FCFA</span></div>
-    <div class="fees-recv"><span id="f-recv-name">Le commerçant</span> recevra <b id="f-recv-amt">0 FCFA</b> sur son Crédit WOLO</div>
+    <div class="fees-recv"><span id="f-recv-name">Le commerçant</span> recevra <b id="f-recv-amt">0 FCFA</b> sur son Crédit WOZALI</div>
   </div>
 
   <span class="label">Comment veux-tu payer ?</span>
@@ -151,7 +151,7 @@ async function loadMerchant(){
     const badge = MERCHANT.plan==='pro' ? '<span class="badge-pro">PRO</span>' : '';
     const safePhoto = esc(MERCHANT.photo_url||'');
     const safeName = esc(MERCHANT.email?.split('@')[0]||'Commerçant');
-    const safeMetier = esc(MERCHANT.metier||'Prestataire WOLO');
+    const safeMetier = esc(MERCHANT.metier||'Prestataire WOZALI');
     const safeLoc = esc([MERCHANT.quartier,MERCHANT.ville].filter(Boolean).join(' · ')||'Bénin / Togo');
     document.getElementById('merchant-host').innerHTML = `
       <div class="merchant-card">

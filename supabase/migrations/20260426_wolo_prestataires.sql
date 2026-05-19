@@ -1,5 +1,5 @@
 -- ================================================================
--- Migration WOLO Market : table Prestataires Airtable → Supabase
+-- Migration WOZALI : table Prestataires Airtable → Supabase
 -- Date : 2026-04-26
 -- Raison : quota mensuel API Airtable (PUBLIC_API_BILLING_LIMIT_EXCEEDED)
 -- bloquait les reads du profil utilisateur. Bascule vers Supabase pour
@@ -167,7 +167,7 @@ SELECT
     'Vues 7j',                     vues_7j,
     'Vues 30j',                    vues_30j,
     'Nombre de transactions',      nb_transactions,
-    'Score WOLO',                  score_wolo,
+    'Score WOZALI',                  score_wolo,
     'Résumé Profil IA',            resume_profil_ia,
     'Badge vérifié',               badge_verifie,
     'Recruteur vérifié',           recruteur_verifie,

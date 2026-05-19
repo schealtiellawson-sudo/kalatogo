@@ -1,5 +1,5 @@
 -- ============================================================
--- Sprint 8 — Tables manquantes Feed Social WOLO
+-- Sprint 8 — Tables manquantes Feed Social WOZALI
 -- Exécuté le 2026-04-10 sur Supabase SQL Editor
 -- ============================================================
 

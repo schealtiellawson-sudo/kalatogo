@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Market — Mapping métier → statuts socio-économiques
+// WOZALI — Mapping métier → statuts socio-économiques
 //
 // API : window.WoloMetierStatuts
 //   .getStatutsFor(metier)   → { statuts: [...], intro: '...', sequence_prefix: 'M_xxx' }
@@ -37,19 +37,19 @@
       value: 'apprentie',
       emoji: '🌱',
       label: 'Apprentie chez une patronne',
-      description: "Tu apprends chez Madame depuis quelques mois ou années. Tu n'as pas encore tes propres clientes. WOLO te donne ton dimanche."
+      description: "Tu apprends chez Madame depuis quelques mois ou années. Tu n'as pas encore tes propres clientes. WOZALI te donne ton dimanche."
     },
     {
       value: 'patronne',
       emoji: '👑',
       label: 'Cheffe de salon / Patronne',
-      description: "Tu diriges ton salon ou atelier. Tu as des apprenties ou des employées. WOLO t'aide à recruter, payer, gérer."
+      description: "Tu diriges ton salon ou atelier. Tu as des apprenties ou des employées. WOZALI t'aide à recruter, payer, gérer."
     },
     {
       value: 'independante',
       emoji: '🚪',
       label: 'Indépendante (domicile / sur commande)',
-      description: "Tu travailles seule à ton compte, à domicile ou sur commande. Pas d'atelier fixe. WOLO te donne tes clientes du quartier."
+      description: "Tu travailles seule à ton compte, à domicile ou sur commande. Pas d'atelier fixe. WOZALI te donne tes clientes du quartier."
     }
   ];
 
@@ -59,19 +59,19 @@
       value: 'apprenti',
       emoji: '🌱',
       label: 'Apprenti chez un patron',
-      description: "Tu apprends dans un salon. Pas encore tes propres clients. WOLO te donne tes débuts."
+      description: "Tu apprends dans un salon. Pas encore tes propres clients. WOZALI te donne tes débuts."
     },
     {
       value: 'patron',
       emoji: '👑',
       label: 'Patron de salon barbier',
-      description: "Tu diriges ton salon. Tu recrutes, tu gères les apprentis. WOLO t'aide pipeline, paie, équipe."
+      description: "Tu diriges ton salon. Tu recrutes, tu gères les apprentis. WOZALI t'aide pipeline, paie, équipe."
     },
     {
       value: 'independant',
       emoji: '✂️',
       label: 'Indépendant / Ambulant',
-      description: "Tu coupes à domicile ou ambulant, pas de salon fixe. WOLO te connecte à ton quartier."
+      description: "Tu coupes à domicile ou ambulant, pas de salon fixe. WOZALI te connecte à ton quartier."
     }
   ];
 
@@ -81,25 +81,25 @@
       value: 'apprenti',
       emoji: '🌱',
       label: 'Apprenti chez un chef',
-      description: "Tu apprends sur les chantiers chez un patron. Argent de poche journalier. WOLO te donne le dimanche pour tes propres petits boulots."
+      description: "Tu apprends sur les chantiers chez un patron. Argent de poche journalier. WOZALI te donne le dimanche pour tes propres petits boulots."
     },
     {
       value: 'compagnon',
       emoji: '🔨',
       label: "Compagnon / Ouvrier qualifié",
-      description: "Tu as fini ton apprenticeship. Tu travailles pour des chefs sur les chantiers. WOLO te donne tes clients directs."
+      description: "Tu as fini ton apprenticeship. Tu travailles pour des chefs sur les chantiers. WOZALI te donne tes clients directs."
     },
     {
       value: 'patron',
       emoji: '👷',
       label: 'Patron / Chef de chantier',
-      description: "Tu diriges ton équipe. Tu fais des devis. WOLO t'aide devis chantier, recrutement, paie."
+      description: "Tu diriges ton équipe. Tu fais des devis. WOZALI t'aide devis chantier, recrutement, paie."
     },
     {
       value: 'independant',
       emoji: '🛠️',
       label: 'Indépendant solo',
-      description: "Tu travailles seul, pas d'équipe. Petits chantiers et dépannages. WOLO te rend visible dans ton quartier."
+      description: "Tu travailles seul, pas d'équipe. Petits chantiers et dépannages. WOZALI te rend visible dans ton quartier."
     }
   ];
 
@@ -109,25 +109,25 @@
       value: 'apprenti',
       emoji: '🌱',
       label: 'Apprenti au garage',
-      description: "Tu apprends chez un patron. Pas encore tes propres clients. WOLO te donne tes samedis perso."
+      description: "Tu apprends chez un patron. Pas encore tes propres clients. WOZALI te donne tes samedis perso."
     },
     {
       value: 'compagnon',
       emoji: '🔧',
       label: "Compagnon / Ouvrier mécano",
-      description: "Tu travailles au garage à la commission. WOLO te donne tes clients directs."
+      description: "Tu travailles au garage à la commission. WOZALI te donne tes clients directs."
     },
     {
       value: 'patron',
       emoji: '🏭',
       label: 'Patron de garage',
-      description: "Tu diriges ton garage. Apprentis, ouvriers, commandes. WOLO t'aide RDV mécano, équipe, paie."
+      description: "Tu diriges ton garage. Apprentis, ouvriers, commandes. WOZALI t'aide RDV mécano, équipe, paie."
     },
     {
       value: 'independant',
       emoji: '🛞',
       label: 'Indépendant à domicile',
-      description: "Tu te déplaces chez le client, pas de garage fixe. WOLO te géolocalise."
+      description: "Tu te déplaces chez le client, pas de garage fixe. WOZALI te géolocalise."
     }
   ];
 
@@ -137,19 +137,19 @@
       value: 'apprenti',
       emoji: '🌱',
       label: 'Apprenti dans un corner GSM',
-      description: "Tu apprends la réparation dans une boutique. WOLO te donne tes premiers clients perso."
+      description: "Tu apprends la réparation dans une boutique. WOZALI te donne tes premiers clients perso."
     },
     {
       value: 'patron',
       emoji: '🏪',
       label: 'Patron de boutique',
-      description: "Tu diriges ta boutique GSM/électronique. WOLO catalogue prestations + équipe."
+      description: "Tu diriges ta boutique GSM/électronique. WOZALI catalogue prestations + équipe."
     },
     {
       value: 'independant',
       emoji: '📱',
       label: 'Réparateur indépendant',
-      description: "Tu répares à domicile ou sur place, pas de boutique. WOLO te rend visible."
+      description: "Tu répares à domicile ou sur place, pas de boutique. WOZALI te rend visible."
     }
   ];
 
@@ -159,19 +159,19 @@
       value: 'freelance',
       emoji: '🎨',
       label: 'Freelance solo',
-      description: "Tu travailles seul, à ton compte. Tu cherches des clients à chaque projet. WOLO te donne portfolio + visibilité."
+      description: "Tu travailles seul, à ton compte. Tu cherches des clients à chaque projet. WOZALI te donne portfolio + visibilité."
     },
     {
       value: 'resident_studio',
       emoji: '🏛️',
       label: 'Résident studio',
-      description: "Tu travailles dans un studio sans en être propriétaire. Tu partages les revenus. WOLO te donne ton profil perso."
+      description: "Tu travailles dans un studio sans en être propriétaire. Tu partages les revenus. WOZALI te donne ton profil perso."
     },
     {
       value: 'patron_studio',
       emoji: '🎬',
       label: 'Patron studio / agence',
-      description: "Tu diriges ton studio. Tu recrutes des résidents. WOLO t'aide pipeline + équipe + commande façon."
+      description: "Tu diriges ton studio. Tu recrutes des résidents. WOZALI t'aide pipeline + équipe + commande façon."
     }
   ];
 
@@ -181,19 +181,19 @@
       value: 'apprenti',
       emoji: '🌱',
       label: "Apprenti à l'atelier",
-      description: "Tu apprends dans un atelier. WOLO te donne tes débuts."
+      description: "Tu apprends dans un atelier. WOZALI te donne tes débuts."
     },
     {
       value: 'patron',
       emoji: '🖨️',
       label: "Patron d'atelier",
-      description: "Tu diriges ton atelier. Tu fais des devis. WOLO t'aide commande façon + équipe."
+      description: "Tu diriges ton atelier. Tu fais des devis. WOZALI t'aide commande façon + équipe."
     },
     {
       value: 'independant',
       emoji: '🎯',
       label: 'Indépendant / Freelance',
-      description: "Tu travailles seul, à la commande. WOLO te rend visible."
+      description: "Tu travailles seul, à la commande. WOZALI te rend visible."
     }
   ];
 
@@ -203,19 +203,19 @@
       value: 'salarie',
       emoji: '🪪',
       label: "Chauffeur salarié / Titulaire",
-      description: "Tu conduis le véhicule d'un patron. Tu lui verses un loyer journalier. WOLO te donne ton carnet client perso."
+      description: "Tu conduis le véhicule d'un patron. Tu lui verses un loyer journalier. WOZALI te donne ton carnet client perso."
     },
     {
       value: 'proprietaire',
       emoji: '🚖',
       label: 'Propriétaire de mon véhicule',
-      description: "Le taxi/moto est à toi. WOLO te donne réseau corporate (mariages, hôtels, courses longues)."
+      description: "Le taxi/moto est à toi. WOZALI te donne réseau corporate (mariages, hôtels, courses longues)."
     },
     {
       value: 'patron_flotte',
       emoji: '🏁',
       label: 'Patron de flotte',
-      description: "Tu possèdes plusieurs véhicules avec des chauffeurs. WOLO t'aide tracking, paie, équipe."
+      description: "Tu possèdes plusieurs véhicules avec des chauffeurs. WOZALI t'aide tracking, paie, équipe."
     }
   ];
 
@@ -225,13 +225,13 @@
       value: 'salarie_plateforme',
       emoji: '📦',
       label: 'Livreur plateforme (Glovo, Yango...)',
-      description: "Tu fais des courses pour une grosse plateforme. WOLO te donne ton réseau B2B perso (boutiques, restos)."
+      description: "Tu fais des courses pour une grosse plateforme. WOZALI te donne ton réseau B2B perso (boutiques, restos)."
     },
     {
       value: 'proprietaire',
       emoji: '🏍️',
       label: 'Coursier indépendant (moto perso)',
-      description: "Tu as ta moto, tu travailles direct avec les clients. WOLO te donne devis livraison + carnet."
+      description: "Tu as ta moto, tu travailles direct avec les clients. WOZALI te donne devis livraison + carnet."
     }
   ];
 
@@ -241,19 +241,19 @@
       value: 'apprenti',
       emoji: '🌱',
       label: "Apprenti à la pâtisserie / boulangerie",
-      description: "Tu apprends chez un patron. Horaires durs (3h-12h). WOLO te donne tes commandes perso du dimanche."
+      description: "Tu apprends chez un patron. Horaires durs (3h-12h). WOZALI te donne tes commandes perso du dimanche."
     },
     {
       value: 'patron',
       emoji: '🎂',
       label: 'Patron de pâtisserie / boulangerie',
-      description: "Tu diriges ton commerce. WOLO t'aide commande pâtisserie + équipe + paie."
+      description: "Tu diriges ton commerce. WOZALI t'aide commande pâtisserie + équipe + paie."
     },
     {
       value: 'independant',
       emoji: '🥐',
       label: 'Indépendant (à la commande)',
-      description: "Tu fais des gâteaux/viennoiseries chez toi sur commande. WOLO te rend visible."
+      description: "Tu fais des gâteaux/viennoiseries chez toi sur commande. WOZALI te rend visible."
     }
   ];
 
@@ -263,19 +263,19 @@
       value: 'mama_cantine',
       emoji: '🍲',
       label: 'Mama Cantine / Cuisinière de quartier',
-      description: "Tu nourris ton quartier tous les jours. WOLO te connecte aux bureaux pour le déjeuner."
+      description: "Tu nourris ton quartier tous les jours. WOZALI te connecte aux bureaux pour le déjeuner."
     },
     {
       value: 'traiteur',
       emoji: '🎉',
       label: 'Traiteur événementiel',
-      description: "Tu cuisines pour mariages, baptêmes, événements. WOLO t'aide devis événementiel + portfolio."
+      description: "Tu cuisines pour mariages, baptêmes, événements. WOZALI t'aide devis événementiel + portfolio."
     },
     {
       value: 'ambulant',
       emoji: '🥟',
       label: 'Vendeur(se) ambulant(e)',
-      description: "Tu vends sur la rue (beignets, brochettes, jus). WOLO partage ta position du jour."
+      description: "Tu vends sur la rue (beignets, brochettes, jus). WOZALI partage ta position du jour."
     }
   ];
 
@@ -285,19 +285,19 @@
       value: 'patron',
       emoji: '🏪',
       label: 'Patron / Gérant',
-      description: "Tu diriges l'établissement. WOLO t'aide réservation + équipe + paie."
+      description: "Tu diriges l'établissement. WOZALI t'aide réservation + équipe + paie."
     },
     {
       value: 'employe',
       emoji: '🧑‍🍳',
       label: 'Employé(e) (cuisinier, serveur, gérant salarié)',
-      description: "Tu travailles dans un restaurant existant. WOLO te garde un profil pro hors emploi."
+      description: "Tu travailles dans un restaurant existant. WOZALI te garde un profil pro hors emploi."
     },
     {
       value: 'freelance_extra',
       emoji: '⏱️',
       label: "Extra freelance (renfort événement)",
-      description: "Tu fais des prestations ponctuelles. WOLO te connecte aux patrons qui cherchent un extra."
+      description: "Tu fais des prestations ponctuelles. WOZALI te connecte aux patrons qui cherchent un extra."
     }
   ];
 
@@ -307,19 +307,19 @@
       value: 'employee_fixe',
       emoji: '🏠',
       label: "Employée fixe chez un particulier",
-      description: "Tu travailles tous les jours pour la même famille. WOLO te donne contrat type + Safety + référent."
+      description: "Tu travailles tous les jours pour la même famille. WOZALI te donne contrat type + Safety + référent."
     },
     {
       value: 'freelance_multi',
       emoji: '🔑',
       label: 'Freelance multi-foyers',
-      description: "Tu travailles dans plusieurs maisons à la prestation. WOLO t'aide carnet + Safety + horaires."
+      description: "Tu travailles dans plusieurs maisons à la prestation. WOZALI t'aide carnet + Safety + horaires."
     },
     {
       value: 'ponctuelle',
       emoji: '⚡',
       label: 'Prestation ponctuelle (événement, garde)',
-      description: "Tu interviens à la demande. WOLO te donne Score + recommandations digitales."
+      description: "Tu interviens à la demande. WOZALI te donne Score + recommandations digitales."
     }
   ];
 
@@ -329,19 +329,19 @@
       value: 'freelance',
       emoji: '🩺',
       label: 'Praticien(ne) formé(e) freelance',
-      description: "Tu as ton diplôme, tu travailles à ton compte. WOLO t'aide catalogue prestations + RDV."
+      description: "Tu as ton diplôme, tu travailles à ton compte. WOZALI t'aide catalogue prestations + RDV."
     },
     {
       value: 'employe',
       emoji: '🏥',
       label: 'Employé(e) clinique / centre',
-      description: "Tu travailles pour une structure médicale. WOLO te donne profil perso pour activités hors structure."
+      description: "Tu travailles pour une structure médicale. WOZALI te donne profil perso pour activités hors structure."
     },
     {
       value: 'patron_centre',
       emoji: '🏛️',
       label: 'Patron(ne) de centre',
-      description: "Tu diriges ton centre/cabinet. WOLO t'aide équipe + paie + commandes corporate."
+      description: "Tu diriges ton centre/cabinet. WOZALI t'aide équipe + paie + commandes corporate."
     }
   ];
 
@@ -351,13 +351,13 @@
       value: 'heritier',
       emoji: '🌿',
       label: 'Héritier/héritière (savoir transmis)',
-      description: "Tu pratiques un savoir traditionnel reçu en famille. WOLO te donne profil + témoignages + Safety."
+      description: "Tu pratiques un savoir traditionnel reçu en famille. WOZALI te donne profil + témoignages + Safety."
     },
     {
       value: 'patron_centre_tradi',
       emoji: '🏛️',
       label: 'Patron(ne) de centre traditionnel',
-      description: "Tu diriges un centre. WOLO t'aide visibilité + équipe."
+      description: "Tu diriges un centre. WOZALI t'aide visibilité + équipe."
     }
   ];
 
@@ -367,25 +367,25 @@
       value: 'etudiant_freelance',
       emoji: '📚',
       label: 'Étudiant(e) qui donne des cours',
-      description: "Tu es à l'université, tu donnes des cours pour gagner. WOLO te connecte aux parents du quartier."
+      description: "Tu es à l'université, tu donnes des cours pour gagner. WOZALI te connecte aux parents du quartier."
     },
     {
       value: 'freelance_forme',
       emoji: '🎓',
       label: 'Freelance formé(e)',
-      description: "Tu as ton diplôme, tu travailles à ton compte. WOLO t'aide portfolio + tarifs structurés."
+      description: "Tu as ton diplôme, tu travailles à ton compte. WOZALI t'aide portfolio + tarifs structurés."
     },
     {
       value: 'employe_structure',
       emoji: '🏢',
       label: 'Employé(e) de structure',
-      description: "Tu travailles pour un cabinet/agence/école. WOLO te garde un profil perso pour activités hors structure."
+      description: "Tu travailles pour un cabinet/agence/école. WOZALI te garde un profil perso pour activités hors structure."
     },
     {
       value: 'patron_cabinet',
       emoji: '👔',
       label: 'Patron(ne) de cabinet',
-      description: "Tu diriges ton cabinet. WOLO t'aide pipeline + équipe + paie + facturation."
+      description: "Tu diriges ton cabinet. WOZALI t'aide pipeline + équipe + paie + facturation."
     }
   ];
 
@@ -395,25 +395,25 @@
       value: 'freelance_debutant',
       emoji: '🌱',
       label: 'Freelance débutant (< 2 ans)',
-      description: "Tu débutes en freelance. Pas encore de portfolio solide. WOLO t'aide portfolio + tarifs guides + premier client subv."
+      description: "Tu débutes en freelance. Pas encore de portfolio solide. WOZALI t'aide portfolio + tarifs guides + premier client subv."
     },
     {
       value: 'freelance_confirme',
       emoji: '⭐',
       label: 'Freelance confirmé (> 2 ans)',
-      description: "Tu as ton réseau. WOLO te donne portfolio premium + diaspora ready."
+      description: "Tu as ton réseau. WOZALI te donne portfolio premium + diaspora ready."
     },
     {
       value: 'employe_agence',
       emoji: '💼',
       label: 'Employé(e) agence / startup',
-      description: "Tu travailles pour une agence ou une startup. WOLO te garde un profil perso pour side-projects."
+      description: "Tu travailles pour une agence ou une startup. WOZALI te garde un profil perso pour side-projects."
     },
     {
       value: 'patron_agence',
       emoji: '🚀',
       label: "Fondateur(trice) d'agence",
-      description: "Tu diriges ton agence. WOLO t'aide pipeline + équipe + facturation B2B."
+      description: "Tu diriges ton agence. WOZALI t'aide pipeline + équipe + facturation B2B."
     }
   ];
 
@@ -423,13 +423,13 @@
       value: 'patron',
       emoji: '🏪',
       label: 'Patron(ne) / Gérant(e)',
-      description: "Tu diriges le commerce. WOLO t'aide pipeline + équipe + paie."
+      description: "Tu diriges le commerce. WOZALI t'aide pipeline + équipe + paie."
     },
     {
       value: 'employe',
       emoji: '🧑‍💼',
       label: 'Employé(e)',
-      description: "Tu travailles dans un commerce existant. WOLO te garde un profil perso."
+      description: "Tu travailles dans un commerce existant. WOZALI te garde un profil perso."
     }
   ];
 
@@ -440,19 +440,19 @@
       value: 'apprenti',
       emoji: '🌱',
       label: "Apprenti(e) à l'atelier",
-      description: "Tu apprends ton métier chez un patron. WOLO te donne tes premières commandes."
+      description: "Tu apprends ton métier chez un patron. WOZALI te donne tes premières commandes."
     },
     {
       value: 'patron',
       emoji: '👑',
       label: "Patron(ne) d'atelier",
-      description: "Tu diriges ton atelier. WOLO t'aide commande façon + équipe."
+      description: "Tu diriges ton atelier. WOZALI t'aide commande façon + équipe."
     },
     {
       value: 'independant',
       emoji: '✋',
       label: 'Indépendant(e) à la commande',
-      description: "Tu travailles seul(e), à la commande. WOLO te rend visible."
+      description: "Tu travailles seul(e), à la commande. WOZALI te rend visible."
     }
   ];
 
@@ -462,13 +462,13 @@
       value: 'debut',
       emoji: '🌱',
       label: 'Modèle / influenceur(se) débutant(e)',
-      description: "Tu construis ton audience. WOLO te donne portfolio + premier réseau marques locales."
+      description: "Tu construis ton audience. WOZALI te donne portfolio + premier réseau marques locales."
     },
     {
       value: 'confirme',
       emoji: '✨',
       label: 'Influenceur(se) confirmé(e)',
-      description: "Tu as ton audience. WOLO te connecte aux marques B/T."
+      description: "Tu as ton audience. WOZALI te connecte aux marques B/T."
     }
   ];
 
@@ -513,18 +513,18 @@
     },
     'tatoueur': {
       statuts: [
-        { value: 'autodidacte', emoji: '🎨', label: 'Autodidacte', description: "Tu t'es formé(e) seul(e). WOLO portfolio + visibilité." },
-        { value: 'resident_studio', emoji: '🏛️', label: 'Résident studio', description: "Tu tatoues dans un studio sans en être propriétaire. WOLO profil perso." },
-        { value: 'patron_studio', emoji: '👑', label: 'Patron(ne) studio', description: "Tu diriges ton studio. WOLO équipe + commande façon." }
+        { value: 'autodidacte', emoji: '🎨', label: 'Autodidacte', description: "Tu t'es formé(e) seul(e). WOZALI portfolio + visibilité." },
+        { value: 'resident_studio', emoji: '🏛️', label: 'Résident studio', description: "Tu tatoues dans un studio sans en être propriétaire. WOZALI profil perso." },
+        { value: 'patron_studio', emoji: '👑', label: 'Patron(ne) studio', description: "Tu diriges ton studio. WOZALI équipe + commande façon." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_tatoueur'
     },
     'tatoueuse': {
       statuts: [
-        { value: 'autodidacte', emoji: '🎨', label: 'Autodidacte', description: "Tu t'es formée seule. WOLO portfolio + visibilité." },
-        { value: 'resident_studio', emoji: '🏛️', label: 'Résidente studio', description: "Tu tatoues dans un studio sans en être propriétaire. WOLO profil perso." },
-        { value: 'patron_studio', emoji: '👑', label: 'Patronne studio', description: "Tu diriges ton studio. WOLO équipe + commande façon." }
+        { value: 'autodidacte', emoji: '🎨', label: 'Autodidacte', description: "Tu t'es formée seule. WOZALI portfolio + visibilité." },
+        { value: 'resident_studio', emoji: '🏛️', label: 'Résidente studio', description: "Tu tatoues dans un studio sans en être propriétaire. WOZALI profil perso." },
+        { value: 'patron_studio', emoji: '👑', label: 'Patronne studio', description: "Tu diriges ton studio. WOZALI équipe + commande façon." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_tatoueur'
@@ -546,18 +546,18 @@
     },
     'maquilleur': {
       statuts: [
-        { value: 'autodidacte_freelance', emoji: '🎨', label: 'Freelance autodidacte', description: "Tu t'es formé(e) (YouTube + stages). WOLO portfolio + visibilité." },
-        { value: 'resident_studio', emoji: '🏛️', label: 'Résident(e) studio/salon', description: "Tu maquilles dans un salon sans en être propriétaire. WOLO profil perso." },
-        { value: 'patron', emoji: '👑', label: 'Patron(ne)', description: "Tu diriges ton studio. WOLO équipe." }
+        { value: 'autodidacte_freelance', emoji: '🎨', label: 'Freelance autodidacte', description: "Tu t'es formé(e) (YouTube + stages). WOZALI portfolio + visibilité." },
+        { value: 'resident_studio', emoji: '🏛️', label: 'Résident(e) studio/salon', description: "Tu maquilles dans un salon sans en être propriétaire. WOZALI profil perso." },
+        { value: 'patron', emoji: '👑', label: 'Patron(ne)', description: "Tu diriges ton studio. WOZALI équipe." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_maquilleur'
     },
     'maquilleuse': {
       statuts: [
-        { value: 'autodidacte_freelance', emoji: '🎨', label: 'Freelance autodidacte', description: "Tu t'es formée (YouTube + stages). WOLO portfolio + visibilité." },
-        { value: 'resident_studio', emoji: '🏛️', label: 'Résidente studio/salon', description: "Tu maquilles dans un salon sans en être propriétaire. WOLO profil perso." },
-        { value: 'patronne', emoji: '👑', label: 'Patronne', description: "Tu diriges ton studio. WOLO équipe." }
+        { value: 'autodidacte_freelance', emoji: '🎨', label: 'Freelance autodidacte', description: "Tu t'es formée (YouTube + stages). WOZALI portfolio + visibilité." },
+        { value: 'resident_studio', emoji: '🏛️', label: 'Résidente studio/salon', description: "Tu maquilles dans un salon sans en être propriétaire. WOZALI profil perso." },
+        { value: 'patronne', emoji: '👑', label: 'Patronne', description: "Tu diriges ton studio. WOZALI équipe." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_maquilleur'
@@ -574,18 +574,18 @@
     },
     'spa': {
       statuts: [
-        { value: 'patron_spa', emoji: '🏛️', label: 'Patron(ne) institut/spa', description: "Tu diriges l'institut. WOLO équipe + RDV + paie." },
-        { value: 'employe', emoji: '🧖', label: 'Employé(e) spa', description: "Tu travailles dans un institut existant. WOLO profil perso." },
-        { value: 'freelance', emoji: '✨', label: 'Freelance soins', description: "Tu fais des soins à domicile ou ponctuel. WOLO portfolio + Safety." }
+        { value: 'patron_spa', emoji: '🏛️', label: 'Patron(ne) institut/spa', description: "Tu diriges l'institut. WOZALI équipe + RDV + paie." },
+        { value: 'employe', emoji: '🧖', label: 'Employé(e) spa', description: "Tu travailles dans un institut existant. WOZALI profil perso." },
+        { value: 'freelance', emoji: '✨', label: 'Freelance soins', description: "Tu fais des soins à domicile ou ponctuel. WOZALI portfolio + Safety." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_spa'
     },
     'spa et soins': {
       statuts: [
-        { value: 'patron_spa', emoji: '🏛️', label: 'Patron(ne) institut/spa', description: "Tu diriges l'institut. WOLO équipe + RDV + paie." },
-        { value: 'employe', emoji: '🧖', label: 'Employé(e) spa', description: "Tu travailles dans un institut existant. WOLO profil perso." },
-        { value: 'freelance', emoji: '✨', label: 'Freelance soins', description: "Tu fais des soins à domicile ou ponctuel. WOLO portfolio + Safety." }
+        { value: 'patron_spa', emoji: '🏛️', label: 'Patron(ne) institut/spa', description: "Tu diriges l'institut. WOZALI équipe + RDV + paie." },
+        { value: 'employe', emoji: '🧖', label: 'Employé(e) spa', description: "Tu travailles dans un institut existant. WOZALI profil perso." },
+        { value: 'freelance', emoji: '✨', label: 'Freelance soins', description: "Tu fais des soins à domicile ou ponctuel. WOZALI portfolio + Safety." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_spa'
@@ -743,9 +743,9 @@
     },
     'tailleur': {
       statuts: [
-        { value: 'apprenti', emoji: '🌱', label: "Apprenti chez un maître tailleur", description: "Tu apprends la coupe homme. WOLO te donne tes premières commandes." },
-        { value: 'patron', emoji: '👑', label: "Maître tailleur / Patron", description: "Tu diriges ton atelier. Costumes, retouches. WOLO commande façon + équipe." },
-        { value: 'independant', emoji: '✂️', label: 'Indépendant à la commande', description: "Tu travailles seul. WOLO te rend visible." }
+        { value: 'apprenti', emoji: '🌱', label: "Apprenti chez un maître tailleur", description: "Tu apprends la coupe homme. WOZALI te donne tes premières commandes." },
+        { value: 'patron', emoji: '👑', label: "Maître tailleur / Patron", description: "Tu diriges ton atelier. Costumes, retouches. WOZALI commande façon + équipe." },
+        { value: 'independant', emoji: '✂️', label: 'Indépendant à la commande', description: "Tu travailles seul. WOZALI te rend visible." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_tailleur'
@@ -782,9 +782,9 @@
     },
     'vendeur vetements': {
       statuts: [
-        { value: 'marche', emoji: '🛍️', label: 'Vendeur(se) marché / ambulant(e)', description: "Tu vends sur le marché ou en ambulant. WOLO te donne profil + clientèle quartier." },
-        { value: 'patron_boutique', emoji: '🏪', label: 'Patron(ne) de boutique', description: "Tu diriges ta boutique. WOLO équipe + paie + visibilité." },
-        { value: 'employe', emoji: '🧑‍💼', label: 'Employé(e) boutique', description: "Tu travailles dans une boutique existante. WOLO profil perso." }
+        { value: 'marche', emoji: '🛍️', label: 'Vendeur(se) marché / ambulant(e)', description: "Tu vends sur le marché ou en ambulant. WOZALI te donne profil + clientèle quartier." },
+        { value: 'patron_boutique', emoji: '🏪', label: 'Patron(ne) de boutique', description: "Tu diriges ta boutique. WOZALI équipe + paie + visibilité." },
+        { value: 'employe', emoji: '🧑‍💼', label: 'Employé(e) boutique', description: "Tu travailles dans une boutique existante. WOZALI profil perso." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_vendeur_vetements'
@@ -845,8 +845,8 @@
     },
     'demenageur': {
       statuts: [
-        { value: 'employe', emoji: '👷', label: 'Employé / journalier', description: "Tu travailles à la mission pour un patron. WOLO te donne ton profil + carnet client." },
-        { value: 'patron_equipe', emoji: '🚚', label: 'Patron équipe déménagement', description: "Tu as ton équipe et ton camion. WOLO devis + équipe." }
+        { value: 'employe', emoji: '👷', label: 'Employé / journalier', description: "Tu travailles à la mission pour un patron. WOZALI te donne ton profil + carnet client." },
+        { value: 'patron_equipe', emoji: '🚚', label: 'Patron équipe déménagement', description: "Tu as ton équipe et ton camion. WOZALI devis + équipe." }
       ],
       intro: "Pour bien te servir, dis-nous comment tu travailles :",
       sequence_prefix: 'M_xxx_demenageur'
@@ -900,15 +900,15 @@
     },
     'traiteur': {
       statuts: [
-        { value: 'traiteur_solo', emoji: '🎉', label: 'Traiteur solo', description: "Tu travailles seul(e). WOLO devis événementiel + portfolio." },
-        { value: 'patron_equipe', emoji: '🍽️', label: 'Patron équipe traiteur', description: "Tu as ton équipe. WOLO pipeline + paie + extras." }
+        { value: 'traiteur_solo', emoji: '🎉', label: 'Traiteur solo', description: "Tu travailles seul(e). WOZALI devis événementiel + portfolio." },
+        { value: 'patron_equipe', emoji: '🍽️', label: 'Patron équipe traiteur', description: "Tu as ton équipe. WOZALI pipeline + paie + extras." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_traiteur'
     },
     'vendeur ambulant nourriture': {
       statuts: [
-        { value: 'ambulant_solo', emoji: '🥟', label: "Vendeur(se) ambulant(e) seul(e)", description: "Tu vends ta préparation à la rue. WOLO partage ta position du jour + abo client." }
+        { value: 'ambulant_solo', emoji: '🥟', label: "Vendeur(se) ambulant(e) seul(e)", description: "Tu vends ta préparation à la rue. WOZALI partage ta position du jour + abo client." }
       ],
       intro: "Pour bien te servir, dis-nous comment tu travailles :",
       sequence_prefix: 'M_xxx_ambulant'
@@ -927,26 +927,26 @@
     },
     'baby sitter': {
       statuts: [
-        { value: 'fixe', emoji: '🏠', label: "Baby-sitter fixe", description: "Tu gardes les enfants d'une même famille. WOLO Safety + référent + contrat type." },
-        { value: 'ponctuelle', emoji: '⚡', label: 'Garde ponctuelle / événement', description: "Tu interviens à la demande. WOLO Score + recommandations digitales." }
+        { value: 'fixe', emoji: '🏠', label: "Baby-sitter fixe", description: "Tu gardes les enfants d'une même famille. WOZALI Safety + référent + contrat type." },
+        { value: 'ponctuelle', emoji: '⚡', label: 'Garde ponctuelle / événement', description: "Tu interviens à la demande. WOZALI Score + recommandations digitales." }
       ],
       intro: "Pour bien te servir, dis-nous comment tu travailles :",
       sequence_prefix: 'M_xxx_baby_sitter'
     },
     'aide soignant a domicile': {
       statuts: [
-        { value: 'forme_freelance', emoji: '🩺', label: 'Aide-soignant(e) formé(e) freelance', description: "Tu as ton diplôme. WOLO catalogue prestations + RDV." },
-        { value: 'employe_structure', emoji: '🏥', label: 'Employé(e) structure médicale', description: "Tu travailles pour une clinique. WOLO profil perso." },
-        { value: 'sans_diplome', emoji: '⚠️', label: 'Aide-soignant(e) sans diplôme', description: "Tu accompagnes à domicile sans diplôme. WOLO Safety + obligation transparence client." }
+        { value: 'forme_freelance', emoji: '🩺', label: 'Aide-soignant(e) formé(e) freelance', description: "Tu as ton diplôme. WOZALI catalogue prestations + RDV." },
+        { value: 'employe_structure', emoji: '🏥', label: 'Employé(e) structure médicale', description: "Tu travailles pour une clinique. WOZALI profil perso." },
+        { value: 'sans_diplome', emoji: '⚠️', label: 'Aide-soignant(e) sans diplôme', description: "Tu accompagnes à domicile sans diplôme. WOZALI Safety + obligation transparence client." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_aide_soignant'
     },
     'aide soignant': {
       statuts: [
-        { value: 'forme_freelance', emoji: '🩺', label: 'Aide-soignant(e) formé(e) freelance', description: "Tu as ton diplôme. WOLO catalogue prestations + RDV." },
-        { value: 'employe_structure', emoji: '🏥', label: 'Employé(e) structure médicale', description: "Tu travailles pour une clinique. WOLO profil perso." },
-        { value: 'sans_diplome', emoji: '⚠️', label: 'Aide-soignant(e) sans diplôme', description: "Tu accompagnes à domicile sans diplôme. WOLO Safety + obligation transparence client." }
+        { value: 'forme_freelance', emoji: '🩺', label: 'Aide-soignant(e) formé(e) freelance', description: "Tu as ton diplôme. WOZALI catalogue prestations + RDV." },
+        { value: 'employe_structure', emoji: '🏥', label: 'Employé(e) structure médicale', description: "Tu travailles pour une clinique. WOZALI profil perso." },
+        { value: 'sans_diplome', emoji: '⚠️', label: 'Aide-soignant(e) sans diplôme', description: "Tu accompagnes à domicile sans diplôme. WOZALI Safety + obligation transparence client." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_aide_soignant'
@@ -975,16 +975,16 @@
     },
     'formateur': {
       statuts: [
-        { value: 'freelance', emoji: '🎓', label: 'Formateur freelance', description: "Tu formes à ton compte. WOLO portfolio + cours offres." },
-        { value: 'patron_centre', emoji: '🏢', label: 'Patron centre formation', description: "Tu diriges ton centre. WOLO équipe + cours offres + paie." }
+        { value: 'freelance', emoji: '🎓', label: 'Formateur freelance', description: "Tu formes à ton compte. WOZALI portfolio + cours offres." },
+        { value: 'patron_centre', emoji: '🏢', label: 'Patron centre formation', description: "Tu diriges ton centre. WOZALI équipe + cours offres + paie." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_formateur'
     },
     'coach': {
       statuts: [
-        { value: 'freelance', emoji: '⚡', label: 'Coach freelance', description: "Tu coaches à ton compte. WOLO portfolio + cours offres." },
-        { value: 'patron_studio', emoji: '🏛️', label: 'Patron studio coaching', description: "Tu diriges ton studio. WOLO équipe." }
+        { value: 'freelance', emoji: '⚡', label: 'Coach freelance', description: "Tu coaches à ton compte. WOZALI portfolio + cours offres." },
+        { value: 'patron_studio', emoji: '🏛️', label: 'Patron studio coaching', description: "Tu diriges ton studio. WOZALI équipe." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_coach'
@@ -1100,25 +1100,25 @@
     },
     'vendeur terrain': {
       statuts: [
-        { value: 'commission', emoji: '🤝', label: 'Vendeur(se) à la commission', description: "Tu vends pour une marque/société. WOLO te donne profil + carnet client." },
-        { value: 'independant', emoji: '🛒', label: 'Indépendant(e) (ta propre marchandise)', description: "Tu vends ce que tu achètes toi-même. WOLO te rend visible." }
+        { value: 'commission', emoji: '🤝', label: 'Vendeur(se) à la commission', description: "Tu vends pour une marque/société. WOZALI te donne profil + carnet client." },
+        { value: 'independant', emoji: '🛒', label: 'Indépendant(e) (ta propre marchandise)', description: "Tu vends ce que tu achètes toi-même. WOZALI te rend visible." }
       ],
       intro: "Pour bien te servir, dis-nous comment tu travailles :",
       sequence_prefix: 'M_xxx_vendeur'
     },
     'secretaire': {
       statuts: [
-        { value: 'employee', emoji: '🧑‍💼', label: 'Employée fixe', description: "Tu travailles pour une boîte. WOLO te garde un profil perso." },
-        { value: 'freelance', emoji: '⌨️', label: 'Secrétaire freelance', description: "Tu travailles à la prestation pour plusieurs clients. WOLO carnet + tarifs." }
+        { value: 'employee', emoji: '🧑‍💼', label: 'Employée fixe', description: "Tu travailles pour une boîte. WOZALI te garde un profil perso." },
+        { value: 'freelance', emoji: '⌨️', label: 'Secrétaire freelance', description: "Tu travailles à la prestation pour plusieurs clients. WOZALI carnet + tarifs." }
       ],
       intro: "Pour bien te servir, dis-nous comment tu travailles :",
       sequence_prefix: 'M_xxx_secretaire'
     },
     'architecte': {
       statuts: [
-        { value: 'freelance', emoji: '📐', label: 'Architecte freelance', description: "Tu travailles à ton compte. WOLO portfolio + devis chantier." },
-        { value: 'employe_cabinet', emoji: '🏢', label: 'Employé(e) cabinet', description: "Tu travailles pour un cabinet existant. WOLO profil perso." },
-        { value: 'patron_cabinet', emoji: '👔', label: 'Patron(ne) cabinet', description: "Tu diriges ton cabinet. WOLO pipeline + équipe + facturation." }
+        { value: 'freelance', emoji: '📐', label: 'Architecte freelance', description: "Tu travailles à ton compte. WOZALI portfolio + devis chantier." },
+        { value: 'employe_cabinet', emoji: '🏢', label: 'Employé(e) cabinet', description: "Tu travailles pour un cabinet existant. WOZALI profil perso." },
+        { value: 'patron_cabinet', emoji: '👔', label: 'Patron(ne) cabinet', description: "Tu diriges ton cabinet. WOZALI pipeline + équipe + facturation." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_architecte'
@@ -1159,17 +1159,17 @@
     // ─── DIVERS / FALLBACK ────────────────────────────────────
     'jardinier': {
       statuts: [
-        { value: 'apprenti', emoji: '🌱', label: 'Apprenti', description: "Tu apprends chez un patron. WOLO te donne tes débuts." },
-        { value: 'independant', emoji: '🌿', label: 'Indépendant', description: "Tu travailles seul, à la commande. WOLO te rend visible." },
-        { value: 'patron', emoji: '🌳', label: 'Patron équipe', description: "Tu diriges ton équipe. WOLO devis + équipe." }
+        { value: 'apprenti', emoji: '🌱', label: 'Apprenti', description: "Tu apprends chez un patron. WOZALI te donne tes débuts." },
+        { value: 'independant', emoji: '🌿', label: 'Indépendant', description: "Tu travailles seul, à la commande. WOZALI te rend visible." },
+        { value: 'patron', emoji: '🌳', label: 'Patron équipe', description: "Tu diriges ton équipe. WOZALI devis + équipe." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_jardinier'
     },
     'paysagiste': {
       statuts: [
-        { value: 'freelance', emoji: '🌿', label: 'Paysagiste freelance', description: "Tu travailles à ton compte. WOLO portfolio + devis chantier." },
-        { value: 'patron', emoji: '🌳', label: 'Patron équipe', description: "Tu diriges ton équipe. WOLO devis + équipe." }
+        { value: 'freelance', emoji: '🌿', label: 'Paysagiste freelance', description: "Tu travailles à ton compte. WOZALI portfolio + devis chantier." },
+        { value: 'patron', emoji: '🌳', label: 'Patron équipe', description: "Tu diriges ton équipe. WOZALI devis + équipe." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_paysagiste'
@@ -1206,9 +1206,9 @@
     // Fallback générique : freelance / employé / patron
     return {
       statuts: [
-        { value: 'freelance', emoji: '⚡', label: 'Indépendant(e) / Freelance', description: "Tu travailles à ton compte. WOLO te rend visible." },
-        { value: 'employe', emoji: '🧑‍💼', label: 'Employé(e)', description: "Tu travailles pour quelqu'un. WOLO te garde un profil perso." },
-        { value: 'patron', emoji: '👑', label: 'Patron(ne) / Gérant(e)', description: "Tu diriges ton activité. WOLO équipe + paie." }
+        { value: 'freelance', emoji: '⚡', label: 'Indépendant(e) / Freelance', description: "Tu travailles à ton compte. WOZALI te rend visible." },
+        { value: 'employe', emoji: '🧑‍💼', label: 'Employé(e)', description: "Tu travailles pour quelqu'un. WOZALI te garde un profil perso." },
+        { value: 'patron', emoji: '👑', label: 'Patron(ne) / Gérant(e)', description: "Tu diriges ton activité. WOZALI équipe + paie." }
       ],
       intro: "Pour bien te servir, dis-nous où tu en es :",
       sequence_prefix: 'M_xxx_generic'

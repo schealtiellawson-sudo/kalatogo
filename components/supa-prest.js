@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO supaPrest — adaptateur Supabase pour la table Prestataires
+// WOZALI supaPrest — adaptateur Supabase pour la table Prestataires
 // Remplace les appels Airtable AT_URL('Prestataires') par Supabase.
 // Expose des objets au format Airtable {id, fields, createdTime} pour
 // que le code existant (~25 fonctions) continue de marcher avec un
@@ -43,7 +43,7 @@
     'Vues 7j': 'vues_7j',
     'Vues 30j': 'vues_30j',
     'Nombre de transactions': 'nb_transactions',
-    'Score WOLO': 'score_wolo',
+    'Score WOZALI': 'score_wolo',
     'Résumé Profil IA': 'resume_profil_ia',
     'Badge vérifié': 'badge_verifie',
     'Recruteur vérifié': 'recruteur_verifie',

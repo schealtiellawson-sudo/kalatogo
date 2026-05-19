@@ -9,7 +9,7 @@
 // Variables d'env requises :
 //   VAPID_PUBLIC_KEY
 //   VAPID_PRIVATE_KEY
-//   VAPID_SUBJECT (optionnel, défaut mailto:contact@wolomarket.com)
+//   VAPID_SUBJECT (optionnel, défaut mailto:contact@wozali.com)
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
 
@@ -32,7 +32,7 @@ async function ensureVapid(webpush) {
   if (_vapidConfigured) return true;
   const pub = process.env.VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || 'mailto:contact@wolomarket.com';
+  const subject = process.env.VAPID_SUBJECT || 'mailto:contact@wozali.com';
   if (!pub || !priv) {
     console.warn('[push-send] VAPID keys absentes — push désactivé (fallback inbox seul).');
     return false;
@@ -75,7 +75,7 @@ export async function sendPushToUser(userId, payload = {}) {
 
   // 2. Construire le payload final (limité ~4 KB par spec)
   const notif = {
-    title: String(payload.title || 'WOLO Market').slice(0, 100),
+    title: String(payload.title || 'WOZALI').slice(0, 100),
     body: String(payload.body || '').slice(0, 500),
     url: String(payload.url || '/#dashboard').slice(0, 500),
     icon: payload.icon || '/icons/wolo-192.svg',

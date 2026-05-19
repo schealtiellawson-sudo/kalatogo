@@ -5,7 +5,7 @@
 // Conditions (9) :
 //   1. plan_pro_actif (CE MOIS, plus 2 mois consécutifs)
 //   2. profil_complet
-//   3. score_wolo_80 (Score WOLO ≥ 80/100)
+//   3. score_wolo_80 (Score WOZALI ≥ 80/100)
 //   4. avis_3_sur_30j (≥ 3 avis sur 30 derniers jours)
 //   5. note_42 (Note moyenne ≥ 4.2★ sur 30j)
 //   6. activite_recente (connexion ≤ 14 jours)
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       prest.photo_profil && prest.metier_principal && (prest.quartier || prest.ville) && (prest.numero || prest.whatsapp)
     );
 
-    // 3. Score WOLO ≥ 80
+    // 3. Score WOZALI ≥ 80
     const scoreActuel = Number(prest.score_wolo || 0);
     const score_wolo_80 = scoreActuel >= 80;
 

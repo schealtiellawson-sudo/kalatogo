@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════
-// WOLO Business — Pipeline Talent Kanban (Phase B)
+// WOZALI Business — Pipeline Talent Kanban (Phase B)
 // Drag & drop HTML5 natif — aucune lib externe
 // Sources : Airtable Offres d'Emploi + Candidatures + Agents Terrain + Employes
 // ══════════════════════════════════════════
@@ -17,7 +17,7 @@
   };
 
   // Mapping Statut Airtable → colonne Kanban
-  // Source table : "Candidatures" (WOLO Jobs)  et "Agents Terrain"
+  // Source table : "Candidatures" (WOZALI Jobs)  et "Agents Terrain"
   var STATUT_TO_COL = {
     'En attente': 'nouveau',
     'Vue': 'nouveau',
@@ -48,7 +48,7 @@
     var board = document.getElementById('kanban-board');
     if (!board) return;
     try {
-      // Récupère les candidatures WOLO Jobs + Agents Terrain en parallèle
+      // Récupère les candidatures WOZALI Jobs + Agents Terrain en parallèle
       var userId = (window.currentUser && window.currentUser.id) || '';
       var prestId = (window.currentPrestataire && window.currentPrestataire.id) || '';
 
@@ -87,7 +87,7 @@
         });
       });
 
-      // Candidatures WOLO Jobs
+      // Candidatures WOZALI Jobs
       candJobs.forEach(function(c){
         var statut = c.fields['Statut'] || 'En attente';
         state.cards.push({
@@ -99,7 +99,7 @@
           meta: (c.fields['Candidat Métier'] || '') + ' · ' + (c.fields['Offre Titre'] || ''),
           photo: c.fields['Candidat Photo'] || '',
           ville: '',
-          score: c.fields['Candidat Score WOLO'] || 0,
+          score: c.fields['Candidat Score WOZALI'] || 0,
           tel: c.fields['Candidat WhatsApp'] || '',
           date: c.fields['Date candidature'] || '',
           offreId: c.fields['Offre ID'] || '',
@@ -155,19 +155,19 @@
     state.cards.forEach(function(c){ if (counts[c.col] !== undefined) counts[c.col]++; });
     var kpi = function(lbl, v, color){
       return '<div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:10px;padding:12px;text-align:center;">' +
-        '<div style="font-family:Space Mono,monospace;font-size:22px;font-weight:900;color:' + color + ';line-height:1;">' + v + '</div>' +
-        '<div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">' + lbl + '</div>' +
+        '<div style="font-family:Geist Mono,monospace;font-size:22px;font-weight:900;color:' + color + ';line-height:1;">' + v + '</div>' +
+        '<div style="font-family:Poppins,sans-serif;font-size:10px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">' + lbl + '</div>' +
       '</div>';
     };
     cont.innerHTML =
       kpi('Offres', counts.offre, '#E8940A') +
-      kpi('Nouveaux', counts.nouveau, '#F8F6F1') +
+      kpi('Nouveaux', counts.nouveau, '#FCE0A8') +
       kpi('Shortlist', counts.shortlist, '#3b82f6') +
       kpi('Entretien', counts.entretien, '#a78bfa') +
       kpi('Retenu', counts.retenu, '#22c55e') +
       kpi('Onboarding', counts.onboarding, '#E8940A') +
       kpi('Équipe', counts.equipe, '#22c55e') +
-      kpi('Parti', counts.parti, 'rgba(248,246,241,.4)');
+      kpi('Parti', counts.parti, 'rgba(252, 224, 168,.4)');
   }
 
   window.filterPipelineKanban = function(){
@@ -259,7 +259,7 @@
       return '<div class="kanban-card" draggable="false" data-card-id="' + c.id + '" onclick="showOffreDetail(\'' + c.id + '\')" style="cursor:pointer;">' +
         '<div class="kanban-card-name">' + escapeHTML(c.name) + '</div>' +
         '<div class="kanban-card-meta">' + escapeHTML(c.meta) + '</div>' +
-        '<div style="font-size:11px;color:#E8940A;font-family:Space Mono,monospace;">' +
+        '<div style="font-size:11px;color:#E8940A;font-family:Geist Mono,monospace;">' +
           c.candidatures + ' candidature' + (c.candidatures > 1 ? 's' : '') +
         '</div>' +
       '</div>';
@@ -281,7 +281,7 @@
     return '<div class="kanban-checklist">' +
       '<div class="kanban-checklist-item">☐ Contrat signé</div>' +
       '<div class="kanban-checklist-item">☐ CNI reçue</div>' +
-      '<div class="kanban-checklist-item">☐ Compte WOLO créé</div>' +
+      '<div class="kanban-checklist-item">☐ Compte WOZALI créé</div>' +
     '</div>';
   }
 
@@ -289,7 +289,7 @@
     var tb = document.getElementById('kanban-table-body');
     if (!tb) return;
     if (!cards.length) {
-      tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(248,246,241,.4);">Aucune candidature.</td></tr>';
+      tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(252, 224, 168,.4);">Aucune candidature.</td></tr>';
       return;
     }
     tb.innerHTML = cards.map(function(c){
@@ -311,7 +311,7 @@
     var el = document.getElementById('kanban-grid-view');
     if (!el) return;
     if (!cards.length) {
-      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(248,246,241,.4);">Aucune candidature.</div>';
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(252, 224, 168,.4);">Aucune candidature.</div>';
       return;
     }
     el.innerHTML = cards.map(cardHTML).join('');
@@ -320,15 +320,15 @@
   function colBadge(col){
     var map = {
       offre: ['📢','#E8940A','Offre'],
-      nouveau: ['👀','#F8F6F1','Nouveau'],
+      nouveau: ['👀','#FCE0A8','Nouveau'],
       shortlist: ['⭐','#3b82f6','Shortlist'],
       entretien: ['📞','#a78bfa','Entretien'],
       retenu: ['✅','#22c55e','Retenu'],
       onboarding: ['🎯','#E8940A','Onboarding'],
       equipe: ['💼','#22c55e','Équipe'],
-      parti: ['🚪','rgba(248,246,241,.5)','Parti']
+      parti: ['🚪','rgba(252, 224, 168,.5)','Parti']
     };
-    var m = map[col] || ['•','#F8F6F1','—'];
+    var m = map[col] || ['•','#FCE0A8','—'];
     return '<span class="kanban-card-badge" style="background:' + m[1] + '22;color:' + m[1] + ';">' + m[0] + ' ' + m[2] + '</span>';
   }
 
@@ -396,7 +396,7 @@
         body: JSON.stringify({ fields: fields })
       });
       if (res.ok) {
-        toast('✨ ' + card.name + ' intégré à l\'équipe — invite-le à créer son compte WOLO.', 'success');
+        toast('✨ ' + card.name + ' intégré à l\'équipe — invite-le à créer son compte WOZALI.', 'success');
       }
     } catch(err) {
       console.warn('createEmployeFromCandidate (table Employes peut-être pas encore créée):', err);

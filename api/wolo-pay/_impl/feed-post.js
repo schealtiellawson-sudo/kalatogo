@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     theme_mois,
     is_awards_candidate = false,
     tag_pro_user_id,              // user_id de la coiffeuse / couturière taguée
-    tag_pro_libre,                // nom libre si la pro n'est pas sur WOLO
+    tag_pro_libre,                // nom libre si la pro n'est pas sur WOZALI
   } = req.body || {};
 
   if (!user_id || !photo_url || !categorie) {

@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Pay — Wrapper FedaPay API (sandbox par défaut)
+// WOZALI Pay — Wrapper FedaPay API (sandbox par défaut)
 // ================================================================
 // ENV :
 //   FEDAPAY_SECRET_KEY  sk_sandbox_xxx | sk_live_xxx

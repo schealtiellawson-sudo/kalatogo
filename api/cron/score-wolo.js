@@ -1,5 +1,5 @@
 // ================================================================
-// CRON — Recalcul Score WOLO (toutes les heures)
+// CRON — Recalcul Score WOZALI (toutes les heures)
 // Vercel schedule : 0 * * * *  (toutes les heures à minute 0)
 // Remplace l'ancien cron maj-scores-inactivite.js
 // ================================================================
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
           if (!dejaEnvoyee) {
             await envoyerNotification({
               user_id: r.userId,
-              titre: '⚠️ Ton Score WOLO baisse',
+              titre: '⚠️ Ton Score WOZALI baisse',
               corps: 'Connecte-toi pour maintenir ton score. Après 14 jours sans connexion, tu perds 1 point par jour.'
             });
             alertes++;

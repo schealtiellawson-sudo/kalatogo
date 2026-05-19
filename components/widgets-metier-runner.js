@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Market — Runner widgets métier
+// WOZALI — Runner widgets métier
 // Affiche dynamiquement les widgets adaptés au métier d'un prestataire,
 // soit sur son profil public, soit dans son dashboard.
 //
@@ -25,7 +25,7 @@
   function makeSection(title, icon, body) {
     const wrap = document.createElement('section');
     wrap.className = 'wolo-widget-metier';
-    wrap.style.cssText = 'background:#0f1410;border:1px solid rgba(232,148,10,.18);border-radius:14px;padding:18px;margin:18px 0;color:#F8F6F1;font-family:Poppins,sans-serif;';
+    wrap.style.cssText = 'background:#14100A;border:1px solid rgba(232,148,10,.18);border-radius:14px;padding:18px;margin:18px 0;color:#FCE0A8;font-family:Poppins,sans-serif;';
     const h = document.createElement('h3');
     h.style.cssText = 'font-family:Fraunces,serif;font-style:italic;font-size:20px;color:#E8940A;margin:0 0 14px;display:flex;align-items:center;gap:10px;';
     h.innerHTML = `<span>${icon || ''}</span><span>${title}</span>`;
@@ -36,7 +36,7 @@
 
   function makeFallback(meta) {
     const div = document.createElement('div');
-    div.style.cssText = 'color:rgba(248,246,241,.55);font-size:13px;font-family:Poppins,sans-serif;';
+    div.style.cssText = 'color:rgba(252, 224, 168,.55);font-size:13px;font-family:Poppins,sans-serif;';
     div.textContent = `Le widget "${meta.label}" est en cours de finalisation.`;
     return div;
   }
@@ -77,7 +77,7 @@
     container.innerHTML = '';
     if (keys.length === 0) {
       const empty = document.createElement('div');
-      empty.style.cssText = 'color:rgba(248,246,241,.55);font-size:13px;padding:18px;font-family:Poppins,sans-serif;';
+      empty.style.cssText = 'color:rgba(252, 224, 168,.55);font-size:13px;padding:18px;font-family:Poppins,sans-serif;';
       empty.textContent = "Aucun widget spécifique à ton métier pour le moment. Renseigne ton « Métier principal » pour activer les fonctionnalités adaptées.";
       container.appendChild(empty);
       return;

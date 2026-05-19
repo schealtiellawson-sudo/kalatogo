@@ -1,5 +1,5 @@
 // ================================================================
-// Score WOLO — Calcul complet sur 100 points (6 composantes)
+// Score WOZALI — Calcul complet sur 100 points (6 composantes)
 // Utilisé par le cron horaire + endpoint dashboard
 // ================================================================
 

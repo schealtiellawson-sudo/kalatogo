@@ -1,5 +1,5 @@
 # Bourse des Mains d'Or — Recherche + Copywriting complet
-> Document stratégique pour le lancement de la Bourse des Mains d'Or — concours mensuel WOLO Market pour les coiffeuses et couturières du Togo et du Bénin. Production : 2026-05-15. Lancement cible : début juillet 2026.
+> Document stratégique pour le lancement de la Bourse des Mains d'Or — concours mensuel WOZALI pour les coiffeuses et couturières du Togo et du Bénin. Production : 2026-05-15. Lancement cible : début juillet 2026.
 
 ---
 
@@ -38,7 +38,7 @@ Quand elle "se libère" (terme local pour la fin d'apprentissage), elle a un dip
 
 ### La promesse (Bourse des Mains d'Or)
 
-WOLO Market lance la **Bourse des Mains d'Or** : **100 000 FCFA × 2 chaque mois**, une gagnante au Togo, une au Bénin, alternance Coiffure / Couture.
+WOZALI lance la **Bourse des Mains d'Or** : **100 000 FCFA × 2 chaque mois**, une gagnante au Togo, une au Bénin, alternance Coiffure / Couture.
 
 Pas de jury qui te juge.
 Pas de connexions à avoir.
@@ -93,7 +93,7 @@ Il faut le dire sans tomber dans la victimisation : **la majorité des patronnes
 
 Citation collectée sur LAABALI (média béninois) : *« Chaque apprenti devenu patron veut faire vivre à ses apprentis ce qu'il a vécu en son temps. C'est en quelque sorte une manière de se faire rembourser. »* Source : [LAABALI — Exploitation des apprentis par leurs patrons](https://laabali.com/post/9958/exploitation-des-apprentis-par-leurs-patrons-un-phenomene-qui-resiste-2/).
 
-Mais il y a aussi **les patronnes droites**, celles qui forment vraiment, qui paient un peu, qui poussent leurs filles à se mettre à leur compte. WOLO Market ne les attaque pas. On donne juste **une porte de sortie aux apprenties prêtes**.
+Mais il y a aussi **les patronnes droites**, celles qui forment vraiment, qui paient un peu, qui poussent leurs filles à se mettre à leur compte. WOZALI ne les attaque pas. On donne juste **une porte de sortie aux apprenties prêtes**.
 
 Article presse documentant le cri de détresse des apprenties à Danyi : [27avril.com — Calvaire des apprentis dans les ateliers de coiffure et couture à Danyi](https://www.27avril.com/blog/culture-societe/societe/togo-calvaire-crie-de-detresse-apprentis-ateliers-de-coiffure-de-couture-a-danyi).
 
@@ -118,19 +118,19 @@ Aujourd'hui :
 - Une cliente qui change de quartier la perd pour toujours
 - Un employeur qui voudrait la recruter pour un salon haut de gamme ne peut pas la trouver
 
-L'écosystème africain le plus connecté en termes de **réseaux personnels** est aussi le plus invisible en termes de **réseau numérique professionnel**. WOLO Market construit ce qui manque : **la photo + le nom + le quartier + les avis + le travail visible**.
+L'écosystème africain le plus connecté en termes de **réseaux personnels** est aussi le plus invisible en termes de **réseau numérique professionnel**. WOZALI construit ce qui manque : **la photo + le nom + le quartier + les avis + le travail visible**.
 
-### 2.5 Concours existants — différenciation WOLO
+### 2.5 Concours existants — différenciation WOZALI
 
-| Programme | Cible | Modèle | Différence WOLO |
+| Programme | Cible | Modèle | Différence WOZALI |
 |---|---|---|---|
-| **Heal by Hair / Bluemind Foundation** | Coiffeuses ambassadrices santé mentale | Formation 3 jours, 1 000 coiffeuses d'ici 2035 | WOLO = cash direct mensuel, pas formation. Sources : [Bluemind Foundation](https://www.bluemindfoundation.org/programme/hair) |
-| **Africa Beauty Make-up Awards** | Pros beauté pan-africaines confirmées | Concours pro avec jury | WOLO = ouvert aux apprenties / débutantes, sans jury, tirage aléatoire. Source : [Africa Beauty Make-up Awards 2025](https://www.infosculturedufaso.net/le-centre-de-formation-professionnelle-seduction-coiffure-prime-aux-africa-beauty-make-up-awards-2025/) |
-| **L'Oréal Fondation Sub-Saharan Africa Young Talents** | Femmes chercheuses scientifiques | Bourses scientifiques | Pas le même monde. WOLO = mains, pas labo. |
-| **Programmes ONG (UNICEF, ECODEC, Espoirs d'Enfants)** | Filles vulnérables, formation gratuite | Subvention formation + suivi | WOLO complémente : post-formation, on rend visible. Source : [UNICEF — Une seconde chance pour Colette](https://www.unicef.org/benin/recits/une-seconde-chance-pour-colette-future-couturi%C3%A8re) |
-| **CFA Togo (étatique)** | Tous métiers artisanaux | Diplôme | WOLO démarre **après** le diplôme : visibilité + clients + cash |
+| **Heal by Hair / Bluemind Foundation** | Coiffeuses ambassadrices santé mentale | Formation 3 jours, 1 000 coiffeuses d'ici 2035 | WOZALI = cash direct mensuel, pas formation. Sources : [Bluemind Foundation](https://www.bluemindfoundation.org/programme/hair) |
+| **Africa Beauty Make-up Awards** | Pros beauté pan-africaines confirmées | Concours pro avec jury | WOZALI = ouvert aux apprenties / débutantes, sans jury, tirage aléatoire. Source : [Africa Beauty Make-up Awards 2025](https://www.infosculturedufaso.net/le-centre-de-formation-professionnelle-seduction-coiffure-prime-aux-africa-beauty-make-up-awards-2025/) |
+| **L'Oréal Fondation Sub-Saharan Africa Young Talents** | Femmes chercheuses scientifiques | Bourses scientifiques | Pas le même monde. WOZALI = mains, pas labo. |
+| **Programmes ONG (UNICEF, ECODEC, Espoirs d'Enfants)** | Filles vulnérables, formation gratuite | Subvention formation + suivi | WOZALI complémente : post-formation, on rend visible. Source : [UNICEF — Une seconde chance pour Colette](https://www.unicef.org/benin/recits/une-seconde-chance-pour-colette-future-couturi%C3%A8re) |
+| **CFA Togo (étatique)** | Tous métiers artisanaux | Diplôme | WOZALI démarre **après** le diplôme : visibilité + clients + cash |
 
-**Positionnement unique WOLO** :
+**Positionnement unique WOZALI** :
 1. **Mensuel, pas annuel** — récurrence = espoir hebdomadaire
 2. **Tirage 100 % aléatoire** — pas de jury, pas de favoritisme, pas de réseau
 3. **Cash, pas formation** — la formation existe déjà ailleurs
@@ -157,11 +157,11 @@ L'écosystème africain le plus connecté en termes de **réseaux personnels** e
 
 ### Décryptage linguistique
 
-**"Bourse"** — terme déjà utilisé dans WOLO Market ("Bourse de Croissance"). Cohérence directe. "Bourse" évoque le cash, l'aide, la bourse d'étude que la famille rêve d'obtenir. Pas "prix" (jury), pas "concours" (compétition), pas "lot" (loterie pure). **Bourse = main tendue**.
+**"Bourse"** — terme déjà utilisé dans WOZALI ("Bourse de Croissance"). Cohérence directe. "Bourse" évoque le cash, l'aide, la bourse d'étude que la famille rêve d'obtenir. Pas "prix" (jury), pas "concours" (compétition), pas "lot" (loterie pure). **Bourse = main tendue**.
 
-**"Mains"** — concret, charnel, ouvrier. Pas "talent" (interdit dans la charte WOLO). Pas "art" (snob). **Mains = ce que les coiffeuses et couturières font tous les jours**. Quand on dit "des mains qui travaillent", tout le monde comprend, du marché de Bè au quartier Saint-Michel.
+**"Mains"** — concret, charnel, ouvrier. Pas "talent" (interdit dans la charte WOZALI). Pas "art" (snob). **Mains = ce que les coiffeuses et couturières font tous les jours**. Quand on dit "des mains qui travaillent", tout le monde comprend, du marché de Bè au quartier Saint-Michel.
 
-**"D'Or"** — la couleur signature WOLO (#E8940A). L'or pour la valeur, pour la reconnaissance, pour le contraste avec l'invisibilité ambiante. Pas "en or" (familier) — **"d'or"** (un poil plus noble, comme "fil d'or", "âge d'or").
+**"D'Or"** — la couleur signature WOZALI (#E8940A). L'or pour la valeur, pour la reconnaissance, pour le contraste avec l'invisibilité ambiante. Pas "en or" (familier) — **"d'or"** (un poil plus noble, comme "fil d'or", "âge d'or").
 
 ### Connexion culturelle AOC
 
@@ -210,7 +210,7 @@ Elle rêve de monter son propre salon. Elle a regardé : un local à Adidogomé,
 
 Avec ses 12 350 FCFA, elle est à 3,5 % du chemin.
 
-Un soir, sa cousine lui envoie un lien sur WhatsApp. *"Mariam, regarde ça. WOLO Market. Tu remplis ton profil, tu mets une photo de tes tresses, et tu peux gagner 100 000 FCFA tous les mois."*
+Un soir, sa cousine lui envoie un lien sur WhatsApp. *"Mariam, regarde ça. WOZALI. Tu remplis ton profil, tu mets une photo de tes tresses, et tu peux gagner 100 000 FCFA tous les mois."*
 
 Mariam clique. Elle remplit. Elle poste une photo de la tête qu'elle a tressée la veille. Le 30 du mois, elle reçoit une notification.
 
@@ -218,7 +218,7 @@ Mariam clique. Elle remplit. Elle poste une photo de la tête qu'elle a tressée
 
 Elle relit trois fois. Elle court montrer le téléphone à sa mère. Elle pleure. Sa mère pleure. Madame Adjo apprend la nouvelle deux jours plus tard et lui dit *"Si tu pars maintenant, tu me dois encore 70 000."*
 
-Mariam paie. Il lui reste 30 000 FCFA. Plus ses 12 350 FCFA d'économies. Plus une idée claire : elle continuera de poster ses tresses sur WOLO Market chaque mois. La prochaine bourse, elle peut la regagner. Ou pas. Mais elle a son profil. Et son profil, **personne ne peut le lui prendre**.
+Mariam paie. Il lui reste 30 000 FCFA. Plus ses 12 350 FCFA d'économies. Plus une idée claire : elle continuera de poster ses tresses sur WOZALI chaque mois. La prochaine bourse, elle peut la regagner. Ou pas. Mais elle a son profil. Et son profil, **personne ne peut le lui prendre**.
 
 ### 4.2 Akossiwa — couturière débutante 23 ans, Adidogomé (Lomé)
 
@@ -232,13 +232,13 @@ Pendant six mois, elle a continué à aller chez Madame Tchika, **gratuitement**
 
 Akossiwa a cherché ses propres clientes. Bouche à oreille. Sa sœur, la voisine, la collègue de son mari. Cinq commandes en quatre mois. Total gagné : **22 000 FCFA**. Pas assez pour acheter une machine.
 
-Un jour, son neveu lui dit : *"Tata, mets ton profil sur WOLO Market. C'est gratuit. Et il y a une bourse pour les couturières."*
+Un jour, son neveu lui dit : *"Tata, mets ton profil sur WOZALI. C'est gratuit. Et il y a une bourse pour les couturières."*
 
 Akossiwa s'inscrit. Elle poste trois photos : une robe wax cousue pour sa cousine, un boubou de cérémonie, une chemise enfant. Elle indique son quartier : Adidogomé. Son métier : couturière. Son numéro WhatsApp.
 
 Le mois suivant, son téléphone sonne deux fois. Deux nouvelles clientes. **Total commandes : 35 000 FCFA**. Plus que les six mois précédents.
 
-Le 30 du mois suivant, elle reçoit un message WOLO : *"Akossiwa, tu n'as pas gagné la Bourse des Mains d'Or ce mois-ci. Continue de poster tes pièces, ton tour viendra. 24 chances par an."*
+Le 30 du mois suivant, elle reçoit un message WOZALI : *"Akossiwa, tu n'as pas gagné la Bourse des Mains d'Or ce mois-ci. Continue de poster tes pièces, ton tour viendra. 24 chances par an."*
 
 Elle continue. En septembre, elle gagne. 100 000 FCFA. Elle achète une machine Singer neuve à 95 000 FCFA. Elle garde 5 000 FCFA pour acheter du fil et trois pagnes basiques.
 
@@ -254,7 +254,7 @@ Mais Madame Tchika n'apparaît nulle part en ligne. Pas de Google Maps. Pas de p
 
 Ses clientes sont **fidèles**. Elles viennent depuis 15 ans. Mais elles vieillissent. Les nouvelles générations cherchent sur Google. Et sur Google, Madame Tchika n'existe pas.
 
-Sa fille aînée, 22 ans, étudiante en gestion à l'UAC, lui dit un jour : *"Maman, je vais te faire un profil WOLO Market. Tu mets tes photos de mariage, ton numéro, ton quartier. Les filles de mon âge te trouveront."*
+Sa fille aînée, 22 ans, étudiante en gestion à l'UAC, lui dit un jour : *"Maman, je vais te faire un profil WOZALI. Tu mets tes photos de mariage, ton numéro, ton quartier. Les filles de mon âge te trouveront."*
 
 Madame Tchika hésite. *"C'est pour les apprenties non ? Moi je suis vieille."*
 
@@ -264,11 +264,11 @@ Madame Tchika met deux semaines à poster sa première photo. Sa fille lui filme
 
 Le 30 du mois suivant, Madame Tchika reçoit un appel.
 
-*"Madame, je vous écris du WOLO Market. Vous avez gagné la Bourse des Mains d'Or de juin 2026 — gagnante Bénin, catégorie coiffure. 100 000 FCFA seront envoyés sur votre Mobile Money. Félicitations."*
+*"Madame, je vous écris du WOZALI. Vous avez gagné la Bourse des Mains d'Or de juin 2026 — gagnante Bénin, catégorie coiffure. 100 000 FCFA seront envoyés sur votre Mobile Money. Félicitations."*
 
 Madame Tchika ne pleure pas. Elle rit. Elle appelle son mari : *"Tchédé, viens voir. Ton salaire de fonctionnaire, je viens de le gagner en posant une photo."*
 
-Elle utilise les 100 000 FCFA pour refaire la devanture de son salon. Un panneau peint à la main : *"Madame Tchika — Tresses Fon Authentiques — Mariages et Cérémonies — Trouvez-moi sur WOLO Market."*
+Elle utilise les 100 000 FCFA pour refaire la devanture de son salon. Un panneau peint à la main : *"Madame Tchika — Tresses Fon Authentiques — Mariages et Cérémonies — Trouvez-moi sur WOZALI."*
 
 Les apprenties de la rue d'à côté commencent à venir lui demander si elles peuvent travailler avec elle. Madame Tchika n'est plus invisible. **Elle est trouvable.**
 
@@ -289,11 +289,11 @@ Les apprenties de la rue d'à côté commencent à venir lui demander si elles p
 >
 > Tu coiffes à Bè, à Akpakpa, à Adidogomé, à Cadjehoun. Tu couds à Lomé ou à Cotonou. Tu travailles 13 heures par jour, 6 jours sur 7. Tu paies ta patronne au lieu d'être payée. Tu rêves d'une machine à toi, d'un fauteuil à toi, d'un local à toi.
 >
-> WOLO Market a créé la Bourse des Mains d'Or pour toi.
+> WOZALI a créé la Bourse des Mains d'Or pour toi.
 >
 > **100 000 FCFA × 2 chaque mois.** Une gagnante au Togo. Une gagnante au Bénin. Alternance : un mois coiffure, le mois suivant couture. Tirage 100 % aléatoire le 30 du mois.
 >
-> **Tu n'as rien à payer.** Pas de Plan Pro. Pas d'inscription. Juste ton profil WOLO Market complet, une photo de ce que tu as fait ce mois-ci, au moins un avis client sur les 30 derniers jours, une connexion sur 14 jours, et tu suis @wolomarket + @schealtiellawson sur TikTok.
+> **Tu n'as rien à payer.** Pas de Plan Pro. Pas d'inscription. Juste ton profil WOZALI complet, une photo de ce que tu as fait ce mois-ci, au moins un avis client sur les 30 derniers jours, une connexion sur 14 jours, et tu suis @wolomarket + @schealtiellawson sur TikTok.
 >
 > **En décembre, finale annuelle Bénin vs Togo.** 500 000 FCFA × 2. Reine de l'Année Coiffure. Reine de l'Année Couture.
 >
@@ -317,7 +317,7 @@ Les apprenties de la rue d'à côté commencent à venir lui demander si elles p
 >
 > **Comment tu joues :**
 >
-> 1. Tu remplis ton profil WOLO Market (photo, nom, métier, quartier, ville, WhatsApp)
+> 1. Tu remplis ton profil WOZALI (photo, nom, métier, quartier, ville, WhatsApp)
 > 2. Tu postes au moins **une photo de ton travail du mois** sur ton profil (la tête que tu as tressée, la robe que tu as cousue, le défrisage que tu as fait)
 > 3. Tu as au moins **un avis client** sur les 30 derniers jours (une cliente qui te laisse un mot)
 > 4. Tu te connectes au moins une fois tous les **14 jours**
@@ -325,13 +325,13 @@ Les apprenties de la rue d'à côté commencent à venir lui demander si elles p
 >
 > C'est tout.
 >
-> Le 30 du mois, le tirage est public. Le numéro de la gagnante est tiré au hasard parmi toutes celles qui ont coché les conditions. La gagnante reçoit un appel, un WhatsApp, un message WOLO. **100 000 FCFA arrivent sur son Mobile Money dans les 48 h.**
+> Le 30 du mois, le tirage est public. Le numéro de la gagnante est tiré au hasard parmi toutes celles qui ont coché les conditions. La gagnante reçoit un appel, un WhatsApp, un message WOZALI. **100 000 FCFA arrivent sur son Mobile Money dans les 48 h.**
 >
 > Si tu ne gagnes pas ce mois-ci, ton profil reste actif. **Tu as 24 chances par an.** Coiffure les mois pairs. Couture les mois impairs.
 >
 > **En décembre, finale annuelle.** Toutes les gagnantes mensuelles de l'année concourent pour 500 000 FCFA × 2. Reine de l'Année Coiffure. Reine de l'Année Couture. Pas une de plus, pas une de moins. Bénin vs Togo. Tirage final 100 % aléatoire.
 >
-> **Pourquoi WOLO Market fait ça.**
+> **Pourquoi WOZALI fait ça.**
 >
 > Parce qu'on a vu nos sœurs, nos cousines, nos voisines passer 4 ans à apprendre un métier pour finir avec zéro. Parce que 100 000 FCFA, c'est une machine Singer neuve. C'est trois mois de loyer modeste à Lomé. C'est le premier stock de mèches d'un salon naissant. C'est l'apport pour passer d'apprentie à propriétaire.
 >
@@ -347,7 +347,7 @@ Les apprenties de la rue d'à côté commencent à venir lui demander si elles p
 
 > **Bourse des Mains d'Or — 5 étapes pour jouer.**
 >
-> 1. **Inscris-toi sur WOLO Market** (gratuit, 2 minutes). Photo, nom, ville, quartier, WhatsApp.
+> 1. **Inscris-toi sur WOZALI** (gratuit, 2 minutes). Photo, nom, ville, quartier, WhatsApp.
 > 2. **Choisis ton métier** : Coiffure ou Couture. Tu peux faire les deux.
 > 3. **Poste une photo de ton travail du mois.** La tête que tu as tressée. La robe que tu as cousue. Le défrisage que tu as réussi.
 > 4. **Demande un avis à une cliente** (au moins 1 sur les 30 derniers jours).
@@ -412,7 +412,7 @@ Les apprenties de la rue d'à côté commencent à venir lui demander si elles p
 > Format : JPG ou PNG. Max 5 Mo. Idéal : photo claire, pas floue, ton travail bien visible.
 > Tu peux en poster jusqu'à 3 par mois.
 >
-> Astuce : la photo apparaît sur ton profil public WOLO. Les clientes la verront. Les recruteurs aussi.
+> Astuce : la photo apparaît sur ton profil public WOZALI. Les clientes la verront. Les recruteurs aussi.
 >
 > [Choisir une photo]
 
@@ -426,7 +426,7 @@ Les apprenties de la rue d'à côté commencent à venir lui demander si elles p
 - [ ] Profil complet (photo, nom, ville, quartier, WhatsApp)
 - [ ] Au moins 1 photo de ton travail postée ce mois
 - [ ] Au moins 1 avis client reçu sur les 30 derniers jours
-- [ ] Connexion à WOLO sur les 14 derniers jours
+- [ ] Connexion à WOZALI sur les 14 derniers jours
 - [ ] Tu suis @wolomarket sur TikTok
 - [ ] Tu suis @schealtiellawson sur TikTok
 
@@ -442,13 +442,13 @@ Les apprenties de la rue d'à côté commencent à venir lui demander si elles p
 
 #### Push notif (60 caractères max)
 
-> **Tu as gagné la Bourse des Mains d'Or. Ouvre WOLO.** (53 car.)
+> **Tu as gagné la Bourse des Mains d'Or. Ouvre WOZALI.** (53 car.)
 
 Variantes :
 > **100 000 FCFA pour toi. Reine du mois. Ouvre vite.** (49 car.)
 > **Bourse des Mains d'Or — gagnante du mois, c'est toi.** (54 car.)
 
-#### Boîte WOLO — message complet
+#### Boîte WOZALI — message complet
 
 > **Bonjour [Prénom],**
 >
@@ -464,7 +464,7 @@ Variantes :
 >
 > Bravo. Ton travail parle.
 >
-> *L'équipe WOLO Market*
+> *L'équipe WOZALI*
 
 #### Email félicitation (200 mots)
 
@@ -488,7 +488,7 @@ Variantes :
 >
 > Bravo. Sincèrement.
 >
-> *Schealtiel, fondateur WOLO Market*
+> *Schealtiel, fondateur WOZALI*
 
 ### 5.6 Annonce publique de la gagnante
 
@@ -521,7 +521,7 @@ Variantes :
 > **La prochaine gagnante, ça peut être toi.**
 > *Couture en juin. Coiffure en juillet.*
 > 100 000 FCFA × 2 chaque mois. Togo + Bénin.
-> **wolomarket.com**
+> **wozali.com**
 > #BoursedesMainsdOr
 
 #### Format TikTok — script Reel 30 s
@@ -532,15 +532,15 @@ Variantes :
 **[3-8 s] Montée tension** — plans rapides : machine à coudre, fer à défriser, mèches, boîte en fer cachée
 > "Trois ans d'apprentissage. 80 000 FCFA par an à ma patronne. Et 12 000 FCFA d'économies dans une boîte sous mon matelas."
 
-**[8-15 s] Révélation** — gros plan sur le téléphone, notification WOLO
+**[8-15 s] Révélation** — gros plan sur le téléphone, notification WOZALI
 > "Et puis le 30 mai 2026, ce message est arrivé."
 > *Texte à l'écran :* "Mariam, tu es la gagnante. 100 000 FCFA."
 
 **[15-22 s] Émotion** — Mariam montre l'argent reçu sur Mobile Money, sourire
 > "Avec 100 000 FCFA, j'achète ce que ma mère ne pouvait pas m'acheter."
 
-**[22-28 s] CTA** — texte plein écran, logo WOLO
-> "Bourse des Mains d'Or — 100 000 FCFA × 2 chaque mois. Togo + Bénin. Coiffure + Couture. Inscris-toi sur wolomarket.com."
+**[22-28 s] CTA** — texte plein écran, logo WOZALI
+> "Bourse des Mains d'Or — 100 000 FCFA × 2 chaque mois. Togo + Bénin. Coiffure + Couture. Inscris-toi sur wozali.com."
 
 **[28-30 s] Outro** — logo + son
 > "Ton travail parle. Pas tes connexions."
@@ -555,7 +555,7 @@ Variantes :
 >
 > Mariam a 19 ans. Elle est apprentie coiffeuse à Bè (Lomé). Sa mère vend des bananes plantain au bord de la route. Pour la former, sa mère paie chaque année **80 000 FCFA** à la patronne. Mariam, elle, ne touche rien — juste les pourboires des jours de mariage. **Elle économise dans une boîte sous son matelas.**
 >
-> Hier, son téléphone a sonné. Un message WOLO Market. **100 000 FCFA.** Elle a relu trois fois.
+> Hier, son téléphone a sonné. Un message WOZALI. **100 000 FCFA.** Elle a relu trois fois.
 >
 > Au Bénin, la première gagnante couture est annoncée la semaine prochaine.
 >
@@ -570,13 +570,13 @@ Variantes :
 >
 > Si tout est coché, tu es dans le tirage de juin. Catégorie : Couture.
 >
-> [BOUTON : Voir ma checklist sur WOLO]
+> [BOUTON : Voir ma checklist sur WOZALI]
 >
 > Et en décembre, la grande finale. **500 000 FCFA × 2.** Reine de l'Année Coiffure. Reine de l'Année Couture. Bénin vs Togo.
 >
 > Ton travail parle. Pas tes connexions.
 >
-> *Schealtiel — WOLO Market*
+> *Schealtiel — WOZALI*
 
 ---
 
@@ -587,45 +587,45 @@ Variantes :
 1. À Bè, à Akpakpa, à Adidogomé : 100 000 FCFA tous les mois pour une coiffeuse ou une couturière. Aucune connexion exigée. **Bourse des Mains d'Or.**
 2. Tu as payé ta patronne pour apprendre. Maintenant tu peux gagner ce qu'elle ne t'a jamais donné. 100 000 FCFA × 12 mois.
 3. Une machine Singer neuve coûte 95 000 FCFA. La Bourse des Mains d'Or paie 100 000 FCFA. Fais le calcul.
-4. 95 % des femmes au Bénin sont dans l'informel. WOLO Market en sort 24 par an, 100 000 FCFA à la fois.
+4. 95 % des femmes au Bénin sont dans l'informel. WOZALI en sort 24 par an, 100 000 FCFA à la fois.
 5. Pas de jury. Pas de favoritisme. Pas de Plan Pro. Juste ton travail + une photo + un tirage le 30. **Bourse des Mains d'Or.**
 6. Les Nana Benz contrôlaient 40 % du wax en 1980. Aujourd'hui, on rend visibles celles qui héritent. Coiffure et couture, 100 000 FCFA × 2, tous les mois.
 7. Ta tresse, ta couture, ta cliente, ton avis. Quatre choses qui te font gagner 100 000 FCFA. Le 30 du mois. Tirage au hasard.
-8. Tu te lèves à 5 h, tu ouvres à 7 h, tu fermes à 20 h, tu paies ta patronne. WOLO Market ne change pas le système. On fait juste un trou dedans. **Tous les mois.**
+8. Tu te lèves à 5 h, tu ouvres à 7 h, tu fermes à 20 h, tu paies ta patronne. WOZALI ne change pas le système. On fait juste un trou dedans. **Tous les mois.**
 9. En décembre 2026 : 500 000 FCFA pour la Reine de l'Année Coiffure + 500 000 pour la Reine de l'Année Couture. Pour y être, il suffit d'avoir gagné une fois dans l'année.
-10. Ton travail parle. Pas tes connexions. **Bourse des Mains d'Or — wolomarket.com**
+10. Ton travail parle. Pas tes connexions. **Bourse des Mains d'Or — wozali.com**
 
 ### 6.2 TikTok / Reels — 10 hooks vidéos (3 premières secondes)
 
 1. "Si tu coiffes au Togo, regarde bien. Ça te concerne."
 2. "Ma cousine a payé 240 000 FCFA pour apprendre. Hier elle en a gagné 100 000."
-3. "100 000 FCFA. Tous les mois. Gratuit. Et c'est WOLO Market qui paie."
+3. "100 000 FCFA. Tous les mois. Gratuit. Et c'est WOZALI qui paie."
 4. "Si tu couds à Cotonou et que personne ne te trouve sur Google : reste là 30 secondes."
 5. "Sa patronne lui faisait remplir des tonneaux d'eau. Aujourd'hui, elle a sa machine."
 6. "POV : tu es apprentie depuis 3 ans, ta patronne ne te paie pas, et tu vois ce message arriver."
 7. "Ce que personne ne te dit quand tu finis ton CFA en couture."
 8. "Bourse des Mains d'Or. 24 femmes gagnent chaque année. Une seule fois suffit."
 9. "On a demandé à 50 apprenties combien elles paient à leur patronne. Réponse :"
-10. "Le 30 du mois, à 18 h. Voilà ce qui se passe sur WOLO Market."
+10. "Le 30 du mois, à 18 h. Voilà ce qui se passe sur WOZALI."
 
 ### 6.3 WhatsApp Status — 10 hooks
 
-1. *Bourse des Mains d'Or* — 100 000 FCFA / mois pour une coiffeuse ou couturière. Togo + Bénin. wolomarket.com
+1. *Bourse des Mains d'Or* — 100 000 FCFA / mois pour une coiffeuse ou couturière. Togo + Bénin. wozali.com
 2. Coiffeuses, couturières : on a quelque chose pour vous le 30. Pas un piège. Une bourse.
-3. 100 000 FCFA pour acheter ta machine Singer. **WOLO Market.**
+3. 100 000 FCFA pour acheter ta machine Singer. **WOZALI.**
 4. Pas de Plan Pro à payer. Pas de jury. Tirage au hasard. **Bourse des Mains d'Or.**
 5. Tu connais une apprentie ? Envoie-lui ça. Ça peut changer son année.
 6. 100 % gratuit. 100 % aléatoire. 100 % pour les femmes du Togo et du Bénin. Coiffure / Couture.
-7. WOLO Market t'appartient. La Bourse des Mains d'Or aussi.
+7. WOZALI t'appartient. La Bourse des Mains d'Or aussi.
 8. Le 30 mai 2026 — premier tirage. Inscris-toi avant.
 9. Ta tresse vaut 100 000 FCFA. Ta couture aussi. Pose ta photo, joue le tirage.
-10. Si tu travailles de tes mains, tu mérites d'être trouvée. **wolomarket.com**
+10. Si tu travailles de tes mains, tu mérites d'être trouvée. **wozali.com**
 
 ### 6.4 Hashtags officiels
 
 **Hashtags principaux (à utiliser systématiquement) :**
 - #BoursedesMainsdOr
-- #WOLOMarket
+- #WOZALIMarket
 - #MainsdOrTogo
 - #MainsdOrBenin
 
@@ -656,33 +656,33 @@ Variantes :
 > **[0-3 s]** Plan : mains qui tressent rapidement. Texte : "À 16 ans, je payais pour apprendre."
 > **[3-10 s]** Voix off : "80 000 FCFA par an à ma patronne. 13 heures par jour. Pas un franc pour moi."
 > **[10-18 s]** Plan : boîte en fer sous matelas, on l'ouvre, 12 000 FCFA. Texte : "Trois ans d'économies."
-> **[18-25 s]** Plan : notification WOLO sur téléphone, gros plan. Texte : "100 000 FCFA. Reçu en 30 jours."
-> **[25-30 s]** Logo WOLO + CTA : "Bourse des Mains d'Or — wolomarket.com"
+> **[18-25 s]** Plan : notification WOZALI sur téléphone, gros plan. Texte : "100 000 FCFA. Reçu en 30 jours."
+> **[25-30 s]** Logo WOZALI + CTA : "Bourse des Mains d'Or — wozali.com"
 
 ### Vidéo 2 — Témoignage couturière
 
 > **[0-3 s]** Plan : machine à coudre qui tourne. Voix : "On m'a libérée de mon apprentissage le mois dernier."
 > **[3-10 s]** Plan : la fille seule chez sa mère, machine Singer cassée. "Et après ? Pas de local. Pas de machine. Pas de clientes."
-> **[10-20 s]** Plan : inscription WOLO sur téléphone. "J'ai mis trois photos de mes robes. Mon quartier. Mon numéro."
+> **[10-20 s]** Plan : inscription WOZALI sur téléphone. "J'ai mis trois photos de mes robes. Mon quartier. Mon numéro."
 > **[20-27 s]** Plan : appel reçu, sourire. Texte : "Bourse des Mains d'Or — 100 000 FCFA."
 > **[27-30 s]** "Machine Singer neuve : 95 000. Reste 5 000 pour le fil."
 
 ### Vidéo 3 — Pédagogie 30s comment ça marche
 
 > **[0-3 s]** Voix : "Bourse des Mains d'Or, en 30 secondes."
-> **[3-8 s]** "1. T'inscris sur WOLO Market. C'est gratuit."
+> **[3-8 s]** "1. T'inscris sur WOZALI. C'est gratuit."
 > **[8-13 s]** "2. Tu postes UNE photo de ton travail ce mois."
 > **[13-18 s]** "3. Tu demandes UN avis à une cliente."
 > **[18-23 s]** "4. Le 30, tirage au hasard. Une coiffeuse Togo. Une couturière Bénin."
 > **[23-27 s]** "100 000 FCFA Mobile Money."
-> **[27-30 s]** "wolomarket.com — c'est tout."
+> **[27-30 s]** "wozali.com — c'est tout."
 
 ### Vidéo 4 — La fierté des Nana Benz
 
 > **[0-4 s]** Archives photos Nana Benz années 70. Voix : "Tu sais qui étaient les Nana Benz ?"
 > **[4-12 s]** "40 % du commerce du wax en Afrique de l'Ouest. Des femmes togolaises. Mercedes blanche. Empire textile."
 > **[12-20 s]** "Aujourd'hui leurs petites-filles cousent à Adidogomé et personne ne les voit sur Google."
-> **[20-27 s]** "WOLO Market les rend visibles. Et leur donne 100 000 FCFA tous les mois."
+> **[20-27 s]** "WOZALI les rend visibles. Et leur donne 100 000 FCFA tous les mois."
 > **[27-30 s]** "Bourse des Mains d'Or — l'héritage continue."
 
 ### Vidéo 5 — La preuve sociale
@@ -691,13 +691,13 @@ Variantes :
 > **[3-10 s]** Texte : "1ère gagnante : Mariam, 19 ans, Bè."
 > **[10-17 s]** Plan : la photo qui a gagné (la tresse). Texte : "1 photo de tresse = 100 000 FCFA."
 > **[17-25 s]** Plan : Mariam dans son nouveau setup, fer à défriser pro neuf.
-> **[25-30 s]** "La prochaine, ça peut être toi. wolomarket.com"
+> **[25-30 s]** "La prochaine, ça peut être toi. wozali.com"
 
 ### Vidéo 6 — La douleur de la patronne
 
 > **[0-3 s]** Voix : "Vous voulez la vérité sur les patronnes coiffeuses ?"
 > **[3-10 s]** "La plupart étaient elles-mêmes des apprenties exploitées. Elles reproduisent ce qu'elles ont vécu."
-> **[10-18 s]** "WOLO Market n'attaque personne. On crée juste une porte de sortie."
+> **[10-18 s]** "WOZALI n'attaque personne. On crée juste une porte de sortie."
 > **[18-25 s]** "Une bourse. Tous les mois. Pour les apprenties prêtes à se lancer."
 > **[25-30 s]** "Bourse des Mains d'Or — 100 000 FCFA, mensuel, gratuit."
 
@@ -708,7 +708,7 @@ Variantes :
 > **[10-17 s]** Texte : "Salaire apprentie : 0 FCFA."
 > **[17-23 s]** Texte : "Local + matériel pour s'installer : 350 000 FCFA."
 > **[23-28 s]** Texte : "Bourse des Mains d'Or : 100 000 FCFA. Mensuel. Aléatoire."
-> **[28-30 s]** "Fais ton choix. wolomarket.com"
+> **[28-30 s]** "Fais ton choix. wozali.com"
 
 ### Vidéo 8 — Madame Tchika (45 ans, établie)
 
@@ -720,11 +720,11 @@ Variantes :
 
 ### Vidéo 9 — Hook viral / curiosité
 
-> **[0-3 s]** Voix : "Comment WOLO Market peut donner 100 000 FCFA tous les mois ? Sérieusement."
+> **[0-3 s]** Voix : "Comment WOZALI peut donner 100 000 FCFA tous les mois ? Sérieusement."
 > **[3-12 s]** "C'est notre engagement : 1 200 000 FCFA / an au Togo, 1 200 000 FCFA / an au Bénin pour la Bourse des Mains d'Or. Plus 1 000 000 FCFA pour la finale de décembre."
 > **[12-20 s]** "Total : 3 400 000 FCFA donnés aux coiffeuses et couturières chaque année."
 > **[20-27 s]** "Pourquoi ? Parce que vous êtes les invisibles du système. On change ça."
-> **[27-30 s]** "wolomarket.com — Bourse des Mains d'Or."
+> **[27-30 s]** "wozali.com — Bourse des Mains d'Or."
 
 ### Vidéo 10 — Le compte à rebours
 
@@ -732,7 +732,7 @@ Variantes :
 > **[3-10 s]** "T'as 72 heures pour cocher tes 6 conditions."
 > **[10-17 s]** Texte rapide : "Profil complet ✓ / Photo ✓ / Avis ✓ / Connexion ✓ / Follow TikTok ✓ ✓"
 > **[17-25 s]** "Si tu rates ce mois, le prochain est dans 30 jours. Mais pourquoi attendre ?"
-> **[25-30 s]** "wolomarket.com — Bourse des Mains d'Or."
+> **[25-30 s]** "wozali.com — Bourse des Mains d'Or."
 
 ---
 
@@ -746,7 +746,7 @@ Variantes :
 >
 > Salut [Prénom],
 >
-> Tu viens d'arriver sur WOLO Market. Bienvenue. Avant tout, tu dois savoir une chose : si tu es coiffeuse ou couturière au Togo ou au Bénin, **100 000 FCFA peuvent atterrir sur ton Mobile Money le 30 de ce mois**. Tous les mois.
+> Tu viens d'arriver sur WOZALI. Bienvenue. Avant tout, tu dois savoir une chose : si tu es coiffeuse ou couturière au Togo ou au Bénin, **100 000 FCFA peuvent atterrir sur ton Mobile Money le 30 de ce mois**. Tous les mois.
 >
 > Ça s'appelle la **Bourse des Mains d'Or**. Pas de jury, pas de Plan Pro, pas de réseau à activer. Tirage 100 % aléatoire.
 >
@@ -754,7 +754,7 @@ Variantes :
 >
 > Pour commencer, complète ton profil : [LIEN]
 >
-> *Schealtiel — WOLO Market*
+> *Schealtiel — WOZALI*
 
 ### Email 2 (J+1) — Storytelling Mariam
 
@@ -766,7 +766,7 @@ Variantes :
 >
 > Au bout de 3 ans, Mariam économise 12 000 FCFA dans une boîte en fer sous son matelas. Elle rêve d'un local à Adidogomé. Coût : 350 000 FCFA.
 >
-> Sa cousine lui parle de WOLO Market. Elle s'inscrit. Elle poste une photo de ses tresses.
+> Sa cousine lui parle de WOZALI. Elle s'inscrit. Elle poste une photo de ses tresses.
 >
 > Le 30 du mois, son téléphone sonne. **100 000 FCFA.**
 >
@@ -787,7 +787,7 @@ Variantes :
 > 1. **Profil complet** : photo, nom, ville, quartier, WhatsApp.
 > 2. **Au moins 1 photo de ton travail** postée ce mois sur ton profil.
 > 3. **Au moins 1 avis client** reçu sur les 30 derniers jours.
-> 4. **Connexion à WOLO** sur les 14 derniers jours.
+> 4. **Connexion à WOZALI** sur les 14 derniers jours.
 > 5. Tu suis **@wolomarket** sur TikTok.
 > 6. Tu suis **@schealtiellawson** sur TikTok.
 >
@@ -809,9 +809,9 @@ Variantes :
 >
 > Madame Tchika a 45 ans. Salon à Akpakpa (Cotonou). 17 ans d'expérience. Trois enfants. Quatre apprenties. Spécialiste tresses Fon traditionnelles.
 >
-> Sa fille lui a fait son profil WOLO. Photos de mariage, numéro, quartier. Le 30 du mois suivant : appel WOLO. **100 000 FCFA.**
+> Sa fille lui a fait son profil WOZALI. Photos de mariage, numéro, quartier. Le 30 du mois suivant : appel WOZALI. **100 000 FCFA.**
 >
-> Elle a refait la devanture de son salon. Un panneau peint à la main. *"Madame Tchika — Tresses Fon Authentiques — Trouvez-moi sur WOLO Market."*
+> Elle a refait la devanture de son salon. Un panneau peint à la main. *"Madame Tchika — Tresses Fon Authentiques — Trouvez-moi sur WOZALI."*
 >
 > Pas d'âge limite. Pas de catégorie débutante / experte. Une seule règle : si tu coiffes ou tu couds au Togo ou au Bénin, tu es éligible.
 >
@@ -842,13 +842,13 @@ Variantes :
 >
 > [BOUTON : Voir ma checklist]
 >
-> *Schealtiel — WOLO Market*
+> *Schealtiel — WOZALI*
 
 ---
 
 ## 9. CALENDRIER ÉDITORIAL 30 JOURS PRÉ-LANCEMENT
 
-> Hypothèse : J = début juillet 2026 (lancement WOLO Market + ouverture officielle Bourse des Mains d'Or). J-30 = 9 mai 2026. Premier tirage Bourse : 30 juin 2026.
+> Hypothèse : J = début juillet 2026 (lancement WOZALI + ouverture officielle Bourse des Mains d'Or). J-30 = 9 mai 2026. Premier tirage Bourse : 30 juin 2026.
 
 | Jour | Date | Plateforme | Format | Hook utilisé / contenu | Asset à produire |
 |---|---|---|---|---|---|
@@ -874,8 +874,8 @@ Variantes :
 | J-11 | 28 mai | Instagram | Carrousel 5 slides | Storytelling Madame Tchika | 5 visuels HTML |
 | J-10 | 29 mai | TikTok | Reel 30s | Vidéo 8 — Madame Tchika (45 ans) | Reel |
 | J-9 | 30 mai | Instagram | Post Or | Hook IG #6 (héritage Nana Benz) | Visuel Or |
-| J-8 | 31 mai | Instagram | Story Split | Annonce 5 catégories WOLO Awards (lien) | Story HTML |
-| J-7 | 1 juin | TikTok | Reel 30s | Vidéo 9 — comment WOLO peut donner 100K | Reel |
+| J-8 | 31 mai | Instagram | Story Split | Annonce 5 catégories WOZALI Awards (lien) | Story HTML |
+| J-7 | 1 juin | TikTok | Reel 30s | Vidéo 9 — comment WOZALI peut donner 100K | Reel |
 | J-6 | 2 juin | Instagram | Post Dark | Hook IG #9 (finale décembre 500K) | Visuel Dark |
 | J-5 | 3 juin | WhatsApp Status | Texte | Hook WhatsApp #5 (envoie à une apprentie) | Texte court |
 | J-4 | 4 juin | Instagram | Story Dark | Compte à rebours J-4 | Story HTML |
@@ -891,7 +891,7 @@ Variantes :
 ### Phrases canoniques (à réutiliser dans tous les supports)
 
 - **"Ton travail parle. Pas tes connexions."** (signature obligatoire)
-- **"WOLO Market t'appartient."**
+- **"WOZALI t'appartient."**
 - **"Pas de jury. Pas de favoritisme. Pas de Plan Pro."**
 - **"100 % aléatoire. 100 % gratuit."**
 - **"Bourse des Mains d'Or."** (nom complet, jamais raccourci en "BMO" sauf en interne)
@@ -912,7 +912,7 @@ Variantes :
 - ❌ **Toute mention politique** Togo / Bénin (gouvernement, président, parti, institution)
 - ❌ **Toute critique d'État ou d'institution**
 - ❌ **Dénigrement direct des patronnes** — on propose une alternative, on n'attaque pas
-- ❌ **"Wolomarket.vercel.app"** — toujours wolomarket.com en public
+- ❌ **"Wolomarket.vercel.app"** — toujours wozali.com en public
 - ❌ **"Mur des Reines"** — abandonné, ne plus utiliser
 - ❌ **"Reine"** seul — uniquement dans "Reine de l'Année" en décembre
 
@@ -952,7 +952,7 @@ La Bourse des Mains d'Or n'est pas une "initiative RSE de plus". C'est un mécan
 
 2. **L'aléatoire bat le favoritisme** — pas de jury, pas de réseau à mobiliser, pas de candidature à défendre. Si tu remplis les 6 conditions, tu joues. Si on te tire, tu gagnes. Égalité brute.
 
-3. **L'invisibilité numérique se règle par la photo et le profil** — la vraie récompense pour les non-gagnantes, c'est leur profil WOLO Market qui devient leur outil de travail. Trouvable. Recommandable. Recrutable.
+3. **L'invisibilité numérique se règle par la photo et le profil** — la vraie récompense pour les non-gagnantes, c'est leur profil WOZALI qui devient leur outil de travail. Trouvable. Recommandable. Recrutable.
 
 4. **Le système d'apprentissage n'est pas attaqué, il est doublé** — on n'oblige personne à quitter sa patronne. On crée juste une porte de sortie financée, mensuelle, accessible.
 
@@ -971,7 +971,7 @@ C'est tout.
 
 ---
 
-*Document produit le 2026-05-15 pour WOLO Market. Lancement Bourse des Mains d'Or : début juillet 2026. Premier tirage : 30 juin 2026.*
+*Document produit le 2026-05-15 pour WOZALI. Lancement Bourse des Mains d'Or : début juillet 2026. Premier tirage : 30 juin 2026.*
 
 *Sources principales :*
 - *[BIT/OIT — Apprentissage informel Bénin (300 000 jeunes)](http://ciaris.ilo.org/skills/pubs/WCMS_853119/lang--fr/index.htm)*

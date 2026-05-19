@@ -25,12 +25,12 @@ export default async function handler(req, res) {
 
       if (error) throw error;
 
-      // URL cible : https://wolomarket.com/?share=token → page Awards avec highlight
-      const baseUrl = process.env.SITE_URL || 'https://wolomarket.com';
+      // URL cible : https://wozali.com/?share=token → page Awards avec highlight
+      const baseUrl = process.env.SITE_URL || 'https://wozali.com';
       const shareUrl = `${baseUrl}/?r=${partage.token}`;
 
       // Message WhatsApp pré-écrit
-      const msg = `Salut 💛 J'ai posté ma plus belle photo sur WOLO Awards — La Bourse des Mains d'Or. Vote pour moi en 10 secondes ?\n\n${shareUrl}\n\n#MurDesReines #ReineWOLO`;
+      const msg = `Salut 💛 J'ai posté ma plus belle photo sur WOZALI Awards — La Bourse des Mains d'Or. Vote pour moi en 10 secondes ?\n\n${shareUrl}\n\n#MurDesReines #ReineWOZALI`;
 
       const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 

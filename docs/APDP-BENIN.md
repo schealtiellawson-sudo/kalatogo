@@ -1,6 +1,6 @@
 # DÉCLARATION DE TRAITEMENT DE DONNÉES À CARACTÈRE PERSONNEL — APDP BÉNIN
 
-**Plateforme** : WOLO Market
+**Plateforme** : WOZALI
 **Responsable de traitement** : Schealtiel Kpomblawoun
 **Date estimée de soumission** : mai 2026 (avant lancement public le début juillet 2026)
 **Version du dossier** : 1.0
@@ -21,8 +21,8 @@
 | Numéro RCCM Bénin / IFU | [À COMPLÉTER] |
 | Adresse du siège ou point de contact local | [À COMPLÉTER : adresse à Cotonou, ou désignation d'un représentant local au Bénin si siège au Togo — exigence article 393 Code du Numérique] |
 | Téléphone | [À COMPLÉTER] |
-| Email officiel | contact@wolomarket.com |
-| Site internet | https://wolomarket.com |
+| Email officiel | contact@wozali.com |
+| Site internet | https://wozali.com |
 | Représentant légal | Schealtiel Kpomblawoun, fondateur |
 | Pièce d'identité | [À COMPLÉTER : CNI ou passeport — joindre copie certifiée] |
 
@@ -34,7 +34,7 @@
 
 ### 2.1 Finalité principale
 
-WOLO Market est une marketplace numérique dont la mission est de rendre visible l'économie informelle en Afrique de l'Ouest, en commençant par le Togo (Lomé) et le Bénin (Cotonou). La plateforme met en relation prestataires informels/formels, clients, recruteurs et candidats.
+WOZALI est une marketplace numérique dont la mission est de rendre visible l'économie informelle en Afrique de l'Ouest, en commençant par le Togo (Lomé) et le Bénin (Cotonou). La plateforme met en relation prestataires informels/formels, clients, recruteurs et candidats.
 
 ### 2.2 Finalités opérationnelles déclarées
 
@@ -181,7 +181,7 @@ Engagement à réaliser un audit de sécurité annuel et à mettre en œuvre les
 | Droit | Article | Modalité d'exercice | Délai |
 |---|---|---|---|
 | Information | 414 | CGU + Politique de confidentialité publiées | À l'inscription |
-| Accès | 416 | Email à contact@wolomarket.com avec ID | 30 jours |
+| Accès | 416 | Email à contact@wozali.com avec ID | 30 jours |
 | Rectification | 419 | Tableau de bord OU email | Immédiat / 30 jours |
 | Effacement | 420 | Bouton "Supprimer mon compte" OU email | Immédiat / 30 jours |
 | Opposition | 422 | Email | 30 jours |
@@ -189,7 +189,7 @@ Engagement à réaliser un audit de sécurité annuel et à mettre en œuvre les
 | Retrait du consentement | 415 | Désactivation des opt-ins dans le tableau de bord | Immédiat |
 | Plainte | 426 | Saisine APDP Bénin | — |
 
-**Procédure interne** : tout email reçu à contact@wolomarket.com est traité sous 7 jours ouvrés en première réponse, et clos dans les 30 jours conformément à l'article 432.
+**Procédure interne** : tout email reçu à contact@wozali.com est traité sous 7 jours ouvrés en première réponse, et clos dans les 30 jours conformément à l'article 432.
 
 ---
 
@@ -198,7 +198,7 @@ Engagement à réaliser un audit de sécurité annuel et à mettre en œuvre les
 Pour le MVP, les fonctions de DPO sont assumées par le RT lui-même conformément à l'article 447 (désignation interne possible si volume de traitement modéré) :
 
 - **Nom** : Schealtiel Kpomblawoun
-- **Email DPO** : dpo@wolomarket.com
+- **Email DPO** : dpo@wozali.com
 - **Téléphone** : [À COMPLÉTER]
 
 Un DPO externe certifié sera désigné dès franchissement des seuils de l'article 446 (recommandation : 50 000 utilisateurs actifs).
@@ -240,8 +240,8 @@ Pour le Bénin, désignation d'un mandataire local (avocat ou filiale) à finali
 
 ## SECTION 12 — ANNEXES À JOINDRE
 
-1. Politique de confidentialité publiée (https://wolomarket.com/confidentialite).
-2. CGU publiées (https://wolomarket.com/cgu).
+1. Politique de confidentialité publiée (https://wozali.com/confidentialite).
+2. CGU publiées (https://wozali.com/cgu).
 3. Schéma fonctionnel et flux de données.
 4. Liste des sous-traitants avec DPA.
 5. CNI / passeport du RT (copie certifiée).
@@ -256,9 +256,9 @@ Pour le Bénin, désignation d'un mandataire local (avocat ou filiale) à finali
 - [ ] Constituer ou désigner un représentant légal au Bénin (filiale ou mandataire local — exigence art. 393).
 - [ ] Obtenir RCCM Bénin ou justificatif d'enregistrement Togo + mandat béninois.
 - [ ] Compléter l'adresse de contact à Cotonou.
-- [ ] Publier la Politique de confidentialité sur https://wolomarket.com/confidentialite.
-- [ ] Publier les CGU sur https://wolomarket.com/cgu.
-- [ ] Activer contact@wolomarket.com et dpo@wolomarket.com.
+- [ ] Publier la Politique de confidentialité sur https://wozali.com/confidentialite.
+- [ ] Publier les CGU sur https://wozali.com/cgu.
+- [ ] Activer contact@wozali.com et dpo@wozali.com.
 - [ ] Vérifier que "Supprimer mon compte" est opérationnel.
 - [ ] Vérifier que "Exporter mes données" est opérationnel.
 - [ ] Préparer copie certifiée CNI / passeport du fondateur.
@@ -268,4 +268,4 @@ Pour le Bénin, désignation d'un mandataire local (avocat ou filiale) à finali
 
 ---
 
-*Fin du dossier APDP Bénin — Version 1.0 — WOLO Market*
+*Fin du dossier APDP Bénin — Version 1.0 — WOZALI*

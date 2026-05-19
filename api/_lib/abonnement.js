@@ -1,9 +1,9 @@
 // ================================================================
-// WOLO Pay — Traitement central des paiements d'abonnement
+// WOZALI Pay — Traitement central des paiements d'abonnement
 // ================================================================
 // Appelée par :
 //   1. Webhook FedaPay (paiement mobile money)
-//   2. Déduction Crédit WOLO interne
+//   2. Déduction Crédit WOZALI interne
 // Garantit le traitement du parrainage dans tous les cas.
 // ================================================================
 import { supabase } from '../_lib/supabase.js';

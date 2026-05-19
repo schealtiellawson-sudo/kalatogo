@@ -7,7 +7,7 @@
 
 INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) VALUES
 
-('PED1_parrainage_40pct', 'M_pedago', 1, 720, '{prenom}, c''est WOLO 👋
+('PED1_parrainage_40pct', 'M_pedago', 1, 720, '{prenom}, c''est WOZALI 👋
 
 Tu sais que tu as déjà un lien de parrainage personnel ?
 
@@ -31,17 +31,17 @@ C''est pas un bonus. C''est un revenu que tu construis.
 2️⃣ **Bourse de Croissance** — chance de gagner 300 000 FCFA chaque mois
 3️⃣ **Parrainage actif** — tu touches 40% des abos de tes filleuls
 4️⃣ **Statistiques** — tu vois exactement combien de clients ont cherché ton métier
-5️⃣ **Top 50 WOLO Bénin-Togo** — classement public des meilleurs
+5️⃣ **Top 50 WOZALI Bénin-Togo** — classement public des meilleurs
 
 2 500 FCFA = moins qu''une recharge MTN. Une seule prestation supplémentaire dans le mois et c''est remboursé.
 
 → {url_dashboard}'),
 
-('PED3_recompenses', 'M_pedago', 3, 960, '{prenom}, tu connais les récompenses WOLO ?
+('PED3_recompenses', 'M_pedago', 3, 960, '{prenom}, tu connais les récompenses WOZALI ?
 
 500 000 FCFA distribués chaque mois :
 
-🏆 **Bourse de Croissance** : 300 000 FCFA pour le membre Pro le plus méritant (Score WOLO ≥ 80, 4 avis récents, 2 mois Pro)
+🏆 **Bourse de Croissance** : 300 000 FCFA pour le membre Pro le plus méritant (Score WOZALI ≥ 80, 4 avis récents, 2 mois Pro)
 
 👑 **La Bourse des Mains d'Or** : 100 000 FCFA × 2 (Reine Coiffure + Reine Couture, 1 par pays)
 → Ouvert à toutes les femmes du Togo et du Bénin, pas besoin d''être Pro
@@ -55,17 +55,17 @@ C''est public. C''est permanent. C''est mensuel.
 ('PED4_avis_clients', 'M_pedago', 4, 1080, '{prenom}, ton truc le plus puissant : les avis clients.
 
 → Un client avec 5 avis 5★ est contacté **3× plus** qu''un client sans avis
-→ Ton Score WOLO monte de 25 points avec une note moyenne 5/5
+→ Ton Score WOZALI monte de 25 points avec une note moyenne 5/5
 → Plus tes clients laissent un avis, plus les NOUVEAUX clients te font confiance
 
 Comment faire ?
 1. Après chaque prestation, envoie le lien WhatsApp de ton profil au client
-2. Demande lui : "Si tu as aimé, laisse-moi un avis sur WOLO Market — ça m''aide énormément"
+2. Demande lui : "Si tu as aimé, laisse-moi un avis sur WOZALI — ça m''aide énormément"
 3. C''est tout. 30 secondes pour ton client. 1 vie de visibilité pour toi.
 
 → Ton profil : {url_profil}'),
 
-('PED5_score_wolo', 'M_pedago', 5, 1200, '{prenom}, comprends ton Score WOLO sur 100 :
+('PED5_score_wolo', 'M_pedago', 5, 1200, '{prenom}, comprends ton Score WOZALI sur 100 :
 
 📋 **Profil complet** : 30 pts (photo, description, tarif, téléphone, géoloc)
 ⭐ **Note moyenne clients** : 25 pts
@@ -92,7 +92,7 @@ C''est juste un switch dans ton dashboard. 2 secondes par jour. Ça change tout.
 
 → {url_dashboard}'),
 
-('PED7_partage_whatsapp', 'M_pedago', 7, 1440, '{prenom}, voici ton arme secrète : ton lien WOLO partageable.
+('PED7_partage_whatsapp', 'M_pedago', 7, 1440, '{prenom}, voici ton arme secrète : ton lien WOZALI partageable.
 
 → Copie ton lien profil
 → Mets-le dans ta bio WhatsApp
@@ -106,9 +106,9 @@ Avantages vs ton numéro WhatsApp seul :
 
 → Ton lien : {url_profil}'),
 
-('PED8_recap', 'M_pedago', 8, 1800, '{prenom}, ça fait 75 jours que tu es sur WOLO. Voici le récap :
+('PED8_recap', 'M_pedago', 8, 1800, '{prenom}, ça fait 75 jours que tu es sur WOZALI. Voici le récap :
 
-🎯 **Ce que WOLO fait pour toi** :
+🎯 **Ce que WOZALI fait pour toi** :
 - Visibilité gratuite à Cotonou et Lomé
 - Profil professionnel sans site web à construire
 - Avis clients = preuve sociale automatique

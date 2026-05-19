@@ -1,5 +1,5 @@
-// WOLO Market — Service Worker (PWA install + Web Push)
-const CACHE_NAME = 'wolo-v2';
+// WOZALI — Service Worker (PWA install + Web Push)
+const CACHE_NAME = 'wozali-v1';
 const PRECACHE = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', function(e) {
@@ -47,23 +47,22 @@ self.addEventListener('push', function(event) {
   try {
     if (event.data) data = event.data.json();
   } catch (e) {
-    try { data = { title: 'WOLO Market', body: event.data ? event.data.text() : '' }; }
+    try { data = { title: 'WOZALI', body: event.data ? event.data.text() : '' }; }
     catch (_) { data = {}; }
   }
 
-  var title = data.title || 'WOLO Market';
+  var title = data.title || 'WOZALI';
   var options = {
     body: data.body || '',
-    icon: data.icon || '/icons/wolo-192.svg',
-    badge: data.badge || '/icons/wolo-192.svg',
-    tag: data.tag || 'wolo-default',
+    icon: data.icon || '/logos/mark.svg',
+    badge: data.badge || '/logos/mark.svg',
+    tag: data.tag || 'wozali-default',
     renotify: true,
     requireInteraction: false,
     data: {
       url: data.url || '/#dashboard',
       payload: data.data || {}
     },
-    // Charte WOLO : or sur fond noir (vibration discrète)
     vibrate: [120, 60, 120]
   };
 
@@ -77,7 +76,7 @@ self.addEventListener('notificationclick', function(event) {
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientsArr) {
-      // Si une fenêtre WOLO est déjà ouverte, on la focus + on navigue dessus
+      // Si une fenêtre WOZALI est déjà ouverte, on la focus + on navigue dessus
       for (var i = 0; i < clientsArr.length; i++) {
         var c = clientsArr[i];
         try {

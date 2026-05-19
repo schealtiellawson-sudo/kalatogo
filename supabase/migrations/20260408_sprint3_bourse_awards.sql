@@ -1,4 +1,4 @@
--- Sprint 3 — Bourse de Croissance + WOLO Awards + Score WOLO
+-- Sprint 3 — Bourse de Croissance + WOZALI Awards + Score WOZALI
 -- À exécuter dans Supabase SQL Editor
 
 -- 1) Table votes_awards

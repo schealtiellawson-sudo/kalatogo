@@ -1,6 +1,6 @@
 -- ================================================================
 -- Sprint 7 — Système de récompenses mensuelles
--- Bourse de Croissance (300k) + WOLO Awards (100k)
+-- Bourse de Croissance (300k) + WOZALI Awards (100k)
 -- À coller dans Supabase SQL Editor
 -- ================================================================
 

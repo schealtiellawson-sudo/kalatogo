@@ -1,5 +1,5 @@
 -- ================================================================
--- Sprint 13 — WOLO Awards avec catégories (Coiffure + Couture)
+-- Sprint 13 — WOZALI Awards avec catégories (Coiffure + Couture)
 -- À coller dans Supabase SQL Editor
 -- ================================================================
 

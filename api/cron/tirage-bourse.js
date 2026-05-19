@@ -42,15 +42,15 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, message: 'Aucun éligible ce mois', mois: moisCourant });
     }
 
-    // 2. Tirage pondéré par Score WOLO
+    // 2. Tirage pondéré par Score WOZALI
     const gagnant = tirageAleatoirePondere(eligibles);
 
-    // 3. Créditer 300 000 FCFA en Crédit WOLO
+    // 3. Créditer 300 000 FCFA en Crédit WOZALI
     await crediterCreditWolo({
       user_id: gagnant.user_id,
       montant: MONTANT_BOURSE,
       type: 'credit_bourse',
-      description: `Bourse de Croissance WOLO — ${moisCourant}`
+      description: `Bourse de Croissance WOZALI — ${moisCourant}`
     });
 
     // 4. Marquer le gagnant
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     await envoyerNotification({
       user_id: gagnant.user_id,
       titre: '🏆 Félicitations ! Tu as gagné la Bourse de Croissance !',
-      corps: `300 000 FCFA ont été crédités sur ton Crédit WOLO. Tu es le membre Pro le plus méritant de ${moisCourant}.`
+      corps: `300 000 FCFA ont été crédités sur ton Crédit WOZALI. Tu es le membre Pro le plus méritant de ${moisCourant}.`
     });
 
     return res.status(200).json({

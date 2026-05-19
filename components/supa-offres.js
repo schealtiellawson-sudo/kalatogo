@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO supaOffres — adaptateur Supabase pour les Offres d'Emploi
+// WOZALI supaOffres — adaptateur Supabase pour les Offres d'Emploi
 // Pattern : objets retournés au format Airtable {id, fields, createdTime}
 // pour minimiser le refactor des fonctions JS existantes (loadOffresEmploi,
 // publierOffre, loadMesOffres, showOffreDetail, etc.)

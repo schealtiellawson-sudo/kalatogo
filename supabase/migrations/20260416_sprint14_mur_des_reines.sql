@@ -1,6 +1,6 @@
 -- ================================================================
 -- Sprint 14 — La Bourse des Mains d'Or
--- WOLO Awards refondu : feed viral + découverte + gamification + duels
+-- WOZALI Awards refondu : feed viral + découverte + gamification + duels
 -- À coller dans Supabase SQL Editor (ordre important)
 -- ================================================================
 
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS streaks_wolo (
 CREATE INDEX IF NOT EXISTS idx_streaks_current ON streaks_wolo(current_streak DESC);
 
 -- ════════════════════════════════════════
--- 6) BADGES_WOLO — badges collectés
+-- 6) BADGES_WOZALI — badges collectés
 -- ════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS badges_wolo (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),

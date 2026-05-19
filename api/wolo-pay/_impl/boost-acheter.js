@@ -2,7 +2,7 @@
 // Bourse des Mains d'Or — Acheter un boost pour remonter une photo
 // POST /api/wolo-pay/boost-acheter
 // Body: { user_id, photo_id, duree_h? (default 24), prix_fcfa? (default 500) }
-// Utilise le solde WOLO Pay du user (débit)
+// Utilise le solde WOZALI Pay du user (débit)
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
 
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       return res.status(409).json({ error: 'Cette photo est déjà boostée' });
     }
 
-    // Débiter le compte WOLO Pay
+    // Débiter le compte WOZALI Pay
     const { data: wallet } = await supabase
       .from('wolo_wallets')
       .select('balance')

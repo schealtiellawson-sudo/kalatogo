@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Messagerie — UI thread + messages candidat ↔ recruteur
+// WOZALI Messagerie — UI thread + messages candidat ↔ recruteur
 // API : window.woloMessagerie.open({ candidature, role })
 //   - candidature : record Airtable Candidatures (avec id + fields)
 //   - role : 'candidat' | 'recruteur' (qui ouvre)
@@ -113,7 +113,7 @@
     const list = document.getElementById('wolo-msg-list');
     if (!list) return;
     if (!state.messages.length) {
-      list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:rgba(248,246,241,.4);font-size:13px;">Aucun message. Démarre la conversation 👇</div>`;
+      list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:rgba(252, 224, 168,.4);font-size:13px;">Aucun message. Démarre la conversation 👇</div>`;
       return;
     }
     const myId = window.currentUser?.id;
@@ -123,9 +123,9 @@
       const align = mine ? 'flex-end' : 'flex-start';
       const radius = mine ? '14px 14px 4px 14px' : '14px 14px 14px 4px';
       return `<div style="display:flex;justify-content:${align};margin-bottom:8px;">
-        <div style="max-width:75%;background:${bg};padding:10px 12px;border-radius:${radius};font-size:14px;color:#F8F6F1;line-height:1.45;white-space:pre-wrap;word-break:break-word;">
+        <div style="max-width:75%;background:${bg};padding:10px 12px;border-radius:${radius};font-size:14px;color:#FCE0A8;line-height:1.45;white-space:pre-wrap;word-break:break-word;">
           ${escapeHtml(m.content)}
-          <div style="font-size:10px;color:rgba(248,246,241,.4);margin-top:4px;text-align:right;">${fmtDate(m.created_at)}</div>
+          <div style="font-size:10px;color:rgba(252, 224, 168,.4);margin-top:4px;text-align:right;">${fmtDate(m.created_at)}</div>
         </div>
       </div>`;
     }).join('');
@@ -178,22 +178,22 @@
     ).join('') : '';
 
     overlay.innerHTML = `
-      <div style="background:#0f1410;border:1px solid rgba(232,148,10,.3);border-radius:16px;width:min(560px,100%);max-height:90vh;display:flex;flex-direction:column;margin:20px;">
+      <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;width:min(560px,100%);max-height:90vh;display:flex;flex-direction:column;margin:20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);">
           <div>
-            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Messagerie</div>
-            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:#F8F6F1;margin:4px 0 0;">${escapeHtml(peerName)}</h3>
-            <div style="font-size:11px;color:rgba(248,246,241,.4);">${escapeHtml(f['Offre Titre'] || '')}</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Messagerie</div>
+            <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">${escapeHtml(peerName)}</h3>
+            <div style="font-size:11px;color:rgba(252, 224, 168,.4);">${escapeHtml(f['Offre Titre'] || '')}</div>
           </div>
-          <button id="wolo-msg-close" style="background:none;border:none;color:rgba(248,246,241,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button id="wolo-msg-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
         <div id="wolo-msg-list" style="flex:1;min-height:300px;max-height:50vh;overflow-y:auto;padding:16px 20px;background:rgba(0,0,0,.2);">
-          <div style="text-align:center;padding:40px 20px;color:rgba(248,246,241,.4);font-size:13px;">Chargement…</div>
+          <div style="text-align:center;padding:40px 20px;color:rgba(252, 224, 168,.4);font-size:13px;">Chargement…</div>
         </div>
         ${tmplBtns ? `<div style="display:flex;gap:6px;padding:10px 20px 0;flex-wrap:wrap;">${tmplBtns}</div>` : ''}
         <form id="wolo-msg-form" style="display:flex;gap:8px;padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);">
-          <textarea id="wolo-msg-input" placeholder="Écris ton message…" rows="2" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:10px 12px;border-radius:10px;font-family:Poppins,sans-serif;font-size:14px;resize:vertical;outline:none;"></textarea>
-          <button type="submit" id="wolo-msg-send" style="padding:0 18px;border-radius:10px;background:#E8940A;color:#0f1410;font-weight:700;border:none;cursor:pointer;font-size:13px;">Envoyer</button>
+          <textarea id="wolo-msg-input" placeholder="Écris ton message…" rows="2" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px 12px;border-radius:10px;font-family:Poppins,sans-serif;font-size:14px;resize:vertical;outline:none;"></textarea>
+          <button type="submit" id="wolo-msg-send" style="padding:0 18px;border-radius:10px;background:#E8940A;color:#14100A;font-weight:700;border:none;cursor:pointer;font-size:13px;">Envoyer</button>
         </form>
       </div>
     `;

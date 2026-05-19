@@ -86,7 +86,7 @@ export default async function handler(req, res) {
       user_id: gagnant.auteur_id,
       type: 'coup_du_jour',
       titre: '⭐ Ton post est le Coup du Jour !',
-      corps: 'Ta réalisation est mise en avant sur WOLO Market aujourd\'hui. Partage la nouvelle !',
+      corps: 'Ta réalisation est mise en avant sur WOZALI aujourd\'hui. Partage la nouvelle !',
       url: '#feed',
       lu: false
     });
@@ -94,9 +94,9 @@ export default async function handler(req, res) {
     // 8. Message WhatsApp pré-rédigé (stocké dans la notification pour le frontend)
     const nomAuteur = gagnant.profiles?.nom || 'Prestataire';
     const whatsappMessage = encodeURIComponent(
-      `🌟 Mon post est le Coup du Jour sur WOLO Market !\n` +
+      `🌟 Mon post est le Coup du Jour sur WOZALI !\n` +
       `Découvre mon profil 👉 https://wolomarket.vercel.app/#profil-${gagnant.auteur_id}\n` +
-      `${nomAuteur} sur WOLO Market`
+      `${nomAuteur} sur WOZALI`
     );
 
     return res.status(200).json({

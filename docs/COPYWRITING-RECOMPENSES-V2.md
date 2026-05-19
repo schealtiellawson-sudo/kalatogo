@@ -1,6 +1,6 @@
 # Bourse de Croissance — Recherche + Copywriting refresh
-> Document stratégique pour le refresh complet du copywriting de la Bourse de Croissance — WOLO Market.
-> Production : 2026-05-15 — Lancement cible : début juillet 2026 — Auteur : Chef stratégie WOLO Market.
+> Document stratégique pour le refresh complet du copywriting de la Bourse de Croissance — WOZALI.
+> Production : 2026-05-15 — Lancement cible : début juillet 2026 — Auteur : Chef stratégie WOZALI.
 
 ---
 
@@ -23,7 +23,7 @@
 
 ### 1.1 L'existant — pourquoi on refresh
 
-La Bourse de Croissance existe déjà sur la plateforme WOLO Market. Le copywriting actuel est trop générique. On y lit des choses comme "récompense pour les pros engagés", "performance", "valoriser le talent". C'est du langage corporate. Aucun mécano d'Akpakpa, aucune restauratrice de Dantokpa ne se reconnaît dans ces mots.
+La Bourse de Croissance existe déjà sur la plateforme WOZALI. Le copywriting actuel est trop générique. On y lit des choses comme "récompense pour les pros engagés", "performance", "valoriser le talent". C'est du langage corporate. Aucun mécano d'Akpakpa, aucune restauratrice de Dantokpa ne se reconnaît dans ces mots.
 
 Le fondateur veut un refresh complet axé sur trois valeurs ancrées dans le réel : **sérieux, focus, dévouement**. Pas "talent". Pas "performance". Pas "engagement". Le travail. Le vrai. Celui qui se lève à 5h. Celui qui répond au client à 22h. Celui qui livre quand il a dit qu'il livrerait.
 
@@ -103,7 +103,7 @@ Douleurs concrètes documentées :
 
 **Pourquoi le tirage aléatoire parmi les bons fonctionne mieux qu'une compétition pure :**
 
-Une étude de *Organizational Behavior and Human Decision Processes* (2023) montre que les schémas de récompense probabilistes "single lottery" augmentent la motivation et la performance **davantage** que les schémas déterministes à valeur attendue équivalente. Et l'effet est **plus fort sur les travailleurs à faible capacité initiale** — exactement la cible WOLO ([ScienceDirect 2023](https://www.sciencedirect.com/science/article/abs/pii/S0749597823000328)).
+Une étude de *Organizational Behavior and Human Decision Processes* (2023) montre que les schémas de récompense probabilistes "single lottery" augmentent la motivation et la performance **davantage** que les schémas déterministes à valeur attendue équivalente. Et l'effet est **plus fort sur les travailleurs à faible capacité initiale** — exactement la cible WOZALI ([ScienceDirect 2023](https://www.sciencedirect.com/science/article/abs/pii/S0749597823000328)).
 
 Mécanisme psychologique :
 - Compétition pure → un seul gagne, tous les autres perdent. Démotivation collective. Jalousie. Soupçon de favoritisme.
@@ -147,15 +147,15 @@ Comparaisons :
 
 Kodjo a appris la mécanique chez son tonton à 14 ans. À 19 ans il ouvre son propre atelier, deux clés à molette et un compresseur de seconde main. Aujourd'hui il a 32 ans, deux apprentis, et une réputation dans tout Akpakpa : "Kodjo, c'est lui qui répare bien, qui te dit le vrai prix, qui te rappelle quand la pièce arrive."
 
-Kodjo a rejoint WOLO Market en mars. Plan Pro 2 500 FCFA. Score WOLO 87/100. 12 avis en 30 jours, note moyenne 4.6★. Il répond à chaque client, même à 21h quand sa femme lui dit "laisse ça". Il livre toujours quand il a dit qu'il livrerait. Il appelle même les clients deux semaines après pour vérifier que la moto tient.
+Kodjo a rejoint WOZALI en mars. Plan Pro 2 500 FCFA. Score WOZALI 87/100. 12 avis en 30 jours, note moyenne 4.6★. Il répond à chaque client, même à 21h quand sa femme lui dit "laisse ça". Il livre toujours quand il a dit qu'il livrerait. Il appelle même les clients deux semaines après pour vérifier que la moto tient.
 
-Le 30 du mois, à 18h, son téléphone vibre. Notification WOLO : *"Kodjo, tu viens d'être tiré au sort. La Bourse de Croissance de ce mois est pour toi. 300 000 FCFA seront virés sur ton compte sous 48h."*
+Le 30 du mois, à 18h, son téléphone vibre. Notification WOZALI : *"Kodjo, tu viens d'être tiré au sort. La Bourse de Croissance de ce mois est pour toi. 300 000 FCFA seront virés sur ton compte sous 48h."*
 
 Kodjo ne crie pas. Kodjo s'assied. Il regarde son compresseur de 2014, qui tousse depuis huit mois. Il regarde Évariste, son deuxième apprenti, qu'il paie 25 000 FCFA et qui mérite le double. Il regarde le toit de l'atelier qui prend l'eau en saison.
 
 Avec 300 000 FCFA, Kodjo achète un compresseur neuf (180 000), bouche le toit (40 000), et augmente Évariste (40 000 × 2 mois). Il reste 40 000 pour le stock de bougies et plaquettes.
 
-Trois mois après, l'atelier de Kodjo tourne 30 % plus vite. Score WOLO 92. Note moyenne 4.7★. Il sait qu'il peut être retiré au sort un autre mois. Il continue. Pas parce qu'il joue à la loterie. Parce qu'il bosse, et qu'il a vu qu'on regarde.
+Trois mois après, l'atelier de Kodjo tourne 30 % plus vite. Score WOZALI 92. Note moyenne 4.7★. Il sait qu'il peut être retiré au sort un autre mois. Il continue. Pas parce qu'il joue à la loterie. Parce qu'il bosse, et qu'il a vu qu'on regarde.
 
 ### 3.2 Awa — restauratrice, 38 ans, Dantokpa (Cotonou)
 
@@ -163,7 +163,7 @@ Awa tient un maquis à l'entrée nord de Dantokpa. Riz au gras, akassa, poulet b
 
 Awa a quatre enfants. Le grand fait sa Terminale, les deux du milieu sont en collège, la dernière en CM2. Le père est à Lagos depuis quatre ans. Il envoie ce qu'il peut, ce qui est rarement ce qu'il faut.
 
-Awa a rejoint WOLO Market en février. Plan Pro. Score 84/100. 18 avis en 30 jours (les clients fidèles passent par WOLO pour réserver des plats à emporter avant 6h). Note moyenne 4.4★. Elle répond aux messages WOLO entre deux services, son tablier encore couvert d'huile.
+Awa a rejoint WOZALI en février. Plan Pro. Score 84/100. 18 avis en 30 jours (les clients fidèles passent par WOZALI pour réserver des plats à emporter avant 6h). Note moyenne 4.4★. Elle répond aux messages WOZALI entre deux services, son tablier encore couvert d'huile.
 
 Le 30 avril, à 12h, alors qu'elle sert un plat de riz djondjon, son téléphone sonne. Sa voisine de stand crie : *"Awa, Awa, c'est la Bourse, c'est toi !"*
 
@@ -171,21 +171,21 @@ Le 30 avril, à 12h, alors qu'elle sert un plat de riz djondjon, son téléphone
 
 Avec 300 000 FCFA : un frigo neuf (150 000) — fini les jours où la viande tournait avant midi en saison sèche. Un nouveau brûleur pro (60 000). L'inscription du grand au concours d'entrée à l'Université (45 000). Et 45 000 mis de côté pour la prochaine tontine du marché.
 
-Quatre mois plus tard, Awa a ouvert une seconde gargote dans Cotonou Nord, gérée par sa nièce. Son score WOLO est passé à 90. Elle dit à ses clients : *"WOLO c'est sérieux. Tu travailles, ils te voient."*
+Quatre mois plus tard, Awa a ouvert une seconde gargote dans Cotonou Nord, gérée par sa nièce. Son score WOZALI est passé à 90. Elle dit à ses clients : *"WOZALI c'est sérieux. Tu travailles, ils te voient."*
 
 ### 3.3 Issaka — électricien, 45 ans, Adidogomé (Lomé)
 
-Issaka est électricien depuis 28 ans. Il a fait des installations dans la moitié des villas d'Adidogomé. Il a une moto, une caisse à outils complète, un téléphone basique et un téléphone Android pour WOLO. Il a deux enfants à l'université de Lomé. Il a un frère malade dont il paie les médicaments. Il a une vieille mère qui vit avec lui.
+Issaka est électricien depuis 28 ans. Il a fait des installations dans la moitié des villas d'Adidogomé. Il a une moto, une caisse à outils complète, un téléphone basique et un téléphone Android pour WOZALI. Il a deux enfants à l'université de Lomé. Il a un frère malade dont il paie les médicaments. Il a une vieille mère qui vit avec lui.
 
-Issaka a rejoint WOLO Market en janvier. Plan Pro. Score 91/100 (le plus haut de son quartier dans la catégorie électricité). 9 avis en 30 jours, note 4.8★. Il a une règle : il ne quitte pas un chantier tant que le client n'a pas allumé chaque interrupteur et signé le devis sur WOLO.
+Issaka a rejoint WOZALI en janvier. Plan Pro. Score 91/100 (le plus haut de son quartier dans la catégorie électricité). 9 avis en 30 jours, note 4.8★. Il a une règle : il ne quitte pas un chantier tant que le client n'a pas allumé chaque interrupteur et signé le devis sur WOZALI.
 
-Le 30 mai, à 19h, Issaka rentre du chantier. Notif WOLO. *"Issaka, c'est toi cette fois. 300 000 FCFA."*
+Le 30 mai, à 19h, Issaka rentre du chantier. Notif WOZALI. *"Issaka, c'est toi cette fois. 300 000 FCFA."*
 
-Issaka regarde le téléphone deux fois. Il appelle son fils aîné, l'étudiant en BTP, pour lui demander si c'est sérieux. Le fils dit oui, c'est WOLO, c'est ce qu'ils annoncent depuis le début.
+Issaka regarde le téléphone deux fois. Il appelle son fils aîné, l'étudiant en BTP, pour lui demander si c'est sérieux. Le fils dit oui, c'est WOZALI, c'est ce qu'ils annoncent depuis le début.
 
 Avec 300 000 FCFA : remboursement total de la dette à l'épicier du coin (90 000), traitement médical complet du frère (140 000), un nouveau multimètre Fluke (50 000), et l'inscription du petit au stage d'été de soudure (20 000).
 
-Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais maintenant, quand il forme son neveu, il dit : *"Apprends bien. Sois sérieux. Sur WOLO, ils paient les sérieux."*
+Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais maintenant, quand il forme son neveu, il dit : *"Apprends bien. Sois sérieux. Sur WOZALI, ils paient les sérieux."*
 
 ---
 
@@ -197,17 +197,17 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 
 > **Bourse de Croissance — 300 000 FCFA chaque mois. 2 gagnants. 1 Togo, 1 Bénin.**
 >
-> Pas le plus connu. Le plus sérieux. L'algorithme regarde ton score, tes avis, ton travail. Le 30 du mois, tirage au sort parmi les pros éligibles. Tu fais ton boulot bien. WOLO te paie.
+> Pas le plus connu. Le plus sérieux. L'algorithme regarde ton score, tes avis, ton travail. Le 30 du mois, tirage au sort parmi les pros éligibles. Tu fais ton boulot bien. WOZALI te paie.
 
 #### Version moyenne (200 mots)
 
 > **Bourse de Croissance — 300 000 FCFA. Chaque mois. Pour celui qui bosse sérieusement.**
 >
-> WOLO Market reverse 600 000 FCFA tous les mois. 300 000 pour un pro au Togo. 300 000 pour un pro au Bénin. Tirage au sort le 30 parmi tous les pros éligibles.
+> WOZALI reverse 600 000 FCFA tous les mois. 300 000 pour un pro au Togo. 300 000 pour un pro au Bénin. Tirage au sort le 30 parmi tous les pros éligibles.
 >
-> **Éligibles, ça veut dire quoi.** Plan Pro actif ce mois. Profil complet (photo, métier, ville, quartier, numéro). Score WOLO ≥ 80/100. Au moins 3 avis sur les 30 derniers jours. Note moyenne ≥ 4.2★. Connecté à WOLO dans les 14 derniers jours. Pas gagné dans les 3 derniers mois. Et tu suis @wolomarket et @schealtiellawson sur TikTok.
+> **Éligibles, ça veut dire quoi.** Plan Pro actif ce mois. Profil complet (photo, métier, ville, quartier, numéro). Score WOZALI ≥ 80/100. Au moins 3 avis sur les 30 derniers jours. Note moyenne ≥ 4.2★. Connecté à WOZALI dans les 14 derniers jours. Pas gagné dans les 3 derniers mois. Et tu suis @wolomarket et @schealtiellawson sur TikTok.
 >
-> **Pourquoi un tirage et pas un concours.** Parce qu'un concours, ça se manipule. Le plus connu gagne. Celui qui a le plus de famille gagne. WOLO, c'est l'inverse. L'algorithme regarde ton travail. Si t'es éligible, t'es dans le pot. Point.
+> **Pourquoi un tirage et pas un concours.** Parce qu'un concours, ça se manipule. Le plus connu gagne. Celui qui a le plus de famille gagne. WOZALI, c'est l'inverse. L'algorithme regarde ton travail. Si t'es éligible, t'es dans le pot. Point.
 >
 > **Pourquoi 300 000.** Parce que c'est ce qu'il faut pour racheter une machine, refaire un toit, payer la scolarité, sortir d'une dette. Pas un cadeau. Un airbag.
 >
@@ -223,7 +223,7 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > Au Togo et au Bénin, plus de 90 % des emplois sont informels. Le SMIG est à 52 000 FCFA. Un mécano d'Akpakpa qui bosse 60 heures par semaine peut gagner moins qu'un planton qui pousse de la paperasse en climatisé. Pas parce qu'il travaille mal. Parce qu'il n'a pas la chance d'être connu, recommandé, plaqué or par les réseaux de quartier.
 >
-> WOLO Market existe pour changer ça. La Bourse de Croissance, c'est notre engagement le plus direct : **chaque mois, on prend 600 000 FCFA, et on les donne à deux pros qui font leur travail sérieusement**. 300 000 pour le Togo. 300 000 pour le Bénin.
+> WOZALI existe pour changer ça. La Bourse de Croissance, c'est notre engagement le plus direct : **chaque mois, on prend 600 000 FCFA, et on les donne à deux pros qui font leur travail sérieusement**. 300 000 pour le Togo. 300 000 pour le Bénin.
 >
 > ---
 >
@@ -231,7 +231,7 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > Il n'y a pas de jury. Il n'y a pas de vote. Il n'y a pas de famille à mobiliser. Il y a un algorithme. Et l'algorithme regarde des choses précises :
 >
-> - Ton score WOLO (calculé à partir de ton activité, ta réactivité, ta fiabilité)
+> - Ton score WOZALI (calculé à partir de ton activité, ta réactivité, ta fiabilité)
 > - Tes avis clients sur les 30 derniers jours
 > - Ta note moyenne
 > - Si tu es connecté récemment
@@ -243,9 +243,9 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > **Critères d'éligibilité — sois sérieux, t'es dedans.**
 >
-> 1. Plan Pro WOLO actif ce mois (2 500 FCFA)
+> 1. Plan Pro WOZALI actif ce mois (2 500 FCFA)
 > 2. Profil complet : photo, métier, ville, quartier, numéro WhatsApp
-> 3. Score WOLO ≥ 80/100
+> 3. Score WOZALI ≥ 80/100
 > 4. Au moins 3 avis sur les 30 derniers jours
 > 5. Note moyenne ≥ 4.2 étoiles sur 30 jours
 > 6. Connecté à l'app dans les 14 derniers jours
@@ -281,7 +281,7 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > On ne donne pas cet argent par pitié. On le donne parce que **tu l'as mérité par ton travail**. Tu ouvres ton atelier à 7h. Tu réponds aux clients en moins d'une heure. Tu livres quand t'as dit que tu livrerais. Tu collectes des avis honnêtes. Tu tiens un 4.5★ dans la durée.
 >
-> WOLO te regarde. Et chaque mois, deux d'entre vous repartent avec 300 000 FCFA.
+> WOZALI te regarde. Et chaque mois, deux d'entre vous repartent avec 300 000 FCFA.
 >
 > Ton travail parle. Pas tes connexions.
 
@@ -295,8 +295,8 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > 1. Tu actives ton Plan Pro (2 500 FCFA/mois).
 > 2. Tu complètes ton profil : photo, métier, ville, quartier, numéro WhatsApp.
-> 3. Tu bosses normalement. Tes clients laissent des avis sur WOLO.
-> 4. L'algorithme calcule ton score WOLO et vérifie tes 7 critères d'éligibilité.
+> 3. Tu bosses normalement. Tes clients laissent des avis sur WOZALI.
+> 4. L'algorithme calcule ton score WOZALI et vérifie tes 7 critères d'éligibilité.
 > 5. Le 30 du mois à 18h, tirage automatique. Un gagnant Togo, un gagnant Bénin.
 > 6. Notification immédiate. Virement sous 48h. Annonce publique avec ton accord.
 >
@@ -308,7 +308,7 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > **Un.** Tu actives Pro à 2 500 FCFA. Ça donne accès à tout : visibilité, Bourse, King & Queen, Mains d'Or.
 >
-> **Deux.** Tu bosses sérieusement. Tu réponds aux clients. Tu livres ce que t'as dit. Tu prends des photos de ton travail. Tu demandes à tes clients de mettre un avis honnête sur WOLO.
+> **Deux.** Tu bosses sérieusement. Tu réponds aux clients. Tu livres ce que t'as dit. Tu prends des photos de ton travail. Tu demandes à tes clients de mettre un avis honnête sur WOZALI.
 >
 > **Trois.** Le 30 du mois, à 18h pile, l'algo tire au sort parmi tous les pros qui remplissent les critères. Si c'est toi, ton tél vibre. Si c'est pas toi ce mois, tu restes dans le pot le mois suivant — du moment que tu restes sérieux.
 >
@@ -325,7 +325,7 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 > **Versement** : virement bancaire ou Mobile Money (Wave, Flooz, Mixx, Moov) sous 48h.
 > **Annonce publique** : seulement si le gagnant donne son accord écrit. Possibilité de gagner anonymement.
 >
-> **Et si je viens d'arriver sur WOLO ?** Il te faut le Plan Pro actif et 3 avis sur 30 jours. Donc en pratique, tu deviens éligible 1 à 2 mois après ton inscription, le temps de cumuler les avis. Sois patient. Bosse bien.
+> **Et si je viens d'arriver sur WOZALI ?** Il te faut le Plan Pro actif et 3 avis sur 30 jours. Donc en pratique, tu deviens éligible 1 à 2 mois après ton inscription, le temps de cumuler les avis. Sois patient. Bosse bien.
 >
 > **Et si je gagne, je peux gagner encore ?** Pas dans les 3 mois qui suivent. On fait tourner pour que le maximum de pros sérieux soit touché.
 
@@ -341,7 +341,7 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > Tu collectes des avis pas parce que tu les chasses, mais parce que tes clients reviennent et amènent leur cousin. Ton 4.5★, c'est pas de la chance. C'est trois ans de discipline.
 >
-> WOLO regarde ça. WOLO le mesure. WOLO te paie.
+> WOZALI regarde ça. WOZALI le mesure. WOZALI te paie.
 
 #### Version B — Focus DÉVOUEMENT
 
@@ -351,13 +351,13 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 >
 > Tu nourris ta famille avec ce métier. Tu paies la scolarité avec ce métier. Tu construis ta maison brique par brique avec ce métier.
 >
-> Ce dévouement, il se voit. Dans les avis. Dans la note. Dans la régularité. WOLO te le rend.
+> Ce dévouement, il se voit. Dans les avis. Dans la note. Dans la régularité. WOZALI te le rend.
 
 #### Version C — Focus RÉSULTATS
 
 > **Tu mérites parce que tes résultats parlent.**
 >
-> 80/100 au score WOLO. 4.5 étoiles. 12 avis en 30 jours. 90 % de tes clients qui repassent. C'est pas du marketing. C'est des chiffres mesurés en temps réel sur la plateforme.
+> 80/100 au score WOZALI. 4.5 étoiles. 12 avis en 30 jours. 90 % de tes clients qui repassent. C'est pas du marketing. C'est des chiffres mesurés en temps réel sur la plateforme.
 >
 > T'as pas besoin de te vendre. T'as besoin de continuer. L'algorithme s'occupe de te repérer. Le 30 du mois, peut-être que c'est toi.
 >
@@ -387,7 +387,7 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 > **🟡 Tu n'es pas encore dans le tirage de ce mois.**
 >
 > Il te manque :
-> - [ ] Score WOLO ≥ 80/100 (tu es à X/100)
+> - [ ] Score WOZALI ≥ 80/100 (tu es à X/100)
 > - [ ] 3 avis sur 30 jours (tu en as X)
 > - [ ] Note ≥ 4.2★ (tu es à X.X)
 > - [ ] Profil complet
@@ -407,9 +407,9 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 
 Variante :
 
-> **WOLO t'a tiré au sort. 300 000 FCFA. Ouvre l'app.**
+> **WOZALI t'a tiré au sort. 300 000 FCFA. Ouvre l'app.**
 
-#### Boîte WOLO message complet
+#### Boîte WOZALI message complet
 
 > **Salut [Prénom],**
 >
@@ -419,13 +419,13 @@ Variante :
 >
 > 300 000 FCFA arrivent sur ton compte sous 48h. On t'appelle dans l'heure pour confirmer ton mode de paiement (virement bancaire ou Mobile Money).
 >
-> Tu n'as pas gagné par hasard. T'es dans le pot parce que ton travail t'a mis dedans. Score WOLO [score]. Note moyenne [note]★. [Nombre] avis ce mois. Profil complet. Activité régulière.
+> Tu n'as pas gagné par hasard. T'es dans le pot parce que ton travail t'a mis dedans. Score WOZALI [score]. Note moyenne [note]★. [Nombre] avis ce mois. Profil complet. Activité régulière.
 >
 > Tu peux choisir d'apparaître publiquement sur nos réseaux ou rester anonyme. On respecte ton choix dans tous les cas. Tu réponds à ce message avec ta décision.
 >
-> Continue à bosser comme tu bosses. WOLO te regarde.
+> Continue à bosser comme tu bosses. WOZALI te regarde.
 >
-> — L'équipe WOLO Market
+> — L'équipe WOZALI
 
 #### Email félicitation (200 mots)
 
@@ -433,13 +433,13 @@ Variante :
 >
 > Salut [Prénom],
 >
-> Aujourd'hui [date], à 18h, l'algorithme WOLO a tiré au sort le gagnant de la Bourse de Croissance [Togo/Bénin] pour le mois de [mois].
+> Aujourd'hui [date], à 18h, l'algorithme WOZALI a tiré au sort le gagnant de la Bourse de Croissance [Togo/Bénin] pour le mois de [mois].
 >
 > **C'est toi.**
 >
 > Tu vas recevoir 300 000 FCFA sous 48h ouvrées. Notre équipe te contacte dans l'heure pour confirmer ton mode de paiement préféré (virement bancaire ou Mobile Money : Wave, Flooz, Mixx, Moov).
 >
-> Pourquoi toi ? Parce que tu remplissais les 9 critères d'éligibilité ce mois. Score WOLO de [X]/100. Note moyenne de [X.X]★. [X] avis collectés sur 30 jours. Profil complet. Activité régulière. Plan Pro actif. Et tu as suivi @wolomarket et @schealtiellawson.
+> Pourquoi toi ? Parce que tu remplissais les 9 critères d'éligibilité ce mois. Score WOZALI de [X]/100. Note moyenne de [X.X]★. [X] avis collectés sur 30 jours. Profil complet. Activité régulière. Plan Pro actif. Et tu as suivi @wolomarket et @schealtiellawson.
 >
 > Tu n'es pas tombé du ciel. Ton travail t'a mis dans le pot. Le hasard a fait le reste — équitablement, parmi tous les pros sérieux du [pays].
 >
@@ -447,7 +447,7 @@ Variante :
 >
 > Continue, [Prénom]. Tu peux retomber dans le pot dans 3 mois.
 >
-> WOLO Market — Ton travail parle.
+> WOZALI — Ton travail parle.
 
 ---
 
@@ -471,7 +471,7 @@ Variante :
 
 > 🇹🇬 [Prénom] [Initial nom], [métier], [quartier] (Lomé)
 >
-> Score WOLO : [X]/100
+> Score WOZALI : [X]/100
 > Note moyenne : [X.X]★
 > Avis ce mois : [X]
 >
@@ -481,7 +481,7 @@ Variante :
 
 > 🇧🇯 [Prénom] [Initial nom], [métier], [quartier] (Cotonou)
 >
-> Score WOLO : [X]/100
+> Score WOZALI : [X]/100
 > Note moyenne : [X.X]★
 > Avis ce mois : [X]
 >
@@ -492,29 +492,29 @@ Variante :
 > Le mois prochain ?
 > Peut-être toi.
 >
-> Active Pro. Bosse sérieux. WOLO regarde.
+> Active Pro. Bosse sérieux. WOZALI regarde.
 >
-> wolomarket.com
+> wozali.com
 
 #### Format TikTok — script Reel 30s
 
 > **[0-3s] HOOK** (plan serré sur main qui visse, son atelier)
 > Voix off : "Le 30 du mois, à 18h, j'ai eu une notif."
 >
-> **[3-8s] RÉVÉLATION** (plan sur le téléphone qui s'allume — notif WOLO)
-> Voix off : "WOLO m'a tiré au sort. 300 000 francs CFA."
+> **[3-8s] RÉVÉLATION** (plan sur le téléphone qui s'allume — notif WOZALI)
+> Voix off : "WOZALI m'a tiré au sort. 300 000 francs CFA."
 >
 > **[8-15s] LE PERSONNAGE** (plan sur le pro, regard caméra)
 > "Je suis [Prénom], [métier] à [quartier]. J'ai pas de connexion. J'ai pas de cousin au comité. J'ai juste fait mon travail."
 >
 > **[15-22s] PROOF**
-> "Score WOLO 87. Quatre virgule six étoiles. Douze avis ce mois. C'est ça que l'algo a vu."
+> "Score WOZALI 87. Quatre virgule six étoiles. Douze avis ce mois. C'est ça que l'algo a vu."
 >
 > **[22-27s] LA TRANSFORMATION** (plan sur compresseur neuf / frigo / machine)
 > "Avec 300 000, j'ai pu [acheter X]."
 >
 > **[27-30s] CTA**
-> "Le mois prochain, peut-être toi. wolomarket.com."
+> "Le mois prochain, peut-être toi. wozali.com."
 
 #### Format email à toute la base (300 mots)
 
@@ -524,11 +524,11 @@ Variante :
 >
 > Hier le 30, à 18h, on a tiré au sort la Bourse de Croissance de [mois].
 >
-> **🇹🇬 Togo — 300 000 FCFA pour [Prénom Nom]**, [métier] à [quartier] (Lomé). Score WOLO [X]. Note [X.X]★. [X] avis ce mois.
+> **🇹🇬 Togo — 300 000 FCFA pour [Prénom Nom]**, [métier] à [quartier] (Lomé). Score WOZALI [X]. Note [X.X]★. [X] avis ce mois.
 >
 > *"[Citation 1 phrase du gagnant]"*
 >
-> **🇧🇯 Bénin — 300 000 FCFA pour [Prénom Nom]**, [métier] à [quartier] (Cotonou). Score WOLO [X]. Note [X.X]★. [X] avis ce mois.
+> **🇧🇯 Bénin — 300 000 FCFA pour [Prénom Nom]**, [métier] à [quartier] (Cotonou). Score WOZALI [X]. Note [X.X]★. [X] avis ce mois.
 >
 > *"[Citation 1 phrase du gagnant]"*
 >
@@ -546,10 +546,10 @@ Variante :
 >
 > **Prochain tirage : 30 [mois suivant] à 18h.**
 >
-> Continue à bosser. WOLO te regarde.
+> Continue à bosser. WOZALI te regarde.
 >
-> — L'équipe WOLO Market
-> wolomarket.com
+> — L'équipe WOZALI
+> wozali.com
 
 ---
 
@@ -558,15 +558,15 @@ Variante :
 ### 5.1 Instagram (10 hooks copy-paste ready)
 
 1. **Pas le plus connu. Le plus sérieux. 300 000 FCFA chaque mois.**
-2. **Tes avis le prouvent. WOLO le paye. 300 000 FCFA × 2 / mois.**
+2. **Tes avis le prouvent. WOZALI le paye. 300 000 FCFA × 2 / mois.**
 3. **L'algorithme ne triche pas. Il regarde ton travail.**
-4. **Tu te lèves chaque jour. WOLO te récompense chaque mois.**
+4. **Tu te lèves chaque jour. WOZALI te récompense chaque mois.**
 5. **300 000 FCFA pour celui qui mérite. Chaque mois. Aucun jury.**
 6. **9 critères. 1 tirage. 2 gagnants. Ton travail décide.**
 7. **6 mois de SMIG. Versés en 48h. À 2 pros sérieux. Le 30 du mois.**
 8. **Pas un concours. Pas un vote. Un tirage parmi les méritants.**
-9. **WOLO regarde. WOLO mesure. WOLO paye. 300 000 FCFA × 2 / mois.**
-10. **Ton métier mérite mieux que le hasard. Mais avec WOLO, le hasard te trouve.**
+9. **WOZALI regarde. WOZALI mesure. WOZALI paye. 300 000 FCFA × 2 / mois.**
+10. **Ton métier mérite mieux que le hasard. Mais avec WOZALI, le hasard te trouve.**
 
 ### 5.2 TikTok / Reels (10 hooks vidéos)
 
@@ -574,30 +574,30 @@ Variante :
 2. **"Y a un truc que personne te dit sur les concours en Afrique — c'est toujours truqué. Sauf un."**
 3. **"J'ai pas de cousin au comité. J'ai gagné quand même."**
 4. **"300 000 francs. Tirés au sort. Mais pas n'importe comment."**
-5. **"Toi tu connais quelqu'un qui a gagné une bourse fair en Afrique ? Moi non plus. Jusqu'à WOLO."**
+5. **"Toi tu connais quelqu'un qui a gagné une bourse fair en Afrique ? Moi non plus. Jusqu'à WOZALI."**
 6. **"Mécanicien à Akpakpa. Score 87. Gagnant du mois. Voilà ce qui s'est passé."**
 7. **"Le seul concours où ton travail compte plus que tes contacts."**
 8. **"6 mois de SMIG en 48h. Et j'ai rien demandé. J'ai juste bossé."**
-9. **"Comment WOLO m'a transformé l'atelier en 3 mois sans crédit, sans dette, sans intérêts."**
+9. **"Comment WOZALI m'a transformé l'atelier en 3 mois sans crédit, sans dette, sans intérêts."**
 10. **"L'algorithme regarde ton boulot. Pas ta tronche. Pas ta famille."**
 
 ### 5.3 WhatsApp Status (10 hooks)
 
-1. **Bourse de Croissance WOLO. 300 000 FCFA × 2. Le 30 à 18h. wolomarket.com**
+1. **Bourse de Croissance WOZALI. 300 000 FCFA × 2. Le 30 à 18h. wozali.com**
 2. **C'est pas le plus connu qui gagne. C'est le plus sérieux. 👀**
-3. **Tu bosses. WOLO te voit. WOLO te paie. 300 000/mois.**
+3. **Tu bosses. WOZALI te voit. WOZALI te paie. 300 000/mois.**
 4. **9 critères. 1 tirage. 0 piston. 300 000 FCFA pour 2 pros sérieux.**
 5. **Plan Pro à 2 500 → tu rentres dans le pot. Le 30 à 18h, peut-être toi.**
 6. **L'algo qui regarde ton travail. Pas ton wax. Pas ton sourire. Ton travail.**
 7. **2 gagnants ce mois. Togo + Bénin. 300K chacun. Tu peux être le prochain.**
-8. **Tes étoiles ne sont pas pour rien. WOLO les regarde.**
+8. **Tes étoiles ne sont pas pour rien. WOZALI les regarde.**
 9. **Demande à ton client de mettre un avis. Le 30 du mois, tu comprendras pourquoi.**
 10. **Pas charité. Pas pitié. Reconnaissance.**
 
 ### 5.4 Hashtags officiels
 
 **Hashtags signature** :
-`#BoursedeCroissance` `#WOLOMarket` `#ProSerieuxTogo` `#ProSerieuxBenin` `#300000FCFA`
+`#BoursedeCroissance` `#WOZALIMarket` `#ProSerieuxTogo` `#ProSerieuxBenin` `#300000FCFA`
 
 **Hashtags d'amplification** (10) :
 `#TogoEntrepreneurs` `#BeninEntrepreneurs` `#LomeArtisans` `#CotonouArtisans` `#JeunesseTogolaise` `#JeunesseBeninoise` `#EconomieInformelle` `#TravailDur` `#WoloPro` `#TonTravailParle`
@@ -617,7 +617,7 @@ Variante :
 > *Voix off* : "Le plus connu. Le plus médiatique. Celui qui a les bons contacts."
 >
 > **[8-15s]** Plan caméra fixe sur l'artisan, regard direct.
-> *Voix off* : "WOLO Market, on a décidé de faire autrement."
+> *Voix off* : "WOZALI, on a décidé de faire autrement."
 >
 > **[15-22s]** Animation des 9 critères qui s'affichent.
 > *Voix off* : "9 critères mesurables. Score. Avis. Note. Activité. Pas de jury. Pas de votes."
@@ -625,8 +625,8 @@ Variante :
 > **[22-27s]** Animation du tirage au sort 30 du mois.
 > *Voix off* : "Le 30 à 18h, l'algorithme tire au sort parmi les sérieux. 300 000 FCFA. Togo + Bénin."
 >
-> **[27-30s]** Logo WOLO.
-> *Voix off* : "Pas le plus connu. Le plus sérieux. wolomarket.com."
+> **[27-30s]** Logo WOZALI.
+> *Voix off* : "Pas le plus connu. Le plus sérieux. wozali.com."
 
 ### Vidéo 2 — "Le 30 à 18h"
 
@@ -634,7 +634,7 @@ Variante :
 > *Voix off* : "Le 30 à 18h, j'étais sous une moto."
 >
 > **[3-10s]** Main sale qui prend le tél, regarde l'écran.
-> *Voix off* : "Notification WOLO. Je lis. Je relis."
+> *Voix off* : "Notification WOZALI. Je lis. Je relis."
 >
 > **[10-18s]** Plan large sur le mécano, qui s'assied.
 > *Voix off* : "300 000 francs CFA. Bourse de Croissance. C'est moi."
@@ -643,20 +643,20 @@ Variante :
 > *Voix off* : "Trois semaines après, nouveau compresseur. L'apprenti augmenté. Le toit refait."
 >
 > **[25-30s]** Regard caméra.
-> "Toi, prochain ? wolomarket.com."
+> "Toi, prochain ? wozali.com."
 
 ### Vidéo 3 — "L'algorithme ne triche pas"
 
 > **[0-3s]** Texte écran : "On ne triche pas un algorithme."
 >
-> **[3-10s]** Voix off + animation : "Score WOLO 80. Trois avis. 4.2 étoiles. Profil complet. Pro actif. Activité < 14 jours."
+> **[3-10s]** Voix off + animation : "Score WOZALI 80. Trois avis. 4.2 étoiles. Profil complet. Pro actif. Activité < 14 jours."
 >
 > **[10-18s]** Pause sur "Tu remplis ? T'es dedans. Tu remplis pas ? T'es dehors. Aucun jugement humain."
 >
 > **[18-25s]** Tirage animé 30 du mois — deux noms qui tombent.
 > *Voix off* : "Tirage au sort. Aléatoire. Transparent."
 >
-> **[25-30s]** "300 000 FCFA × 2 / mois. wolomarket.com."
+> **[25-30s]** "300 000 FCFA × 2 / mois. wozali.com."
 
 ### Vidéo 4 — "Tu connais quelqu'un qui a gagné un concours fair en Afrique ?"
 
@@ -667,9 +667,9 @@ Variante :
 >
 > **[8-18s]** Voix off + montage : "C'est toujours pareil. Le neveu du jury. La cousine du sponsor. Celui qui a payé du faux engagement. Toi tu regardes, tu votes, et au final c'est jamais toi."
 >
-> **[18-25s]** Logo WOLO. "WOLO Market, on a supprimé le jury. C'est l'algorithme qui regarde. Et le 30 du mois, c'est le hasard parmi les sérieux."
+> **[18-25s]** Logo WOZALI. "WOZALI, on a supprimé le jury. C'est l'algorithme qui regarde. Et le 30 du mois, c'est le hasard parmi les sérieux."
 >
-> **[25-30s]** "300 000 FCFA. Chaque mois. Pour 2 pros qui méritent. wolomarket.com."
+> **[25-30s]** "300 000 FCFA. Chaque mois. Pour 2 pros qui méritent. wozali.com."
 
 ### Vidéo 5 — Témoignage Awa (restauratrice)
 
@@ -680,21 +680,21 @@ Variante :
 > "J'ouvre à 5h. Je ferme à 22h. Sept jours sur sept."
 >
 > **[10-18s]** Téléphone sur la table.
-> "WOLO depuis février. 18 avis ce mois. 4.4 étoiles. Score 84."
+> "WOZALI depuis février. 18 avis ce mois. 4.4 étoiles. Score 84."
 >
 > **[18-25s]** Frigo neuf qu'on voit.
 > "Le 30 avril, j'ai gagné. Frigo neuf. Brûleur neuf. Mon grand inscrit à l'université."
 >
-> **[25-30s]** Regard caméra. "WOLO, c'est sérieux. wolomarket.com."
+> **[25-30s]** Regard caméra. "WOZALI, c'est sérieux. wozali.com."
 
 ### Vidéo 6 — "9 critères. Coche-les."
 
 > **[0-3s]** Texte plein écran : "Si tu coches ces 9 critères, tu rentres dans le pot."
 >
 > **[3-25s]** Liste animée qui apparaît :
-> 1. Plan Pro WOLO actif
+> 1. Plan Pro WOZALI actif
 > 2. Profil complet
-> 3. Score WOLO ≥ 80
+> 3. Score WOZALI ≥ 80
 > 4. 3 avis sur 30 jours
 > 5. Note ≥ 4.2★
 > 6. Connecté < 14 jours
@@ -702,7 +702,7 @@ Variante :
 > 8. Suis @wolomarket sur TikTok
 > 9. Suis @schealtiellawson sur TikTok
 >
-> **[25-30s]** "Le 30 du mois, peut-être toi. wolomarket.com."
+> **[25-30s]** "Le 30 du mois, peut-être toi. wozali.com."
 
 ### Vidéo 7 — "6 mois de SMIG en 48h"
 
@@ -712,9 +712,9 @@ Variante :
 >
 > **[8-15s]** Texte gros : "300 000 FCFA = presque 6 mois de SMIG."
 >
-> **[15-25s]** Voix off : "WOLO Market, on donne ça à 2 pros sérieux par mois. Versement sous 48h. Mobile Money ou virement bancaire."
+> **[15-25s]** Voix off : "WOZALI, on donne ça à 2 pros sérieux par mois. Versement sous 48h. Mobile Money ou virement bancaire."
 >
-> **[25-30s]** "Plan Pro 2 500 FCFA. Tu rentres dans le pot. wolomarket.com."
+> **[25-30s]** "Plan Pro 2 500 FCFA. Tu rentres dans le pot. wozali.com."
 
 ### Vidéo 8 — "Mécano d'Akpakpa"
 
@@ -722,7 +722,7 @@ Variante :
 > *Voix off* : "Kodjo. Mécano. Akpakpa, Cotonou."
 >
 > **[3-10s]** Plan large sur l'atelier modeste.
-> "12 avis ce mois. Note 4.6. Score WOLO 87."
+> "12 avis ce mois. Note 4.6. Score WOZALI 87."
 >
 > **[10-18s]** Téléphone qui sonne. Kodjo regarde.
 > "Le 30 à 18h, le tirage a parlé."
@@ -734,15 +734,15 @@ Variante :
 
 ### Vidéo 9 — "Pourquoi pas un concours classique"
 
-> **[0-3s]** Question : "Pourquoi WOLO fait pas un concours classique ?"
+> **[0-3s]** Question : "Pourquoi WOZALI fait pas un concours classique ?"
 >
 > **[3-10s]** Voix off : "Parce qu'un concours classique en Afrique, ça finit comment ?"
 >
 > **[10-18s]** Énumération + visuels : "Le plus médiatique gagne. Le cousin du jury gagne. Celui qui paye des votes gagne."
 >
-> **[18-25s]** Logo WOLO. "Nous, on a supprimé le jury. On a supprimé les votes. On a gardé l'algorithme. Et le hasard parmi les méritants."
+> **[18-25s]** Logo WOZALI. "Nous, on a supprimé le jury. On a supprimé les votes. On a gardé l'algorithme. Et le hasard parmi les méritants."
 >
-> **[25-30s]** "300 000 FCFA × 2 / mois. wolomarket.com."
+> **[25-30s]** "300 000 FCFA × 2 / mois. wozali.com."
 
 ### Vidéo 10 — Storytime électricien
 
@@ -753,11 +753,11 @@ Variante :
 > "Je quitte jamais un chantier tant que chaque interrupteur n'est pas testé devant le client."
 >
 > **[10-18s]** Notif sur tél.
-> "Le 30 mai, WOLO m'a tiré au sort. 300 000 FCFA."
+> "Le 30 mai, WOZALI m'a tiré au sort. 300 000 FCFA."
 >
 > **[18-25s]** Multimètre neuf, ordo de pharmacie. "Dette à l'épicier réglée. Traitement de mon frère. Multimètre neuf."
 >
-> **[25-30s]** "WOLO regarde le sérieux. wolomarket.com."
+> **[25-30s]** "WOZALI regarde le sérieux. wozali.com."
 
 ---
 
@@ -771,7 +771,7 @@ Variante :
 >
 > Salut [Prénom],
 >
-> Bienvenue dans WOLO Pro. T'as fait le premier pas. Maintenant je te dis comment tout marche.
+> Bienvenue dans WOZALI Pro. T'as fait le premier pas. Maintenant je te dis comment tout marche.
 >
 > **2 500 FCFA / mois, ça te donne :**
 > - Visibilité maximale dans "Trouver un pro" (toujours en haut)
@@ -788,7 +788,7 @@ Variante :
 >
 > À demain.
 >
-> Schealtiel — Fondateur WOLO Market
+> Schealtiel — Fondateur WOZALI
 
 ### Email 2 (J+1) — Storytelling Kodjo
 
@@ -800,13 +800,13 @@ Variante :
 >
 > Kodjo a 32 ans. Mécano moto à Akpakpa, Cotonou. Deux apprentis, un compresseur de 2014 qui toussait depuis 8 mois.
 >
-> Kodjo a rejoint WOLO en mars. Plan Pro. Profil complet. Photos de ses chantiers. Il a demandé à chaque client de mettre un avis honnête. 12 avis en 30 jours. 4.6★. Score 87.
+> Kodjo a rejoint WOZALI en mars. Plan Pro. Profil complet. Photos de ses chantiers. Il a demandé à chaque client de mettre un avis honnête. 12 avis en 30 jours. 4.6★. Score 87.
 >
 > Le 30 à 18h, l'algorithme l'a tiré au sort.
 >
 > Aujourd'hui : compresseur neuf, apprenti augmenté, toit refait. Score monté à 92. Atelier qui tourne 30 % plus vite.
 >
-> Kodjo a pas fait de magie. Il a fait son travail sérieusement. WOLO a fait son boulot d'algorithme.
+> Kodjo a pas fait de magie. Il a fait son travail sérieusement. WOZALI a fait son boulot d'algorithme.
 >
 > **Tu veux être Kodjo de [mois prochain] ?**
 >
@@ -827,9 +827,9 @@ Variante :
 >
 > **1. Complète ton profil à 100 %.** Photo claire (pas de selfie flou), métier précis, ville, quartier, numéro WhatsApp actif. 5 minutes.
 >
-> **2. Demande des avis.** À chaque fin de chantier ou prestation, tu envoies le lien WOLO à ton client. Tu lui dis "ça me prend 30 secondes, ça change ma visibilité". Vise 3 avis cette semaine.
+> **2. Demande des avis.** À chaque fin de chantier ou prestation, tu envoies le lien WOZALI à ton client. Tu lui dis "ça me prend 30 secondes, ça change ma visibilité". Vise 3 avis cette semaine.
 >
-> **3. Réponds aux messages WOLO < 1h.** L'algorithme mesure ta réactivité. Active les notifications.
+> **3. Réponds aux messages WOZALI < 1h.** L'algorithme mesure ta réactivité. Active les notifications.
 >
 > **4. Connecte-toi tous les 2-3 jours.** Pas besoin de poster. Juste ouvrir l'app pour rester "actif".
 >
@@ -895,7 +895,7 @@ Variante :
 |---|---|---|---|---|
 | J-30 | 09/05 | Instagram | Post carrousel 5 slides | Annonce : "On lance la Bourse de Croissance. 300K × 2 / mois." |
 | J-29 | 10/05 | TikTok | Reel 30s | "Le 30 à 18h, mon tél a vibré." (Vidéo 2) |
-| J-28 | 11/05 | WhatsApp Status | Texte | "Bourse de Croissance WOLO. 300K × 2. Le 30." (#1) |
+| J-28 | 11/05 | WhatsApp Status | Texte | "Bourse de Croissance WOZALI. 300K × 2. Le 30." (#1) |
 | J-27 | 12/05 | Instagram | Story Split Or+Dark | Explication 9 critères |
 | J-26 | 13/05 | TikTok | Reel 30s | "Pas le plus connu. Le plus sérieux." (Vidéo 1) |
 | J-25 | 14/05 | Instagram | Post unique Or | "L'algorithme ne triche pas." |
@@ -905,7 +905,7 @@ Variante :
 | J-21 | 18/05 | TikTok | Reel | "9 critères, coche-les." (Vidéo 6) |
 | J-20 | 19/05 | Instagram | Story Dark Classique | Témoignage anticipé Awa |
 | J-19 | 20/05 | TikTok | Reel | "L'algorithme regarde ton travail." (Vidéo 3) |
-| J-18 | 21/05 | Instagram | Post Dark | "Tes avis le prouvent. WOLO le paye." |
+| J-18 | 21/05 | Instagram | Post Dark | "Tes avis le prouvent. WOZALI le paye." |
 | J-17 | 22/05 | WhatsApp Status | Texte | "9 critères. 1 tirage. 0 piston." (#4) |
 | J-16 | 23/05 | TikTok | Reel | Storytime Awa (Vidéo 5) |
 | J-15 | 24/05 | Instagram | Carrousel | "Comment ça marche — étape par étape" |
@@ -934,17 +934,17 @@ Variante :
 ### 9.1 Phrases canoniques (à utiliser régulièrement)
 
 - **"Ton travail parle. Pas tes connexions."**
-- **"WOLO Market t'appartient."**
+- **"WOZALI t'appartient."**
 
 ### 9.2 Phrases FORTES — Bourse de Croissance
 
 À intégrer en rotation sur tous les supports :
 
 - "Pas le plus connu. Le plus sérieux."
-- "Tes avis le prouvent. WOLO le paye."
+- "Tes avis le prouvent. WOZALI le paye."
 - "300 000 FCFA pour celui qui mérite. Chaque mois."
 - "L'algorithme ne triche pas. Il regarde ton travail."
-- "Tu te lèves chaque jour. WOLO te récompense chaque mois."
+- "Tu te lèves chaque jour. WOZALI te récompense chaque mois."
 - "9 critères. 1 tirage. 0 piston."
 - "Pas charité. Pas pitié. Reconnaissance."
 - "Le 30 à 18h. Peut-être toi."
@@ -966,7 +966,7 @@ Variante :
 - **Langue brute, terrain** : phrases courtes, mots simples, rythme oral
 - **Concret > abstrait** : noms propres, quartiers, métiers, FCFA, étoiles, chiffres précis
 - **Pas hype startup** : on parle à des pros sérieux, pas à des startuppers parisiens
-- **Posture WOLO** : on regarde, on mesure, on paye. On ne sauve personne. On reconnaît.
+- **Posture WOZALI** : on regarde, on mesure, on paye. On ne sauve personne. On reconnaît.
 - **Empathie sans pitié** : on connaît les douleurs, on n'en fait pas du drame
 
 ### 9.5 Personnages canoniques (à réutiliser dans tous contenus)
@@ -987,7 +987,7 @@ Variante :
 - **300 000 FCFA** (pas "300K", pas "trois cent mille" sauf TikTok parlé)
 - **2 500 FCFA / mois** pour le Plan Pro
 - **9 critères** d'éligibilité (pas "plusieurs", pas "quelques")
-- **Score WOLO ≥ 80/100**
+- **Score WOZALI ≥ 80/100**
 - **Note moyenne ≥ 4.2★**
 - **3 avis sur 30 jours minimum**
 - **14 jours d'activité maximum**
@@ -1011,7 +1011,7 @@ Variante :
 
 | Programme | Cible | Mécanique | Limite |
 |---|---|---|---|
-| **Bourse de Croissance WOLO** | Pros AOC sérieux | Tirage aléatoire algorithmique mensuel parmi éligibles | Aucune — c'est le filet |
+| **Bourse de Croissance WOZALI** | Pros AOC sérieux | Tirage aléatoire algorithmique mensuel parmi éligibles | Aucune — c'est le filet |
 | Concours classique TV/Radio | Visibilité médiatique | Jury + votes publics | Favoritisme, popularité prime sur mérite |
 | Microcrédit (Cofina, FCFA) | Pros bancables | Crédit avec intérêts + garantie | Endette, sélectif, lent |
 | Wave Cadeaux (CI) | Marchands actifs | Cartes à gratter à transactions cumulées | Petits gains, pas transformateur |

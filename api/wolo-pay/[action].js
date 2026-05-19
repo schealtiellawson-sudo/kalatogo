@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Market — Router API unique (consolide tous les endpoints)
+// WOZALI — Router API unique (consolide tous les endpoints)
 // Vercel route: /api/wolo-pay/<action>  →  req.query.action
 // ================================================================
 import { requireAuth, verifyAuth } from '../_lib/auth.js';

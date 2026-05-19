@@ -1,5 +1,5 @@
 -- ================================================================
--- WOLO Market — Fix trigger auth : "Database error saving new user"
+-- WOZALI — Fix trigger auth : "Database error saving new user"
 -- Date : 2026-04-30
 -- Cause : handle_new_auth_user() plante si profiles/wolo_credit/
 --         abonnements n'existent pas ou ont une contrainte qui echoue.
@@ -62,7 +62,7 @@ BEGIN
     NULL; -- ne pas bloquer l'inscription
   END;
 
-  -- Credit WOLO (depend de profiles)
+  -- Credit WOZALI (depend de profiles)
   BEGIN
     INSERT INTO public.wolo_credit (user_id)
     VALUES (NEW.id)

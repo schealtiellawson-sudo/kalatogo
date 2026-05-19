@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     for (const c of candidates) {
       // Profil complet
       if (!c.photo_profil || !c.metier_principal || !(c.quartier || c.ville) || !(c.numero || c.whatsapp)) continue;
-      // Score WOLO ≥ 80
+      // Score WOZALI ≥ 80
       if ((Number(c.score_wolo) || 0) < 80) continue;
 
       // Avis ≥ 3 sur 30j + note ≥ 4.2
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
         const newNotif = {
           type: 'bourse_gagnant',
           titre: 'Tu remportes la Bourse de Croissance !',
-          message: `${moisStr} : 300 000 FCFA. Pas le plus connu. Le plus sérieux. WOLO Market te contacte sous 48h.`,
+          message: `${moisStr} : 300 000 FCFA. Pas le plus connu. Le plus sérieux. WOZALI te contacte sous 48h.`,
           date: now.toISOString(),
           lue: false,
         };

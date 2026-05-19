@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO AI Helper — client frontend pour /api/wolo-pay/ai-query
+// WOZALI AI Helper — client frontend pour /api/wolo-pay/ai-query
 // Expose : window.woloAi.query(task, input, plan) + helpers UI
 // Pattern IIFE comme les autres composants.
 // ================================================================
@@ -38,17 +38,17 @@
       document.body.appendChild(overlay);
     }
     overlay.innerHTML = `
-      <div style="background:#0f1410;border:1px solid rgba(232,148,10,.3);border-radius:16px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;">
+      <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
           <div>
-            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">Agent IA WOLO</div>
-            <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#F8F6F1;margin:0;">${title}</h3>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">Agent IA WOZALI</div>
+            <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#FCE0A8;margin:0;">${title}</h3>
           </div>
-          <button onclick="document.getElementById('wolo-ai-modal').remove()" style="background:none;border:none;color:rgba(248,246,241,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button onclick="document.getElementById('wolo-ai-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
-        <div id="wolo-ai-modal-body" style="font-family:Poppins,sans-serif;font-size:14px;color:#F8F6F1;line-height:1.6;">
+        <div id="wolo-ai-modal-body" style="font-family:Poppins,sans-serif;font-size:14px;color:#FCE0A8;line-height:1.6;">
           ${loading
-            ? '<div style="text-align:center;padding:40px 0;"><div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(232,148,10,.2);border-top-color:#E8940A;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="margin-top:12px;color:rgba(248,246,241,.5);font-size:12px;">Analyse en cours…</div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>'
+            ? '<div style="text-align:center;padding:40px 0;"><div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(232,148,10,.2);border-top-color:#E8940A;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="margin-top:12px;color:rgba(252, 224, 168,.5);font-size:12px;">Analyse en cours…</div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>'
             : content}
         </div>
         ${footer ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);">${footer}</div>` : ''}
@@ -87,7 +87,7 @@ Description: ${o['Description'] || ''}
 CANDIDAT:
 Nom: ${c['Candidat Nom'] || ''}
 Métier: ${c['Candidat Métier'] || ''}
-Score WOLO: ${c['Candidat Score WOLO'] || 0}/100
+Score WOZALI: ${c['Candidat Score WOZALI'] || 0}/100
 Message: ${c['Message'] || ''}`;
   }
 
@@ -143,7 +143,7 @@ Message: ${c['Message'] || ''}`;
       fields: {
         'Candidat Nom':         prestataire.fields['Nom complet'] || '',
         'Candidat Métier':      prestataire.fields['Métier principal'] || '',
-        'Candidat Score WOLO':  prestataire.fields['Score WOLO'] || 0,
+        'Candidat Score WOZALI':  prestataire.fields['Score WOZALI'] || 0,
         'Message':              prestataire.fields['Description des services'] || '',
       },
     };
@@ -159,28 +159,28 @@ Message: ${c['Message'] || ''}`;
     const color = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : '#f87171';
     const html = `
       <div style="text-align:center;margin-bottom:20px;">
-        <div style="font-family:'Space Mono',monospace;font-size:56px;font-weight:900;color:${color};line-height:1;">${score}</div>
-        <div style="font-size:11px;color:rgba(248,246,241,.4);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Score IA / 100</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:56px;font-weight:900;color:${color};line-height:1;">${score}</div>
+        <div style="font-size:11px;color:rgba(252, 224, 168,.4);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Score IA / 100</div>
       </div>
       <div style="margin-bottom:16px;padding:14px;background:rgba(255,255,255,.04);border-radius:10px;">
-        <div style="font-size:12px;color:rgba(248,246,241,.5);margin-bottom:6px;">Analyse</div>
+        <div style="font-size:12px;color:rgba(252, 224, 168,.5);margin-bottom:6px;">Analyse</div>
         <div>${r?.justification || '—'}</div>
       </div>
       ${Array.isArray(r?.forces) && r.forces.length ? `
         <div style="margin-bottom:12px;">
           <div style="font-size:12px;color:#22c55e;margin-bottom:6px;font-weight:700;">✓ Forces</div>
-          <ul style="margin:0;padding-left:20px;color:rgba(248,246,241,.8);">
+          <ul style="margin:0;padding-left:20px;color:rgba(252, 224, 168,.8);">
             ${r.forces.map(f => `<li style="margin-bottom:4px;">${f}</li>`).join('')}
           </ul>
         </div>` : ''}
       ${Array.isArray(r?.reserves) && r.reserves.length ? `
         <div style="margin-bottom:8px;">
           <div style="font-size:12px;color:#f87171;margin-bottom:6px;font-weight:700;">⚠ Réserves</div>
-          <ul style="margin:0;padding-left:20px;color:rgba(248,246,241,.8);">
+          <ul style="margin:0;padding-left:20px;color:rgba(252, 224, 168,.8);">
             ${r.reserves.map(f => `<li style="margin-bottom:4px;">${f}</li>`).join('')}
           </ul>
         </div>` : ''}
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(248,246,241,.35);font-family:'Space Mono',monospace;">
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(252, 224, 168,.35);font-family:'Geist Mono',monospace;">
         ${meta?.cached ? '⚡ cache' : `⚙ ${meta?.provider || '—'}`} · ${meta?.quota?.used || 0}/${meta?.quota?.limit || '—'} req/j
       </div>
     `;
@@ -198,15 +198,15 @@ Message: ${c['Message'] || ''}`;
       const improved = typeof result === 'string' ? result : JSON.stringify(result);
       const id = 'ai-cv-result-' + Date.now();
       updateAiModalBody(`
-        <div style="font-size:12px;color:rgba(248,246,241,.5);margin-bottom:8px;">Original</div>
-        <div style="padding:12px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:14px;font-size:13px;color:rgba(248,246,241,.6);">${escapeHtml(sectionText)}</div>
+        <div style="font-size:12px;color:rgba(252, 224, 168,.5);margin-bottom:8px;">Original</div>
+        <div style="padding:12px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:14px;font-size:13px;color:rgba(252, 224, 168,.6);">${escapeHtml(sectionText)}</div>
         <div style="font-size:12px;color:#E8940A;margin-bottom:8px;font-weight:700;">✨ Proposition IA</div>
         <div id="${id}" style="padding:14px;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.25);border-radius:10px;">${escapeHtml(improved)}</div>
         <div style="display:flex;gap:8px;margin-top:16px;">
-          <button id="ai-apply-btn" style="flex:1;padding:10px;border-radius:10px;background:#E8940A;color:#0f1410;font-weight:700;border:none;cursor:pointer;">Appliquer</button>
-          <button onclick="document.getElementById('wolo-ai-modal').remove()" style="flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);color:#F8F6F1;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Garder l'original</button>
+          <button id="ai-apply-btn" style="flex:1;padding:10px;border-radius:10px;background:#E8940A;color:#14100A;font-weight:700;border:none;cursor:pointer;">Appliquer</button>
+          <button onclick="document.getElementById('wolo-ai-modal').remove()" style="flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Garder l'original</button>
         </div>
-        <div style="margin-top:14px;font-size:11px;color:rgba(248,246,241,.35);font-family:'Space Mono',monospace;">⚙ ${provider} · ${quota?.used || 0}/${quota?.limit || '—'} req/j</div>
+        <div style="margin-top:14px;font-size:11px;color:rgba(252, 224, 168,.35);font-family:'Geist Mono',monospace;">⚙ ${provider} · ${quota?.used || 0}/${quota?.limit || '—'} req/j</div>
       `);
       const btn = document.getElementById('ai-apply-btn');
       if (btn && typeof onApply === 'function') {
@@ -233,16 +233,16 @@ Description: ${offre.fields?.['Description'] || ''}`;
       const html = questions.length
         ? questions.map((q, i) => `
             <div style="margin-bottom:16px;padding:14px;background:rgba(255,255,255,.04);border-radius:10px;border-left:3px solid #E8940A;">
-              <div style="font-size:11px;color:#E8940A;margin-bottom:6px;font-family:'Space Mono',monospace;">Q${i + 1}</div>
+              <div style="font-size:11px;color:#E8940A;margin-bottom:6px;font-family:'Geist Mono',monospace;">Q${i + 1}</div>
               <div style="font-weight:600;margin-bottom:8px;">${escapeHtml(q.q)}</div>
-              <ul style="margin:0;padding-left:18px;color:rgba(248,246,241,.7);font-size:13px;">
+              <ul style="margin:0;padding-left:18px;color:rgba(252, 224, 168,.7);font-size:13px;">
                 ${(q.tips || []).map(t => `<li style="margin-bottom:3px;">${escapeHtml(t)}</li>`).join('')}
               </ul>
             </div>
           `).join('')
-        : '<div style="color:rgba(248,246,241,.5);text-align:center;padding:20px;">Aucune question générée.</div>';
+        : '<div style="color:rgba(252, 224, 168,.5);text-align:center;padding:20px;">Aucune question générée.</div>';
       updateAiModalBody(html + `
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(248,246,241,.35);font-family:'Space Mono',monospace;">
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(252, 224, 168,.35);font-family:'Geist Mono',monospace;">
           ${cached ? '⚡ cache' : `⚙ ${provider}`} · ${quota?.used || 0}/${quota?.limit || '—'} req/j
         </div>
       `);
@@ -271,14 +271,14 @@ Description: ${offreFields['Description'] || ''}`;
       const color = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : '#f87171';
       const html = `
         <div style="text-align:center;margin-bottom:20px;">
-          <div style="font-family:'Space Mono',monospace;font-size:48px;font-weight:900;color:${color};line-height:1;">${score}/100</div>
-          <div style="font-size:11px;color:rgba(248,246,241,.4);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Qualité annonce</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:48px;font-weight:900;color:${color};line-height:1;">${score}/100</div>
+          <div style="font-size:11px;color:rgba(252, 224, 168,.4);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Qualité annonce</div>
         </div>
         ${listBlock('✓ Points forts', result?.points_forts, '#22c55e')}
         ${listBlock('⚠ Manques', result?.manques, '#E8940A')}
         ${listBlock('🚨 Risques arnaque', result?.risques_arnaque, '#f87171')}
         ${listBlock('💡 Suggestions', result?.suggestions, '#60a5fa')}
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(248,246,241,.35);font-family:'Space Mono',monospace;">
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(252, 224, 168,.35);font-family:'Geist Mono',monospace;">
           ${cached ? '⚡ cache' : `⚙ ${provider}`} · ${quota?.used || 0}/${quota?.limit || '—'} req/j
         </div>
       `;
@@ -293,7 +293,7 @@ Description: ${offreFields['Description'] || ''}`;
     return `
       <div style="margin-bottom:12px;">
         <div style="font-size:12px;color:${color};margin-bottom:6px;font-weight:700;">${title}</div>
-        <ul style="margin:0;padding-left:20px;color:rgba(248,246,241,.8);font-size:13px;">
+        <ul style="margin:0;padding-left:20px;color:rgba(252, 224, 168,.8);font-size:13px;">
           ${items.map(it => `<li style="margin-bottom:3px;">${escapeHtml(it)}</li>`).join('')}
         </ul>
       </div>
@@ -315,7 +315,7 @@ Description: ${offreFields['Description'] || ''}`;
     updateAiModalBody(`
       <div style="padding:18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#f87171;font-size:13px;">${msg}</div>
       <div style="margin-top:14px;text-align:center;">
-        <button onclick="document.getElementById('wolo-ai-modal').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,.06);color:#F8F6F1;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Fermer</button>
+        <button onclick="document.getElementById('wolo-ai-modal').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Fermer</button>
       </div>
     `);
   }

@@ -42,7 +42,7 @@ async function pushInbox(userId, templateKey, content) {
     template_key: templateKey,
     title: inferTitle(templateKey, content),
     body: content,
-    from: 'Schealtiel · Fondateur WOLO Market',
+    from: 'Schealtiel · Fondateur WOZALI',
     created_at: new Date().toISOString(),
     read: false,
   };
@@ -58,18 +58,18 @@ async function sendEmailResend(toEmail, subject, content) {
 <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
     <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#0f1410;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;">S</div>
-    <div><div style="font-weight:700;font-size:15px;">Schealtiel</div><div style="font-size:12px;opacity:0.6;">Fondateur · WOLO Market</div></div>
+    <div><div style="font-weight:700;font-size:15px;">Schealtiel</div><div style="font-size:12px;opacity:0.6;">Fondateur · WOZALI</div></div>
   </div>
   <div style="font-size:15px;line-height:1.7;opacity:0.85;white-space:pre-line;">${(content||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
   <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(232,148,10,0.2);font-size:12px;opacity:0.5;">
-    <a href="https://wolomarket.com/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a>
+    <a href="https://wozali.com/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a>
   </div>
 </div></body></html>`;
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: 'Schealtiel <schealtiel@wolomarket.com>', to: [toEmail], subject, html }),
+      body: JSON.stringify({ from: 'Schealtiel <schealtiel@wozali.com>', to: [toEmail], subject, html }),
     });
     return r.ok;
   } catch (_) { return false; }
@@ -131,11 +131,11 @@ export default async function handler(req, res) {
     const firstTpl = templates.find(t => t.delay_hours === 0);
     if (firstTpl) {
       const finalContent = substitute(firstTpl.content, {
-        url_dashboard: 'https://wolomarket.com/#dashboard',
-        url_awards: 'https://wolomarket.com/#awards',
-        url_recompenses: 'https://wolomarket.com/#recompenses',
-        url_parrainage: 'https://wolomarket.com/#dashboard',
-        url_profil: 'https://wolomarket.com/#dashboard',
+        url_dashboard: 'https://wozali.com/#dashboard',
+        url_awards: 'https://wozali.com/#awards',
+        url_recompenses: 'https://wozali.com/#recompenses',
+        url_parrainage: 'https://wozali.com/#dashboard',
+        url_profil: 'https://wozali.com/#dashboard',
         prenom: payload.prenom || 'sœur',
         ...payload,
       });

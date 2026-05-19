@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════
-// WOLO Business Suite — Module 1 : Équipe & Invitation
+// WOZALI Business Suite — Module 1 : Équipe & Invitation
 // Table Airtable : Employes + Invitations_Employes
 // ══════════════════════════════════════════
 
@@ -42,13 +42,13 @@
     const invPendantes = state.invitations.filter(i => i.fields?.['Statut'] === 'Envoyée').length;
 
     root.innerHTML = `
-      <div style="font-family:'Poppins',sans-serif;color:#F8F6F1;">
+      <div style="font-family:'Geist',sans-serif;color:#FCE0A8;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
           <div>
             <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin:0 0 4px;">Mon équipe</h1>
-            <p style="font-size:13px;color:rgba(248,246,241,.5);margin:0;">Gère tes employés. Invite, paye, communique — tout en un seul lieu.</p>
+            <p style="font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Gère tes employés. Invite, paye, communique — tout en un seul lieu.</p>
           </div>
-          <button onclick="openInviteEmployeModal()" style="background:#E8940A;color:#0f1410;border:none;padding:10px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">+ Inviter un employé</button>
+          <button onclick="openInviteEmployeModal()" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">+ Inviter un employé</button>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;">
@@ -66,8 +66,8 @@
 
   function kpiCard(label, val, color){
     return `<div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;text-align:center;">
-      <div style="font-family:'Space Mono',monospace;font-size:26px;font-weight:900;color:${color};line-height:1;">${val}</div>
-      <div style="font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">${label}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:${color};line-height:1;">${val}</div>
+      <div style="font-size:10px;color:rgba(252, 224, 168,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">${label}</div>
     </div>`;
   }
 
@@ -75,8 +75,8 @@
     return `<div style="background:rgba(232,148,10,.03);border:1px dashed rgba(232,148,10,.2);border-radius:14px;padding:40px 20px;text-align:center;">
       <div style="font-size:48px;margin-bottom:12px;opacity:.4;">👥</div>
       <h3 style="font-family:'Fraunces',serif;font-size:20px;margin:0 0 8px;">Pas encore d'équipe.</h3>
-      <p style="font-size:13px;color:rgba(248,246,241,.55);max-width:420px;margin:0 auto 20px;">Invite un premier employé. Il recevra un lien sur WhatsApp, créera son compte WOLO, et apparaîtra ici.</p>
-      <button onclick="openInviteEmployeModal()" style="background:#E8940A;color:#0f1410;border:none;padding:10px 24px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">+ Inviter mon premier employé</button>
+      <p style="font-size:13px;color:rgba(252, 224, 168,.55);max-width:420px;margin:0 auto 20px;">Invite un premier employé. Il recevra un lien sur WhatsApp, créera son compte WOZALI, et apparaîtra ici.</p>
+      <button onclick="openInviteEmployeModal()" style="background:#E8940A;color:#14100A;border:none;padding:10px 24px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">+ Inviter mon premier employé</button>
     </div>`;
   }
 
@@ -101,10 +101,10 @@
       <div style="width:48px;height:48px;border-radius:50%;background:${photo ? 'url('+photo+') center/cover' : 'rgba(232,148,10,.15)'};flex-shrink:0;"></div>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:14px;">${nom}</div>
-        <div style="font-size:12px;color:rgba(248,246,241,.55);">${poste}${salaire ? ' · ' + Number(salaire).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</div>
+        <div style="font-size:12px;color:rgba(252, 224, 168,.55);">${poste}${salaire ? ' · ' + Number(salaire).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</div>
       </div>
       <span style="background:rgba(34,197,94,.12);color:#22c55e;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;">${statut}</span>
-      <button onclick="openEmployeDetail('${emp.id}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">Détail</button>
+      <button onclick="openEmployeDetail('${emp.id}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">Détail</button>
     </div>`;
   }
 
@@ -117,10 +117,10 @@
           return `<div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:12px;display:flex;align-items:center;gap:14px;">
             <div style="flex:1;">
               <div style="font-weight:700;font-size:13px;">${f['Nom prévu'] || 'Employé'}</div>
-              <div style="font-size:11px;color:rgba(248,246,241,.5);">${f['WhatsApp'] || ''} · ${f['Poste prévu'] || '—'}</div>
+              <div style="font-size:11px;color:rgba(252, 224, 168,.5);">${f['WhatsApp'] || ''} · ${f['Poste prévu'] || '—'}</div>
             </div>
             <span style="font-size:10px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:.5px;">En attente</span>
-            <button onclick="resendInvitation('${i.id}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(59,130,246,.25);color:#F8F6F1;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">Relancer</button>
+            <button onclick="resendInvitation('${i.id}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(59,130,246,.25);color:#FCE0A8;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">Relancer</button>
           </div>`;
         }).join('')}
       </div>
@@ -128,11 +128,11 @@
   }
 
   function skeletonHTML(){
-    return `<div style="padding:40px;text-align:center;color:rgba(248,246,241,.4);font-family:'Poppins',sans-serif;">Chargement de ton équipe…</div>`;
+    return `<div style="padding:40px;text-align:center;color:rgba(252, 224, 168,.4);font-family:'Geist',sans-serif;">Chargement de ton équipe…</div>`;
   }
 
   function connectFirstHTML(){
-    return `<div style="padding:40px;text-align:center;color:rgba(248,246,241,.5);font-family:'Poppins',sans-serif;">
+    return `<div style="padding:40px;text-align:center;color:rgba(252, 224, 168,.5);font-family:'Geist',sans-serif;">
       <p>Connecte-toi pour voir ton équipe.</p>
     </div>`;
   }
@@ -143,30 +143,30 @@
     modal.id = 'invite-employe-modal';
     modal.innerHTML = `
       <div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)closeInviteEmployeModal()">
-        <div style="background:#0f1410;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:460px;width:100%;font-family:'Poppins',sans-serif;color:#F8F6F1;">
+        <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:460px;width:100%;font-family:'Geist',sans-serif;color:#FCE0A8;">
           <h2 style="font-family:'Fraunces',serif;font-size:22px;margin:0 0 6px;">Inviter un employé</h2>
-          <p style="font-size:12px;color:rgba(248,246,241,.55);margin:0 0 20px;">Il recevra un lien WhatsApp pour créer son compte WOLO et être relié à toi.</p>
+          <p style="font-size:12px;color:rgba(252, 224, 168,.55);margin:0 0 20px;">Il recevra un lien WhatsApp pour créer son compte WOZALI et être relié à toi.</p>
 
-          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">Nom complet</label>
-          <input id="inv-nom" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="Ex : Kossi Afedzi">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Nom complet</label>
+          <input id="inv-nom" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="Ex : Kossi Afedzi">
 
-          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">WhatsApp (format international)</label>
-          <input id="inv-wa" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="+228 9X XX XX XX">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">WhatsApp (format international)</label>
+          <input id="inv-wa" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="+228 9X XX XX XX">
 
-          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">Poste</label>
-          <input id="inv-poste" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="Ex : Couturière senior">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Poste</label>
+          <input id="inv-poste" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="Ex : Couturière senior">
 
-          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">Salaire mensuel (FCFA, optionnel)</label>
-          <input id="inv-salaire" type="number" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="50000">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Salaire mensuel (FCFA, optionnel)</label>
+          <input id="inv-salaire" type="number" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;" placeholder="50000">
 
-          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">IBAN / RIB (pour virement salaire)</label>
-          <input id="inv-iban" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:20px;font-family:inherit;font-family:'Space Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">IBAN / RIB (pour virement salaire)</label>
+          <input id="inv-iban" type="text" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:20px;font-family:inherit;font-family:'Geist Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
 
           <div style="display:flex;gap:10px;">
-            <button onclick="closeInviteEmployeModal()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(248,246,241,.15);color:#F8F6F1;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;">Annuler</button>
-            <button onclick="submitInviteEmploye()" style="flex:2;background:#E8940A;border:none;color:#0f1410;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Envoyer l'invitation WhatsApp</button>
+            <button onclick="closeInviteEmployeModal()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(252, 224, 168,.15);color:#FCE0A8;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;">Annuler</button>
+            <button onclick="submitInviteEmploye()" style="flex:2;background:#E8940A;border:none;color:#14100A;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Envoyer l'invitation WhatsApp</button>
           </div>
-          <div id="inv-status" style="font-size:11px;color:rgba(248,246,241,.55);margin-top:10px;text-align:center;"></div>
+          <div id="inv-status" style="font-size:11px;color:rgba(252, 224, 168,.55);margin-top:10px;text-align:center;"></div>
         </div>
       </div>
     `;
@@ -211,7 +211,7 @@
       const inviteUrl = window.location.origin + '/invite.html?token=' + data.token;
       const message = encodeURIComponent(
         `Bonjour ${nom}, c'est ${patronNom}.\n\n` +
-        `Je t'invite à rejoindre mon équipe sur WOLO Market comme ${poste}.\n` +
+        `Je t'invite à rejoindre mon équipe sur WOZALI comme ${poste}.\n` +
         `Clique pour créer ton compte (2 minutes) :\n${inviteUrl}\n\n` +
         `À très vite !`
       );
@@ -232,7 +232,7 @@
     if (!token) return alert('Token manquant pour cette invitation.');
     const inviteUrl = window.location.origin + '/invite.html?token=' + token;
     const message = encodeURIComponent(
-      `Bonjour ${f['Nom prévu']}, je relance mon invitation WOLO Market.\n\n` +
+      `Bonjour ${f['Nom prévu']}, je relance mon invitation WOZALI.\n\n` +
       `Ton lien :\n${inviteUrl}\n\n` +
       `Merci !`
     );
@@ -248,26 +248,26 @@
     modal.id = 'employe-detail-modal';
     modal.innerHTML = `
       <div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)document.getElementById('employe-detail-modal')?.remove()">
-        <div style="background:#0f1410;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:460px;width:100%;font-family:'Poppins',sans-serif;color:#F8F6F1;">
+        <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:460px;width:100%;font-family:'Geist',sans-serif;color:#FCE0A8;">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
             <div style="width:56px;height:56px;border-radius:50%;background:${f['Photo'] ? 'url('+f['Photo']+') center/cover' : 'rgba(232,148,10,.15)'};flex-shrink:0;"></div>
             <div>
               <h2 style="font-family:'Fraunces',serif;font-size:20px;margin:0;">${f['Nom complet'] || 'Employé'}</h2>
-              <p style="font-size:12px;color:rgba(248,246,241,.5);margin:2px 0 0;">${f['Poste'] || '—'}${f['Salaire FCFA'] ? ' · ' + Number(f['Salaire FCFA']).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</p>
+              <p style="font-size:12px;color:rgba(252, 224, 168,.5);margin:2px 0 0;">${f['Poste'] || '—'}${f['Salaire FCFA'] ? ' · ' + Number(f['Salaire FCFA']).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</p>
             </div>
           </div>
 
-          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">IBAN / RIB</label>
-          <input id="emp-iban" type="text" value="${f['IBAN'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:14px;font-family:'Space Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">IBAN / RIB</label>
+          <input id="emp-iban" type="text" value="${f['IBAN'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:'Geist Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
 
-          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(248,246,241,.5);">Salaire mensuel (FCFA)</label>
-          <input id="emp-salaire" type="number" value="${f['Salaire FCFA'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#F8F6F1;margin-top:6px;margin-bottom:20px;font-family:inherit;" placeholder="50000">
+          <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Salaire mensuel (FCFA)</label>
+          <input id="emp-salaire" type="number" value="${f['Salaire FCFA'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:20px;font-family:inherit;" placeholder="50000">
 
           <div style="display:flex;gap:10px;">
-            <button onclick="document.getElementById('employe-detail-modal')?.remove()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(248,246,241,.15);color:#F8F6F1;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;">Fermer</button>
-            <button onclick="saveEmployeDetail('${empId}')" style="flex:2;background:#E8940A;border:none;color:#0f1410;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Enregistrer</button>
+            <button onclick="document.getElementById('employe-detail-modal')?.remove()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(252, 224, 168,.15);color:#FCE0A8;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;">Fermer</button>
+            <button onclick="saveEmployeDetail('${empId}')" style="flex:2;background:#E8940A;border:none;color:#14100A;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Enregistrer</button>
           </div>
-          <div id="emp-detail-status" style="font-size:11px;color:rgba(248,246,241,.55);margin-top:10px;text-align:center;"></div>
+          <div id="emp-detail-status" style="font-size:11px;color:rgba(252, 224, 168,.55);margin-top:10px;text-align:center;"></div>
         </div>
       </div>
     `;

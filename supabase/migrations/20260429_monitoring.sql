@@ -1,5 +1,5 @@
 -- ================================================================
--- WOLO Market — Monitoring & Alerting
+-- WOZALI — Monitoring & Alerting
 -- Date : 2026-04-29
 -- Objectif : Capturer les erreurs frontend / backend / cron pour ne pas
 --            voler à l''aveugle après le lancement du début juillet 2026.

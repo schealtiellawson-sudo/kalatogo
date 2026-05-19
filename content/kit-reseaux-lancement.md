@@ -1,13 +1,13 @@
 <!--
-RÈGLE ABSOLUE WOLO MARKET — NE JAMAIS VIOLER
+RÈGLE ABSOLUE WOZALI MARKET — NE JAMAIS VIOLER
 Aucune référence directe ou indirecte à des institutions publiques ou programmes d'État.
-WOLO Market est une solution privée. Copywriting centré sur la douleur du marché et la solution WOLO uniquement.
+WOZALI Market est une solution privée. Copywriting centré sur la douleur du marché et la solution WOZALI uniquement.
 -->
 
-# Kit Réseaux — Lancement WOLO Market Mai 2026
+# Kit Réseaux — Lancement WOZALI Market Mai 2026
 
 Palette : Or #E8940A · Noir #0f1410 · Crème #F8F6F1 · Zéro vert.
-Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #TalentAfricain
+Hashtags : #WOZALIMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOZALI #TalentAfricain
 
 ---
 
@@ -19,7 +19,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 
 **Légende :**
 
-> WOLO Market est en ligne.
+> WOZALI Market est en ligne.
 >
 > Chaque mois, nous distribuons **400 000 FCFA** à nos membres :
 >
@@ -32,11 +32,11 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 >
 > 👉 wolomarket.com
 >
-> #WOLOMarket #MurDesReines #ReineWOLO #BeninTogo
+> #WOZALIMarket #MurDesReines #ReineWOZALI #BeninTogo
 
 ### WhatsApp Status / Broadcast — Annonce
 
-> 🚀 WOLO Market est lancé.
+> 🚀 WOZALI Market est lancé.
 >
 > 400 000 FCFA distribués chaque mois.
 >
@@ -62,7 +62,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 >
 > On ne te demande pas de croire. On te demande de calculer.
 >
-> #WOLOMarket #JeRejoinsEnPro
+> #WOZALIMarket #JeRejoinsEnPro
 
 ### Post 2 — Bourse des Mains d'Or teaser
 
@@ -70,14 +70,14 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 > Ta mère t'a appris à coudre.
 > Maintenant, le monde regarde.
 >
-> **La Bourse des Mains d'Or** sur WOLO Market.
+> **La Bourse des Mains d'Or** sur WOZALI Market.
 > Poste ta photo. La communauté vote. 50 000 FCFA par catégorie.
 >
 > Pas besoin d'être pro. C'est culturel. C'est africain. C'est toi.
 >
 > 👉 wolomarket.com/awards
 >
-> #MurDesReines #ReineWOLO #TalentAfricain
+> #MurDesReines #ReineWOZALI #TalentAfricain
 
 ### Post 3 — Témoignage type
 
@@ -116,7 +116,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 >
 > 👉 wolomarket.com/awards
 >
-> #MurDesReines #ReineWOLO #TalentAfricain
+> #MurDesReines #ReineWOZALI #TalentAfricain
 
 ### Post Instagram Or — Mode Découvrir
 
@@ -130,11 +130,11 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 > Vote dans les duels Quartier vs Quartier.
 > La Roulette te montre une photo au hasard — tu votes ou tu passes.
 >
-> C'est gratuit. C'est addictif. C'est sur WOLO Market.
+> C'est gratuit. C'est addictif. C'est sur WOZALI Market.
 >
 > 👉 wolomarket.com/awards
 >
-> #MurDesReines #ReineWOLO
+> #MurDesReines #ReineWOZALI
 
 ### Story Instagram / TikTok — Streak & Badges
 
@@ -147,11 +147,11 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 > 🔥 Jour 7 → ×3
 >
 > Plus tu postes, plus tes photos sont vues.
-> Débloquer les 16 badges WOLO = devenir Légende.
+> Débloquer les 16 badges WOZALI = devenir Légende.
 >
 > 👑 Légende = 5 victoires + 30 jours de streak
 >
-> #MurDesReines #StreakWOLO
+> #MurDesReines #StreakWOZALI
 
 ### Carousel Instagram (5 slides) — Storytelling
 
@@ -168,7 +168,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 ### Kit hashtag viral
 
 **Hashtag principal :** #MurDesReines
-**Hashtags secondaires :** #ReineWOLO #TalentAfricain #MaGrandMèreMaAppris #CoiffureAfricaine #CoutureAfricaine #WOLOMarket
+**Hashtags secondaires :** #ReineWOZALI #TalentAfricain #MaGrandMèreMaAppris #CoiffureAfricaine #CoutureAfricaine #WOZALIMarket
 
 **Instructions pour les femmes :**
 1. Filme-toi en train de tresser ou de coudre (ou montre le résultat final)
@@ -185,17 +185,17 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook (3 sec) :** "Au Togo et au Bénin, quasiment TOUTES les femmes savent tresser ou coudre. Mais personne ne les voit."
 **Corps :** "Depuis petite, ta grand-mère t'a mis les mains dans les cheveux. Ta mère t'a montré comment couper le tissu. Tu sais faire ça depuis toujours. Mais y'a pas d'endroit pour le montrer. Pas de réseau, pas de piston, pas de salon chic. La Bourse des Mains d'Or c'est ça : un mur où TOUTES les femmes postent leur plus belle coiffure ou tenue. La communauté vote. 50 000 FCFA pour la Reine Coiffure. 50 000 FCFA pour la Reine Couture. Chaque mois."
 **CTA :** "Lien en bio. Poste ta photo. #MurDesReines"
-**Caption :** Ta grand-mère t'a appris. Ta mère t'a appris. Maintenant montre au monde. #MurDesReines #ReineWOLO #TalentAfricain
-**Hashtags :** #MurDesReines #ReineWOLO #TalentAfricain #CoiffureAfricaine #CoutureAfricaine #WOLOMarket
+**Caption :** Ta grand-mère t'a appris. Ta mère t'a appris. Maintenant montre au monde. #MurDesReines #ReineWOZALI #TalentAfricain
+**Hashtags :** #MurDesReines #ReineWOZALI #TalentAfricain #CoiffureAfricaine #CoutureAfricaine #WOZALIMarket
 
 ### REINE02 — Hook : "50 000 FCFA pour la meilleure tresse du mois"
 
 **Format :** Reel 45s
 **Hook :** "50 000 FCFA. Juste pour avoir posté une photo de tresse. Chaque mois."
-**Corps :** "La Bourse des Mains d'Or sur WOLO Market. Tu postes ta photo — ta plus belle tresse, ta plus belle tenue. Les gens votent. Ton quartier te soutient. Ta famille partage. 2 gagnantes par mois. Coiffure et Couture. 50K chacune."
+**Corps :** "La Bourse des Mains d'Or sur WOZALI Market. Tu postes ta photo — ta plus belle tresse, ta plus belle tenue. Les gens votent. Ton quartier te soutient. Ta famille partage. 2 gagnantes par mois. Coiffure et Couture. 50K chacune."
 **CTA :** "C'est sur wolomarket.com. Lien en bio."
-**Caption :** 50K pour ta tresse. 50K pour ta couture. Chaque mois. #MurDesReines #ReineWOLO
-**Hashtags :** #MurDesReines #ReineWOLO #50KFCFA #TalentAfricain
+**Caption :** 50K pour ta tresse. 50K pour ta couture. Chaque mois. #MurDesReines #ReineWOZALI
+**Hashtags :** #MurDesReines #ReineWOZALI #50KFCFA #TalentAfricain
 
 ### REINE03 — Hook : "Les Nana Benz ont commencé comme toi"
 
@@ -203,17 +203,17 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook :** "Les Nana Benz du Togo. Elles ont bâti des empires avec du wax. Elles conduisaient des Mercedes quand les hommes prenaient le taxi."
 **Corps :** "Elles n'avaient pas de diplôme. Pas de réseau. Juste leurs mains et leur sens du business. Au Bénin, le Kanvô — le tissu labellisé par l'État — c'est la fierté nationale. Ce talent, il est dans ton ADN. La Bourse des Mains d'Or, c'est l'espace où tu le montres au monde. Poste ta photo. Coiffure ou couture. La communauté vote. 50 000 FCFA par catégorie."
 **CTA :** "Tu es la prochaine Nana Benz. wolomarket.com. #MurDesReines"
-**Caption :** Les Nana Benz ont commencé avec leurs mains. Toi aussi. #MurDesReines #NanaBenz #ReineWOLO
-**Hashtags :** #MurDesReines #ReineWOLO #NanaBenz #TalentAfricain #WaxAfrique
+**Caption :** Les Nana Benz ont commencé avec leurs mains. Toi aussi. #MurDesReines #NanaBenz #ReineWOZALI
+**Hashtags :** #MurDesReines #ReineWOZALI #NanaBenz #TalentAfricain #WaxAfrique
 
 ### REINE04 — Hook : "Mode Découvrir — tu vas devenir accro"
 
 **Format :** Reel 30s (screen recording style)
-**Hook :** "Il y a un mode sur WOLO Market dont personne ne parle encore."
+**Hook :** "Il y a un mode sur WOZALI Market dont personne ne parle encore."
 **Corps :** "Mode Découvrir. 3 options : Swipe — tu découvres les photos une par une et tu votes. Duel — 2 photos face à face, tu choisis. Roulette — une photo au hasard, tu votes ou tu passes. C'est gratuit. C'est addictif. Et tu fais gagner les femmes de ton quartier."
 **CTA :** "wolomarket.com/awards. Essaye le Mode Découvrir."
-**Caption :** Swipe. Duel. Roulette. Le Mode Découvrir du Bourse des Mains d'Or. #MurDesReines #ReineWOLO
-**Hashtags :** #MurDesReines #ReineWOLO #ModeDecouvrir #WOLOMarket
+**Caption :** Swipe. Duel. Roulette. Le Mode Découvrir du Bourse des Mains d'Or. #MurDesReines #ReineWOZALI
+**Hashtags :** #MurDesReines #ReineWOZALI #ModeDecouvrir #WOZALIMarket
 
 ### REINE05 — Hook : "Challenge : Montre-moi ce que ta mère t'a appris"
 
@@ -221,8 +221,8 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook :** "Challenge #MaGrandMèreMaAppris"
 **Corps :** "Montre ce que ta mère ou ta grand-mère t'a appris. Tresses, couture, pagne, tout compte. Filme le résultat. Poste-le sur La Bourse des Mains d'Or. Tague 3 amies. La plus votée gagne 50 000 FCFA."
 **CTA :** "Commence maintenant. Tague 3 sœurs."
-**Caption :** Ma grand-mère m'a appris à tresser à 6 ans. Et toi ? Montre-nous. #MaGrandMèreMaAppris #MurDesReines #ReineWOLO
-**Hashtags :** #MaGrandMèreMaAppris #MurDesReines #ReineWOLO #TalentAfricain #Challenge
+**Caption :** Ma grand-mère m'a appris à tresser à 6 ans. Et toi ? Montre-nous. #MaGrandMèreMaAppris #MurDesReines #ReineWOZALI
+**Hashtags :** #MaGrandMèreMaAppris #MurDesReines #ReineWOZALI #TalentAfricain #Challenge
 
 ### REINE06 — Hook : "Quartier vs Quartier — qui a les meilleures tresseuses ?"
 
@@ -230,8 +230,8 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook :** "Tokoin vs Bè. Dantokpa vs Ganhi. Quel quartier a les meilleures tresseuses ?"
 **Corps :** "Sur La Bourse des Mains d'Or, chaque semaine c'est un duel de quartiers. Les femmes d'un quartier postent. Les femmes de l'autre postent. La communauté vote. C'est la fierté du quartier qui est en jeu. Ton quartier compte sur toi."
 **CTA :** "Représente ton quartier. wolomarket.com/awards"
-**Caption :** Ton quartier a besoin de toi. Poste ta photo et représente. #MurDesReines #QuartierVsQuartier #ReineWOLO
-**Hashtags :** #MurDesReines #QuartierVsQuartier #ReineWOLO #Lomé #Cotonou
+**Caption :** Ton quartier a besoin de toi. Poste ta photo et représente. #MurDesReines #QuartierVsQuartier #ReineWOZALI
+**Hashtags :** #MurDesReines #QuartierVsQuartier #ReineWOZALI #Lomé #Cotonou
 
 ### REINE07 — Hook : "Elle a gagné 50 000 FCFA avec une photo de tresse"
 
@@ -239,8 +239,8 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook :** "Elle a posté une photo de tresse. 3 semaines plus tard, 50 000 FCFA sur son TMoney."
 **Corps :** "[Prénom], [quartier], [ville]. Elle tresse depuis qu'elle a 8 ans. Sa mère lui a appris. Sa grand-mère avant. Un jour elle a posté sa plus belle tresse sur La Bourse des Mains d'Or. Son quartier a voté. Ses amies ont partagé sur WhatsApp. À la fin du mois : Reine Coiffure. 50 000 FCFA."
 **CTA :** "La prochaine Reine, c'est peut-être toi. wolomarket.com"
-**Caption :** De ses mains à 50 000 FCFA. La Bourse des Mains d'Or, c'est réel. #MurDesReines #ReineWOLO #50KFCFA
-**Hashtags :** #MurDesReines #ReineWOLO #50KFCFA #TalentAfricain
+**Caption :** De ses mains à 50 000 FCFA. La Bourse des Mains d'Or, c'est réel. #MurDesReines #ReineWOZALI #50KFCFA
+**Hashtags :** #MurDesReines #ReineWOZALI #50KFCFA #TalentAfricain
 
 ### REINE08 — Hook : "16 badges à débloquer"
 
@@ -248,17 +248,17 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook :** "Il y a 16 badges secrets sur La Bourse des Mains d'Or."
 **Corps :** "Première Photo. 100 likes. Série Rouge 7 jours. Virale 100 partages. Mentor. Ambassadrice. Reine. Légende. Chaque badge te donne un niveau. Plus ton niveau est haut, plus tes photos sont vues. Le badge Légende = 5 victoires + 30 jours de streak. Personne ne l'a encore."
 **CTA :** "Sois la première Légende. wolomarket.com/awards"
-**Caption :** 16 badges. 5 niveaux. 1 Légende. Qui sera la première ? #MurDesReines #BadgesWOLO #ReineWOLO
-**Hashtags :** #MurDesReines #BadgesWOLO #ReineWOLO #Gamification
+**Caption :** 16 badges. 5 niveaux. 1 Légende. Qui sera la première ? #MurDesReines #BadgesWOZALI #ReineWOZALI
+**Hashtags :** #MurDesReines #BadgesWOZALI #ReineWOZALI #Gamification
 
 ### REINE09 — Hook : "Boost ta photo pour 500 FCFA"
 
 **Format :** Reel 30s
 **Hook :** "500 FCFA. 24 heures en haut du Bourse des Mains d'Or."
-**Corps :** "Le boost photo sur WOLO Market. Tu payes 500 FCFA avec ton solde WOLO Pay. Pendant 24h, ta photo apparaît en premier. Plus de vues. Plus de votes. Plus de chances de devenir Reine. 500 FCFA. C'est le prix d'un café."
+**Corps :** "Le boost photo sur WOZALI Market. Tu payes 500 FCFA avec ton solde WOZALI Pay. Pendant 24h, ta photo apparaît en premier. Plus de vues. Plus de votes. Plus de chances de devenir Reine. 500 FCFA. C'est le prix d'un café."
 **CTA :** "wolomarket.com/awards"
-**Caption :** 500 FCFA = 24h tout en haut. Le boost qui change tout. #MurDesReines #BoostWOLO #ReineWOLO
-**Hashtags :** #MurDesReines #BoostWOLO #ReineWOLO #WOLOPay
+**Caption :** 500 FCFA = 24h tout en haut. Le boost qui change tout. #MurDesReines #BoostWOZALI #ReineWOZALI
+**Hashtags :** #MurDesReines #BoostWOZALI #ReineWOZALI #WOZALIPay
 
 ### REINE10 — Hook : "Partage WhatsApp = plus de votes"
 
@@ -266,8 +266,8 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 **Hook :** "Le secret des Reines du mois : WhatsApp."
 **Corps :** "Chaque photo a un bouton Partager WhatsApp. Tu envoies le lien à ta famille, tes amies, ton groupe. Elles cliquent. Elles votent. En 10 secondes. Plus tu partages, plus tu montes. Les Reines du mois sont celles qui mobilisent leur communauté."
 **CTA :** "Poste. Partage. Deviens Reine."
-**Caption :** Ta communauté est ta force. Partage et deviens Reine. #MurDesReines #WhatsApp #ReineWOLO
-**Hashtags :** #MurDesReines #ReineWOLO #WhatsApp #VoteGratuit
+**Caption :** Ta communauté est ta force. Partage et deviens Reine. #MurDesReines #WhatsApp #ReineWOZALI
+**Hashtags :** #MurDesReines #ReineWOZALI #WhatsApp #VoteGratuit
 
 ---
 
@@ -291,7 +291,7 @@ Hashtags : #WOLOMarket #BeninTogo #JeRejoinsEnPro #MurDesReines #ReineWOLO #Tale
 >
 > 👉 wolomarket.com/awards
 >
-> #MurDesReines #ReineWOLO #TalentAfricain #BeninTogo
+> #MurDesReines #ReineWOZALI #TalentAfricain #BeninTogo
 
 ### WhatsApp Status — Annonce Reines
 

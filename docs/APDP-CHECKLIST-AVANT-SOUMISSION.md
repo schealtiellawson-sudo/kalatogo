@@ -1,6 +1,6 @@
 # CHECKLIST AVANT SOUMISSION APDP TOGO + BÉNIN
 
-**Cible** : pouvoir soumettre simultanément les déclarations APDP Togo et APDP Bénin avant le lancement WOLO Market du début juillet 2026.
+**Cible** : pouvoir soumettre simultanément les déclarations APDP Togo et APDP Bénin avant le lancement WOZALI du début juillet 2026.
 **Owner** : Schealtiel Kpomblawoun (fondateur)
 **Mise à jour** : 7 mai 2026
 
@@ -8,25 +8,25 @@
 
 ## 1. DOCUMENTS PUBLIÉS SUR LE SITE
 
-- [ ] **Politique de confidentialité** publiée sur https://wolomarket.com/confidentialite
+- [ ] **Politique de confidentialité** publiée sur https://wozali.com/confidentialite
   - Draft prêt : `docs/POLITIQUE-CONFIDENTIALITE-DRAFT.md`
   - Action : intégrer en HTML dans `index.html` (section ou route `/confidentialite`) + lien depuis le footer
   - Date cible : 20 mai 2026
 
-- [ ] **CGU (Conditions Générales d'Utilisation)** publiées sur https://wolomarket.com/cgu
-  - Action : rédiger CGU.md (storytelling WOLO mais structure juridique : objet, services, inscription, abonnement Pro 2 500 FCFA, obligations utilisateur, responsabilité, propriété intellectuelle, résiliation, droit applicable Togo+Bénin, juridiction)
+- [ ] **CGU (Conditions Générales d'Utilisation)** publiées sur https://wozali.com/cgu
+  - Action : rédiger CGU.md (storytelling WOZALI mais structure juridique : objet, services, inscription, abonnement Pro 2 500 FCFA, obligations utilisateur, responsabilité, propriété intellectuelle, résiliation, droit applicable Togo+Bénin, juridiction)
   - Date cible : 20 mai 2026
   - Note : peut être généré dans une session ultérieure si besoin
 
-- [ ] **Mentions légales** publiées sur https://wolomarket.com/mentions-legales
+- [ ] **Mentions légales** publiées sur https://wozali.com/mentions-legales
   - Identité du RT, hébergeur Vercel, contact
   - Date cible : 20 mai 2026
 
-- [ ] **Page Contact** opérationnelle avec formulaire et adresse contact@wolomarket.com
+- [ ] **Page Contact** opérationnelle avec formulaire et adresse contact@wozali.com
   - Date cible : 20 mai 2026
 
 - [ ] **Cookie banner** : à évaluer
-  - Si WOLO ne pose pas de cookies tiers de tracking (analytics, pub) : pas de banner obligatoire, mais mention dans la Politique de confidentialité
+  - Si WOZALI ne pose pas de cookies tiers de tracking (analytics, pub) : pas de banner obligatoire, mais mention dans la Politique de confidentialité
   - Si Vercel Analytics ou Google Analytics ajoutés : banner obligatoire
   - Action : auditer les cookies actuels (DevTools > Application > Cookies sur wolomarket.vercel.app)
 
@@ -49,7 +49,7 @@
   - Vérifier qu'un utilisateur peut s'inscrire sans GPS (saisie manuelle quartier)
 
 - [ ] **Opt-in explicite photo de profil et photos de réalisations**
-  - Une mention claire au moment de l'upload : "En uploadant cette photo, je consens à sa publication sur WOLO Market et confirme avoir les droits."
+  - Une mention claire au moment de l'upload : "En uploadant cette photo, je consens à sa publication sur WOZALI et confirme avoir les droits."
 
 - [ ] **Opt-in explicite notifications push (VAPID)**
   - Native browser permission OK ; ajouter une explication contextuelle avant la pop-up système
@@ -66,15 +66,15 @@
 
 ## 3. ENVIRONNEMENT TECHNIQUE
 
-- [ ] **Domaine wolomarket.com configuré** (DNS + SSL)
+- [ ] **Domaine wozali.com configuré** (DNS + SSL)
   - Action : pointer A/CNAME vers Vercel
   - Vérifier certificat SSL automatique Vercel
 
-- [ ] **Email contact@wolomarket.com opérationnel**
+- [ ] **Email contact@wozali.com opérationnel**
   - Action : configurer alias via Resend ou redirection Gmail/Workspace
   - Tester réception et envoi
 
-- [ ] **Email dpo@wolomarket.com opérationnel** (alias)
+- [ ] **Email dpo@wozali.com opérationnel** (alias)
 
 - [ ] **MFA activé** sur Supabase, Vercel, GitHub, Resend
 
@@ -126,7 +126,7 @@
 | Honoraires avocat local Bénin (relecture + représentation) | 100 000 à 500 000 FCFA/an | Devis 2-3 cabinets |
 | RCCM Togo | 30 000 FCFA | CFE Lomé |
 | Certification CNI mairie | 500 à 2 000 FCFA | Mairie Lomé |
-| Hébergement domaine wolomarket.com | déjà payé | — |
+| Hébergement domaine wozali.com | déjà payé | — |
 
 **Budget total estimé** : 250 000 à 800 000 FCFA selon options retenues.
 
@@ -168,4 +168,4 @@
 
 ---
 
-*Fin de la checklist — Version 1.0 — WOLO Market*
+*Fin de la checklist — Version 1.0 — WOZALI*

@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       return res.status(503).json({
         ok: false,
         disponible: false,
-        message: 'Paiement Mobile Money bientôt disponible. Utilise le Crédit WOLO pour activer ton Plan Pro.',
+        message: 'Paiement Mobile Money bientôt disponible. Utilise le Crédit WOZALI pour activer ton Plan Pro.',
         breakdown: {
           abonnement: MONTANT_PRO,
           frais,

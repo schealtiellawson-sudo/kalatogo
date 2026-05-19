@@ -14,7 +14,7 @@ const BADGE_META = {
   gagnante_mois:   { emoji: '🏆', titre: 'Reine du mois',        hint: '50 000 F. Et la reconnaissance.' },
   serie_rouge_7:   { emoji: '🔥', titre: 'Série rouge · 7 jours', hint: 'Tu postes chaque jour depuis une semaine' },
   serie_rouge_30:  { emoji: '💎', titre: 'Série rouge · 30 jours', hint: 'Un mois complet. Respect.' },
-  coup_coeur_jury: { emoji: '💛', titre: 'Coup de cœur du jury',  hint: 'L\'équipe WOLO t\'a remarquée' },
+  coup_coeur_jury: { emoji: '💛', titre: 'Coup de cœur du jury',  hint: 'L\'équipe WOZALI t\'a remarquée' },
   virale_100:      { emoji: '🚀', titre: 'Virale',                hint: 'Tu as fait le tour de WhatsApp' },
   mentor_5:        { emoji: '🤝', titre: 'Mentor',                hint: '5 sœurs inscrites grâce à toi' },
   apprentie:       { emoji: '🌱', titre: 'Apprentie',             hint: '0-50 likes cumulés' },

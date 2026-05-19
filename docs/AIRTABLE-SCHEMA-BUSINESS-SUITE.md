@@ -1,4 +1,4 @@
-# Airtable — Schéma WOLO Business Suite
+# Airtable — Schéma WOZALI Business Suite
 
 Base : `applmj1RDrJkR8C4w` (Bénin/Togo)
 
@@ -11,14 +11,14 @@ Base : `applmj1RDrJkR8C4w` (Bénin/Togo)
 | Champ | Type | Note |
 |---|---|---|
 | `Nom complet` | Single line text | Primary |
-| `User ID` | Single line text | rec ID Prestataire (compte WOLO de l'employé) |
+| `User ID` | Single line text | rec ID Prestataire (compte WOZALI de l'employé) |
 | `Patron ID` | Single line text | rec ID Prestataire (patron) |
 | `Patron Nom` | Single line text | snapshot |
 | `Poste` | Single line text | ex: Couturière senior |
 | `Salaire FCFA` | Number (integer) | mensuel |
 | `WhatsApp` | Phone | format international |
 | `Email` | Email | optionnel |
-| `Photo` | URL | ImgBB ou photo profil WOLO |
+| `Photo` | URL | ImgBB ou photo profil WOZALI |
 | `Statut` | Single select | `Actif`, `Suspendu`, `Parti` |
 | `Date entrée` | Date | YYYY-MM-DD |
 | `Date sortie` | Date | optionnel |
@@ -73,9 +73,9 @@ Base : `applmj1RDrJkR8C4w` (Bénin/Togo)
 | `Mois` | Single line text | `YYYY-MM` |
 | `Montant FCFA` | Number | |
 | `Date` | Date | |
-| `Méthode` | Single select | `WOLO Pay`, `Espèces`, `Mobile Money`, `Virement` |
+| `Méthode` | Single select | `WOZALI Pay`, `Espèces`, `Mobile Money`, `Virement` |
 | `Statut` | Single select | `Payé`, `En attente`, `Annulé` |
-| `Référence` | Single line text | ID transaction WOLO Pay |
+| `Référence` | Single line text | ID transaction WOZALI Pay |
 
 ---
 
@@ -181,7 +181,7 @@ Module 3 (Mon emploi) lit uniquement via `/api/airtable-proxy/*` — pas d'endpo
 
 ## TODO Phase suivante
 
-- Phase D : Intégrer WOLO Pay réel dans `/api/paie/pay` (débit solde patron, crédit employé)
+- Phase D : Intégrer WOZALI Pay réel dans `/api/paie/pay` (débit solde patron, crédit employé)
 - Phase F : Intégrer Twilio/Wassenger dans `/api/annonces/broadcast` pour push WhatsApp réel
 - Phase F : Endpoint `/api/conges/request` + `/api/conges/approve`
 - Phase G : Cron mensuel `/api/cron/cloture-mois` qui agrège CA + dépenses + paie en `Bilans_Mensuels`

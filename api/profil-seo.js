@@ -80,11 +80,11 @@ export default async function handler(req, res) {
   const nbAvis = matchedAvis.length;
   const note = nbAvis > 0 ? (matchedAvis.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0) / nbAvis) : 0;
 
-  const canonicalUrl = `https://wolomarket.com/profil/${slug}`;
-  const pageTitle = `${escHtml(nom)} — ${escHtml(metier)} à ${escHtml(ville)} · WOLO Market`;
+  const canonicalUrl = `https://wozali.com/profil/${slug}`;
+  const pageTitle = `${escHtml(nom)} — ${escHtml(metier)} à ${escHtml(ville)} · WOZALI`;
   const metaDesc = nbAvis > 0
-    ? `${escHtml(nom)}, ${escHtml(metier)} à ${escHtml(quartier)}, ${escHtml(ville)}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOLO Market.`
-    : `${escHtml(nom)}, ${escHtml(metier)} à ${escHtml(quartier)}, ${escHtml(ville)}. Contacte-le directement sur WOLO Market.`;
+    ? `${escHtml(nom)}, ${escHtml(metier)} à ${escHtml(quartier)}, ${escHtml(ville)}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOZALI.`
+    : `${escHtml(nom)}, ${escHtml(metier)} à ${escHtml(quartier)}, ${escHtml(ville)}. Contacte-le directement sur WOZALI.`;
   const ogDesc = nbAvis > 0
     ? `${note.toFixed(1)}/5 étoiles · ${nbAvis} avis. Trouve les meilleurs prestataires de Cotonou et Lomé.`
     : `Trouve les meilleurs prestataires de Cotonou et Lomé.`;

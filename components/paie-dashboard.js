@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════
-// WOLO Business Suite — Module 2 : Paie & Bulletins
+// WOZALI Business Suite — Module 2 : Paie & Bulletins
 // Tables Airtable : Fiches_Paie + Paiements_Salaire
 // ══════════════════════════════════════════
 
@@ -16,7 +16,7 @@
     root.innerHTML = skeletonHTML();
 
     if (!window.currentPrestataire?.id) {
-      root.innerHTML = `<div style="padding:40px;text-align:center;color:rgba(248,246,241,.5);">Connecte-toi pour gérer la paie.</div>`;
+      root.innerHTML = `<div style="padding:40px;text-align:center;color:rgba(252, 224, 168,.5);">Connecte-toi pour gérer la paie.</div>`;
       return;
     }
 
@@ -43,13 +43,13 @@
     const reste = total - payes;
 
     root.innerHTML = `
-      <div style="font-family:'Poppins',sans-serif;color:#F8F6F1;">
+      <div style="font-family:'Geist',sans-serif;color:#FCE0A8;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
           <div>
             <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin:0 0 4px;">Paie & bulletins</h1>
-            <p style="font-size:13px;color:rgba(248,246,241,.5);margin:0;">Paye ton équipe par virement bancaire. Coche, génère le bulletin, c'est fait.</p>
+            <p style="font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Paye ton équipe par virement bancaire. Coche, génère le bulletin, c'est fait.</p>
           </div>
-          <input type="month" value="${state.mois}" onchange="changePaieMois(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:9px 12px;color:#F8F6F1;font-family:inherit;">
+          <input type="month" value="${state.mois}" onchange="changePaieMois(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:9px 12px;color:#FCE0A8;font-family:inherit;">
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px;">
@@ -66,8 +66,8 @@
 
   function emptyHTML(){
     return `<div style="background:rgba(232,148,10,.03);border:1px dashed rgba(232,148,10,.2);border-radius:14px;padding:30px;text-align:center;">
-      <p style="color:rgba(248,246,241,.5);margin:0 0 14px;">Aucun employé pour le moment.</p>
-      <button onclick="showDashSection('talent-equipe')" style="background:#E8940A;color:#0f1410;border:none;padding:9px 18px;border-radius:10px;font-weight:700;cursor:pointer;">Inviter mon premier employé</button>
+      <p style="color:rgba(252, 224, 168,.5);margin:0 0 14px;">Aucun employé pour le moment.</p>
+      <button onclick="showDashSection('talent-equipe')" style="background:#E8940A;color:#14100A;border:none;padding:9px 18px;border-radius:10px;font-weight:700;cursor:pointer;">Inviter mon premier employé</button>
     </div>`;
   }
 
@@ -76,11 +76,11 @@
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead style="background:rgba(232,148,10,.06);">
           <tr>
-            <th style="padding:10px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Employé</th>
-            <th style="padding:10px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Poste</th>
-            <th style="padding:10px;text-align:right;font-family:'Space Mono',monospace;font-size:10px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Salaire</th>
-            <th style="padding:10px;text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Statut</th>
-            <th style="padding:10px;text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Action</th>
+            <th style="padding:10px;text-align:left;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Employé</th>
+            <th style="padding:10px;text-align:left;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Poste</th>
+            <th style="padding:10px;text-align:right;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Salaire</th>
+            <th style="padding:10px;text-align:center;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Statut</th>
+            <th style="padding:10px;text-align:center;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -88,7 +88,7 @@
         </tbody>
       </table>
     </div>
-    <p style="font-size:11px;color:rgba(248,246,241,.35);margin-top:12px;">Effectue tes virements bancaires, coche quand c'est fait, et génère les bulletins en 1 clic.</p>`;
+    <p style="font-size:11px;color:rgba(252, 224, 168,.35);margin-top:12px;">Effectue tes virements bancaires, coche quand c'est fait, et génère les bulletins en 1 clic.</p>`;
   }
 
   function rowHTML(emp){
@@ -103,23 +103,23 @@
     return `<tr style="border-top:1px solid rgba(255,255,255,.04);">
       <td style="padding:10px;">
         <div style="font-weight:600;">${nom}</div>
-        ${iban ? `<div style="font-size:10px;color:rgba(248,246,241,.4);font-family:'Space Mono',monospace;margin-top:2px;">${iban}</div>` : `<div style="font-size:10px;color:#ef4444;margin-top:2px;">IBAN manquant</div>`}
+        ${iban ? `<div style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace;margin-top:2px;">${iban}</div>` : `<div style="font-size:10px;color:#ef4444;margin-top:2px;">IBAN manquant</div>`}
       </td>
-      <td style="padding:10px;color:rgba(248,246,241,.6);">${poste}</td>
-      <td style="padding:10px;text-align:right;font-family:'Space Mono',monospace;">${formatFCFA(salaire)}</td>
+      <td style="padding:10px;color:rgba(252, 224, 168,.6);">${poste}</td>
+      <td style="padding:10px;text-align:right;font-family:'Geist Mono',monospace;">${formatFCFA(salaire)}</td>
       <td style="padding:10px;text-align:center;">
         ${paye
           ? `<span style="background:rgba(34,197,94,.15);color:#22c55e;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;">Viré ✓</span>`
           : `<label style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
               <input type="checkbox" onchange="marquerVirement('${emp.id}', ${salaire}, '${nom.replace(/'/g,"\\'")}')" style="accent-color:#E8940A;width:16px;height:16px;cursor:pointer;">
-              <span style="font-size:11px;color:rgba(248,246,241,.6);">Viré</span>
+              <span style="font-size:11px;color:rgba(252, 224, 168,.6);">Viré</span>
             </label>`
         }
       </td>
       <td style="padding:10px;text-align:center;">
         ${paye
-          ? `<button onclick="downloadBulletin('${fiche?.id || ''}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">📄 Bulletin</button>`
-          : `<span style="font-size:10px;color:rgba(248,246,241,.3);">Coche d'abord</span>`
+          ? `<button onclick="downloadBulletin('${fiche?.id || ''}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">📄 Bulletin</button>`
+          : `<span style="font-size:10px;color:rgba(252, 224, 168,.3);">Coche d'abord</span>`
         }
       </td>
     </tr>`;
@@ -127,8 +127,8 @@
 
   function kpiCard(label, val, color){
     return `<div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;">
-      <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:900;color:${color};line-height:1.1;">${val}</div>
-      <div style="font-size:10px;color:rgba(248,246,241,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">${label}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:20px;font-weight:900;color:${color};line-height:1.1;">${val}</div>
+      <div style="font-size:10px;color:rgba(252, 224, 168,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">${label}</div>
     </div>`;
   }
 
@@ -138,7 +138,7 @@
   }
 
   function skeletonHTML(){
-    return `<div style="padding:40px;text-align:center;color:rgba(248,246,241,.4);">Chargement paie…</div>`;
+    return `<div style="padding:40px;text-align:center;color:rgba(252, 224, 168,.4);">Chargement paie…</div>`;
   }
 
   window.changePaieMois = function(v){ state.mois = v; loadPaieDashboard(); };

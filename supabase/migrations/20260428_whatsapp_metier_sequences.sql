@@ -72,12 +72,12 @@ INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) 
 
 Tu travailles dur chez Madame du mardi au samedi. Tu mérites tes propres clientes en plus.
 
-WOLO Market c''est ton dimanche à toi. Tes clientes perso.
+WOZALI c''est ton dimanche à toi. Tes clientes perso.
 
 → {url_dashboard}'),
 
 ('MAC2_premiere_photo', 'M_apprentie_coiffure', 2, 24,
-'{prenom}, sans photo de tes tresses, tu es invisible sur WOLO.
+'{prenom}, sans photo de tes tresses, tu es invisible sur WOZALI.
 
 1 photo claire = 3× plus de contacts. Prends-en une ce soir, à la lumière du jour.
 
@@ -113,7 +113,7 @@ Ta plus belle tresse + le tag de Madame (ou ton tag perso). La communauté vote.
 → {url_awards}'),
 
 ('MAC6_marraine', 'M_apprentie_coiffure', 6, 240,
-'{prenom}, on t''a assigné une marraine WOLO : {nom_marraine}.
+'{prenom}, on t''a assigné une marraine WOZALI : {nom_marraine}.
 
 Elle est Reine Coiffure de ton quartier ({quartier}) le mois dernier. Elle accompagne 5 nouvelles apprenties ce mois — toi tu es la 6ème.
 
@@ -122,7 +122,7 @@ Elle peut te donner ses combines. Tu veux qu''elle te dise bonjour direct sur Wh
 → {url_dashboard}'),
 
 ('MAC7_pro_jour14', 'M_apprentie_coiffure', 7, 312,
-'{prenom}, bilan 14 jours WOLO :
+'{prenom}, bilan 14 jours WOZALI :
 
 ✓ {x} vues sur ton profil
 ✓ {y} contacts reçus
@@ -144,7 +144,7 @@ INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) 
 
 Tu couds 12h par jour à l''atelier sans rien gagner. Tu ne mérites pas ça.
 
-WOLO te donne tes propres clientes du dimanche. Tes tarifs. Ton nom à toi — pas celui de Madame.
+WOZALI te donne tes propres clientes du dimanche. Tes tarifs. Ton nom à toi — pas celui de Madame.
 
 → {url_dashboard}'),
 
@@ -192,7 +192,7 @@ Elles partagent les patrons gratuits, les fournisseurs Tokpa moins chers, les bo
 → {url_dashboard}'),
 
 ('MACO7_pro_jour14', 'M_apprentie_couture', 7, 312,
-'{prenom}, bilan 14 jours WOLO :
+'{prenom}, bilan 14 jours WOZALI :
 
 ✓ {x} vues sur ton profil
 ✓ {y} commandes reçues
@@ -212,7 +212,7 @@ INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) 
 ('MPC1_recrutement_gratuit', 'M_patronne_coiffure', 1, 0,
 'Bienvenue Madame 👋
 
-Vous cherchez une apprentie sérieuse ? WOLO Market a {nb_candidates} coiffeuses candidates à {ville} ce mois.
+Vous cherchez une apprentie sérieuse ? WOZALI a {nb_candidates} coiffeuses candidates à {ville} ce mois.
 
 Voir leurs profils + photos + zones est gratuit. Pas de cousin, pas de piston — juste leur travail.
 
@@ -221,7 +221,7 @@ Voir leurs profils + photos + zones est gratuit. Pas de cousin, pas de piston �
 ('MPC2_paie_employees', 'M_patronne_coiffure', 2, 72,
 'Madame, payer 3 employées en cash le 30 = perte de temps + risque erreur + pas de trace.
 
-WOLO Paie : tu cliques, tu vires, c''est tracé. Bulletin de paie auto. Compatible Mobile Money + virement bancaire.
+WOZALI Paie : tu cliques, tu vires, c''est tracé. Bulletin de paie auto. Compatible Mobile Money + virement bancaire.
 
 0 F en plus si tu es Pro.
 
@@ -242,7 +242,7 @@ Tu testes 14 jours gratuits ?
 ('MPC4_apprentie_publicite', 'M_patronne_coiffure', 4, 336,
 'Madame, ton apprentie {nom_apprentie} est candidate Reine Coiffure ce mois.
 
-Si elle gagne (100 000 FCFA), ton salon apparaît dans la galerie des Marraines WOLO. Visibilité gratuite massive.
+Si elle gagne (100 000 FCFA), ton salon apparaît dans la galerie des Marraines WOZALI. Visibilité gratuite massive.
 
 Pousse-la à poster ses photos. C''est aussi de la pub pour toi.
 
@@ -251,7 +251,7 @@ Pousse-la à poster ses photos. C''est aussi de la pub pour toi.
 ('MPC5_kyc_badge', 'M_patronne_coiffure', 5, 504,
 'Madame, après 3 semaines : ton salon a reçu {x} contacts.
 
-Pour multiplier × 2 : badge Vérifié WOLO. KYC en 5 minutes (carte ID + photo enseigne) = priorité absolue dans les recherches Coiffure {ville}.
+Pour multiplier × 2 : badge Vérifié WOZALI. KYC en 5 minutes (carte ID + photo enseigne) = priorité absolue dans les recherches Coiffure {ville}.
 
 Gratuit avec Pro Salon.
 
@@ -277,7 +277,7 @@ Voir leurs profils + photos + zones = 0 F. Tu choisis. Pas de cousin du cousin.
 ('MPCO2_carnet_commandes', 'M_patronne_couture', 2, 72,
 'Madame, vos commandes mariage volent à 5-10 par mois. Une cliente qui refuse à cause d''un retard livraison = perdue à vie.
 
-WOLO Carnet : tableau commandes + dates promises + alerte automatique 48h avant. Inclus dans Pro 2 500 F/mois.
+WOZALI Carnet : tableau commandes + dates promises + alerte automatique 48h avant. Inclus dans Pro 2 500 F/mois.
 
 → {url_dashboard}'),
 
@@ -294,7 +294,7 @@ WOLO Carnet : tableau commandes + dates promises + alerte automatique 48h avant.
 → {url_pro}'),
 
 ('MPCO4_reines_mariage', 'M_patronne_couture', 4, 336,
-'Madame, les Reines Couture WOLO sont devenues les références mariage à {ville}.
+'Madame, les Reines Couture WOZALI sont devenues les références mariage à {ville}.
 
 Ta meilleure apprentie en photo Bourse des Mains d'Or = ton atelier mentionné direct dans la galerie. Pub gratuite massive.
 
@@ -303,7 +303,7 @@ Pousse {nom_apprentie} à poster.
 → {url_awards}'),
 
 ('MPCO5_diaspora_couture', 'M_patronne_couture', 5, 504,
-'Madame, 35% des recherches couture WOLO viennent de la diaspora (mariage parents au pays, enterrement, fête).
+'Madame, 35% des recherches couture WOZALI viennent de la diaspora (mariage parents au pays, enterrement, fête).
 
 Ton atelier dispo livraison express = niche premium. Active "Diaspora Ready" dans ton profil = 0 F en plus.
 
@@ -324,14 +324,14 @@ INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) 
 
 Sans atelier fixe, tu dépends du bouche-à-oreille. C''est aléatoire. C''est fragile.
 
-WOLO te donne {nb_clientes_proches} clientes potentielles à <3km de chez toi. Stable. Net. Géolocalisé.
+WOZALI te donne {nb_clientes_proches} clientes potentielles à <3km de chez toi. Stable. Net. Géolocalisé.
 
 → {url_dashboard}'),
 
 ('MIC2_safety_first', 'M_indep_coiffure', 2, 48,
 '{prenom}, à domicile = vrai risque sécurité.
 
-WOLO Safety : avant chaque RDV, tu partages ta live location avec 1 contact + WOLO. Bouton SOS rouge pendant le RDV. Code RDV vérifié.
+WOZALI Safety : avant chaque RDV, tu partages ta live location avec 1 contact + WOZALI. Bouton SOS rouge pendant le RDV. Code RDV vérifié.
 
 Active une fois, c''est en place. Gratuit. Important.
 
@@ -373,7 +373,7 @@ INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) 
 
 Couturière à domicile = invisible sans plateforme. Le bouche-à-oreille s''épuise.
 
-WOLO te donne ton enseigne digitale à {ville}. Sans loyer atelier. Sans devanture. Juste tes photos + ton talent.
+WOZALI te donne ton enseigne digitale à {ville}. Sans loyer atelier. Sans devanture. Juste tes photos + ton talent.
 
 → {url_dashboard}'),
 
@@ -403,7 +403,7 @@ La Bourse des Mains d'Or récompense l''originalité, pas le prêt-à-porter. 10
 → {url_awards}'),
 
 ('MICO5_pro_diaspora', 'M_indep_couture', 5, 312,
-'{prenom}, 35% des recherches couture WOLO viennent de la diaspora (mariage parents au pays).
+'{prenom}, 35% des recherches couture WOZALI viennent de la diaspora (mariage parents au pays).
 
 Pro 2 500 F/mois = badge "Diaspora Ready" + priorité messages diaspora. ROI = 1 robe diaspora (60 000 F) paye 24 mois de Pro.
 
@@ -421,7 +421,7 @@ INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) 
 ('MCR1_top3_metier', 'M_client_recherche', 1, 0,
 'Bonjour 👋
 
-Vous avez cherché "{metier_recherche} {quartier}" sur WOLO Market. 14 prestataires correspondent.
+Vous avez cherché "{metier_recherche} {quartier}" sur WOZALI. 14 prestataires correspondent.
 
 Voici les 3 mieux notées :
 
@@ -434,21 +434,21 @@ Voici les 3 mieux notées :
 ('MCR2_garantie_24h', 'M_client_recherche', 2, 48,
 'Toujours pas trouvé votre {metier_recherche} ?
 
-Service "Trouver pour vous" WOLO : 500 F. On vous propose 3 pros vérifiées et disponibles sous 24h.
+Service "Trouver pour vous" WOZALI : 500 F. On vous propose 3 pros vérifiées et disponibles sous 24h.
 
 Caution intégralement remboursée si aucune ne répond dans les délais.
 
 → {url_recherche}'),
 
 ('MCR3_avis_vrais', 'M_client_recherche', 3, 96,
-'Sur WOLO Market, chaque pro a des avis publics — pas du copier-collé Facebook ni du faux 5 étoiles.
+'Sur WOZALI, chaque pro a des avis publics — pas du copier-collé Facebook ni du faux 5 étoiles.
 
 {nom_top_pro_quartier} a {nb_avis} avis vrais, {note_moyenne}★ moyenne. Voir son profil + ses photos :
 
 → {url_recherche}'),
 
 ('MCR4_sans_piston', 'M_client_recherche', 4, 168,
-'Sur WOLO Market : 0 piston, 0 cousin du cousin.
+'Sur WOZALI : 0 piston, 0 cousin du cousin.
 
 Juste les meilleures de {quartier} classées par avis vrais et qualité du travail. Si vous avez besoin demain, vous savez où chercher.
 

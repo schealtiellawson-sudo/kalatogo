@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Pay — Webhook FedaPay
+// WOZALI Pay — Webhook FedaPay
 // ================================================================
 // Reçoit les événements FedaPay (transaction.approved, etc.)
 // Met à jour wolo_transactions OU paiements_abonnements selon le
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true, type: 'abonnement' });
     }
 
-    // ---- Cas 2 : Paiement marchand WOLO Pay (WP-) ----
+    // ---- Cas 2 : Paiement marchand WOZALI Pay (WP-) ----
     if (reference_interne.startsWith('WP-')) {
       const { data: tx } = await supabase
         .from('wolo_transactions')
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
       await envoyerNotification({
         user_id: tx.merchant_id,
         titre: 'Paiement reçu',
-        corps: `Tu as reçu ${tx.montant.toLocaleString('fr-FR')} FCFA sur ton Crédit WOLO`
+        corps: `Tu as reçu ${tx.montant.toLocaleString('fr-FR')} FCFA sur ton Crédit WOZALI`
       });
 
       return res.status(200).json({ received: true, type: 'marchand' });

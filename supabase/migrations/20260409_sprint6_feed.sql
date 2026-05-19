@@ -1,5 +1,5 @@
 -- ============================================================
--- Sprint 6 — Feed social WOLO Market
+-- Sprint 6 — Feed social WOZALI
 -- Tables: wolo_posts, wolo_likes, wolo_commentaires,
 --         wolo_abonnements, wolo_epingles
 -- ============================================================

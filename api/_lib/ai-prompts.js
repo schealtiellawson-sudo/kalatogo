@@ -1,5 +1,5 @@
 // ================================================================
-// AI Prompt Templates — tâches MVP WOLO Market
+// AI Prompt Templates — tâches MVP WOZALI
 // Chaque tâche déclare : system prompt, préférence provider, TTL cache, jsonMode
 // ================================================================
 

@@ -52,7 +52,7 @@ END $$;
 -- SEED — Séquence A : Onboarding (J0 → J7) — pour TOUTES les inscrites
 -- ================================================================
 INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) VALUES
-('A1_bienvenue', 'A_onboarding', 1, 0, 'Bienvenue sur WOLO Market, {prenom} 👋
+('A1_bienvenue', 'A_onboarding', 1, 0, 'Bienvenue sur WOZALI, {prenom} 👋
 
 Ton profil est en ligne — visible à Cotonou et Lomé.
 
@@ -60,7 +60,7 @@ Première mission (5 min) : ajoute 3 photos de ton travail. Les profils avec pho
 
 → {url_dashboard}'),
 
-('A2_mission_photos', 'A_onboarding', 2, 24, 'Salut {prenom}, c''est WOLO 👋
+('A2_mission_photos', 'A_onboarding', 2, 24, 'Salut {prenom}, c''est WOZALI 👋
 
 Petit rappel — la photo de ton travail est ce qui te différencie. Une photo nette = un client qui s''arrête.
 
@@ -86,7 +86,7 @@ C''est ton talent. Pas tes connexions.
 
 ('A5_relance', 'A_onboarding', 5, 168, '{prenom}, on n''a pas vu d''activité sur ton profil cette semaine.
 
-WOLO Market fonctionne quand tu es présente. 5 minutes par jour suffisent : photo, réponse, mise à jour. Sinon ton profil descend dans le classement.
+WOZALI fonctionne quand tu es présente. 5 minutes par jour suffisent : photo, réponse, mise à jour. Sinon ton profil descend dans le classement.
 
 Tu veux qu''on t''aide ? Réponds simplement à ce message.
 
@@ -100,7 +100,7 @@ ON CONFLICT (key) DO NOTHING;
 INSERT INTO wolo_whatsapp_templates (key, sequence, step, delay_hours, content) VALUES
 ('B1_lundi', 'B_apprentie', 1, 0, '{prenom}, on sait que tu travailles pour Madame du mardi au samedi sans être payée.
 
-WOLO Market, c''est ton lundi. Toute la semaine.
+WOZALI, c''est ton lundi. Toute la semaine.
 
 Tes propres clients perso. Tes propres avis. Sous ton nom à toi — pas celui du salon.
 
@@ -110,7 +110,7 @@ Tes propres clients perso. Tes propres avis. Sous ton nom à toi — pas celui d
 
 1. Ajoute 3 photos de ton travail
 2. Active ta disponibilité
-3. Partage ton lien WOLO sur ton statut WhatsApp
+3. Partage ton lien WOZALI sur ton statut WhatsApp
 
 Tes clientes te trouvent direct. Sans passer par ta patronne.
 
@@ -118,7 +118,7 @@ Tes clientes te trouvent direct. Sans passer par ta patronne.
 
 ('B3_histoire_vraie', 'B_apprentie', 3, 120, '{prenom}, histoire vraie 📖
 
-Mariam, apprentie couturière à Bè, a payé 80 000 FCFA pour apprendre. Elle a doublé ses revenus en 3 mois grâce à WOLO. Sans quitter son atelier de formation.
+Mariam, apprentie couturière à Bè, a payé 80 000 FCFA pour apprendre. Elle a doublé ses revenus en 3 mois grâce à WOZALI. Sans quitter son atelier de formation.
 
 Comment ? 5 photos, 3 avis clients, 1 lien WhatsApp partagé chaque semaine.
 
@@ -134,7 +134,7 @@ Ta plus belle coiffure ou ta plus belle tenue. Sur toi-même ou sur une cliente.
 
 → {url_awards}'),
 
-('B5_pro_indep', 'B_apprentie', 5, 504, '{prenom}, après 3 semaines avec WOLO :
+('B5_pro_indep', 'B_apprentie', 5, 504, '{prenom}, après 3 semaines avec WOZALI :
 
 Tu as posté tes photos ? ✅ ou ❌
 Tu as reçu des contacts ? ✅ ou ❌

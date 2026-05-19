@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Invitation WOLO Market</title>
+  <title>Invitation WOZALI Market</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Poppins:wght@400;600;700&family=Space+Mono&display=swap" rel="stylesheet">
@@ -48,22 +48,22 @@
     if (data.statut === 'Acceptée') {
       card.innerHTML = `<span class="pill">Déjà acceptée</span>
         <h1>Tu es déjà dans l'équipe ✓</h1>
-        <p class="sub">Connecte-toi à WOLO Market pour voir ton emploi.</p>
-        <a class="cta" href="/">Aller sur WOLO Market</a>`;
+        <p class="sub">Connecte-toi à WOZALI Market pour voir ton emploi.</p>
+        <a class="cta" href="/">Aller sur WOZALI Market</a>`;
       return;
     }
 
     card.innerHTML = `<span class="pill">Invitation</span>
       <h1>${data.patronNom || 'Un patron'} t'invite à rejoindre son équipe</h1>
-      <p class="sub">Sur WOLO Market —, juste le travail.</p>
+      <p class="sub">Sur WOZALI Market —, juste le travail.</p>
       <div class="row"><strong>Poste</strong><span>${data.postePrevu || '—'}</span></div>
       <div class="row"><strong>Salaire</strong><span>${data.salairePrevu ? Number(data.salairePrevu).toLocaleString('fr-FR') + ' FCFA/mois' : 'À discuter'}</span></div>
       <div class="row"><strong>Ton WhatsApp</strong><span>${data.whatsapp || '—'}</span></div>
-      <a class="cta" href="/?invite=${encodeURIComponent(token)}">Créer mon compte WOLO</a>
+      <a class="cta" href="/?invite=${encodeURIComponent(token)}">Créer mon compte WOZALI</a>
       <p class="muted">2 minutes — tu seras automatiquement relié à ${data.patronNom || 'ton patron'}.</p>`;
   } catch(e) {
     card.innerHTML = `<h1>Invitation introuvable</h1><p class="sub">${e.message}</p>
-      <a class="cta" href="/">Aller sur WOLO Market</a>`;
+      <a class="cta" href="/">Aller sur WOZALI Market</a>`;
   }
 })();
 </script>

@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Pay — Statut récompenses (Bourse + Awards) pour un user
+// WOZALI Pay — Statut récompenses (Bourse + Awards) pour un user
 // GET /api/wolo-pay/recompenses-status?user_id=xxx
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
       etatBourse = 'eligible';
     }
 
-    // ── WOLO Awards ──
+    // ── WOZALI Awards ──
     const { data: candidature } = isPublic ? { data: null } : await supabase
       .from('wolo_awards')
       .select('*')

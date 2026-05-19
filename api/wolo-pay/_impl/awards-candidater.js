@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Awards — Soumettre sa candidature (upload vidéo)
+// WOZALI Awards — Soumettre sa candidature (upload vidéo)
 // POST /api/wolo-pay/awards-candidater
 // Body: { user_id, video_url, pays }
 // Nécessite Plan Pro actif depuis 2+ mois
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       .maybeSingle();
 
     if (!abo) {
-      return res.status(403).json({ error: 'Plan Pro requis pour candidater aux WOLO Awards' });
+      return res.status(403).json({ error: 'Plan Pro requis pour candidater aux WOZALI Awards' });
     }
 
     // Vérifier Pro depuis 2+ mois
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
 
     return res.status(201).json({
       ok: true,
-      message: 'Candidature soumise · En attente de validation par l\'équipe WOLO',
+      message: 'Candidature soumise · En attente de validation par l\'équipe WOZALI',
       candidature_id: nouvelle.id,
     });
   } catch (err) {

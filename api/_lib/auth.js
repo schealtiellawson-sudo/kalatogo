@@ -1,5 +1,5 @@
 // ================================================================
-// Auth middleware — vérifie le JWT Supabase pour les endpoints WOLO Pay
+// Auth middleware — vérifie le JWT Supabase pour les endpoints WOZALI Pay
 // ================================================================
 import { createClient } from '@supabase/supabase-js';
 

@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Awards — Voter pour un candidat
+// WOZALI Awards — Voter pour un candidat
 // POST /api/wolo-pay/awards-vote
 // Body: { votant_id, candidat_id }
 // Un votant = un seul vote par mois (tous pays confondus)

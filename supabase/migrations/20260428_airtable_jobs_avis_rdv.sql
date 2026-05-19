@@ -6,7 +6,7 @@
 -- ================================================================
 
 -- ════════════════════════════════════════════
--- 1) WOLO_OFFRES_EMPLOI
+-- 1) WOZALI_OFFRES_EMPLOI
 -- Mapping depuis Airtable "Offres d'Emploi"
 -- ════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS wolo_offres_emploi (
@@ -67,7 +67,7 @@ CREATE TRIGGER trg_offres_updated
   FOR EACH ROW EXECUTE FUNCTION wolo_offres_updated_at();
 
 -- ════════════════════════════════════════════
--- 2) WOLO_CANDIDATURES
+-- 2) WOZALI_CANDIDATURES
 -- ════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS wolo_candidatures (
   id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -130,7 +130,7 @@ CREATE TRIGGER trg_cand_inc_offre
   FOR EACH ROW EXECUTE FUNCTION wolo_inc_offre_nb_candidatures();
 
 -- ════════════════════════════════════════════
--- 3) WOLO_AVIS (clients laissent un avis sur un prestataire)
+-- 3) WOZALI_AVIS (clients laissent un avis sur un prestataire)
 -- ════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS wolo_avis (
   id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -196,7 +196,7 @@ CREATE TRIGGER trg_avis_recalc
   FOR EACH ROW EXECUTE FUNCTION wolo_avis_recalc_prestataire();
 
 -- ════════════════════════════════════════════
--- 4) WOLO_RDV (rendez-vous client/prestataire)
+-- 4) WOZALI_RDV (rendez-vous client/prestataire)
 -- ════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS wolo_rdv (
   id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -344,7 +344,7 @@ SELECT
     'Candidat WhatsApp',      candidat_whatsapp,
     'Candidat Photo',         candidat_photo,
     'Candidat Quartier',      candidat_quartier,
-    'Candidat Score WOLO',    candidat_score_wolo,
+    'Candidat Score WOZALI',    candidat_score_wolo,
     'Candidat User ID',       candidat_user_id,
     'Recruteur ID',           recruteur_prestataire_id,
     'Recruteur Nom',          recruteur_nom,

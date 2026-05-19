@@ -1,5 +1,5 @@
 -- ================================================================
--- Migration WOLO Market — Widgets métier modulaires
+-- Migration WOZALI — Widgets métier modulaires
 -- Date : 2026-04-27
 -- Objectif : Ajouter des fonctionnalités spécifiques par métier sur
 -- chaque profil (réservation table restaurant, demande de devis chantier,

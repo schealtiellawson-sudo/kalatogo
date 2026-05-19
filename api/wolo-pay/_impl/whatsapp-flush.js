@@ -76,12 +76,12 @@ function inferTitle(templateKey, content) {
   // Titre court extrait du template_key ou de la 1ère ligne
   const firstLine = String(content || '').split('\n')[0].slice(0, 80).trim();
   const titles = {
-    A1_bienvenue: 'Bienvenue sur WOLO Market',
+    A1_bienvenue: 'Bienvenue sur WOZALI',
     A2_mission_photos: 'Ajoute tes 3 photos',
     A3_temoignage: 'Aïcha de Tokpa — histoire vraie',
     A4_concours: 'La Bourse des Mains d'Or commence',
     A5_relance: 'On n\'a pas vu d\'activité chez toi',
-    B1_lundi: 'WOLO, c\'est ton lundi',
+    B1_lundi: 'WOZALI, c\'est ton lundi',
     B2_carnet_client: 'Crée ton carnet de clientes en 10 min',
     B3_histoire_vraie: 'Mariam apprentie — comment elle a doublé',
     B4_concours_apprenties: 'La Bourse des Mains d'Or, ouvert à toi',
@@ -90,10 +90,10 @@ function inferTitle(templateKey, content) {
     PED2_pourquoi_pro: '5 raisons concrètes Plan Pro',
     PED3_recompenses: 'Les 500 000 FCFA distribués chaque mois',
     PED4_avis_clients: 'Les avis clients × 3 contacts',
-    PED5_score_wolo: 'Comprends ton Score WOLO',
+    PED5_score_wolo: 'Comprends ton Score WOZALI',
     PED6_disponibilite: 'Active ta disponibilité',
     PED7_partage_whatsapp: 'Ton lien WhatsApp partageable',
-    PED8_recap: 'Bilan 75 jours sur WOLO',
+    PED8_recap: 'Bilan 75 jours sur WOZALI',
   };
   return titles[templateKey] || firstLine || 'Message du fondateur';
 }
@@ -114,7 +114,7 @@ async function sendToInbox(supa, userId, templateKey, content) {
     template_key: templateKey,
     title: inferTitle(templateKey, content),
     body: content,
-    from: 'Schealtiel · Fondateur WOLO Market',
+    from: 'Schealtiel · Fondateur WOZALI',
     avatar: 'https://wolomarket.vercel.app/icons/founder-avatar.png',
     created_at: new Date().toISOString(),
     read: false,
@@ -136,13 +136,13 @@ async function sendEmailResend(toEmail, subject, content, prenom) {
     <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#0f1410;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;font-family:'Fraunces',serif;">S</div>
     <div>
       <div style="font-weight:700;color:#F8F6F1;font-size:15px;">Schealtiel</div>
-      <div style="font-size:12px;color:rgba(248,246,241,0.55);">Fondateur · WOLO Market</div>
+      <div style="font-size:12px;color:rgba(248,246,241,0.55);">Fondateur · WOZALI</div>
     </div>
   </div>
   <div style="font-size:15px;line-height:1.7;color:rgba(248,246,241,0.85);white-space:pre-line;">${(content || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
   <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(232,148,10,0.2);font-size:12px;color:rgba(248,246,241,0.5);">
-    Tu reçois ce message parce que tu fais partie de la communauté WOLO Market.<br>
-    <a href="https://wolomarket.com/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a> · <a href="https://wolomarket.com/#cgu" style="color:rgba(248,246,241,0.5);">Désinscrire</a>
+    Tu reçois ce message parce que tu fais partie de la communauté WOZALI.<br>
+    <a href="https://wozali.com/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a> · <a href="https://wozali.com/#cgu" style="color:rgba(248,246,241,0.5);">Désinscrire</a>
   </div>
 </div></body></html>`;
   try {
@@ -150,7 +150,7 @@ async function sendEmailResend(toEmail, subject, content, prenom) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Schealtiel <schealtiel@wolomarket.com>',
+        from: 'Schealtiel <schealtiel@wozali.com>',
         to: [toEmail],
         subject,
         html,
@@ -209,12 +209,12 @@ export default async function handler(req, res) {
       }
       // 4a. Substituer les variables (avec defaults)
       let finalContent = substitute(tplContent, {
-        url_dashboard: 'https://wolomarket.com/#dashboard',
-        url_awards: 'https://wolomarket.com/#awards',
-        url_recompenses: 'https://wolomarket.com/#recompenses',
-        url_parrainage: 'https://wolomarket.com/#dashboard',
-        url_profil: 'https://wolomarket.com/#dashboard',
-        url_search: 'https://wolomarket.com/#search',
+        url_dashboard: 'https://wozali.com/#dashboard',
+        url_awards: 'https://wozali.com/#awards',
+        url_recompenses: 'https://wozali.com/#recompenses',
+        url_parrainage: 'https://wozali.com/#dashboard',
+        url_profil: 'https://wozali.com/#dashboard',
+        url_search: 'https://wozali.com/#search',
         prenom: 'sœur',
         ...(m.payload || {}),
       });
@@ -239,7 +239,7 @@ export default async function handler(req, res) {
               await sendPushToUser(m.user_id, {
                 title,
                 body: previewBody,
-                url: 'https://wolomarket.com/#dashboard',
+                url: 'https://wozali.com/#dashboard',
                 tag: 'fondateur-' + m.template_key,
                 data: { template_key: m.template_key },
               });

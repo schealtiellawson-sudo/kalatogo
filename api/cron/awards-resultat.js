@@ -121,7 +121,7 @@ export default async function handler(req, res) {
       user_id: gagnant.user_id,
       montant: MONTANT_AWARDS,
       type: 'credit_awards',
-      description: `WOLO Awards — Champion ${moisCourant}`
+      description: `WOZALI Awards — Champion ${moisCourant}`
     });
 
     // 4. Marquer le gagnant
@@ -143,7 +143,7 @@ export default async function handler(req, res) {
     await envoyerNotification({
       user_id: gagnant.user_id,
       titre: '👑 Tu es la Reine du Bourse des Mains d'Or !',
-      corps: `100 000 FCFA ont été crédités sur ton Crédit WOLO. La communauté t'a élue Reine du mois de ${moisCourant}.`
+      corps: `100 000 FCFA ont été crédités sur ton Crédit WOZALI. La communauté t'a élue Reine du mois de ${moisCourant}.`
     });
 
     // 7. Vice-champion (2e)

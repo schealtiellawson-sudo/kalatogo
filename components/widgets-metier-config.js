@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Market — Mapping métier → widgets actifs
+// WOZALI — Mapping métier → widgets actifs
 // API : window.WoloWidgetsConfig
 //   .getWidgetsForMetier(metier)        → array de widget keys
 //   .getWidgetsForProfilePublic(metier) → widgets affichés profil public

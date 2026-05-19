@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS feed_photos (
   theme_mois          text,
   is_awards_candidate boolean DEFAULT false,
   tag_pro_user_id     uuid REFERENCES auth.users(id) ON DELETE SET NULL,  -- coiffeuse/couturière taguée
-  tag_pro_libre       text,                                                -- nom libre si pro pas sur WOLO
+  tag_pro_libre       text,                                                -- nom libre si pro pas sur WOZALI
   nb_likes            integer DEFAULT 0,
   nb_commentaires     integer DEFAULT 0,
   nb_shares           integer DEFAULT 0,
@@ -137,7 +137,7 @@ INSERT INTO themes_mensuels (mois, categorie_active, theme_coiffure, theme_coutu
   ('2026-09', 'couture',  NULL,                   'Tenue de rentrée chic',       '#ReineDeSeptembre'),
   ('2026-10', 'coiffure', 'Tresses créatives',    NULL,                          '#ReineDOctobre'),
   ('2026-11', 'couture',  NULL,                   'Robe de cérémonie',           '#ReineDeNovembre'),
-  ('2026-12', 'finale',   'Reine de l''Année',    'Reine de l''Année',           '#FinaleReineWOLO'),
+  ('2026-12', 'finale',   'Reine de l''Année',    'Reine de l''Année',           '#FinaleReineWOZALI'),
   ('2027-01', 'coiffure', 'Nouveau départ',       NULL,                          '#ReineDeJanvier'),
   ('2027-02', 'couture',  NULL,                   'Tenue Saint-Valentin',        '#ReineDeFevrier'),
   ('2027-03', 'coiffure', 'Tresses du 8 mars',    NULL,                          '#ReineDeMars')
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS streaks_wolo (
 CREATE INDEX IF NOT EXISTS idx_streaks_current ON streaks_wolo(current_streak DESC);
 
 -- ════════════════════════════════════════
--- 6) BADGES_WOLO
+-- 6) BADGES_WOZALI
 -- ════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS badges_wolo (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),

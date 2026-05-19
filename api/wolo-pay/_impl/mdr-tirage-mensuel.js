@@ -143,7 +143,7 @@ export default async function handler(req, res) {
       if (insErr) throw insErr;
     }
 
-    // 5) Notifier les gagnantes (push + Boîte WOLO)
+    // 5) Notifier les gagnantes (push + Boîte WOZALI)
     for (const g of [gagnanteTG, gagnanteBJ]) {
       if (!g) continue;
       try {
@@ -151,7 +151,7 @@ export default async function handler(req, res) {
         const newNotif = {
           type: 'mains_or_gagnante',
           titre: 'Tu es Reine des Mains d’Or !',
-          message: `${categorie === 'coiffure' ? 'Coiffure' : 'Couture'} — ${moisStr} : tu remportes 100 000 FCFA. WOLO Market te contacte sous 48h.`,
+          message: `${categorie === 'coiffure' ? 'Coiffure' : 'Couture'} — ${moisStr} : tu remportes 100 000 FCFA. WOZALI te contacte sous 48h.`,
           date: now.toISOString(),
           lue: false,
         };

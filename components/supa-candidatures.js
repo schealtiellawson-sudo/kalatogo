@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO supaCandidatures — adaptateur Supabase pour les Candidatures
+// WOZALI supaCandidatures — adaptateur Supabase pour les Candidatures
 // Format de retour Airtable {id, fields, createdTime}
 // ================================================================
 (function () {
@@ -14,7 +14,7 @@
     'Candidat WhatsApp':   'candidat_whatsapp',
     'Candidat Photo':      'candidat_photo',
     'Candidat Quartier':   'candidat_quartier',
-    'Candidat Score WOLO': 'candidat_score_wolo',
+    'Candidat Score WOZALI': 'candidat_score_wolo',
     'Recruteur ID':        'recruteur_prestataire_id',
     'Recruteur User ID':   'recruteur_user_id',
     'Recruteur Nom':       'recruteur_nom',

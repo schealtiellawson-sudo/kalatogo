@@ -1,5 +1,5 @@
 // ================================================================
-// WOLO Entretien — modale planification entretien
+// WOZALI Entretien — modale planification entretien
 // API : window.woloEntretien.open({ candidature, onSaved })
 // Endpoint : entretien-upsert (POST), entretien-list (GET)
 // ================================================================
@@ -43,20 +43,20 @@
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 
     overlay.innerHTML = `
-      <div style="background:#0f1410;border:1px solid rgba(232,148,10,.3);border-radius:16px;max-width:480px;width:100%;padding:24px;max-height:90vh;overflow-y:auto;">
+      <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;max-width:480px;width:100%;padding:24px;max-height:90vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
           <div>
-            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Planifier entretien</div>
-            <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#F8F6F1;margin:4px 0 0;">${escapeHtml(f['Candidat Nom'] || 'Candidat')}</h3>
-            <div style="font-size:11px;color:rgba(248,246,241,.4);">${escapeHtml(f['Offre Titre'] || '')}</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Planifier entretien</div>
+            <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">${escapeHtml(f['Candidat Nom'] || 'Candidat')}</h3>
+            <div style="font-size:11px;color:rgba(252, 224, 168,.4);">${escapeHtml(f['Offre Titre'] || '')}</div>
           </div>
-          <button id="wolo-rdv-close" style="background:none;border:none;color:rgba(248,246,241,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button id="wolo-rdv-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
 
-        <form id="wolo-rdv-form" style="display:flex;flex-direction:column;gap:14px;font-family:Poppins,sans-serif;font-size:13px;color:#F8F6F1;">
+        <form id="wolo-rdv-form" style="display:flex;flex-direction:column;gap:14px;font-family:Poppins,sans-serif;font-size:13px;color:#FCE0A8;">
           <label style="display:flex;flex-direction:column;gap:6px;">
-            <span style="font-size:11px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Type</span>
-            <select id="rdv-type" style="background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:10px;border-radius:8px;outline:none;">
+            <span style="font-size:11px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Type</span>
+            <select id="rdv-type" style="background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px;border-radius:8px;outline:none;">
               <option value="presentiel">Présentiel</option>
               <option value="visio">Visio</option>
               <option value="telephone">Téléphone</option>
@@ -64,20 +64,20 @@
           </label>
 
           <label style="display:flex;flex-direction:column;gap:6px;">
-            <span style="font-size:11px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Date et heure</span>
-            <input type="datetime-local" id="rdv-date" required value="${defaultDateTimeLocal()}" style="background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:10px;border-radius:8px;outline:none;font-family:Poppins,sans-serif;">
+            <span style="font-size:11px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Date et heure</span>
+            <input type="datetime-local" id="rdv-date" required value="${defaultDateTimeLocal()}" style="background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px;border-radius:8px;outline:none;font-family:Poppins,sans-serif;">
           </label>
 
           <div id="rdv-location-wrap">
             <label style="display:flex;flex-direction:column;gap:6px;">
-              <span id="rdv-location-label" style="font-size:11px;color:rgba(248,246,241,.5);text-transform:uppercase;letter-spacing:1px;">Lieu</span>
-              <input type="text" id="rdv-location" placeholder="Adresse / quartier" style="background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#F8F6F1;padding:10px;border-radius:8px;outline:none;font-family:Poppins,sans-serif;">
+              <span id="rdv-location-label" style="font-size:11px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Lieu</span>
+              <input type="text" id="rdv-location" placeholder="Adresse / quartier" style="background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px;border-radius:8px;outline:none;font-family:Poppins,sans-serif;">
             </label>
           </div>
 
           <div style="display:flex;gap:10px;margin-top:6px;">
-            <button type="button" id="wolo-rdv-cancel" style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);color:#F8F6F1;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-weight:600;">Annuler</button>
-            <button type="submit" id="wolo-rdv-save" style="flex:2;padding:12px;border-radius:10px;background:#E8940A;color:#0f1410;border:none;cursor:pointer;font-weight:700;">Planifier</button>
+            <button type="button" id="wolo-rdv-cancel" style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-weight:600;">Annuler</button>
+            <button type="submit" id="wolo-rdv-save" style="flex:2;padding:12px;border-radius:10px;background:#E8940A;color:#14100A;border:none;cursor:pointer;font-weight:700;">Planifier</button>
           </div>
         </form>
       </div>

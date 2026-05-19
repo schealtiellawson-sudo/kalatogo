@@ -1,5 +1,5 @@
 // POST /api/wolo-pay/parrainage-apply  { user_id, code }
-// Lie un filleul à un parrain via son code WOLO-XXXXXX
+// Lie un filleul à un parrain via son code WOZALI-XXXXXX
 import { supabase } from '../../_lib/supabase.js';
 import { syncToAirtable } from '../../_lib/airtable-sync.js';
 

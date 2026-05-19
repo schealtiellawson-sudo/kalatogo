@@ -1,4 +1,4 @@
-# Politique de confidentialité — WOLO Market
+# Politique de confidentialité — WOZALI
 
 **Dernière mise à jour : début juillet 2026**
 
@@ -6,13 +6,13 @@ Tes données c'est ta vie. On le sait. Voilà exactement ce qu'on garde, pourquo
 
 ---
 
-## C'est quoi WOLO Market ?
+## C'est quoi WOZALI ?
 
-WOLO Market, c'est une marketplace qui rend visible le travail. On connecte les coiffeuses, mécaniciens, couturiers, photographes, restauratrices et tous les pros invisibles du Togo et du Bénin avec des clients qui les cherchent. Sans réseau. Juste le travail.
+WOZALI, c'est une marketplace qui rend visible le travail. On connecte les coiffeuses, mécaniciens, couturiers, photographes, restauratrices et tous les pros invisibles du Togo et du Bénin avec des clients qui les cherchent. Sans réseau. Juste le travail.
 
 Pour faire ça, on a besoin de quelques infos sur toi. Pas pour les vendre. Pas pour t'inonder de pubs. Juste pour faire tourner la plateforme.
 
-Cette politique te dit tout. En clair. Sans charabia juridique. Si quelque chose te pose question, tu écris à contact@wolomarket.com et on te répond.
+Cette politique te dit tout. En clair. Sans charabia juridique. Si quelque chose te pose question, tu écris à contact@wozali.com et on te répond.
 
 ---
 
@@ -21,12 +21,12 @@ Cette politique te dit tout. En clair. Sans charabia juridique. Si quelque chose
 Le responsable du traitement, c'est :
 
 **Schealtiel Kpomblawoun**
-Fondateur de WOLO Market
+Fondateur de WOZALI
 Lomé, Togo
-Email : contact@wolomarket.com
-Email DPO : dpo@wolomarket.com
+Email : contact@wozali.com
+Email DPO : dpo@wozali.com
 
-WOLO Market est déclarée à :
+WOZALI est déclarée à :
 - l'Autorité de Protection des Données Personnelles du Togo (APDP Togo)
 - l'Autorité de Protection des Données Personnelles du Bénin (APDP Bénin)
 
@@ -97,7 +97,7 @@ Ces données on les garde 12 mois max et c'est uniquement pour la sécurité.
 ## Pourquoi on collecte ces données ?
 
 1. **Pour faire marcher ton compte** : t'authentifier, afficher ton profil, te laisser publier des offres ou candidater.
-2. **Pour te connecter aux clients** : c'est le cœur de WOLO. Sans ton métier, tes photos et ta zone, on peut pas te rendre visible.
+2. **Pour te connecter aux clients** : c'est le cœur de WOZALI. Sans ton métier, tes photos et ta zone, on peut pas te rendre visible.
 3. **Pour la messagerie** : pour que tu puisses parler à un client ou un recruteur.
 4. **Pour la sécurité** : détecter les fraudes, les faux profils, les arnaques.
 5. **Pour les concours** : Bourse des Mains d'Or, King & Queen, distribution de récompenses.
@@ -108,7 +108,7 @@ Ces données on les garde 12 mois max et c'est uniquement pour la sécurité.
 
 ## Avec qui on partage tes données ?
 
-Avec personne pour de la pub. Mais on a des prestataires techniques sans qui WOLO peut pas tourner :
+Avec personne pour de la pub. Mais on a des prestataires techniques sans qui WOZALI peut pas tourner :
 
 | Partenaire | Pour quoi | Où |
 |---|---|---|
@@ -116,7 +116,7 @@ Avec personne pour de la pub. Mais on a des prestataires techniques sans qui WOL
 | Airtable | Base de données opérationnelle (en migration) | États-Unis |
 | Vercel | Hébergement du site | États-Unis (serveur Frankfurt) |
 | ImgBB | Stockage de tes photos | États-Unis |
-| Resend | Envoi des emails de WOLO vers toi | États-Unis |
+| Resend | Envoi des emails de WOZALI vers toi | États-Unis |
 | Google (Gemini) | IA scoring candidat (PII anonymisées avant envoi) | États-Unis |
 | Groq, Cerebras | IA backup (PII anonymisées avant envoi) | États-Unis |
 | Mistral AI | IA backup (PII anonymisées avant envoi) | France |
@@ -138,7 +138,7 @@ On a pris des précautions :
 - Avant d'envoyer des données aux IA, on **remplace ton nom, ton email et ton numéro par des codes anonymes**
 - On a signé des engagements contractuels (clauses contractuelles types) avec chaque prestataire
 
-Si tu veux éviter ça, on comprend. Tu peux pas utiliser WOLO sans accepter ce minimum technique. Mais tu peux à tout moment supprimer ton compte (voir plus bas).
+Si tu veux éviter ça, on comprend. Tu peux pas utiliser WOZALI sans accepter ce minimum technique. Mais tu peux à tout moment supprimer ton compte (voir plus bas).
 
 ---
 
@@ -146,7 +146,7 @@ Si tu veux éviter ça, on comprend. Tu peux pas utiliser WOLO sans accepter ce 
 
 | Donnée | Durée |
 |---|---|
-| Compte actif | Tant que tu utilises WOLO |
+| Compte actif | Tant que tu utilises WOZALI |
 | Compte supprimé | Suppression immédiate des données identifiantes. On garde une version anonymisée 3 ans (statistiques) |
 | Logs techniques (IP, etc.) | 12 mois max |
 | Backups | 30 jours rolling |
@@ -162,10 +162,10 @@ Tu as le contrôle. Voilà ce que tu peux faire :
 
 | Droit | Comment |
 |---|---|
-| **Accéder** à toutes tes données | Email à contact@wolomarket.com |
+| **Accéder** à toutes tes données | Email à contact@wozali.com |
 | **Corriger** une info fausse | Directement dans ton tableau de bord, ou par email |
 | **Supprimer ton compte** | Bouton "Supprimer mon compte" dans le tableau de bord |
-| **Exporter tes données** (en JSON) | Email à contact@wolomarket.com |
+| **Exporter tes données** (en JSON) | Email à contact@wozali.com |
 | **T'opposer** à un traitement | Email |
 | **Retirer ton consentement** (géoloc, push, photos) | Désactivation directe dans le tableau de bord |
 | **Porter plainte** | APDP Togo (apdp.gouv.tg) ou APDP Bénin (apdp.bj) |
@@ -193,7 +193,7 @@ Si jamais une faille de sécurité expose tes données, on te prévient sous 72 
 
 ### Si tu as moins de 18 ans
 
-L'âge minimum pour s'inscrire sur WOLO Market c'est **16 ans révolus**. Si tu as entre 16 et 18 ans, on te demande de confirmer que tes parents sont au courant.
+L'âge minimum pour s'inscrire sur WOZALI c'est **16 ans révolus**. Si tu as entre 16 et 18 ans, on te demande de confirmer que tes parents sont au courant.
 
 Si tu as moins de 16 ans : on supprime ton compte dès qu'on s'en aperçoit.
 
@@ -209,7 +209,7 @@ Si tu actives le GPS, on stocke ta position. Si tu le désactives, on stocke jus
 
 ### Notifications push
 
-Quand ton navigateur te demande "WOLO Market veut t'envoyer des notifications", tu peux dire oui ou non. Tu peux aussi changer d'avis n'importe quand dans les paramètres de ton navigateur.
+Quand ton navigateur te demande "WOZALI veut t'envoyer des notifications", tu peux dire oui ou non. Tu peux aussi changer d'avis n'importe quand dans les paramètres de ton navigateur.
 
 ### Le scoring IA
 
@@ -229,22 +229,22 @@ Les gagnant·es sont annoncé·es publiquement (prénom + métier + ville). Si t
 
 ## Modifications de cette politique
 
-Si on change quelque chose d'important, on te préviendra par email et par notification dans le tableau de bord. La version la plus à jour est toujours sur https://wolomarket.com/confidentialite avec la date en haut.
+Si on change quelque chose d'important, on te préviendra par email et par notification dans le tableau de bord. La version la plus à jour est toujours sur https://wozali.com/confidentialite avec la date en haut.
 
 ---
 
 ## Tu as une question ?
 
-- Email général : **contact@wolomarket.com**
-- DPO (questions données perso) : **dpo@wolomarket.com**
+- Email général : **contact@wozali.com**
+- DPO (questions données perso) : **dpo@wozali.com**
 - WhatsApp : [à venir]
 
 Tu peux aussi contacter directement :
 - **APDP Togo** — https://apdp.gouv.tg/
 - **APDP Bénin** — https://apdp.bj/
 
-WOLO Market t'appartient. Tes données aussi.
+WOZALI t'appartient. Tes données aussi.
 
 ---
 
-*Politique de confidentialité — WOLO Market — Version 1.0 — début juillet 2026*
+*Politique de confidentialité — WOZALI — Version 1.0 — début juillet 2026*

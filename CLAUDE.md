@@ -41,7 +41,7 @@ Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "
 3. Sprint 3 — Migration SQL `20260515_refonte_recompenses.sql` (2 colonnes TikTok + drop 7 tables jeux) + 4 nouveaux endpoints (mdr-eligibilite, mdr-tirage-mensuel, bourse-eligibilite, bourse-tirage-mensuel) + UI page Récompenses refondue
 
 **Nouveau modèle Récompenses validé** :
-- **Bourse de Croissance** (300K × 2/mois — 1 Togo + 1 Bénin) : pour pros sérieux/focus/dévoués. 9 conditions (Plan Pro CE mois au lieu de 2 mois, profil complet, Score WOLO ≥ 80, ≥ 3 avis/30j (au lieu de 4), note ≥ 4.2★/30j, activité ≤ 14j, pas gagné 3 derniers mois, 2 TikTok)
+- **Bourse de Croissance** (300K × 2/mois — 1 Togo + 1 Bénin) : pour pros sérieux/focus/dévoués. 9 conditions (Plan Pro CE mois au lieu de 2 mois, profil complet, Score WOZALI ≥ 80, ≥ 3 avis/30j (au lieu de 4), note ≥ 4.2★/30j, activité ≤ 14j, pas gagné 3 derniers mois, 2 TikTok)
 - **Bourse des Mains d'Or** (100K × 2/mois — 1 Togo + 1 Bénin) : pour toutes femmes coiffeuses/couturières (PAS Pro requis). 7 conditions (profil complet, métier alterné mois pair/impair, ≥ 1 photo réalisation sur profil ce mois, ≥ 1 avis sur 30j, activité ≤ 14j, 2 TikTok)
 - Tirage **100% aléatoire** le 30 du mois (via cron CRON_SECRET)
 - 2 cases TikTok déclaratives (honor system) sur page Récompenses, partagées entre les 2 récompenses
@@ -59,7 +59,7 @@ Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "
 **Conservé** :
 - Top Mains les Plus Demandées (classement passif des coiffeuses/couturières les plus taguées)
 - Feed photos avec tag obligatoire de la pro
-- Battle H vs F (admin dashboard pour scoreboard Pionniers WOLO Hommes/Femmes) — différent de la Battle publique virée
+- Battle H vs F (admin dashboard pour scoreboard Pionniers WOZALI Hommes/Femmes) — différent de la Battle publique virée
 
 **URLs TikTok placeholders** : `@wolomarket` et `@schealtiellawson` (à créer par fondateur, puis search/replace 30 sec)
 
@@ -88,8 +88,8 @@ Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "
 - 🔒 S1 — Proxy Airtable auth + whitelist tables (PATCH/DELETE require JWT + email match)
 - 🔒 S2 — XSS stockée dans rendus (escapeHtml partout : offres, candidatures, profil, favoris, abonnements)
 - 🔒 S3 — Migration `20260507_fix_rls_avis_rdv.sql` créée (à appliquer manuellement)
-- 🎨 B1 — "Schealtiel" purgé du DOM public (9 occurrences → "WOLO" / "le fondateur")
-- 🎨 B2 — "agent terrain" purgé (11 occurrences → "Pionniers WOLO")
+- 🎨 B1 — "Schealtiel" purgé du DOM public (9 occurrences → "WOZALI" / "le fondateur")
+- 🎨 B2 — "agent terrain" purgé (11 occurrences → "Pionniers WOZALI")
 - 🎨 B3 — "talent" → "travail" / "pros" (11 occurrences)
 - 📅 Date "4 mai" / "18 mai" → "début juillet 2026" partout
 - 🔄 ID mismatch UUID Supabase vs recXXX Airtable géré (filtres OR + branches conditionnelles)
@@ -162,7 +162,7 @@ Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "
 
 ### Détail action 1 — VAPID keys (push notifications PWA)
 ```bash
-cd /Users/schealtiellawson/Documents/04\ -\ WOLO\ MARKET/Projet/wolomarket/repo
+cd /Users/schealtiellawson/Documents/04\ -\ WOZALI\ MARKET/Projet/wolomarket/repo
 npx web-push generate-vapid-keys
 vercel env add VAPID_PUBLIC_KEY production
 vercel env add VAPID_PRIVATE_KEY production
@@ -256,7 +256,7 @@ Les 2 endpoints sont importés dans `api/wolo-pay/[action].js` et déclarés dan
 ### Page publique `#battle` (page-battle)
 - Header dramatique "🇧🇯 BÉNIN vs TOGO 🇹🇬" + banner leader live
 - 2 cards côte-à-côte (prestataires actifs / photos du Mur / votes / Reines du mois) avec halo or sur le pays leader
-- CTA partage WhatsApp viral : "🇧🇯 BÉNIN MÈNE BÉNIN MÈNE 🇧🇯 sur WOLO Market — viens voter pour ton pays" (texte adaptatif selon leader)
+- CTA partage WhatsApp viral : "🇧🇯 BÉNIN MÈNE BÉNIN MÈNE 🇧🇯 sur WOZALI Market — viens voter pour ton pays" (texte adaptatif selon leader)
 - Top 5 villes par pays (cards séparées Bénin/Togo)
 - Auto-refresh chaque heure via `setTimeout` + check `page-battle.active`
 - JS : `window.loadBattlePage()`, `window.shareBattleWhatsApp()`, `window._battleData`
@@ -295,7 +295,7 @@ Module `_impl/push-send.js` : import dynamique de `web-push`, configuration VAPI
 
 ### Service Worker (`sw.js` v2)
 Écoute `push` → `showNotification(title, { body, icon, badge, tag, data: { url } })`.
-Écoute `notificationclick` → focus la fenêtre WOLO existante (et navigue vers l'URL data.url) ou en ouvre une nouvelle (`/#dashboard` par défaut).
+Écoute `notificationclick` → focus la fenêtre WOZALI existante (et navigue vers l'URL data.url) ou en ouvre une nouvelle (`/#dashboard` par défaut).
 
 ### Frontend (`index.html`)
 - Card "🔔 Active les notifications" en haut de `ds-notifications` (Activité), affichée via `updatePushCard()` quand l'utilisateur ouvre la section.
@@ -355,7 +355,7 @@ Nouvelle 2ᵉ rangée de filtres juste sous la barre existante (offre / statut /
 - `recrut-cand-filter-age` — Tranche d'âge : 18-25 / 26-35 / 36-45 / 45+
 - `recrut-cand-filter-exp` — Expérience : Junior (0-2) / Confirmé (3-5) / Senior (5+)
 - `recrut-cand-filter-distance` — Distance candidat ↔ offre : <2 km / 2-5 km / >5 km / Même quartier
-- `recrut-cand-sort` — Tri : Récent (défaut) / 🤖 Score IA ↓↑ / ⚡ Score WOLO ↓ / Plus ancien
+- `recrut-cand-sort` — Tri : Récent (défaut) / 🤖 Score IA ↓↑ / ⚡ Score WOZALI ↓ / Plus ancien
 - Bouton `↺ Reset` pour vider tous les filtres + tri
 
 Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté de "🤖 Scorer en lot".
@@ -364,11 +364,11 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 - `recrutCandSort` (état tri courant) + `recrutCandFiltered` (cache du dernier rendu, source de l'export)
 - `_woloAiScoreFor(c)` — lit le champ `Score IA` / `score_ia` persisté, fallback cache local `window.woloAi.getCachedScore`
 - `_woloAgeFromDateNaissance(dateIso)` — calcul d'âge précis
-- `_WOLO_QUARTIER_COORDS` + `_woloDistanceQuartiers(qA, qB)` — distance haversine entre quartiers Lomé / Cotonou (~30 quartiers couverts)
+- `_WOZALI_QUARTIER_COORDS` + `_woloDistanceQuartiers(qA, qB)` — distance haversine entre quartiers Lomé / Cotonou (~30 quartiers couverts)
 - `_sortRecrutCandidatures(list, mode)` — applique le tri demandé, gère les nulls IA (renvoyés en fin)
 - `setRecrutCandSort(mode)` / `resetRecrutFilters()` — handlers UI
 - `_saveRecrutFilters()` / `_restoreRecrutFilters()` — persistance localStorage sous la clé `wolo_recrut_filters_<user_id>` (offre, statut, quartier, search, age, exp, distance, sort, view)
-- `_csvEscape(v)` + `exportCandidaturesCSV()` — export du tableau filtré, BOM UTF-8 pour Excel, fichier `candidatures-recues-YYYY-MM-DD.csv`, colonnes : Date · Nom · Métier · Quartier · Score WOLO · Score IA · Statut · Offre · WhatsApp
+- `_csvEscape(v)` + `exportCandidaturesCSV()` — export du tableau filtré, BOM UTF-8 pour Excel, fichier `candidatures-recues-YYYY-MM-DD.csv`, colonnes : Date · Nom · Métier · Quartier · Score WOZALI · Score IA · Statut · Offre · WhatsApp
 
 ### Câblage
 - `loadCandidaturesRecues()` appelle `_restoreRecrutFilters()` avant le fetch pour restaurer la session précédente
@@ -380,7 +380,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 - `Candidat Années expérience` (avec fallbacks `Candidat Annees experience`, `Candidat Experience`)
 - `Candidat Quartier` + `Offre Quartier` (ou `Quartier Offre`, `Quartier`)
 - `Score IA` / `score_ia` + cache `window.woloAi`
-- Existants : `Candidat Nom/Métier/Score WOLO/Photo/WhatsApp/ID`, `Offre ID/Titre`, `Statut`, `Date candidature`
+- Existants : `Candidat Nom/Métier/Score WOZALI/Photo/WhatsApp/ID`, `Offre ID/Titre`, `Statut`, `Date candidature`
 
 ### Tests rapides
 1. **Export CSV** : ouvrir `ds-recrut-candidatures`, appliquer un filtre, cliquer ⤓ Export CSV → fichier téléchargé avec virgules + accents corrects.
@@ -395,7 +395,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 - **3 migrations Supabase appliquées en prod** via Management API : `wolo_prestataires`, `ai_infrastructure` (ai_cache, ai_quota_log), `messagerie_entretiens` (wolo_threads, messages, entretiens, signalements, message_templates). Vérification : 22 tables `wolo_*`/`ai_*` présentes en prod.
 - **Migration `20260416_sprint14_mur_des_reines.sql` skippée** (référence table `profiles` au lieu de `wolo_prestataires` — schéma incompatible, à reprendre si on relance feed_photos).
 - **GEMINI_API_KEY ajoutée à Vercel prod** + redeploy effectué (déploiement `dpl_7xcSUEdqLCQMuYMR5gpsXbLkAehk`).
-- **Suppression complète King & Queen WOLO** de `index.html` (sidebar, sections, page-king-queen, FAQ, footer, recompenses, onboarding tour, ToS, meta SEO, publicPages, showPage, script include). Page route + composant orphelins. Le fichier `components/king-queen.js` n'est plus chargé mais n'est PAS supprimé (au cas où).
+- **Suppression complète King & Queen WOZALI** de `index.html` (sidebar, sections, page-king-queen, FAQ, footer, recompenses, onboarding tour, ToS, meta SEO, publicPages, showPage, script include). Page route + composant orphelins. Le fichier `components/king-queen.js` n'est plus chargé mais n'est PAS supprimé (au cas où).
 - **Refonte copy La Bourse des Mains d'Or** :
   - Pricing : 50K → **100 000 FCFA × 2 Reines/mois** (1 Bénin + 1 Togo, alternance Coiffure mois impair / Couture mois pair)
   - **Finale annuelle décembre** : 500K × 2 (Reine de l'Année Coiffure + Reine de l'Année Couture, Bénin vs Togo)
@@ -407,7 +407,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
   - CTA partout : "Entrer sur la Bourse des Mains d'Or →" → "Poste ta photo · Deviens Reine du mois →"
 
 ### ✅ V1.1 livré dans cette même session (2026-04-28 suite)
-1. **Storytelling apprenties** ✅ — section À Propos *"L'invisible dans l'invisible"* avec citation *"Tu as payé 80 000 FCFA à Madame Adjo... WOLO Market c'est ton lundi toute la semaine"* + bloc 5 bénéfices.
+1. **Storytelling apprenties** ✅ — section À Propos *"L'invisible dans l'invisible"* avec citation *"Tu as payé 80 000 FCFA à Madame Adjo... WOZALI Market c'est ton lundi toute la semaine"* + bloc 5 bénéfices.
 2. **Bandeau dashboard apprentie** ✅ — fonction `injectApprentieBanner()` auto-détecte coiffeuse/couturière, distingue apprentie déclarée vs cible non déclarée, dismissible localStorage.
 3. **Détection apprentie inscription** ✅ — bloc 3 options (Apprentie / Cheffe de salon / Indépendante) avec descriptifs anti-confusion. Affiché uniquement pour Coiffeuse/Couturière. Champ `Statut Artisan` sauvegardé.
 4. **Colonne SQL `statut_artisan`** ✅ — ajoutée à `wolo_prestataires` (CHECK constraint apprentie/patronne/independante) + mapping `supa-prest.js`.
@@ -614,7 +614,7 @@ Branchement frontend des 6 handlers backend qui existaient mais n'étaient pas r
 2. **Clés API IA** (au moins une) : `GEMINI_API_KEY` / `GROQ_API_KEY` / `CEREBRAS_API_KEY` / `MISTRAL_API_KEY` dans les env vars Vercel. Sinon l'IA renvoie 503.
 3. **Champs Airtable optionnels** : pour la messagerie + entretiens, le record Candidatures peut contenir `Candidat User ID` et `Recruteur User ID` (UUIDs Supabase). Sans eux, le composant affiche un message d'erreur clair et propose le fallback WhatsApp. Recommandé : ajouter ces champs et les peupler à la création de candidature/offre.
 
-## ✅ LIVRÉ — WOLO Business Suite (Phases A → G, commit 58ff6dc)
+## ✅ LIVRÉ — WOZALI Business Suite (Phases A → G, commit 58ff6dc)
 
 Flow continu Recrutement → Intégration → Équipe → Paie → Finances. **Plan** : `/docs/BUSINESS-SUITE-PLAN.md`, **schéma Airtable** : `/docs/AIRTABLE-SCHEMA-BUSINESS-SUITE.md`.
 
@@ -644,11 +644,11 @@ Contrainte Vercel Hobby = **12 functions max**. Implémentations sous `/api/wolo
 - IIFE + state closure + `window.loadXxx` pour chaque composant
 - `const wFetch = window.woloFetch || fetch` pour auth-fallback
 - Filtrage Airtable : `{Patron ID}='${patronId}'` via `filterByFormula`
-- Polymorphie : un compte WOLO cumule patron + employé + solo + candidat
+- Polymorphie : un compte WOZALI cumule patron + employé + solo + candidat
 
 ## ✅ LIVRÉ — Sprint 14 : La Bourse des Mains d'Or (Gamification Awards)
 
-Refonte complète de WOLO Awards → "La Bourse des Mains d'Or". Toutes les femmes (pas que les pros) postent coiffure/couture, la communauté vote, 2 Reines du mois gagnent 50K FCFA chacune.
+Refonte complète de WOZALI Awards → "La Bourse des Mains d'Or". Toutes les femmes (pas que les pros) postent coiffure/couture, la communauté vote, 2 Reines du mois gagnent 50K FCFA chacune.
 
 ### Composant frontend
 `/components/mur-des-reines.js` — IIFE, `window.loadMurDesReines`, tabs: feed | discover | podium | moi
@@ -682,13 +682,13 @@ Refonte complète de WOLO Awards → "La Bourse des Mains d'Or". Toutes les femm
 - Thème du mois avec hashtag (#ReineDAvril etc.)
 
 ### Copywriting global mis à jour
-- "WOLO Awards" → "La Bourse des Mains d'Or" partout dans index.html
+- "WOZALI Awards" → "La Bourse des Mains d'Or" partout dans index.html
 - Storytelling : "Ta grand-mère t'a appris. Ta mère t'a appris. Maintenant, le monde regarde."
-- Hashtags : #MurDesReines #ReineWOLO #TalentAfricain
+- Hashtags : #MurDesReines #ReineWOZALI #TalentAfricain
 - Email template : `emails/08-wolo-awards.html`
 - Kit réseaux : `content/kit-reseaux-lancement.md` (10 scripts TikTok REINE01-10)
 
-## ✅ LIVRÉ — King & Queen WOLO
+## ✅ LIVRÉ — King & Queen WOZALI
 
 Composant de duels communautaires. Hommes et femmes s'affrontent par catégorie (Coiffure, Couture, etc.). 500K FCFA/mois en jeu.
 
@@ -715,16 +715,16 @@ Section parrainage entièrement refondue en section vendeuse :
 
 ## ✅ LIVRÉ — Paie par virement bancaire
 
-Conversion de WOLO Pay → virement bancaire dans Business Suite Paie :
+Conversion de WOZALI Pay → virement bancaire dans Business Suite Paie :
 - `paie-dashboard.js` : checkbox "Viré" au lieu de bouton payer, `marquerVirement()` remplace `payerEmploye()`
 - `equipe-dashboard.js` : champ IBAN dans modal invitation + modal détail employé avec édition IBAN/salaire
 - `paie-pay.js` : méthode = "Virement bancaire"
 - Champ IBAN dans table Airtable `Employes`
 
-## ✅ LIVRÉ — Nettoyage WOLO Pay
+## ✅ LIVRÉ — Nettoyage WOZALI Pay
 
 - 20 fichiers supprimés (17 `_impl/` + 3 libs mortes)
-- CSS mort retiré (#page-paiement-client, WOLO Pay Hero)
+- CSS mort retiré (#page-paiement-client, WOZALI Pay Hero)
 - Fonctions JS mortes retirées (woloNotifTransfert, checkPaymentUrl)
 - Sidebar dashboard : "Finances" → "Mon abonnement" + groupe "Récompenses" séparé
 - Footers : "Devenir Agent" retiré, "À propos" → "Notre Histoire"
@@ -737,7 +737,7 @@ Deux template literals JS (QR code `printQRCode()` et CV print `emploi-cv`) cont
 - Failsafe overlay : le loader `#wolo-init-overlay` se retire après 5s même si `initAuth()` échoue
 
 ### `checkPaymentUrl()` manquante
-Fonction supprimée avec le nettoyage WOLO Pay mais encore appelée dans le bloc d'init → erreur fatale JS. Retirée des appels `DOMContentLoaded`.
+Fonction supprimée avec le nettoyage WOZALI Pay mais encore appelée dans le bloc d'init → erreur fatale JS. Retirée des appels `DOMContentLoaded`.
 
 ### Retry Airtable 429 (rate limit)
 Airtable free tier = 5 req/s. Le dashboard envoie trop de requêtes en parallèle → 429 → `currentPrestataire = undefined` → "Profil non trouvé".
@@ -747,7 +747,7 @@ Airtable free tier = 5 req/s. Le dashboard envoie trop de requêtes en parallèl
 
 ## Projet
 
-WOLO Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~24 700 lignes). Déployé sur Vercel à https://wolomarket.vercel.app.
+WOZALI Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~24 700 lignes). Déployé sur Vercel à https://wolomarket.vercel.app.
 
 ## Commandes
 
@@ -776,7 +776,7 @@ git push
 - **Vidéos** : Cloudflare R2 (hébergement), URLs dans `videos-urls.json`
 - **Déploiement** : Vercel (auto sur push main)
 
-## Charte visuelle WOLO Market
+## Charte visuelle WOZALI Market
 
 - **Palette** : Noir chaud `#0f1410`, Or `#E8940A`, Crème `#F8F6F1` — ZÉRO vert
 - **Typographies** : Fraunces (titres), Space Mono (données/chiffres), Cabinet Grotesk (corps)
@@ -831,29 +831,29 @@ showDashSection('recompenses')          → récompenses (Bourse + Awards widget
 | Table | Description |
 |---|---|
 | `bourse_croissance` | Éligibilité + tirages mensuels (300k FCFA). Champs : user_id, mois, eligible, score_wolo, nb_avis, note_moyenne, pro_mois_consecutifs, gagnant |
-| `wolo_awards` | Candidatures WOLO Awards (100k FCFA). Champs : user_id, mois, pays (BJ/TG), video_url, video_validee, nb_votes, gagnant, vice_champion |
+| `wolo_awards` | Candidatures WOZALI Awards (100k FCFA). Champs : user_id, mois, pays (BJ/TG), video_url, video_validee, nb_votes, gagnant, vice_champion |
 | `votes_awards` | Votes (1 vote/personne/mois). UNIQUE(votant_id, mois) |
 | `gains_recompenses` | Historique des gains versés. Types : bourse_croissance, wolo_awards |
 | `agents_terrain` | Agents de terrain pour le lancement. Champs : user_id, airtable_id, nom, telephone, email, ville (Lomé/Cotonou), genre (H/F), code_parrainage, actif. Backup Airtable via syncToAirtable(). |
 
-## WOLO Jobs — Tables Airtable
+## WOZALI Jobs — Tables Airtable
 
 | Table | Champs clés |
 |---|---|
 | `Offres d'Emploi` | Titre, Métier, Quartier, Ville, Type de contrat, Description, Salaire min/max FCFA, Recruteur ID/Nom/WhatsApp/vérifié, Active, Vues, Nb candidatures, Photo 1/2/3, Expérience requise, Urgente, Télétravail, Date expiration |
-| `Candidatures` | Offre ID/Titre, Candidat ID/Nom/Métier/WhatsApp/Score WOLO/Photo, Message, Statut (En attente/Vue/Retenue/Refusée), Date candidature, Recruteur ID/Nom |
+| `Candidatures` | Offre ID/Titre, Candidat ID/Nom/Métier/WhatsApp/Score WOZALI/Photo, Message, Statut (En attente/Vue/Retenue/Refusée), Date candidature, Recruteur ID/Nom |
 
-### Sections dashboard WOLO Jobs
+### Sections dashboard WOZALI Jobs
 ```
 showDashSection('emploi-mode')          → toggle disponibilité emploi
 showDashSection('emploi-candidatures')  → mes candidatures envoyées
-showDashSection('emploi-cv')            → mon CV WOLO (preview)
+showDashSection('emploi-cv')            → mon CV WOZALI (preview)
 showDashSection('recrut-publier')       → publier une offre
 showDashSection('recrut-offres')        → mes offres publiées
 showDashSection('recrut-candidatures')  → candidatures reçues
 ```
 
-### Fonctions JS clés WOLO Jobs
+### Fonctions JS clés WOZALI Jobs
 - `loadOffresEmploi(filtres)` — charge offres (~l.18740)
 - `renderOffreEmploi(offre)` — carte offre (~l.18758)
 - `showOffreDetail(offreId)` — détail offre (~l.18801)
@@ -876,11 +876,11 @@ showDashSection('recrut-candidatures')  → candidatures reçues
 - **Listes de métiers** : dupliquées en plusieurs endroits (recherche home, recherche page, inscription, dashboard edit) — penser à toutes les mettre à jour.
 - **localStorage** : préfixé `wolo_` — migration automatique des anciennes clés `kala_` au premier chargement.
 - **Pas de champ `Nom` dans Airtable** — utiliser `Nom complet` partout.
-- **Codes parrainage** : préfixe `WOLO`, format `WOLOxxxx1234`.
+- **Codes parrainage** : préfixe `WOZALI`, format `WOZALIxxxx1234`.
 - **Admin** : accès panel admin via `?admin` dans l'URL + authentification Supabase (vérifié côté serveur via `/api/admin-verify`). Les emails admin sont dans la variable d'environnement `ADMIN_EMAILS`.
 - **Agents Terrain** : section dashboard admin-only (`showDashSection('agents-terrain')` et `showDashSection('battle')`). Recherche prestataire par téléphone/nom, ajout comme agent avec ville + genre. Scoreboard Battle H vs F. API : `/api/wolo-pay/agents-terrain` (POST, actions: list/search/add/remove/update).
 
-## Score WOLO (max 100 pts) — Sprint 7
+## Score WOZALI (max 100 pts) — Sprint 7
 
 ```
 Profil complet         : 30 pts

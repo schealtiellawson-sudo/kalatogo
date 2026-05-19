@@ -1,4 +1,4 @@
-# WOLO Market — Inventaire complet features pour marketing
+# WOZALI — Inventaire complet features pour marketing
 
 > Généré le 2026-05-07. À utiliser pour : posts Instagram, Reels TikTok, séquences email, scripts vidéos, présentation presse, deck investisseurs, scripts onboarding parrains/affiliés.
 >
@@ -8,7 +8,7 @@
 > - **Akossiwa** — photographe freelance 26 ans, Lomé, missions ponctuelles
 > - **Madame Adjo** — patronne restau 45 ans, Cotonou, recrute serveurs + reçoit réservations
 >
-> **Charte voix** : direct, brut, "tu" pas "vous". Phrases canoniques : *"WOLO Market t'appartient"*, *"Ton travail parle. Pas tes connexions."*
+> **Charte voix** : direct, brut, "tu" pas "vous". Phrases canoniques : *"WOZALI t'appartient"*, *"Ton travail parle. Pas tes connexions."*
 
 ---
 
@@ -16,8 +16,8 @@
 
 1. PROFIL & VISIBILITÉ (côté pro)
 2. RECHERCHE & DÉCOUVERTE (côté client)
-3. WOLO JOBS — RECRUTEMENT (côté recruteur)
-4. WOLO JOBS — POSTULER (côté candidat)
+3. WOZALI JOBS — RECRUTEMENT (côté recruteur)
+4. WOZALI JOBS — POSTULER (côté candidat)
 5. INTELLIGENCE ARTIFICIELLE
 6. RÉCOMPENSES & GAMIFICATION
 7. WIDGETS MÉTIER (verticales)
@@ -45,7 +45,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 **Hook marketing (3 options)** :
 - Hook punch : *"Ton métier mérite un lien. Pas un message d'attente."*
 - Hook émotion : *"Mariam a tressé sa cousine, sa voisine, la dame du marché. Aujourd'hui elles peuvent envoyer son lien à toute Lomé."*
-- Hook viral : *"LinkedIn pour les bureaux. WOLO pour le vrai travail."*
+- Hook viral : *"LinkedIn pour les bureaux. WOZALI pour le vrai travail."*
 
 **Format contenu suggéré** :
 - Post Instagram Dark/Or (1080x1080) avec capture profil Mariam
@@ -70,7 +70,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 **Hook marketing** :
 - Punch : *"Une bonne photo, c'est 50% du job."*
 - Émotion : *"Akossiwa shoote tout le monde. Maintenant elle se shoote elle-même."*
-- Viral : *"Pas besoin d'iPhone. Juste de WOLO."*
+- Viral : *"Pas besoin d'iPhone. Juste de WOZALI."*
 
 **Format suggéré** : Tutoriel TikTok 15s "comment recadrer ta photo profil pour vendre + de prestas"
 
@@ -107,12 +107,12 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Hook marketing** :
 - Punch : *"Apprentie aujourd'hui. Visible aujourd'hui."*
-- Émotion : *"Tu paies 80 000 FCFA à Madame Bea. WOLO te rend tes lundis libres pour toi."*
+- Émotion : *"Tu paies 80 000 FCFA à Madame Bea. WOZALI te rend tes lundis libres pour toi."*
 - Viral : *"Tu sais qu'on t'a dit que c'était normal de payer pour bosser 3 ans gratis ?"*
 
 **Format suggéré** : Reel TikTok 60s storytelling apprentie. Post storytelling apprentie en carrousel 5 slides.
 
-**Phrase canonique** : *"WOLO Market t'appartient"*
+**Phrase canonique** : *"WOZALI t'appartient"*
 
 **État** : ✅ Live (Statut artisan ajouté en 2026-04-28)
 
@@ -162,18 +162,18 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Le client copie un numéro, le tape mal, ouvre l'app, perd patience. WOLO supprime 4 étapes.
+**Pain point résolu** : Le client copie un numéro, le tape mal, ouvre l'app, perd patience. WOZALI supprime 4 étapes.
 
 **Hook marketing** :
 - Punch : *"1 clic. 1 message. 1 client."*
 - Émotion : *"Madame Adjo a reçu 12 réservations en 1 soir. Sans répondre au téléphone."*
-- Viral : *"WhatsApp + ton métier = WOLO."*
+- Viral : *"WhatsApp + ton métier = WOZALI."*
 
 **État** : ✅ Live
 
 ---
 
-### 8. Badge "Fondateur WOLO" (1 000 premiers inscrits)
+### 8. Badge "Fondateur WOZALI" (1 000 premiers inscrits)
 
 **Ce que ça fait** : Si t'es dans les 1 000 premiers de tout le Bénin + Togo, t'as un badge OR à vie sur ton profil.
 
@@ -183,7 +183,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Hook marketing** :
 - Punch : *"Les 1 000 premiers. Ou rien."*
-- Émotion : *"Quand WOLO Market aura 50 000 prestas, les clients sauront que t'étais là dès le début."*
+- Émotion : *"Quand WOZALI aura 50 000 prestas, les clients sauront que t'étais là dès le début."*
 - Viral : *"Plus que 743 places. Compteur en direct."*
 
 **Format suggéré** : Story IG avec compteur dynamique. Post Instagram Or "il reste X places". Reel TikTok "pourquoi être 47ème change ta vie".
@@ -198,12 +198,12 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Les autres apps envoient des emails impersonnels. WOLO te parle, par séquence, avec ton prénom.
+**Pain point résolu** : Les autres apps envoient des emails impersonnels. WOZALI te parle, par séquence, avec ton prénom.
 
 **Hook marketing** :
 - Punch : *"Pas un robot. Pas un mail spam. Un humain."*
 - Émotion : *"Le dimanche soir, le fondateur écrit à Mariam : 'Cette semaine, ça va aller'."*
-- Viral : *"Tu connais une app où le boss t'écrit perso ? Voilà WOLO."*
+- Viral : *"Tu connais une app où le boss t'écrit perso ? Voilà WOZALI."*
 
 **État** : ✅ Live (157 templates / 35 séquences)
 
@@ -215,7 +215,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Akossiwa rate des missions parce qu'elle ouvre WhatsApp 3h après. WOLO la prévient direct sur son écran de verrouillage.
+**Pain point résolu** : Akossiwa rate des missions parce qu'elle ouvre WhatsApp 3h après. WOZALI la prévient direct sur son écran de verrouillage.
 
 **Hook marketing** :
 - Punch : *"Ton téléphone bipe. Tu réponds. Tu gagnes."*
@@ -232,7 +232,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / Tous nouveaux
 
-**Pain point résolu** : Tu t'inscris, t'es paumée. WOLO te tient la main.
+**Pain point résolu** : Tu t'inscris, t'es paumée. WOZALI te tient la main.
 
 **Hook marketing** :
 - Punch : *"3 actions. 7 jours. T'es prête."*
@@ -243,18 +243,18 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 ---
 
-### 12. CV WOLO Market téléchargeable (PDF print-ready)
+### 12. CV WOZALI téléchargeable (PDF print-ready)
 
 **Ce que ça fait** : Ton profil devient un CV propre que tu peux imprimer ou envoyer à un recruteur.
 
 **Persona principal** : Akossiwa / Mariam (post-apprentissage)
 
-**Pain point résolu** : Akossiwa veut postuler à un studio photo. Pas de Word, pas de Canva. WOLO génère.
+**Pain point résolu** : Akossiwa veut postuler à un studio photo. Pas de Word, pas de Canva. WOZALI génère.
 
 **Hook marketing** :
 - Punch : *"Un clic. Un CV. Pas Word. Pas Canva."*
 - Émotion : *"Le studio a dit oui à Akossiwa avant qu'elle finisse de parler — il avait le PDF en main."*
-- Viral : *"CV 2026 = ton lien WOLO + un PDF qui tombe."*
+- Viral : *"CV 2026 = ton lien WOZALI + un PDF qui tombe."*
 
 **État** : ✅ Live (`emploi-cv` section dashboard)
 
@@ -266,7 +266,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam (apprentie qui ne sait pas combien facturer)
 
-**Pain point résolu** : Mariam ne sait pas si "tresses braids" = 5 000 ou 15 000. WOLO lui propose 5 prix selon son statut.
+**Pain point résolu** : Mariam ne sait pas si "tresses braids" = 5 000 ou 15 000. WOZALI lui propose 5 prix selon son statut.
 
 **Hook marketing** :
 - Punch : *"Tu sais pas combien facturer ? On te dit."*
@@ -283,7 +283,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Mariam n'a aucun moyen de prouver qu'elle bosse bien. WOLO accumule la preuve sociale.
+**Pain point résolu** : Mariam n'a aucun moyen de prouver qu'elle bosse bien. WOZALI accumule la preuve sociale.
 
 **Hook marketing** :
 - Punch : *"Tes avis. Pas tes selfies."*
@@ -294,18 +294,18 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 ---
 
-### 15. Score WOLO sur 100 (auto-calculé)
+### 15. Score WOZALI sur 100 (auto-calculé)
 
 **Ce que ça fait** : Ton profil a une note sur 100 qui résume si t'es complet, actif, bien noté.
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Personne ne sait quoi optimiser sur son profil. WOLO transforme ça en jeu.
+**Pain point résolu** : Personne ne sait quoi optimiser sur son profil. WOZALI transforme ça en jeu.
 
 **Hook marketing** :
 - Punch : *"Score sur 100. Comme à l'école. Sauf que t'as les réponses."*
 - Émotion : *"82/100 pour Mariam. Elle veut 90. Elle a posté 3 photos. Elle est à 87."*
-- Viral : *"Y a pas de Score Yelp. Y a Score WOLO."*
+- Viral : *"Y a pas de Score Yelp. Y a Score WOZALI."*
 
 **État** : ✅ Live (cron `score-wolo.js` horaire)
 
@@ -319,7 +319,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Client (pas un persona pro mais clé pour les pros)
 
-**Pain point résolu** : Tu connais personne. WOLO te montre qui est là, à côté.
+**Pain point résolu** : Tu connais personne. WOZALI te montre qui est là, à côté.
 
 **Hook marketing** :
 - Punch : *"Cherche. Trouve. Réserve. 3 secondes."*
@@ -353,7 +353,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous (pour les pros qui cherchent visibilité)
 
-**Pain point résolu** : Mariam veut être vue avant les 50 autres coiffeuses. WOLO Pro = elle est en haut.
+**Pain point résolu** : Mariam veut être vue avant les 50 autres coiffeuses. WOZALI Pro = elle est en haut.
 
 **Hook marketing** :
 - Punch : *"Premier dans la liste. Pas dernier."*
@@ -370,7 +370,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Client
 
-**Pain point résolu** : Trop de pros, pas assez de critères. WOLO simplifie.
+**Pain point résolu** : Trop de pros, pas assez de critères. WOZALI simplifie.
 
 **Hook marketing** :
 - Punch : *"Filtre. Filtre. Réserve."*
@@ -387,12 +387,12 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Sur Facebook, ton lien apparaît tout vide. WOLO génère une preview pro.
+**Pain point résolu** : Sur Facebook, ton lien apparaît tout vide. WOZALI génère une preview pro.
 
 **Hook marketing** :
-- Punch : *"Ton lien WOLO + WhatsApp = ton meilleur commercial."*
+- Punch : *"Ton lien WOZALI + WhatsApp = ton meilleur commercial."*
 - Émotion : *"Le frère d'Akossiwa a partagé son profil dans 4 groupes diaspora. 3 missions tombées la même semaine."*
-- Viral : *"Tu sais quand un site se partage propre ? Ben WOLO le fait."*
+- Viral : *"Tu sais quand un site se partage propre ? Ben WOZALI le fait."*
 
 **État** : ✅ Live (endpoint dédié)
 
@@ -404,7 +404,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous (impact long terme)
 
-**Pain point résolu** : Tes prestations n'apparaissent jamais sur Google. WOLO te ramène le trafic gratuit.
+**Pain point résolu** : Tes prestations n'apparaissent jamais sur Google. WOZALI te ramène le trafic gratuit.
 
 **Hook marketing** :
 - Punch : *"Google fait le boulot. Toi tu encaisses."*
@@ -432,7 +432,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 ---
 
-## 3. WOLO JOBS — RECRUTEMENT (côté recruteur)
+## 3. WOZALI JOBS — RECRUTEMENT (côté recruteur)
 
 ### 23. Publier une offre d'emploi (formulaire + photos)
 
@@ -440,7 +440,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Kodjo veut un apprenti mécano. Avant : groupe WhatsApp, faux profils, perdre 3 jours. Avec WOLO : 1 formulaire.
+**Pain point résolu** : Kodjo veut un apprenti mécano. Avant : groupe WhatsApp, faux profils, perdre 3 jours. Avec WOZALI : 1 formulaire.
 
 **Hook marketing** :
 - Punch : *"Publie. Sélectionne. Embauche."*
@@ -459,7 +459,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Kodjo ne sait pas écrire une annonce qui attire. WOLO lui donne le canevas.
+**Pain point résolu** : Kodjo ne sait pas écrire une annonce qui attire. WOZALI lui donne le canevas.
 
 **Hook marketing** :
 - Punch : *"Ton annonce. Pré-écrite. Par des pros du recrutement."*
@@ -476,7 +476,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : 12 candidatures en WhatsApp, plus moyen de s'y retrouver. WOLO trie pour toi.
+**Pain point résolu** : 12 candidatures en WhatsApp, plus moyen de s'y retrouver. WOZALI trie pour toi.
 
 **Hook marketing** :
 - Punch : *"Ton WhatsApp recrutement. Mais propre."*
@@ -493,12 +493,12 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Tu ne veux pas un apprenti à 30km. WOLO calcule la distance à partir des quartiers.
+**Pain point résolu** : Tu ne veux pas un apprenti à 30km. WOZALI calcule la distance à partir des quartiers.
 
 **Hook marketing** :
 - Punch : *"Filtre comme un DRH. T'es chez toi."*
 - Émotion : *"3 candidats à moins de 2 km. Madame Adjo n'a même pas regardé les autres."*
-- Viral : *"Indeed coûte cher. Indeed African = WOLO."*
+- Viral : *"Indeed coûte cher. Indeed African = WOZALI."*
 
 **État** : ✅ Live
 
@@ -510,7 +510,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo
 
-**Pain point résolu** : Cartes pour 5 candidats, tableau pour 50. WOLO fait les deux.
+**Pain point résolu** : Cartes pour 5 candidats, tableau pour 50. WOZALI fait les deux.
 
 **Hook marketing** :
 - Punch : *"Comme tu veux. Cartes ou tableau."*
@@ -527,7 +527,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Le candidat ghosting d'Indeed, c'est terminé. WOLO force la communication.
+**Pain point résolu** : Le candidat ghosting d'Indeed, c'est terminé. WOZALI force la communication.
 
 **Hook marketing** :
 - Punch : *"Pas de ghosting. Promis."*
@@ -549,7 +549,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 **Hook marketing** :
 - Punch : *"Réponse en 30 secondes. Pas en 30 jours."*
 - Émotion : *"Mariam a vu 'Vue' apparaître pendant qu'elle vendait du pain. Elle a souri toute la matinée."*
-- Viral : *"Indeed = ghost. WOLO = on te répond."*
+- Viral : *"Indeed = ghost. WOZALI = on te répond."*
 
 **État** : ✅ Live
 
@@ -566,7 +566,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 **Hook marketing** :
 - Punch : *"Excel-ready. UTF-8. Accents propres."*
 - Émotion : *"Le comptable de Madame Adjo a souri devant le fichier. Première fois."*
-- Viral : *"Indeed ne fait pas ça. WOLO oui."*
+- Viral : *"Indeed ne fait pas ça. WOZALI oui."*
 
 **État** : ✅ Live
 
@@ -578,7 +578,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo
 
-**Pain point résolu** : Refaire les mêmes 5 filtres à chaque connexion = abandon. WOLO te garde.
+**Pain point résolu** : Refaire les mêmes 5 filtres à chaque connexion = abandon. WOZALI te garde.
 
 **Hook marketing** :
 - Punch : *"On se souvient pour toi."*
@@ -594,7 +594,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Indeed = mur de texte. WOLO = photo du vrai lieu.
+**Pain point résolu** : Indeed = mur de texte. WOZALI = photo du vrai lieu.
 
 **Hook marketing** :
 - Punch : *"Montre ton lieu. Pas un mur de texte."*
@@ -611,7 +611,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Beaucoup de fausses offres en Afrique. WOLO trie le vrai du faux.
+**Pain point résolu** : Beaucoup de fausses offres en Afrique. WOZALI trie le vrai du faux.
 
 **Hook marketing** :
 - Punch : *"Vérifié. Pas Linkedin Premium. RCCM."*
@@ -628,7 +628,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Madame Adjo (besoin serveur ce week-end)
 
-**Pain point résolu** : Vraiment urgent ≠ "j'embauche en général". WOLO différencie.
+**Pain point résolu** : Vraiment urgent ≠ "j'embauche en général". WOZALI différencie.
 
 **Hook marketing** :
 - Punch : *"Urgent ? Vraiment ? Coche ça."*
@@ -644,11 +644,11 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Akossiwa (freelance) / Kodjo (apprentissage)
 
-**Pain point résolu** : Indeed = CDI/CDD européen. WOLO = vraie structure africaine + freelance.
+**Pain point résolu** : Indeed = CDI/CDD européen. WOZALI = vraie structure africaine + freelance.
 
 **Hook marketing** :
 - Punch : *"Apprentissage. Vraiment. Pas comme prétexte."*
-- Émotion : *"Kodjo cherche un apprenti, pas un employé. WOLO le sait."*
+- Émotion : *"Kodjo cherche un apprenti, pas un employé. WOZALI le sait."*
 
 **État** : ✅ Live (option freelance ajoutée 2026-03)
 
@@ -660,7 +660,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Annonce mal écrite = 0 candidats. WOLO l'IA l'améliore avant.
+**Pain point résolu** : Annonce mal écrite = 0 candidats. WOZALI l'IA l'améliore avant.
 
 **Hook marketing** :
 - Punch : *"Une IA lit ton annonce. Avant de la publier."*
@@ -677,7 +677,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Madame Adjo (recrute 4-5 personnes)
 
-**Pain point résolu** : Suivi à la main = chaos. WOLO = Trello pour le recrutement.
+**Pain point résolu** : Suivi à la main = chaos. WOZALI = Trello pour le recrutement.
 
 **Hook marketing** :
 - Punch : *"Glisse. Dépose. Embauche."*
@@ -688,7 +688,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 ---
 
-## 4. WOLO JOBS — POSTULER (côté candidat)
+## 4. WOZALI JOBS — POSTULER (côté candidat)
 
 ### 38. Candidature 1 clic depuis profil pro
 
@@ -696,12 +696,12 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / Akossiwa
 
-**Pain point résolu** : Mariam n'a pas de CV PDF. WOLO utilise son profil comme CV.
+**Pain point résolu** : Mariam n'a pas de CV PDF. WOZALI utilise son profil comme CV.
 
 **Hook marketing** :
 - Punch : *"1 clic. 0 CV à scanner."*
 - Émotion : *"Mariam a postulé pour serveuse weekend pendant qu'elle attendait le tro-tro. 1 minute."*
-- Viral : *"Indeed = 12 étapes. WOLO = 1."*
+- Viral : *"Indeed = 12 étapes. WOZALI = 1."*
 
 **État** : ✅ Live (`submitCandidature`)
 
@@ -713,7 +713,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Akossiwa (postule à plusieurs)
 
-**Pain point résolu** : Tu sais plus à qui t'as postulé. WOLO te le rappelle.
+**Pain point résolu** : Tu sais plus à qui t'as postulé. WOZALI te le rappelle.
 
 **Hook marketing** :
 - Punch : *"Toutes tes candidatures. Tous tes statuts."*
@@ -730,7 +730,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / Akossiwa
 
-**Pain point résolu** : Mariam est apprentie + cherche missions weekend. WOLO la rend trouvable.
+**Pain point résolu** : Mariam est apprentie + cherche missions weekend. WOZALI la rend trouvable.
 
 **Hook marketing** :
 - Punch : *"Disponible. En recherche. Visible."*
@@ -763,11 +763,11 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam (cible facile des arnaques)
 
-**Pain point résolu** : Au Togo/Bénin, beaucoup de fausses offres "envoyez 5000F frais dossier". WOLO trie.
+**Pain point résolu** : Au Togo/Bénin, beaucoup de fausses offres "envoyez 5000F frais dossier". WOZALI trie.
 
 **Hook marketing** :
 - Punch : *"L'arnaque emploi, on la dégage."*
-- Émotion : *"Mariam a signalé 'Stage payé après inscription 8 000F'. WOLO l'a sucré dans l'heure."*
+- Émotion : *"Mariam a signalé 'Stage payé après inscription 8 000F'. WOZALI l'a sucré dans l'heure."*
 - Viral : *"Tu connais des offres bidon ? Plus jamais."*
 
 **État** : ✅ Live (`signalement.js`)
@@ -780,7 +780,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / Akossiwa
 
-**Pain point résolu** : T'as jamais passé d'entretien formel. WOLO te coache.
+**Pain point résolu** : T'as jamais passé d'entretien formel. WOZALI te coache.
 
 **Hook marketing** :
 - Punch : *"5 questions. 5 réponses. T'es prête."*
@@ -802,7 +802,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 **Hook marketing** :
 - Punch : *"Ton CV. Écrit. Par une IA. En 30 secondes."*
 - Émotion : *"Mariam : 'Je suis apprentie chez Mme Bea'. L'IA : 'Apprentie 18 mois, spécialisée tresses'. Ça change tout."*
-- Viral : *"Pas Canva. Pas Word. WOLO."*
+- Viral : *"Pas Canva. Pas Word. WOZALI."*
 
 **État** : ✅ Live (`woloAi.ameliorerCv`)
 
@@ -814,11 +814,11 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / Akossiwa
 
-**Pain point résolu** : 3 entretiens dans la même semaine = oubli. WOLO te le rappelle.
+**Pain point résolu** : 3 entretiens dans la même semaine = oubli. WOZALI te le rappelle.
 
 **Hook marketing** :
 - Punch : *"Tous tes entretiens. Pas dans WhatsApp."*
-- Émotion : *"Akossiwa avait 4 RDV. Tous sur WOLO. Aucun raté."*
+- Émotion : *"Akossiwa avait 4 RDV. Tous sur WOZALI. Aucun raté."*
 - Viral : *"Calendly version africaine."*
 
 **État** : ✅ Live (`entretiens-list.js`)
@@ -831,7 +831,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam (apprentie qui veut pas livrer son numéro à n'importe qui)
 
-**Pain point résolu** : Donner son numéro = être harcelée. WOLO protège.
+**Pain point résolu** : Donner son numéro = être harcelée. WOZALI protège.
 
 **Hook marketing** :
 - Punch : *"Discute. Sans donner ton numéro."*
@@ -848,7 +848,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Écrire 12 messages identiques = perte de temps. WOLO standardise.
+**Pain point résolu** : Écrire 12 messages identiques = perte de temps. WOZALI standardise.
 
 **Hook marketing** :
 - Punch : *"3 templates. 0 douleur."*
@@ -865,12 +865,12 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : 30 candidats, comment trier ? WOLO te donne un classement.
+**Pain point résolu** : 30 candidats, comment trier ? WOZALI te donne un classement.
 
 **Hook marketing** :
 - Punch : *"Score IA. 85/100. Justifié."*
 - Émotion : *"Kodjo regarde son top 3. C'est exactement ceux qu'il aurait choisis."*
-- Viral : *"Indeed Premium = 89€/mois. WOLO IA = 0F."*
+- Viral : *"Indeed Premium = 89€/mois. WOZALI IA = 0F."*
 
 **État** : ✅ Live (`woloAi.scoreCandidat`)
 
@@ -898,7 +898,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Pas d'avocat. Pas d'huissier. WOLO valide en 5 secondes.
+**Pain point résolu** : Pas d'avocat. Pas d'huissier. WOZALI valide en 5 secondes.
 
 **Hook marketing** :
 - Punch : *"Ton RCCM. Validé. En 5 secondes."*
@@ -915,7 +915,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous (techno backend invisible mais critique)
 
-**Pain point résolu** : OpenAI tombe en panne 1x/mois. WOLO ne tombe jamais.
+**Pain point résolu** : OpenAI tombe en panne 1x/mois. WOZALI ne tombe jamais.
 
 **Hook marketing** :
 - Punch : *"4 IA. 1 service. 0 panne."*
@@ -946,7 +946,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Tu fais pas confiance aux IA US/Chine. WOLO te protège.
+**Pain point résolu** : Tu fais pas confiance aux IA US/Chine. WOZALI te protège.
 
 **Hook marketing** :
 - Punch : *"Ton nom reste chez toi. Pas chez Google."*
@@ -961,7 +961,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / Madame Adjo (en cas de conflit client)
 
-**Pain point résolu** : Pas d'avocat. Pas de tribunal. WOLO arbitre.
+**Pain point résolu** : Pas d'avocat. Pas de tribunal. WOZALI arbitre.
 
 **Hook marketing** :
 - Punch : *"Conflit ? L'IA tranche. Toi tu reprends ton boulot."*
@@ -977,7 +977,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo / Madame Adjo
 
-**Pain point résolu** : Les patrons ne connaissent pas le code travail. WOLO leur dit.
+**Pain point résolu** : Les patrons ne connaissent pas le code travail. WOZALI leur dit.
 
 **Hook marketing** :
 - Punch : *"Code travail Togo. Code travail Bénin. À ta poche."*
@@ -1014,7 +1014,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / toutes les femmes
 
-**Pain point résolu** : Les apprenties coiffeuses sont invisibles. WOLO les met en lumière.
+**Pain point résolu** : Les apprenties coiffeuses sont invisibles. WOZALI les met en lumière.
 
 **Hook marketing** :
 - Punch : *"Tu coiffes. On te paie. La communauté vote."*
@@ -1069,7 +1069,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous (fierté nationale)
 
-**Pain point résolu** : Tout le monde aime les rivalités amicales BJ/TG. WOLO les transforme en moteur viral.
+**Pain point résolu** : Tout le monde aime les rivalités amicales BJ/TG. WOZALI les transforme en moteur viral.
 
 **Hook marketing** :
 - Punch : *"🇧🇯 BÉNIN vs TOGO 🇹🇬. Le seul match qui compte."*
@@ -1218,7 +1218,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Madame Adjo
 
-**Pain point résolu** : Les clients appellent et personne décroche. WOLO bookings 24/7.
+**Pain point résolu** : Les clients appellent et personne décroche. WOZALI bookings 24/7.
 
 **Hook marketing** :
 - Punch : *"Réservation. 24h/24. Sans ton téléphone."*
@@ -1235,7 +1235,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Patron auberge / hôtel
 
-**Pain point résolu** : Booking.com prend 18% commission. WOLO 0%.
+**Pain point résolu** : Booking.com prend 18% commission. WOZALI 0%.
 
 **Hook marketing** :
 - Punch : *"Booking. Sans 18%."*
@@ -1250,7 +1250,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Maçon, plombier, électricien
 
-**Pain point résolu** : Devis téléphone perdu. WOLO archive.
+**Pain point résolu** : Devis téléphone perdu. WOZALI archive.
 
 **Hook marketing** :
 - Punch : *"Devis. Avec photos. Direct."*
@@ -1266,7 +1266,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Kodjo
 
-**Pain point résolu** : 5 motos en attente, pas de planning. WOLO planifie.
+**Pain point résolu** : 5 motos en attente, pas de planning. WOZALI planifie.
 
 **Hook marketing** :
 - Punch : *"Tes RDV. Sans cahier. Sans WhatsApp."*
@@ -1282,7 +1282,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Pâtissière
 
-**Pain point résolu** : Commande WhatsApp = info éclatées. WOLO regroupe.
+**Pain point résolu** : Commande WhatsApp = info éclatées. WOZALI regroupe.
 
 **Hook marketing** :
 - Punch : *"Gâteau. Date. Livraison. Tout dans 1 form."*
@@ -1297,7 +1297,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Couturier, bijoutier, soudeur
 
-**Pain point résolu** : Trop d'aller-retour. WOLO standardise.
+**Pain point résolu** : Trop d'aller-retour. WOZALI standardise.
 
 **Hook marketing** :
 - Punch : *"Mesures. Photos. Délai. Une seule fois."*
@@ -1343,7 +1343,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam (tresses, défrisage, soins)
 
-**Pain point résolu** : "Combien tresses braids ?" Mariam répond 50x. WOLO l'écrit 1x.
+**Pain point résolu** : "Combien tresses braids ?" Mariam répond 50x. WOZALI l'écrit 1x.
 
 **Hook marketing** :
 - Punch : *"Tes prestations. Tes prix. 1 fois écrits. À vie."*
@@ -1358,10 +1358,10 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Pas de "tu choisis tes widgets". WOLO sait pour toi.
+**Pain point résolu** : Pas de "tu choisis tes widgets". WOZALI sait pour toi.
 
 **Hook marketing** :
-- Punch : *"Tu choisis ton métier. WOLO choisit le reste."*
+- Punch : *"Tu choisis ton métier. WOZALI choisit le reste."*
 - Viral : *"Pas un site builder. Une marketplace."*
 
 **État** : ✅ Live (`widgets-metier-config.js` — 60+ métiers mappés)
@@ -1376,7 +1376,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous (surtout influenceurs et étudiants)
 
-**Pain point résolu** : Pas de modèle économique pour les jeunes. WOLO leur en crée un.
+**Pain point résolu** : Pas de modèle économique pour les jeunes. WOZALI leur en crée un.
 
 **Hook marketing** :
 - Punch : *"10 amis Pro = 10 000 F/mois. À vie."*
@@ -1458,7 +1458,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam / Akossiwa
 
-**Pain point résolu** : Au Togo/Bénin, tout passe par les recommandations. WOLO les paie.
+**Pain point résolu** : Au Togo/Bénin, tout passe par les recommandations. WOZALI les paie.
 
 **Hook marketing** :
 - Punch : *"Recommander = être payé."*
@@ -1473,7 +1473,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam (apprentie coiffeuse) / Tous
 
-**Pain point résolu** : Onboarding sans tutos = abandon. WOLO te tient la main par WhatsApp.
+**Pain point résolu** : Onboarding sans tutos = abandon. WOZALI te tient la main par WhatsApp.
 
 **Hook marketing** :
 - Punch : *"30 jours. 30 messages. Sur ton WhatsApp."*
@@ -1489,11 +1489,11 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam (et toute fille proche d'elle)
 
-**Pain point résolu** : Les apprenties pensent qu'elles n'existent pas. WOLO les nomme.
+**Pain point résolu** : Les apprenties pensent qu'elles n'existent pas. WOZALI les nomme.
 
 **Hook marketing** :
 - Punch : *"L'invisible dans l'invisible. C'est toi."*
-- Émotion : *"Tu as payé 80 000 FCFA à Madame Bea. WOLO Market c'est ton lundi toute la semaine."*
+- Émotion : *"Tu as payé 80 000 FCFA à Madame Bea. WOZALI c'est ton lundi toute la semaine."*
 - Viral : *"On t'a dit que payer pour bosser 3 ans, c'était normal. Vraiment ?"*
 
 **État** : ✅ Live
@@ -1553,7 +1553,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Peur de l'arnaque. WOLO permet d'agir.
+**Pain point résolu** : Peur de l'arnaque. WOZALI permet d'agir.
 
 **Hook marketing** :
 - Punch : *"Arnaque ? 1 clic. Disparu."*
@@ -1568,11 +1568,11 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Mariam (côté candidat)
 
-**Pain point résolu** : Indeed laisse les recruteurs ghoster. WOLO les pénalise.
+**Pain point résolu** : Indeed laisse les recruteurs ghoster. WOZALI les pénalise.
 
 **Hook marketing** :
 - Punch : *"Tu ghoste ? On te déclasse."*
-- Émotion : *"Indeed, 14 jours de silence. WOLO, 14 jours et le recruteur tombe en page 5."*
+- Émotion : *"Indeed, 14 jours de silence. WOZALI, 14 jours et le recruteur tombe en page 5."*
 
 **État** : ⏳ V1.1
 
@@ -1629,7 +1629,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Bugs rentrés au sol = clients perdus. WOLO surveille.
+**Pain point résolu** : Bugs rentrés au sol = clients perdus. WOZALI surveille.
 
 **Hook marketing** :
 - Punch : *"Si ça casse, on le sait. En direct."*
@@ -1659,7 +1659,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Persona principal** : Tous
 
-**Pain point résolu** : Boucle de chargement = abandon. WOLO empêche.
+**Pain point résolu** : Boucle de chargement = abandon. WOZALI empêche.
 
 **Hook marketing** :
 - Punch : *"5 secondes max. Ou tu rentres."*
@@ -1670,7 +1670,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 ### 98. Conformité APDP (Togo + Bénin)
 
-**Ce que ça fait** : WOLO respecte la loi locale sur les données perso.
+**Ce que ça fait** : WOZALI respecte la loi locale sur les données perso.
 
 **Persona principal** : Tous
 
@@ -1711,7 +1711,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 **Hook marketing** :
 - Punch : *"2 500 FCFA. Le prix d'un plat. Pour ta carrière."*
 - Émotion : *"Mariam est passée Pro un mardi soir. Le mercredi, sa première cliente Pro a réservé."*
-- Viral : *"WOLO Pro = 1 maquis. Mais à vie."*
+- Viral : *"WOZALI Pro = 1 maquis. Mais à vie."*
 
 **État** : ✅ Live (FedaPay placeholder)
 
@@ -1859,13 +1859,13 @@ Les 10 features qui se prêtent à un récit personnage / coup de poing émotion
 |---|---|---|
 | 1 | Bourse des Mains d'Or | Mariam, apprentie 19 ans, paye 80 000 F à Madame Bea. Elle poste sa première tresse. La communauté vote. Reine du mois. 100 000 F. Premier salaire de sa vie. |
 | 2 | Bourse de Croissance | Kodjo, mécano moto, est passé Pro début juillet. Il a coché 5 conditions. 300 000 F. Il achète 4 nouvelles motos. |
-| 3 | Storytelling apprentie | Mariam, 19 ans, paie pour bosser. WOLO lui rend ses lundis. Son lundi devient sa semaine entière. |
+| 3 | Storytelling apprentie | Mariam, 19 ans, paie pour bosser. WOZALI lui rend ses lundis. Son lundi devient sa semaine entière. |
 | 4 | Recrutement Kodjo apprenti | Kodjo, 32 ans, recrute son apprenti. 14h offre. 21h embauche. Sans groupe WhatsApp. |
 | 5 | Akossiwa freelance photo | 26 ans, 200 photos dans WhatsApp. Elle uploade 12 mariages. Le studio appelle le lendemain. |
 | 6 | Madame Adjo serveur weekend | Vendredi midi son serveur lâche. 17h elle a sa relève. Sans intermédiaire. |
 | 7 | Battle Bénin vs Togo | Le Bénin mène. Lomé se réveille. La cousine de Mariam la pousse à poster. Score s'inverse. |
 | 8 | Parrainage étudiant UCAO | Étudiant 21 ans. 47 amis Pro parrainés. 47 000 F/mois. Plus que son SMIG futur. |
-| 9 | Badge Fondateur 1 000 | Pionnier en 2026. Quand WOLO aura 50 000 prestas, sa fille verra son badge. |
+| 9 | Badge Fondateur 1 000 | Pionnier en 2026. Quand WOZALI aura 50 000 prestas, sa fille verra son badge. |
 | 10 | Anti-arnaque Mariam | Offre louche "stage 8 000 F dossier". Mariam clique signaler. Sucrée dans l'heure. |
 
 ---
@@ -1879,7 +1879,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **début juillet 2026** (la
 | J-7 | 1 juin | IG + TikTok | Reel teaser 30s | Lancement début juillet | "Début juillet, l'économie du Togo et du Bénin change." |
 | J-3 | 5 juin | IG | Story countdown | Lancement | "Plus que 3 jours. Plus que 1 000 places Fondateurs." |
 | J-1 | 7 juin | TikTok | Reel | Storytelling apprentie | "Tu paies 80K à ta patronne. T'as pas un jour à toi. Demain ça change." |
-| J0 | 1 juillet | IG + TikTok + WhatsApp | Reel + Story + Broadcast | Lancement officiel | "C'est ouvert. WOLO Market t'appartient." |
+| J0 | 1 juillet | IG + TikTok + WhatsApp | Reel + Story + Broadcast | Lancement officiel | "C'est ouvert. WOZALI t'appartient." |
 | J1 | 9 juin | TikTok | Reel demo | Inscription 3 étapes | "3 étapes. 90 secondes. T'es visible." |
 | J2 | 10 juin | IG | Carrousel 5 slides | Profil pro public | "Ton profil. Ton lien. Tes albums." |
 | J3 | 11 juin | TikTok | Reel | Bourse des Mains d'Or | "100 000 F × 2. Chaque mois. Ouvert à toutes." |
@@ -1887,12 +1887,12 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **début juillet 2026** (la
 | J5 | 13 juin | TikTok | Reel storytelling | Mariam apprentie | "L'invisible dans l'invisible." |
 | J6 | 14 juin | IG | Story | Battle Bénin vs Togo | "Score actuel : 🇧🇯 mène. Réplique 🇹🇬 ?" |
 | J7 | 15 juin | TikTok + IG | Reel témoignage | Kodjo recrute | "Kodjo a recruté son apprenti en 4h." |
-| J8 | 16 juin | TikTok | Reel | Score IA recruteur | "Indeed Premium 89€. WOLO IA 0F." |
+| J8 | 16 juin | TikTok | Reel | Score IA recruteur | "Indeed Premium 89€. WOZALI IA 0F." |
 | J9 | 17 juin | IG | Carrousel | Widgets métier 9 verticales | "9 boutons. 60 métiers. 1 marketplace." |
 | J10 | 11 juillet | TikTok | Reel | Akossiwa portfolio | "Behance pour le vrai monde." |
 | J11 | 19 juin | IG | Post storytelling | Madame Adjo réservation | "Vendredi midi, son serveur lâche. 17h, relève trouvée." |
 | J12 | 20 juin | TikTok | Reel | Parrainage simulateur | "Glisse à 53 filleuls. T'es au SMIG. À vie." |
-| J13 | 21 juin | IG | Story | CV WOLO PDF | "Un clic. Un CV. Ton lien." |
+| J13 | 21 juin | IG | Story | CV WOZALI PDF | "Un clic. Un CV. Ton lien." |
 | J14 | 22 juin | TikTok | Reel | WhatsApp séquences | "30 jours. 30 messages. Sur ton WhatsApp." |
 | J15 | 23 juin | IG + TikTok | Reel | Bourse 300K | "300 000 F. Chaque mois. Tirage live." |
 | J16 | 24 juin | TikTok | Reel | Anti-arnaque | "L'offre bidon ? Sucrée en 1h." |
@@ -1914,7 +1914,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **début juillet 2026** (la
 | J32 | 10 juil | IG | Carrousel | Widget réservation table | "OpenTable Afrique. Gratuit." |
 | J33 | 11 juil | TikTok | Reel | Push notifications | "Bip. Mariage décroché." |
 | J34 | 12 juil | IG | Post Or | 2ème tirage Bourse | "Gagnant juillet 300K. Live à 18h." |
-| J35 | 13 juil | TikTok | Reel comparaison | LinkedIn vs WOLO | "LinkedIn pour les bureaux. WOLO pour le vrai travail." |
+| J35 | 13 juil | TikTok | Reel comparaison | LinkedIn vs WOZALI | "LinkedIn pour les bureaux. WOZALI pour le vrai travail." |
 | J36 | 14 juil | IG | Story | Carte interactive | "Tous les pros. Tous les quartiers. Une carte." |
 | J37 | 15 juil | TikTok | Reel | Wizard Premier Pas | "3 actions. 7 jours. T'es prête." |
 | J38 | 16 juil | IG | Carrousel | Widget devis chantier | "Devis. Avec photos. Direct." |
@@ -1928,7 +1928,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **début juillet 2026** (la
 | J46 | 24 juil | IG | Post | Compteur Fondateur mid | "Plus que X places. Pour toujours." |
 | J47 | 25 juil | TikTok | Reel | Profil "En vedette" | "Toi. En haut. 7 jours." |
 | J48 | 26 juil | IG | Story | Avis 5 étoiles | "Ton CV, c'est tes étoiles." |
-| J49 | 27 juil | TikTok | Reel | Score WOLO 100 | "Score sur 100. Comme à l'école." |
+| J49 | 27 juil | TikTok | Reel | Score WOZALI 100 | "Score sur 100. Comme à l'école." |
 | J50 | 28 juil | IG + TikTok | Reel + Carrousel | Mid-saison | "50 jours. Bilan en chiffres." |
 | J51 | 29 juil | TikTok | Reel | Mariam vise décembre | "Pas le mois. Décembre. Loyer 2027." |
 | J52 | 30 juil | IG | Post | Reine de juillet | "Reine juillet : Esther de Lomé. 100 000 F." |
@@ -1947,10 +1947,10 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **début juillet 2026** (la
 | J65 | 12 août | TikTok | Reel | Aide CV IA | "Mariam : 'Je suis apprentie chez Mme Bea'. L'IA réécrit." |
 | J66 | 13 août | IG | Carrousel | Mes entretiens | "Calendly Afrique." |
 | J67 | 14 août | TikTok | Reel | Filtres distance | "À 2 km. Pas à 20." |
-| J68 | 15 août | IG | Post storytelling | Maman Dantokpa | "Son tabouret. Sa caisse. Son lien WOLO." |
+| J68 | 15 août | IG | Post storytelling | Maman Dantokpa | "Son tabouret. Sa caisse. Son lien WOZALI." |
 | J69 | 16 août | TikTok | Reel | Export CSV recruteur | "Excel-ready. Comptable content." |
 | J70 | 17 août | IG | Story | Niveaux progression | "Niveau Reine. Mariam le voit." |
-| J71 | 18 août | TikTok | Reel | Comparaison Indeed | "Indeed : ghost. WOLO : on te répond." |
+| J71 | 18 août | TikTok | Reel | Comparaison Indeed | "Indeed : ghost. WOZALI : on te répond." |
 | J72 | 19 août | IG | Carrousel | Bourse des Mains d'Or stratégie | "3 photos + tag obligatoire." |
 | J73 | 20 août | TikTok | Reel | Témoignage 3 mois | "3 mois après. Salon ouvert. 4 employées." |
 | J74 | 21 août | IG | Post | Reine de août | "Reine août : Sandrine de Bè. 100 000 F." |
