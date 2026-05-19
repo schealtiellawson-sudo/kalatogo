@@ -20975,7 +20975,7 @@ async function loadRecrutDashboard() {
   <section style="background:#0f1410;padding:60px 24px;">
     <div class="wolo-countdown-section">
       <div class="wolo-countdown-eyebrow">🏆 PROCHAIN TIRAGE</div>
-      <h2 class="wolo-countdown-title">Tirage chaque dernier vendredi du mois · 18h00</h2>
+      <h2 class="wolo-countdown-title">Tirage automatique le 30 de chaque mois</h2>
       <p class="wolo-countdown-sub">Heure de Lomé et Cotonou simultanément. Le gagnant est annoncé en live.</p>
       <div class="wolo-countdown-timer" id="wolo-countdown-timer">
         <div class="wolo-countdown-bloc"><div class="wolo-countdown-num" id="cnt-jours">--</div><div class="wolo-countdown-lbl">Jours</div></div>
@@ -22272,10 +22272,10 @@ loadSchealtielPhoto();
 // PLAN PRO REFONTE — Tirages mensuels permanents
 // ════════════════════════════════════════════════════════════
 
-// --- Countdown vers prochain dernier vendredi du mois 18h00 WAT (UTC+1) ---
+// --- Countdown vers le 30 du mois à 18h00 WAT ---
 function lancerCountdown(){
-  function getNextLastFriday(){var now=new Date();var y=now.getFullYear(),m=now.getMonth();function lastFri(yr,mo){var d=new Date(yr,mo+1,0);while(d.getDay()!==5)d.setDate(d.getDate()-1);d.setHours(18,0,0,0);return d;}var t=lastFri(y,m);if(now>=t){m++;if(m>11){m=0;y++;}t=lastFri(y,m);}return t.getTime();}
-  var cible = getNextLastFriday();
+  function getNextThirtieth(){var now=new Date();var y=now.getFullYear(),m=now.getMonth();var d=new Date(y,m,30,18,0,0,0);if(now>=d){m++;if(m>11){m=0;y++;}d=new Date(y,m,30,18,0,0,0);}return d.getTime();}
+  var cible = getNextThirtieth();
   var jEl = document.getElementById('cnt-jours');
   var hEl = document.getElementById('cnt-heures');
   var mEl = document.getElementById('cnt-minutes');
@@ -22692,10 +22692,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(window.__sprint5Inited)return;
   window.__sprint5Inited=true;
 
-  // Countdown vers prochain dernier vendredi du mois
+  // Countdown vers le 30 du mois
   function lancerCountdownJuillet(){
-    function getNextLastFriday(){var now=new Date();var y=now.getFullYear(),m=now.getMonth();function lastFri(yr,mo){var d=new Date(yr,mo+1,0);while(d.getDay()!==5)d.setDate(d.getDate()-1);d.setHours(23,59,59,0);return d;}var t=lastFri(y,m);if(now>=t){m++;if(m>11){m=0;y++;}t=lastFri(y,m);}return t.getTime();}
-    var target=getNextLastFriday();
+    function getNextThirtieth(){var now=new Date();var y=now.getFullYear(),m=now.getMonth();var d=new Date(y,m,30,18,0,0,0);if(now>=d){m++;if(m>11){m=0;y++;}d=new Date(y,m,30,18,0,0,0);}return d.getTime();}
+    var target=getNextThirtieth();
     function tick(){
       var now=Date.now();
       var diff=target-now;
@@ -24991,8 +24991,7 @@ async function repondreMatch(demandeId, clientId) {
 
   function getNextLastFridayTs(){
     var now=new Date(),y=now.getFullYear(),m=now.getMonth();
-    function lastFri(yr,mo){var d=new Date(yr,mo+1,0);while(d.getDay()!==5)d.setDate(d.getDate()-1);d.setHours(18,0,0,0);return d;}
-    var t=lastFri(y,m);if(now>=t){m++;if(m>11){m=0;y++;}t=lastFri(y,m);}return t.getTime();
+    var d=new Date(y,m,30,18,0,0,0);if(now>=d){m++;if(m>11){m=0;y++;}d=new Date(y,m,30,18,0,0,0);}return d.getTime();
   }
 
   function pad(n){ return n<10?'0'+n:''+n; }
@@ -26064,21 +26063,13 @@ window.addEventListener('beforeinstallprompt', function(e){
       var b = document.getElementById('woloV2PwaBanner'); if (b) b.classList.remove('show');
     });
 
-    // Bourse countdown (next Friday 18:00 WAT / UTC+1)
+    // Bourse countdown — le 30 du mois à 18h00
     function wv2NextFriday() {
       var now = new Date();
-      // WAT is UTC+1 (no DST). Compute now in WAT.
-      var watMs = now.getTime() + (now.getTimezoneOffset() * 60000) + (1 * 3600000);
-      var wat = new Date(watMs);
-      var day = wat.getUTCDay(); // 0=Sun..6=Sat, using UTC getters on shifted date
-      var daysUntilFri = (5 - day + 7) % 7;
-      var target = new Date(Date.UTC(wat.getUTCFullYear(), wat.getUTCMonth(), wat.getUTCDate() + daysUntilFri, 18, 0, 0));
-      // If today is Friday past 18h, jump to next week
-      if (daysUntilFri === 0 && wat.getUTCHours() >= 18) {
-        target = new Date(target.getTime() + 7 * 86400000);
-      }
-      // Convert WAT target back to local epoch
-      return target.getTime() - (1 * 3600000);
+      var y = now.getFullYear(), m = now.getMonth();
+      var target = new Date(y, m, 30, 18, 0, 0, 0);
+      if (now >= target) { m++; if (m > 11) { m = 0; y++; } target = new Date(y, m, 30, 18, 0, 0, 0); }
+      return target.getTime();
     }
     function wv2Pad(n){ return n < 10 ? '0'+n : ''+n; }
     function wv2TickBourse(){
@@ -27396,10 +27387,10 @@ window.woloNotifPush = async function(prestataireId, key, vars){
           }
         }
 
-        // B) Bourse de Croissance — tirage vendredi 18h WAT, notif à J-1 (jeudi)
+        // B) Bourse de Croissance — tirage le 30 du mois, notif à J-1 (le 29)
         var now = new Date();
-        var isThursday = now.getDay() === 4;
-        if (isThursday && (f['Abonnement']||'Base') !== 'Base') {
+        var isTwentyNinth = now.getDate() === 29;
+        if (isTwentyNinth && (f['Abonnement']||'Base') !== 'Base') {
           var lastBourse = localStorage.getItem('wolo_notif_bourse_date');
           if (lastBourse !== today) {
             window.woloNotifPush(window.currentPrestataire.id, 'bourse', {});

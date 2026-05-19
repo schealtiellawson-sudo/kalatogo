@@ -43,15 +43,13 @@
     root.innerHTML = skeletonHTML();
 
     try {
-      // Charger thème + badges (si user) en parallèle
-      const [themeRes, ...rest] = await Promise.all([
+      const [themeRes] = await Promise.all([
         fetch(`${API}/theme-mois`).then(r => r.json()).catch(() => null),
-        window.currentUser?.id ? (window.woloFetch || fetch)(`${API}/badges-list?user_id=${window.currentUser.id}`).then(r => r.json()).catch(() => null) : Promise.resolve(null),
       ]);
       state.theme = themeRes?.theme || null;
       state.countdown = themeRes?.countdown || null;
-      state.badges = rest[0] || null;
-    } catch(e){ console.warn('[mur] theme/badges load', e); }
+      state.badges = null;
+    } catch(e){ console.warn('[mur] theme load', e); }
 
     render();
     await loadTab(state.tab);
@@ -60,7 +58,6 @@
   async function loadTab(tab){
     state.tab = tab;
     if (tab === 'feed') await loadFeed();
-    else if (tab === 'discover') await loadDiscover();
     else if (tab === 'podium') await loadPodium();
     else if (tab === 'moi') await loadMesContrib();
     render();
@@ -84,37 +81,18 @@
   }
 
   async function loadDiscover(){
-    state.loading = true;
-    const params = new URLSearchParams({ mode: state.discoverMode });
-    if (state.categorie && state.categorie !== 'toutes') params.set('categorie', state.categorie);
-    if (window.currentUser?.id) params.set('viewer_id', window.currentUser.id);
-    if (state.discoverMode === 'swipe') params.set('limit', '15');
-    try {
-      const res = await fetch(`${API}/feed-discover?${params}`).then(r => r.json());
-      if (state.discoverMode === 'duel') {
-        state.duelPair = res?.photos || [];
-      } else if (state.discoverMode === 'roulette') {
-        state.roulette = (res?.photos || [])[0] || null;
-      } else {
-        state.photos = res?.photos || [];
-        state.swipeIndex = 0;
-      }
-    } catch(e){ console.warn('[mur] discover', e); }
     state.loading = false;
+    // feed-discover désactivé
   }
 
   async function loadPodium(){
     state.loading = true;
     const mois = new Date().toISOString().slice(0,7);
     try {
-      const [topCat, lbV, duelsR] = await Promise.all([
-        fetch(`${API}/feed-list?mois=${mois}&is_awards_candidate=true&categorie=${state.podiumCat}&tri=populaire&limit=10`).then(r => r.json()),
-        fetch(`${API}/leaderboard?type=ville&scope=mois&limit=10`).then(r => r.json()),
-        fetch(`${API}/duels-list${window.currentUser?.id ? '?viewer_id=' + window.currentUser.id : ''}`).then(r => r.json()),
-      ]);
+      const topCat = await fetch(`${API}/feed-list?mois=${mois}&is_awards_candidate=true&categorie=${state.podiumCat}&tri=populaire&limit=10`).then(r => r.json());
       state.photos = topCat?.photos || [];
-      state.leaderboard = lbV?.leaderboard || [];
-      state.duels = duelsR?.duels || [];
+      state.leaderboard = [];
+      state.duels = [];
     } catch(e){ console.warn('[mur] podium', e); }
     state.loading = false;
   }
@@ -191,10 +169,10 @@
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <span style="font-size:20px;flex-shrink:0;">⚔️</span>
+              <span style="font-size:20px;flex-shrink:0;">❤️</span>
               <div>
-                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">2. Le moteur de duels tourne</div>
-                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Ta photo passe en duel face à d'autres. +10 pts si elle gagne, +1 si elle perd, +20 streak après 3 duels.</div>
+                <div style="font-weight:700;font-size:13px;color:#F8F6F1;margin-bottom:2px;">2. La communauté like et commente</div>
+                <div style="font-size:12px;color:rgba(248,246,241,.6);line-height:1.5;">Plus tu reçois de likes, plus tu as de chances lors du tirage automatique le 30 du mois.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
@@ -216,8 +194,8 @@
               <div style="font-size:12px;color:rgba(248,246,241,.7);margin-top:2px;">Poste ta photo</div>
             </div>
             <div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px 12px;">
-              <div style="font-size:11px;color:#E8940A;font-weight:700;">⚔️ 16 → 25</div>
-              <div style="font-size:12px;color:rgba(248,246,241,.7);margin-top:2px;">La communauté duel-vote</div>
+              <div style="font-size:11px;color:#E8940A;font-weight:700;">❤️ 16 → 29</div>
+              <div style="font-size:12px;color:rgba(248,246,241,.7);margin-top:2px;">La communauté like et vote</div>
             </div>
             <div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px 12px;">
               <div style="font-size:11px;color:#E8940A;font-weight:700;">👑 26 → 30</div>
@@ -235,7 +213,7 @@
         <!-- BLOC FINALE ANNUELLE DÉCEMBRE -->
         <div style="background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));border:2px solid rgba(232,148,10,.4);border-radius:14px;padding:16px 18px;margin-bottom:18px;max-width:720px;">
           <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:6px;">🏆 DÉCEMBRE 2026 — FINALE ANNUELLE</div>
-          <p style="margin:0 0 8px;font-size:14px;color:rgba(248,246,241,.85);line-height:1.6;">12 Reines mensuelles s'affrontent en décembre. Bénin vs Togo.</p>
+          <p style="margin:0 0 8px;font-size:14px;color:rgba(248,246,241,.85);line-height:1.6;">12 Reines couronnées tout au long de l'année s'affrontent lors de la finale annuelle décembre.</p>
           <p style="margin:0;font-size:13px;color:#E8940A;font-weight:800;">Reine de l'Année Coiffure : 500 000 FCFA · Reine de l'Année Couture : 500 000 FCFA · Élues sur leur travail. Pas sur leurs amis.</p>
         </div>
 
@@ -306,10 +284,9 @@
 
   function tabsHTML(){
     const tabs = [
-      { id: 'feed',     lbl: '📜 À la Une',     hint: 'Les photos du jour' },
-      { id: 'discover', lbl: '⚔️ Les Duels',    hint: 'Vote · Swipe · Roulette' },
-      { id: 'podium',   lbl: '👑 Le Podium',    hint: 'Top + Duels + Hall of Fame' },
-      { id: 'moi',      lbl: '✨ Mes Photos',   hint: 'Mes photos et badges' },
+      { id: 'feed',   lbl: '📜 À la Une',   hint: 'Les photos du jour' },
+      { id: 'podium', lbl: '👑 Le Podium',  hint: 'Top du mois' },
+      { id: 'moi',    lbl: '✨ Mes Photos', hint: 'Mes photos' },
     ];
     return `
       <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;">
@@ -319,7 +296,7 @@
           </button>
         `).join('')}
       </div>
-      ${(state.tab === 'feed' || state.tab === 'discover') ? `
+      ${state.tab === 'feed' ? `
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
           ${['toutes','coiffure','couture','libre'].map(c => `
             <button onclick="murSetCat('${c}')" style="padding:6px 14px;border-radius:999px;border:1px solid ${state.categorie === c ? '#E8940A' : 'rgba(232,148,10,.2)'};background:${state.categorie === c ? 'rgba(232,148,10,.15)' : 'transparent'};color:${state.categorie === c ? '#E8940A' : 'rgba(248,246,241,.7)'};font-size:12px;font-weight:600;cursor:pointer;">
@@ -331,10 +308,9 @@
   }
 
   function contentHTML(){
-    if (state.tab === 'feed')      return feedContentHTML();
-    if (state.tab === 'discover')  return discoverContentHTML();
-    if (state.tab === 'podium')    return podiumContentHTML();
-    if (state.tab === 'moi')       return moiContentHTML();
+    if (state.tab === 'feed')   return feedContentHTML();
+    if (state.tab === 'podium') return podiumContentHTML();
+    if (state.tab === 'moi')    return moiContentHTML();
     return '';
   }
 
@@ -508,12 +484,6 @@
           ${state.photos.map((p, i) => podiumCardHTML(p, i+1)).join('')}
         </div>
       `}
-      <h3 style="font-family:'Fraunces',serif;margin:32px 0 12px;">🏙️ Battle des villes · Top 10</h3>
-      ${leaderboardHTML(state.leaderboard)}
-      ${state.duels.length > 0 ? `
-        <h3 style="font-family:'Fraunces',serif;margin:32px 0 12px;">⚔️ Duels de la semaine</h3>
-        ${state.duels.map(duelCardHTML).join('')}
-      ` : ''}
     `;
   }
 
@@ -683,17 +653,15 @@
   };
 
   window.murShareGeneral = () => {
-    const msg = encodeURIComponent(`👑 La Bourse des Mains d'Or — WOLO Market\n\nCoiffure ou Couture ? Vote pour ta Reine du mois.\n100 000 FCFA × 2 Reines (1 Bénin + 1 Togo) chaque mois.\n+ 1 000 000 FCFA en finale décembre — Bénin vs Togo.\n\nTout le monde vote gratuitement !\nTa cousine à Paris ? Ta tante à Bruxelles ? Elles peuvent voter aussi.\n\n👉 https://wolomarket.com/#awards\n\n#MurDesReines #ReineWOLO #WOLOMarket`);
+    const msg = encodeURIComponent(`👑 La Bourse des Mains d'Or — WOLO Market\n\nCoiffure ou Couture ? Vote pour ta Reine du mois.\n100 000 FCFA × 2 Reines chaque mois.\n\nTout le monde vote gratuitement !\nTa cousine à Paris ? Ta tante à Bruxelles ? Elles peuvent voter aussi.\n\n👉 https://wolomarket.com/#awards\n\n#BourseDesMainsDOr #ReineWOLO #WOLOMarket`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   };
 
   window.murShareWhatsApp = async (photoId) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
-    const fn = window.woloFetch || fetch;
-    try {
-      const r = await fn(`${API}/vote-share`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).then(r => r.json());
-      if (r?.whatsapp_url) window.open(r.whatsapp_url, '_blank');
-    } catch(e){ console.warn('[mur] share', e); }
+    const p = state.photos.find(x => x.id === photoId) || state.duelPair.find(x => x.id === photoId) || (state.roulette?.id === photoId ? state.roulette : null);
+    const nom = p?.user_nom ? `de ${escapeHtml(p.user_nom)} ` : '';
+    const msg = encodeURIComponent(`👑 La Bourse des Mains d'Or — WOLO Market\n\nVote pour la photo ${nom}!\n100 000 FCFA × 2 Reines chaque mois.\n\n👉 https://wolomarket.com/#awards\n\n#BourseDesMainsDOr #ReineWOLO #WOLOMarket`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
   };
 
   window.murOpenPhoto = (photoId) => {
