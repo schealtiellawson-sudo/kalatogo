@@ -14098,7 +14098,7 @@ async function showProfil(recordId) {
       // Sprint 7 — Tracking serveur : incrémenter vues_mois sur Supabase
       const profilUserId = record.fields?.['User ID'];
       if (profilUserId && typeof supa !== 'undefined') {
-        supa.rpc('increment_vues_mois', { p_user_id: profilUserId }).catch(() => {});
+        (async () => { try { await supa.rpc('increment_vues_mois', { p_user_id: profilUserId }); } catch(e) {} })();
       }
     }
 
@@ -21880,7 +21880,7 @@ loadSchealtielPhoto();
         </div>
       </div>
       <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:8px"><strong style="color:#E8940A;font-size:16px;font-family:Fraunces,serif">Pas le plus connu. Le plus sérieux.</strong></p>
-      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">L'algorithme ne triche pas. Il regarde ton travail : tes avis, ta note, ta constance. 1 gagnant Togo + 1 gagnant Bénin chaque mois. Tirage 100% aléatoire parmi les sérieux. <strong>300 000 FCFA = 6 mois de SMIG en 48h.</strong></p>
+      <p style="color:rgba(248,246,241,.7);font-size:14px;line-height:1.7;margin-bottom:20px">L'algorithme ne triche pas. Il regarde ton travail : tes avis, ta note, ta constance. 1 gagnant (Togo ou Bénin) chaque mois. Tirage 100% aléatoire parmi les sérieux. <strong>300 000 FCFA = 6 mois de SMIG en 48h.</strong></p>
 
       <!-- Widget état du membre connecté (V1, legacy) -->
       <div id="recomp-bourse-widget"></div>
