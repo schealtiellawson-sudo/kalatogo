@@ -7,7 +7,7 @@
 // Garantit le traitement du parrainage dans tous les cas.
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
-import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
+import { crediterCreditWozali, envoyerNotification } from '../_utils/credit.js';
 
 export async function traiterPaiementAbonnement({ user_id, paiement_id, montant, methode = 'fedapay' }) {
   // 0. Idempotence : si déjà PAYÉ et parrainage_traite, ne rien faire
@@ -57,7 +57,7 @@ export async function traiterPaiementAbonnement({ user_id, paiement_id, montant,
     const commission = Math.floor(montant * Number(parrainage.taux_commission || 0.40));
 
     if (commission > 0) {
-      await crediterCreditWolo({
+      await crediterCreditWozali({
         user_id: parrainage.parrain_id,
         montant: commission,
         type: 'credit_parrainage',

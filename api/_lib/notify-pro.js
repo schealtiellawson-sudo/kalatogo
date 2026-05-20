@@ -1,6 +1,6 @@
 // ================================================================
 // notify-pro — pousse un message dans la Boîte du Fondateur du pro
-// (champ JSONB `notifications` de wolo_prestataires).
+// (champ JSONB `notifications` de wozali_prestataires).
 //
 // Utilisé par les endpoints *-create.js (réservation table, devis
 // chantier, commande façon, RDV mécano, commande pâtisserie,
@@ -104,7 +104,7 @@ function _genId() {
 }
 
 /**
- * Insère une notif "demande_client" dans wolo_prestataires.notifications
+ * Insère une notif "demande_client" dans wozali_prestataires.notifications
  * du pro destinataire.
  *
  * @param {object} supabase  Client Supabase service-role (optionnel — fallback sur le client par défaut).
@@ -135,7 +135,7 @@ export async function notifyPro(supabase, proUserId, subType, payload = {}) {
   try {
     // Récupérer la liste actuelle (JSONB) puis prepend.
     const { data: pro, error: e1 } = await sb
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('id, notifications')
       .eq('user_id', proUserId)
       .maybeSingle();
@@ -151,7 +151,7 @@ export async function notifyPro(supabase, proUserId, subType, payload = {}) {
     const updated = [message, ...notifs].slice(0, 200);
 
     const { error: e2 } = await sb
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .update({ notifications: updated })
       .eq('id', pro.id);
     if (e2) return { ok: false, error: e2.message };

@@ -14,7 +14,7 @@
     'Candidat WhatsApp':   'candidat_whatsapp',
     'Candidat Photo':      'candidat_photo',
     'Candidat Quartier':   'candidat_quartier',
-    'Candidat Score WOZALI': 'candidat_score_wolo',
+    'Candidat Score WOZALI': 'candidat_score_wozali',
     'Recruteur ID':        'recruteur_prestataire_id',
     'Recruteur User ID':   'recruteur_user_id',
     'Recruteur Nom':       'recruteur_nom',
@@ -54,7 +54,7 @@
   async function list(options = {}) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    let q = supa.from('wolo_candidatures').select('*');
+    let q = supa.from('wozali_candidatures').select('*');
     if (options.recruteur_user_id) q = q.eq('recruteur_user_id', options.recruteur_user_id);
     if (options.candidat_user_id)  q = q.eq('candidat_user_id', options.candidat_user_id);
     if (options.offre_id)          q = q.eq('offre_id', options.offre_id);
@@ -69,7 +69,7 @@
   async function findById(id) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    const { data, error } = await supa.from('wolo_candidatures').select('*').eq('id', id).maybeSingle();
+    const { data, error } = await supa.from('wozali_candidatures').select('*').eq('id', id).maybeSingle();
     if (error) throw error;
     return _toAirtableRecord(data);
   }
@@ -81,7 +81,7 @@
     if (!row.candidat_user_id && window.currentUser?.id) row.candidat_user_id = window.currentUser.id;
     if (!row.statut) row.statut = 'En attente';
     if (!row.date_candidature) row.date_candidature = new Date().toISOString();
-    const { data, error } = await supa.from('wolo_candidatures').insert(row).select('*').single();
+    const { data, error } = await supa.from('wozali_candidatures').insert(row).select('*').single();
     if (error) throw error;
     return _toAirtableRecord(data);
   }
@@ -92,7 +92,7 @@
     const row = _toSupaRow(fields);
     delete row.candidat_user_id;
     delete row.recruteur_user_id;
-    const { data, error } = await supa.from('wolo_candidatures').update(row).eq('id', id).select('*').single();
+    const { data, error } = await supa.from('wozali_candidatures').update(row).eq('id', id).select('*').single();
     if (error) throw error;
     return _toAirtableRecord(data);
   }

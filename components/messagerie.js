@@ -1,13 +1,13 @@
 // ================================================================
 // WOZALI Messagerie — UI thread + messages candidat ↔ recruteur
-// API : window.woloMessagerie.open({ candidature, role })
+// API : window.wozaliMessagerie.open({ candidature, role })
 //   - candidature : record Airtable Candidatures (avec id + fields)
 //   - role : 'candidat' | 'recruteur' (qui ouvre)
 // Endpoints : thread-list, message-list, message-send
 // ================================================================
 (function () {
-  const API = (action) => `/api/wolo-pay/${action}`;
-  const wFetch = () => window.woloFetch || fetch;
+  const API = (action) => `/api/wozali-pay/${action}`;
+  const wFetch = () => window.wozaliFetch || fetch;
 
   const TEMPLATES = {
     convocation: {
@@ -45,7 +45,7 @@
   }
 
   function close() {
-    const m = document.getElementById('wolo-msg-modal');
+    const m = document.getElementById('wozali-msg-modal');
     if (m) m.remove();
   }
 
@@ -110,7 +110,7 @@
   }
 
   function renderMessages() {
-    const list = document.getElementById('wolo-msg-list');
+    const list = document.getElementById('wozali-msg-list');
     if (!list) return;
     if (!state.messages.length) {
       list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:rgba(252, 224, 168,.4);font-size:13px;">Aucun message. Démarre la conversation 👇</div>`;
@@ -169,7 +169,7 @@
     // Modal
     close();
     const overlay = document.createElement('div');
-    overlay.id = 'wolo-msg-modal';
+    overlay.id = 'wozali-msg-modal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:0;';
     overlay.addEventListener('click', (e) => { if (e.target === overlay) { stopPolling(); close(); } });
 
@@ -185,28 +185,28 @@
             <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">${escapeHtml(peerName)}</h3>
             <div style="font-size:11px;color:rgba(252, 224, 168,.4);">${escapeHtml(f['Offre Titre'] || '')}</div>
           </div>
-          <button id="wolo-msg-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button id="wozali-msg-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
-        <div id="wolo-msg-list" style="flex:1;min-height:300px;max-height:50vh;overflow-y:auto;padding:16px 20px;background:rgba(0,0,0,.2);">
+        <div id="wozali-msg-list" style="flex:1;min-height:300px;max-height:50vh;overflow-y:auto;padding:16px 20px;background:rgba(0,0,0,.2);">
           <div style="text-align:center;padding:40px 20px;color:rgba(252, 224, 168,.4);font-size:13px;">Chargement…</div>
         </div>
         ${tmplBtns ? `<div style="display:flex;gap:6px;padding:10px 20px 0;flex-wrap:wrap;">${tmplBtns}</div>` : ''}
-        <form id="wolo-msg-form" style="display:flex;gap:8px;padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);">
-          <textarea id="wolo-msg-input" placeholder="Écris ton message…" rows="2" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px 12px;border-radius:10px;font-family:Poppins,sans-serif;font-size:14px;resize:vertical;outline:none;"></textarea>
-          <button type="submit" id="wolo-msg-send" style="padding:0 18px;border-radius:10px;background:#E8940A;color:#14100A;font-weight:700;border:none;cursor:pointer;font-size:13px;">Envoyer</button>
+        <form id="wozali-msg-form" style="display:flex;gap:8px;padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);">
+          <textarea id="wozali-msg-input" placeholder="Écris ton message…" rows="2" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px 12px;border-radius:10px;font-family:Poppins,sans-serif;font-size:14px;resize:vertical;outline:none;"></textarea>
+          <button type="submit" id="wozali-msg-send" style="padding:0 18px;border-radius:10px;background:#E8940A;color:#14100A;font-weight:700;border:none;cursor:pointer;font-size:13px;">Envoyer</button>
         </form>
       </div>
     `;
     document.body.appendChild(overlay);
 
-    document.getElementById('wolo-msg-close').addEventListener('click', () => { stopPolling(); close(); });
+    document.getElementById('wozali-msg-close').addEventListener('click', () => { stopPolling(); close(); });
 
     // Templates
     overlay.querySelectorAll('[data-tmpl]').forEach(b => {
       b.addEventListener('click', () => {
         const k = b.getAttribute('data-tmpl');
         const t = TEMPLATES[k];
-        if (t) document.getElementById('wolo-msg-input').value = t.content;
+        if (t) document.getElementById('wozali-msg-input').value = t.content;
       });
     });
 
@@ -222,15 +222,15 @@
       renderMessages();
       if (r.exists) startPolling();
     } catch (e) {
-      const list = document.getElementById('wolo-msg-list');
+      const list = document.getElementById('wozali-msg-list');
       if (list) list.innerHTML = `<div style="padding:18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#f87171;font-size:13px;">${escapeHtml(e.message)}</div>`;
     }
 
     // Submit
-    document.getElementById('wolo-msg-form').addEventListener('submit', async (ev) => {
+    document.getElementById('wozali-msg-form').addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      const input = document.getElementById('wolo-msg-input');
-      const send = document.getElementById('wolo-msg-send');
+      const input = document.getElementById('wozali-msg-input');
+      const send = document.getElementById('wozali-msg-send');
       const content = input.value.trim();
       if (!content) return;
       send.disabled = true; send.textContent = '…';
@@ -248,5 +248,5 @@
     });
   }
 
-  window.woloMessagerie = { open, close };
+  window.wozaliMessagerie = { open, close };
 })();

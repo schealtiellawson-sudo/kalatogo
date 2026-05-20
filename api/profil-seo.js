@@ -127,7 +127,7 @@ export default async function handler(req, res) {
   <meta property="og:url" content="${canonicalUrl}">
   <link rel="canonical" href="${canonicalUrl}">
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
-  <meta name="wolo-profil-id" content="${matched.id}">`;
+  <meta name="wozali-profil-id" content="${matched.id}">`;
 
   // Remplacer le <title> existant et injecter après </title>
   html = html.replace(

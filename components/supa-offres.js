@@ -63,7 +63,7 @@
   async function list(options = {}) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    let q = supa.from('wolo_offres_emploi').select('*');
+    let q = supa.from('wozali_offres_emploi').select('*');
     if (options.active !== undefined) q = q.eq('active', options.active);
     if (options.recruteur_user_id) q = q.eq('recruteur_user_id', options.recruteur_user_id);
     if (options.recruteur_prestataire_id) q = q.eq('recruteur_prestataire_id', options.recruteur_prestataire_id);
@@ -88,7 +88,7 @@
   async function findById(id) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    const { data, error } = await supa.from('wolo_offres_emploi').select('*').eq('id', id).maybeSingle();
+    const { data, error } = await supa.from('wozali_offres_emploi').select('*').eq('id', id).maybeSingle();
     if (error) throw error;
     return _toAirtableRecord(data);
   }
@@ -99,7 +99,7 @@
     const row = _toSupaRow(fields);
     if (!row.recruteur_user_id && window.currentUser?.id) row.recruteur_user_id = window.currentUser.id;
     if (row.active === undefined) row.active = true;
-    const { data, error } = await supa.from('wolo_offres_emploi').insert(row).select('*').single();
+    const { data, error } = await supa.from('wozali_offres_emploi').insert(row).select('*').single();
     if (error) throw error;
     return _toAirtableRecord(data);
   }
@@ -109,7 +109,7 @@
     if (!supa) throw new Error('Supabase client non chargé');
     const row = _toSupaRow(fields);
     delete row.recruteur_user_id;
-    const { data, error } = await supa.from('wolo_offres_emploi').update(row).eq('id', id).select('*').single();
+    const { data, error } = await supa.from('wozali_offres_emploi').update(row).eq('id', id).select('*').single();
     if (error) throw error;
     return _toAirtableRecord(data);
   }
@@ -117,7 +117,7 @@
   async function deleteById(id) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    const { error } = await supa.from('wolo_offres_emploi').delete().eq('id', id);
+    const { error } = await supa.from('wozali_offres_emploi').delete().eq('id', id);
     if (error) throw error;
     return true;
   }
@@ -127,9 +127,9 @@
     const supa = _supa();
     if (!supa) return null;
     try {
-      const { data: row } = await supa.from('wolo_offres_emploi').select('nb_vues').eq('id', id).maybeSingle();
+      const { data: row } = await supa.from('wozali_offres_emploi').select('nb_vues').eq('id', id).maybeSingle();
       const next = (row?.nb_vues || 0) + 1;
-      await supa.from('wolo_offres_emploi').update({ nb_vues: next }).eq('id', id);
+      await supa.from('wozali_offres_emploi').update({ nb_vues: next }).eq('id', id);
       return next;
     } catch (e) { return null; }
   }

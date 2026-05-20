@@ -151,8 +151,8 @@
     }
     try {
       const patronId = window.currentPrestataire.id;
-      const wFetch = window.woloFetch || fetch;
-      const res = await wFetch('/api/wolo-pay/paie-pay', {
+      const wFetch = window.wozaliFetch || fetch;
+      const res = await wFetch('/api/wozali-pay/paie-pay', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ patronId, employeId: empId, mois: state.mois, montant: salaire })
@@ -170,7 +170,7 @@
 
   window.downloadBulletin = function(ficheId){
     if (!ficheId) return alert('Bulletin introuvable.');
-    window.open('/api/wolo-pay/paie-bulletin?id=' + encodeURIComponent(ficheId), '_blank');
+    window.open('/api/wozali-pay/paie-bulletin?id=' + encodeURIComponent(ficheId), '_blank');
   };
 
   window.loadPaieDashboard = loadPaieDashboard;

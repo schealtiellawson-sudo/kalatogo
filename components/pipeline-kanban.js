@@ -8,7 +8,7 @@
   'use strict';
 
   var state = {
-    view: localStorage.getItem('wolo_pipeline_view') || 'kanban',
+    view: localStorage.getItem('wozali_pipeline_view') || 'kanban',
     cards: [],          // flat list
     offres: [],         // offres pour colonne 1 et filtre
     filterOffre: '',
@@ -191,7 +191,7 @@
 
   window.setPipelineView = function(view){
     state.view = view;
-    localStorage.setItem('wolo_pipeline_view', view);
+    localStorage.setItem('wozali_pipeline_view', view);
 
     // Toggle buttons
     ['kanban','table','grid'].forEach(function(v){

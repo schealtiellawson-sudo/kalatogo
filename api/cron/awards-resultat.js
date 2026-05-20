@@ -5,7 +5,7 @@
 // 2. Dernier vendredi du mois : résultat Bourse des Mains d'Or (Awards)
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
-import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
+import { crediterCreditWozali, envoyerNotification } from '../_utils/credit.js';
 
 const MONTANT_AWARDS = 100000;
 
@@ -103,7 +103,7 @@ export default async function handler(req, res) {
 
     // 1. Récupérer tous les candidats validés du mois, triés par votes
     const { data: candidats } = await supabase
-      .from('wolo_awards')
+      .from('wozali_awards')
       .select('id, user_id, pays, nb_votes')
       .eq('mois', moisCourant)
       .eq('video_validee', true)
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
     const gagnant = candidats[0];
 
     // 3. Créditer 100 000 FCFA
-    await crediterCreditWolo({
+    await crediterCreditWozali({
       user_id: gagnant.user_id,
       montant: MONTANT_AWARDS,
       type: 'credit_awards',
@@ -126,14 +126,14 @@ export default async function handler(req, res) {
 
     // 4. Marquer le gagnant
     await supabase
-      .from('wolo_awards')
+      .from('wozali_awards')
       .update({ gagnant: true, montant_gagne: MONTANT_AWARDS })
       .eq('id', gagnant.id);
 
     // 5. Enregistrer dans gains_recompenses
     await supabase.from('gains_recompenses').insert({
       user_id: gagnant.user_id,
-      type: 'wolo_awards',
+      type: 'wozali_awards',
       montant: MONTANT_AWARDS,
       mois: moisCourant,
       statut: 'versé'
@@ -151,7 +151,7 @@ export default async function handler(req, res) {
     if (candidats.length >= 2) {
       viceChampion = candidats[1];
       await supabase
-        .from('wolo_awards')
+        .from('wozali_awards')
         .update({ vice_champion: true })
         .eq('id', viceChampion.id);
 

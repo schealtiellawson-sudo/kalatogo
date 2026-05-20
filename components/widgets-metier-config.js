@@ -1,6 +1,6 @@
 // ================================================================
 // WOZALI — Mapping métier → widgets actifs
-// API : window.WoloWidgetsConfig
+// API : window.WozaliWidgetsConfig
 //   .getWidgetsForMetier(metier)        → array de widget keys
 //   .getWidgetsForProfilePublic(metier) → widgets affichés profil public
 //   .getWidgetsForDashboard(metier)     → widgets affichés dashboard pro
@@ -229,7 +229,7 @@
     });
   }
 
-  window.WoloWidgetsConfig = {
+  window.WozaliWidgetsConfig = {
     WIDGETS,
     METIER_WIDGETS,
     normalizeMetier: normalize,

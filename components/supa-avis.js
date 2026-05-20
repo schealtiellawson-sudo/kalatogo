@@ -53,7 +53,7 @@
   async function list(options = {}) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    let q = supa.from('wolo_avis').select('*');
+    let q = supa.from('wozali_avis').select('*');
     if (options.prestataire_id)      q = q.eq('prestataire_id', options.prestataire_id);
     if (options.prestataire_user_id) q = q.eq('prestataire_user_id', options.prestataire_user_id);
     if (options.validated !== undefined) q = q.eq('validated', options.validated);
@@ -71,7 +71,7 @@
     if (!row.note_globale) throw new Error('Note globale requise');
     if (row.validated === undefined) row.validated = true;
     if (!row.date_avis) row.date_avis = new Date().toISOString().slice(0, 10);
-    const { data, error } = await supa.from('wolo_avis').insert(row).select('*').single();
+    const { data, error } = await supa.from('wozali_avis').insert(row).select('*').single();
     if (error) throw error;
     return _toAirtableRecord(data);
   }

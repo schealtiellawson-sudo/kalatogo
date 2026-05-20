@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   try {
     // 1. Vérifier qu'il n'y a pas déjà un coup du jour aujourd'hui
     const { data: existant } = await supabase
-      .from('wolo_posts')
+      .from('wozali_posts')
       .select('id')
       .eq('coup_du_jour', true)
       .eq('coup_du_jour_date', aujourd_hui)
@@ -31,8 +31,8 @@ export default async function handler(req, res) {
 
     // 2. Récupérer les posts des 7 derniers jours avec média
     const { data: candidats } = await supabase
-      .from('wolo_posts')
-      .select('*, profiles!auteur_id(id, score_wolo, abonnement, nom)')
+      .from('wozali_posts')
+      .select('*, profiles!auteur_id(id, score_wozali, abonnement, nom)')
       .eq('actif', true)
       .gte('created_at', `${il_y_a_7j}T00:00:00`)
       .not('media_url', 'is', null)
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       const profil = post.profiles;
       if (!profil) return false;
       if (profil.abonnement !== 'Pro') return false;
-      if ((profil.score_wolo || 0) < 70) return false;
+      if ((profil.score_wozali || 0) < 70) return false;
       return true;
     });
 
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     if (eligibles.length > 0) {
       const auteurIds = [...new Set(eligibles.map(p => p.auteur_id))];
       const { data: recents } = await supabase
-        .from('wolo_posts')
+        .from('wozali_posts')
         .select('auteur_id')
         .eq('coup_du_jour', true)
         .gte('coup_du_jour_date', il_y_a_30j)
@@ -71,13 +71,13 @@ export default async function handler(req, res) {
 
     // 5. Calculer le score et sélectionner le meilleur
     const gagnant = eligibles.reduce((best, post) => {
-      const score = (post.nb_likes * 2) + (post.nb_commentaires || 0) + ((post.profiles?.score_wolo || 0) / 10);
+      const score = (post.nb_likes * 2) + (post.nb_commentaires || 0) + ((post.profiles?.score_wozali || 0) / 10);
       return score > (best._score || 0) ? { ...post, _score: score } : best;
     }, { _score: 0 });
 
     // 6. Marquer le post comme coup du jour
     await supabase
-      .from('wolo_posts')
+      .from('wozali_posts')
       .update({ coup_du_jour: true, coup_du_jour_date: aujourd_hui })
       .eq('id', gagnant.id);
 

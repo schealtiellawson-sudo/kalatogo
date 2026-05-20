@@ -1,11 +1,11 @@
 // ================================================================
 // WOZALI Mes entretiens — liste à venir + passés (candidat OU recruteur)
-// API : window.woloEntretiensList.load(containerId)
+// API : window.wozaliEntretiensList.load(containerId)
 // Endpoint : entretien-list (GET, scope=all)
 // ================================================================
 (function () {
-  const API = (a) => `/api/wolo-pay/${a}`;
-  const wFetch = () => window.woloFetch || fetch;
+  const API = (a) => `/api/wozali-pay/${a}`;
+  const wFetch = () => window.wozaliFetch || fetch;
 
   function escapeHtml(s) {
     if (s == null) return '';
@@ -104,9 +104,9 @@
         <div style="font-size:11px;color:rgba(252, 224, 168,.4);margin-bottom:10px;">${peerLabel} · vous êtes ${isRecru ? 'recruteur' : 'candidat'}</div>
         ${isRecru && past && e.resultat === 'pending' ? `
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button onclick="window.woloEntretiensList.setResultat('${e.id}','concluant')" style="padding:5px 10px;border-radius:8px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;font-weight:700;">✓ Concluant</button>
-            <button onclick="window.woloEntretiensList.setResultat('${e.id}','non_concluant')" style="padding:5px 10px;border-radius:8px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;font-weight:700;">✗ Non concluant</button>
-            <button onclick="window.woloEntretiensList.setResultat('${e.id}','annule')" style="padding:5px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(252, 224, 168,.6);border:none;cursor:pointer;font-size:12px;">Annuler</button>
+            <button onclick="window.wozaliEntretiensList.setResultat('${e.id}','concluant')" style="padding:5px 10px;border-radius:8px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;font-weight:700;">✓ Concluant</button>
+            <button onclick="window.wozaliEntretiensList.setResultat('${e.id}','non_concluant')" style="padding:5px 10px;border-radius:8px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;font-weight:700;">✗ Non concluant</button>
+            <button onclick="window.wozaliEntretiensList.setResultat('${e.id}','annule')" style="padding:5px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(252, 224, 168,.6);border:none;cursor:pointer;font-size:12px;">Annuler</button>
           </div>
         ` : ''}
       </div>
@@ -129,6 +129,6 @@
     }
   }
 
-  window.woloEntretiensList = { load, setResultat };
+  window.wozaliEntretiensList = { load, setResultat };
   window.loadMesEntretiens = () => load('mes-entretiens-container');
 })();

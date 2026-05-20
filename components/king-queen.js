@@ -6,8 +6,8 @@
 (function(){
   'use strict';
 
-  const API = '/api/wolo-pay';
-  const wFetch = window.woloFetch || fetch;
+  const API = '/api/wozali-pay';
+  const wFetch = window.wozaliFetch || fetch;
 
   const state = {
     tab: 'accueil',
@@ -498,7 +498,7 @@
       const imgRes = await fetch('https://api.imgbb.com/1/upload?key=44b066fbd3bac68b98ed01be987e5030', { method: 'POST', body: formData }).then(r => r.json());
       if (!imgRes?.data?.url) throw new Error('Upload photo échoué');
 
-      const fn = window.woloFetch || fetch;
+      const fn = window.wozaliFetch || fetch;
       const r = await fn(`${API}/feed-post`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -551,7 +551,7 @@
     }
 
     try {
-      const fn = window.woloFetch || fetch;
+      const fn = window.wozaliFetch || fetch;
       await fn(`${API}/feed-discover`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

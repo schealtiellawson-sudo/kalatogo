@@ -6,8 +6,8 @@
 (function(){
   'use strict';
 
-  const API = '/api/wolo-pay';
-  const wFetch = window.woloFetch || fetch;
+  const API = '/api/wozali-pay';
+  const wFetch = window.wozaliFetch || fetch;
 
   const state = {
     tab: 'feed',                    // feed | discover | podium | moi
@@ -619,27 +619,27 @@
   window.murSwipeNext = () => { state.swipeIndex++; render(); };
   window.murSwipeLike = async (photoId) => {
     if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
-    const fn = window.woloFetch || fetch;
+    const fn = window.wozaliFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     state.swipeIndex++;
     render();
   };
   window.murDuelVote = async (photoId) => {
     if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
-    const fn = window.woloFetch || fetch;
+    const fn = window.wozaliFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     await loadDiscover(); render();
   };
   window.murDuelVoteGlobal = async (duelId, choix) => {
     if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
-    const fn = window.woloFetch || fetch;
+    const fn = window.wozaliFetch || fetch;
     await fn(`${API}/duels-list`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, duel_id: duelId, choix }) }).catch(()=>{});
     await loadPodium(); render();
   };
 
   window.murToggleLike = async (photoId, btn) => {
     if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
-    const fn = window.woloFetch || fetch;
+    const fn = window.wozaliFetch || fetch;
     try {
       const r = await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).then(r => r.json());
       if (btn && r) {
@@ -723,7 +723,7 @@
   window.murPostComment = async (photoId) => {
     const input = document.getElementById('mur-comment-input');
     if (!input || !input.value.trim()) return;
-    const fn = window.woloFetch || fetch;
+    const fn = window.wozaliFetch || fetch;
     await fn(`${API}/feed-comment`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId, contenu: input.value.trim() }) }).catch(()=>{});
     input.value = '';
     loadCommentsInto(photoId);
@@ -840,7 +840,7 @@
       btn.textContent = 'Envoi…';
 
       // Poster
-      const fn = window.woloFetch || fetch;
+      const fn = window.wozaliFetch || fetch;
       const prof = window.currentPrestataire?.fields || {};
       const r = await fn(`${API}/feed-post`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
         user_id: window.currentUser.id,

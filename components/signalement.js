@@ -1,11 +1,11 @@
 // ================================================================
 // WOZALI Signalement — modale signalement arnaque/ghosting/etc.
-// API : window.woloSignalement.open({ targetUserId?, offreId?, candidatureId?, contextLabel? })
+// API : window.wozaliSignalement.open({ targetUserId?, offreId?, candidatureId?, contextLabel? })
 // Endpoint : signalement-create (POST)
 // ================================================================
 (function () {
-  const API = (a) => `/api/wolo-pay/${a}`;
-  const wFetch = () => window.woloFetch || fetch;
+  const API = (a) => `/api/wozali-pay/${a}`;
+  const wFetch = () => window.wozaliFetch || fetch;
 
   const MOTIFS = [
     { v: 'arnaque',     l: '💸 Arnaque (paiement demandé, faux poste)' },
@@ -21,7 +21,7 @@
   }
 
   function close() {
-    const m = document.getElementById('wolo-flag-modal');
+    const m = document.getElementById('wozali-flag-modal');
     if (m) m.remove();
   }
 
@@ -36,7 +36,7 @@
     }
     close();
     const overlay = document.createElement('div');
-    overlay.id = 'wolo-flag-modal';
+    overlay.id = 'wozali-flag-modal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 
@@ -48,13 +48,13 @@
             <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">Signaler un problème</h3>
             ${contextLabel ? `<div style="font-size:11px;color:rgba(252, 224, 168,.4);margin-top:4px;">${escapeHtml(contextLabel)}</div>` : ''}
           </div>
-          <button id="wolo-flag-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button id="wozali-flag-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
         <div style="text-align:right;margin-bottom:14px;">
-          <button type="button" onclick="window.woloSignalement.openHistory()" style="background:rgba(255,255,255,.05);color:rgba(252, 224, 168,.7);border:1px solid rgba(255,255,255,.1);padding:5px 11px;border-radius:8px;font-size:11px;cursor:pointer;">📋 Mes signalements précédents</button>
+          <button type="button" onclick="window.wozaliSignalement.openHistory()" style="background:rgba(255,255,255,.05);color:rgba(252, 224, 168,.7);border:1px solid rgba(255,255,255,.1);padding:5px 11px;border-radius:8px;font-size:11px;cursor:pointer;">📋 Mes signalements précédents</button>
         </div>
 
-        <form id="wolo-flag-form" style="display:flex;flex-direction:column;gap:14px;font-family:Poppins,sans-serif;font-size:13px;color:#FCE0A8;">
+        <form id="wozali-flag-form" style="display:flex;flex-direction:column;gap:14px;font-family:Poppins,sans-serif;font-size:13px;color:#FCE0A8;">
           <label style="display:flex;flex-direction:column;gap:6px;">
             <span style="font-size:11px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Motif</span>
             <select id="flag-motif" required style="background:rgba(255,255,255,.05);border:1px solid rgba(239,68,68,.25);color:#FCE0A8;padding:10px;border-radius:8px;outline:none;">
@@ -77,20 +77,20 @@
           </label>
 
           <div style="display:flex;gap:10px;">
-            <button type="button" id="wolo-flag-cancel" style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-weight:600;">Annuler</button>
-            <button type="submit" id="wolo-flag-send" style="flex:2;padding:12px;border-radius:10px;background:#dc2626;color:#fff;border:none;cursor:pointer;font-weight:700;">Envoyer le signalement</button>
+            <button type="button" id="wozali-flag-cancel" style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-weight:600;">Annuler</button>
+            <button type="submit" id="wozali-flag-send" style="flex:2;padding:12px;border-radius:10px;background:#dc2626;color:#fff;border:none;cursor:pointer;font-weight:700;">Envoyer le signalement</button>
           </div>
         </form>
       </div>
     `;
     document.body.appendChild(overlay);
 
-    document.getElementById('wolo-flag-close').addEventListener('click', close);
-    document.getElementById('wolo-flag-cancel').addEventListener('click', close);
+    document.getElementById('wozali-flag-close').addEventListener('click', close);
+    document.getElementById('wozali-flag-cancel').addEventListener('click', close);
 
-    document.getElementById('wolo-flag-form').addEventListener('submit', async (ev) => {
+    document.getElementById('wozali-flag-form').addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      const btn = document.getElementById('wolo-flag-send');
+      const btn = document.getElementById('wozali-flag-send');
       btn.disabled = true; btn.textContent = '…';
       const motif = document.getElementById('flag-motif').value;
       const desc = document.getElementById('flag-desc').value.trim();
@@ -126,7 +126,7 @@
 
   // Lance l'IA mediation et remplace le contenu du modal par le résultat
   async function runMediation({ motif, desc, contextLabel }) {
-    const overlay = document.getElementById('wolo-flag-modal');
+    const overlay = document.getElementById('wozali-flag-modal');
     if (!overlay) return;
     const card = overlay.querySelector('div');
     card.innerHTML = `
@@ -158,7 +158,7 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
             Médiation IA indisponible : ${escapeHtml(e.message)}
           </div>
           <div style="text-align:center;margin-top:16px;">
-            <button onclick="document.getElementById('wolo-flag-modal').remove()" style="padding:10px 22px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.15);cursor:pointer;">Fermer</button>
+            <button onclick="document.getElementById('wozali-flag-modal').remove()" style="padding:10px 22px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.15);cursor:pointer;">Fermer</button>
           </div>
         </div>
       `;
@@ -182,7 +182,7 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
             <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:2px;">Médiation IA</div>
             <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">Plan de résolution</h3>
           </div>
-          <button onclick="document.getElementById('wolo-flag-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button onclick="document.getElementById('wozali-flag-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
 
         ${r.resume_litige ? `
@@ -228,7 +228,7 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
         <div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(252, 224, 168,.4);">L'IA propose, tu décides. Cette médiation n'engage pas WOZALI.</div>
 
         <div style="display:flex;gap:8px;margin-top:14px;">
-          <button onclick="document.getElementById('wolo-flag-modal').remove()" style="flex:1;padding:11px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-weight:600;">Fermer</button>
+          <button onclick="document.getElementById('wozali-flag-modal').remove()" style="flex:1;padding:11px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-weight:600;">Fermer</button>
         </div>
       </div>
     `;
@@ -255,7 +255,7 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
     }
     close();
     const overlay = document.createElement('div');
-    overlay.id = 'wolo-flag-modal';
+    overlay.id = 'wozali-flag-modal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     overlay.innerHTML = `
@@ -265,9 +265,9 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
             <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Historique</div>
             <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">Mes signalements</h3>
           </div>
-          <button onclick="document.getElementById('wolo-flag-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button onclick="document.getElementById('wozali-flag-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
-        <div id="wolo-flag-list">
+        <div id="wozali-flag-list">
           <div style="text-align:center;padding:30px;color:rgba(252, 224, 168,.4);font-size:13px;">Chargement…</div>
         </div>
       </div>
@@ -279,7 +279,7 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Erreur chargement');
       const list = data.signalements || [];
-      const container = document.getElementById('wolo-flag-list');
+      const container = document.getElementById('wozali-flag-list');
       if (!container) return;
       if (list.length === 0) {
         container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:rgba(252, 224, 168,.5);font-size:13px;">
@@ -303,10 +303,10 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
         </div>`;
       }).join('');
     } catch (e) {
-      const c = document.getElementById('wolo-flag-list');
+      const c = document.getElementById('wozali-flag-list');
       if (c) c.innerHTML = `<div style="padding:18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#f87171;font-size:13px;">${escapeHtml(e.message)}</div>`;
     }
   }
 
-  window.woloSignalement = { open, openHistory, close };
+  window.wozaliSignalement = { open, openHistory, close };
 })();

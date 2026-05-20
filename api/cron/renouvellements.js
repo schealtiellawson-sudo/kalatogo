@@ -3,7 +3,7 @@
 // Vercel schedule : 0 8 * * *  (08h00 UTC tous les jours)
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
-import { debiterCreditWolo, envoyerNotification } from '../_utils/credit.js';
+import { debiterCreditWozali, envoyerNotification } from '../_utils/credit.js';
 import { traiterPaiementAbonnement } from '../_lib/abonnement.js';
 
 const MONTANT_PRO = 2500;
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     for (const abo of echus) {
       // Vérifie solde Crédit WOZALI
       const { data: credit } = await supabase
-        .from('wolo_credit')
+        .from('wozali_credit')
         .select('solde_disponible')
         .eq('user_id', abo.user_id)
         .single();
@@ -65,13 +65,13 @@ export default async function handler(req, res) {
               user_id: abo.user_id,
               montant: MONTANT_PRO,
               statut: 'EN_ATTENTE',
-              methode: 'credit_wolo',
+              methode: 'credit_wozali',
               parrainage_traite: false
             })
             .select()
             .single();
 
-          await debiterCreditWolo({
+          await debiterCreditWozali({
             user_id: abo.user_id,
             montant: MONTANT_PRO,
             type: 'debit_abonnement',
@@ -82,7 +82,7 @@ export default async function handler(req, res) {
             user_id: abo.user_id,
             paiement_id: paiement.id,
             montant: MONTANT_PRO,
-            methode: 'credit_wolo'
+            methode: 'credit_wozali'
           });
 
           await envoyerNotification({

@@ -4,9 +4,9 @@
 // soit sur son profil public, soit dans son dashboard.
 //
 // API :
-//   window.WoloWidgetsRunner.injectOnProfile(record, container)
-//   window.WoloWidgetsRunner.injectOnDashboard(record, container)
-//   window.WoloWidgetsRunner.register(key, { renderProfile, renderDashboard })
+//   window.WozaliWidgetsRunner.injectOnProfile(record, container)
+//   window.WozaliWidgetsRunner.injectOnDashboard(record, container)
+//   window.WozaliWidgetsRunner.register(key, { renderProfile, renderDashboard })
 //
 // Chaque composant widget s'enregistre avec son rendu pour profil public
 // et/ou dashboard. Le runner ne sait que orchestrer, pas afficher.
@@ -19,12 +19,12 @@
   }
 
   function getCfg() {
-    return window.WoloWidgetsConfig;
+    return window.WozaliWidgetsConfig;
   }
 
   function makeSection(title, icon, body) {
     const wrap = document.createElement('section');
-    wrap.className = 'wolo-widget-metier';
+    wrap.className = 'wozali-widget-metier';
     wrap.style.cssText = 'background:#14100A;border:1px solid rgba(232,148,10,.18);border-radius:14px;padding:18px;margin:18px 0;color:#FCE0A8;font-family:Poppins,sans-serif;';
     const h = document.createElement('h3');
     h.style.cssText = 'font-family:Fraunces,serif;font-style:italic;font-size:20px;color:#E8940A;margin:0 0 14px;display:flex;align-items:center;gap:10px;';
@@ -103,13 +103,13 @@
 
   // Helpers HTTP partagés par les composants widgets
   async function api(action, body, opts) {
-    const wFetch = window.woloFetch || fetch;
+    const wFetch = window.wozaliFetch || fetch;
     const init = {
       method: (opts && opts.method) || (body ? 'POST' : 'GET'),
       headers: { 'Content-Type': 'application/json' },
     };
     if (body) init.body = JSON.stringify(body);
-    const res = await wFetch(`/api/wolo-pay/${action}`, init);
+    const res = await wFetch(`/api/wozali-pay/${action}`, init);
     let data = {};
     try { data = await res.json(); } catch (e) {}
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -163,7 +163,7 @@
       }
       try {
         const base64 = await _fileToBase64(f);
-        const wFetch = window.woloFetch || fetch;
+        const wFetch = window.wozaliFetch || fetch;
         const res = await wFetch('/api/imgbb-proxy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -182,7 +182,7 @@
     return { urls, errors };
   }
 
-  window.WoloWidgetsRunner = {
+  window.WozaliWidgetsRunner = {
     register,
     injectOnProfile,
     injectOnDashboard,

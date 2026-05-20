@@ -3,7 +3,7 @@
 ## Contenu
 
 ```
-supabase/migrations/20260409_wolo_pay_infra.sql   → 8 tables + RLS + triggers
+supabase/migrations/20260409_wozali_pay_infra.sql   → 8 tables + RLS + triggers
 api/_lib/supabase.js                              → client Supabase service role
 api/fedapay.js                                    → wrapper FedaPay (sandbox/live)
 api/_utils/credit.js                               → crediter/debiter Crédit WOZALI + notif
@@ -14,7 +14,7 @@ api/webhooks/fedapay.js                           → webhook FedaPay (WP- et AB
 ## Déploiement
 
 ### 1. Migration Supabase
-Exécuter `20260409_wolo_pay_infra.sql` dans l'éditeur SQL Supabase.
+Exécuter `20260409_wozali_pay_infra.sql` dans l'éditeur SQL Supabase.
 **Pré-requis** : table `profiles` existante (référencée par toutes les FK).
 Si le projet n'a pas encore de `profiles`, la créer avant :
 ```sql
@@ -52,16 +52,16 @@ npm i @supabase/supabase-js
 |---|---|
 | Tables créées | Supabase → Table Editor |
 | RLS actif | Supabase → Authentication → Policies |
-| Trigger create_wolo_credit | INSERT profiles → SELECT wolo_credit WHERE user_id=… |
+| Trigger create_wozali_credit | INSERT profiles → SELECT wozali_credit WHERE user_id=… |
 | Trigger create_abonnement | INSERT profiles → SELECT abonnements WHERE user_id=… |
 | Webhook signature | POST `/api/webhooks/fedapay` avec payload `transaction.approved` simulé |
 | traiterPaiementAbonnement sans parrain | Crée paiements_abonnements → appelle fn → vérifier `statut=PAYÉ` + `plan=pro` |
-| traiterPaiementAbonnement avec parrain | Idem + créer parrainages → vérifier commission versée dans wolo_credit_mouvements |
+| traiterPaiementAbonnement avec parrain | Idem + créer parrainages → vérifier commission versée dans wozali_credit_mouvements |
 
 ## Flux de référence
 
 ### Paiement marchand (WP-)
-1. Client scanne QR → frontend crée `wolo_transactions` (`statut=PENDING`, `reference_interne=WP-xxx`)
+1. Client scanne QR → frontend crée `wozali_transactions` (`statut=PENDING`, `reference_interne=WP-xxx`)
 2. Frontend appelle `creerTransactionFedaPay()` avec `reference`
 3. Client paie → FedaPay POST `/api/webhooks/fedapay`
 4. Webhook détecte prefix `WP-` → update `statut=PAYÉ` + `crediterCreditWolo(merchant)` + notif

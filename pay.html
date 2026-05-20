@@ -143,7 +143,7 @@ function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(
 
 async function loadMerchant(){
   try{
-    const r = await fetch(`/api/wolo-pay/merchant-public?id=${MERCHANT_ID}${TOKEN?'&token='+TOKEN:''}`);
+    const r = await fetch(`/api/wozali-pay/merchant-public?id=${MERCHANT_ID}${TOKEN?'&token='+TOKEN:''}`);
     const d = await r.json();
     if (!d.ok) throw new Error(d.error||'Commerçant introuvable');
     MERCHANT = d.merchant; LINK = d.link;
@@ -216,7 +216,7 @@ async function doPay(){
   document.getElementById('waiting').style.display='block';
   const m = parseInt(document.getElementById('amount-in').value||0,10);
   try{
-    const r = await fetch('/api/wolo-pay/process-public-pay',{
+    const r = await fetch('/api/wozali-pay/process-public-pay',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ merchant_id: MERCHANT_ID, montant: m, operateur: SEL_OP, token: TOKEN })
     });

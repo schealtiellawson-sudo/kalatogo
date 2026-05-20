@@ -4,8 +4,8 @@
 // Endpoints : portfolio-list / portfolio-upsert / portfolio-delete
 // ================================================================
 (function () {
-  if (!window.WoloWidgetsRunner) return;
-  const R = window.WoloWidgetsRunner;
+  if (!window.WozaliWidgetsRunner) return;
+  const R = window.WozaliWidgetsRunner;
   const esc = R._escapeHtml;
   const fmt = R._fmtFcfa;
 

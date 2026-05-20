@@ -1,12 +1,12 @@
 // ================================================================
-// WOZALI AI Helper — client frontend pour /api/wolo-pay/ai-query
-// Expose : window.woloAi.query(task, input, plan) + helpers UI
+// WOZALI AI Helper — client frontend pour /api/wozali-pay/ai-query
+// Expose : window.wozaliAi.query(task, input, plan) + helpers UI
 // Pattern IIFE comme les autres composants.
 // ================================================================
 (function () {
-  const API_URL = '/api/wolo-pay/ai-query';
+  const API_URL = '/api/wozali-pay/ai-query';
 
-  const wFetch = () => window.woloFetch || fetch;
+  const wFetch = () => window.wozaliFetch || fetch;
 
   async function query(task, input, plan = 'gratuit') {
     const fn = wFetch();
@@ -29,10 +29,10 @@
   // Modal générique affichage résultat IA
   // ----------------------------------------------------------------
   function showAiModal({ title, loading = false, content = '', footer = '' }) {
-    let overlay = document.getElementById('wolo-ai-modal');
+    let overlay = document.getElementById('wozali-ai-modal');
     if (!overlay) {
       overlay = document.createElement('div');
-      overlay.id = 'wolo-ai-modal';
+      overlay.id = 'wozali-ai-modal';
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
       document.body.appendChild(overlay);
@@ -44,9 +44,9 @@
             <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;">Agent IA WOZALI</div>
             <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#FCE0A8;margin:0;">${title}</h3>
           </div>
-          <button onclick="document.getElementById('wolo-ai-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button onclick="document.getElementById('wozali-ai-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
-        <div id="wolo-ai-modal-body" style="font-family:Poppins,sans-serif;font-size:14px;color:#FCE0A8;line-height:1.6;">
+        <div id="wozali-ai-modal-body" style="font-family:Poppins,sans-serif;font-size:14px;color:#FCE0A8;line-height:1.6;">
           ${loading
             ? '<div style="text-align:center;padding:40px 0;"><div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(232,148,10,.2);border-top-color:#E8940A;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="margin-top:12px;color:rgba(252, 224, 168,.5);font-size:12px;">Analyse en cours…</div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>'
             : content}
@@ -58,17 +58,17 @@
   }
 
   function updateAiModalBody(html, footer = '') {
-    const body = document.getElementById('wolo-ai-modal-body');
+    const body = document.getElementById('wozali-ai-modal-body');
     if (body) body.innerHTML = html;
-    const overlay = document.getElementById('wolo-ai-modal');
+    const overlay = document.getElementById('wozali-ai-modal');
     if (overlay && footer) {
       const container = overlay.querySelector('div > div:last-child');
-      if (container && container.id !== 'wolo-ai-modal-body') container.innerHTML = footer;
+      if (container && container.id !== 'wozali-ai-modal-body') container.innerHTML = footer;
     }
   }
 
   function closeAiModal() {
-    const m = document.getElementById('wolo-ai-modal');
+    const m = document.getElementById('wozali-ai-modal');
     if (m) m.remove();
   }
 
@@ -91,7 +91,7 @@ Score WOZALI: ${c['Candidat Score WOZALI'] || 0}/100
 Message: ${c['Message'] || ''}`;
   }
 
-  function _candidatureCacheKey(candidatureId) { return 'wolo_ai_score_' + candidatureId; }
+  function _candidatureCacheKey(candidatureId) { return 'wozali_ai_score_' + candidatureId; }
   const SCORE_CACHE_TTL_MS = 7 * 24 * 3600 * 1000;
 
   function getCachedScore(candidatureId) {
@@ -204,7 +204,7 @@ Message: ${c['Message'] || ''}`;
         <div id="${id}" style="padding:14px;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.25);border-radius:10px;">${escapeHtml(improved)}</div>
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button id="ai-apply-btn" style="flex:1;padding:10px;border-radius:10px;background:#E8940A;color:#14100A;font-weight:700;border:none;cursor:pointer;">Appliquer</button>
-          <button onclick="document.getElementById('wolo-ai-modal').remove()" style="flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Garder l'original</button>
+          <button onclick="document.getElementById('wozali-ai-modal').remove()" style="flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Garder l'original</button>
         </div>
         <div style="margin-top:14px;font-size:11px;color:rgba(252, 224, 168,.35);font-family:'Geist Mono',monospace;">⚙ ${provider} · ${quota?.used || 0}/${quota?.limit || '—'} req/j</div>
       `);
@@ -315,7 +315,7 @@ Description: ${offreFields['Description'] || ''}`;
     updateAiModalBody(`
       <div style="padding:18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#f87171;font-size:13px;">${msg}</div>
       <div style="margin-top:14px;text-align:center;">
-        <button onclick="document.getElementById('wolo-ai-modal').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Fermer</button>
+        <button onclick="document.getElementById('wozali-ai-modal').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;">Fermer</button>
       </div>
     `);
   }
@@ -323,7 +323,7 @@ Description: ${offreFields['Description'] || ''}`;
   // ----------------------------------------------------------------
   // API publique
   // ----------------------------------------------------------------
-  window.woloAi = {
+  window.wozaliAi = {
     query,
     scoreCandidat,
     scoreCandidatSilent,

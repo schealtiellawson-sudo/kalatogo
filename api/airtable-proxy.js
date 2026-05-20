@@ -22,7 +22,7 @@ const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 
 // Tables où l'écriture (POST/PATCH/DELETE) via ce proxy public est autorisée
 // pour un user authentifié. Toute autre table doit passer par un endpoint dédié
-// qui implémente sa propre logique d'autorisation (ex: /api/wolo-pay/*).
+// qui implémente sa propre logique d'autorisation (ex: /api/wozali-pay/*).
 //
 // `ownership` indique comment vérifier que le user a le droit de muter le record :
 //   - 'email-prestataire' : le record doit avoir Email == auth.email (table Prestataires)
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
       logDenied('table-not-whitelisted', { table, method, user: user.email });
       return res.status(403).json({
         error: 'Écriture non autorisée sur cette table via ce proxy',
-        hint: 'Utilise un endpoint applicatif dédié (/api/wolo-pay/*).'
+        hint: 'Utilise un endpoint applicatif dédié (/api/wozali-pay/*).'
       });
     }
 

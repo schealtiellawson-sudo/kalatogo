@@ -2,11 +2,11 @@
 // WOZALI Pay — Webhook FedaPay
 // ================================================================
 // Reçoit les événements FedaPay (transaction.approved, etc.)
-// Met à jour wolo_transactions OU paiements_abonnements selon le
+// Met à jour wozali_transactions OU paiements_abonnements selon le
 // préfixe de reference_interne (WP- / ABO-).
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
-import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
+import { crediterCreditWozali, envoyerNotification } from '../_utils/credit.js';
 import { traiterPaiementAbonnement } from '../_lib/abonnement.js';
 import { createHmac, timingSafeEqual } from 'crypto';
 
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
     // ---- Cas 2 : Paiement marchand WOZALI Pay (WP-) ----
     if (reference_interne.startsWith('WP-')) {
       const { data: tx } = await supabase
-        .from('wolo_transactions')
+        .from('wozali_transactions')
         .select('*')
         .eq('reference_interne', reference_interne)
         .single();
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       }
 
       await supabase
-        .from('wolo_transactions')
+        .from('wozali_transactions')
         .update({
           statut: 'PAYÉ',
           reference_fedapay,
@@ -103,7 +103,7 @@ export default async function handler(req, res) {
         })
         .eq('id', tx.id);
 
-      await crediterCreditWolo({
+      await crediterCreditWozali({
         user_id: tx.merchant_id,
         montant: tx.montant,
         type: 'credit_paiement',

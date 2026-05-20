@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     const userIds = abos.map(a => a.user_id);
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, score_wolo, pro_since')
+      .select('id, score_wozali, pro_since')
       .in('id', userIds);
 
     const profileMap = {};
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
       const profile = profileMap[userId];
       if (!profile) continue;
 
-      const scoreWolo = profile.score_wolo || 0;
+      const scoreWozali = profile.score_wozali || 0;
       const proSince = profile.pro_since || abo.created_at;
       const moisPro = proSince
         ? Math.floor((now.getTime() - new Date(proSince).getTime()) / (30 * 86400000))
@@ -131,7 +131,7 @@ export default async function handler(req, res) {
       // Les 6 conditions
       const conditions = {
         proDepuis2mois:    moisPro >= 2,
-        scoreMin80:        scoreWolo >= 80,
+        scoreMin80:        scoreWozali >= 80,
         avisMin4:          nbAvisRecents >= 4,
         noteMin42:         noteMoyRecente >= 4.2,
         pasAvisRecent14j:  avisRecentsOk,
@@ -152,7 +152,7 @@ export default async function handler(req, res) {
         user_id: userId,
         mois: moisCourant,
         eligible: estEligible,
-        score_wolo: scoreWolo,
+        score_wozali: scoreWozali,
         nb_avis: nbAvisRecents,
         note_moyenne: noteMoyRecente,
         pro_mois_consecutifs: moisPro,

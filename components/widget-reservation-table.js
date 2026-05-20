@@ -4,8 +4,8 @@
 //             reservation-table-update
 // ================================================================
 (function () {
-  if (!window.WoloWidgetsRunner) return;
-  const R = window.WoloWidgetsRunner;
+  if (!window.WozaliWidgetsRunner) return;
+  const R = window.WozaliWidgetsRunner;
   const esc = R._escapeHtml;
 
   function modal(html) {

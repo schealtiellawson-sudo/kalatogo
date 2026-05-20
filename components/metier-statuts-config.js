@@ -1,7 +1,7 @@
 // ================================================================
 // WOZALI — Mapping métier → statuts socio-économiques
 //
-// API : window.WoloMetierStatuts
+// API : window.WozaliMetierStatuts
 //   .getStatutsFor(metier)   → { statuts: [...], intro: '...', sequence_prefix: 'M_xxx' }
 //   .getIntroFor(metier)     → string (phrase contextuelle d'inscription)
 //   .getSequenceId(metier, statut) → 'M_apprentie_couture' / 'M_patron_garage' / etc.
@@ -1253,7 +1253,7 @@
     return s === 'patron' || s === 'patronne' || s.startsWith('patron_') || s.startsWith('patronne_') || s === 'patron_flotte' || s === 'patron_studio' || s === 'patron_cabinet' || s === 'patron_agence' || s === 'patron_centre' || s === 'patron_centre_tradi' || s === 'patron_spa' || s === 'patron_boutique' || s === 'patron_equipe';
   }
 
-  window.WoloMetierStatuts = {
+  window.WozaliMetierStatuts = {
     METIER_CONFIG,
     normalizeMetier: normalize,
     getStatutsFor,

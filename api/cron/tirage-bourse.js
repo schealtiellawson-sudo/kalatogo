@@ -4,7 +4,7 @@
 // Le handler vérifie si c'est le dernier vendredi du mois
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
-import { crediterCreditWolo, envoyerNotification } from '../_utils/credit.js';
+import { crediterCreditWozali, envoyerNotification } from '../_utils/credit.js';
 
 const MONTANT_BOURSE = 300000;
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     // 1. Récupérer tous les éligibles du mois
     const { data: eligibles } = await supabase
       .from('bourse_croissance')
-      .select('id, user_id, score_wolo')
+      .select('id, user_id, score_wozali')
       .eq('mois', moisCourant)
       .eq('eligible', true)
       .eq('gagnant', false);
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     const gagnant = tirageAleatoirePondere(eligibles);
 
     // 3. Créditer 300 000 FCFA en Crédit WOZALI
-    await crediterCreditWolo({
+    await crediterCreditWozali({
       user_id: gagnant.user_id,
       montant: MONTANT_BOURSE,
       type: 'credit_bourse',
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
       ok: true,
       mois: moisCourant,
       gagnant_id: gagnant.user_id,
-      score: gagnant.score_wolo,
+      score: gagnant.score_wozali,
       montant: MONTANT_BOURSE,
       nb_eligibles: eligibles.length,
     });
@@ -89,14 +89,14 @@ export default async function handler(req, res) {
   }
 }
 
-// Tirage aléatoire pondéré par score_wolo
+// Tirage aléatoire pondéré par score_wozali
 // Plus le score est élevé, plus la probabilité est grande
 function tirageAleatoirePondere(eligibles) {
-  const totalPoids = eligibles.reduce((s, e) => s + (e.score_wolo || 1), 0);
+  const totalPoids = eligibles.reduce((s, e) => s + (e.score_wozali || 1), 0);
   let rand = Math.random() * totalPoids;
 
   for (const e of eligibles) {
-    rand -= (e.score_wolo || 1);
+    rand -= (e.score_wozali || 1);
     if (rand <= 0) return e;
   }
   return eligibles[eligibles.length - 1]; // fallback

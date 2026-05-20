@@ -1,11 +1,11 @@
 // ================================================================
 // WOZALI Entretien — modale planification entretien
-// API : window.woloEntretien.open({ candidature, onSaved })
+// API : window.wozaliEntretien.open({ candidature, onSaved })
 // Endpoint : entretien-upsert (POST), entretien-list (GET)
 // ================================================================
 (function () {
-  const API = (a) => `/api/wolo-pay/${a}`;
-  const wFetch = () => window.woloFetch || fetch;
+  const API = (a) => `/api/wozali-pay/${a}`;
+  const wFetch = () => window.wozaliFetch || fetch;
 
   function escapeHtml(s) {
     if (s == null) return '';
@@ -13,7 +13,7 @@
   }
 
   function close() {
-    const m = document.getElementById('wolo-rdv-modal');
+    const m = document.getElementById('wozali-rdv-modal');
     if (m) m.remove();
   }
 
@@ -38,7 +38,7 @@
 
     close();
     const overlay = document.createElement('div');
-    overlay.id = 'wolo-rdv-modal';
+    overlay.id = 'wozali-rdv-modal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 
@@ -50,10 +50,10 @@
             <h3 style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">${escapeHtml(f['Candidat Nom'] || 'Candidat')}</h3>
             <div style="font-size:11px;color:rgba(252, 224, 168,.4);">${escapeHtml(f['Offre Titre'] || '')}</div>
           </div>
-          <button id="wolo-rdv-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <button id="wozali-rdv-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
         </div>
 
-        <form id="wolo-rdv-form" style="display:flex;flex-direction:column;gap:14px;font-family:Poppins,sans-serif;font-size:13px;color:#FCE0A8;">
+        <form id="wozali-rdv-form" style="display:flex;flex-direction:column;gap:14px;font-family:Poppins,sans-serif;font-size:13px;color:#FCE0A8;">
           <label style="display:flex;flex-direction:column;gap:6px;">
             <span style="font-size:11px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1px;">Type</span>
             <select id="rdv-type" style="background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px;border-radius:8px;outline:none;">
@@ -76,8 +76,8 @@
           </div>
 
           <div style="display:flex;gap:10px;margin-top:6px;">
-            <button type="button" id="wolo-rdv-cancel" style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-weight:600;">Annuler</button>
-            <button type="submit" id="wolo-rdv-save" style="flex:2;padding:12px;border-radius:10px;background:#E8940A;color:#14100A;border:none;cursor:pointer;font-weight:700;">Planifier</button>
+            <button type="button" id="wozali-rdv-cancel" style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);color:#FCE0A8;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-weight:600;">Annuler</button>
+            <button type="submit" id="wozali-rdv-save" style="flex:2;padding:12px;border-radius:10px;background:#E8940A;color:#14100A;border:none;cursor:pointer;font-weight:700;">Planifier</button>
           </div>
         </form>
       </div>
@@ -94,16 +94,16 @@
       else { locLabel.textContent = 'Numéro à appeler'; locInput.placeholder = '+228 9X XX XX XX'; }
     });
 
-    document.getElementById('wolo-rdv-close').addEventListener('click', close);
-    document.getElementById('wolo-rdv-cancel').addEventListener('click', close);
+    document.getElementById('wozali-rdv-close').addEventListener('click', close);
+    document.getElementById('wozali-rdv-cancel').addEventListener('click', close);
 
-    document.getElementById('wolo-rdv-form').addEventListener('submit', async (ev) => {
+    document.getElementById('wozali-rdv-form').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       if (!candidatUserId) {
         window.toast?.('Candidat sans compte Supabase. Contacte-le par WhatsApp.', 'error');
         return;
       }
-      const btn = document.getElementById('wolo-rdv-save');
+      const btn = document.getElementById('wozali-rdv-save');
       btn.disabled = true; btn.textContent = '…';
       const type = typeSel.value;
       const date = document.getElementById('rdv-date').value;
@@ -146,5 +146,5 @@
     if (fn) { try { await fn(candidature, body); } catch {} }
   }
 
-  window.woloEntretien = { open, close };
+  window.wozaliEntretien = { open, close };
 })();

@@ -13,13 +13,13 @@
     }
   ],
   "crons": [
-    { "path": "/api/cron/score-wolo", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/score-wozali", "schedule": "0 6 * * *" },
     { "path": "/api/cron/coup-du-jour", "schedule": "0 8 * * *" },
     { "path": "/api/cron/renouvellements", "schedule": "0 8 * * *" },
     { "path": "/api/cron/eligibilite-bourse", "schedule": "0 7 * * *" },
     { "path": "/api/cron/tirage-bourse", "schedule": "0 17 * * 5" },
     { "path": "/api/cron/awards-resultat", "schedule": "0 17 * * 5" },
-    { "path": "/api/wolo-pay/whatsapp-flush", "schedule": "0 12 * * *" }
+    { "path": "/api/wozali-pay/whatsapp-flush", "schedule": "0 12 * * *" }
   ],
   "rewrites": [
     { "source": "/api/airtable-proxy/:path*", "destination": "/api/airtable-proxy" },
