@@ -7006,7 +7006,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       </div>
 
       <!-- FAVORIS (conservé pour compatibilité) -->
-      <div class="dash-section" id="ds-favoris" style="display:none;">
+      <div class="dash-section" id="ds-favoris">
         <div id="favoris-list"></div>
       </div>
 
@@ -8135,6 +8135,8 @@ const SUPA_URL = 'https://wikgdksyeygwpmqzmhez.supabase.co';
 const SUPA_KEY = 'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 window.supabase = supa; // exposer pour le feed IIFE (_sb())
+// Helper global _sb() — accessible depuis toutes les fonctions hors IIFE (WOZALI Match, etc.)
+function _sb() { return window.supabase || null; }
 
 let currentUser = null;
 window.currentUser = null;
@@ -9299,7 +9301,7 @@ async function saveProfile() {
   fields['Diplomes'] = diplomes || '';
   // Champs maintenant créés dans Airtable
   fields['Lien Instagram']  = instagram || '';
-  fields['Langues parlées'] = langues   || '';
+  fields['Langues parlées'] = langues   || null; // null → TEXT[] Supabase accepte, '' → malformed array literal
 
   try {
     if (window.supaPrest) {
@@ -16217,11 +16219,19 @@ async function saveDispoHebdo(btn) {
   btn.disabled = true; btn.textContent = '⏳ Sauvegarde...';
   try {
     const json = JSON.stringify(currentDispoHebdo);
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Disponibilités Hebdo': json, 'Durée Créneau': currentSlotDuration } })
-    });
-    if (res.ok) {
+    let ok = false;
+    if (window.supaPrest) {
+      // Supabase : Durée Créneau non mappé → on sauvegarde uniquement Disponibilités Hebdo
+      await window.supaPrest.update(currentPrestataire.id, { 'Disponibilités Hebdo': json });
+      ok = true;
+    } else {
+      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { 'Disponibilités Hebdo': json, 'Durée Créneau': currentSlotDuration } })
+      });
+      ok = res.ok;
+    }
+    if (ok) {
       currentPrestataire.fields['Disponibilités Hebdo'] = json;
       currentPrestataire.fields['Durée Créneau'] = currentSlotDuration;
       msgEl.style.display = 'block'; msgEl.style.color = 'var(--vert)';
@@ -16232,7 +16242,12 @@ async function saveDispoHebdo(btn) {
       msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
       msgEl.textContent = '❌ Erreur lors de la sauvegarde';
     }
-  } catch { toast('Erreur de connexion', 'error'); }
+  } catch(e) {
+    console.error('saveDispoHebdo:', e);
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Erreur lors de la sauvegarde';
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
   btn.disabled = false; btn.textContent = '💾 Sauvegarder mes horaires';
 }
 
@@ -17778,10 +17793,14 @@ async function upgradePlan(plan, amount) {
   }
   let code = currentPrestataire.fields['Code Paiement'] || generatePaymentCode();
   try {
-    await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Code Paiement': code, 'Plan Demande': plan } })
-    });
+    if (window.supaPrest) {
+      await window.supaPrest.update(currentPrestataire.id, { 'Code Paiement': code, 'Plan Demande': plan });
+    } else {
+      await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { 'Code Paiement': code, 'Plan Demande': plan } })
+      });
+    }
     currentPrestataire.fields['Code Paiement'] = code;
     currentPrestataire.fields['Plan Demande']  = plan;
   } catch(e) { console.error('Code save failed', e); }

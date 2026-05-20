@@ -70,6 +70,9 @@
         // Le code existant fait souvent JSON.parse(record.fields['Albums']) — on stringify pour compat
         if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof v === 'object') {
           fields[atName] = JSON.stringify(v);
+        } else if (supaCol === 'langues_parlees' && Array.isArray(v)) {
+          // TEXT[] Supabase → string CSV pour compat code existant
+          fields[atName] = v.join(', ');
         } else {
           fields[atName] = v;
         }
@@ -91,6 +94,18 @@
       // Parser les JSON strings vers objets pour les colonnes JSONB
       if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof value === 'string') {
         try { row[supaCol] = JSON.parse(value); } catch { row[supaCol] = null; }
+      } else if (supaCol === 'langues_parlees') {
+        // TEXT[] Supabase : convertir string CSV → array, '' ou null → null
+        if (!value || value === '') {
+          row[supaCol] = null;
+        } else if (typeof value === 'string') {
+          const arr = value.split(',').map(s => s.trim()).filter(Boolean);
+          row[supaCol] = arr.length ? arr : null;
+        } else if (Array.isArray(value)) {
+          row[supaCol] = value.length ? value : null;
+        } else {
+          row[supaCol] = null;
+        }
       } else {
         row[supaCol] = value;
       }
