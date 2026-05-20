@@ -381,8 +381,8 @@ h1 em::after {
 /* Marqueur "live" animé */
 .hero-live-badge {
   display:inline-flex; align-items:center; gap:6px;
-  background:rgba(22,163,74,0.1); color:#E8940A;
-  border:1px solid rgba(22,163,74,0.2);
+  background:rgba(232,148,10,0.1); color:#E8940A;
+  border:1px solid rgba(232,148,10,0.25);
   padding:4px 12px; border-radius:100px; font-size:11px; font-weight:700;
   margin-left:10px;
 }
@@ -9985,7 +9985,7 @@ async function generateStory(avisId, note, auteur, commentaire) {
 
   // ── ZONE LOGO (15%) ──
   const logoY = H * 0.06;
-  ctx.font = '900 48px Fraunces, serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.font = '900 48px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
   ctx.fillText('W', W / 2, logoY);
   // Ligne or
   ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
@@ -10043,21 +10043,21 @@ async function generateStory(avisId, note, auteur, commentaire) {
     } else {
       ctx.fillStyle = '#E8940A';
       ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
-      ctx.font = '900 24px Fraunces, serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
+      ctx.font = '900 24px "DM Serif Display", serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
       ctx.fillText(nom.charAt(0).toUpperCase(), avX + avS / 2, avY + avS / 2 + 9);
     }
   } catch(e) {
     ctx.fillStyle = '#E8940A';
     ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
-    ctx.font = '900 24px Fraunces, serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
+    ctx.font = '900 24px "DM Serif Display", serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
     ctx.fillText(nom.charAt(0).toUpperCase(), avX + avS / 2, avY + avS / 2 + 9);
   }
   // Textes identité
   const txX = avX + avS + 20;
   ctx.textAlign = 'left';
-  ctx.font = '700 20px Fraunces, serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.font = '700 20px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
   ctx.fillText(nom, txX, idY + idBoxH * 0.35);
-  ctx.font = '400 14px Poppins, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.font = '400 14px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
   ctx.fillText(metier, txX, idY + idBoxH * 0.55);
   ctx.font = '400 12px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252, 224, 168,0.5)';
   ctx.fillText(ville, txX, idY + idBoxH * 0.72);
@@ -10065,10 +10065,10 @@ async function generateStory(avisId, note, auteur, commentaire) {
   // ── ZONE COMMENTAIRE (12%) ──
   const comY = idY + idBoxH + H * 0.03;
   const truncComment = commentaire.length > 120 ? commentaire.slice(0, 117) + '...' : commentaire;
-  ctx.font = '700 22px Fraunces, serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.font = '700 22px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
   ctx.fillText('\u201C', W / 2 - ctx.measureText(truncComment.slice(0, 20)).width / 2 - 16, comY);
-  let comEndY = wrapText(truncComment, W / 2, comY + 6, W * 0.76, 26, 'italic 16px Poppins, sans-serif', '#FCE0A8', 'center');
-  ctx.font = '700 22px Fraunces, serif'; ctx.fillStyle = '#E8940A';
+  let comEndY = wrapText(truncComment, W / 2, comY + 6, W * 0.76, 26, 'italic 16px Geist, sans-serif', '#FCE0A8', 'center');
+  ctx.font = '700 22px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
   ctx.fillText('\u201D', W / 2 + 10, comEndY - 10);
   ctx.font = '400 11px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
   ctx.fillText('\u2014 Client v\u00e9rifi\u00e9 \u2705', W / 2, comEndY + 14);
@@ -18754,7 +18754,7 @@ async function submitCandidature() {
       _confDiv.className = 'modal-overlay active';
       _confDiv.style.zIndex = '10002';
       const _recName = (offreData.fields?.['Recruteur Nom'] || 'le recruteur');
-      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:16px;color:#E8940A;">✓</div><h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Candidature envoyée à ' + _recName + '.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:16px;"><strong>' + _recName + '</strong> reçoit ton profil WOZALI complet — tes avis clients, tes photos, ta localisation, ta disponibilité.</p><p style="font-size:13px;color:#111;font-weight:700;margin-bottom:14px;">Ce que tu peux faire maintenant :</p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'dashboard\');this.closest(\'.modal-overlay\').remove();">→ Compléter ton profil pour maximiser tes chances</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'emploi\');this.closest(\'.modal-overlay\').remove();">→ Voir d\'autres offres qui correspondent à ton profil</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="this.closest(\'.modal-overlay\').remove();">→ Activer WOZALI Match pour recevoir les prochaines offres</button></div><p style="font-size:11px;color:var(--gris);margin-top:14px;line-height:1.6;">Si tu n\'as pas de réponse dans 7 jours — postule à d\'autres offres. Ne reste pas sur une seule chance.</p></div>';
+      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:16px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Candidature envoyée à ' + _recName + '.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:16px;"><strong>' + _recName + '</strong> reçoit ton profil WOZALI complet — tes avis clients, tes photos, ta localisation, ta disponibilité.</p><p style="font-size:13px;color:#111;font-weight:700;margin-bottom:14px;">Ce que tu peux faire maintenant :</p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'dashboard\');this.closest(\'.modal-overlay\').remove();">→ Compléter ton profil pour maximiser tes chances</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'emploi\');this.closest(\'.modal-overlay\').remove();">→ Voir d\'autres offres qui correspondent à ton profil</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="this.closest(\'.modal-overlay\').remove();">→ Activer WOZALI Match pour recevoir les prochaines offres</button></div><p style="font-size:11px;color:var(--gris);margin-top:14px;line-height:1.6;">Si tu n\'as pas de réponse dans 7 jours — postule à d\'autres offres. Ne reste pas sur une seule chance.</p></div>';
       document.body.appendChild(_confDiv);
       _confDiv.onclick = function(e) { if (e.target === _confDiv) _confDiv.remove(); };
     } else {
@@ -19148,7 +19148,7 @@ async function publierOffre() {
       const _confDiv = document.createElement('div');
       _confDiv.className = 'modal-overlay active';
       _confDiv.style.zIndex = '10002';
-      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:12px;color:#E8940A;">✓</div><h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Ton offre est publiée sur WOZALI Jobs.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:14px;">Visible par tous les membres au Bénin et au Togo.<br><strong style="color:#E8940A;">WOZALI Match</strong> analyse maintenant les profils disponibles.</p><p style="font-size:13px;color:#111;line-height:1.6;margin-bottom:18px;">Résultat dans les 5 minutes :<br><em style="color:#E8940A;">"[X] professionnels à ' + _ville + ' correspondent à ton besoin."</em></p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Voir les profils recommandés</button><button class="btn btn-secondary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Gérer mes offres</button></div></div>';
+      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:12px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Ton offre est publiée sur WOZALI Jobs.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:14px;">Visible par tous les membres au Bénin et au Togo.<br><strong style="color:#E8940A;">WOZALI Match</strong> analyse maintenant les profils disponibles.</p><p style="font-size:13px;color:#111;line-height:1.6;margin-bottom:18px;">Résultat dans les 5 minutes :<br><em style="color:#E8940A;">"[X] professionnels à ' + _ville + ' correspondent à ton besoin."</em></p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Voir les profils recommandés</button><button class="btn btn-secondary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Gérer mes offres</button></div></div>';
       document.body.appendChild(_confDiv);
       _confDiv.onclick = e => { if (e.target === _confDiv) _confDiv.remove(); };
       // Reset form
@@ -22896,7 +22896,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         records=await fn('Bourse_Gagnants','sort[0][field]=Date_Tirage&sort[0][direction]=desc&maxRecords=6&filterByFormula='+encodeURIComponent('{Actif}=1'));
       }
       if(records && records.length){
-        html='<h3 style="font-family:'DM Serif Display',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Ils ont déjà gagné</h3>';
+        html='<h3 style="font-family:\'DM Serif Display\',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Ils ont déjà gagné</h3>';
         html+='<div class="gagnants-liste">';
         records.forEach(function(r){
           var f=r.fields||{};
@@ -22917,7 +22917,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         html+='</div>';
       }else{
         html=''
-          +'<h3 style="font-family:'DM Serif Display',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Mur des gagnants</h3>'
+          +'<h3 style="font-family:\'DM Serif Display\',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Mur des gagnants</h3>'
           +'<div class="gagnant-placeholder">'
           +'<div class="placeholder-icon">🏆</div>'
           +'<div class="placeholder-montant">300 000 FCFA</div>'
@@ -22927,7 +22927,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }catch(e){
       console.warn('[Sprint5] mur fail',e);
       html=''
-        +'<h3 style="font-family:'DM Serif Display',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Mur des gagnants</h3>'
+        +'<h3 style="font-family:\'DM Serif Display\',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Mur des gagnants</h3>'
         +'<div class="gagnant-placeholder">'
         +'<div class="placeholder-icon">🏆</div>'
         +'<div class="placeholder-montant">300 000 FCFA</div>'
@@ -25363,7 +25363,7 @@ async function repondreMatch(demandeId, clientId) {
           +'<span style="padding:4px 12px;border-radius:8px;background:rgba(232,148,10,0.06);color:rgba(252, 224, 168,0.5);font-size:12px;">#'+rang+' au classement</span>'
         +'</div>'
         // Name
-        +'<h2 style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;margin:0 0 4px;">'+escapeHtml(p.nom||'Candidat')+'</h2>'
+        +'<h2 style="font-family:\'DM Serif Display\',serif;font-size:24px;color:#FCE0A8;margin:0 0 4px;">'+escapeHtml(p.nom||'Candidat')+'</h2>'
         +'<p style="font-size:14px;color:rgba(252, 224, 168,0.5);margin:0 0 16px;">'+escapeHtml(p.metier||'')+' · '+escapeHtml(p.quartier||p.ville||'')+' '+(c.pays==='TG'?'🇹🇬':'🇧🇯')+'</p>'
         +(p.note_moyenne?'<div style="font-size:14px;color:#E8940A;margin-bottom:16px;">⭐ '+p.note_moyenne+'/5 · '+(p.nb_avis||0)+' avis</div>':'')
         // Stats
@@ -25378,7 +25378,7 @@ async function repondreMatch(demandeId, clientId) {
         +(c.description?'<div style="padding:16px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(252, 224, 168,0.06);margin-bottom:20px;"><h3 style="font-family:Georgia,serif;font-size:14px;color:rgba(252, 224, 168,0.7);margin:0 0 8px;">Sa réalisation</h3><p style="font-size:14px;color:rgba(252, 224, 168,0.8);line-height:1.6;margin:0;">'+escapeHtml(c.description)+'</p></div>':'')
         // Vote CTA
         +'<div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.25);border-radius:14px;padding:20px;text-align:center;margin-bottom:20px;">'
-          +'<h3 style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin:0 0 8px;">Vote pour '+escapeHtml((p.nom||'').split(' ')[0]||'cette candidate')+' — c\'est gratuit</h3>'
+          +'<h3 style="font-family:\'DM Serif Display\',serif;font-size:18px;color:#FCE0A8;margin:0 0 8px;">Vote pour '+escapeHtml((p.nom||'').split(' ')[0]||'cette candidate')+' — c\'est gratuit</h3>'
           +'<p style="font-size:13px;color:rgba(252, 224, 168,0.5);margin:0 0 14px;">1 vote par personne par mois · Compte WOZALI requis</p>'
           +'<button class="aw-vote-btn" style="font-size:15px;padding:14px 32px;" onclick="voterAwardsPage(\''+c.id+'\')">🗳️ Voter pour '+escapeHtml((p.nom||'').split(' ')[0]||'elle')+' — gratuit</button>'
         +'</div>'
@@ -25470,12 +25470,12 @@ window.genererStoryCampagne = async function(candidatureId) {
     ctx.stroke();
     // W inside circle
     ctx.fillStyle = '#E8940A';
-    ctx.font = 'bold 36px Fraunces, Georgia, serif';
+    ctx.font = 'bold 36px "DM Serif Display", Georgia, serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('W', logoX - 80, logoY + 2);
     // WOZALI text
-    ctx.font = '900 42px Fraunces, Georgia, serif';
+    ctx.font = '900 42px "DM Serif Display", Georgia, serif';
     ctx.fillStyle = '#FCE0A8';
     ctx.textAlign = 'left';
     ctx.fillText('WOZALI', logoX - 25, logoY - 8);
@@ -25586,16 +25586,16 @@ window.genererStoryCampagne = async function(candidatureId) {
     // ══ ZONE 5: APPEL AU VOTE (15% = ~288px, at y=1340) ══
     var voteY = 1360;
     ctx.fillStyle = '#FCE0A8';
-    ctx.font = 'bold 32px Fraunces, Georgia, serif';
+    ctx.font = 'bold 32px "DM Serif Display", Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('Mon travail est en compétition.', 540, voteY);
 
     ctx.fillStyle = '#E8940A';
-    ctx.font = 'bold 36px Fraunces, Georgia, serif';
+    ctx.font = 'bold 36px "DM Serif Display", Georgia, serif';
     ctx.fillText('100 000 FCFA × 2', 540, voteY + 55);
 
     ctx.fillStyle = 'rgba(252, 224, 168,0.6)';
-    ctx.font = '20px Fraunces, Georgia, serif';
+    ctx.font = '20px "DM Serif Display", Georgia, serif';
     ctx.fillText('1 Reine ' + (c.categorie === 'coiffure' ? 'Coiffure' : 'Couture') + ' Bénin', 540, voteY + 95);
     ctx.fillText('+ 1 Reine ' + (c.categorie === 'coiffure' ? 'Coiffure' : 'Couture') + ' Togo · Chaque mois.', 540, voteY + 125);
 
@@ -25604,7 +25604,7 @@ window.genererStoryCampagne = async function(candidatureId) {
     ctx.fillText('1 vote = 30 secondes. Gratuit.', 540, voteY + 180);
 
     ctx.fillStyle = 'rgba(252, 224, 168,0.4)';
-    ctx.font = '18px Fraunces, Georgia, serif';
+    ctx.font = '18px "DM Serif Display", Georgia, serif';
     ctx.fillText('Ça peut tout changer.', 540, voteY + 215);
 
     // ══ ZONE 6: BAS (8% = ~154px, at y=1766) ══
@@ -25652,7 +25652,7 @@ window.genererStoryCampagne = async function(candidatureId) {
     var inner = document.getElementById('story-modal-inner');
     if (inner) {
       inner.innerHTML = ''
-        + '<h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:18px;margin:0 0 16px;">Ta Story de campagne</h3>'
+        + '<h3 style="font-family:\'DM Serif Display\',serif;color:#FCE0A8;font-size:18px;margin:0 0 16px;">Ta Story de campagne</h3>'
         + '<div style="border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid rgba(232,148,10,0.2);"><img src="' + dataUrl + '" style="width:100%;display:block;" alt="Story Bourse des Mains d\'Or"></div>'
         + '<div style="display:flex;flex-direction:column;gap:10px;">'
           + '<a href="' + dataUrl + '" download="' + filename + '" style="display:block;background:#E8940A;color:#14100A;padding:14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;text-decoration:none;">⬇️ Télécharger ma Story</a>'
@@ -26295,7 +26295,7 @@ window.addEventListener('beforeinstallprompt', function(e){
       +   '<div class="wv2-hero-v2-text">'
       +     '<h1>Ton travail parle.</h1>'
       +     '<h2><em style="font-style:italic;color:#E8940A;">Pas tes connexions.</em></h2>'
-      +     '<p style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(16px,2.2vw,22px);color:rgba(255,255,255,0.75);line-height:1.6;margin:16px 0 24px;max-width:600px;">L\'argent ne circule plus entre ceux qui cherchent et ceux qui savent faire.<br><span style="color:#E8940A;font-style:normal;font-weight:700;">WOZALI remet l\'argent en mouvement.</span></p>'
+      +     '<p style="font-family:DM Serif Display,serif;font-style:italic;font-size:clamp(16px,2.2vw,22px);color:rgba(255,255,255,0.75);line-height:1.6;margin:16px 0 24px;max-width:600px;">L\'argent ne circule plus entre ceux qui cherchent et ceux qui savent faire.<br><span style="color:#E8940A;font-style:normal;font-weight:700;">WOZALI remet l\'argent en mouvement.</span></p>'
       +     '<p class="wv2-hero-v2-sub">WOZALI connecte les artisans, prestataires et commerçants de Cotonou et Lomé avec leurs clients. Sans recommandation. Ton profil, tes avis, ton Score WOZALI — c\'est ça qui parle.</p>'
       +     '<div class="wv2-hero-v2-ctas">'
       +       '<button class="btn-wozali-primary" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button>'
@@ -27403,7 +27403,7 @@ function showCandDetail(recordId) {
     html += '</div>';
   }
 
-  html += '<h2 style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;margin:0 0 4px;text-align:center;font-weight:900;">' + (f['Prénom']||'') + ' ' + (f['Nom']||'') + '</h2>';
+  html += '<h2 style="font-family:\'DM Serif Display\',serif;font-size:24px;color:#FCE0A8;margin:0 0 4px;text-align:center;font-weight:900;">' + (f['Prénom']||'') + ' ' + (f['Nom']||'') + '</h2>';
   html += '<div style="text-align:center;margin-bottom:20px;">' + getCandBadge(statut) + '</div>';
 
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-family:Geist,sans-serif;font-size:14px;color:rgba(252, 224, 168,.65);">';
@@ -27544,7 +27544,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
     wrap.innerHTML = ''
       + '<div style="max-width:460px;width:100%;background:linear-gradient(180deg,#1F2937 0%,#14100A 100%);border:1px solid rgba(232,148,10,0.3);border-radius:24px;padding:40px 28px 32px;text-align:center;color:#FCE0A8;box-shadow:0 30px 80px rgba(0,0,0,0.6);">'
       +   '<div id="wozali-onb-icon" style="width:88px;height:88px;margin:0 auto 24px;border-radius:50%;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.4);display:flex;align-items:center;justify-content:center;"></div>'
-      +   '<h2 id="wozali-onb-title" style="font-family:'DM Serif Display',serif;font-size:26px;font-weight:900;margin:0 0 14px;color:#FCE0A8;line-height:1.2;"></h2>'
+      +   '<h2 id="wozali-onb-title" style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:900;margin:0 0 14px;color:#FCE0A8;line-height:1.2;"></h2>'
       +   '<p id="wozali-onb-text" style="font-size:15px;line-height:1.65;color:rgba(252, 224, 168,0.8);margin:0 0 30px;"></p>'
       +   '<div id="wozali-onb-dots" style="display:flex;gap:8px;justify-content:center;margin-bottom:24px;"></div>'
       +   '<div id="wozali-onb-btns" style="display:flex;flex-direction:column;gap:10px;"></div>'

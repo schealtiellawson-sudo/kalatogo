@@ -44,4 +44,6 @@ DO $$ BEGIN
   END IF;
 END $$;
 
-RAISE NOTICE '✅ Migration A terminée — vues wozali_* créées (tables wolo_* inchangées)';
+DO $$ BEGIN
+  RAISE NOTICE '✅ Migration A terminée — vues wozali_* créées (tables wolo_* inchangées)';
+END $$;
