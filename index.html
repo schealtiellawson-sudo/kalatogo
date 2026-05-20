@@ -4032,6 +4032,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <button class="nav-link" data-nav="search" onclick="showPage('search')">Trouver un pro</button>
       <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOZALI Jobs</button>
       <button class="nav-link" data-nav="recompenses" onclick="showPage('recompenses')">🏆 Récompenses</button>
+      <button class="nav-link" data-nav="fonctionnement" onclick="showPage('fonctionnement')">Comment ça marche</button>
       <button class="nav-link" data-nav="apropos" onclick="showPage('apropos')">Notre Histoire</button>
 <!-- Battle Bénin vs Togo retiré 2026-05-15 — refonte récompenses : 1 gagnante par pays au tirage MdR -->
       <!-- Boutons non connecté -->
@@ -4092,6 +4093,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
     <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 WOZALI Jobs</button>
     <button onclick="showPage('recompenses');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏆 Récompenses</button>
+    <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:#FCE0A8;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">Comment ça marche</button>
     <button onclick="showPage('apropos');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#FCE0A8;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">Notre Histoire</button>
 <!-- Battle Bénin vs Togo retiré 2026-05-15 (mobile nav) -->
     <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
@@ -7344,8 +7346,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <!-- A2. Liste avantages Pro refondue -->
             <ul class="wozali-avantages-pro">
               <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Bourse de Croissance</strong> — <span class="montant-or">300 000 FCFA/mois</span> pour le membre Pro le plus méritant</span></li>
-              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>La Bourse des Mains d'Or</strong> — <span class="montant-or">100 000 FCFA × 2 catégories</span> (✂️ Reine Coiffure Bénin/Togo + 👗 Reine Couture Bénin/Togo) · Ouvert à toutes les femmes B/T</span></li>
-              <li class="avantage-item"><span class="avantage-icon">🏆</span><span class="avantage-texte"><strong>Finale annuelle décembre</strong> — <span class="montant-or">500 000 FCFA × 2</span> Reines de l'Année (Coiffure + Couture)</span></li>
+              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>La Bourse des Mains d'Or</strong> — <span class="montant-or">100 000 FCFA × 2 Reines/mois</span> (✂️ Coiffure + 👗 Couture · 1 Bénin + 1 Togo) · <strong>Plan Pro requis</strong></span></li>
               <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité dans les résultats de recherche</strong> — tu apparais avant les profils gratuits</span></li>
               <li class="avantage-item"><span class="avantage-icon">⭐</span><span class="avantage-texte"><strong>Badge Pro visible</strong> par tous les clients</span></li>
               <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Parrainage actif</strong> — 1 000 FCFA/filleul/mois, récurrent, à vie</span></li>
@@ -7440,7 +7441,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="dash-section" id="ds-recompenses">
         <div class="dash-header">
           <h2>🏆 Récompenses mensuelles</h2>
-          <p>Bourse de Croissance (300K, Pro) + La Bourse des Mains d'Or (100K × 2, ouvert à toutes les femmes B/T) — chaque mois. Tirage automatique le 30.</p>
+          <p>Bourse de Croissance (300K, Pro) + La Bourse des Mains d'Or (100K × 2, coiffeuses &amp; couturières Pro) — chaque mois. Tirage automatique le 30.</p>
         </div>
         <div id="recompenses-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
       </div>
@@ -16409,7 +16410,7 @@ async function injectSprint6Upgrade(){
         ${rowKo('Priorité résultats')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowKo('Bourse 300 000 FCFA/mois (Pro only)')}
-        ${rowOk('Bourse des Mains d\'Or 100K × 2 — ouvert à toutes les femmes')}
+        ${rowKo('Bourse des Mains d\'Or 100K × 2 (coiffeuses &amp; couturières Pro)')}
         ${rowKo('Commissions parrainage')}
       </div>
       <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
@@ -16423,8 +16424,7 @@ async function injectSprint6Upgrade(){
         ${rowOk('À la Une homepage')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowOk('<strong>Bourse 300 000 FCFA/mois</strong>')}
-        ${rowOk('<strong>Bourse des Mains d\'Or 100K × 2</strong>')}
-        ${rowOk('<strong>Finale annuelle décembre 500K × 2</strong>')}
+        ${rowOk('<strong>Bourse des Mains d\'Or 100K × 2</strong> — Plan Pro requis')}
         ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
       </div>
     </div>
@@ -16483,7 +16483,7 @@ async function loadRecompensesWidgets() {
       <div style="text-align:center;padding:40px 20px">
         <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 4px 14px rgba(245,158,11,0.3);">🔒</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#FCE0A8;margin-bottom:8px">Réservé aux membres Pro</h3>
-        <p style="color:rgba(252, 224, 168,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">La Bourse de Croissance (300 000 FCFA/mois) est réservée aux membres Pro. La Bourse des Mains d'Or (100 000 FCFA × 2 catégories) est ouvert à toutes les femmes du Togo et du Bénin — pas besoin d'être Pro pour gagner.</p>
+        <p style="color:rgba(252, 224, 168,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">La Bourse de Croissance (300 000 FCFA/mois) et La Bourse des Mains d'Or (100 000 FCFA × 2 — coiffeuses &amp; couturières) sont toutes les deux réservées aux membres Pro.</p>
         <button onclick="showDashSection('abonnement')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.35)">Passer au Pro — 2 500 FCFA/mois →</button>
       </div>`;
     return;
@@ -20946,9 +20946,9 @@ async function loadRecrutDashboard() {
   </section>
 
   <!-- SÉPARATEUR VISUEL -->
-  <div style="background:linear-gradient(135deg,var(--vert-light),var(--or-light));padding:48px 0;">
+  <div style="background:#1E180E;padding:48px 0;border-top:1px solid rgba(232,148,10,0.18);border-bottom:1px solid rgba(232,148,10,0.18);">
     <div class="container" style="text-align:center;">
-      <p style="font-size:18px;font-weight:700;color:var(--vert);">🌍 WOZALI, c'est zéro commission pour les clients. Tu paies uniquement le prestataire — directement, comme tu veux.</p>
+      <p style="font-size:18px;font-weight:700;color:#E8940A;">🌍 WOZALI, c'est zéro commission pour les clients. Tu paies uniquement le prestataire — directement, comme tu veux.</p>
     </div>
   </div>
 
@@ -21218,7 +21218,7 @@ async function loadRecrutDashboard() {
               <div class="total-sub">= 7,6× le SMIG togolais et béninois — chaque mois.</div>
             </div>
             <div class="wozali-pro-gains-warning">
-              ⚠️ Bourse réservée Pro (2 mois consécutifs minimum). <strong>La Bourse des Mains d'Or est ouvert à toutes les femmes du Togo et du Bénin</strong> — pas besoin d'être Pro pour gagner les 100K.
+              ⚠️ Bourse de Croissance réservée Pro (2 mois consécutifs minimum). <strong>La Bourse des Mains d'Or réservée coiffeuses &amp; couturières Pro</strong> — Plan Pro requis pour participer au tirage 100K.
             </div>
           </div>
 
@@ -21249,14 +21249,7 @@ async function loadRecrutDashboard() {
               <div class="icon">👑</div>
               <div class="body">
                 <div class="titre">La Bourse des Mains d'Or — ✂️ Coiffure + 👗 Couture</div>
-                <div class="sous">2 Reines par mois (1 Bénin + 1 Togo) · Toutes les femmes B/T peuvent gagner · <span class="wozali-feature-montant">100 000 FCFA</span> par Reine</div>
-              </div>
-            </div>
-            <div class="wozali-pro-feature-item wozali-feature-highlight">
-              <div class="icon">🏆</div>
-              <div class="body">
-                <div class="titre">Finale annuelle décembre</div>
-                <div class="sous">Reine de l'Année Coiffure + Reine de l'Année Couture · <span class="wozali-feature-montant">500 000 FCFA</span> chacune · Tirage automatique parmi les Reines de l'année</div>
+                <div class="sous">2 Reines par mois (1 Bénin + 1 Togo) · <strong>Plan Pro requis</strong> · <span class="wozali-feature-montant">100 000 FCFA</span> par Reine</div>
               </div>
             </div>
             <div class="wozali-pro-feature-item">
@@ -21402,32 +21395,32 @@ async function loadRecrutDashboard() {
     <div class="wozali-faq-pro">
       <h2>Les vraies questions Pro</h2>
       <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">C'est vrai qu'on peut gagner 300 000 FCFA chaque mois juste en étant Pro ?</button>
-        <div class="wozali-faq-reponse"><p>Oui. 500 000 FCFA distribués chaque mois au total. <strong>300 000 FCFA</strong> pour la Bourse de Croissance — réservée aux membres Pro (Score WOZALI ≥ 80, avis clients récents, 2 mois Pro consécutifs). <strong>200 000 FCFA</strong> pour La Bourse des Mains d'Or — 100K ✂️ Reine Coiffure + 100K 👗 Reine Couture, alternance par mois, 1 Reine Bénin + 1 Reine Togo par construction, ouvert à toutes les femmes B/T. Tirage 100% automatique le 30 du mois — pas besoin de faire quoi que ce soit, si tu es éligible tu participes.</p></div>
+        <button class="wozali-faq-question" type="button">Je travaille bien. Pourquoi les clients ne viennent pas ?</button>
+        <div class="wozali-faq-reponse"><p>C'est la douleur la plus répandue au Togo et au Bénin. Tu travailles. Tu es bon. Mais tu es <strong>invisible</strong>. Un maçon à Tokoin, une coiffeuse à Bè, un mécanicien à Akpakpa — chaque jour, des clients cherchent exactement ce que tu fais. Ils trouvent le concurrent qui a un profil WOZALI avec des avis réels et des photos de son travail. Toi, tu restes invisible. Tu perds des clients que tu n'as jamais rencontrés. Le Plan Pro te met en tête de liste — devant tous les profils gratuits — dès qu'un client cherche ton métier dans ton quartier.</p></div>
       </div>
       <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Comment fonctionne La Bourse des Mains d'Or ?</button>
-        <div class="wozali-faq-reponse"><p>Chaque mois alterne entre 2 catégories — ✂️ Coiffure (mois impairs) et 👗 Couture (mois pairs). On couronne 2 Reines : 1 du Bénin et 1 du Togo, par construction (impossible qu'un pays rafle tout). Chaque Reine gagne <strong>100 000 FCFA</strong> = un trimestre de loyer à Bè ou une machine Singer pro. Toutes les femmes du Togo et du Bénin peuvent gagner — pas besoin d'être Pro. Le tirage est 100% automatique le 30 du mois parmi toutes les femmes éligibles (profil complet, métier concerné, au moins 1 photo de réalisation ce mois, au moins 1 avis reçu, active depuis moins de 14 jours).</p></div>
+        <button class="wozali-faq-question" type="button">2 500 FCFA par mois, c'est trop pour moi en ce moment.</button>
+        <div class="wozali-faq-reponse"><p>Combien tu perds chaque mois à rester invisible ? Une seule cliente qui ne te trouve pas. Un seul chantier qui file chez ton concurrent parce qu'il avait son numéro sur WOZALI. Un seul rendez-vous manqué. <strong>2 500 FCFA par mois = 83 FCFA par jour.</strong> Moins que le transport un trajet. Une seule prestation de 5 000 FCFA couvre 2 mois d'abonnement. Le reste du mois, c'est du gain pur. La vraie question n'est pas "est-ce que je peux me permettre le Pro". C'est "est-ce que je peux me permettre de continuer à être invisible".</p></div>
       </div>
       <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Pourquoi faut-il 2 mois Pro pour participer au tirage ?</button>
-        <div class="wozali-faq-reponse"><p>La condition est 2 mois consécutifs en Pro. C'est la règle anti-filou. Elle protège ceux qui s'engagent vraiment. Plus tôt tu t'inscris, plus tôt tu es éligible. C'est exactement pour ça que s'inscrire maintenant — pas demain — compte.</p></div>
+        <button class="wozali-faq-question" type="button">Est-ce que mon abonnement peut vraiment se payer tout seul ?</button>
+        <div class="wozali-faq-reponse"><p>Oui — mathématiquement. Le parrainage WOZALI te donne <strong>1 000 FCFA par filleul Pro actif, chaque mois, à vie.</strong> 3 filleuls = 3 000 FCFA. Ton abonnement coûte 2 500 FCFA. 3 filleuls = abonnement remboursé + 500 FCFA de bénéfice net. À partir du 4ème filleul, tu <em>gagnes de l'argent en dormant</em>. 10 filleuls = 10 000 FCFA/mois. 20 filleuls = 20 000 FCFA/mois. Récurrent. Tant qu'ils restent Pro. Partage ton lien de parrainage une fois sur WhatsApp — c'est parti.</p></div>
       </div>
       <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Mon abonnement peut vraiment être remboursé par le parrainage ?</button>
-        <div class="wozali-faq-reponse"><p>Mathématiquement, oui. 3 filleuls Pro actifs = 3 × 1 000 FCFA = 3 000 FCFA de commissions. Ton abonnement coûte 2 500 FCFA. 3 filleuls = abonnement remboursé + 500 FCFA de bénéfice. À partir du 4ème filleul — tout est du gain pur. Et ça rentre chaque mois tant qu'ils restent Pro.</p></div>
+        <button class="wozali-faq-question" type="button">C'est quoi la Bourse de Croissance et comment je peux gagner ?</button>
+        <div class="wozali-faq-reponse"><p><strong>300 000 FCFA distribués chaque mois</strong> — 150 000 FCFA au Togo + 150 000 FCFA au Bénin. Pour le Pro le plus sérieux du mois : Score WOZALI ≥ 80, au moins 3 avis clients récents, note ≥ 4.2★, Plan Pro actif ce mois. Tirage automatique le 30 — pas de dossier à remplir. Si tu es éligible, tu participes. 300 000 FCFA = 10 mois de loyer à Bè. C'est réel. C'est réservé aux membres Pro. Et ça se prépare maintenant, pas le 29 du mois.</p></div>
       </div>
       <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Combien de membres Pro sont inscrits en ce moment ?</button>
-        <div class="wozali-faq-reponse"><p><span id="faq-nb-pro">—</span> membres Pro actifs sur WOZALI à Cotonou et à Lomé en ce moment. Ils apparaissent avant toi dans les résultats de recherche. Chaque semaine qui passe, ce nombre augmente. Et tes chances au tirage mensuel diminuent — mécaniquement.</p></div>
+        <button class="wozali-faq-question" type="button">Et la Bourse des Mains d'Or, c'est pour qui ?</button>
+        <div class="wozali-faq-reponse"><p>Pour les <strong>coiffeuses et couturières</strong> membres Pro. 2 Reines par mois — 1 Reine Togo + 1 Reine Bénin. Les catégories alternent : ✂️ Coiffure un mois, 👗 Couture le mois suivant. Chaque Reine gagne <strong>100 000 FCFA</strong> = une machine Singer neuve. Pour participer : Plan Pro actif, profil complet, au moins 1 photo de réalisation ce mois, au moins 1 avis client reçu. Tirage automatique le 30. Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour.</p></div>
       </div>
       <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">2 500 FCFA par mois pour quoi exactement ?</button>
-        <div class="wozali-faq-reponse"><p>Pour apparaître en premier dans les résultats — toujours. Pour pouvoir gagner 300 000 FCFA chaque mois via la Bourse de Croissance. Pour passer À la Une devant tous les visiteurs. Pour figurer dans le Top 50 WOZALI Bénin-Togo. Pour toucher 40% des abonnements de tes filleuls à vie. Et pour voir exactement combien de clients t'ont cherché et trouvé ton concurrent. 2 500 FCFA. Moins qu'une recharge MTN Mobile Money. Résiliable n'importe quand. Sans explication à donner.</p></div>
+        <button class="wozali-faq-question" type="button">Combien de Pro sont déjà inscrits ? Est-ce que ça vaut encore le coup ?</button>
+        <div class="wozali-faq-reponse"><p><span id="faq-nb-pro">—</span> membres Pro actifs à Cotonou et à Lomé en ce moment. Chaque semaine, ce nombre augmente. Et pendant que tu réfléchis, ils accumulent des avis clients, montent leur Score WOZALI, gagnent en visibilité. <strong>Le classement WOZALI s'éloigne.</strong> Les tirages mensuels passent. Ils ne se rattrapent pas. Est-ce que ça vaut encore le coup ? Pose-toi la bonne question : est-ce que tu peux te permettre de laisser ton concurrent 6 mois d'avance sur toi ?</p></div>
       </div>
       <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Faut-il être Pro pour gagner La Bourse des Mains d'Or ?</button>
-        <div class="wozali-faq-reponse"><p>Non. La Bourse des Mains d'Or est <strong>ouvert à toutes les femmes du Togo et du Bénin</strong> — Pro ou gratuit, peu importe. C'est notre concours d'acquisition : on rend visible le travail, on récompense au mérite, et on espère que les gagnantes deviendront ambassadrices de WOZALI. Seule la Bourse de Croissance (300 000 FCFA) reste réservée aux membres Pro depuis 2 mois minimum.</p></div>
+        <button class="wozali-faq-question" type="button">Je peux arrêter quand je veux ?</button>
+        <div class="wozali-faq-reponse"><p>Oui. Pas de contrat. Pas d'engagement. Résiliable n'importe quand, sans explication. Mais pendant le mois où tu hésites, d'autres Pros avancent. Tu n'as pas à décider "pour toujours". Tu décides pour <em>ce mois</em>. Une prestation. Un client trouvé via WOZALI. Et tu vois ce que ça change.</p></div>
       </div>
     </div>
   </section>
@@ -21627,7 +21620,7 @@ async function loadRecrutDashboard() {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7s5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"></path><path d="M6 9l6 11 6-11"></path></svg>
           </div>
           <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:10px;">REVENUS</h3>
-          <p style="font-size:14px;line-height:1.7;color:rgba(252, 224, 168,0.75);margin:0;">500 000 FCFA distribués chaque mois — 300K Bourse de Croissance (Pro) + 200K La Bourse des Mains d'Or (100K × 2 Reines, ouvert à toutes les femmes B/T). 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton réseau aussi.</p>
+          <p style="font-size:14px;line-height:1.7;color:rgba(252, 224, 168,0.75);margin:0;">500 000 FCFA distribués chaque mois — 300K Bourse de Croissance (Pro) + 200K La Bourse des Mains d'Or (100K × 2 Reines, coiffeuses &amp; couturières Pro). 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton réseau aussi.</p>
         </div>
       </div>
     </div>
@@ -22034,11 +22027,11 @@ const faqData = [
   },
   {
     q: "C'est quoi La Bourse des Mains d'Or exactement ?",
-    a: "Un concours mensuel pour les femmes du Togo et du Bénin — coiffure et couture, en alternance. 2 Reines par mois (1 Bénin + 1 Togo, par construction). 100 000 FCFA chacune. Tirage 100% automatique le 30 du mois parmi les femmes éligibles. Tu postes ta photo de réalisation, tu tagges la coiffeuse / couturière qui a fait le travail (obligatoire). Pas besoin de postuler — si tu es éligible, tu es automatiquement dans le tirage."
+    a: "Un concours mensuel pour les coiffeuses et couturières <strong>membres Pro</strong> du Togo et du Bénin — coiffure et couture, en alternance. 2 Reines par mois (1 Bénin + 1 Togo). 100 000 FCFA chacune. Tirage 100% automatique le 30 du mois parmi les membres éligibles. Plan Pro actif, profil complet, au moins 1 photo de réalisation et 1 avis client. Pas besoin de postuler — si tu es éligible, tu es automatiquement dans le tirage."
   },
   {
     q: "Faut-il être Pro pour gagner La Bourse des Mains d'Or ?",
-    a: "Non — La Bourse des Mains d'Or est <strong>ouvert à toutes les femmes du Togo et du Bénin</strong>. Pro ou gratuit, peu importe. C'est notre concours d'acquisition. Seule la Bourse de Croissance (300 000 FCFA) reste réservée aux membres Pro depuis 2 mois minimum. Tu peux gagner les 100 000 FCFA mensuels du Bourse des Mains d'Or même en plan gratuit."
+    a: "Oui — La Bourse des Mains d'Or est <strong>réservée aux coiffeuses et couturières membres Pro</strong>. Plan Pro actif ce mois, profil complet, au moins 1 photo de réalisation et 1 avis client. Tirage automatique le 30 parmi toutes les membres éligibles. La Bourse de Croissance (300 000 FCFA) est également réservée aux membres Pro depuis 2 mois minimum."
   }
 ];
 
@@ -22317,16 +22310,17 @@ loadSchealtielPhoto();
         <span style="font-size:32px">👑</span>
         <div>
           <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#FCE0A8;margin:0">La Bourse des Mains d'Or</h2>
-          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Geist Mono',monospace">100 000 FCFA × 2 Reines / mois (1 Bénin + 1 Togo) · Ouvert à toutes les coiffeuses et couturières du Togo et du Bénin — sans Plan Pro</p>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Geist Mono',monospace">100 000 FCFA × 2 Reines / mois (1 Bénin + 1 Togo) · Coiffeuses & Couturières · Plan Pro requis</p>
         </div>
       </div>
-      <p style="color:rgba(252, 224, 168,.7);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour. Et le pays regarde.</strong><br><br>Chaque mois, <strong>2 femmes gagnent 100 000 FCFA chacune</strong> — une au Togo, une au Bénin. Un mois sur deux c'est ✂️ Coiffure, le mois suivant c'est 👗 Couture. Tu postes une photo de ton travail, la communauté vote, et le 30 du mois 2 Reines sont tirées au sort. <strong>Gratuit, sans Plan Pro</strong> — toutes les femmes du Togo et du Bénin peuvent gagner.</p>
+      <p style="color:rgba(252, 224, 168,.7);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour. Et le pays regarde.</strong><br><br>Chaque mois, <strong>2 Reines gagnent 100 000 FCFA chacune</strong> — une au Togo, une au Bénin. Un mois sur deux c'est ✂️ Coiffure, le mois suivant c'est 👗 Couture. Tu postes une photo de ton travail, et le 30 du mois 2 Reines sont tirées au sort parmi toutes les membres éligibles. <strong>Plan Pro requis</strong> — réservé aux coiffeuses et couturières membres Pro du Togo et du Bénin.</p>
 
       <!-- Conditions affichées pour tous (publique) -->
       <div style="margin-bottom:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:16px">
         <h3 style="font-size:13px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</h3>
         <div style="display:grid;gap:8px;font-size:13px;color:rgba(252, 224, 168,.7)">
-          <div>✓ Être une femme au Togo ou au Bénin — <strong>pas besoin d'être Pro</strong></div>
+          <div>✓ <strong>Plan Pro actif</strong> ce mois-ci — <span style="color:#E8940A;">réservé aux membres Pro</span></div>
+          <div>✓ Être une femme au Togo ou au Bénin</div>
           <div>✓ Métier = <strong>Coiffeuse</strong> (mois impair : jan, mar, mai…) ou <strong>Couturière</strong> (mois pair : fév, avr, juin…)</div>
           <div>✓ Profil complet (photo de profil + métier + ville/quartier)</div>
           <div>✓ Au moins <strong>1 photo de réalisation</strong> sur ton profil ce mois-ci</div>
