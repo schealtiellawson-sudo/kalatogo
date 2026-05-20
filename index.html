@@ -16494,9 +16494,9 @@ function renderTikTokSharedSection() {
 
   const f = currentPrestataire.fields || {};
   const slots = [
-    { key: 'tiktok_suivi_wolomarket',  iconId: 'tiktok-icon-wozali', btnId: 'tiktok-btn-wozali' },
+    { key: 'tiktok_suivi_wozali',  iconId: 'tiktok-icon-wozali', btnId: 'tiktok-btn-wozali' },
     { key: 'tiktok_suivi_schealtiel',  iconId: 'tiktok-icon-schealtiel',  btnId: 'tiktok-btn-schealtiel' },
-    { key: 'insta_suivi_wolomarket',   iconId: 'insta-icon-wozali',   btnId: 'insta-btn-wozali' },
+    { key: 'insta_suivi_wozali',   iconId: 'insta-icon-wozali',   btnId: 'insta-btn-wozali' },
     { key: 'insta_suivi_schealtiel',   iconId: 'insta-icon-schealtiel',   btnId: 'insta-btn-schealtiel' },
   ];
   slots.forEach(({ key, iconId, btnId }) => {
@@ -16575,7 +16575,7 @@ function renderChecklist(prefix, d) {
     activite_recente: 'Connexion récente (≤ 14 jours)',
     tiktok_wolomarket: '⚡ Bonus — Suivre @wozali sur TikTok',
     tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
-    insta_suivi_wolomarket: '⚡ Bonus — Suivre @wozali sur Instagram',
+    insta_suivi_wozali: '⚡ Bonus — Suivre @wozali sur Instagram',
     insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
   } : {
     plan_pro_actif: 'Plan Pro actif ce mois-ci',
@@ -16587,7 +16587,7 @@ function renderChecklist(prefix, d) {
     pas_gagne_recent: 'Pas gagné dans les 3 derniers mois',
     tiktok_wolomarket: '⚡ Bonus — Suivre @wozali sur TikTok',
     tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
-    insta_suivi_wolomarket: '⚡ Bonus — Suivre @wozali sur Instagram',
+    insta_suivi_wozali: '⚡ Bonus — Suivre @wozali sur Instagram',
     insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
   };
 
@@ -21945,7 +21945,7 @@ loadSchealtielPhoto();
           <div style="font-size:10px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px">BONUS · +CHANCES</div>
         </div>
         <a href="https://www.tiktok.com/@wozali" target="_blank" rel="noopener" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:8px 14px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block">Suivre →</a>
-        <button onclick="toggleTikTokSuivi('tiktok_suivi_wolomarket')" id="tiktok-btn-wozali" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
+        <button onclick="toggleTikTokSuivi('tiktok_suivi_wozali')" id="tiktok-btn-wozali" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
       </div>
       <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:14px;margin-bottom:16px;flex-wrap:wrap">
         <span id="tiktok-icon-schealtiel" style="font-size:20px;width:28px;text-align:center">⭕</span>
@@ -21966,7 +21966,7 @@ loadSchealtielPhoto();
           <div style="font-size:10px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px">BONUS · +CHANCES</div>
         </div>
         <a href="https://www.instagram.com/wozali" target="_blank" rel="noopener" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.4);padding:8px 14px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;display:inline-block">Suivre →</a>
-        <button onclick="toggleTikTokSuivi('insta_suivi_wolomarket')" id="insta-btn-wozali" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
+        <button onclick="toggleTikTokSuivi('insta_suivi_wozali')" id="insta-btn-wozali" style="background:transparent;color:#E8940A;border:1.5px solid #E8940A;padding:8px 13px;border-radius:100px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">☐ Déclaré</button>
       </div>
       <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:14px;flex-wrap:wrap">
         <span id="insta-icon-schealtiel" style="font-size:20px;width:28px;text-align:center">⭕</span>
