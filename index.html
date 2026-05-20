@@ -4815,8 +4815,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <h4>Contact</h4>
           <a>📧 contact@wozali.com</a>
           
-          <a href="https://wa.me/33743606916?text=Bonjour%20WOZALI%20!" target="_blank">📱 WhatsApp</a>
-          <a href="https://www.tiktok.com/@wozali" target="_blank">🎵 TikTok @Wozali</a>
+          <a href="https://www.tiktok.com/@wozali" target="_blank">🎵 TikTok @wozali</a>
           <a href="https://www.instagram.com/wozali" target="_blank">📸 Instagram @wozali</a>
           <a onclick="showPage('cgu')" style="cursor:pointer;">📄 CGU</a>
         </div>
@@ -9413,21 +9412,26 @@ async function saveDashLiveMode() {
   navigator.geolocation.getCurrentPosition(async pos => {
     const lat = pos.coords.latitude, lon = pos.coords.longitude;
     try {
-      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
-      });
-      const data2 = await res.json();
-      if (res.ok) {
+      let savedOk = false;
+      if (window.supaPrest) {
+        await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+        savedOk = true;
+      } else {
+        const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+          method: 'PATCH', headers: AT_HEADERS,
+          body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
+        });
+        savedOk = res.ok;
+      }
+      if (savedOk) {
         currentPrestataire.fields['Latitude'] = lat;
         currentPrestataire.fields['Longitude'] = lon;
         localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
         if (status) status.textContent = `✅ Position mise à jour — ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
         toast('📡 Position GPS mise à jour avec succès !', 'success');
       } else {
-        const msg2 = data2?.error?.message || JSON.stringify(data2);
         if (status) status.textContent = '❌ Erreur sauvegarde';
-        toast('Erreur Airtable : ' + msg2, 'error');
+        toast('Erreur lors de la mise à jour GPS', 'error');
       }
     } catch(e2) {
       if (status) status.textContent = '❌ Erreur réseau';
@@ -9570,7 +9574,7 @@ async function _doUploadProfilCrop(blob, dataUrl) {
     let savedOk = false;
     try {
       if (window.supaPrest) {
-        await window.supaPrest.update(currentPrestataire.id, { 'WhatsApp': url, 'Photo de profil': url });
+        await window.supaPrest.updateField(currentPrestataire.id, 'Photo de profil', url);
         savedOk = true;
       } else {
         const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
@@ -9581,7 +9585,6 @@ async function _doUploadProfilCrop(blob, dataUrl) {
       }
     } catch (e) { console.error('photo profil save:', e); }
     if (savedOk) {
-      currentPrestataire.fields['WhatsApp'] = url;
       currentPrestataire.fields['Photo de profil'] = url;
       document.getElementById('btn-recadrer-label')?.style && (document.getElementById('btn-recadrer-label').style.display = 'inline-flex');
       statusEl.style.color = 'var(--vert)';
@@ -9627,11 +9630,20 @@ async function _doUploadRealisationCrop(slot, blob) {
   const url = await uploadToImgBB(croppedFile);
   if (url) {
     const fieldName = `Photo Réalisation ${slot}`;
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { [fieldName]: url } })
-    });
-    if (res.ok) {
+    let savedOk = false;
+    try {
+      if (window.supaPrest) {
+        await window.supaPrest.updateField(currentPrestataire.id, fieldName, url);
+        savedOk = true;
+      } else {
+        const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+          method: 'PATCH', headers: AT_HEADERS,
+          body: JSON.stringify({ fields: { [fieldName]: url } })
+        });
+        savedOk = res.ok;
+      }
+    } catch (e) { console.error('realisation save:', e); }
+    if (savedOk) {
       currentPrestataire.fields[fieldName] = url;
       renderRealisationsGrid();
       statusEl.style.color = 'var(--vert)';
@@ -9641,7 +9653,7 @@ async function _doUploadRealisationCrop(slot, blob) {
     } else {
       if (slotEl) slotEl.style.opacity = '1';
       statusEl.style.color = '#dc2626';
-      statusEl.textContent = '❌ Erreur Airtable. Réessaie.';
+      statusEl.textContent = '❌ Erreur sauvegarde. Réessaie.';
     }
   } else {
     if (slotEl) slotEl.style.opacity = '1';
@@ -9657,11 +9669,21 @@ async function deleteRealisationPhoto(slot) {
   const slotEl = document.getElementById(`real-slot-${slot}`);
   if (slotEl) slotEl.style.opacity = '0.4';
 
-  const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-    method: 'PATCH', headers: AT_HEADERS,
-    body: JSON.stringify({ fields: { [fieldName]: null } })
-  });
-  if (res.ok) {
+  let deletedOk = false;
+  try {
+    if (window.supaPrest) {
+      await window.supaPrest.updateField(currentPrestataire.id, fieldName, null);
+      deletedOk = true;
+    } else {
+      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+        method: 'PATCH', headers: AT_HEADERS,
+        body: JSON.stringify({ fields: { [fieldName]: null } })
+      });
+      deletedOk = res.ok;
+    }
+  } catch (e) { console.error('realisation delete:', e); }
+
+  if (deletedOk) {
     currentPrestataire.fields[fieldName] = null;
     renderRealisationsGrid();
     toast(`Photo ${slot} supprimée.`, 'success');
@@ -9702,11 +9724,20 @@ function _getAlbums() {
 }
 
 async function _saveAlbums(albums) {
+  const albumsStr = JSON.stringify(albums);
+  try {
+    if (window.supaPrest) {
+      await window.supaPrest.updateField(currentPrestataire.id, 'Albums', albumsStr);
+      currentPrestataire.fields['Albums'] = albumsStr;
+      return true;
+    }
+  } catch(e) { console.error('_saveAlbums supaPrest:', e); }
+  // Fallback Airtable
   const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
     method: 'PATCH', headers: AT_HEADERS,
-    body: JSON.stringify({ fields: { 'Albums': JSON.stringify(albums) } })
+    body: JSON.stringify({ fields: { 'Albums': albumsStr } })
   });
-  if (res.ok) currentPrestataire.fields['Albums'] = JSON.stringify(albums);
+  if (res.ok) currentPrestataire.fields['Albums'] = albumsStr;
   return res.ok;
 }
 
@@ -14484,28 +14515,32 @@ async function fetchAvis(prestatairesId) {
   if (window.supaAvis && prestatairesId) {
     try {
       const records = await window.supaAvis.list({ prestataire_id: prestatairesId, validated: true, limit: 200 });
-      if (records && records.length > 0) {
-        // Récupère également les avis liés via l'ancien airtable_record_id
-        return records;
-      }
-      // Si vide, on tente Airtable au cas où des données legacy ne sont pas migrées
+      if (records && records.length > 0) return records;
     } catch (e) { console.warn('[fetchAvis supa fail, fallback Airtable]', e?.message || e); }
   }
+  // Si l'ID est un UUID Supabase (format xxxxxxxx-xxxx-…), les avis Airtable
+  // utilisent des IDs recXXXXXX → aucun match possible, inutile d'appeler Airtable.
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(prestatairesId || '');
+  if (isUUID) return [];
   try {
-    // FALLBACK Airtable (compat ancien stockage)
+    // FALLBACK Airtable (compat IDs recXXXXXX legacy uniquement)
     const visibleFilter = encodeURIComponent(`{Avis visible}=1`);
     const sortParam = `sort%5B0%5D%5Bfield%5D=Date%20de%20l%27avis&sort%5B0%5D%5Bdirection%5D=desc`;
     let allRecords = [];
     let offsetParam = '';
-    while (true) {
-      const url = `${AT_URL('Avis')}?filterByFormula=${visibleFilter}&${sortParam}${offsetParam}`;
-      const res = await fetch(url, { headers: AT_HEADERS });
-      if (!res.ok) break;
-      const data = await res.json();
-      allRecords = allRecords.concat(data.records || []);
-      if (!data.offset) break;
-      offsetParam = `&offset=${data.offset}`;
-    }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    try {
+      while (true) {
+        const url = `${AT_URL('Avis')}?filterByFormula=${visibleFilter}&${sortParam}${offsetParam}`;
+        const res = await fetch(url, { headers: AT_HEADERS, signal: controller.signal });
+        if (!res.ok) break;
+        const data = await res.json();
+        allRecords = allRecords.concat(data.records || []);
+        if (!data.offset) break;
+        offsetParam = `&offset=${data.offset}`;
+      }
+    } finally { clearTimeout(timeout); }
     return allRecords.filter(r => (r.fields['Prestataire évalué'] || []).includes(prestatairesId));
   } catch { return []; }
 }
@@ -21513,8 +21548,7 @@ async function loadRecrutDashboard() {
           <h4>Contact</h4>
           <a>📧 contact@wozali.com</a>
           
-          <a href="https://wa.me/33743606916?text=Bonjour%20WOZALI%20!" target="_blank">📱 WhatsApp</a>
-          <a href="https://www.tiktok.com/@wozali" target="_blank">🎵 TikTok @Wozali</a>
+          <a href="https://www.tiktok.com/@wozali" target="_blank">🎵 TikTok @wozali</a>
           <a href="https://www.instagram.com/wozali" target="_blank">📸 Instagram @wozali</a>
           <a onclick="showPage('cgu')" style="cursor:pointer;">📄 CGU</a>
         </div>
@@ -21940,8 +21974,7 @@ async function loadRecrutDashboard() {
           <h4>Contact</h4>
           <a>📧 contact@wozali.com</a>
           
-          <a href="https://wa.me/33743606916?text=Bonjour%20WOZALI%20!" target="_blank">📱 WhatsApp</a>
-          <a href="https://www.tiktok.com/@wozali" target="_blank">🎵 TikTok @Wozali</a>
+          <a href="https://www.tiktok.com/@wozali" target="_blank">🎵 TikTok @wozali</a>
           <a href="https://www.instagram.com/wozali" target="_blank">📸 Instagram @wozali</a>
           <a onclick="showPage('cgu')" style="cursor:pointer;">📄 CGU</a>
         </div>
