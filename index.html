@@ -8853,7 +8853,7 @@ function renderPremierPasWizard() {
     const metierLocal = currentPrestataire?.fields?.['Métier principal'] || '';
     const villeLocal = currentPrestataire?.fields?.['Ville'] || '';
     const waText = metierLocal
-      ? `${prenom || 'Je'} suis ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}. Mes réalisations, mes tarifs, mes avis clients — tout est là :\n👉 ${profilUrl}\n\nTu veux trouver les meilleurs pros autour de toi ? wozali.com`
+      ? `${prenom ? prenom + ' est' : 'Je suis'} ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}. Mes réalisations, mes tarifs, mes avis clients — tout est là :\n👉 ${profilUrl}\n\nTu veux trouver les meilleurs pros autour de toi ? wozali.com`
       : `Je suis sur WOZALI. Mon profil complet — réalisations, tarifs, avis :\n👉 ${profilUrl}\n\nTon travail parle. Pas tes connexions. wozali.com`;
     const waUrl = 'https://wa.me/?text=' + encodeURIComponent(waText);
     cards.push(`
