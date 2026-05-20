@@ -761,6 +761,132 @@ h1 .gold { color:var(--or); }
 @media(max-width:900px){ .vedette-grid{grid-template-columns:repeat(2,1fr);} }
 @media(max-width:600px){ .vedette-grid{grid-template-columns:1fr 1fr;gap:14px;} .vedette-title{font-size:24px;} .vedette-card{padding:18px 14px;} .vedette-avatar{width:56px;height:56px;} }
 
+/* ══ SECTION LOCALISATION ══ */
+.wozali-loc-section {
+  background:#14100A; padding:96px 0 80px;
+  border-top:1px solid rgba(232,148,10,0.1);
+  border-bottom:1px solid rgba(232,148,10,0.1);
+  overflow:hidden; position:relative;
+}
+.wozali-loc-section::before {
+  content:''; position:absolute; top:-120px; left:-120px;
+  width:480px; height:480px; border-radius:50%;
+  background:radial-gradient(circle, rgba(232,148,10,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+.wozali-loc-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;
+}
+.wozali-loc-eyebrow {
+  font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:3px;
+  color:#E8940A; margin-bottom:20px; display:block;
+}
+.wozali-loc-title {
+  font-family:'DM Serif Display',serif; font-size:clamp(32px,4vw,52px);
+  font-weight:900; color:#FCE0A8; line-height:1.1; margin:0 0 20px;
+}
+.wozali-loc-title span { color:#E8940A; }
+.wozali-loc-desc {
+  font-family:'Geist',sans-serif; font-size:16px; line-height:1.75;
+  color:rgba(252,224,168,0.65); margin:0 0 36px; max-width:480px;
+}
+.wozali-loc-cities { display:flex; flex-direction:column; gap:12px; margin-bottom:28px; }
+.wozali-loc-city {
+  display:flex; align-items:center; gap:16px;
+  background:rgba(232,148,10,0.05); border:1px solid rgba(232,148,10,0.18);
+  border-radius:14px; padding:16px 20px;
+  transition:border-color 0.2s, background 0.2s;
+}
+.wozali-loc-city:hover { border-color:rgba(232,148,10,0.4); background:rgba(232,148,10,0.08); }
+.wozali-loc-flag { font-size:28px; flex-shrink:0; }
+.wozali-loc-city-name {
+  font-family:'DM Serif Display',serif; font-weight:900; font-size:17px; color:#FCE0A8; margin-bottom:3px;
+}
+.wozali-loc-city-sub { font-size:12px; color:rgba(252,224,168,0.45); font-family:'Geist Mono',monospace; }
+.wozali-loc-city-badge {
+  margin-left:auto; flex-shrink:0;
+  background:rgba(232,148,10,0.15); color:#E8940A; border:1px solid rgba(232,148,10,0.3);
+  font-family:'Geist Mono',monospace; font-size:10px; font-weight:700; letter-spacing:1.5px;
+  padding:4px 10px; border-radius:999px;
+}
+.wozali-loc-expansion {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  font-size:12px; color:rgba(252,224,168,0.4); font-family:'Geist Mono',monospace;
+}
+.wozali-loc-soon { color:rgba(232,148,10,0.5); }
+
+/* ── MAP VISUAL ── */
+.wozali-loc-visual {
+  position:relative; display:flex; align-items:center; justify-content:center;
+  min-height:420px;
+}
+.wozali-map-wrap {
+  position:relative; width:340px; height:420px;
+}
+.wozali-map-bg {
+  position:absolute; inset:0; border-radius:20px;
+  background:radial-gradient(ellipse at 55% 60%, rgba(232,148,10,0.08) 0%, rgba(20,16,10,0.0) 70%);
+  border:1px solid rgba(232,148,10,0.1);
+}
+/* SVG Afrique de l'Ouest stylisée */
+.wozali-map-svg { width:100%; height:100%; }
+/* Pin ville */
+.wozali-map-pin {
+  position:absolute; transform:translate(-50%,-100%);
+  display:flex; flex-direction:column; align-items:center; gap:0;
+  cursor:default;
+}
+.wozali-map-pin-dot {
+  width:14px; height:14px; border-radius:50%;
+  background:#E8940A; box-shadow:0 0 0 4px rgba(232,148,10,0.25);
+  position:relative; z-index:2; flex-shrink:0;
+}
+.wozali-map-pin-stem {
+  width:2px; height:18px; background:linear-gradient(#E8940A, transparent);
+  margin-top:-1px;
+}
+.wozali-map-pin-label {
+  position:absolute; bottom:calc(100% + 4px);
+  background:#1E180E; border:1px solid rgba(232,148,10,0.4);
+  border-radius:8px; padding:6px 10px; white-space:nowrap;
+  font-family:'Geist',sans-serif; font-size:12px; font-weight:700; color:#FCE0A8;
+  box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  pointer-events:none;
+}
+.wozali-map-pin-label span { font-size:10px; color:rgba(252,224,168,0.55); display:block; }
+/* Pulse ring animé */
+@keyframes mapPulse {
+  0%   { transform:translate(-50%,-50%) scale(1); opacity:0.6; }
+  100% { transform:translate(-50%,-50%) scale(2.8); opacity:0; }
+}
+.wozali-map-pulse {
+  position:absolute; top:0; left:0;
+  width:14px; height:14px; border-radius:50%;
+  border:1.5px solid rgba(232,148,10,0.7);
+  transform:translate(-50%,-50%);
+  animation:mapPulse 2.2s ease-out infinite;
+  pointer-events:none;
+}
+.wozali-map-pulse2 {
+  animation-delay:1.1s;
+}
+/* Ligne pointillée entre les deux villes */
+.wozali-map-line {
+  position:absolute; stroke:#E8940A; stroke-width:1.5;
+  stroke-dasharray:5 5; opacity:0.35;
+}
+/* Stat flottante */
+.wozali-map-stat {
+  position:absolute; background:#1E180E; border:1px solid rgba(232,148,10,0.25);
+  border-radius:12px; padding:10px 14px; text-align:center; white-space:nowrap;
+}
+.wozali-map-stat-num {
+  font-family:'DM Serif Display',serif; font-size:22px; font-weight:900; color:#E8940A; line-height:1;
+}
+.wozali-map-stat-lbl {
+  font-family:'Geist Mono',monospace; font-size:9px; color:rgba(252,224,168,0.5); letter-spacing:1px; margin-top:3px;
+}
+
 /* Mobile responsive orbit */
 @media (max-width: 900px) {
   .orbit-container { width: 340px; height: 340px; }
@@ -4146,6 +4272,109 @@ div[style*="position:sticky"][style*="background:#fff"] {
       </div>
       <div class="vedette-cta">
         <a onclick="showPage('search')">Voir tous les prestataires &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       SECTION LOCALISATION — Lomé & Cotonou
+  ══════════════════════════════════════════ -->
+  <section class="wozali-loc-section">
+    <div class="container">
+      <div class="wozali-loc-grid">
+
+        <!-- TEXTE -->
+        <div class="wozali-loc-content">
+          <span class="wozali-loc-eyebrow">✦ NOTRE TERRAIN</span>
+          <h2 class="wozali-loc-title">Lomé. Cotonou.<br><span>Le reste suit.</span></h2>
+          <p class="wozali-loc-desc">WOZALI opère au cœur de l'économie informelle ouest-africaine. Deux villes. Deux pays. Des milliers de pros invisibles qui méritent d'exister.</p>
+          <div class="wozali-loc-cities">
+            <div class="wozali-loc-city">
+              <div class="wozali-loc-flag">🇹🇬</div>
+              <div style="flex:1;">
+                <div class="wozali-loc-city-name">Lomé — Togo</div>
+                <div class="wozali-loc-city-sub">Tokoin · Bè · Dékon · Adidogomé · Agoè · Hédzranawoé</div>
+              </div>
+              <div class="wozali-loc-city-badge">ACTIF</div>
+            </div>
+            <div class="wozali-loc-city">
+              <div class="wozali-loc-flag">🇧🇯</div>
+              <div style="flex:1;">
+                <div class="wozali-loc-city-name">Cotonou — Bénin</div>
+                <div class="wozali-loc-city-sub">Akpakpa · Cadjèhoun · Fidjrossè · Godomey · Zogbo</div>
+              </div>
+              <div class="wozali-loc-city-badge">ACTIF</div>
+            </div>
+          </div>
+          <div class="wozali-loc-expansion">
+            <span>Prochaines villes →</span>
+            <span class="wozali-loc-soon">Abidjan · Dakar · Accra · Lagos</span>
+          </div>
+        </div>
+
+        <!-- MAP VISUELLE -->
+        <div class="wozali-loc-visual" aria-hidden="true">
+          <div class="wozali-map-wrap">
+            <div class="wozali-map-bg"></div>
+
+            <!-- SVG Afrique de l'Ouest stylisée -->
+            <svg class="wozali-map-svg" viewBox="0 0 340 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Contour simplifié côte Afrique de l'Ouest -->
+              <path d="M60 60 L80 50 L120 45 L160 42 L200 44 L240 50 L275 60 L295 80 L300 110 L298 140 L290 170 L280 200 L275 230 L270 260 L265 300 L260 340 L250 370 L230 390 L200 400 L170 398 L140 392 L110 380 L90 360 L75 330 L65 300 L58 270 L55 240 L54 210 L55 180 L57 150 L58 120 L60 90 Z"
+                fill="rgba(232,148,10,0.04)" stroke="rgba(232,148,10,0.18)" stroke-width="1.5"/>
+              <!-- Lignes de latitude suggestion -->
+              <line x1="40" y1="200" x2="310" y2="200" stroke="rgba(232,148,10,0.06)" stroke-width="1" stroke-dasharray="4 8"/>
+              <line x1="40" y1="250" x2="310" y2="250" stroke="rgba(232,148,10,0.06)" stroke-width="1" stroke-dasharray="4 8"/>
+              <line x1="40" y1="150" x2="310" y2="150" stroke="rgba(232,148,10,0.06)" stroke-width="1" stroke-dasharray="4 8"/>
+              <!-- Ligne côte (Golfe de Guinée) -->
+              <path d="M90 310 Q130 318 170 316 Q210 314 250 308" stroke="rgba(232,148,10,0.3)" stroke-width="1.5" fill="none"/>
+              <!-- Teinte océan -->
+              <path d="M55 320 Q90 318 130 316 Q170 315 210 314 Q250 313 275 310 L280 420 L50 420 Z" fill="rgba(232,148,10,0.03)"/>
+
+              <!-- Ligne reliant Lomé ↔ Cotonou -->
+              <line x1="172" y1="300" x2="210" y2="298" stroke="#E8940A" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5"/>
+
+              <!-- PIN LOMÉ -->
+              <circle cx="172" cy="300" r="5" fill="#E8940A"/>
+              <circle cx="172" cy="300" r="9" fill="none" stroke="#E8940A" stroke-width="1.2" opacity="0.5">
+                <animate attributeName="r" from="8" to="18" dur="2.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" from="0.5" to="0" dur="2.4s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="172" cy="300" r="9" fill="none" stroke="#E8940A" stroke-width="1" opacity="0.3">
+                <animate attributeName="r" from="8" to="18" dur="2.4s" begin="1.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" from="0.3" to="0" dur="2.4s" begin="1.2s" repeatCount="indefinite"/>
+              </circle>
+              <line x1="172" y1="295" x2="172" y2="268" stroke="#E8940A" stroke-width="1.5" opacity="0.7"/>
+              <!-- Label Lomé -->
+              <rect x="110" y="246" width="82" height="32" rx="8" fill="#1E180E" stroke="rgba(232,148,10,0.4)" stroke-width="1"/>
+              <text x="151" y="259" text-anchor="middle" font-family="'Geist', sans-serif" font-size="10" font-weight="700" fill="#FCE0A8">🇹🇬 Lomé</text>
+              <text x="151" y="272" text-anchor="middle" font-family="'Geist Mono', monospace" font-size="8" fill="rgba(232,148,10,0.7)">TOGO · ACTIF</text>
+
+              <!-- PIN COTONOU -->
+              <circle cx="210" cy="298" r="5" fill="#E8940A"/>
+              <circle cx="210" cy="298" r="9" fill="none" stroke="#E8940A" stroke-width="1.2" opacity="0.5">
+                <animate attributeName="r" from="8" to="18" dur="2.6s" begin="0.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" from="0.5" to="0" dur="2.6s" begin="0.4s" repeatCount="indefinite"/>
+              </circle>
+              <line x1="210" y1="293" x2="230" y2="262" stroke="#E8940A" stroke-width="1.5" opacity="0.7"/>
+              <!-- Label Cotonou -->
+              <rect x="175" y="240" width="95" height="32" rx="8" fill="#1E180E" stroke="rgba(232,148,10,0.4)" stroke-width="1"/>
+              <text x="222" y="253" text-anchor="middle" font-family="'Geist', sans-serif" font-size="10" font-weight="700" fill="#FCE0A8">🇧🇯 Cotonou</text>
+              <text x="222" y="266" text-anchor="middle" font-family="'Geist Mono', monospace" font-size="8" fill="rgba(232,148,10,0.7)">BÉNIN · ACTIF</text>
+
+              <!-- Stat flottante haut-gauche -->
+              <rect x="20" y="50" width="110" height="46" rx="10" fill="#1E180E" stroke="rgba(232,148,10,0.2)" stroke-width="1"/>
+              <text x="75" y="70" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="22" font-weight="900" fill="#E8940A" id="map-stat-num">—</text>
+              <text x="75" y="85" text-anchor="middle" font-family="'Geist Mono', monospace" font-size="8" fill="rgba(252,224,168,0.5)" letter-spacing="1">PROS INSCRITS</text>
+
+              <!-- Stat flottante droite -->
+              <rect x="210" y="100" width="110" height="46" rx="10" fill="#1E180E" stroke="rgba(232,148,10,0.2)" stroke-width="1"/>
+              <text x="265" y="120" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="19" font-weight="900" fill="#E8940A">500K FCFA</text>
+              <text x="265" y="135" text-anchor="middle" font-family="'Geist Mono', monospace" font-size="8" fill="rgba(252,224,168,0.5)" letter-spacing="1">CHAQUE MOIS</text>
+            </svg>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -11333,6 +11562,8 @@ async function initHome() {
     // Si 0 inscrits, afficher un message engageant au lieu de "0"
     document.getElementById('m-prestataires').textContent = count > 0 ? count : '—';
     document.getElementById('proof-count').textContent = count > 0 ? count : '—';
+    const mapStat = document.getElementById('map-stat-num');
+    if (mapStat) mapStat.textContent = count > 0 ? count : '—';
     // Masquer les métriques à 0 visuellement
     const metricPrestataires = document.getElementById('m-prestataires')?.closest('.metric');
     if (metricPrestataires) metricPrestataires.style.display = count > 0 ? '' : 'none';
@@ -22036,7 +22267,7 @@ loadSchealtielPhoto();
         <span style="font-size:32px">👑</span>
         <div>
           <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#FCE0A8;margin:0">La Bourse des Mains d'Or</h2>
-          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Geist Mono',monospace">100 000 FCFA × 2 Reines / mois (1 Bénin + 1 Togo) · Ouvert à toutes les femmes B/T</p>
+          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Geist Mono',monospace">100 000 FCFA × 2 Reines / mois (1 Bénin + 1 Togo) · Ouvert à toutes les coiffeuses et couturières du Togo et du Bénin — sans Plan Pro</p>
         </div>
       </div>
       <p style="color:rgba(252, 224, 168,.7);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour. Et le pays regarde.</strong><br><br>Chaque mois, <strong>2 femmes gagnent 100 000 FCFA chacune</strong> — une au Togo, une au Bénin. Un mois sur deux c'est ✂️ Coiffure, le mois suivant c'est 👗 Couture. Tu postes une photo de ton travail, la communauté vote, et le 30 du mois 2 Reines sont tirées au sort. <strong>Gratuit, sans Plan Pro</strong> — toutes les femmes du Togo et du Bénin peuvent gagner.</p>
