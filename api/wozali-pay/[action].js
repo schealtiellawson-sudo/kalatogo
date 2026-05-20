@@ -88,6 +88,8 @@ import pushVapidPublic from './_impl/push-vapid-public.js';
 import errorReport from './_impl/error-report.js';
 import healthCheck from './_impl/health-check.js';
 import healthMetrics from './_impl/health-metrics.js';
+// Chat interne WOZALI — IA auto-reply + escalade fondateur (2026-05-20)
+import chatWozali from './_impl/chat-wozali.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -119,6 +121,9 @@ const PUBLIC_ACTIONS = new Set([
   'health-check',
   // health-metrics protégé par CRON_SECRET (vérifié dans le handler)
   'health-metrics',
+  // Chat admin : protégé par CRON_SECRET vérifié dans le handler lui-même
+  'chat-wozali-admin-list',
+  'chat-wozali-admin-reply',
 ]);
 
 // Public mais on tente de récupérer le user authentifié si présent
@@ -202,6 +207,12 @@ const handlers = {
   'error-report':   errorReport,
   'health-check':   healthCheck,
   'health-metrics': healthMetrics,
+  // Chat interne WOZALI — IA auto-reply + escalade fondateur (2026-05-20)
+  // Un seul module gère les 4 actions, le router lui passe req.query.action
+  'chat-wozali-send':         chatWozali,
+  'chat-wozali-history':      chatWozali,
+  'chat-wozali-admin-list':   chatWozali,
+  'chat-wozali-admin-reply':  chatWozali,
 };
 
 export default async function handler(req, res) {
