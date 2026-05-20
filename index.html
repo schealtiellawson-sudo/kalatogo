@@ -8834,7 +8834,7 @@ function renderPremierPasWizard() {
         <div style="font-size:24px;">📍</div>
         <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;line-height:1.3;">Active ton GPS</div>
         <div style="font-size:12px;color:var(--gris);line-height:1.5;">Sois trouvable sur la carte. Les clients à 500 m te trouveront en 30 secondes.</div>
-        <button onclick="if(typeof saveDashLocation==='function'){saveDashLocation()}else{showDashSection('profil')}" style="margin-top:auto;background:#14100A;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Activer ma position</button>
+        <button onclick="wizardActiverGPS()" style="margin-top:auto;background:#14100A;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Activer ma position</button>
       </div>
     `);
   } else {
@@ -8848,7 +8848,11 @@ function renderPremierPasWizard() {
   }
   // Card 3 — Partage WhatsApp
   if (!shareOk) {
-    const waText = `Salut, je suis sur WOZALI. Le travail des Béninois et Togolais. Mon profil ${prenom ? '— ' + prenom : ''} : ${profilUrl}`;
+    const metierLocal = currentPrestataire?.fields?.['Métier principal'] || '';
+    const villeLocal = currentPrestataire?.fields?.['Ville'] || '';
+    const waText = metierLocal
+      ? `${prenom || 'Je'} suis ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}. Mes réalisations, mes tarifs, mes avis clients — tout est là :\n👉 ${profilUrl}\n\nTu veux trouver les meilleurs pros autour de toi ? wozali.com`
+      : `Je suis sur WOZALI. Mon profil complet — réalisations, tarifs, avis :\n👉 ${profilUrl}\n\nTon travail parle. Pas tes connexions. wozali.com`;
     const waUrl = 'https://wa.me/?text=' + encodeURIComponent(waText);
     cards.push(`
       <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
@@ -9486,6 +9490,38 @@ async function saveDashLiveMode() {
     const msg = err.code === 1 ? 'Autorise la localisation dans ton navigateur' : 'GPS indisponible';
     if (status) status.textContent = `❌ ${msg}`;
     if (btn) { btn.disabled = false; btn.textContent = '📡 Mettre à jour ma position maintenant'; }
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+async function wizardActiverGPS() {
+  if (!currentPrestataire) { toast('Connecte-toi d\'abord', 'error'); return; }
+  if (!navigator.geolocation) { toast('GPS non disponible sur cet appareil', 'error'); return; }
+  const btn = document.querySelector('[onclick*="wizardActiverGPS"]');
+  if (btn) { btn.textContent = '⏳ Localisation...'; btn.disabled = true; }
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    try {
+      if (window.supaPrest) {
+        await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+      } else {
+        await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+          method: 'PATCH', headers: AT_HEADERS,
+          body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
+        });
+      }
+      currentPrestataire.fields['Latitude'] = lat;
+      currentPrestataire.fields['Longitude'] = lon;
+      localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
+      toast('📍 Position enregistrée ! Tu es visible sur la carte.', 'success');
+      if (typeof renderWizardPremierPas === 'function') renderWizardPremierPas();
+    } catch(e) {
+      toast('Erreur réseau : ' + e.message, 'error');
+    }
+    if (btn) { btn.textContent = 'Activer ma position'; btn.disabled = false; }
+  }, err => {
+    const msg = err.code === 1 ? 'Autorise le GPS dans ton navigateur' : 'GPS indisponible';
+    toast('❌ ' + msg, 'error');
+    if (btn) { btn.textContent = 'Activer ma position'; btn.disabled = false; }
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
@@ -14099,16 +14135,28 @@ async function showProfil(recordId) {
   const container = document.getElementById('profil-content');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
 
+  // Failsafe : si le profil n'a pas chargé en 10s, afficher une erreur claire
+  const _failsafe = setTimeout(() => {
+    if (container.querySelector('.spinner')) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏱️</div><h3>Chargement trop long</h3><p>La connexion a pris trop de temps. <a onclick="showProfil('${recordId}')" style="color:#E8940A;cursor:pointer;text-decoration:underline;">Réessayer</a></p></div>`;
+    }
+  }, 10000);
+
   try {
     let record = null;
+    const _withTimeout = (promise, ms) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout réseau')), ms))
+    ]);
     if (window.supaPrest) {
-      record = await window.supaPrest.findById(recordId);
+      record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
       if (!record) throw new Error('Profil introuvable');
     } else {
-      const res = await fetch(`${AT_URL('Prestataires')}/${recordId}`, { headers: AT_HEADERS });
+      const res = await _withTimeout(fetch(`${AT_URL('Prestataires')}/${recordId}`, { headers: AT_HEADERS }), 8000);
       if (!res.ok) throw new Error('Profil introuvable');
       record = await res.json();
     }
+    clearTimeout(_failsafe);
     window._currentProfilRecord = record; // stocké pour showRdvPage / showAlbumsPage
     // Tracker la vue (throttlé à 1h par profil, sauf si c'est le propriétaire)
     if (!currentPrestataire || currentPrestataire.id !== recordId) {
@@ -15052,16 +15100,28 @@ function shareProfile(recordId, nom) {
   const profileUrl = `https://wozali.com/profil/${slug}`;
 
   let lines = [];
-  lines.push(`⭐ ${nom}${metier ? ' — ' + metier : ''}${ville ? ' à ' + ville : ''}`);
-  if (nbAvis > 0) {
-    lines.push(`${note.toFixed(1)}/5 · ${nbAvis} avis client${nbAvis > 1 ? 's' : ''} vérifié${nbAvis > 1 ? 's' : ''} · Score WOZALI ${score}/100`);
+  // Accroche centrée sur la personne et son métier
+  if (metier && ville) {
+    lines.push(`${nom} est ${metier} à ${ville}.`);
+  } else if (metier) {
+    lines.push(`${nom} est ${metier}.`);
+  } else {
+    lines.push(`${nom} est sur WOZALI.`);
+  }
+  // Preuve sociale si disponible
+  if (nbAvis >= 3) {
+    lines.push(`${note.toFixed(1)}/5 — ${nbAvis} clients satisfaits. Score WOZALI ${score}/100.`);
+  } else if (nbAvis > 0) {
+    lines.push(`Déjà ${nbAvis} avis client${nbAvis > 1 ? 's' : ''}. Score WOZALI ${score}/100.`);
   }
   lines.push('');
-  lines.push('Découvre son profil et ses réalisations :');
+  // Bénéfice concret + lien
+  lines.push('Son profil complet, ses réalisations, ses tarifs — tout est là :');
   lines.push(`👉 ${profileUrl}`);
   lines.push('');
-  lines.push('📲 Rejoins WOZALI — crée ton profil gratuit');
-  lines.push('et trouve les meilleurs pros de Cotonou et Lomé.');
+  // CTA créer compte
+  lines.push('📲 Crée ton propre profil gratuit sur wozali.com');
+  lines.push('Ton travail parle. Pas tes connexions.');
 
   const text = lines.join('\n');
 
@@ -23374,7 +23434,7 @@ async function afficherWidgetAwards(userId){
     let votes=0;
     try{const {count}=await supabase.from('votes_awards').select('*',{count:'exact',head:true}).eq('candidat_id',userId);votes=count||0;}catch{}
     const header=getHeaderAwards();
-    c.innerHTML=`<div class="widget-awards"><h4>⚔️ ${header.titre}</h4><p>${header.sous}</p><p class="votes-recus">Tu as reçu <strong>${votes}</strong> votes ce mois.</p><a class="widget-cta" href="#wozali-awards-section">Voir mon classement</a></div>`;
+    c.innerHTML=`<div class="widget-awards"><h4>⚔️ ${header.titre}</h4><p>${header.sous}</p><p class="votes-recus">Tu as reçu <strong>${votes}</strong> votes ce mois.</p><a class="widget-cta" href="javascript:void(0)" onclick="showDashSection('recompenses')">Voir mon classement</a></div>`;
   }catch(e){console.warn('[widgetAwards]',e);}
 }
 
