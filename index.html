@@ -9326,7 +9326,7 @@ function initDashPinMap() {
   const lat = parseFloat(currentPrestataire?.fields?.['Latitude']) || 6.1375;
   const lon = parseFloat(currentPrestataire?.fields?.['Longitude']) || 1.2123;
   _dashLocMap = L.map('dash-map-pin', { zoomControl: true }).setView([lat, lon], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(_dashLocMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© <a href="https://carto.com/">CARTO</a>' }).addTo(_dashLocMap);
   _dashLocMarker = L.marker([lat, lon], { draggable: true }).addTo(_dashLocMap)
     .bindPopup('📍 Glisse pour positionner ton commerce').openPopup();
   _dashLocMarker.on('dragend', e => {
@@ -9465,7 +9465,7 @@ function initProfileMiniMap(lat, lon, containerId) {
   if (!container || typeof L === 'undefined') return;
   container.innerHTML = '';
   const map = L.map(containerId, { zoomControl:false, dragging:false, scrollWheelZoom:false, attributionControl:false, touchZoom:false, doubleClickZoom:false, keyboard:false }).setView([lat, lon], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
   const icon = L.divIcon({ html:'<div style="background:var(--vert);width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>', iconSize:[22,22], iconAnchor:[11,22], className:'' });
   L.marker([lat, lon], { icon }).addTo(map);
   _profileMiniMaps[containerId] = map;
@@ -11558,7 +11558,7 @@ function _afficherCarteInscription(lat, lon) {
   div.style.display = 'block';
   if (!_mapInscr) {
     _mapInscr = L.map('map-inscription').setView([lat,lon],15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(_mapInscr);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://carto.com/">CARTO</a>',maxZoom:19}).addTo(_mapInscr);
     _markerInscr = L.marker([lat,lon],{draggable:true}).addTo(_mapInscr);
     _markerInscr.bindPopup('<b>📍 Ton commerce</b><br><small>Glisse pour ajuster</small>').openPopup();
     _markerInscr.on('dragend', e => {
@@ -11579,7 +11579,7 @@ function afficherCarteProfil(lat, lon, nom) {
   if (!div || !lat || !lon || isNaN(lat) || isNaN(lon)) return;
   div.style.display = 'block';
   const map = L.map('map-profil').setView([lat,lon],15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://carto.com/">CARTO</a>',maxZoom:19}).addTo(map);
   L.marker([lat,lon]).addTo(map).bindPopup('📍 ' + (nom||'Prestataire')).openPopup();
   setTimeout(()=>map.invalidateSize(),300);
 }
@@ -18661,9 +18661,9 @@ function initEmploiMap() {
   if (!cont || typeof L === 'undefined') return;
   if (!_emploiMap) {
     _emploiMap = L.map('emploi-map').setView([6.20, 1.74], 8); // entre Lomé et Cotonou
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap',
+      attribution: '© <a href="https://carto.com/">CARTO</a>',
     }).addTo(_emploiMap);
   }
   // Clear markers existants
