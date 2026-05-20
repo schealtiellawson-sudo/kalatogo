@@ -4,6 +4,63 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-20)
+
+---
+
+### ✅ SESSION 2026-05-20 — Audit visuel complet 100% du site
+
+**Objectif** : audit visuel exhaustif de toutes les sections dashboard + pages publiques, avec screenshots et correction immédiate des bugs trouvés.
+
+**4 bugs fixés (commit à pousser — pas encore déployé)** :
+- `index.html` ~ligne 8138 : ajout global `function _sb() { return window.supabase || null; }` — fix ReferenceError dans WOZALI Match (la fonction n'était définie qu'à l'intérieur du feed IIFE)
+- `index.html` ~ligne 7009 : suppression `style="display:none;"` inline sur `#ds-favoris` — l'inline style écrasait la classe CSS `.dash-section.active` → page noire au clic
+- `index.html` ~ligne 9302 : `saveProfile()` envoie `null` au lieu de `''` pour `Langues parlées` — évite l'erreur PostgreSQL 22P02 "malformed array literal" sur la colonne `TEXT[]`
+- `components/supa-prest.js` : conversion `langues_parlees TEXT[]` ↔ CSV string dans `_toAirtableRecord` et `_toSupaRow`
+
+**⚠️ ACTION REQUISE** : pousser le commit avant de continuer
+```bash
+cd "/Users/schealtiellawson/Documents/04 - WOLO MARKET/Projet/wolomarket/repo"
+git add index.html components/supa-prest.js
+git commit -m "Fix audit: _sb global, favoris display, langues TEXT[], null coerce
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+git push
+```
+
+**Résultats de l'audit — toutes sections testées** :
+
+| Section Dashboard | Statut |
+|---|---|
+| Mon activité, Modifier profil, Portfolio, Photos | ✅ |
+| Mon agenda (RDV), Mes posts, **Mes favoris** (fix inline style) | ✅ |
+| Mon abonnement, Parrainage, Notifications/Activité | ✅ |
+| Mes avis, Mes abonnements | ✅ |
+| **WOZALI Match** | ⚠️ `_sb is not defined` — fix local pas encore déployé |
+| Trouver un emploi, Mon CV WOZALI, Mes candidatures | ✅ |
+| **Mes entretiens** | ⚠️ Server error `/entretien-list` (env var Vercel manquante) |
+| Tableau de bord recruteur, Mes offres, Candidatures reçues | ✅ |
+| Publier une offre (gating Pro) | ✅ |
+| Sécurité (Compte) | ✅ |
+
+| Page Publique | Statut |
+|---|---|
+| Accueil | ✅ Hero, vedettes, géoloc, countdown récompenses, parrainage |
+| Trouver un pro | ✅ Recherche, filtres, map toggle |
+| WOZALI Jobs | ✅ Hero, filtres, IA match, WOZALI RECRUTE card |
+| Récompenses | ✅ TikTok boost, Bourse de Croissance, Mains d'Or |
+| Notre Histoire | ✅ Storytelling, aucun nom fondateur visible |
+| Comment ça marche | ✅ 4 personas |
+| Mon Fil | ✅ Tabs, empty state |
+| Profil public | ✅ Stats, galerie, avis modal, RDV booking |
+
+**Bugs non-bloquants (nécessitent action Vercel)** :
+- `mes-entretiens` + `admin-verify` → server error → vérifier env vars Vercel (`ADMIN_EMAILS`, clé Supabase service role si nécessaire)
+
+**Problème Bash détecté** : le shell perd l'accès à `~/Documents` en cours de session (macOS Full Disk Access). Ne pas modifier ce comportement — utiliser le Read/Edit tools de Claude Code directement pour les fichiers.
+
+---
+
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-16)
 
 ---
