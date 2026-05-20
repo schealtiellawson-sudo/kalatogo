@@ -10811,7 +10811,7 @@ async function fetchPrestataires(opts = {}) {
 
   if (window.supaPrest) {
     try {
-      records = await window.supaPrest.list({
+      const _supaList = window.supaPrest.list({
         metier: opts.metier || undefined,
         quartier: opts.quartier || undefined,
         disponible: opts.dispo || undefined,
@@ -10819,6 +10819,8 @@ async function fetchPrestataires(opts = {}) {
         orderBy: 'note_moyenne',
         orderDir: 'desc',
       });
+      const _timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
+      records = await Promise.race([_supaList, _timeout]);
       // Filtre tarif max côté client (pas d'opérateur Supabase pour le min de tarif_min)
       if (opts.tarifMax) {
         records = records.filter(r => {
@@ -10828,10 +10830,11 @@ async function fetchPrestataires(opts = {}) {
       }
     } catch (e) {
       console.error('[fetchPrestataires] supaPrest échoué, fallback Airtable:', e);
+      records = [];
     }
   }
 
-  if (records.length === 0 && !window.supaPrest) {
+  if (records.length === 0) {
     let conditions = [];
     if (opts.metier) conditions.push(`{Métier principal}='${opts.metier}'`);
     if (opts.quartier) conditions.push(`{Quartier}='${opts.quartier}'`);
