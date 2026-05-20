@@ -6213,9 +6213,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <div style="font-size:11px;color:#25d366;margin-top:2px;" id="kpi-wa-sub">7 derniers jours</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Réponds vite — ils t'attendent</div>
             <!-- Overlay Pro lock (affiché pour Base) -->
-            <div id="kpi-wa-lock" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.88);backdrop-filter:blur(3px);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;" onclick="showDashSection('abonnement')">
+            <div id="kpi-wa-lock" style="display:none;position:absolute;inset:0;background:rgba(20,16,10,0.92);backdrop-filter:blur(3px);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;" onclick="showDashSection('abonnement')">
               <div style="font-size:20px;">🔒</div>
-              <div style="font-size:11px;font-weight:700;color:var(--or);text-align:center;">Débloque avec<br>le Plan Pro</div>
+              <div style="font-size:11px;font-weight:700;color:#E8940A;text-align:center;">Débloque avec<br>le Plan Pro</div>
             </div>
           </div>
 
@@ -6395,6 +6395,50 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
         <!-- Boîte du Fondateur (messages de Schealtiel) -->
         <div id="fondateur-inbox-block" style="display:none;margin-bottom:24px;"></div>
+
+        <!-- ✉️ Chat WOZALI — widget "Écrire à WOZALI" -->
+        <div id="wozali-chat-widget" style="margin-bottom:24px;">
+          <!-- Boutons d'action -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0;" id="wozali-chat-cta-row">
+            <button onclick="openWozaliChat()" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(232,148,10,0.15),rgba(232,148,10,0.05));border:1.5px solid rgba(232,148,10,0.4);color:#E8940A;padding:11px 20px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;" onmouseenter="this.style.background='rgba(232,148,10,0.22)'" onmouseleave="this.style.background='linear-gradient(135deg,rgba(232,148,10,0.15),rgba(232,148,10,0.05))'">
+              ✉️ Écrire à WOZALI
+            </button>
+            <button onclick="toggleWozaliHistory()" id="wozali-chat-history-btn" style="display:flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(252,224,168,0.15);color:rgba(252,224,168,0.5);padding:11px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;" onmouseenter="this.style.borderColor='rgba(252,224,168,0.3)';this.style.color='rgba(252,224,168,0.8)'" onmouseleave="this.style.borderColor='rgba(252,224,168,0.15)';this.style.color='rgba(252,224,168,0.5)'">
+              📜 Historique
+            </button>
+          </div>
+
+          <!-- Zone de saisie du message (cachée par défaut) -->
+          <div id="wozali-chat-compose" style="display:none;margin-top:14px;background:linear-gradient(135deg,rgba(232,148,10,0.06) 0%,rgba(20,16,10,0.8) 100%);border:1.5px solid rgba(232,148,10,0.3);border-radius:16px;padding:18px 20px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:18px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;">W</div>
+              <div style="flex:1;">
+                <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">Nouveau message à WOZALI</div>
+                <div style="font-size:11px;color:rgba(252,224,168,0.45);">Réponse rapide par l'IA · Questions complexes transmises au fondateur</div>
+              </div>
+              <button onclick="closeWozaliChat()" style="background:transparent;border:none;color:rgba(252,224,168,0.4);font-size:18px;cursor:pointer;padding:4px;line-height:1;" title="Fermer">✕</button>
+            </div>
+            <textarea id="wozali-chat-input" placeholder="Écris ta question ici... (Ex : Comment améliorer mon score ? Conditions de la Bourse de Croissance ?)" style="width:100%;min-height:90px;background:rgba(0,0,0,0.25);border:1px solid rgba(232,148,10,0.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-size:14px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;line-height:1.6;" onfocus="this.style.borderColor='rgba(232,148,10,0.5)'" onblur="this.style.borderColor='rgba(232,148,10,0.2)'" onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))sendWozaliChatMessage()"></textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap;">
+              <div style="font-size:11px;color:rgba(252,224,168,0.35);">Ctrl+Entrée pour envoyer</div>
+              <button onclick="sendWozaliChatMessage()" id="wozali-chat-send-btn" style="background:#E8940A;color:#14100A;border:none;padding:10px 22px;border-radius:100px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;" onmouseenter="this.style.background='#f0a020'" onmouseleave="this.style.background='#E8940A'">
+                Envoyer ➤
+              </button>
+            </div>
+          </div>
+
+          <!-- Réponse IA (affichée après envoi) -->
+          <div id="wozali-chat-response" style="display:none;margin-top:14px;"></div>
+
+          <!-- Historique des échanges (caché par défaut) -->
+          <div id="wozali-chat-history" style="display:none;margin-top:14px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(252,224,168,0.4);margin-bottom:10px;">HISTORIQUE DES ÉCHANGES</div>
+            <div id="wozali-chat-history-list">
+              <div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">⏳ Chargement...</div>
+            </div>
+          </div>
+        </div>
+
         <div id="notifs-list">
           <div style="text-align:center;padding:48px 0;color:#999;">
             <div style="font-size:48px;margin-bottom:12px;">🔔</div>
@@ -9725,20 +9769,25 @@ function _getAlbums() {
 
 async function _saveAlbums(albums) {
   const albumsStr = JSON.stringify(albums);
-  try {
-    if (window.supaPrest) {
+  if (window.supaPrest) {
+    try {
       await window.supaPrest.updateField(currentPrestataire.id, 'Albums', albumsStr);
       currentPrestataire.fields['Albums'] = albumsStr;
       return true;
+    } catch(e) {
+      console.error('_saveAlbums supaPrest:', e);
+      return false;
     }
-  } catch(e) { console.error('_saveAlbums supaPrest:', e); }
-  // Fallback Airtable
-  const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-    method: 'PATCH', headers: AT_HEADERS,
-    body: JSON.stringify({ fields: { 'Albums': albumsStr } })
-  });
-  if (res.ok) currentPrestataire.fields['Albums'] = albumsStr;
-  return res.ok;
+  }
+  // Fallback Airtable (IDs recXXXXXX uniquement)
+  try {
+    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
+      method: 'PATCH', headers: AT_HEADERS,
+      body: JSON.stringify({ fields: { 'Albums': albumsStr } })
+    });
+    if (res.ok) currentPrestataire.fields['Albums'] = albumsStr;
+    return res.ok;
+  } catch(e) { return false; }
 }
 
 function renderAlbumsSection() {
@@ -12419,6 +12468,162 @@ function _handleFondateurMessageClick(msgId, sectionTarget) {
   }
   if (typeof markFondateurMessageRead === 'function') markFondateurMessageRead(msgId);
 }
+
+// ══════════════════════════════════════════
+// CHAT WOZALI — Widget "Écrire à WOZALI"
+// IA auto-reply + escalade fondateur
+// ══════════════════════════════════════════
+
+function openWozaliChat() {
+  const compose = document.getElementById('wozali-chat-compose');
+  const response = document.getElementById('wozali-chat-response');
+  if (!compose) return;
+  compose.style.display = 'block';
+  if (response) response.style.display = 'none';
+  const input = document.getElementById('wozali-chat-input');
+  if (input) { input.value = ''; setTimeout(() => input.focus(), 50); }
+}
+
+function closeWozaliChat() {
+  const compose = document.getElementById('wozali-chat-compose');
+  if (compose) compose.style.display = 'none';
+}
+
+async function sendWozaliChatMessage() {
+  const input = document.getElementById('wozali-chat-input');
+  const btn = document.getElementById('wozali-chat-send-btn');
+  const responseEl = document.getElementById('wozali-chat-response');
+  if (!input || !btn || !responseEl) return;
+
+  const message = input.value.trim();
+  if (!message) { input.focus(); return; }
+
+  // UI loading
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi...';
+
+  try {
+    const resp = await wozaliFetch('/api/wozali-pay/chat-wozali-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+    const data = await resp.json();
+
+    // Cacher la zone de saisie
+    closeWozaliChat();
+
+    // Afficher la réponse
+    responseEl.style.display = 'block';
+
+    if (data.ok && data.reponse) {
+      // Réponse IA disponible
+      responseEl.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(232,148,10,0.08),rgba(232,148,10,0.02));border:1.5px solid rgba(232,148,10,0.25);border-radius:16px;padding:18px 20px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:18px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;">W</div>
+            <div style="flex:1;">
+              <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">WOZALI</div>
+              <div style="font-size:11px;color:rgba(252,224,168,0.45);font-family:'Geist Mono',monospace;letter-spacing:1px;">RÉPONSE AUTOMATIQUE</div>
+            </div>
+          </div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.88);white-space:pre-line;">${escapeHtml(data.reponse)}</div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(232,148,10,0.12);display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="openWozaliChat()" style="background:transparent;border:1px solid rgba(232,148,10,0.35);color:#E8940A;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✉️ Autre question</button>
+            <button onclick="toggleWozaliHistory()" style="background:transparent;border:1px solid rgba(252,224,168,0.12);color:rgba(252,224,168,0.5);padding:8px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📜 Voir l'historique</button>
+          </div>
+        </div>`;
+    } else {
+      // Escalade fondateur — message neutre
+      const msgAffiche = data.message_affiche || 'Message envoyé — nous reviendrons vers toi bientôt.';
+      responseEl.innerHTML = `
+        <div style="background:rgba(232,148,10,0.05);border:1px solid rgba(232,148,10,0.2);border-radius:16px;padding:18px 20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-size:24px;">✅</span>
+            <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">Message envoyé</div>
+          </div>
+          <div style="font-size:14px;color:rgba(252,224,168,0.75);">${escapeHtml(msgAffiche)}</div>
+          <button onclick="openWozaliChat()" style="margin-top:12px;background:transparent;border:1px solid rgba(232,148,10,0.35);color:#E8940A;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✉️ Envoyer un autre message</button>
+        </div>`;
+    }
+  } catch(e) {
+    console.error('[chat-wozali] send error:', e);
+    btn.disabled = false;
+    btn.textContent = 'Envoyer ➤';
+    // Toast d'erreur discret
+    if (typeof toast === 'function') toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Envoyer ➤';
+}
+
+let _wozaliHistoryVisible = false;
+
+async function toggleWozaliHistory() {
+  const historyEl = document.getElementById('wozali-chat-history');
+  const historyList = document.getElementById('wozali-chat-history-list');
+  const btn = document.getElementById('wozali-chat-history-btn');
+  if (!historyEl || !historyList) return;
+
+  _wozaliHistoryVisible = !_wozaliHistoryVisible;
+  historyEl.style.display = _wozaliHistoryVisible ? 'block' : 'none';
+
+  if (btn) {
+    btn.textContent = _wozaliHistoryVisible ? '📜 Masquer' : '📜 Historique';
+  }
+
+  if (!_wozaliHistoryVisible) return;
+
+  // Charger l'historique
+  historyList.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">⏳ Chargement...</div>';
+
+  try {
+    const resp = await wozaliFetch('/api/wozali-pay/chat-wozali-history');
+    const data = await resp.json();
+
+    if (!data.ok || !data.messages?.length) {
+      historyList.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.35);font-size:13px;">Pas encore d\'échange avec WOZALI.</div>';
+      return;
+    }
+
+    historyList.innerHTML = data.messages.map(m => {
+      const dateStr = new Date(m.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      const reponse = m.reponse;
+      const enAttente = m.en_attente;
+
+      return `<div style="margin-bottom:16px;">
+        <!-- Message prestataire -->
+        <div style="display:flex;justify-content:flex-end;margin-bottom:6px;">
+          <div style="max-width:85%;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.2);border-radius:14px 14px 4px 14px;padding:10px 14px;">
+            <div style="font-size:13px;color:#FCE0A8;line-height:1.6;white-space:pre-line;">${escapeHtml(m.message)}</div>
+            <div style="font-size:10px;color:rgba(252,224,168,0.35);margin-top:5px;text-align:right;">${dateStr}</div>
+          </div>
+        </div>
+        <!-- Réponse WOZALI -->
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;margin-top:2px;">W</div>
+          <div style="max-width:85%;background:rgba(252,224,168,0.04);border:1px solid rgba(252,224,168,0.1);border-radius:4px 14px 14px 14px;padding:10px 14px;">
+            ${reponse
+              ? `<div style="font-size:13px;color:rgba(252,224,168,0.82);line-height:1.6;white-space:pre-line;">${escapeHtml(reponse)}</div>`
+              : enAttente
+                ? `<div style="font-size:12px;color:rgba(232,148,10,0.6);font-style:italic;">⏳ En cours de traitement…</div>`
+                : `<div style="font-size:12px;color:rgba(252,224,168,0.35);font-style:italic;">—</div>`
+            }
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.error('[chat-wozali] history error:', e);
+    historyList.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(248,113,113,0.7);font-size:13px;">Erreur de chargement. Réessaie.</div>';
+  }
+}
+
+// ──────────────────────────────────────────────
+// FIN CHAT WOZALI
+// ──────────────────────────────────────────────
 
 function renderNotifications(recordId) {
   // Boîte du Fondateur d'abord (Supabase notifications)
@@ -17900,6 +18105,160 @@ function renderBattle() {
 }
 
 // ══════════════════════════════════════════
+// PANEL ADMIN — DMs ENTRANTS (Chat WOZALI)
+// ══════════════════════════════════════════
+
+async function loadAdminDMs(statutFilter) {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">⏳ Chargement des DMs...</div>';
+
+  try {
+    const qs = statutFilter ? `?statut=${statutFilter}` : '';
+    // wozaliFetch ajoute le JWT Supabase automatiquement — le backend vérifie ADMIN_EMAILS
+    const r = await wozaliFetch('/api/wozali-pay/chat-wozali-admin-list' + qs);
+    const data = await r.json();
+
+    if (!data.ok) {
+      el.innerHTML = `<div style="color:#f87171;padding:20px;">❌ ${escapeHtml(data.error || 'Erreur chargement')}</div>`;
+      return;
+    }
+
+    renderAdminDMs(data.messages || [], data.non_lus || 0, statutFilter);
+  } catch(e) {
+    console.error('[admin-dms]', e);
+    el.innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur réseau</div>';
+  }
+}
+
+function renderAdminDMs(messages, nonLus, currentFilter) {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+
+  const filters = [
+    { key: undefined, label: 'En attente (' + nonLus + ')' },
+    { key: 'repondu_fondateur', label: 'Traités' },
+    { key: 'all', label: 'Tous' },
+  ];
+
+  const filterHtml = `
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+      ${filters.map(f => {
+        const active = f.key === currentFilter || (!f.key && !currentFilter);
+        return `<button onclick="loadAdminDMs(${f.key ? `'${f.key}'` : 'undefined'})"
+          style="background:${active ? '#E8940A' : 'rgba(255,255,255,0.08)'};color:${active ? '#14100A' : 'rgba(255,255,255,0.5)'};border:none;padding:8px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;">${f.label}</button>`;
+      }).join('')}
+      <button onclick="loadAdminDMs(${currentFilter ? `'${currentFilter}'` : 'undefined'})"
+        style="margin-left:auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:12px;">🔄 Actualiser</button>
+    </div>`;
+
+  if (!messages.length) {
+    el.innerHTML = filterHtml + '<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);font-size:16px;">✅ Aucun DM en attente</div>';
+    return;
+  }
+
+  const cardsHtml = messages.map(m => {
+    const dateStr = new Date(m.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const prest = m.prestataire || {};
+
+    let statutBadge = '';
+    if (m.statut === 'escalade_fondateur') {
+      const typeLabel = m.type_escalade === 'complexe' ? '⚠️ Question complexe' : '⚠️ Escalade';
+      statutBadge = `<span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">${typeLabel}</span>`;
+    } else if (m.statut === 'repondu_fondateur') {
+      statutBadge = `<span style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>`;
+    } else if (m.statut === 'repondu_ia') {
+      statutBadge = `<span style="background:rgba(232,148,10,0.12);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">🤖 Répondu IA</span>`;
+    }
+
+    const nonLuDot = (!m.lu_par_fondateur && m.statut === 'escalade_fondateur')
+      ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f87171;margin-right:8px;flex-shrink:0;"></span>' : '';
+
+    const reponseIA = m.reponse_ia
+      ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(232,148,10,0.06);border-left:3px solid rgba(232,148,10,0.4);border-radius:0 8px 8px 0;">
+          <div style="font-size:10px;color:rgba(232,148,10,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">RÉPONSE IA</div>
+          <div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(m.reponse_ia).slice(0, 200)}${m.reponse_ia.length > 200 ? '…' : ''}</div>
+        </div>` : '';
+
+    const reponseFondateur = m.reponse_fondateur
+      ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(34,197,94,0.05);border-left:3px solid rgba(34,197,94,0.35);border-radius:0 8px 8px 0;">
+          <div style="font-size:10px;color:rgba(74,222,128,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div>
+          <div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(m.reponse_fondateur)}</div>
+        </div>` : '';
+
+    const replyForm = (m.statut === 'escalade_fondateur')
+      ? `<div style="margin-top:12px;" id="reply-form-${m.id}">
+          <textarea id="reply-input-${m.id}" placeholder="Tape ta réponse…" style="width:100%;min-height:70px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:white;font-size:13px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='rgba(232,148,10,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button onclick="adminSendDMReply('${m.id}')" style="background:#E8940A;color:#14100A;border:none;padding:9px 20px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;">Envoyer ➤</button>
+          </div>
+        </div>` : '';
+
+    return `<div id="dm-card-${m.id}" style="background:${!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.03)'};border:1px solid ${!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.07)'};border-radius:14px;padding:16px 18px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          ${nonLuDot}
+          <div>
+            <div style="font-weight:700;font-size:14px;color:white;">${escapeHtml(prest.nom || 'Inconnu')}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);">${escapeHtml([prest.metier, prest.ville].filter(Boolean).join(' · '))} · ${dateStr}</div>
+          </div>
+        </div>
+        ${statutBadge}
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:12px 14px;font-size:13px;color:rgba(255,255,255,0.82);line-height:1.65;white-space:pre-line;">${escapeHtml(m.message)}</div>
+      ${reponseIA}
+      ${reponseFondateur}
+      ${replyForm}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = filterHtml + `<div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:12px;">${messages.length} message${messages.length > 1 ? 's' : ''}</div>` + cardsHtml;
+}
+
+async function adminSendDMReply(messageId) {
+  const inputEl = document.getElementById(`reply-input-${messageId}`);
+  const formEl = document.getElementById(`reply-form-${messageId}`);
+  if (!inputEl) return;
+
+  const reponse = inputEl.value.trim();
+  if (!reponse) { inputEl.focus(); return; }
+
+  const btn = formEl?.querySelector('button');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
+
+  try {
+    // wozaliFetch ajoute le JWT automatiquement — le backend vérifie ADMIN_EMAILS
+    const r = await wozaliFetch('/api/wozali-pay/chat-wozali-admin-reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message_id: messageId, reponse }),
+    });
+    const data = await r.json();
+
+    if (data.ok) {
+      // Mettre à jour la card localement
+      const card = document.getElementById(`dm-card-${messageId}`);
+      if (card) {
+        card.style.border = '1px solid rgba(34,197,94,0.25)';
+        card.style.background = 'rgba(34,197,94,0.03)';
+        if (formEl) formEl.innerHTML = `<div style="margin-top:10px;padding:10px 12px;background:rgba(34,197,94,0.05);border-left:3px solid rgba(34,197,94,0.35);border-radius:0 8px 8px 0;"><div style="font-size:10px;color:rgba(74,222,128,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div><div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(reponse)}</div></div>`;
+        // Mettre à jour le badge statut
+        const badgeEl = card.querySelector('[data-dm-statut-badge]');
+        if (badgeEl) badgeEl.innerHTML = '<span style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>';
+      }
+      if (typeof toast === 'function') toast('Réponse envoyée.', 'success');
+    } else {
+      toast('Erreur : ' + (data.error || 'réessaie'), 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ➤'; }
+    }
+  } catch(e) {
+    console.error('[admin-dm-reply]', e);
+    toast('Ça a calé. Réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ➤'; }
+  }
+}
+
+// ══════════════════════════════════════════
 // PANEL ADMIN — ACTIVATION BULK
 // ══════════════════════════════════════════
 
@@ -17927,7 +18286,7 @@ function showAdminPanel() {
 }
 
 function switchAdminTab(tab) {
-  const tabs = ['activations', 'retraits'];
+  const tabs = ['activations', 'retraits', 'dms'];
   tabs.forEach(t => {
     const btn = document.getElementById(`admin-tab-${t}`);
     if (btn) {
@@ -17937,7 +18296,8 @@ function switchAdminTab(tab) {
   });
   document.getElementById('admin-content').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">⏳ Chargement...</div>';
   if (tab === 'activations') loadAdminPending();
-  else loadAdminRetraits();
+  else if (tab === 'retraits') loadAdminRetraits();
+  else if (tab === 'dms') loadAdminDMs();
 }
 
 async function loadAdminPending() {
@@ -22196,6 +22556,7 @@ loadSchealtielPhoto();
     <div style="display:flex;gap:8px;margin-bottom:24px;">
       <button id="admin-tab-activations" onclick="switchAdminTab('activations')" style="background:var(--vert);color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;">🚀 Activations Pro</button>
       <button id="admin-tab-retraits" onclick="switchAdminTab('retraits')" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;">💸 Retraits commissions</button>
+      <button id="admin-tab-dms" onclick="switchAdminTab('dms')" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;">💬 DMs entrants</button>
     </div>
     <div id="admin-content"></div>
   </div>
