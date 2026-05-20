@@ -11319,6 +11319,9 @@ async function initHome() {
   // Sprint 8 : compteurs métiers temps réel Airtable
   setTimeout(() => chargerCompteurMetiers(), 300);
 
+  // Offres d'emploi récentes (home)
+  setTimeout(() => { if (typeof loadHomeOffresEmploi === 'function') loadHomeOffresEmploi(); }, 400);
+
   // Prestataires en vedette
   setTimeout(() => loadHomeVedette(), 200);
 
