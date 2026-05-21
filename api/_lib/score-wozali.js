@@ -134,13 +134,13 @@ export async function recalculerTousLesScores(supabase) {
     avisParPrest[pid].push(a);
   }
 
-  // 4. Charger les profiles Supabase pour derniere_activite + vues_mois
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, email, derniere_activite, vues_mois, score_wozali');
+  // 4. Charger les prestataires Supabase pour vues_30j + updated_at + score_wozali
+  const { data: supaPrests } = await supabase
+    .from('wozali_prestataires')
+    .select('user_id, email, score_wozali, vues_30j, nb_vues_profil, updated_at');
 
   const profilesByEmail = {};
-  for (const p of (profiles || [])) {
+  for (const p of (supaPrests || [])) {
     if (p.email) profilesByEmail[p.email.toLowerCase()] = p;
   }
 
@@ -164,24 +164,28 @@ export async function recalculerTousLesScores(supabase) {
       noteMoyenne = sum / nbAvis;
     }
 
+    // updated_at = meilleur proxy pour dernière activité
+    const derniereActivite = profile.updated_at || null;
+    const vuesMois = profile.vues_30j || profile.nb_vues_profil || 0;
+
     const composantes = calculerScoreWozali({
       fields: f,
       noteMoyenne,
       nbAvis,
-      vuesMois: profile.vues_mois || 0,
-      derniereActivite: profile.derniere_activite,
+      vuesMois,
+      derniereActivite,
     });
 
     // Appliquer pente douce
-    const scoreFinal = penteDouce(composantes.total, profile.derniere_activite);
+    const scoreFinal = penteDouce(composantes.total, derniereActivite);
 
     resultats.push({
-      userId:    profile.id,
+      userId:    profile.user_id,
       email,
       scoreFinal,
       composantes,
       ancienScore: profile.score_wozali || 0,
-      derniereActivite: profile.derniere_activite,
+      derniereActivite,
     });
   }
 

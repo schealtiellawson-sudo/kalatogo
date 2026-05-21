@@ -4213,7 +4213,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
               <div class="hc-big" style="color:#E8940A;">2 minutes.<br>Tu existes en ligne.</div>
               <div class="hc-features">
                 <div class="hc-feat hc-feat-1"><span>👁️</span> Visibilité — ton profil pro, visible partout</div>
-                <div class="hc-feat hc-feat-2"><span>🏆</span> 500 000 FCFA distribués chaque mois</div>
+                <div class="hc-feat hc-feat-2"><span>🏆</span> 800 000 FCFA distribués chaque mois</div>
                 <div class="hc-feat hc-feat-3"><span>📈</span> Parrainage — 1 000 FCFA par filleul actif</div>
               </div>
             </div>
@@ -4444,8 +4444,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
   <section class="wv2-bourse" aria-labelledby="wv2-bourse-title">
     <div class="container wv2-bourse-inner">
       <span class="wv2-bourse-eyebrow"><i data-lucide="trophy" style="width:14px;height:14px;"></i> RÉCOMPENSES WOZALI</span>
-      <h2 id="wv2-bourse-title" class="wv2-bourse-h2">500 000 FCFA. Distribués chaque mois.</h2>
-      <p class="wv2-bourse-sub">Pas une promesse. Un virement. Chaque mois. Automatique.<br>300 000 FCFA — Bourse de Croissance · Le prestataire le plus sérieux du mois (Pro).<br>200 000 FCFA — La Bourse des Mains d'Or · 100K ✂️ Reine Coiffure + 100K 👗 Reine Couture · 1 par pays · Toutes les femmes du Togo et du Bénin peuvent gagner.<br>Tirage 100% automatique. Ton travail parle.</p>
+      <h2 id="wv2-bourse-title" class="wv2-bourse-h2">800 000 FCFA. Distribués chaque mois.</h2>
+      <p class="wv2-bourse-sub">Pas une promesse. Un virement. Chaque mois. Automatique.<br>600 000 FCFA — Bourse de Croissance · 300K × 2 gagnants (1 Togo + 1 Bénin, pros sérieux).<br>200 000 FCFA — La Bourse des Mains d'Or · 100K ✂️ Reine Coiffure + 100K 👗 Reine Couture · 1 par pays · Toutes les femmes du Togo et du Bénin peuvent gagner.<br>Tirage 100% automatique. Ton travail parle.</p>
       <div class="wv2-bourse-cd" aria-live="polite">
         <div class="wv2-bcd-unit"><div class="wv2-bcd-num" data-wv2bcd="j">00</div><div class="wv2-bcd-lbl">Jours</div></div>
         <div class="wv2-bcd-sep">:</div>
@@ -7408,7 +7408,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div class="wozali-countdown-bloc" data-countdown="dash">
           <div class="countdown-eyebrow">⏱️ Tirage Bourse de Croissance</div>
           <div class="countdown-titre">Prochain tirage dans <span data-cd-jours>—</span> jours</div>
-          <div class="countdown-sub">500 000 FCFA distribués chaque mois — Bourse de Croissance 300K (Pro) + Bourse des Mains d'Or 200K (100K × 2 Reines, toutes les femmes B/T)</div>
+          <div class="countdown-sub">800 000 FCFA distribués chaque mois — Bourse de Croissance 600K (300K × 2 pays, Pro) + Bourse des Mains d'Or 200K (100K × 2 Reines, toutes les femmes B/T)</div>
           <div class="countdown-timer" data-cd-timer>
             <div class="count-unit"><div class="count-num" data-cd-j>00</div><div class="count-label">Jours</div></div>
             <div class="count-sep">:</div>
@@ -9026,7 +9026,7 @@ async function loadDashOverview() {
 
   // ── Profil complété % — calculé localement ──
   const completionItems = [
-    { label: 'Photo de profil',           done: !!(f['WhatsApp']),                             weight: 20, action: 'photos' },
+    { label: 'Photo de profil',           done: !!(f['Photo de profil']),                      weight: 20, action: 'photos' },
     { label: 'Description des services',  done: !!(f['Description des services']),             weight: 15, action: 'profil' },
     { label: 'Tarifs renseignés',         done: !!(f['Tarif minimum FCFA']),                   weight: 10, action: 'profil' },
     { label: 'Numéro de téléphone',       done: !!(f['Numéro de téléphone']),                  weight: 15, action: 'profil' },
@@ -9058,17 +9058,13 @@ async function loadDashOverview() {
     return { note, nbAvis };
   })();
 
-  // ── Score WOZALI — Sprint 7 (6 composantes, même formule que cron serveur) ──
+  // ── Score WOZALI — 6 composantes, màj 2 passes (statiques immédiates + avis async) ──
   // 1. Profil complet (max 30) : Photo 8, Bio 7, Métier 5, Ville+Quartier 5, Numéro 5
-  const scoreComp = (f['Photo Profil'] ? 8 : 0)
+  const scoreComp = (f['Photo de profil'] ? 8 : 0)
     + ((f['Description des services'] || '').trim().length > 10 ? 7 : 0)
     + (f['Métier principal'] ? 5 : 0)
     + (f['Quartier'] || f['Ville'] ? 5 : 0)
     + (f['Numéro de téléphone'] || f['WhatsApp'] ? 5 : 0);
-  // 2. Note moyenne (max 25) : paliers
-  const scoreNote = note >= 4.5 ? 25 : note >= 4.0 ? 20 : note >= 3.0 ? 12 : 0;
-  // 3. Nombre d'avis (max 15) : paliers
-  const scoreAvis = nbAvis >= 21 ? 15 : nbAvis >= 11 ? 13 : nbAvis >= 6 ? 11 : nbAvis >= 3 ? 7 : nbAvis >= 1 ? 3 : 0;
   // 4. Photos publiées (max 10) : paliers
   let nbPhotosTotal = (f['Photo Réalisation 1'] ? 1 : 0) + (f['Photo Réalisation 2'] ? 1 : 0) + (f['Photo Réalisation 3'] ? 1 : 0);
   try { const alb = JSON.parse(f['Albums'] || '[]'); for (const a of alb) nbPhotosTotal += (a.photos || []).length; } catch {}
@@ -9076,62 +9072,58 @@ async function loadDashOverview() {
   // 5. Vues profil (max 10) : progressif 0-100
   const totalViewsAll = JSON.parse(localStorage.getItem(`wozali_views_${prestId}`) || '{"total":0}').total || 0;
   const scoreVues = totalViewsAll >= 100 ? 10 : Math.round((totalViewsAll / 100) * 10);
-  // 6. Activité récente (max 10) : basé sur dernière connexion
-  let scoreActivite = 10; // par défaut connecté maintenant
-  const score = Math.min(scoreComp + scoreNote + scoreAvis + scorePhoto + scoreVues + scoreActivite, 100);
-
-  document.getElementById('kpi-score').textContent = score || '—';
+  // 6. Activité récente (max 10) : connecté maintenant
+  const scoreActivite = 10;
 
   const transactions = f['Nombre de transactions'] || 0;
-  const cowrie       = f['Points Cowrie'] || 0;
   document.getElementById('stat-transactions').textContent = transactions;
-  document.getElementById('kpi-cowrie').textContent = cowrie;
+  document.getElementById('kpi-cowrie').textContent = f['Score WOZALI'] || 0;
 
-  // ── Niveaux Score WOZALI ──
-  const wozaliLevels = [
+  // Niveaux Score WOZALI
+  const _wozaliLevels = [
     { min:0,  max:20,  emoji:'🌱', name:'Débutant'     },
     { min:21, max:40,  emoji:'📚', name:'Apprenti'      },
     { min:41, max:60,  emoji:'🔧', name:'Confirmé'      },
     { min:61, max:80,  emoji:'💼', name:'Professionnel' },
     { min:81, max:100, emoji:'⭐', name:'Élite'          },
   ];
-  const currentLevel = wozaliLevels.find(l => score >= l.min && score <= l.max) || wozaliLevels[0];
-  const nextLevel    = wozaliLevels.find(l => l.min > score);
-
-  // ── Score gauge SVG ──
-  const gauge     = document.getElementById('score-gauge-dash');
-  const gaugeVal  = document.getElementById('score-gauge-val');
-  const gaugeLabel= document.getElementById('score-gauge-label');
-  const gaugeNext = document.getElementById('score-gauge-next');
-  if (gauge) {
-    const pct = Math.min(score / 100, 1);
-    gauge.setAttribute('stroke-dashoffset', 289 - 289 * pct);
-    if (gaugeVal) gaugeVal.textContent = score || '0';
-    if (gaugeLabel) gaugeLabel.textContent = `${currentLevel.emoji} ${currentLevel.name}`;
-    if (gaugeNext) {
-      if (nextLevel) gaugeNext.textContent = `+${nextLevel.min - score} pts pour passer ${nextLevel.emoji} ${nextLevel.name}`;
-      else gaugeNext.textContent = '🏆 Tu es au sommet — reste-y !';
+  // Helper rendu gauge (appelé 2× : provisoire sans avis, puis réel avec avis)
+  function _applyScoreGauge(sNote, sAvis) {
+    const s = Math.min(scoreComp + sNote + sAvis + scorePhoto + scoreVues + scoreActivite, 100);
+    const cL = _wozaliLevels.find(l => s >= l.min && s <= l.max) || _wozaliLevels[0];
+    const nL = _wozaliLevels.find(l => l.min > s);
+    document.getElementById('kpi-score').textContent = s || '—';
+    const gauge = document.getElementById('score-gauge-dash');
+    if (gauge) {
+      gauge.setAttribute('stroke-dashoffset', 289 - 289 * Math.min(s / 100, 1));
+      const gV = document.getElementById('score-gauge-val');
+      const gL = document.getElementById('score-gauge-label');
+      const gN = document.getElementById('score-gauge-next');
+      if (gV) gV.textContent = s || '0';
+      if (gL) gL.textContent = `${cL.emoji} ${cL.name}`;
+      if (gN) gN.textContent = nL ? `+${nL.min - s} pts pour passer ${nL.emoji} ${nL.name}` : '🏆 Tu es au sommet — reste-y !';
     }
+    const scoreLevelEl = document.getElementById('kpi-score-level');
+    const scoreNextEl  = document.getElementById('kpi-score-next');
+    if (scoreLevelEl) scoreLevelEl.textContent = `${cL.emoji} ${cL.name}`;
+    if (scoreNextEl) scoreNextEl.textContent = nL ? `+${nL.min - s} pts → ${nL.emoji} ${nL.name}` : '⭐ Niveau maximum !';
   }
-
-  // ── Score KPI card ──
-  const scoreLevelEl = document.getElementById('kpi-score-level');
-  const scoreNextEl  = document.getElementById('kpi-score-next');
-  if (scoreLevelEl) scoreLevelEl.textContent = `${currentLevel.emoji} ${currentLevel.name}`;
-  if (scoreNextEl && nextLevel) scoreNextEl.textContent = `+${nextLevel.min - score} pts → ${nextLevel.emoji} ${nextLevel.name}`;
-  else if (scoreNextEl && !nextLevel) scoreNextEl.textContent = '⭐ Niveau maximum !';
-
-  // ── Célébration premier avis ──
-  if (nbAvis === 1) {
-    const celebKey = `wozali_celebrated_first_avis_${prestId}`;
-    if (!localStorage.getItem(celebKey)) {
-      localStorage.setItem(celebKey, '1');
-      setTimeout(() => {
-        const m = document.getElementById('modal-celebration');
-        if (m) m.style.display = 'flex';
-      }, 900);
+  // Passe 1 — provisoire immédiat (note=0, nbAvis=0 tant que _avisPromise en cours)
+  _applyScoreGauge(0, 0);
+  // Passe 2 — màj finale après résolution des avis
+  _avisPromise.then(({ note: n, nbAvis: nb }) => {
+    const sN = n >= 4.5 ? 25 : n >= 4.0 ? 20 : n >= 3.0 ? 12 : 0;
+    const sA = nb >= 21 ? 15 : nb >= 11 ? 13 : nb >= 6 ? 11 : nb >= 3 ? 7 : nb >= 1 ? 3 : 0;
+    _applyScoreGauge(sN, sA);
+    // ── Célébration premier avis ──
+    if (nb === 1) {
+      const celebKey = `wozali_celebrated_first_avis_${prestId}`;
+      if (!localStorage.getItem(celebKey)) {
+        localStorage.setItem(celebKey, '1');
+        setTimeout(() => { const m = document.getElementById('modal-celebration'); if (m) m.style.display = 'flex'; }, 900);
+      }
     }
-  }
+  }).catch(() => {});
 
   // ── Vues — champ Airtable (total) ──
   const totalViews = f['Nombre de vues profil'] || 0;
@@ -9205,7 +9197,7 @@ async function loadDashOverview() {
 
   // ── Actions prioritaires ──
   const actions = [];
-  if (!f['WhatsApp'])                   actions.push({ icon:'📸', text:'Ajoute ta photo de profil',        sub:'+40% de contacts',             section:'photos'     });
+  if (!f['Photo de profil'] && !f['WhatsApp']) actions.push({ icon:'📸', text:'Ajoute ta photo de profil', sub:'+40% de contacts',             section:'photos'     });
   if (!f['Photo Réalisation 1'])        actions.push({ icon:'🖼️', text:'Ajoute une photo de réalisation', sub:'Montre ton travail',             section:'photos'     });
   if (!f['Description des services'])   actions.push({ icon:'✍️', text:'Écris ta description',            sub:'Rassure les clients',            section:'profil'     });
   if (!f['Disponible maintenant'])      actions.push({ icon:'🟢', text:'Active ta disponibilité',         sub:'Apparais en priorité',           section:'dispo'      });
@@ -9601,7 +9593,7 @@ function loadDashPhotos() {
 
   // Profile photo
   const previewEl = document.getElementById('edit-photo-preview');
-  const photoUrl = f['WhatsApp'];
+  const photoUrl = f['Photo de profil'] || f['WhatsApp'];
   if (photoUrl) {
     previewEl.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
     // Afficher le bouton ✂️ Recadrer
@@ -9646,9 +9638,9 @@ function renderRealisationsGrid() {
            </div>
            <div style="position:absolute;top:8px;left:8px;background:rgba(232,148,10,0.85);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">Photo ${slot}</div>
          </div>`
-      : `<div id="real-slot-${slot}" onclick="document.getElementById('real-input-${slot}').click()" style="border-radius:14px;aspect-ratio:1;background:linear-gradient(135deg,#f8fdf9,#e8f5ec);border:2px dashed rgba(232,148,10,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;gap:6px;" onmouseover="this.style.background='linear-gradient(135deg,#edfaef,#d4edda)';this.style.borderColor='var(--vert)'" onmouseout="this.style.background='linear-gradient(135deg,#f8fdf9,#e8f5ec)';this.style.borderColor='rgba(232,148,10,0.3)'">
-             <div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">➕</div>
-             <span style="font-size:11px;font-weight:600;color:var(--vert);">Photo ${slot}</span>
+      : `<div id="real-slot-${slot}" onclick="document.getElementById('real-input-${slot}').click()" style="border-radius:14px;aspect-ratio:1;background:#1E180E;border:2px dashed rgba(232,148,10,0.35);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;gap:6px;" onmouseover="this.style.background='#251d11';this.style.borderColor='#E8940A'" onmouseout="this.style.background='#1E180E';this.style.borderColor='rgba(232,148,10,0.35)'">
+             <div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;">➕</div>
+             <span style="font-size:11px;font-weight:600;color:#E8940A;">Photo ${slot}</span>
              <span style="font-size:10px;color:var(--gris);">Ajouter</span>
            </div>`;
   }).join('');
@@ -10355,7 +10347,7 @@ async function generateStory(avisId, note, auteur, commentaire) {
   const nom = f['Nom complet'] || 'Prestataire';
   const metier = f['Métier principal'] || '';
   const ville = f['Ville'] || '';
-  const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
+  const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
   const photoReal = f['Photo Réalisation 1'] || '';
   const emoji = window.METIER_EMOJI?.[metier] || '⚡';
 
@@ -10734,10 +10726,10 @@ window.updatePushCard = updatePushCard;
 // NAVIGATION
 // ══════════════════════════════════════════
 const _seoPageMeta = {
-  home:         { title: 'WOZALI — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.' },
+  home:         { title: 'WOZALI — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 800 000 FCFA distribués chaque mois.' },
   search:       { title: 'Trouver un pro — WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOZALI Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
-  recompenses:  { title: 'Récompenses WOZALI — 500 000 FCFA/mois', desc: 'Bourse de Croissance (300K) + La Bourse des Mains d\'Or (200K). 500 000 FCFA distribués chaque mois. Tirage automatique le 30.' },
+  recompenses:  { title: 'Récompenses WOZALI — 800 000 FCFA/mois', desc: 'Bourse de Croissance (600K, 1 Togo + 1 Bénin) + La Bourse des Mains d\'Or (200K). 800 000 FCFA distribués chaque mois. Tirage automatique le 30.' },
   awards:       { title: 'La Bourse des Mains d\'Or — Bénin & Togo', desc: 'Poste ta plus belle photo coiffure ou couture. La communauté vote. 2 reines couronnées chaque mois — 100 000 FCFA chacune. Toutes les femmes peuvent gagner.' },
   inscription:  { title: 'Inscription gratuite — WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche — WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
@@ -11145,7 +11137,7 @@ function cancelCrop() {
 
 /* ── Recadrer la photo de profil déjà en place ── */
 function recadrerPhotoProfil() {
-  const currentUrl = currentPrestataire?.fields['WhatsApp'];
+  const currentUrl = currentPrestataire?.fields['Photo de profil'] || currentPrestataire?.fields['WhatsApp'];
   if (!currentUrl) {
     // Pas encore de photo → ouvrir simplement le file picker
     document.getElementById('edit-photo-input').click();
@@ -11410,7 +11402,7 @@ function renderCard(record) {
   const dispo = f['Disponible maintenant'];
   const verifie = f['Badge vérifié'];
   const tel = (f['Numéro de téléphone'] || '').replace(/\D/g,'');
-  const rawPhoto = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
+  const rawPhoto = f['Photo de profil'] || f['WhatsApp'] || '';
   const photoProfil = escapeHtml(rawPhoto);
   const emoji = METIER_EMOJI[f['Métier principal']] || '⚡';
 
@@ -13619,7 +13611,7 @@ async function submitPhotoComment(prestatireId, slot, photoUrl) {
   if (texte.length > 300) { toast('Commentaire trop long', 'error'); return; }
 
   const auteur = currentPrestataire.fields['Nom complet'] || 'Utilisateur';
-  const auteurPhoto = currentPrestataire.fields['WhatsApp'] || '';
+  const auteurPhoto = currentPrestataire.fields['Photo de profil'] || currentPrestataire.fields['WhatsApp'] || '';
   const auteurId = currentPrestataire.id;
 
   await _upsertPhotoAvis(prestatireId, slot, photoUrl, fields => {
@@ -13689,7 +13681,7 @@ function showAlbumsPage(recordId) {
   if (!record && window._currentProfilRecord?.id === recordId) record = window._currentProfilRecord;
   if (!record) return;
   const f = record.fields;
-  const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
+  const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
   const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
   const allAlbumsRaw = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch(e) { return []; } })();
   const customAlbums = allAlbumsRaw.filter(a => a.id !== '__libres__' && a.id !== '__publications__');
@@ -14243,7 +14235,7 @@ async function showProfil(recordId) {
     const gpsLon = f['Longitude'] || null;
     const tiktok    = f['Lien TikTok']    || '';
     const instagram = f['Lien Instagram'] || '';
-    const photoProfil = f['WhatsApp'] || f['Photo de profil']?.[0]?.url || '';
+    const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
     // URLs pour href (encodage URI pour éviter d'introduire JS)
     const tiktokSafe = encodeURI(tiktok);
     const instagramSafe = encodeURI(instagram);
@@ -14686,7 +14678,7 @@ async function showProfil(recordId) {
         } else {
           box.innerHTML = filtered.map(r => {
             const ff = r.fields;
-            const pp = ff['WhatsApp'] || ff['Photo de profil']?.[0]?.url || '';
+            const pp = ff['Photo de profil'] || ff['WhatsApp'] || '';
             const ppSafe = encodeURI(pp || '');
             const ini = escapeHtml((ff['Nom complet']||'?').charAt(0).toUpperCase());
             const _safeNomR = escapeHtml(ff['Nom complet']||'');
@@ -14878,7 +14870,7 @@ function openModalAvis(prestatairesId, prestataireNom) {
   if (currentPrestataire) {
     const f = currentPrestataire.fields;
     const nom = f['Nom complet'] || '';
-    const photo = f['WhatsApp'] || '';
+    const photo = f['Photo de profil'] || f['WhatsApp'] || '';
     const initiale = nom.charAt(0).toUpperCase();
     const avatarHtml = photo
       ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
@@ -14926,7 +14918,7 @@ async function submitAvis() {
     const f = currentPrestataire.fields;
     const nom = (f['Nom complet'] || '').trim();
     const id  = currentPrestataire.id;
-    const photo = (f['WhatsApp'] || '').trim();
+    const photo = (f['Photo de profil'] || f['WhatsApp'] || '').trim();
     if (!nom) { toast('Erreur : nom du profil manquant', 'error'); return; }
     commentFinal = `[${nom}|${id}|${photo}]\n${comment}`;
   } else {
@@ -15424,13 +15416,14 @@ async function submitInscription(e) {
 
     // Si email confirmation activée OU email déjà enregistré → session null → forcer signIn
     const alreadyRegistered = authError?.message?.includes('already registered');
-    if (!authData?.session || alreadyRegistered) {
+    let effectiveUser = authData?.user || null;
+    let effectiveSession = authData?.session || null;
+    if (!effectiveSession || alreadyRegistered) {
       setStep('Connexion automatique…');
       const { data: signInData, error: signInErr } = await supa.auth.signInWithPassword({ email, password: motDePasse });
       if (!signInErr && signInData?.session) {
-        if (!authData) authData = {};
-        authData.session = signInData.session;
-        authData.user = signInData.user;
+        effectiveUser = signInData.user;
+        effectiveSession = signInData.session;
       }
     }
 
@@ -15535,7 +15528,7 @@ async function submitInscription(e) {
     }
     if (education && education !== '') fields['Niveau d\'éducation'] = education;
     if (dispo === 'oui') fields['Disponible maintenant'] = true;
-    if (profilUrl) fields['WhatsApp'] = profilUrl;
+    if (profilUrl) fields['Photo de profil'] = profilUrl;
     if (photo1Url) fields['Photo Réalisation 1'] = photo1Url;
     if (photo2Url) fields['Photo Réalisation 2'] = photo2Url;
     if (photo3Url) fields['Photo Réalisation 3'] = photo3Url;
@@ -15548,8 +15541,8 @@ async function submitInscription(e) {
 
     setStep('Enregistrement de ton profil…');
     // Lier le record Supabase au user_id pour passer la RLS
-    if (authData?.user?.id) {
-      fields['User ID'] = authData.user.id;
+    if (effectiveUser?.id) {
+      fields['User ID'] = effectiveUser.id;
     } else if (currentUser?.id) {
       fields['User ID'] = currentUser.id;
     }
@@ -17501,15 +17494,15 @@ async function loadDashPosts() {
     commentsList.innerHTML = recentComments.map(c => {
       const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
       return `
-        <div style="background:#f9fafb;border-radius:10px;padding:12px;border-left:3px solid var(--vert);">
+        <div style="background:#1E180E;border-radius:10px;padding:12px;border-left:3px solid #E8940A;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-            ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:32px;height:32px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:13px;">${(c.auteur || '?').charAt(0).toUpperCase()}</div>`}
+            ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:32px;height:32px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-weight:800;color:#14100A;font-size:13px;">${(c.auteur || '?').charAt(0).toUpperCase()}</div>`}
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:700;font-size:13px;color:var(--noir);">${c.auteur || 'Utilisateur'}</div>
+              <div style="font-weight:700;font-size:13px;color:var(--cream);">${c.auteur || 'Utilisateur'}</div>
               <div style="font-size:11px;color:var(--gris);">${cDate}</div>
             </div>
           </div>
-          <div style="background:white;border-radius:8px;padding:10px;font-size:13px;color:var(--noir);margin-bottom:6px;line-height:1.5;">${c.texte}</div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;font-size:13px;color:var(--cream);margin-bottom:6px;line-height:1.5;">${c.texte}</div>
           <div style="font-size:11px;color:var(--gris);">Sur: <strong>${c.postPreview}</strong></div>
         </div>`;
     }).join('');
@@ -21272,8 +21265,8 @@ async function loadRecrutDashboard() {
               <div class="wozali-pro-gains-item">
                 <div class="icon">🏆</div>
                 <div class="label">Bourse de Croissance</div>
-                <div class="montant" data-compteur="300000">300 000 FCFA</div>
-                <div class="desc">tirage mérite · réservé Pro</div>
+                <div class="montant" data-compteur="600000">300 000 FCFA × 2</div>
+                <div class="desc">1 gagnant Togo + 1 gagnant Bénin · réservé Pro</div>
               </div>
               <div class="wozali-pro-gains-plus">+</div>
               <div class="wozali-pro-gains-item">
@@ -21285,8 +21278,8 @@ async function loadRecrutDashboard() {
             </div>
             <div class="wozali-pro-gains-total">
               <div class="total-label">TOTAL CHAQUE MOIS</div>
-              <div class="total-amount">500 000 FCFA</div>
-              <div class="total-sub">= 7,6× le SMIG togolais et béninois — chaque mois.</div>
+              <div class="total-amount">800 000 FCFA</div>
+              <div class="total-sub">Distribués automatiquement le 30 de chaque mois.</div>
             </div>
             <div class="wozali-pro-gains-warning">
               ⚠️ Bourse de Croissance réservée Pro (2 mois consécutifs minimum). <strong>La Bourse des Mains d'Or réservée coiffeuses &amp; couturières Pro</strong> — Plan Pro requis pour participer au tirage 100K.
@@ -25375,7 +25368,7 @@ const WOZALI_TL_PANELS = [
     progress:62, progressLabel:"Expansion Afrique de l'Ouest" },
   { eyebrow:'PHASE 3 · CONTINENT', title:"Toute l'Afrique",
     countries:[{flag:'🌍',name:'Afrique Centrale',on:true},{flag:'🌍',name:"Afrique de l'Est",on:true},{flag:'🌍',name:'Afrique du Nord',on:true},{flag:'🌍',name:'Afrique Australe',on:true}],
-    stat:'2027 · Un nom universel — WOZALI signifie grandir en Yoruba · <strong>Architecture multi-pays déjà en place dès le premier jour</strong> · Même ADN, mêmes mécaniques de récompenses · Le continent entier',
+    stat:'2027 · Un nom universel — WOZALI signifie "nous existons" en Lingala · <strong>Architecture multi-pays déjà en place dès le premier jour</strong> · Même ADN, mêmes mécaniques de récompenses · Le continent entier',
     progress:100, progressLabel:'Le Continent — 2027' }
 ];
 let WOZALI_TL_CURRENT = 0;
@@ -27282,7 +27275,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
     var steps = [
       { icon:'hard-hat',   title:'Le travail ne paye pas. On change ça.', text:"Au Togo et au Bénin, le travail ne manque pas. C’est l’argent qui circule pas. À partir d’aujourd’hui, tes clients te trouvent. Ton business tourne. Ton travail paye.", primary:'Commencer' },
       { icon:'map-pin',    title:'Tes clients te trouvent. Sans réseau.', text:"Le client de Bè qui cherche un coiffeur. La famille d’Akpakpa qui veut un mécano. La mariée d’Adidogomé qui cherche une couturière. Avec ton GPS, ton WhatsApp et tes avis vérifiés, ils te trouvent en 30 secondes.", primary:'Suivant' },
-      { icon:'trophy',     title:'500 000 FCFA versés chaque mois.', text:"Pas une promesse. Un virement. Bourse de Croissance 300K pour les pros sérieux. Bourse des Mains d'Or 200K (100K × 2 Reines) pour les femmes du Bénin et du Togo. Tirage automatique le 30. Ton travail te paye enfin.", primary:'Suivant' },
+      { icon:'trophy',     title:'800 000 FCFA versés chaque mois.', text:"Pas une promesse. Un virement. Bourse de Croissance 600K (300K × 1 Togo + 1 Bénin) pour les pros sérieux. Bourse des Mains d'Or 200K (100K × 2 Reines) pour les femmes du Bénin et du Togo. Tirage automatique le 30. Ton travail te paye enfin.", primary:'Suivant' },
       { icon:'users',      title:'Un vrai revenu. Sans bouger de chez toi.', text:"Tes amis sans boulot ? Invite-les avec ton lien. Quand ils s’activent en Pro, tu touches 1 000 FCFA/mois pour chacun. À vie. 30 amis = 30 000 FCFA chaque mois automatique. Limite un vrai salaire.", primary:'Suivant' },
       { icon:'badge-check',title:'Passe Pro — 2 500 FCFA/mois.', text:"1 cliente de plus dans le mois et c’est remboursé 10 fois. Badge Pro, priorité recherche, éligible aux 3 programmes (Bourse 300K + Bourse des Mains d'Or 200K + parrainage). 83 FCFA par jour. Le prix d’un café au coin de la rue.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
     ];

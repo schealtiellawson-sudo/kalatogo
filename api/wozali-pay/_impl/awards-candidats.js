@@ -28,10 +28,10 @@ export default async function handler(req, res) {
     let profilesMap = {};
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, nom_complet, pays, avatar_url')
-        .in('id', userIds);
-      for (const p of (profiles || [])) profilesMap[p.id] = p;
+        .from('wozali_prestataires')
+        .select('user_id, nom_complet, ville, photo_profil')
+        .in('user_id', userIds);
+      for (const p of (profiles || [])) profilesMap[p.user_id] = p;
     }
 
     // Enrichir avec Airtable (photo, métier)
@@ -44,8 +44,8 @@ export default async function handler(req, res) {
         id: c.id,
         user_id: c.user_id,
         nom: p.nom_complet || '—',
-        pays: c.pays || p.pays || '',
-        photo: p.avatar_url || '',
+        pays: c.pays || (p.ville && /cotonou|porto|abomey|parakou|bohicon/i.test(p.ville) ? 'BJ' : (p.ville ? 'TG' : '')) || '',
+        photo: p.photo_profil || '',
         video_url: c.video_url,
         nb_votes: c.nb_votes || 0,
         gagnant: c.gagnant,

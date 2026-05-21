@@ -30,12 +30,12 @@ export default async function handler(req, res) {
     // 2. Récupérer les profils correspondants
     const userIds = abos.map(a => a.user_id);
     const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, score_wozali, pro_since')
-      .in('id', userIds);
+      .from('wozali_prestataires')
+      .select('user_id, score_wozali')
+      .in('user_id', userIds);
 
     const profileMap = {};
-    for (const p of (profiles || [])) profileMap[p.id] = p;
+    for (const p of (profiles || [])) profileMap[p.user_id] = p;
 
     // 3. Récupérer les avis des 30 derniers jours depuis Airtable
     const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
@@ -105,9 +105,9 @@ export default async function handler(req, res) {
       if (!profile) continue;
 
       const scoreWozali = profile.score_wozali || 0;
-      const proSince = profile.pro_since || abo.created_at;
-      const moisPro = proSince
-        ? Math.floor((now.getTime() - new Date(proSince).getTime()) / (30 * 86400000))
+      // pro_since n'existe pas dans wozali_prestataires → on utilise abo.created_at
+      const moisPro = abo.created_at
+        ? Math.floor((now.getTime() - new Date(abo.created_at).getTime()) / (30 * 86400000))
         : 0;
 
       // Avis récents pour ce prestataire

@@ -36,12 +36,12 @@ export default async function handler(req, res) {
 
     // Vérifier Pro depuis 2+ mois
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('pro_since, pays')
-      .eq('id', user_id)
-      .single();
+      .from('wozali_prestataires')
+      .select('ville')
+      .eq('user_id', user_id)
+      .maybeSingle();
 
-    const proSince = profile?.pro_since || abo.created_at;
+    const proSince = abo.created_at; // date début abonnement Pro = référence correcte
     const moisPro = Math.floor((Date.now() - new Date(proSince).getTime()) / (30 * 86400000));
 
     if (moisPro < 2) {

@@ -22,16 +22,16 @@ export default async function handler(req, res) {
       let profilesMap = {};
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, nom_complet, avatar_url')
-          .in('id', userIds);
-        for (const p of (profiles || [])) profilesMap[p.id] = p;
+          .from('wozali_prestataires')
+          .select('user_id, nom_complet, photo_profil')
+          .in('user_id', userIds);
+        for (const p of (profiles || [])) profilesMap[p.user_id] = p;
       }
 
       const enrichis = (comments || []).map(c => ({
         ...c,
         user_nom: profilesMap[c.user_id]?.nom_complet || '—',
-        user_avatar: profilesMap[c.user_id]?.avatar_url || '',
+        user_avatar: profilesMap[c.user_id]?.photo_profil || '',
       }));
 
       return res.status(200).json({ ok: true, comments: enrichis });

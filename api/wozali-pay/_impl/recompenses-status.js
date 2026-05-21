@@ -35,10 +35,10 @@ export default async function handler(req, res) {
     let gagnantBourseNom = null;
     if (gagnantBourse) {
       const { data: pGagnant } = await supabase
-        .from('profiles')
+        .from('wozali_prestataires')
         .select('nom_complet')
-        .eq('id', gagnantBourse.user_id)
-        .single();
+        .eq('user_id', gagnantBourse.user_id)
+        .maybeSingle();
       gagnantBourseNom = pGagnant?.nom_complet || null;
     }
 
@@ -86,10 +86,10 @@ export default async function handler(req, res) {
     let gagnantAwardsNom = null;
     if (gagnantAwards) {
       const { data: pGA } = await supabase
-        .from('profiles')
+        .from('wozali_prestataires')
         .select('nom_complet')
-        .eq('id', gagnantAwards.user_id)
-        .single();
+        .eq('user_id', gagnantAwards.user_id)
+        .maybeSingle();
       gagnantAwardsNom = pGA?.nom_complet || null;
     }
 
@@ -135,15 +135,16 @@ export default async function handler(req, res) {
       allIds.add(g.user_id);
     }
     const { data: profilesGagnants } = allIds.size > 0
-      ? await supabase.from('profiles').select('id, nom_complet, pays').in('id', [...allIds])
+      ? await supabase.from('wozali_prestataires').select('user_id, nom_complet, ville').in('user_id', [...allIds])
       : { data: [] };
     const nomMap = {};
-    for (const p of (profilesGagnants || [])) nomMap[p.id] = p;
+    for (const p of (profilesGagnants || [])) nomMap[p.user_id] = p;
 
+    const _paysDeville = (v) => v && /cotonou|porto|abomey|parakou|bohicon/i.test(v) ? 'BJ' : (v ? 'TG' : '');
     const enrichir = (liste) => (liste || []).map(g => ({
       ...g,
       nom: nomMap[g.user_id]?.nom_complet || '—',
-      pays: nomMap[g.user_id]?.pays || '',
+      pays: _paysDeville(nomMap[g.user_id]?.ville),
     }));
 
     // ── Countdown tirage (dernier vendredi du mois 18h WAT = 17h UTC) ──

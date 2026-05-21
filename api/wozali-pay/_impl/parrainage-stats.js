@@ -8,10 +8,10 @@ export default async function handler(req, res) {
     if (!user_id) return res.status(400).json({ error: 'user_id requis' });
 
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('wozali_prestataires')
       .select('code_parrainage')
-      .eq('id', user_id)
-      .single();
+      .eq('user_id', user_id)
+      .maybeSingle();
 
     // Filleuls actifs (parrainages où je suis parrain)
     const { data: filleuls = [] } = await supabase
@@ -31,10 +31,10 @@ export default async function handler(req, res) {
     let nomsById = {};
     if (filleulIds.length) {
       const { data: profs = [] } = await supabase
-        .from('profiles')
-        .select('id, email')
-        .in('id', filleulIds);
-      nomsById = Object.fromEntries(profs.map(p => [p.id, p.email]));
+        .from('wozali_prestataires')
+        .select('user_id, email')
+        .in('user_id', filleulIds);
+      nomsById = Object.fromEntries(profs.map(p => [p.user_id, p.email]));
     }
 
     const total = commissions.reduce((s, c) => s + (c.montant || 0), 0);

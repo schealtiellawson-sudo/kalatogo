@@ -23,9 +23,9 @@ export default async function handler(req, res) {
       // Mettre à jour le score dans profiles si changement
       if (r.scoreFinal !== r.ancienScore) {
         await supabase
-          .from('profiles')
+          .from('wozali_prestataires')
           .update({ score_wozali: r.scoreFinal })
-          .eq('id', r.userId);
+          .eq('user_id', r.userId);
         updates++;
       }
 

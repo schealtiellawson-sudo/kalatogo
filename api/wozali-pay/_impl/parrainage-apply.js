@@ -14,13 +14,13 @@ export default async function handler(req, res) {
 
     // 1) Parrain existe ?
     const { data: parrain } = await supabase
-      .from('profiles')
-      .select('id, email, code_parrainage')
+      .from('wozali_prestataires')
+      .select('user_id, email, code_parrainage')
       .eq('code_parrainage', codeNorm)
       .maybeSingle();
 
     if (!parrain) return res.status(404).json({ error: 'Code de parrainage invalide' });
-    if (parrain.id === user_id) return res.status(400).json({ error: 'Tu ne peux pas te parrainer toi-même' });
+    if (parrain.user_id === user_id) return res.status(400).json({ error: 'Tu ne peux pas te parrainer toi-même' });
 
     // 2) Filleul n'a pas déjà un parrain ?
     const { data: existing } = await supabase
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     const { data: parrainage, error } = await supabase
       .from('parrainages')
       .insert({
-        parrain_id: parrain.id,
+        parrain_id: parrain.user_id,
         filleul_id: user_id,
         code_parrainage: codeNorm,
         taux_commission: 0.40,

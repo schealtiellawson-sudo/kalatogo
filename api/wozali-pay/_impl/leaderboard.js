@@ -47,18 +47,18 @@ export default async function handler(req, res) {
     let profilesMap = {};
     if (ids.length > 0) {
       const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, nom_complet, avatar_url, metier')
-        .in('id', ids);
-      for (const p of (profiles || [])) profilesMap[p.id] = p;
+        .from('wozali_prestataires')
+        .select('user_id, nom_complet, photo_profil, metier_principal')
+        .in('user_id', ids);
+      for (const p of (profiles || [])) profilesMap[p.user_id] = p;
     }
 
     const enriched = ranked.map((r, i) => ({
       rang: i + 1,
       ...r,
       nom: profilesMap[r.user_id]?.nom_complet || '—',
-      avatar: profilesMap[r.user_id]?.avatar_url || '',
-      metier: profilesMap[r.user_id]?.metier || '',
+      avatar: profilesMap[r.user_id]?.photo_profil || '',
+      metier: profilesMap[r.user_id]?.metier_principal || '',
     }));
 
     return res.status(200).json({ ok: true, type, scope, filtre: filtre || null, leaderboard: enriched });

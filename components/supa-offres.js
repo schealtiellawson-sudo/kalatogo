@@ -19,6 +19,7 @@
     'Salaire max FCFA': 'salaire_max_fcfa',
     'Salaire minimum FCFA': 'salaire_min_fcfa',
     'Salaire maximum FCFA': 'salaire_max_fcfa',
+    'Salaire affiché': 'salaire_affiche',
     'Photo 1': 'photo_1',
     'Photo 2': 'photo_2',
     'Photo 3': 'photo_3',
@@ -43,6 +44,10 @@
     for (const [atName, supaCol] of Object.entries(AT_TO_SUPA)) {
       const v = row[supaCol];
       if (v != null) fields[atName] = v;
+    }
+    // Dérivé : si salaire_affiche absent en DB, l'inférer depuis salaire_min_fcfa
+    if (fields['Salaire affiché'] == null && row.salaire_min_fcfa != null) {
+      fields['Salaire affiché'] = true;
     }
     return { id: row.id, fields, createdTime: row.created_at };
   }
