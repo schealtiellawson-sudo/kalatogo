@@ -117,7 +117,7 @@
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
     const { data, error } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('*')
       .eq('email', email)
       .maybeSingle();
@@ -129,7 +129,7 @@
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
     const { data, error } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('*')
       .eq('id', id)
       .maybeSingle();
@@ -141,7 +141,7 @@
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
     const { data, error } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('*')
       .eq('user_id', userId)
       .maybeSingle();
@@ -155,7 +155,7 @@
     const row = _toSupaRow(fields);
     if (!row.user_id && window.currentUser?.id) row.user_id = window.currentUser.id;
     const { data, error } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .insert(row)
       .select('*')
       .single();
@@ -169,7 +169,7 @@
     const row = _toSupaRow(fields);
     delete row.user_id; // protégé par RLS, ne jamais réécrire
     const { data, error } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .update(row)
       .eq('id', id)
       .select('*')
@@ -185,7 +185,7 @@
   async function list(options = {}) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    let q = supa.from('wolo_prestataires').select('*');
+    let q = supa.from('wozali_prestataires').select('*');
 
     if (options.metier)    q = q.eq('metier_principal', options.metier);
     if (options.quartier)  q = q.eq('quartier', options.quartier);

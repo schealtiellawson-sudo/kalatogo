@@ -45,7 +45,7 @@
   async function list(options = {}) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
-    let q = supa.from('wolo_rdv').select('*');
+    let q = supa.from('wozali_rdv').select('*');
     if (options.prestataire_id)      q = q.eq('prestataire_id', options.prestataire_id);
     if (options.prestataire_user_id) q = q.eq('prestataire_user_id', options.prestataire_user_id);
     if (options.client_user_id)      q = q.eq('client_user_id', options.client_user_id);
@@ -66,7 +66,7 @@
     if (!row.statut) row.statut = 'Demandé';
     if (!row.date_rdv) throw new Error('Date du RDV requise');
     if (!row.client_nom) throw new Error('Nom du client requis');
-    const { data, error } = await supa.from('wolo_rdv').insert(row).select('*').single();
+    const { data, error } = await supa.from('wozali_rdv').insert(row).select('*').single();
     if (error) throw error;
     return _toAirtableRecord(data);
   }
@@ -77,7 +77,7 @@
     const row = _toSupaRow(fields);
     delete row.prestataire_user_id;
     delete row.client_user_id;
-    const { data, error } = await supa.from('wolo_rdv').update(row).eq('id', id).select('*').single();
+    const { data, error } = await supa.from('wozali_rdv').update(row).eq('id', id).select('*').single();
     if (error) throw error;
     return _toAirtableRecord(data);
   }

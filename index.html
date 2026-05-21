@@ -8309,25 +8309,7 @@ async function loadCurrentPrestataire(retries) {
     }
   }
 
-  // Fallback Airtable si supaPrest pas encore chargé (sécurité défensive)
-  console.warn('[wozali] supaPrest non chargé, fallback Airtable');
-  try {
-    const formula = encodeURIComponent(`{Email}='${email}'`);
-    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
-    if (!res.ok && retries < 3) {
-      await new Promise(r => setTimeout(r, 1500 * (retries + 1)));
-      return loadCurrentPrestataire(retries + 1);
-    }
-    const data = await res.json();
-    if (data.records?.length > 0) {
-      currentPrestataire = data.records[0];
-      const ab = currentPrestataire.fields?.['Abonnement'];
-      if (ab && typeof ab === 'object' && ab.name) currentPrestataire.fields['Abonnement'] = ab.name;
-      window.currentPrestataire = currentPrestataire;
-      _writePrestCache(email, currentPrestataire);
-      updateCommissionDisplay();
-    }
-  } catch (e) { console.error('loadCurrentPrestataire fallback:', e); }
+  console.error('[wozali] supaPrest non chargé — profil non récupérable');
 }
 
 // ══ CONNEXION ══
@@ -9153,20 +9135,9 @@ async function updateDispo() {
   updateDispoUI(dispo);
 
   try {
-    if (window.supaPrest) {
-      await window.supaPrest.update(currentPrestataire.id, { 'Disponible maintenant': dispo });
-      currentPrestataire.fields['Disponible maintenant'] = dispo;
-      toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
-    } else {
-      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { 'Disponible maintenant': dispo } })
-      });
-      if (res.ok) {
-        currentPrestataire.fields['Disponible maintenant'] = dispo;
-        toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
-      } else { toast('Erreur de sauvegarde', 'error'); }
-    }
+    await window.supaPrest.update(currentPrestataire.id, { 'Disponible maintenant': dispo });
+    currentPrestataire.fields['Disponible maintenant'] = dispo;
+    toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
   } catch (e) { toast('Problème de connexion : ' + e.message, 'error'); }
 }
 
@@ -9304,28 +9275,11 @@ async function saveProfile() {
   fields['Langues parlées'] = langues   || null; // null → TEXT[] Supabase accepte, '' → malformed array literal
 
   try {
-    if (window.supaPrest) {
-      const updated = await window.supaPrest.update(currentPrestataire.id, fields);
-      currentPrestataire = updated;
-      window.currentPrestataire = updated;
-      updateNavAuth(true);
-      toast('✅ Profil mis à jour !', 'success');
-    } else {
-      // Fallback Airtable
-      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields })
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        currentPrestataire = updated;
-        updateNavAuth(true);
-        toast('✅ Profil mis à jour !', 'success');
-      } else {
-        const err = await res.json();
-        toast('Erreur : ' + (err.error?.message || 'Réessaie'), 'error');
-      }
-    }
+    const updated = await window.supaPrest.update(currentPrestataire.id, fields);
+    currentPrestataire = updated;
+    window.currentPrestataire = updated;
+    updateNavAuth(true);
+    toast('✅ Profil mis à jour !', 'success');
   } catch (e) {
     console.error('saveProfile:', e);
     toast('Erreur sauvegarde : ' + (e.message || 'Réessaie'), 'error');
@@ -9430,24 +9384,13 @@ async function saveDashLocation() {
   const btn = document.querySelector('#dash-loc-pin-area button[onclick*="saveDashLocation"]');
   if (btn) { btn.textContent = '⏳ Enregistrement...'; btn.disabled = true; }
   try {
-    const res = await (window.supaPrest
-      ? window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon }).then(() => ({ ok: true, json: async () => ({}) }))
-      : fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-          method: 'PATCH', headers: AT_HEADERS,
-          body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
-        }));
-    const data = await res.json();
-    if (res.ok) {
-      currentPrestataire.fields['Latitude'] = lat;
-      currentPrestataire.fields['Longitude'] = lon;
-      localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'pin');
-      const status = document.getElementById('dash-gps-status');
-      if (status) status.textContent = `✅ Position enregistrée (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-      toast('📍 Position enregistrée ! Visible sur ton profil.', 'success');
-    } else {
-      const msg = data?.error?.message || JSON.stringify(data);
-      toast('Erreur Airtable : ' + msg, 'error');
-    }
+    await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+    currentPrestataire.fields['Latitude'] = lat;
+    currentPrestataire.fields['Longitude'] = lon;
+    localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'pin');
+    const status = document.getElementById('dash-gps-status');
+    if (status) status.textContent = `✅ Position enregistrée (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+    toast('📍 Position enregistrée ! Visible sur ton profil.', 'success');
   } catch(e) { toast('Erreur réseau : ' + e.message, 'error'); }
   finally { if (btn) { btn.textContent = '💾 Confirmer et enregistrer cette position'; btn.disabled = false; } }
 }
@@ -9462,27 +9405,12 @@ async function saveDashLiveMode() {
   navigator.geolocation.getCurrentPosition(async pos => {
     const lat = pos.coords.latitude, lon = pos.coords.longitude;
     try {
-      let savedOk = false;
-      if (window.supaPrest) {
-        await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
-        savedOk = true;
-      } else {
-        const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-          method: 'PATCH', headers: AT_HEADERS,
-          body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
-        });
-        savedOk = res.ok;
-      }
-      if (savedOk) {
-        currentPrestataire.fields['Latitude'] = lat;
-        currentPrestataire.fields['Longitude'] = lon;
-        localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
-        if (status) status.textContent = `✅ Position mise à jour — ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-        toast('📡 Position GPS mise à jour avec succès !', 'success');
-      } else {
-        if (status) status.textContent = '❌ Erreur sauvegarde';
-        toast('Erreur lors de la mise à jour GPS', 'error');
-      }
+      await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+      currentPrestataire.fields['Latitude'] = lat;
+      currentPrestataire.fields['Longitude'] = lon;
+      localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
+      if (status) status.textContent = `✅ Position mise à jour — ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+      toast('📡 Position GPS mise à jour avec succès !', 'success');
     } catch(e2) {
       if (status) status.textContent = '❌ Erreur réseau';
       toast('Erreur : ' + e2.message, 'error');
@@ -9503,14 +9431,7 @@ async function wizardActiverGPS() {
   navigator.geolocation.getCurrentPosition(async pos => {
     const lat = pos.coords.latitude, lon = pos.coords.longitude;
     try {
-      if (window.supaPrest) {
-        await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
-      } else {
-        await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-          method: 'PATCH', headers: AT_HEADERS,
-          body: JSON.stringify({ fields: { 'Latitude': lat, 'Longitude': lon } })
-        });
-      }
+      await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
       currentPrestataire.fields['Latitude'] = lat;
       currentPrestataire.fields['Longitude'] = lon;
       localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
@@ -9655,16 +9576,8 @@ async function _doUploadProfilCrop(blob, dataUrl) {
   if (url) {
     let savedOk = false;
     try {
-      if (window.supaPrest) {
-        await window.supaPrest.updateField(currentPrestataire.id, 'Photo de profil', url);
-        savedOk = true;
-      } else {
-        const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-          method: 'PATCH', headers: AT_HEADERS,
-          body: JSON.stringify({ fields: { 'WhatsApp': url } })
-        });
-        savedOk = res.ok;
-      }
+      await window.supaPrest.updateField(currentPrestataire.id, 'Photo de profil', url);
+      savedOk = true;
     } catch (e) { console.error('photo profil save:', e); }
     if (savedOk) {
       currentPrestataire.fields['Photo de profil'] = url;
@@ -9714,16 +9627,8 @@ async function _doUploadRealisationCrop(slot, blob) {
     const fieldName = `Photo Réalisation ${slot}`;
     let savedOk = false;
     try {
-      if (window.supaPrest) {
-        await window.supaPrest.updateField(currentPrestataire.id, fieldName, url);
-        savedOk = true;
-      } else {
-        const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-          method: 'PATCH', headers: AT_HEADERS,
-          body: JSON.stringify({ fields: { [fieldName]: url } })
-        });
-        savedOk = res.ok;
-      }
+      await window.supaPrest.updateField(currentPrestataire.id, fieldName, url);
+      savedOk = true;
     } catch (e) { console.error('realisation save:', e); }
     if (savedOk) {
       currentPrestataire.fields[fieldName] = url;
@@ -9753,16 +9658,8 @@ async function deleteRealisationPhoto(slot) {
 
   let deletedOk = false;
   try {
-    if (window.supaPrest) {
-      await window.supaPrest.updateField(currentPrestataire.id, fieldName, null);
-      deletedOk = true;
-    } else {
-      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { [fieldName]: null } })
-      });
-      deletedOk = res.ok;
-    }
+    await window.supaPrest.updateField(currentPrestataire.id, fieldName, null);
+    deletedOk = true;
   } catch (e) { console.error('realisation delete:', e); }
 
   if (deletedOk) {
@@ -9807,25 +9704,14 @@ function _getAlbums() {
 
 async function _saveAlbums(albums) {
   const albumsStr = JSON.stringify(albums);
-  if (window.supaPrest) {
-    try {
-      await window.supaPrest.updateField(currentPrestataire.id, 'Albums', albumsStr);
-      currentPrestataire.fields['Albums'] = albumsStr;
-      return true;
-    } catch(e) {
-      console.error('_saveAlbums supaPrest:', e);
-      return false;
-    }
-  }
-  // Fallback Airtable (IDs recXXXXXX uniquement)
   try {
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Albums': albumsStr } })
-    });
-    if (res.ok) currentPrestataire.fields['Albums'] = albumsStr;
-    return res.ok;
-  } catch(e) { return false; }
+    await window.supaPrest.updateField(currentPrestataire.id, 'Albums', albumsStr);
+    currentPrestataire.fields['Albums'] = albumsStr;
+    return true;
+  } catch(e) {
+    console.error('_saveAlbums:', e);
+    return false;
+  }
 }
 
 function renderAlbumsSection() {
@@ -10536,10 +10422,7 @@ async function changePassword() {
 // ══════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════
-// ══ SÉCURITÉ : Les clés API sont côté serveur (env vars Vercel) ══
-// Le frontend utilise le proxy /api/airtable-proxy/ et /api/imgbb-proxy
-const AT_URL = (table) => `/api/airtable-proxy/${encodeURIComponent(table)}`;
-const AT_HEADERS = { 'Content-Type': 'application/json' };
+// Le frontend utilise /api/imgbb-proxy pour les photos
 
 // Fonction utilitaire anti-XSS
 function escapeHtml(str) {
@@ -10874,15 +10757,15 @@ async function _resolveProfilBySlug(slug) {
       const s = _buildProfilSlug(f['Nom complet'] || '', f['Métier principal'] || '', f['Ville'] || '');
       if (s === slug) { showProfil(r.id); return; }
     }
-    // Sinon fetch Airtable
-    const res = await fetch(`${AT_URL('Prestataires')}?pageSize=100`, { headers: AT_HEADERS });
-    const data = await res.json();
-    for (const r of (data.records || [])) {
-      const f = r.fields;
-      const s = _buildProfilSlug(f['Nom complet'] || '', f['Métier principal'] || '', f['Ville'] || '');
-      if (s === slug) { showProfil(r.id); return; }
+    // Sinon fetch via supaPrest
+    if (window.supaPrest) {
+      const records = await window.supaPrest.list({ limit: 200 });
+      for (const r of records) {
+        const f = r.fields;
+        const s = _buildProfilSlug(f['Nom complet'] || '', f['Métier principal'] || '', f['Ville'] || '');
+        if (s === slug) { showProfil(r.id); return; }
+      }
     }
-    // Non trouvé
     showPage('home');
   } catch (e) {
     console.warn('[SEO] slug resolve error:', e);
@@ -11759,10 +11642,9 @@ async function updateCommissionDisplay() {
 
   // 1. Offres d'emploi actives
   try {
-    const params = new URLSearchParams({ filterByFormula: '{Active}=1', pageSize: 100 });
-    const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
-    const data = await r.json();
-    const nb = data.records?.length || 0;
+    const supa = window.supabase;
+    const { count } = await supa.from('wozali_offres_emploi').select('*', { count: 'exact', head: true }).eq('active', true);
+    const nb = count || 0;
     const metricOffres = offreEl?.closest('.metric');
     if (nb > 0) {
       if (offreEl) offreEl.textContent = nb + '+';
@@ -12247,7 +12129,7 @@ async function submitPost(recordId) {
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    const { data: postData, error: postErr } = await supa.from('wolo_posts_v2').insert({
+    const { data: postData, error: postErr } = await supa.from('wozali_posts_v2').insert({
       prestataire_id: recordId,
       auteur_user_id: currentUser?.id || null,
       auteur_nom:     currentPrestataire?.fields?.['Nom complet'] || '',
@@ -12284,7 +12166,7 @@ async function renderPostsFeed(recordId) {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
     const { data: rows, error: postsErr } = await supa
-      .from('wolo_posts_v2')
+      .from('wozali_posts_v2')
       .select('*')
       .eq('prestataire_id', recordId)
       .eq('actif', true)
@@ -12737,7 +12619,7 @@ async function likePost(recordId, postId) {
   try {
     const supa = window.supabase;
     if (!supa) return;
-    const { data: post } = await supa.from('wolo_posts_v2').select('nb_likes, contenu').eq('id', postId).maybeSingle();
+    const { data: post } = await supa.from('wozali_posts_v2').select('nb_likes, contenu').eq('id', postId).maybeSingle();
     currentLikes = post?.nb_likes || 0;
     postTexte    = post?.contenu  || '';
   } catch { return; }
@@ -12747,7 +12629,7 @@ async function likePost(recordId, postId) {
   // Mettre à jour dans Supabase
   try {
     const supa = window.supabase;
-    await supa.from('wolo_posts_v2').update({ nb_likes: newLikes }).eq('id', postId);
+    await supa.from('wozali_posts_v2').update({ nb_likes: newLikes }).eq('id', postId);
   } catch { return; }
 
   // Mettre à jour localStorage liked
@@ -12801,7 +12683,7 @@ async function submitComment(recordId, postId) {
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    const { data: post } = await supa.from('wolo_posts_v2').select('commentaires').eq('id', postId).maybeSingle();
+    const { data: post } = await supa.from('wozali_posts_v2').select('commentaires').eq('id', postId).maybeSingle();
     const comments = Array.isArray(post?.commentaires) ? post.commentaires : [];
     comments.push({
       id: Date.now().toString(), texte,
@@ -12810,7 +12692,7 @@ async function submitComment(recordId, postId) {
       auteurId: currentPrestataire?.id || null,
       date: new Date().toISOString()
     });
-    const { error: updErr } = await supa.from('wolo_posts_v2').update({ commentaires: comments }).eq('id', postId);
+    const { error: updErr } = await supa.from('wozali_posts_v2').update({ commentaires: comments }).eq('id', postId);
     if (updErr) throw updErr;
   } catch { toast('Erreur commentaire', 'error'); return; }
 
@@ -12828,7 +12710,7 @@ async function deletePost(recordId, postId) {
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    const { error } = await supa.from('wolo_posts_v2').delete().eq('id', postId);
+    const { error } = await supa.from('wozali_posts_v2').delete().eq('id', postId);
     if (error) throw error;
   } catch { toast('Erreur suppression', 'error'); return; }
   renderPostsFeed(recordId);
@@ -12843,7 +12725,7 @@ async function _getFavoriRecord(prestataireId) {
   const supa = window.supabase;
   if (!supa) return null;
   try {
-    const { data } = await supa.from('wolo_favoris_presta')
+    const { data } = await supa.from('wozali_favoris_presta')
       .select('id')
       .eq('user_id', currentUser.id)
       .eq('prestataire_id', prestataireId)
@@ -12890,14 +12772,14 @@ async function toggleFavori(prestataireId) {
   if (existingRec) {
     // Retirer des favoris
     try {
-      const { error } = await supa.from('wolo_favoris_presta').delete().eq('id', existingRec.id);
+      const { error } = await supa.from('wozali_favoris_presta').delete().eq('id', existingRec.id);
       if (error) throw error;
       toast('Retiré des favoris', 'info');
     } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   } else {
     // Ajouter aux favoris
     try {
-      const { error } = await supa.from('wolo_favoris_presta').insert({
+      const { error } = await supa.from('wozali_favoris_presta').insert({
         user_id: currentUser.id,
         prestataire_id: prestataireId
       });
@@ -12922,7 +12804,7 @@ async function loadFavoris() {
 
     // Récupérer les favoris
     const { data: favs, error: favErr } = await supa
-      .from('wolo_favoris_presta')
+      .from('wozali_favoris_presta')
       .select('id, prestataire_id, created_at')
       .eq('user_id', currentUser.id)
       .order('created_at', { ascending: false })
@@ -12943,7 +12825,7 @@ async function loadFavoris() {
     // Charger les détails des prestataires en une seule requête
     const ids = favs.map(f => f.prestataire_id).filter(Boolean);
     const { data: prests } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('id, nom_complet, metier_principal, quartier, photo_profil, abonnement, disponible_maintenant')
       .in('id', ids);
     const prestMap = {};
@@ -13002,7 +12884,7 @@ async function removeFavori(favId, prestataireId) {
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    const { error } = await supa.from('wolo_favoris_presta').delete().eq('id', favId);
+    const { error } = await supa.from('wozali_favoris_presta').delete().eq('id', favId);
     if (error) throw error;
     toast('Retiré des favoris', 'info');
     loadFavoris();
@@ -13019,7 +12901,7 @@ async function _getSuiviRecord(prestataireId) {
   const supa = window.supabase;
   if (!supa) return null;
   try {
-    const { data } = await supa.from('wolo_suivis')
+    const { data } = await supa.from('wozali_suivis')
       .select('id')
       .eq('suiveur_user_id', currentUser.id)
       .eq('suivi_prestataire_id', prestataireId)
@@ -13073,7 +12955,7 @@ async function toggleSuivi(prestataireId) {
     // Optimistic UI — feedback immédiat
     _setSuiviBtnState(prestataireId, false);
     try {
-      const { error } = await supa.from('wolo_suivis').delete().eq('id', existingRec.id);
+      const { error } = await supa.from('wozali_suivis').delete().eq('id', existingRec.id);
       if (error) throw error;
       toast('Tu ne suis plus ce prestataire', 'info');
     } catch { _setSuiviBtnState(prestataireId, true); toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
@@ -13081,7 +12963,7 @@ async function toggleSuivi(prestataireId) {
     // Optimistic UI — feedback immédiat
     _setSuiviBtnState(prestataireId, true);
     try {
-      const { error } = await supa.from('wolo_suivis').insert({
+      const { error } = await supa.from('wozali_suivis').insert({
         suiveur_user_id: currentUser.id,
         suivi_prestataire_id: prestataireId
       });
@@ -13099,7 +12981,7 @@ async function loadFollowerCount(prestataireId) {
   try {
     const supa = window.supabase;
     if (!supa) { el.textContent = '0'; return; }
-    const { count } = await supa.from('wolo_suivis')
+    const { count } = await supa.from('wozali_suivis')
       .select('id', { count: 'exact', head: true })
       .eq('suivi_prestataire_id', prestataireId);
     el.textContent = count || 0;
@@ -13117,7 +12999,7 @@ async function loadAbonnements() {
 
     // Récupérer les suivis
     const { data: suivis, error: suiviErr } = await supa
-      .from('wolo_suivis')
+      .from('wozali_suivis')
       .select('id, suivi_prestataire_id, created_at')
       .eq('suiveur_user_id', currentUser.id)
       .order('created_at', { ascending: false })
@@ -13138,7 +13020,7 @@ async function loadAbonnements() {
     // Charger les détails prestataires en une requête
     const ids = suivis.map(s => s.suivi_prestataire_id).filter(Boolean);
     const { data: prests } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('id, nom_complet, metier_principal, quartier, photo_profil, abonnement, disponible_maintenant')
       .in('id', ids);
     const prestMap = {};
@@ -13201,7 +13083,7 @@ async function loadFil() {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
     // 1. Récupérer les prestataires suivis
-    const { data: suivis } = await supa.from('wolo_suivis').select('suivi_prestataire_id').eq('suiveur_user_id', currentUser.id).limit(100);
+    const { data: suivis } = await supa.from('wozali_suivis').select('suivi_prestataire_id').eq('suiveur_user_id', currentUser.id).limit(100);
     if (!suivis || !suivis.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);">
@@ -13214,7 +13096,7 @@ async function loadFil() {
     }
     const prestIds = suivis.map(s => s.suivi_prestataire_id).filter(Boolean);
     // 2. Récupérer les posts de ces prestataires
-    const { data: posts } = await supa.from('wolo_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).order('created_at', { ascending: false }).limit(50);
+    const { data: posts } = await supa.from('wozali_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).order('created_at', { ascending: false }).limit(50);
     if (!posts || !posts.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);">
@@ -13226,7 +13108,7 @@ async function loadFil() {
     }
     // 3. Charger les détails des prestataires
     const uniqueIds = [...new Set(posts.map(p => p.prestataire_id).filter(Boolean))];
-    const { data: prests } = await supa.from('wolo_prestataires').select('id, nom_complet, metier_principal, photo_profil').in('id', uniqueIds);
+    const { data: prests } = await supa.from('wozali_prestataires').select('id, nom_complet, metier_principal, photo_profil').in('id', uniqueIds);
     const prestMap = {};
     (prests || []).forEach(p => { prestMap[p.id] = p; });
     // Masquer badge NEW
@@ -13313,7 +13195,7 @@ async function loadFilPageFeed() {
     const supa = window.supabase;
     // 1. Abonnements depuis wolo_suivis
     const { data: suivis } = await supa
-      .from('wolo_suivis')
+      .from('wozali_suivis')
       .select('suivi_prestataire_id')
       .eq('suiveur_user_id', currentUser.id)
       .limit(100);
@@ -13330,7 +13212,7 @@ async function loadFilPageFeed() {
     const prestIds = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
     // 2. Posts depuis wolo_posts_v2
     const { data: posts } = await supa
-      .from('wolo_posts_v2')
+      .from('wozali_posts_v2')
       .select('*')
       .in('prestataire_id', prestIds)
       .eq('actif', true)
@@ -13348,7 +13230,7 @@ async function loadFilPageFeed() {
     // 3. Prestataires en batch
     const uniqueIds = [...new Set(posts.map(p => p.prestataire_id).filter(Boolean))];
     const { data: prests } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('id, nom_complet, metier_principal, photo_profil')
       .in('id', uniqueIds);
     const prestMap = {};
@@ -13397,7 +13279,7 @@ async function loadFilPageAbonnes() {
     const supa = window.supabase;
     // 1. Abonnements depuis wolo_suivis
     const { data: suivis } = await supa
-      .from('wolo_suivis')
+      .from('wozali_suivis')
       .select('id, suivi_prestataire_id, created_at')
       .eq('suiveur_user_id', currentUser.id)
       .order('created_at', { ascending: false })
@@ -13409,7 +13291,7 @@ async function loadFilPageAbonnes() {
     // 2. Prestataires en batch
     const ids = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
     const { data: prests } = await supa
-      .from('wolo_prestataires')
+      .from('wozali_prestataires')
       .select('id, nom_complet, metier_principal, photo_profil, disponible_maintenant')
       .in('id', ids);
     const prestMap = {};
@@ -13448,34 +13330,34 @@ function showFilNav() {
 }
 
 // ══════════════════════════════════════════
-// PHOTOS — LIKES & COMMENTAIRES
+// PHOTOS — LIKES & COMMENTAIRES (Supabase wozali_photos_avis)
 // ══════════════════════════════════════════
 
-// Cache local pour éviter trop de requêtes
 const _photoAvisCache = {};
 
 async function _getPhotoAvisRecord(prestatireId, slot) {
+  const supa = window.supabase;
+  if (!supa) return null;
   const cacheKey = `${prestatireId}_${slot}`;
   try {
-    const filter = encodeURIComponent(`AND({Prestataire ID}='${prestatireId}',{Slot}='${slot}')`);
-    const res = await fetch(`${AT_URL('Photos Avis')}?filterByFormula=${filter}&maxRecords=1`, { headers: AT_HEADERS });
-    const data = await res.json();
-    const rec = data.records?.[0] || null;
-    _photoAvisCache[cacheKey] = rec;
-    return rec;
+    const { data } = await supa.from('wozali_photos_avis')
+      .select('*').eq('prestataire_id', prestatireId).eq('slot', slot).maybeSingle();
+    _photoAvisCache[cacheKey] = data;
+    return data;
   } catch { return null; }
 }
 
 async function _upsertPhotoAvis(prestatireId, slot, photoUrl, updater) {
+  const supa = window.supabase;
+  if (!supa) return;
   const rec = await _getPhotoAvisRecord(prestatireId, slot);
-  const currentFields = rec?.fields || { 'Prestataire ID': prestatireId, 'Slot': slot, 'Photo URL': photoUrl, 'Likes': 0, 'Likeurs': '[]', 'Commentaires': '[]' };
-  const updatedFields = updater(currentFields);
+  const current = rec || { prestataire_id: prestatireId, slot, photo_url: photoUrl, nb_likes: 0, likeurs: [], commentaires: [] };
+  const updated = updater(current);
   if (rec) {
-    await fetch(`${AT_URL('Photos Avis')}/${rec.id}`, { method: 'PATCH', headers: AT_HEADERS, body: JSON.stringify({ fields: updatedFields }) });
+    await supa.from('wozali_photos_avis').update(updated).eq('id', rec.id);
   } else {
-    await fetch(AT_URL('Photos Avis'), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify({ fields: { ...currentFields, ...updatedFields } }) });
+    await supa.from('wozali_photos_avis').insert({ ...current, ...updated });
   }
-  // Invalider cache
   delete _photoAvisCache[`${prestatireId}_${slot}`];
 }
 
@@ -13486,25 +13368,24 @@ async function likePhoto(prestatireId, slot, photoUrl) {
   }
   const userId = currentUser.id;
   const rec = await _getPhotoAvisRecord(prestatireId, slot);
-  const likeurs = (() => { try { return JSON.parse(rec?.fields?.['Likeurs'] || '[]'); } catch { return []; } })();
+  const likeurs = Array.isArray(rec?.likeurs) ? rec.likeurs : [];
   const alreadyLiked = likeurs.some(l => l.userId === userId);
 
   await _upsertPhotoAvis(prestatireId, slot, photoUrl, fields => {
-    const likes = (() => { try { return JSON.parse(fields['Likeurs'] || '[]'); } catch { return []; } })();
+    const likes = Array.isArray(fields.likeurs) ? fields.likeurs : [];
     const newLikes = alreadyLiked
       ? likes.filter(l => l.userId !== userId)
       : [...likes, { userId, nom: currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur', photo: currentPrestataire?.fields?.['WhatsApp'] || '' }];
-    return { 'Likes': newLikes.length, 'Likeurs': JSON.stringify(newLikes) };
+    return { nb_likes: newLikes.length, likeurs: newLikes };
   });
 
   if (!alreadyLiked) pushNotif(prestatireId, { type: 'photo_like', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Quelqu\'un' });
 
-  // Refresh display
   const btn = document.getElementById(`photo-like-btn-${prestatireId}-${slot}`);
   if (btn) {
     const newRec = await _getPhotoAvisRecord(prestatireId, slot);
-    const count = newRec?.fields?.['Likes'] || 0;
-    const newLikeurs = (() => { try { return JSON.parse(newRec?.fields?.['Likeurs'] || '[]'); } catch { return []; } })();
+    const count = newRec?.nb_likes || 0;
+    const newLikeurs = Array.isArray(newRec?.likeurs) ? newRec.likeurs : [];
     const iLike = newLikeurs.some(l => l.userId === userId);
     btn.innerHTML = `${iLike ? '❤️' : '🤍'} ${count > 0 ? count : ''}`;
     btn.style.color = iLike ? '#ef4444' : '';
@@ -13516,13 +13397,12 @@ async function loadPhotoLikeCounts(prestatireId) {
   for (const slot of slots) {
     const rec = await _getPhotoAvisRecord(prestatireId, slot);
     if (!rec) continue;
-    const count = rec.fields['Likes'] || 0;
+    const count = rec.nb_likes || 0;
     if (count === 0) continue;
-    const likeurs = (() => { try { return JSON.parse(rec.fields['Likeurs'] || '[]'); } catch { return []; } })();
+    const likeurs = Array.isArray(rec.likeurs) ? rec.likeurs : [];
     const iLike = currentUser && likeurs.some(l => l.userId === currentUser.id);
     const btn = document.getElementById(`photo-like-btn-${prestatireId}-${slot}`);
     if (btn) { btn.innerHTML = `${iLike ? '❤️' : '🤍'} ${count}`; btn.style.color = iLike ? '#ef4444' : ''; }
-    // Afficher count sur thumbnail
     const countEl = document.getElementById(`photo-like-count-${prestatireId}-${slot}`);
     if (countEl) countEl.textContent = count;
   }
@@ -14197,9 +14077,7 @@ async function showProfil(recordId) {
       }
       if (!record) throw new Error('Profil introuvable');
     } else {
-      const res = await _withTimeout(fetch(`${AT_URL('Prestataires')}/${recordId}`, { headers: AT_HEADERS }), 8000);
-      if (!res.ok) throw new Error('Profil introuvable');
-      record = await res.json();
+      throw new Error('Profil introuvable');
     }
 
     clearTimeout(_failsafe);
@@ -14819,29 +14697,7 @@ async function fetchAvis(prestatairesId) {
   }
   // Si l'ID est un UUID Supabase (format xxxxxxxx-xxxx-…), les avis Airtable
   // utilisent des IDs recXXXXXX → aucun match possible, inutile d'appeler Airtable.
-  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(prestatairesId || '');
-  if (isUUID) return [];
-  try {
-    // FALLBACK Airtable (compat IDs recXXXXXX legacy uniquement)
-    const visibleFilter = encodeURIComponent(`{Avis visible}=1`);
-    const sortParam = `sort%5B0%5D%5Bfield%5D=Date%20de%20l%27avis&sort%5B0%5D%5Bdirection%5D=desc`;
-    let allRecords = [];
-    let offsetParam = '';
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    try {
-      while (true) {
-        const url = `${AT_URL('Avis')}?filterByFormula=${visibleFilter}&${sortParam}${offsetParam}`;
-        const res = await fetch(url, { headers: AT_HEADERS, signal: controller.signal });
-        if (!res.ok) break;
-        const data = await res.json();
-        allRecords = allRecords.concat(data.records || []);
-        if (!data.offset) break;
-        offsetParam = `&offset=${data.offset}`;
-      }
-    } finally { clearTimeout(timeout); }
-    return allRecords.filter(r => (r.fields['Prestataire évalué'] || []).includes(prestatairesId));
-  } catch { return []; }
+  return []; // IDs legacy Airtable non supportés
 }
 
 // Parse le préfixe structuré d'un commentaire Avis
@@ -14988,16 +14844,7 @@ async function submitAvis() {
         'Auteur Photo':       auteurPhoto || '',
       });
     } else {
-      // Fallback Airtable (legacy)
-      const res = await fetch(AT_URL('Avis'), {
-        method: 'POST', headers: AT_HEADERS,
-        body: JSON.stringify({ fields })
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toast('Erreur : ' + (err.error?.message || 'Réessaie'), 'error');
-        return;
-      }
+      toast('Erreur : service avis non disponible', 'error'); return;
     }
     closeModal();
     toast('Merci pour ton avis ! 🎉', 'success');
@@ -15370,17 +15217,6 @@ async function countPrestataires() {
         .from('wozali_prestataires').select('*', { count: 'exact', head: true });
       if (error) throw error;
       total = count || 0;
-    } else {
-      let offset = null;
-      do {
-        let url = AT_URL('Prestataires') + '?pageSize=100&fields[]=Nom+complet';
-        if (offset) url += '&offset=' + encodeURIComponent(offset);
-        const r = await fetch(url, { headers: AT_HEADERS });
-        if (!r.ok) break;
-        const d = await r.json();
-        total += (d.records || []).length;
-        offset = d.offset || null;
-      } while (offset && total < 1100);
     }
   } catch(e) { return 0; }
   localStorage.setItem(cacheKey, total.toString());
@@ -15610,24 +15446,13 @@ async function submitInscription(e) {
     }
 
     if (!createOk) {
-      // Fallback Airtable temporaire (à retirer en push 4)
-      const res = await fetch(AT_URL('Prestataires'), {
-        method: 'POST',
-        headers: AT_HEADERS,
-        body: JSON.stringify({ fields, typecast: true })
-      });
-      if (res.ok) { record = await res.json(); createOk = true; }
-      else {
-        const err = await res.json();
-        console.error('Airtable error:', err);
-        if (loadingEl) loadingEl.style.display = 'none';
-        if (formEl) formEl.classList.remove('form-hidden');
-        if (progressEl) progressEl.classList.remove('form-hidden');
-        toast('Erreur enregistrement : ' + (err.error?.message || JSON.stringify(err)), 'error');
-        btn.textContent = '✦ Créer mon profil';
-        btn.disabled = false;
-        return;
-      }
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (formEl) formEl.classList.remove('form-hidden');
+      if (progressEl) progressEl.classList.remove('form-hidden');
+      toast('Erreur lors de la création du profil. Réessaie.', 'error');
+      btn.textContent = '✦ Créer mon profil';
+      btn.disabled = false;
+      return;
     }
 
     if (createOk) {
@@ -15793,19 +15618,13 @@ async function loadParrainage() {
     }
   } catch(e) { console.warn('[parrainage] supabase fetch:', e); }
 
-  // Sync Supabase → Airtable si besoin (révoque les anciens codes KALASCHE* / WOZALIxxxx)
+  // Sync code parrainage Supabase → profil local
   if (supabaseCode && f['Code Parrainage'] !== supabaseCode) {
     try {
-      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { 'Code Parrainage': supabaseCode } })
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        currentPrestataire = updated;
-        f = currentPrestataire.fields;
-      }
-    } catch(e) { console.warn('[parrainage] sync airtable:', e); }
+      await window.supaPrest.update(currentPrestataire.id, { 'Code Parrainage': supabaseCode });
+      currentPrestataire.fields['Code Parrainage'] = supabaseCode;
+      f = currentPrestataire.fields;
+    } catch(e) { console.warn('[parrainage] sync supaPrest:', e); }
   }
 
   const plan = f['Abonnement'] || 'Base';
@@ -15856,12 +15675,11 @@ async function loadParrainage() {
   const retraitBtn = document.getElementById('retrait-btn');
   if (retraitBtn) retraitBtn.disabled = commDisp < 3000;
 
-  // Charger les filleuls
+  // Charger les filleuls via Supabase
   try {
-    const parrainFormula = encodeURIComponent("{Parrain Code}='" + code + "'");
-    const res = await fetch(AT_URL('Prestataires') + '?filterByFormula=' + parrainFormula + '&maxRecords=500', { headers: AT_HEADERS });
-    const data = await res.json();
-    window._allFilleuls = data.records || [];
+    const supa = window.supabase;
+    const { data: rows } = await supa.from('wozali_prestataires').select('*').eq('parrain_code', code).limit(500);
+    window._allFilleuls = (rows || []).map(r => window.supaPrest._toAirtableRecord(r));
     await _loadFilleulsProgression(window._allFilleuls);
   } catch(err) {
     console.error('loadParrainage filleuls:', err);
@@ -15888,18 +15706,11 @@ async function _loadFilleulsProgression(filleuls) {
     const chunks = [];
     for (let i = 0; i < ids.length; i += CHUNK) chunks.push(ids.slice(i, i + CHUNK));
 
+    const supa = window.supabase;
     await Promise.all(chunks.map(async chunk => {
-      const orParts = chunk.map(id => `{Prestataire ID}='${id}'`).join(',');
-      // On ne récupère que le champ Prestataire ID — booléen uniquement, aucune donnée client
-      const formula = encodeURIComponent(`AND(OR(${orParts}),{Statut}!='Annulé')`);
-      const url = `${AT_URL('Rendez-vous')}?filterByFormula=${formula}&fields[]=Prestataire+ID&maxRecords=500`;
-      const res = await fetch(url, { headers: AT_HEADERS });
-      if (!res.ok) return; // cas limite : erreur réseau sur ce chunk → on ignore silencieusement
-      const data = await res.json();
-      (data.records || []).forEach(rec => {
-        const pid = rec.fields['Prestataire ID'];
-        if (pid) rdvSet.add(pid); // on ne stocke que l'ID, rien d'autre
-      });
+      const { data: rdvRows } = await supa.from('wozali_rdv')
+        .select('prestataire_id').in('prestataire_id', chunk).neq('statut', 'Annulé');
+      (rdvRows || []).forEach(r => { if (r.prestataire_id) rdvSet.add(r.prestataire_id); });
     }));
   } catch(e) {
     // cas limite : si le batch échoue entièrement, on affiche la liste sans barre RDV
@@ -16280,17 +16091,8 @@ async function saveDispoHebdo(btn) {
   try {
     const json = JSON.stringify(currentDispoHebdo);
     let ok = false;
-    if (window.supaPrest) {
-      // Supabase : Durée Créneau non mappé → on sauvegarde uniquement Disponibilités Hebdo
-      await window.supaPrest.update(currentPrestataire.id, { 'Disponibilités Hebdo': json });
-      ok = true;
-    } else {
-      const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { 'Disponibilités Hebdo': json, 'Durée Créneau': currentSlotDuration } })
-      });
-      ok = res.ok;
-    }
+    await window.supaPrest.update(currentPrestataire.id, { 'Disponibilités Hebdo': json });
+    ok = true;
     if (ok) {
       currentPrestataire.fields['Disponibilités Hebdo'] = json;
       currentPrestataire.fields['Durée Créneau'] = currentSlotDuration;
@@ -16707,24 +16509,13 @@ async function submitRDV(containerId, btn) {
 
 async function addCommissionToParrain(parrainCode, amount, filleulNom) {
   try {
-    const formula = encodeURIComponent(`{Code Parrainage}='${parrainCode}'`);
-    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${formula}&maxRecords=1`, { headers: AT_HEADERS });
-    const data = await res.json();
-    if (data.records?.length > 0) {
-      const parrain = data.records[0];
-      const currentComm = parrain.fields['Commission Disponible FCFA'] || 0;
-      const currentTotal = parrain.fields['Commission Totale FCFA'] || 0;
-      await fetch(`${AT_URL('Prestataires')}/${parrain.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: {
-          'Commission Disponible FCFA': currentComm + amount,
-          'Commission Totale FCFA': currentTotal + amount
-        }})
-      });
-      // Notif commission via template WOZALI_NOTIF_TEMPLATES.commission
+    const supa = window.supabase;
+    const { data: rows } = await supa.from('wozali_prestataires').select('id').eq('code_parrainage', parrainCode).limit(1);
+    if (rows?.length > 0) {
+      const parrainId = rows[0].id;
       try {
         if (window.wozaliNotifPush) {
-          await window.wozaliNotifPush(parrain.id, 'commission', {
+          await window.wozaliNotifPush(parrainId, 'commission', {
             montant: (amount || 0).toLocaleString('fr-FR'),
             filleul: filleulNom || 'Un filleul'
           });
@@ -17522,14 +17313,12 @@ async function voterAwards(candidatId) {
     const grid = document.getElementById('hc-real-profiles');
     if(!grid) return;
     try {
-      const url = `/api/airtable-proxy/Prestataires?maxRecords=6&sort%5B0%5D%5Bfield%5D=Score%20WOZALI&sort%5B0%5D%5Bdirection%5D=desc&filterByFormula=${encodeURIComponent("AND({Nom complet}!='',{Métier principal}!='')")}`;
-      const resp = await fetch(url);
-      const data = await resp.json();
-      const records = (data.records || []).slice(0, 6);
+      if (!window.supaPrest) return;
+      const records = await window.supaPrest.list({ orderBy: 'score_wozali', orderDir: 'desc', limit: 6 });
       if(!records.length) return;
       grid.innerHTML = records.map(r => {
         const f = r.fields;
-        const photo = f['Photo Profil'] || '';
+        const photo = f['Photo de profil'] || '';
         const nom = (f['Nom complet'] || '').split(' ')[0];
         const metier = f['Métier principal'] || '';
         return `<div class="hc-real-card" onclick="voirProfil('${r.id}')">
@@ -17562,16 +17351,11 @@ async function chargerCompteurMetiers() {
     'Nettoyage': ['Nettoyage','Agent d\'entretien','Ménage']
   };
   try {
-    // Charger TOUS les prestataires avec leur métier (Airtable)
+    // Charger TOUS les prestataires avec leur métier (Supabase)
     let allMetiers = [];
-    let offset = '';
-    do {
-      const url = `${AT_URL('Prestataires')}?fields%5B%5D=M%C3%A9tier%20principal&pageSize=100${offset ? '&offset='+offset : ''}`;
-      const r = await fetch(url, { headers: AT_HEADERS });
-      const d = await r.json();
-      if (d.records) d.records.forEach(rec => { if (rec.fields['Métier principal']) allMetiers.push(rec.fields['Métier principal']); });
-      offset = d.offset || '';
-    } while (offset);
+    const supa = window.supabase;
+    const { data: rows } = await supa.from('wozali_prestataires').select('metier_principal').limit(2000);
+    (rows || []).forEach(r => { if (r.metier_principal) allMetiers.push(r.metier_principal); });
 
     const totalInscrits = allMetiers.length;
     const counts = {};
@@ -17697,7 +17481,7 @@ async function loadDashPosts() {
   try {
     const supa = window.supabase;
     const { data: rows } = await supa
-      .from('wolo_posts_v2')
+      .from('wozali_posts_v2')
       .select('id, contenu, nb_likes, commentaires')
       .eq('prestataire_id', prestId)
       .eq('actif', true)
@@ -17862,14 +17646,7 @@ async function upgradePlan(plan, amount) {
   }
   let code = currentPrestataire.fields['Code Paiement'] || generatePaymentCode();
   try {
-    if (window.supaPrest) {
-      await window.supaPrest.update(currentPrestataire.id, { 'Code Paiement': code, 'Plan Demande': plan });
-    } else {
-      await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { 'Code Paiement': code, 'Plan Demande': plan } })
-      });
-    }
+    await window.supaPrest.update(currentPrestataire.id, { 'Code Paiement': code, 'Plan Demande': plan });
     currentPrestataire.fields['Code Paiement'] = code;
     currentPrestataire.fields['Plan Demande']  = plan;
   } catch(e) { console.error('Code save failed', e); }
@@ -18449,12 +18226,20 @@ function switchAdminTab(tab) {
 
 async function loadAdminPending() {
   try {
-    const filter = encodeURIComponent(`{Code Paiement}!=''`);
-    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${filter}&maxRecords=200&sort%5B0%5D%5Bfield%5D=Nom%20complet`, { headers: AT_HEADERS });
-    const data = await res.json();
-    renderAdminPending(data.records || []);
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data, error } = await supa
+      .from('wozali_prestataires')
+      .select('*')
+      .not('code_paiement', 'is', null)
+      .neq('code_paiement', '')
+      .order('nom_complet', { ascending: true })
+      .limit(200);
+    if (error) throw error;
+    const records = (data || []).map(r => window.supaPrest._toAirtableRecord(r));
+    renderAdminPending(records);
   } catch(e) {
-    document.getElementById('admin-content').innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur de chargement Airtable</div>';
+    document.getElementById('admin-content').innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur de chargement</div>';
   }
 }
 
@@ -18510,23 +18295,18 @@ async function activateSelected() {
   let success = 0, errors = 0;
   for (const cb of selected) {
     try {
-      const res = await fetch(`${AT_URL('Prestataires')}/${cb.dataset.id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: {
-          'Abonnement':    cb.dataset.plan || 'Pro',
-          'Code Paiement': ''
-        }})
+      await window.supaPrest.update(cb.dataset.id, {
+        'Abonnement':    cb.dataset.plan || 'Pro',
+        'Code Paiement': ''
       });
-      if (res.ok) {
-        success++;
-        // Rétrocommission parrain 40% = 1 000 FCFA sur 2 500 FCFA
-        const parrainCode = cb.dataset.parrain;
-        if (parrainCode) {
-          const filleulNom = cb.dataset.nom || cb.closest('label')?.querySelector('.nom')?.textContent || '';
-          await addCommissionToParrain(parrainCode, Math.floor(2500 * 0.40), filleulNom);
-        }
-      } else { const e = await res.json().catch(()=>{}); console.error('Airtable activate error', e); errors++; }
-    } catch(err) { console.error('Activate fetch error', err); errors++; }
+      success++;
+      // Rétrocommission parrain 40% = 1 000 FCFA sur 2 500 FCFA
+      const parrainCode = cb.dataset.parrain;
+      if (parrainCode) {
+        const filleulNom = cb.dataset.nom || cb.closest('label')?.querySelector('.nom')?.textContent || '';
+        await addCommissionToParrain(parrainCode, Math.floor(2500 * 0.40), filleulNom);
+      }
+    } catch(err) { console.error('Activate error', err); errors++; }
   }
 
   if (btn) { btn.textContent = '🚀 Activer la sélection'; btn.disabled = false; }
@@ -18535,14 +18315,9 @@ async function activateSelected() {
 }
 
 async function loadAdminRetraits() {
-  try {
-    const filter = encodeURIComponent(`{Demande Retrait}=1`);
-    const res = await fetch(`${AT_URL('Prestataires')}?filterByFormula=${filter}&maxRecords=200`, { headers: AT_HEADERS });
-    const data = await res.json();
-    renderAdminRetraits(data.records || []);
-  } catch(e) {
-    document.getElementById('admin-content').innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur de chargement Airtable</div>';
-  }
+  // Les champs de commission (Demande Retrait, Commission Disponible FCFA, etc.) ne sont
+  // pas encore migrés vers Supabase — cette section sera disponible en V1.2
+  document.getElementById('admin-content').innerHTML = '<div style="color:rgba(252,224,168,.5);padding:40px;text-align:center;">⚙️ Gestion des retraits non disponible dans cette version.</div>';
 }
 
 function renderAdminRetraits(records) {
@@ -18595,53 +18370,11 @@ async function payerRetraitsSelected() {
   const btn = document.querySelector('[onclick="payerRetraitsSelected()"]');
   if (btn) { btn.textContent = `⏳ Traitement de ${selected.length} retrait(s)...`; btn.disabled = true; }
 
+  // Champs commission non encore migrés vers Supabase — stub V1.2
+  toast('Gestion des retraits non disponible dans cette version.', 'error');
+  if (btn) { btn.textContent = '💸 Marquer payé'; btn.disabled = false; }
+  return;
   let success = 0, skipped = 0, errors = 0;
-  for (const cb of selected) {
-    const id = cb.dataset.id;
-    const montantDemande = parseFloat(cb.dataset.montant) || 0;
-    try {
-      // Double vérification anti-trop-perçu : on recharge les données fraîches
-      const freshRes = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS });
-      const freshData = await freshRes.json();
-      const commDispFrais = freshData.fields['Commission Disponible FCFA'] || 0;
-
-      if (montantDemande > commDispFrais) {
-        skipped++;
-        console.warn(`Retrait bloqué pour ${id} : demande ${montantDemande} > dispo ${commDispFrais}`);
-        continue;
-      }
-
-      const nouvelleCommDisp = commDispFrais - montantDemande;
-      const commTotaleVersee = (freshData.fields['Commission totale payée FCFA'] || 0) + montantDemande;
-
-      const patchRes = await fetch(`${AT_URL('Prestataires')}/${id}`, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: {
-          'Demande Retrait': false,
-          'Commission Disponible FCFA': nouvelleCommDisp,
-          'Commission totale payée FCFA': commTotaleVersee,
-          'Montant Demandé FCFA': 0,
-          'Téléphone Retrait': '',
-          'Méthode Retrait': ''
-        }})
-      });
-
-      if (patchRes.ok) {
-        success++;
-        // Notification push au parrain
-        try {
-          const notifRes = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS });
-          const notifData = await notifRes.json();
-          const notifs = JSON.parse(notifData.fields['Notifications'] || '[]');
-          notifs.unshift({ id: Date.now(), type: 'retrait', message: `💸 Ton retrait de ${montantDemande.toLocaleString('fr-FR')} FCFA a été envoyé !`, date: new Date().toISOString(), read: false });
-          await fetch(`${AT_URL('Prestataires')}/${id}`, {
-            method: 'PATCH', headers: AT_HEADERS,
-            body: JSON.stringify({ fields: { 'Notifications': JSON.stringify(notifs.slice(0, 50)) }})
-          });
-        } catch(ne) { console.warn('Notif retrait échouée', ne); }
-      } else { errors++; }
-    } catch(err) { console.error('Payer retrait error', err); errors++; }
-  }
 
   if (btn) { btn.textContent = '💸 Marquer payé'; btn.disabled = false; }
   const msg = `✅ ${success} payé${success > 1 ? 's' : ''}${skipped ? ` · ${skipped} bloqué(s) — montant supérieur` : ''}${errors ? ` · ${errors} erreur(s)` : ''}`;
@@ -18655,12 +18388,7 @@ async function onPaymentSuccess(plan, transId) {
   if (!cfg || !currentPrestataire) return;
 
   try {
-    const res = await fetch(`${AT_URL('Prestataires')}/${currentPrestataire.id}`, {
-      method: 'PATCH',
-      headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Abonnement': plan } })
-    });
-    if (!res.ok) throw new Error('Airtable update failed');
+    await window.supaPrest.update(currentPrestataire.id, { 'Abonnement': plan });
 
     // Mettre à jour le cache local
     currentPrestataire.fields['Abonnement'] = plan;
@@ -18839,22 +18567,7 @@ async function loadOffresEmploi(filtres = {}) {
       if (filtered.length > 0) return filtered;
     } catch (e) { console.warn('[loadOffresEmploi supa fail, fallback Airtable]', e?.message || e); }
   }
-  try {
-    const url = AT_URL("Offres d'Emploi");
-    let formula = "AND({Active}=1";
-    if (filtres.metier) formula += `,{Métier}="${filtres.metier}"`;
-    if (filtres.quartier) formula += `,{Quartier}="${filtres.quartier}"`;
-    if (filtres.contrat) formula += `,{Type de contrat}="${filtres.contrat}"`;
-    formula += ")";
-    const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
-    params.append('sort[0][field]', 'Urgente');
-    params.append('sort[0][direction]', 'desc');
-    params.append('sort[1][field]', 'Créée le');
-    params.append('sort[1][direction]', 'desc');
-    const r = await fetch(url + '?' + params, { headers: AT_HEADERS });
-    const data = await r.json();
-    return data.records || [];
-  } catch (e) { return []; }
+  return []; // supaOffres est le seul backend — pas de fallback Airtable
 }
 
 // ── Rendu d'une carte offre ──
@@ -19480,17 +19193,7 @@ async function submitCandidature() {
       }
     } catch (e) { /* fallback Airtable */ }
   }
-  // Skip Airtable check if l'offre est un UUID Supabase — pas dans Airtable
-  const _isOffreAirtable = typeof _currentOffreId === 'string' && _currentOffreId.startsWith('rec');
-  if (!alreadyApplied && _isOffreAirtable) {
-    try {
-      const checkUrl = AT_URL('Candidatures');
-      const checkParams = new URLSearchParams({ filterByFormula: `AND({Offre ID}="${_currentOffreId}",{Candidat ID}="${currentPrestataire.id}")`, maxRecords: 1 });
-      const checkR = await fetch(checkUrl + '?' + checkParams, { headers: AT_HEADERS });
-      const checkData = await checkR.json();
-      if (checkData.records?.length > 0) alreadyApplied = true;
-    } catch (e) { /* tolérant */ }
-  }
+  const _isOffreAirtable = false; // plus d'Airtable — toutes les offres sont Supabase
   if (alreadyApplied) {
     errEl.textContent = 'Tu as déjà postulé à cette offre.';
     errEl.style.display = 'block';
@@ -19516,10 +19219,11 @@ async function submitCandidature() {
       } catch (e) { /* fallback */ }
     }
     let offreData = { fields: { 'Titre': offreTitre, 'Recruteur Nom': offreRecruteurNom, 'Nb candidatures': offreNbCandidatures } };
-    if (!offreTitre) {
-      const offreR = await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, { headers: AT_HEADERS });
-      offreData = await offreR.json();
-      offreTitre = offreData.fields?.['Titre'] || '';
+    if (!offreTitre && window.supaOffres) {
+      try {
+        const o2 = await window.supaOffres.findById(_currentOffreId);
+        if (o2) { offreData = o2; offreTitre = o2.fields['Titre'] || ''; }
+      } catch(e) { /* best-effort */ }
     }
 
     const score = calculScoreWozali(currentPrestataire);
@@ -19550,24 +19254,14 @@ async function submitCandidature() {
         if (created?.id) data = { id: created.id };
       } catch (e) { console.warn('[submitCandidature supa fail, fallback Airtable]', e?.message || e); }
     }
-    // 2. Fallback Airtable
-    if (!data) {
-      const r = await fetch(AT_URL('Candidatures'), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify({ fields: candidatureFields }) });
-      data = await r.json();
-    }
+    // Pas de fallback Airtable — si supaCandidatures échoue, remonter l'erreur
+    if (!data) throw new Error('Impossible de soumettre la candidature. Réessaie dans quelques secondes.');
     if (data.id) {
       // Incrémenter Nb candidatures :
       // — si l'offre est un UUID Supabase (pas un recXXX Airtable), tenter Supabase
       // — sinon PATCH Airtable
       try {
-        if (_isOffreAirtable) {
-          await fetch(AT_URL("Offres d'Emploi") + '/' + _currentOffreId, {
-            method: 'PATCH', headers: AT_HEADERS,
-            body: JSON.stringify({ fields: { 'Nb candidatures': (offreData.fields?.['Nb candidatures'] || 0) + 1 } })
-          });
-        } else if (window.supaOffres?.incrementCandidatures) {
-          await window.supaOffres.incrementCandidatures(_currentOffreId);
-        } else if (window.supaOffres?.update) {
+        if (window.supaOffres?.update) {
           await window.supaOffres.update(_currentOffreId, { 'Nb candidatures': (offreData.fields?.['Nb candidatures'] || 0) + 1 });
         }
       } catch (e) { console.warn('[submitCandidature increment Nb candidatures]', e?.message || e); }
@@ -19627,10 +19321,9 @@ async function toggleModeEmploi() {
   const actif = !currentPrestataire.fields['Mode Emploi'];
   _updateEmploiModeUI(actif);
   try {
-    await fetch(AT_URL('Prestataires') + '/' + currentPrestataire.id, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Mode Emploi': actif } })
-    });
+    if (window.supaPrest) {
+      await window.supaPrest.update(currentPrestataire.id, { 'Mode Emploi': actif });
+    }
     toast(actif ? '✅ Mode emploi activé !' : 'Mode emploi désactivé', 'info');
   } catch(e) {
     _updateEmploiModeUI(!actif);
@@ -19666,18 +19359,8 @@ async function loadMesCandidatures() {
       }
       // Pas de fallback Airtable si Supabase a répondu (même tableau vide) — évite double-affichage
     } else {
-      // Fallback Airtable (helper non chargé) : matcher Candidat ID OU Candidat User ID
-      const recId = currentPrestataire.id || '';
-      const userId = window.currentUser?.id || '';
-      const idsToTry = [recId, userId].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
-      const orParts = idsToTry.map(id => `OR({Candidat ID}="${id}",{Candidat User ID}="${id}")`);
-      const formula = orParts.length > 1 ? `OR(${orParts.join(',')})` : (orParts[0] || `{Candidat ID}="${recId}"`);
-      const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 100 });
-      params.append('sort[0][field]', 'Date candidature');
-      params.append('sort[0][direction]', 'desc');
-      const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
-      const data = await r.json();
-      cands = data.records || [];
+      // supaCandidatures non chargé — ne rien afficher
+      cands = [];
     }
 
     if (cands.length === 0) {
@@ -19959,12 +19642,8 @@ async function publierOffre() {
         if (created?.id) createdId = created.id;
       } catch (e) { console.warn('[publierOffre supa fail, fallback Airtable]', e?.message || e); }
     }
-    // 2. Fallback Airtable
     let data = createdId ? { id: createdId } : null;
-    if (!createdId) {
-      const r = await fetch(AT_URL("Offres d'Emploi"), { method: 'POST', headers: AT_HEADERS, body: JSON.stringify(body) });
-      data = await r.json();
-    }
+    if (!createdId) throw new Error('Impossible de publier l\'offre. Réessaie dans quelques secondes.');
     if (data?.id) {
       toast('✅ Offre publiée avec succès !', 'success');
       const _ville = get('job-quartier') || 'ta zone';
@@ -20007,15 +19686,6 @@ async function loadMesOffres() {
         if (userId) records = await window.supaOffres.list({ recruteur_user_id: userId, limit: 100 });
         if (!records.length) records = await window.supaOffres.list({ recruteur_prestataire_id: currentPrestataire.id, limit: 100 });
       } catch (e) { console.warn('[loadMesOffres supa fail, fallback Airtable]', e?.message || e); }
-    }
-    // 2. Fallback Airtable
-    if (!records.length) {
-      const params = new URLSearchParams({ filterByFormula: `{Recruteur ID}="${currentPrestataire.id}"`, maxRecords: 50 });
-      params.append('sort[0][field]', 'Créée le');
-      params.append('sort[0][direction]', 'desc');
-      const r = await fetch(AT_URL("Offres d'Emploi") + '?' + params, { headers: AT_HEADERS });
-      const data = await r.json();
-      records = data.records || [];
     }
     allMesOffres = records;
 
@@ -20143,12 +19813,8 @@ async function topCandidatsForOffre(offreId) {
 
   try {
     // Récupère les Prestataires actifs avec métier exact (limit 20)
-    const formula = `AND({Métier principal}="${metier}")`;
-    const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 20 });
-    params.append('sort[0][field]', 'Note moyenne'); params.append('sort[0][direction]', 'desc');
-    const r = await fetch(AT_URL('Prestataires') + '?' + params, { headers: AT_HEADERS });
-    const data = await r.json();
-    const prestataires = (data.records || []).filter(p => p.id !== currentPrestataire?.id);
+    const allRecs = await window.supaPrest.list({ metier: metier, limit: 20, orderBy: 'note_moyenne', orderDir: 'desc' });
+    const prestataires = allRecs.filter(p => p.id !== currentPrestataire?.id);
     if (prestataires.length === 0) {
       body.innerHTML = `<div style="text-align:center;padding:30px;color:rgba(252, 224, 168,.5);">Aucun prestataire trouvé pour "${metier}". Élargis ton offre.</div>`;
       return;
@@ -20279,21 +19945,22 @@ async function sauvegarderEditionOffre(offreId) {
   if (sMin > 0) fields['Salaire min FCFA'] = sMin;
   if (sMax > 0) fields['Salaire max FCFA'] = sMax;
   try {
-    const r = await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { method: 'PATCH', headers: AT_HEADERS, body: JSON.stringify({ fields }) });
-    const data = await r.json();
-    if (data.id) {
+    const updated = await window.supaOffres.update(offreId, fields);
+    if (updated?.id) {
       toast('Offre mise à jour ✓', 'success');
       const modal = document.getElementById('modal-edition-offre');
       if (modal) modal.remove();
       await loadMesOffres();
-    } else { throw new Error(data.error?.message||'Erreur'); }
+    } else { throw new Error('Erreur de mise à jour'); }
   } catch(e) { toast('Erreur : ' + e.message, 'error'); }
 }
 
 async function toggleOffreActive(offreId, actif) {
-  await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { method: 'PATCH', headers: AT_HEADERS, body: JSON.stringify({ fields: { 'Active': actif } }) });
-  toast(actif ? 'Offre réactivée' : 'Offre désactivée', 'info');
-  loadMesOffres();
+  try {
+    await window.supaOffres.update(offreId, { 'Active': actif });
+    toast(actif ? 'Offre réactivée' : 'Offre désactivée', 'info');
+    loadMesOffres();
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
 }
 
 function partagerOffre(titre, offreId) {
@@ -20310,14 +19977,9 @@ function partagerOffre(titre, offreId) {
 async function supprimerOffre(offreId, titrte) {
   if (!confirm(`Supprimer l'offre "${titrte}" ? Cette action est irréversible.`)) return;
   try {
-    const r = await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { method: 'DELETE', headers: AT_HEADERS });
-    const data = await r.json();
-    if (data.deleted) {
-      toast('✅ Offre supprimée', 'success');
-      loadMesOffres();
-    } else {
-      throw new Error(data.error?.message || 'Erreur');
-    }
+    await window.supaOffres.deleteById(offreId);
+    toast('✅ Offre supprimée', 'success');
+    loadMesOffres();
   } catch(e) {
     toast('Erreur lors de la suppression : ' + e.message, 'error');
   }
@@ -20412,19 +20074,9 @@ async function loadCandidaturesRecues() {
         }
       }
       allRecrutCandidatures = recs;
-      // Pas de fallback Airtable si Supabase a répondu (même []) — évite double-affichage
+      // Pas de fallback Airtable — supaCandidatures est le seul backend
     } else {
-      const recId = currentPrestataire.id || '';
-      const userId = window.currentUser?.id || '';
-      const idsToTry = [recId, userId].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
-      const orParts = idsToTry.map(id => `OR({Recruteur ID}="${id}",{Recruteur User ID}="${id}")`);
-      const formula = orParts.length > 1 ? `OR(${orParts.join(',')})` : (orParts[0] || `{Recruteur ID}="${recId}"`);
-      const params = new URLSearchParams({ filterByFormula: formula, maxRecords: 200 });
-      params.append('sort[0][field]', 'Date candidature');
-      params.append('sort[0][direction]', 'desc');
-      const r = await fetch(AT_URL('Candidatures') + '?' + params, { headers: AT_HEADERS });
-      const data = await r.json();
-      allRecrutCandidatures = data.records || [];
+      allRecrutCandidatures = [];
     }
 
     // KPI cards
@@ -20956,10 +20608,7 @@ function setRecrutCandView(view) {
 
 async function updateStatutCandidature(candidatureId, statut) {
   try {
-    await fetch(AT_URL('Candidatures') + '/' + candidatureId, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Statut': statut } })
-    });
+    await window.supaCandidatures.updateStatut(candidatureId, statut);
     toast(`Statut mis à jour : ${statut}`, 'success');
     notifyCandidatStatut(candidatureId, statut); // fire-and-forget
     loadCandidaturesRecues();
@@ -20978,10 +20627,9 @@ async function _getOffreById(offreId) {
   const cached = (window.allMesOffres || []).find(o => o.id === offreId);
   if (cached) return cached;
   try {
-    const r = await fetch(AT_URL("Offres d'Emploi") + '/' + offreId, { headers: AT_HEADERS });
-    if (!r.ok) return null;
-    return await r.json();
+    if (window.supaOffres) return await window.supaOffres.findById(offreId);
   } catch (e) { return null; }
+  return null;
 }
 
 async function scoreCandidatRecru(candidatureId) {
@@ -21100,11 +20748,7 @@ window.notifyCandidatEntretien = async function(candidature, body) {
     if (window.supaPrest) {
       prestataire = await window.supaPrest.findById(candidatId);
     }
-    if (!prestataire) {
-      const resPrest = await fetch(AT_URL('Prestataires') + '/' + candidatId, { headers: AT_HEADERS });
-      if (!resPrest.ok) return;
-      prestataire = await resPrest.json();
-    }
+    if (!prestataire) return; // supaPrest non chargé — pas de notif
     const labels = { presentiel: 'présentiel', visio: 'visio', telephone: 'téléphone' };
     const date = new Date(body.date_heure).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
     const nouvelleNotif = {
@@ -21122,11 +20766,6 @@ window.notifyCandidatEntretien = async function(candidature, body) {
     notifs = notifs.slice(0, 50);
     if (window.supaPrest) {
       await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
-    } else {
-      await fetch(AT_URL('Prestataires') + '/' + candidatId, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { Notifications: JSON.stringify(notifs) } })
-      });
     }
   } catch (err) {
     console.warn('[notifyCandidatEntretien]', err);
@@ -21145,11 +20784,7 @@ async function notifyCandidatStatut(candidatureId, nouveauStatut) {
         console.warn('[notifyCandidatStatut supa fail]', e?.message || e);
       }
     }
-    if (!candidature) {
-      const resCand = await fetch(AT_URL('Candidatures') + '/' + candidatureId, { headers: AT_HEADERS });
-      if (!resCand.ok) { console.warn('[notifyCandidatStatut] Candidature introuvable:', candidatureId); return; }
-      candidature = await resCand.json();
-    }
+    if (!candidature) { console.warn('[notifyCandidatStatut] Candidature introuvable:', candidatureId); return; }
     const fields = candidature.fields || {};
     const candidatId = fields['Candidat ID'];
     const offreTitre = fields['Offre Titre'] || 'une offre';
@@ -21161,11 +20796,7 @@ async function notifyCandidatStatut(candidatureId, nouveauStatut) {
     if (window.supaPrest) {
       prestataire = await window.supaPrest.findById(candidatId);
     }
-    if (!prestataire) {
-      const resPrest = await fetch(AT_URL('Prestataires') + '/' + candidatId, { headers: AT_HEADERS });
-      if (!resPrest.ok) { console.warn('[notifyCandidatStatut] Prestataire introuvable:', candidatId); return; }
-      prestataire = await resPrest.json();
-    }
+    if (!prestataire) { console.warn('[notifyCandidatStatut] Prestataire introuvable:', candidatId); return; }
 
     let titre, message;
     switch (nouveauStatut) {
@@ -21198,14 +20829,9 @@ async function notifyCandidatStatut(candidatureId, nouveauStatut) {
     notifs.unshift(nouvelleNotif);
     notifs = notifs.slice(0, 50);
 
-    // Update — Supabase si possible
+    // Update — Supabase
     if (window.supaPrest) {
       await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
-    } else {
-      await fetch(AT_URL('Prestataires') + '/' + candidatId, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { Notifications: JSON.stringify(notifs) } })
-      });
     }
   } catch(err) {
     console.warn('[notifyCandidatStatut] Erreur silencieuse:', err);
@@ -21339,15 +20965,7 @@ Pays : Togo ou Bénin
 async function appliquerKycVerification() {
   if (!currentPrestataire?.id) return;
   try {
-    if (window.supaPrest) {
-      await window.supaPrest.update(currentPrestataire.id, { 'Recruteur vérifié': true });
-    } else {
-      const res = await fetch(AT_URL('Prestataires') + '/' + currentPrestataire.id, {
-        method: 'PATCH', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: { 'Recruteur vérifié': true } }),
-      });
-      if (!res.ok) throw new Error('Erreur PATCH Airtable');
-    }
+    await window.supaPrest.update(currentPrestataire.id, { 'Recruteur vérifié': true });
     if (currentPrestataire.fields) currentPrestataire.fields['Recruteur vérifié'] = true;
     toast('Badge "Entreprise vérifiée" appliqué ✓', 'success');
     document.getElementById('wozali-kyc-modal')?.remove();
@@ -21367,12 +20985,15 @@ async function loadRecrutDashboard() {
   if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(252, 224, 168,.3);font-size:13px;">Chargement...</div>';
   try {
     const rid = currentPrestataire.id;
-    const [offresRes, candsRes] = await Promise.all([
-      fetch(AT_URL("Offres d'Emploi") + `?filterByFormula=${encodeURIComponent(`{Recruteur ID}="${rid}"`)}`, { headers: AT_HEADERS }),
-      fetch(AT_URL('Candidatures') + `?filterByFormula=${encodeURIComponent(`{Recruteur ID}="${rid}"`)}&sort[0][field]=Date candidature&sort[0][direction]=desc`, { headers: AT_HEADERS })
+    const userId = window.currentUser?.id;
+    const [offres, cands] = await Promise.all([
+      window.supaOffres
+        ? window.supaOffres.list({ recruteur_user_id: userId, limit: 100 }).catch(() => window.supaOffres.list({ recruteur_prestataire_id: rid, limit: 100 }))
+        : Promise.resolve([]),
+      window.supaCandidatures
+        ? window.supaCandidatures.list({ recruteur_user_id: userId, limit: 200 })
+        : Promise.resolve([])
     ]);
-    const offres = (await offresRes.json()).records || [];
-    const cands = (await candsRes.json()).records || [];
     const offresActives = offres.filter(o => o.fields['Active']).length;
     const vuesTotales = offres.reduce((s, o) => s + (Number(o.fields['Vues'])||0), 0);
     const retenues = cands.filter(c => c.fields['Statut'] === 'Retenue').length;
@@ -23265,16 +22886,32 @@ function initFaqPro(){
   });
 }
 
-// --- Mur des gagnants : fetch Airtable Bourse_Gagnants ---
+// --- Mur des gagnants : fetch wozali_awards Supabase ---
 async function chargerGagnants(){
   var container = document.getElementById('wozali-gagnants-liste');
   if(!container) return;
   try{
-    var url = AT_URL('Bourse_Gagnants') + '?filterByFormula=' + encodeURIComponent('{Actif}=1');
-    var res = await fetch(url, { headers: AT_HEADERS });
-    if(!res.ok) return;
-    var data = await res.json();
-    var records = (data && data.records) || [];
+    var supa = window.supabase;
+    if(!supa) return;
+    var { data: rows, error } = await supa
+      .from('wozali_awards')
+      .select('*')
+      .eq('gagnant', true)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if(error || !rows) return;
+    // Normaliser au format attendu par le renderer
+    var records = rows.map(function(r){
+      return { fields: {
+        'Nom complet': r.user_nom || r.nom || '',
+        'Métier': r.metier || '',
+        'Quartier': r.quartier || '',
+        'Score': r.score_wozali || '',
+        'Nb avis': r.nb_avis || '',
+        'Montant': r.montant_fcfa || 0,
+        'Mois': r.mois || ''
+      }};
+    });
     if(!records.length) return; // garder placeholder
     container.innerHTML = '';
     records.forEach(function(r){
@@ -23311,17 +22948,13 @@ async function chargerGagnants(){
 // --- Compteurs FOMO (membres Pro / fondateurs / faq nb pro) ---
 async function chargerFomoCompteurs(){
   try{
-    var url = AT_URL('Prestataires') + '?filterByFormula=' + encodeURIComponent("{Abonnement}='Pro'") + '&fields[]=Abonnement';
-    var nbPro = 0;
-    var offset = '';
-    do {
-      var u = url + (offset?'&offset='+offset:'');
-      var res = await fetch(u, { headers: AT_HEADERS });
-      if(!res.ok) break;
-      var data = await res.json();
-      nbPro += (data.records || []).length;
-      offset = data.offset || '';
-    } while(offset);
+    var supa = window.supabase;
+    if(!supa) return;
+    var { count: nbPro } = await supa
+      .from('wozali_prestataires')
+      .select('*', { count: 'exact', head: true })
+      .eq('abonnement', 'Pro');
+    nbPro = nbPro || 0;
     var setTxt = function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
     setTxt('cnt-membres-pro', nbPro);
     setTxt('faq-nb-pro', nbPro);
@@ -23426,16 +23059,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 // === Sprint 4 — WOZALI Awards + Top 50 + WOZALI Match ========
 // =========================================================
 
-// --- Mini wrapper Airtable (réutilise AT_URL/AT_HEADERS si dispo) ---
+// --- Mini wrapper Awards — proxy Airtable (legacy, table Awards uniquement) ---
 const AWARDS_TABLE='WOZALI_Awards_Candidats';
 async function _awardsFetchAirtable(table, params=''){
   try{
-    if(typeof AT_URL==='function' && typeof AT_HEADERS!=='undefined'){
-      const r=await fetch(AT_URL(table)+(params?('?'+params):''),{headers:AT_HEADERS});
-      if(!r.ok)return [];
-      const d=await r.json();return d.records||[];
-    }
-    // Fallback : utiliser aussi le proxy Airtable
     const r=await fetch(`/api/airtable-proxy/${encodeURIComponent(table)}`+(params?('?'+params):''),{headers:{'Content-Type':'application/json'}});
     if(!r.ok)return [];
     const d=await r.json();return d.records||[];
@@ -27868,13 +27495,24 @@ async function submitRecrutement(e) {
       'Statut': 'En attente'
     };
 
-    var res = await fetch('/api/airtable-proxy/' + encodeURIComponent('Agents Terrain'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fields: fields })
+    var supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    var { error: insertErr } = await supa.from('wozali_candidatures_pionniers').insert({
+      prenom: fields['Prénom'] || '',
+      nom: fields['Nom'] || '',
+      telephone: fields['Téléphone'] || '',
+      email: fields['Email'] || '',
+      age: fields['Âge'] ? parseInt(fields['Âge']) : null,
+      genre: fields['Genre'] || null,
+      ville: fields['Ville'] || null,
+      quartier: fields['Quartier'] || null,
+      disponibilite: fields['Disponibilité'] || null,
+      photos: fields['Photos'] || null,
+      pourquoi: fields['Pourquoi'] || null,
+      source: fields['Source'] || null,
+      statut: 'En attente'
     });
-
-    if (!res.ok) throw new Error('Airtable error');
+    if (insertErr) throw new Error(insertErr.message);
 
     // Masquer TOUT le contenu de la page recrutement sauf le merci
     document.getElementById('recrut-form-wrap').style.display = 'none';
@@ -27918,9 +27556,34 @@ function switchAgentTab(tab) {
 
 async function loadCandidatures() {
   try {
-    var res = await fetch('/api/airtable-proxy/' + encodeURIComponent('Agents Terrain'));
-    var data = await res.json();
-    _candCache = (data.records || []).sort(function(a,b){ return (b.fields['Date Ajout']||'').localeCompare(a.fields['Date Ajout']||''); });
+    var supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    var { data: rows, error } = await supa
+      .from('wozali_candidatures_pionniers')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+    if (error) throw error;
+    // Normaliser au format {id, fields} pour compatibilité avec le renderer existant
+    _candCache = (rows || []).map(function(r) {
+      return { id: r.id, fields: {
+        'Prénom': r.prenom || '',
+        'Nom': r.nom || '',
+        'Téléphone': r.telephone || '',
+        'Email': r.email || '',
+        'Âge': r.age || '',
+        'Genre': r.genre || '',
+        'Ville': r.ville || '',
+        'Quartier': r.quartier || '',
+        'Disponibilité': r.disponibilite || '',
+        'Photos': r.photos || '',
+        'Pourquoi': r.pourquoi || '',
+        'Source': r.source || '',
+        'Date Ajout': r.created_at || '',
+        'Statut': r.statut || 'En attente',
+        'Actif': r.actif || false
+      }};
+    });
     renderCandKPIs();
     filterCandidatures();
   } catch(err) {
@@ -28116,12 +27779,13 @@ window.CAND_WA_TEMPLATES = {
 
 async function updateCandStatus(recordId, status) {
   try {
-    var res = await fetch('/api/airtable-proxy/' + encodeURIComponent('Agents Terrain'), {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ records: [{ id: recordId, fields: { 'Statut': status } }] })
-    });
-    if (!res.ok) throw new Error('Update failed');
+    var supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    var { error: updErr } = await supa
+      .from('wozali_candidatures_pionniers')
+      .update({ statut: status })
+      .eq('id', recordId);
+    if (updErr) throw new Error(updErr.message);
     toast('Statut → ' + status, 'success');
     var rec = _candCache.find(function(r){ return r.id === recordId; });
     if (rec) rec.fields['Statut'] = status;
@@ -28159,11 +27823,13 @@ async function validateAgent(recordId) {
 
   try {
     // 1. Update status to Validé
-    await fetch('/api/airtable-proxy/' + encodeURIComponent('Agents Terrain'), {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ records: [{ id: recordId, fields: { 'Statut': 'Validé', 'Actif': true } }] })
-    });
+    var supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    var { error: valErr } = await supa
+      .from('wozali_candidatures_pionniers')
+      .update({ statut: 'Validé', actif: true })
+      .eq('id', recordId);
+    if (valErr) throw new Error(valErr.message);
 
     rec.fields['Statut'] = 'Validé';
     rec.fields['Actif'] = true;
@@ -28284,14 +27950,13 @@ window.wozaliNotif = function(key, vars){
 window.wozaliNotifPush = async function(prestataireId, key, vars){
   try {
     if (!prestataireId || !key) return false;
-    if (typeof AT_URL !== 'function' || typeof AT_HEADERS === 'undefined') return false;
+    if (!window.supaPrest) return false;
     var tpl = window.wozaliNotif(key, vars || {});
     if (!tpl || !tpl.titre) return false;
-    var res = await fetch(AT_URL('Prestataires') + '/' + prestataireId, { headers: AT_HEADERS });
-    if (!res.ok) return false;
-    var data = await res.json();
+    var prest = await window.supaPrest.findById(prestataireId);
+    if (!prest) return false;
     var notifs = [];
-    try { notifs = JSON.parse(data.fields['Notifications'] || '[]'); } catch(e) { notifs = []; }
+    try { notifs = JSON.parse(prest.fields['Notifications'] || '[]'); } catch(e) { notifs = []; }
     notifs.unshift({
       id: Date.now().toString(),
       type: key,
@@ -28302,10 +27967,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
       read: false,
       lu: false
     });
-    await fetch(AT_URL('Prestataires') + '/' + prestataireId, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Notifications': JSON.stringify(notifs.slice(0, 50)) } })
-    });
+    await window.supaPrest.update(prestataireId, { 'Notifications': JSON.stringify(notifs.slice(0, 50)) });
     return true;
   } catch(err) { console.warn('wozaliNotifPush:', err); return false; }
 };
