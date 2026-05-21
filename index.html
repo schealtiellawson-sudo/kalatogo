@@ -6006,10 +6006,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('widgets-metier')" id="dl-widgets-metier">
             <i data-lucide="layers"></i> <span>Mes services métier</span>
           </button>
-          <!-- Mes posts masqué 2026-05-07 — report V1.1 (redondant avec Bourse des Mains d'Or + feed home) -->
-          <!--<button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
+          <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
             <i data-lucide="file-text"></i> <span>Mes posts</span>
-          </button>-->
+          </button>
         </div>
       </div>
 
@@ -6105,6 +6104,12 @@ div[style*="position:sticky"][style*="background:#fff"] {
         <div class="dash-group-body">
           <button class="dash-link" onclick="showDashSection('avis')" id="dl-avis">
             <i data-lucide="star"></i> <span>Mes avis</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('favoris')" id="dl-favoris">
+            <i data-lucide="heart"></i> <span>Mes favoris</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('abonnements')" id="dl-abonnements">
+            <i data-lucide="users"></i> <span>Mes abonnements</span>
           </button>
           <button class="dash-link" onclick="showDashSection('wozali-match')" id="dl-wozali-match">
             <i data-lucide="handshake"></i> <span>WOZALI Match</span>
@@ -6923,6 +6928,9 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <h2>📝 Mes Publications · Ce que tu partages sur WOZALI</h2>
             <p style="color:var(--gris);font-size:14px;margin-top:4px;">Les prestataires qui publient régulièrement apparaissent plus haut dans les résultats.</p>
           </div>
+          <button onclick="viewMyProfile()" class="btn btn-primary btn-sm" style="white-space:nowrap;">
+            ✏️ Publier un post
+          </button>
         </div>
 
         <!-- Stats -->
@@ -8079,6 +8087,7 @@ function _sb() { return window.supabase || null; }
 let currentUser = null;
 window.currentUser = null;
 let currentPrestataire = null; // record Airtable du user connecté
+let _profileLoadingPromise = null; // guard anti-double-load
 
 // ── MIGRATION kala_ → wozali_ localStorage ──
 (function migrateKalaToWozali() {
@@ -8123,9 +8132,14 @@ async function initAuth() {
       return;
     }
     if (event === 'SIGNED_IN' && session?.user) {
+      // Si l'utilisateur est déjà chargé avec un vrai profil (ex: submitLogin vient de finir),
+      // ne pas relancer le chargement — ça créerait une race condition.
+      const alreadyLoaded = currentUser?.id === session.user.id && currentPrestataire?.id;
       currentUser = session.user;
       window.currentUser = currentUser;
-      await loadCurrentPrestataire();
+      if (!alreadyLoaded) {
+        await loadCurrentPrestataire();
+      }
       updateNavAuth(true);
       // Détecter si c'est une confirmation d'email (lien cliqué depuis la boîte mail)
       const hash = window.location.hash;
@@ -8203,6 +8217,17 @@ function _writePrestCache(email, record) {
 }
 
 async function loadCurrentPrestataire(retries) {
+  // ── Guard anti-race-condition ───────────────────────────────────────────────
+  // Si un chargement est déjà en cours (ex: submitLogin + onAuthStateChange en parallèle),
+  // attendre le résultat du premier au lieu de lancer un second appel concurrent.
+  if (retries === 0 || retries === undefined) {
+    if (_profileLoadingPromise) return _profileLoadingPromise;
+    _profileLoadingPromise = _doLoadCurrentPrestataire(0);
+    try { return await _profileLoadingPromise; } finally { _profileLoadingPromise = null; }
+  }
+  return _doLoadCurrentPrestataire(retries);
+}
+async function _doLoadCurrentPrestataire(retries) {
   if (!currentUser?.email) return;
   const email = currentUser.email;
   const uid = currentUser.id || null;
@@ -8312,7 +8337,7 @@ async function loadCurrentPrestataire(retries) {
       console.error('[wozali] loadCurrentPrestataire :', e);
       if (retries < 2) {
         await new Promise(r => setTimeout(r, 1200 * (retries + 1)));
-        return loadCurrentPrestataire(retries + 1);
+        return _doLoadCurrentPrestataire(retries + 1);
       }
       // Ultime fallback cache après épuisement des retries
       const cached = _readPrestCache(email);
@@ -12175,7 +12200,7 @@ async function submitPost(recordId) {
 
   // Validation
   if (!texte && !file) { toast('Écris quelque chose ou ajoute une photo / vidéo', 'error'); return; }
-  if (texte && texte.length < 10) { toast('Le texte doit faire au minimum 10 caractères', 'error'); return; }
+  if (texte && texte.length < 3) { toast('Le texte doit faire au minimum 3 caractères', 'error'); return; }
   if (texte && texte.length > 2000) { toast('Le post est trop long (max 2000 caractères)', 'error'); return; }
   if (file && !isVideo && file.size > 5 * 1024 * 1024) { toast('L\'image est trop lourde (max 5 MB)', 'error'); return; }
   if (isVideo && file.size > 500 * 1024 * 1024) { toast('La vidéo est trop lourde (max 500 MB)', 'error'); return; }
@@ -12223,7 +12248,7 @@ async function submitPost(recordId) {
       prestataire_id: recordId,
       auteur_user_id: currentUser?.id || null,
       auteur_nom:     currentPrestataire?.fields?.['Nom complet'] || '',
-      auteur_photo:   currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || currentPrestataire?.fields?.['WhatsApp'] || '',
+      auteur_photo:   currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || currentPrestataire?.fields?.['Photo de profil'] || '',
       contenu:        texte || '',
       image_url:      mediaUrl || '',
       media_type:     mediaType || 'text',
@@ -12236,7 +12261,12 @@ async function submitPost(recordId) {
       await _addToPublicationsAlbum(mediaUrl, mediaType === 'video' ? 'video' : 'photo', postData.id || '');
       currentPrestataire.fields['Albums'] = JSON.stringify(_getAlbums()); // sync local
     }
-  } catch(e) { toast('Erreur publication', 'error'); }
+  } catch(e) {
+    console.error('[submitPost]', e);
+    toast('Erreur publication : ' + (e?.message || 'réessaie'), 'error');
+    if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
+    return;
+  }
 
   if (textarea) textarea.value = '';
   clearPostMedia(recordId);
