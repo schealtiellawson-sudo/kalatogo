@@ -8331,23 +8331,44 @@ async function submitLogin() {
   btn.disabled = true;
   errEl.style.display = 'none';
 
-  const { data, error } = await supa.auth.signInWithPassword({ email, password: pw });
-
-  if (error) {
-    showLoginError(getFrenchAuthError(error.message));
+  // Failsafe : restaure le bouton après 25s quoi qu'il arrive
+  const _loginSafety = setTimeout(() => {
     btn.textContent = 'Se connecter';
     btn.disabled = false;
-    return;
-  }
+    showLoginError('Connexion trop lente. Vérifie ta connexion internet et réessaie.');
+  }, 25000);
 
-  currentUser = data.user;
-  window.currentUser = currentUser;
-  await loadCurrentPrestataire();
-  updateNavAuth(true);
-  toast('Connexion réussie ! Bienvenue 🎉', 'success');
-  showPage('dashboard');
-  btn.textContent = 'Se connecter';
-  btn.disabled = false;
+  try {
+    const { data, error } = await supa.auth.signInWithPassword({ email, password: pw });
+
+    if (error) {
+      clearTimeout(_loginSafety);
+      showLoginError(getFrenchAuthError(error.message));
+      btn.textContent = 'Se connecter';
+      btn.disabled = false;
+      return;
+    }
+
+    currentUser = data.user;
+    window.currentUser = currentUser;
+    // Charge le profil — timeout 10s pour ne pas bloquer si Supabase est lent
+    await Promise.race([
+      loadCurrentPrestataire(),
+      new Promise(r => setTimeout(r, 10000))
+    ]);
+    clearTimeout(_loginSafety);
+    updateNavAuth(true);
+    toast('Connexion réussie ! Bienvenue 🎉', 'success');
+    showPage('dashboard');
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+  } catch (err) {
+    clearTimeout(_loginSafety);
+    console.error('[submitLogin]', err);
+    showLoginError('Une erreur est survenue. Réessaie dans quelques secondes.');
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+  }
 }
 
 function showLoginError(msg) {
