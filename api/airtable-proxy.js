@@ -32,8 +32,8 @@ const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
 const WRITE_WHITELIST = {
   // Profil prestataire : écriture restreinte au propriétaire (lookup Email)
   'Prestataires': { ownership: 'email-prestataire' },
-  // Photos d'avis : POST uniquement
-  'Photos Avis': { ownership: 'create-only' },
+  // Photos d'avis : POST (créer) + PATCH (likes/commentaires)
+  'Photos Avis': { ownership: 'open-authenticated' },
   // Posts du fil : ouvert aux users authentifiés
   'Posts': { ownership: 'open-authenticated' },
   // Favoris : un user authentifié gère ses propres favoris
