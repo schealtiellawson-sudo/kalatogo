@@ -53,7 +53,11 @@ export default async function handler(req, res) {
     if (pays) q = q.eq('pays', pays);
 
     const { data: photos, error } = await q;
-    if (error) throw error;
+    // Si feed_photos n'existe pas encore ou schéma incompatible → liste vide (pas d'erreur 500)
+    if (error) {
+      console.warn('[top-mains-list] feed_photos indisponible:', error.message);
+      return res.status(200).json({ ok: true, mois, categorie, pays: pays || null, pros: [] });
+    }
 
     // 2) Compter par tag_pro_user_id
     const counts = {};
