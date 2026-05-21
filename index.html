@@ -16271,36 +16271,20 @@ async function loadDashRDV() {
   const container = document.getElementById('rdv-list-container');
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   const now = new Date().toISOString().split('T')[0];
-  const _wt = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), ms))]);
-  // Migration progressive Supabase
-  let rdvs = [];
-  if (window.supaRdv) {
-    try {
-      rdvs = await _wt(window.supaRdv.list({ prestataire_id: currentPrestataire.id, limit: 500 }), 8000);
-    } catch (e) { console.warn('[loadDashRDV supa fail, fallback Airtable]', e?.message || e); }
+  try {
+    const formula = encodeURIComponent(`{Prestataire ID}='${currentPrestataire.id}'`);
+    const res = await fetch(`${AT_URL('Rendez-vous')}?filterByFormula=${formula}&sort[0][field]=Date%20RDV&sort[0][direction]=asc&maxRecords=200`, { headers: AT_HEADERS });
+    if (!res.ok) throw new Error('Erreur ' + res.status);
+    const data = await res.json();
+    const rdvs = data.records || [];
+    _allDashRdvs.all = rdvs;
+    _allDashRdvs.upcoming = rdvs.filter(r => (r.fields['Date RDV']||'') >= now && r.fields['Statut'] !== 'Annulé');
+    _allDashRdvs.past    = rdvs.filter(r => (r.fields['Date RDV']||'') < now  || r.fields['Statut'] === 'Annulé');
+    populateRDVMonthFilter(rdvs);
+    filterAndRenderRDVs();
+  } catch(e) {
+    if (container) container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Erreur de chargement</h3><p>${e.message}</p><button onclick="loadDashRDV()" style="margin-top:14px;background:#E8940A;color:#14100A;border:none;padding:10px 24px;border-radius:100px;font-weight:800;cursor:pointer;">Réessayer</button></div>`;
   }
-  if (!rdvs.length) {
-    try {
-      const formula = encodeURIComponent(`{Prestataire ID}='${currentPrestataire.id}'`);
-      const res = await _wt(fetch(`${AT_URL('Rendez-vous')}?filterByFormula=${formula}&sort[0][field]=Date%20RDV&sort[0][direction]=asc&maxRecords=200`, { headers: AT_HEADERS }), 10000);
-      if (res.ok) {
-        const data = await res.json();
-        rdvs = data.records || [];
-      }
-    } catch(e) {
-      if (container) container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>${e.message}</p></div>`;
-      return;
-    }
-  }
-  // Normaliser le champ "Date RDV" pour compat Supabase (date_rdv) et Airtable
-  rdvs.forEach(r => {
-    if (!r.fields['Date RDV'] && r.fields['Date']) r.fields['Date RDV'] = r.fields['Date'];
-  });
-  _allDashRdvs.all = rdvs;
-  _allDashRdvs.upcoming = rdvs.filter(r => (r.fields['Date RDV']||'') >= now && r.fields['Statut'] !== 'Annulé');
-  _allDashRdvs.past = rdvs.filter(r => (r.fields['Date RDV']||'') < now || r.fields['Statut'] === 'Annulé');
-  populateRDVMonthFilter(rdvs);
-  filterAndRenderRDVs();
 }
 
 function populateRDVMonthFilter(rdvs) {
