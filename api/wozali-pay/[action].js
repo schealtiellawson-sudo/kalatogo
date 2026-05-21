@@ -90,6 +90,12 @@ import healthCheck from './_impl/health-check.js';
 import healthMetrics from './_impl/health-metrics.js';
 // Chat interne WOZALI — IA auto-reply + escalade fondateur (2026-05-20)
 import chatWozali from './_impl/chat-wozali.js';
+// RDV Supabase (2026-05-21 — migration hors Airtable)
+import rdvCreate from './_impl/rdv-create.js';
+import rdvList from './_impl/rdv-list.js';
+import rdvUpdate from './_impl/rdv-update.js';
+import rdvDelete from './_impl/rdv-delete.js';
+import rdvSlots from './_impl/rdv-slots.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -119,6 +125,9 @@ const PUBLIC_ACTIONS = new Set([
   // Monitoring : log d'erreur frontend (rate-limit IP) + health check public
   'error-report',
   'health-check',
+  // RDV public (booking client sans compte + slots dispo)
+  'rdv-create',
+  'rdv-slots',
   // health-metrics protégé par CRON_SECRET (vérifié dans le handler)
   'health-metrics',
   // Chat admin : protégé par CRON_SECRET vérifié dans le handler lui-même
@@ -135,6 +144,7 @@ const OPTIONAL_AUTH_ACTIONS = new Set([
   'rdv-mecano-create',
   'commande-patisserie-create',
   'reservation-chambre-create',
+  'rdv-create', // client peut être connecté ou non
 ]);
 
 const handlers = {
@@ -213,6 +223,12 @@ const handlers = {
   'chat-wozali-history':      chatWozali,
   'chat-wozali-admin-list':   chatWozali,
   'chat-wozali-admin-reply':  chatWozali,
+  // RDV Supabase (2026-05-21)
+  'rdv-create': rdvCreate,
+  'rdv-list':   rdvList,
+  'rdv-update': rdvUpdate,
+  'rdv-delete': rdvDelete,
+  'rdv-slots':  rdvSlots,
 };
 
 export default async function handler(req, res) {

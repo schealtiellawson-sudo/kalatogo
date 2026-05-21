@@ -9068,16 +9068,16 @@ async function loadDashOverview() {
     }
   }
 
-  // ── RDV ce mois (Airtable) ──
+  // ── RDV ce mois (Supabase) ──
   try {
     const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,'0')}-01`;
-    const formula = encodeURIComponent(`AND({Prestataire ID}='${prestId}',{Date RDV}>='${monthStart}')`);
-    const rdvRes = await fetch(`${AT_URL('Rendez-vous')}?filterByFormula=${formula}`, { headers: AT_HEADERS });
+    const rdvRes = await wozaliFetch('/api/wozali-pay/rdv-list');
     if (rdvRes.ok) {
       const rdvData  = await rdvRes.json();
-      const rdvRecs  = rdvData.records || [];
-      const pending  = rdvRecs.filter(r => r.fields['Statut'] === 'En attente').length;
-      const confirmed= rdvRecs.filter(r => r.fields['Statut'] === 'Confirmé').length;
+      const allRdvs  = (rdvData.rdvs || []);
+      const rdvRecs  = allRdvs.filter(r => (r.date_rdv || '') >= monthStart);
+      const pending  = rdvRecs.filter(r => r.statut === 'En attente').length;
+      const confirmed= rdvRecs.filter(r => r.statut === 'Confirmé').length;
       document.getElementById('kpi-rdv').textContent       = rdvRecs.length;
       document.getElementById('kpi-rdv-total').textContent = rdvRecs.length;
       document.getElementById('kpi-rdv-sub').textContent   = `${confirmed} confirmés · ${pending} en attente`;
@@ -13945,21 +13945,17 @@ function showRdvPage(recordId) {
 }
 
 async function createRdvRecord(nom, tel, msg) {
-  const prestNom = rdvCalState.prestataire.fields['Nom complet'] || rdvCalState.prestataire.fields['Nom'] || '';
-  const fields = {
-    'Prestataire ID': rdvCalState.prestataire.id,
-    'Prestataire Nom': prestNom,
-    'Date RDV': rdvCalState.selectedDate,
-    'Heure': rdvCalState.selectedSlot,
-    'Nom client': nom,
-    'Email client': tel,
-    'Statut': 'En attente',
-    'Message': msg,
-  };
-  const res = await fetch(AT_URL('Rendez-vous'), {
+  const res = await fetch('/api/wozali-pay/rdv-create', {
     method: 'POST',
-    headers: AT_HEADERS,
-    body: JSON.stringify({ fields, typecast: true })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prestataire_id: rdvCalState.prestataire.id,
+      date_rdv:       rdvCalState.selectedDate,
+      heure_rdv:      rdvCalState.selectedSlot || null,
+      nom_client:     nom,
+      tel_client:     tel || null,
+      message:        msg || null,
+    })
   });
   if (!res.ok) throw new Error('Erreur création RDV');
   return await res.json();
@@ -16272,11 +16268,21 @@ async function loadDashRDV() {
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   const now = new Date().toISOString().split('T')[0];
   try {
-    const formula = encodeURIComponent(`{Prestataire ID}='${currentPrestataire.id}'`);
-    const res = await fetch(`${AT_URL('Rendez-vous')}?filterByFormula=${formula}&sort[0][field]=Date%20RDV&sort[0][direction]=asc&maxRecords=200`, { headers: AT_HEADERS });
+    const res = await wozaliFetch('/api/wozali-pay/rdv-list');
     if (!res.ok) throw new Error('Erreur ' + res.status);
     const data = await res.json();
-    const rdvs = data.records || [];
+    // Normaliser Supabase → format Airtable-compat pour réutiliser renderRDVList
+    const rdvs = (data.rdvs || []).map(r => ({
+      id: r.id,
+      fields: {
+        'Date RDV':     r.date_rdv || '',
+        'Heure':        r.heure_rdv || '',
+        'Nom client':   r.client_nom || '',
+        'Email client': r.client_telephone || '',
+        'Message':      r.message || '',
+        'Statut':       r.statut || 'En attente',
+      }
+    }));
     _allDashRdvs.all = rdvs;
     _allDashRdvs.upcoming = rdvs.filter(r => (r.fields['Date RDV']||'') >= now && r.fields['Statut'] !== 'Annulé');
     _allDashRdvs.past    = rdvs.filter(r => (r.fields['Date RDV']||'') < now  || r.fields['Statut'] === 'Annulé');
@@ -16391,15 +16397,16 @@ function renderRDVList(list) {
 
 async function updateRDVStatut(rdvId, statut) {
   try {
-    const res = await fetch(`${AT_URL('Rendez-vous')}/${rdvId}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Statut': statut }, typecast: true })
+    const res = await wozaliFetch('/api/wozali-pay/rdv-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rdv_id: rdvId, statut })
     });
     if (res.ok) {
-      // Update local cache
-      _allDashRdvs.all.forEach(r => { if (r.id === rdvId) r.fields['Statut'] = statut; });
-      _allDashRdvs.upcoming.forEach(r => { if (r.id === rdvId) r.fields['Statut'] = statut; });
-      _allDashRdvs.past.forEach(r => { if (r.id === rdvId) r.fields['Statut'] = statut; });
+      // Mise à jour du cache local
+      [_allDashRdvs.all, _allDashRdvs.upcoming, _allDashRdvs.past].forEach(arr =>
+        arr.forEach(r => { if (r.id === rdvId) r.fields['Statut'] = statut; })
+      );
       toast(statut === 'Confirmé' ? '✅ RDV confirmé !' : '❌ RDV annulé', statut === 'Confirmé' ? 'success' : 'error');
       filterAndRenderRDVs();
     }
@@ -16411,11 +16418,15 @@ async function deleteRDV(rdvId) {
   const card = document.getElementById(`rdv-card-${rdvId}`);
   if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
   try {
-    const res = await fetch(`${AT_URL('Rendez-vous')}/${rdvId}`, { method: 'DELETE', headers: AT_HEADERS });
+    const res = await wozaliFetch('/api/wozali-pay/rdv-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rdv_id: rdvId })
+    });
     if (res.ok) {
-      _allDashRdvs.all = _allDashRdvs.all.filter(r => r.id !== rdvId);
+      _allDashRdvs.all      = _allDashRdvs.all.filter(r => r.id !== rdvId);
       _allDashRdvs.upcoming = _allDashRdvs.upcoming.filter(r => r.id !== rdvId);
-      _allDashRdvs.past = _allDashRdvs.past.filter(r => r.id !== rdvId);
+      _allDashRdvs.past     = _allDashRdvs.past.filter(r => r.id !== rdvId);
       if (card) { card.style.transform = 'scale(0.95)'; setTimeout(() => { card.remove(); filterAndRenderRDVs(); }, 200); }
       toast('🗑️ RDV supprimé', 'info');
     } else throw new Error();
@@ -16500,12 +16511,14 @@ async function selectRDVDate(dateStr) {
   rdvCalState.selectedDate = dateStr;
   rdvCalState.bookedSlots = [];
   renderRDVCalendarView();
-  const formula = encodeURIComponent(`AND({Prestataire ID}='${rdvCalState.prestataire.id}',{Date RDV}='${dateStr}',{Statut}!='Annulé')`);
+  const pid = rdvCalState.prestataire.id;
   try {
-    const res = await fetch(`${AT_URL('Rendez-vous')}?filterByFormula=${formula}`, { headers: AT_HEADERS });
-    const data = await res.json();
-    rdvCalState.bookedSlots = (data.records || []).map(r => r.fields['Heure']);
-    renderRDVCalendarView();
+    const res = await fetch(`/api/wozali-pay/rdv-slots?prestataire_id=${encodeURIComponent(pid)}&date=${encodeURIComponent(dateStr)}`);
+    if (res.ok) {
+      const data = await res.json();
+      rdvCalState.bookedSlots = data.heures || [];
+      renderRDVCalendarView();
+    }
   } catch { /* silently continue */ }
 }
 
@@ -16596,15 +16609,17 @@ async function submitRDV(containerId, btn) {
   }
   btn.disabled = true; btn.textContent = '⏳ Confirmation en cours...';
   try {
-    const res = await fetch(AT_URL('Rendez-vous'), {
-      method: 'POST', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: {
-        'Prestataire ID': rdvCalState.prestataire.id,
-        'Prestataire Nom': rdvCalState.prestataire.fields['Nom complet'] || '',
-        'Date RDV': rdvCalState.selectedDate,
-        'Heure': rdvCalState.selectedSlot,
-        'Nom client': nom, 'Email client': email, 'Message': message || '', 'Statut': 'En attente'
-      }, typecast: true })
+    const res = await fetch('/api/wozali-pay/rdv-create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prestataire_id: rdvCalState.prestataire.id,
+        date_rdv:       rdvCalState.selectedDate,
+        heure_rdv:      rdvCalState.selectedSlot || null,
+        nom_client:     nom,
+        tel_client:     email || null,
+        message:        message || null,
+      })
     });
     if (res.ok) {
       // ✅ Envoyer notification au prestataire
