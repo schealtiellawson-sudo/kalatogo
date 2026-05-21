@@ -14120,7 +14120,15 @@ async function showProfil(recordId) {
   localStorage.setItem('wozali_last_profil_id', recordId);
   showPage('profil');
   const container = document.getElementById('profil-content');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+
+  // Cache en mémoire : évite le spinner et le timeout au 2e+ passage sur le même profil
+  if (!window._profilCache) window._profilCache = {};
+  const _cached = window._profilCache[recordId] || null;
+
+  // Afficher le spinner uniquement si pas de cache (1ère visite)
+  if (!_cached) {
+    container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  }
 
   // Failsafe : si le profil n'a pas chargé en 10s, afficher une erreur claire
   const _failsafe = setTimeout(() => {
@@ -14135,15 +14143,34 @@ async function showProfil(recordId) {
       promise,
       new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout réseau')), ms))
     ]);
-    if (window.supaPrest) {
-      record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
+
+    if (_cached) {
+      // Servir depuis le cache immédiatement (0 latence)
+      record = _cached;
+      // Rafraîchir en arrière-plan sans bloquer ni throw
+      if (window.supaPrest) {
+        window.supaPrest.findById(recordId)
+          .then(fresh => { if (fresh) window._profilCache[recordId] = fresh; })
+          .catch(() => {});
+      }
+    } else if (window.supaPrest) {
+      // Première visite : fetch avec retry automatique (Supabase free tier peut être lent au réveil)
+      try {
+        record = await _withTimeout(window.supaPrest.findById(recordId), 15000);
+      } catch (_e1) {
+        // Retry unique après 2s
+        await new Promise(r => setTimeout(r, 2000));
+        record = await _withTimeout(window.supaPrest.findById(recordId), 15000);
+      }
       if (!record) throw new Error('Profil introuvable');
     } else {
       const res = await _withTimeout(fetch(`${AT_URL('Prestataires')}/${recordId}`, { headers: AT_HEADERS }), 8000);
       if (!res.ok) throw new Error('Profil introuvable');
       record = await res.json();
     }
+
     clearTimeout(_failsafe);
+    window._profilCache[recordId] = record; // Mise en cache pour les prochaines visites
     window._currentProfilRecord = record; // stocké pour showRdvPage / showAlbumsPage
     // Tracker la vue (throttlé à 1h par profil, sauf si c'est le propriétaire)
     if (!currentPrestataire || currentPrestataire.id !== recordId) {
