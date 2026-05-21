@@ -116,10 +116,11 @@
   async function findByEmail(email) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
+    // ilike = case-insensitive (évite les mismatches majuscules/minuscules)
     const { data, error } = await supa
       .from('wozali_prestataires')
       .select('*')
-      .eq('email', email)
+      .ilike('email', email)
       .maybeSingle();
     if (error) throw error;
     return _toAirtableRecord(data);

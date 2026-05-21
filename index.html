@@ -8205,72 +8205,118 @@ function _writePrestCache(email, record) {
 async function loadCurrentPrestataire(retries) {
   if (!currentUser?.email) return;
   const email = currentUser.email;
+  const uid = currentUser.id || null;
   retries = retries || 0;
 
-  // Bascule Supabase : la table wozali_prestataires remplace Airtable Prestataires.
+  // ─── Requête combinée OR (email case-insensitive OU user_id) ───────────────
+  // Une seule requête au lieu de deux pour éliminer les mismatches de casse et
+  // les cas où email n'est pas encore indexé mais user_id est présent.
+  const _fetchFromDB = async () => {
+    const supa = window.supabase || window.supa;
+    if (!supa) return null;
+    let q = supa.from('wozali_prestataires').select('*');
+    if (uid) {
+      // OR : email case-insensitive OU user_id exact
+      q = q.or(`email.ilike.${email},user_id.eq.${uid}`);
+    } else {
+      q = q.ilike('email', email);
+    }
+    const { data: rows, error } = await q.limit(1);
+    if (error) throw error;
+    const row = rows?.[0] || null;
+    return row ? (window.supaPrest?._toAirtableRecord(row) || null) : null;
+  };
+
   if (window.supaPrest) {
     try {
-      // 1) Chercher par email
-      let record = await window.supaPrest.findByEmail(email);
+      // 1) Recherche dans la DB
+      let record = await _fetchFromDB();
 
-      // 2) Fallback : chercher par user_id (cas email mal indexé ou changé)
-      if (!record && currentUser?.id) {
-        record = await window.supaPrest.findByUserId(currentUser.id);
-      }
-
-      if (record) {
+      if (record?.id) {
         currentPrestataire = record;
         window.currentPrestataire = currentPrestataire;
         _writePrestCache(email, currentPrestataire);
-        console.log('[wozali] currentPrestataire chargé via Supabase', record.id, '· Abonnement:', record.fields?.['Abonnement']);
+        console.log('[wozali] profil chargé', record.id, '· Abonnement:', record.fields?.['Abonnement']);
         updateCommissionDisplay();
         return;
       }
 
-      // 3) Aucun profil trouvé → auto-créer un profil minimal
-      //    Un utilisateur authentifié peut toujours accéder à son espace dès la première connexion.
-      if (currentUser?.id && retries === 0) {
+      // 2) Non trouvé → essayer d'auto-créer (get-or-create)
+      if (uid && retries === 0) {
         try {
           const nomAuto = currentUser.user_metadata?.full_name
             || currentUser.user_metadata?.name
             || email.split('@')[0];
           const newRecord = await window.supaPrest.create({
-            'Email': email,
+            'Email': email.toLowerCase(),
             'Nom complet': nomAuto,
-            'User ID': currentUser.id,
+            'User ID': uid,
           });
-          if (newRecord) {
+          if (newRecord?.id) {
             currentPrestataire = newRecord;
             window.currentPrestataire = currentPrestataire;
             _writePrestCache(email, currentPrestataire);
-            console.log('[wozali] profil minimal auto-créé pour', email, newRecord.id);
+            console.log('[wozali] profil minimal créé', newRecord.id);
             updateCommissionDisplay();
             return;
           }
         } catch (eCreate) {
-          console.warn('[wozali] auto-create profil échoué:', eCreate.message);
+          // Contrainte UNIQUE : le profil existe probablement mais la requête a raté →
+          // Retry DB fetch immédiat
+          console.warn('[wozali] create échoué (' + eCreate.message + '), retry fetch…');
+          try {
+            record = await _fetchFromDB();
+            if (record?.id) {
+              currentPrestataire = record;
+              window.currentPrestataire = currentPrestataire;
+              _writePrestCache(email, currentPrestataire);
+              updateCommissionDisplay();
+              return;
+            }
+          } catch (_) {}
         }
       }
 
-      // 4) Fallback cache local (hors-ligne ou erreur réseau)
+      // 3) Fallback cache local (hors-ligne / réseau lent)
       const cached = _readPrestCache(email);
-      if (cached) {
+      if (cached?.id) {
         currentPrestataire = cached;
         window.currentPrestataire = currentPrestataire;
         console.log('[wozali] fallback cache local', cached.id);
         updateCommissionDisplay();
         return;
       }
-      console.warn('[wozali] Aucun profil pour', email);
+
+      // 4) Stub virtuel — dernier recours pour ne JAMAIS bloquer le dashboard
+      //    L'utilisateur peut naviguer, mais showProfil n'est pas disponible
+      if (uid) {
+        currentPrestataire = {
+          id: null, // null = profil pas encore en DB
+          _virtual: true,
+          fields: {
+            'Email': email,
+            'Nom complet': currentUser.user_metadata?.full_name
+              || currentUser.user_metadata?.name
+              || email.split('@')[0],
+            'User ID': uid,
+          },
+          createdTime: new Date().toISOString(),
+        };
+        window.currentPrestataire = currentPrestataire;
+        console.warn('[wozali] stub virtuel — profil introuvable en DB pour', email);
+        updateCommissionDisplay();
+      }
       return;
+
     } catch (e) {
-      console.error('[wozali] loadCurrentPrestataire (Supabase) :', e);
-      if (retries < 3) {
-        await new Promise(r => setTimeout(r, 1000 * (retries + 1)));
+      console.error('[wozali] loadCurrentPrestataire :', e);
+      if (retries < 2) {
+        await new Promise(r => setTimeout(r, 1200 * (retries + 1)));
         return loadCurrentPrestataire(retries + 1);
       }
+      // Ultime fallback cache après épuisement des retries
       const cached = _readPrestCache(email);
-      if (cached) {
+      if (cached?.id) {
         currentPrestataire = cached;
         window.currentPrestataire = currentPrestataire;
         updateCommissionDisplay();
@@ -8279,7 +8325,7 @@ async function loadCurrentPrestataire(retries) {
     }
   }
 
-  console.error('[wozali] supaPrest non chargé — profil non récupérable');
+  console.error('[wozali] supaPrest non chargé');
 }
 
 // ══ CONNEXION ══
@@ -8438,24 +8484,32 @@ function togglePw(inputId, btn) {
 // MON PROFIL PUBLIC
 // ══════════════════════════════════════════
 async function viewMyProfile() {
-  // Si profil déjà chargé → direct
+  // Profil déjà chargé avec un vrai id DB → navigation directe
   if (currentPrestataire?.id) {
     showProfil(currentPrestataire.id);
     showPage('profil');
     return;
   }
-  // Profil pas encore chargé (ex : login rapide avec timeout) → recharger
-  if (currentUser) {
+  // Profil pas encore chargé → recharger (max 8s)
+  if (currentUser && !currentPrestataire) {
     try {
       await Promise.race([loadCurrentPrestataire(), new Promise(r => setTimeout(r, 8000))]);
     } catch(e) {}
   }
+  // Après rechargement : id réel → profil public
   if (currentPrestataire?.id) {
     showProfil(currentPrestataire.id);
     showPage('profil');
-  } else {
-    toast('Profil en cours de chargement. Réessaie dans quelques secondes.', 'error');
+    return;
   }
+  // Stub virtuel ou profil sans id → rediriger vers "Modifier mon profil"
+  if (currentPrestataire) {
+    showDashSection('profil');
+    toast('Renseigne tes informations pour activer ton profil public.', 'info');
+    return;
+  }
+  // Pas du tout connecté
+  showPage('login');
 }
 
 // ══════════════════════════════════════════
