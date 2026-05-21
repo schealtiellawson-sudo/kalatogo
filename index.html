@@ -8208,10 +8208,16 @@ async function loadCurrentPrestataire(retries) {
   retries = retries || 0;
 
   // Bascule Supabase : la table wozali_prestataires remplace Airtable Prestataires.
-  // Plus de quota mensuel à craindre.
   if (window.supaPrest) {
     try {
-      const record = await window.supaPrest.findByEmail(email);
+      // 1) Chercher par email
+      let record = await window.supaPrest.findByEmail(email);
+
+      // 2) Fallback : chercher par user_id (cas email mal indexé ou changé)
+      if (!record && currentUser?.id) {
+        record = await window.supaPrest.findByUserId(currentUser.id);
+      }
+
       if (record) {
         currentPrestataire = record;
         window.currentPrestataire = currentPrestataire;
@@ -8220,16 +8226,42 @@ async function loadCurrentPrestataire(retries) {
         updateCommissionDisplay();
         return;
       }
-      // Aucun record Supabase pour cet email → essayer cache local
+
+      // 3) Aucun profil trouvé → auto-créer un profil minimal
+      //    Un utilisateur authentifié peut toujours accéder à son espace dès la première connexion.
+      if (currentUser?.id && retries === 0) {
+        try {
+          const nomAuto = currentUser.user_metadata?.full_name
+            || currentUser.user_metadata?.name
+            || email.split('@')[0];
+          const newRecord = await window.supaPrest.create({
+            'Email': email,
+            'Nom complet': nomAuto,
+            'User ID': currentUser.id,
+          });
+          if (newRecord) {
+            currentPrestataire = newRecord;
+            window.currentPrestataire = currentPrestataire;
+            _writePrestCache(email, currentPrestataire);
+            console.log('[wozali] profil minimal auto-créé pour', email, newRecord.id);
+            updateCommissionDisplay();
+            return;
+          }
+        } catch (eCreate) {
+          console.warn('[wozali] auto-create profil échoué:', eCreate.message);
+        }
+      }
+
+      // 4) Fallback cache local (hors-ligne ou erreur réseau)
       const cached = _readPrestCache(email);
       if (cached) {
         currentPrestataire = cached;
         window.currentPrestataire = currentPrestataire;
-        console.log('[wozali] aucun record Supabase, fallback cache local', cached.id);
+        console.log('[wozali] fallback cache local', cached.id);
         updateCommissionDisplay();
         return;
       }
-      console.warn('[wozali] Aucun profil Supabase pour', email, '— l\'utilisateur doit s\'inscrire');
+      console.warn('[wozali] Aucun profil pour', email);
       return;
     } catch (e) {
       console.error('[wozali] loadCurrentPrestataire (Supabase) :', e);
@@ -8422,7 +8454,7 @@ async function viewMyProfile() {
     showProfil(currentPrestataire.id);
     showPage('profil');
   } else {
-    toast('Complète ton inscription pour accéder à ton profil public.', 'error');
+    toast('Profil en cours de chargement. Réessaie dans quelques secondes.', 'error');
   }
 }
 
@@ -8512,9 +8544,38 @@ function showDashSection(section) {
 
 async function loadDashboard() {
   if (!currentUser) { showPage('login'); return; }
-  // Toujours recharger depuis Airtable pour avoir les données fraîches
-  await loadCurrentPrestataire();
+
+  // ── Skeleton loader ──
+  const mainContent = document.getElementById('dash-main-content');
+  const skeletonId = 'dash-loading-skeleton';
+  if (mainContent && !document.getElementById(skeletonId)) {
+    const sk = document.createElement('div');
+    sk.id = skeletonId;
+    sk.style.cssText = 'position:absolute;inset:0;background:var(--night-1,#14100A);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;border-radius:inherit;';
+    sk.innerHTML = `
+      <div style="width:48px;height:48px;border-radius:50%;border:3px solid rgba(232,148,10,.15);border-top-color:#E8940A;animation:spin .8s linear infinite;"></div>
+      <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.5);">Chargement de ton espace…</div>`;
+    mainContent.style.position = 'relative';
+    mainContent.appendChild(sk);
+  }
+  const _hideSkeleton = () => {
+    const sk = document.getElementById(skeletonId);
+    if (sk) { sk.style.opacity = '0'; sk.style.transition = 'opacity .2s'; setTimeout(() => sk.remove(), 220); }
+  };
+
+  // ── Profil : cache immédiat, refresh silencieux en arrière-plan ──
+  const profileAlreadyLoaded = !!currentPrestataire;
+  if (!profileAlreadyLoaded) {
+    // Premier chargement : on attend (max 10s)
+    await Promise.race([loadCurrentPrestataire(), new Promise(r => setTimeout(r, 10000))]);
+  } else {
+    // Profil déjà en mémoire → render instantané, refresh en background
+    loadCurrentPrestataire().catch(() => {});
+  }
+
+  _hideSkeleton();
   if (!currentPrestataire) return;
+
   const nom = currentPrestataire?.fields?.['Nom complet'] || 'Prestataire';
   const prenom = nom.split(' ')[0];
   document.getElementById('dash-welcome').textContent = `Bonjour ${prenom}. 👋`;
@@ -8542,7 +8603,6 @@ async function loadDashboard() {
   updateNotifBadge(currentPrestataire?.id);
   injectApprentieBanner();
   // Afficher la sidebar "Je recrute" pour tous les users connectés.
-  // Le gating Pro reste sur les actions individuelles (publier offre, KYC, etc.)
   const recrutSection = document.getElementById('dl-recrut-section');
   if (recrutSection) recrutSection.style.display = 'block';
 
@@ -8898,19 +8958,26 @@ async function loadDashOverview() {
   const completion = completionItems.filter(i => i.done).reduce((s, i) => s + i.weight, 0);
   document.getElementById('kpi-completion').textContent = completion + '%';
 
-  // ── Note moyenne — calculée depuis Airtable Avis ──
+  // ── Note moyenne — non-bloquant (spinner puis update) ──
   let note = 0, nbAvis = 0;
-  let avisRecs = [];
-  try {
-    avisRecs = await fetchAvis(prestId);
-    nbAvis = avisRecs.length;
-    if (nbAvis > 0) {
-      const sum = avisRecs.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0);
-      note = sum / nbAvis;
-    }
-  } catch(e) {}
-  document.getElementById('kpi-note').textContent = note > 0 ? note.toFixed(1) + ' ★' : '—';
-  document.getElementById('kpi-note-sub').textContent = note > 0 ? `Sur ${nbAvis} avis` : 'Pas encore d\'avis';
+  const kpiNoteEl = document.getElementById('kpi-note');
+  const kpiNoteSubEl = document.getElementById('kpi-note-sub');
+  if (kpiNoteEl) kpiNoteEl.textContent = '…';
+  // Lancer fetchAvis en background sans bloquer le render du score/completion
+  const _avisPromise = (async () => {
+    let avisRecs = [];
+    try {
+      avisRecs = await Promise.race([fetchAvis(prestId), new Promise(r => setTimeout(() => r([]), 6000))]);
+      nbAvis = avisRecs.length;
+      if (nbAvis > 0) {
+        const sum = avisRecs.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0);
+        note = sum / nbAvis;
+      }
+    } catch(e) {}
+    if (kpiNoteEl) kpiNoteEl.textContent = note > 0 ? note.toFixed(1) + ' ★' : '—';
+    if (kpiNoteSubEl) kpiNoteSubEl.textContent = note > 0 ? `Sur ${nbAvis} avis` : 'Pas encore d\'avis';
+    return { note, nbAvis };
+  })();
 
   // ── Score WOZALI — Sprint 7 (6 composantes, même formule que cron serveur) ──
   // 1. Profil complet (max 30) : Photo 8, Bio 7, Métier 5, Ville+Quartier 5, Numéro 5
