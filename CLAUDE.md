@@ -4,29 +4,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-20)
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-21)
 
 ---
+
+### ✅ SESSION 2026-05-21 — Fix profil timeout + fix Mon Agenda spinner bloqué
+
+**3 bugs fixés (tous pushés)** :
+
+- **`showProfil()` timeout réseau au 2e+ passage** (commit `62d0b01`) :
+  - `window._profilCache[recordId]` : sert le profil en 0ms depuis le cache mémoire après le 1er chargement
+  - Pas de spinner si cache disponible (UX instantané)
+  - Rafraîchissement Supabase silencieux en arrière-plan
+  - Timeout 8s → 15s + retry automatique unique après 2s
+
+- **Mon Agenda "Chargement..." infiniment bloqué** (commit `f368af6`) :
+  - `supaRdv.list()` et le fetch Airtable n'avaient aucun timeout
+  - Si Supabase ou Airtable ne répondait pas, le spinner restait éternellement
+  - Fix : `_wt()` wrapper 8s sur Supabase, 10s sur Airtable fallback
+
+- **RDV booké n'apparaît pas** : causé par le spinner bloqué — le chargement n'atteignait jamais `filterAndRenderRDVs()`. Avec le fix timeout, les RDVs s'affichent correctement.
 
 ### ✅ SESSION 2026-05-20 — Audit visuel complet 100% du site
 
 **Objectif** : audit visuel exhaustif de toutes les sections dashboard + pages publiques, avec screenshots et correction immédiate des bugs trouvés.
 
-**4 bugs fixés (commit à pousser — pas encore déployé)** :
+**4 bugs fixés (tous committs pushés)** :
 - `index.html` ~ligne 8138 : ajout global `function _sb() { return window.supabase || null; }` — fix ReferenceError dans WOZALI Match (la fonction n'était définie qu'à l'intérieur du feed IIFE)
 - `index.html` ~ligne 7009 : suppression `style="display:none;"` inline sur `#ds-favoris` — l'inline style écrasait la classe CSS `.dash-section.active` → page noire au clic
 - `index.html` ~ligne 9302 : `saveProfile()` envoie `null` au lieu de `''` pour `Langues parlées` — évite l'erreur PostgreSQL 22P02 "malformed array literal" sur la colonne `TEXT[]`
 - `components/supa-prest.js` : conversion `langues_parlees TEXT[]` ↔ CSV string dans `_toAirtableRecord` et `_toSupaRow`
-
-**⚠️ ACTION REQUISE** : pousser le commit avant de continuer
-```bash
-cd "/Users/schealtiellawson/Documents/04 - WOLO MARKET/Projet/wolomarket/repo"
-git add index.html components/supa-prest.js
-git commit -m "Fix audit: _sb global, favoris display, langues TEXT[], null coerce
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
-git push
-```
 
 **Résultats de l'audit — toutes sections testées** :
 
