@@ -3662,7 +3662,7 @@ input:checked + .toggle-slider { background:#E8940A !important; }
 /* Score profil page */
 .profil-score-bar { background:rgba(255,255,255,0.08) !important; }
 /* Pages globales */
-#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-awards-profil, #page-home, #page-a-propos, #page-agent-wozali, #page-influenceurs { background:#14100A !important; color:#FCE0A8 !important; }
+#page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-home, #page-a-propos, #page-agent-wozali, #page-influenceurs { background:#14100A !important; color:#FCE0A8 !important; }
 /* Fonctionnement page sections */
 #page-fonctionnement section { background:#14100A !important; }
 #page-fonctionnement h2, #page-fonctionnement h3 { color:#FCE0A8 !important; }
@@ -10653,7 +10653,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','awards-profil','a-propos','agent-wozali','influenceurs','recrutement-agents','admin-agents'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','a-propos','agent-wozali','influenceurs','recrutement-agents','admin-agents'];
   if (publicPages.includes(page))  localStorage.setItem('wozali_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wozali_last_page', page);
 
@@ -10675,7 +10675,6 @@ function showPage(page, _fromPop) {
   if (page === 'recompenses') loadPageRecompenses();
   // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
   if (page === 'awards') loadPageAwards();
-  if (page === 'awards-profil') { /* loaded via showAwardsProfil */ }
   if (page === 'match') { try { initWozaliMatch(); } catch(e){ console.warn('match init', e); } }
   if (page === 'recrutement-agents') { /* static page, no init needed */ }
   if (page === 'admin-agents') loadAdminAgents();
@@ -16676,7 +16675,6 @@ async function loadRecompensesWidgets() {
     host.innerHTML = `
       ${_widgetBourse(d.bourse, countdownStr)}
       <div style="height:20px"></div>
-      ${_widgetAwards(d.awards, countdownStr)}
       ${_widgetPalmares(d.palmares)}
     `;
   } catch(e) {
@@ -16753,75 +16751,9 @@ function _widgetBourse(bourse, countdown) {
     </div>`;
 }
 
-function _widgetAwards(awards, countdown) {
-  const { etat, candidature, gagnant_nom, montant } = awards;
-
-  if (etat === 'gagnant') {
-    return `
-      <div style="background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.05));border:2px solid #E8940A;border-radius:16px;padding:24px;text-align:center">
-        <div style="font-size:48px;margin-bottom:8px">🥇</div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:8px">Reine du Mois !</h3>
-        <div style="font-family:'Geist Mono',monospace;font-size:36px;font-weight:900;color:#FCE0A8;margin-bottom:12px">${montant.toLocaleString('fr-FR')} FCFA${candidature?.categorie === 'coiffure' ? ' ✂️ Coiffure' : ' 👗 Couture'}</div>
-        <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Élu par la communauté WOZALI</p>
-        <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Mon abonnement</button>
-      </div>`;
-  }
-
-  if (etat === 'vice_champion') {
-    return `
-      <div style="background:rgba(192,132,252,.05);border:2px solid rgba(192,132,252,.4);border-radius:16px;padding:24px;text-align:center">
-        <div style="font-size:36px;margin-bottom:8px">🥈</div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#c084fc;margin-bottom:8px">Vice-Reine du Mois !</h3>
-        <p style="color:rgba(252, 224, 168,.7);font-size:14px">Badge spécial visible sur ton profil pendant 30 jours</p>
-      </div>`;
-  }
-
-  if (etat === 'perdu') {
-    return `
-      <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center">
-        <div style="font-size:36px;margin-bottom:8px">🥇</div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:8px">La Bourse des Mains d'Or · Résultats</h3>
-        <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:8px">Champion : <strong style="color:#E8940A">${gagnant_nom || '—'}</strong></p>
-        <p style="color:rgba(252, 224, 168,.5);font-size:13px">Tente ta chance le mois prochain !</p>
-      </div>`;
-  }
-
-  if (etat === 'candidat_actif') {
-    return `
-      <div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;text-align:center">
-        <div style="font-size:36px;margin-bottom:8px">🥇</div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:8px">Ta photo est sur la Bourse des Mains d'Or !</h3>
-        <div style="font-family:'Geist Mono',monospace;font-size:22px;font-weight:700;color:#FCE0A8;margin-bottom:12px">${(candidature?.nb_votes || 0)} vote${(candidature?.nb_votes || 0) > 1 ? 's' : ''}</div>
-        <div style="background:rgba(232,148,10,.1);border-radius:10px;padding:12px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:700">
-          ⏱️ Résultats dans ${countdown}
-        </div>
-        <p style="font-size:12px;color:rgba(252, 224, 168,.4);margin-top:8px">Partage ta vidéo pour récolter des votes</p>
-        <div style="display:flex;gap:8px;margin-top:12px;"><button class="wozali-btn-primary" style="font-size:12px;padding:8px 14px;flex:1;" onclick="genererStoryCampagne('${candidature.id}')">📸 Générer ma Story</button><button style="flex:1;background:rgba(252, 224, 168,0.06);border:1px solid rgba(252, 224, 168,0.12);color:rgba(252, 224, 168,0.7);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;" onclick="showAwardsProfil('${candidature.id}')">Voir ma page →</button></div>
-      </div>`;
-  }
-
-  if (etat === 'en_attente_validation') {
-    return `
-      <div style="background:#1a1f1b;border:1px solid rgba(245,158,11,.3);border-radius:16px;padding:24px;text-align:center">
-        <div style="font-size:36px;margin-bottom:8px">⏳</div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#f59e0b;margin-bottom:8px">Vidéo en cours de validation</h3>
-        <p style="color:rgba(252, 224, 168,.6);font-size:14px">L'équipe WOZALI vérifie ta vidéo. Tu recevras une notification dès qu'elle sera publiée.</p>
-      </div>`;
-  }
-
-  // non_candidat
-  return `
-    <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;text-align:center">
-      <div style="font-size:36px;margin-bottom:8px">👑</div>
-      <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:8px">La Bourse des Mains d'Or · 100K ✂️ + 100K 👗 / mois</h3>
-      <p style="color:rgba(252, 224, 168,.6);font-size:14px;margin-bottom:16px">Toutes les femmes du Togo et du Bénin postent. 1 Reine par pays chaque mois — vrai travail garanti par construction. La communauté vote. Pas besoin d'être Pro pour gagner.</p>
-      <button onclick="showPage('awards')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">Poste ta photo · Deviens Reine →</button>
-    </div>`;
-}
-
 function _widgetPalmares(palmares) {
-  const { bourse = [], awards = [] } = palmares;
-  if (bourse.length === 0 && awards.length === 0) return '';
+  const { bourse = [] } = palmares;
+  if (bourse.length === 0) return '';
 
   const renderGagnant = (g, emoji) => `
     <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:6px">
@@ -16837,10 +16769,6 @@ function _widgetPalmares(palmares) {
   if (bourse.length > 0) {
     html += `<h4 style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:2px;margin-bottom:10px">🏆 PALMARÈS BOURSE DE CROISSANCE</h4>`;
     html += bourse.map(g => renderGagnant(g, '🏆')).join('');
-  }
-  if (awards.length > 0) {
-    html += `<h4 style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:2px;margin:16px 0 10px">👑 PALMARÈS BOURSE DES MAINS D'OR</h4>`;
-    html += awards.map(g => renderGagnant(g, '🥇')).join('');
   }
   html += '</div>';
   return html;
@@ -16877,51 +16805,8 @@ async function loadPageRecompenses() {
         }
         // Palmarès Bourse
         const pb = document.getElementById('recomp-palmares-bourse');
-        if (pb && d.palmares.bourse.length > 0) pb.innerHTML = _widgetPalmares({ bourse: d.palmares.bourse, awards: [] });
-        // Palmarès Awards
-        const pa = document.getElementById('recomp-palmares-awards');
-        if (pa && d.palmares.awards.length > 0) pa.innerHTML = _widgetPalmares({ bourse: [], awards: d.palmares.awards });
+        if (pb && d.palmares.bourse.length > 0) pb.innerHTML = _widgetPalmares({ bourse: d.palmares.bourse });
       }
-    }
-
-    // Charger les candidats WOZALI Awards (public)
-    const mois = new Date().toISOString().slice(0, 7);
-    const rc = await wozaliFetch(`/api/wozali-pay/awards-candidats?mois=${mois}`);
-    const dc = await rc.json();
-
-    const host = document.getElementById('recomp-awards-candidats');
-    if (host && dc.ok && dc.candidats.length > 0) {
-      host.innerHTML = `
-        <h3 style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:2px;margin-bottom:12px">CANDIDATS DU MOIS</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
-          ${dc.candidats.map(c => `
-            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;text-align:center">
-              <div style="width:56px;height:56px;border-radius:50%;background:rgba(232,148,10,.15);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden">
-                ${c.photo ? `<img src="${c.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" loading="lazy">` : '👤'}
-              </div>
-              <div style="font-weight:700;font-size:14px;color:#FCE0A8;margin-bottom:4px">${c.nom}</div>
-              <div style="font-size:11px;color:rgba(252, 224, 168,.4);margin-bottom:10px">${c.pays === 'BJ' ? '🇧🇯 Bénin' : '🇹🇬 Togo'}</div>
-              <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:700;color:#E8940A;margin-bottom:10px">${c.nb_votes} vote${c.nb_votes > 1 ? 's' : ''}</div>
-              ${c.gagnant ? '<div style="background:#E8940A;color:#14100A;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;display:inline-block">🏆 GAGNANT</div>' :
-                c.vice_champion ? '<div style="background:#c084fc;color:white;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;display:inline-block">🥈 VICE-CHAMPION</div>' :
-                `<button onclick="voterAwards('${c.id}')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;width:100%;font-size:13px" id="vote-btn-${c.id}">Voter</button>`}
-            </div>
-          `).join('')}
-        </div>`;
-    } else if (host) {
-      host.innerHTML = '<p style="color:rgba(252, 224, 168,.4);font-size:14px;text-align:center;padding:20px">Aucun candidat ce mois — les candidatures sont ouvertes !</p>';
-    }
-
-    // Countdown
-    const cdHost = document.getElementById('recomp-awards-countdown');
-    if (cdHost) {
-      const tirageDateObj = getLastFridayOfMonth(new Date());
-      tirageDateObj.setUTCHours(17, 0, 0, 0);
-      const rest = Math.max(0, tirageDateObj - new Date());
-      const j = Math.floor(rest / 86400000), h = Math.floor((rest % 86400000) / 3600000);
-      cdHost.innerHTML = rest > 0
-        ? `<div style="background:rgba(232,148,10,.08);border-radius:10px;padding:12px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:700">⏱️ Résultats dans ${j}j ${h}h</div>`
-        : '';
     }
 
   } catch(e) { console.warn('[page recompenses]', e); }
@@ -17199,37 +17084,6 @@ function getLastFridayOfMonth(d) {
   const dow = last.getDay();
   last.setDate(last.getDate() - ((dow >= 5) ? dow - 5 : dow + 2));
   return last;
-}
-
-async function voterAwards(candidatId) {
-  if (!currentUser) {
-    localStorage.setItem('wozali_pending_vote', candidatId);
-    toast('Crée un compte pour voter', 'info');
-    showPage('inscription');
-    return;
-  }
-  const btn = document.getElementById('vote-btn-' + candidatId);
-  if (btn) { btn.disabled = true; btn.textContent = 'Vote en cours...'; }
-
-  try {
-    const r = await wozaliFetch('/api/wozali-pay/awards-vote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ votant_id: currentUser.id, candidat_id: candidatId })
-    });
-    const d = await r.json();
-    if (d.deja_vote) {
-      toast('Tu as déjà voté ce mois', 'info');
-      if (btn) { btn.textContent = 'Déjà voté'; btn.style.opacity = '0.5'; }
-      return;
-    }
-    if (!r.ok) throw new Error(d.error);
-    toast('Vote enregistré ! 🗳️', 'success');
-    if (btn) { btn.textContent = '✓ Voté'; btn.style.background = '#4ade80'; btn.style.color = '#14100A'; btn.style.border = 'none'; }
-  } catch(e) {
-    toast(e.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = 'Voter'; }
-  }
 }
 
 // ══ HERO CINÉMATIQUE — séquence 55 sec (7 scènes) ══
@@ -22345,18 +22199,6 @@ loadSchealtielPhoto();
 
 <!-- Page King & Queen retirée 2026-04-28 — refondue dans La Bourse des Mains d'Or (finale annuelle Bénin vs Togo en décembre) -->
 
-<!-- ══════════════════════════════════════════
-     PAGE INDIVIDUELLE AWARDS /awards/[slug]
-══════════════════════════════════════════ -->
-<div id="page-awards-profil" class="page" style="background:#14100A;min-height:100vh;padding:0 0 80px;">
-  <div style="max-width:600px;margin:0 auto;padding:0 16px;">
-    <button onclick="showPage('awards')" style="background:none;border:none;color:rgba(252, 224, 168,0.6);font-size:13px;cursor:pointer;padding:16px 0;">← Retour aux Awards</button>
-    <div id="awards-profil-content">
-      <div class="loading"><div class="spinner"></div> Chargement...</div>
-    </div>
-  </div>
-</div>
-
 <!-- ══ PAGE RÉCOMPENSES (Sprint 7) ══ -->
 <div id="page-recompenses" class="page" style="background:#14100A;min-height:100vh;padding:0 0 80px;">
   <div style="max-width:860px;margin:0 auto;padding:24px 16px;">
@@ -22503,14 +22345,6 @@ loadSchealtielPhoto();
       </div>
 
 
-      <!-- Candidats du mois -->
-      <div id="recomp-awards-candidats" style="margin-bottom:16px"></div>
-
-      <!-- Countdown -->
-      <div id="recomp-awards-countdown" style="text-align:center;margin-bottom:16px"></div>
-
-      <!-- Palmarès Awards -->
-      <div id="recomp-palmares-awards" style="margin-top:20px"></div>
     </div>
 
 
@@ -23056,102 +22890,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // =========================================================
-// === Sprint 4 — WOZALI Awards + Top 50 + WOZALI Match ========
+// === Sprint 4 — Top 50 + WOZALI Match ========
 // =========================================================
-
-// --- Mini wrapper Awards — proxy Airtable (legacy, table Awards uniquement) ---
-const AWARDS_TABLE='WOZALI_Awards_Candidats';
-async function _awardsFetchAirtable(table, params=''){
-  try{
-    const r=await fetch(`/api/airtable-proxy/${encodeURIComponent(table)}`+(params?('?'+params):''),{headers:{'Content-Type':'application/json'}});
-    if(!r.ok)return [];
-    const d=await r.json();return d.records||[];
-  }catch(e){console.warn('[Awards] fetch fail',e);return [];}
-}
-
-// --- Phases / header ---
-function getPhaseAwards(){
-  const now=new Date();
-  const lancement=new Date('2026-07-01T00:00:00');
-  if(now<lancement)return 'pre-lancement';
-  const day=now.getDate();
-  if(day<=20)return 'votes-ouverts';
-  if(day<=25)return 'finale';
-  return 'resultats';
-}
-function getHeaderAwards(){
-  const phase=getPhaseAwards();
-  if(phase==='pre-lancement')return {titre:'👑 La Bourse des Mains d\'Or',sous:'✂️ Coiffure + 👗 Couture — Qui seront les 2 Reines du mois ?',fomo:'Poste ta photo pour participer.'};
-  if(phase==='votes-ouverts')return {titre:'👑 Bourse des Mains d\'Or — Votes ouverts',sous:'Vote pour ta Reine préférée · ✂️ Coiffure ou 👗 Couture.',fomo:'Clôture des votes le 20 du mois à 23h59.'};
-  if(phase==='finale')return {titre:'🔥 Finala Bourse des Mains d\'Or',sous:'Top 3 en lice · ✂️ Coiffure + 👗 Couture. Derniers votes.',fomo:'Résultats le 25 à 18h00.'};
-  return {titre:'👑 Reines du mois',sous:'Voici les gagnantes du Bourse des Mains d\'Or · ✂️ Coiffure + 👗 Couture.',fomo:'Prochain round : début du mois prochain.'};
-}
-
-// --- Récupération candidats ---
-async function getCandidatsAwards(pays){
-  const params='maxRecords=50&sort[0][field]=Nb_Votes&sort[0][direction]=desc'+(pays?('&filterByFormula='+encodeURIComponent(`{Pays}='${pays}'`)):'');
-  const recs=await _awardsFetchAirtable(AWARDS_TABLE,params);
-  return recs.map(r=>({id:r.id,...(r.fields||{})}));
-}
-
-// --- Affichage section Awards ---
-async function afficherSectionAwards(pays){
-  const container=document.querySelector('.wozali-awards-section .awards-liste');
-  if(!container)return;
-  const header=getHeaderAwards();
-  const titreEl=document.querySelector('.awards-titre');
-  const sousEl=document.querySelector('.awards-sous-titre');
-  const fomoEl=document.querySelector('.awards-fomo');
-  if(titreEl)titreEl.textContent=header.titre;
-  if(sousEl)sousEl.textContent=header.sous;
-  if(fomoEl)fomoEl.textContent=header.fomo;
-  container.innerHTML='<div class="awards-vide">Chargement des candidats…</div>';
-  const candidats=await getCandidatsAwards(pays);
-  if(!candidats.length){container.innerHTML='<div class="awards-vide">Aucun candidat pour le moment. Sois le premier !</div>';return;}
-  container.innerHTML=candidats.map((c,i)=>{
-    const leader=i===0?'award-card-leader':'';
-    const media=c.Video?`<video class="award-video" src="${c.Video}" muted loop playsinline></video>`:`<img class="award-photo" src="${c.Photo||''}" alt="${c['Nom complet']||''}">`;
-    return `<div class="award-card ${leader}" data-id="${c.id}">
-      <div class="award-card-header"><span class="award-rang">#${i+1}</span>${c.Pays?`<span class="award-pays-badge">${c.Pays}</span>`:''}${i===0?'<span class="award-champion-badge">★ Leader</span>':''}</div>
-      ${media}
-      <div class="award-info"><strong class="award-nom">${c['Nom complet']||'—'}</strong><span class="award-metier">${c.Metier||c['Métier']||''}</span></div>
-      <div class="award-votes"><span class="award-nb-votes">${c.Nb_Votes||c.Votes||0}</span><span class="award-votes-label">votes</span></div>
-      <button class="award-vote-btn match-btn" data-candidat-id="${c.id}" onclick="gererClicVote('${c.id}')">Voter</button>
-    </div>`;
-  }).join('');
-}
-
-// --- Votes ---
-async function gererClicVote(candidatId){
-  if(!window.currentUser?.id){afficherPopupInscriptionVote();return;}
-  await voterPourCandidat(candidatId,window.currentUser.id);
-}
-async function voterPourCandidat(candidatId,userId){
-  if(typeof supabase==='undefined'||!supabase)return;
-  try{
-    const {data:existing}=await supabase.from('votes_awards').select('id').eq('candidat_id',candidatId).eq('user_id',userId);
-    if(existing&&existing.length>0){alert('Tu as déjà voté pour ce candidat ce mois-ci. Un seul vote gratuit par candidat.');return;}
-    await supabase.from('votes_awards').insert({candidat_id:candidatId,user_id:userId,gratuit:true});
-    alert('✅ Vote enregistré. Merci !');
-    afficherSectionAwards();
-  }catch(e){console.warn('[vote]',e);}
-}
-function afficherPopupInscriptionVote(){
-  const html=`<div class="wozali-popup-overlay" onclick="if(event.target===this)this.remove()"><div class="wozali-popup"><button class="popup-close" onclick="this.closest('.wozali-popup-overlay').remove()">×</button><h3>Connecte-toi pour voter</h3><p class="popup-sub">Crée ton compte WOZALI gratuitement pour voter au Bourse des Mains d'Or.</p><a class="widget-cta" href="#" onclick="this.closest('.wozali-popup-overlay').remove();showPage('inscription');return false;">S'inscrire</a><p class="popup-login">Déjà inscrit ? <a href="#" onclick="this.closest('.wozali-popup-overlay').remove();showPage('login');return false;">Se connecter</a></p></div></div>`;
-  document.body.insertAdjacentHTML('beforeend',html);
-}
-
-// --- Widget Awards dashboard ---
-async function afficherWidgetAwards(userId){
-  const c=document.getElementById('widget-awards');if(!c)return;
-  if(typeof supabase==='undefined'||!supabase){c.innerHTML='';return;}
-  try{
-    let votes=0;
-    try{const {count}=await supabase.from('votes_awards').select('*',{count:'exact',head:true}).eq('candidat_id',userId);votes=count||0;}catch{}
-    const header=getHeaderAwards();
-    c.innerHTML=`<div class="widget-awards"><h4>⚔️ ${header.titre}</h4><p>${header.sous}</p><p class="votes-recus">Tu as reçu <strong>${votes}</strong> votes ce mois.</p><a class="widget-cta" href="javascript:void(0)" onclick="showDashSection('recompenses')">Voir mon classement</a></div>`;
-  }catch(e){console.warn('[widgetAwards]',e);}
-}
 
 // --- Top 50 ---
 async function calculerEtSauvegarderTop50(){
@@ -23176,8 +22916,6 @@ async function afficherTop50(paysFiltre){
 document.addEventListener('click',(e)=>{
   const b=e.target.closest('.top50-filtre');
   if(b){document.querySelectorAll('.top50-filtre').forEach(x=>x.classList.remove('active'));b.classList.add('active');afficherTop50(b.dataset.pays);}
-  const a=e.target.closest('.awards-filtre');
-  if(a){document.querySelectorAll('.awards-filtre').forEach(x=>x.classList.remove('active'));a.classList.add('active');afficherSectionAwards(a.dataset.pays);}
 });
 
 // --- WOZALI Match ---
@@ -23250,10 +22988,8 @@ try{
 
 // --- Auto-init Sprint 4 ---
 document.addEventListener('DOMContentLoaded',()=>{
-  try{afficherSectionAwards();}catch(e){}
   try{afficherTop50('tous');}catch(e){}
   if(window.currentUser?.id){
-    try{afficherWidgetAwards(window.currentUser.id);}catch(e){}
     try{afficherMatchsDashboard(window.currentUser.id);}catch(e){}
   }
 });
@@ -23298,15 +23034,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   window.lancerCountdownJuillet=lancerCountdownJuillet;
 
-  // Charger nb membres Pro live (Airtable)
+  // Charger nb membres Pro live (Supabase)
   async function chargerNbProLive(){
     try{
-      var fn=window._awardsFetchAirtable||null;
-      var records=[];
-      if(fn){
-        records=await fn('Prestataires',"filterByFormula="+encodeURIComponent("{Abonnement}='Pro'")+"&fields[]=Nom%20complet");
-      }
-      var n=records.length||0;
+      var supa=window.supabase;if(!supa)return;
+      var {count}=await supa.from('wozali_prestataires').select('*',{count:'exact',head:true}).eq('abonnement','Pro');
+      var n=count||0;
       document.querySelectorAll('[data-nb-pro-live]').forEach(function(el){
         el.textContent=n>0?n:'—';
       });
@@ -23327,34 +23060,41 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   window.initFaqPro=initFaqPro;
 
-  // Mur des gagnants
+  // Mur des gagnants (Supabase)
   async function afficherMurGagnants(){
     var host=document.getElementById('mur-gagnants');
     if(!host)return;
     var html='';
     try{
-      var fn=window._awardsFetchAirtable||null;
+      var supa=window.supabase;
       var records=[];
-      if(fn){
-        records=await fn('Bourse_Gagnants','sort[0][field]=Date_Tirage&sort[0][direction]=desc&maxRecords=6&filterByFormula='+encodeURIComponent('{Actif}=1'));
+      if(supa){
+        var {data}=await supa.from('wozali_awards').select('id,mois,pays,montant,user_id,categorie').eq('gagnant',true).order('created_at',{ascending:false}).limit(6);
+        if(data&&data.length){
+          // Enrich with prestataire data
+          var ids=data.map(function(r){return r.user_id;}).filter(Boolean);
+          var prests={};
+          if(ids.length){
+            var {data:pd}=await supa.from('wozali_prestataires').select('user_id,nom_complet,photo_profil').in('user_id',ids);
+            (pd||[]).forEach(function(p){prests[p.user_id]=p;});
+          }
+          records=data.map(function(r){
+            var p=prests[r.user_id]||{};
+            return {nom:p.nom_complet||'Anonyme',photo:p.photo_profil||null,montant:(r.montant||300000).toLocaleString('fr-FR'),mois:r.mois||''};
+          });
+        }
       }
-      if(records && records.length){
+      if(records.length){
         html='<h3 style="font-family:\'DM Serif Display\',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Ils ont déjà gagné</h3>';
         html+='<div class="gagnants-liste">';
         records.forEach(function(r){
-          var f=r.fields||{};
-          var nom=f['Nom']||f['Nom complet']||'Anonyme';
-          var ini=(nom.charAt(0)||'?').toUpperCase();
-          var temoignage=f['Témoignage']||f['Temoignage']||'';
-          var montant=f['Montant']||'';
-          var photo=f['Photo']&&f['Photo'][0]&&f['Photo'][0].url;
+          var ini=(r.nom.charAt(0)||'?').toUpperCase();
           html+='<div class="gagnant-card">';
           html+='<div style="display:flex;gap:12px;align-items:center;">';
-          if(photo){html+='<img class="gagnant-photo" src="'+photo+'" alt="" style="object-fit:cover;">';}
+          if(r.photo){html+='<img class="gagnant-photo" src="'+r.photo+'" alt="" style="object-fit:cover;">';}
           else{html+='<div class="gagnant-photo"><span class="gagnant-initiale">'+ini+'</span></div>';}
-          html+='<div class="gagnant-info">'+nom+'</div></div>';
-          if(temoignage)html+='<div class="gagnant-temoignage">« '+temoignage+' »</div>';
-          if(montant)html+='<div class="gagnant-montant">'+montant+' FCFA</div>';
+          html+='<div class="gagnant-info">'+r.nom+'</div></div>';
+          html+='<div class="gagnant-montant">'+r.montant+' FCFA</div>';
           html+='</div>';
         });
         html+='</div>';
@@ -25556,35 +25296,8 @@ async function repondreMatch(demandeId, clientId) {
 </script>
 
 <script>
-// ====== SPRINT 13 — WOZALI AWARDS COMPLET ======
+// ====== WOZALI AWARDS — loadPageAwards (Bourse des Mains d'Or) ======
 (function(){
-  var _awCat = 'coiffure', _awPays = null, _awData = [];
-
-  function getMoisActuel(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1); }
-
-  function getNextLastFridayTs(){
-    var now=new Date(),y=now.getFullYear(),m=now.getMonth();
-    var d=new Date(y,m,30,18,0,0,0);if(now>=d){m++;if(m>11){m=0;y++;}d=new Date(y,m,30,18,0,0,0);}return d.getTime();
-  }
-
-  function pad(n){ return n<10?'0'+n:''+n; }
-
-  function tickAwardsCountdown(){
-    var diff=Math.max(0,getNextLastFridayTs()-Date.now());
-    var s=Math.floor(diff/1000),j=Math.floor(s/86400);s-=j*86400;
-    var h=Math.floor(s/3600);s-=h*3600;var m=Math.floor(s/60);s-=m*60;
-    var ej=document.getElementById('aw-cd-j'),eh=document.getElementById('aw-cd-h'),
-        em=document.getElementById('aw-cd-m'),es=document.getElementById('aw-cd-s');
-    if(ej)ej.textContent=pad(j);if(eh)eh.textContent=pad(h);
-    if(em)em.textContent=pad(m);if(es)es.textContent=pad(s);
-  }
-
-  // Titre dynamique avec mois
-  function setAwardsTitre(){
-    var el=document.getElementById('awards-page-titre');if(!el)return;
-    var mois=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-    var d=new Date();el.textContent='La Bourse des Mains d\'Or — '+mois[d.getMonth()]+' '+d.getFullYear();
-  }
 
   window.loadPageAwards = async function(){
     if (typeof window.loadMurDesReines === 'function') {
@@ -25592,524 +25305,7 @@ async function repondreMatch(demandeId, clientId) {
     }
   };
 
-  // window.loadPageKingQueen retiré 2026-04-28 — page-king-queen supprimée (refondue dans Bourse des Mains d'Or)
-
-  async function chargerCandidatsAwards(){
-    var sb=_sb();if(!sb)return;
-    var mois=getMoisActuel();
-    try{
-      var {data}=await sb.from('wozali_awards')
-        .select('*, profiles:user_id(nom, photo_url, metier, quartier, ville, pays, note_moyenne, nb_avis, abonnement)')
-        .eq('mois',mois).order('nb_votes',{ascending:false});
-      _awData=data||[];
-      rendreListeAwards();
-    }catch(e){console.warn('[awards]',e);document.getElementById('awards-liste').innerHTML='<p style="color:rgba(252, 224, 168,0.5);">Erreur de chargement.</p>';}
-  }
-
-  function rendreListeAwards(){
-    var liste=document.getElementById('awards-liste');if(!liste)return;
-    var filtered=_awData.filter(function(c){
-      if(_awCat && c.categorie!==_awCat) return false;
-      if(_awPays && c.pays!==_awPays) return false;
-      return true;
-    });
-    if(filtered.length===0){
-      liste.innerHTML='<div style="text-align:center;padding:40px 0;"><div style="font-size:40px;margin-bottom:12px;">👑</div><p style="color:rgba(252, 224, 168,0.5);font-size:14px;">Aucune candidature pour le moment.<br>La Bourse des Mains d\'Or ouvre chaque mois.</p></div>';
-      return;
-    }
-    var maxVotes=Math.max.apply(null,filtered.map(function(c){return c.nb_votes||0;}))||1;
-    liste.innerHTML=filtered.map(function(c,i){
-      var p=c.profiles||{};
-      var catEmoji=c.categorie==='coiffure'?'✂️':'👗';
-      var paysFlag=c.pays==='TG'?'🇹🇬':'🇧🇯';
-      var pct=Math.round(((c.nb_votes||0)/maxVotes)*100);
-      var isLeader=i===0;
-      var slug=(p.nom||'candidat').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+c.categorie;
-      return '<div class="aw-candidate-card'+(isLeader?' aw-candidate-leader':'')+'" data-aw-id="'+c.id+'">'
-        +'<div style="display:flex;gap:14px;align-items:flex-start;">'
-          +'<div style="position:relative;flex-shrink:0;">'
-            +(c.photo_url?'<img src="'+escapeHtml(c.photo_url)+'" style="width:80px;height:80px;border-radius:12px;object-fit:cover;border:2px solid '+(isLeader?'#E8940A':'rgba(252, 224, 168,0.1)')+';" alt="" onerror="this.style.visibility=\'hidden\'">':'<div style="width:80px;height:80px;border-radius:12px;background:rgba(232,148,10,0.08);display:flex;align-items:center;justify-content:center;font-size:32px;">'+catEmoji+'</div>')
-            +(isLeader?'<div style="position:absolute;top:-6px;right:-6px;background:#E8940A;color:#14100A;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;">★ 1er</div>':'')
-          +'</div>'
-          +'<div style="flex:1;min-width:0;">'
-            +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
-              +'<strong style="color:#FCE0A8;font-family:Georgia,serif;font-size:15px;">'+escapeHtml(p.nom||'Candidat')+'</strong>'
-              +'<span style="font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(232,148,10,0.1);color:#E8940A;font-family:\'Geist Mono\',monospace;">'+catEmoji+' '+paysFlag+'</span>'
-              +(i<3?'<span style="font-size:10px;color:rgba(252, 224, 168,0.4);">#'+(i+1)+'</span>':'')
-            +'</div>'
-            +'<div style="font-size:12px;color:rgba(252, 224, 168,0.5);margin-top:4px;">'+escapeHtml(p.metier||'')+' · '+escapeHtml(p.quartier||p.ville||'')+' '+paysFlag+'</div>'
-            +(p.note_moyenne?'<div style="font-size:12px;color:#E8940A;margin-top:2px;">⭐ '+p.note_moyenne+'/5 · '+( p.nb_avis||0)+' avis</div>':'')
-            +'<div class="aw-progress"><div class="aw-progress-fill" style="width:'+pct+'%;"></div></div>'
-            +'<div style="display:flex;justify-content:space-between;align-items:center;">'
-              +'<span style="font-family:\'Geist Mono\',monospace;font-size:14px;color:#E8940A;font-weight:700;">'+(c.nb_votes||0)+' vote'+(( c.nb_votes||0)>1?'s':'')+'</span>'
-              +'<div style="display:flex;gap:6px;">'
-                +'<button class="aw-vote-btn" onclick="event.stopPropagation();voterAwardsPage(\''+c.id+'\')">🗳️ Voter</button>'
-                +'<button style="background:rgba(252, 224, 168,0.06);border:1px solid rgba(252, 224, 168,0.1);color:rgba(252, 224, 168,0.6);padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;" onclick="event.stopPropagation();showAwardsProfil(\''+c.id+'\')">Voir →</button>'
-              +'</div>'
-            +'</div>'
-          +'</div>'
-        +'</div>'
-        +(c.description?'<p style="font-size:13px;color:rgba(252, 224, 168,0.6);margin:10px 0 0;line-height:1.5;border-top:1px solid rgba(252, 224, 168,0.05);padding-top:10px;">'+escapeHtml(c.description)+'</p>':'')
-      +'</div>';
-    }).join('');
-  }
-
-  function actualiserScoreboard(){
-    var coifTG=0,coifBJ=0,coutTG=0,coutBJ=0;
-    _awData.forEach(function(c){
-      var v=c.nb_votes||0;
-      if(c.categorie==='coiffure'){if(c.pays==='TG')coifTG+=v;else coifBJ+=v;}
-      else{if(c.pays==='TG')coutTG+=v;else coutBJ+=v;}
-    });
-    var total=coifTG+coifBJ+coutTG+coutBJ;
-    // Coiffure bars
-    var coifTotal=coifTG+coifBJ||1;
-    var el;
-    if(el=document.getElementById('aw-sc-coif-tg'))el.textContent=coifTG;
-    if(el=document.getElementById('aw-sc-coif-bj'))el.textContent=coifBJ;
-    if(el=document.getElementById('aw-bar-coif-tg'))el.style.width=Math.round(coifTG/coifTotal*100)+'%';
-    if(el=document.getElementById('aw-bar-coif-bj'))el.style.width=Math.round(coifBJ/coifTotal*100)+'%';
-    // Couture bars
-    var coutTotal=coutTG+coutBJ||1;
-    if(el=document.getElementById('aw-sc-cout-tg'))el.textContent=coutTG;
-    if(el=document.getElementById('aw-sc-cout-bj'))el.textContent=coutBJ;
-    if(el=document.getElementById('aw-bar-cout-tg'))el.style.width=Math.round(coutTG/coutTotal*100)+'%';
-    if(el=document.getElementById('aw-bar-cout-bj'))el.style.width=Math.round(coutBJ/coutTotal*100)+'%';
-    if(el=document.getElementById('aw-total-votes'))el.textContent=total;
-  }
-
-  async function afficherMonVoteAwards(){
-    var el=document.getElementById('awards-mon-vote');if(!el)return;
-    var sb=_sb();if(!sb)return;
-    try{
-      var user=await _currentUser();if(!user){el.style.display='none';return;}
-      var mois=getMoisActuel();
-      var {data}=await sb.from('votes_awards').select('candidat_id').eq('votant_id',user.id).eq('mois',mois).maybeSingle();
-      if(data){
-        var candidat=_awData.find(function(c){return c.id===data.candidat_id;});
-        var nom=candidat&&candidat.profiles?candidat.profiles.nom:'une candidate';
-        el.innerHTML='✅ Tu as voté pour <strong>'+escapeHtml(nom)+'</strong> ce mois. Reviens le mois prochain !';
-        el.style.display='block';
-        // Disable all vote buttons
-        document.querySelectorAll('.aw-vote-btn').forEach(function(b){b.disabled=true;b.textContent='Voté ✓';});
-      }else{
-        el.innerHTML='🗳️ Tu n\'as pas encore voté ce mois. <strong>1 vote gratuit</strong> — choisis bien !';
-        el.style.display='block';
-      }
-    }catch(e){el.style.display='none';}
-  }
-
-  window.filtrerAwards = function(cat, pays){
-    if(cat!==undefined) _awCat=cat;
-    if(pays!==undefined) _awPays=pays;
-    // Active state
-    document.querySelectorAll('.aw-filtre').forEach(function(b){b.classList.remove('aw-filtre-active');});
-    if(_awCat) document.querySelector('[data-awf="'+_awCat+'"]')?.classList.add('aw-filtre-active');
-    if(_awPays) document.querySelector('[data-awf="'+_awPays+'"]')?.classList.add('aw-filtre-active');
-    if(!_awCat&&!_awPays) document.querySelector('[data-awf="all"]')?.classList.add('aw-filtre-active');
-    rendreListeAwards();
-  };
-
-  window.filtrerAwardsRecherche = function(q){
-    if(!q||q.length<2){rendreListeAwards();return;}
-    var liste=document.getElementById('awards-liste');if(!liste)return;
-    var ql=q.toLowerCase();
-    var results=_awData.filter(function(c){
-      var p=c.profiles||{};
-      return (p.nom||'').toLowerCase().includes(ql)||(p.metier||'').toLowerCase().includes(ql);
-    });
-    if(results.length===0){liste.innerHTML='<p style="text-align:center;color:rgba(252, 224, 168,0.5);padding:20px;">Aucun résultat pour "'+escapeHtml(q)+'"</p>';return;}
-    // Temporarily override data for rendering
-    var backup=_awData;_awData=results;_awCat=null;_awPays=null;rendreListeAwards();_awData=backup;
-  };
-
-  window.voterAwardsPage = async function(candidatId){
-    var sb=_sb();if(!sb)return;
-    var user=await verifierConnexionOuPopup('voter au Bourse des Mains d\'Or');
-    if(!user)return;
-    var mois=getMoisActuel();
-    try{
-      // Check self-vote
-      var candidat=_awData.find(function(c){return c.id===candidatId;});
-      if(candidat&&candidat.user_id===user.id){
-        if(typeof toast==='function')toast('Tu ne peux pas voter pour ta propre candidature.','error');
-        else alert('Tu ne peux pas voter pour ta propre candidature.');
-        return;
-      }
-      // Check already voted
-      var {data:existing}=await sb.from('votes_awards').select('id').eq('votant_id',user.id).eq('mois',mois);
-      if(existing&&existing.length>0){
-        if(typeof toast==='function')toast('Tu as déjà voté ce mois. 1 vote par personne par mois.','info');
-        else alert('Tu as déjà voté ce mois.');
-        return;
-      }
-      // Insert vote
-      var {error}=await sb.from('votes_awards').insert({votant_id:user.id,candidat_id:candidatId,mois:mois});
-      if(error){
-        if(error.message&&error.message.includes('récent'))alert('Ton compte est trop récent pour voter. Réessaie dans quelques minutes.');
-        else if(error.message&&error.message.includes('propre'))alert('Tu ne peux pas voter pour ta propre candidature.');
-        else{ console.warn(error); alert('Erreur lors du vote.'); }
-        return;
-      }
-      if(typeof toast==='function')toast('Vote enregistré ! 🗳️','success');
-      else alert('Vote enregistré !');
-      // Refresh
-      await chargerCandidatsAwards();
-      await afficherMonVoteAwards();
-      actualiserScoreboard();
-      // CTA post-vote : partage WhatsApp
-      var nom=candidat&&candidat.profiles?candidat.profiles.nom:'la candidate';
-      setTimeout(function(){
-        var shareDiv=document.createElement('div');
-        shareDiv.style.cssText='position:fixed;bottom:20px;left:16px;right:16px;background:#14100A;border:2px solid #E8940A;border-radius:14px;padding:16px;z-index:9999;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);';
-        shareDiv.innerHTML='<p style="color:#FCE0A8;font-size:14px;margin:0 0 10px;">✅ Tu as voté ! Aide <strong>'+escapeHtml(nom)+'</strong> à gagner :</p>'
-          +'<a href="https://wa.me/?text='+encodeURIComponent('Je viens de voter pour '+nom+' sur La Bourse des Mains d\'Or ! 👑\n\n100 000 FCFA × 2 Reines chaque mois — 1 Bénin + 1 Togo.\nVote aussi, c\'est gratuit (30 sec) :\n👉 wozali.com/awards\n\n#BourseDesMainsDOr #ReineWOZALI')+'" target="_blank" rel="noopener" style="display:inline-block;background:#25D366;color:white;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;">Partager sur WhatsApp</a>'
-          +'<button onclick="this.parentNode.remove()" style="display:block;margin:8px auto 0;background:none;border:none;color:rgba(252, 224, 168,0.4);font-size:12px;cursor:pointer;">Fermer</button>';
-        document.body.appendChild(shareDiv);
-        setTimeout(function(){if(shareDiv.parentNode)shareDiv.remove();},15000);
-      },500);
-    }catch(e){console.warn('[vote]',e);alert('Erreur lors du vote.');}
-  };
-
-  // Page individuelle candidate
-  window.showAwardsProfil = async function(candidatId){
-    showPage('awards-profil');
-    var container=document.getElementById('awards-profil-content');
-    if(!container)return;
-    container.innerHTML='<div class="loading"><div class="spinner"></div> Chargement...</div>';
-    var sb=_sb();if(!sb)return;
-    try{
-      var {data:c}=await sb.from('wozali_awards')
-        .select('*, profiles:user_id(id, nom, photo_url, metier, quartier, ville, pays, note_moyenne, nb_avis, abonnement, score_wozali)')
-        .eq('id',candidatId).maybeSingle();
-      if(!c){container.innerHTML='<p style="color:rgba(252, 224, 168,0.5);text-align:center;padding:40px;">Candidature non trouvée.</p>';return;}
-      var p=c.profiles||{};
-      var catEmoji=c.categorie==='coiffure'?'✂️':'👗';
-      var catNom=c.categorie==='coiffure'?'Coiffure':'Couture';
-      var paysFlag=c.pays==='TG'?'🇹🇬 Togo':'🇧🇯 Bénin';
-      // Calculate rank
-      var mois=getMoisActuel();
-      var {data:allCat}=await sb.from('wozali_awards').select('id,nb_votes').eq('mois',mois).eq('categorie',c.categorie).order('nb_votes',{ascending:false});
-      var rang=1;if(allCat){for(var i=0;i<allCat.length;i++){if(allCat[i].id===c.id){rang=i+1;break;}}}
-      var leader=allCat&&allCat[0]?allCat[0].nb_votes||1:1;
-      var pctLeader=Math.round(((c.nb_votes||0)/leader)*100);
-      // Days remaining
-      var daysLeft=Math.max(0,Math.ceil((getNextLastFridayTs()-Date.now())/86400000));
-
-      container.innerHTML=''
-        // Hero photo
-        +(c.photo_url?'<div style="margin:16px 0;border-radius:16px;overflow:hidden;border:2px solid rgba(232,148,10,0.2);"><img src="'+escapeHtml(c.photo_url)+'" style="width:100%;max-height:400px;object-fit:cover;display:block;" alt="Réalisation '+escapeHtml(p.nom||'')+'"></div>':'')
-        // Badges
-        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">'
-          +'<span style="padding:4px 12px;border-radius:8px;background:rgba(232,148,10,0.1);color:#E8940A;font-size:12px;font-family:\'Geist Mono\',monospace;">'+catEmoji+' '+catNom+'</span>'
-          +'<span style="padding:4px 12px;border-radius:8px;background:rgba(252, 224, 168,0.06);color:rgba(252, 224, 168,0.7);font-size:12px;">'+paysFlag+'</span>'
-          +'<span style="padding:4px 12px;border-radius:8px;background:rgba(232,148,10,0.06);color:rgba(252, 224, 168,0.5);font-size:12px;">#'+rang+' au classement</span>'
-        +'</div>'
-        // Name
-        +'<h2 style="font-family:\'DM Serif Display\',serif;font-size:24px;color:#FCE0A8;margin:0 0 4px;">'+escapeHtml(p.nom||'Candidat')+'</h2>'
-        +'<p style="font-size:14px;color:rgba(252, 224, 168,0.5);margin:0 0 16px;">'+escapeHtml(p.metier||'')+' · '+escapeHtml(p.quartier||p.ville||'')+' '+(c.pays==='TG'?'🇹🇬':'🇧🇯')+'</p>'
-        +(p.note_moyenne?'<div style="font-size:14px;color:#E8940A;margin-bottom:16px;">⭐ '+p.note_moyenne+'/5 · '+(p.nb_avis||0)+' avis</div>':'')
-        // Stats
-        +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">'
-          +'<div style="text-align:center;padding:14px;background:rgba(232,148,10,0.04);border-radius:10px;border:1px solid rgba(232,148,10,0.1);"><div style="font-family:\'Geist Mono\',monospace;font-size:22px;color:#E8940A;font-weight:700;">'+(c.nb_votes||0)+'</div><div style="font-size:11px;color:rgba(252, 224, 168,0.4);margin-top:2px;">votes</div></div>'
-          +'<div style="text-align:center;padding:14px;background:rgba(252, 224, 168,0.03);border-radius:10px;border:1px solid rgba(252, 224, 168,0.06);"><div style="font-family:\'Geist Mono\',monospace;font-size:22px;color:#FCE0A8;font-weight:700;">'+pctLeader+'%</div><div style="font-size:11px;color:rgba(252, 224, 168,0.4);margin-top:2px;">du leader</div></div>'
-          +'<div style="text-align:center;padding:14px;background:rgba(252, 224, 168,0.03);border-radius:10px;border:1px solid rgba(252, 224, 168,0.06);"><div style="font-family:\'Geist Mono\',monospace;font-size:22px;color:#FCE0A8;font-weight:700;">'+daysLeft+'</div><div style="font-size:11px;color:rgba(252, 224, 168,0.4);margin-top:2px;">jours restants</div></div>'
-        +'</div>'
-        // Progress bar
-        +'<div class="aw-progress" style="height:8px;margin-bottom:20px;"><div class="aw-progress-fill" style="width:'+pctLeader+'%;"></div></div>'
-        // Description
-        +(c.description?'<div style="padding:16px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(252, 224, 168,0.06);margin-bottom:20px;"><h3 style="font-family:Georgia,serif;font-size:14px;color:rgba(252, 224, 168,0.7);margin:0 0 8px;">Sa réalisation</h3><p style="font-size:14px;color:rgba(252, 224, 168,0.8);line-height:1.6;margin:0;">'+escapeHtml(c.description)+'</p></div>':'')
-        // Vote CTA
-        +'<div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.25);border-radius:14px;padding:20px;text-align:center;margin-bottom:20px;">'
-          +'<h3 style="font-family:\'DM Serif Display\',serif;font-size:18px;color:#FCE0A8;margin:0 0 8px;">Vote pour '+escapeHtml((p.nom||'').split(' ')[0]||'cette candidate')+' — c\'est gratuit</h3>'
-          +'<p style="font-size:13px;color:rgba(252, 224, 168,0.5);margin:0 0 14px;">1 vote par personne par mois · Compte WOZALI requis</p>'
-          +'<button class="aw-vote-btn" style="font-size:15px;padding:14px 32px;" onclick="voterAwardsPage(\''+c.id+'\')">🗳️ Voter pour '+escapeHtml((p.nom||'').split(' ')[0]||'elle')+' — gratuit</button>'
-        +'</div>'
-        // Profil link
-        +(p.id?'<div style="text-align:center;"><button onclick="chargerProfil(\''+p.id+'\')" style="background:none;border:1px solid rgba(252, 224, 168,0.15);color:rgba(252, 224, 168,0.6);padding:10px 20px;border-radius:8px;font-size:13px;cursor:pointer;">Voir son profil WOZALI complet →</button></div>':'');
-    }catch(e){console.warn('[awards-profil]',e);container.innerHTML='<p style="color:rgba(252, 224, 168,0.5);">Erreur.</p>';}
-  };
-
-  // URL hash support for awards
-  window.addEventListener('hashchange', function(){
-    var h=location.hash;
-    if(h.startsWith('#awards/')){
-      var slug=h.replace('#awards/','');
-      // Find candidate by slug-like match
-      showPage('awards');
-      setTimeout(function(){
-        var found=_awData.find(function(c){
-          var p=c.profiles||{};
-          var s=(p.nom||'').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+c.categorie;
-          return s===slug||c.id===slug;
-        });
-        if(found)showAwardsProfil(found.id);
-      },500);
-    }
-  });
 })();
-</script>
-
-<script>
-// ====== SPRINT 13 — STORY DE CAMPAGNE AWARDS ======
-window.genererStoryCampagne = async function(candidatureId) {
-  var sb = _sb(); if (!sb) return;
-  var user = await _currentUser(); if (!user) return;
-
-  // Fetch candidature + profile data
-  try {
-    var { data: c } = await sb.from('wozali_awards')
-      .select('*, profiles:user_id(nom, photo_url, metier, quartier, ville, pays, note_moyenne, nb_avis)')
-      .eq('id', candidatureId).maybeSingle();
-    if (!c) { alert('Candidature non trouvée.'); return; }
-
-    var p = c.profiles || {};
-    var catEmoji = c.categorie === 'coiffure' ? '✂️' : '👗';
-    var catNom = c.categorie === 'coiffure' ? 'Coiffure' : 'Couture';
-
-    // Show loading modal
-    var modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;';
-    modal.innerHTML = '<div style="background:#14100A;border:1px solid rgba(232,148,10,0.3);border-radius:16px;padding:24px;max-width:400px;width:100%;text-align:center;max-height:90vh;overflow-y:auto;" id="story-modal-inner"><div class="loading"><div class="spinner"></div><p style="color:rgba(252, 224, 168,0.6);margin-top:12px;">Génération de ta Story...</p></div></div>';
-    modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
-    document.body.appendChild(modal);
-
-    // Create canvas 1080x1920
-    var canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1920;
-    var ctx = canvas.getContext('2d');
-
-    // Background
-    ctx.fillStyle = '#14100A';
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    // Load images
-    function loadImg(src) {
-      return new Promise(function(resolve) {
-        if (!src) { resolve(null); return; }
-        var img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = function() { resolve(img); };
-        img.onerror = function() { resolve(null); };
-        img.src = src;
-      });
-    }
-
-    var [photoReal, photoAvatar] = await Promise.all([
-      loadImg(c.photo_url),
-      loadImg(p.photo_url)
-    ]);
-
-    // ══ ZONE 1: LOGO (15% = 288px) ══
-    // Draw WOZALI logo
-    ctx.save();
-    // Circle
-    var logoX = 540, logoY = 120, logoR = 40;
-    ctx.strokeStyle = '#E8940A';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(logoX - 80, logoY, logoR, 0, Math.PI * 2);
-    ctx.stroke();
-    // W inside circle
-    ctx.fillStyle = '#E8940A';
-    ctx.font = 'bold 36px "DM Serif Display", Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('W', logoX - 80, logoY + 2);
-    // WOZALI text
-    ctx.font = '900 42px "DM Serif Display", Georgia, serif';
-    ctx.fillStyle = '#FCE0A8';
-    ctx.textAlign = 'left';
-    ctx.fillText('WOZALI', logoX - 25, logoY - 8);
-    // MARKET text
-    ctx.font = '600 14px "Geist Mono", monospace';
-    ctx.fillStyle = 'rgba(252, 224, 168,0.6)';
-    ctx.letterSpacing = '4px';
-    ctx.fillText('M A R K E T', logoX - 25, logoY + 22);
-    // Line
-    ctx.strokeStyle = '#E8940A';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(logoX - 25, logoY + 10);
-    ctx.lineTo(logoX + 160, logoY + 10);
-    ctx.stroke();
-    // AWARDS badge
-    ctx.fillStyle = '#E8940A';
-    roundRect(ctx, logoX + 170, logoY - 14, 110, 28, 14);
-    ctx.fill();
-    ctx.fillStyle = '#14100A';
-    ctx.font = 'bold 13px "Geist Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('AWARDS', logoX + 225, logoY + 2);
-    ctx.restore();
-
-    // Separator
-    ctx.fillStyle = 'rgba(232,148,10,0.15)';
-    ctx.fillRect(80, 220, 920, 1);
-
-    // Category badge under logo
-    ctx.fillStyle = 'rgba(232,148,10,0.1)';
-    roundRect(ctx, 390, 240, 300, 36, 18);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(232,148,10,0.3)';
-    ctx.lineWidth = 1;
-    roundRect(ctx, 390, 240, 300, 36, 18);
-    ctx.stroke();
-    ctx.fillStyle = '#E8940A';
-    ctx.font = '700 14px "Geist Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(catEmoji + ' ' + catNom.toUpperCase() + ' · 100 000 FCFA × 2', 540, 262);
-
-    // ══ ZONE 2: PHOTO (42% = ~806px, from y=288 to y=1094) ══
-    if (photoReal) {
-      var sy = 288, sh = 806;
-      // Draw photo covering full width
-      var scale = Math.max(1080 / photoReal.width, sh / photoReal.height);
-      var sw = photoReal.width * scale;
-      var sht = photoReal.height * scale;
-      ctx.drawImage(photoReal, (1080 - sw) / 2, sy + (sh - sht) / 2, sw, sht);
-      // Gradient overlay bottom
-      var grad = ctx.createLinearGradient(0, sy + sh - 200, 0, sy + sh);
-      grad.addColorStop(0, 'rgba(15,20,16,0)');
-      grad.addColorStop(1, 'rgba(15,20,16,0.95)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, sy + sh - 200, 1080, 200);
-    }
-
-    // ══ ZONE 3: ÉTOILES (5% = ~96px, at y=1094) ══
-    var starsY = 1120;
-    var note = p.note_moyenne || 0;
-    ctx.font = '32px serif';
-    ctx.textAlign = 'center';
-    var starsStr = '';
-    for (var s = 1; s <= 5; s++) {
-      starsStr += s <= Math.round(note) ? '★' : '☆';
-    }
-    ctx.fillStyle = '#E8940A';
-    ctx.fillText(starsStr, 540, starsY);
-
-    // ══ ZONE 4: IDENTITÉ (15% = ~288px, at y=1150) ══
-    var idY = 1170;
-    ctx.fillStyle = 'rgba(232,148,10,0.08)';
-    ctx.strokeStyle = 'rgba(232,148,10,0.4)';
-    ctx.lineWidth = 1;
-    roundRect(ctx, 80, idY, 920, 140, 16);
-    ctx.fill();
-    roundRect(ctx, 80, idY, 920, 140, 16);
-    ctx.stroke();
-
-    // Avatar
-    if (photoAvatar) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(160, idY + 70, 34, 0, Math.PI * 2);
-      ctx.clip();
-      ctx.drawImage(photoAvatar, 126, idY + 36, 68, 68);
-      ctx.restore();
-      // Border
-      ctx.strokeStyle = '#E8940A';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(160, idY + 70, 35, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    // Name
-    ctx.fillStyle = '#FCE0A8';
-    ctx.font = 'bold 28px Georgia, serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(p.nom || 'Candidat', 220, idY + 55);
-
-    // Metier + Ville
-    ctx.fillStyle = '#E8940A';
-    ctx.font = '16px "Geist Mono", monospace';
-    ctx.fillText((p.metier || '') + ' · ' + (p.ville || '') + ' ' + (c.pays === 'TG' ? '🇹🇬' : '🇧🇯'), 220, idY + 90);
-
-    // ══ ZONE 5: APPEL AU VOTE (15% = ~288px, at y=1340) ══
-    var voteY = 1360;
-    ctx.fillStyle = '#FCE0A8';
-    ctx.font = 'bold 32px "DM Serif Display", Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Mon travail est en compétition.', 540, voteY);
-
-    ctx.fillStyle = '#E8940A';
-    ctx.font = 'bold 36px "DM Serif Display", Georgia, serif';
-    ctx.fillText('100 000 FCFA × 2', 540, voteY + 55);
-
-    ctx.fillStyle = 'rgba(252, 224, 168,0.6)';
-    ctx.font = '20px "DM Serif Display", Georgia, serif';
-    ctx.fillText('1 Reine ' + (c.categorie === 'coiffure' ? 'Coiffure' : 'Couture') + ' Bénin', 540, voteY + 95);
-    ctx.fillText('+ 1 Reine ' + (c.categorie === 'coiffure' ? 'Coiffure' : 'Couture') + ' Togo · Chaque mois.', 540, voteY + 125);
-
-    ctx.fillStyle = '#FCE0A8';
-    ctx.font = 'bold 22px "Geist Mono", monospace';
-    ctx.fillText('1 vote = 30 secondes. Gratuit.', 540, voteY + 180);
-
-    ctx.fillStyle = 'rgba(252, 224, 168,0.4)';
-    ctx.font = '18px "DM Serif Display", Georgia, serif';
-    ctx.fillText('Ça peut tout changer.', 540, voteY + 215);
-
-    // ══ ZONE 6: BAS (8% = ~154px, at y=1766) ══
-    var footY = 1780;
-    ctx.fillStyle = 'rgba(232,148,10,0.25)';
-    ctx.fillRect(80, footY, 920, 1);
-
-    ctx.fillStyle = 'rgba(252, 224, 168,0.35)';
-    ctx.font = '14px "Geist Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('voter ici →', 540, footY + 40);
-
-    ctx.fillStyle = '#E8940A';
-    ctx.font = 'bold 22px "Geist Mono", monospace';
-    var slug = (p.nom || 'candidat').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + c.categorie;
-    ctx.fillText('wozali.com/awards', 540, footY + 75);
-
-    // Helper: roundRect
-    function roundRect(c, x, y, w, h, r) {
-      c.beginPath();
-      c.moveTo(x + r, y);
-      c.lineTo(x + w - r, y);
-      c.quadraticCurveTo(x + w, y, x + w, y + r);
-      c.lineTo(x + w, y + h - r);
-      c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      c.lineTo(x + r, y + h);
-      c.quadraticCurveTo(x, y + h, x, y + h - r);
-      c.lineTo(x, y + r);
-      c.quadraticCurveTo(x, y, x + r, y);
-      c.closePath();
-    }
-
-    // Render to PNG
-    var dataUrl = canvas.toDataURL('image/png');
-    var moisNoms = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-    var now = new Date();
-    var filename = 'WOZALI-Awards-' + (p.nom || 'Candidat').split(' ')[0] + '-' + moisNoms[now.getMonth()] + '-' + now.getFullYear() + '.png';
-
-    // WhatsApp share message
-    var shareMsg = encodeURIComponent(
-      'Salut ! 👋\n\nJe suis sur La Bourse des Mains d\'Or ce mois.\n100 000 FCFA pour ' + (c.categorie === 'coiffure' ? 'la Reine Coiffure' : 'la Reine Couture') + ' — 1 Bénin + 1 Togo.\n\n👉 Vote pour moi ici (30 sec, gratuit) :\nwozali.com/awards/' + slug + '\n\nMerci ! Ça compte vraiment. 🙏\n#BourseDesMainsDOr #ReineWOZALI'
-    );
-
-    // Show result in modal
-    var inner = document.getElementById('story-modal-inner');
-    if (inner) {
-      inner.innerHTML = ''
-        + '<h3 style="font-family:\'DM Serif Display\',serif;color:#FCE0A8;font-size:18px;margin:0 0 16px;">Ta Story de campagne</h3>'
-        + '<div style="border-radius:12px;overflow:hidden;margin-bottom:16px;border:1px solid rgba(232,148,10,0.2);"><img src="' + dataUrl + '" style="width:100%;display:block;" alt="Story Bourse des Mains d\'Or"></div>'
-        + '<div style="display:flex;flex-direction:column;gap:10px;">'
-          + '<a href="' + dataUrl + '" download="' + filename + '" style="display:block;background:#E8940A;color:#14100A;padding:14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;text-decoration:none;">⬇️ Télécharger ma Story</a>'
-          + '<a href="https://wa.me/?text=' + shareMsg + '" target="_blank" rel="noopener" style="display:block;background:#25D366;color:white;padding:14px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;text-decoration:none;">💬 Partager sur WhatsApp</a>'
-          + '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:none;border:1px solid rgba(252, 224, 168,0.15);color:rgba(252, 224, 168,0.5);padding:10px;border-radius:8px;font-size:13px;cursor:pointer;">Fermer</button>'
-        + '</div>';
-    }
-  } catch (e) {
-    console.warn('[genererStoryCampagne]', e);
-    alert('Erreur lors de la génération de la Story.');
-    var m = document.querySelector('[style*="fixed"][style*="10000"]');
-    if (m) m.remove();
-  }
-};
 </script>
 
 <script>
