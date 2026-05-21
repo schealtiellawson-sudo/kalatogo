@@ -3022,17 +3022,7 @@ nav .nav-logo circle[fill="#14100A"] { fill: #14100A; stroke: #E8940A; }
   border:1px solid rgba(232,148,10,.2) !important;
   color:#FCE0A8 !important;
 }
-/* Exceptions — sections qui doivent garder un fond clair (aperçu CV, etc.) */
-#page-dashboard #ds-emploi-cv #cv-wozali-preview,
-#page-dashboard #ds-emploi-cv #cv-wozali-preview *{
-  background:#ffffff !important;
-  color:#1a1f1c !important;
-}
-#page-dashboard #ds-emploi-cv #cv-wozali-preview #cv-nom{ color:#14100A !important; }
-#page-dashboard #ds-emploi-cv #cv-wozali-preview #cv-metier{ color:#E8940A !important; }
-#page-dashboard #ds-emploi-cv #cv-wozali-preview #cv-quartier,
-#page-dashboard #ds-emploi-cv #cv-wozali-preview .cv-gris{ color:#6b7280 !important; }
-#page-dashboard #ds-emploi-cv #cv-wozali-preview #cv-photo{ background:#E8940A !important; color:#fff !important; }
+/* Exceptions — sections qui doivent garder un fond clair */
 #page-dashboard .edit-form-section,
 #page-dashboard .dash-card,
 #page-dashboard .card{
@@ -3844,13 +3834,6 @@ section[style*="background:white"] p, section[style*="background:var(--blanc)"] 
 /* Emploi mode toggle */
 #emploi-mode-toggle-wrap {
   background: rgba(255,255,255,0.04) !important;
-  color: #FCE0A8 !important;
-}
-
-/* CV WOZALI preview */
-#cv-wozali-preview {
-  background: rgba(255,255,255,0.04) !important;
-  border-color: rgba(232,148,10,0.15) !important;
   color: #FCE0A8 !important;
 }
 
@@ -6075,9 +6058,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
             <i data-lucide="search"></i> <span>Trouver un emploi</span>
           </button>
-          <button class="dash-link" onclick="showDashSection('emploi-cv')" id="dl-emploi-cv">
-            <i data-lucide="file-user"></i> <span>Mon CV WOZALI</span>
-          </button>
+
           <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
             <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
           </button>
@@ -7686,7 +7667,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <!-- EMPLOI : MODE EMPLOI -->
       <div class="dash-section" id="ds-emploi-mode">
         <div class="dash-header">
-          <h2>💼 Mon CV WOZALI · Postule aux offres en 1 clic</h2>
+          <h2>💼 Trouver un emploi</h2>
           <p>Ton profil WOZALI est ton CV. Quand tu postules, le recruteur reçoit tout automatiquement.</p>
         </div>
 
@@ -7721,49 +7702,6 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
         <div id="mes-candidatures-list">
           <div class="loading"><div class="spinner"></div> Chargement...</div>
-        </div>
-      </div>
-
-      <!-- EMPLOI : MON CV WOZALI -->
-      <div class="dash-section" id="ds-emploi-cv">
-        <div class="dash-header">
-          <h2>📄 Mon CV WOZALI</h2>
-          <p>Généré automatiquement depuis ton profil. Plus ton profil est complet, plus ton CV est fort.</p>
-        </div>
-        <div id="cv-wozali-preview" style="background:white;border-radius:16px;padding:28px;box-shadow:var(--shadow);max-width:600px;margin:0 auto;">
-          <div style="text-align:center;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--gris);letter-spacing:1px;text-transform:uppercase;">CV WOZALI</div>
-          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:2px solid var(--vert-light);">
-            <div id="cv-photo" style="width:72px;height:72px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:28px;color:white;font-weight:900;flex-shrink:0;overflow:hidden;"></div>
-            <div>
-              <div id="cv-nom" style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;"></div>
-              <div id="cv-metier" style="color:var(--vert);font-weight:700;font-size:15px;"></div>
-              <div id="cv-quartier" style="color:var(--gris);font-size:13px;"></div>
-            </div>
-          </div>
-          <div style="display:flex;gap:16px;margin-bottom:20px;">
-            <div style="background:var(--vert-light);border-radius:10px;padding:10px 16px;text-align:center;flex:1;">
-              <div id="cv-score" style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:var(--vert);">—</div>
-              <div style="font-size:11px;color:var(--gris);font-weight:700;">Score WOZALI</div>
-            </div>
-            <div style="background:var(--or-light);border-radius:10px;padding:10px 16px;text-align:center;flex:1;">
-              <div id="cv-note" style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:var(--or);">—</div>
-              <div style="font-size:11px;color:var(--gris);font-weight:700;">Note /5</div>
-            </div>
-            <div style="background:#ede9fe;border-radius:10px;padding:10px 16px;text-align:center;flex:1;">
-              <div id="cv-avis" style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#7c3aed;">—</div>
-              <div style="font-size:11px;color:var(--gris);font-weight:700;">Avis</div>
-            </div>
-          </div>
-          <div id="cv-description" style="font-size:14px;color:var(--gris-fonce);line-height:1.7;margin-bottom:20px;"></div>
-          <div id="cv-photos" style="display:flex;gap:8px;margin-bottom:20px;"></div>
-          <div style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--gris);">
-            <span id="cv-wa" style="font-weight:600;"></span>
-            <span>·</span>
-            <span id="cv-exp" style="font-weight:600;"></span>
-          </div>
-        </div>
-        <div style="text-align:center;margin-top:20px;">
-          <button class="btn btn-primary" onclick="genererCVPDF()">⬇️ Télécharger mon CV (PDF)</button>
         </div>
       </div>
 
@@ -8467,12 +8405,24 @@ function togglePw(inputId, btn) {
 // ══════════════════════════════════════════
 // MON PROFIL PUBLIC
 // ══════════════════════════════════════════
-function viewMyProfile() {
+async function viewMyProfile() {
+  // Si profil déjà chargé → direct
+  if (currentPrestataire?.id) {
+    showProfil(currentPrestataire.id);
+    showPage('profil');
+    return;
+  }
+  // Profil pas encore chargé (ex : login rapide avec timeout) → recharger
+  if (currentUser) {
+    try {
+      await Promise.race([loadCurrentPrestataire(), new Promise(r => setTimeout(r, 8000))]);
+    } catch(e) {}
+  }
   if (currentPrestataire?.id) {
     showProfil(currentPrestataire.id);
     showPage('profil');
   } else {
-    toast('Profil non trouvé', 'error');
+    toast('Complète ton inscription pour accéder à ton profil public.', 'error');
   }
 }
 
@@ -8505,7 +8455,6 @@ window.DASH_SECTION_ALIASES = {
   // 'talent-pipeline' : section réelle, pas d'alias (Phase B — Kanban)
   'talent-dashboard': 'recrut-dashboard',
   'jobs-dispo': 'emploi-mode',
-  'jobs-cv': 'emploi-cv',
   'jobs-envoyees': 'emploi-candidatures'
   // Phase C-G ajouteront talent-equipe, rh-paie, finance-ca, employe-*, etc.
 };
@@ -8538,7 +8487,7 @@ function showDashSection(section) {
   if (section === 'fil') loadFil();
   if (section === 'emploi-mode') loadEmploiMode();
   if (section === 'emploi-candidatures') loadMesCandidatures();
-  if (section === 'emploi-cv') loadCVWozali();
+
   if (section === 'recrut-publier') initRecrutPublier();
   if (section === 'recrut-offres') loadMesOffres();
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
@@ -19312,73 +19261,6 @@ function signalerOffreCandidat(candidatureId) {
   });
 }
 
-// ── Dashboard : CV WOZALI ──
-function loadCVWozali() {
-  if (!currentPrestataire) return;
-  const f = currentPrestataire.fields;
-  const photo = f['Photo de profil']?.[0]?.url || '';
-  const score = calculScoreWozali(currentPrestataire);
-
-  const photoEl = document.getElementById('cv-photo');
-  if (photoEl) {
-    photoEl.innerHTML = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Nom complet']||'?')[0];
-  }
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('cv-nom', f['Nom complet'] || '—');
-  set('cv-metier', f['Métier principal'] || '');
-  set('cv-quartier', '📍 ' + (f['Quartier'] || ''));
-  set('cv-score', score);
-  set('cv-note', f['Note moyenne'] ? Number(f['Note moyenne']).toFixed(1) : '—');
-  set('cv-avis', f['Nombre d\'avis reçus'] || '—');
-  set('cv-description', f['Description des services'] || 'Aucune description renseignée.');
-  set('cv-wa', f['WhatsApp'] ? '📱 ' + f['WhatsApp'] : '');
-  set('cv-exp', f['Années d\'expérience'] ? f['Années d\'expérience'] + ' ans d\'expérience' : '');
-
-  // Photos réalisations
-  const photosEl = document.getElementById('cv-photos');
-  if (photosEl) {
-    const photos = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
-    photosEl.innerHTML = photos.map(p => `<img src="${p}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" loading="lazy">`).join('');
-  }
-}
-
-function genererCVPDF() {
-  if (!currentPrestataire) return;
-  const f = currentPrestataire.fields;
-  const score = calculScoreWozali(currentPrestataire);
-  const photo = f['Photo de profil']?.[0]?.url || '';
-  const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><title>CV WOZALI — ${f['Nom complet']||''}</title>
-  <style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1a1a;}
-  h1{font-size:28px;margin:0;}h2{font-size:16px;color:#E8940A;border-bottom:2px solid #E8940A;padding-bottom:6px;}
-  .header{display:flex;gap:20px;align-items:center;margin-bottom:28px;border-bottom:3px solid #E8940A;padding-bottom:20px;}
-  .avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;}
-  .badge-wozali{display:inline-block;background:#E8940A;color:white;padding:4px 14px;border-radius:100px;font-size:13px;font-weight:bold;}
-  .score{font-size:24px;font-weight:900;color:#E8940A;} .gris{color:#666;font-size:13px;}
-  .photos{display:flex;gap:8px;} .photo-real{width:120px;height:100px;object-fit:cover;border-radius:8px;}
-  @media print{body{margin:0;}}</style><link rel="icon" type="image/svg+xml" href="/logos/mark.svg">
-</head><body>
-  <div class="header">
-    ${photo ? `<img src="${photo}" class="avatar" loading="lazy">` : ''}
-    <div>
-      <h1>${f['Nom complet']||'—'}</h1>
-      <div style="color:#E8940A;font-weight:bold;font-size:16px;">${f['Métier principal']||''}</div>
-      <div class="gris">📍 ${f['Quartier']||''} · ${f['WhatsApp']||f['Numéro de téléphone']||''}</div>
-      <div style="margin-top:6px;"><span class="badge-wozali">Score WOZALI : ${score}/100</span></div>
-    </div>
-  </div>
-  ${f['Description des services'] ? `<h2>À propos</h2><p>${f['Description des services']}</p>` : ''}
-  <div style="display:flex;gap:20px;margin:16px 0;">
-    <div><strong>Note :</strong> ${f['Note moyenne'] ? Number(f['Note moyenne']).toFixed(1) + '/5' : '—'}</div>
-    <div><strong>Avis :</strong> ${f['Nombre d\'avis reçus']||0}</div>
-    <div><strong>Expérience :</strong> ${f['Années d\'expérience'] ? f['Années d\'expérience'] + ' ans' : '—'}</div>
-  </div>
-  ${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).length > 0 ? `<h2>Réalisations</h2><div class="photos">${[f['Photo Réalisation 1'],f['Photo Réalisation 2'],f['Photo Réalisation 3']].filter(Boolean).map(p=>`<img src="${p}" class="photo-real" loading="lazy">`).join('')}</div>` : ''}
-  <p style="margin-top:28px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:10px;">CV généré par WOZALI · wozali.com · ${new Date().toLocaleDateString('fr-FR')}</p>
-  <script>window.onload=()=>window.print();<\/script>
-</body></html>`);
-  win.document.close();
-}
 
 // ── Dashboard : Publier une offre ──
 function initRecrutPublier() {
