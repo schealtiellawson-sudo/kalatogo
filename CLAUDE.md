@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-21)
 
+### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
+
 ---
 
 ### ✅ SESSION 2026-05-21 — Fix profil timeout + fix Mon Agenda spinner bloqué
@@ -202,7 +204,7 @@ Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "
 
 **Quand on reprend :**
 1. Vérifier que "Confirm email" est OFF dans Supabase Auth Settings
-2. Tester inscription complète (nouvel email) sur wolomarket.vercel.app
+2. Tester inscription complète (nouvel email) sur wozali.vercel.app
 3. Vérifier profil créé dans Supabase > Table Editor > `wolo_prestataires`
 4. Tester login avec le compte créé → dashboard doit s'ouvrir
 
@@ -239,7 +241,7 @@ Sans ça, push notifs tombent en silence (mais Boîte Fondateur + email Resend c
 - 🔗 https://aistudio.google.com/app/apikey → delete + créer + `vercel env rm/add GEMINI_API_KEY production`
 
 ### Détail action 3 — Tests E2E 4 personas (à faire ensemble next session)
-Pour chaque persona, créer compte sur https://wolomarket.vercel.app/ et vérifier :
+Pour chaque persona, créer compte sur https://wozali.vercel.app/ et vérifier :
 - ✅ Bloc Statut adapté au métier apparaît à l'inscription
 - ✅ Message Schealtiel apparaît dans dashboard "Mon activité" dès J+0
 - ✅ Pas d'erreur JS console (F12 → Console)
@@ -271,7 +273,7 @@ Dans `repo/index.html` chercher `22890000000` (placeholder du bouton "Parler à 
 
 ### 📊 État au 29 avril 2026 (fin session)
 
-**Code en prod (https://wolomarket.vercel.app)** :
+**Code en prod (https://wozali.vercel.app)** :
 - Dernier deploy : `db5a400` Ready
 - 4 commits poussés ce jour : `f0761b9`, `1c5f3ba`, `2580dc3`, `db5a400`
 - Migration Airtable→Supabase **code livré** (helpers + 6 fonctions refactorées avec fallback)
@@ -576,7 +578,7 @@ Le user a hit le quota mensuel Airtable (PUBLIC_API_BILLING_LIMIT_EXCEEDED) → 
 - Airtable Prestataires → delete sa ligne (optionnel, plus utilisé pour la lecture)
 
 **3. Recréer un profil test via inscription**
-- https://wolomarket.vercel.app → Inscription (3 étapes)
+- https://wozali.vercel.app → Inscription (3 étapes)
 - Le record sera créé direct dans `wolo_prestataires` Supabase avec `user_id = auth.users.id`
 
 **4. Tester ces flows un par un**
@@ -811,7 +813,7 @@ Airtable free tier = 5 req/s. Le dashboard envoie trop de requêtes en parallèl
 
 ## Projet
 
-WOZALI Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~24 700 lignes). Déployé sur Vercel à https://wolomarket.vercel.app.
+WOZALI Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~24 700 lignes). Déployé sur Vercel à https://wozali.vercel.app.
 
 ## Commandes
 
@@ -825,7 +827,7 @@ git commit -m "description"
 git push
 
 # Panel admin (nécessite un compte Supabase admin + ?admin dans l'URL)
-# https://wolomarket.vercel.app?admin
+# https://wozali.vercel.app?admin
 ```
 
 ## Stack technique
