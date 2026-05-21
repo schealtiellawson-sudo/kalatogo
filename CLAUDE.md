@@ -4,9 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-21)
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-21 soir)
 
 ### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
+
+---
+
+### ✅ SESSION 2026-05-21 (soir) — Audit exhaustif + 18 bugs fixés (commit 3d5ed38)
+
+**Bugs critiques fixés :**
+- **Inscription** : photo profil stockée dans `WhatsApp` au lieu de `Photo de profil` (bug silencieux depuis l'origine — toutes les photos d'inscription étaient perdues dans le mauvais champ)
+- **Inscription** : `const authData` réassignée (TypeError silencieux sur "email déjà utilisé") → `let effectiveUser/effectiveSession`
+- **loadDashOverview** : `completion['Photo de profil']` lisait `f['WhatsApp']` → corrigé
+- **loadDashOverview** : `scoreComp` lisait `f['Photo Profil']` (inexistant) → `f['Photo de profil']`
+- **loadDashOverview** : `scoreNote`/`scoreAvis` calculés avec `note=0`/`nbAvis=0` avant résolution `_avisPromise` → refactoré en 2 passes async (provisoire + finale)
+- **loadDashOverview** : `f['Points Cowrie']` (inexistant) → `f['Score WOZALI']`
+- **loadDashPhotos + recadrerPhotoProfil + posts + avis** : photo profil lue depuis `f['WhatsApp']` → `f['Photo de profil'] || f['WhatsApp']` (partout dans le code — 8 sites de lecture corrigés)
+- **8 fichiers API** : `from('profiles')` stale (table inexistante) → `from('wozali_prestataires')` + pivot `user_id` (recompenses-status, parrainage-stats, parrainage-apply, awards-candidater, awards-candidats, feed-comment, leaderboard, eligibilite-bourse cron, score-wozali cron + lib)
+- **supa-offres.js** : `'Salaire affiché'` absent du mapping → tous les salaires Jobs affichaient "À négocier" même avec min/max renseignés
+
+**Copy/Brand fixé :**
+- `500 000 FCFA` → `800 000 FCFA` dans 6 endroits (300K×2 Togo+Bénin + 100K×2)
+- "WOZALI signifie grandir en Yoruba" → "nous existons en Lingala"
+- `var(--vert)` + fonds verts dans renderRealisationsGrid et loadDashPosts → palette Nuit (#1E180E/#E8940A)
+
+**Migration créée :**
+- `20260521_offres_salaire_affiche.sql` — ADD COLUMN salaire_affiche BOOLEAN → **À APPLIQUER sur Supabase**
+
+### ⚠️ ACTION MANUELLE REQUISE avant lancement
+
+1. **Appliquer migration Supabase** (SQL Editor) :
+   `repo/supabase/migrations/20260521_offres_salaire_affiche.sql`
+
+2. **Corriger APP_URL sur Vercel** :
+   Dashboard Vercel → Settings → Environment Variables → `APP_URL` → remplacer `wolomarket.vercel.app` par `wozali.com` (ou `wozali.vercel.app`)
+
+3. **Configurer IA providers de fallback** (optionnel mais recommandé) :
+   - `GROQ_API_KEY` → https://console.groq.com
+   - Si Gemini tombe, aucun fallback IA configuré actuellement
 
 ---
 
