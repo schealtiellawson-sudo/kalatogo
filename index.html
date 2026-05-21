@@ -10330,8 +10330,13 @@ async function deleteDashAvis(avisId) {
   const card = document.getElementById('dash-avis-' + avisId);
   if (card) card.style.opacity = '0.4';
   try {
-    const res = await fetch(`${AT_URL('Avis')}/${avisId}`, { method: 'DELETE', headers: AT_HEADERS });
-    if (res.ok) {
+    const res = await wozaliFetch('/api/wozali-pay/avis-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ avis_id: avisId })
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
       if (card) { card.style.transition = 'all 0.3s'; card.style.maxHeight = '0'; card.style.padding = '0'; card.style.marginBottom = '0'; card.style.overflow = 'hidden'; setTimeout(() => card.remove(), 350); }
       toast('Avis supprimé.', 'success');
     } else {
@@ -12238,25 +12243,24 @@ async function submitPost(recordId) {
     }
   }
 
-  // Sauvegarder dans Airtable Posts
+  // Sauvegarder dans Supabase wolo_posts_v2
   try {
-    const postRes = await fetch(AT_URL('Posts'), {
-      method: 'POST', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: {
-        'Prestataire ID': recordId,
-        'Contenu':        texte || '',
-        'Type':           mediaType,
-        'Image URL':      mediaUrl || '',
-        'Likes':          0,
-        'Date':           new Date().toISOString(),
-        'Auteur Nom':     currentPrestataire?.fields?.['Nom complet'] || '',
-        'Auteur Photo':   currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || '',
-        'Commentaires':   '[]'
-      }})
-    });
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data: postData, error: postErr } = await supa.from('wolo_posts_v2').insert({
+      prestataire_id: recordId,
+      auteur_user_id: currentUser?.id || null,
+      auteur_nom:     currentPrestataire?.fields?.['Nom complet'] || '',
+      auteur_photo:   currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || currentPrestataire?.fields?.['WhatsApp'] || '',
+      contenu:        texte || '',
+      image_url:      mediaUrl || '',
+      media_type:     mediaType || 'text',
+      nb_likes:       0,
+      commentaires:   [],
+    }).select('id').single();
+    if (postErr) throw postErr;
     // Auto-ajouter au album Publications si l'owner publie
-    if (mediaUrl && currentPrestataire?.id === recordId && postRes.ok) {
-      const postData = await postRes.json().catch(() => ({}));
+    if (mediaUrl && currentPrestataire?.id === recordId && postData) {
       await _addToPublicationsAlbum(mediaUrl, mediaType === 'video' ? 'video' : 'photo', postData.id || '');
       currentPrestataire.fields['Albums'] = JSON.stringify(_getAlbums()); // sync local
     }
@@ -12274,23 +12278,30 @@ async function renderPostsFeed(recordId) {
   if (!feedEl) return;
   feedEl.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-size:13px;">⏳ Chargement...</div>`;
 
-  // Charger depuis Airtable
+  // Charger depuis Supabase wolo_posts_v2
   let posts = [];
   try {
-    const filter = encodeURIComponent(`{Prestataire ID}='${recordId}'`);
-    const res = await fetch(`${AT_URL('Posts')}?filterByFormula=${filter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=50`, { headers: AT_HEADERS });
-    const data = await res.json();
-    posts = (data.records || []).map(r => ({
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data: rows, error: postsErr } = await supa
+      .from('wolo_posts_v2')
+      .select('*')
+      .eq('prestataire_id', recordId)
+      .eq('actif', true)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (postsErr) throw postsErr;
+    posts = (rows || []).map(r => ({
       id:          r.id,
-      texte:       r.fields['Contenu']      || '',
-      photo:       r.fields['Image URL']    || '',
-      mediaType:   r.fields['Type']         || 'text',
-      date:        r.fields['Date']         || '',
-      auteur:      r.fields['Auteur Nom']   || '',
-      auteurPhoto: r.fields['Auteur Photo'] || '',
-      auteurId:    r.fields['Prestataire ID'] || null,
-      likes:       r.fields['Likes']        || 0,
-      comments:    (() => { try { return JSON.parse(r.fields['Commentaires'] || '[]'); } catch { return []; } })()
+      texte:       r.contenu      || '',
+      photo:       r.image_url    || '',
+      mediaType:   r.media_type   || 'text',
+      date:        r.created_at   || '',
+      auteur:      r.auteur_nom   || '',
+      auteurPhoto: r.auteur_photo || '',
+      auteurId:    r.prestataire_id || null,
+      likes:       r.nb_likes     || 0,
+      comments:    Array.isArray(r.commentaires) ? r.commentaires : []
     }));
   } catch(e) { feedEl.innerHTML = `<div style="color:rgba(255,100,100,0.6);padding:16px;font-size:13px;">Erreur de chargement</div>`; return; }
 
@@ -12720,23 +12731,24 @@ async function likePost(recordId, postId) {
   const likeId   = `${recordId}_${postId}`;
   const alreadyLiked = liked.includes(likeId);
 
-  // Lire le nombre de likes actuel depuis Airtable
+  // Lire le nombre de likes actuel depuis Supabase
   let currentLikes = 0;
   let postTexte = '';
   try {
-    const r = await fetch(`${AT_URL('Posts')}/${postId}`, { headers: AT_HEADERS });
-    const data = await r.json();
-    currentLikes = data.fields?.['Likes'] || 0;
-    postTexte    = data.fields?.['Contenu'] || '';
+    const supa = window.supabase;
+    if (!supa) return;
+    const { data: post } = await supa.from('wolo_posts_v2').select('nb_likes, contenu').eq('id', postId).maybeSingle();
+    currentLikes = post?.nb_likes || 0;
+    postTexte    = post?.contenu  || '';
   } catch { return; }
 
   const newLikes = alreadyLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
 
-  // Mettre à jour dans Airtable
-  await fetch(`${AT_URL('Posts')}/${postId}`, {
-    method: 'PATCH', headers: AT_HEADERS,
-    body: JSON.stringify({ fields: { 'Likes': newLikes } })
-  });
+  // Mettre à jour dans Supabase
+  try {
+    const supa = window.supabase;
+    await supa.from('wolo_posts_v2').update({ nb_likes: newLikes }).eq('id', postId);
+  } catch { return; }
 
   // Mettre à jour localStorage liked
   if (alreadyLiked) {
@@ -12785,22 +12797,21 @@ async function submitComment(recordId, postId) {
   }
   const auteurCommentaire = currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur';
 
-  // Lire les commentaires actuels depuis Airtable
+  // Lire les commentaires actuels depuis Supabase, ajouter, puis mettre à jour
   try {
-    const r    = await fetch(`${AT_URL('Posts')}/${postId}`, { headers: AT_HEADERS });
-    const data = await r.json();
-    const comments = (() => { try { return JSON.parse(data.fields?.['Commentaires'] || '[]'); } catch { return []; } })();
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data: post } = await supa.from('wolo_posts_v2').select('commentaires').eq('id', postId).maybeSingle();
+    const comments = Array.isArray(post?.commentaires) ? post.commentaires : [];
     comments.push({
       id: Date.now().toString(), texte,
       auteur: auteurCommentaire,
-      auteurPhoto: currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || '',
+      auteurPhoto: currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || currentPrestataire?.fields?.['WhatsApp'] || '',
       auteurId: currentPrestataire?.id || null,
       date: new Date().toISOString()
     });
-    await fetch(`${AT_URL('Posts')}/${postId}`, {
-      method: 'PATCH', headers: AT_HEADERS,
-      body: JSON.stringify({ fields: { 'Commentaires': JSON.stringify(comments) } })
-    });
+    const { error: updErr } = await supa.from('wolo_posts_v2').update({ commentaires: comments }).eq('id', postId);
+    if (updErr) throw updErr;
   } catch { toast('Erreur commentaire', 'error'); return; }
 
   pushNotif(recordId, { type: 'comment', auteur: auteurCommentaire, texte, postId });
@@ -12815,7 +12826,10 @@ async function submitComment(recordId, postId) {
 async function deletePost(recordId, postId) {
   if (!confirm('Supprimer cette publication ?')) return;
   try {
-    await fetch(`${AT_URL('Posts')}/${postId}`, { method: 'DELETE', headers: AT_HEADERS });
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { error } = await supa.from('wolo_posts_v2').delete().eq('id', postId);
+    if (error) throw error;
   } catch { toast('Erreur suppression', 'error'); return; }
   renderPostsFeed(recordId);
 }
@@ -12826,12 +12840,15 @@ async function deletePost(recordId, postId) {
 
 async function _getFavoriRecord(prestataireId) {
   if (!currentUser) return null;
-  const userId = currentUser.id;
-  const filter = encodeURIComponent(`AND({User ID}='${userId}',{Prestataire Favori ID}='${prestataireId}')`);
+  const supa = window.supabase;
+  if (!supa) return null;
   try {
-    const res = await fetch(`${AT_URL('Favoris')}?filterByFormula=${filter}&maxRecords=1`, { headers: AT_HEADERS });
-    const data = await res.json();
-    return data.records?.[0] || null;
+    const { data } = await supa.from('wolo_favoris_presta')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .eq('prestataire_id', prestataireId)
+      .maybeSingle();
+    return data || null;
   } catch { return null; }
 }
 
@@ -12868,26 +12885,23 @@ async function toggleFavori(prestataireId) {
   const btn = document.getElementById(`fav-btn-${prestataireId}`);
   const existingRec = await _getFavoriRecord(prestataireId);
 
+  const supa = window.supabase;
+  if (!supa) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   if (existingRec) {
     // Retirer des favoris
     try {
-      await fetch(`${AT_URL('Favoris')}/${existingRec.id}`, { method: 'DELETE', headers: AT_HEADERS });
+      const { error } = await supa.from('wolo_favoris_presta').delete().eq('id', existingRec.id);
+      if (error) throw error;
       toast('Retiré des favoris', 'info');
     } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   } else {
     // Ajouter aux favoris
-    const record = window._currentProfilRecord || window._allPrestataires?.find(r => r.id === prestataireId);
-    const nom = record?.fields?.['Nom complet'] || '';
     try {
-      await fetch(AT_URL('Favoris'), {
-        method: 'POST', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: {
-          'User ID': currentUser.id,
-          'Prestataire Favori ID': prestataireId,
-          'Nom Prestataire': nom,
-          'Date': new Date().toISOString()
-        }})
+      const { error } = await supa.from('wolo_favoris_presta').insert({
+        user_id: currentUser.id,
+        prestataire_id: prestataireId
       });
+      if (error) throw error;
       toast('❤️ Ajouté aux favoris !', 'success');
       // Notifier le prestataire
       pushNotif(prestataireId, { type: 'favori', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
@@ -12903,12 +12917,19 @@ async function loadFavoris() {
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris)"><div class="spinner"></div></div>';
 
   try {
-    const filter = encodeURIComponent(`{User ID}='${currentUser.id}'`);
-    const res = await fetch(`${AT_URL('Favoris')}?filterByFormula=${filter}&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=50`, { headers: AT_HEADERS });
-    const data = await res.json();
-    const favRecords = data.records || [];
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
 
-    if (!favRecords.length) {
+    // Récupérer les favoris
+    const { data: favs, error: favErr } = await supa
+      .from('wolo_favoris_presta')
+      .select('id, prestataire_id, created_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (favErr) throw favErr;
+
+    if (!favs || !favs.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;">
           <div style="font-size:48px;margin-bottom:12px;">💔</div>
@@ -12919,36 +12940,33 @@ async function loadFavoris() {
       return;
     }
 
-    // Charger les détails de chaque prestataire favori
-    const ids = favRecords.map(r => r.fields['Prestataire Favori ID']).filter(Boolean);
-    const detailsMap = {};
-    await Promise.all(ids.map(async id => {
-      try {
-        const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS });
-        if (r.ok) { const d = await r.json(); detailsMap[id] = d; }
-      } catch {}
-    }));
+    // Charger les détails des prestataires en une seule requête
+    const ids = favs.map(f => f.prestataire_id).filter(Boolean);
+    const { data: prests } = await supa
+      .from('wolo_prestataires')
+      .select('id, nom_complet, metier_principal, quartier, photo_profil, abonnement, disponible_maintenant')
+      .in('id', ids);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
 
-    container.innerHTML = favRecords.map(favRec => {
-      const pid = favRec.fields['Prestataire Favori ID'];
-      const pdata = detailsMap[pid];
-      if (!pdata) return '';
-      const f = pdata.fields;
-      const nomRaw = f['Nom complet'] || '—';
-      const metierRaw = f['Métier principal'] || '';
-      const quartierRaw = f['Quartier'] || '';
-      const photo = f['WhatsApp'] || '';
-      const plan = f['Abonnement'] || 'Base';
-      const note = f['Note moyenne'] || 0;
-      const dispo = f['Disponible maintenant'];
-      const emoji = METIER_EMOJI[metierRaw] || '⚡';
-      const dateAjout = favRec.fields['Date'] ? new Date(favRec.fields['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
-      const nom = escapeHtml(nomRaw);
-      const metier = escapeHtml(metierRaw);
-      const quartier = escapeHtml(quartierRaw);
+    container.innerHTML = favs.map(fav => {
+      const pid = fav.prestataire_id;
+      const p = prestMap[pid];
+      if (!p) return '';
+      const nomRaw    = p.nom_complet        || '—';
+      const metierRaw = p.metier_principal   || '';
+      const quartierRaw = p.quartier         || '';
+      const photo     = p.photo_profil       || '';
+      const plan      = p.abonnement         || 'Base';
+      const dispo     = p.disponible_maintenant;
+      const emoji     = METIER_EMOJI?.[metierRaw] || '⚡';
+      const dateAjout = fav.created_at ? new Date(fav.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+      const nom       = escapeHtml(nomRaw);
+      const metier    = escapeHtml(metierRaw);
+      const quartier  = escapeHtml(quartierRaw);
       const photoSafe = encodeURI(photo || '');
-      const pidSafe = escapeHtml(pid || '');
-      const favIdSafe = escapeHtml(favRec.id || '');
+      const pidSafe   = escapeHtml(pid  || '');
+      const favIdSafe = escapeHtml(fav.id || '');
       return `
         <div style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1.5px solid transparent;transition:border 0.2s;cursor:pointer;"
           onmouseover="this.style.borderColor='var(--vert-light)'" onmouseout="this.style.borderColor='transparent'"
@@ -12982,10 +13000,12 @@ async function loadFavoris() {
 
 async function removeFavori(favId, prestataireId) {
   try {
-    await fetch(`${AT_URL('Favoris')}/${favId}`, { method: 'DELETE', headers: AT_HEADERS });
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { error } = await supa.from('wolo_favoris_presta').delete().eq('id', favId);
+    if (error) throw error;
     toast('Retiré des favoris', 'info');
     loadFavoris();
-    // Update button if profile is visible
     updateFavBtn(prestataireId);
   } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
 }
@@ -12996,11 +13016,15 @@ async function removeFavori(favId, prestataireId) {
 
 async function _getSuiviRecord(prestataireId) {
   if (!currentUser) return null;
+  const supa = window.supabase;
+  if (!supa) return null;
   try {
-    const filter = encodeURIComponent(`AND({Abonné ID}='${currentUser.id}',{Prestataire ID}='${prestataireId}')`);
-    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&maxRecords=1`, { headers: AT_HEADERS });
-    const data = await res.json();
-    return data.records?.[0] || null;
+    const { data } = await supa.from('wolo_suivis')
+      .select('id')
+      .eq('suiveur_user_id', currentUser.id)
+      .eq('suivi_prestataire_id', prestataireId)
+      .maybeSingle();
+    return data || null;
   } catch { return null; }
 }
 
@@ -13043,26 +13067,25 @@ async function toggleSuivi(prestataireId) {
     return;
   }
   const existingRec = await _getSuiviRecord(prestataireId);
+  const supa = window.supabase;
+  if (!supa) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   if (existingRec) {
     // Optimistic UI — feedback immédiat
     _setSuiviBtnState(prestataireId, false);
     try {
-      await fetch(`${AT_URL('Abonnements')}/${existingRec.id}`, { method: 'DELETE', headers: AT_HEADERS });
+      const { error } = await supa.from('wolo_suivis').delete().eq('id', existingRec.id);
+      if (error) throw error;
       toast('Tu ne suis plus ce prestataire', 'info');
     } catch { _setSuiviBtnState(prestataireId, true); toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
   } else {
     // Optimistic UI — feedback immédiat
     _setSuiviBtnState(prestataireId, true);
     try {
-      const res = await fetch(AT_URL('Abonnements'), {
-        method: 'POST', headers: AT_HEADERS,
-        body: JSON.stringify({ fields: {
-          'Abonné ID': currentUser.id,
-          'Prestataire ID': prestataireId,
-          'Date': new Date().toISOString().split('T')[0]
-        }})
+      const { error } = await supa.from('wolo_suivis').insert({
+        suiveur_user_id: currentUser.id,
+        suivi_prestataire_id: prestataireId
       });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message || 'Erreur Airtable'); }
+      if (error) throw error;
       toast('✅ Tu suis ce prestataire !', 'success');
       pushNotif(prestataireId, { type: 'suivi', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
     } catch(e) { _setSuiviBtnState(prestataireId, false); toast('Erreur : ' + e.message, 'error'); return; }
@@ -13074,10 +13097,12 @@ async function loadFollowerCount(prestataireId) {
   const el = document.getElementById(`pstat-abonnes-${prestataireId}`);
   if (!el) return;
   try {
-    const filter = encodeURIComponent(`{Prestataire ID}='${prestataireId}'`);
-    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&maxRecords=100`, { headers: AT_HEADERS });
-    const data = await res.json();
-    el.textContent = (data.records || []).length;
+    const supa = window.supabase;
+    if (!supa) { el.textContent = '0'; return; }
+    const { count } = await supa.from('wolo_suivis')
+      .select('id', { count: 'exact', head: true })
+      .eq('suivi_prestataire_id', prestataireId);
+    el.textContent = count || 0;
   } catch { el.textContent = '0'; }
 }
 
@@ -13087,11 +13112,19 @@ async function loadAbonnements() {
   if (!container) return;
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><div class="spinner"></div></div>';
   try {
-    const filter = encodeURIComponent(`{Abonné ID}='${currentUser.id}'`);
-    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=100`, { headers: AT_HEADERS });
-    const data = await res.json();
-    const recs = data.records || [];
-    if (!recs.length) {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+
+    // Récupérer les suivis
+    const { data: suivis, error: suiviErr } = await supa
+      .from('wolo_suivis')
+      .select('id, suivi_prestataire_id, created_at')
+      .eq('suiveur_user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (suiviErr) throw suiviErr;
+
+    if (!suivis || !suivis.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;">
           <div style="font-size:48px;margin-bottom:12px;">👥</div>
@@ -13101,32 +13134,33 @@ async function loadAbonnements() {
         </div>`;
       return;
     }
-    const ids = recs.map(r => r.fields['Prestataire ID']).filter(Boolean);
-    const detailsMap = {};
-    await Promise.all(ids.map(async id => {
-      try {
-        const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS });
-        if (r.ok) { const d = await r.json(); detailsMap[id] = d; }
-      } catch {}
-    }));
-    container.innerHTML = recs.map(rec => {
-      const pid = rec.fields['Prestataire ID'];
-      const pdata = detailsMap[pid];
-      if (!pdata) return '';
-      const f = pdata.fields;
-      const nomRaw = f['Nom complet'] || '—';
-      const metierRaw = f['Métier principal'] || '';
-      const quartierRaw = f['Quartier'] || '';
-      const photo = f['Photo de profil']?.[0]?.url || '';
-      const plan = f['Abonnement'] || 'Base';
-      const dispo = f['Disponible maintenant'];
-      const emoji = METIER_EMOJI?.[metierRaw] || '⚡';
-      const dateAjout = rec.fields['Date'] ? new Date(rec.fields['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
-      const nom = escapeHtml(nomRaw);
-      const metier = escapeHtml(metierRaw);
-      const quartier = escapeHtml(quartierRaw);
+
+    // Charger les détails prestataires en une requête
+    const ids = suivis.map(s => s.suivi_prestataire_id).filter(Boolean);
+    const { data: prests } = await supa
+      .from('wolo_prestataires')
+      .select('id, nom_complet, metier_principal, quartier, photo_profil, abonnement, disponible_maintenant')
+      .in('id', ids);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+
+    container.innerHTML = suivis.map(s => {
+      const pid = s.suivi_prestataire_id;
+      const p = prestMap[pid];
+      if (!p) return '';
+      const nomRaw    = p.nom_complet        || '—';
+      const metierRaw = p.metier_principal   || '';
+      const quartierRaw = p.quartier         || '';
+      const photo     = p.photo_profil       || '';
+      const plan      = p.abonnement         || 'Base';
+      const dispo     = p.disponible_maintenant;
+      const emoji     = METIER_EMOJI?.[metierRaw] || '⚡';
+      const dateAjout = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+      const nom       = escapeHtml(nomRaw);
+      const metier    = escapeHtml(metierRaw);
+      const quartier  = escapeHtml(quartierRaw);
       const photoSafe = encodeURI(photo || '');
-      const pidSafe = escapeHtml(pid || '');
+      const pidSafe   = escapeHtml(pid  || '');
       return `
         <div style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1.5px solid transparent;transition:border 0.2s;cursor:pointer;"
           onmouseover="this.style.borderColor='var(--vert-light)'" onmouseout="this.style.borderColor='transparent'"
@@ -13164,12 +13198,11 @@ async function loadFil() {
   if (!container) return;
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);"><div class="spinner"></div></div>';
   try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
     // 1. Récupérer les prestataires suivis
-    const filter = encodeURIComponent(`{Abonné ID}='${currentUser.id}'`);
-    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&maxRecords=100`, { headers: AT_HEADERS });
-    const data = await res.json();
-    const suivis = data.records || [];
-    if (!suivis.length) {
+    const { data: suivis } = await supa.from('wolo_suivis').select('suivi_prestataire_id').eq('suiveur_user_id', currentUser.id).limit(100);
+    if (!suivis || !suivis.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);">
           <div style="font-size:56px;margin-bottom:16px;">📭</div>
@@ -13179,14 +13212,10 @@ async function loadFil() {
         </div>`;
       return;
     }
-    const prestIds = suivis.map(r => r.fields['Prestataire ID']).filter(Boolean);
+    const prestIds = suivis.map(s => s.suivi_prestataire_id).filter(Boolean);
     // 2. Récupérer les posts de ces prestataires
-    const orParts = prestIds.map(id => `{Prestataire ID}='${id}'`).join(',');
-    const postFilter = encodeURIComponent(`OR(${orParts})`);
-    const postRes = await fetch(`${AT_URL('Posts')}?filterByFormula=${postFilter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=50`, { headers: AT_HEADERS });
-    const postData = await postRes.json();
-    const posts = postData.records || [];
-    if (!posts.length) {
+    const { data: posts } = await supa.from('wolo_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).order('created_at', { ascending: false }).limit(50);
+    if (!posts || !posts.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);">
           <div style="font-size:56px;margin-bottom:16px;">🕐</div>
@@ -13196,33 +13225,26 @@ async function loadFil() {
       return;
     }
     // 3. Charger les détails des prestataires
-    const uniquePrestIds = [...new Set(posts.map(p => p.fields['Prestataire ID']).filter(Boolean))];
+    const uniqueIds = [...new Set(posts.map(p => p.prestataire_id).filter(Boolean))];
+    const { data: prests } = await supa.from('wolo_prestataires').select('id, nom_complet, metier_principal, photo_profil').in('id', uniqueIds);
     const prestMap = {};
-    await Promise.all(uniquePrestIds.map(async id => {
-      try {
-        const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS });
-        if (r.ok) { const d = await r.json(); prestMap[id] = d; }
-      } catch {}
-    }));
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
     // Masquer badge NEW
     const badge = document.getElementById('fil-badge');
     if (badge) badge.style.display = 'none';
     // 4. Rendre le fil
     container.innerHTML = posts.map(post => {
-      const pf = post.fields;
-      const prestId = pf['Prestataire ID'];
-      const prest = prestMap[prestId];
-      const pf2 = prest?.fields || {};
-      const nom = pf2['Nom complet'] || pf['Auteur'] || 'Prestataire';
-      const metier = pf2['Métier principal'] || '';
-      const photoProfil = pf2['WhatsApp'] || '';
-      const contenu = pf['Contenu'] || '';
-      const mediaUrl = pf['Media URL'] || '';
-      const mediaType = pf['Media Type'] || '';
-      const datePost = pf['Date'] ? new Date(pf['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
-      let likes = 0;
-      try { const likeurs = JSON.parse(pf['Likeurs'] || '[]'); likes = likeurs.length; } catch { likes = pf['Likes'] || 0; }
-      const initiale = nom.charAt(0).toUpperCase();
+      const prestId     = post.prestataire_id;
+      const prest       = prestMap[prestId] || {};
+      const nom         = prest.nom_complet      || post.auteur_nom || 'Prestataire';
+      const metier      = prest.metier_principal || '';
+      const photoProfil = prest.photo_profil     || post.auteur_photo || '';
+      const contenu     = post.contenu   || '';
+      const mediaUrl    = post.image_url || '';
+      const mediaType   = post.media_type || '';
+      const datePost    = post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
+      const likes       = post.nb_likes || 0;
+      const initiale    = nom.charAt(0).toUpperCase();
       return `
         <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.08);border:1px solid #f0f0f0;margin-bottom:14px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
@@ -13230,16 +13252,16 @@ async function loadFil() {
               ? `<img src="${photoProfil}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);" loading="lazy">`
               : `<div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:'DM Serif Display',serif;font-size:16px;">${initiale}</div>`}
             <div style="flex:1;">
-              <div style="font-weight:800;font-size:14px;color:var(--noir);">${nom}</div>
-              <div style="font-size:11px;color:var(--gris);">${metier}${datePost ? ' · '+datePost : ''}</div>
+              <div style="font-weight:800;font-size:14px;color:var(--noir);">${escapeHtml(nom)}</div>
+              <div style="font-size:11px;color:var(--gris);">${escapeHtml(metier)}${datePost ? ' · '+datePost : ''}</div>
             </div>
             <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
           </div>
-          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${contenu}</div>` : ''}
-          ${mediaUrl && mediaType === 'image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
+          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${escapeHtml(contenu)}</div>` : ''}
+          ${mediaUrl && (mediaType === 'photo' || mediaType === 'image') ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
           ${mediaUrl && mediaType === 'video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
           <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
-            <button onclick="likePost('${post.id}',this)" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;padding:4px 0;">
+            <button onclick="likePost('${prestId}','${post.id}')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;padding:4px 0;">
               ❤️ <span>${likes}</span>
             </button>
             <span style="font-size:12px;color:var(--gris);">💬 Commenter</span>
@@ -13288,11 +13310,14 @@ async function loadFilPageFeed() {
   if (!container) return;
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);"><div class="spinner"></div></div>';
   try {
-    const filter = encodeURIComponent(`{Abonné ID}='${currentUser.id}'`);
-    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&maxRecords=100`, { headers: AT_HEADERS });
-    const data = await res.json();
-    const suivis = data.records || [];
-    if (!suivis.length) {
+    const supa = window.supabase;
+    // 1. Abonnements depuis wolo_suivis
+    const { data: suivis } = await supa
+      .from('wolo_suivis')
+      .select('suivi_prestataire_id')
+      .eq('suiveur_user_id', currentUser.id)
+      .limit(100);
+    if (!suivis || !suivis.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);">
           <div style="font-size:56px;margin-bottom:16px;">📭</div>
@@ -13302,13 +13327,16 @@ async function loadFilPageFeed() {
         </div>`;
       return;
     }
-    const prestIds = suivis.map(r => r.fields['Prestataire ID']).filter(Boolean);
-    const orParts  = prestIds.map(id => `{Prestataire ID}='${id}'`).join(',');
-    const postFilter = encodeURIComponent(`OR(${orParts})`);
-    const postRes = await fetch(`${AT_URL('Posts')}?filterByFormula=${postFilter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=50`, { headers: AT_HEADERS });
-    const postData = await postRes.json();
-    const posts = postData.records || [];
-    if (!posts.length) {
+    const prestIds = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
+    // 2. Posts depuis wolo_posts_v2
+    const { data: posts } = await supa
+      .from('wolo_posts_v2')
+      .select('*')
+      .in('prestataire_id', prestIds)
+      .eq('actif', true)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (!posts || !posts.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);">
           <div style="font-size:56px;margin-bottom:16px;">🕐</div>
@@ -13317,23 +13345,25 @@ async function loadFilPageFeed() {
         </div>`;
       return;
     }
-    const uniqueIds = [...new Set(posts.map(p => p.fields['Prestataire ID']).filter(Boolean))];
+    // 3. Prestataires en batch
+    const uniqueIds = [...new Set(posts.map(p => p.prestataire_id).filter(Boolean))];
+    const { data: prests } = await supa
+      .from('wolo_prestataires')
+      .select('id, nom_complet, metier_principal, photo_profil')
+      .in('id', uniqueIds);
     const prestMap = {};
-    await Promise.all(uniqueIds.map(async id => {
-      try { const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS }); if (r.ok) { const d = await r.json(); prestMap[id] = d; } } catch {}
-    }));
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
     container.innerHTML = posts.map(post => {
-      const pf = post.fields;
-      const prestId = pf['Prestataire ID'];
-      const pf2 = prestMap[prestId]?.fields || {};
-      const nom = pf2['Nom complet'] || 'Prestataire';
-      const metier = pf2['Métier principal'] || '';
-      const photo = pf2['WhatsApp'] || '';
-      const contenu = pf['Contenu'] || '';
-      const mediaUrl = pf['Media URL'] || '';
-      const mediaType = pf['Media Type'] || '';
-      const datePost = pf['Date'] ? new Date(pf['Date']).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
-      let likes = 0; try { likes = JSON.parse(pf['Likeurs']||'[]').length; } catch { likes = pf['Likes']||0; }
+      const pr = prestMap[post.prestataire_id] || {};
+      const prestId = post.prestataire_id;
+      const nom = pr.nom_complet || post.auteur_nom || 'Prestataire';
+      const metier = pr.metier_principal || '';
+      const photo = pr.photo_profil || '';
+      const contenu = post.contenu || '';
+      const mediaUrl = post.image_url || '';
+      const mediaType = post.media_type || '';
+      const datePost = post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
+      const likes = post.nb_likes || 0;
       const initiale = nom.charAt(0).toUpperCase();
       return `
         <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:14px;">
@@ -13349,7 +13379,7 @@ async function loadFilPageFeed() {
           ${mediaUrl && mediaType==='image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
           ${mediaUrl && mediaType==='video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
           <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
-            <button onclick="likePost('${post.id}',this)" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;">❤️ <span>${likes}</span></button>
+            <button onclick="likePost('${prestId}','${post.id}')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;">❤️ <span>${likes}</span></button>
           </div>
         </div>`;
     }).join('');
@@ -13364,26 +13394,33 @@ async function loadFilPageAbonnes() {
   if (!container) return;
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><div class="spinner"></div></div>';
   try {
-    const filter = encodeURIComponent(`{Abonné ID}='${currentUser.id}'`);
-    const res = await fetch(`${AT_URL('Abonnements')}?filterByFormula=${filter}&sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=100`, { headers: AT_HEADERS });
-    const data = await res.json();
-    const recs = data.records || [];
-    if (!recs.length) {
+    const supa = window.supabase;
+    // 1. Abonnements depuis wolo_suivis
+    const { data: suivis } = await supa
+      .from('wolo_suivis')
+      .select('id, suivi_prestataire_id, created_at')
+      .eq('suiveur_user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (!suivis || !suivis.length) {
       container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;"><div style="font-size:48px;margin-bottom:12px;">👥</div><h3 style="font-family:'DM Serif Display',serif;color:var(--noir);">Tu ne suis personne encore</h3><p style="font-size:14px;margin-top:8px;">Explore des profils et clique <strong>Suivre</strong>.</p><button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button></div>`;
       return;
     }
-    const ids = recs.map(r => r.fields['Prestataire ID']).filter(Boolean);
-    const detailsMap = {};
-    await Promise.all(ids.map(async id => {
-      try { const r = await fetch(`${AT_URL('Prestataires')}/${id}`, { headers: AT_HEADERS }); if (r.ok) { const d = await r.json(); detailsMap[id] = d; } } catch {}
-    }));
-    container.innerHTML = recs.map(rec => {
-      const pid = rec.fields['Prestataire ID'];
-      const f = detailsMap[pid]?.fields || {};
-      const nom = f['Nom complet'] || '—';
-      const metier = f['Métier principal'] || '';
-      const photo = f['WhatsApp'] || '';
-      const dispo = f['Disponible maintenant'];
+    // 2. Prestataires en batch
+    const ids = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
+    const { data: prests } = await supa
+      .from('wolo_prestataires')
+      .select('id, nom_complet, metier_principal, photo_profil, disponible_maintenant')
+      .in('id', ids);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+    container.innerHTML = suivis.map(rec => {
+      const pid = rec.suivi_prestataire_id;
+      const p = prestMap[pid] || {};
+      const nom = p.nom_complet || '—';
+      const metier = p.metier_principal || '';
+      const photo = p.photo_profil || '';
+      const dispo = p.disponible_maintenant;
       return `
         <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="showProfil('${pid}');showPage('profil');">
           <div style="position:relative;flex-shrink:0;">
@@ -14937,20 +14974,35 @@ async function submitAvis() {
   };
 
   try {
-    const res = await fetch(AT_URL('Avis'), {
-      method: 'POST', headers: AT_HEADERS,
-      body: JSON.stringify({ fields })
-    });
-
-    if (res.ok) {
-      closeModal();
-      toast('Merci pour ton avis ! 🎉', 'success');
-      // Recharger le profil pour afficher le nouvel avis
-      if (currentAvisPrestataire) showProfil(currentAvisPrestataire);
+    if (window.supaAvis) {
+      // Supabase — chemin principal
+      const { nom: auteurNom, photo: auteurPhoto } = parseAvisCommentaire(commentFinal);
+      await window.supaAvis.create({
+        'Prestataire ID':     currentAvisPrestataire,
+        'Note globale sur 5': selectedStars,
+        'Date avis':          new Date().toISOString().split('T')[0],
+        'Validated':          true,
+        'Commentaire':        commentFinal,
+        'Auteur Nom':         auteurNom,
+        'Auteur User ID':     currentUser?.id || null,
+        'Auteur Photo':       auteurPhoto || '',
+      });
     } else {
-      const err = await res.json();
-      toast('Erreur : ' + (err.error?.message || 'Réessaie'), 'error');
+      // Fallback Airtable (legacy)
+      const res = await fetch(AT_URL('Avis'), {
+        method: 'POST', headers: AT_HEADERS,
+        body: JSON.stringify({ fields })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast('Erreur : ' + (err.error?.message || 'Réessaie'), 'error');
+        return;
+      }
     }
+    closeModal();
+    toast('Merci pour ton avis ! 🎉', 'success');
+    // Recharger le profil pour afficher le nouvel avis
+    if (currentAvisPrestataire) showProfil(currentAvisPrestataire);
   } catch {
     toast('Problème de connexion', 'error');
   }
@@ -17640,17 +17692,22 @@ async function loadDashPosts() {
   if (!currentPrestataire?.id) return;
   const prestId = currentPrestataire.id;
 
-  // Charger depuis Airtable
+  // Charger depuis wolo_posts_v2 (Supabase)
   let posts = [];
   try {
-    const filter = encodeURIComponent(`{Prestataire ID}='${prestId}'`);
-    const res = await fetch(`${AT_URL('Posts')}?filterByFormula=${filter}&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=100`, { headers: AT_HEADERS });
-    const data = await res.json();
-    posts = (data.records || []).map(r => ({
+    const supa = window.supabase;
+    const { data: rows } = await supa
+      .from('wolo_posts_v2')
+      .select('id, contenu, nb_likes, commentaires')
+      .eq('prestataire_id', prestId)
+      .eq('actif', true)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    posts = (rows || []).map(r => ({
       id:       r.id,
-      texte:    r.fields['Contenu']   || '',
-      likes:    r.fields['Likes']     || 0,
-      comments: (() => { try { return JSON.parse(r.fields['Commentaires'] || '[]'); } catch { return []; } })()
+      texte:    r.contenu || '',
+      likes:    r.nb_likes || 0,
+      comments: Array.isArray(r.commentaires) ? r.commentaires : []
     }));
   } catch { /* silencieux */ }
 

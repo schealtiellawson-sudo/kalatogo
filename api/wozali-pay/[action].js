@@ -96,6 +96,8 @@ import rdvList from './_impl/rdv-list.js';
 import rdvUpdate from './_impl/rdv-update.js';
 import rdvDelete from './_impl/rdv-delete.js';
 import rdvSlots from './_impl/rdv-slots.js';
+// Avis — suppression sécurisée (2026-05-21)
+import avisDelete from './_impl/avis-delete.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -229,6 +231,8 @@ const handlers = {
   'rdv-update': rdvUpdate,
   'rdv-delete': rdvDelete,
   'rdv-slots':  rdvSlots,
+  // Avis delete (2026-05-21)
+  'avis-delete': avisDelete,
 };
 
 export default async function handler(req, res) {
