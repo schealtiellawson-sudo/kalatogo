@@ -8959,8 +8959,8 @@ function renderPremierPasWizard() {
     const metierLocal = currentPrestataire?.fields?.['Métier principal'] || '';
     const villeLocal = currentPrestataire?.fields?.['Ville'] || '';
     const waText = metierLocal
-      ? `${prenom ? prenom + ' est' : 'Je suis'} ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}. Mes réalisations, mes tarifs, mes avis clients — tout est là :\n👉 ${profilUrl}\n\nTu veux trouver les meilleurs pros autour de toi ? wozali.com`
-      : `Je suis sur WOZALI. Mon profil complet — réalisations, tarifs, avis :\n👉 ${profilUrl}\n\nTon travail parle. Pas tes connexions. wozali.com`;
+      ? `${prenom ? prenom + ' est' : 'Je suis'} ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}.\nPhotos vraies, tarifs réels, avis de mes vrais clients — tout est là :\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais — envoie-lui ça. Je te renvoie l'ascenseur. 🤝`
+      : `J'ai mis tout mon travail sur WOZALI.\nPhotos vraies, tarifs réels, avis de mes clients.\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais — envoie-lui ça. Je te renvoie l'ascenseur. 🤝`;
     const waUrl = 'https://wa.me/?text=' + encodeURIComponent(waText);
     cards.push(`
       <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
@@ -15177,12 +15177,10 @@ function shareProfile(recordId, nom) {
   }
   lines.push('');
   // Bénéfice concret + lien
-  lines.push('Son profil complet, ses réalisations, ses tarifs — tout est là :');
+  lines.push('Photos vraies, tarifs réels, avis de vrais clients — tout est là :');
   lines.push(`👉 ${profileUrl}`);
   lines.push('');
-  // CTA créer compte
-  lines.push('📲 Crée ton propre profil gratuit sur wozali.com');
-  lines.push('Ton travail parle. Pas tes connexions.');
+  lines.push('Si tu cherches quelqu\'un de sérieux, passe voir. wozali.com');
 
   const text = lines.join('\n');
 
