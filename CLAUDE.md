@@ -4,6 +4,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-22)
+
+### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
+
+---
+
+### ✅ SESSION 2026-05-22 — Tests E2E Mariam + 8 bugs critiques fixés
+
+**Commits pushés :** `eb52d1b`, `dd290a2`, `7bd724c`, `fb8fc9d`, `5b945b5`
+
+**Bugs fixés :**
+
+1. **Bouton "Passer Pro maintenant"** (page Comment ça marche + dernier slide onboarding) :
+   - Si connecté → `showPage('dashboard')` + `showDashSection('abonnement')`
+   - Si non connecté → `showPage('inscription')`
+   - Avant : renvoyait systématiquement sur la page inscription même si déjà connecté
+
+2. **Onboarding slide 4 — copy parrainage** :
+   - Nouveau titre : *"Fais tourner le commerce des autres. Le tien en profite."*
+   - Nouveau texte : angle service-first "aide quelqu'un à faire marcher son business → tu gagnes" au lieu de l'angle revenu passif générique
+
+3. **Photos inscription/dashboard invisibles sur profil public** :
+   - Cause : Supabase stocke `photo_profil` comme URL string, mais tout le code lisait `f['Photo de profil']?.[0]?.url` (format Airtable = tableau d'objets)
+   - Fix : helper global `_wPhotoUrl(val)` qui normalise les deux formats (string OU `[{url}]`) → 8 occurrences patchées dans index.html + `components/supa-prest.js`
+   - Fix `_toSupaRow` : accepte string OU `[{url}]` en écriture
+
+4. **Photos inscription retry perdues** :
+   - Cause : si profil existait déjà (retry), les photos uploadées n'étaient pas appliquées
+   - Fix : `update(existing.id, updateFields)` avec les photos manquantes lors du retry
+
+5. **Délai photos profil public (0 → 3 photos après 1 min)** :
+   - Cause : cache mémoire servait l'ancien profil sans photos, background refresh mettait à jour le cache mais ne re-rendait pas la page
+   - Fix 1 : propre profil → bypass cache systématique (fetch Supabase frais à chaque visite)
+   - Fix 2 : background refresh → re-render silencieux si profil toujours affiché
+   - Fix 3 : `_doUploadProfilCrop` + `_doUploadRealisationCrop` → `delete window._profilCache[id]` après upload
+
+6. **Redirect vers login après actualisation** :
+   - Cause : overlay 5s failsafe retire le blocage avant que Supabase ait répondu → utilisateur clique "Mon Profil Public" → `currentPrestataire` null → `showPage('login')`
+   - Fix : `viewMyProfile()` — si `currentUser` existe, jamais de redirect login. Affiche un loader et réessaie toutes les secondes pendant 12s. Seulement si vraiment déconnecté → login.
+
+**Tests E2E Mariam (persona coiffeuse, Lomé, Bè) :**
+- ✅ Inscription créée avec succès (mariam.test2)
+- ✅ Dashboard accessible
+- ✅ Profil public visible
+- ✅ Photos réalisations visibles dans dashboard ET profil public
+- ⚠️ Photo de profil toujours "M" avatar (mariam.test2 n'a pas uploadé de photo profil à l'inscription)
+
+**Personas E2E restants :**
+- ⏳ Kodjo (Mécanicien moto, Akpakpa, Cotonou)
+- ⏳ Akossiwa (Photographe, Lomé)
+- ⏳ Madame Adjo (Restaurant, Cotonou)
+
+---
+
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-21 soir)
 
 ### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
