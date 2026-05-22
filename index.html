@@ -15556,7 +15556,18 @@ async function submitInscription(e) {
       try {
         const existing = await window.supaPrest.findByUserId(effectiveUser.id);
         if (existing) {
-          record = existing;
+          // Mise à jour des champs manquants (surtout les photos uploadées lors de ce retry)
+          const updateFields = {};
+          if (profilUrl && !existing.fields['Photo de profil']) updateFields['Photo de profil'] = profilUrl;
+          if (photo1Url && !existing.fields['Photo Réalisation 1']) updateFields['Photo Réalisation 1'] = photo1Url;
+          if (photo2Url && !existing.fields['Photo Réalisation 2']) updateFields['Photo Réalisation 2'] = photo2Url;
+          if (photo3Url && !existing.fields['Photo Réalisation 3']) updateFields['Photo Réalisation 3'] = photo3Url;
+          if (Object.keys(updateFields).length > 0) {
+            try { record = await window.supaPrest.update(existing.id, updateFields); }
+            catch(eUp) { record = existing; }
+          } else {
+            record = existing;
+          }
           createOk = true;
           console.log('[wozali] Profil existant récupéré, on continue.');
         }

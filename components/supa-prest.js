@@ -65,10 +65,13 @@
     for (const [atName, supaCol] of Object.entries(AT_TO_SUPA)) {
       const v = row[supaCol];
       if (v != null) {
-        // Photo de profil Airtable était parfois un attachment array; on garde une URL string
-        // Albums + Notifications + Disponibilités Hebdo : Supabase JSONB → renvoyer la valeur directe (objets)
-        // Le code existant fait souvent JSON.parse(record.fields['Albums']) — on stringify pour compat
-        if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof v === 'object') {
+        // Photos : Airtable attendait [{url, id, filename}] ; Supabase stocke juste une URL string.
+        // On wrappe en tableau pour que f['Photo de profil']?.[0]?.url continue de marcher.
+        const PHOTO_COLS = ['photo_profil','photo_realisation_1','photo_realisation_2','photo_realisation_3'];
+        if (PHOTO_COLS.includes(supaCol) && typeof v === 'string' && v.startsWith('http')) {
+          fields[atName] = [{ url: v, id: 'supa', filename: 'photo.jpg', size: 0, type: 'image/jpeg' }];
+        // Albums + Notifications + Disponibilités Hebdo : Supabase JSONB → stringify pour compat JSON.parse()
+        } else if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof v === 'object') {
           fields[atName] = JSON.stringify(v);
         } else if (supaCol === 'langues_parlees' && Array.isArray(v)) {
           // TEXT[] Supabase → string CSV pour compat code existant
@@ -91,8 +94,18 @@
     for (const [atName, value] of Object.entries(fields || {})) {
       const supaCol = AT_TO_SUPA[atName];
       if (!supaCol) continue;
+      // Photos : le code existant peut passer une string URL ou un tableau Airtable [{url,...}]
+      const PHOTO_COLS = ['photo_profil','photo_realisation_1','photo_realisation_2','photo_realisation_3'];
+      if (PHOTO_COLS.includes(supaCol)) {
+        if (typeof value === 'string') {
+          row[supaCol] = value || null;
+        } else if (Array.isArray(value) && value[0]?.url) {
+          row[supaCol] = value[0].url;
+        } else {
+          row[supaCol] = null;
+        }
       // Parser les JSON strings vers objets pour les colonnes JSONB
-      if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof value === 'string') {
+      } else if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof value === 'string') {
         try { row[supaCol] = JSON.parse(value); } catch { row[supaCol] = null; }
       } else if (supaCol === 'langues_parlees') {
         // TEXT[] Supabase : convertir string CSV → array, '' ou null → null
