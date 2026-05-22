@@ -10347,8 +10347,8 @@ async function generateStory(avisId, note, auteur, commentaire) {
   const nom = f['Nom complet'] || 'Prestataire';
   const metier = f['Métier principal'] || '';
   const ville = f['Ville'] || '';
-  const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
-  const photoReal = f['Photo Réalisation 1'] || '';
+  const photoProfil = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['WhatsApp']) || '';
+  const photoReal = _wPhotoUrl(f['Photo Réalisation 1']);
   const emoji = window.METIER_EMOJI?.[metier] || '⚡';
 
   const W = 1080, H = 1920;
@@ -10531,6 +10531,14 @@ async function changePassword() {
 // CONFIG
 // ══════════════════════════════════════════
 // Le frontend utilise /api/imgbb-proxy pour les photos
+
+// Normalise une valeur photo : string URL (Supabase) OU [{url}] (Airtable) → string URL
+function _wPhotoUrl(val) {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (Array.isArray(val) && val[0]?.url) return val[0].url;
+  return '';
+}
 
 // Fonction utilitaire anti-XSS
 function escapeHtml(str) {
@@ -11891,7 +11899,7 @@ function renderSearchMap(records) {
     const tarif = f['Tarif minimum FCFA'];
     const isPro = isProUser({fields:f});
     const dispo = f['Disponible maintenant'];
-    const photo = f['Photo de profil']?.[0]?.url || '';
+    const photo = _wPhotoUrl(f['Photo de profil']);
 
     // Bordure : vert si dispo, or si Pro, noir sinon
     const borderColor = dispo ? '#E8940A' : isPro ? '#f59e0b' : '#111';
@@ -12240,7 +12248,7 @@ async function submitPost(recordId) {
       prestataire_id: recordId,
       auteur_user_id: currentUser?.id || null,
       auteur_nom:     currentPrestataire?.fields?.['Nom complet'] || '',
-      auteur_photo:   currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || currentPrestataire?.fields?.['Photo de profil'] || '',
+      auteur_photo:   _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']),
       contenu:        texte || '',
       image_url:      mediaUrl || '',
       media_type:     mediaType || 'text',
@@ -12800,7 +12808,7 @@ async function submitComment(recordId, postId) {
     comments.push({
       id: Date.now().toString(), texte,
       auteur: auteurCommentaire,
-      auteurPhoto: currentPrestataire?.fields?.['Photo de profil']?.[0]?.url || currentPrestataire?.fields?.['WhatsApp'] || '',
+      auteurPhoto: _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']) || _wPhotoUrl(currentPrestataire?.fields?.['WhatsApp']),
       auteurId: currentPrestataire?.id || null,
       date: new Date().toISOString()
     });
@@ -13681,8 +13689,8 @@ function showAlbumsPage(recordId) {
   if (!record && window._currentProfilRecord?.id === recordId) record = window._currentProfilRecord;
   if (!record) return;
   const f = record.fields;
-  const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
-  const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
+  const photoProfil = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['WhatsApp']) || '';
+  const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].map(_wPhotoUrl).filter(Boolean);
   const allAlbumsRaw = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch(e) { return []; } })();
   const customAlbums = allAlbumsRaw.filter(a => a.id !== '__libres__' && a.id !== '__publications__');
   const pubAlbum     = allAlbumsRaw.find(a => a.id === '__publications__');
@@ -14306,7 +14314,7 @@ async function showProfil(recordId) {
     }
 
     // Photos pour la galerie
-    const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean);
+    const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].map(_wPhotoUrl).filter(Boolean);
     const photosMe = photoProfil ? [photoProfil] : [];
     const allPhotos = [...photosMe, ...realisations];
 
@@ -19150,7 +19158,7 @@ function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
   document.getElementById('modal-cand-submit-btn').disabled = false;
   // Afficher le résumé du profil
   const score = calculScoreWozali(currentPrestataire);
-  const photo = f['Photo de profil']?.[0]?.url || '';
+  const photo = _wPhotoUrl(f['Photo de profil']);
   document.getElementById('modal-cand-profil').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:900;overflow:hidden;flex-shrink:0;">
@@ -19227,7 +19235,7 @@ async function submitCandidature() {
     }
 
     const score = calculScoreWozali(currentPrestataire);
-    const photo = f['Photo de profil']?.[0]?.url || '';
+    const photo = _wPhotoUrl(f['Photo de profil']);
 
     const candidatureFields = {
       'Offre ID': _currentOffreId,
@@ -19782,7 +19790,7 @@ async function topCandidatsForOffre(offreId) {
 
     body.innerHTML = enriched.slice(0, 10).map(({ p, score, justif }) => {
       const f = p.fields;
-      const photo = f['Photo de profil']?.[0]?.url || '';
+      const photo = _wPhotoUrl(f['Photo de profil']);
       const note = f['Note moyenne'] ? Number(f['Note moyenne']).toFixed(1) : '—';
       const wa = (f['WhatsApp'] || f['Numéro de téléphone'] || '').replace(/\D/g, '');
       const safeName = (f['Nom complet'] || '').replace(/'/g, "\\'");

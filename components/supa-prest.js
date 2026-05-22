@@ -65,13 +65,8 @@
     for (const [atName, supaCol] of Object.entries(AT_TO_SUPA)) {
       const v = row[supaCol];
       if (v != null) {
-        // Photos : Airtable attendait [{url, id, filename}] ; Supabase stocke juste une URL string.
-        // On wrappe en tableau pour que f['Photo de profil']?.[0]?.url continue de marcher.
-        const PHOTO_COLS = ['photo_profil','photo_realisation_1','photo_realisation_2','photo_realisation_3'];
-        if (PHOTO_COLS.includes(supaCol) && typeof v === 'string' && v.startsWith('http')) {
-          fields[atName] = [{ url: v, id: 'supa', filename: 'photo.jpg', size: 0, type: 'image/jpeg' }];
         // Albums + Notifications + Disponibilités Hebdo : Supabase JSONB → stringify pour compat JSON.parse()
-        } else if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof v === 'object') {
+        if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof v === 'object') {
           fields[atName] = JSON.stringify(v);
         } else if (supaCol === 'langues_parlees' && Array.isArray(v)) {
           // TEXT[] Supabase → string CSV pour compat code existant
