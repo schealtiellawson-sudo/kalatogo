@@ -15550,16 +15550,31 @@ async function submitInscription(e) {
     let record = null;
     let createOk = false;
     let createErr = null;
-    try {
-      if (window.supaPrest) {
-        record = await window.supaPrest.create(fields);
-        createOk = true;
-      } else {
-        createErr = 'supaPrest non chargé';
+
+    // Vérifier si un profil existe déjà pour ce user_id (cas retry)
+    if (effectiveUser?.id && window.supaPrest) {
+      try {
+        const existing = await window.supaPrest.findByUserId(effectiveUser.id);
+        if (existing) {
+          record = existing;
+          createOk = true;
+          console.log('[wozali] Profil existant récupéré, on continue.');
+        }
+      } catch(eCheck) { /* pas de profil existant, on crée */ }
+    }
+
+    if (!createOk) {
+      try {
+        if (window.supaPrest) {
+          record = await window.supaPrest.create(fields);
+          createOk = true;
+        } else {
+          createErr = 'supaPrest non chargé';
+        }
+      } catch (eSupa) {
+        createErr = eSupa?.message || eSupa?.error_description || JSON.stringify(eSupa);
+        console.error('[wozali] supaPrest.create failed:', eSupa);
       }
-    } catch (eSupa) {
-      createErr = eSupa?.message || eSupa?.error_description || JSON.stringify(eSupa);
-      console.error('[wozali] supaPrest.create failed:', eSupa);
     }
 
     if (!createOk) {
