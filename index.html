@@ -9689,6 +9689,8 @@ async function _doUploadProfilCrop(blob, dataUrl) {
     } catch (e) { console.error('photo profil save:', e); }
     if (savedOk) {
       currentPrestataire.fields['Photo de profil'] = url;
+      // Invalider le cache profil pour que la prochaine visite soit toujours fraîche
+      if (window._profilCache) delete window._profilCache[currentPrestataire.id];
       document.getElementById('btn-recadrer-label')?.style && (document.getElementById('btn-recadrer-label').style.display = 'inline-flex');
       statusEl.style.color = 'var(--vert)';
       statusEl.textContent = '✅ Photo mise à jour !';
@@ -9740,6 +9742,8 @@ async function _doUploadRealisationCrop(slot, blob) {
     } catch (e) { console.error('realisation save:', e); }
     if (savedOk) {
       currentPrestataire.fields[fieldName] = url;
+      // Invalider le cache profil pour affichage immédiat sur le profil public
+      if (window._profilCache) delete window._profilCache[currentPrestataire.id];
       renderRealisationsGrid();
       statusEl.style.color = 'var(--vert)';
       statusEl.textContent = `✅ Photo ${slot} ajoutée !`;
@@ -14154,21 +14158,23 @@ async function showProfil(recordId) {
   showPage('profil');
   const container = document.getElementById('profil-content');
 
-  // Cache en mémoire : évite le spinner et le timeout au 2e+ passage sur le même profil
+  // Cache en mémoire : évite le spinner au 2e+ passage sur le même profil
   if (!window._profilCache) window._profilCache = {};
-  const _cached = window._profilCache[recordId] || null;
+  // Propre profil → toujours fresh (vient peut-être de mettre à jour ses photos)
+  const _isOwnProfil = currentPrestataire?.id === recordId;
+  const _cached = _isOwnProfil ? null : (window._profilCache[recordId] || null);
 
-  // Afficher le spinner uniquement si pas de cache (1ère visite)
+  // Afficher le spinner uniquement si pas de cache
   if (!_cached) {
     container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
   }
 
-  // Failsafe : si le profil n'a pas chargé en 10s, afficher une erreur claire
+  // Failsafe : si le profil n'a pas chargé en 8s, afficher une erreur claire
   const _failsafe = setTimeout(() => {
     if (container.querySelector('.spinner')) {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏱️</div><h3>Chargement trop long</h3><p>La connexion a pris trop de temps. <a onclick="showProfil('${recordId}')" style="color:#E8940A;cursor:pointer;text-decoration:underline;">Réessayer</a></p></div>`;
     }
-  }, 10000);
+  }, 8000);
 
   try {
     let record = null;
@@ -14180,20 +14186,31 @@ async function showProfil(recordId) {
     if (_cached) {
       // Servir depuis le cache immédiatement (0 latence)
       record = _cached;
-      // Rafraîchir en arrière-plan sans bloquer ni throw
-      if (window.supaPrest) {
+      // Rafraîchir en arrière-plan — re-render si les données ont changé
+      if (window.supaPrest && !window._profilRefreshing?.[recordId]) {
+        if (!window._profilRefreshing) window._profilRefreshing = {};
+        window._profilRefreshing[recordId] = true;
         window.supaPrest.findById(recordId)
-          .then(fresh => { if (fresh) window._profilCache[recordId] = fresh; })
-          .catch(() => {});
+          .then(fresh => {
+            window._profilRefreshing[recordId] = false;
+            if (!fresh) return;
+            window._profilCache[recordId] = fresh;
+            // Re-render silencieux si le profil est toujours affiché
+            const stillHere = localStorage.getItem('wozali_last_profil_id') === recordId
+              && document.getElementById('profil-content')
+              && !document.getElementById('profil-content').querySelector('.spinner');
+            if (stillHere) showProfil(recordId);
+          })
+          .catch(() => { if (window._profilRefreshing) window._profilRefreshing[recordId] = false; });
       }
     } else if (window.supaPrest) {
-      // Première visite : fetch avec retry automatique (Supabase free tier peut être lent au réveil)
+      // Pas de cache : fetch direct (timeout court pour réactivité)
       try {
-        record = await _withTimeout(window.supaPrest.findById(recordId), 15000);
+        record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
       } catch (_e1) {
-        // Retry unique après 2s
-        await new Promise(r => setTimeout(r, 2000));
-        record = await _withTimeout(window.supaPrest.findById(recordId), 15000);
+        // Retry unique après 1s
+        await new Promise(r => setTimeout(r, 1000));
+        record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
       }
       if (!record) throw new Error('Profil introuvable');
     } else {
