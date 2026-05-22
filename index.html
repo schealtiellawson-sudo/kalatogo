@@ -15549,20 +15549,26 @@ async function submitInscription(e) {
 
     let record = null;
     let createOk = false;
+    let createErr = null;
     try {
       if (window.supaPrest) {
         record = await window.supaPrest.create(fields);
         createOk = true;
+      } else {
+        createErr = 'supaPrest non chargé';
       }
     } catch (eSupa) {
-      console.error('[wozali] supaPrest.create failed, fallback Airtable:', eSupa);
+      createErr = eSupa?.message || eSupa?.error_description || JSON.stringify(eSupa);
+      console.error('[wozali] supaPrest.create failed:', eSupa);
     }
 
     if (!createOk) {
       if (loadingEl) loadingEl.style.display = 'none';
       if (formEl) formEl.classList.remove('form-hidden');
       if (progressEl) progressEl.classList.remove('form-hidden');
-      toast('Erreur lors de la création du profil. Réessaie.', 'error');
+      const errMsg = createErr ? ('Erreur profil : ' + createErr) : 'Erreur lors de la création du profil. Réessaie.';
+      toast(errMsg, 'error');
+      console.error('[wozali] inscription échouée :', createErr);
       btn.textContent = '✦ Créer mon profil';
       btn.disabled = false;
       return;
