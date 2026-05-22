@@ -8515,25 +8515,40 @@ async function viewMyProfile() {
     showPage('profil');
     return;
   }
-  // Profil pas encore chargé → recharger (max 8s)
-  if (currentUser && !currentPrestataire) {
-    try {
-      await Promise.race([loadCurrentPrestataire(), new Promise(r => setTimeout(r, 8000))]);
-    } catch(e) {}
-  }
-  // Après rechargement : id réel → profil public
-  if (currentPrestataire?.id) {
-    showProfil(currentPrestataire.id);
+
+  // Connecté mais profil pas encore chargé → montrer un loader, attendre le profil
+  if (currentUser) {
+    // Afficher un écran d'attente non-bloquant pendant le chargement
     showPage('profil');
+    const container = document.getElementById('profil-content');
+    if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement de ton profil…</div>';
+
+    // Attendre jusqu'à 12s en rechargements successifs de 1s
+    for (let i = 0; i < 12; i++) {
+      if (!currentPrestataire) {
+        try { await loadCurrentPrestataire(); } catch(e) {}
+      }
+      if (currentPrestataire?.id) {
+        showProfil(currentPrestataire.id);
+        return;
+      }
+      if (currentPrestataire && !currentPrestataire.id) {
+        // Profil minimal (pas d'id Supabase) → envoyer sur l'éditeur
+        showPage('dashboard');
+        showDashSection('profil');
+        toast('Complète ton profil pour l\'activer.', 'info');
+        return;
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+
+    // Après 12s toujours rien → dashboard (jamais login si connecté)
+    showPage('dashboard');
+    toast('Profil introuvable. Contacte le support si le problème persiste.', 'error');
     return;
   }
-  // Stub virtuel ou profil sans id → rediriger vers "Modifier mon profil"
-  if (currentPrestataire) {
-    showDashSection('profil');
-    toast('Renseigne tes informations pour activer ton profil public.', 'info');
-    return;
-  }
-  // Pas du tout connecté
+
+  // Vraiment pas connecté → login
   showPage('login');
 }
 
@@ -10514,7 +10529,7 @@ async function generateStory(avisId, note, auteur, commentaire) {
 
 // ══ VOIR MON PROFIL PUBLIC ══
 function viewMyPublicProfil() {
-  if (currentPrestataire) showProfil(currentPrestataire.id);
+  viewMyProfile(); // délègue à la version async robuste
 }
 
 // ══ CHANGER MOT DE PASSE ══
