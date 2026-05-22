@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     let conditions = null;
     if (bourse) {
       conditions = {
-        pro_2_mois: (bourse.pro_mois_consecutifs || 0) >= 2,
+        pro_2_mois: (bourse.pro_mois_consecutifs || 0) >= 1,
         score_80: (bourse.score_wozali || 0) >= 80,
         avis_4: (bourse.nb_avis || 0) >= 4,
         note_42: (bourse.note_moyenne || 0) >= 4.2,

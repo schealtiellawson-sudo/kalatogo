@@ -44,9 +44,9 @@ export default async function handler(req, res) {
     const proSince = abo.created_at; // date début abonnement Pro = référence correcte
     const moisPro = Math.floor((Date.now() - new Date(proSince).getTime()) / (30 * 86400000));
 
-    if (moisPro < 2) {
+    if (moisPro < 1) {
       return res.status(403).json({
-        error: 'Tu dois être Pro depuis au moins 2 mois pour candidater',
+        error: 'Tu dois être Pro pour candidater',
         mois_pro: moisPro,
       });
     }

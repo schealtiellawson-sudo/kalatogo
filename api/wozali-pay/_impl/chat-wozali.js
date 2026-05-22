@@ -42,8 +42,7 @@ Contact : TikTok @wozali · Instagram @wozali
 - Statistiques de vues et contacts
 - Publication d'offres d'emploi illimitées
 - Parrainage actif (40% de commission)
-- Éligibilité Bourse de Croissance après 1 mois Pro
-- Éligibilité King & Queen WOLO après 2 mois Pro
+- Éligibilité Bourse de Croissance dès le premier mois Pro
 
 ### Comment passer au Pro
 Depuis le dashboard → "Mon abonnement" → cliquer "Passer au Pro" → suivre les instructions de paiement (FedaPay ou virement). Le fondateur active manuellement après confirmation.

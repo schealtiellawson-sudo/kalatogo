@@ -3,7 +3,7 @@
 // ════════════════════════════════════════════════════════════════
 // GET /api/wozali-pay/bourse-eligibilite (auth required)
 // Conditions (9) :
-//   1. plan_pro_actif (CE MOIS, plus 2 mois consécutifs)
+//   1. plan_pro_actif (CE MOIS)
 //   2. profil_complet
 //   3. score_wozali_80 (Score WOZALI ≥ 80/100)
 //   4. avis_3_sur_30j (≥ 3 avis sur 30 derniers jours)
