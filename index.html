@@ -21233,7 +21233,7 @@ async function loadRecrutDashboard() {
       </div>
       <div style="text-align:center;margin-top:36px;">
         <div style="color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:14px;">💡 Calcul rapide : une seule prestation supplémentaire grâce à WOZALI = abonnement remboursé pour 1 mois entier</div>
-        <button onclick="showPage('inscription')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:black;border:none;padding:16px 36px;border-radius:100px;font-weight:900;font-size:16px;cursor:pointer;">
+        <button onclick="if(window.currentUser){showPage('dashboard');setTimeout(function(){showDashSection('abonnement');},400);}else{showPage('inscription');}" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:black;border:none;padding:16px 36px;border-radius:100px;font-weight:900;font-size:16px;cursor:pointer;">
           🚀 Passer Pro maintenant — 2 500 FCFA/mois
         </button>
       </div>
@@ -27365,7 +27365,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
       { icon:'hard-hat',   title:'Le travail ne paye pas. On change ça.', text:"Au Togo et au Bénin, le travail ne manque pas. C’est l’argent qui circule pas. À partir d’aujourd’hui, tes clients te trouvent. Ton business tourne. Ton travail paye.", primary:'Commencer' },
       { icon:'map-pin',    title:'Tes clients te trouvent. Sans réseau.', text:"Le client de Bè qui cherche un coiffeur. La famille d’Akpakpa qui veut un mécano. La mariée d’Adidogomé qui cherche une couturière. Avec ton GPS, ton WhatsApp et tes avis vérifiés, ils te trouvent en 30 secondes.", primary:'Suivant' },
       { icon:'trophy',     title:'800 000 FCFA versés chaque mois.', text:"Pas une promesse. Un virement. Bourse de Croissance 600K (300K × 1 Togo + 1 Bénin) pour les pros sérieux. Bourse des Mains d'Or 200K (100K × 2 Reines) pour les femmes du Bénin et du Togo. Tirage automatique le 30. Ton travail te paye enfin.", primary:'Suivant' },
-      { icon:'users',      title:'Un vrai revenu. Sans bouger de chez toi.', text:"Tes amis sans boulot ? Invite-les avec ton lien. Quand ils s’activent en Pro, tu touches 1 000 FCFA/mois pour chacun. À vie. 30 amis = 30 000 FCFA chaque mois automatique. Limite un vrai salaire.", primary:'Suivant' },
+      { icon:’users’,      title:’Fais tourner le commerce des autres. Le tien en profite.’, text:"Autour de toi, des gens qui travaillent dur mais sans clients. Tu leur montres WOZALI — ils s’inscrivent, les clients les trouvent, leur commerce démarre. Et pour chaque ami qui s’active en Pro : 1 000 FCFA/mois. À vie. Aider quelqu’un à faire marcher son business, maintenant ça paye.", primary:’Suivant’ },
       { icon:'badge-check',title:'Passe Pro — 2 500 FCFA/mois.', text:"1 cliente de plus dans le mois et c’est remboursé 10 fois. Badge Pro, priorité recherche, éligible aux 3 programmes (Bourse 300K + Bourse des Mains d'Or 200K + parrainage). 83 FCFA par jour. Le prix d’un café au coin de la rue.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
     ];
     var idx = 0;
@@ -27388,7 +27388,15 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
 
       document.getElementById('wozali-onb-primary').onclick = function(){
         if (idx < steps.length - 1) { idx++; render(); }
-        else { close(); if (typeof showPage === 'function') showPage('inscription'); }
+        else {
+          close();
+          if (window.currentUser) {
+            if (typeof showPage === 'function') showPage('dashboard');
+            setTimeout(function(){ if (typeof showDashSection === 'function') showDashSection('abonnement'); }, 400);
+          } else {
+            if (typeof showPage === 'function') showPage('inscription');
+          }
+        }
       };
       var sec = document.getElementById('wozali-onb-secondary');
       if (sec) sec.onclick = function(){ close(); };
