@@ -252,5 +252,12 @@ export default async function handler(req, res) {
     } catch (e) { /* silencieux */ }
   }
 
-  return fn(req, res);
+  try {
+    return await fn(req, res);
+  } catch (err) {
+    console.error(`[wozali-pay/${action}] unhandled:`, err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: err.message || 'Erreur serveur inattendue' });
+    }
+  }
 }

@@ -20746,9 +20746,17 @@ async function loadMesEntretiens(scope) {
   let data;
   try {
     const res = await wozaliFetch(`/api/wozali-pay/entretien-list?scope=${scope}`);
-    data = await res.json();
+    const raw = await res.text();
+    try { data = JSON.parse(raw); } catch(_) {
+      box.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#ef4444;font-family:Geist,sans-serif;font-size:13px;">Erreur serveur. Réessaie dans quelques secondes.</div>`;
+      return;
+    }
   } catch(e) {
     box.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#ef4444;font-family:Geist,sans-serif;font-size:13px;">Erreur de chargement. Réessaie dans quelques secondes.</div>`;
+    return;
+  }
+  if (data && data.error) {
+    box.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#ef4444;font-family:Geist,sans-serif;font-size:13px;">Erreur : ${escapeHtml(data.error)}</div>`;
     return;
   }
 
