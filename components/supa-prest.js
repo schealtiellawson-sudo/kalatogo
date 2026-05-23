@@ -54,6 +54,8 @@
     'User ID': 'user_id',
     'Tags': 'tags',
     'Statut Artisan': 'statut_artisan',
+    'Mode Emploi': 'mode_emploi',
+    'Pays': 'pays',
   };
 
   function _supa() { return window.supabase || window.supa; }
