@@ -569,7 +569,6 @@ function showDashSection(section) {
   if (section === 'wozali-match') loadDashWozaliMatch();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
-  if (section === 'vente-ambulante') loadVenteAmbulanteSection();
   // ── WOZALI Business Suite ──
   // Loaders Business Suite Phases B→G retirés 2026-05-07 (report V1.2)
 }
@@ -2744,7 +2743,6 @@ function showPage(page, _fromPop) {
   }
   if (page === 'home') {
     setTimeout(() => loadFounderCounter(), 500);
-    setTimeout(() => loadMarchandsSection(), 800); // vitrines ambulantes actives
   }
   if (page === 'recompenses') loadPageRecompenses();
   // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
@@ -11654,7 +11652,7 @@ async function publierOffre() {
       const _confDiv = document.createElement('div');
       _confDiv.className = 'modal-overlay active';
       _confDiv.style.zIndex = '10002';
-      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:12px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Ton offre est publiée sur WOZALI Jobs.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:14px;">Visible par tous les membres au Bénin et au Togo.<br><strong style="color:#E8940A;">WOZALI Match</strong> analyse maintenant les profils disponibles.</p><p style="font-size:13px;color:#111;line-height:1.6;margin-bottom:18px;">Résultat dans les 5 minutes :<br><em style="color:#E8940A;">"[X] professionnels à ' + _ville + ' correspondent à ton besoin."</em></p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Voir les profils recommandés</button><button class="btn btn-secondary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Gérer mes offres</button></div></div>';
+      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:12px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Ton offre est publiée sur WOZALI Jobs.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:24px;">Visible par tous les membres au Bénin et au Togo.<br>Les candidatures arrivent ici dès que quelqu\'un postule.</p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Voir mes offres publiées</button></div></div>';
       document.body.appendChild(_confDiv);
       _confDiv.onclick = e => { if (e.target === _confDiv) _confDiv.remove(); };
       // Reset form
@@ -13059,207 +13057,4 @@ async function loadRecrutDashboard() {
   }
 }
 
-// ══════════════════════════════════════════════════════
-// JE VENDS ICI — Vitrine Ambulante
-// ══════════════════════════════════════════════════════
-let _vitrineData   = null;  // vitrine chargée depuis Supabase
-let _vitrineGpsLat = null;
-let _vitrineGpsLon = null;
 
-// ─── Je vends ici — toggle temps réel ───────────────────────────────────────
-// Concept : le profil WOZALI existant contient déjà les photos, la description
-// et le WhatsApp. La seule valeur ajoutée ici est le signal "je suis là MAINTENANT"
-// + la position GPS temps réel (différente du quartier permanent du profil).
-// ─────────────────────────────────────────────────────────────────────────────
-
-async function loadVenteAmbulanteSection() {
-  const supa = window.supabase || window.supa;
-  if (!supa || !window.currentUser) return;
-
-  // Charger vitrine existante
-  try {
-    const { data, error } = await supa
-      .from('wozali_vitrines')
-      .select('*')
-      .eq('user_id', window.currentUser.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error) throw error;
-    _vitrineData = data;
-    _syncVitrineUI(data);
-  } catch(e) {
-    console.warn('[vitrine load]', e?.message || e);
-  }
-}
-
-function _syncVitrineUI(data) {
-  const cb  = document.getElementById('vitrine-actif-checkbox');
-  const lbl = document.getElementById('vitrine-actif-label');
-  const sub = document.getElementById('vitrine-actif-sublabel');
-  const shareBtn = document.getElementById('vitrine-share-btn');
-
-  const isActive = !!data?.actif;
-  if (cb)  cb.checked = isActive;
-  if (lbl) lbl.textContent = isActive ? '🟢 Actif — tu es visible dans ton quartier' : 'Inactif — tu n\'es pas visible';
-  if (sub) sub.textContent = isActive
-    ? 'Les gens près de toi voient ton profil et peuvent t\'appeler direct.'
-    : 'Active quand tu sors vendre. Désactive quand tu rentres.';
-  if (shareBtn) shareBtn.style.display = isActive ? 'inline-flex' : 'none';
-
-  if (data?.gps_lat && data?.gps_lon) {
-    _vitrineGpsLat = data.gps_lat;
-    _vitrineGpsLon = data.gps_lon;
-    const st = document.getElementById('vitrine-gps-status');
-    if (st) st.textContent = `✅ Position enregistrée — ${data.quartier || data.gps_lat.toFixed(4) + ', ' + data.gps_lon.toFixed(4)}`;
-  }
-}
-
-function _getVitrineGPS() {
-  const btn = document.getElementById('vitrine-gps-btn');
-  const st  = document.getElementById('vitrine-gps-status');
-  if (!navigator.geolocation) { if (st) st.textContent = '❌ GPS non disponible sur cet appareil'; return; }
-  if (btn) { btn.textContent = '⏳ Localisation…'; btn.disabled = true; }
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      _vitrineGpsLat = pos.coords.latitude;
-      _vitrineGpsLon = pos.coords.longitude;
-      if (btn) { btn.textContent = '📍 Partager ma position GPS'; btn.disabled = false; }
-      const quartier = currentPrestataire?.fields?.['Quartier'] || '';
-      if (st) st.textContent = `✅ Position capturée${quartier ? ' — ' + quartier : ''} (${_vitrineGpsLat.toFixed(4)}, ${_vitrineGpsLon.toFixed(4)})`;
-      // Sauvegarder la position immédiatement si vitrine existante
-      _saveVitrineGps();
-    },
-    err => {
-      if (btn) { btn.textContent = '📍 Partager ma position GPS'; btn.disabled = false; }
-      if (st) st.textContent = '❌ Active le GPS de ton téléphone et réessaie.';
-    },
-    { timeout: 10000, maximumAge: 60000 }
-  );
-}
-
-async function _saveVitrineGps() {
-  const supa = window.supabase || window.supa;
-  if (!supa || !window.currentUser || !_vitrineGpsLat) return;
-  const payload = {
-    user_id:       window.currentUser.id,
-    prestataire_id: currentPrestataire?.id || null,
-    gps_lat:       _vitrineGpsLat,
-    gps_lon:       _vitrineGpsLon,
-    quartier:      currentPrestataire?.fields?.['Quartier'] || null,
-    ville:         currentPrestataire?.fields?.['Ville'] || null,
-    whatsapp:      currentPrestataire?.fields?.['WhatsApp'] || null,
-    actif:         _vitrineData?.actif ?? false,
-  };
-  try {
-    if (_vitrineData?.id) {
-      await supa.from('wozali_vitrines').update({ gps_lat: _vitrineGpsLat, gps_lon: _vitrineGpsLon }).eq('id', _vitrineData.id);
-    } else {
-      const { data, error } = await supa.from('wozali_vitrines').insert(payload).select('*').single();
-      if (!error && data) _vitrineData = data;
-    }
-  } catch(e) { /* silencieux */ }
-}
-
-async function toggleVitrine(checked) {
-  const supa = window.supabase || window.supa;
-  if (!supa || !window.currentUser) return;
-
-  // Mise à jour optimiste de l'UI
-  const lbl = document.getElementById('vitrine-actif-label');
-  const sub = document.getElementById('vitrine-actif-sublabel');
-  const shareBtn = document.getElementById('vitrine-share-btn');
-  if (lbl) lbl.textContent = checked ? '🟢 Actif — tu es visible dans ton quartier' : 'Inactif — tu n\'es pas visible';
-  if (sub) sub.textContent = checked ? 'Les gens près de toi voient ton profil et peuvent t\'appeler direct.' : 'Active quand tu sors vendre. Désactive quand tu rentres.';
-  if (shareBtn) shareBtn.style.display = checked ? 'inline-flex' : 'none';
-
-  try {
-    const payload = {
-      user_id:       window.currentUser.id,
-      prestataire_id: currentPrestataire?.id || null,
-      actif:         checked,
-      gps_lat:       _vitrineGpsLat || null,
-      gps_lon:       _vitrineGpsLon || null,
-      quartier:      currentPrestataire?.fields?.['Quartier'] || null,
-      ville:         currentPrestataire?.fields?.['Ville'] || null,
-      whatsapp:      currentPrestataire?.fields?.['WhatsApp'] || null,
-    };
-    if (_vitrineData?.id) {
-      await supa.from('wozali_vitrines').update({ actif: checked }).eq('id', _vitrineData.id);
-      _vitrineData.actif = checked;
-    } else {
-      const { data, error } = await supa.from('wozali_vitrines').insert(payload).select('*').single();
-      if (error) throw error;
-      _vitrineData = data;
-    }
-    toast(checked ? '✅ Tu es visible dans ton quartier !' : 'Vitrine désactivée', checked ? 'success' : 'info');
-  } catch(e) {
-    // Rollback
-    const cb = document.getElementById('vitrine-actif-checkbox');
-    if (cb) cb.checked = !checked;
-    _syncVitrineUI(_vitrineData);
-    toast('Erreur : ' + (e?.message || 'Réessaie'), 'error');
-  }
-}
-
-function partagerVitrineWhatsApp() {
-  const nom      = currentPrestataire?.fields?.['Nom complet'] || 'Un marchand';
-  const metier   = currentPrestataire?.fields?.['Métier principal'] || '';
-  const quartier = currentPrestataire?.fields?.['Quartier'] || _vitrineData?.quartier || '';
-  const wa       = currentPrestataire?.fields?.['WhatsApp'] || '';
-  const desc     = currentPrestataire?.fields?.['Description des services'] || '';
-  const loc      = quartier ? ` à ${quartier}` : '';
-  const waLink   = wa ? `\n📞 https://wa.me/${wa.replace(/\D/g,'')}` : '';
-  const text = `🛍️ ${nom}${metier ? ' — ' + metier : ''}${loc} est en train de vendre maintenant.\n${desc ? desc.slice(0,80) + '…' : ''}\n\nVoir son profil : https://wozali.com${waLink}`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-}
-
-// Chargement public des vitrines actives (section home page)
-async function loadMarchandsSection() {
-  const supa = window.supabase || window.supa;
-  if (!supa) return;
-  const section = document.getElementById('marchands-section');
-  const grid    = document.getElementById('marchands-grid');
-  if (!section || !grid) return;
-
-  try {
-    // Jointure avec les profils prestataires pour afficher nom, métier, photo
-    const { data, error } = await supa
-      .from('wozali_vitrines')
-      .select('*, wozali_prestataires!left(nom_complet, metier_principal, photo_profil, description_services, quartier, ville)')
-      .eq('actif', true)
-      .order('updated_at', { ascending: false })
-      .limit(12);
-    if (error || !data?.length) return; // masqué si aucun vendeur actif
-
-    section.style.display = 'block';
-    grid.innerHTML = data.map(v => {
-      const profil   = v.wozali_prestataires || {};
-      const nom      = escapeHtml(profil.nom_complet || 'Marchand');
-      const metier   = escapeHtml(profil.metier_principal || '');
-      const desc     = escapeHtml((profil.description_services || '').slice(0, 70));
-      const photo    = profil.photo_profil
-        ? `<img src="${escapeHtml(profil.photo_profil)}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #E8940A;" loading="lazy" alt="${nom}">`
-        : `<div style="width:56px;height:56px;border-radius:50%;background:rgba(232,148,10,.15);border:2px solid #E8940A;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🛍️</div>`;
-      const quartier = escapeHtml(v.quartier || profil.quartier || '');
-      const waHref   = v.whatsapp ? `https://wa.me/${v.whatsapp.replace(/\D/g,'')}` : '#';
-      const liveTag  = `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#22c55e;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;font-family:'Geist Mono',monospace;">● EN CE MOMENT</span>`;
-      return `
-        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;" onclick="window.open('${waHref}','_blank')">
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            ${photo}
-            <div style="flex:1;min-width:0;">
-              <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:800;color:#FCE0A8;line-height:1.3;">${nom}</div>
-              ${metier ? `<div style="font-size:11px;color:#E8940A;margin-top:2px;">${metier}</div>` : ''}
-              ${quartier ? `<div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:3px;">📍 ${quartier}</div>` : ''}
-            </div>
-          </div>
-          ${liveTag}
-          ${desc ? `<div style="font-size:12px;color:rgba(252,224,168,.55);line-height:1.5;">${desc}${desc.length >= 70 ? '…' : ''}</div>` : ''}
-          ${v.whatsapp ? `<div style="background:rgba(37,211,102,.1);border-radius:8px;padding:8px 10px;font-size:12px;color:#25d366;font-weight:700;text-align:center;">📲 Contacter sur WhatsApp</div>` : ''}
-        </div>`;
-    }).join('');
-  } catch(e) {
-    console.warn('[marchands section]', e?.message || e);
-  }
-}
