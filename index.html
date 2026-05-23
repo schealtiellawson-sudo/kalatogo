@@ -6073,7 +6073,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('recompenses')" id="dl-recompenses">
             <i data-lucide="award"></i> <span>Bourse de Croissance</span>
           </button>
-          <button class="dash-link" onclick="showPage('recompenses')" id="dl-awards">
+          <button class="dash-link" onclick="showDashSection('recompenses');setTimeout(()=>{var el=document.getElementById('recompenses-widgets');if(el)el.scrollIntoView({behavior:'smooth'});},400)" id="dl-awards">
             <i data-lucide="sparkles"></i> <span>La Bourse des Mains d'Or</span>
           </button>
         </div>
@@ -7501,7 +7501,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <div class="dash-section" id="ds-recompenses">
         <div class="dash-header">
           <h2>🏆 Récompenses mensuelles</h2>
-          <p>Bourse de Croissance (300K, Pro) + La Bourse des Mains d'Or (100K × 2, coiffeuses &amp; couturières Pro) — chaque mois. Tirage automatique le 30.</p>
+          <p>Bourse de Croissance (300K, Pro) + La Bourse des Mains d'Or (100K × 2, coiffeuses &amp; couturières — ouverte à toutes) — chaque mois. Premier tirage le 31 juillet.</p>
         </div>
         <div id="recompenses-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
       </div>
