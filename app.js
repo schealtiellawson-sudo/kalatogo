@@ -12487,6 +12487,9 @@ function renderRecrutCandidatures(cands) {
   const container = document.getElementById('recrut-cand-container');
   if (!container) return;
 
+  // ── Vue Kanban (Sprint G) — toujours afficher les 4 colonnes, même vides ──
+  if (recrutCandView === 'kanban') { renderKanbanView(cands); return; }
+
   if (cands.length === 0) {
     container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(252, 224, 168,.4);">
       <div style="font-size:48px;margin-bottom:16px;">👥</div>
@@ -12501,9 +12504,6 @@ function renderRecrutCandidatures(cands) {
     'Retenue':    { bg:'rgba(34,197,94,.15)',   color:'#22c55e', label:'Retenue' },
     'Refusée':    { bg:'rgba(239,68,68,.15)',   color:'#f87171', label:'Refusée' }
   };
-
-  // ── Vue Kanban (Sprint G) ──
-  if (recrutCandView === 'kanban') { renderKanbanView(cands); return; }
 
   if (recrutCandView === 'grid') {
     container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">` +
