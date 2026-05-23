@@ -7844,17 +7844,32 @@ div[style*="position:sticky"][style*="background:#fff"] {
                 </select>
               </div>
               <div>
-                <label style="display:block;color:rgba(252, 224, 168,.7);font-family:Geist,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Ville *</label>
-                <select id="recrut-ville-offre" onchange="(function(v){var q=document.getElementById('job-quartier');q.innerHTML='<option value=\"\">Choisir...</option>';var lome=['Lomé Centre','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Cassablanca','Avédji','Attiégou','Autre'];var coto=['Akpakpa','Cadjèhoun','Cotonou Centre','Fidjrossè','Gbèdjromèdé','Zogbo','Mènontin','Vèdoko','Agla','Dantokpa','Abomey-Calavi','Autre'];var list=v==='Cotonou'?coto:lome;list.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;q.appendChild(o);});})(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;">
+                <label style="display:block;color:rgba(252, 224, 168,.7);font-family:Geist,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Pays *</label>
+                <select id="recrut-pays" onchange="_recrutUpdateVilles(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;">
                   <option value="">Choisir...</option>
-                  <option>Lomé</option><option>Cotonou</option>
+                  <option value="Togo">🇹🇬 Togo</option>
+                  <option value="Bénin">🇧🇯 Bénin</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;color:rgba(252, 224, 168,.7);font-family:Geist,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Ville *</label>
+                <select id="recrut-ville-offre" onchange="_recrutUpdateQuartiers(this.value)" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;" disabled>
+                  <option value="">Choisir un pays d'abord</option>
                 </select>
               </div>
               <div>
                 <label style="display:block;color:rgba(252, 224, 168,.7);font-family:Geist,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Quartier</label>
-                <select id="job-quartier" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;">
+                <select id="job-quartier" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;width:100%;outline:none;box-sizing:border-box;cursor:pointer;" disabled>
                   <option value="">Choisir une ville d'abord</option>
                 </select>
+              </div>
+              <div id="recrut-autre-ville-wrap" style="display:none;grid-column:1/-1;">
+                <label style="display:block;color:rgba(252, 224, 168,.7);font-family:Geist,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Précise la ville *</label>
+                <input id="recrut-autre-ville" type="text" placeholder="Ex : Kpalimé, Natitingou, Porto-Novo…" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;width:100%;outline:none;box-sizing:border-box;">
+              </div>
+              <div id="recrut-autre-quartier-wrap" style="display:none;grid-column:1/-1;">
+                <label style="display:block;color:rgba(252, 224, 168,.7);font-family:Geist,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Précise le quartier</label>
+                <input id="recrut-autre-quartier" type="text" placeholder="Ex : Centre-ville, Marché central…" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;width:100%;outline:none;box-sizing:border-box;">
               </div>
             </div>
 
@@ -19623,6 +19638,51 @@ function analyserAnnonceAvantPublication() {
   window.wozaliAi.analyserAnnonce(fields);
 }
 
+var _RECRUT_VILLES = {
+  'Togo':  ['Lomé','Kpalimé','Atakpamé','Sokodé','Kara','Tsévié','Vogan','Aného','Notsé','Dapaong','Autre'],
+  'Bénin': ['Cotonou','Porto-Novo','Parakou','Abomey-Calavi','Abomey','Natitingou','Bohicon','Lokossa','Ouidah','Djougou','Autre']
+};
+var _RECRUT_QUARTIERS = {
+  'Lomé':          ['Lomé Centre','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Cassablanca','Avédji','Attiégou','Autre'],
+  'Cotonou':       ['Akpakpa','Cadjèhoun','Cotonou Centre','Fidjrossè','Gbèdjromèdé','Zogbo','Mènontin','Vèdoko','Agla','Dantokpa','Abomey-Calavi','Autre'],
+  'Porto-Novo':    ['Ouando','Avrankou','Attakè','Agbokou','Autre'],
+  'Parakou':       ['Banikanni','Ladji Bata','Zongo','Titirou','Madina','Autre'],
+  'Abomey-Calavi': ['Calavi Centre','Godomey','Hévié','Togba','Akassato','Autre'],
+  'Kpalimé':       ['Kpalimé Centre','Kpodzi','Atakpamé Rd','Autre'],
+  'Atakpamé':      ['Atakpamé Centre','Badè','Autre'],
+  'Sokodé':        ['Sokodé Centre','Kasséna','Autre'],
+  'Kara':          ['Kara Centre','Lama','Autre']
+};
+function _recrutUpdateVilles(pays) {
+  var vSel = document.getElementById('recrut-ville-offre');
+  var qSel = document.getElementById('job-quartier');
+  var autreVille = document.getElementById('recrut-autre-ville-wrap');
+  var autreQ = document.getElementById('recrut-autre-quartier-wrap');
+  vSel.innerHTML = '<option value="">Choisir...</option>';
+  qSel.innerHTML = '<option value="">Choisir une ville d\'abord</option>';
+  if (autreVille) autreVille.style.display = 'none';
+  if (autreQ) autreQ.style.display = 'none';
+  if (!pays) { vSel.disabled = true; qSel.disabled = true; return; }
+  var villes = _RECRUT_VILLES[pays] || [];
+  villes.forEach(function(v) { var o = document.createElement('option'); o.value = v; o.textContent = v; vSel.appendChild(o); });
+  vSel.disabled = false;
+  qSel.disabled = true;
+}
+function _recrutUpdateQuartiers(ville) {
+  var qSel = document.getElementById('job-quartier');
+  var autreVille = document.getElementById('recrut-autre-ville-wrap');
+  var autreQ = document.getElementById('recrut-autre-quartier-wrap');
+  if (autreVille) autreVille.style.display = ville === 'Autre' ? 'block' : 'none';
+  if (autreQ) autreQ.style.display = 'none';
+  qSel.innerHTML = '<option value="">Choisir...</option>';
+  if (!ville || ville === 'Autre') { qSel.disabled = true; return; }
+  var quartiers = _RECRUT_QUARTIERS[ville] || ['Autre'];
+  quartiers.forEach(function(q) { var o = document.createElement('option'); o.value = q; o.textContent = q; qSel.appendChild(o); });
+  qSel.disabled = false;
+  qSel.onchange = function() {
+    if (autreQ) autreQ.style.display = this.value === 'Autre' ? 'block' : 'none';
+  };
+}
 async function publierOffre() {
   if (!currentPrestataire) return;
   if (!isProUser()) {
@@ -19655,8 +19715,9 @@ async function publierOffre() {
     fields: {
       'Titre': titre,
       'Métier': metier,
-      'Ville': get('recrut-ville-offre') || undefined,
-      'Quartier': get('job-quartier') || undefined,
+      'Pays': get('recrut-pays') || undefined,
+      'Ville': (get('recrut-ville-offre') === 'Autre' ? get('recrut-autre-ville') : get('recrut-ville-offre')) || undefined,
+      'Quartier': (get('job-quartier') === 'Autre' ? get('recrut-autre-quartier') : get('job-quartier')) || undefined,
       'Type de contrat': contrat,
       'Expérience requise': get('recrut-experience') || undefined,
       'Description': description,
