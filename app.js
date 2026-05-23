@@ -11690,6 +11690,7 @@ async function loadMesOffres() {
       } catch (e) { console.warn('[loadMesOffres supa fail, fallback Airtable]', e?.message || e); }
     }
     allMesOffres = records;
+    window.allMesOffres = records; // exposé pour les onclick handlers inline
 
     // KPIs
     const total = allMesOffres.length;
@@ -12022,7 +12023,7 @@ function ouvrirBoostModal(offreId) {
         <div style="font-size:12px;color:rgba(252,224,168,.6);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;font-family:'Geist Mono',monospace;">Instructions de paiement</div>
         <div style="font-size:14px;color:#FCE0A8;line-height:1.7;">
           1. Envoie <strong id="boost-prix-label" style="color:#E8940A;"></strong> via Wave ou Flooz<br>
-          2. Numéro : <strong style="color:#E8940A;">+228 90 00 00 00</strong><br>
+          2. Numéro : <strong style="color:#E8940A;">+33 7 43 60 69 16</strong><br>
           3. Motif : <strong id="boost-ref-label" style="color:#E8940A;font-family:'Geist Mono',monospace;"></strong>
         </div>
         <div style="margin-top:12px;font-size:12px;color:rgba(252,224,168,.4);">✓ Ton boost sera activé dans les 2h après réception du paiement.</div>
