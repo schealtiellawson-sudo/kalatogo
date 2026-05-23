@@ -3130,7 +3130,7 @@ nav .nav-logo circle[fill="#14100A"] { fill: #14100A; stroke: #E8940A; }
   #page-dashboard .dash-link { padding:10px 12px !important; font-size:13px !important; flex:initial !important; }
 }
 
-/* Cards / widgets — cible tous les blocs à fond blanc/clair inline */
+/* ══ Fonds clairs → thème nuit (dashboard + modals + toutes pages) ══ */
 #page-dashboard [style*="background:white"],
 #page-dashboard [style*="background:#fff"],
 #page-dashboard [style*="background: #fff"],
@@ -3159,6 +3159,41 @@ nav .nav-logo circle[fill="#14100A"] { fill: #14100A; stroke: #E8940A; }
   box-shadow:0 0 20px rgba(232,148,10,.15);
   border-color:rgba(232,148,10,.35) !important;
 }
+
+/* Fonds clairs dans les modals (hors dashboard) */
+.modal [style*="background:white"],
+.modal [style*="background:#fff"],
+.modal [style*="background: #fff"],
+.modal [style*="background:#f9fafb"],
+.modal [style*="background:#f3f4f6"],
+.modal [style*="background:#f8f9fa"],
+.modal [style*="background:#fafafa"],
+.modal [style*="background:#f5f5f5"],
+.modal [style*="background:#fef9c3"],
+.modal [style*="background:#fffbeb"],
+.modal [style*="background:#fef2f2"],
+.modal [style*="background:#fef3c7"] {
+  background:rgba(255,255,255,.06) !important;
+  color:#FCE0A8 !important;
+}
+/* Fonds clairs dans les pages inscription / login / récompenses */
+#page-inscription [style*="background:white"],
+#page-inscription [style*="background:#fff"],
+#page-inscription [style*="background:#fffbeb"],
+#page-inscription [style*="background:#fef9c3"],
+#page-inscription [style*="background:#fef3c7"] {
+  background:rgba(232,148,10,.1) !important;
+  border-color:rgba(232,148,10,.35) !important;
+  color:#FCE0A8 !important;
+}
+/* Couleurs de texte sombres rendues illisibles sur fond nuit */
+[style*="color:var(--noir)"] { color:#FCE0A8 !important; }
+[style*="color:#713f12"],
+[style*="color:#92400e"],
+[style*="color:#b45309"],
+[style*="color:#1e40af"],
+[style*="color:#1d4ed8"] { color:#FCE0A8 !important; }
+[style*="color:var(--gris-fonce)"] { color:rgba(252,224,168,.8) !important; }
 
 /* Inputs / textarea / select */
 #page-dashboard input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
@@ -5432,24 +5467,24 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <h2 style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:900;margin-bottom:8px;">Compte créé avec succès ! 🎉</h2>
 
       <!-- Email recap -->
-      <div style="background:var(--vert-light);border:1.5px solid var(--vert);border-radius:14px;padding:18px 20px;margin:20px 0;text-align:left;">
-        <p style="font-weight:700;color:var(--vert);margin-bottom:10px;">📧 Tes identifiants de connexion :</p>
-        <div style="background:white;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
-          <span style="font-size:12px;color:var(--gris);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Email</span>
-          <div id="success-email" style="font-weight:800;font-size:16px;color:var(--noir);margin-top:2px;"></div>
+      <div style="background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:14px;padding:18px 20px;margin:20px 0;text-align:left;">
+        <p style="font-weight:700;color:#E8940A;margin-bottom:10px;">📧 Tes identifiants de connexion :</p>
+        <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+          <span style="font-size:12px;color:rgba(252,224,168,0.6);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Email</span>
+          <div id="success-email" style="font-weight:800;font-size:16px;color:#FCE0A8;margin-top:2px;"></div>
         </div>
-        <div style="background:white;border-radius:10px;padding:12px 16px;">
-          <span style="font-size:12px;color:var(--gris);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Mot de passe</span>
-          <div style="font-weight:800;font-size:16px;color:var(--noir);margin-top:2px;">Le mot de passe que tu viens de choisir</div>
+        <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px 16px;">
+          <span style="font-size:12px;color:rgba(252,224,168,0.6);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Mot de passe</span>
+          <div style="font-weight:800;font-size:16px;color:#FCE0A8;margin-top:2px;">Le mot de passe que tu viens de choisir</div>
         </div>
-        <p style="font-size:12px;color:var(--gris);margin-top:10px;">💾 Note bien ces informations quelque part.</p>
+        <p style="font-size:12px;color:rgba(252,224,168,0.6);margin-top:10px;">💾 Note bien ces informations quelque part.</p>
       </div>
 
       <!-- U4 — Email confirmation notice (affiché seulement si session non créée immédiatement) -->
-      <div id="post-inscription-verify-email" style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
-        <p style="font-weight:700;color:#b45309;margin-bottom:6px;">📬 Vérifie ta boîte mail</p>
-        <p style="font-size:14px;color:#92400e;line-height:1.6;">Tu vas recevoir un email de confirmation de la part de WOZALI. <strong>Clique sur le lien dans cet email</strong> pour activer ton compte et pouvoir te connecter.</p>
-        <p style="font-size:12px;color:#b45309;margin-top:8px;">Si tu ne vois pas l'email, vérifie tes spams.</p>
+      <div id="post-inscription-verify-email" style="background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
+        <p style="font-weight:700;color:#E8940A;margin-bottom:6px;">📬 Vérifie ta boîte mail</p>
+        <p style="font-size:14px;color:#FCE0A8;line-height:1.6;">Tu vas recevoir un email de confirmation de la part de WOZALI. <strong>Clique sur le lien dans cet email</strong> pour activer ton compte et pouvoir te connecter.</p>
+        <p style="font-size:12px;color:rgba(252,224,168,0.7);margin-top:8px;">Si tu ne vois pas l'email, vérifie tes spams.</p>
       </div>
 
       <!-- U4 — Bloc affiché si session créée immédiatement (Confirm email désactivé côté Supabase) -->
@@ -5853,7 +5888,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
     <h2>Connexion</h2>
     <p>Accède à ton espace professionnel WOZALI</p>
 
-    <div id="login-error" style="display:none;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px 16px;font-size:14px;color:#dc2626;margin-bottom:16px;"></div>
+    <div id="login-error" style="display:none;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;"></div>
 
     <div class="form-group">
       <label>Email <span class="req">*</span></label>
@@ -6165,9 +6200,14 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <h2 id="dash-welcome">Bonjour 👋</h2>
             <p id="dash-subtitle" style="color:var(--gris);font-size:13px;margin-top:2px;"></p>
           </div>
-          <div id="dash-dispo-pill" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:100px;border:1.5px solid #e5e7eb;background:white;font-size:13px;font-weight:600;" onclick="showDashSection('dispo')">
-            <span id="dash-dispo-dot" style="width:10px;height:10px;border-radius:50%;background:#9ca3af;display:inline-block;"></span>
-            <span id="dash-dispo-txt">Invisible</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button id="btn-refresh-overview" title="Actualiser les stats"
+              onclick="(async()=>{const btn=this;btn.style.transition='transform 0.6s';btn.style.transform='rotate(360deg)';setTimeout(()=>btn.style.transform='',650);try{await loadCurrentPrestataire();await loadDashOverview();}catch(e){}})()"
+              style="width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(232,148,10,0.35);background:rgba(232,148,10,0.08);color:#E8940A;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.6s,border-color 0.2s;">↻</button>
+            <div id="dash-dispo-pill" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:100px;border:1.5px solid rgba(232,148,10,0.3);background:rgba(232,148,10,0.08);font-size:13px;font-weight:600;" onclick="showDashSection('dispo')">
+              <span id="dash-dispo-dot" style="width:10px;height:10px;border-radius:50%;background:#9ca3af;display:inline-block;"></span>
+              <span id="dash-dispo-txt">Invisible</span>
+            </div>
           </div>
         </div>
 
@@ -6319,8 +6359,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </div>
 
           <!-- Actions prioritaires -->
-          <div style="background:linear-gradient(135deg,#FCE0A8,#fefce8);border-radius:20px;padding:22px;box-shadow:var(--shadow);">
-            <h3 style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:700;margin:0 0 12px;">💡 Actions prioritaires</h3>
+          <div style="background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.25);border-radius:20px;padding:22px;">
+            <h3 style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:700;margin:0 0 12px;color:#FCE0A8;">💡 Actions prioritaires</h3>
             <div id="dash-actions" style="display:flex;flex-direction:column;gap:8px;"></div>
           </div>
         </div>
@@ -6341,7 +6381,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <div style="font-size:28px;font-weight:900;font-family:'DM Serif Display',serif;" id="stat-transactions">0</div>
           </div>
           <div style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:16px;padding:18px;color:white;">
-            <div style="font-size:13px;font-weight:600;opacity:0.85;margin-bottom:4px;">💎 Points Cowrie</div>
+            <div style="font-size:13px;font-weight:600;opacity:0.85;margin-bottom:4px;">⭐ Score WOZALI</div>
             <div style="font-size:28px;font-weight:900;font-family:'DM Serif Display',serif;" id="kpi-cowrie">0</div>
           </div>
           <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:16px;padding:18px;color:white;">
@@ -7587,12 +7627,12 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </div>
 
           <!-- Section relance upsell -->
-          <div id="parrain-upsell-banner" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+          <div id="parrain-upsell-banner" style="display:none;background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.35);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <span style="font-size:20px;">🎯</span>
               <div style="flex:1;">
-                <div style="font-weight:800;font-size:14px;color:#92400e;">Opportunités d'upsell</div>
-                <div style="font-size:13px;color:#78350f;" id="upsell-desc">— filleuls encore en plan Base → relance-les pour passer Pro</div>
+                <div style="font-weight:800;font-size:14px;color:#E8940A;">Opportunités d'upsell</div>
+                <div style="font-size:13px;color:#FCE0A8;" id="upsell-desc">— filleuls encore en plan Base → relance-les pour passer Pro</div>
               </div>
               <button onclick="filterUpsell()" style="background:#f59e0b;color:white;border:none;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">Voir les → relancer</button>
             </div>
@@ -7679,8 +7719,8 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <p>Ton profil WOZALI est ton CV. Quand tu postules, le recruteur reçoit tout automatiquement.</p>
         </div>
 
-        <div id="emploi-mode-individuel-only" style="display:none;background:#fef3dc;border:1.5px solid var(--or);border-radius:12px;padding:16px;margin-bottom:20px;">
-          <p style="font-size:14px;color:#92400e;">⚠️ Le mode emploi est réservé aux profils individuels. Si ton compte est un commerce ou restaurant, crée un second compte avec ton profil personnel pour postuler à des emplois.</p>
+        <div id="emploi-mode-individuel-only" style="display:none;background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <p style="font-size:14px;color:#FCE0A8;">⚠️ Le mode emploi est réservé aux profils individuels. Si ton compte est un commerce ou restaurant, crée un second compte avec ton profil personnel pour postuler à des emplois.</p>
         </div>
 
         <div id="emploi-mode-toggle-wrap" style="background:white;border-radius:20px;padding:32px;box-shadow:var(--shadow);text-align:center;max-width:480px;margin:0 auto;">
@@ -8443,10 +8483,10 @@ async function submitForgot() {
 
   msgEl.style.display = 'block';
   if (error) {
-    msgEl.style.cssText = 'display:block;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px 16px;font-size:14px;color:#dc2626;margin-bottom:16px;';
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
     msgEl.textContent = 'Erreur : ' + error.message;
   } else {
-    msgEl.style.cssText = 'display:block;background:var(--vert-light);border:1.5px solid var(--vert);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--vert);margin-bottom:16px;';
+    msgEl.style.cssText = 'display:block;background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#E8940A;margin-bottom:16px;';
     msgEl.textContent = '✓ Lien envoyé ! Vérifie ta boîte email.';
   }
   btn.textContent = 'Envoyer le lien';
@@ -8461,11 +8501,11 @@ async function submitResetPassword() {
   const btn = document.getElementById('reset-pw-btn');
 
   if (!pw || pw.length < 6) {
-    msgEl.style.cssText = 'display:block;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px 16px;font-size:14px;color:#dc2626;margin-bottom:16px;';
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
     msgEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.'; return;
   }
   if (pw !== confirm) {
-    msgEl.style.cssText = 'display:block;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px 16px;font-size:14px;color:#dc2626;margin-bottom:16px;';
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
     msgEl.textContent = 'Les mots de passe ne correspondent pas.'; return;
   }
 
@@ -8475,10 +8515,10 @@ async function submitResetPassword() {
   const { error } = await supa.auth.updateUser({ password: pw });
 
   if (error) {
-    msgEl.style.cssText = 'display:block;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px 16px;font-size:14px;color:#dc2626;margin-bottom:16px;';
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
     msgEl.textContent = 'Erreur : ' + error.message;
   } else {
-    msgEl.style.cssText = 'display:block;background:var(--vert-light);border:1.5px solid var(--vert);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--vert);margin-bottom:16px;';
+    msgEl.style.cssText = 'display:block;background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#E8940A;margin-bottom:16px;';
     msgEl.textContent = '✅ Mot de passe mis à jour ! Redirection...';
     setTimeout(() => showPage('login'), 2000);
   }
@@ -8597,7 +8637,29 @@ function showDashSection(section) {
   var linkEl = document.getElementById('dl-' + section);
   if (linkEl) { linkEl.classList.add('active'); openDashGroupContaining(linkEl); }
 
-  if (section === 'overview') loadDashOverview();
+  // ── Auto-refresh overview : reset timer à chaque changement de section ──
+  if (window._overviewRefreshTimer) {
+    clearInterval(window._overviewRefreshTimer);
+    window._overviewRefreshTimer = null;
+  }
+
+  if (section === 'overview') {
+    loadDashOverview();
+    // Refresh silencieux toutes les 60s tant que la section est active
+    window._overviewRefreshTimer = setInterval(async () => {
+      if (!document.getElementById('ds-overview')?.classList.contains('active')) {
+        clearInterval(window._overviewRefreshTimer);
+        window._overviewRefreshTimer = null;
+        return;
+      }
+      try {
+        await loadCurrentPrestataire();
+        await loadDashOverview();
+        const btn = document.getElementById('btn-refresh-overview');
+        if (btn) { btn.style.transform = 'rotate(360deg)'; setTimeout(() => btn.style.transform = '', 600); }
+      } catch(e) {}
+    }, 60000);
+  }
   if (section === 'dispo') { loadDispo(); initDispoEditor(); renderDispoEditor(); }
   if (section === 'rdv') loadDashRDV();
   if (section === 'profil') { loadEditForm(); setTimeout(loadDashLocation, 200); _dashLocMap = null; _dashLocMarker = null; }
@@ -17694,7 +17756,7 @@ function showFedaPayModal(plan, amount, code) {
   body.innerHTML = `
     <div style="text-align:center;margin-bottom:20px;">
       <div style="font-size:40px;margin-bottom:8px;">🚀</div>
-      <p style="font-size:15px;color:var(--gris-fonce);line-height:1.6;">Plan Pro : <strong style="color:var(--noir);font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA / mois</strong></p>
+      <p style="font-size:15px;color:#FCE0A8;line-height:1.6;">Plan Pro : <strong style="color:#E8940A;font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA / mois</strong></p>
     </div>
     <div style="background:linear-gradient(135deg,#14100A,#1F2937);border-radius:14px;padding:22px;margin-bottom:14px;">
       <div style="font-size:13px;font-weight:700;color:#E8940A;letter-spacing:1px;margin-bottom:12px;text-align:center;">PAIEMENT SÉCURISÉ VIA FEDAPAY</div>
@@ -17711,7 +17773,7 @@ function showFedaPayModal(plan, amount, code) {
       </div>
     </div>
     <button onclick="initFedaPayCheckout('${code}', ${amount})" style="width:100%;padding:16px;background:linear-gradient(135deg,#E8940A,#d4820a);color:#14100A;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;">📱 Payer maintenant — ${amount.toLocaleString('fr-FR')} FCFA</button>
-    <div style="background:#fef9c3;border-radius:12px;padding:12px;font-size:12px;color:#713f12;line-height:1.7;text-align:center;">
+    <div style="background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);border-radius:12px;padding:12px;font-size:12px;color:#FCE0A8;line-height:1.7;text-align:center;">
       Paiement 100% sécurisé via <strong>FedaPay</strong>.<br>MTN · Moov · TMoney · Flooz — sans carte bancaire.
     </div>
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:10px;">Réf : <strong>${code}</strong> · Plan Pro activé instantanément.</p>
@@ -19177,7 +19239,7 @@ function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
   const f = currentPrestataire.fields;
   const typeProfil = f['Type de profil'] || '';
   if (typeProfil && typeProfil !== 'Individuel' && typeProfil.toLowerCase().includes('commerce')) {
-    document.getElementById('modal-cand-profil').innerHTML = '<div style="background:#fef3dc;border:1.5px solid var(--or);border-radius:10px;padding:12px;font-size:13px;color:#92400e;">⚠️ Les offres d\'emploi sont réservées aux profils individuels. Tu peux créer un second compte avec ton profil personnel.</div>';
+    document.getElementById('modal-cand-profil').innerHTML = '<div style="background:rgba(232,148,10,0.12);border:1.5px solid rgba(232,148,10,0.4);border-radius:10px;padding:12px;font-size:13px;color:#FCE0A8;">⚠️ Les offres d\'emploi sont réservées aux profils individuels. Tu peux créer un second compte avec ton profil personnel.</div>';
     document.getElementById('modal-cand-submit-btn').disabled = true;
     modal.style.display = 'flex';
     return;
