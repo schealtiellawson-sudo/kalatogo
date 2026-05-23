@@ -4,9 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-22)
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-23)
 
 ### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
+
+---
+
+### ✅ SESSION 2026-05-23 — Suppression Mes entretiens + KYC IA retirée
+
+**Commits pushés :** `34b3193`, `f0889fc`, `24fd9bf`, `752782e` + commit en cours
+
+**Ce qui a été fait :**
+
+1. **Fix Mode Emploi toggle** (`34b3193`) :
+   - Mapping Supabase manquant pour le champ disponibilité emploi
+   - Migration colonne ajoutée
+
+2. **Fix migration wozali_entretiens** (`f0889fc`) :
+   - Migration SQL créée pour la table entretiens
+
+3. **Fix entretien-list double `.order()` + try/catch router** (`24fd9bf`) :
+   - `api/entretien-list.js` : double `.order()` sur le scope `upcoming` → SQL invalide → crash
+   - `api/[action].js` : try/catch global → erreurs retournent JSON au lieu de page HTML Vercel
+   - Frontend : `res.text()` + JSON.parse pour afficher l'erreur réelle
+
+4. **Suppression complète "Mes entretiens"** (`752782e`) :
+   - Section `Mes entretiens` virée de "Mon emploi" ET "Je recrute"
+   - 100 lignes supprimées, zéro résidu HTML/JS
+
+5. **Suppression vérification IA recruiter** (session courante) :
+   - Bandeau `#rd-kyc-banner` retiré du dashboard recruteur
+   - Fonctions supprimées : `renderKycBanner()`, `ouvrirKycModal()`, `kycSubmit()`, `appliquerKycVerification()`
+   - Appel `renderKycBanner()` retiré de `loadRecrutDashboard()`
+   - Raison : friction inutile au lancement
+
+**Personas E2E restants :**
+- ⏳ Kodjo (Mécanicien moto, Akpakpa, Cotonou)
+- ⏳ Akossiwa (Photographe, Lomé)
+- ⏳ Madame Adjo (Restaurant, Cotonou)
 
 ---
 
