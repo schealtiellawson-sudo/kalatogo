@@ -43,7 +43,7 @@ export default async function handler(req, res) {
   const wantsAwards = is_awards_candidate === true || is_awards_candidate === 'true';
   if (wantsAwards && !tag_pro_user_id && !tag_pro_libre) {
     return res.status(400).json({
-      error: 'Tag de la coiffeuse / couturière obligatoire pour candidater au Bourse des Mains d'Or (sinon ta photo n\'est pas éligible).'
+      error: "Tag de la coiffeuse / couturière obligatoire pour candidater à la Bourse des Mains d'Or (sinon ta photo n'est pas éligible)."
     });
   }
 
