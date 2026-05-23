@@ -12123,7 +12123,7 @@ async function supprimerOffre(offreId, titrte) {
 // ── Dashboard Recruteur : état global ──
 let allRecrutCandidatures = [];
 let recrutCandView = 'grid';
-let recrutCandSort = 'recent'; // recent | ai_desc | ai_asc | wozali_desc | ancien
+let recrutCandSort = 'recent'; // recent | wozali_desc | ancien
 let recrutCandFiltered = []; // dernier set affiché (utilisé par exportCandidaturesCSV)
 
 // ── Coordonnées approximatives quartiers Lomé / Cotonou (lat, lon) ──
@@ -12170,14 +12170,6 @@ function _wozaliAgeFromDateNaissance(dateIso) {
   return age;
 }
 
-function _wozaliAiScoreFor(c) {
-  // Score IA : prioriser le champ persisté `Score IA` / `score_ia`, sinon cache local
-  const f = c.fields || {};
-  const persisted = f['Score IA'] ?? f['score_ia'] ?? null;
-  if (persisted != null && persisted !== '') return Number(persisted);
-  const cached = window.wozaliAi?.getCachedScore?.(c.id);
-  return cached?.score ?? null;
-}
 
 // ── Dashboard : Candidatures reçues (version enrichie) ──
 async function loadCandidaturesRecues() {
@@ -12343,24 +12335,6 @@ function _sortRecrutCandidatures(list, mode) {
     return d ? new Date(d).getTime() : 0;
   };
   switch (mode) {
-    case 'ai_desc':
-      arr.sort((a,b) => {
-        const sa = _wozaliAiScoreFor(a); const sb = _wozaliAiScoreFor(b);
-        if (sa == null && sb == null) return dateOf(b) - dateOf(a);
-        if (sa == null) return 1;
-        if (sb == null) return -1;
-        return sb - sa;
-      });
-      break;
-    case 'ai_asc':
-      arr.sort((a,b) => {
-        const sa = _wozaliAiScoreFor(a); const sb = _wozaliAiScoreFor(b);
-        if (sa == null && sb == null) return dateOf(b) - dateOf(a);
-        if (sa == null) return 1;
-        if (sb == null) return -1;
-        return sa - sb;
-      });
-      break;
     case 'wozali_desc':
       arr.sort((a,b) => (Number(b.fields?.['Candidat Score WOZALI']||0)) - (Number(a.fields?.['Candidat Score WOZALI']||0)));
       break;
@@ -12452,19 +12426,17 @@ function exportCandidaturesCSV() {
     if (typeof toast === 'function') toast('Aucune candidature à exporter', 'info');
     return;
   }
-  const headers = ['Date','Nom','Métier','Quartier','Score WOZALI','Score IA','Statut','Offre','WhatsApp'];
+  const headers = ['Date','Nom','Métier','Quartier','Score WOZALI','Statut','Offre','WhatsApp'];
   const rows = list.map(c => {
     const f = c.fields || {};
     const dateRaw = f['Date candidature'];
     const date = dateRaw ? new Date(dateRaw).toLocaleDateString('fr-FR') : '';
-    const aiScore = _wozaliAiScoreFor(c);
     return [
       date,
       f['Candidat Nom'] || '',
       f['Candidat Métier'] || '',
       f['Candidat Quartier'] || '',
       f['Candidat Score WOZALI'] ?? '',
-      aiScore ?? '',
       f['Statut'] || 'En attente',
       f['Offre Titre'] || '',
       f['Candidat WhatsApp'] || ''
@@ -12520,10 +12492,6 @@ function renderRecrutCandidatures(cands) {
         const ageJ    = _ageJours(f['Date candidature']);
         const ghosted = statut === 'En attente' && ageJ >= 14;
         const cardBorder = ghosted ? 'rgba(239,68,68,.4)' : 'rgba(232,148,10,.12)';
-        const aiCache = window.wozaliAi?.getCachedScore?.(c.id);
-        const aiScore = aiCache?.score;
-        const aiJust  = (aiCache?.justification || '').replace(/"/g,'&quot;');
-        const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
 
         const _safeCandNom = escapeHtml(f['Candidat Nom']||'—');
         const _safeCandMetier = escapeHtml(f['Candidat Métier']||'');
@@ -12544,7 +12512,6 @@ function renderRecrutCandidatures(cands) {
               <div style="color:#E8940A;font-size:13px;margin:2px 0;">${_safeCandMetier}</div>
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                 <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.3);color:${scoreColor};" title="Score WOZALI du candidat">⚡ ${score}/100</span>
-                ${aiScore != null ? `<span onclick="scoreCandidatRecru('${c.id}')" style="cursor:pointer;font-size:11px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(168,85,247,.18);color:${aiColor};border:1px solid rgba(168,85,247,.3);" title="${aiJust}">🤖 ${aiScore}</span>` : ''}
                 <span style="font-size:11px;color:rgba(252, 224, 168,.4);">${date}</span>
               </div>
             </div>
@@ -12552,7 +12519,6 @@ function renderRecrutCandidatures(cands) {
           <div style="font-size:12px;color:rgba(252, 224, 168,.5);font-style:italic;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Offre : ${_safeOffreTitre}</div>
           ${f['Message'] ? `<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:10px;font-size:12px;color:rgba(252, 224, 168,.7);margin-bottom:12px;line-height:1.6;max-height:72px;overflow:hidden;">"${_safeMessage}"</div>` : ''}
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
-            <button onclick="scoreCandidatRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;">🤖 Score IA</button>
             <button onclick="openMessagerieRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;">💬 Message</button>
             <button onclick="openEntretienRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">📅 Entretien</button>
             ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;">💬 WhatsApp</a>` : ''}
@@ -12608,12 +12574,11 @@ function renderRecrutCandidatures(cands) {
               <td style="padding:10px 12px;color:#FCE0A8;font-weight:700;white-space:nowrap;">${_safeCandNomT}</td>
               <td style="padding:10px 12px;color:#E8940A;white-space:nowrap;">${_safeCandMetierT}</td>
               <td style="padding:10px 12px;color:rgba(252, 224, 168,.6);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_safeOffreTitreT}</td>
-              <td style="padding:10px 12px;white-space:nowrap;"><span style="font-weight:700;color:${scoreColor};">${score}</span>${aiScore != null ? `<span style="margin-left:6px;font-weight:800;color:${aiColor};font-size:12px;" title="Score IA">🤖 ${aiScore}</span>` : ''}</td>
+              <td style="padding:10px 12px;white-space:nowrap;"><span style="font-weight:700;color:${scoreColor};">${score}</span></td>
               <td style="padding:10px 12px;white-space:nowrap;"><span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>${ghosted ? `<span style="margin-left:6px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.15);color:#f87171;">⏰ ${ageJ}j</span>` : ''}</td>
               <td style="padding:10px 12px;color:rgba(252, 224, 168,.5);white-space:nowrap;">${date}</td>
               <td style="padding:10px 12px;white-space:nowrap;">
                 <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                  <button onclick="scoreCandidatRecru('${c.id}')" title="Score IA" style="padding:4px 8px;border-radius:6px;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;font-size:12px;">🤖</button>
                   <button onclick="openMessagerieRecru('${c.id}')" title="Message" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:12px;">💬</button>
                   <button onclick="openEntretienRecru('${c.id}')" title="Planifier entretien" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">📅</button>
                   ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">📱</a>` : ''}
@@ -12633,40 +12598,6 @@ function renderRecrutCandidatures(cands) {
   }
 }
 
-// ── Score IA en batch : prefetch les candidatures non scorées (max 5/run pour préserver le quota) ──
-async function batchScoreCandidatures() {
-  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
-  if (!Array.isArray(allRecrutCandidatures) || allRecrutCandidatures.length === 0) {
-    toast('Aucune candidature à scorer', 'info'); return;
-  }
-  const cibles = allRecrutCandidatures
-    .filter(c => !window.wozaliAi.getCachedScore(c.id))
-    .slice(0, 5);
-  if (cibles.length === 0) {
-    toast('Toutes les candidatures sont déjà scorées', 'info');
-    return;
-  }
-  const btn = document.getElementById('recrut-batch-score');
-  if (btn) { btn.disabled = true; btn.textContent = `🤖 Scoring 0/${cibles.length}…`; }
-  let done = 0, errors = 0;
-  for (const c of cibles) {
-    const offre = await _getOffreById(c.fields['Offre ID']);
-    if (!offre) { errors++; continue; }
-    try {
-      await window.wozaliAi.scoreCandidatSilent(c, offre);
-      done++;
-      if (btn) btn.textContent = `🤖 Scoring ${done}/${cibles.length}…`;
-    } catch (e) {
-      errors++;
-      // Quota dépassé → on arrête
-      if (e?.status === 429) { toast('Quota IA atteint pour aujourd\'hui', 'error'); break; }
-    }
-  }
-  if (btn) { btn.disabled = false; btn.textContent = '🤖 Scorer en lot'; }
-  toast(`${done} candidature${done>1?'s':''} scorée${done>1?'s':''}${errors?` · ${errors} erreur${errors>1?'s':''}`:''}`, done>0 ? 'success' : 'error');
-  // Re-render avec les nouveaux scores
-  filterRecrutCandidatures();
-}
 
 // ── Anti-ghosting : score réactivité recruteur ──
 function _ageJours(dateIso) {
@@ -12799,7 +12730,6 @@ function _renderKanbanCard(c, col) {
   const f       = c.fields || c;
   const nom     = escapeHtml(f['Candidat Nom'] || f['Nom complet'] || 'Candidat');
   const metier  = escapeHtml(f['Candidat Métier'] || f['Métier'] || '');
-  const score   = f['Score IA'] || f['score_ia'] || '';
   const scoreW  = f['Candidat Score WOZALI'] || f['Score WOZALI'] || '';
   const photo   = f['Candidat Photo'] || f['Photo de profil'] || '';
   const id      = c.id;
@@ -12809,7 +12739,6 @@ function _renderKanbanCard(c, col) {
     ? `<img src="${escapeHtml(photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" loading="lazy">`
     : `<div style="width:32px;height:32px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#E8940A;flex-shrink:0;">${nom.charAt(0).toUpperCase()}</div>`;
 
-  const scoreIA  = score  ? `<span style="background:rgba(168,85,247,.15);color:#c084fc;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;">🤖 ${score}</span>` : '';
   const scoreWO  = scoreW ? `<span style="background:rgba(232,148,10,.12);color:#E8940A;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;">⚡ ${scoreW}</span>` : '';
 
   const nextBtn = nextCol
@@ -12825,7 +12754,7 @@ function _renderKanbanCard(c, col) {
           <div style="font-size:10px;color:rgba(252,224,168,.45);">${metier}</div>
         </div>
       </div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;">${scoreIA}${scoreWO}</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">${scoreWO}</div>
       ${nextBtn}
       <button onclick="kanbanRefusCard('${id}')" style="width:100%;margin-top:4px;background:transparent;border:1px solid rgba(220,38,38,.2);color:rgba(220,38,38,.5);border-radius:7px;padding:4px;font-size:10px;font-family:Geist,sans-serif;cursor:pointer;">✗ Refuser</button>
     </div>`;
@@ -13098,14 +13027,6 @@ async function _getOffreById(offreId) {
   return null;
 }
 
-async function scoreCandidatRecru(candidatureId) {
-  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
-  const c = _findCandidatureById(candidatureId);
-  if (!c) { toast('Candidature introuvable', 'error'); return; }
-  const offre = await _getOffreById(c.fields['Offre ID']);
-  if (!offre) { toast('Offre liée introuvable', 'error'); return; }
-  window.wozaliAi.scoreCandidat(c, offre);
-}
 
 function openMessagerieRecru(candidatureId) {
   if (!window.wozaliMessagerie) { toast('Module messagerie non chargé', 'error'); return; }

@@ -4117,8 +4117,6 @@ setTimeout(function(){
           </select>
           <select id="recrut-cand-sort" onchange="setRecrutCandSort(this.value)" title="Trier les candidatures" style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);color:#E8940A;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;outline:none;font-weight:700;">
             <option value="recent">↓ Récent (défaut)</option>
-            <option value="ai_desc">🤖 Score IA décroissant</option>
-            <option value="ai_asc">🤖 Score IA croissant</option>
             <option value="wozali_desc">⚡ Score WOZALI décroissant</option>
             <option value="ancien">↑ Plus ancien</option>
           </select>
@@ -4130,7 +4128,6 @@ setTimeout(function(){
           <div id="recrut-cand-count" style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252, 224, 168,.4);text-transform:uppercase;letter-spacing:1px;">0 candidatures</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <button id="recrut-export-csv" onclick="exportCandidaturesCSV()" title="Exporter les candidatures filtrées en CSV" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.12);color:#22c55e;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;">⤓ Export CSV</button>
-            <button id="recrut-batch-score" onclick="batchScoreCandidatures()" title="Calcule le score IA pour les candidatures non scorées (max 5)" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(168,85,247,.3);background:rgba(168,85,247,.12);color:#c084fc;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;">🤖 Scorer en lot</button>
             <button id="recrut-view-grid" onclick="setRecrutCandView('grid')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.15);background:#E8940A;color:#14100A;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;">◻ Grille</button>
             <button id="recrut-view-table" onclick="setRecrutCandView('table')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.15);background:rgba(255,255,255,.06);color:#FCE0A8;font-size:12px;font-family:Geist,sans-serif;cursor:pointer;">☰ Liste</button>
             <button id="recrut-view-kanban" onclick="setRecrutCandView('kanban')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.15);background:rgba(255,255,255,.06);color:#FCE0A8;font-size:12px;font-family:Geist,sans-serif;cursor:pointer;">🔲 Kanban</button>
