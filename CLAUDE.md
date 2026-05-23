@@ -52,14 +52,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ 1. Réduire poids fichier
 - ✅ 2. Activer boosts d'annonces
 - ✅ 3. Créer profil "Je vends ici" commerçants ambulants
-- ⬜ 4. Pipeline Kanban recruteur — sprint G
-- ⬜ 5. Agents IA scoring + KYC — sprint H
-- ⬜ 6. Planning entretiens + messagerie — sprint I
+- ✅ 4. Pipeline Kanban recruteur — sprint G (bouton 🔲 Kanban + 4 colonnes + move 1-clic)
+- ⬜ 5. Agents IA scoring + KYC — sprint H (partiellement livré sessions précédentes — manque API keys Vercel)
+- ⬜ 6. Séquence WhatsApp J0→J3→J7→J30 (J0-J7 existent, J30 à ajouter, manque WHATSAPP_CLOUD_TOKEN Vercel)
 - ⬜ 7. Bouton Embaucher → fiche employé — sprint J
 - ⬜ 8. Espace équipe — sprint K
-- ⬜ 9. Séquence WhatsApp J0→J3→J7→J30
-- ⬜ 10. 150-200 vrais profils avant 1er juillet (terrain)
-- ⬜ 11. 3-5 agents terrain Lomé + Cotonou (terrain)
+- ⬜ 9. 150-200 vrais profils avant 1er juillet (terrain)
+- ⬜ 10. 3-5 agents terrain Lomé + Cotonou (terrain)
 
 ---
 
