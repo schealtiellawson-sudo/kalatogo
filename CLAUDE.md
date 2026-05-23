@@ -4,9 +4,62 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-23)
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-23 soir)
 
 ### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
+
+---
+
+### ✅ SESSION 2026-05-23 (soir) — Perf + Boosts offres + Je vends ici
+
+**Commits pushés :** `378cf3d` (perf), `2e52e55` (boost+fix blanc), `e55dcd6` (fix boost modal), `30ca933` (Je vends ici)
+
+**Ce qui a été fait :**
+
+1. **Performance index.html** : 2.71MB → 540KB (-81%)
+   - CSS extrait → `/style.css` (224KB, mis en cache)
+   - JS extrait → `/app.js`, `/app2.js`, `/app3.js` (defer)
+   - 5 images base64 → `/assets/` (lazy load)
+   - Fix fond blanc : `html { background: #14100A }`
+
+2. **Boost offres d'emploi** (4 plans : 7j/2500F, 14j/5000F, 30j/10000F, tête-liste/15000F) :
+   - Modal boost avec instructions paiement Wave/Flooz
+   - Référence unique `BOOST-XXXXXX-XXXX` générée
+   - Offres boostées remontent en premier dans WOZALI Jobs
+   - Badge ⭐ À LA UNE sur les cards publiques
+   - Fix : `window.allMesOffres` exposé (let ne crée pas de prop window)
+   - Numéro Wave : +33 7 43 60 69 16 (vrai numéro)
+   - ⚠️ **Migration à appliquer** : `supabase/migrations/20260523_boost_offres.sql`
+
+3. **Je vends ici — Vitrine ambulante** :
+   - Sidebar : groupe "Je vends ici" → "Ma vitrine"
+   - Section `ds-vente-ambulante` : toggle, produit, prix, photo, GPS, partage WhatsApp
+   - Quartier pré-rempli depuis profil utilisateur
+   - Section home page "Marchands du jour" (masquée si 0 vitrines actives)
+   - JS : `loadVenteAmbulanteSection`, `saveVitrine`, `toggleVitrine`, `partagerVitrineWhatsApp`, `loadMarchandsSection`
+   - ⚠️ **Migration à appliquer** : `supabase/migrations/20260523_vitrines_ambulantes.sql`
+
+**⚠️ DEUX MIGRATIONS À APPLIQUER EN SUPABASE SQL EDITOR :**
+```sql
+-- 1. Boost offres
+-- Contenu : supabase/migrations/20260523_boost_offres.sql
+
+-- 2. Vitrines ambulantes
+-- Contenu : supabase/migrations/20260523_vitrines_ambulantes.sql
+```
+
+**Checklist en cours :**
+- ✅ 1. Réduire poids fichier
+- ✅ 2. Activer boosts d'annonces
+- ✅ 3. Créer profil "Je vends ici" commerçants ambulants
+- ⬜ 4. Pipeline Kanban recruteur — sprint G
+- ⬜ 5. Agents IA scoring + KYC — sprint H
+- ⬜ 6. Planning entretiens + messagerie — sprint I
+- ⬜ 7. Bouton Embaucher → fiche employé — sprint J
+- ⬜ 8. Espace équipe — sprint K
+- ⬜ 9. Séquence WhatsApp J0→J3→J7→J30
+- ⬜ 10. 150-200 vrais profils avant 1er juillet (terrain)
+- ⬜ 11. 3-5 agents terrain Lomé + Cotonou (terrain)
 
 ---
 
