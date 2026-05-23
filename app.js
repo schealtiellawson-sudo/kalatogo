@@ -566,6 +566,7 @@ function showDashSection(section) {
   if (section === 'recrut-offres') loadMesOffres();
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
   if (section === 'recrut-dashboard') loadRecrutDashboard();
+  if (section === 'mon-equipe') loadMonEquipe();
   if (section === 'wozali-match') loadDashWozaliMatch();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
@@ -12560,6 +12561,7 @@ function renderRecrutCandidatures(cands) {
             <button onclick="updateStatutCandidature('${c.id}','Vue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">👁 Vue</button>
             ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;">↗ Profil</button>` : ''}
             <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;">🚨</button>
+            ${isRetenue ? `<button onclick="embaucherCandidat('${c.id}')" style="padding:6px 14px;border-radius:8px;font-size:12px;font-weight:800;background:rgba(34,197,94,.2);color:#22c55e;border:1.5px solid rgba(34,197,94,.4);cursor:pointer;">✅ Embaucher</button>` : ''}
           </div>
         </div>`;
       }).join('') + '</div>';
@@ -12618,6 +12620,7 @@ function renderRecrutCandidatures(cands) {
                   <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;">✓</button>
                   <button onclick="updateStatutCandidature('${c.id}','Refusée')" title="Refuser" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;">✗</button>
                   <button onclick="updateStatutCandidature('${c.id}','Vue')" title="Marquer vue" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">👁</button>
+                  ${statut === 'Retenue' ? `<button onclick="embaucherCandidat('${c.id}')" title="Embaucher" style="padding:4px 10px;border-radius:6px;background:rgba(34,197,94,.2);color:#22c55e;border:1.5px solid rgba(34,197,94,.4);cursor:pointer;font-size:12px;font-weight:800;">✅</button>` : ''}
                   ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" title="Voir profil" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-size:12px;">↗</button>` : ''}
                   <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;font-size:12px;">🚨</button>
                 </div>
@@ -12848,6 +12851,235 @@ async function updateStatutCandidature(candidatureId, statut) {
     loadCandidaturesRecues();
   } catch(e) {
     toast('Erreur de mise à jour', 'error');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SPRINT J — Embaucher un candidat → crée fiche employé
+// ══════════════════════════════════════════════════════
+
+async function embaucherCandidat(candidatureId) {
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  const f = c.fields;
+
+  // Modal de confirmation
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active';
+  overlay.style.zIndex = '10010';
+  const nom    = escapeHtml(f['Candidat Nom'] || '—');
+  const metier = escapeHtml(f['Candidat Métier'] || '—');
+  const offre  = escapeHtml(f['Offre Titre'] || '—');
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:480px;padding:32px;">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;margin:0 0 8px;">Confirmer l'embauche</h3>
+      <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);margin:0 0 20px;">Une fiche employé sera créée dans "Mon équipe".</p>
+      <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px;margin-bottom:20px;">
+        <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:800;color:#FCE0A8;margin-bottom:4px;">${nom}</div>
+        <div style="font-size:13px;color:#E8940A;">${metier}</div>
+        <div style="font-size:12px;color:rgba(252,224,168,.5);margin-top:4px;">Poste : ${offre}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div>
+          <label style="font-family:Geist,sans-serif;font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;">Type de contrat</label>
+          <select id="emb-contrat" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:8px;padding:8px 10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;margin-top:4px;">
+            <option value="">Non précisé</option>
+            <option value="CDI">CDI</option>
+            <option value="CDD">CDD</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Stage">Stage</option>
+            <option value="Apprentissage">Apprentissage</option>
+            <option value="Journalier">Journalier</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-family:Geist,sans-serif;font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;">Salaire (FCFA/mois)</label>
+          <input id="emb-salaire" type="number" placeholder="Ex: 75000" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:8px;padding:8px 10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;margin-top:4px;box-sizing:border-box;">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="this.closest('.modal-overlay').remove()" style="flex:1;padding:12px;background:transparent;border:1px solid rgba(252,224,168,.2);border-radius:10px;color:rgba(252,224,168,.6);font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+        <button id="emb-confirm-btn" onclick="_confirmEmbauche('${candidatureId}')" style="flex:2;padding:12px;background:#22c55e;border:none;border-radius:10px;color:#0a1a0f;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">✅ Confirmer l'embauche</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+}
+
+async function _confirmEmbauche(candidatureId) {
+  const btn = document.getElementById('emb-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ En cours…'; }
+
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  const f = c.fields;
+
+  const contrat = document.getElementById('emb-contrat')?.value || null;
+  const salaire = document.getElementById('emb-salaire')?.value || null;
+
+  try {
+    const jwt = (await (window.supabase || window.supa)?.auth?.getSession())?.data?.session?.access_token;
+    const resp = await fetch('/api/wozali-pay/employe-create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(jwt ? { 'Authorization': `Bearer ${jwt}` } : {}) },
+      body: JSON.stringify({
+        candidature_id:           c.id,
+        employe_nom:              f['Candidat Nom'] || '—',
+        employe_metier:           f['Candidat Métier'] || null,
+        employe_whatsapp:         f['Candidat WhatsApp'] || null,
+        employe_photo:            f['Candidat Photo'] || null,
+        employe_quartier:         f['Candidat Quartier'] || null,
+        employe_ville:            f['Candidat Ville'] || null,
+        employe_user_id:          f['Candidat User ID'] || null,
+        recruteur_prestataire_id: currentPrestataire?.id || null,
+        offre_id:                 f['Offre ID'] || null,
+        offre_titre:              f['Offre Titre'] || null,
+        type_contrat:             contrat,
+        salaire_fcfa:             salaire ? parseInt(salaire) : null,
+      }),
+    });
+    const json = await resp.json();
+    if (!resp.ok) throw new Error(json.error || 'Erreur serveur');
+
+    // Mettre statut candidature → Embauché
+    await updateStatutCandidature(candidatureId, 'Embauché');
+
+    // Fermer le modal
+    document.querySelector('.modal-overlay[style*="10010"]')?.remove();
+
+    // Modal succès
+    const sDiv = document.createElement('div');
+    sDiv.className = 'modal-overlay active';
+    sDiv.style.zIndex = '10011';
+    const nom = escapeHtml(f['Candidat Nom'] || '—');
+    sDiv.innerHTML = `
+      <div class="modal" style="max-width:420px;text-align:center;padding:36px;">
+        <div style="font-size:52px;margin-bottom:12px;">🎉</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;margin:0 0 10px;">${nom} rejoint ton équipe !</h3>
+        <p style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin:0 0 24px;line-height:1.6;">Fiche créée dans "Mon équipe". Envoie-lui un message WhatsApp pour confirmer le démarrage.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-primary btn-sm" onclick="showDashSection('mon-equipe');this.closest('.modal-overlay').remove();">→ Voir mon équipe</button>
+          <button class="btn btn-secondary btn-sm" onclick="this.closest('.modal-overlay').remove();">Fermer</button>
+        </div>
+      </div>`;
+    document.body.appendChild(sDiv);
+    sDiv.onclick = e => { if (e.target === sDiv) sDiv.remove(); };
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Confirmer l\'embauche'; }
+    toast('Erreur : ' + (e?.message || 'Réessaie'), 'error');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SPRINT K — Espace Équipe
+// ══════════════════════════════════════════════════════
+
+let _equipeStatutFilter = 'actif';
+
+async function loadMonEquipe() {
+  const grid    = document.getElementById('equipe-grid');
+  const countEl = document.getElementById('equipe-count');
+  if (!grid) return;
+  grid.innerHTML = '<div style="font-size:14px;color:rgba(252,224,168,.4);padding:20px;">Chargement…</div>';
+
+  try {
+    const jwt = (await (window.supabase || window.supa)?.auth?.getSession())?.data?.session?.access_token;
+    const url = `/api/wozali-pay/employe-list?statut=${_equipeStatutFilter}`;
+    const resp = await fetch(url, { headers: jwt ? { 'Authorization': `Bearer ${jwt}` } : {} });
+    const json = await resp.json();
+    if (!resp.ok) throw new Error(json.error || 'Erreur');
+
+    const employes = json.employes || [];
+    if (countEl) countEl.textContent = `${employes.length} membre${employes.length > 1 ? 's' : ''}`;
+
+    if (!employes.length) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:48px 20px;">
+          <div style="font-size:40px;margin-bottom:12px;">👥</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin-bottom:8px;">Pas encore d'équipe</div>
+          <div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin-bottom:20px;">Retiens des candidats et clique "Embaucher" pour constituer ton équipe.</div>
+          <button class="btn btn-primary btn-sm" onclick="showDashSection('recrut-candidatures')">→ Voir les candidatures</button>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = employes.map(e => {
+      const photo   = e.employe_photo;
+      const nom     = escapeHtml(e.employe_nom || '—');
+      const metier  = escapeHtml(e.employe_metier || '—');
+      const offre   = escapeHtml(e.offre_titre || '—');
+      const wa      = (e.employe_whatsapp || '').replace(/\D/g,'');
+      const quartier = escapeHtml(e.employe_quartier || e.employe_ville || '');
+      const contrat = escapeHtml(e.type_contrat || '');
+      const salaire = e.salaire_fcfa ? e.salaire_fcfa.toLocaleString('fr-FR') + ' FCFA/mois' : null;
+      const dateEmb = e.date_embauche ? new Date(e.date_embauche).toLocaleDateString('fr-FR') : '—';
+      const statutColors = { actif: { bg: 'rgba(34,197,94,.12)', color: '#22c55e', label: 'Actif' }, fin_contrat: { bg: 'rgba(239,68,68,.12)', color: '#f87171', label: 'Fin de contrat' }, suspendu: { bg: 'rgba(234,179,8,.12)', color: '#fbbf24', label: 'Suspendu' } };
+      const sc = statutColors[e.statut] || statutColors.actif;
+
+      return `
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(232,148,10,.15);border:2px solid rgba(232,148,10,.3);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#E8940A;overflow:hidden;flex-shrink:0;">
+              ${photo ? `<img src="${encodeURI(photo)}" style="width:100%;height:100%;object-fit:cover;">` : nom[0].toUpperCase()}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:800;color:#FCE0A8;line-height:1.2;">${nom}</div>
+              <div style="font-size:12px;color:#E8940A;margin-top:2px;">${metier}</div>
+              ${quartier ? `<div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">📍 ${quartier}</div>` : ''}
+            </div>
+            <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};white-space:nowrap;">${sc.label}</span>
+          </div>
+          <div style="border-top:1px solid rgba(252,224,168,.06);padding-top:10px;display:flex;flex-direction:column;gap:5px;">
+            <div style="font-size:12px;color:rgba(252,224,168,.5);">📋 ${offre}</div>
+            ${contrat ? `<div style="font-size:12px;color:rgba(252,224,168,.5);">📄 ${contrat}</div>` : ''}
+            ${salaire ? `<div style="font-size:12px;color:#E8940A;font-weight:700;">💰 ${salaire}</div>` : ''}
+            <div style="font-size:11px;color:rgba(252,224,168,.3);">Embauché le ${dateEmb}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="padding:7px 14px;border-radius:8px;background:rgba(37,211,102,.12);color:#25d366;text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">📲 WhatsApp</a>` : ''}
+            ${e.statut === 'actif' ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat')" style="padding:7px 14px;border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Fin de contrat</button>` : `<button onclick="_updateEquipeStatut('${e.id}','actif')" style="padding:7px 14px;border-radius:8px;background:rgba(34,197,94,.1);color:#22c55e;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Réactiver</button>`}
+          </div>
+        </div>`;
+    }).join('');
+
+    // Activer filtre courant visuellement
+    _updateEquipeFilterBtns();
+  } catch(e) {
+    grid.innerHTML = `<div style="font-size:14px;color:#f87171;padding:20px;">Erreur : ${escapeHtml(e?.message || 'Réessaie')}</div>`;
+  }
+}
+
+function filterEquipe(statut) {
+  _equipeStatutFilter = statut;
+  _updateEquipeFilterBtns();
+  loadMonEquipe();
+}
+
+function _updateEquipeFilterBtns() {
+  ['actif','fin_contrat','all'].forEach(s => {
+    const btn = document.getElementById(`eq-filter-${s}`);
+    if (!btn) return;
+    const active = s === _equipeStatutFilter;
+    btn.style.background = active ? '#E8940A' : 'rgba(252,224,168,.08)';
+    btn.style.color       = active ? '#14100A' : 'rgba(252,224,168,.6)';
+    btn.style.border      = active ? 'none' : '1px solid rgba(252,224,168,.15)';
+  });
+}
+
+async function _updateEquipeStatut(id, statut) {
+  try {
+    const jwt = (await (window.supabase || window.supa)?.auth?.getSession())?.data?.session?.access_token;
+    const resp = await fetch('/api/wozali-pay/employe-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(jwt ? { 'Authorization': `Bearer ${jwt}` } : {}) },
+      body: JSON.stringify({ id, statut }),
+    });
+    const json = await resp.json();
+    if (!resp.ok) throw new Error(json.error);
+    toast(statut === 'actif' ? '✅ Contrat réactivé' : 'Contrat terminé', 'success');
+    loadMonEquipe();
+  } catch(e) {
+    toast('Erreur : ' + (e?.message || 'Réessaie'), 'error');
   }
 }
 

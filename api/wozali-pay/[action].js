@@ -98,6 +98,10 @@ import rdvDelete from './_impl/rdv-delete.js';
 import rdvSlots from './_impl/rdv-slots.js';
 // Avis — suppression sécurisée (2026-05-21)
 import avisDelete from './_impl/avis-delete.js';
+// Équipe — Sprint J/K (2026-05-23)
+import employeCreate from './_impl/employe-create.js';
+import employeList   from './_impl/employe-list.js';
+import employeUpdate from './_impl/employe-update.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
@@ -233,6 +237,10 @@ const handlers = {
   'rdv-slots':  rdvSlots,
   // Avis delete (2026-05-21)
   'avis-delete': avisDelete,
+  // Équipe (2026-05-23)
+  'employe-create': employeCreate,
+  'employe-list':   employeList,
+  'employe-update': employeUpdate,
 };
 
 export default async function handler(req, res) {
