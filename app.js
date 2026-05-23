@@ -569,6 +569,7 @@ function showDashSection(section) {
   if (section === 'wozali-match') loadDashWozaliMatch();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
+  if (section === 'vente-ambulante') loadVenteAmbulanteSection();
   // ── WOZALI Business Suite ──
   // Loaders Business Suite Phases B→G retirés 2026-05-07 (report V1.2)
 }
@@ -2743,6 +2744,7 @@ function showPage(page, _fromPop) {
   }
   if (page === 'home') {
     setTimeout(() => loadFounderCounter(), 500);
+    setTimeout(() => loadMarchandsSection(), 800); // vitrines ambulantes actives
   }
   if (page === 'recompenses') loadPageRecompenses();
   // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
@@ -12954,5 +12956,257 @@ async function loadRecrutDashboard() {
   } catch(err) {
     console.error('[loadRecrutDashboard]', err);
     if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;font-size:13px;">Erreur de chargement.</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// JE VENDS ICI — Vitrine Ambulante
+// ══════════════════════════════════════════════════════
+let _vitrineData   = null;  // vitrine chargée depuis Supabase
+let _vitrineGpsLat = null;
+let _vitrineGpsLon = null;
+let _vitrinePhotoFile = null;
+
+async function loadVenteAmbulanteSection() {
+  const supa = window.supabase || window.supa;
+  if (!supa || !window.currentUser) return;
+
+  // Pré-remplir quartier depuis profil
+  const q = currentPrestataire?.fields?.['Quartier'] || '';
+  const qEl = document.getElementById('vitrine-quartier');
+  if (qEl && q && !qEl.value) qEl.value = q;
+
+  // Pré-remplir WhatsApp depuis profil
+  const wa = currentPrestataire?.fields?.['WhatsApp'] || '';
+
+  // Écoute compteur produit
+  const prodEl = document.getElementById('vitrine-produit');
+  const cntEl  = document.getElementById('vitrine-produit-count');
+  if (prodEl && cntEl) {
+    prodEl.addEventListener('input', () => { cntEl.textContent = prodEl.value.length + '/120'; });
+  }
+
+  // Charger vitrine existante
+  try {
+    const { data, error } = await supa
+      .from('wozali_vitrines')
+      .select('*')
+      .eq('user_id', window.currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    _vitrineData = data;
+    _fillVitrineForm(data);
+  } catch(e) {
+    console.warn('[vitrine load]', e?.message || e);
+  }
+}
+
+function _fillVitrineForm(data) {
+  if (!data) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+  set('vitrine-produit', data.ce_que_je_vends);
+  set('vitrine-prix',    data.prix_indicatif);
+  set('vitrine-quartier', data.quartier);
+
+  const cb  = document.getElementById('vitrine-actif-checkbox');
+  const lbl = document.getElementById('vitrine-actif-label');
+  const sub = document.getElementById('vitrine-actif-sublabel');
+  if (cb)  cb.checked = !!data.actif;
+  if (lbl) lbl.textContent = data.actif ? '🟢 Vitrine active' : 'Vitrine inactive';
+  if (sub) sub.textContent = data.actif
+    ? 'Les clients près de toi te voient en ce moment'
+    : 'Active pour que les clients te trouvent dès maintenant';
+
+  if (data.photo_url) {
+    const prev = document.getElementById('vitrine-photo-preview');
+    if (prev) prev.innerHTML = `<img src="${escapeHtml(data.photo_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  }
+
+  if (data.gps_lat && data.gps_lon) {
+    _vitrineGpsLat = data.gps_lat;
+    _vitrineGpsLon = data.gps_lon;
+    const st = document.getElementById('vitrine-gps-status');
+    if (st) st.textContent = `✅ Position enregistrée (${data.gps_lat.toFixed(4)}, ${data.gps_lon.toFixed(4)})`;
+  }
+
+  // Montrer bouton partage si vitrine existe
+  const shareBtn = document.getElementById('vitrine-share-btn');
+  if (shareBtn) shareBtn.style.display = 'inline-flex';
+}
+
+function _previewVitrinePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  _vitrinePhotoFile = file;
+  const prev = document.getElementById('vitrine-photo-preview');
+  if (!prev) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _getVitrineGPS() {
+  const btn = document.getElementById('vitrine-gps-btn');
+  const st  = document.getElementById('vitrine-gps-status');
+  if (!navigator.geolocation) { if (st) st.textContent = '❌ GPS non disponible sur cet appareil'; return; }
+  if (btn) { btn.textContent = '⏳ Localisation…'; btn.disabled = true; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      _vitrineGpsLat = pos.coords.latitude;
+      _vitrineGpsLon = pos.coords.longitude;
+      if (btn) { btn.textContent = '📍 Ma position GPS'; btn.disabled = false; }
+      if (st) st.textContent = `✅ Position capturée (${_vitrineGpsLat.toFixed(4)}, ${_vitrineGpsLon.toFixed(4)})`;
+    },
+    err => {
+      if (btn) { btn.textContent = '📍 Ma position GPS'; btn.disabled = false; }
+      if (st) st.textContent = '❌ Impossible d\'obtenir ta position. Active le GPS de ton téléphone.';
+    },
+    { timeout: 10000, maximumAge: 60000 }
+  );
+}
+
+async function toggleVitrine(checked) {
+  const lbl = document.getElementById('vitrine-actif-label');
+  const sub = document.getElementById('vitrine-actif-sublabel');
+  if (lbl) lbl.textContent = checked ? '🟢 Vitrine active' : 'Vitrine inactive';
+  if (sub) sub.textContent = checked
+    ? 'Les clients près de toi te voient en ce moment'
+    : 'Active pour que les clients te trouvent dès maintenant';
+  // Sauvegarde si la vitrine existe déjà
+  if (_vitrineData?.id) {
+    const supa = window.supabase || window.supa;
+    if (supa) {
+      try {
+        await supa.from('wozali_vitrines').update({ actif: checked }).eq('id', _vitrineData.id);
+        _vitrineData.actif = checked;
+        toast(checked ? 'Vitrine activée ✅' : 'Vitrine désactivée', 'info');
+      } catch(e) { toast('Erreur : ' + (e?.message || e), 'error'); }
+    }
+  }
+}
+
+async function saveVitrine() {
+  if (!window.currentUser) { toast('Connecte-toi d\'abord', 'error'); return; }
+  const produit = document.getElementById('vitrine-produit')?.value?.trim();
+  if (!produit) { toast('Dis-nous ce que tu vends !', 'error'); return; }
+
+  const supa = window.supabase || window.supa;
+  if (!supa) { toast('Connexion Supabase indisponible', 'error'); return; }
+
+  const btn = document.querySelector('#ds-vente-ambulante button[onclick="saveVitrine()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Enregistrement…'; }
+
+  try {
+    // Upload photo si nouvelle image sélectionnée
+    let photoUrl = _vitrineData?.photo_url || null;
+    if (_vitrinePhotoFile) {
+      photoUrl = await _uploadVitrinePhoto(_vitrinePhotoFile);
+    }
+
+    const payload = {
+      user_id:          window.currentUser.id,
+      prestataire_id:   currentPrestataire?.id || null,
+      ce_que_je_vends:  produit,
+      prix_indicatif:   document.getElementById('vitrine-prix')?.value?.trim() || null,
+      photo_url:        photoUrl,
+      gps_lat:          _vitrineGpsLat,
+      gps_lon:          _vitrineGpsLon,
+      quartier:         document.getElementById('vitrine-quartier')?.value?.trim() || currentPrestataire?.fields?.['Quartier'] || null,
+      ville:            currentPrestataire?.fields?.['Ville'] || null,
+      whatsapp:         currentPrestataire?.fields?.['WhatsApp'] || null,
+      actif:            document.getElementById('vitrine-actif-checkbox')?.checked ?? true,
+    };
+
+    let data, error;
+    if (_vitrineData?.id) {
+      // Update
+      ({ data, error } = await supa.from('wozali_vitrines').update(payload).eq('id', _vitrineData.id).select('*').single());
+    } else {
+      // Insert
+      ({ data, error } = await supa.from('wozali_vitrines').insert(payload).select('*').single());
+    }
+    if (error) throw error;
+
+    _vitrineData = data;
+    _vitrinePhotoFile = null;
+    toast('✅ Vitrine enregistrée ! Les clients peuvent te trouver.', 'success');
+
+    // Afficher bouton partage
+    const shareBtn = document.getElementById('vitrine-share-btn');
+    if (shareBtn) shareBtn.style.display = 'inline-flex';
+
+  } catch(e) {
+    toast('Erreur : ' + (e?.message || 'Réessaie dans quelques secondes'), 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Enregistrer ma vitrine'; }
+  }
+}
+
+async function _uploadVitrinePhoto(file) {
+  // Utilise ImgBB (même pattern que les photos réalisations)
+  const IMGBB_KEY = window.IMGBB_API_KEY || '6f5b25a765a3a2e9c44cb6b3e39d0b51';
+  const formData = new FormData();
+  formData.append('image', file);
+  const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+  const json = await res.json();
+  if (!json?.data?.url) throw new Error('Upload photo échoué');
+  return json.data.url;
+}
+
+function partagerVitrineWhatsApp() {
+  if (!_vitrineData) return;
+  const nom      = currentPrestataire?.fields?.['Nom complet'] || 'Un marchand';
+  const produit  = _vitrineData.ce_que_je_vends || '';
+  const prix     = _vitrineData.prix_indicatif ? ` — ${_vitrineData.prix_indicatif}` : '';
+  const quartier = _vitrineData.quartier ? ` à ${_vitrineData.quartier}` : '';
+  const wa       = _vitrineData.whatsapp ? `\n📞 WhatsApp : https://wa.me/${_vitrineData.whatsapp.replace(/\D/g,'')}` : '';
+  const text = `🛍️ ${nom} vend : ${produit}${prix}${quartier}\n\nTrouve-le sur WOZALI → https://wozali.com\n${wa}`;
+  const url  = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+// Chargement public des vitrines actives (section home page)
+async function loadMarchandsSection() {
+  const supa = window.supabase || window.supa;
+  if (!supa) return;
+  const section = document.getElementById('marchands-section');
+  const grid    = document.getElementById('marchands-grid');
+  if (!section || !grid) return;
+
+  try {
+    const { data, error } = await supa
+      .from('wozali_vitrines')
+      .select('*')
+      .eq('actif', true)
+      .order('updated_at', { ascending: false })
+      .limit(12);
+    if (error || !data?.length) return; // pas d'affichage si vide
+
+    section.style.display = 'block';
+    grid.innerHTML = data.map(v => {
+      const photo = v.photo_url
+        ? `<img src="${escapeHtml(v.photo_url)}" style="width:100%;height:110px;object-fit:cover;border-radius:12px 12px 0 0;" loading="lazy" alt="Photo vitrine">`
+        : `<div style="width:100%;height:110px;background:rgba(232,148,10,.08);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:36px;">🛍️</div>`;
+      const quartier = escapeHtml(v.quartier || '');
+      const produit  = escapeHtml(v.ce_que_je_vends || '');
+      const prix     = v.prix_indicatif ? `<div style="font-size:11px;color:#E8940A;font-weight:700;margin-top:4px;">${escapeHtml(v.prix_indicatif)}</div>` : '';
+      const waHref   = v.whatsapp ? `https://wa.me/${v.whatsapp.replace(/\D/g,'')}` : '#';
+      return `
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;cursor:pointer;" onclick="window.open('${waHref}','_blank')">
+          ${photo}
+          <div style="padding:12px;">
+            <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:700;color:#FCE0A8;line-height:1.3;">${produit}</div>
+            ${prix}
+            ${quartier ? `<div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:6px;">📍 ${quartier}</div>` : ''}
+            ${v.whatsapp ? `<div style="margin-top:10px;background:rgba(37,211,102,.1);border-radius:8px;padding:7px 10px;font-size:12px;color:#25d366;font-weight:700;text-align:center;">📲 Appeler sur WhatsApp</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    console.warn('[marchands section]', e?.message || e);
   }
 }

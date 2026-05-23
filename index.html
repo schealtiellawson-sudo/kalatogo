@@ -349,6 +349,25 @@ setTimeout(function(){
   </section>
 
   <!-- ══════════════════════════════════════════
+       MARCHANDS DU JOUR — vitrines ambulantes actives
+  ══════════════════════════════════════════ -->
+  <section id="marchands-section" style="background:#14100A;padding:60px 0;display:none;">
+    <div class="container">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:3px;margin-bottom:12px;">🛍️ ILS VENDENT EN CE MOMENT</div>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(24px,4vw,36px);color:#FCE0A8;margin:0 0 6px;">Marchands près de toi.</h2>
+      <p style="font-family:Geist,sans-serif;font-size:15px;color:rgba(252,224,168,.55);margin:0 0 32px;">Clique → appelle → achète. Sans intermédiaire.</p>
+      <div id="marchands-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+        <div style="font-size:14px;color:rgba(252,224,168,.4);padding:20px;">Chargement…</div>
+      </div>
+      <div style="margin-top:28px;text-align:center;">
+        <button onclick="showPage('inscription')" style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);color:#E8940A;border-radius:10px;padding:12px 24px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">
+          ✦ Ouvrir ma vitrine gratuitement →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
        SECTION LOCALISATION — Lomé & Cotonou
   ══════════════════════════════════════════ -->
   <section class="wozali-loc-section">
@@ -2123,6 +2142,20 @@ setTimeout(function(){
         </div>
       </div>
 
+      <!-- Je vends ici (commerçants ambulants) -->
+      <div class="dash-group" data-group="vente-ambulante">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
+          <i data-lucide="store"></i>
+          <span class="dash-group-lbl">Je vends ici</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('vente-ambulante')" id="dl-vente-ambulante">
+            <i data-lucide="shopping-bag"></i> <span>Ma vitrine</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Mon emploi (candidat) -->
       <div class="dash-group" data-group="mon-emploi-candidat">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
@@ -2593,7 +2626,97 @@ setTimeout(function(){
       </div>
 
       <!-- MES RENDEZ-VOUS -->
-      <div class="dash-section" id="ds-rdv">
+      <!-- ═══════════════════════════════════════════════════════
+     JE VENDS ICI — Vitrine ambulante
+════════════════════════════════════════════════════════ -->
+<div class="dash-section" id="ds-vente-ambulante">
+  <div class="dash-header">
+    <h2>Ma vitrine</h2>
+    <p>Les clients de ton quartier te trouvent. Ils voient ce que tu vends, ton prix et ton WhatsApp.</p>
+  </div>
+
+  <div class="dash-explainer">
+    🛍️ <strong>Tu vends beignets, zouzouke, pagnes, poulets, légumes ?</strong> Active ta vitrine. Elle s'affiche sur WOZALI pendant 24h et les gens près de toi la voient.
+  </div>
+
+  <!-- Toggle vitrine active/inactive -->
+  <div class="dispo-toggle" style="margin-bottom:28px;" id="vitrine-toggle-box">
+    <label class="toggle-switch">
+      <input type="checkbox" id="vitrine-actif-checkbox" onchange="toggleVitrine(this.checked)">
+      <span class="toggle-slider"></span>
+    </label>
+    <div class="dispo-info">
+      <h4 id="vitrine-actif-label">Vitrine inactive</h4>
+      <p id="vitrine-actif-sublabel">Active pour que les clients te trouvent dès maintenant</p>
+    </div>
+  </div>
+
+  <!-- Formulaire vitrine -->
+  <div style="display:flex;flex-direction:column;gap:20px;max-width:600px;">
+
+    <!-- Ce que tu vends -->
+    <div>
+      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Qu'est-ce que tu vends ? *</label>
+      <input id="vitrine-produit" type="text" maxlength="120"
+        placeholder="Ex : Beignets, zouzouke, jus de gingembre…"
+        style="width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(232,148,10,.2);border-radius:10px;padding:12px 14px;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;outline:none;"
+        oninput="this.style.borderColor='rgba(232,148,10,.5)'">
+      <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:5px;" id="vitrine-produit-count">0/120</div>
+    </div>
+
+    <!-- Prix -->
+    <div>
+      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Prix indicatif</label>
+      <input id="vitrine-prix" type="text" maxlength="80"
+        placeholder="Ex : Beignets 50F · Zouzouke 100F · Jus 200F"
+        style="width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(232,148,10,.2);border-radius:10px;padding:12px 14px;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;outline:none;"
+        oninput="this.style.borderColor='rgba(232,148,10,.5)'">
+    </div>
+
+    <!-- Photo produit -->
+    <div>
+      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Photo de ce que tu vends</label>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div id="vitrine-photo-preview" style="width:80px;height:80px;border-radius:12px;background:rgba(232,148,10,.08);border:1.5px dashed rgba(232,148,10,.3);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;flex-shrink:0;">🛍️</div>
+        <div>
+          <input type="file" id="vitrine-photo-input" accept="image/*" style="display:none" onchange="_previewVitrinePhoto(this)">
+          <button onclick="document.getElementById('vitrine-photo-input').click()"
+            style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);color:#E8940A;border-radius:8px;padding:8px 16px;font-family:Geist,sans-serif;font-size:13px;cursor:pointer;">
+            📷 Choisir une photo
+          </button>
+          <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:6px;">JPG ou PNG · max 4 Mo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Localisation -->
+    <div>
+      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">📍 Où es-tu maintenant ?</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <input id="vitrine-quartier" type="text" placeholder="Ton quartier (ex : Bè, Akpakpa…)"
+          style="flex:1;min-width:160px;background:rgba(255,255,255,.04);border:1.5px solid rgba(232,148,10,.2);border-radius:10px;padding:11px 14px;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;outline:none;">
+        <button onclick="_getVitrineGPS()" id="vitrine-gps-btn"
+          style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);color:#E8940A;border-radius:10px;padding:11px 16px;font-family:Geist,sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;">
+          📍 Ma position GPS
+        </button>
+      </div>
+      <div id="vitrine-gps-status" style="font-size:12px;color:rgba(252,224,168,.4);margin-top:6px;"></div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:8px;">
+      <button onclick="saveVitrine()"
+        style="flex:1;min-width:160px;background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:13px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">
+        ✅ Enregistrer ma vitrine
+      </button>
+      <button onclick="partagerVitrineWhatsApp()" id="vitrine-share-btn" style="display:none;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25d366;border-radius:10px;padding:13px 18px;font-family:Geist,sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;">
+        📲 Partager sur WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="dash-section" id="ds-rdv">
         <div class="dash-header">
           <h2>📅 Mon Agenda · Tes rendez-vous clients</h2>
           <p>Tes créneaux confirmés. Tes demandes en attente. Confirme vite — un client qui attend trop longtemps part ailleurs.</p>
