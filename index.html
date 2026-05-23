@@ -6073,7 +6073,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('recompenses')" id="dl-recompenses">
             <i data-lucide="award"></i> <span>Bourse de Croissance</span>
           </button>
-          <button class="dash-link" onclick="showDashSection('recompenses')" id="dl-awards">
+          <button class="dash-link" onclick="showDashSection('recompenses-mdr')" id="dl-recompenses-mdr">
             <i data-lucide="sparkles"></i> <span>La Bourse des Mains d'Or</span>
           </button>
         </div>
@@ -7500,10 +7500,18 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <!-- ══ RÉCOMPENSES (Sprint 7) ══ -->
       <div class="dash-section" id="ds-recompenses">
         <div class="dash-header">
-          <h2>🏆 Récompenses mensuelles</h2>
-          <p>Bourse de Croissance (300K, Pro) + La Bourse des Mains d'Or (100K × 2, coiffeuses &amp; couturières — ouverte à toutes) — chaque mois. Premier tirage le 31 juillet.</p>
+          <h2>🏆 Bourse de Croissance</h2>
+          <p>300 000 FCFA — 1 gagnant par mois · Réservé aux membres Pro · Premier tirage le 31 juillet.</p>
         </div>
         <div id="recompenses-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
+      </div>
+
+      <div class="dash-section" id="ds-recompenses-mdr">
+        <div class="dash-header">
+          <h2>👑 La Bourse des Mains d'Or</h2>
+          <p>200 000 FCFA — 100K × 2 Reines · 1 Togo + 1 Bénin · Ouverte à toutes les coiffeuses &amp; couturières · Premier tirage le 31 juillet.</p>
+        </div>
+        <div id="recompenses-mdr-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
       </div>
 
       <!-- ══ PARRAINAGE ══ -->
@@ -8656,6 +8664,7 @@ function showDashSection(section) {
   if (section === 'posts') loadDashPosts();
   if (section === 'abonnement') { injectSprint6Upgrade(); loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
+  if (section === 'recompenses-mdr') loadRecompensesMDR();
   if (section === 'parrainage') loadParrainage();
   if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} }
   if (section === 'favoris') loadFavoris();
@@ -16850,6 +16859,46 @@ function sp6ShowSuccess(){
 
 
 // ══ SPRINT 7 — WIDGETS RÉCOMPENSES DASHBOARD ══
+function loadRecompensesMDR() {
+  const host = document.getElementById('recompenses-mdr-widgets');
+  if (!host) return;
+  const metier = (currentPrestataire?.fields?.['Métier principal'] || '').toLowerCase();
+  const isEligible = metier.includes('coiff') || metier.includes('coutur') || metier.includes('tress');
+  host.innerHTML = `
+    <div style="max-width:700px;margin:0 auto;padding:0 0 40px">
+      ${!isEligible ? `<div style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:#FCE0A8;">
+        ⚠️ La Bourse des Mains d'Or est réservée aux <strong>coiffeuses et couturières</strong>. Ton métier (<strong>${currentPrestataire?.fields?.['Métier principal'] || 'non renseigné'}</strong>) n'y est pas éligible.
+      </div>` : ''}
+      <div style="background:rgba(232,148,10,.06);border:1.5px solid rgba(232,148,10,.3);border-radius:20px;padding:28px 24px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <span style="font-size:36px">👑</span>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;">La Bourse des Mains d'Or</div>
+            <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">100 000 FCFA × 2 · 1 TOGO + 1 BÉNIN · TIRAGE 31 JUILLET</div>
+          </div>
+        </div>
+        <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour.</strong><br><br>Chaque mois, 2 Reines gagnent 100 000 FCFA chacune — une au Togo, une au Bénin. Pas besoin d'être Pro. Ouverte à toutes les coiffeuses et couturières.</p>
+        <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</div>
+          <div style="display:grid;gap:8px;font-size:13px;color:rgba(252,224,168,.8)">
+            <div>✓ Être une femme au Togo ou au Bénin</div>
+            <div>✓ Métier : ✂️ Coiffeuse (mois impair) ou 👗 Couturière (mois pair)</div>
+            <div>✓ Profil complet (photo + ville/quartier)</div>
+            <div>✓ Au moins <strong>1 photo de réalisation</strong> sur ton profil ce mois</div>
+            <div>✓ Au moins <strong>1 avis client</strong> reçu sur les 30 derniers jours</div>
+            <div>✓ Connexion récente (≤ 14 jours)</div>
+          </div>
+        </div>
+        <button onclick="showDashSection('photos')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">📸 Ajouter des photos de réalisations →</button>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
+        <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premier tirage</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">31 juillet 2026</div>
+        <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le 30 de chaque mois · Tirage 100% automatique</div>
+      </div>
+    </div>`;
+}
+
 async function loadRecompensesWidgets() {
   const host = document.getElementById('recompenses-widgets');
   if (!host) return;
