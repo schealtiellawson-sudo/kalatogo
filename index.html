@@ -6094,9 +6094,6 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
             <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
           </button>
-          <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens">
-            <i data-lucide="calendar-check"></i> <span>Mes entretiens</span>
-          </button>
         </div>
       </div>
 
@@ -6119,9 +6116,6 @@ div[style*="position:sticky"][style*="background:#fff"] {
           </button>
           <button class="dash-link" onclick="showDashSection('recrut-candidatures')" id="dl-recrut-candidatures">
             <i data-lucide="users"></i> <span>Candidatures reçues</span>
-          </button>
-          <button class="dash-link" onclick="showDashSection('mes-entretiens')" id="dl-mes-entretiens-recru">
-            <i data-lucide="calendar-clock"></i> <span>Mes entretiens</span>
           </button>
           <!-- Pipeline Talent / Équipe / Paie / Annonces / CA reportés V1.2 (simplification MVP début juillet) -->
         </div>
@@ -7987,17 +7981,6 @@ div[style*="position:sticky"][style*="background:#fff"] {
       <!-- WOZALI Business Suite Phases B→G retirées 2026-05-07 — report V1.2 (simplification MVP début juillet) -->
       <!-- Sections supprimées : ds-talent-pipeline, ds-talent-equipe, ds-rh-paie, ds-rh-annonces, ds-finance-ca, ds-mon-emploi -->
 
-      <!-- MES ENTRETIENS (chercheur + recruteur) -->
-      <div class="dash-section" id="ds-mes-entretiens">
-        <div class="dash-header" style="margin-bottom:24px;">
-          <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin:0 0 6px;">Mes entretiens</h2>
-          <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Tes entretiens à venir et passés (côté candidat ou recruteur).</p>
-        </div>
-        <div id="mes-entretiens-container" style="min-height:200px;">
-          <div style="text-align:center;padding:60px 20px;color:rgba(252, 224, 168,.35);font-family:Geist,sans-serif;font-size:13px;">Chargement…</div>
-        </div>
-      </div>
-
       <!-- RECRUTEMENT : CANDIDATURES REÇUES -->
       <div class="dash-section" id="ds-recrut-candidatures">
 
@@ -8676,7 +8659,6 @@ function showDashSection(section) {
   if (section === 'recrut-publier') initRecrutPublier();
   if (section === 'recrut-offres') loadMesOffres();
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
-  if (section === 'mes-entretiens') loadMesEntretiens();
   if (section === 'recrut-dashboard') loadRecrutDashboard();
   if (section === 'wozali-match') loadDashWozaliMatch();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
@@ -20725,88 +20707,6 @@ function openEntretienRecru(candidatureId) {
   const c = _findCandidatureById(candidatureId);
   if (!c) { toast('Candidature introuvable', 'error'); return; }
   window.wozaliEntretien.open({ candidature: c, onSaved: () => loadCandidaturesRecues() });
-}
-
-// ── Mes entretiens ──────────────────────────────────────────────────
-async function loadMesEntretiens(scope) {
-  scope = scope || 'upcoming';
-  const box = document.getElementById('mes-entretiens-container');
-  if (!box) return;
-  box.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(252, 224, 168,.35);font-family:Geist,sans-serif;font-size:13px;">Chargement…</div>`;
-
-  const TABS = [
-    { key: 'upcoming', label: 'À venir' },
-    { key: 'past',     label: 'Passés'  },
-  ];
-  const TYPE_ICON = { presentiel: '📍', visio: '💻', telephone: '📞' };
-  const TYPE_LABEL = { presentiel: 'Présentiel', visio: 'Visio', telephone: 'Téléphone' };
-  const RESULT_COLOR = { concluant: '#22c55e', non_concluant: '#ef4444', annule: '#6b7280', pending: '#E8940A' };
-  const RESULT_LABEL = { concluant: 'Concluant', non_concluant: 'Non concluant', annule: 'Annulé', pending: 'En attente' };
-
-  let data;
-  try {
-    const res = await wozaliFetch(`/api/wozali-pay/entretien-list?scope=${scope}`);
-    const raw = await res.text();
-    try { data = JSON.parse(raw); } catch(_) {
-      box.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#ef4444;font-family:Geist,sans-serif;font-size:13px;">Erreur serveur. Réessaie dans quelques secondes.</div>`;
-      return;
-    }
-  } catch(e) {
-    box.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#ef4444;font-family:Geist,sans-serif;font-size:13px;">Erreur de chargement. Réessaie dans quelques secondes.</div>`;
-    return;
-  }
-  if (data && data.error) {
-    box.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#ef4444;font-family:Geist,sans-serif;font-size:13px;">Erreur : ${escapeHtml(data.error)}</div>`;
-    return;
-  }
-
-  const items = (data && data.entretiens) || [];
-
-  const tabsHtml = TABS.map(t => `
-    <button onclick="loadMesEntretiens('${t.key}')"
-      style="padding:8px 18px;border-radius:20px;border:1px solid ${scope===t.key ? '#E8940A' : 'rgba(252, 224, 168,.15)'};
-             background:${scope===t.key ? '#E8940A' : 'transparent'};
-             color:${scope===t.key ? '#14100A' : 'rgba(252, 224, 168,.7)'};
-             font-family:Geist,sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;">
-      ${t.label} ${scope===t.key ? `<span style="background:${scope==='upcoming'?'rgba(15,20,16,.25)':'rgba(15,20,16,.25)'};border-radius:10px;padding:1px 7px;margin-left:4px;font-size:11px;">${items.length}</span>` : ''}
-    </button>`).join('');
-
-  if (!items.length) {
-    box.innerHTML = `
-      <div style="display:flex;gap:8px;margin-bottom:20px;">${tabsHtml}</div>
-      <div style="text-align:center;padding:60px 20px;color:rgba(252, 224, 168,.35);font-family:Geist,sans-serif;font-size:13px;">
-        ${scope === 'upcoming' ? 'Aucun entretien prévu pour le moment.' : 'Aucun entretien passé.'}
-      </div>`;
-    return;
-  }
-
-  const cardsHtml = items.map(e => {
-    const date = new Date(e.date_heure).toLocaleString('fr-FR', { weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
-    const isComing = new Date(e.date_heure) > new Date();
-    const isRecruteur = e.role === 'recruteur';
-    const detail = e.type === 'presentiel' ? e.lieu : e.type === 'visio' ? e.lien_visio : e.telephone;
-    return `
-      <div style="background:rgba(252, 224, 168,.04);border:1px solid rgba(252, 224, 168,.1);border-radius:14px;padding:18px 20px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start;">
-        <div style="font-size:28px;line-height:1;margin-top:2px;">${TYPE_ICON[e.type] || '📅'}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:700;color:#FCE0A8;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            ${escapeHtml(e.offre_titre || 'Entretien')}
-          </div>
-          <div style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;margin-bottom:6px;">${date}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
-            <span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:10px;padding:2px 9px;font-family:Geist,sans-serif;font-size:10px;font-weight:600;">${TYPE_LABEL[e.type] || e.type}</span>
-            <span style="background:rgba(252, 224, 168,.07);color:rgba(252, 224, 168,.55);border-radius:10px;padding:2px 9px;font-family:Geist,sans-serif;font-size:10px;">${isRecruteur ? 'En tant que recruteur' : 'En tant que candidat'}</span>
-            ${e.resultat && e.resultat !== 'pending' ? `<span style="background:${RESULT_COLOR[e.resultat]}22;color:${RESULT_COLOR[e.resultat]};border-radius:10px;padding:2px 9px;font-family:Geist,sans-serif;font-size:10px;font-weight:600;">${RESULT_LABEL[e.resultat]}</span>` : ''}
-            ${isComing && e.resultat === 'pending' ? `<span style="background:rgba(34,197,94,.1);color:#22c55e;border-radius:10px;padding:2px 9px;font-family:Geist,sans-serif;font-size:10px;font-weight:600;">À venir</span>` : ''}
-          </div>
-          ${detail ? `<div style="font-family:Geist,sans-serif;font-size:11px;color:rgba(252, 224, 168,.45);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(detail)}</div>` : ''}
-        </div>
-      </div>`;
-  }).join('');
-
-  box.innerHTML = `
-    <div style="display:flex;gap:8px;margin-bottom:20px;">${tabsHtml}</div>
-    ${cardsHtml}`;
 }
 
 function signalerCandidat(candidatureId) {
