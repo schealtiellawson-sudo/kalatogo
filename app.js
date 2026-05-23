@@ -1,0 +1,12825 @@
+
+// ══════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════
+const SUPA_URL = 'https://wikgdksyeygwpmqzmhez.supabase.co';
+const SUPA_KEY = 'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+window.supabase = supa; // exposer pour le feed IIFE (_sb())
+// Helper global _sb() — accessible depuis toutes les fonctions hors IIFE (WOZALI Match, etc.)
+function _sb() { return window.supabase || null; }
+
+let currentUser = null;
+window.currentUser = null;
+let currentPrestataire = null; // record Airtable du user connecté
+let _profileLoadingPromise = null; // guard anti-double-load
+
+// ── MIGRATION kala_ → wozali_ localStorage ──
+(function migrateKalaToWozali() {
+  if (localStorage.getItem('wozali_migrated')) return;
+  const keys = Object.keys(localStorage);
+  keys.forEach(k => {
+    if (k.startsWith('kala_')) {
+      const newKey = 'wozali_' + k.slice(5);
+      if (!localStorage.getItem(newKey)) {
+        localStorage.setItem(newKey, localStorage.getItem(k));
+      }
+      localStorage.removeItem(k);
+    }
+  });
+  localStorage.setItem('wozali_migrated', '1');
+})();
+
+// Vérifier session au chargement
+async function initAuth() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    window.currentUser = currentUser;
+    await loadCurrentPrestataire();
+    updateNavAuth(true);
+    try { _maybeAutoPromptPush(); } catch (e) {}
+  }
+  // Restaurer la page APRÈS avoir chargé la session (currentUser est déjà défini)
+  _restorePageFromURL();
+
+  // Masquer l'overlay de chargement — la bonne page est maintenant affichée
+  const overlay = document.getElementById('wozali-init-overlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 260);
+  }
+
+  // Écouter les changements de session
+  supa.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      showPage('reset-password');
+      return;
+    }
+    if (event === 'SIGNED_IN' && session?.user) {
+      // Si l'utilisateur est déjà chargé avec un vrai profil (ex: submitLogin vient de finir),
+      // ne pas relancer le chargement — ça créerait une race condition.
+      const alreadyLoaded = currentUser?.id === session.user.id && currentPrestataire?.id;
+      currentUser = session.user;
+      window.currentUser = currentUser;
+      if (!alreadyLoaded) {
+        await loadCurrentPrestataire();
+      }
+      updateNavAuth(true);
+      // Détecter si c'est une confirmation d'email (lien cliqué depuis la boîte mail)
+      const hash = window.location.hash;
+      if (hash.includes('type=signup') || hash.includes('type=email_change')) {
+        history.replaceState(null, '', window.location.pathname);
+        showPage('email-confirme');
+        return;
+      }
+      // Si on était sur la page reset, rediriger vers le dashboard
+      const activePage = document.querySelector('.page.active');
+      if (activePage && activePage.id === 'page-reset-password') {
+        showPage('dashboard');
+        return;
+      }
+      // Restaurer la page en attente (cas : utilisateur redirigé vers login depuis page privée)
+      const pending = localStorage.getItem('wozali_pending_page');
+      if (pending) {
+        localStorage.removeItem('wozali_pending_page');
+        showPage(pending);
+      }
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      window.currentUser = null;
+      currentPrestataire = null;
+      updateNavAuth(false);
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+function updateNavAuth(connected) {
+  const guest = document.getElementById('nav-guest');
+  const user = document.getElementById('nav-user');
+  if (connected && currentUser) {
+    guest.style.display = 'none';
+    user.style.display = 'flex';
+    const nom = currentPrestataire?.fields?.['Nom complet'] || currentUser.email?.split('@')[0] || 'Moi';
+    document.getElementById('nav-username').textContent = nom.split(' ')[0];
+    document.getElementById('nav-avatar').textContent = nom.charAt(0).toUpperCase();
+    // Afficher "Mon Fil" dans la nav mobile
+    const mobileFil = document.getElementById('mobile-fil-btn');
+    if (mobileFil) mobileFil.style.display = 'block';
+  } else {
+    guest.style.display = 'flex';
+    user.style.display = 'none';
+    const mobileFil = document.getElementById('mobile-fil-btn');
+    if (mobileFil) mobileFil.style.display = 'none';
+  }
+}
+
+// Helper robuste : détecte le plan Pro quel que soit le format renvoyé par Airtable
+// (string "Pro", objet singleSelect {name:"Pro"}, array [{name:"Pro"}], etc.)
+function isProUser(prestataire) {
+  prestataire = prestataire || (typeof currentPrestataire !== 'undefined' ? currentPrestataire : null);
+  if (!prestataire) return false;
+  let ab = prestataire.fields?.['Abonnement'];
+  if (ab == null) return false;
+  if (Array.isArray(ab)) ab = ab[0];
+  if (typeof ab === 'object') ab = ab.name || ab.value || '';
+  return String(ab).trim().toLowerCase() === 'pro';
+}
+window.isProUser = isProUser;
+
+function _prestCacheKey(email) { return 'wozali_prest_cache_' + email; }
+function _readPrestCache(email) {
+  try {
+    const raw = localStorage.getItem(_prestCacheKey(email));
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    return o && o.record ? o.record : null;
+  } catch { return null; }
+}
+function _writePrestCache(email, record) {
+  try { localStorage.setItem(_prestCacheKey(email), JSON.stringify({ t: Date.now(), record })); } catch {}
+}
+
+async function loadCurrentPrestataire(retries) {
+  // ── Guard anti-race-condition ───────────────────────────────────────────────
+  // Si un chargement est déjà en cours (ex: submitLogin + onAuthStateChange en parallèle),
+  // attendre le résultat du premier au lieu de lancer un second appel concurrent.
+  if (retries === 0 || retries === undefined) {
+    if (_profileLoadingPromise) return _profileLoadingPromise;
+    _profileLoadingPromise = _doLoadCurrentPrestataire(0);
+    try { return await _profileLoadingPromise; } finally { _profileLoadingPromise = null; }
+  }
+  return _doLoadCurrentPrestataire(retries);
+}
+async function _doLoadCurrentPrestataire(retries) {
+  if (!currentUser?.email) return;
+  const email = currentUser.email;
+  const uid = currentUser.id || null;
+  retries = retries || 0;
+
+  // ─── Requête combinée OR (email case-insensitive OU user_id) ───────────────
+  // Une seule requête au lieu de deux pour éliminer les mismatches de casse et
+  // les cas où email n'est pas encore indexé mais user_id est présent.
+  const _fetchFromDB = async () => {
+    const supa = window.supabase || window.supa;
+    if (!supa) return null;
+    let q = supa.from('wozali_prestataires').select('*');
+    if (uid) {
+      // OR : email case-insensitive OU user_id exact
+      q = q.or(`email.ilike.${email},user_id.eq.${uid}`);
+    } else {
+      q = q.ilike('email', email);
+    }
+    const { data: rows, error } = await q.limit(1);
+    if (error) throw error;
+    const row = rows?.[0] || null;
+    return row ? (window.supaPrest?._toAirtableRecord(row) || null) : null;
+  };
+
+  if (window.supaPrest) {
+    try {
+      // 1) Recherche dans la DB
+      let record = await _fetchFromDB();
+
+      if (record?.id) {
+        currentPrestataire = record;
+        window.currentPrestataire = currentPrestataire;
+        _writePrestCache(email, currentPrestataire);
+        console.log('[wozali] profil chargé', record.id, '· Abonnement:', record.fields?.['Abonnement']);
+        updateCommissionDisplay();
+        return;
+      }
+
+      // 2) Non trouvé → essayer d'auto-créer (get-or-create)
+      if (uid && retries === 0) {
+        try {
+          const nomAuto = currentUser.user_metadata?.full_name
+            || currentUser.user_metadata?.name
+            || email.split('@')[0];
+          const newRecord = await window.supaPrest.create({
+            'Email': email.toLowerCase(),
+            'Nom complet': nomAuto,
+            'User ID': uid,
+          });
+          if (newRecord?.id) {
+            currentPrestataire = newRecord;
+            window.currentPrestataire = currentPrestataire;
+            _writePrestCache(email, currentPrestataire);
+            console.log('[wozali] profil minimal créé', newRecord.id);
+            updateCommissionDisplay();
+            return;
+          }
+        } catch (eCreate) {
+          // Contrainte UNIQUE : le profil existe probablement mais la requête a raté →
+          // Retry DB fetch immédiat
+          console.warn('[wozali] create échoué (' + eCreate.message + '), retry fetch…');
+          try {
+            record = await _fetchFromDB();
+            if (record?.id) {
+              currentPrestataire = record;
+              window.currentPrestataire = currentPrestataire;
+              _writePrestCache(email, currentPrestataire);
+              updateCommissionDisplay();
+              return;
+            }
+          } catch (_) {}
+        }
+      }
+
+      // 3) Fallback cache local (hors-ligne / réseau lent)
+      const cached = _readPrestCache(email);
+      if (cached?.id) {
+        currentPrestataire = cached;
+        window.currentPrestataire = currentPrestataire;
+        console.log('[wozali] fallback cache local', cached.id);
+        updateCommissionDisplay();
+        return;
+      }
+
+      // 4) Stub virtuel — dernier recours pour ne JAMAIS bloquer le dashboard
+      //    L'utilisateur peut naviguer, mais showProfil n'est pas disponible
+      if (uid) {
+        currentPrestataire = {
+          id: null, // null = profil pas encore en DB
+          _virtual: true,
+          fields: {
+            'Email': email,
+            'Nom complet': currentUser.user_metadata?.full_name
+              || currentUser.user_metadata?.name
+              || email.split('@')[0],
+            'User ID': uid,
+          },
+          createdTime: new Date().toISOString(),
+        };
+        window.currentPrestataire = currentPrestataire;
+        console.warn('[wozali] stub virtuel — profil introuvable en DB pour', email);
+        updateCommissionDisplay();
+      }
+      return;
+
+    } catch (e) {
+      console.error('[wozali] loadCurrentPrestataire :', e);
+      if (retries < 2) {
+        await new Promise(r => setTimeout(r, 1200 * (retries + 1)));
+        return _doLoadCurrentPrestataire(retries + 1);
+      }
+      // Ultime fallback cache après épuisement des retries
+      const cached = _readPrestCache(email);
+      if (cached?.id) {
+        currentPrestataire = cached;
+        window.currentPrestataire = currentPrestataire;
+        updateCommissionDisplay();
+      }
+      return;
+    }
+  }
+
+  console.error('[wozali] supaPrest non chargé');
+}
+
+// ══ CONNEXION ══
+async function submitLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+
+  // ✅ Validation stricte
+  if (!validateForm({
+    email: { type: 'email', value: email, name: 'Email' },
+    password: { type: 'password', value: pw, name: 'Mot de passe' }
+  })) {
+    return;
+  }
+
+  btn.textContent = '⏳ Connexion...';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+
+  // Failsafe : restaure le bouton après 25s quoi qu'il arrive
+  const _loginSafety = setTimeout(() => {
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+    showLoginError('Connexion trop lente. Vérifie ta connexion internet et réessaie.');
+  }, 25000);
+
+  try {
+    const { data, error } = await supa.auth.signInWithPassword({ email, password: pw });
+
+    if (error) {
+      clearTimeout(_loginSafety);
+      showLoginError(getFrenchAuthError(error.message));
+      btn.textContent = 'Se connecter';
+      btn.disabled = false;
+      return;
+    }
+
+    currentUser = data.user;
+    window.currentUser = currentUser;
+    // Charge le profil — timeout 10s pour ne pas bloquer si Supabase est lent
+    await Promise.race([
+      loadCurrentPrestataire(),
+      new Promise(r => setTimeout(r, 10000))
+    ]);
+    clearTimeout(_loginSafety);
+    updateNavAuth(true);
+    toast('Connexion réussie ! Bienvenue 🎉', 'success');
+    showPage('dashboard');
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+  } catch (err) {
+    clearTimeout(_loginSafety);
+    console.error('[submitLogin]', err);
+    showLoginError('Une erreur est survenue. Réessaie dans quelques secondes.');
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function getFrenchAuthError(msg) {
+  if (msg.includes('Invalid login')) return 'Email ou mot de passe incorrect.';
+  if (msg.includes('Email not confirmed')) return 'Confirme ton email avant de te connecter.';
+  if (msg.includes('Too many requests')) return 'Trop de tentatives. Réessaie dans quelques minutes.';
+  if (msg.includes('Email not confirmed')) return 'Email non confirmé. Vérifie ta boîte mail et clique sur le lien de confirmation envoyé lors de ton inscription.';
+  if (msg.includes('Invalid login credentials')) return 'Email ou mot de passe incorrect. Si tu as oublié ton mot de passe, utilise "Mot de passe oublié".';
+  return msg;
+}
+
+// ══ MOT DE PASSE OUBLIÉ ══
+async function submitForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const btn = document.getElementById('forgot-btn');
+  const msgEl = document.getElementById('forgot-msg');
+  if (!email) { toast('Entre ton email', 'error'); return; }
+
+  btn.textContent = '⏳ Envoi...';
+  btn.disabled = true;
+
+  const { error } = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+
+  msgEl.style.display = 'block';
+  if (error) {
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
+    msgEl.textContent = 'Erreur : ' + error.message;
+  } else {
+    msgEl.style.cssText = 'display:block;background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#E8940A;margin-bottom:16px;';
+    msgEl.textContent = '✓ Lien envoyé ! Vérifie ta boîte email.';
+  }
+  btn.textContent = 'Envoyer le lien';
+  btn.disabled = false;
+}
+
+// ══ RESET MOT DE PASSE (depuis lien email) ══
+async function submitResetPassword() {
+  const pw = document.getElementById('reset-pw').value;
+  const confirm = document.getElementById('reset-pw-confirm').value;
+  const msgEl = document.getElementById('reset-msg');
+  const btn = document.getElementById('reset-pw-btn');
+
+  if (!pw || pw.length < 6) {
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
+    msgEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.'; return;
+  }
+  if (pw !== confirm) {
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
+    msgEl.textContent = 'Les mots de passe ne correspondent pas.'; return;
+  }
+
+  btn.textContent = '⏳ Enregistrement...';
+  btn.disabled = true;
+
+  const { error } = await supa.auth.updateUser({ password: pw });
+
+  if (error) {
+    msgEl.style.cssText = 'display:block;background:rgba(220,38,38,0.12);border:1.5px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#fca5a5;margin-bottom:16px;';
+    msgEl.textContent = 'Erreur : ' + error.message;
+  } else {
+    msgEl.style.cssText = 'display:block;background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:12px;padding:12px 16px;font-size:14px;color:#E8940A;margin-bottom:16px;';
+    msgEl.textContent = '✅ Mot de passe mis à jour ! Redirection...';
+    setTimeout(() => showPage('login'), 2000);
+  }
+
+  btn.textContent = '✅ Enregistrer le nouveau mot de passe';
+  btn.disabled = false;
+}
+
+// ══ DÉCONNEXION ══
+async function handleLogout() {
+  await supa.auth.signOut();
+  currentUser = null;
+  window.currentUser = null;
+  currentPrestataire = null;
+  updateNavAuth(false);
+  toast('Déconnecté avec succès', 'info');
+  showPage('home');
+}
+
+// ══ TOGGLE MOT DE PASSE ══
+function togglePw(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
+}
+
+// ══════════════════════════════════════════
+// MON PROFIL PUBLIC
+// ══════════════════════════════════════════
+async function viewMyProfile() {
+  // Profil déjà chargé avec un vrai id DB → navigation directe
+  if (currentPrestataire?.id) {
+    showProfil(currentPrestataire.id);
+    showPage('profil');
+    return;
+  }
+
+  // Connecté mais profil pas encore chargé → montrer un loader, attendre le profil
+  if (currentUser) {
+    // Afficher un écran d'attente non-bloquant pendant le chargement
+    showPage('profil');
+    const container = document.getElementById('profil-content');
+    if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement de ton profil…</div>';
+
+    // Attendre jusqu'à 12s en rechargements successifs de 1s
+    for (let i = 0; i < 12; i++) {
+      if (!currentPrestataire) {
+        try { await loadCurrentPrestataire(); } catch(e) {}
+      }
+      if (currentPrestataire?.id) {
+        showProfil(currentPrestataire.id);
+        return;
+      }
+      if (currentPrestataire && !currentPrestataire.id) {
+        // Profil minimal (pas d'id Supabase) → envoyer sur l'éditeur
+        showPage('dashboard');
+        showDashSection('profil');
+        toast('Complète ton profil pour l\'activer.', 'info');
+        return;
+      }
+      await new Promise(r => setTimeout(r, 1000));
+    }
+
+    // Après 12s toujours rien → dashboard (jamais login si connecté)
+    showPage('dashboard');
+    toast('Profil introuvable. Contacte le support si le problème persiste.', 'error');
+    return;
+  }
+
+  // Vraiment pas connecté → login
+  showPage('login');
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+function toggleDashGroup(head){
+  var g = head.closest('.dash-group');
+  if (!g) return;
+  g.classList.toggle('open');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
+  // Ouvre par défaut le groupe "Mon profil"
+  var first = document.querySelector('.dashboard-sidebar .dash-group[data-group="profil"]');
+  if (first) first.classList.add('open');
+});
+function openDashGroupContaining(linkEl){
+  if (!linkEl) return;
+  var g = linkEl.closest('.dash-group');
+  if (g) g.classList.add('open');
+}
+// ── ALIAS RÉTROCOMPAT — WOZALI Business Suite (Phase A) ──
+// Permet d'utiliser les nouveaux IDs sans casser les anciens liens/bookmarks.
+// Ajout progressif à mesure que les phases B→G remplacent les sections.
+window.DASH_SECTION_ALIASES = {
+  // Emploi & Recrutement (Phase B)
+  'talent-offres': 'recrut-offres',
+  'talent-offre-new': 'recrut-publier',
+  // 'talent-pipeline' : section réelle, pas d'alias (Phase B — Kanban)
+  'talent-dashboard': 'recrut-dashboard',
+  'jobs-dispo': 'emploi-mode',
+  'jobs-envoyees': 'emploi-candidatures'
+  // Phase C-G ajouteront talent-equipe, rh-paie, finance-ca, employe-*, etc.
+};
+
+function showDashSection(section) {
+  // Résolution alias (si pointe vers une section pas encore renommée)
+  if (window.DASH_SECTION_ALIASES && window.DASH_SECTION_ALIASES[section]) {
+    section = window.DASH_SECTION_ALIASES[section];
+  }
+
+  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.dash-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('ds-' + section)?.classList.add('active');
+  var linkEl = document.getElementById('dl-' + section);
+  if (linkEl) { linkEl.classList.add('active'); openDashGroupContaining(linkEl); }
+
+  // ── Auto-refresh overview : reset timer à chaque changement de section ──
+  if (window._overviewRefreshTimer) {
+    clearInterval(window._overviewRefreshTimer);
+    window._overviewRefreshTimer = null;
+  }
+
+  if (section === 'overview') {
+    loadDashOverview();
+    // Refresh silencieux toutes les 60s tant que la section est active
+    window._overviewRefreshTimer = setInterval(async () => {
+      if (!document.getElementById('ds-overview')?.classList.contains('active')) {
+        clearInterval(window._overviewRefreshTimer);
+        window._overviewRefreshTimer = null;
+        return;
+      }
+      try {
+        await loadCurrentPrestataire();
+        await loadDashOverview();
+        const btn = document.getElementById('btn-refresh-overview');
+        if (btn) { btn.style.transform = 'rotate(360deg)'; setTimeout(() => btn.style.transform = '', 600); }
+      } catch(e) {}
+    }, 60000);
+  }
+  if (section === 'dispo') { loadDispo(); initDispoEditor(); renderDispoEditor(); }
+  if (section === 'rdv') loadDashRDV();
+  if (section === 'profil') { loadEditForm(); setTimeout(loadDashLocation, 200); _dashLocMap = null; _dashLocMarker = null; }
+  if (section === 'avis') loadDashAvis();
+  if (section === 'photos') loadDashPhotos();
+  if (section === 'posts') loadDashPosts();
+  if (section === 'abonnement') { injectSprint6Upgrade(); loadAbonnement(); }
+  if (section === 'recompenses') loadRecompensesWidgets();
+  if (section === 'recompenses-mdr') loadRecompensesMDR();
+  if (section === 'parrainage') loadParrainage();
+  if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} }
+  if (section === 'favoris') loadFavoris();
+  if (section === 'abonnements') loadAbonnements();
+  if (section === 'fil') loadFil();
+  if (section === 'emploi-mode') loadEmploiMode();
+  if (section === 'emploi-candidatures') loadMesCandidatures();
+
+  if (section === 'recrut-publier') initRecrutPublier();
+  if (section === 'recrut-offres') loadMesOffres();
+  if (section === 'recrut-candidatures') loadCandidaturesRecues();
+  if (section === 'recrut-dashboard') loadRecrutDashboard();
+  if (section === 'wozali-match') loadDashWozaliMatch();
+  if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
+  if (section === 'battle') loadBattle('');
+  // ── WOZALI Business Suite ──
+  // Loaders Business Suite Phases B→G retirés 2026-05-07 (report V1.2)
+}
+
+async function loadDashboard() {
+  if (!currentUser) { showPage('login'); return; }
+
+  // ── Skeleton loader ──
+  const mainContent = document.getElementById('dash-main-content');
+  const skeletonId = 'dash-loading-skeleton';
+  if (mainContent && !document.getElementById(skeletonId)) {
+    const sk = document.createElement('div');
+    sk.id = skeletonId;
+    sk.style.cssText = 'position:absolute;inset:0;background:var(--night-1,#14100A);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;border-radius:inherit;';
+    sk.innerHTML = `
+      <div style="width:48px;height:48px;border-radius:50%;border:3px solid rgba(232,148,10,.15);border-top-color:#E8940A;animation:spin .8s linear infinite;"></div>
+      <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.5);">Chargement de ton espace…</div>`;
+    mainContent.style.position = 'relative';
+    mainContent.appendChild(sk);
+  }
+  const _hideSkeleton = () => {
+    const sk = document.getElementById(skeletonId);
+    if (sk) { sk.style.opacity = '0'; sk.style.transition = 'opacity .2s'; setTimeout(() => sk.remove(), 220); }
+  };
+
+  // ── Profil : cache immédiat, refresh silencieux en arrière-plan ──
+  const profileAlreadyLoaded = !!currentPrestataire;
+  if (!profileAlreadyLoaded) {
+    // Premier chargement : on attend (max 10s)
+    await Promise.race([loadCurrentPrestataire(), new Promise(r => setTimeout(r, 10000))]);
+  } else {
+    // Profil déjà en mémoire → render instantané, refresh en background
+    loadCurrentPrestataire().catch(() => {});
+  }
+
+  _hideSkeleton();
+  if (!currentPrestataire) return;
+
+  const nom = currentPrestataire?.fields?.['Nom complet'] || 'Prestataire';
+  const prenom = nom.split(' ')[0];
+  document.getElementById('dash-welcome').textContent = `Bonjour ${prenom}. 👋`;
+  // Branche conditionnelle : nouveaux (< 7j) vs actifs
+  try {
+    const createdAt = currentPrestataire?.createdTime ? new Date(currentPrestataire.createdTime) : null;
+    const joursDepuis = createdAt ? Math.floor((Date.now() - createdAt.getTime()) / 86400000) : 999;
+    const vues7j = parseInt(currentPrestataire?.fields?.['Vues 7j'] || 0) || 0;
+    const subEl = document.getElementById('dash-subtitle');
+    if (subEl) {
+      if (joursDepuis < 7) {
+        subEl.innerHTML = `Tu viens de rejoindre WOZALI. Tu es visible à Cotonou et à Lomé dès maintenant. <strong>Action prioritaire aujourd'hui :</strong> → <a href="#" onclick="showDashSection('photos');return false;" style="color:var(--or);font-weight:700;">ajouter 3 photos de réalisations</a>`;
+      } else {
+        subEl.textContent = `${vues7j} personne${vues7j > 1 ? 's ont' : ' a'} consulté ton profil cette semaine.`;
+      }
+    }
+    // Statut pill text
+    const dispoTxt = document.getElementById('dash-dispo-txt');
+    if (dispoTxt) {
+      const dispo = currentPrestataire?.fields?.['Disponible maintenant'];
+      dispoTxt.textContent = dispo ? '⭐ Disponible — les clients peuvent te trouver et te contacter' : '🟡 Invisible — active ta disponibilité pour recevoir des clients';
+    }
+  } catch(e){}
+  loadDashOverview();
+  updateNotifBadge(currentPrestataire?.id);
+  injectApprentieBanner();
+  // Afficher la sidebar "Je recrute" pour tous les users connectés.
+  const recrutSection = document.getElementById('dl-recrut-section');
+  if (recrutSection) recrutSection.style.display = 'block';
+
+  // Vérification admin pour section Agents Terrain
+  checkAdminForDashboard();
+}
+
+// ══ BANDEAU APPRENTI — généralisé pour TOUS les métiers via WozaliMetierStatuts ══
+// S'affiche si le statut est de type "apprenti" (peu importe le métier).
+// Si le statut n'est pas renseigné mais que le métier a une option apprenti → invite à le renseigner.
+// Dismissible avec mémoire locale par user.
+function injectApprentieBanner() {
+  const host = document.getElementById('apprentie-banner-host');
+  if (!host || !currentPrestataire) { if(host) host.innerHTML=''; return; }
+  const f = currentPrestataire.fields || {};
+  const metier = f['Métier principal'] || '';
+  const statut = (f['Statut Artisan'] || '').toLowerCase();
+
+  // Détection apprenti via WozaliMetierStatuts (plus de regex hardcodé sur coiff/coutur)
+  const W = window.WozaliMetierStatuts;
+  const isApprentiDeclare = W ? W.isApprentiStatut(statut) : ['apprenti','apprentie'].includes(statut);
+  // Si statut renseigné et NON apprenti → pas de bandeau (patron / indépendant / etc.)
+  if (statut && !isApprentiDeclare) { host.innerHTML = ''; return; }
+  // Si pas de statut + métier sans option apprenti → pas de bandeau
+  let metierAUneOptionApprenti = false;
+  if (W && metier) {
+    const cfg = W.getStatutsFor(metier);
+    metierAUneOptionApprenti = (cfg?.statuts || []).some(s => W.isApprentiStatut(s.value));
+  }
+  if (!statut && !metierAUneOptionApprenti) { host.innerHTML = ''; return; }
+  // Dismiss
+  const dismissKey = `wozali_apprentie_banner_dismissed_${currentPrestataire.id}`;
+  if (localStorage.getItem(dismissKey) === '1') { host.innerHTML = ''; return; }
+
+  const eyebrow = isApprentiDeclare ? 'POUR TOI, EN APPRENTISSAGE' : 'TU ES EN APPRENTISSAGE ?';
+  const messageHtml = isApprentiDeclare
+    ? '« Tu travailles pour ton patron / ta patronne plusieurs jours par semaine. Tu n\'es pas (ou peu) payé(e). Tes seuls clients perso, tu les fais sur ton temps de repos.<br><strong style="font-style:normal;color:#E8940A;">WOZALI, c\'est ton temps à toi. Toute la semaine.</strong> »'
+    : '« Au Togo et au Bénin, des dizaines de milliers de jeunes en formation paient pour apprendre, travaillent gratis. <strong style="font-style:normal;color:#E8940A;">Si c\'est ton cas, renseigne ton statut pour recevoir les conseils adaptés.</strong> »';
+  const ctasHtml = isApprentiDeclare
+    ? '<button onclick="showDashSection(\'photos\')" style="background:#E8940A;color:#14100A;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Ajouter 3 photos de mon travail →</button><button onclick="showDashSection(\'parrainage\')" style="background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,0.4);padding:9px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;">Voir le parrainage 40%</button>'
+    : '<button onclick="showDashSection(\'profil\');setTimeout(()=>{const w=document.getElementById(\'edit-statut-artisan-wrap\');if(w){w.scrollIntoView({behavior:\'smooth\',block:\'center\'});}},400);" style="background:#E8940A;color:#14100A;border:none;padding:9px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Renseigner mon statut →</button>';
+  host.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(232,148,10,0.12) 0%,rgba(232,148,10,0.04) 100%);border:1px solid rgba(232,148,10,0.3);border-left:4px solid #E8940A;border-radius:14px;padding:18px 22px;margin-bottom:22px;position:relative;">
+      <button onclick="dismissApprentieBanner()" aria-label="Fermer" style="position:absolute;top:10px;right:12px;background:transparent;border:none;color:rgba(252, 224, 168,0.5);font-size:18px;cursor:pointer;line-height:1;padding:4px 8px;">×</button>
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:8px;">${eyebrow}</div>
+      <p style="margin:0 0 12px;font-family:'DM Serif Display',serif;font-size:15px;line-height:1.65;color:#FCE0A8;font-style:italic;">${messageHtml}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">${ctasHtml}</div>
+    </div>`;
+}
+function dismissApprentieBanner() {
+  if (!currentPrestataire) return;
+  localStorage.setItem(`wozali_apprentie_banner_dismissed_${currentPrestataire.id}`, '1');
+  const host = document.getElementById('apprentie-banner-host');
+  if (host) host.innerHTML = '';
+}
+
+// ══ MÉTRIQUES QUOTIDIENNES (localStorage) ══
+function trackDailyMetric(key, prestId) {
+  const storageKey = `wozali_daily_${key}_${prestId}`;
+  const today = new Date().toISOString().split('T')[0];
+  let data = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  const todayEntry = data.find(d => d.date === today);
+  if (todayEntry) { todayEntry.val = (todayEntry.val || 0) + 1; }
+  else { data.push({ date: today, val: 1 }); }
+  if (data.length > 60) data = data.slice(-60);
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
+
+function getDailyMetrics(key, prestId, days) {
+  const storageKey = `wozali_daily_${key}_${prestId}`;
+  const data = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  const result = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const entry = data.find(x => x.date === dateStr);
+    result.push({ date: dateStr, val: entry?.val || 0 });
+  }
+  return result;
+}
+
+function renderDashChart(days = 7) {
+  const prestId = currentPrestataire?.id;
+  if (!prestId) return;
+  const data = getDailyMetrics('views', prestId, days);
+  const maxVal = Math.max(...data.map(d => d.val), 1);
+
+  // Boutons actifs
+  document.getElementById('chart-btn-7').style.background = days === 7 ? 'var(--vert)' : 'white';
+  document.getElementById('chart-btn-7').style.color = days === 7 ? 'white' : 'var(--gris)';
+  document.getElementById('chart-btn-7').style.borderColor = days === 7 ? 'var(--vert)' : '#e5e7eb';
+  document.getElementById('chart-btn-30').style.background = days === 30 ? 'var(--vert)' : 'white';
+  document.getElementById('chart-btn-30').style.color = days === 30 ? 'white' : 'var(--gris)';
+  document.getElementById('chart-btn-30').style.borderColor = days === 30 ? 'var(--vert)' : '#e5e7eb';
+
+  const W = 600, H = 120, pad = 12;
+  const step = (W - pad * 2) / Math.max(data.length - 1, 1);
+  const points = data.map((d, i) => ({
+    x: pad + i * step,
+    y: H - pad - ((d.val / maxVal) * (H - pad * 2)),
+    val: d.val
+  }));
+  const polyline = points.map(p => `${p.x},${p.y}`).join(' ');
+  const fillPath = `M${points[0].x},${H - pad} ` + points.map(p => `L${p.x},${p.y}`).join(' ') + ` L${points[points.length-1].x},${H - pad} Z`;
+
+  const totalViews = data.reduce((s, d) => s + d.val, 0);
+  const halvIdx = Math.floor(data.length / 2);
+  const prev = data.slice(0, halvIdx).reduce((s, d) => s + d.val, 0);
+  const curr = data.slice(halvIdx).reduce((s, d) => s + d.val, 0);
+  const trendPct = prev > 0 ? Math.round(((curr - prev) / prev) * 100) : 0;
+  const trendStr = trendPct >= 0 ? `↑ +${trendPct}%` : `↓ ${trendPct}%`;
+  const trendColor = trendPct >= 0 ? 'var(--vert)' : '#dc2626';
+
+  const dotsHtml = points.map(p => `
+    <circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--vert)" stroke="white" stroke-width="2">
+      <title>${p.val} vue${p.val > 1 ? 's' : ''}</title>
+    </circle>`).join('');
+
+  document.getElementById('dash-chart-svg').innerHTML = `
+    <div style="font-size:13px;color:var(--gris);margin-bottom:6px;">
+      <span style="font-weight:700;font-size:18px;color:var(--noir);">${totalViews}</span> vues sur ${days} jours
+      <span style="margin-left:10px;font-weight:700;color:${trendColor};">${trendStr}</span>
+    </div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--vert)" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="var(--vert)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="${fillPath}" fill="url(#chartGrad)"/>
+      <polyline points="${polyline}" fill="none" stroke="var(--vert)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${dotsHtml}
+    </svg>`;
+
+  // Labels dates
+  const labelsDiv = document.getElementById('dash-chart-labels');
+  if (labelsDiv) {
+    const showN = days <= 7 ? data.length : 6;
+    const step2 = Math.floor(data.length / (showN - 1));
+    const shown = [];
+    for (let i = 0; i < data.length; i += step2) shown.push(data[i]);
+    if (shown[shown.length - 1] !== data[data.length - 1]) shown.push(data[data.length - 1]);
+    labelsDiv.innerHTML = shown.map(d => {
+      const dt = new Date(d.date + 'T12:00:00');
+      return `<span style="font-size:10px;color:var(--gris);">${dt.getDate()}/${dt.getMonth() + 1}</span>`;
+    }).join('');
+  }
+}
+
+// ══════════════════════════════════════════
+// U2 — Wizard "Premier pas" (J+0 à J+7)
+// Affiche 3 cards d'onboarding au-dessus des KPI tant que toutes les actions
+// ne sont pas faites OU pendant les 7 premiers jours.
+// ══════════════════════════════════════════
+function renderPremierPasWizard() {
+  if (!currentPrestataire) return;
+  const wrap = document.getElementById('wozali-premier-pas-wizard');
+  if (!wrap) return;
+  const f = currentPrestataire.fields || {};
+  const userId = (window.currentUser && window.currentUser.id) || currentPrestataire.id || 'anon';
+  const dismissedKey = 'wozali_premier_pas_dismissed_' + userId;
+  if (localStorage.getItem(dismissedKey) === '1') { wrap.style.display = 'none'; return; }
+
+  // Combien de photos déjà uploadées
+  let nbPhotos = 0;
+  if (f['Photo Réalisation 1']) nbPhotos++;
+  if (f['Photo Réalisation 2']) nbPhotos++;
+  if (f['Photo Réalisation 3']) nbPhotos++;
+  try {
+    const alb = JSON.parse(f['Albums'] || '[]');
+    for (const a of alb) nbPhotos += (a.photos || []).length;
+  } catch(e) {}
+  const photosOk = nbPhotos >= 3;
+
+  // GPS
+  const gpsOk = !!(f['Latitude'] && f['Longitude']);
+
+  // Partage WhatsApp — flag local
+  const shareKey = 'wozali_premier_pas_share_' + userId;
+  const shareOk = localStorage.getItem(shareKey) === '1';
+
+  // Calcul J+X depuis création
+  let daysSince = 0;
+  try {
+    const created = currentPrestataire.createdTime ? new Date(currentPrestataire.createdTime) : null;
+    if (created) daysSince = Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24));
+  } catch(e) {}
+  const within7d = daysSince < 7;
+
+  const allDone = photosOk && gpsOk && shareOk;
+  // Masquer le wizard si tout est fait ET on est passé J+7 (sinon afficher message succès)
+  if (allDone && !within7d) { wrap.style.display = 'none'; return; }
+
+  const doneCount = (photosOk ? 1 : 0) + (gpsOk ? 1 : 0) + (shareOk ? 1 : 0);
+  const progressPct = Math.round((doneCount / 3) * 100);
+
+  // Code parrainage / lien WhatsApp
+  const parrainCode = f['Code Parrainage'] || '';
+  const profilUrl = parrainCode ? `https://wozali.com?ref=${encodeURIComponent(parrainCode)}` : 'https://wozali.com';
+  const prenom = (f['Nom complet'] || '').split(' ')[0] || '';
+
+  if (allDone) {
+    wrap.style.display = 'block';
+    wrap.innerHTML = `
+      <div style="background:linear-gradient(135deg,#14100A,#1a1f1b);border:1.5px solid rgba(232,148,10,.4);border-radius:16px;padding:18px 20px;color:#FCE0A8;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="font-size:28px;flex-shrink:0;">✅</div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:4px;">T'as bien démarré.</div>
+          <div style="font-size:13px;color:rgba(252, 224, 168,0.75);line-height:1.55;">La suite c'est de recevoir tes premiers clients. Ton travail parle. Pas tes connexions.</div>
+        </div>
+        <button onclick="dismissPremierPasWizard()" style="background:transparent;color:rgba(252, 224, 168,0.6);border:1px solid rgba(252, 224, 168,0.2);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Masquer</button>
+      </div>
+    `;
+    return;
+  }
+
+  // Construit les 3 cards
+  const cards = [];
+  // Card 1 — Photos
+  if (!photosOk) {
+    cards.push(`
+      <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">📸</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;line-height:1.3;">Ajoute ${3 - nbPhotos} photo${3 - nbPhotos > 1 ? 's' : ''} de plus</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">3 photos = 3× plus de contacts. Montre ton travail.</div>
+        <button onclick="showDashSection('photos')" style="margin-top:auto;background:#E8940A;color:#14100A;border:none;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Aller à mes photos</button>
+      </div>
+    `);
+  } else {
+    cards.push(`
+      <div style="background:rgba(232,148,10,0.08);border-radius:14px;padding:16px;border:1.5px solid rgba(232,148,10,.3);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">✅</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;">Photos OK</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">${nbPhotos} photo${nbPhotos > 1 ? 's' : ''} en ligne. Continue d'en ajouter pour rester en haut.</div>
+      </div>
+    `);
+  }
+  // Card 2 — GPS
+  if (!gpsOk) {
+    cards.push(`
+      <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">📍</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;line-height:1.3;">Active ton GPS</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Sois trouvable sur la carte. Les clients à 500 m te trouveront en 30 secondes.</div>
+        <button onclick="wizardActiverGPS()" style="margin-top:auto;background:#14100A;color:#E8940A;border:1.5px solid #E8940A;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Activer ma position</button>
+      </div>
+    `);
+  } else {
+    cards.push(`
+      <div style="background:rgba(232,148,10,0.08);border-radius:14px;padding:16px;border:1.5px solid rgba(232,148,10,.3);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">✅</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;">GPS activé</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Tu es visible sur la carte de Cotonou et de Lomé.</div>
+      </div>
+    `);
+  }
+  // Card 3 — Partage WhatsApp
+  if (!shareOk) {
+    const metierLocal = currentPrestataire?.fields?.['Métier principal'] || '';
+    const villeLocal = currentPrestataire?.fields?.['Ville'] || '';
+    const waText = metierLocal
+      ? `${prenom ? prenom + ' est' : 'Je suis'} ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}.\nPhotos vraies, tarifs réels, avis de mes vrais clients — tout est là :\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais — envoie-lui ça. Je te renvoie l'ascenseur. 🤝`
+      : `J'ai mis tout mon travail sur WOZALI.\nPhotos vraies, tarifs réels, avis de mes clients.\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais — envoie-lui ça. Je te renvoie l'ascenseur. 🤝`;
+    const waUrl = 'https://wa.me/?text=' + encodeURIComponent(waText);
+    cards.push(`
+      <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">📲</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;line-height:1.3;">Partage ton profil sur WhatsApp</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Tes premiers clients viennent de tes contacts. Lance la machine.</div>
+        <button onclick="markPremierPasShared('${waUrl.replace(/'/g, '%27')}')" style="margin-top:auto;background:#25d366;color:white;border:none;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Partager maintenant</button>
+      </div>
+    `);
+  } else {
+    cards.push(`
+      <div style="background:rgba(232,148,10,0.08);border-radius:14px;padding:16px;border:1.5px solid rgba(232,148,10,.3);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:24px;">✅</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;">Profil partagé</div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;">Continue à partager dès que tu peux. Chaque WhatsApp = 1 client potentiel.</div>
+      </div>
+    `);
+  }
+
+  wrap.style.display = 'block';
+  wrap.innerHTML = `
+    <div style="background:linear-gradient(135deg,#14100A,#1a1f1b);border:1.5px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 20px;color:#FCE0A8;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div>
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">PREMIER PAS</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;line-height:1.2;margin-top:2px;">3 actions pour démarrer fort</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:13px;color:#E8940A;font-weight:700;">${doneCount} / 3 fait</div>
+          <button onclick="dismissPremierPasWizard()" style="background:transparent;color:rgba(252, 224, 168,0.55);border:1px solid rgba(252, 224, 168,0.18);padding:6px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;" title="Masquer ce guide">Plus tard</button>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.08);border-radius:100px;height:6px;overflow:hidden;margin-bottom:16px;">
+        <div style="height:100%;background:#E8940A;transition:width 0.5s;width:${progressPct}%;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+        ${cards.join('')}
+      </div>
+    </div>
+  `;
+}
+
+function dismissPremierPasWizard() {
+  const userId = (window.currentUser && window.currentUser.id) || (currentPrestataire && currentPrestataire.id) || 'anon';
+  try { localStorage.setItem('wozali_premier_pas_dismissed_' + userId, '1'); } catch(e) {}
+  const wrap = document.getElementById('wozali-premier-pas-wizard');
+  if (wrap) wrap.style.display = 'none';
+}
+
+function markPremierPasShared(waUrl) {
+  const userId = (window.currentUser && window.currentUser.id) || (currentPrestataire && currentPrestataire.id) || 'anon';
+  try { localStorage.setItem('wozali_premier_pas_share_' + userId, '1'); } catch(e) {}
+  try { window.open(waUrl.replace(/%27/g, "'"), '_blank'); } catch(e) {}
+  // Re-render pour marquer la card comme done
+  setTimeout(() => { try { renderPremierPasWizard(); } catch(e) {} }, 200);
+}
+
+async function loadDashOverview() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const prestId = currentPrestataire.id;
+
+  // U2 — Wizard Premier pas (avant les KPI)
+  try { renderPremierPasWizard(); } catch(e) { console.warn('[premier-pas]', e); }
+
+  // Date
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const subtitleEl = document.getElementById('dash-subtitle');
+  if (subtitleEl) subtitleEl.textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+
+  // Dispo pill
+  const dispo = f['Disponible maintenant'];
+  const dot = document.getElementById('dash-dispo-dot');
+  const txt = document.getElementById('dash-dispo-txt');
+  if (dot) dot.style.background = dispo ? '#E8940A' : '#9ca3af';
+  if (txt) txt.textContent = dispo ? '⭐ Disponible' : '🟡 Invisible';
+
+  // ── Profil complété % — calculé localement ──
+  const completionItems = [
+    { label: 'Photo de profil',           done: !!(f['Photo de profil']),                      weight: 20, action: 'photos' },
+    { label: 'Description des services',  done: !!(f['Description des services']),             weight: 15, action: 'profil' },
+    { label: 'Tarifs renseignés',         done: !!(f['Tarif minimum FCFA']),                   weight: 10, action: 'profil' },
+    { label: 'Numéro de téléphone',       done: !!(f['Numéro de téléphone']),                  weight: 15, action: 'profil' },
+    { label: 'Photos de réalisations',    done: !!(f['Photo Réalisation 1']),                  weight: 20, action: 'photos' },
+    { label: 'Disponibilité activée',     done: !!(f['Disponible maintenant']),                weight: 10, action: 'dispo'  },
+    { label: 'Localisation épinglée',     done: !!(f['Latitude'] && f['Longitude']),           weight: 10, action: 'profil' },
+  ];
+  const completion = completionItems.filter(i => i.done).reduce((s, i) => s + i.weight, 0);
+  document.getElementById('kpi-completion').textContent = completion + '%';
+
+  // ── Note moyenne — non-bloquant (spinner puis update) ──
+  let note = 0, nbAvis = 0;
+  const kpiNoteEl = document.getElementById('kpi-note');
+  const kpiNoteSubEl = document.getElementById('kpi-note-sub');
+  if (kpiNoteEl) kpiNoteEl.textContent = '…';
+  // Lancer fetchAvis en background sans bloquer le render du score/completion
+  const _avisPromise = (async () => {
+    let avisRecs = [];
+    try {
+      avisRecs = await Promise.race([fetchAvis(prestId), new Promise(r => setTimeout(() => r([]), 6000))]);
+      nbAvis = avisRecs.length;
+      if (nbAvis > 0) {
+        const sum = avisRecs.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0);
+        note = sum / nbAvis;
+      }
+    } catch(e) {}
+    if (kpiNoteEl) kpiNoteEl.textContent = note > 0 ? note.toFixed(1) + ' ★' : '—';
+    if (kpiNoteSubEl) kpiNoteSubEl.textContent = note > 0 ? `Sur ${nbAvis} avis` : 'Pas encore d\'avis';
+    return { note, nbAvis };
+  })();
+
+  // ── Score WOZALI — 6 composantes, màj 2 passes (statiques immédiates + avis async) ──
+  // 1. Profil complet (max 30) : Photo 8, Bio 7, Métier 5, Ville+Quartier 5, Numéro 5
+  const scoreComp = (f['Photo de profil'] ? 8 : 0)
+    + ((f['Description des services'] || '').trim().length > 10 ? 7 : 0)
+    + (f['Métier principal'] ? 5 : 0)
+    + (f['Quartier'] || f['Ville'] ? 5 : 0)
+    + (f['Numéro de téléphone'] || f['WhatsApp'] ? 5 : 0);
+  // 4. Photos publiées (max 10) : paliers
+  let nbPhotosTotal = (f['Photo Réalisation 1'] ? 1 : 0) + (f['Photo Réalisation 2'] ? 1 : 0) + (f['Photo Réalisation 3'] ? 1 : 0);
+  try { const alb = JSON.parse(f['Albums'] || '[]'); for (const a of alb) nbPhotosTotal += (a.photos || []).length; } catch {}
+  const scorePhoto = nbPhotosTotal >= 6 ? 10 : nbPhotosTotal >= 3 ? 6 : nbPhotosTotal >= 1 ? 3 : 0;
+  // 5. Vues profil (max 10) : progressif 0-100
+  const totalViewsAll = JSON.parse(localStorage.getItem(`wozali_views_${prestId}`) || '{"total":0}').total || 0;
+  const scoreVues = totalViewsAll >= 100 ? 10 : Math.round((totalViewsAll / 100) * 10);
+  // 6. Activité récente (max 10) : connecté maintenant
+  const scoreActivite = 10;
+
+  const transactions = f['Nombre de transactions'] || 0;
+  document.getElementById('stat-transactions').textContent = transactions;
+  document.getElementById('kpi-cowrie').textContent = f['Score WOZALI'] || 0;
+
+  // Niveaux Score WOZALI
+  const _wozaliLevels = [
+    { min:0,  max:20,  emoji:'🌱', name:'Débutant'     },
+    { min:21, max:40,  emoji:'📚', name:'Apprenti'      },
+    { min:41, max:60,  emoji:'🔧', name:'Confirmé'      },
+    { min:61, max:80,  emoji:'💼', name:'Professionnel' },
+    { min:81, max:100, emoji:'⭐', name:'Élite'          },
+  ];
+  // Helper rendu gauge (appelé 2× : provisoire sans avis, puis réel avec avis)
+  function _applyScoreGauge(sNote, sAvis) {
+    const s = Math.min(scoreComp + sNote + sAvis + scorePhoto + scoreVues + scoreActivite, 100);
+    const cL = _wozaliLevels.find(l => s >= l.min && s <= l.max) || _wozaliLevels[0];
+    const nL = _wozaliLevels.find(l => l.min > s);
+    document.getElementById('kpi-score').textContent = s || '—';
+    const gauge = document.getElementById('score-gauge-dash');
+    if (gauge) {
+      gauge.setAttribute('stroke-dashoffset', 289 - 289 * Math.min(s / 100, 1));
+      const gV = document.getElementById('score-gauge-val');
+      const gL = document.getElementById('score-gauge-label');
+      const gN = document.getElementById('score-gauge-next');
+      if (gV) gV.textContent = s || '0';
+      if (gL) gL.textContent = `${cL.emoji} ${cL.name}`;
+      if (gN) gN.textContent = nL ? `+${nL.min - s} pts pour passer ${nL.emoji} ${nL.name}` : '🏆 Tu es au sommet — reste-y !';
+    }
+    const scoreLevelEl = document.getElementById('kpi-score-level');
+    const scoreNextEl  = document.getElementById('kpi-score-next');
+    if (scoreLevelEl) scoreLevelEl.textContent = `${cL.emoji} ${cL.name}`;
+    if (scoreNextEl) scoreNextEl.textContent = nL ? `+${nL.min - s} pts → ${nL.emoji} ${nL.name}` : '⭐ Niveau maximum !';
+  }
+  // Passe 1 — provisoire immédiat (note=0, nbAvis=0 tant que _avisPromise en cours)
+  _applyScoreGauge(0, 0);
+  // Passe 2 — màj finale après résolution des avis
+  _avisPromise.then(({ note: n, nbAvis: nb }) => {
+    const sN = n >= 4.5 ? 25 : n >= 4.0 ? 20 : n >= 3.0 ? 12 : 0;
+    const sA = nb >= 21 ? 15 : nb >= 11 ? 13 : nb >= 6 ? 11 : nb >= 3 ? 7 : nb >= 1 ? 3 : 0;
+    _applyScoreGauge(sN, sA);
+    // ── Célébration premier avis ──
+    if (nb === 1) {
+      const celebKey = `wozali_celebrated_first_avis_${prestId}`;
+      if (!localStorage.getItem(celebKey)) {
+        localStorage.setItem(celebKey, '1');
+        setTimeout(() => { const m = document.getElementById('modal-celebration'); if (m) m.style.display = 'flex'; }, 900);
+      }
+    }
+  }).catch(() => {});
+
+  // ── Vues — champ Airtable (total) ──
+  const totalViews = f['Nombre de vues profil'] || 0;
+  document.getElementById('kpi-views').textContent = totalViews;
+
+  // ── WhatsApp clics — champ Airtable (Pro only visible complet) ──
+  const totalWa = f['Contacts WhatsApp'] || 0;
+  const isPro = (f['Abonnement'] || 'Base') !== 'Base';
+  const waLockEl = document.getElementById('kpi-wa-lock');
+  if (isPro) {
+    document.getElementById('kpi-wa').textContent = totalWa;
+    if (waLockEl) waLockEl.style.display = 'none';
+  } else {
+    document.getElementById('kpi-wa').textContent = '?';
+    if (waLockEl) waLockEl.style.display = 'flex';
+  }
+
+  // ── QR Code Pro ──
+  const qrBlock = document.getElementById('dash-qr-block');
+  if (qrBlock) {
+    if (isPro) {
+      qrBlock.style.display = 'block';
+      const profilUrl = `https://wozali.com/?profil=${prestId}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(profilUrl)}&color=e8940a&bgcolor=ffffff`;
+      const qrImg = document.getElementById('dash-qr-src');
+      if (qrImg) qrImg.src = qrUrl;
+      // Stocker l'URL QR pour téléchargement
+      window._wozaliQrUrl = qrUrl;
+      window._wozaliQrNom = f['Nom complet'] || 'profil';
+    } else {
+      qrBlock.style.display = 'none';
+    }
+  }
+
+  // ── RDV ce mois (Supabase) ──
+  try {
+    const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,'0')}-01`;
+    const rdvRes = await wozaliFetch('/api/wozali-pay/rdv-list');
+    if (rdvRes.ok) {
+      const rdvData  = await rdvRes.json();
+      const allRdvs  = (rdvData.rdvs || []);
+      const rdvRecs  = allRdvs.filter(r => (r.date_rdv || '') >= monthStart);
+      const pending  = rdvRecs.filter(r => r.statut === 'En attente').length;
+      const confirmed= rdvRecs.filter(r => r.statut === 'Confirmé').length;
+      document.getElementById('kpi-rdv').textContent       = rdvRecs.length;
+      document.getElementById('kpi-rdv-total').textContent = rdvRecs.length;
+      document.getElementById('kpi-rdv-sub').textContent   = `${confirmed} confirmés · ${pending} en attente`;
+    }
+  } catch(e) {}
+
+  // ── Graphique ──
+  renderDashChart(7);
+
+  // ── Completion bars ──
+  const barsEl = document.getElementById('dash-completion-bars');
+  if (barsEl) {
+    barsEl.innerHTML = completionItems.map(item => `
+      <div style="display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="showDashSection('${item.action}')">
+        <div style="font-size:15px;">${item.done ? '✅' : '⬜'}</div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-size:13px;font-weight:${item.done?'600':'500'};color:${item.done?'var(--noir)':'var(--gris)'};">${item.label}</span>
+            <span style="font-size:11px;font-weight:600;color:${item.done?'var(--vert)':'var(--gris)'};">${item.done?'+'+item.weight+'%':item.weight+'% manquant'}</span>
+          </div>
+          <div style="height:5px;background:#f0f0f0;border-radius:10px;overflow:hidden;">
+            <div style="height:100%;width:${item.done?100:0}%;background:${item.done?'var(--vert)':'#e5e7eb'};border-radius:10px;transition:width 0.6s ease;"></div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Actions prioritaires ──
+  const actions = [];
+  if (!f['Photo de profil'] && !f['WhatsApp']) actions.push({ icon:'📸', text:'Ajoute ta photo de profil', sub:'+40% de contacts',             section:'photos'     });
+  if (!f['Photo Réalisation 1'])        actions.push({ icon:'🖼️', text:'Ajoute une photo de réalisation', sub:'Montre ton travail',             section:'photos'     });
+  if (!f['Description des services'])   actions.push({ icon:'✍️', text:'Écris ta description',            sub:'Rassure les clients',            section:'profil'     });
+  if (!f['Disponible maintenant'])      actions.push({ icon:'🟢', text:'Active ta disponibilité',         sub:'Apparais en priorité',           section:'dispo'      });
+  if (!f['Latitude'])                   actions.push({ icon:'📍', text:'Épingle ta localisation',         sub:'Les clients te trouvent',        section:'profil'     });
+  if (!f['Tarif minimum FCFA'])         actions.push({ icon:'💰', text:'Renseigne tes tarifs',            sub:'Évite les malentendus',          section:'profil'     });
+  if (nbAvis === 0)                     actions.push({ icon:'⭐', text:'Collecte ton premier avis',       sub:'Booste ton Score WOZALI',          section:'avis'       });
+  if ((f['Abonnement']||'Base')==='Base') actions.push({ icon:'⚡', text:'Passe en Plan Pro',             sub:'Priorité dans les recherches',   section:'abonnement' });
+  if (actions.length === 0)             actions.push({ icon:'🎉', text:'Profil complet !',                sub:'Continue à collecter des avis',  section:'avis'       });
+
+  const actEl = document.getElementById('dash-actions');
+  if (actEl) {
+    actEl.innerHTML = actions.slice(0, 4).map(a => `
+      <div onclick="showDashSection('${a.section}')" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:10px 12px;cursor:pointer;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+        <span style="font-size:20px;">${a.icon}</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--noir);">${a.text}</div>
+          <div style="font-size:11px;color:var(--gris);">${a.sub}</div>
+        </div>
+        <span style="margin-left:auto;color:var(--gris);font-size:16px;">›</span>
+      </div>`).join('');
+  }
+}
+
+// ══ DISPONIBILITÉ ══
+async function loadDispo() {
+  if (!currentPrestataire) return;
+  const dispo = currentPrestataire.fields['Disponible maintenant'] || false;
+  const checkbox = document.getElementById('dispo-checkbox');
+  checkbox.checked = dispo;
+  updateDispoUI(dispo);
+}
+
+function updateDispoUI(dispo) {
+  document.getElementById('dispo-label').textContent = dispo ? '🟢 Tu es disponible' : '🔴 Tu n\'es pas disponible';
+  document.getElementById('dispo-sublabel').textContent = dispo
+    ? 'Les clients te voient en priorité dans les recherches'
+    : 'Tu n\'apparais pas dans le filtre "disponible maintenant"';
+}
+
+async function updateDispo() {
+  if (!currentPrestataire) return;
+  const dispo = document.getElementById('dispo-checkbox').checked;
+  updateDispoUI(dispo);
+
+  try {
+    await window.supaPrest.update(currentPrestataire.id, { 'Disponible maintenant': dispo });
+    currentPrestataire.fields['Disponible maintenant'] = dispo;
+    toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
+  } catch (e) { toast('Problème de connexion : ' + e.message, 'error'); }
+}
+
+// ══ MODIFIER PROFIL ══
+function loadEditForm() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  document.getElementById('edit-nom').value = f['Nom complet'] || '';
+  document.getElementById('edit-tel').value = f['Numéro de téléphone'] || '';
+  document.getElementById('edit-description').value = f['Description des services'] || '';
+  const editDiplomesEl = document.getElementById('edit-diplomes');
+  if (editDiplomesEl) editDiplomesEl.value = f['Diplomes'] || '';
+  const editDiplomesGroup = document.getElementById('edit-diplomes-group');
+  if (editDiplomesGroup) editDiplomesGroup.style.display = isDigitalMetier(f['Métier principal'] || '') ? 'block' : 'none';
+  document.getElementById('edit-tiktok').value    = f['Lien TikTok']     || '';
+  document.getElementById('edit-instagram').value = f['Lien Instagram']  || '';
+  // Langues parlées — Airtable en priorité, fallback localStorage pour migration
+  const languesVal = f['Langues parlées'] || (() => { try { return JSON.parse(localStorage.getItem('wozali_extras_' + currentPrestataire.id) || '{}')['langues'] || ''; } catch { return ''; } })();
+  document.getElementById('edit-langues').value = languesVal;
+  // Cocher les checkboxes correspondantes
+  document.querySelectorAll('#edit-langues-section input[type=checkbox]').forEach(cb => {
+    cb.checked = languesVal.includes(cb.value);
+  });
+  document.getElementById('edit-tarif-min').value = f['Tarif minimum FCFA'] || '';
+  document.getElementById('edit-tarif-max').value = f['Tarif maximum FCFA'] || '';
+
+  const metierSel = document.getElementById('edit-metier');
+  const quartierSel = document.getElementById('edit-quartier');
+  if (f['Métier principal']) {
+    for (let opt of metierSel.options) { if (opt.value === f['Métier principal']) { opt.selected = true; break; } }
+  }
+
+  // Cascade Pays > Ville > Quartier — peupler edit-pays/edit-ville/edit-quartier depuis le profil
+  const villeActuelle = f['Ville'] || '';
+  const quartierActuel = f['Quartier'] || '';
+  // Inférer le pays depuis la ville (BJ ou TG)
+  const _vLow = (villeActuelle + ' ' + quartierActuel).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','calavi','bohicon','lokossa','natitingou','djougou','kandi','malanville','nikki','tchaourou','savè','sèmè','allada','comé'].some(b => _vLow.includes(b));
+  const paysCode = _isBJ ? 'BJ' : (villeActuelle ? 'TG' : '');
+  const editPaysSel = document.getElementById('edit-pays');
+  if (editPaysSel && paysCode) {
+    editPaysSel.value = paysCode;
+    // Peupler les villes du pays
+    buildVilleOptions('edit-ville', villeActuelle, paysCode);
+    // Peupler les quartiers de la ville
+    buildQuartierOptions('edit-ville', 'edit-quartier');
+    // Re-sélectionner le quartier
+    const qSel = document.getElementById('edit-quartier');
+    if (qSel && quartierActuel) {
+      for (let opt of qSel.options) { if (opt.value === quartierActuel) { opt.selected = true; break; } }
+    }
+  }
+
+  // Statut socio-économique : rendu dynamiquement selon le métier via WozaliMetierStatuts
+  const editToggleStatut = () => {
+    const m = metierSel?.value || '';
+    renderStatutsForMetier(m, 'edit-statut-artisan-wrap', 'edit-statut-artisan');
+    // Pré-sélectionner la valeur courante si elle existe encore dans les options du nouveau métier
+    if (f['Statut Artisan']) {
+      const hidden = document.getElementById('edit-statut-artisan');
+      if (hidden) hidden.value = f['Statut Artisan'];
+      const radio = document.querySelector(`#edit-statut-artisan-wrap input[type=radio][value="${f['Statut Artisan']}"]`);
+      if (radio) {
+        radio.checked = true;
+        const lbl = radio.closest('label');
+        if (lbl) {
+          lbl.style.borderColor = '#E8940A';
+          lbl.style.background = 'rgba(232,148,10,0.08)';
+        }
+      }
+    }
+  };
+  editToggleStatut();
+  if (metierSel && !metierSel._statutListenerAttached) {
+    metierSel.addEventListener('change', editToggleStatut);
+    metierSel._statutListenerAttached = true;
+  }
+}
+
+function toggleLangue(checkbox) {
+  const input = document.getElementById('edit-langues');
+  if (!input) return;
+  const langues = input.value ? input.value.split(',').map(l => l.trim()).filter(Boolean) : [];
+  if (checkbox.checked) {
+    if (!langues.includes(checkbox.value)) langues.push(checkbox.value);
+  } else {
+    const idx = langues.indexOf(checkbox.value);
+    if (idx > -1) langues.splice(idx, 1);
+  }
+  input.value = langues.join(', ');
+}
+
+async function saveProfile() {
+  if (!currentPrestataire) return;
+  const btn = document.getElementById('save-profile-btn');
+  btn.textContent = '⏳ Sauvegarde...';
+  btn.disabled = true;
+
+  const fields = {};
+  const nom = document.getElementById('edit-nom').value.trim();
+  const tel = document.getElementById('edit-tel').value.trim();
+  const desc = document.getElementById('edit-description').value.trim();
+  const tiktok = document.getElementById('edit-tiktok').value.trim();
+  const instagram = document.getElementById('edit-instagram').value.trim();
+  const langues = document.getElementById('edit-langues')?.value.trim();
+  const tarifMin = document.getElementById('edit-tarif-min').value;
+  const tarifMax = document.getElementById('edit-tarif-max').value;
+  const metier = document.getElementById('edit-metier').value;
+  const quartier = document.getElementById('edit-quartier').value;
+
+  if (nom)       fields['Nom complet']              = nom;
+  if (tel)       fields['Numéro de téléphone']      = tel;
+  if (desc)      fields['Description des services'] = desc;
+  if (tiktok)    fields['Lien TikTok']              = tiktok;
+  if (tarifMin)  fields['Tarif minimum FCFA']       = parseInt(tarifMin);
+  if (tarifMax)  fields['Tarif maximum FCFA']       = parseInt(tarifMax);
+  if (metier)    fields['Métier principal']         = metier;
+  if (quartier)  fields['Quartier']                 = quartier;
+
+  // Statut socio-économique : sauvé pour TOUS les métiers (apprenti / patron / indépendant / etc.)
+  const editStatut = document.getElementById('edit-statut-artisan')?.value || '';
+  if (editStatut !== '') {
+    fields['Statut Artisan'] = editStatut || null;
+    // Si on vient de passer en apprenti(e), on remet à zéro le dismiss du bandeau
+    const W = window.WozaliMetierStatuts;
+    if (W && W.isApprentiStatut(editStatut)) {
+      try { localStorage.removeItem(`wozali_apprentie_banner_dismissed_${currentPrestataire.id}`); } catch(e){}
+    }
+  }
+  // Diplômes (Talents Digitaux)
+  const diplomes = document.getElementById('edit-diplomes')?.value.trim();
+  fields['Diplomes'] = diplomes || '';
+  // Champs maintenant créés dans Airtable
+  fields['Lien Instagram']  = instagram || '';
+  fields['Langues parlées'] = langues   || null; // null → TEXT[] Supabase accepte, '' → malformed array literal
+
+  try {
+    const updated = await window.supaPrest.update(currentPrestataire.id, fields);
+    currentPrestataire = updated;
+    window.currentPrestataire = updated;
+    updateNavAuth(true);
+    toast('✅ Profil mis à jour !', 'success');
+  } catch (e) {
+    console.error('saveProfile:', e);
+    toast('Erreur sauvegarde : ' + (e.message || 'Réessaie'), 'error');
+  }
+
+  btn.textContent = '💾 Sauvegarder les modifications';
+  btn.disabled = false;
+}
+
+/* ── Helpers extras (Instagram, Langues) stockés en localStorage ── */
+function _extrasKey() {
+  return 'wozali_extras_' + (currentPrestataire?.id || 'anon');
+}
+function getProfileExtras() {
+  try { return JSON.parse(localStorage.getItem(_extrasKey()) || '{}'); } catch { return {}; }
+}
+function saveProfileExtras(obj) {
+  localStorage.setItem(_extrasKey(), JSON.stringify(obj));
+}
+
+// ══ LOCALISATION DASHBOARD ══
+let _dashLocMap = null, _dashLocMarker = null;
+
+function setLocMode(mode) {
+  ['off','pin','live'].forEach(m => {
+    const lbl = document.getElementById(`loc-mode-${m}-label`);
+    if (lbl) {
+      lbl.style.border = m === mode ? '2px solid var(--vert)' : '1.5px solid #e5e7eb';
+      lbl.style.background = m === mode ? 'rgba(232,148,10,0.06)' : '';
+    }
+  });
+  const pinArea = document.getElementById('dash-loc-pin-area');
+  const liveArea = document.getElementById('dash-loc-live-area');
+  if (pinArea) pinArea.style.display = mode === 'pin' ? 'block' : 'none';
+  if (liveArea) liveArea.style.display = mode === 'live' ? 'block' : 'none';
+  if (mode === 'pin') setTimeout(initDashPinMap, 150);
+  if (mode === 'off' && currentPrestataire) {
+    // Pas de champ Airtable pour la visibilité — on stocke uniquement en localStorage
+    localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'off');
+  }
+}
+
+function initDashPinMap() {
+  const container = document.getElementById('dash-map-pin');
+  if (!container || typeof L === 'undefined') return;
+  if (_dashLocMap) { _dashLocMap.invalidateSize(); return; }
+  const lat = parseFloat(currentPrestataire?.fields?.['Latitude']) || 6.1375;
+  const lon = parseFloat(currentPrestataire?.fields?.['Longitude']) || 1.2123;
+  _dashLocMap = L.map('dash-map-pin', { zoomControl: true }).setView([lat, lon], 15);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '© <a href="https://carto.com/">CARTO</a>' }).addTo(_dashLocMap);
+  _dashLocMarker = L.marker([lat, lon], { draggable: true }).addTo(_dashLocMap)
+    .bindPopup('📍 Glisse pour positionner ton commerce').openPopup();
+  _dashLocMarker.on('dragend', e => {
+    const p = e.target.getLatLng();
+    document.getElementById('dash-lat').value = p.lat.toFixed(6);
+    document.getElementById('dash-lon').value = p.lng.toFixed(6);
+    document.getElementById('dash-gps-status').textContent = `📍 ${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`;
+  });
+  document.getElementById('dash-lat').value = lat.toFixed(6);
+  document.getElementById('dash-lon').value = lon.toFixed(6);
+  const hasPos = currentPrestataire?.fields?.['Latitude'] && currentPrestataire?.fields?.['Longitude'];
+  if (hasPos) document.getElementById('dash-gps-status').textContent = '✅ Position actuelle chargée';
+}
+
+function dashDetectGPS() {
+  const status = document.getElementById('dash-gps-status');
+  const btn = document.getElementById('dash-detect-gps-btn');
+  if (!navigator.geolocation) { if (status) status.textContent = '❌ GPS non supporté'; return; }
+  if (status) status.textContent = '⏳ Détection en cours...';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Détection...'; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    document.getElementById('dash-lat').value = lat.toFixed(6);
+    document.getElementById('dash-lon').value = lon.toFixed(6);
+    if (status) status.textContent = `📍 Position détectée : ${lat.toFixed(4)}, ${lon.toFixed(4)} — confirme et enregistre ci-dessous`;
+    if (btn) { btn.disabled = false; btn.textContent = '📍 Utiliser ma position actuelle'; }
+    if (_dashLocMap && _dashLocMarker) {
+      _dashLocMap.setView([lat, lon], 17); _dashLocMarker.setLatLng([lat, lon]);
+    } else {
+      initDashPinMap();
+      setTimeout(() => {
+        if (_dashLocMap) _dashLocMap.setView([lat, lon], 17);
+        if (_dashLocMarker) _dashLocMarker.setLatLng([lat, lon]);
+      }, 400);
+    }
+  }, err => {
+    if (btn) { btn.disabled = false; btn.textContent = '📍 Utiliser ma position actuelle'; }
+    const msg = err.code === 1 ? 'Autorise la localisation dans ton navigateur' : 'GPS indisponible';
+    if (status) status.textContent = `❌ ${msg}`;
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+async function saveDashLocation() {
+  const latRaw = document.getElementById('dash-lat')?.value;
+  const lonRaw = document.getElementById('dash-lon')?.value;
+  const lat = parseFloat(latRaw);
+  const lon = parseFloat(lonRaw);
+  if (latRaw === '' || lonRaw === '' || isNaN(lat) || isNaN(lon)) {
+    toast('Utilise ta position GPS ou glisse le marqueur sur la carte', 'error'); return;
+  }
+  if (!currentPrestataire) return;
+  const btn = document.querySelector('#dash-loc-pin-area button[onclick*="saveDashLocation"]');
+  if (btn) { btn.textContent = '⏳ Enregistrement...'; btn.disabled = true; }
+  try {
+    await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+    currentPrestataire.fields['Latitude'] = lat;
+    currentPrestataire.fields['Longitude'] = lon;
+    localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'pin');
+    const status = document.getElementById('dash-gps-status');
+    if (status) status.textContent = `✅ Position enregistrée (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+    toast('📍 Position enregistrée ! Visible sur ton profil.', 'success');
+  } catch(e) { toast('Erreur réseau : ' + e.message, 'error'); }
+  finally { if (btn) { btn.textContent = '💾 Confirmer et enregistrer cette position'; btn.disabled = false; } }
+}
+
+async function saveDashLiveMode() {
+  if (!currentPrestataire) return;
+  const status = document.getElementById('dash-live-status');
+  const btn = document.querySelector('#dash-loc-live-area button[onclick*="saveDashLiveMode"]');
+  if (!navigator.geolocation) { toast('GPS non disponible sur cet appareil', 'error'); return; }
+  if (status) status.textContent = '⏳ Récupération GPS...';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Récupération...'; }
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    try {
+      await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+      currentPrestataire.fields['Latitude'] = lat;
+      currentPrestataire.fields['Longitude'] = lon;
+      localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
+      if (status) status.textContent = `✅ Position mise à jour — ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+      toast('📡 Position GPS mise à jour avec succès !', 'success');
+    } catch(e2) {
+      if (status) status.textContent = '❌ Erreur réseau';
+      toast('Erreur : ' + e2.message, 'error');
+    }
+    if (btn) { btn.disabled = false; btn.textContent = '📡 Mettre à jour ma position maintenant'; }
+  }, err => {
+    const msg = err.code === 1 ? 'Autorise la localisation dans ton navigateur' : 'GPS indisponible';
+    if (status) status.textContent = `❌ ${msg}`;
+    if (btn) { btn.disabled = false; btn.textContent = '📡 Mettre à jour ma position maintenant'; }
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+async function wizardActiverGPS() {
+  if (!currentPrestataire) { toast('Connecte-toi d\'abord', 'error'); return; }
+  if (!navigator.geolocation) { toast('GPS non disponible sur cet appareil', 'error'); return; }
+  const btn = document.querySelector('[onclick*="wizardActiverGPS"]');
+  if (btn) { btn.textContent = '⏳ Localisation...'; btn.disabled = true; }
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    try {
+      await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+      currentPrestataire.fields['Latitude'] = lat;
+      currentPrestataire.fields['Longitude'] = lon;
+      localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
+      toast('📍 Position enregistrée ! Tu es visible sur la carte.', 'success');
+      if (typeof renderWizardPremierPas === 'function') renderWizardPremierPas();
+    } catch(e) {
+      toast('Erreur réseau : ' + e.message, 'error');
+    }
+    if (btn) { btn.textContent = 'Activer ma position'; btn.disabled = false; }
+  }, err => {
+    const msg = err.code === 1 ? 'Autorise le GPS dans ton navigateur' : 'GPS indisponible';
+    toast('❌ ' + msg, 'error');
+    if (btn) { btn.textContent = 'Activer ma position'; btn.disabled = false; }
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+function loadDashLocation() {
+  if (!currentPrestataire) return;
+  // Visibilité gérée uniquement en localStorage (pas de champ Airtable dédié)
+  const hasCoords = currentPrestataire.fields?.['Latitude'] && currentPrestataire.fields?.['Longitude'];
+  const savedMode = localStorage.getItem(`wozali_locmode_${currentPrestataire.id}`);
+  let mode = hasCoords ? (savedMode || 'pin') : (savedMode === 'live' ? 'live' : 'off');
+  if (savedMode === 'off') mode = 'off';
+  const radio = document.getElementById(`loc-mode-${mode}`);
+  if (radio) radio.checked = true;
+  setLocMode(mode);
+}
+
+// Compat backward
+function toggleLocationVisibility(checked) { setLocMode(checked ? 'pin' : 'off'); }
+function loadLocationToggle() { loadDashLocation(); }
+
+// Mini map profil public
+let _profileMiniMaps = {};
+function initProfileMiniMap(lat, lon, containerId) {
+  if (_profileMiniMaps[containerId]) { try { _profileMiniMaps[containerId].remove(); } catch(e){} delete _profileMiniMaps[containerId]; }
+  const container = document.getElementById(containerId);
+  if (!container || typeof L === 'undefined') return;
+  container.innerHTML = '';
+  const map = L.map(containerId, { zoomControl:false, dragging:false, scrollWheelZoom:false, attributionControl:false, touchZoom:false, doubleClickZoom:false, keyboard:false }).setView([lat, lon], 15);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+  const icon = L.divIcon({ html:'<div style="background:var(--vert);width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>', iconSize:[22,22], iconAnchor:[11,22], className:'' });
+  L.marker([lat, lon], { icon }).addTo(map);
+  _profileMiniMaps[containerId] = map;
+}
+
+// ══ PHOTOS DASHBOARD ══
+function loadDashPhotos() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+
+  // Profile photo
+  const previewEl = document.getElementById('edit-photo-preview');
+  const photoUrl = f['Photo de profil'] || f['WhatsApp'];
+  if (photoUrl) {
+    previewEl.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
+    // Afficher le bouton ✂️ Recadrer
+    const btnR = document.getElementById('btn-recadrer-label');
+    const btnRIcon = document.getElementById('btn-recadrer-profil');
+    if (btnR)    { btnR.style.display    = 'inline-flex'; }
+    if (btnRIcon){ btnRIcon.style.display = 'flex'; }
+  } else {
+    const nom = f['Nom complet'] || 'P';
+    previewEl.textContent = nom.charAt(0).toUpperCase();
+  }
+
+  // Réalisations grid
+  renderRealisationsGrid();
+  // Albums personnalisés
+  renderAlbumsSection();
+}
+
+function renderRealisationsGrid() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const slots = [
+    { slot: 1, field: 'Photo Réalisation 1' },
+    { slot: 2, field: 'Photo Réalisation 2' },
+    { slot: 3, field: 'Photo Réalisation 3' },
+  ];
+  const grid = document.getElementById('real-grid');
+  if (!grid) return;
+
+  let filled = 0;
+  grid.innerHTML = slots.map(({ slot, field }) => {
+    const url = f[field];
+    if (url) filled++;
+    return url
+      ? `<div id="real-slot-${slot}" style="position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;background:#f5f5f5;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+           <img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
+           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 50%);opacity:0;transition:opacity 0.2s;" class="real-overlay" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0"></div>
+           <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:4px;padding:6px;justify-content:center;">
+             <button onclick="document.getElementById('real-input-${slot}').click()" title="Remplacer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#333;box-shadow:0 1px 4px rgba(0,0,0,0.2);">✏️</button>
+             <button onclick="recadrerRealisationPhoto(${slot})" title="Recadrer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#555;box-shadow:0 1px 4px rgba(0,0,0,0.2);">✂️</button>
+             <button onclick="deleteRealisationPhoto(${slot})" title="Supprimer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#dc2626;box-shadow:0 1px 4px rgba(0,0,0,0.2);">🗑️</button>
+           </div>
+           <div style="position:absolute;top:8px;left:8px;background:rgba(232,148,10,0.85);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">Photo ${slot}</div>
+         </div>`
+      : `<div id="real-slot-${slot}" onclick="document.getElementById('real-input-${slot}').click()" style="border-radius:14px;aspect-ratio:1;background:#1E180E;border:2px dashed rgba(232,148,10,0.35);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;gap:6px;" onmouseover="this.style.background='#251d11';this.style.borderColor='#E8940A'" onmouseout="this.style.background='#1E180E';this.style.borderColor='rgba(232,148,10,0.35)'">
+             <div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;">➕</div>
+             <span style="font-size:11px;font-weight:600;color:#E8940A;">Photo ${slot}</span>
+             <span style="font-size:10px;color:var(--gris);">Ajouter</span>
+           </div>`;
+  }).join('');
+
+  // Counter + progress
+  const counter = document.getElementById('real-counter');
+  const bar = document.getElementById('real-progress-bar');
+  if (counter) counter.textContent = `${filled} / 3`;
+  if (bar) bar.style.width = `${Math.round((filled / 3) * 100)}%`;
+}
+
+function uploadNewPhoto() {
+  const file = document.getElementById('edit-photo-input').files[0];
+  if (!file || !currentPrestataire) return;
+  // Ouvrir le cropper avant l'upload
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget   = null;
+    _cropAspect   = 1; // carré pour photo de profil
+    _cropCallback = async (croppedBlob, croppedDataUrl) => {
+      await _doUploadProfilCrop(croppedBlob, croppedDataUrl);
+    };
+    _openCropModal(e.target.result, 1);
+  };
+  reader.readAsDataURL(file);
+  // Reset input pour pouvoir re-sélectionner le même fichier
+  document.getElementById('edit-photo-input').value = '';
+}
+
+async function _doUploadProfilCrop(blob, dataUrl) {
+  const statusEl = document.getElementById('photo-upload-status');
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--gris)';
+  statusEl.textContent = '⏳ Upload en cours...';
+  // Mise à jour de l'aperçu immédiatement
+  const previewEl = document.getElementById('edit-photo-preview');
+  if (previewEl) previewEl.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
+
+  const croppedFile = new File([blob], 'photo-profil.jpg', { type: 'image/jpeg' });
+  const url = await uploadToImgBB(croppedFile);
+  if (url) {
+    let savedOk = false;
+    try {
+      await window.supaPrest.updateField(currentPrestataire.id, 'Photo de profil', url);
+      savedOk = true;
+    } catch (e) { console.error('photo profil save:', e); }
+    if (savedOk) {
+      currentPrestataire.fields['Photo de profil'] = url;
+      // Invalider le cache profil pour que la prochaine visite soit toujours fraîche
+      if (window._profilCache) delete window._profilCache[currentPrestataire.id];
+      document.getElementById('btn-recadrer-label')?.style && (document.getElementById('btn-recadrer-label').style.display = 'inline-flex');
+      statusEl.style.color = 'var(--vert)';
+      statusEl.textContent = '✅ Photo mise à jour !';
+      toast('Photo de profil mise à jour !', 'success');
+      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    } else {
+      statusEl.style.color = '#dc2626';
+      statusEl.textContent = '❌ Erreur sauvegarde. Réessaie.';
+    }
+  } else {
+    statusEl.style.color = '#dc2626';
+    statusEl.textContent = '❌ Échec de l\'upload. Réessaie.';
+  }
+}
+
+function uploadRealisationPhoto(slot) {
+  const file = document.getElementById(`real-input-${slot}`)?.files[0];
+  if (!file || !currentPrestataire) return;
+  // Ouvrir le cropper avant l'upload (ratio libre pour réalisations)
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget   = null;
+    _cropAspect   = 1; // carré pour cohérence de la grille
+    _cropCallback = async (blob) => {
+      await _doUploadRealisationCrop(slot, blob);
+    };
+    _openCropModal(e.target.result, 1);
+  };
+  reader.readAsDataURL(file);
+  document.getElementById(`real-input-${slot}`).value = '';
+}
+
+async function _doUploadRealisationCrop(slot, blob) {
+  const statusEl = document.getElementById('real-upload-status');
+  statusEl.style.display = 'block';
+  statusEl.style.color = 'var(--gris)';
+  statusEl.textContent = `⏳ Upload photo ${slot} en cours...`;
+  const slotEl = document.getElementById(`real-slot-${slot}`);
+  if (slotEl) slotEl.style.opacity = '0.5';
+
+  const croppedFile = new File([blob], `realisation-${slot}.jpg`, { type: 'image/jpeg' });
+  const url = await uploadToImgBB(croppedFile);
+  if (url) {
+    const fieldName = `Photo Réalisation ${slot}`;
+    let savedOk = false;
+    try {
+      await window.supaPrest.updateField(currentPrestataire.id, fieldName, url);
+      savedOk = true;
+    } catch (e) { console.error('realisation save:', e); }
+    if (savedOk) {
+      currentPrestataire.fields[fieldName] = url;
+      // Invalider le cache profil pour affichage immédiat sur le profil public
+      if (window._profilCache) delete window._profilCache[currentPrestataire.id];
+      renderRealisationsGrid();
+      statusEl.style.color = 'var(--vert)';
+      statusEl.textContent = `✅ Photo ${slot} ajoutée !`;
+      toast(`Photo de réalisation ${slot} mise à jour !`, 'success');
+      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    } else {
+      if (slotEl) slotEl.style.opacity = '1';
+      statusEl.style.color = '#dc2626';
+      statusEl.textContent = '❌ Erreur sauvegarde. Réessaie.';
+    }
+  } else {
+    if (slotEl) slotEl.style.opacity = '1';
+    statusEl.style.color = '#dc2626';
+    statusEl.textContent = '❌ Échec de l\'upload. Réessaie.';
+  }
+}
+
+async function deleteRealisationPhoto(slot) {
+  if (!currentPrestataire) return;
+  if (!confirm(`Supprimer la photo de réalisation ${slot} ?`)) return;
+  const fieldName = `Photo Réalisation ${slot}`;
+  const slotEl = document.getElementById(`real-slot-${slot}`);
+  if (slotEl) slotEl.style.opacity = '0.4';
+
+  let deletedOk = false;
+  try {
+    await window.supaPrest.updateField(currentPrestataire.id, fieldName, null);
+    deletedOk = true;
+  } catch (e) { console.error('realisation delete:', e); }
+
+  if (deletedOk) {
+    currentPrestataire.fields[fieldName] = null;
+    renderRealisationsGrid();
+    toast(`Photo ${slot} supprimée.`, 'success');
+  } else {
+    if (slotEl) slotEl.style.opacity = '1';
+    toast('Erreur lors de la suppression.', 'error');
+  }
+}
+
+// ══ RECADRAGE RÉALISATION ══
+function recadrerRealisationPhoto(slot) {
+  const fieldName = `Photo Réalisation ${slot}`;
+  const currentUrl = currentPrestataire?.fields[fieldName];
+  if (!currentUrl) return;
+  fetch(currentUrl)
+    .then(r => r.blob())
+    .then(blob => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        _cropTarget = null;
+        _cropAspect = 1;
+        _cropCallback = async (croppedBlob) => {
+          await _doUploadRealisationCrop(slot, croppedBlob);
+        };
+        _openCropModal(e.target.result, 1);
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(() => toast('Impossible de charger la photo pour recadrage.', 'error'));
+}
+
+// ══ ALBUMS PERSONNALISÉS ══
+function _getAlbums() {
+  try {
+    const raw = currentPrestataire?.fields['Albums'] || '[]';
+    return JSON.parse(raw);
+  } catch(e) { return []; }
+}
+
+async function _saveAlbums(albums) {
+  const albumsStr = JSON.stringify(albums);
+  try {
+    await window.supaPrest.updateField(currentPrestataire.id, 'Albums', albumsStr);
+    currentPrestataire.fields['Albums'] = albumsStr;
+    return true;
+  } catch(e) {
+    console.error('_saveAlbums:', e);
+    return false;
+  }
+}
+
+function renderAlbumsSection() {
+  const grid = document.getElementById('albums-grid');
+  if (!grid) return;
+  const allAlbums = _getAlbums();
+  // Albums normaux (excluire les albums systèmes)
+  const albums = allAlbums.filter(a => a.id !== '__libres__' && a.id !== '__publications__');
+  // Album Publications
+  const pubItems = _getPublicationsItems();
+
+  // Input caché partagé pour ajout rapide depuis la carte
+  let sharedInp = document.getElementById('album-quick-add-input');
+  if (!sharedInp) {
+    sharedInp = document.createElement('input');
+    sharedInp.type = 'file'; sharedInp.accept = 'image/*';
+    sharedInp.id = 'album-quick-add-input'; sharedInp.style.display = 'none';
+    sharedInp.onchange = () => handleAlbumPhotoFile(window._quickAddAlbumId);
+    document.body.appendChild(sharedInp);
+  }
+
+  // Carte album Publications (auto-géré)
+  let pubCard = '';
+  if (pubItems.length > 0) {
+    const cover = pubItems[0];
+    const isVidCover = cover?.type === 'video';
+    const coverHtml = cover
+      ? (isVidCover
+          ? `<video src="${cover.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+             <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(0,0,0,0.2);">▶</div>`
+          : `<img src="${cover.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`)
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:0.2;">📱</div>`;
+    pubCard = `
+    <div style="border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid rgba(99,102,241,0.3);transition:transform 0.15s,box-shadow 0.15s;"
+         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(99,102,241,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div onclick="openPublicationsAlbum()" style="cursor:pointer;">
+        <div style="aspect-ratio:1;overflow:hidden;position:relative;background:#1e1b4b;">${coverHtml}</div>
+        <div style="padding:8px 12px 10px;">
+          <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:white;">📱 Publications</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${pubItems.length} média${pubItems.length !== 1 ? 's' : ''} · Auto-géré</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (albums.length === 0 && pubItems.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 20px;color:var(--gris);">
+      <div style="font-size:36px;margin-bottom:10px;">🗂️</div>
+      <p style="font-size:14px;margin:0;">Aucun album.<br>Crée ton premier album !</p>
+    </div>`;
+    renderLibresSection();
+    return;
+  }
+
+  grid.innerHTML = pubCard + albums.map(alb => {
+    const cover = alb.photos?.[0] || '';
+    const count = (alb.photos||[]).length;
+    return `<div style="border-radius:14px;overflow:hidden;background:#f8f8f8;border:1px solid #f0f0f0;position:relative;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div onclick="openAlbumManager('${alb.id}')" style="cursor:pointer;">
+        <div style="aspect-ratio:1;overflow:hidden;position:relative;background:#eee;">
+          ${cover ? `<img src="${cover}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:0.2;">📷</div>`}
+        </div>
+        <div style="padding:8px 12px 4px;">
+          <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${alb.nom}</div>
+          <div style="font-size:11px;color:var(--gris);margin-top:2px;">${count} photo${count !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+      <button onclick="event.stopPropagation();window._quickAddAlbumId='${alb.id}';document.getElementById('album-quick-add-input').value='';document.getElementById('album-quick-add-input').click()"
+        title="Ajouter une photo dans cet album"
+        style="width:100%;padding:6px 0 8px;border:none;background:rgba(232,148,10,0.07);color:var(--vert);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
+        ➕ Ajouter une photo
+      </button>
+    </div>`;
+  }).join('');
+  renderLibresSection();
+}
+
+// Ouvre l'album Publications depuis le dashboard (viewer = owner)
+function openPublicationsAlbum() {
+  if (currentPrestataire) showPublicationsAlbumPage(currentPrestataire);
+}
+
+function showPublicationsAlbumPage(record) {
+  const f = record.fields;
+  const nom = f['Nom complet'] || '';
+  const customAlbums = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch { return []; } })();
+  const pub = customAlbums.find(a => a.id === '__publications__');
+  const items = pub ? pub.items || [] : [];
+  if (items.length === 0) { toast('Aucun média publié pour l\'instant', 'info'); return; }
+
+  const pageId = 'pub-album-page-' + record.id;
+  document.getElementById(pageId)?.remove();
+
+  const lbKey = '_pub_items_' + record.id;
+  window[lbKey] = items.map(it => ({ url: it.url, type: it.type }));
+
+  const page = document.createElement('div');
+  page.id = pageId;
+  page.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;z-index:9999;overflow-y:auto;';
+
+  const itemsHtml = items.map((it, idx) => {
+    const isVid = it.type === 'video';
+    const d = it.date ? new Date(it.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) : '';
+    return `<div data-pubidx="${idx}" style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1a1a1a;position:relative;cursor:pointer;">
+      ${isVid
+        ? `<video src="${it.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);font-size:28px;pointer-events:none;">▶</div>`
+        : `<img src="${it.url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">`
+      }
+      ${d ? `<div style="position:absolute;bottom:6px;left:8px;font-size:10px;color:rgba(255,255,255,0.55);background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:6px;pointer-events:none;">${d}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  page.innerHTML = `
+    <div style="position:sticky;top:0;z-index:10;background:linear-gradient(to bottom,#0a0a0a 85%,transparent);padding:env(safe-area-inset-top,0px) 0 0;">
+      <div style="max-width:700px;margin:0 auto;padding:16px 16px 8px;display:flex;align-items:center;gap:12px;">
+        <button onclick="document.getElementById('${pageId}').remove()"
+          style="background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+        <div style="flex:1;">
+          <div style="color:white;font-weight:800;font-size:17px;">📱 Publications</div>
+          <div style="color:rgba(255,255,255,0.4);font-size:12px;">${items.length} média${items.length !== 1 ? 's' : ''} · ordre chronologique inverse</div>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:8px 16px 40px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">${itemsHtml}</div>
+    </div>`;
+
+  page.addEventListener('click', e => {
+    const el = e.target.closest('[data-pubidx]');
+    if (!el) return;
+    openLightboxSwipe(window[lbKey], parseInt(el.dataset.pubidx) || 0);
+  });
+
+  document.body.appendChild(page);
+}
+
+// ── Photos libres (standalone, sans album) ──────────────────────────
+function _getLibrePhotos() {
+  // Stockées dans un album spécial __libres__ dans le même champ Albums
+  const albums = _getAlbums();
+  const lib = albums.find(a => a.id === '__libres__');
+  return lib ? lib.photos || [] : [];
+}
+
+async function _saveLibrePhotos(photos) {
+  let albums = _getAlbums();
+  const idx = albums.findIndex(a => a.id === '__libres__');
+  if (idx >= 0) albums[idx].photos = photos;
+  else albums.push({ id: '__libres__', nom: '__libres__', photos });
+  return _saveAlbums(albums);
+}
+
+// ── Album Publications auto (médias postés) ──────────────────────────
+function _getPublicationsItems() {
+  const albums = _getAlbums();
+  const pub = albums.find(a => a.id === '__publications__');
+  return pub ? pub.items || [] : [];
+}
+
+async function _addToPublicationsAlbum(url, type, postId) {
+  let albums = _getAlbums();
+  const newItem = { url, type, date: new Date().toISOString(), postId };
+  const idx = albums.findIndex(a => a.id === '__publications__');
+  if (idx >= 0) {
+    if (!albums[idx].items) albums[idx].items = [];
+    albums[idx].items.unshift(newItem);
+  } else {
+    albums.push({ id: '__publications__', nom: 'Publications', items: [newItem] });
+  }
+  return _saveAlbums(albums);
+}
+
+// ── Upload vidéo vers Supabase Storage ──────────────────────────────
+async function uploadMediaToSupabase(file) {
+  const ext = file.name.split('.').pop().toLowerCase() || (file.type.includes('video') ? 'mp4' : 'jpg');
+  const path = `posts/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { data: sessionData } = await supa.auth.getSession();
+  const token = sessionData?.session?.access_token || SUPA_KEY;
+  const res = await fetch(`${SUPA_URL}/storage/v1/object/wolo-medias/${path}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': file.type, 'x-upsert': 'false' },
+    body: file
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Upload échoué (${res.status})`);
+  }
+  return `${SUPA_URL}/storage/v1/object/public/wolo-medias/${path}`;
+}
+
+function renderLibresSection() {
+  const grid = document.getElementById('libres-grid');
+  if (!grid) return;
+  const photos = _getLibrePhotos();
+  if (photos.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:28px 20px;color:var(--gris);">
+      <div style="font-size:32px;margin-bottom:8px;">🖼️</div>
+      <p style="font-size:13px;margin:0;">Aucune photo libre.<br>Ajoute ta première photo ici !</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = photos.map((url, idx) => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;background:#f0f0f0;">
+      <img src="${url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:4px;padding:6px;background:linear-gradient(transparent,rgba(0,0,0,0.5));justify-content:flex-end;">
+        <button onclick="deleteLibrePhoto(${idx})" title="Supprimer"
+          style="background:rgba(255,255,255,0.9);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;color:#dc2626;font-weight:700;">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function addLibrePhoto() {
+  document.getElementById('libre-file-input').value = '';
+  document.getElementById('libre-file-input').click();
+}
+
+function handleLibrePhotoFile() {
+  const inp = document.getElementById('libre-file-input');
+  const file = inp?.files?.[0];
+  if (!file) return;
+  inp.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget = null;
+    _cropAspect = NaN; // libre ratio
+    _cropCallback = async (blob) => {
+      const statusEl = document.createElement('div');
+      toast('Upload en cours...', 'info');
+      const url = await uploadToImgBB(blob instanceof Blob ? blob : await fetch(blob).then(r=>r.blob()));
+      if (!url) { toast('Erreur upload', 'error'); return; }
+      const photos = _getLibrePhotos();
+      photos.push(url);
+      const ok = await _saveLibrePhotos(photos);
+      if (ok) { renderLibresSection(); toast('Photo ajoutée !', 'success'); }
+      else toast('La sauvegarde a calé. Tente encore.', 'error');
+    };
+    _openCropModal(e.target.result, NaN);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteLibrePhoto(idx) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  const photos = _getLibrePhotos();
+  photos.splice(idx, 1);
+  const ok = await _saveLibrePhotos(photos);
+  if (ok) { renderLibresSection(); toast('Photo supprimée', 'info'); }
+  else toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+}
+
+async function createAlbum() {
+  const nom = prompt('Nom du nouvel album :');
+  if (!nom?.trim()) return;
+  const albums = _getAlbums();
+  const newAlbum = { id: 'alb_' + Date.now(), nom: nom.trim(), photos: [] };
+  albums.push(newAlbum);
+  const ok = await _saveAlbums(albums);
+  if (ok) {
+    renderAlbumsSection();
+    toast(`Album "${nom.trim()}" créé !`, 'success');
+    openAlbumManager(newAlbum.id);
+  } else {
+    toast('Erreur lors de la création.', 'error');
+  }
+}
+
+function openAlbumManager(albumId) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  const pageId = 'album-mgr-' + albumId;
+  const old = document.getElementById(pageId);
+  if (old) old.remove();
+  const page = document.createElement('div');
+  page.id = pageId;
+  page.style.cssText = 'position:fixed;inset:0;background:#14100A;z-index:10000;overflow-y:auto;color:#FCE0A8;';
+  page.innerHTML = `
+    <div style="position:sticky;top:0;z-index:10;background:#14100A;border-bottom:1px solid rgba(232,148,10,0.1);padding:env(safe-area-inset-top,0) 0 0;">
+      <div style="max-width:700px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:10px;">
+        <button onclick="document.getElementById('${pageId}').remove();renderAlbumsSection();"
+          style="background:rgba(255,255,255,0.06);border:none;color:#FCE0A8;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+        <div style="flex:1;min-width:0;">
+          <h2 id="album-mgr-title-${albumId}" style="font-size:17px;font-weight:800;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FCE0A8;">${alb.nom}</h2>
+          <div style="font-size:12px;color:rgba(252, 224, 168,0.5);" id="album-mgr-count-${albumId}">${(alb.photos||[]).length} photo${(alb.photos||[]).length!==1?'s':''}</div>
+        </div>
+        <button onclick="renameAlbum('${albumId}')" style="background:rgba(255,255,255,0.06);border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;color:#FCE0A8;">✏️ Renommer</button>
+        <button onclick="deleteAlbum('${albumId}')" style="background:rgba(220,38,38,0.15);border:none;padding:7px 12px;border-radius:100px;font-size:12px;font-weight:600;color:#f87171;cursor:pointer;">🗑️</button>
+      </div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:20px 16px;">
+      <div id="album-photos-grid-${albumId}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px;"></div>
+      <button onclick="document.getElementById('album-file-${albumId}').click()"
+        style="width:100%;padding:14px;border:2px dashed rgba(232,148,10,0.3);background:rgba(232,148,10,0.04);border-radius:14px;font-size:14px;font-weight:600;color:var(--vert);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        ➕ Ajouter une photo
+      </button>
+      <div id="album-upload-status-${albumId}" style="text-align:center;margin-top:10px;font-size:13px;display:none;"></div>
+    </div>
+    <input type="file" id="album-file-${albumId}" accept="image/*" style="display:none" onchange="handleAlbumPhotoFile('${albumId}')">
+  `;
+  document.body.appendChild(page);
+  _renderAlbumPhotosGrid(albumId);
+}
+
+function _renderAlbumPhotosGrid(albumId) {
+  const grid = document.getElementById(`album-photos-grid-${albumId}`);
+  if (!grid) return;
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  const photos = alb.photos || [];
+  const countEl = document.getElementById(`album-mgr-count-${albumId}`);
+  if (countEl) countEl.textContent = `${photos.length} photo${photos.length!==1?'s':''}`;
+  if (photos.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--gris);">
+      <div style="font-size:40px;margin-bottom:12px;">📷</div>
+      <p style="margin:0;">Aucune photo dans cet album</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = photos.map((url, idx) => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;background:#f0f0f0;">
+      <img src="${url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.3)'" onmouseout="this.style.background='rgba(0,0,0,0)'"></div>
+      <div style="position:absolute;bottom:6px;left:0;right:0;display:flex;gap:4px;padding:0 6px;justify-content:center;">
+        <button onclick="cropAlbumPhoto('${albumId}',${idx})" title="Recadrer"
+          style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#333;">✂️</button>
+        <button onclick="deletePhotoFromAlbum('${albumId}',${idx})" title="Supprimer"
+          style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#dc2626;">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function handleAlbumPhotoFile(albumId) {
+  const inp = document.getElementById(`album-file-${albumId}`);
+  const file = inp?.files?.[0];
+  if (!file) return;
+  inp.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget = null;
+    _cropAspect = 1;
+    _cropCallback = async (blob) => { await _doUploadAlbumPhoto(albumId, blob); };
+    _openCropModal(e.target.result, 1);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function _doUploadAlbumPhoto(albumId, blob) {
+  const statusEl = document.getElementById(`album-upload-status-${albumId}`);
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = 'var(--gris)'; statusEl.textContent = '⏳ Upload en cours...'; }
+  const file = new File([blob], `album-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+  const url = await uploadToImgBB(file);
+  if (!url) {
+    if (statusEl) { statusEl.style.color = '#dc2626'; statusEl.textContent = '❌ Échec de l\'upload'; }
+    return;
+  }
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  alb.photos = alb.photos || [];
+  alb.photos.push(url);
+  const ok = await _saveAlbums(albums);
+  if (ok) {
+    _renderAlbumPhotosGrid(albumId);
+    renderAlbumsSection();
+    if (statusEl) { statusEl.style.color = 'var(--vert)'; statusEl.textContent = '✅ Photo ajoutée !'; setTimeout(()=>{ statusEl.style.display='none'; }, 2500); }
+    toast('Photo ajoutée à l\'album !', 'success');
+  } else {
+    if (statusEl) { statusEl.style.color = '#dc2626'; statusEl.textContent = '❌ Erreur Airtable'; }
+  }
+}
+
+async function deletePhotoFromAlbum(albumId, photoIdx) {
+  if (!confirm('Supprimer cette photo de l\'album ?')) return;
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  alb.photos.splice(photoIdx, 1);
+  const ok = await _saveAlbums(albums);
+  if (ok) { _renderAlbumPhotosGrid(albumId); renderAlbumsSection(); toast('Photo supprimée.', 'success'); }
+  else toast('Erreur lors de la suppression.', 'error');
+}
+
+async function renameAlbum(albumId) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  const nom = prompt('Nouveau nom de l\'album :', alb.nom);
+  if (!nom?.trim() || nom.trim() === alb.nom) return;
+  alb.nom = nom.trim();
+  const ok = await _saveAlbums(albums);
+  if (ok) {
+    const titleEl = document.getElementById(`album-mgr-title-${albumId}`);
+    if (titleEl) titleEl.textContent = alb.nom;
+    renderAlbumsSection();
+    toast(`Album renommé en "${alb.nom}"`, 'success');
+  } else { toast('Erreur lors du renommage.', 'error'); }
+}
+
+async function deleteAlbum(albumId) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb) return;
+  if (!confirm(`Supprimer l'album "${alb.nom}" et toutes ses photos ?`)) return;
+  const newAlbums = albums.filter(a => a.id !== albumId);
+  const ok = await _saveAlbums(newAlbums);
+  if (ok) {
+    document.getElementById('album-mgr-' + albumId)?.remove();
+    renderAlbumsSection();
+    toast(`Album "${alb.nom}" supprimé.`, 'success');
+  } else { toast('Erreur lors de la suppression.', 'error'); }
+}
+
+function cropAlbumPhoto(albumId, photoIdx) {
+  const albums = _getAlbums();
+  const alb = albums.find(a => a.id === albumId);
+  if (!alb || !alb.photos[photoIdx]) return;
+  fetch(alb.photos[photoIdx])
+    .then(r => r.blob())
+    .then(blob => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        _cropTarget = null;
+        _cropAspect = 1;
+        _cropCallback = async (croppedBlob) => {
+          const statusEl = document.getElementById(`album-upload-status-${albumId}`);
+          if (statusEl) { statusEl.style.display = 'block'; statusEl.style.color = 'var(--gris)'; statusEl.textContent = '⏳ Recadrage en cours...'; }
+          const file = new File([croppedBlob], `album-crop-${Date.now()}.jpg`, { type: 'image/jpeg' });
+          const newUrl = await uploadToImgBB(file);
+          if (newUrl) {
+            alb.photos[photoIdx] = newUrl;
+            const ok = await _saveAlbums(albums);
+            if (ok) {
+              _renderAlbumPhotosGrid(albumId);
+              if (statusEl) { statusEl.style.color = 'var(--vert)'; statusEl.textContent = '✅ Photo recadrée !'; setTimeout(()=>{ statusEl.style.display='none'; }, 2500); }
+              toast('Photo recadrée !', 'success');
+            }
+          }
+        };
+        _openCropModal(e.target.result, 1);
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(() => toast('Impossible de charger la photo pour recadrage.', 'error'));
+}
+
+// ══ AVIS DASHBOARD ══
+async function loadDashAvis() {
+  if (!currentPrestataire) return;
+  const container = document.getElementById('dash-avis-list');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+
+  const avis = await fetchAvis(currentPrestataire.id);
+
+  if (avis.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">⭐</div>
+      <h3>Pas encore d'avis</h3>
+      <p>Tes clients peuvent laisser un avis depuis ton profil public.</p>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = avis.map(a => {
+    const f = a.fields;
+    const note = f['Note globale sur 5'] || 0;
+    const rawComment = f['Commentaire'] || '';
+    const date = f['Date de l\'avis'] ? new Date(f['Date de l\'avis']).toLocaleDateString('fr-FR') : '';
+    // Extraire le nom depuis le préfixe [Nom]
+    const prefixMatch = rawComment.match(/^\[([^\]]+)\]\n?/);
+    const auteur = prefixMatch ? prefixMatch[1] : 'Client';
+    const comment = prefixMatch ? rawComment.slice(prefixMatch[0].length) : rawComment;
+    const initiale = auteur.charAt(0).toUpperCase();
+    const stars = '★'.repeat(note) + '☆'.repeat(5 - note);
+    return `<div id="dash-avis-${a.id}" style="background:white;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,0.06);border:1px solid #f0f0f0;transition:opacity 0.3s;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;flex-shrink:0;">${initiale}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <div>
+              <span style="font-weight:700;font-size:14px;color:var(--noir);">${auteur}</span>
+              ${date ? `<span style="font-size:12px;color:var(--gris);margin-left:8px;">${date}</span>` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="color:var(--or);font-size:14px;">${stars}</span>
+              <button onclick="deleteDashAvis('${a.id}')" title="Supprimer cet avis"
+                style="background:none;border:1px solid #fecaca;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;color:#dc2626;transition:all 0.2s;"
+                onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">🗑️</button>
+            </div>
+          </div>
+          ${comment ? `<p style="font-size:13px;color:var(--gris-fonce);line-height:1.6;margin-top:6px;margin-bottom:0;">${comment}</p>` : ''}
+          ${note >= 4 ? `<button onclick="generateStory('${a.id}',${note},'${auteur.replace(/'/g,"\\'")}','${comment.replace(/'/g,"\\'").replace(/\n/g,' ')}')" style="margin-top:10px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">⭐ Générer ma Story</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function deleteDashAvis(avisId) {
+  if (!confirm('Supprimer cet avis définitivement ?')) return;
+  const card = document.getElementById('dash-avis-' + avisId);
+  if (card) card.style.opacity = '0.4';
+  try {
+    const res = await wozaliFetch('/api/wozali-pay/avis-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ avis_id: avisId })
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      if (card) { card.style.transition = 'all 0.3s'; card.style.maxHeight = '0'; card.style.padding = '0'; card.style.marginBottom = '0'; card.style.overflow = 'hidden'; setTimeout(() => card.remove(), 350); }
+      toast('Avis supprimé.', 'success');
+    } else {
+      if (card) card.style.opacity = '1';
+      toast('Suppression bloquée. Réessaie.', 'error');
+    }
+  } catch { if (card) card.style.opacity = '1'; toast('Le réseau a tremblé. On retente.', 'error'); }
+}
+
+// ══ STORY RÉALISATION VÉRIFIÉE ══
+async function generateStory(avisId, note, auteur, commentaire) {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const nom = f['Nom complet'] || 'Prestataire';
+  const metier = f['Métier principal'] || '';
+  const ville = f['Ville'] || '';
+  const photoProfil = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['WhatsApp']) || '';
+  const photoReal = _wPhotoUrl(f['Photo Réalisation 1']);
+  const emoji = window.METIER_EMOJI?.[metier] || '⚡';
+
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Fond
+  ctx.fillStyle = '#14100A';
+  ctx.fillRect(0, 0, W, H);
+
+  // Helper: charger image
+  const loadImg = (src) => new Promise((ok, fail) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => ok(img); img.onerror = fail; img.src = src;
+  });
+
+  // Helper: texte centré avec retour à la ligne
+  const wrapText = (text, x, y, maxW, lineH, font, color, align) => {
+    ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align || 'center';
+    const words = text.split(' '); let line = '';
+    for (const w of words) {
+      const test = line + w + ' ';
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line.trim(), x, y); y += lineH; line = w + ' ';
+      } else { line = test; }
+    }
+    ctx.fillText(line.trim(), x, y);
+    return y + lineH;
+  };
+
+  // ── ZONE LOGO (15%) ──
+  const logoY = H * 0.06;
+  ctx.font = '900 48px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.fillText('W', W / 2, logoY);
+  // Ligne or
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(W * 0.2, logoY + 20); ctx.lineTo(W * 0.8, logoY + 20); ctx.stroke();
+  // MARKET
+  ctx.font = '700 10px "Geist Mono", monospace'; ctx.fillStyle = '#FCE0A8'; ctx.letterSpacing = '4px';
+  ctx.fillText('M  A  R  K  E  T', W / 2, logoY + 42);
+
+  // ── ZONE PHOTO (40%) ──
+  const photoTop = H * 0.15, photoH = H * 0.40;
+  try {
+    if (photoReal) {
+      const img = await loadImg(photoReal);
+      const ratio = img.width / img.height;
+      let dw = W, dh = photoH;
+      if (ratio > W / photoH) { dh = W / ratio; } else { dw = photoH * ratio; }
+      ctx.drawImage(img, (W - dw) / 2, photoTop, dw, dh);
+    } else {
+      ctx.fillStyle = '#1a1f1b'; ctx.fillRect(0, photoTop, W, photoH);
+      ctx.font = '80px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
+      ctx.fillText(emoji, W / 2, photoTop + photoH / 2 + 28);
+    }
+  } catch(e) {
+    ctx.fillStyle = '#1a1f1b'; ctx.fillRect(0, photoTop, W, photoH);
+    ctx.font = '80px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
+    ctx.fillText(emoji, W / 2, photoTop + photoH / 2 + 28);
+  }
+  // Overlay dégradé
+  const grad = ctx.createLinearGradient(0, photoTop + photoH * 0.5, 0, photoTop + photoH);
+  grad.addColorStop(0, 'transparent'); grad.addColorStop(1, 'rgba(15,20,16,0.85)');
+  ctx.fillStyle = grad; ctx.fillRect(0, photoTop + photoH * 0.5, W, photoH * 0.5);
+
+  // ── ZONE NOTE (10%) ──
+  const noteY = photoTop + photoH + H * 0.04;
+  const starStr = '★'.repeat(note) + '☆'.repeat(5 - note);
+  ctx.font = '32px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(starStr, W / 2, noteY);
+
+  // ── ZONE IDENTITÉ (15%) ──
+  const idY = noteY + H * 0.04;
+  // Fond encadré
+  const idBoxX = W * 0.08, idBoxW = W * 0.84, idBoxH = H * 0.12;
+  ctx.fillStyle = 'rgba(232,148,10,0.1)'; ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1.5;
+  const rr = 16;
+  ctx.beginPath(); ctx.roundRect(idBoxX, idY, idBoxW, idBoxH, rr); ctx.fill(); ctx.stroke();
+  // Avatar
+  const avX = idBoxX + 30, avY = idY + idBoxH / 2 - 28, avS = 56;
+  try {
+    if (photoProfil) {
+      const avImg = await loadImg(photoProfil);
+      ctx.save(); ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.clip();
+      ctx.drawImage(avImg, avX, avY, avS, avS); ctx.restore();
+      ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.stroke();
+    } else {
+      ctx.fillStyle = '#E8940A';
+      ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
+      ctx.font = '900 24px "DM Serif Display", serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
+      ctx.fillText(nom.charAt(0).toUpperCase(), avX + avS / 2, avY + avS / 2 + 9);
+    }
+  } catch(e) {
+    ctx.fillStyle = '#E8940A';
+    ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '900 24px "DM Serif Display", serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
+    ctx.fillText(nom.charAt(0).toUpperCase(), avX + avS / 2, avY + avS / 2 + 9);
+  }
+  // Textes identité
+  const txX = avX + avS + 20;
+  ctx.textAlign = 'left';
+  ctx.font = '700 20px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(nom, txX, idY + idBoxH * 0.35);
+  ctx.font = '400 14px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(metier, txX, idY + idBoxH * 0.55);
+  ctx.font = '400 12px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252, 224, 168,0.5)';
+  ctx.fillText(ville, txX, idY + idBoxH * 0.72);
+
+  // ── ZONE COMMENTAIRE (12%) ──
+  const comY = idY + idBoxH + H * 0.03;
+  const truncComment = commentaire.length > 120 ? commentaire.slice(0, 117) + '...' : commentaire;
+  ctx.font = '700 22px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.fillText('\u201C', W / 2 - ctx.measureText(truncComment.slice(0, 20)).width / 2 - 16, comY);
+  let comEndY = wrapText(truncComment, W / 2, comY + 6, W * 0.76, 26, 'italic 16px Geist, sans-serif', '#FCE0A8', 'center');
+  ctx.font = '700 22px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('\u201D', W / 2 + 10, comEndY - 10);
+  ctx.font = '400 11px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.fillText('\u2014 Client v\u00e9rifi\u00e9 \u2705', W / 2, comEndY + 14);
+
+  // ── ZONE BAS (8%) ──
+  const footY = H * 0.92;
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W * 0.1, footY); ctx.lineTo(W * 0.9, footY); ctx.stroke();
+  ctx.font = '400 11px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252, 224, 168,0.6)'; ctx.textAlign = 'center';
+  ctx.fillText('D\u00e9couvre mon profil complet', W / 2, footY + 28);
+  ctx.font = '700 13px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('wozali.com', W / 2, footY + 50);
+
+  // ── Convertir et afficher modale ──
+  const dataUrl = canvas.toDataURL('image/png');
+  const slug = _buildProfilSlug(nom, metier, ville);
+  const profilUrl = `https://wozali.com/profil/${slug}`;
+  const prenom = nom.split(' ')[0] || nom;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const filename = `WOZALI-Story-${prenom}-${dateStr}.png`;
+
+  const waMsg = encodeURIComponent(`\u2B50 J'ai re\u00e7u un nouvel avis client sur WOZALI !\nD\u00e9couvre mon profil et mes r\u00e9alisations :\n\uD83D\uDC49 ${profilUrl}\n\uD83D\uDCF2 Rejoins WOZALI \u2014 cr\u00e9e ton profil gratuit.`);
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;';
+  overlay.innerHTML = `
+    <div style="background:#1a1f1b;border-radius:20px;max-width:400px;width:100%;overflow:hidden;border:1px solid rgba(232,148,10,0.3);">
+      <div style="padding:16px;text-align:center;">
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">\u2B50 Ta Story est pr\u00eate !</div>
+        <p style="font-size:13px;color:rgba(252, 224, 168,0.5);">Partage-la sur tes r\u00e9seaux pour attirer de nouveaux clients.</p>
+      </div>
+      <img src="${dataUrl}" style="width:100%;display:block;" alt="Story WOZALI" loading="lazy">
+      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+        <a href="${dataUrl}" download="${filename}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;">\u2B07\uFE0F T\u00e9l\u00e9charger ma Story</a>
+        <button onclick="window.open('https://wa.me/?text=${waMsg}','_blank')" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">\uD83D\uDCF1 Partager sur WhatsApp</button>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="background:transparent;color:rgba(252, 224, 168,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:10px;font-size:13px;cursor:pointer;">Fermer</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// ══ VOIR MON PROFIL PUBLIC ══
+function viewMyPublicProfil() {
+  viewMyProfile(); // délègue à la version async robuste
+}
+
+// ══ CHANGER MOT DE PASSE ══
+async function changePassword() {
+  const pw = document.getElementById('new-pw').value;
+  const confirm = document.getElementById('confirm-pw').value;
+  if (!pw || pw.length < 6) { toast('Mot de passe trop court (min 6 caractères)', 'error'); return; }
+  if (pw !== confirm) { toast('Les mots de passe ne correspondent pas', 'error'); return; }
+
+  const { error } = await supa.auth.updateUser({ password: pw });
+  if (error) { toast('Erreur : ' + error.message, 'error'); return; }
+  toast('✅ Mot de passe mis à jour !', 'success');
+  document.getElementById('new-pw').value = '';
+  document.getElementById('confirm-pw').value = '';
+}
+
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+// Le frontend utilise /api/imgbb-proxy pour les photos
+
+// Normalise une valeur photo : string URL (Supabase) OU [{url}] (Airtable) → string URL
+function _wPhotoUrl(val) {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (Array.isArray(val) && val[0]?.url) return val[0].url;
+  return '';
+}
+
+// Fonction utilitaire anti-XSS
+function escapeHtml(str) {
+  if (!str) return '';
+  const s = String(str);
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Fetch authentifié — ajoute le JWT Supabase automatiquement
+async function wozaliFetch(url, opts = {}) {
+  const { data: { session } } = await supa.auth.getSession();
+  const headers = { ...(opts.headers || {}) };
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+  return fetch(url, { ...opts, headers });
+}
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS PUSH WEB (PWA / VAPID)
+// ══════════════════════════════════════════
+// VAPID public key vient de /api/wozali-pay/push-vapid-public.
+// Service Worker /sw.js gère l'événement 'push' + 'notificationclick'.
+// Souscription stockée côté serveur dans wozali_push_subscriptions.
+
+function _urlBase64ToUint8Array(b64) {
+  var padding = '='.repeat((4 - b64.length % 4) % 4);
+  var base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+  var raw = window.atob(base64);
+  var arr = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+async function _wozaliGetVapidKey() {
+  try {
+    const r = await fetch('/api/wozali-pay/push-vapid-public');
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j?.publicKey || null;
+  } catch (e) { return null; }
+}
+
+function _wozaliPushSupported() {
+  return typeof window !== 'undefined'
+    && 'serviceWorker' in navigator
+    && 'PushManager' in window
+    && 'Notification' in window;
+}
+
+async function updatePushCard() {
+  // Affiche/cache la card "Activer notifications" selon état navigateur + abonnement
+  var card = document.getElementById('wozali-push-card');
+  var btn = document.getElementById('wozali-push-btn');
+  var status = document.getElementById('wozali-push-status');
+  if (!card || !btn || !status) return;
+  if (!_wozaliPushSupported()) {
+    card.style.display = 'block';
+    btn.style.display = 'none';
+    status.textContent = "Ton navigateur ne supporte pas les notifications push. Installe l'app pour recevoir les messages.";
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    card.style.display = 'block';
+    btn.style.display = 'none';
+    status.innerHTML = "Notifications bloquées. Active-les dans les <strong>réglages du navigateur</strong> (icône à gauche de la barre d'adresse).";
+    return;
+  }
+  try {
+    var reg = await navigator.serviceWorker.ready;
+    var sub = await reg.pushManager.getSubscription();
+    if (sub && Notification.permission === 'granted') {
+      card.style.display = 'block';
+      btn.textContent = 'Activées ✓';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.style.cursor = 'default';
+      status.textContent = "Tu reçois les messages WOZALI directement sur ton téléphone.";
+      return;
+    }
+  } catch (e) { /* continue, propose activation */ }
+  card.style.display = 'block';
+  btn.style.display = 'inline-block';
+  btn.disabled = false;
+  btn.textContent = 'Activer';
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
+  status.textContent = "Reçois les messages WOZALI sur ton téléphone — même quand l'app est fermée.";
+}
+
+async function enablePushNotifications() {
+  var btn = document.getElementById('wozali-push-btn');
+  var status = document.getElementById('wozali-push-status');
+  function setStatus(msg) { if (status) status.textContent = msg; }
+
+  if (!_wozaliPushSupported()) {
+    setStatus("Ton navigateur ne supporte pas les notifications push.");
+    return false;
+  }
+  if (!window.currentUser) {
+    setStatus("Connecte-toi d'abord pour activer les notifications.");
+    return false;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    // 1. Permission
+    var perm = Notification.permission;
+    if (perm === 'default') perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      setStatus("Permission refusée. Tu peux la réactiver dans les réglages du navigateur.");
+      if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
+      return false;
+    }
+
+    // 2. Service Worker prêt
+    var reg = await navigator.serviceWorker.ready;
+
+    // 3. VAPID public key
+    var vapidPub = await _wozaliGetVapidKey();
+    if (!vapidPub) {
+      setStatus("Service push non disponible côté serveur (clé VAPID manquante).");
+      if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
+      return false;
+    }
+
+    // 4. Souscrire (ou réutiliser souscription existante)
+    var sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: _urlBase64ToUint8Array(vapidPub),
+      });
+    }
+
+    // 5. Envoyer au backend
+    var r = await wozaliFetch('/api/wozali-pay/push-subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscription: sub.toJSON ? sub.toJSON() : sub,
+        userAgent: navigator.userAgent || '',
+      }),
+    });
+    if (!r.ok) {
+      var t = await r.text().catch(() => '');
+      console.warn('[push-subscribe]', r.status, t);
+      setStatus("Erreur enregistrement souscription. Réessaie dans un instant.");
+      if (btn) { btn.disabled = false; btn.textContent = 'Réessayer'; }
+      return false;
+    }
+
+    try { localStorage.setItem('wozali_push_enabled', '1'); } catch (e) {}
+    setStatus("Notifications activées. Tu recevras les messages WOZALI sur ce téléphone.");
+    if (btn) { btn.textContent = 'Activées ✓'; btn.style.opacity = '0.7'; btn.style.cursor = 'default'; }
+    if (typeof toast === 'function') toast('🔔 Notifications activées');
+    return true;
+  } catch (err) {
+    console.warn('[enablePush]', err);
+    setStatus("Erreur : " + (err?.message || err));
+    if (btn) { btn.disabled = false; btn.textContent = 'Réessayer'; }
+    return false;
+  }
+}
+
+// Auto-prompt léger 1× après inscription complète (J+0).
+// Ne s'auto-déclenche que si user authentifié + jamais activé + jamais refusé navigateur.
+function _maybeAutoPromptPush() {
+  try {
+    if (!_wozaliPushSupported()) return;
+    if (!window.currentUser) return;
+    var prompted = false;
+    try { prompted = localStorage.getItem('wozali_push_prompted') === '1'; } catch(e){}
+    if (prompted) return;
+    if (Notification.permission !== 'default') return;
+    // Délai 6s après ouverture dashboard pour laisser le user respirer
+    setTimeout(function () {
+      var card = document.getElementById('wozali-push-card');
+      // Affiche la card visuellement même si on n'est pas sur la section Activité
+      try { localStorage.setItem('wozali_push_prompted', '1'); } catch(e){}
+      // On préfère un toast discret avec CTA plutôt qu'un popup natif d'emblée
+      if (typeof toast === 'function') {
+        toast("🔔 Active les notifications dans 'Mon activité' pour recevoir les messages du fondateur.");
+      }
+    }, 6000);
+  } catch (e) { /* silent */ }
+}
+
+window.enablePushNotifications = enablePushNotifications;
+window.updatePushCard = updatePushCard;
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+const _seoPageMeta = {
+  home:         { title: 'WOZALI — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.' },
+  search:       { title: 'Trouver un pro — WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
+  emploi:       { title: 'WOZALI Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
+  recompenses:  { title: 'Récompenses WOZALI — 500 000 FCFA/mois', desc: 'Bourse de Croissance (300K, 1 gagnant/mois, Pro) + La Bourse des Mains d\'Or (200K, 100K × 2 Reines, toutes les femmes B/T). 500 000 FCFA distribués chaque mois. Premier tirage le 31 juillet 2026.' },
+  awards:       { title: 'La Bourse des Mains d\'Or — Bénin & Togo', desc: 'Poste ta plus belle photo coiffure ou couture. La communauté vote. 2 reines couronnées chaque mois — 100 000 FCFA chacune. Toutes les femmes peuvent gagner.' },
+  inscription:  { title: 'Inscription gratuite — WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
+  fonctionnement: { title: 'Comment ça marche — WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
+};
+function _updateSeoMeta(page) {
+  const m = _seoPageMeta[page]; if (!m) return;
+  document.title = m.title;
+  const desc = document.querySelector('meta[name="description"]'); if (desc) desc.content = m.desc;
+  const ogT = document.querySelector('meta[property="og:title"]'); if (ogT) ogT.content = m.title;
+  const ogD = document.querySelector('meta[property="og:description"]'); if (ogD) ogD.content = m.desc;
+}
+function showPage(page, _fromPop) {
+  if (page !== 'profil' && typeof _resetSeoMeta === 'function') _resetSeoMeta();
+  _updateSeoMeta(page);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-link[data-nav]').forEach(b => b.classList.toggle('active', b.getAttribute('data-nav') === page));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(applyResponsiveGrids, 50);
+  // History API : push state pour que le bouton Back de Chrome fonctionne
+  try {
+    if (!_fromPop) {
+      const cur = history.state && history.state.page;
+      if (cur !== page) {
+        history.pushState({ page: page }, '', '#' + page);
+      }
+    }
+  } catch(e) {}
+
+  // Sauvegarder la page dans localStorage pour le refresh
+  const privatePages = ['dashboard','fil'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','a-propos','agent-wozali','influenceurs','recrutement-agents','admin-agents'];
+  if (publicPages.includes(page))  localStorage.setItem('wozali_last_page', page);
+  if (privatePages.includes(page)) localStorage.setItem('wozali_last_page', page);
+
+  if (page === 'home') initHome();
+  if (page === 'search') loadSearch();
+  if (page === 'emploi') showPageEmploi();
+  if (page === 'feed') { try { initFeedWOZALI(); } catch(e){ console.warn('feed init', e); } }
+  if (page === 'inscription') resetInscriptionForm();
+  if (page === 'fil') {
+    if (!currentUser) { localStorage.setItem('wozali_pending_page','fil'); showPage('login'); return; }
+    loadFilPage();
+  }
+  if (page === 'inscription') {
+    setTimeout(() => loadFounderCounter(), 300);
+  }
+  if (page === 'home') {
+    setTimeout(() => loadFounderCounter(), 500);
+  }
+  if (page === 'recompenses') loadPageRecompenses();
+  // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
+  if (page === 'awards') loadPageAwards();
+  if (page === 'match') { try { initWozaliMatch(); } catch(e){ console.warn('match init', e); } }
+  if (page === 'recrutement-agents') { setTimeout(() => { if (typeof updateRecrutQuartiers === 'function') updateRecrutQuartiers(); }, 50); }
+  if (page === 'admin-agents') loadAdminAgents();
+  if (page === 'fonctionnement' || page === 'apropos') {
+    if (page === 'fonctionnement') {
+      setTimeout(() => {
+        const faqContainer = document.getElementById('faq-list');
+        if (faqContainer && faqContainer.children.length === 0 && typeof renderFAQ === 'function') renderFAQ();
+        // Show default tab
+        switchFonctTab('client');
+      }, 80);
+    }
+  }
+  if (page === 'dashboard') {
+    if (!currentUser) { localStorage.setItem('wozali_pending_page','dashboard'); showPage('login'); return; }
+    loadDashboard();
+  }
+  if (page === 'login') {
+    document.getElementById('login-error').style.display = 'none';
+  }
+}
+
+// Au chargement : restaurer la page depuis localStorage
+// Doit être appelé APRÈS getSession() pour que currentUser soit déjà défini
+function _restorePageFromURL() {
+  // Ne pas agir si c'est un lien Supabase auth (hash avec access_token)
+  const hash = window.location.hash;
+  if (hash.includes('access_token') || hash.includes('type=') || hash.includes('error=')) return;
+
+  // ── Pathname routing : /recrutement-agents ──
+  if (window.location.pathname === '/recrutement-agents') { showPage('recrutement-agents'); return; }
+
+  // ── Hash routing : #recrutement-agents ──
+  if (hash === '#recrutement-agents') { showPage('recrutement-agents'); return; }
+
+  // ── SEO : détecter /profil/[slug] dans le pathname ──
+  const pathMatch = window.location.pathname.match(/^\/profil\/([a-z0-9-]+)/);
+  if (pathMatch) {
+    const slug = pathMatch[1];
+    // Le profil-seo API a injecté l'ID Airtable dans meta[name=wozali-profil-id]
+    const metaId = document.querySelector('meta[name="wozali-profil-id"]');
+    if (metaId?.content) {
+      showProfil(metaId.content);
+    } else {
+      // Fallback : chercher par slug côté client
+      _resolveProfilBySlug(slug);
+    }
+    return;
+  }
+
+  const lastPage = localStorage.getItem('wozali_last_page');
+  if (!lastPage || lastPage === 'home') return;
+
+  const privatePages = ['dashboard','fil'];
+
+  if (lastPage === 'profil') {
+    // Restaurer le profil public visité en dernier
+    const profilId = localStorage.getItem('wozali_last_profil_id');
+    if (profilId) showProfil(profilId);
+    return;
+  }
+
+  if (privatePages.includes(lastPage)) {
+    // Page privée : n'afficher que si l'utilisateur est connecté
+    if (currentUser) showPage(lastPage);
+    // Sinon on reste sur home (normal — session expirée)
+  } else {
+    showPage(lastPage);
+  }
+}
+
+// Recherche client-side d'un profil par slug (fallback si meta tag absent)
+async function _resolveProfilBySlug(slug) {
+  try {
+    const allPrest = window._allPrestataires || [];
+    // D'abord chercher dans le cache local
+    for (const r of allPrest) {
+      const f = r.fields;
+      const s = _buildProfilSlug(f['Nom complet'] || '', f['Métier principal'] || '', f['Ville'] || '');
+      if (s === slug) { showProfil(r.id); return; }
+    }
+    // Sinon fetch via supaPrest
+    if (window.supaPrest) {
+      const records = await window.supaPrest.list({ limit: 200 });
+      for (const r of records) {
+        const f = r.fields;
+        const s = _buildProfilSlug(f['Nom complet'] || '', f['Métier principal'] || '', f['Ville'] || '');
+        if (s === slug) { showProfil(r.id); return; }
+      }
+    }
+    showPage('home');
+  } catch (e) {
+    console.warn('[SEO] slug resolve error:', e);
+    showPage('home');
+  }
+}
+
+function resetInscriptionForm() {
+  // Réafficher le formulaire, cacher le succès
+  const form = document.getElementById('inscription-form');
+  const success = document.getElementById('form-success');
+  const progressBar = document.querySelector('.progress-bar');
+  if (form) form.classList.remove('form-hidden');
+  if (success) success.classList.remove('form-visible');
+  if (progressBar) progressBar.classList.remove('form-hidden');
+
+  // Réinitialiser les étapes
+  currentStep = 1;
+  for (let i = 1; i <= 3; i++) {
+    const step = document.getElementById('fs-' + i);
+    const pb = document.getElementById('pb-' + i);
+    if (step) { step.classList.remove('active'); }
+    if (pb) { pb.classList.remove('active', 'done'); }
+  }
+  document.getElementById('fs-1')?.classList.add('active');
+  document.getElementById('pb-1')?.classList.add('active');
+
+  // Vider les champs — double reset pour contrer l'autofill Chrome
+  const _clearFields = () => {
+    ['f-nom','f-tel','f-email','f-description','f-tarif-min','f-tarif-max','f-tiktok','f-instagram','f-password','f-diplomes'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  };
+  _clearFields();
+  setTimeout(_clearFields, 200); // Chrome autofill se déclenche après le rendu
+  ['f-genre','f-metier','f-quartier','f-experience','f-dispo','f-education','f-canal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.selectedIndex = 0;
+  });
+
+  // Réinitialiser les previews photos
+  ['upload-profil-preview','prev-r1','prev-r2','prev-r3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.src = ''; }
+  });
+  ['upload-profil-placeholder','ph-r1','ph-r2','ph-r3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+  });
+  ['upload-profil-zone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('has-file');
+  });
+  ['upload-profil','upload-r1','upload-r2','upload-r3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Reset bouton submit
+  const btn = document.getElementById('submit-btn');
+  if (btn) { btn.textContent = '✦ Créer mon profil'; btn.disabled = false; }
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast toast-${type} show`;
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── KPI Tooltips ──
+function toggleKpiTip(id) {
+  const tips = ['tip-views','tip-wa','tip-rdv','tip-note','tip-score','tip-completion'];
+  const isVisible = document.getElementById(id)?.style.display === 'block';
+  closeAllKpiTips();
+  if (!isVisible) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+    const overlay = document.getElementById('kpi-tooltip-overlay');
+    if (overlay) overlay.style.display = 'block';
+  }
+}
+function closeAllKpiTips() {
+  ['tip-views','tip-wa','tip-rdv','tip-note','tip-score','tip-completion'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  const overlay = document.getElementById('kpi-tooltip-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+function closeCelebration() {
+  const m = document.getElementById('modal-celebration');
+  if (m) m.style.display = 'none';
+}
+
+// ══════════════════════════════════════════
+// VALIDATION FORMULAIRES
+// ══════════════════════════════════════════
+
+const VALIDATORS = {
+  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+  phone: (v) => /^[\d+\s()-]{7,}$/.test(v.replace(/\s/g,'')),
+  name: (v) => v.trim().length >= 2,
+  password: (v) => v.length >= 6,
+  url: (v) => /^https?:\/\/.+\..+/.test(v),
+  number: (v) => !isNaN(v) && v > 0,
+  notEmpty: (v) => v && v.toString().trim().length > 0,
+};
+
+function validateField(fieldType, value, fieldName = '') {
+  const validator = VALIDATORS[fieldType];
+  if (!validator) return { valid: true };
+  const isValid = validator(value);
+  if (!isValid) {
+    const messages = {
+      email: 'Email invalide',
+      phone: 'Téléphone invalide (min 7 caractères)',
+      name: 'Nom trop court (min 2 caractères)',
+      password: 'Mot de passe trop court (min 6 caractères)',
+      url: 'URL invalide (https://...)',
+      number: 'Chiffre invalide',
+      notEmpty: `${fieldName} est requis`,
+    };
+    return { valid: false, error: messages[fieldType] };
+  }
+  return { valid: true };
+}
+
+function validateForm(formData) {
+  const errors = [];
+  Object.entries(formData).forEach(([field, { type, value, name }]) => {
+    const validation = validateField(type, value, name);
+    if (!validation.valid) {
+      errors.push(validation.error);
+    }
+  });
+  if (errors.length > 0) {
+    toast(errors[0], 'error');
+    return false;
+  }
+  return true;
+}
+
+// ══════════════════════════════════════════
+// UPLOAD PHOTO → IMGBB
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// ── Cropper.js — système unifié avec callback ──
+// ══════════════════════════════════════════
+let _cropperInstance = null;
+let _cropTarget     = null; // pour previewPhoto() (formulaire inscription)
+window._inscCroppedFiles = {}; // stockage blobs croppés inscription (fix mobile DataTransfer)
+let _cropCallback   = null; // pour uploadNewPhoto / uploadRealisationPhoto
+let _cropAspect     = 1;    // ratio par défaut (1 = carré)
+
+/* ── Appelé depuis le formulaire d'inscription ── */
+function previewPhoto(inputId, previewId, placeholderId, zoneId) {
+  const file = document.getElementById(inputId).files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropTarget   = { previewId, placeholderId, zoneId, inputId };
+    _cropCallback = null;
+    _cropAspect   = previewId.includes('profil') ? 1 : NaN;
+    _openCropModal(e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── Ouvre le modal avec une image (dataUrl) ── */
+function _openCropModal(dataUrl, aspect) {
+  if (aspect !== undefined) _cropAspect = aspect;
+  const modal = document.getElementById('modal-crop');
+  const img   = document.getElementById('crop-source-img');
+  if (!modal || !img) return;
+
+  // 1. Détruire instance précédente
+  if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
+  img.src = '';
+
+  // 2. Afficher le modal
+  modal.classList.add('active');
+
+  // 3. Double rAF + 150ms pour garantir que le modal est fully painted
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    setTimeout(() => {
+      img.onload = () => {
+        if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
+        // Cropper v1 API
+        _cropperInstance = new Cropper(img, {
+          aspectRatio:  _cropAspect,
+          viewMode:     1,
+          autoCropArea: 0.85,
+          movable:      true,
+          zoomable:     true,
+          scalable:     true,
+          rotatable:    true,
+          responsive:   true,
+          restore:      false,
+          guides:       true,
+          center:       true,
+          highlight:    true,
+          cropBoxMovable:   true,
+          cropBoxResizable: true,
+          minContainerHeight: 300,
+          toggleDragModeOnDblclick: false,
+        });
+      };
+      if (img.src !== dataUrl) {
+        img.src = dataUrl;
+      } else {
+        // Image déjà chargée — déclencher onload manuellement
+        img.dispatchEvent(new Event('load'));
+      }
+    }, 150);
+  }));
+}
+
+/* ── Bouton "Appliquer" dans le modal ── */
+function applyCrop() {
+  if (!_cropperInstance) return;
+  const canvas = _cropperInstance.getCroppedCanvas({ maxWidth: 1000, maxHeight: 1000 });
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+  if (_cropCallback) {
+    // Flux dashboard : callback gère l'upload
+    canvas.toBlob(blob => {
+      const cb = _cropCallback;
+      cancelCrop();
+      cb(blob, dataUrl);
+    }, 'image/jpeg', 0.9);
+  } else if (_cropTarget) {
+    // Flux inscription : mise à jour de la prévisualisation + input
+    const prev = document.getElementById(_cropTarget.previewId);
+    const ph   = document.getElementById(_cropTarget.placeholderId);
+    if (prev) { prev.src = dataUrl; prev.style.display = 'block'; }
+    if (ph)   { ph.style.display = 'none'; }
+    if (_cropTarget.zoneId) document.getElementById(_cropTarget.zoneId)?.classList.add('has-file');
+    const inputId = _cropTarget.inputId;
+    canvas.toBlob(blob => {
+      // Stocker le blob pour usage à l'upload (fix mobile — DataTransfer non supporté sur Android)
+      window._inscCroppedFiles[inputId] = new File([blob], 'photo-cropee.jpg', { type: 'image/jpeg' });
+      // Tenter aussi l'assignation native (desktop)
+      const input = document.getElementById(inputId);
+      if (input) { try { const dt = new DataTransfer(); dt.items.add(window._inscCroppedFiles[inputId]); input.files = dt.files; } catch(e) {} }
+    }, 'image/jpeg', 0.9);
+    cancelCrop();
+  }
+}
+
+function cancelCrop() {
+  const modal = document.getElementById('modal-crop');
+  if (modal) modal.classList.remove('active');
+  if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
+  _cropTarget   = null;
+  _cropCallback = null;
+}
+
+/* ── Recadrer la photo de profil déjà en place ── */
+function recadrerPhotoProfil() {
+  const currentUrl = currentPrestataire?.fields['Photo de profil'] || currentPrestataire?.fields['WhatsApp'];
+  if (!currentUrl) {
+    // Pas encore de photo → ouvrir simplement le file picker
+    document.getElementById('edit-photo-input').click();
+    return;
+  }
+  // Charger l'image existante via fetch pour éviter les problèmes CORS canvas
+  fetch(currentUrl)
+    .then(r => r.blob())
+    .then(blob => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        _cropTarget   = null;
+        _cropAspect   = 1;
+        _cropCallback = async (croppedBlob, croppedDataUrl) => {
+          await _doUploadProfilCrop(croppedBlob, croppedDataUrl);
+        };
+        _openCropModal(e.target.result, 1);
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(() => {
+      // Fallback CORS : laisser l'utilisateur re-sélectionner sa photo
+      toast('Ouvre ta galerie pour recadrer', 'info');
+      document.getElementById('edit-photo-input').click();
+    });
+}
+
+async function uploadToImgBB(file) {
+  if (!file) return null;
+  // Convertir le fichier en base64 pour le proxy serveur
+  const toBase64 = (f) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(f);
+  });
+  try {
+    const base64 = await toBase64(file);
+    const res = await fetch('/api/imgbb-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64 })
+    });
+    const data = await res.json();
+    if (data.success) {
+      // upload OK
+      return data.data.url;
+    } else {
+      console.error('❌ ImgBB erreur:', data.error?.message || 'Upload failed');
+      toast('Erreur upload photo: ' + (data.error?.message || 'Unknown error'), 'error');
+      return null;
+    }
+  } catch (e) {
+    console.error('❌ ImgBB exception:', e.message);
+    toast('Erreur upload photo: ' + e.message, 'error');
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════
+// AIRTABLE — FETCH PRESTATAIRES
+// ══════════════════════════════════════════
+async function fetchPrestataires(opts = {}) {
+  let records = [];
+
+  if (window.supaPrest) {
+    try {
+      const _supaList = window.supaPrest.list({
+        metier: opts.metier || undefined,
+        quartier: opts.quartier || undefined,
+        disponible: opts.dispo || undefined,
+        limit: 50,
+        orderBy: 'note_moyenne',
+        orderDir: 'desc',
+      });
+      const _timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
+      records = await Promise.race([_supaList, _timeout]);
+      // Filtre tarif max côté client (pas d'opérateur Supabase pour le min de tarif_min)
+      if (opts.tarifMax) {
+        records = records.filter(r => {
+          const t = r.fields?.['Tarif minimum FCFA'];
+          return t == null || t <= opts.tarifMax;
+        });
+      }
+    } catch (e) {
+      console.error('[fetchPrestataires] supaPrest échoué, fallback Airtable:', e);
+      records = [];
+    }
+  }
+
+  // Pas de fallback Airtable — uniquement Supabase (évite d'afficher d'anciens profils de test)
+
+  // ⭐ Algorithme priorité : Pro en tête, puis par note décroissante
+  records.sort((a, b) => {
+    const aPlan = a.fields['Abonnement'] || 'Base';
+    const bPlan = b.fields['Abonnement'] || 'Base';
+    const aIsPro = (aPlan === 'Pro');
+    const bIsPro = (bPlan === 'Pro');
+    const aDispo = a.fields['Disponible maintenant'] ? 1 : 0;
+    const bDispo = b.fields['Disponible maintenant'] ? 1 : 0;
+    const aNote = a.fields['Note moyenne'] || 0;
+    const bNote = b.fields['Note moyenne'] || 0;
+    // Ordre : Pro dispo > Pro non dispo > Base dispo > Base non dispo, puis par note
+    const aScore = (aIsPro ? 100 : 0) + (aDispo ? 10 : 0) + aNote;
+    const bScore = (bIsPro ? 100 : 0) + (bDispo ? 10 : 0) + bNote;
+    return bScore - aScore;
+  });
+  return records;
+}
+
+// Données de démo affichées si Airtable est inaccessible (preview uniquement)
+const MOCK_PRESTATAIRES = [
+  { id:'mock1', fields:{ 'Nom complet':'Aminata Kokou','Métier principal':'Esthéticienne','Quartier':'Adidogomé','Disponible maintenant':true,'Tarif minimum FCFA':3000,'Note moyenne':4.9,'Nombre d\'avis reçus':47,'Description des services':'Spécialiste onglerie, maquillage et soins visage. 5 ans d\'expérience à Lomé.','Abonnement':'Pro' }},
+  { id:'mock2', fields:{ 'Nom complet':'Kofi Mensah','Métier principal':'Électricien','Quartier':'Tokoin','Disponible maintenant':true,'Tarif minimum FCFA':5000,'Note moyenne':4.7,'Nombre d\'avis reçus':31,'Description des services':'Installations électriques, dépannage, mise aux normes. Rapide et sérieux.','Abonnement':'Pro' }},
+  { id:'mock3', fields:{ 'Nom complet':'Ama Sénamé','Métier principal':'Couturier/Couturière','Quartier':'Bè','Disponible maintenant':false,'Tarif minimum FCFA':2500,'Note moyenne':5.0,'Nombre d\'avis reçus':18,'Description des services':'Robes de fête, tenues africaines sur mesure, retouches.' }},
+  { id:'mock4', fields:{ 'Nom complet':'Yaovi Agbeko','Métier principal':'Menuisier','Quartier':'Kpalimé','Disponible maintenant':true,'Tarif minimum FCFA':8000,'Note moyenne':4.5,'Nombre d\'avis reçus':22,'Description des services':'Meubles sur mesure, portes, fenêtres, agencement intérieur.' }},
+  { id:'mock5', fields:{ 'Nom complet':'Akossiwa Dossou','Métier principal':'Coiffeur/Coiffeuse','Quartier':'Sokodé','Disponible maintenant':true,'Tarif minimum FCFA':1500,'Note moyenne':4.8,'Nombre d\'avis reçus':63,'Description des services':'Tresses, tissages, soins capillaires naturels. Déplacement possible.' }},
+  { id:'mock6', fields:{ 'Nom complet':'Edem Kpadé','Métier principal':'Photographe','Quartier':'Cacaveli','Disponible maintenant':false,'Tarif minimum FCFA':15000,'Note moyenne':4.9,'Nombre d\'avis reçus':9,'Description des services':'Mariages, événements, portraits pro, retouche photo.' }}
+];
+
+// ══════════════════════════════════════════
+// RENDER CARD
+// ══════════════════════════════════════════
+const METIER_EMOJI = {
+  'Coiffeur/Coiffeuse':'✂️','Esthéticienne':'💅','Barbier':'🪒',
+  'Menuisier':'🪚','Mécanicien auto':'🔧','Mécanicien moto':'🏍️',
+  'Électricien':'⚡','Maçon':'🧱','Couturier/Couturière':'🧵',
+  'Photographe':'📸','Cuisinier/Cuisinière à domicile':'👨‍🍳',
+  'Masseur/Masseuse':'💆','Plombier':'🔩','Peintre en bâtiment':'🎨',
+  'Soudeur':'🔥','Carreleur':'🏠','Jardinier':'🌿',
+  'Tatoueur/Tatoueuse':'🖊️','Maquilleur/Maquilleuse':'💄',
+  'Onglerie/Nail Art':'💅','Spa & Soins':'🧖',
+  'Réparateur téléphones':'📱','Informaticien/Technicien PC':'💻',
+  'Électronicien':'🔌','Réparateur électroménager':'🔧',
+  'Ferronnier':'⚙️','Climatiseur/Froid':'❄️',
+  'Traiteur':'🍽️','Pâtissier/Boulanger':'🥐','Restaurateur':'🍴',
+  'Tenancier de bar/maquis':'🍺','Vendeur de rue/Étale':'🛍️',
+  'Fleuriste':'🌸','Livreur':'🛵','Chauffeur/Taxi':'🚗',
+  'Baby-sitter/Garde enfant':'👶','Aide-soignant/Infirmier à domicile':'🏥',
+  'Professeur particulier':'📚','Formateur/Coach':'🎯',
+  'Traducteur (Ewe/Français/Anglais)':'🌍',
+  'Agent immobilier':'🏘️','Comptable':'📊',
+  'DJ/Animateur':'🎧','Musicien':'🎵','Vidéaste':'🎬','Graphiste':'🎨',
+  'Vendeur vêtements':'👗','Cordonnier':'👟','Teinturier/Tie-dye':'🎨',
+  'Épicier':'🛒','Boucherie/Poissonnerie':'🐟','Légumes & Fruits':'🥬',
+  'Herboriste/Tradipraticien':'🌿','Nutritionniste':'🥗',
+  'Brodeur/Brodeuse':'🧶','Repasseuse':'👔','Femme de ménage':'🧹',
+  'Gardien/Vigile':'🔒','Laveur auto':'🚿','Tapissier':'🛋️',
+  'Vitrier':'🪟','Kinésithérapeute':'💪','Opticien':'👓',
+  'Autre (préciser dans la description)':'✨',
+  // Commerces & Établissements
+  'Restaurant':'🍽️','Boulangerie / Pâtisserie (commerce)':'🥖',
+  'Pharmacie':'💊','Supermarché / Mini-marché':'🛒',
+  'Quincaillerie':'🔨','Institut de beauté / Salon':'💅',
+  'Hôtel / Auberge':'🏨','Pressing / Laverie (commerce)':'👔',
+  'Cybercafé / Centre impression':'🖨️','Clinique / Cabinet médical':'🏥',
+  'Bar / Maquis (commerce)':'🍺','Librairie / Papeterie':'📚',
+  'Boutique mode / Friperie':'👗',
+  // Talents Digitaux
+  'Développeur web/mobile':'💻','Community Manager':'📱',
+  'Juriste / Conseiller juridique':'⚖️','Rédacteur / Copywriter':'✍️',
+  'Data analyst':'📊','Monteur vidéo professionnel':'🎬',
+  'Motion designer':'🎞️','Expert Excel / Bureautique':'📋',
+  'Chef de projet digital':'🗂️','Modèle photo / Influenceur':'🌟',
+  'Vendeur terrain / Commercial':'🤝','Secrétaire / Assistante administrative':'📝',
+  'Architecte / Urbaniste':'🏛️'
+};
+
+// ══ TALENTS DIGITAUX — liste de référence pour badge et filtre ══
+const DIGITAL_METIERS = new Set([
+  'Développeur web/mobile','Community Manager','Juriste / Conseiller juridique',
+  'Rédacteur / Copywriter','Data analyst','Monteur vidéo professionnel',
+  'Motion designer','Expert Excel / Bureautique','Chef de projet digital',
+  'Modèle photo / Influenceur','Vendeur terrain / Commercial',
+  'Secrétaire / Assistante administrative','Architecte / Urbaniste',
+  // Métiers déjà présents qui sont aussi digitaux/intellectuels
+  'Graphiste','Photographe','Vidéaste','Informaticien/Technicien PC',
+  'Réparateur téléphones','Formateur/Coach','Comptable',
+  'Traducteur (Ewe/Français/Anglais)','Agent immobilier',
+  'DJ/Animateur','Professeur particulier'
+]);
+
+function isDigitalMetier(metier) {
+  if (!metier) return false;
+  if (DIGITAL_METIERS.has(metier)) return true;
+  const m = metier.toLowerCase();
+  return ['développeur','graphiste','community','comptable','juriste',
+    'rédacteur','data','motion','architecte','monteur','modèle',
+    'commercial','bureautique','chef de projet','secrétaire',
+    'informaticien','community manager'].some(k => m.includes(k));
+}
+
+let digitalFilter = false;
+function toggleDigitalFilter() {
+  digitalFilter = !digitalFilter;
+  const btn = document.getElementById('digital-btn');
+  if (btn) btn.classList.toggle('active', digitalFilter);
+  loadSearch();
+}
+let proFilter = false;
+function toggleProFilter() {
+  proFilter = !proFilter;
+  const btn = document.getElementById('pro-btn');
+  if (btn) btn.classList.toggle('active', proFilter);
+  loadSearch();
+}
+let top50Filter = false;
+function toggleTop50Filter() {
+  top50Filter = !top50Filter;
+  const btn = document.getElementById('top50-btn');
+  if (btn) btn.classList.toggle('active', top50Filter);
+  loadSearch();
+}
+let verifFilter = false;
+function toggleVerifFilter() {
+  verifFilter = !verifFilter;
+  const btn = document.getElementById('verif-btn');
+  if (btn) btn.classList.toggle('active', verifFilter);
+  loadSearch();
+}
+
+function renderStars(note) {
+  if (!note || note === 0) return '<span style="color:var(--gris);font-size:12px;">Pas encore d\'avis</span>';
+  const full = Math.round(note);
+  return '★'.repeat(full) + '☆'.repeat(5 - full);
+}
+
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = x => x * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function formatDistance(m) {
+  if (m < 1000) return `${Math.round(m / 10) * 10} m`;
+  if (m < 10000) return `${(m / 1000).toFixed(1).replace('.',',')} km`;
+  return `${Math.round(m / 1000)} km`;
+}
+function getUserLocation() {
+  if (window._userLat !== undefined) return;
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    window._userLat = pos.coords.latitude;
+    window._userLon = pos.coords.longitude;
+    if (window._lastSearchRecords) {
+      const c = document.getElementById('search-cards');
+      if (c && c.style.display !== 'none') c.innerHTML = window._lastSearchRecords.map(r => renderCard(r)).join('');
+    }
+  }, () => {}, { timeout: 6000 });
+}
+
+function renderCard(record) {
+  const f = record.fields;
+  const nom = escapeHtml(f['Nom complet'] || 'Prestataire');
+  const initiale = nom.charAt(0).toUpperCase();
+  const metier = escapeHtml(f['Métier principal'] || '');
+  const quartier = escapeHtml(f['Quartier'] || '');
+  const tarifMin = f['Tarif minimum FCFA'];
+  const note = f['Note moyenne'] || 0;
+  const nbAvis = f['Nombre d\'avis reçus'] || 0;
+  const dispo = f['Disponible maintenant'];
+  const verifie = f['Badge vérifié'];
+  const tel = (f['Numéro de téléphone'] || '').replace(/\D/g,'');
+  const rawPhoto = f['Photo de profil'] || f['WhatsApp'] || '';
+  const photoProfil = escapeHtml(rawPhoto);
+  const emoji = METIER_EMOJI[f['Métier principal']] || '⚡';
+
+  // Distance badge
+  let distBadge = '';
+  const pLat = parseFloat(f['GPS Lat'] || 0), pLon = parseFloat(f['GPS Lon'] || 0);
+  if (pLat && pLon && window._userLat !== undefined) {
+    const d = haversineDistance(window._userLat, window._userLon, pLat, pLon);
+    distBadge = `<span class="pcard-distance">📍 à ${formatDistance(d)}</span>`;
+  }
+
+  const waMsg = encodeURIComponent(`Bonjour ${nom}, je t'ai trouvé sur WOZALI. Je suis intéressé par tes services de ${metier}. Tu es disponible ?`);
+  const waLink = tel ? `https://wa.me/${tel}?text=${waMsg}` : '#';
+  const scoreW = f['Score WOZALI'] || 0;
+  const _loc = ((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));
+  const flagC = _isBJ ? '🇧🇯' : '🇹🇬';
+  const topRank = f['Rang Top 50'] || 0;
+  const champion = f['Champion WOZALI'] || '';
+
+  const safeId = escapeHtml(record.id);
+  return `
+    <div class="pcard" onclick="showProfil('${safeId}')">
+      <div class="pcard-body">
+        <div class="pcard-top">
+          <div style="flex:1;min-width:0;">
+            <div class="pcard-name">${nom}</div>
+            <div class="pcard-meta">${emoji} ${metier} · ${flagC} ${quartier || ''}</div>
+            ${distBadge}
+            ${dispo ? '<div class="pcard-dispo" style="margin-top:6px;"><div class="dispo-dot" style="background:#E8940A;"></div> <span style="color:#E8940A;">Disponible</span></div>' : '<div style="margin-top:6px;font-size:12px;color:var(--gris);display:flex;align-items:center;gap:5px;"><div style="width:7px;height:7px;border-radius:50%;background:#d1d5db;"></div> Occupé</div>'}
+          </div>
+          <div class="pcard-avatar" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;">
+            ${photoProfil ? `<img src="${photoProfil}" alt="${nom}" loading="lazy">` : initiale}
+          </div>
+        </div>
+        <div class="pcard-badges">
+          ${isProUser({fields:f}) ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,#E8940A,#f59e0b);color:white;">⭐ Pro</span>' : ''}
+          ${verifie ? '<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;border:1px solid #f3d38a;">✓ Vérifié</span>' : ''}
+          ${topRank && topRank <= 50 ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">🏆 TOP ${topRank}</span>` : ''}
+          ${champion ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">⚔️ Champion ${champion}</span>` : ''}
+          ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="font-size:11px;background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Fondateur</span>' : ''}
+        </div>
+        <div class="pcard-rating">
+          ${note > 0
+            ? `<span class="stars" style="font-size:13px;">${renderStars(note)}</span><span>${note.toFixed(1)} (${nbAvis} avis)</span>`
+            : '<span style="font-size:12px;color:var(--gris);">Pas encore d\'avis</span>'}
+        </div>
+        <!-- Score WOZALI bar -->
+        <div style="margin-top:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;font-weight:700;margin-bottom:4px;">
+            <span>Score WOZALI</span><span style="color:#E8940A;">${scoreW}/100</span>
+          </div>
+          <div style="height:5px;background:#f3f4f6;border-radius:100px;overflow:hidden;">
+            <div style="height:100%;width:${Math.min(scoreW,100)}%;background:linear-gradient(90deg,#E8940A,#f59e0b);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="pcard-footer">
+        <div class="pcard-price">
+          ${tarifMin ? `À partir de ${tarifMin.toLocaleString()} <span>FCFA</span>` : '<span style="font-size:13px;color:var(--gris);">Tarif à définir</span>'}
+        </div>
+        ${tel ? `<a href="${waLink}" target="_blank" class="btn btn-sm" style="background:#E8940A;color:white;border:none;font-weight:700;border-radius:100px;padding:8px 16px;font-size:13px;text-decoration:none;" onclick="event.stopPropagation();">→ Contacter sur WhatsApp</a>` : `<button class="btn btn-sm" style="background:#111;color:white;border:none;font-weight:700;border-radius:100px;padding:8px 16px;font-size:13px;" onclick="event.stopPropagation();showProfil('${record.id}')">→ Voir profil</button>`}
+      </div>
+    </div>`;
+}
+
+
+// ══════════════════════════════════════════
+// DONNÉES GÉOGRAPHIQUES — TOUT LE TOGO
+// ══════════════════════════════════════════
+const TOGO_LOCALITES = {
+  "Cotonou — Akpakpa":["Akpakpa-Centre","PK10","Agla","Ayélawadjè","Sègbèya","Autre"],
+  "Cotonou — Cadjehoun":["Cadjehoun","Haie Vive","Les Cocotiers","Zone résidentielle","Autre"],
+  "Cotonou — Dantokpa":["Marché Dantokpa","Tokpa-Hoho","Gbéto","Missèbo","Autre"],
+  "Cotonou — Fidjrossè":["Fidjrossè-Centre","Fidjrossè-Plage","Route de l'Aéroport","Autre"],
+  "Cotonou — Ganhi":["Ganhi","Quartier Ganhi","Boulevard Saint-Michel","Autre"],
+  "Cotonou — Gbégamey":["Gbégamey","Aidjèdo","Tankpè","Autre"],
+  "Cotonou — Houéyiho":["Houéyiho","Maraîchers","Zone industrielle","Autre"],
+  "Cotonou — Jéricho":["Jéricho","Adjaha","Midombo","Autre"],
+  "Cotonou — Menontin":["Menontin","Gbèdjromèdé","Vodjè","Autre"],
+  "Cotonou — Missèbo":["Missèbo","Quartier Missèbo","Zone commerciale","Autre"],
+  "Cotonou — Sainte-Rita":["Sainte-Rita","Fifadji","Ayélawadjè","Autre"],
+  "Cotonou — Sikècodji":["Sikècodji","Zongo","Quartier Zongo","Autre"],
+  "Cotonou — Zogbo":["Zogbo","Zogbo-Centre","Gbèdjromèdé","Autre"],
+  "Abomey-Calavi":["Calavi-Centre","Godomey","Togbin","Togoudo","Akassato","Zinvié","Ouèdo","Autre"],
+  "Porto-Novo":["Centre","Ouando","Djassin","Tokpota","Djègan-Kpèvi","Autre"],
+  "Ouidah":["Centre","Ouidah-Plage","Pahou","Savi","Autre"],
+  "Bohicon":["Centre","Bohicon-Gare","Lissèzoun","Autre"],
+  "Abomey":["Centre","Abomey-Marché","Djimè","Autre"],
+  "Lokossa":["Centre","Lokossa-Marché","Autre"],
+  "Sèmè-Podji":["Sèmè-Podji","Sèmè-Kraké","Jack","Ekpè","Autre"],
+  "Allada":["Centre","Allada-Marché","Autre"],
+  "Comé":["Centre","Comé-Marché","Autre"],
+  "Parakou":["Centre","Parakou-Est","Parakou-Ouest","Banikanni","Guéma","Autre"],
+  "Natitingou":["Centre","Natitingou-Marché","Autre"],
+  "Djougou":["Centre","Djougou-Marché","Djougou-Nord","Autre"],
+  "Kandi":["Centre","Kandi-Marché","Autre"],
+  "Malanville":["Centre","Malanville-Marché","Frontière Niger","Autre"],
+  "Nikki":["Centre","Nikki-Marché","Autre"],
+  "Tchaourou":["Centre","Autre"],
+  "Savè":["Centre","Savè-Marché","Autre"],
+
+  "Lomé — Adidogomé":["Zanguéra","Légbassito","Tokoin-Ouest","Centre","Autre"],
+  "Lomé — Agoè-Nyivé":["Anfamé","Djidjolé-Nord","Gbossimé","Agoè-Assiyéyé","Autre"],
+  "Lomé — Agbalépédogan":["Agbalépédogan","Koma","Nouveau Koma","Autre"],
+  "Lomé — Amoutivé":["Centre commercial","Kodjoviakopé","Autre"],
+  "Lomé — Baguida":["Baguida","Baguida-Plage","Abobo","Autre"],
+  "Lomé — Bè":["Bè","Bè-Kpota","Bè-Klikamé","Autre"],
+  "Lomé — Cacaveli":["Cacaveli","Wuiti","Zone Ambassades","Autre"],
+  "Lomé — Djidjolé":["Djidjolé","Djidjolé-Nord","Djidjolé-Sud","Autre"],
+  "Lomé — Hédzranawoé":["Hédzranawoé","Nukafu","Autre"],
+  "Lomé — Kégué":["Kégué","Kégué-Plage","Zébé","Autre"],
+  "Lomé — Kodjoviakopé":["Kodjoviakopé","Port","Zone portuaire","Autre"],
+  "Lomé — Lomé Centre":["Marché central","Plateau","Quartier administratif","Autre"],
+  "Lomé — Nyékonakpoè":["Nyékonakpoè","Akodésséwa","Autre"],
+  "Lomé — Tokoin":["Tokoin","Tokoin-Est","Tokoin-Forêt","CHU Tokoin","Autre"],
+  "Tsévié":["Centre","Tsévié-Gare","Tsévié-Nord","Tsévié-Sud","Agbatopé","Autre"],
+  "Aného":["Centre","Glidji","Aného-Plage","Adjonou","Autre"],
+  "Vogan":["Centre","Vogan-Gare","Agbanakin","Autre"],
+  "Tabligbo":["Centre","Tabligbo-Gare","Autre"],
+  "Kpémé":["Centre","Kpémé-Plage","Autre"],
+  "Aflao":["Centre","Frontière Ghana","Autre"],
+  "Noépé":["Centre","Noépé-Marché","Autre"],
+  "Kévé":["Centre","Autre"],
+  "Kpalimé":["Centre","Kpalimé-Gare","Kpalimé-Est","Kpalimé-Ouest","Kpimé-Séwi","Adéta","Autre"],
+  "Atakpamé":["Centre","Akaba","Awèta","Atakpamé-Gare","Atakpamé-Nord","Autre"],
+  "Notsé":["Centre","Notsé-Gare","Notsé-Marché","Autre"],
+  "Badou":["Centre","Badou-Marché","Tomégbé","Autre"],
+  "Amlamé":["Centre","Amlamé-Marché","Autre"],
+  "Anié":["Centre","Anié-Gare","Autre"],
+  "Sokodé":["Centre","Sokodé-Est","Sokodé-Ouest","Tchaoudjo","Kpaza","Farendé","Autre"],
+  "Sotouboua":["Centre","Kambolé","Autre"],
+  "Blitta":["Centre","Blitta-Gare","Blitta-Marché","Autre"],
+  "Tchamba":["Centre","Tchamba-Marché","Autre"],
+  "Kara":["Centre","Kara-Est","Kara-Ouest","Tomdè","Lama-Kara","Tchré","Autre"],
+  "Bassar":["Centre","Bassar-Marché","Bassar-Gare","Autre"],
+  "Niamtougou":["Centre","Niamtougou-Aéroport","Another"],
+  "Kandé":["Centre","Kandé-Marché","Autre"],
+  "Guérin-Kouka":["Centre","Autre"],
+  "Bafilo":["Centre","Bafilo-Marché","Autre"],
+  "Dapaong":["Centre","Dapaong-Est","Dapaong-Ouest","Mandouri","Dapaong-Marché","Autre"],
+  "Mango":["Centre","Mango-Marché","Autre"],
+  "Cinkassé":["Centre","Frontière Burkina/Ghana","Autre"],
+  "Tandjoaré":["Centre","Autre"],
+  "Autre":["Autre / Non précisé"]
+};
+
+const TOGO_REGIONS = {
+  "🏙️ Cotonou et environs": ["Cotonou — Akpakpa","Cotonou — Cadjehoun","Cotonou — Dantokpa","Cotonou — Fidjrossè","Cotonou — Ganhi","Cotonou — Gbégamey","Cotonou — Houéyiho","Cotonou — Jéricho","Cotonou — Menontin","Cotonou — Missèbo","Cotonou — Sainte-Rita","Cotonou — Sikècodji","Cotonou — Zogbo"],
+  "🌴 Sud Bénin": ["Abomey-Calavi","Porto-Novo","Ouidah","Bohicon","Abomey","Lokossa","Sèmè-Podji","Allada","Comé"],
+  "🌳 Nord Bénin": ["Parakou","Natitingou","Djougou","Kandi","Malanville","Nikki","Tchaourou","Savè"],
+  "🏙️ Lomé et environs": ["Lomé — Adidogomé","Lomé — Agoè-Nyivé","Lomé — Agbalépédogan","Lomé — Amoutivé","Lomé — Baguida","Lomé — Bè","Lomé — Cacaveli","Lomé — Djidjolé","Lomé — Hédzranawoé","Lomé — Kégué","Lomé — Kodjoviakopé","Lomé — Lomé Centre","Lomé — Nyékonakpoè","Lomé — Tokoin"],
+  "🌊 Région Maritime": ["Tsévié","Aného","Vogan","Tabligbo","Kpémé","Aflao","Noépé","Kévé"],
+  "🌿 Région des Plateaux": ["Kpalimé","Atakpamé","Notsé","Badou","Amlamé","Anié"],
+  "🏔️ Région Centrale": ["Sokodé","Sotouboua","Blitta","Tchamba"],
+  "⛰️ Région de la Kara": ["Kara","Bassar","Niamtougou","Kandé","Guérin-Kouka","Bafilo"],
+  "🌾 Région des Savanes": ["Dapaong","Mango","Cinkassé","Tandjoaré"]
+};
+
+// Mapping pays → régions affichées (TG = Togo, BJ = Bénin)
+const PAYS_REGIONS = {
+  'TG': ['🏙️ Lomé et environs', '🌊 Région Maritime', '🌿 Région des Plateaux', '🏔️ Région Centrale', '⛰️ Région de la Kara', '🌾 Région des Savanes'],
+  'BJ': ['🏙️ Cotonou et environs', '🌴 Sud Bénin', '🌳 Nord Bénin']
+};
+
+function buildVilleOptions(selectId, currentVal, paysCode) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const isSearch = selectId.includes('search') || selectId === 's-quartier';
+  sel.innerHTML = '<option value="">' + (isSearch ? 'Toutes les villes' : 'Sélectionne ta ville') + '</option>';
+  // Si paysCode fourni, filtrer les régions du pays. Sinon, afficher tout (rétrocompatibilité).
+  const regionsToShow = paysCode && PAYS_REGIONS[paysCode]
+    ? PAYS_REGIONS[paysCode].filter(r => TOGO_REGIONS[r])
+    : Object.keys(TOGO_REGIONS);
+  for (const region of regionsToShow) {
+    const grp = document.createElement('optgroup');
+    grp.label = region;
+    TOGO_REGIONS[region].forEach(ville => {
+      const opt = document.createElement('option');
+      opt.value = ville;
+      opt.textContent = ville;
+      if (currentVal && (currentVal === ville || currentVal.startsWith(ville.split(' — ')[1] || ville))) opt.selected = true;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  }
+  const autreOpt = document.createElement('option');
+  autreOpt.value = 'Autre';
+  autreOpt.textContent = 'Autre (non listé)';
+  sel.appendChild(autreOpt);
+}
+
+function buildQuartierOptions(villeSelectId, quartierSelectId) {
+  const vSel = document.getElementById(villeSelectId);
+  const qSel = document.getElementById(quartierSelectId);
+  if (!vSel || !qSel) return;
+  const ville = vSel.value;
+  qSel.innerHTML = '';
+  const opts = ['Autre / Non précisé'];
+  if (ville && TOGO_LOCALITES[ville]) {
+    TOGO_LOCALITES[ville].forEach(q => {
+      const o = document.createElement('option');
+      o.value = q; o.textContent = q;
+      qSel.appendChild(o);
+    });
+    return;
+  }
+  opts.forEach(q => {
+    const o = document.createElement('option');
+    o.value = q; o.textContent = q;
+    qSel.appendChild(o);
+  });
+}
+
+function getVilleQuartier(villeId, quartierId) {
+  const v = document.getElementById(villeId)?.value || '';
+  const q = document.getElementById(quartierId)?.value || '';
+  if (!v || v === 'Autre') return 'Autre';
+  if (!q || q === 'Autre / Non précisé' || q === 'Autre') return v;
+  return v + ' — ' + q;
+}
+
+// ══════════════════════════════════════════
+// GÉOLOCALISATION + CARTE LEAFLET
+// ══════════════════════════════════════════
+let _mapInscr = null, _markerInscr = null;
+
+function detecterPosition() {
+  const btn = document.getElementById('btn-geolocate');
+  const status = document.getElementById('geo-status');
+  if (!navigator.geolocation) { if(status) status.textContent='❌ GPS non supporté'; return; }
+  if(btn) { btn.textContent='⏳ Localisation...'; btn.disabled=true; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    const latIn = document.getElementById('f-latitude');
+    const lonIn = document.getElementById('f-longitude');
+    if(latIn) latIn.value = lat.toFixed(6);
+    if(lonIn) lonIn.value = lon.toFixed(6);
+    if(status) status.textContent = '✅ Position enregistrée';
+    if(btn) { btn.textContent='✅ GPS détecté'; btn.disabled=false; }
+    _afficherCarteInscription(lat, lon);
+  }, err => {
+    if(status) status.textContent='❌ Impossible. Active le GPS.';
+    if(btn) { btn.textContent='📍 Détecter ma position GPS'; btn.disabled=false; }
+  }, {enableHighAccuracy:true, timeout:12000});
+}
+
+function _afficherCarteInscription(lat, lon) {
+  const div = document.getElementById('map-inscription');
+  if (!div) return;
+  div.style.display = 'block';
+  if (!_mapInscr) {
+    _mapInscr = L.map('map-inscription').setView([lat,lon],15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://carto.com/">CARTO</a>',maxZoom:19}).addTo(_mapInscr);
+    _markerInscr = L.marker([lat,lon],{draggable:true}).addTo(_mapInscr);
+    _markerInscr.bindPopup('<b>📍 Ton commerce</b><br><small>Glisse pour ajuster</small>').openPopup();
+    _markerInscr.on('dragend', e => {
+      const p = e.target.getLatLng();
+      const li = document.getElementById('f-latitude'), lo = document.getElementById('f-longitude');
+      if(li) li.value = p.lat.toFixed(6);
+      if(lo) lo.value = p.lng.toFixed(6);
+    });
+  } else {
+    _mapInscr.setView([lat,lon],15);
+    _markerInscr.setLatLng([lat,lon]);
+  }
+  setTimeout(()=>_mapInscr.invalidateSize(),300);
+}
+
+function afficherCarteProfil(lat, lon, nom) {
+  const div = document.getElementById('map-profil');
+  if (!div || !lat || !lon || isNaN(lat) || isNaN(lon)) return;
+  div.style.display = 'block';
+  const map = L.map('map-profil').setView([lat,lon],15);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://carto.com/">CARTO</a>',maxZoom:19}).addTo(map);
+  L.marker([lat,lon]).addTo(map).bindPopup('📍 ' + (nom||'Prestataire')).openPopup();
+  setTimeout(()=>map.invalidateSize(),300);
+}
+
+// ══════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════
+async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;try{let records=[];if(window.supaPrest){try{const _t=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000));records=await Promise.race([window.supaPrest.list({limit:30,orderBy:'note_moyenne',orderDir:'desc'}),_t]);records=records.filter(r=>r.fields?.['Nom complet']&&r.fields?.['Métier principal']);}catch(e){console.warn('[Vedette] supaPrest timeout/err:',e);records=[];}}if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,12).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['Photo Profil']||f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(252, 224, 168,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(252, 224, 168,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
+
+async function initHome() {
+  buildVilleOptions('home-search-quartier');
+  buildVilleOptions('s-quartier');
+  // f-ville et edit-ville maintenant cascadés : peuplés seulement après sélection du pays (#f-pays / #edit-pays)
+
+  // Sprint 7 : gagnants du mois sur la homepage
+  setTimeout(() => loadHomeGagnants(), 500);
+
+  // Sprint 8 : compteurs métiers temps réel Airtable
+  setTimeout(() => chargerCompteurMetiers(), 300);
+
+  // Offres d'emploi récentes (home)
+  setTimeout(() => { if (typeof loadHomeOffresEmploi === 'function') loadHomeOffresEmploi(); }, 400);
+
+  // Prestataires en vedette
+  setTimeout(() => loadHomeVedette(), 200);
+
+  const container = document.getElementById('home-cards');
+  try {
+    const records = await fetchPrestataires({});
+    const count = records.length;
+    // Si 0 inscrits, afficher un message engageant au lieu de "0"
+    document.getElementById('m-prestataires').textContent = count > 0 ? count : '—';
+    document.getElementById('proof-count').textContent = count > 0 ? count : '—';
+    const mapStat = document.getElementById('map-stat-num');
+    if (mapStat) mapStat.textContent = count > 0 ? count : '—';
+    // Masquer les métriques à 0 visuellement
+    const metricPrestataires = document.getElementById('m-prestataires')?.closest('.metric');
+    if (metricPrestataires) metricPrestataires.style.display = count > 0 ? '' : 'none';
+
+    if (count === 0) {
+      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-icon">🌱</div>
+        <h3>Les premiers prestataires arrivent</h3>
+        <p style="margin-bottom:20px;">Sois le premier à rejoindre WOZALI !</p>
+        <button class="btn btn-primary" onclick="showPage('inscription')">Créer mon profil →</button>
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = records.slice(0, 6).map(r => renderCard(r)).join('');
+  } catch (e) {
+    // Fallback : afficher des données de démo
+    console.warn('Airtable inaccessible, affichage démo:', e.message);
+    const count = MOCK_PRESTATAIRES.length;
+    document.getElementById('m-prestataires').textContent = count;
+    if (document.getElementById('proof-count')) document.getElementById('proof-count').textContent = count;
+    container.innerHTML = MOCK_PRESTATAIRES.map(r => renderCard(r)).join('');
+  }
+
+  // Mettre à jour l'affichage des commissions
+  updateCommissionDisplay();
+}
+
+// Stats dynamiques homepage (offres actives, places fondateur, commissions)
+async function updateCommissionDisplay() {
+  const offreEl = document.getElementById('m-offres-actives');
+  const fondateurEl = document.getElementById('m-fondateur-restants');
+  const commEl = document.getElementById('m-fcfa-commissions');
+
+  // 1. Offres d'emploi actives
+  try {
+    const supa = window.supabase;
+    const { count } = await supa.from('wozali_offres_emploi').select('*', { count: 'exact', head: true }).eq('active', true);
+    const nb = count || 0;
+    const metricOffres = offreEl?.closest('.metric');
+    if (nb > 0) {
+      if (offreEl) offreEl.textContent = nb + '+';
+      if (metricOffres) metricOffres.style.display = '';
+    } else {
+      if (metricOffres) metricOffres.style.display = 'none';
+    }
+  } catch(e) { const m = offreEl?.closest('.metric'); if (m) m.style.display = 'none'; }
+
+  // 2. Places Fondateur restantes
+  try {
+    const total = await countPrestataires();
+    const restants = Math.max(0, 1000 - total);
+    if (fondateurEl) fondateurEl.textContent = restants.toLocaleString('fr-FR');
+  } catch(e) { if (fondateurEl) fondateurEl.textContent = '—'; }
+
+  // 3. FCFA versés en commissions
+  try {
+    const records = await fetchPrestataires({});
+    const totalPaye = records.reduce((s, r) => s + (r.fields['Commission Totale FCFA'] || 0), 0);
+    const metricComm = commEl?.closest('.metric');
+    if (totalPaye > 0) {
+      if (commEl) commEl.textContent = totalPaye >= 1000000
+        ? (totalPaye / 1000000).toFixed(1) + 'M CFA'
+        : totalPaye.toLocaleString('fr-FR') + ' CFA';
+      if (metricComm) metricComm.style.display = '';
+    } else {
+      if (metricComm) metricComm.style.display = 'none';
+    }
+  } catch(e) { const m = commEl?.closest('.metric'); if (m) m.style.display = 'none'; }
+}
+
+// ══════════════════════════════════════════
+// RECHERCHE
+// ══════════════════════════════════════════
+let dispoFilter = false;
+
+function toggleDispo() {
+  dispoFilter = !dispoFilter;
+  const btn = document.getElementById('dispo-btn');
+  btn.classList.toggle('active', dispoFilter);
+  loadSearch();
+}
+
+function doSearch() {
+  const metier = document.getElementById('home-search-metier')?.value || '';
+  const quartier = document.getElementById('home-search-quartier')?.value || '';
+  showPage('search');
+  setTimeout(() => {
+    if (metier) document.getElementById('s-metier').value = metier;
+    if (quartier) document.getElementById('s-quartier').value = quartier;
+    loadSearch();
+  }, 100);
+}
+
+function quickFilter(metier) {
+  showPage('search');
+  setTimeout(() => {
+    document.getElementById('s-metier').value = metier;
+    loadSearch();
+  }, 100);
+}
+
+// ── Map view state ──────────────────────────────────────────────
+let _mapViewActive = false;
+let _searchMapInstance = null;
+
+function toggleMapView() {
+  _mapViewActive = !_mapViewActive;
+  const btn = document.getElementById('map-toggle-btn');
+  const mapEl = document.getElementById('search-map');
+  const cardsEl = document.getElementById('search-cards');
+  if (_mapViewActive) {
+    btn.textContent = '📋 Vue liste';
+    btn.classList.add('active');
+    mapEl.style.display = 'block';
+    cardsEl.style.display = 'none';
+    renderSearchMap(window._lastSearchRecords || []);
+  } else {
+    btn.textContent = '🗺️ Vue carte';
+    btn.classList.remove('active');
+    mapEl.style.display = 'none';
+    cardsEl.style.display = 'grid';
+    const noticeEl = document.getElementById('search-map-notice');
+    if (noticeEl) noticeEl.style.display = 'none';
+    if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
+  }
+}
+
+function renderSearchMap(records) {
+  if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
+  const mapEl = document.getElementById('search-map');
+  if (!mapEl) return;
+
+  const centerLat = window._userLat || 6.1375;
+  const centerLon = window._userLon || 1.2123;
+
+  _searchMapInstance = L.map('search-map', { zoomControl: false }).setView([centerLat, centerLon], 13);
+
+  // Carto Voyager — tuiles propres style Airbnb
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://carto.com/">CARTO</a> © OpenStreetMap',
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(_searchMapInstance);
+
+  L.control.zoom({ position: 'bottomright' }).addTo(_searchMapInstance);
+
+  // Marqueur position utilisateur — point bleu
+  if (window._userLat) {
+    L.divIcon && L.marker([window._userLat, window._userLon], {
+      icon: L.divIcon({
+        className: '',
+        html: `<div style="width:16px;height:16px;background:#2563eb;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(37,99,235,.5);"></div>`,
+        iconSize: [16,16], iconAnchor: [8,8]
+      })
+    }).addTo(_searchMapInstance).bindPopup('<strong>📍 Ma position</strong>');
+  }
+
+  let _activeMarker = null;
+  let countWithGPS = 0, countWithoutGPS = 0;
+
+  const bounds = [];
+  records.forEach(r => {
+    const f = r.fields;
+    const lat = parseFloat(f['GPS Lat'] || 0);
+    const lon = parseFloat(f['GPS Lon'] || 0);
+    if (!lat || !lon) { countWithoutGPS++; return; }
+    countWithGPS++;
+    bounds.push([lat, lon]);
+
+    const nom = f['Nom complet'] || 'Prestataire';
+    const initiale = nom.charAt(0).toUpperCase();
+    const metier = f['Métier principal'] || '';
+    const emoji = METIER_EMOJI[metier] || '⚡';
+    const note = f['Note moyenne'];
+    const noteStr = note ? `⭐ ${note.toFixed(1)}` : 'Pas encore d\'avis';
+    const tarif = f['Tarif minimum FCFA'];
+    const isPro = isProUser({fields:f});
+    const dispo = f['Disponible maintenant'];
+    const photo = _wPhotoUrl(f['Photo de profil']);
+
+    // Bordure : vert si dispo, or si Pro, noir sinon
+    const borderColor = dispo ? '#E8940A' : isPro ? '#f59e0b' : '#111';
+    const size = 52;
+
+    const makeIcon = (active) => L.divIcon({
+      className: '',
+      html: `
+        <div style="
+          position:relative;
+          width:${size}px;height:${size}px;
+          border-radius:50%;
+          border:3px solid ${active ? '#111' : borderColor};
+          box-shadow:${active ? '0 4px 20px rgba(0,0,0,.40)' : '0 2px 10px rgba(0,0,0,.22)'};
+          overflow:hidden;
+          background:#f1f5f9;
+          transform:${active ? 'scale(1.18)' : 'scale(1)'};
+          transition:transform .15s;
+          cursor:pointer;
+        ">
+          ${photo
+            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;background:${isPro ? '#f59e0b' : '#E8940A'};">${initiale}</div>`
+          }
+          ${dispo ? `<div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:#E8940A;"></div>` : ''}
+        </div>
+        <div style="
+          position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+          width:0;height:0;
+          border-left:6px solid transparent;
+          border-right:6px solid transparent;
+          border-top:8px solid ${active ? '#111' : borderColor};
+        "></div>
+      `,
+      iconSize: [size, size + 8],
+      iconAnchor: [size/2, size + 8]
+    });
+
+    const marker = L.marker([lat, lon], { icon: makeIcon(false) }).addTo(_searchMapInstance);
+
+    // Popup card style Airbnb
+    const popupHtml = `
+      <div style="font-family:inherit;width:220px;">
+        <div style="width:220px;height:128px;border-radius:10px 10px 0 0;overflow:hidden;background:#f1f5f9;margin:-14px -20px 10px -20px;">
+          ${photo
+            ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:900;color:white;background:${isPro ? '#f59e0b' : '#E8940A'};">${initiale}</div>`
+          }
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+          <div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;">${nom}</div>
+          ${isPro ? '<span style="background:#f59e0b;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">⭐ Pro</span>' : ''}
+        </div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:3px;">${emoji} ${metier} · ${f['Quartier'] || 'Lomé'}</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:10px;">${noteStr}${dispo ? ' · <span style="color:#E8940A;font-weight:700;">Dispo</span>' : ''}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:13px;font-weight:800;">${tarif ? `${tarif.toLocaleString('fr-FR')} <span style="font-weight:400;font-size:11px;">FCFA</span>` : '<span style="font-size:11px;color:#94a3b8;">Tarif libre</span>'}</div>
+          <button onclick="showProfil('${r.id}')" style="background:#111;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;">Voir profil</button>
+        </div>
+      </div>
+    `;
+
+    marker.bindPopup(popupHtml, { maxWidth: 240, offset: [0, -8] });
+
+    marker.on('click', () => {
+      if (_activeMarker && _activeMarker !== marker) _activeMarker._wozaliSetInactive();
+      marker.setIcon(makeIcon(true));
+      marker._wozaliSetInactive = () => marker.setIcon(makeIcon(false));
+      _activeMarker = marker;
+    });
+    marker.on('popupclose', () => {
+      marker.setIcon(makeIcon(false));
+      if (_activeMarker === marker) _activeMarker = null;
+    });
+  });
+
+  if (bounds.length > 1) {
+    _searchMapInstance.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+  } else if (bounds.length === 1) {
+    _searchMapInstance.setView(bounds[0], 14);
+  }
+
+  // Bandeau informatif si des prestataires sont hors carte
+  const noticeEl = document.getElementById('search-map-notice');
+  const noticeText = document.getElementById('search-map-notice-text');
+  if (noticeEl && noticeText) {
+    if (countWithoutGPS > 0) {
+      const total = countWithGPS + countWithoutGPS;
+      noticeText.innerHTML = `<strong>${countWithGPS} prestataire${countWithGPS > 1 ? 's' : ''} sur ${total}</strong> sont visibles sur la carte. <strong>${countWithoutGPS}</strong> autre${countWithoutGPS > 1 ? 's' : ''} (pros du web, sans adresse fixe) n'apparaissent pas ici — utilise la <strong>vue liste</strong> pour les voir tous.`;
+      noticeEl.style.display = 'flex';
+    } else {
+      noticeEl.style.display = 'none';
+    }
+  }
+}
+
+let _rechercheTimer;
+function rechercheDebounce(fn, delay=300) {
+  clearTimeout(_rechercheTimer);
+  _rechercheTimer = setTimeout(fn, delay);
+}
+
+async function loadSearch() {
+  const container = document.getElementById('search-cards');
+  const meta = document.getElementById('results-meta');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Recherche...</div>';
+  getUserLocation();
+
+  const metier = document.getElementById('s-metier')?.value || '';
+  const quartier = document.getElementById('s-quartier')?.value || '';
+
+  // Point 52 — SEO: meta descriptions dynamiques par metier
+  (function updateSEOMeta() {
+    var seoMetier = metier || '';
+    var seoVille = quartier || '';
+    var metaDesc = document.querySelector('meta[name="description"]');
+    if (seoMetier) {
+      var titre = seoMetier + (seoVille ? ' a ' + seoVille : ' a Lome et Cotonou') + ' — WOZALI';
+      document.title = titre;
+      if (metaDesc) metaDesc.setAttribute('content', 'Trouve un ' + seoMetier.toLowerCase() + (seoVille ? ' a ' + seoVille : ' a Lome ou Cotonou') + '. Profils verifies, avis clients, contact direct. WOZALI.');
+    } else {
+      document.title = 'Trouver un prestataire — WOZALI';
+      if (metaDesc) metaDesc.setAttribute('content', 'Trouve un prestataire de confiance a Lome ou Cotonou. Coiffure, couture, mecanique, plomberie et plus. WOZALI.');
+    }
+  })();
+  const tarifMax = document.getElementById('s-tarif')?.value || '';
+
+  try {
+    let records = await fetchPrestataires({ metier, quartier, dispo: dispoFilter, tarifMax: tarifMax ? parseInt(tarifMax) : null });
+    // Filtre Talents Digitaux côté client (pas de champ Airtable requis)
+    if (digitalFilter) records = records.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
+    if (proFilter) records = records.filter(r => (r.fields['Abonnement']||'Base') !== 'Base');
+    if (verifFilter) records = records.filter(r => !!r.fields['Badge vérifié']);
+    // Filtre pays
+    const paysSel = document.getElementById('s-pays')?.value || '';
+    if (paysSel) {
+      const BJ = ['cotonou','porto-novo','parakou','abomey','ouidah','natitingou','djougou','kandi','bohicon','calavi'];
+      const TG = ['lomé','kpalimé','atakpamé','sokodé','kara','dapaong','adidogomé','tokoin','bè','agoè','hédzranawoé','kodjoviakopé','djidjolé','nyékonakpoè','tsévié','aného'];
+      records = records.filter(r => {
+        const loc = ((r.fields['Quartier']||'')+' '+(r.fields['Ville']||'')).toLowerCase();
+        if (paysSel === 'benin') return BJ.some(v => loc.includes(v));
+        if (paysSel === 'togo')  return TG.some(v => loc.includes(v));
+        return true;
+      });
+    }
+    // Top 50 : basé sur le Score WOZALI des 50 meilleurs
+    if (top50Filter) {
+      const sorted = [...records].sort((a,b) => (b.fields['Score WOZALI']||0) - (a.fields['Score WOZALI']||0));
+      const top50Ids = new Set(sorted.slice(0,50).map(r=>r.id));
+      records = records.filter(r => top50Ids.has(r.id));
+    }
+    // Filtre texte libre
+    const textQ = (document.getElementById('s-text')?.value || '').trim().toLowerCase();
+    if (textQ) records = records.filter(r => {
+      const f = r.fields;
+      return (f['Nom complet']||'').toLowerCase().includes(textQ)
+          || (f['Métier principal']||'').toLowerCase().includes(textQ)
+          || (f['Description des services']||'').toLowerCase().includes(textQ)
+          || (f['Quartier']||'').toLowerCase().includes(textQ);
+    });
+    // Tri
+    const tri = document.getElementById('s-tri')?.value || '';
+    if (tri === 'note') records.sort((a,b) => (b.fields['Note moyenne']||0) - (a.fields['Note moyenne']||0));
+    else if (tri === 'vues') records.sort((a,b) => (b.fields['Nombre de vues profil']||0) - (a.fields['Nombre de vues profil']||0));
+    else if (tri === 'avis') records.sort((a,b) => (b.fields["Nombre d'avis reçus"]||0) - (a.fields["Nombre d'avis reçus"]||0));
+    else if (tri === 'tarif-asc') records.sort((a,b) => (a.fields['Tarif minimum FCFA']||0) - (b.fields['Tarif minimum FCFA']||0));
+    window._lastSearchRecords = records;
+    meta.textContent = `${records.length} prestataire${records.length !== 1 ? 's' : ''} trouvé${records.length !== 1 ? 's' : ''}`;
+
+    if (records.length === 0) {
+      const _qMetier = metier || 'ce métier';
+      const _qQuartier = quartier || '';
+      if (_qQuartier) {
+        container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-icon">🔍</div>
+          <h3>Aucun prestataire trouvé pour "${_qMetier}" à "${_qQuartier}".</h3>
+          <p style="margin-bottom:14px;line-height:1.7;">Essaie :<br>→ Un quartier proche<br>→ La ville entière<br>→ Les deux pays simultanément</p>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Ou deviens le premier <strong>${_qMetier}</strong> référencé ici :</p>
+          <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil WOZALI — c'est gratuit</button>
+        </div>`;
+      } else {
+        container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-icon">🔍</div>
+          <h3>Personne pour "${_qMetier}" pour l'instant.</h3>
+          <p style="margin-bottom:14px;line-height:1.7;">Ce métier n'est pas encore représenté sur WOZALI.<br><strong>Sois le premier</strong> — et sois trouvé avant tout le monde.</p>
+          <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil maintenant</button>
+        </div>`;
+      }
+      if (_mapViewActive) renderSearchMap([]);
+      return;
+    }
+
+    // Injection bannière intercalée après 6 résultats
+    const _cardsHtml = records.map(r => renderCard(r));
+    if (_cardsHtml.length > 6) {
+      const _mLabel = metier || 'ce métier';
+      const _nbSearch = Math.max(12, Math.floor(records.length * 2));
+      const _banner = `<div class="pcard" style="grid-column:1/-1;background:linear-gradient(135deg,#fff8e6,#fef3dc);border:2px solid #E8940A;padding:24px;text-align:center;">
+        <div style="font-size:32px;margin-bottom:8px;">💡</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:900;color:#14100A;margin-bottom:10px;">Tu es ${_mLabel} à Cotonou ou à Lomé ?</h3>
+        <p style="font-size:14px;color:#374151;line-height:1.7;margin-bottom:6px;"><strong>${_nbSearch}</strong> personnes ont cherché "<em>${_mLabel}</em>" ce mois sur WOZALI. Aucune ne t'a trouvé.</p>
+        <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:14px;">Ton concurrent qui est Pro apparaît en premier. Toi, tu n'apparais pas encore.</p>
+        <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil gratuit — 2 minutes</button>
+      </div>`;
+      _cardsHtml.splice(6, 0, _banner);
+    }
+    container.innerHTML = _cardsHtml.join('') + `
+      <div style="grid-column:1/-1;margin-top:40px;padding:28px;background:#fff8e6;border:1.5px solid #f3d38a;border-radius:16px;text-align:center;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;margin-bottom:10px;">Tu n'as pas trouvé le bon prestataire ?</h3>
+        <p style="font-size:14px;color:#374151;margin-bottom:16px;">Publie ta demande — les prestataires disponibles te contactent.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Publier ma demande de service</button>
+          <button class="btn btn-secondary btn-sm" onclick="showPage('emploi')">→ Voir les offres actives au Bénin et au Togo</button>
+        </div>
+      </div>`;
+    if (_mapViewActive) renderSearchMap(records);
+  } catch (e) {
+    console.warn('Airtable inaccessible recherche:', e?.message);
+    let filtered = MOCK_PRESTATAIRES.filter(r => {
+      if (metier && r.fields['Métier principal'] !== metier) return false;
+      if (quartier && r.fields['Quartier'] !== quartier) return false;
+      return true;
+    });
+    if (digitalFilter) filtered = filtered.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
+    window._lastSearchRecords = filtered;
+    meta.textContent = `${filtered.length} prestataire${filtered.length !== 1 ? 's' : ''} (démo)`;
+    container.innerHTML = filtered.length
+      ? filtered.map(r => renderCard(r)).join('')
+      : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🔍</div><h3>Aucun prestataire trouvé.</h3><p>Essaie d'élargir ta recherche ou <a href="javascript:showPage('inscription')" style="color:var(--or);font-weight:700;">crée ton profil</a>.</p></div>`;
+    if (_mapViewActive) renderSearchMap(filtered);
+  }
+}
+
+// ══════════════════════════════════════════
+// PROFIL DÉTAILLÉ
+// ══════════════════════════════════════════
+let currentProfilId = null;
+
+// ══ SYSTÈME DE POSTS ══
+const _postsCache = {}; // { recordId: [{id, texte, photo, date, auteur}] }
+
+function previewPostMedia(input, recordId) {
+  const file = input?.files[0];
+  if (!file) return;
+  const preview = document.getElementById(`post-img-preview-${recordId}`);
+  const imgEl   = document.getElementById(`post-img-preview-img-${recordId}`);
+  const vidEl   = document.getElementById(`post-img-preview-vid-${recordId}`);
+  if (!preview) return;
+
+  if (file.type.startsWith('video/')) {
+    // Vérifier durée max 3 min via metadata
+    const blobUrl = URL.createObjectURL(file);
+    const tmp = document.createElement('video');
+    tmp.preload = 'metadata';
+    tmp.onloadedmetadata = () => {
+      URL.revokeObjectURL(blobUrl);
+      if (tmp.duration > 180) {
+        toast('La vidéo doit faire moins de 3 minutes (180s)', 'error');
+        input.value = '';
+        return;
+      }
+      if (imgEl) imgEl.style.display = 'none';
+      if (vidEl) { vidEl.src = URL.createObjectURL(file); vidEl.style.display = 'block'; }
+      preview.style.display = 'flex';
+      preview.style.alignItems = 'center';
+    };
+    tmp.src = blobUrl;
+  } else {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (vidEl) vidEl.style.display = 'none';
+      if (imgEl) { imgEl.src = e.target.result; imgEl.style.display = 'block'; }
+      preview.style.display = 'flex';
+      preview.style.alignItems = 'center';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+// Compat alias
+function previewPostImg(input, recordId) { previewPostMedia(input, recordId); }
+
+function clearPostMedia(recordId) {
+  const input  = document.getElementById(`post-img-${recordId}`);
+  const preview = document.getElementById(`post-img-preview-${recordId}`);
+  const vidEl  = document.getElementById(`post-img-preview-vid-${recordId}`);
+  if (input) input.value = '';
+  if (vidEl) { vidEl.pause?.(); vidEl.src = ''; vidEl.style.display = 'none'; }
+  if (preview) preview.style.display = 'none';
+}
+function clearPostImg(recordId) { clearPostMedia(recordId); }
+
+async function submitPost(recordId) {
+  const textarea = document.getElementById(`post-composer-${recordId}`);
+  const mediaInput = document.getElementById(`post-img-${recordId}`);
+  const texte = textarea?.value?.trim();
+  const file  = mediaInput?.files[0];
+  const isVideo = file?.type?.startsWith('video/');
+
+  // Validation
+  if (!texte && !file) { toast('Écris quelque chose ou ajoute une photo / vidéo', 'error'); return; }
+  if (texte && texte.length < 3) { toast('Le texte doit faire au minimum 3 caractères', 'error'); return; }
+  if (texte && texte.length > 2000) { toast('Le post est trop long (max 2000 caractères)', 'error'); return; }
+  if (file && !isVideo && file.size > 5 * 1024 * 1024) { toast('L\'image est trop lourde (max 5 MB)', 'error'); return; }
+  if (isVideo && file.size > 500 * 1024 * 1024) { toast('La vidéo est trop lourde (max 500 MB)', 'error'); return; }
+
+  const btn = document.querySelector(`#posts-section-${recordId} button[onclick*="submitPost"]`);
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+
+  let mediaUrl  = '';
+  let mediaType = 'text';
+
+  if (file) {
+    try {
+      if (isVideo) {
+        if (btn) btn.textContent = '📤 Upload vidéo...';
+        mediaUrl  = await uploadMediaToSupabase(file);
+        mediaType = 'video';
+      } else {
+        if (btn) btn.textContent = '📤 Upload photo...';
+        const toB64 = (f) => new Promise((resolve, reject) => {
+          const r = new FileReader(); r.onload = () => resolve(r.result.split(',')[1]); r.onerror = reject; r.readAsDataURL(f);
+        });
+        const b64 = await toB64(file);
+        const res = await fetch('/api/imgbb-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: b64 })
+        });
+        const data = await res.json();
+        mediaUrl  = data?.data?.url || '';
+        mediaType = 'photo';
+      }
+    } catch(e) {
+      console.error('Upload media failed', e);
+      toast('Erreur upload : ' + (e.message || 'réessaie'), 'error');
+      if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
+      return;
+    }
+  }
+
+  // Sauvegarder dans Supabase wolo_posts_v2
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data: postData, error: postErr } = await supa.from('wozali_posts_v2').insert({
+      prestataire_id: recordId,
+      auteur_user_id: currentUser?.id || null,
+      auteur_nom:     currentPrestataire?.fields?.['Nom complet'] || '',
+      auteur_photo:   _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']),
+      contenu:        texte || '',
+      image_url:      mediaUrl || '',
+      media_type:     mediaType || 'text',
+      nb_likes:       0,
+      commentaires:   [],
+    }).select('id').single();
+    if (postErr) throw postErr;
+    // Auto-ajouter au album Publications si l'owner publie
+    if (mediaUrl && currentPrestataire?.id === recordId && postData) {
+      await _addToPublicationsAlbum(mediaUrl, mediaType === 'video' ? 'video' : 'photo', postData.id || '');
+      currentPrestataire.fields['Albums'] = JSON.stringify(_getAlbums()); // sync local
+    }
+  } catch(e) {
+    console.error('[submitPost]', e);
+    toast('Erreur publication : ' + (e?.message || 'réessaie'), 'error');
+    if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
+    return;
+  }
+
+  if (textarea) textarea.value = '';
+  clearPostMedia(recordId);
+  if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
+
+  await renderPostsFeed(recordId);
+}
+
+async function renderPostsFeed(recordId) {
+  const feedEl = document.getElementById(`posts-feed-${recordId}`);
+  if (!feedEl) return;
+  feedEl.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-size:13px;">⏳ Chargement...</div>`;
+
+  // Charger depuis Supabase wolo_posts_v2
+  let posts = [];
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data: rows, error: postsErr } = await supa
+      .from('wozali_posts_v2')
+      .select('*')
+      .eq('prestataire_id', recordId)
+      .eq('actif', true)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (postsErr) throw postsErr;
+    posts = (rows || []).map(r => ({
+      id:          r.id,
+      texte:       r.contenu      || '',
+      photo:       r.image_url    || '',
+      mediaType:   r.media_type   || 'text',
+      date:        r.created_at   || '',
+      auteur:      r.auteur_nom   || '',
+      auteurPhoto: r.auteur_photo || '',
+      auteurId:    r.prestataire_id || null,
+      likes:       r.nb_likes     || 0,
+      comments:    Array.isArray(r.commentaires) ? r.commentaires : []
+    }));
+  } catch(e) { feedEl.innerHTML = `<div style="color:rgba(255,100,100,0.6);padding:16px;font-size:13px;">Erreur de chargement</div>`; return; }
+
+  const likedKey = 'wozali_liked';
+  const liked = JSON.parse(localStorage.getItem(likedKey) || '[]');
+
+  if (posts.length === 0) {
+    const isOwner = currentUser && currentPrestataire?.id === recordId;
+    feedEl.innerHTML = `<div style="text-align:center;padding:32px;color:rgba(255,255,255,0.3);font-size:14px;"><div style="font-size:32px;margin-bottom:10px;">📭</div>Aucune publication pour l'instant.${isOwner ? '<br><span style="font-size:12px;">Partage ta première réalisation !</span>' : ''}</div>`;
+    return;
+  }
+
+  feedEl.innerHTML = posts.map(p => {
+    const isOwner = currentUser && currentPrestataire?.id === recordId;
+    const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+    const initiale = (p.auteur || '?').charAt(0).toUpperCase();
+    const likeId = `${recordId}_${p.id}`;
+    const hasLiked = liked.includes(likeId);
+    const likeCount = p.likes || 0;
+    const comments = p.comments || [];
+    const commentCount = comments.length;
+
+    const commentsHtml = comments.map(c => {
+      const cInit = (c.auteur || '?').charAt(0).toUpperCase();
+      const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+      return `<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,0.06);">
+        ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');" loading="lazy">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(255,255,255,0.6);font-size:12px;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${cInit}</div>`}
+        <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 12px;">
+          <div style="font-weight:700;color:white;font-size:13px;margin-bottom:2px;cursor:${c.auteurId ? 'pointer' : 'default'};" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${c.auteur} <span style="font-weight:400;color:rgba(255,255,255,0.35);font-size:11px;">· ${cDate}</span></div>
+          <div style="color:rgba(255,255,255,0.8);font-size:13px;line-height:1.5;">${c.texte.replace(/\n/g,'<br>')}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `
+    <div id="post-card-${p.id}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:12px;">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        ${p.auteurPhoto ? `<img src="${p.auteurPhoto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');" loading="lazy">` : `<div style="width:38px;height:38px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">${initiale}</div>`}
+        <div style="cursor:${p.auteurId ? 'pointer' : 'default'};" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">
+          <div style="font-weight:700;color:white;font-size:14px;">${p.auteur}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);">${dateStr}</div>
+        </div>
+        ${isOwner ? `<button onclick="deletePost('${recordId}','${p.id}')" style="margin-left:auto;background:rgba(255,0,0,0.1);border:none;color:rgba(255,100,100,0.6);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">Supprimer</button>` : ''}
+      </div>
+      <!-- Contenu -->
+      ${p.texte ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;margin:0 0 ${p.photo ? '12px' : '0'};">${p.texte.replace(/\n/g,'<br>')}</p>` : ''}
+      ${p.photo && p.mediaType === 'video'
+        ? `<video src="${p.photo}" controls playsinline preload="metadata"
+             style="width:100%;max-height:420px;border-radius:10px;background:#000;cursor:pointer;margin-bottom:4px;display:block;"
+             onclick="openLightboxMedia('${p.photo}','video')"></video>`
+        : p.photo
+          ? `<img src="${p.photo}" onclick="openLightboxMedia('${p.photo}','photo')" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;cursor:pointer;margin-bottom:4px;" loading="lazy">`
+          : ''
+      }
+      <!-- Actions (like + commenter) -->
+      <div style="display:flex;gap:4px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);margin-top:10px;">
+        <button onclick="likePost('${recordId}','${p.id}')" style="display:flex;align-items:center;gap:6px;background:${hasLiked ? 'rgba(239,68,68,0.15)' : 'transparent'};border:none;color:${hasLiked ? '#f87171' : 'rgba(255,255,255,0.5)'};padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;" onmouseenter="this.style.background='rgba(239,68,68,0.12)'" onmouseleave="this.style.background='${hasLiked ? 'rgba(239,68,68,0.15)' : 'transparent'}'">
+          ${hasLiked ? '❤️' : '🤍'} <span id="like-count-${p.id}">${likeCount > 0 ? likeCount : ''}</span>${likeCount === 0 ? "J'aime" : ''}
+        </button>
+        <button onclick="toggleCommentBox('${recordId}','${p.id}')" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.06)'" onmouseleave="this.style.background='transparent'">
+          💬 <span>${commentCount > 0 ? commentCount + ' commentaire' + (commentCount > 1 ? 's' : '') : 'Commenter'}</span>
+        </button>
+      </div>
+      <!-- Section commentaires -->
+      <div id="comments-section-${p.id}" style="display:none;margin-top:10px;">
+        ${commentsHtml}
+        <!-- Saisie nouveau commentaire -->
+        <div style="display:flex;gap:10px;align-items:flex-start;padding-top:${commentCount > 0 ? '10px' : '0'};">
+          <div style="width:30px;height:30px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:12px;flex-shrink:0;">${(currentPrestataire?.fields?.['Nom complet'] || 'V').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;display:flex;gap:8px;align-items:center;">
+            <input id="comment-input-${p.id}" type="text" placeholder="Écrire un commentaire..." style="flex:1;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:100px;padding:8px 16px;color:white;font-size:13px;font-family:inherit;outline:none;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" onkeydown="if(event.key==='Enter')submitComment('${recordId}','${p.id}')">
+            <button onclick="submitComment('${recordId}','${p.id}')" style="background:var(--vert);border:none;color:white;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── SYSTÈME DE NOTIFICATIONS / ACTIVITÉ ──
+function pushNotif(recordId, notif) {
+  const key = `wozali_notifs_${recordId}`;
+  const notifs = JSON.parse(localStorage.getItem(key) || '[]');
+  notifs.unshift({ ...notif, id: Date.now().toString(), date: new Date().toISOString(), read: false });
+  if (notifs.length > 100) notifs.splice(100);
+  localStorage.setItem(key, JSON.stringify(notifs));
+  updateNotifBadge(recordId);
+}
+
+function updateNotifBadge(recordId) {
+  if (!recordId) return;
+  const key = `wozali_notifs_${recordId}`;
+  const notifs = JSON.parse(localStorage.getItem(key) || '[]');
+  let unread = notifs.filter(n => !n.read).length;
+  // Ajouter les messages du fondateur non lus depuis Supabase notifications
+  try {
+    const fondateur = _getFondateurMessages();
+    unread += fondateur.filter(m => !m.read).length;
+  } catch(e){}
+  const badge = document.getElementById('notif-badge');
+  if (badge) {
+    if (unread > 0) {
+      badge.textContent = unread > 99 ? '99+' : String(unread);
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+}
+
+// ══ BOÎTE DU FONDATEUR — Messages de Schealtiel + demandes clients ══
+function _getFondateurMessages() {
+  const raw = window.currentPrestataire?.fields?.['Notifications'];
+  if (!raw) return [];
+  let arr = [];
+  try { arr = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch(e) { return []; }
+  if (!Array.isArray(arr)) return [];
+  // Affiche les messages de Schealtiel ET les demandes clients pushées
+  // par les endpoints widgets (réservations, devis, commandes, RDV…).
+  return arr.filter(m => m && (m.type === 'message_fondateur' || m.type === 'demande_client'));
+}
+
+function renderFondateurInbox() {
+  const block = document.getElementById('fondateur-inbox-block');
+  if (!block || !window.currentPrestataire) return;
+  const messages = _getFondateurMessages();
+  if (messages.length === 0) { block.style.display = 'none'; block.innerHTML = ''; return; }
+  block.style.display = 'block';
+  const unreadCount = messages.filter(m => !m.read).length;
+  // Trier : non-lus d'abord, puis par date desc.
+  messages.sort((a, b) => {
+    const ar = a.read ? 1 : 0, br = b.read ? 1 : 0;
+    if (ar !== br) return ar - br;
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+  block.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(232,148,10,0.08) 0%,rgba(232,148,10,0.02) 100%);border:1px solid rgba(232,148,10,0.25);border-radius:16px;padding:18px 20px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;font-family:'DM Serif Display',serif;flex-shrink:0;">📬</div>
+        <div style="flex:1;">
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:800;color:#FCE0A8;">Boîte WOZALI</div>
+          <div style="font-size:12px;color:rgba(252, 224, 168,0.55);">Messages du fondateur + demandes clients${unreadCount > 0 ? ` · <span style="color:#E8940A;font-weight:700;">${unreadCount} non-lu${unreadCount > 1 ? 's' : ''}</span>` : ''}</div>
+        </div>
+        
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${messages.map(m => {
+          const dateStr = new Date(m.created_at || Date.now()).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+          const unreadDot = !m.read ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#E8940A;margin-right:6px;"></span>' : '';
+          const isDemande = m.type === 'demande_client';
+          const fromTxt = isDemande ? 'Demande client · WOZALI' : ('— ' + (m.from || 'Le fondateur WOZALI'));
+          const sectionTarget = (m.action_url && m.action_url.indexOf('section=') >= 0)
+            ? (m.action_url.split('section=')[1] || '').replace(/['"]/g,'') : '';
+          return `<div onclick="_handleFondateurMessageClick('${m.id}','${sectionTarget}')" style="background:${m.read ? 'rgba(252, 224, 168,0.04)' : 'rgba(232,148,10,0.08)'};border:1px solid ${m.read ? 'rgba(252, 224, 168,0.08)' : 'rgba(232,148,10,0.25)'};border-radius:12px;padding:14px 16px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+              <div style="font-weight:700;font-size:14px;color:#FCE0A8;">${unreadDot}${(m.title || 'Message').replace(/</g,'&lt;')}</div>
+              <div style="font-size:11px;color:rgba(252, 224, 168,0.45);white-space:nowrap;">${dateStr}</div>
+            </div>
+            <div style="font-size:13px;line-height:1.65;color:rgba(252, 224, 168,0.78);white-space:pre-line;">${(m.body || '').replace(/</g,'&lt;')}</div>
+            <div style="margin-top:10px;font-size:11px;color:${isDemande ? 'rgba(255,200,80,0.85)' : 'rgba(232,148,10,0.7)'};font-style:italic;">${fromTxt.replace(/</g,'&lt;')}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+async function markFondateurMessageRead(msgId) {
+  if (!window.currentPrestataire) return;
+  const raw = window.currentPrestataire.fields?.['Notifications'];
+  let arr = [];
+  try { arr = typeof raw === 'string' ? JSON.parse(raw) : (raw || []); } catch(e) { return; }
+  if (!Array.isArray(arr)) return;
+  let changed = false;
+  arr = arr.map(m => {
+    if (m && m.id === msgId && !m.read) { changed = true; return { ...m, read: true }; }
+    return m;
+  });
+  if (!changed) return;
+  // Update Supabase + state local
+  try {
+    if (window.supaPrest) {
+      await window.supaPrest.update(window.currentPrestataire.id, { 'Notifications': arr });
+    }
+    window.currentPrestataire.fields['Notifications'] = arr;
+    renderFondateurInbox();
+    updateNotifBadge(window.currentPrestataire.id);
+  } catch(e) { console.warn('[mark fondateur read]', e); }
+}
+
+// Click handler unique pour les cartes de la Boîte du Fondateur :
+// - marque le message comme lu
+// - bascule vers la section dashboard liée si action_url=#dashboard?section=...
+function _handleFondateurMessageClick(msgId, sectionTarget) {
+  if (sectionTarget && typeof showDashSection === 'function') {
+    try { showDashSection(sectionTarget); } catch(_) {}
+  }
+  if (typeof markFondateurMessageRead === 'function') markFondateurMessageRead(msgId);
+}
+
+// ══════════════════════════════════════════
+// CHAT WOZALI — Widget "Écrire à WOZALI"
+// IA auto-reply + escalade fondateur
+// ══════════════════════════════════════════
+
+function openWozaliChat() {
+  const compose = document.getElementById('wozali-chat-compose');
+  const response = document.getElementById('wozali-chat-response');
+  if (!compose) return;
+  compose.style.display = 'block';
+  if (response) response.style.display = 'none';
+  const input = document.getElementById('wozali-chat-input');
+  if (input) { input.value = ''; setTimeout(() => input.focus(), 50); }
+}
+
+function closeWozaliChat() {
+  const compose = document.getElementById('wozali-chat-compose');
+  if (compose) compose.style.display = 'none';
+}
+
+async function sendWozaliChatMessage() {
+  const input = document.getElementById('wozali-chat-input');
+  const btn = document.getElementById('wozali-chat-send-btn');
+  const responseEl = document.getElementById('wozali-chat-response');
+  if (!input || !btn || !responseEl) return;
+
+  const message = input.value.trim();
+  if (!message) { input.focus(); return; }
+
+  // UI loading
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi...';
+
+  try {
+    const resp = await wozaliFetch('/api/wozali-pay/chat-wozali-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+    const data = await resp.json();
+
+    // Cacher la zone de saisie
+    closeWozaliChat();
+
+    // Afficher la réponse
+    responseEl.style.display = 'block';
+
+    if (data.ok && data.reponse) {
+      // Réponse IA disponible
+      responseEl.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(232,148,10,0.08),rgba(232,148,10,0.02));border:1.5px solid rgba(232,148,10,0.25);border-radius:16px;padding:18px 20px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:18px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;">W</div>
+            <div style="flex:1;">
+              <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">WOZALI</div>
+              <div style="font-size:11px;color:rgba(252,224,168,0.45);font-family:'Geist Mono',monospace;letter-spacing:1px;">RÉPONSE AUTOMATIQUE</div>
+            </div>
+          </div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.88);white-space:pre-line;">${escapeHtml(data.reponse)}</div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(232,148,10,0.12);display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="openWozaliChat()" style="background:transparent;border:1px solid rgba(232,148,10,0.35);color:#E8940A;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✉️ Autre question</button>
+            <button onclick="toggleWozaliHistory()" style="background:transparent;border:1px solid rgba(252,224,168,0.12);color:rgba(252,224,168,0.5);padding:8px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📜 Voir l'historique</button>
+          </div>
+        </div>`;
+    } else {
+      // Escalade fondateur — message neutre
+      const msgAffiche = data.message_affiche || 'Message envoyé — nous reviendrons vers toi bientôt.';
+      responseEl.innerHTML = `
+        <div style="background:rgba(232,148,10,0.05);border:1px solid rgba(232,148,10,0.2);border-radius:16px;padding:18px 20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-size:24px;">✅</span>
+            <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">Message envoyé</div>
+          </div>
+          <div style="font-size:14px;color:rgba(252,224,168,0.75);">${escapeHtml(msgAffiche)}</div>
+          <button onclick="openWozaliChat()" style="margin-top:12px;background:transparent;border:1px solid rgba(232,148,10,0.35);color:#E8940A;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✉️ Envoyer un autre message</button>
+        </div>`;
+    }
+  } catch(e) {
+    console.error('[chat-wozali] send error:', e);
+    btn.disabled = false;
+    btn.textContent = 'Envoyer ➤';
+    // Toast d'erreur discret
+    if (typeof toast === 'function') toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Envoyer ➤';
+}
+
+let _wozaliHistoryVisible = false;
+
+async function toggleWozaliHistory() {
+  const historyEl = document.getElementById('wozali-chat-history');
+  const historyList = document.getElementById('wozali-chat-history-list');
+  const btn = document.getElementById('wozali-chat-history-btn');
+  if (!historyEl || !historyList) return;
+
+  _wozaliHistoryVisible = !_wozaliHistoryVisible;
+  historyEl.style.display = _wozaliHistoryVisible ? 'block' : 'none';
+
+  if (btn) {
+    btn.textContent = _wozaliHistoryVisible ? '📜 Masquer' : '📜 Historique';
+  }
+
+  if (!_wozaliHistoryVisible) return;
+
+  // Charger l'historique
+  historyList.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">⏳ Chargement...</div>';
+
+  try {
+    const resp = await wozaliFetch('/api/wozali-pay/chat-wozali-history');
+    const data = await resp.json();
+
+    if (!data.ok || !data.messages?.length) {
+      historyList.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.35);font-size:13px;">Pas encore d\'échange avec WOZALI.</div>';
+      return;
+    }
+
+    historyList.innerHTML = data.messages.map(m => {
+      const dateStr = new Date(m.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      const reponse = m.reponse;
+      const enAttente = m.en_attente;
+
+      return `<div style="margin-bottom:16px;">
+        <!-- Message prestataire -->
+        <div style="display:flex;justify-content:flex-end;margin-bottom:6px;">
+          <div style="max-width:85%;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.2);border-radius:14px 14px 4px 14px;padding:10px 14px;">
+            <div style="font-size:13px;color:#FCE0A8;line-height:1.6;white-space:pre-line;">${escapeHtml(m.message)}</div>
+            <div style="font-size:10px;color:rgba(252,224,168,0.35);margin-top:5px;text-align:right;">${dateStr}</div>
+          </div>
+        </div>
+        <!-- Réponse WOZALI -->
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;margin-top:2px;">W</div>
+          <div style="max-width:85%;background:rgba(252,224,168,0.04);border:1px solid rgba(252,224,168,0.1);border-radius:4px 14px 14px 14px;padding:10px 14px;">
+            ${reponse
+              ? `<div style="font-size:13px;color:rgba(252,224,168,0.82);line-height:1.6;white-space:pre-line;">${escapeHtml(reponse)}</div>`
+              : enAttente
+                ? `<div style="font-size:12px;color:rgba(232,148,10,0.6);font-style:italic;">⏳ En cours de traitement…</div>`
+                : `<div style="font-size:12px;color:rgba(252,224,168,0.35);font-style:italic;">—</div>`
+            }
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.error('[chat-wozali] history error:', e);
+    historyList.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(248,113,113,0.7);font-size:13px;">Erreur de chargement. Réessaie.</div>';
+  }
+}
+
+// ──────────────────────────────────────────────
+// FIN CHAT WOZALI
+// ──────────────────────────────────────────────
+
+function renderNotifications(recordId) {
+  // Boîte du Fondateur d'abord (Supabase notifications)
+  renderFondateurInbox();
+  const key = `wozali_notifs_${recordId}`;
+  const notifs = JSON.parse(localStorage.getItem(key) || '[]');
+  // Marquer tout comme lu
+  notifs.forEach(n => n.read = true);
+  localStorage.setItem(key, JSON.stringify(notifs));
+  updateNotifBadge(recordId);
+  const el = document.getElementById('notifs-list');
+  if (!el) return;
+  if (notifs.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:48px 0;color:#999;">
+      <div style="font-size:48px;margin-bottom:12px;">🔔</div>
+      <div style="font-weight:600;margin-bottom:6px;">Pas encore d'activité</div>
+      <div style="font-size:13px;">Tu verras ici les likes, commentaires et vues sur ton profil.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div style="display:flex;flex-direction:column;gap:0;">` + notifs.map(n => {
+    const dateStr = new Date(n.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    let icon = '🔔', msg = '', bg = '#f9fafb';
+    if (n.type === 'like') {
+      icon = '❤️'; bg = '#fff5f5';
+      msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a aimé ta publication`;
+      if (n.postTexte) msg += ` : <em style="color:#888;">"${n.postTexte.substring(0,50)}${n.postTexte.length>50?'...':''}"</em>`;
+    } else if (n.type === 'comment') {
+      icon = '💬'; bg = '#eff6ff';
+      msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a commenté : <em style="color:#888;">"${(n.texte||'').substring(0,60)}${(n.texte||'').length>60?'...':''}"</em>`;
+    } else if (n.type === 'vue') {
+      icon = '👁️'; bg = '#FCE0A8';
+      msg = `Quelqu'un a consulté ton profil`;
+    } else if (n.type === 'rdv') {
+      icon = '📅'; bg = '#fff7ed';
+      msg = `<strong>${n.clientNom || 'Client'}</strong> a demandé un RDV le ${n.date || 'à une date'}`;
+    } else if (n.type === 'payment') {
+      icon = '💳'; bg = '#FCE0A8';
+      msg = `Paiement reçu : <strong>${n.montant?.toLocaleString('fr-FR')} FCFA</strong> pour ${n.desc || 'une prestation'}`;
+    } else if (n.type === 'client_payment') {
+      icon = '💳'; bg = '#FCE0A8';
+      msg = `<strong style='color:#E8940A;'>💸 Paiement Flooz/TMoney — ${(n.montant||0).toLocaleString('fr-FR')} FCFA</strong> confirmé par un client via ton profil`;
+    } else if (n.type === 'avis') {
+      icon = '⭐'; bg = '#fef3c7';
+      msg = `<strong>${n.auteur || 'Client'}</strong> a laissé un avis : <em style="color:#888;">"${(n.texte||'').substring(0,50)}${(n.texte||'').length>50?'...':''}"</em>`;
+    } else if (n.type === 'suivi') {
+      icon = '👥'; bg = '#FCE0A8';
+      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> suit maintenant ton profil`;
+    } else if (n.type === 'favori') {
+      icon = '❤️'; bg = '#fff1f2';
+      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> a ajouté ton profil à ses favoris`;
+    } else if (n.type === 'photo_like') {
+      icon = '📸'; bg = '#fff5f5';
+      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> a aimé une de tes photos`;
+    } else if (n.type === 'photo_comment') {
+      icon = '💬'; bg = '#eff6ff';
+      msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a commenté ta photo : <em style="color:#888;">"${(n.texte||'').substring(0,60)}"</em>`;
+    }
+    return `<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-bottom:1px solid #f0f0f0;background:${n.read?'white':bg};transition:background 0.3s;">
+      <div style="font-size:18px;flex-shrink:0;width:38px;height:38px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;">${icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;color:#111;line-height:1.5;">${msg}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:3px;">${dateStr}</div>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+async function likePost(recordId, postId) {
+  const likedKey = 'wozali_liked';
+  const liked    = JSON.parse(localStorage.getItem(likedKey) || '[]');
+  const likeId   = `${recordId}_${postId}`;
+  const alreadyLiked = liked.includes(likeId);
+
+  // Lire le nombre de likes actuel depuis Supabase
+  let currentLikes = 0;
+  let postTexte = '';
+  try {
+    const supa = window.supabase;
+    if (!supa) return;
+    const { data: post } = await supa.from('wozali_posts_v2').select('nb_likes, contenu').eq('id', postId).maybeSingle();
+    currentLikes = post?.nb_likes || 0;
+    postTexte    = post?.contenu  || '';
+  } catch { return; }
+
+  const newLikes = alreadyLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+
+  // Mettre à jour dans Supabase
+  try {
+    const supa = window.supabase;
+    await supa.from('wozali_posts_v2').update({ nb_likes: newLikes }).eq('id', postId);
+  } catch { return; }
+
+  // Mettre à jour localStorage liked
+  if (alreadyLiked) {
+    localStorage.setItem(likedKey, JSON.stringify(liked.filter(l => l !== likeId)));
+  } else {
+    localStorage.setItem(likedKey, JSON.stringify([...liked, likeId]));
+    pushNotif(recordId, {
+      type: 'like',
+      auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un visiteur',
+      postTexte, postId
+    });
+  }
+  renderPostsFeed(recordId);
+}
+
+function toggleCommentBox(recordId, postId) {
+  const section = document.getElementById(`comments-section-${postId}`);
+  if (!section) return;
+  const isVisible = section.style.display !== 'none';
+  section.style.display = isVisible ? 'none' : 'block';
+  if (!isVisible) document.getElementById(`comment-input-${postId}`)?.focus();
+}
+
+async function submitComment(recordId, postId) {
+  // ✅ VÉRIFICATION LOGIN REQUISE
+  if (!currentPrestataire) {
+    toast('Connecte-toi pour commenter', 'info');
+    return;
+  }
+
+  const input = document.getElementById(`comment-input-${postId}`);
+  const texte = input?.value?.trim();
+
+  // ✅ Validation commentaire
+  if (!texte || texte.length === 0) {
+    toast('Écris un commentaire', 'error');
+    return;
+  }
+  if (texte.length < 3) {
+    toast('Le commentaire est trop court (min 3 caractères)', 'error');
+    return;
+  }
+  if (texte.length > 500) {
+    toast('Le commentaire est trop long (max 500 caractères)', 'error');
+    return;
+  }
+  const auteurCommentaire = currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur';
+
+  // Lire les commentaires actuels depuis Supabase, ajouter, puis mettre à jour
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data: post } = await supa.from('wozali_posts_v2').select('commentaires').eq('id', postId).maybeSingle();
+    const comments = Array.isArray(post?.commentaires) ? post.commentaires : [];
+    comments.push({
+      id: Date.now().toString(), texte,
+      auteur: auteurCommentaire,
+      auteurPhoto: _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']) || _wPhotoUrl(currentPrestataire?.fields?.['WhatsApp']),
+      auteurId: currentPrestataire?.id || null,
+      date: new Date().toISOString()
+    });
+    const { error: updErr } = await supa.from('wozali_posts_v2').update({ commentaires: comments }).eq('id', postId);
+    if (updErr) throw updErr;
+  } catch { toast('Erreur commentaire', 'error'); return; }
+
+  pushNotif(recordId, { type: 'comment', auteur: auteurCommentaire, texte, postId });
+  if (input) input.value = '';
+  await renderPostsFeed(recordId);
+  setTimeout(() => {
+    const s = document.getElementById(`comments-section-${postId}`);
+    if (s) s.style.display = 'block';
+  }, 10);
+}
+
+async function deletePost(recordId, postId) {
+  if (!confirm('Supprimer cette publication ?')) return;
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { error } = await supa.from('wozali_posts_v2').delete().eq('id', postId);
+    if (error) throw error;
+  } catch { toast('Erreur suppression', 'error'); return; }
+  renderPostsFeed(recordId);
+}
+
+// ══════════════════════════════════════════
+// SYSTÈME DE FAVORIS
+// ══════════════════════════════════════════
+
+async function _getFavoriRecord(prestataireId) {
+  if (!currentUser) return null;
+  const supa = window.supabase;
+  if (!supa) return null;
+  try {
+    const { data } = await supa.from('wozali_favoris_presta')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .eq('prestataire_id', prestataireId)
+      .maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
+
+async function updateFavBtn(prestataireId) {
+  const btn = document.getElementById(`fav-btn-${prestataireId}`);
+  if (!btn) return;
+  if (!currentUser) {
+    btn.innerHTML = '♡ Sauvegarder';
+    btn.style.background = 'rgba(255,255,255,0.12)';
+    return;
+  }
+  const rec = await _getFavoriRecord(prestataireId);
+  if (rec) {
+    btn.innerHTML = '❤️ Sauvegardé';
+    btn.style.background = 'rgba(239,68,68,0.25)';
+    btn.style.border = '1.5px solid rgba(239,68,68,0.5)';
+    btn.dataset.favId = rec.id;
+  } else {
+    btn.innerHTML = '♡ Sauvegarder';
+    btn.style.background = 'rgba(255,255,255,0.12)';
+    btn.style.border = '1.5px solid rgba(255,255,255,0.3)';
+    btn.dataset.favId = '';
+  }
+}
+
+async function toggleFavori(prestataireId) {
+  if (!currentUser) {
+    // Non connecté : incitation à s'inscrire
+    const msg = '❤️ Sauvegarde ce profil pour le retrouver facilement !\n\nCrée ton compte gratuit pour accéder à tes favoris sur tous tes appareils.';
+    if (confirm(msg)) showPage('inscription');
+    return;
+  }
+
+  const btn = document.getElementById(`fav-btn-${prestataireId}`);
+  const existingRec = await _getFavoriRecord(prestataireId);
+
+  const supa = window.supabase;
+  if (!supa) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
+  if (existingRec) {
+    // Retirer des favoris
+    try {
+      const { error } = await supa.from('wozali_favoris_presta').delete().eq('id', existingRec.id);
+      if (error) throw error;
+      toast('Retiré des favoris', 'info');
+    } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
+  } else {
+    // Ajouter aux favoris
+    try {
+      const { error } = await supa.from('wozali_favoris_presta').insert({
+        user_id: currentUser.id,
+        prestataire_id: prestataireId
+      });
+      if (error) throw error;
+      toast('❤️ Ajouté aux favoris !', 'success');
+      // Notifier le prestataire
+      pushNotif(prestataireId, { type: 'favori', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
+    } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
+  }
+  await updateFavBtn(prestataireId);
+}
+
+async function loadFavoris() {
+  if (!currentUser) return;
+  const container = document.getElementById('favoris-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris)"><div class="spinner"></div></div>';
+
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+
+    // Récupérer les favoris
+    const { data: favs, error: favErr } = await supa
+      .from('wozali_favoris_presta')
+      .select('id, prestataire_id, created_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (favErr) throw favErr;
+
+    if (!favs || !favs.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;">
+          <div style="font-size:48px;margin-bottom:12px;">💔</div>
+          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Aucun favori pour l'instant</h3>
+          <p style="font-size:14px;">Explore des profils et clique sur <strong>Sauvegarder</strong> pour les retrouver ici.</p>
+          <button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Explorer les prestataires</button>
+        </div>`;
+      return;
+    }
+
+    // Charger les détails des prestataires en une seule requête
+    const ids = favs.map(f => f.prestataire_id).filter(Boolean);
+    const { data: prests } = await supa
+      .from('wozali_prestataires')
+      .select('id, nom_complet, metier_principal, quartier, photo_profil, abonnement, disponible_maintenant')
+      .in('id', ids);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+
+    container.innerHTML = favs.map(fav => {
+      const pid = fav.prestataire_id;
+      const p = prestMap[pid];
+      if (!p) return '';
+      const nomRaw    = p.nom_complet        || '—';
+      const metierRaw = p.metier_principal   || '';
+      const quartierRaw = p.quartier         || '';
+      const photo     = p.photo_profil       || '';
+      const plan      = p.abonnement         || 'Base';
+      const dispo     = p.disponible_maintenant;
+      const emoji     = METIER_EMOJI?.[metierRaw] || '⚡';
+      const dateAjout = fav.created_at ? new Date(fav.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+      const nom       = escapeHtml(nomRaw);
+      const metier    = escapeHtml(metierRaw);
+      const quartier  = escapeHtml(quartierRaw);
+      const photoSafe = encodeURI(photo || '');
+      const pidSafe   = escapeHtml(pid  || '');
+      const favIdSafe = escapeHtml(fav.id || '');
+      return `
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1.5px solid transparent;transition:border 0.2s;cursor:pointer;"
+          onmouseover="this.style.borderColor='var(--vert-light)'" onmouseout="this.style.borderColor='transparent'"
+          onclick="showProfil('${pidSafe}');showPage('profil');">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="position:relative;flex-shrink:0;">
+              ${photo
+                ? `<img src="${photoSafe}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
+                : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:white;">${escapeHtml(nomRaw.charAt(0))}</div>`}
+              ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;font-size:15px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+              <div style="font-size:12px;color:var(--gris);">${emoji} ${metier}${quartierRaw ? ' · 📍 '+quartier : ''}</div>
+            </div>
+            ${plan !== 'Base' ? `<span style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;">★ PRO</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+            <div style="font-size:12px;color:var(--gris);">❤️ Ajouté le ${dateAjout}</div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showProfil('${pidSafe}');showPage('profil');" style="font-size:11px;padding:4px 10px;">Voir le profil →</button>
+              <button onclick="event.stopPropagation();removeFavori('${favIdSafe}','${pidSafe}')" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;">✕</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;">Erreur: ${e.message}</div>`;
+  }
+}
+
+async function removeFavori(favId, prestataireId) {
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { error } = await supa.from('wozali_favoris_presta').delete().eq('id', favId);
+    if (error) throw error;
+    toast('Retiré des favoris', 'info');
+    loadFavoris();
+    updateFavBtn(prestataireId);
+  } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
+}
+
+// ══════════════════════════════════════════
+// SYSTÈME DE SUIVI (Abonnements)
+// ══════════════════════════════════════════
+
+async function _getSuiviRecord(prestataireId) {
+  if (!currentUser) return null;
+  const supa = window.supabase;
+  if (!supa) return null;
+  try {
+    const { data } = await supa.from('wozali_suivis')
+      .select('id')
+      .eq('suiveur_user_id', currentUser.id)
+      .eq('suivi_prestataire_id', prestataireId)
+      .maybeSingle();
+    return data || null;
+  } catch { return null; }
+}
+
+function _setSuiviBtnState(prestataireId, following) {
+  // Cherche TOUS les boutons suivi pour ce prestataire (cover + actions)
+  const btns = document.querySelectorAll(`[data-suivi-prest="${prestataireId}"]`);
+  btns.forEach(b => {
+    if (following) {
+      b.innerHTML = '✅ Suivi';
+      b.style.cssText = b.style.cssText.replace(/background[^;]+;/g,'');
+      b.style.background = '#E8940A';
+      b.style.border = '2px solid #E8940A';
+      b.style.color = 'white';
+      b.style.fontWeight = '800';
+    } else {
+      b.innerHTML = '➕ Suivre';
+      b.style.background = 'rgba(255,255,255,0.12)';
+      b.style.border = '1.5px solid rgba(255,255,255,0.3)';
+      b.style.color = 'rgba(255,255,255,0.85)';
+      b.style.fontWeight = '600';
+    }
+  });
+}
+
+async function updateSuiviBtn(prestataireId) {
+  const btns = document.querySelectorAll(`[data-suivi-prest="${prestataireId}"]`);
+  if (!btns.length) return;
+  if (!currentUser) { _setSuiviBtnState(prestataireId, false); return; }
+  if (currentPrestataire?.id === prestataireId) {
+    btns.forEach(b => b.style.display = 'none');
+    return;
+  }
+  const rec = await _getSuiviRecord(prestataireId);
+  _setSuiviBtnState(prestataireId, !!rec);
+}
+
+async function toggleSuivi(prestataireId) {
+  if (!currentUser) {
+    if (confirm('➕ Suis ce prestataire pour voir ses publications dans ton fil !\n\nCrée ton compte gratuit pour commencer.')) showPage('inscription');
+    return;
+  }
+  const existingRec = await _getSuiviRecord(prestataireId);
+  const supa = window.supabase;
+  if (!supa) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
+  if (existingRec) {
+    // Optimistic UI — feedback immédiat
+    _setSuiviBtnState(prestataireId, false);
+    try {
+      const { error } = await supa.from('wozali_suivis').delete().eq('id', existingRec.id);
+      if (error) throw error;
+      toast('Tu ne suis plus ce prestataire', 'info');
+    } catch { _setSuiviBtnState(prestataireId, true); toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
+  } else {
+    // Optimistic UI — feedback immédiat
+    _setSuiviBtnState(prestataireId, true);
+    try {
+      const { error } = await supa.from('wozali_suivis').insert({
+        suiveur_user_id: currentUser.id,
+        suivi_prestataire_id: prestataireId
+      });
+      if (error) throw error;
+      toast('✅ Tu suis ce prestataire !', 'success');
+      pushNotif(prestataireId, { type: 'suivi', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
+    } catch(e) { _setSuiviBtnState(prestataireId, false); toast('Erreur : ' + e.message, 'error'); return; }
+  }
+  loadFollowerCount(prestataireId);
+}
+
+async function loadFollowerCount(prestataireId) {
+  const el = document.getElementById(`pstat-abonnes-${prestataireId}`);
+  if (!el) return;
+  try {
+    const supa = window.supabase;
+    if (!supa) { el.textContent = '0'; return; }
+    const { count } = await supa.from('wozali_suivis')
+      .select('id', { count: 'exact', head: true })
+      .eq('suivi_prestataire_id', prestataireId);
+    el.textContent = count || 0;
+  } catch { el.textContent = '0'; }
+}
+
+async function loadAbonnements() {
+  if (!currentUser) return;
+  const container = document.getElementById('abonnements-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><div class="spinner"></div></div>';
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+
+    // Récupérer les suivis
+    const { data: suivis, error: suiviErr } = await supa
+      .from('wozali_suivis')
+      .select('id, suivi_prestataire_id, created_at')
+      .eq('suiveur_user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (suiviErr) throw suiviErr;
+
+    if (!suivis || !suivis.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;">
+          <div style="font-size:48px;margin-bottom:12px;">👥</div>
+          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Tu ne suis personne encore</h3>
+          <p style="font-size:14px;">Explore des profils et clique sur <strong>Suivre</strong> pour voir leurs publications dans ton fil.</p>
+          <button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button>
+        </div>`;
+      return;
+    }
+
+    // Charger les détails prestataires en une requête
+    const ids = suivis.map(s => s.suivi_prestataire_id).filter(Boolean);
+    const { data: prests } = await supa
+      .from('wozali_prestataires')
+      .select('id, nom_complet, metier_principal, quartier, photo_profil, abonnement, disponible_maintenant')
+      .in('id', ids);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+
+    container.innerHTML = suivis.map(s => {
+      const pid = s.suivi_prestataire_id;
+      const p = prestMap[pid];
+      if (!p) return '';
+      const nomRaw    = p.nom_complet        || '—';
+      const metierRaw = p.metier_principal   || '';
+      const quartierRaw = p.quartier         || '';
+      const photo     = p.photo_profil       || '';
+      const plan      = p.abonnement         || 'Base';
+      const dispo     = p.disponible_maintenant;
+      const emoji     = METIER_EMOJI?.[metierRaw] || '⚡';
+      const dateAjout = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+      const nom       = escapeHtml(nomRaw);
+      const metier    = escapeHtml(metierRaw);
+      const quartier  = escapeHtml(quartierRaw);
+      const photoSafe = encodeURI(photo || '');
+      const pidSafe   = escapeHtml(pid  || '');
+      return `
+        <div style="background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1.5px solid transparent;transition:border 0.2s;cursor:pointer;"
+          onmouseover="this.style.borderColor='var(--vert-light)'" onmouseout="this.style.borderColor='transparent'"
+          onclick="showProfil('${pidSafe}');showPage('profil');">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="position:relative;flex-shrink:0;">
+              ${photo
+                ? `<img src="${photoSafe}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.15);" loading="lazy">`
+                : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:white;">${escapeHtml(nomRaw.charAt(0))}</div>`}
+              ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;font-size:15px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+              <div style="font-size:12px;color:var(--gris);">${emoji} ${metier}${quartierRaw ? ' · 📍 '+quartier : ''}</div>
+            </div>
+            ${plan !== 'Base' ? `<span style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;">★ PRO</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+            <div style="font-size:12px;color:var(--gris);">Suivi depuis le ${dateAjout}</div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showProfil('${pidSafe}');showPage('profil');" style="font-size:11px;padding:4px 10px;">Voir →</button>
+              <button onclick="event.stopPropagation();toggleSuivi('${pidSafe}');this.closest('[onclick]').remove();" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;">Se désabonner</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;">Erreur: ${e.message}</div>`;
+  }
+}
+
+async function loadFil() {
+  if (!currentUser) return;
+  const container = document.getElementById('fil-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);"><div class="spinner"></div></div>';
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    // 1. Récupérer les prestataires suivis
+    const { data: suivis } = await supa.from('wozali_suivis').select('suivi_prestataire_id').eq('suiveur_user_id', currentUser.id).limit(100);
+    if (!suivis || !suivis.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
+          <div style="font-size:56px;margin-bottom:16px;">📭</div>
+          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Ton fil est vide</h3>
+          <p style="font-size:14px;line-height:1.5;">Suis des prestataires pour voir leurs publications ici.<br>Au Togo, le meilleur marketing c'est quand une maman dit à sa voisine "vas voir Kofi" 😄</p>
+          <button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button>
+        </div>`;
+      return;
+    }
+    const prestIds = suivis.map(s => s.suivi_prestataire_id).filter(Boolean);
+    // 2. Récupérer les posts de ces prestataires
+    const { data: posts } = await supa.from('wozali_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).order('created_at', { ascending: false }).limit(50);
+    if (!posts || !posts.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
+          <div style="font-size:56px;margin-bottom:16px;">🕐</div>
+          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Pas encore de publications</h3>
+          <p style="font-size:14px;">Les pros que tu suis n'ont pas encore publié. Reviens bientôt !</p>
+        </div>`;
+      return;
+    }
+    // 3. Charger les détails des prestataires
+    const uniqueIds = [...new Set(posts.map(p => p.prestataire_id).filter(Boolean))];
+    const { data: prests } = await supa.from('wozali_prestataires').select('id, nom_complet, metier_principal, photo_profil').in('id', uniqueIds);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+    // Masquer badge NEW
+    const badge = document.getElementById('fil-badge');
+    if (badge) badge.style.display = 'none';
+    // 4. Rendre le fil
+    container.innerHTML = posts.map(post => {
+      const prestId     = post.prestataire_id;
+      const prest       = prestMap[prestId] || {};
+      const nom         = prest.nom_complet      || post.auteur_nom || 'Prestataire';
+      const metier      = prest.metier_principal || '';
+      const photoProfil = prest.photo_profil     || post.auteur_photo || '';
+      const contenu     = post.contenu   || '';
+      const mediaUrl    = post.image_url || '';
+      const mediaType   = post.media_type || '';
+      const datePost    = post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
+      const likes       = post.nb_likes || 0;
+      const initiale    = nom.charAt(0).toUpperCase();
+      return `
+        <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.08);border:1px solid #f0f0f0;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
+            ${photoProfil
+              ? `<img src="${photoProfil}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);" loading="lazy">`
+              : `<div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:'DM Serif Display',serif;font-size:16px;">${initiale}</div>`}
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:14px;color:var(--noir);">${escapeHtml(nom)}</div>
+              <div style="font-size:11px;color:var(--gris);">${escapeHtml(metier)}${datePost ? ' · '+datePost : ''}</div>
+            </div>
+            <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
+          </div>
+          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${escapeHtml(contenu)}</div>` : ''}
+          ${mediaUrl && (mediaType === 'photo' || mediaType === 'image') ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
+          ${mediaUrl && mediaType === 'video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
+          <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
+            <button onclick="likePost('${prestId}','${post.id}')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;padding:4px 0;">
+              ❤️ <span>${likes}</span>
+            </button>
+            <span style="font-size:12px;color:var(--gris);">💬 Commenter</span>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);">Erreur: ${e.message}</div>`;
+  }
+}
+
+// ── Page Fil standalone ──
+async function loadFilPage() {
+  // Affiche le badge mobile
+  const mobileFil = document.getElementById('mobile-fil-btn');
+  if (mobileFil) mobileFil.style.display = 'block';
+  // Masquer badge NEW
+  const nb = document.getElementById('nav-fil-badge');
+  if (nb) nb.style.display = 'none';
+  switchFilTab('fil');
+}
+
+function switchFilTab(tab) {
+  const listEl   = document.getElementById('fil-page-list');
+  const abonnesEl = document.getElementById('fil-abonnes-list');
+  const tabFil    = document.getElementById('tab-fil');
+  const tabAb     = document.getElementById('tab-abonnes');
+  if (tab === 'fil') {
+    if (listEl)    { listEl.style.display = 'block'; }
+    if (abonnesEl) { abonnesEl.style.display = 'none'; }
+    if (tabFil)  { tabFil.style.color = 'var(--vert)'; tabFil.style.borderBottom = '2px solid var(--vert)'; }
+    if (tabAb)   { tabAb.style.color = 'var(--gris)'; tabAb.style.borderBottom = 'none'; }
+    loadFilPageFeed();
+  } else {
+    if (listEl)    { listEl.style.display = 'none'; }
+    if (abonnesEl) { abonnesEl.style.display = 'grid'; }
+    if (tabFil)  { tabFil.style.color = 'var(--gris)'; tabFil.style.borderBottom = 'none'; }
+    if (tabAb)   { tabAb.style.color = 'var(--vert)'; tabAb.style.borderBottom = '2px solid var(--vert)'; }
+    loadFilPageAbonnes();
+  }
+}
+
+async function loadFilPageFeed() {
+  if (!currentUser) return;
+  const container = document.getElementById('fil-page-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);"><div class="spinner"></div></div>';
+  try {
+    const supa = window.supabase;
+    // 1. Abonnements depuis wolo_suivis
+    const { data: suivis } = await supa
+      .from('wozali_suivis')
+      .select('suivi_prestataire_id')
+      .eq('suiveur_user_id', currentUser.id)
+      .limit(100);
+    if (!suivis || !suivis.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
+          <div style="font-size:56px;margin-bottom:16px;">📭</div>
+          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Ton fil est vide</h3>
+          <p style="font-size:14px;line-height:1.6;">Suis des prestataires pour voir leurs publications ici.</p>
+          <button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button>
+        </div>`;
+      return;
+    }
+    const prestIds = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
+    // 2. Posts depuis wolo_posts_v2
+    const { data: posts } = await supa
+      .from('wozali_posts_v2')
+      .select('*')
+      .in('prestataire_id', prestIds)
+      .eq('actif', true)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (!posts || !posts.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
+          <div style="font-size:56px;margin-bottom:16px;">🕐</div>
+          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Pas encore de publications</h3>
+          <p style="font-size:14px;">Les pros que tu suis n'ont pas encore publié. Reviens bientôt !</p>
+        </div>`;
+      return;
+    }
+    // 3. Prestataires en batch
+    const uniqueIds = [...new Set(posts.map(p => p.prestataire_id).filter(Boolean))];
+    const { data: prests } = await supa
+      .from('wozali_prestataires')
+      .select('id, nom_complet, metier_principal, photo_profil')
+      .in('id', uniqueIds);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+    container.innerHTML = posts.map(post => {
+      const pr = prestMap[post.prestataire_id] || {};
+      const prestId = post.prestataire_id;
+      const nom = pr.nom_complet || post.auteur_nom || 'Prestataire';
+      const metier = pr.metier_principal || '';
+      const photo = pr.photo_profil || '';
+      const contenu = post.contenu || '';
+      const mediaUrl = post.image_url || '';
+      const mediaType = post.media_type || '';
+      const datePost = post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
+      const likes = post.nb_likes || 0;
+      const initiale = nom.charAt(0).toUpperCase();
+      return `
+        <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
+            ${photo ? `<img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);" loading="lazy">` : `<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:'DM Serif Display',serif;">${initiale}</div>`}
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:14px;color:var(--noir);">${nom}</div>
+              <div style="font-size:11px;color:var(--gris);">${metier}${datePost ? ' · '+datePost : ''}</div>
+            </div>
+            <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
+          </div>
+          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${contenu}</div>` : ''}
+          ${mediaUrl && mediaType==='image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
+          ${mediaUrl && mediaType==='video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
+          <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
+            <button onclick="likePost('${prestId}','${post.id}')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;">❤️ <span>${likes}</span></button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);">Erreur: ${e.message}</div>`;
+  }
+}
+
+async function loadFilPageAbonnes() {
+  if (!currentUser) return;
+  const container = document.getElementById('fil-abonnes-list');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><div class="spinner"></div></div>';
+  try {
+    const supa = window.supabase;
+    // 1. Abonnements depuis wolo_suivis
+    const { data: suivis } = await supa
+      .from('wozali_suivis')
+      .select('id, suivi_prestataire_id, created_at')
+      .eq('suiveur_user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (!suivis || !suivis.length) {
+      container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;"><div style="font-size:48px;margin-bottom:12px;">👥</div><h3 style="font-family:'DM Serif Display',serif;color:var(--noir);">Tu ne suis personne encore</h3><p style="font-size:14px;margin-top:8px;">Explore des profils et clique <strong>Suivre</strong>.</p><button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button></div>`;
+      return;
+    }
+    // 2. Prestataires en batch
+    const ids = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
+    const { data: prests } = await supa
+      .from('wozali_prestataires')
+      .select('id, nom_complet, metier_principal, photo_profil, disponible_maintenant')
+      .in('id', ids);
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+    container.innerHTML = suivis.map(rec => {
+      const pid = rec.suivi_prestataire_id;
+      const p = prestMap[pid] || {};
+      const nom = p.nom_complet || '—';
+      const metier = p.metier_principal || '';
+      const photo = p.photo_profil || '';
+      const dispo = p.disponible_maintenant;
+      return `
+        <div style="background:white;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="showProfil('${pid}');showPage('profil');">
+          <div style="position:relative;flex-shrink:0;">
+            ${photo ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:'DM Serif Display',serif;">${nom.charAt(0)}</div>`}
+            ${dispo ? '<div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:#E8940A;border:2px solid white;"></div>' : ''}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:800;font-size:14px;color:var(--noir);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nom}</div>
+            <div style="font-size:12px;color:var(--gris);">${metier}</div>
+          </div>
+          <button onclick="event.stopPropagation();toggleSuivi('${pid}');this.closest('div[onclick]').remove();" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;font-size:11px;padding:4px 8px;cursor:pointer;white-space:nowrap;">Se désabonner</button>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;">Erreur: ${e.message}</div>`;
+  }
+}
+
+// ── Afficher "Mon Fil" dans la nav quand connecté ──
+function showFilNav() {
+  const navFilBtn = document.getElementById('nav-fil-btn');
+  const mobileFil = document.getElementById('mobile-fil-btn');
+  if (navFilBtn) navFilBtn.style.display = 'flex';
+  if (mobileFil) mobileFil.style.display = 'block';
+}
+
+// ══════════════════════════════════════════
+// PHOTOS — LIKES & COMMENTAIRES (Supabase wozali_photos_avis)
+// ══════════════════════════════════════════
+
+const _photoAvisCache = {};
+
+async function _getPhotoAvisRecord(prestatireId, slot) {
+  const supa = window.supabase;
+  if (!supa) return null;
+  const cacheKey = `${prestatireId}_${slot}`;
+  try {
+    const { data } = await supa.from('wozali_photos_avis')
+      .select('*').eq('prestataire_id', prestatireId).eq('slot', slot).maybeSingle();
+    _photoAvisCache[cacheKey] = data;
+    return data;
+  } catch { return null; }
+}
+
+async function _upsertPhotoAvis(prestatireId, slot, photoUrl, updater) {
+  const supa = window.supabase;
+  if (!supa) return;
+  const rec = await _getPhotoAvisRecord(prestatireId, slot);
+  const current = rec || { prestataire_id: prestatireId, slot, photo_url: photoUrl, nb_likes: 0, likeurs: [], commentaires: [] };
+  const updated = updater(current);
+  if (rec) {
+    await supa.from('wozali_photos_avis').update(updated).eq('id', rec.id);
+  } else {
+    await supa.from('wozali_photos_avis').insert({ ...current, ...updated });
+  }
+  delete _photoAvisCache[`${prestatireId}_${slot}`];
+}
+
+async function likePhoto(prestatireId, slot, photoUrl) {
+  if (!currentUser) {
+    if (confirm('❤️ Pour liker cette photo, crée ton compte WOZALI gratuitement !')) showPage('inscription');
+    return;
+  }
+  const userId = currentUser.id;
+  const rec = await _getPhotoAvisRecord(prestatireId, slot);
+  const likeurs = Array.isArray(rec?.likeurs) ? rec.likeurs : [];
+  const alreadyLiked = likeurs.some(l => l.userId === userId);
+
+  await _upsertPhotoAvis(prestatireId, slot, photoUrl, fields => {
+    const likes = Array.isArray(fields.likeurs) ? fields.likeurs : [];
+    const newLikes = alreadyLiked
+      ? likes.filter(l => l.userId !== userId)
+      : [...likes, { userId, nom: currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur', photo: currentPrestataire?.fields?.['WhatsApp'] || '' }];
+    return { nb_likes: newLikes.length, likeurs: newLikes };
+  });
+
+  if (!alreadyLiked) pushNotif(prestatireId, { type: 'photo_like', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Quelqu\'un' });
+
+  const btn = document.getElementById(`photo-like-btn-${prestatireId}-${slot}`);
+  if (btn) {
+    const newRec = await _getPhotoAvisRecord(prestatireId, slot);
+    const count = newRec?.nb_likes || 0;
+    const newLikeurs = Array.isArray(newRec?.likeurs) ? newRec.likeurs : [];
+    const iLike = newLikeurs.some(l => l.userId === userId);
+    btn.innerHTML = `${iLike ? '❤️' : '🤍'} ${count > 0 ? count : ''}`;
+    btn.style.color = iLike ? '#ef4444' : '';
+  }
+}
+
+async function loadPhotoLikeCounts(prestatireId) {
+  const slots = ['profil', 'real1', 'real2', 'real3'];
+  for (const slot of slots) {
+    const rec = await _getPhotoAvisRecord(prestatireId, slot);
+    if (!rec) continue;
+    const count = rec.nb_likes || 0;
+    if (count === 0) continue;
+    const likeurs = Array.isArray(rec.likeurs) ? rec.likeurs : [];
+    const iLike = currentUser && likeurs.some(l => l.userId === currentUser.id);
+    const btn = document.getElementById(`photo-like-btn-${prestatireId}-${slot}`);
+    if (btn) { btn.innerHTML = `${iLike ? '❤️' : '🤍'} ${count}`; btn.style.color = iLike ? '#ef4444' : ''; }
+    const countEl = document.getElementById(`photo-like-count-${prestatireId}-${slot}`);
+    if (countEl) countEl.textContent = count;
+  }
+}
+
+async function openPhotoWithComments(prestatireId, slot, photoUrl, nom) {
+  // Ouvre une lightbox enrichie avec likes et commentaires
+  const rec = await _getPhotoAvisRecord(prestatireId, slot);
+  const likes = rec?.fields?.['Likes'] || 0;
+  const likeurs = (() => { try { return JSON.parse(rec?.fields?.['Likeurs'] || '[]'); } catch { return []; } })();
+  const comments = (() => { try { return JSON.parse(rec?.fields?.['Commentaires'] || '[]'); } catch { return []; } })();
+  const iLike = currentUser && likeurs.some(l => l.userId === currentUser.id);
+  const userId = currentUser?.id;
+
+  // Remove old instance
+  document.getElementById('photo-comments-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'photo-comments-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999998;display:flex;flex-direction:column;';
+
+  overlay.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.1);">
+      <button onclick="document.getElementById('photo-comments-overlay').remove()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;">←</button>
+      <span style="color:white;font-weight:700;font-size:15px;">📸 ${nom}</span>
+      <div style="width:36px;"></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;max-width:600px;width:100%;margin:0 auto;padding:0 16px;">
+      <!-- Photo -->
+      <div style="text-align:center;padding:20px 0;">
+        <img src="${photoUrl}" style="max-width:100%;max-height:45vh;object-fit:contain;border-radius:12px;" loading="lazy">
+      </div>
+      <!-- Like bar -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1);">
+        <button id="photo-like-btn-${prestatireId}-${slot}"
+          onclick="likePhoto('${prestatireId}','${slot}','${photoUrl}')"
+          style="background:none;border:none;color:${iLike ? '#ef4444' : 'rgba(255,255,255,0.7)'};font-size:22px;cursor:pointer;padding:0;display:flex;align-items:center;gap:6px;">
+          ${iLike ? '❤️' : '🤍'} <span style="font-size:14px;font-weight:700;">${likes > 0 ? likes : ''}</span>
+        </button>
+        <button onclick="document.getElementById('photo-comment-input').focus()"
+          style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer;padding:0;">💬</button>
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);">${comments.length > 0 ? comments.length + ' commentaire' + (comments.length > 1 ? 's' : '') : ''}</span>
+      </div>
+      <!-- Comments -->
+      <div id="photo-comments-list" style="padding:12px 0;flex:1;">
+        ${comments.length === 0 ? '<p style="color:rgba(255,255,255,0.4);font-size:13px;text-align:center;padding:20px;">Aucun commentaire. Sois le premier !</p>' :
+          comments.map(c => {
+            const cDate = c.date ? new Date(c.date).toLocaleDateString('fr-FR', {day:'numeric',month:'short'}) : '';
+            return `
+              <div style="display:flex;gap:10px;margin-bottom:16px;">
+                ${c.auteurId
+                  ? `<div onclick="showProfil('${c.auteurId}');showPage('profil');document.getElementById('photo-comments-overlay').remove();" style="cursor:pointer;flex-shrink:0;">
+                      ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${(c.auteur||'?').charAt(0)}</div>`}
+                     </div>`
+                  : `<div style="width:36px;height:36px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;flex-shrink:0;">${(c.auteur||'?').charAt(0)}</div>`}
+                <div style="flex:1;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                    <span style="font-weight:700;color:white;font-size:13px;${c.auteurId ? 'cursor:pointer;' : ''}"
+                      ${c.auteurId ? `onclick="showProfil('${c.auteurId}');showPage('profil');document.getElementById('photo-comments-overlay').remove();"` : ''}>
+                      ${c.auteur || 'Utilisateur'}
+                    </span>
+                    <span style="font-size:11px;color:rgba(255,255,255,0.4);">${cDate}</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:0;line-height:1.5;">${c.texte}</p>
+                </div>
+              </div>`;
+          }).join('')}
+      </div>
+    </div>
+    <!-- Input commentaire -->
+    <div style="border-top:1px solid rgba(255,255,255,0.1);padding:12px 16px;background:rgba(0,0,0,0.8);max-width:600px;width:100%;margin:0 auto;">
+      ${currentUser
+        ? `<div style="display:flex;gap:10px;align-items:center;">
+            <input id="photo-comment-input" type="text" placeholder="Ajoute un commentaire…" maxlength="300"
+              style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:10px 16px;color:white;font-size:14px;outline:none;"
+              onkeydown="if(event.key==='Enter')submitPhotoComment('${prestatireId}','${slot}','${photoUrl}')">
+            <button onclick="submitPhotoComment('${prestatireId}','${slot}','${photoUrl}')"
+              style="background:var(--vert);border:none;color:white;padding:10px 18px;border-radius:24px;font-weight:700;font-size:13px;cursor:pointer;">Publier</button>
+           </div>`
+        : `<div style="text-align:center;padding:8px;">
+            <span style="color:rgba(255,255,255,0.5);font-size:13px;">Pour commenter, </span>
+            <button onclick="showPage('inscription');document.getElementById('photo-comments-overlay').remove();" style="background:none;border:none;color:var(--or);font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;">crée ton compte</button>
+           </div>`}
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+async function submitPhotoComment(prestatireId, slot, photoUrl) {
+  if (!currentUser || !currentPrestataire) { toast('Connecte-toi pour commenter', 'error'); return; }
+  const input = document.getElementById('photo-comment-input');
+  const texte = (input?.value || '').trim();
+  if (!texte) return;
+  if (texte.length > 300) { toast('Commentaire trop long', 'error'); return; }
+
+  const auteur = currentPrestataire.fields['Nom complet'] || 'Utilisateur';
+  const auteurPhoto = currentPrestataire.fields['Photo de profil'] || currentPrestataire.fields['WhatsApp'] || '';
+  const auteurId = currentPrestataire.id;
+
+  await _upsertPhotoAvis(prestatireId, slot, photoUrl, fields => {
+    const comments = (() => { try { return JSON.parse(fields['Commentaires'] || '[]'); } catch { return []; } })();
+    comments.push({ id: Date.now().toString(), texte, auteur, auteurPhoto, auteurId, date: new Date().toISOString() });
+    return { 'Commentaires': JSON.stringify(comments) };
+  });
+
+  if (input) input.value = '';
+  pushNotif(prestatireId, { type: 'photo_comment', auteur, texte });
+  // Refresh overlay
+  openPhotoWithComments(prestatireId, slot, photoUrl, auteur);
+}
+
+// ── BANNIÈRE MÉTIER COLORÉE ──
+function renderMetierBanner(metier, recordId, nom) {
+  const m = (metier || '').toLowerCase();
+  const METIERS = [
+    { keys:['coiffeur','coiffeuse'],        color:'#5b21b6', color2:'#7c3aed', emoji:'✂️' },
+    { keys:['menuisier','ébéniste','bois'],  color:'#78350f', color2:'#92400e', emoji:'🪚' },
+    { keys:['électricien'],                  color:'#92400e', color2:'#d97706', emoji:'⚡' },
+    { keys:['mécanicien','mécanique'],       color:'#1f2937', color2:'#374151', emoji:'🔧' },
+    { keys:['plombier'],                     color:'#1e3a5f', color2:'#1d4ed8', emoji:'🔩' },
+    { keys:['maçon','carreleur','peintre'],  color:'#7c2d12', color2:'#c2410c', emoji:'🏗️' },
+    { keys:['photographe','vidéaste'],       color:'#831843', color2:'#be185d', emoji:'📸' },
+    { keys:['informaticien','développeur','tech'], color:'#134e4a', color2:'#0f766e', emoji:'💻' },
+    { keys:['cuisinier','cuisinière','chef','restaurateur','traiteur'], color:'#7f1d1d', color2:'#dc2626', emoji:'👨‍🍳' },
+    { keys:['zémidjan','chauffeur','taxi'],  color:'#E8940A', color2:'#E8940A', emoji:'🏍️' },
+    { keys:['esthéticienne','esthéticien','beauté','nail'], color:'#831843', color2:'#ec4899', emoji:'💅' },
+    { keys:['couturier','couturière','tailleur'], color:'#312e81', color2:'#4f46e5', emoji:'🧵' },
+    { keys:['masseur','masseuse','spa'],     color:'#134e4a', color2:'#0d9488', emoji:'💆' },
+    { keys:['jardinier'],                    color:'#14532d', color2:'#E8940A', emoji:'🌿' },
+    { keys:['soudeur','forgeron'],          color:'#1c1917', color2:'#57534e', emoji:'🔥' },
+    { keys:['architecte','ingénieur'],       color:'#1e1b4b', color2:'#3730a3', emoji:'📐' },
+    { keys:['professeur','formateur','coach'], color:'#0c4a6e', color2:'#0284c7', emoji:'📚' },
+    { keys:['infirmier','infirmière','médecin'], color:'#0c4a6e', color2:'#0369a1', emoji:'🩺' },
+    { keys:['agent immobilier','immobilier'], color:'#1e3a5f', color2:'#1d4ed8', emoji:'🏠' },
+    { keys:['déménageur','livreur'],         color:'#1c1917', color2:'#44403c', emoji:'📦' },
+  ];
+  let cfg = { color:'#1a1710', color2:'#E8940A', emoji:'🛠️' };
+  for (const entry of METIERS) {
+    if (entry.keys.some(k => m.includes(k))) { cfg = entry; break; }
+  }
+  return `
+  <div class="profil-cover" style="background:linear-gradient(135deg, ${cfg.color} 0%, ${cfg.color2} 60%, ${cfg.color} 100%);">
+    <!-- Emoji géant en filigrane -->
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;opacity:0.12;user-select:none;pointer-events:none;filter:blur(2px);">${cfg.emoji}</div>
+    <!-- Motif de points subtle -->
+    <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:24px 24px;pointer-events:none;"></div>
+    <!-- Watermark métier -->
+    <div style="position:absolute;bottom:14px;left:20px;font-family:'DM Serif Display',serif;font-size:11px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:3px;pointer-events:none;">${metier || 'Prestataire'}</div>
+    <div class="profil-cover-overlay"></div>
+    <div class="profil-cover-actions">
+      <button class="profil-cover-btn" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</button>
+      <button class="profil-cover-btn" data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
+        style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);font-weight:600;color:rgba(255,255,255,0.9);transition:all 0.2s;">
+        ➕ Suivre
+      </button>
+    </div>
+  </div>`;
+}
+
+function showAlbumsPage(recordId) {
+  const allRecords = [...(window._allPrestataires || [])];
+  let record = allRecords.find(r => r.id === recordId);
+  if (!record && currentPrestataire?.id === recordId) record = currentPrestataire;
+  if (!record && window._currentProfilRecord?.id === recordId) record = window._currentProfilRecord;
+  if (!record) return;
+  const f = record.fields;
+  const photoProfil = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['WhatsApp']) || '';
+  const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].map(_wPhotoUrl).filter(Boolean);
+  const allAlbumsRaw = (() => { try { return JSON.parse(f['Albums'] || '[]'); } catch(e) { return []; } })();
+  const customAlbums = allAlbumsRaw.filter(a => a.id !== '__libres__' && a.id !== '__publications__');
+  const pubAlbum     = allAlbumsRaw.find(a => a.id === '__publications__');
+  const pubItems     = pubAlbum ? (pubAlbum.items || []) : [];
+  const nom = f['Nom complet'] || 'Prestataire';
+  const metier = f['Métier principal'] || '';
+  const allPhotos = [photoProfil, ...realisations, ...customAlbums.flatMap(a => a.photos || [])].filter(Boolean);
+  const albumPageId = 'albums-page-' + recordId;
+
+  // Toujours recréer pour afficher les données fraîches
+  const old = document.getElementById(albumPageId);
+  if (old) old.remove();
+
+  // ── Stocker les arrays dans des globals pour éviter JSON dans les onclick ──
+  const allKey   = '_album_all_'  + recordId;
+  const realKey  = '_album_real_' + recordId;
+  const profKey  = '_album_prof_' + recordId;
+  window[allKey]  = allPhotos;
+  window[realKey] = realisations;
+  window[profKey] = photoProfil ? [photoProfil] : [];
+
+  const albumPage = document.createElement('div');
+  albumPage.id = albumPageId;
+  albumPage.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;z-index:9999;overflow-y:auto;';
+
+  // Helper : item cliquable + slot pour likes/commentaires
+  const slotFromIdx = (key, idx) => {
+    if (key === profKey) return 'profil';
+    return 'real' + (idx + 1);
+  };
+  const photoItem = (url, globalKey, idx) => {
+    const slot = slotFromIdx(globalKey, idx);
+    return `
+    <div style="aspect-ratio:1;border-radius:10px;position:relative;background:#1a1a1a;overflow:hidden;">
+      <div data-lbkey="${globalKey}" data-lbidx="${idx}"
+        style="width:100%;height:100%;cursor:pointer;">
+        <img src="${url}" loading="lazy"
+          style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;pointer-events:none;">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;pointer-events:none;"></div>
+      </div>
+      <!-- Like count badge -->
+      <div style="position:absolute;bottom:6px;right:8px;display:flex;gap:8px;align-items:center;">
+        <button id="photo-like-btn-${recordId}-${slot}"
+          onclick="event.stopPropagation();likePhoto('${recordId}','${slot}','${url}')"
+          style="background:rgba(0,0,0,0.6);border:none;color:rgba(255,255,255,0.8);font-size:14px;padding:3px 8px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:4px;">
+          🤍
+        </button>
+        <button onclick="event.stopPropagation();openPhotoWithComments('${recordId}','${slot}','${url}','${nom}')"
+          style="background:rgba(0,0,0,0.6);border:none;color:rgba(255,255,255,0.8);font-size:14px;padding:3px 8px;border-radius:20px;cursor:pointer;">
+          💬
+        </button>
+      </div>
+    </div>`;
+  };
+
+  // Grille réalisations : 1ère photo grande si ≥ 3 photos
+  let realisHtml = '';
+  if (realisations.length === 1) {
+    realisHtml = `<div style="display:grid;grid-template-columns:1fr;gap:4px;">${photoItem(realisations[0], realKey, 0)}</div>`;
+  } else if (realisations.length === 2) {
+    realisHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${realisations.map((p,i)=>photoItem(p,realKey,i)).join('')}</div>`;
+  } else {
+    realisHtml = `
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:4px;">
+        ${photoItem(realisations[0], realKey, 0)}
+        <div style="display:grid;grid-template-rows:1fr 1fr;gap:4px;">
+          ${realisations.slice(1,3).map((p,i)=>photoItem(p,realKey,i+1)).join('')}
+        </div>
+      </div>`;
+  }
+
+  albumPage.innerHTML = `
+    <div style="position:sticky;top:0;z-index:10;background:linear-gradient(to bottom,#0a0a0a 85%,transparent);padding:env(safe-area-inset-top,0px) 0 0;">
+      <div style="max-width:700px;margin:0 auto;padding:16px 16px 8px;display:flex;align-items:center;gap:12px;">
+        <button onclick="document.getElementById('${albumPageId}').remove()"
+          style="background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+        ${photoProfil ? `<img src="${photoProfil}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" loading="lazy">` : ''}
+        <div style="flex:1;min-width:0;">
+          <div style="color:white;font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📸 ${nom.split(' ')[0]}</div>
+          <div style="color:rgba(255,255,255,0.4);font-size:12px;">${allPhotos.length} photo${allPhotos.length !== 1 ? 's' : ''}${metier ? ' · ' + metier : ''}</div>
+        </div>
+        ${allPhotos.length > 1 ? `<button data-lbkey="${allKey}" data-lbidx="0" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.7);padding:8px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">▶ Diaporama</button>` : ''}
+      </div>
+    </div>
+
+    <div style="max-width:700px;margin:0 auto;padding:8px 16px 40px;">
+
+      ${photoProfil ? `
+      <div style="margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:3px;height:18px;background:white;border-radius:2px;"></div>
+          <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Photo de profil</span>
+        </div>
+        <div data-lbkey="${profKey}" data-lbidx="0"
+          style="position:relative;width:100%;max-width:340px;aspect-ratio:3/4;cursor:pointer;overflow:hidden;border-radius:16px;background:#1a1a1a;">
+          <img src="${photoProfil}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.35s;pointer-events:none;" loading="lazy">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 50%);border-radius:16px;pointer-events:none;"></div>
+          <div style="position:absolute;bottom:14px;left:14px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);padding:4px 12px;border-radius:100px;display:flex;align-items:center;gap:6px;pointer-events:none;">
+            <div style="width:7px;height:7px;background:#E8940A;border-radius:50%;"></div>
+            <span style="color:white;font-size:11px;font-weight:700;">Photo principale</span>
+          </div>
+        </div>
+      </div>` : ''}
+
+      ${realisations.length > 0 ? `
+      <div style="margin-bottom:28px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:3px;height:18px;background:#f59e0b;border-radius:2px;"></div>
+            <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Réalisations</span>
+          </div>
+          <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:3px 10px;border-radius:100px;">${realisations.length} photo${realisations.length !== 1 ? 's' : ''}</span>
+        </div>
+        ${realisHtml}
+      </div>` : ''}
+
+      ${pubItems.length > 0 ? (() => {
+        const pubKey = '_pub_items_' + recordId;
+        window[pubKey] = pubItems.map(it => ({ url: it.url, type: it.type }));
+        const pubGrid = pubItems.slice(0, 9).map((it, idx) => {
+          const isVid = it.type === 'video';
+          return `<div data-lbkey="${pubKey}" data-lbidx="${idx}"
+            style="aspect-ratio:1;border-radius:8px;overflow:hidden;background:#1a1a1a;cursor:pointer;position:relative;">
+            ${isVid
+              ? `<video src="${it.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);font-size:22px;pointer-events:none;">▶</div>`
+              : `<img src="${it.url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;pointer-events:none;">`
+            }
+          </div>`;
+        }).join('');
+        return `<div style="margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:3px;height:18px;background:#818cf8;border-radius:2px;"></div>
+              <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">📱 Publications</span>
+            </div>
+            <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:3px 10px;border-radius:100px;">${pubItems.length} média${pubItems.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">${pubGrid}</div>
+        </div>`;
+      })() : ''}
+
+      ${customAlbums.filter(a => (a.photos||[]).length > 0).map(alb => {
+        const albKey = '_album_pub_' + recordId + '_' + alb.id;
+        window[albKey] = alb.photos;
+        const albGrid = alb.photos.length === 1
+          ? `<div style="display:grid;grid-template-columns:1fr;gap:4px;">${photoItem(alb.photos[0], albKey, 0)}</div>`
+          : alb.photos.length === 2
+            ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${alb.photos.map((p,i)=>photoItem(p,albKey,i)).join('')}</div>`
+            : `<div style="display:grid;grid-template-columns:2fr 1fr;gap:4px;">${photoItem(alb.photos[0],albKey,0)}<div style="display:grid;grid-template-rows:1fr 1fr;gap:4px;">${alb.photos.slice(1,3).map((p,i)=>photoItem(p,albKey,i+1)).join('')}</div></div>`;
+        return `<div style="margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:3px;height:18px;background:#a78bfa;border-radius:2px;"></div>
+              <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">${alb.nom}</span>
+            </div>
+            <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);padding:3px 10px;border-radius:100px;">${alb.photos.length} photo${alb.photos.length !== 1 ? 's' : ''}</span>
+          </div>
+          ${albGrid}
+        </div>`;
+      }).join('')}
+
+      ${allPhotos.length === 0 ? `
+      <div style="text-align:center;padding:80px 20px;">
+        <div style="font-size:48px;margin-bottom:16px;">📷</div>
+        <div style="color:rgba(255,255,255,0.3);font-size:15px;">Aucune photo pour l'instant</div>
+      </div>` : ''}
+    </div>
+  `;
+
+  // ── Délégation d'événements : un seul listener sur la page ──
+  albumPage.addEventListener('click', e => {
+    const el = e.target.closest('[data-lbkey]');
+    if (!el) return;
+    const key = el.dataset.lbkey;
+    const idx = parseInt(el.dataset.lbidx) || 0;
+    const photos = window[key];
+    if (photos && photos.length) openLightboxSwipe(photos, idx);
+  });
+
+  // Hover effect via delegation
+  albumPage.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-lbkey]');
+    if (!el) return;
+    const img = el.querySelector('img');
+    const overlay = el.querySelector('div');
+    if (img) img.style.transform = 'scale(1.05)';
+    if (overlay) overlay.style.background = 'rgba(0,0,0,0.3)';
+  });
+  albumPage.addEventListener('mouseout', e => {
+    const el = e.target.closest('[data-lbkey]');
+    if (!el) return;
+    const img = el.querySelector('img');
+    const overlay = el.querySelector('div');
+    if (img) img.style.transform = 'scale(1)';
+    if (overlay) overlay.style.background = 'rgba(0,0,0,0)';
+  });
+
+  document.body.appendChild(albumPage);
+  // Charger les likes sur les photos
+  setTimeout(() => loadPhotoLikeCounts(recordId), 400);
+}
+
+// ── PAGE RDV DÉDIÉE style Calendly ──
+function showRdvPage(recordId) {
+  const allRecords = [...(window._allPrestataires || [])];
+  let record = allRecords.find(r => r.id === recordId);
+  if (!record && currentPrestataire?.id === recordId) record = currentPrestataire;
+  if (!record && window._currentProfilRecord?.id === recordId) record = window._currentProfilRecord;
+  if (!record) return;
+  const f = record.fields;
+  const nom = f['Nom complet'] || 'Prestataire';
+  const metier = f['Métier principal'] || '';
+  const quartier = f['Quartier'] || '';
+  const photoProfil = f['Photo de profil'] || '';
+  const initiale = nom.charAt(0).toUpperCase();
+
+  const pageId = 'rdv-page-' + recordId;
+  let existing = document.getElementById(pageId);
+  if (existing) existing.remove(); // Toujours recréer proprement
+
+  const page = document.createElement('div');
+  page.id = pageId;
+  page.style.cssText = 'position:fixed;inset:0;background:#0d1117;z-index:9999;display:flex;flex-direction:column;overflow:hidden;';
+  page.innerHTML = `
+    <!-- Header -->
+    <div style="background:#111827;border-bottom:1px solid rgba(255,255,255,0.08);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-shrink:0;">
+      <button onclick="document.getElementById('${pageId}').style.display='none'" style="background:rgba(255,255,255,0.08);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${photoProfil ? `<img src="${photoProfil}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;">${initiale}</div>`}
+        <div>
+          <div style="font-weight:800;color:white;font-size:15px;">${nom}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.45);">${metier}${quartier ? ' · ' + quartier : ''}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Corps -->
+    <div style="flex:1;overflow-y:auto;display:grid;grid-template-columns:320px 1fr;max-width:900px;margin:0 auto;width:100%;gap:0;padding:40px 20px;">
+      <!-- Colonne gauche : infos -->
+      <div style="padding-right:32px;border-right:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;">Prendre rendez-vous</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          ${photoProfil ? `<img src="${photoProfil}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.4);" loading="lazy">` : `<div style="width:56px;height:56px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:22px;">${initiale}</div>`}
+          <div>
+            <div style="font-weight:900;color:white;font-size:18px;font-family:'DM Serif Display',serif;">${nom}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.5);">${metier}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;color:rgba(255,255,255,0.6);">
+          ${quartier ? `<div style="display:flex;gap:8px;align-items:center;"><span>📍</span><span>${quartier}, Lomé</span></div>` : ''}
+          <div style="display:flex;gap:8px;align-items:center;"><span>🌍</span><span>Africa/Lomé (UTC+0)</span></div>
+        </div>
+        <div id="rdv-selected-info-${recordId}" style="margin-top:24px;"></div>
+      </div>
+
+      <!-- Colonne droite : calendrier -->
+      <div style="padding-left:32px;">
+        <div id="rdv-cal-page-${recordId}">
+          <div class="loading"><div class="spinner"></div> Chargement des disponibilités...</div>
+        </div>
+        <!-- Formulaire client (affiché après sélection créneau) -->
+        <div id="rdv-form-${recordId}" style="display:none;margin-top:24px;border-top:1px solid rgba(255,255,255,0.08);padding-top:24px;">
+          <div style="font-size:15px;font-weight:800;color:white;margin-bottom:16px;">Tes informations</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <label style="font-size:13px;color:rgba(255,255,255,0.5);display:block;margin-bottom:6px;">Nom *</label>
+              <input id="rdv-client-nom-${recordId}" type="text" placeholder="Ton nom complet" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:white;font-size:14px;font-family:inherit;outline:none;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+            </div>
+            <div>
+              <label style="font-size:13px;color:rgba(255,255,255,0.5);display:block;margin-bottom:6px;">Téléphone *</label>
+              <input id="rdv-client-tel-${recordId}" type="tel" placeholder="+228 XX XX XX XX" style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:white;font-size:14px;font-family:inherit;outline:none;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+            </div>
+            <div>
+              <label style="font-size:13px;color:rgba(255,255,255,0.5);display:block;margin-bottom:6px;">Message *</label>
+              <textarea id="rdv-client-msg-${recordId}" placeholder="Décris brièvement ton besoin (min. 10 caractères)..." style="width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;color:white;font-size:14px;font-family:inherit;outline:none;resize:none;height:80px;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"></textarea>
+            </div>
+            <button onclick="confirmRdvPage('${recordId}')" style="background:var(--vert);color:white;border:none;padding:14px 24px;border-radius:100px;font-weight:800;font-size:15px;cursor:pointer;width:100%;transition:.2s;" onmouseenter="this.style.background='var(--vert-dark)'" onmouseleave="this.style.background='var(--vert)'">✅ Confirmer le rendez-vous →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(page);
+  setTimeout(() => initRDVCalendar(record, `rdv-cal-page-${recordId}`), 80);
+
+  // Override selectRDVDate pour afficher le formulaire dans la page dédiée
+  window._rdvPageRecordId = recordId;
+}
+
+async function createRdvRecord(nom, tel, msg) {
+  const res = await fetch('/api/wozali-pay/rdv-create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prestataire_id: rdvCalState.prestataire.id,
+      date_rdv:       rdvCalState.selectedDate,
+      heure_rdv:      rdvCalState.selectedSlot || null,
+      nom_client:     nom,
+      tel_client:     tel || null,
+      message:        msg || null,
+    })
+  });
+  if (!res.ok) throw new Error('Erreur création RDV');
+  return await res.json();
+}
+
+async function confirmRdvPage(recordId) {
+  const nomEl = document.getElementById('rdv-nom') || document.getElementById(`rdv-client-nom-${recordId}`);
+  const telEl = document.getElementById('rdv-tel') || document.getElementById(`rdv-client-tel-${recordId}`);
+  const msgEl = document.getElementById('rdv-msg') || document.getElementById(`rdv-client-msg-${recordId}`);
+  if (!nomEl || !telEl) return;
+  const nom = nomEl.value.trim();
+  const tel = telEl.value.trim();
+  const msg = msgEl ? msgEl.value.trim() : '';
+  if (!nom || !tel) { toast('Remplis ton nom et ton numéro', 'error'); return; }
+  if (!msg || msg.length < 10) { toast('Décris ton besoin en au moins 10 caractères', 'error'); return; }
+
+  const prestNom = rdvCalState.prestataire.fields['Nom complet'] || rdvCalState.prestataire.fields['Nom'] || 'Prestataire';
+  const btn = document.getElementById(`rdv-confirm-btn-${recordId}`) || document.querySelector(`#rdv-page-${recordId} button[onclick*="confirmRdvPage"]`);
+  if (btn) { btn.textContent = '⏳ Envoi...'; btn.disabled = true; }
+
+  try {
+    await createRdvRecord(nom, tel, msg);
+    const pageEl = document.getElementById(`rdv-page-${recordId}`);
+    if (pageEl) {
+      pageEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:60px 24px;">
+          <div style="font-size:64px;margin-bottom:20px;">✅</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:900;color:white;margin-bottom:12px;">Rendez-vous confirmé !</h2>
+          <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7;max-width:400px;">Le ${rdvCalState.selectedDate} à ${rdvCalState.selectedSlot} avec ${prestNom}. Le prestataire va te contacter sur ton numéro.</p>
+          <button onclick="const el=document.getElementById('rdv-page-${recordId}');if(el)el.remove();window._rdvPageRecordId=null;" style="margin-top:28px;background:var(--vert);color:white;border:none;padding:14px 32px;border-radius:100px;font-weight:800;font-size:15px;cursor:pointer;">← Retour au profil</button>
+        </div>`;
+    }
+    toast('✅ Demande de RDV envoyée !', 'success');
+  } catch(e) {
+    toast('Erreur lors de l\'envoi', 'error');
+    if (btn) { btn.textContent = '✅ Confirmer le rendez-vous →'; btn.disabled = false; }
+  }
+}
+
+/* ── Lightbox globale avec swipe, navigation et support vidéo ── */
+window._lbItems = [];
+window._lbIndex = 0;
+
+// Normalise strings ou objets {url,type} → toujours {url, type}
+function _lbNorm(items) {
+  return items.map(it => typeof it === 'string' ? { url: it, type: 'photo' } : it);
+}
+
+function openLightboxSwipe(items, startIndex) {
+  window._lbItems = _lbNorm(items);
+  window._lbPhotos = window._lbItems.map(it => it.url); // backward compat
+  window._lbIndex  = startIndex;
+
+  const old = document.getElementById('wozali-lightbox');
+  if (old) old.remove();
+
+  const lb = document.createElement('div');
+  lb.id = 'wozali-lightbox';
+  lb.style.cssText = [
+    'position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:999999;',
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;',
+    'touch-action:pan-y;user-select:none;'
+  ].join('');
+
+  lb.innerHTML = `
+    <button id="lb-close" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.12);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">✕</button>
+    <div id="lb-count" style="position:absolute;top:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;z-index:2;"></div>
+    <div style="position:relative;width:100%;display:flex;align-items:center;justify-content:center;flex:1;min-height:0;">
+      <button id="lb-prev" style="position:absolute;left:12px;background:rgba(255,255,255,0.12);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">‹</button>
+      <div id="lb-media" style="display:flex;align-items:center;justify-content:center;max-width:92vw;max-height:82vh;"></div>
+      <button id="lb-next" style="position:absolute;right:12px;background:rgba(255,255,255,0.12);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">›</button>
+    </div>
+    <div id="lb-thumbs" style="display:flex;gap:6px;margin-top:16px;padding:0 16px;overflow-x:auto;max-width:100vw;scrollbar-width:none;"></div>
+  `;
+
+  document.body.appendChild(lb);
+  _lbRender();
+
+  document.getElementById('lb-close').onclick = () => lb.remove();
+  document.getElementById('lb-prev').onclick  = () => _lbNav(-1);
+  document.getElementById('lb-next').onclick  = () => _lbNav(1);
+  lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
+
+  let touchX = null;
+  lb.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) _lbNav(dx < 0 ? 1 : -1);
+    touchX = null;
+  });
+}
+
+function _lbRender() {
+  const items  = window._lbItems || [];
+  const i      = window._lbIndex;
+  const item   = items[i] || { url: '', type: 'photo' };
+  const isVideo = item.type === 'video';
+
+  const media  = document.getElementById('lb-media');
+  const count  = document.getElementById('lb-count');
+  const thumbs = document.getElementById('lb-thumbs');
+  const prev   = document.getElementById('lb-prev');
+  const next   = document.getElementById('lb-next');
+  if (!media) return;
+
+  // Pause vidéo précédente
+  media.querySelector('video')?.pause();
+
+  if (isVideo) {
+    media.innerHTML = `<video src="${item.url}" controls autoplay playsinline
+      style="max-width:92vw;max-height:82vh;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);outline:none;background:#000;"></video>`;
+  } else {
+    media.innerHTML = `<img src="${item.url}"
+      style="max-width:92vw;max-height:82vh;object-fit:contain;border-radius:10px;box-shadow:0 8px 60px rgba(0,0,0,0.8);opacity:0;transition:opacity 0.2s;" loading="lazy">`;
+    const img = media.querySelector('img');
+    img.onload = () => { img.style.opacity = '1'; };
+  }
+
+  count.textContent = items.length > 1 ? `${i + 1} / ${items.length}` : '';
+  prev.style.opacity = items.length <= 1 ? '0' : '1';
+  next.style.opacity = items.length <= 1 ? '0' : '1';
+
+  thumbs.innerHTML = items.map((it, idx) => {
+    const isVid = it.type === 'video';
+    return `<div onclick="window._lbIndex=${idx};_lbRender()"
+      style="width:48px;height:48px;border-radius:6px;overflow:hidden;cursor:pointer;flex-shrink:0;position:relative;
+             border:2px solid ${idx === i ? 'white' : 'transparent'};opacity:${idx === i ? '1' : '0.45'};transition:all 0.2s;">
+      ${isVid
+        ? `<video src="${it.url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);font-size:16px;pointer-events:none;">▶</div>`
+        : `<img src="${it.url}" style="width:100%;height:100%;object-fit:cover;pointer-events:none;" loading="lazy">`
+      }
+    </div>`;
+  }).join('');
+}
+
+function _lbNav(dir) {
+  const len = window._lbItems.length;
+  if (len <= 1) return;
+  window._lbIndex = (window._lbIndex + dir + len) % len;
+  _lbRender();
+}
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('wozali-lightbox')) return;
+  if (e.key === 'ArrowLeft')  _lbNav(-1);
+  if (e.key === 'ArrowRight') _lbNav(1);
+  if (e.key === 'Escape') document.getElementById('wozali-lightbox')?.remove();
+});
+
+// Compat anciens appels
+function openLightboxFull(url, title) { openLightboxSwipe([{ url, type: 'photo' }], 0); }
+function openLightboxMedia(url, type)  { openLightboxSwipe([{ url, type: type || 'photo' }], 0); }
+
+async function showProfil(recordId) {
+  currentProfilId = recordId;
+  localStorage.setItem('wozali_last_profil_id', recordId);
+  showPage('profil');
+  const container = document.getElementById('profil-content');
+
+  // Cache en mémoire : évite le spinner au 2e+ passage sur le même profil
+  if (!window._profilCache) window._profilCache = {};
+  // Propre profil → toujours fresh (vient peut-être de mettre à jour ses photos)
+  const _isOwnProfil = currentPrestataire?.id === recordId;
+  const _cached = _isOwnProfil ? null : (window._profilCache[recordId] || null);
+
+  // Afficher le spinner uniquement si pas de cache
+  if (!_cached) {
+    container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  }
+
+  // Failsafe : si le profil n'a pas chargé en 8s, afficher une erreur claire
+  const _failsafe = setTimeout(() => {
+    if (container.querySelector('.spinner')) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏱️</div><h3>Chargement trop long</h3><p>La connexion a pris trop de temps. <a onclick="showProfil('${recordId}')" style="color:#E8940A;cursor:pointer;text-decoration:underline;">Réessayer</a></p></div>`;
+    }
+  }, 8000);
+
+  try {
+    let record = null;
+    const _withTimeout = (promise, ms) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout réseau')), ms))
+    ]);
+
+    if (_cached) {
+      // Servir depuis le cache immédiatement (0 latence)
+      record = _cached;
+      // Rafraîchir en arrière-plan — re-render si les données ont changé
+      if (window.supaPrest && !window._profilRefreshing?.[recordId]) {
+        if (!window._profilRefreshing) window._profilRefreshing = {};
+        window._profilRefreshing[recordId] = true;
+        window.supaPrest.findById(recordId)
+          .then(fresh => {
+            window._profilRefreshing[recordId] = false;
+            if (!fresh) return;
+            window._profilCache[recordId] = fresh;
+            // Re-render silencieux si le profil est toujours affiché
+            const stillHere = localStorage.getItem('wozali_last_profil_id') === recordId
+              && document.getElementById('profil-content')
+              && !document.getElementById('profil-content').querySelector('.spinner');
+            if (stillHere) showProfil(recordId);
+          })
+          .catch(() => { if (window._profilRefreshing) window._profilRefreshing[recordId] = false; });
+      }
+    } else if (window.supaPrest) {
+      // Pas de cache : fetch direct (timeout court pour réactivité)
+      try {
+        record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
+      } catch (_e1) {
+        // Retry unique après 1s
+        await new Promise(r => setTimeout(r, 1000));
+        record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
+      }
+      if (!record) throw new Error('Profil introuvable');
+    } else {
+      throw new Error('Profil introuvable');
+    }
+
+    clearTimeout(_failsafe);
+    window._profilCache[recordId] = record; // Mise en cache pour les prochaines visites
+    window._currentProfilRecord = record; // stocké pour showRdvPage / showAlbumsPage
+    // Tracker la vue (throttlé à 1h par profil, sauf si c'est le propriétaire)
+    if (!currentPrestataire || currentPrestataire.id !== recordId) {
+      const viewKey = `wozali_viewed_${recordId}`;
+      const lastView = localStorage.getItem(viewKey);
+      if (!lastView || (Date.now() - parseInt(lastView)) > 3600000) {
+        localStorage.setItem(viewKey, Date.now().toString());
+        pushNotif(recordId, { type: 'vue' });
+      }
+    }
+    const f = record.fields;
+
+    // Valeurs brutes (utilisées pour calculs / SEO / open graph / window.open)
+    const nomRaw = f['Nom complet'] || 'Prestataire';
+    const metierRaw = f['Métier principal'] || '';
+    const quartierRaw = f['Quartier'] || '';
+    const descriptionRaw = f['Description des services'] || '';
+    const diplomesRaw = f['Diplomes'] || '';
+    const experienceRaw = f['Années d\'expérience'] || '';
+    const abonnementRaw = f['Abonnement'] || 'Base';
+
+    // Versions échappées pour innerHTML
+    const nom = escapeHtml(nomRaw);
+    const initiale = escapeHtml(nomRaw.charAt(0).toUpperCase());
+    const metier = escapeHtml(metierRaw);
+    const quartier = escapeHtml(quartierRaw);
+    const description = escapeHtml(descriptionRaw);
+    const diplomes = escapeHtml(diplomesRaw);
+    const experience = escapeHtml(experienceRaw);
+    const abonnement = escapeHtml(abonnementRaw);
+
+    const tarifMin = f['Tarif minimum FCFA'];
+    const tarifMax = f['Tarif maximum FCFA'];
+    const nbTransactions = f['Nombre de transactions'] || 0;
+    const dispo = f['Disponible maintenant'];
+    const verifie = f['Badge vérifié'];
+    const tel = (f['Numéro de téléphone'] || '').replace(/\D/g,'');
+    const gpsLat = f['Latitude'] || null;
+    const gpsLon = f['Longitude'] || null;
+    const tiktok    = f['Lien TikTok']    || '';
+    const instagram = f['Lien Instagram'] || '';
+    const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
+    // URLs pour href (encodage URI pour éviter d'introduire JS)
+    const tiktokSafe = encodeURI(tiktok);
+    const instagramSafe = encodeURI(instagram);
+    const photoProfilSafe = encodeURI(photoProfil);
+    const emoji = METIER_EMOJI[metierRaw] || '⚡';
+    const isDigital = isDigitalMetier(metierRaw);
+    const waMsg = encodeURIComponent(`Bonjour ${nomRaw}, je t'ai trouvé sur WOZALI. Je suis intéressé par tes services de ${metierRaw}. Tu es disponible ?`);
+    const waLink = tel ? `https://wa.me/${tel}?text=${waMsg}` : '#';
+
+    // Charger les avis
+    const avisRecords = await fetchAvis(recordId);
+
+    // Note moyenne + Score WOZALI calculés depuis les vrais avis (pas champs Airtable)
+    const nbAvis = avisRecords.length;
+    const note = nbAvis > 0
+      ? avisRecords.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0) / nbAvis
+      : 0;
+    const _scoreComp  = [f['WhatsApp'], f['Description des services'], f['Tarif minimum FCFA'],
+                         f['Numéro de téléphone'], f['Photo Réalisation 1'],
+                         f['Disponible maintenant'], f['Latitude']].filter(Boolean).length;
+    const _nbAvisAvecTexte   = avisRecords.filter(r => (r.fields['Commentaire'] || '').trim().length > 0).length;
+    const score = Math.min(
+      Math.round((_scoreComp / 7) * 30) +
+      (note > 0 ? Math.round((note / 5) * 25) : 0) +
+      Math.min(nbAvis * 2, 15) +
+      (f['Photo Réalisation 1'] ? 4 : 0) + (f['Photo Réalisation 2'] ? 3 : 0) + (f['Photo Réalisation 3'] ? 3 : 0) +
+      Math.min(_nbAvisAvecTexte * 2, 10),
+      // Note : vues non incluses sur profil public (données locales par navigateur)
+      100
+    );
+
+    // Exposer pour shareProfile()
+    window._currentProfilNote = note;
+    window._currentProfilAvisCount = nbAvis;
+    window._currentProfilScore = score;
+
+    // ── SEO : meta tags dynamiques + Schema.org ──
+    const _seoVille = f['Ville'] || '';
+    const _seoSlug = _buildProfilSlug(nomRaw, metierRaw, _seoVille);
+    const _seoUrl = `https://wozali.com/profil/${_seoSlug}`;
+    document.title = `${nomRaw} — ${metierRaw} à ${_seoVille} · WOZALI`;
+    _setMeta('description', nbAvis > 0
+      ? `${nomRaw}, ${metierRaw} à ${quartierRaw}, ${_seoVille}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOZALI.`
+      : `${nomRaw}, ${metierRaw} à ${quartierRaw}, ${_seoVille}. Contacte-le directement sur WOZALI.`);
+    _setOg('og:title', `${nomRaw} — ${metierRaw} à ${_seoVille}`);
+    _setOg('og:description', nbAvis > 0
+      ? `${note.toFixed(1)}/5 étoiles · ${nbAvis} avis · Score WOZALI ${score}/100. Trouve les meilleurs prestataires de Cotonou et Lomé.`
+      : `Trouve les meilleurs prestataires de Cotonou et Lomé.`);
+    _setOg('og:image', photoProfil);
+    _setOg('og:url', _seoUrl);
+    _setCanonical(_seoUrl);
+    // Schema.org LocalBusiness
+    const _seoCountry = (_seoVille.toLowerCase().includes('lom') || _seoVille.toLowerCase().includes('kara')) ? 'TG' : 'BJ';
+    const _seoSchema = {
+      '@context': 'https://schema.org', '@type': 'LocalBusiness',
+      name: `${nomRaw} — ${metierRaw}`,
+      description: (descriptionRaw || '').slice(0, 300),
+      address: { '@type': 'PostalAddress', addressLocality: _seoVille, addressRegion: quartierRaw, addressCountry: _seoCountry },
+      url: _seoUrl,
+      ...(tel ? { telephone: tel } : {}),
+      ...(photoProfil ? { image: photoProfil } : {}),
+      ...(nbAvis > 0 ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: note.toFixed(1), reviewCount: nbAvis } } : {})
+    };
+    _setJsonLd(_seoSchema);
+    // Mettre à jour l'URL dans la barre d'adresse sans recharger
+    if (window.location.pathname !== `/profil/${_seoSlug}`) {
+      history.replaceState({ profilSlug: _seoSlug }, '', `/profil/${_seoSlug}`);
+    }
+
+    // Photos pour la galerie
+    const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].map(_wPhotoUrl).filter(Boolean);
+    const photosMe = photoProfil ? [photoProfil] : [];
+    const allPhotos = [...photosMe, ...realisations];
+
+    // Étoiles note
+    const starsHtml = (n) => {
+      let s = '';
+      for (let i=1;i<=5;i++) {
+        const c = i<=Math.round(n) ? '#fbbf24' : 'rgba(255,255,255,0.2)';
+        s += '<span style="color:' + c + ';font-size:14px;">★</span>';
+      }
+      return s;
+    };
+
+    // Grille Instagram pour album réalisations
+    const buildAlbumGrid = (photos, albumId) => {
+      const slots = 6;
+      let html = '<div class="album-grid-ig">';
+      for (let i = 0; i < slots; i++) {
+        if (photos[i]) {
+          html += `<div class="album-item-ig" onclick="openLightboxDark('lb-${albumId}', ${JSON.stringify(photos)}, ${i})">
+            <img src="${photos[i]}" alt="Photo ${i+1}" loading="lazy">
+            <div class="album-overlay"><span class="album-overlay-icon">🔍</span></div>
+          </div>`;
+        } else {
+          html += `<div class="album-empty-slot">+</div>`;
+        }
+      }
+      html += '</div>';
+      return html;
+    };
+
+    // Description avec "Voir plus" — découpe sur le raw, escape ensuite
+    const _descShortSafe = descriptionRaw.length > 200 ? escapeHtml(descriptionRaw.slice(0, 200)) + '…' : escapeHtml(descriptionRaw);
+    const descHtml = descriptionRaw ? `
+      <p class="description-text" id="desc-short-${recordId}">${_descShortSafe}</p>
+      ${descriptionRaw.length > 200 ? `
+        <p class="description-text" id="desc-full-${recordId}" style="display:none;">${escapeHtml(descriptionRaw)}</p>
+        <button class="voir-plus-btn" onclick="toggleDesc('${recordId}')">
+          <span id="voir-plus-label-${recordId}">Voir plus ▾</span>
+        </button>
+      ` : ''}
+    ` : '';
+
+    // 3 premiers avis
+    const avisHtml = avisRecords.length === 0
+      ? `<div style="text-align:center;padding:32px 16px;">
+        <p style="color:rgba(255,255,255,0.5);font-size:15px;font-weight:600;margin-bottom:8px;">${nom.split(' ')[0]} n'a pas encore d'avis clients.</p>
+        <p style="color:rgba(255,255,255,0.35);font-size:13px;line-height:1.7;margin-bottom:16px;">Si tu as fait appel à ses services —<br>laisse un avis. C'est gratuit. Ça change tout pour lui.</p>
+        <button class="btn btn-secondary btn-sm" onclick="openModalAvis('${recordId}','${nom}')">→ Laisser le premier avis</button>
+      </div>`
+      : avisRecords.slice(0, 3).map(a => renderAvis(a)).join('');
+
+    // Langues parlées — maintenant dans Airtable
+    const langues = f['Langues parlées'] || '';
+    const languesSection = langues ? `
+<div class="profil-section profil-animate">
+  <h3 style="margin-bottom:14px;">🌍 Langues parlées</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    ${langues.split(',').map(l => l.trim()).filter(Boolean).map(l => {
+      const flags = {'Français':'🇫🇷','Ewe':'🇹🇬','Mina':'🇹🇬','Kabiyè':'🇹🇬','Haoussa':'🇳🇬','Anglais':'🇬🇧','Allemand':'🇩🇪','Arabe':'🇸🇦','Yoruba':'🇳🇬'};
+      const flag = flags[l] || '🗣️';
+      return `<span style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);padding:6px 14px;border-radius:100px;font-size:13px;font-weight:600;">${flag} ${escapeHtml(l)}</span>`;
+    }).join('')}
+  </div>
+</div>` : '';
+
+    // Albums — 2 cartes compactes style Facebook (clic = page dédiée)
+    const albumsPreview = `
+<div class="profil-section profil-animate">
+  <h3 style="margin:0 0 12px;font-size:16px;">📸 Le travail de ${nom.split(' ')[0]} — en images.</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div onclick="showAlbumsPage('${recordId}')" style="cursor:pointer;border-radius:14px;overflow:hidden;position:relative;height:110px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
+      ${realisations[0] ? `<img src="${realisations[0]}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">🔨</div>`}
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.1) 55%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:10px;left:12px;">
+        <div style="font-weight:800;color:white;font-size:13px;">Mes réalisations</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${realisations.length} photo${realisations.length !== 1 ? 's' : ''}</div>
+      </div>
+    </div>
+    <div onclick="showAlbumsPage('${recordId}')" style="cursor:pointer;border-radius:14px;overflow:hidden;position:relative;height:110px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
+      ${photoProfil ? `<img src="${photoProfilSafe}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">📸</div>`}
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.1) 55%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:10px;left:12px;">
+        <div style="font-weight:800;color:white;font-size:13px;">Photos de moi</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${photoProfil ? '1 photo' : '0 photo'}</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+    // Section Posts / Publications
+    const isOwner = currentUser && currentPrestataire?.id === recordId;
+    const postsSection = `
+<div class="profil-section profil-animate" id="posts-section-${recordId}">
+  <h3 style="margin-bottom:16px;">📝 Ce que ${nom.split(' ')[0]} partage sur WOZALI.</h3>
+
+  ${isOwner ? `
+  <!-- Composer post (visible uniquement par le propriétaire) -->
+  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px;margin-bottom:20px;">
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;flex-shrink:0;">${(f['Nom complet']||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1;">
+        <textarea id="post-composer-${recordId}" placeholder="Partage une réalisation, une info, une offre spéciale..." style="width:100%;background:transparent;border:none;color:white;font-size:14px;line-height:1.6;resize:none;min-height:80px;outline:none;font-family:inherit;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);">
+          <label style="cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;display:flex;align-items:center;gap:6px;">
+            <input type="file" accept="image/*,video/*" id="post-img-${recordId}" style="display:none;" onchange="previewPostMedia(this,'${recordId}')">
+            📷 Photo&nbsp;/&nbsp;🎬 Vidéo
+          </label>
+          <button onclick="submitPost('${recordId}')" style="background:var(--vert);color:white;border:none;padding:8px 20px;border-radius:100px;font-weight:700;font-size:13px;cursor:pointer;">Publier</button>
+        </div>
+        <div id="post-img-preview-${recordId}" style="margin-top:8px;display:none;gap:8px;align-items:center;">
+          <img id="post-img-preview-img-${recordId}" style="max-height:200px;border-radius:10px;object-fit:cover;display:none;">
+          <video id="post-img-preview-vid-${recordId}" style="max-height:200px;border-radius:10px;max-width:100%;display:none;" controls muted playsinline></video>
+          <button onclick="clearPostMedia('${recordId}')" style="background:rgba(255,0,0,0.2);border:none;color:white;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;flex-shrink:0;">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  ` : ''}
+
+  <!-- Feed des posts -->
+  <div id="posts-feed-${recordId}">
+    <div style="text-align:center;padding:32px;color:rgba(255,255,255,0.3);font-size:14px;">
+      <div style="font-size:32px;margin-bottom:10px;">📭</div>
+      ${nom.split(' ')[0]} n'a pas encore publié de contenu.${isOwner ? '<br><span style="font-size:12px;">Les prestataires actifs sur WOZALI apparaissent plus haut dans les résultats.</span>' : '<br><span style="font-size:12px;">Les prestataires actifs sur WOZALI apparaissent plus haut dans les résultats de recherche.</span>'}
+    </div>
+  </div>
+</div>`;
+
+    container.innerHTML = `
+      <!-- Hero section dark -->
+      <div class="profil-hero-section">
+        <div class="profil-hero-inner">
+          <div class="profil-top">
+            <!-- Avatar + badge online -->
+            <div class="profil-avatar-wrap">
+              <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}">
+                ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
+              </div>
+              <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>
+            </div>
+
+            <div class="profil-info">
+              <!-- Nom + icône vérifié -->
+              <div class="profil-name">
+                ${nom}
+                ${verifie ? '<span class="profil-verified-icon" title="Vérifié WOZALI">✓</span>' : ''}
+              </div>
+
+              <!-- Métier, quartier, expérience -->
+              <div class="profil-sub">
+                <span>${emoji} ${metier}</span>
+                ${quartier ? `<span>·</span><span>📍 ${quartier}</span>` : ''}
+                ${experience ? `<span>·</span><span>🏆 ${experience} ans</span>` : ''}
+              </div>
+
+              <!-- Statut en ligne -->
+              <div class="profil-status-text">
+                <span class="profil-status-dot ${dispo ? '' : 'offline'}"></span>
+                <span style="color:rgba(255,255,255,0.6);">
+                  ${dispo ? '<span style="color:#E8940A;">⭐ Disponible maintenant</span>' : 'Occupé pour l\'instant'}
+                </span>
+              </div>
+
+              <!-- Badges -->
+              <div class="profil-badges">
+                ${verifie ? '<span class="badge badge-vert">✓ Vérifié WOZALI</span>' : ''}
+                ${abonnementRaw !== 'Base' ? `<span class="badge badge-or">⭐ ${abonnement}</span>` : ''}
+                ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Membre Fondateur WOZALI</span>' : ''}
+                ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.25),rgba(245,158,11,0.15));color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 Éligible Bourse de Croissance</span>' : ''}
+                ${f['Rang Top 50'] && f['Rang Top 50'] <= 50 ? `<span class="badge" style="background:rgba(232,148,10,0.25);color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 TOP ${f['Rang Top 50']} WOZALI ${(quartierRaw||'').toLowerCase().includes('cotonou')?'🇧🇯':'🇹🇬'}</span>` : ''}
+                ${f['Champion WOZALI'] ? `<span class="badge" style="background:rgba(232,148,10,0.2);color:#E8940A;border:1px solid rgba(232,148,10,0.4);">⚔️ Champion WOZALI ${escapeHtml(f['Champion WOZALI'])}</span>` : ''}
+                ${note > 0 ? `<span class="badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">${starsHtml(note)} ${note.toFixed(1)}</span>` : ''}
+                ${isDigital ? '<span class="badge" style="background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);">🎓 Pro du Web</span>' : ''}
+                ${f['Mode Emploi'] ? '<span class="badge" style="background:rgba(232,148,10,0.2);color:#F5B82E;border:1px solid rgba(232,148,10,0.4);">💼 Ouvert aux opportunités</span>' : ''}
+              </div>
+
+              <!-- Boutons d'action -->
+              <div class="profil-actions">
+                <a href="javascript:void(0)" class="btn-rdv" onclick="showRdvPage('${recordId}')">📅 Prendre RDV</a>
+                ${tel ? `<a href="${waLink}" class="btn btn-wa" target="_blank">💬 WhatsApp</a>` : ''}
+                ${tel ? `<a href="tel:${tel}" class="btn-dark-outline">📞 Appeler</a>` : ''}
+                ${tiktok ? `<a href="${tiktokSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
+                ${instagram ? `<a href="${instagramSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
+                <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
+                <!-- Paiement profil — activé quand FedaPay sera connecté -->
+                <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
+                  style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
+                  ➕ Suivre
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats bar -->
+          <div class="profil-stats-bar">
+            <div class="pstat">
+              <div class="pstat-num">${note > 0 ? note.toFixed(1) : '—'}</div>
+              <div class="pstat-label">Note / 5</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-num">${nbAvis}</div>
+              <div class="pstat-label">Avis clients</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-num">${nbTransactions}</div>
+              <div class="pstat-label">Prestations</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-num" style="color:var(--or);">${score}</div>
+              <div class="pstat-label">Score WOZALI</div>
+            </div>
+            ${experience ? `<div class="pstat"><div class="pstat-num">${experience}</div><div class="pstat-label">Ans d'expérience</div></div>` : ''}
+            <div class="pstat" style="cursor:pointer;" onclick="showPage('search')">
+              <div class="pstat-num" id="pstat-abonnes-${recordId}">…</div>
+              <div class="pstat-label">Abonnés</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corps de la page — fond sombre -->
+      <div class="profil-page-bg">
+        <div class="container">
+          <div class="profil-body">
+            <!-- Colonne principale -->
+            <div>
+              ${description ? `
+              <div class="profil-section">
+                <h3>À propos</h3>
+                ${descHtml}
+              </div>` : ''}
+
+
+              ${diplomes && isDigital ? `
+              <div class="profil-section">
+                <h3>🎓 Diplômes &amp; expériences</h3>
+                <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.8;white-space:pre-wrap;">${diplomes}</p>
+              </div>` : ''}
+
+              ${albumsPreview}
+
+              ${languesSection}
+
+              ${postsSection}
+
+              <!-- Section Disponibilité -->
+              <div class="profil-section">
+                <h3 style="margin-bottom:12px;">Quand contacter ${nom.split(' ')[0]} ?</h3>
+                ${dispo
+                  ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> — répond généralement en moins d'1h.</p>`
+                  : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp — ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
+                <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px;">Disponible : Lun–Ven : 8h–18h / Samedi : 9h–14h</p>
+              </div>
+
+              <!-- Section Avis -->
+              <div class="profil-section">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                  <h3 style="margin-bottom:0;">⭐ Ce que ses clients disent de ${nom.split(' ')[0]}.</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="openModalAvis('${recordId}','${nom}')">+ Laisser un avis</button>
+                </div>
+                <div id="avis-container-${recordId}">${avisHtml}</div>
+                ${avisRecords.length > 3 ? `<button class="voir-plus-btn" style="margin-top:12px;width:100%;justify-content:center;" onclick="showAllAvis('${recordId}', ${JSON.stringify(avisRecords.map(a=>a.id))})">Voir tous les avis (${avisRecords.length}) ▾</button>` : ''}
+              </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+              <div class="sidebar-card">
+                ${(tarifMin || tarifMax) ? `
+                <div class="tarif-box">
+                  <div class="tarif-range">
+                    ${tarifMin ? 'À partir de ' + tarifMin.toLocaleString() + ' FCFA' : ''}${tarifMax ? '<br>Jusqu\'à ' + tarifMax.toLocaleString() + ' FCFA selon la prestation' : ''}
+                  </div>
+                  <div class="tarif-label" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;">Prix négociables directement avec ${nom.split(' ')[0]}.<br>Paiement : TMoney · Flooz (Togo) / MTN Money · Moov Money (Bénin)</div>
+                </div>` : ''}
+                ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#E8940A;color:white;" target="_blank">→ Contacter maintenant sur WhatsApp</a>` : ''}
+                <p style="font-size:12px;color:rgba(255,255,255,0.55);text-align:center;line-height:1.6;margin:0 0 6px;">Contact direct. Zéro intermédiaire.<br>Paiement : TMoney · Flooz (Togo) / MTN Mobile Money · Moov Money (Bénin)</p>
+                <div style="font-size:12px;color:rgba(255,255,255,0.35);text-align:center;line-height:1.6;">
+                  En contactant via WOZALI, tu bénéficies de la garantie prestataire vérifié.
+                </div>
+              </div>
+
+              <div class="sidebar-card">
+                <h4>Informations</h4>
+                <div style="font-size:14px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
+                  ${quartier ? `<div style="display:flex;align-items:center;gap:8px;">📍 <span><strong style="color:white;">Où trouver ${nom.split(' ')[0]}</strong> · ${quartier}</span></div>` : ''}
+                  ${(gpsLat && gpsLon) ? `
+                  <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);margin-top:4px;">
+                    <div id="profil-minimap-${recordId}" style="height:130px;background:linear-gradient(135deg,#151d28,#1a2820);display:flex;align-items:center;justify-content:center;">
+                      <div style="opacity:0.3;font-size:20px;">🗺️</div>
+                    </div>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:13px;font-weight:800;text-decoration:none;letter-spacing:0.2px;" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                      🗺️ Voir l'itinéraire — envoie au zem pour qu'il arrive directement
+                    </a>
+                  </div>` : quartier ? `
+                  <div>
+                    <a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                      🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →
+                    </a>
+                  </div>` : ''}
+                  ${metier ? `<div style="display:flex;align-items:center;gap:8px;">${emoji} <span><strong style="color:white;">Métier</strong> · ${metier}</span></div>` : ''}
+                  ${experience ? `<div style="display:flex;align-items:center;gap:8px;">🏆 <span><strong style="color:white;">Expérience</strong> · ${experience} ans</span></div>` : ''}
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    ${dispo ? '<span style="color:#E8940A;">⭐</span>' : '⚪'}
+                    <span><strong style="color:white;">Statut</strong> · ${dispo ? '<span style="color:#E8940A;">Disponible maintenant</span>' : 'Occupé pour l\'instant'}</span>
+                  </div>
+                </div>
+              </div>
+
+              ${(tiktok || instagram) ? `
+              <div class="sidebar-card">
+                <h4>Réseaux sociaux</h4>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  ${tiktok ? `<a href="${tiktokSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
+                  ${instagram ? `<a href="${instagramSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
+                </div>
+              </div>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profils similaires -->
+      <div class="profil-page-bg" style="padding-top:0;">
+        <div class="container">
+          <div class="profil-section" style="margin-top:0;">
+            <h3 style="margin-bottom:6px;">D'autres ${metier || 'professionnels'} à ${(quartier || '').split('—')[0] || 'cette ville'}</h3>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.7;margin-bottom:16px;">Ces prestataires travaillent dans le même domaine.<br>Tous vérifiés. Tous disponibles sur WOZALI.</p>
+            <div id="profils-similaires-${recordId}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
+              <div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-size:13px;grid-column:1/-1;">Chargement des profils similaires…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lightbox dark premium -->
+      <div id="lb-real-${recordId}" class="lightbox-dark" onclick="if(event.target===this)closeLightboxDark('lb-real-${recordId}')">
+        <div class="lightbox-dark-inner">
+          <img class="lightbox-dark-img" id="lb-real-${recordId}-img" src="" alt="">
+          <button class="lightbox-close" onclick="closeLightboxDark('lb-real-${recordId}')">×</button>
+          <button class="lightbox-nav lightbox-prev" onclick="navLightboxDark('lb-real-${recordId}',-1)">‹</button>
+          <button class="lightbox-nav lightbox-next" onclick="navLightboxDark('lb-real-${recordId}',1)">›</button>
+          <div class="lightbox-counter" id="lb-real-${recordId}-counter"></div>
+        </div>
+      </div>
+      <div id="lb-me-${recordId}" class="lightbox-dark" onclick="if(event.target===this)closeLightboxDark('lb-me-${recordId}')">
+        <div class="lightbox-dark-inner">
+          <img class="lightbox-dark-img" id="lb-me-${recordId}-img" src="" alt="">
+          <button class="lightbox-close" onclick="closeLightboxDark('lb-me-${recordId}')">×</button>
+          <button class="lightbox-nav lightbox-prev" onclick="navLightboxDark('lb-me-${recordId}',-1)">‹</button>
+          <button class="lightbox-nav lightbox-next" onclick="navLightboxDark('lb-me-${recordId}',1)">›</button>
+          <div class="lightbox-counter" id="lb-me-${recordId}-counter"></div>
+        </div>
+      </div>
+    `;
+
+    // Charger le feed des posts après rendu (async Airtable)
+    setTimeout(() => renderPostsFeed(recordId), 100);
+    // Charger profils similaires
+    setTimeout(async () => {
+      const box = document.getElementById(`profils-similaires-${recordId}`);
+      if (!box) return;
+      try {
+        const similar = await fetchPrestataires({ metier: metierRaw });
+        const filtered = (similar || []).filter(r => r.id !== recordId).slice(0, 4);
+        if (filtered.length === 0) {
+          box.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.35);font-size:13px;grid-column:1/-1;">Pas d'autre ${metier || 'prestataire'} pour l'instant.</div>`;
+        } else {
+          box.innerHTML = filtered.map(r => {
+            const ff = r.fields;
+            const pp = ff['Photo de profil'] || ff['WhatsApp'] || '';
+            const ppSafe = encodeURI(pp || '');
+            const ini = escapeHtml((ff['Nom complet']||'?').charAt(0).toUpperCase());
+            const _safeNomR = escapeHtml(ff['Nom complet']||'');
+            const _safeQuartierR = escapeHtml(ff['Quartier']||'');
+            const _safeIdR = escapeHtml(r.id);
+            return `<div onclick="showProfil('${_safeIdR}')" style="cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;transition:.2s;" onmouseenter="this.style.background='rgba(232,148,10,0.08)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)'">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;overflow:hidden;flex-shrink:0;">${pp ? `<img src="${ppSafe}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ini}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:800;color:white;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_safeNomR}</div>
+                  <div style="font-size:11px;color:rgba(255,255,255,0.5);">📍 ${_safeQuartierR}</div>
+                </div>
+              </div>
+              ${ff['Tarif minimum FCFA'] ? `<div style="font-size:12px;color:#E8940A;font-weight:700;">À partir de ${parseInt(ff['Tarif minimum FCFA']).toLocaleString('fr-FR')} FCFA</div>` : ''}
+            </div>`;
+          }).join('');
+        }
+      } catch { box.innerHTML = ''; }
+    }, 500);
+    // Mini map localisation
+    if (gpsLat && gpsLon) setTimeout(() => initProfileMiniMap(gpsLat, gpsLon, `profil-minimap-${recordId}`), 300);
+    // Mettre à jour le bouton Suivre + compteur abonnés
+    setTimeout(() => updateSuiviBtn(recordId), 200);
+    setTimeout(() => loadFollowerCount(recordId), 300);
+    // Charger les stats photos (likes)
+    setTimeout(() => loadPhotoLikeCounts(recordId), 300);
+
+    // Incrémenter les vues si pas le propriétaire
+    if (record.id && currentUser?.id !== record.fields?.['User ID']) {
+      // Compteur total (localStorage legacy)
+      const viewsKey = `wozali_views_${record.id}`;
+      const viewsData = JSON.parse(localStorage.getItem(viewsKey) || '{"total":0,"week":0}');
+      viewsData.total = (viewsData.total || 0) + 1;
+      viewsData.week = (viewsData.week || 0) + 1;
+      localStorage.setItem(viewsKey, JSON.stringify(viewsData));
+      // Bucket journalier pour graphique dashboard
+      const dailyKey = `wozali_daily_views_${record.id}`;
+      const dailyData = JSON.parse(localStorage.getItem(dailyKey) || '[]');
+      const today = new Date().toISOString().split('T')[0];
+      const todayEntry = dailyData.find(x => x.date === today);
+      if (todayEntry) todayEntry.val = (todayEntry.val || 0) + 1;
+      else dailyData.push({ date: today, val: 1 });
+      const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+      localStorage.setItem(dailyKey, JSON.stringify(dailyData.filter(x => x.date >= cutoff.toISOString().split('T')[0])));
+
+      // Sprint 7 — Tracking serveur : incrémenter vues_mois sur Supabase
+      const profilUserId = record.fields?.['User ID'];
+      if (profilUserId && typeof supa !== 'undefined') {
+        (async () => { try { await supa.rpc('increment_vues_mois', { p_user_id: profilUserId }); } catch(e) {} })();
+      }
+    }
+
+
+    // Bouton signaler (anti-arnaque) — affiché uniquement si on n'est pas sur son propre profil
+    if (!currentPrestataire || currentPrestataire.id !== recordId) {
+      const flagDiv = document.createElement('div');
+      flagDiv.style.cssText = 'text-align:center;margin:24px 0 8px;';
+      const userId = record.fields?.['User ID'] || '';
+      const safeName = (record.fields?.['Nom complet'] || 'ce prestataire').replace(/'/g,"\\'");
+      flagDiv.innerHTML = `<button onclick="window.wozaliSignalement?.open({targetUserId:'${userId}',contextLabel:'Profil : ${safeName}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;font-family:Geist,sans-serif;">🚨 Signaler ce profil</button>`;
+      container.appendChild(flagDiv);
+    }
+
+    // ── BADGE "Mains les Plus Demandées" pour Coiffeuse/Couturière ──
+    // Affiché si la pro est taguée dans des photos du Bourse des Mains d'Or ce mois.
+    try {
+      const userIdPro = record.fields?.['User ID'];
+      const metierPro = (record.fields?.['Métier principal'] || '').toLowerCase();
+      if (userIdPro && /coiff|coutur|tress/.test(metierPro)) {
+        loadProTagBadge(userIdPro, container);
+      }
+    } catch(e) { /* silencieux */ }
+
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Profil introuvable</h3><p>${e.message}</p></div>`;
+  }
+}
+
+// ══ Badge "Mains les Plus Demandées" — affiché sur le profil pro ══
+async function loadProTagBadge(userIdPro, container) {
+  try {
+    const r = await fetch(`/api/wozali-pay/feed-tag-stats?user_id=${encodeURIComponent(userIdPro)}`).then(x => x.json());
+    if (!r?.ok) return;
+    const moisCount = r.count_mois || 0;
+    const totalCount = r.count_total || 0;
+    if (moisCount === 0 && totalCount === 0) return;
+    const badge = document.createElement('div');
+    badge.style.cssText = 'background:linear-gradient(135deg,rgba(232,148,10,0.15) 0%,rgba(232,148,10,0.05) 100%);border:1px solid rgba(232,148,10,0.35);border-radius:14px;padding:14px 18px;margin:18px auto;max-width:600px;display:flex;align-items:center;gap:14px;';
+    const moisNom = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][new Date().getMonth()];
+    badge.innerHTML = `
+      <div style="font-size:30px;flex-shrink:0;">✨</div>
+      <div style="flex:1;">
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:4px;">LES MAINS LES PLUS DEMANDÉES</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:800;color:#FCE0A8;">${moisCount > 0 ? `${moisCount} reine${moisCount > 1 ? 's' : ''} porte${moisCount > 1 ? 'nt' : ''} son travail ce ${moisNom}` : `${totalCount} reine${totalCount > 1 ? 's' : ''} ont porté son travail`}</div>
+        <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-top:2px;">Visible sur La Bourse des Mains d'Or · WOZALI</div>
+      </div>
+      <a href="#" onclick="showPage('recompenses');return false;" style="background:#E8940A;color:#14100A;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:800;text-decoration:none;flex-shrink:0;">Voir →</a>
+    `;
+    container.insertBefore(badge, container.firstChild);
+  } catch(e) {
+    console.warn('[loadProTagBadge]', e);
+  }
+}
+
+// ══════════════════════════════════════════
+// AVIS
+// ══════════════════════════════════════════
+let selectedStars = 0;
+let currentAvisPrestataire = null;
+
+async function fetchAvis(prestatairesId) {
+  // Migration progressive : Supabase d'abord, fallback Airtable si quota épuisé
+  if (window.supaAvis && prestatairesId) {
+    try {
+      const records = await window.supaAvis.list({ prestataire_id: prestatairesId, validated: true, limit: 200 });
+      if (records && records.length > 0) return records;
+    } catch (e) { console.warn('[fetchAvis supa fail, fallback Airtable]', e?.message || e); }
+  }
+  // Si l'ID est un UUID Supabase (format xxxxxxxx-xxxx-…), les avis Airtable
+  // utilisent des IDs recXXXXXX → aucun match possible, inutile d'appeler Airtable.
+  return []; // IDs legacy Airtable non supportés
+}
+
+// Parse le préfixe structuré d'un commentaire Avis
+// Format: "[Nom|recID|photoURL]\nTexte" ou "[Nom]\nTexte" (ancien format)
+function parseAvisCommentaire(raw) {
+  const m = raw.match(/^\[([^\]]+)\]\n?/);
+  if (!m) return { nom: 'Client', auteurId: null, photo: null, comment: raw };
+  const parts = m[1].split('|');
+  return {
+    nom:      parts[0] || 'Client',
+    auteurId: parts[1] || null,
+    photo:    parts[2] || null,
+    comment:  raw.slice(m[0].length)
+  };
+}
+
+function renderAvis(record) {
+  const f = record.fields;
+  const note = f['Note globale sur 5'] || 0;
+  const rawComment = f['Commentaire'] || '';
+  const date = f['Date de l\'avis'] ? new Date(f['Date de l\'avis']).toLocaleDateString('fr-FR') : '';
+  const { nom, auteurId, photo, comment } = parseAvisCommentaire(rawComment);
+
+  const avatarHtml = photo
+    ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
+    : `<span style="font-weight:800;color:white;font-size:14px;">${nom.charAt(0).toUpperCase()}</span>`;
+
+  const authorOnclick = auteurId ? `onclick="closeModal();showProfil('${auteurId}')"` : '';
+  const authorStyle = auteurId ? 'color:var(--vert);font-weight:700;text-decoration:underline;text-underline-offset:2px;' : 'font-weight:700;';
+
+  return `
+    <div class="avis-item">
+      <div class="avis-header" style="display:flex;align-items:flex-start;gap:10px;">
+        <div ${authorOnclick} style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;${auteurId ? 'cursor:pointer;' : ''}">${avatarHtml}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+            <span class="avis-author" ${authorOnclick} style="${authorStyle}">${nom}${auteurId ? ' ↗' : ''}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="stars" style="font-size:13px;">${renderStars(note)}</span>
+              ${date ? `<span class="avis-date">${date}</span>` : ''}
+            </div>
+          </div>
+          ${comment ? `<p class="avis-text" style="margin-top:6px;">${comment}</p>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function openModalAvis(prestatairesId, prestataireNom) {
+  currentAvisPrestataire = prestatairesId;
+  document.getElementById('modal-avis-nom').textContent = `Pour : ${prestataireNom}`;
+  selectedStars = 0;
+  setStars(0);
+  document.getElementById('avis-comment').value = '';
+
+  // Section auteur : profil WOZALI si connecté, champ texte sinon
+  const section = document.getElementById('avis-auteur-section');
+  if (currentPrestataire) {
+    const f = currentPrestataire.fields;
+    const nom = f['Nom complet'] || '';
+    const photo = f['Photo de profil'] || f['WhatsApp'] || '';
+    const initiale = nom.charAt(0).toUpperCase();
+    const avatarHtml = photo
+      ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
+      : `<span style="font-weight:800;color:white;font-size:15px;">${initiale}</span>`;
+    section.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,0.07);border:1.5px solid rgba(232,148,10,0.2);border-radius:12px;padding:10px 14px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${avatarHtml}</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--noir);">${nom}</div>
+          <div style="font-size:11px;color:var(--vert);font-weight:600;">✅ Profil WOZALI vérifié</div>
+        </div>
+      </div>`;
+  } else {
+    section.innerHTML = `
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Ton nom <span class="req">*</span></label>
+        <input type="text" id="avis-nom" placeholder="Kofi Mensah">
+        <p style="font-size:11px;color:var(--gris);margin-top:4px;"><a href="#" onclick="closeModal();showPage('login')" style="color:var(--vert);font-weight:600;">Connecte-toi</a> pour que ton profil WOZALI s'affiche automatiquement.</p>
+      </div>`;
+  }
+  document.getElementById('modal-avis').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal-avis').classList.remove('active');
+}
+
+function setStars(val) {
+  selectedStars = val;
+  document.querySelectorAll('.star-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i < val);
+  });
+}
+
+async function submitAvis() {
+  const comment = document.getElementById('avis-comment').value.trim();
+  if (!selectedStars || selectedStars < 1 || selectedStars > 5) { toast('Choisis une note de 1 à 5 étoiles', 'error'); return; }
+  if (comment.length < 10) { toast('Le commentaire doit faire au minimum 10 caractères', 'error'); return; }
+  if (comment.length > 1000) { toast('Le commentaire ne doit pas dépasser 1000 caractères', 'error'); return; }
+  if (!currentAvisPrestataire) { toast('Erreur : prestataire introuvable', 'error'); return; }
+
+  // Construire le préfixe auteur : [Nom|recID|photoURL] si connecté, [Nom] sinon
+  let commentFinal;
+  if (currentPrestataire) {
+    const f = currentPrestataire.fields;
+    const nom = (f['Nom complet'] || '').trim();
+    const id  = currentPrestataire.id;
+    const photo = (f['Photo de profil'] || f['WhatsApp'] || '').trim();
+    if (!nom) { toast('Erreur : nom du profil manquant', 'error'); return; }
+    commentFinal = `[${nom}|${id}|${photo}]\n${comment}`;
+  } else {
+    const nomInput = document.getElementById('avis-nom');
+    const nom = nomInput ? nomInput.value.trim() : '';
+    if (!validateForm({
+      nom: { type: 'name', value: nom, name: 'Prénom' }
+    })) {
+      nomInput?.focus();
+      return;
+    }
+    commentFinal = `[${nom}]\n${comment}`;
+  }
+
+  const fields = {
+    'Commentaire': commentFinal,
+    'Note globale sur 5': selectedStars,
+    'Date de l\'avis': new Date().toISOString().split('T')[0],
+    'Avis visible': true,
+    'Prestataire évalué': [currentAvisPrestataire],
+  };
+
+  try {
+    if (window.supaAvis) {
+      // Supabase — chemin principal
+      const { nom: auteurNom, photo: auteurPhoto } = parseAvisCommentaire(commentFinal);
+      await window.supaAvis.create({
+        'Prestataire ID':     currentAvisPrestataire,
+        'Note globale sur 5': selectedStars,
+        'Date avis':          new Date().toISOString().split('T')[0],
+        'Validated':          true,
+        'Commentaire':        commentFinal,
+        'Auteur Nom':         auteurNom,
+        'Auteur User ID':     currentUser?.id || null,
+        'Auteur Photo':       auteurPhoto || '',
+      });
+    } else {
+      toast('Erreur : service avis non disponible', 'error'); return;
+    }
+    closeModal();
+    toast('Merci pour ton avis ! 🎉', 'success');
+    // Recharger le profil pour afficher le nouvel avis
+    if (currentAvisPrestataire) showProfil(currentAvisPrestataire);
+  } catch {
+    toast('Problème de connexion', 'error');
+  }
+}
+
+// ══════════════════════════════════════════
+// LIGHTBOX DARK PREMIUM
+// ══════════════════════════════════════════
+let currentGalleryPhotos = [];
+let currentGalleryIndex = 0;
+const lbState = {}; // { lbId: { photos, index } }
+
+function openLightboxDark(lbId, photos, index) {
+  photos = photos.filter(Boolean);
+  if (!photos.length) return;
+  lbState[lbId] = { photos, index: index || 0 };
+  const lb = document.getElementById(lbId);
+  if (!lb) return;
+  lb.classList.add('open');
+  _updateLightboxImg(lbId);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightboxDark(lbId) {
+  const lb = document.getElementById(lbId);
+  if (lb) lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function navLightboxDark(lbId, dir) {
+  const s = lbState[lbId];
+  if (!s) return;
+  s.index = (s.index + dir + s.photos.length) % s.photos.length;
+  _updateLightboxImg(lbId);
+}
+
+function _updateLightboxImg(lbId) {
+  const s = lbState[lbId];
+  if (!s) return;
+  const img = document.getElementById(lbId + '-img');
+  const counter = document.getElementById(lbId + '-counter');
+  if (img) img.src = s.photos[s.index];
+  if (counter) counter.textContent = `${s.index + 1} / ${s.photos.length}`;
+  // Masquer nav si 1 seule photo
+  const lb = document.getElementById(lbId);
+  if (lb) {
+    lb.querySelectorAll('.lightbox-nav').forEach(btn => {
+      btn.style.display = s.photos.length <= 1 ? 'none' : '';
+    });
+  }
+}
+
+// Keyboard navigation for lightbox
+document.addEventListener('keydown', function(e) {
+  const openLb = document.querySelector('.lightbox-dark.open');
+  if (!openLb) return;
+  const lbId = openLb.id;
+  if (e.key === 'ArrowRight') navLightboxDark(lbId, 1);
+  if (e.key === 'ArrowLeft') navLightboxDark(lbId, -1);
+  if (e.key === 'Escape') closeLightboxDark(lbId);
+});
+
+// Legacy compatibility — keep old function names
+function openGallery(recordId, photos) {
+  openLightboxDark('lb-real-' + recordId, photos, 0);
+}
+function closeLightbox(recordId) {
+  closeLightboxDark('lb-real-' + recordId);
+}
+function nextPhoto(recordId) {
+  navLightboxDark('lb-real-' + recordId, 1);
+}
+function prevPhoto(recordId) {
+  navLightboxDark('lb-real-' + recordId, -1);
+}
+
+// Description "Voir plus"
+function toggleDesc(recordId) {
+  const short = document.getElementById('desc-short-' + recordId);
+  const full = document.getElementById('desc-full-' + recordId);
+  const label = document.getElementById('voir-plus-label-' + recordId);
+  if (!short || !full || !label) return;
+  const isHidden = full.style.display === 'none';
+  short.style.display = isHidden ? 'none' : '';
+  full.style.display = isHidden ? '' : 'none';
+  label.textContent = isHidden ? 'Voir moins ▴' : 'Voir plus ▾';
+}
+
+// Voir tous les avis
+async function showAllAvis(recordId, ids) {
+  const container = document.getElementById('avis-container-' + recordId);
+  if (!container) return;
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  const avisRecords = await fetchAvis(recordId);
+  container.innerHTML = avisRecords.length === 0
+    ? '<p style="color:rgba(255,255,255,0.4);font-size:14px;text-align:center;padding:24px 0;">Pas encore d\'avis.</p>'
+    : avisRecords.map(a => renderAvis(a)).join('');
+}
+
+// ══════════════════════════════════════════
+// PARTAGE DE PROFIL
+// ══════════════════════════════════════════
+function _buildProfilSlug(nom, metier, ville) {
+  return [nom, metier, ville].filter(Boolean).join(' ')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// ── SEO helpers : mise à jour dynamique des meta tags ──
+function _setMeta(name, content) {
+  let el = document.querySelector(`meta[name="${name}"]`);
+  if (!el) { el = document.createElement('meta'); el.name = name; document.head.appendChild(el); }
+  el.content = content;
+}
+function _setOg(prop, content) {
+  let el = document.querySelector(`meta[property="${prop}"]`);
+  if (!el) { el = document.createElement('meta'); el.setAttribute('property', prop); document.head.appendChild(el); }
+  el.content = content || '';
+}
+function _setCanonical(href) {
+  let el = document.querySelector('link[rel="canonical"]');
+  if (!el) { el = document.createElement('link'); el.rel = 'canonical'; document.head.appendChild(el); }
+  el.href = href;
+}
+function _setJsonLd(obj) {
+  let el = document.getElementById('wozali-jsonld');
+  if (!el) { el = document.createElement('script'); el.id = 'wozali-jsonld'; el.type = 'application/ld+json'; document.head.appendChild(el); }
+  el.textContent = JSON.stringify(obj);
+}
+function _resetSeoMeta() {
+  document.title = 'WOZALI — Visibilité. Paiements. Revenus. Bénin & Togo.';
+  _setMeta('description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. WOZALI connecte le Bénin et le Togo.');
+  _setOg('og:title', 'WOZALI — Visibilité. Paiements. Revenus. Bénin & Togo.');
+  _setOg('og:description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes.');
+  _setOg('og:url', 'https://wozali.com');
+  _setOg('og:image', '');
+  const canon = document.querySelector('link[rel="canonical"]');
+  if (canon) canon.remove();
+  const jsonld = document.getElementById('wozali-jsonld');
+  if (jsonld) jsonld.remove();
+  // Restaurer l'URL de base si on était sur /profil/
+  if (window.location.pathname.startsWith('/profil/')) {
+    history.replaceState(null, '', '/');
+  }
+}
+
+function shareProfile(recordId, nom) {
+  const r = window._currentProfilRecord;
+  const f = r?.fields || {};
+  const metier  = f['Métier principal'] || '';
+  const ville   = f['Ville'] || '';
+  const nbAvis  = window._currentProfilAvisCount ?? 0;
+  const note    = window._currentProfilNote ?? 0;
+  const score   = window._currentProfilScore ?? 0;
+
+  const slug = _buildProfilSlug(nom, metier, ville);
+  const profileUrl = `https://wozali.com/profil/${slug}`;
+
+  let lines = [];
+  // Accroche centrée sur la personne et son métier
+  if (metier && ville) {
+    lines.push(`${nom} est ${metier} à ${ville}.`);
+  } else if (metier) {
+    lines.push(`${nom} est ${metier}.`);
+  } else {
+    lines.push(`${nom} est sur WOZALI.`);
+  }
+  // Preuve sociale si disponible
+  if (nbAvis >= 3) {
+    lines.push(`${note.toFixed(1)}/5 — ${nbAvis} clients satisfaits. Score WOZALI ${score}/100.`);
+  } else if (nbAvis > 0) {
+    lines.push(`Déjà ${nbAvis} avis client${nbAvis > 1 ? 's' : ''}. Score WOZALI ${score}/100.`);
+  }
+  lines.push('');
+  // Bénéfice concret + lien
+  lines.push('Photos vraies, tarifs réels, avis de vrais clients — tout est là :');
+  lines.push(`👉 ${profileUrl}`);
+  lines.push('');
+  lines.push('Si tu cherches quelqu\'un de sérieux, passe voir. wozali.com');
+
+  const text = lines.join('\n');
+
+  if (navigator.share) {
+    navigator.share({
+      title: `${nom} sur WOZALI`,
+      text: text,
+      url: profileUrl
+    }).catch(err => {
+      if (err.name !== 'AbortError') copyToClipboard(profileUrl, nom);
+    });
+  } else {
+    copyToClipboard(text, nom);
+  }
+}
+
+function copyToClipboard(text, nom) {
+  navigator.clipboard.writeText(text).then(() => {
+    toast(`Lien de ${nom} copié ! 📋`, 'success');
+  }).catch(() => {
+    alert('Lien : ' + text);
+    toast('Copie manuelle', 'info');
+  });
+}
+
+// ══════════════════════════════════════════
+// FORMULAIRE INSCRIPTION
+// ══════════════════════════════════════════
+let currentStep = 1;
+
+function nextStep(step) {
+  if (step > currentStep) {
+    if (currentStep === 1) {
+      const nom = document.getElementById('f-nom').value;
+      const tel = document.getElementById('f-tel').value;
+      const email = document.getElementById('f-email').value;
+      const pw = document.getElementById('f-password').value;
+      if (!nom.trim() || !tel.trim()) { toast('Nom et téléphone obligatoires', 'error'); return; }
+      if (!email.trim()) { toast('Email obligatoire pour accéder à ton espace', 'error'); return; }
+      if (!pw || pw.length < 6) { toast('Mot de passe obligatoire (min 6 caractères)', 'error'); return; }
+    }
+    if (currentStep === 2) {
+      const metier = document.getElementById('f-metier').value;
+      const quartier = getVilleQuartier('f-ville','f-quartier');
+      const desc = document.getElementById('f-description').value;
+      if (!metier || !quartier || !desc.trim()) { toast('Métier, quartier et description obligatoires', 'error'); return; }
+    }
+  }
+
+  document.getElementById('fs-' + currentStep).classList.remove('active');
+  document.getElementById('pb-' + currentStep).classList.remove('active');
+  if (step > currentStep) document.getElementById('pb-' + currentStep).classList.add('done');
+
+  currentStep = step;
+  document.getElementById('fs-' + currentStep).classList.add('active');
+  document.getElementById('pb-' + currentStep).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Affiche/masque le champ portfolio selon le métier choisi + rend dynamiquement
+// les statuts (Apprenti / Patron / Indépendant / etc.) depuis WozaliMetierStatuts.
+function onMetierChange(metier) {
+  const field = document.getElementById('portfolio-field');
+  if (field) field.style.display = isDigitalMetier(metier) ? 'block' : 'none';
+
+  // Statut socio-économique — affiché pour TOUS les métiers via WozaliMetierStatuts
+  renderStatutsForMetier(metier, 'statut-artisan-field', 'f-statut-artisan');
+}
+
+// Rend les options de statut dynamiquement selon le métier choisi.
+// containerId = wrapper div, hiddenId = input hidden qui stocke la valeur sélectionnée.
+function renderStatutsForMetier(metier, containerId, hiddenId) {
+  const sa = document.getElementById(containerId);
+  if (!sa) return;
+  if (!metier) { sa.style.display = 'none'; return; }
+  const cfg = (window.WozaliMetierStatuts && window.WozaliMetierStatuts.getStatutsFor)
+    ? window.WozaliMetierStatuts.getStatutsFor(metier)
+    : null;
+  if (!cfg || !cfg.statuts || !cfg.statuts.length) { sa.style.display = 'none'; return; }
+  sa.style.display = 'block';
+  const radioName = hiddenId === 'f-statut-artisan' ? 'f-statut-artisan' : 'edit-statut-radio';
+  // Construit le HTML
+  const optsHtml = cfg.statuts.map(s => `
+    <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'${s.value}','${containerId}','${hiddenId}')">
+      <input type="radio" name="${radioName}" value="${s.value}" style="margin-top:3px;flex-shrink:0;">
+      <span style="font-size:13px;line-height:1.5;color:#14100A;"><strong>${s.emoji || ''} ${(s.label || s.value).replace(/</g,'&lt;')}</strong> — ${(s.description || '').replace(/</g,'&lt;')}</span>
+    </label>
+  `).join('');
+  // Statut OBLIGATOIRE pour les métiers où une config statut existe (asterisque rouge)
+  sa.innerHTML = `
+    <label style="font-weight:700;font-size:14px;display:block;margin-bottom:4px;color:#14100A;">👩‍🎨 Quel est ton statut ? <span class="req" style="color:#dc2626;">*</span></label>
+    <p style="font-size:12px;color:var(--gris);margin:0 0 12px;">${(cfg.intro || 'Important pour t\'envoyer les bons conseils. Sois honnête — il n\'y a pas de jugement.').replace(/</g,'&lt;')}</p>
+    <div style="display:grid;gap:8px;">${optsHtml}</div>
+    <input type="hidden" id="${hiddenId}" value="">
+  `;
+}
+
+// ══════════════════════════════════════════
+// U1 — Helpers Step 2 inscription : templates description + presets tarifs
+// ══════════════════════════════════════════
+window.WOZALI_DESC_TEMPLATES = {
+  'Coiffeur/Coiffeuse': "Je tresse, fais des nattes, défrisages et soin du cuir chevelu. Je peux venir à domicile.",
+  'Coiffeuse': "Je tresse, fais des nattes, défrisages et soin du cuir chevelu. Je peux venir à domicile.",
+  'Couturier/Couturière': "Je couds des tenues africaines sur mesure, retouches, robes de fête. Je travaille en atelier ou à domicile.",
+  'Couturière': "Je couds des tenues africaines sur mesure, retouches, robes de fête. Je travaille en atelier ou à domicile.",
+  'Mécanicien moto': "Je répare motos toutes marques. Vidange, freins, embrayage, démarreur, électricité. Devis gratuit.",
+  'Mécanicien auto': "Je répare voitures toutes marques. Vidange, freins, embrayage, démarreur, diagnostic électronique. Devis gratuit.",
+  'Photographe': "Photographe événements (mariages, baptêmes, anniv) et portrait studio. Livraison rapide.",
+  'Restaurant': "Cuisine du terroir béninois/togolais. Plats à emporter ou sur place. Service midi et soir.",
+  'Restaurateur': "Cuisine du terroir béninois/togolais. Plats à emporter ou sur place. Service midi et soir.",
+  'Maçon': "Maçonnerie générale, parpaings, chape, crépi, finitions. Petits ou gros chantiers.",
+  'Pâtissier/Boulanger': "Pâtisseries et viennoiseries fraîches. Gâteaux d'anniversaire et de mariage sur commande.",
+  'Cuisinier/Cuisinière à domicile': "Je cuisine à domicile pour tes événements (baptêmes, mariages, anniversaires). Plats traditionnels ou sur mesure.",
+  'Plombier': "Installation, réparation et entretien plomberie. Fuites, WC, chauffe-eau, débouchage. Intervention rapide.",
+  'Électricien': "Installation et dépannage électrique. Tableau, prises, éclairage, courts-circuits. Devis gratuit.",
+  'Soudeur': "Soudure métallique : portails, rampes, grilles, structures. Travail soigné, prix discuté.",
+  'Menuisier': "Meubles sur mesure, portes, fenêtres, placards. Bois massif ou panneau. Atelier équipé.",
+  'Vendeur de rue/Étale': "Articles à prix juste, qualité contrôlée. Livraison possible dans le quartier."
+};
+
+function wozaliFillDescTemplate() {
+  const ta = document.getElementById('f-description');
+  if (!ta) return;
+  const metierEl = document.getElementById('f-metier');
+  const metier = metierEl ? metierEl.value : '';
+  const tpls = window.WOZALI_DESC_TEMPLATES || {};
+  const defaultTpl = "Décris en 1-2 lignes ce que tu fais le mieux. Tes prix de départ. Si tu te déplaces ou pas.";
+  const tpl = tpls[metier] || defaultTpl;
+  ta.value = tpl;
+  // place le curseur à la fin pour personnalisation rapide
+  ta.focus();
+  try { ta.setSelectionRange(tpl.length, tpl.length); } catch(e) {}
+  if (window.toast) toast('Texte d\'exemple ajouté — personnalise-le si tu veux', 'success');
+}
+
+function wozaliApplyTarifPreset(presetVal) {
+  const minEl = document.getElementById('f-tarif-min');
+  const maxEl = document.getElementById('f-tarif-max');
+  const labelEl = document.getElementById('f-tarif-label');
+  if (!minEl || !maxEl || !labelEl) return;
+  const map = {
+    'unsure':  { label: 'Je ne sais pas encore', min: '', max: '' },
+    '500':     { label: 'Petit budget (à partir de 500 F)', min: '500', max: '' },
+    '2500':    { label: 'Standard (à partir de 2 500 F)', min: '2500', max: '' },
+    '5000':    { label: 'Premium (à partir de 5 000 F)', min: '5000', max: '' },
+    'devis':   { label: 'Sur devis', min: '', max: '' }
+  };
+  const m = map[presetVal];
+  if (!m) { minEl.value = ''; maxEl.value = ''; labelEl.value = ''; return; }
+  minEl.value = m.min;
+  maxEl.value = m.max;
+  labelEl.value = m.label;
+}
+
+// Sélection visuelle d'une option statut + sauvegarde value dans hidden input
+function onStatutArtisanSelect(labelEl, value, containerId, hiddenId) {
+  containerId = containerId || 'statut-artisan-field';
+  hiddenId = hiddenId || 'f-statut-artisan';
+  document.querySelectorAll('#' + containerId + ' label').forEach(l => {
+    l.style.borderColor = '#e5e7eb';
+    l.style.background = 'white';
+  });
+  if (labelEl) {
+    labelEl.style.borderColor = '#E8940A';
+    labelEl.style.background = 'rgba(232,148,10,0.08)';
+    const radio = labelEl.querySelector('input[type=radio]');
+    if (radio) radio.checked = true;
+  }
+  const hidden = document.getElementById(hiddenId);
+  if (hidden) hidden.value = value || '';
+}
+
+// ── Compteur prestataires pour badge Fondateur ──────────────────────
+async function countPrestataires() {
+  const cacheKey = 'wozali_prest_count';
+  const cacheTime = 'wozali_prest_count_ts';
+  const cached = localStorage.getItem(cacheKey);
+  const ts = parseInt(localStorage.getItem(cacheTime) || '0');
+  if (cached && Date.now() - ts < 30 * 60 * 1000) return parseInt(cached);
+  let total = 0;
+  try {
+    if (window.supabase) {
+      const { count, error } = await window.supabase
+        .from('wozali_prestataires').select('*', { count: 'exact', head: true });
+      if (error) throw error;
+      total = count || 0;
+    }
+  } catch(e) { return 0; }
+  localStorage.setItem(cacheKey, total.toString());
+  localStorage.setItem(cacheTime, Date.now().toString());
+  return total;
+}
+
+async function loadFounderCounter() {
+  const total = await countPrestataires();
+  const remaining = Math.max(0, 1000 - total);
+  const pct = Math.min(100, (total / 1000) * 100);
+  // Bannière page inscription
+  const banner = document.getElementById('fondateur-banner');
+  const spotsEl = document.getElementById('fondateur-spots');
+  const barEl = document.getElementById('fondateur-bar');
+  if (banner && remaining > 0) {
+    banner.style.display = 'block';
+    if (spotsEl) spotsEl.textContent = remaining.toLocaleString('fr-FR');
+    if (barEl) barEl.style.width = pct + '%';
+  }
+  // CTA accueil
+  const ctaSpots = document.getElementById('cta-spots');
+  if (ctaSpots) ctaSpots.textContent = remaining > 0 ? remaining.toLocaleString('fr-FR') : '0 (complet)';
+  const ctaCounter = document.getElementById('cta-fondateur-counter');
+  if (ctaCounter && remaining === 0) ctaCounter.style.background = 'rgba(255,255,255,0.08)';
+  return total;
+}
+
+async function submitInscription(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = '⏳ Envoi en cours...';
+  btn.disabled = true;
+
+  // Afficher le loading screen
+  const loadingEl = document.getElementById('form-loading');
+  const formEl = document.getElementById('inscription-form');
+  const progressEl = document.querySelector('.progress-bar');
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (formEl) formEl.classList.add('form-hidden');
+  if (progressEl) progressEl.classList.add('form-hidden');
+
+  const setStep = (msg) => {
+    const el = document.getElementById('loading-step');
+    if (el) el.textContent = msg;
+  };
+
+  try {
+    const nom = document.getElementById('f-nom').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const tel = document.getElementById('f-tel').value.trim();
+
+    // Vérifier email obligatoire pour la connexion
+    if (!email) {
+      toast('Email obligatoire pour pouvoir te connecter à ton espace', 'error');
+      btn.textContent = '✦ Créer mon profil';
+      btn.disabled = false;
+      return;
+    }
+
+    // Créer compte Supabase
+    const motDePasse = document.getElementById('f-password')?.value?.trim();
+    if (!motDePasse || motDePasse.length < 6) {
+      toast('Mot de passe obligatoire (min 6 caractères)', 'error');
+      btn.textContent = '✦ Créer mon profil';
+      btn.disabled = false;
+      return;
+    }
+
+    setStep('Création du compte Supabase…');
+    const { data: authData, error: authError } = await supa.auth.signUp({
+      email, password: motDePasse,
+      options: {
+        data: { nom_complet: nom },
+        emailRedirectTo: 'https://wozali.com'
+      }
+    });
+
+    if (authError && !authError.message.includes('already registered') && !authError.message.toLowerCase().includes('rate limit') && !authError.message.toLowerCase().includes('sending confirmation email')) {
+      toast('Erreur compte : ' + authError.message, 'error');
+      btn.textContent = '✦ Créer mon profil';
+      btn.disabled = false;
+      return;
+    }
+
+    // Si email confirmation activée OU email déjà enregistré → session null → forcer signIn
+    const alreadyRegistered = authError?.message?.includes('already registered');
+    let effectiveUser = authData?.user || null;
+    let effectiveSession = authData?.session || null;
+    if (!effectiveSession || alreadyRegistered) {
+      setStep('Connexion automatique…');
+      const { data: signInData, error: signInErr } = await supa.auth.signInWithPassword({ email, password: motDePasse });
+      if (!signInErr && signInData?.session) {
+        effectiveUser = signInData.user;
+        effectiveSession = signInData.session;
+      }
+    }
+
+    // Upload photo profil
+    const profilFile = window._inscCroppedFiles['upload-profil'] || document.getElementById('upload-profil').files[0];
+    let profilUrl = null;
+    if (profilFile) {
+      setStep('Upload de ta photo de profil…');
+      profilUrl = await uploadToImgBB(profilFile);
+    }
+
+    // Upload photos (toutes optionnelles)
+    const r1File = window._inscCroppedFiles['upload-r1'] || document.getElementById('upload-r1').files[0];
+    const r2File = window._inscCroppedFiles['upload-r2'] || document.getElementById('upload-r2').files[0];
+    const r3File = window._inscCroppedFiles['upload-r3'] || document.getElementById('upload-r3').files[0];
+    let photo1Url = null, photo2Url = null, photo3Url = null;
+    if (r1File || r2File || r3File) {
+      setStep('Upload des photos…');
+      [photo1Url, photo2Url, photo3Url] = await Promise.all([
+        r1File ? uploadToImgBB(r1File) : Promise.resolve(null),
+        r2File ? uploadToImgBB(r2File) : Promise.resolve(null),
+        r3File ? uploadToImgBB(r3File) : Promise.resolve(null)
+      ]);
+    }
+
+    // Construire les champs Airtable
+    const parrainageCode = generateParrainCode(nom);
+    const parrainRef = getRefFromURL();
+    const fields = {
+      'Nom complet': nom,
+      'Abonnement': 'Base',
+      'Code Parrainage': parrainageCode,
+    };
+    if (parrainRef) fields['Parrain Code'] = parrainRef;
+    const agentCode = localStorage.getItem('wozali_agent') || '';
+    if (agentCode) fields['Agent Terrain'] = agentCode;
+
+    const description = document.getElementById('f-description').value.trim();
+    const tiktok = document.getElementById('f-tiktok').value.trim();
+    const instagram = document.getElementById('f-instagram').value.trim();
+    const tarifMin = document.getElementById('f-tarif-min').value;
+    const tarifMax = document.getElementById('f-tarif-max').value;
+    const experience = document.getElementById('f-experience').value;
+    const canal = document.getElementById('f-canal').value;
+    const naissance = document.getElementById('f-naissance').value;
+
+    if (tel) fields['Numéro de téléphone'] = tel;
+    if (email) fields['Email'] = email;
+    if (description) fields['Description des services'] = description;
+    if (tiktok) fields['Lien TikTok'] = tiktok;
+    if (instagram) fields['Lien Instagram'] = instagram;
+    if (tarifMin) fields['Tarif minimum FCFA'] = parseInt(tarifMin);
+    if (tarifMax) fields['Tarif maximum FCFA'] = parseInt(tarifMax);
+    if (experience) fields['Années d\'expérience'] = parseInt(experience);
+    if (canal) fields['Canal d\'acquisition'] = canal;
+    if (naissance) fields['Date de naissance'] = naissance;
+
+    const genre = document.getElementById('f-genre').value;
+    const metier = document.getElementById('f-metier').value;
+    const quartier = document.getElementById('f-quartier').value;
+    const education = document.getElementById('f-education').value;
+    const dispo = document.getElementById('f-dispo').value;
+
+    if (genre && genre !== '') fields['Genre'] = genre;
+    if (metier && metier !== '') fields['Métier principal'] = metier;
+    if (quartier && quartier !== '') fields['Quartier'] = quartier;
+    // Diplômes/expériences et flag Talent Digital
+    const diplomes = document.getElementById('f-diplomes')?.value?.trim();
+    if (diplomes) fields['Diplomes'] = diplomes;
+    if (metier && isDigitalMetier(metier)) fields['Talent Digital'] = true;
+
+    // Statut socio-économique — pour TOUS les métiers (apprenti / patron / indépendant / freelance / etc.)
+    const statutArtisan = document.getElementById('f-statut-artisan')?.value?.trim();
+    // U1 — Statut OBLIGATOIRE pour les métiers où une config statut existe
+    if (window.WozaliMetierStatuts && window.WozaliMetierStatuts.getStatutsFor && metier) {
+      const cfgStatut = window.WozaliMetierStatuts.getStatutsFor(metier);
+      if (cfgStatut && cfgStatut.statuts && cfgStatut.statuts.length && !statutArtisan) {
+        toast('Choisis ton statut (Apprentie / Patronne / Indépendante…)', 'error');
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (formEl) formEl.classList.remove('form-hidden');
+        if (progressEl) progressEl.classList.remove('form-hidden');
+        btn.textContent = '✦ Créer mon profil';
+        btn.disabled = false;
+        // scroll vers bloc statut
+        const statutEl = document.getElementById('statut-artisan-field');
+        if (statutEl && statutEl.scrollIntoView) statutEl.scrollIntoView({ behavior:'smooth', block:'center' });
+        return;
+      }
+    }
+    if (statutArtisan) {
+      fields['Statut Artisan'] = statutArtisan;
+    }
+    // U1 — Sauvegarder le label tarif preset si choisi (en plus des min/max numériques)
+    const tarifLabel = document.getElementById('f-tarif-label')?.value?.trim();
+    if (tarifLabel) fields['Tarif label'] = tarifLabel;
+
+    const latVal = document.getElementById('f-latitude').value;
+    const lonVal = document.getElementById('f-longitude').value;
+    if (latVal && lonVal) {
+      fields['Latitude'] = parseFloat(latVal);
+      fields['Longitude'] = parseFloat(lonVal);
+    }
+    if (education && education !== '') fields['Niveau d\'éducation'] = education;
+    if (dispo === 'oui') fields['Disponible maintenant'] = true;
+    if (profilUrl) fields['Photo de profil'] = profilUrl;
+    if (photo1Url) fields['Photo Réalisation 1'] = photo1Url;
+    if (photo2Url) fields['Photo Réalisation 2'] = photo2Url;
+    if (photo3Url) fields['Photo Réalisation 3'] = photo3Url;
+
+    setStep('Vérification du badge Fondateur…');
+    const totalPrest = await countPrestataires();
+    if (totalPrest < 1000) {
+      fields['Badge Fondateur'] = true;
+    }
+
+    setStep('Enregistrement de ton profil…');
+    // Lier le record Supabase au user_id pour passer la RLS
+    if (effectiveUser?.id) {
+      fields['User ID'] = effectiveUser.id;
+    } else if (currentUser?.id) {
+      fields['User ID'] = currentUser.id;
+    }
+
+    let record = null;
+    let createOk = false;
+    let createErr = null;
+
+    // Vérifier si un profil existe déjà pour ce user_id (cas retry)
+    if (effectiveUser?.id && window.supaPrest) {
+      try {
+        const existing = await window.supaPrest.findByUserId(effectiveUser.id);
+        if (existing) {
+          // Mise à jour des champs manquants (surtout les photos uploadées lors de ce retry)
+          const updateFields = {};
+          if (profilUrl && !existing.fields['Photo de profil']) updateFields['Photo de profil'] = profilUrl;
+          if (photo1Url && !existing.fields['Photo Réalisation 1']) updateFields['Photo Réalisation 1'] = photo1Url;
+          if (photo2Url && !existing.fields['Photo Réalisation 2']) updateFields['Photo Réalisation 2'] = photo2Url;
+          if (photo3Url && !existing.fields['Photo Réalisation 3']) updateFields['Photo Réalisation 3'] = photo3Url;
+          if (Object.keys(updateFields).length > 0) {
+            try { record = await window.supaPrest.update(existing.id, updateFields); }
+            catch(eUp) { record = existing; }
+          } else {
+            record = existing;
+          }
+          createOk = true;
+          console.log('[wozali] Profil existant récupéré, on continue.');
+        }
+      } catch(eCheck) { /* pas de profil existant, on crée */ }
+    }
+
+    if (!createOk) {
+      try {
+        if (window.supaPrest) {
+          record = await window.supaPrest.create(fields);
+          createOk = true;
+        } else {
+          createErr = 'supaPrest non chargé';
+        }
+      } catch (eSupa) {
+        createErr = eSupa?.message || eSupa?.error_description || JSON.stringify(eSupa);
+        console.error('[wozali] supaPrest.create failed:', eSupa);
+      }
+    }
+
+    if (!createOk) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (formEl) formEl.classList.remove('form-hidden');
+      if (progressEl) progressEl.classList.remove('form-hidden');
+      const errMsg = createErr ? ('Erreur profil : ' + createErr) : 'Erreur lors de la création du profil. Réessaie.';
+      toast(errMsg, 'error');
+      console.error('[wozali] inscription échouée :', createErr);
+      btn.textContent = '✦ Créer mon profil';
+      btn.disabled = false;
+      return;
+    }
+
+    if (createOk) {
+      currentPrestataire = record;
+      window.currentPrestataire = record;
+      if (authData?.user) {
+        currentUser = authData.user;
+        window.currentUser = currentUser;
+        updateNavAuth(true);
+      }
+      updateCommissionDisplay();
+      // Sprint 6 — Applique automatiquement le parrainage via Supabase si ?ref= en attente
+      try {
+        const pendingRef = localStorage.getItem('wozali_ref');
+        if (pendingRef && authData?.user?.id) {
+          wozaliFetch('/api/wozali-pay/parrainage-apply', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ user_id: authData.user.id, code: pendingRef })
+          }).then(r=>r.json()).then(d=>{
+            if (d?.ok) localStorage.removeItem('wozali_ref');
+          }).catch(()=>{});
+        }
+      } catch(e) { console.warn('[parrainage auto]', e); }
+      // Flag onboarding 3 écrans (consommé au prochain DOMContentLoaded ou login)
+      try { localStorage.setItem('wozali_just_signed_up','1'); } catch(e){}
+      // Enqueue séquence WhatsApp d'onboarding (A_onboarding) — non bloquant
+      try {
+        if (authData?.user?.id && tel) {
+          const phoneNorm = tel.replace(/[^\d+]/g, '');
+          const prenom = (nom || '').split(' ')[0] || 'sœur';
+          const villeStr = document.getElementById('f-ville')?.value || '';
+          // Séquence A — Onboarding (toutes inscriptions)
+          wozaliFetch('/api/wozali-pay/whatsapp-enqueue', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              user_id: authData.user.id,
+              phone: phoneNorm,
+              sequence: 'A_onboarding',
+              payload: { prenom, ville: villeStr }
+            })
+          }).catch(e => console.warn('[wa enqueue A]', e));
+          // Séquence B — Apprentie (uniquement si statut = apprentie)
+          if (statutArtisan === 'apprentie') {
+            setTimeout(() => {
+              wozaliFetch('/api/wozali-pay/whatsapp-enqueue', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                  user_id: authData.user.id,
+                  phone: phoneNorm,
+                  sequence: 'B_apprentie',
+                  payload: { prenom, ville: villeStr }
+                })
+              }).catch(e => console.warn('[wa enqueue B]', e));
+            }, 800);
+          }
+        }
+      } catch(e) { console.warn('[whatsapp enqueue]', e); }
+      // Cacher le loading, montrer le succès
+      if (loadingEl) loadingEl.style.display = 'none';
+      document.getElementById('form-success').classList.add('form-visible');
+      // Afficher l'email dans la page de succès
+      const successEmailEl = document.getElementById('success-email');
+      if (successEmailEl) successEmailEl.textContent = email;
+      // U4 — Si session créée immédiatement, masquer le bloc "Vérifie ton email"
+      try {
+        const verifyBlock = document.getElementById('post-inscription-verify-email');
+        const loggedBlock = document.getElementById('post-inscription-already-logged');
+        const fallbackMsg = document.getElementById('post-inscription-fallback-msg');
+        const sessionOk = !!(authData && authData.session);
+        if (sessionOk) {
+          if (verifyBlock) verifyBlock.style.display = 'none';
+          if (loggedBlock) loggedBlock.style.display = 'block';
+          if (fallbackMsg) fallbackMsg.style.display = 'none';
+        } else {
+          if (verifyBlock) verifyBlock.style.display = 'block';
+          if (loggedBlock) loggedBlock.style.display = 'none';
+          if (fallbackMsg) fallbackMsg.style.display = 'block';
+        }
+      } catch(e) { console.warn('[U4 verify-email toggle]', e); }
+      toast('Profil créé avec succès ! 🎉', 'success');
+      // Afficher le bloc parrainage post-inscription avec le lien personnalisé
+      try {
+        const parrainageBloc = document.getElementById('post-inscription-parrainage');
+        const parrainageLinkEl = document.getElementById('post-inscription-ref-link');
+        if (parrainageBloc && parrainageLinkEl && parrainageCode) {
+          parrainageLinkEl.value = 'https://wozali.com?ref=' + parrainageCode;
+          parrainageBloc.style.display = 'block';
+        }
+      } catch(e) { console.warn('[parrainage post-inscription]', e); }
+      // Lancer l'onboarding immédiatement si présent (sans attendre un reload)
+      try { if (typeof window.showWozaliOnboarding === 'function' && !localStorage.getItem('wozali_onboarding_done')) { localStorage.removeItem('wozali_just_signed_up'); setTimeout(window.showWozaliOnboarding, 800); } } catch(e){}
+    }
+  } catch (err) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (formEl) formEl.classList.remove('form-hidden');
+    if (progressEl) progressEl.classList.remove('form-hidden');
+    toast('Problème de connexion : ' + err.message, 'error');
+    btn.textContent = '✦ Créer mon profil';
+    btn.disabled = false;
+  }
+}
+
+
+// ══════════════════════════════════════════
+// PARRAINAGE
+// ══════════════════════════════════════════
+
+// Point 58/59 — Partager son profil sur WhatsApp apres inscription
+function shareInscriptionWhatsApp() {
+  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOZALI règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier — enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. 500 000 FCFA versés chaque mois aux meilleurs.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wozali.com\n\nTon travail parle. Pas tes connexions.");
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+// TODO Sprint 14: Rappel WhatsApp 48h post-inscription via cron api/cron/rappel-48h.js
+// Si le prestataire n'a pas complete son profil (pas de photo, pas de bio) apres 48h,
+// envoyer un rappel via WhatsApp Business API
+
+function generateParrainCode(name) {
+  const clean = (name || 'USER').replace(/[^a-zA-Z]/g, '').toUpperCase().substring(0, 4).padEnd(4, 'X');
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return 'WOZALI' + clean + rand;
+}
+
+function getRefFromURL() {
+  try {
+    // 1) URL courante ?ref=
+    const urlRef = new URLSearchParams(window.location.search).get('ref');
+    if (urlRef) {
+      try { localStorage.setItem('wozali_ref', urlRef); } catch(e) {}
+      return urlRef;
+    }
+    // 2) Fallback localStorage (capturé plus tôt dans le parcours)
+    return localStorage.getItem('wozali_ref') || '';
+  } catch { return ''; }
+}
+
+// Capture ?ref= dès le chargement (avant toute navigation)
+(function captureRefAtLoad(){
+  try{
+    // ?ref= est ignoré sur les routes /profil/ (ne s'applique qu'à l'accueil / signup)
+    if (window.location.pathname.startsWith('/profil/')) return;
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get('ref');
+    if (r) localStorage.setItem('wozali_ref', r);
+    // Capture ?agent= pour tracker les inscriptions via agents terrain
+    const agt = params.get('agent');
+    if (agt) localStorage.setItem('wozali_agent', agt);
+  }catch(e){}
+})();
+
+async function loadParrainage() {
+  if (!currentPrestataire) return;
+  let f = currentPrestataire.fields;
+
+  // Sprint 6 — Supabase = source de vérité pour le code parrainage
+  // On récupère WOZALI-XXXXXX depuis Supabase et on synchronise Airtable si différent
+  let supabaseCode = '';
+  try {
+    if (currentUser?.id) {
+      const r = await fetch(`/api/wozali-pay/parrainage-stats?user_id=${currentUser.id}`);
+      const d = await r.json();
+      if (d?.ok) supabaseCode = d.code_parrainage || '';
+    }
+  } catch(e) { console.warn('[parrainage] supabase fetch:', e); }
+
+  // Sync code parrainage Supabase → profil local
+  if (supabaseCode && f['Code Parrainage'] !== supabaseCode) {
+    try {
+      await window.supaPrest.update(currentPrestataire.id, { 'Code Parrainage': supabaseCode });
+      currentPrestataire.fields['Code Parrainage'] = supabaseCode;
+      f = currentPrestataire.fields;
+    } catch(e) { console.warn('[parrainage] sync supaPrest:', e); }
+  }
+
+  const plan = f['Abonnement'] || 'Base';
+  const isBase = plan === 'Base';
+
+  const code = supabaseCode || f['Code Parrainage'] || '';
+  const commDisp = f['Commission Disponible FCFA'] || 0;
+  const commTotal = f['Commission Totale FCFA'] || 0;
+  const refLink = 'https://wozali.com?ref=' + code;
+
+  // Mettre à jour les chiffres
+  document.getElementById('p-comm-dispo').textContent = commDisp.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('p-comm-total').textContent = commTotal.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('retrait-amount-display').textContent = commDisp.toLocaleString('fr-FR') + ' FCFA disponible';
+  document.getElementById('parrain-link-box').textContent = refLink;
+
+  // Lock parrainage pour plan Base
+  const lockableEls = document.querySelectorAll('#ds-parrainage .edit-form-section[data-lock-idx]');
+
+  const features = [
+    { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes — chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.com?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
+    { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#FCE0A8;border:1px solid #E8940A;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+2 500 FCFA</div></div>`).join('')}</div>` },
+    { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#6b7280;">5 filleuls</span><span style="color:var(--or);font-weight:800;">12 500 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">20 filleuls</span><span style="color:var(--or);font-weight:800;">50 000 FCFA/mois</span></div></div>` },
+  ];
+
+  lockableEls.forEach(el => {
+    const idx = parseInt(el.dataset.lockIdx);
+    const feat = features[idx] || features[0];
+    // Restaurer le contenu original si besoin
+    if (el.dataset.originalHtml) el.innerHTML = el.dataset.originalHtml;
+    else el.dataset.originalHtml = el.innerHTML;
+
+    if (isBase) {
+      el.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 0 4px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px;box-shadow:0 4px 14px rgba(245,158,11,0.3);">🔒</div>
+          <div style="font-size:11px;font-weight:700;color:var(--or);letter-spacing:0.08em;margin-bottom:4px;">RÉSERVÉ PRO</div>
+          <div style="font-weight:900;font-size:15px;color:var(--noir);font-family:'DM Serif Display',serif;margin-bottom:6px;">${feat.icon} ${feat.title}</div>
+          <div style="font-size:13px;color:#555;line-height:1.6;max-width:320px;margin-bottom:8px;">${feat.desc}</div>
+          ${feat.preview}
+          <button onclick="showDashSection('abonnement')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:10px 24px;border-radius:100px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.35);margin-top:14px;">Débloquer avec Pro →</button>
+        </div>
+      `;
+    }
+  });
+
+  // Bouton retrait
+  const retraitBtn = document.getElementById('retrait-btn');
+  if (retraitBtn) retraitBtn.disabled = commDisp < 3000;
+
+  // Charger les filleuls via Supabase
+  try {
+    const supa = window.supabase;
+    const { data: rows } = await supa.from('wozali_prestataires').select('*').eq('parrain_code', code).limit(500);
+    window._allFilleuls = (rows || []).map(r => window.supaPrest._toAirtableRecord(r));
+    await _loadFilleulsProgression(window._allFilleuls);
+  } catch(err) {
+    console.error('loadParrainage filleuls:', err);
+    document.getElementById('filleuls-list').innerHTML = '<p style="color:var(--gris);font-size:14px;padding:12px;">Impossible de charger les filleuls.</p>';
+  }
+}
+
+// ── Progression filleuls : enrichit chaque record avec _estPro et _hasPremierRdv ──
+// • _estPro        : calculé localement (r.fields['Abonnement']) — 0 requête Airtable
+// • _hasPremierRdv : 1 seule requête batch OR(ids…) par chunk de 50, fields[]=Prestataire+ID
+async function _loadFilleulsProgression(filleuls) {
+  if (!filleuls.length) { _renderFilleulsCRM(filleuls); return; }
+
+  // Étape 3 — estPro : déjà en mémoire, aucune requête réseau nécessaire
+  filleuls.forEach(r => {
+    r._estPro = (r.fields['Abonnement'] || 'Base') !== 'Base';
+  });
+
+  // Étape 2 — a_premier_rdv : requête batch chunked (max 50 IDs par requête pour rester < 8KB URL)
+  const CHUNK = 50;
+  const rdvSet = new Set(); // IDs prestataires ayant ≥1 RDV non-annulé
+  try {
+    const ids = filleuls.map(r => r.id);
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += CHUNK) chunks.push(ids.slice(i, i + CHUNK));
+
+    const supa = window.supabase;
+    await Promise.all(chunks.map(async chunk => {
+      const { data: rdvRows } = await supa.from('wozali_rdv')
+        .select('prestataire_id').in('prestataire_id', chunk).neq('statut', 'Annulé');
+      (rdvRows || []).forEach(r => { if (r.prestataire_id) rdvSet.add(r.prestataire_id); });
+    }));
+  } catch(e) {
+    // cas limite : si le batch échoue entièrement, on affiche la liste sans barre RDV
+    console.error('_loadFilleulsProgression RDV batch:', e);
+  }
+
+  // Enrichir les records en mémoire (non-persisté, session uniquement)
+  filleuls.forEach(r => { r._hasPremierRdv = rdvSet.has(r.id); });
+
+  _renderFilleulsCRM(filleuls);
+}
+
+function _commParFilleul(plan) {
+  if (plan === 'Pro')    return Math.floor(2500 * 0.40);
+
+  return 0;
+}
+
+function _renderFilleulsCRM(filleuls) {
+  // ── KPI cards ──
+  const total    = filleuls.length;
+  const nbPro    = filleuls.filter(r => (r.fields['Abonnement']||'Base') !== 'Base').length;
+  const nbBase   = filleuls.filter(r => (r.fields['Abonnement']||'Base') === 'Base').length;
+  const commMois = filleuls.reduce((s,r) => s + _commParFilleul(r.fields['Abonnement']||'Base'), 0);
+
+  document.getElementById('p-nb-filleuls').textContent = total;
+  // Point 48 — Tracking agent terrain
+  var _nbProEl = document.getElementById('p-nb-filleuls-pro');
+  if (_nbProEl) _nbProEl.textContent = nbPro;
+  var _gainsEl = document.getElementById('p-gains-estimes');
+  if (_gainsEl) _gainsEl.textContent = (nbPro * 1000).toLocaleString('fr-FR') + ' FCFA';
+
+  const kpiEl = document.getElementById('parrain-kpis');
+  if (kpiEl) kpiEl.innerHTML = [
+    { label:'Total filleuls',  val: total,                            color:'var(--vert)',   icon:'👥' },
+    { label:'Plan Pro',        val: nbPro,                            color:'#f59e0b',       icon:'⭐' },
+    { label:'Plan Base',       val: nbBase,                           color:'#6b7280',       icon:'🆓' },
+    { label:'Revenus/mois',    val: commMois.toLocaleString('fr-FR') + ' FCFA', color:'#8b5cf6', icon:'💰' },
+  ].map(k => `
+    <div style="background:white;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border-top:3px solid ${k.color};">
+      <div style="font-size:20px;margin-bottom:4px;">${k.icon}</div>
+      <div style="font-size:20px;font-weight:900;font-family:'DM Serif Display',serif;color:${k.color};">${k.val}</div>
+      <div style="font-size:12px;color:var(--gris);font-weight:600;">${k.label}</div>
+    </div>`).join('');
+
+  // ── Bannière upsell ──
+  const upsellBanner = document.getElementById('parrain-upsell-banner');
+  const upsellDesc   = document.getElementById('upsell-desc');
+  if (upsellBanner && nbBase > 0) {
+    upsellBanner.style.display = 'block';
+    if (upsellDesc) upsellDesc.textContent = `${nbBase} filleul${nbBase>1?'s':''} encore en plan Base → relance-les pour passer Pro (+${(nbBase * _commParFilleul('Pro')).toLocaleString('fr-FR')} FCFA/mois potentiel)`;
+  } else if (upsellBanner) { upsellBanner.style.display = 'none'; }
+
+  // ── Liste ──
+  const listEl = document.getElementById('filleuls-list');
+  const countEl = document.getElementById('filleuls-count');
+  if (!listEl) return;
+
+  if (filleuls.length === 0) {
+    listEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--gris);">
+      <div style="font-size:40px;margin-bottom:10px;">🔗</div>
+      <p style="font-weight:700;font-size:15px;margin-bottom:6px;">Aucun filleul pour l'instant</p>
+      <p style="font-size:13px;">Partage ton lien sur WhatsApp — chaque inscription te rapporte !</p>
+    </div>`;
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+
+  if (countEl) countEl.textContent = `${filleuls.length} filleul${filleuls.length>1?'s':''} affiché${filleuls.length>1?'s':''}`;
+
+  listEl.innerHTML = `
+    <!-- Header tableau -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding:8px 12px;background:#f9fafb;border-radius:10px;margin-bottom:6px;font-size:11px;font-weight:800;color:var(--gris);text-transform:uppercase;letter-spacing:0.05em;">
+      <div>Prestataire</div><div>Plan</div><div>Contact</div><div>Commission</div><div></div>
+    </div>
+    ${filleuls.map(r => {
+      const rf   = r.fields;
+      const plan = rf['Abonnement'] || 'Base';
+      const nom  = rf['Nom complet'] || 'Prestataire';
+      const tel  = rf['Numéro de téléphone'] || '';
+      const email= rf['Email'] || '';
+      const metier = rf['Métier principal'] || '';
+      const date = rf['Created'] ? new Date(rf['Created']).toLocaleDateString('fr-FR', {day:'numeric',month:'short',year:'numeric'}) : '';
+      const comm = _commParFilleul(plan);
+      const isPro = plan !== 'Base';
+      // Booléens de progression — valorisés par _loadFilleulsProgression (false par défaut si pas encore chargé)
+      const aRdv = !!r._hasPremierRdv;
+      const initiale = nom.charAt(0).toUpperCase();
+      const planColor = plan === 'Pro' ? '#f59e0b' : '#9ca3af';
+      const planBg    = plan === 'Pro' ? '#fffbeb' : '#f9fafb';
+
+      const waMsg = encodeURIComponent(`Bonjour ${nom} ! 👋\nJe vois que tu es encore sur le plan gratuit WOZALI. Pour seulement 2 500 FCFA/mois, le plan Pro te donne accès à plus de visibilité, le système de paiement et bien plus. Tu veux qu'on en parle ? 😊`);
+
+      return `
+      <div style="border-radius:12px;margin-bottom:6px;border:1.5px solid ${isPro ? '#f0f0f0' : '#fde68a'};overflow:hidden;transition:.15s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
+        <!-- Ligne principale -->
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:12px;background:${isPro ? 'white' : '#fffbeb'};">
+          <!-- Nom + métier -->
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:14px;flex-shrink:0;">${initiale}</div>
+            <div style="min-width:0;">
+              <div style="font-weight:700;font-size:14px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+              <div style="font-size:11px;color:var(--gris);">${metier}${date ? ' · '+date : ''}</div>
+            </div>
+          </div>
+          <!-- Plan -->
+          <div>
+            <span style="background:${planBg};color:${planColor};border:1.5px solid ${planColor}33;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:800;">${plan}</span>
+          </div>
+          <!-- Contact -->
+          <div style="font-size:12px;color:var(--gris);line-height:1.6;">
+            ${tel ? `<div>📞 ${tel}</div>` : ''}
+            ${email ? `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;" title="${email}">✉️ ${email}</div>` : ''}
+            ${!tel && !email ? '<span style="color:#d1d5db;">—</span>' : ''}
+          </div>
+          <!-- Commission -->
+          <div>
+            ${comm > 0
+              ? `<div style="font-weight:800;font-size:14px;color:var(--vert);">+${comm.toLocaleString('fr-FR')} FCFA</div><div style="font-size:10px;color:var(--gris);">par mois</div>`
+              : `<div style="font-size:12px;color:#f59e0b;font-weight:700;">0 FCFA<br><span style="font-size:10px;color:#9ca3af;">plan gratuit</span></div>`}
+          </div>
+          <!-- Actions -->
+          <div style="display:flex;gap:4px;flex-shrink:0;">
+            ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#FCE0A8;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
+            ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#FCE0A8;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
+            ${email ? `<a href="mailto:${email}?subject=WOZALI Pro — Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
+          </div>
+        </div>
+        <!-- Barre de progression filleul — 3 étapes — aucune donnée personnelle exposée -->
+        <div style="border-top:1px dashed #e5e7eb;padding:7px 12px;background:${isPro?'#fafafa':'#fffef5'};display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+          <!-- Étape 1 : Inscrit — toujours atteinte si le filleul est dans la liste -->
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#E8940A;background:#FCE0A8;padding:3px 8px;border-radius:100px;border:1px solid #E8940A;">
+            <span style="font-size:9px;">✓</span> Inscrit
+          </span>
+          <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
+          <!-- Étape 2 : Premier RDV booké (booléen uniquement, aucun détail du RDV) -->
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${aRdv?'#E8940A':'#9ca3af'};background:${aRdv?'#FCE0A8':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${aRdv?'#E8940A':'#e5e7eb'};">
+            <span style="font-size:9px;">${aRdv?'✓':'○'}</span> 1er RDV booké
+          </span>
+          ${aRdv ? `<span style="background:#FCE0A8;color:#E8940A;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
+          <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
+          <!-- Étape 3 : Passé en Pro (déjà connu depuis Abonnement, aucune requête supplémentaire) -->
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${isPro?'#d97706':'#9ca3af'};background:${isPro?'#fffbeb':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${isPro?'#fde68a':'#e5e7eb'};">
+            <span style="font-size:9px;">${isPro?'✓':'○'}</span> Plan Pro
+          </span>
+          ${isPro ? `<span style="background:#fef3c7;color:#d97706;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+function filterFilleuls() {
+  const planFilter   = document.getElementById('filleul-filter-plan')?.value || '';
+  const searchVal    = (document.getElementById('filleul-search')?.value || '').toLowerCase();
+  const all          = window._allFilleuls || [];
+  let filtered = all.filter(r => {
+    const plan = r.fields['Abonnement'] || 'Base';
+    const nom  = (r.fields['Nom complet'] || '').toLowerCase();
+    const tel  = (r.fields['Numéro de téléphone'] || '').toLowerCase();
+    const met  = (r.fields['Métier principal'] || '').toLowerCase();
+    const matchPlan   = !planFilter || plan === planFilter;
+    const matchSearch = !searchVal || nom.includes(searchVal) || tel.includes(searchVal) || met.includes(searchVal);
+    return matchPlan && matchSearch;
+  });
+  _renderFilleulsCRM(filtered);
+}
+
+function filterUpsell() {
+  document.getElementById('filleul-filter-plan').value = 'Base';
+  document.getElementById('filleul-search').value = '';
+  filterFilleuls();
+}
+
+function copyParrainLink() {
+  const box = document.getElementById('parrain-link-box');
+  const link = (box?.textContent || '').trim();
+  if (!link || link === 'Chargement...') return;
+  navigator.clipboard.writeText(link).then(() => toast('Lien copié ! 📋', 'success')).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = link; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    toast('Lien copié ! 📋', 'success');
+  });
+}
+
+function shareParrainWhatsApp() {
+  const box = document.getElementById('parrain-link-box');
+  const link = (box?.textContent || '').trim();
+  if (!link || link === 'Chargement...') return;
+  const msg = encodeURIComponent(`Yo ! Inscris-toi sur WOZALI avec mon lien et deviens visible direct : ${link}. C'est gratuit, et si tu passes Pro, je gagne aussi. 💰`);
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+// Point 43 — Visuel partageable parrainage (Canvas 1080x1080)
+function genererVisuelParrainage(){
+  var box=document.getElementById('parrain-link-box');
+  var link=(box?.textContent||'').trim();
+  if(!link||link==='Chargement...'){toast('Lien non chargé.','error');return;}
+  var cv=document.createElement('canvas');cv.width=1080;cv.height=1080;
+  var ctx=cv.getContext('2d');
+  ctx.fillStyle='#14100A';ctx.fillRect(0,0,1080,1080);
+  ctx.strokeStyle='#E8940A';ctx.lineWidth=4;ctx.strokeRect(40,40,1000,1000);
+  ctx.beginPath();ctx.arc(540,180,70,0,Math.PI*2);ctx.fillStyle='#E8940A';ctx.fill();
+  ctx.fillStyle='#14100A';ctx.font='bold 72px Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('W',540,180);
+  ctx.fillStyle='#E8940A';ctx.font='700 24px monospace';ctx.fillText('WOZALI',540,280);
+  ctx.fillStyle='#FCE0A8';ctx.font='italic 700 52px Georgia,serif';ctx.fillText('Rejoins WOZALI',540,400);
+  ctx.fillStyle='rgba(252, 224, 168,0.75)';ctx.font='400 28px sans-serif';
+  ctx.fillText('Inscris-toi avec mon lien',540,470);ctx.fillText('et deviens visible',540,510);
+  ctx.fillStyle='rgba(232,148,10,0.12)';ctx.strokeStyle='rgba(232,148,10,0.5)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(140,580,800,80,16);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#E8940A';ctx.font='bold 26px monospace';ctx.fillText(link,540,622);
+  ctx.fillStyle='rgba(252, 224, 168,0.6)';ctx.font='400 22px sans-serif';
+  ctx.fillText("C'est gratuit. Et si tu passes Pro,",540,760);ctx.fillText('je gagne aussi.',540,795);
+  ctx.fillStyle='rgba(252, 224, 168,0.3)';ctx.font='400 18px monospace';ctx.fillText('wozali.com',540,1000);
+  var dataUrl=cv.toDataURL('image/png');
+  var modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+  var waUrl='https://wa.me/?text='+encodeURIComponent('Rejoins WOZALI ! '+link);
+  modal.innerHTML='<div style="max-width:400px;width:100%;text-align:center;">'
+    +'<img src="'+dataUrl+'" style="width:100%;border-radius:16px;margin-bottom:16px;box-shadow:0 8px 32px rgba(232,148,10,0.3);" alt="Visuel parrainage">'
+    +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">'
+    +'<a href="'+dataUrl+'" download="wozali-parrainage.png" class="btn btn-primary btn-sm" style="text-decoration:none;">Telecharger PNG</a>'
+    +'<button class="btn btn-wa btn-sm _vwa">WhatsApp</button>'
+    +'<button class="btn btn-sm _vcl" style="background:rgba(255,255,255,0.1);color:#FCE0A8;border:1px solid rgba(255,255,255,0.2);">Fermer</button>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+  modal.querySelector('._vcl').onclick=function(){modal.remove();};
+  modal.querySelector('._vwa').onclick=function(){window.open(waUrl,'_blank');};
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+}
+
+// Point 46 — Afficher le lien de parrainage en grand format (agent terrain)
+function showParrainQR() {
+  const display = document.getElementById('parrain-qr-display');
+  const linkEl = document.getElementById('parrain-qr-link');
+  const box = document.getElementById('parrain-link-box');
+  const link = (box?.textContent || '').trim();
+  if (!display) return;
+  if (display.style.display === 'none') {
+    if (linkEl) linkEl.textContent = link;
+    display.style.display = 'block';
+  } else {
+    display.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════
+// SYSTÈME RDV COMPLET (type Calendly)
+// ══════════════════════════════════════════
+
+const DAY_LABELS   = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const MOIS_LABELS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+let currentDispoHebdo  = {};
+let currentSlotDuration = 60;
+let rdvCalState         = {};
+let currentRdvTab       = 'upcoming';
+
+// ── Utils temps ──
+function genTimeOptions(selected = '') {
+  let html = '';
+  for (let h = 6; h <= 22; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      if (h === 22 && m > 0) break;
+      const t = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      html += `<option value="${t}"${t === selected ? ' selected' : ''}>${t}</option>`;
+    }
+  }
+  return html;
+}
+
+function getDefaultDispoHebdo() {
+  const d = {};
+  for (let i = 0; i <= 6; i++) {
+    d[i] = { active: i >= 1 && i <= 5, slots: i >= 1 && i <= 5 ? [{ start:'08:00', end:'18:00' }] : [] };
+  }
+  return d;
+}
+
+function parseDispoHebdo(json) {
+  try {
+    const d = JSON.parse(json || '{}');
+    for (let i = 0; i <= 6; i++) {
+      if (!d[i]) d[i] = { active: false, slots: [] };
+    }
+    return d;
+  } catch { return getDefaultDispoHebdo(); }
+}
+
+function generateTimeSlots(dispoHebdo, slotDuration, dayOfWeek) {
+  const dayData = dispoHebdo[dayOfWeek];
+  if (!dayData?.active) return [];
+  const slots = [];
+  for (const range of (dayData.slots || [])) {
+    const [sh, sm] = range.start.split(':').map(Number);
+    const [eh, em] = range.end.split(':').map(Number);
+    let cur = sh * 60 + sm;
+    const end = eh * 60 + em;
+    while (cur + slotDuration <= end) {
+      slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);
+      cur += slotDuration;
+    }
+  }
+  return slots;
+}
+
+// ── ÉDITEUR DASHBOARD ──
+function initDispoEditor() {
+  if (currentPrestataire?.fields?.['Disponibilités Hebdo']) {
+    currentDispoHebdo = parseDispoHebdo(currentPrestataire.fields['Disponibilités Hebdo']);
+  } else {
+    currentDispoHebdo = getDefaultDispoHebdo();
+  }
+  currentSlotDuration = parseInt(currentPrestataire?.fields?.['Durée Créneau'] || 60);
+  const durationSel = document.getElementById('slot-duration');
+  if (durationSel) durationSel.value = currentSlotDuration;
+}
+
+function renderDispoEditor() {
+  const container = document.getElementById('dispo-days-editor');
+  if (!container) return;
+
+  if (!currentDispoHebdo) initDispoEditor();
+
+  const order = [1,2,3,4,5,6,0];
+  container.innerHTML = order.map(dayNum => {
+    const d = currentDispoHebdo[dayNum];
+    return `
+      <div class="dispo-day-row">
+        <div class="dispo-day-header">
+          <label class="dispo-day-toggle">
+            <input type="checkbox" ${d.active ? 'checked' : ''} onchange="toggleDispoDay(${dayNum},this.checked)">
+            <span class="dispo-day-name">${DAY_LABELS[dayNum]}</span>
+          </label>
+          ${!d.active ? '<span style="font-size:12px;color:var(--gris);margin-left:8px;">Indisponible</span>' : ''}
+        </div>
+        <div class="dispo-slots-container" style="display:${d.active ? 'flex' : 'none'};">
+          ${(d.slots || []).map((slot, i) => renderSlotRow(dayNum, i, slot, d.slots.length)).join('')}
+          <button class="add-slot-btn" onclick="addDispoSlot(${dayNum})">+ Ajouter un créneau</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderSlotRow(dayNum, i, slot, total) {
+  return `
+    <div class="dispo-slot-row">
+      <select class="time-sel" onchange="updateDispoSlot(${dayNum},${i},'start',this.value)">${genTimeOptions(slot.start)}</select>
+      <span style="color:var(--gris);">—</span>
+      <select class="time-sel" onchange="updateDispoSlot(${dayNum},${i},'end',this.value)">${genTimeOptions(slot.end)}</select>
+      ${total > 1 ? `<button class="remove-slot-btn" onclick="removeDispoSlot(${dayNum},${i})">×</button>` : ''}
+    </div>`;
+}
+
+function toggleDispoDay(dayNum, active) {
+  currentDispoHebdo[dayNum].active = active;
+  if (active && (!currentDispoHebdo[dayNum].slots || currentDispoHebdo[dayNum].slots.length === 0)) {
+    currentDispoHebdo[dayNum].slots = [{ start:'08:00', end:'18:00' }];
+  }
+  renderDispoEditor();
+}
+function updateDispoSlot(dayNum, i, field, val) { currentDispoHebdo[dayNum].slots[i][field] = val; }
+function addDispoSlot(dayNum) {
+  currentDispoHebdo[dayNum].slots.push({ start:'08:00', end:'12:00' });
+  renderDispoEditor();
+}
+function removeDispoSlot(dayNum, i) {
+  currentDispoHebdo[dayNum].slots.splice(i, 1);
+  if (currentDispoHebdo[dayNum].slots.length === 0) currentDispoHebdo[dayNum].active = false;
+  renderDispoEditor();
+}
+
+async function saveDispoHebdo(btn) {
+  if (!currentPrestataire) return;
+  const msgEl = document.getElementById('dispo-save-msg');
+  currentSlotDuration = parseInt(document.getElementById('slot-duration').value);
+  btn.disabled = true; btn.textContent = '⏳ Sauvegarde...';
+  try {
+    const json = JSON.stringify(currentDispoHebdo);
+    let ok = false;
+    await window.supaPrest.update(currentPrestataire.id, { 'Disponibilités Hebdo': json });
+    ok = true;
+    if (ok) {
+      currentPrestataire.fields['Disponibilités Hebdo'] = json;
+      currentPrestataire.fields['Durée Créneau'] = currentSlotDuration;
+      msgEl.style.display = 'block'; msgEl.style.color = 'var(--vert)';
+      msgEl.textContent = '✅ Horaires sauvegardés !';
+      toast('Horaires mis à jour !', 'success');
+      setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+    } else {
+      msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+      msgEl.textContent = '❌ Erreur lors de la sauvegarde';
+    }
+  } catch(e) {
+    console.error('saveDispoHebdo:', e);
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Erreur lors de la sauvegarde';
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+  btn.disabled = false; btn.textContent = '💾 Sauvegarder mes horaires';
+}
+
+// ── DASHBOARD RDV ──
+let _allDashRdvs = { upcoming: [], past: [], all: [] };
+
+async function loadDashRDV() {
+  if (!currentPrestataire) return;
+  const container = document.getElementById('rdv-list-container');
+  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  const now = new Date().toISOString().split('T')[0];
+  try {
+    const res = await wozaliFetch('/api/wozali-pay/rdv-list');
+    if (!res.ok) throw new Error('Erreur ' + res.status);
+    const data = await res.json();
+    // Normaliser Supabase → format Airtable-compat pour réutiliser renderRDVList
+    const rdvs = (data.rdvs || []).map(r => ({
+      id: r.id,
+      fields: {
+        'Date RDV':     r.date_rdv || '',
+        'Heure':        r.heure_rdv || '',
+        'Nom client':   r.client_nom || '',
+        'Email client': r.client_telephone || '',
+        'Message':      r.message || '',
+        'Statut':       r.statut || 'En attente',
+      }
+    }));
+    _allDashRdvs.all = rdvs;
+    _allDashRdvs.upcoming = rdvs.filter(r => (r.fields['Date RDV']||'') >= now && r.fields['Statut'] !== 'Annulé');
+    _allDashRdvs.past    = rdvs.filter(r => (r.fields['Date RDV']||'') < now  || r.fields['Statut'] === 'Annulé');
+    populateRDVMonthFilter(rdvs);
+    filterAndRenderRDVs();
+  } catch(e) {
+    if (container) container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Erreur de chargement</h3><p>${e.message}</p><button onclick="loadDashRDV()" style="margin-top:14px;background:#E8940A;color:#14100A;border:none;padding:10px 24px;border-radius:100px;font-weight:800;cursor:pointer;">Réessayer</button></div>`;
+  }
+}
+
+function populateRDVMonthFilter(rdvs) {
+  const sel = document.getElementById('rdv-month-filter');
+  if (!sel) return;
+  const months = new Set();
+  rdvs.forEach(r => { if (r.fields['Date RDV']) months.add(r.fields['Date RDV'].slice(0, 7)); });
+  const sorted = [...months].sort().reverse();
+  sel.innerHTML = '<option value="">📅 Tous les mois</option>' + sorted.map(m => {
+    const [y, mo] = m.split('-');
+    const label = new Date(parseInt(y), parseInt(mo)-1, 1).toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+    return `<option value="${m}">${label.charAt(0).toUpperCase() + label.slice(1)}</option>`;
+  }).join('');
+}
+
+function filterAndRenderRDVs() {
+  const search = (document.getElementById('rdv-search')?.value || '').toLowerCase().trim();
+  const monthFilter = document.getElementById('rdv-month-filter')?.value || '';
+  const source = currentRdvTab === 'upcoming' ? _allDashRdvs.upcoming : _allDashRdvs.past;
+  let filtered = source;
+
+  // ✅ Filtrer par recherche (nom, téléphone)
+  if (search) filtered = filtered.filter(r => {
+    const nom = (r.fields['Nom client'] || '').toLowerCase();
+    const tel = (r.fields['Email client'] || '').toLowerCase();
+    const msg = (r.fields['Message'] || '').toLowerCase();
+    return nom.includes(search) || tel.includes(search) || msg.includes(search);
+  });
+
+  // ✅ Filtrer par mois
+  if (monthFilter) filtered = filtered.filter(r => (r.fields['Date RDV'] || '').startsWith(monthFilter));
+
+  // ✅ Filtrer par statut (optionnel - ajouter checkbox si nécessaire)
+  const statusFilter = document.getElementById('rdv-status-filter')?.value;
+  if (statusFilter) {
+    filtered = filtered.filter(r => (r.fields['Statut'] || '') === statusFilter);
+  }
+
+  const countEl = document.getElementById('rdv-count');
+  if (countEl) countEl.textContent = filtered.length ? `${filtered.length} RDV` : '';
+  renderRDVList(filtered);
+}
+
+function loadRDVTab(tab) {
+  currentRdvTab = tab;
+  document.querySelectorAll('.rdv-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab)?.classList.add('active');
+  loadDashRDV();
+}
+
+function renderRDVList(list) {
+  const container = document.getElementById('rdv-list-container');
+  if (!container) return;
+  const searchVal = document.getElementById('rdv-search')?.value;
+  if (!list.length) {
+    const msg = searchVal ? 'Aucun résultat pour cette recherche' : (currentRdvTab === 'upcoming' ? 'Aucun rendez-vous à venir' : 'Aucun rendez-vous passé');
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><h3>${msg}</h3><p style="font-size:14px;color:var(--gris);">${!searchVal && currentRdvTab==='upcoming' ? 'Configure tes horaires pour que les clients puissent te réserver.' : ''}</p></div>`;
+    return;
+  }
+  container.innerHTML = list.map(r => {
+    const f = r.fields;
+    const dateStr = f['Date RDV'] ? new Date(f['Date RDV'] + 'T12:00:00').toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'}) : '—';
+    const statut = f['Statut'] || 'En attente';
+    const sc = statut === 'Confirmé' ? '#E8940A' : statut === 'Annulé' ? '#dc2626' : '#d97706';
+    const phone = f['Email client'] || '';
+    const rawMsg = f['Message'] || '';
+    const txMatch = rawMsg.match(/^\[TX:([^:]+):(\d+)FCFA\]\n?/);
+
+    // ✅ Vérifier paiement via CinetPay (localStorage)
+    const paymentInfo = getRDVPaymentStatus(currentPrestataire?.id, r.id);
+    const payBadge = paymentInfo
+      ? `<span style="background:#FCE0A8;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">✅ Payé ${paymentInfo.montant.toLocaleString('fr-FR')} FCFA</span>`
+      : txMatch
+      ? `<span style="background:#FCE0A8;color:#E8940A;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">💳 Payé ${parseInt(txMatch[2]).toLocaleString('fr-FR')} FCFA</span>`
+      : '';
+    const displayMsg = txMatch ? rawMsg.slice(txMatch[0].length) : rawMsg;
+    return `
+      <div class="rdv-card" id="rdv-card-${r.id}" style="transition:opacity .2s,transform .2s;">
+        <div class="rdv-card-header">
+          <div style="flex:1;">
+            <div style="font-weight:800;font-size:16px;">${f['Nom client'] || 'Client'}</div>
+            ${phone ? `<div style="font-size:13px;color:var(--gris);margin-top:3px;">📞 ${phone}</div>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            ${payBadge}
+            <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:${sc}22;color:${sc};">${statut}</span>
+            <button onclick="deleteRDV('${r.id}')" title="Supprimer ce RDV" style="background:none;border:none;cursor:pointer;font-size:16px;color:#d1d5db;padding:5px 7px;border-radius:8px;line-height:1;transition:.15s;" onmouseover="this.style.color='#dc2626';this.style.background='#fee2e2'" onmouseout="this.style.color='#d1d5db';this.style.background='none'">🗑️</button>
+          </div>
+        </div>
+        <div class="rdv-card-body">
+          <div>📅 <strong>${dateStr}</strong> à <strong>${f['Heure'] || '—'}</strong></div>
+          ${displayMsg ? `<div style="margin-top:8px;font-size:13px;color:var(--gris-fonce);background:#f9f9f6;padding:10px;border-radius:8px;">"${displayMsg}"</div>` : ''}
+        </div>
+        <div class="rdv-card-actions">
+          ${statut === 'En attente' ? `
+          <button onclick="updateRDVStatut('${r.id}','Confirmé')" style="flex:1;padding:10px;background:var(--vert);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;">✅ Confirmer</button>
+          <button onclick="updateRDVStatut('${r.id}','Annulé')" style="flex:1;padding:10px;background:#fee2e2;color:#dc2626;border:none;border-radius:10px;font-weight:700;cursor:pointer;">❌ Annuler</button>
+          ` : ''}
+          <button onclick="openPaymentLinkModal('${r.id}','${(f['Nom client']||'Client').replace(/'/g,'&apos;')}','${f['Email client']||''}')" style="flex:1;padding:10px;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;">💳 Lien paiement</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function updateRDVStatut(rdvId, statut) {
+  try {
+    const res = await wozaliFetch('/api/wozali-pay/rdv-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rdv_id: rdvId, statut })
+    });
+    if (res.ok) {
+      // Mise à jour du cache local
+      [_allDashRdvs.all, _allDashRdvs.upcoming, _allDashRdvs.past].forEach(arr =>
+        arr.forEach(r => { if (r.id === rdvId) r.fields['Statut'] = statut; })
+      );
+      toast(statut === 'Confirmé' ? '✅ RDV confirmé !' : '❌ RDV annulé', statut === 'Confirmé' ? 'success' : 'error');
+      filterAndRenderRDVs();
+    }
+  } catch { toast('Erreur de connexion', 'error'); }
+}
+
+async function deleteRDV(rdvId) {
+  if (!confirm('Supprimer définitivement ce rendez-vous ?')) return;
+  const card = document.getElementById(`rdv-card-${rdvId}`);
+  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+  try {
+    const res = await wozaliFetch('/api/wozali-pay/rdv-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rdv_id: rdvId })
+    });
+    if (res.ok) {
+      _allDashRdvs.all      = _allDashRdvs.all.filter(r => r.id !== rdvId);
+      _allDashRdvs.upcoming = _allDashRdvs.upcoming.filter(r => r.id !== rdvId);
+      _allDashRdvs.past     = _allDashRdvs.past.filter(r => r.id !== rdvId);
+      if (card) { card.style.transform = 'scale(0.95)'; setTimeout(() => { card.remove(); filterAndRenderRDVs(); }, 200); }
+      toast('🗑️ RDV supprimé', 'info');
+    } else throw new Error();
+  } catch {
+    if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+    toast('Suppression bloquée. Réessaie.', 'error');
+  }
+}
+
+// ── CALENDRIER PUBLIC PROFIL ──
+async function initRDVCalendar(prestataire, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const f = prestataire.fields;
+  const dispoHebdo = parseDispoHebdo(f['Disponibilités Hebdo'] || '');
+  const slotDuration = parseInt(f['Durée Créneau'] || 60);
+  const hasAny = Object.values(dispoHebdo).some(d => d.active && d.slots && d.slots.length > 0);
+  if (!hasAny) {
+    container.innerHTML = `<p style="color:var(--gris);font-size:14px;padding:8px 0;">Ce prestataire n'a pas encore configuré ses disponibilités.</p>`;
+    return;
+  }
+  rdvCalState = {
+    prestataire, dispoHebdo, slotDuration, containerId,
+    selectedDate: null, bookedSlots: [],
+    year: new Date().getFullYear(), month: new Date().getMonth()
+  };
+  renderRDVCalendarView();
+}
+
+function renderRDVCalendarView() {
+  const { containerId, year, month, dispoHebdo, selectedDate } = rdvCalState;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7;
+  let cells = '';
+  for (let i = 0; i < startDow; i++) cells += '<div class="rdv-cal-day empty"></div>';
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const date = new Date(year, month, d);
+    const dow = date.getDay();
+    const isPast = date < today;
+    const isToday = date.toDateString() === today.toDateString();
+    const hasSlots = dispoHebdo[dow]?.active && dispoHebdo[dow]?.slots?.length > 0;
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSelected = selectedDate === dateStr;
+    let cls = 'rdv-cal-day';
+    if (!isPast && hasSlots) cls += ' available';
+    else if (isPast) cls += ' past';
+    if (isToday) cls += ' today';
+    if (isSelected) cls += ' selected';
+    const onClick = (!isPast && hasSlots) ? `onclick="selectRDVDate('${dateStr}')"` : '';
+    cells += `<div class="${cls}" ${onClick}>${d}</div>`;
+  }
+  container.innerHTML = `
+    <div class="rdv-cal-wrap">
+      <div class="rdv-cal-header">
+        <button onclick="rdvCalNav(-1)" class="rdv-nav-btn">‹</button>
+        <span style="font-weight:800;font-size:15px;">${MOIS_LABELS[month]} ${year}</span>
+        <button onclick="rdvCalNav(1)" class="rdv-nav-btn">›</button>
+      </div>
+      <div class="rdv-cal-dow">${['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d => `<div style="text-align:center;font-size:11px;font-weight:700;color:var(--gris);padding:4px 0;">${d}</div>`).join('')}</div>
+      <div class="rdv-cal-grid">${cells}</div>
+      <div style="display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--gris);">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--vert-light);margin-right:4px;vertical-align:middle;"></span>Disponible</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#f3f4f6;margin-right:4px;vertical-align:middle;"></span>Indisponible</span>
+      </div>
+      ${selectedDate ? renderSlotsPanel() : ''}
+    </div>`;
+}
+
+function rdvCalNav(dir) {
+  rdvCalState.month += dir;
+  if (rdvCalState.month < 0) { rdvCalState.month = 11; rdvCalState.year--; }
+  if (rdvCalState.month > 11) { rdvCalState.month = 0; rdvCalState.year++; }
+  rdvCalState.selectedDate = null;
+  renderRDVCalendarView();
+}
+
+async function selectRDVDate(dateStr) {
+  rdvCalState.selectedDate = dateStr;
+  rdvCalState.bookedSlots = [];
+  renderRDVCalendarView();
+  const pid = rdvCalState.prestataire.id;
+  try {
+    const res = await fetch(`/api/wozali-pay/rdv-slots?prestataire_id=${encodeURIComponent(pid)}&date=${encodeURIComponent(dateStr)}`);
+    if (res.ok) {
+      const data = await res.json();
+      rdvCalState.bookedSlots = data.heures || [];
+      renderRDVCalendarView();
+    }
+  } catch { /* silently continue */ }
+}
+
+function renderSlotsPanel() {
+  const { selectedDate, dispoHebdo, slotDuration, bookedSlots = [] } = rdvCalState;
+  const date = new Date(selectedDate + 'T12:00:00');
+  const dow = date.getDay();
+  const allSlots = generateTimeSlots(dispoHebdo, slotDuration, dow);
+  const available = allSlots.filter(s => !bookedSlots.includes(s));
+  const dateLabel = date.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+  return `
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid #f0f0f0;">
+      <h4 style="font-weight:800;font-size:14px;margin-bottom:12px;text-transform:capitalize;">📅 ${dateLabel}</h4>
+      ${available.length === 0
+        ? '<p style="color:var(--gris);font-size:14px;">Aucun créneau disponible pour cette date.</p>'
+        : `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${available.map(s => `<button class="rdv-slot-btn" onclick="selectRDVSlot('${s}')">${s}</button>`).join('')}</div>`}
+    </div>`;
+}
+
+function selectRDVSlot(heure) {
+  rdvCalState.selectedSlot = heure;
+  const { selectedDate, prestataire, containerId } = rdvCalState;
+
+  // Si on est dans la page RDV dédiée → afficher le formulaire côté droit
+  const rdvPageId = window._rdvPageRecordId;
+  if (rdvPageId && document.getElementById(`rdv-page-${rdvPageId}`)?.style.display !== 'none') {
+    const date = new Date(selectedDate + 'T12:00:00');
+    const dateLabel = date.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+    const infoEl = document.getElementById(`rdv-selected-info-${rdvPageId}`);
+    if (infoEl) infoEl.innerHTML = `<div style="background:rgba(232,148,10,0.15);border:1px solid rgba(232,148,10,0.3);border-radius:12px;padding:14px;"><div style="font-weight:800;color:white;font-size:14px;text-transform:capitalize;">📅 ${dateLabel}</div><div style="font-size:15px;color:var(--vert);font-weight:700;margin-top:4px;">⏰ ${heure}</div></div>`;
+    const formEl = document.getElementById(`rdv-form-${rdvPageId}`);
+    if (formEl) formEl.style.display = 'block';
+    return;
+  }
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const date = new Date(selectedDate + 'T12:00:00');
+  const dateLabel = date.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+  container.innerHTML = `
+    <div class="rdv-form-wrap">
+      <button onclick="initRDVCalendar(rdvCalState.prestataire,'${containerId}')" style="background:none;border:none;color:var(--vert);font-weight:700;cursor:pointer;margin-bottom:16px;font-size:14px;padding:0;">‹ Retour au calendrier</button>
+      <div style="background:var(--vert-light);border-radius:12px;padding:14px;margin-bottom:20px;">
+        <div style="font-weight:800;font-size:15px;text-transform:capitalize;">📅 ${dateLabel}</div>
+        <div style="font-size:15px;color:var(--vert);font-weight:700;margin-top:4px;">⏰ ${heure}</div>
+        <div style="font-size:13px;color:var(--gris);margin-top:4px;">avec ${escapeHtml(prestataire.fields['Nom complet'] || '')}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="font-size:13px;font-weight:700;color:var(--gris-fonce);display:block;margin-bottom:6px;">Ton nom *</label>
+          <input id="rdv-nom" type="text" placeholder="Ex: Kofi Mensah" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:700;color:var(--gris-fonce);display:block;margin-bottom:6px;">Email *</label>
+          <input id="rdv-email" type="email" placeholder="ton@email.com" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:700;color:var(--gris-fonce);display:block;margin-bottom:6px;">Message *</label>
+          <textarea id="rdv-message" placeholder="Décris ton besoin (min. 10 caractères)..." rows="3" style="width:100%;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;resize:none;box-sizing:border-box;font-family:inherit;"></textarea>
+        </div>
+        <button onclick="submitRDV('${containerId}',this)" style="width:100%;padding:14px;background:var(--vert);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">✅ Confirmer le rendez-vous</button>
+        <div id="rdv-submit-msg" style="display:none;text-align:center;font-size:14px;font-weight:600;"></div>
+      </div>
+    </div>`;
+}
+
+async function submitRDV(containerId, btn) {
+  const nom = document.getElementById('rdv-nom')?.value.trim();
+  const email = document.getElementById('rdv-email')?.value.trim();
+  const message = document.getElementById('rdv-message')?.value.trim();
+  const msgEl = document.getElementById('rdv-submit-msg');
+
+  // ✅ Validation stricte
+  if (!validateForm({
+    nom: { type: 'name', value: nom, name: 'Nom' },
+    email: { type: 'email', value: email, name: 'Email' }
+  })) {
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Vérifie tes infos'; return;
+  }
+
+  if (!message || message.length < 10) {
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Décris ton besoin (minimum 10 caractères)'; return;
+  }
+  if (message.length > 500) {
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Le message est trop long (max 500 caractères)'; return;
+  }
+  btn.disabled = true; btn.textContent = '⏳ Confirmation en cours...';
+  try {
+    const res = await fetch('/api/wozali-pay/rdv-create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prestataire_id: rdvCalState.prestataire.id,
+        date_rdv:       rdvCalState.selectedDate,
+        heure_rdv:      rdvCalState.selectedSlot || null,
+        nom_client:     nom,
+        tel_client:     email || null,
+        message:        message || null,
+      })
+    });
+    if (res.ok) {
+      // ✅ Envoyer notification au prestataire
+      pushNotif(rdvCalState.prestataire.id, {
+        type: 'rdv',
+        clientNom: nom,
+        date: rdvCalState.selectedDate,
+        time: rdvCalState.selectedSlot
+      });
+      document.getElementById(containerId).innerHTML = `
+        <div style="text-align:center;padding:30px 20px;">
+          <div style="font-size:48px;margin-bottom:16px;">🎉</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;margin-bottom:8px;">Rendez-vous demandé !</h3>
+          <p style="color:var(--gris);font-size:14px;line-height:1.7;">Ta demande a été envoyée à <strong>${rdvCalState.prestataire.fields['Nom complet']}</strong>.<br>Il te confirmera par email dès que possible.</p>
+          <button onclick="initRDVCalendar(rdvCalState.prestataire,'${containerId}')" style="margin-top:20px;padding:12px 24px;background:var(--vert);color:white;border:none;border-radius:12px;font-weight:700;cursor:pointer;">Prendre un autre RDV</button>
+        </div>`;
+    } else {
+      const err = await res.json();
+      msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+      const errMsg = err.error?.message || 'Impossible de confirmer le RDV, réessaie';
+      msgEl.textContent = '❌ ' + errMsg;
+      btn.disabled = false; btn.textContent = '✅ Confirmer le rendez-vous';
+      toast(errMsg, 'error');
+    }
+  } catch (e) {
+    console.error('RDV error:', e);
+    msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
+    msgEl.textContent = '❌ Erreur de connexion. Vérifie ta connexion et réessaie.';
+    btn.disabled = false; btn.textContent = '✅ Confirmer le rendez-vous';
+    toast('Erreur réseau: impossible de créer le RDV', 'error');
+  }
+}
+
+async function addCommissionToParrain(parrainCode, amount, filleulNom) {
+  try {
+    const supa = window.supabase;
+    const { data: rows } = await supa.from('wozali_prestataires').select('id').eq('code_parrainage', parrainCode).limit(1);
+    if (rows?.length > 0) {
+      const parrainId = rows[0].id;
+      try {
+        if (window.wozaliNotifPush) {
+          await window.wozaliNotifPush(parrainId, 'commission', {
+            montant: (amount || 0).toLocaleString('fr-FR'),
+            filleul: filleulNom || 'Un filleul'
+          });
+        }
+      } catch(e) { console.warn('notif commission:', e); }
+    }
+  } catch(err) { console.error('addCommissionToParrain:', err); }
+}
+
+function requestWithdrawal() {
+  if (!currentPrestataire) return;
+  const commDisp = currentPrestataire.fields['Commission Disponible FCFA'] || 0;
+  if (commDisp < 3000) { toast('Minimum de retrait : 3 000 FCFA (3 filleuls actifs)', 'error'); return; }
+  // Pré-remplir le modal
+  const phone = (currentPrestataire.fields['Numéro de téléphone'] || '').replace(/\D/g,'').replace(/^(228|00228)/, '');
+  const el = document.getElementById('retrait-phone-input');
+  if (el) el.value = phone;
+  const amountEl = document.getElementById('retrait-modal-amount');
+  if (amountEl) amountEl.textContent = commDisp.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('modal-retrait').classList.add('active');
+}
+
+
+
+// ════════════════════════════════════════════════════════════════
+// SPRINT 6 — Upgrade Pro (FedaPay) + Dashboard parrainage
+// ════════════════════════════════════════════════════════════════
+async function injectSprint6Upgrade(){
+  const host = document.getElementById('ds-abonnement');
+  if (!host || host.querySelector('#sp6-upgrade-block')) return;
+  if (!currentUser?.id) return;
+
+  const block = document.createElement('div');
+  block.id = 'sp6-upgrade-block';
+  block.style.cssText = 'max-width:720px;margin:24px auto;padding:0 16px;color:#FCE0A8';
+
+  const rowOk = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:#FCE0A8"><span style="color:#4ade80;font-weight:700">✓</span><span>${txt}</span></div>`;
+  const rowKo = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:rgba(252, 224, 168,.4)"><span style="color:#ef4444">✗</span><span style="text-decoration:line-through">${txt}</span></div>`;
+  const sectionTitle = t => `<div style="font-size:10px;color:#E8940A;font-family:'Geist Mono';letter-spacing:2px;margin:14px 0 4px;padding-bottom:4px;border-bottom:1px solid rgba(232,148,10,.15)">${t}</div>`;
+
+  block.innerHTML = `
+    <div style="background:#14100A;border:2px solid #E8940A;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+      <div style="font-size:40px;margin-bottom:6px">🏆</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:4px">500 000 FCFA distribués chaque mois</div>
+      <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:14px">Bourse de Croissance (Pro) + Bourse des Mains d'Or (toutes les femmes B/T)</div>
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Geist Mono'">300 000</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">👑 La Bourse des Mains d'Or</span><strong style="color:#E8940A;font-family:'Geist Mono'">100 000 × 2</strong></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px">
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin-bottom:2px">Gratuit</div>
+        <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:rgba(252, 224, 168,.75);margin-bottom:8px">0 FCFA<span style="font-size:11px;color:rgba(252, 224, 168,.5)">/mois</span></div>
+        ${sectionTitle('MARKETPLACE')}
+        ${rowOk('Profil visible')}
+        ${rowOk('Avis clients')}
+        ${rowKo('Badge Pro')}
+        ${rowKo('Priorité résultats')}
+        ${sectionTitle('RÉCOMPENSES')}
+        ${rowKo('Bourse 300 000 FCFA/mois (Pro only)')}
+        ${rowOk('Bourse des Mains d\'Or 100K × 2 — ouverte à toutes les femmes (coiffeuses &amp; couturières)')}
+        ${rowKo('Commissions parrainage')}
+      </div>
+      <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#E8940A;color:#fff;font-size:9px;font-weight:800;padding:3px 12px;border-radius:100px;letter-spacing:1px">RECOMMANDÉ</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#E8940A;margin-top:4px">Pro</div>
+        <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:#E8940A">2 500 FCFA<span style="font-size:11px">/mois</span></div>
+        <div style="font-size:10px;color:rgba(252, 224, 168,.5);margin-bottom:8px">Soit 83 FCFA par jour</div>
+        ${sectionTitle('MARKETPLACE')}
+        ${rowOk('<strong>Badge Pro</strong> visible')}
+        ${rowOk('Priorité résultats')}
+        ${rowOk('À la Une homepage')}
+        ${sectionTitle('RÉCOMPENSES')}
+        ${rowOk('<strong>Bourse 300 000 FCFA/mois</strong>')}
+        ${rowOk('<strong>Bourse des Mains d\'Or 100K × 2</strong> — ouverte à toutes les femmes')}
+        ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
+      </div>
+    </div>
+
+    <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:6px">Payer avec FedaPay</div>
+      <div style="font-size:13px;color:rgba(252, 224, 168,.6);margin-bottom:18px">Plan Pro — 2 500 FCFA / mois · Résiliable à tout moment</div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px">📱 Payer avec Mobile Money</div>
+        <div style="font-size:11px;color:rgba(252, 224, 168,.5);margin-bottom:12px">MTN Mobile Money · Moov Money · TMoney · Flooz</div>
+        <button onclick="sp6PayFedapay()" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">📱 Payer 2 500 FCFA — Plan Pro</button>
+      </div>
+    </div>
+  `;
+  host.appendChild(block);
+}
+
+
+
+
+function sp6PayFedapay(){
+  if (!currentUser || !currentPrestataire) { toast('Connecte-toi pour continuer', 'error'); return; }
+  upgradePlan('Pro', 2500);
+}
+
+function sp6ShowSuccess(){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#14100A;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;animation:fadeIn .3s';
+  const dateFin = new Date(); dateFin.setMonth(dateFin.getMonth()+1);
+  overlay.innerHTML = `
+    <div style="font-size:80px;margin-bottom:16px;animation:bounceDown .6s">⭐</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es Pro !</div>
+    <div style="font-size:14px;color:rgba(252, 224, 168,.7);margin-bottom:28px">Ton Plan Pro est actif jusqu'au ${dateFin.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+    <div style="max-width:360px;width:100%">
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#FCE0A8">🏆 <strong>Bourse de Croissance 300 000 FCFA</strong> — prochain tirage vendredi 18h00</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#FCE0A8">👑 <strong>Bourse des Mains d'Or 100 000 FCFA × 2</strong> — ✂️ Reine Coiffure + 👗 Reine Couture · 1 par pays/mois</div>
+      <button onclick="this.closest('[style*=fixed]').remove();showDashSection('profil')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Aller au dashboard →</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+
+
+// ══ SPRINT 7 — WIDGETS RÉCOMPENSES DASHBOARD ══
+function loadRecompensesMDR() {
+  const host = document.getElementById('recompenses-mdr-widgets');
+  if (!host) return;
+  const metier = (currentPrestataire?.fields?.['Métier principal'] || '').toLowerCase();
+  const isEligible = metier.includes('coiff') || metier.includes('coutur') || metier.includes('tress');
+  host.innerHTML = `
+    <div style="max-width:700px;margin:0 auto;padding:0 0 40px">
+      ${!isEligible ? `<div style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:#FCE0A8;">
+        ⚠️ La Bourse des Mains d'Or est réservée aux <strong>coiffeuses et couturières</strong>. Ton métier (<strong>${currentPrestataire?.fields?.['Métier principal'] || 'non renseigné'}</strong>) n'y est pas éligible.
+      </div>` : ''}
+      <div style="background:rgba(232,148,10,.06);border:1.5px solid rgba(232,148,10,.3);border-radius:20px;padding:28px 24px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <span style="font-size:36px">👑</span>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;">La Bourse des Mains d'Or</div>
+            <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">100 000 FCFA × 2 · 1 TOGO + 1 BÉNIN · TIRAGE 31 JUILLET</div>
+          </div>
+        </div>
+        <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour.</strong><br><br>Chaque mois, 2 Reines gagnent 100 000 FCFA chacune — une au Togo, une au Bénin. Pas besoin d'être Pro. Ouverte à toutes les coiffeuses et couturières.</p>
+        <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</div>
+          <div style="display:grid;gap:8px;font-size:13px;color:rgba(252,224,168,.8)">
+            <div>✓ Être une femme au Togo ou au Bénin</div>
+            <div>✓ Métier : ✂️ Coiffeuse (mois impair) ou 👗 Couturière (mois pair)</div>
+            <div>✓ Profil complet (photo + ville/quartier)</div>
+            <div>✓ Au moins <strong>1 photo de réalisation</strong> sur ton profil ce mois</div>
+            <div>✓ Au moins <strong>1 avis client</strong> reçu sur les 30 derniers jours</div>
+            <div>✓ Connexion récente (≤ 14 jours)</div>
+          </div>
+        </div>
+        <button onclick="showDashSection('photos')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">📸 Ajouter des photos de réalisations →</button>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
+        <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premier tirage</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">31 juillet 2026</div>
+        <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le 30 de chaque mois · Tirage 100% automatique</div>
+      </div>
+    </div>`;
+}
+
+async function loadRecompensesWidgets() {
+  const host = document.getElementById('recompenses-widgets');
+  if (!host) return;
+
+  const plan = currentPrestataire?.fields?.['Abonnement'] || 'Base';
+  const isBase = plan === 'Base';
+
+  // Afficher le contenu complet même pour les non-Pro (avec CTA upgrade en bas)
+  if (isBase) {
+    host.innerHTML = `
+      <div style="max-width:700px;margin:0 auto;padding:0 0 40px">
+        <div style="background:rgba(232,148,10,.06);border:1.5px solid rgba(232,148,10,.3);border-radius:20px;padding:28px 24px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <span style="font-size:36px">🏆</span>
+            <div>
+              <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;">Bourse de Croissance</div>
+              <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">300 000 FCFA · 1 GAGNANT/MOIS · PRO · TIRAGE 31 JUILLET</div>
+            </div>
+          </div>
+          <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px">Chaque mois, le Pro le plus sérieux du Bénin et du Togo gagne <strong>300 000 FCFA</strong>. Pas de dossier à remplir — si tu remplis les conditions, tu participes automatiquement. Tirage le 30 de chaque mois.</p>
+          <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:16px;margin-bottom:16px">
+            <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</div>
+            <div style="display:grid;gap:8px;font-size:13px;color:rgba(252,224,168,.8)">
+              <div>✓ <strong>Plan Pro actif</strong> ce mois-ci</div>
+              <div>✓ Profil complet (photo + métier + ville/quartier + numéro)</div>
+              <div>✓ Score WOZALI ≥ <strong>80 points</strong></div>
+              <div>✓ Au moins <strong>3 avis clients</strong> sur les 30 derniers jours</div>
+              <div>✓ Note moyenne ≥ <strong>4,2 étoiles</strong> sur 30 jours</div>
+              <div>✓ Connexion récente (≤ 14 jours)</div>
+              <div>✓ Pas gagné les 3 derniers mois</div>
+            </div>
+          </div>
+          <button onclick="showDashSection('abonnement')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
+          <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premier tirage</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">31 juillet 2026</div>
+          <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le 30 de chaque mois · Tirage 100% automatique</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  host.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(252, 224, 168,.5)">Chargement des récompenses...</div>';
+
+  try {
+    const r = await wozaliFetch(`/api/wozali-pay/recompenses-status?user_id=${currentUser.id}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+
+    const tirage = new Date(d.tirage_date);
+    const maintenant = new Date();
+    const tirageRestant = Math.max(0, tirage - maintenant);
+    const jours = Math.floor(tirageRestant / 86400000);
+    const heures = Math.floor((tirageRestant % 86400000) / 3600000);
+    const minutes = Math.floor((tirageRestant % 3600000) / 60000);
+    const countdownStr = tirageRestant > 0 ? `${jours}j ${heures}h ${minutes}min` : 'Tirage imminent';
+
+    host.innerHTML = `
+      ${_widgetBourse(d.bourse, countdownStr)}
+      <div style="height:20px"></div>
+      ${_widgetPalmares(d.palmares)}
+    `;
+  } catch(e) {
+    host.innerHTML = `<div style="text-align:center;padding:30px;color:#ef4444">Erreur : ${e.message}</div>`;
+  }
+}
+
+function _widgetBourse(bourse, countdown) {
+  const { etat, conditions, gagnant_nom, montant } = bourse;
+
+  if (etat === 'gagnant') {
+    return `
+      <div style="background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.05));border:2px solid #E8940A;border-radius:16px;padding:24px;text-align:center">
+        <div style="font-size:48px;margin-bottom:8px">🏆</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu as gagné la Bourse de Croissance !</h3>
+        <div style="font-family:'Geist Mono',monospace;font-size:36px;font-weight:900;color:#FCE0A8;margin-bottom:12px">${montant.toLocaleString('fr-FR')} FCFA</div>
+        <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Le virement sera effectué sous 48h.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Mon abonnement</button>
+          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 J\\'ai gagné la Bourse de Croissance WOZALI ! 300 000 FCFA pour le membre Pro le plus méritant. Rejoins WOZALI → https://wozali.com'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
+        </div>
+      </div>`;
+  }
+
+  if (etat === 'perdu') {
+    return `
+      <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">🏆</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:8px">Bourse de Croissance · Le tirage a eu lieu</h3>
+        <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:8px">Gagnant : <strong style="color:#E8940A">${gagnant_nom || '—'}</strong></p>
+        <p style="color:rgba(252, 224, 168,.5);font-size:13px">Bonne chance le mois prochain !</p>
+      </div>`;
+  }
+
+  if (etat === 'eligible') {
+    return `
+      <div style="background:rgba(232,148,10,.05);border:2px solid rgba(232,148,10,.4);border-radius:16px;padding:24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px;animation:pulse 2s infinite">🏆</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es éligible à la Bourse de Croissance !</h3>
+        <div style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;margin-bottom:12px">300 000 FCFA</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px">
+          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ Pro 2+ mois</span>
+          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ Score ≥ 80</span>
+          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ 4+ avis</span>
+          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ Note ≥ 4.2</span>
+        </div>
+        <div style="background:rgba(232,148,10,.1);border-radius:10px;padding:12px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:700">
+          ⏱️ Tirage dans ${countdown}
+        </div>
+        <p style="font-size:12px;color:rgba(252, 224, 168,.4);margin-top:8px">Score actuel : ${conditions?.score_actuel || '—'}/100</p>
+      </div>`;
+  }
+
+  // non_eligible
+  const conds = conditions || {};
+  const check = (ok, label) => `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0"><span style="color:${ok?'#4ade80':'#ef4444'}">${ok?'✓':'✗'}</span><span style="color:${ok?'rgba(252, 224, 168,.7)':'#ef4444'}">${label}</span></div>`;
+
+  return `
+    <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(252, 224, 168,.3)">🔒</div>
+        <div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin:0">Bourse de Croissance · 300 000 FCFA</h3>
+          <p style="font-size:12px;color:rgba(252, 224, 168,.5);margin:2px 0 0">Tu n'es pas encore éligible ce mois</p>
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:12px">
+        ${check(conds.estPro, `Plan Pro actif ce mois`)}
+        ${check(conds.score_80, `Score WOZALI : ${conds.score_actuel || 0}/100 (minimum 80)`)}
+        ${check(conds.avis_4, `Avis ce mois : ${conds.nb_avis_actuel || 0}/4 (minimum 4)`)}
+        ${check(conds.note_42, `Note moyenne : ${(conds.note_actuelle || 0).toFixed(1)}/5 (minimum 4.2)`)}
+      </div>
+      <button onclick="showPage('fonctionnement')" style="margin-top:14px;background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">Voir comment améliorer mon score</button>
+    </div>`;
+}
+
+function _widgetPalmares(palmares) {
+  const { bourse = [] } = palmares;
+  if (bourse.length === 0) return '';
+
+  const renderGagnant = (g, emoji) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:6px">
+      <span style="font-size:20px">${emoji}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:#FCE0A8">${g.nom}</div>
+        <div style="font-size:11px;color:rgba(252, 224, 168,.4)">${g.mois}</div>
+      </div>
+      <div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A">${g.montant.toLocaleString('fr-FR')} FCFA</div>
+    </div>`;
+
+  let html = '<div style="margin-top:20px">';
+  if (bourse.length > 0) {
+    html += `<h4 style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:2px;margin-bottom:10px">🏆 PALMARÈS BOURSE DE CROISSANCE</h4>`;
+    html += bourse.map(g => renderGagnant(g, '🏆')).join('');
+  }
+  html += '</div>';
+  return html;
+}
+
+// ══ PAGE /recompenses (Sprint 7 Phase 5) ══
+async function loadPageRecompenses() {
+  const plan = currentPrestataire?.fields?.['Abonnement'] || 'Base';
+  const isBase = plan === 'Base' || !currentUser;
+  const ctaPro = document.getElementById('recomp-cta-pro');
+  if (ctaPro) ctaPro.style.display = isBase ? 'block' : 'none';
+
+  // Section Top Mains les Plus Demandées (publique)
+  try { loadTopMains(); } catch(e) { console.warn('[topmains init]', e); }
+
+  // 🆕 Section TikTok partagée + Checklists dynamiques (si user connecté)
+  try { renderTikTokSharedSection(); } catch(e) { console.warn('[tiktok shared]', e); }
+  try { loadChecklistsRecompenses(); } catch(e) { console.warn('[checklists recompenses]', e); }
+
+  try {
+    // Charger le statut si connecté Pro
+    if (currentUser?.id && !isBase) {
+      const r = await wozaliFetch(`/api/wozali-pay/recompenses-status?user_id=${currentUser.id}`);
+      const d = await r.json();
+      if (d.ok) {
+        // Widget Bourse
+        const bw = document.getElementById('recomp-bourse-widget');
+        if (bw) {
+          const tirage = new Date(d.tirage_date);
+          const rest = Math.max(0, tirage - new Date());
+          const j = Math.floor(rest / 86400000), h = Math.floor((rest % 86400000) / 3600000), m = Math.floor((rest % 3600000) / 60000);
+          const cd = rest > 0 ? `${j}j ${h}h ${m}min` : 'Tirage imminent';
+          bw.innerHTML = _widgetBourse(d.bourse, cd);
+        }
+        // Palmarès Bourse
+        const pb = document.getElementById('recomp-palmares-bourse');
+        if (pb && d.palmares.bourse.length > 0) pb.innerHTML = _widgetPalmares({ bourse: d.palmares.bourse });
+      }
+    }
+
+  } catch(e) { console.warn('[page recompenses]', e); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TOP MAINS LES PLUS DEMANDÉES — section publique sur Récompenses
+// ════════════════════════════════════════════════════════════════
+window._topMainsState = { categorie: 'coiffure', pays: '' };
+
+function _tmEscape(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ════════════════════════════════════════════════════════════════
+// 🆕 Refonte Récompenses 2026-05-15 — TikTok partagé + Checklists
+// ════════════════════════════════════════════════════════════════
+
+function renderTikTokSharedSection() {
+  const box = document.getElementById('recomp-tiktok-shared');
+  if (!box) return;
+  if (!currentUser || !currentPrestataire) {
+    box.style.display = 'none';
+    return;
+  }
+  box.style.display = 'block';
+
+  const f = currentPrestataire.fields || {};
+  const slots = [
+    { key: 'tiktok_suivi_wozali',  iconId: 'tiktok-icon-wozali', btnId: 'tiktok-btn-wozali' },
+    { key: 'tiktok_suivi_schealtiel',  iconId: 'tiktok-icon-schealtiel',  btnId: 'tiktok-btn-schealtiel' },
+    { key: 'insta_suivi_wozali',   iconId: 'insta-icon-wozali',   btnId: 'insta-btn-wozali' },
+    { key: 'insta_suivi_schealtiel',   iconId: 'insta-icon-schealtiel',   btnId: 'insta-btn-schealtiel' },
+  ];
+  slots.forEach(({ key, iconId, btnId }) => {
+    const ok = Boolean(f[key]);
+    const icon = document.getElementById(iconId);
+    const btn  = document.getElementById(btnId);
+    if (icon) icon.textContent = ok ? '✅' : '⭕';
+    if (btn) {
+      btn.innerHTML = ok ? '✓ Déclaré' : '☐ Déclaré';
+      btn.style.background = ok ? '#E8940A' : 'transparent';
+      btn.style.color = ok ? '#14100A' : '#E8940A';
+    }
+  });
+}
+
+async function toggleTikTokSuivi(field) {
+  if (!currentPrestataire) {
+    toast('Connecte-toi pour valider', 'error');
+    return;
+  }
+  const f = currentPrestataire.fields || {};
+  const newVal = !Boolean(f[field] || f[field.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase())]);
+  try {
+    if (window.supaPrest && typeof window.supaPrest.update === 'function') {
+      await window.supaPrest.update(currentPrestataire.id, { [field]: newVal });
+    }
+    currentPrestataire.fields[field] = newVal;
+    renderTikTokSharedSection();
+    loadChecklistsRecompenses(); // refresh ratio
+    toast(newVal ? 'Merci ! Tu marques +1 condition.' : 'Décoché.', 'success');
+  } catch (e) {
+    console.warn('[toggleTikTokSuivi]', e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+
+async function loadChecklistsRecompenses() {
+  if (!currentUser) return;
+  // MdR
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/mdr-eligibilite');
+    const d = await r.json();
+    renderChecklist('mdr', d);
+  } catch (e) {
+    console.warn('[mdr-eligibilite fetch]', e);
+  }
+  // Bourse
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/bourse-eligibilite');
+    const d = await r.json();
+    renderChecklist('bourse', d);
+  } catch (e) {
+    console.warn('[bourse-eligibilite fetch]', e);
+  }
+}
+
+function renderChecklist(prefix, d) {
+  const box = document.getElementById(prefix + '-checklist-dynamic');
+  const listEl = document.getElementById(prefix + '-conditions-list');
+  const badge = document.getElementById(prefix + '-ratio-badge');
+  const status = document.getElementById(prefix + '-status-msg');
+  if (!box || !listEl) return;
+  box.style.display = 'block';
+
+  if (d.raison === 'profil_introuvable') {
+    listEl.innerHTML = '<div>Profil pas encore créé. <a href="#inscription" style="color:#E8940A">Inscris-toi →</a></div>';
+    if (badge) badge.textContent = '—';
+    return;
+  }
+
+  const labels = (prefix === 'mdr') ? {
+    profil_complet: 'Profil complet (photo + métier + ville/quartier + numéro)',
+    metier_ok: 'Métier compatible (Coiffeuse mois impair · Couturière mois pair)',
+    photo_du_mois: '≥ 1 photo de réalisation sur ton profil ce mois',
+    avis_30j: '≥ 1 avis client sur les 30 derniers jours',
+    activite_recente: 'Connexion récente (≤ 14 jours)',
+    tiktok_wolomarket: '⚡ Bonus — Suivre @wozali sur TikTok',
+    tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
+    insta_suivi_wozali: '⚡ Bonus — Suivre @wozali sur Instagram',
+    insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
+  } : {
+    plan_pro_actif: 'Plan Pro actif ce mois-ci',
+    profil_complet: 'Profil complet (photo + métier + ville/quartier + numéro)',
+    score_wozali_80: 'Score WOZALI ≥ 80/100',
+    avis_3_sur_30j: '≥ 3 avis clients sur les 30 derniers jours',
+    note_42: 'Note moyenne ≥ 4.2★ sur 30 jours',
+    activite_recente: 'Connexion récente (≤ 14 jours)',
+    pas_gagne_recent: 'Pas gagné dans les 3 derniers mois',
+    tiktok_wolomarket: '⚡ Bonus — Suivre @wozali sur TikTok',
+    tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
+    insta_suivi_wozali: '⚡ Bonus — Suivre @wozali sur Instagram',
+    insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
+  };
+
+  const conds = d.conditions || {};
+  const items = Object.entries(labels).map(([key, label]) => {
+    const ok = Boolean(conds[key]);
+    return '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:16px;width:22px;text-align:center">' + (ok ? '✅' : '❌') + '</span><span style="' + (ok ? 'color:#FCE0A8' : 'color:rgba(252, 224, 168,.65)') + '">' + escapeHtml(label) + '</span></div>';
+  }).join('');
+  listEl.innerHTML = items;
+
+  if (badge) badge.textContent = d.ratio || '—';
+
+  if (status) {
+    if (d.eligible) {
+      status.innerHTML = '🔥 <strong style="color:#22c55e">Tu es dans le pool du tirage !</strong> Tirage le 30 du mois à 18h.';
+      status.style.color = '#22c55e';
+    } else {
+      const manque = Object.entries(conds).filter(([,v]) => !v).length;
+      status.innerHTML = 'Il te manque <strong style="color:#E8940A">' + manque + ' condition' + (manque > 1 ? 's' : '') + '</strong> pour entrer au tirage. Complète-les ↑';
+      status.style.color = 'rgba(252, 224, 168,.7)';
+    }
+  }
+}
+
+async function loadTopMains() {
+  const host = document.getElementById('recomp-top-mains');
+  if (!host) return;
+
+  // Bind boutons
+  host.querySelectorAll('.tm-cat-btn').forEach(btn => {
+    btn.onclick = () => {
+      window._topMainsState.categorie = btn.dataset.cat;
+      _tmRefreshButtons();
+      loadTopMains();
+    };
+  });
+  host.querySelectorAll('.tm-pays-btn').forEach(btn => {
+    btn.onclick = () => {
+      window._topMainsState.pays = btn.dataset.pays || '';
+      _tmRefreshButtons();
+      loadTopMains();
+    };
+  });
+  _tmRefreshButtons();
+
+  const podiumEl = document.getElementById('topmains-podium');
+  const listEl = document.getElementById('topmains-list');
+  const emptyEl = document.getElementById('topmains-empty');
+  if (!podiumEl || !listEl || !emptyEl) return;
+
+  podiumEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(252, 224, 168,.4);font-size:13px">Chargement…</div>';
+  listEl.innerHTML = '';
+  emptyEl.style.display = 'none';
+
+  const { categorie, pays } = window._topMainsState;
+  const params = new URLSearchParams({ categorie, limit: '10' });
+  if (pays) params.set('pays', pays);
+
+  try {
+    const fn = window.wozaliFetch || fetch;
+    const r = await fn(`/api/wozali-pay/top-mains-list?${params.toString()}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Erreur');
+
+    const pros = d.pros || [];
+    if (pros.length === 0) {
+      podiumEl.innerHTML = '';
+      listEl.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+
+    const top3 = pros.slice(0, 3);
+    const rest = pros.slice(3, 10);
+
+    // Podium top 3
+    podiumEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(${top3.length},1fr);gap:10px">
+        ${top3.map(p => `
+          <div onclick="goToPro('${_tmEscape(p.user_id)}')" style="cursor:pointer;background:linear-gradient(180deg,rgba(232,148,10,.12),rgba(232,148,10,.02));border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:18px 12px;text-align:center;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="font-size:28px;line-height:1">${p.emoji}</div>
+            <div style="margin:8px auto;width:64px;height:64px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #E8940A">
+              ${p.photo_profil ? `<img src="${_tmEscape(p.photo_profil)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">` : '<span style="font-size:24px">👤</span>'}
+            </div>
+            <div style="font-family:'DM Serif Display',serif;font-weight:900;font-size:14px;color:#FCE0A8;margin-bottom:2px">${_tmEscape(p.nom)}</div>
+            <div style="font-size:11px;color:rgba(252, 224, 168,.45)">${_tmEscape(p.metier)}${p.ville ? ' · ' + _tmEscape(p.ville) : ''}</div>
+            <div style="margin-top:10px;font-family:'Geist Mono',monospace;font-size:18px;font-weight:800;color:#E8940A">${p.count}</div>
+            <div style="font-size:10px;color:rgba(252, 224, 168,.45);font-family:'Geist Mono',monospace;letter-spacing:1px">TAG${p.count > 1 ? 'S' : ''} CE MOIS</div>
+          </div>
+        `).join('')}
+      </div>`;
+
+    // Liste 4-10
+    if (rest.length > 0) {
+      listEl.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+          ${rest.map(p => `
+            <div onclick="goToPro('${_tmEscape(p.user_id)}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 14px;transition:background .15s" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
+              <div style="font-family:'Geist Mono',monospace;font-size:14px;font-weight:800;color:#E8940A;min-width:32px">#${p.rang}</div>
+              <div style="width:42px;height:42px;border-radius:50%;background:rgba(232,148,10,.1);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+                ${p.photo_profil ? `<img src="${_tmEscape(p.photo_profil)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">` : '<span style="font-size:18px">👤</span>'}
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:14px;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_tmEscape(p.nom)} ${p.emoji}</div>
+                <div style="font-size:11px;color:rgba(252, 224, 168,.45)">${_tmEscape(p.metier)}${p.ville ? ' · ' + _tmEscape(p.ville) : ''}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'Geist Mono',monospace;font-size:15px;font-weight:800;color:#E8940A">${p.count}</div>
+                <div style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace">tag${p.count > 1 ? 's' : ''}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    } else {
+      listEl.innerHTML = '';
+    }
+  } catch (err) {
+    console.warn('[loadTopMains]', err);
+    podiumEl.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(252, 224, 168,.4);font-size:13px">Erreur de chargement.</div>';
+  }
+}
+
+function _tmRefreshButtons() {
+  const { categorie, pays } = window._topMainsState;
+  document.querySelectorAll('#topmains-filters .tm-cat-btn').forEach(b => {
+    const active = b.dataset.cat === categorie;
+    b.style.background = active ? '#E8940A' : 'transparent';
+    b.style.color = active ? '#14100A' : '#FCE0A8';
+    b.style.fontWeight = active ? 800 : 700;
+  });
+  document.querySelectorAll('#topmains-filters .tm-pays-btn').forEach(b => {
+    const active = (b.dataset.pays || '') === (pays || '');
+    b.style.background = active ? '#E8940A' : 'transparent';
+    b.style.color = active ? '#14100A' : '#FCE0A8';
+    b.style.fontWeight = active ? 800 : 700;
+  });
+}
+
+function goToPro(userId) {
+  if (!userId) return;
+  // Ouvre le profil pro (page existante ou search filtré)
+  try {
+    if (typeof showProfil === 'function') return showProfil(userId);
+  } catch(e) {}
+  showPage('search');
+}
+
+
+function getLastFridayOfMonth(d) {
+  const y = d.getFullYear(), m = d.getMonth();
+  const last = new Date(y, m + 1, 0);
+  const dow = last.getDay();
+  last.setDate(last.getDate() - ((dow >= 5) ? dow - 5 : dow + 2));
+  return last;
+}
+
+// ══ HERO CINÉMATIQUE — séquence 55 sec (7 scènes) ══
+(function(){
+  const DURATIONS = [5000, 6000, 4000]; // 3 scènes, 15 sec total
+  const TOTAL = DURATIONS.reduce((a,b)=>a+b,0);
+  let current = 0, timer = null, startTime = 0, paused = false;
+
+  function initHeroCine(){
+    const wrap = document.getElementById('hero-cine');
+    if(!wrap) return;
+    const scenes = wrap.querySelectorAll('.hc-scene');
+    const dotsC = document.getElementById('hc-dots');
+    const bar = document.getElementById('hc-progress-bar');
+    if(!scenes.length) return;
+
+    // Créer dots
+    if(dotsC){
+      dotsC.innerHTML = DURATIONS.map((_,i) =>
+        `<button class="hc-dot${i===0?' hc-dot-active':''}" data-i="${i}" aria-label="Scène ${i+1}"></button>`
+      ).join('');
+      dotsC.addEventListener('click', e => {
+        const dot = e.target.closest('.hc-dot');
+        if(dot) goTo(parseInt(dot.dataset.i));
+      });
+    }
+
+    // Pause/play au clic
+    wrap.addEventListener('click', e => {
+      if(e.target.closest('.hc-cta') || e.target.closest('.hc-dot')) return;
+      paused = !paused;
+      if(!paused) play();
+    });
+
+    function goTo(idx){
+      current = idx;
+      scenes.forEach((s,i) => s.classList.toggle('hc-active', i===current));
+      if(dotsC) dotsC.querySelectorAll('.hc-dot').forEach((d,i) => d.classList.toggle('hc-dot-active', i===current));
+      clearTimeout(timer);
+      paused = false;
+      play();
+    }
+
+    function play(){
+      if(paused) return;
+      startTime = Date.now();
+      updateProgress();
+      timer = setTimeout(() => {
+        current = (current + 1) % scenes.length;
+        scenes.forEach((s,i) => s.classList.toggle('hc-active', i===current));
+        if(dotsC) dotsC.querySelectorAll('.hc-dot').forEach((d,i) => d.classList.toggle('hc-dot-active', i===current));
+        play();
+      }, DURATIONS[current]);
+    }
+
+    function updateProgress(){
+      if(!bar) return;
+      const elapsed = DURATIONS.slice(0,current).reduce((a,b)=>a+b,0);
+      function frame(){
+        if(paused) return;
+        const now = Date.now();
+        const sceneElapsed = now - startTime;
+        const totalElapsed = elapsed + Math.min(sceneElapsed, DURATIONS[current]);
+        bar.style.width = (totalElapsed / TOTAL * 100) + '%';
+        if(sceneElapsed < DURATIONS[current]) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // Charger vrais prestataires dans scène 5
+    chargerHeroCineProfiles();
+
+    // Observer pour ne lancer que quand visible
+    const obs = new IntersectionObserver(entries => {
+      if(entries[0].isIntersecting && !paused) { play(); obs.disconnect(); }
+    }, {threshold:0.3});
+    obs.observe(wrap);
+  }
+
+  async function chargerHeroCineProfiles(){
+    const grid = document.getElementById('hc-real-profiles');
+    if(!grid) return;
+    try {
+      if (!window.supaPrest) return;
+      const records = await window.supaPrest.list({ orderBy: 'score_wozali', orderDir: 'desc', limit: 6 });
+      if(!records.length) return;
+      grid.innerHTML = records.map(r => {
+        const f = r.fields;
+        const photo = f['Photo de profil'] || '';
+        const nom = (f['Nom complet'] || '').split(' ')[0];
+        const metier = f['Métier principal'] || '';
+        return `<div class="hc-real-card" onclick="voirProfil('${r.id}')">
+          <img src="${photo}" alt="${nom}" onerror="this.parentElement.style.display='none'" loading="lazy">
+          <div class="hc-rc-info">
+            <div class="hc-rc-name">${nom}</div>
+            <div class="hc-rc-job">${metier}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { console.warn('[hero-cine-profiles]', e); }
+  }
+
+  // Lancer quand DOM prêt
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHeroCine);
+  else setTimeout(initHeroCine, 100);
+})();
+
+// ══ HOMEPAGE — COMPTEURS MÉTIERS TEMPS RÉEL (Sprint 8) ══
+async function chargerCompteurMetiers() {
+  const metierMap = {
+    'Menuisier': ['Menuisier','Menuiserie'],
+    'Électricien': ['Électricien','Electricien','Électricité'],
+    'Coiffeur': ['Coiffeur','Coiffeuse','Coiffeur/Coiffeuse','Coiffure'],
+    'Couturier': ['Couturier','Couturière','Couture'],
+    'Plombier': ['Plombier','Plomberie'],
+    'Informaticien': ['Informaticien','Informatique','Développeur','Développeur web'],
+    'Transport': ['Transport','Chauffeur','Livreur','Coursier'],
+    'Cuisinier': ['Cuisinier','Cuisinière','Cuisine','Chef cuisinier'],
+    'Nettoyage': ['Nettoyage','Agent d\'entretien','Ménage']
+  };
+  try {
+    // Charger TOUS les prestataires avec leur métier (Supabase)
+    let allMetiers = [];
+    const supa = window.supabase;
+    const { data: rows } = await supa.from('wozali_prestataires').select('metier_principal').limit(2000);
+    (rows || []).forEach(r => { if (r.metier_principal) allMetiers.push(r.metier_principal); });
+
+    const totalInscrits = allMetiers.length;
+    const counts = {};
+    let autreCount = 0;
+    for (const m of allMetiers) {
+      const mLow = m.toLowerCase().trim();
+      let found = false;
+      for (const [cat, aliases] of Object.entries(metierMap)) {
+        if (aliases.some(a => mLow.includes(a.toLowerCase()))) {
+          counts[cat] = (counts[cat] || 0) + 1;
+          found = true;
+          break;
+        }
+      }
+      if (!found) autreCount++;
+    }
+    counts['Autre'] = autreCount;
+
+    // Mettre à jour les compteurs dans le DOM
+    document.querySelectorAll('[data-cat-count]').forEach(el => {
+      const cat = el.getAttribute('data-cat-count');
+      const n = counts[cat] || 0;
+      el.textContent = n > 0 ? n + ' pro' + (n > 1 ? 's' : '') : '0 pro';
+    });
+
+    // Trier les cards par nombre de pros (les plus populaires en premier)
+    const grid = document.getElementById('wv2-cats-grid');
+    if (grid) {
+      const cards = [...grid.children];
+      cards.sort((a, b) => {
+        const catA = a.getAttribute('data-cat-metier') || '';
+        const catB = b.getAttribute('data-cat-metier') || '';
+        return (counts[catB] || 0) - (counts[catA] || 0);
+      });
+      cards.forEach(c => grid.appendChild(c));
+    }
+  } catch(e) { console.warn('[compteurs métiers]', e); }
+}
+
+// ══ HOMEPAGE — GAGNANTS DU MOIS (Sprint 7 Phase 6) ══
+async function loadHomeGagnants() {
+  const host = document.getElementById('home-gagnants');
+  if (!host) return;
+  try {
+    const mois = new Date().toISOString().slice(0, 7);
+    // Mois précédent pour afficher les derniers gagnants
+    const d = new Date(); d.setMonth(d.getMonth() - 1);
+    const moisPrec = d.toISOString().slice(0, 7);
+    const moisLabel = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+    const r = await wozaliFetch(`/api/wozali-pay/recompenses-status?user_id=public`);
+    if (!r.ok) { host.style.display = 'none'; return; }
+    const data = await r.json();
+    if (!data.ok) { host.style.display = 'none'; return; }
+
+    const bourse = data.palmares.bourse.find(g => g.mois === moisPrec || g.mois === mois);
+    const awards = data.palmares.awards.find(g => g.mois === moisPrec || g.mois === mois);
+
+    if (!bourse && !awards) { host.style.display = 'none'; return; }
+
+    const bloc = (emoji, titre, nom, montant, metier) => `
+      <div style="flex:1;min-width:260px;background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.2);border-radius:16px;padding:20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">${emoji}</div>
+        <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:6px">${titre}</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:4px">${nom}</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;color:#E8940A">${montant.toLocaleString('fr-FR')} FCFA remportés</div>
+      </div>`;
+
+    host.style.display = 'block';
+    host.innerHTML = `
+      <div style="max-width:860px;margin:0 auto;padding:0 16px">
+        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(20px,3vw,28px);font-weight:900;color:#FCE0A8;text-align:center;margin-bottom:20px">🏆 Gagnants du mois de ${moisLabel}</h2>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:16px">
+          ${bourse ? bloc('🏆', 'BOURSE DE CROISSANCE', bourse.nom, bourse.montant) : ''}
+          ${awards ? bloc('🥇', 'WOZALI AWARDS', awards.nom, awards.montant) : ''}
+        </div>
+        <div style="text-align:center">
+          <button onclick="showPage('recompenses')" style="background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">Voir les conditions pour gagner le mois prochain →</button>
+        </div>
+      </div>`;
+  } catch(e) { console.warn('[home gagnants]', e); }
+}
+
+// ══ HISTORIQUE PAIEMENTS ══
+function loadHistoriquePaiements() {
+  if (!currentPrestataire?.id) return;
+  const key = `wozali_rdv_payments_${currentPrestataire.id}`;
+  const payments = JSON.parse(localStorage.getItem(key) || '[]');
+  const list = document.getElementById('payments-history-list');
+  if (!list) return;
+
+  if (payments.length === 0) {
+    list.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;text-align:center;">Aucun paiement enregistré pour l\'instant.</p>';
+    return;
+  }
+
+  const total = payments.reduce((sum, p) => sum + (p.montant || 0), 0);
+  list.innerHTML = `
+    <div style="background:linear-gradient(135deg,#FCE0A8,#FCE0A8);border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:12px;color:#E8940A;font-weight:700;margin-bottom:4px;">💰 TOTAL REÇU</div>
+      <div style="font-size:28px;font-weight:900;color:var(--vert);">${total.toLocaleString('fr-FR')} FCFA</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px;">${payments.length} paiement${payments.length>1?'s':''}</div>
+    </div>
+    ${payments.map(p => {
+      const pDate = new Date(p.paymentDate).toLocaleDateString('fr-FR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+      return `<div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-weight:700;color:var(--noir);">${p.clientNom || 'Client'}</div>
+          <div style="font-size:12px;color:var(--gris);margin-top:2px;">${p.date || 'N/A'} à ${pDate}</div>
+        </div>
+        <div style="font-size:16px;font-weight:900;color:var(--vert);">${p.montant.toLocaleString('fr-FR')} FCFA</div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ══ DASHBOARD MES POSTS ══
+async function loadDashPosts() {
+  if (!currentPrestataire?.id) return;
+  const prestId = currentPrestataire.id;
+
+  // Charger depuis wolo_posts_v2 (Supabase)
+  let posts = [];
+  try {
+    const supa = window.supabase;
+    const { data: rows } = await supa
+      .from('wozali_posts_v2')
+      .select('id, contenu, nb_likes, commentaires')
+      .eq('prestataire_id', prestId)
+      .eq('actif', true)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    posts = (rows || []).map(r => ({
+      id:       r.id,
+      texte:    r.contenu || '',
+      likes:    r.nb_likes || 0,
+      comments: Array.isArray(r.commentaires) ? r.commentaires : []
+    }));
+  } catch { /* silencieux */ }
+
+  // Compter les stats
+  let totalComments = 0;
+  let totalLikes = 0;
+  const comments = [];
+  const likesByPost = {};
+
+  posts.forEach(post => {
+    totalLikes += post.likes || 0;
+    if (post.comments?.length > 0) {
+      post.comments.forEach(c => {
+        comments.push({ ...c, postId: post.id, postPreview: (post.texte || '').substring(0, 50) });
+        totalComments++;
+      });
+    }
+    if (post.likes) likesByPost[post.id] = post.likes;
+  });
+
+  // Afficher les stats
+  document.getElementById('posts-count').textContent = posts.length;
+  document.getElementById('comments-count').textContent = totalComments;
+  document.getElementById('likes-count').textContent = totalLikes;
+
+  // Afficher commentaires récents (20 derniers)
+  const commentsList = document.getElementById('posts-comments-list');
+  const recentComments = comments.slice().reverse().slice(0, 20);
+  if (recentComments.length === 0) {
+    commentsList.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;">Aucun commentaire pour l\'instant.</p>';
+  } else {
+    commentsList.innerHTML = recentComments.map(c => {
+      const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      return `
+        <div style="background:#1E180E;border-radius:10px;padding:12px;border-left:3px solid #E8940A;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:32px;height:32px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-weight:800;color:#14100A;font-size:13px;">${(c.auteur || '?').charAt(0).toUpperCase()}</div>`}
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:13px;color:var(--cream);">${c.auteur || 'Utilisateur'}</div>
+              <div style="font-size:11px;color:var(--gris);">${cDate}</div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;font-size:13px;color:var(--cream);margin-bottom:6px;line-height:1.5;">${c.texte}</div>
+          <div style="font-size:11px;color:var(--gris);">Sur: <strong>${c.postPreview}</strong></div>
+        </div>`;
+    }).join('');
+  }
+
+  // Afficher likes récents
+  const likesList = document.getElementById('posts-likes-list');
+  const likesEntries = Object.entries(likesByPost);
+  if (likesEntries.length === 0) {
+    likesList.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;">Aucun like pour l\'instant.</p>';
+  } else {
+    likesList.innerHTML = likesEntries.map(([postId, count]) => {
+      const post = posts.find(p => p.id === postId);
+      return `
+        <div style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-radius:10px;padding:12px;border-left:3px solid #ef4444;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:20px;">❤️</span>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#991b1b;">${count} personne${count > 1 ? 's' : ''} a${count > 1 ? 'iment' : ''} aimé</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--noir);">Post: <strong>${post?.texte?.substring(0, 60)}</strong></div>
+        </div>`;
+    }).join('');
+  }
+}
+
+
+// ══════════════════════════════════════════
+// QR CODE PRO — fonctions
+// ══════════════════════════════════════════
+function downloadQRCode() {
+  if (!window._wozaliQrUrl) return;
+  const a = document.createElement('a');
+  a.href = window._wozaliQrUrl;
+  a.download = `qr-wolomarket-${(window._wozaliQrNom||'profil').replace(/\s+/g,'-').toLowerCase()}.png`;
+  a.target = '_blank';
+  a.click();
+  toast('QR Code téléchargé !', 'success');
+}
+
+function printQRCode() {
+  if (!window._wozaliQrUrl) return;
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html><html><head><title>QR Code WOZALI</title>
+    <link rel="icon" type="image/svg+xml" href="/logos/mark.svg">
+</head><body>
+    <div class="logo">✦ WOZALI</div>
+    <img src="${window._wozaliQrUrl}" alt="QR Code" loading="lazy">
+    <h2>${window._wozaliQrNom || 'Mon profil'}</h2>
+    <p>Scanne pour voir mon profil sur WOZALI</p>
+    <script>window.onload=()=>window.print()<\/script>
+</body></html>
+  `);
+  win.document.close();
+}
+
+function loadAbonnement() {
+  if (!currentPrestataire) return;
+  const plan = currentPrestataire.fields['Abonnement'] || 'Base';
+  const expiry = currentPrestataire.fields['Abonnement Expiry'] || null;
+
+  // Mettre à jour la carte "plan actuel"
+  document.getElementById('plan-nom-actuel').textContent = plan;
+  if (plan === 'Pro') {
+    document.getElementById('plan-badge-actuel').textContent = '⭐ Pro';
+    document.getElementById('plan-badge-actuel').style.background = 'rgba(232,148,10,0.25)';
+    document.getElementById('plan-card-Pro').style.border = '2px solid var(--vert)';
+    document.getElementById('btn-plan-Pro').textContent = '✓ Plan actuel';
+    document.getElementById('btn-plan-Pro').disabled = true;
+    document.getElementById('btn-plan-Base').textContent = 'Plan inférieur';
+  }
+
+  if (expiry) {
+    const d = new Date(expiry);
+    const formatted = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('plan-expiry-actuel').textContent = `Valide jusqu'au ${formatted}`;
+  } else if (plan !== 'Base') {
+    document.getElementById('plan-expiry-actuel').textContent = 'Renouvellement manuel requis';
+  }
+
+  // Afficher/masquer les features Pro dans le dashboard
+  const proFeatureEls = document.querySelectorAll('.pro-feature-hint');
+  proFeatureEls.forEach(el => {
+    if (plan !== 'Base') {
+      el.style.display = 'none'; // Masquer les hints "Passer au Pro"
+    }
+  });
+}
+
+
+function generatePaymentCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'KAL-';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+async function upgradePlan(plan, amount) {
+  if (!currentUser || !currentPrestataire) {
+    toast('Connecte-toi pour continuer', 'error'); return;
+  }
+  let code = currentPrestataire.fields['Code Paiement'] || generatePaymentCode();
+  try {
+    await window.supaPrest.update(currentPrestataire.id, { 'Code Paiement': code, 'Plan Demande': plan });
+    currentPrestataire.fields['Code Paiement'] = code;
+    currentPrestataire.fields['Plan Demande']  = plan;
+  } catch(e) { console.error('Code save failed', e); }
+  showFedaPayModal(plan, amount, code);
+}
+
+function showFedaPayModal(plan, amount, code) {
+  const body = document.getElementById('modal-paiement-body');
+  body.innerHTML = `
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:40px;margin-bottom:8px;">🚀</div>
+      <p style="font-size:15px;color:#FCE0A8;line-height:1.6;">Plan Pro : <strong style="color:#E8940A;font-size:22px;">${amount.toLocaleString('fr-FR')} FCFA / mois</strong></p>
+    </div>
+    <div style="background:linear-gradient(135deg,#14100A,#1F2937);border-radius:14px;padding:22px;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:#E8940A;letter-spacing:1px;margin-bottom:12px;text-align:center;">PAIEMENT SÉCURISÉ VIA FEDAPAY</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;">
+        <span style="background:rgba(255,255,255,.1);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:white;">📱 MTN Money</span>
+        <span style="background:rgba(255,255,255,.1);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:white;">📲 Moov Money</span>
+        <span style="background:rgba(255,255,255,.1);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:white;">📱 TMoney</span>
+        <span style="background:rgba(255,255,255,.1);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:white;">📲 Flooz</span>
+      </div>
+      <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:14px;font-family:'Geist Mono',monospace;font-size:13px;color:#FCE0A8;">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;"><span>Abonnement Pro</span><span>${amount.toLocaleString('fr-FR')} FCFA</span></div>
+        <div style="height:1px;background:rgba(232,148,10,.3);margin:8px 0;"></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;color:#E8940A;font-weight:700;"><span>Total</span><span>${amount.toLocaleString('fr-FR')} FCFA</span></div>
+      </div>
+    </div>
+    <button onclick="initFedaPayCheckout('${code}', ${amount})" style="width:100%;padding:16px;background:linear-gradient(135deg,#E8940A,#d4820a);color:#14100A;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;">📱 Payer maintenant — ${amount.toLocaleString('fr-FR')} FCFA</button>
+    <div style="background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);border-radius:12px;padding:12px;font-size:12px;color:#FCE0A8;line-height:1.7;text-align:center;">
+      Paiement 100% sécurisé via <strong>FedaPay</strong>.<br>MTN · Moov · TMoney · Flooz — sans carte bancaire.
+    </div>
+    <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:10px;">Réf : <strong>${code}</strong> · Plan Pro activé instantanément.</p>
+  `;
+  document.getElementById('modal-paiement-manuel').classList.add('active');
+}
+
+function initFedaPayCheckout(code, amount) {
+  if (typeof FedaPay !== 'undefined' && FedaPay.init) {
+    FedaPay.init({
+      public_key: window._FEDAPAY_PUBLIC_KEY || '',
+      transaction: {
+        amount: amount,
+        description: 'Plan Pro WOZALI — ' + code,
+        currency: { iso: 'XOF' },
+        callback_url: window.location.origin + '/api/wozali-pay/abonnement-fedapay?code=' + code,
+        custom_metadata: { code: code, user_id: currentUser?.id || '', email: currentUser?.email || '' }
+      },
+      customer: {
+        email: currentUser?.email || 'client@wozali.com',
+        firstname: (currentPrestataire?.fields?.['Nom complet'] || 'Client').split(' ')[0],
+        lastname: (currentPrestataire?.fields?.['Nom complet'] || '').split(' ').slice(1).join(' ') || 'WOZALI'
+      },
+      onComplete: function(resp) {
+        if (resp.reason === FedaPay.CHECKOUT_COMPLETED) {
+          document.getElementById('modal-paiement-manuel').classList.remove('active');
+          sp6ShowSuccess();
+        } else {
+          toast('Paiement annulé ou échoué. Réessaie.', 'error');
+        }
+      }
+    });
+  } else {
+    toast('Paiement FedaPay en cours de configuration. Tu recevras une notification dès activation.', 'info');
+  }
+}
+
+// ══════════════════════════════════════════
+// ADMIN — AGENTS TERRAIN + BATTLE H vs F
+// ══════════════════════════════════════════
+
+let _agentsTerrainCache = [];
+let _agentsVilleFilter = '';
+let _isAdminDash = false;
+let _agentSearchTimer = null;
+
+async function checkAdminForDashboard() {
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) return;
+    const r = await fetch('/api/wozali-pay/admin-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: session.access_token })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      _isAdminDash = true;
+      const grp = document.getElementById('dash-admin-agents-group');
+      if (grp) grp.style.display = 'block';
+    }
+  } catch (e) { console.error('[admin-dash]', e); }
+}
+
+async function _adminToken() {
+  const { data: { session } } = await supa.auth.getSession();
+  return session?.access_token || '';
+}
+
+async function _agentsAPI(action, extra = {}) {
+  const token = await _adminToken();
+  const r = await fetch('/api/wozali-pay/agents-terrain', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, token, ...extra })
+  });
+  return r.json();
+}
+
+// ── AGENTS TERRAIN : chargement ──
+async function loadAgentsTerrain() {
+  if (!_isAdminDash) return;
+  const d = await _agentsAPI('list');
+  if (!d.ok) { toast('Erreur chargement agents', 'error'); return; }
+  _agentsTerrainCache = d.agents || [];
+  renderAgentsList();
+  renderAgentsStats();
+}
+
+function renderAgentsStats() {
+  const actifs = _agentsTerrainCache.filter(a => a.actif);
+  const totalFilleuls = actifs.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
+  const totalComm = actifs.reduce((s, a) => s + (a.total_commissions || 0), 0);
+  document.getElementById('agents-total-count').textContent = actifs.length;
+  document.getElementById('agents-total-filleuls').textContent = totalFilleuls.toLocaleString('fr-FR');
+  document.getElementById('agents-total-comm').textContent = totalComm.toLocaleString('fr-FR');
+}
+
+function filterAgentsVille(ville) {
+  _agentsVilleFilter = ville;
+  // UI boutons
+  ['all', 'lome', 'cotonou'].forEach(k => {
+    const btn = document.getElementById('agents-filter-' + k);
+    if (!btn) return;
+    const active = (k === 'all' && !ville) || (k === 'lome' && ville === 'Lomé') || (k === 'cotonou' && ville === 'Cotonou');
+    btn.style.background = active ? '#E8940A' : 'rgba(255,255,255,.08)';
+    btn.style.color = active ? '#14100A' : '#FCE0A8';
+    btn.style.border = active ? 'none' : '1px solid rgba(255,255,255,.12)';
+  });
+  renderAgentsList();
+}
+
+function renderAgentsList() {
+  const container = document.getElementById('agents-list');
+  let agents = _agentsTerrainCache.filter(a => a.actif);
+  if (_agentsVilleFilter) agents = agents.filter(a => a.ville === _agentsVilleFilter);
+
+  if (!agents.length) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun agent trouvé. Utilise la recherche ci-dessus pour en ajouter.</div>';
+    return;
+  }
+
+  // Trier par filleuls desc
+  agents.sort((a, b) => (b.nb_filleuls || 0) - (a.nb_filleuls || 0));
+
+  container.innerHTML = agents.map((a, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:${a.genre === 'F' ? 'rgba(232,148,10,.15)' : 'rgba(59,130,246,.15)'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:${a.genre === 'F' ? '#E8940A' : '#3b82f6'};">${i + 1}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:14px;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.nom}</div>
+        <div style="font-size:11px;color:var(--gris);">${a.ville} · ${a.genre === 'F' ? 'Femme' : 'Homme'} · ${a.telephone || '—'}</div>
+      </div>
+      <div style="text-align:right;min-width:80px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:900;color:#FCE0A8;">${a.nb_filleuls || 0}</div>
+        <div style="font-size:10px;color:var(--gris);">inscrits</div>
+      </div>
+      <div style="text-align:right;min-width:90px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:13px;color:#E8940A;">${(a.total_commissions || 0).toLocaleString('fr-FR')}</div>
+        <div style="font-size:10px;color:var(--gris);">FCFA</div>
+      </div>
+      <button onclick="removeAgent('${a.id}')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:4px;" title="Retirer cet agent">✕</button>
+    </div>
+  `).join('');
+}
+
+async function removeAgent(agentId) {
+  if (!confirm('Retirer ce pionnier WOZALI ?')) return;
+  const d = await _agentsAPI('remove', { agent_id: agentId });
+  if (d.ok) {
+    toast('Agent retiré', 'info');
+    loadAgentsTerrain();
+  } else {
+    toast(d.error || 'Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+
+// ── RECHERCHE PRESTATAIRE POUR AJOUT ──
+function searchAgentDebounced() {
+  clearTimeout(_agentSearchTimer);
+  _agentSearchTimer = setTimeout(searchAgentNow, 400);
+}
+
+async function searchAgentNow() {
+  const q = document.getElementById('agent-search-input')?.value?.trim();
+  const container = document.getElementById('agent-search-results');
+  if (!q || q.length < 2) { container.style.display = 'none'; return; }
+
+  container.style.display = 'block';
+  container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--gris);font-size:13px;">Recherche en cours...</div>';
+
+  const d = await _agentsAPI('search', { q });
+  if (!d.ok || !d.results?.length) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--gris);font-size:13px;">Aucun prestataire trouvé pour "' + q + '"</div>';
+    return;
+  }
+
+  // Vérifier lesquels sont déjà agents
+  const existingTels = new Set(_agentsTerrainCache.map(a => a.telephone).filter(Boolean));
+
+  container.innerHTML = d.results.map(r => {
+    const isAlready = existingTels.has(r.telephone);
+    return `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);${isAlready ? 'opacity:.5;' : ''}">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);overflow:hidden;flex-shrink:0;">
+          ${r.photo ? `<img src="${r.photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>'}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13px;color:#FCE0A8;">${r.nom}</div>
+          <div style="font-size:11px;color:var(--gris);">${r.telephone || '—'} · ${r.metier || '—'} · ${r.quartier || '—'}</div>
+          <div style="font-size:10px;color:${r.abonnement === 'Pro' ? '#E8940A' : 'var(--gris)'};">${r.abonnement} ${r.code_parrainage ? '· Code: ' + r.code_parrainage : ''}</div>
+        </div>
+        ${isAlready
+          ? '<span style="font-size:11px;color:var(--gris);white-space:nowrap;">Déjà agent</span>'
+          : `<div style="display:flex;gap:4px;">
+              <button onclick="addAgentModal('${encodeURIComponent(JSON.stringify(r))}')" style="padding:6px 12px;background:#E8940A;color:#14100A;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">+ Ajouter</button>
+            </div>`
+        }
+      </div>
+    `;
+  }).join('');
+}
+
+function addAgentModal(encodedData) {
+  const r = JSON.parse(decodeURIComponent(encodedData));
+  // Déterminer le genre depuis Airtable ou demander
+  const genreFromAirtable = r.genre;
+  const hasGenre = genreFromAirtable === 'Homme' || genreFromAirtable === 'Femme' || genreFromAirtable === 'H' || genreFromAirtable === 'F';
+
+  const modalHtml = `
+    <div id="modal-add-agent" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;">
+      <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:400px;width:100%;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin:0 0 4px;">Ajouter comme agent</h3>
+        <p style="font-size:13px;color:var(--gris);margin:0 0 16px;">${r.nom} · ${r.telephone || '—'}</p>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px;color:var(--gris);display:block;margin-bottom:4px;">Ville</label>
+          <select id="add-agent-ville" style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:#FCE0A8;font-size:14px;">
+            <option value="">Toutes les villes</option>
+            <optgroup label="🇹🇬 Togo"><option value="Lomé">Lomé</option><option value="Kpalimé">Kpalimé</option><option value="Atakpamé">Atakpamé</option><option value="Sokodé">Sokodé</option><option value="Kara">Kara</option><option value="Tsévié">Tsévié</option><option value="Aného">Aného</option><option value="Dapaong">Dapaong</option></optgroup>
+            <optgroup label="🇧🇯 Bénin"><option value="Cotonou">Cotonou</option><option value="Porto-Novo">Porto-Novo</option><option value="Parakou">Parakou</option><option value="Abomey-Calavi">Abomey-Calavi</option><option value="Abomey">Abomey</option><option value="Natitingou">Natitingou</option><option value="Bohicon">Bohicon</option><option value="Lokossa">Lokossa</option><option value="Ouidah">Ouidah</option><option value="Djougou">Djougou</option></optgroup>
+          </select>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="font-size:12px;color:var(--gris);display:block;margin-bottom:4px;">Genre</label>
+          <select id="add-agent-genre" style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:#FCE0A8;font-size:14px;">
+            <option value="H" ${hasGenre && (genreFromAirtable === 'Homme' || genreFromAirtable === 'H') ? 'selected' : ''}>Homme</option>
+            <option value="F" ${hasGenre && (genreFromAirtable === 'Femme' || genreFromAirtable === 'F') ? 'selected' : ''}>Femme</option>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="confirmAddAgent('${encodeURIComponent(JSON.stringify(r))}')" style="flex:1;padding:12px;background:#E8940A;color:#14100A;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">Confirmer</button>
+          <button onclick="document.getElementById('modal-add-agent')?.remove()" style="flex:1;padding:12px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;cursor:pointer;">Annuler</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+async function confirmAddAgent(encodedData) {
+  const r = JSON.parse(decodeURIComponent(encodedData));
+  const ville = document.getElementById('add-agent-ville')?.value || 'Lomé';
+  const genre = document.getElementById('add-agent-genre')?.value || 'H';
+
+  document.getElementById('modal-add-agent')?.remove();
+
+  const d = await _agentsAPI('add', {
+    airtable_id: r.airtable_id,
+    nom: r.nom,
+    telephone: r.telephone,
+    email: r.email,
+    ville,
+    genre,
+    code_parrainage: r.code_parrainage,
+    user_id: null
+  });
+
+  if (d.ok) {
+    toast(`${r.nom} ajouté comme pionnier WOZALI (${ville}, ${genre === 'F' ? 'Femme' : 'Homme'})`, 'success');
+    document.getElementById('agent-search-input').value = '';
+    document.getElementById('agent-search-results').style.display = 'none';
+    loadAgentsTerrain();
+  } else {
+    toast(d.error || 'Erreur ajout agent', 'error');
+  }
+}
+
+// ── BATTLE H vs F ──
+let _battleVilleFilter = '';
+
+function loadBattle(ville) {
+  _battleVilleFilter = ville;
+  // UI boutons
+  ['all', 'lome', 'cotonou'].forEach(k => {
+    const btn = document.getElementById('battle-filter-' + k);
+    if (!btn) return;
+    const active = (k === 'all' && !ville) || (k === 'lome' && ville === 'Lomé') || (k === 'cotonou' && ville === 'Cotonou');
+    btn.style.background = active ? '#E8940A' : 'rgba(255,255,255,.08)';
+    btn.style.color = active ? '#14100A' : '#FCE0A8';
+    btn.style.border = active ? 'none' : '1px solid rgba(255,255,255,.12)';
+  });
+  renderBattle();
+}
+
+function renderBattle() {
+  let agents = _agentsTerrainCache.filter(a => a.actif);
+  if (_battleVilleFilter) agents = agents.filter(a => a.ville === _battleVilleFilter);
+
+  const hommes = agents.filter(a => a.genre === 'H');
+  const femmes = agents.filter(a => a.genre === 'F');
+
+  const hScore = hommes.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
+  const fScore = femmes.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
+  const hComm = hommes.reduce((s, a) => s + (a.total_commissions || 0), 0);
+  const fComm = femmes.reduce((s, a) => s + (a.total_commissions || 0), 0);
+
+  document.getElementById('battle-h-score').textContent = hScore;
+  document.getElementById('battle-f-score').textContent = fScore;
+  document.getElementById('battle-h-comm').textContent = hComm.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('battle-f-comm').textContent = fComm.toLocaleString('fr-FR') + ' FCFA';
+
+  // Bannière gagnant
+  const banner = document.getElementById('battle-winner-banner');
+  const winnerText = document.getElementById('battle-winner-text');
+  if (hScore > 0 || fScore > 0) {
+    banner.style.display = 'block';
+    if (hScore > fScore) {
+      winnerText.textContent = 'Équipe Hommes en tête !';
+      winnerText.style.color = '#3b82f6';
+    } else if (fScore > hScore) {
+      winnerText.textContent = 'Équipe Femmes en tête !';
+      winnerText.style.color = '#E8940A';
+    } else {
+      winnerText.textContent = 'Égalité parfaite !';
+      winnerText.style.color = '#FCE0A8';
+    }
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Classement individuel
+  const allSorted = [...agents].sort((a, b) => (b.nb_filleuls || 0) - (a.nb_filleuls || 0));
+  const rankContainer = document.getElementById('battle-ranking');
+
+  if (!allSorted.length) {
+    rankContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun pionnier. Ajoute des pionniers dans l\'onglet Pionniers WOZALI.</div>';
+    return;
+  }
+
+  const medals = ['🥇', '🥈', '🥉'];
+  rankContainer.innerHTML = allSorted.map((a, i) => {
+    const teamColor = a.genre === 'F' ? '#E8940A' : '#3b82f6';
+    const teamBg = a.genre === 'F' ? 'rgba(232,148,10,.08)' : 'rgba(59,130,246,.08)';
+    const teamBorder = a.genre === 'F' ? 'rgba(232,148,10,.2)' : 'rgba(59,130,246,.2)';
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${teamBg};border:1px solid ${teamBorder};border-radius:10px;">
+        <div style="font-size:${i < 3 ? '20px' : '14px'};width:28px;text-align:center;font-weight:900;color:${i < 3 ? '#E8940A' : 'var(--gris)'};">${i < 3 ? medals[i] : (i + 1)}</div>
+        <div style="width:28px;height:28px;border-radius:50%;background:${teamColor};display:flex;align-items:center;justify-content:center;font-size:12px;color:white;font-weight:900;">${a.genre}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:13px;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.nom}</div>
+          <div style="font-size:10px;color:var(--gris);">${a.ville}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:#FCE0A8;">${a.nb_filleuls || 0}</div>
+          <div style="font-size:9px;color:var(--gris);">inscrits</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// PANEL ADMIN — DMs ENTRANTS (Chat WOZALI)
+// ══════════════════════════════════════════
+
+async function loadAdminDMs(statutFilter) {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">⏳ Chargement des DMs...</div>';
+
+  try {
+    const qs = statutFilter ? `?statut=${statutFilter}` : '';
+    // wozaliFetch ajoute le JWT Supabase automatiquement — le backend vérifie ADMIN_EMAILS
+    const r = await wozaliFetch('/api/wozali-pay/chat-wozali-admin-list' + qs);
+    const data = await r.json();
+
+    if (!data.ok) {
+      el.innerHTML = `<div style="color:#f87171;padding:20px;">❌ ${escapeHtml(data.error || 'Erreur chargement')}</div>`;
+      return;
+    }
+
+    renderAdminDMs(data.messages || [], data.non_lus || 0, statutFilter);
+  } catch(e) {
+    console.error('[admin-dms]', e);
+    el.innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur réseau</div>';
+  }
+}
+
+function renderAdminDMs(messages, nonLus, currentFilter) {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+
+  const filters = [
+    { key: undefined, label: 'En attente (' + nonLus + ')' },
+    { key: 'repondu_fondateur', label: 'Traités' },
+    { key: 'all', label: 'Tous' },
+  ];
+
+  const filterHtml = `
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+      ${filters.map(f => {
+        const active = f.key === currentFilter || (!f.key && !currentFilter);
+        return `<button onclick="loadAdminDMs(${f.key ? `'${f.key}'` : 'undefined'})"
+          style="background:${active ? '#E8940A' : 'rgba(255,255,255,0.08)'};color:${active ? '#14100A' : 'rgba(255,255,255,0.5)'};border:none;padding:8px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;">${f.label}</button>`;
+      }).join('')}
+      <button onclick="loadAdminDMs(${currentFilter ? `'${currentFilter}'` : 'undefined'})"
+        style="margin-left:auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:12px;">🔄 Actualiser</button>
+    </div>`;
+
+  if (!messages.length) {
+    el.innerHTML = filterHtml + '<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);font-size:16px;">✅ Aucun DM en attente</div>';
+    return;
+  }
+
+  const cardsHtml = messages.map(m => {
+    const dateStr = new Date(m.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const prest = m.prestataire || {};
+
+    let statutBadge = '';
+    if (m.statut === 'escalade_fondateur') {
+      const typeLabel = m.type_escalade === 'complexe' ? '⚠️ Question complexe' : '⚠️ Escalade';
+      statutBadge = `<span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">${typeLabel}</span>`;
+    } else if (m.statut === 'repondu_fondateur') {
+      statutBadge = `<span style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>`;
+    } else if (m.statut === 'repondu_ia') {
+      statutBadge = `<span style="background:rgba(232,148,10,0.12);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">🤖 Répondu IA</span>`;
+    }
+
+    const nonLuDot = (!m.lu_par_fondateur && m.statut === 'escalade_fondateur')
+      ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f87171;margin-right:8px;flex-shrink:0;"></span>' : '';
+
+    const reponseIA = m.reponse_ia
+      ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(232,148,10,0.06);border-left:3px solid rgba(232,148,10,0.4);border-radius:0 8px 8px 0;">
+          <div style="font-size:10px;color:rgba(232,148,10,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">RÉPONSE IA</div>
+          <div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(m.reponse_ia).slice(0, 200)}${m.reponse_ia.length > 200 ? '…' : ''}</div>
+        </div>` : '';
+
+    const reponseFondateur = m.reponse_fondateur
+      ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(34,197,94,0.05);border-left:3px solid rgba(34,197,94,0.35);border-radius:0 8px 8px 0;">
+          <div style="font-size:10px;color:rgba(74,222,128,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div>
+          <div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(m.reponse_fondateur)}</div>
+        </div>` : '';
+
+    const replyForm = (m.statut === 'escalade_fondateur')
+      ? `<div style="margin-top:12px;" id="reply-form-${m.id}">
+          <textarea id="reply-input-${m.id}" placeholder="Tape ta réponse…" style="width:100%;min-height:70px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:white;font-size:13px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='rgba(232,148,10,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button onclick="adminSendDMReply('${m.id}')" style="background:#E8940A;color:#14100A;border:none;padding:9px 20px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;">Envoyer ➤</button>
+          </div>
+        </div>` : '';
+
+    return `<div id="dm-card-${m.id}" style="background:${!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.03)'};border:1px solid ${!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.07)'};border-radius:14px;padding:16px 18px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          ${nonLuDot}
+          <div>
+            <div style="font-weight:700;font-size:14px;color:white;">${escapeHtml(prest.nom || 'Inconnu')}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);">${escapeHtml([prest.metier, prest.ville].filter(Boolean).join(' · '))} · ${dateStr}</div>
+          </div>
+        </div>
+        ${statutBadge}
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:12px 14px;font-size:13px;color:rgba(255,255,255,0.82);line-height:1.65;white-space:pre-line;">${escapeHtml(m.message)}</div>
+      ${reponseIA}
+      ${reponseFondateur}
+      ${replyForm}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = filterHtml + `<div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:12px;">${messages.length} message${messages.length > 1 ? 's' : ''}</div>` + cardsHtml;
+}
+
+async function adminSendDMReply(messageId) {
+  const inputEl = document.getElementById(`reply-input-${messageId}`);
+  const formEl = document.getElementById(`reply-form-${messageId}`);
+  if (!inputEl) return;
+
+  const reponse = inputEl.value.trim();
+  if (!reponse) { inputEl.focus(); return; }
+
+  const btn = formEl?.querySelector('button');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
+
+  try {
+    // wozaliFetch ajoute le JWT automatiquement — le backend vérifie ADMIN_EMAILS
+    const r = await wozaliFetch('/api/wozali-pay/chat-wozali-admin-reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message_id: messageId, reponse }),
+    });
+    const data = await r.json();
+
+    if (data.ok) {
+      // Mettre à jour la card localement
+      const card = document.getElementById(`dm-card-${messageId}`);
+      if (card) {
+        card.style.border = '1px solid rgba(34,197,94,0.25)';
+        card.style.background = 'rgba(34,197,94,0.03)';
+        if (formEl) formEl.innerHTML = `<div style="margin-top:10px;padding:10px 12px;background:rgba(34,197,94,0.05);border-left:3px solid rgba(34,197,94,0.35);border-radius:0 8px 8px 0;"><div style="font-size:10px;color:rgba(74,222,128,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div><div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(reponse)}</div></div>`;
+        // Mettre à jour le badge statut
+        const badgeEl = card.querySelector('[data-dm-statut-badge]');
+        if (badgeEl) badgeEl.innerHTML = '<span style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>';
+      }
+      if (typeof toast === 'function') toast('Réponse envoyée.', 'success');
+    } else {
+      toast('Erreur : ' + (data.error || 'réessaie'), 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ➤'; }
+    }
+  } catch(e) {
+    console.error('[admin-dm-reply]', e);
+    toast('Ça a calé. Réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ➤'; }
+  }
+}
+
+// ══════════════════════════════════════════
+// PANEL ADMIN — ACTIVATION BULK
+// ══════════════════════════════════════════
+
+async function checkAdminUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('admin')) return;
+  // Vérification admin côté serveur via JWT Supabase
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) { toast('Connecte-toi pour accéder au panel admin', 'error'); return; }
+    const r = await fetch('/api/wozali-pay/admin-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: session.access_token })
+    });
+    const d = await r.json();
+    if (d.ok) showAdminPanel();
+    else toast('Accès admin refusé', 'error');
+  } catch (e) { console.error('[admin]', e); }
+}
+
+function showAdminPanel() {
+  document.getElementById('admin-panel').style.display = 'block';
+  switchAdminTab('activations');
+}
+
+function switchAdminTab(tab) {
+  const tabs = ['activations', 'retraits', 'dms'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`admin-tab-${t}`);
+    if (btn) {
+      btn.style.background = t === tab ? 'var(--vert)' : 'rgba(255,255,255,0.08)';
+      btn.style.color = t === tab ? 'white' : 'rgba(255,255,255,0.5)';
+    }
+  });
+  document.getElementById('admin-content').innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">⏳ Chargement...</div>';
+  if (tab === 'activations') loadAdminPending();
+  else if (tab === 'retraits') loadAdminRetraits();
+  else if (tab === 'dms') loadAdminDMs();
+}
+
+async function loadAdminPending() {
+  try {
+    const supa = window.supabase;
+    if (!supa) throw new Error('Supabase non chargé');
+    const { data, error } = await supa
+      .from('wozali_prestataires')
+      .select('*')
+      .not('code_paiement', 'is', null)
+      .neq('code_paiement', '')
+      .order('nom_complet', { ascending: true })
+      .limit(200);
+    if (error) throw error;
+    const records = (data || []).map(r => window.supaPrest._toAirtableRecord(r));
+    renderAdminPending(records);
+  } catch(e) {
+    document.getElementById('admin-content').innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur de chargement</div>';
+  }
+}
+
+function renderAdminPending(records) {
+  const el = document.getElementById('admin-content');
+  if (records.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:80px;color:rgba(255,255,255,0.3);font-size:18px;">✅ Aucune demande en attente</div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <span style="color:rgba(255,255,255,0.5);font-size:14px;">${records.length} demande${records.length > 1 ? 's' : ''} en attente</span>
+      <button onclick="selectAllAdmin(true)" style="background:rgba(232,148,10,0.2);border:1px solid rgba(232,148,10,0.4);color:#F5B82E;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;">☑ Tout sélectionner</button>
+      <button onclick="selectAllAdmin(false)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;">☐ Tout décocher</button>
+      <button onclick="activateSelected()" style="margin-left:auto;background:var(--vert);border:none;color:white;padding:10px 24px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:0.3px;">🚀 Activer la sélection</button>
+    </div>
+    <div id="admin-pending-list">
+      ${records.map(r => {
+        const f = r.fields;
+        const nom  = f['Nom complet'] || 'Inconnu';
+        const email = f['Email'] || '';
+        const code  = f['Code Paiement'] || '';
+        const plan  = f['Plan Demande'] || 'Pro';
+        const tel   = f['Numéro de téléphone'] || '';
+        const parrain = f['Parrain Code'] || '';
+        return `
+          <label style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px;margin-bottom:10px;cursor:pointer;transition:.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.07)'" onmouseleave="this.style.background='rgba(255,255,255,0.04)'">
+            <input type="checkbox" data-id="${r.id}" data-plan="${plan}" data-parrain="${parrain}" style="width:22px;height:22px;cursor:pointer;accent-color:var(--vert);flex-shrink:0;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;color:white;font-size:16px;">${nom}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">${email}${tel ? ' · ' + tel : ''}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:22px;font-weight:900;color:#F5B82E;letter-spacing:3px;font-family:monospace;">${code}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;">Plan ${plan} · 2 500 FCFA</div>
+            </div>
+          </label>`;
+      }).join('')}
+    </div>`;
+}
+
+function selectAllAdmin(checked) {
+  document.querySelectorAll('#admin-pending-list input[type="checkbox"]').forEach(cb => cb.checked = checked);
+}
+
+async function activateSelected() {
+  const selected = [...document.querySelectorAll('#admin-pending-list input[type="checkbox"]:checked')];
+  if (selected.length === 0) { toast('Sélectionne au moins un compte', 'error'); return; }
+
+  const btn = document.querySelector('[onclick="activateSelected()"]');
+  if (btn) { btn.textContent = `⏳ Activation de ${selected.length} compte(s)...`; btn.disabled = true; }
+
+  let success = 0, errors = 0;
+  for (const cb of selected) {
+    try {
+      await window.supaPrest.update(cb.dataset.id, {
+        'Abonnement':    cb.dataset.plan || 'Pro',
+        'Code Paiement': ''
+      });
+      success++;
+      // Rétrocommission parrain 40% = 1 000 FCFA sur 2 500 FCFA
+      const parrainCode = cb.dataset.parrain;
+      if (parrainCode) {
+        const filleulNom = cb.dataset.nom || cb.closest('label')?.querySelector('.nom')?.textContent || '';
+        await addCommissionToParrain(parrainCode, Math.floor(2500 * 0.40), filleulNom);
+      }
+    } catch(err) { console.error('Activate error', err); errors++; }
+  }
+
+  if (btn) { btn.textContent = '🚀 Activer la sélection'; btn.disabled = false; }
+  toast(`✅ ${success} compte(s) activé(s)${errors ? ' · ' + errors + ' erreur(s)' : ''}`, success > 0 ? 'success' : 'error');
+  await loadAdminPending();
+}
+
+async function loadAdminRetraits() {
+  // Les champs de commission (Demande Retrait, Commission Disponible FCFA, etc.) ne sont
+  // pas encore migrés vers Supabase — cette section sera disponible en V1.2
+  document.getElementById('admin-content').innerHTML = '<div style="color:rgba(252,224,168,.5);padding:40px;text-align:center;">⚙️ Gestion des retraits non disponible dans cette version.</div>';
+}
+
+function renderAdminRetraits(records) {
+  const el = document.getElementById('admin-content');
+  if (records.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:80px;color:rgba(255,255,255,0.3);font-size:18px;">✅ Aucune demande de retrait en attente</div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <span style="color:rgba(255,255,255,0.5);font-size:14px;">${records.length} demande${records.length > 1 ? 's' : ''} en attente</span>
+      <button onclick="selectAllRetraits(true)" style="background:rgba(232,148,10,0.2);border:1px solid rgba(232,148,10,0.4);color:#F5B82E;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;">☑ Tout sélectionner</button>
+      <button onclick="selectAllRetraits(false)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;">☐ Tout décocher</button>
+      <button onclick="payerRetraitsSelected()" style="margin-left:auto;background:#f59e0b;border:none;color:white;padding:10px 24px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:800;">💸 Marquer payé</button>
+    </div>
+    <div id="admin-retraits-list">
+      ${records.map(r => {
+        const f = r.fields;
+        const nom = f['Nom complet'] || 'Inconnu';
+        const montantDemande = f['Montant Demandé FCFA'] || 0;
+        const commDisp = f['Commission Disponible FCFA'] || 0;
+        const tel = f['Téléphone Retrait'] || f['Numéro de téléphone'] || '—';
+        const method = f['Méthode Retrait'] || 'TMoney';
+        const alerte = montantDemande > commDisp;
+        return `
+          <label style="display:flex;align-items:center;gap:14px;background:${alerte ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'};border:1px solid ${alerte ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.08)'};border-radius:14px;padding:18px;margin-bottom:10px;cursor:pointer;transition:.15s;">
+            <input type="checkbox" data-id="${r.id}" data-montant="${montantDemande}" data-commdisp="${commDisp}" ${alerte ? 'disabled' : ''} style="width:22px;height:22px;cursor:pointer;accent-color:#f59e0b;flex-shrink:0;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;color:white;font-size:16px;">${nom}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">${method} · ${tel}</div>
+              ${alerte ? `<div style="font-size:11px;color:#f87171;font-weight:700;margin-top:4px;">⚠️ Montant demandé (${montantDemande.toLocaleString('fr-FR')} FCFA) > Commission disponible (${commDisp.toLocaleString('fr-FR')} FCFA) — BLOQUÉ</div>` : ''}
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:22px;font-weight:900;color:${alerte ? '#f87171' : '#fbbf24'};font-family:monospace;">${montantDemande.toLocaleString('fr-FR')} FCFA</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;">Dispo : ${commDisp.toLocaleString('fr-FR')} FCFA</div>
+            </div>
+          </label>`;
+      }).join('')}
+    </div>`;
+}
+
+function selectAllRetraits(checked) {
+  document.querySelectorAll('#admin-retraits-list input[type="checkbox"]:not([disabled])').forEach(cb => cb.checked = checked);
+}
+
+async function payerRetraitsSelected() {
+  const selected = [...document.querySelectorAll('#admin-retraits-list input[type="checkbox"]:checked')];
+  if (selected.length === 0) { toast('Sélectionne au moins une demande', 'error'); return; }
+
+  const btn = document.querySelector('[onclick="payerRetraitsSelected()"]');
+  if (btn) { btn.textContent = `⏳ Traitement de ${selected.length} retrait(s)...`; btn.disabled = true; }
+
+  // Champs commission non encore migrés vers Supabase — stub V1.2
+  toast('Gestion des retraits non disponible dans cette version.', 'error');
+  if (btn) { btn.textContent = '💸 Marquer payé'; btn.disabled = false; }
+  return;
+  let success = 0, skipped = 0, errors = 0;
+
+  if (btn) { btn.textContent = '💸 Marquer payé'; btn.disabled = false; }
+  const msg = `✅ ${success} payé${success > 1 ? 's' : ''}${skipped ? ` · ${skipped} bloqué(s) — montant supérieur` : ''}${errors ? ` · ${errors} erreur(s)` : ''}`;
+  toast(msg, success > 0 ? 'success' : 'error');
+  await loadAdminRetraits();
+}
+
+async function onPaymentSuccess(plan, transId) {
+  transId = transId || ('WOZALI_' + Date.now());
+  const cfg = PLAN_CONFIG[plan];
+  if (!cfg || !currentPrestataire) return;
+
+  try {
+    await window.supaPrest.update(currentPrestataire.id, { 'Abonnement': plan });
+
+    // Mettre à jour le cache local
+    currentPrestataire.fields['Abonnement'] = plan;
+
+    toast(`🎉 Bienvenue sur le plan ${plan} ! Transaction : ${transId}`, 'success');
+    loadAbonnement();
+
+    // Commissions parrain si applicable
+    const parrainCode = currentPrestataire.fields['Parrain Code'];
+    if (parrainCode) {
+      const commission = Math.floor((cfg.amount || 0) * 0.40);
+      await addCommissionToParrain(parrainCode, commission, currentPrestataire.fields['Nom complet'] || '');
+    }
+  } catch(err) {
+    console.error('onPaymentSuccess:', err);
+    toast('Paiement reçu mais erreur de mise à jour. Contacte le support.', 'error');
+  }
+}
+
+// ══════════════════════════════════════════
+// NAV MOBILE
+// ══════════════════════════════════════════
+function toggleMobileNav() {
+  const overlay = document.getElementById('mobile-nav-overlay');
+  const burger = document.getElementById('nav-burger');
+  const isOpen = overlay.style.display === 'flex';
+  if (isOpen) {
+    overlay.style.display = 'none';
+    burger.classList.remove('open');
+    document.body.style.overflow = '';
+  } else {
+    // Mettre à jour les boutons auth dans le menu mobile
+    const authEl = document.getElementById('mobile-nav-auth');
+    if (authEl) {
+      if (currentUser && currentPrestataire) {
+        const nom = currentPrestataire.fields['Nom complet'] || 'Mon espace';
+        authEl.innerHTML = `<button onclick="showPage('dashboard');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">👤 ${nom} — Dashboard</button>`;
+      } else {
+        authEl.innerHTML = `
+          <button onclick="showPage('login');closeMobileNav()" style="background:none;border:2px solid var(--vert);color:var(--vert);padding:14px;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">Se connecter</button>
+          <button onclick="showPage('inscription');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">S'inscrire gratuitement →</button>`;
+      }
+    }
+    overlay.style.display = 'flex';
+    overlay.scrollTop = 0;
+    burger.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeMobileNav() {
+  document.getElementById('mobile-nav-overlay').style.display = 'none';
+  document.getElementById('nav-burger')?.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ══════════════════════════════════════════
+// FIX MOBILE GRIDS (inline styles)
+// ══════════════════════════════════════════
+function fixMobileGrids() {
+  if (window.innerWidth > 700) return;
+  document.querySelectorAll('[style*="grid-template-columns"]').forEach(el => {
+    const cols = el.style.gridTemplateColumns || '';
+    // Laisser les auto-fit/auto-fill (déjà responsives) et les grids 1-colonne
+    if (cols.includes('auto-fit') || cols.includes('auto-fill') || cols === '1fr') return;
+    // Forcer 1 colonne sur mobile pour tous les grids fixes multi-colonnes
+    el.dataset.origCols = cols;
+    el.style.gridTemplateColumns = '1fr';
+  });
+}
+function restoreDesktopGrids() {
+  document.querySelectorAll('[data-orig-cols]').forEach(el => {
+    el.style.gridTemplateColumns = el.dataset.origCols;
+    delete el.dataset.origCols;
+  });
+}
+function applyResponsiveGrids() {
+  if (window.innerWidth <= 700) {
+    fixMobileGrids();
+  } else {
+    restoreDesktopGrids();
+  }
+}
+window.addEventListener('resize', applyResponsiveGrids);
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+initAuth();
+initHome();
+function _fixAutocomplete() {
+  document.querySelectorAll('input[type="text"],input[type="email"],input[type="tel"],input[type="search"],input[type="number"],input:not([type])').forEach(inp => {
+    const ac = inp.getAttribute('autocomplete');
+    if (!ac || ac === 'off' || ac === 'on') {
+      inp.setAttribute('autocomplete', 'new-password');
+    }
+    if (!inp.getAttribute('name') || inp.getAttribute('name') === '') {
+      inp.setAttribute('name', 'wozali-' + (inp.id || Math.random().toString(36).slice(2)));
+    }
+  });
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); });
+} else {
+  setTimeout(() => { checkAdminUrl(); applyResponsiveGrids(); _fixAutocomplete(); }, 0);
+}
+// Re-appliquer après chaque navigation (showPage crée du nouveau HTML)
+const _origShowPage = window.showPage;
+window.showPage = function(...args) { const r = _origShowPage?.(...args); setTimeout(_fixAutocomplete, 100); return r; };
+// ── Score WOZALI simplifié (synchrone, depuis les champs Airtable) ──
+function calculScoreWozali(presta) {
+  if (!presta) return 0;
+  const f = presta.fields;
+  const note = f['Note moyenne'] || 0;
+  const nbAvis = f['Nombre d\'avis reçus'] || 0;
+  const vues = f['Nombre de vues profil'] || 0;
+  const completion = f['Profil complété %'] ? Math.round(f['Profil complété %'] * 100) : 0;
+  const photos = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].filter(Boolean).length;
+  const scoreComp  = Math.round(completion * 0.30);
+  const scoreNote  = Math.round((note / 5) * 25);
+  const scoreAvis  = Math.min(nbAvis * 2, 15);
+  const scorePhoto = Math.min(photos * 3, 10);
+  const scoreVues  = Math.min(Math.floor(vues / 10), 10);
+  return Math.min(scoreComp + scoreNote + scoreAvis + scorePhoto + scoreVues, 100);
+}
+
+// ── Onglets page fonctionnement ──
+function switchFonctTab(tab) {
+  const tabs = ['client','emploi','recrut','presta'];
+  tabs.forEach(t => {
+    const section = document.getElementById('tab-' + t);
+    const btn = document.getElementById('tab-btn-' + t);
+    if (section) section.style.display = t === tab ? 'block' : 'none';
+    if (btn) {
+      if (t === tab) {
+        btn.style.background = 'var(--vert)';
+        btn.style.color = 'white';
+        btn.style.borderColor = 'var(--vert)';
+      } else {
+        btn.style.background = 'white';
+        btn.style.color = 'var(--gris-fonce)';
+        btn.style.borderColor = '#e5e7eb';
+      }
+    }
+  });
+}
+
+const _origShowDash = window.showDashSection;
+window.showDashSection = function(...args) { const r = _origShowDash?.(...args); setTimeout(_fixAutocomplete, 100); return r; };
+
+// ══════════════════════════════════════════
+// MARKETPLACE EMPLOI
+// ══════════════════════════════════════════
+
+let _offresCache = [];
+let _offresCurrent = []; // filtered
+let _offresPage = 1;
+const _OFFRES_PER_PAGE = 12;
+let _currentOffreId = null;
+
+// ── Charger les offres : Supabase d'abord, fallback Airtable ──
+async function loadOffresEmploi(filtres = {}) {
+  if (window.supaOffres) {
+    try {
+      const opts = { active: true, limit: 200, orderBy: 'created_at', orderDir: 'desc' };
+      if (filtres.metier) opts.metier = filtres.metier;
+      if (filtres.quartier) opts.quartier = filtres.quartier;
+      const records = await window.supaOffres.list(opts);
+      let filtered = records;
+      if (filtres.contrat) filtered = filtered.filter(r => r.fields['Type de contrat'] === filtres.contrat);
+      filtered.sort((a, b) => {
+        const ua = a.fields['Urgente'] ? 1 : 0;
+        const ub = b.fields['Urgente'] ? 1 : 0;
+        if (ua !== ub) return ub - ua;
+        return new Date(b.createdTime) - new Date(a.createdTime);
+      });
+      if (filtered.length > 0) return filtered;
+    } catch (e) { console.warn('[loadOffresEmploi supa fail, fallback Airtable]', e?.message || e); }
+  }
+  return []; // supaOffres est le seul backend — pas de fallback Airtable
+}
+
+// ── Rendu d'une carte offre ──
+function renderOffreEmploi(offre) {
+  const f = offre.fields;
+  const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : '?';
+  const contrat = f['Type de contrat'] || '';
+  const contratClass = { 'CDI':'badge-cdi','CDD':'badge-cdd','Freelance':'badge-freelance','Stage':'badge-stage','Mission ponctuelle':'badge-mission','Bénévole':'badge-benevole','Alternance':'badge-alternance' }[contrat] || 'badge-gris';
+  const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
+    ? `${(f['Salaire min FCFA']).toLocaleString()}${f['Salaire max FCFA'] ? ' – ' + f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
+    : 'À négocier';
+  const _loc = ((f['Quartier']||'') + ' ' + (f['Ville']||'')).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','natitingou'].some(v=>_loc.includes(v));
+  const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
+  const nbCand = f['Nb candidatures'] || 0;
+
+  // Score IA match (si calculé via "Trouver mes meilleurs matches")
+  const _matchCache = (window.currentPrestataire && window.wozaliAi)
+    ? window.wozaliAi.getMatchScore(window.currentPrestataire.id, offre.id) : null;
+  const _matchScore = _matchCache?.score;
+  const _matchColor = _matchScore >= 70 ? '#22c55e' : _matchScore >= 40 ? '#E8940A' : '#f87171';
+  const _safeTitre = escapeHtml(f['Titre'] || 'Sans titre');
+  const _safeRecruteurNom = escapeHtml(f['Recruteur Nom'] || 'Recruteur');
+  const _safeRecruteurId = escapeHtml(f['Recruteur ID'] || '');
+  const _safeQuartier = escapeHtml(f['Quartier'] || (_isBJ ? 'Cotonou' : 'Lomé'));
+  const _safeContrat = escapeHtml(contrat);
+  const _safeExp = escapeHtml(f['Expérience requise'] || '');
+  const _safeDesc = escapeHtml(f['Description'] || '');
+  const _safeOffreId = escapeHtml(offre.id);
+  const _waNumOffre = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
+  const _titreJsArg = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  return `<div class="offre-card" onclick="showOffreDetail('${_safeOffreId}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
+      <div>
+        ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span> ' : ''}
+        ${_matchScore != null ? `<span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(168,85,247,.15);color:${_matchColor};border:1px solid rgba(168,85,247,.3);">🤖 Match ${_matchScore}/100</span>` : ''}
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">${_safeTitre}</h3>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+      ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurId}');showPage('profil')" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;">🏢 ${_safeRecruteurNom}</span>` : `🏢 ${_safeRecruteurNom}`}
+      ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOZALI">✓</span>' : ''}
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+      <span class="badge badge-gris">${_flag} ${_safeQuartier}</span>
+      ${contrat ? `<span class="badge ${contratClass}">${_safeContrat}</span>` : ''}
+      ${f['Expérience requise'] ? `<span class="badge badge-gris">💼 ${_safeExp}</span>` : ''}
+      ${f['Télétravail possible'] ? `<span class="badge" style="background:#fef3dc;color:#E8940A;">💻 Télétravail</span>` : ''}
+    </div>
+    <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 ${salaire}</div>
+    ${f['Description'] ? `<p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${_safeDesc}</p>` : ''}
+    <div style="font-size:12px;color:var(--gris);margin-bottom:12px;">👥 <strong>${nbCand}</strong> candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
+    <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</div>
+    <div class="offre-actions" onclick="event.stopPropagation();">
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('${_titreJsArg}','${_safeOffreId}')">📤 Partager</button>
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;">💬 Contacter</a>` : ''}
+      <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler</button>
+    </div>
+  </div>`;
+}
+
+// ── Page détail offre (style Indeed) ──
+function showOffreDetail(offreId) {
+  const offre = (_offresCache || []).find(o => o.id === offreId);
+  if (!offre) { toast('Offre introuvable', 'error'); return; }
+  const f = offre.fields;
+  const contrat = f['Type de contrat'] || 'Non précisé';
+  const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
+    ? `${(f['Salaire min FCFA']).toLocaleString()}${f['Salaire max FCFA'] ? ' – ' + f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
+    : 'À négocier';
+  const _loc = ((f['Quartier']||'') + ' ' + (f['Ville']||'')).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','natitingou'].some(v=>_loc.includes(v));
+  const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
+  const nbCand = f['Nb candidatures'] || 0;
+  const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : '?';
+  // Description : escape avant le replace pour éviter XSS, puis convertir les sauts de ligne
+  const desc = escapeHtml(f['Description'] || 'Pas de description fournie par le recruteur.').replace(/\n/g, '<br>');
+  const _safeTitreD = escapeHtml(f['Titre'] || 'Sans titre');
+  const _safeRecruteurNomD = escapeHtml(f['Recruteur Nom'] || 'Recruteur');
+  const _safeRecruteurIdD = escapeHtml(f['Recruteur ID'] || '');
+  const _safeContratD = escapeHtml(contrat);
+  const _safeLieuD = escapeHtml(f['Quartier'] || f['Ville'] || 'Non précisé');
+  const _safeExpD = escapeHtml(f['Expérience requise'] || '');
+  const _safeOffreIdD = escapeHtml(offre.id);
+  const _waNumD = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
+  const _titreJsArgD = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
+
+  const container = document.getElementById('offre-detail-content');
+  container.innerHTML = `
+    <div style="margin-bottom:24px;">
+      ${f['Urgente'] ? '<span style="display:inline-block;background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🔴 URGENTE</span>' : ''}
+      <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#FCE0A8;line-height:1.3;margin:0 0 8px;">${_safeTitreD}</h2>
+      <div style="font-size:13px;color:rgba(252, 224, 168,0.6);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurIdD}');showPage('profil');document.getElementById('modal-offre-detail').style.display='none'" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;font-weight:600;">🏢 ${_safeRecruteurNomD}</span>` : `🏢 ${_safeRecruteurNomD}`}
+        ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOZALI">✓ Vérifié</span>' : ''}
+        <span>· Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+      <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
+        <div style="font-size:11px;color:rgba(252, 224, 168,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Salaire</div>
+        <div style="font-size:16px;font-weight:800;color:#E8940A;">💰 ${salaire}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
+        <div style="font-size:11px;color:rgba(252, 224, 168,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contrat</div>
+        <div style="font-size:15px;font-weight:700;color:#FCE0A8;">${_safeContratD}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
+        <div style="font-size:11px;color:rgba(252, 224, 168,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lieu</div>
+        <div style="font-size:15px;font-weight:700;color:#FCE0A8;">${_flag} ${_safeLieuD}</div>
+      </div>
+    </div>
+
+    ${f['Expérience requise'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:rgba(252, 224, 168,0.7);">💼 Expérience requise : ${_safeExpD}</span></div>` : ''}
+    ${f['Télétravail possible'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(232,148,10,0.08);border:1px solid rgba(232,148,10,0.2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:#E8940A;">💻 Télétravail possible</span></div>` : ''}
+
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;margin-bottom:24px;">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:17px;font-weight:800;color:#FCE0A8;margin:0 0 12px;">Description du poste</h3>
+      <div style="font-size:14px;color:rgba(252, 224, 168,0.75);line-height:1.8;">${desc}</div>
+    </div>
+
+    <div style="font-size:13px;color:rgba(252, 224, 168,0.5);margin-bottom:20px;">👥 <strong style="color:#FCE0A8;">${nbCand}</strong> candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" style="flex:2;justify-content:center;min-width:200px;padding:14px;" onclick="document.getElementById('modal-offre-detail').style.display='none';ouvrirModalCandidature('${_safeOffreIdD}','${_titreJsArgD}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOZALI</button>
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumD}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${_titreJsArgD}','${_safeOffreIdD}')">📤 Partager</button>
+    </div>
+    <div style="margin-top:12px;text-align:center;">
+      <button onclick="window.wozaliSignalement?.open({offreId:'${_safeOffreIdD}',contextLabel:'Offre : ${_titreJsArgD.replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Signaler cette offre</button>
+    </div>
+  `;
+
+  document.getElementById('modal-offre-detail').style.display = 'flex';
+}
+
+// ── Page emploi principale ──
+async function showPageEmploi() {
+  const container = document.getElementById('emploi-list');
+  if (!container) return;
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement des offres...</div>';
+  document.getElementById('emploi-count').textContent = '';
+  try {
+    _offresCache = await loadOffresEmploi();
+    _offresCurrent = _offresCache;
+    _offresPage = 1;
+    renderOffresPage();
+    checkAlertesNouvelles(_offresCache);
+  } catch(e) {
+    _offresCache = []; _offresCurrent = []; _offresPage = 1;
+    renderOffresPage();
+  }
+}
+
+// ── Alertes recherche (localStorage) ──
+const _ALERTES_KEY = 'wozali_alertes_v1';
+
+function _getAlertes() {
+  try { return JSON.parse(localStorage.getItem(_ALERTES_KEY) || '[]'); } catch { return []; }
+}
+function _saveAlertes(arr) { try { localStorage.setItem(_ALERTES_KEY, JSON.stringify(arr)); } catch {} }
+
+function alerteMatch(offre, alerte) {
+  const f = offre.fields;
+  if (alerte.metier && f['Métier'] !== alerte.metier) return false;
+  if (alerte.quartier && f['Quartier'] !== alerte.quartier) return false;
+  if (alerte.contrat && f['Type de contrat'] !== alerte.contrat) return false;
+  return true;
+}
+
+function checkAlertesNouvelles(offres) {
+  const alertes = _getAlertes();
+  if (alertes.length === 0) return;
+  let totalNew = 0;
+  alertes.forEach(a => {
+    const lastCheck = a.lastCheck ? new Date(a.lastCheck).getTime() : 0;
+    const matches = offres.filter(o => {
+      if (!alerteMatch(o, a)) return false;
+      const created = o.fields['Créée le'] ? new Date(o.fields['Créée le']).getTime() : 0;
+      return created > lastCheck;
+    });
+    a.lastCheck = new Date().toISOString();
+    a.lastNew = matches.length;
+    totalNew += matches.length;
+  });
+  _saveAlertes(alertes);
+  if (totalNew > 0) {
+    setTimeout(() => {
+      toast(`🔔 ${totalNew} nouvelle${totalNew>1?'s':''} offre${totalNew>1?'s':''} pour tes alertes`, 'success');
+    }, 800);
+  }
+}
+
+function ajouterAlerte() {
+  const metier   = document.getElementById('emploi-filter-metier')?.value || '';
+  const quartier = document.getElementById('emploi-filter-quartier')?.value || '';
+  const contrat  = document.getElementById('emploi-filter-contrat')?.value || '';
+  if (!metier && !quartier && !contrat) {
+    toast('Choisis au moins un filtre (métier, ville ou contrat) avant d\'activer l\'alerte', 'error');
+    return;
+  }
+  const alertes = _getAlertes();
+  // Évite les doublons
+  if (alertes.some(a => a.metier === metier && a.quartier === quartier && a.contrat === contrat)) {
+    toast('Alerte déjà active pour cette combinaison', 'info');
+    return;
+  }
+  alertes.push({
+    id: 'al_' + Date.now(),
+    metier, quartier, contrat,
+    created: new Date().toISOString(),
+    lastCheck: new Date().toISOString(),
+  });
+  _saveAlertes(alertes);
+  toast('🔔 Alerte activée. Au prochain visit, on te dit si de nouvelles offres correspondent.', 'success');
+  renderAlertesModalContent();
+}
+
+function supprimerAlerte(id) {
+  const alertes = _getAlertes().filter(a => a.id !== id);
+  _saveAlertes(alertes);
+  renderAlertesModalContent();
+  toast('Alerte supprimée', 'info');
+}
+
+function ouvrirAlertesModal() {
+  const overlay = document.createElement('div');
+  overlay.id = 'wozali-alertes-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.innerHTML = `
+    <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;max-width:520px;width:100%;padding:24px;max-height:85vh;overflow-y:auto;font-family:Geist,sans-serif;color:#FCE0A8;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+        <div>
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Alertes</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;margin:4px 0 0;">Mes alertes recherche</h3>
+        </div>
+        <button onclick="document.getElementById('wozali-alertes-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:rgba(252, 224, 168,.65);">
+        💡 Active une alerte sur tes filtres actuels. Au prochain visit, on te dit s'il y a de nouvelles offres correspondantes.
+      </div>
+      <button onclick="ajouterAlerte()" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;margin-bottom:14px;">🔔 Activer une alerte sur les filtres actuels</button>
+      <div id="wozali-alertes-list"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  renderAlertesModalContent();
+}
+
+function renderAlertesModalContent() {
+  const list = document.getElementById('wozali-alertes-list');
+  if (!list) return;
+  const alertes = _getAlertes();
+  if (alertes.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(252, 224, 168,.4);font-size:13px;">Aucune alerte active.</div>`;
+    return;
+  }
+  list.innerHTML = `<div style="font-size:11px;color:rgba(252, 224, 168,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Alertes actives (${alertes.length})</div>` +
+    alertes.map(a => {
+      const parts = [];
+      if (a.metier)   parts.push(`<span style="background:rgba(232,148,10,.15);color:#E8940A;padding:3px 9px;border-radius:14px;font-size:11px;">${a.metier}</span>`);
+      if (a.quartier) parts.push(`<span style="background:rgba(252, 224, 168,.06);color:rgba(252, 224, 168,.7);padding:3px 9px;border-radius:14px;font-size:11px;">📍 ${a.quartier}</span>`);
+      if (a.contrat)  parts.push(`<span style="background:rgba(252, 224, 168,.06);color:rgba(252, 224, 168,.7);padding:3px 9px;border-radius:14px;font-size:11px;">${a.contrat}</span>`);
+      return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.1);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1;">${parts.join('') || '<span style="color:rgba(252, 224, 168,.4);font-size:11px;">Aucun filtre</span>'}</div>
+        <button onclick="supprimerAlerte('${a.id}')" style="background:rgba(239,68,68,.1);color:#f87171;border:none;padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;">Supprimer</button>
+      </div>`;
+    }).join('');
+}
+
+// ── Vue carte des offres (Leaflet) ──
+const _OFFRES_VILLE_CENTRES = {
+  lome:     { lat: 6.1725, lon: 1.2314 },
+  cotonou:  { lat: 6.3654, lon: 2.4183 },
+  porto:    { lat: 6.4969, lon: 2.6289 },
+  parakou:  { lat: 9.3372, lon: 2.6303 },
+  kara:     { lat: 9.5511, lon: 1.1861 },
+  sokode:   { lat: 8.9833, lon: 1.1333 },
+};
+
+const _OFFRES_QUARTIER_COORDS = {
+  // Lomé
+  'Hédzranawoé': [6.176, 1.236], 'Adidogomé': [6.157, 1.155], 'Bè': [6.123, 1.235],
+  'Tokoin': [6.143, 1.223], 'Nyékonakpoè': [6.123, 1.220], 'Cassablanca': [6.135, 1.190],
+  'Kégué': [6.198, 1.220], 'Agoè': [6.205, 1.211], 'Kodjoviakopé': [6.131, 1.217],
+  'Djidjolé': [6.155, 1.205], 'Avédji': [6.165, 1.165], 'Attiégou': [6.180, 1.195],
+  // Cotonou
+  'Akpakpa': [6.378, 2.435], 'Cadjèhoun': [6.359, 2.405], 'Gbégamey': [6.367, 2.395],
+  'Dantokpa': [6.371, 2.428], 'Fidjrossè': [6.347, 2.391], 'Cocotomey': [6.344, 2.378],
+  'Sainte-Rita': [6.371, 2.391], 'Vèdoko': [6.378, 2.391],
+};
+
+function _getOffreCoords(f) {
+  if (f.Latitude && f.Longitude) return { lat: f.Latitude, lon: f.Longitude };
+  const q = f['Quartier'];
+  if (q && _OFFRES_QUARTIER_COORDS[q]) {
+    const [lat, lon] = _OFFRES_QUARTIER_COORDS[q];
+    return { lat, lon };
+  }
+  const ville = (f['Ville'] || '').toLowerCase();
+  for (const k in _OFFRES_VILLE_CENTRES) {
+    if (ville.includes(k)) {
+      const c = _OFFRES_VILLE_CENTRES[k];
+      // jitter aléatoire pour éviter empilement (~ 1km)
+      const seed = (f['Titre'] || '').length;
+      return { lat: c.lat + (((seed * 31) % 100) - 50) / 5000, lon: c.lon + (((seed * 17) % 100) - 50) / 5000 };
+    }
+  }
+  // fallback Lomé
+  return { lat: 6.1725 + (Math.random() - 0.5) / 50, lon: 1.2314 + (Math.random() - 0.5) / 50 };
+}
+
+let _emploiMap = null;
+let _emploiMarkers = [];
+let _emploiViewMode = 'list';
+
+function setEmploiView(mode) {
+  _emploiViewMode = mode;
+  const list = document.getElementById('emploi-list');
+  const map = document.getElementById('emploi-map');
+  const pagination = document.getElementById('emploi-pagination');
+  const btnList = document.getElementById('emploi-view-list');
+  const btnMap = document.getElementById('emploi-view-map');
+  const onStyle  = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#14100A;font-size:12px;font-weight:700;cursor:pointer;';
+  const offStyle = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;';
+  if (mode === 'map') {
+    list.style.display = 'none';
+    pagination.style.display = 'none';
+    map.style.display = 'block';
+    if (btnMap) btnMap.style.cssText = onStyle;
+    if (btnList) btnList.style.cssText = offStyle;
+    initEmploiMap();
+  } else {
+    list.style.display = 'grid';
+    pagination.style.display = '';
+    map.style.display = 'none';
+    if (btnList) btnList.style.cssText = onStyle;
+    if (btnMap) btnMap.style.cssText = offStyle;
+  }
+}
+
+function initEmploiMap() {
+  const cont = document.getElementById('emploi-map');
+  if (!cont || typeof L === 'undefined') return;
+  if (!_emploiMap) {
+    _emploiMap = L.map('emploi-map').setView([6.20, 1.74], 8); // entre Lomé et Cotonou
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '© <a href="https://carto.com/">CARTO</a>',
+    }).addTo(_emploiMap);
+  }
+  // Clear markers existants
+  _emploiMarkers.forEach(m => _emploiMap.removeLayer(m));
+  _emploiMarkers = [];
+  const offres = _offresCurrent || [];
+  if (offres.length === 0) {
+    setTimeout(() => _emploiMap.invalidateSize(), 100);
+    return;
+  }
+  const bounds = L.latLngBounds([]);
+  offres.forEach(o => {
+    const f = o.fields;
+    const { lat, lon } = _getOffreCoords(f);
+    const isUrgent = !!f['Urgente'];
+    const html = `<div style="background:${isUrgent ? '#dc2626' : '#E8940A'};color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3);">${isUrgent ? '!' : '💼'}</div>`;
+    const icon = L.divIcon({ html, className: 'emploi-pin', iconSize: [28, 28], iconAnchor: [14, 14] });
+    const m = L.marker([lat, lon], { icon }).addTo(_emploiMap);
+    const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
+      ? `${f['Salaire min FCFA'].toLocaleString()}${f['Salaire max FCFA'] ? '-'+f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
+      : 'À négocier';
+    const popup = `<div style="font-family:Geist,sans-serif;min-width:180px;">
+      <div style="font-weight:800;margin-bottom:4px;">${(f['Titre']||'').replace(/</g,'&lt;')}</div>
+      <div style="font-size:12px;color:#666;margin-bottom:4px;">📍 ${(f['Quartier']||f['Ville']||'').replace(/</g,'&lt;')}</div>
+      <div style="font-size:12px;color:#E8940A;font-weight:700;margin-bottom:8px;">💰 ${salaire}</div>
+      <button onclick="setEmploiView('list');showOffreDetail('${o.id}')" style="background:#E8940A;color:#14100A;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">→ Voir détail</button>
+    </div>`;
+    m.bindPopup(popup);
+    _emploiMarkers.push(m);
+    bounds.extend([lat, lon]);
+  });
+  if (_emploiMarkers.length > 0) {
+    _emploiMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+  }
+  setTimeout(() => _emploiMap.invalidateSize(), 100);
+}
+
+let _triParMatch = false;
+
+function toggleTriMatch() {
+  _triParMatch = document.getElementById('emploi-tri-match')?.checked || false;
+  _offresPage = 1;
+  renderOffresPage();
+}
+
+async function batchMatchOffres() {
+  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
+  if (!currentPrestataire) { toast('Connecte-toi pour activer le match IA', 'error'); return; }
+  // Cibles : offres affichées non encore scorées (max 5/run)
+  const cibles = (_offresCurrent || []).filter(o =>
+    !window.wozaliAi.getMatchScore(currentPrestataire.id, o.id)
+  ).slice(0, 5);
+  if (cibles.length === 0) { toast('Tes matches sont déjà calculés. Active "Trier par match IA" 👆', 'info'); return; }
+  const btn = document.getElementById('emploi-batch-match');
+  if (btn) { btn.disabled = true; }
+  let done = 0, errors = 0;
+  for (const o of cibles) {
+    if (btn) btn.textContent = `🤖 Match ${done}/${cibles.length}…`;
+    try {
+      await window.wozaliAi.scoreOffreForCandidat(currentPrestataire, o);
+      done++;
+    } catch (e) {
+      errors++;
+      if (e?.status === 429) { toast('Quota IA atteint pour aujourd\'hui', 'error'); break; }
+    }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '🤖 Trouver mes meilleurs matches'; }
+  toast(`${done} offre${done>1?'s':''} matchée${done>1?'s':''}${errors?` · ${errors} erreur${errors>1?'s':''}`:''}`, done>0 ? 'success' : 'error');
+  const cb = document.getElementById('emploi-tri-match');
+  if (cb && !cb.checked) { cb.checked = true; _triParMatch = true; }
+  renderOffresPage();
+}
+
+function renderOffresPage() {
+  const container = document.getElementById('emploi-list');
+  const countEl = document.getElementById('emploi-count');
+  if (!container) return;
+
+  // Tri par match IA si activé
+  if (_triParMatch && currentPrestataire && window.wozaliAi) {
+    _offresCurrent = [..._offresCurrent].sort((a, b) => {
+      const sa = window.wozaliAi.getMatchScore(currentPrestataire.id, a.id)?.score ?? -1;
+      const sb = window.wozaliAi.getMatchScore(currentPrestataire.id, b.id)?.score ?? -1;
+      return sb - sa;
+    });
+  }
+
+  const total = _offresCurrent.length;
+  const start = (_offresPage - 1) * _OFFRES_PER_PAGE;
+  const end = Math.min(start + _OFFRES_PER_PAGE, total);
+  const page = _offresCurrent.slice(start, end);
+
+  countEl.textContent = `${total} offre${total > 1 ? 's' : ''} trouvée${total > 1 ? 's' : ''}`;
+
+  if (page.length === 0 && _offresPage !== 1) {
+    const _metSel = document.getElementById('emploi-filter-metier')?.value || 'ce métier';
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;"><div style="font-size:48px;margin-bottom:16px;">💼</div><h3 style="font-family:'DM Serif Display',serif;color:var(--noir);font-size:20px;margin-bottom:10px;">Aucune offre pour "${_metSel}" en ce moment.</h3><p style="font-size:14px;line-height:1.7;max-width:520px;margin:0 auto 18px;">Deux options :<br>→ <strong>Active WOZALI Match</strong> — on te prévient dès qu'une offre apparaît<br>→ <strong>Crée ton profil prestataire</strong> — les employeurs peuvent aussi te contacter directement.</p><p style="font-size:13px;color:#E8940A;font-weight:700;margin-bottom:18px;">Les meilleurs candidats ne cherchent plus. Ils sont trouvés.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil WOZALI — gratuit</button><button class="btn btn-secondary btn-sm" onclick="showPage('search')">🔔 Activer WOZALI Match</button></div><p style="font-size:12px;margin-top:22px;color:var(--gris);max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;">Les premières offres arrivent. Crée ton profil maintenant pendant que c'est encore vide. Quand les offres arrivent — tu es déjà visible.</p></div>`;
+    document.getElementById('emploi-pagination').innerHTML = '';
+    return;
+  }
+
+  // Hard-coded WOZALI recruitment card (first page only)
+  var wozaliRecruitCard = '';
+  if (_offresPage === 1) {
+    wozaliRecruitCard = `<div class="offre-card" style="border-left:3px solid #E8940A;position:relative;">
+    <div style="position:absolute;top:12px;right:12px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;padding:4px 10px;border-radius:4px;font-weight:700;">WOZALI RECRUTE</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
+      <div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">Pionnier WOZALI — Lomé &amp; Cotonou</h3>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+      🏢 <span style="color:#E8940A;font-weight:600;">WOZALI</span>
+      <span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOZALI">✓</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+      <span class="badge badge-gris">🇹🇬 Lomé</span>
+      <span class="badge badge-gris">🇧🇯 Cotonou</span>
+      <span class="badge" style="background:rgba(232,148,10,0.1);color:#E8940A;">Mission terrain</span>
+    </div>
+    <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 100 000 FCFA — dès le 1er mois</div>
+    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er juin. On constitue notre équipe pionnière de 20 référents pour Lomé et Cotonou. Pas de diplôme requis — juste du sérieux.</p>
+    <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Fermeture 31 mai</div>
+    <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié aujourd'hui</div>
+    <div class="offre-actions" onclick="event.stopPropagation();">
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('Pionnier WOZALI — Lomé & Cotonou','recrutement-agents')">📤 Partager</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('recrutement-agents')">→ Postuler</button>
+    </div>
+  </div>`;
+  }
+  container.innerHTML = wozaliRecruitCard + page.map(renderOffreEmploi).join('');
+
+  // Pagination
+  const totalPages = Math.ceil(total / _OFFRES_PER_PAGE);
+  let paginHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    paginHTML += `<button onclick="_offresPage=${i};renderOffresPage();window.scrollTo({top:200})" style="width:36px;height:36px;border-radius:50%;border:2px solid ${i===_offresPage?'var(--vert)':'#e5e7eb'};background:${i===_offresPage?'var(--vert)':'white'};color:${i===_offresPage?'white':'var(--gris-fonce)'};font-weight:700;cursor:pointer;transition:.15s;">${i}</button>`;
+  }
+  document.getElementById('emploi-pagination').innerHTML = paginHTML;
+}
+
+function filterOffres() {
+  const q = (document.getElementById('emploi-search-q')?.value || '').toLowerCase();
+  const metier = document.getElementById('emploi-filter-metier')?.value || '';
+  const quartier = document.getElementById('emploi-filter-quartier')?.value || '';
+  const contrat = document.getElementById('emploi-filter-contrat')?.value || '';
+
+  const pays = document.getElementById('emploi-filter-pays')?.value || '';
+  const recent48 = document.getElementById('emploi-filter-recent')?.checked || false;
+  const onlyVerif = document.getElementById('emploi-filter-verifie')?.checked || false;
+  const VILLES_BJ = ['Cotonou','Porto-Novo','Parakou','Abomey','Ouidah','Natitingou','Djougou','Kandi'];
+  const VILLES_TG = ['Lomé','Kpalimé','Atakpamé','Sokodé','Kara','Dapaong','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Avédji','Attiégou','Tsévié','Aného'];
+  _offresCurrent = _offresCache.filter(o => {
+    const f = o.fields;
+    if (metier && f['Métier'] !== metier) return false;
+    if (quartier && f['Quartier'] !== quartier) return false;
+    if (contrat && f['Type de contrat'] !== contrat) return false;
+    if (pays) {
+      const loc = ((f['Quartier']||'') + ' ' + (f['Ville']||'')).toLowerCase();
+      const isBJ = VILLES_BJ.some(v => loc.includes(v.toLowerCase()));
+      const isTG = VILLES_TG.some(v => loc.includes(v.toLowerCase()));
+      if (pays === 'benin' && !isBJ) return false;
+      if (pays === 'togo' && !isTG) return false;
+    }
+    if (recent48) {
+      const dt = f['Créée le'] ? (Date.now() - new Date(f['Créée le'])) : Infinity;
+      if (dt > 48 * 3600 * 1000) return false;
+    }
+    if (onlyVerif && !f['Recruteur vérifié']) return false;
+    if (q) {
+      const haystack = ((f['Titre']||'') + ' ' + (f['Description']||'') + ' ' + (f['Métier']||'')).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+  _offresPage = 1;
+  renderOffresPage();
+}
+
+// ── Offres récentes (homepage) ──
+async function loadHomeOffresEmploi() {
+  const container = document.getElementById('home-offres-emploi');
+  if (!container) return;
+  try {
+    const offres = await loadOffresEmploi({});
+    const recent = offres.slice(0, 4);
+    if (recent.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><p>Aucune offre disponible pour l\'instant.</p><button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="showPage(\'inscription\')">Publier une offre →</button></div>';
+      return;
+    }
+    container.innerHTML = recent.map(renderOffreEmploi).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="text-align:center;color:var(--gris);padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+// Appeler depuis initHome
+const _origInitHome = window.initHome;
+window.initHome = function() {
+  if (_origInitHome) _origInitHome();
+  setTimeout(loadHomeOffresEmploi, 400);
+};
+
+// ── Modal de candidature ──
+function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
+  _currentOffreId = offreId;
+  const modal = document.getElementById('modal-candidature');
+  document.getElementById('modal-cand-titre').textContent = offreTitre;
+  const _head = document.getElementById('modal-cand-titre-head'); if (_head) _head.textContent = offreTitre;
+  document.getElementById('modal-cand-message').value = '';
+  document.getElementById('modal-cand-error').style.display = 'none';
+
+  if (!currentUser || !currentPrestataire) {
+    document.getElementById('modal-cand-profil').innerHTML = '<p style="text-align:center;color:var(--gris);font-size:14px;">🔒 <a onclick="showPage(\'login\')" style="color:var(--vert);cursor:pointer;font-weight:700;">Connecte-toi</a> pour postuler à cette offre.</p>';
+    document.getElementById('modal-cand-submit-btn').disabled = true;
+    modal.style.display = 'flex';
+    return;
+  }
+
+  const f = currentPrestataire.fields;
+  const typeProfil = f['Type de profil'] || '';
+  if (typeProfil && typeProfil !== 'Individuel' && typeProfil.toLowerCase().includes('commerce')) {
+    document.getElementById('modal-cand-profil').innerHTML = '<div style="background:rgba(232,148,10,0.12);border:1.5px solid rgba(232,148,10,0.4);border-radius:10px;padding:12px;font-size:13px;color:#FCE0A8;">⚠️ Les offres d\'emploi sont réservées aux profils individuels. Tu peux créer un second compte avec ton profil personnel.</div>';
+    document.getElementById('modal-cand-submit-btn').disabled = true;
+    modal.style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('modal-cand-submit-btn').disabled = false;
+  // Afficher le résumé du profil
+  const score = calculScoreWozali(currentPrestataire);
+  const photo = _wPhotoUrl(f['Photo de profil']);
+  document.getElementById('modal-cand-profil').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:900;overflow:hidden;flex-shrink:0;">
+        ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Nom complet']||'?')[0]}
+      </div>
+      <div>
+        <div style="font-weight:800;font-size:15px;">${f['Nom complet']||'—'}</div>
+        <div style="color:var(--vert);font-size:13px;font-weight:600;">${f['Métier principal']||''}</div>
+        <div style="font-size:12px;color:var(--gris);">Score WOZALI : <strong>${score}/100</strong> · 📍 ${f['Quartier']||''}</div>
+      </div>
+    </div>`;
+
+  modal.style.display = 'flex';
+  // Stocker le recruteur ID pour la soumission
+  modal.dataset.recruteurId = recruteurId;
+}
+
+async function submitCandidature() {
+  if (!currentUser || !currentPrestataire) { toast('Connecte-toi pour postuler', 'error'); return; }
+  const f = currentPrestataire.fields;
+  const typeProfil = f['Type de profil'] || '';
+  if (typeProfil && typeProfil !== 'Individuel' && typeProfil.toLowerCase().includes('commerce')) {
+    toast('Les offres d\'emploi sont réservées aux profils individuels', 'error'); return;
+  }
+
+  const message = document.getElementById('modal-cand-message').value;
+  const btn = document.getElementById('modal-cand-submit-btn');
+  const errEl = document.getElementById('modal-cand-error');
+  const modal = document.getElementById('modal-candidature');
+  const recruteurId = modal.dataset.recruteurId || '';
+
+  // Vérifier si déjà candidaté (via Supabase d'abord)
+  let alreadyApplied = false;
+  if (window.supaCandidatures) {
+    try {
+      const userId = window.currentUser?.id;
+      if (userId) {
+        const existing = await window.supaCandidatures.list({ candidat_user_id: userId, limit: 50 });
+        alreadyApplied = (existing || []).some(c => (c.fields['Offre ID'] === _currentOffreId) || (c.fields['offre_id'] === _currentOffreId));
+      }
+    } catch (e) { /* fallback Airtable */ }
+  }
+  const _isOffreAirtable = false; // plus d'Airtable — toutes les offres sont Supabase
+  if (alreadyApplied) {
+    errEl.textContent = 'Tu as déjà postulé à cette offre.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi...';
+
+  try {
+    // Récupérer le titre de l'offre (Supabase d'abord)
+    let offreTitre = '';
+    let offreRecruteurNom = '';
+    let offreNbCandidatures = 0;
+    if (window.supaOffres) {
+      try {
+        const o = await window.supaOffres.findById(_currentOffreId);
+        if (o) {
+          offreTitre = o.fields['Titre'] || '';
+          offreRecruteurNom = o.fields['Recruteur Nom'] || '';
+          offreNbCandidatures = o.fields['Nb candidatures'] || 0;
+        }
+      } catch (e) { /* fallback */ }
+    }
+    let offreData = { fields: { 'Titre': offreTitre, 'Recruteur Nom': offreRecruteurNom, 'Nb candidatures': offreNbCandidatures } };
+    if (!offreTitre && window.supaOffres) {
+      try {
+        const o2 = await window.supaOffres.findById(_currentOffreId);
+        if (o2) { offreData = o2; offreTitre = o2.fields['Titre'] || ''; }
+      } catch(e) { /* best-effort */ }
+    }
+
+    const score = calculScoreWozali(currentPrestataire);
+    const photo = _wPhotoUrl(f['Photo de profil']);
+
+    const candidatureFields = {
+      'Offre ID': _currentOffreId,
+      'Offre Titre': offreTitre,
+      'Candidat ID': currentPrestataire.id,
+      'Candidat User ID': window.currentUser?.id,
+      'Candidat Nom': f['Nom complet'] || '',
+      'Candidat Métier': f['Métier principal'] || '',
+      'Candidat WhatsApp': f['WhatsApp'] || f['Numéro de téléphone'] || '',
+      'Candidat Score WOZALI': score,
+      'Candidat Photo': photo,
+      'Message': message,
+      'Statut': 'En attente',
+      'Date candidature': new Date().toISOString(),
+      'Recruteur ID': recruteurId,
+      'Recruteur Nom': offreData.fields?.['Recruteur Nom'] || ''
+    };
+
+    let data = null;
+    // 1. Tenter Supabase
+    if (window.supaCandidatures) {
+      try {
+        const created = await window.supaCandidatures.create(candidatureFields);
+        if (created?.id) data = { id: created.id };
+      } catch (e) { console.warn('[submitCandidature supa fail, fallback Airtable]', e?.message || e); }
+    }
+    // Pas de fallback Airtable — si supaCandidatures échoue, remonter l'erreur
+    if (!data) throw new Error('Impossible de soumettre la candidature. Réessaie dans quelques secondes.');
+    if (data.id) {
+      // Incrémenter Nb candidatures :
+      // — si l'offre est un UUID Supabase (pas un recXXX Airtable), tenter Supabase
+      // — sinon PATCH Airtable
+      try {
+        if (window.supaOffres?.update) {
+          await window.supaOffres.update(_currentOffreId, { 'Nb candidatures': (offreData.fields?.['Nb candidatures'] || 0) + 1 });
+        }
+      } catch (e) { console.warn('[submitCandidature increment Nb candidatures]', e?.message || e); }
+      document.getElementById('modal-candidature').style.display = 'none';
+      // Show confirmation overlay
+      const _confDiv = document.createElement('div');
+      _confDiv.className = 'modal-overlay active';
+      _confDiv.style.zIndex = '10002';
+      const _recName = (offreData.fields?.['Recruteur Nom'] || 'le recruteur');
+      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:16px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Candidature envoyée à ' + _recName + '.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:16px;"><strong>' + _recName + '</strong> reçoit ton profil WOZALI complet — tes avis clients, tes photos, ta localisation, ta disponibilité.</p><p style="font-size:13px;color:#111;font-weight:700;margin-bottom:14px;">Ce que tu peux faire maintenant :</p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'dashboard\');this.closest(\'.modal-overlay\').remove();">→ Compléter ton profil pour maximiser tes chances</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'emploi\');this.closest(\'.modal-overlay\').remove();">→ Voir d\'autres offres qui correspondent à ton profil</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="this.closest(\'.modal-overlay\').remove();">→ Activer WOZALI Match pour recevoir les prochaines offres</button></div><p style="font-size:11px;color:var(--gris);margin-top:14px;line-height:1.6;">Si tu n\'as pas de réponse dans 7 jours — postule à d\'autres offres. Ne reste pas sur une seule chance.</p></div>';
+      document.body.appendChild(_confDiv);
+      _confDiv.onclick = function(e) { if (e.target === _confDiv) _confDiv.remove(); };
+    } else {
+      throw new Error(data.error?.message || 'Erreur');
+    }
+  } catch(e) {
+    errEl.textContent = 'Erreur réseau ou serveur : ' + e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Envoyer ma candidature';
+  }
+}
+
+// ── Dashboard : Mode Emploi ──
+async function loadEmploiMode() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const typeProfil = f['Type de profil'] || '';
+  const isCommerce = typeProfil && typeProfil !== 'Individuel' && (typeProfil.toLowerCase().includes('commerce') || typeProfil.toLowerCase().includes('restaurant'));
+
+  document.getElementById('emploi-mode-individuel-only').style.display = isCommerce ? 'block' : 'none';
+  document.getElementById('emploi-mode-toggle-wrap').style.opacity = isCommerce ? '0.5' : '1';
+  document.getElementById('emploi-mode-toggle-wrap').style.pointerEvents = isCommerce ? 'none' : 'auto';
+
+  const actif = !!f['Mode Emploi'];
+  _updateEmploiModeUI(actif);
+}
+
+function _updateEmploiModeUI(actif) {
+  const track = document.getElementById('emploi-mode-track');
+  const thumb = document.getElementById('emploi-mode-thumb');
+  const statusText = document.getElementById('emploi-mode-status-text');
+  const labelOn = document.getElementById('emploi-mode-label-on');
+  const labelOff = document.getElementById('emploi-mode-label-off');
+
+  if (track) track.style.background = actif ? 'var(--vert)' : '#e5e7eb';
+  if (thumb) thumb.style.transform = actif ? 'translateX(30px)' : 'translateX(0)';
+  if (statusText) statusText.textContent = actif ? '✅ Mode emploi activé — tu apparais dans les recherches des recruteurs' : 'Mode emploi désactivé';
+  if (labelOn) labelOn.style.opacity = actif ? '1' : '0.4';
+  if (labelOff) labelOff.style.opacity = actif ? '0.4' : '1';
+  if (currentPrestataire) currentPrestataire.fields['Mode Emploi'] = actif;
+}
+
+async function toggleModeEmploi() {
+  if (!currentPrestataire) return;
+  const actif = !currentPrestataire.fields['Mode Emploi'];
+  _updateEmploiModeUI(actif);
+  try {
+    if (window.supaPrest) {
+      await window.supaPrest.update(currentPrestataire.id, { 'Mode Emploi': actif });
+    }
+    toast(actif ? '✅ Mode emploi activé !' : 'Mode emploi désactivé', 'info');
+  } catch(e) {
+    _updateEmploiModeUI(!actif);
+    toast('Erreur de sauvegarde', 'error');
+  }
+}
+
+// ── Dashboard : Mes candidatures ──
+async function loadMesCandidatures() {
+  const container = document.getElementById('mes-candidatures-list');
+  if (!container) return;
+  if (!currentPrestataire) {
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(252, 224, 168,.5);font-family:Geist,sans-serif;">
+      <div style="font-size:36px;margin-bottom:10px;">🔒</div>
+      <p style="margin:0 0 6px;">Ton profil n'est pas encore chargé.</p>
+      <p style="margin:0;font-size:12px;color:rgba(252, 224, 168,.35);">Recharge la page si ça persiste.</p>
+    </div>`;
+    return;
+  }
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    let cands = [];
+    if (window.supaCandidatures) {
+      // Supabase : on filtre sur candidat_user_id (UUID Supabase auth)
+      const userId = window.currentUser?.id || '';
+      if (userId) {
+        try {
+          cands = await window.supaCandidatures.list({ candidat_user_id: userId, limit: 100 });
+        } catch (e) {
+          console.warn('[loadMesCandidatures supa fail]', e?.message || e);
+          cands = [];
+        }
+      }
+      // Pas de fallback Airtable si Supabase a répondu (même tableau vide) — évite double-affichage
+    } else {
+      // supaCandidatures non chargé — ne rien afficher
+      cands = [];
+    }
+
+    if (cands.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gris);">
+        <div style="font-size:48px;margin-bottom:16px;">📋</div>
+        <p style="font-size:16px;font-weight:600;">Tu n'as pas encore postulé à une offre.</p>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="showPage('emploi')">Découvrir les offres →</button>
+      </div>`;
+      return;
+    }
+
+    const statutClass = { 'En attente':'statut-attente', 'Vue':'statut-vue', 'Retenue':'statut-retenue', 'Refusée':'statut-refusee' };
+    window._mesCandidatures = cands;
+    container.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr style="border-bottom:2px solid #e5e7eb;text-align:left;">
+        <th style="padding:10px 12px;">Offre</th>
+        <th style="padding:10px 12px;">Recruteur</th>
+        <th style="padding:10px 12px;">Date</th>
+        <th style="padding:10px 12px;">Statut</th>
+        <th style="padding:10px 12px;">Actions</th>
+      </tr></thead>
+      <tbody>${cands.map(c => {
+        const f = c.fields;
+        const d = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+        const sc = statutClass[f['Statut']] || 'statut-attente';
+        const isRetenue = f['Statut'] === 'Retenue';
+        const _safeOffreTitreM = escapeHtml(f['Offre Titre']||'—');
+        const _safeRecruteurNomM = escapeHtml(f['Recruteur Nom']||'—');
+        const _safeStatutM = escapeHtml(f['Statut']||'En attente');
+        return `<tr style="border-bottom:1px solid #f3f4f6;">
+          <td style="padding:12px;">${_safeOffreTitreM}</td>
+          <td style="padding:12px;color:var(--gris);">${_safeRecruteurNomM}</td>
+          <td style="padding:12px;color:var(--gris);">${d}</td>
+          <td style="padding:12px;"><span class="statut-badge ${sc}">${_safeStatutM}</span></td>
+          <td style="padding:12px;white-space:nowrap;">
+            <button onclick="openMessagerieCandidat('${c.id}')" title="Messagerie" style="padding:5px 9px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:13px;">💬</button>
+            ${isRetenue ? `<button onclick="preparerEntretienCandidat('${c.id}')" title="Préparer entretien (IA)" style="padding:5px 9px;border-radius:6px;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;font-size:13px;margin-left:4px;">🤖</button>` : ''}
+            <button onclick="signalerOffreCandidat('${c.id}')" title="Signaler" style="padding:5px 9px;border-radius:6px;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;font-size:13px;margin-left:4px;">🚨</button>
+          </td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  } catch(e) {
+    container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+// ── Helpers Sprint H/I — actions candidat sur ses candidatures ──
+function _findMaCandidature(id) {
+  return (window._mesCandidatures || []).find(c => c.id === id);
+}
+function openMessagerieCandidat(candidatureId) {
+  if (!window.wozaliMessagerie) { toast('Module messagerie non chargé', 'error'); return; }
+  const c = _findMaCandidature(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  window.wozaliMessagerie.open({ candidature: c, role: 'candidat' });
+}
+async function preparerEntretienCandidat(candidatureId) {
+  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
+  const c = _findMaCandidature(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  const offre = await _getOffreById(c.fields['Offre ID']);
+  if (!offre) { toast('Offre liée introuvable', 'error'); return; }
+  window.wozaliAi.preparerEntretien(offre);
+}
+function signalerOffreCandidat(candidatureId) {
+  if (!window.wozaliSignalement) { toast('Module signalement non chargé', 'error'); return; }
+  const c = _findMaCandidature(candidatureId);
+  if (!c) return;
+  window.wozaliSignalement.open({
+    offreId: c.fields['Offre ID'],
+    candidatureId,
+    contextLabel: `Offre : ${c.fields['Offre Titre'] || ''}`,
+  });
+}
+
+
+// ── Dashboard : Publier une offre ──
+function initRecrutPublier() {
+  if (!currentPrestataire) return;
+  const isPro = isProUser();
+  const lockEl = document.getElementById('recrut-pro-lock');
+  const formEl = document.getElementById('recrut-form-wrap');
+  if (lockEl) lockEl.style.display = isPro ? 'none' : 'block';
+  if (formEl) formEl.style.display = isPro ? 'block' : 'none';
+}
+
+// ── Photos offre d'emploi (max 3) ──
+const _recrutPhotosFiles = [];
+function handleRecrutPhotos(input) {
+  const files = Array.from(input.files);
+  const remaining = 3 - _recrutPhotosFiles.length;
+  if (remaining <= 0) { toast('Maximum 3 photos', 'error'); input.value = ''; return; }
+  const toAdd = files.slice(0, remaining);
+  toAdd.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    _recrutPhotosFiles.push(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const idx = _recrutPhotosFiles.indexOf(file);
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;width:100px;height:100px;border-radius:12px;overflow:hidden;';
+      wrap.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+        <button onclick="removeRecrutPhoto(${idx},this.parentElement)" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);color:white;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>`;
+      document.getElementById('recrut-photos-previews').appendChild(wrap);
+      if (_recrutPhotosFiles.length >= 3) document.getElementById('recrut-photo-add').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+function removeRecrutPhoto(idx, el) {
+  _recrutPhotosFiles.splice(idx, 1);
+  el.remove();
+  document.getElementById('recrut-photo-add').style.display = '';
+  // Re-index buttons
+  document.getElementById('recrut-photos-previews').querySelectorAll('button').forEach((btn, i) => {
+    btn.setAttribute('onclick', `removeRecrutPhoto(${i},this.parentElement)`);
+  });
+}
+
+// IA — Analyser l'annonce avant publication (sprint H)
+function analyserAnnonceAvantPublication() {
+  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
+  const get = id => document.getElementById(id)?.value?.trim() || '';
+  const fields = {
+    'Titre': get('recrut-titre'),
+    'Métier': get('recrut-metier'),
+    'Quartier': get('job-quartier'),
+    'Ville': get('recrut-ville'),
+    'Type de contrat': get('recrut-contrat'),
+    'Expérience requise': get('recrut-experience'),
+    'Description': get('recrut-description'),
+    'Salaire min FCFA': get('recrut-salaire-min'),
+    'Salaire max FCFA': get('recrut-salaire-max'),
+  };
+  if (!fields['Titre'] || !fields['Description']) {
+    toast('Remplis au moins le titre et la description avant l\'analyse', 'error');
+    return;
+  }
+  window.wozaliAi.analyserAnnonce(fields);
+}
+
+var _RECRUT_VILLES = {
+  'Togo':  ['Lomé','Kpalimé','Atakpamé','Sokodé','Kara','Tsévié','Vogan','Aného','Notsé','Dapaong','Autre'],
+  'Bénin': ['Cotonou','Porto-Novo','Parakou','Abomey-Calavi','Abomey','Natitingou','Bohicon','Lokossa','Ouidah','Djougou','Autre']
+};
+var _RECRUT_QUARTIERS = {
+  'Lomé':          ['Lomé Centre','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Cassablanca','Avédji','Attiégou','Autre'],
+  'Cotonou':       ['Akpakpa','Cadjèhoun','Cotonou Centre','Fidjrossè','Gbèdjromèdé','Zogbo','Mènontin','Vèdoko','Agla','Dantokpa','Abomey-Calavi','Autre'],
+  'Porto-Novo':    ['Ouando','Avrankou','Attakè','Agbokou','Autre'],
+  'Parakou':       ['Banikanni','Ladji Bata','Zongo','Titirou','Madina','Autre'],
+  'Abomey-Calavi': ['Calavi Centre','Godomey','Hévié','Togba','Akassato','Autre'],
+  'Kpalimé':       ['Kpalimé Centre','Kpodzi','Atakpamé Rd','Autre'],
+  'Atakpamé':      ['Atakpamé Centre','Badè','Autre'],
+  'Sokodé':        ['Sokodé Centre','Kasséna','Autre'],
+  'Kara':          ['Kara Centre','Lama','Autre']
+};
+function _recrutUpdateVilles(pays) {
+  var vSel = document.getElementById('recrut-ville-offre');
+  var qSel = document.getElementById('job-quartier');
+  var autreVille = document.getElementById('recrut-autre-ville-wrap');
+  var autreQ = document.getElementById('recrut-autre-quartier-wrap');
+  vSel.innerHTML = '<option value="">Toutes les villes</option>';
+  qSel.innerHTML = '<option value="">Tous les quartiers</option>';
+  if (autreVille) autreVille.style.display = 'none';
+  if (autreQ) autreQ.style.display = 'none';
+  if (!pays) { vSel.disabled = true; qSel.disabled = true; return; }
+  var villes = _RECRUT_VILLES[pays] || [];
+  villes.forEach(function(v) { var o = document.createElement('option'); o.value = v; o.textContent = v; vSel.appendChild(o); });
+  vSel.disabled = false;
+  qSel.disabled = true;
+}
+function _recrutUpdateQuartiers(ville) {
+  var qSel = document.getElementById('job-quartier');
+  var autreVille = document.getElementById('recrut-autre-ville-wrap');
+  var autreQ = document.getElementById('recrut-autre-quartier-wrap');
+  if (autreVille) autreVille.style.display = ville === 'Autre' ? 'block' : 'none';
+  if (autreQ) autreQ.style.display = 'none';
+  qSel.innerHTML = '<option value="">Tous les quartiers</option>';
+  if (!ville || ville === 'Autre') { qSel.disabled = true; return; }
+  var quartiers = _RECRUT_QUARTIERS[ville] || ['Autre'];
+  quartiers.forEach(function(q) { var o = document.createElement('option'); o.value = q; o.textContent = q; qSel.appendChild(o); });
+  qSel.disabled = false;
+  qSel.onchange = function() {
+    if (autreQ) autreQ.style.display = this.value === 'Autre' ? 'block' : 'none';
+  };
+}
+async function publierOffre() {
+  if (!currentPrestataire) return;
+  if (!isProUser()) {
+    toast('Fonctionnalité réservée au Plan Pro', 'error'); return;
+  }
+  const f = currentPrestataire.fields;
+  const get = id => document.getElementById(id)?.value?.trim() || '';
+  const getChk = id => document.getElementById(id)?.checked || false;
+
+  const titre = get('recrut-titre');
+  const metier = get('recrut-metier');
+  const contrat = get('recrut-contrat');
+  const description = get('recrut-description');
+
+  if (!titre || !metier || !contrat || !description) {
+    toast('Remplis les champs obligatoires (*, titre, métier, contrat, description)', 'error'); return;
+  }
+
+  // Upload photos si présentes
+  let photoUrls = [];
+  if (_recrutPhotosFiles.length > 0) {
+    toast('Upload des photos en cours…', 'info');
+    for (const file of _recrutPhotosFiles) {
+      const url = await uploadToImgBB(file);
+      if (url) photoUrls.push(url);
+    }
+  }
+
+  const body = {
+    fields: {
+      'Titre': titre,
+      'Métier': metier,
+      'Pays': get('recrut-pays') || undefined,
+      'Ville': (get('recrut-ville-offre') === 'Autre' ? get('recrut-autre-ville') : get('recrut-ville-offre')) || undefined,
+      'Quartier': (get('job-quartier') === 'Autre' ? get('recrut-autre-quartier') : get('job-quartier')) || undefined,
+      'Type de contrat': contrat,
+      'Expérience requise': get('recrut-experience') || undefined,
+      'Description': description,
+      'Salaire min FCFA': Number(get('recrut-salaire-min')) || undefined,
+      'Salaire max FCFA': Number(get('recrut-salaire-max')) || undefined,
+      'Salaire affiché': getChk('recrut-afficher-salaire'),
+      'Urgente': getChk('recrut-urgente'),
+      'Télétravail possible': getChk('recrut-teletravail'),
+      'Date expiration': get('recrut-expiration') || undefined,
+      'Recruteur ID': currentPrestataire.id,
+      'Recruteur Nom': f['Nom complet'] || '',
+      'Recruteur WhatsApp': f['WhatsApp'] || f['Numéro de téléphone'] || '',
+      'Active': true,
+      'Vues': 0,
+      'Nb candidatures': 0,
+      'Créée le': new Date().toISOString()
+    }
+  };
+
+  // Ajouter les photos au body
+  if (photoUrls.length > 0) body.fields['Photo 1'] = photoUrls[0];
+  if (photoUrls.length > 1) body.fields['Photo 2'] = photoUrls[1];
+  if (photoUrls.length > 2) body.fields['Photo 3'] = photoUrls[2];
+
+  // Enlever les champs undefined
+  Object.keys(body.fields).forEach(k => body.fields[k] === undefined && delete body.fields[k]);
+
+  try {
+    let createdId = null;
+    // 1. Tenter Supabase
+    if (window.supaOffres) {
+      try {
+        const fields = { ...body.fields, 'Recruteur User ID': window.currentUser?.id || undefined };
+        const created = await window.supaOffres.create(fields);
+        if (created?.id) createdId = created.id;
+      } catch (e) { console.warn('[publierOffre supa fail, fallback Airtable]', e?.message || e); }
+    }
+    let data = createdId ? { id: createdId } : null;
+    if (!createdId) throw new Error('Impossible de publier l\'offre. Réessaie dans quelques secondes.');
+    if (data?.id) {
+      toast('✅ Offre publiée avec succès !', 'success');
+      const _ville = get('job-quartier') || 'ta zone';
+      const _confDiv = document.createElement('div');
+      _confDiv.className = 'modal-overlay active';
+      _confDiv.style.zIndex = '10002';
+      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:12px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Ton offre est publiée sur WOZALI Jobs.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:14px;">Visible par tous les membres au Bénin et au Togo.<br><strong style="color:#E8940A;">WOZALI Match</strong> analyse maintenant les profils disponibles.</p><p style="font-size:13px;color:#111;line-height:1.6;margin-bottom:18px;">Résultat dans les 5 minutes :<br><em style="color:#E8940A;">"[X] professionnels à ' + _ville + ' correspondent à ton besoin."</em></p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Voir les profils recommandés</button><button class="btn btn-secondary btn-sm" onclick="showDashSection(\'recrut-offres\');this.closest(\'.modal-overlay\').remove();">→ Gérer mes offres</button></div></div>';
+      document.body.appendChild(_confDiv);
+      _confDiv.onclick = e => { if (e.target === _confDiv) _confDiv.remove(); };
+      // Reset form
+      ['recrut-titre','recrut-description','recrut-salaire-min','recrut-salaire-max','recrut-expiration'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      ['recrut-metier','job-quartier','recrut-contrat','recrut-experience'].forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+      ['recrut-afficher-salaire','recrut-urgente','recrut-teletravail'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+      // Reset photos
+      _recrutPhotosFiles.length = 0;
+      document.getElementById('recrut-photos-previews').innerHTML = '';
+      document.getElementById('recrut-photo-add').style.display = '';
+      setTimeout(() => showDashSection('recrut-offres'), 500);
+    } else {
+      throw new Error(data.error?.message || 'Erreur');
+    }
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  }
+}
+
+// ── Dashboard : Mes offres (version enrichie) ──
+let allMesOffres = [];
+
+async function loadMesOffres() {
+  if (!currentPrestataire) return;
+  const container = document.getElementById('mes-offres-container');
+  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    let records = [];
+    // 1. Supabase d'abord (par recruteur_user_id ou recruteur_prestataire_id)
+    if (window.supaOffres) {
+      try {
+        const userId = window.currentUser?.id;
+        if (userId) records = await window.supaOffres.list({ recruteur_user_id: userId, limit: 100 });
+        if (!records.length) records = await window.supaOffres.list({ recruteur_prestataire_id: currentPrestataire.id, limit: 100 });
+      } catch (e) { console.warn('[loadMesOffres supa fail, fallback Airtable]', e?.message || e); }
+    }
+    allMesOffres = records;
+
+    // KPIs
+    const total = allMesOffres.length;
+    const actives = allMesOffres.filter(o => o.fields['Active']).length;
+    const _set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    _set('offres-kpi-total', total);
+    _set('offres-kpi-actives', actives);
+    _set('offres-kpi-inactives', total - actives);
+
+    // Mettre à jour filtre candidatures
+    const filterSelect = document.getElementById('recrut-cand-filter-offre');
+    if (filterSelect) {
+      filterSelect.innerHTML = '<option value="">Toutes les offres</option>' + allMesOffres.map(o => `<option value="${escapeHtml(o.id)}">${escapeHtml(o.fields['Titre']||'Sans titre')}</option>`).join('');
+    }
+    filterMesOffres();
+  } catch(e) {
+    if (container) container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+function filterMesOffres() {
+  const statut = (document.getElementById('offres-filter-statut') || {}).value || '';
+  const search = ((document.getElementById('offres-search') || {}).value || '').toLowerCase().trim();
+  const filtered = allMesOffres.filter(o => {
+    const f = o.fields;
+    if (statut === 'actives' && !f['Active']) return false;
+    if (statut === 'inactives' && f['Active']) return false;
+    if (statut === 'urgentes' && !f['Urgente']) return false;
+    if (search && !(f['Titre']||'').toLowerCase().includes(search) && !(f['Métier']||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  renderMesOffres(filtered);
+}
+
+function renderMesOffres(offres) {
+  const container = document.getElementById('mes-offres-container');
+  if (!container) return;
+  if (offres.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:60px;color:rgba(252, 224, 168,.4);">
+      <div style="font-size:48px;margin-bottom:16px;">📂</div>
+      <p style="font-family:Geist,sans-serif;font-size:15px;margin-bottom:20px;">${allMesOffres.length === 0 ? "Tu n'as pas encore publié d'offre." : "Aucune offre ne correspond à ce filtre."}</p>
+      ${allMesOffres.length === 0 ? `<button onclick="showDashSection('recrut-publier')" style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:12px 24px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">📢 Publier ma première offre →</button>` : ''}
+    </div>`;
+    return;
+  }
+  container.innerHTML = offres.map(o => {
+    const f = o.fields;
+    const isActive = !!f['Active'];
+    const titre = (f['Titre']||'Sans titre').replace(/'/g,"\\'").replace(/</g,'&lt;');
+    const _safeTitreO = escapeHtml(f['Titre']||'Sans titre');
+    const _safeMetierO = escapeHtml(f['Métier']||'');
+    const _safeContratO = escapeHtml(f['Type de contrat']||'');
+    const _safeQuartierO = escapeHtml(f['Quartier']||'');
+    const _safeIdO = escapeHtml(o.id);
+    return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.12);border-radius:14px;padding:20px;margin-bottom:14px;transition:border-color .2s;" onmouseenter="this.style.borderColor='rgba(232,148,10,.3)'" onmouseleave="this.style.borderColor='rgba(232,148,10,.12)'">
+      <div style="margin-bottom:12px;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin:0 0 10px;">${_safeTitreO}</h3>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;">
+          ${f['Métier'] ? `<span style="background:rgba(232,148,10,.15);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">${_safeMetierO}</span>` : ''}
+          ${f['Type de contrat'] ? `<span style="background:rgba(252, 224, 168,.08);color:rgba(252, 224, 168,.6);border-radius:20px;padding:3px 11px;font-size:12px;">${_safeContratO}</span>` : ''}
+          ${f['Quartier'] ? `<span style="background:rgba(252, 224, 168,.05);color:rgba(252, 224, 168,.45);border-radius:20px;padding:3px 11px;font-size:11px;">📍 ${_safeQuartierO}</span>` : ''}
+          ${isActive ? `<span style="background:rgba(34,197,94,.12);color:#22c55e;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">● Active</span>` : `<span style="background:rgba(252, 224, 168,.06);color:rgba(252, 224, 168,.35);border-radius:20px;padding:3px 11px;font-size:12px;">● Inactive</span>`}
+          ${f['Urgente'] ? `<span style="background:rgba(220,38,38,.15);color:#ef4444;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;">🔴 URGENTE</span>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(252, 224, 168,.05);border-radius:8px;padding:7px 13px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;color:#FCE0A8;">${f['Vues']||0}</span>
+          <span style="font-size:11px;color:rgba(252, 224, 168,.4);">vues</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(232,148,10,.07);border-radius:8px;padding:7px 13px;">
+          <span style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;color:#E8940A;">${f['Nb candidatures']||0}</span>
+          <span style="font-size:11px;color:rgba(232,148,10,.6);">candidature${(f['Nb candidatures']||0)!==1?'s':''}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="showDashSection('recrut-candidatures');loadCandidaturesRecues().then(()=>{const s=document.getElementById('recrut-cand-filter-offre');if(s){s.value='${_safeIdO}';filterRecrutCandidatures();}})" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">👥 Candidatures</button>
+        <button onclick="topCandidatsForOffre('${_safeIdO}')" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🤖 Top candidats IA</button>
+        <button onclick="ouvrirEditionOffre('${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Modifier</button>
+        <button onclick="partagerOffre('${titre}','${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📤 Partager</button>
+        <button onclick="toggleOffreActive('${_safeIdO}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(34,197,94,.08)'};color:${isActive?'#ef4444':'#22c55e'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(34,197,94,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
+        <button onclick="supprimerOffre('${_safeIdO}','${titre}')" style="background:rgba(220,38,38,.07);color:#ef4444;border:1px solid rgba(220,38,38,.18);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🗑 Supprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Top candidats IA suggérés pour une offre ──
+async function topCandidatsForOffre(offreId) {
+  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
+  const offre = (window.allMesOffres || []).find(o => o.id === offreId);
+  if (!offre) { toast('Offre introuvable', 'error'); return; }
+  const metier = offre.fields['Métier'] || '';
+  const ville = offre.fields['Ville'] || '';
+  if (!metier) { toast('Cette offre n\'a pas de métier renseigné', 'error'); return; }
+
+  // Modal de chargement
+  const overlay = document.createElement('div');
+  overlay.id = 'wozali-top-cand-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.innerHTML = `
+    <div style="background:#14100A;border:1px solid rgba(168,85,247,.3);border-radius:16px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;font-family:Geist,sans-serif;color:#FCE0A8;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+        <div>
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:2px;">Suggestions IA</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;margin:4px 0 0;">Top candidats pour ${(offre.fields['Titre']||'').replace(/</g,'&lt;')}</h3>
+          <div style="font-size:11px;color:rgba(252, 224, 168,.4);margin-top:2px;">Métier : ${metier} · ${ville}</div>
+        </div>
+        <button onclick="document.getElementById('wozali-top-cand-modal').remove()" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div id="wozali-top-cand-body">
+        <div style="text-align:center;padding:30px 0;">
+          <div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(168,85,247,.2);border-top-color:#c084fc;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+          <div style="margin-top:12px;color:rgba(252, 224, 168,.5);font-size:13px;">Recherche des prestataires…</div>
+        </div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const body = document.getElementById('wozali-top-cand-body');
+
+  try {
+    // Récupère les Prestataires actifs avec métier exact (limit 20)
+    const allRecs = await window.supaPrest.list({ metier: metier, limit: 20, orderBy: 'note_moyenne', orderDir: 'desc' });
+    const prestataires = allRecs.filter(p => p.id !== currentPrestataire?.id);
+    if (prestataires.length === 0) {
+      body.innerHTML = `<div style="text-align:center;padding:30px;color:rgba(252, 224, 168,.5);">Aucun prestataire trouvé pour "${metier}". Élargis ton offre.</div>`;
+      return;
+    }
+
+    body.innerHTML = `<div style="text-align:center;padding:20px;color:rgba(252, 224, 168,.5);font-size:13px;">
+      <div style="display:inline-block;width:28px;height:28px;border:3px solid rgba(168,85,247,.2);border-top-color:#c084fc;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:10px;"></div>
+      <div id="wozali-top-cand-progress">${prestataires.length} prestataires trouvés. Scoring IA en cours (max 5)…</div>
+    </div>`;
+
+    // Score IA pour max 5 (les autres : score=null)
+    const cibles = prestataires.slice(0, 5);
+    let done = 0;
+    for (const p of cibles) {
+      const cached = window.wozaliAi.getMatchScore(p.id, offre.id);
+      if (!cached) {
+        try { await window.wozaliAi.scoreOffreForCandidat(p, offre); }
+        catch (e) {
+          if (e?.status === 429) { window.toast?.('Quota IA atteint', 'error'); break; }
+        }
+      }
+      done++;
+      const prog = document.getElementById('wozali-top-cand-progress');
+      if (prog) prog.textContent = `Scoring ${done}/${cibles.length}…`;
+    }
+
+    // Compose la liste finale (tous les candidats, scorés en premier)
+    const enriched = prestataires.map(p => {
+      const cached = window.wozaliAi.getMatchScore(p.id, offre.id);
+      return { p, score: cached?.score ?? null, justif: cached?.justification || '' };
+    }).sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+
+    body.innerHTML = enriched.slice(0, 10).map(({ p, score, justif }) => {
+      const f = p.fields;
+      const photo = _wPhotoUrl(f['Photo de profil']);
+      const note = f['Note moyenne'] ? Number(f['Note moyenne']).toFixed(1) : '—';
+      const wa = (f['WhatsApp'] || f['Numéro de téléphone'] || '').replace(/\D/g, '');
+      const safeName = (f['Nom complet'] || '').replace(/'/g, "\\'");
+      const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : score != null ? '#f87171' : 'rgba(252, 224, 168,.3)';
+      const scoreBadge = score != null
+        ? `<div style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:${scoreColor};padding:4px 10px;border-radius:8px;font-weight:800;font-size:13px;font-family:'Geist Mono',monospace;">🤖 ${score}</div>`
+        : `<div style="background:rgba(255,255,255,.04);color:rgba(252, 224, 168,.3);padding:4px 10px;border-radius:8px;font-size:11px;">non scoré</div>`;
+      return `<div style="display:flex;gap:14px;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:14px;margin-bottom:10px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(232,148,10,.2);overflow:hidden;display:flex;align-items:center;justify-content:center;color:#E8940A;font-weight:900;font-size:18px;flex-shrink:0;">
+          ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Nom complet']||'?')[0].toUpperCase()}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f['Nom complet'] || '—'}</div>
+          <div style="font-size:11px;color:#E8940A;">${f['Métier principal'] || ''}</div>
+          <div style="font-size:11px;color:rgba(252, 224, 168,.45);margin-top:2px;">📍 ${f['Quartier'] || ''} · ⭐ ${note}</div>
+          ${justif ? `<div style="font-size:11px;color:rgba(252, 224, 168,.55);margin-top:4px;font-style:italic;">"${justif.replace(/"/g,'&quot;')}"</div>` : ''}
+        </div>
+        ${scoreBadge}
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <button onclick="document.getElementById('wozali-top-cand-modal').remove();showPage('profil');loadPublicProfile('${p.id}')" style="background:rgba(232,148,10,.12);color:#E8940A;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Profil</button>
+          ${wa ? `<a href="https://wa.me/${wa}?text=${encodeURIComponent('Bonjour '+(f['Nom complet']||'')+', un poste pour toi : '+(offre.fields['Titre']||'')+' sur WOZALI')}" target="_blank" style="background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;">Inviter</a>` : ''}
+        </div>
+      </div>`;
+    }).join('') + `<div style="text-align:center;margin-top:14px;font-size:11px;color:rgba(252, 224, 168,.4);">Scoring IA limité à 5/run pour préserver le quota. Reclique pour scorer 5 de plus.</div>`;
+  } catch (e) {
+    body.innerHTML = `<div style="padding:18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:#f87171;font-size:13px;">${e.message}</div>`;
+  }
+}
+
+function ouvrirEditionOffre(offreId) {
+  const offre = allMesOffres.find(o => o.id === offreId);
+  if (!offre) { toast('Offre introuvable', 'error'); return; }
+  const f = offre.fields;
+  const metiersOpts = ['Plombier','Électricien','Menuisier','Maçon','Peintre','Soudeur','Mécanicien','Coiffeur','Couturier','Cuisinier','Photographe','Graphiste','Développeur web','Commercial/Agent','Gardien','Chauffeur','Enseignant/Formateur','Comptable','Secrétaire','Agent de sécurité','Infirmier','Autre'];
+  const quartiersOpts = ['Lomé Centre','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Cassablanca','Avédji','Attiégou','Autre'];
+  const contratsOpts = ['CDI','CDD','Freelance','Mission ponctuelle','Stage','Bénévole','Alternance'];
+  const expOpts = ['Aucune','1-2 ans','3-5 ans','5+ ans'];
+  const selOpts = (list, val) => list.map(v => `<option value="${v}"${v===val?' selected':''}>${v}</option>`).join('');
+  const iS = 'width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#FCE0A8;padding:10px 14px;font-family:Geist,sans-serif;font-size:13px;outline:none;';
+  const lS = 'display:block;font-family:Geist,sans-serif;font-size:12px;color:rgba(252, 224, 168,.5);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;';
+
+  const modal = document.createElement('div');
+  modal.id = 'modal-edition-offre';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `<div style="background:#1a1e1b;border:1px solid rgba(232,148,10,.2);border-radius:20px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;padding:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;">
+      <div><h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin:0 0 4px;">Modifier l'offre</h3><p style="font-size:12px;color:rgba(252, 224, 168,.4);margin:0;">Modifications enregistrées sur Airtable.</p></div>
+      <button onclick="document.getElementById('modal-edition-offre').remove()" style="background:rgba(252, 224, 168,.08);border:none;border-radius:8px;color:rgba(252, 224, 168,.6);font-size:18px;width:36px;height:36px;cursor:pointer;">×</button>
+    </div>
+    <div style="margin-bottom:16px;"><label style="${lS}">Titre *</label><input id="edit-offre-titre" type="text" value="${(f['Titre']||'').replace(/"/g,'&quot;')}" style="${iS}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><label style="${lS}">Métier</label><select id="edit-offre-metier" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(metiersOpts, f['Métier']||'')}</select></div>
+      <div><label style="${lS}">Quartier</label><select id="edit-offre-quartier" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(quartiersOpts, f['Quartier']||'')}</select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><label style="${lS}">Contrat</label><select id="edit-offre-contrat" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(contratsOpts, f['Type de contrat']||'')}</select></div>
+      <div><label style="${lS}">Expérience</label><select id="edit-offre-experience" style="${iS}cursor:pointer;"><option value="">Choisir...</option>${selOpts(expOpts, f['Expérience requise']||'')}</select></div>
+    </div>
+    <div style="margin-bottom:16px;"><label style="${lS}">Description</label><textarea id="edit-offre-description" rows="4" style="${iS}resize:vertical;">${f['Description']||''}</textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div><label style="${lS}">Salaire min (FCFA)</label><input id="edit-offre-salaire-min" type="number" value="${f['Salaire min FCFA']||''}" style="${iS}"></div>
+      <div><label style="${lS}">Salaire max (FCFA)</label><input id="edit-offre-salaire-max" type="number" value="${f['Salaire max FCFA']||''}" style="${iS}"></div>
+    </div>
+    <div style="display:flex;gap:20px;margin-bottom:24px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(252, 224, 168,.7);"><input id="edit-offre-urgente" type="checkbox" ${f['Urgente']?'checked':''} style="accent-color:#E8940A;"> 🔴 Urgente</label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(252, 224, 168,.7);"><input id="edit-offre-teletravail" type="checkbox" ${f['Télétravail']?'checked':''} style="accent-color:#E8940A;"> 🏠 Télétravail</label>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="document.getElementById('modal-edition-offre').remove()" style="background:rgba(252, 224, 168,.06);color:rgba(252, 224, 168,.6);border:1px solid rgba(252, 224, 168,.12);border-radius:10px;padding:11px 22px;font-size:13px;font-weight:600;cursor:pointer;">Annuler</button>
+      <button onclick="sauvegarderEditionOffre('${offreId}')" style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:11px 22px;font-size:13px;font-weight:700;cursor:pointer;">💾 Enregistrer</button>
+    </div>
+  </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+async function sauvegarderEditionOffre(offreId) {
+  const g = id => document.getElementById(id);
+  const titre = (g('edit-offre-titre')||{}).value?.trim();
+  if (!titre) { toast('Le titre est obligatoire', 'error'); return; }
+  const fields = {
+    'Titre': titre,
+    'Métier': (g('edit-offre-metier')||{}).value||'',
+    'Quartier': (g('edit-offre-quartier')||{}).value||'',
+    'Type de contrat': (g('edit-offre-contrat')||{}).value||'',
+    'Expérience requise': (g('edit-offre-experience')||{}).value||'',
+    'Description': (g('edit-offre-description')||{}).value?.trim()||'',
+    'Urgente': !!(g('edit-offre-urgente')||{}).checked,
+    'Télétravail': !!(g('edit-offre-teletravail')||{}).checked,
+  };
+  const sMin = parseInt((g('edit-offre-salaire-min')||{}).value||'0', 10);
+  const sMax = parseInt((g('edit-offre-salaire-max')||{}).value||'0', 10);
+  if (sMin > 0) fields['Salaire min FCFA'] = sMin;
+  if (sMax > 0) fields['Salaire max FCFA'] = sMax;
+  try {
+    const updated = await window.supaOffres.update(offreId, fields);
+    if (updated?.id) {
+      toast('Offre mise à jour ✓', 'success');
+      const modal = document.getElementById('modal-edition-offre');
+      if (modal) modal.remove();
+      await loadMesOffres();
+    } else { throw new Error('Erreur de mise à jour'); }
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+async function toggleOffreActive(offreId, actif) {
+  try {
+    await window.supaOffres.update(offreId, { 'Active': actif });
+    toast(actif ? 'Offre réactivée' : 'Offre désactivée', 'info');
+    loadMesOffres();
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+function partagerOffre(titre, offreId) {
+  const url = `https://wozali.com/?emploi=${offreId}`;
+  const text = `📢 Offre d'emploi au Bénin et au Togo : ${titre}\n\nPostule en 1 clic sur WOZALI :\n${url}`;
+  if (navigator.share) {
+    navigator.share({ title: `Offre : ${titre}`, text: text, url: url }).catch(() => {});
+  } else {
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+  }
+}
+
+async function supprimerOffre(offreId, titrte) {
+  if (!confirm(`Supprimer l'offre "${titrte}" ? Cette action est irréversible.`)) return;
+  try {
+    await window.supaOffres.deleteById(offreId);
+    toast('✅ Offre supprimée', 'success');
+    loadMesOffres();
+  } catch(e) {
+    toast('Erreur lors de la suppression : ' + e.message, 'error');
+  }
+}
+
+// ── Dashboard Recruteur : état global ──
+let allRecrutCandidatures = [];
+let recrutCandView = 'grid';
+let recrutCandSort = 'recent'; // recent | ai_desc | ai_asc | wozali_desc | ancien
+let recrutCandFiltered = []; // dernier set affiché (utilisé par exportCandidaturesCSV)
+
+// ── Coordonnées approximatives quartiers Lomé / Cotonou (lat, lon) ──
+// Pour calcul de distance entre quartier candidat et quartier offre
+const _WOZALI_QUARTIER_COORDS = {
+  // Lomé
+  'Adidogome': [6.1656, 1.1856], 'Agbalépédogan': [6.1700, 1.2333], 'Agoè': [6.2000, 1.2167],
+  'Agoé-Nyivé': [6.2000, 1.2167], 'Akodessewa': [6.1500, 1.2667], 'Bè': [6.1333, 1.2500],
+  'Cacavéli': [6.2167, 1.2167], 'Doumassessé': [6.1833, 1.2167], 'Gbényédzi': [6.1833, 1.2333],
+  'Hédzranawoé': [6.1833, 1.2167], 'Kégué': [6.1833, 1.2000], 'Kodjoviakopé': [6.1333, 1.2000],
+  'Lomé II': [6.1500, 1.2167], 'Nyékonakpoè': [6.1500, 1.2167], 'Tokoin': [6.1500, 1.2167],
+  'Totsi': [6.2167, 1.1833], 'Avenou': [6.1667, 1.2333], 'Adidoadin': [6.1667, 1.1833],
+  // Cotonou
+  'Akpakpa': [6.3667, 2.4333], 'Cadjehoun': [6.3500, 2.4000], 'Cocotomey': [6.4000, 2.3500],
+  'Dantokpa': [6.3667, 2.4333], 'Fidjrossè': [6.3500, 2.3833], 'Gbégamey': [6.3667, 2.4000],
+  'Godomey': [6.4000, 2.3500], 'Houéyiho': [6.3500, 2.4000], 'Jéricho': [6.3500, 2.4000],
+  'Ladji': [6.3833, 2.4333], 'Menontin': [6.3667, 2.4000], 'Saint-Michel': [6.3500, 2.4167],
+  'Sainte-Rita': [6.3500, 2.4167], 'Vodjè': [6.3500, 2.4000], 'Zogbo': [6.3500, 2.4000],
+  'Calavi': [6.4500, 2.3500], 'Aïdjèdo': [6.3667, 2.4500], 'Pk3': [6.3833, 2.4167],
+  'Pk10': [6.4167, 2.4000]
+};
+
+function _wozaliDistanceQuartiers(qA, qB) {
+  if (!qA || !qB) return null;
+  if (qA === qB) return 0;
+  const a = _WOZALI_QUARTIER_COORDS[qA]; const b = _WOZALI_QUARTIER_COORDS[qB];
+  if (!a || !b) return null;
+  const toRad = d => d * Math.PI / 180;
+  const R = 6371; // km
+  const dLat = toRad(b[0] - a[0]); const dLon = toRad(b[1] - a[1]);
+  const lat1 = toRad(a[0]); const lat2 = toRad(b[0]);
+  const x = Math.sin(dLat/2)**2 + Math.sin(dLon/2)**2 * Math.cos(lat1) * Math.cos(lat2);
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+}
+
+function _wozaliAgeFromDateNaissance(dateIso) {
+  if (!dateIso) return null;
+  const d = new Date(dateIso);
+  if (isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age;
+}
+
+function _wozaliAiScoreFor(c) {
+  // Score IA : prioriser le champ persisté `Score IA` / `score_ia`, sinon cache local
+  const f = c.fields || {};
+  const persisted = f['Score IA'] ?? f['score_ia'] ?? null;
+  if (persisted != null && persisted !== '') return Number(persisted);
+  const cached = window.wozaliAi?.getCachedScore?.(c.id);
+  return cached?.score ?? null;
+}
+
+// ── Dashboard : Candidatures reçues (version enrichie) ──
+async function loadCandidaturesRecues() {
+  const container = document.getElementById('recrut-cand-container');
+  if (!container) return;
+  if (!currentPrestataire) {
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(252, 224, 168,.5);font-family:Geist,sans-serif;">
+      <div style="font-size:36px;margin-bottom:10px;">🔒</div>
+      <p style="margin:0 0 6px;">Ton profil n'est pas encore chargé.</p>
+      <p style="margin:0;font-size:12px;color:rgba(252, 224, 168,.35);">Recharge la page si ça persiste.</p>
+    </div>`;
+    return;
+  }
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  // Restaure les filtres + tri persistés AVANT le fetch (le dropdown offre sera complété ensuite)
+  _restoreRecrutFilters();
+  try {
+    // ID mismatch fix : `currentPrestataire.id` peut être soit un UUID Supabase soit un recXXX Airtable.
+    // On cherche les candidatures qui matchent l'un OU l'autre (Recruteur ID ou Recruteur User ID).
+    if (window.supaCandidatures) {
+      const userId = window.currentUser?.id || '';
+      let recs = [];
+      if (userId) {
+        try {
+          recs = await window.supaCandidatures.list({ recruteur_user_id: userId, limit: 200 });
+        } catch (e) {
+          console.warn('[loadCandidaturesRecues supa fail]', e?.message || e);
+          recs = [];
+        }
+      }
+      allRecrutCandidatures = recs;
+      // Pas de fallback Airtable — supaCandidatures est le seul backend
+    } else {
+      allRecrutCandidatures = [];
+    }
+
+    // KPI cards
+    const total     = allRecrutCandidatures.length;
+    const attente   = allRecrutCandidatures.filter(c => (c.fields['Statut'] || 'En attente') === 'En attente').length;
+    const vues      = allRecrutCandidatures.filter(c => c.fields['Statut'] === 'Vue').length;
+    const retenues  = allRecrutCandidatures.filter(c => c.fields['Statut'] === 'Retenue').length;
+    const refusees  = allRecrutCandidatures.filter(c => c.fields['Statut'] === 'Refusée').length;
+    const setKpi = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setKpi('recrut-kpi-total',    total);
+    setKpi('recrut-kpi-attente',  attente);
+    setKpi('recrut-kpi-vues',     vues);
+    setKpi('recrut-kpi-retenues', retenues);
+    setKpi('recrut-kpi-refusees', refusees);
+
+    // Anti-ghosting widget
+    renderAntiGhostingWidget(allRecrutCandidatures);
+
+    // Peupler dropdown offres
+    const selOffre = document.getElementById('recrut-cand-filter-offre');
+    if (selOffre) {
+      const offresMap = {};
+      allRecrutCandidatures.forEach(c => {
+        const id = c.fields['Offre ID'];
+        const titre = c.fields['Offre Titre'] || '—';
+        if (id && !offresMap[id]) offresMap[id] = titre;
+      });
+      const currentOffre = selOffre.value;
+      selOffre.innerHTML = '<option value="">Toutes les offres</option>' +
+        Object.entries(offresMap).map(([id, titre]) =>
+          `<option value="${escapeHtml(id)}" ${id === currentOffre ? 'selected' : ''}>${escapeHtml(titre)}</option>`
+        ).join('');
+    }
+
+    // Peupler dropdown quartiers (depuis le champ Candidat Quartier si disponible)
+    const selQuartier = document.getElementById('recrut-cand-filter-quartier');
+    if (selQuartier) {
+      const quartiers = [...new Set(
+        allRecrutCandidatures
+          .map(c => c.fields['Candidat Quartier'])
+          .filter(Boolean)
+      )].sort();
+      const currentQ = selQuartier.value;
+      selQuartier.innerHTML = '<option value="">Tous les quartiers</option>' +
+        quartiers.map(q => `<option value="${escapeHtml(q)}" ${q === currentQ ? 'selected' : ''}>${escapeHtml(q)}</option>`).join('');
+    }
+
+    filterRecrutCandidatures();
+  } catch(e) {
+    container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
+  }
+}
+
+function filterRecrutCandidatures() {
+  const offre    = document.getElementById('recrut-cand-filter-offre')?.value   || '';
+  const statut   = document.getElementById('recrut-cand-filter-statut')?.value  || '';
+  const quartier = document.getElementById('recrut-cand-filter-quartier')?.value || '';
+  const search   = (document.getElementById('recrut-cand-search')?.value || '').toLowerCase().trim();
+  const ageBand  = document.getElementById('recrut-cand-filter-age')?.value || '';
+  const expBand  = document.getElementById('recrut-cand-filter-exp')?.value || '';
+  const distBand = document.getElementById('recrut-cand-filter-distance')?.value || '';
+
+  let filtered = allRecrutCandidatures.filter(c => {
+    const f = c.fields;
+    if (offre    && f['Offre ID']          !== offre)    return false;
+    if (statut   && (f['Statut'] || 'En attente') !== statut)  return false;
+    if (quartier && f['Candidat Quartier'] !== quartier) return false;
+    if (search) {
+      const haystack = [
+        f['Candidat Nom']     || '',
+        f['Candidat Métier']  || '',
+        f['Candidat Quartier']|| ''
+      ].join(' ').toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    // Tranche d'âge (depuis Candidat Date naissance)
+    if (ageBand) {
+      const age = _wozaliAgeFromDateNaissance(f['Candidat Date naissance'] || f['Candidat Date de naissance']);
+      if (age == null) return false;
+      if (ageBand === '18-25' && !(age >= 18 && age <= 25)) return false;
+      if (ageBand === '26-35' && !(age >= 26 && age <= 35)) return false;
+      if (ageBand === '36-45' && !(age >= 36 && age <= 45)) return false;
+      if (ageBand === '45+'   && !(age > 45))               return false;
+    }
+    // Expérience (depuis Candidat Années expérience)
+    if (expBand) {
+      const exp = Number(f['Candidat Années expérience'] ?? f['Candidat Annees experience'] ?? f['Candidat Experience'] ?? NaN);
+      if (!Number.isFinite(exp)) return false;
+      if (expBand === 'junior'   && !(exp <= 2)) return false;
+      if (expBand === 'confirme' && !(exp >= 3 && exp <= 5)) return false;
+      if (expBand === 'senior'   && !(exp > 5))  return false;
+    }
+    // Distance candidat <-> quartier de l'offre
+    if (distBand) {
+      const qCand  = f['Candidat Quartier'];
+      const qOffre = f['Offre Quartier'] || f['Quartier Offre'] || f['Quartier'];
+      if (!qCand || !qOffre) return false;
+      if (distBand === 'same') {
+        if (qCand !== qOffre) return false;
+      } else {
+        const km = _wozaliDistanceQuartiers(qCand, qOffre);
+        if (km == null) return false;
+        if (distBand === 'lt2'  && !(km < 2))                return false;
+        if (distBand === '2to5' && !(km >= 2 && km <= 5))    return false;
+        if (distBand === 'gt5'  && !(km > 5))                return false;
+      }
+    }
+    return true;
+  });
+
+  // Tri
+  filtered = _sortRecrutCandidatures(filtered, recrutCandSort);
+
+  recrutCandFiltered = filtered;
+
+  const countEl = document.getElementById('recrut-cand-count');
+  if (countEl) countEl.textContent = filtered.length + ' candidature' + (filtered.length !== 1 ? 's' : '');
+
+  // Persiste l'état
+  _saveRecrutFilters();
+
+  renderRecrutCandidatures(filtered);
+}
+
+function _sortRecrutCandidatures(list, mode) {
+  const arr = list.slice();
+  const dateOf = c => {
+    const d = c.fields?.['Date candidature'];
+    return d ? new Date(d).getTime() : 0;
+  };
+  switch (mode) {
+    case 'ai_desc':
+      arr.sort((a,b) => {
+        const sa = _wozaliAiScoreFor(a); const sb = _wozaliAiScoreFor(b);
+        if (sa == null && sb == null) return dateOf(b) - dateOf(a);
+        if (sa == null) return 1;
+        if (sb == null) return -1;
+        return sb - sa;
+      });
+      break;
+    case 'ai_asc':
+      arr.sort((a,b) => {
+        const sa = _wozaliAiScoreFor(a); const sb = _wozaliAiScoreFor(b);
+        if (sa == null && sb == null) return dateOf(b) - dateOf(a);
+        if (sa == null) return 1;
+        if (sb == null) return -1;
+        return sa - sb;
+      });
+      break;
+    case 'wozali_desc':
+      arr.sort((a,b) => (Number(b.fields?.['Candidat Score WOZALI']||0)) - (Number(a.fields?.['Candidat Score WOZALI']||0)));
+      break;
+    case 'ancien':
+      arr.sort((a,b) => dateOf(a) - dateOf(b));
+      break;
+    case 'recent':
+    default:
+      arr.sort((a,b) => dateOf(b) - dateOf(a));
+  }
+  return arr;
+}
+
+function setRecrutCandSort(mode) {
+  recrutCandSort = mode || 'recent';
+  filterRecrutCandidatures();
+}
+
+function resetRecrutFilters() {
+  ['recrut-cand-filter-offre','recrut-cand-filter-statut','recrut-cand-filter-quartier',
+   'recrut-cand-filter-age','recrut-cand-filter-exp','recrut-cand-filter-distance'
+  ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const search = document.getElementById('recrut-cand-search'); if (search) search.value = '';
+  const sortEl = document.getElementById('recrut-cand-sort'); if (sortEl) sortEl.value = 'recent';
+  recrutCandSort = 'recent';
+  filterRecrutCandidatures();
+}
+
+// ── Persistance localStorage des filtres + tri ──
+function _recrutFiltersKey() {
+  const uid = (typeof currentUser !== 'undefined' && currentUser?.id)
+    ? currentUser.id
+    : (currentPrestataire?.id || 'anon');
+  return 'wozali_recrut_filters_' + uid;
+}
+
+function _saveRecrutFilters() {
+  try {
+    const state = {
+      offre:    document.getElementById('recrut-cand-filter-offre')?.value    || '',
+      statut:   document.getElementById('recrut-cand-filter-statut')?.value   || '',
+      quartier: document.getElementById('recrut-cand-filter-quartier')?.value || '',
+      search:   document.getElementById('recrut-cand-search')?.value          || '',
+      age:      document.getElementById('recrut-cand-filter-age')?.value      || '',
+      exp:      document.getElementById('recrut-cand-filter-exp')?.value      || '',
+      distance: document.getElementById('recrut-cand-filter-distance')?.value || '',
+      sort:     recrutCandSort,
+      view:     recrutCandView
+    };
+    localStorage.setItem(_recrutFiltersKey(), JSON.stringify(state));
+  } catch (e) { /* localStorage indispo, on ignore */ }
+}
+
+function _restoreRecrutFilters() {
+  try {
+    const raw = localStorage.getItem(_recrutFiltersKey());
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+    set('recrut-cand-filter-statut',   s.statut);
+    set('recrut-cand-filter-quartier', s.quartier);
+    set('recrut-cand-search',          s.search);
+    set('recrut-cand-filter-age',      s.age);
+    set('recrut-cand-filter-exp',      s.exp);
+    set('recrut-cand-filter-distance', s.distance);
+    set('recrut-cand-sort',            s.sort);
+    // Note : l'offre est repeuplée dynamiquement, on tente aussi mais elle peut être vide
+    set('recrut-cand-filter-offre',    s.offre);
+    if (s.sort) recrutCandSort = s.sort;
+    if (s.view) recrutCandView = s.view;
+  } catch (e) { /* JSON cassé, on ignore */ }
+}
+
+// ── Export CSV des candidatures filtrées ──
+function _csvEscape(v) {
+  if (v == null) return '';
+  const s = String(v);
+  if (/[",\n;\r]/.test(s)) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function exportCandidaturesCSV() {
+  const list = Array.isArray(recrutCandFiltered) && recrutCandFiltered.length
+    ? recrutCandFiltered
+    : (allRecrutCandidatures || []);
+  if (!list.length) {
+    if (typeof toast === 'function') toast('Aucune candidature à exporter', 'info');
+    return;
+  }
+  const headers = ['Date','Nom','Métier','Quartier','Score WOZALI','Score IA','Statut','Offre','WhatsApp'];
+  const rows = list.map(c => {
+    const f = c.fields || {};
+    const dateRaw = f['Date candidature'];
+    const date = dateRaw ? new Date(dateRaw).toLocaleDateString('fr-FR') : '';
+    const aiScore = _wozaliAiScoreFor(c);
+    return [
+      date,
+      f['Candidat Nom'] || '',
+      f['Candidat Métier'] || '',
+      f['Candidat Quartier'] || '',
+      f['Candidat Score WOZALI'] ?? '',
+      aiScore ?? '',
+      f['Statut'] || 'En attente',
+      f['Offre Titre'] || '',
+      f['Candidat WhatsApp'] || ''
+    ].map(_csvEscape).join(',');
+  });
+  // BOM UTF-8 pour Excel
+  const csv = '﻿' + headers.map(_csvEscape).join(',') + '\n' + rows.join('\n');
+  const today = new Date().toISOString().slice(0,10);
+  const filename = 'candidatures-recues-' + today + '.csv';
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  if (typeof toast === 'function') toast(list.length + ' candidature' + (list.length>1?'s':'') + ' exportée' + (list.length>1?'s':''), 'success');
+}
+
+function renderRecrutCandidatures(cands) {
+  const container = document.getElementById('recrut-cand-container');
+  if (!container) return;
+
+  if (cands.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(252, 224, 168,.4);">
+      <div style="font-size:48px;margin-bottom:16px;">👥</div>
+      <p style="font-size:15px;">Aucune candidature pour cette sélection.</p>
+    </div>`;
+    return;
+  }
+
+  const statutColors = {
+    'En attente': { bg:'rgba(232,148,10,.15)', color:'#E8940A', label:'En attente' },
+    'Vue':        { bg:'rgba(59,130,246,.15)',  color:'#60a5fa', label:'Vue' },
+    'Retenue':    { bg:'rgba(34,197,94,.15)',   color:'#22c55e', label:'Retenue' },
+    'Refusée':    { bg:'rgba(239,68,68,.15)',   color:'#f87171', label:'Refusée' }
+  };
+
+  if (recrutCandView === 'grid') {
+    container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">` +
+      cands.map(c => {
+        const f = c.fields;
+        const statut  = f['Statut'] || 'En attente';
+        const sc      = statutColors[statut] || statutColors['En attente'];
+        const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+        const photo   = f['Candidat Photo'] || '';
+        const score   = f['Candidat Score WOZALI'] || 0;
+        const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
+        const candId  = f['Candidat ID'] || '';
+        const wa      = f['Candidat WhatsApp'] || '';
+        const ageJ    = _ageJours(f['Date candidature']);
+        const ghosted = statut === 'En attente' && ageJ >= 14;
+        const cardBorder = ghosted ? 'rgba(239,68,68,.4)' : 'rgba(232,148,10,.12)';
+        const aiCache = window.wozaliAi?.getCachedScore?.(c.id);
+        const aiScore = aiCache?.score;
+        const aiJust  = (aiCache?.justification || '').replace(/"/g,'&quot;');
+        const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
+
+        const _safeCandNom = escapeHtml(f['Candidat Nom']||'—');
+        const _safeCandMetier = escapeHtml(f['Candidat Métier']||'');
+        const _safeOffreTitre = escapeHtml(f['Offre Titre']||'—');
+        const _safeMessage = escapeHtml(f['Message']||'');
+        const _safePhotoUrl = encodeURI(photo || '');
+        const _safeWa = encodeURIComponent((wa||'').replace(/\D/g,''));
+        return `<div style="background:rgba(255,255,255,.04);border:1px solid ${cardBorder};border-radius:14px;padding:18px;position:relative;">
+          <span style="position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>
+          ${ghosted ? `<span style="position:absolute;top:14px;left:14px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.18);color:#f87171;">⏰ ${ageJ}j sans réponse</span>` : ''}
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:22px;color:#E8940A;font-weight:900;overflow:hidden;flex-shrink:0;cursor:${photo ? 'pointer' : 'default'};"
+              ${photo ? `onclick="openPhotoLightbox('${_safePhotoUrl}')"` : ''}>
+              ${photo ? `<img src="${_safePhotoUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : escapeHtml((f['Candidat Nom']||'?')[0].toUpperCase())}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;font-size:15px;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_safeCandNom}</div>
+              <div style="color:#E8940A;font-size:13px;margin:2px 0;">${_safeCandMetier}</div>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,.3);color:${scoreColor};" title="Score WOZALI du candidat">⚡ ${score}/100</span>
+                ${aiScore != null ? `<span onclick="scoreCandidatRecru('${c.id}')" style="cursor:pointer;font-size:11px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(168,85,247,.18);color:${aiColor};border:1px solid rgba(168,85,247,.3);" title="${aiJust}">🤖 ${aiScore}</span>` : ''}
+                <span style="font-size:11px;color:rgba(252, 224, 168,.4);">${date}</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:rgba(252, 224, 168,.5);font-style:italic;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Offre : ${_safeOffreTitre}</div>
+          ${f['Message'] ? `<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:10px;font-size:12px;color:rgba(252, 224, 168,.7);margin-bottom:12px;line-height:1.6;max-height:72px;overflow:hidden;">"${_safeMessage}"</div>` : ''}
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+            <button onclick="scoreCandidatRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;">🤖 Score IA</button>
+            <button onclick="openMessagerieRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;">💬 Message</button>
+            <button onclick="openEntretienRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">📅 Entretien</button>
+            ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;">💬 WhatsApp</a>` : ''}
+            <button onclick="updateStatutCandidature('${c.id}','Retenue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;">✓ Retenir</button>
+            <button onclick="updateStatutCandidature('${c.id}','Refusée')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;">✗ Refuser</button>
+            <button onclick="updateStatutCandidature('${c.id}','Vue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">👁 Vue</button>
+            ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;">↗ Profil</button>` : ''}
+            <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;">🚨</button>
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+  } else {
+    // Mode tableau
+    container.innerHTML = `<div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(232,148,10,.2);">
+            ${['Photo','Nom','Métier','Offre','Score','Statut','Date','Actions'].map(h =>
+              `<th style="padding:10px 12px;text-align:left;color:rgba(252, 224, 168,.5);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;">${h}</th>`
+            ).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${cands.map(c => {
+            const f = c.fields;
+            const statut  = f['Statut'] || 'En attente';
+            const sc      = statutColors[statut] || statutColors['En attente'];
+            const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+            const photo   = f['Candidat Photo'] || '';
+            const score   = f['Candidat Score WOZALI'] || 0;
+            const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
+            const candId  = f['Candidat ID'] || '';
+            const wa      = f['Candidat WhatsApp'] || '';
+            const ageJ    = _ageJours(f['Date candidature']);
+            const ghosted = statut === 'En attente' && ageJ >= 14;
+            const rowBg   = ghosted ? 'rgba(239,68,68,.04)' : 'transparent';
+            const aiCache = window.wozaliAi?.getCachedScore?.(c.id);
+            const aiScore = aiCache?.score;
+            const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
+            const _safeCandNomT = escapeHtml(f['Candidat Nom']||'—');
+            const _safeCandMetierT = escapeHtml(f['Candidat Métier']||'—');
+            const _safeOffreTitreT = escapeHtml(f['Offre Titre']||'—');
+            const _safePhotoUrlT = encodeURI(photo || '');
+            const _safeWaT = encodeURIComponent((wa||'').replace(/\D/g,''));
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,.05);background:${rowBg};transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='${rowBg}'">
+              <td style="padding:10px 12px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:#E8940A;font-weight:900;overflow:hidden;cursor:${photo ? 'pointer' : 'default'};"
+                  ${photo ? `onclick="openPhotoLightbox('${_safePhotoUrlT}')"` : ''}>
+                  ${photo ? `<img src="${_safePhotoUrlT}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : escapeHtml((f['Candidat Nom']||'?')[0].toUpperCase())}
+                </div>
+              </td>
+              <td style="padding:10px 12px;color:#FCE0A8;font-weight:700;white-space:nowrap;">${_safeCandNomT}</td>
+              <td style="padding:10px 12px;color:#E8940A;white-space:nowrap;">${_safeCandMetierT}</td>
+              <td style="padding:10px 12px;color:rgba(252, 224, 168,.6);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_safeOffreTitreT}</td>
+              <td style="padding:10px 12px;white-space:nowrap;"><span style="font-weight:700;color:${scoreColor};">${score}</span>${aiScore != null ? `<span style="margin-left:6px;font-weight:800;color:${aiColor};font-size:12px;" title="Score IA">🤖 ${aiScore}</span>` : ''}</td>
+              <td style="padding:10px 12px;white-space:nowrap;"><span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:${sc.bg};color:${sc.color};">${sc.label}</span>${ghosted ? `<span style="margin-left:6px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(239,68,68,.15);color:#f87171;">⏰ ${ageJ}j</span>` : ''}</td>
+              <td style="padding:10px 12px;color:rgba(252, 224, 168,.5);white-space:nowrap;">${date}</td>
+              <td style="padding:10px 12px;white-space:nowrap;">
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                  <button onclick="scoreCandidatRecru('${c.id}')" title="Score IA" style="padding:4px 8px;border-radius:6px;background:rgba(168,85,247,.12);color:#c084fc;border:none;cursor:pointer;font-size:12px;">🤖</button>
+                  <button onclick="openMessagerieRecru('${c.id}')" title="Message" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:12px;">💬</button>
+                  <button onclick="openEntretienRecru('${c.id}')" title="Planifier entretien" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">📅</button>
+                  ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">📱</a>` : ''}
+                  <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;">✓</button>
+                  <button onclick="updateStatutCandidature('${c.id}','Refusée')" title="Refuser" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;">✗</button>
+                  <button onclick="updateStatutCandidature('${c.id}','Vue')" title="Marquer vue" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">👁</button>
+                  ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" title="Voir profil" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-size:12px;">↗</button>` : ''}
+                  <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;font-size:12px;">🚨</button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }
+}
+
+// ── Score IA en batch : prefetch les candidatures non scorées (max 5/run pour préserver le quota) ──
+async function batchScoreCandidatures() {
+  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
+  if (!Array.isArray(allRecrutCandidatures) || allRecrutCandidatures.length === 0) {
+    toast('Aucune candidature à scorer', 'info'); return;
+  }
+  const cibles = allRecrutCandidatures
+    .filter(c => !window.wozaliAi.getCachedScore(c.id))
+    .slice(0, 5);
+  if (cibles.length === 0) {
+    toast('Toutes les candidatures sont déjà scorées', 'info');
+    return;
+  }
+  const btn = document.getElementById('recrut-batch-score');
+  if (btn) { btn.disabled = true; btn.textContent = `🤖 Scoring 0/${cibles.length}…`; }
+  let done = 0, errors = 0;
+  for (const c of cibles) {
+    const offre = await _getOffreById(c.fields['Offre ID']);
+    if (!offre) { errors++; continue; }
+    try {
+      await window.wozaliAi.scoreCandidatSilent(c, offre);
+      done++;
+      if (btn) btn.textContent = `🤖 Scoring ${done}/${cibles.length}…`;
+    } catch (e) {
+      errors++;
+      // Quota dépassé → on arrête
+      if (e?.status === 429) { toast('Quota IA atteint pour aujourd\'hui', 'error'); break; }
+    }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '🤖 Scorer en lot'; }
+  toast(`${done} candidature${done>1?'s':''} scorée${done>1?'s':''}${errors?` · ${errors} erreur${errors>1?'s':''}`:''}`, done>0 ? 'success' : 'error');
+  // Re-render avec les nouveaux scores
+  filterRecrutCandidatures();
+}
+
+// ── Anti-ghosting : score réactivité recruteur ──
+function _ageJours(dateIso) {
+  if (!dateIso) return 0;
+  return Math.floor((Date.now() - new Date(dateIso).getTime()) / 86400000);
+}
+
+function calcScoreVisibilite(cands) {
+  const total = cands.length;
+  if (total === 0) return { score: 100, vieilles: 0, repondues: 0, total: 0, tauxReponse: 100 };
+  const vieilles = cands.filter(c => {
+    const s = c.fields['Statut'] || 'En attente';
+    return s === 'En attente' && _ageJours(c.fields['Date candidature']) >= 14;
+  }).length;
+  const repondues = cands.filter(c => ['Vue','Retenue','Refusée'].includes(c.fields['Statut'])).length;
+  const tauxReponse = Math.round((repondues / total) * 100);
+  // Score = 100 - 60% pénalité ghosting + 40% bonus taux de réponse
+  const ghostingPct = (vieilles / total) * 100;
+  const score = Math.max(0, Math.min(100, Math.round(100 - ghostingPct * 0.6 - (100 - tauxReponse) * 0.4)));
+  return { score, vieilles, repondues, total, tauxReponse };
+}
+
+function renderAntiGhostingWidget(cands) {
+  const wrap = document.getElementById('recrut-ghost-widget');
+  if (!wrap) return;
+  const m = calcScoreVisibilite(cands || []);
+  if (m.total === 0) { wrap.innerHTML = ''; return; }
+  const color = m.score >= 70 ? '#22c55e' : m.score >= 40 ? '#E8940A' : '#f87171';
+  const label = m.score >= 70 ? 'Réactif ✓' : m.score >= 40 ? 'À surveiller' : 'Risque ghosting';
+  const bg = m.score >= 70 ? 'rgba(34,197,94,.06)' : m.score >= 40 ? 'rgba(232,148,10,.08)' : 'rgba(239,68,68,.08)';
+  const border = m.score >= 70 ? 'rgba(34,197,94,.25)' : m.score >= 40 ? 'rgba(232,148,10,.25)' : 'rgba(239,68,68,.3)';
+  wrap.innerHTML = `
+    <div style="background:${bg};border:1px solid ${border};border-radius:14px;padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:18px;font-family:Geist,sans-serif;">
+      <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:200px;">
+        <div style="width:62px;height:62px;border-radius:50%;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:22px;font-weight:900;color:${color};border:2px solid ${color};flex-shrink:0;">${m.score}</div>
+        <div>
+          <div style="font-size:11px;color:rgba(252, 224, 168,.5);text-transform:uppercase;letter-spacing:1.5px;font-family:'Geist Mono',monospace;">Score réactivité</div>
+          <div style="font-size:16px;font-weight:800;color:${color};">${label}</div>
+          <div style="font-size:12px;color:rgba(252, 224, 168,.55);margin-top:2px;">${m.tauxReponse}% des candidatures traitées · ${m.repondues}/${m.total}</div>
+        </div>
+      </div>
+      ${m.vieilles > 0 ? `
+        <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;flex:1;min-width:220px;">
+          <div style="font-size:13px;color:#f87171;font-weight:700;margin-bottom:4px;">⚠️ ${m.vieilles} candidature${m.vieilles>1?'s':''} en attente depuis 14j+</div>
+          <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:8px;">Réponds-leur même par un refus poli — ton score visibilité augmente, les candidats arrêtent d'attendre.</div>
+          <button onclick="filterGhostedCandidatures()" style="background:#f87171;color:#14100A;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Filtrer les concernées</button>
+        </div>
+      ` : `<div style="font-size:12px;color:rgba(252, 224, 168,.45);font-style:italic;flex:1;min-width:200px;">Aucun candidat en attente depuis longtemps. 👏</div>`}
+    </div>
+  `;
+}
+
+function filterGhostedCandidatures() {
+  const sel = document.getElementById('recrut-cand-filter-statut');
+  if (sel) sel.value = 'En attente';
+  const search = document.getElementById('recrut-cand-search');
+  if (search) search.value = '';
+  // Active un filtre custom : seulement cands >14j en attente
+  const filtered = (allRecrutCandidatures || []).filter(c => {
+    const s = c.fields['Statut'] || 'En attente';
+    return s === 'En attente' && _ageJours(c.fields['Date candidature']) >= 14;
+  });
+  const countEl = document.getElementById('recrut-cand-count');
+  if (countEl) countEl.textContent = filtered.length + ' candidature' + (filtered.length !== 1 ? 's ghostées' : ' ghostée');
+  renderRecrutCandidatures(filtered);
+}
+
+function setRecrutCandView(view) {
+  recrutCandView = view;
+  const btnGrid  = document.getElementById('recrut-view-grid');
+  const btnTable = document.getElementById('recrut-view-table');
+  const activeStyle   = 'background:#E8940A;color:#14100A;border:none;';
+  const inactiveStyle = 'background:transparent;color:rgba(252, 224, 168,.5);border:1px solid rgba(252, 224, 168,.15);';
+  if (btnGrid)  btnGrid.style.cssText  = (view === 'grid'  ? activeStyle : inactiveStyle) + 'padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
+  if (btnTable) btnTable.style.cssText = (view === 'table' ? activeStyle : inactiveStyle) + 'padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
+  _saveRecrutFilters();
+  filterRecrutCandidatures();
+}
+
+async function updateStatutCandidature(candidatureId, statut) {
+  try {
+    await window.supaCandidatures.updateStatut(candidatureId, statut);
+    toast(`Statut mis à jour : ${statut}`, 'success');
+    notifyCandidatStatut(candidatureId, statut); // fire-and-forget
+    loadCandidaturesRecues();
+  } catch(e) {
+    toast('Erreur de mise à jour', 'error');
+  }
+}
+
+// ── Helpers Sprint H/I — Score IA, messagerie, entretien depuis cards candidatures ──
+function _findCandidatureById(id) {
+  return (allRecrutCandidatures || []).find(c => c.id === id);
+}
+
+async function _getOffreById(offreId) {
+  if (!offreId) return null;
+  const cached = (window.allMesOffres || []).find(o => o.id === offreId);
+  if (cached) return cached;
+  try {
+    if (window.supaOffres) return await window.supaOffres.findById(offreId);
+  } catch (e) { return null; }
+  return null;
+}
+
+async function scoreCandidatRecru(candidatureId) {
+  if (!window.wozaliAi) { toast('Module IA non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  const offre = await _getOffreById(c.fields['Offre ID']);
+  if (!offre) { toast('Offre liée introuvable', 'error'); return; }
+  window.wozaliAi.scoreCandidat(c, offre);
+}
+
+function openMessagerieRecru(candidatureId) {
+  if (!window.wozaliMessagerie) { toast('Module messagerie non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  window.wozaliMessagerie.open({ candidature: c, role: 'recruteur' });
+}
+
+function openEntretienRecru(candidatureId) {
+  if (!window.wozaliEntretien) { toast('Module entretien non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  if (!c) { toast('Candidature introuvable', 'error'); return; }
+  window.wozaliEntretien.open({ candidature: c, onSaved: () => loadCandidaturesRecues() });
+}
+
+function signalerCandidat(candidatureId) {
+  if (!window.wozaliSignalement) { toast('Module signalement non chargé', 'error'); return; }
+  const c = _findCandidatureById(candidatureId);
+  window.wozaliSignalement.open({
+    candidatureId,
+    contextLabel: c ? `Candidature : ${c.fields['Candidat Nom'] || ''}` : '',
+  });
+}
+
+// Notif candidat sur planification entretien (réutilise Prestataires.Notifications JSON)
+window.notifyCandidatEntretien = async function(candidature, body) {
+  try {
+    const f = candidature.fields || {};
+    const candidatId = f['Candidat ID'];
+    if (!candidatId) return;
+    let prestataire = null;
+    if (window.supaPrest) {
+      prestataire = await window.supaPrest.findById(candidatId);
+    }
+    if (!prestataire) return; // supaPrest non chargé — pas de notif
+    const labels = { presentiel: 'présentiel', visio: 'visio', telephone: 'téléphone' };
+    const date = new Date(body.date_heure).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const nouvelleNotif = {
+      id: 'notif_' + Date.now(),
+      type: 'entretien_planifie',
+      titre: 'Tu as un entretien !',
+      message: `Entretien ${labels[body.type] || ''} le ${date} pour « ${f['Offre Titre'] || 'une offre'} ». Sois prêt.`,
+      date: new Date().toISOString(),
+      lu: false,
+      lien: 'emploi-candidatures'
+    };
+    let notifs = [];
+    try { const raw = prestataire.fields?.['Notifications']; if (raw) notifs = JSON.parse(raw); } catch(e) {}
+    notifs.unshift(nouvelleNotif);
+    notifs = notifs.slice(0, 50);
+    if (window.supaPrest) {
+      await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
+    }
+  } catch (err) {
+    console.warn('[notifyCandidatEntretien]', err);
+  }
+};
+
+// ── Sprint E : Notification candidat sur changement statut ──
+async function notifyCandidatStatut(candidatureId, nouveauStatut) {
+  try {
+    // Récupérer la candidature : Supabase d'abord, fallback Airtable
+    let candidature = null;
+    if (window.supaCandidatures) {
+      try {
+        candidature = await window.supaCandidatures.findById(candidatureId);
+      } catch (e) {
+        console.warn('[notifyCandidatStatut supa fail]', e?.message || e);
+      }
+    }
+    if (!candidature) { console.warn('[notifyCandidatStatut] Candidature introuvable:', candidatureId); return; }
+    const fields = candidature.fields || {};
+    const candidatId = fields['Candidat ID'];
+    const offreTitre = fields['Offre Titre'] || 'une offre';
+    const recruteurNom = fields['Recruteur Nom'] || 'Le recruteur';
+    if (!candidatId) { console.warn('[notifyCandidatStatut] Pas de Candidat ID'); return; }
+
+    // Récupérer le prestataire (candidat) — Supabase si possible
+    let prestataire = null;
+    if (window.supaPrest) {
+      prestataire = await window.supaPrest.findById(candidatId);
+    }
+    if (!prestataire) { console.warn('[notifyCandidatStatut] Prestataire introuvable:', candidatId); return; }
+
+    let titre, message;
+    switch (nouveauStatut) {
+      case 'Retenue':
+        titre = 'Ta candidature a été retenue !';
+        message = `Bonne nouvelle ! ${recruteurNom} a retenu ta candidature pour « ${offreTitre} ». Il va te contacter bientôt.`;
+        break;
+      case 'Refusée':
+        titre = 'Candidature non retenue';
+        message = `${recruteurNom} n'a pas retenu ta candidature pour « ${offreTitre} ». Continue de postuler, ton profil est visible !`;
+        break;
+      case 'Vue':
+        titre = 'Ta candidature a été consultée';
+        message = `${recruteurNom} a consulté ta candidature pour « ${offreTitre} ».`;
+        break;
+      default: return;
+    }
+
+    const nouvelleNotif = {
+      id: 'notif_' + Date.now(),
+      type: 'candidature_statut',
+      titre, message,
+      date: new Date().toISOString(),
+      lu: false,
+      lien: 'emploi-candidatures'
+    };
+
+    let notifs = [];
+    try { const raw = prestataire.fields?.['Notifications']; if (raw) notifs = JSON.parse(raw); } catch(e) {}
+    notifs.unshift(nouvelleNotif);
+    notifs = notifs.slice(0, 50);
+
+    // Update — Supabase
+    if (window.supaPrest) {
+      await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
+    }
+  } catch(err) {
+    console.warn('[notifyCandidatStatut] Erreur silencieuse:', err);
+  }
+}
+
+// ── Dashboard Global Recruteur ──
+async function loadRecrutDashboard() {
+  if (!currentPrestataire?.id) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  ['rd-kpi-offres-actives','rd-kpi-offres-inactives','rd-kpi-total-cand','rd-kpi-taux','rd-kpi-vues-totales','rd-kpi-retenues','rd-kpi-top-offre'].forEach(id => set(id, '…'));
+  const latestEl = document.getElementById('rd-latest-cand');
+  if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(252, 224, 168,.3);font-size:13px;">Chargement...</div>';
+  try {
+    const rid = currentPrestataire.id;
+    const userId = window.currentUser?.id;
+    const [offres, cands] = await Promise.all([
+      window.supaOffres
+        ? window.supaOffres.list({ recruteur_user_id: userId, limit: 100 }).catch(() => window.supaOffres.list({ recruteur_prestataire_id: rid, limit: 100 }))
+        : Promise.resolve([]),
+      window.supaCandidatures
+        ? window.supaCandidatures.list({ recruteur_user_id: userId, limit: 200 })
+        : Promise.resolve([])
+    ]);
+    const offresActives = offres.filter(o => o.fields['Active']).length;
+    const vuesTotales = offres.reduce((s, o) => s + (Number(o.fields['Vues'])||0), 0);
+    const retenues = cands.filter(c => c.fields['Statut'] === 'Retenue').length;
+    let topOffre = offres.sort((a,b) => (Number(b.fields['Vues'])||0) - (Number(a.fields['Vues'])||0))[0];
+
+    set('rd-kpi-offres-actives', offresActives);
+    set('rd-kpi-offres-inactives', offres.length - offresActives);
+    set('rd-kpi-total-cand', cands.length);
+    set('rd-kpi-taux', vuesTotales > 0 ? (cands.length / vuesTotales * 100).toFixed(1) + '%' : '0%');
+    set('rd-kpi-vues-totales', vuesTotales);
+    set('rd-kpi-retenues', retenues);
+    set('rd-kpi-top-offre', topOffre ? (topOffre.fields['Titre']||'—').substring(0,28) + (topOffre.fields['Titre']?.length > 28 ? '…' : '') : '—');
+
+    // 5 dernières candidatures
+    if (!latestEl) return;
+    const latest = cands.slice(0, 5);
+    if (latest.length === 0) { latestEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(252, 224, 168,.3);font-size:13px;">Aucune candidature pour l\'instant.</div>'; return; }
+    const scMap = { 'Retenue':'#22c55e', 'Vue':'#3b82f6', 'Refusée':'#ef4444' };
+    latestEl.innerHTML = latest.map(c => {
+      const f = c.fields, photo = f['Candidat Photo']||'', nom = f['Candidat Nom']||'Candidat';
+      const statut = f['Statut']||'En attente', sc = scMap[statut]||'rgba(252, 224, 168,.45)';
+      const date = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '';
+      const offre = (f['Offre Titre']||'').substring(0,32) + ((f['Offre Titre']||'').length > 32 ? '…' : '');
+      return `<div style="display:flex;align-items:center;gap:12px;background:rgba(252, 224, 168,.03);border:1px solid rgba(252, 224, 168,.07);border-radius:10px;padding:12px 14px;">
+        ${photo ? `<img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,.25);flex-shrink:0;" loading="lazy">` : `<div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;color:#E8940A;">${nom[0].toUpperCase()}</div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:700;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+          <div style="font-size:11px;color:rgba(252, 224, 168,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f['Candidat Métier']||''}${f['Candidat Métier']&&offre?' · ':''}${offre}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;color:${sc};text-transform:uppercase;letter-spacing:.5px;">${statut}</div>
+          <div style="font-size:10px;color:rgba(252, 224, 168,.3);margin-top:2px;">${date}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(err) {
+    console.error('[loadRecrutDashboard]', err);
+    if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;font-size:13px;">Erreur de chargement.</div>';
+  }
+}
