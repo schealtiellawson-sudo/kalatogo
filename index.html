@@ -16906,14 +16906,38 @@ async function loadRecompensesWidgets() {
   const plan = currentPrestataire?.fields?.['Abonnement'] || 'Base';
   const isBase = plan === 'Base';
 
-  // Gate Plan Gratuit
+  // Afficher le contenu complet même pour les non-Pro (avec CTA upgrade en bas)
   if (isBase) {
     host.innerHTML = `
-      <div style="text-align:center;padding:40px 20px">
-        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 4px 14px rgba(245,158,11,0.3);">🔒</div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#FCE0A8;margin-bottom:8px">Réservé aux membres Pro</h3>
-        <p style="color:rgba(252, 224, 168,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">La Bourse de Croissance (300 000 FCFA/mois) est réservée aux membres Pro. La Bourse des Mains d'Or (100 000 FCFA × 2) est ouverte à toutes les coiffeuses et couturières — même sans Pro.</p>
-        <button onclick="showDashSection('abonnement')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.35)">Passer au Pro — 2 500 FCFA/mois →</button>
+      <div style="max-width:700px;margin:0 auto;padding:0 0 40px">
+        <div style="background:rgba(232,148,10,.06);border:1.5px solid rgba(232,148,10,.3);border-radius:20px;padding:28px 24px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <span style="font-size:36px">🏆</span>
+            <div>
+              <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;">Bourse de Croissance</div>
+              <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">300 000 FCFA · 1 GAGNANT/MOIS · PRO · TIRAGE 31 JUILLET</div>
+            </div>
+          </div>
+          <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px">Chaque mois, le Pro le plus sérieux du Bénin et du Togo gagne <strong>300 000 FCFA</strong>. Pas de dossier à remplir — si tu remplis les conditions, tu participes automatiquement. Tirage le 30 de chaque mois.</p>
+          <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:16px;margin-bottom:16px">
+            <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</div>
+            <div style="display:grid;gap:8px;font-size:13px;color:rgba(252,224,168,.8)">
+              <div>✓ <strong>Plan Pro actif</strong> ce mois-ci</div>
+              <div>✓ Profil complet (photo + métier + ville/quartier + numéro)</div>
+              <div>✓ Score WOZALI ≥ <strong>80 points</strong></div>
+              <div>✓ Au moins <strong>3 avis clients</strong> sur les 30 derniers jours</div>
+              <div>✓ Note moyenne ≥ <strong>4,2 étoiles</strong> sur 30 jours</div>
+              <div>✓ Connexion récente (≤ 14 jours)</div>
+              <div>✓ Pas gagné les 3 derniers mois</div>
+            </div>
+          </div>
+          <button onclick="showDashSection('abonnement')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
+          <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premier tirage</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">31 juillet 2026</div>
+          <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le 30 de chaque mois · Tirage 100% automatique</div>
+        </div>
       </div>`;
     return;
   }
