@@ -6073,7 +6073,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('recompenses')" id="dl-recompenses">
             <i data-lucide="award"></i> <span>Bourse de Croissance</span>
           </button>
-          <button class="dash-link" onclick="showPage('awards')" id="dl-awards">
+          <button class="dash-link" onclick="showPage('recompenses')" id="dl-awards">
             <i data-lucide="sparkles"></i> <span>La Bourse des Mains d'Or</span>
           </button>
         </div>
@@ -14855,7 +14855,7 @@ async function loadProTagBadge(userIdPro, container) {
         <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:800;color:#FCE0A8;">${moisCount > 0 ? `${moisCount} reine${moisCount > 1 ? 's' : ''} porte${moisCount > 1 ? 'nt' : ''} son travail ce ${moisNom}` : `${totalCount} reine${totalCount > 1 ? 's' : ''} ont porté son travail`}</div>
         <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-top:2px;">Visible sur La Bourse des Mains d'Or · WOZALI</div>
       </div>
-      <a href="#" onclick="showPage('awards');return false;" style="background:#E8940A;color:#14100A;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:800;text-decoration:none;flex-shrink:0;">Voir →</a>
+      <a href="#" onclick="showPage('recompenses');return false;" style="background:#E8940A;color:#14100A;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:800;text-decoration:none;flex-shrink:0;">Voir →</a>
     `;
     container.insertBefore(badge, container.firstChild);
   } catch(e) {
