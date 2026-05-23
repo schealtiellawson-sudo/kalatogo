@@ -6038,9 +6038,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
           <button class="dash-link" onclick="showDashSection('photos')" id="dl-photos">
             <i data-lucide="image"></i> <span>Mes photos</span>
           </button>
-          <button class="dash-link" onclick="showDashSection('widgets-metier')" id="dl-widgets-metier">
-            <i data-lucide="layers"></i> <span>Mes services métier</span>
-          </button>
+
           <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
             <i data-lucide="file-text"></i> <span>Mes posts</span>
           </button>
@@ -6950,16 +6948,6 @@ div[style*="position:sticky"][style*="background:#fff"] {
         </div>
       </div>
 
-      <!-- WIDGETS MÉTIER (modulaire — selon métier principal) -->
-      <div class="dash-section" id="ds-widgets-metier">
-        <div class="dash-header">
-          <div>
-            <h2>🧰 Mes services métier · Adapté à ton activité</h2>
-            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Selon ton métier, ajoute ici tes prestations (avec prix), ton portfolio, tes demandes de devis ou de réservations. <em>Ton travail parle.</em></p>
-          </div>
-        </div>
-        <div id="widgets-metier-host" style="margin-top:14px;"></div>
-      </div>
 
       <!-- POSTS -->
       <div class="dash-section" id="ds-posts">
@@ -8686,16 +8674,6 @@ function showDashSection(section) {
   if (section === 'battle') loadBattle('');
   // ── WOZALI Business Suite ──
   // Loaders Business Suite Phases B→G retirés 2026-05-07 (report V1.2)
-  // ── Widgets métier (modulaire selon Métier principal) ──
-  if (section === 'widgets-metier' && window.WozaliWidgetsRunner && currentPrestataire) {
-    const host = document.getElementById('widgets-metier-host');
-    if (host) {
-      host.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement…</div>';
-      window.WozaliWidgetsRunner.injectOnDashboard(currentPrestataire, host).catch(e => {
-        host.innerHTML = `<div style="color:#ff8080;font-size:13px;padding:14px;">Erreur : ${e.message}</div>`;
-      });
-    }
-  }
 }
 
 async function loadDashboard() {
@@ -14833,16 +14811,6 @@ async function showProfil(recordId) {
       }
     }
 
-    // ── Widgets métier (réservation table, devis, portfolio, prestations…) ──
-    try {
-      if (window.WozaliWidgetsRunner) {
-        const widgetsHost = document.createElement('div');
-        widgetsHost.id = 'profil-widgets-metier';
-        widgetsHost.style.cssText = 'margin-top:18px;';
-        container.appendChild(widgetsHost);
-        await window.WozaliWidgetsRunner.injectOnProfile(record, widgetsHost);
-      }
-    } catch (e) { console.warn('[widgets-metier] inject profil', e); }
 
     // Bouton signaler (anti-arnaque) — affiché uniquement si on n'est pas sur son propre profil
     if (!currentPrestataire || currentPrestataire.id !== recordId) {
@@ -27562,19 +27530,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
 <!-- ═════ Mapping métier → statuts socio-économiques (V1.1 — 2026-04-29) — U6: déplacé en haut -->
 <!-- (chargé en tête du fichier avec les supa-*.js) -->
 
-<!-- ═════ Widgets métier (système modulaire 2026-04-27) ═════ -->
-<script src="components/widgets-metier-config.js"></script>
-<script src="components/widgets-metier-runner.js"></script>
-<script src="components/widget-prestations.js"></script>
-<script src="components/widget-portfolio.js"></script>
-<script src="components/widget-reservation-table.js"></script>
-<script src="components/widget-devis-chantier.js"></script>
-<!-- 5 widgets supplémentaires (V1.1 — 2026-04-29) -->
-<script src="components/widget-commande-facon.js"></script>
-<script src="components/widget-rdv-mecano.js"></script>
-<script src="components/widget-commande-patisserie.js"></script>
-<script src="components/widget-reservation-chambre.js"></script>
-<script src="components/widget-cours-offres.js"></script>
+
 
 <!-- FedaPay SDK -->
 <script>window._FEDAPAY_PUBLIC_KEY = '';</script>
