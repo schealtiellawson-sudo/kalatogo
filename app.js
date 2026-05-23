@@ -12503,6 +12503,9 @@ function renderRecrutCandidatures(cands) {
     'Refusée':    { bg:'rgba(239,68,68,.15)',   color:'#f87171', label:'Refusée' }
   };
 
+  // ── Vue Kanban (Sprint G) ──
+  if (recrutCandView === 'kanban') { renderKanbanView(cands); return; }
+
   if (recrutCandView === 'grid') {
     container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">` +
       cands.map(c => {
@@ -12732,14 +12735,111 @@ function filterGhostedCandidatures() {
 
 function setRecrutCandView(view) {
   recrutCandView = view;
-  const btnGrid  = document.getElementById('recrut-view-grid');
-  const btnTable = document.getElementById('recrut-view-table');
+  const btnGrid   = document.getElementById('recrut-view-grid');
+  const btnTable  = document.getElementById('recrut-view-table');
+  const btnKanban = document.getElementById('recrut-view-kanban');
   const activeStyle   = 'background:#E8940A;color:#14100A;border:none;';
   const inactiveStyle = 'background:transparent;color:rgba(252, 224, 168,.5);border:1px solid rgba(252, 224, 168,.15);';
-  if (btnGrid)  btnGrid.style.cssText  = (view === 'grid'  ? activeStyle : inactiveStyle) + 'padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
-  if (btnTable) btnTable.style.cssText = (view === 'table' ? activeStyle : inactiveStyle) + 'padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
+  const base = 'padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;';
+  if (btnGrid)   btnGrid.style.cssText   = (view === 'grid'   ? activeStyle : inactiveStyle) + base;
+  if (btnTable)  btnTable.style.cssText  = (view === 'table'  ? activeStyle : inactiveStyle) + base;
+  if (btnKanban) btnKanban.style.cssText = (view === 'kanban' ? activeStyle : inactiveStyle) + base;
   _saveRecrutFilters();
   filterRecrutCandidatures();
+}
+
+// ══════════════════════════════════════════════════
+// SPRINT G — Pipeline Kanban
+// ══════════════════════════════════════════════════
+const _KANBAN_COLS = [
+  { key: 'En attente', label: 'Nouveau',        color: '#FCE0A8', bg: 'rgba(252,224,168,.06)', border: 'rgba(252,224,168,.15)', next: 'Vue' },
+  { key: 'Vue',        label: 'Présélectionné', color: '#3b82f6', bg: 'rgba(59,130,246,.06)',  border: 'rgba(59,130,246,.2)',   next: 'Retenue' },
+  { key: 'Retenue',    label: 'Retenu',         color: '#22c55e', bg: 'rgba(34,197,94,.06)',   border: 'rgba(34,197,94,.2)',    next: 'Refusée' },
+  { key: 'Refusée',    label: 'Refusé',         color: '#dc2626', bg: 'rgba(220,38,38,.06)',   border: 'rgba(220,38,38,.2)',    next: null },
+];
+
+function renderKanbanView(cands) {
+  const container = document.getElementById('recrut-cand-container');
+  if (!container) return;
+
+  // Grouper par statut
+  const byStatus = {};
+  _KANBAN_COLS.forEach(c => { byStatus[c.key] = []; });
+  cands.forEach(c => {
+    const s = c.fields?.['Statut'] || c.statut || 'En attente';
+    if (byStatus[s]) byStatus[s].push(c);
+    else (byStatus['En attente'] = byStatus['En attente'] || []).push(c);
+  });
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-width:0;overflow-x:auto;padding-bottom:8px;">
+      ${_KANBAN_COLS.map(col => {
+        const cards = byStatus[col.key] || [];
+        return `
+          <div style="background:${col.bg};border:1px solid ${col.border};border-radius:14px;min-height:240px;display:flex;flex-direction:column;">
+            <!-- En-tête colonne -->
+            <div style="padding:12px 14px 10px;border-bottom:1px solid ${col.border};display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:800;color:${col.color};text-transform:uppercase;letter-spacing:1px;">${col.label}</div>
+              <div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:900;color:${col.color};">${cards.length}</div>
+            </div>
+            <!-- Cards -->
+            <div style="padding:10px;display:flex;flex-direction:column;gap:8px;flex:1;">
+              ${cards.length === 0
+                ? `<div style="text-align:center;padding:24px 8px;color:rgba(252,224,168,.2);font-size:12px;font-family:Geist,sans-serif;">Aucun candidat</div>`
+                : cards.map(c => _renderKanbanCard(c, col)).join('')
+              }
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function _renderKanbanCard(c, col) {
+  const f       = c.fields || c;
+  const nom     = escapeHtml(f['Candidat Nom'] || f['Nom complet'] || 'Candidat');
+  const metier  = escapeHtml(f['Candidat Métier'] || f['Métier'] || '');
+  const score   = f['Score IA'] || f['score_ia'] || '';
+  const scoreW  = f['Candidat Score WOZALI'] || f['Score WOZALI'] || '';
+  const photo   = f['Candidat Photo'] || f['Photo de profil'] || '';
+  const id      = c.id;
+  const nextCol = col.next;
+
+  const avatar = photo
+    ? `<img src="${escapeHtml(photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" loading="lazy">`
+    : `<div style="width:32px;height:32px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#E8940A;flex-shrink:0;">${nom.charAt(0).toUpperCase()}</div>`;
+
+  const scoreIA  = score  ? `<span style="background:rgba(168,85,247,.15);color:#c084fc;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;">🤖 ${score}</span>` : '';
+  const scoreWO  = scoreW ? `<span style="background:rgba(232,148,10,.12);color:#E8940A;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;">⚡ ${scoreW}</span>` : '';
+
+  const nextBtn = nextCol
+    ? `<button onclick="kanbanMoveCard('${id}','${nextCol}')" style="width:100%;margin-top:8px;background:${col.bg};border:1px dashed ${col.border};color:${col.color};border-radius:7px;padding:5px;font-size:11px;font-family:Geist,sans-serif;cursor:pointer;font-weight:700;">→ ${_KANBAN_COLS.find(kc=>kc.key===nextCol)?.label || nextCol}</button>`
+    : '';
+
+  return `
+    <div style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:10px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        ${avatar}
+        <div style="min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:12px;font-weight:700;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+          <div style="font-size:10px;color:rgba(252,224,168,.45);">${metier}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">${scoreIA}${scoreWO}</div>
+      ${nextBtn}
+      <button onclick="kanbanRefusCard('${id}')" style="width:100%;margin-top:4px;background:transparent;border:1px solid rgba(220,38,38,.2);color:rgba(220,38,38,.5);border-radius:7px;padding:4px;font-size:10px;font-family:Geist,sans-serif;cursor:pointer;">✗ Refuser</button>
+    </div>`;
+}
+
+async function kanbanMoveCard(candidatureId, newStatut) {
+  try {
+    await updateStatutCandidature(candidatureId, newStatut);
+    // loadCandidaturesRecues() est appelé dans updateStatutCandidature
+  } catch(e) { toast('Erreur déplacement', 'error'); }
+}
+
+async function kanbanRefusCard(candidatureId) {
+  if (!confirm('Refuser ce candidat ?')) return;
+  await kanbanMoveCard(candidatureId, 'Refusée');
 }
 
 async function updateStatutCandidature(candidatureId, statut) {
