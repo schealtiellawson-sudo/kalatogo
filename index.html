@@ -10840,7 +10840,7 @@ function showPage(page, _fromPop) {
   // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
   if (page === 'awards') loadPageAwards();
   if (page === 'match') { try { initWozaliMatch(); } catch(e){ console.warn('match init', e); } }
-  if (page === 'recrutement-agents') { /* static page, no init needed */ }
+  if (page === 'recrutement-agents') { setTimeout(() => { if (typeof updateRecrutQuartiers === 'function') updateRecrutQuartiers(); }, 50); }
   if (page === 'admin-agents') loadAdminAgents();
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
