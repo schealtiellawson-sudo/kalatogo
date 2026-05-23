@@ -89,7 +89,8 @@
     const orderBy = options.orderBy || 'created_at';
     const orderDir = options.orderDir || 'desc';
     // Offres boostées actives remontent en premier (boost_until > now)
-    if (!options.skipBoostSort) {
+    // withBoostSort: true requis — seulement si la migration boost est appliquée
+    if (options.withBoostSort) {
       q = q.order('boost_until', { ascending: false, nullsFirst: false });
     }
     q = q.order(orderBy, { ascending: orderDir === 'asc', nullsFirst: false });

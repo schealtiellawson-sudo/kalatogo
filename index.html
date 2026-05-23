@@ -2631,89 +2631,49 @@ setTimeout(function(){
 ════════════════════════════════════════════════════════ -->
 <div class="dash-section" id="ds-vente-ambulante">
   <div class="dash-header">
-    <h2>Ma vitrine</h2>
-    <p>Les clients de ton quartier te trouvent. Ils voient ce que tu vends, ton prix et ton WhatsApp.</p>
+    <h2>Je vends ici</h2>
+    <p>Signal temps réel. Active quand tu es dehors avec ta marchandise — les gens de ton quartier voient ton profil et t'appellent direct sur WhatsApp.</p>
   </div>
 
-  <div class="dash-explainer">
-    🛍️ <strong>Tu vends beignets, zouzouke, pagnes, poulets, légumes ?</strong> Active ta vitrine. Elle s'affiche sur WOZALI pendant 24h et les gens près de toi la voient.
-  </div>
-
-  <!-- Toggle vitrine active/inactive -->
-  <div class="dispo-toggle" style="margin-bottom:28px;" id="vitrine-toggle-box">
+  <!-- Toggle principal -->
+  <div class="dispo-toggle" style="margin-bottom:24px;" id="vitrine-toggle-box">
     <label class="toggle-switch">
       <input type="checkbox" id="vitrine-actif-checkbox" onchange="toggleVitrine(this.checked)">
       <span class="toggle-slider"></span>
     </label>
     <div class="dispo-info">
-      <h4 id="vitrine-actif-label">Vitrine inactive</h4>
-      <p id="vitrine-actif-sublabel">Active pour que les clients te trouvent dès maintenant</p>
+      <h4 id="vitrine-actif-label">Inactif — tu n'es pas visible</h4>
+      <p id="vitrine-actif-sublabel">Active quand tu sors vendre. Désactive quand tu rentres.</p>
     </div>
   </div>
 
-  <!-- Formulaire vitrine -->
-  <div style="display:flex;flex-direction:column;gap:20px;max-width:600px;">
-
-    <!-- Ce que tu vends -->
-    <div>
-      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Qu'est-ce que tu vends ? *</label>
-      <input id="vitrine-produit" type="text" maxlength="120"
-        placeholder="Ex : Beignets, zouzouke, jus de gingembre…"
-        style="width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(232,148,10,.2);border-radius:10px;padding:12px 14px;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;outline:none;"
-        oninput="this.style.borderColor='rgba(232,148,10,.5)'">
-      <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:5px;" id="vitrine-produit-count">0/120</div>
-    </div>
-
-    <!-- Prix -->
-    <div>
-      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Prix indicatif</label>
-      <input id="vitrine-prix" type="text" maxlength="80"
-        placeholder="Ex : Beignets 50F · Zouzouke 100F · Jus 200F"
-        style="width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(232,148,10,.2);border-radius:10px;padding:12px 14px;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;outline:none;"
-        oninput="this.style.borderColor='rgba(232,148,10,.5)'">
-    </div>
-
-    <!-- Photo produit -->
-    <div>
-      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Photo de ce que tu vends</label>
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-        <div id="vitrine-photo-preview" style="width:80px;height:80px;border-radius:12px;background:rgba(232,148,10,.08);border:1.5px dashed rgba(232,148,10,.3);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;flex-shrink:0;">🛍️</div>
-        <div>
-          <input type="file" id="vitrine-photo-input" accept="image/*" style="display:none" onchange="_previewVitrinePhoto(this)">
-          <button onclick="document.getElementById('vitrine-photo-input').click()"
-            style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);color:#E8940A;border-radius:8px;padding:8px 16px;font-family:Geist,sans-serif;font-size:13px;cursor:pointer;">
-            📷 Choisir une photo
-          </button>
-          <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:6px;">JPG ou PNG · max 4 Mo</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Localisation -->
-    <div>
-      <label style="display:block;font-weight:700;font-size:13px;color:rgba(252,224,168,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">📍 Où es-tu maintenant ?</label>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <input id="vitrine-quartier" type="text" placeholder="Ton quartier (ex : Bè, Akpakpa…)"
-          style="flex:1;min-width:160px;background:rgba(255,255,255,.04);border:1.5px solid rgba(232,148,10,.2);border-radius:10px;padding:11px 14px;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;outline:none;">
-        <button onclick="_getVitrineGPS()" id="vitrine-gps-btn"
-          style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);color:#E8940A;border-radius:10px;padding:11px 16px;font-family:Geist,sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;">
-          📍 Ma position GPS
-        </button>
-      </div>
-      <div id="vitrine-gps-status" style="font-size:12px;color:rgba(252,224,168,.4);margin-top:6px;"></div>
-    </div>
-
-    <!-- Actions -->
-    <div style="display:flex;gap:12px;flex-wrap:wrap;padding-top:8px;">
-      <button onclick="saveVitrine()"
-        style="flex:1;min-width:160px;background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:13px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">
-        ✅ Enregistrer ma vitrine
-      </button>
-      <button onclick="partagerVitrineWhatsApp()" id="vitrine-share-btn" style="display:none;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25d366;border-radius:10px;padding:13px 18px;font-family:Geist,sans-serif;font-size:13px;cursor:pointer;white-space:nowrap;">
-        📲 Partager sur WhatsApp
-      </button>
-    </div>
+  <!-- GPS zone -->
+  <div style="background:rgba(232,148,10,.06);border:1.5px solid rgba(232,148,10,.15);border-radius:14px;padding:18px 20px;max-width:540px;margin-bottom:20px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">📍 Ta position maintenant</div>
+    <div id="vitrine-gps-status" style="font-size:14px;color:rgba(252,224,168,.6);margin-bottom:12px;">Aucune position partagée</div>
+    <button onclick="_getVitrineGPS()" id="vitrine-gps-btn"
+      style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:11px 20px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">
+      📍 Partager ma position GPS
+    </button>
+    <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:8px;">Utilisé pour t'afficher sur la carte et dans les recherches de proximité.</div>
   </div>
+
+  <!-- Info : les données du profil sont utilisées -->
+  <div style="background:rgba(255,255,255,.03);border:1px solid rgba(252,224,168,.08);border-radius:12px;padding:16px 18px;max-width:540px;margin-bottom:20px;">
+    <div style="font-size:13px;color:rgba(252,224,168,.6);line-height:1.65;">
+      Ton nom, tes photos et ton WhatsApp viennent de ton profil WOZALI.
+      Pour changer ce que les clients voient, modifie ton profil.
+    </div>
+    <button onclick="showDashSection('profil')" style="margin-top:10px;background:transparent;border:1px solid rgba(232,148,10,.3);color:#E8940A;border-radius:8px;padding:7px 14px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
+      ✏️ Modifier mon profil →
+    </button>
+  </div>
+
+  <!-- Partage WhatsApp -->
+  <button onclick="partagerVitrineWhatsApp()" id="vitrine-share-btn"
+    style="display:none;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25d366;border-radius:10px;padding:12px 20px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+    📲 Partager sur WhatsApp — "Je suis là, viens acheter"
+  </button>
 </div>
 
 <div class="dash-section" id="ds-rdv">
