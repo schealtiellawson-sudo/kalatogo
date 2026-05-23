@@ -10624,6 +10624,7 @@ function renderOffreEmploi(offre) {
   return `<div class="offre-card" onclick="showOffreDetail('${_safeOffreId}')">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <div>
+        ${offre._isBoosted ? (window._renderBoostBadge ? window._renderBoostBadge(offre) : '<span style="background:#E8940A;color:#14100A;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;margin-right:4px;">⭐ À LA UNE</span>') : ''}
         ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span> ' : ''}
         ${_matchScore != null ? `<span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(168,85,247,.15);color:${_matchColor};border:1px solid rgba(168,85,247,.3);">🤖 Match ${_matchScore}/100</span>` : ''}
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">${_safeTitre}</h3>
@@ -11743,7 +11744,14 @@ function renderMesOffres(offres) {
     const _safeContratO = escapeHtml(f['Type de contrat']||'');
     const _safeQuartierO = escapeHtml(f['Quartier']||'');
     const _safeIdO = escapeHtml(o.id);
-    return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(232,148,10,.12);border-radius:14px;padding:20px;margin-bottom:14px;transition:border-color .2s;" onmouseenter="this.style.borderColor='rgba(232,148,10,.3)'" onmouseleave="this.style.borderColor='rgba(232,148,10,.12)'">
+    const isBoosted = o._isBoosted || false;
+    const boostUntil = f['Boost Until'];
+    const boostStatut = f['Boost Statut'] || 'aucun';
+    const boostExpire = boostUntil ? new Date(boostUntil) : null;
+    const boostLabel = isBoosted && boostExpire
+      ? `🚀 Boosté jusqu'au ${boostExpire.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}`
+      : (boostStatut === 'en_attente' ? '⏳ Boost en attente de validation' : null);
+    return `<div style="background:${isBoosted?'rgba(232,148,10,.06)':'rgba(255,255,255,.04)'};border:1px solid ${isBoosted?'rgba(232,148,10,.35)':'rgba(232,148,10,.12)'};border-radius:14px;padding:20px;margin-bottom:14px;transition:border-color .2s;${isBoosted?'box-shadow:0 0 18px rgba(232,148,10,.12);':''}" onmouseenter="this.style.borderColor='rgba(232,148,10,.3)'" onmouseleave="this.style.borderColor='${isBoosted?'rgba(232,148,10,.35)':'rgba(232,148,10,.12)'}'">
       <div style="margin-bottom:12px;">
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin:0 0 10px;">${_safeTitreO}</h3>
         <div style="display:flex;gap:7px;flex-wrap:wrap;">
@@ -11752,6 +11760,7 @@ function renderMesOffres(offres) {
           ${f['Quartier'] ? `<span style="background:rgba(252, 224, 168,.05);color:rgba(252, 224, 168,.45);border-radius:20px;padding:3px 11px;font-size:11px;">📍 ${_safeQuartierO}</span>` : ''}
           ${isActive ? `<span style="background:rgba(34,197,94,.12);color:#22c55e;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">● Active</span>` : `<span style="background:rgba(252, 224, 168,.06);color:rgba(252, 224, 168,.35);border-radius:20px;padding:3px 11px;font-size:12px;">● Inactive</span>`}
           ${f['Urgente'] ? `<span style="background:rgba(220,38,38,.15);color:#ef4444;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;">🔴 URGENTE</span>` : ''}
+          ${boostLabel ? `<span style="background:rgba(232,148,10,.18);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;">${boostLabel}</span>` : ''}
         </div>
       </div>
       <div style="display:flex;gap:10px;margin-bottom:16px;">
@@ -11767,6 +11776,7 @@ function renderMesOffres(offres) {
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button onclick="showDashSection('recrut-candidatures');loadCandidaturesRecues().then(()=>{const s=document.getElementById('recrut-cand-filter-offre');if(s){s.value='${_safeIdO}';filterRecrutCandidatures();}})" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">👥 Candidatures</button>
         <button onclick="topCandidatsForOffre('${_safeIdO}')" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🤖 Top candidats IA</button>
+        ${!isBoosted && boostStatut !== 'en_attente' ? `<button onclick="ouvrirBoostModal('${_safeIdO}')" style="background:linear-gradient(135deg,rgba(232,148,10,.2),rgba(232,148,10,.08));color:#E8940A;border:1px solid rgba(232,148,10,.4);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚀 Booster</button>` : ''}
         <button onclick="ouvrirEditionOffre('${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Modifier</button>
         <button onclick="partagerOffre('${titre}','${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📤 Partager</button>
         <button onclick="toggleOffreActive('${_safeIdO}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(34,197,94,.08)'};color:${isActive?'#ef4444':'#22c55e'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(34,197,94,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
@@ -11963,6 +11973,128 @@ async function toggleOffreActive(offreId, actif) {
     loadMesOffres();
   } catch(e) { toast('Erreur : ' + e.message, 'error'); }
 }
+
+// ══════════════════════════════════════════
+// BOOST OFFRES D'EMPLOI
+// ══════════════════════════════════════════
+const _BOOST_PLANS = [
+  { id:'7j',         label:'7 jours',          prix:2500,  desc:'Ton offre remonte en tête pendant 7 jours' },
+  { id:'14j',        label:'14 jours',          prix:5000,  desc:'Visibilité maximale 2 semaines' },
+  { id:'30j',        label:'30 jours',          prix:10000, desc:'Un mois en position prioritaire' },
+  { id:'tete_liste', label:'Tête de liste 7j',  prix:15000, desc:'Toujours en premier, badge ⭐ visible' },
+];
+
+function ouvrirBoostModal(offreId) {
+  const offre = (window.allMesOffres || []).find(o => o.id === offreId);
+  if (!offre) { toast('Offre introuvable', 'error'); return; }
+  const titre = escapeHtml(offre.fields['Titre'] || 'Sans titre');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'wozali-boost-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  overlay.innerHTML = `
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:20px;max-width:520px;width:100%;padding:28px;font-family:Geist,sans-serif;color:#FCE0A8;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">🚀 Booster une offre</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;margin:0;color:#FCE0A8;">${titre}</h3>
+        </div>
+        <button onclick="document.getElementById('wozali-boost-modal').remove()" style="background:none;border:none;color:rgba(252,224,168,.4);font-size:24px;cursor:pointer;line-height:1;padding:0 0 4px 8px;">×</button>
+      </div>
+      <p style="font-size:13px;color:rgba(252,224,168,.5);margin:0 0 20px;">Ton offre remonte en tête des résultats WOZALI Jobs. Les candidats la voient en premier.</p>
+
+      <div id="boost-plans-grid" style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
+        ${_BOOST_PLANS.map(p => `
+          <label style="display:flex;align-items:center;gap:14px;background:rgba(232,148,10,.05);border:1.5px solid rgba(232,148,10,.15);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .15s;" onmouseenter="this.style.borderColor='rgba(232,148,10,.4)';this.style.background='rgba(232,148,10,.1)'" onmouseleave="this.style.borderColor=document.querySelector('[name=boost-plan]:checked')?.value==='${p.id}'?'rgba(232,148,10,.6)':'rgba(232,148,10,.15)';this.style.background=document.querySelector('[name=boost-plan]:checked')?.value==='${p.id}'?'rgba(232,148,10,.12)':'rgba(232,148,10,.05)'">
+            <input type="radio" name="boost-plan" value="${p.id}" onchange="_onBoostPlanChange()" style="accent-color:#E8940A;width:16px;height:16px;cursor:pointer;" ${p.id==='7j'?'checked':''}>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:14px;color:#FCE0A8;">${p.label}</div>
+              <div style="font-size:12px;color:rgba(252,224,168,.5);margin-top:2px;">${p.desc}</div>
+            </div>
+            <div style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:800;color:#E8940A;white-space:nowrap;">${p.prix.toLocaleString('fr-FR')} FCFA</div>
+          </label>
+        `).join('')}
+      </div>
+
+      <div id="boost-payment-info" style="display:none;background:rgba(232,148,10,.07);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:12px;color:rgba(252,224,168,.6);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;font-family:'Geist Mono',monospace;">Instructions de paiement</div>
+        <div style="font-size:14px;color:#FCE0A8;line-height:1.7;">
+          1. Envoie <strong id="boost-prix-label" style="color:#E8940A;"></strong> via Wave ou Flooz<br>
+          2. Numéro : <strong style="color:#E8940A;">+228 90 00 00 00</strong><br>
+          3. Motif : <strong id="boost-ref-label" style="color:#E8940A;font-family:'Geist Mono',monospace;"></strong>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:rgba(252,224,168,.4);">✓ Ton boost sera activé dans les 2h après réception du paiement.</div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button onclick="_confirmerBoostDemande('${offreId}')" id="boost-confirm-btn" style="flex:1;background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:13px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Confirmer ma demande →</button>
+        <button onclick="document.getElementById('wozali-boost-modal').remove()" style="background:rgba(252,224,168,.06);color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.1);border-radius:10px;padding:13px 18px;font-size:14px;cursor:pointer;">Annuler</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  _onBoostPlanChange(); // init état radio
+}
+
+function _onBoostPlanChange() {
+  const selected = document.querySelector('[name=boost-plan]:checked')?.value;
+  const plan = _BOOST_PLANS.find(p => p.id === selected);
+  if (!plan) return;
+  // Highlight label sélectionné
+  document.querySelectorAll('[name=boost-plan]').forEach(r => {
+    const lbl = r.closest('label');
+    if (lbl) {
+      lbl.style.borderColor = r.checked ? 'rgba(232,148,10,.6)' : 'rgba(232,148,10,.15)';
+      lbl.style.background = r.checked ? 'rgba(232,148,10,.12)' : 'rgba(232,148,10,.05)';
+    }
+  });
+}
+
+async function _confirmerBoostDemande(offreId) {
+  const selected = document.querySelector('[name=boost-plan]:checked')?.value;
+  const plan = _BOOST_PLANS.find(p => p.id === selected);
+  if (!plan) { toast('Sélectionne un plan boost', 'error'); return; }
+
+  const btn = document.getElementById('boost-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+
+  // Générer référence unique
+  const ref = 'BOOST-' + offreId.slice(-6).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+
+  try {
+    await window.supaOffres.update(offreId, {
+      'Boost Type':   plan.id,
+      'Boost Ref':    ref,
+      'Boost Statut': 'en_attente',
+    });
+
+    // Afficher instructions paiement
+    const infoDiv = document.getElementById('boost-payment-info');
+    const prixLbl = document.getElementById('boost-prix-label');
+    const refLbl  = document.getElementById('boost-ref-label');
+    if (infoDiv) infoDiv.style.display = 'block';
+    if (prixLbl) prixLbl.textContent = plan.prix.toLocaleString('fr-FR') + ' FCFA';
+    if (refLbl)  refLbl.textContent  = ref;
+    if (btn) { btn.textContent = '✅ Demande enregistrée'; btn.style.background = 'rgba(34,197,94,.15)'; btn.style.color = '#22c55e'; }
+
+    // Rafraîchir la liste
+    await loadMesOffres();
+  } catch (e) {
+    toast('Erreur lors de la demande boost. Réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirmer ma demande →'; }
+  }
+}
+
+// Badge boost visible sur les cartes offres publiques (WOZALI Jobs)
+function _renderBoostBadge(offre) {
+  if (!offre._isBoosted) return '';
+  const type = offre.fields['Boost Type'];
+  if (type === 'tete_liste') return '<span style="background:#E8940A;color:#14100A;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;margin-right:6px;">⭐ À LA UNE</span>';
+  return '<span style="background:rgba(232,148,10,.15);color:#E8940A;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;margin-right:6px;">🚀 Boosté</span>';
+}
+window._renderBoostBadge = _renderBoostBadge;
 
 function partagerOffre(titre, offreId) {
   const url = `https://wozali.com/?emploi=${offreId}`;

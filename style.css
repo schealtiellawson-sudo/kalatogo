@@ -65,13 +65,17 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 button, select { color: inherit; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background: #14100A; /* couvre toute la fenêtre même hors body */
+}
 
 body {
   font-family: 'Geist', sans-serif;
   background: #14100A;
   color: #FCE0A8;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
 /* ══ UTILS ══ */

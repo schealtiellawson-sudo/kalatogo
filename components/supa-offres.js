@@ -34,6 +34,11 @@
     'Recruteur User ID': 'recruteur_user_id',
     'Recruteur vérifié': 'recruteur_verifie',
     'airtable_record_id': 'airtable_record_id',
+    // Boost offres
+    'Boost Until': 'boost_until',
+    'Boost Type': 'boost_type',
+    'Boost Ref': 'boost_ref',
+    'Boost Statut': 'boost_statut',
   };
 
   function _supa() { return window.supabase || window.supa; }
@@ -83,11 +88,22 @@
     }
     const orderBy = options.orderBy || 'created_at';
     const orderDir = options.orderDir || 'desc';
+    // Offres boostées actives remontent en premier (boost_until > now)
+    if (!options.skipBoostSort) {
+      q = q.order('boost_until', { ascending: false, nullsFirst: false });
+    }
     q = q.order(orderBy, { ascending: orderDir === 'asc', nullsFirst: false });
     if (options.limit) q = q.limit(options.limit);
     const { data, error } = await q;
     if (error) throw error;
-    return (data || []).map(_toAirtableRecord);
+    const now = new Date();
+    const rows = (data || []).map(r => {
+      const rec = _toAirtableRecord(r);
+      // Dériver isBoosted pour le frontend
+      rec._isBoosted = !!(r.boost_until && new Date(r.boost_until) > now && r.boost_statut === 'actif');
+      return rec;
+    });
+    return rows;
   }
 
   async function findById(id) {
