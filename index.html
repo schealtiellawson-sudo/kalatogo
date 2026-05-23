@@ -7406,7 +7406,7 @@ div[style*="position:sticky"][style*="background:#fff"] {
             <!-- A2. Liste avantages Pro refondue -->
             <ul class="wozali-avantages-pro">
               <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Bourse de Croissance</strong> — <span class="montant-or">300 000 FCFA/mois</span> pour le membre Pro le plus méritant</span></li>
-              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>La Bourse des Mains d'Or</strong> — <span class="montant-or">100 000 FCFA × 2 Reines/mois</span> (✂️ Coiffure + 👗 Couture · 1 Bénin + 1 Togo) · <strong>Plan Pro requis</strong></span></li>
+              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>La Bourse des Mains d'Or</strong> — <span class="montant-or">100 000 FCFA × 2 Reines/mois</span> (✂️ Coiffure + 👗 Couture · 1 Bénin + 1 Togo) · <em>ouverte à toutes les femmes</em></span></li>
               <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité dans les résultats de recherche</strong> — tu apparais avant les profils gratuits</span></li>
               <li class="avantage-item"><span class="avantage-icon">⭐</span><span class="avantage-texte"><strong>Badge Pro visible</strong> par tous les clients</span></li>
               <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Parrainage actif</strong> — 1 000 FCFA/filleul/mois, récurrent, à vie</span></li>
@@ -16791,7 +16791,7 @@ async function injectSprint6Upgrade(){
         ${rowKo('Priorité résultats')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowKo('Bourse 300 000 FCFA/mois (Pro only)')}
-        ${rowKo('Bourse des Mains d\'Or 100K × 2 (coiffeuses &amp; couturières — ouvert à toutes)')}
+        ${rowOk('Bourse des Mains d\'Or 100K × 2 — ouverte à toutes les femmes (coiffeuses &amp; couturières)')}
         ${rowKo('Commissions parrainage')}
       </div>
       <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
@@ -16805,7 +16805,7 @@ async function injectSprint6Upgrade(){
         ${rowOk('À la Une homepage')}
         ${sectionTitle('RÉCOMPENSES')}
         ${rowOk('<strong>Bourse 300 000 FCFA/mois</strong>')}
-        ${rowOk('<strong>Bourse des Mains d\'Or 100K × 2</strong> — Plan Pro requis')}
+        ${rowOk('<strong>Bourse des Mains d\'Or 100K × 2</strong> — ouverte à toutes les femmes')}
         ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
       </div>
     </div>
@@ -16863,7 +16863,7 @@ async function loadRecompensesWidgets() {
       <div style="text-align:center;padding:40px 20px">
         <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 4px 14px rgba(245,158,11,0.3);">🔒</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#FCE0A8;margin-bottom:8px">Réservé aux membres Pro</h3>
-        <p style="color:rgba(252, 224, 168,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">La Bourse de Croissance (300 000 FCFA/mois) et La Bourse des Mains d'Or (100 000 FCFA × 2 — coiffeuses &amp; couturières) sont toutes les deux réservées aux membres Pro.</p>
+        <p style="color:rgba(252, 224, 168,.6);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">La Bourse de Croissance (300 000 FCFA/mois) est réservée aux membres Pro. La Bourse des Mains d'Or (100 000 FCFA × 2) est ouverte à toutes les coiffeuses et couturières — même sans Pro.</p>
         <button onclick="showDashSection('abonnement')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:12px 28px;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.35)">Passer au Pro — 2 500 FCFA/mois →</button>
       </div>`;
     return;
