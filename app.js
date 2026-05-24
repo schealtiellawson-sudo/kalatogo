@@ -4513,13 +4513,14 @@ async function sendWozaliChatMessage() {
       responseEl.innerHTML = `
         <div style="background:linear-gradient(135deg,rgba(232,148,10,0.08),rgba(232,148,10,0.02));border:1.5px solid rgba(232,148,10,0.25);border-radius:16px;padding:18px 20px;">
           <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
-            <div style="width:36px;height:36px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:18px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;">W</div>
+            <div style="width:36px;height:36px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:18px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;">S</div>
             <div style="flex:1;">
-              <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">WOZALI</div>
-              <div style="font-size:11px;color:rgba(252,224,168,0.45);font-family:'Geist Mono',monospace;letter-spacing:1px;">RÉPONSE AUTOMATIQUE</div>
+              <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">Schealtiel</div>
+              <div style="font-size:11px;color:rgba(252,224,168,0.45);font-family:'Geist Mono',monospace;letter-spacing:1px;">Fondateur WOZALI</div>
             </div>
           </div>
-          <div style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.88);white-space:pre-line;">${escapeHtml(data.reponse)}</div>
+          <div style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.88);white-space:pre-line;">"${escapeHtml(data.reponse)}"</div>
+          <div style="margin-top:8px;font-size:12px;color:rgba(252,224,168,0.4);font-style:italic;font-family:'Geist Mono',monospace;">Schealtiel, fondateur WOZALI</div>
           <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(232,148,10,0.12);display:flex;gap:10px;flex-wrap:wrap;">
             <button onclick="openWozaliChat()" style="background:transparent;border:1px solid rgba(232,148,10,0.35);color:#E8940A;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✉️ Autre question</button>
             <button onclick="toggleWozaliHistory()" style="background:transparent;border:1px solid rgba(252,224,168,0.12);color:rgba(252,224,168,0.5);padding:8px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📜 Voir l'historique</button>
@@ -4593,12 +4594,12 @@ async function toggleWozaliHistory() {
             <div style="font-size:10px;color:rgba(252,224,168,0.35);margin-top:5px;text-align:right;">${dateStr}</div>
           </div>
         </div>
-        <!-- Réponse WOZALI -->
+        <!-- Réponse Schealtiel -->
         <div style="display:flex;gap:8px;align-items:flex-start;">
-          <div style="width:28px;height:28px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;margin-top:2px;">W</div>
+          <div style="width:28px;height:28px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;margin-top:2px;">S</div>
           <div style="max-width:85%;background:rgba(252,224,168,0.04);border:1px solid rgba(252,224,168,0.1);border-radius:4px 14px 14px 14px;padding:10px 14px;">
             ${reponse
-              ? `<div style="font-size:13px;color:rgba(252,224,168,0.82);line-height:1.6;white-space:pre-line;">${escapeHtml(reponse)}</div>`
+              ? `<div style="font-size:13px;color:rgba(252,224,168,0.82);line-height:1.6;white-space:pre-line;">"${escapeHtml(reponse)}"</div><div style="font-size:10px;color:rgba(252,224,168,0.3);margin-top:5px;font-style:italic;font-family:'Geist Mono',monospace;">Schealtiel, fondateur WOZALI</div>`
               : enAttente
                 ? `<div style="font-size:12px;color:rgba(232,148,10,0.6);font-style:italic;">⏳ En cours de traitement…</div>`
                 : `<div style="font-size:12px;color:rgba(252,224,168,0.35);font-style:italic;">—</div>`
@@ -10121,11 +10122,17 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
   const cardsHtml = messages.map(m => {
     const dateStr = new Date(m.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
     const prest = m.prestataire || {};
+    const isRencontreF = m.type_escalade === 'rencontre_prioritaire';
 
     let statutBadge = '';
     if (m.statut === 'escalade_fondateur') {
-      const typeLabel = m.type_escalade === 'complexe' ? '⚠️ Question complexe' : '⚠️ Escalade';
-      statutBadge = `<span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">${typeLabel}</span>`;
+      if (isRencontreF) {
+        // Badge rose discret — visible uniquement en admin
+        statutBadge = `<span style="background:rgba(236,72,153,0.15);color:#f472b6;border:1px solid rgba(236,72,153,0.35);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">Demande de rencontre féminine</span>`;
+      } else {
+        const typeLabel = m.type_escalade === 'complexe' ? '⚠️ Question complexe' : '⚠️ Escalade';
+        statutBadge = `<span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">${typeLabel}</span>`;
+      }
     } else if (m.statut === 'repondu_fondateur') {
       statutBadge = `<span style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>`;
     } else if (m.statut === 'repondu_ia') {
@@ -10134,6 +10141,17 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
 
     const nonLuDot = (!m.lu_par_fondateur && m.statut === 'escalade_fondateur')
       ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f87171;margin-right:8px;flex-shrink:0;"></span>' : '';
+
+    // Photo de profil (visible admin uniquement)
+    const photoHtml = prest.photo
+      ? `<img src="${escapeHtml(prest.photo)}" alt="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid ${isRencontreF ? '#f472b6' : 'rgba(232,148,10,0.4)'};flex-shrink:0;">`
+      : `<div style="width:38px;height:38px;border-radius:50%;background:${isRencontreF ? 'rgba(236,72,153,0.2)' : 'rgba(232,148,10,0.15)'};border:2px solid ${isRencontreF ? 'rgba(236,72,153,0.4)' : 'rgba(232,148,10,0.25)'};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:rgba(255,255,255,0.5);flex-shrink:0;">${escapeHtml((prest.nom || '?')[0].toUpperCase())}</div>`;
+
+    // Badges priorité et urgence
+    const prioriteBadge = m.priorite
+      ? `<span title="Priorité" style="background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;font-family:'Geist Mono',monospace;">P${m.priorite}</span>` : '';
+    const urgenceBadge = m.urgence
+      ? `<span title="Urgence" style="background:${m.urgence === 1 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)'};color:${m.urgence === 1 ? '#f87171' : 'rgba(255,255,255,0.4)'};border:1px solid ${m.urgence === 1 ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.1)'};padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;font-family:'Geist Mono',monospace;">U${m.urgence}</span>` : '';
 
     const reponseIA = m.reponse_ia
       ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(232,148,10,0.06);border-left:3px solid rgba(232,148,10,0.4);border-radius:0 8px 8px 0;">
@@ -10155,16 +10173,21 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
           </div>
         </div>` : '';
 
-    return `<div id="dm-card-${m.id}" style="background:${!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.03)'};border:1px solid ${!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.07)'};border-radius:14px;padding:16px 18px;margin-bottom:12px;">
+    const borderColor = isRencontreF ? 'rgba(236,72,153,0.3)' : (!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.07)');
+    const bgColor = isRencontreF ? 'rgba(236,72,153,0.04)' : (!m.lu_par_fondateur && m.statut === 'escalade_fondateur' ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.03)');
+
+    return `<div id="dm-card-${m.id}" style="background:${bgColor};border:1px solid ${borderColor};border-radius:14px;padding:16px 18px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          ${nonLuDot}
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${nonLuDot}${photoHtml}
           <div>
             <div style="font-weight:700;font-size:14px;color:white;">${escapeHtml(prest.nom || 'Inconnu')}</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.35);">${escapeHtml([prest.metier, prest.ville].filter(Boolean).join(' · '))} · ${dateStr}</div>
           </div>
         </div>
-        ${statutBadge}
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          ${prioriteBadge}${urgenceBadge}${statutBadge}
+        </div>
       </div>
       <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:12px 14px;font-size:13px;color:rgba(255,255,255,0.82);line-height:1.65;white-space:pre-line;">${escapeHtml(m.message)}</div>
       ${reponseIA}

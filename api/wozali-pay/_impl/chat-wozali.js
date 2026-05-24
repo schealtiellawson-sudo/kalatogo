@@ -11,9 +11,9 @@ import { callGemini } from '../../_lib/ai-providers.js';
 import { verifyAuth } from '../../_lib/auth.js';
 
 // ── System prompt WOZALI complet ─────────────────────────────────
-const WOZALI_SYSTEM_PROMPT = `Tu es l'assistant WOZALI, la marketplace africaine qui connecte les travailleurs de l'économie informelle avec leurs clients au Togo (Lomé) et au Bénin (Cotonou).
+const WOZALI_SYSTEM_PROMPT = `Tu réponds au nom de Schealtiel Lawson, fondateur de WOZALI. Les prestataires te parlent depuis leur dashboard via le chat interne. Tes réponses doivent sembler venir directement de toi, pas d'un robot ou d'une FAQ. Tu prends 5 minutes pour répondre personnellement. Ne dis jamais "je suis un assistant IA" ni "en tant qu'IA". Tutoie toujours. Sois concret, chaleureux, direct.
 
-TON RÔLE : répondre aux questions des prestataires (pros) inscrits sur WOZALI. Sois direct, concret, chaleureux. Pas de réponse générique. Utilise le tutoiement.
+WOZALI est la marketplace africaine qui connecte les travailleurs de l'économie informelle avec leurs clients au Togo (Lomé) et au Bénin (Cotonou).
 
 ---
 
@@ -177,13 +177,19 @@ Depuis le dashboard → "Mon abonnement" → cliquer "Passer au Pro" → suivre 
 
 ---
 
+## UPSELL INTELLIGENT
+
+Si le contexte indique que la personne est sur Plan Gratuit ET que sa question touche une feature Pro (publier des offres d'emploi, parrainage actif, Bourse de Croissance, profil prioritaire dans la recherche), ajoute naturellement en fin de message : "Le Plan Pro à 2 500 FCFA/mois débloque ça — Dashboard, Mon abonnement." Une phrase maximum, sans pression, uniquement si c'est pertinent.
+
+---
+
 ## CE QUE TU NE DOIS PAS FAIRE
 
 - Ne jamais inventer des fonctionnalités qui n'existent pas encore
 - Ne jamais promettre une date de livraison de feature
 - Ne jamais promettre un paiement ou un remboursement
 - Ne jamais communiquer des informations personnelles d'autres utilisateurs
-- Si tu ne connais pas la réponse avec certitude : dire que tu transmets au fondateur
+- Si tu ne connais pas la réponse avec certitude : dire "Je regarde ça et je reviens vers toi."
 
 ---
 
@@ -198,11 +204,15 @@ Depuis le dashboard → "Mon abonnement" → cliquer "Passer au Pro" → suivre 
 
 ---
 
-## INDICATEUR DE CONFIANCE
+## INDICATEUR DE TRAITEMENT (pas visible par l'utilisateur)
 
-À la fin de chaque réponse, ajouter sur une ligne séparée (pas visible par l'utilisateur) :
-CONFIDENCE:HIGH si tu es sûr à plus de 80%
-CONFIDENCE:LOW si tu as un doute ou la question dépasse ton périmètre`;
+À la fin de chaque réponse, ajouter sur une ligne séparée :
+META:CONFIDENCE:HIGH|PRIORITY:3|URGENCY:3
+
+Remplacer les valeurs :
+- CONFIDENCE : HIGH si tu es sûr à plus de 80%, LOW sinon
+- PRIORITY (1 à 5) : 1 = question très importante pour WOZALI (signalement, bug critique, paiement), 5 = question très basique (comment modifier son profil)
+- URGENCY (1 à 4) : 1 = urgent, le fondateur doit répondre vite (problème bloquant, client perdu), 4 = non urgent (curiosité générale)`;
 
 // ── Mots-clés détection demande de rencontre ────────────────────
 const RENCONTRE_KEYWORDS = [
@@ -219,13 +229,26 @@ function isRenconteRequest(message) {
   return RENCONTRE_KEYWORDS.some(kw => lower.includes(kw));
 }
 
-function extractConfidence(text) {
-  const m = text.match(/\nCONFIDENCE:(HIGH|LOW)\s*$/m);
-  const confidence = m ? m[1] : 'HIGH';
-  // Supprimer la ligne de l'indicateur de la réponse visible
-  const cleanText = text.replace(/\nCONFIDENCE:(HIGH|LOW)\s*$/m, '').trim();
-  return { confidence, cleanText };
+function extractMeta(text) {
+  // Format nouveau : META:CONFIDENCE:HIGH|PRIORITY:3|URGENCY:2
+  const mNew = text.match(/\nMETA:CONFIDENCE:(HIGH|LOW)\|PRIORITY:([1-5])\|URGENCY:([1-4])\s*$/m);
+  // Format legacy : CONFIDENCE:HIGH
+  const mLeg = text.match(/\nCONFIDENCE:(HIGH|LOW)\s*$/m);
+
+  const confidence = mNew ? mNew[1] : (mLeg ? mLeg[1] : 'HIGH');
+  const priorite   = mNew ? parseInt(mNew[2]) : null;
+  const urgence    = mNew ? parseInt(mNew[3]) : null;
+
+  const cleanText = text
+    .replace(/\nMETA:CONFIDENCE:(HIGH|LOW)\|PRIORITY:[1-5]\|URGENCY:[1-4]\s*$/m, '')
+    .replace(/\nCONFIDENCE:(HIGH|LOW)\s*$/m, '')
+    .trim();
+
+  return { confidence, priorite, urgence, cleanText };
 }
+
+// Alias legacy pour compatibilité interne
+const extractConfidence = (text) => extractMeta(text);
 
 // ── Handler principal ────────────────────────────────────────────
 
@@ -275,17 +298,19 @@ async function handleSend(req, res) {
 
   const msgText = message.trim();
 
-  // Récupérer le genre du prestataire
+  // Récupérer le genre et le plan du prestataire
   let genreUser = null;
+  let planUser  = null;
   try {
     const { data: prest } = await supabase
       .from('wolo_prestataires')
-      .select('genre')
+      .select('genre, abonnement')
       .eq('user_id', userId)
       .maybeSingle();
-    if (prest?.genre) genreUser = prest.genre;
+    if (prest?.genre)     genreUser = prest.genre;
+    if (prest?.abonnement) planUser = prest.abonnement;
   } catch (e) {
-    console.warn('[chat-wozali] genre fetch failed:', e.message);
+    console.warn('[chat-wozali] prest fetch failed:', e.message);
   }
 
   // Insérer le message en statut attente_ia
@@ -355,14 +380,19 @@ async function handleSend(req, res) {
   let iaError = null;
 
   try {
+    // Injecter le plan dans le contexte utilisateur pour upsell intelligent
+    const userContext = planUser && planUser !== 'Pro'
+      ? `${msgText}\n\n[CONTEXTE SYSTÈME: utilisateur sur Plan Gratuit]`
+      : msgText;
+
     const result = await callGemini({
       system: WOZALI_SYSTEM_PROMPT,
-      user: msgText,
+      user: userContext,
       jsonMode: false,
       maxTokens: 600,
     });
 
-    const { confidence, cleanText } = extractConfidence(result.text);
+    const { confidence, priorite, urgence, cleanText } = extractMeta(result.text);
 
     if (confidence === 'LOW' || !cleanText || cleanText.length < 5) {
       iaError = 'confidence_low';
@@ -384,6 +414,15 @@ async function handleSend(req, res) {
         reponse_ia: iaResponse,
       })
       .eq('id', messageId);
+
+    // Sauvegarder priorite/urgence (requiert migration 20260524_chat_priority.sql)
+    if (priorite || urgence) {
+      await supabase
+        .from('wolo_chat_messages')
+        .update({ priorite, urgence })
+        .eq('id', messageId)
+        .then(() => {});  // silencieux si colonnes absentes
+    }
 
     return res.status(200).json({
       ok: true,
@@ -463,7 +502,10 @@ async function handleAdminList(req, res) {
       reponse_fondateur,
       statut,
       type_escalade,
+      genre_user,
       lu_par_fondateur,
+      priorite,
+      urgence,
       created_at,
       updated_at
     `)
@@ -492,13 +534,15 @@ async function handleAdminList(req, res) {
     try {
       const { data: prests } = await supabase
         .from('wolo_prestataires')
-        .select('user_id, nom_complet, metier_principal, ville')
+        .select('user_id, nom_complet, metier_principal, ville, photo_profil, genre')
         .in('user_id', userIds);
       (prests || []).forEach(p => {
         prestMap[p.user_id] = {
           nom: p.nom_complet || 'Inconnu',
           metier: p.metier_principal || '',
           ville: p.ville || '',
+          photo: p.photo_profil || null,
+          genre: p.genre || null,
         };
       });
     } catch (e) {
