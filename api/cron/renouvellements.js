@@ -123,6 +123,43 @@ export default async function handler(req, res) {
       }
     }
 
+    // 3) Séquence J+30 — message de check-in fondateur (messagerie interne WOZALI)
+    const j30Start = new Date(now.getTime() - 31 * 86400000).toISOString();
+    const j30End   = new Date(now.getTime() - 29 * 86400000).toISOString();
+
+    const { data: j30Users = [] } = await supabase
+      .from('wozali_prestataires')
+      .select('id, notifications, nom_complet, metier_principal, ville')
+      .gte('created_at', j30Start)
+      .lte('created_at', j30End);
+
+    let j30Sent = 0;
+    for (const p of j30Users) {
+      const notifs = Array.isArray(p.notifications) ? p.notifications : [];
+      if (notifs.some(n => typeof n?.id === 'string' && n.id.startsWith('j30_'))) continue;
+
+      const metier = p.metier_principal ? ` ${p.metier_principal}` : '';
+      const newMsg = {
+        id: `j30_${p.id.slice(0, 8)}_${Date.now()}`,
+        type: 'message_fondateur',
+        title: 'Un mois sur WOZALI. Et maintenant ?',
+        body: `Ca fait 30 jours que tu es sur la plateforme.\n\nUn conseil concret : si tu n'as pas encore ajouté de photos de ton travail${metier}, fais-le aujourd'hui. Les profils avec photos reçoivent 5 fois plus de contacts que les profils sans.\n\nTon profil est ta vitrine. Des clients de ${p.ville || 'ta ville'} cherchent ce soir.\n\nSi tu as des questions, réponds directement ici.`,
+        from: 'Schealtiel Lawson, fondateur WOZALI',
+        created_at: new Date().toISOString(),
+        read: false,
+        action_url: '?section=photos',
+      };
+
+      const { error: upErr } = await supabase
+        .from('wozali_prestataires')
+        .update({ notifications: [...notifs, newMsg] })
+        .eq('id', p.id);
+
+      if (!upErr) j30Sent++;
+      else console.error('[j30] update error', p.id, upErr.message);
+    }
+    results.j30_sent = j30Sent;
+
     return res.status(200).json({ ok: true, ...results });
   } catch (err) {
     console.error('[cron/renouvellements]', err);

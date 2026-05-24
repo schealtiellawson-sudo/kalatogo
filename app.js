@@ -12899,7 +12899,7 @@ async function _confirmEmbauche(candidatureId) {
       <div class="modal" style="max-width:420px;text-align:center;padding:36px;">
         <div style="font-size:52px;margin-bottom:12px;">🎉</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;margin:0 0 10px;">${nom} rejoint ton équipe !</h3>
-        <p style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin:0 0 24px;line-height:1.6;">Fiche créée dans "Mon équipe". Envoie-lui un message WhatsApp pour confirmer le démarrage.</p>
+        <p style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin:0 0 24px;line-height:1.6;">Fiche créée dans "Mon équipe". Envoie-lui un message via la messagerie WOZALI pour confirmer le démarrage.</p>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <button class="btn btn-primary btn-sm" onclick="showDashSection('mon-equipe');this.closest('.modal-overlay').remove();">→ Voir mon équipe</button>
           <button class="btn btn-secondary btn-sm" onclick="this.closest('.modal-overlay').remove();">Fermer</button>
