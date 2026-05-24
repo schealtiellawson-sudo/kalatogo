@@ -256,8 +256,8 @@ setTimeout(function(){
           <div class="hero-eyebrow" data-anim="up">✦ L'emploi et les services au Bénin et au Togo</div>
           <h1 class="hero-title" data-anim="up" data-anim-delay="1">Ton travail parle.<br>Pas tes connexions.</h1>
           <p class="hero-sub" data-anim="up" data-anim-delay="2">L'argent ne circule plus entre ceux qui cherchent et ceux qui savent faire.</p>
-          <p class="hero-sub" data-anim="up" data-anim-delay="2" style="color:var(--wolo-orange);font-weight:700;font-size:clamp(15px,2.2vw,20px);margin-top:-6px;">WOZALI remet l'argent en mouvement.</p>
-          <p class="hero-sub" data-anim="up" data-anim-delay="2" style="margin-top:4px;">WOZALI connecte les artisans, prestataires et commerçants de Cotonou et Lomé avec leurs clients. Sans recommandation. Ton profil, tes avis, ton Score WOZALI — c'est ça qui parle.</p>
+          <p class="hero-sub" data-anim="up" data-anim-delay="2" style="color:var(--wolo-orange);font-weight:700;font-size:clamp(15px,2.2vw,20px);margin-top:-6px;">Ton profil sort en premier. Les clients t'appellent directement.</p>
+          <p class="hero-sub" data-anim="up" data-anim-delay="2" style="margin-top:4px;">Artisans, prestataires, commerçants — à Cotonou et Lomé. Sans connexions. Sans favoritisme. Ton profil, tes avis, ton Score — et les clients te trouvent.</p>
           <div class="hero-actions" data-anim="up" data-anim-delay="3" style="flex-wrap:wrap;gap:10px;">
             <button class="btn btn-or btn-lg" onclick="showPage('inscription')">✦ Créer mon profil gratuit</button>
             <button class="btn btn-primary btn-lg" onclick="showPage('search')">→ Explorer les prestataires</button>
@@ -1986,33 +1986,7 @@ setTimeout(function(){
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     PAGE EMAIL CONFIRMÉ
-══════════════════════════════════════════ -->
-<div id="page-email-confirme" class="page">
-  <div class="auth-page">
-    <div style="font-size:64px;text-align:center;margin-bottom:16px;">✅</div>
-    <h2 style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:900;text-align:center;margin-bottom:8px;">Email confirmé !</h2>
-    <p style="text-align:center;color:var(--gris);margin-bottom:28px;">Ton compte WOZALI est maintenant actif. Tu peux accéder à ton espace professionnel.</p>
-
-    <div style="background:var(--vert-light);border:1.5px solid var(--vert);border-radius:14px;padding:18px 20px;margin-bottom:24px;">
-      <p style="font-weight:700;color:var(--vert);margin-bottom:10px;">🎉 Bienvenue sur WOZALI !</p>
-      <ul style="color:var(--gris-fonce);font-size:14px;line-height:1.8;margin:0;padding-left:18px;">
-        <li>Complète ton profil pour apparaître dans les recherches</li>
-        <li>Ajoute tes photos de réalisations</li>
-        <li>Active ta disponibilité pour recevoir des clients</li>
-        <li>Partage ton lien de parrainage pour gagner des commissions</li>
-      </ul>
-    </div>
-
-    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;margin-bottom:12px;" onclick="showPage('dashboard')">
-      🚀 Accéder à mon espace
-    </button>
-    <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;" onclick="showPage('home')">
-      Retour à l'accueil
-    </button>
-  </div>
-</div>
+<!-- PAGE EMAIL CONFIRMÉ — supprimée : confirm email désactivé (Supabase Auth Settings OFF) -->
 
 <!-- ══════════════════════════════════════════
      PAGE RESET MOT DE PASSE
@@ -2249,6 +2223,12 @@ setTimeout(function(){
           </div>
         </div>
 
+        <!-- Fallback explicatif — visible si JS lent ou wizard non déclenché -->
+        <div id="ds-overview-intro" style="background:rgba(232,148,10,0.07);border:1px solid rgba(232,148,10,0.2);border-radius:14px;padding:18px 20px;margin-bottom:20px;">
+          <p style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#E8940A;margin:0 0 8px;">Ton espace professionnel WOZALI</p>
+          <p style="font-size:13px;color:rgba(252,224,168,0.75);line-height:1.7;margin:0;">Ici tu vois combien de clients ont regardé ton profil, t'ont contacté sur WhatsApp, et laissé des avis. Plus ton profil est complet, plus tu reçois de demandes. <strong style="color:#FCE0A8;">Commence par ajouter une photo et ton quartier.</strong></p>
+        </div>
+
         <!-- U2 — Wizard Premier pas (J+0 à J+7) — injecté dynamiquement -->
         <div id="wozali-premier-pas-wizard" style="display:none;margin-bottom:20px;"></div>
 
@@ -2444,7 +2424,10 @@ setTimeout(function(){
       <div class="dash-section" id="ds-notifications">
         <div class="dash-header">
           <h2>🔔 Mon activité</h2>
-          <p>Messages du fondateur, likes, commentaires et vues sur ton profil</p>
+          <p>Tout ce qui se passe sur ton profil — qui t'a regardé, qui t'a contacté, ce que les clients pensent de toi.</p>
+        </div>
+        <div class="dash-explainer">
+          🔔 <strong>Pourquoi surveiller ton activité ?</strong> Chaque notification est une information sur ce qui marche — ou pas. Un pic de vues après avoir ajouté une photo ? Ta photo attire. Zéro contact depuis une semaine ? Ton profil a besoin d'un avis ou d'une photo de plus. Lis tes notifications comme un rapport : ils te disent exactement quoi améliorer pour recevoir plus de clients.
         </div>
         <!-- Activation notifications push (PWA) -->
         <div id="wozali-push-card" style="display:none;margin-bottom:18px;background:linear-gradient(135deg,#14100A 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,0.35);border-radius:14px;padding:16px 18px;color:#FCE0A8;">
@@ -2993,12 +2976,16 @@ setTimeout(function(){
       <div class="dash-section" id="ds-posts">
         <div class="dash-header">
           <div>
-            <h2>📝 Mes Publications · Ce que tu partages sur WOZALI</h2>
-            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Les prestataires qui publient régulièrement apparaissent plus haut dans les résultats.</p>
+            <h2>📝 Mes Publications</h2>
+            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Publie 1 fois par semaine — ça suffit pour rester visible et monter dans les résultats.</p>
           </div>
           <button onclick="viewMyProfile()" class="btn btn-primary btn-sm" style="white-space:nowrap;">
             ✏️ Publier un post
           </button>
+        </div>
+        <div class="dash-explainer">
+          📝 <strong>C'est quoi un post et pourquoi c'est important ?</strong> Un post, c'est comme afficher une pancarte dans la rue — sauf que toute la ville peut la voir. Tu partages une photo de ton travail, une info sur tes tarifs, une disponibilité urgente. Chaque fois que tu publies, ton profil remonte dans les résultats de recherche. Les prestataires qui publient régulièrement reçoivent jusqu'à 3× plus de demandes que ceux qui ne publient pas.<br><br>
+          <strong>Quoi publier ?</strong> Une photo "avant/après" d'une prestation. Un tarif spécial ce week-end. Un message "Je suis disponible aujourd'hui à Tokoin". Simple. Court. Efficace.
         </div>
 
         <!-- Stats -->
@@ -3051,8 +3038,11 @@ setTimeout(function(){
         <div class="dash-header">
           <div>
             <h2>👥 Mes Abonnements</h2>
-            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Les prestataires que tu suis</p>
+            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Les prestataires que tu suis — leurs nouveautés apparaissent en premier dans ton fil.</p>
           </div>
+        </div>
+        <div class="dash-explainer">
+          👥 <strong>Pourquoi suivre un prestataire ?</strong> Quand tu suis quelqu'un sur WOZALI, tu vois ses nouvelles photos, ses posts et ses disponibilités directement dans ton fil. C'est comme avoir ses contacts directs — sans avoir à le chercher à chaque fois. Utile pour un électricien de confiance, une coiffeuse qui travaille bien, un mécanicien fiable dans ton quartier.
         </div>
         <div id="abonnements-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
           <div style="text-align:center;padding:40px;color:var(--gris);">
@@ -3064,14 +3054,25 @@ setTimeout(function(){
 
       <!-- FAVORIS (conservé pour compatibilité) -->
       <div class="dash-section" id="ds-favoris">
+        <div class="dash-header">
+          <h2>❤️ Mes Favoris</h2>
+          <p>Les prestataires que tu as sauvegardés pour les retrouver vite.</p>
+        </div>
+        <div class="dash-explainer">
+          ❤️ <strong>Tu as aimé le travail de quelqu'un ?</strong> Sauvegarde son profil ici. Comme ça, la prochaine fois que tu en as besoin — tu le retrouves en 1 clic, sans avoir à rechercher.
+        </div>
         <div id="favoris-list"></div>
       </div>
 
       <!-- AVIS -->
       <div class="dash-section" id="ds-avis">
         <div class="dash-header">
-          <h2>Mes avis clients</h2>
-          <p>Ce que tes clients disent de toi</p>
+          <h2>⭐ Mes avis clients</h2>
+          <p>Les avis = ta réputation visible. Les profils avec 3+ avis reçoivent 5× plus de contacts.</p>
+        </div>
+        <div class="dash-explainer">
+          ⭐ <strong>Un avis, c'est un client qui dit à tout le monde que tu travailles bien.</strong> À Lomé ou Cotonou, les gens font confiance à ce que les autres ont vécu. Chaque avis sur ton profil remplace 10 recommandations bouche-à-oreille — et il est visible 24h/24 par tous les clients qui te cherchent.<br><br>
+          <strong>Comment avoir des avis ?</strong> Après chaque prestation, demande à ton client de scanner ton QR code ou d'ouvrir ton profil WOZALI et de laisser une note. 30 secondes pour lui. Une preuve de plus pour toi.
         </div>
         <div id="dash-avis-list">
           <div class="loading"><div class="spinner"></div> Chargement...</div>
@@ -3363,7 +3364,11 @@ setTimeout(function(){
       <div class="dash-section" id="ds-abonnement">
         <div class="dash-header">
           <h2>Mon abonnement</h2>
-          <p>Gère ton plan et augmente ta visibilité sur WOZALI</p>
+          <p>Plan Pro = ton nom apparaît en premier quand un client cherche ton métier. Les profils gratuits passent après toi.</p>
+        </div>
+        <div class="dash-explainer">
+          🏆 <strong>Concrètement, voilà ce que ça change :</strong> Un client cherche "coiffeur à Bè". Les membres Pro sortent en tête. Les membres gratuits arrivent en bas. Si tu es gratuit, le client voit d'abord tes concurrents Pro — et il les appelle avant même d'arriver à toi.<br><br>
+          Le Plan Pro, c'est <strong>83 FCFA par jour</strong>. Une seule prestation dans le mois — et c'est remboursé. Le reste du mois, tout ce que tu gagnes grâce à ta visibilité, c'est du bénéfice pur.
         </div>
 
 
@@ -3496,7 +3501,7 @@ setTimeout(function(){
         <!-- A4. FAQ Pro -->
         <div class="wozali-faq-pro">
           <h3>❓ Questions fréquentes — Plan Pro</h3>
-          <div class="faq-item"><div class="faq-q">2 500 FCFA, c'est pas trop cher ?</div><div class="faq-r">2 500 FCFA = 83 FCFA par jour. Moins qu'un pain beurre. Une seule prestation de 3 000 FCFA dans le mois — et l'abonnement est remboursé. Le reste du mois, tu gardes 100%. Les clients qui te voient en priorité, ils viennent pas gratuitement. WOZALI leur montre ton profil en premier. C'est ça que tu paies.</div></div>
+          <div class="faq-item"><div class="faq-q">2 500 FCFA, c'est pas trop cher ?</div><div class="faq-r">2 500 FCFA = 83 FCFA par jour. Moins qu'un pain beurre. Une seule prestation de 3 000 FCFA dans le mois — et l'abonnement est remboursé. Le reste du mois, tu gardes 100%. Les clients qui te voient en priorité, ils viennent pas gratuitement. Ton profil sort en tête des résultats — avant tous les profils gratuits. C'est ça que tu paies.</div></div>
           <div class="faq-item"><div class="faq-q">Combien je gagne de plus avec le Plan Pro ?</div><div class="faq-r">Ton profil passe en tête des résultats. Les clients te voient avant les autres. Tu reçois plus de demandes. Et chaque mois, tu entres automatiquement dans la Bourse de Croissance — 300 000 FCFA pour le membre Pro le plus sérieux. Un mois Pro suffit pour être éligible dès le premier tirage.</div></div>
           <div class="faq-item"><div class="faq-q">C'est quoi la Bourse de Croissance ?</div><div class="faq-r">300 000 FCFA versés chaque mois au membre Pro qui travaille le mieux : profil complet, bons avis clients, actif sur la plateforme. Pas une loterie — c'est le sérieux qui gagne. Tu entres dans le tirage dès ton premier mois Pro.</div></div>
           <div class="faq-item"><div class="faq-q">Comment je paie sans carte bancaire ?</div><div class="faq-r">MTN Mobile Money, Moov Money, TMoney, Flooz — directement depuis ton téléphone. 30 secondes. Plan Pro activé immédiatement. Pas de carte. Pas de compte en banque requis.</div></div>
@@ -3541,7 +3546,12 @@ setTimeout(function(){
       <div class="dash-section" id="ds-recompenses">
         <div class="dash-header">
           <h2>🏆 Bourse de Croissance</h2>
-          <p>300 000 FCFA — 1 gagnant par mois · Réservé aux membres Pro · Premier tirage le vendredi 28 août 2026.</p>
+          <p>300 000 FCFA — 1 gagnant par mois · Réservé membres Pro · Premier tirage vendredi 28 août 2026.</p>
+        </div>
+        <div class="dash-explainer">
+          🏆 <strong>C'est quoi la Bourse de Croissance ?</strong> Chaque mois, le membre Pro qui travaille le mieux reçoit <strong>300 000 FCFA</strong> directement sur son Mobile Money. Pas une loterie. Pas un concours de popularité. C'est le sérieux qui gagne : profil complet, avis clients réels, activité régulière.<br><br>
+          <strong>300 000 FCFA = presque 6 mois de SMIG au Togo.</strong> En un seul virement. Le tirage est automatique chaque dernier vendredi du mois à 18h. Si tu remplis les conditions, tu participes — sans rien faire de plus.<br><br>
+          <strong>Les conditions pour être éligible :</strong> Plan Pro actif ce mois · Score WOZALI ≥ 80 · Au moins 3 avis clients récents · Note ≥ 4.2★ · Profil actif (connexion dans les 14 derniers jours).
         </div>
         <div id="recompenses-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
       </div>
@@ -3549,7 +3559,12 @@ setTimeout(function(){
       <div class="dash-section" id="ds-recompenses-mdr">
         <div class="dash-header">
           <h2>👑 La Bourse des Mains d'Or</h2>
-          <p>200 000 FCFA — 100K × 2 Reines · 1 Togo + 1 Bénin · Ouverte à toutes les coiffeuses &amp; couturières · Premier tirage le vendredi 28 août 2026.</p>
+          <p>200 000 FCFA — 100K × 2 Reines · 1 Togo + 1 Bénin · Ouverte à toutes les coiffeuses &amp; couturières · Premier tirage vendredi 28 août 2026.</p>
+        </div>
+        <div class="dash-explainer">
+          👑 <strong>C'est quoi la Bourse des Mains d'Or ?</strong> Chaque mois, 2 femmes gagnent <strong>100 000 FCFA</strong> chacune — une au Togo, une au Bénin. Réservée aux coiffeuses et couturières. Pas besoin d'être Pro pour participer.<br><br>
+          <strong>100 000 FCFA = une machine Singer neuve.</strong> = 2 mois de loyer à Bè. = ce que tu gagnes en plusieurs semaines de travail, en une seule nuit.<br><br>
+          <strong>Pour participer :</strong> Profil complet · Au moins 1 photo de réalisation ce mois · Au moins 1 avis client reçu · Connexion dans les 14 derniers jours. Le tirage est automatique chaque dernier vendredi du mois à 18h. Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour.
         </div>
         <div id="recompenses-mdr-widgets" style="max-width:800px;margin:0 auto;padding:0 16px;"></div>
       </div>
@@ -3563,9 +3578,9 @@ setTimeout(function(){
 
         <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:24px;margin-bottom:24px;border-left:4px solid #f59e0b;">
           <div style="font-size:28px;margin-bottom:12px;">💰</div>
-          <h3 style="color:#f59e0b;font-weight:900;margin-bottom:12px;font-size:18px;">L'opportunité WOZALI — Un vrai revenu, pour tout le monde</h3>
+          <h3 style="color:#f59e0b;font-weight:900;margin-bottom:12px;font-size:18px;">Un vrai revenu — juste en partageant ton lien</h3>
           <p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.8;margin-bottom:16px;">
-            Étudiant, commerçante, influenceur, mère au foyer, livreur — peu importe qui tu es. Si tu connais des gens, tu peux gagner de l'argent avec WOZALI. <strong style="color:#f59e0b;">1 000 FCFA par mois pour chaque filleul Pro</strong>. Récurrent. Sans plafond. C'est pas un bonus — c'est un salaire que tu construis toi-même.
+            Étudiant, commerçante, influenceur, mère au foyer, livreur — peu importe qui tu es. Si tu connais des gens, tu peux construire un revenu. <strong style="color:#f59e0b;">1 000 FCFA par mois pour chaque filleul Pro</strong>. Récurrent. Sans plafond. C'est pas un bonus — c'est un salaire que tu construis toi-même.
           </p>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
             <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:10px;text-align:center;">
@@ -3762,7 +3777,7 @@ setTimeout(function(){
         <div id="emploi-mode-toggle-wrap" style="background:white;border-radius:20px;padding:32px;box-shadow:var(--shadow);text-align:center;max-width:480px;margin:0 auto;">
           <div style="font-size:48px;margin-bottom:16px;">🎯</div>
           <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:8px;">Je suis disponible pour des opportunités d'emploi</h3>
-          <p style="font-size:14px;color:var(--gris);margin-bottom:24px;line-height:1.7;">Quand activé :<br>• Les recruteurs peuvent te trouver et te contacter directement<br>• WOZALI Match t'envoie des alertes dès qu'une offre correspond à ton profil<br>• Tu peux postuler sur WOZALI Jobs en 1 clic</p>
+          <p style="font-size:14px;color:var(--gris);margin-bottom:24px;line-height:1.7;">Quand activé :<br>• Les recruteurs peuvent te trouver et te contacter directement<br>• Des alertes automatiques arrivent dès qu'une offre correspond à ton profil<br>• Tu peux postuler sur WOZALI Jobs en 1 clic</p>
 
           <!-- Toggle stylé -->
           <div style="display:inline-flex;align-items:center;gap:16px;cursor:pointer;user-select:none;" onclick="toggleModeEmploi()">
@@ -3782,7 +3797,11 @@ setTimeout(function(){
       <div class="dash-section" id="ds-emploi-candidatures">
         <div class="dash-header">
           <h2>📋 Mes candidatures</h2>
-          <p>Toutes tes candidatures à des offres d'emploi.</p>
+          <p>Suis en temps réel où en est chaque offre à laquelle tu as postulé.</p>
+        </div>
+        <div class="dash-explainer">
+          📋 <strong>Comment ça marche ?</strong> Quand tu postules à une offre sur WOZALI Jobs, le recruteur reçoit ton profil complet — tes photos, tes avis, ton Score WOZALI. Tu n'as pas besoin d'envoyer un CV Word. Ton profil parle à ta place.<br><br>
+          Ici tu vois le statut de chaque candidature : <strong>En attente</strong> (le recruteur n'a pas encore regardé), <strong>Vue</strong> (il a consulté ton profil), <strong>Retenue</strong> (tu passes à l'étape suivante), <strong>Refusée</strong>. Plus ton profil est complet et a des avis, plus tu as de chances d'être retenu.
         </div>
         <div id="mes-candidatures-list">
           <div class="loading"><div class="spinner"></div> Chargement...</div>
@@ -3792,8 +3811,16 @@ setTimeout(function(){
       <!-- DASHBOARD GLOBAL RECRUTEUR -->
       <div class="dash-section" id="ds-recrut-dashboard">
         <div class="dash-header" style="margin-bottom:20px;">
-          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#FCE0A8;margin:0 0 6px;">Tableau de bord recruteur</h2>
-          <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Vue d'ensemble de ton activité recrutement.</p>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#FCE0A8;margin:0 0 6px;">👔 Je recrute</h2>
+          <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Publie une offre. Les bons candidats de Lomé et Cotonou postulent directement — tu vois leurs profils, leurs avis, leurs photos de travail.</p>
+        </div>
+        <div class="dash-explainer" style="background:rgba(232,148,10,0.08);border-left:3px solid #E8940A;border-radius:10px;padding:16px 18px;margin-bottom:20px;font-size:13px;line-height:1.7;color:#FCE0A8;">
+          👔 <strong>Comment recruter sur WOZALI ?</strong><br>
+          1. Tu publies une offre (métier, quartier, salaire, ce que tu cherches) — 3 minutes.<br>
+          2. Les candidats disponibles dans ta zone voient ton offre et postulent en 1 clic.<br>
+          3. Tu reçois leur profil complet : photos de leurs réalisations, avis de leurs anciens clients, Score WOZALI.<br>
+          4. Tu choisis. Tu contactes directement sur WhatsApp. Pas d'intermédiaire.<br><br>
+          <strong>Fini de poster sur des groupes WhatsApp et de trier 50 messages.</strong> Tu vois les vrais profils — vérifiés, notés — avant même de décrocher ton téléphone.
         </div>
         <!-- KPI ROW 1 -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:10px;">
@@ -3854,7 +3881,7 @@ setTimeout(function(){
             <div style="width:3px;height:36px;background:#E8940A;border-radius:2px;flex-shrink:0;"></div>
             <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(20px,3vw,26px);font-weight:700;color:#FCE0A8;margin:0;line-height:1.2;">Publie ton offre. Trouve ton profil.</h2>
           </div>
-          <p style="color:rgba(252, 224, 168,.5);font-family:Geist,sans-serif;font-size:14px;margin:0;">Les bons candidats sont déjà sur WOZALI — <span style="color:#E8940A;font-weight:600;">WOZALI Match</span> les amène directement à toi.</p>
+          <p style="color:rgba(252, 224, 168,.5);font-family:Geist,sans-serif;font-size:14px;margin:0;">Les bons candidats sont déjà là — remplis le formulaire, ils voient ton offre directement sur leur téléphone.</p>
         </div>
 
         <!-- Lock Pro (thème sombre) -->
@@ -4001,8 +4028,8 @@ setTimeout(function(){
       <!-- RECRUTEMENT : MES OFFRES -->
       <div class="dash-section" id="ds-recrut-offres">
         <div class="dash-header" style="margin-bottom:24px;">
-          <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin:0 0 6px;">Mes offres d'emploi</h2>
-          <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Gère, modifie et suis tes offres publiées.</p>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin:0 0 6px;">Mes offres publiées</h2>
+          <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Chaque offre active est visible par tous les chercheurs d'emploi de ta zone. Tu peux la modifier, la désactiver ou la booster pour qu'elle sorte en premier.</p>
         </div>
         <!-- MINI KPIs -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;">
@@ -4045,7 +4072,10 @@ setTimeout(function(){
         <!-- HEADER -->
         <div class="dash-header" style="margin-bottom:24px;">
           <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin:0 0 6px;">Candidatures reçues</h2>
-          <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Les candidats qui ont postulé à tes offres.</p>
+          <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252, 224, 168,.5);margin:0;">Voici les personnes qui veulent travailler avec toi — tu vois leur profil complet, leurs avis, leurs photos avant de décrocher ton téléphone.</p>
+        </div>
+        <div class="dash-explainer" style="background:rgba(232,148,10,0.08);border-left:3px solid #E8940A;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.7;color:#FCE0A8;">
+          💡 <strong>Comment trier les candidats ?</strong> Regarde d'abord leur Score WOZALI — c'est une note sur 100 qui mesure leur sérieux (profil complet, avis clients, activité). Plus le score est haut, plus le candidat est fiable. Clique sur un profil pour voir ses photos de travail et ses avis. Contacte directement sur WhatsApp ceux qui t'intéressent.
         </div>
 
         <!-- ANTI-GHOSTING WIDGET -->
@@ -4184,10 +4214,10 @@ setTimeout(function(){
     <div class="container" style="position:relative;z-index:1;text-align:center;">
       <div class="badge" style="background:rgba(232,148,10,0.2);color:var(--or);margin-bottom:20px;">Simple. Gratuit. En 2 minutes.</div>
       <h1 style="color:white;font-size:clamp(36px,5vw,58px);margin-bottom:20px;max-width:800px;margin-left:auto;margin-right:auto;">
-        Voilà comment<br><em style="color:var(--or);">WOZALI</em> fonctionne.
+        En 2 minutes,<br><em style="color:var(--or);">tu existes en ligne.</em>
       </h1>
       <p style="color:rgba(255,255,255,0.65);font-size:18px;max-width:560px;margin:0 auto 36px;">
-        Pas de carte bancaire. Pas de technicien. Juste ton téléphone, ton métier — et un profil professionnel visible par tous les clients de Cotonou et de Lomé.
+        Pas de carte bancaire. Pas de technicien. Juste ton téléphone et ton métier — et les clients de Cotonou et de Lomé peuvent te trouver.
       </p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <button class="btn btn-primary btn-lg" onclick="showPage('search')">Trouver un pro</button>
@@ -4258,7 +4288,7 @@ setTimeout(function(){
       <div style="text-align:center;margin-bottom:52px;">
         <div class="badge" style="background:#ede9fe;color:#7c3aed;margin-bottom:14px;">Pour les chercheurs d'emploi</div>
         <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(24px,3.5vw,36px);font-weight:900;">T'as le diplôme.<br><em style="color:#7c3aed;">Fini d'attendre qu'on te remarque.</em></h2>
-        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">Au Bénin comme au Togo, 80% des postes ne sont jamais publiés officiellement. Ils se donnent par réseau, par qui tu connais. WOZALI change ça. Ton profil parle à ta place — avant même que tu décroches un téléphone.</p>
+        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">Au Bénin comme au Togo, 80% des postes ne sont jamais publiés officiellement. Ils se donnent par réseau, par qui tu connais. Ton profil WOZALI parle à ta place — avant même que tu décroches un téléphone.</p>
       </div>
 
       <!-- Stats douleur -->
@@ -4316,7 +4346,7 @@ setTimeout(function(){
       <div style="text-align:center;margin-bottom:52px;">
         <div class="badge badge-or" style="margin-bottom:14px;">Pour les recruteurs</div>
         <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(24px,3.5vw,36px);font-weight:900;">Fini de recruter à l'aveugle. <em style="color:var(--or);">Tu vois le vrai profil avant même d'appeler.</em></h2>
-        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">Tu as besoin de quelqu'un ? Avant WOZALI, tu postes sur un groupe WhatsApp, tu reçois 50 messages, tu passes 2 jours à trier — et tu finis par prendre quelqu'un au hasard. WOZALI te donne les bons profils, vérifiés, notés par de vrais clients, dans ta zone.</p>
+        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">Tu as besoin de quelqu'un ? Avant WOZALI, tu postes sur un groupe WhatsApp, tu reçois 50 messages, tu passes 2 jours à trier — et tu finis par prendre quelqu'un au hasard. Sur WOZALI, tu vois les bons profils directement — vérifiés, notés par de vrais clients, dans ta zone.</p>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:920px;margin:0 auto;">
         <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.15);">
@@ -4376,7 +4406,7 @@ setTimeout(function(){
               <div style="width:44px;height:44px;background:var(--or-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;font-weight:900;color:var(--or);">2</div>
               <div>
                 <h4 style="font-weight:800;margin-bottom:4px;">Active ta disponibilité.</h4>
-                <p style="font-size:14px;color:var(--gris);line-height:1.6;">Un simple toggle. Quand tu es disponible — les clients te trouvent.<br>WOZALI Match t'envoie les offres qui correspondent à ton profil.</p>
+                <p style="font-size:14px;color:var(--gris);line-height:1.6;">Un simple toggle. Quand tu es disponible — les clients te trouvent.<br>Les offres qui correspondent à ton profil arrivent directement chez toi.</p>
               </div>
             </div>
             <div style="display:flex;gap:16px;align-items:flex-start;">
@@ -4704,7 +4734,7 @@ setTimeout(function(){
       </div>
       <div class="wozali-faq-item">
         <button class="wozali-faq-question" type="button">Est-ce que mon abonnement peut vraiment se payer tout seul ?</button>
-        <div class="wozali-faq-reponse"><p>Oui — mathématiquement. Le parrainage WOZALI te donne <strong>1 000 FCFA par filleul Pro actif, chaque mois, à vie.</strong> 3 filleuls = 3 000 FCFA. Ton abonnement coûte 2 500 FCFA. 3 filleuls = abonnement remboursé + 500 FCFA de bénéfice net. À partir du 4ème filleul, tu <em>gagnes de l'argent en dormant</em>. 10 filleuls = 10 000 FCFA/mois. 20 filleuls = 20 000 FCFA/mois. Récurrent. Tant qu'ils restent Pro. Partage ton lien de parrainage une fois sur WhatsApp — c'est parti.</p></div>
+        <div class="wozali-faq-reponse"><p>Oui — mathématiquement. Avec le parrainage, tu gagnes <strong>1 000 FCFA par filleul Pro actif, chaque mois, à vie.</strong> 3 filleuls = 3 000 FCFA. Ton abonnement coûte 2 500 FCFA. 3 filleuls = abonnement remboursé + 500 FCFA de bénéfice net. À partir du 4ème filleul, tu <em>gagnes de l'argent en dormant</em>. 10 filleuls = 10 000 FCFA/mois. 20 filleuls = 20 000 FCFA/mois. Récurrent. Tant qu'ils restent Pro. Partage ton lien de parrainage une fois sur WhatsApp — c'est parti.</p></div>
       </div>
       <div class="wozali-faq-item">
         <button class="wozali-faq-question" type="button">C'est quoi la Bourse de Croissance et comment je peux gagner ?</button>
@@ -4898,7 +4928,7 @@ setTimeout(function(){
       <span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;text-transform:uppercase;margin-bottom:16px;padding:6px 14px;border:1px solid rgba(232,148,10,0.35);border-radius:100px;">CE QU'EST WOZALI</span>
       <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4.5vw,44px);font-weight:900;color:#FCE0A8;line-height:1.15;margin:0 0 8px;">Visibilité. Paiements. Revenus.</h2>
       <p style="font-family:'DM Serif Display',serif;font-size:20px;color:rgba(252, 224, 168,0.6);margin:0 0 24px;">Tout au même endroit.</p>
-      <p style="font-family:'Geist',sans-serif;font-size:16px;line-height:1.8;color:rgba(252, 224, 168,0.75);margin:0 auto 40px;max-width:700px;">WOZALI rend visibles les artisans, prestataires et commerçants de Cotonou et Lomé. Pas une appli de plus. Un outil concret, construit pour le marché ouest-africain. Opérationnel dès aujourd'hui.</p>
+      <p style="font-family:'Geist',sans-serif;font-size:16px;line-height:1.8;color:rgba(252, 224, 168,0.75);margin:0 auto 40px;max-width:700px;">Artisans, prestataires, commerçants de Cotonou et Lomé — enfin visibles. Pas une appli de plus. Un outil concret, construit pour le marché ouest-africain. Opérationnel dès aujourd'hui.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;text-align:left;">
         <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,0.25);border-radius:12px;padding:24px;">
           <div style="font-size:28px;margin-bottom:12px;color:#E8940A;">
@@ -5635,7 +5665,7 @@ setTimeout(function(){
         </div>
         <div style="padding:20px;">
           <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;margin:0 0 8px;color:var(--noir);">Postuler sur WOZALI Jobs en 1 clic — sans CV Word</h3>
-          <p style="font-size:14px;color:var(--gris);margin:0;">La géolocalisation de WOZALI te met en avant pour les clients proches de toi. Automatiquement.</p>
+          <p style="font-size:14px;color:var(--gris);margin:0;">Grâce à la géolocalisation, tu apparais en premier pour les clients proches de toi. Automatiquement.</p>
         </div>
       </div>
 
@@ -6458,8 +6488,8 @@ window.addEventListener('beforeinstallprompt', function(e){
       +   '<div class="wv2-hero-v2-text">'
       +     '<h1>Ton travail parle.</h1>'
       +     '<h2><em style="font-style:italic;color:#E8940A;">Pas tes connexions.</em></h2>'
-      +     '<p style="font-family:DM Serif Display,serif;font-style:italic;font-size:clamp(16px,2.2vw,22px);color:rgba(255,255,255,0.75);line-height:1.6;margin:16px 0 24px;max-width:600px;">L\'argent ne circule plus entre ceux qui cherchent et ceux qui savent faire.<br><span style="color:#E8940A;font-style:normal;font-weight:700;">WOZALI remet l\'argent en mouvement.</span></p>'
-      +     '<p class="wv2-hero-v2-sub">WOZALI connecte les artisans, prestataires et commerçants de Cotonou et Lomé avec leurs clients. Sans recommandation. Ton profil, tes avis, ton Score WOZALI — c\'est ça qui parle.</p>'
+      +     '<p style="font-family:DM Serif Display,serif;font-style:italic;font-size:clamp(16px,2.2vw,22px);color:rgba(255,255,255,0.75);line-height:1.6;margin:16px 0 24px;max-width:600px;">L\'argent ne circule plus entre ceux qui cherchent et ceux qui savent faire.<br><span style="color:#E8940A;font-style:normal;font-weight:700;">Ton profil sort en premier. Les clients t\'appellent directement.</span></p>'
+      +     '<p class="wv2-hero-v2-sub">Artisans, prestataires, commerçants — à Cotonou et Lomé. Sans connexions. Sans favoritisme. Ton profil, tes avis, ton Score — et les clients te trouvent.</p>'
       +     '<div class="wv2-hero-v2-ctas">'
       +       '<button class="btn-wozali-primary" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button>'
       +       '<button class="btn-wozali-secondary" onclick="showPage(\'search\')">Explorer les prestataires</button>'
@@ -6612,7 +6642,7 @@ window.addEventListener('beforeinstallprompt', function(e){
   <section style="background:#14100A;padding:100px 24px 60px;text-align:center;">
     <div class="container" style="max-width:820px;">
       <button onclick="showPage('home')" style="background:transparent;border:1px solid rgba(232,148,10,0.4);color:#E8940A;padding:8px 18px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:32px;">← Retour</button>
-      <h1 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(32px,5vw,52px);font-weight:700;color:#E8940A;line-height:1.15;margin:0 0 24px;">WOZALI rend visible l'économie invisible.</h1>
+      <h1 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(32px,5vw,52px);font-weight:700;color:#E8940A;line-height:1.15;margin:0 0 24px;">L'économie invisible mérite d'être vue.</h1>
     </div>
   </section>
   <!-- Mission -->

@@ -7061,7 +7061,7 @@ function _setJsonLd(obj) {
 }
 function _resetSeoMeta() {
   document.title = 'WOZALI — Visibilité. Paiements. Revenus. Bénin & Togo.';
-  _setMeta('description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. WOZALI connecte le Bénin et le Togo.');
+  _setMeta('description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. Ton travail parle. Pas tes connexions.');
   _setOg('og:title', 'WOZALI — Visibilité. Paiements. Revenus. Bénin & Togo.');
   _setOg('og:description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes.');
   _setOg('og:url', 'https://wozali.com');
