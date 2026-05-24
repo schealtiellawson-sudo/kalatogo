@@ -114,7 +114,7 @@ async function sendToInbox(supa, userId, templateKey, content) {
     template_key: templateKey,
     title: inferTitle(templateKey, content),
     body: content,
-    from: 'Schealtiel · Fondateur WOZALI',
+    from: 'Le fondateur · WOZALI',
     avatar: 'https://wozali.vercel.app/icons/founder-avatar.png',
     created_at: new Date().toISOString(),
     read: false,
@@ -129,14 +129,14 @@ async function sendToInbox(supa, userId, templateKey, content) {
 async function sendEmailResend(toEmail, subject, content, prenom) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !toEmail) return null;
-  // Mise en forme HTML simple persona Schealtiel
+  // Mise en forme HTML email interne WOZALI
   const html = `<!doctype html><html><body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#0f1410;color:#F8F6F1;padding:0;margin:0;">
 <div style="max-width:560px;margin:0 auto;padding:32px 24px;background:#0f1410;">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
     <div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#0f1410;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;font-family:'Fraunces',serif;">S</div>
     <div>
-      <div style="font-weight:700;color:#F8F6F1;font-size:15px;">Schealtiel</div>
-      <div style="font-size:12px;color:rgba(248,246,241,0.55);">Fondateur · WOZALI</div>
+      <div style="font-weight:700;color:#F8F6F1;font-size:15px;">WOZALI</div>
+      <div style="font-size:12px;color:rgba(248,246,241,0.55);">Le fondateur</div>
     </div>
   </div>
   <div style="font-size:15px;line-height:1.7;color:rgba(248,246,241,0.85);white-space:pre-line;">${(content || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
@@ -150,7 +150,7 @@ async function sendEmailResend(toEmail, subject, content, prenom) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Schealtiel <schealtiel@wozali.com>',
+        from: 'WOZALI <hello@wozali.com>',
         to: [toEmail],
         subject,
         html,
