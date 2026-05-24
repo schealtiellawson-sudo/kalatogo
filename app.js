@@ -843,8 +843,8 @@ function renderPremierPasWizard() {
       <div style="background:linear-gradient(135deg,#14100A,#1a1f1b);border:1.5px solid rgba(232,148,10,.4);border-radius:16px;padding:18px 20px;color:#FCE0A8;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
         <div style="font-size:28px;flex-shrink:0;">✅</div>
         <div style="flex:1;min-width:200px;">
-          <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:4px;">T'as bien démarré.</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.75);line-height:1.55;">La suite c'est de recevoir tes premiers clients. Ton travail parle. Pas tes connexions.</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:4px;">${prenom ? prenom + ', t' : 'T'}'as fait le plus important.</div>
+          <div style="font-size:13px;color:rgba(252, 224, 168,0.75);line-height:1.55;">Profil complet avec photos, GPS et partage — tu reçois <strong style="color:#FCE0A8;">5× plus de contacts</strong> qu'un profil vide. Les clients arrivent.</div>
         </div>
         <button onclick="dismissPremierPasWizard()" style="background:transparent;color:rgba(252, 224, 168,0.6);border:1px solid rgba(252, 224, 168,0.2);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Masquer</button>
       </div>
@@ -7637,6 +7637,20 @@ async function submitInscription(e) {
           if (verifyBlock) verifyBlock.style.display = 'none';
           if (loggedBlock) loggedBlock.style.display = 'block';
           if (fallbackMsg) fallbackMsg.style.display = 'none';
+          // Quick Win J+0 — message personnalisé (Hormozi + SB7 Success + LF7)
+          try {
+            const prenom = (document.getElementById('f-nom')?.value || '').trim().split(' ')[0];
+            const metier = document.getElementById('f-metier')?.value || '';
+            const quartier = document.getElementById('f-quartier')?.value || '';
+            const hl = document.getElementById('pi-ql-headline');
+            const bd = document.getElementById('pi-ql-body');
+            if (hl && prenom) hl.textContent = prenom + ', tu existes maintenant.';
+            if (bd && metier && quartier) {
+              bd.textContent = 'Ce soir, quelqu\'un cherche un ' + metier + ' à ' + quartier + '. Avant, il ne te trouvait pas. Maintenant, si.';
+            } else if (bd && metier) {
+              bd.textContent = 'Ce soir, quelqu\'un cherche un ' + metier + ' près de chez lui. Maintenant, il peut te trouver.';
+            }
+          } catch(e) {}
         } else {
           if (verifyBlock) verifyBlock.style.display = 'block';
           if (loggedBlock) loggedBlock.style.display = 'none';
