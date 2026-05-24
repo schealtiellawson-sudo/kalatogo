@@ -3,10 +3,10 @@
 // PLAN PRO REFONTE — Tirages mensuels permanents
 // ════════════════════════════════════════════════════════════
 
-// --- Countdown vers le 30 du mois à 18h00 WAT ---
+// --- Countdown vers le dernier vendredi du mois à 18h00 WAT ---
 function lancerCountdown(){
-  function getNextThirtieth(){var now=new Date();var firstDraw=new Date(2026,6,31,18,0,0,0);if(now<firstDraw)return firstDraw.getTime();var y=now.getFullYear(),m=now.getMonth();var d=new Date(y,m,30,18,0,0,0);if(now>=d){m++;if(m>11){m=0;y++;}d=new Date(y,m,30,18,0,0,0);}return d.getTime();}
-  var cible = getNextThirtieth();
+  function getNextLastFriday(){function lastFri(y,m){var d=new Date(y,m+1,0,18,0,0,0);d.setDate(d.getDate()-((d.getDay()+2)%7));return d;}var now=new Date();var firstDraw=lastFri(2026,7);if(now<firstDraw)return firstDraw.getTime();var y=now.getFullYear(),m=now.getMonth();var d=lastFri(y,m);if(now>=d){m++;if(m>11){m=0;y++;}d=lastFri(y,m);}return d.getTime();}
+  var cible = getNextLastFriday();
   var jEl = document.getElementById('cnt-jours');
   var hEl = document.getElementById('cnt-heures');
   var mEl = document.getElementById('cnt-minutes');
@@ -161,12 +161,11 @@ async function verifierEligibiliteBourse(userId){
   return {eligible,conditions,manque:Object.entries(conditions).filter(([,v])=>!v).map(([k])=>k),nbAvisRecents:nbAvisRecents||0,noteMoyenne:Math.round(noteMoyenne*10)/10,moisPro:Math.floor(moisPro),scoreActuel:profil.score_wozali||0,prochainTirage,joursRestants};
 }
 function prochainVendrediFinMois(){
-  const m=new Date();
-  const fin=new Date(m.getFullYear(),m.getMonth()+1,0);
-  const j=fin.getDay();
-  const dec=(j>=5)?j-5:j+2;
-  const dv=new Date(fin);dv.setDate(fin.getDate()-dec);dv.setHours(18,0,0,0);
-  return dv.getTime()>Date.now()?dv:new Date(m.getFullYear(),m.getMonth()+2,0);
+  function dernierVendredi(y,mo){var fin=new Date(y,mo+1,0,18,0,0,0);var j=fin.getDay();fin.setDate(fin.getDate()-((j>=5)?j-5:j+2));return fin;}
+  var now=new Date();var y=now.getFullYear(),mo=now.getMonth();
+  var dv=dernierVendredi(y,mo);
+  if(dv.getTime()<=now.getTime()){mo++;if(mo>11){mo=0;y++;}dv=dernierVendredi(y,mo);}
+  return dv.getTime();
 }
 async function afficherWidgetBourse(userId){
   const c=document.getElementById('widget-bourse');if(!c)return;
@@ -2111,9 +2110,9 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
           }
         }
 
-        // B) Bourse de Croissance — tirage le 30 du mois, notif à J-1 (le 29)
+        // B) Bourse de Croissance — tirage le dernier vendredi du mois, notif J-1 (jeudi)
         var now = new Date();
-        var isTwentyNinth = now.getDate() === 29;
+        var isTwentyNinth = now.getDay() === 4 && (prochainVendrediFinMois() - now.getTime()) < 86400000 * 1.5;
         if (isTwentyNinth && (f['Abonnement']||'Base') !== 'Base') {
           var lastBourse = localStorage.getItem('wozali_notif_bourse_date');
           if (lastBourse !== today) {
