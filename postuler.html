@@ -404,7 +404,15 @@ html, body {
 
   <div class="page-eyebrow">Pionniers terrain · Lomé &amp; Cotonou</div>
   <h1 class="page-title">Rejoins<br><em>l'équipe.</em></h1>
-  <p class="page-sub">20 places. Freelance. Rémunéré à la performance. Pas de diplôme requis — juste du sérieux et un téléphone.</p>
+  <p class="page-sub">Freelance. Rémunéré à la performance. Pas de diplôme, pas d'expérience requise — juste du sérieux et un téléphone.</p>
+
+  <!-- WOZALI EXPLIQUÉ -->
+  <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:20px;margin-bottom:24px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:10px;">WOZALI, c'est quoi ?</div>
+    <p style="font-size:14px;color:rgba(252,224,168,.8);line-height:1.7;margin-bottom:12px;">Les meilleurs artisans de Lomé et Cotonou sont invisibles sur internet. Un plombier excellent dans son quartier n'existe pas pour quelqu'un qui cherche à l'autre bout de la ville. <strong style="color:#FCE0A8;">WOZALI, c'est l'appli qui les rend visibles.</strong> Quand quelqu'un cherche un coiffeur, un mécanicien ou une couturière dans son quartier, les pros WOZALI sortent en premier.</p>
+    <p style="font-size:14px;color:rgba(252,224,168,.8);line-height:1.7;"><strong style="color:#FCE0A8;">Ton rôle :</strong> aller dans les quartiers, aider les artisans à créer leur profil WOZALI, et être payé pour chaque inscription. Formation fournie. Lancement : 1er juillet 2026.</p>
+    <a href="/offre-pionniers" style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;color:#E8940A;text-decoration:none;font-weight:600;">Voir l'offre complète →</a>
+  </div>
 
   <div class="comm-block">
     <div class="comm-label">Ce que tu gagnes</div>
@@ -458,6 +466,14 @@ html, body {
       <input type="tel" id="f-whatsapp" placeholder="+228 90 00 00 00" autocomplete="tel" required>
     </div>
 
+    <label id="wa-check-label" style="display:flex;align-items:flex-start;gap:12px;background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.2);border-radius:12px;padding:14px 16px;cursor:pointer;margin-top:-4px;">
+      <input type="checkbox" id="f-wa-actif" style="width:20px;height:20px;accent-color:#25D366;flex-shrink:0;margin-top:2px;">
+      <span style="font-size:14px;color:rgba(252,224,168,0.85);line-height:1.5;">
+        <strong style="color:#FCE0A8;">Mon WhatsApp est actif et je réponds aux messages</strong><br>
+        <span style="font-size:12px;opacity:0.6;">Obligatoire — toute la coordination se fait par WhatsApp</span>
+      </span>
+    </label>
+
     <div class="form-section-title">Où es-tu ?</div>
 
     <div class="field">
@@ -489,11 +505,58 @@ html, body {
       </select>
     </div>
 
+    <div class="form-section-title">Ta situation</div>
+
+    <div class="field">
+      <label for="f-situation">Tu es en ce moment <span class="req">*</span></label>
+      <select id="f-situation" required>
+        <option value="">Sélectionne</option>
+        <option value="Sans emploi">Sans emploi</option>
+        <option value="Petit boulot pas stable">Petit boulot, pas stable</option>
+        <option value="Emploi stable, cherche en plus">J'ai un emploi, je cherche en plus</option>
+        <option value="Etudiant">Étudiant(e)</option>
+        <option value="Autre">Autre situation</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="f-transport">Comment tu te déplaces dans ta ville ?</label>
+      <select id="f-transport">
+        <option value="">Sélectionne (optionnel)</option>
+        <option value="A pied">À pied / vélo</option>
+        <option value="Transport commun">Transport en commun (zem, bus)</option>
+        <option value="Moto personnelle">Moto personnelle</option>
+        <option value="Voiture">Voiture</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="f-reseau">Tu connais des artisans dans ton quartier ? <span class="req">*</span></label>
+      <select id="f-reseau" required>
+        <option value="">Sélectionne</option>
+        <option value="Beaucoup, je connais tout le monde">Oui, je connais beaucoup de monde</option>
+        <option value="Quelques-uns">Quelques-uns</option>
+        <option value="Pas encore mais pret a prospecter">Pas encore, mais je suis prêt à aller les rencontrer</option>
+      </select>
+    </div>
+
     <div class="form-section-title">Motivation</div>
 
     <div class="field">
       <label for="f-pourquoi">Pourquoi veux-tu rejoindre l'équipe ? <span class="req">*</span></label>
-      <textarea id="f-pourquoi" placeholder="Décris en quelques lignes pourquoi tu es la bonne personne. Concrèt, honnête." rows="4" required></textarea>
+      <textarea id="f-pourquoi" placeholder="Dis-nous en quelques phrases. Pas besoin d'être parfait — sois concret et honnête." rows="4" required></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f-source">Comment tu as entendu parler de WOZALI ?</label>
+      <select id="f-source">
+        <option value="">Sélectionne (optionnel)</option>
+        <option value="WhatsApp">WhatsApp</option>
+        <option value="Facebook / Instagram">Facebook / Instagram</option>
+        <option value="TikTok">TikTok</option>
+        <option value="Un ami">Un ami m'a parlé de vous</option>
+        <option value="Autre">Autre</option>
+      </select>
     </div>
 
     <div class="form-section-title">Photos (optionnel)</div>
@@ -648,6 +711,10 @@ document.getElementById('form-postuler').addEventListener('submit', async e => {
   const quartier  = document.getElementById('f-quartier').value;
   const dispo     = document.getElementById('f-dispo').value;
   const pourquoi  = document.getElementById('f-pourquoi').value.trim();
+  const situation = document.getElementById('f-situation').value;
+  const transport = document.getElementById('f-transport').value;
+  const reseau    = document.getElementById('f-reseau').value;
+  const sourceVal = document.getElementById('f-source').value;
 
   // Validation requise
   if (!prenom)    { showError('Prénom requis.'); return; }
@@ -656,9 +723,13 @@ document.getElementById('form-postuler').addEventListener('submit', async e => {
   if (!age || age < 18) { showError('Âge requis (minimum 18 ans).'); return; }
   if (!telephone) { showError('Numéro de téléphone requis.'); return; }
   if (!whatsapp)  { showError('Numéro WhatsApp requis.'); return; }
+  const waActif = document.getElementById('f-wa-actif').checked;
+  if (!waActif) { showError('Confirme que ton WhatsApp est actif — c\'est indispensable pour ce poste.'); return; }
   if (!ville)     { showError('Sélectionne ta ville.'); return; }
   if (!quartier)  { showError('Sélectionne ton quartier.'); return; }
   if (!dispo)     { showError('Indique ta disponibilité.'); return; }
+  if (!situation) { showError('Indique ta situation actuelle.'); return; }
+  if (!reseau)    { showError('Dis-nous si tu connais des artisans dans ton quartier.'); return; }
   if (!pourquoi || pourquoi.length < 20) { showError('Explique ta motivation en quelques lignes (minimum 20 caractères).'); return; }
 
   const btn = document.getElementById('btn-submit');
@@ -695,7 +766,11 @@ document.getElementById('form-postuler').addEventListener('submit', async e => {
         disponibilite: dispo,
         photos: photoUrls.length ? JSON.stringify(photoUrls) : null,
         pourquoi,
-        source: 'wozali.africa/postuler',
+        situation: situation || null,
+        transport: transport || null,
+        reseau_quartier: reseau || null,
+        comment_trouve: sourceVal || null,
+        source: 'wozali.vercel.app/postuler',
         statut: 'En attente'
       });
 
