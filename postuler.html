@@ -888,18 +888,8 @@ document.getElementById('form-postuler').addEventListener('submit', async e => {
 
     if (error) throw error;
 
-    // Succès
-    document.getElementById('page-form').style.display = 'none';
-    const confirmEl = document.getElementById('page-confirm');
-    confirmEl.style.display = 'flex';
-
-    // Lien WhatsApp de confirmation
-    const waMsg = encodeURIComponent(
-      `Bonjour, je viens de postuler pour rejoindre l'équipe WOZALI à ${ville}.\n` +
-      `Je m'appelle ${prenom} ${nom} (quartier ${quartier}).\n` +
-      `Je suis disponible ${dispo.toLowerCase()}.`
-    );
-    document.getElementById('wa-confirm-link').href = `https://wa.me/${WA_RECRUTEMENT.replace(/[^0-9]/g,'')}?text=${waMsg}`;
+    // Succès — redirect vers page de confirmation
+    window.location.href = '/merci';
 
   } catch (err) {
     console.error('[postuler]', err);
