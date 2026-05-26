@@ -1817,7 +1817,12 @@ function renderCandGrid(records) {
 
     // Info
     html += '<div style="padding:14px;">';
-    html += '<div style="font-family:Geist,sans-serif;font-size:15px;font-weight:700;color:#FCE0A8;margin-bottom:4px;">' + (f['Prénom']||'') + ' ' + (f['Nom']||'') + '</div>';
+    var _sc = _iaAnalyse ? _scoreCache[r.id] : null;
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:' + (_sc ? '5px' : '4px') + ';">';
+    html += '<div style="font-family:Geist,sans-serif;font-size:15px;font-weight:700;color:#FCE0A8;">' + (f['Prénom']||'') + ' ' + (f['Nom']||'') + '</div>';
+    if (_sc) html += '<span style="font-family:Geist Mono,monospace;font-size:14px;font-weight:900;color:' + _sc.labelColor + ';flex-shrink:0;">' + _sc.total + '</span>';
+    html += '</div>';
+    if (_sc) html += '<div style="margin-bottom:7px;"><span style="font-size:10px;font-weight:700;padding:2px 9px;background:' + _sc.labelBg + ';color:' + _sc.labelColor + ';border-radius:6px;">' + _sc.label + '</span></div>';
     html += '<div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252, 224, 168,.5);margin-bottom:8px;">' + (f['Ville']||'—') + ' · ' + (f['Quartier']||'') + ' · ' + genreLabel + ' · ' + (f['Âge']||'—') + ' ans</div>';
     html += '<div style="font-family:Geist,sans-serif;font-size:11px;color:rgba(252, 224, 168,.3);">' + (f['Disponibilité']||'') + ' · ' + (f['Date Ajout'] ? new Date(f['Date Ajout']).toLocaleDateString('fr-FR') : '') + '</div>';
 
@@ -1845,7 +1850,7 @@ function renderCandTable(records) {
   if (!records.length) { c.innerHTML = '<p style="color:rgba(252, 224, 168,.4);font-family:Geist,sans-serif;text-align:center;padding:60px;">Aucune candidature trouvée.</p>'; return; }
   var html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Geist,sans-serif;font-size:13px;color:#FCE0A8;">';
   html += '<thead><tr style="border-bottom:1px solid rgba(232,148,10,.15);text-align:left;">';
-  ['Photo','Nom','Ville','Quartier','Âge','Genre','Dispo','Date','Statut','Actions'].forEach(function(h) {
+  (_iaAnalyse ? ['Photo','Nom','Score IA','Ville','Quartier','Âge','Genre','Dispo','Date','Statut','Actions'] : ['Photo','Nom','Ville','Quartier','Âge','Genre','Dispo','Date','Statut','Actions']).forEach(function(h) {
     html += '<th style="padding:10px 8px;font-size:10px;color:rgba(252, 224, 168,.35);font-family:Geist Mono,monospace;text-transform:uppercase;letter-spacing:1px;">' + h + '</th>';
   });
   html += '</tr></thead><tbody>';
@@ -1856,6 +1861,7 @@ function renderCandTable(records) {
     html += '<tr style="border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;" onclick="showCandDetail(\'' + r.id + '\')">';
     html += '<td style="padding:8px;">' + (photo ? '<img src="' + photo + '" style="width:44px;height:44px;border-radius:10px;object-fit:cover;">' : '<div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>') + '</td>';
     html += '<td style="padding:8px;font-weight:600;">' + (f['Prénom']||'') + ' ' + (f['Nom']||'') + '</td>';
+    if (_iaAnalyse) { var _st = _scoreCache[r.id]; html += _st ? '<td style="padding:8px;"><span style="font-family:Geist Mono,monospace;font-size:13px;font-weight:900;color:' + _st.labelColor + ';">' + _st.total + '</span></td>' : '<td style="padding:8px;color:rgba(252,224,168,.25);">—</td>'; }
     html += '<td style="padding:8px;">' + (f['Ville']||'—') + '</td>';
     html += '<td style="padding:8px;">' + (f['Quartier']||'—') + '</td>';
     html += '<td style="padding:8px;">' + (f['Âge']||'—') + '</td>';
@@ -1962,6 +1968,214 @@ async function validateAgent(recordId) {
   } catch(err) {
     console.error('validateAgent error:', err);
     toast('Erreur validation', 'error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// IA SCORING — Candidatures Pionniers
+// Score 0-100 : motivation (40) + disponibilité (20) + âge (15) + photos (10) + complétude (15)
+// ══════════════════════════════════════════════════════════════════════════
+
+var _scoreCache = {};
+var _iaAnalyse  = false;
+
+function _scoreCandidature(rec) {
+  var f = rec.fields;
+  var total = 0;
+  var breakdown = {};
+
+  // 1. MOTIVATION (0-40) — longueur + densité sémantique
+  var txt = (f['Pourquoi'] || '').trim();
+  var base = txt.length >= 250 ? 30 : txt.length >= 150 ? 22 : txt.length >= 80 ? 14 : txt.length >= 30 ? 7 : 0;
+  var kws  = ['quartier','artisan','client','terrain','vente','vendre','résultat','commercial',
+              'convaincre','contact','expérience','équipe','autonome','mobile','sérieux','motivé',
+              'objectif','déjà','fait','toujours','jamais','moi-même','travail','argent','famille'];
+  var kwHits = kws.filter(function(k){ return txt.toLowerCase().indexOf(k) > -1; }).length;
+  var motivScore = Math.min(40, base + kwHits * 2);
+  breakdown.motivation = { score: motivScore, max: 40, detail: txt.length + ' car · ' + kwHits + ' indicateurs' };
+  total += motivScore;
+
+  // 2. DISPONIBILITÉ (0-20)
+  var dispoMap = { 'Immédiatement': 20, 'Dans 1 semaine': 15, 'Dans 2 semaines': 10, 'Dans 1 mois': 5 };
+  var dispoScore = dispoMap[f['Disponibilité']] || 0;
+  breakdown.disponibilite = { score: dispoScore, max: 20, detail: f['Disponibilité'] || 'Non renseignée' };
+  total += dispoScore;
+
+  // 3. ÂGE OPTIMAL (0-15)
+  var age = parseInt(f['Âge']) || 0;
+  var ageScore = age >= 22 && age <= 35 ? 15 : age >= 36 && age <= 42 ? 10 : age >= 18 && age <= 21 ? 8 : age > 0 ? 4 : 0;
+  breakdown.age = { score: ageScore, max: 15, detail: age ? age + ' ans' : 'Non renseigné' };
+  total += ageScore;
+
+  // 4. PHOTOS (0-10)
+  var photosStr = (f['Photos'] || '').trim();
+  var nPhotos = 0;
+  try { var pa = JSON.parse(photosStr); nPhotos = Array.isArray(pa) ? pa.length : 0; }
+  catch(e) { nPhotos = photosStr ? photosStr.split('\n').filter(Boolean).length : 0; }
+  var photoScore = nPhotos >= 2 ? 10 : nPhotos === 1 ? 5 : 0;
+  breakdown.photos = { score: photoScore, max: 10, detail: nPhotos + ' photo' + (nPhotos !== 1 ? 's' : '') };
+  total += photoScore;
+
+  // 5. COMPLÉTUDE PROFIL (0-15)
+  var completScore = 0;
+  if (f['Prénom'] && f['Nom']) completScore += 4;
+  if (f['Téléphone'])          completScore += 3;
+  if (f['Quartier'])           completScore += 4;
+  if (f['Âge'])                completScore += 2;
+  if (f['Email'])              completScore += 2;
+  breakdown.complet = { score: completScore, max: 15, detail: completScore >= 13 ? 'Complet' : completScore >= 8 ? 'Partiel' : 'Incomplet' };
+  total += completScore;
+
+  // LABEL
+  var label, labelColor, labelBg;
+  if      (total >= 78) { label = '⭐ Fort potentiel'; labelColor = '#22c55e'; labelBg = 'rgba(34,197,94,.15)';  }
+  else if (total >= 58) { label = 'Bon profil';        labelColor = '#E8940A'; labelBg = 'rgba(232,148,10,.15)'; }
+  else if (total >= 38) { label = 'Profil moyen';      labelColor = '#FCE0A8'; labelBg = 'rgba(252,224,168,.08)';}
+  else                  { label = 'Profil faible';     labelColor = 'rgba(252,224,168,.35)'; labelBg = 'rgba(255,255,255,.04)'; }
+
+  return { total: total, max: 100, breakdown: breakdown, label: label, labelColor: labelColor, labelBg: labelBg };
+}
+
+window.analyserCandidaturesIA = function() {
+  var all = _candCache;
+  if (!all.length) { toast('Aucune candidature à analyser', 'error'); return; }
+  _iaAnalyse  = true;
+  _scoreCache = {};
+  all.forEach(function(rec) { _scoreCache[rec.id] = _scoreCandidature(rec); });
+  // Trier par score décroissant
+  _candCache.sort(function(a, b) { return (_scoreCache[b.id] ? _scoreCache[b.id].total : 0) - (_scoreCache[a.id] ? _scoreCache[a.id].total : 0); });
+  _renderIAPanel();
+  filterCandidatures();
+  // Scroller vers le panel
+  var panel = document.getElementById('cand-ia-panel');
+  if (panel) setTimeout(function(){ panel.scrollIntoView({ behavior:'smooth', block:'start' }); }, 100);
+};
+
+window.resetIAAnalyse = function() {
+  _iaAnalyse  = false;
+  _scoreCache = {};
+  _candCache.sort(function(a, b) { return new Date(b.fields['Date Ajout']) - new Date(a.fields['Date Ajout']); });
+  var panel = document.getElementById('cand-ia-panel');
+  if (panel) panel.innerHTML = '';
+  filterCandidatures();
+};
+
+function _buildTopGroups() {
+  var attente = _candCache.filter(function(r){ return (r.fields['Statut']||'En attente') === 'En attente'; });
+  var g = { 'Lomé-H':[], 'Lomé-F':[], 'Cotonou-H':[], 'Cotonou-F':[] };
+  attente.forEach(function(r){
+    var key = (r.fields['Ville']||'') + '-' + (r.fields['Genre']||'');
+    if (g[key]) g[key].push(r);
+  });
+  Object.keys(g).forEach(function(k){
+    g[k].sort(function(a,b){ return (_scoreCache[b.id] ? _scoreCache[b.id].total : 0) - (_scoreCache[a.id] ? _scoreCache[a.id].total : 0); });
+  });
+  return g;
+}
+
+function _renderIAPanel() {
+  var panel = document.getElementById('cand-ia-panel');
+  if (!panel) return;
+
+  var scores = Object.values(_scoreCache);
+  var forts  = scores.filter(function(s){ return s.total >= 78; }).length;
+  var bons   = scores.filter(function(s){ return s.total >= 58 && s.total < 78; }).length;
+  var moyens = scores.filter(function(s){ return s.total >= 38 && s.total < 58; }).length;
+  var faibles= scores.filter(function(s){ return s.total < 38; }).length;
+
+  var g = _buildTopGroups();
+  var lomeTop   = g['Lomé-H'].slice(0,5).concat(g['Lomé-F'].slice(0,5));
+  var cotTop    = g['Cotonou-H'].slice(0,5).concat(g['Cotonou-F'].slice(0,5));
+  var allTop    = lomeTop.concat(cotTop);
+
+  var html = '';
+  html += '<div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.22);border-radius:16px;padding:20px 22px;margin-bottom:18px;">';
+
+  // Header
+  html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px;">';
+  html += '<div>';
+  html += '<div style="font-family:Geist Mono,monospace;font-size:10px;color:#E8940A;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px;">🤖 Analyse IA terminée</div>';
+  html += '<div style="font-size:15px;font-weight:700;color:#FCE0A8;">' + _candCache.length + ' profils scorés · Classés meilleur → moins bon</div>';
+  html += '</div>';
+  html += '<button onclick="window.resetIAAnalyse()" style="padding:6px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:rgba(252,224,168,.5);font-size:12px;cursor:pointer;font-family:Geist,sans-serif;white-space:nowrap;">✕ Réinitialiser</button>';
+  html += '</div>';
+
+  // Distribution
+  html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">';
+  html += '<div style="font-size:12px;padding:5px 12px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:8px;color:#22c55e;font-weight:700;">⭐ ' + forts + ' fort' + (forts!==1?'s':'') + '</div>';
+  html += '<div style="font-size:12px;padding:5px 12px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);border-radius:8px;color:#E8940A;font-weight:700;">👍 ' + bons + ' bon' + (bons!==1?'s':'') + '</div>';
+  html += '<div style="font-size:12px;padding:5px 12px;background:rgba(252,224,168,.06);border:1px solid rgba(252,224,168,.1);border-radius:8px;color:rgba(252,224,168,.6);font-weight:700;">👤 ' + moyens + ' moyen' + (moyens!==1?'s':'') + '</div>';
+  if (faibles) html += '<div style="font-size:12px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;color:rgba(252,224,168,.3);font-weight:700;">✗ ' + faibles + ' faible' + (faibles!==1?'s':'') + '</div>';
+  html += '</div>';
+
+  // Carte par ville
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">';
+  [['Lomé','🇹🇬',lomeTop],['Cotonou','🇧🇯',cotTop]].forEach(function(arr) {
+    var city = arr[0], flag = arr[1], top = arr[2];
+    var gH = g[city+'-H'], gF = g[city+'-F'];
+    html += '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(232,148,10,.1);border-radius:12px;padding:12px 14px;">';
+    html += '<div style="font-size:13px;font-weight:700;color:#FCE0A8;margin-bottom:8px;">' + flag + ' ' + city + '</div>';
+    html += '<div style="font-size:11px;font-family:Geist Mono,monospace;color:rgba(252,224,168,.5);margin-bottom:4px;">H : ' + gH.length + ' cand. · Top ' + Math.min(5,gH.length);
+    if (gH[0] && _scoreCache[gH[0].id]) html += ' · <span style="color:#E8940A;">' + _scoreCache[gH[0].id].total + '/100</span>';
+    html += '</div>';
+    html += '<div style="font-size:11px;font-family:Geist Mono,monospace;color:rgba(252,224,168,.5);margin-bottom:10px;">F : ' + gF.length + ' cand. · Top ' + Math.min(5,gF.length);
+    if (gF[0] && _scoreCache[gF[0].id]) html += ' · <span style="color:#E8940A;">' + _scoreCache[gF[0].id].total + '/100</span>';
+    html += '</div>';
+    var pendingTop = top.filter(function(r){ return (r.fields['Statut']||'En attente') === 'En attente'; });
+    if (pendingTop.length) {
+      html += '<button onclick="window._preselectGroup(\'' + city + '\')" style="width:100%;padding:7px;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">Présélectionner ' + city + ' (' + pendingTop.length + ')</button>';
+    } else {
+      html += '<div style="font-size:11px;text-align:center;color:rgba(34,197,94,.7);padding:6px;">✓ Tops déjà présélectionnés</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Bouton global
+  var allPending = allTop.filter(function(r){ return (r.fields['Statut']||'En attente') === 'En attente'; });
+  if (allPending.length) {
+    html += '<button onclick="window._preselectAllTop()" style="width:100%;padding:12px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:10px;color:#E8940A;font-size:13px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">⭐ Présélectionner TOUT le top — ' + allPending.length + ' profils (5H+5F Lomé · 5H+5F Cotonou)</button>';
+  }
+
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+window._preselectGroup = async function(city) {
+  var g = _buildTopGroups();
+  var pending = (g[city+'-H']||[]).slice(0,5).concat((g[city+'-F']||[]).slice(0,5)).filter(function(r){ return (r.fields['Statut']||'En attente') === 'En attente'; });
+  if (!pending.length) { toast('Pas de candidats "En attente" à ' + city, 'error'); return; }
+  if (!confirm('Présélectionner ' + pending.length + ' candidat(s) recommandés à ' + city + ' ?')) return;
+  await _batchPreselect(pending);
+};
+
+window._preselectAllTop = async function() {
+  var g = _buildTopGroups();
+  var pending = [];
+  ['Lomé','Cotonou'].forEach(function(c){
+    pending = pending.concat((g[c+'-H']||[]).slice(0,5)).concat((g[c+'-F']||[]).slice(0,5));
+  });
+  pending = pending.filter(function(r){ return (r.fields['Statut']||'En attente') === 'En attente'; });
+  if (!pending.length) { toast('Tous les tops sont déjà présélectionnés ou validés', 'error'); return; }
+  if (!confirm('Présélectionner ' + pending.length + ' profil(s) recommandés par l\'IA ?\n\nCette action est réversible — tu peux refuser individuellement ensuite.')) return;
+  await _batchPreselect(pending);
+};
+
+async function _batchPreselect(records) {
+  var supa = window.supabase;
+  if (!supa) { toast('Supabase non disponible', 'error'); return; }
+  var ids = records.map(function(r){ return r.id; });
+  try {
+    var res = await supa.from('wozali_candidatures_pionniers').update({ statut: 'Présélectionné' }).in('id', ids);
+    if (res.error) throw res.error;
+    records.forEach(function(rec){ rec.fields['Statut'] = 'Présélectionné'; });
+    renderCandKPIs();
+    _renderIAPanel();
+    filterCandidatures();
+    toast(ids.length + ' candidat(s) présélectionné(s)', 'success');
+  } catch(err) {
+    console.error('_batchPreselect error:', err);
+    toast('Erreur lors de la présélection', 'error');
   }
 }
 

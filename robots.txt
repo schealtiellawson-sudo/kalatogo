@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /profil/
-Disallow: /dashboard/
-Disallow: /admin/
-Sitemap: https://wolomarket.com/sitemap.xml

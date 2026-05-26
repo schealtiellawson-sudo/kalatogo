@@ -555,6 +555,7 @@ function showDashSection(section) {
   if (section === 'recompenses') loadRecompensesWidgets();
   if (section === 'recompenses-mdr') loadRecompensesMDR();
   if (section === 'parrainage') loadParrainage();
+  if (section === 'temoignage') { if (typeof window.loadTemoignageSection === 'function') window.loadTemoignageSection(); }
   if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} }
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
@@ -634,6 +635,10 @@ async function loadDashboard() {
   loadDashOverview();
   updateNotifBadge(currentPrestataire?.id);
   injectApprentieBanner();
+  // Déclencheurs automatiques témoignage (J+7, premier avis, J+30, Bourse gagnée)
+  if (window.temoignageTriggers && currentPrestataire) {
+    setTimeout(() => window.temoignageTriggers.checkAll(currentPrestataire), 2000);
+  }
   // Afficher la sidebar "Je recrute" pour tous les users connectés.
   const recrutSection = document.getElementById('dl-recrut-section');
   if (recrutSection) recrutSection.style.display = 'block';
