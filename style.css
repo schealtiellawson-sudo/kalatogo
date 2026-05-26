@@ -67,7 +67,9 @@ button, select { color: inherit; }
 
 html {
   scroll-behavior: smooth;
-  background: #14100A; /* couvre toute la fenêtre même hors body */
+  background: #14100A;
+  overflow-x: hidden; /* bloque le blanc sur les rebords */
+  max-width: 100%;
 }
 
 body {
@@ -76,6 +78,7 @@ body {
   color: #FCE0A8;
   overflow-x: hidden;
   min-height: 100vh;
+  max-width: 100%;
 }
 
 /* ══ UTILS ══ */
