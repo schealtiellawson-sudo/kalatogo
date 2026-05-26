@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width: 1080px;
+  height: 1080px;
+  background: #E8940A;
+  font-family: 'Geist', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+
+.inner {
+  position: absolute;
+  inset: 0;
+  padding: 80px 80px 0 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.top { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+.eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(20,16,10,0.55);
+  margin-bottom: 40px;
+}
+
+.titre {
+  font-family: 'DM Serif Display', serif;
+  font-size: 92px;
+  line-height: 1.0;
+  color: #14100A;
+}
+.titre em {
+  font-style: italic;
+}
+
+.sub {
+  font-family: 'Geist', sans-serif;
+  font-size: 28px;
+  color: rgba(20,16,10,0.65);
+  line-height: 1.5;
+  margin-top: 36px;
+  max-width: 780px;
+}
+
+/* CTA bar noire en bas */
+.cta-bar {
+  background: #14100A;
+  padding: 36px 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 -80px;
+}
+.cta-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.cta-logo-w {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 48px;
+  color: #E8940A;
+}
+.cta-logo-o {
+  font-family: 'Geist', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  color: #FCE0A8;
+}
+.cta-action {
+  font-family: 'Geist', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #FCE0A8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cta-action::after {
+  content: '→';
+  color: #E8940A;
+  font-size: 28px;
+}
+</style>
+</head>
+<body>
+<div class="inner">
+  <div class="top">
+    <div class="eyebrow">1er juillet 2026 · Première mondiale</div>
+    <div class="titre">Ça n'existait<br>pas avant.<br>Maintenant<br><em>ça existe.</em></div>
+    <div class="sub">La première plateforme africaine pour les travailleurs invisibles. Conçue pour eux. Pas pour les cols blancs.</div>
+  </div>
+  <div class="cta-bar">
+    <div class="cta-logo">
+      <span class="cta-logo-w">W</span><span class="cta-logo-o">OZALI</span>
+    </div>
+    <div class="cta-action">wozali.vercel.app</div>
+  </div>
+</div>
+</body>
+</html>

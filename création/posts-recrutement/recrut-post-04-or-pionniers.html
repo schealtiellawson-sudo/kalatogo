@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width: 1080px;
+  height: 1080px;
+  background: #E8940A;
+  overflow: hidden;
+}
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+
+.inner {
+  position: absolute;
+  inset: 0;
+  padding: 80px 80px 0 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #14100A;
+  color: #E8940A;
+  font-family: 'Geist Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  border-radius: 50px;
+  margin-bottom: 44px;
+  width: fit-content;
+}
+
+.titre {
+  font-family: 'DM Serif Display', serif;
+  font-size: 96px;
+  line-height: 0.95;
+  color: #14100A;
+  margin-bottom: 44px;
+}
+.titre em { font-style: italic; }
+
+.specs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 40px;
+}
+.spec-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: 'Geist', sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: #14100A;
+}
+.spec-dot {
+  width: 10px;
+  height: 10px;
+  background: #14100A;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cta-bar {
+  background: #14100A;
+  padding: 36px 80px;
+  margin: 0 -80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cta-left {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.cta-w { font-family:'DM Serif Display',serif; font-style:italic; font-size:48px; color:#E8940A; }
+.cta-o { font-family:'Geist',sans-serif; font-weight:500; font-size:24px; color:#FCE0A8; }
+.cta-url {
+  font-family: 'Geist Mono', monospace;
+  font-size: 20px;
+  color: rgba(252,224,168,0.5);
+  letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+<div class="inner">
+  <div>
+    <div class="badge">🚀 On recrute · 20 places</div>
+    <div class="titre">Sois là<br>depuis le<br><em>premier<br>jour.</em></div>
+    <div class="specs">
+      <div class="spec-row"><span class="spec-dot"></span>Lomé &amp; Cotonou</div>
+      <div class="spec-row"><span class="spec-dot"></span>2 000 FCFA par inscription</div>
+      <div class="spec-row"><span class="spec-dot"></span>Aucun diplôme requis</div>
+      <div class="spec-row"><span class="spec-dot"></span>Freelance · Formation gratuite</div>
+    </div>
+  </div>
+  <div class="cta-bar">
+    <div class="cta-left">
+      <span class="cta-w">W</span><span class="cta-o">OZALI</span>
+    </div>
+    <div class="cta-url">wozali.vercel.app/offre-pionniers</div>
+  </div>
+</div>
+</body>
+</html>
