@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Pionnier WOZALI — Lomé &amp; Cotonou · Rejoins l'équipe</title>
-<meta name="description" content="WOZALI recrute 20 Pionniers terrain à Lomé et Cotonou. Pas de diplôme. 2 000 FCFA par inscription. Freelance. Lancement 1er juillet 2026.">
-<meta property="og:title" content="WOZALI recrute — 20 places à Lomé &amp; Cotonou">
-<meta property="og:description" content="Pas de diplôme. Pas de réseau. Ton quartier et ton sérieux suffisent. 2 000 FCFA par artisan inscrit.">
+<title>Pionnier WOZALI — Lomé &amp; Cotonou · Rejoins le lancement</title>
+<meta name="description" content="Le 1er juillet 2026, WOZALI rend visibles les meilleurs artisans de Lomé et Cotonou. 20 pionniers recherchés. Pas de diplôme. 2 000 FCFA par inscription.">
+<meta property="og:title" content="WOZALI recrute — Sois là depuis le premier jour">
+<meta property="og:description" content="Le 1er juillet 2026, quelque chose change à Lomé et Cotonou. 20 places pour en faire partie.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://wozali.vercel.app/offre-pionniers">
 <meta property="og:image" content="https://wozali.vercel.app/logos/og-image-1200x630.png">
@@ -17,409 +17,445 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#14100A;color:#FCE0A8;font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-
-/* ── UTILITIES ── */
-.wrap{max-width:640px;margin:0 auto;padding:0 20px;}
+.wrap{max-width:660px;margin:0 auto;padding:0 22px;}
 em{font-style:italic;color:#E8940A;}
-.eyebrow{font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.8;margin-bottom:12px;}
+strong{font-weight:700;color:#FCE0A8;}
 
 /* ── NAV ── */
-nav{position:sticky;top:0;z-index:100;background:rgba(20,16,10,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,148,10,.1);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
+nav{position:sticky;top:0;z-index:100;background:rgba(20,16,10,.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(232,148,10,.1);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;}
 .nav-logo{display:flex;align-items:baseline;gap:2px;}
-.nav-logo-w{font-family:'DM Serif Display',serif;font-style:italic;font-size:26px;color:#E8940A;line-height:1;}
-.nav-logo-o{font-family:'Geist',sans-serif;font-weight:500;font-size:14px;color:#FCE0A8;}
-.nav-cta{background:#E8940A;color:#14100A;font-weight:700;font-size:13px;padding:9px 18px;border-radius:8px;text-decoration:none;white-space:nowrap;font-family:'Geist',sans-serif;}
-.nav-cta:hover{opacity:.9;}
+.nav-w{font-family:'DM Serif Display',serif;font-style:italic;font-size:28px;color:#E8940A;line-height:1;}
+.nav-o{font-family:'Geist',sans-serif;font-weight:500;font-size:15px;color:#FCE0A8;}
+.nav-pill{background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);color:#E8940A;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;font-family:'Geist Mono',monospace;letter-spacing:.08em;}
 
-/* ── HERO ── */
-.hero{padding:72px 0 60px;border-bottom:1px solid rgba(232,148,10,.08);}
-.hero .eyebrow{display:inline-block;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:5px 14px;margin-bottom:24px;font-size:11px;}
-.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(42px,9vw,68px);line-height:1.05;color:#FCE0A8;margin-bottom:20px;}
-.hero-sub{font-size:17px;color:rgba(252,224,168,.7);line-height:1.65;max-width:500px;margin-bottom:32px;}
-.btn-hero{display:inline-flex;align-items:center;gap:8px;background:#E8940A;color:#14100A;font-weight:700;font-size:16px;padding:16px 28px;border-radius:12px;text-decoration:none;font-family:'Geist',sans-serif;transition:opacity .15s,transform .1s;}
-.btn-hero:hover{opacity:.9;}
-.btn-hero:active{transform:scale(.98);}
-.hero-stats{display:flex;gap:0;margin-top:40px;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;}
-.stat{flex:1;padding:18px 16px;text-align:center;border-right:1px solid rgba(232,148,10,.1);}
-.stat:last-child{border-right:none;}
-.stat-num{font-family:'Geist Mono',monospace;font-size:22px;font-weight:700;color:#E8940A;line-height:1;}
-.stat-label{font-size:11px;color:rgba(252,224,168,.5);margin-top:4px;letter-spacing:.03em;}
+/* ── HERO OUVERTURE ── */
+.hero-open{padding:80px 0 56px;border-bottom:1px solid rgba(232,148,10,.08);}
+.hero-date{font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#E8940A;opacity:.8;margin-bottom:28px;display:flex;align-items:center;gap:10px;}
+.hero-date::after{content:'';flex:1;height:1px;background:rgba(232,148,10,.15);}
+.hero-open h1{font-family:'DM Serif Display',serif;font-size:clamp(46px,10vw,76px);line-height:1.0;color:#FCE0A8;margin-bottom:28px;}
+.hero-open h1 .gold{color:#E8940A;}
+.hero-open h1 .italic{font-style:italic;}
+.hero-sub{font-size:18px;color:rgba(252,224,168,.7);line-height:1.7;max-width:520px;margin-bottom:40px;}
+.hero-cta-group{display:flex;flex-direction:column;gap:14px;align-items:flex-start;}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:#E8940A;color:#14100A;font-weight:700;font-size:16px;padding:16px 30px;border-radius:12px;text-decoration:none;font-family:'Geist',sans-serif;transition:opacity .15s,transform .1s;}
+.btn-primary:hover{opacity:.9;}
+.btn-primary:active{transform:scale(.98);}
+.hero-note{font-size:13px;color:rgba(252,224,168,.4);display:flex;align-items:center;gap:6px;}
+.hero-note::before{content:'↳';}
+.countdown-strip{display:flex;gap:0;margin-top:48px;border:1px solid rgba(232,148,10,.12);border-radius:14px;overflow:hidden;}
+.count-cell{flex:1;padding:20px 14px;text-align:center;border-right:1px solid rgba(232,148,10,.08);}
+.count-cell:last-child{border-right:none;}
+.count-n{font-family:'Geist Mono',monospace;font-size:24px;font-weight:700;color:#E8940A;line-height:1;}
+.count-l{font-size:11px;color:rgba(252,224,168,.45);margin-top:5px;letter-spacing:.04em;}
 
-/* ── PAIN ── */
-.pain{padding:72px 0;background:linear-gradient(180deg,rgba(232,148,10,.04) 0%,transparent 100%);}
-.pain h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,40px);line-height:1.2;margin-bottom:32px;}
-.pain-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:28px;}
-.pain-card{background:#1E180E;border:1px solid rgba(232,148,10,.1);border-left:3px solid rgba(232,148,10,.5);border-radius:12px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;}
-.pain-icon{font-size:22px;flex-shrink:0;line-height:1.3;}
-.pain-card p{font-size:15px;color:rgba(252,224,168,.8);line-height:1.6;font-style:italic;}
-.pain-close{font-size:15px;color:rgba(252,224,168,.6);line-height:1.65;border-top:1px solid rgba(232,148,10,.1);padding-top:24px;margin-top:8px;}
-.pain-close strong{color:#FCE0A8;}
+/* ── MANIFESTE ── */
+.manifeste{padding:80px 0;background:linear-gradient(180deg,rgba(232,148,10,.05) 0%,transparent 50%);}
+.manifeste-eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:20px;}
+.manifeste-titre{font-family:'DM Serif Display',serif;font-size:clamp(30px,5vw,44px);line-height:1.2;margin-bottom:32px;color:#FCE0A8;}
+.manifeste-body{display:flex;flex-direction:column;gap:20px;}
+.manifeste-body p{font-size:16px;color:rgba(252,224,168,.75);line-height:1.8;}
+.manifeste-body p.bold{font-size:18px;color:#FCE0A8;font-weight:500;border-left:4px solid #E8940A;padding-left:18px;line-height:1.6;}
+.stat-inline{display:inline-flex;align-items:center;gap:6px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.2);border-radius:8px;padding:4px 10px;font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A;white-space:nowrap;}
 
-/* ── WOZALI EXPLICATION ── */
-.wozali-explique{padding:72px 0;border-top:1px solid rgba(232,148,10,.08);}
-.wozali-explique h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,40px);line-height:1.2;margin-bottom:32px;}
-.story-block{display:flex;flex-direction:column;gap:16px;margin-bottom:32px;}
-.story-block p{font-size:15px;color:rgba(252,224,168,.75);line-height:1.75;}
-.story-highlight{background:rgba(232,148,10,.08);border-left:4px solid #E8940A;border-radius:0 10px 10px 0;padding:16px 18px;font-size:16px;color:#FCE0A8 !important;font-weight:500;line-height:1.65 !important;}
-.pillars{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
-.pillar{display:flex;align-items:flex-start;gap:14px;background:#1E180E;border:1px solid rgba(232,148,10,.1);border-radius:12px;padding:16px 18px;}
-.pillar-icon{font-size:22px;flex-shrink:0;}
-.pillar strong{display:block;font-size:14px;font-weight:700;color:#FCE0A8;margin-bottom:3px;}
-.pillar span{font-size:13px;color:rgba(252,224,168,.6);line-height:1.5;}
-.launch-callout{display:inline-flex;align-items:center;gap:8px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);border-radius:10px;padding:12px 18px;font-size:14px;color:rgba(252,224,168,.8);}
-.launch-callout strong{color:#FCE0A8;}
+/* ── LA RÉALITÉ ── */
+.realite{padding:72px 0;border-top:1px solid rgba(232,148,10,.08);border-bottom:1px solid rgba(232,148,10,.08);}
+.realite-eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:20px;}
+.realite h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,42px);line-height:1.2;margin-bottom:36px;}
+.portraits{display:flex;flex-direction:column;gap:16px;margin-bottom:36px;}
+.portrait{background:#1E180E;border:1px solid rgba(232,148,10,.1);border-radius:14px;padding:22px 20px;}
+.portrait-ville{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#E8940A;opacity:.6;margin-bottom:8px;}
+.portrait-nom{font-size:16px;font-weight:700;color:#FCE0A8;margin-bottom:8px;}
+.portrait-texte{font-size:14px;color:rgba(252,224,168,.65);line-height:1.7;}
+.portrait-texte em{color:#E8940A;font-style:normal;font-weight:600;}
+.realite-conclusion{background:rgba(232,148,10,.07);border-left:4px solid #E8940A;border-radius:0 12px 12px 0;padding:20px 22px;font-size:16px;color:#FCE0A8;line-height:1.7;font-weight:500;}
 
-/* ── MISSION ── */
-.mission{padding:72px 0;background:#1E180E;border-top:1px solid rgba(232,148,10,.08);border-bottom:1px solid rgba(232,148,10,.08);}
-.mission h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,40px);line-height:1.2;margin-bottom:12px;}
-.mission-intro{font-size:16px;color:rgba(252,224,168,.65);line-height:1.65;margin-bottom:36px;}
-.steps{display:flex;flex-direction:column;gap:0;}
-.step{display:flex;gap:18px;padding:20px 0;border-bottom:1px solid rgba(232,148,10,.07);}
+/* ── WOZALI SOLUTION ── */
+.solution{padding:72px 0;}
+.solution-eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:20px;}
+.solution h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,42px);line-height:1.2;margin-bottom:28px;}
+.solution-intro{font-size:16px;color:rgba(252,224,168,.75);line-height:1.75;margin-bottom:36px;}
+.solution-pillars{display:flex;flex-direction:column;gap:12px;margin-bottom:32px;}
+.pilier{display:flex;gap:16px;background:#1E180E;border:1px solid rgba(232,148,10,.1);border-radius:12px;padding:18px 20px;align-items:flex-start;}
+.pilier-ico{font-size:24px;flex-shrink:0;line-height:1.2;}
+.pilier strong{display:block;font-size:15px;color:#FCE0A8;margin-bottom:4px;}
+.pilier span{font-size:13px;color:rgba(252,224,168,.6);line-height:1.55;}
+.solution-diff{background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:22px 20px;}
+.solution-diff-titre{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:14px;}
+.diff-grid{display:flex;flex-direction:column;gap:10px;}
+.diff-row{display:flex;gap:10px;font-size:14px;}
+.diff-non{color:rgba(252,224,168,.35);text-decoration:line-through;flex:1;}
+.diff-oui{color:rgba(252,224,168,.8);flex:1;}
+
+/* ── MISSION PIONNIER ── */
+.mission{padding:72px 0;background:#1E180E;border-top:1px solid rgba(232,148,10,.1);border-bottom:1px solid rgba(232,148,10,.1);}
+.mission-eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:20px;}
+.mission h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,42px);line-height:1.2;margin-bottom:16px;}
+.mission-intro{font-size:16px;color:rgba(252,224,168,.65);line-height:1.7;margin-bottom:36px;max-width:520px;}
+.steps{display:flex;flex-direction:column;}
+.step{display:flex;gap:20px;padding:22px 0;border-bottom:1px solid rgba(232,148,10,.07);}
 .step:last-child{border-bottom:none;}
-.step-num{font-family:'Geist Mono',monospace;font-size:28px;font-weight:700;color:rgba(232,148,10,.25);flex-shrink:0;line-height:1;padding-top:2px;}
-.step-content{display:flex;flex-direction:column;gap:4px;}
-.step-content strong{font-size:15px;font-weight:700;color:#FCE0A8;}
-.step-content span{font-size:14px;color:rgba(252,224,168,.6);line-height:1.6;}
+.step-n{font-family:'Geist Mono',monospace;font-size:32px;font-weight:700;color:rgba(232,148,10,.2);flex-shrink:0;line-height:1;min-width:36px;}
+.step strong{display:block;font-size:15px;font-weight:700;color:#FCE0A8;margin-bottom:5px;}
+.step span{font-size:14px;color:rgba(252,224,168,.6);line-height:1.65;}
 
-/* ── EARNINGS ── */
-.earnings{padding:72px 0;}
-.earnings h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,40px);line-height:1.2;margin-bottom:32px;}
-.earn-main{background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:28px 24px;text-align:center;margin-bottom:20px;}
-.earn-number{font-family:'Geist Mono',monospace;font-size:52px;font-weight:700;color:#E8940A;line-height:1;}
-.earn-number span{font-size:24px;}
-.earn-label{font-size:14px;color:rgba(252,224,168,.6);margin-top:6px;letter-spacing:.03em;}
-.calc-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
-.calc-row{display:flex;justify-content:space-between;align-items:center;background:#1E180E;border:1px solid rgba(232,148,10,.08);border-radius:10px;padding:14px 18px;font-size:14px;color:rgba(252,224,168,.7);}
-.calc-row.calc-highlight{background:rgba(232,148,10,.08);border-color:rgba(232,148,10,.25);color:#FCE0A8;font-weight:600;}
-.calc-amount{font-family:'Geist Mono',monospace;font-weight:700;color:#E8940A;font-size:15px;}
-.earn-notes{display:flex;flex-direction:column;gap:8px;}
-.earn-notes p{font-size:14px;color:rgba(252,224,168,.65);line-height:1.5;padding:10px 14px;background:#1E180E;border-radius:8px;}
+/* ── REVENUS ── */
+.revenus{padding:72px 0;}
+.revenus-eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:20px;}
+.revenus h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,42px);line-height:1.2;margin-bottom:32px;}
+.earn-hero{background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:32px 24px;text-align:center;margin-bottom:20px;}
+.earn-n{font-family:'Geist Mono',monospace;font-size:56px;font-weight:700;color:#E8940A;line-height:1;}
+.earn-n sub{font-size:24px;vertical-align:middle;}
+.earn-l{font-size:14px;color:rgba(252,224,168,.55);margin-top:8px;letter-spacing:.03em;}
+.calc-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.calc-r{display:flex;justify-content:space-between;align-items:center;background:#1E180E;border:1px solid rgba(232,148,10,.08);border-radius:10px;padding:14px 18px;font-size:14px;color:rgba(252,224,168,.65);}
+.calc-r.hl{background:rgba(232,148,10,.07);border-color:rgba(232,148,10,.25);color:#FCE0A8;font-weight:600;}
+.calc-r .amt{font-family:'Geist Mono',monospace;font-weight:700;color:#E8940A;font-size:15px;}
+.smig-note{background:#1E180E;border:1px solid rgba(232,148,10,.1);border-radius:12px;padding:16px 18px;font-size:13px;color:rgba(252,224,168,.6);line-height:1.6;}
+.smig-note strong{color:#FCE0A8;}
+.earn-bullets{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+.earn-bullets p{font-size:14px;color:rgba(252,224,168,.65);padding:10px 14px;background:#1E180E;border-radius:8px;line-height:1.5;}
 
 /* ── PROFIL ── */
 .profil{padding:72px 0;background:linear-gradient(180deg,transparent,rgba(232,148,10,.04));}
-.profil h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,40px);line-height:1.2;margin-bottom:32px;}
-.criteria-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
-.crit{display:flex;align-items:flex-start;gap:12px;font-size:15px;color:rgba(252,224,168,.85);padding:14px 16px;background:#1E180E;border:1px solid rgba(232,148,10,.1);border-radius:10px;line-height:1.5;}
-.crit.ok{border-left:3px solid rgba(37,211,102,.5);}
-.crit-icon{font-size:18px;flex-shrink:0;}
-.no-criteria{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px 20px;font-size:14px;color:rgba(252,224,168,.5);line-height:2;}
+.profil-eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:20px;}
+.profil h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,42px);line-height:1.2;margin-bottom:32px;}
+.crit-list{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+.crit{display:flex;align-items:flex-start;gap:12px;font-size:15px;color:rgba(252,224,168,.85);padding:14px 16px;background:#1E180E;border:1px solid rgba(37,211,102,.12);border-left:3px solid rgba(37,211,102,.4);border-radius:10px;line-height:1.5;}
+.crit-ico{font-size:17px;flex-shrink:0;}
+.no-crit{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:18px 20px;font-size:14px;color:rgba(252,224,168,.4);line-height:2.1;}
 
 /* ── FAQ ── */
 .faq{padding:72px 0;border-top:1px solid rgba(232,148,10,.08);}
-.faq h2{font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,36px);margin-bottom:28px;}
+.faq h2{font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);margin-bottom:28px;}
 .faq-list{display:flex;flex-direction:column;gap:8px;}
-details{background:#1E180E;border:1px solid rgba(232,148,10,.1);border-radius:12px;overflow:hidden;}
-details[open]{border-color:rgba(232,148,10,.25);}
+details{background:#1E180E;border:1px solid rgba(232,148,10,.1);border-radius:12px;overflow:hidden;transition:border-color .2s;}
+details[open]{border-color:rgba(232,148,10,.28);}
 summary{padding:18px 20px;font-size:15px;font-weight:600;color:#FCE0A8;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;}
-summary::after{content:'＋';font-size:18px;color:#E8940A;flex-shrink:0;font-weight:300;}
+summary::after{content:'＋';font-size:18px;color:#E8940A;flex-shrink:0;font-weight:300;transition:transform .2s;}
 details[open] summary::after{content:'－';}
 summary::-webkit-details-marker{display:none;}
-details p{padding:0 20px 18px;font-size:14px;color:rgba(252,224,168,.65);line-height:1.75;border-top:1px solid rgba(232,148,10,.08);}
+details p{padding:0 20px 18px;font-size:14px;color:rgba(252,224,168,.65);line-height:1.8;border-top:1px solid rgba(232,148,10,.08);}
 
-/* ── FINAL CTA ── */
-.final-cta{padding:80px 0;text-align:center;background:#1E180E;border-top:1px solid rgba(232,148,10,.12);}
-.final-cta .eyebrow{display:inline-block;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.2);border-radius:20px;padding:5px 14px;margin-bottom:20px;}
-.final-cta h2{font-family:'DM Serif Display',serif;font-size:clamp(32px,6vw,50px);line-height:1.15;margin-bottom:32px;}
-.btn-large{font-size:17px;padding:18px 32px;}
-.share-block{margin-top:32px;border-top:1px solid rgba(232,148,10,.1);padding-top:32px;}
-.share-block p{font-size:14px;color:rgba(252,224,168,.5);margin-bottom:14px;}
-.btn-share{background:#25D366;color:white;border:none;padding:13px 24px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:opacity .15s;}
-.btn-share:hover{opacity:.9;}
+/* ── CTA FINAL ── */
+.final{padding:90px 0 80px;text-align:center;background:#1E180E;border-top:1px solid rgba(232,148,10,.12);}
+.final-eyebrow{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:20px;display:inline-block;}
+.final h2{font-family:'DM Serif Display',serif;font-size:clamp(34px,7vw,58px);line-height:1.1;margin-bottom:14px;}
+.final-sub{font-size:16px;color:rgba(252,224,168,.55);margin-bottom:36px;line-height:1.6;}
+.btn-xl{font-size:18px;padding:20px 36px;border-radius:14px;}
+.share-zone{margin-top:40px;padding-top:36px;border-top:1px solid rgba(232,148,10,.1);}
+.share-zone p{font-size:14px;color:rgba(252,224,168,.4);margin-bottom:16px;}
+.btn-wa{background:#25D366;color:white;border:none;padding:14px 26px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;display:inline-flex;align-items:center;gap:8px;transition:opacity .15s;}
+.btn-wa:hover{opacity:.9;}
 
 /* ── FOOTER ── */
-footer{padding:32px 0;border-top:1px solid rgba(232,148,10,.06);text-align:center;}
-footer .logo{justify-content:center;margin-bottom:8px;display:flex;align-items:baseline;gap:2px;}
-footer .logo-w{font-family:'DM Serif Display',serif;font-style:italic;font-size:26px;color:#E8940A;}
-footer .logo-o{font-family:'Geist',sans-serif;font-weight:500;font-size:14px;color:#FCE0A8;}
-footer p{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.2);letter-spacing:.08em;margin-top:6px;}
+footer{padding:36px 0;border-top:1px solid rgba(232,148,10,.06);text-align:center;}
+.footer-logo{display:flex;align-items:baseline;gap:2px;justify-content:center;margin-bottom:8px;}
+.footer-w{font-family:'DM Serif Display',serif;font-style:italic;font-size:26px;color:#E8940A;}
+.footer-o{font-family:'Geist',sans-serif;font-weight:500;font-size:14px;color:#FCE0A8;}
+footer p{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.2);letter-spacing:.07em;line-height:2;}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ── NAV ────────────────────────────────────────────────────────── -->
 <nav>
   <div class="nav-logo">
-    <span class="nav-logo-w">W</span><span class="nav-logo-o">OZALI</span>
+    <span class="nav-w">W</span><span class="nav-o">OZALI</span>
   </div>
-  <a href="/postuler" class="nav-cta">Postuler →</a>
+  <span class="nav-pill">🚀 20 places · Lancement 1er juil.</span>
 </nav>
 
-<!-- ══ HERO ════════════════════════════════════════════════════════ -->
-<section class="hero">
+<!-- ── HERO ───────────────────────────────────────────────────────── -->
+<section class="hero-open">
   <div class="wrap">
-    <div class="eyebrow">🚀 WOZALI recrute · 20 places · Lomé &amp; Cotonou</div>
-    <h1>Ton quartier<br>te connaît.<br><em>WOZALI</em><br>te paie pour ça.</h1>
-    <p class="hero-sub">Pas de diplôme. Pas de CV. Pas de piston. Le seul critère qui compte : tu es sérieux, tu réponds aux messages, et tu veux travailler.</p>
-    <a href="/postuler" class="btn-hero">Je postule — c'est gratuit →</a>
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num">20</div>
-        <div class="stat-label">places</div>
+    <div class="hero-date">Lomé · Cotonou · 1er juillet 2026</div>
+    <h1>
+      Quelque chose<br>
+      <span class="italic gold">change</span><br>
+      en Afrique<br>
+      de l'Ouest.
+    </h1>
+    <p class="hero-sub">Pour la première fois, les meilleurs artisans de Lomé et Cotonou vont être visibles. Trouvables. Choisis pour leur travail, pas pour leurs connexions. Tu peux être là depuis le premier jour.</p>
+    <div class="hero-cta-group">
+      <a href="/postuler" class="btn-primary btn-xl">Je veux faire partie de ça →</a>
+      <span class="hero-note">20 places. Gratuit. Aucun diplôme requis.</span>
+    </div>
+    <div class="countdown-strip">
+      <div class="count-cell">
+        <div class="count-n">20</div>
+        <div class="count-l">places total</div>
       </div>
-      <div class="stat">
-        <div class="stat-num">2 000</div>
-        <div class="stat-label">FCFA / inscription</div>
+      <div class="count-cell">
+        <div class="count-n">2 000</div>
+        <div class="count-l">FCFA / inscription</div>
       </div>
-      <div class="stat">
-        <div class="stat-num">1er juil.</div>
-        <div class="stat-label">lancement</div>
+      <div class="count-cell">
+        <div class="count-n">1er juil.</div>
+        <div class="count-l">lancement officiel</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ PAIN ════════════════════════════════════════════════════════ -->
-<section class="pain">
+<!-- ── MANIFESTE ─────────────────────────────────────────────────── -->
+<section class="manifeste">
   <div class="wrap">
-    <div class="eyebrow">Ça te parle ?</div>
-    <h2>On sait comment<br>ça marche ici.</h2>
-    <div class="pain-grid">
-      <div class="pain-card">
-        <div class="pain-icon">📄</div>
-        <p>"J'ai mon BTS depuis 2 ans. J'envoie des CV, personne ne rappelle."</p>
-      </div>
-      <div class="pain-card">
-        <div class="pain-icon">🤝</div>
-        <p>"Les bons postes, c'est pour les fils de qui ? Pour ceux qui connaissent le directeur."</p>
-      </div>
-      <div class="pain-card">
-        <div class="pain-icon">💸</div>
-        <p>"J'ai un petit boulot, ça ne suffit pas. Je cherche quelque chose en plus pour ma famille."</p>
-      </div>
-      <div class="pain-card">
-        <div class="pain-icon">⏳</div>
-        <p>"Je suis étudiant, j'ai du temps. Mais personne ne prend les jeunes sans expérience."</p>
-      </div>
+    <div class="manifeste-eyebrow">Notre mission</div>
+    <h2 class="manifeste-titre">On construit quelque chose<br>qui n'a jamais existé ici.</h2>
+    <div class="manifeste-body">
+      <p>Depuis des générations, l'Afrique de l'Ouest fait tourner son économie sur les épaules de millions de travailleurs invisibles. Des plombiers, des couturières, des mécaniciens, des cuisiniers, des électriciens — des gens qui ont des compétences réelles, qui travaillent dur tous les jours, et que personne ne peut trouver en dehors de leur quartier.</p>
+      <p><span class="stat-inline">80%</span> de l'économie est informelle au Togo et au Bénin. Ces travailleurs n'ont pas de site web, pas de carte de visite, pas de LinkedIn. Ils ont leurs mains, leur réputation de quartier, et un téléphone.</p>
+      <p class="bold">WOZALI est la première plateforme conçue exclusivement pour eux. Pas pour les cols blancs. Pas pour ceux qui ont un bureau. Pour les mains qui travaillent — et qui méritent d'être trouvées.</p>
+      <p>Le 1er juillet 2026, on lance à Lomé et Cotonou. Ce n'est pas juste une application de plus. C'est le premier moment où ces travailleurs deviennent visibles sur internet — dans leur langue, dans leur ville, pour des clients qui ont besoin d'eux maintenant.</p>
     </div>
-    <p class="pain-close">WOZALI ne te propose pas de promesse vide. On t'offre une mission concrète, rémunérée à la performance. <strong>Ce que tu fais, tu le vois dans ton mobile money.</strong></p>
   </div>
 </section>
 
-<!-- ══ WOZALI C'EST QUOI ════════════════════════════════════════════ -->
-<section class="wozali-explique">
+<!-- ── LA RÉALITÉ ────────────────────────────────────────────────── -->
+<section class="realite">
   <div class="wrap">
-    <div class="eyebrow">WOZALI, c'est quoi ?</div>
-    <h2>L'argent circule<br>dans ton quartier.<br>Juste... <em>pas pour tout le monde.</em></h2>
-
-    <div class="story-block">
-      <p>Kofi est le meilleur électricien de Hédzranawoé. Tout le monde dans son quartier le connaît. Il travaille bien. Ses clients reviennent. Mais quand quelqu'un de l'autre côté de Lomé cherche un électricien, il tape sur Google. Kofi n'est pas là. C'est un électricien moins compétent, mais avec une page Facebook, qui décroche le contrat.</p>
-      <p>Même histoire à Cotonou. Fatima est couturière à Akpakpa. Elle coud depuis 15 ans. Ses mains font un travail que des machines ne feront jamais. Mais en dehors de son quartier, personne ne peut la trouver. Elle reste invisible.</p>
-      <p class="story-highlight">WOZALI, c'est l'application qui rend Kofi et Fatima visibles. Quand un client cherche un électricien à Hédzranawoé, Kofi sort en premier. Pas parce qu'il a payé. Parce qu'il travaille bien. <strong>Le travail d'abord. Pas les connexions.</strong></p>
+    <div class="realite-eyebrow">Ce qu'on voit sur le terrain</div>
+    <h2>Trois histoires.<br><em>Des milliers de personnes.</em></h2>
+    <div class="portraits">
+      <div class="portrait">
+        <div class="portrait-ville">📍 Hédzranawoé · Lomé</div>
+        <div class="portrait-nom">Kofi, électricien, 34 ans</div>
+        <div class="portrait-texte">Kofi travaille depuis 12 ans. Ses clients dans le quartier ne jurent que par lui. Mais quand quelqu'un à Bè cherche un électricien sur WhatsApp ou Google — <em>Kofi n'apparaît pas.</em> Le contrat va à quelqu'un de moins compétent, mais mieux connecté.</div>
+      </div>
+      <div class="portrait">
+        <div class="portrait-ville">📍 Akpakpa · Cotonou</div>
+        <div class="portrait-nom">Fatima, couturière, 28 ans</div>
+        <div class="portrait-texte">Fatima a appris à coudre à 13 ans. Ses créations partent au Nigéria, au Ghana. Mais ses clientes, elle les trouve toutes dans un rayon de 500 mètres. <em>Personne d'autre ne peut la trouver.</em> Elle ne sait pas comment.</div>
+      </div>
+      <div class="portrait">
+        <div class="portrait-ville">📍 Tokoin · Lomé</div>
+        <div class="portrait-nom">Ibrahim, plombier, 41 ans</div>
+        <div class="portrait-texte">Ibrahim répare ce que personne d'autre ne sait réparer. Mais à chaque fin de mois, c'est la même angoisse : assez de clients ? Pas assez ? <em>L'argent circule dans sa ville — juste pas jusqu'à lui.</em></div>
+      </div>
     </div>
+    <div class="realite-conclusion">
+      WOZALI répond à ça. Pas avec des discours. Avec un profil en ligne, une visibilité réelle, et des clients qui peuvent les trouver. À partir du 1er juillet.
+    </div>
+  </div>
+</section>
 
-    <div class="pillars">
-      <div class="pillar">
-        <span class="pillar-icon">🔍</span>
+<!-- ── WOZALI SOLUTION ────────────────────────────────────────────── -->
+<section class="solution">
+  <div class="wrap">
+    <div class="solution-eyebrow">Comment ça marche</div>
+    <h2>Simple.<br><em>Concret.</em><br>Jamais vu ici avant.</h2>
+    <p class="solution-intro">WOZALI crée un profil en ligne pour chaque artisan sérieux. Quand un client cherche un coiffeur, un mécanicien ou une couturière dans son quartier, les pros WOZALI sortent en premier dans les résultats. C'est tout. Pas de magie — juste de la visibilité.</p>
+    <div class="solution-pillars">
+      <div class="pilier">
+        <span class="pilier-ico">🔍</span>
         <div>
           <strong>Visible dans les recherches</strong>
-          <span>Le profil de l'artisan sort quand quelqu'un cherche son métier dans son quartier</span>
+          <span>Le profil de l'artisan sort en premier quand quelqu'un cherche son métier dans son quartier — même depuis l'autre bout de la ville</span>
         </div>
       </div>
-      <div class="pillar">
-        <span class="pillar-icon">⭐</span>
+      <div class="pilier">
+        <span class="pilier-ico">⭐</span>
         <div>
-          <strong>Crédible par les avis</strong>
-          <span>Les vrais avis clients bâtissent une réputation qui voyage au-delà du quartier</span>
+          <strong>Le Score WOZALI — pas le réseau</strong>
+          <span>Le classement est basé sur les avis clients et la qualité du travail. Pas sur les connexions, pas sur l'argent dépensé en pub</span>
         </div>
       </div>
-      <div class="pillar">
-        <span class="pillar-icon">📱</span>
+      <div class="pilier">
+        <span class="pilier-ico">📱</span>
         <div>
-          <strong>Accessible sur mobile</strong>
-          <span>Les clients contactent l'artisan directement — pas besoin d'internet pour l'artisan</span>
+          <strong>Conçu pour l'Afrique de l'Ouest</strong>
+          <span>Mobile-first, WhatsApp intégré, pas besoin de carte bancaire. Fait pour la réalité du terrain — pas copié d'une app européenne</span>
         </div>
       </div>
     </div>
-
-    <div class="launch-callout">
-      🗓 Lancement officiel : <strong>1er juillet 2026</strong> — Lomé &amp; Cotonou
+    <div class="solution-diff">
+      <div class="solution-diff-titre">Ce qui existe déjà vs WOZALI</div>
+      <div class="diff-grid">
+        <div class="diff-row">
+          <span class="diff-non">LinkedIn — pour les diplômés</span>
+          <span class="diff-oui">✓ WOZALI — pour tous les métiers</span>
+        </div>
+        <div class="diff-row">
+          <span class="diff-non">Google — il faut un site web</span>
+          <span class="diff-oui">✓ WOZALI — juste un profil</span>
+        </div>
+        <div class="diff-row">
+          <span class="diff-non">Facebook — noyé dans le bruit</span>
+          <span class="diff-oui">✓ WOZALI — recherche par quartier</span>
+        </div>
+        <div class="diff-row">
+          <span class="diff-non">Indeed — pour les entreprises formelles</span>
+          <span class="diff-oui">✓ WOZALI — pour l'économie réelle</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ══ MISSION PIONNIER ════════════════════════════════════════════ -->
+<!-- ── MISSION PIONNIER ────────────────────────────────────────────── -->
 <section class="mission">
   <div class="wrap">
-    <div class="eyebrow">Ton rôle</div>
-    <h2>On lance dans quelques<br>semaines. On a besoin<br>de toi <em>avant.</em></h2>
-    <p class="mission-intro">Avant le lancement, on a besoin que les meilleurs artisans de chaque quartier soient déjà inscrits. Pas de profil = pas de clients au jour J. C'est là que tu interviens.</p>
-
+    <div class="mission-eyebrow">Ton rôle</div>
+    <h2>Sois là<br><em>avant tout le monde.</em></h2>
+    <p class="mission-intro">Avant qu'on ouvre au grand public, on a besoin que les meilleurs artisans de chaque quartier soient déjà inscrits. C'est le travail des Pionniers. 20 personnes. À Lomé et Cotonou. Tu n'as pas besoin d'expérience — tu as besoin de motivation et d'un quartier que tu connais.</p>
     <div class="steps">
       <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-content">
+        <div class="step-n">01</div>
+        <div>
           <strong>Tu identifies les artisans autour de toi</strong>
-          <span>Le coiffeur de ta rue, la couturière du marché, le mécanicien du quartier. Tu les connais déjà, ou tu vas à leur rencontre — on te donne le script complet.</span>
+          <span>Le coiffeur de ta rue, la couturière du marché, le mécanicien du coin. Tu les connais déjà, ou tu vas à leur rencontre. On te donne le script complet à la formation.</span>
         </div>
       </div>
       <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-content">
-          <strong>Tu leur crées leur profil WOZALI</strong>
-          <span>Sur leur téléphone ou le tien. Photo, métier, quartier, description. 5 à 10 minutes par artisan. Formation fournie.</span>
+        <div class="step-n">02</div>
+        <div>
+          <strong>Tu crées leur profil WOZALI</strong>
+          <span>Photo, métier, quartier, description. Sur leur téléphone ou le tien. 5 à 10 minutes par artisan. Tu n'as pas besoin d'être technique.</span>
         </div>
       </div>
       <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-content">
-          <strong>Tu leur expliques l'opportunité</strong>
-          <span>Les clients vont les trouver. WOZALI les rend visibles. En 2 minutes, l'artisan comprend pourquoi ça change sa vie. On te prépare à ça.</span>
+        <div class="step-n">03</div>
+        <div>
+          <strong>Tu leur montres la valeur</strong>
+          <span>Comment les clients vont les trouver. Pourquoi ça change leur activité. La plupart comprennent en moins de 2 minutes — on te prépare à ça.</span>
         </div>
       </div>
       <div class="step">
-        <div class="step-num">04</div>
-        <div class="step-content">
+        <div class="step-n">04</div>
+        <div>
           <strong>Tu reçois ton argent</strong>
-          <span>Dès que l'artisan passe au plan Pro (2 500 FCFA/mois), tu reçois 2 000 FCFA sur ton mobile money. Sans intermédiaire.</span>
+          <span>Dès que l'artisan s'inscrit en Pro (2 500 FCFA/mois), 2 000 FCFA arrivent sur ton mobile money. Sans délai, sans intermédiaire.</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ EARNINGS ════════════════════════════════════════════════════ -->
-<section class="earnings">
+<!-- ── REVENUS ─────────────────────────────────────────────────────── -->
+<section class="revenus">
   <div class="wrap">
-    <div class="eyebrow">Ce que tu gagnes</div>
-    <h2>Des chiffres clairs.<br><em>Pas de promesses vides.</em></h2>
-
-    <div class="earn-main">
-      <div class="earn-number">2 000 <span>FCFA</span></div>
-      <div class="earn-label">par artisan inscrit en Pro · payé sur mobile money</div>
+    <div class="revenus-eyebrow">Ce que tu gagnes</div>
+    <h2>Des chiffres réels.<br><em>Pas des promesses.</em></h2>
+    <div class="earn-hero">
+      <div class="earn-n">2 000 <sub>FCFA</sub></div>
+      <div class="earn-l">par artisan inscrit au plan Pro · mobile money</div>
     </div>
-
-    <div class="calc-grid">
-      <div class="calc-row">
-        <span>1 inscription par jour</span>
-        <span class="calc-amount">60 000 FCFA/mois</span>
+    <div class="calc-rows">
+      <div class="calc-r">
+        <span>1 inscription par jour · 30 jours</span>
+        <span class="amt">60 000 FCFA/mois</span>
       </div>
-      <div class="calc-row">
-        <span>2 inscriptions par jour</span>
-        <span class="calc-amount">120 000 FCFA/mois</span>
+      <div class="calc-r">
+        <span>2 inscriptions par jour · 30 jours</span>
+        <span class="amt">120 000 FCFA/mois</span>
       </div>
-      <div class="calc-row calc-highlight">
+      <div class="calc-r hl">
         <span>3 inscriptions par jour · mois plein</span>
-        <span class="calc-amount">180 000 FCFA/mois</span>
+        <span class="amt">180 000 FCFA/mois</span>
       </div>
     </div>
-
-    <div class="earn-notes">
-      <p>✅ Freelance — tu travailles aux heures qui t'arrangent, matin ou soir</p>
+    <div class="smig-note">
+      Le SMIG au Togo est de <strong>52 500 FCFA/mois</strong>. Avec 1 inscription par jour, tu le dépasses. Avec 3, tu es à <strong>3,4× le SMIG</strong> — en freelance, à ton rythme.
+    </div>
+    <div class="earn-bullets">
+      <p>✅ Freelance — tu travailles aux heures qui t'arrangent</p>
       <p>✅ Pas de plafond — plus tu inscris, plus tu gagnes</p>
-      <p>✅ Plan Pro WOZALI offert pendant toute ta période d'activité (valeur 2 500 FCFA/mois)</p>
-      <p>✅ Formation complète fournie gratuitement avant le démarrage</p>
-      <p>⚠️ Pas de salaire fixe au départ — les bonus et primes progressives arrivent avec les résultats prouvés</p>
+      <p>✅ Plan Pro WOZALI offert pendant ton activité (valeur 2 500 FCFA/mois)</p>
+      <p>✅ Formation gratuite fournie avant le démarrage</p>
+      <p>⚠️ Pas de salaire fixe — les primes progressives arrivent avec les résultats prouvés</p>
     </div>
   </div>
 </section>
 
-<!-- ══ PROFIL REQUIS ════════════════════════════════════════════════ -->
+<!-- ── PROFIL ──────────────────────────────────────────────────────── -->
 <section class="profil">
   <div class="wrap">
-    <div class="eyebrow">Qui peut postuler</div>
-    <h2>Tout le monde.<br>Vraiment.<br><em>Le sérieux suffit.</em></h2>
-
-    <div class="criteria-grid">
-      <div class="crit ok">
-        <span class="crit-icon">✅</span>
-        <span>Tu vis à Lomé ou Cotonou</span>
-      </div>
-      <div class="crit ok">
-        <span class="crit-icon">✅</span>
-        <span>Tu as un smartphone Android ou iPhone</span>
-      </div>
-      <div class="crit ok">
-        <span class="crit-icon">✅</span>
-        <span>WhatsApp actif — toute la coordination passe par là</span>
-      </div>
-      <div class="crit ok">
-        <span class="crit-icon">✅</span>
-        <span>Tu es à l'aise pour parler aux gens, ou tu veux l'apprendre</span>
-      </div>
-      <div class="crit ok">
-        <span class="crit-icon">✅</span>
-        <span>Tu peux sortir quelques heures par jour dans ton quartier</span>
-      </div>
-      <div class="crit ok">
-        <span class="crit-icon">✅</span>
-        <span>Tu réponds aux messages dans la journée</span>
-      </div>
+    <div class="profil-eyebrow">Qui peut postuler</div>
+    <h2>N'importe qui.<br>À Lomé ou Cotonou.<br><em>Le sérieux suffit.</em></h2>
+    <div class="crit-list">
+      <div class="crit"><span class="crit-ico">✅</span><span>Tu vis à <strong>Lomé</strong> ou <strong>Cotonou</strong></span></div>
+      <div class="crit"><span class="crit-ico">✅</span><span>Tu as un <strong>smartphone</strong> avec WhatsApp actif</span></div>
+      <div class="crit"><span class="crit-ico">✅</span><span>Tu es <strong>à l'aise pour parler aux gens</strong> — ou tu veux l'apprendre</span></div>
+      <div class="crit"><span class="crit-ico">✅</span><span>Tu peux sortir <strong>quelques heures par jour</strong> dans ton quartier</span></div>
+      <div class="crit"><span class="crit-ico">✅</span><span>Tu <strong>réponds aux messages</strong> dans la journée</span></div>
+      <div class="crit"><span class="crit-ico">✅</span><span>Tu crois que le travail mérite d'être récompensé — pas les connexions</span></div>
     </div>
-
-    <div class="no-criteria">
+    <div class="no-crit">
       🚫 Aucun diplôme minimum requis<br>
       🚫 Aucune expérience en vente nécessaire<br>
-      🚫 Aucun frais d'inscription — c'est gratuit<br>
-      🚫 Pas réservé à un âge ou un genre
+      🚫 Pas réservé à un âge, un genre, ou un niveau d'études<br>
+      🚫 Aucun frais — c'est entièrement gratuit
     </div>
   </div>
 </section>
 
-<!-- ══ FAQ ═════════════════════════════════════════════════════════ -->
+<!-- ── FAQ ────────────────────────────────────────────────────────── -->
 <section class="faq">
   <div class="wrap">
-    <h2>Tes questions,<br>nos réponses.</h2>
+    <h2>Tes questions.<br>Nos réponses.</h2>
     <div class="faq-list">
       <details>
-        <summary>WOZALI c'est vraiment sérieux ? Pas une arnaque ?</summary>
-        <p>WOZALI est une startup basée à Lomé et Cotonou, en cours d'enregistrement officiel. Le lancement est le 1er juillet 2026. Les pionniers sont sélectionnés, formés, et rémunérés sur leurs résultats. Aucun frais ne t'est demandé à aucun moment. Si quelqu'un te demande de payer pour rejoindre WOZALI, c'est une arnaque — ce n'est pas nous.</p>
+        <summary>C'est sérieux ? Pas une arnaque ?</summary>
+        <p>WOZALI est une startup fondée à Lomé, en cours d'enregistrement officiel. Lancement le 1er juillet 2026. Aucun frais ne t'est demandé à aucune étape. Si quelqu'un te demande de payer pour rejoindre WOZALI — ce n'est pas nous. Toute la communication officielle passe par ce site et les canaux WOZALI vérifiés.</p>
       </details>
       <details>
-        <summary>Est-ce un emploi à temps plein ?</summary>
-        <p>Non. C'est du freelance. Tu organises ton temps comme tu veux — certains travaillent le matin, d'autres en fin d'après-midi, d'autres le week-end. Il n'y a pas d'horaire fixe. Tu es évalué sur tes inscriptions, pas tes heures.</p>
+        <summary>C'est un emploi à temps plein ?</summary>
+        <p>Non. C'est du freelance. Tu organises ton temps comme tu veux — matin, soir, week-end. Il n'y a pas d'horaires fixes. Tu es évalué sur tes inscriptions, pas tes heures. Certains pionniers travaillent 3 heures par jour, d'autres le week-end uniquement.</p>
       </details>
       <details>
-        <summary>Je n'ai jamais vendu quoi que ce soit. Ça pose un problème ?</summary>
-        <p>Non. On te forme. Tu reçois un script complet, des exemples, et un support WhatsApp pour chaque question. Les premiers jours, tu es accompagné. Ce n'est pas une vente difficile — tu aidons des artisans à être visibles. La plupart comprennent la valeur immédiatement.</p>
+        <summary>Je n'ai jamais fait de vente. Ça pose un problème ?</summary>
+        <p>Aucun problème. On te forme entièrement. Tu reçois un script complet, des exemples de conversations, et un support WhatsApp pour chaque question. Les premiers jours, tu es accompagné. Et ce n'est pas une vente difficile — tu aides un artisan à être visible. La grande majorité comprennent la valeur immédiatement.</p>
       </details>
       <details>
         <summary>Comment je reçois mon argent ?</summary>
-        <p>Par mobile money — Wave, Orange Money, ou MTN MoMo selon ta ville et ce qui t'arrange. On confirme les modalités exactes lors de la formation.</p>
+        <p>Par mobile money — Wave, Orange Money, ou MTN MoMo selon ta ville. On confirme les modalités exactes lors de la formation avant le démarrage.</p>
       </details>
       <details>
         <summary>Je suis étudiant(e). Je peux postuler ?</summary>
-        <p>Oui, absolument. Beaucoup des pionniers qu'on sélectionne sont étudiants. Ça se travaille entre les cours et le week-end. Le rythme s'adapte à tes disponibilités.</p>
+        <p>Oui, absolument. Beaucoup de pionniers sont étudiants. Ça se gère entre les cours. Le rythme s'adapte entièrement à tes disponibilités.</p>
       </details>
       <details>
-        <summary>Il y a combien de places ?</summary>
-        <p>20 places en tout pour cette première vague — 10 à Lomé, 10 à Cotonou. Les candidatures sont traitées dans l'ordre. Plus tu attends, plus les places se ferment.</p>
+        <summary>Il reste combien de places ?</summary>
+        <p>20 places en tout pour cette première vague — réparties entre Lomé et Cotonou. Les candidatures sont traitées dans l'ordre d'arrivée et de qualité. La sélection se fait sur la motivation, pas sur le CV.</p>
       </details>
     </div>
   </div>
 </section>
 
-<!-- ══ FINAL CTA ════════════════════════════════════════════════════ -->
-<section class="final-cta">
+<!-- ── FINAL CTA ───────────────────────────────────────────────────── -->
+<section class="final">
   <div class="wrap">
-    <div class="eyebrow">20 places · Lomé &amp; Cotonou · Gratuit</div>
-    <h2>Ton travail nourrit.<br><em>Pas ton réseau.</em></h2>
-    <a href="/postuler" class="btn-hero btn-large">Postuler maintenant →</a>
-    <div class="share-block">
-      <p>Tu connais quelqu'un que ça intéresse ?</p>
-      <button onclick="partagerWhatsApp()" class="btn-share">💬 Partager sur WhatsApp</button>
+    <div class="final-eyebrow">20 places · Lomé &amp; Cotonou · Gratuit</div>
+    <h2>WOZALI<br><em>t'appartient.</em></h2>
+    <p class="final-sub">Ton travail nourrit. Pas ton réseau.<br>Sois là depuis le premier jour.</p>
+    <a href="/postuler" class="btn-primary btn-xl">Postuler maintenant — c'est gratuit →</a>
+    <div class="share-zone">
+      <p>Tu connais quelqu'un à Lomé ou Cotonou que ça peut intéresser ?</p>
+      <button onclick="partager()" class="btn-wa">💬 Partager sur WhatsApp</button>
     </div>
   </div>
 </section>
 
-<!-- ══ FOOTER ═══════════════════════════════════════════════════════ -->
+<!-- ── FOOTER ─────────────────────────────────────────────────────── -->
 <footer>
   <div class="wrap">
-    <div class="logo">
-      <span class="logo-w">W</span><span class="logo-o">OZALI</span>
+    <div class="footer-logo">
+      <span class="footer-w">W</span><span class="footer-o">OZALI</span>
     </div>
-    <p>Lancement 1er juillet 2026 · Lomé (Togo) &amp; Cotonou (Bénin)</p>
+    <p>Lancement 1er juillet 2026 · Lomé (Togo) &amp; Cotonou (Bénin)<br>wozali.vercel.app</p>
   </div>
 </footer>
 
 <script>
-function partagerWhatsApp() {
+function partager() {
   const msg = encodeURIComponent(
-    "📢 WOZALI recrute des Pionniers terrain à Lomé et Cotonou\n\n" +
-    "• Pas de diplôme requis\n" +
-    "• 2 000 FCFA par inscription · mobile money\n" +
-    "• Freelance — tu travailles à ton rythme\n" +
-    "• Formation gratuite fournie\n\n" +
-    "20 places seulement. Regarde l'offre complète ici :\n" +
+    "📢 WOZALI recrute 20 Pionniers à Lomé et Cotonou\n\n" +
+    "C'est le lancement d'une plateforme qui va rendre visibles " +
+    "les meilleurs artisans de nos villes. Coiffeurs, mécaniciens, " +
+    "couturières, plombiers — ils méritent d'être trouvés.\n\n" +
+    "Ton rôle : les aider à créer leur profil.\n" +
+    "Ce que tu gagnes : 2 000 FCFA par inscription · mobile money\n\n" +
+    "Pas de diplôme requis. Gratuit. 20 places.\n" +
     "👉 https://wozali.vercel.app/offre-pionniers"
   );
   window.open('https://wa.me/?text=' + msg, '_blank');
