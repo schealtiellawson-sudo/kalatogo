@@ -4,6 +4,42 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-26)
+
+### Sprint Recrutement Pionniers — EN COURS
+
+**Point 1 : Flow postuler ✅ COMPLET**
+
+| Fichier | État | Notes |
+|---|---|---|
+| `/offre-pionniers.html` | ✅ | Landing refondue : 100K FCFA, équipe permanente, 4 étapes déploiement WOZALI |
+| `/postuler.html` | ✅ | Formulaire complet, WhatsApp checkbox sans friction (pas de couleur verte, pas d'"Obligatoire"), redirect → /merci |
+| `/merci.html` | ✅ | Page confirmation : photo fondateur format portrait 4/5 + citation côte à côte, réseaux sociaux (WOZALI + fondateur) même design |
+| `/admin-pionniers.html` | ✅ | Gestion candidatures : filtres statut/ville, stats bar, boutons ✓ Valider / ✗ Recaler ouvrant WhatsApp avec messages pré-rédigés |
+| `/assets/fondateur.jpg` | ✅ | Photo pro fondateur (marine), utilisée merci.html + Notre Histoire |
+| `style.css` + 3 pages standalone | ✅ | `overflow-x:hidden` sur `html,body` partout (fix blanc rebords définitif) |
+| Supabase RLS | ✅ | `admin_read_pionniers` (SELECT) + `admin_update_pionniers` (UPDATE) + `candp_public_insert` (INSERT anon) déjà en place |
+| `vercel.json` | ✅ | Routes : /postuler, /offre-pionniers, /recruter, /merci, /admin-pionniers |
+
+**Messages WhatsApp admin (dans admin-pionniers.html) :**
+- Validé : "Ta candidature est retenue. Tu fais partie des Pionniers WOZALI. Je t'appelle très bientôt."
+- Recalé : bienveillant, porte pas fermée, premier membre le 1er juillet quand la plateforme ouvre
+
+**Règles établies cette session :**
+- "Schealtiel Lawson" autorisé sur merci.html (les candidats doivent mettre un nom sur le visage) — EXCEPTION à la règle générale
+- Nom TOUJOURS interdit sur visuels sociaux et offre-pionniers.html
+- Terminologie : "Pionnier WOZALI" côté public, jamais "agent terrain"
+- Vision WOZALI élargie : pas que artisans, tout le monde qui travaille ou a un petit business (comme un LinkedIn/Instagram)
+
+**Point 2 : Visuels recrutement — EN COURS**
+Scripts à valider avant production visuelle :
+→ Posts Instagram recrutement (formats : post 1080×1080 dark + or, story 1080×1920, carrousel)
+→ Posts TikTok recrutement (formats : 1080×1350 dark matin + or soir)
+→ Covers reels recrutement
+→ Objectif : pionniers en priorité, mais vision large WOZALI (tout le monde, pas que artisans)
+
+---
+
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-23 soir)
 
 ### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
