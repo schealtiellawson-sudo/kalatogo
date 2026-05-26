@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="WOZALI">
+  <defs>
+    
+  </defs>
+  <rect width="600" height="600" fill="#14100A"></rect>
+  <text class="w-glyph" x="300" y="370" text-anchor="middle">W</text>
+  <g transform="translate(150, 388)"><path class="swoop" d="M2 13 C 60 2, 200 2, 296 9"></path></g>
+  <text class="w-word" x="300" y="480" text-anchor="middle">WOZALI</text>
+  <text class="w-sub" x="300" y="520" text-anchor="middle" letter-spacing="4">BÉNIN · TOGO · 2026</text>
+</svg>

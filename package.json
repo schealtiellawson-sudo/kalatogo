@@ -1,0 +1,10 @@
+{
+  "name": "wozali",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
+    "web-push": "^3.6.7"
+  }
+}

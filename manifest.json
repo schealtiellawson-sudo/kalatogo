@@ -1,0 +1,18 @@
+{
+  "name": "WOZALI",
+  "short_name": "WOZALI",
+  "description": "L'emploi & les services au Bénin et au Togo. Ton travail nourrit. Pas ton réseau.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14100A",
+  "theme_color": "#E8940A",
+  "lang": "fr",
+  "icons": [
+    { "src": "/logos/pwa-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/logos/pwa-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/logos/pwa-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "categories": ["business", "lifestyle"]
+}
