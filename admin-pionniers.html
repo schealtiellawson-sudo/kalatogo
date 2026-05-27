@@ -151,6 +151,35 @@ html,body{background:#14100A;color:#FCE0A8;font-family:'Geist',sans-serif;min-he
       <div class="stat-num" id="stat-recale">—</div>
       <div class="stat-label">Recalés</div>
     </div>
+    <div class="stat-card" style="border-color:rgba(232,148,10,.3);background:rgba(232,148,10,.06);">
+      <div class="stat-num" id="stat-lome" style="font-size:22px;padding-top:4px;">—</div>
+      <div class="stat-label">Validés Lomé</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(232,148,10,.3);background:rgba(232,148,10,.06);">
+      <div class="stat-num" id="stat-cotonou" style="font-size:22px;padding-top:4px;">—</div>
+      <div class="stat-label">Validés Cotonou</div>
+    </div>
+  </div>
+
+  <!-- KPI COMMISSIONS -->
+  <div style="padding:0 24px 20px;">
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:20px 24px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,148,10,.5);margin-bottom:16px;">Commissions du mois</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
+        <div>
+          <div style="font-size:12px;color:rgba(252,224,168,.4);margin-bottom:6px;">Membres actifs total</div>
+          <input id="kpi-membres" type="number" placeholder="0" style="width:120px;background:rgba(252,224,168,.05);border:1px solid rgba(232,148,10,.2);border-radius:8px;padding:10px 14px;color:#FCE0A8;font-size:18px;font-weight:700;font-family:'Geist',sans-serif;outline:none;" oninput="calcCommission()">
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(252,224,168,.4);margin-bottom:6px;">Commission totale à verser</div>
+          <div id="kpi-commission" style="font-family:'DM Serif Display',serif;font-style:italic;font-size:36px;color:#E8940A;line-height:1.1;">0 FCFA</div>
+        </div>
+        <div style="margin-left:auto;">
+          <div style="font-size:12px;color:rgba(252,224,168,.4);margin-bottom:6px;">Taux</div>
+          <div style="font-size:18px;font-weight:700;color:rgba(252,224,168,.6);">2 000 FCFA / membre</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="filters">
@@ -244,10 +273,21 @@ async function loadCandidatures() {
 
 // ─── STATS ───────────────────────────────────────────────
 function renderStats() {
+  const valides = allCandidatures.filter(c => c.statut === 'Validé');
   document.getElementById('stat-total').textContent   = allCandidatures.length;
   document.getElementById('stat-attente').textContent = allCandidatures.filter(c => c.statut === 'En attente').length;
-  document.getElementById('stat-valide').textContent  = allCandidatures.filter(c => c.statut === 'Validé').length;
+  document.getElementById('stat-valide').textContent  = valides.length;
   document.getElementById('stat-recale').textContent  = allCandidatures.filter(c => c.statut === 'Recalé').length;
+  document.getElementById('stat-lome').textContent    = valides.filter(c => c.ville === 'Lomé').length;
+  document.getElementById('stat-cotonou').textContent = valides.filter(c => c.ville === 'Cotonou').length;
+}
+
+// ─── COMMISSION CALC ─────────────────────────────────────
+function calcCommission() {
+  const membres = parseInt(document.getElementById('kpi-membres').value) || 0;
+  const total = membres * 2000;
+  document.getElementById('kpi-commission').textContent =
+    total.toLocaleString('fr-FR') + ' FCFA';
 }
 
 // ─── FILTER ──────────────────────────────────────────────
