@@ -240,19 +240,18 @@ wozali.africa/postuler — Lomé et Cotonou
 
 ---
 
-## MESSAGE WHATSAPP PARTAGE MANUEL
+## 12. MESSAGE WHATSAPP DIFFUSION LARGE
+**Usage :** copier-coller dans des groupes WhatsApp, story WhatsApp, partage réseau
+**SB7 :** ouvre sur la situation du Pionnier, pas sur WOZALI
 
 ```
-WOZALI recrute 20 Pionniers à Lomé et Cotonou.
+Dans ton quartier, des gens bossent sérieusement. Personne ne les trouve en dehors de leur rue.
 
-Tu inscris les commerçants, prestataires et indépendants de ton quartier sur la plateforme. 5 minutes par profil.
+Tu peux changer ça et gagner 100 000 FCFA par mois.
 
-2 000 FCFA par membre actif.
-50 membres = 100 000 FCFA par mois.
+On recrute 20 Pionniers à Lomé et Cotonou. Tu inscris les commerçants et prestataires de ton quartier sur une plateforme. 5 minutes par profil. 2 000 FCFA par membre actif.
 
-Pas de diplôme. Pas de bureau. Juste du sérieux et un téléphone.
-
-20 places. Lancement 1er juillet 2026.
+Pas de diplôme. Pas de bureau. 20 places. Lancement 1er juillet 2026.
 
 wozali.africa/postuler
 ```
