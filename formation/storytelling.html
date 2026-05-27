@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Le storytelling pour convaincre — Formation Pionniers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 36px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+h3 { font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 8px; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.story-block { background: #f5f0e8; border-radius: 4px; padding: 24px 28px; margin: 16px 0; border-left: 3px solid #14100A; }
+.story-block p { font-size: 15px; font-style: italic; }
+.step-row { display: flex; gap: 16px; margin: 8px 0; }
+.step-num { font-family: 'Geist Mono', monospace; font-size: 22px; font-weight: 600; color: #E8940A; min-width: 36px; line-height: 1.3; }
+.step-text { font-size: 15px; line-height: 1.65; color: #2a2018; padding-top: 2px; }
+.step-text strong { font-weight: 600; color: #14100A; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.exercise-box { background: #14100A; border-radius: 6px; padding: 28px 32px; margin: 24px 0; }
+.exercise-box h3 { color: #E8940A; margin-top: 0; }
+.exercise-box p { color: #FCE0A8; font-size: 14px; }
+.exercise-box ol { color: #FCE0A8; }
+.exercise-box li { color: #FCE0A8; font-size: 14px; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">Document 12 / Formation</div>
+    <div class="doc-title">Le storytelling pour convaincre</div>
+
+    <section>
+      <h2>Pourquoi les histoires convainquent mieux que les arguments</h2>
+      <p>Tu peux passer 10 minutes à expliquer comment fonctionne WOZALI, les fonctionnalités, le Score, la géolocalisation, le plan Pro à 2 500 FCFA. L'artisan t'écoute poliment, hoche la tête, et dix minutes après il a déjà oublié la moitié.</p>
+      <p>Maintenant dis-lui ceci :</p>
+
+      <div class="story-block">
+        <p>"Koffi, mécanicien à Akpakpa, avait des mains en or. Il réparait des motos depuis 12 ans. Mais le lundi matin, il attendait les clients assis devant son atelier. Cette semaine-là, aucun. Il a créé son profil WOZALI un jeudi soir. Le vendredi midi, un appel d'un inconnu à Cotonou - quelqu'un qui avait cherché mécanicien moto Akpakpa sur son téléphone. Koffi avait du travail ce vendredi-là."</p>
+      </div>
+
+      <p>Cette histoire-là, il va s'en souvenir demain. Peut-être dans une semaine. Peut-être qu'il va la raconter à quelqu'un d'autre.</p>
+      <p>Pourquoi ? Parce que le cerveau humain ne stocke pas les informations comme un ordinateur. Il stocke les émotions et les images. Une histoire crée une image dans la tête de l'autre. Une liste de fonctionnalités ne crée rien.</p>
+
+      <div class="highlight">
+        <p>Les neurosciences ont montré que quand on écoute une histoire, le cerveau du narrateur et le cerveau de l'auditeur se synchronisent. On appelle ça le "neural coupling". L'auditeur vit littéralement ce que le personnage de l'histoire vit. Un chiffre, ça n'active qu'une zone du cerveau. Une histoire en active sept.</p>
+      </div>
+
+      <p>En pratique, pour toi sur le terrain : quand tu veux convaincre quelqu'un, commence par une histoire. L'argument vient après, pour confirmer ce que l'histoire a déjà planté.</p>
+    </section>
+
+    <section>
+      <h2>La structure de toute bonne histoire</h2>
+      <p>Chaque histoire qui fonctionne suit la même structure, qu'on soit au cinéma, dans un roman ou dans une conversation au marché. Il n'y a pas de magie. Juste 4 éléments dans le bon ordre.</p>
+
+      <div class="step-row">
+        <div class="step-num">01</div>
+        <div class="step-text"><strong>Le personnage.</strong> Donne un nom, un métier, un lieu. Pas "une coiffeuse". Mais "Aminata, coiffeuse à Bè, quartier Adidogomé". Plus c'est précis, plus c'est crédible. L'auditeur doit pouvoir visualiser quelqu'un.</div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">02</div>
+        <div class="step-text"><strong>Le problème.</strong> Ce que le personnage vit et qui lui coûte quelque chose : du temps, de l'argent, de la dignité. Le problème doit être ressenti, pas juste décrit. "Elle travaillait bien, mais ses clients venaient du passage. Si personne ne passait ce jour-là, elle ne gagnait rien."</div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">03</div>
+        <div class="step-text"><strong>La solution.</strong> Ce qui change la situation. Introduis WOZALI ici, naturellement. Pas comme une publicité. Comme une réponse logique au problème que tu viens de poser.</div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">04</div>
+        <div class="step-text"><strong>Le résultat.</strong> Ce que ça a changé concrètement. Un chiffre si possible. Un fait. Pas "sa vie a changé", mais "le vendredi de cette semaine-là, elle avait 2 nouveaux appels de clientes qu'elle ne connaissait pas."</div>
+      </div>
+
+      <div class="highlight">
+        <p>Ces 4 éléments peuvent tenir en 30 secondes. Ils peuvent aussi se développer en 3 minutes. Adapte la longueur au contexte, pas à l'inverse.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>L'histoire de Koffi</h2>
+      <p>Voici l'histoire complète, dans sa version développée (3 minutes). Apprends-la. Adapte-la avec des détails locaux de ta ville.</p>
+
+      <div class="story-block">
+        <p>Koffi travaille depuis 12 ans à Akpakpa. Son atelier est propre, ses réparations sont solides. Les clients qui viennent une fois reviennent. Le problème, c'est qu'ils ne sont jamais assez nombreux.</p>
+        <p>Chaque lundi matin, Koffi est assis devant son atelier. Il attend. Parfois les clients viennent, parfois non. Il ne peut pas prévoir. Il ne peut pas planifier ses dépenses. Et lui, il sait qu'il fait du bon travail. Mais le bon travail seul ne fait pas venir les gens si personne ne sait qu'il existe.</p>
+        <p>Un soir de jeudi, un ami lui parle de WOZALI. Koffi est sceptique. Il a essayé Facebook une fois, ça n'a rien donné. Mais il crée quand même son profil : son nom, son métier, son quartier. Il prend deux photos de son atelier. Il active la géolocalisation.</p>
+        <p>Le vendredi midi, son téléphone sonne. Un numéro inconnu. Un homme à Cotonou dont la moto a lâché. Il avait cherché "mécanicien moto Akpakpa" sur son téléphone. Le premier profil qu'il a vu était celui de Koffi. Il a vu les photos, le quartier, le numéro. Il a appelé.</p>
+        <p>Koffi n'avait pas bougé de son atelier. Il n'avait rien payé pour cette publicité. Le client était venu à lui.</p>
+      </div>
+
+      <h3>Pourquoi cette histoire fonctionne</h3>
+      <ul>
+        <li>Le personnage est précis : nom, lieu, années d'expérience</li>
+        <li>Le problème est universel mais concret : attendre sans pouvoir prévoir</li>
+        <li>Le scepticisme de Koffi est mentionné - il ressemble à l'auditeur</li>
+        <li>Le résultat est daté et chiffrable : vendredi, 1 client, 1 appel</li>
+        <li>WOZALI n'est pas décrit comme magique - juste comme ce qui a connecté un problème à une solution</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>L'histoire d'Aminata</h2>
+      <p>Deuxième histoire à apprendre par coeur. Celle-ci est pour les coiffeuses et les femmes artisanes en général.</p>
+
+      <div class="story-block">
+        <p>Aminata a son salon à Bè depuis 4 ans. Elle fait du bon travail. Les tresses de Lomé, elle connaît. Elle a des clientes régulières, celles du quartier qui reviennent chaque semaine.</p>
+        <p>Mais les nouvelles clientes ? Elles arrivent par hasard. Une qui passe devant le salon, une autre qui a vu l'enseigne. Aminata ne peut pas aller chercher des clientes ailleurs. Elle est dans son salon. Elle attend.</p>
+        <p>Quand elle crée son profil WOZALI, elle met quelques photos de tresses qu'elle a faites : des photos prises avec son téléphone, mais nettes, qui montrent bien le travail. Elle choisit la catégorie coiffeuse, elle met le quartier Bè.</p>
+        <p>La semaine suivante, une femme arrive au salon. Elle ne vient pas du quartier. Elle habite Adidogomé. Elle a cherché "coiffeuse Bè" depuis son téléphone, elle a vu les photos d'Aminata, elle a aimé ce qu'elle a vu, elle est venue. Elle est repartie satisfaite. Elle a laissé un avis 5 étoiles sur le profil.</p>
+        <p>Aminata apparaît maintenant en premier dans les recherches pour coiffeuse dans son quartier. Pas parce qu'elle a payé plus cher. Parce que ses photos sont bonnes et que ses clientes la recommandent.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Comment construire ta propre histoire de Pionnier</h2>
+      <p>Les histoires de Koffi et d'Aminata sont des exemples. Mais ta propre histoire de Pionnier - pourquoi tu fais ça, ce que tu as vu, ce que tu as aidé à créer - est parfois encore plus puissante. Parce qu'elle est vraie, et l'auditeur le sent.</p>
+
+      <h3>Les 3 questions à te poser</h3>
+      <ul>
+        <li><strong>Pourquoi tu as choisi de devenir Pionnier WOZALI ?</strong> Pas la version officielle. La vraie raison. Tu as un proche qui galère à trouver des clients ? Tu veux un revenu complémentaire avant le lancement ? Tu crois dans ce que WOZALI fait ?</li>
+        <li><strong>Qu'est-ce que tu as observé sur le terrain qui confirme que c'est nécessaire ?</strong> Un artisan que tu connais qui est bon mais invisible. Un quartier où les gens se plaignent de ne pas trouver des pros sérieux. Un moment précis.</li>
+        <li><strong>Si tu as déjà aidé quelqu'un à s'inscrire, qu'est-ce qui s'est passé ?</strong> Même un petit résultat compte. "Il avait peur de l'inscription. Je l'ai aidé. Maintenant son profil est là." C'est déjà une histoire.</li>
+      </ul>
+
+      <div class="highlight">
+        <p>Ton histoire n'a pas besoin d'être spectaculaire. Elle a besoin d'être vraie. Une transformation petite et honnête vaut mieux qu'une promesse exagérée.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Les 3 formats d'histoire selon le contexte</h2>
+
+      <table>
+        <thead>
+          <tr><th>Format</th><th>Durée</th><th>Quand l'utiliser</th><th>Contenu</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Histoire courte</strong></td>
+            <td>30 secondes</td>
+            <td>À l'ouverture, pour créer l'intérêt. L'autre n'a pas encore décidé s'il t'écoutera longtemps.</td>
+            <td>Personnage + problème + résultat. Pas de détails. Juste la tension et le résultat.</td>
+          </tr>
+          <tr>
+            <td><strong>Histoire développée</strong></td>
+            <td>2-3 minutes</td>
+            <td>Quand la personne pose des questions et montre de l'intérêt.</td>
+            <td>Tous les 4 éléments. Tu peux ajouter des détails locaux, un dialogue, les émotions du personnage.</td>
+          </tr>
+          <tr>
+            <td><strong>Histoire de preuve sociale</strong></td>
+            <td>1 minute</td>
+            <td>Quand l'autre est presque convaincu mais veut une confirmation.</td>
+            <td>Chiffres + noms si accord. "La semaine dernière, j'ai aidé [prénom] à Akpakpa à créer son profil. En 3 jours, il avait eu 2 contacts de nouveaux clients." Concret, daté, factuel.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Ce qu'il ne faut jamais faire</h2>
+
+      <ul>
+        <li><strong>Promettre des résultats garantis.</strong> Tu peux dire "des artisans ont eu des contacts de nouveaux clients dès la première semaine". Tu ne peux pas dire "tu auras des clients dans 3 jours". WOZALI ne promet pas ça et toi non plus.</li>
+        <li><strong>Mentir sur les chiffres.</strong> Si tu ne sais pas exactement combien d'artisans sont inscrits dans ce quartier, ne donne pas de nombre précis. Dis "de plus en plus de pros du quartier s'inscrivent". C'est suffisant.</li>
+        <li><strong>Exagérer les délais.</strong> Ne dis pas "demain tu auras des clients". Ne dis pas "dans 3 jours tout change". Ces promesses-là créent de la déception, et la déception coûte cher à ta réputation de Pionnier.</li>
+        <li><strong>Inventer une histoire.</strong> Si tu n'as pas encore de vrai cas à raconter, utilise les histoires de Koffi et d'Aminata. Mais ne prétends pas avoir toi-même vu quelque chose que tu n'as pas vu.</li>
+        <li><strong>Faire du personnage de l'histoire un superhéros.</strong> Les histoires trop parfaites ne sonnent pas vrai. Les hésitations, les doutes, les petits résultats graduels sont plus crédibles.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>La règle des 4 secondes</h2>
+      <p>Quand tu racontes une histoire, chaque élément doit pouvoir se résumer en 4 secondes dans la tête de l'auditeur. Si ton personnage prend 2 minutes à présenter avant qu'il se passe quelque chose, tu as perdu l'attention.</p>
+      <p>Entraîne-toi à dire l'essentiel en peu de mots :</p>
+      <ul>
+        <li>Personnage en 4 secondes : "Koffi, mécanicien moto à Akpakpa."</li>
+        <li>Problème en 4 secondes : "Bon travail, mais pas assez de clients."</li>
+        <li>Solution en 4 secondes : "Profil WOZALI créé en 5 minutes."</li>
+        <li>Résultat en 4 secondes : "Premier appel inconnu le lendemain."</li>
+      </ul>
+      <p>Ces 4 lignes, ça fait 16 secondes. C'est ton histoire courte. Tout le reste, c'est de l'enrichissement pour les personnes qui posent des questions.</p>
+    </section>
+
+    <div class="exercise-box">
+      <h3>Exercice : ton histoire de Pionnier en 3 phrases</h3>
+      <p>Écris maintenant ta propre histoire de Pionnier. Pas une invention. Quelque chose de vrai sur toi.</p>
+      <ol>
+        <li>Qui tu es et pourquoi tu fais ça. (Exemple : "Je suis Sena, j'ai un frère mécanicien à Bè qui travaille bien mais qui ne trouvait pas assez de clients.")</li>
+        <li>Ce que tu as observé qui t'a convaincu que WOZALI est nécessaire. (Exemple : "J'ai vu des artisans talentueux perdre des clients face à des moins bons, juste parce que ces derniers étaient mieux connus.")</li>
+        <li>Ce que tu veux créer comme changement dans ton quartier ou ta ville. (Exemple : "Je veux que le travail bien fait soit visible, pas caché.")</li>
+      </ol>
+      <p>Écris ces 3 phrases. Entraîne-toi à les dire à voix haute. C'est ta signature de Pionnier.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">DOC 12 - STORYTELLING</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

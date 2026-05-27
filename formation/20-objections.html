@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Les 20 objections terrain - WOZALI Formation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Geist', 'Helvetica Neue', Arial, sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+    .page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+    .header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+    .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; letter-spacing: -0.5px; }
+    .logo span { color: #FCE0A8; font-style: normal; }
+    .doc-type { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+    .content { padding: 48px 48px 40px; }
+    .doc-number { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 8px; line-height: 1.2; }
+    .doc-subtitle { font-family: 'Courier New', monospace; font-size: 12px; color: #E8940A; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+    section { margin-bottom: 32px; }
+    h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+    p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+    .highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+    .highlight p { font-size: 14px; margin-bottom: 0; }
+    .amount { font-family: 'Courier New', monospace; font-weight: 600; color: #E8940A; }
+
+    .objection-list { display: flex; flex-direction: column; gap: 0; }
+    .obj-item { border-bottom: 1px solid #e8e0d0; padding: 22px 0; }
+    .obj-item:last-child { border-bottom: none; }
+    .obj-header { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 10px; }
+    .obj-num { flex-shrink: 0; width: 32px; height: 32px; background: #14100A; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; color: #E8940A; }
+    .obj-question { font-family: 'DM Serif Display', serif; font-size: 16px; color: #14100A; line-height: 1.3; padding-top: 5px; }
+    .obj-type { display: inline-block; font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; margin-top: 4px; margin-bottom: 10px; margin-left: 48px; }
+    .type-peur { background: #fff0f0; color: #c62828; border: 1px solid #ef9a9a; }
+    .type-timing { background: #fff8f0; color: #e65100; border: 1px solid #ffcc80; }
+    .type-interet { background: #f5f5f5; color: #555; border: 1px solid #ddd; }
+    .type-comprend { background: #f0f7ff; color: #1565c0; border: 1px solid #90caf9; }
+    .obj-response { background: #faf8f3; border-radius: 4px; padding: 14px 16px; margin-left: 48px; }
+    .response-label { font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #E8940A; margin-bottom: 6px; }
+    .obj-response p { font-size: 14px; line-height: 1.6; color: #1a1008; margin-bottom: 0; }
+    .obj-tip { margin-left: 48px; margin-top: 8px; }
+    .obj-tip p { font-size: 13px; color: #888; line-height: 1.5; font-style: italic; margin-bottom: 0; }
+
+    .footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-left { font-family: 'Courier New', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+    .footer-right { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+    @media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+    @media (max-width: 600px) {
+      .header { padding: 24px 24px 20px; }
+      .content { padding: 32px 24px 28px; }
+      .footer { padding: 16px 24px; }
+      .obj-response { margin-left: 0; }
+      .obj-type { margin-left: 0; }
+      .obj-tip { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="logo">W<span>OZALI</span></div>
+      <div class="doc-type">Formation Pionnier</div>
+    </div>
+
+    <div class="content">
+      <div class="doc-number">DOC-10 / GUIDE OBJECTIONS</div>
+      <h1 class="doc-title">Les 20 objections terrain</h1>
+      <div class="doc-subtitle">Réponses mot pour mot, prêtes à l'emploi</div>
+
+      <section>
+        <h2>Comment utiliser ce document</h2>
+        <p>Ce guide recense les 20 objections les plus fréquentes que tu rencontreras à Lomé et Cotonou. Pour chaque objection, tu as le type de refus (peur, timing, intérêt, compréhension), la réponse exacte à dire, et parfois une note tactique sur comment adapter selon le contexte.</p>
+        <p>Lis ce document plusieurs fois jusqu'à ce que les réponses te viennent naturellement. L'objectif n'est pas de réciter un script, mais d'avoir des réflexes rodés pour chaque situation.</p>
+        <div class="highlight">
+          <p>Rappel : ne jamais débattre, toujours rediriger. La réponse à une objection n'est pas un argument contre l'objection - c'est une question ou une affirmation qui déplace l'attention vers quelque chose que la personne peut vérifier par elle-même.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Les 20 réponses</h2>
+
+        <div class="objection-list">
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">01</div>
+              <div class="obj-question">"Je n'ai pas le temps maintenant."</div>
+            </div>
+            <div class="obj-type type-timing">Mauvais timing</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Aucun problème. Ca prend 5 minutes, pas plus. Si tu veux, je reviens à quelle heure t'es plus libre ?"</p>
+            </div>
+            <div class="obj-tip"><p>Propose un horaire précis plutôt que de partir sans rendez-vous. Si elle refuse un rendez-vous aussi, c'est un "non" d'autre nature. Accepte et repasse une autre fois.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">02</div>
+              <div class="obj-question">"C'est combien ça coûte ?"</div>
+            </div>
+            <div class="obj-type type-comprend">Mauvaise compréhension</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Pour commencer, c'est gratuit. Zéro franc. Tu crées ton profil, les clients peuvent te trouver. Si tu veux plus de visibilité après, il y a un plan à <span class="amount">2 500 FCFA/mois</span>, soit moins de 85 FCFA par jour. Mais tu commences sans payer."</p>
+            </div>
+            <div class="obj-tip"><p>Toujours commencer par le gratuit. Ne parle du Pro que si la personne pose une question dessus ou si tu sens de l'intérêt fort.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">03</div>
+              <div class="obj-question">"Je n'ai pas de smartphone."</div>
+            </div>
+            <div class="obj-type type-comprend">Mauvaise compréhension</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Pas de problème, je peux créer ton profil depuis mon téléphone maintenant, toi tu n'as rien à faire. Quand tu auras un smartphone ou que tu en empruntes un, tu pourras gérer toi-même. En attendant, les clients te trouvent quand même."</p>
+            </div>
+            <div class="obj-tip"><p>Propose de créer le profil toi-même sur place. Une inscription faite est meilleure qu'une inscription reportée. Note le numéro WhatsApp de la personne pour les contacts entrants.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">04</div>
+              <div class="obj-question">"Internet ça coûte trop cher ici."</div>
+            </div>
+            <div class="obj-type type-peur">Peur / contrainte réelle</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"WOZALI est conçu pour utiliser très peu de données. Le profil se charge vite même avec une connexion faible. Et quand tu n'as pas internet, ton profil reste visible pour les clients qui cherchent. Tu n'as pas besoin d'être connecté en permanence."</p>
+            </div>
+            <div class="obj-tip"><p>Si la contrainte est vraiment forte, oriente vers l'inscription gratuite et explique que les clients te contactent par WhatsApp - pas besoin d'internet dans l'application tout le temps.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">05</div>
+              <div class="obj-question">"J'ai déjà assez de clients."</div>
+            </div>
+            <div class="obj-type type-interet">Manque d'intérêt apparent</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"C'est bien. Et si un de tes clients habituels ralentit ou part, tu fais comment pour le remplacer ? WOZALI, c'est pas pour chercher des clients quand tu en manques. C'est pour ne jamais en manquer."</p>
+            </div>
+            <div class="obj-tip"><p>Cette objection révèle souvent quelqu'un qui ne projette pas dans le futur. Oriente vers la sécurité et la stabilité, pas vers la croissance.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">06</div>
+              <div class="obj-question">"Je ne fais pas confiance aux plateformes numériques."</div>
+            </div>
+            <div class="obj-type type-peur">Peur de l'arnaque</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"T'as raison de faire attention. WOZALI ne te demande pas d'argent pour commencer, pas de coordonnées bancaires, rien. Juste ton nom, ton métier et ta photo. Si tu veux, je te montre exactement ce qu'on remplit, tu décides toi-même si c'est raisonnable."</p>
+            </div>
+            <div class="obj-tip"><p>Montre l'application sur ton téléphone. La transparence visuelle désarme la méfiance mieux que n'importe quel discours.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">07</div>
+              <div class="obj-question">"Mon patron va pas vouloir."</div>
+            </div>
+            <div class="obj-type type-timing">Mauvais timing / contrainte externe</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Je comprends. Mais ton profil WOZALI, c'est ton profil personnel, pas celui de l'entreprise. Si tu travailles en freelance aussi ou si tu veux évoluer, ça te sert à toi directement. Tu veux qu'on regarde ensemble ce que ça donnerait ?"</p>
+            </div>
+            <div class="obj-tip"><p>Si la personne est vraiment dans un emploi salarié exclusif et ne peut pas exercer en parallèle, oriente-la vers le côté candidat de WOZALI Jobs - elle peut chercher de meilleures opportunités.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">08</div>
+              <div class="obj-question">"Les clients préfèrent venir directement."</div>
+            </div>
+            <div class="obj-type type-comprend">Mauvaise compréhension</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Exactement. Et c'est ce que WOZALI permet : les clients te trouvent en ligne et viennent directement chez toi. Tu ne vas pas les chercher, eux te cherchent. Ton adresse et ton quartier sont sur ton profil."</p>
+            </div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">09</div>
+              <div class="obj-question">"C'est trop compliqué pour moi."</div>
+            </div>
+            <div class="obj-type type-peur">Peur de la technologie</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Laisse-moi te montrer. C'est 3 choses : ton prénom, ton métier, une photo. Après, les clients te trouvent. Si tu veux, je t'aide à le faire là, maintenant, en 5 minutes."</p>
+            </div>
+            <div class="obj-tip"><p>Ne décris jamais WOZALI avec des mots techniques. Réduis toujours à l'essentiel : nom, métier, photo. Tout le reste peut être expliqué plus tard une fois l'inscription faite.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">10</div>
+              <div class="obj-question">"Ça sert à quoi si personne connait WOZALI ?"</div>
+            </div>
+            <div class="obj-type type-peur">Peur du manque de traction</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"C'est exactement pour ça qu'il faut s'inscrire maintenant. Les premiers inscrits auront le meilleur Score et seront en tête quand la plateforme sera connue. Attendre, c'est laisser les places d'avant à d'autres."</p>
+            </div>
+            <div class="obj-tip"><p>Utilise l'avantage du premier entrant. Les gens qui s'inscrivent tôt sur une plateforme en croissance bénéficient d'une visibilité que ceux qui arrivent tard ne retrouveront jamais.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">11</div>
+              <div class="obj-question">"J'ai pas d'argent pour payer le Pro."</div>
+            </div>
+            <div class="obj-type type-comprend">Mauvaise compréhension</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Le plan gratuit existe pour exactement cette raison. Tu commences sans payer. Tu vois si des clients te contactent. Si ça marche et que tu veux plus de visibilité, tu passeras au Pro. Mais pour débuter, zéro franc."</p>
+            </div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">12</div>
+              <div class="obj-question">"Je vais y réfléchir et te redonner une réponse."</div>
+            </div>
+            <div class="obj-type type-timing">Mauvais timing / hésitation</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Bien sûr. Qu'est-ce qui te fait hésiter exactement ? Si je peux répondre à une question maintenant, autant le faire, ça te facilitera la réflexion."</p>
+            </div>
+            <div class="obj-tip"><p>"Je vais réfléchir" signifie souvent qu'il y a une objection non formulée. Pose la question directement. Si la personne donne une vraie raison, tu peux y répondre. Si elle dit "non c'est bon, je vais juste réfléchir", laisse-lui ton contact et pars.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">13</div>
+              <div class="obj-question">"C'est quoi ton intérêt là-dedans ?"</div>
+            </div>
+            <div class="obj-type type-peur">Méfiance sur la motivation</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Bonne question, et je vais te répondre directement : je suis Pionnier WOZALI. Quand quelqu'un que j'inscris prend le plan Pro, je touche une commission. C'est mon travail. Mais toi, tu ne paies rien pour le plan gratuit, donc je ne gagne rien si tu t'inscris gratuitement. Je t'en parle parce que je pense que ça peut t'aider."</p>
+            </div>
+            <div class="obj-tip"><p>La transparence totale sur ta commission est contre-intuitive mais très efficace. Elle désarme la méfiance et te positionne comme quelqu'un d'honnête. Les gens font confiance à quelqu'un qui avoue ses intérêts plutôt qu'à quelqu'un qui les cache.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">14</div>
+              <div class="obj-question">"J'ai essayé une app avant, ça n'a pas marché."</div>
+            </div>
+            <div class="obj-type type-peur">Expérience négative passée</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Je comprends la méfiance. C'est quoi qui n'avait pas marché exactement ? Parce que WOZALI est fait spécifiquement pour les métiers d'ici, en FCFA, avec des profils adaptés au marché de Lomé et Cotonou. Ce n'est pas la même chose."</p>
+            </div>
+            <div class="obj-tip"><p>Laisse la personne expliquer ce qui n'a pas marché. Tu découvres souvent une vraie objection sous-jacente que tu peux traiter directement. Et tu montres que tu l'écoutes vraiment.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">15</div>
+              <div class="obj-question">"Comment tu peux me garantir que j'aurai des clients ?"</div>
+            </div>
+            <div class="obj-type type-peur">Peur du résultat nul</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Je ne peux pas te garantir un chiffre. Ce que je peux te dire, c'est que Djibril le plombier d'Adidogomé a eu 4 contacts nouveaux dans son premier mois. Et que le plan gratuit ne te coûte rien, donc tu ne risques rien à essayer."</p>
+            </div>
+            <div class="obj-tip"><p>Ne promets jamais de résultats garantis. Utilise des cas réels que tu connais. Et redirige toujours vers le risque nul du plan gratuit : si ça ne marche pas, la personne n'a rien perdu.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">16</div>
+              <div class="obj-question">"C'est un truc de Toubab ça, pas pour nous."</div>
+            </div>
+            <div class="obj-type type-comprend">Mauvaise compréhension</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"WOZALI a été créé par quelqu'un d'ici, pour les artisans et commerçants d'ici. Tout est en FCFA, les quartiers sont ceux de Lomé et Cotonou, les profils sont pour les métiers qu'on fait ici. C'est pas une app importée."</p>
+            </div>
+            <div class="obj-tip"><p>Insiste sur l'ancrage local : FCFA, quartiers réels, métiers locaux, fondateur africain. C'est une distinction réelle et importante vis-à-vis des plateformes internationales inadaptées.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">17</div>
+              <div class="obj-question">"Mon activité c'est pas le genre à être sur internet."</div>
+            </div>
+            <div class="obj-type type-comprend">Mauvaise compréhension</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Qu'est-ce que tu fais exactement ? Parce que sur WOZALI il y a des maçons, des mécaniciens, des vendeuses de tissu, des réparateurs de téléphone. Si tu as un client qui te cherche, il peut te trouver. Qu'est-ce qui serait différent pour toi ?"</p>
+            </div>
+            <div class="obj-tip"><p>Pose une question sur leur métier spécifique et donne des exemples de métiers similaires déjà présents sur WOZALI. La personne se reconnaît dans les exemples concrets mieux que dans une explication générale.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">18</div>
+              <div class="obj-question">"Mes clients me connaissent déjà."</div>
+            </div>
+            <div class="obj-type type-interet">Manque d'intérêt apparent</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Tes clients actuels oui. Mais quelqu'un qui arrive dans le quartier et qui cherche un coiffeur, il fait comment pour te trouver toi et pas quelqu'un d'autre ? WOZALI, c'est pour les clients qui ne te connaissent pas encore."</p>
+            </div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">19</div>
+              <div class="obj-question">"Et si je paie et que l'app ferme ?"</div>
+            </div>
+            <div class="obj-type type-peur">Peur du risque financier</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"C'est une vraie question. Deux choses : d'abord, tu commences gratuitement, donc tu n'as rien à perdre au départ. Ensuite, le Pro c'est <span class="amount">2 500 FCFA/mois</span>, tu n'es pas engagé sur un an. Si jamais tu n'es pas satisfait un mois, tu arrêtes ce mois-là."</p>
+            </div>
+            <div class="obj-tip"><p>Insiste sur l'absence d'engagement long terme. Le paiement mensuel sans contrat annuel est une protection réelle pour l'utilisateur. Mets-le en avant.</p></div>
+          </div>
+
+          <div class="obj-item">
+            <div class="obj-header">
+              <div class="obj-num">20</div>
+              <div class="obj-question">"Je vais en parler à ma femme / mon mari d'abord."</div>
+            </div>
+            <div class="obj-type type-timing">Besoin de validation externe</div>
+            <div class="obj-response">
+              <div class="response-label">Dire exactement</div>
+              <p>"Bien sûr. Pour l'inscription gratuite, tu n'as pas besoin de son accord puisque ça ne coûte rien. On peut créer ton profil maintenant, et si vous décidez ensemble d'aller plus loin avec le Pro, tu le feras à ce moment-là. Qu'est-ce que tu en dis ?"</p>
+            </div>
+            <div class="obj-tip"><p>Cette objection concerne presque toujours la décision d'argent, pas le principe. Séparer l'inscription gratuite (sans décision financière) de l'abonnement Pro (décision à deux) débloque souvent la situation immédiatement.</p></div>
+          </div>
+
+        </div>
+      </section>
+
+      <section>
+        <h2>Les 3 règles qui ne changent jamais</h2>
+        <p>Quelle que soit l'objection que tu reçois, ces trois règles s'appliquent toujours :</p>
+        <ul>
+          <li><strong>Ne jamais débattre.</strong> Une discussion gagnée est souvent une inscription perdue. Si la personne se sent battue dans un argument, elle signe rarement. Elle s'éloigne.</li>
+          <li><strong>Toujours rediriger vers une question ou une démonstration.</strong> La meilleure réponse à une objection n'est pas un contre-argument, c'est une invitation à voir par soi-même.</li>
+          <li><strong>Partir avec le sourire, même sur un non définitif.</strong> Ta réputation dans le quartier se construit conversation après conversation. Quelqu'un qui part avec une bonne impression de toi, même sans s'inscrire, est un ambassadeur potentiel vers quelqu'un d'autre qui s'inscrira.</li>
+        </ul>
+        <div class="highlight">
+          <p>Mémorise les 5 objections les plus fréquentes dans ta zone de travail. Ce seront toujours les mêmes dans chaque quartier. Une fois que tu les connais par coeur, ta confiance sur le terrain change complètement.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div class="footer-left">DOC-10 - CONFIDENTIEL INTERNE - MAI 2026</div>
+      <div class="footer-right">wozali.africa</div>
+    </div>
+  </div>
+</body>
+</html>

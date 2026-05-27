@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — La géolocalisation en pratique — Formation Pionnier</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 32px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+.os-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.os-tab { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 6px 14px; border-radius: 3px; border: 1.5px solid #E8940A; color: #E8940A; background: transparent; }
+.os-tab.active { background: #E8940A; color: #14100A; font-weight: 600; }
+.step-list { list-style: none; padding: 0; margin: 0; }
+.step-list li { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f0ebe0; align-items: flex-start; }
+.step-list li:last-child { border-bottom: none; }
+.step-num-circle { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #E8940A; color: #14100A; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.step-text { font-size: 15px; line-height: 1.6; color: #2a2018; padding-top: 3px; }
+.scenario-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 12px 0; }
+.scenario-card { background: #faf8f3; border: 1px solid #e8e0d0; border-radius: 4px; padding: 14px; }
+.scenario-card.ok { border-color: #4a9e6a; background: #f0faf4; }
+.scenario-card.warn { border-color: #E8940A; background: #fff8ee; }
+.scenario-card.bad { border-color: #c0392b; background: #fdf0ee; }
+.scenario-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; font-weight: 600; }
+.scenario-card.ok .scenario-label { color: #4a9e6a; }
+.scenario-card.warn .scenario-label { color: #E8940A; }
+.scenario-card.bad .scenario-label { color: #c0392b; }
+.scenario-card p { font-size: 13px; margin-bottom: 0; color: #2a2018; }
+.exercice { background: #14100A; color: #FCE0A8; border-radius: 4px; padding: 20px 24px; margin: 20px 0; }
+.exercice .ex-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #E8940A; margin-bottom: 8px; }
+.exercice p { color: #FCE0A8; font-size: 14px; margin-bottom: 0; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionnier - Document 17</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">DOC-17 / GEOLOC-PRATIQUE</div>
+    <div class="doc-title">La géolocalisation en pratique - activer et tester</div>
+
+    <section>
+      <h2>Pourquoi la géolocalisation est capitale</h2>
+      <p>Imagine deux coiffeuses à Bè, Lomé. Aminata a activé sa géolocalisation sur WOZALI. Sena ne l'a pas fait. Un client cherche "coiffeuse Bè" sur la plateforme. Aminata apparaît en tête des résultats. Sena n'apparaît pas du tout, même si elle est meilleure.</p>
+      <p>Voilà comment fonctionne WOZALI : la géolocalisation place le pro sur la carte, et la carte alimente les résultats de recherche. Sans géolocalisation, le profil existe mais n'est pas trouvable dans le bon quartier. C'est comme avoir une boutique sans adresse.</p>
+      <p>Pour toi en tant que Pionnier, la géoloc est obligatoire pour chaque inscription. Pas optionnelle. Pas "on verra plus tard". Sur place, pendant l'inscription, avant de partir. Voici comment faire avec chaque type de téléphone.</p>
+      <div class="highlight">
+        <p>La géolocalisation est la fonctionnalité qui génère le plus de résultats pour les membres. Un pro géolocalisé à Akpakpa (Cotonou) est visible quand un client cherche un mécanicien à Akpakpa. Un pro non-géolocalisé est invisible dans cette recherche.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Sur Android - activer la localisation</h2>
+      <p>90% des téléphones utilisés à Lomé et Cotonou sont Android. C'est donc la procédure que tu utiliseras dans la majorité des cas.</p>
+
+      <p><strong>Étape 1 : Activer la localisation sur le téléphone</strong></p>
+      <ol class="step-list">
+        <li><span class="step-num-circle">1</span><span class="step-text">Glisser vers le bas depuis le haut de l'écran pour ouvrir le panneau de notifications rapides.</span></li>
+        <li><span class="step-num-circle">2</span><span class="step-text">Chercher l'icône "Localisation" ou "GPS" (une icône de repère géographique). Si elle est grisée, appuyer dessus pour l'activer. Elle devient colorée (bleu ou vert selon la marque).</span></li>
+        <li><span class="step-num-circle">3</span><span class="step-text">Si l'icône n'est pas visible dans les raccourcis, aller dans Paramètres - Localisation - activer le curseur en haut.</span></li>
+      </ol>
+
+      <p style="margin-top: 16px;"><strong>Étape 2 : Autoriser WOZALI à utiliser la localisation</strong></p>
+      <ol class="step-list">
+        <li><span class="step-num-circle">1</span><span class="step-text">Ouvrir Chrome sur le téléphone et aller sur wozali.africa.</span></li>
+        <li><span class="step-num-circle">2</span><span class="step-text">Appuyer sur les trois points en haut à droite de Chrome, puis "Paramètres du site".</span></li>
+        <li><span class="step-num-circle">3</span><span class="step-text">Chercher "Localisation" et vérifier qu'elle est sur "Autoriser" pour wozali.africa.</span></li>
+        <li><span class="step-num-circle">4</span><span class="step-text">Alternative plus rapide : quand WOZALI demande l'accès à la localisation (popup en haut du navigateur), appuyer sur "Autoriser".</span></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Sur iPhone / iOS - activer la localisation</h2>
+      <p>Les iPhone sont moins courants mais tu en croiseras. La procédure est légèrement différente.</p>
+      <ol class="step-list">
+        <li><span class="step-num-circle">1</span><span class="step-text">Aller dans Réglages (l'icône en forme de roue dentée) depuis l'écran d'accueil.</span></li>
+        <li><span class="step-num-circle">2</span><span class="step-text">Scroller vers le bas et appuyer sur "Confidentialité et sécurité".</span></li>
+        <li><span class="step-num-circle">3</span><span class="step-text">Appuyer sur "Service de localisation" et vérifier que le curseur en haut est activé (vert).</span></li>
+        <li><span class="step-num-circle">4</span><span class="step-text">Si le membre utilise Safari : Réglages - Safari - "Localisation" - choisir "Demander" ou "Autoriser".</span></li>
+        <li><span class="step-num-circle">5</span><span class="step-text">Si le membre utilise Chrome sur iPhone : même procédure que pour le Chrome Android (trois points - Paramètres du site - Localisation).</span></li>
+        <li><span class="step-num-circle">6</span><span class="step-text">Retourner sur wozali.africa et réessayer l'activation GPS.</span></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Les 3 scénarios que tu vas rencontrer</h2>
+      <div class="scenario-grid">
+        <div class="scenario-card ok">
+          <div class="scenario-label">Scénario 1 - Idéal</div>
+          <p>Le membre autorise la géoloc lors de l'inscription. Le popup apparaît, il appuie sur "Autoriser". Position enregistrée en 5 secondes.</p>
+        </div>
+        <div class="scenario-card warn">
+          <div class="scenario-label">Scénario 2 - Courant</div>
+          <p>Le membre a refusé par réflexe et ne sait pas comment réactiver. Suivre le guide de réactivation ci-dessous selon son OS.</p>
+        </div>
+        <div class="scenario-card bad">
+          <div class="scenario-label">Scénario 3 - Difficile</div>
+          <p>Connexion mobile instable ou GPS qui met du temps à s'activer. Utiliser le quartier manuel en backup et noter de revenir.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Activer depuis le dashboard WOZALI</h2>
+      <p>Une fois les autorisations téléphone accordées, l'enregistrement de la position se fait depuis le dashboard du membre. Voici les étapes précises :</p>
+      <ol class="step-list">
+        <li><span class="step-num-circle">1</span><span class="step-text">Le membre est connecté à son dashboard sur wozali.africa.</span></li>
+        <li><span class="step-num-circle">2</span><span class="step-text">Dans la barre latérale gauche ou le menu du haut, cliquer sur "Modifier mon profil".</span></li>
+        <li><span class="step-num-circle">3</span><span class="step-text">Scroller vers le bas jusqu'à la section "Ma position" ou "Mon quartier".</span></li>
+        <li><span class="step-num-circle">4</span><span class="step-text">Appuyer sur le bouton "Enregistrer ma position GPS" ou "Mettre à jour ma position".</span></li>
+        <li><span class="step-num-circle">5</span><span class="step-text">Le navigateur affiche une popup de permission - appuyer sur "Autoriser".</span></li>
+        <li><span class="step-num-circle">6</span><span class="step-text">Attendre 3 à 5 secondes que le GPS se fixe. Un message de confirmation apparaît quand la position est enregistrée.</span></li>
+        <li><span class="step-num-circle">7</span><span class="step-text">Appuyer sur "Enregistrer" pour sauvegarder le profil avec la nouvelle position.</span></li>
+      </ol>
+      <div class="highlight">
+        <p>Attention : si le membre est à l'intérieur d'un bâtiment avec peu de fenêtres, la précision GPS sera moindre. Pour une meilleure précision, aller dehors ou près d'une fenêtre avant d'enregistrer la position.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Comment vérifier que la géoloc fonctionne</h2>
+      <p>Après avoir enregistré la position, tu dois toujours vérifier que ça marche. C'est l'étape que beaucoup de Pionniers oublient. Ne pars jamais avant d'avoir vérifié.</p>
+      <ol>
+        <li>Depuis le téléphone du membre ou ton propre téléphone, aller sur wozali.africa.</li>
+        <li>Aller sur la page "Trouver un Pro" (accessible depuis le menu principal).</li>
+        <li>Dans la barre de recherche, taper le métier du nouveau membre (exemple : "mécanicien" ou "coiffeuse").</li>
+        <li>Dans le filtre quartier/ville, sélectionner le quartier où il est.</li>
+        <li>Vérifier que le profil du nouveau membre apparaît dans les résultats.</li>
+      </ol>
+      <p>S'il apparaît : succès. S'il n'apparaît pas : revérifier l'étape GPS ou s'assurer que le quartier renseigné manuellement correspond bien à la recherche faite.</p>
+    </section>
+
+    <section>
+      <h2>La précision GPS selon le réseau</h2>
+      <p>Le GPS d'un smartphone n'est pas aussi précis selon la connexion qu'on utilise. Il est important de comprendre ça pour expliquer aux membres pourquoi leur profil apparaît parfois légèrement décalé.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Type de connexion</th>
+            <th>Précision habituelle</th>
+            <th>Ce que ça signifie</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>4G / 4G+ (mobile)</td>
+            <td>10 à 50 mètres</td>
+            <td>Excellent pour WOZALI - position dans le bon quartier</td>
+          </tr>
+          <tr>
+            <td>3G (mobile)</td>
+            <td>50 à 200 mètres</td>
+            <td>Acceptable - position dans la bonne zone</td>
+          </tr>
+          <tr>
+            <td>WiFi domestique</td>
+            <td>100 à 500 mètres</td>
+            <td>Variable - peut pointer vers le quartier voisin</td>
+          </tr>
+          <tr>
+            <td>2G / réseau faible</td>
+            <td>500 mètres et plus</td>
+            <td>Utiliser le quartier manuel en backup</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Dans les zones urbaines denses comme Dantokpa (Cotonou) ou Adidogomé (Lomé), la 4G est généralement disponible et la précision est très bonne. Dans des zones plus éloignées, préférer le backup quartier manuel.</p>
+    </section>
+
+    <section>
+      <h2>Le backup quartier manuel - toujours renseigner</h2>
+      <p>Même quand le GPS fonctionne, le quartier doit aussi être renseigné manuellement dans le profil. C'est un double filet de sécurité.</p>
+      <p>Pourquoi ? Parce que le GPS peut changer si le membre déplace son téléphone ou se reconnecte depuis un autre endroit. Le quartier manuel, lui, est stable - il représente l'endroit où le pro travaille en permanence.</p>
+      <p>Pour renseigner le quartier : dans "Modifier mon profil", section "Localisation", choisir la ville (Lomé ou Cotonou) puis le quartier dans la liste déroulante. Les quartiers principaux sont pré-listés. Si le quartier n'est pas dans la liste, choisir le quartier le plus proche.</p>
+      <p>Les quartiers importants à connaître :</p>
+      <ul>
+        <li><strong>Lomé :</strong> Bè, Adidogomé, Agoè, Tokoin, Baguida, Akodésséwa, Hédzranawoé, Djidjolé, Aflao, Avénou, Cacaveli, Kodjoviakopé</li>
+        <li><strong>Cotonou :</strong> Akpakpa, Dantokpa, Cadjehoun, Gbégamey, Fidjrossè, Menontin, Missèbo, Vèdoko, Mokolé, Zogbohouè, Avotrou, Haie Vive</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Réactiver la géoloc quand le membre avait refusé</h2>
+      <p>C'est le problème le plus courant. Le membre a cliqué sur "Refuser" au premier popup et maintenant ne sait pas comment l'activer. Voici le guide selon l'OS.</p>
+      <p><strong>Android - Chrome :</strong></p>
+      <ol>
+        <li>Ouvrir Chrome et appuyer sur les trois points en haut à droite.</li>
+        <li>Paramètres - Paramètres du site - Localisation.</li>
+        <li>Chercher wozali.africa dans la liste des sites bloqués.</li>
+        <li>Appuyer dessus et changer "Bloquer" en "Autoriser".</li>
+        <li>Recharger wozali.africa et réessayer.</li>
+      </ol>
+      <p><strong>Android - alternative plus rapide :</strong></p>
+      <ol>
+        <li>Dans la barre d'adresse de Chrome, taper wozali.africa.</li>
+        <li>Appuyer sur l'icône cadenas ou les informations du site (à gauche de l'adresse).</li>
+        <li>Appuyer sur "Autorisations du site" ou "Paramètres du site".</li>
+        <li>Localisation : passer de "Bloqué" à "Autoriser".</li>
+      </ol>
+      <p><strong>iPhone - Safari :</strong></p>
+      <ol>
+        <li>Réglages - Confidentialité et sécurité - Service de localisation.</li>
+        <li>Scroller jusqu'à Safari et appuyer dessus.</li>
+        <li>Choisir "Lors de l'utilisation de l'app" ou "Demander la prochaine fois".</li>
+        <li>Retourner sur wozali.africa dans Safari et réessayer.</li>
+      </ol>
+    </section>
+
+    <div class="exercice">
+      <div class="ex-label">Exercice pratique - à faire maintenant</div>
+      <p>Ouvre wozali.africa sur ton propre téléphone. Va dans "Modifier mon profil" et enregistre ta position GPS. Puis va sur "Trouver un Pro", cherche ton propre métier dans ton propre quartier et vérifie que tu apparais. Si ce n'est pas le cas, résous le problème toi-même avant d'être sur le terrain avec un nouveau membre. Tu dois connaître ce processus par coeur.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">FORMATION PIONNIER WOZALI - DOC 17/20</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Vendre sans vendre — Formation Pionniers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 36px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+h3 { font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 8px; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 8px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+.principe-num { font-family: 'DM Serif Display', serif; font-size: 48px; color: #e8e0d0; line-height: 1; display: block; margin-bottom: -8px; }
+.principe-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.principe-titre { font-family: 'DM Serif Display', serif; font-size: 20px; color: #14100A; padding-top: 8px; }
+.script-block { background: #f5f0e8; border-radius: 4px; padding: 18px 22px; margin: 12px 0; border-left: 3px solid #14100A; }
+.script-block p { font-size: 14px; font-style: italic; margin-bottom: 6px; }
+.script-block p:last-child { margin-bottom: 0; }
+.script-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #888; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 6px; }
+.oui-chain { background: #14100A; border-radius: 6px; padding: 24px 28px; margin: 16px 0; }
+.oui-chain-title { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+.oui-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.oui-badge { background: #E8940A; color: #14100A; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 3px; min-width: 40px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+.oui-text { color: #FCE0A8; font-size: 14px; font-style: italic; line-height: 1.5; }
+.oui-row.reponse .oui-text { color: #888; font-size: 13px; font-style: normal; }
+.principe-card { border: 1px solid #e8e0d0; border-radius: 4px; padding: 24px 28px; margin-bottom: 24px; }
+.principe-card:last-child { margin-bottom: 0; }
+.regle-or { background: #E8940A; border-radius: 6px; padding: 24px 28px; margin: 20px 0; }
+.regle-or p { color: #14100A; font-weight: 500; margin-bottom: 0; font-size: 15px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">Document 14 / Formation</div>
+    <div class="doc-title">Vendre sans vendre - la psychologie de l'influence</div>
+
+    <section>
+      <h2>Ce que signifie "vendre sans vendre"</h2>
+      <p>Le vendeur qui insiste, qui relance, qui pousse - ça marche quelquefois. Mais ça laisse un mauvais goût. La personne a dit oui parce qu'elle voulait que tu partes, pas parce qu'elle était convaincue. Elle ne recommande pas. Elle ne reste pas.</p>
+      <p>L'influence éthique, c'est différent. C'est créer les conditions dans lesquelles la personne prend elle-même la décision qui est dans son intérêt. Tu n'as pas forcé. Tu as éclairé. La différence change tout : une personne convaincue reste, recommande, et devient elle-même un argument vivant pour WOZALI dans son quartier.</p>
+      <p>Robert Cialdini a passé 35 ans à étudier ce qui influence les décisions humaines. Ses 6 principes sont universels. Ce document les adapte au terrain africain, aux quartiers de Lomé et Cotonou, et au travail des Pionniers WOZALI.</p>
+    </section>
+
+    <div class="principe-card">
+      <div class="principe-header">
+        <span class="principe-num">01</span>
+        <span class="principe-titre">La réciprocité</span>
+      </div>
+      <p>Les humains sont câblés pour rendre ce qu'ils reçoivent. Si quelqu'un t'offre quelque chose, tu te sens inconsciemment obligé de donner en retour. Ce n'est pas de la manipulation : c'est le fondement de toute relation sociale.</p>
+      <p>En pratique sur le terrain : donne quelque chose avant de demander quoi que ce soit. Pas un cadeau matériel. Une information utile. Un conseil sincère. Une aide concrète.</p>
+
+      <h3>Application terrain</h3>
+      <div class="script-block">
+        <span class="script-label">Exemple avec un mécanicien</span>
+        <p>Avant de parler de WOZALI, aide-le à vérifier si ses pneus de démonstration sont bien rangés dans son atelier. Ou dis-lui : "J'ai vu qu'un autre mécanicien dans le quartier voisin propose aussi la révision moteur. Tu le savais ?" Cette information lui est utile, et elle ne coûte rien à donner.</p>
+        <p>Après avoir aidé, tu peux naturellement enchaîner sur ce que tu fais. La personne t'écoute avec plus d'attention parce que tu viens de lui prouver que tu penses à son intérêt.</p>
+      </div>
+
+      <div class="highlight">
+        <p>La réciprocité marche mieux quand le don est inattendu, personnalisé et concret. "Je pensais à toi spécifiquement" vaut dix fois plus que quelque chose de générique.</p>
+      </div>
+    </div>
+
+    <div class="principe-card">
+      <div class="principe-header">
+        <span class="principe-num">02</span>
+        <span class="principe-titre">La preuve sociale</span>
+      </div>
+      <p>Quand les gens ne savent pas quoi faire, ils regardent ce que font les autres. C'est un mécanisme de survie. Si tout le monde court, on court aussi - même sans savoir pourquoi. Appliqué à ton travail : si des artisans que la personne reconnaît ou respecte sont déjà sur WOZALI, son hésitation diminue naturellement.</p>
+
+      <h3>Comment l'utiliser sans mentir</h3>
+      <ul>
+        <li>Donne des chiffres réels, jamais gonflés : "Plus de [X] pros dans cette ville sont déjà inscrits."</li>
+        <li>Si possible, mentionne des noms avec accord : "Tu connais Adjoa, la couturière du marché Tokoin ? Elle est dessus depuis deux semaines."</li>
+        <li>Si tu n'as pas de noms, utilise la formulation honnête : "De plus en plus de coiffeuses du quartier créent leur profil ces dernières semaines."</li>
+      </ul>
+
+      <div class="script-block">
+        <span class="script-label">Formulation efficace</span>
+        <p>"Je ne vais pas te dire que tout le monde est déjà dessus. Mais les pros les plus sérieux du quartier commencent à s'inscrire. Et en général, ceux qui attendent de voir ce que font les autres se retrouvent à courir après ceux qui ont commencé tôt."</p>
+      </div>
+    </div>
+
+    <div class="principe-card">
+      <div class="principe-header">
+        <span class="principe-num">03</span>
+        <span class="principe-titre">L'autorité</span>
+      </div>
+      <p>Les gens font confiance aux sources qui paraissent légitimes et compétentes. Ton badge de Pionnier WOZALI, ta lettre de mission, le lien officiel vers wozali.africa - ce sont des signaux d'autorité. Utilise-les.</p>
+
+      <h3>Ce que tu peux utiliser</h3>
+      <ul>
+        <li>Montrer le site wozali.africa sur ton téléphone prouve que c'est une vraie plateforme, pas une idée en l'air</li>
+        <li>Mentionner que WOZALI couvre à la fois Lomé et Cotonou donne une dimension sérieuse</li>
+        <li>Montrer un profil d'artisan déjà complet dans l'application est plus convaincant que n'importe quelle explication</li>
+        <li>Ta lettre de mission officielle de Pionnier répond aux sceptiques qui demandent si tu représentes vraiment quelque chose de réel</li>
+      </ul>
+
+      <div class="script-block">
+        <span class="script-label">Si quelqu'un demande "c'est sérieux ça ?"</span>
+        <p>"Regarde, voilà le site. Tu vois les profils des artisans de Lomé et Cotonou. Le lancement officiel est le 1er juillet. Et voilà ma lettre de mission de Pionnier WOZALI. Je ne suis pas là à te proposer quelque chose d'inventé."</p>
+      </div>
+    </div>
+
+    <div class="principe-card">
+      <div class="principe-header">
+        <span class="principe-num">04</span>
+        <span class="principe-titre">La sympathie</span>
+      </div>
+      <p>Les gens font affaire avec les gens qu'ils aiment. Pas les gens qu'ils respectent le plus. Pas les plus compétents. Ceux qu'ils aiment. C'est ainsi que fonctionne la confiance humaine, en particulier dans les communautés africaines où les relations personnelles précèdent toujours les transactions.</p>
+
+      <h3>Trouver un point commun sincère avant toute démarche</h3>
+      <p>Avant de parler de WOZALI, trouve une connexion vraie avec la personne. Pas inventée. Pas forcée. Quelque chose de réel.</p>
+      <ul>
+        <li>Tu viens du même quartier ou d'un quartier proche</li>
+        <li>Tu connais quelqu'un qu'elle connaît</li>
+        <li>Tu as observé quelque chose dans son travail qui mérite une remarque sincère</li>
+        <li>Tu partages une situation similaire : "Moi aussi j'ai quelqu'un dans ma famille qui fait ce métier"</li>
+      </ul>
+
+      <div class="highlight">
+        <p>Un compliment sincère sur le travail de quelqu'un ouvre une conversation. Un compliment générique ("t'es très doué") ferme. Observe d'abord, puis commente ce que tu as vraiment vu.</p>
+      </div>
+
+      <div class="script-block">
+        <span class="script-label">Exemple réel</span>
+        <p>"J'ai vu les tresses que tu avais faites à la dame qui sortait là. C'était propre, les rangées étaient bien droites. T'as combien d'années de métier ?"</p>
+      </div>
+    </div>
+
+    <div class="principe-card">
+      <div class="principe-header">
+        <span class="principe-num">05</span>
+        <span class="principe-titre">La rareté</span>
+      </div>
+      <p>Ce qui est rare est perçu comme plus précieux. C'est vrai pour les objets. C'est vrai pour les opportunités. Mais attention : la rareté inventée est une manipulation. La rareté réelle est une information utile.</p>
+
+      <h3>Les raretés réelles sur WOZALI</h3>
+      <ul>
+        <li><strong>Avantage premier arrivé :</strong> dans une catégorie de métier dans un quartier, les premiers profils bien construits ont un avantage de visibilité qui dure. Si tu es le premier maçon sérieux inscrit à Agla, tu profites de cette position le temps que d'autres te rattrapent.</li>
+        <li><strong>La fenêtre pré-lancement :</strong> le lancement est le 1er juillet 2026. Avant cette date, tu construis sans concurrence. Après, tout le monde arrive en même temps.</li>
+        <li><strong>Ta présence dans ce quartier :</strong> tu ne reviens pas tous les jours. Si quelqu'un veut que tu l'aides à créer son profil maintenant, c'est maintenant que tu es là.</li>
+      </ul>
+
+      <div class="highlight">
+        <p>Ne dis jamais "il ne reste que X places" si ce n'est pas vrai. WOZALI ne limite pas le nombre d'inscrits. Utilise uniquement les vraies raretés listées ci-dessus.</p>
+      </div>
+    </div>
+
+    <div class="principe-card">
+      <div class="principe-header">
+        <span class="principe-num">06</span>
+        <span class="principe-titre">L'engagement et la cohérence</span>
+      </div>
+      <p>Une fois que quelqu'un s'engage publiquement sur quelque chose, il va s'y tenir par besoin de cohérence avec son image. Les petits "oui" successifs mènent naturellement à un grand "oui". C'est le principe de la progression : on ne demande pas à quelqu'un de courir un marathon le premier jour. On lui demande de marcher 10 minutes.</p>
+
+      <h3>La technique de la chaîne de oui</h3>
+      <p>Construis une série de questions simples auxquelles la réponse est naturellement "oui". Chaque oui rapproche du grand oui.</p>
+    </div>
+
+    <div class="oui-chain">
+      <div class="oui-chain-title">Exercice - La conversation en 5 oui progressifs</div>
+
+      <div class="oui-row">
+        <div class="oui-badge">OUI 1</div>
+        <div class="oui-text">"T'as des clients réguliers qui reviennent chez toi ?"</div>
+      </div>
+      <div class="oui-row reponse">
+        <div class="oui-badge" style="background:#333;color:#888;">REP</div>
+        <div class="oui-text">Elle dit oui. Presque tout artisan en a au moins quelques-uns.</div>
+      </div>
+
+      <div class="oui-row">
+        <div class="oui-badge">OUI 2</div>
+        <div class="oui-text">"Et t'aimerais en avoir encore plus, de nouveaux clients qui ne te connaissent pas encore ?"</div>
+      </div>
+      <div class="oui-row reponse">
+        <div class="oui-badge" style="background:#333;color:#888;">REP</div>
+        <div class="oui-text">Elle dit oui. Personne ne refuse plus de clients.</div>
+      </div>
+
+      <div class="oui-row">
+        <div class="oui-badge">OUI 3</div>
+        <div class="oui-text">"Est-ce que tu penses que tu mérites ces clients-là, que ton travail le justifie ?"</div>
+      </div>
+      <div class="oui-row reponse">
+        <div class="oui-badge" style="background:#333;color:#888;">REP</div>
+        <div class="oui-text">Elle dit oui. Et ce oui est important : il confirme sa confiance en son propre travail.</div>
+      </div>
+
+      <div class="oui-row">
+        <div class="oui-badge">OUI 4</div>
+        <div class="oui-text">"Donc si quelque chose pouvait te rendre visible auprès de ces nouveaux clients sans que tu aies à te déplacer ou à payer une publicité chère, tu serais intéressée ?"</div>
+      </div>
+      <div class="oui-row reponse">
+        <div class="oui-badge" style="background:#333;color:#888;">REP</div>
+        <div class="oui-text">Elle dit oui. La question est logique après les trois premières.</div>
+      </div>
+
+      <div class="oui-row">
+        <div class="oui-badge">OUI 5</div>
+        <div class="oui-text">"WOZALI fait exactement ça. On essaie là maintenant ?"</div>
+      </div>
+      <div class="oui-row reponse">
+        <div class="oui-badge" style="background:#333;color:#888;">REP</div>
+        <div class="oui-text">Le cinquième oui est logique. Elle ne peut pas dire non sans se contredire avec tout ce qu'elle vient d'affirmer.</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>La règle d'or de l'influence éthique</h2>
+
+      <div class="regle-or">
+        <p>L'influence éthique aide les gens à prendre des décisions dans leur intérêt réel. Dès que tu sens que tu pousses quelqu'un vers quelque chose qui ne lui convient pas, ou que tu forces un oui contre sa résistance sincère, arrête. Un non respecté aujourd'hui vaut mieux qu'un oui arraché qui devient une mauvaise publicité demain.</p>
+      </div>
+
+      <p>Un artisan qui dit non clairement, c'est une information. Peut-être qu'il n'est pas prêt maintenant. Peut-être que WOZALI n'est pas adapté à sa situation actuelle. Peut-être qu'il a besoin de voir des résultats chez ses collègues d'abord. Ce n'est pas un échec. C'est une conversation à reprendre dans deux mois.</p>
+      <p>Celui qui dit oui parce qu'il était convaincu et qu'il reste actif - lui - représente dix fois plus de valeur qu'une inscription forcée qui sera abandonnée la semaine suivante.</p>
+    </section>
+
+    <section>
+      <h2>Résumé pratique : les 6 principes en terrain africain</h2>
+
+      <table>
+        <thead>
+          <tr><th>Principe</th><th>En pratique à Lomé / Cotonou</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Réciprocité</strong></td>
+            <td>Aide avant de demander. Donne une info utile. Fais quelque chose de concret pour eux d'abord.</td>
+          </tr>
+          <tr>
+            <td><strong>Preuve sociale</strong></td>
+            <td>Cite des noms réels (avec accord) ou des chiffres vrais. "Adjoa est déjà dessus" vaut plus que "beaucoup de gens."</td>
+          </tr>
+          <tr>
+            <td><strong>Autorité</strong></td>
+            <td>Montre le site, ta lettre de mission, les profils existants. La preuve visuelle compte plus que les mots.</td>
+          </tr>
+          <tr>
+            <td><strong>Sympathie</strong></td>
+            <td>Trouve le lien humain sincère avant de parler business. Un compliment vrai sur leur travail ouvre tout.</td>
+          </tr>
+          <tr>
+            <td><strong>Rareté</strong></td>
+            <td>Utilise uniquement les vraies raretés : avantage premier arrivé, fenêtre pré-lancement, ta présence ce jour-là.</td>
+          </tr>
+          <tr>
+            <td><strong>Engagement</strong></td>
+            <td>Construis la chaîne des oui. Chaque petit accord mène logiquement au suivant.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">DOC 14 - PSYCHOLOGIE INFLUENCE</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

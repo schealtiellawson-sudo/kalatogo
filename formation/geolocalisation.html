@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La géolocalisation - pourquoi ça change tout — Formation WOZALI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    font-family: 'Geist', sans-serif;
+    color: #1a1008;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 24px rgba(20,16,10,0.10);
+  }
+
+  .header {
+    background: #14100A;
+    border-bottom: 3px solid #E8940A;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: #E8940A;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    font-style: normal;
+    color: #FCE0A8;
+  }
+
+  .doc-type {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .content {
+    padding: 48px 40px;
+  }
+
+  .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #14100A;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #6b5c45;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #14100A;
+    border-left: 3px solid #E8940A;
+    padding-left: 12px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #14100A;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 16px;
+  }
+
+  .warning-box {
+    background: #fff8ee;
+    border: 1px solid #E8940A;
+    border-left: 4px solid #E8940A;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .warning-box .warning-title {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .warning-box p {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: #e8e0d0;
+    margin: 40px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  thead {
+    background: #14100A;
+  }
+
+  thead th {
+    color: #FCE0A8;
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e8e0d0;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  tr:nth-child(even) {
+    background: #faf8f3;
+  }
+
+  /* Story block */
+  .story-block {
+    background: #faf8f3;
+    border: 1px solid #e8e0d0;
+    border-radius: 4px;
+    padding: 28px;
+    margin: 24px 0;
+  }
+
+  .story-block .story-eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #E8940A;
+    margin-bottom: 10px;
+  }
+
+  .story-block p {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .story-block p:last-child { margin-bottom: 0; }
+
+  /* Steps */
+  .steps {
+    margin: 20px 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid #e8e0d0;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    background: #14100A;
+    color: #E8940A;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content .step-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #14100A;
+    margin-bottom: 6px;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    margin-bottom: 0;
+    color: #2d1f0e;
+  }
+
+  /* Map mockup */
+  .map-mockup {
+    background: #e8f4e8;
+    border: 1px solid #e8e0d0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 24px 0;
+    position: relative;
+  }
+
+  .map-mockup-header {
+    background: #14100A;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .map-dot {
+    width: 10px;
+    height: 10px;
+    background: #E8940A;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  .map-dot:first-child { opacity: 1; }
+
+  .map-search-bar {
+    background: #fff;
+    border: 1px solid #e8e0d0;
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    color: #6b5c45;
+    margin: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .map-body {
+    padding: 0 16px 16px;
+  }
+
+  .map-visual {
+    background: linear-gradient(135deg, #d4e8d4 0%, #c8dfc8 50%, #b8d4b8 100%);
+    border-radius: 4px;
+    height: 160px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid #b8d0b8;
+  }
+
+  .map-grid-line-h {
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background: rgba(255,255,255,0.4);
+  }
+
+  .map-grid-line-v {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background: rgba(255,255,255,0.4);
+  }
+
+  .map-pin {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+  }
+
+  .map-pin-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+
+  .map-pin-dot.pro { background: #E8940A; }
+  .map-pin-dot.free { background: #9ca3af; }
+  .map-pin-dot.user { background: #14100A; }
+
+  .map-pin-label {
+    font-family: 'Geist', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    background: #fff;
+    padding: 2px 5px;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    margin-top: 3px;
+    white-space: nowrap;
+    color: #14100A;
+  }
+
+  .map-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .map-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #6b5c45;
+    font-family: 'Geist', sans-serif;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  /* Priority diagram */
+  .priority-stack {
+    margin: 20px 0;
+  }
+
+  .priority-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+  }
+
+  .priority-row.first {
+    background: #14100A;
+    border-color: #E8940A;
+  }
+
+  .priority-row.second {
+    background: #faf8f3;
+    border-color: #e8e0d0;
+  }
+
+  .priority-row.third {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    opacity: 0.75;
+  }
+
+  .priority-rank {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 80px;
+  }
+
+  .priority-row.first .priority-rank { color: #E8940A; }
+  .priority-row.second .priority-rank { color: #6b5c45; }
+  .priority-row.third .priority-rank { color: #9ca3af; }
+
+  .priority-desc {
+    font-size: 14px;
+  }
+
+  .priority-row.first .priority-desc { color: #FCE0A8; }
+  .priority-row.second .priority-desc { color: #2d1f0e; }
+  .priority-row.third .priority-desc { color: #6b6b6b; }
+
+  /* Erreurs list */
+  .errors-list {
+    margin: 16px 0;
+  }
+
+  .error-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e8e0d0;
+    align-items: flex-start;
+  }
+
+  .error-item:last-child { border-bottom: none; }
+
+  .error-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .error-icon.bad { background: #fee2e2; }
+  .error-icon.good { background: #dcfce7; }
+
+  .error-content .error-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #14100A;
+    margin-bottom: 4px;
+  }
+
+  .error-content p {
+    font-size: 13px;
+    color: #6b5c45;
+    margin-bottom: 0;
+  }
+
+  /* Exercice block */
+  .exercise-block {
+    background: #14100A;
+    color: #FCE0A8;
+    border-radius: 4px;
+    padding: 28px;
+    margin: 24px 0;
+  }
+
+  .exercise-block .ex-eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #E8940A;
+    margin-bottom: 10px;
+  }
+
+  .exercise-block h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: #FCE0A8;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+
+  .exercise-block p {
+    color: #FCE0A8;
+    opacity: 0.85;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .exercise-block .ex-step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+
+  .exercise-block .ex-num {
+    width: 24px;
+    height: 24px;
+    background: #E8940A;
+    color: #14100A;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .exercise-block .ex-text {
+    font-size: 14px;
+    color: #FCE0A8;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+
+  .footer {
+    background: #14100A;
+    border-top: 2px solid #E8940A;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left, .footer-right {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">Document 03 / 05</div>
+    <h1>La géolocalisation - pourquoi ça change tout</h1>
+    <p class="subtitle">La géolocalisation n'est pas une fonctionnalité parmi d'autres. C'est le moteur central de WOZALI. Sans elle, un profil existe mais n'est pas trouvé. Comprends ça, explique-le clairement, et tu convertiras deux fois plus vite sur le terrain.</p>
+
+    <h2>Le problème que la géoloc résout</h2>
+
+    <div class="story-block">
+      <div class="story-eyebrow">Cas réel - Lomé, quartier Bè</div>
+      <p>Aminata coiffe à Bè depuis 8 ans. Elle n'a pas de boutique officielle. Elle travaille depuis chez elle, avec un siège, un miroir posé sur le mur et des mains qui font des tresses depuis l'enfance. Ses clientes habituelles la connaissent. Elles reviennent. Mais elles ne parlent pas d'elle à tout le monde.</p>
+      <p>Un samedi matin, à 400 mètres de chez Aminata, une femme cherche sur son téléphone "coiffeuse près de moi Bè". Sur Google, rien. Elle pose la question dans un groupe WhatsApp. Les réponses qui arrivent en premier sont celles des gens qui ont les amis les plus actifs dans le groupe, pas celles de la meilleure coiffeuse du quartier.</p>
+      <p>Aminata n'est pas dans le groupe. Aminata perd une cliente potentielle. Ce jour-là. Et le suivant. Et tous les autres. Non pas parce qu'elle ne sait pas coiffer. Parce qu'elle est invisible pour ceux qui ne la connaissent pas déjà.</p>
+      <p><strong>Avec WOZALI et la géolocalisation activée :</strong> ce client ouvre l'appli, tape "coiffeuse", et Aminata apparaît en premier si son Score est bon. La distance entre elle et le client est calculée automatiquement. En moins d'une minute, le client voit son profil, ses photos de tresses, ses avis, et la contacte directement.</p>
+    </div>
+
+    <p>C'est ça, la géolocalisation. Ce n'est pas de la technologie pour la technologie. C'est l'outil qui fait passer Aminata de "invisible à ceux qui ne la connaissent pas" à "la première résult pour quiconque cherche une coiffeuse à Bè".</p>
+
+    <h2>Comment WOZALI trie les résultats</h2>
+
+    <p>Quand un client ouvre WOZALI et cherche un métier, la plateforme applique une logique de priorité très précise. Comprendre cette logique, c'est comprendre pourquoi la géoloc et le Plan Pro sont indissociables pour un artisan qui veut vraiment être trouvé.</p>
+
+    <div class="priority-stack">
+      <div class="priority-row first">
+        <span class="priority-rank">1er - PRIORITÉ</span>
+        <span class="priority-desc">Membres Pro avec géolocalisation activée, triés par Score WOZALI décroissant, dans un rayon autour du client</span>
+      </div>
+      <div class="priority-row second">
+        <span class="priority-rank">2e - STANDARD</span>
+        <span class="priority-desc">Membres Gratuits avec géolocalisation activée, triés par Score WOZALI décroissant, dans le même rayon</span>
+      </div>
+      <div class="priority-row third">
+        <span class="priority-rank">3e - INVISIBLE</span>
+        <span class="priority-desc">Membres sans géolocalisation activée, peu importe leur plan ou leur Score - ils n'apparaissent pas dans les recherches locales</span>
+      </div>
+    </div>
+
+    <p>Le troisième groupe est le plus important à comprendre. Un artisan peut avoir un profil parfait, un Score de 90, le Plan Pro actif - s'il n'a pas activé la géoloc, il n'existe pas dans les recherches locales. Son profil est visible si quelqu'un tape son nom exact, mais il n'apparaîtra jamais dans les résultats de recherche par métier et quartier.</p>
+
+    <div class="map-mockup">
+      <div class="map-mockup-header">
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+        <div class="map-dot"></div>
+      </div>
+      <div class="map-body">
+        <div class="map-search-bar">
+          <span>🔍</span>
+          <span>Coiffeuse - Bè, Lomé</span>
+        </div>
+        <div class="map-visual">
+          <!-- Grid lines -->
+          <div class="map-grid-line-h" style="top:33%"></div>
+          <div class="map-grid-line-h" style="top:66%"></div>
+          <div class="map-grid-line-v" style="left:33%"></div>
+          <div class="map-grid-line-v" style="left:66%"></div>
+
+          <!-- Client position -->
+          <div class="map-pin" style="left:48%;top:45%;">
+            <div class="map-pin-dot user"></div>
+            <div class="map-pin-label">Vous</div>
+          </div>
+
+          <!-- Pro pins (visible, prioritaires) -->
+          <div class="map-pin" style="left:28%;top:30%;">
+            <div class="map-pin-dot pro"></div>
+            <div class="map-pin-label" style="color:#E8940A;font-weight:700;">Aminata Pro #1</div>
+          </div>
+          <div class="map-pin" style="left:62%;top:22%;">
+            <div class="map-pin-dot pro"></div>
+            <div class="map-pin-label" style="color:#E8940A;font-weight:700;">Adjoua Pro #2</div>
+          </div>
+          <div class="map-pin" style="left:74%;top:55%;">
+            <div class="map-pin-dot pro"></div>
+            <div class="map-pin-label" style="color:#E8940A;font-weight:700;">Fatou Pro #3</div>
+          </div>
+
+          <!-- Free pin -->
+          <div class="map-pin" style="left:20%;top:65%;">
+            <div class="map-pin-dot free"></div>
+            <div class="map-pin-label">Afi Gratuit</div>
+          </div>
+        </div>
+        <div class="map-legend">
+          <div class="map-legend-item">
+            <div class="legend-dot" style="background:#E8940A;"></div>
+            Membre Pro avec géoloc - prioritaire
+          </div>
+          <div class="map-legend-item">
+            <div class="legend-dot" style="background:#9ca3af;"></div>
+            Membre Gratuit avec géoloc - en dessous
+          </div>
+          <div class="map-legend-item">
+            <div class="legend-dot" style="background:#14100A;"></div>
+            Client en recherche
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2>Activer la géoloc : les étapes exactes</h2>
+
+    <p>Voici le protocole à suivre avec chaque nouveau membre, depuis le téléphone de l'artisan. Tu dois rester à côté de lui pendant cette étape. Ne lui dis pas "tu activeras ça plus tard". Fais-le immédiatement, avant de quitter.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Ouvrir le dashboard</div>
+          <p>L'artisan est connecté à son compte WOZALI sur wozali.africa. Il est sur son dashboard principal. Depuis un smartphone Android ou iPhone, via le navigateur Chrome ou Safari.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Aller dans "Mon Profil" puis "Localisation"</div>
+          <p>Dans le menu dashboard, il clique sur son profil, puis sur l'onglet ou la section "Localisation" ou "Ma position". Cette section contient le bouton d'activation de la géolocalisation.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Cliquer sur "Activer ma géolocalisation"</div>
+          <p>Le navigateur affiche une demande de permission : "wozali.africa souhaite connaître votre position". Il doit cliquer sur "Autoriser" et non sur "Bloquer". Si le téléphone demande d'activer le GPS, il faut l'activer dans les paramètres du téléphone d'abord.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Vérifier que le quartier est confirmé</div>
+          <p>Après l'activation, WOZALI affiche automatiquement le quartier détecté. Il doit vérifier que c'est le bon quartier, celui où il exerce réellement. Si la détection est imprécise (ça arrive dans certaines zones), il peut corriger manuellement depuis le sélecteur de quartier.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Confirmer et sauvegarder</div>
+          <p>Il clique sur "Enregistrer ma position". Le profil est maintenant géolocalisé. Il apparaîtra dans les résultats de recherche dans son quartier. Vérification rapide : ouvrir une fenêtre de navigation privée, aller sur wozali.africa, chercher son métier + son quartier, et vérifier qu'il apparaît.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <div class="warning-title">Problème fréquent sur Android</div>
+      <p>Sur certains téléphones Android, la permission de localisation est accordée "seulement pendant l'utilisation" et non "toujours". WOZALI fonctionne avec les deux modes. Si l'artisan voit "Permission refusée" après avoir dit Autoriser, aller dans Paramètres du téléphone, Applications, Navigateur (Chrome), Autorisations, Position, et sélectionner "Pendant l'utilisation de l'application". Répéter ensuite l'étape 3.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2>Ce que ça change concrètement : avant et après</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Situation</th>
+          <th>Sans géoloc WOZALI</th>
+          <th>Avec géoloc + Plan Pro</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Koffi, plombier Tokoin, 15 ans de métier</td>
+          <td>Trouve des clients par bouche-à-oreille uniquement. Mois creux = pas de travail.</td>
+          <td>Apparaît en premier pour "plombier Tokoin". Reçoit des contacts directs sans rien faire.</td>
+        </tr>
+        <tr>
+          <td>Adjoua, coiffeuse Akpakpa, 3 ans d'expérience</td>
+          <td>Concurrence des grands salons mieux connus. Invisible pour les nouveaux habitants du quartier.</td>
+          <td>Visible immédiatement pour quiconque cherche depuis Akpakpa. Son Score progresse avec chaque avis.</td>
+        </tr>
+        <tr>
+          <td>Moussa, menuisier Agla, bon travail mais peu de réseau</td>
+          <td>Dépend des recommandations de ses anciens clients. Passe parfois 2 semaines sans commande.</td>
+          <td>Chaque recherche "menuisier Agla" le ramène dans les premiers résultats. Clientèle élargie à tout le quartier.</td>
+        </tr>
+        <tr>
+          <td>Fatima, couturière Cotonou centre, compte Gratuit sans géoloc</td>
+          <td>Profil existant sur WOZALI mais introuvable dans les recherches locales. Aucun nouveau client via la plateforme.</td>
+          <td>Activer la géoloc + passer Pro = passer de 0 contact WOZALI/mois à des contacts réguliers en quelques semaines.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Les erreurs courantes à éviter</h2>
+
+    <div class="errors-list">
+      <div class="error-item">
+        <div class="error-icon bad">✗</div>
+        <div class="error-content">
+          <div class="error-title">Partir avant que la géoloc soit activée</div>
+          <p>La plus fréquente. L'artisan dit "je le ferai ce soir". Le soir, il l'oublie. Son profil reste invisible pendant des jours ou des semaines. Ne quitte jamais un nouveau membre sans que la géoloc soit confirmée et vérifiée.</p>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-icon bad">✗</div>
+        <div class="error-content">
+          <div class="error-title">Ne pas vérifier que le bon quartier est détecté</div>
+          <p>Un artisan de Bè dont le GPS place par erreur dans Tokoin va recevoir des recherches de Tokoin et être invisible à Bè. Toujours vérifier le quartier affiché après activation, et corriger si nécessaire.</p>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-icon bad">✗</div>
+        <div class="error-content">
+          <div class="error-title">Activer la géoloc sur le Wi-Fi mais pas sur données mobiles</div>
+          <p>Certains téléphones ont des paramètres GPS différents selon la connexion. Demander à l'artisan d'activer sa géoloc depuis son réseau mobile (pas le Wi-Fi de l'atelier) pour s'assurer que ça fonctionne dans ses conditions réelles d'utilisation.</p>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-icon bad">✗</div>
+        <div class="error-content">
+          <div class="error-title">Inscrire un artisan au Plan Pro sans activer la géoloc</div>
+          <p>Il paye 2 500 FCFA, mais il n'est pas trouvé dans les recherches locales. Il va se plaindre que WOZALI ne marche pas. Et il n'aura pas tort. La géoloc est une condition préalable à tout le reste.</p>
+        </div>
+      </div>
+      <div class="error-item">
+        <div class="error-icon good">✓</div>
+        <div class="error-content">
+          <div class="error-title">La bonne pratique : le protocole 5 minutes</div>
+          <p>Inscription du compte : 2 minutes. Complétion du profil : 10-15 minutes. Activation géoloc et vérification : 3-5 minutes. Upload de 2 photos de travail : 5 minutes. Activation Plan Pro : 2 minutes. Total : moins de 30 minutes, membre prêt à être trouvé.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="exercise-block">
+      <div class="ex-eyebrow">Exercice pratique obligatoire</div>
+      <h3>Activer la géoloc avec chaque nouveau membre - protocole terrain</h3>
+      <p>À faire systématiquement, sans exception, pour chaque inscription que tu accompagnes.</p>
+      <div class="ex-step">
+        <div class="ex-num">1</div>
+        <div class="ex-text">Une fois le profil créé, dis à l'artisan : "Maintenant on active ta localisation. C'est ce qui fait que les clients te trouvent. Ça prend 2 minutes."</div>
+      </div>
+      <div class="ex-step">
+        <div class="ex-num">2</div>
+        <div class="ex-text">Reste à côté de lui, guide-le dans le menu jusqu'à la section Localisation. Ne prends pas son téléphone dans tes mains - fais-le faire lui-même pour qu'il sache le refaire seul plus tard.</div>
+      </div>
+      <div class="ex-step">
+        <div class="ex-num">3</div>
+        <div class="ex-text">Après activation, ouvre TON téléphone (pas le sien) en navigation privée sur wozali.africa, cherche son métier + son quartier. Montre-lui qu'il apparaît dans les résultats. Cette démonstration en temps réel est le meilleur argument de vente pour le Plan Pro.</div>
+      </div>
+      <div class="ex-step">
+        <div class="ex-num">4</div>
+        <div class="ex-text">Dis-lui : "Tu vois ? Tu es déjà visible. Avec le Plan Pro, tu passes en premier. Les membres Pro apparaissent avant tous les gratuits. C'est 2 500 FCFA par mois. On le fait maintenant ?"</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">Formation Pionniers - Lancement 1er juillet 2026</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+</div>
+</body>
+</html>

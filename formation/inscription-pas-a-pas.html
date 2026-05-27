@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Inscription pas à pas — Formation Pionniers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 36px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+h3 { font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 8px; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 8px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+.step-card { border: 1px solid #e8e0d0; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+.step-card-header { background: #14100A; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+.step-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; }
+.step-title { font-family: 'DM Serif Display', serif; font-size: 17px; color: #FCE0A8; }
+.step-time { font-family: 'Geist Mono', monospace; font-size: 11px; color: #666; margin-left: auto; }
+.step-body { padding: 20px 24px; }
+.step-body p { font-size: 14px; margin-bottom: 10px; }
+.step-body ul { margin-top: 4px; }
+.step-body li { font-size: 14px; margin-bottom: 6px; }
+.action-line { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.action-icon { width: 22px; height: 22px; background: #E8940A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #14100A; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.action-text { font-size: 14px; line-height: 1.55; color: #2a2018; }
+.critical-box { background: #14100A; border-radius: 6px; padding: 20px 24px; margin: 16px 0; }
+.critical-box p { color: #FCE0A8; font-size: 14px; margin-bottom: 0; }
+.critical-box strong { color: #E8940A; }
+.warning-box { background: #fff0f0; border: 1.5px solid #c0392b; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+.warning-box p { font-size: 14px; color: #c0392b; margin-bottom: 0; }
+.checklist-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e8e0d0; }
+.checklist-item:last-child { border-bottom: none; }
+.checkbox { width: 20px; height: 20px; border: 2px solid #E8940A; border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+.checklist-text { font-size: 14px; line-height: 1.55; color: #2a2018; }
+.checklist-text strong { font-weight: 600; color: #14100A; }
+.erreur-row { padding: 14px 0; border-bottom: 1px solid #e8e0d0; }
+.erreur-row:last-child { border-bottom: none; }
+.erreur-titre { font-family: 'Geist Mono', monospace; font-size: 12px; color: #c0392b; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.erreur-texte { font-size: 14px; color: #2a2018; line-height: 1.55; }
+.url-badge { display: inline-block; background: #E8940A; color: #14100A; font-family: 'Geist Mono', monospace; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 4px; margin: 8px 0; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 14px; color: #2a2018; border-bottom: 1px solid #e8e0d0; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">Document 15 / Formation</div>
+    <div class="doc-title">Faire une inscription pas à pas - le flow complet en 5 minutes</div>
+
+    <section>
+      <h2>Ce document est ton guide opérationnel</h2>
+      <p>Les autres documents t'apprennent à convaincre. Celui-ci t'apprend à exécuter. Quand quelqu'un dit "ok, montre-moi", tu dois enchaîner sans hésiter, sans bloquer, sans perdre l'élan de la conversation.</p>
+      <p>Lis ce guide plusieurs fois. Entraîne-toi seul sur ton propre téléphone. Crée un profil test. Refais-le jusqu'à ce que tu puisses le faire les yeux fermés. Le jour où tu es devant quelqu'un qui a dit oui, tu n'auras pas le temps de chercher où cliquer.</p>
+
+      <div class="highlight">
+        <p>Objectif : inscription complète en 5 minutes. Profil visible avec photo et géolocalisation en moins de 10 minutes. Si tu dépasses 15 minutes, quelque chose s'est passé. Reviens à ce guide pour identifier le blocage.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Avant de commencer</h2>
+
+      <div class="step-body">
+        <div class="action-line">
+          <div class="action-icon">1</div>
+          <div class="action-text"><strong>Ouvre wozali.africa sur ton téléphone ou le leur.</strong> Si le réseau est lent, utilise le tien et tu leur montreras ensuite comment faire sur le leur. Ne commence jamais une inscription sur mauvais réseau : les photos ne chargent pas, les erreurs arrivent, la personne perd confiance.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">2</div>
+          <div class="action-text"><strong>Vérifie que tu as une barre de réseau au minimum.</strong> Si le réseau est vraiment mauvais, reporte l'inscription à un moment ou lieu mieux connecté. Mieux vaut revenir que rater une inscription à cause du réseau.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">3</div>
+          <div class="action-text"><strong>Demande-leur d'avoir leur numéro de téléphone prêt</strong> - ou l'adresse email s'ils en ont une. Le numéro WhatsApp sera utilisé pour que les clients les contactent directement. C'est important qu'il soit correct.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">4</div>
+          <div class="action-text"><strong>Si tu fais l'inscription sur ton téléphone à leur place</strong>, fais-le devant eux, en commentant chaque étape à voix haute. Ils doivent comprendre ce qui se passe pour pouvoir gérer leur profil seuls ensuite.</div>
+        </div>
+      </div>
+
+      <div class="url-badge">wozali.africa</div>
+    </section>
+
+    <div class="step-card">
+      <div class="step-card-header">
+        <span class="step-number">ETAPE 01</span>
+        <span class="step-title">Créer le compte</span>
+        <span class="step-time">2 min</span>
+      </div>
+      <div class="step-body">
+        <div class="action-line">
+          <div class="action-icon">A</div>
+          <div class="action-text">Sur la page d'accueil, clique sur <strong>"S'inscrire"</strong>. Le bouton est en haut à droite sur desktop, dans le menu sur mobile.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">B</div>
+          <div class="action-text">Remplis l'adresse email ou le numéro de téléphone. Si ils n'ont pas d'email, utilise leur numéro. L'important c'est que ce soit quelque chose dont ils se souviendront.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">C</div>
+          <div class="action-text">Choisis un mot de passe simple. Recommande quelque chose de mémorable : leur nom + 4 chiffres. Note-le quelque part sur leur téléphone dans les mémos ou les contacts.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">D</div>
+          <div class="action-text"><strong>Pas de confirmation par email.</strong> WOZALI n'envoie pas d'email de confirmation. Le compte est actif immédiatement. Si quelqu'un dit "j'attends un email", dis-lui que ça n'existe pas sur WOZALI - c'est voulu pour ne pas bloquer les gens.</div>
+        </div>
+
+        <div class="critical-box">
+          <p><strong>Si le message "email déjà utilisé" apparaît :</strong> la personne a peut-être déjà un compte. Clique sur "Se connecter" et essaie avec cet email. Si elle ne se souvient pas de son mot de passe, utilise "Mot de passe oublié".</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header">
+        <span class="step-number">ETAPE 02</span>
+        <span class="step-title">Compléter le profil de base</span>
+        <span class="step-time">2 min</span>
+      </div>
+      <div class="step-body">
+        <div class="action-line">
+          <div class="action-icon">A</div>
+          <div class="action-text"><strong>Métier principal :</strong> liste déroulante. Aide-les à choisir le bon terme. Si leur métier n'est pas exactement dans la liste, prends le plus proche. Un électricien peut choisir "Électricien" ou "Artisan bâtiment" selon ce qui correspond le mieux à ce qu'il fait le plus souvent.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">B</div>
+          <div class="action-text"><strong>Nom complet :</strong> leur vrai nom, tel qu'ils veulent être trouvés. Certains sont mieux connus par leur surnom dans le quartier. C'est acceptable d'utiliser le nom sous lequel les clients les cherchent.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">C</div>
+          <div class="action-text"><strong>Numéro WhatsApp :</strong> c'est par là que les clients vont les contacter. Doit être actif. Vérifie qu'ils tapent le bon numéro avec l'indicatif pays si nécessaire (+228 pour Togo, +229 pour Bénin).</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">D</div>
+          <div class="action-text"><strong>Ville et quartier :</strong> sélectionner leur ville (Lomé ou Cotonou), puis leur quartier précis. C'est ce qui détermine dans quelles recherches locales ils apparaissent. Si leur quartier n'est pas listé, choisir le quartier adjacent le plus proche.</div>
+        </div>
+
+        <h3>La description courte</h3>
+        <p>2 à 3 phrases sur ce qu'ils font, leur zone d'intervention, leur spécialité. Aide-les à formuler. La plupart des artisans ne savent pas quoi écrire. Pose-leur ces questions et écris à partir de leurs réponses :</p>
+        <ul>
+          <li>"Tu fais quoi exactement comme travail ?"</li>
+          <li>"Tu travailles dans quel secteur géographique ?"</li>
+          <li>"T'as une spécialité, quelque chose que tu fais particulièrement bien ?"</li>
+        </ul>
+
+        <div class="step-body" style="padding:0;margin-top:12px;">
+          <p style="font-style:italic;font-size:14px;background:#f5f0e8;padding:14px 18px;border-radius:4px;border-left:3px solid #14100A;">"Coiffeuse à Bè depuis 5 ans. Spécialiste tresses africaines et soins capillaires. Intervention à domicile possible sur Lomé."</p>
+        </div>
+
+        <p>C'est suffisant. Court, précis, informatif. Pas besoin d'un paragraphe entier.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header">
+        <span class="step-number">ETAPE 03</span>
+        <span class="step-title">La photo de profil</span>
+        <span class="step-time">1 min</span>
+      </div>
+      <div class="step-body">
+        <p>La photo de profil est fortement recommandée mais pas obligatoire pour commencer. Un profil avec photo reçoit nettement plus de contacts qu'un profil sans. Encourage-les à en mettre une maintenant.</p>
+
+        <div class="action-line">
+          <div class="action-icon">A</div>
+          <div class="action-text"><strong>Option 1 - Photo depuis la galerie :</strong> s'ils ont une bonne photo d'eux sur leur téléphone, c'est le plus rapide. Clique "Choisir une photo", sélectionne dans la galerie, recadre si nécessaire.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">B</div>
+          <div class="action-text"><strong>Option 2 - Prendre une photo maintenant :</strong> fais-les se placer face à la lumière (fenêtre ou extérieur), prends la photo depuis leur téléphone. Vérifie que le visage est bien visible, que l'arrière-plan n'est pas encombré.</div>
+        </div>
+
+        <div class="highlight">
+          <p>Pour les artisans : une photo en train de travailler fonctionne bien aussi. Un mécanicien avec ses outils, une coiffeuse en train de coiffer (avec accord de la cliente). Ça montre le métier directement.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header">
+        <span class="step-number">ETAPE 04</span>
+        <span class="step-title">La géolocalisation - étape critique</span>
+        <span class="step-time">30 secondes</span>
+      </div>
+      <div class="step-body">
+        <p>C'est le moment le plus important de toute l'inscription. La géolocalisation permet à WOZALI de placer l'artisan dans les résultats de recherche par zone. Sans elle, son profil existe mais n'apparaît pas dans les recherches locales.</p>
+
+        <div class="critical-box">
+          <p><strong>Quand le navigateur demande "Autoriser wozali.africa à accéder à votre position ?" - il faut TOUJOURS cliquer "Autoriser".</strong> C'est à ce moment précis que tu dois être là pour dire "clique sur Autoriser". Ne rate pas ce moment. C'est la seule chose que tu ne peux pas rattraper facilement après.</p>
+        </div>
+
+        <h3>Si la demande de géoloc n'apparaît pas</h3>
+        <p>Le navigateur peut avoir déjà refusé la géolocalisation pour ce site. Dans ce cas :</p>
+        <ul>
+          <li>Sur Chrome : Menu (...) - Paramètres - Confidentialité - Paramètres des sites - Position - cherche wozali.africa - change à "Autoriser"</li>
+          <li>Sur Safari : Réglages - Safari - Position - Demander</li>
+          <li>Solution rapide : vider l'historique du navigateur et recharger la page</li>
+        </ul>
+
+        <div class="highlight">
+          <p>Si la géolocalisation GPS ne fonctionne pas bien à cet endroit, le quartier sélectionné manuellement dans le profil sera utilisé comme position approximative. Ce n'est pas parfait, mais c'est acceptable pour commencer.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header">
+        <span class="step-number">ETAPE 05</span>
+        <span class="step-title">Photos de réalisations</span>
+        <span class="step-time">2 min</span>
+      </div>
+      <div class="step-body">
+        <p>Les photos de réalisations sont ce qui distingue un profil passable d'un profil convaincant. Un client qui hésite entre deux artisans va choisir celui dont il peut voir le travail. C'est valable pour tous les métiers : maçonnerie, coiffure, couture, cuisine, mécanique.</p>
+
+        <div class="action-line">
+          <div class="action-icon">A</div>
+          <div class="action-text"><strong>Demande-leur :</strong> "T'as des photos de ton travail sur ton téléphone ?" La plupart en ont dans leur galerie. Coiffeuses avec des tresses, couturières avec des robes, mécaniciens avec des motos réparées.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">B</div>
+          <div class="action-text"><strong>Upload 1 à 3 photos maximum pour commencer.</strong> Pas besoin de remplir tout le portfolio maintenant. 2 bonnes photos valent mieux que 6 mauvaises. Sélectionne les photos depuis la galerie ou prends-en une maintenant si le travail est visible.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">C</div>
+          <div class="action-text"><strong>Critères d'une bonne photo de réalisation :</strong> bien éclairée, nette, le travail est clairement visible. Pas de photos floues, pas de photos sombres, pas de selfies comme photo de réalisation.</div>
+        </div>
+
+        <h3>Si l'artisan n'a pas de photos maintenant</h3>
+        <p>Dis-lui : "Pas de problème. On finit l'inscription sans photos. Tu pourras en ajouter depuis ton profil n'importe quand, la prochaine fois que tu finis un beau travail." Et assure-toi qu'il sait comment y accéder : Dashboard - Photos - Ajouter.</p>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header">
+        <span class="step-number">ETAPE 06</span>
+        <span class="step-title">Passer au plan Pro</span>
+        <span class="step-time">2 min</span>
+      </div>
+      <div class="step-body">
+        <p>Le plan gratuit existe et il est utile. Le plan Pro à <span class="amount">2 500 FCFA</span> par mois donne une visibilité prioritaire : le profil apparaît en tête des résultats dans son métier et son quartier, les fonctionnalités avancées sont débloquées.</p>
+
+        <div class="action-line">
+          <div class="action-icon">A</div>
+          <div class="action-text">Dans le Dashboard, cliquer sur <strong>"Mon abonnement"</strong> dans le menu latéral gauche.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">B</div>
+          <div class="action-text">Choisir le <strong>Plan Pro</strong>. Le prix affiché est <span class="amount">2 500 FCFA / mois</span>.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">C</div>
+          <div class="action-text"><strong>Payer via Wave, Flooz ou MTN Money.</strong> Les instructions de paiement s'affichent avec un code de référence unique. Le paiement se fait en envoyant le montant au numéro indiqué avec le code de référence en commentaire.</div>
+        </div>
+        <div class="action-line">
+          <div class="action-icon">D</div>
+          <div class="action-text"><strong>L'activation n'est pas instantanée.</strong> Elle est faite manuellement par l'équipe WOZALI après vérification du paiement, généralement dans les 24 heures. Dis-leur qu'ils vont recevoir une confirmation.</div>
+        </div>
+
+        <div class="highlight">
+          <p>Si l'artisan hésite sur le Pro, ne force pas. Le profil gratuit fonctionne déjà. Il peut toujours passer Pro plus tard depuis son dashboard. L'important c'est qu'il soit inscrit et actif.</p>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <h2>Vérifier que le profil est visible</h2>
+      <p>Avant de partir, fais cette vérification avec eux. C'est la preuve concrète que l'inscription a fonctionné.</p>
+
+      <div class="action-line">
+        <div class="action-icon">1</div>
+        <div class="action-text">Va sur la page <strong>"Trouver un pro"</strong> depuis le menu principal.</div>
+      </div>
+      <div class="action-line">
+        <div class="action-icon">2</div>
+        <div class="action-text">Tape leur métier dans la barre de recherche.</div>
+      </div>
+      <div class="action-line">
+        <div class="action-icon">3</div>
+        <div class="action-text">Sélectionne leur quartier dans les filtres.</div>
+      </div>
+      <div class="action-line">
+        <div class="action-icon">4</div>
+        <div class="action-text">Cherche leur nom dans les résultats. Il doit apparaître.</div>
+      </div>
+
+      <div class="critical-box">
+        <p><strong>Si le profil n'apparaît pas immédiatement :</strong> c'est normal, l'indexation peut prendre quelques minutes. Actualise la page. Si après 5 minutes il n'apparaît toujours pas, vérifie que le quartier est bien renseigné dans le profil et que la géolocalisation a été autorisée.</p>
+      </div>
+
+      <p>Quand le profil apparaît dans les résultats, montre-le à l'artisan. C'est le moment le plus important : il voit pour la première fois qu'il existe sur internet. Laisse ce moment exister. Ne parle pas. Laisse-le regarder.</p>
+    </section>
+
+    <section>
+      <h2>Checklist de fin d'inscription</h2>
+      <p>Avant de partir, vérifie ces points un par un :</p>
+
+      <div class="checklist-item">
+        <div class="checkbox"></div>
+        <div class="checklist-text"><strong>Compte créé et connexion vérifiée.</strong> La personne est bien connectée dans l'application, le dashboard est visible.</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checkbox"></div>
+        <div class="checklist-text"><strong>Métier, nom, WhatsApp, ville et quartier renseignés.</strong> Chaque champ doit être rempli. Les champs vides font baisser le Score WOZALI.</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checkbox"></div>
+        <div class="checklist-text"><strong>Géolocalisation autorisée.</strong> Tu as vu la popup d'autorisation et "Autoriser" a été cliqué. Ou tu as vérifié manuellement dans les paramètres du navigateur.</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checkbox"></div>
+        <div class="checklist-text"><strong>Au moins une photo uploadée.</strong> Photo de profil ou photo de réalisation. Idéalement les deux. Si pas de photo maintenant, la personne sait comment en ajouter plus tard.</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checkbox"></div>
+        <div class="checklist-text"><strong>Profil visible dans "Trouver un pro".</strong> Tu as fait la vérification ensemble. Le profil apparaît dans les résultats de recherche.</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checkbox"></div>
+        <div class="checklist-text"><strong>La personne sait comment se reconnecter.</strong> Elle a noté son email/numéro et son mot de passe quelque part. Elle peut accéder au site seule.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Les erreurs courantes et comment les éviter</h2>
+
+      <div class="erreur-row">
+        <div class="erreur-titre">Email déjà utilisé</div>
+        <div class="erreur-texte">La personne a peut-être déjà créé un compte. Clique "Se connecter" et essaie avec cet email. Si elle ne se souvient pas du mot de passe, clique "Mot de passe oublié" et suis les instructions.</div>
+      </div>
+      <div class="erreur-row">
+        <div class="erreur-titre">Géoloc refusée</div>
+        <div class="erreur-texte">Le navigateur a bloqué la position. Va dans les paramètres du navigateur, cherche les autorisations de site, trouve wozali.africa et change à "Autoriser". Recharge la page.</div>
+      </div>
+      <div class="erreur-row">
+        <div class="erreur-titre">Photo qui ne charge pas</div>
+        <div class="erreur-texte">Réseau lent ou photo trop lourde. Essaie avec une photo plus petite (moins de 5 Mo). Ou passe en 4G si tu étais en WiFi faible. Si ça persiste, dis-leur d'ajouter la photo plus tard depuis leur connexion maison.</div>
+      </div>
+      <div class="erreur-row">
+        <div class="erreur-titre">Le profil n'apparaît pas dans les recherches</div>
+        <div class="erreur-texte">Attends 2-3 minutes et actualise. Si toujours pas visible, vérifie que le quartier dans le profil correspond bien à celui sélectionné dans les filtres de recherche. Les deux doivent correspondre exactement.</div>
+      </div>
+      <div class="erreur-row">
+        <div class="erreur-titre">La personne a peur de donner son email</div>
+        <div class="erreur-texte">Certains ne font pas confiance aux sites pour leur email. Propose l'inscription avec le numéro de téléphone à la place. Explique que WOZALI ne vend pas les données et n'envoie pas de spam. Si la peur persiste, propose-leur de créer un email spécifique pour WOZALI.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Ton rôle pendant l'inscription</h2>
+      <p>Tu ne pars pas avant que ces trois choses soient faites :</p>
+      <ol>
+        <li><strong>La géolocalisation a été autorisée.</strong> C'est le point de blocage le plus fréquent et le plus impactant.</li>
+        <li><strong>Au moins une photo est sur le profil.</strong> Photo de profil ou réalisation. Un profil sans photo reçoit beaucoup moins de contacts.</li>
+        <li><strong>Le profil est visible dans les résultats de recherche.</strong> La personne a vu son profil apparaître. Elle a la preuve que ça marche.</li>
+      </ol>
+
+      <div class="highlight">
+        <p>Ces trois points sont non négociables. Tout le reste peut être complété plus tard. Ces trois points, si tu pars sans les avoir faits, l'artisan ne reviendra probablement pas compléter son profil seul.</p>
+      </div>
+
+      <p>Après que ces trois points sont validés, explique-leur en une phrase comment tu pourras les contacter si ils ont des questions. Donne ton numéro. Et dis-leur d'ajouter des photos chaque fois qu'ils terminent un beau travail - c'est ce qui fait monter le Score WOZALI et améliore leur visibilité dans le temps.</p>
+    </section>
+
+    <section>
+      <h2>Récapitulatif minuté</h2>
+
+      <table>
+        <thead>
+          <tr><th>Minute</th><th>Action</th><th>Point de vigilance</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0:00 - 0:30</td>
+            <td>Ouverture wozali.africa, vérification réseau</td>
+            <td>Réseau suffisant ? Sinon reporter.</td>
+          </tr>
+          <tr>
+            <td>0:30 - 2:00</td>
+            <td>Création compte : email/numéro + mot de passe</td>
+            <td>Email déjà utilisé ? Essayer connexion.</td>
+          </tr>
+          <tr>
+            <td>2:00 - 4:00</td>
+            <td>Profil : métier, nom, WhatsApp, ville, quartier, description</td>
+            <td>Quartier exact, numéro WhatsApp vérifié.</td>
+          </tr>
+          <tr>
+            <td>4:00 - 4:30</td>
+            <td>Géolocalisation : autoriser la position</td>
+            <td>Ne pas rater la popup. Autoriser immédiatement.</td>
+          </tr>
+          <tr>
+            <td>4:30 - 6:30</td>
+            <td>Upload photos (profil + 1-2 réalisations)</td>
+            <td>Photos nettes et lumineuses. Pas de photos floues.</td>
+          </tr>
+          <tr>
+            <td>6:30 - 7:30</td>
+            <td>Vérification : chercher le profil dans "Trouver un pro"</td>
+            <td>Le profil doit apparaître. Sinon attendre 2 min et réactualiser.</td>
+          </tr>
+          <tr>
+            <td>7:30 - 9:00</td>
+            <td>Présentation Plan Pro si intéressé</td>
+            <td>Ne pas forcer. Gratuit = déjà bien.</td>
+          </tr>
+          <tr>
+            <td>9:00 - 10:00</td>
+            <td>Checklist finale, donner ton contact, au revoir</td>
+            <td>3 points non négociables validés avant de partir.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">DOC 15 - INSCRIPTION PAS A PAS</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

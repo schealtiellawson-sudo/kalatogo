@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comment fonctionne WOZALI de A à Z — Formation WOZALI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    font-family: 'Geist', sans-serif;
+    color: #1a1008;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 24px rgba(20,16,10,0.10);
+  }
+
+  .header {
+    background: #14100A;
+    border-bottom: 3px solid #E8940A;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: #E8940A;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    font-style: normal;
+    color: #FCE0A8;
+  }
+
+  .doc-type {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .content {
+    padding: 48px 40px;
+  }
+
+  .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #14100A;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #6b5c45;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #14100A;
+    border-left: 3px solid #E8940A;
+    padding-left: 12px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #14100A;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 16px;
+  }
+
+  .warning-box {
+    background: #fff8ee;
+    border: 1px solid #E8940A;
+    border-left: 4px solid #E8940A;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .warning-box .warning-title {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .warning-box p {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  thead {
+    background: #14100A;
+  }
+
+  thead th {
+    color: #FCE0A8;
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e8e0d0;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  tr:nth-child(even) {
+    background: #faf8f3;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: #e8e0d0;
+    margin: 40px 0;
+  }
+
+  /* Utilisateurs grid */
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .user-card {
+    background: #faf8f3;
+    border: 1px solid #e8e0d0;
+    border-top: 3px solid #E8940A;
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .user-card .user-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .user-card .user-title {
+    font-family: 'Geist', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #14100A;
+    margin-bottom: 8px;
+  }
+
+  .user-card p {
+    font-size: 13px;
+    color: #6b5c45;
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+
+  /* Score breakdown */
+  .score-rows {
+    margin: 20px 0;
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e8e0d0;
+  }
+
+  .score-row:last-child {
+    border-bottom: none;
+  }
+
+  .score-pts {
+    font-family: 'Geist Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: #E8940A;
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .score-detail {
+    flex: 1;
+  }
+
+  .score-detail .score-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #14100A;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .score-detail .score-desc {
+    font-size: 13px;
+    color: #6b5c45;
+  }
+
+  .score-bar-bg {
+    width: 80px;
+    height: 6px;
+    background: #e8e0d0;
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    background: #E8940A;
+    border-radius: 3px;
+  }
+
+  /* Inscription steps */
+  .steps {
+    counter-reset: steps;
+    margin: 20px 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid #e8e0d0;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    background: #14100A;
+    color: #E8940A;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content .step-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #14100A;
+    margin-bottom: 6px;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    margin-bottom: 0;
+    color: #2d1f0e;
+  }
+
+  /* Profil simulé */
+  .profile-mockup {
+    background: #faf8f3;
+    border: 1px solid #e8e0d0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+
+  .profile-mockup-header {
+    background: #14100A;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mockup-dot {
+    width: 10px;
+    height: 10px;
+    background: #E8940A;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  .mockup-dot:first-child { opacity: 1; }
+
+  .mockup-url {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    margin-left: 8px;
+    opacity: 0.6;
+  }
+
+  .profile-mockup-body {
+    padding: 24px;
+  }
+
+  .profile-top {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #E8940A, #14100A);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FCE0A8;
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .profile-info .profile-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: #14100A;
+    margin-bottom: 2px;
+  }
+
+  .profile-info .profile-meta {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #6b5c45;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .profile-score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #14100A;
+    color: #E8940A;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .profile-photos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .profile-photo-placeholder {
+    aspect-ratio: 1;
+    background: #e8e0d0;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  /* Bourses cards */
+  .bourses-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .bourse-card {
+    background: #14100A;
+    color: #FCE0A8;
+    border-radius: 4px;
+    padding: 24px;
+  }
+
+  .bourse-card .bourse-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #E8940A;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .bourse-card .bourse-name {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #FCE0A8;
+    opacity: 0.7;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .bourse-card p {
+    font-size: 13px;
+    color: #FCE0A8;
+    opacity: 0.85;
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+
+  .footer {
+    background: #14100A;
+    border-top: 2px solid #E8940A;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left, .footer-right {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">Document 02 / 05</div>
+    <h1>Comment fonctionne WOZALI de A à Z</h1>
+    <p class="subtitle">Ce document est ta carte complète de la plateforme. Lis-le une fois en entier. Reviens dessus avant chaque terrain. Plus tu connais le produit, plus tu convaincras vite, parce que tu auras une réponse précise à chaque question d'un artisan.</p>
+
+    <h2>Les 3 types d'utilisateurs</h2>
+    <p>WOZALI est organisé autour de trois rôles distincts. Comprendre qui fait quoi t'aide à expliquer la plateforme sans confusion.</p>
+
+    <div class="users-grid">
+      <div class="user-card">
+        <span class="user-icon">🔨</span>
+        <div class="user-title">Les Membres (pros)</div>
+        <p>Artisans, commerçants, prestataires de services. Ils créent un profil, affichent leur métier et leur quartier, et sont trouvés par des clients. C'est eux que tu recrutes sur le terrain.</p>
+      </div>
+      <div class="user-card">
+        <span class="user-icon">🔍</span>
+        <div class="user-title">Les Clients</div>
+        <p>Particuliers ou entreprises qui cherchent un professionnel. Ils ouvrent WOZALI, tapent un métier, et voient les profils disponibles près d'eux. Aucune inscription requise pour chercher.</p>
+      </div>
+      <div class="user-card">
+        <span class="user-icon">🌟</span>
+        <div class="user-title">Les Pionniers (toi)</div>
+        <p>Vous recrutez des membres sur le terrain, les aidez à créer leur profil, et les accompagnez vers le Plan Pro. Vous êtes la force terrain de WOZALI sur Lomé et Cotonou.</p>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2>Le flux complet : de l'inscription à la visibilité</h2>
+    <p>Voici exactement ce qui se passe quand tu aides un artisan à s'inscrire. Chaque étape compte. Sauter une étape, c'est laisser un profil incomplet, ce qui réduit son Score et donc sa visibilité.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Création du compte</div>
+          <p>L'artisan ouvre wozali.africa depuis son téléphone. Il entre son numéro de téléphone et choisit un mot de passe. Pas d'email requis, pas de vérification par lien. En Afrique, le téléphone est l'identité. En 2 minutes, le compte est créé.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Complétion du profil</div>
+          <p>C'est l'étape la plus importante et celle où tu dois rester à côté de lui. Nom complet, photo de profil (idéalement au travail, pas un selfie classique), description de ses services en 2-3 phrases, métier principal, années d'expérience, langues parlées. Un profil complet donne directement 30 points de Score WOZALI.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Géolocalisation et quartier</div>
+          <p>Il choisit sa ville (Lomé ou Cotonou) puis son quartier précis. Il active ensuite la géolocalisation depuis son navigateur. Cette étape est critique : sans géoloc, son profil n'apparaît pas dans les recherches locales. Voir le Document 03 pour le détail complet de cette étape.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Ajout de photos de réalisations</div>
+          <p>Avant de quitter l'artisan, aide-le à uploader au moins 2 photos de son travail. Une coiffeuse : photos de tresses réalisées. Un soudeur : photos de grilles ou portails fabriqués. Un pâtissier : photos de ses gâteaux. Ces photos augmentent le Score et donnent confiance aux clients.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Activation du Plan Pro</div>
+          <p>C'est le moment où ta commission est déclenchée. L'artisan passe au Plan Pro (2 500 FCFA/mois) via Wave, Orange Money ou MTN. Dès que le paiement est validé, il passe en priorité dans les recherches. Et toi, tu reçois 1 000 FCFA de commission.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>Profil type : à quoi ressemble un bon profil</h2>
+    <p>Voici la représentation d'un profil WOZALI complet. C'est ce que voit un client quand il clique sur un membre. Ton rôle est de faire en sorte que chaque profil que tu crées ressemble à ça, pas à un profil vide avec juste un nom.</p>
+
+    <div class="profile-mockup">
+      <div class="profile-mockup-header">
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+        <div class="mockup-url">wozali.africa/profil/aminata-cotonou</div>
+      </div>
+      <div class="profile-mockup-body">
+        <div class="profile-top">
+          <div class="profile-avatar">A</div>
+          <div class="profile-info">
+            <div class="profile-name">Aminata Dossou</div>
+            <div class="profile-meta">Couturiere - Akpakpa, Cotonou</div>
+            <div class="profile-score-badge">
+              Score WOZALI : 87 / 100
+            </div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#6b5c45;margin-bottom:12px;">Couturiere specialisee en broderie, pagnes traditionnels et tenues de ceremonie. 14 ans d'experience, travail soigne, delais respectes. Disponible du lundi au samedi.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+          <span style="background:#faf8f3;border:1px solid #e8e0d0;padding:4px 10px;border-radius:2px;font-size:12px;color:#14100A;">Tenues ceremonie</span>
+          <span style="background:#faf8f3;border:1px solid #e8e0d0;padding:4px 10px;border-radius:2px;font-size:12px;color:#14100A;">Broderie</span>
+          <span style="background:#faf8f3;border:1px solid #e8e0d0;padding:4px 10px;border-radius:2px;font-size:12px;color:#14100A;">Pagne traditionnel</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+          <span style="color:#E8940A;font-size:14px;">★★★★★</span>
+          <span style="font-size:13px;color:#6b5c45;">4.8 / 5 - 31 avis clients</span>
+        </div>
+        <div class="profile-photos">
+          <div class="profile-photo-placeholder">👗</div>
+          <div class="profile-photo-placeholder">🪡</div>
+          <div class="profile-photo-placeholder">✂️</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2>Le Score WOZALI : comment il est calculé</h2>
+    <p>Le Score est le coeur de la plateforme. Il détermine qui apparaît en premier dans les résultats de recherche. Pas d'argent versé pour monter dans les résultats : seul le travail réel compte. Voici comment les 100 points sont répartis.</p>
+
+    <div class="score-rows">
+      <div class="score-row">
+        <div class="score-pts">30 pts</div>
+        <div class="score-detail">
+          <span class="score-name">Profil complet</span>
+          <span class="score-desc">Photo, description, métier, quartier, langues, expérience. Chaque champ manquant réduit ce score.</span>
+        </div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">25 pts</div>
+        <div class="score-detail">
+          <span class="score-name">Note des clients</span>
+          <span class="score-desc">Moyenne des étoiles laissées par les clients (de 1 à 5). Une note 5 étoiles constante = score maximum.</span>
+        </div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:83%"></div></div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">15 pts</div>
+        <div class="score-detail">
+          <span class="score-name">Nombre d'avis</span>
+          <span class="score-desc">Chaque avis client compte. 10 avis ou plus = score maximum sur ce critère.</span>
+        </div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:50%"></div></div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">10 pts</div>
+        <div class="score-detail">
+          <span class="score-name">Photos de réalisations</span>
+          <span class="score-desc">Au moins 3 photos de travaux réels. Sans photos, les clients n'ont aucune preuve visuelle de la qualité.</span>
+        </div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:33%"></div></div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">10 pts</div>
+        <div class="score-detail">
+          <span class="score-name">Activité récente</span>
+          <span class="score-desc">Le compte doit avoir eu une activité (connexion, mise à jour) dans les 14 derniers jours.</span>
+        </div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:33%"></div></div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">10 pts</div>
+        <div class="score-detail">
+          <span class="score-name">Vues du profil</span>
+          <span class="score-desc">Plus un profil est consulté, plus WOZALI le considère pertinent. La visibilité crée de la visibilité.</span>
+        </div>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:33%"></div></div>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <div class="warning-title">Ce que tu dois expliquer sur le terrain</div>
+      <p>Le Score, c'est l'argument principal pour convaincre un artisan de compléter son profil correctement. Dis-lui : "Si tu remplis tout maintenant, ton Score démarre à 40 points minimum. Si tu laisses des champs vides, tu pars avec 10 points et tu disparais dans les résultats." C'est concret et actionnable immédiatement.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2>Plan Gratuit vs Plan Pro : les différences concrètes</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fonctionnalité</th>
+          <th>Gratuit</th>
+          <th>Pro - 2 500 FCFA/mois</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Profil public visible</td>
+          <td>Oui</td>
+          <td>Oui</td>
+        </tr>
+        <tr>
+          <td>Position dans les résultats</td>
+          <td>Après les membres Pro, trié par Score</td>
+          <td>En priorité, avant tous les Gratuits</td>
+        </tr>
+        <tr>
+          <td>Photos de réalisations</td>
+          <td>3 photos max</td>
+          <td>Illimité</td>
+        </tr>
+        <tr>
+          <td>Accès WOZALI Jobs</td>
+          <td>Non</td>
+          <td>Oui - chercher et publier des offres</td>
+        </tr>
+        <tr>
+          <td>Éligibilité Bourse de Croissance</td>
+          <td>Non</td>
+          <td>Oui (avec Score >= 80)</td>
+        </tr>
+        <tr>
+          <td>Éligibilité Bourse des Mains d'Or</td>
+          <td>Non</td>
+          <td>Oui (femmes, coiffure/couture)</td>
+        </tr>
+        <tr>
+          <td>Badge "Pro" visible sur le profil</td>
+          <td>Non</td>
+          <td>Oui - signal de sérieux pour les clients</td>
+        </tr>
+        <tr>
+          <td>Statistiques du profil</td>
+          <td>Non</td>
+          <td>Oui - vues, contacts, évolution Score</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>WOZALI Jobs</h2>
+    <p>En plus du profil public, les membres Pro ont accès à WOZALI Jobs : un espace d'offres d'emploi locales, filtrées par métier et par quartier. Un boulanger de Bè peut chercher un apprenti cuisinier à Bè. Un atelier de couture à Akpakpa peut publier une offre pour un tailleur expérimenté.</p>
+
+    <p>WOZALI Jobs fonctionne dans les deux sens. Un Pro peut chercher du travail et postuler à des offres. Il peut aussi publier une offre s'il cherche quelqu'un pour son activité. C'est un argument fort pour les artisans qui gèrent une petite équipe ou qui cherchent à grandir.</p>
+
+    <p>Quand tu parles de WOZALI Jobs sur le terrain, souligne ce point : ce n'est pas uniquement pour les employés. Un cordonnier qui cherche un apprenti peut publier son offre et recevoir des candidatures directement dans son dashboard. Ça vaut le Plan Pro à lui seul pour beaucoup de petits patrons de quartier.</p>
+
+    <div class="section-divider"></div>
+
+    <h2>Les récompenses mensuelles</h2>
+    <p>Ce sont les deux bourses distribuées chaque mois aux membres Pro actifs et performants. Le premier tirage aura lieu le <strong>28 août 2026</strong>, dernier vendredi d'août. Ensuite, le tirage a lieu le 30 de chaque mois.</p>
+
+    <div class="bourses-grid">
+      <div class="bourse-card">
+        <span class="bourse-amount">300 000 FCFA</span>
+        <span class="bourse-name">Bourse de Croissance</span>
+        <p>1 gagnant par mois, tous métiers confondus. Réservée aux membres Pro avec un Score WOZALI de 80 ou plus et au moins 3 avis ce mois-là.</p>
+      </div>
+      <div class="bourse-card">
+        <span class="bourse-amount">200 000 FCFA</span>
+        <span class="bourse-name">Bourse des Mains d'Or</span>
+        <p>100 000 FCFA chacune pour 2 femmes : 1 gagnante à Lomé, 1 gagnante à Cotonou. Réservée aux femmes exerçant en coiffure ou couture.</p>
+      </div>
+    </div>
+
+    <p style="margin-top:8px;"><strong>Total distribué : 500 000 FCFA par mois.</strong> Ce chiffre est fixe et ne change pas. Ni 600 000, ni 800 000 : toujours 500 000 FCFA.</p>
+
+    <div class="warning-box">
+      <div class="warning-title">Comment présenter les récompenses sur le terrain</div>
+      <p>Les récompenses ne sont pas la promesse principale. Elles sont un bonus. L'argument principal reste la visibilité et les clients. Présente les récompenses en fin de conversation, comme un avantage supplémentaire : "Et en plus, si tu travailles bien et que ton profil est actif, tu peux être tiré au sort pour gagner jusqu'à 300 000 FCFA en août." Jamais en ouverture, jamais comme la raison principale de s'inscrire.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">Formation Pionniers - Lancement 1er juillet 2026</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+</div>
+</body>
+</html>

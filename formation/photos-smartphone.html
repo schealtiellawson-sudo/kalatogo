@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Prendre de bonnes photos avec un smartphone — Formation Pionnier</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 32px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+.step-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.step-card { background: #faf8f3; border: 1px solid #e8e0d0; border-radius: 4px; padding: 16px; }
+.step-card .step-num { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.step-card p { margin-bottom: 0; font-size: 14px; }
+.badge { display: inline-block; background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; margin-right: 6px; }
+.metier-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.metier-card { flex: 1; min-width: 140px; background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 4px; padding: 14px 16px; }
+.metier-card .metier-nom { font-family: 'DM Serif Display', serif; font-size: 14px; color: #14100A; margin-bottom: 4px; }
+.metier-card p { font-size: 13px; margin-bottom: 0; color: #5a4030; }
+.exercice { background: #14100A; color: #FCE0A8; border-radius: 4px; padding: 20px 24px; margin: 20px 0; }
+.exercice .ex-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #E8940A; margin-bottom: 8px; }
+.exercice p { color: #FCE0A8; font-size: 14px; margin-bottom: 0; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionnier - Document 16</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">DOC-16 / PHOTOS-SMARTPHONE</div>
+    <div class="doc-title">Prendre de bonnes photos avec un smartphone</div>
+
+    <section>
+      <h2>Pourquoi les photos font toute la différence</h2>
+      <p>Sur WOZALI, la première chose qu'un client voit, c'est la photo du pro. Avant de lire le métier, avant de regarder le quartier, avant de voir la note. La photo décide si le client continue ou clique sur le profil d'à côté.</p>
+      <p>Les chiffres sont sans appel : un profil avec une photo de profil nette et au moins deux photos de réalisations reçoit <strong>3 à 5 fois plus de contacts</strong> qu'un profil sans photo. C'est la différence entre 0 appel par semaine et 3 à 4 appels. Pour quelqu'un qui cherche des clients, cette différence est immense.</p>
+      <p>Quand tu inscris un nouveau membre, ton travail n'est pas terminé au moment où le compte est créé. Il est terminé quand le profil a une photo nette, et quand au moins deux photos de réalisations sont uploadées. Avant ça, le profil est invisible dans les résultats de recherche et la commission que tu as gagnée ne produira aucun résultat pour le membre.</p>
+      <div class="highlight">
+        <p>Règle Pionnier : ne quitte jamais un nouveau membre sans avoir pris au moins une photo de profil et une photo de réalisation avec lui, sur place, pendant l'inscription.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>La photo de profil - les règles de base</h2>
+      <p>La photo de profil représente le pro. Elle doit inspirer confiance immédiatement. Pour cela, quelques règles simples que tu dois appliquer avec chaque nouveau membre.</p>
+      <p><strong>La lumière naturelle est ton meilleure alliée.</strong> Trouve une fenêtre ou sors dehors. La lumière naturelle donne un rendu doux et naturel que l'appareil photo du téléphone gère très bien. La lumière artificielle de plafond, elle, crée des ombres disgracieuses sous les yeux et le nez.</p>
+      <p><strong>Le fond doit être neutre.</strong> Un mur clair suffit. Blanc, beige, gris clair. L'important c'est que rien ne distrait derrière la personne. Si tu es dans l'atelier d'un mécanicien avec des pneus et des outils partout derrière lui, demande-lui de se mettre devant un mur propre ou de sortir dans la rue.</p>
+      <p><strong>Le visage doit être net.</strong> Zoom sur le visage, laisse apparaître les épaules. Ne prends pas la personne en pied pour une photo de profil - on ne verra rien sur un petit écran de téléphone. Tiens le téléphone steady, attends que l'autofocus se fixe (le petit carré sur l'écran), puis appuie.</p>
+      <p><strong>Le sourire.</strong> Demande à la personne de sourire naturellement. Dis-lui quelque chose de drôle si besoin. Un sourire franc inspire confiance. Un visage fermé fait fuir.</p>
+    </section>
+
+    <section>
+      <h2>Les photos de réalisations - montrer le travail concret</h2>
+      <p>Les photos de réalisations sont encore plus importantes que la photo de profil pour certains métiers. Elles répondent à la question que chaque client se pose : "Est-ce qu'il sait vraiment faire son travail ?"</p>
+      <p>Une coiffeuse peut avoir le plus beau sourire du monde sur sa photo de profil. Ce qui convainc le client, c'est de voir la coupe terminée, bien propre, bien finie. Un mécanicien peut avoir l'air sérieux - ce qui convainc, c'est la moto réparée, propre, fonctionnelle. Une couturière - c'est la robe cousue, sans défaut visible, portée ou bien présentée.</p>
+      <p>Demande au membre de te montrer son meilleur travail récent. S'il n'a rien sous la main au moment de l'inscription, prends au moins une photo de son outil de travail ou de son espace de travail bien rangé. C'est toujours mieux que rien.</p>
+    </section>
+
+    <section>
+      <h2>Les 3 erreurs les plus courantes à éviter</h2>
+      <p>Sur les dizaines de profils que tu vas créer, tu verras les mêmes erreurs revenir. Apprends à les reconnaître et à les corriger tout de suite.</p>
+      <ol>
+        <li><strong>Le contre-jour.</strong> C'est l'erreur numéro 1. La personne est assise devant une fenêtre, et toi tu la photographies face à cette fenêtre. Résultat : la personne est noire et le fond est surexposé. Solution simple : fais pivoter la personne de 180 degrés pour que la lumière de la fenêtre tombe sur son visage, pas dans ton objectif.</li>
+        <li><strong>La photo floue.</strong> Ça arrive quand la main bouge au moment de l'appui, ou quand l'autofocus n'a pas eu le temps de se fixer. Solution : attend que le carré de mise au point soit stable sur le visage, appuie doucement - ne "snap" pas - et tiens le téléphone à deux mains.</li>
+        <li><strong>La photo trop sombre.</strong> À l'intérieur sans lumière naturelle, l'appareil galère. Ne pas utiliser le flash frontal - il aplatit le visage et donne un rendu froid. Cherche la lumière naturelle la plus proche ou sors.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Quand photographier - la lumière selon l'heure</h2>
+      <p>Au Togo et au Bénin, la lumière varie beaucoup selon l'heure. Les meilleurs moments pour prendre des photos en extérieur :</p>
+      <ul>
+        <li><strong>Tôt le matin (6h30 - 9h) :</strong> lumière dorée, douce, aucune ombre dure. Idéal pour les portraits. Si tu passes dans les marchés le matin, profites-en.</li>
+        <li><strong>Fin d'après-midi (16h - 18h) :</strong> même qualité de lumière qu'au matin. Les ombres redeviennent douces.</li>
+        <li><strong>Éviter le milieu de journée (11h - 14h) :</strong> le soleil est directement au-dessus. Les ombres tombent sous les yeux, le nez, le menton. Résultat peu flatteur, même avec un bon téléphone.</li>
+      </ul>
+      <p>À l'intérieur, la règle reste la même : cherche toujours la fenêtre la plus proche et place le sujet face à elle (pas dos à elle).</p>
+    </section>
+
+    <section>
+      <h2>Le fond - un principe simple</h2>
+      <p>Un fond simple met le sujet en valeur. Un fond chargé noie le sujet. C'est aussi simple que ça.</p>
+      <p>Avant de prendre la photo, regarde ce qu'il y a derrière la personne. Est-ce qu'il y a des câbles, des sacs, des cartons, d'autres personnes ? Si oui, déplace-toi, ou demande à la personne de se déplacer. Quelques pas peuvent changer tout le résultat.</p>
+      <p>Les meilleurs fonds : un mur uni (blanc, beige, gris), une porte peinte, un rideau, une devanture propre. À défaut, une rue avec de la profondeur derrière (flou naturel si tu zoomes un peu).</p>
+      <div class="highlight">
+        <p>Astuce Pionnier : si le fond est encombré mais que tu n'as pas d'alternative, rapproche-toi du sujet et zoome un peu. Plus tu es proche, plus le fond sera flou et moins il sera distrayant.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Photos par métier - guide rapide</h2>
+      <div class="metier-row">
+        <div class="metier-card">
+          <div class="metier-nom">Coiffeuse / Coiffeur</div>
+          <p>Photo de la coupe terminée, gros plan propre. Avant/après si possible. Fond neutre derrière la tête de la cliente.</p>
+        </div>
+        <div class="metier-card">
+          <div class="metier-nom">Couturier / Couturière</div>
+          <p>La tenue sur cintre ou portée par un modèle. Fond clair. Gros plan sur les finitions si c'est soigné.</p>
+        </div>
+        <div class="metier-card">
+          <div class="metier-nom">Mécanicien moto / auto</div>
+          <p>La moto ou la voiture réparée, propre. Pas l'atelier en désordre. Le pro peut poser à côté fièrement.</p>
+        </div>
+        <div class="metier-card">
+          <div class="metier-nom">Restaurateur / Traiteur</div>
+          <p>Le plat préparé, bien présenté, bien éclairé. Vue du dessus ou légèrement de côté. Fond propre.</p>
+        </div>
+      </div>
+      <div class="metier-row">
+        <div class="metier-card">
+          <div class="metier-nom">Commerçant / Marchande</div>
+          <p>L'étal propre et bien organisé, ou un produit bien mis en valeur sur fond neutre.</p>
+        </div>
+        <div class="metier-card">
+          <div class="metier-nom">Maçon / Peintre</div>
+          <p>Le mur peint ou le mur construit, propre et terminé. Pas le chantier en cours de travaux.</p>
+        </div>
+        <div class="metier-card">
+          <div class="metier-nom">Électricien / Plombier</div>
+          <p>Le tableau électrique propre ou l'installation terminée. La robinetterie installée sans coulures.</p>
+        </div>
+        <div class="metier-card">
+          <div class="metier-nom">Photographe</div>
+          <p>Ses meilleures photos - peut uploader directement depuis sa galerie. Son portfolio parle pour lui.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Comment uploader depuis le téléphone sur WOZALI</h2>
+      <p>Une fois les photos prises, l'upload se fait directement depuis le dashboard WOZALI. Voici les étapes à suivre avec le nouveau membre :</p>
+      <ol>
+        <li>Le membre se connecte à son compte sur wozali.africa depuis le navigateur de son téléphone.</li>
+        <li>Dans son tableau de bord, il clique sur son nom ou sur "Modifier mon profil".</li>
+        <li>Pour la photo de profil : cliquer sur le cercle avatar en haut, puis "Changer ma photo". L'appareil photo ou la galerie s'ouvre.</li>
+        <li>Sélectionner la photo prise ou la galerie - un outil de recadrage apparaît pour ajuster le cadrage en carré.</li>
+        <li>Pour les photos de réalisations : section "Mes photos" dans le dashboard, bouton "Ajouter une photo".</li>
+        <li>Répéter pour 2 à 3 photos de réalisations. 3 photos minimum est l'objectif.</li>
+      </ol>
+      <div class="highlight">
+        <p>Important : si le téléphone du membre est ancien et que l'upload est lent, utilise une connexion WiFi plutôt que les données mobiles. Certains forfaits sont lents pour les gros fichiers photo.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Google Photos pour améliorer rapidement une photo</h2>
+      <p>Google Photos est gratuit et installé sur la plupart des téléphones Android. Il permet d'améliorer une photo en quelques secondes sans compétences particulières.</p>
+      <ul>
+        <li>Ouvrir Google Photos et sélectionner la photo.</li>
+        <li>Appuyer sur l'icône "Modifier" (les trois curseurs ou le crayon).</li>
+        <li>Cliquer sur "Ajuster" ou "Lumière" : augmenter légèrement la luminosité si la photo est sombre.</li>
+        <li>Augmenter le contraste d'un cran si les couleurs semblent plates.</li>
+        <li>Éviter de trop saturer les couleurs - ça rend la photo artificielle.</li>
+        <li>Appuyer sur "Enregistrer une copie" - ne pas écraser l'original.</li>
+      </ul>
+      <p>Pour iPhone : l'outil "Photos" natif fait la même chose. Ouvrir la photo, appuyer sur "Modifier", régler la luminosité et le contraste avec les curseurs.</p>
+      <p>Ces ajustements simples peuvent transformer une photo passable en photo présentable. Mais ils ne rattrapent pas une photo floue ou en contre-jour - il faut refaire la photo dans ce cas.</p>
+    </section>
+
+    <section>
+      <h2>Ce que tu vérifies avant de partir</h2>
+      <p>Avant de quitter un nouveau membre après l'inscription, vérifie ces 4 points sur son profil :</p>
+      <ol>
+        <li>La photo de profil est nette, le visage est visible, le fond est propre.</li>
+        <li>Au moins 2 photos de réalisations sont uploadées et bien représentatives de son métier.</li>
+        <li>Le profil est visible dans la recherche WOZALI (cherche son métier + son quartier).</li>
+        <li>La géolocalisation est activée (voir le document formation suivant).</li>
+      </ol>
+      <p>Si l'une de ces 4 cases n'est pas cochée, le membre ne convertira pas de clients, et ta commission sera gagnée mais ne génèrera aucun résultat visible. Un profil incomplet = une commission qui ne travaille pas pour toi.</p>
+    </section>
+
+    <div class="exercice">
+      <div class="ex-label">Exercice pratique</div>
+      <p>Avant ta prochaine sortie terrain, prends une photo de toi-même dans les règles : lumière naturelle de côté, fond neutre, visage net, sourire. Upload-la sur ton propre profil WOZALI comme photo de profil. Ce sera ta preuve terrain : si ton propre profil est beau, tu seras crédible quand tu expliqueras l'importance des photos aux nouveaux membres.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">FORMATION PIONNIER WOZALI - DOC 16/20</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

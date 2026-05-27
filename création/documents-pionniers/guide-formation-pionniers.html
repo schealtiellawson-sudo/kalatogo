@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide de Formation - Agents terrain WOZALI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; padding: 40px 20px; }
+  .page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+  .header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+  .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+  .logo span { color: #FCE0A8; font-style: normal; }
+  .doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+  .content { padding: 48px 48px 48px; }
+  .doc-title { font-family: 'DM Serif Display', serif; font-size: 30px; color: #14100A; margin-bottom: 6px; }
+  .doc-sub { font-family: 'Geist Mono', monospace; font-size: 12px; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 36px; }
+  .module {
+    margin-bottom: 44px;
+    border: 1px solid #e8e0d0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .module-header {
+    background: #14100A;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .module-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #FCE0A8; }
+  .module-time { font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8940A; letter-spacing: 1px; }
+  .module-body { padding: 24px 28px; }
+  h3 { font-family: 'DM Serif Display', serif; font-size: 16px; color: #14100A; margin-bottom: 10px; margin-top: 20px; }
+  h3:first-child { margin-top: 0; }
+  p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 10px; }
+  ul, ol { padding-left: 20px; margin-top: 6px; margin-bottom: 10px; }
+  li { font-size: 15px; line-height: 1.7; color: #2a2018; margin-bottom: 5px; }
+  .script-block {
+    background: #faf8f3;
+    border-left: 3px solid #E8940A;
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2a2018;
+    font-style: italic;
+  }
+  .no-script {
+    background: #fff5f5;
+    border-left: 3px solid #c0392b;
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #c0392b;
+    font-style: italic;
+  }
+  .label { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; color: #888; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th { background: #1E180E; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+  td { padding: 10px 14px; font-size: 14px; color: #2a2018; border-bottom: 1px solid #e8e0d0; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #faf8f3; }
+  .amounts { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+  .rule-list { margin-top: 16px; }
+  .rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0e8d8;
+  }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-num { font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8940A; font-weight: 600; flex-shrink: 0; padding-top: 2px; }
+  .rule-text { font-size: 15px; color: #2a2018; line-height: 1.5; }
+  .footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; }
+  .footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; }
+  @media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Guide interne</div>
+  </div>
+  <div class="content">
+    <div class="doc-title">Guide de Formation</div>
+    <div class="doc-sub">Agents terrain WOZALI - Version lancement juillet 2026</div>
+
+    <!-- MODULE 1 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-title">Module 1 - Comprendre WOZALI</div>
+      </div>
+      <div class="module-body">
+        <h3>Ce qu'est WOZALI</h3>
+        <p>WOZALI (lingala : "nous existons") est une plateforme qui rend visibles les commercants, prestataires et independants de Lome et Cotonou. Les gens qui font tourner l'economie locale mais qu'on ne trouve nulle part sur internet.</p>
+        <p>Un profil WOZALI c'est simple : photo, metier, quartier, avis clients. Le Score WOZALI monte avec le travail reel. Plus le score est haut, plus le profil remonte dans les resultats quand quelqu'un cherche un prestataire.</p>
+
+        <h3>Ce que tu representes</h3>
+        <p>Tu n'es pas un vendeur. Tu es un Agent terrain. Tu es la personne qui va voir les gens dans ton quartier et qui les aide a exister sur internet. Ton travail cree de la valeur pour eux avant meme qu'ils paient quoi que ce soit.</p>
+
+        <h3>Ton propre profil WOZALI</h3>
+        <p>Avant de sortir sur le terrain, tu crees ton propre profil WOZALI. Pas un profil "agent terrain". Un vrai profil base sur ce que tu fais ou ce que tu sais faire : coiffeur, livreur, commercial, menuisier, couturier, peu importe.</p>
+        <p>Pourquoi c'est important : quand tu montres la plateforme a quelqu'un, tu ouvres ton propre profil en premier. La personne voit que toi aussi tu es dessus. Ca donne de la credibilite immediatement. Tu ne vends pas quelque chose que tu n'utilises pas toi-meme.</p>
+        <p>Si tu n'as pas de metier particulier a afficher, mets ce qui se rapproche le plus de ce que tu fais : "Animateur commercial", "Conseiller independant", "Coursier". L'essentiel est d'avoir un profil reel et complet avec ta photo.</p>
+
+        <h3>Ce que WOZALI n'est pas</h3>
+        <ul>
+          <li><strong>Pas un MLM.</strong> Pas de reseau de recruteurs. Tu inscris des membres, pas d'autres Agents terrain.</li>
+          <li><strong>Pas une arnaque.</strong> La plateforme est reelle. Le lien fonctionne. Tu peux le montrer sur ton telephone.</li>
+          <li><strong>Pas du travail force.</strong> Si ca ne marche pas dans une rue, tu passes a la suivante.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MODULE 2 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-title">Module 2 - La remuneration</div>
+      </div>
+      <div class="module-body">
+        <h3>D'abord, comprendre les deux plans WOZALI</h3>
+        <p>WOZALI fonctionne avec deux plans d'acces. Tu dois connaitre cette distinction par coeur pour repondre aux questions sur le terrain.</p>
+        <table>
+          <thead><tr><th>Plan</th><th>Prix</th><th>Ce que ca donne</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Gratuit</strong></td><td class="amounts">0 FCFA</td><td>Profil visible, Score WOZALI, access de base. L'ideal pour commencer.</td></tr>
+            <tr><td><strong>Pro</strong></td><td class="amounts">2 500 FCFA/mois</td><td>Profil mis en avant en premier dans les resultats, acces aux fonctionnalites avancees, eligible aux recompenses mensuelles.</td></tr>
+          </tbody>
+        </table>
+        <p>Ton travail en tant qu'agent terrain : inscrire des membres, qu'ils soient sur le plan gratuit ou le plan Pro. La commission vient uniquement des membres Pro actifs que tu inscris via ton lien.</p>
+
+        <h3>Comment tu gagnes ta commission</h3>
+        <p>Tu touches <strong class="amounts">1 000 FCFA</strong> des que quelqu'un que tu as inscrit via ton lien passe au plan Pro et paie.</p>
+        <p>C'est le seul declencheur. La personne paie son plan Pro, ta commission est comptabilisee. Pas de condition supplementaire.</p>
+
+        <h3>Pourquoi 1 000 FCFA ?</h3>
+        <p>Le membre paie 2 500 FCFA pour son plan Pro. Ta commission = <strong>40%</strong> de ce montant, soit 1 000 FCFA. WOZALI garde les 1 500 FCFA restants pour faire tourner la plateforme. C'est transparent : tu connais exactement d'ou vient chaque franc de ta commission.</p>
+
+        <h3>Le bonus Battle : passer a 60%</h3>
+        <p>Chaque mois, les agents terrain sont en competition : equipe Hommes contre equipe Femmes. L'equipe qui inscrit le plus de membres Pro dans le mois gagne un bonus.</p>
+        <p>Si ton equipe gagne ce mois-la, ta commission passe de <strong class="amounts">40%</strong> a <strong class="amounts">60%</strong> pour tous les membres Pro que tu as inscrits ce mois-la. Ca fait <strong class="amounts">1 500 FCFA</strong> au lieu de 1 000 FCFA par membre.</p>
+
+        <h3>Le calcul concret</h3>
+        <table>
+          <thead><tr><th>Membres Pro payes dans le mois</th><th>Mois normal (40%)</th><th>Mois Battle gagne (60%)</th></tr></thead>
+          <tbody>
+            <tr><td>10 membres</td><td class="amounts">10 000 FCFA</td><td class="amounts">15 000 FCFA</td></tr>
+            <tr><td>25 membres</td><td class="amounts">25 000 FCFA</td><td class="amounts">37 500 FCFA</td></tr>
+            <tr><td>50 membres</td><td class="amounts">50 000 FCFA</td><td class="amounts">75 000 FCFA</td></tr>
+            <tr><td>100 membres</td><td class="amounts">100 000 FCFA</td><td class="amounts">150 000 FCFA</td></tr>
+          </tbody>
+        </table>
+        <p>Le paiement arrive le <strong>5 du mois suivant</strong> directement sur ton Mobile Money (Wave, Orange Money, MTN).</p>
+
+        <h3>Ce que tu dois retenir</h3>
+        <ul>
+          <li>Tu n'as pas de fixe. Tes revenus dependent uniquement des membres que tu inscris et qui passent au Pro.</li>
+          <li>Ton travail : inscrire des gens sur WOZALI via ton lien et les convaincre de l'utilite du plan Pro.</li>
+          <li>Le Battle te donne un vrai levier : plus ton equipe inscrit, plus tout le monde gagne davantage ce mois-la.</li>
+          <li>La difference entre 10 000 FCFA et 100 000 FCFA, c'est pas la chance. C'est combien de rues tu as faites dans le mois.</li>
+        </ul>
+        <p style="margin-top:12px; padding:14px 18px; background:#fff8ee; border:1.5px solid #E8940A; border-radius:4px; font-size:14px;"><strong>Important :</strong> tu ne collectes jamais d'argent. Tu n'encaisses rien sur le terrain. Le membre paie directement sur la plateforme. Toi tu recois ta commission separement via Mobile Money.</p>
+      </div>
+    </div>
+
+    <!-- MODULE 3 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-title">Module 3 - L'approche terrain</div>
+      </div>
+      <div class="module-body">
+        <h3>Qui approcher</h3>
+        <p>Toute personne qui travaille et propose un service ou un produit dans ton quartier : coiffeurs, tailleurs, mecaniciens, cuisiniers, electriciens, plombiers, photographes, livreurs, vendeurs de marche, soudeurs, peintres, couturières, patissiers, petits ateliers.</p>
+        <p>Tu n'as pas besoin de connaitre la personne. La majorite de tes approches vont etre vers des inconnus que tu trouves dans leur boutique, leur atelier ou leur stand.</p>
+
+        <h3>La regle d'or avant d'ouvrir la bouche</h3>
+        <p>La personne est en train de travailler. Elle ne t'attend pas. Elle ne te connait pas. Si tu ouvres sur WOZALI, sur une plateforme, sur une inscription, tu perds l'attention en 5 secondes.</p>
+        <p>Tu ouvres toujours sur sa situation. Jamais sur ce que tu vends.</p>
+
+        <h3>L'ouverture : observer d'abord, parler ensuite</h3>
+        <p>Quand tu arrives devant quelqu'un qui travaille, prends 3 secondes pour regarder ce qu'il fait. Puis ouvre avec une observation concrete sur son travail, pas sur toi.</p>
+        <div class="label">Ce qu'on ne dit jamais</div>
+        <div class="no-script">"Bonjour, je represente WOZALI, c'est une plateforme pour les commercants, j'aurais voulu vous presenter..."</div>
+        <div class="label">Ce qu'on dit pour ouvrir</div>
+        <div class="script-block">"Bonjour. Excusez-moi de vous deranger deux minutes. Je vois que vous faites [metier]. Depuis combien de temps vous etes installe ici dans le quartier ?"</div>
+        <p>Laisse repondre. Ecoute vraiment. Ca pose la conversation sur son territoire, pas sur le tien.</p>
+
+        <h3>Les questions qui creent la douleur</h3>
+        <p>Apres cette ouverture, tu poses des questions dans cet ordre. Ne pas les poser toutes en rafale. Laisser la personne repondre a chacune. C'est elle qui doit sentir le probleme, pas toi qui le lui expliques.</p>
+        <div class="script-block">
+          <strong>Question 1</strong><br>
+          "La semaine passee, vous avez eu combien de clients nouveaux ? Des gens qui ne vous connaissaient pas avant ?"<br><br>
+          <em>Laisse repondre. Souvent la reponse est : peu, voire aucun. Tu ne commentes pas encore.</em><br><br>
+          <strong>Question 2</strong><br>
+          "Et ces nouveaux clients, ils vous ont trouve comment ? Ils ont entendu parler de vous par qui ?"<br><br>
+          <em>La plupart du temps : bouche a oreille, proches, voisinage. C'est la le probleme. Tu ne le dis pas encore.</em><br><br>
+          <strong>Question 3</strong><br>
+          "Quelqu'un qui cherche un [metier] dans ce quartier sur son telephone en ce moment, il va tomber sur qui ?"<br><br>
+          <em>Silence. La plupart ne savent pas. Ou ils savent tres bien que ce n'est pas eux. C'est la que tu laisses la reponse faire son effet.</em>
+        </div>
+        <p>Tu n'as pas besoin de commenter. La troisieme question fait tout le travail. La personne realise toute seule que quelqu'un qui cherche son metier sur internet ne la trouve pas.</p>
+
+        <h3>Le pivot : de la douleur a la solution</h3>
+        <p>Seulement apres ces trois questions, et seulement si tu sens que la personne a reagi, tu introduis WOZALI. Pas avant.</p>
+        <div class="script-block">"C'est exactement ce probleme-la que WOZALI resout. C'est une plateforme qui cree un profil pour vous. Quand quelqu'un cherche [metier] dans votre quartier sur son telephone, votre profil apparait en premier. Pas parce que vous avez paye de la publicite. Parce que vous travaillez bien et vos clients vous le disent."</div>
+        <p>Ensuite : "L'inscription est gratuite. Ca prend 5 minutes. On peut le faire maintenant si vous avez le temps."</p>
+
+        <h3>Avant l'inscription : montrer la plateforme</h3>
+        <p>Ne commence pas directement a remplir un formulaire. Prends 2 minutes pour lui montrer ce que ca ressemble concretement.</p>
+        <ul>
+          <li>Ouvre <strong>wozali.africa</strong> sur ton telephone</li>
+          <li>Montre ton propre profil WOZALI ou le profil d'un autre membre inscrit dans le quartier</li>
+          <li>Laisse la personne voir : la photo, le metier, le quartier, les avis clients</li>
+          <li>Dis : "C'est comme ca que ton profil va ressembler. Les gens qui cherchent [metier] vont te trouver comme ca."</li>
+        </ul>
+        <p>Voir un vrai profil de quelqu'un de son quartier ou de son metier coupe la mefiance mieux que n'importe quel discours.</p>
+
+        <h3>L'inscription : deux cas selon la situation</h3>
+
+        <div style="background:#f0faf3; border-left:3px solid #27ae60; padding:16px 20px; border-radius:4px; margin-bottom:16px;">
+          <div style="font-family:'Geist Mono',monospace; font-size:11px; color:#27ae60; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">Cas 1 — La personne a un telephone avec internet</div>
+          <p style="margin-bottom:8px;">Tu lui envoies ton lien d'affiliation directement sur WhatsApp. Elle fait son inscription elle-meme depuis son telephone pendant que tu restes a cote pour guider.</p>
+          <ol style="margin-top:8px;">
+            <li>Tu ouvres WhatsApp, tu lui envoies ton lien de parrainage</li>
+            <li>Elle clique sur le lien depuis son telephone, ton code est automatiquement enregistre</li>
+            <li>Tu l'aides a remplir les informations etape par etape</li>
+            <li>Elle cree son propre mot de passe, depuis son telephone</li>
+          </ol>
+        </div>
+
+        <div style="background:#fff8ee; border-left:3px solid #E8940A; padding:16px 20px; border-radius:4px; margin-bottom:16px;">
+          <div style="font-family:'Geist Mono',monospace; font-size:11px; color:#E8940A; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">Cas 2 — La personne n'a pas de smartphone ou pas d'internet</div>
+          <p style="margin-bottom:8px;">Tu fais l'inscription depuis ton propre telephone. Dans ce cas, tu lui expliques clairement :</p>
+          <p style="margin-bottom:8px; font-style:italic; color:#c97200;">"Je cree ton profil sur mon telephone maintenant. Quand tu auras internet chez toi ou chez quelqu'un, tu vas sur wozali.africa, tu te connectes, et dans ton tableau de bord tu peux changer ton mot de passe. Je te montre ou c'est avant de partir."</p>
+          <ol style="margin-top:8px;">
+            <li>Ouvre <strong>wozali.africa</strong> sur ton telephone avec ton lien de parrainage actif</li>
+            <li>Remplis les informations avec elle : prenom, nom, metier, quartier, numero</li>
+            <li>Cree un mot de passe temporaire simple (ex : son prenom + son numero courts)</li>
+            <li>Note le mot de passe temporaire sur un papier ou envoie-le lui sur WhatsApp</li>
+            <li>Montre-lui dans le dashboard ou se trouve le bouton "Changer mon mot de passe"</li>
+          </ol>
+        </div>
+
+        <h3>Les photos : la partie la plus importante</h3>
+        <p>Un profil sans photo ne sert a rien. Les photos sont ce qui donne confiance aux clients. C'est ce qui fait la difference entre un profil qu'on contacte et un profil qu'on ignore.</p>
+        <p><strong>Ce qu'on recommande :</strong> des photos de son commerce, son atelier, ses realisations, ou la personne elle-meme au travail. Pas une photo de mariage ou une photo floue prise dans le noir.</p>
+        <table>
+          <thead><tr><th>Situation</th><th>Ce qu'on fait</th></tr></thead>
+          <tbody>
+            <tr><td>Elle a des photos sur son telephone</td><td>Elle les choisit elle-meme directement au moment de l'inscription.</td></tr>
+            <tr><td>Elle n'a pas de photos ou elles ne sont pas bonnes</td><td>Tu prends 4 a 5 photos de son commerce, son atelier ou elle au travail avec ton telephone. Tu lui envoies sur WhatsApp. On les utilise directement pour creer le profil.</td></tr>
+            <tr><td>Elle refuse d'etre photographiee</td><td>Photos du lieu, des produits ou du materiel seulement. C'est mieux que rien.</td></tr>
+          </tbody>
+        </table>
+        <p style="font-family:'Geist Mono',monospace; font-size:12px; color:#E8940A; margin-top:12px;">Duree totale : 5 a 10 minutes. Si ca depasse, tu perds la personne.</p>
+
+        <h3>Cas particulier : les marchés (Grand marché d'Adidogomé, Dantokpa, etc.)</h3>
+        <p>Les marchés sont un terrain prioritaire. Des centaines de vendeurs, de couturieres, de cuisinieres, d'artisans qui ont du travail mais qu'on ne trouve pas dans la foule. Beaucoup n'ont pas internet sur leur telephone, certaines n'ont pas de smartphone du tout. Ca ne change rien. Tu fais l'inscription pour elles, sur ton telephone, directement devant leur stand.</p>
+
+        <p>Ce qui change tout dans ce contexte : <strong>la geolocalisation.</strong></p>
+
+        <div style="background:#fff8ee; border:1.5px solid #E8940A; border-radius:6px; padding:18px 22px; margin:12px 0;">
+          <p style="font-size:14px; margin-bottom:8px;"><strong>Ce que fait la geolocalisation :</strong> quand tu inscris une vendeuse depuis son stand au marche, son profil WOZALI est ancre exactement a cet endroit. Un client qui cherche une couturiere au Grand Marche d'Adidogome tombe sur elle et peut localiser son stand precisement. Elle n'est plus perdue dans la foule de 3 000 vendeurs.</p>
+          <p style="font-size:14px; margin-bottom:0;">C'est l'un des arguments les plus forts sur le terrain. A utiliser systematiquement quand tu parles a quelqu'un dans un marche.</p>
+        </div>
+
+        <p><strong>Script d'approche marche :</strong></p>
+        <div class="script-block">"Vous etes ici depuis combien de temps ?"<br><br>Laisser repondre.<br><br>"Est-ce que les gens qui viennent pour la premiere fois au marche, ils savent ou vous trouver ?"<br><br>Laisser repondre.<br><br>"Sur WOZALI, on va prendre votre position exacte maintenant, ici, devant votre stand. Quelqu'un qui cherche [metier] au Grand Marche, il tombe sur votre profil et il voit exactement ou vous etes. C'est gratuit. Ca prend 5 minutes."</div>
+
+        <p><strong>Le protocole complet pour une inscription en marche :</strong></p>
+        <ol>
+          <li>Tu te places exactement devant son stand avant de commencer l'inscription</li>
+          <li>Tu prends 4 a 5 belles photos de son stand, ses produits, sa marchandise — en plein jour, bien cadrees, pas floues</li>
+          <li>Tu fais l'inscription sur ton telephone (Cas 2 — sans smartphone)</li>
+          <li>Au moment de l'inscription, tu actives la geolocalisation sur ton telephone : le profil est ancre a l'endroit exact du stand</li>
+          <li>Tu charges les photos prises directement dans le profil</li>
+          <li>Tu lui montres son profil termine sur ton ecran</li>
+          <li>Tu lui envoies le lien de son profil sur WhatsApp si elle en a un, ou tu le notes sur papier pour elle</li>
+        </ol>
+        <p>Si elle n'a pas WhatsApp, ecris-lui le lien de son profil sur un papier qu'elle garde. Elle pourra le donner a ses clients, a ses enfants, a sa famille pour qu'ils partagent.</p>
+
+        <h3>Les objections courantes</h3>
+        <table>
+          <thead><tr><th>Ce qu'on entend</th><th>Ce qu'on repond</th></tr></thead>
+          <tbody>
+            <tr><td>"C'est quoi l'arnaque ?"</td><td>"Aucune. L'inscription est gratuite. Tu ne paies rien, tu ne me donnes rien. Regarde, je t'ouvre la plateforme maintenant sur mon telephone."</td></tr>
+            <tr><td>"Je n'ai pas de smartphone."</td><td>"On fait l'inscription avec mon telephone. Ton profil sera en ligne. Apres, tu peux y acceder depuis n'importe quel telephone."</td></tr>
+            <tr><td>"Je n'ai pas le temps la."</td><td>"5 minutes. Pas plus. Mais si vraiment c'est pas le bon moment, je repasse demain a quelle heure tu es la ?"</td></tr>
+            <tr><td>"Ca sert a quoi, les gens ne cherchent pas sur internet ici."</td><td>"Les gens qui cherchent un [metier] depuis leur telephone, ils cherchent maintenant. Et si vous n'etes pas la, ils tombent sur quelqu'un d'autre."</td></tr>
+            <tr><td>"C'est pour les grandes entreprises."</td><td>"C'est exactement l'inverse. WOZALI a ete fait pour les gens comme vous, pas pour les grandes boites qui ont deja leur publicite."</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODULE 4 -->
+    <div class="module">
+      <div class="module-header">
+        <div class="module-title">Module 4 - Suivi et resultats</div>
+      </div>
+      <div class="module-body">
+        <h3>Le suivi des membres (dans les 7 premiers jours)</h3>
+        <table>
+          <thead><tr><th>Moment</th><th>Message</th></tr></thead>
+          <tbody>
+            <tr><td>J+1</td><td>Message WhatsApp pour confirmer que le profil est en ligne.</td></tr>
+            <tr><td>J+3</td><td>Message pour verifier si le membre a recu des vues.</td></tr>
+            <tr><td>J+7</td><td>Message pour demander si des clients ont contacte via le profil.</td></tr>
+          </tbody>
+        </table>
+        <p>Trois messages suffisent.</p>
+
+        <h3>Ce que tu remontes dans le groupe chaque semaine</h3>
+        <ul>
+          <li>Nombre de profils crees</li>
+          <li>Objections nouvelles rencontrees</li>
+          <li>Ce qui a bien marche</li>
+          <li>Ce qui a bloque</li>
+        </ul>
+
+        <h3>Le classement mensuel</h3>
+        <p>Le 1er de chaque mois, le fondateur publie le classement des Agents terrain par nombre de membres actifs. Pas pour creer de la pression. Pour identifier ce qui marche et partager les bonnes pratiques.</p>
+      </div>
+    </div>
+
+    <!-- RECAP -->
+    <div style="background:#14100A; border-radius:8px; padding:24px 28px;">
+      <div style="font-family:'DM Serif Display',serif; font-size:18px; color:#FCE0A8; margin-bottom:16px;">A retenir avant de sortir sur le terrain</div>
+      <div class="rule-list">
+        <div class="rule-item"><div class="rule-num">01</div><div class="rule-text" style="color:#FCE0A8;">Tu ouvres toujours sur la situation du membre, jamais sur WOZALI</div></div>
+        <div class="rule-item"><div class="rule-num">02</div><div class="rule-text" style="color:#FCE0A8;">L'inscription est gratuite. Tu ne collectes jamais d'argent</div></div>
+        <div class="rule-item"><div class="rule-num">03</div><div class="rule-text" style="color:#FCE0A8;">Tu ne promets pas de revenus garantis</div></div>
+        <div class="rule-item"><div class="rule-num">04</div><div class="rule-text" style="color:#FCE0A8;">Tu suis tes membres les 7 premiers jours</div></div>
+        <div class="rule-item" style="border-bottom:none;"><div class="rule-num">05</div><div class="rule-text" style="color:#FCE0A8;">Tu remontes tout au groupe</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer-left">Guide Formation Agents terrain WOZALI - Version lancement juillet 2026</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+</div>
+</body>
+</html>

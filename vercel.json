@@ -30,6 +30,7 @@
     { "source": "/recruter", "destination": "/offre-pionniers.html" },
     { "source": "/merci", "destination": "/merci.html" },
     { "source": "/admin-pionniers", "destination": "/admin-pionniers.html" },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/formation/:slug", "destination": "/formation/:slug.html" }
   ]
 }

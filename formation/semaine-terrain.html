@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Organiser ta semaine terrain — Formation Pionnier</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 32px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+.week-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 16px 0; }
+.day-card { border-radius: 4px; padding: 10px 8px; text-align: center; }
+.day-card .day-name { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
+.day-card .day-task { font-size: 11px; line-height: 1.4; }
+.day-plan { background: #faf8f3; border: 1px solid #e8e0d0; }
+.day-plan .day-name { color: #888; }
+.day-plan .day-task { color: #2a2018; }
+.day-terrain { background: #fff8ee; border: 1.5px solid #E8940A; }
+.day-terrain .day-name { color: #E8940A; }
+.day-terrain .day-task { color: #2a2018; font-weight: 500; }
+.day-suivi { background: #f0faf4; border: 1px solid #4a9e6a; }
+.day-suivi .day-name { color: #4a9e6a; }
+.day-suivi .day-task { color: #2a2018; }
+.day-libre { background: #f5f5f5; border: 1px solid #ddd; }
+.day-libre .day-name { color: #aaa; }
+.day-libre .day-task { color: #999; }
+.horaire-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.horaire-card { background: #faf8f3; border: 1px solid #e8e0d0; border-radius: 4px; padding: 14px; }
+.horaire-card .metier-tag { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #E8940A; font-weight: 600; margin-bottom: 4px; }
+.horaire-card .heure { font-size: 13px; font-weight: 600; color: #14100A; margin-bottom: 4px; }
+.horaire-card p { font-size: 13px; color: #5a4030; margin-bottom: 0; }
+.carnet-template { border: 1.5px dashed #E8940A; border-radius: 6px; padding: 20px 24px; margin: 16px 0; background: #fffdf9; }
+.carnet-template .carnet-title { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #E8940A; margin-bottom: 12px; }
+.carnet-row { display: grid; grid-template-columns: 2fr 1.5fr 1.2fr 1fr; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0ebe0; font-size: 13px; }
+.carnet-row.header { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 600; border-bottom: 1.5px solid #E8940A; }
+.statut-badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 20px; font-weight: 600; }
+.badge-rappeler { background: #fff8ee; color: #E8940A; border: 1px solid #E8940A; }
+.badge-gratuit { background: #f0faf4; color: #4a9e6a; border: 1px solid #4a9e6a; }
+.badge-pro { background: #14100A; color: #FCE0A8; }
+.badge-non { background: #f5f5f5; color: #999; border: 1px solid #ddd; }
+.smart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.smart-card { border-radius: 4px; padding: 14px 16px; }
+.smart-card .smart-letter { font-family: 'Geist Mono', monospace; font-size: 24px; font-weight: 700; color: #E8940A; line-height: 1; margin-bottom: 4px; }
+.smart-card .smart-word { font-size: 13px; font-weight: 600; color: #14100A; margin-bottom: 4px; }
+.smart-card p { font-size: 13px; color: #5a4030; margin-bottom: 0; }
+.smart-card { background: #faf8f3; border: 1px solid #e8e0d0; }
+.exercice { background: #14100A; color: #FCE0A8; border-radius: 4px; padding: 20px 24px; margin: 20px 0; }
+.exercice .ex-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #E8940A; margin-bottom: 8px; }
+.exercice p { color: #FCE0A8; font-size: 14px; margin-bottom: 8px; }
+.exercice p:last-child { margin-bottom: 0; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionnier - Document 19</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">DOC-19 / SEMAINE-TERRAIN</div>
+    <div class="doc-title">Organiser ta semaine terrain et fixer ses objectifs</div>
+
+    <section>
+      <h2>La règle fondamentale : improviser coûte cher</h2>
+      <p>Koffi est Pionnier WOZALI à Akpakpa, Cotonou. Le premier mois, il sort quand il en a envie, parle aux gens qu'il croise, revient chez lui le soir avec 2 ou 3 inscriptions. À la fin du mois : 11 membres Pro. <span class="amount">11 000 FCFA</span>.</p>
+      <p>Le deuxième mois, Koffi change d'approche. Il planifie 3 zones par semaine. Il note tous ses contacts dans un carnet. Il rappelle les hésitants à J+3. À la fin du mois : 28 membres Pro. <span class="amount">28 000 FCFA</span>. Même nombre de jours, même quartier, même énergie. La différence : l'organisation.</p>
+      <p>Improviser n'est pas efficace parce que sans plan, tu vas là où c'est confortable, pas là où c'est rentable. Tu revisites les mêmes endroits. Tu oublies de rappeler. Tu perds des conversions que tu avais presque dans la main.</p>
+      <div class="highlight">
+        <p>Un Pionnier qui planifie inscrit en moyenne 2 à 3 fois plus de membres Pro qu'un Pionnier qui improvise, sur le même territoire et avec le même temps disponible.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>L'objectif hebdomadaire de référence</h2>
+      <p>L'objectif de référence pour un Pionnier actif est de <strong>5 membres Pro par semaine</strong>. Pourquoi ce chiffre ?</p>
+      <ul>
+        <li>5 Pro/semaine = 20 Pro/mois</li>
+        <li>20 Pro/mois = <span class="amount">20 000 FCFA</span> en mois normal</li>
+        <li>20 Pro/mois = <span class="amount">30 000 FCFA</span> si le Battle est gagné</li>
+        <li>C'est un objectif atteignable avec environ 3 à 4 heures de terrain par jour, 4 jours par semaine</li>
+      </ul>
+      <p>Si tu dépasses régulièrement cet objectif, tu montes ta cible. Si tu l'atteins rarement, tu identifies ce qui bloque et tu ajustes. L'objectif hebdomadaire est ton indicateur de santé principal.</p>
+      <p>Prends l'habitude de compter tes membres Pro chaque vendredi soir. Tu dois savoir exactement où tu en es, pas approximativement. "J'ai inscrit quelques personnes cette semaine" est une réponse qui coûte de l'argent. "J'ai inscrit 4 membres Pro cette semaine, il m'en manque 1 pour mon objectif" est une réponse qui génère de l'action.</p>
+    </section>
+
+    <section>
+      <h2>Définir tes zones d'activité</h2>
+      <p>Une des erreurs les plus coûteuses en temps chez les Pionniers débutants : sauter d'un quartier à l'autre sans logique. Dantokpa un jour, Cadjehoun le lendemain, Akpakpa le surlendemain. Résultat : beaucoup de temps de transport, peu de profondeur dans chaque zone.</p>
+      <p>La bonne approche : <strong>2 à 3 zones prioritaires par semaine, maximum</strong>. Une zone, c'est un quartier ou une rue commerciale que tu couvres en profondeur. Tu y connais les commerçants, les artisans, les coiffeuses. Les gens commencent à te reconnaître. Ta réputation s'installe.</p>
+      <p>Une zone travaillée en profondeur génère des effets de bouche-à-oreille. Quand Aminata la coiffeuse de Bè t'a fait confiance et que son profil marche bien, elle en parle à Adjoa sa voisine couturière. Tu n'as même pas besoin de chercher Adjoa - elle te cherche. Ce phénomène ne se produit que si tu travailles une zone assez longtemps et assez sérieusement.</p>
+    </section>
+
+    <section>
+      <h2>Les créneaux selon les métiers</h2>
+      <p>Chaque métier a ses heures creuses où les pros sont disponibles pour t'écouter. Aller voir une coiffeuse à 14h un samedi quand son salon est plein, c'est du temps perdu. Aller la voir à 9h un lundi matin, c'est parfait.</p>
+
+      <div class="horaire-grid">
+        <div class="horaire-card">
+          <div class="metier-tag">Coiffeuses / Couturières</div>
+          <div class="heure">9h - 11h30 (matin)</div>
+          <p>Avant l'affluence des clients. Elles ont du temps pour t'écouter. Éviter samedi après-midi et dimanche matin (pics d'activité).</p>
+        </div>
+        <div class="horaire-card">
+          <div class="metier-tag">Mécaniciens moto / auto</div>
+          <div class="heure">9h30 - 11h et 16h - 18h</div>
+          <p>La matinée très tôt, ils reçoivent les premières motos. En milieu de matinée et fin d'après-midi, les réparations simples sont faites.</p>
+        </div>
+        <div class="horaire-card">
+          <div class="metier-tag">Marchands / Commerçants</div>
+          <div class="heure">6h - 8h30 ou 16h - 18h</div>
+          <p>Le marché en début de matinée pour les étalages (Dantokpa, Akodésséwa). En fin d'après-midi pour les boutiques de quartier.</p>
+        </div>
+        <div class="horaire-card">
+          <div class="metier-tag">Chauffeurs taxi / moto</div>
+          <div class="heure">6h30 - 8h30 aux stations</div>
+          <p>Aux terminaux de bus et stations de taxi en début de matinée. Ils attendent leurs premiers clients - c'est le moment idéal.</p>
+        </div>
+        <div class="horaire-card">
+          <div class="metier-tag">Restaurateurs / Traiteurs</div>
+          <div class="heure">14h - 16h (entre services)</div>
+          <p>Après le service du midi, avant la préparation du soir. C'est leur fenêtre de calme. Le matin avant 10h fonctionne aussi.</p>
+        </div>
+        <div class="horaire-card">
+          <div class="metier-tag">Maçons / Peintres / Plombiers</div>
+          <div class="heure">7h - 8h (départ chantier)</div>
+          <p>Avant qu'ils partent sur les chantiers. Ou le soir vers 18h quand ils rentrent. Éviter le milieu de journée sur chantier.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Le carnet de suivi - ton outil le plus important</h2>
+      <p>Un carnet physique ou une note sur ton téléphone. L'important c'est de noter systématiquement chaque personne à qui tu parles. Sans suivi, les conversions s'évaporent.</p>
+      <p>Pour chaque contact, note : le nom, le numéro WhatsApp, le métier, le quartier, et le statut actuel. 4 statuts possibles :</p>
+
+      <div class="carnet-template">
+        <div class="carnet-title">Modèle de carnet terrain</div>
+        <div class="carnet-row header">
+          <span>Nom</span>
+          <span>Métier / Quartier</span>
+          <span>WhatsApp</span>
+          <span>Statut</span>
+        </div>
+        <div class="carnet-row">
+          <span>Aminata K.</span>
+          <span>Coiffeuse / Bè</span>
+          <span>+228 9X XX XX XX</span>
+          <span><span class="statut-badge badge-pro">Pro ✓</span></span>
+        </div>
+        <div class="carnet-row">
+          <span>Koffi A.</span>
+          <span>Mécan. moto / Akpakpa</span>
+          <span>+229 9X XX XX XX</span>
+          <span><span class="statut-badge badge-rappeler">À rappeler J+3</span></span>
+        </div>
+        <div class="carnet-row">
+          <span>Sena D.</span>
+          <span>Couturière / Adidogomé</span>
+          <span>+228 9X XX XX XX</span>
+          <span><span class="statut-badge badge-gratuit">Inscrit Gratuit</span></span>
+        </div>
+        <div class="carnet-row">
+          <span>Adjoa M.</span>
+          <span>Restauratrice / Hédzranawé</span>
+          <span>+228 9X XX XX XX</span>
+          <span><span class="statut-badge badge-non">Pas intéressé</span></span>
+        </div>
+      </div>
+
+      <p>Le carnet te permet de savoir exactement combien de personnes sont en attente de conversion à chaque moment. Si tu as 15 personnes en statut "À rappeler" et que tu ne rappelles pas, tu laisses potentiellement 15 commissions sur la table.</p>
+    </section>
+
+    <section>
+      <h2>Le rappel à J+3 - la relance qui convertit</h2>
+      <p>La plupart des inscriptions Pro ne se font pas le jour de la première conversation. Le membre est intéressé, mais il hésite, il remet au lendemain, il oublie. Le rappel à J+3 est ce qui transforme les hésitants en membres Pro.</p>
+      <p>Trois jours après ta première conversation, envoie un message WhatsApp simple :</p>
+      <div class="highlight">
+        <p>"Bonjour [Prénom], c'est [ton prénom] de WOZALI. Je voulais voir si tu avais eu l'occasion d'activer ton compte Pro. Des questions ?"</p>
+      </div>
+      <p>Ce message est court, pas agressif, respectueux. Il rappelle sans presser. Dans la majorité des cas, soit le membre répond qu'il va le faire ce soir, soit il pose une question qui bloquait sa décision. Dans les deux cas, tu avances vers la conversion.</p>
+      <p>Si pas de réponse à J+3, un dernier message à J+7 suffit. Après ça, si toujours pas de réponse, classe en "Pas intéressé" et concentre ton énergie sur les nouvelles approches. Ne relance pas 10 fois la même personne - ça ne convertit pas et ça prend du temps qui pourrait être utilisé ailleurs.</p>
+    </section>
+
+    <section>
+      <h2>Le système hebdomadaire recommandé</h2>
+
+      <div class="week-calendar">
+        <div class="day-card day-plan">
+          <div class="day-name">Lundi</div>
+          <div class="day-task">Planification zones + objectif semaine</div>
+        </div>
+        <div class="day-card day-terrain">
+          <div class="day-name">Mardi</div>
+          <div class="day-task">Terrain Zone 1 - nouvelles approches</div>
+        </div>
+        <div class="day-card day-terrain">
+          <div class="day-name">Mercredi</div>
+          <div class="day-task">Terrain Zone 2 - nouvelles approches</div>
+        </div>
+        <div class="day-card day-terrain">
+          <div class="day-name">Jeudi</div>
+          <div class="day-task">Terrain Zone 3 ou Zone 1 en profondeur</div>
+        </div>
+        <div class="day-card day-suivi">
+          <div class="day-name">Vendredi</div>
+          <div class="day-task">Suivi carnet + rappels J+3 et J+7</div>
+        </div>
+        <div class="day-card day-libre">
+          <div class="day-name">Samedi</div>
+          <div class="day-task">Libre ou rattrapage si en retard sur l'objectif</div>
+        </div>
+        <div class="day-card day-libre">
+          <div class="day-name">Dimanche</div>
+          <div class="day-task">Repos</div>
+        </div>
+      </div>
+
+      <p>Ce système est une base de travail, pas une contrainte rigide. Si tu as une opportunité terrain un samedi (marché important, événement de quartier), profites-en. L'important c'est de garder le vendredi pour les suivis - c'est le jour qui convertit le plus sans sortir de chez toi.</p>
+    </section>
+
+    <section>
+      <h2>L'objectif mensuel SMART</h2>
+      <p>Un objectif vague est un objectif que tu n'atteindras pas. "Je veux inscrire beaucoup de membres ce mois" n'est pas un objectif - c'est un souhait. Un objectif SMART est différent.</p>
+
+      <div class="smart-grid">
+        <div class="smart-card">
+          <div class="smart-letter">S</div>
+          <div class="smart-word">Spécifique</div>
+          <p>"J'inscris 25 membres Pro en juin dans les quartiers de Bè et Adidogomé."</p>
+        </div>
+        <div class="smart-card">
+          <div class="smart-letter">M</div>
+          <div class="smart-word">Mesurable</div>
+          <p>Liste nominative dans ton carnet. Tu sais exactement combien tu en as à tout moment.</p>
+        </div>
+        <div class="smart-card">
+          <div class="smart-letter">A</div>
+          <div class="smart-word">Atteignable</div>
+          <p>Basé sur ton rythme réel. Si tu en as fait 15 le mois dernier, 25 est atteignable. 100, non.</p>
+        </div>
+        <div class="smart-card">
+          <div class="smart-letter">R</div>
+          <div class="smart-word">Réaliste</div>
+          <p>Tient compte de tes autres obligations. Si tu as autre chose certains jours, ajuste l'objectif.</p>
+        </div>
+      </div>
+      <div class="smart-card" style="margin-top: 12px; display: flex; gap: 16px; align-items: flex-start;">
+        <div>
+          <div class="smart-letter">T</div>
+          <div class="smart-word">Temporel</div>
+        </div>
+        <p style="margin-bottom: 0; padding-top: 4px;">"D'ici le 30 juin, j'ai 25 membres Pro inscrits via mon lien de parrainage." Une date précise, pas "avant la fin du mois".</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Gérer ton énergie sur le terrain</h2>
+      <p>Le terrain, c'est physiquement et mentalement exigeant. Tu marches, tu parles, tu convaincs, tu essuies des refus. Il faut gérer son énergie pour tenir sur la durée.</p>
+      <ul>
+        <li><strong>Ne fais pas plus de 4 à 5 heures de terrain consécutives.</strong> Après 5 heures, la qualité de tes approches baisse. Tu parles moins bien, tu es moins convaincant, tu encaisses moins bien les refus. Mieux vaut faire 4 heures efficaces que 8 heures épuisées.</li>
+        <li><strong>Bois de l'eau régulièrement.</strong> À Lomé et Cotonou avec la chaleur, la déshydratation arrive vite et ça affecte directement ta concentration et ton énergie.</li>
+        <li><strong>Prévois une pause repas vraie.</strong> Pas un biscuit en marchant. Une vraie pause de 30 minutes qui te permet de relire ton carnet, de compter tes inscriptions de la matinée, de planifier l'après-midi.</li>
+        <li><strong>Accepte les mauvaises journées.</strong> Il y a des jours où personne n'est réceptif. Ce n'est pas toujours lié à toi. Le marché fermé, la pluie, un événement local. Note les contacts que tu as pris quand même et passe à la suite.</li>
+        <li><strong>Célèbre les petites victoires.</strong> 3 membres Pro dans la journée, c'est une bonne journée. Ne minimise pas tes résultats. L'enthousiasme que tu cultives chaque jour alimente ta régularité sur le long terme.</li>
+      </ul>
+    </section>
+
+    <div class="exercice">
+      <div class="ex-label">Exercice - à faire ce soir</div>
+      <p>Prends une feuille ou ouvre une note sur ton téléphone. Écris ton objectif SMART pour le mois qui vient : nombre de Pro ciblé, quartiers prioritaires, date limite. Puis liste les 3 zones spécifiques que tu vas couvrir la semaine prochaine. Mardi, mercredi, jeudi - quelle zone chaque jour ?</p>
+      <p>Ce document doit être prêt avant ta prochaine sortie terrain. Un Pionnier qui sort sans plan d'où il va et combien il veut inscrire laisse de l'argent sur la table chaque semaine.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">FORMATION PIONNIER WOZALI - DOC 19/20</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

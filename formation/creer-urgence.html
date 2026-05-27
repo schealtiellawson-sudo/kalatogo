@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Créer l'urgence sans mentir — Formation Pionniers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 36px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+h3 { font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 8px; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 8px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 16px 0; border: 1px solid #e8e0d0; border-radius: 4px; overflow: hidden; }
+.compare-col { padding: 20px; }
+.compare-col.bad { background: #fff5f5; border-right: 1px solid #e8e0d0; }
+.compare-col.good { background: #f5fff8; }
+.compare-col h3 { color: #c0392b; font-size: 11px; }
+.compare-col.good h3 { color: #1a7a4a; }
+.compare-col p { font-size: 14px; }
+.calc-block { background: #f5f0e8; border-radius: 4px; padding: 20px 24px; margin: 16px 0; }
+.calc-block p { font-size: 15px; margin-bottom: 6px; }
+.calc-total { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; font-size: 16px; margin-top: 8px; }
+.script-block { background: #f5f0e8; border-radius: 4px; padding: 20px 24px; margin: 12px 0; border-left: 3px solid #14100A; }
+.script-block p { font-size: 14px; font-style: italic; margin-bottom: 0; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.rule-box { background: #14100A; border-radius: 6px; padding: 24px 28px; margin: 20px 0; }
+.rule-box p { color: #FCE0A8; font-size: 15px; margin-bottom: 0; }
+.rule-box strong { color: #E8940A; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">Document 13 / Formation</div>
+    <div class="doc-title">Créer l'urgence sans mentir</div>
+
+    <section>
+      <h2>Pourquoi l'urgence est nécessaire</h2>
+      <p>Tu as eu une bonne conversation. L'artisan a compris ce que fait WOZALI. Il voit l'intérêt. Il dit : "Oui, c'est bien ça. Je vais le faire." Tu pars. Tu reviens deux semaines plus tard. Il n'a pas créé son profil.</p>
+      <p>Ce n'est pas parce qu'il ne voulait pas. C'est parce qu'il n'avait pas de raison de le faire ce jour-là plutôt qu'un autre. Sans deadline, une décision se reporte indéfiniment. Pas par mauvaise volonté. Par mécanique humaine.</p>
+      <p>L'urgence n'est pas une manipulation. C'est rendre réel ce qui est déjà vrai : chaque jour sans profil est un jour de moins de visibilité. Chaque concurrent qui s'inscrit avant lui prend de l'avance. Le temps a une valeur, et la plupart des gens n'y pensent pas naturellement.</p>
+      <p>Ton rôle de Pionnier : rendre visible ce coût invisible.</p>
+    </section>
+
+    <section>
+      <h2>Fausse urgence contre vraie urgence</h2>
+      <p>La différence est simple : la fausse urgence est inventée pour forcer une décision. La vraie urgence existe indépendamment de toi et tu la rends visible.</p>
+
+      <div class="compare-grid">
+        <div class="compare-col bad">
+          <h3>Fausse urgence (interdit)</h3>
+          <p>"Offre spéciale si tu t'inscris aujourd'hui !"</p>
+          <p>"Il ne reste que 3 places dans ton quartier !"</p>
+          <p>"Le prix va augmenter la semaine prochaine !"</p>
+          <p>"C'est maintenant ou jamais !"</p>
+        </div>
+        <div class="compare-col good">
+          <h3>Vraie urgence (autorisé)</h3>
+          <p>"Le lancement officiel est le 1er juillet. Ceux qui s'inscrivent avant ont un avantage de visibilité."</p>
+          <p>"Ta concurrente d'en face est déjà inscrite - si c'est vrai."</p>
+          <p>"Chaque semaine sans profil, c'est des clients qui vont ailleurs."</p>
+          <p>"Je reviens dans ce quartier mardi. Après, je continue mon circuit."</p>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <p>WOZALI ne fait pas de fausses promotions. Pas d'offre spéciale inventée. Pas de "prix réduit aujourd'hui seulement". Si tu utilises ces méthodes, tu abîmes ta réputation et celle de WOZALI. Les gens dans un quartier se parlent.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Les vraies urgences WOZALI à utiliser</h2>
+
+      <h3>1. Le lancement du 1er juillet 2026</h3>
+      <p>WOZALI ouvre officiellement le 1er juillet 2026. Ce n'est pas une invention. C'est la réalité. Et cette date crée une vraie urgence : les artisans qui s'inscrivent avant le lancement construisent leur profil et accumulent des vues depuis le premier jour. Ceux qui s'inscrivent trois mois après partent avec du retard dans les classements de recherche.</p>
+
+      <div class="script-block">
+        <p>"Le lancement est le 1er juillet. Les profils qui sont déjà complets ce jour-là vont être mis en avant dès l'ouverture. C'est comme ouvrir un commerce le jour de l'inauguration d'un grand marché - tu es là quand l'affluence commence. Tu arrives deux mois après, le flux est déjà parti vers les autres."</p>
+      </div>
+
+      <h3>2. L'avantage du premier arrivé</h3>
+      <p>Sur WOZALI, le Score se construit dans le temps. Profil complet, avis clients, activité régulière. Un artisan qui s'inscrit aujourd'hui et accumule des avis pendant 2 mois va apparaître avant quelqu'un qui s'inscrit après le lancement. Ce n'est pas permanent, mais c'est réel au démarrage.</p>
+
+      <div class="script-block">
+        <p>"Dans ton quartier, si tu es le premier maçon inscrit, tu apparais en premier quand quelqu'un cherche un maçon ici. Si trois autres s'inscrivent dans six mois avec de meilleures notes, ils te dépasseront. Mais là maintenant, la place est libre. Ça change."</p>
+      </div>
+
+      <h3>3. Chaque jour sans profil a un coût</h3>
+      <p>C'est la technique du coût de l'inaction. Elle ne ment pas. Elle calcule ce que coûte réellement le fait de ne rien faire.</p>
+
+      <div class="calc-block">
+        <p>Un client de passage = environ 3 000 FCFA pour une coiffeuse</p>
+        <p>Un nouveau client par semaine via WOZALI = 4 clients par mois</p>
+        <p>4 clients x 3 000 FCFA = <strong>12 000 FCFA par mois</strong></p>
+        <p>Si elle attend 3 mois avant de s'inscrire :</p>
+        <div class="calc-total">36 000 FCFA de revenus potentiels perdus</div>
+      </div>
+
+      <div class="script-block">
+        <p>"Je ne sais pas exactement combien ça va t'apporter. Mais si ça te ramène ne serait-ce qu'un client de plus par semaine, c'est environ 12 000 FCFA de plus par mois. Chaque mois que tu attends, c'est ça qui ne rentre pas."</p>
+      </div>
+
+      <h3>4. La concurrence réelle</h3>
+      <p>Si tu sais avec certitude qu'un concurrent de la personne s'est déjà inscrit, tu peux le mentionner. Si tu ne le sais pas, ne l'invente pas. Mais si c'est vrai, c'est une urgence réelle et honnête.</p>
+
+      <div class="script-block">
+        <p>"La coiffeuse à deux rues d'ici, je suis passé la semaine dernière. Elle est déjà inscrite. Quand quelqu'un cherche une coiffeuse dans ce secteur, c'est elle qui sort en premier. Toi tu n'apparais pas encore."</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Les formulations d'urgence douce</h2>
+      <p>Il y a une différence entre créer de la pression et créer de la clarté. L'urgence douce crée de la clarté sur les conséquences, sans pousser de manière agressive.</p>
+
+      <table>
+        <thead>
+          <tr><th>Formulation agressive (éviter)</th><th>Formulation douce (utiliser)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"Dépêche-toi ! C'est maintenant !"</td>
+            <td>"Je reviens dans ce quartier que mardi. Après, je continue vers d'autres zones."</td>
+          </tr>
+          <tr>
+            <td>"Tu vas rater une opportunité incroyable !"</td>
+            <td>"Chaque semaine que tu attends, c'est une semaine où tu n'apparais pas dans les recherches."</td>
+          </tr>
+          <tr>
+            <td>"Tout le monde s'inscrit, t'es le seul à hésiter !"</td>
+            <td>"De plus en plus de pros du quartier créent leur profil. La place se remplit progressivement."</td>
+          </tr>
+          <tr>
+            <td>"C'est gratuit seulement pendant un temps limité !"</td>
+            <td>"La version gratuite reste gratuite. Mais les avantages du premier arrivé, eux, ne durent qu'un temps."</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>L'urgence de ta disponibilité</h2>
+      <p>Toi-même tu es une ressource limitée. Tu fais un circuit dans des quartiers. Tu n'es pas disponible tous les jours partout. C'est une vraie contrainte que tu peux mentionner honnêtement.</p>
+
+      <div class="script-block">
+        <p>"Je suis dans ce quartier aujourd'hui et mardi prochain. Après je passe à Tokoin et Adidogomé. Si on le fait maintenant, je reste là pendant l'inscription pour t'aider si tu bloques. Si tu attends mardi, je passe vite parce que j'aurai d'autres rendez-vous. Et si tu attends après, tu devras le faire seul ou attendre que je revienne dans 3 semaines."</p>
+      </div>
+
+      <p>Ce n'est pas une menace. C'est la réalité de ton planning. Et elle crée naturellement une raison d'agir aujourd'hui plutôt que plus tard.</p>
+    </section>
+
+    <section>
+      <h2>L'urgence de la réputation</h2>
+      <p>Les artisans qui tardent le plus laissent leurs concurrents prendre de l'avance. Ce n'est pas une punition. C'est la logique normale de tout marché. Les premiers référencés dans une catégorie dans un quartier accumulent des avis. Les avis font monter le Score. Le Score détermine l'ordre d'apparition dans les recherches.</p>
+
+      <div class="script-block">
+        <p>"Dans six mois, les artisans qui auront des avis et un profil complet depuis longtemps apparaîtront en premier. Ceux qui s'inscrivent tard doivent fournir deux fois plus d'efforts pour rattraper. C'est pas une règle de WOZALI. C'est comme ça que marchent tous les systèmes de réputation en ligne. Commencer tôt, ça compte."</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>La règle absolue du fondateur</h2>
+
+      <div class="rule-box">
+        <p><strong>WOZALI n'invente pas d'urgences.</strong> Pas de fausses promotions. Pas de "offre spéciale si tu signes aujourd'hui". Pas de compteurs factices. Pas de "il ne reste que X places". Si tu utilises ces méthodes pour inscrire des gens, tu les trahis. Et quand ils découvrent que l'urgence était fausse, tu perds leur confiance et tu abîmes celle de WOZALI dans tout le quartier. Utilise uniquement les vraies urgences listées ici.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Quand quelqu'un dit "je vais réfléchir"</h2>
+      <p>"Je vais réfléchir" signifie le plus souvent "je ne suis pas convaincu mais je ne veux pas dire non maintenant". Avant de partir, pose une question simple :</p>
+
+      <div class="script-block">
+        <p>"Qu'est-ce qui te retient ? C'est le temps qu'il faut, c'est la question de la fiabilité, ou c'est autre chose ?"</p>
+      </div>
+
+      <p>Sa réponse te dira exactement sur quoi travailler. Souvent c'est une peur simple : peur que ça prenne du temps, peur que ça soit compliqué, peur que ça ne serve à rien. Une fois que tu sais quelle peur c'est, tu peux y répondre directement.</p>
+
+      <p>Si après ta réponse il dit encore "je vais réfléchir", dis-lui :</p>
+
+      <div class="script-block">
+        <p>"D'accord. Je reviens mardi. Si d'ici là tu as eu le temps de regarder et que t'as des questions, tu m'appelles. Si t'es prêt mardi, on le fait ensemble en 5 minutes."</p>
+      </div>
+
+      <p>Et tu repars. Sans insister. La pression excessive fait fuir. Une date de retour concrète laisse la porte ouverte.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">DOC 13 - CREER URGENCE</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

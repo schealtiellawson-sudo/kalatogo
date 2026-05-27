@@ -569,6 +569,7 @@ function showDashSection(section) {
   if (section === 'recrut-dashboard') loadRecrutDashboard();
   if (section === 'mon-equipe') loadMonEquipe();
   if (section === 'wozali-match') loadDashWozaliMatch();
+  if (section === 'agents-ressources') loadAgentsRessourcesSection();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
   // ── WOZALI Business Suite ──
@@ -7067,7 +7068,7 @@ function _setJsonLd(obj) {
 }
 function _resetSeoMeta() {
   document.title = 'WOZALI — Visibilité. Paiements. Revenus. Bénin & Togo.';
-  _setMeta('description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. Ton travail parle. Pas tes connexions.');
+  _setMeta('description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. Ton travail nourrit. Pas ton réseau.');
   _setOg('og:title', 'WOZALI — Visibilité. Paiements. Revenus. Bénin & Togo.');
   _setOg('og:description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes.');
   _setOg('og:url', 'https://wozali.com');
@@ -7693,7 +7694,7 @@ async function submitInscription(e) {
 
 // Point 58/59 — Partager son profil sur WhatsApp apres inscription
 function shareInscriptionWhatsApp() {
-  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOZALI règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier — enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. 500 000 FCFA versés chaque mois aux meilleurs.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wozali.com\n\nTon travail parle. Pas tes connexions.");
+  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOZALI règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier — enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. 500 000 FCFA versés chaque mois aux meilleurs.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wozali.com\n\nTon travail nourrit. Pas ton réseau.");
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
@@ -9779,7 +9780,25 @@ async function checkAdminForDashboard() {
       const grp = document.getElementById('dash-admin-agents-group');
       if (grp) grp.style.display = 'block';
     }
+    // Vérifier si l'utilisateur est un agent terrain actif
+    await checkAgentTerrainForDashboard(session);
   } catch (e) { console.error('[admin-dash]', e); }
+}
+
+async function checkAgentTerrainForDashboard(session) {
+  try {
+    if (!session) return;
+    const { data, error } = await supa
+      .from('agents_terrain')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .eq('actif', true)
+      .maybeSingle();
+    if (error || !data) return;
+    window._isAgentTerrain = true;
+    const grp = document.getElementById('dash-agent-ressources-group');
+    if (grp) grp.style.display = 'block';
+  } catch (e) { console.error('[agent-terrain-check]', e); }
 }
 
 async function _adminToken() {
@@ -9803,8 +9822,30 @@ async function loadAgentsTerrain() {
   const d = await _agentsAPI('list');
   if (!d.ok) { toast('Erreur chargement agents', 'error'); return; }
   _agentsTerrainCache = d.agents || [];
+  // Enrichir avec le nombre de docs lus par agent
+  await _enrichAgentsWithDocCounts();
   renderAgentsList();
   renderAgentsStats();
+}
+
+async function _enrichAgentsWithDocCounts() {
+  const agentsWithUserId = _agentsTerrainCache.filter(a => a.actif && (a.user_id || a.id));
+  if (!agentsWithUserId.length) return;
+  try {
+    const userIds = agentsWithUserId.map(a => a.user_id || a.id).filter(Boolean);
+    const { data, error } = await supa
+      .from('agent_document_reads')
+      .select('agent_id')
+      .in('agent_id', userIds);
+    if (error || !data) return;
+    // Compter par agent_id
+    const counts = {};
+    data.forEach(row => { counts[row.agent_id] = (counts[row.agent_id] || 0) + 1; });
+    _agentsTerrainCache.forEach(a => {
+      const uid = a.user_id || a.id;
+      a.docs_lus = counts[uid] || 0;
+    });
+  } catch (e) { console.error('[enrich-doc-counts]', e); }
 }
 
 function renderAgentsStats() {
@@ -9844,11 +9885,15 @@ function renderAgentsList() {
   agents.sort((a, b) => (b.nb_filleuls || 0) - (a.nb_filleuls || 0));
 
   container.innerHTML = agents.map((a, i) => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;">
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;flex-wrap:wrap;">
       <div style="width:32px;height:32px;border-radius:50%;background:${a.genre === 'F' ? 'rgba(232,148,10,.15)' : 'rgba(59,130,246,.15)'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:${a.genre === 'F' ? '#E8940A' : '#3b82f6'};">${i + 1}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:14px;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.nom}</div>
         <div style="font-size:11px;color:var(--gris);">${a.ville} · ${a.genre === 'F' ? 'Femme' : 'Homme'} · ${a.telephone || '—'}</div>
+      </div>
+      <div style="text-align:right;min-width:60px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:900;color:${(a.docs_lus||0)===20?'#E8940A':'#FCE0A8'};">${a.docs_lus||0}/20</div>
+        <div style="font-size:10px;color:var(--gris);">docs lus</div>
       </div>
       <div style="text-align:right;min-width:80px;">
         <div style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:900;color:#FCE0A8;">${a.nb_filleuls || 0}</div>
@@ -9858,6 +9903,7 @@ function renderAgentsList() {
         <div style="font-family:'Geist Mono',monospace;font-size:13px;color:#E8940A;">${(a.total_commissions || 0).toLocaleString('fr-FR')}</div>
         <div style="font-size:10px;color:var(--gris);">FCFA</div>
       </div>
+      <button onclick="openAgentProgressionModal('${a.user_id||a.id}', ${JSON.stringify(a.nom)})" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.3);background:rgba(232,148,10,.08);color:#E8940A;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Voir progression</button>
       <button onclick="removeAgent('${a.id}')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:16px;padding:4px;" title="Retirer cet agent">✕</button>
     </div>
   `).join('');
@@ -13250,6 +13296,258 @@ async function loadRecrutDashboard() {
     console.error('[loadRecrutDashboard]', err);
     if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;font-size:13px;">Erreur de chargement.</div>';
   }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// AGENT TERRAIN — RESSOURCES & FORMATION
+// ══════════════════════════════════════════════════════════════════════
+
+const AGENT_DOCUMENTS = [
+  { slug: 'histoire-mission',      titre: 'WOZALI — L\'histoire et la mission',                    desc: 'Comprendre d\'où vient WOZALI et pourquoi ça change tout.' },
+  { slug: 'plateforme-az',         titre: 'Comment fonctionne WOZALI de A à Z',                    desc: 'Tour complet de la plateforme avant de la présenter.' },
+  { slug: 'geolocalisation',       titre: 'La géolocalisation — pourquoi ça change tout',           desc: 'Le moteur invisible qui met les pros en avant.' },
+  { slug: 'parrainage',            titre: 'Le parrainage WOZALI',                                  desc: 'Comment fonctionne le système de commission.' },
+  { slug: 'recompenses',           titre: 'Les récompenses mensuelles',                            desc: '500 000 FCFA distribués chaque mois — les règles.' },
+  { slug: 'wozali-jobs',           titre: 'WOZALI Jobs',                                           desc: 'Le module emploi expliqué simplement.' },
+  { slug: 'lire-une-personne',     titre: 'Lire une personne avant de lui parler',                 desc: 'Observer avant d\'ouvrir la bouche.' },
+  { slug: 'creer-confiance',       titre: 'Créer la confiance avec un inconnu en 2 minutes',       desc: 'Les premiers mots qui ouvrent ou ferment une porte.' },
+  { slug: 'pourquoi-non',          titre: 'Pourquoi les gens disent non — et comment répondre',    desc: 'Décoder le refus et le transformer.' },
+  { slug: '20-objections',         titre: 'Les 20 objections terrain — réponses mot pour mot',     desc: 'Chaque excuse, sa réponse prête à l\'emploi.' },
+  { slug: 'scripts-metier',        titre: 'Scripts d\'approche par métier',                        desc: 'Coiffeuse, mécanicien, couturier — script adapté.' },
+  { slug: 'storytelling',          titre: 'Le storytelling pour convaincre',                       desc: 'Raconter une histoire qui fait agir.' },
+  { slug: 'creer-urgence',         titre: 'Créer l\'urgence sans mentir',                          desc: 'Accélérer la décision de façon honnête.' },
+  { slug: 'psychologie-influence', titre: 'Vendre sans vendre — la psychologie de l\'influence',   desc: 'Les principes qui font dire oui naturellement.' },
+  { slug: 'inscription-pas-a-pas', titre: 'Faire une inscription pas à pas',                       desc: 'Le flow complet de l\'inscription en 5 minutes.' },
+  { slug: 'photos-smartphone',     titre: 'Prendre de bonnes photos avec un smartphone',           desc: 'Lumière, angle, fond — les bases en terrain.' },
+  { slug: 'geoloc-pratique',       titre: 'La géolocalisation en pratique',                        desc: 'Activer et tester la géoloc avec le nouveau membre.' },
+  { slug: 'commission-battle',     titre: 'Ta commission et le Battle — comprendre et maximiser',  desc: 'Comment ton score monte et ta paie augmente.' },
+  { slug: 'semaine-terrain',       titre: 'Organiser ta semaine terrain + fixer ses objectifs',    desc: 'Planifier pour ne pas improviser.' },
+  { slug: 'passer-a-50',           titre: 'Suivre ses membres et passer de 10 à 50 Pro par mois',  desc: 'Le système de suivi qui fait la différence.' },
+];
+
+// Cache local des slugs lus par l'agent
+let _agentDocReads = {}; // { slug: { first_read_at, last_read_at, read_count } }
+
+// Charger les lectures depuis Supabase
+async function loadAgentDocumentReads() {
+  if (!currentUser) return;
+  try {
+    const { data, error } = await supa
+      .from('agent_document_reads')
+      .select('document_slug, first_read_at, last_read_at, read_count')
+      .eq('agent_id', currentUser.id);
+    if (error) { console.error('[agent-doc-reads]', error); return; }
+    _agentDocReads = {};
+    (data || []).forEach(row => {
+      _agentDocReads[row.document_slug] = {
+        first_read_at: row.first_read_at,
+        last_read_at: row.last_read_at,
+        read_count: row.read_count,
+      };
+    });
+  } catch (e) { console.error('[agent-doc-reads]', e); }
+}
+
+// Marquer un document comme lu (upsert)
+async function markDocumentRead(slug) {
+  if (!currentUser) return;
+  const already = _agentDocReads[slug];
+  try {
+    if (already) {
+      // Update
+      const { error } = await supa
+        .from('agent_document_reads')
+        .update({ last_read_at: new Date().toISOString(), read_count: already.read_count + 1 })
+        .eq('agent_id', currentUser.id)
+        .eq('document_slug', slug);
+      if (!error) {
+        _agentDocReads[slug].last_read_at = new Date().toISOString();
+        _agentDocReads[slug].read_count = already.read_count + 1;
+      }
+    } else {
+      // Insert
+      const { error } = await supa
+        .from('agent_document_reads')
+        .insert({ agent_id: currentUser.id, document_slug: slug });
+      if (!error) {
+        _agentDocReads[slug] = { first_read_at: new Date().toISOString(), last_read_at: new Date().toISOString(), read_count: 1 };
+      }
+    }
+    // Refresh le compteur et les badges dans la grille
+    _renderAgentDocsGrid();
+    _updateOnboardingDocsCount();
+  } catch (e) { console.error('[mark-doc-read]', e); }
+}
+
+// Ouvrir le document dans un nouvel onglet + marquer comme lu
+function openDocumentRessource(slug, titre) {
+  markDocumentRead(slug);
+  window.open('/formation/' + slug, '_blank');
+}
+
+// Rendre la grille des 20 documents
+function _renderAgentDocsGrid() {
+  const container = document.getElementById('agent-docs-grid');
+  if (!container) return;
+  const readCount = Object.keys(_agentDocReads).length;
+  container.innerHTML = AGENT_DOCUMENTS.map(doc => {
+    const isLu = !!_agentDocReads[doc.slug];
+    return `
+      <div style="background:${isLu ? 'rgba(232,148,10,.08)' : 'rgba(255,255,255,.03)'};border:1px solid ${isLu ? 'rgba(232,148,10,.3)' : 'rgba(255,255,255,.07)'};border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+          <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:700;color:#FCE0A8;line-height:1.4;flex:1;">${doc.titre}</div>
+          <span style="flex-shrink:0;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;${isLu ? 'background:#E8940A;color:#14100A;' : 'background:rgba(255,255,255,.08);color:rgba(252,224,168,.4);'}">
+            ${isLu ? 'Lu' : 'Non lu'}
+          </span>
+        </div>
+        <div style="font-size:12px;color:var(--gris);line-height:1.5;flex:1;">${doc.desc}</div>
+        <button onclick="openDocumentRessource('${doc.slug}', ${JSON.stringify(doc.titre)})" style="align-self:flex-start;padding:8px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">Lire →</button>
+      </div>`;
+  }).join('');
+  _updateOnboardingDocsCount();
+}
+
+// Mettre à jour le compteur X/20 dans l'onboarding
+function _updateOnboardingDocsCount() {
+  const count = Object.keys(_agentDocReads).length;
+  const el = document.getElementById('onboard-docs-count');
+  if (el) el.textContent = count;
+}
+
+// Charger et rendre toute la section ressources
+async function loadAgentsRessourcesSection() {
+  await loadAgentDocumentReads();
+  _renderAgentDocsGrid();
+  _restoreOnboardingSteps();
+}
+
+// Sauvegarder l'état d'une étape onboarding en localStorage
+function saveOnboardingStep(step, checked) {
+  if (!currentUser) return;
+  const key = `wozali_agent_onboard_${currentUser.id}_step${step}`;
+  localStorage.setItem(key, checked ? '1' : '0');
+  const badge = document.getElementById(`onboard-step${step}-badge`);
+  if (badge) badge.style.display = checked ? 'inline' : 'none';
+}
+
+// Restaurer l'état des cases à cocher depuis localStorage
+function _restoreOnboardingSteps() {
+  if (!currentUser) return;
+  [1, 2, 3].forEach(step => {
+    const key = `wozali_agent_onboard_${currentUser.id}_step${step}`;
+    const val = localStorage.getItem(key) === '1';
+    const cb = document.getElementById(`onboard-step${step}`);
+    const badge = document.getElementById(`onboard-step${step}-badge`);
+    if (cb) cb.checked = val;
+    if (badge) badge.style.display = val ? 'inline' : 'none';
+  });
+}
+
+// ── ADMIN : progression documents par agent ──
+
+async function loadAgentDocumentProgress(agentId) {
+  try {
+    const { data, error } = await supa
+      .from('agent_document_reads')
+      .select('document_slug, first_read_at, last_read_at, read_count')
+      .eq('agent_id', agentId);
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    console.error('[agent-doc-progress]', e);
+    return [];
+  }
+}
+
+async function openAgentProgressionModal(agentId, agentNom) {
+  if (!_isAdminDash) return;
+  // Créer/ouvrir la modale
+  let modal = document.getElementById('modal-agent-progression');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-agent-progression';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10002;display:flex;align-items:center;justify-content:center;padding:20px;';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:18px;padding:28px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;position:relative;">
+      <button onclick="document.getElementById('modal-agent-progression').remove();" style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(252,224,168,.5);font-size:22px;cursor:pointer;line-height:1;">×</button>
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Progression formation</div>
+      <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin:0 0 16px;">${agentNom}</h3>
+      <div id="agent-prog-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+        <button onclick="filterAgentProgression('all',this)" style="padding:5px 12px;border-radius:100px;background:#E8940A;color:#14100A;border:none;font-size:12px;font-weight:700;cursor:pointer;">Tous</button>
+        <button onclick="filterAgentProgression('unread',this)" style="padding:5px 12px;border-radius:100px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);font-size:12px;cursor:pointer;">Non commencé (0 doc)</button>
+        <button onclick="filterAgentProgression('started',this)" style="padding:5px 12px;border-radius:100px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);font-size:12px;cursor:pointer;">En cours</button>
+        <button onclick="filterAgentProgression('done',this)" style="padding:5px 12px;border-radius:100px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);font-size:12px;cursor:pointer;">Terminé (20/20)</button>
+      </div>
+      <div id="agent-prog-list" style="display:flex;flex-direction:column;gap:8px;">
+        <div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Chargement...</div>
+      </div>
+    </div>`;
+
+  // Charger les données
+  const reads = await loadAgentDocumentProgress(agentId);
+  const readsMap = {};
+  reads.forEach(r => { readsMap[r.document_slug] = r; });
+  window._agentProgReadsMap = readsMap;
+  window._agentProgFilter = 'all';
+  _renderAgentProgressionList(readsMap, 'all');
+}
+
+function filterAgentProgression(filter, btn) {
+  window._agentProgFilter = filter;
+  // Mettre à jour les boutons
+  document.querySelectorAll('#agent-prog-filters button').forEach(b => {
+    b.style.background = 'rgba(255,255,255,.08)';
+    b.style.color = '#FCE0A8';
+    b.style.border = '1px solid rgba(255,255,255,.12)';
+  });
+  btn.style.background = '#E8940A';
+  btn.style.color = '#14100A';
+  btn.style.border = 'none';
+  _renderAgentProgressionList(window._agentProgReadsMap, filter);
+}
+
+function _renderAgentProgressionList(readsMap, filter) {
+  const container = document.getElementById('agent-prog-list');
+  if (!container) return;
+  const totalRead = Object.keys(readsMap).length;
+
+  // Barre de progression
+  const pct = Math.round((totalRead / 20) * 100);
+  container.innerHTML = `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;">${totalRead}/20 documents lus</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,.5);">${pct}%</span>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,.08);border-radius:100px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:#E8940A;border-radius:100px;transition:width .3s;"></div>
+      </div>
+    </div>`;
+
+  let docs = AGENT_DOCUMENTS;
+  if (filter === 'unread') docs = docs.filter(d => !readsMap[d.slug]);
+  else if (filter === 'started') docs = docs.filter(d => readsMap[d.slug] && totalRead < 20);
+  else if (filter === 'done') docs = totalRead === 20 ? docs : [];
+
+  if (!docs.length) {
+    container.innerHTML += '<div style="text-align:center;padding:20px;color:var(--gris);font-size:13px;">Aucun document dans ce filtre.</div>';
+    return;
+  }
+
+  container.innerHTML += docs.map(doc => {
+    const r = readsMap[doc.slug];
+    const dateStr = r ? new Date(r.first_read_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' }) : null;
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:${r ? 'rgba(232,148,10,.06)' : 'rgba(255,255,255,.03)'};border:1px solid ${r ? 'rgba(232,148,10,.2)' : 'rgba(255,255,255,.06)'};">
+        <span style="font-size:16px;flex-shrink:0;">${r ? '✅' : '⬜'}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:700;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${doc.titre}</div>
+          ${r ? `<div style="font-size:11px;color:var(--gris);">Lu le ${dateStr} · ${r.read_count} fois</div>` : '<div style="font-size:11px;color:var(--gris);">Non lu</div>'}
+        </div>
+      </div>`;
+  }).join('');
 }
 
 

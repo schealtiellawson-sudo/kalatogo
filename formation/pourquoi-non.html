@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pourquoi les gens disent non - WOZALI Formation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Geist', 'Helvetica Neue', Arial, sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+    .page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+    .header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+    .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; letter-spacing: -0.5px; }
+    .logo span { color: #FCE0A8; font-style: normal; }
+    .doc-type { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+    .content { padding: 48px 48px 40px; }
+    .doc-number { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 8px; line-height: 1.2; }
+    .doc-subtitle { font-family: 'Courier New', monospace; font-size: 12px; color: #E8940A; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+    section { margin-bottom: 32px; }
+    h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+    p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-top: 8px; }
+    li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+    .highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+    .highlight p { font-size: 14px; margin-bottom: 0; }
+    .amount { font-family: 'Courier New', monospace; font-weight: 600; color: #E8940A; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th { background: #14100A; color: #FCE0A8; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+    td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #faf8f3; }
+    .non-type { border-radius: 4px; padding: 18px 20px; margin: 12px 0; }
+    .non-peur { border-left: 4px solid #ef5350; background: #fff5f5; }
+    .non-interet { border-left: 4px solid #9e9e9e; background: #fafafa; }
+    .non-timing { border-left: 4px solid #ff9800; background: #fff8f0; }
+    .non-comprend { border-left: 4px solid #3a9bdc; background: #f0f7ff; }
+    .non-label { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+    .label-peur { color: #c62828; }
+    .label-interet { color: #616161; }
+    .label-timing { color: #e65100; }
+    .label-comprend { color: #1565c0; }
+    .non-type h3 { font-family: 'DM Serif Display', serif; font-size: 16px; color: #14100A; margin-bottom: 6px; }
+    .non-type p { font-size: 14px; margin-bottom: 6px; }
+    .non-type p:last-child { margin-bottom: 0; }
+    .signal-list { list-style: none; padding: 0; margin: 8px 0; }
+    .signal-list li { font-size: 14px; color: #2a2018; padding: 4px 0; padding-left: 16px; position: relative; }
+    .signal-list li::before { content: "->"; position: absolute; left: 0; color: #E8940A; font-family: 'Courier New', monospace; font-size: 12px; }
+    .reponse-block { background: #f5f0e8; border-radius: 4px; padding: 12px 16px; margin-top: 8px; }
+    .reponse-label { font-family: 'Courier New', monospace; font-size: 10px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .reponse-block p { font-size: 14px; font-style: italic; color: #14100A; margin-bottom: 0; }
+    .rule-box { background: #14100A; border-radius: 6px; padding: 20px 24px; margin: 12px 0; }
+    .rule-box p { color: #FCE0A8; font-size: 15px; margin-bottom: 0; }
+    .rule-box strong { color: #E8940A; }
+    .footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-left { font-family: 'Courier New', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+    .footer-right { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+    @media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+    @media (max-width: 600px) {
+      .header { padding: 24px 24px 20px; }
+      .content { padding: 32px 24px 28px; }
+      .footer { padding: 16px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="logo">W<span>OZALI</span></div>
+      <div class="doc-type">Formation Pionnier</div>
+    </div>
+
+    <div class="content">
+      <div class="doc-number">DOC-09 / PSYCHOLOGIE TERRAIN</div>
+      <h1 class="doc-title">Pourquoi les gens disent non</h1>
+      <div class="doc-subtitle">Identifier le type de refus et choisir la bonne réponse</div>
+
+      <section>
+        <h2>Tous les "non" ne sont pas identiques</h2>
+        <p>Le "non" que tu entends sur le terrain peut vouloir dire quatre choses très différentes. Un Pionnier débutant entend "non" et passe à autre chose, ou au contraire insiste sans comprendre pourquoi ça ne marche pas. Un Pionnier expérimenté entend "non" et se pose immédiatement une question : quel type de "non" est-ce ?</p>
+        <p>Parce que chaque type de "non" a une réponse différente. Répondre à un "non" de peur avec les arguments contre un "non" de manque d'intérêt, c'est garantir l'échec. Identifier d'abord, répondre ensuite.</p>
+        <p>Les quatre types que tu rencontreras à Lomé et Cotonou :</p>
+
+        <div class="non-type non-peur">
+          <div class="non-label label-peur">Type 1 - Le non de peur</div>
+          <h3>La personne a peur, pas de désintérêt</h3>
+          <p>C'est le type de refus le plus fréquent en Afrique de l'Ouest. La personne ne dit pas non parce qu'elle ne veut pas bénéficier de WOZALI. Elle dit non parce qu'elle a peur : peur de l'arnaque, peur de donner ses informations, peur de ne pas comprendre la technologie, peur que ça ne marche pas et d'avoir perdu son argent.</p>
+          <p>Signaux qui révèlent ce type de non :</p>
+          <ul class="signal-list">
+            <li>Questions sur "qui est derrière ça", "c'est qui les fondateurs"</li>
+            <li>Mentions d'expériences négatives passées avec des apps ou des projets</li>
+            <li>Hésitation visible, pas de conviction dans le refus</li>
+            <li>Corps du refus basé sur des "et si" plutôt que des certitudes</li>
+            <li>"Je préfère rester sur ce que je connais"</li>
+          </ul>
+        </div>
+
+        <div class="non-type non-interet">
+          <div class="non-label label-interet">Type 2 - Le non de manque d'intérêt</div>
+          <h3>WOZALI ne correspond pas à ce dont cette personne a besoin</h3>
+          <p>La personne n'est simplement pas dans la cible. Soit son activité ne dépend pas de nouveaux clients (elle a un contrat fixe, elle travaille uniquement pour une entreprise), soit elle n'est pas dans une phase de développement, soit elle n'utilise pas de téléphone dans son quotidien professionnel. Ce n'est pas un problème de confiance ou de timing. C'est une inadéquation réelle entre WOZALI et sa situation actuelle.</p>
+          <ul class="signal-list">
+            <li>Refus sans hésitation, calm, sans anxiété</li>
+            <li>"Je travaille déjà à plein temps, j'ai pas besoin de plus de clients"</li>
+            <li>Pas de curiosité dans les questions, peu de questions tout court</li>
+            <li>Activité clairement non concernée (fonctionnaire, retraité actif, activité sur abonnement)</li>
+          </ul>
+        </div>
+
+        <div class="non-type non-timing">
+          <div class="non-label label-timing">Type 3 - Le non de mauvais timing</div>
+          <h3>La personne est intéressée mais ce n'est pas le bon moment</h3>
+          <p>Ce refus est presque une invitation déguisée. La personne a un problème urgent en ce moment, elle traverse une période difficile, ou simplement tu es arrivé un mauvais jour. Elle ne ferme pas la porte, elle la met juste en veille.</p>
+          <ul class="signal-list">
+            <li>"Reviens me voir dans deux semaines"</li>
+            <li>"J'ai un gros chantier là, je peux pas me concentrer"</li>
+            <li>Problème visible et récent (commerce ouvert depuis peu, perte d'un employé, déménagement)</li>
+            <li>Intérêt visible mais distraction évidente</li>
+          </ul>
+        </div>
+
+        <div class="non-type non-comprend">
+          <div class="non-label label-comprend">Type 4 - Le non de mauvaise compréhension</div>
+          <h3>La personne a compris autre chose que ce que tu as dit</h3>
+          <p>Ce type de refus vient d'une explication mal passée ou mal reçue. La personne pense que WOZALI est une arnaque parce qu'elle a cru que c'était un jeu d'argent. Ou elle pense que c'est payant dès l'inscription. Ou elle croit qu'il faut un ordinateur. C'est un problème de communication, pas de conviction.</p>
+          <ul class="signal-list">
+            <li>Objections basées sur des informations incorrectes</li>
+            <li>"Ah mais vous êtes comme [concurrent ou arnaque connue]"</li>
+            <li>Confusion sur ce qu'est WOZALI ou ce qu'il faut faire pour s'inscrire</li>
+            <li>Surprise visible si tu corriges une idée reçue</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Le non de peur : le traiter en priorité</h2>
+        <p>C'est le plus fréquent et le plus récupérable. La peur de l'arnaque en particulier est profondément enracinée, et pour de bonnes raisons : beaucoup de projets numériques ont promis des miracles et disparu. La méfiance est une réaction rationnelle de survie économique, pas de l'ignorance.</p>
+        <p>Ne combats jamais la peur avec des arguments rationnels. La peur n'est pas rationnelle. Elle se traite avec de la preuve et du temps, pas avec de la logique.</p>
+
+        <div class="reponse-block">
+          <div class="reponse-label">Réponse au non de peur</div>
+          <p>"Je comprends. T'as raison de pas faire confiance à n'importe quoi. Mais laisse-moi te montrer une chose : c'est gratuit pour commencer. Tu crées ton profil, tu vois par toi-même si des gens te contactent. Tu paies rien avant d'avoir vu que ça marche."</p>
+        </div>
+
+        <p>Si la peur persiste, ajoute la preuve sociale locale : "Koffi le mécanicien à Akpakpa a eu la même réaction que toi. Il s'est inscrit gratuitement il y a 3 semaines. Depuis, il a eu 4 contacts de nouveaux clients."</p>
+
+        <div class="highlight">
+          <p>La phrase qui neutralise la peur d'arnaque : "Tu risques rien. Le plan gratuit ne te demande pas de carte bancaire, pas d'argent d'avance, pas de coordonnées financières. Tu crées ton profil avec ton téléphone en 5 minutes. Si ça marche, tu restes. Si ça marche pas, tu pars. Aucune perte."</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>La technique du retournement</h2>
+        <p>Quelle que soit la nature du "non", il existe une technique simple qui te donne une deuxième chance sans paraître insistant. C'est le retournement par question.</p>
+        <p>Au lieu de contre-argumenter directement, tu valides d'abord le refus, puis tu poses une question qui invite la personne à réfléchir elle-même.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Ce que tu entends</th>
+              <th>Le retournement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>"Je fais pas confiance à ces trucs."</td>
+              <td>"Je comprends. Dis-moi, quand un nouveau client te trouve aujourd'hui, ça se passe comment ?"</td>
+            </tr>
+            <tr>
+              <td>"J'ai pas le temps pour ça."</td>
+              <td>"Bien sûr. Et tu passes combien de temps à chercher des clients en ce moment ?"</td>
+            </tr>
+            <tr>
+              <td>"J'ai déjà assez de clients."</td>
+              <td>"C'est bien. Et quand l'un d'eux part ou ralentit, tu fais comment pour le remplacer ?"</td>
+            </tr>
+            <tr>
+              <td>"C'est trop compliqué."</td>
+              <td>"Qu'est-ce qui te semble compliqué exactement ? Je te montre, c'est 3 étapes."</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>Le retournement ne combat pas l'objection, il la contourne. Il réoriente l'attention vers le problème réel que WOZALI résout. Si la personne répond à ta question, elle s'engage dans la conversation. Et un engagement dans la conversation est toujours mieux qu'un "non" sec.</p>
+      </section>
+
+      <section>
+        <h2>La règle des 3 non</h2>
+        <p>C'est une règle absolue que tout Pionnier doit intégrer. Si quelqu'un dit non de manière ferme et convaincue trois fois de suite dans la même conversation, tu t'arrêtes. Tu ne tentes pas un quatrième angle. Tu ne deviens pas plus insistant. Tu t'arrêtes.</p>
+        <p>Pourquoi ? Parce que le respect du refus construit ta réputation dans le quartier. Lomé et Cotonou sont des villes où tout le monde se connaît. Si tu es identifié comme quelqu'un qui harcèle, qui insiste même quand on a dit non, cette réputation se répand rapidement. Et elle ferme des portes que tu n'as pas encore ouvertes.</p>
+        <p>En revanche, quelqu'un à qui tu as dit "d'accord, je comprends, peut-être une autre fois" avec le sourire peut très bien devenir un client deux semaines plus tard, ou t'envoyer quelqu'un de sa connaissance qui est intéressé. Le respect du refus n'est pas une perte. C'est un investissement long terme.</p>
+
+        <div class="rule-box">
+          <p><strong>Règle des 3 non, mot pour mot :</strong> Au troisième refus convaincu, tu dis : "Pas de problème, je respecte. Si jamais tu changes d'avis ou si tu as des questions, tu peux me contacter." Tu laisses ton contact si elle le souhaite. Tu pars avec le sourire.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Quand abandonner, quand insister</h2>
+        <p>La distinction entre persévérance utile et insistance contre-productive tient à un seul critère : est-ce que la résistance diminue entre le premier et le deuxième échange ?</p>
+        <p>Si après ta première réponse à l'objection, la personne pose une question, montre de la curiosité, ou formule une nouvelle objection plus précise - c'est un signe d'ouverture. Continue.</p>
+        <p>Si après ta première réponse à l'objection, le refus reste identique ou se durcit - c'est un signe de fermeture. Recule.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Signe d'ouverture - continue</th>
+              <th>Signe de fermeture - recule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Elle pose une question après ton explication</td>
+              <td>Elle répète la même objection sans variation</td>
+            </tr>
+            <tr>
+              <td>Son ton se détend légèrement</td>
+              <td>Elle se détourne physiquement</td>
+            </tr>
+            <tr>
+              <td>Elle dit "mais comment ça marche exactement ?"</td>
+              <td>Elle interpelle quelqu'un d'autre ou reprend son activité</td>
+            </tr>
+            <tr>
+              <td>Elle mentionne un besoin concret</td>
+              <td>Elle hausse le ton ou montre de l'agacement</td>
+            </tr>
+            <tr>
+              <td>Elle dit "peut-être" ou "je vais voir"</td>
+              <td>Elle dit "non c'est bon" plusieurs fois</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="highlight">
+          <p>La meilleure sortie quand tu recules : "Pas de problème du tout. Je te laisse ma référence si un jour tu veux voir comment ça marche. Bonne journée." Court, propre, sans amertume. C'est cette sortie qui laisse la porte ouverte pour un retour possible.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>L'effet de la preuve : transformer un non passé en oui futur</h2>
+        <p>L'un des outils les plus puissants pour répondre aux refus basés sur la méfiance ou le doute, c'est de raconter l'histoire d'une personne qui avait exactement la même réaction et qui a changé d'avis.</p>
+        <p>Format simple : "Sena la coiffeuse de Bè avait exactement la même réaction que toi quand je lui ai parlé. Elle m'a dit non deux fois. La troisième semaine, elle a décidé d'essayer le plan gratuit parce qu'une amie s'était inscrite. Aujourd'hui elle a eu 6 nouveaux clients via WOZALI ce mois-ci."</p>
+        <p>Ce format est puissant pour trois raisons. D'abord, il valide le refus de la personne ("cette autre personne avait la même réaction, donc ta méfiance est normale"). Ensuite, il montre une évolution possible sans pression ("elle a décidé elle-même"). Enfin, il conclut avec un résultat concret et vérifiable.</p>
+        <p>Encore une fois : n'invente jamais ces histoires. Construis ta vraie bibliothèque de cas réels au fur et à mesure de tes inscriptions. Un cas réel vaut cent discours.</p>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div class="footer-left">DOC-09 - CONFIDENTIEL INTERNE - MAI 2026</div>
+      <div class="footer-right">wozali.africa</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — L'histoire et la mission — Formation WOZALI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    font-family: 'Geist', sans-serif;
+    color: #1a1008;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 24px rgba(20,16,10,0.10);
+  }
+
+  .header {
+    background: #14100A;
+    border-bottom: 3px solid #E8940A;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: #E8940A;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    font-style: normal;
+    color: #FCE0A8;
+  }
+
+  .doc-type {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .content {
+    padding: 48px 40px;
+  }
+
+  .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #14100A;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #6b5c45;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #14100A;
+    border-left: 3px solid #E8940A;
+    padding-left: 12px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #14100A;
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 16px;
+  }
+
+  .warning-box {
+    background: #fff8ee;
+    border: 1px solid #E8940A;
+    border-left: 4px solid #E8940A;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .warning-box .warning-title {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .warning-box p {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  .founder-block {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    margin: 32px 0;
+    padding: 28px;
+    background: #faf8f3;
+    border-radius: 4px;
+    border: 1px solid #e8e0d0;
+  }
+
+  .founder-photo {
+    width: 140px;
+    height: 160px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #14100A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #E8940A;
+    font-family: 'DM Serif Display', serif;
+    font-size: 40px;
+    font-style: italic;
+  }
+
+  .founder-text p {
+    margin-bottom: 12px;
+  }
+
+  .founder-text .founder-name {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: #14100A;
+    color: #FCE0A8;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-card .stat-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #E8940A;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .stat-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #FCE0A8;
+    opacity: 0.8;
+  }
+
+  .quote-block {
+    border-left: 4px solid #E8940A;
+    padding: 16px 24px;
+    margin: 24px 0;
+    background: #faf8f3;
+  }
+
+  .quote-block p {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: #14100A;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: #e8e0d0;
+    margin: 40px 0;
+  }
+
+  .highlight-text {
+    background: linear-gradient(180deg, transparent 60%, rgba(232,148,10,0.2) 60%);
+    display: inline;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  thead {
+    background: #14100A;
+  }
+
+  thead th {
+    color: #FCE0A8;
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e8e0d0;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) {
+    background: #faf8f3;
+  }
+
+  .badge {
+    display: inline-block;
+    background: #E8940A;
+    color: #14100A;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .footer {
+    background: #14100A;
+    border-top: 2px solid #E8940A;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left, .footer-right {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">Document 01 / 05</div>
+    <h1>L'histoire et la mission</h1>
+    <p class="subtitle">Avant de savoir comment utiliser WOZALI, tu dois comprendre pourquoi WOZALI existe. Parce que quand tu sais pourquoi, tu changes ta façon de parler aux artisans. Tu ne vends plus une appli. Tu leur parles d'un problème qu'ils vivent chaque jour.</p>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-number">80%</span>
+        <span class="stat-label">économie informelle en Afrique</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">2</span>
+        <span class="stat-label">villes phase 1 : Lomé + Cotonou</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">1er juil.</span>
+        <span class="stat-label">date lancement officiel 2026</span>
+      </div>
+    </div>
+
+    <h2>L'origine : ce que Schealtiel a vu</h2>
+
+    <div class="founder-block">
+      <div class="founder-photo">
+        <img src="/assets/fondateur.jpg" alt="Schealtiel Lawson, fondateur WOZALI" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" onerror="this.style.display='none';this.parentElement.style.color='#E8940A';">
+        <span style="display:block;font-size:14px;text-align:center;color:#FCE0A8;font-family:Geist,sans-serif;font-style:normal;font-size:11px;margin-top:8px;">Fondateur</span>
+      </div>
+      <div class="founder-text">
+        <div class="founder-name">Schealtiel Lawson - Fondateur</div>
+        <p>Schealtiel a grandi à Lomé. Il a vu de près ce que vivent les artisans, les commerçants, les tailleurs, les mécaniciens de quartier. Des gens qui travaillent bien, parfois mieux que ceux qui ont des boutiques en plein centre. Mais leur clientèle ne dépasse jamais le périmètre de leur quartier. Pas parce qu'ils ne sont pas bons. Parce qu'ils n'ont pas de réseau.</p>
+        <p>Il a vu Adjoa, coiffeuse à Bè depuis 12 ans, perdre des clientes au profit d'un salon récemment ouvert à côté de la pharmacie, un salon dont la propriétaire connaissait les bonnes personnes, pas parce qu'elle tressait mieux. Il a vu Kodjo, mécanicien à Adidogomé, passer des semaines sans travail pendant que ses voisins immédiats ne savaient pas qu'un mécanicien sérieux existait à deux rues d'eux.</p>
+        <p>C'est ce problème concret, pas une théorie économique, qui a donné naissance à WOZALI.</p>
+      </div>
+    </div>
+
+    <h2>Le problème réel : visible ou invisible</h2>
+
+    <p>En Afrique subsaharienne, environ 80% de l'activité économique se passe dans l'informel. Ce n'est pas un problème en soi. Ce qui est un problème, c'est que ces travailleurs sont invisibles. Ils n'ont pas de site web, pas de page Google, pas de boutique en ligne. Ils dépendent du bouche-à-oreille. Et le bouche-à-oreille, ça dépend de qui tu connais.</p>
+
+    <p>À Cotonou, tu peux avoir Fatima, couturière à Akpakpa, qui fait des broderies d'une précision rare. Elle a 20 ans de métier. Ses clientes régulières lui font confiance à 100%. Mais dès qu'une nouvelle famille emménage dans le quartier et cherche une couturière de confiance, elle ne tombera pas sur Fatima. Elle va demander autour d'elle. Et si ses voisins ne connaissent pas Fatima personnellement, Fatima n'existe pas.</p>
+
+    <div class="quote-block">
+      <p>"Ton travail nourrit. Pas ton réseau."</p>
+    </div>
+
+    <p>Ce n'est pas une belle phrase de marketing. C'est la description d'un monde qu'on veut créer. Un monde où Fatima apparaît en premier dans les résultats quand quelqu'un cherche "couturière Akpakpa" parce qu'elle a le meilleur travail, pas parce qu'elle a les meilleures relations.</p>
+
+    <p>Le problème n'est pas que les artisans ne travaillent pas assez. Le problème est que le système actuel récompense les connexions plutôt que la compétence. WOZALI inverse ça.</p>
+
+    <h2>Le nom WOZALI - pourquoi ce choix</h2>
+
+    <p>WOZALI vient du Lingala, une langue parlée principalement en République Démocratique du Congo et dans plusieurs pays d'Afrique centrale. En Lingala, "wozali" signifie "nous existons" ou "être ici". C'est une déclaration d'existence.</p>
+
+    <p>Ce nom n'a pas été choisi au hasard. Pour les travailleurs de l'économie informelle, le problème central est l'invisibilité. Ils existent. Ils travaillent. Ils méritent d'être trouvés. WOZALI, c'est leur déclaration : nous sommes là, nous existons, trouvez-nous.</p>
+
+    <p>C'est aussi un nom qui traverse les frontières linguistiques d'Afrique de l'Ouest. Il est facile à prononcer en Éwé, en Fon, en Dendi. Il sonne africain sans appartenir à un seul groupe culturel. C'est voulu : WOZALI commence à Lomé et Cotonou, mais la vision est continentale.</p>
+
+    <div class="section-divider"></div>
+
+    <h2>Comment ça fonctionne en pratique</h2>
+
+    <p>Le principe de WOZALI est simple mais son impact est profond. Quand Koffi, plombier à Tokoin, s'inscrit sur WOZALI et complète son profil, il devient visible sur la plateforme. Quand quelqu'un ouvre WOZALI depuis son téléphone à Tokoin et cherche "plombier", Koffi apparaît. Pas parce que quelqu'un l'a recommandé. Parce que son profil est complet, ses photos montrent son travail, et ses clients précédents ont laissé des avis.</p>
+
+    <h3>Le profil public</h3>
+    <p>Chaque membre crée un profil qui ressemble à une carte de visite numérique : photo de lui au travail, description de ses services, quartier, numéro de contact, photos de réalisations passées. Ce profil est visible par tous, sans connexion requise.</p>
+
+    <h3>Le Score WOZALI</h3>
+    <p>C'est le coeur du système. Chaque membre reçoit un Score sur 100 qui mesure la qualité et l'activité de son profil. Ce score est calculé à partir de critères objectifs : profil complet, nombre d'avis clients, note moyenne, photos de travail, activité récente. Plus le score est élevé, mieux le profil est mis en avant dans les recherches. Pas de favoritisme, pas de paiement supplémentaire pour être visible. Le travail décide.</p>
+
+    <h3>La géolocalisation</h3>
+    <p>Quand un client cherche un professionnel, WOZALI utilise sa position géographique pour lui montrer les pros les plus proches. Un client à Bè voit d'abord les artisans de Bè. C'est logique, pratique, et ça change tout pour les pros qui travaillent dans leur quartier.</p>
+
+    <h3>Les deux plans</h3>
+    <p>WOZALI propose un plan Gratuit pour commencer, et un plan Pro à 2 500 FCFA par mois pour ceux qui veulent aller plus loin. Le Plan Pro donne la priorité dans les recherches, l'accès à WOZALI Jobs (publier et trouver des offres d'emploi), et l'éligibilité aux récompenses mensuelles.</p>
+
+    <div class="warning-box">
+      <div class="warning-title">Important - ce que tu dois retenir</div>
+      <p>Les membres Gratuits existent sur la plateforme, mais les membres Pro apparaissent toujours avant eux dans les résultats de recherche. C'est le premier argument pour convaincre un artisan de passer au Pro : être visible en premier quand un client cherche son métier dans son quartier.</p>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2>La promesse aux Pionniers</h2>
+
+    <p>Tu ne rejoins pas une entreprise qui a 10 ans d'existence et des milliers d'employés. Tu rejoins quelque chose au début. Et ça, c'est à la fois un défi et une opportunité que peu de gens ont dans leur vie.</p>
+
+    <p>Les premiers artisans qui s'inscriront sur WOZALI à Lomé et Cotonou vont construire quelque chose. Leurs profils, leurs avis, leurs histoires vont devenir la preuve sociale que WOZALI fonctionne. Les Pionniers qui les ont aidés à s'inscrire ont contribué à ça. Dans 5 ans, quand WOZALI sera présent dans 10 pays d'Afrique de l'Ouest, les premiers Pionniers de Lomé et Cotonou pourront dire qu'ils étaient là au début.</p>
+
+    <p>Mais concrètement, être Pionnier WOZALI, ça signifie aussi une commission directe. Chaque fois qu'un membre que tu as inscrit active son Plan Pro (2 500 FCFA/mois), tu reçois 1 000 FCFA, soit 40% de la valeur de l'abonnement. Et si ton équipe remporte le Battle H/F du mois, tu passes à 1 500 FCFA pour tous les membres Pro inscrits ce mois-là.</p>
+
+    <p>Le lancement officiel est fixé au <strong>1er juillet 2026</strong>. Les premières récompenses pour les membres, la Bourse de Croissance et la Bourse des Mains d'Or, seront tirées le <strong>28 août 2026</strong>, dernier vendredi d'août. Tout commence maintenant.</p>
+
+    <div class="warning-box">
+      <div class="warning-title">Règle de communication terrain</div>
+      <p>Sur le terrain, en face des artisans, tu te présentes comme "Pionnier WOZALI". Le terme "agent terrain" est réservé aux communications internes. En public, avec les membres potentiels, tu es un Pionnier. Cette distinction est importante et doit être respectée dans toutes tes interactions.</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Ce que WOZALI change</th>
+          <th>Avant WOZALI</th>
+          <th>Avec WOZALI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Comment un client trouve un pro</td>
+          <td>Bouche-à-oreille, réseau personnel</td>
+          <td>Recherche géolocalisée, Score objectif</td>
+        </tr>
+        <tr>
+          <td>Qui est visible en premier</td>
+          <td>Celui qui a les meilleures relations</td>
+          <td>Celui qui a le meilleur travail (Score)</td>
+        </tr>
+        <tr>
+          <td>Zone de clientèle</td>
+          <td>Entourage immédiat uniquement</td>
+          <td>Tout utilisateur WOZALI dans la zone</td>
+        </tr>
+        <tr>
+          <td>Preuve de qualité</td>
+          <td>Réputation orale, subjective</td>
+          <td>Avis clients vérifiés, photos de réalisations</td>
+        </tr>
+        <tr>
+          <td>Accès aux offres d'emploi</td>
+          <td>Réseau personnel, annonces papier</td>
+          <td>WOZALI Jobs : offres filtrées par métier et quartier</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">Formation Pionniers - Lancement 1er juillet 2026</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+</div>
+</body>
+</html>

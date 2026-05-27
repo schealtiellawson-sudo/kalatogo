@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lire une personne avant de lui parler - WOZALI Formation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Geist', 'Helvetica Neue', Arial, sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+    .page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+    .header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+    .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; letter-spacing: -0.5px; }
+    .logo span { color: #FCE0A8; font-style: normal; }
+    .doc-type { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+    .content { padding: 48px 48px 40px; }
+    .doc-number { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 8px; line-height: 1.2; }
+    .doc-subtitle { font-family: 'Courier New', monospace; font-size: 12px; color: #E8940A; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+    section { margin-bottom: 32px; }
+    h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+    p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-top: 8px; }
+    li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+    .highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+    .highlight p { font-size: 14px; margin-bottom: 0; }
+    .amount { font-family: 'Courier New', monospace; font-weight: 600; color: #E8940A; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th { background: #14100A; color: #FCE0A8; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+    td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #faf8f3; }
+    .signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+    .signal-card { border-radius: 4px; padding: 14px 16px; }
+    .signal-open { background: #f0fff4; border: 1.5px solid #4caf50; }
+    .signal-closed { background: #fff0f0; border: 1.5px solid #ef5350; }
+    .signal-label { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+    .label-open { color: #2e7d32; }
+    .label-closed { color: #c62828; }
+    .signal-card ul { padding-left: 16px; }
+    .signal-card li { font-size: 14px; margin-bottom: 4px; color: #2a2018; }
+    .scenario { background: #faf8f3; border-radius: 4px; padding: 16px 20px; margin: 10px 0; border-left: 3px solid #E8940A; }
+    .scenario-name { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .scenario p { font-size: 14px; margin-bottom: 6px; }
+    .scenario p:last-child { margin-bottom: 0; }
+    .footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-left { font-family: 'Courier New', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+    .footer-right { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+    @media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+    @media (max-width: 600px) {
+      .header { padding: 24px 24px 20px; }
+      .content { padding: 32px 24px 28px; }
+      .footer { padding: 16px 24px; }
+      .signal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="logo">W<span>OZALI</span></div>
+      <div class="doc-type">Formation Pionnier</div>
+    </div>
+
+    <div class="content">
+      <div class="doc-number">DOC-07 / PSYCHOLOGIE TERRAIN</div>
+      <h1 class="doc-title">Lire une personne avant de lui parler</h1>
+      <div class="doc-subtitle">Observer, choisir le bon moment, approcher avec intelligence</div>
+
+      <section>
+        <h2>Pourquoi observer avant de parler</h2>
+        <p>La plupart des Pionniers qui échouent commettent la même erreur : ils parlent trop tôt. Ils arrivent devant quelqu'un, ils ne savent pas si la personne est disponible, si elle a le temps, si elle est d'humeur - et ils lancent leur discours. Résultat : un "non" rapide, souvent agressif, qui ferme la porte définitivement.</p>
+        <p>Les 30 premières secondes décident de tout. Pas ce que tu dis, mais le moment où tu le dis. Une bonne approche au mauvais moment donne un mauvais résultat. La même approche au bon moment donne un résultat totalement différent.</p>
+        <p>Observer avant de parler te permet de faire trois choses : choisir si tu approches maintenant ou plus tard, adapter ton premier mot à l'état de la personne, et éviter les situations où tu serais perçu comme une gêne plutôt qu'un visiteur bienvenu.</p>
+        <div class="highlight">
+          <p>Règle de base : tu n'es pas obligé d'approcher tout de suite. Si le moment est mauvais, passe ton chemin et reviens dans 10 minutes. Ce n'est pas une défaite, c'est de l'intelligence tactique.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Les signaux visuels qui révèlent le contexte</h2>
+        <p>Quand tu arrives devant quelqu'un, tu as environ 5 secondes pour scanner la situation. Voici les trois questions à te poser mentalement, dans cet ordre :</p>
+        <ol>
+          <li><strong>Est-ce qu'il y a un client ou une transaction en cours ?</strong> Si oui, tu n'approches pas. Point final.</li>
+          <li><strong>La personne est-elle seule ou entourée ?</strong> Seul est plus facile. Entouré, il faut adapter le ton et parfois attendre.</li>
+          <li><strong>Est-ce une pause ou une activité en plein cours ?</strong> Une pause est une ouverture. Une activité intense est une fermeture.</li>
+        </ol>
+        <p>Ensuite, tu lis les signaux corporels. Voici les deux catégories :</p>
+
+        <div class="signal-grid">
+          <div class="signal-card signal-open">
+            <div class="signal-label label-open">Signaux d'ouverture</div>
+            <ul>
+              <li>Contact visuel spontané</li>
+              <li>Posture détendue, épaules basses</li>
+              <li>Sourire, même léger</li>
+              <li>Corps orienté vers l'espace public</li>
+              <li>Regard qui se promène</li>
+              <li>Pause visible (thé, repas, cigarette)</li>
+              <li>Mains libres, pas occupées</li>
+            </ul>
+          </div>
+          <div class="signal-card signal-closed">
+            <div class="signal-label label-closed">Signaux de fermeture</div>
+            <ul>
+              <li>Tête baissée, regard fuyant</li>
+              <li>Bras croisés ou corps fermé</li>
+              <li>Activité manuelle intense</li>
+              <li>Conversation en cours</li>
+              <li>Expression tendue ou préoccupée</li>
+              <li>Téléphone à l'oreille</li>
+              <li>Client mécontent visible à côté</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Le bon moment selon le métier</h2>
+        <p>Chaque métier a ses rythmes. Un Pionnier expérimenté connaît les créneaux favorables pour chaque type d'artisan. Voici les profils les plus courants à Lomé et Cotonou :</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Métier</th>
+              <th>Bon moment</th>
+              <th>Mauvais moment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Coiffeuse / Barbier</td>
+              <td>Entre deux clients, pendant qu'elle range, en début de matinée avant l'afflux</td>
+              <td>Mains dans les cheveux d'une cliente, quand la file est longue</td>
+            </tr>
+            <tr>
+              <td>Mécanicien</td>
+              <td>En pause-déjeuner, quand il nettoie ses outils, en fin de journée avant la fermeture</td>
+              <td>Sous une voiture, en train de changer une pièce, client qui attend à côté</td>
+            </tr>
+            <tr>
+              <td>Commerçant au marché</td>
+              <td>Tôt le matin avant l'affluence, en milieu d'après-midi pendant le creux</td>
+              <td>Pendant le rush de la matinée, quand plusieurs clients font la queue</td>
+            </tr>
+            <tr>
+              <td>Couturière</td>
+              <td>Quand elle coupe ou ourle (tâche mécanique), en début ou fin de journée</td>
+              <td>Machine à coudre en marche rapide, client venu récupérer une commande</td>
+            </tr>
+            <tr>
+              <td>Restauratrice</td>
+              <td>Entre 10h et 11h avant le service, après 14h quand le rush est passé</td>
+              <td>De 12h à 13h30, pendant le service actif</td>
+            </tr>
+            <tr>
+              <td>Vendeur de rue</td>
+              <td>Pause dans un coin, en train de manger, quand son stock est épuisé pour la matinée</td>
+              <td>En train d'accrocher un client, en mouvement actif</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Comment adapter l'approche selon le profil</h2>
+        <p>Observer ne s'arrête pas aux signaux de disponibilité. Tu observes aussi qui est la personne pour adapter ton registre de langage et ton attitude dès la première seconde.</p>
+        <p><strong>Jeune artisan (moins de 30 ans) :</strong> Tu peux être plus direct, plus dynamique. Le tutoiement passe souvent bien. Tu peux parler de téléphone, de réseau social, de contacts en ligne. Il comprend le concept rapidement.</p>
+        <p><strong>Artisan plus âgé (40 ans et plus) :</strong> Commence par le vouvoiement. Montre du respect pour son métier et son expérience avant de parler de quoi que ce soit. Il doit sentir que tu lui parles d'égal à égal, pas que tu viens lui apprendre quelque chose. La confiance se gagne par le respect, pas par l'enthousiasme.</p>
+        <p><strong>Femme seule dans son activité :</strong> Approche frontale et claire, regard franc mais bienveillant. Ne traîne pas dans les environs avant d'approcher, ça crée de la méfiance. Va directement, présente-toi, explique en 15 secondes pourquoi tu es là.</p>
+        <p><strong>Homme entouré de son équipe :</strong> Il va jouer un rôle devant ses collègues. Ne lui mets pas la pression en public. Soit tu l'approches seul quand ses collègues ne regardent pas, soit tu t'adresses à tout le groupe avec un ton léger et sans insistance.</p>
+        <p><strong>Profil formel (costume, bureau, téléphone pro) :</strong> Adopte un registre plus soigné. Passe vite à ce que WOZALI peut apporter concrètement à son activité. Il est pressé et veut des chiffres et des faits.</p>
+        <p><strong>Profil informel (tenue de travail, atelier) :</strong> Reste simple et concret. Utilise des exemples de son quartier ou de son métier. Évite tout jargon technologique.</p>
+      </section>
+
+      <section>
+        <h2>L'exercice des 3 secondes</h2>
+        <p>Voici un outil pratique que tu peux appliquer immédiatement sur le terrain. Quand tu arrives devant quelqu'un, tu te donnes 3 secondes pour trancher : est-ce le bon moment pour approcher, oui ou non ?</p>
+        <p>Ces 3 secondes servent à scanner les signaux visuels de base : transaction en cours, disponibilité physique, état émotionnel apparent. Pas plus.</p>
+        <p>Si la réponse est "non" ou "je ne sais pas", tu passes ton chemin sans t'arrêter. Tu reviens dans 10 à 15 minutes. Ce délai suffit souvent à changer complètement la situation.</p>
+        <p>Si la réponse est "oui", tu approches directement sans hésitation. L'hésitation se lit sur le visage et sur la démarche. Quelqu'un qui hésite avant d'approcher crée immédiatement de la méfiance chez l'interlocuteur.</p>
+        <div class="highlight">
+          <p>L'erreur la plus commune : rester planté à quelques mètres à observer pendant 2 minutes. La personne te remarque, se demande ce que tu veux, et commence à se défendre mentalement avant même que tu ouvres la bouche. Décide vite. Avance ou passe.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Trois scénarios concrets de terrain</h2>
+
+        <div class="scenario">
+          <div class="scenario-name">Scénario 1 - Koffi, mécanicien à Akpakpa</div>
+          <p>Il est 11h45. Koffi vient de finir de changer l'huile d'une voiture. Il essuie ses mains avec un chiffon, regarde la voiture partir, puis s'assoit sur un pneu avec une bouteille d'eau. Il regarde dans le vide.</p>
+          <p>Tous les signaux sont au vert : pause active, mains libres, regard disponible, pas de client en vue. Tu t'approches dans les 30 secondes qui suivent, avant qu'un autre client ne se présente. Tu commences par son métier : "C'est toi qui gères cette auto-école là ?" (même si c'est un garage). Il te corrige, tu enchaînes.</p>
+        </div>
+
+        <div class="scenario">
+          <div class="scenario-name">Scénario 2 - Adjoa, vendeuse au marché de Dantokpa</div>
+          <p>Il est 10h20. Adjoa vend des épices. Elle a 2 clients qui marchandent en même temps. Elle jongle entre les deux, pèse, rend la monnaie.</p>
+          <p>Ce n'est pas le moment. Tu passes devant son étal en la saluant brièvement ("Bonne journée, patronne"), tu continues et tu reviens 20 minutes plus tard. À 10h40, les clients sont partis, elle range ses balances. Là, tu t'arrêtes.</p>
+        </div>
+
+        <div class="scenario">
+          <div class="scenario-name">Scénario 3 - Fatou, coiffeuse à Bè</div>
+          <p>Il est 9h. Fatou ouvre son salon. Elle est seule, elle arrange ses outils, elle n'a pas encore de cliente. Elle chantonne doucement.</p>
+          <p>Timing parfait. Elle est détendue, disponible, pas encore dans le rythme de travail. Tu frappes doucement au montant de la porte, tu attends qu'elle lève les yeux, tu souris. Elle sourit en retour. Signe d'ouverture maximum. Tu entres dans les 5 premières secondes de la conversation avec une phrase sur son salon, pas sur WOZALI.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>La règle du respect : les deux interdits absolus</h2>
+        <p>Deux situations dans lesquelles tu n'approches jamais, quelles que soient les circonstances :</p>
+        <p><strong>1. Ne jamais interrompre une transaction financière.</strong> Quelqu'un qui donne ou reçoit de l'argent, qui rend la monnaie, qui signe un accord, qui négocie un prix - c'est sacré. Tu attends que la transaction soit complète, la monnaie rangée, les deux parties séparées. Interrompre une transaction en cours, même par accident, crée une méfiance immédiate et durable.</p>
+        <p><strong>2. Ne jamais approcher si un client mécontent est visible à côté.</strong> Si tu vois quelqu'un qui se plaint, qui discute avec véhémence, qui attend depuis trop longtemps - passe ton chemin. L'artisan est en gestion de crise. Ta présence sera vécue comme une pression supplémentaire. Tu reviens quand la situation est résolue.</p>
+        <div class="highlight">
+          <p>Le respect que tu montres en observant ces deux règles construit ta réputation sur le quartier. Les gens remarquent quelqu'un qui sait se tenir. C'est un actif silencieux mais puissant pour un Pionnier WOZALI.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div class="footer-left">DOC-07 - CONFIDENTIEL INTERNE - MAI 2026</div>
+      <div class="footer-right">wozali.africa</div>
+    </div>
+  </div>
+</body>
+</html>

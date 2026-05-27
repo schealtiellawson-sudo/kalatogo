@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOZALI Jobs - le module emploi expliqué</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Geist', 'Helvetica Neue', Arial, sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+    .page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+    .header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+    .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; letter-spacing: -0.5px; }
+    .logo span { color: #FCE0A8; font-style: normal; }
+    .doc-type { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+    .content { padding: 48px 48px 40px; }
+    .doc-number { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 8px; line-height: 1.2; }
+    .doc-subtitle { font-family: 'Courier New', monospace; font-size: 12px; color: #E8940A; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+    section { margin-bottom: 32px; }
+    h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+    p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; margin-top: 8px; }
+    li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+    .highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+    .highlight p { font-size: 14px; margin-bottom: 0; }
+    .amount { font-family: 'Courier New', monospace; font-weight: 600; color: #E8940A; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th { background: #14100A; color: #FCE0A8; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+    td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #faf8f3; }
+    .badge { display: inline-block; font-family: 'Courier New', monospace; font-size: 11px; padding: 3px 10px; border-radius: 3px; letter-spacing: 1px; text-transform: uppercase; margin-right: 6px; }
+    .badge-pro { background: #E8940A; color: #fff; }
+    .badge-free { background: #e8e0d0; color: #2a2018; }
+    .status-list { list-style: none; padding: 0; margin: 12px 0; }
+    .status-list li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 4px; margin-bottom: 6px; background: #faf8f3; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .dot-wait { background: #aaa; }
+    .dot-seen { background: #3a9bdc; }
+    .dot-kept { background: #E8940A; }
+    .dot-refused { background: #cc4444; }
+    .footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-left { font-family: 'Courier New', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+    .footer-right { font-family: 'Courier New', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+    @media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+    @media (max-width: 600px) { .header { padding: 24px 24px 20px; } .content { padding: 32px 24px 28px; } .footer { padding: 16px 24px; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="logo">W<span>OZALI</span></div>
+      <div class="doc-type">Formation Pionnier</div>
+    </div>
+
+    <div class="content">
+      <div class="doc-number">DOC-06 / WOZALI JOBS</div>
+      <h1 class="doc-title">WOZALI Jobs : le module emploi expliqué</h1>
+      <div class="doc-subtitle">Ce que c'est, comment ça marche, et comment en parler</div>
+
+      <section>
+        <h2>C'est quoi WOZALI Jobs exactement ?</h2>
+        <p>WOZALI Jobs n'est pas une application séparée. Ce n'est pas un site à part. C'est une rubrique intégrée directement dans WOZALI, accessible depuis le tableau de bord de chaque membre. Pas besoin d'une deuxième inscription, pas besoin d'un deuxième téléphone ou d'un deuxième compte.</p>
+        <p>Concrètement, quand quelqu'un s'inscrit sur WOZALI, il a accès à tout : son profil visible par les clients, ses messages, ses récompenses, et aussi WOZALI Jobs. Tout au même endroit.</p>
+        <p>WOZALI Jobs sert à deux choses distinctes : trouver un emploi, et publier une offre d'emploi. Ce sont les deux faces du même module, disponible pour tous les membres selon leur situation.</p>
+        <div class="highlight">
+          <p>Point à retenir pour le terrain : quand tu parles à un patron de boutique, parle-lui du côté recruteur. Quand tu parles à un jeune qui cherche du travail, parle-lui du côté candidat. C'est le même outil, deux usages différents.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Les deux côtés du module</h2>
+        <p>Le côté candidat permet à un artisan ou un travailleur de consulter les offres publiées sur WOZALI, de postuler en un clic depuis son profil, et de suivre l'état de sa candidature en temps réel. Pas besoin d'imprimer un CV, pas besoin d'aller frapper aux portes. Il postule depuis son téléphone.</p>
+        <p>Le côté recruteur permet à un patron, une patronne, ou un gérant de publier une annonce d'emploi directement depuis son tableau de bord. Cette fonctionnalité est réservée aux membres <span class="badge badge-pro">Pro</span> à <span class="amount">2 500 FCFA/mois</span>. Le membre <span class="badge badge-free">Gratuit</span> peut consulter les offres et postuler, mais il ne peut pas en publier.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Fonctionnalité</th>
+              <th>Gratuit</th>
+              <th>Pro (2 500 FCFA/mois)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Consulter les offres d'emploi</td>
+              <td>Oui</td>
+              <td>Oui</td>
+            </tr>
+            <tr>
+              <td>Postuler à une offre</td>
+              <td>Oui</td>
+              <td>Oui</td>
+            </tr>
+            <tr>
+              <td>Suivre ses candidatures</td>
+              <td>Oui</td>
+              <td>Oui</td>
+            </tr>
+            <tr>
+              <td>Publier une offre d'emploi</td>
+              <td>Non</td>
+              <td>Oui, illimité</td>
+            </tr>
+            <tr>
+              <td>Voir les candidatures reçues</td>
+              <td>Non</td>
+              <td>Oui</td>
+            </tr>
+            <tr>
+              <td>Contacter les candidats</td>
+              <td>Non</td>
+              <td>Oui (WhatsApp direct)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Les types de contrats disponibles</h2>
+        <p>WOZALI Jobs est conçu pour le marché africain, pas pour une multinationale parisienne. Les types de contrats proposés correspondent à la réalité du travail à Lomé et Cotonou :</p>
+        <ul>
+          <li><strong>CDI</strong> - Contrat à durée indéterminée, pour un poste permanent</li>
+          <li><strong>CDD</strong> - Contrat à durée déterminée, pour une mission limitée dans le temps</li>
+          <li><strong>Stage</strong> - Pour les jeunes qui cherchent à apprendre un métier</li>
+          <li><strong>Freelance</strong> - Pour les prestations ponctuelles ou à la mission</li>
+          <li><strong>Temps partiel</strong> - Pour quelqu'un qui travaille déjà ailleurs mais cherche un complément</li>
+        </ul>
+        <p>Ces options couvrent la quasi-totalité des situations réelles sur le terrain. Un patron de restaurant à Akpakpa qui cherche un serveur le week-end utilisera "Temps partiel". Une couturière de Dantokpa qui veut une apprentie pour 6 mois utilisera "CDD". Un prestataire IT qui cherche un projet à Lomé utilisera "Freelance".</p>
+      </section>
+
+      <section>
+        <h2>Comment un Pro publie une offre</h2>
+        <p>La publication est simple et rapide. Le membre Pro se connecte à son tableau de bord, va dans la section "Recruter", et remplit un formulaire en quelques minutes. Voici ce qu'on lui demande :</p>
+        <ol>
+          <li>Le titre du poste (exemple : "Coiffeuse confirmée", "Aide-mécanicien", "Vendeur boutique")</li>
+          <li>Le type de contrat parmi les 5 options disponibles</li>
+          <li>Le quartier et la ville (Lomé ou Cotonou)</li>
+          <li>Le salaire minimum et maximum en FCFA, ou cocher "à négocier"</li>
+          <li>Une description du poste (ce qu'il faut faire, ce qu'il faut savoir)</li>
+          <li>1 à 3 photos du lieu de travail ou de l'activité (optionnel mais recommandé)</li>
+          <li>Le niveau d'expérience requis</li>
+          <li>Si le poste est urgent, une case à cocher pour afficher un badge "Urgent"</li>
+        </ol>
+        <div class="highlight">
+          <p>Argument commercial fort pour le Pionnier : "Tu peux trouver un employé sans payer une annonce dans un journal, sans aller au carrefour chercher quelqu'un. Tu le trouves directement depuis ton téléphone, et tu vois son profil WOZALI avec ses avis et son Score avant même de lui parler."</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Comment un candidat postule</h2>
+        <p>Du côté du candidat, c'est encore plus simple. Il consulte les offres disponibles dans sa ville, filtre par métier ou quartier, et clique sur une offre qui l'intéresse.</p>
+        <p>Sur la page de l'offre, il voit tous les détails : le poste, le salaire proposé, le quartier, les exigences, les photos du lieu. S'il est intéressé, il clique sur "Postuler". Sa candidature est envoyée automatiquement avec son profil WOZALI : sa photo, son métier, son Score, ses avis clients, et ses preuves de travail.</p>
+        <p>Il peut ajouter un message personnalisé, mais ce n'est pas obligatoire. Son profil parle déjà pour lui.</p>
+        <p>Ensuite, il suit l'état de sa candidature directement dans son tableau de bord. Il n'a pas besoin d'appeler ou d'envoyer des messages pour savoir où ça en est.</p>
+      </section>
+
+      <section>
+        <h2>Ce que ça change concrètement pour l'artisan</h2>
+        <p>Prenons Sena. Elle tient un salon de coiffure à Bè. Elle déborde de travail. Elle cherche une apprentie, mais elle ne sait pas comment trouver quelqu'un de confiance. Elle ne peut pas se permettre de former quelqu'un qui va partir au bout d'une semaine.</p>
+        <p>Avec WOZALI Jobs, Sena publie une offre en 5 minutes. Elle indique "Stage coiffure, 3 mois, Bè-Kpota, 25 000 FCFA/mois". Les candidates qui postulent ont déjà un profil WOZALI avec leurs photos de travail et leurs avis. Sena peut choisir celle dont le profil lui inspire confiance, contacter directement via WhatsApp, et prendre sa décision en quelques heures.</p>
+        <p>Autre exemple : Djibril est mécanicien à Adidogomé. Il a trop de travail certains jours. Il cherche un aide-mécanicien pour les weekends. Avant WOZALI, il attendait que quelqu'un se présente à son garage. Avec WOZALI Jobs, il publie une offre "Temps partiel, mécanicien week-end, 40 000 FCFA/mois" et attend les candidatures.</p>
+        <div class="highlight">
+          <p>Le message clé pour le terrain : "WOZALI Jobs, c'est Indeed mais pour notre marché. Adapté aux métiers d'ici, en FCFA, avec des profils visuels. Tu peux recruter sans sortir de ton atelier."</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Le pipeline recruteur : les statuts des candidatures</h2>
+        <p>Quand un patron Pro reçoit des candidatures, il peut gérer chaque candidat directement depuis son tableau de bord. Il voit toutes les candidatures pour chaque offre, et peut changer le statut de chaque candidat :</p>
+
+        <ul class="status-list">
+          <li>
+            <div class="status-dot dot-wait"></div>
+            <div><strong>En attente</strong> - La candidature vient d'arriver, le recruteur n'a pas encore regardé.</div>
+          </li>
+          <li>
+            <div class="status-dot dot-seen"></div>
+            <div><strong>Vue</strong> - Le recruteur a consulté le profil du candidat. Le candidat est notifié que sa candidature a été vue.</div>
+          </li>
+          <li>
+            <div class="status-dot dot-kept"></div>
+            <div><strong>Retenue</strong> - Le candidat est présélectionné. Il peut être contacté pour un entretien. Il reçoit une notification.</div>
+          </li>
+          <li>
+            <div class="status-dot dot-refused"></div>
+            <div><strong>Refusée</strong> - Le candidat n'est pas retenu. Il reçoit une notification pour ne pas rester dans l'incertitude.</div>
+          </li>
+        </ul>
+
+        <p>Ce système évite le ghosting, un problème majeur sur les plateformes classiques. Sur WOZALI, le candidat sait toujours où sa candidature en est. C'est un avantage concurrentiel réel que tu peux mentionner.</p>
+      </section>
+
+      <section>
+        <h2>L'argument de vente pour le Pionnier</h2>
+        <p>Comment parler de WOZALI Jobs sur le terrain ? Voici l'essentiel à retenir selon le profil de la personne en face de toi.</p>
+        <p>Pour un patron qui recrute régulièrement : "Avec WOZALI Jobs, tu publies ton offre une fois, tu reçois des candidatures directement sur ton téléphone, tu vois le profil complet de chaque candidat avec ses photos de travail et ses avis. Tu choisis, tu contactes. Tout reste dans un seul endroit."</p>
+        <p>Pour un artisan qui veut agrandir son équipe : "Tu cherches un aide, un apprenti, un associé ? Publie une offre. Les gens qui postulent ont déjà un profil vérifié sur WOZALI. Tu ne pars pas dans le vide."</p>
+        <p>Pour quelqu'un qui hésite à passer au Pro : "Le Plan Pro à <span class="amount">2 500 FCFA/mois</span>, ça inclut la publication d'offres illimitée. Si tu trouves un bon employé via WOZALI, tu économises des semaines de recherche. Le calcul est vite fait."</p>
+        <div class="highlight">
+          <p>Phrase qui marche bien : "Si tu trouves un employé via WOZALI, tu gardes tout au même endroit. Son profil, son contact, l'historique de votre échange. Rien ne se perd."</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div class="footer-left">DOC-06 - CONFIDENTIEL INTERNE - MAI 2026</div>
+      <div class="footer-right">wozali.africa</div>
+    </div>
+  </div>
+</body>
+</html>

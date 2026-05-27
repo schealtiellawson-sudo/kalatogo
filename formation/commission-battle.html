@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Ta commission et le Battle — Formation Pionnier</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 32px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+.big-number { font-family: 'Geist Mono', monospace; font-size: 42px; font-weight: 700; color: #E8940A; line-height: 1; }
+.big-label { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+.kpi-row { display: flex; gap: 24px; margin: 20px 0; }
+.kpi-box { flex: 1; background: #faf8f3; border: 1px solid #e8e0d0; border-radius: 4px; padding: 20px; text-align: center; }
+.kpi-box.gold { background: #fff8ee; border-color: #E8940A; }
+.smig-bar { background: #14100A; border-radius: 4px; padding: 20px 24px; margin: 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.smig-bar .smig-text { color: #FCE0A8; font-size: 15px; line-height: 1.5; }
+.smig-bar .smig-amount { font-family: 'Geist Mono', monospace; font-size: 22px; font-weight: 700; color: #E8940A; white-space: nowrap; }
+.battle-explainer { border: 2px solid #E8940A; border-radius: 6px; overflow: hidden; margin: 16px 0; }
+.battle-header { background: #E8940A; padding: 12px 20px; display: flex; align-items: center; gap: 10px; }
+.battle-header span { font-family: 'DM Serif Display', serif; font-size: 16px; color: #14100A; font-weight: 700; }
+.battle-body { padding: 16px 20px; }
+.battle-body p { font-size: 14px; margin-bottom: 8px; }
+.battle-body p:last-child { margin-bottom: 0; }
+.sim-table td { font-family: 'Geist Mono', monospace; font-size: 14px; }
+.sim-table td:first-child { color: #888; font-size: 13px; font-family: 'Geist', sans-serif; }
+.sim-table .highlight-row td { color: #E8940A; font-weight: 700; background: #fff8ee; }
+.payment-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 12px 0; }
+.payment-card { background: #faf8f3; border: 1px solid #e8e0d0; border-radius: 4px; padding: 14px; text-align: center; }
+.payment-card .pay-icon { font-size: 24px; margin-bottom: 6px; }
+.payment-card .pay-name { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #888; margin-bottom: 4px; }
+.payment-card p { font-size: 13px; margin-bottom: 0; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionnier - Document 18</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">DOC-18 / COMMISSION-BATTLE</div>
+    <div class="doc-title">Ta commission et le Battle - comprendre et maximiser</div>
+
+    <section>
+      <h2>La mécanique de commission expliquée</h2>
+      <p>En tant que Pionnier WOZALI, tu gagnes une commission pour chaque nouveau membre que tu fais passer au Plan Pro. La commission est directement liée à ton lien de parrainage unique - un lien personnel qui t'identifie et trace chaque inscription qui vient de toi.</p>
+
+      <p>Le principe est simple : quand quelqu'un s'inscrit sur WOZALI via ton lien, il devient ton filleul. Mais la commission ne tombe pas à l'inscription - elle tombe quand le filleul passe Pro et que le paiement est confirmé. C'est la règle fondamentale.</p>
+
+      <div class="highlight">
+        <p><strong>Ce qui génère une commission :</strong> uniquement un membre qui paye son Plan Pro à <span class="amount">2 500 FCFA/mois</span>. Un membre inscrit en Gratuit ne génère aucune commission, même s'il utilise la plateforme.</p>
+      </div>
+
+      <p>Ton lien de parrainage ressemble à ceci : <strong>wozali.africa/?ref=TON_CODE</strong>. Tu peux le partager par WhatsApp, par message, ou simplement guider le membre pour s'inscrire en tapant directement ton code lors de l'inscription.</p>
+    </section>
+
+    <section>
+      <h2>Les deux taux de commission</h2>
+
+      <div class="kpi-row">
+        <div class="kpi-box">
+          <div class="big-number">1 000</div>
+          <div class="big-label">FCFA par Pro - taux normal (40%)</div>
+        </div>
+        <div class="kpi-box gold">
+          <div class="big-number">1 500</div>
+          <div class="big-label">FCFA par Pro - Battle gagné (60%)</div>
+        </div>
+      </div>
+
+      <p>Le taux normal est de <span class="amount">1 000 FCFA</span> par membre Pro activé. C'est ton taux de base, tous les mois où ton équipe ne remporte pas le Battle.</p>
+      <p>Le taux Battle est de <span class="amount">1 500 FCFA</span> par membre Pro activé. Ce taux s'applique automatiquement pour <strong>tous les membres de l'équipe gagnante</strong> durant le mois de victoire. Tu n'as rien à faire de spécial - si ton équipe gagne, ton taux monte automatiquement pour ce mois-là.</p>
+    </section>
+
+    <section>
+      <h2>Le Battle H/F - comment ça marche</h2>
+
+      <div class="battle-explainer">
+        <div class="battle-header">
+          <span>Le Battle Hommes vs Femmes</span>
+        </div>
+        <div class="battle-body">
+          <p>Au début de chaque mois, tous les Pionniers sont automatiquement répartis en deux équipes : l'équipe Hommes et l'équipe Femmes.</p>
+          <p>Durant le mois, chaque équipe accumule des points : chaque nouveau membre Pro inscrit par un Pionnier de l'équipe compte comme un point pour l'équipe.</p>
+          <p>À la fin du mois, l'équipe avec le plus de membres Pro inscrits gagne le Battle. Tous les Pionniers de l'équipe gagnante reçoivent <span class="amount">1 500 FCFA</span> au lieu de <span class="amount">1 000 FCFA</span> pour chacun de leurs membres Pro de ce mois-là.</p>
+          <p>L'équipe perdante reçoit le taux normal de <span class="amount">1 000 FCFA</span>.</p>
+        </div>
+      </div>
+
+      <p>Ce système a deux effets. Premièrement, il crée une compétition saine qui pousse chaque Pionnier à s'impliquer davantage. Deuxièmement, il crée une solidarité : la performance de chaque membre de l'équipe profite à tout le monde. Si tu es dans l'équipe Femmes et qu'une autre Pionnière de l'équipe fait 30 inscriptions ce mois, ta propre commission grimpe à 1 500 FCFA - même si tu n'en as fait que 5.</p>
+    </section>
+
+    <section>
+      <h2>Simulateur de revenus - tous les scénarios</h2>
+      <p>Voici exactement ce que tu peux gagner selon le nombre de membres Pro inscrits par mois. Deux colonnes : mois normal (taux 40%) et Battle gagné (taux 60%).</p>
+
+      <table class="sim-table">
+        <thead>
+          <tr>
+            <th>Membres Pro / mois</th>
+            <th>Mois normal (1 000 F)</th>
+            <th>Battle gagné (1 500 F)</th>
+            <th>Gain supplémentaire Battle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>5 Pro</td>
+            <td><span class="amount">5 000 FCFA</span></td>
+            <td><span class="amount">7 500 FCFA</span></td>
+            <td>+2 500 FCFA</td>
+          </tr>
+          <tr>
+            <td>10 Pro</td>
+            <td><span class="amount">10 000 FCFA</span></td>
+            <td><span class="amount">15 000 FCFA</span></td>
+            <td>+5 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>20 Pro</td>
+            <td><span class="amount">20 000 FCFA</span></td>
+            <td><span class="amount">30 000 FCFA</span></td>
+            <td>+10 000 FCFA</td>
+          </tr>
+          <tr class="highlight-row">
+            <td>53 Pro (= SMIG)</td>
+            <td><span class="amount">53 000 FCFA</span></td>
+            <td><span class="amount">79 500 FCFA</span></td>
+            <td>+26 500 FCFA</td>
+          </tr>
+          <tr>
+            <td>25 Pro</td>
+            <td><span class="amount">25 000 FCFA</span></td>
+            <td><span class="amount">37 500 FCFA</span></td>
+            <td>+12 500 FCFA</td>
+          </tr>
+          <tr>
+            <td>50 Pro</td>
+            <td><span class="amount">50 000 FCFA</span></td>
+            <td><span class="amount">75 000 FCFA</span></td>
+            <td>+25 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>100 Pro</td>
+            <td><span class="amount">100 000 FCFA</span></td>
+            <td><span class="amount">150 000 FCFA</span></td>
+            <td>+50 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>200 Pro</td>
+            <td><span class="amount">200 000 FCFA</span></td>
+            <td><span class="amount">300 000 FCFA</span></td>
+            <td>+100 000 FCFA</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Le SMIG et ce que ça veut dire pour toi</h2>
+
+      <div class="smig-bar">
+        <div class="smig-text">Le SMIG au Togo est de <strong>52 500 FCFA par mois</strong>. C'est le salaire minimum légal pour un salarié qui travaille 5 jours par semaine, 8h par jour, avec un patron.</div>
+        <div class="smig-amount">52 500 F</div>
+      </div>
+
+      <p>En tant que Pionnier, tu dépasses le SMIG avec <strong>53 membres Pro inscrits en un mois</strong> au taux normal. Soit environ 2 inscriptions Pro par jour ouvrable.</p>
+      <p>Ce n'est pas un objectif impossible. C'est un objectif atteignable avec de l'organisation et de la persévérance. La différence avec un salarié au SMIG : tu n'as pas de patron, pas d'horaires imposés, pas de trajet fixe. Tu travailles où tu veux, quand tu veux. Et si ton équipe gagne le Battle, le même résultat avec 35 inscriptions Pro suffit.</p>
+      <p>Et il n'y a pas de plafond. 100 inscriptions Pro = 100 000 FCFA en mois normal. 200 inscriptions = 200 000 FCFA. Le seul plafond c'est ta capacité à organiser ton terrain.</p>
+    </section>
+
+    <section>
+      <h2>Stratégie Battle - comment coordonner avec ton équipe</h2>
+      <p>Le Battle est une opportunité collective. Voici comment en tirer le maximum avec ton équipe.</p>
+
+      <p><strong>Connais le score en temps réel.</strong> Certains mois, le score entre l'équipe Hommes et l'équipe Femmes est serré. Si tu sais que ton équipe est derrière à mi-mois, c'est le signal pour accélérer. Si ton équipe est devant confortablement, tu peux maintenir ton rythme.</p>
+
+      <p><strong>Les derniers jours du mois sont décisifs.</strong> Beaucoup de Pionniers accumulent leurs inscriptions en fin de mois. Planifie tes sorties les plus intenses dans les 5 derniers jours du mois si le score est serré.</p>
+
+      <p><strong>L'effet de groupe.</strong> Quand tu sais que d'autres Pionniers de ton équipe bossent dur ce mois-ci, ça crée une émulation naturelle. Partager les résultats dans le groupe d'équipe renforce la motivation de tout le monde.</p>
+
+      <div class="highlight">
+        <p>Rappel : le Battle ne crée pas de compétition entre Pionniers de la même équipe. C'est une compétition entre les deux équipes. Deux Pionnières dans l'équipe Femmes ont intérêt à s'entraider pour que leur équipe gagne - leurs commissions à toutes les deux en profitent.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Le paiement de ta commission</h2>
+      <p>Les commissions sont versées le <strong>5 du mois suivant</strong>. Si tu inscris des membres Pro en juin, tu reçois ta commission le 5 juillet.</p>
+      <p>Le paiement se fait via Mobile Money :</p>
+
+      <div class="payment-grid">
+        <div class="payment-card">
+          <div class="pay-icon">📱</div>
+          <div class="pay-name">Wave</div>
+          <p>Principal canal de paiement au Togo et Bénin.</p>
+        </div>
+        <div class="payment-card">
+          <div class="pay-icon">📲</div>
+          <div class="pay-name">Orange Money</div>
+          <p>Disponible pour les Pionniers Orange.</p>
+        </div>
+        <div class="payment-card">
+          <div class="pay-icon">💳</div>
+          <div class="pay-name">MTN MoMo</div>
+          <p>Option disponible selon ta ville.</p>
+        </div>
+      </div>
+
+      <p>Pour recevoir tes commissions, ton numéro Mobile Money doit être renseigné dans ton profil Pionnier. Si ce n'est pas encore fait, complète ça dès maintenant - sans numéro enregistré, la commission ne peut pas être versée.</p>
+    </section>
+
+    <section>
+      <h2>Ce qui compte et ce qui ne compte pas</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Commission générée</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Membre inscrit en Gratuit via ton lien</td>
+            <td>0 FCFA - mais potentiel de conversion</td>
+          </tr>
+          <tr>
+            <td>Membre inscrit en Gratuit qui passe Pro le même mois</td>
+            <td><span class="amount">1 000 FCFA</span> (ou 1 500 si Battle gagné)</td>
+          </tr>
+          <tr>
+            <td>Membre inscrit en Gratuit qui passe Pro le mois suivant</td>
+            <td><span class="amount">1 000 FCFA</span> au moment du passage Pro</td>
+          </tr>
+          <tr>
+            <td>Membre Pro qui renouvelle son abonnement le mois suivant</td>
+            <td>Aucune commission supplémentaire pour l'instant</td>
+          </tr>
+          <tr>
+            <td>Membre inscrit directement en Pro via ton lien</td>
+            <td><span class="amount">1 000 FCFA</span> (ou 1 500 si Battle gagné)</td>
+          </tr>
+          <tr>
+            <td>Membre inscrit sans ton lien mais que tu as convaincu</td>
+            <td>0 FCFA - pas traçable sans ton lien</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight">
+        <p>Règle absolue : toujours utiliser ton lien de parrainage ou faire renseigner ton code lors de chaque inscription. Une inscription sans ton lien = commission perdue, même si c'est toi qui as convaincu la personne.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">FORMATION PIONNIER WOZALI - DOC 18/20</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

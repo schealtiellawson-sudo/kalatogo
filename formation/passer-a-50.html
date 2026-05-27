@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Suivre ses membres et passer de 10 à 50 Pro — Formation Pionnier</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 32px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+.funnel { margin: 20px 0; }
+.funnel-step { display: flex; align-items: stretch; gap: 0; margin-bottom: 4px; }
+.funnel-bar { flex: 1; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-radius: 3px; }
+.funnel-bar.f1 { background: #14100A; }
+.funnel-bar.f2 { background: #2a2018; margin: 0 20px; }
+.funnel-bar.f3 { background: #3d3020; margin: 0 40px; }
+.funnel-bar.f4 { background: #E8940A; margin: 0 60px; }
+.funnel-label { font-size: 14px; color: #FCE0A8; font-weight: 500; }
+.funnel-count { font-family: 'Geist Mono', monospace; font-size: 16px; font-weight: 700; color: #E8940A; }
+.funnel-bar.f4 .funnel-label { color: #14100A; }
+.funnel-bar.f4 .funnel-count { color: #14100A; }
+.funnel-arrow { text-align: center; font-size: 12px; color: #888; margin: 2px 0; }
+.progression-timeline { margin: 16px 0; }
+.month-block { display: grid; grid-template-columns: 80px 1fr; gap: 16px; margin-bottom: 16px; align-items: start; }
+.month-label { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 10px; border-radius: 3px; text-align: center; }
+.month-label .month-target { font-size: 20px; font-weight: 700; color: #E8940A; display: block; line-height: 1; margin-bottom: 3px; }
+.month-actions { background: #faf8f3; border: 1px solid #e8e0d0; border-radius: 4px; padding: 14px 16px; }
+.month-actions .month-title { font-weight: 600; font-size: 14px; color: #14100A; margin-bottom: 8px; }
+.month-actions ul { margin-top: 0; }
+.month-actions li { font-size: 13px; margin-bottom: 4px; }
+.diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.diff-card { border-radius: 4px; padding: 18px; }
+.diff-card.low { background: #faf8f3; border: 1px solid #e8e0d0; }
+.diff-card.high { background: #fff8ee; border: 1.5px solid #E8940A; }
+.diff-card .diff-tag { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+.diff-card.low .diff-tag { color: #888; }
+.diff-card.high .diff-tag { color: #E8940A; }
+.diff-card .diff-title { font-family: 'DM Serif Display', serif; font-size: 15px; color: #14100A; margin-bottom: 8px; }
+.diff-card ul { margin: 0; padding-left: 16px; }
+.diff-card li { font-size: 13px; margin-bottom: 4px; }
+.ambassador-box { background: #14100A; border-radius: 4px; padding: 20px 24px; margin: 16px 0; }
+.ambassador-box .amb-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: #FCE0A8; margin-bottom: 10px; }
+.ambassador-box p { color: #c8b898; font-size: 14px; margin-bottom: 8px; }
+.ambassador-box ul { padding-left: 18px; }
+.ambassador-box li { color: #c8b898; font-size: 14px; margin-bottom: 5px; }
+.zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.zone-card { background: #faf8f3; border: 1px solid #e8e0d0; border-radius: 4px; padding: 14px; }
+.zone-card .zone-name { font-weight: 600; font-size: 14px; color: #14100A; margin-bottom: 4px; }
+.zone-card p { font-size: 13px; color: #5a4030; margin-bottom: 0; }
+.revenue-showcase { background: #fff8ee; border: 2px solid #E8940A; border-radius: 6px; padding: 24px; margin: 20px 0; }
+.revenue-showcase .rs-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #14100A; margin-bottom: 16px; text-align: center; }
+.rs-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0ddb8; }
+.rs-row:last-child { border-bottom: none; }
+.rs-label { font-size: 14px; color: #2a2018; }
+.rs-normal { font-family: 'Geist Mono', monospace; font-size: 16px; font-weight: 600; color: #888; }
+.rs-battle { font-family: 'Geist Mono', monospace; font-size: 16px; font-weight: 700; color: #E8940A; }
+.rs-highlight .rs-label { font-weight: 700; color: #14100A; }
+.rs-highlight .rs-normal { color: #14100A; font-size: 18px; }
+.rs-highlight .rs-battle { font-size: 20px; }
+.mindset-block { border-left: 4px solid #E8940A; padding: 16px 20px; margin: 16px 0; background: #faf8f3; }
+.mindset-block .mindset-quote { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; font-style: italic; line-height: 1.5; margin-bottom: 8px; }
+.mindset-block p { font-size: 14px; color: #5a4030; margin-bottom: 0; }
+.exercice { background: #14100A; color: #FCE0A8; border-radius: 4px; padding: 20px 24px; margin: 20px 0; }
+.exercice .ex-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #E8940A; margin-bottom: 8px; }
+.exercice p { color: #FCE0A8; font-size: 14px; margin-bottom: 8px; }
+.exercice p:last-child { margin-bottom: 0; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionnier - Document 20</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">DOC-20 / PASSER-A-50</div>
+    <div class="doc-title">Suivre ses membres et passer de 10 à 50 Pro par mois</div>
+
+    <section>
+      <h2>La vraie différence entre 10 et 50 Pro par mois</h2>
+      <p>Issa fait 10 membres Pro par mois depuis 3 mois. Il sort régulièrement, il parle bien, les gens l'apprécient. Mais il plafonne. Adjoa, partie du même point qu'Issa, fait maintenant 48 membres Pro par mois. Même ville, Lomé. Même type de quartiers. Qu'est-ce qui est différent ?</p>
+      <p>Ce n'est pas la quantité de temps sur le terrain. Adjoa ne travaille pas 5 fois plus longtemps qu'Issa. Ce n'est pas non plus le talent naturel de conviction - Issa est tout aussi convaincant. La différence est dans ce qu'ils font <strong>après</strong> chaque inscription.</p>
+      <p>Issa inscrit quelqu'un, passe au suivant, et ne revient jamais vers les précédents. Adjoa inscrit quelqu'un, le suit à J+3, l'aide si son profil pose un problème, et surtout : elle cultive les membres satisfaits qui deviennent ses ambassadeurs naturels dans leurs quartiers.</p>
+      <div class="highlight">
+        <p>La différence entre 10 et 50 Pro par mois ne se joue pas sur le terrain - elle se joue dans le suivi post-inscription et la construction d'une réputation locale qui génère des leads entrants.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>L'entonnoir de conversion - comprendre les chiffres</h2>
+      <p>Pour passer à 50 membres Pro par mois, tu dois d'abord comprendre à quelle étape tu perds le plus de conversions. L'entonnoir standard d'un Pionnier ressemble à ceci :</p>
+
+      <div class="funnel">
+        <div class="funnel-step">
+          <div class="funnel-bar f1">
+            <span class="funnel-label">Personnes approchées</span>
+            <span class="funnel-count">100</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">40% intéressés</div>
+        <div class="funnel-step">
+          <div class="funnel-bar f2">
+            <span class="funnel-label">Personnes intéressées</span>
+            <span class="funnel-count">40</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">50% s'inscrivent</div>
+        <div class="funnel-step">
+          <div class="funnel-bar f3">
+            <span class="funnel-label">Inscriptions Gratuit</span>
+            <span class="funnel-count">20</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">50% passent Pro</div>
+        <div class="funnel-step">
+          <div class="funnel-bar f4">
+            <span class="funnel-label">Membres Pro actifs</span>
+            <span class="funnel-count">10</span>
+          </div>
+        </div>
+      </div>
+
+      <p>Pour passer de 10 à 50 membres Pro, tu as deux chemins possibles : soit tu fais 5 fois plus d'approches (500 personnes au lieu de 100), soit tu améliores le taux de conversion à chaque étape de l'entonnoir. Le deuxième chemin est beaucoup plus réaliste et plus durable.</p>
+    </section>
+
+    <section>
+      <h2>Améliorer chaque étape de l'entonnoir</h2>
+
+      <div class="diff-grid">
+        <div class="diff-card low">
+          <div class="diff-tag">Étape 1 - Approche</div>
+          <div class="diff-title">Passer de 40% à 55% d'intéressés</div>
+          <ul>
+            <li>Mieux cibler les métiers à valeur (clients réguliers, capacité à payer 2 500 F)</li>
+            <li>Approcher pendant les créneaux creux (pas pendant l'affluence)</li>
+            <li>Ouvrir avec la douleur ("tu reçois combien d'appels de nouveaux clients cette semaine ?") au lieu d'ouvrir avec le produit</li>
+          </ul>
+        </div>
+        <div class="diff-card high">
+          <div class="diff-tag">Étape 2 - Inscription</div>
+          <div class="diff-title">Passer de 50% à 70% d'inscrits</div>
+          <ul>
+            <li>Faire l'inscription sur place, tout de suite - ne jamais dire "tu peux le faire chez toi"</li>
+            <li>Réduire la friction : avoir la data mobile ou le WiFi disponible, téléphone chargé</li>
+            <li>Rester jusqu'à ce que le profil soit créé, la photo uploadée, la géoloc activée</li>
+          </ul>
+        </div>
+        <div class="diff-card low">
+          <div class="diff-tag">Étape 3 - Passage Pro</div>
+          <div class="diff-title">Passer de 50% à 70% en Pro</div>
+          <ul>
+            <li>Le rappel systématique à J+3 (voir Doc 19)</li>
+            <li>Montrer un résultat concret : un profil similaire qui reçoit des contacts</li>
+            <li>Lever le frein principal : "2 500 FCFA c'est cher" - comparer au coût d'acquisition d'un seul client</li>
+          </ul>
+        </div>
+        <div class="diff-card high">
+          <div class="diff-tag">Résultat combiné</div>
+          <div class="diff-title">100 approches deviennent 38 Pro</div>
+          <ul>
+            <li>Avec 55% intéressés : 55 personnes</li>
+            <li>Avec 70% inscrits : 38 inscriptions Gratuit</li>
+            <li>Avec 70% Pro : 27 membres Pro</li>
+            <li>Pour 50 Pro : environ 185 approches suffisent</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Cibler les bons métiers en priorité</h2>
+      <p>Tous les métiers ne se valent pas pour la conversion Pro. Un artisan avec des clients réguliers et un revenu stable voit immédiatement comment WOZALI va lui ramener plus de clients. Un artisan qui galère à trouver ses premiers clients est plus difficile à convaincre - il hésite à dépenser 2 500 FCFA.</p>
+      <p>Les métiers à fort potentiel de conversion Pro :</p>
+
+      <div class="zone-grid">
+        <div class="zone-card">
+          <div class="zone-name">Coiffeuses établies</div>
+          <p>Elles ont déjà une clientèle fidèle et cherchent à la faire grossir. Comprennent la valeur d'être visible.</p>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Couturières actives</div>
+          <p>Carnet de commandes et bouche-à-oreille - elles veulent plus de clients et ont le revenu pour investir.</p>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Mécaniciens avec atelier</div>
+          <p>Atelier fixe = ils sont localisables. Ils comprennent que les clients cherchent sur téléphone.</p>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Restaurateurs avec local</div>
+          <p>Local fixe, clients réguliers. Veulent attirer de nouveaux clients dans leur zone.</p>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Photographes</div>
+          <p>Très à l'aise avec le numérique. Comprennent la visibilité en ligne. Conversion facile.</p>
+        </div>
+        <div class="zone-card">
+          <div class="zone-name">Electriciens / Plombiers</div>
+          <p>Travaillent à la demande, veulent plus d'appels entrants. Valeur immédiate et évidente.</p>
+        </div>
+      </div>
+
+      <p>Les métiers plus difficiles à convertir : les vendeurs ambulants sans adresse fixe (la géoloc perd de sa valeur), les journaliers qui changent de travail chaque semaine, les apprentis sans revenus propres. Ce ne sont pas des cibles impossibles, mais elles demandent plus d'efforts pour le même résultat.</p>
+    </section>
+
+    <section>
+      <h2>Construire ta réputation dans les quartiers</h2>
+      <p>Les commerçants et artisans d'un même quartier se connaissent et se parlent. C'est une réalité de l'économie de rue à Lomé comme à Cotonou. Si Koffi le mécanicien d'Akpakpa voit que son profil WOZALI lui amène des clients, il va en parler à Sena le coiffeur de la rue d'à côté, qui va en parler à Adjoa la couturière de l'autre côté du marché.</p>
+      <p>Cette dynamique de recommandation spontanée prend du temps à démarrer - environ 4 à 6 semaines dans une zone donnée. Mais une fois lancée, elle génère des leads entrants que tu n'as pas eu à aller chercher. Ces leads convertissent beaucoup mieux parce qu'ils ont déjà une preuve sociale : quelqu'un de confiance leur a dit que ça marche.</p>
+      <p>Comment accélérer cette dynamique :</p>
+      <ul>
+        <li>Reviens dans les mêmes zones régulièrement. Les gens te reconnaissent et te font confiance progressivement.</li>
+        <li>Quand un membre Pro commence à recevoir des contacts via WOZALI, retourne le voir. Félicite-le. Demande-lui de le dire autour de lui.</li>
+        <li>Aide-le à partager son profil sur WhatsApp avec ses contacts existants. Plus il reçoit de contacts, plus il en parle, plus tu reçois des recommandations.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Identifier et cultiver tes ambassadeurs</h2>
+
+      <div class="ambassador-box">
+        <div class="amb-title">Un ambassadeur vaut 10 approches</div>
+        <p>Un ambassadeur, c'est un membre Pro satisfait qui recommande WOZALI spontanément dans son réseau. Il existe dans chaque zone - ton travail est de l'identifier et de le cultiver.</p>
+        <ul>
+          <li>Comment l'identifier : c'est le membre qui reçoit déjà des contacts via WOZALI et qui en est content. C'est le membre influent dans son quartier - celui que les autres écoutent.</li>
+          <li>Comment le cultiver : appeler ou envoyer un message une fois par mois pour savoir comment ça se passe. L'aider si son profil a un problème. Le remercier quand il t'envoie quelqu'un.</li>
+          <li>Ce que tu lui demandes : de partager son profil WOZALI avec ses collègues et voisins. De mentionner WOZALI quand quelqu'un lui demande comment il trouve ses clients.</li>
+          <li>Objectif : avoir 3 à 5 ambassadeurs actifs dans chacune de tes zones principales. Avec 5 ambassadeurs qui envoient chacun 2 personnes par mois, c'est 10 leads entrants sans effort de terrain de ta part.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Zones à fort potentiel - où concentrer l'effort</h2>
+      <p>Certaines zones concentrent plus d'artisans et de commerçants que d'autres. Ce sont tes zones prioritaires pour atteindre 50 Pro par mois rapidement.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Zone</th>
+            <th>Ville</th>
+            <th>Type de pros</th>
+            <th>Potentiel</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dantokpa et environs</td>
+            <td>Cotonou</td>
+            <td>Commerçants, artisans, restaurateurs</td>
+            <td>Très fort</td>
+          </tr>
+          <tr>
+            <td>Akpakpa</td>
+            <td>Cotonou</td>
+            <td>Mécaniciens, coiffeuses, couturières</td>
+            <td>Fort</td>
+          </tr>
+          <tr>
+            <td>Cadjehoun</td>
+            <td>Cotonou</td>
+            <td>Salons, ateliers, services</td>
+            <td>Fort</td>
+          </tr>
+          <tr>
+            <td>Akodésséwa</td>
+            <td>Lomé</td>
+            <td>Artisans, marchands spécialisés</td>
+            <td>Fort</td>
+          </tr>
+          <tr>
+            <td>Bè - marché et quartier</td>
+            <td>Lomé</td>
+            <td>Coiffeuses, couturières, commerçants</td>
+            <td>Très fort</td>
+          </tr>
+          <tr>
+            <td>Adidogomé</td>
+            <td>Lomé</td>
+            <td>Artisans de quartier, mécaniciens</td>
+            <td>Fort</td>
+          </tr>
+          <tr>
+            <td>Hédzranawoé</td>
+            <td>Lomé</td>
+            <td>Salons, ateliers couture, services</td>
+            <td>Moyen-fort</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Simulateur de progression sur 3 mois</h2>
+      <p>Voici le plan de progression réaliste de 10 à 50 Pro en 3 mois, avec les actions concrètes à chaque étape.</p>
+
+      <div class="progression-timeline">
+        <div class="month-block">
+          <div class="month-label">
+            <span class="month-target">10</span>
+            Mois 1
+          </div>
+          <div class="month-actions">
+            <div class="month-title">Phase fondation - apprendre l'entonnoir</div>
+            <ul>
+              <li>Couvrir 2 zones prioritaires en profondeur</li>
+              <li>Mettre en place le carnet de suivi systématique</li>
+              <li>Faire les rappels J+3 sans exception</li>
+              <li>Identifier les 2-3 premiers profils à fort potentiel ambassadeur</li>
+              <li>Tester les créneaux horaires et noter ce qui fonctionne le mieux</li>
+              <li>Objectif : comprendre où se perdent les conversions dans son propre entonnoir</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="month-block">
+          <div class="month-label">
+            <span class="month-target">25</span>
+            Mois 2
+          </div>
+          <div class="month-actions">
+            <div class="month-title">Phase accélération - améliorer le taux de conversion</div>
+            <ul>
+              <li>Ajouter une 3e zone tout en maintenant les 2 premières</li>
+              <li>Activer les ambassadeurs identifiés au mois 1 - leur demander de recommander</li>
+              <li>Affiner le ciblage vers les métiers à fort taux de conversion</li>
+              <li>Optimiser l'étape faible identifiée au mois 1 (approche, inscription ou passage Pro)</li>
+              <li>Mettre en place les rappels J+7 pour les hésitants de longue date</li>
+              <li>Commencer à recevoir des leads entrants depuis les premiers ambassadeurs</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="month-block">
+          <div class="month-label">
+            <span class="month-target">50</span>
+            Mois 3
+          </div>
+          <div class="month-actions">
+            <div class="month-title">Phase volume - les leads entrants décollent</div>
+            <ul>
+              <li>Maintenir les 3 zones avec des rotations régulières</li>
+              <li>Avoir 5 ambassadeurs actifs qui génèrent des recommandations</li>
+              <li>Les leads entrants représentent 30-40% des inscriptions (sans effort terrain)</li>
+              <li>Terrain concentré sur les nouvelles zones et les créneaux à fort potentiel</li>
+              <li>Le carnet est plein - process de relance quasi automatique</li>
+              <li>Cibler le Battle pour passer de 50 000 FCFA à 75 000 FCFA ce mois-là</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tableau de revenus projetés</h2>
+
+      <div class="revenue-showcase">
+        <div class="rs-title">Ce que génèrent tes inscriptions Pro</div>
+        <div class="rs-row">
+          <span class="rs-label">10 membres Pro / mois</span>
+          <span class="rs-normal">10 000 FCFA</span>
+          <span class="rs-battle">15 000 FCFA (Battle)</span>
+        </div>
+        <div class="rs-row">
+          <span class="rs-label">25 membres Pro / mois</span>
+          <span class="rs-normal">25 000 FCFA</span>
+          <span class="rs-battle">37 500 FCFA (Battle)</span>
+        </div>
+        <div class="rs-row rs-highlight">
+          <span class="rs-label">50 membres Pro / mois</span>
+          <span class="rs-normal">50 000 FCFA</span>
+          <span class="rs-battle">75 000 FCFA (Battle)</span>
+        </div>
+        <div class="rs-row">
+          <span class="rs-label">75 membres Pro / mois</span>
+          <span class="rs-normal">75 000 FCFA</span>
+          <span class="rs-battle">112 500 FCFA (Battle)</span>
+        </div>
+        <div class="rs-row">
+          <span class="rs-label">100 membres Pro / mois</span>
+          <span class="rs-normal">100 000 FCFA</span>
+          <span class="rs-battle">150 000 FCFA (Battle)</span>
+        </div>
+        <div class="rs-row">
+          <span class="rs-label">200 membres Pro / mois</span>
+          <span class="rs-normal">200 000 FCFA</span>
+          <span class="rs-battle">300 000 FCFA (Battle)</span>
+        </div>
+      </div>
+
+      <p>Il n'y a aucun plafond. Ces chiffres sont linéaires. Si tu inscris 200 membres Pro en un mois - et c'est possible avec une bonne organisation et des ambassadeurs actifs - tu gagnes <span class="amount">200 000 FCFA</span> en mois normal ou <span class="amount">300 000 FCFA</span> si ton équipe gagne le Battle. C'est un revenu annuel de 2,4 à 3,6 millions de FCFA.</p>
+    </section>
+
+    <section>
+      <h2>Le mindset qui fait la différence</h2>
+
+      <div class="mindset-block">
+        <div class="mindset-quote">"Ce n'est pas un job. C'est un business que tu construis."</div>
+        <p>Un job, tu fais ce qu'on te demande et tu attends le salaire. Un business, tu construis un réseau, tu cultives des relations, tu penses à long terme. Les Pionniers qui pensent "business" progressent. Les Pionniers qui pensent "job" plafonnent.</p>
+      </div>
+
+      <p>La différence entre un Pionnier à 10 Pro et un Pionnier à 50 Pro se résume souvent à une question : est-ce qu'il pense à demain ou seulement à aujourd'hui ? Celui qui pense à demain cultive ses ambassadeurs, maintient le contact avec ses membres, construit sa réputation zone par zone. Celui qui pense seulement à aujourd'hui finit chaque mois en repartant de zéro.</p>
+      <p>Les refus font partie du métier. Sur 100 approches, 60 personnes vont dire non d'une façon ou d'une autre. Ce n'est pas un problème - c'est la norme dans tout métier de terrain. Ce qui distingue les Pionniers performants, c'est qu'ils ne prennent pas les refus personnellement et qu'ils passent au suivant immédiatement, sans perdre d'énergie.</p>
+
+      <div class="highlight">
+        <p>100 membres Pro par mois = <span class="amount">100 000 FCFA</span> en mois normal. C'est deux fois le SMIG Togo. Sans patron. Sans horaires imposés. Sans transport quotidien payé à quelqu'un d'autre. Ce n'est pas un rêve - c'est l'arithmétique de ce que tu construis avec ce programme.</p>
+      </div>
+    </section>
+
+    <div class="exercice">
+      <div class="ex-label">Plan d'action - à compléter maintenant</div>
+      <p>Réponds à ces trois questions par écrit avant de fermer ce document :</p>
+      <p>1. Quel est ton nombre actuel de membres Pro inscrits ? À quelle étape de l'entonnoir perds-tu le plus de conversions (approche, inscription, ou passage Pro) ?</p>
+      <p>2. Qui sont tes 2 premiers ambassadeurs potentiels parmi tes membres actuels ? Leur nom, leur métier, leur quartier. Quand vas-tu les appeler cette semaine ?</p>
+      <p>3. Quelle est ta cible pour le mois prochain ? Mois 1 : 10 Pro. Mois 2 : 25 Pro. Mois 3 : 50 Pro. Tu es à quel mois de ce plan ? Qu'est-ce qui change concrètement dans ta semaine pour atteindre la prochaine étape ?</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">FORMATION PIONNIER WOZALI - DOC 20/20</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>

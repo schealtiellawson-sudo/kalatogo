@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Scripts d'approche par métier — Formation Pionniers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Geist', sans-serif; background: #f5f0e8; color: #1a1008; min-height: 100vh; padding: 40px 20px; }
+.page { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 2px 24px rgba(0,0,0,.10); overflow: hidden; }
+.header { background: #14100A; padding: 32px 48px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #E8940A; }
+.logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+.logo span { color: #FCE0A8; font-style: normal; }
+.doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; }
+.content { padding: 48px 48px 40px; }
+.doc-number { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.doc-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid #e8e0d0; }
+section { margin-bottom: 40px; }
+h2 { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 12px; padding-left: 12px; border-left: 3px solid #E8940A; }
+h3 { font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8940A; letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 8px; }
+p { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 12px; }
+ul, ol { padding-left: 20px; margin-top: 8px; }
+li { font-size: 15px; line-height: 1.65; color: #2a2018; margin-bottom: 6px; }
+.highlight { background: #fff8ee; border: 1.5px solid #E8940A; border-radius: 6px; padding: 16px 20px; margin: 12px 0; }
+.highlight p { font-size: 14px; margin-bottom: 0; }
+.amount { font-family: 'Geist Mono', monospace; font-weight: 600; color: #E8940A; }
+.script-block { background: #f5f0e8; border-radius: 4px; padding: 20px 24px; margin: 12px 0; border-left: 3px solid #14100A; }
+.script-block p { font-size: 14px; font-style: italic; margin-bottom: 8px; }
+.script-block p:last-child { margin-bottom: 0; }
+.script-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #888; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 6px; }
+.metier-header { background: #14100A; color: #FCE0A8; padding: 12px 20px; border-radius: 4px 4px 0 0; font-family: 'DM Serif Display', serif; font-size: 16px; margin-top: 32px; }
+.metier-card { border: 1px solid #e8e0d0; border-top: none; border-radius: 0 0 4px 4px; padding: 20px 24px; margin-bottom: 32px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th { background: #14100A; color: #FCE0A8; font-family: 'Geist Mono', monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+td { padding: 10px 14px; font-size: 15px; color: #2a2018; border-bottom: 1px solid #e8e0d0; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #faf8f3; }
+.footer { background: #14100A; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Geist Mono', monospace; font-size: 11px; color: #888; letter-spacing: 1px; }
+.footer-right { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; letter-spacing: 1px; }
+@media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Pionniers</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">Document 11 / Formation</div>
+    <div class="doc-title">Scripts d'approche par métier</div>
+
+    <section>
+      <h2>Avant d'ouvrir la bouche</h2>
+      <p>Chaque métier a ses codes. Un mécanicien moto n'entend pas les choses comme une coiffeuse. Un vendeur de marché raisonne différemment d'un photographe. Avant d'aborder quelqu'un, tu dois savoir dans quelle situation il se trouve, ce qui l'inquiète, et ce qu'il espère.</p>
+      <p>Le script n'est pas un texte à réciter mot pour mot. C'est une structure. Tu adaptes les noms, les exemples, le ton. Mais la logique reste la même : d'abord leur situation, ensuite leur problème, ensuite la solution, ensuite l'action.</p>
+      <div class="highlight">
+        <p>Règle absolue : les 30 premières secondes ne parlent pas de WOZALI. On parle d'eux. On observe. On écoute. Si tu ouvres avec "j'ai une application", tu as perdu.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Structure universelle de chaque script</h2>
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Objectif</th><th>Durée approximative</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ouverture</td><td>Créer un lien sincère, poser une vraie question sur eux</td><td>30-60 secondes</td></tr>
+          <tr><td>Développement</td><td>Pointer le problème qu'ils vivent sans nommer WOZALI</td><td>1-2 minutes</td></tr>
+          <tr><td>Introduction WOZALI</td><td>Présenter la solution comme une réponse directe à ce qu'ils viennent de dire</td><td>1 minute</td></tr>
+          <tr><td>Réponse "tu gagnes quoi ?"</td><td>Être honnête et court</td><td>30 secondes</td></tr>
+          <tr><td>Fermeture</td><td>Proposer l'inscription immédiate ou un prochain rendez-vous clair</td><td>1-2 minutes</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="metier-header">1. Coiffeuse (salon ou à domicile)</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Le meilleur moment : quand elle n'a pas de cliente en train d'être coiffée. Soit en début de matinée, soit en pause déjeuner. Approche différemment si elle est en salon (tu t'assieds un moment et tu attends qu'elle ait les mains libres) ou à domicile (elle est chez quelqu'un d'autre, sois bref).</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Sœur, excuse-moi si t'es occupée. Je passais juste par là. T'as beaucoup de clients comme ça en semaine, ou c'est plutôt le week-end ?"</p>
+      </div>
+      <p>Laisse-la répondre. Écoute vraiment. Si elle dit "ça dépend" ou "pas vraiment", c'est ton point d'entrée. Si elle dit "oui beaucoup", tu pars sur : "C'est bien. Donc tu dois avoir une bonne réputation dans le quartier déjà ?"</p>
+
+      <h3>Développement (pointer le problème)</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Moi ce que j'observe souvent avec les coiffeuses, c'est que les meilleures ne sont pas forcément celles qui ont le plus de clients. C'est celles dont on entend le nom. Toi, quand quelqu'un cherche une coiffeuse dans ce quartier-là, on pense à toi en premier ?"</p>
+      </div>
+      <p>Elle va soit dire oui (ce qui te donne l'angle : "et ça vient d'où ? Du bouche-à-oreille seulement ?"), soit dire non ou hésiter (ce qui confirme le problème).</p>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Je travaille avec une plateforme qui fait exactement ça pour les artisanes comme toi. Quand quelqu'un sur son téléphone cherche 'coiffeuse Bè', ou 'coiffeuse Akpakpa', ton nom apparaît en premier. Pas parce que tu as payé pour une pub, mais parce que ton profil est complet et tes clients te donnent des avis. C'est comme Google, mais juste pour Lomé et Cotonou."</p>
+      </div>
+
+      <h3>Réponse si elle demande "et toi tu gagnes quoi là-dedans ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Si tu passes sur le plan payant à <span class="amount">2 500 FCFA</span> par mois, j'ai une petite commission. Mais je te dis la vérité : je suis payé si et seulement si ça t'est utile. Si tu t'inscris gratuit et que ça ne t'apporte rien, j'ai rien. Donc j'ai intérêt à ce que ça marche pour toi."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Là t'as 5 minutes ? Je te montre comment ton profil ressemble une fois créé. Si tu aimes pas, tu fermes et t'en parles plus. Mais au moins tu verras ce que ça donne."</p>
+      </div>
+    </div>
+
+    <div class="metier-header">2. Mécanicien moto</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Approche quand il n'a pas les mains plongées dans une moto. Le mieux : quand il attend du client ou qu'il mange. Ne l'interromps jamais pendant une réparation en cours, ça crée une mauvaise première impression.</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Patron, c'est quoi le truc qui ramène le plus de clients ici ? C'est la réputation, ou c'est le fait que t'es bien placé sur l'axe ?"</p>
+      </div>
+      <p>Il va parler. Laisse-le. Les mécaniciens aiment expliquer comment leur business fonctionne. Tu apprendras quelque chose et tu créeras un lien.</p>
+
+      <h3>Développement</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Donc si quelqu'un arrive à Akpakpa pour la première fois et que sa moto tombe en panne, comment il trouve quelqu'un de confiance ? Parce que sur Google ou sur les réseaux, les mécaniciens du quartier n'existent pas. Il va aller chez le premier qu'il voit. Pas forcément le meilleur."</p>
+      </div>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Y a une application qui règle ça ici à Cotonou et à Lomé. On référence les artisans sérieux par quartier. Si quelqu'un cherche 'mécanicien moto Akpakpa' sur son téléphone, il tombe sur toi. Avec ta photo, ton numéro, les avis de tes clients. Comme si tu avais un panneau lumineux sur l'internet local."</p>
+      </div>
+
+      <h3>Réponse "tu gagnes quoi ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Je te suis honnête : si tu choisis le plan Pro à <span class="amount">2 500 FCFA</span>, j'ai une commission. Si tu restes gratuit, j'ai rien. Mais je préfère que tu commences gratuit et que tu voies si ça t'apporte vraiment des clients. Après tu décides."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Là, en 5 minutes, on crée ton profil ensemble. Tu mets ton nom, ton métier, ce quartier-là. Je prends une photo de ton atelier avec ton téléphone. Et je te montre comment ça apparaît quand on cherche mécanicien ici. Ça te coûte rien pour commencer."</p>
+      </div>
+    </div>
+
+    <div class="metier-header">3. Couturière</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Approche pendant une accalmie, pas quand elle est la tête sur sa machine. Le samedi matin est souvent bon : les couturières reçoivent des commandes mais ne cousent pas encore.</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Sœur, tes robes-là, tu les fais pour qui principalement ? Clientèle du quartier ou tu as des commandes de plus loin ?"</p>
+      </div>
+
+      <h3>Développement</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Tu vois le problème que j'observe partout : une couturière qui coud bien reste souvent cachée dans son atelier. Les clients qui ne te connaissent pas encore ne savent pas que tu existes. Et toi tu dépends de qui te recommande. Le jour où ta cliente principale déménage ou ne vient plus, t'as perdu un morceau de ton business."</p>
+      </div>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Je travaille avec une plateforme qui rend les couturières visibles dans leur ville. Tu crées un profil, tu mets des photos de tes réalisations - une belle robe, un ensemble bien coupé - et les gens te trouvent quand ils cherchent une couturière. Pas de recommandations à attendre. Le travail parle."</p>
+      </div>
+
+      <h3>Réponse "tu gagnes quoi ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Petite commission si tu passes Pro à <span class="amount">2 500 FCFA</span> par mois. Mais le plan gratuit existe déjà et est bien. Je te montre les deux et tu choisis."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"T'as des photos de robes sur ton téléphone là ? Parfait. On ouvre le profil maintenant et on met une ou deux photos. En 5 minutes t'es visible sur internet. Zéro coût pour commencer."</p>
+      </div>
+    </div>
+
+    <div class="metier-header">4. Vendeur au marché (Dantokpa / Atinkanmey)</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Les marchés sont bruyants et les vendeurs sont souvent en train de vendre. Ne les approche pas entre 8h et 11h (rush du matin) ni entre 15h et 17h. La pause déjeuner (12h-14h) ou les moments entre deux clients sont les meilleurs.</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Patron, t'es là depuis quelle heure ce matin ? Et tu fermes à quelle heure le soir ?"</p>
+      </div>
+      <p>C'est une vraie question de respect. Ça montre que tu t'intéresses à leur journée. Laisse-le répondre et commente sincèrement : "Eh c'est des longues journées. Et chaque jour c'est comme ça ?"</p>
+
+      <h3>Développement</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Ce que je remarque ici au marché : les gens qui achètent en ligne ou par téléphone cherchent des produits avant de se déplacer. Mais ils ne savent pas qui vend quoi exactement. Ils voient 'marché Dantokpa' et ils appellent le premier numéro qu'ils trouvent. Toi, si quelqu'un cherche ce que tu vends depuis son téléphone à Cotonou, il te trouve comment ?"</p>
+      </div>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Y a une plateforme qui répertorie les vendeurs du marché par secteur, par produit. Tu crées ton profil, tu mets ce que tu vends, ton stand, ton numéro WhatsApp. Les gens de Cotonou qui cherchent tes produits te trouvent directement. T'élargis ta clientèle sans bouger de ta place."</p>
+      </div>
+
+      <h3>Réponse "tu gagnes quoi ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Commission sur le plan payant à <span class="amount">2 500 FCFA</span>. Le plan gratuit je touche rien. Donc si tu veux tester gratuit d'abord, ça me convient : si ça t'apporte des clients, tu passeras Pro naturellement."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"La prochaine fois que t'as 10 minutes tranquilles, je reviens et on le crée ensemble. Ou là si tu veux, on le fait tout de suite sur ton téléphone. C'est gratuit pour commencer."</p>
+      </div>
+    </div>
+
+    <div class="metier-header">5. Chauffeur de taxi</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Les taxis attendent aux points de stationnement entre les courses. C'est là que tu les approches. Jamais quand ils conduisent. Cherche les moments de pause, souvent en milieu de matinée.</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Chef, t'as des clients réguliers ou c'est surtout du passage comme ça ?"</p>
+      </div>
+
+      <h3>Développement</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Le problème avec le taxi, c'est qu'on dépend des gens qui passent devant nous. Les applications comme Uber ou Yango capturent les clients qui cherchent sur téléphone. Mais toi tu n'es pas dessus. Y a des gens à Lomé qui cherchent un taxi fiable pour des trajets réguliers, des courses à l'hôpital, à l'aéroport. Ils ne savent pas comment te trouver."</p>
+      </div>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Y a une plateforme ici localement qui fait ça. Tu mets ton profil de chauffeur, ton secteur habituel, ton numéro. Les gens qui cherchent un chauffeur de confiance te trouvent. C'est pas Uber - tu gardes ton indépendance, pas de commission à payer sur les courses. Juste de la visibilité."</p>
+      </div>
+
+      <h3>Réponse "tu gagnes quoi ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Je suis honnête avec toi : <span class="amount">1 000 FCFA</span> si tu passes Pro. Mais si tu trouves pas ça utile après avoir essayé gratuit, tu me dis et j'essaierai de comprendre ce qui manque."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"En 5 minutes là, on ouvre le profil. Tu mets ta photo, ton secteur, ton numéro WhatsApp. Après tu vas voir comment tu apparais quand quelqu'un cherche 'taxi Lomé' ou 'chauffeur Adidogomé'. Gratuit pour commencer, aucun engagement."</p>
+      </div>
+    </div>
+
+    <div class="metier-header">6. Maçon / Électricien</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Souvent sur un chantier ou en attente de travail. Le mieux : sur les carrefours ou places où ils attendent des clients le matin tôt, ou pendant la pause déjeuner sur le chantier. Évite quand ils travaillent en hauteur ou avec des outils électriques.</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Frère, t'as du travail là régulièrement ou c'est des périodes avec et des périodes sans ?"</p>
+      </div>
+
+      <h3>Développement</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"C'est ça le problème dans le bâtiment. Quand t'as un bon chantier ça va, mais entre deux il peut se passer des semaines. Et pour trouver du travail, on dépend de qui nous appelle. Les gens qui construisent à Lomé cherchent un électricien sérieux, mais ils ne savent pas où trouver quelqu'un de confiance dans leur quartier."</p>
+      </div>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Je travaille avec une plateforme qui met en avant les artisans du bâtiment ici localement. Tu crées un profil avec tes spécialités - pose de carrelage, plomberie, câblage électrique - ton quartier, des photos de tes chantiers terminés. Les gens qui cherchent sur leur téléphone tombent sur toi en premier."</p>
+      </div>
+
+      <h3>Réponse "tu gagnes quoi ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Petite commission sur le plan Pro à <span class="amount">2 500 FCFA</span>. Mais t'as une option gratuite pour commencer. Je veux juste que tu essaies et que ça t'apporte du travail."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"T'as des photos de chantiers finis sur ton téléphone ? Même deux ou trois photos d'un carrelage bien posé ou d'une installation électrique propre, c'est parfait. On crée le profil maintenant en 5 minutes."</p>
+      </div>
+    </div>
+
+    <div class="metier-header">7. Photographe</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Les photographes sont souvent actifs sur les réseaux sociaux et comprennent vite l'intérêt d'une présence en ligne. Approche-les dans leur studio, via leurs réseaux ou lors d'événements. Ils sont généralement plus ouverts à la conversation que les artisans manuels classiques.</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Ton boulot vient d'où principalement ? Instagram, bouche-à-oreille, ou tu as un site ?"</p>
+      </div>
+
+      <h3>Développement</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Instagram c'est bien pour le portfolio. Mais le problème c'est que quelqu'un qui cherche un photographe à Lomé pour un mariage le mois prochain, il cherche 'photographe mariage Lomé' sur Google, pas sur Instagram. Et les photographes locaux n'apparaissent pas. Ils vont prendre quelqu'un de moins bon mais mieux référencé."</p>
+      </div>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dies</span>
+        <p>"Je travaille avec une plateforme locale qui référence les photographes par ville et type de prestation. Mariage, baptême, corporate, portrait. Tu es visible quand on cherche ton type de photo dans ta ville. Les clients te contactent directement par WhatsApp. Ça complète ton Instagram, ça ne le remplace pas."</p>
+      </div>
+
+      <h3>Réponse "tu gagnes quoi ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Commission sur le plan Pro à <span class="amount">2 500 FCFA</span>. Le plan gratuit existe aussi si tu veux commencer sans engagement financier."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Cinq minutes sur ton téléphone. On crée le profil, tu upploades 3 de tes meilleures photos. Je te montre comment ça ressemble quand on cherche photographe à Lomé. Si t'aimes pas, tu supprimes."</p>
+      </div>
+    </div>
+
+    <div class="metier-header">8. Restaurateur / Traiteur</div>
+    <div class="metier-card">
+      <h3>Contexte d'approche idéal</h3>
+      <p>Le meilleur moment : tôt le matin pendant la préparation, ou après le rush du déjeuner vers 14h-15h. Les traiteurs qui font des livraisons sont souvent intéressés par toute solution qui élargit leur clientèle sans qu'ils aient à démarcher physiquement.</p>
+
+      <h3>Ouverture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Madame, tes clients là ils reviennent souvent ou c'est surtout des passages ? Et t'as des commandes à l'avance ou c'est plutôt au jour le jour ?"</p>
+      </div>
+
+      <h3>Développement</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Le traiteur qui fait bien à manger, il dépend souvent de la rue. Mais aujourd'hui, les gens qui ont un événement - baptême, fête d'anniversaire, réunion d'entreprise - ils cherchent un traiteur depuis leur téléphone. Ils veulent voir le menu, les photos, les avis. Si t'es pas visible là-dessus, tu passes après quelqu'un de moins bon mais mieux connu sur internet."</p>
+      </div>
+
+      <h3>Introduction WOZALI</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Je travaille avec une plateforme qui référence les restaurateurs et traiteurs locaux. Tu crées un profil avec tes spécialités, tes photos de plats, ton secteur de livraison. Les gens qui cherchent un traiteur pour un événement à Cotonou te trouvent directement. Et ils voient les avis de tes clients avant de t'appeler."</p>
+      </div>
+
+      <h3>Réponse "tu gagnes quoi ?"</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"Si tu passes sur le plan Pro à <span class="amount">2 500 FCFA</span> par mois, j'ai une commission. Plan gratuit : rien pour moi. Commence gratuit si tu veux, sans risque."</p>
+      </div>
+
+      <h3>Fermeture</h3>
+      <div class="script-block">
+        <span class="script-label">Tu dis</span>
+        <p>"T'as des photos de plats sur ton téléphone là ? Même une photo d'un beau plat bien préparé, c'est suffisant pour commencer. On ouvre le profil maintenant, 5 minutes, gratuit."</p>
+      </div>
+    </div>
+
+    <section>
+      <h2>Les erreurs à ne jamais faire</h2>
+      <ul>
+        <li>Mentir sur les résultats : ne promets jamais "tu auras X clients en une semaine"</li>
+        <li>Insister quand quelqu'un dit non clairement : dis merci et repars</li>
+        <li>Expliquer WOZALI avant d'écouter leur situation</li>
+        <li>Parler des <span class="amount">100 000 FCFA</span> de la Bourse dès l'ouverture : c'est un bénéfice secondaire, pas l'accroche principale</li>
+        <li>Promettre que leur concurrent n'est pas encore inscrit si tu ne le sais pas avec certitude</li>
+      </ul>
+      <div class="highlight">
+        <p>Le meilleur Pionnier n'est pas celui qui inscrit le plus vite. C'est celui dont les inscrits restent actifs et recommandent WOZALI autour d'eux.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">DOC 11 - SCRIPTS METIER</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+
+</div>
+</body>
+</html>
