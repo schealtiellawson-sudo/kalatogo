@@ -4,31 +4,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## RÈGLE ABSOLUE — TERMINOLOGIE AGENTS (gravée 2026-05-27)
+
+**"PIONNIER" est INTERDIT partout, sans exception.** Le mot a des connotations religieuses inacceptables.
+
+- Terme OBLIGATOIRE : **"agent terrain WOZALI"** (en public ET en interne)
+- Les agents se présentent aux prospects comme **"agent terrain WOZALI"**, pas comme "Pionnier"
+- JAMAIS : "Pionnier WOZALI", "Pionniers", "PIONNIER" dans aucun document, visuel, code ou contenu
+
+---
+
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-26)
 
-### Sprint Recrutement Pionniers — EN COURS
+### Sprint Recrutement Agents terrain — EN COURS
 
 **Point 1 : Flow postuler ✅ COMPLET**
 
 | Fichier | État | Notes |
 |---|---|---|
-| `/offre-pionniers.html` | ✅ | Landing refondue : 100K FCFA, équipe permanente, 4 étapes déploiement WOZALI |
+| `/offre-agents terrain.html` | ✅ | Landing refondue : 100K FCFA, équipe permanente, 4 étapes déploiement WOZALI |
 | `/postuler.html` | ✅ | Formulaire complet, WhatsApp checkbox sans friction (pas de couleur verte, pas d'"Obligatoire"), redirect → /merci |
 | `/merci.html` | ✅ | Page confirmation : photo fondateur format portrait 4/5 + citation côte à côte, réseaux sociaux (WOZALI + fondateur) même design |
-| `/admin-pionniers.html` | ✅ | Gestion candidatures : filtres statut/ville, stats bar, boutons ✓ Valider / ✗ Recaler ouvrant WhatsApp avec messages pré-rédigés |
+| `/admin-agents terrain.html` | ✅ | Gestion candidatures : filtres statut/ville, stats bar, boutons ✓ Valider / ✗ Recaler ouvrant WhatsApp avec messages pré-rédigés |
 | `/assets/fondateur.jpg` | ✅ | Photo pro fondateur (marine), utilisée merci.html + Notre Histoire |
 | `style.css` + 3 pages standalone | ✅ | `overflow-x:hidden` sur `html,body` partout (fix blanc rebords définitif) |
-| Supabase RLS | ✅ | `admin_read_pionniers` (SELECT) + `admin_update_pionniers` (UPDATE) + `candp_public_insert` (INSERT anon) déjà en place |
-| `vercel.json` | ✅ | Routes : /postuler, /offre-pionniers, /recruter, /merci, /admin-pionniers |
+| Supabase RLS | ✅ | `admin_read_agents terrain` (SELECT) + `admin_update_agents terrain` (UPDATE) + `candp_public_insert` (INSERT anon) déjà en place |
+| `vercel.json` | ✅ | Routes : /postuler, /offre-agents terrain, /recruter, /merci, /admin-agents terrain |
 
-**Messages WhatsApp admin (dans admin-pionniers.html) :**
-- Validé : "Ta candidature est retenue. Tu fais partie des Pionniers WOZALI. Je t'appelle très bientôt."
+**Messages WhatsApp admin (dans admin-agents terrain.html) :**
+- Validé : "Ta candidature est retenue. Tu fais partie des Agents terrain WOZALI. Je t'appelle très bientôt."
 - Recalé : bienveillant, porte pas fermée, premier membre le 1er juillet quand la plateforme ouvre
 
 **Règles établies cette session :**
 - "Schealtiel Lawson" autorisé sur merci.html (les candidats doivent mettre un nom sur le visage) — EXCEPTION à la règle générale
-- Nom TOUJOURS interdit sur visuels sociaux et offre-pionniers.html
-- Terminologie : "Pionnier WOZALI" côté public, jamais "agent terrain"
+- Nom TOUJOURS interdit sur visuels sociaux et offre-agents terrain.html
+- Terminologie : "Agent terrain WOZALI" côté public, jamais "agent terrain"
 - Vision WOZALI élargie : pas que artisans, tout le monde qui travaille ou a un petit business (comme un LinkedIn/Instagram)
 
 **Domaine wozali.africa ✅ LIVE (confirmé 2026-05-27)**
@@ -46,7 +56,7 @@ Produits (session 2026-05-27) :
 - recrut-tiktok-or.html (TikTok 1080x1350 or soir) ✅
 - recrut-reel-cover.html (Cover Reel 1080x1920) ✅
 - recrut-post-phase1-dark.html (Phase 1 douleur pure, sans WOZALI) ✅
-- recrut-post-journee-pionnier.html (Phase 2 mécanisme, journée Pionnier) ✅
+- recrut-post-journee-agent terrain.html (Phase 2 mécanisme, journée Agent terrain) ✅
 Tous les domaines : wozali.africa/postuler (mis à jour session 2026-05-27)
 
 ---
@@ -348,7 +358,7 @@ Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "
 **Conservé** :
 - Top Mains les Plus Demandées (classement passif des coiffeuses/couturières les plus taguées)
 - Feed photos avec tag obligatoire de la pro
-- Battle H vs F (admin dashboard pour scoreboard Pionniers WOZALI Hommes/Femmes) — différent de la Battle publique virée
+- Battle H vs F (admin dashboard pour scoreboard Agents terrain WOZALI Hommes/Femmes) — différent de la Battle publique virée
 
 **URLs TikTok placeholders** : `@wolomarket` et `@schealtiellawson` (à créer par fondateur, puis search/replace 30 sec)
 
@@ -378,7 +388,7 @@ Nouveau nom validé par fondateur : **"Bourse des Mains d'Or"** (parallèle à "
 - 🔒 S2 — XSS stockée dans rendus (escapeHtml partout : offres, candidatures, profil, favoris, abonnements)
 - 🔒 S3 — Migration `20260507_fix_rls_avis_rdv.sql` créée (à appliquer manuellement)
 - 🎨 B1 — "Schealtiel" purgé du DOM public (9 occurrences → "WOZALI" / "le fondateur")
-- 🎨 B2 — "agent terrain" purgé (11 occurrences → "Pionniers WOZALI")
+- 🎨 B2 — "agent terrain" purgé (11 occurrences → "Agents terrain WOZALI")
 - 🎨 B3 — "talent" → "travail" / "pros" (11 occurrences)
 - 📅 Date "4 mai" / "18 mai" → "début juillet 2026" partout
 - 🔄 ID mismatch UUID Supabase vs recXXX Airtable géré (filtres OR + branches conditionnelles)
