@@ -31,18 +31,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Terminologie : "Pionnier WOZALI" côté public, jamais "agent terrain"
 - Vision WOZALI élargie : pas que artisans, tout le monde qui travaille ou a un petit business (comme un LinkedIn/Instagram)
 
+**Domaine wozali.africa ✅ LIVE (confirmé 2026-05-27)**
+- DNS propagé, HTTP 200 confirmé
+- URL prod officielle : https://wozali.africa
+- wozali.vercel.app reste fonctionnel en fallback mais JAMAIS utilisé en public
+- CTA partout : wozali.africa/postuler
+
 **Point 2 : Visuels recrutement — EN COURS**
-Scripts à valider avant production visuelle :
-→ Posts Instagram recrutement (formats : post 1080×1080 dark + or, story 1080×1920, carrousel)
-→ Posts TikTok recrutement (formats : 1080×1350 dark matin + or soir)
-→ Covers reels recrutement
-→ Objectif : pionniers en priorité, mais vision large WOZALI (tout le monde, pas que artisans)
+Produits (session 2026-05-27) :
+- recrut-post-v2-dark.html (Post Instagram 1080x1080 dark) ✅
+- recrut-post-v2-or.html (Post Instagram 1080x1080 or) ✅
+- recrut-story-v2.html (Story 1080x1920 dark) ✅
+- recrut-tiktok-dark.html (TikTok 1080x1350 dark matin) ✅
+- recrut-tiktok-or.html (TikTok 1080x1350 or soir) ✅
+- recrut-reel-cover.html (Cover Reel 1080x1920) ✅
+- recrut-post-phase1-dark.html (Phase 1 douleur pure, sans WOZALI) ✅
+- recrut-post-journee-pionnier.html (Phase 2 mécanisme, journée Pionnier) ✅
+Tous les domaines : wozali.africa/postuler (mis à jour session 2026-05-27)
 
 ---
 
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-23 soir)
 
-### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
+### ⚠️ URL PROD : https://wozali.africa ✅ LIVE — wozali.vercel.app en fallback uniquement, JAMAIS en public
 
 ---
 
@@ -183,7 +194,7 @@ Scripts à valider avant production visuelle :
 
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-21 soir)
 
-### ⚠️ URL PROD : https://wozali.vercel.app — JAMAIS wolomarket.vercel.app
+### ⚠️ URL PROD : https://wozali.africa ✅ LIVE — wozali.vercel.app en fallback uniquement, JAMAIS en public
 
 ---
 

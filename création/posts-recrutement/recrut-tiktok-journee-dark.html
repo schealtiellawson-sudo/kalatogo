@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width: 1080px; height: 1350px;
+  background: #14100A;
+  font-family: 'Geist', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+.glow {
+  position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 700px;
+  background: radial-gradient(ellipse at center, rgba(232,148,10,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.barre { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: #E8940A; }
+
+.inner {
+  position: absolute; inset: 0;
+  padding: 80px 80px 80px 96px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+
+/* HEADER */
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 48px; }
+.logo-w { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 38px; color: #E8940A; }
+.logo-rest { font-size: 22px; font-weight: 600; color: #FCE0A8; letter-spacing: 0.04em; }
+.eyebrow {
+  font-family: 'Geist Mono', monospace; font-size: 15px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(232,148,10,0.45);
+}
+
+/* TITRE */
+.titre {
+  font-family: 'DM Serif Display', serif;
+  font-size: 82px; line-height: 1.07;
+  color: #FCE0A8; margin-bottom: 52px;
+}
+.titre em { font-style: italic; color: #E8940A; }
+
+/* TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 52px; }
+.tl-item { display: flex; align-items: flex-start; gap: 28px; position: relative; }
+.tl-item:not(:last-child)::after {
+  content: ''; position: absolute; left: 50px; top: 46px;
+  width: 1px; height: calc(100% - 10px);
+  background: rgba(232,148,10,0.15);
+}
+.tl-time {
+  font-family: 'Geist Mono', monospace; font-size: 16px;
+  color: rgba(232,148,10,0.5); letter-spacing: 0.06em;
+  width: 62px; flex-shrink: 0; padding-top: 13px;
+}
+.tl-dot { width: 11px; height: 11px; border-radius: 50%; background: #E8940A; flex-shrink: 0; margin-top: 18px; }
+.tl-content { padding: 10px 0 24px; }
+.tl-action { font-size: 24px; font-weight: 700; color: #FCE0A8; line-height: 1.3; margin-bottom: 4px; }
+.tl-detail { font-size: 18px; color: rgba(252,224,168,0.45); line-height: 1.5; }
+.tl-gain {
+  display: inline-block; font-family: 'Geist Mono', monospace; font-size: 15px;
+  color: #E8940A; background: rgba(232,148,10,0.1);
+  border: 1px solid rgba(232,148,10,0.2); border-radius: 6px;
+  padding: 3px 12px; margin-top: 6px;
+}
+
+/* BOTTOM */
+.bottom {
+  background: rgba(232,148,10,0.07);
+  border: 1px solid rgba(232,148,10,0.2);
+  border-radius: 18px; padding: 28px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.total { display: flex; align-items: baseline; gap: 14px; }
+.total-n { font-family: 'DM Serif Display', serif; font-size: 58px; color: #E8940A; line-height: 1; }
+.total-l { font-size: 20px; color: rgba(252,224,168,0.55); line-height: 1.5; }
+.total-l strong { color: #FCE0A8; font-weight: 700; }
+.cta { text-align: right; }
+.cta div { font-size: 18px; font-weight: 700; color: #E8940A; }
+.cta small { font-family: 'Geist Mono', monospace; font-size: 13px; color: rgba(232,148,10,0.4); }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="barre"></div>
+<div class="inner">
+
+  <div>
+    <div class="header">
+      <div><span class="logo-w">W</span><span class="logo-rest">OZALI</span></div>
+      <div class="eyebrow">Pionnier · Journée réelle</div>
+    </div>
+
+    <div class="titre">Ce que tu fais<br>vraiment <em>dans<br>une journée.</em></div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-time">7h30</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-action">Tu sors dans ton quartier.</div>
+          <div class="tl-detail">Téléphone en poche. Tu connais déjà les gens.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">9h00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-action">Premier profil. Un tailleur. 5 min.</div>
+          <div class="tl-detail">Photo, métier, quartier. C'est en ligne.</div>
+          <div class="tl-gain">+2 000 FCFA quand il est actif</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">11h00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-action">Troisième profil. Une coiffeuse.</div>
+          <div class="tl-detail">Elle hésitait. Tu lui montres comment ça marche.</div>
+          <div class="tl-gain">+2 000 FCFA quand elle est active</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-time">16h00</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-action">7 profils dans la journée.</div>
+          <div class="tl-detail">Commerçants, prestataires, indépendants.</div>
+          <div class="tl-gain">+14 000 FCFA en cours</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="total">
+      <div class="total-n">50</div>
+      <div class="total-l">membres actifs<br><strong>= 100 000 FCFA/mois</strong></div>
+    </div>
+    <div class="cta">
+      <div>Postuler maintenant →</div>
+      <small>wozali.africa/postuler</small>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

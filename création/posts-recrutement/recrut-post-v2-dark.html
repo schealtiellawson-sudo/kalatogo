@@ -28,65 +28,81 @@ html, body {
 .inner {
   position: absolute;
   inset: 0;
-  padding: 80px 88px 72px 100px;
+  padding: 72px 88px 68px 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 .eyebrow {
   font-family: 'Geist Mono', monospace;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #E8940A;
   opacity: 0.75;
-  margin-bottom: 44px;
+  margin-bottom: 36px;
 }
 .titre {
   font-family: 'DM Serif Display', serif;
-  font-size: 76px;
-  line-height: 1.08;
+  font-size: 80px;
+  line-height: 1.06;
   color: #FCE0A8;
+  margin-bottom: 36px;
 }
 .titre em { font-style: italic; color: #E8940A; }
 
-.body-bloc {
-  border-left: 4px solid rgba(232,148,10,0.35);
-  padding-left: 32px;
-  margin-top: 52px;
-}
 .body-text {
-  font-size: 26px;
-  color: rgba(252,224,168,0.65);
-  line-height: 1.65;
-  margin-bottom: 24px;
+  font-size: 25px;
+  color: rgba(252,224,168,0.6);
+  line-height: 1.6;
+  max-width: 860px;
+  margin-bottom: 28px;
 }
-.highlight {
-  font-family: 'Geist Mono', monospace;
-  font-size: 30px;
-  font-weight: 700;
-  color: #E8940A;
-  letter-spacing: 0.02em;
+.missions { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+.mission {
+  display: flex; align-items: flex-start; gap: 16px;
+  font-size: 24px; color: rgba(252,224,168,0.8); line-height: 1.35;
 }
+.arr { color: #E8940A; flex-shrink: 0; }
+
+.stat-bloc {
+  display: flex; align-items: center; gap: 20px;
+  background: rgba(232,148,10,0.08);
+  border: 1px solid rgba(232,148,10,0.22);
+  border-radius: 16px;
+  padding: 22px 32px;
+}
+.stat-n { font-family: 'DM Serif Display', serif; font-size: 64px; color: #E8940A; line-height: 1; }
+.stat-l { font-size: 22px; color: rgba(252,224,168,0.65); line-height: 1.4; }
+.stat-l strong { color: #FCE0A8; font-weight: 700; }
 
 .bottom {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
+  padding-top: 28px;
+  border-top: 1px solid rgba(232,148,10,0.1);
 }
 .logo { display: flex; align-items: baseline; gap: 3px; }
-.logo-w { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 52px; color: #E8940A; line-height: 1; }
-.logo-o { font-family: 'Geist', sans-serif; font-weight: 500; font-size: 28px; color: #FCE0A8; }
+.logo-w { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 48px; color: #E8940A; line-height: 1; }
+.logo-o { font-family: 'Geist', sans-serif; font-weight: 500; font-size: 26px; color: #FCE0A8; }
+.cta-bloc { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .cta {
   font-family: 'Geist', sans-serif;
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
   color: #14100A;
   background: #E8940A;
-  padding: 16px 32px;
+  padding: 14px 30px;
   border-radius: 50px;
   letter-spacing: 0.02em;
+}
+.domain {
+  font-family: 'Geist Mono', monospace;
+  font-size: 16px;
+  color: rgba(252,224,168,0.25);
+  letter-spacing: 0.08em;
 }
 </style>
 </head>
@@ -95,18 +111,27 @@ html, body {
 <div class="barre"></div>
 <div class="inner">
   <div>
-    <div class="eyebrow">WOZALI RECRUTE · LOMÉ &amp; COTONOU</div>
-    <div class="titre">Kofi connaît 40 artisans<br>dans son quartier.<br>Aucun n'a de profil<br><em>en ligne.</em></div>
-    <div class="body-bloc">
-      <div class="body-text">Il va inscrire les premiers membres de WOZALI<br>sur le terrain. Et être payé pour.</div>
-      <div class="highlight">100 000 FCFA le 2e mois · 20 places</div>
+    <div class="eyebrow">WOZALI RECRUTE · 1ER JUILLET · 20 PLACES</div>
+    <div class="titre">Gagne 100 000 FCFA<br>par mois. Pas<br><em>de diplôme.</em></div>
+    <div class="body-text">Dans ton quartier, des gens bossent sérieusement — commerçants, prestataires, indépendants. Ils sont bons, mais personne ne les trouve. On cherche 20 Pionniers pour les mettre sur la carte avant le lancement.</div>
+    <div class="missions">
+      <div class="mission"><span class="arr">→</span>Tu vas dans ton quartier, tu trouves ceux qui travaillent bien</div>
+      <div class="mission"><span class="arr">→</span>Tu crées leur profil WOZALI en 5 minutes</div>
+      <div class="mission"><span class="arr">→</span>Tu gagnes une commission sur chaque membre actif</div>
+    </div>
+    <div class="stat-bloc">
+      <div class="stat-n">100K</div>
+      <div class="stat-l"><strong>FCFA atteignables le 2e mois.</strong><br>50 membres × 2 000 FCFA = 100 000 FCFA / mois</div>
     </div>
   </div>
   <div class="bottom">
     <div class="logo">
       <span class="logo-w">W</span><span class="logo-o">OZALI</span>
     </div>
-    <div class="cta">Lien en bio → Postuler</div>
+    <div class="cta-bloc">
+      <div class="cta">Postuler maintenant →</div>
+      <div class="domain">wozali.africa/postuler</div>
+    </div>
   </div>
 </div>
 </body>
