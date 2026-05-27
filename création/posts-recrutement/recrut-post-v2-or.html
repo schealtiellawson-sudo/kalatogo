@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width: 1080px; height: 1080px;
+  background: #E8940A;
+  font-family: 'Geist', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+.noise {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.barre {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 6px;
+  background: #1A1208;
+  opacity: 0.3;
+}
+.inner {
+  position: absolute; inset: 0;
+  padding: 80px 88px 72px 100px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-size: 20px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(26,18,8,0.55);
+  margin-bottom: 44px;
+}
+.titre {
+  font-family: 'DM Serif Display', serif;
+  font-size: 82px; line-height: 1.06;
+  color: #1A1208;
+}
+.titre em { font-style: italic; color: rgba(26,18,8,0.75); }
+
+.divider {
+  width: 80px; height: 4px;
+  background: rgba(26,18,8,0.25);
+  border-radius: 2px;
+  margin: 44px 0 36px;
+}
+
+.body-text {
+  font-size: 28px; line-height: 1.6;
+  color: rgba(26,18,8,0.75);
+  max-width: 820px;
+  margin-bottom: 32px;
+}
+
+.highlight-bloc {
+  display: inline-flex; align-items: center; gap: 16px;
+  background: rgba(26,18,8,0.12);
+  border: 1.5px solid rgba(26,18,8,0.2);
+  border-radius: 16px;
+  padding: 20px 32px;
+}
+.highlight-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 56px; color: #1A1208; line-height: 1;
+}
+.highlight-label {
+  font-size: 24px; font-weight: 600;
+  color: rgba(26,18,8,0.8); line-height: 1.35;
+}
+
+.bottom {
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.logo { display: flex; align-items: baseline; gap: 3px; }
+.logo-w { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 52px; color: #1A1208; line-height: 1; }
+.logo-o { font-family: 'Geist', sans-serif; font-weight: 500; font-size: 28px; color: rgba(26,18,8,0.85); }
+.cta {
+  font-family: 'Geist', sans-serif;
+  font-size: 22px; font-weight: 700;
+  color: #E8940A;
+  background: #1A1208;
+  padding: 16px 32px;
+  border-radius: 50px;
+}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="barre"></div>
+<div class="inner">
+  <div>
+    <div class="eyebrow">20 PLACES · LANCEMENT 1ER JUILLET</div>
+    <div class="titre">Les premiers<br>dans une ville,<br>c'est toujours<br><em>les mêmes.</em></div>
+    <div class="divider"></div>
+    <div class="body-text">WOZALI cherche 20 Pionniers à Lomé et Cotonou. Tu vas sur le terrain, tu inscris les artisans et commerçants de ton quartier. Commission à chaque membre actif.</div>
+    <div class="highlight-bloc">
+      <div class="highlight-num">100K</div>
+      <div class="highlight-label">FCFA atteignables<br>le 2e mois</div>
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="logo"><span class="logo-w">W</span><span class="logo-o">OZALI</span></div>
+    <div class="cta">Lien en bio → Postuler</div>
+  </div>
+</div>
+</body>
+</html>

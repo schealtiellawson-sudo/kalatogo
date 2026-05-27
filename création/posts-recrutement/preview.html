@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  background: #0B0805;
+  font-family: 'Geist', sans-serif;
+  min-height: 100vh;
+  color: #FCE0A8;
+  padding: 48px 40px 80px;
+}
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 32px;
+  color: #E8940A;
+  margin-bottom: 6px;
+}
+.sub {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(232,148,10,0.45);
+  margin-bottom: 52px;
+}
+
+.grid {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(232,148,10,0.55);
+}
+
+/* Post 1:1 — affiché à 380px */
+.frame-post {
+  width: 380px;
+  height: 380px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(232,148,10,0.15);
+  flex-shrink: 0;
+}
+.frame-post iframe {
+  width: 1080px;
+  height: 1080px;
+  transform: scale(0.3519);
+  transform-origin: top left;
+  border: none;
+  display: block;
+}
+
+/* Story 9:16 — affiché à 213px x 380px */
+.frame-story {
+  width: 213px;
+  height: 380px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(232,148,10,0.15);
+  flex-shrink: 0;
+}
+.frame-story iframe {
+  width: 1080px;
+  height: 1920px;
+  transform: scale(0.1972);
+  transform-origin: top left;
+  border: none;
+  display: block;
+}
+
+/* Reel cover 9:16 — affiché à 213px x 380px */
+.frame-reel {
+  width: 213px;
+  height: 380px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(232,148,10,0.15);
+  flex-shrink: 0;
+}
+.frame-reel iframe {
+  width: 1080px;
+  height: 1920px;
+  transform: scale(0.1972);
+  transform-origin: top left;
+  border: none;
+  display: block;
+}
+
+/* TikTok post 4:5 — affiché à 270px x 338px */
+.frame-tiktok {
+  width: 270px;
+  height: 338px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(232,148,10,0.15);
+  flex-shrink: 0;
+}
+.frame-tiktok iframe {
+  width: 1080px;
+  height: 1350px;
+  transform: scale(0.25);
+  transform-origin: top left;
+  border: none;
+  display: block;
+}
+
+.dim {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: rgba(252,224,168,0.2);
+  letter-spacing: 0.08em;
+}
+</style>
+</head>
+<body>
+
+<h1>Visuels Recrutement Pionniers</h1>
+<div class="sub">Prévisualisation · Instagram + TikTok · WOZALI</div>
+
+<div class="grid">
+
+  <!-- POST -->
+  <div class="col">
+    <div class="label">Post Instagram</div>
+    <div class="frame-post">
+      <iframe src="recrut-post-v2-dark.html" scrolling="no"></iframe>
+    </div>
+    <div class="dim">1080 × 1080 px · Dark</div>
+  </div>
+
+  <!-- STORY -->
+  <div class="col">
+    <div class="label">Story Instagram</div>
+    <div class="frame-story">
+      <iframe src="recrut-story-v2.html" scrolling="no"></iframe>
+    </div>
+    <div class="dim">1080 × 1920 px · Dark</div>
+  </div>
+
+  <!-- REEL COVER -->
+  <div class="col">
+    <div class="label">Cover Reel / TikTok</div>
+    <div class="frame-reel">
+      <iframe src="recrut-reel-cover.html" scrolling="no"></iframe>
+    </div>
+    <div class="dim">1080 × 1920 px · Dark</div>
+  </div>
+
+  <!-- TIKTOK DARK -->
+  <div class="col">
+    <div class="label">TikTok Post · Matin</div>
+    <div class="frame-tiktok">
+      <iframe src="recrut-tiktok-dark.html" scrolling="no"></iframe>
+    </div>
+    <div class="dim">1080 × 1350 px · Dark</div>
+  </div>
+
+  <!-- TIKTOK OR -->
+  <div class="col">
+    <div class="label">TikTok Post · Soir</div>
+    <div class="frame-tiktok">
+      <iframe src="recrut-tiktok-or.html" scrolling="no"></iframe>
+    </div>
+    <div class="dim">1080 × 1350 px · Or</div>
+  </div>
+
+</div>
+
+</body>
+</html>

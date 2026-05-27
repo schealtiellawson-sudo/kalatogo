@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width: 1080px; height: 1350px;
+  background: #E8940A;
+  font-family: 'Geist', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+.barre { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: rgba(26,18,8,0.25); }
+.inner {
+  position: absolute; inset: 0;
+  padding: 88px 88px 80px 100px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+
+/* HEADER */
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 64px; }
+.logo { display: flex; align-items: baseline; gap: 3px; }
+.logo-w { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 52px; color: #1A1208; line-height: 1; }
+.logo-o { font-family: 'Geist', sans-serif; font-weight: 500; font-size: 28px; color: rgba(26,18,8,0.85); }
+.badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 18px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: rgba(26,18,8,0.1);
+  border: 1.5px solid rgba(26,18,8,0.2);
+  color: #1A1208;
+  padding: 10px 22px; border-radius: 30px;
+}
+
+/* TITRE */
+.titre {
+  font-family: 'DM Serif Display', serif;
+  font-size: 96px; line-height: 1.06;
+  color: #1A1208;
+  margin-bottom: 48px;
+}
+.titre em { font-style: italic; color: rgba(26,18,8,0.6); }
+
+/* DIVIDER */
+.divider { width: 80px; height: 4px; background: rgba(26,18,8,0.2); border-radius: 2px; margin-bottom: 44px; }
+
+/* WHAT */
+.what {
+  font-size: 30px; color: rgba(26,18,8,0.7);
+  line-height: 1.6;
+  margin-bottom: 52px;
+  max-width: 880px;
+}
+
+/* STAT BLOC */
+.stat-bloc {
+  background: rgba(26,18,8,0.1);
+  border: 1.5px solid rgba(26,18,8,0.18);
+  border-radius: 20px;
+  padding: 36px 44px;
+  display: flex; align-items: center; gap: 28px;
+  margin-bottom: 40px;
+}
+.stat-n { font-family: 'DM Serif Display', serif; font-size: 80px; color: #1A1208; line-height: 1; }
+.stat-l { font-size: 28px; color: rgba(26,18,8,0.75); line-height: 1.4; }
+.stat-l strong { color: #1A1208; font-weight: 700; }
+
+/* TAGS */
+.tags { display: flex; gap: 12px; flex-wrap: wrap; }
+.tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 20px; letter-spacing: 0.06em;
+  background: rgba(26,18,8,0.1);
+  border: 1px solid rgba(26,18,8,0.15);
+  color: rgba(26,18,8,0.7);
+  padding: 10px 22px; border-radius: 30px;
+}
+
+/* BOTTOM */
+.bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 36px;
+  border-top: 1px solid rgba(26,18,8,0.12);
+}
+.domain { font-family: 'Geist Mono', monospace; font-size: 22px; color: rgba(26,18,8,0.3); letter-spacing: 0.08em; }
+.cta {
+  font-size: 22px; font-weight: 700; color: #E8940A;
+  background: #1A1208; padding: 16px 32px; border-radius: 50px;
+}
+</style>
+</head>
+<body>
+<div class="barre"></div>
+<div class="inner">
+
+  <div>
+    <div class="header">
+      <div class="logo"><span class="logo-w">W</span><span class="logo-o">OZALI</span></div>
+      <div class="badge">20 places · 1er juillet</div>
+    </div>
+
+    <div class="titre">20 personnes<br>vont changer<br>Lomé <em>&amp; Cotonou.</em></div>
+    <div class="divider"></div>
+
+    <div class="what">WOZALI rend visible tout le monde qui travaille, mais que personne ne trouve. Artisans, commerçants, coiffeurs, mécaniciens. On cherche 20 Pionniers pour les inscrire sur le terrain avant le lancement.</div>
+
+    <div class="stat-bloc">
+      <div class="stat-n">100K</div>
+      <div class="stat-l"><strong>FCFA atteignables le 2e mois.</strong><br>Commission par membre actif. Pas de diplôme.</div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">Lomé</span>
+      <span class="tag">Cotonou</span>
+      <span class="tag">Formation incluse</span>
+      <span class="tag">Équipe permanente</span>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="domain">wozali.vercel.app/postuler</div>
+    <div class="cta">Lien en bio → Postuler</div>
+  </div>
+
+</div>
+</body>
+</html>
