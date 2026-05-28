@@ -5283,13 +5283,15 @@ section[style*="background:var(--blanc)"] [style*="color:var(--gris-fonce)"] {
 }
 
 /* 7. html + body — garantie absolue fond noir, zéro rebord */
+/* overflow-x:clip au lieu de hidden : clip ne crée PAS de scroll container
+   et ne casse donc PAS position:fixed sur les enfants (nav, mobile-bottom-nav) */
 html {
   margin: 0 !important;
   padding: 0 !important;
   background: #14100A !important;
   min-height: 100vh !important;
   width: 100% !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 body {
   margin: 0 !important;
@@ -5300,7 +5302,7 @@ body {
   background: #14100A !important;
   min-height: 100vh !important;
   width: 100% !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 /* Nav mobile fixée en bas sans ambiguïté */
 .mobile-bottom-nav {
