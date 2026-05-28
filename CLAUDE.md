@@ -14,6 +14,93 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-28)
+
+### État actuel — tout est opérationnel
+
+**KPI terrain** : auto-calculé depuis `wozali_prestataires.parrain_code`, zéro saisie manuelle.
+**Battle H/F** : Pro signés ce mois depuis `wozali_prestataires` (pas `nb_filleuls`).
+**Formation agents** : 20 docs accessibles depuis le dashboard agent ET le dashboard admin.
+
+### Ce qui reste à faire (prochaine priorité)
+
+- ⬜ Agents IA scoring + KYC (manque API keys Vercel : `GEMINI_API_KEY` / `GROQ_API_KEY`)
+- ⬜ Séquence WhatsApp J30 (J0-J7 existent, manque `WHATSAPP_CLOUD_TOKEN` Vercel)
+- ⬜ Bouton Embaucher → fiche employé (sprint J)
+- ⬜ Espace équipe (sprint K)
+- ⬜ 150-200 vrais profils avant 1er juillet (terrain)
+- ⬜ 3-5 agents terrain Lomé + Cotonou (recrutement terrain)
+
+---
+
+## ✅ SESSION 2026-05-28 — KPI auto-calculé + Battle réel + Formation dashboard
+
+**Commits pushés :** `90b1941` (doc 20 title fix), `bd9c38a` (formation admin link) + gros commit session précédente (39 fichiers modifiés)
+
+### 1. KPI terrain — refonte complète auto-calculée
+
+Ancien système : saisie manuelle des inscrits/Pro chaque semaine par l'admin.
+Nouveau système : tout calculé depuis `wozali_prestataires.parrain_code` + `created_at`. Zéro chiffre à saisir.
+
+**Fonctions ajoutées (app.js) :**
+```javascript
+function _weekStart(weeksAgo)          // retourne le lundi de la semaine N-weeksAgo
+function _computeWeekBuckets(records)  // groupe les inscriptions par semaine (inscrits + pro)
+function _computeCarton(buckets)       // carton orange/rouge basé sur semaines COMPLÈTES uniquement
+async function loadKPITerrain()        // charge agents + prestataires des 10 dernières semaines
+function openKPIHistorique(id, nom, code)  // affiche 8 semaines complètes calculées en réel
+function openKPIStatut(id, nom)        // SEULE action manuelle restante : statut + notes
+async function saveKPIStatut(id, nom)  // upsert wozali_kpi_semaines (inscrits_gratuit:0, pro_signes:0 — champs ignorés)
+```
+
+**Fonctions supprimées :** `openKPISaisie`, `updateKPIPreview`, `saveKPISaisie`
+
+**Table `wozali_kpi_semaines`** : sert uniquement pour `statut_agent` (actif/formation/arrete) + `notes`. Les nombres viennent de `wozali_prestataires`.
+
+**Logique carton :** basée sur les semaines W-1 et W-2 (semaines COMPLETES). La semaine en cours n'entre jamais dans le calcul pour éviter les faux positifs en milieu de semaine.
+
+**Seuils KPI :** 150 inscrits Gratuit/semaine + 30 Pro (20% conversion).
+
+### 2. Battle H/F — auto-calculé depuis données réelles
+
+Ancien système : lisait `nb_filleuls` (champ statique stale).
+Nouveau système : compte les Pro signés CE mois depuis `wozali_prestataires` groupés par `parrain_code`.
+
+```javascript
+let _battleProByCode = {};  // { code: count }
+
+async function loadBattle(ville)   // query wozali_prestataires WHERE abonnement='Pro' AND created_at >= 1er du mois
+function renderBattle()            // hPro/fPro depuis _battleProByCode (pas nb_filleuls)
+```
+
+**Commissions :** 2 000 FCFA/Pro (normal), 3 000 FCFA/Pro (si battle gagné).
+
+**HTML mis à jour :** subtitle Battle, "inscrits" → "Pro signés ce mois", label "commissions base", `id="battle-mois-label"`.
+
+### 3. Nettoyage repo
+
+- 39 fichiers modifiés pré-existants commités proprement (git reset HEAD~1 + selective add pour exclure les fichiers non suivis)
+- Fichiers legacy KalaTogo supprimés : scripts Python (`rewrite_*.py`), vieilles notes session, vidéo kala-presentation.mp4
+- `/tmp/formation-preview/` synchronisé avec les 20 fichiers HTML formation du repo
+
+### 4. Formation agents — dashboard opérationnel
+
+**Section `ds-agents-ressources` :** déjà construite et complète.
+- 20 documents de formation en grille
+- Tracking lecture dans `agent_document_reads` (Supabase)
+- Checklist onboarding 3 étapes (checkboxes persistées)
+- Route `/formation/:slug` → `/formation/:slug.html` dans vercel.json
+
+**Titre doc 20 corrigé (app.js ligne ~13742) :**
+- Avant : "Suivre ses membres et passer de 10 à 50 Pro par mois"
+- Après : "Atteindre 100 000 FCFA par mois : l'effet cumulé, le suivi membres et les KPI"
+
+**Accès :**
+- Agents terrain : via sidebar groupe "Agent terrain" → "Mes ressources" (contrôlé par `_isAgentTerrain`)
+- Admin (fondateur) : via sidebar groupe "Admin" → "Formation agents" (lien ajouté ce jour)
+
+---
+
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-26)
 
 ### Sprint Recrutement Agents terrain — EN COURS
