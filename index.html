@@ -3379,46 +3379,51 @@ setTimeout(function(){
       <div class="dash-section" id="ds-battle">
         <div class="dash-header">
           <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Battle H vs F</h2>
-          <p style="color:var(--gris);font-size:13px;">Scoreboard temps réel — l'équipe gagnante touche le fixe doublé (60 000 FCFA).</p>
+          <p style="color:var(--gris);font-size:13px;">Pro signes ce mois · Equipe gagnante = 3 000 FCFA/Pro, equipe perdante = 2 000 FCFA/Pro · Calcul automatique</p>
         </div>
 
-        <!-- Sélecteur ville -->
-        <div style="display:flex;gap:8px;margin-bottom:20px;">
-          <button onclick="loadBattle('')" id="battle-filter-all" style="padding:8px 18px;font-size:13px;border-radius:10px;background:#E8940A;color:#14100A;border:none;font-weight:700;cursor:pointer;">Toutes les villes</button>
-          <button onclick="loadBattle('Lomé')" id="battle-filter-lome" style="padding:8px 18px;font-size:13px;border-radius:10px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Lomé</button>
-          <button onclick="loadBattle('Cotonou')" id="battle-filter-cotonou" style="padding:8px 18px;font-size:13px;border-radius:10px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Cotonou</button>
+        <!-- Mois en cours + filtre ville -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;" id="battle-mois-label">Chargement...</div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="loadBattle('')" id="battle-filter-all" style="padding:6px 14px;font-size:12px;border-radius:8px;background:#E8940A;color:#14100A;border:none;font-weight:700;cursor:pointer;">Toutes</button>
+            <button onclick="loadBattle('Lomé')" id="battle-filter-lome" style="padding:6px 14px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Lomé</button>
+            <button onclick="loadBattle('Cotonou')" id="battle-filter-cotonou" style="padding:6px 14px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);cursor:pointer;">Cotonou</button>
+          </div>
         </div>
 
         <!-- Scoreboard -->
         <div id="battle-scoreboard" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
           <!-- Équipe Hommes -->
           <div style="background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(59,130,246,.04));border:2px solid rgba(59,130,246,.3);border-radius:16px;padding:20px;text-align:center;">
-            <div style="font-size:32px;margin-bottom:4px;">♂</div>
-            <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#3b82f6;">Équipe Hommes</div>
-            <div style="font-family:'Geist Mono',monospace;font-size:36px;font-weight:900;color:#FCE0A8;margin:12px 0;" id="battle-h-score">0</div>
-            <div style="font-size:12px;color:var(--gris);">inscrits</div>
-            <div style="margin-top:8px;font-family:'Geist Mono',monospace;font-size:14px;color:#3b82f6;" id="battle-h-comm">0 FCFA</div>
+            <div style="font-size:28px;margin-bottom:4px;">♂</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#3b82f6;">Equipe Hommes</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:40px;font-weight:900;color:#FCE0A8;margin:10px 0;line-height:1;" id="battle-h-score">-</div>
+            <div style="font-size:11px;color:var(--gris);margin-bottom:8px;">Pro signes ce mois</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:13px;color:#3b82f6;" id="battle-h-comm">0 FCFA</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:2px;">commissions base</div>
           </div>
           <!-- Équipe Femmes -->
           <div style="background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));border:2px solid rgba(232,148,10,.3);border-radius:16px;padding:20px;text-align:center;">
-            <div style="font-size:32px;margin-bottom:4px;">♀</div>
-            <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;">Équipe Femmes</div>
-            <div style="font-family:'Geist Mono',monospace;font-size:36px;font-weight:900;color:#FCE0A8;margin:12px 0;" id="battle-f-score">0</div>
-            <div style="font-size:12px;color:var(--gris);">inscrits</div>
-            <div style="margin-top:8px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;" id="battle-f-comm">0 FCFA</div>
+            <div style="font-size:28px;margin-bottom:4px;">♀</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#E8940A;">Equipe Femmes</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:40px;font-weight:900;color:#FCE0A8;margin:10px 0;line-height:1;" id="battle-f-score">-</div>
+            <div style="font-size:11px;color:var(--gris);margin-bottom:8px;">Pro signes ce mois</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:13px;color:#E8940A;" id="battle-f-comm">0 FCFA</div>
+            <div style="font-size:10px;color:var(--gris);margin-top:2px;">commissions base</div>
           </div>
         </div>
 
-        <!-- Bannière gagnant -->
-        <div id="battle-winner-banner" style="display:none;background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.05));border:2px solid #E8940A;border-radius:14px;padding:16px;text-align:center;margin-bottom:20px;">
-          <div style="font-size:28px;">🏆</div>
-          <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;" id="battle-winner-text"></div>
-          <div style="font-size:12px;color:var(--gris);margin-top:4px;">Fixe doublé : 60 000 FCFA</div>
+        <!-- Bannière leader -->
+        <div id="battle-winner-banner" style="display:none;background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.05));border:2px solid #E8940A;border-radius:14px;padding:14px;text-align:center;margin-bottom:20px;">
+          <div style="font-size:24px;">🏆</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;font-weight:900;" id="battle-winner-text"></div>
+          <div style="font-size:11px;color:var(--gris);margin-top:4px;">Equipe gagnante en fin de mois = 3 000 FCFA/Pro signe</div>
         </div>
 
         <!-- Classement individuel -->
         <div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:800;color:#FCE0A8;margin-bottom:12px;">Classement individuel</h3>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;margin-bottom:12px;">Classement individuel</h3>
           <div id="battle-ranking" style="display:flex;flex-direction:column;gap:6px;">
             <div style="text-align:center;padding:30px;color:var(--gris);">Chargement...</div>
           </div>

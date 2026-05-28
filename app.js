@@ -10403,12 +10403,17 @@ function openKPIHistorique(agentId, agentNom, agentCode) {
     </div>`);
 }
 
-// ── BATTLE H vs F ──
-let _battleVilleFilter = '';
+// ── BATTLE H vs F — calcul auto depuis wozali_prestataires ──
+// Score = Pro signes ce mois par genre d'agent
+// Commission affichee = Pro × 2 000 FCFA (taux gagnant = 3 000 FCFA/Pro)
 
-function loadBattle(ville) {
+let _battleVilleFilter = '';
+let _battleProByCode = {}; // code_parrainage -> nb Pro signes ce mois
+
+async function loadBattle(ville) {
   _battleVilleFilter = ville;
-  // UI boutons
+
+  // UI boutons filtre
   ['all', 'lome', 'cotonou'].forEach(k => {
     const btn = document.getElementById('battle-filter-' + k);
     if (!btn) return;
@@ -10417,59 +10422,98 @@ function loadBattle(ville) {
     btn.style.color = active ? '#14100A' : '#FCE0A8';
     btn.style.border = active ? 'none' : '1px solid rgba(255,255,255,.12)';
   });
+
+  // Charger les agents si besoin
+  if (!_agentsTerrainCache.length) {
+    const d = await _agentsAPI('list');
+    if (d.ok) _agentsTerrainCache = d.agents || [];
+  }
+
+  const codes = _agentsTerrainCache.filter(a => a.actif && a.code_parrainage).map(a => a.code_parrainage);
+
+  // 1er du mois en cours
+  const now = new Date();
+  const debutMois = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  _battleProByCode = {};
+  if (codes.length) {
+    const { data } = await supa
+      .from('wozali_prestataires')
+      .select('parrain_code')
+      .in('parrain_code', codes)
+      .eq('abonnement', 'Pro')
+      .gte('created_at', debutMois);
+    if (data) {
+      data.forEach(r => {
+        _battleProByCode[r.parrain_code] = (_battleProByCode[r.parrain_code] || 0) + 1;
+      });
+    }
+  }
+
   renderBattle();
 }
 
 function renderBattle() {
+  const rankContainer = document.getElementById('battle-ranking');
+  if (!rankContainer) return;
+
   let agents = _agentsTerrainCache.filter(a => a.actif);
   if (_battleVilleFilter) agents = agents.filter(a => a.ville === _battleVilleFilter);
 
   const hommes = agents.filter(a => a.genre === 'H');
   const femmes = agents.filter(a => a.genre === 'F');
 
-  const hScore = hommes.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
-  const fScore = femmes.reduce((s, a) => s + (a.nb_filleuls || 0), 0);
-  const hComm = hommes.reduce((s, a) => s + (a.total_commissions || 0), 0);
-  const fComm = femmes.reduce((s, a) => s + (a.total_commissions || 0), 0);
+  const hPro = hommes.reduce((s, a) => s + (_battleProByCode[a.code_parrainage] || 0), 0);
+  const fPro = femmes.reduce((s, a) => s + (_battleProByCode[a.code_parrainage] || 0), 0);
+  // Commission au taux de base 2 000 FCFA/Pro (gagnant = 3 000 FCFA/Pro)
+  const hComm = hPro * 2000;
+  const fComm = fPro * 2000;
 
-  document.getElementById('battle-h-score').textContent = hScore;
-  document.getElementById('battle-f-score').textContent = fScore;
+  document.getElementById('battle-h-score').textContent = hPro;
+  document.getElementById('battle-f-score').textContent = fPro;
   document.getElementById('battle-h-comm').textContent = hComm.toLocaleString('fr-FR') + ' FCFA';
   document.getElementById('battle-f-comm').textContent = fComm.toLocaleString('fr-FR') + ' FCFA';
 
-  // Bannière gagnant
+  // Indicateur du mois
+  const moisLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  const moisEl = document.getElementById('battle-mois-label');
+  if (moisEl) moisEl.textContent = moisLabel;
+
+  // Banniere gagnant
   const banner = document.getElementById('battle-winner-banner');
   const winnerText = document.getElementById('battle-winner-text');
-  if (hScore > 0 || fScore > 0) {
+  if (hPro > 0 || fPro > 0) {
     banner.style.display = 'block';
-    if (hScore > fScore) {
-      winnerText.textContent = 'Équipe Hommes en tête !';
+    if (hPro > fPro) {
+      winnerText.textContent = 'Equipe Hommes en tete';
       winnerText.style.color = '#3b82f6';
-    } else if (fScore > hScore) {
-      winnerText.textContent = 'Équipe Femmes en tête !';
+    } else if (fPro > hPro) {
+      winnerText.textContent = 'Equipe Femmes en tete';
       winnerText.style.color = '#E8940A';
     } else {
-      winnerText.textContent = 'Égalité parfaite !';
+      winnerText.textContent = 'Egalite parfaite';
       winnerText.style.color = '#FCE0A8';
     }
   } else {
     banner.style.display = 'none';
   }
 
-  // Classement individuel
-  const allSorted = [...agents].sort((a, b) => (b.nb_filleuls || 0) - (a.nb_filleuls || 0));
-  const rankContainer = document.getElementById('battle-ranking');
+  // Classement individuel par Pro signes ce mois
+  const allSorted = [...agents]
+    .map(a => ({ ...a, proMois: _battleProByCode[a.code_parrainage] || 0 }))
+    .sort((a, b) => b.proMois - a.proMois);
 
   if (!allSorted.length) {
-    rankContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun agent terrain. Ajoute des agents terrain dans l\'onglet Agents terrain WOZALI.</div>';
+    rankContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun agent actif.</div>';
     return;
   }
 
   const medals = ['🥇', '🥈', '🥉'];
   rankContainer.innerHTML = allSorted.map((a, i) => {
-    const teamColor = a.genre === 'F' ? '#E8940A' : '#3b82f6';
-    const teamBg = a.genre === 'F' ? 'rgba(232,148,10,.08)' : 'rgba(59,130,246,.08)';
+    const teamColor  = a.genre === 'F' ? '#E8940A' : '#3b82f6';
+    const teamBg     = a.genre === 'F' ? 'rgba(232,148,10,.08)' : 'rgba(59,130,246,.08)';
     const teamBorder = a.genre === 'F' ? 'rgba(232,148,10,.2)' : 'rgba(59,130,246,.2)';
+    const comm = (a.proMois * 2000).toLocaleString('fr-FR');
     return `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${teamBg};border:1px solid ${teamBorder};border-radius:10px;">
         <div style="font-size:${i < 3 ? '20px' : '14px'};width:28px;text-align:center;font-weight:900;color:${i < 3 ? '#E8940A' : 'var(--gris)'};">${i < 3 ? medals[i] : (i + 1)}</div>
@@ -10479,11 +10523,14 @@ function renderBattle() {
           <div style="font-size:10px;color:var(--gris);">${a.ville}</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:#FCE0A8;">${a.nb_filleuls || 0}</div>
-          <div style="font-size:9px;color:var(--gris);">inscrits</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${a.proMois > 0 ? '#E8940A' : 'var(--gris)'};">${a.proMois}</div>
+          <div style="font-size:9px;color:var(--gris);">Pro ce mois</div>
         </div>
-      </div>
-    `;
+        <div style="text-align:right;min-width:80px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;color:${a.proMois > 0 ? '#22c55e' : 'var(--gris)'};">${comm} F</div>
+          <div style="font-size:9px;color:var(--gris);">commissions</div>
+        </div>
+      </div>`;
   }).join('');
 }
 
