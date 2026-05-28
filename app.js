@@ -9801,7 +9801,8 @@ let _agentsTerrainCache = [];
 let _agentsVilleFilter = '';
 let _isAdminDash = false;
 let _agentSearchTimer = null;
-let _kpiData = {}; // agentId -> [semaines KPI...]
+let _kpiData = {}; // agentCode -> { buckets: { weekKey: { inscrits, pro } } }
+let _kpiStatutOverrides = {}; // agentId -> { statut_agent, notes }
 
 async function checkAdminForDashboard() {
   try {
@@ -10086,7 +10087,10 @@ function switchAgentTab(tab) {
   if (tab === 'kpi') loadKPITerrain();
 }
 
-// ── KPI TERRAIN ──
+// ── KPI TERRAIN — auto-calculé depuis wozali_prestataires ──
+// Aucune saisie manuelle de chiffres. Les inscrits et Pro sont lus
+// directement via parrain_code. Seuls statut_agent et notes sont éditables.
+
 function _getMondayOfWeek(date) {
   const d = new Date(date || Date.now());
   const day = d.getDay();
@@ -10096,7 +10100,7 @@ function _getMondayOfWeek(date) {
 }
 
 function _formatSemaineLabel(dateStr) {
-  const d = new Date(dateStr);
+  const d = new Date(dateStr + 'T00:00:00');
   const end = new Date(d);
   end.setDate(end.getDate() + 5);
   const opts = { day: 'numeric', month: 'short' };
@@ -10106,52 +10110,121 @@ function _formatSemaineLabel(dateStr) {
 function _cartonColor(c) { return c === 'rouge' ? '#dc2626' : c === 'orange' ? '#f97316' : '#22c55e'; }
 function _cartonEmoji(c) { return c === 'rouge' ? '🔴' : c === 'orange' ? '🟠' : '🟢'; }
 
+// ISO date string (YYYY-MM-DD) for Monday of the week weeksAgo weeks back
+function _weekStart(weeksAgo) {
+  const m = _getMondayOfWeek();
+  if (weeksAgo) m.setDate(m.getDate() - weeksAgo * 7);
+  return m.toISOString().split('T')[0];
+}
+
+// Group a flat list of prestataires records into weekly buckets for one agent
+function _computeWeekBuckets(records) {
+  const buckets = {};
+  for (const r of records) {
+    const monday = _getMondayOfWeek(new Date(r.created_at)).toISOString().split('T')[0];
+    if (!buckets[monday]) buckets[monday] = { inscrits: 0, pro: 0 };
+    buckets[monday].inscrits++;
+    if (r.abonnement === 'Pro') buckets[monday].pro++;
+  }
+  return buckets;
+}
+
+// Determine carton based on the two most recently COMPLETED weeks
+function _computeCarton(buckets) {
+  const pw  = buckets[_weekStart(1)] || { inscrits: 0, pro: 0 };
+  const pp  = buckets[_weekStart(2)] || { inscrits: 0, pro: 0 };
+  const pwOk = pw.inscrits >= 150 && pw.pro >= 30;
+  const ppOk = pp.inscrits >= 150 && pp.pro >= 30;
+  if (!pwOk && !ppOk) return 'rouge';
+  if (!pwOk) return 'orange';
+  return 'aucun';
+}
+
 async function loadKPITerrain() {
   const container = document.getElementById('kpi-agents-list');
   if (!container) return;
-  container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);">Chargement...</div>';
+  container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);">Calcul en cours...</div>';
+
+  // Charger les agents si besoin
   if (!_agentsTerrainCache.length) {
     const d = await _agentsAPI('list');
     if (d.ok) _agentsTerrainCache = d.agents || [];
   }
   const agents = _agentsTerrainCache.filter(a => a.actif);
+  if (!agents.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);">Aucun agent actif</div>';
+    return;
+  }
+
+  const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+  const from10w = _weekStart(10);
+
+  // Lire les inscriptions reelles via parrain_code
+  let prestRecords = [];
+  if (codes.length) {
+    const { data } = await supa
+      .from('wozali_prestataires')
+      .select('parrain_code, abonnement, created_at')
+      .in('parrain_code', codes)
+      .gte('created_at', from10w + 'T00:00:00Z');
+    prestRecords = data || [];
+  }
+
+  // Lire les overrides statut (seule donnee manuelle)
+  _kpiStatutOverrides = {};
   const agentIds = agents.map(a => a.user_id || a.id).filter(Boolean);
   if (agentIds.length) {
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 56);
-    const { data, error } = await supa
+    const { data: statutData } = await supa
       .from('wozali_kpi_semaines')
-      .select('*')
+      .select('agent_id, statut_agent, notes, updated_at')
       .in('agent_id', agentIds)
-      .gte('semaine_debut', cutoff.toISOString().split('T')[0])
-      .order('semaine_debut', { ascending: false });
-    if (!error && data) {
-      _kpiData = {};
-      data.forEach(row => {
-        if (!_kpiData[row.agent_id]) _kpiData[row.agent_id] = [];
-        _kpiData[row.agent_id].push(row);
+      .order('updated_at', { ascending: false });
+    if (statutData) {
+      statutData.forEach(row => {
+        if (!_kpiStatutOverrides[row.agent_id]) _kpiStatutOverrides[row.agent_id] = row;
       });
     }
   }
+
+  // Construire les buckets par code
+  _kpiData = {};
+  for (const agent of agents) {
+    const code = agent.code_parrainage;
+    if (!code) continue;
+    const records = prestRecords.filter(r => r.parrain_code === code);
+    _kpiData[code] = { buckets: _computeWeekBuckets(records) };
+  }
+
   renderKPIList(agents);
 }
 
 function renderKPIList(agents) {
   const container = document.getElementById('kpi-agents-list');
   if (!container) return;
-  if (!agents.length) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);">Aucun agent actif</div>';
-    return;
-  }
-  const thisWeek = _getMondayOfWeek().toISOString().split('T')[0];
-  const kpiOk   = agents.filter(a => (_kpiData[a.user_id||a.id]||[]).find(s=>s.semaine_debut===thisWeek)?.kpi_ok).length;
-  const oranges = agents.filter(a => (_kpiData[a.user_id||a.id]||[]).find(s=>s.semaine_debut===thisWeek)?.carton==='orange').length;
-  const rouges  = agents.filter(a => (_kpiData[a.user_id||a.id]||[]).find(s=>s.semaine_debut===thisWeek)?.carton==='rouge').length;
-  const nonSaisis = agents.filter(a => !(_kpiData[a.user_id||a.id]||[]).find(s=>s.semaine_debut===thisWeek)).length;
+
+  const tw0 = _weekStart(0);
+  const tw1 = _weekStart(1);
+
+  const agentStats = agents.map(agent => {
+    const code = agent.code_parrainage;
+    const id   = agent.user_id || agent.id;
+    const buckets = _kpiData[code]?.buckets || {};
+    const tw  = buckets[tw0] || { inscrits: 0, pro: 0 };
+    const pw  = buckets[tw1] || { inscrits: 0, pro: 0 };
+    const carton = _computeCarton(buckets);
+    const statut = _kpiStatutOverrides[id]?.statut_agent || 'actif';
+    return { agent, tw, pw, carton, statut };
+  });
+
+  const enRoute   = agentStats.filter(s => s.tw.inscrits >= 150 && s.tw.pro >= 30).length;
+  const oranges   = agentStats.filter(s => s.carton === 'orange').length;
+  const rouges    = agentStats.filter(s => s.carton === 'rouge').length;
+
   container.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;">
       <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px;text-align:center;">
-        <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:#22c55e;">${kpiOk}</div>
-        <div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">KPI OK</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:#22c55e;">${enRoute}</div>
+        <div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">En route</div>
       </div>
       <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:12px;padding:14px;text-align:center;">
         <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:#f97316;">${oranges}</div>
@@ -10162,157 +10235,160 @@ function renderKPIList(agents) {
         <div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Cartons rouges</div>
       </div>
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;text-align:center;">
-        <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:rgba(252,224,168,.4);">${nonSaisis}</div>
-        <div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Non saisis</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:rgba(252,224,168,.4);">${agents.length}</div>
+        <div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Agents actifs</div>
       </div>
     </div>
     <div style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">
-      Semaine du ${_formatSemaineLabel(thisWeek)} &nbsp;·&nbsp; KPI min: 150 inscrits + 30 Pro (20%)
+      Semaine en cours · KPI min: 150 inscrits + 30 Pro (20%) · Calcul automatique
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;">${agents.map(a=>_renderKPIRow(a,thisWeek)).join('')}</div>`;
+    <div style="display:flex;flex-direction:column;gap:8px;">${agentStats.map(s => _renderKPIRow(s)).join('')}</div>`;
 }
 
-function _renderKPIRow(agent, thisWeek) {
-  const id = agent.user_id || agent.id;
-  const semaines = _kpiData[id] || [];
-  const tw = semaines.find(s => s.semaine_debut === thisWeek);
-  const prev = semaines.filter(s => s.semaine_debut < thisWeek)[0];
-  const carton = tw?.carton || 'aucun';
-  const statut = tw?.statut_agent || 'actif';
-  const border = carton==='rouge' ? 'border:1px solid rgba(220,38,38,.4);background:rgba(220,38,38,.04);'
-    : carton==='orange' ? 'border:1px solid rgba(249,115,22,.4);background:rgba(249,115,22,.04);'
-    : tw?.kpi_ok ? 'border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.02);'
+function _renderKPIRow({ agent, tw, pw, carton, statut }) {
+  const id   = agent.user_id || agent.id;
+  const code = agent.code_parrainage || '';
+  const nom  = agent.nom.replace(/'/g, "\\'");
+  const twOk = tw.inscrits >= 150 && tw.pro >= 30;
+  const pwOk = pw.inscrits >= 150 && pw.pro >= 30;
+  const twTaux = tw.inscrits > 0 ? Math.round(tw.pro / tw.inscrits * 10000) / 100 : 0;
+  const progressPct = Math.min(100, Math.round(tw.inscrits / 150 * 100));
+  const progressColor = tw.inscrits >= 150 ? '#22c55e' : tw.inscrits >= 75 ? '#f97316' : '#dc2626';
+
+  const border = carton === 'rouge'
+    ? 'border:1px solid rgba(220,38,38,.4);background:rgba(220,38,38,.04);'
+    : carton === 'orange'
+    ? 'border:1px solid rgba(249,115,22,.4);background:rgba(249,115,22,.04);'
+    : twOk
+    ? 'border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.02);'
     : 'border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);';
-  const statutBadge = statut==='formation'
+
+  const statutBadge = statut === 'formation'
     ? '<span style="background:rgba(249,115,22,.15);color:#f97316;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;margin-left:6px;">EN FORMATION</span>'
-    : statut==='arrete'
+    : statut === 'arrete'
     ? '<span style="background:rgba(220,38,38,.15);color:#dc2626;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;margin-left:6px;">ARRETE</span>'
     : '';
-  const nom = agent.nom.replace(/'/g,"\\'");
+
+  const prevLabel = pw.inscrits > 0
+    ? (pwOk ? '✓ KPI OK' : '✗ Sous KPI (' + pw.pro + ' Pro / ' + pw.inscrits + ' inscrits)')
+    : 'Aucune inscription sem. precedente';
+
   return `
-    <div style="padding:14px 16px;border-radius:12px;${border}display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div style="font-size:22px;flex-shrink:0;">${tw ? _cartonEmoji(carton) : '⬜'}</div>
-      <div style="flex:1;min-width:120px;">
-        <div style="font-weight:700;font-size:14px;color:#FCE0A8;">${agent.nom}${statutBadge}</div>
-        <div style="font-size:11px;color:var(--gris);">${agent.ville} · ${agent.genre==='F'?'F':'H'}</div>
-        ${prev?`<div style="font-size:10px;color:var(--gris);">Sem. préc. : ${prev.kpi_ok?'✓ OK':'✗ Sous KPI'} (${prev.pro_signes} Pro)</div>`:''}
-      </div>
-      ${tw?`
+    <div style="padding:14px 16px;border-radius:12px;${border}">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="font-size:22px;flex-shrink:0;">${_cartonEmoji(carton)}</div>
+        <div style="flex:1;min-width:130px;">
+          <div style="font-weight:700;font-size:14px;color:#FCE0A8;">${agent.nom}${statutBadge}</div>
+          <div style="font-size:11px;color:var(--gris);">${agent.ville} · ${agent.genre === 'F' ? 'F' : 'H'} · Code: <span style="font-family:'Geist Mono',monospace;">${code || 'N/A'}</span></div>
+          <div style="font-size:10px;color:var(--gris);margin-top:2px;">Sem. precedente: ${prevLabel}</div>
+        </div>
         <div style="text-align:center;min-width:54px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${(tw.inscrits_gratuit||0)>=150?'#FCE0A8':'#dc2626'};">${tw.inscrits_gratuit}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${tw.inscrits >= 150 ? '#FCE0A8' : '#dc2626'};">${tw.inscrits}</div>
           <div style="font-size:10px;color:var(--gris);">inscrits</div>
         </div>
         <div style="text-align:center;min-width:54px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${(tw.pro_signes||0)>=30?'#E8940A':'#dc2626'};">${tw.pro_signes}</div>
-          <div style="font-size:10px;color:var(--gris);">Pro signés</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${tw.pro >= 30 ? '#E8940A' : '#dc2626'};">${tw.pro}</div>
+          <div style="font-size:10px;color:var(--gris);">Pro</div>
         </div>
         <div style="text-align:center;min-width:54px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${(tw.taux_conversion||0)>=20?'#22c55e':'#dc2626'};">${tw.taux_conversion}%</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${twTaux >= 20 ? '#22c55e' : '#dc2626'};">${twTaux}%</div>
           <div style="font-size:10px;color:var(--gris);">conversion</div>
-        </div>`
-      :`<div style="font-size:12px;color:rgba(252,224,168,.3);flex:1;text-align:center;">Non saisi cette semaine</div>`}
-      <div style="display:flex;gap:6px;flex-shrink:0;">
-        <button onclick="openKPISaisie('${id}','${nom}','${thisWeek}')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.3);background:rgba(232,148,10,.08);color:#E8940A;font-size:11px;font-weight:700;cursor:pointer;">${tw?'Modifier':'+ Saisir'}</button>
-        <button onclick="openKPIHistorique('${id}','${nom}')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#FCE0A8;font-size:11px;cursor:pointer;">Historique</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="openKPIStatut('${id}','${nom}')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(232,148,10,.3);background:rgba(232,148,10,.08);color:#E8940A;font-size:11px;font-weight:700;cursor:pointer;">Statut</button>
+          <button onclick="openKPIHistorique('${id}','${nom}','${code}')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#FCE0A8;font-size:11px;cursor:pointer;">Historique</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gris);margin-bottom:4px;">
+          <span>Progression semaine (inscrits)</span><span style="font-family:'Geist Mono',monospace;">${tw.inscrits} / 150 (${progressPct}%)</span>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:4px;height:5px;overflow:hidden;">
+          <div style="background:${progressColor};height:100%;width:${progressPct}%;border-radius:4px;"></div>
+        </div>
       </div>
     </div>`;
 }
 
-function openKPISaisie(agentId, agentNom, semaine) {
-  const ex = (_kpiData[agentId]||[]).find(s=>s.semaine_debut===semaine);
+function openKPIStatut(agentId, agentNom) {
+  const ex = _kpiStatutOverrides[agentId] || {};
   document.body.insertAdjacentHTML('beforeend', `
-    <div id="modal-kpi-saisie" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;">
-      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:440px;width:100%;">
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin:0 0 4px;">${agentNom}</h3>
-        <p style="font-size:12px;color:var(--gris);margin:0 0 20px;">Semaine du ${_formatSemaineLabel(semaine)}</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div>
-            <label style="font-size:11px;color:var(--gris);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Inscrits Gratuit</label>
-            <input type="number" id="kpi-inscrits" min="0" value="${ex?.inscrits_gratuit??''}" placeholder="Min: 150" oninput="updateKPIPreview()"
-              style="width:100%;padding:12px;border-radius:10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#FCE0A8;font-size:18px;font-weight:700;font-family:'Geist Mono',monospace;text-align:center;">
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--gris);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Pro signés</label>
-            <input type="number" id="kpi-pro" min="0" value="${ex?.pro_signes??''}" placeholder="Min: 30" oninput="updateKPIPreview()"
-              style="width:100%;padding:12px;border-radius:10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#FCE0A8;font-size:18px;font-weight:700;font-family:'Geist Mono',monospace;text-align:center;">
-          </div>
-        </div>
-        <div id="kpi-preview" style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px;margin-bottom:16px;text-align:center;min-height:48px;"></div>
+    <div id="modal-kpi-statut" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;">
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:400px;width:100%;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin:0 0 16px;">${agentNom}</h3>
         <div style="margin-bottom:12px;">
           <label style="font-size:11px;color:var(--gris);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Statut agent</label>
           <select id="kpi-statut" style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:#FCE0A8;font-size:14px;">
-            <option value="actif" ${(!ex||ex.statut_agent==='actif')?'selected':''}>Actif</option>
-            <option value="formation" ${ex?.statut_agent==='formation'?'selected':''}>En formation (carton rouge)</option>
-            <option value="arrete" ${ex?.statut_agent==='arrete'?'selected':''}>Arrete definitif</option>
+            <option value="actif" ${(!ex.statut_agent || ex.statut_agent === 'actif') ? 'selected' : ''}>Actif</option>
+            <option value="formation" ${ex.statut_agent === 'formation' ? 'selected' : ''}>En formation (carton rouge)</option>
+            <option value="arrete" ${ex.statut_agent === 'arrete' ? 'selected' : ''}>Arrete definitif</option>
           </select>
         </div>
         <div style="margin-bottom:16px;">
-          <label style="font-size:11px;color:var(--gris);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Notes</label>
-          <textarea id="kpi-notes" rows="2" placeholder="Observations..."
-            style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:#FCE0A8;font-size:13px;resize:none;">${ex?.notes||''}</textarea>
+          <label style="font-size:11px;color:var(--gris);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Notes internes</label>
+          <textarea id="kpi-notes" rows="3" placeholder="Observations, raison formation..."
+            style="width:100%;padding:10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:#FCE0A8;font-size:13px;resize:none;box-sizing:border-box;">${ex.notes || ''}</textarea>
         </div>
         <div style="display:flex;gap:8px;">
-          <button onclick="saveKPISaisie('${agentId}','${agentNom.replace(/'/g,"\\'")}','${semaine}')" style="flex:1;padding:12px;background:#E8940A;color:#14100A;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">Enregistrer</button>
-          <button onclick="document.getElementById('modal-kpi-saisie')?.remove()" style="flex:1;padding:12px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;cursor:pointer;">Annuler</button>
+          <button onclick="saveKPIStatut('${agentId}','${agentNom.replace(/'/g, "\\'")}')" style="flex:1;padding:12px;background:#E8940A;color:#14100A;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">Enregistrer</button>
+          <button onclick="document.getElementById('modal-kpi-statut')?.remove()" style="flex:1;padding:12px;background:rgba(255,255,255,.08);color:#FCE0A8;border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;cursor:pointer;">Annuler</button>
         </div>
       </div>
     </div>`);
-  updateKPIPreview();
 }
 
-function updateKPIPreview() {
-  const inscrits = parseInt(document.getElementById('kpi-inscrits')?.value)||0;
-  const pro = parseInt(document.getElementById('kpi-pro')?.value)||0;
-  const el = document.getElementById('kpi-preview');
-  if (!el) return;
-  if (!inscrits && !pro) { el.innerHTML=''; return; }
-  const taux = inscrits>0 ? Math.round(pro/inscrits*10000)/100 : 0;
-  const ok = inscrits>=150 && pro>=30;
-  el.innerHTML=`<div style="font-size:13px;font-weight:700;color:${ok?'#22c55e':'#dc2626'};margin-bottom:4px;">${ok?'✓ KPI atteint':'✗ KPI non atteint'}</div>
-    <div style="font-family:'Geist Mono',monospace;font-size:22px;font-weight:900;color:${taux>=20?'#22c55e':'#dc2626'};">${taux}%</div>
-    <div style="font-size:11px;color:var(--gris);">conversion &nbsp;|&nbsp; min: 20% (30 Pro sur 150 inscrits)</div>`;
-}
-
-async function saveKPISaisie(agentId, agentNom, semaine) {
-  const inscrits = parseInt(document.getElementById('kpi-inscrits')?.value)||0;
-  const pro = parseInt(document.getElementById('kpi-pro')?.value)||0;
-  const statut = document.getElementById('kpi-statut')?.value||'actif';
-  const notes = document.getElementById('kpi-notes')?.value?.trim()||null;
-  const kpiOk = inscrits>=150 && pro>=30;
-  const prev = (_kpiData[agentId]||[]).filter(s=>s.semaine_debut<semaine).sort((a,b)=>b.semaine_debut.localeCompare(a.semaine_debut))[0];
-  let carton = 'aucun';
-  if (!kpiOk && prev && !prev.kpi_ok) carton = 'rouge';
-  else if (!kpiOk) carton = 'orange';
+async function saveKPIStatut(agentId, agentNom) {
+  const statut = document.getElementById('kpi-statut')?.value || 'actif';
+  const notes  = document.getElementById('kpi-notes')?.value?.trim() || null;
+  // Upsert with today as semaine_debut key; numbers = 0 (real data is in wozali_prestataires)
+  const today  = new Date().toISOString().split('T')[0];
   const { error } = await supa.from('wozali_kpi_semaines').upsert(
-    { agent_id: agentId, agent_nom: agentNom, semaine_debut: semaine, inscrits_gratuit: inscrits, pro_signes: pro, carton, statut_agent: statut, notes },
+    { agent_id: agentId, agent_nom: agentNom, semaine_debut: today,
+      inscrits_gratuit: 0, pro_signes: 0, statut_agent: statut, notes },
     { onConflict: 'agent_id,semaine_debut' }
   );
   if (error) { toast('Erreur: ' + error.message, 'error'); return; }
-  document.getElementById('modal-kpi-saisie')?.remove();
-  if (carton==='rouge') toast(`${agentNom} : CARTON ROUGE. Formation requise.`, 'error');
-  else if (carton==='orange') toast(`${agentNom} : carton orange cette semaine.`, 'info');
-  else toast(`KPI enregistre pour ${agentNom}.`, 'success');
-  loadKPITerrain();
+  _kpiStatutOverrides[agentId] = { statut_agent: statut, notes };
+  document.getElementById('modal-kpi-statut')?.remove();
+  toast('Statut mis a jour.', 'success');
+  renderKPIList(_agentsTerrainCache.filter(a => a.actif));
 }
 
-function openKPIHistorique(agentId, agentNom) {
-  const semaines = (_kpiData[agentId]||[]).slice(0,8);
-  const rows = semaines.length ? semaines.map(s=>`
-    <tr>
-      <td style="color:#FCE0A8;font-size:12px;padding:8px;">${_formatSemaineLabel(s.semaine_debut)}</td>
-      <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${(s.inscrits_gratuit||0)>=150?'#FCE0A8':'#dc2626'};">${s.inscrits_gratuit}</td>
-      <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${(s.pro_signes||0)>=30?'#E8940A':'#dc2626'};">${s.pro_signes}</td>
-      <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${(s.taux_conversion||0)>=20?'#22c55e':'#dc2626'};">${s.taux_conversion}%</td>
-      <td style="text-align:center;padding:8px;">${_cartonEmoji(s.carton)} ${s.statut_agent!=='actif'?'<span style="font-size:10px;color:var(--gris);">'+s.statut_agent+'</span>':''}</td>
-    </tr>`).join('')
-    : '<tr><td colspan="5" style="text-align:center;color:var(--gris);padding:20px;">Aucun historique</td></tr>';
+function openKPIHistorique(agentId, agentNom, agentCode) {
+  const buckets = _kpiData[agentCode]?.buckets || {};
+  const rows = [];
+  for (let i = 1; i <= 8; i++) {
+    const weekKey  = _weekStart(i);
+    const b        = buckets[weekKey] || { inscrits: 0, pro: 0 };
+    const taux     = b.inscrits > 0 ? Math.round(b.pro / b.inscrits * 10000) / 100 : 0;
+    const ok       = b.inscrits >= 150 && b.pro >= 30;
+    const prevB    = buckets[_weekStart(i + 1)] || { inscrits: 0, pro: 0 };
+    const prevOk   = prevB.inscrits >= 150 && prevB.pro >= 30;
+    let carton = 'aucun';
+    if (!ok && !prevOk) carton = 'rouge';
+    else if (!ok) carton = 'orange';
+    rows.push({ weekKey, b, taux, ok, carton });
+  }
+  const hasData = rows.some(r => r.b.inscrits > 0);
+  const rowsHtml = hasData
+    ? rows.map(r => `
+      <tr>
+        <td style="color:#FCE0A8;font-size:12px;padding:8px;">${_formatSemaineLabel(r.weekKey)}</td>
+        <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${r.b.inscrits >= 150 ? '#FCE0A8' : r.b.inscrits > 0 ? '#f97316' : 'var(--gris)'};">${r.b.inscrits}</td>
+        <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${r.b.pro >= 30 ? '#E8940A' : r.b.pro > 0 ? '#f97316' : 'var(--gris)'};">${r.b.pro}</td>
+        <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${r.taux >= 20 ? '#22c55e' : r.taux > 0 ? '#f97316' : 'var(--gris)'};">${r.taux}%</td>
+        <td style="text-align:center;padding:8px;">${r.b.inscrits > 0 ? _cartonEmoji(r.carton) : '<span style="color:var(--gris);">-</span>'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:var(--gris);padding:20px;">Aucune inscription enregistree via ce code</td></tr>';
+
   document.body.insertAdjacentHTML('beforeend', `
     <div id="modal-kpi-hist" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;">
       <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin:0;">Historique KPI - ${agentNom}</h3>
-          <button onclick="document.getElementById('modal-kpi-hist')?.remove()" style="background:none;border:none;color:var(--gris);font-size:20px;cursor:pointer;">✕</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin:0;">KPI historique - ${agentNom}</h3>
+          <button onclick="document.getElementById('modal-kpi-hist')?.remove()" style="background:none;border:none;color:var(--gris);font-size:20px;cursor:pointer;line-height:1;">x</button>
         </div>
+        <div style="font-size:11px;color:var(--gris);margin-bottom:14px;">Source: inscriptions reelles · code parrainage <span style="font-family:'Geist Mono',monospace;color:#E8940A;">${agentCode || 'N/A'}</span></div>
         <table style="width:100%;border-collapse:collapse;">
           <thead><tr style="background:rgba(232,148,10,.08);">
             <th style="padding:8px;text-align:left;font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;">Semaine</th>
@@ -10321,7 +10397,7 @@ function openKPIHistorique(agentId, agentNom) {
             <th style="padding:8px;text-align:center;font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;">Taux</th>
             <th style="padding:8px;text-align:center;font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;">Carton</th>
           </tr></thead>
-          <tbody>${rows}</tbody>
+          <tbody>${rowsHtml}</tbody>
         </table>
       </div>
     </div>`);
