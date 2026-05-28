@@ -4039,48 +4039,6 @@ div[style*="position:sticky"][style*="background:#fff"] {
 }
 
 /* ====== SPRINT 6 — Feed WOZALI ====== */
-.mobile-bottom-nav {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: #14100A;
-  border-top: 1px solid rgba(232, 148, 10, 0.15);
-  height: 64px;
-  z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-@media (max-width: 768px) {
-  .mobile-bottom-nav { display: flex; }
-  body { padding-bottom: 64px; }
-}
-.mobile-nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  font-size: 10px;
-  color: rgba(252, 224, 168, 0.5);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  transition: color 0.2s ease;
-}
-.mobile-nav-item.active,
-.mobile-nav-item:hover { color: #E8940A; }
-.mobile-nav-center .mobile-nav-feed-btn {
-  width: 44px; height: 44px;
-  background: #E8940A;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  margin-top: -16px;
-  box-shadow: 0 4px 16px rgba(232, 148, 10, 0.4);
-}
 .feed-badge {
   display: none;
   background: #E8940A;
@@ -4894,19 +4852,6 @@ body.wozali-v2-active > nav:not(.mobile-bottom-nav) { top:0; }
   .wozali-v2-header .wv2-search .wv2-search-lbl { display:none; }
 }
 
-/* ══ Bottom Nav v2 (override léger, garde IDs existants) ══ */
-@media (max-width: 768px) {
-  .mobile-bottom-nav {
-    background:var(--wv2-dark) !important;
-    border-top:1px solid rgba(232,148,10,.25) !important;
-  }
-  .mobile-bottom-nav .mobile-nav-item { font-family:'Geist',sans-serif; font-size:11px; font-weight:500; gap:4px; }
-  .mobile-bottom-nav .mobile-nav-item.active { color:var(--wv2-or-active) !important; }
-}
-.wv2-bnav .mobile-nav-item i { width:22px; height:22px; }
-.wv2-bnav .mobile-nav-center .mobile-nav-feed-btn { width:56px !important; height:56px !important; background:var(--wv2-or) !important; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(232,148,10,.4); transform:translateY(-10px); color:var(--wv2-dark); }
-.wv2-bnav .mobile-nav-center .mobile-nav-feed-btn i { width:26px; height:26px; stroke-width:2.5; }
-.wv2-bnav .mobile-nav-center span:last-child { margin-top:-4px; }
 
 /* ══ Hero v2 override (via class wozali-v2-hero-overlay, pas appliqué automatiquement — safe) ══ */
 .wozali-v2-hero {
@@ -5283,29 +5228,20 @@ section[style*="background:var(--blanc)"] [style*="color:var(--gris-fonce)"] {
 }
 
 /* 7. html + body — garantie absolue fond noir, zéro rebord */
-/* overflow-x:clip au lieu de hidden : clip ne crée PAS de scroll container
-   et ne casse donc PAS position:fixed sur les enfants (nav, mobile-bottom-nav) */
+/* PAS d'overflow sur html — tout overflow sur html casse position:fixed.
+   overflow-x:hidden sur body seul est OK car body n'est pas le scroll container. */
 html {
   margin: 0 !important;
   padding: 0 !important;
   background: #14100A !important;
   min-height: 100vh !important;
   width: 100% !important;
-  overflow-x: clip !important;
 }
 body {
   margin: 0 !important;
-  padding-top: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  /* padding-bottom intentionnellement omis — mobile-bottom-nav a besoin de 64px */
+  padding: 0 !important;
   background: #14100A !important;
   min-height: 100vh !important;
   width: 100% !important;
-  overflow-x: clip !important;
-}
-/* Nav mobile fixée en bas sans ambiguïté */
-.mobile-bottom-nav {
-  bottom: 0 !important;
-  top: auto !important;
+  overflow-x: hidden !important;
 }
