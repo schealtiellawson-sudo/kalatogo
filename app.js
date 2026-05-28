@@ -13739,7 +13739,7 @@ const AGENT_DOCUMENTS = [
   { slug: '17-geoloc-pratique',       titre: 'La géolocalisation en pratique',                        desc: 'Activer et tester la géoloc avec le nouveau membre.' },
   { slug: '18-commission-battle',     titre: 'Ta commission et le Battle — comprendre et maximiser',  desc: 'Comment ton score monte et ta paie augmente.' },
   { slug: '19-semaine-terrain',       titre: 'Organiser ta semaine terrain + fixer ses objectifs',    desc: 'Planifier pour ne pas improviser.' },
-  { slug: '20-passer-a-50',           titre: 'Suivre ses membres et passer de 10 à 50 Pro par mois',  desc: 'Le système de suivi qui fait la différence.' },
+  { slug: '20-passer-a-50',           titre: 'Atteindre 100 000 FCFA par mois : l\'effet cumulé, le suivi membres et les KPI',  desc: 'Le système de suivi qui fait la différence.' },
 ];
 
 // Cache local des slugs lus par l'agent
