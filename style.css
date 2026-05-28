@@ -5279,12 +5279,27 @@ section[style*="background:var(--blanc)"] [style*="color:var(--gris-fonce)"] {
 }
 
 /* 7. html + body — garantie absolue fond noir, zéro rebord */
-html, body {
+html {
   margin: 0 !important;
   padding: 0 !important;
   background: #14100A !important;
   min-height: 100vh !important;
   width: 100% !important;
+  overflow-x: hidden !important;
 }
-html { overflow-x: hidden !important; }
-body { overflow-x: hidden !important; }
+body {
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  /* padding-bottom intentionnellement omis — mobile-bottom-nav a besoin de 64px */
+  background: #14100A !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+/* Nav mobile fixée en bas sans ambiguïté */
+.mobile-bottom-nav {
+  bottom: 0 !important;
+  top: auto !important;
+}
