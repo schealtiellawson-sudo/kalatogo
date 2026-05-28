@@ -1884,16 +1884,16 @@ function renderCandTable(records) {
 window.CAND_WA_TEMPLATES = {
   'Présélectionné': function(f){
     return 'Salut ' + (f['Prénom']||'') + ' !\n\n' +
-           'Ta candidature pour rejoindre l\'équipe pionnière WOZALI nous a marqués.\n\n' +
+           'Ta candidature pour rejoindre l\'équipe d\'agents terrain WOZALI nous a marqués.\n\n' +
            'Tu passes à l\'étape suivante — tu es **présélectionné(e)** parmi les meilleurs profils de ' + (f['Ville']||'ta ville') + '.\n\n' +
            'Prochaine étape : un court échange pour valider ta motivation. On te recontacte cette semaine.\n\n' +
            'À très vite.\n— L\'équipe WOZALI';
   },
   'Refusé': function(f){
     return 'Salut ' + (f['Prénom']||'') + ',\n\n' +
-           'Merci d\'avoir postulé pour rejoindre l\'équipe pionnière WOZALI.\n\n' +
+           'Merci d\'avoir postulé pour rejoindre l\'équipe d\'agents terrain WOZALI.\n\n' +
            'Cette fois-ci, ta candidature n\'a pas été retenue pour la vague de lancement — mais on garde ton profil. On recrute tout au long de 2026 au fur et à mesure que WOZALI grandit dans ta ville.\n\n' +
-           'Continue de nous suivre sur wozali.com — et reste dispo, on peut revenir vers toi.\n\n' +
+           'Continue de nous suivre sur wozali.africa - et reste dispo, on peut revenir vers toi.\n\n' +
            'Merci pour ton intérêt.\n— L\'équipe WOZALI';
   }
 };
@@ -1940,7 +1940,7 @@ async function validateAgent(recordId) {
   var f = rec.fields;
   var nom = (f['Prénom']||'') + ' ' + (f['Nom']||'');
 
-  if (!confirm('Valider ' + nom.trim() + ' comme pionnier WOZALI ?\n\n→ Son abonnement passera automatiquement en Pro\n→ Un message WhatsApp sera préparé')) return;
+  if (!confirm('Valider ' + nom.trim() + ' comme agent terrain WOZALI ?\n\n→ Son abonnement passera automatiquement en Pro\n→ Un message WhatsApp sera préparé')) return;
 
   try {
     // 1. Update status to Validé
@@ -1956,12 +1956,12 @@ async function validateAgent(recordId) {
     rec.fields['Actif'] = true;
     renderCandKPIs();
     filterCandidatures();
-    toast(nom.trim() + ' validé(e) comme pionnier WOZALI !', 'success');
+    toast(nom.trim() + ' validé(e) comme agent terrain WOZALI !', 'success');
 
     // 2. Open WhatsApp notification
     var tel = (f['Téléphone']||'').replace(/\s/g,'').replace(/^\+/,'');
     if (tel) {
-      var msg = encodeURIComponent('Salut ' + (f['Prénom']||'') + ' !\n\nBonne nouvelle — ta candidature pour rejoindre l\'équipe pionnière WOZALI a été retenue.\n\nTu fais partie des 20 référents sélectionnés pour le lancement.\n\nProchaine étape : ta formation. On te contacte très vite avec les détails.\n\nBienvenue dans l\'équipe.\n— WOZALI');
+      var msg = encodeURIComponent('Salut ' + (f['Prénom']||'') + ' !\n\nBonne nouvelle : ta candidature pour rejoindre l\'équipe d\'agents terrain WOZALI a été retenue.\n\nTu fais partie des 20 référents sélectionnés pour le lancement.\n\nProchaine étape : ta formation. On te contacte très vite avec les détails.\n\nBienvenue dans l\'équipe.\n- WOZALI');
       window.open('https://wa.me/' + tel + '?text=' + msg, '_blank');
     }
 

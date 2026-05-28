@@ -23,7 +23,7 @@ const faqData = [
   },
   {
     q: "Comment mes clients me trouvent concrètement ?",
-    a: "Ils tapent sur wozali.com — 'coiffeur Adidogomé', 'électricien Tokoin disponible maintenant'. Ils voient tes photos, tes avis, ta note, ton tarif. Ils t'envoient un WhatsApp en un clic. Tu reçois le message directement. Aucune application à installer pour le client. Zéro friction."
+    a: "Ils tapent sur wozali.africa - 'coiffeur Adidogomé', 'électricien Tokoin disponible maintenant'. Ils voient tes photos, tes avis, ta note, ton tarif. Ils t'envoient un WhatsApp en un clic. Tu reçois le message directement. Aucune application à installer pour le client. Zéro friction."
   },
   {
     q: "C'est quoi le parrainage et combien ça rapporte vraiment ?",

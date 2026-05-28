@@ -630,7 +630,7 @@ async function loadDashboard() {
     const dispoTxt = document.getElementById('dash-dispo-txt');
     if (dispoTxt) {
       const dispo = currentPrestataire?.fields?.['Disponible maintenant'];
-      dispoTxt.textContent = dispo ? '⭐ Disponible — les clients peuvent te trouver et te contacter' : '🟡 Invisible — active ta disponibilité pour recevoir des clients';
+      dispoTxt.textContent = dispo ? '⭐ Disponible, les clients peuvent te trouver et te contacter' : '🟡 Invisible, active ta disponibilité pour recevoir des clients';
     }
   } catch(e){}
   loadDashOverview();
@@ -840,7 +840,7 @@ function renderPremierPasWizard() {
 
   // Code parrainage / lien WhatsApp
   const parrainCode = f['Code Parrainage'] || '';
-  const profilUrl = parrainCode ? `https://wozali.com?ref=${encodeURIComponent(parrainCode)}` : 'https://wozali.com';
+  const profilUrl = parrainCode ? `https://wozali.africa?ref=${encodeURIComponent(parrainCode)}` : 'https://wozali.africa';
   const prenom = (f['Nom complet'] || '').split(' ')[0] || '';
 
   if (allDone) {
@@ -850,7 +850,7 @@ function renderPremierPasWizard() {
         <div style="font-size:28px;flex-shrink:0;">✅</div>
         <div style="flex:1;min-width:200px;">
           <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:4px;">${prenom ? prenom + ', t' : 'T'}'as fait le plus important.</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.75);line-height:1.55;">Profil complet avec photos, GPS et partage — tu reçois <strong style="color:#FCE0A8;">5× plus de contacts</strong> qu'un profil vide. Les clients arrivent.</div>
+          <div style="font-size:13px;color:rgba(252, 224, 168,0.75);line-height:1.55;">Profil complet avec photos, GPS et partage : tu reçois <strong style="color:#FCE0A8;">5× plus de contacts</strong> qu'un profil vide. Les clients arrivent.</div>
         </div>
         <button onclick="dismissPremierPasWizard()" style="background:transparent;color:rgba(252, 224, 168,0.6);border:1px solid rgba(252, 224, 168,0.2);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Masquer</button>
       </div>
@@ -903,8 +903,8 @@ function renderPremierPasWizard() {
     const metierLocal = currentPrestataire?.fields?.['Métier principal'] || '';
     const villeLocal = currentPrestataire?.fields?.['Ville'] || '';
     const waText = metierLocal
-      ? `${prenom ? prenom + ' est' : 'Je suis'} ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}.\nPhotos vraies, tarifs réels, avis de mes vrais clients — tout est là :\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais — envoie-lui ça. Je te renvoie l'ascenseur. 🤝`
-      : `J'ai mis tout mon travail sur WOZALI.\nPhotos vraies, tarifs réels, avis de mes clients.\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais — envoie-lui ça. Je te renvoie l'ascenseur. 🤝`;
+      ? `${prenom ? prenom + ' est' : 'Je suis'} ${metierLocal}${villeLocal ? ' à ' + villeLocal : ''}.\nPhotos vraies, tarifs réels, avis de mes vrais clients, tout est là :\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais, envoie-lui ça. Je te renvoie l'ascenseur. 🤝`
+      : `J'ai mis tout mon travail sur WOZALI.\nPhotos vraies, tarifs réels, avis de mes clients.\n👉 ${profilUrl}\n\nSi tu connais quelqu'un qui cherche ce que je fais, envoie-lui ça. Je te renvoie l'ascenseur. 🤝`;
     const waUrl = 'https://wa.me/?text=' + encodeURIComponent(waText);
     cards.push(`
       <div style="background:white;border-radius:14px;padding:16px;border:1.5px solid #e5e7eb;display:flex;flex-direction:column;gap:8px;">
@@ -1060,7 +1060,7 @@ async function loadDashOverview() {
       const gN = document.getElementById('score-gauge-next');
       if (gV) gV.textContent = s || '0';
       if (gL) gL.textContent = `${cL.emoji} ${cL.name}`;
-      if (gN) gN.textContent = nL ? `+${nL.min - s} pts pour passer ${nL.emoji} ${nL.name}` : '🏆 Tu es au sommet — reste-y !';
+      if (gN) gN.textContent = nL ? `+${nL.min - s} pts pour passer ${nL.emoji} ${nL.name}` : '🏆 Tu es au sommet, reste-y !';
     }
     const scoreLevelEl = document.getElementById('kpi-score-level');
     const scoreNextEl  = document.getElementById('kpi-score-next');
@@ -1105,7 +1105,7 @@ async function loadDashOverview() {
   if (qrBlock) {
     if (isPro) {
       qrBlock.style.display = 'block';
-      const profilUrl = `https://wozali.com/?profil=${prestId}`;
+      const profilUrl = `https://wozali.africa/?profil=${prestId}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(profilUrl)}&color=e8940a&bgcolor=ffffff`;
       const qrImg = document.getElementById('dash-qr-src');
       if (qrImg) qrImg.src = qrUrl;
@@ -2440,12 +2440,12 @@ async function generateStory(avisId, note, auteur, commentaire) {
   ctx.font = '400 11px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252, 224, 168,0.6)'; ctx.textAlign = 'center';
   ctx.fillText('D\u00e9couvre mon profil complet', W / 2, footY + 28);
   ctx.font = '700 13px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
-  ctx.fillText('wozali.com', W / 2, footY + 50);
+  ctx.fillText('wozali.africa', W / 2, footY + 50);
 
   // ── Convertir et afficher modale ──
   const dataUrl = canvas.toDataURL('image/png');
   const slug = _buildProfilSlug(nom, metier, ville);
-  const profilUrl = `https://wozali.com/profil/${slug}`;
+  const profilUrl = `https://wozali.africa/profil/${slug}`;
   const prenom = nom.split(' ')[0] || nom;
   const dateStr = new Date().toISOString().slice(0, 10);
   const filename = `WOZALI-Story-${prenom}-${dateStr}.png`;
@@ -4521,12 +4521,12 @@ async function sendWozaliChatMessage() {
           <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
             <div style="width:36px;height:36px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:18px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;">S</div>
             <div style="flex:1;">
-              <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">Schealtiel</div>
+              <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">Le fondateur</div>
               <div style="font-size:11px;color:rgba(252,224,168,0.45);font-family:'Geist Mono',monospace;letter-spacing:1px;">Fondateur WOZALI</div>
             </div>
           </div>
           <div style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.88);white-space:pre-line;">"${escapeHtml(data.reponse)}"</div>
-          <div style="margin-top:8px;font-size:12px;color:rgba(252,224,168,0.4);font-style:italic;font-family:'Geist Mono',monospace;">Schealtiel, fondateur WOZALI</div>
+          <div style="margin-top:8px;font-size:12px;color:rgba(252,224,168,0.4);font-style:italic;font-family:'Geist Mono',monospace;">Le fondateur WOZALI</div>
           <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(232,148,10,0.12);display:flex;gap:10px;flex-wrap:wrap;">
             <button onclick="openWozaliChat()" style="background:transparent;border:1px solid rgba(232,148,10,0.35);color:#E8940A;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">✉️ Autre question</button>
             <button onclick="toggleWozaliHistory()" style="background:transparent;border:1px solid rgba(252,224,168,0.12);color:rgba(252,224,168,0.5);padding:8px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📜 Voir l'historique</button>
@@ -4605,7 +4605,7 @@ async function toggleWozaliHistory() {
           <div style="width:28px;height:28px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;margin-top:2px;">S</div>
           <div style="max-width:85%;background:rgba(252,224,168,0.04);border:1px solid rgba(252,224,168,0.1);border-radius:4px 14px 14px 14px;padding:10px 14px;">
             ${reponse
-              ? `<div style="font-size:13px;color:rgba(252,224,168,0.82);line-height:1.6;white-space:pre-line;">"${escapeHtml(reponse)}"</div><div style="font-size:10px;color:rgba(252,224,168,0.3);margin-top:5px;font-style:italic;font-family:'Geist Mono',monospace;">Schealtiel, fondateur WOZALI</div>`
+              ? `<div style="font-size:13px;color:rgba(252,224,168,0.82);line-height:1.6;white-space:pre-line;">"${escapeHtml(reponse)}"</div><div style="font-size:10px;color:rgba(252,224,168,0.3);margin-top:5px;font-style:italic;font-family:'Geist Mono',monospace;">Le fondateur WOZALI</div>`
               : enAttente
                 ? `<div style="font-size:12px;color:rgba(232,148,10,0.6);font-style:italic;">⏳ En cours de traitement…</div>`
                 : `<div style="font-size:12px;color:rgba(252,224,168,0.35);font-style:italic;">—</div>`
@@ -6260,7 +6260,7 @@ async function showProfil(recordId) {
     // ── SEO : meta tags dynamiques + Schema.org ──
     const _seoVille = f['Ville'] || '';
     const _seoSlug = _buildProfilSlug(nomRaw, metierRaw, _seoVille);
-    const _seoUrl = `https://wozali.com/profil/${_seoSlug}`;
+    const _seoUrl = `https://wozali.africa/profil/${_seoSlug}`;
     document.title = `${nomRaw} — ${metierRaw} à ${_seoVille} · WOZALI`;
     _setMeta('description', nbAvis > 0
       ? `${nomRaw}, ${metierRaw} à ${quartierRaw}, ${_seoVille}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOZALI.`
@@ -7071,7 +7071,7 @@ function _resetSeoMeta() {
   _setMeta('description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes. Ton travail nourrit. Pas ton réseau.');
   _setOg('og:title', 'WOZALI — Visibilité. Paiements. Revenus. Bénin & Togo.');
   _setOg('og:description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes.');
-  _setOg('og:url', 'https://wozali.com');
+  _setOg('og:url', 'https://wozali.africa');
   _setOg('og:image', '');
   const canon = document.querySelector('link[rel="canonical"]');
   if (canon) canon.remove();
@@ -7093,7 +7093,7 @@ function shareProfile(recordId, nom) {
   const score   = window._currentProfilScore ?? 0;
 
   const slug = _buildProfilSlug(nom, metier, ville);
-  const profileUrl = `https://wozali.com/profil/${slug}`;
+  const profileUrl = `https://wozali.africa/profil/${slug}`;
 
   let lines = [];
   // Accroche centrée sur la personne et son métier
@@ -7115,7 +7115,7 @@ function shareProfile(recordId, nom) {
   lines.push('Photos vraies, tarifs réels, avis de vrais clients — tout est là :');
   lines.push(`👉 ${profileUrl}`);
   lines.push('');
-  lines.push('Si tu cherches quelqu\'un de sérieux, passe voir. wozali.com');
+  lines.push('Si tu cherches quelqu\'un de sérieux, passe voir. wozali.africa');
 
   const text = lines.join('\n');
 
@@ -7376,7 +7376,7 @@ async function submitInscription(e) {
       email, password: motDePasse,
       options: {
         data: { nom_complet: nom },
-        emailRedirectTo: 'https://wozali.com'
+        emailRedirectTo: 'https://wozali.africa'
       }
     });
 
@@ -7670,7 +7670,7 @@ async function submitInscription(e) {
         const parrainageBloc = document.getElementById('post-inscription-parrainage');
         const parrainageLinkEl = document.getElementById('post-inscription-ref-link');
         if (parrainageBloc && parrainageLinkEl && parrainageCode) {
-          parrainageLinkEl.value = 'https://wozali.com?ref=' + parrainageCode;
+          parrainageLinkEl.value = 'https://wozali.africa?ref=' + parrainageCode;
           parrainageBloc.style.display = 'block';
         }
       } catch(e) { console.warn('[parrainage post-inscription]', e); }
@@ -7694,7 +7694,7 @@ async function submitInscription(e) {
 
 // Point 58/59 — Partager son profil sur WhatsApp apres inscription
 function shareInscriptionWhatsApp() {
-  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOZALI règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier — enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. 500 000 FCFA versés chaque mois aux meilleurs.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wozali.com\n\nTon travail nourrit. Pas ton réseau.");
+  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOZALI règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier, enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. 500 000 FCFA versés chaque mois aux meilleurs.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wozali.africa\n\nTon travail nourrit. Pas ton réseau.");
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
@@ -7765,7 +7765,7 @@ async function loadParrainage() {
   const code = supabaseCode || f['Code Parrainage'] || '';
   const commDisp = f['Commission Disponible FCFA'] || 0;
   const commTotal = f['Commission Totale FCFA'] || 0;
-  const refLink = 'https://wozali.com?ref=' + code;
+  const refLink = 'https://wozali.africa?ref=' + code;
 
   // Mettre à jour les chiffres
   document.getElementById('p-comm-dispo').textContent = commDisp.toLocaleString('fr-FR') + ' FCFA';
@@ -7777,7 +7777,7 @@ async function loadParrainage() {
   const lockableEls = document.querySelectorAll('#ds-parrainage .edit-form-section[data-lock-idx]');
 
   const features = [
-    { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes — chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.com?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
+    { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes — chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.africa?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
     { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#FCE0A8;border:1px solid #E8940A;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+2 500 FCFA</div></div>`).join('')}</div>` },
     { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#6b7280;">5 filleuls</span><span style="color:var(--or);font-weight:800;">12 500 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">20 filleuls</span><span style="color:var(--or);font-weight:800;">50 000 FCFA/mois</span></div></div>` },
   ];
@@ -8032,7 +8032,7 @@ function shareParrainWhatsApp() {
   const box = document.getElementById('parrain-link-box');
   const link = (box?.textContent || '').trim();
   if (!link || link === 'Chargement...') return;
-  const msg = encodeURIComponent(`Yo ! Inscris-toi sur WOZALI avec mon lien et deviens visible direct : ${link}. C'est gratuit, et si tu passes Pro, je gagne aussi. 💰`);
+  const msg = encodeURIComponent(`Ton travail nourrit. Pas ton réseau.\n\nRejoins WOZALI, les clients te trouvent d'abord dans ton quartier.\n👉 ${link}\n\nInscription gratuite en 2 minutes.`);
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
@@ -8048,15 +8048,16 @@ function genererVisuelParrainage(){
   ctx.beginPath();ctx.arc(540,180,70,0,Math.PI*2);ctx.fillStyle='#E8940A';ctx.fill();
   ctx.fillStyle='#14100A';ctx.font='bold 72px Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('W',540,180);
   ctx.fillStyle='#E8940A';ctx.font='700 24px monospace';ctx.fillText('WOZALI',540,280);
-  ctx.fillStyle='#FCE0A8';ctx.font='italic 700 52px Georgia,serif';ctx.fillText('Rejoins WOZALI',540,400);
+  ctx.fillStyle='#FCE0A8';ctx.font='italic 700 52px Georgia,serif';ctx.fillText('Ton travail nourrit.',540,380);
+  ctx.fillText('Pas ton réseau.',540,440);
   ctx.fillStyle='rgba(252, 224, 168,0.75)';ctx.font='400 28px sans-serif';
-  ctx.fillText('Inscris-toi avec mon lien',540,470);ctx.fillText('et deviens visible',540,510);
+  ctx.fillText('Rejoins-moi sur WOZALI',540,510);
   ctx.fillStyle='rgba(232,148,10,0.12)';ctx.strokeStyle='rgba(232,148,10,0.5)';ctx.lineWidth=2;
   ctx.beginPath();ctx.roundRect(140,580,800,80,16);ctx.fill();ctx.stroke();
   ctx.fillStyle='#E8940A';ctx.font='bold 26px monospace';ctx.fillText(link,540,622);
   ctx.fillStyle='rgba(252, 224, 168,0.6)';ctx.font='400 22px sans-serif';
-  ctx.fillText("C'est gratuit. Et si tu passes Pro,",540,760);ctx.fillText('je gagne aussi.',540,795);
-  ctx.fillStyle='rgba(252, 224, 168,0.3)';ctx.font='400 18px monospace';ctx.fillText('wozali.com',540,1000);
+  ctx.fillText('Inscription gratuite → wozali.africa',540,760);
+  ctx.fillStyle='rgba(252, 224, 168,0.3)';ctx.font='400 18px monospace';ctx.fillText('wozali.africa',540,1000);
   var dataUrl=cv.toDataURL('image/png');
   var modal=document.createElement('div');
   modal.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
@@ -8077,16 +8078,52 @@ function genererVisuelParrainage(){
 // Point 46 — Afficher le lien de parrainage en grand format (agent terrain)
 function showParrainQR() {
   const display = document.getElementById('parrain-qr-display');
-  const linkEl = document.getElementById('parrain-qr-link');
-  const box = document.getElementById('parrain-link-box');
-  const link = (box?.textContent || '').trim();
   if (!display) return;
-  if (display.style.display === 'none') {
-    if (linkEl) linkEl.textContent = link;
-    display.style.display = 'block';
-  } else {
+
+  // Toggle off
+  if (display.style.display === 'block') {
     display.style.display = 'none';
+    return;
   }
+
+  // Récupérer le code parrainage depuis currentPrestataire (source la plus fiable)
+  const code = (window.currentPrestataire?.fields?.['Code Parrainage'] || '').trim();
+  const link = code ? `https://wozali.africa/?ref=${encodeURIComponent(code)}` : '';
+
+  if (!link) {
+    display.innerHTML = '<p style="color:rgba(255,255,255,0.5);font-size:13px;text-align:center;padding:12px;">Code parrainage non disponible.<br>Recharge la page.</p>';
+    display.style.display = 'block';
+    return;
+  }
+
+  // Mettre à jour le texte du lien dans le bloc existant
+  const linkEl = document.getElementById('parrain-qr-link');
+  if (linkEl) linkEl.textContent = link;
+
+  // Injecter le QR code image (une seule fois)
+  let qrImgEl = document.getElementById('parrain-qr-img-real');
+  if (!qrImgEl) {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(link)}&color=14100a&bgcolor=ffffff&qzone=2&format=png`;
+    qrImgEl = document.createElement('img');
+    qrImgEl.id = 'parrain-qr-img-real';
+    qrImgEl.src = qrUrl;
+    qrImgEl.alt = 'QR code lien parrainage';
+    qrImgEl.style.cssText = 'width:200px;height:200px;border-radius:12px;display:block;margin:0 auto 16px;border:4px solid #E8940A;background:#fff;';
+    qrImgEl.onerror = function() {
+      this.style.display = 'none';
+      const fb = document.createElement('p');
+      fb.style.cssText = 'color:rgba(255,255,255,0.5);font-size:12px;text-align:center;margin-bottom:12px;';
+      fb.textContent = 'QR temporairement indisponible — partage le lien ci-dessous.';
+      display.insertBefore(fb, display.firstChild);
+    };
+    display.insertBefore(qrImgEl, display.firstChild);
+  } else {
+    // Mettre à jour le src si le code a changé
+    const newUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(link)}&color=14100a&bgcolor=ffffff&qzone=2&format=png`;
+    if (qrImgEl.src !== newUrl) qrImgEl.src = newUrl;
+  }
+
+  display.style.display = 'block';
 }
 
 // ══════════════════════════════════════════
@@ -8889,7 +8926,7 @@ function _widgetBourse(bourse, countdown) {
         <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Le virement sera effectué sous 48h.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Mon abonnement</button>
-          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 J\\'ai gagné la Bourse de Croissance WOZALI ! 300 000 FCFA pour le membre Pro le plus méritant. Rejoins WOZALI → https://wozali.com'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
+          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 J\\'ai gagné la Bourse de Croissance WOZALI ! 300 000 FCFA pour le membre Pro le plus méritant. Rejoins WOZALI : wozali.africa'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
         </div>
       </div>`;
   }
@@ -9910,7 +9947,7 @@ function renderAgentsList() {
 }
 
 async function removeAgent(agentId) {
-  if (!confirm('Retirer ce pionnier WOZALI ?')) return;
+  if (!confirm('Retirer cet agent terrain WOZALI ?')) return;
   const d = await _agentsAPI('remove', { agent_id: agentId });
   if (d.ok) {
     toast('Agent retiré', 'info');
@@ -10024,7 +10061,7 @@ async function confirmAddAgent(encodedData) {
   });
 
   if (d.ok) {
-    toast(`${r.nom} ajouté comme pionnier WOZALI (${ville}, ${genre === 'F' ? 'Femme' : 'Homme'})`, 'success');
+    toast(`${r.nom} ajouté comme agent terrain WOZALI (${ville}, ${genre === 'F' ? 'Femme' : 'Homme'})`, 'success');
     document.getElementById('agent-search-input').value = '';
     document.getElementById('agent-search-results').style.display = 'none';
     loadAgentsTerrain();
@@ -10091,7 +10128,7 @@ function renderBattle() {
   const rankContainer = document.getElementById('battle-ranking');
 
   if (!allSorted.length) {
-    rankContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun pionnier. Ajoute des pionniers dans l\'onglet Pionniers WOZALI.</div>';
+    rankContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gris);font-size:13px;">Aucun agent terrain. Ajoute des agents terrain dans l\'onglet Agents terrain WOZALI.</div>';
     return;
   }
 
@@ -11139,7 +11176,7 @@ function renderOffresPage() {
     <div style="position:absolute;top:12px;right:12px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;padding:4px 10px;border-radius:4px;font-weight:700;">WOZALI RECRUTE</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">Pionnier WOZALI — Lomé &amp; Cotonou</h3>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">Agent terrain WOZALI - Lomé &amp; Cotonou</h3>
       </div>
     </div>
     <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -11152,11 +11189,11 @@ function renderOffresPage() {
       <span class="badge" style="background:rgba(232,148,10,0.1);color:#E8940A;">Mission terrain</span>
     </div>
     <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 100 000 FCFA — dès le 1er mois</div>
-    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er juin. On constitue notre équipe pionnière de 20 référents pour Lomé et Cotonou. Pas de diplôme requis — juste du sérieux.</p>
-    <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Fermeture 31 mai</div>
+    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er juillet. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
+    <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Places limitées</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié aujourd'hui</div>
     <div class="offre-actions" onclick="event.stopPropagation();">
-      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('Pionnier WOZALI — Lomé & Cotonou','recrutement-agents')">📤 Partager</button>
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('Agent terrain WOZALI - Lomé & Cotonou','recrutement-agents')">📤 Partager</button>
       <button class="btn btn-primary btn-sm" onclick="showPage('recrutement-agents')">→ Postuler</button>
     </div>
   </div>`;
@@ -12187,7 +12224,7 @@ function _renderBoostBadge(offre) {
 window._renderBoostBadge = _renderBoostBadge;
 
 function partagerOffre(titre, offreId) {
-  const url = `https://wozali.com/?emploi=${offreId}`;
+  const url = `https://wozali.africa/?emploi=${offreId}`;
   const text = `📢 Offre d'emploi au Bénin et au Togo : ${titre}\n\nPostule en 1 clic sur WOZALI :\n${url}`;
   if (navigator.share) {
     navigator.share({ title: `Offre : ${titre}`, text: text, url: url }).catch(() => {});

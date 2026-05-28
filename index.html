@@ -9,14 +9,14 @@
 <meta name="keywords" content="emploi Cotonou, emploi Lomé, prestataire Bénin, artisan Togo, marketplace Bénin, marketplace Togo, trouver prestataire Cotonou, trouver emploi Lomé, WOZALI">
 <meta property="og:title" content="WOZALI — Ton travail nourrit. Pas ton réseau.">
 <meta property="og:description" content="Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.">
-<meta property="og:url" content="https://wozali.com">
+<meta property="og:url" content="https://wozali.africa">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:locale:alternate" content="fr_BJ">
 <meta property="og:locale:alternate" content="fr_TG">
-<meta property="og:image" content="https://wozali.com/logos/og-image-1200x630.png">
+<meta property="og:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://wozali.com/logos/og-image-1200x630.png">
+<meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
 <link rel="stylesheet" href="/style.css">
 <!-- Google Fonts -->
@@ -2169,6 +2169,20 @@ setTimeout(function(){
         </div>
       </div>
 
+      <!-- Agent terrain : Mes ressources (visible uniquement agents actifs) -->
+      <div class="dash-group" data-group="agent-ressources" id="dash-agent-ressources-group" style="display:none;">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.2);background:linear-gradient(135deg,rgba(232,148,10,.08),rgba(232,148,10,.02));">
+          <i data-lucide="book-open"></i>
+          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Agent terrain</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('agents-ressources')" id="dl-agents-ressources">
+            <i data-lucide="library"></i> <span>Mes ressources</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Admin : Agents Terrain (visible uniquement admin) -->
       <div class="dash-group" data-group="admin-agents" id="dash-admin-agents-group" style="display:none;">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.3);background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));">
@@ -2178,7 +2192,7 @@ setTimeout(function(){
         </button>
         <div class="dash-group-body">
           <button class="dash-link" onclick="showDashSection('agents-terrain')" id="dl-agents-terrain">
-            <i data-lucide="users"></i> <span>Pionniers WOZALI</span>
+            <i data-lucide="users"></i> <span>Agents terrain WOZALI</span>
           </button>
           <button class="dash-link" onclick="showDashSection('battle')" id="dl-battle">
             <i data-lucide="swords"></i> <span>Battle H vs F</span>
@@ -3134,8 +3148,8 @@ setTimeout(function(){
            ══════════════════════════════════════════════════════════════ -->
       <div class="dash-section" id="ds-agents-terrain">
         <div class="dash-header">
-          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Pionniers WOZALI</h2>
-          <p style="color:var(--gris);font-size:13px;">Candidatures, sélection et gestion des pionniers WOZALI.</p>
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Agents terrain WOZALI</h2>
+          <p style="color:var(--gris);font-size:13px;">Candidatures, sélection et gestion des agents terrain WOZALI.</p>
         </div>
 
         <!-- ONGLETS -->
@@ -3282,6 +3296,69 @@ setTimeout(function(){
           </div>
         </div>
 
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           AGENT TERRAIN — MES RESSOURCES (visible uniquement agents actifs)
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-agents-ressources">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Mes ressources</h2>
+          <p style="color:var(--gris);font-size:13px;">Ta formation complète avant le déploiement terrain.</p>
+        </div>
+
+        <!-- ONBOARDING : 3 étapes -->
+        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:20px;margin-bottom:24px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Checklist démarrage</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <!-- Étape 1 -->
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+              <input type="checkbox" id="onboard-step1" onchange="saveOnboardingStep(1,this.checked)" style="accent-color:#E8940A;width:18px;height:18px;flex-shrink:0;">
+              <div style="flex:1;">
+                <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:700;color:#FCE0A8;">Étape 1 — Lire les documents ressources</div>
+                <div style="font-size:12px;color:var(--gris);margin-top:2px;"><span id="onboard-docs-count">0</span>/20 consultés</div>
+              </div>
+              <span id="onboard-step1-badge" style="display:none;background:#E8940A;color:#14100A;font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;">Lu</span>
+            </label>
+            <!-- Étape 2 -->
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+              <input type="checkbox" id="onboard-step2" onchange="saveOnboardingStep(2,this.checked)" style="accent-color:#E8940A;width:18px;height:18px;flex-shrink:0;">
+              <div style="flex:1;">
+                <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:700;color:#FCE0A8;">Étape 2 — Compléter ton profil WOZALI</div>
+                <div style="font-size:12px;color:var(--gris);margin-top:2px;">Photo, bio, métier, quartier renseignés</div>
+              </div>
+              <span id="onboard-step2-badge" style="display:none;background:#E8940A;color:#14100A;font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;">Fait</span>
+            </label>
+            <!-- Étape 3 -->
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+              <input type="checkbox" id="onboard-step3" onchange="saveOnboardingStep(3,this.checked)" style="accent-color:#E8940A;width:18px;height:18px;flex-shrink:0;">
+              <div style="flex:1;">
+                <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:700;color:#FCE0A8;">Étape 3 — Faire une inscription test avant le Call 1</div>
+                <div style="font-size:12px;color:var(--gris);margin-top:2px;">Inscris un proche fictif pour maîtriser le flow</div>
+              </div>
+              <span id="onboard-step3-badge" style="display:none;background:#E8940A;color:#14100A;font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;">Fait</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- BIBLIOTHÈQUE 20 DOCUMENTS -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Bibliothèque de formation — 20 documents</div>
+        <div id="agent-docs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">
+          <div style="text-align:center;padding:40px;color:var(--gris);font-size:13px;">Chargement des documents...</div>
+        </div>
+
+        <!-- MODALE DOCUMENT EN PRÉPARATION -->
+        <div id="modal-doc-ressource" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;align-items:center;justify-content:center;padding:20px;">
+          <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:18px;padding:28px;max-width:440px;width:100%;position:relative;">
+            <button onclick="document.getElementById('modal-doc-ressource').style.display='none';" style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(252,224,168,.5);font-size:22px;cursor:pointer;line-height:1;">×</button>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Document</div>
+            <h3 id="modal-doc-titre" style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin:0 0 12px;"></h3>
+            <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;margin-bottom:16px;">
+              <div style="font-size:14px;color:#FCE0A8;font-family:Geist,sans-serif;line-height:1.6;">Document en cours de préparation. Disponible avant le 1er juillet 2026.</div>
+            </div>
+            <button onclick="document.getElementById('modal-doc-ressource').style.display='none';" style="width:100%;padding:12px;background:#E8940A;color:#14100A;border:none;border-radius:12px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Fermer</button>
+          </div>
+        </div>
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════
@@ -6431,11 +6508,11 @@ async function repondreMatch(demandeId, clientId) {
 const WOZALI_TL_PANELS = [
   { eyebrow:'PHASE 1 · LANCEMENT', title:'Togo + Bénin simultanément',
     countries:[{flag:'🇹🇬',name:'Lomé, Togo',on:true},{flag:'🇧🇯',name:'Cotonou, Bénin',on:true}],
-    stat:'Lancement 1er juillet 2026 · <strong>500 000 FCFA distribués chaque mois</strong> · 20 pionniers WOZALI · Bourse de Croissance · La Bourse des Mains d\'Or · Domiciliation juridique Cotonou',
+    stat:'Lancement 1er juillet 2026 · <strong>500 000 FCFA distribués chaque mois</strong> · 20 agents terrain WOZALI · Bourse de Croissance · La Bourse des Mains d\'Or · Domiciliation juridique Cotonou',
     progress:18, progressLabel:'Lancement — Togo + Bénin' },
   { eyebrow:'PHASE 2 · EXPANSION OUEST-AFRICAINE', title:"Toute l'Afrique de l'Ouest",
     countries:[{flag:'🇹🇬',name:'Togo',on:true},{flag:'🇧🇯',name:'Bénin',on:true},{flag:'🇨🇮',name:"Côte d'Ivoire",on:true},{flag:'🇸🇳',name:'Sénégal',on:true},{flag:'🇬🇭',name:'Ghana',on:true},{flag:'🇳🇬',name:'Nigeria',on:true},{flag:'🇲🇱',name:'Mali',on:false},{flag:'🇧🇫',name:'Burkina',on:false}],
-    stat:'Fin 2026 · Déclencheur : validation terrain Togo + Bénin · <strong>3 000–3 500 FCFA/mois</strong> pour les nouveaux marchés · Même outil, adaptation locale · Pionniers WOZALI par pays',
+    stat:'Fin 2026 · Déclencheur : validation terrain Togo + Bénin · <strong>3 000–3 500 FCFA/mois</strong> pour les nouveaux marchés · Même outil, adaptation locale · Agents terrain WOZALI par pays',
     progress:62, progressLabel:"Expansion Afrique de l'Ouest" },
   { eyebrow:'PHASE 3 · CONTINENT', title:"Toute l'Afrique",
     countries:[{flag:'🌍',name:'Afrique Centrale',on:true},{flag:'🌍',name:"Afrique de l'Est",on:true},{flag:'🌍',name:'Afrique du Nord',on:true},{flag:'🌍',name:'Afrique Australe',on:true}],
@@ -6957,7 +7034,7 @@ window.addEventListener('beforeinstallprompt', function(e){
         <p style="font-size:15px;color:rgba(252, 224, 168,0.7);line-height:1.7;margin:0;">Commission récurrente. Tant que ton filleul reste au Plan Pro, tu touches ta commission chaque mois. Pas de plafond. Pas de limite.</p>
       </div>
       
-      <a href="https://wa.me/33743606916?text=Bonjour%2C%20je%20veux%20devenir%20Pionnier%20WOZALI" target="_blank" style="display:inline-block;margin-top:28px;background:#E8940A;color:#14100A;font-family:'Geist',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;border-radius:100px;text-decoration:none;cursor:pointer;">Devenir Pionnier WOZALI →</a>
+      <a href="https://wa.me/33743606916?text=Bonjour%2C%20je%20veux%20devenir%20agent%20terrain%20WOZALI" target="_blank" style="display:inline-block;margin-top:28px;background:#E8940A;color:#14100A;font-family:'Geist',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;border-radius:100px;text-decoration:none;cursor:pointer;">Devenir agent terrain WOZALI →</a>
     </div>
   </section>
 </div>
@@ -7013,7 +7090,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 
       <h2 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(22px,4vw,36px);color:#E8940A;margin:0 0 20px;font-weight:400;line-height:1.2;">Pas un truc flou. Pas de blabla.</h2>
 
-      <p style="font-family:'Geist',sans-serif;font-size:18px;color:rgba(252, 224, 168,0.65);line-height:1.7;margin:0 0 40px;">WOZALI constitue son équipe pionnière de 20 référents avant le lancement du 1er juillet. Un vrai travail de terrain.</p>
+      <p style="font-family:'Geist',sans-serif;font-size:18px;color:rgba(252, 224, 168,0.65);line-height:1.7;margin:0 0 40px;">WOZALI constitue son équipe d'agents terrain de 20 référents avant le lancement du 1er juillet. Un vrai travail de terrain.</p>
 
       <!-- Remuneration block -->
       <div style="background:#161b17;border-left:3px solid #E8940A;border-radius:16px;padding:28px;margin-bottom:36px;">
@@ -7255,7 +7332,7 @@ window.addEventListener('beforeinstallprompt', function(e){
         <p style="font-family:'Geist',sans-serif;font-size:14px;color:rgba(252, 224, 168,0.5);margin:0 0 28px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.7;">Les candidats qui connaissent la plateforme ont une longueur d'avance. Explore les profils, les Awards, le système de paiement — comprends l'écosystème que tu vas représenter.</p>
         <button onclick="document.getElementById('recrut-merci').style.display='none';showPage('home');window.scrollTo(0,0);" style="background:#E8940A;color:#14100A;font-family:'Geist',sans-serif;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;border:none;cursor:pointer;margin-bottom:14px;">→ Explorer WOZALI</button>
         <br>
-        <a href="https://wa.me/?text=Tu%20cherches%20du%20travail%20s%C3%A9rieux%20%C3%A0%20Lom%C3%A9%20ou%20Cotonou%20%3F%0A%0APas%20un%20truc%20flou.%20Pas%20un%20stage%20non%20pay%C3%A9.%0AUn%20vrai%20travail%20de%20terrain.%0A%0A100%20000%20FCFA%20atteignable%20d%C3%A8s%20le%20premier%20mois.%0APas%20de%20dipl%C3%B4me%20exig%C3%A9%20%E2%80%94%20juste%20du%20s%C3%A9rieux.%0A20%20places.%20Pas%20une%20de%20plus.%0A%0APostule%20en%202%20minutes%20%3A%0A%F0%9F%91%89%20wozali.com%2Frecrutement-agents" target="_blank" style="display:inline-block;width:100%;max-width:400px;background:#25d366;color:white;font-family:'Geist',sans-serif;font-weight:700;font-size:15px;padding:14px 24px;border-radius:12px;text-decoration:none;text-align:center;box-sizing:border-box;margin-top:10px;">📲 Partager cette opportunité</a>
+        <a href="https://wa.me/?text=Tu%20cherches%20du%20travail%20s%C3%A9rieux%20%C3%A0%20Lom%C3%A9%20ou%20Cotonou%20%3F%0A%0APas%20un%20truc%20flou.%20Pas%20un%20stage%20non%20pay%C3%A9.%0AUn%20vrai%20travail%20de%20terrain.%0A%0A100%20000%20FCFA%20atteignable%20d%C3%A8s%20le%20premier%20mois.%0APas%20de%20dipl%C3%B4me%20exig%C3%A9%2C%20juste%20du%20s%C3%A9rieux.%0A20%20places.%20Pas%20une%20de%20plus.%0A%0APostule%20en%202%20minutes%20%3A%0A%F0%9F%91%89%20wozali.africa%2Frecrutement-agents" target="_blank" style="display:inline-block;width:100%;max-width:400px;background:#25d366;color:white;font-family:'Geist',sans-serif;font-weight:700;font-size:15px;padding:14px 24px;border-radius:12px;text-decoration:none;text-align:center;box-sizing:border-box;margin-top:10px;">📲 Partager cette opportunité</a>
       </div>
 
     </div>
@@ -7270,7 +7347,7 @@ window.addEventListener('beforeinstallprompt', function(e){
   <section style="background:#14100A;padding:120px 20px 60px;min-height:100vh;">
     <div style="max-width:1100px;margin:0 auto;">
       <button onclick="showPage('dashboard')" style="background:none;border:none;color:rgba(252, 224, 168,0.5);font-family:'Geist',sans-serif;font-size:14px;cursor:pointer;margin-bottom:24px;padding:0;">← Retour au dashboard</button>
-      <h1 style="font-family:'DM Serif Display',serif;font-size:28px;color:#FCE0A8;margin:0 0 28px;font-weight:900;">Candidatures Pionniers WOZALI</h1>
+      <h1 style="font-family:'DM Serif Display',serif;font-size:28px;color:#FCE0A8;margin:0 0 28px;font-weight:900;">Candidatures Agents terrain WOZALI</h1>
 
       <!-- KPI Cards -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:28px;">
