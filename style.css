@@ -205,10 +205,14 @@ body {
 
 /* ══ NAV ══ */
 nav {
-  position:sticky; top:0; z-index:200;
-  background:rgba(15,20,16,0.92); backdrop-filter:blur(16px);
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  background:rgba(20,16,10,0.96); backdrop-filter:blur(16px);
   border-bottom:1px solid rgba(232,148,10,0.15);
   height:68px; display:flex; align-items:center;
+}
+/* Compensation nav fixed (68px) — le ticker est toujours le 1er élément */
+.wozali-ticker {
+  margin-top: 68px;
 }
 .nav-inner { display:flex; align-items:center; justify-content:space-between; width:100%; }
 .nav-logo {
