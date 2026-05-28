@@ -5196,3 +5196,95 @@ body.wozali-v2-active .btn-pay-pro-v2 {
   border:none !important; box-shadow:0 8px 24px rgba(232,148,10,.35);
   font-family:'Geist',sans-serif;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   DIRECTION NUIT — Suppression définitive des rebords blancs
+   Toute section avec background:white ou background:var(--blanc)
+   est forcée vers la palette Nuit. Fix global + permanent.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. BACKGROUNDS SECTIONS — force dark */
+section[style*="background:white"],
+section[style*="background: white"],
+section[style*="background:var(--blanc)"],
+section[style*="background:var(--blanc);"] {
+  background: #14100A !important;
+}
+
+/* 2. CARTES INTERNES aux sections ex-blanches */
+section[style*="background:white"] [style*="background:var(--blanc)"],
+section[style*="background: white"] [style*="background:var(--blanc)"],
+section[style*="background:var(--blanc)"] [style*="background:var(--blanc)"] {
+  background: #1E180E !important;
+  border-color: rgba(232,148,10,0.18) !important;
+}
+section[style*="background:white"] [style*="background:var(--vert-light)"],
+section[style*="background: white"] [style*="background:var(--vert-light)"],
+section[style*="background:var(--blanc)"] [style*="background:var(--vert-light)"] {
+  background: rgba(232,148,10,0.08) !important;
+  border: 1px solid rgba(232,148,10,0.2) !important;
+}
+section[style*="background:white"] [style*="background:var(--or-light)"],
+section[style*="background: white"] [style*="background:var(--or-light)"],
+section[style*="background:var(--blanc)"] [style*="background:var(--or-light)"] {
+  background: rgba(232,148,10,0.1) !important;
+  border: 1px solid rgba(232,148,10,0.2) !important;
+}
+
+/* 3. TITRES */
+section[style*="background:white"] h1:not([style*="color"]),
+section[style*="background:white"] h2:not([style*="color"]),
+section[style*="background:white"] h3:not([style*="color"]),
+section[style*="background:white"] h4:not([style*="color"]),
+section[style*="background: white"] h1:not([style*="color"]),
+section[style*="background: white"] h2:not([style*="color"]),
+section[style*="background: white"] h3:not([style*="color"]),
+section[style*="background: white"] h4:not([style*="color"]),
+section[style*="background:var(--blanc)"] h1:not([style*="color"]),
+section[style*="background:var(--blanc)"] h2:not([style*="color"]),
+section[style*="background:var(--blanc)"] h3:not([style*="color"]),
+section[style*="background:var(--blanc)"] h4:not([style*="color"]) {
+  color: #FCE0A8 !important;
+}
+
+/* 4. PARAGRAPHES & LISTES */
+section[style*="background:white"] p:not([style*="color"]),
+section[style*="background:white"] li:not([style*="color"]),
+section[style*="background: white"] p:not([style*="color"]),
+section[style*="background: white"] li:not([style*="color"]),
+section[style*="background:var(--blanc)"] p:not([style*="color"]),
+section[style*="background:var(--blanc)"] li:not([style*="color"]) {
+  color: rgba(252,224,168,0.72) !important;
+}
+
+/* 5. TEXTE var(--gris) / var(--gris-fonce) dans ces sections */
+section[style*="background:white"] [style*="color:var(--gris)"],
+section[style*="background: white"] [style*="color:var(--gris)"],
+section[style*="background:var(--blanc)"] [style*="color:var(--gris)"] {
+  color: rgba(252,224,168,0.62) !important;
+}
+section[style*="background:white"] [style*="color:var(--gris-fonce)"],
+section[style*="background: white"] [style*="color:var(--gris-fonce)"],
+section[style*="background:var(--blanc)"] [style*="color:var(--gris-fonce)"] {
+  color: rgba(252,224,168,0.78) !important;
+}
+
+/* 6. BOUTONS tabs inactifs */
+#tab-btn-emploi:not(.tab-active),
+#tab-btn-recrut:not(.tab-active),
+#tab-btn-presta:not(.tab-active) {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(232,148,10,0.3) !important;
+  color: rgba(252,224,168,0.65) !important;
+}
+
+/* 7. html + body — garantie absolue fond noir, zéro rebord */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #14100A !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+}
+html { overflow-x: hidden !important; }
+body { overflow-x: hidden !important; }
