@@ -1,4 +1,4 @@
-# Captions et Scripts — Visuels Recrutement Pionniers WOZALI
+# Captions et Scripts — Visuels Recrutement Agents terrain WOZALI
 > Règles absolues : JAMAIS "artisan" seul. JAMAIS "lien en bio" comme seul CTA. JAMAIS em dash. JAMAIS WOZALI en héros sur Phase 1. URL = wozali.africa
 
 ---
@@ -21,7 +21,7 @@ Dans ton quartier, des gens bossent sérieusement. Personne ne les trouve.
 
 Tu peux changer ça.
 
-WOZALI recrute 20 Pionniers à Lomé et Cotonou. Tu inscris les commerçants, prestataires et indépendants de ton quartier sur la plateforme. 5 minutes par profil.
+WOZALI recrute 20 Agents terrain à Lomé et Cotonou. Tu inscris les commerçants, prestataires et indépendants de ton quartier sur la plateforme. 5 minutes par profil.
 
 2 000 FCFA par membre actif.
 50 membres = 100 000 FCFA par mois.
@@ -31,7 +31,7 @@ Ton quartier. Ton téléphone. Pas de diplôme requis.
 Postuler : wozali.africa/postuler
 ```
 
-**Hashtags :** #WOZALI #Lomé #Cotonou #Opportunité #Recrutement #Togo #Bénin #100000FCFA #Pionnier #Travail
+**Hashtags :** #WOZALI #Lomé #Cotonou #Opportunité #Recrutement #Togo #Bénin #100000FCFA #Agent terrain #Travail
 
 ---
 
@@ -51,7 +51,7 @@ Tu vas dans ton quartier, tu inscris les gens qui bossent bien sur WOZALI. Des c
 wozali.africa/postuler
 ```
 
-**Hashtags :** #WOZALI #Lomé #Cotonou #Pionnier #100000FCFA #OpportunitéAfrique #Togo #Bénin
+**Hashtags :** #WOZALI #Lomé #Cotonou #Agent terrain #100000FCFA #OpportunitéAfrique #Togo #Bénin
 
 ---
 
@@ -60,7 +60,7 @@ wozali.africa/postuler
 
 ### Texte à superposer si besoin
 ```
-Pionnier WOZALI = 100 000 FCFA/mois
+Agent terrain WOZALI = 100 000 FCFA/mois
 Postuler : wozali.africa/postuler
 ```
 
@@ -85,12 +85,12 @@ Et toi, t'as trouvé comment ?
 
 ---
 
-## 5. POST JOURNÉE PIONNIER DARK — recrut-post-journee-pionnier.html
+## 5. POST JOURNÉE PIONNIER DARK — recrut-post-journee-agent terrain.html
 **Phase :** 2 (mécanisme) — J13, J17
 
 ### Caption
 ```
-Voilà ce que fait un Pionnier WOZALI dans une journée.
+Voilà ce que fait un Agent terrain WOZALI dans une journée.
 
 7h30 : il sort dans son quartier.
 9h : premier profil créé. Un tailleur. 5 minutes.
@@ -105,16 +105,16 @@ Voilà ce que fait un Pionnier WOZALI dans une journée.
 Postuler : wozali.africa/postuler
 ```
 
-**Hashtags :** #WOZALI #Pionnier #Lomé #Cotonou #100000FCFA #Opportunité #Togo #Bénin #RevenuTerrain
+**Hashtags :** #WOZALI #Agent terrain #Lomé #Cotonou #100000FCFA #Opportunité #Togo #Bénin #RevenuTerrain
 
 ---
 
-## 6. POST JOURNÉE PIONNIER OR — recrut-post-journee-pionnier-or.html
+## 6. POST JOURNÉE PIONNIER OR — recrut-post-journee-agent terrain-or.html
 **Phase :** 2 (mécanisme) — alterner avec dark
 
 ### Caption
 ```
-Une journée de Pionnier WOZALI. Pour de vrai.
+Une journée de Agent terrain WOZALI. Pour de vrai.
 
 Pas de bureau. Pas de patron. Pas de diplôme requis.
 
@@ -128,7 +128,7 @@ Tu connais les gens de ton quartier. Tu les inscris sur WOZALI. 5 minutes par pr
 wozali.africa/postuler
 ```
 
-**Hashtags :** #WOZALI #Pionnier #100000FCFA #Lomé #Cotonou #Togo #Bénin
+**Hashtags :** #WOZALI #Agent terrain #100000FCFA #Lomé #Cotonou #Togo #Bénin
 
 ---
 
@@ -140,7 +140,7 @@ wozali.africa/postuler
 Il reste des places. Pas longtemps.
 
 35 jours avant le lancement WOZALI.
-20 Pionniers seulement au départ.
+20 Agents terrain seulement au départ.
 100 000 FCFA par mois pour ceux qui sont là.
 
 Lomé et Cotonou.
@@ -148,7 +148,7 @@ Lomé et Cotonou.
 Postuler maintenant : wozali.africa/postuler
 ```
 
-**Hashtags :** #WOZALI #Pionnier #Lomé #Cotonou #Urgence #1erJuillet #100000FCFA #Togo #Bénin #DernièresPlaces
+**Hashtags :** #WOZALI #Agent terrain #Lomé #Cotonou #Urgence #1erJuillet #100000FCFA #Togo #Bénin #DernièresPlaces
 
 ---
 
@@ -159,7 +159,7 @@ Postuler maintenant : wozali.africa/postuler
 ```
 Tu connais les gens qui bossent bien dans ton quartier. WOZALI aussi veut les connaître.
 
-Pionnier WOZALI : 2 000 FCFA par membre actif que tu inscris. 50 membres = 100 000 FCFA/mois.
+Agent terrain WOZALI : 2 000 FCFA par membre actif que tu inscris. 50 membres = 100 000 FCFA/mois.
 
 20 places. Lomé et Cotonou. Lancement 1er juillet 2026.
 
@@ -189,7 +189,7 @@ wozali.africa/postuler — 20 places max
 
 ### Caption TikTok
 ```
-Une journée de Pionnier WOZALI. Timeline réelle.
+Une journée de Agent terrain WOZALI. Timeline réelle.
 
 7h30, quartier. 9h, premier profil. 16h, 7 profils créés, 14 000 FCFA en cours.
 
@@ -205,7 +205,7 @@ wozali.africa/postuler
 
 ### Caption TikTok
 ```
-Ce que fait vraiment un Pionnier WOZALI dans une journée.
+Ce que fait vraiment un Agent terrain WOZALI dans une journée.
 
 Pas de diplôme. Pas de bureau. Un téléphone et un quartier.
 
@@ -242,14 +242,14 @@ wozali.africa/postuler — Lomé et Cotonou
 
 ## 12. MESSAGE WHATSAPP DIFFUSION LARGE
 **Usage :** copier-coller dans des groupes WhatsApp, story WhatsApp, partage réseau
-**SB7 :** ouvre sur la situation du Pionnier, pas sur WOZALI
+**SB7 :** ouvre sur la situation du Agent terrain, pas sur WOZALI
 
 ```
 Dans ton quartier, des gens bossent sérieusement. Personne ne les trouve en dehors de leur rue.
 
 Tu peux changer ça et gagner 100 000 FCFA par mois.
 
-On recrute 20 Pionniers à Lomé et Cotonou. Tu inscris les commerçants et prestataires de ton quartier sur une plateforme. 5 minutes par profil. 2 000 FCFA par membre actif.
+On recrute 20 Agents terrain à Lomé et Cotonou. Tu inscris les commerçants et prestataires de ton quartier sur une plateforme. 5 minutes par profil. 2 000 FCFA par membre actif.
 
 Pas de diplôme. Pas de bureau. 20 places. Lancement 1er juillet 2026.
 

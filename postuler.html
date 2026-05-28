@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Postuler — Pionniers WOZALI</title>
+<title>Postuler — Agents terrain WOZALI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -404,16 +404,34 @@ html, body {
     <span class="logo-w">W</span><span class="logo-ozali">OZALI</span>
   </div>
 
-  <div class="page-eyebrow">Pionniers terrain · Lomé &amp; Cotonou</div>
-  <h1 class="page-title">Rejoins<br><em>l'équipe.</em></h1>
-  <p class="page-sub">Freelance. Rémunéré à la performance. Pas de diplôme, pas d'expérience requise — juste du sérieux et un téléphone.</p>
+  <div class="page-eyebrow">Agents terrain terrain · Lomé &amp; Cotonou</div>
+  <h1 class="page-title">Gagne 100 000 FCFA<br><em>par mois.</em></h1>
+  <p class="page-sub">Pas de diplôme requis. Pas d'expérience. Juste du sérieux et un téléphone. 20 places disponibles — lancement 1er juillet 2026.</p>
 
-  <!-- WOZALI EXPLIQUÉ -->
+  <!-- COMPTEUR PLACES — T7 -->
+  <div style="background:rgba(232,148,10,0.08);border:1.5px solid rgba(232,148,10,0.3);border-radius:14px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-family:'Geist Mono',monospace;font-size:13px;color:#E8940A;letter-spacing:0.08em;">20 PLACES DISPONIBLES</div>
+    <div style="font-size:13px;color:rgba(252,224,168,0.6);">Lancement : 1er juillet 2026</div>
+  </div>
+
+  <!-- MÉCANISME — T6 + T9 -->
   <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:20px;margin-bottom:24px;">
-    <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:10px;">WOZALI, c'est quoi ?</div>
-    <p style="font-size:14px;color:rgba(252,224,168,.8);line-height:1.7;margin-bottom:12px;">Les meilleurs artisans de Lomé et Cotonou sont invisibles sur internet. Un plombier excellent dans son quartier n'existe pas pour quelqu'un qui cherche à l'autre bout de la ville. <strong style="color:#FCE0A8;">WOZALI, c'est l'appli qui les rend visibles.</strong> Quand quelqu'un cherche un coiffeur, un mécanicien ou une couturière dans son quartier, les pros WOZALI sortent en premier.</p>
-    <p style="font-size:14px;color:rgba(252,224,168,.8);line-height:1.7;"><strong style="color:#FCE0A8;">Ton rôle :</strong> aller dans les quartiers, aider les artisans à créer leur profil WOZALI, et être payé pour chaque inscription. Formation fournie. Lancement : 1er juillet 2026.</p>
-    <a href="/offre-pionniers" style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;color:#E8940A;text-decoration:none;font-weight:600;">Voir l'offre complète →</a>
+    <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:16px;">Comment ça marche</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;background:rgba(232,148,10,0.12);border-radius:4px;padding:3px 7px;flex-shrink:0;margin-top:1px;">01</span>
+        <p style="font-size:14px;color:rgba(252,224,168,.8);line-height:1.6;">Tu postules ici. On te contacte sous 48h sur WhatsApp.</p>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;background:rgba(232,148,10,0.12);border-radius:4px;padding:3px 7px;flex-shrink:0;margin-top:1px;">02</span>
+        <p style="font-size:14px;color:rgba(252,224,168,.8);line-height:1.6;">Formation directe avec le fondateur. Tu apprends à inscrire les membres en 5 minutes.</p>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;background:rgba(232,148,10,0.12);border-radius:4px;padding:3px 7px;flex-shrink:0;margin-top:1px;">03</span>
+        <p style="font-size:14px;color:rgba(252,224,168,.8);line-height:1.6;">Tu sors dans ton quartier, tu inscris ceux qui travaillent. <strong style="color:#FCE0A8;">2 000 FCFA par membre actif. 50 membres = 100 000 FCFA / mois.</strong></p>
+      </div>
+    </div>
+    <a href="/offre-agents terrain" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#E8940A;text-decoration:none;font-weight:600;">Voir l'offre complète →</a>
   </div>
 
   <div class="comm-block">
@@ -490,7 +508,7 @@ html, body {
     <div class="field">
       <label for="f-quartier">Quartier <span class="req">*</span></label>
       <select id="f-quartier" required disabled>
-        <option value="">Choisis ta ville d'abord</option>
+        <option value="">— Sélectionne ton quartier —</option>
       </select>
     </div>
 
@@ -533,7 +551,7 @@ html, body {
     </div>
 
     <div class="field">
-      <label for="f-reseau">Tu connais des artisans dans ton quartier ? <span class="req">*</span></label>
+      <label for="f-reseau">Tu connais des gens qui travaillent bien dans ton quartier ? <span class="req">*</span></label>
       <select id="f-reseau" required>
         <option value="">Sélectionne</option>
         <option value="Beaucoup, je connais tout le monde">Oui, je connais beaucoup de monde</option>
@@ -594,7 +612,7 @@ html, body {
 
   </form>
 
-  <div class="page-footer">wozali.africa · Pionniers 2026</div>
+  <div class="page-footer">wozali.africa · Agents terrain 2026</div>
 </div>
 
 <!-- CONFIRMATION -->
@@ -685,7 +703,7 @@ html, body {
               </div>
               <div style="text-align:left;">
                 <div style="font-size:14px;font-weight:700;color:#FCE0A8;">@wozali.africa</div>
-                <div style="font-size:12px;color:rgba(252,224,168,.45);">TikTok · Vidéos terrain, histoires d'artisans</div>
+                <div style="font-size:12px;color:rgba(252,224,168,.45);">TikTok · Vidéos terrain, histoires de ceux qui bossent</div>
               </div>
             </div>
             <span style="color:#E8940A;font-size:18px;">→</span>
@@ -843,7 +861,7 @@ document.getElementById('form-postuler').addEventListener('submit', async e => {
   if (!quartier)  { showError('Sélectionne ton quartier.'); return; }
   if (!dispo)     { showError('Indique ta disponibilité.'); return; }
   if (!situation) { showError('Indique ta situation actuelle.'); return; }
-  if (!reseau)    { showError('Dis-nous si tu connais des artisans dans ton quartier.'); return; }
+  if (!reseau)    { showError('Dis-nous si tu connais des gens qui travaillent dans ton quartier.'); return; }
   if (!pourquoi || pourquoi.length < 20) { showError('Explique ta motivation en quelques lignes (minimum 20 caractères).'); return; }
 
   const btn = document.getElementById('btn-submit');
@@ -867,7 +885,7 @@ document.getElementById('form-postuler').addEventListener('submit', async e => {
 
     // Insertion Supabase
     const { error } = await supa
-      .from('wozali_candidatures_pionniers')
+      .from('wozali_candidatures_agents terrain')
       .insert({
         prenom,
         nom,

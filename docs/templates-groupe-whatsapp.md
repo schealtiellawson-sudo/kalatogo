@@ -1,4 +1,4 @@
-# Templates Messages Groupe WhatsApp — Pionniers WOZALI
+# Templates Messages Groupe WhatsApp — Agents terrain WOZALI
 ## Messages du fondateur pour Lomé et Cotonou (groupes séparés)
 
 ---
@@ -16,7 +16,7 @@ Résultats semaine dernière :
 Lomé : [X] profils créés · [Y] membres actifs
 Cotonou : [X] profils créés · [Y] membres actifs
 
-Objectif cette semaine : [X] profils par Pionnier.
+Objectif cette semaine : [X] profils par Agent terrain.
 
 Chaque soir, vous m'envoyez votre chiffre du jour dans le groupe. Un nombre suffit.
 
@@ -85,10 +85,10 @@ Merci pour le travail. On continue.
 
 ## MESSAGES PONCTUELS
 
-### Bienvenue nouveau Pionnier
+### Bienvenue nouveau Agent terrain
 
 ```
-Bienvenue [Prénom] dans l'équipe Pionniers WOZALI [ville].
+Bienvenue [Prénom] dans l'équipe Agents terrain WOZALI [ville].
 
 Tu as accès au guide de formation dans les fichiers du groupe. Lis-le avant notre prochaine session.
 
@@ -132,7 +132,7 @@ On est à mi-mois.
 
 [X] profils créés au total. [Y] membres actifs confirmés.
 
-Pour atteindre les objectifs du mois, il reste [Z] profils à créer en [N] jours. C'est [Z/N] par jour par Pionnier actif.
+Pour atteindre les objectifs du mois, il reste [Z] profils à créer en [N] jours. C'est [Z/N] par jour par Agent terrain actif.
 
 C'est faisable. Chacun sait ce qu'il a à faire.
 

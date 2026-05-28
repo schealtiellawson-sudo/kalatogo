@@ -1,4 +1,4 @@
-# Charte de Conduite — Pionnier WOZALI
+# Charte de Conduite — Agent terrain WOZALI
 
 Document annexé à la Lettre de Mission. Obligatoire.
 
@@ -52,10 +52,10 @@ Si tu ne sais pas répondre à une question, tu dis "je ne sais pas, je vérifie
 
 ## En cas de problème
 
-Tout incident terrain (refus agressif, demande d'argent, question sensible, situation bizarre) est remonté immédiatement dans le groupe WhatsApp Pionniers.
+Tout incident terrain (refus agressif, demande d'argent, question sensible, situation bizarre) est remonté immédiatement dans le groupe WhatsApp Agents terrain.
 
 Le fondateur répond. Tu n'improvises pas seul sur des situations inhabituelles.
 
 ---
 
-*Cette charte est annexée à la Lettre de Mission Pionnier WOZALI. Elle s'applique dès le premier jour de terrain.*
+*Cette charte est annexée à la Lettre de Mission Agent terrain WOZALI. Elle s'applique dès le premier jour de terrain.*

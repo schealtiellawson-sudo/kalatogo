@@ -1,4 +1,4 @@
-# Guide de Formation — Pionniers WOZALI
+# Guide de Formation — Agents terrain WOZALI
 ## Support pour les sessions de formation avec le fondateur
 
 ---
@@ -13,11 +13,11 @@ Un profil WOZALI c'est simple : photo, métier, quartier, avis clients. Le Score
 
 ### Ce que tu représentes
 
-Tu n'es pas un vendeur. Tu es un Pionnier. Tu es la personne qui va voir les gens dans ton quartier et qui les aide à exister sur internet. Ton travail crée de la valeur pour eux avant même qu'ils paient quoi que ce soit.
+Tu n'es pas un vendeur. Tu es un Agent terrain. Tu es la personne qui va voir les gens dans ton quartier et qui les aide à exister sur internet. Ton travail crée de la valeur pour eux avant même qu'ils paient quoi que ce soit.
 
 ### Ce que WOZALI n'est pas
 
-- Pas un MLM. Pas de réseau de recruteurs. Tu inscris des membres, pas d'autres Pionniers.
+- Pas un MLM. Pas de réseau de recruteurs. Tu inscris des membres, pas d'autres Agents terrain.
 - Pas une arnaque. La plateforme est réelle. Le lien fonctionne. Tu peux le montrer sur ton téléphone.
 - Pas du travail forcé. Si ça ne marche pas dans une rue, tu passes à la suivante.
 
@@ -63,7 +63,7 @@ Pas de restriction de métier. Si la personne travaille et peut recevoir des cli
 Tu ouvres toujours sur leur situation, jamais sur WOZALI.
 
 **Ce qu'on ne dit pas :**
-"Bonjour, je suis Pionnier WOZALI, j'ai une plateforme à te présenter."
+"Bonjour, je suis Agent terrain WOZALI, j'ai une plateforme à te présenter."
 
 **Ce qu'on dit :**
 "Eh [prénom], t'as combien de clients qui te contactent cette semaine sans que t'aies rien demandé ?"
@@ -114,7 +114,7 @@ Tu n'as pas besoin d'en faire plus. Trois messages suffisent.
 
 ### Ce que tu remontés dans le groupe
 
-Chaque semaine dans le groupe Pionniers :
+Chaque semaine dans le groupe Agents terrain :
 - Nombre de profils créés
 - Objections nouvelles que tu as rencontrées
 - Ce qui a bien marché
@@ -124,7 +124,7 @@ Ce feedback est ce qui améliore les scripts pour tout le monde.
 
 ### Le classement mensuel
 
-Le 1er de chaque mois, le fondateur publie le classement des Pionniers par nombre de membres actifs. Pas pour créer de la pression. Pour identifier ce qui marche et partager les bonnes pratiques.
+Le 1er de chaque mois, le fondateur publie le classement des Agents terrain par nombre de membres actifs. Pas pour créer de la pression. Pour identifier ce qui marche et partager les bonnes pratiques.
 
 ---
 
@@ -138,5 +138,5 @@ Le 1er de chaque mois, le fondateur publie le classement des Pionniers par nombr
 
 ---
 
-*Guide de Formation Pionniers WOZALI · Version lancement juillet 2026*
+*Guide de Formation Agents terrain WOZALI · Version lancement juillet 2026*
 *wozali.africa · Lomé et Cotonou*

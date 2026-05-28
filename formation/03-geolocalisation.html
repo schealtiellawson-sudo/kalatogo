@@ -547,13 +547,13 @@
 <div class="page">
   <div class="header">
     <div class="logo">W<span>OZALI</span></div>
-    <div class="doc-type">Formation Pionniers</div>
+    <div class="doc-type">Formation agents terrain</div>
   </div>
 
   <div class="content">
-    <div class="eyebrow">Document 03 / 05</div>
+    <div class="eyebrow">Document 03 / 20</div>
     <h1>La géolocalisation - pourquoi ça change tout</h1>
-    <p class="subtitle">La géolocalisation n'est pas une fonctionnalité parmi d'autres. C'est le moteur central de WOZALI. Sans elle, un profil existe mais n'est pas trouvé. Comprends ça, explique-le clairement, et tu convertiras deux fois plus vite sur le terrain.</p>
+    <p class="subtitle">La géolocalisation n'est pas obligatoire, mais elle change radicalement la visibilité d'un profil. Un artisan sans géoloc existe sur WOZALI, mais il est beaucoup plus difficile à trouver. Active-la dès l'inscription, ça prend 2 minutes et ça multiplie les chances d'être contacté.</p>
 
     <h2>Le problème que la géoloc résout</h2>
 
@@ -581,12 +581,12 @@
         <span class="priority-desc">Membres Gratuits avec géolocalisation activée, triés par Score WOZALI décroissant, dans le même rayon</span>
       </div>
       <div class="priority-row third">
-        <span class="priority-rank">3e - INVISIBLE</span>
-        <span class="priority-desc">Membres sans géolocalisation activée, peu importe leur plan ou leur Score - ils n'apparaissent pas dans les recherches locales</span>
+        <span class="priority-rank">3e - RÉDUIT</span>
+        <span class="priority-desc">Membres sans géolocalisation activée - ils apparaissent dans les résultats généraux mais ne sont pas positionnés par rapport à la distance du client, ce qui réduit fortement leur visibilité locale</span>
       </div>
     </div>
 
-    <p>Le troisième groupe est le plus important à comprendre. Un artisan peut avoir un profil parfait, un Score de 90, le Plan Pro actif - s'il n'a pas activé la géoloc, il n'existe pas dans les recherches locales. Son profil est visible si quelqu'un tape son nom exact, mais il n'apparaîtra jamais dans les résultats de recherche par métier et quartier.</p>
+    <p>Le troisième groupe, c'est le cas à éviter. Un artisan sans géoloc est bien sur WOZALI, il peut être trouvé si quelqu'un tape son nom exact ou parcourt la liste complète. Mais il n'est pas positionné par rapport aux recherches locales. Dans une ville comme Lomé ou Cotonou où les gens cherchent "plombier près de moi", être sans géoloc, c'est laisser les premiers résultats aux autres.</p>
 
     <div class="map-mockup">
       <div class="map-mockup-header">
@@ -762,7 +762,7 @@
         <div class="error-icon bad">✗</div>
         <div class="error-content">
           <div class="error-title">Inscrire un artisan au Plan Pro sans activer la géoloc</div>
-          <p>Il paye 2 500 FCFA, mais il n'est pas trouvé dans les recherches locales. Il va se plaindre que WOZALI ne marche pas. Et il n'aura pas tort. La géoloc est une condition préalable à tout le reste.</p>
+          <p>Il paye 2 500 FCFA mais sa visibilité locale est réduite. Sans géoloc, il n'est pas positionné dans les recherches par quartier. Il risque de ne pas voir de résultats rapidement et de se plaindre que WOZALI ne marche pas. Active toujours la géoloc avant ou en même temps que le Plan Pro.</p>
         </div>
       </div>
       <div class="error-item">
@@ -801,7 +801,8 @@
   </div>
 
   <div class="footer">
-    <div class="footer-left">Formation Pionniers - Lancement 1er juillet 2026</div>
+    <div class="footer-left" id="footer-date-label">Formation agents terrain - Lancement 1er juillet 2026</div>
+    <script>(function(){var l=new Date()>=new Date('2026-07-01');var e=document.getElementById('footer-date-label');if(e)e.textContent=l?'Formation agents terrain - WOZALI en ligne depuis le 1er juillet 2026':'Formation agents terrain - Lancement 1er juillet 2026';})();</script>
     <div class="footer-right">wozali.africa</div>
   </div>
 </div>

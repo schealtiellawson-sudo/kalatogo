@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WOZALI — Vendre sans vendre — Formation Pionniers</title>
+<title>WOZALI — Vendre sans vendre — Formation agents terrain</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -58,7 +58,7 @@ tr:nth-child(even) td { background: #faf8f3; }
 
   <div class="header">
     <div class="logo">W<span>OZALI</span></div>
-    <div class="doc-type">Formation Pionniers</div>
+    <div class="doc-type">Formation agents terrain</div>
   </div>
 
   <div class="content">
@@ -69,7 +69,7 @@ tr:nth-child(even) td { background: #faf8f3; }
       <h2>Ce que signifie "vendre sans vendre"</h2>
       <p>Le vendeur qui insiste, qui relance, qui pousse - ça marche quelquefois. Mais ça laisse un mauvais goût. La personne a dit oui parce qu'elle voulait que tu partes, pas parce qu'elle était convaincue. Elle ne recommande pas. Elle ne reste pas.</p>
       <p>L'influence éthique, c'est différent. C'est créer les conditions dans lesquelles la personne prend elle-même la décision qui est dans son intérêt. Tu n'as pas forcé. Tu as éclairé. La différence change tout : une personne convaincue reste, recommande, et devient elle-même un argument vivant pour WOZALI dans son quartier.</p>
-      <p>Robert Cialdini a passé 35 ans à étudier ce qui influence les décisions humaines. Ses 6 principes sont universels. Ce document les adapte au terrain africain, aux quartiers de Lomé et Cotonou, et au travail des Pionniers WOZALI.</p>
+      <p>Robert Cialdini a passé 35 ans à étudier ce qui influence les décisions humaines. Ses 6 principes sont universels. Ce document les adapte au terrain africain, aux quartiers de Lomé et Cotonou, et au travail des agents terrain WOZALI.</p>
     </section>
 
     <div class="principe-card">
@@ -117,19 +117,30 @@ tr:nth-child(even) td { background: #faf8f3; }
         <span class="principe-num">03</span>
         <span class="principe-titre">L'autorité</span>
       </div>
-      <p>Les gens font confiance aux sources qui paraissent légitimes et compétentes. Ton badge de Pionnier WOZALI, ta lettre de mission, le lien officiel vers wozali.africa - ce sont des signaux d'autorité. Utilise-les.</p>
+      <p>Les gens font confiance aux sources qui paraissent légitimes et compétentes. Ton badge de agent terrain WOZALI, ta lettre de mission, le lien officiel vers wozali.africa - ce sont des signaux d'autorité. Utilise-les.</p>
 
       <h3>Ce que tu peux utiliser</h3>
       <ul>
         <li>Montrer le site wozali.africa sur ton téléphone prouve que c'est une vraie plateforme, pas une idée en l'air</li>
         <li>Mentionner que WOZALI couvre à la fois Lomé et Cotonou donne une dimension sérieuse</li>
         <li>Montrer un profil d'artisan déjà complet dans l'application est plus convaincant que n'importe quelle explication</li>
-        <li>Ta lettre de mission officielle de Pionnier répond aux sceptiques qui demandent si tu représentes vraiment quelque chose de réel</li>
+        <li>Ta lettre de mission officielle de agent terrain répond aux sceptiques qui demandent si tu représentes vraiment quelque chose de réel</li>
       </ul>
 
       <div class="script-block">
         <span class="script-label">Si quelqu'un demande "c'est sérieux ça ?"</span>
-        <p>"Regarde, voilà le site. Tu vois les profils des artisans de Lomé et Cotonou. Le lancement officiel est le 1er juillet. Et voilà ma lettre de mission de Pionnier WOZALI. Je ne suis pas là à te proposer quelque chose d'inventé."</p>
+        <p id="preuve-lancement-script"></p>
+        <script>
+          (function() {
+            var launched = new Date() >= new Date('2026-07-01');
+            var el = document.getElementById('preuve-lancement-script');
+            if (el) {
+              el.textContent = launched
+                ? '"Regarde, voilà le site. Tu vois les profils des artisans de Lomé et Cotonou — WOZALI est en ligne depuis le 1er juillet. Et voilà ma lettre de mission de agent terrain WOZALI. Je ne suis pas là à te proposer quelque chose d\'inventé."'
+                : '"Regarde, voilà le site. Tu vois les profils des artisans de Lomé et Cotonou. Le lancement officiel est le 1er juillet. Et voilà ma lettre de mission de agent terrain WOZALI. Je ne suis pas là à te proposer quelque chose d\'inventé."';
+            }
+          })();
+        </script>
       </div>
     </div>
 
@@ -169,7 +180,18 @@ tr:nth-child(even) td { background: #faf8f3; }
       <h3>Les raretés réelles sur WOZALI</h3>
       <ul>
         <li><strong>Avantage premier arrivé :</strong> dans une catégorie de métier dans un quartier, les premiers profils bien construits ont un avantage de visibilité qui dure. Si tu es le premier maçon sérieux inscrit à Agla, tu profites de cette position le temps que d'autres te rattrapent.</li>
-        <li><strong>La fenêtre pré-lancement :</strong> le lancement est le 1er juillet 2026. Avant cette date, tu construis sans concurrence. Après, tout le monde arrive en même temps.</li>
+        <li id="rareté-lancement-item"></li>
+        <script>
+          (function() {
+            var launched = new Date() >= new Date('2026-07-01');
+            var el = document.getElementById('rareté-lancement-item');
+            if (el) {
+              el.innerHTML = launched
+                ? '<strong>L\'avantage du premier inscrit :</strong> les artisans présents depuis le lancement du 1er juillet ont plusieurs mois d\'avis et de visibilité d\'avance. Cette avance se réduit chaque mois, mais elle est réelle tant que tu n\'es pas encore là.'
+                : '<strong>La fenêtre pré-lancement :</strong> le lancement est le 1er juillet 2026. Avant cette date, tu construis sans concurrence. Après, tout le monde arrive en même temps.';
+            }
+          })();
+        </script>
         <li><strong>Ta présence dans ce quartier :</strong> tu ne reviens pas tous les jours. Si quelqu'un veut que tu l'aides à créer son profil maintenant, c'est maintenant que tu es là.</li>
       </ul>
 

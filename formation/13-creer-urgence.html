@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WOZALI — Créer l'urgence sans mentir — Formation Pionniers</title>
+<title>WOZALI — Créer l'urgence sans mentir — Formation agents terrain</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,7 +56,7 @@ tr:nth-child(even) td { background: #faf8f3; }
 
   <div class="header">
     <div class="logo">W<span>OZALI</span></div>
-    <div class="doc-type">Formation Pionniers</div>
+    <div class="doc-type">Formation agents terrain</div>
   </div>
 
   <div class="content">
@@ -68,7 +68,7 @@ tr:nth-child(even) td { background: #faf8f3; }
       <p>Tu as eu une bonne conversation. L'artisan a compris ce que fait WOZALI. Il voit l'intérêt. Il dit : "Oui, c'est bien ça. Je vais le faire." Tu pars. Tu reviens deux semaines plus tard. Il n'a pas créé son profil.</p>
       <p>Ce n'est pas parce qu'il ne voulait pas. C'est parce qu'il n'avait pas de raison de le faire ce jour-là plutôt qu'un autre. Sans deadline, une décision se reporte indéfiniment. Pas par mauvaise volonté. Par mécanique humaine.</p>
       <p>L'urgence n'est pas une manipulation. C'est rendre réel ce qui est déjà vrai : chaque jour sans profil est un jour de moins de visibilité. Chaque concurrent qui s'inscrit avant lui prend de l'avance. Le temps a une valeur, et la plupart des gens n'y pensent pas naturellement.</p>
-      <p>Ton rôle de Pionnier : rendre visible ce coût invisible.</p>
+      <p>Ton rôle de agent terrain : rendre visible ce coût invisible.</p>
     </section>
 
     <section>
@@ -85,7 +85,18 @@ tr:nth-child(even) td { background: #faf8f3; }
         </div>
         <div class="compare-col good">
           <h3>Vraie urgence (autorisé)</h3>
-          <p>"Le lancement officiel est le 1er juillet. Ceux qui s'inscrivent avant ont un avantage de visibilité."</p>
+          <p id="urgence-lancement-compare"></p>
+          <script>
+            (function() {
+              var launched = new Date() >= new Date('2026-07-01');
+              var el = document.getElementById('urgence-lancement-compare');
+              if (el) {
+                el.textContent = launched
+                  ? '"Les profils créés dès le lancement ont plusieurs mois d\'avis d\'avance. Plus on attend, plus l\'écart se creuse."'
+                  : '"Le lancement officiel est le 1er juillet. Ceux qui s\'inscrivent avant ont un avantage de visibilité."';
+              }
+            })();
+          </script>
           <p>"Ta concurrente d'en face est déjà inscrite - si c'est vrai."</p>
           <p>"Chaque semaine sans profil, c'est des clients qui vont ailleurs."</p>
           <p>"Je reviens dans ce quartier mardi. Après, je continue mon circuit."</p>
@@ -100,12 +111,30 @@ tr:nth-child(even) td { background: #faf8f3; }
     <section>
       <h2>Les vraies urgences WOZALI à utiliser</h2>
 
-      <h3>1. Le lancement du 1er juillet 2026</h3>
-      <p>WOZALI ouvre officiellement le 1er juillet 2026. Ce n'est pas une invention. C'est la réalité. Et cette date crée une vraie urgence : les artisans qui s'inscrivent avant le lancement construisent leur profil et accumulent des vues depuis le premier jour. Ceux qui s'inscrivent trois mois après partent avec du retard dans les classements de recherche.</p>
+      <h3 id="section-lancement-titre"></h3>
+      <p id="section-lancement-texte"></p>
 
       <div class="script-block">
-        <p>"Le lancement est le 1er juillet. Les profils qui sont déjà complets ce jour-là vont être mis en avant dès l'ouverture. C'est comme ouvrir un commerce le jour de l'inauguration d'un grand marché - tu es là quand l'affluence commence. Tu arrives deux mois après, le flux est déjà parti vers les autres."</p>
+        <p id="section-lancement-script"></p>
       </div>
+
+      <script>
+        (function() {
+          var launched = new Date() >= new Date('2026-07-01');
+          var titre = document.getElementById('section-lancement-titre');
+          var texte = document.getElementById('section-lancement-texte');
+          var script = document.getElementById('section-lancement-script');
+          if (!launched) {
+            titre.textContent = '1. Le lancement du 1er juillet 2026';
+            texte.textContent = 'WOZALI ouvre officiellement le 1er juillet 2026. Ce n\'est pas une invention. C\'est la réalité. Et cette date crée une vraie urgence : les artisans qui s\'inscrivent avant le lancement construisent leur profil et accumulent des vues depuis le premier jour. Ceux qui s\'inscrivent trois mois après partent avec du retard dans les classements de recherche.';
+            script.textContent = '"Le lancement est le 1er juillet. Les profils qui sont déjà complets ce jour-là vont être mis en avant dès l\'ouverture. C\'est comme ouvrir un commerce le jour de l\'inauguration d\'un grand marché — tu es là quand l\'affluence commence. Tu arrives deux mois après, le flux est déjà parti vers les autres."';
+          } else {
+            titre.textContent = '1. L\'avantage des premiers inscrits';
+            texte.textContent = 'WOZALI est lancé depuis le 1er juillet 2026. Depuis cette date, les premiers inscrits accumulent des avis, des vues et du Score WOZALI. Cette avance est réelle : un artisan inscrit depuis le lancement avec 10 avis sera bien positionné face à quelqu\'un qui s\'inscrit aujourd\'hui. L\'écart se réduit avec le temps, mais il existe.';
+            script.textContent = '"WOZALI est lancé. Les artisans qui sont là depuis le début ont déjà des avis et une visibilité. Si tu t\'inscris aujourd\'hui, tu commences maintenant à construire ton Score. Chaque semaine que tu attends, c\'est une semaine de plus de retard sur ceux qui sont déjà là."';
+          }
+        })();
+      </script>
 
       <h3>2. L'avantage du premier arrivé</h3>
       <p>Sur WOZALI, le Score se construit dans le temps. Profil complet, avis clients, activité régulière. Un artisan qui s'inscrit aujourd'hui et accumule des avis pendant 2 mois va apparaître avant quelqu'un qui s'inscrit après le lancement. Ce n'est pas permanent, mais c'est réel au démarrage.</p>

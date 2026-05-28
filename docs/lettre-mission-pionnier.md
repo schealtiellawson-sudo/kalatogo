@@ -1,14 +1,14 @@
-# Lettre de Mission — Pionnier WOZALI
+# Lettre de Mission — Agent terrain WOZALI
 
 **Date :** _______________
-**Pionnier :** _______________
+**Agent terrain :** _______________
 **Ville :** Lomé / Cotonou
 
 ---
 
 ## Mission
 
-Tu rejoins l'équipe de lancement de WOZALI en tant que Pionnier terrain.
+Tu rejoins l'équipe de lancement de WOZALI en tant que Agent terrain terrain.
 
 Ta mission est d'identifier et d'inscrire les commerçants, prestataires et indépendants de ton quartier sur la plateforme WOZALI. Tu les aides à créer leur profil, tu leur expliques comment ça marche, tu les accompagnes jusqu'à leur première activation.
 
@@ -56,7 +56,7 @@ Période de démarrage : du 1er juillet 2026 jusqu'à nouvel ordre.
 
 - Lien de parrainage personnel WOZALI
 - Scripts d'approche terrain (WhatsApp)
-- Accès au groupe Pionniers WOZALI (Lomé ou Cotonou)
+- Accès au groupe Agents terrain WOZALI (Lomé ou Cotonou)
 - Formation directe avec le fondateur avant le démarrage
 
 ---
@@ -75,9 +75,9 @@ Toute violation de ces règles entraîne la fin immédiate de la mission sans pr
 
 ## Accord
 
-En rejoignant l'équipe des Pionniers WOZALI, tu confirmes avoir lu et accepté les termes de cette lettre de mission ainsi que la Charte de conduite annexée.
+En rejoignant l'équipe des Agents terrain WOZALI, tu confirmes avoir lu et accepté les termes de cette lettre de mission ainsi que la Charte de conduite annexée.
 
-**Pionnier :** _______________ **Signature :** _______________
+**Agent terrain :** _______________ **Signature :** _______________
 
 **Fondateur WOZALI :** Schealtiel Lawson **Date :** _______________
 

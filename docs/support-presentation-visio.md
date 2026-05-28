@@ -1,4 +1,4 @@
-# Support de Présentation — Sessions Formation Pionniers
+# Support de Présentation — Sessions Formation Agents terrain
 ## À afficher en screen share pendant les visios Google Meet
 
 ---
@@ -124,7 +124,7 @@ Toute situation inhabituelle va dans le groupe WhatsApp. Tu n'improvises pas seu
 - 3 messages de suivi par membre (J+1, J+3, J+7)
 - 1 message dans le groupe chaque soir : nombre de profils du jour + une observation terrain
 
-**Le 1er du mois prochain : classement Pionniers dans le groupe.**
+**Le 1er du mois prochain : classement Agents terrain dans le groupe.**
 
 ---
 
