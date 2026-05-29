@@ -4,6 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 🧠 CERVEAU CLAUDE — RÈGLE ABSOLUE 100% DU TEMPS (gravée 2026-05-28)
+
+**CHAQUE RÉPONSE. SANS EXCEPTION. PEU IMPORTE LA NATURE DE LA TÂCHE.**
+
+Avant de répondre, vérifier et confirmer explicitement :
+
+1. **Life Force activée ?**
+   - Recrutement / Phase 3 : LF5 (revenus stables) = hook money-first
+   - Phase 1 : LF3 (peur invisibilité) + LF7 (famille sans revenus)
+   - Phase 2 : LF6 (meilleur du quartier) + LF8 (reconnaissance)
+
+2. **Phase Sabri Suby correcte ?**
+   - J01-10 : douleur pure, JAMAIS mentionner WOZALI
+   - J11-20 : mécanisme Score WOZALI
+   - J21-30 : urgence + countdown + CTA direct
+
+3. **SB7 respecté ?**
+   - Artisan = héros. WOZALI = guide. JAMAIS WOZALI en héros.
+
+4. **CTA réel ?**
+   - "Postuler maintenant" + URL wozali.africa/postuler
+   - JAMAIS "Lien en bio" seul
+
+5. **Règles absolues WOZALI ?**
+   - Commission agents : 40% normal (1 000 FCFA/Pro), 60% si battle gagnée (1 500 FCFA/Pro)
+   - 100 000 FCFA = 100 membres Pro actifs
+   - Pas de fixe. Pas de prime.
+   - Date lancement : 1er août 2026
+   - Premier tirage : 25 septembre 2026
+   - JAMAIS em dash "—"
+   - JAMAIS "agent terrain" → "agent terrain WOZALI"
+   - Documents internes : PDF, JAMAIS .md livré seul
+
+**Cette règle a été violée. Le fondateur l'a demandé plusieurs fois. Elle est non négociable.**
+
+**AU LANCEMENT DE CHAQUE SESSION :** envoyer ce message au fondateur avant toute chose :
+"🧠 Cerveau Claude actif. Toutes mes réponses et réflexions cette session seront vérifiées avec le Cerveau Claude, sans exception."
+
+---
+
 ## RÈGLE ABSOLUE — TERMINOLOGIE AGENTS (gravée 2026-05-27)
 
 **"PIONNIER" est INTERDIT partout, sans exception.** Le mot a des connotations religieuses inacceptables.
@@ -28,7 +68,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ⬜ Séquence WhatsApp J30 (J0-J7 existent, manque `WHATSAPP_CLOUD_TOKEN` Vercel)
 - ⬜ Bouton Embaucher → fiche employé (sprint J)
 - ⬜ Espace équipe (sprint K)
-- ⬜ 150-200 vrais profils avant 1er juillet (terrain)
+- ⬜ 150-200 vrais profils avant 1er août (terrain)
 - ⬜ 3-5 agents terrain Lomé + Cotonou (recrutement terrain)
 
 ---
@@ -73,7 +113,7 @@ async function loadBattle(ville)   // query wozali_prestataires WHERE abonnement
 function renderBattle()            // hPro/fPro depuis _battleProByCode (pas nb_filleuls)
 ```
 
-**Commissions :** 2 000 FCFA/Pro (normal), 3 000 FCFA/Pro (si battle gagné).
+**Commissions :** 1 000 FCFA/Pro (normal, 40%), 1 500 FCFA/Pro (battle gagné mois suivant, 60%).
 
 **HTML mis à jour :** subtitle Battle, "inscrits" → "Pro signés ce mois", label "commissions base", `id="battle-mois-label"`.
 
@@ -120,7 +160,7 @@ function renderBattle()            // hPro/fPro depuis _battleProByCode (pas nb_
 
 **Messages WhatsApp admin (dans admin-agents terrain.html) :**
 - Validé : "Ta candidature est retenue. Tu fais partie des Agents terrain WOZALI. Je t'appelle très bientôt."
-- Recalé : bienveillant, porte pas fermée, premier membre le 1er juillet quand la plateforme ouvre
+- Recalé : bienveillant, porte pas fermée, premier membre le 1er août quand la plateforme ouvre
 
 **Règles établies cette session :**
 - "Schealtiel Lawson" autorisé sur merci.html (les candidats doivent mettre un nom sur le visage) — EXCEPTION à la règle générale
@@ -201,7 +241,7 @@ Tous les domaines : wozali.africa/postuler (mis à jour session 2026-05-27)
 - ⬜ 6. Séquence WhatsApp J0→J3→J7→J30 (J0-J7 existent, J30 à ajouter, manque WHATSAPP_CLOUD_TOKEN Vercel)
 - ⬜ 7. Bouton Embaucher → fiche employé — sprint J
 - ⬜ 8. Espace équipe — sprint K
-- ⬜ 9. 150-200 vrais profils avant 1er juillet (terrain)
+- ⬜ 9. 150-200 vrais profils avant 1er août (terrain)
 - ⬜ 10. 3-5 agents terrain Lomé + Cotonou (terrain)
 
 ---

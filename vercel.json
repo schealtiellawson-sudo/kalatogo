@@ -26,10 +26,10 @@
     { "source": "/profil/:slug", "destination": "/api/profil-seo" },
     { "source": "/pay/:id", "destination": "/pay.html" },
     { "source": "/postuler", "destination": "/postuler.html" },
-    { "source": "/offre-pionniers", "destination": "/offre-pionniers.html" },
-    { "source": "/recruter", "destination": "/offre-pionniers.html" },
+    { "source": "/offre-agents-terrain", "destination": "/offre-agents-terrain.html" },
+    { "source": "/recruter", "destination": "/offre-agents-terrain.html" },
     { "source": "/merci", "destination": "/merci.html" },
-    { "source": "/admin-pionniers", "destination": "/admin-pionniers.html" },
+    { "source": "/admin-agents-terrain", "destination": "/admin-agents-terrain.html" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/formation/:slug", "destination": "/formation/:slug.html" }
   ]

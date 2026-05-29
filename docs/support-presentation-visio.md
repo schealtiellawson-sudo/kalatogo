@@ -7,7 +7,7 @@
 
 > **Rendre visibles les gens qui bossent sérieusement et que personne ne trouve.**
 
-Lomé et Cotonou. Lancement 1er juillet 2026.
+Lomé et Cotonou. Lancement 1er août 2026.
 
 ---
 
@@ -52,15 +52,17 @@ Le Score ne s'achète pas. Il se gagne.
 
 # SLIDE 5 — Ta rémunération
 
-**2 000 FCFA par membre actif inscrit via ton lien.**
+**40% du plan Pro = 1 000 FCFA par membre Pro actif inscrit via ton lien.**
 
-| Membres actifs | Commission |
-|---|---|
-| 10 | 20 000 FCFA |
-| 25 | 50 000 FCFA |
-| 50 | **100 000 FCFA** |
+**Si tu remportes la Battle H/F ce mois : 60% le mois suivant = 1 500 FCFA par membre Pro actif.**
 
-Paiement : Mobile Money, le 5 du mois suivant.
+| Membres Pro actifs | 40% normal | 60% si battle gagnée |
+|---|---|---|
+| 10 | 10 000 FCFA | 15 000 FCFA |
+| 25 | 25 000 FCFA | 37 500 FCFA |
+| 100 | **100 000 FCFA** | **150 000 FCFA** |
+
+Paiement : Mobile Money, le 5 du mois suivant. Pas de fixe. Pas de prime.
 
 Ton lien de parrainage : **wozali.africa/?ref=[TON_CODE]**
 
@@ -128,4 +130,4 @@ Toute situation inhabituelle va dans le groupe WhatsApp. Tu n'improvises pas seu
 
 ---
 
-*WOZALI · wozali.africa · Lancement 1er juillet 2026 · Lomé et Cotonou*
+*WOZALI · wozali.africa · Lancement 1er août 2026 · Lomé et Cotonou*

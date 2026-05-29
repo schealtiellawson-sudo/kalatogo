@@ -306,11 +306,11 @@ Issaka ne change pas sa façon de travailler. Il était déjà sérieux. Mais ma
 
 > **Tu veux savoir comment ça marche ? Trois choses.**
 >
-> **Un.** Tu actives Pro à 2 500 FCFA. Ça donne accès à tout : visibilité, Bourse, King & Queen, Mains d'Or.
+> **Un.** Tu actives Pro à 2 500 FCFA. Ça donne accès à tout : visibilité maximale, Bourse de Croissance, toutes les fonctionnalités. La Bourse des Mains d'Or, elle, est ouverte à toutes les coiffeuses et couturières, même en plan gratuit.
 >
 > **Deux.** Tu bosses sérieusement. Tu réponds aux clients. Tu livres ce que t'as dit. Tu prends des photos de ton travail. Tu demandes à tes clients de mettre un avis honnête sur WOZALI.
 >
-> **Trois.** Le 30 du mois, à 18h pile, l'algo tire au sort parmi tous les pros qui remplissent les critères. Si c'est toi, ton tél vibre. Si c'est pas toi ce mois, tu restes dans le pot le mois suivant — du moment que tu restes sérieux.
+> **Trois.** Le 30 du mois, à 18h pile, l'algo tire au sort parmi tous les pros qui remplissent les critères. Si c'est toi, ton tél vibre. Si c'est pas toi ce mois, tu restes dans le pot le mois suivant, du moment que tu restes sérieux.
 >
 > C'est tout. Pas de tour de passe-passe.
 
@@ -776,9 +776,10 @@ Variante :
 > **2 500 FCFA / mois, ça te donne :**
 > - Visibilité maximale dans "Trouver un pro" (toujours en haut)
 > - Pipeline candidatures si t'es recruteur
-> - Accès à la Bourse de Croissance — 300 000 FCFA × 2 / mois
-> - Accès à King & Queen — 500 000 FCFA / mois
+> - Accès à la Bourse de Croissance — 300 000 FCFA / mois
 > - Accès aux outils RH/équipe
+>
+> Et si tu es coiffeuse ou couturière : la Bourse des Mains d'Or (100 000 FCFA × 2 / mois) est ouverte à toutes, même sans Plan Pro.
 >
 > **Sur la Bourse de Croissance.**
 >

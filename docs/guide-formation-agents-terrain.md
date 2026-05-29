@@ -1,9 +1,9 @@
-# Guide de Formation — Agents terrain WOZALI
+# Guide de Formation : Agents terrain WOZALI
 ## Support pour les sessions de formation avec le fondateur
 
 ---
 
-## MODULE 1 — Comprendre WOZALI (15 min)
+## MODULE 1 : Comprendre WOZALI (15 min)
 
 ### Ce qu'est WOZALI
 
@@ -23,34 +23,37 @@ Tu n'es pas un vendeur. Tu es un Agent terrain. Tu es la personne qui va voir le
 
 ---
 
-## MODULE 2 — La rémunération (10 min)
+## MODULE 2 : La rémunération (10 min)
 
 ### Comment tu gagnes
 
-2 000 FCFA par membre actif inscrit via ton lien de parrainage.
+Tu prends 40% du plan Pro souscrit par chaque membre inscrit via ton lien, soit **1 000 FCFA par membre Pro actif par mois**.
 
-Un membre actif : profil complété + au moins une connexion dans les 30 jours suivant son inscription.
+Si tu remportes la Battle H/F de ton équipe ce mois, ta commission monte à **60% le mois suivant** (1 500 FCFA par membre Pro actif).
+
+Un membre Pro actif : passé au plan Pro (2 500 FCFA/mois) + au moins une connexion dans les 30 jours.
 
 ### Le calcul concret
 
-| Membres actifs dans le mois | Ce que tu touches |
-|---|---|
-| 10 | 20 000 FCFA |
-| 25 | 50 000 FCFA |
-| 50 | 100 000 FCFA |
+| Membres Pro actifs/mois | 40% normal | 60% si battle gagnée |
+|---|---|---|
+| 10 | 10 000 FCFA | 15 000 FCFA |
+| 25 | 25 000 FCFA | 37 500 FCFA |
+| 50 | 50 000 FCFA | 75 000 FCFA |
+| 100 | 100 000 FCFA | 150 000 FCFA |
 
 Le paiement arrive le 5 du mois suivant sur ton Mobile Money.
 
 ### Ce qui compte et ce qui ne compte pas
 
-Compte : un membre qui crée son profil et se reconnecte au moins une fois dans les 30 jours.
-Ne compte pas : un profil créé mais jamais utilisé. Un compte sans photo ni métier renseigné.
+Compte : un membre passé au plan Pro qui se reconnecte au moins une fois dans les 30 jours.
+Ne compte pas : un membre gratuit. Un profil créé mais jamais passé Pro. Un compte inactif.
 
 **Conséquence pratique :** tu ne t'arrêtes pas à la création du profil. Tu suis tes membres les premiers jours. Un message WhatsApp de suivi suffit.
 
 ---
 
-## MODULE 3 — L'approche terrain (20 min)
+## MODULE 3 : L'approche terrain (20 min)
 
 ### Qui approcher
 
@@ -102,7 +105,7 @@ Durée : 5 à 10 minutes maximum.
 
 ---
 
-## MODULE 4 — Suivi et résultats (10 min)
+## MODULE 4 : Suivi et résultats (10 min)
 
 ### Le suivi des membres (dans les 7 premiers jours)
 

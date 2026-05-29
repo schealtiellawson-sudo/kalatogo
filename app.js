@@ -2700,7 +2700,7 @@ const _seoPageMeta = {
   home:         { title: 'WOZALI — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.' },
   search:       { title: 'Trouver un pro — WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOZALI Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
-  recompenses:  { title: 'Récompenses WOZALI — 500 000 FCFA/mois', desc: 'Bourse de Croissance (300K, 1 gagnant/mois, Pro) + La Bourse des Mains d\'Or (200K, 100K × 2 Reines, toutes les femmes B/T). 500 000 FCFA distribués chaque mois. Premier tirage le 28 août 2026.' },
+  recompenses:  { title: 'Récompenses WOZALI — 500 000 FCFA/mois', desc: 'Bourse de Croissance (300K, 1 gagnant/mois, Pro) + La Bourse des Mains d\'Or (200K, 100K × 2 Reines, toutes les femmes B/T). 500 000 FCFA distribués chaque mois. Premier tirage le 25 septembre 2026.' },
   awards:       { title: 'La Bourse des Mains d\'Or — Bénin & Togo', desc: 'Poste ta plus belle photo coiffure ou couture. La communauté vote. 2 reines couronnées chaque mois — 100 000 FCFA chacune. Toutes les femmes peuvent gagner.' },
   inscription:  { title: 'Inscription gratuite — WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche — WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
@@ -8840,7 +8840,7 @@ function loadRecompensesMDR() {
       </div>
       <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
         <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premier tirage</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">28 août 2026</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">25 septembre 2026</div>
         <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le dernier vendredi du mois · Tirage 100% automatique</div>
       </div>
     </div>`;
@@ -8882,7 +8882,7 @@ async function loadRecompensesWidgets() {
         </div>
         <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
           <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premier tirage</div>
-          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">28 août 2026</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">25 septembre 2026</div>
           <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le dernier vendredi du mois · Tirage 100% automatique</div>
         </div>
       </div>`;
@@ -11569,7 +11569,7 @@ function renderOffresPage() {
       <span class="badge" style="background:rgba(232,148,10,0.1);color:#E8940A;">Mission terrain</span>
     </div>
     <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 100 000 FCFA — dès le 1er mois</div>
-    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er juillet. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
+    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er août. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
     <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Places limitées</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié aujourd'hui</div>
     <div class="offre-actions" onclick="event.stopPropagation();">

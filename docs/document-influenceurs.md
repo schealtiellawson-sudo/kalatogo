@@ -23,7 +23,7 @@ Un profil WOZALI, c'est :
 - Une position dans les résultats quand quelqu'un cherche un prestataire dans son quartier
 - Visible sur wozali.africa dès l'inscription
 
-Lancement officiel : **1er juillet 2026** à Lomé et Cotonou.
+Lancement officiel : **1er août 2026** à Lomé et Cotonou.
 
 ---
 
@@ -33,15 +33,15 @@ Chaque membre qui s'inscrit via ton lien de parrainage te rapporte une commissio
 
 **Simulation selon ta taille d'audience :**
 
-| Audience | Taux conversion estimé | Membres actifs | Commission mensuelle |
+| Audience | Taux conversion estimé | Membres Pro actifs | Commission mensuelle |
 |---|---|---|---|
-| 10 000 abonnés | 0,5% | 50 | 100 000 FCFA |
-| 50 000 abonnés | 0,5% | 250 | 500 000 FCFA |
-| 100 000 abonnés | 0,5% | 500 | 1 000 000 FCFA |
+| 10 000 abonnés | 1% | 100 | 100 000 FCFA |
+| 50 000 abonnés | 1% | 500 | 500 000 FCFA |
+| 100 000 abonnés | 1% | 1 000 | 1 000 000 FCFA |
 
-**Taux de commission :** 2 000 FCFA par membre actif par mois.
+**Taux de commission :** 40% du plan Pro (2 500 FCFA/mois), soit **1 000 FCFA par membre Pro actif par mois**, tant qu'il reste abonné.
 
-Un membre est actif s'il se connecte au moins une fois dans le mois. La commission est versée le 5 du mois suivant sur Mobile Money.
+Un membre Pro est actif s'il maintient son abonnement et se connecte au moins une fois dans le mois. La commission est versée le 5 du mois suivant sur Mobile Money.
 
 *Note : les taux de conversion sont des estimations conservatives basées sur des audiences engagées dans la niche emploi/économie locale.*
 
@@ -71,9 +71,9 @@ On ne te demande pas de vendre. On te demande de montrer.
 
 Si tu veux en discuter, je t'explique en 10 minutes comment ça marche et on te configure ton lien de parrainage.
 
-Schealtiel — Fondateur WOZALI
+Schealtiel, Fondateur WOZALI
 wozali.africa
 
 ---
 
-*Lancement 1er juillet 2026 · Lomé et Cotonou · Expansion Afrique de l'Ouest*
+*Lancement 1er août 2026 · Lomé et Cotonou · Expansion Afrique de l'Ouest*

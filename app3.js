@@ -1612,7 +1612,7 @@ async function submitRecrutement(e) {
 
     var supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    var { error: insertErr } = await supa.from('wozali_candidatures_pionniers').insert({
+    var { error: insertErr } = await supa.from('wozali_candidatures_agents_terrain').insert({
       prenom: fields['Prénom'] || '',
       nom: fields['Nom'] || '',
       telephone: fields['Téléphone'] || '',
@@ -1674,7 +1674,7 @@ async function loadCandidatures() {
     var supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
     var { data: rows, error } = await supa
-      .from('wozali_candidatures_pionniers')
+      .from('wozali_candidatures_agents_terrain')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(500);
@@ -1903,7 +1903,7 @@ async function updateCandStatus(recordId, status) {
     var supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
     var { error: updErr } = await supa
-      .from('wozali_candidatures_pionniers')
+      .from('wozali_candidatures_agents_terrain')
       .update({ statut: status })
       .eq('id', recordId);
     if (updErr) throw new Error(updErr.message);
@@ -1947,7 +1947,7 @@ async function validateAgent(recordId) {
     var supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
     var { error: valErr } = await supa
-      .from('wozali_candidatures_pionniers')
+      .from('wozali_candidatures_agents_terrain')
       .update({ statut: 'Validé', actif: true })
       .eq('id', recordId);
     if (valErr) throw new Error(valErr.message);
@@ -1972,7 +1972,7 @@ async function validateAgent(recordId) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// IA SCORING — Candidatures Pionniers
+// IA SCORING — Candidatures Agents terrain
 // Score 0-100 : motivation (40) + disponibilité (20) + âge (15) + photos (10) + complétude (15)
 // ══════════════════════════════════════════════════════════════════════════
 
@@ -2166,7 +2166,7 @@ async function _batchPreselect(records) {
   if (!supa) { toast('Supabase non disponible', 'error'); return; }
   var ids = records.map(function(r){ return r.id; });
   try {
-    var res = await supa.from('wozali_candidatures_pionniers').update({ statut: 'Présélectionné' }).in('id', ids);
+    var res = await supa.from('wozali_candidatures_agents_terrain').update({ statut: 'Présélectionné' }).in('id', ids);
     if (res.error) throw res.error;
     records.forEach(function(rec){ rec.fields['Statut'] = 'Présélectionné'; });
     renderCandKPIs();

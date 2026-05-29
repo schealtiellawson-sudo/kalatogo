@@ -1,4 +1,4 @@
-# Charte de Conduite — Agent terrain WOZALI
+# Charte de Conduite : Agent terrain WOZALI
 
 Document annexé à la Lettre de Mission. Obligatoire.
 
@@ -11,7 +11,7 @@ Document annexé à la Lettre de Mission. Obligatoire.
 Tu ne garantis jamais un revenu précis à quelqu'un que tu recrutes.
 
 Tu ne dis pas : "Tu vas gagner 100 000 FCFA ce mois-ci."
-Tu dis : "Si tu inscris 50 membres actifs dans le mois, ta commission est de 100 000 FCFA."
+Tu dis : "Si tu amènes 100 membres Pro actifs ce mois, ta commission est de 100 000 FCFA. C'est 40% de ce qu'ils paient."
 
 La nuance est importante. L'un est une promesse. L'autre est un calcul transparent.
 

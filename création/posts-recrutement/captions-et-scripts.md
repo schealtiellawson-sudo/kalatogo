@@ -23,8 +23,8 @@ Tu peux changer ça.
 
 WOZALI recrute 20 Agents terrain à Lomé et Cotonou. Tu inscris les commerçants, prestataires et indépendants de ton quartier sur la plateforme. 5 minutes par profil.
 
-2 000 FCFA par membre actif.
-50 membres = 100 000 FCFA par mois.
+1 000 FCFA par membre Pro actif (40% du plan).
+100 membres Pro actifs = 100 000 FCFA par mois.
 
 Ton quartier. Ton téléphone. Pas de diplôme requis.
 
@@ -44,9 +44,9 @@ Postuler : wozali.africa/postuler
 
 Tu vas dans ton quartier, tu inscris les gens qui bossent bien sur WOZALI. Des commerçants, des prestataires, des indépendants.
 
-5 minutes par profil. 2 000 FCFA par membre actif.
+5 minutes par profil. 1 000 FCFA par membre Pro actif (40% du plan).
 
-20 places disponibles. Lancement 1er juillet 2026.
+20 places disponibles. Lancement 1er août 2026.
 
 wozali.africa/postuler
 ```
@@ -85,7 +85,7 @@ Et toi, t'as trouvé comment ?
 
 ---
 
-## 5. POST JOURNÉE PIONNIER DARK — recrut-post-journee-agent terrain.html
+## 5. POST JOURNÉE AGENT TERRAIN DARK — recrut-post-journee-agent terrain.html
 **Phase :** 2 (mécanisme) — J13, J17
 
 ### Caption
@@ -96,11 +96,11 @@ Voilà ce que fait un Agent terrain WOZALI dans une journée.
 9h : premier profil créé. Un tailleur. 5 minutes.
 16h : 7 profils dans la journée.
 
-14 000 FCFA en cours. Juste avec son téléphone.
+7 000 FCFA en cours. Juste avec son téléphone.
 
-50 membres actifs = 100 000 FCFA par mois.
+100 membres Pro actifs = 100 000 FCFA par mois.
 
-20 places disponibles. Lancement 1er juillet 2026.
+20 places disponibles. Lancement 1er août 2026.
 
 Postuler : wozali.africa/postuler
 ```
@@ -109,7 +109,7 @@ Postuler : wozali.africa/postuler
 
 ---
 
-## 6. POST JOURNÉE PIONNIER OR — recrut-post-journee-agent terrain-or.html
+## 6. POST JOURNÉE AGENT TERRAIN OR — recrut-post-journee-agent terrain-or.html
 **Phase :** 2 (mécanisme) — alterner avec dark
 
 ### Caption
@@ -118,12 +118,12 @@ Une journée de Agent terrain WOZALI. Pour de vrai.
 
 Pas de bureau. Pas de patron. Pas de diplôme requis.
 
-Tu connais les gens de ton quartier. Tu les inscris sur WOZALI. 5 minutes par profil. 2 000 FCFA quand ils sont actifs.
+Tu connais les gens de ton quartier. Tu les inscris sur WOZALI. 5 minutes par profil. 1 000 FCFA par membre Pro actif (40% du plan).
 
-7 profils dans une journée = 14 000 FCFA en cours.
-50 actifs dans le mois = 100 000 FCFA.
+7 profils dans une journée = 7 000 FCFA en cours.
+100 Pro actifs dans le mois = 100 000 FCFA.
 
-20 places. 1er juillet 2026.
+20 places. 1er août 2026.
 
 wozali.africa/postuler
 ```
@@ -159,9 +159,9 @@ Postuler maintenant : wozali.africa/postuler
 ```
 Tu connais les gens qui bossent bien dans ton quartier. WOZALI aussi veut les connaître.
 
-Agent terrain WOZALI : 2 000 FCFA par membre actif que tu inscris. 50 membres = 100 000 FCFA/mois.
+Agent terrain WOZALI : 1 000 FCFA par membre Pro actif (40% du plan). 100 membres Pro = 100 000 FCFA/mois.
 
-20 places. Lomé et Cotonou. Lancement 1er juillet 2026.
+20 places. Lomé et Cotonou. Lancement 1er août 2026.
 
 wozali.africa/postuler
 ```
@@ -191,9 +191,9 @@ wozali.africa/postuler — 20 places max
 ```
 Une journée de Agent terrain WOZALI. Timeline réelle.
 
-7h30, quartier. 9h, premier profil. 16h, 7 profils créés, 14 000 FCFA en cours.
+7h30, quartier. 9h, premier profil. 16h, 7 profils créés, 7 000 FCFA en cours.
 
-50 membres actifs = 100 000 FCFA par mois.
+100 membres Pro actifs = 100 000 FCFA par mois.
 
 wozali.africa/postuler
 ```
@@ -242,16 +242,24 @@ wozali.africa/postuler — Lomé et Cotonou
 
 ## 12. MESSAGE WHATSAPP DIFFUSION LARGE
 **Usage :** copier-coller dans des groupes WhatsApp, story WhatsApp, partage réseau
-**SB7 :** ouvre sur la situation du Agent terrain, pas sur WOZALI
+**Note :** ouvre sur l'opportunité sans nommer WOZALI, teaser pur
 
 ```
-Dans ton quartier, des gens bossent sérieusement. Personne ne les trouve en dehors de leur rue.
+Écoute.
 
-Tu peux changer ça et gagner 100 000 FCFA par mois.
+Une plateforme qui vient de se lancer en Afrique recrute
+20 personnes à Lomé et Cotonou.
 
-On recrute 20 Agents terrain à Lomé et Cotonou. Tu inscris les commerçants et prestataires de ton quartier sur une plateforme. 5 minutes par profil. 2 000 FCFA par membre actif.
+100 000 FCFA par mois.
 
-Pas de diplôme. Pas de bureau. 20 places. Lancement 1er juillet 2026.
+Pas de diplôme. Pas d'expérience. Pas d'âge minimum.
+Étudiant, sans emploi, maman au foyer, peu importe.
+Si tu vis dans ces villes, tu peux postuler.
 
-wozali.africa/postuler
+Je dis pas plus. Va voir par toi-même.
+
+👉 wozali.africa/recruter
+
+Transfère ce message à un maximum de tes proches.
+Quelqu'un autour de toi attend cette chance sans le savoir.
 ```

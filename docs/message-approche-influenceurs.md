@@ -17,7 +17,7 @@ J'ai lancé quelque chose qui va dans le même sens. Une plateforme qui rend
 visibles les commerçants, prestataires et indépendants de Lomé et Cotonou 
 qu'on ne trouve nulle part ailleurs sur internet.
 
-On ouvre le 1er juillet. Je cherche quelques créateurs qui connaissent 
+On ouvre le 1er août. Je cherche quelques créateurs qui connaissent 
 vraiment cette réalité pour parler de ça à leur audience.
 
 Il y a une commission sur chaque membre qui s'inscrit via ton lien. 
@@ -31,7 +31,7 @@ Tu veux que je t'envoie le document qui explique tout en détail ?
 ## Variante courte (si tu connais déjà la personne)
 
 ```
-[Prénom], je lance WOZALI le 1er juillet à Lomé et Cotonou.
+[Prénom], je lance WOZALI le 1er août à Lomé et Cotonou.
 
 Première plateforme pour les travailleurs que le web n'a jamais inclus.
 Ton audience les connaît forcément.
