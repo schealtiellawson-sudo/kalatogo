@@ -31,6 +31,7 @@
     { "source": "/merci", "destination": "/merci.html" },
     { "source": "/admin-agents-terrain", "destination": "/admin-agents-terrain.html" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/formation/:slug", "destination": "/formation/:slug.html" }
+    { "source": "/formation/:slug", "destination": "/formation/:slug.html" },
+    { "source": "/ambassadeurs", "destination": "/ambassadeurs.html" }
   ]
 }
