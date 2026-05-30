@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI - Ton lien. Ton argent. - Formation Ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    font-family: 'Geist', sans-serif;
+    color: #1a1008;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 24px rgba(20,16,10,0.10);
+  }
+
+  .header {
+    background: #14100A;
+    border-bottom: 3px solid #E8940A;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: #E8940A;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    font-style: normal;
+    color: #FCE0A8;
+  }
+
+  .doc-type {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .content {
+    padding: 48px 40px;
+  }
+
+  .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #14100A;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #6b5c45;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #14100A;
+    border-left: 3px solid #E8940A;
+    padding-left: 12px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 16px;
+  }
+
+  ul {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
+  }
+
+  ul li {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 8px;
+  }
+
+  .code-box {
+    background: #14100A;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'Geist Mono', monospace;
+    font-size: 14px;
+    color: #E8940A;
+    letter-spacing: 0.5px;
+  }
+
+  .warning-box {
+    background: #fff8ee;
+    border: 1px solid #E8940A;
+    border-left: 4px solid #E8940A;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .warning-box .warning-title {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .warning-box p {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  thead {
+    background: #14100A;
+  }
+
+  thead th {
+    color: #FCE0A8;
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e8e0d0;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) {
+    background: #faf8f3;
+  }
+
+  td strong {
+    color: #E8940A;
+    font-weight: 700;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: #e8e0d0;
+    margin: 40px 0;
+  }
+
+  .nav-footer {
+    background: #14100A;
+    border-top: 2px solid #E8940A;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-btn {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s;
+  }
+
+  .nav-btn:hover { opacity: 0.85; }
+
+  .nav-btn-prev {
+    background: #2d2318;
+    color: #FCE0A8;
+    border: 1px solid #3d3020;
+  }
+
+  .nav-btn-next {
+    background: #E8940A;
+    color: #14100A;
+  }
+
+  .footer-info {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: #FCE0A8;
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">MODULE 03 - 7 · Formation Ambassadeurs</div>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">Commission et tracking</div>
+    <h1>Ton lien. Ton argent.</h1>
+    <p class="subtitle">Tu as un lien unique. Tout passe par ce lien. Si quelqu'un s'inscrit depuis ton lien et passe Pro, tu touches 1 000 FCFA par mois. Tant qu'il reste Pro.</p>
+
+    <h2>Comment ça marche techniquement</h2>
+
+    <p>Ton lien ressemble à ceci :</p>
+
+    <div class="code-box">wozali.africa/?ref=TONCODE</div>
+
+    <p>Quand quelqu'un clique sur ton lien, son inscription est automatiquement liée à ton code ambassadeur. Tu n'as rien à faire manuellement. Si cette personne crée un compte et prend le Plan Pro (2 500 FCFA/mois), le système enregistre la commission et tu la vois dans ton dashboard dès le lendemain.</p>
+
+    <h2>Où mettre ton lien</h2>
+
+    <ul>
+      <li><strong>Bio TikTok</strong> - tu n'as droit qu'à un seul lien en bio. Mets celui-là.</li>
+      <li><strong>Bio Instagram</strong> - directement dans la bio, ou via Linktree si tu en as un déjà en place.</li>
+      <li><strong>Stories Instagram avec lien</strong> - si tu as plus de 10K abonnés ou un compte vérifié.</li>
+      <li><strong>Description de tes vidéos TikTok</strong> - avec la mention "lien en bio" dans la vidéo ou la caption.</li>
+    </ul>
+
+    <div class="warning-box">
+      <div class="warning-title">A ne pas faire</div>
+      <p>Ne partage jamais ce lien dans les commentaires d'autres comptes ou dans des groupes WhatsApp sans contexte. C'est perçu comme du spam. Ca crée de la méfiance envers toi - et envers WOZALI. Le lien fonctionne quand il accompagne un contenu qui a de la valeur, pas quand il est balancé seul.</p>
+    </div>
+
+    <h2>Combien tu peux gagner</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Pro actifs liés à ton compte</th>
+          <th>Commission mensuelle</th>
+          <th>Commission annuelle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>10 Pro actifs</td>
+          <td><strong>10 000 FCFA/mois</strong></td>
+          <td>120 000 FCFA/an</td>
+        </tr>
+        <tr>
+          <td>25 Pro actifs</td>
+          <td><strong>25 000 FCFA/mois</strong></td>
+          <td>300 000 FCFA/an</td>
+        </tr>
+        <tr>
+          <td>50 Pro actifs</td>
+          <td><strong>50 000 FCFA/mois</strong></td>
+          <td>600 000 FCFA/an</td>
+        </tr>
+        <tr>
+          <td>100 Pro actifs</td>
+          <td><strong>100 000 FCFA/mois</strong></td>
+          <td>1 200 000 FCFA/an</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>C'est récurrent. Chaque mois qu'un de tes Pro actifs reste abonné, tu touches 1 000 FCFA. Sans rien faire de plus.</p>
+
+    <h2>Quand tu es payé</h2>
+
+    <p>Chaque fin de mois, le nombre de Pro actifs liés à ton compte ambassadeur est calculé automatiquement. Le virement est effectué dans les 5 jours ouvrés suivants - sur Orange Money ou Wave, selon ta préférence renseignée dans ton profil.</p>
+
+    <p>Tu vois tout en temps réel dans ton dashboard ambassadeur : clics, inscrits, Pro actifs ce mois, commission estimée, historique des mois précédents.</p>
+
+  </div>
+
+  <div class="nav-footer">
+    <a class="nav-btn nav-btn-prev" href="ambs-02-wozali-simplement.html">&larr; Module 02 : Comprendre WOZALI</a>
+    <div class="footer-info">Formation Ambassadeurs WOZALI - Lancement 1er août 2026</div>
+    <a class="nav-btn nav-btn-next" href="ambs-04-comment-en-parler.html">Module suivant : L'angle qui convertit &rarr;</a>
+  </div>
+</div>
+</body>
+</html>

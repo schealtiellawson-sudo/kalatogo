@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI - WOZALI expliqué à ton audience - Formation Ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    font-family: 'Geist', sans-serif;
+    color: #1a1008;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 24px rgba(20,16,10,0.10);
+  }
+
+  .header {
+    background: #14100A;
+    border-bottom: 3px solid #E8940A;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: #E8940A;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    font-style: normal;
+    color: #FCE0A8;
+  }
+
+  .doc-type {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .content {
+    padding: 48px 40px;
+  }
+
+  .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #14100A;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #6b5c45;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #14100A;
+    border-left: 3px solid #E8940A;
+    padding-left: 12px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 16px;
+  }
+
+  ul {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
+  }
+
+  ul li {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 8px;
+  }
+
+  .phrase-box {
+    background: #14100A;
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+
+  .phrase-box p {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: #FCE0A8;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+
+  .phrase-box .phrase-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .warning-box {
+    background: #fff8ee;
+    border: 1px solid #E8940A;
+    border-left: 4px solid #E8940A;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .warning-box .warning-title {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .warning-box p {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .col-card {
+    background: #faf8f3;
+    border: 1px solid #e8e0d0;
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .col-card .col-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .col-card p {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: #e8e0d0;
+    margin: 40px 0;
+  }
+
+  .nav-footer {
+    background: #14100A;
+    border-top: 2px solid #E8940A;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-btn {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s;
+  }
+
+  .nav-btn:hover { opacity: 0.85; }
+
+  .nav-btn-prev {
+    background: #2d2318;
+    color: #FCE0A8;
+    border: 1px solid #3d3020;
+  }
+
+  .nav-btn-next {
+    background: #E8940A;
+    color: #14100A;
+  }
+
+  .footer-info {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: #FCE0A8;
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">MODULE 02 - 7 · Formation Ambassadeurs</div>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">Comprendre pour expliquer</div>
+    <h1>WOZALI, expliqué à ton audience.</h1>
+    <p class="subtitle">Avant de le partager, tu dois le comprendre. Pas les détails techniques. L'essentiel que tu peux dire en 30 secondes, avec tes propres mots, sans te tromper sur les chiffres.</p>
+
+    <h2>La phrase que tu peux dire</h2>
+
+    <div class="phrase-box">
+      <div class="phrase-label">La définition en une phrase</div>
+      <p>"WOZALI c'est l'application qui rend visibles les meilleurs artisans du Togo et du Bénin. Plombier, couturière, électricien - tu les trouves en 2 minutes au lieu de demander à tout le monde."</p>
+    </div>
+
+    <p>C'est la base. Tu peux l'adapter, la raccourcir, la reformuler dans ton style. Ce que tu ne changes pas : Togo et Bénin, artisans, trouver facilement.</p>
+
+    <h2>Le problème qu'on résout</h2>
+
+    <p>Au Togo et au Bénin, 80% de l'économie est informelle. Des dizaines de milliers d'artisans travaillent bien - mais personne ne les trouve. Pas parce qu'ils sont mauvais. Parce qu'ils sont invisibles.</p>
+
+    <p>Ils n'ont pas de site web. Pas de page Google. Pas de boutique en ligne. Ils dépendent du bouche-a-oreille. Et le bouche-a-oreille, ca dépend de qui tu connais, pas de si tu travailles bien.</p>
+
+    <p>WOZALI change ça. Un profil complet, un Score objectif basé sur le travail réel, une visibilité géolocalisée. Le meilleur électricien du quartier apparait en premier - pas le plus connecté.</p>
+
+    <h2>Ce que l'artisan gagne</h2>
+
+    <ul>
+      <li>Un profil avec ses photos, son métier, son quartier, ses avis clients réels.</li>
+      <li>Il apparait en premier dans les recherches de son métier dans sa zone.</li>
+      <li>Les clients le contactent sans intermédiaire - directement sur WhatsApp.</li>
+      <li>Son Score WOZALI monte avec son travail, pas avec ses relations.</li>
+    </ul>
+
+    <h2>Ce que ton audience gagne</h2>
+
+    <ul>
+      <li>Fini le "tu connais un bon plombier ?" sur Facebook sans réponse fiable.</li>
+      <li>Fini le bouche-a-oreille hasardeux qui envoie chez quelqu'un de médiocre.</li>
+      <li>Un profil vérifié, des avis réels, des photos du travail, un contact direct.</li>
+      <li>La géolocalisation : les artisans proches apparaissent en premier.</li>
+    </ul>
+
+    <h2>Gratuit vs Pro</h2>
+
+    <div class="two-col">
+      <div class="col-card">
+        <div class="col-label">Plan Gratuit</div>
+        <p>Profil basique visible sur la plateforme. L'artisan existe, il peut être trouvé. Mais il n'apparait pas en premier dans les résultats.</p>
+      </div>
+      <div class="col-card">
+        <div class="col-label">Plan Pro - 2 500 FCFA/mois</div>
+        <p>Profil en tête des résultats de son métier. Toutes les fonctionnalités actives. Éligible aux récompenses mensuelles. <strong>C'est le Pro qui te rapporte ta commission de 1 000 FCFA/mois.</strong></p>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <div class="warning-title">A retenir absolument</div>
+      <p>Tu touches uniquement sur les Pro actifs - pas sur les inscrits gratuits. Plus ton contenu valorise les avantages concrets du Pro (visibilité en premier, toutes les fonctions, récompenses), plus tes inscrits font le pas vers le Pro.</p>
+    </div>
+
+  </div>
+
+  <div class="nav-footer">
+    <a class="nav-btn nav-btn-prev" href="ambs-01-bienvenue.html">&larr; Module 01 : Bienvenue</a>
+    <div class="footer-info">Formation Ambassadeurs WOZALI - Lancement 1er août 2026</div>
+    <a class="nav-btn nav-btn-next" href="ambs-03-lien-affiliation.html">Module suivant : Ton lien &rarr;</a>
+  </div>
+</div>
+</body>
+</html>

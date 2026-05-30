@@ -1,0 +1,257 @@
+<!--
+  Date de publication : J12 campagne suspense (veille du 13 juillet 2026)
+  Thème : Veille du reveal — urgence, pulse, WOZALI nommé pour la première fois.
+  Life Force : LF8 (reconnaissance collective imminente). Tension maximale.
+  Phase Sabri Suby : Veille Phase 1. Première mention WOZALI, subtilement.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, initial-scale=0.5, maximum-scale=0.5">
+  <title>WOZALI — Suspense J12</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0A0805;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Glow ambré très subtil */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 45%, rgba(232, 148, 10, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Logo discret haut gauche */
+    .logo {
+      position: absolute;
+      top: 64px;
+      left: 64px;
+      display: flex;
+      align-items: baseline;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 0.2s;
+    }
+
+    .logo-w {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 52px;
+      color: #E8940A;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .logo-ozali {
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      color: #FCE0A8;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-left: 4px;
+      align-self: center;
+    }
+
+    /* Point pulse or — élément central de tension */
+    .pulse-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin-top: -320px;
+    }
+
+    .pulse-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #E8940A;
+      position: relative;
+      animation: dotAppear 0.6s ease forwards;
+      animation-delay: 0.6s;
+      opacity: 0;
+    }
+
+    .pulse-dot::before,
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #E8940A;
+      animation: pulse 2s ease-out infinite;
+      opacity: 0;
+    }
+
+    .pulse-dot::after {
+      animation-delay: 1s;
+    }
+
+    /* Bloc texte principal */
+    .text-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+      padding: 0 88px;
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    /* "Demain." */
+    .line-1 {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 168px;
+      color: #E8940A;
+      line-height: 0.9;
+      letter-spacing: -6px;
+      opacity: 0;
+      animation: riseIn 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 1.0s;
+    }
+
+    /* "13.07" */
+    .line-2 {
+      font-family: 'Courier New', monospace;
+      font-size: 56px;
+      color: #FCE0A8;
+      letter-spacing: 10px;
+      opacity: 0;
+      animation: fadeUp 1.2s ease forwards;
+      animation-delay: 2.4s;
+    }
+
+    /* Séparateur fin */
+    .sep {
+      width: 60px;
+      height: 1px;
+      background: rgba(232, 148, 10, 0.3);
+      opacity: 0;
+      animation: fadeOnly 1s ease forwards;
+      animation-delay: 3.4s;
+    }
+
+    /* "Togo et Bénin." */
+    .line-3 {
+      font-family: 'Courier New', monospace;
+      font-size: 32px;
+      color: #FCE0A8;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeOnly 1.2s ease forwards;
+      animation-delay: 3.8s;
+    }
+
+    /* "En simultané." — WOZALI non nommé, tension géographique */
+    .line-4 {
+      font-family: 'Courier New', monospace;
+      font-size: 24px;
+      color: #E8940A;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeOnly 1.5s ease forwards;
+      animation-delay: 4.6s;
+    }
+
+    /* Mention WOZALI — toute petite, première apparition */
+    .wozali-reveal {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 36px;
+      color: rgba(232, 148, 10, 0.5);
+      letter-spacing: 4px;
+      opacity: 0;
+      animation: fadeOnly 2.5s ease forwards;
+      animation-delay: 5.6s;
+    }
+
+    /* Vignette profonde */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%);
+      pointer-events: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(36px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOnly {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes dotAppear {
+      from { opacity: 0; transform: scale(0.4); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      70%  { transform: scale(4.5); opacity: 0; }
+      100% { transform: scale(4.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+  </div>
+
+  <div class="pulse-wrapper">
+    <div class="pulse-dot"></div>
+  </div>
+
+  <div class="text-block">
+    <p class="line-1">Demain.</p>
+    <p class="line-2">13.07</p>
+    <div class="sep"></div>
+    <p class="line-3">Togo et Bénin.</p>
+    <p class="line-4">En simultané.</p>
+  </div>
+
+  <p class="wozali-reveal">WOZALI</p>
+
+  <div class="vignette"></div>
+
+</body>
+</html>

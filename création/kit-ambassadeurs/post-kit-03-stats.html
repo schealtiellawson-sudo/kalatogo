@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOZALI — Post Kit 03 Stats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1080px;
+      height: 1080px;
+      background: #14100A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Geist', 'Inter', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .glow {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(ellipse at center, rgba(232,148,10,0.07) 0%, transparent 65%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .bar-left {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: #E8940A;
+    }
+
+    .logo {
+      position: absolute;
+      top: 52px;
+      left: 52px;
+      display: flex;
+      align-items: baseline;
+      opacity: 0.9;
+    }
+
+    .logo-w {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 32px;
+      color: #E8940A;
+      line-height: 1;
+    }
+
+    .logo-ozali {
+      font-family: 'Geist', 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: #FCE0A8;
+      line-height: 1;
+      margin-left: 2px;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      padding: 130px 90px 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      gap: 0;
+    }
+
+    .eyebrow {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-size: 16px;
+      letter-spacing: 0.2em;
+      color: rgba(232,148,10,0.55);
+      text-transform: uppercase;
+      margin-bottom: 56px;
+    }
+
+    /* Bloc stat */
+    .stat-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 36px;
+      padding: 36px 0;
+      border-top: 1px solid rgba(232,148,10,0.18);
+    }
+
+    .stat-row:last-of-type {
+      border-bottom: 1px solid rgba(232,148,10,0.18);
+    }
+
+    .stat-number {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-size: 80px;
+      font-weight: 700;
+      color: #E8940A;
+      line-height: 1;
+      min-width: 200px;
+      flex-shrink: 0;
+    }
+
+    .stat-number.wozali-text {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 64px;
+      color: #E8940A;
+      line-height: 1.1;
+      min-width: 220px;
+    }
+
+    .stat-label {
+      font-family: 'Geist', 'Inter', sans-serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: #FCE0A8;
+      line-height: 1.45;
+      padding-top: 12px;
+      max-width: 580px;
+    }
+
+    /* CTA bas */
+    .cta-row {
+      position: absolute;
+      bottom: 56px;
+      left: 90px;
+      right: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cta-text {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-size: 20px;
+      letter-spacing: 0.1em;
+      color: #FCE0A8;
+    }
+
+    .cta-text span {
+      color: #E8940A;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bar-left"></div>
+  <div class="glow"></div>
+
+  <div class="logo">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">Realite economique</div>
+
+    <div class="stat-row">
+      <div class="stat-number">80%</div>
+      <div class="stat-label">de l'economie africaine est informelle</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-number">0</div>
+      <div class="stat-label">visibilite en ligne pour la plupart de ces artisans</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-number wozali-text">WOZALI</div>
+      <div class="stat-label">change ca. Togo et Benin.</div>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <span class="cta-text">Decouvre <span>→ lien en bio</span></span>
+  </div>
+
+</body>
+</html>

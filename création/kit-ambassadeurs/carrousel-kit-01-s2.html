@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOZALI — Carrousel Kit 01 S2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1080px;
+      height: 1350px;
+      background: #14100A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Geist', 'Inter', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-left {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: #E8940A;
+    }
+
+    .slide-num {
+      position: absolute;
+      top: 52px;
+      right: 60px;
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-size: 18px;
+      letter-spacing: 0.1em;
+      color: rgba(232,148,10,0.45);
+    }
+
+    .logo {
+      position: absolute;
+      top: 52px;
+      left: 52px;
+      display: flex;
+      align-items: baseline;
+      opacity: 0.75;
+    }
+
+    .logo-w {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 32px;
+      color: #E8940A;
+      line-height: 1;
+    }
+
+    .logo-ozali {
+      font-family: 'Geist', 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: #FCE0A8;
+      line-height: 1;
+      margin-left: 2px;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+      padding: 140px 90px 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Grand numero etape */
+    .step-number {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 200px;
+      line-height: 0.9;
+      color: rgba(232,148,10,0.12);
+      position: absolute;
+      right: 60px;
+      top: 120px;
+      user-select: none;
+    }
+
+    .step-label {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-size: 17px;
+      letter-spacing: 0.22em;
+      color: #E8940A;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    .line {
+      width: 60px;
+      height: 3px;
+      background: #E8940A;
+      margin-bottom: 52px;
+    }
+
+    .headline {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 72px;
+      line-height: 1.1;
+      color: #FCE0A8;
+      margin-bottom: 44px;
+      max-width: 780px;
+    }
+
+    .description {
+      font-family: 'Geist', 'Inter', sans-serif;
+      font-size: 30px;
+      font-weight: 400;
+      color: rgba(252,224,168,0.7);
+      line-height: 1.55;
+      max-width: 740px;
+      border-left: 3px solid rgba(232,148,10,0.35);
+      padding-left: 28px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bar-left"></div>
+
+  <div class="logo">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+  </div>
+
+  <div class="slide-num">02</div>
+
+  <div class="content">
+    <div class="step-number">2</div>
+    <div class="step-label">Etape 01</div>
+    <div class="line"></div>
+    <h2 class="headline">Tu cherches un metier dans ton quartier.</h2>
+    <p class="description">Plombier, electricien, couturiere... tu filtres par ville et quartier.</p>
+  </div>
+
+</body>
+</html>

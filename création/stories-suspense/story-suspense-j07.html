@@ -1,0 +1,172 @@
+<!--
+  Date de publication : J07 campagne suspense (avant 13 juillet 2026)
+  Thème : Douleur terrain — artisan invisible, personne peut donner un nom.
+  Life Force : LF3 (peur de l'invisibilité). SB7 : artisan = héros qui souffre. WOZALI non nommé.
+  Phase Sabri Suby : Avant Phase 1. Douleur pure. JAMAIS mentionner WOZALI.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, initial-scale=0.5, maximum-scale=0.5">
+  <title>WOZALI — Suspense J07</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #14100A;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Légère chaleur ambrée en fond — teinte plus chaude */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(232, 148, 10, 0.07) 0%, transparent 65%),
+        radial-gradient(ellipse at 20% 80%, rgba(180, 80, 10, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Logo discret haut gauche */
+    .logo {
+      position: absolute;
+      top: 64px;
+      left: 64px;
+      display: flex;
+      align-items: baseline;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 0.2s;
+    }
+
+    .logo-w {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 52px;
+      color: #E8940A;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .logo-ozali {
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      color: #FCE0A8;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-left: 4px;
+      align-self: center;
+    }
+
+    /* Bloc texte */
+    .text-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 64px;
+      padding: 0 80px;
+      text-align: center;
+    }
+
+    /* Ligne 1 — question douleur */
+    .line-1 {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 88px;
+      color: #FCE0A8;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      opacity: 0;
+      animation: riseIn 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 0.8s;
+    }
+
+    /* Ligne 2 — constat douleur */
+    .line-2 {
+      font-family: 'Courier New', monospace;
+      font-size: 40px;
+      color: #E8940A;
+      line-height: 1.5;
+      letter-spacing: 0px;
+      opacity: 0;
+      animation: riseIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 2.4s;
+    }
+
+    /* Séparateur or — ligne fine */
+    .separator {
+      width: 80px;
+      height: 1px;
+      background: rgba(232, 148, 10, 0.4);
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 3.6s;
+    }
+
+    /* Ligne 3 — espoir discret */
+    .line-3 {
+      font-family: 'Courier New', monospace;
+      font-size: 30px;
+      color: #FCE0A8;
+      line-height: 1.5;
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: fadeInSlow 2.5s ease forwards;
+      animation-delay: 4.0s;
+    }
+
+    /* Vignette */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.52) 100%);
+      pointer-events: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInSlow {
+      from { opacity: 0; }
+      to   { opacity: 0.85; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+  </div>
+
+  <div class="text-block">
+    <p class="line-1">T'as déjà cherché un bon artisan au Togo ?</p>
+    <p class="line-2">Et personne pouvait<br>te donner un nom.</p>
+    <div class="separator"></div>
+    <p class="line-3">Ca, c'est sur le point de changer.</p>
+  </div>
+
+  <div class="vignette"></div>
+
+</body>
+</html>

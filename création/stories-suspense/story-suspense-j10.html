@@ -1,0 +1,187 @@
+<!--
+  Date de publication : J10 campagne suspense (avant 13 juillet 2026)
+  Thème : Révélation de la date — "13 juillet". Tension maximale. WOZALI non nommé.
+  Phase Sabri Suby : Avant Phase 1. Date reveal pure. Suspense total.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, initial-scale=0.5, maximum-scale=0.5">
+  <title>WOZALI — Suspense J10</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0A0805;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Glow or derrière le chiffre */
+    .glow-center {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 148, 10, 0.10) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -56%);
+      pointer-events: none;
+      opacity: 0;
+      animation: glowPulse 3s ease forwards;
+      animation-delay: 1.2s;
+    }
+
+    /* Logo discret haut gauche */
+    .logo {
+      position: absolute;
+      top: 64px;
+      left: 64px;
+      display: flex;
+      align-items: baseline;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 0.2s;
+    }
+
+    .logo-w {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 52px;
+      color: #E8940A;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .logo-ozali {
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      color: #FCE0A8;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-left: 4px;
+      align-self: center;
+    }
+
+    /* Bloc central */
+    .text-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0px;
+      text-align: center;
+      margin-top: -80px;
+    }
+
+    /* Chiffre "13" — énorme */
+    .number {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 320px;
+      color: #E8940A;
+      line-height: 0.85;
+      letter-spacing: -12px;
+      opacity: 0;
+      animation: dropIn 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: 0.9s;
+    }
+
+    /* "juillet" — Geist Mono medium crème */
+    .month {
+      font-family: 'Courier New', monospace;
+      font-size: 52px;
+      color: #FCE0A8;
+      letter-spacing: 16px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards;
+      animation-delay: 2.2s;
+      margin-top: 16px;
+    }
+
+    /* Séparateur fin */
+    .sep {
+      width: 60px;
+      height: 1px;
+      background: rgba(232, 148, 10, 0.35);
+      margin: 56px auto 0;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 3.2s;
+    }
+
+    /* "Retiens cette date." */
+    .tagline {
+      font-family: 'Courier New', monospace;
+      font-size: 30px;
+      color: #FCE0A8;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 40px;
+      opacity: 0;
+      animation: fadeInSlow 2.2s ease forwards;
+      animation-delay: 3.6s;
+    }
+
+    /* Vignette profonde */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.65) 100%);
+      pointer-events: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-40px) scale(1.04); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeInSlow {
+      from { opacity: 0; }
+      to   { opacity: 0.8; }
+    }
+
+    @keyframes glowPulse {
+      0%   { opacity: 0; transform: translate(-50%, -56%) scale(0.8); }
+      60%  { opacity: 1; }
+      100% { opacity: 0.7; transform: translate(-50%, -56%) scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-center"></div>
+
+  <div class="logo">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+  </div>
+
+  <div class="text-block">
+    <p class="number">13</p>
+    <p class="month">juillet</p>
+    <div class="sep"></div>
+    <p class="tagline">Retiens cette date.</p>
+  </div>
+
+  <div class="vignette"></div>
+
+</body>
+</html>

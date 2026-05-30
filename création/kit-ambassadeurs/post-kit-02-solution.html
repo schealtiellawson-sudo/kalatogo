@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOZALI — Post Kit 02 Solution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1080px;
+      height: 1080px;
+      background: #E8940A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Geist', 'Inter', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Texture legere */
+    .texture {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        135deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* Logo W noir haut gauche */
+    .logo {
+      position: absolute;
+      top: 52px;
+      left: 52px;
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+      opacity: 0.75;
+    }
+
+    .logo-w {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 32px;
+      color: #14100A;
+      line-height: 1;
+    }
+
+    .logo-ozali {
+      font-family: 'Geist', 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: #14100A;
+      line-height: 1;
+      margin-left: 2px;
+    }
+
+    /* Contenu central */
+    .content {
+      position: relative;
+      z-index: 10;
+      padding: 80px 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+    }
+
+    .eyebrow {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-size: 18px;
+      letter-spacing: 0.18em;
+      color: rgba(20,16,10,0.65);
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    .line {
+      width: 80px;
+      height: 4px;
+      background: #14100A;
+      margin-bottom: 52px;
+    }
+
+    .headline {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 84px;
+      line-height: 1.08;
+      color: #14100A;
+      margin-bottom: 40px;
+      max-width: 860px;
+    }
+
+    .subtitle {
+      font-family: 'Geist', 'Inter', sans-serif;
+      font-size: 36px;
+      font-weight: 500;
+      color: #14100A;
+      line-height: 1.4;
+      max-width: 680px;
+    }
+
+    /* Badge CTA noir en bas */
+    .cta-badge {
+      position: absolute;
+      bottom: 64px;
+      left: 90px;
+      background: #14100A;
+      color: #E8940A;
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      padding: 18px 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cta-badge .arrow {
+      font-size: 26px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="texture"></div>
+
+  <!-- Logo -->
+  <div class="logo">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+  </div>
+
+  <!-- Contenu -->
+  <div class="content">
+    <div class="eyebrow">La solution</div>
+    <div class="line"></div>
+
+    <h1 class="headline">Les meilleurs artisans du Togo et du Benin.</h1>
+
+    <p class="subtitle">Maintenant tu peux les trouver.</p>
+  </div>
+
+  <!-- CTA badge noir -->
+  <div class="cta-badge">
+    Lien en bio <span class="arrow">→</span>
+  </div>
+
+</body>
+</html>

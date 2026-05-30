@@ -1,0 +1,133 @@
+<!--
+  Date de publication : J01 campagne suspense (avant 13 juillet 2026)
+  Thème : "Un truc arrive." — Ambiance noir total, minimalisme absolu.
+  Phase Sabri Suby : Avant Phase 1. Pas de mention WOZALI.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, initial-scale=0.5, maximum-scale=0.5">
+  <title>WOZALI — Suspense J01</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000000;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Logo W+OZALI discret en haut à gauche */
+    .logo {
+      position: absolute;
+      top: 64px;
+      left: 64px;
+      display: flex;
+      align-items: baseline;
+      gap: 0px;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards;
+      animation-delay: 0.3s;
+    }
+
+    .logo-w {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 52px;
+      color: #E8940A;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .logo-ozali {
+      font-family: 'Courier New', 'Geist Mono', monospace;
+      font-style: normal;
+      font-size: 20px;
+      color: #FCE0A8;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-left: 4px;
+      line-height: 1;
+      align-self: center;
+    }
+
+    /* Texte principal */
+    .main-text {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 128px;
+      color: #FCE0A8;
+      line-height: 1.05;
+      text-align: center;
+      letter-spacing: -3px;
+      padding: 0 80px;
+      opacity: 0;
+      animation: fadeInSlow 3s ease forwards;
+      animation-delay: 1.2s;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInSlow {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      40% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Vignette subtile pour profondeur */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+  </div>
+
+  <p class="main-text">Un truc arrive.</p>
+
+  <div class="vignette"></div>
+
+</body>
+</html>
