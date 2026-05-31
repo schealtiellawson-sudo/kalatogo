@@ -84,16 +84,24 @@ h2 .gold{color:#E8940A;}
 input[type=range]{width:100%;-webkit-appearance:none;background:rgba(232,148,10,.15);height:6px;border-radius:4px;cursor:pointer;outline:none;margin:0 0 32px;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#E8940A;box-shadow:0 0 0 4px rgba(232,148,10,.2);}
 .sim-results{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:420px){.sim-results{grid-template-columns:1fr;}}
+@media(max-width:480px){.sim-results{grid-template-columns:1fr;}}
 .sim-col{background:rgba(20,16,10,.6);border:1px solid rgba(252,224,168,.08);border-radius:14px;padding:22px 18px;}
-.sim-col.optimiste{border-color:rgba(232,148,10,.25);}
+.sim-col.optimiste{border-color:rgba(232,148,10,.3);}
 .sim-col-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(252,224,168,.4);margin-bottom:6px;}
 .sim-col.optimiste .sim-col-tag{color:#E8940A;}
-.sim-col-sub{font-size:12px;color:rgba(252,224,168,.45);line-height:1.5;margin-bottom:16px;font-style:italic;}
-.sim-amount{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(28px,6vw,40px);color:#FCE0A8;line-height:1;margin-bottom:4px;}
-.sim-col.optimiste .sim-amount{color:#E8940A;}
-.sim-unit{font-size:11px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;margin-bottom:12px;}
-.sim-detail{font-size:13px;color:rgba(252,224,168,.6);line-height:1.6;}
+.sim-col-sub{font-size:12px;color:rgba(252,224,168,.45);line-height:1.5;margin-bottom:18px;font-style:italic;}
+/* TIMELINE */
+.sim-timeline{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.sim-tl-row{display:flex;align-items:baseline;gap:6px;padding:9px 12px;border-radius:8px;}
+.sim-tl-row.peak{background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);}
+.sim-tl-period{font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);flex-shrink:0;width:48px;}
+.sim-tl-row.peak .sim-tl-period{color:rgba(232,148,10,.6);}
+.sim-tl-val{font-family:'DM Serif Display',serif;font-style:italic;font-size:18px;color:#FCE0A8;flex:1;text-align:right;line-height:1;}
+.sim-col.optimiste .sim-tl-val{color:#E8940A;}
+.sim-tl-row.peak .sim-tl-val{font-size:24px;}
+.sim-tl-unit{font-family:'Geist Mono',monospace;font-size:9px;color:rgba(252,224,168,.3);flex-shrink:0;padding-bottom:1px;}
+.sim-cumul-note{font-size:11.5px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;letter-spacing:.03em;border-top:1px solid rgba(252,224,168,.07);padding-top:12px;line-height:1.5;}
+.sim-col.optimiste .sim-cumul-note{color:rgba(232,148,10,.55);}
 .sim-note{font-size:12px;color:rgba(252,224,168,.4);margin-top:20px;line-height:1.6;font-style:italic;text-align:center;}
 
 /* FOMO */
@@ -248,7 +256,7 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
   <section id="simulator">
     <div class="section-label">Simulateur de revenus</div>
     <h2>Calcule ce que<br><span class="it gold">ton audience vaut.</span></h2>
-    <p class="lead">Bouge le curseur selon ton nombre d'abonnés. On part d'un seul chiffre : 5% de ton audience s'inscrit sur WOZALI. Ensuite, deux scénarios — le catastrophique, et quand ça marche vraiment.</p>
+    <p class="lead">Bouge le curseur. Base commune : 5% de ton audience s'inscrit sur WOZALI. Ensuite deux scénarios selon comment tu exploites ton réseau. Et ce que tu construis ce mois reste actif le mois prochain.</p>
 
     <div class="simulator">
       <div class="sim-label">Ton nombre d'abonnés (TikTok + Instagram)</div>
@@ -258,22 +266,52 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
 
       <div class="sim-results">
         <div class="sim-col">
-          <div class="sim-col-tag">Pire des cas</div>
-          <div class="sim-col-sub">Mauvais mois. Contenu raté. Audience froide.</div>
-          <div class="sim-amount" id="sim-pessimiste-amount">25 000</div>
-          <div class="sim-unit">FCFA / mois</div>
-          <div class="sim-detail" id="sim-pessimiste-detail">Sur 500 inscrits, seulement 25 passent Pro. Tu ne fais rien de bien ce mois-là. Tu touches quand même 25 000 FCFA.</div>
+          <div class="sim-col-tag">Réseau peu exploité</div>
+          <div class="sim-col-sub">Tu parles de WOZALI sans vraiment le pousser. 5% de tes inscrits passent Pro.</div>
+          <div class="sim-timeline">
+            <div class="sim-tl-row">
+              <span class="sim-tl-period">Mois 1</span>
+              <span class="sim-tl-val" id="sim-p-m1">25 000</span>
+              <span class="sim-tl-unit">FCFA</span>
+            </div>
+            <div class="sim-tl-row">
+              <span class="sim-tl-period">Mois 6</span>
+              <span class="sim-tl-val" id="sim-p-m6">150 000</span>
+              <span class="sim-tl-unit">FCFA</span>
+            </div>
+            <div class="sim-tl-row peak">
+              <span class="sim-tl-period">Mois 12</span>
+              <span class="sim-tl-val" id="sim-p-m12">300 000</span>
+              <span class="sim-tl-unit">FCFA</span>
+            </div>
+          </div>
+          <div class="sim-cumul-note" id="sim-p-note">+25 Pro qui s'accumulent chaque mois</div>
         </div>
         <div class="sim-col optimiste">
-          <div class="sim-col-tag">Si ça marche bien</div>
-          <div class="sim-col-sub">Ton audience te fait confiance. Elle achète ce que tu recommandes.</div>
-          <div class="sim-amount" id="sim-optimiste-amount">100 000</div>
-          <div class="sim-unit">FCFA / mois</div>
-          <div class="sim-detail" id="sim-optimiste-detail">Sur 500 inscrits, 100 passent Pro. C'est réaliste avec une vraie relation audience. Tu touches 100 000 FCFA ce mois-là.</div>
+          <div class="sim-col-tag">Réseau bien exploité</div>
+          <div class="sim-col-sub">Ton audience te fait confiance. 20% de tes inscrits passent Pro.</div>
+          <div class="sim-timeline">
+            <div class="sim-tl-row">
+              <span class="sim-tl-period">Mois 1</span>
+              <span class="sim-tl-val" id="sim-o-m1">100 000</span>
+              <span class="sim-tl-unit">FCFA</span>
+            </div>
+            <div class="sim-tl-row">
+              <span class="sim-tl-period">Mois 6</span>
+              <span class="sim-tl-val" id="sim-o-m6">600 000</span>
+              <span class="sim-tl-unit">FCFA</span>
+            </div>
+            <div class="sim-tl-row peak">
+              <span class="sim-tl-period">Mois 12</span>
+              <span class="sim-tl-val" id="sim-o-m12">1 200 000</span>
+              <span class="sim-tl-unit">FCFA</span>
+            </div>
+          </div>
+          <div class="sim-cumul-note" id="sim-o-note">+100 Pro qui s'accumulent chaque mois</div>
         </div>
       </div>
 
-      <p class="sim-note">Base commune : 5% de ton audience s'inscrit sur WOZALI. La différence entre les deux scénarios, c'est uniquement la qualité de ta relation avec tes abonnés.</p>
+      <p class="sim-note">Le travail de ce mois reste actif le mois prochain. Chaque Pro que tu ajoutes s'accumule. Mois 12 = tout ce que tu as construit depuis le début, qui tourne encore.</p>
     </div>
   </section>
 
@@ -442,28 +480,25 @@ function updateSim(value) {
   const followers = parseInt(value);
   document.getElementById('sim-followers-display').textContent = formatFollowers(followers);
 
-  // Base : 5% des abonnés s'inscrivent sur WOZALI
+  // Base : 5% des abonnés s'inscrivent sur WOZALI chaque mois
   const inscrits = Math.round(followers * 0.05);
 
-  // Audience froide : 5% des inscrits passent Pro
-  const pessimistePro = Math.round(inscrits * 0.05);
-  const pessimisteFCFA = pessimistePro * 1000;
+  // Réseau peu exploité : 5% des inscrits passent Pro par mois
+  const pPro = Math.round(inscrits * 0.05);
+  // Réseau bien exploité : 20% des inscrits passent Pro par mois
+  const oPro = Math.round(inscrits * 0.20);
 
-  // Audience engagée : 20% des inscrits passent Pro
-  const optimistePro = Math.round(inscrits * 0.20);
-  const optimisteFCFA = optimistePro * 1000;
+  // Effet cumulé : chaque mois tu ajoutes N Pro. Les Pro précédents restent actifs.
+  // Revenu au mois M = (Pro cumulés) × 1 000 FCFA = N × M × 1 000
+  document.getElementById('sim-p-m1').textContent  = formatFCFA(pPro * 1  * 1000);
+  document.getElementById('sim-p-m6').textContent  = formatFCFA(pPro * 6  * 1000);
+  document.getElementById('sim-p-m12').textContent = formatFCFA(pPro * 12 * 1000);
+  document.getElementById('sim-p-note').textContent = '+' + pPro + ' Pro s\'accumulent chaque mois';
 
-  document.getElementById('sim-pessimiste-amount').textContent = formatFCFA(pessimisteFCFA);
-  document.getElementById('sim-pessimiste-detail').textContent =
-    'Sur ' + inscrits.toLocaleString('fr') + ' inscrits, seulement ' + pessimistePro +
-    ' passent Pro. Tu ne fais rien de bien ce mois-là. Tu touches quand même ' +
-    formatFCFA(pessimisteFCFA) + ' FCFA.';
-
-  document.getElementById('sim-optimiste-amount').textContent = formatFCFA(optimisteFCFA);
-  document.getElementById('sim-optimiste-detail').textContent =
-    'Sur ' + inscrits.toLocaleString('fr') + ' inscrits, ' + optimistePro +
-    ' passent Pro. C\'est réaliste avec une vraie relation audience. Tu touches ' +
-    formatFCFA(optimisteFCFA) + ' FCFA ce mois-là.';
+  document.getElementById('sim-o-m1').textContent  = formatFCFA(oPro * 1  * 1000);
+  document.getElementById('sim-o-m6').textContent  = formatFCFA(oPro * 6  * 1000);
+  document.getElementById('sim-o-m12').textContent = formatFCFA(oPro * 12 * 1000);
+  document.getElementById('sim-o-note').textContent = '+' + oPro + ' Pro s\'accumulent chaque mois';
 }
 
 // Init
