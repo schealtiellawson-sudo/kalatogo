@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brief Ambassadeur — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:#14100A;color:#FCE0A8;font-family:'Geist',sans-serif;line-height:1.65;min-height:100vh;}
+  body{padding:48px 24px 80px;}
+  .wrap{max-width:720px;margin:0 auto;}
+
+  /* Header */
+  .doc-header{text-align:center;margin-bottom:56px;padding-bottom:40px;border-bottom:1px solid rgba(232,148,10,.15);}
+  .doc-badge{display:inline-block;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#E8940A;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);border-radius:100px;padding:6px 16px;margin-bottom:20px;}
+  .doc-title{font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,48px);font-weight:900;color:#FCE0A8;line-height:1.15;margin-bottom:12px;}
+  .doc-title em{color:#E8940A;font-style:italic;}
+  .doc-sub{font-size:15px;color:rgba(252,224,168,.55);max-width:520px;margin:0 auto;}
+
+  /* Sections */
+  .section{margin-bottom:48px;}
+  .section-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#E8940A;margin-bottom:14px;}
+  .section h2{font-family:'DM Serif Display',serif;font-size:26px;font-weight:900;color:#FCE0A8;margin-bottom:16px;line-height:1.2;}
+  .section p{font-size:15px;color:rgba(252,224,168,.75);margin-bottom:12px;}
+  .section p strong{color:#FCE0A8;}
+
+  /* Card or */
+  .card-or{background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:28px 32px;margin-bottom:24px;}
+  .card-or .card-title{font-family:'DM Serif Display',serif;font-size:20px;color:#E8940A;margin-bottom:10px;}
+  .card-or p{color:rgba(252,224,168,.8);font-size:14px;margin-bottom:0;}
+
+  /* Simulateur */
+  .sim-table{width:100%;border-collapse:collapse;margin-top:16px;}
+  .sim-table th{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,148,10,.7);padding:8px 12px;text-align:left;border-bottom:1px solid rgba(232,148,10,.15);}
+  .sim-table td{padding:12px 12px;font-size:14px;color:rgba(252,224,168,.8);border-bottom:1px solid rgba(255,255,255,.04);}
+  .sim-table td:last-child{font-family:'Geist Mono',monospace;font-weight:700;color:#E8940A;font-size:15px;}
+  .sim-table tr:last-child td{border-bottom:none;}
+  .sim-note{font-size:12px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;margin-top:10px;}
+
+  /* Regles */
+  .rules-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .rules-list li{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:rgba(252,224,168,.8);}
+  .rules-list li .icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;}
+  .rules-list li .icon.ok{background:rgba(34,197,94,.15);color:#22c55e;}
+  .rules-list li .icon.no{background:rgba(239,68,68,.15);color:#ef4444;}
+
+  /* Timeline */
+  .timeline{display:flex;flex-direction:column;gap:0;}
+  .tl-row{display:grid;grid-template-columns:100px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+  .tl-row:last-child{border-bottom:none;}
+  .tl-date{font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;color:#E8940A;padding-top:2px;}
+  .tl-content strong{display:block;font-size:14px;font-weight:700;color:#FCE0A8;margin-bottom:4px;}
+  .tl-content span{font-size:13px;color:rgba(252,224,168,.6);}
+
+  /* Divider */
+  .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(232,148,10,.2),transparent);margin:40px 0;}
+
+  /* Footer */
+  .doc-footer{text-align:center;padding-top:32px;border-top:1px solid rgba(232,148,10,.1);}
+  .doc-footer p{font-size:13px;color:rgba(252,224,168,.35);font-family:'Geist Mono',monospace;}
+  .doc-footer strong{color:#E8940A;}
+
+  @media(max-width:500px){
+    .tl-row{grid-template-columns:1fr;gap:6px;}
+    .card-or{padding:22px 20px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="doc-badge">Confidentiel · Ambassadeur WOZALI</div>
+    <h1 class="doc-title">Ce que tu peux faire<br>pour les gens de<br><em>ton audience.</em></h1>
+    <p class="doc-sub">Ce document est pour toi. Il explique ce qu'on construit, ce qu'on te demande, et ce que tu gagnes concrètement.</p>
+  </div>
+
+  <!-- Section 1 : Le problème -->
+  <div class="section">
+    <div class="section-label">01 — Le contexte</div>
+    <h2>Dans ton audience, il y a des gens qui bossent sans que personne ne le sache.</h2>
+    <p>Des coiffeurs, des mécaniciens, des couturières, des cuisiniers, des maçons. Des gens compétents que personne ne trouve en dehors de leur quartier.</p>
+    <p>Pas parce qu'ils travaillent mal. Parce qu'ils <strong>n'existent pas sur internet.</strong> Pas de page, pas de profil, pas d'avis. Juste leurs mains et leur réputation orale.</p>
+    <p>80% de l'économie au Togo et au Bénin est informelle. Ces travailleurs ne savent pas comment se rendre visibles. Et les clients, eux, ne savent pas où les trouver.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Section 2 : Ce qu'est WOZALI -->
+  <div class="section">
+    <div class="section-label">02 — Ce qu'on a construit</div>
+    <h2>Une plateforme qui rend ces travailleurs visibles. En 2 minutes.</h2>
+    <p>WOZALI c'est simple : un prestataire crée son profil (photo, métier, quartier, avis clients). Dès qu'il est inscrit, il apparaît dans les résultats quand quelqu'un cherche son métier près de chez lui.</p>
+    <p>Le Score WOZALI classe les profils selon le <strong>travail réel</strong> - la note, les avis, l'activité. Pas les connexions, pas l'argent. Quelqu'un qui travaille bien remonte. Quelqu'un qui ne fait rien descend.</p>
+    <p>C'est ça le principe. <strong>Ton travail parle. Pas ton réseau.</strong></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Section 3 : Ce que tu gagnes -->
+  <div class="section">
+    <div class="section-label">03 — Ce que tu gagnes</div>
+    <h2>Une commission récurrente. Pas un virement unique.</h2>
+    <p>Tu reçois un lien d'affiliation unique. Chaque personne qui s'inscrit via ce lien et prend le Plan Pro te rapporte <strong>1 000 FCFA par mois</strong> tant qu'elle reste active sur la plateforme.</p>
+    <p>C'est cumulatif. Le mois d'après, tu gagnes toujours sur les membres du mois précédent - plus les nouveaux.</p>
+
+    <div class="card-or">
+      <div class="card-title">Simulation selon ton audience</div>
+      <table class="sim-table">
+        <thead>
+          <tr>
+            <th>Audience</th>
+            <th>Inscrits estimés (5%)</th>
+            <th>Pro actifs (20%)</th>
+            <th>Commission / mois</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>5 000 abonnés</td>
+            <td>250 inscrits</td>
+            <td>50 Pro</td>
+            <td>50 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>20 000 abonnés</td>
+            <td>1 000 inscrits</td>
+            <td>200 Pro</td>
+            <td>200 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>50 000 abonnés</td>
+            <td>2 500 inscrits</td>
+            <td>500 Pro</td>
+            <td>500 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>100 000 abonnés</td>
+            <td>5 000 inscrits</td>
+            <td>1 000 Pro</td>
+            <td>1 000 000 FCFA</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="sim-note">Base : 5% de ton audience s'inscrit · 20% passent Pro · 1 000 FCFA/Pro/mois. Chiffres conservateurs sur audience engagée.</p>
+    </div>
+
+    <p>Le Plan Pro coûte 2 500 FCFA/mois au membre. Ta commission = 40% de chaque abonnement, versée le 5 du mois suivant sur Mobile Money.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Section 4 : Ce qu'on te demande -->
+  <div class="section">
+    <div class="section-label">04 — Ce qu'on te demande</div>
+    <h2>Pas du sponsoring classique. Du contenu qui vient de toi.</h2>
+    <p>Tu n'as pas besoin de réciter un script. Ce qu'on te demande :</p>
+
+    <ul class="rules-list" style="margin:20px 0;">
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Parler de WOZALI à ta façon, depuis ton expérience et ta connaissance du terrain local</span>
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Mentionner ton lien d'affiliation dans tes posts et descriptions de vidéo</span>
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Commencer à communiquer à partir du <strong>13 juillet</strong> - du teasing sur le problème, sans révéler WOZALI immédiatement</span>
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Révéler WOZALI officiellement le <strong>1er août</strong> avec ton lien - c'est le jour du lancement public</span>
+      </li>
+      <li>
+        <span class="icon no">✗</span>
+        <span>Ne pas mentionner de date de lancement avant le 1er août dans tes posts</span>
+      </li>
+      <li>
+        <span class="icon no">✗</span>
+        <span>Ne pas faire des promesses de revenus spécifiques à ton audience - montre, ne vends pas</span>
+      </li>
+      <li>
+        <span class="icon no">✗</span>
+        <span>Ne pas envoyer vers wozali.africa avant le 1er août - garde le lien pour le jour J</span>
+      </li>
+    </ul>
+
+    <p>On t'envoie tous les visuels, les angles de contenu et un planning semaine par semaine. Tu n'arrives pas les mains vides devant ton audience.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Section 5 : Planning -->
+  <div class="section">
+    <div class="section-label">05 — Le planning</div>
+    <h2>13 juillet → 1er août. Trois semaines pour chauffer ton audience.</h2>
+
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-date">13 juil.</div>
+        <div class="tl-content">
+          <strong>Tu commences</strong>
+          <span>Contenu sur le problème - l'invisible de l'économie locale. Pas de WOZALI encore. On te donne les visuels et les angles.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">13-25 juil.</div>
+        <div class="tl-content">
+          <strong>Teasing progressif</strong>
+          <span>Stories de suspense, posts sur la réalité du terrain. Ton audience commence à se poser des questions. On te fournit le contenu semaine par semaine.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">25-31 juil.</div>
+        <div class="tl-content">
+          <strong>Montée en puissance</strong>
+          <span>"Quelque chose arrive. Je vous dis tout le 1er août." On te donne les stories et les posts de cette phase.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">1er août</div>
+        <div class="tl-content">
+          <strong>Révélation et lancement</strong>
+          <span>Tu révèles WOZALI avec ton lien d'affiliation. C'est le jour où les commissions commencent. On coordinate tous ensemble.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Section 6 : Prochaine étape -->
+  <div class="section">
+    <div class="section-label">06 — Prochaine étape</div>
+    <h2>Un appel de 15 minutes. Pas plus.</h2>
+    <p>Je t'explique exactement comment ton lien fonctionne, on paramètre ton accès ambassadeur, et tu repars avec le kit complet : visuels, planning, angles de contenu.</p>
+    <p>Pas de contrat à signer. Pas de processus long. Si ça marche pour ton audience, tu le vois dans tes stats dès le mois d'août.</p>
+
+    <div class="card-or" style="margin-top:24px;text-align:center;">
+      <div class="card-title" style="margin-bottom:6px;">Schealtiel Lawson</div>
+      <p style="margin-bottom:4px;">Fondateur WOZALI</p>
+      <p style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:13px;">+33 7 43 60 69 16</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="doc-footer">
+    <p><strong>WOZALI</strong> · wozali.africa · Lomé - Cotonou</p>
+    <p style="margin-top:6px;">Document confidentiel · Ne pas diffuser publiquement</p>
+  </div>
+
+</div>
+</body>
+</html>
