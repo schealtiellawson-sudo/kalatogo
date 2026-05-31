@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politique de confidentialite - WOZALI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --night: #14100A;
+      --night-2: #1E180E;
+      --cream: #FCE0A8;
+      --gold: #E8940A;
+      --text-muted: #B89660;
+      --border: rgba(232, 148, 10, 0.15);
+    }
+
+    html, body {
+      background: var(--night);
+      color: var(--cream);
+      font-family: 'Geist', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .site-header {
+      background: var(--night-2);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      font-family: 'Geist', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--cream);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logo-w {
+      color: var(--gold);
+      font-style: italic;
+      font-size: 26px;
+    }
+
+    .header-back {
+      margin-left: auto;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-family: 'Geist Mono', monospace;
+      text-decoration: none;
+    }
+
+    .header-back:hover { color: var(--cream); text-decoration: none; }
+
+    .page-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-hero {
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .page-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: 'Geist Mono', monospace;
+    }
+
+    .toc {
+      background: var(--night-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 48px;
+    }
+
+    .toc-title {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 6px; font-size: 14px; }
+    .toc a { color: var(--text-muted); }
+    .toc a:hover { color: var(--cream); }
+
+    .cgu-section {
+      margin-bottom: 48px;
+      scroll-margin-top: 80px;
+    }
+
+    .section-number {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cgu-section p { margin-bottom: 16px; color: var(--cream); opacity: 0.9; }
+    .cgu-section ul, .cgu-section ol { padding-left: 24px; margin-bottom: 16px; }
+    .cgu-section li { margin-bottom: 8px; opacity: 0.9; }
+
+    .callout {
+      background: var(--night-2);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 15px;
+    }
+
+    .callout strong { color: var(--gold); }
+
+    .callout-green {
+      border-left-color: #4CAF50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--night-2);
+      color: var(--gold);
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+      opacity: 0.9;
+    }
+
+    .rights-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .right-card {
+      background: var(--night-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .right-card-title {
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .right-card-desc {
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    .page-footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-logo { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .footer-logo span { color: var(--gold); font-style: italic; }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin: 16px 0;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'Geist Mono', monospace;
+    }
+
+    @media (max-width: 600px) {
+      .page-wrap { padding: 32px 16px 60px; }
+      .toc { padding: 16px 20px; }
+      .rights-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://wozali.africa" class="logo">
+    <span class="logo-w">W</span>OZALI
+  </a>
+  <a href="https://wozali.africa" class="header-back">- Retour au site</a>
+</header>
+
+<div class="page-wrap">
+
+  <div class="page-hero">
+    <div class="page-eyebrow">Documents legaux</div>
+    <h1 class="page-title">Politique de confidentialite</h1>
+    <p class="page-meta">Version 1.0 - En vigueur depuis le 1er aout 2026 - wozali.africa</p>
+  </div>
+
+  <div class="callout">
+    <strong>En clair :</strong> Nous collectons uniquement ce dont nous avons besoin pour faire fonctionner WOZALI. Nous ne vendons jamais vos donnees. Vous pouvez demander leur suppression a tout moment.
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Sommaire</div>
+    <ol>
+      <li><a href="#p1">Qui sommes-nous</a></li>
+      <li><a href="#p2">Donnees collectees et pourquoi</a></li>
+      <li><a href="#p3">Base legale du traitement</a></li>
+      <li><a href="#p4">Hebergement et transfert international</a></li>
+      <li><a href="#p5">Duree de conservation</a></li>
+      <li><a href="#p6">Vos droits</a></li>
+      <li><a href="#p7">Cookies et stockage local</a></li>
+      <li><a href="#p8">Photos et images</a></li>
+      <li><a href="#p9">Geolocalisation GPS</a></li>
+      <li><a href="#p10">Partage des donnees</a></li>
+      <li><a href="#p11">Securite des donnees</a></li>
+      <li><a href="#p12">Mineurs</a></li>
+      <li><a href="#p13">Modification de cette politique</a></li>
+      <li><a href="#p14">Contact et DPO</a></li>
+    </ol>
+  </div>
+
+  <!-- Article 1 -->
+  <section class="cgu-section" id="p1">
+    <div class="section-number">Article 1</div>
+    <h2 class="section-title">Qui sommes-nous</h2>
+
+    <p>WOZALI est une plateforme de mise en relation editee par Schealtiel Lawson, fondateur de WOZALI.</p>
+
+    <p>Contact general : <a href="mailto:contact@wozali.africa">contact@wozali.africa</a><br>
+    Responsable de la protection des donnees (DPO) : <a href="mailto:privacy@wozali.africa">privacy@wozali.africa</a></p>
+
+    <p>WOZALI est accessible a l'adresse <a href="https://wozali.africa">wozali.africa</a> et couvre le Togo (Lome) et le Benin (Cotonou).</p>
+
+    <p>La presente politique de confidentialite decrit comment WOZALI collecte, utilise et protege vos donnees personnelles, conformement a :</p>
+    <ul>
+      <li>La loi togolaise n° 2019-014 du 29 octobre 2019 relative a la protection des donnees a caractere personnel (APDP Togo)</li>
+      <li>La loi beninoise n° 2017-20 du 20 avril 2018 portant code du numerique en Republique du Benin (APDP Benin)</li>
+    </ul>
+  </section>
+
+  <!-- Article 2 -->
+  <section class="cgu-section" id="p2">
+    <div class="section-number">Article 2</div>
+    <h2 class="section-title">Donnees collectees et pourquoi</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Donnee</th>
+          <th>Pourquoi</th>
+          <th>Obligatoire</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Nom complet</td>
+          <td>Identification sur la plateforme, profil public</td>
+          <td>Oui</td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td>Connexion au compte, notifications importantes</td>
+          <td>Oui</td>
+        </tr>
+        <tr>
+          <td>Numero de telephone</td>
+          <td>Contact client, verification identite</td>
+          <td>Oui</td>
+        </tr>
+        <tr>
+          <td>Numero WhatsApp</td>
+          <td>Mise en relation avec clients et candidats</td>
+          <td>Non (opt-in)</td>
+        </tr>
+        <tr>
+          <td>Metier principal</td>
+          <td>Affichage profil, recherche par categorie</td>
+          <td>Oui</td>
+        </tr>
+        <tr>
+          <td>Ville et quartier</td>
+          <td>Recherche geographique, profil public</td>
+          <td>Oui</td>
+        </tr>
+        <tr>
+          <td>Photos de profil et realisations</td>
+          <td>Profil professionnel, portfolio visible</td>
+          <td>Non (recommande)</td>
+        </tr>
+        <tr>
+          <td>Position GPS</td>
+          <td>Affichage sur carte, recherche a proximite</td>
+          <td>Non (opt-in)</td>
+        </tr>
+        <tr>
+          <td>Avis clients</td>
+          <td>Reputation professionnelle sur la plateforme</td>
+          <td>N/A (donnes par clients)</td>
+        </tr>
+        <tr>
+          <td>Historique d'activite</td>
+          <td>Calcul du Score WOZALI, eligibilite aux recompenses</td>
+          <td>Genere automatiquement</td>
+        </tr>
+        <tr>
+          <td>Informations de paiement</td>
+          <td>Traitement de l'abonnement Pro via FedaPay</td>
+          <td>Si Plan Pro</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Nous collectons uniquement les donnees necessaires au fonctionnement du service. Nous n'effectuons pas de profilage publicitaire et ne revendons jamais vos donnees.</p>
+  </section>
+
+  <!-- Article 3 -->
+  <section class="cgu-section" id="p3">
+    <div class="section-number">Article 3</div>
+    <h2 class="section-title">Base legale du traitement</h2>
+
+    <p>Conformement a la loi togolaise n° 2019-014 (APDP Togo) et a la loi beninoise n° 2017-20 (Code du numerique Benin), nous traitons vos donnees sur les bases legales suivantes :</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Traitement</th>
+          <th>Base legale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Creation et gestion de votre compte</td>
+          <td>Execution du contrat (CGU)</td>
+        </tr>
+        <tr>
+          <td>Affichage du profil public</td>
+          <td>Execution du contrat + consentement</td>
+        </tr>
+        <tr>
+          <td>Calcul du Score WOZALI</td>
+          <td>Execution du contrat</td>
+        </tr>
+        <tr>
+          <td>Traitement du paiement Plan Pro</td>
+          <td>Execution du contrat</td>
+        </tr>
+        <tr>
+          <td>Geolocalisation GPS</td>
+          <td>Consentement explicite (opt-in)</td>
+        </tr>
+        <tr>
+          <td>Photos de realisations</td>
+          <td>Consentement explicite</td>
+        </tr>
+        <tr>
+          <td>Notifications push</td>
+          <td>Consentement explicite (opt-in)</td>
+        </tr>
+        <tr>
+          <td>Programme de parrainage</td>
+          <td>Interet legitime + consentement</td>
+        </tr>
+        <tr>
+          <td>Amelioration du service (analytics internes)</td>
+          <td>Interet legitime</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Vous pouvez retirer votre consentement a tout moment pour les traitements bases sur celui-ci, sans que cela n'affecte la legalite des traitements anterieurs.</p>
+  </section>
+
+  <!-- Article 4 -->
+  <section class="cgu-section" id="p4">
+    <div class="section-number">Article 4</div>
+    <h2 class="section-title">Hebergement et transfert international</h2>
+
+    <p>WOZALI utilise les services d'hebergement suivants :</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Usage</th>
+          <th>Localisation</th>
+          <th>Garanties</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Supabase</strong></td>
+          <td>Base de donnees principale, authentification</td>
+          <td>USA (AWS us-east-1)</td>
+          <td>SOC 2 Type II, chiffrement AES-256 au repos et en transit (TLS 1.2+)</td>
+        </tr>
+        <tr>
+          <td><strong>Vercel</strong></td>
+          <td>Hebergement du site web et des API</td>
+          <td>USA + CDN mondial</td>
+          <td>ISO 27001, chiffrement TLS, Edge Network securise</td>
+        </tr>
+        <tr>
+          <td><strong>ImgBB</strong></td>
+          <td>Stockage des photos de profil et realisations</td>
+          <td>USA</td>
+          <td>HTTPS, acces controle par URL unique</td>
+        </tr>
+        <tr>
+          <td><strong>Airtable</strong></td>
+          <td>Donnees complementaires (offres d'emploi, candidatures)</td>
+          <td>USA (AWS)</td>
+          <td>SOC 2 Type II, chiffrement au repos et en transit</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Ces hebergeurs sont situes aux Etats-Unis. Le transfert de vos donnees hors du Togo et du Benin est encadre par :</p>
+    <ul>
+      <li>Les clauses contractuelles types reconnues par les autorites de protection des donnees</li>
+      <li>Les certifications de securite des prestataires (SOC 2, ISO 27001)</li>
+      <li>Votre consentement explicite lors de l'inscription, en connaissance de ces transferts</li>
+    </ul>
+
+    <div class="callout">
+      <strong>Vos droits ne sont pas reduits</strong> par ces transferts. Vous pouvez exercer vos droits aupres de WOZALI, qui reste votre interlocuteur unique, quelle que soit la localisation des serveurs.
+    </div>
+  </section>
+
+  <!-- Article 5 -->
+  <section class="cgu-section" id="p5">
+    <div class="section-number">Article 5</div>
+    <h2 class="section-title">Duree de conservation</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Type de donnee</th>
+          <th>Duree de conservation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Donnees de compte actif</td>
+          <td>Pendant toute la duree d'activite du compte</td>
+        </tr>
+        <tr>
+          <td>Donnees apres suppression du compte</td>
+          <td>30 jours (delai de securite), puis suppression definitive</td>
+        </tr>
+        <tr>
+          <td>Historique de paiement</td>
+          <td>5 ans (obligation legale comptable)</td>
+        </tr>
+        <tr>
+          <td>Logs de connexion</td>
+          <td>90 jours</td>
+        </tr>
+        <tr>
+          <td>Avis clients</td>
+          <td>Pendant la duree d'activite du profil + 30 jours</td>
+        </tr>
+        <tr>
+          <td>Photos</td>
+          <td>Supprimees dans les 24h apres la suppression du compte</td>
+        </tr>
+        <tr>
+          <td>Cache IA (analyses anonymisees)</td>
+          <td>7 jours maximum</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Apres suppression du compte, certaines donnees anonymisees (statistiques agregees) peuvent etre conservees indefiniment pour ameliorer le service. Ces donnees ne permettent pas de vous identifier.</p>
+  </section>
+
+  <!-- Article 6 -->
+  <section class="cgu-section" id="p6">
+    <div class="section-number">Article 6</div>
+    <h2 class="section-title">Vos droits</h2>
+
+    <p>Conformement a la loi togolaise n° 2019-014 et a la loi beninoise n° 2017-20, vous disposez des droits suivants sur vos donnees personnelles :</p>
+
+    <div class="rights-grid">
+      <div class="right-card">
+        <div class="right-card-title">Droit d'acces</div>
+        <div class="right-card-desc">Obtenir une copie de toutes vos donnees que nous detenons.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-title">Droit de rectification</div>
+        <div class="right-card-desc">Corriger des donnees inexactes ou incompletes.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-title">Droit a la suppression</div>
+        <div class="right-card-desc">Demander la suppression de votre compte et de vos donnees.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-title">Droit a la portabilite</div>
+        <div class="right-card-desc">Recevoir vos donnees dans un format lisible par machine.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-title">Droit d'opposition</div>
+        <div class="right-card-desc">Vous opposer a certains traitements bases sur notre interet legitime.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-title">Retrait du consentement</div>
+        <div class="right-card-desc">Retirer votre consentement a tout moment pour les traitements bases sur celui-ci.</div>
+      </div>
+    </div>
+
+    <p><strong>Comment exercer vos droits :</strong></p>
+    <ul>
+      <li>Directement depuis votre profil : parametres du compte, suppression du compte</li>
+      <li>Par email a <a href="mailto:privacy@wozali.africa">privacy@wozali.africa</a> avec votre nom et email de compte</li>
+    </ul>
+
+    <p>Nous repondons a toute demande dans un delai de <strong>30 jours</strong>. Si vous estimez que vos droits ne sont pas respectes, vous pouvez saisir :</p>
+    <ul>
+      <li><strong>Togo :</strong> Autorite de Protection des Donnees Personnelles (APDP Togo) - <a href="https://apdp.gouv.tg" target="_blank" rel="noopener">apdp.gouv.tg</a></li>
+      <li><strong>Benin :</strong> Autorite de Protection des Donnees Personnelles (APDP Benin) - <a href="https://apdp.bj" target="_blank" rel="noopener">apdp.bj</a></li>
+    </ul>
+  </section>
+
+  <!-- Article 7 -->
+  <section class="cgu-section" id="p7">
+    <div class="section-number">Article 7</div>
+    <h2 class="section-title">Cookies et stockage local</h2>
+
+    <p><strong>WOZALI n'utilise pas de cookies tiers.</strong> Nous n'integrons aucun outil de publicite ou de tracking publicitaire (Google Analytics, Facebook Pixel, etc.).</p>
+
+    <p>Nous utilisons uniquement le <strong>localStorage</strong> de votre navigateur pour :</p>
+    <ul>
+      <li>Maintenir votre session de connexion</li>
+      <li>Memoriser vos preferences d'affichage (filtres, mode, etc.)</li>
+      <li>Sauvegarder localement votre progression dans les formulaires</li>
+      <li>Stocker votre token d'authentification Supabase (chiffre)</li>
+    </ul>
+
+    <p>Ces donnees sont stockees localement sur votre appareil et ne sont pas transmises a des tiers. Vous pouvez les effacer a tout moment via les parametres de votre navigateur.</p>
+
+    <p>Nous pouvons utiliser des <strong>cookies de session</strong> strictement necessaires au fonctionnement technique du site. Ces cookies disparaissent a la fermeture de votre navigateur.</p>
+  </section>
+
+  <!-- Article 8 -->
+  <section class="cgu-section" id="p8">
+    <div class="section-number">Article 8</div>
+    <h2 class="section-title">Photos et images</h2>
+
+    <p>Les photos que vous publiez sur WOZALI (photo de profil, photos de realisations, portfolio) sont :</p>
+    <ul>
+      <li>Stockees sur les serveurs ImgBB (USA) via leur API securisee</li>
+      <li>Accessibles publiquement via une URL unique generee lors de l'upload</li>
+      <li>Visibles sur votre profil public par tous les visiteurs de WOZALI</li>
+    </ul>
+
+    <p><strong>Votre consentement est requis</strong> avant tout upload de photo. En publiant une photo, vous confirmez :</p>
+    <ul>
+      <li>Que vous etes l'auteur de la photo ou avez les droits de la publier</li>
+      <li>Que les personnes photographiees ont donne leur accord pour cette publication</li>
+      <li>Que la photo ne viole pas les droits de tiers</li>
+    </ul>
+
+    <p>Vous pouvez supprimer vos photos a tout moment depuis votre tableau de bord. La suppression est effective dans les 24 heures.</p>
+
+    <div class="callout">
+      <strong>Attention :</strong> Une fois une URL de photo partagee publiquement (WhatsApp, reseaux sociaux), WOZALI ne peut pas controler les copies faites par d'autres personnes.
+    </div>
+  </section>
+
+  <!-- Article 9 -->
+  <section class="cgu-section" id="p9">
+    <div class="section-number">Article 9</div>
+    <h2 class="section-title">Geolocalisation GPS</h2>
+
+    <p>La geolocalisation GPS est <strong>strictement opt-in</strong>. Nous ne collectons jamais votre position sans votre accord explicite.</p>
+
+    <p>Si vous activez la geolocalisation :</p>
+    <ul>
+      <li>Votre position approximative (latitude/longitude) est enregistree dans notre base de donnees</li>
+      <li>Elle est utilisee pour vous afficher sur la carte de recherche et faciliter votre decouverte par des clients proches</li>
+      <li>Elle n'est jamais partagee avec des tiers a des fins publicitaires</li>
+    </ul>
+
+    <p>Vous pouvez desactiver la geolocalisation a tout moment depuis votre tableau de bord (section "Modifier mon profil"). Votre position sera supprimee de notre base de donnees dans les 24 heures.</p>
+
+    <p>Votre navigateur peut egalement vous demander la permission de partager votre position en temps reel. WOZALI n'enregistre que la position que vous avez explicitement validee, pas votre position en temps reel.</p>
+  </section>
+
+  <!-- Article 10 -->
+  <section class="cgu-section" id="p10">
+    <div class="section-number">Article 10</div>
+    <h2 class="section-title">Partage des donnees</h2>
+
+    <p><strong>WOZALI ne vend jamais vos donnees personnelles a des tiers.</strong></p>
+
+    <p>Vos donnees peuvent etre partagees uniquement dans les situations suivantes :</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Avec qui</th>
+          <th>Quelles donnees</th>
+          <th>Pourquoi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Autres utilisateurs WOZALI</td>
+          <td>Donnees de votre profil public (nom, metier, quartier, photos, avis)</td>
+          <td>Fonctionnement normal de la marketplace</td>
+        </tr>
+        <tr>
+          <td>FedaPay</td>
+          <td>Informations necessaires au paiement</td>
+          <td>Traitement de l'abonnement Pro</td>
+        </tr>
+        <tr>
+          <td>Supabase / Vercel / ImgBB / Airtable</td>
+          <td>Donnees hebergees sur leurs serveurs</td>
+          <td>Hebergement technique du service (sous-traitants)</td>
+        </tr>
+        <tr>
+          <td>Autorites judiciaires</td>
+          <td>Donnees demandees par requisition legale</td>
+          <td>Obligation legale uniquement</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Nos sous-traitants techniques (Supabase, Vercel, ImgBB, Airtable) agissent uniquement sur instruction de WOZALI et ne peuvent pas utiliser vos donnees a leurs propres fins.</p>
+  </section>
+
+  <!-- Article 11 -->
+  <section class="cgu-section" id="p11">
+    <div class="section-number">Article 11</div>
+    <h2 class="section-title">Securite des donnees</h2>
+
+    <p>WOZALI met en place des mesures techniques et organisationnelles pour proteger vos donnees :</p>
+    <ul>
+      <li>Chiffrement de toutes les communications (HTTPS/TLS 1.2+)</li>
+      <li>Chiffrement des donnees au repos sur les serveurs (AES-256)</li>
+      <li>Authentification securisee via Supabase Auth</li>
+      <li>Acces aux donnees limite au strict necessaire (principe du moindre privilege)</li>
+      <li>Journalisation des acces pour detection des anomalies</li>
+      <li>Aucun stockage de mot de passe en clair</li>
+    </ul>
+
+    <p>En cas de violation de donnees susceptible de presenter un risque pour vos droits et libertes, WOZALI s'engage a vous en informer dans les meilleurs delais, conformement aux obligations legales applicables au Togo et au Benin.</p>
+
+    <p>Si vous soupconnez un acces non autorise a votre compte, changez immediatement votre mot de passe et contactez <a href="mailto:privacy@wozali.africa">privacy@wozali.africa</a>.</p>
+  </section>
+
+  <!-- Article 12 -->
+  <section class="cgu-section" id="p12">
+    <div class="section-number">Article 12</div>
+    <h2 class="section-title">Mineurs</h2>
+
+    <p>WOZALI est un service professionnel reserve aux personnes agees d'au moins <strong>18 ans</strong>.</p>
+
+    <p>Nous ne collectons pas sciemment de donnees concernant des personnes de moins de 18 ans. Si nous apprenons qu'un compte a ete cree par un mineur, nous le supprimerons immediatement.</p>
+
+    <p>Si vous pensez qu'un mineur a cree un compte sur WOZALI, signalez-le a <a href="mailto:privacy@wozali.africa">privacy@wozali.africa</a>.</p>
+  </section>
+
+  <!-- Article 13 -->
+  <section class="cgu-section" id="p13">
+    <div class="section-number">Article 13</div>
+    <h2 class="section-title">Modification de cette politique</h2>
+
+    <p>WOZALI peut modifier cette politique de confidentialite pour reflechir des changements dans nos pratiques ou dans la legislation applicable.</p>
+
+    <p>En cas de modification substantielle, nous vous en informerons par notification sur la plateforme au moins <strong>30 jours</strong> avant l'entree en vigueur des changements.</p>
+
+    <p>La date de la derniere mise a jour est toujours indiquee en haut de cette page. Nous vous encourageons a la consulter periodiquement.</p>
+  </section>
+
+  <!-- Article 14 -->
+  <section class="cgu-section" id="p14">
+    <div class="section-number">Article 14</div>
+    <h2 class="section-title">Contact et DPO</h2>
+
+    <p>Pour toute question relative a vos donnees personnelles ou pour exercer vos droits :</p>
+
+    <ul>
+      <li><strong>Email DPO :</strong> <a href="mailto:privacy@wozali.africa">privacy@wozali.africa</a></li>
+      <li><strong>Email general :</strong> <a href="mailto:contact@wozali.africa">contact@wozali.africa</a></li>
+      <li><strong>Site :</strong> <a href="https://wozali.africa">wozali.africa</a></li>
+    </ul>
+
+    <p>Nous accusons reception de votre demande dans les 72 heures et nous y repondons dans un delai maximum de 30 jours.</p>
+
+    <p>Si vous n'etes pas satisfait de notre reponse, vous pouvez saisir l'autorite de protection des donnees de votre pays :</p>
+    <ul>
+      <li><strong>Togo :</strong> APDP Togo - <a href="https://apdp.gouv.tg" target="_blank" rel="noopener">apdp.gouv.tg</a></li>
+      <li><strong>Benin :</strong> APDP Benin - <a href="https://apdp.bj" target="_blank" rel="noopener">apdp.bj</a></li>
+    </ul>
+
+    <p>Pour consulter nos Conditions Generales d'Utilisation : <a href="https://wozali.africa/cgu">wozali.africa/cgu</a></p>
+  </section>
+
+  <footer class="page-footer">
+    <div class="footer-logo"><span>W</span>OZALI</div>
+    <div class="footer-links">
+      <a href="https://wozali.africa">Accueil</a>
+      <a href="https://wozali.africa/cgu">CGU</a>
+      <a href="mailto:privacy@wozali.africa">DPO</a>
+    </div>
+    <div class="footer-copy">wozali.africa - Ton travail nourrit. Pas ton reseau.</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

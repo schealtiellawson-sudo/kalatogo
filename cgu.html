@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conditions Generales d'Utilisation - WOZALI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --night: #14100A;
+      --night-2: #1E180E;
+      --cream: #FCE0A8;
+      --gold: #E8940A;
+      --text-muted: #B89660;
+      --border: rgba(232, 148, 10, 0.15);
+    }
+
+    html, body {
+      background: var(--night);
+      color: var(--cream);
+      font-family: 'Geist', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Header */
+    .site-header {
+      background: var(--night-2);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      font-family: 'Geist', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--cream);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logo-w {
+      color: var(--gold);
+      font-style: italic;
+      font-size: 26px;
+    }
+
+    .header-back {
+      margin-left: auto;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-family: 'Geist Mono', monospace;
+      text-decoration: none;
+    }
+
+    .header-back:hover { color: var(--cream); text-decoration: none; }
+
+    /* Layout */
+    .page-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Hero */
+    .page-hero {
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .page-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: 'Geist Mono', monospace;
+    }
+
+    /* TOC */
+    .toc {
+      background: var(--night-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 48px;
+    }
+
+    .toc-title {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .toc ol {
+      padding-left: 20px;
+    }
+
+    .toc li {
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .toc a {
+      color: var(--text-muted);
+    }
+
+    .toc a:hover {
+      color: var(--cream);
+    }
+
+    /* Sections */
+    .cgu-section {
+      margin-bottom: 48px;
+      scroll-margin-top: 80px;
+    }
+
+    .section-number {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cgu-section p {
+      margin-bottom: 16px;
+      color: var(--cream);
+      opacity: 0.9;
+    }
+
+    .cgu-section ul, .cgu-section ol {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+
+    .cgu-section li {
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+
+    /* Callout */
+    .callout {
+      background: var(--night-2);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 15px;
+    }
+
+    .callout strong {
+      color: var(--gold);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--night-2);
+      color: var(--gold);
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+      opacity: 0.9;
+    }
+
+    /* Footer */
+    .page-footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .footer-logo span { color: var(--gold); font-style: italic; }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin: 16px 0;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'Geist Mono', monospace;
+    }
+
+    @media (max-width: 600px) {
+      .page-wrap { padding: 32px 16px 60px; }
+      .toc { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://wozali.africa" class="logo">
+    <span class="logo-w">W</span>OZALI
+  </a>
+  <a href="https://wozali.africa" class="header-back">← Retour au site</a>
+</header>
+
+<div class="page-wrap">
+
+  <div class="page-hero">
+    <div class="page-eyebrow">Documents legaux</div>
+    <h1 class="page-title">Conditions Generales d'Utilisation</h1>
+    <p class="page-meta">Version 1.0 - En vigueur depuis le 1er aout 2026 - wozali.africa</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Sommaire</div>
+    <ol>
+      <li><a href="#s1">Objet et acceptation</a></li>
+      <li><a href="#s2">Description du service</a></li>
+      <li><a href="#s3">Inscription et compte utilisateur</a></li>
+      <li><a href="#s4">Plans tarifaires</a></li>
+      <li><a href="#s5">Programme de parrainage</a></li>
+      <li><a href="#s6">Recompenses WOZALI</a></li>
+      <li><a href="#s7">Obligations des utilisateurs</a></li>
+      <li><a href="#s8">Contenu interdit</a></li>
+      <li><a href="#s9">Propriete intellectuelle</a></li>
+      <li><a href="#s10">Responsabilite limitee</a></li>
+      <li><a href="#s11">Suspension et resiliation</a></li>
+      <li><a href="#s12">Modification des CGU</a></li>
+      <li><a href="#s13">Droit applicable et litiges</a></li>
+      <li><a href="#s14">Contact</a></li>
+    </ol>
+  </div>
+
+  <!-- Article 1 -->
+  <section class="cgu-section" id="s1">
+    <div class="section-number">Article 1</div>
+    <h2 class="section-title">Objet et acceptation</h2>
+
+    <p>Les presentes Conditions Generales d'Utilisation (CGU) regissent l'acces et l'utilisation de la plateforme WOZALI, accessible a l'adresse <strong>wozali.africa</strong>, editee par Schealtiel Lawson, fondateur de WOZALI.</p>
+
+    <p>En creant un compte ou en utilisant WOZALI, vous acceptez sans reserve l'integralite des presentes CGU. Si vous n'acceptez pas ces conditions, vous ne pouvez pas utiliser le service.</p>
+
+    <p>Ces CGU s'appliquent a tous les utilisateurs de la plateforme, qu'ils soient inscrits gratuitement ou abonnes au Plan Pro.</p>
+
+    <div class="callout">
+      <strong>Important :</strong> WOZALI est une marketplace. Nous connectons des professionnels avec des clients. Nous ne sommes pas employeur et ne garantissons pas de revenus.
+    </div>
+  </section>
+
+  <!-- Article 2 -->
+  <section class="cgu-section" id="s2">
+    <div class="section-number">Article 2</div>
+    <h2 class="section-title">Description du service</h2>
+
+    <p>WOZALI est une marketplace africaine qui connecte les travailleurs de l'economie informelle avec des clients au Togo (Lome) et au Benin (Cotonou).</p>
+
+    <p>Le service permet notamment :</p>
+    <ul>
+      <li>La creation d'un profil professionnel visible publiquement</li>
+      <li>La mise en relation entre clients et prestataires de services</li>
+      <li>La publication et la recherche d'offres d'emploi (WOZALI Jobs)</li>
+      <li>La gestion de candidatures et de recrutements</li>
+      <li>L'acces a des outils de visibilite et de gestion d'activite</li>
+      <li>La participation aux programmes de recompenses WOZALI</li>
+    </ul>
+
+    <p><strong>WOZALI n'est pas un employeur.</strong> La plateforme met en relation des personnes independantes. WOZALI n'est pas partie aux contrats conclus entre utilisateurs. Chaque utilisateur est seul responsable des engagements qu'il prend avec d'autres utilisateurs.</p>
+
+    <p>WOZALI se reserve le droit de faire evoluer le service, d'ajouter ou de retirer des fonctionnalites, sans obligation de maintenir l'ensemble du service dans son etat actuel.</p>
+  </section>
+
+  <!-- Article 3 -->
+  <section class="cgu-section" id="s3">
+    <div class="section-number">Article 3</div>
+    <h2 class="section-title">Inscription et compte utilisateur</h2>
+
+    <p>L'inscription est ouverte a toute personne physique residant au Togo ou au Benin, agee d'au moins 18 ans.</p>
+
+    <p>Pour creer un compte, vous devez fournir :</p>
+    <ul>
+      <li>Un nom complet valide</li>
+      <li>Un numero de telephone actif</li>
+      <li>Une adresse email valide</li>
+      <li>Votre ville et quartier</li>
+      <li>Votre metier principal</li>
+    </ul>
+
+    <p>Vous etes responsable de la confidentialite de vos identifiants de connexion. Toute utilisation de votre compte, meme non autorisee, engage votre responsabilite. Signalez immediatement toute utilisation frauduleuse a <a href="mailto:contact@wozali.africa">contact@wozali.africa</a>.</p>
+
+    <p>Un seul compte est autorise par personne. La creation de comptes multiples entraine la suppression immediate de tous les comptes associes.</p>
+
+    <p>Les informations fournies a l'inscription doivent etre exactes et a jour. WOZALI se reserve le droit de suspendre tout compte contenant des informations manifestement fausses.</p>
+  </section>
+
+  <!-- Article 4 -->
+  <section class="cgu-section" id="s4">
+    <div class="section-number">Article 4</div>
+    <h2 class="section-title">Plans tarifaires</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Prix</th>
+          <th>Acces</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Gratuit</strong></td>
+          <td>0 FCFA</td>
+          <td>Profil de base, recherche, candidatures</td>
+        </tr>
+        <tr>
+          <td><strong>Pro</strong></td>
+          <td>2 500 FCFA / mois</td>
+          <td>Toutes les fonctionnalites, priorite de visibilite, publication d'offres, eligibilite aux recompenses</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Paiement :</strong> Le Plan Pro est souscrit via FedaPay (mobile money Wave ou Flooz). Le paiement est mensuel et non automatiquement reconduit. Chaque mois, vous choisissez de renouveler ou non.</p>
+
+    <p><strong>Absence de remboursement :</strong> Les paiements effectues ne sont pas remboursables, sauf en cas d'erreur technique documentee imputable a WOZALI. Pour toute reclamation, ecrire a <a href="mailto:contact@wozali.africa">contact@wozali.africa</a> dans les 7 jours suivant le paiement.</p>
+
+    <p>WOZALI se reserve le droit de modifier les tarifs. Toute modification sera notifiee avec un preavis de 30 jours.</p>
+  </section>
+
+  <!-- Article 5 -->
+  <section class="cgu-section" id="s5">
+    <div class="section-number">Article 5</div>
+    <h2 class="section-title">Programme de parrainage</h2>
+
+    <p>Le programme de parrainage permet a tout utilisateur de recommander WOZALI a d'autres professionnels de son reseau.</p>
+
+    <p><strong>Fonctionnement :</strong></p>
+    <ul>
+      <li>Chaque utilisateur dispose d'un code de parrainage unique</li>
+      <li>Quand un filleul s'inscrit avec ce code et souscrit au Plan Pro, le parrain percoit 1 000 FCFA par filleul Pro actif chaque mois</li>
+      <li>La commission est versee tant que le filleul maintient son Plan Pro</li>
+    </ul>
+
+    <p><strong>Conditions :</strong></p>
+    <ul>
+      <li>Le parrain doit avoir un compte WOZALI actif</li>
+      <li>Un filleul doit etre une personne reelle, differente du parrain</li>
+      <li>Toute tentative de manipulation du programme (faux comptes, auto-parrainage) entraine la suppression immediate du compte et la perte de toutes les commissions</li>
+    </ul>
+
+    <p>WOZALI se reserve le droit de modifier ou de suspendre le programme de parrainage a tout moment, avec un preavis de 15 jours pour les parrains actifs.</p>
+  </section>
+
+  <!-- Article 6 -->
+  <section class="cgu-section" id="s6">
+    <div class="section-number">Article 6</div>
+    <h2 class="section-title">Recompenses WOZALI</h2>
+
+    <p>WOZALI propose deux bourses mensuelles pour recompenser les professionnels les plus serieux de la plateforme.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Bourse</th>
+          <th>Montant</th>
+          <th>Eligibilite</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Bourse de Croissance</strong></td>
+          <td>300 000 FCFA (1 gagnant/mois)</td>
+          <td>Plan Pro actif, profil complet, Score WOZALI minimum, avis recents</td>
+        </tr>
+        <tr>
+          <td><strong>Bourse des Mains d'Or</strong></td>
+          <td>100 000 FCFA (2 gagnantes/mois - 1 Togo + 1 Benin)</td>
+          <td>Femmes coiffeuses ou couturieres, profil actif, photo de realisations ce mois</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Premier tirage :</strong> 25 septembre 2026, puis le 25 de chaque mois.</p>
+
+    <p><strong>Regles du tirage :</strong></p>
+    <ul>
+      <li>Le tirage est effectue de maniere aleatoire parmi les utilisateurs eligibles</li>
+      <li>Les conditions d'eligibilite sont verifiees automatiquement par la plateforme</li>
+      <li>Un meme utilisateur ne peut pas gagner la meme bourse deux mois de suite</li>
+      <li>Les gains sont verses par mobile money (Wave ou Flooz) dans les 5 jours ouvrables suivant le tirage</li>
+    </ul>
+
+    <p><strong>Important :</strong> WOZALI se reserve le droit de modifier les montants, les conditions d'eligibilite ou le calendrier des tirages, avec un preavis de 30 jours. Les recompenses sont soumises a la legislation fiscale applicable au Togo et au Benin.</p>
+
+    <div class="callout">
+      <strong>Rappel :</strong> Les recompenses ne constituent pas une garantie de revenus. Elles recompensent l'activite serieuse sur la plateforme, non la simple inscription.
+    </div>
+  </section>
+
+  <!-- Article 7 -->
+  <section class="cgu-section" id="s7">
+    <div class="section-number">Article 7</div>
+    <h2 class="section-title">Obligations des utilisateurs</h2>
+
+    <p>En utilisant WOZALI, vous vous engagez a :</p>
+    <ul>
+      <li>Fournir des informations exactes et les maintenir a jour</li>
+      <li>Utiliser la plateforme de maniere loyale et en bonne foi</li>
+      <li>Respecter les autres utilisateurs</li>
+      <li>Honorer les engagements pris avec des clients ou d'autres professionnels</li>
+      <li>Ne pas utiliser la plateforme a des fins illegales</li>
+      <li>Signaler tout comportement frauduleux ou abusif</li>
+      <li>Ne pas contourner les mecanismes de securite de la plateforme</li>
+      <li>Ne pas utiliser de robots ou d'outils automatises pour acceder au service</li>
+    </ul>
+
+    <p>Le non-respect de ces obligations peut entrainer la suspension ou la suppression de votre compte, sans droit a remboursement.</p>
+  </section>
+
+  <!-- Article 8 -->
+  <section class="cgu-section" id="s8">
+    <div class="section-number">Article 8</div>
+    <h2 class="section-title">Contenu interdit</h2>
+
+    <p>Il est strictement interdit de publier sur WOZALI :</p>
+    <ul>
+      <li>Des offres ou demandes frauduleuses (arnaque, faux emploi, demande d'argent contre promesse d'embauche)</li>
+      <li>Du contenu pornographique, violent ou choquant</li>
+      <li>Des informations personnelles d'autres personnes sans leur consentement</li>
+      <li>Du contenu discriminatoire (racism, sexisme, xenophobie)</li>
+      <li>Des fausses informations ou informations trompeuses</li>
+      <li>Du contenu portant atteinte aux droits de tiers (marques, droits d'auteur)</li>
+      <li>Tout contenu politique, religieux ou politic a caractere partisan</li>
+      <li>Des liens vers des sites malveillants ou frauduleux</li>
+    </ul>
+
+    <p>WOZALI se reserve le droit de supprimer tout contenu ne respectant pas ces regles, sans preavis ni justification.</p>
+  </section>
+
+  <!-- Article 9 -->
+  <section class="cgu-section" id="s9">
+    <div class="section-number">Article 9</div>
+    <h2 class="section-title">Propriete intellectuelle</h2>
+
+    <p>La plateforme WOZALI, son design, son code, ses textes et ses fonctionnalites sont la propriete exclusive de Schealtiel Lawson. Toute reproduction, meme partielle, est interdite sans autorisation ecrite.</p>
+
+    <p>En publiant du contenu sur WOZALI (photos, textes, descriptions), vous accordez a WOZALI une licence non exclusive, mondiale et gratuite pour afficher ce contenu dans le cadre du service. Vous conservez vos droits sur votre contenu.</p>
+
+    <p>Vous garantissez que le contenu que vous publiez ne viole pas les droits de tiers.</p>
+  </section>
+
+  <!-- Article 10 -->
+  <section class="cgu-section" id="s10">
+    <div class="section-number">Article 10</div>
+    <h2 class="section-title">Responsabilite limitee</h2>
+
+    <p>WOZALI est une plateforme de mise en relation. A ce titre :</p>
+    <ul>
+      <li>WOZALI n'est pas responsable de la qualite des services rendus entre utilisateurs</li>
+      <li>WOZALI n'est pas responsable des litiges entre utilisateurs</li>
+      <li>WOZALI n'est pas responsable des pertes financieres resultant d'une transaction entre utilisateurs</li>
+      <li>WOZALI ne garantit pas la disponibilite permanente du service (maintenance, panne)</li>
+      <li>WOZALI n'est pas responsable des dommages indirects resultant de l'utilisation ou de l'impossibilite d'utiliser le service</li>
+    </ul>
+
+    <p>En cas de litige entre deux utilisateurs, WOZALI peut intervenir comme mediateur, sans y etre oblige. Sa responsabilite est limitee au montant des sommes versees au titre du Plan Pro au cours des 3 derniers mois.</p>
+
+    <div class="callout">
+      <strong>Signalement :</strong> Si vous etes victime d'une arnaque ou d'un comportement abusif, signalez-le immediatement via la plateforme ou a <a href="mailto:contact@wozali.africa">contact@wozali.africa</a>.
+    </div>
+  </section>
+
+  <!-- Article 11 -->
+  <section class="cgu-section" id="s11">
+    <div class="section-number">Article 11</div>
+    <h2 class="section-title">Suspension et resiliation</h2>
+
+    <p><strong>Par l'utilisateur :</strong> Vous pouvez supprimer votre compte a tout moment depuis les parametres de votre profil, ou en ecrivant a <a href="mailto:contact@wozali.africa">contact@wozali.africa</a>. La suppression du compte entraine la perte de toutes les donnees associees (profil, historique, commissions en attente).</p>
+
+    <p><strong>Par WOZALI :</strong> WOZALI peut suspendre ou supprimer un compte en cas de :</p>
+    <ul>
+      <li>Violation des presentes CGU</li>
+      <li>Comportement frauduleux ou abusif</li>
+      <li>Tentative de manipulation du systeme de recompenses ou de parrainage</li>
+      <li>Fausses informations lors de l'inscription</li>
+      <li>Inactivite prolongee (plus de 12 mois sans connexion)</li>
+    </ul>
+
+    <p>En cas de suspension pour violation des CGU, aucun remboursement ne sera effectue.</p>
+  </section>
+
+  <!-- Article 12 -->
+  <section class="cgu-section" id="s12">
+    <div class="section-number">Article 12</div>
+    <h2 class="section-title">Modification des CGU</h2>
+
+    <p>WOZALI peut modifier les presentes CGU a tout moment. Les modifications entrent en vigueur 30 jours apres leur publication sur la plateforme.</p>
+
+    <p>Les utilisateurs seront informes des modifications importantes par notification sur la plateforme. La poursuite de l'utilisation du service apres le delai de 30 jours vaut acceptation des nouvelles conditions.</p>
+  </section>
+
+  <!-- Article 13 -->
+  <section class="cgu-section" id="s13">
+    <div class="section-number">Article 13</div>
+    <h2 class="section-title">Droit applicable et litiges</h2>
+
+    <p>Les presentes CGU sont regies par le droit togolais et le droit beninois, selon le pays de residence de l'utilisateur.</p>
+
+    <p>En cas de litige, les parties s'efforceront de trouver une solution amiable. A defaut, le litige sera soumis aux juridictions competentes :</p>
+    <ul>
+      <li><strong>Utilisateurs au Togo :</strong> Tribunaux de Lome (Togo)</li>
+      <li><strong>Utilisateurs au Benin :</strong> Tribunaux de Cotonou (Benin)</li>
+    </ul>
+
+    <p>Avant toute action en justice, l'utilisateur s'engage a notifier WOZALI par email a <a href="mailto:contact@wozali.africa">contact@wozali.africa</a> et a laisser un delai de 30 jours pour une resolution amiable.</p>
+  </section>
+
+  <!-- Article 14 -->
+  <section class="cgu-section" id="s14">
+    <div class="section-number">Article 14</div>
+    <h2 class="section-title">Contact</h2>
+
+    <p>Pour toute question relative aux presentes CGU ou au service WOZALI :</p>
+
+    <ul>
+      <li><strong>Email :</strong> <a href="mailto:contact@wozali.africa">contact@wozali.africa</a></li>
+      <li><strong>Site :</strong> <a href="https://wozali.africa">wozali.africa</a></li>
+    </ul>
+
+    <p>WOZALI s'engage a repondre a toute demande dans un delai de 7 jours ouvrables.</p>
+
+    <p>Pour toute question relative a vos donnees personnelles, consultez notre <a href="https://wozali.africa/confidentialite">Politique de confidentialite</a> ou ecrivez a <a href="mailto:privacy@wozali.africa">privacy@wozali.africa</a>.</p>
+  </section>
+
+  <footer class="page-footer">
+    <div class="footer-logo"><span>W</span>OZALI</div>
+    <div class="footer-links">
+      <a href="https://wozali.africa">Accueil</a>
+      <a href="https://wozali.africa/confidentialite">Confidentialite</a>
+      <a href="mailto:contact@wozali.africa">Contact</a>
+    </div>
+    <div class="footer-copy">wozali.africa - Ton travail nourrit. Pas ton reseau.</div>
+  </footer>
+
+</div>
+
+</body>
+</html>
