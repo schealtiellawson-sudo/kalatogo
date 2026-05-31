@@ -170,6 +170,7 @@ footer{padding:48px 0;text-align:center;}
 .footer-o{font-family:'Geist',sans-serif;font-weight:500;font-size:14px;color:#FCE0A8;}
 footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',monospace;letter-spacing:.06em;}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -555,22 +556,63 @@ function buildWaMessage(tiktokUser, tiktokFollowers, instaUser, instaFollowers) 
   return encodeURIComponent(msg);
 }
 
-function submitForm() {
-  const tiktokUser = document.getElementById('tiktok-username').value.trim();
-  const tiktokFollowers = document.getElementById('tiktok-followers').value.trim();
+// ── Supabase ────────────────────────────────────────────────────────────────
+const _supa = supabase.createClient(
+  'https://wikgdksyeygwpmqzmhez.supabase.co',
+  'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU'
+);
 
+async function submitForm() {
+  const btn = document.querySelector('.btn-submit');
+  const tiktokUser = document.getElementById('tiktok-username').value.trim();
+  const tiktokFollowers = parseInt(document.getElementById('tiktok-followers').value) || null;
+  const instaUser = document.getElementById('insta-username').value.trim();
+  const instaFollowers = parseInt(document.getElementById('insta-followers').value) || null;
+
+  // Validation TikTok obligatoire
   if (!tiktokUser) {
-    document.getElementById('tiktok-username').focus();
-    document.getElementById('tiktok-username').style.borderColor = 'rgba(232,148,10,.8)';
-    setTimeout(() => { document.getElementById('tiktok-username').style.borderColor = ''; }, 2000);
+    const inp = document.getElementById('tiktok-username');
+    inp.focus();
+    inp.style.borderColor = 'rgba(232,148,10,.8)';
+    setTimeout(() => { inp.style.borderColor = ''; }, 2000);
     return;
   }
 
-  const instaUser = document.getElementById('insta-username').value.trim();
-  const instaFollowers = document.getElementById('insta-followers').value.trim();
+  // État loading
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours...';
 
-  const msg = buildWaMessage(tiktokUser, tiktokFollowers, instaUser, instaFollowers);
-  window.open('https://wa.me/33743606916?text=' + msg, '_blank');
+  try {
+    // 1. Enregistrer en Supabase
+    const { error } = await _supa
+      .from('wozali_ambassadeurs')
+      .insert({
+        tiktok_username: tiktokUser.replace('@', ''),
+        tiktok_followers: tiktokFollowers,
+        instagram_username: instaUser ? instaUser.replace('@', '') : null,
+        instagram_followers: instaFollowers,
+        statut: 'en_attente'
+      });
+
+    if (error) throw error;
+
+    // 2. Ouvrir WhatsApp comme confirmation
+    const msg = buildWaMessage(tiktokUser, String(tiktokFollowers || ''), instaUser, String(instaFollowers || ''));
+    window.open('https://wa.me/33743606916?text=' + msg, '_blank');
+
+    // 3. Afficher succès
+    btn.textContent = 'Candidature envoyée ✓';
+    btn.style.background = '#22c55e';
+    btn.style.color = '#fff';
+
+  } catch (err) {
+    console.error('[amb-submit]', err);
+    // Fallback : ouvrir WhatsApp quand même
+    const msg = buildWaMessage(tiktokUser, String(tiktokFollowers || ''), instaUser, String(instaFollowers || ''));
+    window.open('https://wa.me/33743606916?text=' + msg, '_blank');
+    btn.disabled = false;
+    btn.textContent = 'Envoyer ma candidature sur WhatsApp →';
+  }
 }
 
 function openWhatsAppDirect() {
