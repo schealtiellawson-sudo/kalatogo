@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI - Brief Ambassadeur - Formation Ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    font-family: 'Geist', sans-serif;
+    color: #1a1008;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 24px rgba(20,16,10,0.10);
+  }
+
+  .header {
+    background: #14100A;
+    border-bottom: 3px solid #E8940A;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: #E8940A;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    font-style: normal;
+    color: #FCE0A8;
+  }
+
+  .doc-type {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .content {
+    padding: 48px 40px;
+  }
+
+  .eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #14100A;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #6b5c45;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #14100A;
+    border-left: 3px solid #E8940A;
+    padding-left: 12px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2d1f0e;
+    margin-bottom: 16px;
+  }
+
+  p strong {
+    color: #14100A;
+  }
+
+  .section-number {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    margin-top: 40px;
+  }
+
+  /* Simulation table */
+  .sim-card {
+    background: #fffbf5;
+    border: 1.5px solid rgba(232,148,10,0.3);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .sim-card .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: #E8940A;
+    margin-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(232,148,10,0.8);
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(232,148,10,0.2);
+  }
+
+  td {
+    padding: 12px 10px;
+    font-size: 14px;
+    color: #2d1f0e;
+    border-bottom: 1px solid rgba(20,16,10,0.06);
+  }
+
+  td:last-child {
+    font-family: 'Geist Mono', monospace;
+    font-weight: 700;
+    color: #E8940A;
+    font-size: 15px;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .sim-note {
+    font-size: 11px;
+    color: #9b8878;
+    font-family: 'Geist Mono', monospace;
+    margin-top: 10px;
+  }
+
+  /* Rules list */
+  .rules-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .rules-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: #2d1f0e;
+    line-height: 1.6;
+  }
+
+  .rules-list li .icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .icon.ok { background: rgba(34,197,94,.15); color: #16a34a; }
+  .icon.no { background: rgba(239,68,68,.12); color: #dc2626; }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+
+  .tl-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(20,16,10,0.06);
+  }
+
+  .tl-row:last-child { border-bottom: none; }
+
+  .tl-date {
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #E8940A;
+    padding-top: 2px;
+  }
+
+  .tl-content strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #14100A;
+    margin-bottom: 4px;
+  }
+
+  .tl-content span {
+    font-size: 13px;
+    color: #6b5c45;
+    line-height: 1.6;
+  }
+
+  /* Contact card */
+  .contact-card {
+    background: #fffbf5;
+    border: 1.5px solid rgba(232,148,10,0.3);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .contact-card .name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: #14100A;
+    margin-bottom: 4px;
+  }
+
+  .contact-card .role {
+    font-size: 14px;
+    color: #6b5c45;
+    margin-bottom: 10px;
+  }
+
+  .contact-card .phone {
+    font-family: 'Geist Mono', monospace;
+    font-size: 14px;
+    color: #E8940A;
+    font-weight: 700;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(232,148,10,0.25), transparent);
+    margin: 40px 0;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid rgba(20,16,10,0.08);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .footer p {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #9b8878;
+    margin: 0;
+  }
+
+  @media (max-width: 560px) {
+    .header, .content, .footer { padding-left: 20px; padding-right: 20px; }
+    h1 { font-size: 28px; }
+    .tl-row { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Brief Ambassadeur - Document 00</div>
+  </div>
+
+  <div class="content">
+
+    <div class="eyebrow">Ambassadeur WOZALI - Confidentiel</div>
+    <h1>Ce que tu peux faire<br>pour les gens de ton audience.</h1>
+    <p class="subtitle">Ce document est pour toi. Il explique ce qu'on construit, ce qu'on te demande, et ce que tu gagnes concrètement.</p>
+
+    <div class="divider"></div>
+
+    <!-- Section 1 -->
+    <div class="section-number">01 - Le contexte</div>
+    <h2>Dans ton audience, il y a des gens qui bossent sans que personne ne le sache.</h2>
+
+    <p>Des coiffeurs, des mécaniciens, des couturières, des cuisiniers, des maçons. Des gens compétents que personne ne trouve en dehors de leur quartier.</p>
+    <p>Pas parce qu'ils travaillent mal. Parce qu'ils <strong>n'existent pas sur internet.</strong> Pas de page, pas de profil, pas d'avis. Juste leurs mains et leur réputation orale.</p>
+    <p>80% de l'économie au Togo et au Bénin est informelle. Ces travailleurs ne savent pas comment se rendre visibles. Et les clients, eux, ne savent pas où les trouver.</p>
+
+    <div class="divider"></div>
+
+    <!-- Section 2 -->
+    <div class="section-number">02 - Ce qu'on a construit</div>
+    <h2>Une plateforme qui rend ces travailleurs visibles. En 2 minutes.</h2>
+
+    <p>WOZALI c'est simple : un prestataire crée son profil (photo, métier, quartier, avis clients). Dès qu'il est inscrit, il apparaît dans les résultats quand quelqu'un cherche son métier près de chez lui.</p>
+    <p>Le Score WOZALI classe les profils selon le <strong>travail réel</strong> - la note, les avis, l'activité. Pas les connexions, pas l'argent. Quelqu'un qui travaille bien remonte. Quelqu'un qui ne fait rien descend.</p>
+    <p>C'est ça le principe. <strong>Ton travail parle. Pas ton réseau.</strong></p>
+
+    <div class="divider"></div>
+
+    <!-- Section 3 -->
+    <div class="section-number">03 - Ce que tu gagnes</div>
+    <h2>Une commission récurrente. Pas un virement unique.</h2>
+
+    <p>Tu reçois un lien d'affiliation unique. Chaque personne qui s'inscrit via ce lien et prend le Plan Pro te rapporte <strong>1 000 FCFA par mois</strong> tant qu'elle reste active sur la plateforme.</p>
+    <p>C'est cumulatif. Le mois d'après, tu gagnes toujours sur les membres du mois précédent - plus les nouveaux.</p>
+
+    <div class="sim-card">
+      <div class="card-title">Simulation selon ton audience</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Audience</th>
+            <th>Inscrits estimés (5%)</th>
+            <th>Pro actifs (20%)</th>
+            <th>Commission / mois</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>5 000 abonnés</td>
+            <td>250 inscrits</td>
+            <td>50 Pro</td>
+            <td>50 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>20 000 abonnés</td>
+            <td>1 000 inscrits</td>
+            <td>200 Pro</td>
+            <td>200 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>50 000 abonnés</td>
+            <td>2 500 inscrits</td>
+            <td>500 Pro</td>
+            <td>500 000 FCFA</td>
+          </tr>
+          <tr>
+            <td>100 000 abonnés</td>
+            <td>5 000 inscrits</td>
+            <td>1 000 Pro</td>
+            <td>1 000 000 FCFA</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="sim-note">Base : 5% de ton audience s'inscrit - 20% passent Pro - 1 000 FCFA/Pro/mois. Chiffres conservateurs sur audience engagée.</p>
+    </div>
+
+    <p>Le Plan Pro coûte 2 500 FCFA/mois au membre. Ta commission = 40% de chaque abonnement, versée le 5 du mois suivant sur Mobile Money.</p>
+
+    <div class="divider"></div>
+
+    <!-- Section 4 -->
+    <div class="section-number">04 - Ce qu'on te demande</div>
+    <h2>Pas du sponsoring classique. Du contenu qui vient de toi.</h2>
+
+    <p>Tu n'as pas besoin de réciter un script. Ce qu'on te demande :</p>
+
+    <ul class="rules-list">
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Parler de WOZALI a ta façon, depuis ton experience et ta connaissance du terrain local</span>
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Mentionner ton lien d'affiliation dans tes posts et descriptions de vidéo</span>
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Commencer a communiquer a partir du <strong>13 juillet</strong> - du teasing sur le problème, sans révéler WOZALI immédiatement</span>
+      </li>
+      <li>
+        <span class="icon ok">✓</span>
+        <span>Révéler WOZALI officiellement le <strong>1er août</strong> avec ton lien - c'est le jour du lancement public</span>
+      </li>
+      <li>
+        <span class="icon no">✗</span>
+        <span>Ne pas mentionner de date de lancement avant le 1er août dans tes posts</span>
+      </li>
+      <li>
+        <span class="icon no">✗</span>
+        <span>Ne pas faire des promesses de revenus spécifiques a ton audience - montre, ne vends pas</span>
+      </li>
+      <li>
+        <span class="icon no">✗</span>
+        <span>Ne pas envoyer vers wozali.africa avant le 1er août - garde le lien pour le jour J</span>
+      </li>
+    </ul>
+
+    <p>On t'envoie tous les visuels, les angles de contenu et un planning semaine par semaine. Tu n'arrives pas les mains vides devant ton audience.</p>
+
+    <div class="divider"></div>
+
+    <!-- Section 5 -->
+    <div class="section-number">05 - Le planning</div>
+    <h2>13 juillet - 1er août. Trois semaines pour chauffer ton audience.</h2>
+
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-date">13 juil.</div>
+        <div class="tl-content">
+          <strong>Tu commences</strong>
+          <span>Contenu sur le problème - l'invisible de l'économie locale. Pas de WOZALI encore. On te donne les visuels et les angles.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">13-25 juil.</div>
+        <div class="tl-content">
+          <strong>Teasing progressif</strong>
+          <span>Stories de suspense, posts sur la réalité du terrain. Ton audience commence a se poser des questions. On te fournit le contenu semaine par semaine.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">25-31 juil.</div>
+        <div class="tl-content">
+          <strong>Montée en puissance</strong>
+          <span>"Quelque chose arrive. Je vous dis tout le 1er août." On te donne les stories et les posts de cette phase.</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-date">1er août</div>
+        <div class="tl-content">
+          <strong>Révélation et lancement</strong>
+          <span>Tu révèles WOZALI avec ton lien d'affiliation. C'est le jour où les commissions commencent. On coordonne tous ensemble.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Section 6 -->
+    <div class="section-number">06 - Prochaine étape</div>
+    <h2>Un appel de 15 minutes. Pas plus.</h2>
+
+    <p>Je t'explique exactement comment ton lien fonctionne, on paramètre ton accès ambassadeur, et tu repars avec le kit complet : visuels, planning, angles de contenu.</p>
+    <p>Pas de contrat a signer. Pas de processus long. Si ça marche pour ton audience, tu le vois dans tes stats des le mois d'août.</p>
+
+    <div class="contact-card">
+      <div class="name">Schealtiel Lawson</div>
+      <div class="role">Fondateur WOZALI</div>
+      <div class="phone">+33 7 43 60 69 16</div>
+    </div>
+
+  </div><!-- end content -->
+
+  <div class="footer">
+    <p><strong>WOZALI</strong> - wozali.africa</p>
+    <p>Document confidentiel - Ambassadeurs uniquement</p>
+    <p>Lomé - Cotonou</p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -9904,6 +9904,10 @@ async function loadAmbassadeurSection() {
     } catch (e) { console.error('[amb-stats]', e); }
   }
 
+  // Charger et afficher les documents de formation ambassadeur
+  await loadAmbassadeurDocumentReads();
+  _renderAmbassadeurDocsGrid();
+
   // Re-render lucide icons
   if (window.lucide) lucide.createIcons();
 }
@@ -10013,6 +10017,7 @@ function _renderAmbassadeurs(list) {
       <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
         ${a.statut !== 'valide' ? `<button onclick="validerAmbassadeur('${a.id}')" style="padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Valider</button>` : ''}
         ${a.statut !== 'refuse' ? `<button onclick="refuserAmbassadeur('${a.id}')" style="padding:8px 16px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Refuser</button>` : ''}
+        ${a.user_id ? `<button onclick="openAmbassadeurProgressionModal('${a.user_id}','${escapeHtml(a.tiktok_username||'?')}')" style="padding:8px 16px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);color:#E8940A;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Progression</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -14085,6 +14090,172 @@ function _restoreOnboardingSteps() {
     if (cb) cb.checked = val;
     if (badge) badge.style.display = val ? 'inline' : 'none';
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AMBASSADEUR — Documents de formation (8 modules)
+// Miroir du système agent terrain. Table : ambassadeur_document_reads
+// ─────────────────────────────────────────────────────────────────────────────
+
+const AMBASSADEUR_DOCUMENTS = [
+  { slug: 'ambs-00-brief',              num: '00', titre: 'Brief ambassadeur',            desc: 'Le contexte, ce qu\'on te demande, et ce que tu gagnes.' },
+  { slug: 'ambs-01-bienvenue',          num: '01', titre: 'Bienvenue',                    desc: 'Comprendre ton rôle et pourquoi tu as été choisi.' },
+  { slug: 'ambs-02-wozali-simplement',  num: '02', titre: 'WOZALI simplement',            desc: 'Expliquer la plateforme en 30 secondes à ton audience.' },
+  { slug: 'ambs-03-lien-affiliation',   num: '03', titre: 'Ton lien d\'affiliation',      desc: 'Comment il fonctionne et comment suivre tes commissions.' },
+  { slug: 'ambs-04-comment-en-parler',  num: '04', titre: 'Comment en parler',            desc: 'Scripts et formulations testés pour ton contenu.' },
+  { slug: 'ambs-05-kit-ressources',     num: '05', titre: 'Kit ressources',               desc: 'Visuels, stories et angles de contenu prêts à l\'emploi.' },
+  { slug: 'ambs-06-dashboard',          num: '06', titre: 'Lire ton dashboard',           desc: 'Stats, suivi des inscrits et calcul de ta commission.' },
+  { slug: 'ambs-07-regles',             num: '07', titre: 'Les règles',                   desc: 'Ce qui est autorisé, ce qui est interdit. Non négociable.' },
+];
+
+// Cache local des slugs lus par l'ambassadeur connecté
+let _ambassadeurDocReads = {}; // { slug: { first_read_at, last_read_at, read_count } }
+
+// Charger les lectures depuis Supabase
+async function loadAmbassadeurDocumentReads() {
+  if (!currentUser) return;
+  try {
+    const { data, error } = await supa
+      .from('ambassadeur_document_reads')
+      .select('document_slug, first_read_at, last_read_at, read_count')
+      .eq('ambassadeur_id', currentUser.id);
+    if (error) { console.error('[amb-doc-reads]', error); return; }
+    _ambassadeurDocReads = {};
+    (data || []).forEach(row => {
+      _ambassadeurDocReads[row.document_slug] = {
+        first_read_at: row.first_read_at,
+        last_read_at: row.last_read_at,
+        read_count: row.read_count,
+      };
+    });
+  } catch (e) { console.error('[amb-doc-reads]', e); }
+}
+
+// Marquer un document ambassadeur comme lu (upsert)
+async function markAmbassadeurDocumentRead(slug) {
+  if (!currentUser) return;
+  const already = _ambassadeurDocReads[slug];
+  try {
+    if (already) {
+      const { error } = await supa
+        .from('ambassadeur_document_reads')
+        .update({ last_read_at: new Date().toISOString(), read_count: already.read_count + 1 })
+        .eq('ambassadeur_id', currentUser.id)
+        .eq('document_slug', slug);
+      if (!error) {
+        _ambassadeurDocReads[slug].last_read_at = new Date().toISOString();
+        _ambassadeurDocReads[slug].read_count = already.read_count + 1;
+      }
+    } else {
+      const { error } = await supa
+        .from('ambassadeur_document_reads')
+        .insert({ ambassadeur_id: currentUser.id, document_slug: slug });
+      if (!error) {
+        _ambassadeurDocReads[slug] = { first_read_at: new Date().toISOString(), last_read_at: new Date().toISOString(), read_count: 1 };
+      }
+    }
+    _renderAmbassadeurDocsGrid();
+  } catch (e) { console.error('[mark-amb-doc-read]', e); }
+}
+
+// Ouvrir le document ambassadeur dans un nouvel onglet + marquer comme lu
+function openAmbassadeurDocumentRessource(slug) {
+  markAmbassadeurDocumentRead(slug);
+  window.open('/formation-ambassadeurs/' + slug, '_blank');
+}
+
+// Rendre la grille des 8 documents ambassadeur + cercle progression
+function _renderAmbassadeurDocsGrid() {
+  const container = document.getElementById('amb-docs-grid');
+  if (!container) return;
+
+  const total = AMBASSADEUR_DOCUMENTS.length;
+  const readCount = Object.keys(_ambassadeurDocReads).length;
+  const pct = Math.round((readCount / total) * 100);
+
+  // Mettre à jour compteur + cercle
+  const countEl = document.getElementById('amb-docs-count');
+  const pctEl   = document.getElementById('amb-docs-pct');
+  const circEl  = document.getElementById('amb-docs-circle');
+  if (countEl) countEl.textContent = readCount;
+  if (pctEl)   pctEl.textContent   = pct + '%';
+  if (circEl)  circEl.style.setProperty('--pct', pct);
+
+  // Rendre les cards
+  container.innerHTML = AMBASSADEUR_DOCUMENTS.map(doc => {
+    const isLu = !!_ambassadeurDocReads[doc.slug];
+    return `
+      <div style="background:${isLu ? 'rgba(232,148,10,.08)' : 'rgba(255,255,255,.03)'};border:1px solid ${isLu ? 'rgba(232,148,10,.3)' : 'rgba(255,255,255,.07)'};border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:border-color .2s;">
+        <div style="width:32px;height:32px;background:${isLu ? '#E8940A' : 'rgba(232,148,10,.12)'};border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:${isLu ? '#14100A' : '#E8940A'};flex-shrink:0;">${doc.num}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#FCE0A8;margin-bottom:2px;">${doc.titre}</div>
+          <div style="font-size:11px;color:var(--gris);line-height:1.4;">${doc.desc}</div>
+        </div>
+        <button onclick="openAmbassadeurDocumentRessource('${doc.slug}')" style="flex-shrink:0;padding:6px 14px;background:${isLu ? 'rgba(232,148,10,.15)' : '#E8940A'};color:${isLu ? '#E8940A' : '#14100A'};border:${isLu ? '1px solid rgba(232,148,10,.3)' : 'none'};border-radius:100px;font-family:Geist,sans-serif;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">${isLu ? 'Relu' : 'Lire'} →</button>
+      </div>`;
+  }).join('');
+}
+
+// ── ADMIN : progression documents par ambassadeur ──
+
+async function loadAmbassadeurDocumentProgress(ambassadeurId) {
+  try {
+    const { data, error } = await supa
+      .from('ambassadeur_document_reads')
+      .select('document_slug, first_read_at, read_count')
+      .eq('ambassadeur_id', ambassadeurId);
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    console.error('[amb-doc-progress]', e);
+    return [];
+  }
+}
+
+async function openAmbassadeurProgressionModal(ambassadeurId, pseudo) {
+  // Réutilise la modale agent (ou en crée une similaire)
+  const reads = await loadAmbassadeurDocumentProgress(ambassadeurId);
+  const readMap = {};
+  reads.forEach(r => { readMap[r.document_slug] = r; });
+
+  const total = AMBASSADEUR_DOCUMENTS.length;
+  const readCount = Object.keys(readMap).length;
+
+  const rows = AMBASSADEUR_DOCUMENTS.map(doc => {
+    const r = readMap[doc.slug];
+    const date = r ? new Date(r.first_read_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short' }) : '-';
+    return `<tr>
+      <td style="padding:8px 10px;font-size:13px;color:#FCE0A8;">${doc.num}. ${doc.titre}</td>
+      <td style="padding:8px 10px;text-align:center;">
+        <span style="font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;${r ? 'background:rgba(232,148,10,.2);color:#E8940A;' : 'background:rgba(255,255,255,.06);color:rgba(252,224,168,.3);'}">${r ? 'Lu' : 'Non lu'}</span>
+      </td>
+      <td style="padding:8px 10px;font-size:12px;color:rgba(252,224,168,.5);font-family:'Geist Mono',monospace;text-align:right;">${date}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `
+    <div id="modal-amb-progression" style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10002;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.remove()">
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:18px;padding:28px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;position:relative;">
+        <button onclick="document.getElementById('modal-amb-progression').remove()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(252,224,168,.5);font-size:22px;cursor:pointer;">×</button>
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Progression formation</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;margin-bottom:4px;">@${escapeHtml(pseudo)}</div>
+        <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:20px;">${readCount}/${total} documents lus (${Math.round(readCount/total*100)}%)</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(232,148,10,.7);text-align:left;padding:6px 10px;border-bottom:1px solid rgba(232,148,10,.15);">Document</th>
+              <th style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(232,148,10,.7);text-align:center;padding:6px 10px;border-bottom:1px solid rgba(232,148,10,.15);">Statut</th>
+              <th style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(232,148,10,.7);text-align:right;padding:6px 10px;border-bottom:1px solid rgba(232,148,10,.15);">1ère lecture</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+
+  const existing = document.getElementById('modal-amb-progression');
+  if (existing) existing.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
 }
 
 // ── ADMIN : progression documents par agent ──

@@ -3532,66 +3532,26 @@ setTimeout(function(){
           </div>
         </div>
 
-        <!-- Formation -->
+        <!-- Formation : grille dynamique avec tracking lecture -->
         <div style="margin-bottom:28px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;">Formation ambassadeur (7 modules)</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;" id="amb-formation-grid">
-            <a href="/formation-ambassadeurs/ambs-01-bienvenue" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.12)'">
-              <div style="width:32px;height:32px;background:rgba(232,148,10,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:#E8940A;flex-shrink:0;">01</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#FCE0A8;">Bienvenue</div>
-                <div style="font-size:11px;color:var(--gris);margin-top:2px;">Comprendre ton rôle</div>
+          <!-- Compteur progression -->
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Ta formation ambassadeur</div>
+              <div style="font-size:13px;color:rgba(252,224,168,.7);">
+                <span id="amb-docs-count" style="font-family:'Geist Mono',monospace;font-weight:900;color:#FCE0A8;font-size:22px;">0</span>
+                <span style="color:rgba(252,224,168,.5);font-size:13px;">/8 documents lus</span>
               </div>
-              <i data-lucide="external-link" style="width:14px;height:14px;color:var(--gris);margin-left:auto;flex-shrink:0;"></i>
-            </a>
-            <a href="/formation-ambassadeurs/ambs-02-wozali-simplement" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.12)'">
-              <div style="width:32px;height:32px;background:rgba(232,148,10,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:#E8940A;flex-shrink:0;">02</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#FCE0A8;">WOZALI simplement</div>
-                <div style="font-size:11px;color:var(--gris);margin-top:2px;">Expliquer en 30 secondes</div>
+            </div>
+            <div style="width:56px;height:56px;border-radius:50%;background:conic-gradient(#E8940A calc(var(--pct,0)*1%),rgba(232,148,10,.1) 0);display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="amb-docs-circle">
+              <div style="width:44px;height:44px;border-radius:50%;background:#14100A;display:flex;align-items:center;justify-content:center;">
+                <span id="amb-docs-pct" style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:900;color:#E8940A;">0%</span>
               </div>
-              <i data-lucide="external-link" style="width:14px;height:14px;color:var(--gris);margin-left:auto;flex-shrink:0;"></i>
-            </a>
-            <a href="/formation-ambassadeurs/ambs-03-lien-affiliation" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.12)'">
-              <div style="width:32px;height:32px;background:rgba(232,148,10,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:#E8940A;flex-shrink:0;">03</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#FCE0A8;">Ton lien affiliation</div>
-                <div style="font-size:11px;color:var(--gris);margin-top:2px;">Comment il fonctionne</div>
-              </div>
-              <i data-lucide="external-link" style="width:14px;height:14px;color:var(--gris);margin-left:auto;flex-shrink:0;"></i>
-            </a>
-            <a href="/formation-ambassadeurs/ambs-04-comment-en-parler" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.12)'">
-              <div style="width:32px;height:32px;background:rgba(232,148,10,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:#E8940A;flex-shrink:0;">04</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#FCE0A8;">Comment en parler</div>
-                <div style="font-size:11px;color:var(--gris);margin-top:2px;">Scripts et formulations</div>
-              </div>
-              <i data-lucide="external-link" style="width:14px;height:14px;color:var(--gris);margin-left:auto;flex-shrink:0;"></i>
-            </a>
-            <a href="/formation-ambassadeurs/ambs-05-kit-ressources" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.12)'">
-              <div style="width:32px;height:32px;background:rgba(232,148,10,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:#E8940A;flex-shrink:0;">05</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#FCE0A8;">Kit ressources</div>
-                <div style="font-size:11px;color:var(--gris);margin-top:2px;">Visuels et contenu prêt</div>
-              </div>
-              <i data-lucide="external-link" style="width:14px;height:14px;color:var(--gris);margin-left:auto;flex-shrink:0;"></i>
-            </a>
-            <a href="/formation-ambassadeurs/ambs-06-dashboard" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.12)'">
-              <div style="width:32px;height:32px;background:rgba(232,148,10,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:#E8940A;flex-shrink:0;">06</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#FCE0A8;">Lire ton dashboard</div>
-                <div style="font-size:11px;color:var(--gris);margin-top:2px;">Stats et suivi</div>
-              </div>
-              <i data-lucide="external-link" style="width:14px;height:14px;color:var(--gris);margin-left:auto;flex-shrink:0;"></i>
-            </a>
-            <a href="/formation-ambassadeurs/ambs-07-regles" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:14px 16px;text-decoration:none;transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.12)'">
-              <div style="width:32px;height:32px;background:rgba(232,148,10,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:900;color:#E8940A;flex-shrink:0;">07</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#FCE0A8;">Les règles</div>
-                <div style="font-size:11px;color:var(--gris);margin-top:2px;">Ce qui est autorisé</div>
-              </div>
-              <i data-lucide="external-link" style="width:14px;height:14px;color:var(--gris);margin-left:auto;flex-shrink:0;"></i>
-            </a>
+            </div>
+          </div>
+          <!-- Grille documents (rendue par JS) -->
+          <div id="amb-docs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+            <div style="text-align:center;padding:40px;color:var(--gris);font-size:13px;">Chargement des documents...</div>
           </div>
         </div>
 
