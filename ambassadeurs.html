@@ -87,8 +87,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 @media(max-width:420px){.sim-results{grid-template-columns:1fr;}}
 .sim-col{background:rgba(20,16,10,.6);border:1px solid rgba(252,224,168,.08);border-radius:14px;padding:22px 18px;}
 .sim-col.optimiste{border-color:rgba(232,148,10,.25);}
-.sim-col-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(252,224,168,.4);margin-bottom:14px;}
+.sim-col-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(252,224,168,.4);margin-bottom:6px;}
 .sim-col.optimiste .sim-col-tag{color:#E8940A;}
+.sim-col-sub{font-size:12px;color:rgba(252,224,168,.45);line-height:1.5;margin-bottom:16px;font-style:italic;}
 .sim-amount{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(28px,6vw,40px);color:#FCE0A8;line-height:1;margin-bottom:4px;}
 .sim-col.optimiste .sim-amount{color:#E8940A;}
 .sim-unit{font-size:11px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;margin-bottom:12px;}
@@ -247,7 +248,7 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
   <section id="simulator">
     <div class="section-label">Simulateur de revenus</div>
     <h2>Calcule ce que<br><span class="it gold">ton audience vaut.</span></h2>
-    <p class="lead">Bouge le curseur. Le calcul est réaliste : 5% de tes abonnés s'inscrivent, 20% de ceux qui s'inscrivent passent Pro.</p>
+    <p class="lead">Bouge le curseur selon ton nombre d'abonnés. On part d'un seul chiffre : 5% de ton audience s'inscrit sur WOZALI. Ensuite, deux scénarios — le catastrophique, et quand ça marche vraiment.</p>
 
     <div class="simulator">
       <div class="sim-label">Ton nombre d'abonnés (TikTok + Instagram)</div>
@@ -257,20 +258,22 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
 
       <div class="sim-results">
         <div class="sim-col">
-          <div class="sim-col-tag">Audience froide</div>
-          <div class="sim-amount" id="sim-pessimiste-amount">2 500</div>
+          <div class="sim-col-tag">Pire des cas</div>
+          <div class="sim-col-sub">Mauvais mois. Contenu raté. Audience froide.</div>
+          <div class="sim-amount" id="sim-pessimiste-amount">25 000</div>
           <div class="sim-unit">FCFA / mois</div>
-          <div class="sim-detail" id="sim-pessimiste-detail">500 inscrits, 5% passent Pro. Soit 25 Pro actifs x 1 000 FCFA.</div>
+          <div class="sim-detail" id="sim-pessimiste-detail">Sur 500 inscrits, seulement 25 passent Pro. Tu ne fais rien de bien ce mois-là. Tu touches quand même 25 000 FCFA.</div>
         </div>
         <div class="sim-col optimiste">
-          <div class="sim-col-tag">Audience engagée</div>
+          <div class="sim-col-tag">Si ça marche bien</div>
+          <div class="sim-col-sub">Ton audience te fait confiance. Elle achète ce que tu recommandes.</div>
           <div class="sim-amount" id="sim-optimiste-amount">100 000</div>
           <div class="sim-unit">FCFA / mois</div>
-          <div class="sim-detail" id="sim-optimiste-detail">500 inscrits, 20% passent Pro. Soit 100 Pro actifs x 1 000 FCFA.</div>
+          <div class="sim-detail" id="sim-optimiste-detail">Sur 500 inscrits, 100 passent Pro. C'est réaliste avec une vraie relation audience. Tu touches 100 000 FCFA ce mois-là.</div>
         </div>
       </div>
 
-      <p class="sim-note">Base : 5% de tes abonnés s'inscrivent sur WOZALI. Ensuite, entre 5% et 20% passent au plan Pro selon l'engagement de ton audience.</p>
+      <p class="sim-note">Base commune : 5% de ton audience s'inscrit sur WOZALI. La différence entre les deux scénarios, c'est uniquement la qualité de ta relation avec tes abonnés.</p>
     </div>
   </section>
 
@@ -452,13 +455,15 @@ function updateSim(value) {
 
   document.getElementById('sim-pessimiste-amount').textContent = formatFCFA(pessimisteFCFA);
   document.getElementById('sim-pessimiste-detail').textContent =
-    inscrits.toLocaleString('fr') + ' inscrits, 5% passent Pro. Soit ' +
-    pessimistePro + ' Pro actifs x 1 000 FCFA.';
+    'Sur ' + inscrits.toLocaleString('fr') + ' inscrits, seulement ' + pessimistePro +
+    ' passent Pro. Tu ne fais rien de bien ce mois-là. Tu touches quand même ' +
+    formatFCFA(pessimisteFCFA) + ' FCFA.';
 
   document.getElementById('sim-optimiste-amount').textContent = formatFCFA(optimisteFCFA);
   document.getElementById('sim-optimiste-detail').textContent =
-    inscrits.toLocaleString('fr') + ' inscrits, 20% passent Pro. Soit ' +
-    optimistePro + ' Pro actifs x 1 000 FCFA.';
+    'Sur ' + inscrits.toLocaleString('fr') + ' inscrits, ' + optimistePro +
+    ' passent Pro. C\'est réaliste avec une vraie relation audience. Tu touches ' +
+    formatFCFA(optimisteFCFA) + ' FCFA ce mois-là.';
 }
 
 // Init
