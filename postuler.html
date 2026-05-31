@@ -885,7 +885,7 @@ document.getElementById('form-postuler').addEventListener('submit', async e => {
 
     // Insertion Supabase
     const { error } = await supa
-      .from('wozali_candidatures_agents terrain')
+      .from('wozali_candidatures_agents_terrain')
       .insert({
         prenom,
         nom,
