@@ -572,6 +572,8 @@ function showDashSection(section) {
   if (section === 'agents-ressources') loadAgentsRessourcesSection();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
+  if (section === 'admin-ambassadeurs') loadAdminAmbassadeurs();
+  if (section === 'ambassadeur') loadAmbassadeurSection();
   // ── WOZALI Business Suite ──
   // Loaders Business Suite Phases B→G retirés 2026-05-07 (report V1.2)
 }
@@ -9821,6 +9823,8 @@ async function checkAdminForDashboard() {
     }
     // Vérifier si l'utilisateur est un agent terrain actif
     await checkAgentTerrainForDashboard(session);
+    // Vérifier si l'utilisateur est un ambassadeur validé
+    await checkAmbassadeurForDashboard(session);
   } catch (e) { console.error('[admin-dash]', e); }
 }
 
@@ -9838,6 +9842,229 @@ async function checkAgentTerrainForDashboard(session) {
     const grp = document.getElementById('dash-agent-ressources-group');
     if (grp) grp.style.display = 'block';
   } catch (e) { console.error('[agent-terrain-check]', e); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AMBASSADEURS — détection + dashboard + admin
+// ─────────────────────────────────────────────────────────────────────────────
+
+let _ambassadeurData = null;
+
+async function checkAmbassadeurForDashboard(session) {
+  try {
+    if (!session) return;
+    const { data, error } = await supa
+      .from('wozali_ambassadeurs')
+      .select('id, statut, code_affiliation, tiktok_username, tiktok_followers')
+      .eq('user_id', session.user.id)
+      .eq('statut', 'valide')
+      .maybeSingle();
+    if (error || !data) return;
+    _ambassadeurData = data;
+    const grp = document.getElementById('dash-ambassadeur-group');
+    if (grp) grp.style.display = 'block';
+  } catch (e) { console.error('[ambassadeur-check]', e); }
+}
+
+// ── Chargement section ambassadeur (user validé) ──
+async function loadAmbassadeurSection() {
+  if (!_ambassadeurData) {
+    // Tenter un rechargement au cas où la session vient de s'initialiser
+    const { data: { session } } = await supa.auth.getSession();
+    if (session) await checkAmbassadeurForDashboard(session);
+    if (!_ambassadeurData) {
+      document.getElementById('amb-lien-display').textContent = 'Espace non disponible.';
+      return;
+    }
+  }
+
+  const code = _ambassadeurData.code_affiliation || '';
+  const lien = code ? `https://wozali.africa/?ref=${code}` : 'Code en cours de génération...';
+
+  // Afficher le lien
+  const lienEl = document.getElementById('amb-lien-display');
+  if (lienEl) lienEl.textContent = lien;
+
+  // Charger les stats depuis wozali_prestataires
+  if (code) {
+    try {
+      const { data: inscrits } = await supa
+        .from('wozali_prestataires')
+        .select('id, abonnement', { count: 'exact' })
+        .eq('parrain_code', code);
+
+      const total = inscrits ? inscrits.length : 0;
+      const pro = inscrits ? inscrits.filter(p => p.abonnement === 'Pro').length : 0;
+      const commission = pro * 1000;
+
+      const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+      el('amb-stat-inscrits', total);
+      el('amb-stat-pro', pro);
+      el('amb-stat-commission', pro > 0 ? _formatAmbFcfa(commission) : '0');
+    } catch (e) { console.error('[amb-stats]', e); }
+  }
+
+  // Re-render lucide icons
+  if (window.lucide) lucide.createIcons();
+}
+
+function _formatAmbFcfa(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
+  if (n >= 1000) return n.toLocaleString('fr-FR').replace(/\s/g, ' ');
+  return String(n);
+}
+
+function copierLienAmbassadeur() {
+  const lienEl = document.getElementById('amb-lien-display');
+  const lien = lienEl ? lienEl.textContent.trim() : '';
+  if (!lien || lien === 'Chargement...' || lien === 'Code en cours de génération...') return;
+  navigator.clipboard.writeText(lien).then(() => {
+    toast('Lien copié !', 'success');
+  }).catch(() => {
+    toast('Copie impossible. Sélectionne le lien manuellement.', 'error');
+  });
+}
+
+function partagerAmbassadeurWhatsApp() {
+  const lienEl = document.getElementById('amb-lien-display');
+  const lien = lienEl ? lienEl.textContent.trim() : '';
+  if (!lien || lien === 'Chargement...') return;
+  const texte = encodeURIComponent(
+    `Je suis ambassadeur WOZALI - la plateforme qui rend visible les pros qui travaillent vraiment.\n\nInscris-toi via mon lien : ${lien}\n\nTon profil sort en premier quand un client cherche ton métier.`
+  );
+  window.open(`https://wa.me/?text=${texte}`, '_blank');
+}
+
+// ── Admin : chargement liste ambassadeurs ──
+let _ambassadeursCache = [];
+
+async function loadAdminAmbassadeurs() {
+  if (!_isAdminDash) return;
+  const listEl = document.getElementById('amb-list');
+  if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);">Chargement...</div>';
+
+  try {
+    const { data, error } = await supa
+      .from('wozali_ambassadeurs')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) { toast('Erreur chargement ambassadeurs', 'error'); return; }
+    _ambassadeursCache = data || [];
+    _renderAmbassadeurs(_ambassadeursCache);
+    _renderAmbassadeursKpi(_ambassadeursCache);
+  } catch (e) { console.error('[admin-amb]', e); toast('Erreur', 'error'); }
+}
+
+function _renderAmbassadeursKpi(list) {
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('amb-kpi-total', list.length);
+  set('amb-kpi-attente', list.filter(a => a.statut === 'en_attente').length);
+  set('amb-kpi-valide', list.filter(a => a.statut === 'valide').length);
+  set('amb-kpi-refuse', list.filter(a => a.statut === 'refuse').length);
+}
+
+function filterAmbassadeurs() {
+  const statut = (document.getElementById('amb-filter-statut') || {}).value || '';
+  const search = ((document.getElementById('amb-filter-search') || {}).value || '').toLowerCase();
+  const filtered = _ambassadeursCache.filter(a => {
+    if (statut && a.statut !== statut) return false;
+    if (search && !(
+      (a.tiktok_username || '').toLowerCase().includes(search) ||
+      (a.instagram_username || '').toLowerCase().includes(search) ||
+      (a.code_affiliation || '').toLowerCase().includes(search)
+    )) return false;
+    return true;
+  });
+  _renderAmbassadeurs(filtered);
+}
+
+function _renderAmbassadeurs(list) {
+  const el = document.getElementById('amb-list');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);">Aucune candidature trouvée.</div>';
+    return;
+  }
+
+  const statutBadge = (s) => {
+    const map = { en_attente: ['#FCE0A8', 'En attente'], valide: ['#22c55e', 'Validé'], refuse: ['#ef4444', 'Refusé'] };
+    const [color, label] = map[s] || ['#999', s];
+    return `<span style="font-size:11px;font-weight:700;color:${color};background:${color}22;padding:3px 10px;border-radius:100px;">${label}</span>`;
+  };
+
+  el.innerHTML = list.map(a => `
+    <div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:14px;padding:18px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+          <span style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A;">@${escapeHtml(a.tiktok_username || '')}</span>
+          ${statutBadge(a.statut)}
+          ${a.code_affiliation ? `<span style="font-size:11px;color:var(--gris);font-family:'Geist Mono',monospace;">${escapeHtml(a.code_affiliation)}</span>` : ''}
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="font-size:12px;color:var(--gris);">
+            TikTok: <strong style="color:#FCE0A8;">${a.tiktok_followers ? (a.tiktok_followers >= 1000 ? Math.round(a.tiktok_followers/1000) + 'K' : a.tiktok_followers) : '?'} abonnés</strong>
+          </div>
+          ${a.instagram_username ? `<div style="font-size:12px;color:var(--gris);">Instagram: <strong style="color:#FCE0A8;">@${escapeHtml(a.instagram_username)} ${a.instagram_followers ? '(' + (a.instagram_followers >= 1000 ? Math.round(a.instagram_followers/1000) + 'K' : a.instagram_followers) + ')' : ''}</strong></div>` : ''}
+        </div>
+        <div style="font-size:11px;color:var(--gris);margin-top:6px;">${new Date(a.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' })}</div>
+        ${a.notes_admin ? `<div style="font-size:12px;color:var(--gris);margin-top:6px;font-style:italic;">${escapeHtml(a.notes_admin)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+        ${a.statut !== 'valide' ? `<button onclick="validerAmbassadeur('${a.id}')" style="padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Valider</button>` : ''}
+        ${a.statut !== 'refuse' ? `<button onclick="refuserAmbassadeur('${a.id}')" style="padding:8px 16px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Refuser</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function validerAmbassadeur(id) {
+  const amb = _ambassadeursCache.find(a => a.id === id);
+  if (!amb) return;
+
+  // Générer un code affiliation unique : AMB-TIKTOK-XXXX
+  const base = (amb.tiktok_username || 'AMB').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  const suffix = Math.floor(1000 + Math.random() * 9000);
+  const code = `AMB-${base}-${suffix}`;
+
+  try {
+    const { error } = await supa
+      .from('wozali_ambassadeurs')
+      .update({
+        statut: 'valide',
+        code_affiliation: code,
+        date_validation: new Date().toISOString(),
+        valide_par: currentUser?.email || 'admin',
+        pro_offert: true
+      })
+      .eq('id', id);
+
+    if (error) { toast('Erreur validation', 'error'); return; }
+
+    // Si l'ambassadeur a un user_id, passer son compte Pro
+    if (amb.user_id) {
+      await supa
+        .from('wozali_prestataires')
+        .update({ abonnement: 'Pro', parrain_code: code })
+        .eq('user_id', amb.user_id);
+    }
+
+    toast('Ambassadeur validé. Code : ' + code, 'success');
+    await loadAdminAmbassadeurs();
+  } catch (e) { console.error('[valider-amb]', e); toast('Erreur', 'error'); }
+}
+
+async function refuserAmbassadeur(id) {
+  try {
+    const { error } = await supa
+      .from('wozali_ambassadeurs')
+      .update({ statut: 'refuse' })
+      .eq('id', id);
+
+    if (error) { toast('Erreur', 'error'); return; }
+    toast('Candidature refusée', 'info');
+    await loadAdminAmbassadeurs();
+  } catch (e) { console.error('[refuser-amb]', e); toast('Erreur', 'error'); }
 }
 
 async function _adminToken() {
