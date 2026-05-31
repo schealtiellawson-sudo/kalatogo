@@ -21,7 +21,7 @@ WOZALI est la marketplace africaine qui connecte les travailleurs de l'économie
 
 WOZALI (Lingala : "nous existons / être ici") est une marketplace africaine qui rend visible l'économie informelle. Mission : connecter les travailleurs invisibles avec des clients, sans réseau, juste le travail. Lancé début juillet 2026, couvre Lomé (Togo) et Cotonou (Bénin) en phase 1, expansion vers toute l'Afrique de l'Ouest prévue.
 
-Site : wozali.com (en attendant : wolomarket.vercel.app)
+Site : wozali.africa
 Contact : TikTok @wozali · Instagram @wozali
 
 ---
