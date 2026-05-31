@@ -151,6 +151,18 @@ input::placeholder{color:rgba(252,224,168,.25);}
 .pull-quote blockquote{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(22px,4.5vw,34px);color:#FCE0A8;line-height:1.35;max-width:560px;margin:0 auto 16px;}
 .pull-quote cite{font-size:12px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.35);letter-spacing:.1em;text-transform:uppercase;}
 
+/* FONDATEUR */
+.fondateur-block{display:grid;grid-template-columns:180px 1fr;gap:40px;align-items:start;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:20px;padding:36px 36px;}
+@media(max-width:540px){.fondateur-block{grid-template-columns:1fr;gap:28px;padding:28px 24px;}}
+.fondateur-photo{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:top;border-radius:14px;border:1px solid rgba(232,148,10,.2);}
+@media(max-width:540px){.fondateur-photo{width:120px;border-radius:12px;}}
+.fondateur-name{font-family:'DM Serif Display',serif;font-size:26px;color:#FCE0A8;line-height:1.1;margin-bottom:4px;}
+.fondateur-title{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#E8940A;margin-bottom:20px;}
+.fondateur-sep{width:36px;height:1.5px;background:#E8940A;margin-bottom:20px;opacity:.6;}
+.fondateur-bio{font-size:15px;color:rgba(252,224,168,.75);line-height:1.8;}
+.fondateur-bio p{margin-bottom:14px;}
+.fondateur-bio p:last-child{margin-bottom:0;}
+
 /* FOOTER */
 footer{padding:48px 0;text-align:center;}
 .footer-logo{display:flex;align-items:baseline;gap:2px;justify-content:center;margin-bottom:14px;}
@@ -391,6 +403,27 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
     <blockquote>"Ton audience t'a fait confiance. C'est ça la vraie valeur. WOZALI te donne juste un moyen de la transformer en quelque chose de concret."</blockquote>
     <cite>Schealtiel - Fondateur WOZALI</cite>
   </div>
+
+  <!-- FONDATEUR -->
+  <section>
+    <div class="section-label">Avec qui tu travailles</div>
+    <h2>Tu parles à<br><span class="it gold">une vraie personne.</span></h2>
+
+    <div class="fondateur-block">
+      <img class="fondateur-photo" src="/assets/fondateur.jpg" alt="Schealtiel Lawson, Fondateur WOZALI">
+      <div>
+        <div class="fondateur-name">Schealtiel Lawson</div>
+        <div class="fondateur-title">Fondateur WOZALI</div>
+        <div class="fondateur-sep"></div>
+        <div class="fondateur-bio">
+          <p>J'ai grandi entre le Togo et la France. J'ai vu des deux côtés ce que ça coûte de pas être visible quand tu travailles bien. Le maçon que personne trouve. L'électricien qui tourne porte-à-porte. Le talent qui compte pas parce que le réseau suit pas.</p>
+          <p>WOZALI c'est la réponse à ça. Et toi, si tu as une audience qui te fait confiance, tu peux être la personne qui leur dit que ça existe avant tout le monde.</p>
+          <p>Je cherche pas des influenceurs. Je cherche des créateurs qui comprennent le terrain et à qui leur audience fait vraiment confiance. C'est pas pareil.</p>
+          <p>Si tu lis jusqu'ici, tu sais déjà si c'est pour toi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- FORM SECTION -->
   <section id="formulaire" style="border-bottom:none;">
