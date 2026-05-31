@@ -83,17 +83,23 @@ h2 .gold{color:#E8940A;}
 .sim-subs-label{font-size:12px;color:rgba(252,224,168,.45);font-family:'Geist Mono',monospace;margin-bottom:28px;}
 input[type=range]{width:100%;-webkit-appearance:none;background:rgba(232,148,10,.15);height:6px;border-radius:4px;cursor:pointer;outline:none;margin:0 0 32px;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#E8940A;box-shadow:0 0 0 4px rgba(232,148,10,.2);}
-.sim-results{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:420px){.sim-results{grid-template-columns:1fr;}}
-.sim-col{background:rgba(20,16,10,.6);border:1px solid rgba(252,224,168,.08);border-radius:14px;padding:22px 18px;}
-.sim-col.optimiste{border-color:rgba(232,148,10,.25);}
-.sim-col-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(252,224,168,.4);margin-bottom:14px;}
-.sim-col.optimiste .sim-col-tag{color:#E8940A;}
-.sim-amount{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(28px,6vw,40px);color:#FCE0A8;line-height:1;margin-bottom:4px;}
-.sim-col.optimiste .sim-amount{color:#E8940A;}
-.sim-unit{font-size:11px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;margin-bottom:12px;}
-.sim-detail{font-size:13px;color:rgba(252,224,168,.6);line-height:1.6;}
-.sim-note{font-size:12px;color:rgba(252,224,168,.4);margin-top:20px;line-height:1.6;font-style:italic;text-align:center;}
+/* FUNNEL */
+.sim-funnel{display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:28px;}
+.sim-funnel-step{width:100%;background:rgba(20,16,10,.6);border:1px solid rgba(252,224,168,.08);border-radius:14px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;}
+.sim-funnel-step.active{border-color:rgba(232,148,10,.35);background:rgba(232,148,10,.06);}
+.sim-funnel-tag{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(252,224,168,.45);}
+.sim-funnel-step.active .sim-funnel-tag{color:#E8940A;}
+.sim-funnel-val{font-family:'DM Serif Display',serif;font-style:italic;font-size:28px;color:#FCE0A8;line-height:1;}
+.sim-funnel-val.gold{color:#E8940A;font-size:34px;}
+.sim-funnel-arrow{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(232,148,10,.55);letter-spacing:.08em;padding:10px 0;text-align:center;position:relative;}
+.sim-funnel-arrow::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:1px;height:100%;background:rgba(232,148,10,.15);z-index:-1;}
+/* RESULT BOX */
+.sim-result-box{background:rgba(232,148,10,.09);border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:26px 24px;text-align:center;margin-bottom:20px;}
+.sim-result-label{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:10px;}
+.sim-result-amount{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(38px,9vw,58px);color:#E8940A;line-height:1;margin-bottom:2px;}
+.sim-result-unit{font-size:13px;color:rgba(252,224,168,.5);font-family:'Geist Mono',monospace;margin-bottom:10px;}
+.sim-result-detail{font-size:13px;color:rgba(252,224,168,.55);line-height:1.5;}
+.sim-note{font-size:12px;color:rgba(252,224,168,.4);margin-top:0;line-height:1.6;font-style:italic;text-align:center;}
 
 /* FOMO */
 .fomo-list{display:flex;flex-direction:column;gap:14px;margin-top:36px;}
@@ -247,29 +253,39 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
   <section id="simulator">
     <div class="section-label">Simulateur de revenus</div>
     <h2>Calcule ce que<br><span class="it gold">ton audience vaut.</span></h2>
-    <p class="lead">Bouge le curseur. Vois les 2 scénarios en même temps : le pire des cas et l'audience vraiment engagée.</p>
+    <p class="lead">Bouge le curseur. Le calcul est réaliste : 5% de tes abonnés s'inscrivent, 20% de ceux qui s'inscrivent passent Pro.</p>
 
     <div class="simulator">
       <div class="sim-label">Ton nombre d'abonnés (TikTok + Instagram)</div>
-      <div class="sim-followers" id="sim-followers-display">10 000</div>
+      <div class="sim-followers" id="sim-followers-display">10K</div>
       <div class="sim-subs-label">abonnés</div>
       <input type="range" id="sim-slider" min="1000" max="500000" step="1000" value="10000" oninput="updateSim(this.value)">
 
-      <div class="sim-results">
-        <div class="sim-col">
-          <div class="sim-col-tag">Pire des cas (5%)</div>
-          <div class="sim-amount" id="sim-pessimiste-amount">5 000</div>
-          <div class="sim-unit">FCFA/mois</div>
-          <div class="sim-detail" id="sim-pessimiste-detail">500 abonnés cliquent, 5% passent Pro. Soit 5 Pro actifs x 1 000 FCFA.</div>
+      <div class="sim-funnel">
+        <div class="sim-funnel-step">
+          <div class="sim-funnel-tag">Tes abonnés</div>
+          <div class="sim-funnel-val" id="sim-f-abonnes">10 000</div>
         </div>
-        <div class="sim-col optimiste">
-          <div class="sim-col-tag">Audience engagée (30%)</div>
-          <div class="sim-amount" id="sim-optimiste-amount">30 000</div>
-          <div class="sim-unit">FCFA/mois</div>
-          <div class="sim-detail" id="sim-optimiste-detail">500 abonnés cliquent, 30% passent Pro. Soit 30 Pro actifs x 1 000 FCFA.</div>
+        <div class="sim-funnel-arrow">5% s'inscrivent</div>
+        <div class="sim-funnel-step">
+          <div class="sim-funnel-tag">Inscrits WOZALI</div>
+          <div class="sim-funnel-val" id="sim-f-inscrits">500</div>
+        </div>
+        <div class="sim-funnel-arrow">20% passent Pro</div>
+        <div class="sim-funnel-step active">
+          <div class="sim-funnel-tag">Pro actifs</div>
+          <div class="sim-funnel-val gold" id="sim-f-pro">100</div>
         </div>
       </div>
-      <p class="sim-note">Le taux de conversion dépend de ta relation avec ton audience. Un créateur qui parle sincèrement d'un produit local qu'il croit peut atteindre les 30%. Les 5% représentent une audience froide ou un contenu générique.</p>
+
+      <div class="sim-result-box">
+        <div class="sim-result-label">Ta commission mensuelle</div>
+        <div class="sim-result-amount" id="sim-result-fcfa">100 000</div>
+        <div class="sim-result-unit">FCFA / mois</div>
+        <div class="sim-result-detail" id="sim-result-detail">100 Pro actifs x 1 000 FCFA</div>
+      </div>
+
+      <p class="sim-note">Ces chiffres sont basés sur des taux réalistes observés sur du contenu local authentique. Ton résultat réel dépend de la qualité de ta relation avec ton audience.</p>
     </div>
   </section>
 
@@ -436,28 +452,17 @@ function formatFCFA(n) {
 
 function updateSim(value) {
   const followers = parseInt(value);
-  document.getElementById('sim-followers-display').textContent = formatFollowers(followers) + (followers >= 1000 ? '' : '');
+  document.getElementById('sim-followers-display').textContent = formatFollowers(followers);
 
-  // Estimation: 5% de l'audience clique, puis taux de conversion sur les cliqueurs
-  const clickers = Math.round(followers * 0.05); // 5% de l'audience voit vraiment le contenu et clique
+  const inscrits = Math.round(followers * 0.05);      // 5% de l'audience s'inscrit
+  const proActifs = Math.round(inscrits * 0.20);       // 20% des inscrits passent Pro
+  const revenue = proActifs * 1000;                    // 1 000 FCFA par Pro actif
 
-  // Pire cas: 5% des cliqueurs passent Pro
-  const pessimistePro = Math.round(clickers * 0.05);
-  const pessimisteFCFA = pessimistePro * 1000;
-
-  // Audience engagée: 30% des cliqueurs passent Pro
-  const optimistePro = Math.round(clickers * 0.30);
-  const optimisteFCFA = optimistePro * 1000;
-
-  document.getElementById('sim-pessimiste-amount').textContent = formatFCFA(pessimisteFCFA);
-  document.getElementById('sim-pessimiste-detail').textContent =
-    clickers.toLocaleString('fr') + ' abonnés voient ton contenu, 5% passent Pro. Soit ' +
-    pessimistePro + ' Pro actifs x 1 000 FCFA.';
-
-  document.getElementById('sim-optimiste-amount').textContent = formatFCFA(optimisteFCFA);
-  document.getElementById('sim-optimiste-detail').textContent =
-    clickers.toLocaleString('fr') + ' abonnés voient ton contenu, 30% passent Pro. Soit ' +
-    optimistePro + ' Pro actifs x 1 000 FCFA.';
+  document.getElementById('sim-f-abonnes').textContent = followers.toLocaleString('fr');
+  document.getElementById('sim-f-inscrits').textContent = inscrits.toLocaleString('fr');
+  document.getElementById('sim-f-pro').textContent = proActifs.toLocaleString('fr');
+  document.getElementById('sim-result-fcfa').textContent = formatFCFA(revenue);
+  document.getElementById('sim-result-detail').textContent = proActifs + ' Pro actifs x 1 000 FCFA';
 }
 
 // Init
