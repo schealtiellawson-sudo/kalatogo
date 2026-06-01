@@ -9904,9 +9904,13 @@ async function loadAmbassadeurSection() {
     } catch (e) { console.error('[amb-stats]', e); }
   }
 
-  // Charger et afficher les documents de formation ambassadeur
-  await loadAmbassadeurDocumentReads();
+  // Rendu immédiat de la grille formation (sans attendre Supabase)
   _renderAmbassadeurDocsGrid();
+  // Puis charger les statuts réels et re-rendre
+  try {
+    await loadAmbassadeurDocumentReads();
+    _renderAmbassadeurDocsGrid();
+  } catch (e) { /* grille reste en mode non-lu */ }
 
   // Re-render lucide icons
   if (window.lucide) lucide.createIcons();
@@ -14065,9 +14069,14 @@ function _updateOnboardingDocsCount() {
 
 // Charger et rendre toute la section ressources
 async function loadAgentsRessourcesSection() {
-  await loadAgentDocumentReads();
+  // Rendu immédiat (tous non-lus) — visible avant même Supabase
   _renderAgentDocsGrid();
   _restoreOnboardingSteps();
+  // Ensuite charger les lectures réelles et mettre à jour
+  try {
+    await loadAgentDocumentReads();
+    _renderAgentDocsGrid(); // second rendu avec statuts réels
+  } catch (e) { /* ignore — la grille reste en mode non-lu */ }
 }
 
 // Sauvegarder l'état d'une étape onboarding en localStorage
