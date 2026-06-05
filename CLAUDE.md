@@ -54,22 +54,98 @@ Avant de répondre, vérifier et confirmer explicitement :
 
 ---
 
-## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-05-28)
+## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-06-01)
 
 ### État actuel — tout est opérationnel
 
 **KPI terrain** : auto-calculé depuis `wozali_prestataires.parrain_code`, zéro saisie manuelle.
 **Battle H/F** : Pro signés ce mois depuis `wozali_prestataires` (pas `nb_filleuls`).
 **Formation agents** : 20 docs accessibles depuis le dashboard agent ET le dashboard admin.
+**Formation ambassadeurs** : 8 docs accessibles depuis `ds-ambassadeur`, tracking Supabase.
+**Photos Notre Histoire** : les deux portraits corrigés (`object-fit:cover`), commit `b03a772`.
 
 ### Ce qui reste à faire (prochaine priorité)
 
+- ⬜ **MIGRATION SUPABASE** : appliquer `supabase/migrations/20260531_document_reads.sql` (SQL Editor)
 - ⬜ Agents IA scoring + KYC (manque API keys Vercel : `GEMINI_API_KEY` / `GROQ_API_KEY`)
 - ⬜ Séquence WhatsApp J30 (J0-J7 existent, manque `WHATSAPP_CLOUD_TOKEN` Vercel)
 - ⬜ Bouton Embaucher → fiche employé (sprint J)
 - ⬜ Espace équipe (sprint K)
 - ⬜ 150-200 vrais profils avant 1er août (terrain)
-- ⬜ 3-5 agents terrain Lomé + Cotonou (recrutement terrain)
+- ⬜ 3-5 agents terrain WOZALI Lomé + Cotonou (recrutement terrain)
+
+---
+
+## ✅ SESSION 2026-06-01 — Ambassador docs + fix dashboard agents + fix photos Notre Histoire
+
+**Commits pushés :** `b03a772` (photos Notre Histoire)
+
+### 1. Fix `ds-agents-ressources` — grille vide corrigée
+
+**Symptôme** : section "Mes ressources" du dashboard agent terrain WOZALI affichait une page blanche indéfiniment.
+
+**Cause** : `loadAgentsRessourcesSection()` attendait la résolution Supabase avant d'appeler `_renderAgentDocsGrid()`. Si la table `agent_document_reads` n'existait pas (migration non appliquée), l'erreur était catchée mais le rendu n'avait jamais lieu.
+
+**Fix (app.js)** : rendu immédiat AVANT Supabase (tous les docs affichés "Non lu"), puis second rendu après résolution :
+```javascript
+// Rendu immédiat (avant Supabase)
+_renderAgentDocsGrid();
+_restoreOnboardingSteps();
+try {
+  await loadAgentDocumentReads();
+  _renderAgentDocsGrid(); // second rendu avec statuts réels
+} catch (e) { /* ignore */ }
+```
+
+### 2. Système formation ambassadeurs — complet
+
+#### Migration SQL
+- Fichier : `supabase/migrations/20260531_document_reads.sql`
+- 2 tables : `agent_document_reads` + `ambassadeur_document_reads`
+- RLS : SELECT pour tout connecté, INSERT/UPDATE self uniquement
+- ⚠️ **À appliquer manuellement dans Supabase SQL Editor**
+
+#### Document `ambs-00-brief.html` (CRÉÉ)
+- Fichier : `formation-ambassadeurs/ambs-00-brief.html`
+- Style formation officiel (fond blanc `#fff`, header sombre `#14100A`, accent or `#E8940A`)
+- 6 sections : contexte, WOZALI, commissions + simulation, règles ✓/✗, planning, prochaine étape
+- URL : `wozali.africa/formation-ambassadeurs/ambs-00-brief`
+
+#### `AMBASSADEUR_DOCUMENTS` array (app.js)
+8 documents déclarés après `AGENT_DOCUMENTS` :
+```javascript
+const AMBASSADEUR_DOCUMENTS = [
+  { slug: 'ambs-00-brief',          num: '00', titre: 'Brief ambassadeur', ... },
+  { slug: 'ambs-01-bienvenue',       num: '01', titre: 'Bienvenue',        ... },
+  // ambs-02 → ambs-07
+];
+```
+
+#### Fonctions app.js ajoutées
+- `loadAmbassadeurDocumentReads()` : query `ambassadeur_document_reads` WHERE `ambassadeur_id = currentUser.id`
+- `markAmbassadeurDocumentRead(slug)` : upsert + re-render
+- `openAmbassadeurDocumentRessource(slug)` : marquer + `window.open` nouvel onglet
+- `_renderAmbassadeurDocsGrid()` : compteur + cercle de progression (conic-gradient `--pct`) + 8 cards
+- `loadAmbassadeurDocumentProgress(ambassadeurId)` : query pour un ambassadeur spécifique (vue admin)
+- `openAmbassadeurProgressionModal(ambassadeurId, pseudo)` : modal inline admin avec 8 docs + statut/date
+
+#### HTML `ds-ambassadeur` (index.html)
+Compteur `amb-docs-count`, cercle progression `amb-docs-circle`, grille dynamique `amb-docs-grid`.
+
+#### Vue admin ambassadeurs
+Bouton "Progression" par card ambassadeur dans `_renderAmbassadeurs()` → ouvre modal avec 8 docs statut.
+
+#### `loadAmbassadeurSection()` mis à jour
+Même pattern que agents : rendu immédiat puis re-render après Supabase.
+
+### 3. Photos Notre Histoire — fix compression visuelle
+
+**Problème** : deux portraits sur `wozali.africa/#apropos` apparaissaient écrasés/déformés.
+
+- `apropos-photo-3.jpeg` (235×500 px, screenshot très étroit) : wrappé dans conteneur fixe `180×240 px` avec `object-fit:cover;object-position:top center`
+- `apropos-photo-4.jpeg` (400×600 px, photo SONY) : `max-height:460px;object-fit:cover;object-position:top center` ajoutés
+
+**Commit** : `b03a772`
 
 ---
 
