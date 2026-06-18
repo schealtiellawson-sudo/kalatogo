@@ -303,6 +303,9 @@
     h1 { font-size: 28px; }
     .tl-row { grid-template-columns: 1fr; gap: 6px; }
   }
+  .checklist { display:flex; flex-direction:column; gap:14px; margin:20px 0; }
+  .check-item { display:flex; align-items:flex-start; gap:14px; padding:16px 20px; background:rgba(232,148,10,0.06); border:1px solid rgba(232,148,10,0.2); border-radius:10px; font-size:15px; line-height:1.6; color:#2a1f0f; }
+  .check-icon { flex-shrink:0; width:28px; height:28px; background:#E8940A; color:#14100A; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; font-family:'Geist Mono',monospace; }
 </style>
 </head>
 <body>
@@ -474,15 +477,23 @@
 
     <!-- Section 6 -->
     <div class="section-number">06 - Prochaine étape</div>
-    <h2>Un appel de 15 minutes. Pas plus.</h2>
+    <h2>Le process d'onboarding.</h2>
 
-    <p>Je t'explique exactement comment ton lien fonctionne, on paramètre ton accès ambassadeur, et tu repars avec le kit complet : visuels, planning, angles de contenu.</p>
-    <p>Pas de contrat a signer. Pas de processus long. Si ça marche pour ton audience, tu le vois dans tes stats des le mois d'août.</p>
+    <p>Avant de démarrer, tu passes par les mêmes étapes que toute l'équipe WOZALI.</p>
 
-    <div class="contact-card">
-      <div class="name">Schealtiel Lawson</div>
-      <div class="role">Fondateur WOZALI</div>
-      <div class="phone">+33 7 43 60 69 16</div>
+    <div class="checklist">
+      <div class="check-item">
+        <span class="check-icon">1</span>
+        <span><strong>Signature du contrat ambassadeur</strong> - Tu reçois le contrat, tu le signes. C'est la base.</span>
+      </div>
+      <div class="check-item">
+        <span class="check-icon">2</span>
+        <span><strong>Intégration au groupe WhatsApp équipe</strong> - Le groupe ambassadeurs WOZALI. Coordination, infos en temps réel, questions.</span>
+      </div>
+      <div class="check-item">
+        <span class="check-icon">3</span>
+        <span><strong>Call d'équipe</strong> - On se retrouve tous ensemble. Lien activé, kit remis, questions répondues. Tu repars avec tout ce qu'il faut pour démarrer.</span>
+      </div>
     </div>
 
   </div><!-- end content -->
