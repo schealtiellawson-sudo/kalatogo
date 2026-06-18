@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — La plateforme de A à Z — Formation Ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f5f0e8; font-family: 'Geist', sans-serif; color: #1a1008; min-height: 100vh; padding: 32px 16px; }
+  .page { max-width: 820px; margin: 0 auto; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 24px rgba(20,16,10,0.10); }
+  .header { background: #14100A; border-bottom: 3px solid #E8940A; padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+  .logo span { font-style: normal; color: #FCE0A8; }
+  .doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #FCE0A8; text-transform: uppercase; letter-spacing: 1.5px; }
+  .content { padding: 48px 40px; }
+  .eyebrow { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 36px; color: #14100A; line-height: 1.15; margin-bottom: 8px; }
+  .subtitle { font-size: 16px; color: #5a4a2a; margin-bottom: 32px; line-height: 1.6; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: #14100A; margin: 40px 0 16px; padding-left: 16px; border-left: 3px solid #E8940A; }
+  p { font-size: 15px; line-height: 1.8; color: #2a1f0f; margin-bottom: 16px; }
+  .highlight-box { background: #14100A; color: #FCE0A8; border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+  .highlight-box .hb-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .highlight-box p { color: #FCE0A8; margin-bottom: 8px; }
+  .feature-card { border: 1px solid rgba(232,148,10,0.2); border-radius: 10px; padding: 20px 24px; margin: 12px 0; }
+  .feature-card .fc-title { font-weight: 700; color: #14100A; margin-bottom: 8px; font-size: 15px; }
+  .feature-card p { margin-bottom: 0; font-size: 14px; color: #5a4a2a; }
+  .content-angle { background: rgba(232,148,10,0.08); border: 1px solid rgba(232,148,10,0.25); border-radius: 10px; padding: 20px 24px; margin: 12px 0; }
+  .content-angle .angle-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .content-angle p { color: #2a1f0f; margin-bottom: 0; font-size: 14px; }
+  .footer { background: #14100A; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 48px; }
+  .footer-info { font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(252,224,168,0.5); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .side-box { border-radius: 10px; padding: 20px 24px; }
+  .side-box.dark { background: #14100A; }
+  .side-box.dark .sb-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .side-box.dark p { color: #FCE0A8; font-size: 14px; margin-bottom: 8px; }
+  .side-box.dark p:last-child { margin-bottom: 0; }
+  .side-box.light { background: rgba(232,148,10,0.08); border: 1px solid rgba(232,148,10,0.25); }
+  .side-box.light .sb-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .side-box.light p { color: #2a1f0f; font-size: 14px; margin-bottom: 8px; }
+  .side-box.light p:last-child { margin-bottom: 0; }
+  @media(max-width:600px){ .content{padding:32px 20px;} .header{padding:20px;} .two-col{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Ambassadeurs</div>
+  </div>
+
+  <div class="content">
+
+    <div class="eyebrow">Document 09 - Formation Ambassadeurs</div>
+    <h1>La plateforme de A à Z</h1>
+    <p class="subtitle">Ton audience va te poser des questions. Des vraies. Tu dois pouvoir répondre avec précision - pas avec un pitch vague.</p>
+
+    <div class="highlight-box">
+      <div class="hb-title">Pourquoi tu dois connaître la plateforme</div>
+      <p>Un abonné qui hésite va tester ta crédibilité. Si tu sais exactement ce qu'il trouvera sur WOZALI, ce qu'il peut faire, et comment son Score fonctionne, il s'inscrit. Si tu réponds vaguement, il passe.</p>
+      <p>Ce document te donne les réponses exactes. Lis-le une fois, ça te sert pour tous tes contenus.</p>
+    </div>
+
+    <div class="section-title">Les deux faces de WOZALI</div>
+
+    <p>WOZALI n'est pas une plateforme pour un seul type d'utilisateur. Il y a deux côtés qui se complètent, et ton contenu peut toucher les deux.</p>
+
+    <div class="two-col">
+      <div class="side-box dark">
+        <div class="sb-title">Les pros</div>
+        <p>Artisans, prestataires, freelances. Ils créent un profil, mettent leurs réalisations en avant, et reçoivent des contacts de clients directement.</p>
+        <p>Coiffeur, couturier, électricien, plombier, maçon, chef cuisinier, chauffeur, informaticien - n'importe quel métier exercé à Lomé ou Cotonou.</p>
+        <p>Leur objectif : être trouvés par des clients qui cherchent leur métier dans leur quartier.</p>
+      </div>
+      <div class="side-box light">
+        <div class="sb-title">Les clients</div>
+        <p>Particuliers et entreprises qui ont besoin d'un pro. Ils arrivent sur WOZALI avec un besoin concret et cherchent quelqu'un de disponible près de chez eux.</p>
+        <p>Ils filtrent par métier, quartier, disponibilité. Ils voient les profils, les avis, le Score. Ils contactent directement - sans intermédiaire.</p>
+        <p>Leur objectif : trouver un pro fiable rapidement, sans passer par des recommandations aléatoires.</p>
+      </div>
+    </div>
+
+    <p>En tant qu'ambassadeur, tu t'adresses principalement aux pros qui veulent plus de clients. Mais comprendre les deux côtés te permet de créer du contenu qui montre la valeur complète de la plateforme.</p>
+
+    <div class="section-title">Le profil pro - ce que ton audience verra</div>
+
+    <p>Quand un artisan s'inscrit sur WOZALI et complète son profil, il obtient une carte de visite numérique permanente. Visible 24h/24, depuis n'importe quel téléphone.</p>
+
+    <p>Un profil pro complet contient :</p>
+
+    <div class="feature-card">
+      <div class="fc-title">Photo de profil + identité</div>
+      <p>Nom, prénom, métier principal, quartier et ville. C'est ce qui apparait dans les résultats de recherche. La photo doit montrer clairement le visage - les profils avec photo reçoivent beaucoup plus de contacts.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">Bio et description des services</div>
+      <p>Un court texte qui explique ce que le pro sait faire, depuis combien de temps, ce qui le distingue. Pas un CV - une présentation directe de ce qu'il peut faire pour un client.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">Portfolio de réalisations</div>
+      <p>Photos de travaux terminés. Pour un coiffeur, des coiffures réalisées. Pour un maçon, des chantiers finis. Pour une couturière, des vêtements confectionnés. C'est la preuve que le travail est réel.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">Vidéo de présentation</div>
+      <p>60 secondes pour montrer qui on est, comment on travaille, ce qu'on propose. Une vidéo authentique vaut plus que n'importe quel texte - surtout pour les métiers manuels.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">Score WOZALI visible</div>
+      <p>Le Score apparait directement sur le profil. 0 à 100. Calculé sur les avis clients reçus, la complétude du profil, et l'activité sur la plateforme. Un Score élevé = apparaitre en premier dans les recherches.</p>
+    </div>
+
+    <div class="section-title">La recherche client - comment ca fonctionne</div>
+
+    <p>Imagine : une habitante de Lomé cherche une coiffeuse dans son quartier. Elle ouvre WOZALI sur son téléphone et tape "coiffeuse Lomé Bè". En quelques secondes, elle voit tous les profils qui correspondent - triés par Score et par proximité.</p>
+
+    <p>Elle peut comparer les portfolios, lire les avis d'autres clients, voir la disponibilité de chaque pro. Quand elle a choisi, elle contacte directement - via WhatsApp ou messagerie interne WOZALI. Aucun intermédiaire. Aucune commission sur la mise en contact.</p>
+
+    <div class="highlight-box">
+      <div class="hb-title">Le point clé à retenir</div>
+      <p>WOZALI ne prend pas de commission sur les contrats. La plateforme met en relation. Ce que le pro gagne avec son client lui appartient entièrement. C'est ce qui différencie WOZALI des plateformes qui prennent 20-30% sur chaque mission.</p>
+    </div>
+
+    <p>Le tri par Score est important à comprendre et à expliquer à ton audience. Ce n'est pas l'ancienneté qui compte, ni le budget publicitaire. Un artisan qui vient de s'inscrire mais qui collecte rapidement des avis positifs et complète bien son profil peut dépasser des profils plus anciens. Le Score récompense le travail réel.</p>
+
+    <div class="section-title">Les fonctionnalités clés</div>
+
+    <div class="feature-card">
+      <div class="fc-title">Geolocalisation et proximite</div>
+      <p>Les profils sont triés par quartier et par distance. Un client qui cherche quelqu'un dans son quartier voit d'abord les pros les plus proches géographiquement. Pour un artisan, etre bien géolocalisé dans son profil est important pour apparaitre dans les bonnes recherches.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">Score WOZALI</div>
+      <p>Note de 0 à 100 calculée automatiquement. Trois signaux principaux : avis laissés par des clients réels, complétude du profil (photo, bio, portfolio, vidéo), activité régulière sur la plateforme. Aucun raccourci possible - le Score reflète le travail accompli. C'est lui qui détermine la position dans les résultats de recherche.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">WOZALI Jobs</div>
+      <p>Module emploi intégré à la plateforme. Un artisan peut postuler à des offres d'emploi publiées par des entreprises qui cherchent des employés. Une entreprise peut publier une offre et recevoir des candidatures de pros vérifiés. C'est un deuxième canal de revenus pour les profils inscrits.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">Recompenses mensuelles</div>
+      <p>500 000 FCFA distribués chaque mois aux meilleurs profils. Bourse de Croissance (300 000 FCFA, 1 gagnant Pro), Bourse des Mains d'Or (200 000 FCFA, 2 femmes - 1 Togo, 1 Bénin). Premier tirage le 25 septembre 2026. Accessible uniquement aux membres Pro actifs.</p>
+    </div>
+
+    <div class="section-title">Plans - Gratuit et Pro</div>
+
+    <div class="two-col">
+      <div class="side-box light">
+        <div class="sb-title">Gratuit</div>
+        <p>Profil de base : photo, métier, quartier, bio courte.</p>
+        <p>Apparition dans les résultats de recherche, mais positionnement derrière les profils Pro.</p>
+        <p>Idéal pour démarrer et tester la plateforme sans risque.</p>
+      </div>
+      <div class="side-box dark">
+        <div class="sb-title">Pro - 2 500 FCFA/mois</div>
+        <p>Profil complet mis en avant : portfolio photos, vidéo de présentation, bio longue, Stats de visibilité.</p>
+        <p>Positionnement prioritaire dans les recherches. Accès complet à WOZALI Jobs.</p>
+        <p>Eligibilité aux 500 000 FCFA de récompenses mensuelles (à partir du 25 septembre 2026).</p>
+      </div>
+    </div>
+
+    <p>Quand tu partages ton lien d'affiliation et qu'un abonné s'inscrit en Pro, c'est cette formule à 2 500 FCFA/mois qui génère ta commission. Ton lien suit toutes les inscriptions Pro venues de tes contenus.</p>
+
+    <div class="section-title">Ce que tu dois savoir montrer</div>
+
+    <p>Pour une démonstration courte dans un reel ou une story, tu n'as pas besoin de tout montrer. Trois séquences suffisent pour convaincre :</p>
+
+    <div class="feature-card">
+      <div class="fc-title">1. La recherche en temps réel</div>
+      <p>Ouvre wozali.africa sur ton téléphone et tape un métier + un quartier de ta ville. Montre les résultats qui apparaissent. C'est la preuve que la plateforme fonctionne et que des pros s'y trouvent déjà.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">2. Un profil complet</div>
+      <p>Clique sur un profil Pro bien rempli. Montre la photo, le portfolio, le Score visible. Dis : "C'est ca que tes futurs clients vont voir quand ils te cherchent." Le profil visuel parle mieux que n'importe quel argumentaire.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-title">3. Le Score</div>
+      <p>Montre comment le Score apparait sur le profil et explique en une phrase : "Plus tu travailles bien et tu collectes des avis, plus tu montes dans les résultats." Simple. Compréhensible. Différenciant.</p>
+    </div>
+
+    <div class="highlight-box">
+      <div class="hb-title">Conseil pratique</div>
+      <p>Fais une démo avec un vrai profil de ton secteur ou de ta ville. Ton audience se reconnait dans ce qu'elle voit. Un coiffeur de Cotonou est plus convaincu par un profil de coiffeur de Cotonou que par un profil abstrait.</p>
+      <p>Si tu ne trouves pas encore de profil correspondant exactement, montre la recherche et le résultat - l'absence de concurrence dans un quartier est aussi un argument fort : "Les premiers inscrits auront le marché pour eux."</p>
+    </div>
+
+    <div class="section-title">Angles de contenu</div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 01 - La demo en 30 secondes</div>
+      <p>Format : reel écran enregistré. Tu ouvres wozali.africa, tu tapes un métier + un quartier, tu montres les profils qui apparaissent. Voix off : "Cherche n'importe quel artisan dans ton quartier. C'est la personne qui va t'appeler si tu es inscrit avec un bon profil." CTA : lien en bio pour s'inscrire. Durée idéale : 20-30 secondes. Répétable une fois par semaine avec des métiers différents.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 02 - Le profil vs la vitrine</div>
+      <p>Format : split screen ou montage avant/après. À gauche : un artisan qui cherche des clients en se postant à un carrefour ou en attendant le bouche-à-oreille. À droite : un profil WOZALI Pro complet avec portfolio et Score. Script : "Sans WOZALI, tes clients doivent te connaitre pour te trouver. Avec WOZALI, ils te trouvent parce que tu es là où ils cherchent." Pas d'attaque, pas de jugement - juste la comparaison concrète.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 03 - Les questions frequentes en video</div>
+      <p>Format : face cam Q&amp;A, une question par vidéo courte. Collecte les vraies questions de ton audience dans les commentaires ou en DM. Chaque question devient un contenu. Exemples : "C'est quoi le Score WOZALI exactement ?", "Ca marche vraiment si je n'ai pas de réseau ?", "Comment mon profil apparait sur wozali.africa ?". Ces videos se partagent facilement car elles répondent à une question précise qu'une autre personne se pose.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-info">Formation Ambassadeurs WOZALI - Lancement 15 aout 2026</div>
+    <div class="footer-info">Document 09 / 13</div>
+  </div>
+
+</div>
+</body>
+</html>

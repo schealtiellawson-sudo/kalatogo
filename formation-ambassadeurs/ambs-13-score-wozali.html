@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Score WOZALI — Formation Ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f5f0e8; font-family: 'Geist', sans-serif; color: #1a1008; min-height: 100vh; padding: 32px 16px; }
+  .page { max-width: 820px; margin: 0 auto; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 24px rgba(20,16,10,0.10); }
+  .header { background: #14100A; border-bottom: 3px solid #E8940A; padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+  .logo span { font-style: normal; color: #FCE0A8; }
+  .doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #FCE0A8; text-transform: uppercase; letter-spacing: 1.5px; }
+  .content { padding: 48px 40px; }
+  .eyebrow { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 36px; color: #14100A; line-height: 1.15; margin-bottom: 8px; }
+  .subtitle { font-size: 16px; color: #5a4a2a; margin-bottom: 32px; line-height: 1.6; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: #14100A; margin: 40px 0 16px; padding-left: 16px; border-left: 3px solid #E8940A; }
+  p { font-size: 15px; line-height: 1.8; color: #2a1f0f; margin-bottom: 16px; }
+  .highlight-box { background: #14100A; color: #FCE0A8; border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+  .highlight-box .hb-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .highlight-box p { color: #FCE0A8; margin-bottom: 8px; }
+  .content-angle { background: rgba(232,148,10,0.08); border: 1px solid rgba(232,148,10,0.25); border-radius: 10px; padding: 20px 24px; margin: 12px 0; }
+  .content-angle .angle-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .content-angle p { color: #2a1f0f; margin-bottom: 0; font-size: 14px; }
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 24px 0; }
+  .stat-card { background: #14100A; border-radius: 10px; padding: 20px 16px; text-align: center; }
+  .stat-number { display: block; font-family: 'DM Serif Display', serif; font-size: 28px; color: #E8940A; margin-bottom: 6px; }
+  .stat-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: #FCE0A8; text-transform: uppercase; letter-spacing: 1.5px; }
+  .signal-list { list-style: none; margin: 16px 0 24px; }
+  .signal-list li { font-size: 15px; color: #2a1f0f; line-height: 1.7; padding: 10px 0 10px 28px; border-bottom: 1px solid rgba(232,148,10,0.12); position: relative; }
+  .signal-list li::before { content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; border-radius: 2px; background: #E8940A; }
+  .signal-list li strong { color: #14100A; }
+  .compare-box { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .compare-card { border-radius: 10px; padding: 20px; }
+  .compare-card.bad { background: rgba(180,60,20,0.07); border: 1px solid rgba(180,60,20,0.20); }
+  .compare-card.good { background: rgba(232,148,10,0.08); border: 1px solid rgba(232,148,10,0.25); }
+  .compare-card .compare-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .compare-card.bad .compare-label { color: #b43c14; }
+  .compare-card.good .compare-label { color: #E8940A; }
+  .compare-card p { font-size: 14px; color: #2a1f0f; margin-bottom: 0; line-height: 1.6; }
+  .footer { background: #14100A; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 48px; }
+  .footer-info { font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(252,224,168,0.5); }
+  @media(max-width:600px){ .content{padding:32px 20px;} .header{padding:20px;} .stat-row{grid-template-columns:1fr;} .compare-box{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Ambassadeurs</div>
+  </div>
+
+  <div class="content">
+
+    <div class="eyebrow">Document 13 - Formation Ambassadeurs</div>
+    <h1>Le Score WOZALI</h1>
+    <p class="subtitle">Le Score c'est le coeur du système. C'est ce qui rend WOZALI différent de tout ce qui existe. Et c'est l'argument le plus fort pour ton contenu.</p>
+
+    <div class="section-title">Qu'est-ce que le Score WOZALI</div>
+
+    <p>Chaque membre Pro reçoit un Score sur 100. Ce Score est visible sur son profil public. N'importe qui peut le voir.</p>
+
+    <p>Ce Score ne mesure pas la popularité. Il ne mesure pas le nombre d'abonnés, ni les relations, ni l'ancienneté. Il mesure la qualité du travail.</p>
+
+    <p>Il monte avec les avis clients vérifiés, la complétude du profil, les photos de réalisations publiées, la vidéo de présentation, et l'activité régulière sur la plateforme. Il baisse si le profil est abandonné, si les avis sont négatifs, ou si le membre ne répond pas aux demandes.</p>
+
+    <div class="highlight-box">
+      <div class="hb-title">La phrase à retenir</div>
+      <p>"Ton travail nourrit. Pas ton réseau."</p>
+      <p>C'est la phrase officielle de WOZALI. C'est aussi la meilleure explication du Score en 6 mots. Utilise-la dans ton contenu.</p>
+    </div>
+
+    <div class="section-title">Pourquoi c'est révolutionnaire</div>
+
+    <p>Dans l'économie informelle africaine, il y a un problème structurel que tout le monde connait et que personne n'a résolu : c'est toujours "qui tu connais" qui décide. Le piston. Les connexions. Le réseau familial ou ethnique.</p>
+
+    <p>Un artisan excellent sans réseau reste invisible. Un artisan moyen avec les bonnes connexions obtient tous les contrats. Ce n'est pas juste. Et tout le monde le sait.</p>
+
+    <p>WOZALI remplace ce système par un Score basé sur le travail réel. Un artisan sans réseau mais avec 20 avis clients 5 étoiles sera mieux classé qu'un artisan populaire avec 3 avis. Le Score ne ment pas. Les avis sont vérifiés. Le classement est public.</p>
+
+    <p>C'est concret. C'est vérifiable. C'est visible. Et c'est nouveau.</p>
+
+    <div class="section-title">Comment le Score monte</div>
+
+    <ul class="signal-list">
+      <li><strong>Avis clients vérifiés :</strong> le signal le plus fort. Plus ils sont nombreux et positifs, plus le Score monte rapidement.</li>
+      <li><strong>Profil complet :</strong> photo de profil, bio rédigée, métier renseigné, quartier et ville renseignés.</li>
+      <li><strong>Portfolio de réalisations :</strong> photos du travail effectué, preuves concrètes de la qualité.</li>
+      <li><strong>Vidéo de présentation :</strong> 60 secondes pour se présenter. Un profil avec vidéo est toujours mieux classé.</li>
+      <li><strong>Activité régulière :</strong> connexion régulière, réponse aux demandes clients, profil maintenu à jour.</li>
+    </ul>
+
+    <div class="section-title">Le lien Score - Récompenses</div>
+
+    <p>Le Score n'est pas juste un indicateur. Il détermine directement qui remporte les bourses mensuelles.</p>
+
+    <p>Le membre Pro avec le Score le plus élevé du mois remporte la Bourse de Croissance : 300 000 FCFA. Les deux membres Pro féminines avec les meilleurs Scores par pays remportent les Bourses des Mains d'Or : 100 000 FCFA chacune.</p>
+
+    <p>Ce n'est pas un tirage. C'est une méritocratie. Le meilleur Score gagne. Toujours.</p>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-number">100</span>
+        <span class="stat-label">Score maximum</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">300K</span>
+        <span class="stat-label">FCFA si Score N°1</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">Public</span>
+        <span class="stat-label">Score visible sur profil</span>
+      </div>
+    </div>
+
+    <div class="section-title">Comment en parler dans ton contenu</div>
+
+    <p>Le Score est l'argument central de WOZALI. C'est le mécanisme qui justifie tout le reste : la visibilité, les récompenses, le classement.</p>
+
+    <p>Quand tu expliques WOZALI, tu pars toujours du problème (le piston, l'invisibilité), tu présentes le Score comme la solution concrète, et tu montres les bénéfices (clients, visibilité, récompenses possibles).</p>
+
+    <div class="compare-box">
+      <div class="compare-card bad">
+        <div class="compare-label">A eviter</div>
+        <p>"WOZALI te donne un Score pour gagner de l'argent." Le Score devient une mécanique de gain. Ca ressemble a une arnaque.</p>
+      </div>
+      <div class="compare-card good">
+        <div class="compare-label">A utiliser</div>
+        <p>"Ton Score WOZALI, c'est la preuve de ton travail. Les clients le voient. Les meilleurs Scores sont en tête de liste." Le Score est une récompense du travail bien fait.</p>
+      </div>
+    </div>
+
+    <div class="section-title">Angles de contenu</div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 01 - L'anti-piston</div>
+      <p>"En Afrique, c'est toujours qui tu connais. WOZALI a mis fin a ca. Voici comment." Fort. Universel. Vrai. Cet angle touche tout le monde parce que tout le monde a vécu le piston, subi le piston, ou connu quelqu'un qui en a souffert. C'est une douleur partagée. Le Score est la réponse concrète.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 02 - Le Score en direct</div>
+      <p>Montre un profil WOZALI avec son Score visible a l'écran. "Ce chiffre, c'est son niveau de travail. Pas ses contacts. Pas sa famille. Son travail." Visuel, immédiat, compréhensible en 3 secondes. Idéal pour le format reel ou TikTok.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 03 - La méritocratie africaine</div>
+      <p>Angle fort pour les créateurs engagés ou à forte audience. WOZALI est une réponse concrète et vérifiable au problème du piston dans l'économie informelle. "Pas de discours. Pas de politique. Un Score basé sur le travail. Voila WOZALI." Sérieux, crédible, partageable.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-info">Formation Ambassadeurs WOZALI - Lancement 15 août 2026</div>
+    <div class="footer-info">Document 13 / 13</div>
+  </div>
+
+</div>
+</body>
+</html>

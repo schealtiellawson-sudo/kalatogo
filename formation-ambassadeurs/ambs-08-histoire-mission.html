@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI - L'histoire et la mission - Formation Ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f5f0e8; font-family: 'Geist', sans-serif; color: #1a1008; min-height: 100vh; padding: 32px 16px; }
+  .page { max-width: 820px; margin: 0 auto; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 24px rgba(20,16,10,0.10); }
+  .header { background: #14100A; border-bottom: 3px solid #E8940A; padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; letter-spacing: -0.5px; }
+  .logo span { font-style: normal; color: #FCE0A8; }
+  .doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #FCE0A8; text-transform: uppercase; letter-spacing: 1.5px; }
+  .content { padding: 48px 40px; }
+  .eyebrow { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 36px; color: #14100A; line-height: 1.15; margin-bottom: 8px; }
+  .subtitle { font-size: 16px; color: #5a4a2a; margin-bottom: 32px; line-height: 1.6; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: #14100A; margin: 40px 0 16px; padding-left: 16px; border-left: 3px solid #E8940A; }
+  p { font-size: 15px; line-height: 1.8; color: #2a1f0f; margin-bottom: 16px; }
+  .highlight-box { background: #14100A; color: #FCE0A8; border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+  .highlight-box .hb-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .highlight-box p { color: #FCE0A8; margin-bottom: 8px; }
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 24px 0; }
+  .stat-card { background: #14100A; border-radius: 10px; padding: 20px 16px; text-align: center; }
+  .stat-number { display: block; font-family: 'DM Serif Display', serif; font-size: 28px; color: #E8940A; margin-bottom: 6px; }
+  .stat-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: #FCE0A8; text-transform: uppercase; letter-spacing: 1.5px; }
+  .content-angle { background: rgba(232,148,10,0.08); border: 1px solid rgba(232,148,10,0.25); border-radius: 10px; padding: 20px 24px; margin: 12px 0; }
+  .content-angle .angle-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .content-angle p { color: #2a1f0f; margin-bottom: 0; font-size: 14px; }
+  .footer { background: #14100A; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 48px; }
+  .footer-info { font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(252,224,168,0.5); }
+  .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .ba-card { border-radius: 10px; padding: 20px 22px; }
+  .ba-card.before { background: rgba(100,60,20,0.07); border: 1px solid rgba(100,60,20,0.15); }
+  .ba-card.after { background: rgba(232,148,10,0.08); border: 1px solid rgba(232,148,10,0.3); }
+  .ba-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .ba-card.before .ba-label { color: #7a5a30; }
+  .ba-card.after .ba-label { color: #E8940A; }
+  .ba-card p { margin-bottom: 6px; font-size: 14px; line-height: 1.6; }
+  .ba-card.before p { color: #5a4030; }
+  .ba-card.after p { color: #2a1f0f; }
+  .mission-block { background: #14100A; border-radius: 12px; padding: 32px 36px; margin: 28px 0; text-align: center; }
+  .mission-quote { font-family: 'DM Serif Display', serif; font-size: 22px; color: #FCE0A8; line-height: 1.45; margin-bottom: 0; font-style: italic; }
+  .mission-quote span { color: #E8940A; font-style: normal; }
+  @media(max-width:600px){ .content{padding:32px 20px;} .header{padding:20px;} .stat-row{grid-template-columns:1fr;} .before-after{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Ambassadeurs</div>
+  </div>
+
+  <div class="content">
+
+    <div class="eyebrow">Document 08 - Formation Ambassadeurs</div>
+    <h1>L'histoire et la mission</h1>
+    <p class="subtitle">Pour parler de WOZALI avec conviction à ton audience, tu dois savoir pourquoi ça existe. Pas juste le pitch. Le vrai.</p>
+
+    <!-- SECTION 1 : Le problème -->
+    <div class="section-title">Le problème</div>
+
+    <p>En Afrique, 8 travailleurs sur 10 exercent dans l'économie informelle. Ce n'est pas une anecdote. C'est la réalité de la majorité des familles à Lomé, à Cotonou, et dans tout le continent.</p>
+
+    <p>Ces travailleurs ne manquent pas de compétences. Un menuisier qui fabrique un meuble solide à 22 ans. Une coiffeuse qui maîtrise 40 techniques. Un maçon qui a bâti la moitié du quartier. Ils sont bons. Souvent meilleurs que ceux que tout le monde connaît.</p>
+
+    <p>Le problème, c'est la visibilité. Sans réseau, sans connexions, sans "quelqu'un qui te connaît", les meilleurs restent invisibles. Les clients vont chez des profils moins compétents, simplement parce qu'ils sont mieux connectés. C'est injuste. Et c'est réparable.</p>
+
+    <p>WOZALI est la réponse à cette injustice. Une plateforme où ce qui compte, c'est ton travail - pas tes connexions, pas ton réseau, pas le bon contact que tu as ou que tu n'as pas.</p>
+
+    <div class="highlight-box">
+      <div class="hb-title">Ce que tu dois retenir pour en parler</div>
+      <p>Le problème que WOZALI résout, ton audience le vit tous les jours sans forcément le nommer. Elle a déjà payé quelqu'un de médiocre parce qu'il était "recommandé". Elle a déjà vu quelqu'un de talentueux rester sans clients. Tu n'as pas besoin de convaincre - tu as besoin de nommer ce que tout le monde ressent.</p>
+    </div>
+
+    <!-- SECTION 2 : Pourquoi ça compte pour ton contenu -->
+    <div class="section-title">Pourquoi ça compte pour ton contenu</div>
+
+    <p>Quand tu parles de WOZALI à ton audience, tu n'es pas en train de "vendre une appli". Tu parles d'un problème que tes abonnés voient tous les jours dans leur quartier, dans leur famille, dans leur propre expérience de recherche d'un artisan ou d'un service.</p>
+
+    <p>C'est ce qui rend le contenu WOZALI différent d'une promotion classique. Tu n'as pas à défendre une fonctionnalité ou un tarif. Tu as à mettre des mots sur quelque chose qui existe déjà dans la tête de ton audience.</p>
+
+    <p>Les chiffres qui ancrent cette réalité :</p>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-number">80%</span>
+        <span class="stat-label">Économie informelle en Afrique</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">2</span>
+        <span class="stat-label">Villes Phase 1 - Lomé + Cotonou</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">15 août</span>
+        <span class="stat-label">Date de lancement 2026</span>
+      </div>
+    </div>
+
+    <p>Ces chiffres ne sont pas là pour impressionner. Ils sont là pour ancrer la réalité. 80% de l'économie africaine = les gens que tu croises tous les jours dans ton quartier. Le lancement à Lomé et Cotonou = c'est ici, maintenant, pour des gens réels.</p>
+
+    <!-- SECTION 3 : La mission en une phrase -->
+    <div class="section-title">La mission en une phrase</div>
+
+    <div class="mission-block">
+      <p class="mission-quote">"Connecter les travailleurs invisibles de l'économie informelle africaine avec des clients. <span>Sans réseau, juste le travail.</span>"</p>
+    </div>
+
+    <p>Cette phrase, tu peux la dire telle quelle à ton audience. Elle n'a pas besoin d'être reformulée, améliorée ou "adaptée". Elle est déjà dense, claire et vraie.</p>
+
+    <p>Ce qui la rend puissante, c'est le mot "invisibles". Tout le monde comprend instinctivement ce que ça veut dire. Un travailleur invisible n'est pas quelqu'un qui n'existe pas - c'est quelqu'un dont le travail n'est pas vu, pas reconnu, pas récompensé. Et "sans réseau, juste le travail" dit exactement ce que WOZALI promet : le mérite d'abord.</p>
+
+    <p>En caption, en voice-over, en introduction d'une story - cette phrase fonctionne seule. Tu peux la poser et laisser l'audience réfléchir. Elle n'a pas besoin d'explication immédiate.</p>
+
+    <!-- SECTION 4 : Ce que WOZALI change concrètement -->
+    <div class="section-title">Ce que WOZALI change concrètement</div>
+
+    <p>Pour rendre ça concret pour ton audience, voici comment la vie d'un artisan change avec et sans WOZALI. Tu peux utiliser ce contraste dans ta narration.</p>
+
+    <div class="before-after">
+      <div class="ba-card before">
+        <div class="ba-label">Avant WOZALI</div>
+        <p>Clients uniquement via le bouche-à-oreille du quartier.</p>
+        <p>Invisible en dehors de son cercle immédiat.</p>
+        <p>Concurrence des moins bons, mieux connectés.</p>
+        <p>Aucune preuve de son travail accessible en ligne.</p>
+        <p>Revenu lié au réseau, pas à la compétence.</p>
+      </div>
+      <div class="ba-card after">
+        <div class="ba-label">Avec WOZALI</div>
+        <p>Profil visible par tous les clients de Lomé ou Cotonou.</p>
+        <p>Géolocalisation : les clients proches le trouvent en premier.</p>
+        <p>Score WOZALI basé sur les avis et l'activité réelle.</p>
+        <p>Portfolio photo visible, partageable, crédible.</p>
+        <p>Revenu lié au travail. Pas aux contacts.</p>
+      </div>
+    </div>
+
+    <p>Le Score WOZALI mérite une mention à part. Ce n'est pas un système de notation arbitraire. Il est calculé à partir du profil complet, des avis clients, de la régularité d'activité sur la plateforme. Un artisan qui travaille bien et répond à ses clients voit son score monter. Un artisan qui s'inscrit et disparaît voit son score descendre. C'est la logique inverse du piston.</p>
+
+    <div class="highlight-box">
+      <div class="hb-title">Ce que tu gardes en tête</div>
+      <p>Ton rôle d'ambassadeur n'est pas d'expliquer les fonctionnalités. C'est de faire sentir à ton audience ce que représente ce changement dans la vie de quelqu'un. L'artisan de ton quartier qui travaille depuis 10 ans sans que personne le sache. La couturière qui fait du bon travail mais n'a pas de portfolio. C'est à eux que WOZALI est destiné.</p>
+    </div>
+
+    <!-- SECTION 5 : Angles de contenu -->
+    <div class="section-title">Angles de contenu</div>
+
+    <p>Trois angles validés pour parler de l'histoire et de la mission WOZALI à ton audience. Chacun fonctionne différemment selon ton format et ta ligne éditoriale.</p>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 1 - Le problème que tout le monde voit</div>
+      <p>Poste sur le fait que les meilleurs artisans de ton quartier sont inconnus. Raconte une situation concrète - quelqu'un que tu as essayé de trouver et que tu n'as pas trouvé, quelqu'un de talentueux qui reste sans clients. Laisse ton audience réagir et partager ses propres expériences. WOZALI arrive ensuite, naturellement, comme la réponse à ce que ta communauté vient elle-même de verbaliser. Ce séquençage est plus fort qu'une présentation directe.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 2 - La phrase qui résume tout</div>
+      <p>Utilise la phrase mission directement en caption ou en voice-over reel : "Connecter les travailleurs invisibles de l'économie informelle africaine avec des clients. Sans réseau, juste le travail." Simple. Fort. Vrai. Elle fonctionne sans contexte supplémentaire. Tu peux la faire suivre d'un visuel d'artisan au travail, d'une situation de quartier, ou simplement d'un fond sobre. Elle porte la narration à elle seule.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 3 - L'histoire du fondateur</div>
+      <p>Schealtiel Lawson a fondé WOZALI depuis un constat simple : le meilleur artisan du quartier n'est pas forcément celui que tout le monde appelle. Il connaissait des gens qui travaillaient dur, livraient du bon travail, et n'avaient aucune visibilité. WOZALI est sa réponse à ça. Tu peux raconter cette origin story en face cam - sans drama, sans exagération. Juste la réalité du constat et la logique de la solution. Ça humanise la plateforme et montre qu'elle vient de quelqu'un qui a vu le problème de près, pas d'un bureau déconnecté.</p>
+    </div>
+
+  </div><!-- /content -->
+
+  <div class="footer">
+    <div class="footer-info">Formation Ambassadeurs WOZALI - Lancement 15 août 2026</div>
+    <div class="footer-info">Document 08 / 13</div>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>

@@ -14115,6 +14115,12 @@ const AMBASSADEUR_DOCUMENTS = [
   { slug: 'ambs-05-kit-ressources',     num: '05', titre: 'Kit ressources',               desc: 'Visuels, stories et angles de contenu prêts à l\'emploi.' },
   { slug: 'ambs-06-dashboard',          num: '06', titre: 'Lire ton dashboard',           desc: 'Stats, suivi des inscrits et calcul de ta commission.' },
   { slug: 'ambs-07-regles',             num: '07', titre: 'Les règles',                   desc: 'Ce qui est autorisé, ce qui est interdit. Non négociable.' },
+  { slug: 'ambs-08-histoire-mission',   num: '08', titre: 'L\'histoire et la mission',    desc: 'Pourquoi WOZALI existe. L\'essentiel pour parler avec conviction.' },
+  { slug: 'ambs-09-plateforme-az',      num: '09', titre: 'La plateforme de A à Z',       desc: 'Tour complet pour répondre aux questions de ton audience.' },
+  { slug: 'ambs-10-geolocalisation',    num: '10', titre: 'La géolocalisation',           desc: 'Le concept le plus visuel et le plus fort pour ton contenu.' },
+  { slug: 'ambs-11-recompenses',        num: '11', titre: 'Les récompenses mensuelles',   desc: '500 000 FCFA/mois - comment en parler sans survendre.' },
+  { slug: 'ambs-12-wozali-jobs',        num: '12', titre: 'WOZALI Jobs',                  desc: 'Le module emploi - double ta cible de contenu.' },
+  { slug: 'ambs-13-score-wozali',       num: '13', titre: 'Le Score WOZALI',              desc: 'Le coeur du système. Ton argument le plus fort.' },
 ];
 
 // Cache local des slugs lus par l'ambassadeur connecté

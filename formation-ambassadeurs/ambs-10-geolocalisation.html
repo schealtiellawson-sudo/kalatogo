@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — La géolocalisation — Formation Ambassadeurs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f5f0e8; font-family: 'Geist', sans-serif; color: #1a1008; min-height: 100vh; padding: 32px 16px; }
+  .page { max-width: 820px; margin: 0 auto; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 24px rgba(20,16,10,0.10); }
+  .header { background: #14100A; border-bottom: 3px solid #E8940A; padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: #E8940A; }
+  .logo span { font-style: normal; color: #FCE0A8; }
+  .doc-type { font-family: 'Geist Mono', monospace; font-size: 11px; color: #FCE0A8; text-transform: uppercase; letter-spacing: 1.5px; }
+  .content { padding: 48px 40px; }
+  .eyebrow { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 36px; color: #14100A; line-height: 1.15; margin-bottom: 8px; }
+  .subtitle { font-size: 16px; color: #5a4a2a; margin-bottom: 32px; line-height: 1.6; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: #14100A; margin: 40px 0 16px; padding-left: 16px; border-left: 3px solid #E8940A; }
+  p { font-size: 15px; line-height: 1.8; color: #2a1f0f; margin-bottom: 16px; }
+  .highlight-box { background: #14100A; color: #FCE0A8; border-radius: 12px; padding: 24px 28px; margin: 24px 0; }
+  .highlight-box .hb-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .highlight-box p { color: #FCE0A8; margin-bottom: 8px; }
+  .highlight-box p:last-child { margin-bottom: 0; }
+  .content-angle { background: rgba(232,148,10,0.08); border: 1px solid rgba(232,148,10,0.25); border-radius: 10px; padding: 20px 24px; margin: 12px 0; }
+  .content-angle .angle-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .content-angle p { color: #2a1f0f; margin-bottom: 0; font-size: 14px; }
+  .scenario { border-left: 3px solid #E8940A; padding: 16px 20px; margin: 16px 0; background: rgba(232,148,10,0.04); }
+  .scenario strong { color: #E8940A; }
+  .scenario p { margin-bottom: 0; }
+  .scenario p + p { margin-top: 8px; }
+  .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .ba-col { border-radius: 8px; padding: 16px 18px; }
+  .ba-col.before { background: rgba(90,74,42,0.08); border: 1px solid rgba(90,74,42,0.2); }
+  .ba-col.after { background: rgba(232,148,10,0.10); border: 1px solid rgba(232,148,10,0.3); }
+  .ba-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .ba-col.before .ba-label { color: #5a4a2a; }
+  .ba-col.after .ba-label { color: #E8940A; }
+  .ba-col p { font-size: 14px; color: #2a1f0f; margin-bottom: 0; line-height: 1.6; }
+  .key-mechanic { background: #14100A; border-radius: 12px; padding: 28px 32px; margin: 28px 0; display: flex; gap: 20px; align-items: flex-start; }
+  .km-number { font-family: 'DM Serif Display', serif; font-size: 48px; color: #E8940A; line-height: 1; flex-shrink: 0; }
+  .km-text h3 { font-family: 'Geist', sans-serif; font-weight: 600; font-size: 16px; color: #FCE0A8; margin-bottom: 8px; }
+  .km-text p { font-size: 14px; color: rgba(252,224,168,0.75); margin-bottom: 0; line-height: 1.6; }
+  .tip-block { background: rgba(232,148,10,0.06); border: 1px solid rgba(232,148,10,0.2); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+  .tip-block .tip-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .tip-block p { font-size: 14px; color: #2a1f0f; margin-bottom: 0; line-height: 1.7; }
+  .footer { background: #14100A; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 48px; }
+  .footer-info { font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(252,224,168,0.5); }
+  @media(max-width:600px){
+    .content { padding: 32px 20px; }
+    .header { padding: 20px; }
+    .before-after { grid-template-columns: 1fr; }
+    .key-mechanic { flex-direction: column; gap: 12px; }
+    .km-number { font-size: 36px; }
+    .footer { padding: 16px 20px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Ambassadeurs</div>
+  </div>
+
+  <div class="content">
+
+    <div class="eyebrow">Document 10 - Formation Ambassadeurs</div>
+    <h1>La géolocalisation - pourquoi ca change tout</h1>
+    <p class="subtitle">C'est le concept le plus visuel, le plus concret, le plus facile à expliquer. C'est ton meilleur angle de contenu.</p>
+
+    <div class="highlight-box">
+      <div class="hb-title">Le coeur de WOZALI</div>
+      <p>La géolocalisation, c'est le moteur invisible derrière tout. C'est ce qui fait que le bon artisan arrive devant le bon client au bon moment. Comprendre ça, c'est comprendre pourquoi WOZALI existe.</p>
+      <p>Et pour ton audience, c'est le concept le plus facile à saisir - parce qu'ils le vivent tous les jours sans le savoir.</p>
+    </div>
+
+    <div class="section-title">Comment un client trouve un artisan aujourd'hui</div>
+    <p>Ferme les yeux une seconde. Tu as besoin d'un plombier demain matin. Qu'est-ce que tu fais ?</p>
+    <p>Tu appelles un ami. Tu envoies un message dans ton groupe WhatsApp de quartier. Tu demandes à ta mère qui elle connait. Tu espères que quelqu'un répond rapidement.</p>
+    <p>C'est du bouche-à-oreille. C'est aléatoire. Ca dépend de qui tu connais. Ca dépend de qui est en ligne au bon moment. Si personne ne répond, tu cherches un autre groupe, tu rappelles quelqu'un d'autre, et tu perds du temps.</p>
+    <p>Et le plombier compétent qui habite à 200 mètres de chez toi et qui est disponible maintenant ? Il existe. Mais tu ne sais pas qu'il existe. Et lui ne sait pas que tu le cherches.</p>
+    <p><strong>WOZALI supprime ce mur entre eux.</strong></p>
+
+    <div class="section-title">Le moteur géolocalisé</div>
+    <p>Quand un client cherche un artisan sur WOZALI, il voit d'abord les profils les plus proches de lui, triés par Score. Pas par popularité. Pas par argent. Par proximité et qualité de travail.</p>
+
+    <div class="key-mechanic">
+      <div class="km-number">1</div>
+      <div class="km-text">
+        <h3>Le client ouvre WOZALI et tape son besoin</h3>
+        <p>"Coiffeuse Bè Lomé". L'application sait où il est. Elle cherche dans un rayon proche de sa position réelle.</p>
+      </div>
+    </div>
+
+    <div class="key-mechanic">
+      <div class="km-number">2</div>
+      <div class="km-text">
+        <h3>Les résultats s'affichent triés par Score dans sa zone</h3>
+        <p>Pas les plus vus. Pas les plus sponsorisés. Les mieux évalués, les plus proches, les plus actifs. Le Score reflète le travail réel.</p>
+      </div>
+    </div>
+
+    <div class="key-mechanic">
+      <div class="km-number">3</div>
+      <div class="km-text">
+        <h3>Le contact se fait directement</h3>
+        <p>Le client voit le profil, les photos de travaux, le quartier. Il contacte. Aucun intermédiaire. Aucune recommandation requise.</p>
+      </div>
+    </div>
+
+    <p>Exemple concret : Aïcha cherche une coiffeuse à Bè, Lomé. Elle ouvre WOZALI. Elle voit les coiffeuses du quartier Bè, triées par Score. Elle contacte la première. Pas besoin de demander à quelqu'un. La coiffeuse n'a pas payé pour être là. Elle est là parce qu'elle travaille bien.</p>
+
+    <div class="section-title">Pourquoi c'est révolutionnaire pour les artisans</div>
+    <p>Avant WOZALI, être bon ne suffisait pas. Il fallait aussi être connu. Et pour être connu, il fallait un réseau. Et pour avoir un réseau, il fallait du temps, de l'argent, des contacts.</p>
+    <p>Un mécanicien de Zogbadjè qui a 50 clients satisfaits depuis 8 ans mais zéro présence digitale, zéro groupe WhatsApp actif, zéro page Facebook - ce mécanicien était invisible pour tous les nouveaux clients du quartier.</p>
+
+    <div class="highlight-box">
+      <div class="hb-title">Ce qui change avec WOZALI</div>
+      <p>Ce même mécanicien de Zogbadjè sera visible pour tous ceux qui cherchent "mécanicien Zogbadjè" sur WOZALI. Son travail parle pour lui. Ses clients satisfaits ont laissé des avis. Son Score monte. Il arrive en premier.</p>
+      <p>Pour la première fois, le travail prime sur le réseau. C'est ca, la promesse de la géolocalisation couplée au Score.</p>
+    </div>
+
+    <div class="section-title">Scénarios concrets pour ton audience</div>
+    <p>Ces trois cas sont réels. Montre-les tels quels dans ton contenu.</p>
+
+    <div class="scenario">
+      <strong>Coiffeuse à Lomé</strong>
+      <p><strong>Avant :</strong> connue uniquement de ses clientes régulières. Aucune nouvelle cliente par semaine en moyenne. Bouche-à-oreille lent.</p>
+      <p><strong>Apres :</strong> première dans les résultats "coiffeuse quartier" sur WOZALI. Nouvelles clientes qui ne la connaissaient pas avant, qui habitent à 5 minutes.</p>
+    </div>
+
+    <div class="scenario">
+      <strong>Couturier à Cotonou</strong>
+      <p><strong>Avant :</strong> travail excellent, atelier connu dans sa rue, mais invisible pour le reste du quartier. Des clients potentiels passent devant sans savoir ce qu'il fait.</p>
+      <p><strong>Apres :</strong> trouvé directement par des personnes qui cherchent "couturier" dans son arrondissement. Son portfolio photo WOZALI montre ses modeles avant meme le premier contact.</p>
+    </div>
+
+    <div class="scenario">
+      <strong>Electricien disponible maintenant</strong>
+      <p><strong>Avant :</strong> recommandé uniquement par bouche-à-oreille. Si personne ne pense à lui au bon moment, il passe à côté du client.</p>
+      <p><strong>Apres :</strong> trouvé par 10 personnes ce mois sans aucune recommandation. Son statut "disponible" est visible sur son profil. Le client l'appelle directement.</p>
+    </div>
+
+    <div class="section-title">Ce que ca veut dire pour ton contenu</div>
+    <p>La géolocalisation est visuelle. Tu peux la montrer. Tu n'as pas besoin de l'expliquer avec des mots - l'écran parle tout seul.</p>
+    <p>Ouvre WOZALI en live. Fais une recherche. Tape le nom d'un métier et d'un quartier. Montre les résultats qui apparaissent. Ton audience comprend immédiatement parce qu'elle reconnait l'expérience - c'est comme Google Maps mais pour les artisans de leur quartier.</p>
+
+    <div class="tip-block">
+      <div class="tip-label">Point clé à retenir</div>
+      <p>Ne dis pas "WOZALI géolocalise les artisans". Dis "Si tu cherches un plombier à Akpakpa maintenant, tu tapes Akpakpa sur WOZALI et tu vois tous ceux qui travaillent là, triés par qualité." Montre, ne décris pas.</p>
+    </div>
+
+    <div class="section-title">Angles de contenu - trois formats validés</div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 01 - Le test en live</div>
+      <p>Ouvre WOZALI devant la caméra. Tape le nom d'un métier concret et d'un quartier que ton audience connait. Montre les profils qui apparaissent. Lis le Score à voix haute. Commente ce que tu vois. C'est 30 secondes de contenu qui vaut mieux que 10 minutes d'explication. Ton audience voit, elle comprend, elle partage.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 02 - Le before/after</div>
+      <p>Raconte l'histoire de Mamadou, coiffeur, 8 ans d'expérience. Sans WOZALI : 0 nouveau client par semaine, connu uniquement de ses reguliers. Avec WOZALI : 3 à 4 nouveaux clients par semaine qui ne savaient pas qu'il existait, trouvés parce qu'il apparait en premier dans leur quartier. Chiffres réels, nom réel, quartier réel. Plus c'est concret, plus ca marche.</p>
+    </div>
+
+    <div class="content-angle">
+      <div class="angle-label">Angle 03 - La question rhétorique</div>
+      <p>"Est-ce que le meilleur artisan de ton quartier a un site web ?" Pause. "Moi non plus." Pause. "WOZALI change ca." Trois phrases. Zéro explication. Le silence fait le travail. Ton audience comble elle-meme le vide avec sa propre expérience - et elle se reconnait dans la question.</p>
+    </div>
+
+    <div class="highlight-box">
+      <div class="hb-title">Rappel domaine officiel</div>
+      <p>Dans tout ton contenu, le domaine à citer est <strong>wozali.africa</strong>. Jamais de lien vercel. Jamais de lien temporaire. wozali.africa uniquement.</p>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-info">Formation Ambassadeurs WOZALI - Lancement 15 aout 2026</div>
+    <div class="footer-info">Document 10 / 13</div>
+  </div>
+
+</div>
+</body>
+</html>
