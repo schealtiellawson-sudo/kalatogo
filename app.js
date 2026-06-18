@@ -10310,7 +10310,7 @@ async function confirmAddAgent(encodedData) {
 
 // ── AGENTS TERRAIN : ONGLETS ──
 function switchAgentTab(tab) {
-  ['candidatures', 'actifs', 'kpi'].forEach(t => {
+  ['candidatures', 'actifs', 'kpi', 'docs'].forEach(t => {
     const btn = document.getElementById('agent-tab-' + t);
     const panel = document.getElementById('agent-panel-' + t);
     if (!btn || !panel) return;

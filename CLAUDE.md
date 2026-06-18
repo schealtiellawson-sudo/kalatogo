@@ -66,10 +66,10 @@ Avant de répondre, vérifier et confirmer explicitement :
 
 ### Ce qui reste à faire (prochaine priorité)
 
-- ⬜ **MIGRATION SUPABASE** : appliquer `supabase/migrations/20260531_document_reads.sql` (SQL Editor)
+- ✅ **MIGRATION SUPABASE** : `supabase/migrations/20260531_document_reads.sql` appliquée (2026-06-14)
 - ⬜ Agents IA scoring + KYC (manque API keys Vercel : `GEMINI_API_KEY` / `GROQ_API_KEY`)
 - ⬜ Séquence WhatsApp J30 (J0-J7 existent, manque `WHATSAPP_CLOUD_TOKEN` Vercel)
-- ⬜ Bouton Embaucher → fiche employé (sprint J)
+- ✅ Bouton Embaucher → fiche employé (sprint J) — migration wozali_employes appliquée 2026-06-14
 - ⬜ Espace équipe (sprint K)
 - ⬜ 150-200 vrais profils avant 1er août (terrain)
 - ⬜ 3-5 agents terrain WOZALI Lomé + Cotonou (recrutement terrain)

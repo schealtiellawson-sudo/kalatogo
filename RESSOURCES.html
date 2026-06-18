@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI - Index Ressources</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #14100A; color: #FCE0A8; font-family: 'Geist', system-ui, sans-serif; min-height: 100vh; padding: 32px 24px; }
+  h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: 28px; color: #E8940A; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: rgba(252,224,168,.4); font-family: monospace; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; }
+  .section { margin-bottom: 36px; }
+  .section-title { font-family: monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(232,148,10,.2); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  a.card {
+    display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+    background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.18);
+    border-radius: 10px; text-decoration: none; color: #FCE0A8;
+    font-size: 12px; font-weight: 600; line-height: 1.4;
+    transition: background .15s, border-color .15s;
+  }
+  a.card:hover { background: rgba(232,148,10,.14); border-color: rgba(232,148,10,.4); }
+  .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .badge { font-size: 9px; font-family: monospace; background: rgba(232,148,10,.15); color: #E8940A; padding: 2px 6px; border-radius: 4px; margin-left: auto; flex-shrink: 0; }
+  .badge.html { background: rgba(100,200,100,.12); color: #7dbd7d; }
+  .badge.md { background: rgba(100,150,255,.12); color: #7eb3ff; }
+</style>
+</head>
+<body>
+
+<h1>WOZALI</h1>
+<div class="subtitle">Index des ressources locales</div>
+
+<!-- AGENTS TERRAIN - PDFs -->
+<div class="section">
+  <div class="section-title">Documents Agents terrain WOZALI - PDFs</div>
+  <div class="grid">
+    <a class="card" href="docs/pdf/guide-formation.pdf" target="_blank">
+      <span class="icon">📄</span>Guide de formation complet<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/pdf/charte-conduite.pdf" target="_blank">
+      <span class="icon">📄</span>Charte de conduite<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/pdf/lettre-mission.pdf" target="_blank">
+      <span class="icon">📄</span>Lettre de mission<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/pdf/scripts-whatsapp.pdf" target="_blank">
+      <span class="icon">📄</span>Scripts WhatsApp terrain<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/pdf/templates-whatsapp.pdf" target="_blank">
+      <span class="icon">📄</span>Templates groupe WhatsApp<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/pdf/agenda-sessions-visio.pdf" target="_blank">
+      <span class="icon">📄</span>Agenda sessions de formation<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/pdf/support-presentation.pdf" target="_blank">
+      <span class="icon">📄</span>Support présentation WOZALI<span class="badge">PDF</span>
+    </a>
+  </div>
+</div>
+
+<!-- AGENTS TERRAIN - HTMLs -->
+<div class="section">
+  <div class="section-title">Documents Agents terrain WOZALI - Version web</div>
+  <div class="grid">
+    <a class="card" href="création/documents-agents-terrain/guide-formation-agents-terrain.html" target="_blank">
+      <span class="icon">🌐</span>Guide de formation<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/documents-agents-terrain/charte-conduite-agent-terrain.html" target="_blank">
+      <span class="icon">🌐</span>Charte de conduite<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/documents-agents-terrain/lettre-mission-agent-terrain.html" target="_blank">
+      <span class="icon">🌐</span>Lettre de mission<span class="badge html">HTML</span>
+    </a>
+  </div>
+</div>
+
+<!-- INFLUENCEURS -->
+<div class="section">
+  <div class="section-title">Documents Influenceurs</div>
+  <div class="grid">
+    <a class="card" href="docs/pdf/document-influenceurs.pdf" target="_blank">
+      <span class="icon">📄</span>Brief influenceurs<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/pdf/approche-influenceurs.pdf" target="_blank">
+      <span class="icon">📄</span>Message d'approche<span class="badge">PDF</span>
+    </a>
+    <a class="card" href="docs/brief-influenceur-wozali.html" target="_blank">
+      <span class="icon">🌐</span>Brief influenceur complet<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="docs/message-approche-influenceurs.md" target="_blank">
+      <span class="icon">📝</span>Message approche (Markdown)<span class="badge md">MD</span>
+    </a>
+  </div>
+</div>
+
+<!-- VISUELS RECRUTEMENT -->
+<div class="section">
+  <div class="section-title">Visuels recrutement agents terrain</div>
+  <div class="grid">
+    <a class="card" href="création/posts-recrutement/recrut-post-v2-dark.html" target="_blank">
+      <span class="icon">🖼</span>Post Instagram Dark<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-post-v2-or.html" target="_blank">
+      <span class="icon">🖼</span>Post Instagram Or<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-story-v2.html" target="_blank">
+      <span class="icon">🖼</span>Story Instagram<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-story-01-dark.html" target="_blank">
+      <span class="icon">🖼</span>Story Dark v1<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-reel-cover.html" target="_blank">
+      <span class="icon">🖼</span>Cover Reel<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-tiktok-dark.html" target="_blank">
+      <span class="icon">🖼</span>Post TikTok Dark<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-tiktok-or.html" target="_blank">
+      <span class="icon">🖼</span>Post TikTok Or<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-post-journee-agent-terrain.html" target="_blank">
+      <span class="icon">🖼</span>Journée agent terrain (dark)<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-post-journee-agent-terrain-or.html" target="_blank">
+      <span class="icon">🖼</span>Journée agent terrain (or)<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-tiktok-journee-dark.html" target="_blank">
+      <span class="icon">🖼</span>TikTok Journée dark<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-tiktok-journee-or.html" target="_blank">
+      <span class="icon">🖼</span>TikTok Journée or<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-post-phase1-dark.html" target="_blank">
+      <span class="icon">🖼</span>Phase 1 douleur (dark)<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-post-phase3-urgence.html" target="_blank">
+      <span class="icon">🖼</span>Phase 3 urgence<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-post-03-dark-kofi.html" target="_blank">
+      <span class="icon">🖼</span>Post Kofi (story persona)<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-post-04-or-agents-terrain.html" target="_blank">
+      <span class="icon">🖼</span>Post agents terrain (or)<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/recrut-whatsapp-partage.html" target="_blank">
+      <span class="icon">🖼</span>Partage WhatsApp<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/posts-recrutement/preview.html" target="_blank">
+      <span class="icon">🖼</span>Preview grille<span class="badge html">HTML</span>
+    </a>
+  </div>
+</div>
+
+<!-- KIT AMBASSADEURS -->
+<div class="section">
+  <div class="section-title">Kit Ambassadeurs - Visuels</div>
+  <div class="grid">
+    <a class="card" href="création/kit-ambassadeurs/post-kit-01-douleur.html" target="_blank">
+      <span class="icon">🖼</span>Post douleur<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/post-kit-02-solution.html" target="_blank">
+      <span class="icon">🖼</span>Post solution<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/post-kit-03-stats.html" target="_blank">
+      <span class="icon">🖼</span>Post stats<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/story-kit-01-curiosite.html" target="_blank">
+      <span class="icon">🖼</span>Story curiosité<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/story-kit-02-avant-apres.html" target="_blank">
+      <span class="icon">🖼</span>Story avant/après<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/carrousel-kit-01-s1.html" target="_blank">
+      <span class="icon">🖼</span>Carrousel slide 1<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/carrousel-kit-01-s2.html" target="_blank">
+      <span class="icon">🖼</span>Carrousel slide 2<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/carrousel-kit-01-s3.html" target="_blank">
+      <span class="icon">🖼</span>Carrousel slide 3<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/kit-ambassadeurs/carrousel-kit-01-s4.html" target="_blank">
+      <span class="icon">🖼</span>Carrousel slide 4<span class="badge html">HTML</span>
+    </a>
+  </div>
+</div>
+
+<!-- STORIES SUSPENSE JUILLET -->
+<div class="section">
+  <div class="section-title">Stories suspense - Juillet 2026</div>
+  <div class="grid">
+    <a class="card" href="création/stories-suspense/story-suspense-j01.html" target="_blank">
+      <span class="icon">🖼</span>Story suspense J01<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/stories-suspense/story-suspense-j03.html" target="_blank">
+      <span class="icon">🖼</span>Story suspense J03<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/stories-suspense/story-suspense-j05.html" target="_blank">
+      <span class="icon">🖼</span>Story suspense J05<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/stories-suspense/story-suspense-j07.html" target="_blank">
+      <span class="icon">🖼</span>Story suspense J07<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/stories-suspense/story-suspense-j10.html" target="_blank">
+      <span class="icon">🖼</span>Story suspense J10<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/stories-suspense/story-suspense-j12.html" target="_blank">
+      <span class="icon">🖼</span>Story suspense J12<span class="badge html">HTML</span>
+    </a>
+    <a class="card" href="création/stories-suspense/scripts-stories-suspense.md" target="_blank">
+      <span class="icon">📝</span>Scripts stories suspense<span class="badge md">MD</span>
+    </a>
+  </div>
+</div>
+
+<!-- DOCS STRATEGIQUES -->
+<div class="section">
+  <div class="section-title">Docs stratégiques</div>
+  <div class="grid">
+    <a class="card" href="docs/MARKETING-INVENTAIRE-FEATURES.md" target="_blank">
+      <span class="icon">📝</span>Inventaire 107 features<span class="badge md">MD</span>
+    </a>
+    <a class="card" href="docs/COPYWRITING-CONCOURS-FEMMES-V2.md" target="_blank">
+      <span class="icon">📝</span>Copywriting Bourse Mains d'Or<span class="badge md">MD</span>
+    </a>
+    <a class="card" href="docs/COPYWRITING-RECOMPENSES-V2.md" target="_blank">
+      <span class="icon">📝</span>Copywriting Récompenses<span class="badge md">MD</span>
+    </a>
+    <a class="card" href="docs/APDP-TOGO.md" target="_blank">
+      <span class="icon">📝</span>APDP Togo (draft)<span class="badge md">MD</span>
+    </a>
+    <a class="card" href="docs/APDP-BENIN.md" target="_blank">
+      <span class="icon">📝</span>APDP Bénin (draft)<span class="badge md">MD</span>
+    </a>
+    <a class="card" href="docs/POLITIQUE-CONFIDENTIALITE-DRAFT.md" target="_blank">
+      <span class="icon">📝</span>Politique confidentialité<span class="badge md">MD</span>
+    </a>
+    <a class="card" href="docs/templates-groupe-whatsapp.md" target="_blank">
+      <span class="icon">📝</span>Templates groupe WhatsApp<span class="badge md">MD</span>
+    </a>
+    <a class="card" href="docs/captions-et-scripts.md" target="_blank">
+      <span class="icon">📝</span>Captions et scripts posts<span class="badge md">MD</span>
+    </a>
+  </div>
+</div>
+
+<div style="margin-top:48px;padding-top:20px;border-top:1px solid rgba(232,148,10,.1);font-family:monospace;font-size:10px;color:rgba(252,224,168,.2);text-align:center;">
+  WOZALI - Index local - Ouvrir avec Live Server ou double-clic
+</div>
+
+</body>
+</html>

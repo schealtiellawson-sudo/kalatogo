@@ -3177,6 +3177,7 @@ setTimeout(function(){
           <button onclick="switchAgentTab('candidatures')" id="agent-tab-candidatures" style="padding:12px 24px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;background:none;color:#E8940A;border-bottom:2px solid #E8940A;margin-bottom:-2px;">Candidatures</button>
           <button onclick="switchAgentTab('actifs')" id="agent-tab-actifs" style="padding:12px 24px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;background:none;color:rgba(252, 224, 168,.4);border-bottom:2px solid transparent;margin-bottom:-2px;">Agents Actifs</button>
           <button onclick="switchAgentTab('kpi')" id="agent-tab-kpi" style="padding:12px 24px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;background:none;color:rgba(252, 224, 168,.4);border-bottom:2px solid transparent;margin-bottom:-2px;">KPI Terrain</button>
+          <button onclick="switchAgentTab('docs')" id="agent-tab-docs" style="padding:12px 24px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;background:none;color:rgba(252, 224, 168,.4);border-bottom:2px solid transparent;margin-bottom:-2px;">Documents</button>
         </div>
 
         <!-- ═══ TAB CANDIDATURES ═══ -->
@@ -3328,6 +3329,50 @@ setTimeout(function(){
           </div>
         </div>
 
+        <!-- ═══ TAB DOCUMENTS ═══ -->
+        <div id="agent-panel-docs" style="display:none;">
+
+          <!-- Agents terrain — PDFs -->
+          <div style="margin-bottom:28px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Documents agents terrain WOZALI</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+              <a href="/docs/pdf/guide-formation.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Guide de formation complet</a>
+              <a href="/docs/pdf/charte-conduite.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Charte de conduite</a>
+              <a href="/docs/pdf/lettre-mission.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Lettre de mission</a>
+              <a href="/docs/pdf/scripts-whatsapp.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Scripts WhatsApp terrain</a>
+              <a href="/docs/pdf/templates-whatsapp.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Templates groupe WhatsApp</a>
+              <a href="/docs/pdf/agenda-sessions-visio.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Agenda sessions de formation</a>
+              <a href="/docs/pdf/support-presentation.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Support présentation WOZALI</a>
+            </div>
+          </div>
+
+          <!-- Influenceurs -->
+          <div style="margin-bottom:28px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Documents influenceurs</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+              <a href="/docs/pdf/document-influenceurs.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Brief influenceurs</a>
+              <a href="/docs/pdf/approche-influenceurs.pdf" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">📄</span>Message d'approche</a>
+              <a href="/docs/brief-influenceur-wozali.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🌐</span>Brief influenceur (web)</a>
+            </div>
+          </div>
+
+          <!-- Visuels recrutement -->
+          <div>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Visuels recrutement (HTML)</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-post-v2-dark.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Post Instagram Dark</a>
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-post-v2-or.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Post Instagram Or</a>
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-story-v2.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Story Instagram</a>
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-reel-cover.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Cover Reel</a>
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-tiktok-dark.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Post TikTok Dark</a>
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-tiktok-or.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Post TikTok Or</a>
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-post-journee-agent-terrain.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Journée agent terrain</a>
+              <a href="/cr%C3%A9ation/posts-recrutement/recrut-post-phase1-dark.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;text-decoration:none;color:#FCE0A8;font-size:13px;font-family:Geist,sans-serif;font-weight:600;transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.12)'" onmouseout="this.style.background='rgba(232,148,10,.06)'"><span style="font-size:18px;">🖼</span>Post Phase 1 (douleur)</a>
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════
@@ -3386,7 +3431,7 @@ setTimeout(function(){
             <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">Document</div>
             <h3 id="modal-doc-titre" style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin:0 0 12px;"></h3>
             <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;margin-bottom:16px;">
-              <div style="font-size:14px;color:#FCE0A8;font-family:Geist,sans-serif;line-height:1.6;">Document en cours de préparation. Disponible avant le 1er août 2026.</div>
+              <div style="font-size:14px;color:#FCE0A8;font-family:Geist,sans-serif;line-height:1.6;">Document en cours de préparation. Disponible avant le 15 août 2026.</div>
             </div>
             <button onclick="document.getElementById('modal-doc-ressource').style.display='none';" style="width:100%;padding:12px;background:#E8940A;color:#14100A;border:none;border-radius:12px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Fermer</button>
           </div>
@@ -6656,7 +6701,7 @@ async function repondreMatch(demandeId, clientId) {
 const WOZALI_TL_PANELS = [
   { eyebrow:'PHASE 1 · LANCEMENT', title:'Togo + Bénin simultanément',
     countries:[{flag:'🇹🇬',name:'Lomé, Togo',on:true},{flag:'🇧🇯',name:'Cotonou, Bénin',on:true}],
-    stat:'Lancement 1er août 2026 · <strong>500 000 FCFA distribués chaque mois</strong> · 20 agents terrain WOZALI · Bourse de Croissance · La Bourse des Mains d\'Or · Domiciliation juridique Cotonou',
+    stat:'Lancement 15 août 2026 · <strong>500 000 FCFA distribués chaque mois</strong> · 20 agents terrain WOZALI · Bourse de Croissance · La Bourse des Mains d\'Or · Domiciliation juridique Cotonou',
     progress:18, progressLabel:'Lancement — Togo + Bénin' },
   { eyebrow:'PHASE 2 · EXPANSION OUEST-AFRICAINE', title:"Toute l'Afrique de l'Ouest",
     countries:[{flag:'🇹🇬',name:'Togo',on:true},{flag:'🇧🇯',name:'Bénin',on:true},{flag:'🇨🇮',name:"Côte d'Ivoire",on:true},{flag:'🇸🇳',name:'Sénégal',on:true},{flag:'🇬🇭',name:'Ghana',on:true},{flag:'🇳🇬',name:'Nigeria',on:true},{flag:'🇲🇱',name:'Mali',on:false},{flag:'🇧🇫',name:'Burkina',on:false}],
@@ -7238,7 +7283,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 
       <h2 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(22px,4vw,36px);color:#E8940A;margin:0 0 20px;font-weight:400;line-height:1.2;">Pas un truc flou. Pas de blabla.</h2>
 
-      <p style="font-family:'Geist',sans-serif;font-size:18px;color:rgba(252, 224, 168,0.65);line-height:1.7;margin:0 0 40px;">WOZALI constitue son équipe d'agents terrain de 20 référents avant le lancement du 1er août. Un vrai travail de terrain.</p>
+      <p style="font-family:'Geist',sans-serif;font-size:18px;color:rgba(252, 224, 168,0.65);line-height:1.7;margin:0 0 40px;">WOZALI constitue son équipe d'agents terrain de 20 référents avant le lancement du 15 août. Un vrai travail de terrain.</p>
 
       <!-- Remuneration block -->
       <div style="background:#161b17;border-left:3px solid #E8940A;border-radius:16px;padding:28px;margin-bottom:36px;">
