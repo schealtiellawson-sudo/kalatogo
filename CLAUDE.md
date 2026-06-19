@@ -54,6 +54,24 @@ Avant de répondre, vérifier et confirmer explicitement :
 
 ---
 
+## RÈGLE ABSOLUE — LES DEUX INVISIBLES (gravée 2026-06-19)
+
+**WOZALI résout deux problèmes distincts, pas un seul. Toute description de la mission, tout contenu social, tout document de formation DOIT inclure les deux.**
+
+**L'invisible 1 - L'artisan sans clients :** le meilleur menuisier du quartier que personne ne trouve parce qu'il n'a pas de réseau. Il travaille bien. Personne ne le sait.
+
+**L'invisible 2 - Le chercheur d'emploi sans visibilité :** le jeune diplômé qui envoie son CV sur WhatsApp dans le vide. La couturière qui cherche un poste en boutique sans savoir à qui postuler. Le petit patron qui recrute par bouche-à-oreille, se trompe de candidat, perd du temps et de l'argent.
+
+**La phrase pivot :** "Il y a deux invisibles. L'artisan que personne ne trouve. Et le chercheur d'emploi que personne n'appelle. WOZALI existe pour les deux."
+
+**Application :**
+- Documents formation agents terrain ET ambassadeurs : mentionner les deux invisibles dans toute section "mission / problème / pourquoi WOZALI existe"
+- Contenu social (posts, stories, reels, TikTok) : varier entre les deux angles selon la phase Sabri Suby
+- Copywriting site : toute page qui décrit WOZALI inclut les deux cas d'usage (artisan + emploi)
+- JAMAIS réduire WOZALI à "trouver un artisan" seul - WOZALI Jobs est une dimension centrale, pas un accessoire
+
+---
+
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-06-01)
 
 ### État actuel — tout est opérationnel
