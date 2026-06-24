@@ -36,6 +36,7 @@
     { "source": "/ambassadeurs", "destination": "/ambassadeurs.html" },
     { "source": "/cgu", "destination": "/cgu.html" },
     { "source": "/confidentialite", "destination": "/politique-confidentialite.html" },
-    { "source": "/bientot", "destination": "/bientot.html" }
+    { "source": "/bientot", "destination": "/bientot.html" },
+    { "source": "/pitch", "destination": "/pitch.html" }
   ]
 }
