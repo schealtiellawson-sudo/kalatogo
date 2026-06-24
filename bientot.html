@@ -112,7 +112,12 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+var _supa = window.supabase.createClient(
+  'https://wikgdksyeygwpmqzmhez.supabase.co',
+  'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU'
+);
 var METIERS = ["Coiffeuse","Barbier","Esthéticienne","Nail Art","Maquilleuse","Tatoueur","Masseuse","Menuisier","Maçon","Électricien","Plombier","Peintre","Soudeur","Carreleur","Ferronnier","Vitrier","Tapissier","Froid & Clim","Mécanicien auto","Mécanicien moto","Électronicien","Réparateur tél.","Électroménager","Technicien PC","Couturière","Brodeuse","Cordonnier","Teinturier","Vendeur mode","Photographe","Vidéaste","Graphiste","DJ","Musicien","Monteur vidéo","Motion designer","Community Manager","Copywriter","Cuisinière","Traiteur","Pâtissier","Restaurateur","Maquis","Vendeur de rue","Épicier","Boucher","Fruits & Légumes","Fleuriste","Commercial","Femme de ménage","Repasseuse","Jardinier","Laveur auto","Baby-sitter","Vigile","Chauffeur","Livreur","Aide-soignant","Tradipraticien","Nutritionniste","Kiné","Opticien","Prof particulier","Coach","Traducteur","Développeur","Data analyst","Expert Excel","Chef de projet","Secrétaire","Comptable","Juriste","Architecte","Influenceur","Pharmacie","Quincaillerie","Institut beauté","Pressing","Cybercafé","Librairie","Friperie"];
 
 function fill(el,arr,offset){
@@ -143,28 +148,18 @@ function tick(){
 }
 tick(); setInterval(tick,1000);
 
-// Capture WhatsApp → Airtable
-var AIRTABLE_TOKEN=window.ENV_AT||'';
-var AIRTABLE_BASE='applmj1RDrJkR8C4w';
-var AIRTABLE_TABLE='Waitlist';
-
 function submit(e){
   e.preventDefault();
   var wa=document.getElementById('wa').value.trim();
   if(!wa)return;
   var btn=document.querySelector('.cta-btn');
   btn.textContent='...'; btn.disabled=true;
-  fetch('https://api.airtable.com/v0/'+AIRTABLE_BASE+'/'+encodeURIComponent(AIRTABLE_TABLE),{
-    method:'POST',
-    headers:{'Authorization':'Bearer '+AIRTABLE_TOKEN,'Content-Type':'application/json'},
-    body:JSON.stringify({fields:{'WhatsApp':wa,'Source':'bientot.html','Date':new Date().toISOString()}})
-  }).then(function(){
-    document.getElementById('form').style.display='none';
-    document.getElementById('success').style.display='block';
-  }).catch(function(){
-    btn.textContent='Être notifié'; btn.disabled=false;
-    alert('Erreur réseau, réessaie.');
-  });
+  _supa.from('waitlist').insert({whatsapp:wa,source:'bientot.html'})
+    .then(function(res){
+      if(res.error){btn.textContent='Être notifié';btn.disabled=false;return;}
+      document.getElementById('form').style.display='none';
+      document.getElementById('success').style.display='block';
+    });
 }
 </script>
 </body>
