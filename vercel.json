@@ -35,6 +35,7 @@
     { "source": "/formation-ambassadeurs/:slug", "destination": "/formation-ambassadeurs/:slug.html" },
     { "source": "/ambassadeurs", "destination": "/ambassadeurs.html" },
     { "source": "/cgu", "destination": "/cgu.html" },
-    { "source": "/confidentialite", "destination": "/politique-confidentialite.html" }
+    { "source": "/confidentialite", "destination": "/politique-confidentialite.html" },
+    { "source": "/bientot", "destination": "/bientot.html" }
   ]
 }
