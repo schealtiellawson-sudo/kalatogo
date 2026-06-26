@@ -6290,6 +6290,30 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ═══════════════════════════════════════════════════════
+   DIRECTION C — KPI CARDS RECRUTEUR
+   Remplace bleu/vert/rouge → palette #0A0A0A uniforme
+═══════════════════════════════════════════════════════ */
+
+/* Fond de toutes les KPI cards → #161616 + bande or */
+#ds-recrut-candidatures div[style*="rgba(59,130,246"],
+#ds-recrut-candidatures div[style*="rgba(34,197,94"],
+#ds-recrut-candidatures div[style*="rgba(220,38,38"],
+#ds-recrut-candidatures div[style*="rgba(252, 224, 168,.04)"],
+#ds-recrut-candidatures div[style*="rgba(232,148,10,.06)"] {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.12) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+
+/* Chiffres KPI — couleurs Direction C */
+#recrut-kpi-total    { color: #E8940A !important; }
+#recrut-kpi-attente  { color: #FFFFFF !important; }
+#recrut-kpi-vues     { color: rgba(255,255,255,0.65) !important; }
+#recrut-kpi-retenues { color: #E8940A !important; }
+#recrut-kpi-refusees { color: rgba(255,255,255,0.4) !important; }
+
+/* ═══════════════════════════════════════════════════════
    DIRECTION C — PAGES RECRUTEMENT & PROGRAMMES
    Agent terrain · Influenceurs · Pitch recrutement · Match
    Charte graphique officielle — 2026-06-26
