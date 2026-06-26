@@ -5240,53 +5240,122 @@ body {
   overflow-x: hidden !important;
 }
 
-/* ══ HYBRID DIRECTION C — 2026-06-26 ══
-   Signature : border-top or + grands chiffres bold
-   Palette crème WOZALI (#FCE0A8) préservée
-   ═════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   DIRECTION C — FLASH MOBILE — PALETTE & RESTRUCTURATION
+   ══════════════════════════════════════════════════════ */
 
-/* 1 — KPI cards : retirer la border-left colorée, ajouter top or */
+/* 1 — Fond global cold black */
+html { background: #0A0A0A !important; }
+body { background: #0A0A0A !important; color: #FFFFFF !important; }
+.page { background: #0A0A0A !important; }
+
+/* 2 — Navbar cold */
+nav, .top-nav, .navbar, [class*="top-bar"], [class*="nav-bar"] {
+  background: rgba(10,10,10,0.96) !important;
+  border-bottom-color: rgba(232,148,10,0.15) !important;
+}
+
+/* 3 — KPI cards : cold surface + border-top or */
 .kpi-card {
+  background: #161616 !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
-  border-top: 3px solid var(--wozali-orange) !important;
-  border-radius: 12px !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 10px !important;
+  padding: 14px 12px !important;
 }
 
-/* 2 — KPI nombres : 40px bold, signature Direction C */
-#kpi-views,
-#kpi-wa,
-#kpi-rdv,
-#kpi-note,
-#kpi-score,
-#kpi-completion {
-  font-size: 40px !important;
+/* 4 — Cacher surcharge visuelle dans les KPI cards (emoji + hint + tooltip) */
+.kpi-card > button { display: none !important; }
+.kpi-card > div[style*="font-size:22px"] { display: none !important; }
+.kpi-card > div[style*="font-size:10px"] { display: none !important; }
+
+/* 5 — KPI nombres : 42px bold blanc */
+#kpi-views, #kpi-wa, #kpi-rdv,
+#kpi-note, #kpi-score, #kpi-completion {
+  font-size: 42px !important;
   font-weight: 700 !important;
-  letter-spacing: -0.02em !important;
+  letter-spacing: -0.03em !important;
   line-height: 1 !important;
+  color: #FFFFFF !important;
 }
 
-/* 3 — stat-cards (parrainage, agents terrain) : meme signature */
+/* 6 — KPI labels : uppercase petit blanc semi-transparent */
+.kpi-card > div[style*="font-size:12px"] {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  color: rgba(255,255,255,0.45) !important;
+  margin-top: 6px !important;
+}
+
+/* 7 — KPI sub-labels (tendance) : or */
+.kpi-card > div[id$="-sub"],
+.kpi-card > div[id$="-level"],
+.kpi-card > div[id$="-next"] {
+  font-size: 11px !important;
+  color: #E8940A !important;
+  font-weight: 600 !important;
+}
+
+/* 8 — stat-cards (parrainage) : meme traitement */
 .stat-card {
-  border-top: 3px solid var(--wozali-orange) !important;
-  border-radius: 12px !important;
+  background: #161616 !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 10px !important;
 }
 .stat-card-num {
   font-size: 38px !important;
   font-weight: 700 !important;
   letter-spacing: -0.02em !important;
+  color: #FFFFFF !important;
 }
+.stat-card-label { color: rgba(255,255,255,0.45) !important; }
 
-/* 4 — pstat-num (page profil public) */
+/* 9 — profil public stats */
 .pstat-num {
   font-size: 36px !important;
   font-weight: 700 !important;
   letter-spacing: -0.02em !important;
   line-height: 1 !important;
+  color: #FFFFFF !important;
 }
+.pstat-label { color: rgba(255,255,255,0.45) !important; }
+.profil-stats-bar { border-top-color: rgba(255,255,255,0.08) !important; }
 
-/* 5 — metric-num général (hors hero homepage déjà en clamp 36-64px) */
+/* 10 — metric-num (sections accueil) */
 .metric-num {
   font-size: 36px !important;
   font-weight: 700 !important;
   letter-spacing: -0.02em !important;
+  color: #E8940A !important;
 }
+.metric-label { color: rgba(255,255,255,0.5) !important; }
+
+/* 11 — Sections dashboard, widgets, conteneurs */
+.ds-section, [id^="ds-"], .dash-content,
+.widget-bourse-wrap, .widget-awards {
+  background: transparent !important;
+}
+
+/* 12 — Textes gris → blanc semi-transparent */
+.gris, var(--gris) { color: rgba(255,255,255,0.45) !important; }
+
+/* 13 — Inputs, selects, textareas */
+input, select, textarea {
+  background: #1A1A1A !important;
+  border-color: rgba(232,148,10,0.2) !important;
+  color: #FFFFFF !important;
+}
+input::placeholder, textarea::placeholder {
+  color: rgba(255,255,255,0.3) !important;
+}
+
+/* 14 — Cards génériques fond sombre */
+.card, [class*="-card"]:not(.kpi-card):not(.stat-card) {
+  background: #161616 !important;
+}
+
+/* 15 — Profil page bg */
+.profil-page-bg { background: #0A0A0A !important; }
+.profil-section { background: #161616 !important; border-radius: 10px; }
