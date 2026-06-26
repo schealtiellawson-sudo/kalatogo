@@ -5925,3 +5925,366 @@ input::placeholder, textarea::placeholder {
 /* Scroll custom profil page */
 #page-profil::-webkit-scrollbar { width: 4px; }
 #page-profil::-webkit-scrollbar-thumb { background: rgba(232,148,10,0.2); border-radius: 2px; }
+
+/* ═══════════════════════════════════════════════════════
+   DIRECTION C — PAGES PUBLIQUES
+   Accueil · Trouver un pro · WOZALI Jobs · Mon Fil
+   Récompenses · Comment ça marche · Notre Histoire
+   2026-06-26
+═══════════════════════════════════════════════════════ */
+
+/* Fond global : Direction C #0A0A0A */
+#page-search, #page-emploi, #page-feed, #page-fil,
+#page-recompenses, #page-awards, #page-fonctionnement,
+#page-apropos, #page-a-propos, #page-home,
+#page-match, #page-recrutement-agents {
+  background: #0A0A0A !important;
+  color: #FFFFFF !important;
+}
+
+/* ── TROUVER UN PRO ─────────────────────────── */
+.search-page-header {
+  background: #0A0A0A !important;
+  border-bottom: 1px solid rgba(232,148,10,0.1) !important;
+}
+.search-page-header h2 {
+  color: #FFFFFF !important;
+  font-family: 'DM Serif Display', serif !important;
+}
+.search-page-header p { color: rgba(255,255,255,0.45) !important; }
+
+/* Barre filtres */
+.search-results-bar, .search-filters-sticky {
+  background: rgba(10,10,10,0.95) !important;
+  border-bottom: 1px solid rgba(232,148,10,0.08) !important;
+  backdrop-filter: blur(12px) !important;
+}
+.filter-select, .filter-chip {
+  background: #161616 !important;
+  border: 1.5px solid rgba(232,148,10,0.2) !important;
+  color: rgba(255,255,255,0.75) !important;
+  border-radius: 100px !important;
+}
+.filter-select:focus, .filter-select:hover {
+  border-color: #E8940A !important;
+  color: #FFFFFF !important;
+}
+.filter-dispo {
+  background: #161616 !important;
+  border: 1.5px solid rgba(232,148,10,0.2) !important;
+  color: rgba(255,255,255,0.75) !important;
+}
+.filter-dispo.active {
+  background: #E8940A !important;
+  border-color: #E8940A !important;
+  color: #0A0A0A !important;
+}
+.qf-chip {
+  background: #161616 !important;
+  border: 1.5px solid rgba(232,148,10,0.15) !important;
+  color: rgba(255,255,255,0.6) !important;
+}
+.qf-chip.active, .qf-chip:hover {
+  background: rgba(232,148,10,0.12) !important;
+  border-color: #E8940A !important;
+  color: #E8940A !important;
+}
+
+/* Map toggle */
+.map-toggle-btn {
+  background: #161616 !important;
+  border: 1.5px solid rgba(232,148,10,0.2) !important;
+  color: rgba(255,255,255,0.7) !important;
+  border-radius: 100px !important;
+}
+.map-toggle-btn.active, .map-toggle-btn:hover {
+  background: #E8940A !important;
+  border-color: #E8940A !important;
+  color: #0A0A0A !important;
+  font-weight: 700 !important;
+}
+
+/* Search bar */
+.search-bar {
+  background: #161616 !important;
+  border: 1.5px solid rgba(232,148,10,0.2) !important;
+}
+.search-bar:focus-within { border-color: #E8940A !important; }
+.search-bar select, .search-bar input {
+  background: transparent !important;
+  color: #FFFFFF !important;
+}
+.search-bar-btn {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+  font-weight: 800 !important;
+}
+
+/* Résultats meta */
+.results-meta { color: rgba(255,255,255,0.4) !important; }
+
+/* Carte prestataire — Direction C */
+.wozali-card-prestataire {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+.wozali-card-prestataire:hover {
+  border-color: rgba(232,148,10,0.4) !important;
+  border-top-color: #E8940A !important;
+  box-shadow: 0 8px 32px rgba(232,148,10,0.1) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* pcard (autre format de card prestataire) */
+.pcard {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+.pcard:hover {
+  border-color: rgba(232,148,10,0.3) !important;
+  box-shadow: 0 8px 28px rgba(232,148,10,0.08) !important;
+}
+.pcard-distance {
+  background: rgba(232,148,10,0.1) !important;
+  color: #E8940A !important;
+}
+
+/* ── WOZALI JOBS ─────────────────────────────── */
+/* Filtres emploi — selecteurs blancs → dark */
+#emploi-filter-pays, #emploi-filter-quartier,
+#emploi-filter-contrat, #emploi-search-q {
+  background: #161616 !important;
+  border: 1.5px solid rgba(232,148,10,0.2) !important;
+  color: rgba(255,255,255,0.8) !important;
+  border-radius: 10px !important;
+}
+
+/* Carte offre d'emploi */
+.offre-card, [class*="offre-card"] {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+  color: #FFFFFF !important;
+}
+.offre-card:hover {
+  border-color: rgba(232,148,10,0.3) !important;
+  box-shadow: 0 6px 24px rgba(232,148,10,0.08) !important;
+}
+
+/* Bloc différenciation emploi */
+#page-emploi [style*="background:rgba(232,148,10"] {
+  background: rgba(232,148,10,0.1) !important;
+  border-color: rgba(232,148,10,0.25) !important;
+}
+
+/* ── MON FIL (FEED) ──────────────────────────── */
+.feed-header-bar {
+  background: rgba(10,10,10,0.95) !important;
+  border-bottom: 1px solid rgba(232,148,10,0.08) !important;
+  backdrop-filter: blur(12px) !important;
+}
+.feed-onglets {
+  background: #0A0A0A !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+.feed-onglet {
+  color: rgba(255,255,255,0.45) !important;
+  border-bottom: 2px solid transparent !important;
+}
+.feed-onglet.active, .feed-onglet:hover {
+  color: #E8940A !important;
+  border-bottom-color: #E8940A !important;
+  background: transparent !important;
+}
+.feed-sous-filtres {
+  background: #0A0A0A !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+.sous-filtre {
+  background: #161616 !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.5) !important;
+  border-radius: 100px !important;
+}
+.sous-filtre.active, .sous-filtre:hover {
+  background: rgba(232,148,10,0.12) !important;
+  border-color: rgba(232,148,10,0.3) !important;
+  color: #E8940A !important;
+}
+.talent-select {
+  background: #161616 !important;
+  border: 1.5px solid rgba(232,148,10,0.15) !important;
+  color: rgba(255,255,255,0.75) !important;
+  border-radius: 8px !important;
+}
+.feed-post {
+  background: #161616 !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+.feed-post:hover {
+  background: #1A1A1A !important;
+  border-color: rgba(232,148,10,0.15) !important;
+}
+.feed-header-icon {
+  background: transparent !important;
+  color: rgba(255,255,255,0.7) !important;
+  border: none !important;
+}
+.feed-header-icon:hover {
+  background: rgba(232,148,10,0.08) !important;
+  color: #E8940A !important;
+}
+
+/* ── RÉCOMPENSES ─────────────────────────────── */
+#page-recompenses h1, #page-recompenses h2,
+#page-awards h1, #page-awards h2 {
+  color: #FFFFFF !important;
+  font-family: 'DM Serif Display', serif !important;
+}
+#page-recompenses h3, #page-awards h3 {
+  color: #E8940A !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+.wozali-award-card {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.15) !important;
+  border-top: 3px solid #E8940A !important;
+}
+.widget-bourse-wrap, .widget-awards,
+[class*="bourse-card"], [class*="award-card"] {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.1) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+.recomp-checklist-item, .checklist-item {
+  background: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* ── COMMENT ÇA MARCHE ───────────────────────── */
+#page-fonctionnement { background: #0A0A0A !important; }
+#page-fonctionnement section {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+#page-fonctionnement h2 {
+  color: #FFFFFF !important;
+  font-family: 'DM Serif Display', serif !important;
+  font-size: clamp(24px, 4vw, 40px) !important;
+}
+#page-fonctionnement h3 {
+  color: #E8940A !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+}
+#page-fonctionnement p { color: rgba(255,255,255,0.55) !important; }
+#page-fonctionnement .fonct-step,
+#page-fonctionnement [class*="step-card"],
+#page-fonctionnement [class*="fonct-card"] {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.1) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+
+/* ── NOTRE HISTOIRE ──────────────────────────── */
+#page-apropos, #page-a-propos { background: #0A0A0A !important; }
+#page-apropos h2, #page-a-propos h2 {
+  color: #FFFFFF !important;
+  font-family: 'DM Serif Display', serif !important;
+}
+#page-apropos h3, #page-a-propos h3 { color: #E8940A !important; }
+#page-apropos p, #page-a-propos p { color: rgba(255,255,255,0.6) !important; }
+#page-apropos [class*="card"], #page-a-propos [class*="card"] {
+  background: #161616 !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+
+/* ── ACCUEIL — sections complémentaires ──────── */
+#page-home { background: #0A0A0A !important; }
+
+/* Sections thématiques home (vedettes, catégories, etc.) */
+#page-home section, #page-home .section-block,
+#page-home [class*="-section"]:not(.hero) {
+  background: transparent !important;
+}
+#page-home h2, #page-home .section-title {
+  color: #FFFFFF !important;
+  font-family: 'DM Serif Display', serif !important;
+}
+#page-home h3 { color: #E8940A !important; }
+
+/* Cards home (vedettes, catégories) */
+#page-home .wozali-card-prestataire,
+#page-home .pcard,
+#page-home [class*="-card"]:not(.hero-card) {
+  background: #161616 !important;
+  border-top: 3px solid #E8940A !important;
+}
+
+/* Countdown / stats home */
+#page-home .metric {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.12) !important;
+  border-radius: 12px !important;
+}
+
+/* Boutons CTA pages publiques */
+#page-search .btn-or, #page-emploi .btn-or,
+#page-recompenses .btn-or, #page-fonctionnement .btn-or,
+.btn.btn-or {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+  font-weight: 800 !important;
+  border: none !important;
+}
+.btn.btn-dark {
+  background: #161616 !important;
+  color: rgba(255,255,255,0.85) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+.btn.btn-dark:hover {
+  background: #222 !important;
+  border-color: rgba(232,148,10,0.3) !important;
+}
+
+/* Textes gris/crème → blancs sur pages Direction C */
+#page-search .results-meta,
+#page-emploi [style*="color:rgba(255,255,255"] { color: rgba(255,255,255,0.55) !important; }
+
+/* Séparateurs de section */
+#page-fonctionnement hr, #page-apropos hr, #page-a-propos hr {
+  border: none !important;
+  border-top: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+/* Score WOZALI badge dans les cards */
+.wozali-score-value { color: #E8940A !important; }
+.wozali-score-track { background: rgba(255,255,255,0.06) !important; }
+
+/* RDV tab active → gold */
+.rdv-tab.active {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+  border-color: #E8940A !important;
+}
+.rdv-slot-btn:hover {
+  background: rgba(232,148,10,0.15) !important;
+  border-color: #E8940A !important;
+  color: #E8940A !important;
+}
