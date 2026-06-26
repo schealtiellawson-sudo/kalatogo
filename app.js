@@ -325,7 +325,7 @@ async function submitLogin() {
     clearTimeout(_loginSafety);
     updateNavAuth(true);
     toast('Connexion réussie ! Bienvenue 🎉', 'success');
-    showPage('dashboard');
+    viewMyProfile();
     btn.textContent = 'Se connecter';
     btn.disabled = false;
   } catch (err) {

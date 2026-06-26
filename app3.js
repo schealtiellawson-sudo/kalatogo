@@ -2388,15 +2388,18 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
         else {
           close();
           if (window.currentUser) {
-            if (typeof showPage === 'function') showPage('dashboard');
-            setTimeout(function(){ if (typeof showDashSection === 'function') showDashSection('abonnement'); }, 400);
+            if (typeof viewMyProfile === 'function') viewMyProfile();
+            else if (typeof showPage === 'function') showPage('dashboard');
           } else {
             if (typeof showPage === 'function') showPage('inscription');
           }
         }
       };
       var sec = document.getElementById('wozali-onb-secondary');
-      if (sec) sec.onclick = function(){ close(); };
+      if (sec) sec.onclick = function(){
+        close();
+        if (window.currentUser && typeof viewMyProfile === 'function') viewMyProfile();
+      };
     }
 
     function close(){
