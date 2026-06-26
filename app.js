@@ -6456,111 +6456,213 @@ async function showProfil(recordId) {
 </div>`;
 
     container.innerHTML = `
-      <!-- DIRECTION C — profil public -->
+      <!-- Hero section dark -->
+      <div class="profil-hero-section">
+        <div class="profil-hero-inner">
+          <div class="profil-top">
+            <!-- Avatar + badge online -->
+            <div class="profil-avatar-wrap">
+              <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}">
+                ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
+              </div>
+              <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>
+            </div>
 
-      <!-- Cover -->
-      <div style="height:160px;background:#161616;border-bottom:3px solid #E8940A;overflow:hidden;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.06);font-size:40px;">
-        ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : '📷'}
-      </div>
+            <div class="profil-info">
+              <!-- Nom + icône vérifié -->
+              <div class="profil-name">
+                ${nom}
+                ${verifie ? '<span class="profil-verified-icon" title="Vérifié WOZALI">✓</span>' : ''}
+              </div>
 
-      <!-- Top: avatar + name + metier + badges -->
-      <div style="padding:20px 20px 0;">
-        <div style="display:flex;gap:16px;align-items:center;margin-bottom:18px;">
-          <div style="width:72px;height:72px;border-radius:14px;border:2px solid #E8940A;background:#161616;display:flex;align-items:center;justify-content:center;font-size:28px;color:#E8940A;flex-shrink:0;overflow:hidden;margin-top:-36px;box-shadow:0 0 0 3px #0A0A0A;">
-            ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<span style="font-size:28px;font-weight:700;">${initiale}</span>`}
+              <!-- Métier, quartier, expérience -->
+              <div class="profil-sub">
+                <span>${emoji} ${metier}</span>
+                ${quartier ? `<span>·</span><span>📍 ${quartier}</span>` : ''}
+                ${experience ? `<span>·</span><span>🏆 ${experience} ans</span>` : ''}
+              </div>
+
+              <!-- Statut en ligne -->
+              <div class="profil-status-text">
+                <span class="profil-status-dot ${dispo ? '' : 'offline'}"></span>
+                <span style="color:rgba(255,255,255,0.6);">
+                  ${dispo ? '<span style="color:#E8940A;">⭐ Disponible maintenant</span>' : 'Occupé pour l\'instant'}
+                </span>
+              </div>
+
+              <!-- Badges -->
+              <div class="profil-badges">
+                ${verifie ? '<span class="badge badge-vert">✓ Vérifié WOZALI</span>' : ''}
+                ${abonnementRaw !== 'Base' ? `<span class="badge badge-or">⭐ ${abonnement}</span>` : ''}
+                ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Membre Fondateur WOZALI</span>' : ''}
+                ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.25),rgba(245,158,11,0.15));color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 Éligible Bourse de Croissance</span>' : ''}
+                ${f['Rang Top 50'] && f['Rang Top 50'] <= 50 ? `<span class="badge" style="background:rgba(232,148,10,0.25);color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 TOP ${f['Rang Top 50']} WOZALI ${(quartierRaw||'').toLowerCase().includes('cotonou')?'🇧🇯':'🇹🇬'}</span>` : ''}
+                ${f['Champion WOZALI'] ? `<span class="badge" style="background:rgba(232,148,10,0.2);color:#E8940A;border:1px solid rgba(232,148,10,0.4);">⚔️ Champion WOZALI ${escapeHtml(f['Champion WOZALI'])}</span>` : ''}
+                ${note > 0 ? `<span class="badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">${starsHtml(note)} ${note.toFixed(1)}</span>` : ''}
+                ${isDigital ? '<span class="badge" style="background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);">🎓 Pro du Web</span>' : ''}
+                ${f['Mode Emploi'] ? '<span class="badge" style="background:rgba(232,148,10,0.2);color:#F5B82E;border:1px solid rgba(232,148,10,0.4);">💼 Ouvert aux opportunités</span>' : ''}
+              </div>
+
+              <!-- Boutons d'action -->
+              <div class="profil-actions">
+                <a href="javascript:void(0)" class="btn-rdv" onclick="showRdvPage('${recordId}')">📅 Prendre RDV</a>
+                ${tel ? `<a href="${waLink}" class="btn btn-wa" target="_blank">💬 WhatsApp</a>` : ''}
+                ${tel ? `<a href="tel:${tel}" class="btn-dark-outline">📞 Appeler</a>` : ''}
+                ${tiktok ? `<a href="${tiktokSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
+                ${instagram ? `<a href="${instagramSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
+                <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
+                <!-- Paiement profil — activé quand FedaPay sera connecté -->
+                <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
+                  style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
+                  ➕ Suivre
+                </button>
+              </div>
+            </div>
           </div>
-          <div style="flex:1;padding-top:0;">
-            <div style="font-size:22px;font-weight:700;color:#FFFFFF;margin-bottom:2px;">${nom}</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:8px;">${metier}${quartier ? ' · ' + quartier : ''}</div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;">
-              ${abonnementRaw !== 'Base' ? `<span style="background:#E8940A;color:#080808;font-size:10px;padding:3px 8px;border-radius:4px;font-weight:700;">PRO</span>` : ''}
-              ${verifie ? `<span style="background:rgba(90,170,90,0.15);color:#6AB56A;border:1px solid rgba(90,170,90,0.25);font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;">Vérifié</span>` : ''}
-              ${dispo ? `<span style="background:rgba(37,162,68,0.15);color:#25A244;border:1px solid rgba(37,162,68,0.2);font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;">Disponible</span>` : ''}
+
+          <!-- Stats bar -->
+          <div class="profil-stats-bar">
+            <div class="pstat">
+              <div class="pstat-num">${note > 0 ? note.toFixed(1) : '—'}</div>
+              <div class="pstat-label">Note / 5</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-num">${nbAvis}</div>
+              <div class="pstat-label">Avis clients</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-num">${nbTransactions}</div>
+              <div class="pstat-label">Prestations</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-num" style="color:var(--or);">${score}</div>
+              <div class="pstat-label">Score WOZALI</div>
+            </div>
+            ${experience ? `<div class="pstat"><div class="pstat-num">${experience}</div><div class="pstat-label">Ans d'expérience</div></div>` : ''}
+            <div class="pstat" style="cursor:pointer;" onclick="showPage('search')">
+              <div class="pstat-num" id="pstat-abonnes-${recordId}">…</div>
+              <div class="pstat-label">Abonnés</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Score strip -->
-        <div style="background:#161616;border-radius:10px;padding:16px;margin-bottom:16px;border-top:3px solid #E8940A;">
-          <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:10px;">
-            <div style="font-size:52px;font-weight:700;color:#E8940A;line-height:1;">${score}</div>
-            <div style="padding-bottom:5px;">
-              <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.4);margin-bottom:3px;">Score WOZALI</div>
-              <div style="font-size:13px;color:#FFFFFF;">${score >= 80 ? 'Top performer' : score >= 60 ? 'Profil solide' : score >= 40 ? 'En progression' : 'Profil débutant'} · ${metier}</div>
+      <!-- Corps de la page — fond sombre -->
+      <div class="profil-page-bg">
+        <div class="container">
+          <div class="profil-body">
+            <!-- Colonne principale -->
+            <div>
+              ${description ? `
+              <div class="profil-section">
+                <h3>À propos</h3>
+                ${descHtml}
+              </div>` : ''}
+
+
+              ${diplomes && isDigital ? `
+              <div class="profil-section">
+                <h3>🎓 Diplômes &amp; expériences</h3>
+                <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.8;white-space:pre-wrap;">${diplomes}</p>
+              </div>` : ''}
+
+              ${albumsPreview}
+
+              ${languesSection}
+
+              ${postsSection}
+
+              <!-- Section Disponibilité -->
+              <div class="profil-section">
+                <h3 style="margin-bottom:12px;">Quand contacter ${nom.split(' ')[0]} ?</h3>
+                ${dispo
+                  ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> — répond généralement en moins d'1h.</p>`
+                  : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp — ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
+                <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px;">Disponible : Lun–Ven : 8h–18h / Samedi : 9h–14h</p>
+              </div>
+
+              <!-- Section Avis -->
+              <div class="profil-section">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                  <h3 style="margin-bottom:0;">⭐ Ce que ses clients disent de ${nom.split(' ')[0]}.</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="openModalAvis('${recordId}','${nom}')">+ Laisser un avis</button>
+                </div>
+                <div id="avis-container-${recordId}">${avisHtml}</div>
+                ${avisRecords.length > 3 ? `<button class="voir-plus-btn" style="margin-top:12px;width:100%;justify-content:center;" onclick="showAllAvis('${recordId}', ${JSON.stringify(avisRecords.map(a=>a.id))})">Voir tous les avis (${avisRecords.length}) ▾</button>` : ''}
+              </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+              <div class="sidebar-card">
+                ${(tarifMin || tarifMax) ? `
+                <div class="tarif-box">
+                  <div class="tarif-range">
+                    ${tarifMin ? 'À partir de ' + tarifMin.toLocaleString() + ' FCFA' : ''}${tarifMax ? '<br>Jusqu\'à ' + tarifMax.toLocaleString() + ' FCFA selon la prestation' : ''}
+                  </div>
+                  <div class="tarif-label" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;">Prix négociables directement avec ${nom.split(' ')[0]}.<br>Paiement : TMoney · Flooz (Togo) / MTN Money · Moov Money (Bénin)</div>
+                </div>` : ''}
+                ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#E8940A;color:white;" target="_blank">→ Contacter maintenant sur WhatsApp</a>` : ''}
+                <p style="font-size:12px;color:rgba(255,255,255,0.55);text-align:center;line-height:1.6;margin:0 0 6px;">Contact direct. Zéro intermédiaire.<br>Paiement : TMoney · Flooz (Togo) / MTN Mobile Money · Moov Money (Bénin)</p>
+                <div style="font-size:12px;color:rgba(255,255,255,0.35);text-align:center;line-height:1.6;">
+                  En contactant via WOZALI, tu bénéficies de la garantie prestataire vérifié.
+                </div>
+              </div>
+
+              <div class="sidebar-card">
+                <h4>Informations</h4>
+                <div style="font-size:14px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
+                  ${quartier ? `<div style="display:flex;align-items:center;gap:8px;">📍 <span><strong style="color:white;">Où trouver ${nom.split(' ')[0]}</strong> · ${quartier}</span></div>` : ''}
+                  ${(gpsLat && gpsLon) ? `
+                  <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);margin-top:4px;">
+                    <div id="profil-minimap-${recordId}" style="height:130px;background:linear-gradient(135deg,#151d28,#1a2820);display:flex;align-items:center;justify-content:center;">
+                      <div style="opacity:0.3;font-size:20px;">🗺️</div>
+                    </div>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:13px;font-weight:800;text-decoration:none;letter-spacing:0.2px;" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                      🗺️ Voir l'itinéraire — envoie au zem pour qu'il arrive directement
+                    </a>
+                  </div>` : quartier ? `
+                  <div>
+                    <a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+                      🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →
+                    </a>
+                  </div>` : ''}
+                  ${metier ? `<div style="display:flex;align-items:center;gap:8px;">${emoji} <span><strong style="color:white;">Métier</strong> · ${metier}</span></div>` : ''}
+                  ${experience ? `<div style="display:flex;align-items:center;gap:8px;">🏆 <span><strong style="color:white;">Expérience</strong> · ${experience} ans</span></div>` : ''}
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    ${dispo ? '<span style="color:#E8940A;">⭐</span>' : '⚪'}
+                    <span><strong style="color:white;">Statut</strong> · ${dispo ? '<span style="color:#E8940A;">Disponible maintenant</span>' : 'Occupé pour l\'instant'}</span>
+                  </div>
+                </div>
+              </div>
+
+              ${(tiktok || instagram) ? `
+              <div class="sidebar-card">
+                <h4>Réseaux sociaux</h4>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  ${tiktok ? `<a href="${tiktokSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
+                  ${instagram ? `<a href="${instagramSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
+                </div>
+              </div>` : ''}
             </div>
           </div>
-          <div style="height:6px;background:#202020;border-radius:3px;overflow:hidden;margin-bottom:5px;">
-            <div style="height:100%;width:${score}%;background:#E8940A;border-radius:3px;"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;">
-            <span style="font-size:10px;color:rgba(255,255,255,0.4);">0</span>
-            <span style="font-size:10px;color:#E8940A;">${score} / 100</span>
-          </div>
         </div>
+      </div>
 
-        <!-- Stats row -->
-        <div style="display:flex;background:#161616;border-radius:10px;margin-bottom:16px;overflow:hidden;">
-          <div style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid rgba(255,255,255,0.07);">
-            <div style="font-size:22px;font-weight:700;color:#FFFFFF;">${note > 0 ? note.toFixed(1) : '—'}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">Note / 5</div>
-          </div>
-          <div style="flex:1;text-align:center;padding:14px 8px;border-right:1px solid rgba(255,255,255,0.07);">
-            <div style="font-size:22px;font-weight:700;color:#FFFFFF;">${nbAvis}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">Avis clients</div>
-          </div>
-          <div style="flex:1;text-align:center;padding:14px 8px;">
-            <div class="pstat-num" style="font-size:22px;font-weight:700;color:#FFFFFF;">${f['Nombre de vues profil'] || 0}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">Vues profil</div>
-          </div>
-        </div>
-
-        <!-- Spécialités -->
-        <div style="margin-bottom:16px;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,0.35);margin-bottom:10px;font-weight:600;">Spécialités</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            ${metier ? `<span style="background:#161616;border-radius:6px;padding:6px 12px;font-size:12px;color:#FFFFFF;border:1px solid rgba(255,255,255,0.1);">${metier}</span>` : ''}
-            ${quartier ? `<span style="background:#161616;border-radius:6px;padding:6px 12px;font-size:12px;color:#FFFFFF;border:1px solid rgba(255,255,255,0.1);">📍 ${quartier}</span>` : ''}
-            ${experience ? `<span style="background:#161616;border-radius:6px;padding:6px 12px;font-size:12px;color:#FFFFFF;border:1px solid rgba(255,255,255,0.1);">🏆 ${experience} ans</span>` : ''}
-            ${dispo ? `<span style="background:rgba(37,162,68,0.1);border-radius:6px;padding:6px 12px;font-size:12px;color:#25A244;border:1px solid rgba(37,162,68,0.2);">Disponible maintenant</span>` : ''}
+      <!-- Profils similaires -->
+      <div class="profil-page-bg" style="padding-top:0;">
+        <div class="container">
+          <div class="profil-section" style="margin-top:0;">
+            <h3 style="margin-bottom:6px;">D'autres ${metier || 'professionnels'} à ${(quartier || '').split('—')[0] || 'cette ville'}</h3>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.7;margin-bottom:16px;">Ces prestataires travaillent dans le même domaine.<br>Tous vérifiés. Tous disponibles sur WOZALI.</p>
+            <div id="profils-similaires-${recordId}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
+              <div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-size:13px;grid-column:1/-1;">Chargement des profils similaires…</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Photos de travaux -->
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,0.35);font-weight:600;padding:0 20px 10px;">Photos de travaux</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:4px;">
-        ${[0,1,2,3,4,5].map(i => realisations[i]
-          ? `<div style="aspect-ratio:1;overflow:hidden;cursor:pointer;" onclick="openLightboxSwipe(${JSON.stringify(realisations.map(u=>({url:u,type:'photo'})))},${Math.min(i,realisations.length-1)})"><img src="${realisations[i]}" alt="Photo ${i+1}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>`
-          : `<div style="aspect-ratio:1;background:#161616;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.06);font-size:28px;">+</div>`
-        ).join('')}
-      </div>
-
-      <!-- Avis clients -->
-      <div style="padding:16px 20px 140px;">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,0.35);margin-bottom:12px;font-weight:600;">Avis clients${nbAvis > 0 ? ` (${nbAvis})` : ''}</div>
-        <div id="avis-container-${recordId}">${avisHtml}</div>
-        ${avisRecords.length > 3 ? `<button style="margin-top:8px;width:100%;padding:12px;background:#161616;border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.55);font-size:13px;cursor:pointer;font-family:inherit;" onclick="showAllAvis('${recordId}',${JSON.stringify(avisRecords.map(a=>a.id))})">Voir tous les avis (${avisRecords.length}) ▾</button>` : ''}
-        <button style="margin-top:8px;width:100%;padding:12px;background:${nbAvis===0?'#E8940A':'rgba(255,255,255,0.06)'};color:${nbAvis===0?'#080808':'rgba(255,255,255,0.55)'};border:${nbAvis===0?'none':'1px solid rgba(255,255,255,0.08)'};border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="openModalAvis('${recordId}','${nom}')">${nbAvis===0?'Laisser le premier avis →':'+ Laisser un avis'}</button>
-      </div>
-
-      <!-- Sticky contact bar -->
-      <div style="position:fixed;bottom:0;left:0;right:0;padding:12px 20px;background:rgba(5,5,5,0.97);border-top:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(10px);display:flex;gap:10px;z-index:200;">
-        ${tel
-          ? `<a href="${waLink}" target="_blank" style="flex:1;background:#25A244;color:#fff;border:none;padding:16px;border-radius:14px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;">💬 Contacter sur WhatsApp</a>`
-          : `<button disabled style="flex:1;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.35);border:none;padding:16px;border-radius:14px;font-size:14px;cursor:not-allowed;">Pas de contact WhatsApp</button>`}
-        <button onclick="shareProfile('${recordId}','${nom}')" style="background:#161616;color:#FFFFFF;border:1px solid rgba(255,255,255,0.1);padding:16px 18px;border-radius:14px;font-size:20px;cursor:pointer;flex-shrink:0;">🔗</button>
-      </div>
-
-      <!-- IDs compat JS (cachés) -->
-      <div style="display:none;">
-        <span id="pstat-abonnes-${recordId}">0</span>
-        <button data-suivi-prest="${recordId}"></button>
-        <div id="posts-section-${recordId}"><div id="posts-feed-${recordId}"></div></div>
-        <div id="profil-minimap-${recordId}"></div>
-        <div id="profils-similaires-${recordId}"></div>
-      </div>
-
-      <!-- Lightbox dark -->
+      <!-- Lightbox dark premium -->
       <div id="lb-real-${recordId}" class="lightbox-dark" onclick="if(event.target===this)closeLightboxDark('lb-real-${recordId}')">
         <div class="lightbox-dark-inner">
           <img class="lightbox-dark-img" id="lb-real-${recordId}-img" src="" alt="">
@@ -6570,7 +6672,15 @@ async function showProfil(recordId) {
           <div class="lightbox-counter" id="lb-real-${recordId}-counter"></div>
         </div>
       </div>
-
+      <div id="lb-me-${recordId}" class="lightbox-dark" onclick="if(event.target===this)closeLightboxDark('lb-me-${recordId}')">
+        <div class="lightbox-dark-inner">
+          <img class="lightbox-dark-img" id="lb-me-${recordId}-img" src="" alt="">
+          <button class="lightbox-close" onclick="closeLightboxDark('lb-me-${recordId}')">×</button>
+          <button class="lightbox-nav lightbox-prev" onclick="navLightboxDark('lb-me-${recordId}',-1)">‹</button>
+          <button class="lightbox-nav lightbox-next" onclick="navLightboxDark('lb-me-${recordId}',1)">›</button>
+          <div class="lightbox-counter" id="lb-me-${recordId}-counter"></div>
+        </div>
+      </div>
     `;
 
     // Charger le feed des posts après rendu (async Airtable)
