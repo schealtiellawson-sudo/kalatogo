@@ -5239,3 +5239,39 @@ body {
   width: 100% !important;
   overflow-x: hidden !important;
 }
+
+/* ══ HYBRID DIRECTION C — 2026-06-26 ══
+   Signature : border-top or + grands chiffres bold
+   Palette crème WOZALI (#FCE0A8) préservée
+   ═════════════════════════════════════════════ */
+
+/* 1 — KPI cards : retirer la border-left colorée, ajouter top or */
+.kpi-card {
+  border: 1px solid rgba(232,148,10,0.12) !important;
+  border-top: 3px solid var(--wozali-orange) !important;
+  border-radius: 12px !important;
+}
+
+/* 2 — KPI nombres : 40px bold, signature Direction C */
+#kpi-views,
+#kpi-wa,
+#kpi-rdv,
+#kpi-note,
+#kpi-score,
+#kpi-completion {
+  font-size: 40px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+}
+
+/* 3 — stat-cards (parrainage, agents terrain) : meme signature */
+.stat-card {
+  border-top: 3px solid var(--wozali-orange) !important;
+  border-radius: 12px !important;
+}
+.stat-card-num {
+  font-size: 38px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}

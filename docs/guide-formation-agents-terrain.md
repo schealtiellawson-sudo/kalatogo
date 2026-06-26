@@ -7,13 +7,23 @@
 
 ### Ce qu'est WOZALI
 
-WOZALI (lingala : "nous existons") est une plateforme qui rend visibles les commerçants, prestataires et indépendants de Lomé et Cotonou. Les gens qui font tourner l'économie locale mais qu'on ne trouve nulle part sur internet.
+WOZALI (lingala : "nous existons") est une plateforme qui connecte les travailleurs de l'économie informelle avec des clients — et les chercheurs d'emploi avec des recruteurs. Les gens qui font tourner l'économie locale mais qu'on ne trouve nulle part sur internet.
 
-Un profil WOZALI c'est simple : photo, métier, quartier, avis clients. Le Score WOZALI monte avec le travail réel. Plus le score est haut, plus le profil remonte dans les résultats quand quelqu'un cherche un prestataire.
+Un profil WOZALI c'est simple : photo, métier, quartier, avis clients. Le Score WOZALI monte avec le travail réel. Plus le score est haut, plus le profil remonte dans les résultats quand quelqu'un cherche un prestataire ou un candidat.
+
+### Les deux invisibles que WOZALI résout
+
+Il y a deux situations distinctes sur le terrain. Apprends à les identifier et à adapter ton angle.
+
+**L'invisible 1 - l'artisan sans clients :** le meilleur mécanicien du quartier que personne ne trouve parce qu'il n'a pas de réseau. Il travaille bien. Mais les mois sont durs. Pas assez de clients. L'argent ne circule pas comme il devrait.
+
+**L'invisible 2 - le chercheur d'emploi sans visibilité :** le jeune diplômé qui envoie son CV sur WhatsApp dans le vide. La couturière qui cherche un poste en boutique sans savoir à qui postuler. Le petit patron qui recrute par bouche-à-oreille, se trompe de candidat, perd du temps et de l'argent.
+
+WOZALI existe pour les deux. Quand tu approches quelqu'un, écoute sa situation avant de parler — tu sauras quel angle prendre.
 
 ### Ce que tu représentes
 
-Tu n'es pas un vendeur. Tu es un Agent terrain. Tu es la personne qui va voir les gens dans ton quartier et qui les aide à exister sur internet. Ton travail crée de la valeur pour eux avant même qu'ils paient quoi que ce soit.
+Tu n'es pas un vendeur. Tu es un Agent terrain WOZALI. Tu es la personne qui va voir les gens dans ton quartier et qui les aide à être trouvés. Ton travail crée de la valeur pour eux avant même qu'ils paient quoi que ce soit.
 
 ### Ce que WOZALI n'est pas
 
@@ -61,23 +71,40 @@ Commerçants, prestataires, indépendants. Toute personne qui travaille et propo
 
 Pas de restriction de métier. Si la personne travaille et peut recevoir des clients via son téléphone, elle peut être sur WOZALI.
 
+### La règle d'or : l'argent d'abord, la visibilité ensuite
+
+Les gens que tu approches ne savent pas qu'ils ont un problème de visibilité. Ce qu'ils voient, c'est que l'argent ne circule pas. Les mois difficiles. Le travail qui manque. Les clients qui ne viennent pas assez.
+
+N'ouvre **jamais** sur "tu n'es pas visible". Les gens ne se lèvent pas le matin en pensant "je suis invisible". Ils pensent "c'est serré ce mois-ci".
+
+Entre par le symptôme qu'ils vivent. Une fois qu'ils confirment que c'est dur, tu révèles la cause : les clients qui auraient pu venir les chercher ne les trouvent pas. L'invisibilité est l'explication — pas l'accroche.
+
+**Entrée** : l'argent qui ne rentre pas assez, les mois difficiles
+**AHA moment** : "la raison c'est que les clients qui cherchent ton métier sur leur téléphone ne te trouvent pas"
+**Solution** : WOZALI change la circulation — le meilleur remonte, pas le mieux connecté
+
 ### Comment ouvrir la conversation (SB7)
 
-Tu ouvres toujours sur leur situation, jamais sur WOZALI.
+Tu ouvres toujours sur leur situation financière ou leur manque de clients, jamais sur WOZALI.
 
 **Ce qu'on ne dit pas :**
 "Bonjour, je suis Agent terrain WOZALI, j'ai une plateforme à te présenter."
 
-**Ce qu'on dit :**
-"Eh [prénom], t'as combien de clients qui te contactent cette semaine sans que t'aies rien demandé ?"
-Laisser répondre.
-"Tu travailles bien. Mais les clients qui sont de l'autre côté de la ville, ils te trouvent comment ?"
+**Ce qu'on ne dit pas non plus :**
+"T'as combien de clients qui te contactent sans que t'aies rien demandé ?" (ouvre sur la visibilité, pas sur la douleur financière)
 
-Tu laisses la douleur s'installer. Puis tu proposes la solution.
+**Ce qu'on dit :**
+"Eh [prénom], c'est quoi l'état des finances ce mois-ci ? Ça tourne ?"
+Laisser répondre.
+"Ouais. C'est dur. Le travail manque pas forcément — mais l'argent ne rentre pas comme ça devrait."
+Laisser confirmer.
+"La vraie raison c'est que les gens qui ont besoin de [métier] en ce moment cherchent sur leur téléphone. Et ils ne te trouvent pas. Ils vont chez quelqu'un d'autre — pas parce qu'il travaille mieux. Juste parce qu'il est là sur l'écran."
+
+Tu laisses l'AHA moment s'installer. Puis tu proposes la solution.
 
 ### Le pitch en 3 phrases
 
-"WOZALI crée un profil pour toi. Quand quelqu'un cherche [métier] dans ton quartier, tu sors en premier. Pas parce que tu as payé. Parce que tu travailles bien."
+"WOZALI crée un profil pour toi. Quand quelqu'un cherche [métier] dans ton quartier, tu sors en premier. Pas parce que tu as du réseau. Parce que tu travailles bien."
 
 ### La création du profil (en live)
 
@@ -124,6 +151,21 @@ Chaque semaine dans le groupe Agents terrain :
 - Ce qui a bloqué
 
 Ce feedback est ce qui améliore les scripts pour tout le monde.
+
+### Tes KPI — objectifs de performance
+
+Tu travailles en tant que freelance indépendant. Tes résultats déterminent ta rémunération directement.
+
+| Période | Inscriptions | Pros attendus (20%) |
+|---|---|---|
+| Par heure | 5 | 1 |
+| Par jour (8h) | 40 | 8 |
+| Par semaine (5j) | 200 | 40 |
+| Par mois | 800 | 160 |
+
+Une inscription prend 5 à 10 minutes. Tu travailles dans des zones concentrées — marchés, quartiers commerçants. Les gens sont là. Il suffit d'aller vers eux.
+
+**Ce que la direction surveille : le KPI hebdomadaire.** 200 inscrits par semaine est l'objectif de référence. Comment tu les répartis sur la semaine, c'est toi qui gères. Un lundi à 60, un mercredi à 20 — peu importe. Ce qui compte c'est le total en fin de semaine.
 
 ### Le classement mensuel
 
