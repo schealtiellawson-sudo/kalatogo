@@ -6441,3 +6441,30 @@ input::placeholder, textarea::placeholder {
 #page-inscription input:focus, #page-login input:focus {
   border-color: #E8940A !important;
 }
+
+/* ═══════════════════════════════════════════════════════
+   DIRECTION C — KPI AGENTS TERRAIN (dashboard + admin)
+═══════════════════════════════════════════════════════ */
+
+/* Couleurs interdites dans tab Candidatures agents */
+#cand-kpi-preselect { color: #FFFFFF !important; }
+#cand-kpi-valide    { color: #E8940A !important; }
+
+/* Bannière info WhatsApp (fond vert rgba(37,211,102)) → surface neutre */
+#agent-panel-candidatures div[style*="rgba(37,211,102"] {
+  background: #161616 !important;
+  border-color: rgba(232,148,10,0.15) !important;
+}
+
+/* Page admin agents — KPI cards + modal : #161b17 → #161616 */
+#page-admin-agents div[style*="161b17"] {
+  background: #161616 !important;
+}
+#modal-agent-detail > div[style*="161b17"] {
+  background: #161616 !important;
+}
+
+/* Section storytelling page-recrutement-agents (#161b17 sur balise section) */
+#page-recrutement-agents section[style*="161b17"] {
+  background: #161616 !important;
+}
