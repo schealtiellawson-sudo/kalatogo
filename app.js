@@ -997,6 +997,8 @@ async function loadDashOverview() {
   ];
   const completion = completionItems.filter(i => i.done).reduce((s, i) => s + i.weight, 0);
   document.getElementById('kpi-completion').textContent = completion + '%';
+  const completionBarEl = document.getElementById('kpi-completion-bar');
+  if (completionBarEl) completionBarEl.style.width = completion + '%';
 
   // ── Note moyenne — non-bloquant (spinner puis update) ──
   let note = 0, nbAvis = 0;
@@ -1068,6 +1070,8 @@ async function loadDashOverview() {
     const scoreNextEl  = document.getElementById('kpi-score-next');
     if (scoreLevelEl) scoreLevelEl.textContent = `${cL.emoji} ${cL.name}`;
     if (scoreNextEl) scoreNextEl.textContent = nL ? `+${nL.min - s} pts → ${nL.emoji} ${nL.name}` : '⭐ Niveau maximum !';
+    const scoreBarEl = document.getElementById('kpi-score-bar');
+    if (scoreBarEl) scoreBarEl.style.width = s + '%';
   }
   // Passe 1 — provisoire immédiat (note=0, nbAvis=0 tant que _avisPromise en cours)
   _applyScoreGauge(0, 0);
@@ -1138,6 +1142,19 @@ async function loadDashOverview() {
   // ── Graphique ──
   renderDashChart(7);
 
+  // ── Filleuls parrainage ──
+  const nbFilleuls = f['Nb Filleuls'] || f['Nombre filleuls'] || f['Filleuls'] || 0;
+  const kpiFilleulsEl = document.getElementById('kpi-filleuls');
+  if (kpiFilleulsEl) kpiFilleulsEl.textContent = nbFilleuls || '0';
+  const kpiFilleulsSubEl = document.getElementById('kpi-filleuls-sub');
+  if (kpiFilleulsSubEl) kpiFilleulsSubEl.textContent = nbFilleuls > 0 ? `${(nbFilleuls * 1000).toLocaleString('fr-FR')} F/mois` : '1 000 F/filleul';
+  const ovCountEl = document.getElementById('ov-filleuls-count');
+  if (ovCountEl) ovCountEl.textContent = nbFilleuls;
+  const ovGainsEl = document.getElementById('ov-filleuls-gains');
+  if (ovGainsEl) ovGainsEl.textContent = (nbFilleuls * 1000).toLocaleString('fr-FR');
+  const ovNextEl = document.getElementById('ov-filleuls-next');
+  if (ovNextEl) ovNextEl.textContent = nbFilleuls < 5 ? `${5 - nbFilleuls} filleul(s) de plus = palier Argent` : nbFilleuls < 20 ? `${20 - nbFilleuls} filleuls de plus = palier Or` : 'Palier Or atteint !';
+
   // ── Completion bars ──
   const barsEl = document.getElementById('dash-completion-bars');
   if (barsEl) {
@@ -1146,11 +1163,11 @@ async function loadDashOverview() {
         <div style="font-size:15px;">${item.done ? '✅' : '⬜'}</div>
         <div style="flex:1;">
           <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
-            <span style="font-size:13px;font-weight:${item.done?'600':'500'};color:${item.done?'var(--noir)':'var(--gris)'};">${item.label}</span>
-            <span style="font-size:11px;font-weight:600;color:${item.done?'var(--vert)':'var(--gris)'};">${item.done?'+'+item.weight+'%':item.weight+'% manquant'}</span>
+            <span style="font-size:13px;font-weight:${item.done?'600':'500'};color:${item.done?'#FFFFFF':'rgba(255,255,255,0.45)'};">${item.label}</span>
+            <span style="font-size:11px;font-weight:600;color:${item.done?'#E8940A':'rgba(255,255,255,0.3)'};">${item.done?'+'+item.weight+'%':item.weight+'% manquant'}</span>
           </div>
-          <div style="height:5px;background:#f0f0f0;border-radius:10px;overflow:hidden;">
-            <div style="height:100%;width:${item.done?100:0}%;background:${item.done?'var(--vert)':'#e5e7eb'};border-radius:10px;transition:width 0.6s ease;"></div>
+          <div style="height:3px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;">
+            <div style="height:100%;width:${item.done?100:0}%;background:#E8940A;border-radius:10px;transition:width 0.6s ease;"></div>
           </div>
         </div>
       </div>`).join('');
@@ -1171,13 +1188,13 @@ async function loadDashOverview() {
   const actEl = document.getElementById('dash-actions');
   if (actEl) {
     actEl.innerHTML = actions.slice(0, 4).map(a => `
-      <div onclick="showDashSection('${a.section}')" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:10px 12px;cursor:pointer;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
+      <div onclick="showDashSection('${a.section}')" style="display:flex;align-items:center;gap:10px;background:#1A1A1A;border-radius:10px;padding:10px 12px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);">
         <span style="font-size:20px;">${a.icon}</span>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--noir);">${a.text}</div>
-          <div style="font-size:11px;color:var(--gris);">${a.sub}</div>
+          <div style="font-size:13px;font-weight:700;color:#FFFFFF;">${a.text}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);">${a.sub}</div>
         </div>
-        <span style="margin-left:auto;color:var(--gris);font-size:16px;">›</span>
+        <span style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:16px;">›</span>
       </div>`).join('');
   }
 }

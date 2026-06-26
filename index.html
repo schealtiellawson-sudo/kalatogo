@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260627">
+<link rel="stylesheet" href="/style.css?v=20260628">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2241,218 +2241,120 @@ setTimeout(function(){
       <!-- BANDEAU APPRENTIE — auto-injecté par injectApprentieBanner() -->
       <div id="apprentie-banner-host"></div>
 
-      <!-- VUE D'ENSEMBLE -->
+      <!-- VUE D'ENSEMBLE — DIRECTION C -->
       <div class="dash-section active" id="ds-overview">
-        <div class="dash-header">
-          <div>
-            <h2 id="dash-welcome">Bonjour 👋</h2>
-            <p id="dash-subtitle" style="color:var(--gris);font-size:13px;margin-top:2px;"></p>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <button id="btn-refresh-overview" title="Actualiser les stats"
-              onclick="(async()=>{const btn=this;btn.style.transition='transform 0.6s';btn.style.transform='rotate(360deg)';setTimeout(()=>btn.style.transform='',650);try{await loadCurrentPrestataire();await loadDashOverview();}catch(e){}})()"
-              style="width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(232,148,10,0.35);background:rgba(232,148,10,0.08);color:#E8940A;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.6s,border-color 0.2s;">↻</button>
-            <div id="dash-dispo-pill" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:100px;border:1.5px solid rgba(232,148,10,0.3);background:rgba(232,148,10,0.08);font-size:13px;font-weight:600;" onclick="showDashSection('dispo')">
-              <span id="dash-dispo-dot" style="width:10px;height:10px;border-radius:50%;background:#9ca3af;display:inline-block;"></span>
+
+        <!-- Greeting header -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:4px;">Tableau de bord</div>
+          <h2 id="dash-welcome" style="margin:0;font-size:22px;font-weight:700;color:#FFFFFF;font-family:'DM Serif Display',serif;">Bonjour 👋</h2>
+          <p id="dash-subtitle" style="color:rgba(255,255,255,0.45);font-size:13px;margin-top:3px;"></p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:8px;">
+            <div id="dash-dispo-pill" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border-radius:100px;border:1.5px solid rgba(232,148,10,0.3);background:rgba(232,148,10,0.08);font-size:13px;font-weight:600;color:#FFFFFF;" onclick="showDashSection('dispo')">
+              <span id="dash-dispo-dot" style="width:9px;height:9px;border-radius:50%;background:#9ca3af;display:inline-block;"></span>
               <span id="dash-dispo-txt">Invisible</span>
             </div>
+            <button id="btn-refresh-overview" title="Actualiser"
+              onclick="(async()=>{const btn=this;btn.style.transition='transform 0.6s';btn.style.transform='rotate(360deg)';setTimeout(()=>btn.style.transform='',650);try{await loadCurrentPrestataire();await loadDashOverview();}catch(e){}})()"
+              style="width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(232,148,10,0.25);background:rgba(232,148,10,0.06);color:#E8940A;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.6s;flex-shrink:0;">↻</button>
           </div>
         </div>
 
-        <!-- Fallback explicatif — visible si JS lent ou wizard non déclenché -->
-        <div id="ds-overview-intro" style="background:rgba(232,148,10,0.07);border:1px solid rgba(232,148,10,0.2);border-radius:14px;padding:18px 20px;margin-bottom:20px;">
-          <p style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#E8940A;margin:0 0 8px;">Ton espace professionnel WOZALI</p>
-          <p style="font-size:13px;color:rgba(252,224,168,0.75);line-height:1.7;margin:0;">Ici tu vois combien de clients ont regardé ton profil, t'ont contacté sur WhatsApp, et laissé des avis. Plus ton profil est complet, plus tu reçois de demandes. <strong style="color:#FCE0A8;">Commence par ajouter une photo et ton quartier.</strong></p>
-        </div>
-
-        <!-- U2 — Wizard Premier pas (J+0 à J+7) — injecté dynamiquement -->
+        <!-- Bannière apprentie + wizard -->
+        <div id="apprentie-banner-host"></div>
+        <div id="ds-overview-intro" style="display:none;"></div>
         <div id="wozali-premier-pas-wizard" style="display:none;margin-bottom:20px;"></div>
 
-        <!-- KPI GRID -->
+        <!-- SCORE WOZALI — carte héro -->
+        <div style="background:#161616;border-radius:14px;padding:20px;border:1px solid rgba(232,148,10,0.15);border-top:3px solid #E8940A;margin-bottom:20px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.4);">Score WOZALI</div>
+            <div style="text-align:right;">
+              <div style="font-size:10px;color:rgba(255,255,255,0.35);">Prochain palier</div>
+              <div style="font-size:14px;font-weight:700;color:#E8940A;line-height:1.2;" id="kpi-score-next">—</div>
+            </div>
+          </div>
+          <div style="font-size:72px;font-weight:700;letter-spacing:-0.04em;line-height:0.9;color:#FFFFFF;font-family:'DM Serif Display',serif;margin:4px 0 16px;" id="kpi-score">—</div>
+          <div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-bottom:8px;">
+            <div id="kpi-score-bar" style="height:100%;width:0%;background:#E8940A;border-radius:2px;transition:width 1s ease;"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:12px;color:#E8940A;font-weight:600;" id="kpi-score-level">Calcul en cours...</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);">/ 100</div>
+          </div>
+        </div>
+
+        <!-- 7 DERNIERS JOURS — 3 mini KPI cards -->
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.35);margin-bottom:8px;">7 derniers jours</div>
         <div id="kpi-tooltip-overlay" onclick="closeAllKpiTips()" style="display:none;position:fixed;inset:0;z-index:998;"></div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;" id="kpi-grid">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;" id="kpi-grid">
 
           <!-- Vues -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
-            <button onclick="toggleKpiTip('tip-views');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
-            <div id="tip-views" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">👁️ <strong>Vues profil</strong><br>Une vue = quelqu'un a cliqué sur ton profil à Cotonou ou à Lomé.<br>Les membres Pro apparaissent en priorité dans les résultats.<br>Les profils dans le Top 50 WOZALI reçoivent jusqu'à 10× plus de vues.</div>
-            <div style="font-size:22px;margin-bottom:4px;">👁️</div>
-            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:var(--vert);" id="kpi-views">—</div>
-            <div style="font-size:12px;color:var(--gris);font-weight:600;">Vues du profil</div>
-            <div style="font-size:11px;color:var(--vert);margin-top:2px;" id="kpi-views-sub">7 derniers jours</div>
-            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Chaque vue = client potentiel</div>
+          <div class="kpi-card" style="background:#161616;border-radius:10px;padding:14px 12px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;">
+            <div style="font-size:44px;font-weight:700;letter-spacing:-0.03em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-views">—</div>
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.4);margin-top:7px;">Vues</div>
+            <div style="font-size:10px;color:#E8940A;font-weight:600;margin-top:2px;" id="kpi-views-sub"></div>
           </div>
 
-          <!-- WhatsApp -->
-          <div class="kpi-card" id="kpi-card-wa" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;overflow:hidden;">
-            <button onclick="toggleKpiTip('tip-wa');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
-            <div id="tip-wa" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">💬 <strong>Contacts directs = leads chauds</strong><br>Quelqu'un t'a contacté via WhatsApp depuis ton profil. Ces contacts sont très précieux — réponds dans les 5 minutes pour ne pas les perdre !</div>
-            <div style="font-size:22px;margin-bottom:4px;">💬</div>
-            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#25d366;" id="kpi-wa">—</div>
-            <div style="font-size:12px;color:var(--gris);font-weight:600;">Contacts WhatsApp</div>
-            <div style="font-size:11px;color:#25d366;margin-top:2px;" id="kpi-wa-sub">7 derniers jours</div>
-            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Réponds vite — ils t'attendent</div>
-            <!-- Overlay Pro lock (affiché pour Base) -->
-            <div id="kpi-wa-lock" style="display:none;position:absolute;inset:0;background:rgba(20,16,10,0.92);backdrop-filter:blur(3px);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;" onclick="showDashSection('abonnement')">
-              <div style="font-size:20px;">🔒</div>
-              <div style="font-size:11px;font-weight:700;color:#E8940A;text-align:center;">Débloque avec<br>le Plan Pro</div>
+          <!-- Contacts WhatsApp -->
+          <div class="kpi-card" id="kpi-card-wa" style="background:#161616;border-radius:10px;padding:14px 12px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;overflow:hidden;">
+            <div style="font-size:44px;font-weight:700;letter-spacing:-0.03em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-wa">—</div>
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.4);margin-top:7px;">Contacts</div>
+            <div style="font-size:10px;color:#E8940A;font-weight:600;margin-top:2px;" id="kpi-wa-sub"></div>
+            <div id="kpi-wa-lock" style="display:none;position:absolute;inset:0;background:rgba(10,10,10,0.88);border-radius:10px;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:2px;" onclick="showDashSection('abonnement')">
+              <div style="font-size:18px;">🔒</div>
+              <div style="font-size:9px;font-weight:700;color:#E8940A;text-align:center;">Pro</div>
             </div>
           </div>
 
-          <!-- RDV -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
-            <button onclick="toggleKpiTip('tip-rdv');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
-            <div id="tip-rdv" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">📅 <strong>RDV pris via WOZALI ce mois</strong><br>Des clients ont pris rendez-vous directement sur ta page. Confirme-les vite dans ton dashboard pour ne pas les perdre et construire ta réputation.</div>
-            <div style="font-size:22px;margin-bottom:4px;">📅</div>
-            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#f59e0b;" id="kpi-rdv">—</div>
-            <div style="font-size:12px;color:var(--gris);font-weight:600;">RDV ce mois</div>
-            <div style="font-size:11px;color:#f59e0b;margin-top:2px;" id="kpi-rdv-sub">En attente / confirmés</div>
-            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Confirme vite = client fidèle</div>
+          <!-- Filleuls -->
+          <div class="kpi-card" style="background:#161616;border-radius:10px;padding:14px 12px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;">
+            <div style="font-size:44px;font-weight:700;letter-spacing:-0.03em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-filleuls">—</div>
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.4);margin-top:7px;">Filleuls</div>
+            <div style="font-size:10px;color:#E8940A;font-weight:600;margin-top:2px;" id="kpi-filleuls-sub"></div>
           </div>
-
-          <!-- Note -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
-            <button onclick="toggleKpiTip('tip-note');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
-            <div id="tip-note" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">⭐ <strong>Ta réputation en chiffre</strong><br>Au Togo, le meilleur marketing c'est le bouche-à-oreille. Ta note numérique c'est pareil : quand une maman dit à sa voisine "il a 4.9 sur WOZALI", tout le monde veut te contacter !</div>
-            <div style="font-size:22px;margin-bottom:4px;">⭐</div>
-            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#8b5cf6;" id="kpi-note">—</div>
-            <div style="font-size:12px;color:var(--gris);font-weight:600;">Note moyenne</div>
-            <div style="font-size:11px;color:#8b5cf6;margin-top:2px;" id="kpi-note-sub">Pas encore d'avis</div>
-            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Demande à tes clients de noter</div>
-          </div>
-
-          <!-- Score WOZALI -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
-            <button onclick="toggleKpiTip('tip-score');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
-            <div id="tip-score" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">🏆 <strong>Ton Score WOZALI</strong><br>Il détermine ta position dans les résultats, tes chances de figurer dans le Top 50 WOZALI Bénin-Togo, et tes chances de remporter la Bourse de Croissance.<br>Score ≥ 80 + 4 avis récents + Plan Pro actif = éligible au tirage.<br><br><strong>Comment gagner des points :</strong><br>Profil complet (30pts) · Note clients (25pts) · Nb avis (15pts) · Photos réalisations (10pts) · Vues profil (10pts) · Activité (10pts) = 100 points total</div>
-            <div style="font-size:22px;margin-bottom:4px;">🏆</div>
-            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:var(--or);" id="kpi-score">—</div>
-            <div style="font-size:12px;color:var(--gris);font-weight:600;">Score WOZALI</div>
-            <div style="font-size:11px;color:var(--or);margin-top:2px;font-weight:700;" id="kpi-score-level">/ 100</div>
-            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;" id="kpi-score-next">Complète ton profil</div>
-          </div>
-
-          <!-- Profil complété -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
-            <button onclick="toggleKpiTip('tip-completion');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
-            <div id="tip-completion" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">📋 <strong>Profil complété</strong><br>Un profil vide, c'est comme un étal sans marchandise au marché de Dantokpa ou au Grand Marché de Lomé.<br>Les gens passent. Personne ne s'arrête.<br>Photo. Description. Tarif. Téléphone. Localisation. Remplis tout — et les clients s'arrêtent.</div>
-            <div style="font-size:22px;margin-bottom:4px;">📋</div>
-            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#06b6d4;" id="kpi-completion">—</div>
-            <div style="font-size:12px;color:var(--gris);font-weight:600;">Profil complété</div>
-            <div style="font-size:11px;color:#06b6d4;margin-top:2px;" id="kpi-completion-sub">%</div>
-            <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Profil complet = plus de visibilité</div>
-          </div>
-
         </div>
 
-        <!-- Sprint 3 — Bourse de Croissance -->
-        <div id="widget-bourse" class="widget-bourse-wrap"></div>
+        <!-- COMPLÉTUDE DU PROFIL -->
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.35);margin-bottom:8px;">Complétude du profil</div>
+        <div style="background:#161616;border-radius:14px;padding:16px 18px;border:1px solid rgba(232,148,10,0.1);margin-bottom:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="font-size:15px;font-weight:700;color:#FFFFFF;" id="kpi-completion">—</div>
+            <div style="font-size:12px;color:#E8940A;font-weight:600;" id="kpi-completion-sub">Score +34 si 100%</div>
+          </div>
+          <div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-bottom:14px;">
+            <div id="kpi-completion-bar" style="height:100%;width:0%;background:#E8940A;border-radius:2px;transition:width 0.8s;"></div>
+          </div>
+          <div id="dash-completion-bars" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <button onclick="viewMyPublicProfil()" style="margin-top:12px;background:none;border:1px solid rgba(232,148,10,0.25);color:#E8940A;font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit;width:100%;">Voir mon profil public →</button>
+        </div>
 
-        <!-- Sprint 4 — WOZALI Awards & Matchs prioritaires -->
+        <!-- PARRAINAGE BANNER -->
+        <div style="background:rgba(232,148,10,0.08);border:1px solid rgba(232,148,10,0.22);border-radius:14px;padding:16px 18px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:3px;">Parrainage · <span id="ov-filleuls-count">0</span> filleuls actifs</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;line-height:1.5;"><span id="ov-filleuls-gains">0</span> FCFA/mois · <span id="ov-filleuls-next">1 000 FCFA par filleul Pro</span></div>
+          <button onclick="showDashSection('parrainage')" style="width:100%;background:#E8940A;color:#0A0A0A;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;">Partager mon lien de parrainage</button>
+        </div>
+
+        <!-- Bourse / Awards widgets -->
+        <div id="widget-bourse" class="widget-bourse-wrap"></div>
         <div id="widget-awards" class="widget-bourse-wrap"></div>
         <section id="section-matchs-prioritaires" class="section-matchs"></section>
 
-        <!-- GRAPHIQUE VUES 7 jours -->
-        <div style="background:#1E180E;border-radius:20px;padding:22px;border:1px solid rgba(232,148,10,0.12);margin-bottom:20px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-            <div>
-              <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin:0;">📈 Évolution des vues</h3>
-              <p style="font-size:12px;color:var(--gris);margin:2px 0 0;">Vues de ton profil public par jour</p>
-            </div>
-            <div style="display:flex;gap:6px;">
-              <button id="chart-btn-7" onclick="renderDashChart(7)" style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;border:1.5px solid var(--vert);background:var(--vert);color:white;cursor:pointer;">7j</button>
-              <button id="chart-btn-30" onclick="renderDashChart(30)" style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);color:rgba(252,224,168,0.5);cursor:pointer;">30j</button>
-            </div>
-          </div>
-          <div id="dash-chart-svg" style="width:100%;overflow:hidden;"></div>
-          <div id="dash-chart-labels" style="display:flex;justify-content:space-between;margin-top:6px;"></div>
-        </div>
-
-        <!-- QR CODE PRO (affiché seulement en Pro) -->
-        <div id="dash-qr-block" style="display:none;background:#1E180E;border-radius:20px;padding:22px;border:1px solid rgba(232,148,10,0.12);margin-bottom:20px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-            <div>
-              <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin:0;">📲 Ton QR Code Pro</h3>
-              <p style="font-size:12px;color:var(--gris);margin:3px 0 0;">Imprime-le, colle-le en boutique — les clients scannent et trouvent ton profil</p>
-            </div>
-            <span style="background:rgba(232,148,10,0.15);color:var(--or);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;border:1px solid rgba(232,148,10,0.3);">⭐ Pro</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-            <div id="dash-qr-img" style="width:120px;height:120px;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.1);flex-shrink:0;background:#f5f5f5;display:flex;align-items:center;justify-content:center;">
-              <img id="dash-qr-src" style="width:100%;height:100%;object-fit:contain;" alt="QR Code">
-            </div>
-            <div style="flex:1;min-width:200px;">
-              <p style="font-size:13px;color:rgba(252,224,168,0.7);line-height:1.7;margin:0 0 12px;">📌 Colle ce QR code sur :<br>• Ta vitrine / boutique<br>• Tes cartes de visite<br>• Tes flyers<br>• Tes emballages</p>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button onclick="downloadQRCode()" style="padding:9px 16px;background:var(--vert);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">⬇️ Télécharger</button>
-                <button onclick="printQRCode()" style="padding:9px 16px;background:rgba(232,148,10,0.1);color:#E8940A;border:1px solid rgba(232,148,10,0.4);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🖨️ Imprimer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SCORE WOZALI + ACTIONS -->
-        <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:16px;margin-bottom:20px;" class="dash-score-grid">
-          <!-- Jauge Score WOZALI -->
-          <div style="background:#1E180E;border-radius:20px;padding:22px;border:1px solid rgba(232,148,10,0.12);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-            <h3 style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:700;margin:0 0 14px;">🏆 Score WOZALI</h3>
-            <div style="position:relative;width:110px;height:110px;">
-              <svg viewBox="0 0 110 110" style="width:100%;height:100%;transform:rotate(-90deg);">
-                <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
-                <circle cx="55" cy="55" r="46" fill="none" stroke="var(--or)" stroke-width="10"
-                  stroke-dasharray="289" id="score-gauge-dash" stroke-dashoffset="289"
-                  stroke-linecap="round" style="transition:stroke-dashoffset 1s ease;"/>
-              </svg>
-              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                <span id="score-gauge-val" style="font-size:26px;font-weight:900;font-family:'DM Serif Display',serif;color:var(--or);">—</span>
-                <span style="font-size:10px;color:var(--gris);">/ 100</span>
-              </div>
-            </div>
-            <div id="score-gauge-label" style="font-size:13px;color:#FCE0A8;margin-top:10px;font-weight:800;">Calcul en cours...</div>
-            <div id="score-gauge-next" style="font-size:11px;color:var(--gris);margin-top:4px;line-height:1.4;max-width:140px;"></div>
-          </div>
-
-          <!-- Actions prioritaires -->
-          <div style="background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.25);border-radius:20px;padding:22px;">
-            <h3 style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:700;margin:0 0 12px;color:#FCE0A8;">💡 Actions prioritaires</h3>
-            <div id="dash-actions" style="display:flex;flex-direction:column;gap:8px;"></div>
-          </div>
-        </div>
-
-        <!-- PROFIL PREVIEW + COMPLETION -->
-        <div style="background:#1E180E;border-radius:20px;padding:22px;border:1px solid rgba(232,148,10,0.12);margin-bottom:20px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
-            <h3 style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:700;margin:0;">📋 Complétude du profil</h3>
-            <button class="btn btn-secondary btn-sm" onclick="viewMyPublicProfil()">Voir mon profil public →</button>
-          </div>
-          <div id="dash-completion-bars" style="display:flex;flex-direction:column;gap:8px;"></div>
-        </div>
-
-        <!-- Stat Transactions -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
-          <div style="background:linear-gradient(135deg,var(--vert),#14a35e);border-radius:16px;padding:18px;color:white;">
-            <div style="font-size:13px;font-weight:600;opacity:0.85;margin-bottom:4px;">💰 Prestations via WOZALI</div>
-            <div style="font-size:28px;font-weight:900;font-family:'DM Serif Display',serif;" id="stat-transactions">0</div>
-          </div>
-          <div style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:16px;padding:18px;color:white;">
-            <div style="font-size:13px;font-weight:600;opacity:0.85;margin-bottom:4px;">⭐ Score WOZALI</div>
-            <div style="font-size:28px;font-weight:900;font-family:'DM Serif Display',serif;" id="kpi-cowrie">0</div>
-          </div>
-          <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:16px;padding:18px;color:white;">
-            <div style="font-size:13px;font-weight:600;opacity:0.85;margin-bottom:4px;">📅 RDV total reçus</div>
-            <div style="font-size:28px;font-weight:900;font-family:'DM Serif Display',serif;" id="kpi-rdv-total">0</div>
-          </div>
-        </div>
-
-        <!-- IDs legacy conservés en display:none pour compatibilité -->
+        <!-- IDs JS-compat cachés -->
         <div style="display:none;">
-          <span id="stat-note">—</span>
-          <span id="stat-note-sub"></span>
-          <span id="stat-avis">0</span>
-          <span id="stat-score">0</span>
-          <span id="stat-views">0</span>
-          <span id="stat-views-trend"></span>
-          <span id="dash-views">—</span>
+          <span id="kpi-note">—</span><span id="kpi-note-sub"></span>
+          <span id="kpi-rdv">—</span><span id="kpi-rdv-sub"></span>
+          <span id="stat-transactions">0</span><span id="kpi-cowrie">0</span><span id="kpi-rdv-total">0</span>
+          <span id="stat-note">—</span><span id="stat-note-sub"></span>
+          <span id="stat-avis">0</span><span id="stat-score">0</span>
+          <span id="stat-views">0</span><span id="stat-views-trend"></span><span id="dash-views">—</span>
+          <span id="score-gauge-label">—</span><span id="score-gauge-next">—</span>
+          <div id="dash-actions"></div>
+          <div id="dash-chart-svg"></div><div id="dash-chart-labels"></div>
+          <button id="chart-btn-7"></button><button id="chart-btn-30"></button>
+          <div id="dash-qr-block"><div id="dash-qr-img"><img id="dash-qr-src" alt=""></div></div>
+          <svg style="display:none;"><circle id="score-gauge-dash"/><span id="score-gauge-val"></span></svg>
         </div>
       </div>
 
