@@ -5359,3 +5359,354 @@ input::placeholder, textarea::placeholder {
 /* 15 — Profil page bg */
 .profil-page-bg { background: #0A0A0A !important; }
 .profil-section { background: #161616 !important; border-radius: 10px; }
+
+/* ═══════════════════════════════════════════════════════
+   DIRECTION C — SIDEBAR NAVIGATION
+   2026-06-26
+═══════════════════════════════════════════════════════ */
+
+/* Sidebar container : fond solide Direction C */
+#page-dashboard .dashboard-sidebar {
+  background: #0D0D0D !important;
+  border: none !important;
+  border-right: 1px solid rgba(232,148,10,0.1) !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+}
+
+/* Liens top-level (Mon Profil Public, Vue d'ensemble, Activité...) */
+#page-dashboard .dashboard-sidebar > .dash-link {
+  color: rgba(255,255,255,0.6) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 9px 14px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background: transparent !important;
+}
+#page-dashboard .dashboard-sidebar > .dash-link:hover {
+  color: #FFFFFF !important;
+  background: rgba(255,255,255,0.05) !important;
+  border: none !important;
+  transform: none !important;
+}
+#page-dashboard .dashboard-sidebar > .dash-link.active {
+  color: #E8940A !important;
+  background: rgba(232,148,10,0.08) !important;
+  border: none !important;
+  border-left: 3px solid #E8940A !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+}
+
+/* Group heads : look section-label Direction C */
+#page-dashboard .dash-group-head {
+  background: transparent !important;
+  border: none !important;
+  border-top: 1px solid rgba(255,255,255,0.05) !important;
+  color: rgba(255,255,255,0.35) !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  padding: 16px 12px 6px !important;
+  margin-top: 6px !important;
+}
+#page-dashboard .dash-group-head:hover {
+  background: transparent !important;
+  color: rgba(232,148,10,0.6) !important;
+  border-top: 1px solid rgba(255,255,255,0.05) !important;
+}
+#page-dashboard .dash-group.open > .dash-group-head {
+  color: rgba(232,148,10,0.6) !important;
+}
+#page-dashboard .dash-group-head .dash-chev {
+  color: rgba(255,255,255,0.2) !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+#page-dashboard .dash-group-head i:first-child,
+#page-dashboard .dash-group-head svg:first-child {
+  color: rgba(255,255,255,0.3) !important;
+}
+
+/* Admin/Agent/Ambassadeur group heads : garder le gold highlight */
+#page-dashboard #dash-admin-agents-group .dash-group-head,
+#page-dashboard #dash-agent-ressources-group .dash-group-head,
+#page-dashboard #dash-ambassadeur-group .dash-group-head {
+  border: 1px solid rgba(232,148,10,0.2) !important;
+  border-top: 1px solid rgba(232,148,10,0.2) !important;
+  background: rgba(232,148,10,0.06) !important;
+  border-radius: 8px !important;
+  color: #E8940A !important;
+  margin-top: 8px !important;
+}
+
+/* Group body */
+#page-dashboard .dash-group-body {
+  border-left: 1px solid rgba(232,148,10,0.1) !important;
+  margin-left: 18px !important;
+  padding: 2px 0 8px 8px !important;
+}
+#page-dashboard .dash-group-body .dash-link {
+  color: rgba(255,255,255,0.55) !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 6px !important;
+}
+#page-dashboard .dash-group-body .dash-link:hover {
+  color: #FFFFFF !important;
+  background: rgba(255,255,255,0.05) !important;
+  border: none !important;
+  transform: none !important;
+}
+#page-dashboard .dash-group-body .dash-link.active {
+  color: #E8940A !important;
+  background: rgba(232,148,10,0.08) !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-left: 2px solid #E8940A !important;
+  font-weight: 600 !important;
+}
+
+/* Sidebar h3 labels */
+#page-dashboard .dashboard-sidebar h3 {
+  color: rgba(255,255,255,0.25) !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  margin-top: 20px !important;
+  padding-left: 14px !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DIRECTION C — SECTIONS DASHBOARD (contenu)
+   Toutes les sections ds-*
+═══════════════════════════════════════════════════════ */
+
+/* Section header (titre + sous-titre) */
+#page-dashboard .dash-header h2 {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #FFFFFF !important;
+  font-family: 'DM Serif Display', serif !important;
+  margin-bottom: 4px !important;
+}
+#page-dashboard .dash-header p {
+  color: rgba(255,255,255,0.4) !important;
+  font-size: 13px !important;
+}
+
+/* Blocs formulaire (edit-form-section) */
+#page-dashboard .edit-form-section {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.12) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+  padding: 22px 20px !important;
+  margin-bottom: 18px !important;
+}
+#page-dashboard .edit-form-section h3 {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #E8940A !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  margin-bottom: 16px !important;
+}
+
+/* Labels de form */
+#page-dashboard .form-group label,
+#page-dashboard label {
+  color: rgba(255,255,255,0.55) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+}
+
+/* dash-card générique */
+#page-dashboard .dash-card {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.12) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+}
+#page-dashboard .dash-card h3,
+#page-dashboard .dash-card h4 {
+  color: #FFFFFF !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
+}
+
+/* Boutons primaires Direction C */
+#page-dashboard .btn-primary,
+#page-dashboard button[class*="btn-"]:not([class*="btn-outline"]):not([class*="btn-danger"]):not([class*="btn-secondary"]) {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+}
+#page-dashboard .btn-primary:hover {
+  background: #F5A020 !important;
+}
+
+/* Boutons outline */
+#page-dashboard .btn-outline,
+#page-dashboard .btn-secondary {
+  background: transparent !important;
+  border: 1px solid rgba(232,148,10,0.4) !important;
+  color: #E8940A !important;
+  border-radius: 8px !important;
+}
+
+/* Tableaux */
+#page-dashboard table { width: 100%; border-collapse: collapse; }
+#page-dashboard th {
+  color: rgba(255,255,255,0.35) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  padding: 10px 12px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  background: transparent !important;
+}
+#page-dashboard td {
+  color: rgba(255,255,255,0.75) !important;
+  font-size: 13px !important;
+  padding: 12px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+/* Badges / pills */
+#page-dashboard .badge,
+#page-dashboard [class*="badge"] {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  border-radius: 100px !important;
+  padding: 3px 10px !important;
+}
+
+/* Profil-section-card */
+#page-dashboard .profil-section-card,
+#page-dashboard .profil-section {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.1) !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+}
+
+/* Avatar wrapper in dashboard */
+#page-dashboard .avatar-upload-wrap,
+#page-dashboard .avatar-preview-wrap {
+  background: #161616 !important;
+  border: 2px solid rgba(232,148,10,0.2) !important;
+  border-radius: 50% !important;
+}
+
+/* Switch / toggle */
+#page-dashboard .dispo-toggle,
+#page-dashboard [class*="toggle"] {
+  accent-color: #E8940A;
+}
+
+/* Fil d'actualité */
+#page-dashboard .fil-post,
+#page-dashboard .post-card {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+}
+
+/* Photo grid */
+#page-dashboard .photo-grid-item,
+#page-dashboard .photo-thumb {
+  border-radius: 8px !important;
+  overflow: hidden;
+  border: 2px solid rgba(232,148,10,0.1) !important;
+}
+
+/* Alert / info-box */
+#page-dashboard .alert,
+#page-dashboard .info-box,
+#page-dashboard [class*="alert-"] {
+  background: rgba(232,148,10,0.08) !important;
+  border: 1px solid rgba(232,148,10,0.2) !important;
+  border-left: 3px solid #E8940A !important;
+  border-radius: 8px !important;
+  color: rgba(255,255,255,0.8) !important;
+}
+
+/* Pagination */
+#page-dashboard .pagination button,
+#page-dashboard .page-btn {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.2) !important;
+  color: rgba(255,255,255,0.6) !important;
+  border-radius: 6px !important;
+}
+#page-dashboard .pagination button.active,
+#page-dashboard .page-btn.active {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+  border-color: #E8940A !important;
+}
+
+/* Score bar */
+#page-dashboard [class*="score-bar"],
+#page-dashboard [class*="progress-bar"] {
+  background: rgba(255,255,255,0.08) !important;
+  border-radius: 4px !important;
+}
+#page-dashboard [class*="score-fill"],
+#page-dashboard [class*="progress-fill"] {
+  background: #E8940A !important;
+}
+
+/* empty-state */
+#page-dashboard .empty-state {
+  background: #161616 !important;
+  border: 1px dashed rgba(232,148,10,0.2) !important;
+  border-radius: 12px !important;
+  padding: 40px 20px !important;
+  text-align: center;
+}
+#page-dashboard .empty-icon { font-size: 40px; margin-bottom: 12px; }
+#page-dashboard .empty-state h3 { color: #FFFFFF !important; font-size: 16px !important; }
+#page-dashboard .empty-state p { color: rgba(255,255,255,0.4) !important; font-size: 13px !important; }
+
+/* Fond principal du dashboard */
+#page-dashboard .dashboard-main {
+  background: #0A0A0A !important;
+}
+
+/* dash-section actives : pas de fond propre, héritent du main */
+#page-dashboard [id^="ds-"].active {
+  background: transparent !important;
+}
+
+/* Séparateurs */
+#page-dashboard hr {
+  border: none !important;
+  border-top: 1px solid rgba(255,255,255,0.06) !important;
+  margin: 20px 0 !important;
+}
+
+/* Scroll custom sidebar */
+#page-dashboard .dashboard-sidebar::-webkit-scrollbar { width: 3px; }
+#page-dashboard .dashboard-sidebar::-webkit-scrollbar-track { background: transparent; }
+#page-dashboard .dashboard-sidebar::-webkit-scrollbar-thumb { background: rgba(232,148,10,0.2); border-radius: 2px; }
