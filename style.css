@@ -5275,3 +5275,18 @@ body {
   font-weight: 700 !important;
   letter-spacing: -0.02em !important;
 }
+
+/* 4 — pstat-num (page profil public) */
+.pstat-num {
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+}
+
+/* 5 — metric-num général (hors hero homepage déjà en clamp 36-64px) */
+.metric-num {
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
