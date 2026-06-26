@@ -5710,3 +5710,218 @@ input::placeholder, textarea::placeholder {
 #page-dashboard .dashboard-sidebar::-webkit-scrollbar { width: 3px; }
 #page-dashboard .dashboard-sidebar::-webkit-scrollbar-track { background: transparent; }
 #page-dashboard .dashboard-sidebar::-webkit-scrollbar-thumb { background: rgba(232,148,10,0.2); border-radius: 2px; }
+
+/* ═══════════════════════════════════════════════════════
+   DIRECTION C — PROFIL PUBLIC
+   2026-06-26
+═══════════════════════════════════════════════════════ */
+
+/* Fond hero : noir pur Direction C */
+.profil-hero-section {
+  background: #0A0A0A !important;
+  border-bottom: 1px solid rgba(232,148,10,0.1) !important;
+}
+
+/* Avatar : anneau or au lieu du vert */
+.profil-avatar-lg {
+  background: linear-gradient(135deg, #E8940A, #B8700A) !important;
+  box-shadow: 0 0 0 4px #0A0A0A, 0 0 0 7px rgba(232,148,10,0.35) !important;
+  border: 3px solid #0A0A0A !important;
+}
+.profil-avatar-lg.premium {
+  box-shadow: 0 0 0 4px #0A0A0A, 0 0 0 7px #E8940A !important;
+}
+
+/* Badge vérifié : or */
+.profil-verified-icon {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+  font-weight: 900 !important;
+}
+
+/* Nom */
+.profil-name {
+  font-size: 28px !important;
+  color: #FFFFFF !important;
+}
+
+/* Sous-titre métier/quartier */
+.profil-sub {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* Stats bar : nombres blancs gros, label muted */
+.pstat-num {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #FFFFFF !important;
+  font-family: 'DM Serif Display', serif !important;
+}
+.pstat-num[style*="color:var(--or)"],
+.pstat:last-of-type .pstat-num {
+  color: #E8940A !important;
+}
+.pstat-label {
+  font-size: 10px !important;
+  color: rgba(255,255,255,0.35) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+}
+.profil-stats-bar {
+  border-top: 1px solid rgba(232,148,10,0.1) !important;
+  padding: 18px 0 !important;
+}
+.pstat {
+  border-right: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Bouton RDV : or pur sans vert */
+.btn-rdv {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 20px rgba(232,148,10,0.35) !important;
+}
+.btn-rdv:hover {
+  background: #F5A020 !important;
+  box-shadow: 0 8px 28px rgba(232,148,10,0.5) !important;
+}
+
+/* Bouton WhatsApp dans profil : garder vert WA */
+.profil-actions .btn-wa,
+.sidebar-card .btn-wa {
+  background: #E8940A !important;
+  color: #0A0A0A !important;
+}
+
+/* Boutons outline dark */
+.btn-dark-outline {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: rgba(255,255,255,0.75) !important;
+}
+.btn-dark-outline:hover {
+  background: rgba(255,255,255,0.09) !important;
+  border-color: rgba(232,148,10,0.3) !important;
+  color: #FFFFFF !important;
+}
+
+/* Corps de page : fond #0A0A0A */
+.profil-page-bg {
+  background: #0A0A0A !important;
+}
+
+/* Sections profil : Direction C card */
+.profil-section {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+  padding: 22px !important;
+  box-shadow: none !important;
+}
+.profil-section h3 {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #E8940A !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  margin-bottom: 14px !important;
+}
+.profil-section p {
+  color: rgba(255,255,255,0.65) !important;
+  font-size: 14px !important;
+  line-height: 1.75 !important;
+}
+
+/* Description */
+.description-text {
+  color: rgba(255,255,255,0.65) !important;
+}
+
+/* Sidebar cards : Direction C */
+.profil-page-bg .sidebar-card {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  box-shadow: none !important;
+}
+.profil-page-bg .sidebar-card h4 {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: rgba(255,255,255,0.4) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-family: 'Geist Mono', monospace !important;
+  margin-bottom: 16px !important;
+}
+
+/* Tarif box */
+.tarif-box {
+  background: rgba(232,148,10,0.08) !important;
+  border: 1px solid rgba(232,148,10,0.25) !important;
+  border-radius: 10px !important;
+  padding: 18px !important;
+}
+.tarif-range {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #E8940A !important;
+}
+.tarif-label {
+  color: rgba(255,255,255,0.4) !important;
+  font-size: 11px !important;
+}
+
+/* Voir plus bouton */
+.voir-plus-btn {
+  color: #E8940A !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+.voir-plus-btn:hover { color: #F5A020 !important; }
+
+/* Avis */
+.avis-item { border-bottom-color: rgba(255,255,255,0.05) !important; }
+.avis-author { color: #FFFFFF !important; }
+.avis-date { color: rgba(255,255,255,0.3) !important; }
+.avis-text { color: rgba(255,255,255,0.6) !important; }
+
+/* Albums photo */
+.album-item-ig { background: #1E1E1E !important; }
+.album-empty-slot {
+  background: #1A1A1A !important;
+  border-color: rgba(232,148,10,0.1) !important;
+  color: rgba(232,148,10,0.2) !important;
+}
+
+/* Profils similaires (carte prestataire dans profil public) */
+.profil-page-bg .prest-card,
+.profil-page-bg [class*="prest-card"] {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+
+/* Badges dans le profil public */
+.profil-badges .badge {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border-radius: 100px !important;
+  padding: 4px 12px !important;
+}
+
+/* Minimap sidebar */
+#page-profil [id^="profil-minimap-"],
+[id^="profil-minimap-"] {
+  background: linear-gradient(135deg, #111820, #111A14) !important;
+  border-radius: 10px !important;
+}
+
+/* Scroll custom profil page */
+#page-profil::-webkit-scrollbar { width: 4px; }
+#page-profil::-webkit-scrollbar-thumb { background: rgba(232,148,10,0.2); border-radius: 2px; }
