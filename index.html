@@ -2273,22 +2273,22 @@ setTimeout(function(){
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;" id="kpi-grid">
 
           <!-- Vues -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:16px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-left:4px solid var(--vert);position:relative;">
+          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
             <button onclick="toggleKpiTip('tip-views');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
             <div id="tip-views" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">👁️ <strong>Vues profil</strong><br>Une vue = quelqu'un a cliqué sur ton profil à Cotonou ou à Lomé.<br>Les membres Pro apparaissent en priorité dans les résultats.<br>Les profils dans le Top 50 WOZALI reçoivent jusqu'à 10× plus de vues.</div>
             <div style="font-size:22px;margin-bottom:4px;">👁️</div>
-            <div style="font-size:24px;font-weight:900;font-family:'DM Serif Display',serif;color:var(--vert);" id="kpi-views">—</div>
+            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:var(--vert);" id="kpi-views">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Vues du profil</div>
             <div style="font-size:11px;color:var(--vert);margin-top:2px;" id="kpi-views-sub">7 derniers jours</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Chaque vue = client potentiel</div>
           </div>
 
           <!-- WhatsApp -->
-          <div class="kpi-card" id="kpi-card-wa" style="background:#1E180E;border-radius:16px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-left:4px solid #25d366;position:relative;overflow:hidden;">
+          <div class="kpi-card" id="kpi-card-wa" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;overflow:hidden;">
             <button onclick="toggleKpiTip('tip-wa');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
             <div id="tip-wa" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">💬 <strong>Contacts directs = leads chauds</strong><br>Quelqu'un t'a contacté via WhatsApp depuis ton profil. Ces contacts sont très précieux — réponds dans les 5 minutes pour ne pas les perdre !</div>
             <div style="font-size:22px;margin-bottom:4px;">💬</div>
-            <div style="font-size:24px;font-weight:900;font-family:'DM Serif Display',serif;color:#25d366;" id="kpi-wa">—</div>
+            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#25d366;" id="kpi-wa">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Contacts WhatsApp</div>
             <div style="font-size:11px;color:#25d366;margin-top:2px;" id="kpi-wa-sub">7 derniers jours</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Réponds vite — ils t'attendent</div>
@@ -2300,44 +2300,44 @@ setTimeout(function(){
           </div>
 
           <!-- RDV -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:16px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-left:4px solid #f59e0b;position:relative;">
+          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
             <button onclick="toggleKpiTip('tip-rdv');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
             <div id="tip-rdv" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">📅 <strong>RDV pris via WOZALI ce mois</strong><br>Des clients ont pris rendez-vous directement sur ta page. Confirme-les vite dans ton dashboard pour ne pas les perdre et construire ta réputation.</div>
             <div style="font-size:22px;margin-bottom:4px;">📅</div>
-            <div style="font-size:24px;font-weight:900;font-family:'DM Serif Display',serif;color:#f59e0b;" id="kpi-rdv">—</div>
+            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#f59e0b;" id="kpi-rdv">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">RDV ce mois</div>
             <div style="font-size:11px;color:#f59e0b;margin-top:2px;" id="kpi-rdv-sub">En attente / confirmés</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Confirme vite = client fidèle</div>
           </div>
 
           <!-- Note -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:16px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-left:4px solid #8b5cf6;position:relative;">
+          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
             <button onclick="toggleKpiTip('tip-note');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
             <div id="tip-note" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">⭐ <strong>Ta réputation en chiffre</strong><br>Au Togo, le meilleur marketing c'est le bouche-à-oreille. Ta note numérique c'est pareil : quand une maman dit à sa voisine "il a 4.9 sur WOZALI", tout le monde veut te contacter !</div>
             <div style="font-size:22px;margin-bottom:4px;">⭐</div>
-            <div style="font-size:24px;font-weight:900;font-family:'DM Serif Display',serif;color:#8b5cf6;" id="kpi-note">—</div>
+            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#8b5cf6;" id="kpi-note">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Note moyenne</div>
             <div style="font-size:11px;color:#8b5cf6;margin-top:2px;" id="kpi-note-sub">Pas encore d'avis</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Demande à tes clients de noter</div>
           </div>
 
           <!-- Score WOZALI -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:16px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-left:4px solid var(--or);position:relative;">
+          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
             <button onclick="toggleKpiTip('tip-score');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
             <div id="tip-score" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">🏆 <strong>Ton Score WOZALI</strong><br>Il détermine ta position dans les résultats, tes chances de figurer dans le Top 50 WOZALI Bénin-Togo, et tes chances de remporter la Bourse de Croissance.<br>Score ≥ 80 + 4 avis récents + Plan Pro actif = éligible au tirage.<br><br><strong>Comment gagner des points :</strong><br>Profil complet (30pts) · Note clients (25pts) · Nb avis (15pts) · Photos réalisations (10pts) · Vues profil (10pts) · Activité (10pts) = 100 points total</div>
             <div style="font-size:22px;margin-bottom:4px;">🏆</div>
-            <div style="font-size:24px;font-weight:900;font-family:'DM Serif Display',serif;color:var(--or);" id="kpi-score">—</div>
+            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:var(--or);" id="kpi-score">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Score WOZALI</div>
             <div style="font-size:11px;color:var(--or);margin-top:2px;font-weight:700;" id="kpi-score-level">/ 100</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;" id="kpi-score-next">Complète ton profil</div>
           </div>
 
           <!-- Profil complété -->
-          <div class="kpi-card" style="background:#1E180E;border-radius:16px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-left:4px solid #06b6d4;position:relative;">
+          <div class="kpi-card" style="background:#1E180E;border-radius:12px;padding:16px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;">
             <button onclick="toggleKpiTip('tip-completion');event.stopPropagation();" style="position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(232,148,10,0.2);background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(252,224,168,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;padding:0;">?</button>
             <div id="tip-completion" style="display:none;position:absolute;top:36px;right:8px;left:8px;background:#1a1a2e;color:white;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.3);">📋 <strong>Profil complété</strong><br>Un profil vide, c'est comme un étal sans marchandise au marché de Dantokpa ou au Grand Marché de Lomé.<br>Les gens passent. Personne ne s'arrête.<br>Photo. Description. Tarif. Téléphone. Localisation. Remplis tout — et les clients s'arrêtent.</div>
             <div style="font-size:22px;margin-bottom:4px;">📋</div>
-            <div style="font-size:24px;font-weight:900;font-family:'DM Serif Display',serif;color:#06b6d4;" id="kpi-completion">—</div>
+            <div style="font-size:40px;font-weight:700;font-family:'DM Serif Display',serif;color:#06b6d4;" id="kpi-completion">—</div>
             <div style="font-size:12px;color:var(--gris);font-weight:600;">Profil complété</div>
             <div style="font-size:11px;color:#06b6d4;margin-top:2px;" id="kpi-completion-sub">%</div>
             <div style="font-size:10px;color:var(--gris);margin-top:4px;line-height:1.3;">Profil complet = plus de visibilité</div>
