@@ -6288,3 +6288,132 @@ input::placeholder, textarea::placeholder {
   border-color: #E8940A !important;
   color: #E8940A !important;
 }
+
+/* ═══════════════════════════════════════════════════════
+   DIRECTION C — PAGES RECRUTEMENT & PROGRAMMES
+   Agent terrain · Influenceurs · Pitch recrutement · Match
+   Charte graphique officielle — 2026-06-26
+═══════════════════════════════════════════════════════ */
+
+/* Fond de base de toutes ces pages */
+#page-agent-wozali,
+#page-influenceurs,
+#page-recrutement-agents,
+#page-match {
+  background: #0A0A0A !important;
+  color: #FFFFFF !important;
+}
+
+/* Sections internes : warm dark #14100A → #0A0A0A */
+#page-agent-wozali section,
+#page-influenceurs section,
+#page-recrutement-agents section {
+  background: #0A0A0A !important;
+}
+
+/* Titres H1 → blanc pur */
+#page-agent-wozali h1,
+#page-influenceurs h1,
+#page-recrutement-agents h1 {
+  color: #FFFFFF !important;
+}
+
+/* Paragraphes body */
+#page-agent-wozali p,
+#page-influenceurs p,
+#page-recrutement-agents p {
+  color: rgba(255,255,255,0.6) !important;
+}
+
+/* Cards avec fond rgba or verre → #161616 + bande or haut */
+#page-agent-wozali div[style*="rgba(232,148,10,0.04)"],
+#page-agent-wozali div[style*="rgba(232,148,10,.04)"],
+#page-influenceurs div[style*="rgba(232,148,10,0.04)"],
+#page-influenceurs div[style*="rgba(232,148,10,.04)"],
+#page-recrutement-agents div[style*="rgba(232,148,10,0.04)"],
+#page-recrutement-agents div[style*="rgba(232,148,10,.04)"],
+#page-recrutement-agents div[style*="rgba(232,148,10,0.06)"] {
+  background: #161616 !important;
+  border-color: rgba(232,148,10,0.15) !important;
+  border-top: 3px solid #E8940A !important;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+/* Bloc rémunération #161b17 (vert résiduel) → #161616 propre */
+#page-recrutement-agents div[style*="161b17"] {
+  background: #161616 !important;
+}
+
+/* Match page — surface et form */
+.wozali-match-page {
+  background: #0A0A0A !important;
+  min-height: 100vh !important;
+}
+.match-hero { background: #0A0A0A !important; }
+.match-hero h1 { color: #FFFFFF !important; }
+.match-hero p { color: rgba(255,255,255,0.55) !important; }
+.match-form-card {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.12) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 16px !important;
+}
+.match-field label {
+  color: rgba(255,255,255,0.5) !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+.match-field input,
+.match-field textarea,
+.match-field select {
+  background: #222 !important;
+  border: 1.5px solid rgba(232,148,10,0.2) !important;
+  color: #FFFFFF !important;
+  border-radius: 10px !important;
+}
+.match-field input:focus,
+.match-field textarea:focus,
+.match-field select:focus {
+  border-color: #E8940A !important;
+  outline: none !important;
+}
+.match-mode-btn.match-mode-active {
+  background: rgba(232,148,10,0.15) !important;
+  color: #E8940A !important;
+}
+.match-mode-btn:not(.match-mode-active) {
+  background: rgba(255,255,255,0.02) !important;
+  color: rgba(255,255,255,0.45) !important;
+}
+.match-result-card {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.08) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 12px !important;
+}
+
+/* Pages inscription / login — Direction C */
+#page-inscription, #page-login, #page-forgot, #page-reset-password {
+  background: #0A0A0A !important;
+  color: #FFFFFF !important;
+}
+#page-inscription h1, #page-login h1, #page-forgot h1 { color: #FFFFFF !important; }
+.auth-card, .login-card, .signup-card, [class*="auth-form"] {
+  background: #161616 !important;
+  border: 1px solid rgba(232,148,10,0.12) !important;
+  border-top: 3px solid #E8940A !important;
+  border-radius: 16px !important;
+}
+.auth-card input, .login-card input, .signup-card input,
+#page-inscription input, #page-login input, #page-forgot input {
+  background: #222 !important;
+  border: 1.5px solid rgba(232,148,10,0.2) !important;
+  color: #FFFFFF !important;
+  border-radius: 10px !important;
+}
+#page-inscription input:focus, #page-login input:focus {
+  border-color: #E8940A !important;
+}
