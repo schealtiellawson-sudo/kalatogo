@@ -34,6 +34,7 @@
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/formation/:slug", "destination": "/formation/:slug.html" },
     { "source": "/formation-ambassadeurs/:slug", "destination": "/formation-ambassadeurs/:slug.html" },
+    { "source": "/formation-responsable/:slug", "destination": "/formation-responsable/:slug.html" },
     { "source": "/ambassadeurs", "destination": "/ambassadeurs.html" },
     { "source": "/cgu", "destination": "/cgu.html" },
     { "source": "/confidentialite", "destination": "/politique-confidentialite.html" },
