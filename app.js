@@ -15136,6 +15136,10 @@ function openAmbassadeurDocumentRessource(slug) {
   window.open('/formation-ambassadeurs/' + slug, '_blank');
 }
 
+function openResponsableDocumentRessource(filename) {
+  window.open('/formation-responsable/' + filename, '_blank');
+}
+
 // Rendre la grille des 8 documents ambassadeur + cercle progression
 function _renderAmbassadeurDocsGrid() {
   const container = document.getElementById('amb-docs-grid');
