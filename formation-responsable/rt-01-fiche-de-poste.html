@@ -215,8 +215,35 @@
     </div>
 
     <div class="bloc-or">
-      <div class="titre">Simulation mois 3 — scénario cible</div>
-      <p>800 Pros actifs équipe × 2 500 FCFA = CA brut 2 000 000 FCFA. Commission poste = <strong>200 000 FCFA</strong>. + tes propres signatures personnelles. Révisé en temps réel dans le dashboard. Ce chiffre est un scénario construit sur les KPI cibles, pas une garantie.</p>
+      <div class="titre">Simulation rémunération — effet portefeuille cumulé (Source 1)</div>
+      <p style="margin-bottom:12px;"><strong>Mécanique :</strong> chaque Pro signé paie 2 500 FCFA/mois, mois après mois. Le portefeuille grossit chaque semaine. Les anciens Pros continuent à payer pendant que les agents en signent de nouveaux. Hypothèse de rétention : 90% renouvellent.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;">
+        <thead>
+          <tr style="background:rgba(232,148,10,0.12);">
+            <th style="padding:7px 10px;text-align:left;font-weight:700;color:#8B5E00;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Fin du mois</th>
+            <th style="padding:7px 10px;text-align:right;font-weight:700;color:#8B5E00;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Minimum — 400 Pros/sem</th>
+            <th style="padding:7px 10px;text-align:right;font-weight:700;color:#8B5E00;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Cible — 800 Pros/sem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(232,148,10,0.15);">
+            <td style="padding:8px 10px;color:#555;">Mois 1 <span style="font-size:11px;color:#999;">(portefeuille démarre)</span></td>
+            <td style="padding:8px 10px;text-align:right;">1 600 Pros actifs<br><strong style="color:#1a1a1a;">400 000 FCFA/mois</strong></td>
+            <td style="padding:8px 10px;text-align:right;">3 200 Pros actifs<br><strong style="color:#1a1a1a;">800 000 FCFA/mois</strong></td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(232,148,10,0.15);">
+            <td style="padding:8px 10px;color:#555;">Mois 2 <span style="font-size:11px;color:#999;">(M1 renouvelés + nouveaux)</span></td>
+            <td style="padding:8px 10px;text-align:right;">3 040 Pros actifs<br><strong style="color:#1a1a1a;">760 000 FCFA/mois</strong></td>
+            <td style="padding:8px 10px;text-align:right;">6 080 Pros actifs<br><strong style="color:#1a1a1a;">1 520 000 FCFA/mois</strong></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;font-weight:700;">Mois 3 <span style="font-size:11px;font-weight:400;color:#999;">(M2 renouvelés + nouveaux)</span></td>
+            <td style="padding:8px 10px;text-align:right;">4 336 Pros actifs<br><strong style="font-size:15px;color:#E8940A;">1 084 000 FCFA/mois</strong></td>
+            <td style="padding:8px 10px;text-align:right;">8 672 Pros actifs<br><strong style="font-size:15px;color:#E8940A;">2 168 000 FCFA/mois</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin:0;font-size:11px;color:#888;">Calcul M2 = (M1 × 90%) + nouveaux M2. Calcul M3 = (M2 × 90%) + nouveaux M3. Commission = Pros actifs × 2 500 FCFA × 10%. Ces chiffres sont des scénarios basés sur les KPI, pas des garanties. + tes propres signatures personnelles (Source 2).</p>
     </div>
 
     <ul class="doc-list">
@@ -237,6 +264,54 @@
       <div class="titre">Règle ferme</div>
       <p>Ces KPI ne sont pas des suggestions. Ils sont la condition de maintien du poste. <strong style="color:#E8940A;">3 semaines consécutives en zone rouge = remplacement.</strong> Le fondateur décide seul. Il n'y a pas de négociation possible à ce stade.</p>
       <p>Les KPI s'appliquent dès la semaine 2. La semaine 1 est réservée à l'intégration des agents. Révision à la baisse possible au mois 3 si la base inscrite le justifie — décision fondateur uniquement.</p>
+    </div>
+
+    <!-- Math par agent — base de calcul -->
+    <div style="background:#f9f6f0;border:1px solid rgba(232,148,10,0.25);border-left:4px solid #E8940A;border-radius:8px;padding:14px 18px;margin-bottom:18px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#E8940A;margin-bottom:10px;">KPI par agent terrain — math de base (1 agent à plein régime)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:rgba(232,148,10,0.1);">
+            <th style="padding:6px 10px;text-align:left;font-weight:700;color:#8B5E00;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Métrique</th>
+            <th style="padding:6px 10px;text-align:center;font-weight:700;color:#8B5E00;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Calcul</th>
+            <th style="padding:6px 10px;text-align:right;font-weight:700;color:#8B5E00;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Par agent</th>
+            <th style="padding:6px 10px;text-align:right;font-weight:700;color:#8B5E00;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Équipe (20 agents)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(232,148,10,0.12);">
+            <td style="padding:7px 10px;font-weight:600;color:#333;">Inscrits / heure</td>
+            <td style="padding:7px 10px;text-align:center;color:#666;">5 inscrits/h (rythme terrain)</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#1a1a1a;">5</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#1a1a1a;">100</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(232,148,10,0.12);background:rgba(0,0,0,0.02);">
+            <td style="padding:7px 10px;font-weight:600;color:#333;">Inscrits / jour</td>
+            <td style="padding:7px 10px;text-align:center;color:#666;">5 inscrits/h × 8h/j</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#1a1a1a;">40 inscrits</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#1a1a1a;">800 inscrits</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(232,148,10,0.12);">
+            <td style="padding:7px 10px;font-weight:600;color:#333;">Inscrits / semaine</td>
+            <td style="padding:7px 10px;text-align:center;color:#666;">40 inscrits/j × 5j/sem</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#1a1a1a;">200 inscrits</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#1a1a1a;">4 000 inscrits</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(232,148,10,0.12);background:rgba(0,0,0,0.02);">
+            <td style="padding:7px 10px;font-weight:600;color:#333;">Pros signés / semaine</td>
+            <td style="padding:7px 10px;text-align:center;color:#666;">200 inscrits × 20% conversion</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#E8940A;">40 Pros</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#E8940A;">800 Pros</td>
+          </tr>
+          <tr>
+            <td style="padding:7px 10px;font-weight:600;color:#333;">Pros signés / mois</td>
+            <td style="padding:7px 10px;text-align:center;color:#666;">40 Pros/sem × 4 semaines</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:800;color:#E8940A;font-size:13px;">160 Pros</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:800;color:#E8940A;font-size:13px;">3 200 Pros</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:8px;margin-bottom:0;font-size:11px;color:#888;">Ces chiffres sont la cible à plein régime (20/20 agents actifs à 100%). Les seuils de maintien de poste ci-dessous sont définis à 50% de la capacité cible.</p>
     </div>
 
     <table class="kpi-table">
@@ -263,9 +338,9 @@
         </tr>
         <tr>
           <td>Pros actifs équipe / mois</td>
-          <td>800</td>
           <td>1 600</td>
-          <td>2 400+</td>
+          <td>3 200</td>
+          <td>4 800+</td>
         </tr>
         <tr>
           <td>Taux conversion inscrit → Pro</td>
