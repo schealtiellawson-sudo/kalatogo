@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestion du Non — Module 8bis · WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13.5px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { border-bottom: 3px solid #14100A; padding-bottom: 18px; margin-bottom: 32px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 900; color: #14100A; letter-spacing: 3px; }
+  .badge-module { display: inline-flex; align-items: center; gap: 6px; background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; padding: 3px 10px; border-radius: 100px; margin-bottom: 8px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; margin-bottom: 4px; }
+  .doc-sub { font-size: 12px; color: #888; font-family: 'Geist Mono', monospace; }
+  .doc-ref { font-family: 'Geist Mono', monospace; font-size: 10px; color: #bbb; text-align: right; line-height: 2; }
+
+  /* Sections */
+  .section { margin-bottom: 40px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #14100A; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #f0e0c0; display: flex; align-items: center; gap: 10px; }
+  .section-title .s-num { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; }
+  h3 { font-size: 14px; font-weight: 700; color: #1a1a1a; margin: 16px 0 8px; }
+  p { color: #444; margin-bottom: 10px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  /* Types de non */
+  .non-card { border: 1px solid #eee; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+  .non-header { background: #14100A; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .non-type { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.6); text-transform: uppercase; letter-spacing: 1.5px; }
+  .non-quote { font-size: 14px; color: #FCE0A8; font-weight: 700; font-style: italic; flex: 1; }
+  .non-badge { font-family: 'Geist Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 100px; flex-shrink: 0; }
+  .badge-temp { background: rgba(255,200,100,.1); color: #E8940A; border: 1px solid rgba(232,148,10,.2); }
+  .badge-def { background: rgba(255,100,100,.1); color: #f88; border: 1px solid rgba(255,100,100,.2); }
+  .non-body { padding: 14px 16px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 14px; }
+  .non-col .col-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 6px; }
+  .non-col p { font-size: 12px; margin: 0; }
+  .resp-text { background: rgba(232,148,10,.06); border-radius: 6px; padding: 10px 12px; }
+  .resp-text p { color: #5a4000; font-size: 12px; font-style: italic; margin: 0; }
+
+  /* Blocs */
+  .bloc-or { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #5a4000; }
+  .bloc-or strong { color: #14100A; }
+  .bloc-dark { background: #14100A; border-radius: 10px; padding: 16px 18px; margin: 14px 0; }
+  .bloc-dark p { color: rgba(252,224,168,.8); font-size: 13px; margin-bottom: 8px; }
+  .bloc-dark p:last-child { margin-bottom: 0; }
+  .bloc-dark strong { color: #E8940A; }
+  .bloc-dark em { color: #FCE0A8; font-style: italic; }
+
+  /* Règles */
+  .regle { display: flex; gap: 10px; margin: 7px 0; align-items: flex-start; font-size: 13px; }
+  .regle::before { content: '→'; color: #E8940A; font-weight: 900; flex-shrink: 0; }
+  .regle .regle-text { color: #333; }
+
+  /* Séquence relance */
+  .relance-seq { display: flex; flex-direction: column; gap: 0; margin: 14px 0; border: 1px solid #f0e0c0; border-radius: 10px; overflow: hidden; }
+  .relance-item { display: flex; gap: 14px; padding: 12px 16px; align-items: flex-start; }
+  .relance-item + .relance-item { border-top: 1px solid #f0e0c0; }
+  .r-day { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; font-weight: 700; width: 36px; flex-shrink: 0; padding-top: 1px; }
+  .r-action { font-weight: 700; font-size: 13px; color: #1a1a1a; margin-bottom: 3px; }
+  .r-text { font-size: 12px; color: #555; font-style: italic; }
+
+  /* Energie */
+  .energie-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+  .energie-box { border-radius: 8px; padding: 13px 15px; }
+  .energie-ok { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.15); }
+  .energie-no { background: #fff0f0; border: 1px solid #ffcccc; }
+  .energie-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 7px; }
+  .energie-ok .energie-label { color: #c07000; }
+  .energie-no .energie-label { color: #cc3333; }
+  .energie-text { font-size: 12px; color: #444; }
+  .energie-no .energie-text { color: #aa2222; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 28px 0; }
+
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0; }
+  .stat-box { background: #fffbf0; border: 1px solid rgba(232,148,10,.2); border-radius: 8px; padding: 12px; text-align: center; }
+  .stat-box .s-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: #E8940A; }
+  .stat-box .s-label { font-size: 10px; color: #888; margin-top: 3px; }
+
+  @media print {
+    html { background: #fff; }
+    .page { padding: 24px 36px 48px; }
+    .non-card { break-inside: avoid; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="logo-row">
+        <span class="logo-w">W</span>
+        <span class="logo-ozali">OZALI</span>
+      </div>
+      <div class="badge-module">Module 8bis</div>
+      <h1>Gestion du "Non"</h1>
+      <p class="doc-sub">Transformer les refus en ressources. Maintenir l'énergie sur 8h de terrain.</p>
+    </div>
+    <div class="doc-ref">RT-GN-2026-009<br>Confidentiel<br>Agent terrain WOZALI</div>
+  </div>
+
+  <!-- SECTION 1 — LES 3 TYPES DE NON -->
+  <div class="section">
+    <div class="section-title">
+      <span class="s-num">01</span>
+      Les 3 types de "non"
+    </div>
+
+    <p>Pas tous les "non" ne se ressemblent. Un agent terrain WOZALI qui traite tous les refus comme des refus définitifs laisse de l'argent sur la table. Un agent qui sait distinguer les types de "non" transforme 40% de ses refus en signatures dans les 15 jours suivants.</p>
+
+    <div class="non-card">
+      <div class="non-header">
+        <div>
+          <div class="non-type">Type 1</div>
+          <div class="non-quote">"Je n'ai pas le temps / pas maintenant."</div>
+        </div>
+        <span class="non-badge badge-temp">Temporaire</span>
+      </div>
+      <div class="non-body">
+        <div class="non-col">
+          <div class="col-label">Ce que ca signifie vraiment</div>
+          <p style="color:#444;">Pas un refus. Un délai. La personne est occupée, stressée ou pas dans le bon état d'esprit. Elle n'a pas dit non à WOZALI — elle a dit non à ce moment précis.</p>
+        </div>
+        <div class="non-col">
+          <div class="col-label">Réponse exacte</div>
+          <div class="resp-text">
+            <p>"Pas de problème. Je reviens [demain matin / vendredi]. J'aurai 3 minutes avec toi ?" — prendre la confirmation d'un créneau précis avant de partir. Jamais "à bientôt" sans date.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="non-card">
+      <div class="non-header">
+        <div>
+          <div class="non-type">Type 2</div>
+          <div class="non-quote">"Je vais réfléchir / je te rappelle."</div>
+        </div>
+        <span class="non-badge badge-temp">Temporaire</span>
+      </div>
+      <div class="non-body">
+        <div class="non-col">
+          <div class="col-label">Ce que ca signifie vraiment</div>
+          <p style="color:#444;">Il a une objection qu'il n'a pas dite. Ou il n'a pas compris la valeur. "Réfléchir" sans question précise = il ne t'a pas cru. Tu n'as pas trouvé sa douleur réelle.</p>
+        </div>
+        <div class="non-col">
+          <div class="col-label">Réponse exacte</div>
+          <div class="resp-text">
+            <p>"Sur quoi tu vas réfléchir exactement ?" — cette question débloque l'objection cachée. Si il ne sait pas répondre, c'est un refus poli. Si il répond, c'est une objection à traiter (voir fiche RT-OB-2026-006).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="non-card">
+      <div class="non-header">
+        <div>
+          <div class="non-type">Type 3</div>
+          <div class="non-quote">"Non, je ne suis pas intéressé."</div>
+        </div>
+        <span class="non-badge badge-def">Definitif</span>
+      </div>
+      <div class="non-body">
+        <div class="non-col">
+          <div class="col-label">Ce que ca signifie vraiment</div>
+          <p style="color:#444;">Soit il n'est vraiment pas la cible (déjà client, pas en activité, pas en Togo/Bénin). Soit le timing est mauvais — revenir dans 30 jours.</p>
+        </div>
+        <div class="non-col">
+          <div class="col-label">Réponse exacte</div>
+          <div class="resp-text">
+            <p>"Ca marche, pas de souci. Si un jour t'as un [métier] autour de toi qui cherche plus de clients, pense à moi." — laisser en bonne impression. Pas de pression. Ne jamais insister après ce type de non.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloc-or">
+      <strong>La règle des 3 tentatives :</strong> avant de classer un "non" comme définitif, tu as le droit à 3 tentatives maximum dans la même conversation — chacune avec un angle différent. Après 3 tentatives sans ouverture, passer à la personne suivante. Insister au-delà détruit ta réputation dans le quartier.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 2 — SÉQUENCE RELANCE -->
+  <div class="section">
+    <div class="section-title">
+      <span class="s-num">02</span>
+      La séquence de relance
+    </div>
+
+    <p>Un "non" aujourd'hui peut devenir un "oui" dans 5 jours si tu as une séquence de relance structurée. La plupart des agents terrain abandonnent trop tôt. La persistence respectueuse est ce qui distingue un agent à 2 Pros/jour d'un agent à 8 Pros/jour.</p>
+
+    <div class="relance-seq">
+      <div class="relance-item">
+        <span class="r-day">J+0</span>
+        <div>
+          <div class="r-action">Message WhatsApp immédiat</div>
+          <div class="r-text">"Bonjour [prénom], c'est [ton prénom] de WOZALI. Voilà le lien de la plateforme si tu veux regarder depuis chez toi : wozali.africa. Bonne continuation."</div>
+        </div>
+      </div>
+      <div class="relance-item">
+        <span class="r-day">J+3</span>
+        <div>
+          <div class="r-action">Relance 1 — Valeur sans pression</div>
+          <div class="r-text">"[Prénom], j'ai vu qu'il y a maintenant 3 [son métier] dans ton quartier sur WOZALI. Si tu veux je te fais le profil en 3 minutes. Sans engagement."</div>
+        </div>
+      </div>
+      <div class="relance-item">
+        <span class="r-day">J+7</span>
+        <div>
+          <div class="r-action">Relance 2 — Preuve sociale</div>
+          <div class="r-text">"[Prénom], j'ai inscrit [prénom d'un autre artisan du quartier, même métier si possible] hier. Il a eu son premier contact client via WOZALI aujourd'hui. Je pense à toi."</div>
+        </div>
+      </div>
+      <div class="relance-item">
+        <span class="r-day">J+14</span>
+        <div>
+          <div class="r-action">Relance 3 — Dernière tentative</div>
+          <div class="r-text">"[Prénom], dernier message de ma part sur ca. Le lancement est le 15 août. Si tu veux être prêt pour que les clients te trouvent au lancement, dis-moi."</div>
+        </div>
+      </div>
+      <div class="relance-item">
+        <span class="r-day">J+30</span>
+        <div>
+          <div class="r-action">Contact de maintenance</div>
+          <div class="r-text">Si toujours sans réponse : archiver. Reprendre dans 60 jours avec un nouveau message neutre. Ne jamais supprimer un contact — les refus d'aujourd'hui sont les Pros de demain.</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:12px;color:#888;">Enregistrer chaque contact avec : prénom, métier, quartier, date du premier contact, statut (gratuit/refus/Pro). Ce tracker est envoyé au Responsable chaque dimanche.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 3 — LA PSYCHOLOGIE DU REJET -->
+  <div class="section">
+    <div class="section-title">
+      <span class="s-num">03</span>
+      La psychologie du rejet
+    </div>
+
+    <p>Ce qu'on appelle le "rejet" n'est pas personnel. La personne ne rejette pas toi — elle rejette une proposition qu'elle n'a pas encore comprise. Comprendre ca change tout.</p>
+
+    <h3>Les chiffres qui changent la perspective</h3>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="s-val">1/3</div>
+        <div class="s-label">conversations mènent à une inscription</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-val">1/5</div>
+        <div class="s-label">inscrits passent Pro dans les 7 jours</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-val">40%</div>
+        <div class="s-label">des "non" disent oui dans les 14 jours</div>
+      </div>
+      <div class="stat-box">
+        <div class="s-val">8h</div>
+        <div class="s-label">= 30 conversations = 5-8 Pros</div>
+      </div>
+    </div>
+
+    <div class="bloc-dark">
+      <p><strong>Ce que ca veut dire :</strong> si tu parles à 30 personnes aujourd'hui, statistiquement 22 vont dire non ou "je réfléchis". C'est normal. Attendu. <em>Ces 22 "non" sont le prix des 8 "oui".</em> Un agent terrain qui prend les 22 "non" comme des échecs personnels s'arrête à midi. Un agent qui comprend que les 22 "non" font partie de la formule continue jusqu'à 19h.</p>
+    </div>
+
+    <h3>Décoder ce qui s'est passé, pas se juger</h3>
+    <p>Après chaque refus, une seule question : <strong>"Qu'est-ce qui s'est passé ?"</strong> Pas "pourquoi ils n'ont pas voulu." Pas "je suis mauvais." Juste : qu'est-ce qui s'est passé ?</p>
+    <div class="regle"><div class="regle-text">Je n'ai pas trouvé sa douleur réelle → changer le diagnostic (Module 3)</div></div>
+    <div class="regle"><div class="regle-text">Je suis passé trop vite à la démo → ralentir, laisser parler</div></div>
+    <div class="regle"><div class="regle-text">J'ai mentionné le Pro trop tôt → attendre le profil visible</div></div>
+    <div class="regle"><div class="regle-text">Le timing était mauvais (personne occupée) → revenir</div></div>
+    <div class="regle"><div class="regle-text">Ce n'était pas la bonne cible → passer à la suivante sans culpabilité</div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4 — MAINTENIR L'ÉNERGIE -->
+  <div class="section">
+    <div class="section-title">
+      <span class="s-num">04</span>
+      Maintenir l'énergie sur 8 heures
+    </div>
+
+    <p>Le terrain fatigue. Pas les jambes — la tête. 3 refus consécutifs en début de journée peuvent saboter toute une journée si tu n'as pas de méthode pour maintenir ton énergie.</p>
+
+    <h3>Ce qui draine l'énergie — ce qui la maintient</h3>
+    <div class="energie-grid">
+      <div class="energie-box energie-ok">
+        <div class="energie-label">Ce qui maintient l'énergie</div>
+        <div class="energie-text">Compter les conversations, pas les signatures. Chaque conversation = une réussite, peu importe le résultat.</div>
+      </div>
+      <div class="energie-box energie-no">
+        <div class="energie-label">Ce qui draine l'énergie</div>
+        <div class="energie-text">Compter uniquement les Pros signés. Se sentir "en échec" après chaque "non".</div>
+      </div>
+      <div class="energie-box energie-ok">
+        <div class="energie-label">Ce qui maintient l'énergie</div>
+        <div class="energie-text">Commencer par les prospects les plus faciles le matin. Monter en puissance. Premier Pro du jour = le moteur du reste.</div>
+      </div>
+      <div class="energie-box energie-no">
+        <div class="energie-label">Ce qui draine l'énergie</div>
+        <div class="energie-text">Commencer par les cas difficiles. Se battre 45 minutes pour un "non" et continuer la journée épuisé.</div>
+      </div>
+      <div class="energie-box energie-ok">
+        <div class="energie-label">Ce qui maintient l'énergie</div>
+        <div class="energie-text">Pause déjeuner vraie. 45 minutes minimum. Couper complètement. Les meilleures conversations arrivent après 14h si tu as rechargé.</div>
+      </div>
+      <div class="energie-box energie-no">
+        <div class="energie-label">Ce qui draine l'énergie</div>
+        <div class="energie-text">Manger en marchant ou en relisant ses notes. L'esprit ne se repose pas. L'après-midi sera moins efficace.</div>
+      </div>
+    </div>
+
+    <h3>La règle des 5 minutes après un grand "non"</h3>
+    <p>Quand une personne qui semblait convaincue dit finalement non, ou quand tu reçois plusieurs refus consécutifs : <strong>5 minutes de pause complète.</strong></p>
+    <div class="regle"><div class="regle-text">Sortir de la zone de travail (s'asseoir ailleurs)</div></div>
+    <div class="regle"><div class="regle-text">Rappeler les chiffres : sur 30 conversations, 22 "non" sont normaux</div></div>
+    <div class="regle"><div class="regle-text">Rappeler une signature réussie de la journée ou de la semaine</div></div>
+    <div class="regle"><div class="regle-text">Repartir vers une zone différente — changement d'environnement = changement d'énergie</div></div>
+
+    <div class="bloc-dark">
+      <p><strong>La vérité sur le terrain :</strong> les meilleurs agents terrain WOZALI ne sont pas ceux qui n'essuient pas de refus. Ce sont ceux qui en essuient autant que les autres et continuent quand même. <em>La résistance n'est pas un obstacle. C'est la matière première du métier.</em></p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 5 — QUAND APPELER LE RESPONSABLE -->
+  <div class="section">
+    <div class="section-title">
+      <span class="s-num">05</span>
+      Quand appeler le Responsable
+    </div>
+
+    <p>Le Responsable est là pour débriefer, coacher, et débloquer les situations difficiles. Il n'est pas là pour entendre que tout va bien quand tout ne va pas bien.</p>
+
+    <div class="regle"><div class="regle-text"><strong>Appeler si :</strong> moins de 2 Pros signés après 5h de terrain consécutif</div></div>
+    <div class="regle"><div class="regle-text"><strong>Appeler si :</strong> une objection revient systématiquement et tu ne sais pas comment y répondre</div></div>
+    <div class="regle"><div class="regle-text"><strong>Appeler si :</strong> un prospect veut des informations que tu n'as pas (conditions légales, montants récompenses, etc.)</div></div>
+    <div class="regle"><div class="regle-text"><strong>Appeler si :</strong> tu n'as pas signé de Pro depuis 3 jours consécutifs</div></div>
+    <div class="regle"><div class="regle-text"><strong>Ne pas attendre le dimanche :</strong> les blocages se règlent dans les 24h, pas 5 jours plus tard.</div></div>
+
+    <div class="bloc-or">
+      <strong>Ce n'est pas un aveu d'échec d'appeler.</strong> C'est de la méthode. Un agent terrain WOZALI qui ne demande jamais d'aide stagne. Un agent qui demande progresse. Le Responsable préfère 5 appels par semaine à un agent silencieux qui coule en silence.
+    </div>
+  </div>
+
+  <p style="margin-top:16px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-GN-2026-009 · Module 8bis · Confidentiel · Formation Agent terrain WOZALI · wozali.africa</p>
+
+</div>
+</body>
+</html>

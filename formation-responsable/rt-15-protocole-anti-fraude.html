@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protocole Anti-Fraude Agents — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 36px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.5); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #FCE0A8; margin-bottom: 4px; }
+  .doc-subtitle { font-size: 14px; color: rgba(252,224,168,.7); margin-bottom: 8px; }
+  .doc-meta { font-size: 11px; color: rgba(252,224,168,.4); font-family: 'Geist Mono', monospace; }
+
+  /* Intro */
+  .intro-box { background: #fff0f0; border-left: 4px solid #cc3333; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 32px; color: #880000; font-size: 13px; }
+  .intro-box strong { color: #660000; }
+
+  /* Sections */
+  .section { margin-bottom: 36px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #14100A; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #E8940A; display: flex; align-items: center; gap: 10px; }
+  .section-num { font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8940A; }
+  p { color: #555; margin-bottom: 10px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  /* Types fraude */
+  .fraude-card { border-radius: 8px; border: 1px solid #eee; padding: 14px 16px; margin-bottom: 10px; }
+  .fraude-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+  .fraude-badge { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .fraude-badge.type-1 { background: #fff5e0; color: #cc7700; }
+  .fraude-badge.type-2 { background: #fff0f0; color: #cc3333; }
+  .fraude-badge.type-3 { background: #2d0000; color: #ff8888; }
+  .fraude-title { font-weight: 700; font-size: 14px; color: #1a1a1a; }
+  .fraude-desc { font-size: 13px; color: #555; margin-bottom: 8px; }
+  .signal-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .signal-list li { display: flex; gap: 8px; font-size: 12px; color: #888; }
+  .signal-list li::before { content: '◉'; font-size: 8px; color: #E8940A; margin-top: 3px; flex-shrink: 0; }
+  .signal-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #E8940A; margin-bottom: 6px; margin-top: 6px; }
+
+  /* Vérification */
+  .check-grid { display: grid; grid-template-columns: 32px 1fr; gap: 10px 12px; margin: 10px 0; }
+  .check-box { width: 18px; height: 18px; border: 2px solid #ddd; border-radius: 3px; margin-top: 1px; }
+  .check-label { font-size: 13px; color: #444; }
+  .check-label .note { font-size: 11px; color: #999; margin-top: 2px; }
+
+  /* Protocole étapes */
+  .proto-steps { display: flex; flex-direction: column; gap: 14px; }
+  .proto-step { display: flex; gap: 14px; }
+  .proto-num { width: 28px; height: 28px; background: #E8940A; border-radius: 50%; color: #fff; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .proto-content { flex: 1; padding-top: 2px; }
+  .proto-title { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 4px; }
+  .proto-meta { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .proto-body { font-size: 13px; color: #555; }
+
+  /* Danger */
+  .danger-box { background: #fff0f0; border: 1px solid #ffcccc; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .danger-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #cc3333; margin-bottom: 8px; }
+  .danger-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .danger-list li { display: flex; gap: 8px; font-size: 12px; color: #aa2222; }
+  .danger-list li::before { content: '✗'; color: #cc3333; font-weight: 700; }
+
+  /* Regle */
+  .regle-box { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.25); border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .regle-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #c07000; margin-bottom: 6px; }
+  .regle-body { font-size: 13px; color: #5a4000; }
+
+  /* Tableau conséquences */
+  .consq-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .consq-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 12px; text-align: left; font-weight: 400; }
+  .consq-table td { padding: 9px 12px; border-bottom: 1px solid #f0e0c0; color: #444; vertical-align: top; }
+  .consq-table tr:last-child td { border-bottom: none; }
+  .consq-table td:first-child { font-weight: 700; color: #880000; }
+
+  /* Quick ref */
+  .quickref { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 18px 22px; margin-top: 20px; }
+  .quickref-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: #14100A; margin-bottom: 12px; }
+  .qr-row { display: grid; grid-template-columns: 110px 1fr; gap: 4px 16px; margin-bottom: 6px; font-size: 12px; }
+  .qr-key { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; }
+  .qr-val { color: #555; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 24px 0; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Usage interne — Responsable Réseau Terrain</span>
+    </div>
+    <h1>Protocole Anti-Fraude Agents</h1>
+    <p class="doc-subtitle">Détecter, vérifier et traiter les comportements frauduleux sur le terrain</p>
+    <p class="doc-meta">RT-AF-2026-015 · Version 1.0 · Juillet 2026</p>
+  </div>
+
+  <div class="intro-box">
+    <strong>Pourquoi ce document existe.</strong> La réputation de WOZALI sur le terrain dépend du comportement de chaque agent. Un seul incident de fraude dans un quartier peut fermer ce quartier pour 6 mois. Le Responsable est la première ligne de défense. Ce protocole te donne les outils pour détecter et agir avant que le problème devienne public.
+  </div>
+
+  <!-- SECTION 1 — TYPES DE FRAUDE -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">01</span> Les 5 types de fraude possibles</div>
+
+    <div class="fraude-card">
+      <div class="fraude-header">
+        <span class="fraude-badge type-1">Fraude A</span>
+        <div class="fraude-title">Faux inscrits / chiffres gonflés</div>
+      </div>
+      <div class="fraude-desc">L'agent inscrit de faux profils ou des gens qui ne savent pas qu'ils ont été inscrits, pour gonfler ses statistiques d'inscrits et potentiellement ses commissions sur les conversions Pro fictives.</div>
+      <div class="signal-label">Signaux</div>
+      <ul class="signal-list">
+        <li>Ratio inscrits/conversations anormalement élevé (plus de 80% de conversion)</li>
+        <li>Profils inscrits avec des noms génériques ou incomplets (ex : "Kofi T", "Jean B")</li>
+        <li>Plusieurs inscrits du même quartier le même jour avec des profils vides</li>
+        <li>Aucun des inscrits ne peut être contacté ou confirmé par un appel random</li>
+      </ul>
+    </div>
+
+    <div class="fraude-card">
+      <div class="fraude-header">
+        <span class="fraude-badge type-1">Fraude B</span>
+        <div class="fraude-title">Collecte d'argent liquide non autorisée</div>
+      </div>
+      <div class="fraude-desc">L'agent demande au prospect de lui remettre 2 500 FCFA en espèces "pour activer le compte Pro" au lieu de lui faire payer sur la plateforme. L'argent ne parvient jamais à WOZALI.</div>
+      <div class="signal-label">Signaux</div>
+      <ul class="signal-list">
+        <li>Plainte d'un Pro qui affirme avoir payé cash mais son compte n'est pas en Pro</li>
+        <li>Agent qui demande à des Pros de lui "avancer le paiement" en espèces</li>
+        <li>Inscrits Pro qui n'ont pas reçu de confirmation email ou SMS de paiement WOZALI</li>
+      </ul>
+    </div>
+
+    <div class="fraude-card">
+      <div class="fraude-header">
+        <span class="fraude-badge type-2">Fraude C</span>
+        <div class="fraude-title">Fausses promesses de résultats</div>
+      </div>
+      <div class="fraude-desc">L'agent promet des choses que WOZALI ne garantit pas (X clients garantis, remboursement si pas de clients, prix spéciaux non autorisés) pour convaincre des inscriptions et Pro qui ne se seraient pas faits autrement.</div>
+      <div class="signal-label">Signaux</div>
+      <ul class="signal-list">
+        <li>Membre Pro qui réclame un remboursement en invoquant une "promesse de l'agent"</li>
+        <li>Plusieurs membres du même quartier ayant entendu le même chiffre garanti anormal</li>
+        <li>Pro signé qui annule immédiatement après avoir découvert que c'était sans garantie</li>
+      </ul>
+    </div>
+
+    <div class="fraude-card">
+      <div class="fraude-header">
+        <span class="fraude-badge type-2">Fraude D</span>
+        <div class="fraude-title">Inscription sans consentement</div>
+      </div>
+      <div class="fraude-desc">L'agent crée un profil en utilisant le téléphone de quelqu'un qui ne savait pas qu'il s'inscrivait à WOZALI, ou en récupérant les coordonnées d'une personne absente pour l'inscrire sans sa présence.</div>
+      <div class="signal-label">Signaux</div>
+      <ul class="signal-list">
+        <li>Membre qui appelle WOZALI pour signaler une inscription qu'il n'a pas faite</li>
+        <li>Email de confirmation reçu par quelqu'un qui ne connaît pas WOZALI</li>
+        <li>Agent qui déclare des inscrits sur des zones où il n'était pas ce jour-là</li>
+      </ul>
+    </div>
+
+    <div class="fraude-card">
+      <div class="fraude-header">
+        <span class="fraude-badge type-3">Fraude E</span>
+        <div class="fraude-title">Revente de données membres</div>
+      </div>
+      <div class="fraude-desc">L'agent utilise les données de membres WOZALI (numéros, noms, quartiers, métiers) pour les vendre à des tiers ou les utiliser dans un autre business concurrent ou non lié à WOZALI.</div>
+      <div class="signal-label">Signaux</div>
+      <ul class="signal-list">
+        <li>Membres qui reçoivent des appels commerciaux non liés à WOZALI peu après leur inscription</li>
+        <li>Screenshots du dashboard agent trouvés hors contexte WOZALI</li>
+        <li>Agent qui demande des exports ou des listes de contacts</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 2 — VÉRIFICATION -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">02</span> Protocole de vérification d'une fraude suspectée</div>
+
+    <p>Avant d'accuser, tu vérifies. Voici les 4 vérifications à faire dès qu'un signal apparaît.</p>
+
+    <div class="proto-steps">
+
+      <div class="proto-step">
+        <div class="proto-num">1</div>
+        <div class="proto-content">
+          <div class="proto-meta">Vérification initiale — 30 minutes</div>
+          <div class="proto-title">Vérifier les données dashboard</div>
+          <div class="proto-body">
+            <p>Regarder les journaux de bord de l'agent des 7 derniers jours. Croiser ses déclarations (nombre de conversations) avec le nombre d'inscrits réels. Si le ratio est anormal : première alerte.</p>
+            <div class="check-grid">
+              <div class="check-box"></div>
+              <div class="check-label">Ratio conversations/inscrits normal ? (max 70% de conversion, seuil réaliste = 30-50%)
+                <div class="note">Si ratio > 80% sur plusieurs jours = signal fort de gonflement</div>
+              </div>
+              <div class="check-box"></div>
+              <div class="check-label">Qualité des profils inscrits : noms complets, numéros valides, métiers renseignés ?</div>
+              <div class="check-box"></div>
+              <div class="check-label">Zones déclarées correspondent aux zones physiques connues de l'agent ?</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proto-step">
+        <div class="proto-num">2</div>
+        <div class="proto-content">
+          <div class="proto-meta">Vérification terrain — 24h</div>
+          <div class="proto-title">Appel aléatoire de membres inscrits</div>
+          <div class="proto-body">
+            <p>Choisir 3-5 membres inscrits par cet agent au hasard dans les 7 derniers jours. Les appeler (ou les contacter sur WhatsApp). Questions simples :</p>
+            <div class="check-grid">
+              <div class="check-box"></div>
+              <div class="check-label">"Est-ce que vous avez rencontré un agent terrain WOZALI récemment ?"</div>
+              <div class="check-box"></div>
+              <div class="check-label">"Est-ce que vous vous êtes inscrit(e) sur WOZALI vous-même ?"</div>
+              <div class="check-box"></div>
+              <div class="check-label">"Est-ce qu'on vous a demandé de l'argent en cash ?"</div>
+            </div>
+            <p style="margin-top:8px;">Ne pas mentionner le nom de l'agent. Rester neutre. Si 2 membres ou plus ne confirment pas leur inscription consciente : escalader immédiatement.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="proto-step">
+        <div class="proto-num">3</div>
+        <div class="proto-content">
+          <div class="proto-meta">Confrontation non accusatoire — si signal confirmé</div>
+          <div class="proto-title">Appel avec l'agent — questions ouvertes</div>
+          <div class="proto-body">
+            <p>Ne pas révéler ce que tu sais. Poser des questions ouvertes pour laisser l'agent se positionner.</p>
+            <p><em>"Je regarde tes chiffres de la semaine. Tu m'as dit que tu avais fait X conversations et Y inscrits. Dis-moi comment ça s'est passé concrètement lundi matin."</em></p>
+            <p>Incohérences, hésitations ou impossibilité de raconter un exemple concret = signal supplémentaire. Ne pas accuser. Mettre fin à l'appel normalement.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="proto-step">
+        <div class="proto-num">4</div>
+        <div class="proto-content">
+          <div class="proto-meta">Escalade — obligatoire</div>
+          <div class="proto-title">Rapport au fondateur dans les 24h</div>
+          <div class="proto-body">
+            <p>Dès que deux vérifications ou plus confirment un signal, arrêter toute action individuelle et envoyer un rapport WhatsApp au fondateur avec :</p>
+            <div class="check-grid">
+              <div class="check-box"></div>
+              <div class="check-label">Nom et ville de l'agent</div>
+              <div class="check-box"></div>
+              <div class="check-label">Type de fraude suspecté (A/B/C/D/E)</div>
+              <div class="check-box"></div>
+              <div class="check-label">Résultats des vérifications (ce que les membres ont dit)</div>
+              <div class="check-box"></div>
+              <div class="check-label">Période concernée (dates)</div>
+              <div class="check-box"></div>
+              <div class="check-label">Aucune action prise encore (le fondateur décide)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 3 — CONSÉQUENCES -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">03</span> Conséquences par type de fraude</div>
+
+    <table class="consq-table">
+      <thead>
+        <tr><th>Type</th><th>Fraude</th><th>Conséquence si confirmée</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A</td>
+          <td>Faux inscrits, chiffres gonflés</td>
+          <td>Fin de collaboration immédiate. Commissions du mois concerné annulées. Suppression accès dashboard.</td>
+        </tr>
+        <tr>
+          <td>B</td>
+          <td>Collecte argent liquide non autorisée</td>
+          <td>Fin de collaboration immédiate. Réclamation des montants collectés si preuve. Signalement possible si récidive.</td>
+        </tr>
+        <tr>
+          <td>C</td>
+          <td>Fausses promesses</td>
+          <td>Avertissement formalisé (1ère fois) + supervision renforcée 2 semaines. Récidive = fin de collaboration.</td>
+        </tr>
+        <tr>
+          <td>D</td>
+          <td>Inscription sans consentement</td>
+          <td>Fin de collaboration immédiate. Suppression des profils concernés après vérification fondateur.</td>
+        </tr>
+        <tr>
+          <td>E</td>
+          <td>Revente de données</td>
+          <td>Fin de collaboration immédiate. Rapport légal possible selon gravité. Commissions de toute la période annulées.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="danger-box">
+      <div class="danger-label">Ce que le Responsable ne fait jamais sans validation fondateur</div>
+      <ul class="danger-list">
+        <li>Annoncer la fraude dans le groupe équipe avant confirmation fondateur.</li>
+        <li>Retirer l'accès dashboard de l'agent seul (action fondateur uniquement).</li>
+        <li>Contacter les membres concernés pour "leur expliquer" sans validation du message.</li>
+        <li>Annuler ou rembourser des commissions de sa propre initiative.</li>
+        <li>Menacer l'agent de poursuites sans instruction explicite du fondateur.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4 — PRÉVENTION -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">04</span> Prévenir plutôt que réagir</div>
+
+    <p>La meilleure fraude est celle qui ne se produit pas. Voici les pratiques préventives hebdomadaires du Responsable.</p>
+
+    <div class="regle-box">
+      <div class="regle-label">Pratiques préventives — à intégrer dans la routine</div>
+      <div class="regle-body">
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <li style="display:flex;gap:10px;font-size:12px;"><span style="color:#E8940A;font-weight:700;">Lundi</span> <span>Rappeler en call kick-off que les journaux sont vérifiés. Pas de sanction annoncée. Juste que "je regarde les chiffres".</span></li>
+          <li style="display:flex;gap:10px;font-size:12px;"><span style="color:#E8940A;font-weight:700;">Mardi</span> <span>Appel aléatoire d'1 membre inscrit par n'importe quel agent. Tournant, pas ciblé. Les agents savent que ça peut arriver.</span></li>
+          <li style="display:flex;gap:10px;font-size:12px;"><span style="color:#E8940A;font-weight:700;">Jeudi</span> <span>Vérifier que 0 agent n'a partagé des screenshots de dashboard en dehors du groupe WOZALI.</span></li>
+          <li style="display:flex;gap:10px;font-size:12px;"><span style="color:#E8940A;font-weight:700;">Vendredi</span> <span>Bilan : le ratio conversations/inscrits de la semaine pour l'équipe. Alerter si un agent dépasse 75% sur 5 jours.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p>La transparence est préventive. Quand les agents savent que leurs chiffres sont vérifiés et que des appels aléatoires sont faits, les tentatives de fraude diminuent naturellement.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- QUICK REF -->
+  <div class="quickref">
+    <div class="quickref-title">Quick Ref — Fraude suspectée, quoi faire</div>
+    <div class="qr-row"><span class="qr-key">J+0 signal</span><span class="qr-val">Vérifier les données dashboard (ratio, qualité profils, zones)</span></div>
+    <div class="qr-row"><span class="qr-key">J+0-J+1</span><span class="qr-val">Appeler 3-5 membres inscrits au hasard. Questions neutres.</span></div>
+    <div class="qr-row"><span class="qr-key">J+1</span><span class="qr-val">Appel non accusatoire avec l'agent. Questions ouvertes.</span></div>
+    <div class="qr-row"><span class="qr-key">Si confirmé</span><span class="qr-val">Rapport WhatsApp au fondateur dans les 24h. Aucune action seul.</span></div>
+    <div class="qr-row"><span class="qr-key">Jamais</span><span class="qr-val">Accuser publiquement. Retirer l'accès seul. Contacter les membres seul.</span></div>
+    <div class="qr-row" style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;"><span class="qr-key">Contact fondateur</span><span class="qr-val">WhatsApp direct. Objet : "FRAUDE SUSPECTÉE — [nom agent] — [type A/B/C/D/E]"</span></div>
+  </div>
+
+  <p style="margin-top:24px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-AF-2026-015 · Usage interne Responsable · WOZALI · wozali.africa · Version 1.0 · Juillet 2026</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Script d'Inscription Terrain — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f5f0e8; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.6; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 64px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { border-bottom: 3px solid #14100A; padding-bottom: 18px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; }
+  .logo-row { display: flex; align-items: center; gap: 8px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 900; color: #14100A; letter-spacing: 3px; }
+  .doc-ref { font-family: 'Geist Mono', monospace; font-size: 10px; color: #999; text-align: right; line-height: 1.8; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #14100A; margin-bottom: 4px; }
+  .doc-sub { font-size: 12px; color: #888; font-family: 'Geist Mono', monospace; margin-bottom: 24px; }
+
+  /* Alerte */
+  .alerte { background: #14100A; color: #FCE0A8; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 12px; }
+  .alerte strong { color: #E8940A; }
+
+  /* Steps */
+  .step { border: 1px solid #f0e0c0; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+  .step-header { display: flex; align-items: center; gap: 12px; padding: 11px 16px; background: #fffbf0; border-bottom: 1px solid #f0e0c0; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-title { font-weight: 700; color: #1a1a1a; font-size: 14px; }
+  .step-timer { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; background: rgba(232,148,10,.1); border: 1px solid rgba(232,148,10,.2); border-radius: 4px; padding: 2px 8px; }
+  .step-body { padding: 14px 16px; }
+
+  /* Paroles */
+  .parole { background: #f8f8f8; border-left: 4px solid #14100A; border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 8px 0; font-style: italic; color: #2a2a2a; font-size: 13px; line-height: 1.65; }
+  .parole .label { font-style: normal; font-family: 'Geist Mono', monospace; font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
+
+  /* Variante */
+  .variante { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 6px 6px 0; padding: 9px 14px; margin: 8px 0; font-size: 12px; color: #7a5500; }
+  .variante .label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #E8940A; margin-bottom: 4px; display: block; }
+
+  /* Actions */
+  .action { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 12px; color: #444; }
+  .action::before { content: '✓'; color: #E8940A; font-weight: 700; flex-shrink: 0; width: 14px; }
+
+  /* Note rouge */
+  .note-stop { background: #fff5f5; border: 1px solid #ffcccc; border-radius: 6px; padding: 9px 12px; margin: 10px 0; font-size: 12px; color: #cc0000; }
+  .note-stop strong { color: #cc0000; }
+
+  /* Note vert */
+  .note-ok { background: #fffbf0; border: 1px solid rgba(232,148,10,.3); border-radius: 6px; padding: 9px 12px; margin: 10px 0; font-size: 12px; color: #7a5500; }
+
+  /* Tableau conversion Pro */
+  .conv-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  .conv-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; text-align: left; }
+  .conv-table td { padding: 8px 12px; border-bottom: 1px solid #f0e0c0; color: #444; vertical-align: top; }
+  .conv-table tr:last-child td { border-bottom: none; }
+  .conv-table td:first-child { font-weight: 700; color: #1a1a1a; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 20px 0; }
+
+  /* Recap final */
+  .recap { background: #14100A; color: #FCE0A8; border-radius: 10px; padding: 16px 18px; margin-top: 24px; }
+  .recap h3 { font-family: 'DM Serif Display', serif; font-size: 16px; color: #E8940A; margin-bottom: 10px; }
+  .recap .recap-item { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid rgba(232,148,10,.1); color: rgba(252,224,168,.8); }
+  .recap .recap-item:last-child { border-bottom: none; }
+  .recap .recap-item strong { color: #E8940A; }
+
+  @media print {
+    html { background: #fff; }
+    .page { padding: 28px 36px 40px; }
+    .step { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="logo-row" style="margin-bottom:8px;">
+        <span class="logo-w">W</span>
+        <span class="logo-ozali">OZALI</span>
+      </div>
+      <h1>Script d'Inscription Terrain</h1>
+      <p class="doc-sub">A apprendre et maitriser avant le premier terrain</p>
+    </div>
+    <div class="doc-ref">RT-SC-2026-005<br>Confidentiel<br>Responsable Réseau Terrain</div>
+  </div>
+
+  <div class="alerte">
+    <strong>Règle absolue :</strong> Ce script se fait sur le téléphone de la personne, pas le tien. Elle doit voir son profil apparaitre depuis son propre écran. C'est ca qui crée l'émotion. Toi, tu guides. Elle, elle vit l'expérience.
+  </div>
+
+  <!-- ÉTAPE 0 — AVANT D'ARRIVER -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">0</div>
+      <div class="step-title">Avant d'arriver — Préparer le terrain</div>
+      <div class="step-timer">5 min avant</div>
+    </div>
+    <div class="step-body">
+      <div class="action">Ouvre wozali.africa sur ton téléphone, vérifie que le site charge correctement.</div>
+      <div class="action">Repère 2 ou 3 profils de pros dans le même quartier que ta cible (pour comparaison).</div>
+      <div class="action">Connais son prénom et son métier avant de commencer. Ne jamais débarquer sans ca.</div>
+      <div class="action">Charge ton téléphone au moins à 60% — la démo prend du temps.</div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 1 — ENTRÉE -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-title">L'entrée — Poser la bonne question</div>
+      <div class="step-timer">0 à 2 min</div>
+    </div>
+    <div class="step-body">
+      <div class="parole">
+        <span class="label">Dire exactement</span>
+        "[Prénom], tu travailles dans quoi ?"
+      </div>
+      <p style="font-size:12px;color:#666;margin:6px 0;">Laisser répondre. Vraiment. Ne pas enchaîner immédiatement.</p>
+      <div class="parole">
+        <span class="label">Puis</span>
+        "Les gens en dehors de ton quartier, ils peuvent te trouver ?"
+      </div>
+      <div class="note-stop">
+        <strong>Ne pas dire :</strong> "Tu n'es pas visible." Laisser la personne constater elle-même. Poser la question, attendre la réponse. Si elle dit "non" ou hésite, tu continues. Si elle dit "oui, j'ai Facebook/WhatsApp", passe à la variante ci-dessous.
+      </div>
+      <div class="variante">
+        <span class="label">Variante — si elle a Facebook/WhatsApp</span>
+        "C'est bien. Mais sur WOZALI, quelqu'un qui cherche [son métier] à [son quartier] à 23h il va trouver qui ? Pas ta page Facebook — ton profil trié par note de travail. Montre-moi ta page Facebook... [regarder]. Ton futur client va chercher là ?"
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 2 — PIVOT -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">Le pivot — Relier le problème à l'argent</div>
+      <div class="step-timer">2 à 4 min</div>
+    </div>
+    <div class="step-body">
+      <div class="parole">
+        <span class="label">Dire exactement</span>
+        "L'argent ne circule pas toujours parce que les gens qui font le travail ne sont pas trouvables. Tu travailles bien — mais les clients vont chez des moins bons parce qu'ils les connaissent."
+      </div>
+      <p style="font-size:12px;color:#666;margin:6px 0;">Pause d'une seconde. La phrase doit atterrir.</p>
+      <div class="parole">
+        <span class="label">Puis</span>
+        "WOZALI change ca. Quelqu'un cherche [son métier] sur son téléphone, il voit les profils des pros du quartier, classés par note de travail réelle. Toi, si tu travailles bien, tu sors en premier. Pas le plus connecté. Le meilleur."
+      </div>
+      <div class="action">Sortir ton téléphone. Ouvrir wozali.africa. Montrer rapidement 2 profils de pros du même quartier. Ne pas expliquer trop — montrer.</div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 3 — L'INSCRIPTION -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">L'inscription — Sur son téléphone</div>
+      <div class="step-timer">4 à 8 min</div>
+    </div>
+    <div class="step-body">
+      <div class="parole">
+        <span class="label">Dire</span>
+        "On le fait maintenant. Ca prend 3 minutes. Tu prends ton téléphone ?"
+      </div>
+
+      <div class="note-ok">Ce qui suit se fait sur son téléphone. Tu guides, tu ne touches pas l'écran sauf si elle te passe le téléphone.</div>
+
+      <div class="action">Elle ouvre wozali.africa sur son navigateur.</div>
+      <div class="action">Clic sur "Commencer gratuitement" ou "S'inscrire".</div>
+      <div class="action">Prénom, Nom, Email (si elle n'en a pas, un numéro WhatsApp suffit au départ), Mot de passe simple.</div>
+      <div class="action">Sélectionner son métier dans la liste. Si pas dans la liste, taper manuellement.</div>
+      <div class="action">Sélectionner son quartier + sa ville (Lomé ou Cotonou).</div>
+      <div class="action">Ajouter une photo de profil. Utiliser l'appareil photo immédiatement si possible — une vraie photo, pas une image floue.</div>
+      <div class="action">Rédiger 2 lignes de bio. Aide-la si elle bloque : "Ecris ton métier + ce que tu fais de mieux. Exemple : Coiffeuse spécialisée tresses et coupes naturelles."</div>
+      <div class="action">Valider. Compte créé.</div>
+
+      <div class="note-stop">
+        <strong>Si elle bloque sur l'email :</strong> Utiliser un email simple du type prenom.nom@gmail.com — si elle n'en a pas, tu peux en créer un rapide avec elle. Ne pas bloquer sur ce point.
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 4 — LE MOMENT DE VÉRITÉ -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-title">Le moment de vérité — Elle voit son profil</div>
+      <div class="step-timer">8 à 10 min</div>
+    </div>
+    <div class="step-body">
+      <div class="parole">
+        <span class="label">Dire</span>
+        "Regarde ton profil maintenant. C'est toi. Sur internet. Accessible depuis n'importe quel téléphone au Togo et au Bénin."
+      </div>
+      <div class="action">Lui montrer l'URL de son profil public. Lui dire de l'envoyer sur WhatsApp à un ami pour tester.</div>
+      <div class="action">Pointer son Score WOZALI actuel (il sera bas — c'est normal). Expliquer : "Ca monte avec les avis et les photos de ton travail."</div>
+      <div class="parole">
+        <span class="label">Dire</span>
+        "Depuis ce soir, tu existes en dehors de ton quartier."
+      </div>
+      <p style="font-size:12px;color:#777;margin:6px 0;">Silence. Laisser ce moment exister. Ne pas enchaîner immédiatement.</p>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 5 — CONVERSION PRO -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div class="step-title">La conversion Pro — Le timing exact</div>
+      <div class="step-timer">10 à 13 min</div>
+    </div>
+    <div class="step-body">
+      <div class="note-ok">
+        <strong>Ne proposer le Pro qu'à CE moment précis</strong> — quand elle vient de voir son propre profil. Pas avant. Pas après. Ce pic émotionnel dure 60 à 90 secondes.
+      </div>
+
+      <div class="parole">
+        <span class="label">Dire</span>
+        "Là tu es visible. Mais sur la recherche, les pros gratuits passent après les membres Pro. Le Plan Pro, c'est 2 500 FCFA par mois. Ce que ca t'apporte : tu sors en premier à chaque recherche dans ton quartier. Toujours."
+      </div>
+
+      <table class="conv-table">
+        <thead>
+          <tr>
+            <th>Argument</th>
+            <th>Ce qu'il faut dire exactement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Le calcul</td>
+            <td>"Un seul client trouve via WOZALI et te paye [montant typique de son métier]. Ca rembourse combien de mois d'abonnement ?"</td>
+          </tr>
+          <tr>
+            <td>La récompense</td>
+            <td>"En Pro depuis 2 mois minimum, tu es éligible à la Bourse de Croissance. 300 000 FCFA. Premier tirage le 25 septembre."</td>
+          </tr>
+          <tr>
+            <td>Le parrainage</td>
+            <td>"Tu peux aussi parrainer des amis. Chaque ami qui prend le Pro te rapporte 1 000 FCFA par mois. Récurrent."</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="parole">
+        <span class="label">Fermer</span>
+        "Tu veux passer au Pro maintenant ?"
+      </div>
+
+      <div class="note-stop">
+        <strong>Si elle hésite :</strong> Ne pas insister sur le Pro. Dire : "Commence gratuit. Tu vois ce que ca donne. Je te remontre le Pro la semaine prochaine." Prendre son numéro, relancer dans 5 jours.
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 6 — PAIEMENT PRO -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <div class="step-title">Le paiement Pro — Processus</div>
+      <div class="step-timer">13 à 17 min</div>
+    </div>
+    <div class="step-body">
+      <div class="action">Dans son dashboard, clic sur "Passer au Pro" ou "Mon abonnement".</div>
+      <div class="action">Sélectionner Plan Pro — 2 500 FCFA/mois.</div>
+      <div class="action">Paiement Mobile Money (Wave, Orange Money, MTN selon ce qu'elle utilise).</div>
+      <div class="action">Confirmer le paiement sur son téléphone.</div>
+      <div class="action">Son statut Pro s'active immédiatement. Son profil passe en position prioritaire.</div>
+      <div class="parole">
+        <span class="label">Dire après paiement</span>
+        "Voila. Ton profil sort maintenant en premier. Ajoute 3 photos de ton travail ce soir — ton Score va monter. Plus ton Score monte, plus tu es visible."
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 7 — PARRAINAGE + CLÔTURE -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">7</div>
+      <div class="step-title">Le parrainage et la clôture</div>
+      <div class="step-timer">17 à 20 min</div>
+    </div>
+    <div class="step-body">
+      <div class="action">Aller dans son dashboard → section Parrainage.</div>
+      <div class="action">Copier son lien de parrainage personnel.</div>
+      <div class="action">L'aider à l'envoyer sur WhatsApp à 2 ou 3 contacts maintenant — pendant que tu es là.</div>
+      <div class="parole">
+        <span class="label">Dire</span>
+        "Chaque personne qui s'inscrit Pro via ce lien te rapporte 1 000 FCFA par mois. Commence maintenant. Tu as 3 amis coiffeurs ? Envoie maintenant, pendant qu'on est ensemble."
+      </div>
+      <div class="action">Prendre son numéro WhatsApp si tu ne l'as pas déjà.</div>
+      <div class="action">L'informer : "Je repasserai dans une semaine voir comment ca va. Si tu as des questions, tu m'appelles directement."</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RECAP -->
+  <div class="recap">
+    <h3>Résumé du déroulé — 20 minutes terrain</h3>
+    <div class="recap-item"><span>Étape 0 — Préparation</span><strong>5 min avant</strong></div>
+    <div class="recap-item"><span>Étape 1 — Question entrée</span><strong>0-2 min</strong></div>
+    <div class="recap-item"><span>Étape 2 — Pivot argent</span><strong>2-4 min</strong></div>
+    <div class="recap-item"><span>Étape 3 — Inscription</span><strong>4-8 min</strong></div>
+    <div class="recap-item"><span>Étape 4 — Profil visible</span><strong>8-10 min</strong></div>
+    <div class="recap-item"><span>Étape 5 — Conversion Pro</span><strong>10-13 min</strong></div>
+    <div class="recap-item"><span>Étape 6 — Paiement</span><strong>13-17 min</strong></div>
+    <div class="recap-item"><span>Étape 7 — Parrainage + clôture</span><strong>17-20 min</strong></div>
+    <div class="recap-item" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(232,148,10,.3);">
+      <span>Résultat cible par terrain de 8h</span>
+      <strong>30 à 40 inscrits / 5 à 8 Pros</strong>
+    </div>
+  </div>
+
+  <p style="margin-top:20px;font-size:10px;color:#bbb;text-align:center;font-family:'Geist Mono',monospace;">Document confidentiel · Responsable Réseau Terrain · WOZALI · wozali.africa</p>
+
+</div>
+</body>
+</html>

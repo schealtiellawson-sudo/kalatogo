@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protocole Sous-Performance — Responsable Réseau Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 36px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.5); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #FCE0A8; margin-bottom: 4px; }
+  .doc-subtitle { font-size: 14px; color: rgba(252,224,168,.7); margin-bottom: 8px; }
+  .doc-meta { font-size: 11px; color: rgba(252,224,168,.4); font-family: 'Geist Mono', monospace; }
+
+  /* Intro */
+  .intro-box { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 32px; color: #5a4000; font-size: 13px; }
+  .intro-box strong { color: #14100A; }
+
+  /* Sections */
+  .section { margin-bottom: 36px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #14100A; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #E8940A; display: flex; align-items: center; gap: 10px; }
+  .section-num { font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8940A; }
+  p { color: #555; margin-bottom: 10px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  /* Seuils */
+  .seuil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .seuil-card { border-radius: 8px; padding: 14px; }
+  .seuil-card.orange { background: #fff5e0; border: 1px solid #ffcc44; }
+  .seuil-card.rouge { background: #fff0f0; border: 1px solid #ffaaaa; }
+  .seuil-tag { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .seuil-card.orange .seuil-tag { color: #cc7700; }
+  .seuil-card.rouge .seuil-tag { color: #cc3333; }
+  .seuil-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .seuil-card.orange .seuil-title { color: #8a5000; }
+  .seuil-card.rouge .seuil-title { color: #880000; }
+  .seuil-list { list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+  .seuil-card.orange .seuil-list li { color: #aa6600; }
+  .seuil-card.rouge .seuil-list li { color: #aa2222; }
+  .seuil-list li::before { content: '·'; margin-right: 6px; font-weight: 700; }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 0; }
+  .step-left { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-line { flex: 1; width: 2px; background: #f0e0c0; margin: 4px 0; }
+  .step:last-child .step-line { display: none; }
+  .step-content { padding: 0 0 24px 12px; flex: 1; }
+  .step-title { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 4px; }
+  .step-meta { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .step-body { font-size: 13px; color: #555; }
+
+  /* Dialogue */
+  .dialogue-box { border: 1px solid #e0d0a0; border-radius: 8px; padding: 16px; background: #fffdf5; margin: 10px 0; }
+  .dialogue-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #c07000; margin-bottom: 10px; }
+  .dialogue-line { display: flex; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+  .dialogue-line:last-child { margin-bottom: 0; }
+  .dialogue-who { font-weight: 700; color: #14100A; white-space: nowrap; }
+  .dialogue-text { color: #444; }
+  .dialogue-pause { font-style: italic; color: #999; font-size: 12px; margin: 6px 0; }
+
+  /* Plan action */
+  .plan-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .plan-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 12px; text-align: left; font-weight: 400; }
+  .plan-table td { padding: 9px 12px; border-bottom: 1px solid #f0e0c0; color: #444; vertical-align: top; }
+  .plan-table tr:last-child td { border-bottom: none; }
+  .plan-table td:first-child { font-family: 'Geist Mono', monospace; color: #E8940A; white-space: nowrap; }
+  .plan-table td:nth-child(2) { font-weight: 700; color: #1a1a1a; }
+
+  /* Alerte */
+  .alerte-box { background: #fff0f0; border: 1px solid #ffcccc; border-radius: 8px; padding: 14px 16px; margin: 10px 0; }
+  .alerte-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #cc3333; margin-bottom: 8px; }
+  .alerte-body { font-size: 13px; color: #aa2222; }
+
+  /* Règle */
+  .regle-box { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.25); border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .regle-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #c07000; margin-bottom: 6px; }
+  .regle-body { font-size: 13px; color: #5a4000; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 24px 0; }
+
+  /* Signature fin collab */
+  .fin-block { border: 1px solid #ffd0d0; background: #fff8f8; border-radius: 10px; padding: 20px 24px; }
+  .fin-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: #880000; margin-bottom: 10px; }
+  .fin-body { font-size: 13px; color: #666; margin-bottom: 14px; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+  .sig-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 8px; }
+  .sig-line { height: 1px; background: #eee; margin: 14px 0 4px; }
+  .sig-placeholder { font-size: 11px; color: #ccc; font-family: 'Geist Mono', monospace; }
+  .sig-date { font-size: 12px; color: #aaa; margin-top: 6px; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Usage interne — Responsable Réseau Terrain</span>
+    </div>
+    <h1>Protocole Sous-Performance</h1>
+    <p class="doc-subtitle">Comment agir quand un agent terrain WOZALI n'atteint pas ses objectifs</p>
+    <p class="doc-meta">RT-SP-2026-014 · Version 1.0 · Juillet 2026</p>
+  </div>
+
+  <div class="intro-box">
+    <strong>Principe de base.</strong> La sous-performance n'est pas un échec moral de l'agent. C'est un problème à diagnostiquer : mauvaise zone, mauvais horaire, mauvais discours, blocage personnel, mauvais terrain. Ton rôle est de diagnostiquer avant de juger. Et d'agir avant que le problème devienne irréversible.
+  </div>
+
+  <!-- SECTION 1 — SEUILS -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">01</span> Définir la sous-performance</div>
+
+    <p>Il y a deux niveaux de signal. Le premier demande une intervention coaching. Le second demande une décision.</p>
+
+    <div class="seuil-grid">
+      <div class="seuil-card orange">
+        <div class="seuil-tag">Signal orange — Intervention J+3</div>
+        <div class="seuil-title">Coaching requis</div>
+        <ul class="seuil-list">
+          <li>Moins de 10 inscrits en semaine 1</li>
+          <li>Moins de 1 Pro en semaine 1</li>
+          <li>Journal manquant 2 jours consécutifs</li>
+          <li>Conversion inférieure à 10% sur 5 jours</li>
+          <li>Mêmes objections non résolues semaine 2</li>
+        </ul>
+      </div>
+      <div class="seuil-card rouge">
+        <div class="seuil-tag">Signal rouge — Décision J+7</div>
+        <div class="seuil-title">Action immédiate</div>
+        <ul class="seuil-list">
+          <li>0 Pro après 10 jours de terrain</li>
+          <li>Journal absent 3 jours ou plus</li>
+          <li>Moins de 5 inscrits après 7 jours</li>
+          <li>Plainte d'un prospect signalée</li>
+          <li>Non réponse aux messages du Responsable sous 24h</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="regle-box">
+      <div class="regle-label">Règle fondamentale</div>
+      <div class="regle-body">Un carton rouge ne s'annonce jamais dans le groupe équipe. Toujours en privé. La dynamique collective est une ressource précieuse : ne pas la polluer avec les problèmes individuels.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 2 — PROTOCOLE -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">02</span> Protocole d'intervention étape par étape</div>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-meta">Signal orange détecté · Dans les 24h</div>
+          <div class="step-title">Message WhatsApp privé — ton neutre</div>
+          <div class="step-body">
+            <p>Ne pas appeler directement. Envoyer un message neutre et factuel, sans reproche. Laisser la porte ouverte.</p>
+            <div class="dialogue-box">
+              <div class="dialogue-label">Message type — signal orange</div>
+              <div class="dialogue-line">
+                <span class="dialogue-who">Toi :</span>
+                <span class="dialogue-text">"Bonjour [Prénom]. Je regarde les chiffres de la semaine. Tu as X inscrits et Y Pros. On avait parlé de Z. Je pense qu'il y a quelque chose à débloquer. Tu es dispo 20 minutes pour un appel demain matin ?"</span>
+              </div>
+            </div>
+            <p>Si pas de réponse sous 12h : appel direct. Si pas de réponse à l'appel : escalader au point 3 directement.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-meta">Appel diagnostic · Sous 48h du signal</div>
+          <div class="step-title">L'appel de diagnostic — 20 minutes</div>
+          <div class="step-body">
+            <p>Ce n'est pas un appel de réprimande. C'est un appel pour comprendre. Commence par écouter.</p>
+            <div class="dialogue-box">
+              <div class="dialogue-label">Structure de l'appel diagnostic — 20 min</div>
+              <div class="dialogue-line">
+                <span class="dialogue-who">Toi :</span>
+                <span class="dialogue-text">"Dis-moi exactement ce qui se passe sur le terrain depuis lundi. Pas les chiffres. Ce que tu vis."</span>
+              </div>
+              <div class="dialogue-pause">[Laisser parler 3-4 minutes sans interrompre]</div>
+              <div class="dialogue-line">
+                <span class="dialogue-who">Toi :</span>
+                <span class="dialogue-text">"Dans une journée normale, tu parles à combien de personnes en moyenne ? Et comment tu commences tes conversations ?"</span>
+              </div>
+              <div class="dialogue-pause">[Identifier : prise de contact, pitch, objection, inscription, conversion Pro]</div>
+              <div class="dialogue-line">
+                <span class="dialogue-who">Toi :</span>
+                <span class="dialogue-text">"Ok. Je pense que le blocage est à [étape identifiée]. Voilà ce qu'on va faire différemment cette semaine."</span>
+              </div>
+            </div>
+            <p>Terminer l'appel avec un objectif précis pour les 3 prochains jours, en chiffres. Pas d'objectif vague.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-meta">Terrain commun · Dans la semaine du signal</div>
+          <div class="step-title">Sortie terrain ensemble — 3 heures</div>
+          <div class="step-body">
+            <p>Si l'appel n'a pas suffi, ou si le blocage semble lié à l'exécution terrain, sortir avec lui. Même structure que le duo terrain J2-J3 (RT-13).</p>
+            <p><strong>Ce que tu cherches :</strong> voir exactement où il perd les gens. Est-ce à l'approche ? Au pitch ? A l'inscription ? A la conversion Pro ?</p>
+            <div class="regle-box">
+              <div class="regle-label">Ce qui se passe souvent</div>
+              <div class="regle-body">80% des blocages viennent de l'entrée en conversation. L'agent n'ose pas aborder. Ou il aborde en commençant par "je vends WOZALI" au lieu de commencer par une question sur leur situation. Un seul terrain avec toi débloque plus que 3 appels.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">4</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-meta">Décision · J+7 si signal rouge persistant</div>
+          <div class="step-title">Plan d'action formalisé ou fin de collaboration</div>
+          <div class="step-body">
+            <p>Si après l'appel + le terrain commun les résultats ne progressent pas, il faut formaliser. Deux options :</p>
+            <table class="plan-table">
+              <thead>
+                <tr><th>Option</th><th>Condition</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Plan 7J</td>
+                  <td>Agent motivé, blocage clairement identifié, pas de fraude ni plainte</td>
+                  <td>Plan d'action écrit avec objectifs précis, point quotidien, bilan J+7</td>
+                </tr>
+                <tr>
+                  <td>Fin de collaboration</td>
+                  <td>Signal rouge persistant, non-communication, signe de fraude, ou plan 7J raté</td>
+                  <td>Escalader au fondateur. Notification formelle. Accès dashboard retiré.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 3 — PLAN 7 JOURS -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">03</span> Plan d'action 7 jours</div>
+
+    <p>Le plan d'action est un document court, signé par les deux parties, transmis au fondateur en copie. Il fixe des objectifs binaires : atteint ou non.</p>
+
+    <table class="plan-table">
+      <thead>
+        <tr><th>Jour</th><th>Objectif</th><th>Vérification</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>J+1</td><td>Journal de bord soumis avant 20h, sans exception</td><td>Timestamp reçu dans groupe ou DM</td></tr>
+        <tr><td>J+2</td><td>Minimum 20 conversations terrain</td><td>Journal détaillé (nom quartier + nb conversations)</td></tr>
+        <tr><td>J+3</td><td>Minimum 5 inscrits</td><td>Screenshots confirmations inscription</td></tr>
+        <tr><td>J+4</td><td>Appel de suivi 15 min avec Responsable</td><td>Appel effectué</td></tr>
+        <tr><td>J+5</td><td>Minimum 2 Pros signés cumulés depuis J+1</td><td>Nom + WhatsApp des Pros dans journal</td></tr>
+        <tr><td>J+6</td><td>Minimum 8 inscrits cumulés depuis J+1</td><td>Journal cumulé</td></tr>
+        <tr><td>J+7</td><td>Bilan avec Responsable. Go/No go fondateur.</td><td>Appel bilan, rapport transmis au fondateur</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alerte-box">
+      <div class="alerte-label">Règle de tolérance zéro pendant le plan</div>
+      <div class="alerte-body">Si l'agent manque un seul journal de bord pendant les 7 jours du plan, le plan est considéré comme raté. La fin de collaboration est enclenchée sans nouveau délai. Le Responsable ne peut pas modifier cette règle seul — seul le fondateur peut accorder une exception.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4 — FIN DE COLLABORATION -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">04</span> Fin de collaboration</div>
+
+    <p>La fin de collaboration n'est pas une punition. C'est une décision professionnelle. Elle doit être communiquée clairement, sans brutalité, et jamais dans le groupe équipe.</p>
+
+    <div class="dialogue-box">
+      <div class="dialogue-label">Script d'annonce fin de collaboration — appel privé</div>
+      <div class="dialogue-line">
+        <span class="dialogue-who">Toi :</span>
+        <span class="dialogue-text">"[Prénom], j'ai fait un point avec le fondateur. On a regardé ensemble tes chiffres des 3 dernières semaines et le déroulement du plan qu'on avait mis en place. La décision est prise de s'arrêter là."</span>
+      </div>
+      <div class="dialogue-pause">[Laisser réagir si nécessaire]</div>
+      <div class="dialogue-line">
+        <span class="dialogue-who">Toi :</span>
+        <span class="dialogue-text">"Ça ne veut pas dire que tu ne travailles pas bien. WOZALI demande un type précis de terrain, et c'est pas pour tout le monde. Tu reçois tes commissions sur tous les Pros que tu as signés, et ils restent actifs."</span>
+      </div>
+      <div class="dialogue-line">
+        <span class="dialogue-who">Toi :</span>
+        <span class="dialogue-text">"Ton accès au dashboard sera retiré dans 24h. Si tu as des questions sur tes commissions, tu contactes directement le fondateur."</span>
+      </div>
+    </div>
+
+    <div class="regle-box">
+      <div class="regle-label">Ce qu'on ne fait jamais</div>
+      <div class="regle-body">On ne met pas fin à une collaboration par message écrit seul. Toujours un appel d'abord, puis confirmation écrite. On ne discute jamais d'une fin de collaboration dans le groupe équipe. On ne dénigre pas un ex-agent devant l'équipe.</div>
+    </div>
+
+    <p>Après l'appel : envoyer le message de confirmation écrit sur WhatsApp, et notifier le fondateur avec le résumé en 3 lignes (agent, durée, raison principale).</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 5 — LIMITES DU RESPONSABLE -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">05</span> Limites du Responsable</div>
+
+    <p>Le Responsable peut déclencher les étapes 1, 2 et 3 seul. Les étapes suivantes requièrent le fondateur.</p>
+
+    <table class="plan-table">
+      <thead>
+        <tr><th>Action</th><th>Responsable seul</th><th>Fondateur requis</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Message de coaching</td><td>Oui</td><td></td></tr>
+        <tr><td>Appel diagnostic</td><td>Oui</td><td></td></tr>
+        <tr><td>Terrain commun</td><td>Oui</td><td></td></tr>
+        <tr><td>Plan 7 jours</td><td>Avec copie fondateur</td><td>Validation requise</td></tr>
+        <tr><td>Fin de collaboration</td><td>Non</td><td>Décision finale</td></tr>
+        <tr><td>Retrait accès dashboard</td><td>Non</td><td>Execution fondateur</td></tr>
+        <tr><td>Exception au plan 7J</td><td>Non</td><td>Seul le fondateur peut accorder</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PLAN D'ACTION FORMAT SIGNATURE -->
+  <div class="fin-block">
+    <div class="fin-title">Formulaire Plan d'Action 7 Jours — à compléter et signer</div>
+    <div class="fin-body">A remplir lors de l'étape 4 si plan d'action formalisé. Conserver une copie chaque partie. Transmettre copie au fondateur.</div>
+    <p style="font-size:12px;color:#888;margin-bottom:16px;">Agent terrain WOZALI concerné : ______________________________ · Ville : _____________ · Semaine du : _____________ au _____________</p>
+    <p style="font-size:12px;color:#444;margin-bottom:4px;"><strong>Blocage identifié :</strong></p>
+    <p style="font-size:12px;color:#888;margin-bottom:14px;border-bottom:1px solid #eee;padding-bottom:10px;">_____________________________________________________________________________________________________________</p>
+    <p style="font-size:12px;color:#444;margin-bottom:4px;"><strong>Objectifs 7 jours :</strong> Inscrits : ________ · Pros : ________ · Journaux : 7/7 (obligatoire)</p>
+    <p style="font-size:12px;color:#444;margin-bottom:4px;"><strong>Changement terrain demandé :</strong></p>
+    <p style="font-size:12px;color:#888;margin-bottom:14px;border-bottom:1px solid #eee;padding-bottom:10px;">_____________________________________________________________________________________________________________</p>
+    <div class="sig-grid">
+      <div>
+        <div class="sig-label">Responsable Réseau Terrain</div>
+        <div class="sig-line"></div>
+        <div class="sig-placeholder">Signature</div>
+        <div class="sig-date">_________, _________ 2026</div>
+      </div>
+      <div>
+        <div class="sig-label">Agent terrain WOZALI</div>
+        <div class="sig-line"></div>
+        <div class="sig-placeholder">Signature</div>
+        <div class="sig-date">_________, _________ 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:24px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-SP-2026-014 · Usage interne Responsable · WOZALI · wozali.africa · Version 1.0 · Juillet 2026</p>
+
+</div>
+</body>
+</html>

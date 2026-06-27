@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fiche de Poste — Responsable Réseau Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #fff; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.6; font-size: 14px; }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 56px 48px 80px; }
+
+  /* Header */
+  .doc-header { border-bottom: 3px solid #E8940A; padding-bottom: 32px; margin-bottom: 40px; }
+  .doc-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 28px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 18px; font-weight: 900; color: #1a1a1a; letter-spacing: 2px; }
+  .doc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: #666; font-family: 'Geist Mono', monospace; margin-bottom: 24px; }
+  .doc-meta span { display: flex; gap: 6px; }
+  .doc-meta strong { color: #1a1a1a; }
+  .doc-title { font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 900; color: #1a1a1a; line-height: 1.2; margin-bottom: 6px; }
+  .doc-subtitle { font-size: 13px; color: #E8940A; font-weight: 700; font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 2px; }
+
+  /* Sections */
+  .section { margin-bottom: 36px; }
+  .section-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .section h2 { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1a1a1a; margin-bottom: 14px; border-bottom: 1px solid #f0e8d8; padding-bottom: 8px; }
+  p { margin-bottom: 10px; color: #333; }
+  p strong { color: #1a1a1a; }
+
+  /* Bloc doré */
+  .bloc-or { background: #fffbf0; border: 1px solid rgba(232,148,10,.3); border-left: 4px solid #E8940A; border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; }
+  .bloc-or .titre { font-weight: 700; color: #1a1a1a; margin-bottom: 6px; font-size: 14px; }
+  .bloc-or p { margin: 0; font-size: 13px; }
+
+  /* Liste */
+  ul.doc-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  ul.doc-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #444; }
+  ul.doc-list li::before { content: '→'; color: #E8940A; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* Table KPI */
+  .kpi-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+  .kpi-table th { background: #1a1a1a; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; padding: 10px 14px; text-align: left; font-weight: 400; }
+  .kpi-table td { padding: 10px 14px; border-bottom: 1px solid #f0e8d8; color: #333; vertical-align: top; }
+  .kpi-table tr:last-child td { border-bottom: none; }
+  .kpi-table td:first-child { font-weight: 700; color: #1a1a1a; }
+  .badge-vert { background: rgba(34,197,94,.1); color: #15803d; border-radius: 100px; font-size: 11px; font-weight: 700; padding: 2px 8px; font-family: 'Geist Mono', monospace; }
+  .badge-orange { background: rgba(245,158,11,.1); color: #b45309; border-radius: 100px; font-size: 11px; font-weight: 700; padding: 2px 8px; font-family: 'Geist Mono', monospace; }
+  .badge-rouge { background: rgba(239,68,68,.1); color: #dc2626; border-radius: 100px; font-size: 11px; font-weight: 700; padding: 2px 8px; font-family: 'Geist Mono', monospace; }
+
+  /* Bloc remun */
+  .remun-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .remun-card { background: #fffbf0; border: 1px solid rgba(232,148,10,.25); border-radius: 10px; padding: 16px; }
+  .remun-card .label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #E8940A; margin-bottom: 8px; }
+  .remun-card .montant { font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 4px; }
+  .remun-card .desc { font-size: 12px; color: #666; }
+
+  /* Clauses importantes */
+  .clause { background: #1a1a1a; color: #FCE0A8; border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; }
+  .clause .c-titre { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #E8940A; margin-bottom: 8px; }
+  .clause p { color: rgba(252,224,168,.85); font-size: 13px; margin: 0; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 36px 0; }
+
+  /* Signature */
+  .signature-block { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 48px; padding-top: 32px; border-top: 2px solid #1a1a1a; }
+  .sig-col .sig-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #666; margin-bottom: 8px; }
+  .sig-col .sig-name { font-weight: 700; color: #1a1a1a; font-size: 14px; margin-bottom: 4px; }
+  .sig-col .sig-title { font-size: 12px; color: #E8940A; margin-bottom: 24px; }
+  .sig-line { border-bottom: 1px solid #ccc; height: 40px; margin-bottom: 8px; }
+  .sig-date { font-size: 12px; color: #999; font-family: 'Geist Mono', monospace; }
+
+  @media print {
+    body { font-size: 12px; }
+    .page { padding: 32px; }
+    .doc-title { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="doc-logo">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+    </div>
+    <div class="doc-meta">
+      <span><strong>Document :</strong> Fiche de poste officielle</span>
+      <span><strong>Référence :</strong> RT-FP-2026-001</span>
+      <span><strong>Version :</strong> 1.0</span>
+      <span><strong>Date d'effet :</strong> 27 juillet 2026</span>
+    </div>
+    <h1 class="doc-title">Responsable Réseau Terrain</h1>
+    <div class="doc-subtitle">WOZALI — Togo + Bénin</div>
+  </div>
+
+  <!-- 1. Identité du poste -->
+  <div class="section">
+    <div class="section-label">01</div>
+    <h2>Identité du poste</h2>
+    <div class="bloc-or">
+      <div class="titre">Mission principale</div>
+      <p>Manager, coacher et rendre performante une équipe de 20 agents terrain WOZALI (10 Togo + 10 Bénin) dans le but de maximiser les inscriptions et les conversions Pro sur la plateforme.</p>
+    </div>
+    <ul class="doc-list">
+      <li><strong>Intitulé exact du poste :</strong> Responsable Réseau Terrain WOZALI</li>
+      <li><strong>Périmètre :</strong> Togo (Lomé) + Bénin (Cotonou) — phase lancement</li>
+      <li><strong>Taille de l'équipe :</strong> 20 agents terrain WOZALI (10 par pays)</li>
+      <li><strong>Date de prise de poste :</strong> 27 juillet 2026</li>
+      <li><strong>Lien hiérarchique :</strong> Directement rattaché au Fondateur et Directeur Général</li>
+      <li><strong>Nature :</strong> Freelance / Commission exclusive — aucun lien de subordination salariale</li>
+    </ul>
+  </div>
+
+  <!-- 2. Missions -->
+  <div class="section">
+    <div class="section-label">02</div>
+    <h2>Missions et responsabilités</h2>
+
+    <p><strong>Management quotidien de l'équipe</strong></p>
+    <ul class="doc-list">
+      <li>Animer un brief collectif chaque lundi matin (WhatsApp ou appel) : objectifs, techniques, motivation</li>
+      <li>Lire les journaux de bord des agents chaque soir et répondre aux blocages identifiés</li>
+      <li>Identifier les agents en difficulté (statut orange/rouge) et prendre une action dans les 48h</li>
+      <li>Maintenir la dynamique d'équipe : classements, encouragements, partage des victoires</li>
+    </ul>
+
+    <p style="margin-top:14px;"><strong>Coaching et terrain</strong></p>
+    <ul class="doc-list">
+      <li>Sortie terrain accompagnée avec les agents orange minimum 1 fois par semaine</li>
+      <li>Rôle play d'objections avec l'équipe chaque semaine (enregistré)</li>
+      <li>Observer, corriger, démontrer en situation réelle — pas seulement en coaching vocal</li>
+      <li>Pratiquer le terrain en solo également les samedis (maintenir sa propre performance)</li>
+    </ul>
+
+    <p style="margin-top:14px;"><strong>Reporting et coordination</strong></p>
+    <ul class="doc-list">
+      <li>Soumettre un compte rendu hebdomadaire complet chaque dimanche avant 20h (via dashboard)</li>
+      <li>Disponible pour un appel fondateur chaque lundi après le brief équipe</li>
+      <li>Remonter les blocages systémiques, les objections nouvelles, les zones performantes</li>
+      <li>Être présent à Cotonou minimum une semaine par mois pour le volet Bénin</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 3. Rémunération -->
+  <div class="section">
+    <div class="section-label">03</div>
+    <h2>Rémunération</h2>
+    <p>La rémunération est entièrement à la performance. <strong>Aucun fixe. Aucune prime.</strong> Deux sources distinctes et cumulables.</p>
+
+    <div class="remun-grid">
+      <div class="remun-card">
+        <div class="label">Source 1 — Commission poste</div>
+        <div class="montant">10%</div>
+        <div class="desc">du CA brut mensuel de toute l'équipe. CA brut = Pros actifs équipe × 2 500 FCFA. Calculée sur les abonnements ACTIFS, pas uniquement les nouveaux.</div>
+      </div>
+      <div class="remun-card">
+        <div class="label">Source 2 — Parrainage personnel</div>
+        <div class="montant">1 000 FCFA</div>
+        <div class="desc">par Pro actif signé via ton propre lien d'affiliation, chaque mois. Ce portefeuille t'appartient. Il ne dépend pas du poste.</div>
+      </div>
+    </div>
+
+    <div class="bloc-or">
+      <div class="titre">Simulation mois 3 — scénario cible</div>
+      <p>800 Pros actifs équipe × 2 500 FCFA = CA brut 2 000 000 FCFA. Ta commission poste = <strong>200 000 FCFA</strong>. + tes propres signatures personnelles. Révisé en temps réel dans ton dashboard.</p>
+    </div>
+
+    <ul class="doc-list">
+      <li>Commission poste versée avant le 5 du mois suivant, sur présentation d'une facture depuis le dashboard</li>
+      <li>Commission parrainage personnel disponible à tout moment (retrait depuis l'espace Parrainage)</li>
+      <li>Si tu quittes le poste ou es remplacé : commission poste s'arrête. Parrainage personnel reste intégralement à toi.</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 4. KPI -->
+  <div class="section">
+    <div class="section-label">04</div>
+    <h2>Objectifs de performance (KPI)</h2>
+    <p>Les KPI ci-dessous s'appliquent dès la semaine 2 (semaine 1 = intégration agents). Révision à la baisse prévue au mois 3 une fois la base inscrite significative.</p>
+
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Indicateur</th>
+          <th>Minimum (maintien)</th>
+          <th>Cible</th>
+          <th>Exceptionnel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Inscrits équipe / semaine</td>
+          <td>2 000</td>
+          <td>4 000</td>
+          <td>6 000+</td>
+        </tr>
+        <tr>
+          <td>Pros signés équipe / semaine</td>
+          <td>400</td>
+          <td>800</td>
+          <td>1 200+</td>
+        </tr>
+        <tr>
+          <td>Pros actifs équipe / mois</td>
+          <td>800</td>
+          <td>1 600</td>
+          <td>2 400+</td>
+        </tr>
+        <tr>
+          <td>Taux conversion inscrit → Pro</td>
+          <td>15%</td>
+          <td>20%</td>
+          <td>25%+</td>
+        </tr>
+        <tr>
+          <td>Agents actifs / jour</td>
+          <td>14 / 20</td>
+          <td>18 / 20</td>
+          <td>20 / 20</td>
+        </tr>
+        <tr>
+          <td>Journaux de bord soumis / soir</td>
+          <td>14 / 20</td>
+          <td>18 / 20</td>
+          <td>20 / 20</td>
+        </tr>
+        <tr>
+          <td>Compte rendu hebdo</td>
+          <td colspan="3" style="text-align:center;font-style:italic;color:#666;">Obligatoire chaque dimanche avant 20h — non négociable</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Lecture des statuts agents dans le dashboard :</strong></p>
+    <ul class="doc-list">
+      <li><span class="badge-vert">VERT</span> KPI individuel > 70% — agent autonome, encourager et maintenir</li>
+      <li><span class="badge-orange">ORANGE</span> KPI 50-70% — coaching actif requis sous 48h</li>
+      <li><span class="badge-rouge">ROUGE</span> KPI &lt; 50% — action immédiate (voir protocole sous-performance)</li>
+    </ul>
+  </div>
+
+  <!-- 5. Règle maintien en poste -->
+  <div class="section">
+    <div class="section-label">05</div>
+    <h2>Règle de maintien en poste</h2>
+
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Durée en zone rouge équipe</th>
+          <th>Action</th>
+          <th>Décision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Semaine 1</td>
+          <td>Zoom individuel avec le fondateur, enregistré, plan d'action défini</td>
+          <td>Responsable</td>
+        </tr>
+        <tr>
+          <td>Semaine 2</td>
+          <td>Terrain accompagné fondateur + deuxième Zoom bilan</td>
+          <td>Responsable + Fondateur</td>
+        </tr>
+        <tr>
+          <td>Semaine 3</td>
+          <td>Documentation complète remontée. Décision de remplacement possible.</td>
+          <td><strong>Fondateur uniquement</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px;color:#666;font-style:italic;">Le Responsable ne décide jamais du remplacement d'un agent seul. Toute décision finale appartient au Fondateur.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 6. Clauses -->
+  <div class="section">
+    <div class="section-label">06</div>
+    <h2>Clauses contractuelles</h2>
+
+    <div class="clause">
+      <div class="c-titre">Clause remplacement</div>
+      <p>En cas de remplacement du Responsable Réseau Terrain (décision fondateur) : la commission liée au poste (10% CA équipe) s'arrête immédiatement. Le portefeuille de parrainage personnel constitué pendant l'exercice du poste reste intégralement acquis au Responsable sortant et continue de générer des commissions récurrentes tant que les membres Pro affiliés restent actifs.</p>
+    </div>
+
+    <div class="clause">
+      <div class="c-titre">Clause recrutement agents terrain</div>
+      <p>Le recrutement des agents terrain WOZALI est exclusivement du ressort du Fondateur, via campagne officielle uniquement. Le Responsable Réseau Terrain ne recrute pas d'agents par bouche-à-oreille, recommandation personnelle ou de sa propre initiative. Toute proposition de candidat est remontée au Fondateur pour décision.</p>
+    </div>
+
+    <div class="clause">
+      <div class="c-titre">Clause appels qualité</div>
+      <p>Le Fondateur effectue des appels qualité aléatoires auprès des inscrits et des agents terrain, sans préavis et sans en informer le Responsable. Ces appels servent à vérifier l'intégrité du processus d'inscription et la qualité du coaching terrain. Le Responsable ne participe pas à ces appels et ne doit pas en être informé à l'avance.</p>
+    </div>
+
+    <div class="clause">
+      <div class="c-titre">Clause accès données inscrits</div>
+      <p>Le Responsable accède via son dashboard aux noms, statuts et zones de couverture des inscrits dans son périmètre. Il n'a pas accès aux numéros de téléphone personnels, adresses précises ou données sensibles des inscrits. Toute exploitation des données inscrits à des fins personnelles ou commerciales est un motif de résiliation immédiate.</p>
+    </div>
+
+    <div class="clause">
+      <div class="c-titre">Clause déontologique</div>
+      <p>Le Responsable maintient une distance professionnelle stricte avec les agents terrain WOZALI et les inscrits sur la plateforme. Toute relation personnelle, romantique ou intime avec un agent ou un inscrit est un motif de résiliation immédiate du contrat, sans préavis et sans indemnité. La confidentialité des informations de l'équipe et de la plateforme est absolue.</p>
+    </div>
+
+    <div class="clause">
+      <div class="c-titre">Clause déplacement</div>
+      <p>Le Responsable Réseau Terrain est tenu d'être présent physiquement à Cotonou (Bénin) minimum une semaine par mois pour la supervision directe des 10 agents Bénin. Les frais de déplacement sont à la charge du Responsable et intégrés dans sa simulation financière personnelle. La date et la semaine de présence à Cotonou sont coordonnées avec le Fondateur.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 7. Ce que WOZALI s'engage à fournir -->
+  <div class="section">
+    <div class="section-label">07</div>
+    <h2>Engagements de WOZALI</h2>
+    <ul class="doc-list">
+      <li>Formation complète avant prise de poste (rôle play avec le fondateur)</li>
+      <li>Dashboard Responsable opérationnel avec KPI temps réel, journaux de bord agents, module rémunération</li>
+      <li>Tous les outils de formation, scripts, fiches objections et protocoles en version HTML imprimable</li>
+      <li>Versement commission poste avant le 5 du mois suivant sur présentation de facture</li>
+      <li>Disponibilité du fondateur pour un appel hebdomadaire et pour escalade urgente</li>
+      <li>Révision des KPI à la baisse au mois 3 si la base inscrite le justifie</li>
+      <li>Information systématique de toute évolution produit, tarifaire ou stratégique impactant l'argumentaire terrain</li>
+    </ul>
+  </div>
+
+  <!-- Signatures -->
+  <div class="signature-block">
+    <div class="sig-col">
+      <div class="sig-label">Le Fondateur et Directeur Général</div>
+      <div class="sig-name">Schealtiel Lawson</div>
+      <div class="sig-title">Fondateur et Directeur Général, WOZALI</div>
+      <div class="sig-line"></div>
+      <div class="sig-date">Signature + date : _______________</div>
+    </div>
+    <div class="sig-col">
+      <div class="sig-label">Le Responsable Réseau Terrain</div>
+      <div class="sig-name">_______________________________</div>
+      <div class="sig-title">Responsable Réseau Terrain, WOZALI</div>
+      <div class="sig-line"></div>
+      <div class="sig-date">Signature + date : _______________</div>
+    </div>
+  </div>
+
+  <p style="margin-top:24px;font-size:11px;color:#999;text-align:center;font-family:'Geist Mono',monospace;">Document confidentiel · WOZALI · wozali.africa · Version 1.0 — Juin 2026</p>
+
+</div>
+</body>
+</html>

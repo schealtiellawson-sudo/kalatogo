@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checklist Kit Terrain — Agent WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; font-size: 12px; }
+  .page { max-width: 760px; margin: 0 auto; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; padding: 28px 40px 22px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; color: #E8940A; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 20px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 9px; color: rgba(232,148,10,.4); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #FCE0A8; margin-bottom: 3px; }
+  .doc-sub { font-size: 12px; color: rgba(252,224,168,.55); margin-bottom: 6px; }
+  .doc-meta { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(252,224,168,.3); }
+
+  /* Body */
+  .body { padding: 28px 40px 60px; }
+
+  /* Rule gold */
+  .rule { background: rgba(232,148,10,.07); border-left: 3px solid #E8940A; border-radius: 0 6px 6px 0; padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #5a4000; }
+  .rule strong { color: #14100A; }
+
+  /* Blocks layout */
+  .blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .block { border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+  .block-header { display: flex; align-items: center; gap: 8px; padding: 9px 12px; }
+  .block-header.dark { background: #14100A; }
+  .block-header.gold { background: #E8940A; }
+  .block-header.red  { background: #cc2200; }
+  .block-num { font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 700; color: rgba(252,224,168,.5); }
+  .block-num.on-gold { color: rgba(255,255,255,.6); }
+  .block-num.on-red  { color: rgba(255,255,255,.5); }
+  .block-title { font-family: 'DM Serif Display', serif; font-size: 15px; color: #FCE0A8; }
+  .block-title.on-gold { color: #fff; }
+  .block-title.on-red  { color: #fff; }
+  .block-body { padding: 8px 12px 12px; }
+
+  /* Checklist items */
+  .check-item { display: flex; align-items: flex-start; gap: 9px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
+  .check-item:last-child { border-bottom: none; }
+  .check-box { width: 15px; height: 15px; border: 1.5px solid #ccc; border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+  .check-text { font-size: 12px; color: #444; line-height: 1.5; }
+  .check-text em { color: #aaa; font-style: normal; font-size: 11px; }
+  .check-text strong { color: #1a1a1a; }
+
+  /* Red items */
+  .check-item.danger .check-box { border-color: #cc2200; }
+  .check-item.danger .check-text { color: #cc2200; font-weight: 500; }
+
+  /* Full-width block */
+  .block.full { grid-column: 1 / -1; }
+
+  /* KPI fill-in */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 8px 0 0; }
+  .kpi-cell { text-align: center; }
+  .kpi-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .kpi-line { border-bottom: 1.5px solid #ddd; margin: 0 4px; height: 20px; }
+  .kpi-target { font-size: 10px; color: #E8940A; text-align: center; margin-top: 3px; }
+
+  /* Script rapide */
+  .script-quick { background: #14100A; border-radius: 6px; padding: 12px 14px; margin-top: 6px; }
+  .script-q-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(232,148,10,.5); margin-bottom: 8px; }
+  .script-q-line { display: flex; gap: 8px; font-size: 12px; color: #FCE0A8; margin-bottom: 6px; line-height: 1.5; }
+  .script-q-line:last-child { margin-bottom: 0; }
+  .script-q-n { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; background: rgba(232,148,10,.15); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; font-weight: 700; margin-top: 2px; }
+
+  /* Signature */
+  .sign-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 22px; }
+  .sign-cell { border-top: 1.5px solid #ddd; padding-top: 8px; }
+  .sign-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; color: #bbb; letter-spacing: 1px; }
+  .sign-line { height: 24px; border-bottom: 1px dotted #ccc; margin-top: 16px; }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A40, transparent); margin: 20px 0; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .block-header.dark { background: #1a1a1a; }
+    .script-quick { background: #1a1a1a; }
+    .page { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Kit terrain · Agent terrain WOZALI</span>
+    </div>
+    <h1>Checklist Kit Terrain</h1>
+    <p class="doc-sub">A remplir la veille et le matin avant de sortir — sans oublier un seul point</p>
+    <p class="doc-meta">RT-CK-2026-020 · Version 1.0 · Juillet 2026</p>
+  </div>
+
+  <div class="body">
+
+    <div class="rule">
+      <strong>Regle :</strong> Tu ne sors pas tant que cette checklist n'est pas a 100%. Un oubli = une heure perdue. Deux oublis = une journee ratee.
+    </div>
+
+    <div class="blocks">
+
+      <!-- BLOC 1 : Equip physique -->
+      <div class="block">
+        <div class="block-header dark">
+          <span class="block-num">01</span>
+          <span class="block-title">Equipement physique</span>
+        </div>
+        <div class="block-body">
+          <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Telephone charge a 100%</strong> <em>(cable emporte)</em></div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Data mobile active</strong> et suffisante pour la journee</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Carnet + stylo pour les notes terrain</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Eau + argent transport</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Zone terrain definie pour la journee</div></div>
+        </div>
+      </div>
+
+      <!-- BLOC 2 : Compte WOZALI -->
+      <div class="block">
+        <div class="block-header dark">
+          <span class="block-num">02</span>
+          <span class="block-title">Compte WOZALI pret</span>
+        </div>
+        <div class="block-body">
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Connecte a wozali.africa sur mon telephone</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Mon profil complet <em>(photo + metier + quartier)</em></div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text"><strong>Mon code parrainage</strong> note quelque part : ___________</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Dashboard agent accessible et fonctionnel</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Numero Responsable enregistre dans contacts</div></div>
+        </div>
+      </div>
+
+      <!-- BLOC 3 : Pitch -->
+      <div class="block">
+        <div class="block-header gold">
+          <span class="block-num on-gold">03</span>
+          <span class="block-title on-gold">Pitch memorise</span>
+        </div>
+        <div class="block-body">
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Etape 1 : "Tu fais quoi comme travail ?"</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Etape 2 : question sur les clients qui contactent</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Etape 3 : WOZALI Sort en premier. Pas les contacts.</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Etape 4 : "Gratuit. 5 min. Sur ton telephone."</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Etape 5 : "T'es libre maintenant 5 minutes ?"</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">Je peux le reciter sans lire ces notes</div></div>
+        </div>
+      </div>
+
+      <!-- BLOC 4 : Objections -->
+      <div class="block">
+        <div class="block-header dark">
+          <span class="block-num">04</span>
+          <span class="block-title">6 objections maitrisees</span>
+        </div>
+        <div class="block-body">
+          <div class="check-item"><div class="check-box"></div><div class="check-text">"Je vais reflechir" -- reponse prete</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">"2 500 FCFA c'est trop cher" -- reponse prete</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">"Facebook me suffit" -- reponse prete</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">"Je n'ai pas le temps" -- reponse prete</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">"Je ne connais pas cette appli" -- reponse prete</div></div>
+          <div class="check-item"><div class="check-box"></div><div class="check-text">"Ca va marcher ici ?" -- reponse prete</div></div>
+        </div>
+      </div>
+
+      <!-- BLOC 5 : Script inscription -->
+      <div class="block full">
+        <div class="block-header gold">
+          <span class="block-num on-gold">05</span>
+          <span class="block-title on-gold">Script inscription -- a connaitre par coeur</span>
+        </div>
+        <div class="block-body">
+          <div class="script-quick">
+            <div class="script-q-label">Les 6 etapes sur son telephone</div>
+            <div class="script-q-line"><span class="script-q-n">1</span>Ouvrir wozali.africa sur SON telephone, pas le mien</div>
+            <div class="script-q-line"><span class="script-q-n">2</span>Cliquer S'inscrire -- nom complet, son vrai numero, mot de passe simple</div>
+            <div class="script-q-line"><span class="script-q-n">3</span>Remplir metier + quartier + ville + description courte</div>
+            <div class="script-q-line"><span class="script-q-n">4</span>Lui montrer son profil public : "C'est ca que les clients voient."</div>
+            <div class="script-q-line"><span class="script-q-n">5</span>Proposer Pro une fois seulement : "2 500 FCFA / mois pour passer en premier + recompenses du 25 septembre."</div>
+            <div class="script-q-line"><span class="script-q-n">6</span>Donner mon code de parrainage. Expliquer 1 000 FCFA / mois par filleul Pro actif.</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:10px;">
+            <div class="check-item" style="flex:1"><div class="check-box"></div><div class="check-text">Je peux faire les 6 etapes sans hesiter</div></div>
+            <div class="check-item" style="flex:1"><div class="check-box"></div><div class="check-text">Je n'ai jamais l'argent Pro entre mes mains</div></div>
+            <div class="check-item" style="flex:1"><div class="check-box"></div><div class="check-text">Je ne promets rien que WOZALI ne garantit pas</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOC 6 : Objectif journee -->
+      <div class="block">
+        <div class="block-header dark">
+          <span class="block-num">06</span>
+          <span class="block-title">Objectif journee</span>
+        </div>
+        <div class="block-body">
+          <div class="kpi-row">
+            <div class="kpi-cell">
+              <div class="kpi-label">Depart</div>
+              <div class="kpi-line"></div>
+              <div class="kpi-target">heure</div>
+            </div>
+            <div class="kpi-cell">
+              <div class="kpi-label">Conversations</div>
+              <div class="kpi-line"></div>
+              <div class="kpi-target">cible 30</div>
+            </div>
+            <div class="kpi-cell">
+              <div class="kpi-label">Inscrits</div>
+              <div class="kpi-line"></div>
+              <div class="kpi-target">cible 8</div>
+            </div>
+            <div class="kpi-cell">
+              <div class="kpi-label">Pros</div>
+              <div class="kpi-line"></div>
+              <div class="kpi-target">cible 1-2</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <div class="check-item"><div class="check-box"></div><div class="check-text">Zone definie : <em>__________________________</em></div></div>
+            <div class="check-item"><div class="check-box"></div><div class="check-text">Heure de fin prevue : <em>___________</em></div></div>
+            <div class="check-item"><div class="check-box"></div><div class="check-text">Journal de bord a envoyer avant 20h ce soir</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOC 7 : Regles absolues -->
+      <div class="block">
+        <div class="block-header red">
+          <span class="block-num on-red">07</span>
+          <span class="block-title on-red">Regles que je n'oublie pas</span>
+        </div>
+        <div class="block-body">
+          <div class="check-item danger"><div class="check-box"></div><div class="check-text">Je me presente comme "agent terrain WOZALI"</div></div>
+          <div class="check-item danger"><div class="check-box"></div><div class="check-text">L'inscription = toujours sur son telephone</div></div>
+          <div class="check-item danger"><div class="check-box"></div><div class="check-text">Zero argent liquide en mon nom</div></div>
+          <div class="check-item danger"><div class="check-box"></div><div class="check-text">Je signe les inscrits, pas je "ferme" ou "vends"</div></div>
+          <div class="check-item danger"><div class="check-box"></div><div class="check-text">Probleme = appel Responsable d'abord</div></div>
+          <div class="check-item danger"><div class="check-box"></div><div class="check-text">Journal avant 20h, sans exception</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Signature -->
+    <div class="sign-row">
+      <div class="sign-cell">
+        <div class="sign-label">Date</div>
+        <div class="sign-line"></div>
+      </div>
+      <div class="sign-cell">
+        <div class="sign-label">Signature agent terrain WOZALI</div>
+        <div class="sign-line"></div>
+      </div>
+    </div>
+
+    <p style="margin-top:28px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-CK-2026-020 · Checklist Kit Terrain · Agent terrain WOZALI · wozali.africa · Juillet 2026</p>
+
+  </div>
+
+</div>
+</body>
+</html>

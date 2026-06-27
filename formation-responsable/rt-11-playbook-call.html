@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Playbook Call Équipe — Responsable Réseau Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { border-bottom: 3px solid #14100A; padding-bottom: 16px; margin-bottom: 28px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 900; color: #14100A; letter-spacing: 3px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #14100A; }
+  .doc-sub { font-size: 11px; color: #888; font-family: 'Geist Mono', monospace; margin-top: 3px; }
+  .doc-ref { font-family: 'Geist Mono', monospace; font-size: 10px; color: #bbb; text-align: right; line-height: 2; }
+
+  /* Tabs visuals */
+  .call-tabs { display: flex; gap: 10px; margin-bottom: 28px; }
+  .call-tab { flex: 1; border-radius: 10px; overflow: hidden; border: 2px solid #14100A; }
+  .call-tab-header { background: #14100A; padding: 12px 16px; }
+  .call-tab-jour { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(232,148,10,.6); margin-bottom: 3px; }
+  .call-tab-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #FCE0A8; }
+  .call-tab-meta { font-size: 11px; color: rgba(252,224,168,.5); margin-top: 3px; font-family: 'Geist Mono', monospace; }
+  .call-tab-body { padding: 12px 16px; background: #fffbf0; }
+  .call-tab-body p { font-size: 12px; color: #7a5000; margin: 0; }
+
+  /* Call structure */
+  .call-block { margin-bottom: 36px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+  .call-block-header { background: #14100A; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+  .call-block-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #FCE0A8; }
+  .call-block-meta { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.6); text-align: right; line-height: 1.8; }
+
+  /* Steps du call */
+  .call-step { display: flex; gap: 0; border-bottom: 1px solid #f5f0e8; }
+  .call-step:last-child { border-bottom: none; }
+  .step-time { width: 56px; background: #fafafa; padding: 12px 10px; font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; font-weight: 700; flex-shrink: 0; border-right: 1px solid #f0e0c0; text-align: center; display: flex; align-items: flex-start; justify-content: center; padding-top: 14px; }
+  .step-content { padding: 11px 16px; flex: 1; }
+  .step-action { font-weight: 700; font-size: 13px; color: #1a1a1a; margin-bottom: 5px; }
+  .step-detail { font-size: 12px; color: #666; margin-bottom: 0; }
+
+  /* Paroles */
+  .parole { background: #f0f0f0; border-left: 3px solid #14100A; border-radius: 0 5px 5px 0; padding: 8px 12px; margin: 7px 0; font-style: italic; font-size: 12px; color: #2a2a2a; }
+  .parole .p-label { font-style: normal; font-family: 'Geist Mono', monospace; font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; display: block; }
+
+  /* Variante ok/no */
+  .var-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 7px 0; }
+  .var-box { border-radius: 6px; padding: 9px 12px; font-size: 12px; }
+  .var-ok { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.2); }
+  .var-no { background: #fff0f0; border: 1px solid #ffcccc; }
+  .var-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; }
+  .var-ok .var-label { color: #c07000; }
+  .var-no .var-label { color: #cc3333; }
+  .var-ok .var-text { color: #5a4000; font-style: italic; }
+  .var-no .var-text { color: #cc3333; font-style: italic; text-decoration: line-through; }
+
+  /* Bloc règle */
+  .bloc-or { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 12px; color: #5a4000; }
+  .bloc-or strong { color: #14100A; }
+  .bloc-dark { background: #14100A; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .bloc-dark p { color: rgba(252,224,168,.8); font-size: 12px; margin: 0; }
+  .bloc-dark strong { color: #E8940A; }
+
+  /* Règles management */
+  .regle { display: flex; gap: 9px; margin: 6px 0; align-items: flex-start; font-size: 12px; }
+  .regle::before { content: '→'; color: #E8940A; font-weight: 900; flex-shrink: 0; }
+  .regle span { color: #444; }
+
+  /* Section titre */
+  .section-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #E8940A; margin: 24px 0 12px; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 24px 0; }
+
+  @media print {
+    html { background: #fff; }
+    .page { padding: 24px 36px 48px; }
+    .call-block { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="logo-row">
+        <span class="logo-w">W</span>
+        <span class="logo-ozali">OZALI</span>
+      </div>
+      <h1>Playbook — Call Équipe</h1>
+      <p class="doc-sub">Structure exacte des calls Lundi kick-off et Vendredi bilan</p>
+    </div>
+    <div class="doc-ref">RT-PL-2026-011<br>Confidentiel<br>Responsable Réseau Terrain</div>
+  </div>
+
+  <!-- DEUX CALLS -->
+  <div class="call-tabs">
+    <div class="call-tab">
+      <div class="call-tab-header">
+        <div class="call-tab-jour">Lundi</div>
+        <div class="call-tab-title">Call Kick-off</div>
+        <div class="call-tab-meta">8h30 · 20 min max · WhatsApp vocal</div>
+      </div>
+      <div class="call-tab-body">
+        <p>Donner la direction. Créer l'élan. Nommer une victoire de la semaine précédente. Fixer l'objectif clair.</p>
+      </div>
+    </div>
+    <div class="call-tab">
+      <div class="call-tab-header">
+        <div class="call-tab-jour">Vendredi</div>
+        <div class="call-tab-title">Call Bilan</div>
+        <div class="call-tab-meta">14h · 20 min max · WhatsApp vocal</div>
+      </div>
+      <div class="call-tab-body">
+        <p>Reconnaître. Corriger avec dignité. Préparer la semaine suivante. Terminer sur une note positive.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALL LUNDI -->
+  <div class="call-block">
+    <div class="call-block-header">
+      <div class="call-block-title">Call Lundi — Kick-off</div>
+      <div class="call-block-meta">20 min max<br>Togo : 8h30 / Bénin : 9h15</div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 0-2</div>
+      <div class="step-content">
+        <div class="step-action">Ouverture — ancrer l'énergie</div>
+        <div class="parole">
+          <span class="p-label">Dire exactement</span>
+          "Bonjour tout le monde. Nouvelle semaine, nouvelle chance. La semaine dernière on a signé [X Pros]. Cette semaine on vise [Y Pros]. C'est faisable, on l'a déjà fait."
+        </div>
+        <div class="step-detail">Ton direct, confiant, pas théâtral. Ne pas commencer par "j'espère que tout le monde va bien" — aller directement aux chiffres.</div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 2-5</div>
+      <div class="step-content">
+        <div class="step-action">Bilan rapide semaine passée — chiffres uniquement</div>
+        <div class="step-detail">Énoncer les 3 meilleurs de la semaine précédente avec leurs noms et leurs chiffres. Ni commentaire, ni classement humiliant — juste les noms et les résultats.
+          <div class="parole" style="margin-top:8px;">
+            <span class="p-label">Dire</span>
+            "[Prénom 1] — [X Pros]. [Prénom 2] — [Y Pros]. [Prénom 3] — [Z Pros]. Bien joué à tous les trois."
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 5-8</div>
+      <div class="step-content">
+        <div class="step-action">Victoire de la semaine — 1 histoire concrète</div>
+        <div class="step-detail">Raconter une situation terrain réelle d'un agent. Pas un résultat — une situation. Comment il a géré une objection, comment il a signé un cas difficile. <em>Les agents retiennent les histoires, pas les chiffres.</em>
+          <div class="parole" style="margin-top:8px;">
+            <span class="p-label">Structure</span>
+            "[Prénom] était face à quelqu'un qui disait [objection]. Il a dit [réponse]. La personne a signé Pro. Voilà comment on fait."
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 8-12</div>
+      <div class="step-content">
+        <div class="step-action">Focus semaine — 1 point technique max</div>
+        <div class="step-detail">Un seul apprentissage à travailler cette semaine. Pas deux, pas trois. Un. Soit une technique de conversion, soit la gestion d'une objection spécifique, soit le timing du Pro.
+          <div class="bloc-or" style="margin-top:8px;">
+            <strong>Règle :</strong> si tu donnes 3 points à améliorer, aucun ne sera retenu. Un point = traction réelle. Plus d'un = dilution.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 12-17</div>
+      <div class="step-content">
+        <div class="step-action">Questions agents — ouvert, 5 minutes</div>
+        <div class="step-detail">
+          "Quelqu'un a une situation terrain qu'il n'a pas su gérer la semaine dernière ?" — ouvrir l'espace. Si silence : poser une question toi-même sur un cas que tu as observé.<br><br>
+          <div class="var-grid">
+            <div class="var-box var-ok">
+              <div class="var-label">Réponse si blocage agent</div>
+              <div class="var-text">"Bonne question [prénom]. Voilà comment j'aurais fait..."</div>
+            </div>
+            <div class="var-box var-no">
+              <div class="var-label">Réponse à éviter</div>
+              <div class="var-text">"Pourquoi t'as pas signé dans ce cas-là ?"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 17-20</div>
+      <div class="step-content">
+        <div class="step-action">Fermeture — formule de départ</div>
+        <div class="parole">
+          <span class="p-label">Dire exactement</span>
+          "On y va. [X] Pros cette semaine. Ce n'est pas une suggestion — c'est ce qu'on a décidé ensemble. Bonne journée tout le monde."
+        </div>
+        <div class="step-detail">Couper le call immédiatement après. Pas de "est-ce que tout le monde est prêt ?" ou "des questions encore ?". Terminer sur l'élan.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CALL VENDREDI -->
+  <div class="call-block">
+    <div class="call-block-header">
+      <div class="call-block-title">Call Vendredi — Bilan</div>
+      <div class="call-block-meta">20 min max<br>Togo : 14h / Bénin : 14h45</div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 0-2</div>
+      <div class="step-content">
+        <div class="step-action">Ouverture — ancrer ce qui s'est passé</div>
+        <div class="parole">
+          <span class="p-label">Dire exactement</span>
+          "Semaine terminée. On a signé [X Pros]. L'objectif était [Y]. On a [atteint/pas atteint]. Voilà pourquoi — et voilà ce qu'on retient."
+        </div>
+        <div class="step-detail">Pas d'excuse, pas de plainte. Constater sobrement. Le ton donne la culture : on regarde les chiffres avec calme.</div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 2-7</div>
+      <div class="step-content">
+        <div class="step-action">Reconnaissance — nommer les 3 meilleurs</div>
+        <div class="step-detail">Nommer les 3 agents avec les meilleurs résultats de la semaine. Avec leurs chiffres exacts. Prendre 30 secondes pour chacun — une phrase sur pourquoi c'est notable.
+          <div class="parole" style="margin-top:8px;">
+            <span class="p-label">Format</span>
+            "[Prénom] a signé [X Pros] cette semaine. [Prénom] a eu une situation difficile lundi et a quand même fini fort. Ce genre de résistance, c'est ca qu'on cherche."
+          </div>
+          <div class="bloc-dark" style="margin-top:8px;">
+            <p><strong>Pourquoi c'est important :</strong> LF8 (reconnaissance) est l'une des motivations les plus puissantes pour les agents terrain. Être nommé devant le groupe crée une dynamique de fierté que l'argent seul ne crée pas. Ne jamais sauter cette étape même si le call est court.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 7-12</div>
+      <div class="step-content">
+        <div class="step-action">Analyse — 1 blocage collectif, 1 solution</div>
+        <div class="step-detail">Identifier le blocage le plus fréquent de la semaine (lu dans les journaux de bord). Nommer le blocage sans nommer les agents concernés. Proposer une solution concrète.
+          <div class="parole" style="margin-top:8px;">
+            <span class="p-label">Format</span>
+            "Cette semaine j'ai vu dans plusieurs journaux que l'objection [prix / pas le temps / Facebook] revenait souvent. Voilà comment on la traite maintenant..."
+          </div>
+          <div class="regle"><span>Ne jamais dire "certains parmi vous" ou donner des indices qui permettent d'identifier l'agent. La correction est collective, pas publiquement individuelle.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 12-15</div>
+      <div class="step-content">
+        <div class="step-action">Objectif semaine prochaine — chiffre précis</div>
+        <div class="step-detail">Annoncer l'objectif Pros de la semaine suivante. Expliquer en 2 phrases pourquoi ce chiffre. Si on est en dessous depuis 2 semaines, on baisse légèrement pour reconstruire la confiance, pas pour maintenir la pression.
+          <div class="bloc-or" style="margin-top:8px;">
+            <strong>Règle :</strong> un objectif non atteint 3 semaines de suite devient démotivant. Mieux vaut 80 Pros atteints que 100 manqués. Calibrer honnêtement.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <div class="step-time">Min 15-20</div>
+      <div class="step-content">
+        <div class="step-action">Fermeture — élan pour le week-end et lundi</div>
+        <div class="parole">
+          <span class="p-label">Dire exactement</span>
+          "Bon week-end à tous. Samedi matin sur les marchés si vous pouvez — c'est la meilleure tranche. Reposez-vous dimanche. Lundi matin on repart. Bonne fin de semaine."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RÈGLES TRANSVERSALES -->
+  <div class="section-label">Règles transversales — les deux calls</div>
+
+  <div class="var-grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+    <div class="var-box var-ok">
+      <div class="var-label">Ce qui renforce l'équipe</div>
+      <div class="var-text" style="text-decoration:none;color:#5a4000;">Nommer des victoires individuelles. Poser des questions ouvertes. Finir dans le temps. Un seul message clé. Rester factuel sur les chiffres.</div>
+    </div>
+    <div class="var-box var-no">
+      <div class="var-label">Ce qui détruit l'équipe</div>
+      <div class="var-text">Humilier un agent devant le groupe. Dépasser 25 minutes. Donner 5 points à améliorer. Comparer deux agents entre eux. Annuler le call sans prévenir.</div>
+    </div>
+  </div>
+
+  <div class="regle"><span><strong>Annulation :</strong> si tu ne peux pas faire le call lundi, l'envoyer en message vocal enregistré. Le call n'est jamais annulé — il est différé max 2h ou remplacé par message vocal.</span></div>
+  <div class="regle"><span><strong>Agents absents :</strong> noter qui n'était pas présent. Message individuel : "Tu as manqué le call de ce matin. Bref résumé : [3 points]. N'hésite pas si tu as des questions."</span></div>
+  <div class="regle"><span><strong>Appels de groupe :</strong> utiliser WhatsApp vocal de groupe (pas d'appel de groupe téléphonique — qualité audio insuffisante en Afrique de l'Ouest). Togo et Bénin séparément si plus de 12 personnes.</span></div>
+  <div class="regle"><span><strong>Enregistrement :</strong> enregistrer chaque call vocal et l'épingler dans le groupe pour ceux qui rejoignent plus tard. Garde aussi un historique pour le fondateur.</span></div>
+
+  <p style="margin-top:28px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-PL-2026-011 · Confidentiel · Responsable Réseau Terrain · WOZALI · wozali.africa</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Playbook Semaine Type — Responsable Réseau Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13px; }
+  .page { max-width: 780px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { border-bottom: 3px solid #14100A; padding-bottom: 16px; margin-bottom: 30px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 900; color: #14100A; letter-spacing: 3px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #14100A; }
+  .doc-sub { font-size: 11px; color: #888; font-family: 'Geist Mono', monospace; margin-top: 3px; }
+  .doc-ref { font-family: 'Geist Mono', monospace; font-size: 10px; color: #bbb; text-align: right; line-height: 2; }
+
+  /* Intro */
+  .intro { background: #14100A; border-radius: 10px; padding: 14px 18px; margin-bottom: 28px; }
+  .intro p { color: rgba(252,224,168,.8); font-size: 12px; margin: 0; }
+  .intro strong { color: #E8940A; }
+
+  /* Jour block */
+  .jour { margin-bottom: 28px; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+  .jour-header { padding: 14px 18px; display: flex; align-items: center; gap: 14px; }
+  .jour-nom { font-family: 'DM Serif Display', serif; font-size: 20px; color: #FCE0A8; }
+  .jour-tag { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(232,148,10,.3); color: rgba(232,148,10,.7); margin-left: auto; }
+
+  .jour-lundi .jour-header { background: #14100A; }
+  .jour-mardi .jour-header { background: #1a1208; }
+  .jour-merc .jour-header { background: #1a1208; }
+  .jour-jeudi .jour-header { background: #1a1208; }
+  .jour-vendredi .jour-header { background: #14100A; }
+  .jour-samedi .jour-header { background: #0f0c06; }
+  .jour-dimanche .jour-header { background: #0a0805; border-left: 4px solid #E8940A; }
+
+  .jour-body { padding: 0; }
+
+  /* Blocs horaires */
+  .slot { display: flex; gap: 0; border-bottom: 1px solid #f5f0e8; }
+  .slot:last-child { border-bottom: none; }
+  .slot-time { width: 72px; background: #fafafa; padding: 10px 14px; font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; font-weight: 700; flex-shrink: 0; border-right: 1px solid #f0e0c0; display: flex; align-items: flex-start; padding-top: 12px; }
+  .slot-content { padding: 10px 16px; flex: 1; }
+  .slot-action { font-weight: 700; font-size: 13px; color: #1a1a1a; margin-bottom: 3px; }
+  .slot-detail { font-size: 12px; color: #666; }
+  .slot-detail em { color: #c07000; font-style: italic; }
+
+  /* Slot types */
+  .slot-call .slot-time { color: #4a90d9; }
+  .slot-call .slot-content { background: rgba(74,144,217,.03); }
+  .slot-terrain .slot-time { color: #E8940A; }
+  .slot-rapport .slot-time { color: #9b59b6; }
+  .slot-rapport .slot-content { background: rgba(155,89,182,.03); }
+  .slot-critique .slot-content { background: rgba(232,148,10,.04); }
+  .slot-critique .slot-action { color: #c07000; }
+
+  /* Checklist inline */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .checklist li { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #555; }
+  .checklist li::before { content: '□'; font-size: 11px; flex-shrink: 0; color: #ccc; margin-top: 1px; }
+
+  /* Règle */
+  .regle { display: flex; gap: 9px; margin: 5px 0; align-items: flex-start; font-size: 12px; }
+  .regle::before { content: '→'; color: #E8940A; font-weight: 900; flex-shrink: 0; }
+  .regle span { color: #444; }
+
+  /* Alerte dimanche */
+  .alerte-dim { background: rgba(232,148,10,.08); border: 1px solid rgba(232,148,10,.25); border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-size: 12px; color: #7a5000; }
+  .alerte-dim strong { color: #c07000; }
+
+  /* KPIs semaine */
+  .kpi-semaine { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 20px 0; }
+  .kpi-box { background: #fffbf0; border: 1px solid rgba(232,148,10,.2); border-radius: 8px; padding: 12px; text-align: center; }
+  .kpi-box .k-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: #E8940A; }
+  .kpi-box .k-label { font-size: 10px; color: #888; margin-top: 3px; }
+
+  /* Signaux */
+  .signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+  .signal-box { border-radius: 8px; padding: 10px 13px; font-size: 12px; }
+  .signal-vert { background: #f0fff0; border: 1px solid #aaddaa; color: #226622; }
+  .signal-rouge { background: #fff0f0; border: 1px solid #ffaaaa; color: #882222; }
+  .signal-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; }
+  .signal-vert .signal-label { color: #449944; }
+  .signal-rouge .signal-label { color: #cc3333; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 24px 0; }
+
+  @media print {
+    html { background: #fff; }
+    .page { padding: 24px 36px 48px; }
+    .jour { break-inside: avoid; margin-bottom: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="logo-row">
+        <span class="logo-w">W</span>
+        <span class="logo-ozali">OZALI</span>
+      </div>
+      <h1>Playbook — Semaine Type</h1>
+      <p class="doc-sub">Responsable Réseau Terrain · Structure hebdomadaire obligatoire</p>
+    </div>
+    <div class="doc-ref">RT-PL-2026-010<br>Confidentiel<br>Responsable Réseau Terrain</div>
+  </div>
+
+  <div class="intro">
+    <p>Ce planning n'est pas une suggestion. C'est la structure qui permet à 20 agents terrain sur deux pays de tourner de façon coordonnée. Chaque bloc non respecté crée un angle mort. Le fondateur reçoit le CR dimanche soir. <strong>Pas d'exceptions.</strong></p>
+  </div>
+
+  <!-- KPIs SEMAINE -->
+  <p style="font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#E8940A;margin-bottom:10px;">Cibles hebdomadaires équipe</p>
+  <div class="kpi-semaine">
+    <div class="kpi-box">
+      <div class="k-val">400</div>
+      <div class="k-label">inscrits gratuits / semaine</div>
+    </div>
+    <div class="kpi-box">
+      <div class="k-val">80</div>
+      <div class="k-label">Pros signés / semaine</div>
+    </div>
+    <div class="kpi-box">
+      <div class="k-val">20%</div>
+      <div class="k-label">taux conversion min</div>
+    </div>
+    <div class="kpi-box">
+      <div class="k-val">18/20</div>
+      <div class="k-label">agents actifs / semaine</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- LUNDI -->
+  <div class="jour jour-lundi">
+    <div class="jour-header">
+      <span class="jour-nom">Lundi</span>
+      <span class="jour-tag">Kick-off semaine</span>
+    </div>
+    <div class="jour-body">
+      <div class="slot slot-call">
+        <div class="slot-time">7h30</div>
+        <div class="slot-content">
+          <div class="slot-action">Lecture des journaux de bord du week-end</div>
+          <div class="slot-detail">Lire les journaux envoyés samedi soir par chaque agent. Identifier les agents sans journal (alerte). Préparer les questions pour le call.</div>
+        </div>
+      </div>
+      <div class="slot slot-call">
+        <div class="slot-time">8h30</div>
+        <div class="slot-content">
+          <div class="slot-action">Call kick-off équipe — Togo + Bénin séparément</div>
+          <div class="slot-detail">Durée max 20 minutes. Structure exacte dans RT-PL-2026-011 (Playbook Call). Partager les KPI de la semaine précédente. Donner l'objectif de la semaine. Nommer 1 victoire d'un agent devant tout le monde.</div>
+        </div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">10h</div>
+        <div class="slot-content">
+          <div class="slot-action">Terrain personnel — zone à fort potentiel non couverte</div>
+          <div class="slot-detail">4h de terrain en propre. Objectif : minimum 4 Pros signés. Démontrer la méthode. Les Pros du Responsable comptent séparément de l'équipe.</div>
+        </div>
+      </div>
+      <div class="slot slot-critique">
+        <div class="slot-time">15h</div>
+        <div class="slot-content">
+          <div class="slot-action">Coaching agent rouge (si applicable)</div>
+          <div class="slot-detail">Si un agent est en carton orange ou rouge sur le tableau de bord : appel individuel, 30 minutes. <em>Pas de reproche — diagnostic. "Qu'est-ce qui s'est passé ?"</em> Plan d'action pour la semaine.</div>
+        </div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">18h</div>
+        <div class="slot-content">
+          <div class="slot-action">Dashboard — vérification chiffres J0</div>
+          <div class="slot-detail">Ouvrir le dashboard Responsable. Vérifier que les agents ont bien commencé à renseigner leurs journaux. Envoyer un message WhatsApp de groupe : "Bonne semaine à tous. On commence fort."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARDI / MERCREDI / JEUDI -->
+  <div class="jour jour-mardi">
+    <div class="jour-header">
+      <span class="jour-nom">Mardi — Mercredi — Jeudi</span>
+      <span class="jour-tag">Terrain + Coaching</span>
+    </div>
+    <div class="jour-body">
+      <div class="slot">
+        <div class="slot-time">6h30</div>
+        <div class="slot-content">
+          <div class="slot-action">Terrain personnel — ouverture marchés</div>
+          <div class="slot-detail">Travailler la tranche 6h30-10h sur les marchés et zones d'ouverture des ateliers. C'est la meilleure tranche de conversion. 3h de terrain ciblé.</div>
+        </div>
+      </div>
+      <div class="slot slot-critique">
+        <div class="slot-time">10h30</div>
+        <div class="slot-content">
+          <div class="slot-action">Accompagnement terrain d'un agent par jour (rotation)</div>
+          <div class="slot-detail">2h avec un agent différent chaque jour (Togo mardi/mercredi, Bénin jeudi). Observer sans intervenir. Après : feedback en marchant — ce qui a bien marché, 1 point à améliorer. <em>Jamais plus d'un point par session.</em></div>
+        </div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">13h</div>
+        <div class="slot-content">
+          <div class="slot-action">Pause déjeuner complète — coupure obligatoire</div>
+          <div class="slot-detail">45 minutes minimum. Téléphone en silence. L'énergie de l'après-midi en dépend.</div>
+        </div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">14h</div>
+        <div class="slot-content">
+          <div class="slot-action">Terrain — zone résidentielle ou zones d'ateliers</div>
+          <div class="slot-detail">3h de terrain personnel. Relances des profils gratuits créés lundi-mardi. Conversion Pro = objectif prioritaire sur cette tranche.</div>
+        </div>
+      </div>
+      <div class="slot slot-call">
+        <div class="slot-time">17h30</div>
+        <div class="slot-content">
+          <div class="slot-action">Point rapide avec 2-3 agents par WhatsApp</div>
+          <div class="slot-detail">"Comment tu termines aujourd'hui ?" — 3 minutes par agent. Identifier les blocages avant qu'ils deviennent des cartons. Pas d'appel de groupe — messages individuels.</div>
+        </div>
+      </div>
+      <div class="slot slot-rapport">
+        <div class="slot-time">19h30</div>
+        <div class="slot-content">
+          <div class="slot-action">Journal de bord personnel + lecture journaux agents</div>
+          <div class="slot-detail">15 minutes. Remplir son propre journal terrain. Lire les journaux des agents du soir. Cocher les manquants pour relancer le lendemain matin.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENDREDI -->
+  <div class="jour jour-vendredi">
+    <div class="jour-header">
+      <span class="jour-nom">Vendredi</span>
+      <span class="jour-tag">Bilan + Sprint final</span>
+    </div>
+    <div class="jour-body">
+      <div class="slot">
+        <div class="slot-time">7h</div>
+        <div class="slot-content">
+          <div class="slot-action">Sprint final terrain — avec les agents en retard</div>
+          <div class="slot-detail">Rejoindre les agents qui sont en dessous de leurs objectifs. Travailler ensemble sur le terrain. Démontrer plutôt qu'expliquer. 3h terrain intensif.</div>
+        </div>
+      </div>
+      <div class="slot slot-critique">
+        <div class="slot-time">11h</div>
+        <div class="slot-content">
+          <div class="slot-action">Analyse KPI semaine — tableau de bord</div>
+          <div class="slot-detail">
+            Ouvrir le dashboard Responsable. Relever pour chaque agent :
+            <ul class="checklist" style="margin-top:6px;">
+              <li>Inscrits cette semaine</li>
+              <li>Pros signés cette semaine</li>
+              <li>Taux de conversion</li>
+              <li>Statut carton (vert/orange/rouge)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slot slot-call">
+        <div class="slot-time">14h</div>
+        <div class="slot-content">
+          <div class="slot-action">Call bilan équipe — 20 minutes max</div>
+          <div class="slot-detail">Nommer les 3 meilleurs de la semaine (scores Pros). Nommer une victoire collective. Annoncer les objectifs semaine suivante. Clore sur un message positif — la semaine d'après commence bien.</div>
+        </div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">16h</div>
+        <div class="slot-content">
+          <div class="slot-action">Terrain libre — relances et nouveaux quartiers</div>
+          <div class="slot-detail">2h de terrain à disposition propre. Prioriser les relances J+5 et J+7 des profils gratuits créés en début de semaine.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAMEDI -->
+  <div class="jour jour-samedi">
+    <div class="jour-header">
+      <span class="jour-nom">Samedi</span>
+      <span class="jour-tag">Marchés + agents autonomes</span>
+    </div>
+    <div class="jour-body">
+      <div class="slot">
+        <div class="slot-time">6h30</div>
+        <div class="slot-content">
+          <div class="slot-action">Grand marché — terrain haute densité</div>
+          <div class="slot-detail">Le samedi matin est la meilleure tranche de la semaine sur les marchés. Tous les artisans sont présents. Objectif minimum samedi : 6 Pros signés en propre. 4h de terrain intensif.</div>
+        </div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">11h</div>
+        <div class="slot-content">
+          <div class="slot-action">Agents en autonomie — disponible si besoin</div>
+          <div class="slot-detail">Les agents continuent seuls. Rester disponible sur WhatsApp. Répondre aux questions dans les 30 minutes. Après-midi libre si KPI semaine atteints.</div>
+        </div>
+      </div>
+      <div class="slot slot-rapport">
+        <div class="slot-time">19h</div>
+        <div class="slot-content">
+          <div class="slot-action">Rappel journaux de bord aux agents</div>
+          <div class="slot-detail">Message de groupe : "Journal de bord de la journée avant 20h30." Vérifier la réception. Relancer individuellement les manquants.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIMANCHE -->
+  <div class="jour jour-dimanche">
+    <div class="jour-header">
+      <span class="jour-nom">Dimanche</span>
+      <span class="jour-tag">CR Fondateur — OBLIGATOIRE</span>
+    </div>
+    <div class="jour-body">
+      <div class="slot">
+        <div class="slot-time">Matin</div>
+        <div class="slot-content">
+          <div class="slot-action">Repos — déconnexion complète</div>
+          <div class="slot-detail">Pas de terrain. Pas d'appels agents. Le Responsable doit récupérer pour tenir sur la durée. La fatigue non gérée crée des erreurs de management.</div>
+        </div>
+      </div>
+      <div class="slot slot-rapport">
+        <div class="slot-time">17h</div>
+        <div class="slot-content">
+          <div class="slot-action">Rédaction du CR hebdomadaire fondateur</div>
+          <div class="slot-detail">Utiliser le template exact RT-TP-2026-016 format CR Responsable. 30 à 45 minutes de rédaction honnête. Inclure victoires ET blocages. Ne rien cacher.</div>
+        </div>
+      </div>
+      <div class="slot slot-rapport">
+        <div class="slot-time">20h</div>
+        <div class="slot-content">
+          <div class="slot-action">Envoi CR au fondateur — via le dashboard</div>
+          <div class="slot-detail">
+            Soumettre via la section "Mes comptes rendus" du dashboard WOZALI. Délai maximum : 20h heure de Lomé/Cotonou.
+            <div class="alerte-dim">
+              <strong>Règle absolue :</strong> pas de CR envoyé = appel du fondateur le lundi à 8h. Deux CR manqués consécutifs = protocole sous-performance activé (RT-PS-2026-014). Le CR dimanche n'est pas optionnel.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SIGNAUX D'ALERTE -->
+  <p style="font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#E8940A;margin-bottom:10px;">Signaux d'alerte en cours de semaine</p>
+  <div class="signal-grid">
+    <div class="signal-box signal-vert">
+      <div class="signal-label">Semaine qui avance bien</div>
+      Agents soumettent leurs journaux chaque soir · KPI mi-semaine à 50%+ de la cible · Pas d'appel de détresse · Toi-même tu as signé 15+ Pros mardi-jeudi.
+    </div>
+    <div class="signal-box signal-rouge">
+      <div class="signal-label">Semaine à risque — agir immédiatement</div>
+      2 agents ou plus sans journal 2 jours consécutifs · KPI mi-semaine à moins de 30% de la cible · Un agent dit "ca ne marche pas dans mon quartier" · Tu as toi-même moins de 5 Pros jeudi soir.
+    </div>
+  </div>
+
+  <p style="margin-top:28px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-PL-2026-010 · Confidentiel · Responsable Réseau Terrain · WOZALI · wozali.africa</p>
+
+</div>
+</body>
+</html>

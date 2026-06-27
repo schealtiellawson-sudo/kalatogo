@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contrat Agent Terrain — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.8; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 36px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.5); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #FCE0A8; margin-bottom: 4px; }
+  .doc-subtitle { font-size: 14px; color: rgba(252,224,168,.7); margin-bottom: 8px; }
+  .doc-meta { font-size: 11px; color: rgba(252,224,168,.4); font-family: 'Geist Mono', monospace; }
+
+  /* Préambule */
+  .preambule { border: 1px solid #eee; border-radius: 8px; padding: 20px 24px; margin-bottom: 28px; }
+  .preambule-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: #14100A; margin-bottom: 14px; text-align: center; }
+  .parties-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .partie { background: #fafafa; border-radius: 6px; padding: 14px; }
+  .partie-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #E8940A; margin-bottom: 8px; }
+  .partie-name { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 4px; }
+  .partie-role { font-size: 12px; color: #888; margin-bottom: 6px; }
+  .partie-field { font-size: 12px; color: #aaa; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 6px; }
+
+  /* Articles */
+  .article { margin-bottom: 24px; }
+  .article-num { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #E8940A; margin-bottom: 4px; }
+  .article-title { font-family: 'DM Serif Display', serif; font-size: 17px; color: #14100A; margin-bottom: 10px; border-bottom: 1px solid #f0e0c0; padding-bottom: 6px; }
+  p { color: #555; margin-bottom: 10px; font-size: 13px; line-height: 1.75; }
+  p strong { color: #1a1a1a; }
+
+  /* Commission block */
+  .commission-block { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.25); border-radius: 8px; padding: 16px 20px; margin: 12px 0; }
+  .commission-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(232,148,10,.1); }
+  .commission-row:last-child { border-bottom: none; }
+  .commission-label { font-size: 13px; color: #5a4000; }
+  .commission-value { font-family: 'Geist Mono', monospace; font-size: 14px; color: #E8940A; font-weight: 700; }
+
+  /* Obligations listes */
+  .obligations { list-style: none; display: flex; flex-direction: column; gap: 7px; margin: 8px 0; }
+  .obligations li { display: flex; gap: 10px; font-size: 13px; color: #555; }
+  .obligations li::before { content: '—'; color: #E8940A; font-weight: 700; flex-shrink: 0; }
+
+  /* Interdictions */
+  .interdictions { list-style: none; display: flex; flex-direction: column; gap: 7px; margin: 8px 0; background: #fff8f8; border: 1px solid #ffe0e0; border-radius: 6px; padding: 12px 16px; }
+  .interdictions li { display: flex; gap: 10px; font-size: 13px; color: #aa3333; }
+  .interdictions li::before { content: '✗'; color: #cc3333; font-weight: 700; flex-shrink: 0; }
+
+  /* Résiliation table */
+  .resil-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  .resil-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 12px; text-align: left; font-weight: 400; }
+  .resil-table td { padding: 9px 12px; border-bottom: 1px solid #f0e0c0; color: #444; vertical-align: top; }
+  .resil-table tr:last-child td { border-bottom: none; }
+  .resil-table td:first-child { font-weight: 700; color: #1a1a1a; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 20px 0; }
+
+  /* Signature block */
+  .signature-section { margin-top: 32px; border-top: 2px solid #14100A; padding-top: 20px; }
+  .sig-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 16px; }
+  .sig-notice { font-size: 12px; color: #888; margin-bottom: 20px; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .sig-col { }
+  .sig-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 8px; }
+  .sig-name { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 2px; }
+  .sig-role { font-size: 12px; color: #888; margin-bottom: 24px; }
+  .sig-line { height: 1px; background: #ddd; margin-bottom: 4px; }
+  .sig-placeholder { font-size: 11px; color: #ccc; font-family: 'Geist Mono', monospace; }
+  .sig-date-line { font-size: 12px; color: #bbb; margin-top: 12px; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .article { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Document officiel · Version 2.0 · Juillet 2026</span>
+    </div>
+    <h1>Contrat Agent Terrain WOZALI</h1>
+    <p class="doc-subtitle">Accord de mission terrain et de commission</p>
+    <p class="doc-meta">RT-CT-2026-018 · Contrat Agent Terrain · Remplace toute version antérieure</p>
+  </div>
+
+  <!-- Parties -->
+  <div class="preambule">
+    <div class="preambule-title">Entre les parties suivantes</div>
+    <div class="parties-grid">
+      <div class="partie">
+        <div class="partie-label">Le mandant</div>
+        <div class="partie-name">Schealtiel Lawson</div>
+        <div class="partie-role">Fondateur et Directeur Général — WOZALI</div>
+        <div class="partie-field">Représentant la plateforme WOZALI (wozali.africa)</div>
+        <div class="partie-field">Ci-après dénommé "WOZALI"</div>
+      </div>
+      <div class="partie">
+        <div class="partie-label">L'agent terrain</div>
+        <div class="partie-name">_______________________________</div>
+        <div class="partie-role">Agent terrain WOZALI</div>
+        <div class="partie-field">Prénom et Nom complet</div>
+        <div class="partie-field">Téléphone : _____________________</div>
+        <div class="partie-field">Ville : __ Lomé (Togo) __ Cotonou (Bénin)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Article 1 — Objet -->
+  <div class="article">
+    <div class="article-num">Article 1</div>
+    <div class="article-title">Objet de la mission</div>
+    <p>Le présent contrat définit les conditions dans lesquelles l'agent terrain WOZALI (ci-après "l'agent") s'engage à représenter la plateforme WOZALI sur le terrain et à percevoir une commission sur les résultats obtenus.</p>
+    <p>La mission de l'agent consiste à :</p>
+    <ul class="obligations">
+      <li>Présenter WOZALI aux artisans, travailleurs et professionnels de son secteur géographique.</li>
+      <li>Accompagner les prospects dans la création de leur profil sur la plateforme wozali.africa.</li>
+      <li>Proposer le plan Pro (2 500 FCFA/mois) aux inscrits qui en remplissent les conditions.</li>
+      <li>Rendre compte de son activité quotidiennement et hebdomadairement selon les formats définis.</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Article 2 — Durée -->
+  <div class="article">
+    <div class="article-num">Article 2</div>
+    <div class="article-title">Durée et nature du contrat</div>
+    <p>Ce contrat prend effet à la date de signature et est conclu <strong>sans durée déterminée</strong>. Il peut être résilié à tout moment par l'une ou l'autre des parties, avec un préavis de 7 jours, sauf en cas de faute grave (voir Article 7).</p>
+    <p><strong>Nature de la relation :</strong> L'agent est un apporteur d'affaires indépendant. Ce contrat ne constitue pas un contrat de travail. L'agent n'est pas salarié de WOZALI. Il n'y a aucune relation d'emploi, aucun lien de subordination au-delà des règles de représentation de la plateforme.</p>
+    <p>L'agent est libre d'organiser son emploi du temps, de choisir ses zones d'intervention et ses horaires, dans le respect des objectifs convenus.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Article 3 — Commission -->
+  <div class="article">
+    <div class="article-num">Article 3</div>
+    <div class="article-title">Commission et rémunération</div>
+    <p>L'agent perçoit une commission uniquement sur les membres Pro actifs inscrits via son code de parrainage. <strong>Il n'y a aucun salaire fixe, aucune prime, aucune avance.</strong> La commission est exclusivement liée aux résultats.</p>
+
+    <div class="commission-block">
+      <div class="commission-row">
+        <span class="commission-label">Commission normale (40% du plan Pro mensuel)</span>
+        <span class="commission-value">1 000 FCFA / Pro actif / mois</span>
+      </div>
+      <div class="commission-row">
+        <span class="commission-label">Commission battle gagnée (60% du plan Pro mensuel)</span>
+        <span class="commission-value">1 500 FCFA / Pro actif / mois</span>
+      </div>
+      <div class="commission-row">
+        <span class="commission-label">Versement</span>
+        <span class="commission-value">Mobile Money, le 10 du mois suivant</span>
+      </div>
+      <div class="commission-row">
+        <span class="commission-label">Seuil minimum de versement</span>
+        <span class="commission-value">2 000 FCFA (2 Pros actifs minimum)</span>
+      </div>
+    </div>
+
+    <p>La commission est versée uniquement pour les mois où le membre Pro est actif et a payé son abonnement. Un Pro qui annule son abonnement ne génère plus de commission dès le mois suivant son annulation.</p>
+    <p>La commission battle (1 500 FCFA) s'applique le mois suivant une victoire dans le classement battle H/F de l'équipe, sur l'intégralité du portefeuille Pro actif de l'agent ce mois-là.</p>
+    <p><strong>Aucun montant n'est dû à l'agent</strong> si ses inscrits Pro ne sont pas confirmés via la plateforme (paiement effectué et visible dans le dashboard).</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Article 4 — Obligations agent -->
+  <div class="article">
+    <div class="article-num">Article 4</div>
+    <div class="article-title">Obligations de l'agent</div>
+    <p>Pour maintenir son droit aux commissions, l'agent s'engage à :</p>
+    <ul class="obligations">
+      <li>Soumettre un journal de bord quotidien avant 20h chaque jour de terrain (format RT-TR-016).</li>
+      <li>Participer aux calls hebdomadaires du lundi (8h30) et du vendredi (14h).</li>
+      <li>Se présenter exclusivement comme "agent terrain WOZALI" devant les prospects.</li>
+      <li>Effectuer les inscriptions sur le téléphone du prospect, pas sur le sien propre.</li>
+      <li>Signaler tout blocage ou incident au Responsable dans les 24h.</li>
+      <li>Respecter la Charte Déontologique (document RT-CD-2026-012) en toutes circonstances.</li>
+      <li>Ne faire aucune promesse de résultat, de remboursement ou de tarif non officiel.</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Article 5 — Obligations WOZALI -->
+  <div class="article">
+    <div class="article-num">Article 5</div>
+    <div class="article-title">Obligations de WOZALI</div>
+    <p>WOZALI s'engage à :</p>
+    <ul class="obligations">
+      <li>Fournir à l'agent un accès dashboard pour suivre ses inscrits et Pro.</li>
+      <li>Verser les commissions dues dans les 10 premiers jours du mois suivant.</li>
+      <li>Fournir les documents de formation et le kit terrain nécessaires à la mission.</li>
+      <li>Informer l'agent de tout changement de tarifs, règles ou outils avec un préavis de 7 jours.</li>
+      <li>Assurer un encadrement via le Responsable Réseau Terrain désigné.</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Article 6 — Interdictions -->
+  <div class="article">
+    <div class="article-num">Article 6</div>
+    <div class="article-title">Interdictions absolues</div>
+    <p>Les actes suivants entraînent la résiliation immédiate du contrat sans préavis et sans versement des commissions du mois en cours :</p>
+    <ul class="interdictions">
+      <li>Collecter de l'argent liquide au nom de WOZALI.</li>
+      <li>Inscrire des personnes sans leur consentement explicite.</li>
+      <li>Créer de faux profils ou gonfler artificiellement ses statistiques.</li>
+      <li>Transmettre ou utiliser les données des membres à des fins personnelles ou commerciales non liées à WOZALI.</li>
+      <li>Représenter simultanément une plateforme concurrente directe sur le marché Togo/Bénin.</li>
+      <li>Promettre des résultats, des remboursements ou des tarifs non validés par WOZALI.</li>
+      <li>Harceler ou intimider un prospect ayant exprimé un refus.</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Article 7 — Résiliation -->
+  <div class="article">
+    <div class="article-num">Article 7</div>
+    <div class="article-title">Conditions de résiliation</div>
+
+    <table class="resil-table">
+      <thead>
+        <tr>
+          <th>Motif</th>
+          <th>Préavis</th>
+          <th>Commissions en cours</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Résiliation à l'initiative de l'agent</td>
+          <td>7 jours</td>
+          <td>Payées jusqu'à la date de fin</td>
+        </tr>
+        <tr>
+          <td>Résiliation à l'initiative de WOZALI (sous-performance)</td>
+          <td>7 jours</td>
+          <td>Payées jusqu'à la date de fin</td>
+        </tr>
+        <tr>
+          <td>Faute grave (article 6 — interdictions)</td>
+          <td>Immédiat — 0 jour</td>
+          <td>Commissions du mois annulées</td>
+        </tr>
+        <tr>
+          <td>Fraude avérée (faux inscrits, collecte liquide)</td>
+          <td>Immédiat — 0 jour</td>
+          <td>Réclamation possible des montants frauduleux</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Les commissions sur les Pros déjà actifs dans le portefeuille de l'agent continuent d'être payées pendant 1 mois après la date de résiliation, sauf en cas de faute grave.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Article 8 — Confidentialité -->
+  <div class="article">
+    <div class="article-num">Article 8</div>
+    <div class="article-title">Confidentialité</div>
+    <p>L'agent s'engage à maintenir la confidentialité de toutes les informations auxquelles il a accès dans le cadre de sa mission : données des membres, stratégie, chiffres de la plateforme, identité du fondateur. Cette obligation de confidentialité s'applique pendant toute la durée du contrat et <strong>pendant 12 mois après sa résiliation</strong>, quelle qu'en soit la cause.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Signature -->
+  <div class="signature-section">
+    <div class="sig-title">Signatures</div>
+    <div class="sig-notice">Les deux parties certifient avoir lu et compris l'intégralité du présent contrat, et l'accepter sans réserve. Deux exemplaires originaux sont établis, un pour chaque partie.</div>
+    <div class="sig-grid">
+      <div class="sig-col">
+        <div class="sig-label">Le mandant — WOZALI</div>
+        <div class="sig-name">Schealtiel Lawson</div>
+        <div class="sig-role">Fondateur et Directeur Général</div>
+        <div class="sig-line"></div>
+        <div class="sig-placeholder">Signature</div>
+        <div class="sig-date-line">Fait à _____________, le _________ 2026</div>
+      </div>
+      <div class="sig-col">
+        <div class="sig-label">L'agent terrain WOZALI</div>
+        <div class="sig-name">_______________________________</div>
+        <div class="sig-role">Agent terrain WOZALI · ____________</div>
+        <div class="sig-line"></div>
+        <div class="sig-placeholder">Signature précédée de la mention "Lu et approuvé"</div>
+        <div class="sig-date-line">Fait à _____________, le _________ 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:28px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-CT-2026-018 · Contrat Agent Terrain · WOZALI · wozali.africa · Version 2.0 · Juillet 2026 · Ce contrat remplace toute version antérieure</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portraits Artisans Terrain — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13.5px; }
+  .page { max-width: 780px; margin: 0 auto; padding: 40px 48px 72px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { border-bottom: 3px solid #14100A; padding-bottom: 18px; margin-bottom: 32px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 900; color: #14100A; letter-spacing: 3px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #14100A; }
+  .doc-sub { font-size: 12px; color: #888; font-family: 'Geist Mono', monospace; margin-top: 4px; }
+  .doc-ref { font-family: 'Geist Mono', monospace; font-size: 10px; color: #bbb; text-align: right; line-height: 2; }
+
+  /* Intro */
+  .intro { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 32px; font-size: 13px; color: #5a4000; }
+  .intro strong { color: #14100A; }
+
+  /* Portrait card */
+  .portrait { border: 1px solid #eee; border-radius: 14px; margin-bottom: 36px; overflow: hidden; page-break-inside: avoid; }
+
+  .portrait-header { background: #14100A; padding: 18px 22px 16px; display: flex; align-items: flex-start; gap: 16px; }
+  .portrait-avatar { width: 52px; height: 52px; border-radius: 50%; background: rgba(232,148,10,.2); border: 2px solid rgba(232,148,10,.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .portrait-avatar span { font-family: 'DM Serif Display', serif; font-size: 22px; color: #E8940A; font-style: italic; }
+  .portrait-meta { flex: 1; }
+  .portrait-nom { font-family: 'DM Serif Display', serif; font-size: 22px; color: #FCE0A8; line-height: 1.1; margin-bottom: 4px; }
+  .portrait-job { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge-metier { background: #E8940A; color: #14100A; font-family: 'Geist', sans-serif; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 100px; }
+  .badge-ville { background: rgba(252,224,168,.12); color: rgba(252,224,168,.7); font-family: 'Geist Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 100px; border: 1px solid rgba(252,224,168,.15); }
+  .portrait-desc { font-size: 12px; color: rgba(252,224,168,.55); margin-top: 6px; font-family: 'Geist Mono', monospace; }
+
+  .portrait-body { padding: 0; }
+
+  /* Grille 2 colonnes */
+  .portrait-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .portrait-col { padding: 16px 20px; font-size: 13px; }
+  .portrait-col + .portrait-col { border-left: 1px solid #f0e0c0; }
+  .col-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 8px; }
+  .portrait-col p { color: #444; margin-bottom: 6px; }
+  .portrait-col p:last-child { margin-bottom: 0; }
+
+  /* Journée */
+  .journee { padding: 14px 20px; border-top: 1px solid #f0e0c0; background: #fafafa; }
+  .journee .col-label { margin-bottom: 10px; }
+  .journee-items { display: flex; flex-direction: column; gap: 4px; }
+  .journee-item { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+  .j-time { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; width: 42px; flex-shrink: 0; }
+  .j-text { color: #555; }
+
+  /* Ce qui convainc + argument close */
+  .portrait-bottom { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #f0e0c0; }
+  .bottom-col { padding: 14px 20px; }
+  .bottom-col + .bottom-col { border-left: 1px solid #f0e0c0; background: rgba(232,148,10,.04); }
+  .bottom-col .col-label { margin-bottom: 8px; }
+
+  /* Close money box */
+  .close-box { background: #14100A; border-radius: 8px; padding: 11px 14px; margin-top: 6px; }
+  .close-box p { color: rgba(252,224,168,.85); font-size: 12px; font-style: italic; }
+  .close-box strong { color: #E8940A; font-style: normal; }
+
+  /* Chiffre clé */
+  .chiffre-key { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+  .chiffre-val { font-family: 'DM Serif Display', serif; font-size: 26px; color: #E8940A; }
+  .chiffre-txt { font-size: 12px; color: #888; }
+
+  /* Erreur */
+  .erreur { background: #fff0f0; border-left: 3px solid #ffaaaa; border-radius: 0 5px 5px 0; padding: 7px 12px; font-size: 11px; color: #cc3333; margin-top: 8px; }
+
+  /* Divider */
+  .portrait-divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 0 20px 20px; }
+
+  @media print {
+    html { background: #fff; }
+    .page { padding: 24px 36px 40px; }
+    .portrait { break-inside: avoid; margin-bottom: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="logo-row">
+        <span class="logo-w">W</span>
+        <span class="logo-ozali">OZALI</span>
+      </div>
+      <h1>Portraits des 5 Profils Cibles</h1>
+      <p class="doc-sub">Qui ils sont, ce qui les fait douter, ce qui les convainc</p>
+    </div>
+    <div class="doc-ref">RT-PT-2026-007<br>Confidentiel<br>Formation terrain WOZALI</div>
+  </div>
+
+  <div class="intro">
+    <strong>Pourquoi ce document existe.</strong> Chaque profil a une douleur différente, un calendrier différent, une peur différente. L'agent terrain WOZALI qui arrive avec le même discours pour tout le monde signe 2 Pros par jour. Celui qui adapte en signe 8. Lis ces portraits. Connais ces gens avant de les rencontrer.
+  </div>
+
+  <!-- PORTRAIT 1 — COIFFEUR -->
+  <div class="portrait">
+    <div class="portrait-header">
+      <div class="portrait-avatar"><span>K</span></div>
+      <div class="portrait-meta">
+        <div class="portrait-nom">Kofi, 28 ans</div>
+        <div class="portrait-job">
+          <span class="badge-metier">Coiffeur Homme</span>
+          <span class="badge-ville">Bè · Lomé</span>
+        </div>
+        <div class="portrait-desc">Patron de son salon depuis 2 ans — loue sa chaise 40 000 FCFA/mois</div>
+      </div>
+    </div>
+
+    <div class="portrait-body">
+      <div class="journee">
+        <div class="col-label">Sa journée type</div>
+        <div class="journee-items">
+          <div class="journee-item"><span class="j-time">8h</span><span class="j-text">Ouvre le salon. Attend. Nettoie pour occuper le temps.</span></div>
+          <div class="journee-item"><span class="j-time">10h</span><span class="j-text">Premier client — un habitué du quartier. Coupe à 1 500 FCFA.</span></div>
+          <div class="journee-item"><span class="j-time">12h30</span><span class="j-text">Pause. 2 clients ce matin. 3 000 FCFA. Loyer = 40 000.</span></div>
+          <div class="journee-item"><span class="j-time">15h</span><span class="j-text">Un voisin passe dire "tu coupes bien". Pas de client derrière.</span></div>
+          <div class="journee-item"><span class="j-time">19h</span><span class="j-text">Ferme. 5 clients aujourd'hui = 7 500 FCFA. Loyer non couvert.</span></div>
+        </div>
+      </div>
+
+      <div class="portrait-divider"></div>
+
+      <div class="portrait-grid">
+        <div class="portrait-col">
+          <div class="col-label">Sa douleur reelle</div>
+          <div class="chiffre-key"><span class="chiffre-val">7 500</span><span class="chiffre-txt">FCFA/jour en moyenne</span></div>
+          <p>Son salon existe. Son talent existe. Ses clients n'existent que dans son quartier. Le bon coiffeur à 3 rues de lui, mieux connecté, tourne à 25 000 FCFA/jour.</p>
+          <p>Il ne manque pas de talent. Il manque de portée.</p>
+        </div>
+        <div class="portrait-col">
+          <div class="col-label">Ce qu'il ne dit pas</div>
+          <p>"J'ai peur que ca ne serve à rien. J'ai déjà essayé Facebook Ads une fois — 5 000 FCFA dépensés, zéro client."</p>
+          <p>"Je ne veux pas avoir l'air désespéré en demandant à mes clients de laisser des avis."</p>
+          <p style="font-weight:700;color:#1a1a1a;">Sa vraie question : "Est-ce que ca va vraiment ramener de l'argent ?"</p>
+        </div>
+      </div>
+
+      <div class="portrait-bottom">
+        <div class="bottom-col">
+          <div class="col-label">Ce qui le convainc</div>
+          <p>Lui montrer un profil coiffeur de Bè avec 4,8 étoiles et 23 avis. Lui demander : "Toi si tu cherches un coiffeur et tu vois ce profil-là, tu vas chez qui ?"</p>
+          <p>Calculer avec lui : 3 clients/semaine en plus via WOZALI = 4 500 FCFA × 4 semaines = 18 000 FCFA/mois. Pro remboursé 7 fois.</p>
+        </div>
+        <div class="bottom-col">
+          <div class="col-label">L'argument qui signe</div>
+          <div class="close-box">
+            <p>"Les clients qui cherchent un <strong>bon coiffeur</strong> — pas un coiffeur proche, un bon — ils cherchent sur leur téléphone. Ton talent mérite d'être trouvé par eux. Pas juste par ton quartier."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="erreur">A ne jamais dire : "Ca va te rendre visible." Dire : "Ca va te ramener des clients qui cherchent exactement ce que tu fais."</div>
+    </div>
+  </div>
+
+  <!-- PORTRAIT 2 — MAÇON -->
+  <div class="portrait">
+    <div class="portrait-header">
+      <div class="portrait-avatar"><span>A</span></div>
+      <div class="portrait-meta">
+        <div class="portrait-nom">Amavi, 38 ans</div>
+        <div class="portrait-job">
+          <span class="badge-metier">Chef Maçon</span>
+          <span class="badge-ville">Akpakpa · Cotonou</span>
+        </div>
+        <div class="portrait-desc">Travaille avec 3 apprentis — dépend des chantiers pour payer ses gars</div>
+      </div>
+    </div>
+
+    <div class="portrait-body">
+      <div class="journee">
+        <div class="col-label">Sa journée type (semaine sans chantier)</div>
+        <div class="journee-items">
+          <div class="journee-item"><span class="j-time">6h</span><span class="j-text">Appelle 2 anciens clients pour savoir s'ils ont du boulot. Messagerie.</span></div>
+          <div class="journee-item"><span class="j-time">8h</span><span class="j-text">Va sur place regarder un chantier. Pas son chantier. Pour voir.</span></div>
+          <div class="journee-item"><span class="j-time">11h</span><span class="j-text">Rentre. Un ami l'appelle — possibilité d'un devis. Peut-être.</span></div>
+          <div class="journee-item"><span class="j-time">Soir</span><span class="j-text">Ses 3 apprentis ont travaillé pour rien. Il doit quand même les nourrir.</span></div>
+        </div>
+      </div>
+
+      <div class="portrait-divider"></div>
+
+      <div class="portrait-grid">
+        <div class="portrait-col">
+          <div class="col-label">Sa douleur reelle</div>
+          <div class="chiffre-key"><span class="chiffre-val">3</span><span class="chiffre-txt">semaines sans chantier ce mois</span></div>
+          <p>Il a construit des maisons entières. Il a des photos. Personne ne les voit. Un nouveau voisin cherche un maçon et demande à son voisin — pas à lui.</p>
+          <p><strong>Sa peur profonde :</strong> ne plus pouvoir payer ses apprentis. LF7 activé.</p>
+        </div>
+        <div class="portrait-col">
+          <div class="col-label">Ce qu'il ne dit pas</div>
+          <p>"Je n'ai pas d'argent cette semaine pour payer un abonnement."</p>
+          <p>"Ca me fait honte que mes apprentis restent à la maison."</p>
+          <p>"Si ca ne marche pas, j'aurai dépensé pour rien encore."</p>
+          <p style="font-weight:700;color:#1a1a1a;">Sa vraie question : "Est-ce que des gens vont me trouver VITE ?"</p>
+        </div>
+      </div>
+
+      <div class="portrait-bottom">
+        <div class="bottom-col">
+          <div class="col-label">Ce qui le convainc</div>
+          <p>Lui montrer concrètement : ouvrir WOZALI, chercher "maçon Akpakpa", lui demander si son nom est là. Non ? "C'est ca le problème. Quelqu'un cherche en ce moment et tu n'es pas là."</p>
+          <p>L'accent sur les photos de chantiers : son vrai portefeuille. "Tes photos de maisons sont ta pub. On les met sur ton profil ce soir."</p>
+        </div>
+        <div class="bottom-col">
+          <div class="col-label">L'argument qui signe</div>
+          <div class="close-box">
+            <p>"Tu as construit des maisons entières. Ces maisons existent. Ces photos existent. <strong>Il faut que les gens qui cherchent un maçon maintenant les voient.</strong> Sinon tu appelles des gens chaque matin pour rien."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="erreur">A ne jamais dire : "Ca va te donner de la visibilité." Dire : "Ca va t'amener des chantiers que tu n'aurais jamais eus autrement."</div>
+    </div>
+  </div>
+
+  <!-- PORTRAIT 3 — ELECTRICIEN -->
+  <div class="portrait">
+    <div class="portrait-header">
+      <div class="portrait-avatar"><span>Y</span></div>
+      <div class="portrait-meta">
+        <div class="portrait-nom">Yao, 32 ans</div>
+        <div class="portrait-job">
+          <span class="badge-metier">Electricien</span>
+          <span class="badge-ville">Tokoin · Lomé</span>
+        </div>
+        <div class="portrait-desc">Travaille seul — interventions ponctuelles, pas de contrat long terme</div>
+      </div>
+    </div>
+
+    <div class="portrait-body">
+      <div class="journee">
+        <div class="col-label">Sa journée type</div>
+        <div class="journee-items">
+          <div class="journee-item"><span class="j-time">7h30</span><span class="j-text">Intervention chez un habitué — panne de courant. 3 000 FCFA.</span></div>
+          <div class="journee-item"><span class="j-time">10h</span><span class="j-text">Attend. Personne ne l'appelle.</span></div>
+          <div class="journee-item"><span class="j-time">14h</span><span class="j-text">Un ami WhatsApp : "je connais quelqu'un qui cherche un électricien". 1h de trajet pour 5 000 FCFA.</span></div>
+          <div class="journee-item"><span class="j-time">17h</span><span class="j-text">Rentre. 8 000 FCFA aujourd'hui. Bonne journée. La semaine prochaine, rien de sûr.</span></div>
+        </div>
+      </div>
+
+      <div class="portrait-divider"></div>
+
+      <div class="portrait-grid">
+        <div class="portrait-col">
+          <div class="col-label">Sa douleur reelle</div>
+          <div class="chiffre-key"><span class="chiffre-val">0</span><span class="chiffre-txt">revenu garanti chaque mois</span></div>
+          <p>Excellent technicien. 100% dépendant du bouche-à-oreille. Certains mois 80 000 FCFA, d'autres 15 000 FCFA. Pas de régularité.</p>
+          <p><strong>Sa peur :</strong> les mois creux. Loyer, nourriture, famille.</p>
+        </div>
+        <div class="portrait-col">
+          <div class="col-label">Ce qu'il ne dit pas</div>
+          <p>"Je travaille vite et bien. Mais si quelqu'un tombe en panne dans Tokoin il ne sait pas que j'existe."</p>
+          <p>"J'ai peur que les clients me trouvent et me marchandent les prix parce qu'ils voient mon profil."</p>
+          <p style="font-weight:700;color:#1a1a1a;">Sa vraie question : "Est-ce que je vais avoir plus d'appels — ou juste plus de perte de temps ?"</p>
+        </div>
+      </div>
+
+      <div class="portrait-bottom">
+        <div class="bottom-col">
+          <div class="col-label">Ce qui le convainc</div>
+          <p>Angle urgence : "Quand quelqu'un a une panne à 21h, il cherche sur son téléphone. Il prend le premier qui répond. Si t'es sur WOZALI, c'est toi."</p>
+          <p>Montrer que le Score WOZALI = crédibilité. Avec 4,8 étoiles il peut facturer plus cher, pas moins cher.</p>
+        </div>
+        <div class="bottom-col">
+          <div class="col-label">L'argument qui signe</div>
+          <div class="close-box">
+            <p>"Les clients qui paient bien cherchent un électricien fiable, pas le moins cher. <strong>Ton Score WOZALI dit aux clients que tu es fiable. Ca justifie ton prix. Pas un argutoire pour baisser.</strong>"</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="erreur">Yao a peur des clients qui marchandent. Ne jamais dire "plus de clients". Dire "les bons clients — ceux qui paient et rappellent".</div>
+    </div>
+  </div>
+
+  <!-- PORTRAIT 4 — COUTURIÈRE -->
+  <div class="portrait">
+    <div class="portrait-header">
+      <div class="portrait-avatar"><span>A</span></div>
+      <div class="portrait-meta">
+        <div class="portrait-nom">Akossiwa, 25 ans</div>
+        <div class="portrait-job">
+          <span class="badge-metier">Couturière</span>
+          <span class="badge-ville">Fidjrossè · Cotonou</span>
+        </div>
+        <div class="portrait-desc">Travaille depuis chez elle — cherche aussi un emploi en boutique de couture</div>
+      </div>
+    </div>
+
+    <div class="portrait-body">
+      <div class="journee">
+        <div class="col-label">Sa journée type</div>
+        <div class="journee-items">
+          <div class="journee-item"><span class="j-time">7h</span><span class="j-text">Finit une commande passée par une voisine. Paiement partiel, solde "bientôt".</span></div>
+          <div class="journee-item"><span class="j-time">10h</span><span class="j-text">Envoie des photos de ses robes sur un groupe WhatsApp. Pas de réponse.</span></div>
+          <div class="journee-item"><span class="j-time">14h</span><span class="j-text">CV envoyé à une boutique via WhatsApp. Lu. Pas de réponse.</span></div>
+          <div class="journee-item"><span class="j-time">Soir</span><span class="j-text">Cousine appelle : "Tu couds bien hein. T'as pas eu une commande cette semaine ?" Non.</span></div>
+        </div>
+      </div>
+
+      <div class="portrait-divider"></div>
+
+      <div class="portrait-grid">
+        <div class="portrait-col">
+          <div class="col-label">Sa douleur reelle</div>
+          <div class="chiffre-key"><span class="chiffre-val">2</span><span class="chiffre-txt">commandes ce mois</span></div>
+          <p>Talent réel, photos de robes magnifiques. Mais son audience = famille et voisinage. Elle cherche aussi un emploi stable en boutique — mais son CV WhatsApp n'aboutit jamais.</p>
+          <p><strong>WOZALI résout les deux :</strong> elle est visible comme couturière ET peut postuler aux offres d'emploi couture.</p>
+        </div>
+        <div class="portrait-col">
+          <div class="col-label">Ce qu'il ne dit pas</div>
+          <p>"J'ai envoyé mon portfolio à 10 boutiques. Une seule a répondu pour dire non."</p>
+          <p>"Je n'ose pas demander de l'argent pour une commande avant de la finir."</p>
+          <p>"J'aimerais travailler dans une vraie boutique mais je ne sais pas comment ca marche."</p>
+          <p style="font-weight:700;color:#1a1a1a;">Sa vraie question : "Est-ce que ca va vraiment changer quelque chose à ma vie ?"</p>
+        </div>
+      </div>
+
+      <div class="portrait-bottom">
+        <div class="bottom-col">
+          <div class="col-label">Ce qui la convainc</div>
+          <p>Montrer les deux angles : son profil artisan + WOZALI Jobs. "Là tu reçois des commandes. Et là tu peux postuler à une boutique qui cherche une couturière. Deux choses en un seul profil."</p>
+          <p>Les photos de ses robes = son CV vivant. Plus puissant qu'un document Word.</p>
+        </div>
+        <div class="bottom-col">
+          <div class="col-label">L'argument qui signe</div>
+          <div class="close-box">
+            <p>"Tes robes sont belles. Le problème c'est que seules tes voisines le savent. <strong>WOZALI c'est ton atelier qui ouvre vers tout Cotonou — et vers les boutiques qui recrutent.</strong>"</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="erreur">Ne pas présenter WOZALI uniquement comme un outil de vente. Akossiwa cherche aussi un emploi. Mentionner WOZALI Jobs systématiquement avec elle.</div>
+    </div>
+  </div>
+
+  <!-- PORTRAIT 5 — PLOMBIER -->
+  <div class="portrait">
+    <div class="portrait-header">
+      <div class="portrait-avatar"><span>F</span></div>
+      <div class="portrait-meta">
+        <div class="portrait-nom">Félix, 44 ans</div>
+        <div class="portrait-job">
+          <span class="badge-metier">Plombier</span>
+          <span class="badge-ville">Agbalépédogan · Lomé</span>
+        </div>
+        <div class="portrait-desc">20 ans de métier, clientèle fidèle limitée, pas de présence en ligne du tout</div>
+      </div>
+    </div>
+
+    <div class="portrait-body">
+      <div class="journee">
+        <div class="col-label">Sa journée type</div>
+        <div class="journee-items">
+          <div class="journee-item"><span class="j-time">6h30</span><span class="j-text">Intervention prévue depuis hier — une fuite chez un client de 15 ans.</span></div>
+          <div class="journee-item"><span class="j-time">10h</span><span class="j-text">Rentre. Attend. Son téléphone ne sonne pas.</span></div>
+          <div class="journee-item"><span class="j-time">13h</span><span class="j-text">Un jeune plombier qui vient d'arriver dans le quartier publie sur Facebook. Félix n'a pas Facebook.</span></div>
+          <div class="journee-item"><span class="j-time">Soir</span><span class="j-text">Son fils lui demande : "Papa tu as du travail ce mois ?" Oui... un peu.</span></div>
+        </div>
+      </div>
+
+      <div class="portrait-divider"></div>
+
+      <div class="portrait-grid">
+        <div class="portrait-col">
+          <div class="col-label">Sa douleur reelle</div>
+          <div class="chiffre-key"><span class="chiffre-val">20</span><span class="chiffre-txt">ans de métier. Pas de trace en ligne.</span></div>
+          <p>Il a plus d'expérience que n'importe qui dans son quartier. Mais un plombier de 25 ans avec une page Facebook travaille plus que lui parce qu'il est "trouvable".</p>
+          <p><strong>Sa honte silencieuse :</strong> son fils voit qu'il n'a pas de travail. LF7 maximal.</p>
+        </div>
+        <div class="portrait-col">
+          <div class="col-label">Ce qu'il ne dit pas</div>
+          <p>"Je suis trop vieux pour ces trucs internet. Ca ne me concerne pas."</p>
+          <p>"J'ai 20 ans de métier. Si ca ne marche pas depuis 20 ans, pourquoi maintenant ?"</p>
+          <p>"Les jeunes prennent le marché. Je ne sais pas comment me battre contre ca."</p>
+          <p style="font-weight:700;color:#1a1a1a;">Sa vraie question : "Est-ce que ca marche pour quelqu'un comme moi ?"</p>
+        </div>
+      </div>
+
+      <div class="portrait-bottom">
+        <div class="bottom-col">
+          <div class="col-label">Ce qui le convainc</div>
+          <p>L'angle expérience = avantage : "20 ans de métier sur ton profil, ca ne s'invente pas. Un client sérieux va choisir entre toi et un gamin de 25 ans. Si tu as des avis, il choisit toi."</p>
+          <p>Lui montrer comment ajouter l'inscription sur son téléphone — simplement, sans jugement. C'est toi qui fais, il regarde.</p>
+        </div>
+        <div class="bottom-col">
+          <div class="col-label">L'argument qui signe</div>
+          <div class="close-box">
+            <p>"Ce gamin de 25 ans n'a pas ton expérience. Il a juste Facebook. <strong>Toi tu as 20 ans de boulot bien fait. WOZALI donne ca le faire voir à ceux qui cherchent un vrai plombier.</strong>"</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="erreur">Ne jamais parler de "technologie" ou "internet" avec Félix. Parler de "ton carnet d'adresses qui devient public" ou "ta réputation qui sort de ton quartier".</div>
+    </div>
+  </div>
+
+  <p style="margin-top:16px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-PT-2026-007 · Confidentiel · Formation Agent terrain WOZALI · wozali.africa</p>
+
+</div>
+</body>
+</html>

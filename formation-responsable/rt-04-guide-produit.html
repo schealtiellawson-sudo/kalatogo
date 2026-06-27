@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guide Produit Responsable — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #fff; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 14px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 52px 44px 80px; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -52px -44px 48px; padding: 40px 44px 36px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 26px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 16px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 26px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.6); text-transform: uppercase; letter-spacing: 2px; }
+  .doc-title { font-family: 'DM Serif Display', serif; font-size: 34px; color: #FCE0A8; line-height: 1.2; margin-bottom: 8px; }
+  .doc-sub { font-size: 13px; color: rgba(232,148,10,.7); font-family: 'Geist Mono', monospace; }
+
+  /* Table des matières */
+  .toc { background: #fffbf0; border: 1px solid rgba(232,148,10,.25); border-radius: 12px; padding: 20px 24px; margin-bottom: 44px; }
+  .toc-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .toc ol { list-style: decimal; padding-left: 18px; }
+  .toc li { font-size: 13px; color: #444; padding: 3px 0; }
+  .toc li strong { color: #1a1a1a; }
+
+  /* Sections */
+  .section { margin-bottom: 48px; }
+  .section-num { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+  .section h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #1a1a1a; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #E8940A; }
+  .section h3 { font-family: 'Geist', sans-serif; font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 20px 0 10px; }
+  p { margin-bottom: 12px; color: #333; }
+  p strong { color: #1a1a1a; }
+
+  /* Blocs */
+  .bloc-or { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 16px 0; }
+  .bloc-noir { background: #14100A; color: #FCE0A8; border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .bloc-noir p { color: rgba(252,224,168,.85); margin: 0; }
+  .bloc-noir strong { color: #E8940A; }
+
+  /* Citation terrain */
+  .quote { font-style: italic; color: #444; border-left: 3px solid #E8940A; padding: 10px 16px; margin: 16px 0; background: #fafafa; border-radius: 0 6px 6px 0; font-size: 13px; }
+  .quote .attrib { font-style: normal; font-size: 11px; color: #999; margin-top: 6px; font-family: 'Geist Mono', monospace; }
+
+  /* Listes */
+  ul.doc { list-style: none; display: flex; flex-direction: column; gap: 7px; margin: 12px 0; }
+  ul.doc li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #444; }
+  ul.doc li::before { content: '→'; color: #E8940A; font-weight: 700; flex-shrink: 0; }
+
+  /* Tableau */
+  .doc-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .doc-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; padding: 10px 14px; text-align: left; font-weight: 400; }
+  .doc-table td { padding: 10px 14px; border-bottom: 1px solid #f0e0c0; color: #333; vertical-align: top; }
+  .doc-table tr:last-child td { border-bottom: none; }
+  .doc-table td:first-child { font-weight: 700; color: #1a1a1a; }
+  .tag-or { background: #fffbf0; color: #c07000; border: 1px solid rgba(232,148,10,.3); border-radius: 100px; font-size: 11px; font-weight: 700; padding: 2px 8px; }
+  .tag-grey { background: #f5f5f5; color: #666; border: 1px solid #e0e0e0; border-radius: 100px; font-size: 11px; font-weight: 700; padding: 2px 8px; }
+
+  /* Les 90 secondes */
+  .pitch-box { background: #14100A; border-radius: 14px; padding: 28px; margin: 20px 0; }
+  .pitch-box .pitch-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+  .pitch-box .pitch-line { display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; }
+  .pitch-box .step { background: #E8940A; color: #14100A; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 700; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .pitch-box .txt { font-size: 13px; color: rgba(252,224,168,.85); }
+  .pitch-box .txt em { color: #E8940A; font-style: italic; }
+
+  /* Dates clés */
+  .dates-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+  .date-card { background: #fffbf0; border: 1px solid rgba(232,148,10,.2); border-radius: 10px; padding: 14px; text-align: center; }
+  .date-card .d-date { font-family: 'DM Serif Display', serif; font-size: 18px; font-weight: 900; color: #E8940A; }
+  .date-card .d-label { font-size: 11px; color: #666; margin-top: 4px; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 40px 0; }
+
+  /* Score visuel */
+  .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .score-item { background: #fafafa; border: 1px solid #f0e0c0; border-radius: 8px; padding: 12px 14px; }
+  .score-item .s-name { font-size: 12px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .score-item .s-pts { font-family: 'Geist Mono', monospace; font-size: 20px; font-weight: 700; color: #E8940A; }
+  .score-item .s-desc { font-size: 11px; color: #888; }
+
+  @media print {
+    .doc-header { background: #1a1a1a; }
+    .section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Guide Produit · Responsable Réseau Terrain</span>
+    </div>
+    <h1 class="doc-title">Ce que tu vends.<br>Comment ca marche.<br>Pourquoi ca change tout.</h1>
+    <p class="doc-sub">Lire une fois. Comprendre. Etre capable d'expliquer en 90 secondes.</p>
+  </div>
+
+  <!-- Table des matières -->
+  <div class="toc">
+    <div class="toc-title">Ce guide en 7 parties</div>
+    <ol>
+      <li><strong>Le problème</strong> — pourquoi WOZALI existe</li>
+      <li><strong>Les deux invisibles</strong> — les deux personnes que WOZALI sert</li>
+      <li><strong>Comment ca marche</strong> — inscription, profil, Score WOZALI</li>
+      <li><strong>Gratuit vs Pro</strong> — ce que ca change concrètement</li>
+      <li><strong>Les récompenses</strong> — dates, montants, conditions exactes</li>
+      <li><strong>Le parrainage</strong> — comment ton lien génère du revenu récurrent</li>
+      <li><strong>Le pitch 90 secondes</strong> — à réciter avant le terrain</li>
+    </ol>
+  </div>
+
+  <!-- PARTIE 1 — LE PROBLÈME -->
+  <div class="section">
+    <div class="section-num">Partie 01</div>
+    <h2>Le problème</h2>
+
+    <p>Au Togo et au Bénin, <strong>80% de l'économie est informelle.</strong> Des millions de personnes travaillent, ont des compétences, savent faire des choses. Mais personne ne les trouve en dehors de leur rue.</p>
+
+    <div class="quote">
+      "Le meilleur électricien de Kodjoviakopé, tout le monde le sait dans son quartier. Mais le client de Bè cherche un électricien sur WhatsApp et appelle n'importe qui."
+      <div class="attrib">Réalité terrain Lomé</div>
+    </div>
+
+    <p>Le problème n'est pas le travail. Le travail existe. Le problème est la <strong>visibilité.</strong> Et la visibilité, jusqu'ici, ca s'achetait. Avec du réseau, avec de la famille bien placée, avec de l'argent pour la pub. Pas avec le travail.</p>
+
+    <div class="bloc-noir">
+      <p><strong>La phrase clé à retenir :</strong><br>L'argent ne circule pas dans cette économie parce que les gens qui font le travail ne sont pas trouvables. Pas parce qu'ils ne sont pas compétents.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PARTIE 2 — LES DEUX INVISIBLES -->
+  <div class="section">
+    <div class="section-num">Partie 02</div>
+    <h2>Les deux invisibles</h2>
+
+    <p>WOZALI répond à deux problèmes distincts. <strong>Toujours mentionner les deux.</strong> Ne jamais réduire WOZALI à l'un ou l'autre.</p>
+
+    <h3>Invisible 1 — L'artisan sans clients</h3>
+    <p>Le menuisier compétent que personne ne trouve parce qu'il n'a pas de réseau. Il travaille bien. Il n'a pas de page, pas de profil, pas d'avis en ligne. Les clients vont chez des moins bons parce qu'ils connaissent leur nom.</p>
+    <p><strong>Sa douleur :</strong> "J'ai les mains pour travailler. Je n'ai pas les contacts pour remplir mon agenda."</p>
+
+    <h3>Invisible 2 — Le chercheur d'emploi sans visibilité</h3>
+    <p>La couturière qui cherche un poste en boutique. Le jeune diplômé qui envoie son CV sur WhatsApp dans le vide. Le petit patron qui recrute par bouche-à-oreille et se trompe de candidat. Ni l'un ni l'autre n'a d'outil adapté à leur réalité.</p>
+    <p><strong>Sa douleur :</strong> "J'envoie des messages. Personne ne répond. Pas parce que je suis mauvais. Parce que personne ne me voit."</p>
+
+    <div class="bloc-or">
+      <strong>La phrase pivot :</strong> "Il y a deux invisibles. L'artisan que personne ne trouve. Et le chercheur d'emploi que personne n'appelle. WOZALI existe pour les deux."
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PARTIE 3 — COMMENT CA MARCHE -->
+  <div class="section">
+    <div class="section-num">Partie 03</div>
+    <h2>Comment ca marche</h2>
+
+    <h3>L'inscription — 3 minutes, gratuit</h3>
+    <ul class="doc">
+      <li>La personne crée son profil : prénom, métier, quartier, photo, description courte</li>
+      <li>Elle reçoit un lien de profil public immédiatement : wozali.africa/profil/son-nom</li>
+      <li>Ce profil apparaît dans les résultats quand quelqu'un cherche son métier dans son quartier</li>
+      <li>Le profil est gratuit. Il fonctionne dès la première minute.</li>
+    </ul>
+
+    <h3>Le Score WOZALI — classement selon le travail réel</h3>
+    <p>Chaque profil a un Score de 0 à 100. Ce Score détermine qui apparaît en premier dans les résultats. Il est calculé automatiquement chaque heure.</p>
+
+    <div class="score-grid">
+      <div class="score-item">
+        <div class="s-name">Profil complet</div>
+        <div class="s-pts">30 pts</div>
+        <div class="s-desc">Photo, bio, métier, quartier, numéro vérifié</div>
+      </div>
+      <div class="score-item">
+        <div class="s-name">Note clients</div>
+        <div class="s-pts">25 pts</div>
+        <div class="s-desc">5 étoiles = 25 pts / 4 étoiles = 20 pts</div>
+      </div>
+      <div class="score-item">
+        <div class="s-name">Nombre d'avis</div>
+        <div class="s-pts">15 pts</div>
+        <div class="s-desc">1 à 2 avis = 3 pts / 21+ avis = 15 pts</div>
+      </div>
+      <div class="score-item">
+        <div class="s-name">Photos réalisations</div>
+        <div class="s-pts">10 pts</div>
+        <div class="s-desc">Preuves concrètes du travail</div>
+      </div>
+      <div class="score-item">
+        <div class="s-name">Vues du profil</div>
+        <div class="s-pts">10 pts</div>
+        <div class="s-desc">Progressif selon la fréquentation</div>
+      </div>
+      <div class="score-item">
+        <div class="s-name">Activité récente</div>
+        <div class="s-pts">10 pts</div>
+        <div class="s-desc">Connexion &lt; 3j = 10 pts / &gt; 14j = 0 pt</div>
+      </div>
+    </div>
+
+    <div class="bloc-noir">
+      <p><strong>Ce que ca change pour l'artisan :</strong> Si tu travailles bien, tu montes. Si tu travailles mal, tu descends. Pas de piston. Pas de paiement pour être en tête. Le travail réel classe. C'est la première fois que ca marche comme ca en Afrique de l'Ouest.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PARTIE 4 — GRATUIT VS PRO -->
+  <div class="section">
+    <div class="section-num">Partie 04</div>
+    <h2>Gratuit vs Pro</h2>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th>Fonctionnalité</th>
+          <th>Gratuit</th>
+          <th>Pro — 2 500 FCFA/mois</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Profil public</td>
+          <td><span class="tag-or">Oui</span></td>
+          <td><span class="tag-or">Oui</span></td>
+        </tr>
+        <tr>
+          <td>Score WOZALI</td>
+          <td><span class="tag-or">Oui</span></td>
+          <td><span class="tag-or">Oui</span></td>
+        </tr>
+        <tr>
+          <td>Apparaitre en premier dans les recherches</td>
+          <td><span class="tag-grey">Non</span></td>
+          <td><span class="tag-or">Toujours en premier</span></td>
+        </tr>
+        <tr>
+          <td>Publier des offres d'emploi (recruteur)</td>
+          <td><span class="tag-grey">Non</span></td>
+          <td><span class="tag-or">Illimité</span></td>
+        </tr>
+        <tr>
+          <td>Parrainage actif (revenus)</td>
+          <td><span class="tag-grey">Non</span></td>
+          <td><span class="tag-or">Oui</span></td>
+        </tr>
+        <tr>
+          <td>Stats de visibilité (vues, contacts)</td>
+          <td><span class="tag-grey">Non</span></td>
+          <td><span class="tag-or">Oui</span></td>
+        </tr>
+        <tr>
+          <td>Eligibilité Bourse de Croissance</td>
+          <td><span class="tag-grey">Non</span></td>
+          <td><span class="tag-or">Oui (dès 2 mois)</span></td>
+        </tr>
+        <tr>
+          <td>Eligibilité Bourse des Mains d'Or (femmes)</td>
+          <td><span class="tag-or">Oui</span></td>
+          <td><span class="tag-or">Oui</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="bloc-or">
+      <strong>L'argument de conversion Pro à retenir :</strong> Un seul nouveau client trouvé via WOZALI rembourse 1 à 4 mois d'abonnement. Le Pro ne coûte pas. Il rapporte.
+    </div>
+
+    <p><strong>Le timing de la conversion :</strong> Proposer le Pro juste après que l'artisan voit son profil en ligne pour la première fois. A ce moment précis, il réalise ce qu'il a. C'est le pic émotionnel. Ne pas attendre.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PARTIE 5 — LES RÉCOMPENSES -->
+  <div class="section">
+    <div class="section-num">Partie 05</div>
+    <h2>Les récompenses</h2>
+
+    <p>WOZALI distribue <strong>500 000 FCFA chaque mois</strong> à ses membres les plus actifs. Ce n'est pas une promesse. C'est un mécanisme contractuel avec des dates fixes.</p>
+
+    <div class="dates-row">
+      <div class="date-card">
+        <div class="d-date">15 août 2026</div>
+        <div class="d-label">Lancement officiel WOZALI</div>
+      </div>
+      <div class="date-card">
+        <div class="d-date">25 sept. 2026</div>
+        <div class="d-label">Premier tirage récompenses</div>
+      </div>
+      <div class="date-card">
+        <div class="d-date">Le 30 de chaque mois</div>
+        <div class="d-label">Tirages mensuels suivants</div>
+      </div>
+    </div>
+
+    <h3>Bourse de Croissance — 300 000 FCFA</h3>
+    <p>Pour les pros sérieux et actifs. Un gagnant par mois (1 Togo + 1 Bénin = 300 000 FCFA total). Conditions : Plan Pro actif ce mois, profil complet, Score WOZALI supérieur ou égal à 80, minimum 3 avis reçus dans les 30 derniers jours, note supérieure ou égale à 4,2 étoiles, pas gagné dans les 3 derniers mois.</p>
+
+    <h3>Bourse des Mains d'Or — 200 000 FCFA</h3>
+    <p>Pour toutes les femmes coiffeuses et couturières. Pas besoin d'être Pro. 2 gagnantes par mois (1 Togo + 1 Bénin = 100 000 FCFA chacune). Conditions : profil complet, photo réalisation publiée ce mois, au moins 1 avis reçu dans les 30 derniers jours.</p>
+
+    <div class="bloc-noir">
+      <p><strong>Ce qu'il faut dire sur le terrain :</strong> "Le premier tirage est le 25 septembre. Si tu t'inscris aujourd'hui et tu passes Pro ce mois, tu es eligible dans 2 mois. C'est 300 000 FCFA. Ca ne tombe pas du ciel. Ca se prépare maintenant."</p>
+    </div>
+
+    <p style="color:#c00;font-weight:700;font-size:13px;">A ne jamais dire : "Il y a des récompenses en juillet" ou "le tirage c'est le 28 août". Les dates sont fixes : premier tirage 25 septembre, ensuite le 30 de chaque mois.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PARTIE 6 — LE PARRAINAGE -->
+  <div class="section">
+    <div class="section-num">Partie 06</div>
+    <h2>Le parrainage</h2>
+
+    <p>Chaque membre Pro WOZALI a un lien de parrainage unique. Quand quelqu'un s'inscrit via ce lien et prend le Plan Pro, le parrain gagne <strong>1 000 FCFA par mois</strong> tant que ce membre reste actif.</p>
+
+    <ul class="doc">
+      <li>Ce n'est pas un paiement unique. C'est récurrent. Chaque mois.</li>
+      <li>Le parrainage s'accumule. 50 Pros actifs parrainés = 50 000 FCFA/mois automatiques.</li>
+      <li>Le parrainage est réservé aux membres Pro. C'est l'argument de conversion le plus puissant.</li>
+      <li>L'argent est disponible dans le tableau de bord, retrait à tout moment.</li>
+    </ul>
+
+    <div class="bloc-or">
+      <strong>L'argument parrainage sur le terrain :</strong> "Si tu passes Pro et que tu ramènes 5 amis qui font pareil, tu gagnes 5 000 FCFA par mois sans rien faire de plus. Dans 6 mois, c'est 50 amis. C'est 50 000 FCFA par mois. En plus de tes clients."
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PARTIE 7 — LE PITCH 90 SECONDES -->
+  <div class="section">
+    <div class="section-num">Partie 07</div>
+    <h2>Le pitch 90 secondes</h2>
+    <p>A reciter jusqu'à ce que ca sorte sans réfléchir. C'est la base. Tu adaptes selon la personne, mais la structure ne change pas.</p>
+
+    <div class="pitch-box">
+      <div class="pitch-label">Structure exacte — 90 secondes</div>
+
+      <div class="pitch-line">
+        <div class="step">1</div>
+        <div class="txt"><em>La question diagnostic (15 sec)</em><br>"Tu travailles dans quoi ? Est-ce que les gens en dehors de ton quartier, ils peuvent te trouver ?"</div>
+      </div>
+
+      <div class="pitch-line">
+        <div class="step">2</div>
+        <div class="txt"><em>Le problème en 1 phrase (10 sec)</em><br>"L'argent ne circule pas parce que les gens qui font le travail ne sont pas trouvables. Le réseau compte plus que le talent."</div>
+      </div>
+
+      <div class="pitch-line">
+        <div class="step">3</div>
+        <div class="txt"><em>La solution — montrer, pas expliquer (30 sec)</em><br>"WOZALI change ca. En 3 minutes, tu as un profil en ligne. Quand quelqu'un cherche [son métier] à [son quartier], tu apparais. Regarde." → sortir le téléphone, montrer la plateforme.</div>
+      </div>
+
+      <div class="pitch-line">
+        <div class="step">4</div>
+        <div class="txt"><em>L'inscription immédiate (20 sec)</em><br>"On le fait maintenant. Ca prend 3 minutes. Ton nom, ton métier, ton quartier, une photo. C'est gratuit. Après tu vois ce que ca donne."</div>
+      </div>
+
+      <div class="pitch-line">
+        <div class="step">5</div>
+        <div class="txt"><em>La conversion Pro — après qu'il voit son profil (15 sec)</em><br>"Tu vois ton profil là ? Pour apparaitre en premier à chaque recherche, c'est le Plan Pro. 2 500 FCFA par mois. Un client trouvé via WOZALI rembourse ca en quelques heures."</div>
+      </div>
+    </div>
+
+    <div class="bloc-or">
+      <strong>Règle absolue :</strong> Ne jamais parler du prix avant que la personne ait vu son propre profil en ligne. Ce moment émotionnel est le seul bon moment pour mentionner le Pro.
+    </div>
+  </div>
+
+  <p style="margin-top:40px;font-size:11px;color:#999;text-align:center;font-family:'Geist Mono',monospace;">Document confidentiel · Responsable Réseau Terrain · WOZALI · wozali.africa</p>
+
+</div>
+</body>
+</html>

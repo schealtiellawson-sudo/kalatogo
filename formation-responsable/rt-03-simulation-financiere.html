@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulation financière — Responsable Réseau Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #14100A; }
+  body { font-family: 'Geist', sans-serif; color: #FCE0A8; line-height: 1.6; font-size: 14px; min-height: 100vh; }
+  .page { max-width: 820px; margin: 0 auto; padding: 48px 32px 80px; }
+
+  /* Logo */
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 36px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 26px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 16px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 26px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.6); text-transform: uppercase; letter-spacing: 2px; }
+
+  .page-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: #FCE0A8; margin-bottom: 6px; }
+  .page-sub { font-size: 13px; color: rgba(252,224,168,.45); margin-bottom: 36px; }
+
+  /* Sliders */
+  .sliders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .slider-card { background: #1E180E; border: 1px solid rgba(232,148,10,.15); border-radius: 14px; padding: 20px; }
+  .s-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .s-val { font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 900; color: #E8940A; margin-bottom: 10px; }
+  .s-val span { font-size: 14px; color: rgba(232,148,10,.5); font-family: 'Geist', sans-serif; font-weight: 400; }
+  input[type=range] { width: 100%; accent-color: #E8940A; cursor: pointer; }
+  .s-desc { font-size: 11px; color: rgba(252,224,168,.35); margin-top: 8px; }
+
+  /* Résultats principaux */
+  .results-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .month-card { background: #1E180E; border: 1px solid rgba(232,148,10,.12); border-radius: 12px; padding: 16px 14px; text-align: center; transition: border-color .2s; }
+  .month-card.highlight { border-color: rgba(232,148,10,.4); background: rgba(232,148,10,.06); }
+  .m-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(252,224,168,.35); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .m-total { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 900; color: #E8940A; margin-bottom: 4px; }
+  .m-smig { font-size: 11px; color: rgba(252,224,168,.4); }
+  .m-breakdown { font-size: 10px; color: rgba(232,148,10,.5); margin-top: 6px; font-family: 'Geist Mono', monospace; line-height: 1.6; }
+
+  /* Comparatif freelance */
+  .compare-section { background: #1E180E; border: 1px solid rgba(232,148,10,.15); border-radius: 14px; padding: 22px; margin-bottom: 24px; }
+  .compare-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .compare-col .c-head { font-weight: 700; font-size: 13px; color: #FCE0A8; margin-bottom: 10px; }
+  .compare-col .c-item { display: flex; justify-content: space-between; font-size: 12px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04); color: rgba(252,224,168,.65); }
+  .compare-col .c-item:last-child { border-bottom: none; }
+  .compare-col .c-item .val { font-family: 'Geist Mono', monospace; font-weight: 700; }
+  .val-or { color: #E8940A; }
+  .val-grey { color: rgba(252,224,168,.3); }
+
+  /* Courbe visuelle */
+  .curve-section { background: #1E180E; border: 1px solid rgba(232,148,10,.15); border-radius: 14px; padding: 22px; margin-bottom: 24px; }
+  .curve-title { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+  .curve-wrap { position: relative; height: 140px; }
+  .curve-legend { display: flex; gap: 16px; margin-top: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(252,224,168,.5); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* SMIG bar */
+  .smig-bar { display: flex; align-items: center; gap: 12px; background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.12); border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; }
+  .smig-icon { font-size: 20px; flex-shrink: 0; }
+  .smig-text { font-size: 13px; color: rgba(252,224,168,.7); }
+  .smig-text strong { color: #FCE0A8; }
+
+  /* Note hypothèses */
+  .note { font-size: 11px; color: rgba(252,224,168,.25); font-family: 'Geist Mono', monospace; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="logo-row">
+    <span class="logo-w">W</span>
+    <span class="logo-ozali">OZALI</span>
+    <div class="logo-sep"></div>
+    <span class="logo-tag">Simulation financière · Confidentiel</span>
+  </div>
+
+  <h1 class="page-title">Ce que ce poste peut te rapporter</h1>
+  <p class="page-sub">Ajuste les curseurs selon ton scénario. Les chiffres se mettent à jour en temps réel.</p>
+
+  <!-- Sliders -->
+  <div class="sliders-grid">
+    <div class="slider-card">
+      <div class="s-label">Performance équipe (% de l'objectif)</div>
+      <div class="s-val" id="val-perf">80<span>%</span></div>
+      <input type="range" min="30" max="150" value="80" step="5" id="sl-perf" oninput="update()">
+      <div class="s-desc">100% = 1 600 Pros actifs (cible). 50% = 800 Pros (minimum maintien).</div>
+    </div>
+    <div class="slider-card">
+      <div class="s-label">Tes Pros personnels (parrainage)</div>
+      <div class="s-val" id="val-perso">20<span> Pros</span></div>
+      <input type="range" min="0" max="200" value="20" step="5" id="sl-perso" oninput="update()">
+      <div class="s-desc">Inscrits que tu signes toi-même avec ton lien. Minimum recommandé : 20 Pros/mois.</div>
+    </div>
+  </div>
+
+  <!-- Résultats par mois -->
+  <div class="results-title">Revenus projetés par mois</div>
+  <div class="months-grid">
+    <div class="month-card" id="card-m1">
+      <div class="m-label">Mois 1</div>
+      <div class="m-total" id="total-m1">—</div>
+      <div class="m-smig" id="smig-m1"></div>
+      <div class="m-breakdown" id="break-m1"></div>
+    </div>
+    <div class="month-card" id="card-m2">
+      <div class="m-label">Mois 2</div>
+      <div class="m-total" id="total-m2">—</div>
+      <div class="m-smig" id="smig-m2"></div>
+      <div class="m-breakdown" id="break-m2"></div>
+    </div>
+    <div class="month-card highlight" id="card-m3">
+      <div class="m-label">Mois 3 ★</div>
+      <div class="m-total" id="total-m3">—</div>
+      <div class="m-smig" id="smig-m3"></div>
+      <div class="m-breakdown" id="break-m3"></div>
+    </div>
+    <div class="month-card" id="card-m6">
+      <div class="m-label">Mois 6</div>
+      <div class="m-total" id="total-m6">—</div>
+      <div class="m-smig" id="smig-m6"></div>
+      <div class="m-breakdown" id="break-m6"></div>
+    </div>
+  </div>
+
+  <!-- Barre SMIG -->
+  <div class="smig-bar">
+    <div class="smig-icon">📊</div>
+    <div class="smig-text" id="smig-compare">Ajuste les curseurs pour voir la comparaison SMIG.</div>
+  </div>
+
+  <!-- Courbe visuelle -->
+  <div class="curve-section">
+    <div class="curve-title">Portefeuille récurrent vs freelance classique</div>
+    <div class="curve-wrap">
+      <canvas id="curveCanvas" style="width:100%;height:140px;"></canvas>
+    </div>
+    <div class="curve-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#E8940A;"></div>Ton revenu WOZALI (portefeuille qui grossit)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(252,224,168,.25);"></div>Freelance classique (repart à 0 chaque mois)</div>
+    </div>
+  </div>
+
+  <!-- Comparatif -->
+  <div class="compare-section">
+    <div class="compare-title">Comparatif mois 3</div>
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="c-head">Responsable Réseau Terrain WOZALI</div>
+        <div class="c-item"><span>Commission poste (10% CA équipe)</span><span class="val val-or" id="cmp-poste">—</span></div>
+        <div class="c-item"><span>Parrainage personnel</span><span class="val val-or" id="cmp-perso">—</span></div>
+        <div class="c-item" style="border-top:1px solid rgba(232,148,10,.2);margin-top:4px;padding-top:10px;"><span><strong>Total</strong></span><span class="val val-or" style="color:#E8940A;font-size:15px;" id="cmp-total">—</span></div>
+        <div class="c-item" style="border:none;padding-top:4px;"><span style="font-size:11px;color:rgba(252,224,168,.3);font-style:italic;">Récurrent. Croissant chaque mois.</span></div>
+      </div>
+      <div class="compare-col">
+        <div class="c-head">Freelance classique (prestataire isolé)</div>
+        <div class="c-item"><span>Revenu mois courant (effort constant)</span><span class="val val-grey" id="cmp-free">100 000 FCFA</span></div>
+        <div class="c-item"><span>Revenu mois suivant si pause 2 sem.</span><span class="val val-grey">0 FCFA</span></div>
+        <div class="c-item" style="border-top:1px solid rgba(255,255,255,.06);margin-top:4px;padding-top:10px;"><span><strong>Repart à 0 chaque mois</strong></span><span class="val val-grey">Toujours</span></div>
+        <div class="c-item" style="border:none;padding-top:4px;"><span style="font-size:11px;color:rgba(252,224,168,.3);font-style:italic;">Zéro portefeuille. Zéro récurrence.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    Hypothèses : 2 500 FCFA/abonnement Pro · 1 000 FCFA commission parrainage personnel/Pro/mois<br>
+    Montée en puissance équipe : M1=40% objectif · M2=65% · M3=% curseur · M6=% curseur × 1.35<br>
+    SMIG Togo : 52 500 FCFA · SMIG Bénin : 52 000 FCFA · Document confidentiel WOZALI
+  </p>
+
+</div>
+
+<script>
+  const SMIG = 52500;
+  const PRIX_PRO = 2500;
+  const COMM_POSTE = 0.10;
+  const COMM_PERSO = 1000;
+  const PROS_CIBLE = 1600;
+
+  function fmt(n) {
+    return Math.round(n).toLocaleString('fr-FR') + ' FCFA';
+  }
+
+  function smigX(n) {
+    const x = n / SMIG;
+    if (x < 1) return Math.round(x * 100) + '% du SMIG';
+    return '× ' + x.toFixed(1) + ' SMIG';
+  }
+
+  function update() {
+    const pct = parseInt(document.getElementById('sl-perf').value) / 100;
+    const perso = parseInt(document.getElementById('sl-perso').value);
+    document.getElementById('val-perf').innerHTML = Math.round(pct * 100) + '<span>%</span>';
+    document.getElementById('val-perso').innerHTML = perso + '<span> Pros</span>';
+
+    // Montée en puissance : M1=40%, M2=65%, M3=pct, M6=pct*1.35 (plafonné 150%)
+    const factors = [0.40, 0.65, pct, Math.min(pct * 1.35, 1.5)];
+    const labels = ['m1', 'm2', 'm3', 'm6'];
+    const prosPerso = [Math.round(perso * 0.3), Math.round(perso * 0.65), perso, Math.round(perso * 1.8)];
+
+    factors.forEach((f, i) => {
+      const prosEquipe = Math.round(PROS_CIBLE * f);
+      const caEquipe = prosEquipe * PRIX_PRO;
+      const commPoste = caEquipe * COMM_POSTE;
+      const commPerso = prosPerso[i] * COMM_PERSO;
+      const total = commPoste + commPerso;
+
+      document.getElementById('total-' + labels[i]).textContent = fmt(total);
+      document.getElementById('smig-' + labels[i]).textContent = smigX(total);
+      document.getElementById('break-' + labels[i]).innerHTML =
+        'Poste : ' + fmt(commPoste) + '\nPerso : ' + fmt(commPerso);
+    });
+
+    // Comparatif M3
+    const prosM3 = Math.round(PROS_CIBLE * pct);
+    const caM3 = prosM3 * PRIX_PRO;
+    const commPosteM3 = caM3 * COMM_POSTE;
+    const commPersoM3 = perso * COMM_PERSO;
+    const totalM3 = commPosteM3 + commPersoM3;
+    document.getElementById('cmp-poste').textContent = fmt(commPosteM3);
+    document.getElementById('cmp-perso').textContent = fmt(commPersoM3);
+    document.getElementById('cmp-total').textContent = fmt(totalM3);
+
+    // SMIG compare
+    const multSMIG = totalM3 / SMIG;
+    let smigMsg = '';
+    if (multSMIG < 1) {
+      smigMsg = 'Au mois 3, ton revenu WOZALI représente <strong>' + Math.round(multSMIG * 100) + '% du SMIG</strong>. Augmente le curseur de performance.';
+    } else {
+      smigMsg = 'Au mois 3, ton revenu WOZALI = <strong>× ' + multSMIG.toFixed(1) + ' SMIG</strong>. Un salarié au SMIG gagne ' + fmt(SMIG) + ' pour le même mois.';
+    }
+    document.getElementById('smig-compare').innerHTML = smigMsg;
+
+    drawCurve(pct, perso);
+  }
+
+  function drawCurve(pct, perso) {
+    const canvas = document.getElementById('curveCanvas');
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth;
+    const H = 140;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, W, H);
+
+    const months = 6;
+    // WOZALI: portefeuille récurrent croissant
+    const factors = [0.4, 0.65, pct, Math.min(pct * 1.1, pct * 1.2), Math.min(pct * 1.25, 1.4), Math.min(pct * 1.35, 1.5)];
+    const wozaliVals = factors.map((f, i) => {
+      const prosEquipe = Math.round(PROS_CIBLE * f);
+      const persoAdj = Math.round(perso * (0.3 + i * 0.14));
+      return (prosEquipe * PRIX_PRO * COMM_POSTE) + (persoAdj * COMM_PERSO);
+    });
+    // Freelance: constant avec variation
+    const freelanceBase = 85000;
+    const freelanceVals = [95000, 80000, freelanceBase, 90000, 75000, 88000];
+
+    const maxVal = Math.max(...wozaliVals, ...freelanceVals) * 1.1;
+    const pad = { top: 16, bottom: 24, left: 10, right: 10 };
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+
+    function xPos(i) { return pad.left + (i / (months - 1)) * chartW; }
+    function yPos(v) { return pad.top + chartH - (v / maxVal) * chartH; }
+
+    // Ligne WOZALI
+    ctx.beginPath();
+    wozaliVals.forEach((v, i) => {
+      i === 0 ? ctx.moveTo(xPos(i), yPos(v)) : ctx.lineTo(xPos(i), yPos(v));
+    });
+    ctx.strokeStyle = '#E8940A';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // Remplissage WOZALI
+    ctx.beginPath();
+    wozaliVals.forEach((v, i) => {
+      i === 0 ? ctx.moveTo(xPos(i), yPos(v)) : ctx.lineTo(xPos(i), yPos(v));
+    });
+    ctx.lineTo(xPos(months - 1), H - pad.bottom);
+    ctx.lineTo(xPos(0), H - pad.bottom);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, pad.top, 0, H);
+    grad.addColorStop(0, 'rgba(232,148,10,.25)');
+    grad.addColorStop(1, 'rgba(232,148,10,0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Ligne freelance
+    ctx.beginPath();
+    freelanceVals.forEach((v, i) => {
+      i === 0 ? ctx.moveTo(xPos(i), yPos(v)) : ctx.lineTo(xPos(i), yPos(v));
+    });
+    ctx.strokeStyle = 'rgba(252,224,168,.2)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Labels mois
+    ctx.fillStyle = 'rgba(252,224,168,.25)';
+    ctx.font = '10px Geist Mono, monospace';
+    ctx.textAlign = 'center';
+    ['M1', 'M2', 'M3', 'M4', 'M5', 'M6'].forEach((lbl, i) => {
+      ctx.fillText(lbl, xPos(i), H - 6);
+    });
+
+    // Points WOZALI
+    wozaliVals.forEach((v, i) => {
+      ctx.beginPath();
+      ctx.arc(xPos(i), yPos(v), 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#E8940A';
+      ctx.fill();
+    });
+  }
+
+  // Init
+  update();
+  window.addEventListener('resize', () => update());
+</script>
+</body>
+</html>

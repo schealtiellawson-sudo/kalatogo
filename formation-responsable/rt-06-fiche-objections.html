@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fiche Objections Terrain — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.6; font-size: 13px; }
+  .page { max-width: 820px; margin: 0 auto; padding: 36px 48px 64px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 3px solid #14100A; }
+  .logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 900; color: #14100A; letter-spacing: 3px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #14100A; }
+  .doc-sub { font-size: 11px; color: #888; font-family: 'Geist Mono', monospace; margin-top: 3px; }
+  .doc-ref { font-family: 'Geist Mono', monospace; font-size: 10px; color: #bbb; text-align: right; line-height: 2; }
+
+  /* Légende */
+  .legend { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .leg-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #555; }
+  .leg-dot { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+  .dot-gray { background: #f5f5f5; border: 1px solid #e0e0e0; }
+  .dot-or { background: rgba(232,148,10,.12); border: 1px solid rgba(232,148,10,.3); }
+  .dot-night { background: #14100A; }
+  .dot-red { background: #fff0f0; border: 1px solid #ffcccc; }
+
+  /* Objection card */
+  .obj-card { border: 1px solid #eee; border-radius: 10px; margin-bottom: 14px; overflow: hidden; page-break-inside: avoid; }
+  .obj-header { background: #14100A; display: flex; align-items: center; gap: 10px; padding: 10px 14px; }
+  .obj-num { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.6); width: 20px; }
+  .obj-dit { font-size: 13px; font-weight: 700; color: #FCE0A8; flex: 1; font-style: italic; }
+  .obj-tag { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 100px; flex-shrink: 0; }
+  .tag-time { background: rgba(100,150,255,.15); color: #8ab4f8; }
+  .tag-prix { background: rgba(255,180,0,.1); color: #E8940A; }
+  .tag-confiance { background: rgba(255,100,100,.1); color: #f88; }
+  .tag-tech { background: rgba(100,200,150,.1); color: #7cc; }
+  .tag-social { background: rgba(200,150,255,.1); color: #c8a4ff; }
+  .tag-avis { background: rgba(255,200,100,.1); color: #f0c060; }
+
+  .obj-body { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 0; }
+  .obj-col { padding: 11px 14px; font-size: 12px; }
+  .obj-col + .obj-col { border-left: 1px solid #f0e0c0; }
+  .obj-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 5px; }
+
+  .col-peur { background: #f5f5f5; }
+  .col-peur .obj-label { color: #999; }
+  .col-peur .obj-text { color: #555; font-style: italic; }
+
+  .col-reponse { background: #fff; }
+  .col-reponse .obj-text { color: #2a2a2a; }
+  .col-reponse em { color: #E8940A; font-style: italic; font-weight: 700; }
+
+  .col-rebond { background: rgba(232,148,10,.06); }
+  .col-rebond .obj-label { color: #c07000; }
+  .col-rebond .obj-text { color: #7a5000; font-weight: 700; }
+
+  /* Note stop */
+  .note-stop { background: #fff0f0; border: 1px solid #ffc0c0; border-radius: 8px; padding: 10px 14px; margin: 4px 0 16px; font-size: 12px; color: #cc2222; display: flex; gap: 8px; align-items: flex-start; }
+  .note-stop::before { content: '⚠'; flex-shrink: 0; }
+
+  /* Section title */
+  .section-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #E8940A; margin: 24px 0 12px; padding-left: 2px; }
+
+  /* Footer */
+  .doc-footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid #f0e0c0; display: flex; justify-content: space-between; align-items: center; }
+  .doc-footer p { font-family: 'Geist Mono', monospace; font-size: 10px; color: #ccc; }
+
+  @media print {
+    html { background: #fff; }
+    .page { padding: 20px 32px 40px; }
+    .obj-card { break-inside: avoid; margin-bottom: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="logo-row">
+        <span class="logo-w">W</span>
+        <span class="logo-ozali">OZALI</span>
+      </div>
+      <h1>Fiche Objections Terrain</h1>
+      <p class="doc-sub">12 objections réelles — peur cachée — réponse — rebond</p>
+    </div>
+    <div class="doc-ref">RT-OB-2026-006<br>Confidentiel<br>Agent terrain WOZALI</div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot dot-gray"></div> Peur cachée</div>
+    <div class="leg-item"><div class="leg-dot dot-or"></div> Réponse terrain</div>
+    <div class="leg-item"><div class="leg-dot dot-night"></div> Objection dite</div>
+    <div class="leg-item"><div class="leg-dot dot-red"></div> Erreur à éviter</div>
+  </div>
+
+  <div class="section-label">Catégorie — Temps et disponibilité</div>
+
+  <!-- OBJ 1 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">01</span>
+      <span class="obj-dit">"Je n'ai pas le temps maintenant."</span>
+      <span class="obj-tag tag-time">Temps</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Peur de s'engager dans quelque chose de compliqué. Pas un refus — un délai de protection.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Ca prend 3 minutes. Juste ton prénom, ton métier et ton quartier. L'inscription, on la fait maintenant. Si tu n'aimes pas ce que tu vois, tu supprimes. Mais en 3 minutes tu es visible dans tout Lomé." <br><br>Si vraiment pressé : <em>"On commence par le nom et le métier. Juste 60 secondes. Je complète avec toi."</em></div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"C'est maintenant qu'on le fait. Dans 3 minutes tu continues ton travail. C'est moi qui t'installe."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJ 2 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">02</span>
+      <span class="obj-dit">"Je vais réfléchir, reviens la semaine prochaine."</span>
+      <span class="obj-tag tag-time">Temps</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Il n'a pas compris ce que ca lui apporte concrètement. Ou il a peur d'être arnaqué. "Réfléchir" = adieu.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Réfléchir à quoi ? L'inscription est gratuite. Ton profil est gratuit. Aucun paiement maintenant. Tu réfléchis à quelque chose de gratuit ?" <br><br>Pause courte. <em>"Si t'as une question je te réponds là."</em></div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"C'est 0 FCFA d'abord. On fait le profil, tu vois. Rien à décider ce soir."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-stop">Ne jamais dire "je comprends, pas de souci, je repasse". Celui qui repart sans profil ne revient jamais. Toujours trouver l'objection réelle avant de laisser partir.</div>
+
+  <div class="section-label">Catégorie — Prix et argent</div>
+
+  <!-- OBJ 3 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">03</span>
+      <span class="obj-dit">"2 500 FCFA c'est trop cher."</span>
+      <span class="obj-tag tag-prix">Prix</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Peur de dépenser sans résultat. Il a déjà payé pour quelque chose qui n'a pas marché (Facebook Ads, réseau, etc.).</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"2 500 FCFA c'est 83 FCFA par jour. Moins qu'un beignet. Un seul client que tu trouves via WOZALI te rapporte combien ?" <br><br>Attendre sa réponse. Puis : <em>"Si WOZALI t'amène 1 client ce mois, ca rembourse combien de mois d'abonnement ?"</em><br><br>Ne pas répondre à sa place.</div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"Commence gratuit. Tu vois les clients arriver. Quand tu veux apparaitre en premier dans les recherches, tu passes au Pro."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJ 4 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">04</span>
+      <span class="obj-dit">"Je n'ai pas l'argent du téléphone ce mois."</span>
+      <span class="obj-tag tag-prix">Prix</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Vrai problème de trésorerie. Pas une résistance — une réalité.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"L'inscription est gratuite. On fait le profil maintenant sans payer. Tu restes gratuit jusqu'à ce que tu veuilles passer Pro. Le gratuit fonctionne déjà — tu seras visible, les gens peuvent te trouver." <br><br>Inscrire, pas convertir Pro ce jour. Relancer dans 10 jours.</div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"On fait le profil ce soir — gratuit. Dans 10 jours je te rappelle, tu vois si t'as eu des contacts."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Catégorie — Confiance et arnaque</div>
+
+  <!-- OBJ 5 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">05</span>
+      <span class="obj-dit">"Je ne fais pas confiance à ces trucs internet."</span>
+      <span class="obj-tag tag-confiance">Confiance</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">A déjà été arnaqué ou connait quelqu'un qui l'a été. Peur de donner son numéro, ses données.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Tu as raison d'être prudent. C'est pour ca qu'on commence gratuit, sans carte, sans numéro de compte. Tu donnes juste ton métier et ton quartier. Rien d'autre."<br><br><em>"Regarde ce profil là."</em> Montrer un vrai profil existant. <em>"Ca t'appartient, tu peux le supprimer quand tu veux."</em></div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"On ne te demande pas d'argent maintenant. Juste un profil. Vérifie toi-même sur le site — c'est wozali.africa."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJ 6 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">06</span>
+      <span class="obj-dit">"Ces gens-là prennent l'argent et disparaissent."</span>
+      <span class="obj-tag tag-confiance">Confiance</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Peur des arnaques numériques fréquentes en Afrique de l'Ouest. Méfiance légitime et culturellement enracinée.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Je suis là, en face de toi. Si ca ne marche pas, c'est moi que tu appelles." Donner ton numéro personnellement.<br><br><em>"Ton profil, tu le vois en direct. Les clients peuvent le trouver maintenant. Si dans 30 jours tu n'as eu aucun contact, tu supprimes et je te rembourse le Pro si tu l'avais pris."</em></div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"Commence gratuit. Regarde si ca marche. Ensuite tu décides."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Catégorie — Technologie</div>
+
+  <!-- OBJ 7 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">07</span>
+      <span class="obj-dit">"Je ne connais pas bien internet, je ne sais pas utiliser ca."</span>
+      <span class="obj-tag tag-tech">Tech</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Peur du ridicule. Peur de mal faire. Peur de casser quelque chose. Pas une résistance à WOZALI.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"C'est pour ca que je suis là. Je fais tout avec toi, sur ton téléphone. Toi tu regardes et tu confirmes. Si tu as WhatsApp, t'as déjà les compétences pour WOZALI."</div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"Donne-moi ton téléphone 3 minutes. Je t'installe ca, tu vois ton profil, et après je t'explique comment le gérer."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJ 8 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">08</span>
+      <span class="obj-dit">"Je n'ai pas internet sur mon téléphone."</span>
+      <span class="obj-tag tag-tech">Tech</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Vrai obstacle technique. Mais souvent : il a WhatsApp = il a internet. Confusion entre forfait permanent et WiFi.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Tu as WhatsApp ?" Si oui : "Alors t'as internet. On utilise la même connexion." <br><br>Si vrai manque de data : utiliser ton propre hotspot pour l'inscription. L'inscription ne consomme que 2-3 Mo.</div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"J'active mon partage de connexion. On fait le profil maintenant. Ensuite ton profil existe — les clients le trouvent même quand ton téléphone est éteint."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Catégorie — Concurrence et alternatives</div>
+
+  <!-- OBJ 9 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">09</span>
+      <span class="obj-dit">"Facebook me suffit, j'ai déjà ma page."</span>
+      <span class="obj-tag tag-social">Réseau</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Il pense déjà avoir une solution. Peur du double travail. Pas compris la différence.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Bien. Combien de personnes t'ont trouvé via Facebook ce mois ?" Attendre.<br><br><em>"Sur Facebook quelqu'un cherche [métier] à Lomé — est-ce que ta page sort ?"</em> Non. <em>"Sur WOZALI oui. Et il peut te contacter directement."</em><br><br>"Tu gardes Facebook. Tu ajoutes WOZALI. Deux canaux valent mieux qu'un."</div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"Ca prend 3 minutes. Ton profil WOZALI et ta page Facebook se complètent. Pas l'un ou l'autre."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJ 10 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">10</span>
+      <span class="obj-dit">"Dans mon quartier les gens ne cherchent pas en ligne."</span>
+      <span class="obj-tag tag-social">Marché</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Manque de vision sur la direction du marché. Pense que WOZALI est un outil pour les éduqués/riches.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Peut-être. Mais les clients qui ont de l'argent, eux ils cherchent en ligne. Celui qui paye 10 000 FCFA une coupe de cheveux, il cherche sur son téléphone."<br><br><em>"WOZALI ne remplace pas tes clients d'aujourd'hui. Il t'amène ceux d'après-demain — ceux que tu n'as jamais eu."</em></div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"Ton profil est là quand ils commencent à chercher. Ca coûte rien d'être prêt avant les autres."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Catégorie — Avis et données</div>
+
+  <!-- OBJ 11 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">11</span>
+      <span class="obj-dit">"Je n'ai pas encore d'avis, mon Score sera bas."</span>
+      <span class="obj-tag tag-avis">Avis</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Peur d'être en bas de la liste et invisible quand même. Logique — mais il ne comprend pas la dynamique de départ.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Tout le monde commence à 0. Les gens qui ont 50 avis aujourd'hui étaient à 0 aussi. La différence c'est qu'ils ont commencé avant."<br><br><em>"Tes 3 premiers clients fidèles — tu les appelles ce soir et tu leur demandes 1 minute pour laisser un avis. Demain tu as 3 avis. Dans 2 semaines tu es dans le top."</em></div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"Qui es tes 3 meilleurs clients là ? Tu les appelles ce soir ou demain matin ?"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJ 12 -->
+  <div class="obj-card">
+    <div class="obj-header">
+      <span class="obj-num">12</span>
+      <span class="obj-dit">"Je vais en parler à mon mari / ma femme d'abord."</span>
+      <span class="obj-tag tag-social">Social</span>
+    </div>
+    <div class="obj-body">
+      <div class="obj-col col-peur">
+        <div class="obj-label">Peur cachée</div>
+        <div class="obj-text">Ne veut pas décider seul(e). Besoin de validation. Parfois : vrai contrôle du conjoint sur les dépenses. Parfois : excuse polie.</div>
+      </div>
+      <div class="obj-col col-reponse">
+        <div class="obj-label">Réponse</div>
+        <div class="obj-text">"Je comprends. L'inscription est gratuite — ca ne nécessite pas son accord. On fait le profil maintenant, tu lui montres ce soir. Si tu veux passer Pro, vous en parlez ensemble."<br><br>Si blocage sur le gratuit aussi : <em>"Tu peux m'appeler quand il/elle est là et je lui explique moi-même."</em></div>
+      </div>
+      <div class="obj-col col-rebond">
+        <div class="obj-label">Rebond</div>
+        <div class="obj-text">"Le gratuit on le fait maintenant. Le Pro on attend que vous soyez d'accord ensemble."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-stop">L'objection 12 est souvent définitive si tu pars sans le profil gratuit. Inscrire d'abord, convertir ensuite avec le couple. Ne jamais partir sans au moins le profil gratuit.</div>
+
+  <div class="doc-footer">
+    <p>RT-OB-2026-006 · Confidentiel · Agent terrain WOZALI · wozali.africa</p>
+    <p>Version 1.0 · Juillet 2026</p>
+  </div>
+
+</div>
+</body>
+</html>

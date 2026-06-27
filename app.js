@@ -570,10 +570,22 @@ function showDashSection(section) {
   if (section === 'mon-equipe') loadMonEquipe();
   if (section === 'wozali-match') loadDashWozaliMatch();
   if (section === 'agents-ressources') loadAgentsRessourcesSection();
+  if (section === 'agent-journal') loadAgentJournalSection();
+  if (section === 'agent-classement') loadAgentClassement();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
   if (section === 'admin-ambassadeurs') loadAdminAmbassadeurs();
   if (section === 'ambassadeur') loadAmbassadeurSection();
+  if (section === 'responsable-kpi') loadResponsableKPI();
+  if (section === 'responsable-equipe') loadResponsableEquipe();
+  if (section === 'responsable-journaux') loadResponsableJournaux();
+  if (section === 'responsable-cr') loadResponsableCR();
+  if (section === 'responsable-remun') loadResponsableRemun();
+  if (section === 'fondateur-terrain') loadFondateurTerrain();
+  if (section === 'fondateur-objectifs') loadFondateurObjectifs();
+  if (section === 'fondateur-rapport') { document.getElementById('rapport-output') && (document.getElementById('rapport-output').style.display = 'none'); }
+  if (section === 'fondateur-carto') loadFondateurCarto();
+  if (section === 'fondateur-bourse') loadFondateurBourse();
   // ── WOZALI Business Suite ──
   // Loaders Business Suite Phases B→G retirés 2026-05-07 (report V1.2)
 }
@@ -9879,6 +9891,7 @@ async function checkAgentTerrainForDashboard(session) {
       const rgrp = document.getElementById('dash-responsable-group');
       if (rgrp) rgrp.style.display = 'block';
     }
+    checkAgentNotifications();
   } catch (e) { console.error('[agent-terrain-check]', e); }
 }
 
@@ -14137,6 +14150,910 @@ function _restoreOnboardingSteps() {
     if (cb) cb.checked = val;
     if (badge) badge.style.display = val ? 'inline' : 'none';
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// AGENT TERRAIN — JOURNAL DE BORD
+// ══════════════════════════════════════════════════════════════════════
+
+function updateJournalKpiColors() {
+  const conv = parseInt(document.getElementById('journal-conversations')?.value) || 0;
+  const ins  = parseInt(document.getElementById('journal-inscrits')?.value) || 0;
+  const pros = parseInt(document.getElementById('journal-pros')?.value) || 0;
+  const pct  = ins > 0 ? Math.round(pros / ins * 100) : 0;
+  const pctEl = document.getElementById('journal-conv-pct');
+  const msgEl = document.getElementById('journal-conv-msg');
+  if (pctEl) pctEl.textContent = ins > 0 ? pct + '%' : '—%';
+  if (msgEl) {
+    if (ins === 0) { msgEl.textContent = ''; return; }
+    if (pct >= 25) { msgEl.style.color = '#4ade80'; msgEl.textContent = 'Excellent script Pro !'; }
+    else if (pct >= 20) { msgEl.style.color = '#4ade80'; msgEl.textContent = 'Dans les cibles.'; }
+    else if (pct >= 15) { msgEl.style.color = '#f59e0b'; msgEl.textContent = 'Limite basse. Proposer le Pro plus tot.'; }
+    else { msgEl.style.color = '#f87171'; msgEl.textContent = 'Trop bas. Revoir le script Pro avec ton Responsable.'; }
+  }
+}
+
+async function loadFondateurBourse() {
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+  // Tirage : 25 sept 2026 — coupure éligibilité 2 mois avant = 25 juil 2026
+  const TIRAGE = new Date('2026-09-25');
+  const COUPURE = '2026-07-25';
+  const today = new Date();
+  const joursRestants = Math.max(0, Math.ceil((TIRAGE - today) / 86400000));
+  set('bourse-jours-restants', joursRestants);
+
+  // Charger tous les Pro inscrits avant la coupure
+  const { data: pros, error } = await supa
+    .from('wozali_prestataires')
+    .select('id, nom, prenom, metier, ville, pays, genre, created_at, formule')
+    .eq('formule', 'pro')
+    .lte('created_at', COUPURE + 'T23:59:59Z')
+    .order('created_at', { ascending: false });
+
+  if (error) { set('bourse-eligibles-total', 'Err'); return; }
+  const eligibles = pros || [];
+
+  const reines = eligibles.filter(p => (p.genre || '').toUpperCase() === 'F');
+
+  set('bourse-eligibles-total', eligibles.length);
+  set('bourse-eligibles-reines', reines.length);
+
+  const liste = document.getElementById('bourse-liste');
+  if (!liste) return;
+
+  if (eligibles.length === 0) {
+    liste.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;">Aucun eligible pour l'instant. Les premiers Pro inscrits avant le 25 juillet apparaîtront ici.</div>`;
+    return;
+  }
+
+  liste.innerHTML = eligibles.map(p => {
+    const isReine = (p.genre || '').toUpperCase() === 'F';
+    const dateInscr = new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
+      <div style="font-size:14px;">${isReine ? '👑' : '⭐'}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:rgba(252,224,168,.85);">${p.nom || ''} ${p.prenom || ''} <span style="color:rgba(252,224,168,.35);">${p.metier || ''} - ${p.ville || ''}</span></div>
+        <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pro depuis le ${dateInscr}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+        <span style="font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;color:#4ade80;border:1px solid rgba(74,222,128,.3);border-radius:4px;padding:2px 7px;">BOURSE</span>
+        ${isReine ? '<span style="font-size:10px;font-weight:800;font-family:\'Geist Mono\',monospace;color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:4px;padding:2px 7px;">REINE</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let _cartoMap = null;
+
+async function loadFondateurCarto() {
+  if (!window.L) return;
+  const weekStart = _weekStart(0);
+  const KPI_SEM = 80;
+
+  const { data: agents } = await supa
+    .from('agents_terrain')
+    .select('user_id, nom, code_parrainage, ville')
+    .eq('actif', true);
+  if (!agents) return;
+
+  const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+  const { data: pros } = await supa
+    .from('wozali_prestataires')
+    .select('parrain_code')
+    .in('parrain_code', codes)
+    .gte('created_at', weekStart)
+    .eq('formule', 'pro');
+
+  const cntPro = {};
+  codes.forEach(c => { cntPro[c] = 0; });
+  (pros || []).forEach(r => { if (r.parrain_code) cntPro[r.parrain_code]++; });
+
+  // Coordonnées centres ville
+  const CENTRES = {
+    'Lomé':    [6.1375, 1.2123],
+    'Cotonou': [6.3654, 2.4183]
+  };
+
+  // Initialiser ou réinitialiser la carte
+  const mapEl = document.getElementById('carto-map');
+  if (!mapEl) return;
+  if (_cartoMap) { _cartoMap.remove(); _cartoMap = null; }
+  _cartoMap = L.map('carto-map').setView([6.24, 1.75], 8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 16
+  }).addTo(_cartoMap);
+
+  // Offsets en éventail par ville (index parmi agents de cette ville)
+  const villeIdx = {};
+  agents.forEach(ag => {
+    const v = ag.ville || 'Lomé';
+    villeIdx[v] = (villeIdx[v] || 0);
+  });
+  const villeCount = {};
+
+  agents.forEach(ag => {
+    const v = ag.ville || 'Lomé';
+    const base = CENTRES[v] || CENTRES['Lomé'];
+    villeCount[v] = (villeCount[v] || 0);
+    const idx = villeCount[v]++;
+    const angle = (idx / 10) * 2 * Math.PI;
+    const r = 0.04 + (idx % 3) * 0.02;
+    const lat = base[0] + r * Math.cos(angle);
+    const lng = base[1] + r * Math.sin(angle);
+
+    const n = cntPro[ag.code_parrainage] || 0;
+    const pct = Math.round(n / KPI_SEM * 100);
+    const col = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+    const status = pct >= 70 ? 'VERT' : pct >= 50 ? 'ORANGE' : 'ROUGE';
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:16px;height:16px;background:${col};border-radius:50%;border:2px solid rgba(0,0,0,.4);box-shadow:0 0 6px ${col}66;"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+
+    L.marker([lat, lng], { icon })
+      .addTo(_cartoMap)
+      .bindPopup(`<strong>${ag.nom}</strong><br>${v}<br>${n} Pros cette semaine<br><span style="color:${col};font-weight:700;">${status} - ${pct}%</span>`);
+  });
+
+  // Liste sous la carte
+  const liste = document.getElementById('carto-liste');
+  if (liste) {
+    const rows = agents
+      .map(ag => {
+        const n = cntPro[ag.code_parrainage] || 0;
+        const pct = Math.round(n / KPI_SEM * 100);
+        const col = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+        return { ag, n, pct, col };
+      })
+      .sort((a, b) => b.n - a.n);
+    liste.innerHTML = rows.map(({ ag, n, pct, col }) =>
+      `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
+        <div style="width:8px;height:8px;background:${col};border-radius:50%;flex-shrink:0;"></div>
+        <div style="flex:1;font-size:12px;color:rgba(252,224,168,.8);">${ag.nom} <span style="color:rgba(252,224,168,.35);">${ag.ville || 'Lomé'}</span></div>
+        <div style="font-size:12px;font-weight:700;color:${col};font-family:'Geist Mono',monospace;">${n} Pros</div>
+      </div>`
+    ).join('');
+  }
+}
+
+let _rapportTexteCache = '';
+
+async function genererRapportHebdo() {
+  const weekStart = _weekStart(0);
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const semDu = new Date(weekStart).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  const semAu = today.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+
+  const { data: agents } = await supa.from('agents_terrain').select('user_id, nom, code_parrainage, ville').eq('actif', true);
+  if (!agents) return;
+  const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+
+  const [{ data: inscrits }, { data: pros }] = await Promise.all([
+    supa.from('wozali_prestataires').select('parrain_code').in('parrain_code', codes).gte('created_at', weekStart),
+    supa.from('wozali_prestataires').select('parrain_code').in('parrain_code', codes).gte('created_at', weekStart).eq('formule', 'pro')
+  ]);
+
+  const cntIns = {}, cntPro = {};
+  codes.forEach(c => { cntIns[c] = 0; cntPro[c] = 0; });
+  (inscrits || []).forEach(r => { if (r.parrain_code) cntIns[r.parrain_code]++; });
+  (pros || []).forEach(r => { if (r.parrain_code) cntPro[r.parrain_code]++; });
+
+  const classement = agents
+    .map(a => ({ nom: a.nom, ville: a.ville, ins: cntIns[a.code_parrainage] || 0, pros: cntPro[a.code_parrainage] || 0 }))
+    .sort((a, b) => b.pros - a.pros);
+
+  const totalIns = classement.reduce((s, a) => s + a.ins, 0);
+  const totalPros = classement.reduce((s, a) => s + a.pros, 0);
+  const taux = totalIns > 0 ? Math.round(totalPros / totalIns * 100) : 0;
+  const caMensuel = (totalPros * 4 * 2500).toLocaleString('fr-FR');
+  const rouges = classement.filter(a => a.pros < 40);
+  const top3 = classement.slice(0, 3);
+
+  const lignes = classement.map((a, i) => {
+    const emoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+    const status = a.pros >= 56 ? 'VERT' : a.pros >= 40 ? 'ORANGE' : 'ROUGE';
+    return `${emoji} ${a.nom} (${a.ville}) - ${a.pros} Pros / ${a.ins} inscrits [${status}]`;
+  }).join('\n');
+
+  const rapport = `WOZALI - RAPPORT TERRAIN
+Semaine du ${semDu} au ${semAu}
+Genere le ${dateStr}
+
+CHIFFRES GLOBAUX
+- Inscrits : ${totalIns}
+- Pros signes : ${totalPros}
+- Taux conversion : ${taux}%
+- CA mensuel estime : ${caMensuel} FCFA
+
+CLASSEMENT AGENTS
+${lignes}
+
+ALERTES${rouges.length === 0 ? '\nAucun agent en zone rouge cette semaine.' : '\n' + rouges.map(a => `- ${a.nom} (${a.ville}) : ${a.pros} Pros - intervention requise`).join('\n')}
+
+TOP 3 SEMAINE
+${top3.map((a, i) => `${i + 1}. ${a.nom} - ${a.pros} Pros`).join('\n')}
+
+---
+wozali.africa`;
+
+  _rapportTexteCache = rapport;
+  const pre = document.getElementById('rapport-texte');
+  if (pre) pre.textContent = rapport;
+  const out = document.getElementById('rapport-output');
+  const vide = document.getElementById('rapport-vide');
+  if (out) out.style.display = 'block';
+  if (vide) vide.style.display = 'none';
+}
+
+function copierRapport() {
+  if (!_rapportTexteCache) return;
+  navigator.clipboard.writeText(_rapportTexteCache).then(() => {
+    const msg = document.getElementById('rapport-copy-msg');
+    if (msg) { msg.textContent = 'Copie !'; msg.style.display = 'block'; setTimeout(() => { msg.style.display = 'none'; }, 2000); }
+  });
+}
+
+function partagerRapportWhatsApp() {
+  if (!_rapportTexteCache) return;
+  window.open('https://wa.me/?text=' + encodeURIComponent(_rapportTexteCache), '_blank');
+}
+
+async function loadFondateurObjectifs() {
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const weekStart = _weekStart(0);
+  const CIBLE_M1 = 400;
+
+  const { data: agents } = await supa
+    .from('agents_terrain')
+    .select('code_parrainage, actif')
+    .eq('actif', true);
+  if (!agents) return;
+
+  const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+
+  const [{ data: inscrits }, { data: pros }] = await Promise.all([
+    supa.from('wozali_prestataires').select('parrain_code').in('parrain_code', codes).gte('created_at', weekStart),
+    supa.from('wozali_prestataires').select('parrain_code').in('parrain_code', codes).gte('created_at', weekStart).eq('formule', 'pro')
+  ]);
+
+  const cntPro = {};
+  codes.forEach(c => { cntPro[c] = 0; });
+  (pros || []).forEach(r => { if (r.parrain_code) cntPro[r.parrain_code] = (cntPro[r.parrain_code] || 0) + 1; });
+
+  const totalProsSem = Object.values(cntPro).reduce((s, v) => s + v, 0);
+  const totalInscrits = (inscrits || []).length;
+  const actifs = Object.values(cntPro).filter(v => v > 0).length;
+  const caMensuel = totalProsSem * 4 * 2500;
+
+  set('obj-pros-actuels', totalProsSem);
+  set('obj-ca-actuel', caMensuel.toLocaleString('fr-FR'));
+  set('obj-agents-actifs', actifs + '/' + agents.length);
+
+  // Progression M1
+  const pctM1 = Math.min(Math.round(totalProsSem / CIBLE_M1 * 100), 100);
+  const barM1 = document.getElementById('obj-m1-bar');
+  const pctEl = document.getElementById('obj-m1-pct');
+  const badgeM1 = document.getElementById('obj-m1-badge');
+  if (barM1) barM1.style.width = pctM1 + '%';
+  if (pctEl) pctEl.textContent = pctM1 + '% de la cible M1';
+  if (badgeM1) {
+    badgeM1.textContent = pctM1 >= 100 ? 'ATTEINT' : pctM1 >= 70 ? 'EN ROUTE' : 'EN COURS';
+    badgeM1.style.color = pctM1 >= 100 ? '#4ade80' : pctM1 >= 70 ? '#f59e0b' : 'rgba(252,224,168,.4)';
+    badgeM1.style.borderColor = pctM1 >= 100 ? 'rgba(74,222,128,.4)' : pctM1 >= 70 ? 'rgba(245,158,11,.4)' : 'rgba(255,255,255,.1)';
+  }
+}
+
+async function loadFondateurTerrain() {
+  const KPI_SEM = 80;
+  const weekStart = _weekStart(0);
+  const today = new Date().toISOString().slice(0, 10);
+
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+  // 1. Tous les agents actifs
+  const { data: agents } = await supa
+    .from('agents_terrain')
+    .select('user_id, nom, code_parrainage, ville, actif')
+    .eq('actif', true);
+  if (!agents) return;
+
+  const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+
+  // 2. Inscrits + Pros cette semaine
+  const [{ data: inscrits }, { data: pros }] = await Promise.all([
+    supa.from('wozali_prestataires').select('parrain_code').in('parrain_code', codes).gte('created_at', weekStart),
+    supa.from('wozali_prestataires').select('parrain_code').in('parrain_code', codes).gte('created_at', weekStart).eq('formule', 'pro')
+  ]);
+
+  const cntIns = {}, cntPro = {};
+  codes.forEach(c => { cntIns[c] = 0; cntPro[c] = 0; });
+  (inscrits || []).forEach(r => { if (r.parrain_code) cntIns[r.parrain_code] = (cntIns[r.parrain_code] || 0) + 1; });
+  (pros || []).forEach(r => { if (r.parrain_code) cntPro[r.parrain_code] = (cntPro[r.parrain_code] || 0) + 1; });
+
+  const totalIns = Object.values(cntIns).reduce((s, v) => s + v, 0);
+  const totalPros = Object.values(cntPro).reduce((s, v) => s + v, 0);
+  const taux = totalIns > 0 ? Math.round(totalPros / totalIns * 100) : 0;
+
+  set('ft-inscrits-sem', totalIns);
+  set('ft-pros-sem', totalPros);
+  set('ft-taux-conv', taux + '%');
+
+  // 3. Classement agents
+  const classement = agents
+    .map(a => ({ ...a, pros: cntPro[a.code_parrainage] || 0, ins: cntIns[a.code_parrainage] || 0 }))
+    .sort((a, b) => b.pros - a.pros);
+
+  const actifs = classement.filter(a => a.pros > 0).length;
+  set('ft-agents-actifs', actifs + '/' + agents.length);
+
+  const ftClass = document.getElementById('ft-classement');
+  if (ftClass) {
+    ftClass.innerHTML = classement.map((ag, i) => {
+      const pct = Math.round(ag.pros / KPI_SEM * 100);
+      const col = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+      const badge = pct >= 70 ? 'VERT' : pct >= 50 ? 'ORANGE' : 'ROUGE';
+      return `<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,.35);min-width:24px;">#${i + 1}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:rgba(252,224,168,.85);">${ag.nom} <span style="font-size:10px;color:rgba(252,224,168,.35);">${ag.ville}</span></div>
+          <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">${ag.ins} inscrits - ${ag.pros} Pros - ${pct}% KPI</div>
+        </div>
+        <span style="font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;color:${col};border:1px solid ${col};border-radius:4px;padding:2px 6px;">${badge}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // 4. Alertes agents rouge
+  const rouges = classement.filter(a => (a.pros / KPI_SEM) < 0.5);
+  const ftAlerts = document.getElementById('ft-alertes');
+  if (ftAlerts && rouges.length > 0) {
+    ftAlerts.innerHTML = `<div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:12px 16px;">
+      <div style="font-size:11px;font-weight:800;color:#f87171;margin-bottom:6px;">AGENTS SOUS KPI - INTERVENTION REQUISE</div>
+      ${rouges.map(a => `<div style="font-size:12px;color:rgba(252,224,168,.7);margin-top:4px;">${a.nom} (${a.ville}) - ${a.pros} Pros cette semaine</div>`).join('')}
+    </div>`;
+  }
+
+  // 5. Journaux soumis aujourd'hui
+  const userIds = agents.map(a => a.user_id).filter(Boolean);
+  const { data: journaux } = await supa
+    .from('agent_journaux_terrain')
+    .select('agent_id, conversations, inscrits, pros')
+    .in('agent_id', userIds)
+    .eq('date', today);
+
+  const soumisIds = new Set((journaux || []).map(j => j.agent_id));
+  const ftJournaux = document.getElementById('ft-journaux');
+  if (ftJournaux) {
+    const rows = agents.map(ag => {
+      const j = (journaux || []).find(x => x.agent_id === ag.user_id);
+      const soumis = soumisIds.has(ag.user_id);
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
+        <span style="font-size:14px;">${soumis ? '✅' : '⬜'}</span>
+        <div style="flex:1;font-size:12px;color:${soumis ? 'rgba(252,224,168,.8)' : 'rgba(252,224,168,.35)'};">${ag.nom} <span style="color:rgba(252,224,168,.35);">${ag.ville}</span></div>
+        ${soumis ? `<div style="font-size:11px;color:rgba(252,224,168,.45);font-family:'Geist Mono',monospace;">${j.conversations}conv / ${j.inscrits}ins / ${j.pros}Pro</div>` : '<div style="font-size:10px;color:rgba(248,113,113,.6);">Non soumis</div>'}
+      </div>`;
+    });
+    ftJournaux.innerHTML = rows.join('');
+  }
+}
+
+async function checkAgentNotifications() {
+  if (!currentUser) return;
+  try {
+    // Badge journal : non soumis aujourd'hui ?
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: j } = await supa
+      .from('agent_journaux_terrain')
+      .select('id')
+      .eq('agent_id', currentUser.id)
+      .eq('date', today)
+      .maybeSingle();
+    const dot = document.getElementById('journal-notif-dot');
+    if (dot) dot.style.display = j ? 'none' : 'inline-block';
+
+    // Badge CR responsable : non soumis cette semaine ?
+    if (window._isResponsableTerrain) {
+      const ws = _weekStart(0);
+      const { data: cr } = await supa
+        .from('responsable_cr_hebdo')
+        .select('id')
+        .eq('responsable_id', currentUser.id)
+        .eq('semaine_debut', ws)
+        .maybeSingle();
+      const crDot = document.getElementById('cr-notif-dot');
+      if (crDot) crDot.style.display = cr ? 'none' : 'inline-block';
+    }
+  } catch (e) { console.error('[notifications]', e); }
+}
+
+async function loadAgentClassement() {
+  if (!currentUser) return;
+  const KPI_SEMAINE = 80;
+  const weekStart = _weekStart(0);
+
+  // 1. Charger tous les agents actifs
+  const { data: agents, error: errA } = await supa
+    .from('agents_terrain')
+    .select('user_id, nom, code_parrainage, ville')
+    .eq('actif', true);
+  if (errA || !agents || agents.length === 0) return;
+
+  // 2. Charger tous les Pros signés cette semaine (par parrain_code)
+  const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+  const { data: pros, error: errP } = await supa
+    .from('wozali_prestataires')
+    .select('parrain_code')
+    .in('parrain_code', codes)
+    .gte('created_at', weekStart);
+
+  const comptage = {};
+  codes.forEach(c => { comptage[c] = 0; });
+  (pros || []).forEach(p => { if (p.parrain_code) comptage[p.parrain_code] = (comptage[p.parrain_code] || 0) + 1; });
+
+  // 3. Construire le classement trié
+  const classement = agents
+    .map(a => ({ ...a, prosS: comptage[a.code_parrainage] || 0 }))
+    .sort((a, b) => b.prosS - a.prosS);
+
+  // 4. Identifier la position du user courant
+  const myAgent = agents.find(a => a.user_id === currentUser.id);
+  const myCode = myAgent ? myAgent.code_parrainage : null;
+  const myRank = myCode ? classement.findIndex(a => a.code_parrainage === myCode) + 1 : null;
+  const myPros = myCode ? (comptage[myCode] || 0) : 0;
+
+  // 5. Mettre a jour la card "ma position"
+  const elRang = document.getElementById('classement-mon-rang');
+  const elNom  = document.getElementById('classement-mon-nom');
+  const elStat = document.getElementById('classement-ma-stat');
+  const elPros = document.getElementById('classement-mes-pros');
+  if (elRang) elRang.textContent = myRank ? `#${myRank}` : '-';
+  if (elNom)  elNom.textContent  = myAgent ? myAgent.nom : currentUser.email;
+  if (elPros) elPros.textContent = myPros;
+  if (elStat) {
+    const pct = Math.round(myPros / KPI_SEMAINE * 100);
+    const restant = KPI_SEMAINE - myPros;
+    elStat.textContent = `${pct}% de l'objectif${restant > 0 ? ' - encore ' + restant + ' Pros' : ' - objectif atteint !'}`;
+    elStat.style.color = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+  }
+
+  // 6. Podium Top 3
+  const medals = ['podium-1', 'podium-2', 'podium-3'];
+  medals.forEach((id, i) => {
+    const ag = classement[i];
+    const nomEl = document.getElementById(`${id}-nom`);
+    const prosEl = document.getElementById(`${id}-pros`);
+    if (nomEl) nomEl.textContent = ag ? ag.nom.split(' ')[0] : '-';
+    if (prosEl) prosEl.textContent = ag ? ag.prosS : '-';
+  });
+
+  // 7. Liste complete
+  const liste = document.getElementById('classement-liste');
+  if (!liste) return;
+  liste.innerHTML = classement.map((ag, i) => {
+    const rank = i + 1;
+    const isMe = ag.user_id === currentUser.id;
+    const pct = Math.round(ag.prosS / KPI_SEMAINE * 100);
+    const statusColor = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+    const barBg = pct >= 70 ? 'rgba(74,222,128,.25)' : pct >= 50 ? 'rgba(245,158,11,.25)' : 'rgba(248,113,113,.25)';
+    const prenom = ag.nom ? ag.nom.split(' ')[0] : '?';
+    const displayNom = isMe ? `${ag.nom} (moi)` : prenom;
+    const border = isMe ? 'border:1px solid rgba(232,148,10,.5);' : 'border:1px solid rgba(255,255,255,.06);';
+    const bg = isMe ? 'background:rgba(232,148,10,.08);' : 'background:rgba(255,255,255,.02);';
+    return `<div style="${bg}${border}border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:${isMe ? '#E8940A' : 'rgba(252,224,168,.4)'};min-width:28px;">#${rank}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:${isMe ? '800' : '600'};color:${isMe ? '#FCE0A8' : 'rgba(252,224,168,.75)'};">${displayNom}</div>
+        <div style="height:4px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:6px;overflow:hidden;">
+          <div style="height:100%;width:${Math.min(pct, 100)}%;background:${statusColor};border-radius:2px;opacity:.7;"></div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:16px;font-weight:900;color:${statusColor};">${ag.prosS}</div>
+        <div style="font-size:10px;color:rgba(252,224,168,.35);font-family:'Geist Mono',monospace;">Pros</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadAgentJournalSection() {
+  if (!currentUser) return;
+  const now = new Date();
+  const dateLabel = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const dateEl = document.getElementById('journal-date-label');
+  if (dateEl) dateEl.textContent = dateLabel;
+
+  // Charger les journaux existants
+  try {
+    const { data, error } = await supa
+      .from('agent_journaux_terrain')
+      .select('*')
+      .eq('agent_id', currentUser.id)
+      .order('date', { ascending: false })
+      .limit(10);
+    if (!error) _renderAgentJournaux(data || []);
+  } catch (e) { console.error('[journal-load]', e); }
+}
+
+function _renderAgentJournaux(rows) {
+  const el = document.getElementById('agent-journaux-list');
+  if (!el) return;
+  if (!rows.length) {
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:rgba(252,224,168,.25);font-size:13px;">Aucun journal soumis encore. Soumets ton premier ce soir.</div>';
+    return;
+  }
+  el.innerHTML = rows.map(r => {
+    const d = new Date(r.date + 'T12:00:00');
+    const label = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    const pct = r.inscrits > 0 ? Math.round(r.pros / r.inscrits * 100) : 0;
+    const convColor = r.inscrits >= 8 ? '#4ade80' : r.inscrits >= 4 ? '#f59e0b' : '#f87171';
+    return `
+      <div style="background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;color:#FCE0A8;">${label}</div>
+          <div style="display:flex;gap:10px;font-size:12px;font-family:'Geist Mono',monospace;">
+            <span style="color:rgba(252,224,168,.4);">${r.conversations || 0} conv.</span>
+            <span style="color:${convColor};font-weight:700;">${r.inscrits || 0} inscrits</span>
+            <span style="color:#E8940A;font-weight:900;">${r.pros || 0} Pros</span>
+            ${r.inscrits > 0 ? `<span style="color:rgba(252,224,168,.4);">(${pct}%)</span>` : ''}
+          </div>
+        </div>
+        ${r.zones ? `<div style="font-size:11px;color:rgba(252,224,168,.35);margin-bottom:8px;">Zones : ${r.zones}</div>` : ''}
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11px;">
+          ${r.ce_qui_a_marche ? `<div style="background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.1);border-radius:8px;padding:8px;color:rgba(252,224,168,.6);line-height:1.4;"><span style="color:#4ade80;font-weight:700;display:block;margin-bottom:3px;">Marche</span>${r.ce_qui_a_marche}</div>` : ''}
+          ${r.ce_qui_na_pas_marche ? `<div style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:8px;padding:8px;color:rgba(252,224,168,.6);line-height:1.4;"><span style="color:#f87171;font-weight:700;display:block;margin-bottom:3px;">Pas marche</span>${r.ce_qui_na_pas_marche}</div>` : ''}
+          ${r.demain_je_change ? `<div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.1);border-radius:8px;padding:8px;color:rgba(252,224,168,.6);line-height:1.4;"><span style="color:#E8940A;font-weight:700;display:block;margin-bottom:3px;">Demain</span>${r.demain_je_change}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function saveAgentJournal() {
+  if (!currentUser) return;
+  const btn = document.getElementById('journal-submit-btn');
+  const msg = document.getElementById('journal-submit-msg');
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi...'; }
+
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+  const payload = {
+    agent_id: currentUser.id,
+    date: dateStr,
+    conversations: parseInt(document.getElementById('journal-conversations')?.value) || 0,
+    inscrits: parseInt(document.getElementById('journal-inscrits')?.value) || 0,
+    pros: parseInt(document.getElementById('journal-pros')?.value) || 0,
+    zones: (document.getElementById('journal-zones')?.value || '').trim(),
+    ce_qui_a_marche: (document.getElementById('journal-marche')?.value || '').trim(),
+    ce_qui_na_pas_marche: (document.getElementById('journal-pas-marche')?.value || '').trim(),
+    demain_je_change: (document.getElementById('journal-demain')?.value || '').trim(),
+    submitted_at: now.toISOString(),
+  };
+
+  try {
+    const { error } = await supa
+      .from('agent_journaux_terrain')
+      .upsert(payload, { onConflict: 'agent_id,date' });
+    if (error) throw error;
+    if (msg) { msg.style.display = 'block'; msg.textContent = 'Journal envoye ! Ton Responsable le lit demain matin.'; }
+    // Reset form
+    ['journal-conversations','journal-inscrits','journal-pros','journal-zones','journal-marche','journal-pas-marche','journal-demain']
+      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    updateJournalKpiColors();
+    loadAgentJournalSection();
+  } catch (e) {
+    console.error('[journal-save]', e);
+    if (msg) { msg.style.display = 'block'; msg.style.color = '#f87171'; msg.textContent = 'Erreur. Reessaie dans 2 secondes.'; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer mon journal →'; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RESPONSABLE TERRAIN — KPI, EQUIPE, JOURNAUX, CR, REMUN
+// ══════════════════════════════════════════════════════════════════════
+
+async function loadResponsableKPI() {
+  if (!currentUser) return;
+  const weekStart = _weekStart(0);
+  const weekEnd   = _weekStart(-1);
+  try {
+    // Inscrits semaine (via parrain_code de tous les agents de l'equipe)
+    const { data: agentsData } = await supa
+      .from('agents_terrain')
+      .select('id, code_parrainage, nom, ville, genre, user_id')
+      .eq('actif', true);
+    if (!agentsData?.length) return;
+    const codes = agentsData.map(a => a.code_parrainage).filter(Boolean);
+    if (!codes.length) return;
+
+    const { data: pData } = await supa
+      .from('wozali_prestataires')
+      .select('abonnement, created_at, parrain_code, ville')
+      .in('parrain_code', codes)
+      .gte('created_at', weekStart.toISOString());
+
+    const inscritsTotal = pData?.length || 0;
+    const prosTotal = pData?.filter(p => p.abonnement === 'Pro').length || 0;
+    const convPct = inscritsTotal > 0 ? Math.round(prosTotal / inscritsTotal * 100) : 0;
+
+    // Aujourd'hui
+    const todayStr = new Date().toISOString().split('T')[0];
+    const inscritsAuj = pData?.filter(p => p.created_at?.startsWith(todayStr)).length || 0;
+    const agentsAuj = new Set(
+      (pData || []).filter(p => p.created_at?.startsWith(todayStr)).map(p => p.parrain_code)
+    ).size;
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('rt-inscrits-auj', inscritsAuj);
+    set('rt-inscrits-sem', inscritsTotal);
+    set('rt-pros-sem', prosTotal);
+    set('rt-taux-conv', convPct + '%');
+    set('rt-agents-actifs', agentsAuj);
+
+    // Objectif mensuel
+    const { data: mData } = await supa
+      .from('wozali_prestataires')
+      .select('abonnement, created_at')
+      .in('parrain_code', codes)
+      .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+      .eq('abonnement', 'Pro');
+    const prosMois = mData?.length || 0;
+    const pct = Math.min(100, Math.round(prosMois / 1600 * 100));
+    set('rt-pros-cumul', prosMois.toLocaleString('fr-FR'));
+    set('rt-obj-pct', pct + '%');
+    const bar = document.getElementById('rt-progress-bar');
+    if (bar) bar.style.width = pct + '%';
+
+    // Togo vs Benin
+    const togoP = pData?.filter(p => p.abonnement === 'Pro' && (p.ville || '').toLowerCase().includes('lomé')).length || 0;
+    const beninP = pData?.filter(p => p.abonnement === 'Pro' && (p.ville || '').toLowerCase().includes('cotonou')).length || 0;
+    set('rt-togo-pros', togoP);
+    set('rt-benin-pros', beninP);
+    const maxPB = Math.max(togoP, beninP, 1);
+    const bt = document.getElementById('rt-togo-bar');
+    const bb = document.getElementById('rt-benin-bar');
+    if (bt) bt.style.width = Math.round(togoP / maxPB * 100) + '%';
+    if (bb) bb.style.width = Math.round(beninP / maxPB * 100) + '%';
+
+  } catch (e) { console.error('[responsable-kpi]', e); }
+}
+
+async function loadResponsableEquipe() {
+  if (!currentUser) return;
+  try {
+    const { data: agents } = await supa
+      .from('agents_terrain')
+      .select('id, nom, code_parrainage, ville, genre, actif')
+      .eq('actif', true);
+    if (!agents?.length) return;
+
+    const weekStart = _weekStart(0);
+    const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+    const { data: pData } = await supa
+      .from('wozali_prestataires')
+      .select('abonnement, created_at, parrain_code')
+      .in('parrain_code', codes);
+
+    const tbody = document.getElementById('rt-equipe-table');
+    if (!tbody) return;
+    const today = new Date().toISOString().split('T')[0];
+
+    tbody.innerHTML = agents.map(a => {
+      const all  = (pData || []).filter(p => p.parrain_code === a.code_parrainage);
+      const week = all.filter(p => p.created_at >= weekStart.toISOString());
+      const auj  = all.filter(p => (p.created_at || '').startsWith(today));
+      const pros  = all.filter(p => p.abonnement === 'Pro');
+      const prosW = week.filter(p => p.abonnement === 'Pro');
+      const pct   = week.length > 0 ? Math.round(prosW.length / week.length * 100) : 0;
+      const flag  = (a.ville || '').toLowerCase().includes('cotonou') ? 'BJ' : 'TG';
+      let statut, sc, bc;
+      if (pct >= 70)      { statut = 'VERT';   sc = '#4ade80'; bc = 'rgba(34,197,94,.15)'; }
+      else if (pct >= 50) { statut = 'ORANGE';  sc = '#fbbf24'; bc = 'rgba(245,158,11,.12)'; }
+      else                { statut = 'ROUGE';   sc = '#f87171'; bc = 'rgba(239,68,68,.12)'; }
+      return `<tr style="border-bottom:1px solid rgba(255,255,255,.03);">
+        <td style="padding:12px;color:#FCE0A8;font-weight:600;">${a.nom} <span style="font-size:10px;color:rgba(252,224,168,.35);font-weight:400;">${flag}</span></td>
+        <td style="padding:12px;color:rgba(252,224,168,.5);font-size:12px;">${a.ville || ''}</td>
+        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:${auj.length >= 20 ? '#4ade80' : auj.length >= 10 ? '#f59e0b' : '#f87171'};font-weight:700;">${auj.length}</td>
+        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#FCE0A8;">${week.length}</td>
+        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:${prosW.length >= 20 ? '#4ade80' : '#f59e0b'};font-weight:700;">${prosW.length}</td>
+        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">${pros.length}</td>
+        <td style="padding:12px;text-align:center;"><span style="background:${bc};color:${sc};border:1px solid ${sc.replace(')', ',.4)')};border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">${statut}</span></td>
+      </tr>`;
+    }).join('');
+  } catch (e) { console.error('[responsable-equipe]', e); }
+}
+
+async function loadResponsableJournaux() {
+  if (!currentUser) return;
+  const el = document.getElementById('rt-journaux-list');
+  if (!el) return;
+  try {
+    const { data: agents } = await supa
+      .from('agents_terrain')
+      .select('id, nom, ville, user_id')
+      .eq('actif', true);
+    if (!agents?.length) { el.innerHTML = '<div style="text-align:center;padding:32px;color:rgba(252,224,168,.25);font-size:13px;">Aucun agent dans l\'equipe.</div>'; return; }
+
+    const agentUserIds = agents.map(a => a.user_id).filter(Boolean);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const { data: journaux } = await supa
+      .from('agent_journaux_terrain')
+      .select('*')
+      .in('agent_id', agentUserIds)
+      .gte('date', todayStr);
+
+    const submittedIds = new Set((journaux || []).map(j => j.agent_id));
+
+    el.innerHTML = agents.map(a => {
+      const j = (journaux || []).find(x => x.agent_id === a.user_id);
+      const flag = (a.ville || '').toLowerCase().includes('cotonou') ? 'Benin' : 'Togo';
+      if (j) {
+        const pct = j.inscrits > 0 ? Math.round(j.pros / j.inscrits * 100) : 0;
+        return `<div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#E8940A;font-family:'Geist Mono',monospace;font-size:14px;">${(a.nom||'?')[0].toUpperCase()}</div>
+              <div><div style="font-weight:700;color:#FCE0A8;font-size:14px;">${a.nom}</div><div style="font-size:11px;color:rgba(252,224,168,.4);">${flag} · ${j.conversations||0} conv · ${j.inscrits||0} inscrits · ${j.pros||0} Pros (${pct}%)</div></div>
+            </div>
+            <span style="background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">Soumis</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px;">
+            ${j.ce_qui_a_marche ? `<div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;"><div style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ce qui a marche</div><div style="color:rgba(252,224,168,.75);line-height:1.5;">${j.ce_qui_a_marche}</div></div>` : ''}
+            ${j.ce_qui_na_pas_marche ? `<div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;"><div style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ce qui n'a pas marche</div><div style="color:rgba(252,224,168,.75);line-height:1.5;">${j.ce_qui_na_pas_marche}</div></div>` : ''}
+            ${j.demain_je_change ? `<div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;"><div style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Demain il change</div><div style="color:rgba(252,224,168,.75);line-height:1.5;">${j.demain_je_change}</div></div>` : ''}
+          </div>
+        </div>`;
+      } else {
+        return `<div style="background:#161616;border:1px solid rgba(239,68,68,.2);border-radius:14px;padding:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:#ef4444;font-family:'Geist Mono',monospace;font-size:14px;">${(a.nom||'?')[0].toUpperCase()}</div>
+              <div><div style="font-weight:700;color:#FCE0A8;font-size:14px;">${a.nom}</div><div style="font-size:11px;color:rgba(252,224,168,.4);">${flag} · Pas de journal aujourd'hui. A contacter.</div></div>
+            </div>
+            <span style="background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">Non soumis</span>
+          </div>
+        </div>`;
+      }
+    }).join('');
+  } catch (e) { console.error('[responsable-journaux]', e); el.innerHTML = '<div style="text-align:center;padding:32px;color:rgba(252,224,168,.25);font-size:13px;">Erreur de chargement.</div>'; }
+}
+
+let _crForm = {};
+
+async function loadResponsableCR() {
+  if (!currentUser) return;
+  // Charger le CR de la semaine en cours s'il existe
+  const weekStart = _weekStart(0).toISOString().split('T')[0];
+  try {
+    const { data } = await supa
+      .from('responsable_cr_hebdo')
+      .select('*')
+      .eq('responsable_id', currentUser.id)
+      .eq('semaine_debut', weekStart)
+      .maybeSingle();
+    if (data) _populateCRForm(data);
+    // Charger historique
+    const { data: hist } = await supa
+      .from('responsable_cr_hebdo')
+      .select('semaine_debut, submitted_at, pros_togo, pros_benin, inscrits_togo, inscrits_benin')
+      .eq('responsable_id', currentUser.id)
+      .order('semaine_debut', { ascending: false })
+      .limit(8);
+    _renderCRHistorique(hist || []);
+  } catch (e) { console.error('[cr-load]', e); }
+}
+
+function _populateCRForm(data) {
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+  // Les inputs du formulaire CR dans ds-responsable-cr n'ont pas encore d'IDs fixes
+  // On stocke juste le CR existant pour pre-remplissage futur
+  _crForm = data;
+}
+
+function _renderCRHistorique(rows) {
+  const el = document.querySelector('#ds-responsable-cr .historique-cr-content');
+  if (!el) return;
+  if (!rows.length) return;
+  el.innerHTML = rows.map(r => {
+    const d = new Date(r.semaine_debut + 'T12:00:00');
+    const label = 'Semaine du ' + d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;">
+      <span style="color:#FCE0A8;">${label}</span>
+      <div style="display:flex;gap:16px;font-family:'Geist Mono',monospace;font-size:12px;">
+        <span style="color:#E8940A;">${(r.pros_togo||0) + (r.pros_benin||0)} Pros</span>
+        <span style="color:rgba(252,224,168,.4);">${(r.inscrits_togo||0) + (r.inscrits_benin||0)} inscrits</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function submitResponsableCR() {
+  if (!currentUser) return;
+  const btn = document.getElementById('cr-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi...'; }
+  const weekStart = _weekStart(0).toISOString().split('T')[0];
+
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const gi = id => parseInt(document.getElementById(id)?.value) || 0;
+
+  const payload = {
+    responsable_id: currentUser.id,
+    semaine_debut: weekStart,
+    inscrits_togo:     gi('cr-ins-togo'),
+    inscrits_benin:    gi('cr-ins-benin'),
+    pros_togo:         gi('cr-pros-togo'),
+    pros_benin:        gi('cr-pros-benin'),
+    top_agent_togo:    g('cr-top-togo'),
+    top_agent_benin:   g('cr-top-benin'),
+    agents_orange:     g('cr-orange'),
+    agents_rouge:      g('cr-rouge'),
+    blocage_semaine:   g('cr-blocage'),
+    victoire_semaine:  g('cr-victoire'),
+    action_prioritaire: g('cr-action'),
+    submitted_at: new Date().toISOString(),
+  };
+
+  try {
+    const { error } = await supa
+      .from('responsable_cr_hebdo')
+      .upsert(payload, { onConflict: 'responsable_id,semaine_debut' });
+    if (error) throw error;
+    const msg = document.getElementById('cr-submit-msg');
+    if (msg) { msg.style.display = 'block'; msg.style.color = '#4ade80'; msg.textContent = 'Compte rendu envoye avec succes.'; }
+    loadResponsableCR();
+  } catch (e) {
+    console.error('[cr-submit]', e);
+    const msg = document.getElementById('cr-submit-msg');
+    if (msg) { msg.style.display = 'block'; msg.style.color = '#f87171'; msg.textContent = 'Erreur. Reessaie.'; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Soumettre le compte rendu'; }
+  }
+}
+
+async function loadResponsableRemun() {
+  if (!currentUser) return;
+  try {
+    const { data: agents } = await supa
+      .from('agents_terrain')
+      .select('id, code_parrainage, user_id')
+      .eq('actif', true);
+    if (!agents?.length) return;
+    const codes = agents.map(a => a.code_parrainage).filter(Boolean);
+
+    // Commission personnelle (mes propres signatures)
+    const myAgent = await supa.from('agents_terrain').select('code_parrainage').eq('user_id', currentUser.id).maybeSingle();
+    const myCode = myAgent?.data?.code_parrainage;
+    if (myCode) {
+      const { data: myPros } = await supa
+        .from('wozali_prestataires')
+        .select('id')
+        .eq('parrain_code', myCode)
+        .eq('abonnement', 'Pro');
+      const count = myPros?.length || 0;
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set('remun-pros-perso', count);
+      set('remun-comm-perso', (count * 1000).toLocaleString('fr-FR') + ' FCFA');
+    }
+
+    // Commission equipe (10% CA)
+    const { data: equipe } = await supa
+      .from('wozali_prestataires')
+      .select('id')
+      .in('parrain_code', codes)
+      .eq('abonnement', 'Pro');
+    const totalPros = equipe?.length || 0;
+    const ca = totalPros * 2500;
+    const comm = Math.round(ca * 0.10);
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('remun-pros-equipe', totalPros);
+    set('remun-ca-equipe', ca.toLocaleString('fr-FR'));
+    set('remun-comm-equipe', comm.toLocaleString('fr-FR') + ' FCFA');
+  } catch (e) { console.error('[responsable-remun]', e); }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

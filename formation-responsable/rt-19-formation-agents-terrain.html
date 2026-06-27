@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Formation Agent Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.75; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 36px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.5); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: #FCE0A8; margin-bottom: 4px; }
+  .doc-subtitle { font-size: 14px; color: rgba(252,224,168,.7); margin-bottom: 8px; }
+  .doc-meta { font-size: 11px; color: rgba(252,224,168,.4); font-family: 'Geist Mono', monospace; }
+
+  /* Bienvenue */
+  .welcome-box { background: #14100A; border-radius: 10px; padding: 24px 28px; margin-bottom: 32px; }
+  .welcome-eyebrow { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(232,148,10,.6); margin-bottom: 10px; }
+  .welcome-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #FCE0A8; margin-bottom: 12px; }
+  .welcome-body { font-size: 13px; color: rgba(252,224,168,.7); line-height: 1.8; }
+  .welcome-body strong { color: #E8940A; }
+
+  /* Modules */
+  .module { margin-bottom: 36px; }
+  .module-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .module-num { font-family: 'Geist Mono', monospace; font-size: 11px; background: #E8940A; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: 700; }
+  .module-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #14100A; }
+
+  p { color: #555; margin-bottom: 10px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  /* Les 2 invisibles */
+  .invisibles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .invisible-card { border-radius: 8px; padding: 16px; border: 1px solid #eee; }
+  .invisible-card.type-a { background: #fafafa; }
+  .invisible-card.type-b { background: rgba(232,148,10,.04); border-color: rgba(232,148,10,.2); }
+  .invisible-tag { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #E8940A; margin-bottom: 6px; }
+  .invisible-title { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 6px; }
+  .invisible-body { font-size: 12px; color: #666; }
+
+  /* Pitch */
+  .pitch-box { background: #14100A; border-radius: 10px; padding: 20px 24px; margin: 14px 0; }
+  .pitch-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: rgba(232,148,10,.5); margin-bottom: 12px; }
+  .pitch-step { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+  .pitch-step:last-child { margin-bottom: 0; }
+  .pitch-num { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; background: rgba(232,148,10,.15); border-radius: 4px; padding: 2px 7px; flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+  .pitch-text { font-size: 13px; color: #FCE0A8; line-height: 1.7; }
+  .pitch-text em { color: rgba(252,224,168,.55); font-style: normal; font-size: 11px; }
+
+  /* Objections */
+  .objection { border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .obj-question { background: #fafafa; padding: 10px 14px; font-style: italic; color: #888; font-size: 13px; border-bottom: 1px solid #eee; }
+  .obj-answer { padding: 12px 14px; }
+  .obj-peur { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #E8940A; margin-bottom: 4px; }
+  .obj-reponse { font-size: 13px; color: #444; margin-bottom: 6px; }
+  .obj-rebond { font-size: 12px; color: #888; font-style: italic; }
+
+  /* Script inscription */
+  .script-step { display: flex; gap: 0; margin-bottom: 0; }
+  .script-left { display: flex; flex-direction: column; align-items: center; width: 40px; flex-shrink: 0; }
+  .script-dot { width: 26px; height: 26px; border-radius: 50%; background: #E8940A; color: #fff; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .script-line { flex: 1; width: 2px; background: #f0e0c0; margin: 4px 0; min-height: 12px; }
+  .script-step:last-child .script-line { display: none; }
+  .script-content { padding: 0 0 20px 10px; flex: 1; }
+  .script-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #E8940A; margin-bottom: 3px; }
+  .script-title { font-weight: 700; font-size: 13px; color: #1a1a1a; margin-bottom: 5px; }
+  .script-body { font-size: 13px; color: #555; }
+  .script-say { background: #fffbf0; border-left: 3px solid #E8940A; border-radius: 0 4px 4px 0; padding: 8px 12px; margin-top: 6px; font-size: 12px; color: #5a4000; font-style: italic; }
+
+  /* Commission */
+  .comm-visual { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+  .comm-cell { background: #14100A; border-radius: 8px; padding: 14px; text-align: center; }
+  .comm-pros { font-family: 'DM Serif Display', serif; font-size: 24px; color: #E8940A; }
+  .comm-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: rgba(252,224,168,.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .comm-rev { font-size: 15px; color: #FCE0A8; font-weight: 700; margin-top: 6px; }
+  .comm-month { font-size: 10px; color: rgba(252,224,168,.4); }
+
+  /* Règles absolues */
+  .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+  .rule-ok { display: flex; gap: 8px; font-size: 12px; color: #228833; align-items: flex-start; }
+  .rule-ok::before { content: '✓'; font-weight: 700; color: #228833; flex-shrink: 0; }
+  .rule-ko { display: flex; gap: 8px; font-size: 12px; color: #cc3333; align-items: flex-start; }
+  .rule-ko::before { content: '✗'; font-weight: 700; color: #cc3333; flex-shrink: 0; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 24px 0; }
+
+  /* Highlight */
+  .highlight { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.2); border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #5a4000; margin: 10px 0; }
+  .highlight strong { color: #14100A; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .welcome-box { background: #2a2a2a; }
+    .comm-cell { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .module { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Formation officielle · Agent terrain WOZALI</span>
+    </div>
+    <h1>Formation Agent Terrain</h1>
+    <p class="doc-subtitle">Tout ce que tu dois savoir pour réussir sur le terrain, en un seul document</p>
+    <p class="doc-meta">RT-FA-2026-019 · Version 1.0 · Juillet 2026</p>
+  </div>
+
+  <div class="welcome-box">
+    <div class="welcome-eyebrow">Bienvenue dans l'équipe</div>
+    <div class="welcome-title">Tu n'es pas un vendeur. Tu es un pont.</div>
+    <div class="welcome-body">
+      Il y a des gens dans ton quartier qui travaillent bien. <strong>L'argent ne circule pas.</strong> Pas parce qu'ils sont mauvais. Parce que personne ne les trouve. WOZALI change ça. Et toi, tu es celui qui leur dit que ça existe. Ce document te donne tout ce qu'il faut pour faire ce travail proprement, et être payé pour le faire.
+    </div>
+  </div>
+
+  <!-- MODULE 1 — WOZALI EN 5 MIN -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-num">MODULE 01</span>
+      <span class="module-title">WOZALI en 5 minutes</span>
+    </div>
+
+    <p>Il y a <strong>deux types de personnes invisibles</strong> en Afrique de l'Ouest. Tu vas les rencontrer chaque jour sur le terrain. WOZALI existe pour les deux.</p>
+
+    <div class="invisibles-grid">
+      <div class="invisible-card type-a">
+        <div class="invisible-tag">L'Invisible 1</div>
+        <div class="invisible-title">L'artisan sans clients</div>
+        <div class="invisible-body">Le meilleur menuisier du quartier. La couturière la plus rapide. Le plombier qui ne rend jamais à demain. Ils travaillent bien. Personne ne les trouve parce qu'ils n'ont pas de réseau. L'argent circule, mais pas jusqu'à eux.</div>
+      </div>
+      <div class="invisible-card type-b">
+        <div class="invisible-tag">L'Invisible 2</div>
+        <div class="invisible-title">Le chercheur d'emploi sans visibilité</div>
+        <div class="invisible-body">Le jeune diplômé qui envoie son CV dans le vide. La couturière qui cherche un poste en boutique. Le petit patron qui recrute par bouche-à-oreille et se trompe de candidat. Ni l'un ni l'autre ne se trouve.</div>
+      </div>
+    </div>
+
+    <p style="margin-top:12px;"><strong>Comment WOZALI résout ça :</strong> Chaque artisan ou professionnel inscrit crée un profil visible sur wozali.africa. Son profil remonte dans les résultats de recherche par métier et par quartier. Plus son profil est complet et actif, plus il remonte haut. Le Score WOZALI mesure ça : travail, qualité, régularité. Pas les contacts. Pas le réseau.</p>
+
+    <div class="highlight">
+      <strong>La phrase pivot que tu dois retenir :</strong> "L'argent est là. Les clients sont là. C'est juste qu'ils ne se trouvent pas. WOZALI met tout le monde au même endroit."
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 2 — LE PITCH -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-num">MODULE 02</span>
+      <span class="module-title">Le pitch terrain — 90 secondes</span>
+    </div>
+
+    <p>Tu ne commences jamais par "je vends WOZALI". Tu commences par leur situation à eux. Voici les 5 étapes dans l'ordre :</p>
+
+    <div class="pitch-box">
+      <div class="pitch-label">Le pitch 90 secondes — à apprendre par coeur</div>
+      <div class="pitch-step">
+        <span class="pitch-num">1</span>
+        <div class="pitch-text">"Tu fais quoi comme travail ?" <em>(ou tu le sais déjà si tu le vois travailler)</em></div>
+      </div>
+      <div class="pitch-step">
+        <span class="pitch-num">2</span>
+        <div class="pitch-text">"T'as combien de clients que tu ne connais pas, qui te contactent cette semaine ?" <em>(laisser répondre)</em></div>
+      </div>
+      <div class="pitch-step">
+        <span class="pitch-num">3</span>
+        <div class="pitch-text">"Les gens cherchent [son métier] dans [son quartier] en ligne. Sur WOZALI tu sors en premier. Pas parce que tu paies plus. Parce que tu travailles mieux."</div>
+      </div>
+      <div class="pitch-step">
+        <span class="pitch-num">4</span>
+        <div class="pitch-text">"C'est gratuit de commencer. Je crée ton profil là en 5 minutes sur ton téléphone. Tu vois exactement ce que les clients voient."</div>
+      </div>
+      <div class="pitch-step">
+        <span class="pitch-num">5</span>
+        <div class="pitch-text">"T'es libre maintenant 5 minutes ?" <em>(pause — attendre sa réponse)</em></div>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <strong>Règle absolue :</strong> L'inscription se fait TOUJOURS sur le téléphone du prospect. Jamais sur le tien. Il doit sentir que c'est son compte, pas le tien.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 3 — LES OBJECTIONS -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-num">MODULE 03</span>
+      <span class="module-title">Les 6 objections que tu vas entendre</span>
+    </div>
+
+    <div class="objection">
+      <div class="obj-question">"Je vais réfléchir."</div>
+      <div class="obj-answer">
+        <div class="obj-peur">Ce qu'il veut dire : "je ne suis pas convaincu mais je ne veux pas dire non"</div>
+        <div class="obj-reponse">"Réfléchir à quoi exactement ? C'est gratuit. Tu ne perds rien. La seule chose qui change c'est que les clients te trouvent."</div>
+        <div class="obj-rebond">Rebond : "Je te crée juste le profil gratuit. Tu décides après si tu continues."</div>
+      </div>
+    </div>
+
+    <div class="objection">
+      <div class="obj-question">"2 500 FCFA c'est trop cher."</div>
+      <div class="obj-answer">
+        <div class="obj-peur">Ce qu'il veut dire : "je ne vois pas la valeur"</div>
+        <div class="obj-reponse">"Un seul client de plus par mois, c'est combien pour toi ? [laisser répondre]. 2 500 FCFA c'est une fraction de ça. Et après, tu ne repays plus : c'est 2 500 FCFA ce mois et c'est tout si tu décides d'arrêter."</div>
+        <div class="obj-rebond">Rebond : "Commence par le gratuit. Tu verras ce que ça donne. Pro tu peux le prendre plus tard."</div>
+      </div>
+    </div>
+
+    <div class="objection">
+      <div class="obj-question">"Facebook me suffit."</div>
+      <div class="obj-answer">
+        <div class="obj-peur">Ce qu'il veut dire : "j'ai déjà quelque chose qui marche"</div>
+        <div class="obj-reponse">"Facebook c'est pour tes amis. WOZALI c'est les gens qui cherchent ton métier dans ton quartier maintenant, qui ne te connaissent pas encore."</div>
+        <div class="obj-rebond">Rebond : "Les deux ne se remplacent pas. Facebook = tes contacts. WOZALI = les inconnus."</div>
+      </div>
+    </div>
+
+    <div class="objection">
+      <div class="obj-question">"Je n'ai pas le temps maintenant."</div>
+      <div class="obj-answer">
+        <div class="obj-peur">Ce qu'il veut dire : "je suis occupé" ou "je ne suis pas convaincu"</div>
+        <div class="obj-reponse">"5 minutes. C'est tout. Je fais tout. Tu donnes juste ton nom et ton numéro."</div>
+        <div class="obj-rebond">Rebond : Si vraiment pas maintenant, donner son numéro WhatsApp et revenir le lendemain. Pas d'appel le jour même.</div>
+      </div>
+    </div>
+
+    <div class="objection">
+      <div class="obj-question">"Je ne connais pas cette application."</div>
+      <div class="obj-answer">
+        <div class="obj-peur">Ce qu'il veut dire : "c'est peut-être une arnaque"</div>
+        <div class="obj-reponse">Ouvrir wozali.africa sur son téléphone. Lui montrer un profil réel d'un artisan dans sa ville. "Tu vois ? C'est des vrais artisans. Ton profil ressemblera à ça."</div>
+        <div class="obj-rebond">Rebond : "Et c'est gratuit de commencer. Aucun paiement avant que tu ne décides toi-même."</div>
+      </div>
+    </div>
+
+    <div class="objection">
+      <div class="obj-question">"Ça va marcher ici ?"</div>
+      <div class="obj-answer">
+        <div class="obj-peur">Ce qu'il veut dire : "est-ce que les gens dans mon quartier utilisent ça ?"</div>
+        <div class="obj-reponse">"WOZALI couvre Lomé et Cotonou entièrement. Les gens cherchent [ton métier] + [ton quartier] tous les jours. Tu veux voir combien de recherches ?"</div>
+        <div class="obj-rebond">Rebond : "Plus tôt tu es inscrit, plus tôt tu sors avant les autres dans ton quartier."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 4 — SCRIPT INSCRIPTION -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-num">MODULE 04</span>
+      <span class="module-title">Script inscription — du oui à la création du profil</span>
+    </div>
+
+    <p>Quand il dit oui, tu n'improvises pas. Tu suis ces étapes dans l'ordre. <strong>Sur son téléphone, pas le tien.</strong></p>
+
+    <div class="script-steps">
+
+      <div class="script-step">
+        <div class="script-left"><div class="script-dot">1</div><div class="script-line"></div></div>
+        <div class="script-content">
+          <div class="script-label">30 secondes</div>
+          <div class="script-title">Ouvrir wozali.africa</div>
+          <div class="script-body">Sur son téléphone. Pas le tien. Lui dire de taper "wozali.africa" dans son navigateur. Le laisser faire lui-même.</div>
+        </div>
+      </div>
+
+      <div class="script-step">
+        <div class="script-left"><div class="script-dot">2</div><div class="script-line"></div></div>
+        <div class="script-content">
+          <div class="script-label">1 minute</div>
+          <div class="script-title">Créer le compte</div>
+          <div class="script-body">Cliquer "S'inscrire". Remplir : nom complet, numéro de téléphone (son vrai numéro), créer un mot de passe simple qu'il n'oubliera pas.
+            <div class="script-say">"Note ton mot de passe quelque part. Ce compte c'est le tien."</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="script-step">
+        <div class="script-left"><div class="script-dot">3</div><div class="script-line"></div></div>
+        <div class="script-content">
+          <div class="script-label">2 minutes</div>
+          <div class="script-title">Remplir le profil essentiel</div>
+          <div class="script-body">Métier principal. Quartier. Ville. Description courte (tu peux l'aider). Photo de profil si il en a une sur son téléphone.</div>
+        </div>
+      </div>
+
+      <div class="script-step">
+        <div class="script-left"><div class="script-dot">4</div><div class="script-line"></div></div>
+        <div class="script-content">
+          <div class="script-label">1 minute</div>
+          <div class="script-title">Le moment de vérité</div>
+          <div class="script-body">Lui montrer son profil public. Comment les clients le voient. Le Score WOZALI.
+            <div class="script-say">"C'est ça que les gens voient quand ils cherchent [ton métier] à [ton quartier]. Tu es maintenant visible."</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="script-step">
+        <div class="script-left"><div class="script-dot">5</div><div class="script-line"></div></div>
+        <div class="script-content">
+          <div class="script-label">30 secondes</div>
+          <div class="script-title">Proposer le Pro — une seule fois</div>
+          <div class="script-body">Ne jamais insister. Dire une fois. Passer à autre chose s'il dit non.
+            <div class="script-say">"Si tu veux passer en premier dans les résultats et débloquer les récompenses du 25 septembre, il y a un plan à 2 500 FCFA par mois. Tu décides toi-même, maintenant ou après."</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="script-step">
+        <div class="script-left"><div class="script-dot">6</div><div class="script-line"></div></div>
+        <div class="script-content">
+          <div class="script-label">30 secondes</div>
+          <div class="script-title">Clôture et parrainage</div>
+          <div class="script-body">Lui donner ton code de parrainage. Lui expliquer qu'il peut parrainer d'autres pros et gagner 1 000 FCFA par mois par filleul Pro actif.
+            <div class="script-say">"Mon code est [ton code]. Si quelqu'un que tu connais s'inscrit avec ce code, tu gagnes 1 000 FCFA par mois tant qu'il est actif."</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 5 — COMMISSION -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-num">MODULE 05</span>
+      <span class="module-title">Ta commission — comment ça marche</span>
+    </div>
+
+    <p>Tu n'as pas de salaire fixe. Ta commission est <strong>récurrente</strong> : chaque Pro actif dans ton portefeuille te rapporte 1 000 FCFA <strong>chaque mois</strong> qu'il reste abonné.</p>
+
+    <div class="comm-visual">
+      <div class="comm-cell">
+        <div class="comm-pros">10</div>
+        <div class="comm-label">Pros actifs</div>
+        <div class="comm-rev">10 000 FCFA</div>
+        <div class="comm-month">chaque mois</div>
+      </div>
+      <div class="comm-cell">
+        <div class="comm-pros">30</div>
+        <div class="comm-label">Pros actifs</div>
+        <div class="comm-rev">30 000 FCFA</div>
+        <div class="comm-month">chaque mois</div>
+      </div>
+      <div class="comm-cell">
+        <div class="comm-pros">80</div>
+        <div class="comm-label">Pros actifs</div>
+        <div class="comm-rev">80 000 FCFA</div>
+        <div class="comm-month">chaque mois</div>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <strong>L'effet cumulé :</strong> 5 Pros signés par semaine. Au bout de 3 mois = 60 Pros dans ton portefeuille. 60 000 FCFA par mois. Plus tu signes tôt, plus tu gagnes longtemps. C'est un portefeuille, pas un salaire.
+    </div>
+
+    <p><strong>Commission battle :</strong> Si ton équipe gagne la battle H/F du mois, ta commission passe à 1 500 FCFA par Pro le mois suivant. Soit 50% de plus sur tout ton portefeuille, automatiquement.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 6 — RÈGLES -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-num">MODULE 06</span>
+      <span class="module-title">Les règles que tu ne peux pas oublier</span>
+    </div>
+
+    <div class="rules-grid">
+      <div class="rule-ok">Tu te présentes comme "agent terrain WOZALI"</div>
+      <div class="rule-ko">Jamais "vendeur", "promoteur" ou autre titre</div>
+      <div class="rule-ok">L'inscription se fait sur son téléphone</div>
+      <div class="rule-ko">Jamais sur ton téléphone à toi</div>
+      <div class="rule-ok">Le paiement Pro passe par la plateforme</div>
+      <div class="rule-ko">Jamais d'argent liquide en ton nom</div>
+      <div class="rule-ok">Tu promets ce qui est vrai</div>
+      <div class="rule-ko">Jamais de garantie de clients ou de revenus</div>
+      <div class="rule-ok">Tu soumets ton journal avant 20h</div>
+      <div class="rule-ko">Jamais de jour sans journal sans explication</div>
+      <div class="rule-ok">Tu signales les problèmes à ton Responsable</div>
+      <div class="rule-ko">Jamais de problème gardé pour toi seul</div>
+    </div>
+
+    <p style="margin-top:14px;">La règle la plus importante : <strong>si tu as un doute, tu appelles ton Responsable avant d'agir.</strong> Mieux vaut 30 secondes d'appel qu'une erreur qui coûte ta commission ou ta place dans l'équipe.</p>
+  </div>
+
+  <p style="margin-top:24px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-FA-2026-019 · Formation Agent Terrain WOZALI · wozali.africa · Version 1.0 · Juillet 2026</p>
+
+</div>
+</body>
+</html>

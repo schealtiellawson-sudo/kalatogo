@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Charte Déontologique — Agents Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::before { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.75; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 36px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.5); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: #FCE0A8; margin-bottom: 4px; }
+  .doc-meta { font-size: 11px; color: rgba(252,224,168,.45); font-family: 'Geist Mono', monospace; }
+
+  /* Préambule */
+  .preambule { border-left: 4px solid #E8940A; padding: 14px 18px; background: #fffbf0; border-radius: 0 8px 8px 0; margin-bottom: 32px; font-size: 13px; color: #5a4000; }
+  .preambule strong { color: #14100A; }
+
+  /* Sections */
+  .section { margin-bottom: 36px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #14100A; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #E8940A; display: flex; align-items: center; gap: 10px; }
+  .section-num { font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8940A; }
+  p { color: #444; margin-bottom: 10px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  /* Article */
+  .article { margin-bottom: 18px; }
+  .article-num { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+  .article-title { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 6px; }
+  .article-body { font-size: 13px; color: #444; }
+
+  /* Interdit / Obligatoire */
+  .interdit { background: #fff0f0; border: 1px solid #ffcccc; border-radius: 8px; padding: 12px 16px; margin: 8px 0; }
+  .interdit .i-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #cc3333; margin-bottom: 8px; }
+  .interdit ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .interdit ul li { display: flex; gap: 8px; font-size: 12px; color: #aa2222; align-items: flex-start; }
+  .interdit ul li::before { content: '✗'; color: #cc3333; font-weight: 700; flex-shrink: 0; }
+
+  .obligatoire { background: rgba(232,148,10,.05); border: 1px solid rgba(232,148,10,.2); border-radius: 8px; padding: 12px 16px; margin: 8px 0; }
+  .obligatoire .o-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #c07000; margin-bottom: 8px; }
+  .obligatoire ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .obligatoire ul li { display: flex; gap: 8px; font-size: 12px; color: #5a4000; align-items: flex-start; }
+  .obligatoire ul li::before { content: '✓'; color: #E8940A; font-weight: 700; flex-shrink: 0; }
+
+  /* Conséquences */
+  .consequence-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .consequence-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 12px; text-align: left; font-weight: 400; }
+  .consequence-table td { padding: 9px 12px; border-bottom: 1px solid #f0e0c0; color: #444; vertical-align: top; }
+  .consequence-table tr:last-child td { border-bottom: none; }
+  .consequence-table td:first-child { font-weight: 700; color: #1a1a1a; }
+  .consequence-table .niveau-1 { color: #cc7700; }
+  .consequence-table .niveau-2 { color: #cc3333; }
+  .consequence-table .niveau-3 { color: #880000; font-weight: 700; }
+
+  /* Signature */
+  .signature-block { border: 1px solid #eee; border-radius: 10px; padding: 20px 24px; margin-top: 32px; }
+  .sig-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #f0e0c0; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .sig-partie { }
+  .sig-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 8px; }
+  .sig-name { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 3px; }
+  .sig-role { font-size: 12px; color: #888; margin-bottom: 16px; }
+  .sig-line { height: 1px; background: #eee; margin-bottom: 4px; }
+  .sig-placeholder { font-size: 11px; color: #ccc; font-family: 'Geist Mono', monospace; }
+  .sig-date { font-size: 12px; color: #888; margin-top: 10px; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 24px 0; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Document officiel · Version 1.0 · Juillet 2026</span>
+    </div>
+    <h1>Charte Déontologique</h1>
+    <p class="doc-meta">Agents terrain WOZALI et Responsable Réseau Terrain · Togo et Bénin</p>
+  </div>
+
+  <div class="preambule">
+    <strong>Pourquoi cette charte existe.</strong> WOZALI est une plateforme qui touche directement aux revenus et à la réputation de milliers d'artisans et de travailleurs. Chaque agent terrain WOZALI est le visage de cette plateforme sur le terrain. Ce que tu fais — ou ne fais pas — construit ou détruit la confiance que les artisans placent en WOZALI. Cette charte définit les règles non négociables de ton engagement.
+  </div>
+
+  <!-- SECTION 1 — REPRÉSENTATION -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">Art. 1</span>
+      Représentation de WOZALI
+    </div>
+
+    <div class="article">
+      <div class="article-num">1.1 — Identité</div>
+      <div class="article-title">Comment se présenter</div>
+      <div class="article-body">
+        <p>Tout agent terrain se présente comme <strong>"agent terrain WOZALI"</strong> devant les prospects et le public. Ce terme et uniquement ce terme. Il n'est pas "commercial", "promoteur", "délégué", "partenaire", ou tout autre titre non validé par le fondateur.</p>
+        <div class="obligatoire">
+          <div class="o-label">Formulation exacte obligatoire</div>
+          <ul>
+            <li>"Je suis agent terrain WOZALI. Je fais connaitre la plateforme aux professionnels de [ville]."</li>
+            <li>Présenter son badge officiel si disponible.</li>
+            <li>Donner le lien wozali.africa si la personne demande à vérifier.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="article-num">1.2 — Promesses autorisées</div>
+      <div class="article-title">Ce que tu peux promettre</div>
+      <div class="article-body">
+        <p>Tu ne peux promettre que ce qui est vrai, vérifiable, et garanti par la plateforme.</p>
+        <div class="obligatoire">
+          <div class="o-label">Promesses autorisées</div>
+          <ul>
+            <li>Un profil public visible sur wozali.africa immédiatement après inscription.</li>
+            <li>Apparition dans les résultats de recherche par métier et quartier.</li>
+            <li>Plan Pro à 2 500 FCFA/mois avec priorité de classement.</li>
+            <li>Parrainage actif en Pro : 1 000 FCFA/mois par filleul Pro actif.</li>
+            <li>Eligibilité Bourse de Croissance après 2 mois Pro minimum.</li>
+            <li>Premier tirage récompenses : 25 septembre 2026.</li>
+          </ul>
+        </div>
+        <div class="interdit">
+          <div class="i-label">Promesses INTERDITES</div>
+          <ul>
+            <li>"Tu auras [X] clients par semaine garanti." — aucun volume garanti.</li>
+            <li>"Tu vas forcément gagner la bourse." — le tirage est aléatoire.</li>
+            <li>"WOZALI rembourse si ca ne marche pas." — faux.</li>
+            <li>"Le premier mois est gratuit." — faux sauf promotion officielle validée.</li>
+            <li>Tout chiffre de revenu précis non validé par ce document.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 2 — DONNÉES ET CONFIDENTIALITÉ -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">Art. 2</span>
+      Données personnelles et confidentialité
+    </div>
+
+    <div class="article">
+      <div class="article-num">2.1 — Protection des données membres</div>
+      <div class="article-title">Ce que tu vois, tu ne le partages pas</div>
+      <div class="article-body">
+        <p>En tant qu'agent terrain WOZALI, tu peux avoir accès à des informations sur les membres inscrits : noms, numéros WhatsApp, quartiers, statuts d'abonnement. Ces données sont protégées.</p>
+        <div class="interdit">
+          <div class="i-label">Interdictions absolues — données membres</div>
+          <ul>
+            <li>Partager les coordonnées d'un membre inscrit avec un tiers (commerçant, concurrent, employeur).</li>
+            <li>Utiliser les numéros des membres pour un usage personnel ou commercial non lié à WOZALI.</li>
+            <li>Revendre ou transmettre des listes de contacts WOZALI.</li>
+            <li>Photographier ou screenshotter des données membres du dashboard.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="article-num">2.2 — Confidentialité WOZALI</div>
+      <div class="article-title">Ce que tu ne divulgues pas</div>
+      <div class="article-body">
+        <div class="interdit">
+          <div class="i-label">Informations confidentielles à ne jamais divulguer</div>
+          <ul>
+            <li>Chiffres d'inscrits totaux, de revenus, de commissions des autres agents.</li>
+            <li>Stratégie de lancement, planning expansion, futurs partenariats.</li>
+            <li>Identité et coordonnées du fondateur sur les réseaux sociaux ou en public.</li>
+            <li>Contenus des documents de formation.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 3 — COMPORTEMENT TERRAIN -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">Art. 3</span>
+      Comportement sur le terrain
+    </div>
+
+    <div class="article">
+      <div class="article-num">3.1 — Respect des prospects</div>
+      <div class="article-title">Comment traiter les personnes rencontrées</div>
+      <div class="article-body">
+        <div class="obligatoire">
+          <div class="o-label">Comportement obligatoire</div>
+          <ul>
+            <li>Toujours demander la permission avant de commencer une conversation commerciale.</li>
+            <li>Respecter un refus net sans insistance au-delà de 3 tentatives (voir RT-GN-2026-009).</li>
+            <li>Ne jamais bloquer physiquement quelqu'un ou l'empêcher de vaquer à ses occupations.</li>
+            <li>Traiter chaque personne avec dignité, quel que soit son niveau d'éducation ou de revenu.</li>
+          </ul>
+        </div>
+        <div class="interdit">
+          <div class="i-label">Comportements interdits sur le terrain</div>
+          <ul>
+            <li>Harceler, suivre ou appeler répétitivement quelqu'un qui a dit non.</li>
+            <li>Mentir sur son identité ou celle de WOZALI.</li>
+            <li>Inscrire quelqu'un sans son consentement explicite.</li>
+            <li>Créer ou modifier un profil à la place de quelqu'un sans sa présence active.</li>
+            <li>Utiliser la persuasion agressive, la pression sociale ou la manipulation émotionnelle.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="article-num">3.2 — Honnêteté financière</div>
+      <div class="article-title">Argent et paiements</div>
+      <div class="article-body">
+        <div class="interdit">
+          <div class="i-label">Interdictions absolues — argent</div>
+          <ul>
+            <li>Collecter de l'argent en espèces au nom de WOZALI pour un abonnement. Les paiements se font uniquement sur la plateforme (Mobile Money, Wave, etc.).</li>
+            <li>Promettre un remboursement ou un geste commercial non validé par le fondateur.</li>
+            <li>Inventer des promotions ou tarifs spéciaux non officiels.</li>
+            <li>Falsifier ses propres chiffres de performance (inscrits, Pros) dans les journaux.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4 — CONFLITS D'INTÉRÊTS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">Art. 4</span>
+      Conflits d'intérêts
+    </div>
+
+    <div class="article">
+      <div class="article-num">4.1 — Concurrence</div>
+      <div class="article-body">
+        <p>Un agent terrain WOZALI actif ne peut pas, pendant la durée de son engagement, travailler activement pour une plateforme concurrente directe dans le même secteur (marketplace artisans, emploi informel, profils pros) sur le marché Togo/Bénin.</p>
+        <p>En cas de conflit potentiel, l'agent doit en informer le Responsable. Le fondateur tranche en 48h.</p>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="article-num">4.2 — Relations avec les membres</div>
+      <div class="article-body">
+        <div class="interdit">
+          <div class="i-label">Interdictions — relations membres</div>
+          <ul>
+            <li>Solliciter des avantages personnels (argent, services, faveurs) en échange d'une inscription ou d'une mise en avant.</li>
+            <li>Inscrire des membres fictifs pour gonfler ses chiffres et sa commission.</li>
+            <li>Favoriser certains membres dans le classement ou leur promettre une position prioritaire en échange de contreparties.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 5 — CONSÉQUENCES -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">Art. 5</span>
+      Conséquences des violations
+    </div>
+
+    <table class="consequence-table">
+      <thead>
+        <tr>
+          <th>Violation</th>
+          <th>Gravité</th>
+          <th>Conséquence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Promesse non autorisée, absence journal de bord 3 jours</td>
+          <td class="niveau-1">Niveau 1</td>
+          <td>Avertissement oral du Responsable + rappel de la règle</td>
+        </tr>
+        <tr>
+          <td>Données membres utilisées à des fins personnelles, chiffres falsifiés, promotion inventée</td>
+          <td class="niveau-2">Niveau 2</td>
+          <td>Avertissement écrit du fondateur + retenue sur commission du mois concerné</td>
+        </tr>
+        <tr>
+          <td>Collecte d'argent en espèces, inscription sans consentement, harcèlement d'un prospect, fraude avérée, violation grave de confidentialité</td>
+          <td class="niveau-3">Niveau 3 — Exclusion</td>
+          <td>Résiliation immédiate. Suppression de l'accès dashboard. Réclamation des commissions perçues si fraude prouvée.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="font-size:12px;color:#888;margin-top:8px;">Toute violation suspectée est signalée au fondateur dans les 24h. Le fondateur tranche en dernière instance pour les niveaux 2 et 3. Le Responsable peut appliquer le niveau 1 seul.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SIGNATURE -->
+  <div class="signature-block">
+    <div class="sig-title">Engagement et signature</div>
+    <p style="font-size:12px;color:#666;margin-bottom:20px;">Par sa signature ci-dessous, l'agent terrain WOZALI confirme avoir lu, compris et accepté l'intégralité de cette charte déontologique. Cette signature conditionne l'accès aux commissions WOZALI.</p>
+    <div class="sig-grid">
+      <div class="sig-partie">
+        <div class="sig-label">Le fondateur</div>
+        <div class="sig-name">Schealtiel Lawson</div>
+        <div class="sig-role">Fondateur et Directeur Général — WOZALI</div>
+        <div class="sig-line"></div>
+        <div class="sig-placeholder">Signature</div>
+        <div class="sig-date">Lomé, _________ 2026</div>
+      </div>
+      <div class="sig-partie">
+        <div class="sig-label">L'agent terrain WOZALI</div>
+        <div class="sig-name">___________________________</div>
+        <div class="sig-role">Agent terrain WOZALI · ___________________</div>
+        <div class="sig-line"></div>
+        <div class="sig-placeholder">Signature</div>
+        <div class="sig-date">_________, _________ 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:24px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-CD-2026-012 · Document officiel · WOZALI · wozali.africa · Version 1.0 · Juillet 2026</p>
+
+</div>
+</body>
+</html>

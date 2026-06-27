@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protocole Onboarding Agent Terrain — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 36px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.5); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #FCE0A8; margin-bottom: 4px; }
+  .doc-subtitle { font-size: 14px; color: rgba(252,224,168,.7); font-family: 'Geist', sans-serif; margin-bottom: 8px; }
+  .doc-meta { font-size: 11px; color: rgba(252,224,168,.4); font-family: 'Geist Mono', monospace; }
+
+  /* Intro */
+  .intro-box { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 32px; color: #5a4000; font-size: 13px; }
+  .intro-box strong { color: #14100A; }
+
+  /* Timeline */
+  .timeline { position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, #E8940A 0%, rgba(232,148,10,.1) 100%); }
+
+  .phase { position: relative; margin-bottom: 32px; padding-left: 52px; }
+  .phase-dot { position: absolute; left: 12px; top: 6px; width: 18px; height: 18px; background: #E8940A; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px #E8940A; z-index: 1; }
+  .phase-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .phase-timing { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; background: rgba(232,148,10,.1); border: 1px solid rgba(232,148,10,.2); border-radius: 4px; padding: 3px 8px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .phase-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #14100A; }
+  .phase-owner { font-size: 11px; color: #aaa; font-family: 'Geist Mono', monospace; background: #f8f8f8; border-radius: 4px; padding: 2px 8px; margin-top: 2px; }
+
+  /* Checklist */
+  .checklist { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 16px; margin: 10px 0; }
+  .checklist-title { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 10px; }
+  .check-item { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .check-item:last-child { border-bottom: none; }
+  .check-box { width: 16px; height: 16px; border: 2px solid #ddd; border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+  .check-text { font-size: 13px; color: #444; flex: 1; }
+  .check-text .note { font-size: 11px; color: #999; margin-top: 2px; }
+
+  /* Dialogues */
+  .dialogue-box { border: 1px solid #e0d0a0; border-radius: 8px; padding: 16px; background: #fffdf5; margin: 10px 0; }
+  .dialogue-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #c07000; margin-bottom: 10px; }
+  .dialogue-line { display: flex; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+  .dialogue-line:last-child { margin-bottom: 0; }
+  .dialogue-who { font-weight: 700; color: #14100A; white-space: nowrap; }
+  .dialogue-text { color: #444; }
+
+  /* KPI validation */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+  .kpi-card { background: #14100A; border-radius: 8px; padding: 14px; text-align: center; }
+  .kpi-value { font-family: 'DM Serif Display', serif; font-size: 22px; color: #E8940A; }
+  .kpi-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: rgba(252,224,168,.5); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .kpi-sublabel { font-size: 11px; color: rgba(252,224,168,.3); margin-top: 2px; }
+
+  /* Danger */
+  .danger-box { background: #fff0f0; border: 1px solid #ffcccc; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .danger-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #cc3333; margin-bottom: 8px; }
+  .danger-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .danger-list li { display: flex; gap: 8px; font-size: 12px; color: #aa2222; }
+  .danger-list li::before { content: '✗'; color: #cc3333; font-weight: 700; }
+
+  /* Success */
+  .success-box { background: rgba(232,148,10,.05); border: 1px solid rgba(232,148,10,.2); border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+  .success-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #c07000; margin-bottom: 8px; }
+  .success-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .success-list li { display: flex; gap: 8px; font-size: 12px; color: #5a4000; }
+  .success-list li::before { content: '✓'; color: #E8940A; font-weight: 700; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 16px 0; }
+
+  p { color: #555; margin-bottom: 8px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .phase { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Usage interne — Responsable Réseau Terrain</span>
+    </div>
+    <h1>Protocole Onboarding Agent Terrain</h1>
+    <p class="doc-subtitle">Guide complet pour intégrer un nouvel agent terrain de J-1 à J+30</p>
+    <p class="doc-meta">RT-OA-2026-013 · Version 1.0 · Juillet 2026</p>
+  </div>
+
+  <div class="intro-box">
+    <strong>Objectif.</strong> Les 7 premiers jours d'un agent terrain définissent 90% de sa trajectoire. Un agent qui signe son premier Pro dans la semaine 1 restera. Un agent qui ne signe personne dans les 10 premiers jours abandonnera. Ce protocole structure chaque heure de l'intégration pour maximiser ce premier succès.
+  </div>
+
+  <div class="timeline">
+
+    <!-- PHASE 0 — AVANT J1 -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-timing">J-2 avant le premier jour</span>
+        <div>
+          <div class="phase-title">Préparation avant J1</div>
+          <div class="phase-owner">Responsable</div>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <div class="checklist-title">Checklist Responsable — avant J1</div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text">Confirmer l'heure et le lieu du premier rendez-vous par WhatsApp. Pas d'appel — message écrit uniquement pour qu'il puisse s'y référer.
+            <div class="note">Modèle : "Bonjour [Prénom], demain [jour] à [heure] au [lieu]. Tu auras besoin de ton téléphone chargé. A demain."</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text">Vérifier que l'agent est bien dans le groupe WhatsApp de l'équipe. L'ajouter si besoin.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text">Préparer le kit terrain : fiche de poste imprimée, charte déontologique à signer, carnet de bord, script inscription (RT-05).</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text">Préparer 3-5 zones terrain identifiées pour lui (marchés, carrefours, zones artisans) avec horaires recommandés.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 1 — J1 MATIN -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-timing">J1 — 8h00 à 10h30</span>
+        <div>
+          <div class="phase-title">Accueil et orientation</div>
+          <div class="phase-owner">Responsable + Nouvel agent</div>
+        </div>
+      </div>
+
+      <p>Ce n'est pas une formation longue. C'est une mise en confiance rapide suivie d'une action terrain immédiate. La théorie maximale avant le terrain : <strong>2h30</strong>.</p>
+
+      <div class="checklist">
+        <div class="checklist-title">Programme J1 matin — 2h30 maximum</div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>08h00 — Accueil (15 min)</strong> : Café/eau. Pas de discours. Poser la question : "Pourquoi tu as dit oui à WOZALI ?" Ecouter. Reformuler.
+            <div class="note">Ne pas commencer par expliquer WOZALI. Commencer par comprendre sa motivation personnelle.</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>08h15 — La plateforme en 20 min</strong> : Ouvrir wozali.africa sur son téléphone. Lui montrer un profil existant. Lui expliquer les 2 types d'inscrits (artisan + chercheur emploi). Montrer le score WOZALI. Montrer la différence Gratuit/Pro.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>08h35 — Le pitch 90 secondes (30 min)</strong> : Lire le pitch (RT-04, p.7) ensemble. Le faire répéter à voix haute 3 fois. Corriger uniquement les points bloquants.
+            <div class="note">Il doit dire le pitch de mémoire avant de quitter cet entretien. Même imparfaitement.</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>09h05 — Les 3 objections clés (20 min)</strong> : Lui présenter uniquement les 3 objections les plus fréquentes : "je vais réfléchir", "2 500 FCFA c'est trop cher", "Facebook me suffit". Jeu de rôle rapide.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>09h25 — Signature charte déontologique (10 min)</strong> : Lire ensemble les points clés. Signer. Conserver un exemplaire chaque partie.
+            <div class="note">Ne pas sauter cette étape. La signature conditionne le droit aux commissions.</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>09h35 — La commission expliquée en 5 min</strong> : "Tu n'as pas de salaire fixe. Tu as une commission. Chaque Pro que tu signes = 1 000 FCFA chaque mois qu'il reste actif. 10 Pros = 10 000 FCFA récurrents."
+            <div class="note">Ne jamais mentionner de chiffre fixe. Utiliser uniquement les exemples de la simulation financière (RT-03).</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>09h40 — Journal de bord (15 min)</strong> : Lui montrer comment remplir son journal quotidien (conversations / inscrits / Pros). Expliquer l'obligation quotidienne avant 20h.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>09h55 — Zone terrain (15 min)</strong> : Identifier ensemble 3 zones pour aujourd'hui avec itinéraire. Fixer un point de contact à 13h (message WhatsApp).</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>10h10 — Départ terrain</strong> : Il part. Toi tu restes disponible sur WhatsApp uniquement. Pas d'appels sauf urgence.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 — J1 TERRAIN -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-timing">J1 — 10h30 à 18h00</span>
+        <div>
+          <div class="phase-title">Premier terrain — accompagnement à distance</div>
+          <div class="phase-owner">Responsable (monitoring)</div>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <div class="checklist-title">Points de contact J1</div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>13h00</strong> : Message WhatsApp "Combien de conversations tu as eu ce matin ? Combien d'inscrits ?"
+            <div class="note">Si 0 inscription en 2h30 de terrain : appel immédiat pour débloquer. Souvent un problème de prise de contact, pas de pitch.</div>
+          </div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>16h00</strong> : Message "Comment ca se passe ? Tu bloques sur quoi ?" Répondre aux questions pratiques uniquement.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>18h30</strong> : Attendre son journal de bord. Si non recu avant 20h, relancer une fois.</div>
+        </div>
+      </div>
+
+      <div class="dialogue-box">
+        <div class="dialogue-label">Message de déblocage si 0 inscription à 13h</div>
+        <div class="dialogue-line">
+          <span class="dialogue-who">Toi :</span>
+          <span class="dialogue-text">"Combien de personnes tu as abordées ce matin ?"</span>
+        </div>
+        <div class="dialogue-line">
+          <span class="dialogue-who">Lui :</span>
+          <span class="dialogue-text">"Euh... 3 ou 4."</span>
+        </div>
+        <div class="dialogue-line">
+          <span class="dialogue-who">Toi :</span>
+          <span class="dialogue-text">"Ok. 4 conversations c'est bien pour une matinée. Qu'est-ce qu'ils ont dit quand tu leur as présenté WOZALI ?"</span>
+        </div>
+        <div class="dialogue-line">
+          <span class="dialogue-who">Toi :</span>
+          <span class="dialogue-text">[après qu'il explique] "La prochaine personne que tu abordes, dis exactement : 'Tu as combien de clients inconnus qui te contactent par semaine ?' Commence par cette question. Rien d'autre."</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 — J2-J3 -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-timing">J2 à J3</span>
+        <div>
+          <div class="phase-title">Accompagnement terrain actif</div>
+          <div class="phase-owner">Responsable avec lui</div>
+        </div>
+      </div>
+
+      <p><strong>Le jour 2 ou 3, tu vas sur le terrain avec lui.</strong> Pas pour lui montrer comment faire. Pour qu'il te regarde faire, puis qu'il fasse pendant que tu observes. Ce duo terrain dure 3 heures maximum.</p>
+
+      <div class="checklist">
+        <div class="checklist-title">Structure du duo terrain J2 ou J3 — 3h</div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>H0 à H1 :</strong> Tu abordes, il observe. Silence complet de sa part pendant tes conversations.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>H1 à H1h30 :</strong> Pause. Débrief rapide. "Tu as vu comment j'ai commencé par leur demander combien de clients ils avaient ? Pourquoi je commence par là ?"</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>H1h30 à H2h30 :</strong> Il aborde, tu observes. Aucune interruption de ta part sauf si une promesse interdite est faite.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>H2h30 à H3 :</strong> Débrief. Une seule correction prioritaire. Une chose qu'il a bien faite. Plan pour demain.</div>
+        </div>
+      </div>
+
+      <div class="danger-box">
+        <div class="danger-label">Erreurs de coaching à éviter sur le terrain</div>
+        <ul class="danger-list">
+          <li>Interrompre sa conversation avec un prospect pour le corriger.</li>
+          <li>Lui donner plus de 1 correction à la fois.</li>
+          <li>Comparer ses résultats avec ceux des autres agents devant lui.</li>
+          <li>Faire toi-même toutes les inscriptions : il doit manoeuvrer le téléphone du prospect lui-même.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 4 — FIN SEMAINE 1 -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-timing">J7 — vendredi soir</span>
+        <div>
+          <div class="phase-title">Bilan fin de semaine 1</div>
+          <div class="phase-owner">Responsable + Nouvel agent</div>
+        </div>
+      </div>
+
+      <p>L'appel bilan de fin de semaine 1 est différent de l'appel bilan habituel. C'est un moment de décision : continuer ou ajuster le plan.</p>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-value">20</div>
+          <div class="kpi-label">Inscrits min</div>
+          <div class="kpi-sublabel">Semaine 1</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">3</div>
+          <div class="kpi-label">Pros min</div>
+          <div class="kpi-sublabel">Semaine 1</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">5/5</div>
+          <div class="kpi-label">Journaux</div>
+          <div class="kpi-sublabel">Tous rendus</div>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <div class="checklist-title">Structure appel bilan semaine 1 — 20 min</div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>Min 0-3 :</strong> "Raconte-moi ta semaine. Qu'est-ce que tu as compris que tu ne savais pas lundi ?"</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>Min 3-8 :</strong> Lecture des chiffres ensemble. Pas de jugement sur les résultats : analyser uniquement ce qui les explique.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>Min 8-15 :</strong> Identifier le 1 blocage principal. Trouver ensemble la solution. Pas plus d'une chose à changer.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-box"></div>
+          <div class="check-text"><strong>Min 15-20 :</strong> Fixer l'objectif semaine 2 en chiffres précis. "La semaine prochaine : 30 inscrits, 5 Pros." Raccrocher sur une victoire de la semaine, même petite.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 — J8 À J30 -->
+    <div class="phase">
+      <div class="phase-dot"></div>
+      <div class="phase-header">
+        <span class="phase-timing">J8 à J30</span>
+        <div>
+          <div class="phase-title">Autonomisation progressive</div>
+          <div class="phase-owner">Responsable (supervision standard)</div>
+        </div>
+      </div>
+
+      <p>A partir de la semaine 2, l'agent rejoint le protocole standard de l'équipe : journal quotidien, call lundi kick-off, call vendredi bilan. Le Responsable passe en mode coaching, non plus en mode accompagnement intensif.</p>
+
+      <div class="success-box">
+        <div class="success-label">Signes d'autonomie réelle (J30)</div>
+        <ul class="success-list">
+          <li>Il soumets son journal sans relance depuis au moins 10 jours.</li>
+          <li>Il gère les objections courantes sans appeler le Responsable.</li>
+          <li>Il a identifié lui-même ses meilleures zones et horaires.</li>
+          <li>Il a signé au moins 10 Pros cumulés.</li>
+          <li>Il peut expliquer WOZALI à quelqu'un d'autre en moins de 2 minutes.</li>
+        </ul>
+      </div>
+
+      <div class="danger-box">
+        <div class="danger-label">Signaux d'alarme semaine 2 et 3 — escalader au fondateur</div>
+        <ul class="danger-list">
+          <li>0 Pro signé après 10 jours de terrain actif.</li>
+          <li>Journal manquant plus de 3 fois sans explication.</li>
+          <li>Incohérence entre les chiffres du journal et les confirmations dashboard.</li>
+          <li>Plainte d'un prospect signalée via la plateforme.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RÉCAP QUICK-REF -->
+  <div style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:20px 24px;margin-top:20px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:18px;color:#14100A;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #f0e0c0;">Quick Ref — Première semaine en un coup d'oeil</div>
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:4px 16px;font-size:12px;">
+      <span style="font-family:'Geist Mono',monospace;color:#E8940A;font-size:11px;padding:4px 0;border-bottom:1px solid #f5f5f5;">J-2</span>
+      <span style="color:#444;padding:4px 0;border-bottom:1px solid #f5f5f5;">Kit prêt, groupe WhatsApp, confirmation rendez-vous</span>
+      <span style="font-family:'Geist Mono',monospace;color:#E8940A;font-size:11px;padding:4px 0;border-bottom:1px solid #f5f5f5;">J1 matin</span>
+      <span style="color:#444;padding:4px 0;border-bottom:1px solid #f5f5f5;">Accueil 2h30 : pitch + charte + commission + journal + zones terrain</span>
+      <span style="font-family:'Geist Mono',monospace;color:#E8940A;font-size:11px;padding:4px 0;border-bottom:1px solid #f5f5f5;">J1 terrain</span>
+      <span style="color:#444;padding:4px 0;border-bottom:1px solid #f5f5f5;">Points 13h et 16h WhatsApp. Journal avant 20h.</span>
+      <span style="font-family:'Geist Mono',monospace;color:#E8940A;font-size:11px;padding:4px 0;border-bottom:1px solid #f5f5f5;">J2 ou J3</span>
+      <span style="color:#444;padding:4px 0;border-bottom:1px solid #f5f5f5;">Duo terrain 3h : observer/montrer/débrief 1 point</span>
+      <span style="font-family:'Geist Mono',monospace;color:#E8940A;font-size:11px;padding:4px 0;border-bottom:1px solid #f5f5f5;">J4-J6</span>
+      <span style="color:#444;padding:4px 0;border-bottom:1px solid #f5f5f5;">Terrain seul. Journal quotidien. Disponible WhatsApp uniquement.</span>
+      <span style="font-family:'Geist Mono',monospace;color:#E8940A;font-size:11px;padding:4px 0;">J7</span>
+      <span style="color:#444;padding:4px 0;">Bilan semaine 1 (20 min). KPI : 20 inscrits + 3 Pros + 5/5 journaux.</span>
+    </div>
+  </div>
+
+  <p style="margin-top:24px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-OA-2026-013 · Usage interne Responsable · WOZALI · wozali.africa · Version 1.0 · Juillet 2026</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KPI Complet — Réseau Terrain WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13px; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 36px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.5); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #FCE0A8; margin-bottom: 4px; }
+  .doc-subtitle { font-size: 14px; color: rgba(252,224,168,.7); margin-bottom: 8px; }
+  .doc-meta { font-size: 11px; color: rgba(252,224,168,.4); font-family: 'Geist Mono', monospace; }
+
+  /* Intro */
+  .intro-box { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 32px; color: #5a4000; font-size: 13px; }
+  .intro-box strong { color: #14100A; }
+
+  /* Sections */
+  .section { margin-bottom: 36px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #14100A; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #E8940A; display: flex; align-items: center; gap: 10px; }
+  .section-num { font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8940A; }
+  p { color: #555; margin-bottom: 10px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  /* KPI table */
+  .kpi-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .kpi-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 12px; text-align: left; font-weight: 400; }
+  .kpi-table td { padding: 9px 12px; border-bottom: 1px solid #f0e0c0; color: #444; vertical-align: middle; }
+  .kpi-table tr:last-child td { border-bottom: none; }
+  .kpi-table td:first-child { font-weight: 700; color: #1a1a1a; }
+  .kpi-table .cible { font-family: 'Geist Mono', monospace; color: #E8940A; font-weight: 700; }
+  .kpi-table .min { color: #cc7700; font-family: 'Geist Mono', monospace; }
+  .kpi-table .ko { color: #cc3333; font-family: 'Geist Mono', monospace; }
+  .kpi-table .ok { color: #228833; font-family: 'Geist Mono', monospace; }
+
+  /* Barème commissions */
+  .comm-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 12px 0; }
+  .comm-card { border-radius: 8px; padding: 16px; border: 1px solid #eee; }
+  .comm-card.normal { background: #fafafa; }
+  .comm-card.battle { background: rgba(232,148,10,.06); border-color: rgba(232,148,10,.25); }
+  .comm-tag { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 6px; }
+  .comm-card.battle .comm-tag { color: #c07000; }
+  .comm-title { font-weight: 700; font-size: 15px; color: #1a1a1a; margin-bottom: 4px; }
+  .comm-rate { font-family: 'DM Serif Display', serif; font-size: 24px; color: #E8940A; margin-bottom: 8px; }
+  .comm-example { font-size: 12px; color: #888; }
+
+  /* Projections */
+  .proj-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .proj-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 9px 12px; text-align: left; font-weight: 400; }
+  .proj-table th:not(:first-child) { text-align: right; }
+  .proj-table td { padding: 9px 12px; border-bottom: 1px solid #f0e0c0; color: #444; }
+  .proj-table td:not(:first-child) { text-align: right; font-family: 'Geist Mono', monospace; }
+  .proj-table tr:last-child td { border-bottom: none; }
+  .proj-table td:first-child { font-weight: 700; color: #1a1a1a; }
+  .proj-table tfoot td { background: rgba(232,148,10,.07); font-weight: 700; color: #E8940A; font-family: 'Geist Mono', monospace; }
+
+  /* Alertes */
+  .alert-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .alert-card { border-radius: 8px; padding: 14px; }
+  .alert-card.orange { background: #fff5e0; border: 1px solid #ffcc44; }
+  .alert-card.rouge { background: #fff0f0; border: 1px solid #ffaaaa; }
+  .alert-tag { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .alert-card.orange .alert-tag { color: #cc7700; }
+  .alert-card.rouge .alert-tag { color: #cc3333; }
+  .alert-title { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .alert-card.orange .alert-title { color: #8a5000; }
+  .alert-card.rouge .alert-title { color: #880000; }
+  .alert-list { list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+  .alert-card.orange .alert-list li { color: #aa6600; }
+  .alert-card.rouge .alert-list li { color: #aa2222; }
+  .alert-list li::before { content: '·'; margin-right: 6px; font-weight: 700; }
+
+  /* Simulateur visuel */
+  .simul-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  .simul-cell { background: #14100A; border-radius: 8px; padding: 12px; text-align: center; }
+  .simul-pros { font-family: 'DM Serif Display', serif; font-size: 22px; color: #E8940A; }
+  .simul-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: rgba(252,224,168,.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .simul-rev { font-size: 14px; color: #FCE0A8; font-weight: 700; margin-top: 4px; }
+  .simul-rev-battle { font-size: 11px; color: rgba(232,148,10,.7); }
+
+  /* Responsable KPI */
+  .resp-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+  .resp-kpi-cell { border: 1px solid #eee; border-radius: 8px; padding: 14px; text-align: center; }
+  .resp-kpi-value { font-family: 'DM Serif Display', serif; font-size: 22px; color: #E8940A; }
+  .resp-kpi-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: #bbb; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .resp-kpi-note { font-size: 11px; color: #888; margin-top: 2px; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 24px 0; }
+
+  /* Highlight */
+  .highlight { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.2); border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #5a4000; margin: 10px 0; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Réseau Terrain · Référence KPI officielle</span>
+    </div>
+    <h1>KPI Complet — Réseau Terrain</h1>
+    <p class="doc-subtitle">Tous les indicateurs, seuils, commissions et projections. Document de référence permanent.</p>
+    <p class="doc-meta">RT-KP-2026-017 · Version 1.0 · Juillet 2026</p>
+  </div>
+
+  <div class="intro-box">
+    <strong>Ce document est la référence unique.</strong> En cas de doute sur un chiffre, un seuil ou une commission, ce document fait foi. Il est mis à jour uniquement par le fondateur. Toute version antérieure est caduque dès mise à jour.
+  </div>
+
+  <!-- SECTION 1 — KPI AGENT -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">01</span> KPI agent terrain WOZALI — indicateurs individuels</div>
+
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Indicateur</th>
+          <th>Cible (excellent)</th>
+          <th>Minimum acceptable</th>
+          <th>Alerte rouge</th>
+          <th>Fréquence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Conversations / jour</td>
+          <td class="cible">40-50</td>
+          <td class="min">20</td>
+          <td class="ko">&lt; 10</td>
+          <td>Quotidien</td>
+        </tr>
+        <tr>
+          <td>Inscrits gratuit / jour</td>
+          <td class="cible">8-10</td>
+          <td class="min">4</td>
+          <td class="ko">&lt; 2</td>
+          <td>Quotidien</td>
+        </tr>
+        <tr>
+          <td>Pros signés / jour</td>
+          <td class="cible">1-2</td>
+          <td class="min">0.5 (1 tous les 2j)</td>
+          <td class="ko">0 sur 3j consécutifs</td>
+          <td>Quotidien</td>
+        </tr>
+        <tr>
+          <td>Taux conversion inscrit → Pro</td>
+          <td class="cible">25%+</td>
+          <td class="min">15%</td>
+          <td class="ko">&lt; 10%</td>
+          <td>Hebdo</td>
+        </tr>
+        <tr>
+          <td>Inscrits gratuit / semaine</td>
+          <td class="cible">40+</td>
+          <td class="min">20</td>
+          <td class="ko">&lt; 10</td>
+          <td>Hebdo</td>
+        </tr>
+        <tr>
+          <td>Pros signés / semaine</td>
+          <td class="cible">8+</td>
+          <td class="min">3</td>
+          <td class="ko">&lt; 1</td>
+          <td>Hebdo</td>
+        </tr>
+        <tr>
+          <td>Jours terrain / semaine</td>
+          <td class="cible">6</td>
+          <td class="min">5</td>
+          <td class="ko">&lt; 3</td>
+          <td>Hebdo</td>
+        </tr>
+        <tr>
+          <td>Journaux de bord soumis</td>
+          <td class="cible">6/6</td>
+          <td class="min">5/6</td>
+          <td class="ko">&lt; 4/6</td>
+          <td>Hebdo</td>
+        </tr>
+        <tr>
+          <td>Inscrits / mois</td>
+          <td class="cible">160+</td>
+          <td class="min">80</td>
+          <td class="ko">&lt; 40</td>
+          <td>Mensuel</td>
+        </tr>
+        <tr>
+          <td>Pros signés / mois</td>
+          <td class="cible">32+</td>
+          <td class="min">12</td>
+          <td class="ko">&lt; 5</td>
+          <td>Mensuel</td>
+        </tr>
+        <tr>
+          <td>Pros actifs cumulés (portefeuille)</td>
+          <td class="cible">100+</td>
+          <td class="min">30</td>
+          <td class="ko">&lt; 10</td>
+          <td>Mensuel</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight">
+      <strong>Note sur le taux de conversion :</strong> Un taux de conversion inscrit gratuit vers Pro de 20-25% est réaliste sur le terrain africain. En-dessous de 15%, le problème vient généralement du discours Pro (pas assez de valeur perçue) plutôt que de la quantité de prospects. En-dessus de 40%, vérifier que les inscriptions sont réelles.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 2 — KPI ÉQUIPE -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">02</span> KPI équipe — indicateurs du Responsable</div>
+
+    <p>Ces KPI mesurent la performance globale de l'équipe, pas les individus. Le Responsable est responsable de ces chiffres agrégés.</p>
+
+    <div class="resp-kpi-grid">
+      <div class="resp-kpi-cell">
+        <div class="resp-kpi-value">400</div>
+        <div class="resp-kpi-label">Inscrits / semaine</div>
+        <div class="resp-kpi-note">20 agents × 20 min</div>
+      </div>
+      <div class="resp-kpi-cell">
+        <div class="resp-kpi-value">80</div>
+        <div class="resp-kpi-label">Pros / semaine</div>
+        <div class="resp-kpi-note">20% de 400</div>
+      </div>
+      <div class="resp-kpi-cell">
+        <div class="resp-kpi-value">90%</div>
+        <div class="resp-kpi-label">Taux agents actifs</div>
+        <div class="resp-kpi-note">18/20 agents min</div>
+      </div>
+    </div>
+
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Indicateur équipe</th>
+          <th>Cible</th>
+          <th>Minimum</th>
+          <th>Alerte rouge</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Inscrits gratuit / semaine (équipe)</td>
+          <td class="cible">400+</td>
+          <td class="min">200</td>
+          <td class="ko">&lt; 100</td>
+        </tr>
+        <tr>
+          <td>Pros signés / semaine (équipe)</td>
+          <td class="cible">80+</td>
+          <td class="min">40</td>
+          <td class="ko">&lt; 20</td>
+        </tr>
+        <tr>
+          <td>Agents actifs / semaine</td>
+          <td class="cible">18-20</td>
+          <td class="min">15</td>
+          <td class="ko">&lt; 12</td>
+        </tr>
+        <tr>
+          <td>CR Responsable → fondateur (dimanche)</td>
+          <td class="cible">Avant 20h</td>
+          <td class="min">Avant 22h</td>
+          <td class="ko">Absent (2 fois = protocole)</td>
+        </tr>
+        <tr>
+          <td>Call kick-off lundi</td>
+          <td class="cible">8h30 pétantes</td>
+          <td class="min">Avant 9h30</td>
+          <td class="ko">Absent</td>
+        </tr>
+        <tr>
+          <td>Call bilan vendredi</td>
+          <td class="cible">14h pétantes</td>
+          <td class="min">Avant 16h</td>
+          <td class="ko">Absent</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 3 — COMMISSIONS -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">03</span> Barème commissions agents terrain WOZALI</div>
+
+    <div class="comm-grid">
+      <div class="comm-card normal">
+        <div class="comm-tag">Commission normale</div>
+        <div class="comm-title">40% du plan Pro</div>
+        <div class="comm-rate">1 000 FCFA</div>
+        <div class="comm-example">Par Pro actif, par mois, tant qu'il est abonné.<br>Pas de fixe. Zéro prime. Uniquement récurrent.</div>
+      </div>
+      <div class="comm-card battle">
+        <div class="comm-tag">Commission battle gagnée</div>
+        <div class="comm-title">60% du plan Pro</div>
+        <div class="comm-rate">1 500 FCFA</div>
+        <div class="comm-example">Appliquée le mois suivant une battle H/F gagnée.<br>Sur tous les Pros actifs du portefeuille ce mois-là.</div>
+      </div>
+    </div>
+
+    <p><strong>Commission Responsable Réseau Terrain :</strong> 10% du CA brut mensuel de toute l'équipe + 1 000 FCFA par Pro personnel signé (hors équipe).</p>
+
+    <div class="highlight">
+      <strong>Exemple Responsable :</strong> Équipe = 200 Pros actifs × 2 500 FCFA = 500 000 FCFA CA. 10% = <strong>50 000 FCFA</strong>. + 20 Pros personnels × 1 000 FCFA = <strong>20 000 FCFA</strong>. Total mois = <strong>70 000 FCFA</strong> (sans battle).
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4 — SIMULATEUR AGENT -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">04</span> Simulateur revenus agent — 4 scénarios</div>
+
+    <div class="simul-row">
+      <div class="simul-cell">
+        <div class="simul-pros">10</div>
+        <div class="simul-label">Pros actifs</div>
+        <div class="simul-rev">10 000 FCFA</div>
+        <div class="simul-rev-battle">15 000 si battle</div>
+      </div>
+      <div class="simul-cell">
+        <div class="simul-pros">30</div>
+        <div class="simul-label">Pros actifs</div>
+        <div class="simul-rev">30 000 FCFA</div>
+        <div class="simul-rev-battle">45 000 si battle</div>
+      </div>
+      <div class="simul-cell">
+        <div class="simul-pros">80</div>
+        <div class="simul-label">Pros actifs</div>
+        <div class="simul-rev">80 000 FCFA</div>
+        <div class="simul-rev-battle">120 000 si battle</div>
+      </div>
+      <div class="simul-cell">
+        <div class="simul-pros">150</div>
+        <div class="simul-label">Pros actifs</div>
+        <div class="simul-rev">150 000 FCFA</div>
+        <div class="simul-rev-battle">225 000 si battle</div>
+      </div>
+    </div>
+
+    <table class="kpi-table" style="margin-top:14px;">
+      <thead>
+        <tr>
+          <th>Scénario</th>
+          <th>Pros mois 1</th>
+          <th>Pros mois 3</th>
+          <th>Pros mois 6</th>
+          <th>Revenu mois 6</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Minimum (3 Pro/sem)</td>
+          <td>12</td>
+          <td>30</td>
+          <td>55</td>
+          <td class="cible">55 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Normal (5 Pro/sem)</td>
+          <td>20</td>
+          <td>60</td>
+          <td>100</td>
+          <td class="cible">100 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Fort (8 Pro/sem)</td>
+          <td>32</td>
+          <td>96</td>
+          <td>160</td>
+          <td class="cible">160 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Battle gagnée (8/sem + 60%)</td>
+          <td>32</td>
+          <td>96</td>
+          <td>160</td>
+          <td class="cible">240 000 FCFA</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight">
+      <strong>SMIG Togo : 52 500 FCFA · SMIG Bénin : 52 000 FCFA</strong><br>
+      Un agent normal avec 5 Pros/semaine dépasse le SMIG dès le mois 3. Un agent fort dépasse le SMIG dès le mois 2. Le revenu croît chaque mois tant que les Pros restent actifs.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 5 — PROJECTIONS ÉQUIPE -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">05</span> Projections équipe 20 agents — 3 et 6 mois</div>
+
+    <table class="proj-table">
+      <thead>
+        <tr>
+          <th>Mois</th>
+          <th>Pros cumulés (normal)</th>
+          <th>CA WOZALI</th>
+          <th>Commissions agents</th>
+          <th>Commission Responsable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Août 2026 (M1)</td>
+          <td>400</td>
+          <td>1 000 000 FCFA</td>
+          <td>400 000 FCFA</td>
+          <td>100 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Septembre 2026 (M2)</td>
+          <td>1 000</td>
+          <td>2 500 000 FCFA</td>
+          <td>1 000 000 FCFA</td>
+          <td>250 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Octobre 2026 (M3)</td>
+          <td>1 600</td>
+          <td>4 000 000 FCFA</td>
+          <td>1 600 000 FCFA</td>
+          <td>400 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Novembre 2026 (M4)</td>
+          <td>2 200</td>
+          <td>5 500 000 FCFA</td>
+          <td>2 200 000 FCFA</td>
+          <td>550 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Décembre 2026 (M5)</td>
+          <td>2 800</td>
+          <td>7 000 000 FCFA</td>
+          <td>2 800 000 FCFA</td>
+          <td>700 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Janvier 2027 (M6)</td>
+          <td>3 400</td>
+          <td>8 500 000 FCFA</td>
+          <td>3 400 000 FCFA</td>
+          <td>850 000 FCFA</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Hypothèse</td>
+          <td>+600 Pros/mois</td>
+          <td>Tous Pro actifs</td>
+          <td>40% CA</td>
+          <td>10% CA équipe</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <p style="font-size:11px;color:#aaa;margin-top:6px;">Ces projections sont basées sur 20 agents actifs à 3 Pros/semaine minimum avec un taux de rétention Pro de 80%/mois. Réalistes dans un scénario normal. Les scénarios forts peuvent multiplier par 2 à 3.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 6 — SEUILS D'ALERTE -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">06</span> Seuils d'alerte — lecture rapide</div>
+
+    <div class="alert-row">
+      <div class="alert-card orange">
+        <div class="alert-tag">Signal Orange — Intervention coaching</div>
+        <div class="alert-title">Déclencher dans les 24h</div>
+        <ul class="alert-list">
+          <li>Conversion &lt; 15% sur 5 jours</li>
+          <li>Moins de 20 inscrits / semaine</li>
+          <li>Journal manquant 2 jours d'affilée</li>
+          <li>Même objection non résolue 2 semaines</li>
+          <li>Ratio conversations/inscrits &gt; 75%</li>
+        </ul>
+      </div>
+      <div class="alert-card rouge">
+        <div class="alert-tag">Signal Rouge — Décision fondateur</div>
+        <div class="alert-title">Escalader dans les 24h</div>
+        <ul class="alert-list">
+          <li>0 Pro après 10 jours terrain</li>
+          <li>Journal absent 3 jours ou plus</li>
+          <li>Plainte membre reçue via plateforme</li>
+          <li>Fraude suspectée (voir RT-AF-015)</li>
+          <li>Non réponse Responsable &gt; 24h</li>
+        </ul>
+      </div>
+    </div>
+
+    <table class="kpi-table" style="margin-top:12px;">
+      <thead>
+        <tr>
+          <th>Situation</th>
+          <th>Délai d'intervention</th>
+          <th>Action</th>
+          <th>Document ref</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Signal orange agent</td>
+          <td>24h</td>
+          <td>Message privé + appel diagnostic</td>
+          <td>RT-SP-014</td>
+        </tr>
+        <tr>
+          <td>Signal rouge agent</td>
+          <td>24h</td>
+          <td>Rapport fondateur + plan 7J ou fin</td>
+          <td>RT-SP-014</td>
+        </tr>
+        <tr>
+          <td>Fraude suspectée</td>
+          <td>Immédiat</td>
+          <td>Vérifications + rapport fondateur</td>
+          <td>RT-AF-015</td>
+        </tr>
+        <tr>
+          <td>KPI équipe &lt; 50% objectif (semaine)</td>
+          <td>Dimanche CR</td>
+          <td>Analyse + changement tactique semaine suivante</td>
+          <td>RT-PL-011</td>
+        </tr>
+        <tr>
+          <td>Moins de 15 agents actifs / semaine</td>
+          <td>Lundi kick-off</td>
+          <td>Identifier les absents + raison</td>
+          <td>RT-PL-010</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 7 — DATES CLÉS -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">07</span> Dates clés — à ne jamais confondre</div>
+
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Événement</th>
+          <th>Impact terrain</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>27 juillet 2026</strong></td>
+          <td>Activation agents terrain WOZALI + influenceurs</td>
+          <td>Premier jour de terrain officiel. Toute l'équipe active.</td>
+        </tr>
+        <tr>
+          <td><strong>15 août 2026</strong></td>
+          <td>Lancement public WOZALI</td>
+          <td>La plateforme est ouverte au public. Le discours peut inclure la date d'ouverture.</td>
+        </tr>
+        <tr>
+          <td><strong>25 septembre 2026</strong></td>
+          <td>Premier tirage récompenses</td>
+          <td>Les membres inscrits Pro avant le 15 août sont éligibles dès ce tirage.</td>
+        </tr>
+        <tr>
+          <td><strong>30 de chaque mois</strong></td>
+          <td>Tirage mensuel (dès octobre 2026)</td>
+          <td>Argument de vente pour les Pros : "Si tu t'inscris avant le 30..."</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight">
+      <strong>Argument terrain validé :</strong> "Le premier tirage c'est le 25 septembre. Tu t'inscris Pro aujourd'hui, tu es dedans. 500 000 FCFA distribués. Pas de chance à acheter, juste un abonnement à 2 500 FCFA."
+    </div>
+  </div>
+
+  <p style="margin-top:24px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-KP-2026-017 · Document de référence KPI · WOZALI · wozali.africa · Version 1.0 · Juillet 2026</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Formation Vente Terrain — WOZALI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;700;900&family=Geist+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #f0ebe0; }
+  body { font-family: 'Geist', sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 13.5px; }
+  .page { max-width: 780px; margin: 0 auto; padding: 40px 48px 80px; background: #fff; min-height: 100vh; }
+
+  /* Header */
+  .doc-header { background: #14100A; margin: -40px -48px 40px; padding: 36px 48px 30px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+  .logo-w { font-family: 'DM Serif Display', serif; font-size: 24px; font-style: italic; color: #E8940A; font-weight: 900; }
+  .logo-ozali { font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 900; color: #FCE0A8; letter-spacing: 3px; }
+  .logo-sep { width: 1px; height: 24px; background: rgba(232,148,10,.3); margin: 0 6px; }
+  .logo-tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: rgba(232,148,10,.6); text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 32px; color: #FCE0A8; margin-bottom: 8px; line-height: 1.15; }
+  .doc-sub { font-size: 12px; color: rgba(232,148,10,.6); font-family: 'Geist Mono', monospace; }
+
+  /* Module nav */
+  .module-nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 36px; }
+  .mod-chip { background: #fffbf0; border: 1px solid rgba(232,148,10,.2); border-radius: 100px; font-family: 'Geist Mono', monospace; font-size: 10px; color: #c07000; padding: 4px 12px; white-space: nowrap; }
+
+  /* Module block */
+  .module { margin-bottom: 44px; }
+  .module-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #E8940A; }
+  .mod-num { width: 36px; height: 36px; background: #14100A; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .mod-num span { font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8940A; font-weight: 700; }
+  .mod-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #14100A; }
+  .mod-duration { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 10px; color: #999; }
+
+  h3 { font-size: 14px; font-weight: 700; color: #1a1a1a; margin: 16px 0 8px; }
+  p { color: #444; margin-bottom: 10px; font-size: 13px; }
+  p strong { color: #1a1a1a; }
+
+  /* Règle */
+  .regle { display: flex; gap: 10px; margin: 8px 0; align-items: flex-start; font-size: 13px; }
+  .regle::before { content: '→'; color: #E8940A; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+  .regle .regle-text { color: #333; }
+
+  /* Dire / Ne pas dire */
+  .say-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .say-box { border-radius: 8px; padding: 12px 14px; }
+  .say-ok { background: rgba(232,148,10,.06); border: 1px solid rgba(232,148,10,.2); }
+  .say-no { background: #fff0f0; border: 1px solid #ffc0c0; }
+  .say-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 7px; }
+  .say-ok .say-label { color: #c07000; }
+  .say-no .say-label { color: #cc3333; }
+  .say-ok .say-text { color: #5a4000; font-size: 12px; font-style: italic; }
+  .say-no .say-text { color: #cc3333; font-size: 12px; font-style: italic; text-decoration: line-through; }
+
+  /* Bloc or */
+  .bloc-or { background: #fffbf0; border-left: 4px solid #E8940A; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #5a4000; }
+  .bloc-or strong { color: #14100A; }
+
+  /* Bloc sombre */
+  .bloc-dark { background: #14100A; border-radius: 10px; padding: 14px 18px; margin: 12px 0; }
+  .bloc-dark p { color: rgba(252,224,168,.8); font-size: 13px; margin: 0; }
+  .bloc-dark strong { color: #E8940A; }
+  .bloc-dark em { color: #FCE0A8; font-style: italic; }
+
+  /* Exercice */
+  .exercice { background: #f5f5f5; border-radius: 8px; padding: 14px 16px; margin: 14px 0; }
+  .exercice .ex-label { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 8px; }
+  .exercice p { color: #444; font-size: 12px; margin: 0; }
+  .exercice p + p { margin-top: 4px; }
+
+  /* Tableau KPI */
+  .kpi-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .kpi-table th { background: #14100A; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; text-align: left; font-weight: 400; }
+  .kpi-table td { padding: 9px 12px; border-bottom: 1px solid #f0e0c0; color: #444; }
+  .kpi-table tr:last-child td { border-bottom: none; }
+  .kpi-table td:first-child { font-weight: 700; color: #1a1a1a; }
+  .kpi-table .val-or { color: #E8940A; font-weight: 700; font-family: 'Geist Mono', monospace; }
+
+  /* Divider */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A 40%, transparent); margin: 28px 0; }
+
+  /* Chiffres */
+  .chiffres-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+  .chiffre-box { background: #fffbf0; border: 1px solid rgba(232,148,10,.2); border-radius: 10px; padding: 14px; text-align: center; }
+  .chiffre-box .c-val { font-family: 'DM Serif Display', serif; font-size: 28px; color: #E8940A; }
+  .chiffre-box .c-label { font-size: 11px; color: #888; margin-top: 3px; }
+
+  @media print {
+    html { background: #fff; }
+    .doc-header { background: #1a1a1a; }
+    .page { padding: 24px 36px 48px; }
+    .module { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <div class="logo-row">
+      <span class="logo-w">W</span>
+      <span class="logo-ozali">OZALI</span>
+      <div class="logo-sep"></div>
+      <span class="logo-tag">Formation Vente Terrain · 8 Modules</span>
+    </div>
+    <h1>Du premier bonjour<br>au Pro signé.</h1>
+    <p class="doc-sub">RT-FV-2026-008 · Confidentiel · Agent terrain WOZALI</p>
+  </div>
+
+  <div class="module-nav">
+    <span class="mod-chip">01 — Posture</span>
+    <span class="mod-chip">02 — L'entrée</span>
+    <span class="mod-chip">03 — Le diagnostic</span>
+    <span class="mod-chip">04 — La démo</span>
+    <span class="mod-chip">05 — Objections</span>
+    <span class="mod-chip">06 — Closing</span>
+    <span class="mod-chip">07 — Conversion Pro</span>
+    <span class="mod-chip">08 — Volume & maths</span>
+  </div>
+
+  <!-- MODULE 1 — POSTURE -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>01</span></div>
+      <div class="mod-title">Posture</div>
+      <div class="mod-duration">Avant de parler</div>
+    </div>
+
+    <p>La posture n'est pas ce que tu dis. C'est ce que la personne perçoit avant que tu ouvres la bouche. Un agent terrain WOZALI qui doute de ce qu'il vend ne signe rien. Un agent terrain qui croit dans ce qu'il apporte signe même face à la résistance.</p>
+
+    <h3>Les 3 croyances à ancrer</h3>
+    <div class="regle"><div class="regle-text"><strong>Je ne vends pas un abonnement.</strong> J'apporte un accès à des clients que la personne n'a jamais eus. Je change quelque chose dans sa vie économique.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Le "non" n'est pas un refus.</strong> C'est une question déguisée. "Je ne veux pas" veut dire "je n'ai pas encore compris ce que ca m'apporte".</div></div>
+    <div class="regle"><div class="regle-text"><strong>Je suis là à l'heure exacte où cette personne a besoin de moi.</strong> Pas trop tôt, pas trop tard. Aujourd'hui.</div></div>
+
+    <div class="bloc-dark">
+      <p><strong>Avant chaque terrain :</strong> dis cette phrase à voix haute avant de commencer la journée. "Ce que je vais apporter à ces gens aujourd'hui va changer <em>comment leur argent circule.</em> Je suis là pour ca."</p>
+    </div>
+
+    <h3>La règle de l'égal à égal</h3>
+    <p>Ne jamais se présenter comme un vendeur. Se présenter comme quelqu'un qui fait une découverte, pas une proposition commerciale. Tu n'es pas là pour vendre — tu es là pour montrer quelque chose qui existe et que la personne ne connait pas encore.</p>
+
+    <div class="say-grid">
+      <div class="say-box say-ok">
+        <div class="say-label">Dire</div>
+        <div class="say-text">"Je voulais te montrer quelque chose qui concerne directement ton métier."</div>
+      </div>
+      <div class="say-box say-no">
+        <div class="say-label">Ne pas dire</div>
+        <div class="say-text">"Je vends une application pour les artisans."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 2 — L'ENTRÉE -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>02</span></div>
+      <div class="mod-title">L'entrée</div>
+      <div class="mod-duration">0 à 90 secondes</div>
+    </div>
+
+    <p>Les 30 premières secondes décident si la conversation se poursuit. L'entrée doit être courte, directe, et centrer immédiatement la personne comme sujet — pas WOZALI.</p>
+
+    <h3>La formule d'entrée validée</h3>
+    <div class="bloc-dark">
+      <p>1. Appeler par le prénom si connu. Sinon, demander d'abord.<br>2. "Tu travailles dans quoi ?" — poser la question même si tu sais. Ca invite à parler.<br>3. Écouter vraiment. Au moins 15 secondes sans couper.<br>4. <em>"Les gens en dehors de ton quartier, ils peuvent te trouver ?"</em><br>5. Laisser la réponse venir.</p>
+    </div>
+
+    <h3>Ce que la question fait</h3>
+    <p>La question "ils peuvent te trouver ?" force la personne à constater elle-même que non. Tu ne lui dis pas qu'il a un problème. Il se le dit. C'est lui qui constate. C'est 10 fois plus puissant que toi qui l'affirmes.</p>
+
+    <div class="say-grid">
+      <div class="say-box say-ok">
+        <div class="say-label">Entrée qui marche</div>
+        <div class="say-text">"[Prénom], tu fais quoi comme métier ? ... Les clients en dehors de ton quartier ils peuvent te trouver ?"</div>
+      </div>
+      <div class="say-box say-no">
+        <div class="say-label">Entrée qui tue</div>
+        <div class="say-text">"Bonjour je viens vous parler d'une application pour les artisans qui s'appelle WOZALI..."</div>
+      </div>
+    </div>
+
+    <div class="exercice">
+      <div class="ex-label">Exercice — à faire avec un collègue</div>
+      <p>Jouer la scène. Un fait l'artisan (coiffeur au travail), l'autre fait l'agent terrain WOZALI. Chronométrer les 90 premières secondes. Si l'agent a dit le mot "WOZALI" dans ces 90 secondes, recommencer. L'entrée ne mentionne pas WOZALI.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 3 — DIAGNOSTIC -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>03</span></div>
+      <div class="mod-title">Le diagnostic</div>
+      <div class="mod-duration">2 à 4 minutes</div>
+    </div>
+
+    <p>Le diagnostic sert à adapter l'argument. Tu n'as pas le même discours pour le maçon qui manque de chantiers et pour la couturière qui cherche aussi un emploi. 3 questions suffisent.</p>
+
+    <h3>Les 3 questions de diagnostic</h3>
+    <div class="regle"><div class="regle-text"><strong>Q1 : "Tu travailles pour toi ou pour quelqu'un ?"</strong><br>Réponse → autonome = profil artisan. Cherche emploi = mentionner WOZALI Jobs.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Q2 : "Ce mois, t'as eu combien de clients que tu ne connaissais pas avant ?"</strong><br>Réponse faible → douleur de visibilité confirmée. Réponse forte → angle parrainage ou récompenses.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Q3 : "T'as quoi comme réseau en dehors de ton quartier ?"</strong><br>Réponse = rien / WhatsApp → entrer directement sur la douleur argent.</div></div>
+
+    <div class="bloc-or">
+      <strong>Règle du diagnostic :</strong> poser et écouter. Ne pas enchaîner avec la solution immédiatement. Laisser la personne mesurer elle-même l'écart entre ce qu'elle a et ce qu'elle pourrait avoir.
+    </div>
+
+    <h3>Adapter selon les réponses</h3>
+    <p><strong>Si Q2 = "souvent" :</strong> angle récompenses. "Avec ce volume tu peux être éligible à la Bourse de Croissance en 2 mois."</p>
+    <p><strong>Si Q2 = "rarement" :</strong> angle nouveaux clients. "Ca c'est ce qu'on règle ensemble aujourd'hui."</p>
+    <p><strong>Si "cherche un emploi" :</strong> angle WOZALI Jobs + profil. "Tu fais les deux — ton profil artisan ET tu postules aux offres d'emploi dans ton métier."</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 4 — DÉMO -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>04</span></div>
+      <div class="mod-title">La démonstration</div>
+      <div class="mod-duration">4 à 7 minutes</div>
+    </div>
+
+    <p>La démo est le moment le plus puissant de la conversation. Ce n'est pas une présentation — c'est une expérience. La personne doit voir son propre métier sur la plateforme, pas une présentation PowerPoint.</p>
+
+    <h3>Montrer, pas expliquer</h3>
+    <p>Sortir le téléphone. Ouvrir wozali.africa. Chercher le métier de la personne dans son quartier. Lui montrer les profils qui existent. Lui demander : <strong>"Toi là tu es ou ?"</strong></p>
+    <p>Ce moment crée la prise de conscience. Il n'y a pas de discours qui vaut ca.</p>
+
+    <div class="bloc-dark">
+      <p><strong>La séquence démo :</strong><br>1. "Regarde." → ouvrir la plateforme sur ton téléphone.<br>2. Chercher son métier + son quartier → lui montrer les résultats.<br>3. "Toi là tu es où ?" → silence. Laisser le vide.<br>4. "C'est ca le problème. On règle ca maintenant ?" → commencer l'inscription.</p>
+    </div>
+
+    <h3>Ce que tu ne montres pas</h3>
+    <div class="regle"><div class="regle-text">Ne pas ouvrir la page "fonctionnalités" ou "comment ca marche". Montrer directement les profils des pros.</div></div>
+    <div class="regle"><div class="regle-text">Ne pas parler des récompenses avant que le profil soit créé. Les récompenses viennent après.</div></div>
+    <div class="regle"><div class="regle-text">Ne pas lire l'écran à voix haute — laisser la personne regarder seule. Silence = puissant.</div></div>
+
+    <div class="exercice">
+      <div class="ex-label">Exercice — vitesse de démo</div>
+      <p>Chronométrer le temps d'ouverture de wozali.africa et d'accès à la recherche par métier sur ton propre téléphone. Si ca prend plus de 20 secondes, pratique jusqu'à ce que ca soit fluide. Une démo lente tue l'émotion.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 5 — OBJECTIONS -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>05</span></div>
+      <div class="mod-title">Les objections</div>
+      <div class="mod-duration">Variable</div>
+    </div>
+
+    <p>Les objections ne sont pas des refus. Ce sont des questions déguisées. Derrière chaque objection il y a une peur. Identifier la peur avant de répondre à l'objection.</p>
+
+    <h3>La règle des 3 étapes</h3>
+    <div class="regle"><div class="regle-text"><strong>Etape 1 — Valider :</strong> ne jamais contredire. "Je comprends." ou "C'est une bonne question."</div></div>
+    <div class="regle"><div class="regle-text"><strong>Etape 2 — Creuser :</strong> "C'est quoi exactement qui te retient ?" — identifier la peur réelle.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Etape 3 — Recadrer :</strong> répondre à la peur cachée, pas à l'objection de surface.</div></div>
+
+    <div class="bloc-or">
+      Les 12 objections les plus fréquentes et leurs réponses exactes sont dans la Fiche Objections — document RT-OB-2026-006. Consulter et mémoriser avant chaque terrain.
+    </div>
+
+    <h3>La règle du "gratuit d'abord"</h3>
+    <p>Face à n'importe quelle résistance au Pro : revenir au gratuit. L'objectif minimal d'une conversation c'est le profil gratuit créé. Un profil gratuit créé aujourd'hui peut devenir Pro dans 3 jours. Un "je réfléchis" sans profil ne revient jamais.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 6 — CLOSING -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>06</span></div>
+      <div class="mod-title">Le closing</div>
+      <div class="mod-duration">45 secondes max</div>
+    </div>
+
+    <p>Le closing n'est pas un moment de pression. C'est une proposition directe, faite au bon moment, avec la bonne phrase. Si tu as bien fait les modules 1 à 5, le closing est naturel.</p>
+
+    <h3>Le moment exact pour closer</h3>
+    <p>Tu closes quand tu vois un signal positif. Pas avant. Signaux positifs :</p>
+    <div class="regle"><div class="regle-text">La personne pose une question sur les détails ("comment ca marche exactement ?", "combien ca coûte ?")</div></div>
+    <div class="regle"><div class="regle-text">La personne dit quelque chose de positif sur la démo ("c'est bien ca", "j'ai pas vu ca avant")</div></div>
+    <div class="regle"><div class="regle-text">La personne regarde le profil d'un concurrent sur la plateforme plus de 5 secondes</div></div>
+
+    <h3>Les 2 closes qui marchent</h3>
+    <div class="bloc-dark">
+      <p><strong>Close direct :</strong> "On fait le profil maintenant ?" — question ouverte, directe. Ne pas attendre la réponse en regardant ailleurs. Regard direct, sourire, attendre.</p>
+    </div>
+    <div class="bloc-dark">
+      <p><strong>Close alternatif :</strong> "On commence gratuit ou directement Pro ?" — les deux options mènent à l'action. Il n'y a pas d'"option non" dans cette question.</p>
+    </div>
+
+    <div class="say-grid">
+      <div class="say-box say-ok">
+        <div class="say-label">Close qui signe</div>
+        <div class="say-text">"On fait le profil maintenant, ca prend 3 minutes."</div>
+      </div>
+      <div class="say-box say-no">
+        <div class="say-label">Close qui fait fuir</div>
+        <div class="say-text">"Alors, qu'est-ce que tu en penses ? Tu veux essayer ou pas ?"</div>
+      </div>
+    </div>
+
+    <p style="font-size:12px;color:#888;margin-top:8px;">Note : les gestions du "non" et du "pas maintenant" sont dans le Module 8bis — document RT-GN-2026-009.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 7 — CONVERSION PRO -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>07</span></div>
+      <div class="mod-title">La conversion Pro</div>
+      <div class="mod-duration">Le timing exact</div>
+    </div>
+
+    <p>La conversion Pro est une séquence, pas une phrase. Elle se fait en 3 temps. Elle ne se fait pas avant que la personne ait vu son propre profil en ligne.</p>
+
+    <h3>Les 3 temps de la conversion</h3>
+    <div class="regle"><div class="regle-text"><strong>Temps 1 — Ancrer la valeur :</strong> "Tu vois ton profil là ? Ca c'est ta carte de visite pour toute la ville. Gratuit, disponible maintenant."<br>Laisser ce moment exister. Ne pas enchaîner immédiatement.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Temps 2 — Le manque :</strong> "La seule limite maintenant : les pros gratuits passent après les Pro dans les recherches. Tu apparais — mais pas en premier."<br>Pause. Laisser la frustration légère s'installer.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Temps 3 — La proposition :</strong> "Le Plan Pro c'est 2 500 FCFA par mois. 83 FCFA par jour. Un client via WOZALI rembourse ca en quelques heures."</div></div>
+
+    <h3>Les 3 arguments Pro selon le profil</h3>
+    <p><strong>Pour celui qui manque de clients :</strong> "Premier dans les recherches. Celui qui cherche un [métier] à [quartier] te voit en premier."</p>
+    <p><strong>Pour celui qui pense aux récompenses :</strong> "En Pro depuis 2 mois, tu es éligible à la Bourse de Croissance. 300 000 FCFA. Premier tirage le 25 septembre."</p>
+    <p><strong>Pour celui qui a un réseau :</strong> "Le parrainage est activé en Pro. 1 000 FCFA par ami que tu amènes. Chaque mois, récurrent."</p>
+
+    <div class="bloc-or">
+      <strong>Règle absolue :</strong> ne jamais mentionner le Pro avant que la personne ait vu son propre profil en ligne pour la première fois. Ce pic émotionnel de découverte est la seule bonne fenêtre. Avant = trop tôt. Après 2 minutes = trop tard.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MODULE 8 — VOLUME ET MATHS -->
+  <div class="module">
+    <div class="module-header">
+      <div class="mod-num"><span>08</span></div>
+      <div class="mod-title">Volume et mathématiques</div>
+      <div class="mod-duration">Organiser sa journée</div>
+    </div>
+
+    <p>Le terrain n'est pas une question de talent de vendeur. C'est une question de volume et de méthode. Un agent terrain WOZALI qui suit la méthode signe entre 5 et 8 Pros par jour. Un agent sans méthode signe 1 à 2.</p>
+
+    <h3>Les chiffres d'une journée type</h3>
+    <div class="chiffres-row">
+      <div class="chiffre-box">
+        <div class="c-val">30-40</div>
+        <div class="c-label">conversations démarrées / journée 8h</div>
+      </div>
+      <div class="chiffre-box">
+        <div class="c-val">15-20</div>
+        <div class="c-label">profils gratuits créés</div>
+      </div>
+      <div class="chiffre-box">
+        <div class="c-val">5-8</div>
+        <div class="c-label">Pros signés (cible)</div>
+      </div>
+    </div>
+
+    <h3>La règle des zones</h3>
+    <p>Ne jamais travailler en terrain aléatoire. Découper sa zone en blocs de 3-4 rues. Travailler un bloc jusqu'à l'avoir couvert, puis passer au suivant. Ne jamais revenir sur un bloc le même jour.</p>
+
+    <div class="regle"><div class="regle-text"><strong>Matin (6h30-10h) :</strong> Marchés, artisans qui ouvrent. Taux de présence maximum. Coiffeurs, couturières, vendeurs.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Milieu de journée (10h-14h) :</strong> Ateliers, garages, menuisiers, maçons. Travailleurs en plein chantier.</div></div>
+    <div class="regle"><div class="regle-text"><strong>Après-midi (15h-19h) :</strong> Retours, relances, conversions Pro des profils créés le matin.</div></div>
+
+    <h3>La règle des relances</h3>
+    <p>Chaque profil gratuit créé = une relance dans 5 jours. Enregistrer le numéro avec le nom et le métier. Message WhatsApp à J+5 : "Bonjour [prénom], c'est [ton prénom], agent terrain WOZALI. T'as eu des contacts via ton profil ?"</p>
+
+    <h3>Les mathématiques de ta commission</h3>
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Pros/semaine</th>
+          <th>Pros/mois</th>
+          <th>Commission/mois</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Minimum (sous-performant)</td>
+          <td>10</td>
+          <td>40</td>
+          <td class="val-or">40 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Normal (cible agent)</td>
+          <td>25</td>
+          <td>100</td>
+          <td class="val-or">100 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Fort (top agent)</td>
+          <td>40</td>
+          <td>160</td>
+          <td class="val-or">160 000 FCFA</td>
+        </tr>
+        <tr>
+          <td>Battle gagnée (×1.5)</td>
+          <td>40</td>
+          <td>160</td>
+          <td class="val-or">240 000 FCFA</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="bloc-dark">
+      <p><strong>La vérité sur le volume :</strong> 100 000 FCFA par mois ca se signe en 25 conversations Pro par semaine — 5 par jour. <em>Ce n'est pas difficile. C'est une méthode.</em> L'agent qui ne fait pas les chiffres ne manque pas de talent. Il manque de volume ou de discipline de terrain.</p>
+    </div>
+
+    <h3>Le tracker quotidien</h3>
+    <p>Chaque soir avant de rentrer, noter dans le journal de bord :</p>
+    <div class="regle"><div class="regle-text">Conversations démarrées — Profils gratuits créés — Pros signés — Objections non surmontées</div></div>
+    <div class="regle"><div class="regle-text">Ce qui a marché aujourd'hui — Ce qui n'a pas marché</div></div>
+    <div class="regle"><div class="regle-text">Ce que je change demain</div></div>
+    <p style="margin-top:8px;font-size:12px;color:#888;">Le journal de bord est obligatoire. Il est envoyé au Responsable chaque soir. Voir le template dans RT-TP-2026-016.</p>
+  </div>
+
+  <p style="margin-top:24px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-FV-2026-008 · Confidentiel · Formation Agent terrain WOZALI · wozali.africa</p>
+
+</div>
+</body>
+</html>
