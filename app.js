@@ -860,7 +860,7 @@ function renderPremierPasWizard() {
   if (allDone) {
     wrap.style.display = 'block';
     wrap.innerHTML = `
-      <div style="background:linear-gradient(135deg,#14100A,#1a1f1b);border:1.5px solid rgba(232,148,10,.4);border-radius:16px;padding:18px 20px;color:#FCE0A8;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="background:linear-gradient(135deg,#14100A,#1E180E);border:1.5px solid rgba(232,148,10,.4);border-radius:16px;padding:18px 20px;color:#FCE0A8;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
         <div style="font-size:28px;flex-shrink:0;">✅</div>
         <div style="flex:1;min-width:200px;">
           <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:4px;">${prenom ? prenom + ', t' : 'T'}'as fait le plus important.</div>
@@ -940,7 +940,7 @@ function renderPremierPasWizard() {
 
   wrap.style.display = 'block';
   wrap.innerHTML = `
-    <div style="background:linear-gradient(135deg,#14100A,#1a1f1b);border:1.5px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 20px;color:#FCE0A8;">
+    <div style="background:linear-gradient(135deg,#14100A,#1E180E);border:1.5px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 20px;color:#FCE0A8;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
         <div>
           <div style="font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">PREMIER PAS</div>
@@ -2410,12 +2410,12 @@ async function generateStory(avisId, note, auteur, commentaire) {
       if (ratio > W / photoH) { dh = W / ratio; } else { dw = photoH * ratio; }
       ctx.drawImage(img, (W - dw) / 2, photoTop, dw, dh);
     } else {
-      ctx.fillStyle = '#1a1f1b'; ctx.fillRect(0, photoTop, W, photoH);
+      ctx.fillStyle = '#1E180E'; ctx.fillRect(0, photoTop, W, photoH);
       ctx.font = '80px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
       ctx.fillText(emoji, W / 2, photoTop + photoH / 2 + 28);
     }
   } catch(e) {
-    ctx.fillStyle = '#1a1f1b'; ctx.fillRect(0, photoTop, W, photoH);
+    ctx.fillStyle = '#1E180E'; ctx.fillRect(0, photoTop, W, photoH);
     ctx.font = '80px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
     ctx.fillText(emoji, W / 2, photoTop + photoH / 2 + 28);
   }
@@ -2501,7 +2501,7 @@ async function generateStory(avisId, note, auteur, commentaire) {
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;';
   overlay.innerHTML = `
-    <div style="background:#1a1f1b;border-radius:20px;max-width:400px;width:100%;overflow:hidden;border:1px solid rgba(232,148,10,0.3);">
+    <div style="background:#1E180E;border-radius:20px;max-width:400px;width:100%;overflow:hidden;border:1px solid rgba(232,148,10,0.3);">
       <div style="padding:16px;text-align:center;">
         <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">\u2B50 Ta Story est pr\u00eate !</div>
         <p style="font-size:13px;color:rgba(252, 224, 168,0.5);">Partage-la sur tes r\u00e9seaux pour attirer de nouveaux clients.</p>
@@ -8767,7 +8767,7 @@ async function injectSprint6Upgrade(){
   block.id = 'sp6-upgrade-block';
   block.style.cssText = 'max-width:720px;margin:24px auto;padding:0 16px;color:#FCE0A8';
 
-  const rowOk = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:#FCE0A8"><span style="color:#4ade80;font-weight:700">✓</span><span>${txt}</span></div>`;
+  const rowOk = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:#FCE0A8"><span style="color:#E8940A;font-weight:700">✓</span><span>${txt}</span></div>`;
   const rowKo = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:rgba(252, 224, 168,.4)"><span style="color:#ef4444">✗</span><span style="text-decoration:line-through">${txt}</span></div>`;
   const sectionTitle = t => `<div style="font-size:10px;color:#E8940A;font-family:'Geist Mono';letter-spacing:2px;margin:14px 0 4px;padding-bottom:4px;border-bottom:1px solid rgba(232,148,10,.15)">${t}</div>`;
 
@@ -8812,7 +8812,7 @@ async function injectSprint6Upgrade(){
       </div>
     </div>
 
-    <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:20px;margin-bottom:16px">
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:20px;margin-bottom:16px">
       <div style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:6px">Payer avec FedaPay</div>
       <div style="font-size:13px;color:rgba(252, 224, 168,.6);margin-bottom:18px">Plan Pro — 2 500 FCFA / mois · Résiliable à tout moment</div>
       <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px">
@@ -8979,7 +8979,7 @@ function _widgetBourse(bourse, countdown) {
 
   if (etat === 'perdu') {
     return `
-      <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center">
+      <div style="background:#1E180E;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;text-align:center">
         <div style="font-size:36px;margin-bottom:8px">🏆</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:8px">Bourse de Croissance · Le tirage a eu lieu</h3>
         <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:8px">Gagnant : <strong style="color:#E8940A">${gagnant_nom || '—'}</strong></p>
@@ -8994,10 +8994,10 @@ function _widgetBourse(bourse, countdown) {
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es éligible à la Bourse de Croissance !</h3>
         <div style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;margin-bottom:12px">300 000 FCFA</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px">
-          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ Pro 2+ mois</span>
-          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ Score ≥ 80</span>
-          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ 4+ avis</span>
-          <span style="background:rgba(74,222,128,.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-size:12px">✓ Note ≥ 4.2</span>
+          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Pro 2+ mois</span>
+          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Score ≥ 80</span>
+          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ 4+ avis</span>
+          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Note ≥ 4.2</span>
         </div>
         <div style="background:rgba(232,148,10,.1);border-radius:10px;padding:12px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:700">
           ⏱️ Tirage dans ${countdown}
@@ -9008,10 +9008,10 @@ function _widgetBourse(bourse, countdown) {
 
   // non_eligible
   const conds = conditions || {};
-  const check = (ok, label) => `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0"><span style="color:${ok?'#4ade80':'#ef4444'}">${ok?'✓':'✗'}</span><span style="color:${ok?'rgba(252, 224, 168,.7)':'#ef4444'}">${label}</span></div>`;
+  const check = (ok, label) => `<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0"><span style="color:${ok?'#E8940A':'#ef4444'}">${ok?'✓':'✗'}</span><span style="color:${ok?'rgba(252, 224, 168,.7)':'#ef4444'}">${label}</span></div>`;
 
   return `
-    <div style="background:#1a1f1b;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px">
+    <div style="background:#1E180E;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
         <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(252, 224, 168,.3)">🔒</div>
         <div>
@@ -9222,8 +9222,8 @@ function renderChecklist(prefix, d) {
 
   if (status) {
     if (d.eligible) {
-      status.innerHTML = '🔥 <strong style="color:#22c55e">Tu es dans le pool du tirage !</strong> Tirage le 30 du mois à 18h.';
-      status.style.color = '#22c55e';
+      status.innerHTML = '🔥 <strong style="color:#E8940A">Tu es dans le pool du tirage !</strong> Tirage le 30 du mois à 18h.';
+      status.style.color = '#E8940A';
     } else {
       const manque = Object.entries(conds).filter(([,v]) => !v).length;
       status.innerHTML = 'Il te manque <strong style="color:#E8940A">' + manque + ' condition' + (manque > 1 ? 's' : '') + '</strong> pour entrer au tirage. Complète-les ↑';
@@ -10047,7 +10047,7 @@ function _renderAmbassadeurs(list) {
   }
 
   const statutBadge = (s) => {
-    const map = { en_attente: ['#FCE0A8', 'En attente'], valide: ['#22c55e', 'Validé'], refuse: ['#ef4444', 'Refusé'] };
+    const map = { en_attente: ['#FCE0A8', 'En attente'], valide: ['#E8940A', 'Validé'], refuse: ['#ef4444', 'Refusé'] };
     const [color, label] = map[s] || ['#999', s];
     return `<span style="font-size:11px;font-weight:700;color:${color};background:${color}22;padding:3px 10px;border-radius:100px;">${label}</span>`;
   };
@@ -10070,7 +10070,7 @@ function _renderAmbassadeurs(list) {
         ${a.notes_admin ? `<div style="font-size:12px;color:var(--gris);margin-top:6px;font-style:italic;">${escapeHtml(a.notes_admin)}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
-        ${a.statut !== 'valide' ? `<button onclick="validerAmbassadeur('${a.id}')" style="padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Valider</button>` : ''}
+        ${a.statut !== 'valide' ? `<button onclick="validerAmbassadeur('${a.id}')" style="padding:8px 16px;background:#E8940A;color:#14100A;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Valider</button>` : ''}
         ${a.statut !== 'refuse' ? `<button onclick="refuserAmbassadeur('${a.id}')" style="padding:8px 16px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Refuser</button>` : ''}
         ${a.user_id ? `<button onclick="openAmbassadeurProgressionModal('${a.user_id}','${escapeHtml(a.tiktok_username||'?')}')" style="padding:8px 16px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);color:#E8940A;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Geist,sans-serif;">Progression</button>` : ''}
       </div>
@@ -10300,7 +10300,7 @@ function addAgentModal(encodedData) {
 
   const modalHtml = `
     <div id="modal-add-agent" style="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;">
-      <div style="background:#1a1f1b;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:400px;width:100%;">
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:400px;width:100%;">
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin:0 0 4px;">Ajouter comme agent</h3>
         <p style="font-size:13px;color:var(--gris);margin:0 0 16px;">${r.nom} · ${r.telephone || '—'}</p>
 
@@ -10394,8 +10394,8 @@ function _formatSemaineLabel(dateStr) {
   return d.toLocaleDateString('fr-FR', opts) + ' - ' + end.toLocaleDateString('fr-FR', opts);
 }
 
-function _cartonColor(c) { return c === 'rouge' ? '#dc2626' : c === 'orange' ? '#f97316' : '#22c55e'; }
-function _cartonEmoji(c) { return c === 'rouge' ? '🔴' : c === 'orange' ? '🟠' : '🟢'; }
+function _cartonColor(c) { return c === 'rouge' ? '#dc2626' : c === 'orange' ? '#f97316' : '#E8940A'; }
+function _cartonEmoji(c) { return c === 'rouge' ? '🔴' : c === 'orange' ? '🟠' : '🟡'; }
 
 // ISO date string (YYYY-MM-DD) for Monday of the week weeksAgo weeks back
 function _weekStart(weeksAgo) {
@@ -10509,8 +10509,8 @@ function renderKPIList(agents) {
 
   container.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;">
-      <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px;text-align:center;">
-        <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:#22c55e;">${enRoute}</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:14px;text-align:center;">
+        <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:900;color:#E8940A;">${enRoute}</div>
         <div style="font-size:10px;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">En route</div>
       </div>
       <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:12px;padding:14px;text-align:center;">
@@ -10540,14 +10540,14 @@ function _renderKPIRow({ agent, tw, pw, carton, statut }) {
   const pwOk = pw.inscrits >= 150 && pw.pro >= 30;
   const twTaux = tw.inscrits > 0 ? Math.round(tw.pro / tw.inscrits * 10000) / 100 : 0;
   const progressPct = Math.min(100, Math.round(tw.inscrits / 150 * 100));
-  const progressColor = tw.inscrits >= 150 ? '#22c55e' : tw.inscrits >= 75 ? '#f97316' : '#dc2626';
+  const progressColor = tw.inscrits >= 150 ? '#E8940A' : tw.inscrits >= 75 ? '#f97316' : '#dc2626';
 
   const border = carton === 'rouge'
     ? 'border:1px solid rgba(220,38,38,.4);background:rgba(220,38,38,.04);'
     : carton === 'orange'
     ? 'border:1px solid rgba(249,115,22,.4);background:rgba(249,115,22,.04);'
     : twOk
-    ? 'border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.02);'
+    ? 'border:1px solid rgba(232,148,10,.2);background:rgba(232,148,10,.02);'
     : 'border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);';
 
   const statutBadge = statut === 'formation'
@@ -10578,7 +10578,7 @@ function _renderKPIRow({ agent, tw, pw, carton, statut }) {
           <div style="font-size:10px;color:var(--gris);">Pro</div>
         </div>
         <div style="text-align:center;min-width:54px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${twTaux >= 20 ? '#22c55e' : '#dc2626'};">${twTaux}%</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:${twTaux >= 20 ? '#E8940A' : '#dc2626'};">${twTaux}%</div>
           <div style="font-size:10px;color:var(--gris);">conversion</div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
@@ -10663,7 +10663,7 @@ function openKPIHistorique(agentId, agentNom, agentCode) {
         <td style="color:#FCE0A8;font-size:12px;padding:8px;">${_formatSemaineLabel(r.weekKey)}</td>
         <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${r.b.inscrits >= 150 ? '#FCE0A8' : r.b.inscrits > 0 ? '#f97316' : 'var(--gris)'};">${r.b.inscrits}</td>
         <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${r.b.pro >= 30 ? '#E8940A' : r.b.pro > 0 ? '#f97316' : 'var(--gris)'};">${r.b.pro}</td>
-        <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${r.taux >= 20 ? '#22c55e' : r.taux > 0 ? '#f97316' : 'var(--gris)'};">${r.taux}%</td>
+        <td style="text-align:center;font-family:'Geist Mono',monospace;padding:8px;color:${r.taux >= 20 ? '#E8940A' : r.taux > 0 ? '#f97316' : 'var(--gris)'};">${r.taux}%</td>
         <td style="text-align:center;padding:8px;">${r.b.inscrits > 0 ? _cartonEmoji(r.carton) : '<span style="color:var(--gris);">-</span>'}</td>
       </tr>`).join('')
     : '<tr><td colspan="5" style="text-align:center;color:var(--gris);padding:20px;">Aucune inscription enregistree via ce code</td></tr>';
@@ -10814,7 +10814,7 @@ function renderBattle() {
           <div style="font-size:9px;color:var(--gris);">Pro ce mois</div>
         </div>
         <div style="text-align:right;min-width:80px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;color:${a.proMois > 0 ? '#22c55e' : 'var(--gris)'};">${comm} F</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;color:${a.proMois > 0 ? '#E8940A' : 'var(--gris)'};">${comm} F</div>
           <div style="font-size:9px;color:var(--gris);">commissions</div>
         </div>
       </div>`;
@@ -10889,7 +10889,7 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
         statutBadge = `<span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">${typeLabel}</span>`;
       }
     } else if (m.statut === 'repondu_fondateur') {
-      statutBadge = `<span style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>`;
+      statutBadge = `<span style="background:rgba(232,148,10,0.12);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>`;
     } else if (m.statut === 'repondu_ia') {
       statutBadge = `<span style="background:rgba(232,148,10,0.12);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">🤖 Répondu IA</span>`;
     }
@@ -10915,8 +10915,8 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
         </div>` : '';
 
     const reponseFondateur = m.reponse_fondateur
-      ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(34,197,94,0.05);border-left:3px solid rgba(34,197,94,0.35);border-radius:0 8px 8px 0;">
-          <div style="font-size:10px;color:rgba(74,222,128,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div>
+      ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(232,148,10,0.05);border-left:3px solid rgba(232,148,10,0.35);border-radius:0 8px 8px 0;">
+          <div style="font-size:10px;color:rgba(232,148,10,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div>
           <div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(m.reponse_fondateur)}</div>
         </div>` : '';
 
@@ -10978,12 +10978,12 @@ async function adminSendDMReply(messageId) {
       // Mettre à jour la card localement
       const card = document.getElementById(`dm-card-${messageId}`);
       if (card) {
-        card.style.border = '1px solid rgba(34,197,94,0.25)';
-        card.style.background = 'rgba(34,197,94,0.03)';
-        if (formEl) formEl.innerHTML = `<div style="margin-top:10px;padding:10px 12px;background:rgba(34,197,94,0.05);border-left:3px solid rgba(34,197,94,0.35);border-radius:0 8px 8px 0;"><div style="font-size:10px;color:rgba(74,222,128,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div><div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(reponse)}</div></div>`;
+        card.style.border = '1px solid rgba(232,148,10,0.25)';
+        card.style.background = 'rgba(232,148,10,0.03)';
+        if (formEl) formEl.innerHTML = `<div style="margin-top:10px;padding:10px 12px;background:rgba(232,148,10,0.05);border-left:3px solid rgba(232,148,10,0.35);border-radius:0 8px 8px 0;"><div style="font-size:10px;color:rgba(232,148,10,0.6);margin-bottom:4px;font-family:'Geist Mono',monospace;letter-spacing:1px;">TA RÉPONSE</div><div style="font-size:12px;color:rgba(252,224,168,0.65);line-height:1.6;">${escapeHtml(reponse)}</div></div>`;
         // Mettre à jour le badge statut
         const badgeEl = card.querySelector('[data-dm-statut-badge]');
-        if (badgeEl) badgeEl.innerHTML = '<span style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>';
+        if (badgeEl) badgeEl.innerHTML = '<span style="background:rgba(232,148,10,0.12);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;">✅ Traité</span>';
       }
       if (typeof toast === 'function') toast('Réponse envoyée.', 'success');
     } else {
@@ -11403,7 +11403,7 @@ function renderOffreEmploi(offre) {
   const _matchCache = (window.currentPrestataire && window.wozaliAi)
     ? window.wozaliAi.getMatchScore(window.currentPrestataire.id, offre.id) : null;
   const _matchScore = _matchCache?.score;
-  const _matchColor = _matchScore >= 70 ? '#22c55e' : _matchScore >= 40 ? '#E8940A' : '#f87171';
+  const _matchColor = _matchScore >= 70 ? '#E8940A' : _matchScore >= 40 ? '#E8940A' : '#f87171';
   const _safeTitre = escapeHtml(f['Titre'] || 'Sans titre');
   const _safeRecruteurNom = escapeHtml(f['Recruteur Nom'] || 'Recruteur');
   const _safeRecruteurId = escapeHtml(f['Recruteur ID'] || '');
@@ -12552,7 +12552,7 @@ function renderMesOffres(offres) {
           ${f['Métier'] ? `<span style="background:rgba(232,148,10,.15);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">${_safeMetierO}</span>` : ''}
           ${f['Type de contrat'] ? `<span style="background:rgba(252, 224, 168,.08);color:rgba(252, 224, 168,.6);border-radius:20px;padding:3px 11px;font-size:12px;">${_safeContratO}</span>` : ''}
           ${f['Quartier'] ? `<span style="background:rgba(252, 224, 168,.05);color:rgba(252, 224, 168,.45);border-radius:20px;padding:3px 11px;font-size:11px;">📍 ${_safeQuartierO}</span>` : ''}
-          ${isActive ? `<span style="background:rgba(34,197,94,.12);color:#22c55e;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">● Active</span>` : `<span style="background:rgba(252, 224, 168,.06);color:rgba(252, 224, 168,.35);border-radius:20px;padding:3px 11px;font-size:12px;">● Inactive</span>`}
+          ${isActive ? `<span style="background:rgba(232,148,10,.12);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:600;">● Active</span>` : `<span style="background:rgba(252, 224, 168,.06);color:rgba(252, 224, 168,.35);border-radius:20px;padding:3px 11px;font-size:12px;">● Inactive</span>`}
           ${f['Urgente'] ? `<span style="background:rgba(220,38,38,.15);color:#ef4444;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;">🔴 URGENTE</span>` : ''}
           ${boostLabel ? `<span style="background:rgba(232,148,10,.18);color:#E8940A;border-radius:20px;padding:3px 11px;font-size:12px;font-weight:700;">${boostLabel}</span>` : ''}
         </div>
@@ -12573,7 +12573,7 @@ function renderMesOffres(offres) {
         ${!isBoosted && boostStatut !== 'en_attente' ? `<button onclick="ouvrirBoostModal('${_safeIdO}')" style="background:linear-gradient(135deg,rgba(232,148,10,.2),rgba(232,148,10,.08));color:#E8940A;border:1px solid rgba(232,148,10,.4);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚀 Booster</button>` : ''}
         <button onclick="ouvrirEditionOffre('${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Modifier</button>
         <button onclick="partagerOffre('${titre}','${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📤 Partager</button>
-        <button onclick="toggleOffreActive('${_safeIdO}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(34,197,94,.08)'};color:${isActive?'#ef4444':'#22c55e'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(34,197,94,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
+        <button onclick="toggleOffreActive('${_safeIdO}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(232,148,10,.08)'};color:${isActive?'#ef4444':'#E8940A'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(232,148,10,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
         <button onclick="supprimerOffre('${_safeIdO}','${titre}')" style="background:rgba(220,38,38,.07);color:#ef4444;border:1px solid rgba(220,38,38,.18);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🗑 Supprimer</button>
       </div>
     </div>`;
@@ -12658,7 +12658,7 @@ async function topCandidatsForOffre(offreId) {
       const note = f['Note moyenne'] ? Number(f['Note moyenne']).toFixed(1) : '—';
       const wa = (f['WhatsApp'] || f['Numéro de téléphone'] || '').replace(/\D/g, '');
       const safeName = (f['Nom complet'] || '').replace(/'/g, "\\'");
-      const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : score != null ? '#f87171' : 'rgba(252, 224, 168,.3)';
+      const scoreColor = score >= 70 ? '#E8940A' : score >= 40 ? '#E8940A' : score != null ? '#f87171' : 'rgba(252, 224, 168,.3)';
       const scoreBadge = score != null
         ? `<div style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:${scoreColor};padding:4px 10px;border-radius:8px;font-weight:800;font-size:13px;font-family:'Geist Mono',monospace;">🤖 ${score}</div>`
         : `<div style="background:rgba(255,255,255,.04);color:rgba(252, 224, 168,.3);padding:4px 10px;border-radius:8px;font-size:11px;">non scoré</div>`;
@@ -12871,7 +12871,7 @@ async function _confirmerBoostDemande(offreId) {
     if (infoDiv) infoDiv.style.display = 'block';
     if (prixLbl) prixLbl.textContent = plan.prix.toLocaleString('fr-FR') + ' FCFA';
     if (refLbl)  refLbl.textContent  = ref;
-    if (btn) { btn.textContent = '✅ Demande enregistrée'; btn.style.background = 'rgba(34,197,94,.15)'; btn.style.color = '#22c55e'; }
+    if (btn) { btn.textContent = '✅ Demande enregistrée'; btn.style.background = 'rgba(232,148,10,.15)'; btn.style.color = '#E8940A'; }
 
     // Rafraîchir la liste
     await loadMesOffres();
@@ -13265,7 +13265,7 @@ function renderRecrutCandidatures(cands) {
   const statutColors = {
     'En attente': { bg:'rgba(232,148,10,.15)', color:'#E8940A', label:'En attente' },
     'Vue':        { bg:'rgba(59,130,246,.15)',  color:'#60a5fa', label:'Vue' },
-    'Retenue':    { bg:'rgba(34,197,94,.15)',   color:'#22c55e', label:'Retenue' },
+    'Retenue':    { bg:'rgba(232,148,10,.15)',   color:'#E8940A', label:'Retenue' },
     'Refusée':    { bg:'rgba(239,68,68,.15)',   color:'#f87171', label:'Refusée' }
   };
 
@@ -13278,7 +13278,7 @@ function renderRecrutCandidatures(cands) {
         const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
         const photo   = f['Candidat Photo'] || '';
         const score   = f['Candidat Score WOZALI'] || 0;
-        const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
+        const scoreColor = score >= 70 ? '#E8940A' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
         const candId  = f['Candidat ID'] || '';
         const wa      = f['Candidat WhatsApp'] || '';
         const ageJ    = _ageJours(f['Date candidature']);
@@ -13314,12 +13314,12 @@ function renderRecrutCandidatures(cands) {
             <button onclick="openMessagerieRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;">💬 Message</button>
             <button onclick="openEntretienRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">📅 Entretien</button>
             ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;">💬 WhatsApp</a>` : ''}
-            <button onclick="updateStatutCandidature('${c.id}','Retenue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;">✓ Retenir</button>
+            <button onclick="updateStatutCandidature('${c.id}','Retenue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.15);color:#E8940A;border:none;cursor:pointer;">✓ Retenir</button>
             <button onclick="updateStatutCandidature('${c.id}','Refusée')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;">✗ Refuser</button>
             <button onclick="updateStatutCandidature('${c.id}','Vue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">👁 Vue</button>
             ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;">↗ Profil</button>` : ''}
             <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;">🚨</button>
-            ${isRetenue ? `<button onclick="embaucherCandidat('${c.id}')" style="padding:6px 14px;border-radius:8px;font-size:12px;font-weight:800;background:rgba(34,197,94,.2);color:#22c55e;border:1.5px solid rgba(34,197,94,.4);cursor:pointer;">✅ Embaucher</button>` : ''}
+            ${isRetenue ? `<button onclick="embaucherCandidat('${c.id}')" style="padding:6px 14px;border-radius:8px;font-size:12px;font-weight:800;background:rgba(232,148,10,.2);color:#E8940A;border:1.5px solid rgba(232,148,10,.4);cursor:pointer;">✅ Embaucher</button>` : ''}
           </div>
         </div>`;
       }).join('') + '</div>';
@@ -13342,7 +13342,7 @@ function renderRecrutCandidatures(cands) {
             const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
             const photo   = f['Candidat Photo'] || '';
             const score   = f['Candidat Score WOZALI'] || 0;
-            const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
+            const scoreColor = score >= 70 ? '#E8940A' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
             const candId  = f['Candidat ID'] || '';
             const wa      = f['Candidat WhatsApp'] || '';
             const ageJ    = _ageJours(f['Date candidature']);
@@ -13350,7 +13350,7 @@ function renderRecrutCandidatures(cands) {
             const rowBg   = ghosted ? 'rgba(239,68,68,.04)' : 'transparent';
             const aiCache = window.wozaliAi?.getCachedScore?.(c.id);
             const aiScore = aiCache?.score;
-            const aiColor = aiScore >= 70 ? '#22c55e' : aiScore >= 40 ? '#E8940A' : '#f87171';
+            const aiColor = aiScore >= 70 ? '#E8940A' : aiScore >= 40 ? '#E8940A' : '#f87171';
             const _safeCandNomT = escapeHtml(f['Candidat Nom']||'—');
             const _safeCandMetierT = escapeHtml(f['Candidat Métier']||'—');
             const _safeOffreTitreT = escapeHtml(f['Offre Titre']||'—');
@@ -13374,10 +13374,10 @@ function renderRecrutCandidatures(cands) {
                   <button onclick="openMessagerieRecru('${c.id}')" title="Message" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:12px;">💬</button>
                   <button onclick="openEntretienRecru('${c.id}')" title="Planifier entretien" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">📅</button>
                   ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">📱</a>` : ''}
-                  <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;">✓</button>
+                  <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.15);color:#E8940A;border:none;cursor:pointer;font-size:12px;">✓</button>
                   <button onclick="updateStatutCandidature('${c.id}','Refusée')" title="Refuser" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;">✗</button>
                   <button onclick="updateStatutCandidature('${c.id}','Vue')" title="Marquer vue" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">👁</button>
-                  ${statut === 'Retenue' ? `<button onclick="embaucherCandidat('${c.id}')" title="Embaucher" style="padding:4px 10px;border-radius:6px;background:rgba(34,197,94,.2);color:#22c55e;border:1.5px solid rgba(34,197,94,.4);cursor:pointer;font-size:12px;font-weight:800;">✅</button>` : ''}
+                  ${statut === 'Retenue' ? `<button onclick="embaucherCandidat('${c.id}')" title="Embaucher" style="padding:4px 10px;border-radius:6px;background:rgba(232,148,10,.2);color:#E8940A;border:1.5px solid rgba(232,148,10,.4);cursor:pointer;font-size:12px;font-weight:800;">✅</button>` : ''}
                   ${candId ? `<button onclick="showPage('profil');loadPublicProfile('${candId}')" title="Voir profil" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-size:12px;">↗</button>` : ''}
                   <button onclick="signalerCandidat('${c.id}')" title="Signaler" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.08);color:#f87171;border:none;cursor:pointer;font-size:12px;">🚨</button>
                 </div>
@@ -13417,10 +13417,10 @@ function renderAntiGhostingWidget(cands) {
   if (!wrap) return;
   const m = calcScoreVisibilite(cands || []);
   if (m.total === 0) { wrap.innerHTML = ''; return; }
-  const color = m.score >= 70 ? '#22c55e' : m.score >= 40 ? '#E8940A' : '#f87171';
+  const color = m.score >= 70 ? '#E8940A' : m.score >= 40 ? '#E8940A' : '#f87171';
   const label = m.score >= 70 ? 'Réactif ✓' : m.score >= 40 ? 'À surveiller' : 'Risque ghosting';
-  const bg = m.score >= 70 ? 'rgba(34,197,94,.06)' : m.score >= 40 ? 'rgba(232,148,10,.08)' : 'rgba(239,68,68,.08)';
-  const border = m.score >= 70 ? 'rgba(34,197,94,.25)' : m.score >= 40 ? 'rgba(232,148,10,.25)' : 'rgba(239,68,68,.3)';
+  const bg = m.score >= 70 ? 'rgba(232,148,10,.06)' : m.score >= 40 ? 'rgba(232,148,10,.08)' : 'rgba(239,68,68,.08)';
+  const border = m.score >= 70 ? 'rgba(232,148,10,.25)' : m.score >= 40 ? 'rgba(232,148,10,.25)' : 'rgba(239,68,68,.3)';
   wrap.innerHTML = `
     <div style="background:${bg};border:1px solid ${border};border-radius:14px;padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:18px;font-family:Geist,sans-serif;">
       <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:200px;">
@@ -13478,7 +13478,7 @@ function setRecrutCandView(view) {
 const _KANBAN_COLS = [
   { key: 'En attente', label: 'Nouveau',        color: '#FCE0A8', bg: 'rgba(252,224,168,.06)', border: 'rgba(252,224,168,.15)', next: 'Vue' },
   { key: 'Vue',        label: 'Présélectionné', color: '#3b82f6', bg: 'rgba(59,130,246,.06)',  border: 'rgba(59,130,246,.2)',   next: 'Retenue' },
-  { key: 'Retenue',    label: 'Retenu',         color: '#22c55e', bg: 'rgba(34,197,94,.06)',   border: 'rgba(34,197,94,.2)',    next: 'Refusée' },
+  { key: 'Retenue',    label: 'Retenu',         color: '#E8940A', bg: 'rgba(232,148,10,.06)',   border: 'rgba(232,148,10,.2)',    next: 'Refusée' },
   { key: 'Refusée',    label: 'Refusé',         color: '#dc2626', bg: 'rgba(220,38,38,.06)',   border: 'rgba(220,38,38,.2)',    next: null },
 ];
 
@@ -13595,7 +13595,7 @@ async function embaucherCandidat(candidatureId) {
     <div class="modal" style="max-width:480px;padding:32px;">
       <h3 style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;margin:0 0 8px;">Confirmer l'embauche</h3>
       <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);margin:0 0 20px;">Une fiche employé sera créée dans "Mon équipe".</p>
-      <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px;margin-bottom:20px;">
+      <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:16px;margin-bottom:20px;">
         <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:800;color:#FCE0A8;margin-bottom:4px;">${nom}</div>
         <div style="font-size:13px;color:#E8940A;">${metier}</div>
         <div style="font-size:12px;color:rgba(252,224,168,.5);margin-top:4px;">Poste : ${offre}</div>
@@ -13620,7 +13620,7 @@ async function embaucherCandidat(candidatureId) {
       </div>
       <div style="display:flex;gap:10px;">
         <button onclick="this.closest('.modal-overlay').remove()" style="flex:1;padding:12px;background:transparent;border:1px solid rgba(252,224,168,.2);border-radius:10px;color:rgba(252,224,168,.6);font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
-        <button id="emb-confirm-btn" onclick="_confirmEmbauche('${candidatureId}')" style="flex:2;padding:12px;background:#22c55e;border:none;border-radius:10px;color:#0a1a0f;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">✅ Confirmer l'embauche</button>
+        <button id="emb-confirm-btn" onclick="_confirmEmbauche('${candidatureId}')" style="flex:2;padding:12px;background:#E8940A;border:none;border-radius:10px;color:#14100A;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">✅ Confirmer l'embauche</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -13734,7 +13734,7 @@ async function loadMonEquipe() {
       const contrat = escapeHtml(e.type_contrat || '');
       const salaire = e.salaire_fcfa ? e.salaire_fcfa.toLocaleString('fr-FR') + ' FCFA/mois' : null;
       const dateEmb = e.date_embauche ? new Date(e.date_embauche).toLocaleDateString('fr-FR') : '—';
-      const statutColors = { actif: { bg: 'rgba(34,197,94,.12)', color: '#22c55e', label: 'Actif' }, fin_contrat: { bg: 'rgba(239,68,68,.12)', color: '#f87171', label: 'Fin de contrat' }, suspendu: { bg: 'rgba(234,179,8,.12)', color: '#fbbf24', label: 'Suspendu' } };
+      const statutColors = { actif: { bg: 'rgba(232,148,10,.12)', color: '#E8940A', label: 'Actif' }, fin_contrat: { bg: 'rgba(239,68,68,.12)', color: '#f87171', label: 'Fin de contrat' }, suspendu: { bg: 'rgba(234,179,8,.12)', color: '#fbbf24', label: 'Suspendu' } };
       const sc = statutColors[e.statut] || statutColors.actif;
 
       return `
@@ -13758,7 +13758,7 @@ async function loadMonEquipe() {
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="padding:7px 14px;border-radius:8px;background:rgba(37,211,102,.12);color:#25d366;text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">📲 WhatsApp</a>` : ''}
-            ${e.statut === 'actif' ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat')" style="padding:7px 14px;border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Fin de contrat</button>` : `<button onclick="_updateEquipeStatut('${e.id}','actif')" style="padding:7px 14px;border-radius:8px;background:rgba(34,197,94,.1);color:#22c55e;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Réactiver</button>`}
+            ${e.statut === 'actif' ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat')" style="padding:7px 14px;border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Fin de contrat</button>` : `<button onclick="_updateEquipeStatut('${e.id}','actif')" style="padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Réactiver</button>`}
           </div>
         </div>`;
     }).join('');
@@ -13978,7 +13978,7 @@ async function loadRecrutDashboard() {
     if (!latestEl) return;
     const latest = cands.slice(0, 5);
     if (latest.length === 0) { latestEl.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(252, 224, 168,.3);font-size:13px;">Aucune candidature pour l\'instant.</div>'; return; }
-    const scMap = { 'Retenue':'#22c55e', 'Vue':'#3b82f6', 'Refusée':'#ef4444' };
+    const scMap = { 'Retenue':'#E8940A', 'Vue':'#3b82f6', 'Refusée':'#ef4444' };
     latestEl.innerHTML = latest.map(c => {
       const f = c.fields, photo = f['Candidat Photo']||'', nom = f['Candidat Nom']||'Candidat';
       const statut = f['Statut']||'En attente', sc = scMap[statut]||'rgba(252, 224, 168,.45)';
@@ -14166,8 +14166,8 @@ function updateJournalKpiColors() {
   if (pctEl) pctEl.textContent = ins > 0 ? pct + '%' : '—%';
   if (msgEl) {
     if (ins === 0) { msgEl.textContent = ''; return; }
-    if (pct >= 25) { msgEl.style.color = '#4ade80'; msgEl.textContent = 'Excellent script Pro !'; }
-    else if (pct >= 20) { msgEl.style.color = '#4ade80'; msgEl.textContent = 'Dans les cibles.'; }
+    if (pct >= 25) { msgEl.style.color = '#E8940A'; msgEl.textContent = 'Excellent script Pro !'; }
+    else if (pct >= 20) { msgEl.style.color = '#E8940A'; msgEl.textContent = 'Dans les cibles.'; }
     else if (pct >= 15) { msgEl.style.color = '#f59e0b'; msgEl.textContent = 'Limite basse. Proposer le Pro plus tot.'; }
     else { msgEl.style.color = '#f87171'; msgEl.textContent = 'Trop bas. Revoir le script Pro avec ton Responsable.'; }
   }
@@ -14217,7 +14217,7 @@ async function loadFondateurBourse() {
         <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pro depuis le ${dateInscr}</div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
-        <span style="font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;color:#4ade80;border:1px solid rgba(74,222,128,.3);border-radius:4px;padding:2px 7px;">BOURSE</span>
+        <span style="font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:4px;padding:2px 7px;">BOURSE</span>
         ${isReine ? '<span style="font-size:10px;font-weight:800;font-family:\'Geist Mono\',monospace;color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:4px;padding:2px 7px;">REINE</span>' : ''}
       </div>
     </div>`;
@@ -14285,7 +14285,7 @@ async function loadFondateurCarto() {
 
     const n = cntPro[ag.code_parrainage] || 0;
     const pct = Math.round(n / KPI_SEM * 100);
-    const col = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+    const col = pct >= 70 ? '#E8940A' : pct >= 50 ? '#f59e0b' : '#f87171';
     const status = pct >= 70 ? 'VERT' : pct >= 50 ? 'ORANGE' : 'ROUGE';
 
     const icon = L.divIcon({
@@ -14307,7 +14307,7 @@ async function loadFondateurCarto() {
       .map(ag => {
         const n = cntPro[ag.code_parrainage] || 0;
         const pct = Math.round(n / KPI_SEM * 100);
-        const col = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+        const col = pct >= 70 ? '#E8940A' : pct >= 50 ? '#f59e0b' : '#f87171';
         return { ag, n, pct, col };
       })
       .sort((a, b) => b.n - a.n);
@@ -14444,8 +14444,8 @@ async function loadFondateurObjectifs() {
   if (pctEl) pctEl.textContent = pctM1 + '% de la cible M1';
   if (badgeM1) {
     badgeM1.textContent = pctM1 >= 100 ? 'ATTEINT' : pctM1 >= 70 ? 'EN ROUTE' : 'EN COURS';
-    badgeM1.style.color = pctM1 >= 100 ? '#4ade80' : pctM1 >= 70 ? '#f59e0b' : 'rgba(252,224,168,.4)';
-    badgeM1.style.borderColor = pctM1 >= 100 ? 'rgba(74,222,128,.4)' : pctM1 >= 70 ? 'rgba(245,158,11,.4)' : 'rgba(255,255,255,.1)';
+    badgeM1.style.color = pctM1 >= 100 ? '#E8940A' : pctM1 >= 70 ? '#f59e0b' : 'rgba(252,224,168,.4)';
+    badgeM1.style.borderColor = pctM1 >= 100 ? 'rgba(232,148,10,.4)' : pctM1 >= 70 ? 'rgba(245,158,11,.4)' : 'rgba(255,255,255,.1)';
   }
 }
 
@@ -14496,7 +14496,7 @@ async function loadFondateurTerrain() {
   if (ftClass) {
     ftClass.innerHTML = classement.map((ag, i) => {
       const pct = Math.round(ag.pros / KPI_SEM * 100);
-      const col = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+      const col = pct >= 70 ? '#E8940A' : pct >= 50 ? '#f59e0b' : '#f87171';
       const badge = pct >= 70 ? 'VERT' : pct >= 50 ? 'ORANGE' : 'ROUGE';
       return `<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px;">
         <div style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,.35);min-width:24px;">#${i + 1}</div>
@@ -14619,7 +14619,7 @@ async function loadAgentClassement() {
     const pct = Math.round(myPros / KPI_SEMAINE * 100);
     const restant = KPI_SEMAINE - myPros;
     elStat.textContent = `${pct}% de l'objectif${restant > 0 ? ' - encore ' + restant + ' Pros' : ' - objectif atteint !'}`;
-    elStat.style.color = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
+    elStat.style.color = pct >= 70 ? '#E8940A' : pct >= 50 ? '#f59e0b' : '#f87171';
   }
 
   // 6. Podium Top 3
@@ -14639,8 +14639,8 @@ async function loadAgentClassement() {
     const rank = i + 1;
     const isMe = ag.user_id === currentUser.id;
     const pct = Math.round(ag.prosS / KPI_SEMAINE * 100);
-    const statusColor = pct >= 70 ? '#4ade80' : pct >= 50 ? '#f59e0b' : '#f87171';
-    const barBg = pct >= 70 ? 'rgba(74,222,128,.25)' : pct >= 50 ? 'rgba(245,158,11,.25)' : 'rgba(248,113,113,.25)';
+    const statusColor = pct >= 70 ? '#E8940A' : pct >= 50 ? '#f59e0b' : '#f87171';
+    const barBg = pct >= 70 ? 'rgba(232,148,10,.25)' : pct >= 50 ? 'rgba(245,158,11,.25)' : 'rgba(248,113,113,.25)';
     const prenom = ag.nom ? ag.nom.split(' ')[0] : '?';
     const displayNom = isMe ? `${ag.nom} (moi)` : prenom;
     const border = isMe ? 'border:1px solid rgba(232,148,10,.5);' : 'border:1px solid rgba(255,255,255,.06);';
@@ -14691,7 +14691,7 @@ function _renderAgentJournaux(rows) {
     const d = new Date(r.date + 'T12:00:00');
     const label = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
     const pct = r.inscrits > 0 ? Math.round(r.pros / r.inscrits * 100) : 0;
-    const convColor = r.inscrits >= 8 ? '#4ade80' : r.inscrits >= 4 ? '#f59e0b' : '#f87171';
+    const convColor = r.inscrits >= 8 ? '#E8940A' : r.inscrits >= 4 ? '#f59e0b' : '#f87171';
     return `
       <div style="background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -14705,7 +14705,7 @@ function _renderAgentJournaux(rows) {
         </div>
         ${r.zones ? `<div style="font-size:11px;color:rgba(252,224,168,.35);margin-bottom:8px;">Zones : ${r.zones}</div>` : ''}
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11px;">
-          ${r.ce_qui_a_marche ? `<div style="background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.1);border-radius:8px;padding:8px;color:rgba(252,224,168,.6);line-height:1.4;"><span style="color:#4ade80;font-weight:700;display:block;margin-bottom:3px;">Marche</span>${r.ce_qui_a_marche}</div>` : ''}
+          ${r.ce_qui_a_marche ? `<div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.1);border-radius:8px;padding:8px;color:rgba(252,224,168,.6);line-height:1.4;"><span style="color:#E8940A;font-weight:700;display:block;margin-bottom:3px;">Marche</span>${r.ce_qui_a_marche}</div>` : ''}
           ${r.ce_qui_na_pas_marche ? `<div style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:8px;padding:8px;color:rgba(252,224,168,.6);line-height:1.4;"><span style="color:#f87171;font-weight:700;display:block;margin-bottom:3px;">Pas marche</span>${r.ce_qui_na_pas_marche}</div>` : ''}
           ${r.demain_je_change ? `<div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.1);border-radius:8px;padding:8px;color:rgba(252,224,168,.6);line-height:1.4;"><span style="color:#E8940A;font-weight:700;display:block;margin-bottom:3px;">Demain</span>${r.demain_je_change}</div>` : ''}
         </div>
@@ -14852,15 +14852,15 @@ async function loadResponsableEquipe() {
       const pct   = week.length > 0 ? Math.round(prosW.length / week.length * 100) : 0;
       const flag  = (a.ville || '').toLowerCase().includes('cotonou') ? 'BJ' : 'TG';
       let statut, sc, bc;
-      if (pct >= 70)      { statut = 'VERT';   sc = '#4ade80'; bc = 'rgba(34,197,94,.15)'; }
+      if (pct >= 70)      { statut = 'VERT';   sc = '#E8940A'; bc = 'rgba(232,148,10,.15)'; }
       else if (pct >= 50) { statut = 'ORANGE';  sc = '#fbbf24'; bc = 'rgba(245,158,11,.12)'; }
       else                { statut = 'ROUGE';   sc = '#f87171'; bc = 'rgba(239,68,68,.12)'; }
       return `<tr style="border-bottom:1px solid rgba(255,255,255,.03);">
         <td style="padding:12px;color:#FCE0A8;font-weight:600;">${a.nom} <span style="font-size:10px;color:rgba(252,224,168,.35);font-weight:400;">${flag}</span></td>
         <td style="padding:12px;color:rgba(252,224,168,.5);font-size:12px;">${a.ville || ''}</td>
-        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:${auj.length >= 20 ? '#4ade80' : auj.length >= 10 ? '#f59e0b' : '#f87171'};font-weight:700;">${auj.length}</td>
+        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:${auj.length >= 20 ? '#E8940A' : auj.length >= 10 ? '#f59e0b' : '#f87171'};font-weight:700;">${auj.length}</td>
         <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#FCE0A8;">${week.length}</td>
-        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:${prosW.length >= 20 ? '#4ade80' : '#f59e0b'};font-weight:700;">${prosW.length}</td>
+        <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:${prosW.length >= 20 ? '#E8940A' : '#f59e0b'};font-weight:700;">${prosW.length}</td>
         <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">${pros.length}</td>
         <td style="padding:12px;text-align:center;"><span style="background:${bc};color:${sc};border:1px solid ${sc.replace(')', ',.4)')};border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">${statut}</span></td>
       </tr>`;
@@ -14900,7 +14900,7 @@ async function loadResponsableJournaux() {
               <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#E8940A;font-family:'Geist Mono',monospace;font-size:14px;">${(a.nom||'?')[0].toUpperCase()}</div>
               <div><div style="font-weight:700;color:#FCE0A8;font-size:14px;">${a.nom}</div><div style="font-size:11px;color:rgba(252,224,168,.4);">${flag} · ${j.conversations||0} conv · ${j.inscrits||0} inscrits · ${j.pros||0} Pros (${pct}%)</div></div>
             </div>
-            <span style="background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">Soumis</span>
+            <span style="background:rgba(232,148,10,.12);color:#E8940A;border:1px solid rgba(232,148,10,.2);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">Soumis</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px;">
             ${j.ce_qui_a_marche ? `<div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;"><div style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ce qui a marche</div><div style="color:rgba(252,224,168,.75);line-height:1.5;">${j.ce_qui_a_marche}</div></div>` : ''}
@@ -15004,7 +15004,7 @@ async function submitResponsableCR() {
       .upsert(payload, { onConflict: 'responsable_id,semaine_debut' });
     if (error) throw error;
     const msg = document.getElementById('cr-submit-msg');
-    if (msg) { msg.style.display = 'block'; msg.style.color = '#4ade80'; msg.textContent = 'Compte rendu envoye avec succes.'; }
+    if (msg) { msg.style.display = 'block'; msg.style.color = '#E8940A'; msg.textContent = 'Compte rendu envoye avec succes.'; }
     loadResponsableCR();
   } catch (e) {
     console.error('[cr-submit]', e);
