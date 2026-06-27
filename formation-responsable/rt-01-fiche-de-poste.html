@@ -14,7 +14,6 @@
 
   .page { max-width: 780px; margin: 0 auto; padding: 56px 48px 80px; }
 
-  /* Header */
   .doc-header { border-bottom: 3px solid #E8940A; padding-bottom: 32px; margin-bottom: 40px; }
   .doc-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
   .logo-w { font-family: 'DM Serif Display', serif; font-size: 28px; font-style: italic; color: #E8940A; font-weight: 900; }
@@ -25,24 +24,41 @@
   .doc-title { font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 900; color: #1a1a1a; line-height: 1.2; margin-bottom: 6px; }
   .doc-subtitle { font-size: 13px; color: #E8940A; font-weight: 700; font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 2px; }
 
-  /* Sections */
   .section { margin-bottom: 36px; }
   .section-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
   .section h2 { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1a1a1a; margin-bottom: 14px; border-bottom: 1px solid #f0e8d8; padding-bottom: 8px; }
   p { margin-bottom: 10px; color: #333; }
   p strong { color: #1a1a1a; }
 
+  /* Bloc alerte critique */
+  .bloc-alerte { background: #1a1a1a; border-left: 5px solid #E8940A; border-radius: 10px; padding: 20px 24px; margin-bottom: 20px; }
+  .bloc-alerte .titre { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #E8940A; margin-bottom: 10px; }
+  .bloc-alerte p { color: rgba(252,224,168,.9); font-size: 13px; margin-bottom: 6px; }
+  .bloc-alerte p:last-child { margin-bottom: 0; }
+
   /* Bloc doré */
   .bloc-or { background: #fffbf0; border: 1px solid rgba(232,148,10,.3); border-left: 4px solid #E8940A; border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; }
   .bloc-or .titre { font-weight: 700; color: #1a1a1a; margin-bottom: 6px; font-size: 14px; }
   .bloc-or p { margin: 0; font-size: 13px; }
 
-  /* Liste */
+  /* Bloc rouge rupture */
+  .bloc-rupture { background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.2); border-left: 4px solid #dc2626; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
+  .bloc-rupture .titre { font-weight: 800; color: #dc2626; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Geist Mono', monospace; font-size: 10px; }
+  .bloc-rupture p { margin: 0; font-size: 13px; color: #7f1d1d; }
+
+  /* Bloc freelance */
+  .bloc-freelance { background: #f8f4ff; border: 1px solid rgba(124,58,237,.2); border-left: 4px solid #7c3aed; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
+  .bloc-freelance .titre { font-weight: 700; color: #5b21b6; margin-bottom: 6px; font-size: 13px; }
+  .bloc-freelance p { margin: 0; font-size: 13px; color: #4c1d95; }
+
   ul.doc-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
   ul.doc-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #444; }
   ul.doc-list li::before { content: '→'; color: #E8940A; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
-  /* Table KPI */
+  ul.doc-list-x { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  ul.doc-list-x li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #7f1d1d; }
+  ul.doc-list-x li::before { content: '✗'; color: #dc2626; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
   .kpi-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
   .kpi-table th { background: #1a1a1a; color: #E8940A; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; padding: 10px 14px; text-align: left; font-weight: 400; }
   .kpi-table td { padding: 10px 14px; border-bottom: 1px solid #f0e8d8; color: #333; vertical-align: top; }
@@ -52,22 +68,18 @@
   .badge-orange { background: rgba(245,158,11,.1); color: #b45309; border-radius: 100px; font-size: 11px; font-weight: 700; padding: 2px 8px; font-family: 'Geist Mono', monospace; }
   .badge-rouge { background: rgba(239,68,68,.1); color: #dc2626; border-radius: 100px; font-size: 11px; font-weight: 700; padding: 2px 8px; font-family: 'Geist Mono', monospace; }
 
-  /* Bloc remun */
   .remun-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
   .remun-card { background: #fffbf0; border: 1px solid rgba(232,148,10,.25); border-radius: 10px; padding: 16px; }
   .remun-card .label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #E8940A; margin-bottom: 8px; }
   .remun-card .montant { font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 4px; }
   .remun-card .desc { font-size: 12px; color: #666; }
 
-  /* Clauses importantes */
   .clause { background: #1a1a1a; color: #FCE0A8; border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; }
   .clause .c-titre { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #E8940A; margin-bottom: 8px; }
   .clause p { color: rgba(252,224,168,.85); font-size: 13px; margin: 0; }
 
-  /* Divider */
   .divider { height: 1px; background: linear-gradient(90deg, transparent, #E8940A, transparent); margin: 36px 0; }
 
-  /* Signature */
   .signature-block { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 48px; padding-top: 32px; border-top: 2px solid #1a1a1a; }
   .sig-col .sig-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #666; margin-bottom: 8px; }
   .sig-col .sig-name { font-weight: 700; color: #1a1a1a; font-size: 14px; margin-bottom: 4px; }
@@ -94,42 +106,74 @@
     <div class="doc-meta">
       <span><strong>Document :</strong> Fiche de poste officielle</span>
       <span><strong>Référence :</strong> RT-FP-2026-001</span>
-      <span><strong>Version :</strong> 1.0</span>
+      <span><strong>Version :</strong> 1.1</span>
       <span><strong>Date d'effet :</strong> 27 juillet 2026</span>
     </div>
     <h1 class="doc-title">Responsable Réseau Terrain</h1>
-    <div class="doc-subtitle">WOZALI — Togo + Bénin</div>
+    <div class="doc-subtitle">WOZALI — Togo + Bénin — Contrat Freelance</div>
   </div>
 
-  <!-- 1. Identité du poste -->
+  <!-- AVERTISSEMENT OUVERTURE -->
+  <div class="bloc-alerte" style="margin-bottom:36px;">
+    <div class="titre">Lire avant de signer</div>
+    <p><strong style="color:#E8940A;">Ce poste ne t'appartient pas. Il se mérite semaine après semaine.</strong></p>
+    <p>Tu es sélectionné. Pas titularisé. La confiance accordée ici est conditionnelle aux résultats. Si les KPI ne sont pas atteints pendant 3 semaines consécutives, le fondateur remplace sans préavis ni indemnité. Ce n'est pas une menace. C'est la règle du jeu, et elle s'applique à tout le monde sans exception.</p>
+    <p>Ce document est un contrat de prestation freelance. Ni toi ni tes agents ne sont salariés de WOZALI. Il n'y a aucun lien de subordination, aucun congé payé, aucun préavis légal, aucune indemnité de licenciement. La seule chose permanente ici, c'est ton portefeuille de parrainage personnel. Le reste dépend de toi.</p>
+  </div>
+
+  <!-- 1. Nature juridique -->
   <div class="section">
     <div class="section-label">01</div>
-    <h2>Identité du poste</h2>
-    <div class="bloc-or">
-      <div class="titre">Mission principale</div>
-      <p>Manager, coacher et rendre performante une équipe de 20 agents terrain WOZALI (10 Togo + 10 Bénin) dans le but de maximiser les inscriptions et les conversions Pro sur la plateforme.</p>
+    <h2>Nature du contrat — Freelance, pas salarié</h2>
+
+    <div class="bloc-freelance">
+      <div class="titre">Toi — Responsable Réseau Terrain WOZALI</div>
+      <p>Prestataire freelance indépendant. Tu gères ton temps, ton organisation, tes outils. WOZALI te fixe des objectifs de résultat, pas des horaires. Aucune cotisation sociale, aucun congé payé, aucun avantage salarié. Tu factures tes commissions depuis le dashboard. Tu paies tes impôts sous ta propre responsabilité.</p>
     </div>
+
+    <div class="bloc-freelance">
+      <div class="titre">Tes 20 agents terrain WOZALI</div>
+      <p>Tes agents sont eux aussi des freelances indépendants. Ils travaillent à la commission. Ils ne sont ni tes employés, ni les employés de WOZALI. Tu ne peux pas leur imposer d'horaires, de tenue ou de contrat de travail. Tu les coaches, tu les formes, tu les accompagnes. La relation est commerciale, pas hiérarchique au sens légal.</p>
+    </div>
+
     <ul class="doc-list">
-      <li><strong>Intitulé exact du poste :</strong> Responsable Réseau Terrain WOZALI</li>
+      <li><strong>Intitulé exact :</strong> Responsable Réseau Terrain WOZALI — Prestataire Freelance</li>
       <li><strong>Périmètre :</strong> Togo (Lomé) + Bénin (Cotonou) — phase lancement</li>
-      <li><strong>Taille de l'équipe :</strong> 20 agents terrain WOZALI (10 par pays)</li>
-      <li><strong>Date de prise de poste :</strong> 27 juillet 2026</li>
-      <li><strong>Lien hiérarchique :</strong> Directement rattaché au Fondateur et Directeur Général</li>
-      <li><strong>Nature :</strong> Freelance / Commission exclusive — aucun lien de subordination salariale</li>
+      <li><strong>Taille de l'équipe :</strong> 20 agents terrain WOZALI (10 Togo, 10 Bénin)</li>
+      <li><strong>Prise de poste :</strong> 27 juillet 2026</li>
+      <li><strong>Lien opérationnel :</strong> Directement rattaché au Fondateur et Directeur Général</li>
+      <li><strong>Recrutement agents :</strong> Exclusivement par le Fondateur — toi tu les formes et les gères, tu ne recrutes pas</li>
     </ul>
   </div>
 
-  <!-- 2. Missions -->
+  <!-- 2. CE QUE LE POSTE N'EST PAS -->
   <div class="section">
     <div class="section-label">02</div>
+    <h2>Ce que ce poste n'est pas</h2>
+    <p>Pour éviter toute ambiguïté avant signature :</p>
+    <ul class="doc-list-x">
+      <li>Ce n'est pas un CDI ou un CDD. Aucun droit du travail ne s'applique.</li>
+      <li>Ce n'est pas un salaire fixe garanti. Zéro revenu si l'équipe ne signe pas de Pros.</li>
+      <li>Ce n'est pas un poste permanent. Il peut être supprimé à tout moment si les KPI ne sont pas tenus.</li>
+      <li>Ce n'est pas un poste de manager au sens traditionnel. Tu n'as pas de pouvoir de sanction unilatéral sur les agents.</li>
+      <li>Ce n'est pas un poste de représentation publique de WOZALI. Tu n'as aucune délégation de pouvoir pour engager WOZALI contractuellement.</li>
+      <li>Ce n'est pas une garantie de revenus. Les projections financières dans la simulation (doc A.3) sont des scénarios, pas des promesses.</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 3. Missions -->
+  <div class="section">
+    <div class="section-label">03</div>
     <h2>Missions et responsabilités</h2>
 
     <p><strong>Management quotidien de l'équipe</strong></p>
     <ul class="doc-list">
-      <li>Animer un brief collectif chaque lundi matin (WhatsApp ou appel) : objectifs, techniques, motivation</li>
+      <li>Brief collectif chaque lundi matin (WhatsApp ou appel) : objectifs, techniques, motivation</li>
       <li>Lire les journaux de bord des agents chaque soir et répondre aux blocages identifiés</li>
       <li>Identifier les agents en difficulté (statut orange/rouge) et prendre une action dans les 48h</li>
-      <li>Maintenir la dynamique d'équipe : classements, encouragements, partage des victoires</li>
+      <li>Maintenir la dynamique : classements, encouragements, partage des victoires</li>
     </ul>
 
     <p style="margin-top:14px;"><strong>Coaching et terrain</strong></p>
@@ -137,58 +181,63 @@
       <li>Sortie terrain accompagnée avec les agents orange minimum 1 fois par semaine</li>
       <li>Rôle play d'objections avec l'équipe chaque semaine (enregistré)</li>
       <li>Observer, corriger, démontrer en situation réelle — pas seulement en coaching vocal</li>
-      <li>Pratiquer le terrain en solo également les samedis (maintenir sa propre performance)</li>
+      <li>Pratiquer le terrain en solo les samedis (maintenir sa propre performance)</li>
     </ul>
 
     <p style="margin-top:14px;"><strong>Reporting et coordination</strong></p>
     <ul class="doc-list">
-      <li>Soumettre un compte rendu hebdomadaire complet chaque dimanche avant 20h (via dashboard)</li>
+      <li>Compte rendu hebdomadaire complet chaque dimanche avant 20h (via dashboard) — NON NÉGOCIABLE</li>
       <li>Disponible pour un appel fondateur chaque lundi après le brief équipe</li>
       <li>Remonter les blocages systémiques, les objections nouvelles, les zones performantes</li>
-      <li>Être présent à Cotonou minimum une semaine par mois pour le volet Bénin</li>
+      <li>Présence à Cotonou minimum une semaine par mois — frais à ta charge</li>
     </ul>
   </div>
 
   <div class="divider"></div>
 
-  <!-- 3. Rémunération -->
+  <!-- 4. Rémunération -->
   <div class="section">
-    <div class="section-label">03</div>
+    <div class="section-label">04</div>
     <h2>Rémunération</h2>
-    <p>La rémunération est entièrement à la performance. <strong>Aucun fixe. Aucune prime.</strong> Deux sources distinctes et cumulables.</p>
+    <p><strong>Aucun fixe. Aucune prime. Aucune avance.</strong> La rémunération est entièrement liée aux résultats de l'équipe et à ton propre portefeuille de parrainage.</p>
 
     <div class="remun-grid">
       <div class="remun-card">
         <div class="label">Source 1 — Commission poste</div>
         <div class="montant">10%</div>
-        <div class="desc">du CA brut mensuel de toute l'équipe. CA brut = Pros actifs équipe × 2 500 FCFA. Calculée sur les abonnements ACTIFS, pas uniquement les nouveaux.</div>
+        <div class="desc">du CA brut mensuel de toute l'équipe. CA brut = Pros actifs équipe × 2 500 FCFA. Sur les abonnements ACTIFS, pas uniquement les nouveaux. Si tu quittes le poste ou es remplacé, cette source s'arrête immédiatement.</div>
       </div>
       <div class="remun-card">
         <div class="label">Source 2 — Parrainage personnel</div>
         <div class="montant">1 000 FCFA</div>
-        <div class="desc">par Pro actif signé via ton propre lien d'affiliation, chaque mois. Ce portefeuille t'appartient. Il ne dépend pas du poste.</div>
+        <div class="desc">par Pro actif signé via ton propre lien d'affiliation, chaque mois. Ce portefeuille t'appartient définitivement. Il continue même si tu perds le poste. C'est la seule chose permanente dans ce contrat.</div>
       </div>
     </div>
 
     <div class="bloc-or">
       <div class="titre">Simulation mois 3 — scénario cible</div>
-      <p>800 Pros actifs équipe × 2 500 FCFA = CA brut 2 000 000 FCFA. Ta commission poste = <strong>200 000 FCFA</strong>. + tes propres signatures personnelles. Révisé en temps réel dans ton dashboard.</p>
+      <p>800 Pros actifs équipe × 2 500 FCFA = CA brut 2 000 000 FCFA. Commission poste = <strong>200 000 FCFA</strong>. + tes propres signatures personnelles. Révisé en temps réel dans le dashboard. Ce chiffre est un scénario construit sur les KPI cibles, pas une garantie.</p>
     </div>
 
     <ul class="doc-list">
       <li>Commission poste versée avant le 5 du mois suivant, sur présentation d'une facture depuis le dashboard</li>
-      <li>Commission parrainage personnel disponible à tout moment (retrait depuis l'espace Parrainage)</li>
-      <li>Si tu quittes le poste ou es remplacé : commission poste s'arrête. Parrainage personnel reste intégralement à toi.</li>
+      <li>Commission parrainage personnel disponible à tout moment (retrait espace Parrainage)</li>
+      <li>Si tu quittes ou es remplacé : commission poste s'arrête. Parrainage personnel reste intégralement à toi.</li>
     </ul>
   </div>
 
   <div class="divider"></div>
 
-  <!-- 4. KPI -->
+  <!-- 5. KPI -->
   <div class="section">
-    <div class="section-label">04</div>
-    <h2>Objectifs de performance (KPI)</h2>
-    <p>Les KPI ci-dessous s'appliquent dès la semaine 2 (semaine 1 = intégration agents). Révision à la baisse prévue au mois 3 une fois la base inscrite significative.</p>
+    <div class="section-label">05</div>
+    <h2>Objectifs de performance (KPI) — obligatoires</h2>
+
+    <div class="bloc-alerte" style="margin-bottom:20px;">
+      <div class="titre">Règle ferme</div>
+      <p>Ces KPI ne sont pas des suggestions. Ils sont la condition de maintien du poste. <strong style="color:#E8940A;">3 semaines consécutives en zone rouge = remplacement.</strong> Le fondateur décide seul. Il n'y a pas de négociation possible à ce stade.</p>
+      <p>Les KPI s'appliquent dès la semaine 2. La semaine 1 est réservée à l'intégration des agents. Révision à la baisse possible au mois 3 si la base inscrite le justifie — décision fondateur uniquement.</p>
+    </div>
 
     <table class="kpi-table">
       <thead>
@@ -237,106 +286,166 @@
           <td>20 / 20</td>
         </tr>
         <tr>
-          <td>Compte rendu hebdo</td>
-          <td colspan="3" style="text-align:center;font-style:italic;color:#666;">Obligatoire chaque dimanche avant 20h — non négociable</td>
+          <td>Compte rendu hebdo (dimanche 20h)</td>
+          <td colspan="3" style="text-align:center;font-style:italic;color:#666;">Obligatoire sans exception — 2 oublis consécutifs = avertissement formel</td>
         </tr>
       </tbody>
     </table>
 
     <p><strong>Lecture des statuts agents dans le dashboard :</strong></p>
     <ul class="doc-list">
-      <li><span class="badge-vert">VERT</span> KPI individuel > 70% — agent autonome, encourager et maintenir</li>
+      <li><span class="badge-vert">VERT</span> KPI individuel &gt; 70% — autonome, encourager et maintenir</li>
       <li><span class="badge-orange">ORANGE</span> KPI 50-70% — coaching actif requis sous 48h</li>
       <li><span class="badge-rouge">ROUGE</span> KPI &lt; 50% — action immédiate (voir protocole sous-performance)</li>
     </ul>
   </div>
 
-  <!-- 5. Règle maintien en poste -->
+  <!-- 6. Règle de maintien en poste -->
   <div class="section">
-    <div class="section-label">05</div>
-    <h2>Règle de maintien en poste</h2>
+    <div class="section-label">06</div>
+    <h2>Règle de maintien en poste — 3 semaines rouge = remplacement</h2>
 
     <table class="kpi-table">
       <thead>
         <tr>
           <th>Durée en zone rouge équipe</th>
-          <th>Action</th>
-          <th>Décision</th>
+          <th>Action déclenchée</th>
+          <th>Qui décide</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Semaine 1</td>
-          <td>Zoom individuel avec le fondateur, enregistré, plan d'action défini</td>
-          <td>Responsable</td>
+          <td>Semaine 1 rouge</td>
+          <td>Zoom individuel avec le fondateur, enregistré. Plan d'action écrit livré dans les 24h.</td>
+          <td>Responsable terrain</td>
         </tr>
         <tr>
-          <td>Semaine 2</td>
-          <td>Terrain accompagné fondateur + deuxième Zoom bilan</td>
+          <td>Semaine 2 rouge</td>
+          <td>Terrain accompagné fondateur. Zoom bilan résultats. Mesures correctives appliquées immédiatement.</td>
           <td>Responsable + Fondateur</td>
         </tr>
         <tr>
-          <td>Semaine 3</td>
-          <td>Documentation complète remontée. Décision de remplacement possible.</td>
+          <td>Semaine 3 rouge</td>
+          <td>Documentation remontée. Processus de remplacement enclenché. Transition organisée dans les 7 jours.</td>
           <td><strong>Fondateur uniquement</strong></td>
         </tr>
       </tbody>
     </table>
-    <p style="font-size:12px;color:#666;font-style:italic;">Le Responsable ne décide jamais du remplacement d'un agent seul. Toute décision finale appartient au Fondateur.</p>
+
+    <div class="bloc-rupture">
+      <div class="titre">Important</div>
+      <p>Le remplacement ne requiert aucun préavis légal, aucune indemnité, aucune procédure disciplinaire. C'est un contrat de prestation. Il prend fin quand les conditions de performance ne sont plus réunies. La décision appartient exclusivement au Fondateur. Elle n'est pas négociable une fois prise.</p>
+    </div>
+
+    <p style="font-size:12px;color:#666;font-style:italic;">Le Responsable ne décide jamais du remplacement d'un agent seul. Toute décision finale appartient au Fondateur. Rôle play, coaching, accompagnement terrain — oui. Rupture unilatérale — non.</p>
   </div>
 
   <div class="divider"></div>
 
-  <!-- 6. Clauses -->
+  <!-- 7. Règles à respecter -->
   <div class="section">
-    <div class="section-label">06</div>
+    <div class="section-label">07</div>
+    <h2>Règles à respecter — violation = rupture immédiate</h2>
+
+    <p>Les infractions ci-dessous entraînent la résiliation immédiate du contrat, sans préavis, sans indemnité, sans possibilité de recours.</p>
+
+    <div class="bloc-rupture" style="margin-top:16px;">
+      <div class="titre">Fraude ou manipulation des chiffres</div>
+      <p>Inscrire de faux profils, gonfler les chiffres de conversion, inventer des journaux de bord agents. Détecté lors des appels qualité fondateur ou via les données Supabase. Conséquence : rupture immédiate + signalement au réseau.</p>
+    </div>
+
+    <div class="bloc-rupture">
+      <div class="titre">Recruter des agents sans autorisation</div>
+      <p>Le recrutement des agents terrain WOZALI est exclusivement du ressort du Fondateur. Le Responsable ne recrute pas par bouche-à-oreille, recommandation personnelle ou de sa propre initiative. Toute proposition est remontée au Fondateur. Contournement de cette règle = rupture immédiate.</p>
+    </div>
+
+    <div class="bloc-rupture">
+      <div class="titre">Exploitation des données inscrits</div>
+      <p>Utiliser les noms, numéros ou données des inscrits WOZALI à des fins personnelles, commerciales ou pour un concurrent. Le Responsable voit les noms, statuts et zones. Il ne voit pas les numéros personnels ni les adresses précises. Toute utilisation hors cadre WOZALI = rupture immédiate.</p>
+    </div>
+
+    <div class="bloc-rupture">
+      <div class="titre">Relations inappropriées avec un agent ou un inscrit</div>
+      <p>Toute relation personnelle, romantique ou intime avec un agent terrain ou un membre inscrit sur la plateforme. Détectée via signalement ou appels qualité. Rupture immédiate, aucune exception.</p>
+    </div>
+
+    <div class="bloc-rupture">
+      <div class="titre">Représenter WOZALI sans autorisation</div>
+      <p>Signer un accord, prendre un engagement commercial, parler au nom de WOZALI auprès d'un tiers (partenaire, presse, institution) sans autorisation écrite du Fondateur. Rupture immédiate.</p>
+    </div>
+
+    <div class="bloc-rupture">
+      <div class="titre">2 comptes rendus manqués consécutifs</div>
+      <p>Rater deux dimanches 20h d'affilée sans justification valide remontée au préalable. Avertissement formel à la 1ère occasion. Rupture à la 2ème consécutive.</p>
+    </div>
+
+    <div class="bloc-rupture">
+      <div class="titre">Tout contenu politique ou critique d'État</div>
+      <p>Aucun contenu portant sur la politique togolaise ou béninoise, aucune critique d'institution ou de personnalité publique, au nom de WOZALI ou en lien avec le poste. Ligne rouge absolue. Rupture immédiate.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 8. Appels qualité -->
+  <div class="section">
+    <div class="section-label">08</div>
+    <h2>Contrôle et appels qualité</h2>
+
+    <div class="clause">
+      <div class="c-titre">Appels qualité fondateur</div>
+      <p>Le Fondateur effectue des appels directs, sans préavis, auprès des inscrits et des agents terrain. Ces appels vérifient l'intégrité du processus d'inscription, la qualité du coaching, et l'absence de fraude. Le Responsable n'est pas informé de ces appels et n'y participe pas. Les résultats alimentent directement les décisions de maintien ou de remplacement.</p>
+    </div>
+
+    <div class="clause">
+      <div class="c-titre">Transparence données dashboard</div>
+      <p>Toutes les données (inscrits, Pros, journaux de bord agents, taux de conversion) sont visibles en temps réel par le Fondateur dans son dashboard admin. Il n'y a pas de "fenêtre de grâce" cachée. Si les chiffres ne correspondent pas à la réalité terrain, c'est détecté immédiatement.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 9. Rémunération -->
+  <div class="section">
+    <div class="section-label">09</div>
     <h2>Clauses contractuelles</h2>
 
     <div class="clause">
       <div class="c-titre">Clause remplacement</div>
-      <p>En cas de remplacement du Responsable Réseau Terrain (décision fondateur) : la commission liée au poste (10% CA équipe) s'arrête immédiatement. Le portefeuille de parrainage personnel constitué pendant l'exercice du poste reste intégralement acquis au Responsable sortant et continue de générer des commissions récurrentes tant que les membres Pro affiliés restent actifs.</p>
+      <p>En cas de remplacement du Responsable (décision fondateur) : la commission poste (10% CA équipe) s'arrête immédiatement. Le portefeuille de parrainage personnel constitué pendant l'exercice du poste reste intégralement acquis et continue de générer des commissions récurrentes tant que les membres Pro affiliés restent actifs. Ce portefeuille ne peut pas être réclamé par WOZALI.</p>
     </div>
 
     <div class="clause">
-      <div class="c-titre">Clause recrutement agents terrain</div>
-      <p>Le recrutement des agents terrain WOZALI est exclusivement du ressort du Fondateur, via campagne officielle uniquement. Le Responsable Réseau Terrain ne recrute pas d'agents par bouche-à-oreille, recommandation personnelle ou de sa propre initiative. Toute proposition de candidat est remontée au Fondateur pour décision.</p>
+      <div class="c-titre">Clause exclusivité et concurrence</div>
+      <p>Pendant la durée du contrat, le Responsable s'interdit de travailler pour, de conseiller ou de promouvoir une plateforme concurrente de WOZALI (marketplace, annuaires de prestataires, plateformes d'emploi ciblant l'Afrique de l'Ouest). Violation = rupture immédiate + réclamation des commissions perçues pendant la période de conflit d'intérêt.</p>
     </div>
 
     <div class="clause">
-      <div class="c-titre">Clause appels qualité</div>
-      <p>Le Fondateur effectue des appels qualité aléatoires auprès des inscrits et des agents terrain, sans préavis et sans en informer le Responsable. Ces appels servent à vérifier l'intégrité du processus d'inscription et la qualité du coaching terrain. Le Responsable ne participe pas à ces appels et ne doit pas en être informé à l'avance.</p>
-    </div>
-
-    <div class="clause">
-      <div class="c-titre">Clause accès données inscrits</div>
-      <p>Le Responsable accède via son dashboard aux noms, statuts et zones de couverture des inscrits dans son périmètre. Il n'a pas accès aux numéros de téléphone personnels, adresses précises ou données sensibles des inscrits. Toute exploitation des données inscrits à des fins personnelles ou commerciales est un motif de résiliation immédiate.</p>
-    </div>
-
-    <div class="clause">
-      <div class="c-titre">Clause déontologique</div>
-      <p>Le Responsable maintient une distance professionnelle stricte avec les agents terrain WOZALI et les inscrits sur la plateforme. Toute relation personnelle, romantique ou intime avec un agent ou un inscrit est un motif de résiliation immédiate du contrat, sans préavis et sans indemnité. La confidentialité des informations de l'équipe et de la plateforme est absolue.</p>
+      <div class="c-titre">Clause confidentialité</div>
+      <p>Toutes les informations stratégiques, techniques, financières et opérationnelles liées à WOZALI sont strictement confidentielles. Ceci inclut les KPI réels, les noms des agents, les données inscrits, les tarifs et commissions, les plans de développement. La confidentialité s'applique pendant et après le contrat, sans limite de durée.</p>
     </div>
 
     <div class="clause">
       <div class="c-titre">Clause déplacement</div>
-      <p>Le Responsable Réseau Terrain est tenu d'être présent physiquement à Cotonou (Bénin) minimum une semaine par mois pour la supervision directe des 10 agents Bénin. Les frais de déplacement sont à la charge du Responsable et intégrés dans sa simulation financière personnelle. La date et la semaine de présence à Cotonou sont coordonnées avec le Fondateur.</p>
+      <p>Présence physique à Cotonou minimum une semaine par mois. Frais de déplacement entièrement à la charge du Responsable. Intégrés dans la simulation financière personnelle (doc A.3). La semaine et les dates sont coordonnées avec le Fondateur en début de chaque mois.</p>
     </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- 7. Ce que WOZALI s'engage à fournir -->
+  <!-- 10. Ce que WOZALI s'engage à fournir -->
   <div class="section">
-    <div class="section-label">07</div>
+    <div class="section-label">10</div>
     <h2>Engagements de WOZALI</h2>
     <ul class="doc-list">
-      <li>Formation complète avant prise de poste (rôle play avec le fondateur)</li>
-      <li>Dashboard Responsable opérationnel avec KPI temps réel, journaux de bord agents, module rémunération</li>
-      <li>Tous les outils de formation, scripts, fiches objections et protocoles en version HTML imprimable</li>
-      <li>Versement commission poste avant le 5 du mois suivant sur présentation de facture</li>
-      <li>Disponibilité du fondateur pour un appel hebdomadaire et pour escalade urgente</li>
-      <li>Révision des KPI à la baisse au mois 3 si la base inscrite le justifie</li>
-      <li>Information systématique de toute évolution produit, tarifaire ou stratégique impactant l'argumentaire terrain</li>
+      <li>Formation complète avant prise de poste (rôle play avec le fondateur, accès aux 20 documents)</li>
+      <li>Dashboard Responsable opérationnel : KPI temps réel, journaux de bord agents, rémunération</li>
+      <li>Tous les outils de formation, scripts, fiches objections et protocoles en accès immédiat</li>
+      <li>Versement commission poste avant le 5 du mois suivant sur présentation de facture depuis le dashboard</li>
+      <li>Disponibilité du fondateur pour un appel hebdomadaire et pour toute escalade urgente</li>
+      <li>Révision des KPI à la baisse au mois 3 si la base inscrite le justifie — décision fondateur</li>
+      <li>Information systématique de toute évolution produit, tarifaire ou stratégique</li>
+      <li>Accès permanent à ton portefeuille de parrainage personnel, indépendant du poste</li>
     </ul>
   </div>
 
@@ -352,13 +461,13 @@
     <div class="sig-col">
       <div class="sig-label">Le Responsable Réseau Terrain</div>
       <div class="sig-name">_______________________________</div>
-      <div class="sig-title">Responsable Réseau Terrain, WOZALI</div>
+      <div class="sig-title">Prestataire Freelance Indépendant, WOZALI</div>
       <div class="sig-line"></div>
       <div class="sig-date">Signature + date : _______________</div>
     </div>
   </div>
 
-  <p style="margin-top:24px;font-size:11px;color:#999;text-align:center;font-family:'Geist Mono',monospace;">Document confidentiel · WOZALI · wozali.africa · Version 1.0 — Juin 2026</p>
+  <p style="margin-top:24px;font-size:11px;color:#999;text-align:center;font-family:'Geist Mono',monospace;">Document confidentiel · WOZALI · wozali.africa · Version 1.1 — Juillet 2026</p>
 
 </div>
 </body>
