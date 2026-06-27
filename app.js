@@ -9865,7 +9865,7 @@ async function checkAgentTerrainForDashboard(session) {
     if (!session) return;
     const { data, error } = await supa
       .from('agents_terrain')
-      .select('id')
+      .select('id, role')
       .eq('user_id', session.user.id)
       .eq('actif', true)
       .maybeSingle();
@@ -9873,6 +9873,12 @@ async function checkAgentTerrainForDashboard(session) {
     window._isAgentTerrain = true;
     const grp = document.getElementById('dash-agent-ressources-group');
     if (grp) grp.style.display = 'block';
+    // Si cet agent est aussi Responsable Réseau Terrain
+    if (data.role === 'responsable') {
+      window._isResponsableTerrain = true;
+      const rgrp = document.getElementById('dash-responsable-group');
+      if (rgrp) rgrp.style.display = 'block';
+    }
   } catch (e) { console.error('[agent-terrain-check]', e); }
 }
 
@@ -14413,3 +14419,40 @@ function _renderAgentProgressionList(readsMap, filter) {
 }
 
 
+
+
+// ── Responsable Réseau Terrain ───────────────────────────────────────────────
+
+function filtreEquipe(pays) {
+  // Mettre à jour les boutons actifs
+  ['tous', 'togo', 'benin'].forEach(p => {
+    const btn = document.getElementById('filtre-eq-' + p);
+    if (!btn) return;
+    if (p === pays) {
+      btn.style.background = '#E8940A';
+      btn.style.color = '#0A0A0A';
+      btn.style.borderColor = 'rgba(232,148,10,.3)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.color = 'rgba(252,224,168,.6)';
+      btn.style.borderColor = 'rgba(232,148,10,.2)';
+    }
+  });
+
+  // Filtrer les lignes du tableau
+  const rows = document.querySelectorAll('#rt-equipe-table tr');
+  rows.forEach(row => {
+    if (!row.cells || row.cells.length < 2) return;
+    const agentCell = row.cells[0];
+    if (!agentCell) return;
+    const isTG = agentCell.innerHTML.includes('TG');
+    const isBJ = agentCell.innerHTML.includes('BJ');
+    if (pays === 'tous') {
+      row.style.display = '';
+    } else if (pays === 'togo') {
+      row.style.display = isTG ? '' : 'none';
+    } else if (pays === 'benin') {
+      row.style.display = isBJ ? '' : 'none';
+    }
+  });
+}

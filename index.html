@@ -2210,6 +2210,35 @@ setTimeout(function(){
         </div>
       </div>
 
+      <!-- Réseau Terrain : visible admin + responsable terrain -->
+      <div class="dash-group" data-group="responsable-terrain" id="dash-responsable-group" style="display:none;">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.35);background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.04));">
+          <i data-lucide="map-pin"></i>
+          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Réseau Terrain</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('responsable-kpi')" id="dl-responsable-kpi">
+            <i data-lucide="bar-chart-2"></i> <span>Vue d'ensemble</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-equipe')" id="dl-responsable-equipe">
+            <i data-lucide="users"></i> <span>Mon équipe</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-journaux')" id="dl-responsable-journaux">
+            <i data-lucide="book-open"></i> <span>Journaux de bord</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-cr')" id="dl-responsable-cr">
+            <i data-lucide="clipboard-list"></i> <span>Compte rendu hebdo</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-remun')" id="dl-responsable-remun">
+            <i data-lucide="wallet"></i> <span>Ma rémunération</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-ressources')" id="dl-responsable-ressources">
+            <i data-lucide="library"></i> <span>Ressources formation</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Ambassadeur : groupe visible uniquement si compte ambassadeur validé -->
       <div class="dash-group" data-group="ambassadeur" id="dash-ambassadeur-group" style="display:none;">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.3);background:linear-gradient(135deg,rgba(232,148,10,.08),rgba(232,148,10,.02));">
@@ -3430,6 +3459,590 @@ setTimeout(function(){
             </div>
             <button onclick="document.getElementById('modal-doc-ressource').style.display='none';" style="width:100%;padding:12px;background:#E8940A;color:#14100A;border:none;border-radius:12px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Fermer</button>
           </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           RÉSEAU TERRAIN — VUE D'ENSEMBLE (admin + responsable terrain)
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-responsable-kpi">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Vue d'ensemble</h2>
+          <p style="color:var(--gris);font-size:13px;">Performance équipe en temps réel. Mis à jour à chaque inscription via lien agent.</p>
+        </div>
+
+        <!-- Semaine en cours -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Semaine en cours</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px;">
+
+          <!-- Inscrits aujourd'hui -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.45);text-transform:uppercase;letter-spacing:1.5px;">Aujourd'hui</div>
+              <button onclick="document.getElementById('tip-rt-auj').style.display=document.getElementById('tip-rt-auj').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;line-height:1;">ⓘ</button>
+            </div>
+            <div id="rt-inscrits-auj" style="font-family:'Geist Mono',monospace;font-size:34px;font-weight:900;color:#E8940A;line-height:1;">—</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">inscrits</div>
+            <div id="tip-rt-auj" style="display:none;font-size:11px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">Total des inscrits via tous les liens agents terrain aujourd'hui. Objectif minimum : 280 inscrits/jour (14 agents actifs × 20/j min).</div>
+          </div>
+
+          <!-- Inscrits cette semaine -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.45);text-transform:uppercase;letter-spacing:1.5px;">Cette semaine</div>
+              <button onclick="document.getElementById('tip-rt-sem').style.display=document.getElementById('tip-rt-sem').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;line-height:1;">ⓘ</button>
+            </div>
+            <div id="rt-inscrits-sem" style="font-family:'Geist Mono',monospace;font-size:34px;font-weight:900;color:#FCE0A8;line-height:1;">—</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">inscrits</div>
+            <div id="tip-rt-sem" style="display:none;font-size:11px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">Total inscrits depuis lundi. Objectif minimum : 2 000/semaine (20 agents × 100 min). Cible : 4 000/semaine.</div>
+          </div>
+
+          <!-- Pros signés cette semaine -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.45);text-transform:uppercase;letter-spacing:1.5px;">Pros signés</div>
+              <button onclick="document.getElementById('tip-rt-pros').style.display=document.getElementById('tip-rt-pros').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;line-height:1;">ⓘ</button>
+            </div>
+            <div id="rt-pros-sem" style="font-family:'Geist Mono',monospace;font-size:34px;font-weight:900;color:#E8940A;line-height:1;">—</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">cette semaine</div>
+            <div id="tip-rt-pros" style="display:none;font-size:11px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">Abonnements Pro à 2 500 FCFA/mois signés cette semaine. Objectif min : 400 Pros/sem. Chaque Pro = commission récurrente pour l'agent ET 10% CA pour le Responsable.</div>
+          </div>
+
+          <!-- Taux de conversion -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.45);text-transform:uppercase;letter-spacing:1.5px;">Conversion</div>
+              <button onclick="document.getElementById('tip-rt-conv').style.display=document.getElementById('tip-rt-conv').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;line-height:1;">ⓘ</button>
+            </div>
+            <div id="rt-taux-conv" style="font-family:'Geist Mono',monospace;font-size:34px;font-weight:900;color:#FCE0A8;line-height:1;">—%</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">inscrit → Pro</div>
+            <div id="tip-rt-conv" style="display:none;font-size:11px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">% d'inscrits qui passent au plan Pro. En dessous de 15% : les agents ne proposent pas assez ou trop tôt. Cible : 20%. Si > 25% : très bon script de conversion Pro.</div>
+          </div>
+
+          <!-- Agents actifs -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.45);text-transform:uppercase;letter-spacing:1.5px;">Agents actifs</div>
+              <button onclick="document.getElementById('tip-rt-actifs').style.display=document.getElementById('tip-rt-actifs').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;line-height:1;">ⓘ</button>
+            </div>
+            <div id="rt-agents-actifs" style="font-family:'Geist Mono',monospace;font-size:34px;font-weight:900;color:#E8940A;line-height:1;">—<span style="font-size:16px;color:rgba(252,224,168,.3);font-weight:400;">/20</span></div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">aujourd'hui</div>
+            <div id="tip-rt-actifs" style="display:none;font-size:11px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;">Agents ayant au moins 1 inscrit aujourd'hui. Si moins de 14 actifs : 1 ou plusieurs agents n'ont pas démarré. Action immédiate : appel téléphonique individuel.</div>
+          </div>
+        </div>
+
+        <!-- Progression objectif mensuel -->
+        <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:20px;margin-bottom:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Objectif mensuel — Pros</div>
+            <button onclick="document.getElementById('tip-rt-obj').style.display=document.getElementById('tip-rt-obj').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;line-height:1;">ⓘ</button>
+          </div>
+          <div id="tip-rt-obj" style="display:none;font-size:11px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:8px 10px;margin-bottom:10px;line-height:1.5;">Cible mensuelle : 1 600 Pros (20 agents × 80 Pros/mois). Minimum pour maintenir le poste : 800 Pros/mois. Ce chiffre sera revu à la baisse dans 3 mois quand la base inscrite sera significative.</div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;">
+            <div id="rt-pros-cumul" style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;color:#FCE0A8;">—</div>
+            <div style="font-size:14px;color:rgba(252,224,168,.4);">/ 1 600 Pros cible</div>
+            <div id="rt-obj-pct" style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:800;color:#E8940A;margin-left:auto;">—%</div>
+          </div>
+          <div style="height:10px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;">
+            <div id="rt-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#E8940A,#FCE0A8);border-radius:100px;transition:width .6s ease;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:rgba(252,224,168,.3);">
+            <span>0</span><span style="color:rgba(232,148,10,.5);">Minimum : 800</span><span>1 600</span>
+          </div>
+        </div>
+
+        <!-- Top 3 agents + Répartition Togo/Bénin -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+          <!-- Top 3 -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:18px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Top agents semaine</div>
+            <div id="rt-top3" style="display:flex;flex-direction:column;gap:10px;">
+              <div style="font-size:12px;color:rgba(252,224,168,.3);text-align:center;padding:16px 0;">Données disponibles dès l'activation du 27 juillet</div>
+            </div>
+          </div>
+          <!-- Répartition -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:18px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Togo vs Bénin</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;">
+                  <span style="color:#FCE0A8;font-weight:600;">Togo</span>
+                  <span id="rt-togo-pros" style="color:#E8940A;font-family:'Geist Mono',monospace;font-weight:700;">—</span>
+                </div>
+                <div style="height:7px;background:rgba(255,255,255,.06);border-radius:100px;"><div id="rt-togo-bar" style="height:100%;width:0%;background:#E8940A;border-radius:100px;transition:width .6s ease;"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;">
+                  <span style="color:#FCE0A8;font-weight:600;">Bénin</span>
+                  <span id="rt-benin-pros" style="color:rgba(232,148,10,.6);font-family:'Geist Mono',monospace;font-weight:700;">—</span>
+                </div>
+                <div style="height:7px;background:rgba(255,255,255,.06);border-radius:100px;"><div id="rt-benin-bar" style="height:100%;width:0%;background:rgba(232,148,10,.55);border-radius:100px;transition:width .6s ease;"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           RÉSEAU TERRAIN — MON ÉQUIPE
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-responsable-equipe">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Mon équipe</h2>
+          <p style="color:var(--gris);font-size:13px;">Performances individuelles, statuts et zones. Mis à jour chaque nuit.</p>
+        </div>
+
+        <!-- Légende statuts -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(252,224,168,.6);">
+            <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Vert : KPI > 70%
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(252,224,168,.6);">
+            <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>Orange : 50-70%
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(252,224,168,.6);">
+            <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Rouge : &lt; 50% (action requise)
+          </div>
+          <button onclick="document.getElementById('tip-rt-statuts').style.display=document.getElementById('tip-rt-statuts').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;line-height:1;margin-left:4px;">ⓘ</button>
+        </div>
+        <div id="tip-rt-statuts" style="display:none;font-size:12px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:10px;padding:12px 14px;margin-bottom:16px;line-height:1.55;">Rouge 1 semaine : appel Zoom individuel enregistré. Rouge 2 semaines : sortie terrain accompagnée. Rouge 3 semaines : escalade fondateur pour décision de remplacement. Tu ne décides jamais du remplacement seul.</div>
+
+        <!-- Filtres pays -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button onclick="filtreEquipe('tous')" id="filtre-eq-tous" style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#0A0A0A;">Tous</button>
+          <button onclick="filtreEquipe('togo')" id="filtre-eq-togo" style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;border:1px solid rgba(232,148,10,.2);background:transparent;color:rgba(252,224,168,.6);">Togo</button>
+          <button onclick="filtreEquipe('benin')" id="filtre-eq-benin" style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;border:1px solid rgba(232,148,10,.2);background:transparent;color:rgba(252,224,168,.6);">Bénin</button>
+        </div>
+
+        <!-- Table agents -->
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.06);">
+                <th style="text-align:left;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);text-transform:uppercase;letter-spacing:1.5px;font-weight:400;">Agent</th>
+                <th style="text-align:left;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);text-transform:uppercase;letter-spacing:1.5px;font-weight:400;">Zone</th>
+                <th style="text-align:right;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);text-transform:uppercase;letter-spacing:1.5px;font-weight:400;">Inscrits/j</th>
+                <th style="text-align:right;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);text-transform:uppercase;letter-spacing:1.5px;font-weight:400;">Inscrits/sem</th>
+                <th style="text-align:right;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);text-transform:uppercase;letter-spacing:1.5px;font-weight:400;">Pros/sem</th>
+                <th style="text-align:right;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);text-transform:uppercase;letter-spacing:1.5px;font-weight:400;">Cumul Pros</th>
+                <th style="text-align:center;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);text-transform:uppercase;letter-spacing:1.5px;font-weight:400;">Statut</th>
+              </tr>
+            </thead>
+            <tbody id="rt-equipe-table">
+              <!-- Exemple structure — remplacé par données réelles au chargement -->
+              <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
+                <td style="padding:12px;color:#FCE0A8;font-weight:600;">Koffi A. <span style="font-size:10px;color:rgba(252,224,168,.35);font-weight:400;">TG</span></td>
+                <td style="padding:12px;color:rgba(252,224,168,.5);font-size:12px;">Kodjoviakopé</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#E8940A;font-weight:700;">38</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#FCE0A8;">192</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#E8940A;font-weight:700;">41</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">41</td>
+                <td style="padding:12px;text-align:center;"><span style="background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">VERT</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
+                <td style="padding:12px;color:#FCE0A8;font-weight:600;">Ama S. <span style="font-size:10px;color:rgba(252,224,168,.35);font-weight:400;">BJ</span></td>
+                <td style="padding:12px;color:rgba(252,224,168,.5);font-size:12px;">Akpakpa</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#E8940A;font-weight:700;">35</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#FCE0A8;">175</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#E8940A;font-weight:700;">37</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">37</td>
+                <td style="padding:12px;text-align:center;"><span style="background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">VERT</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
+                <td style="padding:12px;color:#FCE0A8;font-weight:600;">Yao K. <span style="font-size:10px;color:rgba(252,224,168,.35);font-weight:400;">TG</span></td>
+                <td style="padding:12px;color:rgba(252,224,168,.5);font-size:12px;">Adidogomé</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#f59e0b;font-weight:700;">18</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#FCE0A8;">90</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#f59e0b;font-weight:700;">19</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">19</td>
+                <td style="padding:12px;text-align:center;"><span style="background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.25);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">ORANGE</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.03);">
+                <td style="padding:12px;color:#FCE0A8;font-weight:600;">Fatou D. <span style="font-size:10px;color:rgba(252,224,168,.35);font-weight:400;">BJ</span></td>
+                <td style="padding:12px;color:rgba(252,224,168,.5);font-size:12px;">Cadjehoun</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#ef4444;font-weight:700;">7</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#FCE0A8;">35</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:#ef4444;font-weight:700;">6</td>
+                <td style="padding:12px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">6</td>
+                <td style="padding:12px;text-align:center;"><span style="background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.25);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">ROUGE</span></td>
+              </tr>
+              <tr>
+                <td colspan="7" style="padding:16px;text-align:center;font-size:12px;color:rgba(252,224,168,.25);">+ 16 agents chargés depuis Airtable au démarrage</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:11px;color:rgba(252,224,168,.25);margin-top:12px;">Les données ci-dessus sont illustratives. Elles seront remplacées par les vraies données agents dès l'activation.</p>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           RÉSEAU TERRAIN — JOURNAUX DE BORD
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-responsable-journaux">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Journaux de bord</h2>
+          <p style="color:var(--gris);font-size:13px;">Chaque agent remplit 3 champs chaque soir. Tu lis, tu coaches.</p>
+        </div>
+
+        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px;color:rgba(252,224,168,.7);line-height:1.6;">
+          <strong style="color:#E8940A;">Comment utiliser :</strong> Un agent qui répète le même blocage 3 soirs de suite a besoin de coaching direct, pas d'un message WhatsApp. Son journal te dit quoi faire avant que ses chiffres chutent.
+        </div>
+
+        <!-- Filtres -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+          <button style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#0A0A0A;">Tous</button>
+          <button style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;border:1px solid rgba(232,148,10,.2);background:transparent;color:rgba(252,224,168,.6);">Togo</button>
+          <button style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;border:1px solid rgba(232,148,10,.2);background:transparent;color:rgba(252,224,168,.6);">Bénin</button>
+          <button style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:Geist,sans-serif;cursor:pointer;border:1px solid rgba(239,68,68,.3);background:transparent;color:rgba(239,68,68,.7);">Non soumis aujourd'hui</button>
+        </div>
+
+        <!-- Cards journaux -->
+        <div id="rt-journaux-list" style="display:flex;flex-direction:column;gap:12px;">
+          <!-- Exemple Koffi — soumis aujourd'hui -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:#E8940A;font-family:'Geist Mono',monospace;font-size:14px;">K</div>
+                <div>
+                  <div style="font-weight:700;color:#FCE0A8;font-size:14px;">Koffi A.</div>
+                  <div style="font-size:11px;color:rgba(252,224,168,.4);">Togo · Kodjoviakopé</div>
+                </div>
+              </div>
+              <span style="background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">Soumis aujourd'hui</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px;">
+              <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;">
+                <div style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ce qui a marché</div>
+                <div style="color:rgba(252,224,168,.75);line-height:1.5;">Marché de Kodjoviakopé, les couturières écoutent bien quand je montre d'abord l'app sans parler</div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;">
+                <div style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ce qui n'a pas marché</div>
+                <div style="color:rgba(252,224,168,.75);line-height:1.5;">Les mécaniciens refusent dès que je dis "2 500 FCFA". Je parle du prix trop tôt.</div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;">
+                <div style="color:#E8940A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Demain je change</div>
+                <div style="color:rgba(252,224,168,.75);line-height:1.5;">Inscrire d'abord gratuitement, montrer le profil, puis parler du Pro seulement après</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exemple Fatou — non soumis -->
+          <div style="background:#161616;border:1px solid rgba(239,68,68,.2);border-radius:14px;padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:#ef4444;font-family:'Geist Mono',monospace;font-size:14px;">F</div>
+                <div>
+                  <div style="font-weight:700;color:#FCE0A8;font-size:14px;">Fatou D.</div>
+                  <div style="font-size:11px;color:rgba(252,224,168,.4);">Bénin · Cadjehoun</div>
+                </div>
+              </div>
+              <span style="background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);border-radius:100px;font-size:10px;font-weight:800;padding:3px 10px;font-family:'Geist Mono',monospace;">Non soumis</span>
+            </div>
+            <div style="font-size:12px;color:rgba(252,224,168,.35);margin-top:10px;">Aucun journal soumis aujourd'hui. Dernier soumis : il y a 2 jours. A contacter ce soir.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           RÉSEAU TERRAIN — COMPTE RENDU HEBDOMADAIRE
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-responsable-cr">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Compte rendu hebdomadaire</h2>
+          <p style="color:var(--gris);font-size:13px;">À soumettre chaque dimanche avant 20h. Le fondateur y accède immédiatement. Tout est archivé.</p>
+        </div>
+
+        <!-- Form -->
+        <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:24px;margin-bottom:24px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;">Semaine en cours</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Inscrits totaux Togo <button onclick="document.getElementById('tip-cr-ins-tg').style.display=document.getElementById('tip-cr-ins-tg').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:12px;padding:0;">ⓘ</button></label>
+              <div id="tip-cr-ins-tg" style="display:none;font-size:11px;color:rgba(252,224,168,.6);margin-bottom:6px;line-height:1.4;">Nombre total d'inscrits via les 10 agents Togo cette semaine. Visible dans ton tableau de suivi.</div>
+              <input type="number" placeholder="ex: 1 850" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Inscrits totaux Bénin</label>
+              <input type="number" placeholder="ex: 1 720" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Pros signés Togo</label>
+              <input type="number" placeholder="ex: 390" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Pros signés Bénin</label>
+              <input type="number" placeholder="ex: 360" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Top agent Togo + ses chiffres</label>
+              <input type="text" placeholder="ex: Koffi A. — 41 Pros" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Top agent Bénin + ses chiffres</label>
+              <input type="text" placeholder="ex: Ama S. — 37 Pros" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Agents en zone orange (liste + raison brève) <button onclick="document.getElementById('tip-cr-orange').style.display=document.getElementById('tip-cr-orange').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:12px;padding:0;">ⓘ</button></label>
+            <div id="tip-cr-orange" style="display:none;font-size:11px;color:rgba(252,224,168,.6);margin-bottom:6px;line-height:1.4;">Zone orange = 50-70% du KPI. Nomme chaque agent concerné et ce que tu penses être le blocage principal.</div>
+            <textarea rows="2" placeholder="ex: Yao K. (Adidogomé) — zone trop petite, à déplacer. Adjoua M. — script pas maîtrisé, sortie terrain prévue lundi." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Agents en zone rouge (liste + action prise)</label>
+            <textarea rows="2" placeholder="ex: Fatou D. — Zoom enregistré mardi, plan d'action défini. Revérification vendredi prochain." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">1 blocage terrain observé cette semaine</label>
+              <textarea rows="2" placeholder="ex: Les maçons refusent quand le prix est mentionné trop tôt. Formation prioritaire la semaine prochaine." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">1 victoire terrain observée cette semaine</label>
+              <textarea rows="2" placeholder="ex: Koffi a trouvé une technique : montrer le profil sans mentionner le prix. 3 agents l'ont adoptée." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Action prioritaire semaine prochaine <button onclick="document.getElementById('tip-cr-action').style.display=document.getElementById('tip-cr-action').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:12px;padding:0;">ⓘ</button></label>
+            <div id="tip-cr-action" style="display:none;font-size:11px;color:rgba(252,224,168,.6);margin-bottom:6px;line-height:1.4;">Une seule priorité, pas une liste. Ce sur quoi toute l'énergie management va aller lundi-mardi.</div>
+            <input type="text" placeholder="ex: Sortie terrain mercredi avec les 3 agents orange pour démonstration live." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+          </div>
+
+          <button style="width:100%;padding:14px;background:#E8940A;color:#0A0A0A;border:none;border-radius:12px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Soumettre le compte rendu</button>
+        </div>
+
+        <!-- Historique -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Historique</div>
+        <div style="background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;font-size:13px;color:rgba(252,224,168,.35);text-align:center;">
+          Les comptes rendus soumis apparaîtront ici. Archivés indéfiniment.
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           RÉSEAU TERRAIN — MA RÉMUNÉRATION
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-responsable-remun">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Ma rémunération</h2>
+          <p style="color:var(--gris);font-size:13px;">Deux sources distinctes. Calculées en temps réel. Aucun fixe.</p>
+        </div>
+
+        <!-- Bloc 1 : Commission parrainage personnel -->
+        <div style="background:#161616;border:1px solid rgba(232,148,10,.2);border-radius:16px;padding:22px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="background:rgba(232,148,10,.12);border-radius:10px;padding:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div>
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Commission parrainage personnel</div>
+              <div style="font-size:12px;color:rgba(252,224,168,.45);margin-top:2px;">Tes propres signatures via ton lien d'affiliation · Disponible maintenant</div>
+            </div>
+            <button onclick="document.getElementById('tip-remun-perso').style.display=document.getElementById('tip-remun-perso').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;margin-left:auto;">ⓘ</button>
+          </div>
+          <div id="tip-remun-perso" style="display:none;font-size:12px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:10px 12px;margin-bottom:14px;line-height:1.5;">Tu es aussi un affilié WOZALI comme n'importe quel agent. Chaque Pro que tu signes avec ton propre lien te rapporte 1 000 FCFA/mois (ou 1 500 FCFA si ton équipe gagne la battle). Ce portefeuille est le tien, indépendant du poste. Même si tu quittes le poste de Responsable, tu gardes les commissions de tes signatures personnelles.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div style="text-align:center;">
+              <div id="remun-pros-perso" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#E8940A;">—</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pros actifs</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="remun-comm-perso" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;">—</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">FCFA/mois</div>
+            </div>
+            <div style="text-align:center;">
+              <button style="padding:10px 18px;background:#E8940A;color:#0A0A0A;border:none;border-radius:10px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;width:100%;">Retirer</button>
+              <div style="font-size:11px;color:rgba(252,224,168,.3);margin-top:4px;">disponible maintenant</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloc 2 : Commission poste 10% équipe -->
+        <div style="background:#161616;border:1px solid rgba(232,148,10,.2);border-radius:16px;padding:22px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="background:rgba(232,148,10,.12);border-radius:10px;padding:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div>
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;">Commission poste — 10% CA équipe</div>
+              <div style="font-size:12px;color:rgba(252,224,168,.45);margin-top:2px;">Calculée sur le CA brut de ton équipe · Versée avant le 5 du mois suivant</div>
+            </div>
+            <button onclick="document.getElementById('tip-remun-equipe').style.display=document.getElementById('tip-remun-equipe').style.display==='block'?'none':'block'" style="background:none;border:none;color:rgba(232,148,10,.5);cursor:pointer;font-size:14px;padding:0;margin-left:auto;">ⓘ</button>
+          </div>
+          <div id="tip-remun-equipe" style="display:none;font-size:12px;color:rgba(252,224,168,.7);background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.15);border-radius:8px;padding:10px 12px;margin-bottom:14px;line-height:1.5;">10% du CA brut total de ton équipe. CA brut = Pros actifs équipe × 2 500 FCFA. Si ton équipe a 800 Pros actifs, CA = 2 000 000 FCFA, ta commission = 200 000 FCFA. Calculée sur les Pros ACTIFS ce mois, pas seulement les nouveaux. Si tu quittes le poste, cette commission s'arrête. Tu gardes uniquement tes signatures personnelles.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div style="text-align:center;">
+              <div id="remun-pros-equipe" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;">—</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pros actifs équipe</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="remun-ca-equipe" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:rgba(252,224,168,.5);">—</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">CA brut FCFA</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="remun-comm-equipe" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#E8940A;">—</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Ta commission</div>
+            </div>
+          </div>
+          <!-- Process facturation -->
+          <div style="background:rgba(255,255,255,.03);border-radius:10px;padding:12px;font-size:12px;color:rgba(252,224,168,.55);line-height:1.6;">
+            <strong style="color:#FCE0A8;">Process facturation :</strong> Dernier jour du mois, tu émets une facture depuis cet espace. Le fondateur vire avant le 5 du mois suivant. Le statut passe à "Payé" dès virement confirmé.
+          </div>
+          <!-- Statut paiement -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);">
+            <div style="font-size:13px;color:rgba(252,224,168,.5);">Statut mois en cours</div>
+            <span id="remun-statut-paiement" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.2);border-radius:100px;font-size:11px;font-weight:800;padding:4px 12px;font-family:'Geist Mono',monospace;">En attente de facture</span>
+          </div>
+        </div>
+
+        <!-- Historique -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Historique paiements</div>
+        <div style="background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;font-size:13px;color:rgba(252,224,168,.3);text-align:center;">
+          Historique disponible dès le premier paiement. Archivé indéfiniment.
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           RÉSEAU TERRAIN — RESSOURCES FORMATION
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-responsable-ressources">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Ressources formation</h2>
+          <p style="color:var(--gris);font-size:13px;">30 ressources. Organisées par ordre de lecture recommandé. À lire avant le 27 juillet.</p>
+        </div>
+
+        <!-- Checklist onboarding Responsable -->
+        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:18px;margin-bottom:24px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Checklist avant le 27 juillet</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" style="accent-color:#E8940A;width:16px;height:16px;flex-shrink:0;">
+              <span style="font-size:13px;color:#FCE0A8;font-weight:600;">Lire les blocs A, B, C (avant signature)</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" style="accent-color:#E8940A;width:16px;height:16px;flex-shrink:0;">
+              <span style="font-size:13px;color:#FCE0A8;font-weight:600;">Formation rôle play avec le fondateur</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" style="accent-color:#E8940A;width:16px;height:16px;flex-shrink:0;">
+              <span style="font-size:13px;color:#FCE0A8;font-weight:600;">Lire les blocs D, E, F, G (avant activation)</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" style="accent-color:#E8940A;width:16px;height:16px;flex-shrink:0;">
+              <span style="font-size:13px;color:#FCE0A8;font-weight:600;">Configurer les groupes WhatsApp équipe</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" style="accent-color:#E8940A;width:16px;height:16px;flex-shrink:0;">
+              <span style="font-size:13px;color:#FCE0A8;font-weight:600;">Valider les zones terrain Togo + Bénin avec le fondateur</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- BLOC A -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">A — Avant signature (lire en premier)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:22px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">A.1</span>
+              <span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span>
+            </div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Fiche de poste officielle</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Périmètre, missions, rémunération, KPI, règles de maintien, charte déontologique. Tout ce que tu dois savoir avant de signer.</div>
+          </div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">A.2</span>
+              <span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span>
+            </div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Lettre d'intention du fondateur</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Pourquoi toi. Ce que ce rôle peut devenir dans 6 mois. Ce que tu construis, pas ce que tu dois faire.</div>
+          </div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">A.3</span>
+              <span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span>
+            </div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Simulation financière personnalisée</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Ton revenu projeté mois 1, 2, 3. Courbe portefeuille récurrent. Comparaison SMIG. Interactif.</div>
+          </div>
+        </div>
+
+        <!-- BLOC B -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">B — Comprendre WOZALI (ce que tu vends)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:22px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">B.1</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Guide produit Responsable</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Le problème, le Score WOZALI, Gratuit vs Pro, récompenses (dates exactes), parrainage, fonctionnalités. Tout en 15 pages.</div>
+          </div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">B.2</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Script d'inscription</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Protocole exact step by step. Phrases mot pour mot. Timing conversion Pro. À apprendre par coeur et enseigner à chaque agent.</div>
+          </div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">B.3</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Fiche objections terrain</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">12 objections classées par fréquence. Peur cachée, réponse qui adresse la peur, rebond si résistance persiste.</div>
+          </div>
+        </div>
+
+        <!-- BLOC C -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">C — Comprendre le client artisan</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:22px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">C.1</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Portrait des 5 profils artisans</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Coiffeur, maçon, électricien, couturière, plombier. Leur douleur dans leurs mots. L'argument qui fait convertir pour chacun.</div>
+          </div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">C.2</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div>
+            <div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">L'argument des 2 clients</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">La technique de closing financier à enseigner à tous tes agents. Un seul nouveau client = 2 à 4 mois de Pro remboursés.</div>
+          </div>
+        </div>
+
+        <!-- BLOC D -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">D — Formation vente terrain (9 modules)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:22px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.1</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 1 — Posture et confiance</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Ce que le corps dit avant la bouche. Rythme de parole, regard, sourire, distance physique.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.2</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 2 — Entrée en matière</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Comment approcher quelqu'un qui ne t'a rien demandé sans passer pour un vendeur.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.3</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 3 — Le diagnostic</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">2 questions qui font prendre conscience de la douleur sans que l'agent ait à la pointer lui-même.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.4</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 4 — La démonstration</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Montrer sur le téléphone, pas expliquer. La vision concrète vaut 10 arguments.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.5</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 5 — Traitement des objections</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Fiche objections mise en pratique orale. 20 rounds de rôle play. Réponses automatiques.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.6</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 6 — Le closing</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Reconnaître LE moment. La fenêtre dure 30 secondes. "On le fait maintenant, ca prend 5 minutes."</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.7</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 7 — Conversion Pro</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Timing exact : juste après que l'artisan voit son profil en ligne pour la première fois. Pic émotionnel.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.8</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 8 — Volume et mathématiques</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">5 inscrits/h × 8h × 5j = 200/semaine. 20% Pro = 40 Pros. Portefeuille mois 1 à 3.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">D.9</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Module 9 — Gérer le "non"</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Le refus ne te concerne pas. Objectif de refus le jour 1. Repartir en 30 secondes. Non définitif vs pas maintenant.</div></div>
+        </div>
+
+        <!-- BLOC E -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">E — Manager une équipe qui vend</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:22px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">E.1</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Playbook management semaine type</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Lundi briefing, mardi-jeudi terrain agents, vendredi rapport/classement, samedi terrain personnel.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">E.2</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Playbook call d'équipe hebdomadaire</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Structure 30-45 min. Scripts des transitions. Stats, rôle play, blocages, objectif. Enregistrement systématique.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">E.3</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Protocole onboarding agent</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Checklist journée 1 d'un agent. Guide, simulation, rôle play, navigation app, terrain accompagné. Agent autonome le soir même.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">E.4</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Protocole sous-performance</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Semaine 1 rouge : Zoom enregistré. Semaine 2 : terrain accompagné. Semaine 3 : escalade fondateur. Tu ne décides pas seul.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">E.5</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Checklist kit terrain agent</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Ce que tu vérifies avec chaque agent avant jour 1 : data, batterie, lien parrainage testé, script mémorisé.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">E.6</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Protocole anti-fraude</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Ce qui constitue une fraude. Conséquences. Appels qualité aléatoires effectués par le fondateur directement — pas toi.</div></div>
+        </div>
+
+        <!-- BLOC F -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">F — Communication et outils</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:22px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">F.1</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Playbook WhatsApp équipe</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Messages types matin, midi, soir. Ton, fréquence, ce que tu ne fais pas en public. Créer dynamisme et rythme quotidien.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">F.2</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Architecture WhatsApp</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">3 groupes : Togo, Bénin, Réseau (toi + fondateur). Rôles de chacun. Fondateur observateur actif semaine 1, silent ensuite.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">F.3</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Templates rapports (3 formats)</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Journal de bord agent (3 champs/soir), rapport fin de semaine agent (7 champs), ton compte rendu hebdo (12 champs).</div></div>
+        </div>
+
+        <!-- BLOC G -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">G — KPI, déontologie et règles</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">G.1</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">KPI complet et règles de maintien</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Tableau KPI hebdo/mensuel. Minimum, cible, exceptionnel. Règle 2-3 semaines rouge. Révision des KPI prévue à 3 mois.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">G.2</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Charte déontologique</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Relations interdites (inscrits + agents), confidentialité données, distance professionnelle. Motif de résiliation immédiate.</div></div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">G.3</span><span style="background:rgba(232,148,10,.1);color:#E8940A;border-radius:100px;font-size:10px;font-weight:700;padding:2px 8px;">En préparation</span></div><div style="font-weight:700;color:#FCE0A8;font-size:13px;margin-bottom:4px;">Règle accès données inscrits</div><div style="font-size:12px;color:rgba(252,224,168,.45);line-height:1.4;">Tu vois : noms, statut, zone. Tu ne vois pas : numéros personnels, adresses précises. Les appels qualité = fondateur uniquement.</div></div>
         </div>
       </div>
 
