@@ -9862,8 +9862,10 @@ async function checkAdminForDashboard() {
     const d = await r.json();
     if (d.ok) {
       _isAdminDash = true;
-      const grp = document.getElementById('dash-admin-agents-group');
-      if (grp) grp.style.display = 'block';
+      ['dash-admin-label','dash-admin-agents-group','dash-admin-ambassadeurs-group','dash-admin-responsable-group','dash-admin-end'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = id.endsWith('-label') || id.endsWith('-end') ? 'block' : 'block';
+      });
     }
     // Vérifier si l'utilisateur est un agent terrain actif
     await checkAgentTerrainForDashboard(session);

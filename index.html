@@ -2223,25 +2223,26 @@ setTimeout(function(){
         </div>
       </div>
 
-      <!-- Admin : Agents Terrain (visible uniquement admin) -->
+      <!-- ═══════════════════════════════════════════════════════════
+           ADMIN — étiquette + 3 sous-sections distinctes
+           ═══════════════════════════════════════════════════════════ -->
+      <div id="dash-admin-label" style="display:none;padding:10px 14px 2px;font-family:'Geist Mono',monospace;font-size:9px;font-weight:700;color:rgba(232,148,10,.45);letter-spacing:3px;text-transform:uppercase;border-top:1px solid rgba(232,148,10,.15);margin-top:4px;">
+        ADMIN
+      </div>
+
+      <!-- ADMIN · Sous-section 1 : Agents terrain -->
       <div class="dash-group" data-group="admin-agents" id="dash-admin-agents-group" style="display:none;">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.3);background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));">
-          <i data-lucide="shield-check"></i>
-          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Admin</span>
+          <i data-lucide="users"></i>
+          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Agents terrain</span>
           <i data-lucide="chevron-right" class="dash-chev"></i>
         </button>
         <div class="dash-group-body">
           <button class="dash-link" onclick="showDashSection('agents-terrain')" id="dl-agents-terrain">
-            <i data-lucide="users"></i> <span>Agents terrain WOZALI</span>
-          </button>
-          <button class="dash-link" onclick="showDashSection('battle')" id="dl-battle">
-            <i data-lucide="swords"></i> <span>Battle H vs F</span>
-          </button>
-          <button class="dash-link" onclick="showDashSection('admin-ambassadeurs')" id="dl-admin-ambassadeurs">
-            <i data-lucide="star"></i> <span>Ambassadeurs</span>
+            <i data-lucide="user-check"></i> <span>Candidatures</span>
           </button>
           <button class="dash-link" onclick="showDashSection('fondateur-terrain')" id="dl-fondateur-terrain">
-            <i data-lucide="map"></i> <span>Reseau terrain</span>
+            <i data-lucide="map"></i> <span>Réseau global</span>
           </button>
           <button class="dash-link" onclick="showDashSection('fondateur-objectifs')" id="dl-fondateur-objectifs">
             <i data-lucide="target"></i> <span>Objectifs 3-6 mois</span>
@@ -2258,11 +2259,60 @@ setTimeout(function(){
         </div>
       </div>
 
-      <!-- Réseau Terrain : visible admin + responsable terrain -->
+      <!-- ADMIN · Sous-section 2 : Ambassadeurs -->
+      <div class="dash-group" data-group="admin-ambassadeurs" id="dash-admin-ambassadeurs-group" style="display:none;">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.3);background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));">
+          <i data-lucide="star"></i>
+          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Ambassadeurs</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('admin-ambassadeurs')" id="dl-admin-ambassadeurs">
+            <i data-lucide="layout-dashboard"></i> <span>Vue ensemble</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('battle')" id="dl-battle">
+            <i data-lucide="swords"></i> <span>Battle H vs F</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ADMIN · Sous-section 3 : Responsable terrain -->
+      <div class="dash-group" data-group="admin-responsable" id="dash-admin-responsable-group" style="display:none;">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.3);background:linear-gradient(135deg,rgba(232,148,10,.12),rgba(232,148,10,.04));">
+          <i data-lucide="shield-check"></i>
+          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Responsable terrain</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('responsable-kpi')" id="dl-admin-rt-kpi">
+            <i data-lucide="bar-chart-2"></i> <span>KPI équipe</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-equipe')" id="dl-admin-rt-equipe">
+            <i data-lucide="users"></i> <span>Équipe agents</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-journaux')" id="dl-admin-rt-journaux">
+            <i data-lucide="book-open"></i> <span>Journaux de bord</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-cr')" id="dl-admin-rt-cr">
+            <i data-lucide="clipboard-list"></i> <span>CR hebdo</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-remun')" id="dl-admin-rt-remun">
+            <i data-lucide="wallet"></i> <span>Rémunération RT</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-ressources')" id="dl-admin-rt-ressources">
+            <i data-lucide="library"></i> <span>Formation (20 docs)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Fin admin — séparateur visuel -->
+      <div id="dash-admin-end" style="display:none;height:1px;background:rgba(232,148,10,.1);margin:4px 0 8px;"></div>
+
+      <!-- Responsable terrain : son propre espace (visible RT uniquement, pas admin ici) -->
       <div class="dash-group" data-group="responsable-terrain" id="dash-responsable-group" style="display:none;">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(232,148,10,.35);background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.04));">
           <i data-lucide="map-pin"></i>
-          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Réseau Terrain</span>
+          <span class="dash-group-lbl" style="color:#E8940A;font-weight:800;">Mon espace RT</span>
           <i data-lucide="chevron-right" class="dash-chev"></i>
         </button>
         <div class="dash-group-body">
