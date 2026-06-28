@@ -170,7 +170,7 @@
 
   <p class="note">
     Hypothèses : 2 500 FCFA/abonnement Pro · 1 000 FCFA commission parrainage personnel/Pro/mois<br>
-    Montée en puissance équipe : M1=40% objectif · M2=65% · M3=% curseur · M6=% curseur × 1.35<br>
+    Montée en puissance équipe : M1=40%×curseur · M2=65%×curseur · M3=curseur · M6=curseur×1.35<br>
     Simulation simplifiée (snapshot mensuel, sans effet portefeuille cumulé). Voir doc A.1 pour projection cumulative réelle : M3 min = 1 084 000 FCFA/mois · M3 cible = 2 168 000 FCFA/mois<br>
     SMIG Togo : 52 500 FCFA · SMIG Bénin : 52 000 FCFA · Document confidentiel WOZALI
   </p>
@@ -200,8 +200,8 @@
     document.getElementById('val-perf').innerHTML = Math.round(pct * 100) + '<span>%</span>';
     document.getElementById('val-perso').innerHTML = perso + '<span> Pros</span>';
 
-    // Montée en puissance : M1=40%, M2=65%, M3=pct, M6=pct*1.35 (plafonné 150%)
-    const factors = [0.40, 0.65, pct, Math.min(pct * 1.35, 1.5)];
+    // Montée en puissance : M1=40%×pct, M2=65%×pct, M3=pct, M6=pct*1.35 (plafonné 150%)
+    const factors = [0.40 * pct, 0.65 * pct, pct, Math.min(pct * 1.35, 1.5)];
     const labels = ['m1', 'm2', 'm3', 'm6'];
     const prosPerso = [Math.round(perso * 0.3), Math.round(perso * 0.65), perso, Math.round(perso * 1.8)];
 
@@ -254,7 +254,7 @@
 
     const months = 6;
     // WOZALI: portefeuille récurrent croissant
-    const factors = [0.4, 0.65, pct, Math.min(pct * 1.1, pct * 1.2), Math.min(pct * 1.25, 1.4), Math.min(pct * 1.35, 1.5)];
+    const factors = [0.4 * pct, 0.65 * pct, pct, Math.min(pct * 1.1, pct * 1.2), Math.min(pct * 1.25, 1.4), Math.min(pct * 1.35, 1.5)];
     const wozaliVals = factors.map((f, i) => {
       const prosEquipe = Math.round(PROS_CIBLE * f);
       const persoAdj = Math.round(perso * (0.3 + i * 0.14));
