@@ -90,7 +90,7 @@
       <div class="s-label">Performance équipe (% de l'objectif)</div>
       <div class="s-val" id="val-perf">80<span>%</span></div>
       <input type="range" min="30" max="150" value="80" step="5" id="sl-perf" oninput="update()">
-      <div class="s-desc">100% = 1 600 Pros actifs (cible). 50% = 800 Pros (minimum maintien).</div>
+      <div class="s-desc">100% = 3 200 Pros signés/mois (cible : 800/sem × 4 sem). 50% = 1 600 Pros (minimum maintien).</div>
     </div>
     <div class="slider-card">
       <div class="s-label">Tes Pros personnels (parrainage)</div>
@@ -171,6 +171,7 @@
   <p class="note">
     Hypothèses : 2 500 FCFA/abonnement Pro · 1 000 FCFA commission parrainage personnel/Pro/mois<br>
     Montée en puissance équipe : M1=40% objectif · M2=65% · M3=% curseur · M6=% curseur × 1.35<br>
+    Simulation simplifiée (snapshot mensuel, sans effet portefeuille cumulé). Voir doc A.1 pour projection cumulative réelle : M3 min = 1 084 000 FCFA · M3 cible = 2 168 000 FCFA<br>
     SMIG Togo : 52 500 FCFA · SMIG Bénin : 52 000 FCFA · Document confidentiel WOZALI
   </p>
 
@@ -181,7 +182,7 @@
   const PRIX_PRO = 2500;
   const COMM_POSTE = 0.10;
   const COMM_PERSO = 1000;
-  const PROS_CIBLE = 1600;
+  const PROS_CIBLE = 3200;
 
   function fmt(n) {
     return Math.round(n).toLocaleString('fr-FR') + ' FCFA';
