@@ -572,6 +572,8 @@ function showDashSection(section) {
   if (section === 'agents-ressources') loadAgentsRessourcesSection();
   if (section === 'agent-journal') loadAgentJournalSection();
   if (section === 'agent-classement') loadAgentClassement();
+  if (section === 'agent-contrat') loadAgentContrat();
+  if (section === 'admin-contrats') loadAdminContrats();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
   if (section === 'admin-ambassadeurs') loadAdminAmbassadeurs();
@@ -14665,6 +14667,313 @@ async function loadAgentClassement() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DOCUSIGN INTERNE — CONTRATS AGENTS TERRAIN
+// ══════════════════════════════════════════════════════════════════════
+
+const _contratCanvasBound = {}; // évite de re-binder les events canvas
+
+function initContratCanvas(type) {
+  const canvas = document.getElementById('contrat-canvas-' + type);
+  const hintId = 'contrat-canvas-' + type + '-hint';
+  if (!canvas || _contratCanvasBound[type]) return;
+  _contratCanvasBound[type] = true;
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#FCE0A8';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  let drawing = false;
+
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - r.left) * (canvas.width / r.width),
+      y: (src.clientY - r.top) * (canvas.height / r.height),
+    };
+  }
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    const hint = document.getElementById(hintId);
+    if (hint) hint.style.display = 'none';
+    const { x, y } = getPos(e);
+    ctx.beginPath(); ctx.moveTo(x, y);
+  }
+  function draw(e) {
+    e.preventDefault();
+    if (!drawing) return;
+    const { x, y } = getPos(e);
+    ctx.lineTo(x, y); ctx.stroke();
+  }
+  function stopDraw() { drawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDraw);
+  canvas.addEventListener('mouseleave', stopDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', stopDraw);
+}
+
+function clearContratCanvas(type) {
+  const canvas = document.getElementById('contrat-canvas-' + type);
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  const hint = document.getElementById('contrat-canvas-' + type + '-hint');
+  if (hint) hint.style.display = 'flex';
+}
+
+function _isCanvasEmpty(canvas) {
+  const d = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+  return !d.some(v => v !== 0);
+}
+
+async function loadAgentContrat() {
+  if (!currentUser) return;
+  const p = currentPrestataire || {};
+  const nomInput = document.getElementById('contrat-nom');
+  const telInput = document.getElementById('contrat-telephone');
+  if (nomInput && p.nom && !nomInput.value) nomInput.value = p.nom;
+  if (telInput && p.telephone && !telInput.value) telInput.value = p.telephone;
+
+  const statusBlock = document.getElementById('contrat-status-block');
+  const signForm   = document.getElementById('contrat-sign-form');
+  const signeView  = document.getElementById('contrat-signe-view');
+  if (!statusBlock) return;
+  statusBlock.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(252,224,168,.3);font-size:13px;">Verification...</div>';
+
+  try {
+    const { data, error } = await supa
+      .from('agent_contrats')
+      .select('*')
+      .eq('agent_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+
+    if (!data) {
+      statusBlock.innerHTML = `<div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:12px;"><div style="width:36px;height:36px;background:rgba(248,113,113,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">📄</div><div><div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:2px;">Contrat non signe</div><div style="font-size:12px;color:rgba(252,224,168,.5);">Lis les termes ci-dessous et signe ton contrat pour activer pleinement ton compte agent terrain.</div></div></div>`;
+      if (signForm) { signForm.style.display = 'block'; setTimeout(() => initContratCanvas('agent'), 80); }
+      if (signeView) signeView.style.display = 'none';
+      const dot = document.getElementById('agent-contrat-dot');
+      if (dot) dot.style.display = 'block';
+    } else if (data.statut === 'agent_signe') {
+      const d = data.signed_at ? new Date(data.signed_at).toLocaleDateString('fr-FR') : '-';
+      statusBlock.innerHTML = `<div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:12px;"><div style="width:36px;height:36px;background:rgba(232,148,10,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">✍️</div><div><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">Signe le ${d}</div><div style="font-size:12px;color:rgba(252,224,168,.5);">En attente de la contresignature du fondateur.</div></div></div>`;
+      if (signForm) signForm.style.display = 'none';
+      if (signeView) { signeView.style.display = 'block'; _renderContratSigneAgent(data); }
+    } else if (data.statut === 'cosigne') {
+      const d = data.fondateur_signed_at ? new Date(data.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
+      statusBlock.innerHTML = `<div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:12px;"><div style="width:36px;height:36px;background:rgba(74,222,128,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">✅</div><div><div style="font-size:13px;font-weight:700;color:#4ade80;margin-bottom:2px;">Contrat officiel signe des deux parties</div><div style="font-size:12px;color:rgba(252,224,168,.5);">Contresigne par Schealtiel Lawson le ${d}. Accord en vigueur.</div></div></div>`;
+      if (signForm) signForm.style.display = 'none';
+      if (signeView) { signeView.style.display = 'block'; _renderContratSigneAgent(data); }
+    }
+  } catch(err) {
+    console.error('[loadAgentContrat]', err);
+    statusBlock.innerHTML = '<div style="color:#ef4444;font-size:13px;padding:12px;">Erreur de chargement. Rafraichis la page.</div>';
+  }
+}
+
+function _renderContratSigneAgent(data) {
+  const el = document.getElementById('contrat-signe-view');
+  if (!el) return;
+  const dSign = data.signed_at ? new Date(data.signed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
+  el.innerHTML = `
+    <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:20px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Recapitulatif contrat</div>
+      <div style="display:grid;gap:10px;margin-bottom:16px;">
+        <div><span style="font-size:11px;color:rgba(252,224,168,.4);">Nom :</span> <span style="font-size:13px;color:#FCE0A8;font-weight:600;">${data.agent_nom||'-'}</span></div>
+        <div><span style="font-size:11px;color:rgba(252,224,168,.4);">Telephone :</span> <span style="font-size:13px;color:#FCE0A8;">${data.agent_telephone||'-'}</span></div>
+        <div><span style="font-size:11px;color:rgba(252,224,168,.4);">Ville :</span> <span style="font-size:13px;color:#FCE0A8;">${data.agent_ville||'-'}</span></div>
+        <div><span style="font-size:11px;color:rgba(252,224,168,.4);">Fait a :</span> <span style="font-size:13px;color:#FCE0A8;">${data.lieu_signature||'-'}</span></div>
+        <div><span style="font-size:11px;color:rgba(252,224,168,.4);">Date signature :</span> <span style="font-size:13px;color:#FCE0A8;">${dSign}</span></div>
+      </div>
+      ${data.signature_data_url ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,.1);"><div style="font-size:11px;color:rgba(252,224,168,.4);margin-bottom:8px;">Ta signature :</div><div style="background:#111;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;height:80px;display:flex;align-items:center;justify-content:center;"><img src="${data.signature_data_url}" alt="Signature" style="max-width:100%;max-height:80px;object-fit:contain;"/></div></div>` : ''}
+      ${data.fondateur_signature_data_url ? `<div style="margin-top:12px;"><div style="font-size:11px;color:rgba(252,224,168,.4);margin-bottom:8px;">Contresignature fondateur :</div><div style="background:#111;border:1px solid rgba(74,222,128,.12);border-radius:8px;overflow:hidden;height:80px;display:flex;align-items:center;justify-content:center;"><img src="${data.fondateur_signature_data_url}" alt="Contresignature" style="max-width:100%;max-height:80px;object-fit:contain;"/></div></div>` : ''}
+    </div>
+    <div style="margin-top:12px;text-align:center;"><a href="/formation-responsable/rt-18-contrat-agent-terrain.html" target="_blank" style="font-size:12px;color:#E8940A;text-decoration:none;font-family:'Geist Mono',monospace;">Voir le contrat complet &rarr;</a></div>`;
+}
+
+async function submitAgentContrat() {
+  const nom       = (document.getElementById('contrat-nom')?.value || '').trim();
+  const telephone = (document.getElementById('contrat-telephone')?.value || '').trim();
+  const ville     = document.getElementById('contrat-ville')?.value || '';
+  const lieu      = (document.getElementById('contrat-lieu')?.value || '').trim();
+  const lu        = document.getElementById('contrat-lu')?.checked;
+  const canvas    = document.getElementById('contrat-canvas-agent');
+
+  if (!nom)                                    { toast('Entre ton nom complet', 'error'); return; }
+  if (!ville)                                  { toast('Selectionne ta ville', 'error'); return; }
+  if (!lu)                                     { toast('Coche "Lu et approuve" pour continuer', 'error'); return; }
+  if (!canvas || _isCanvasEmpty(canvas))       { toast('Dessine ta signature dans le cadre', 'error'); return; }
+
+  const btn = document.getElementById('btn-signer-contrat');
+  if (btn) { btn.disabled = true; btn.textContent = 'Signature en cours...'; }
+
+  try {
+    const signatureDataUrl = canvas.toDataURL('image/png');
+    const now = new Date();
+    const { error } = await supa.from('agent_contrats').insert({
+      agent_id:           currentUser.id,
+      agent_nom:          nom,
+      agent_telephone:    telephone,
+      agent_ville:        ville,
+      lieu_signature:     lieu || ville,
+      date_signature:     now.toISOString().split('T')[0],
+      signature_data_url: signatureDataUrl,
+      signed_at:          now.toISOString(),
+      statut:             'agent_signe',
+      contract_ref:       'RT-CT-2026-018',
+    });
+    if (error) throw error;
+
+    toast('Contrat signe. En attente de contresignature.', 'success');
+    const dot = document.getElementById('agent-contrat-dot');
+    if (dot) dot.style.display = 'none';
+    await loadAgentContrat();
+  } catch(err) {
+    console.error('[submitAgentContrat]', err);
+    toast('Erreur lors de la signature. Reessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Signer le contrat'; }
+  }
+}
+
+// ── Admin : liste des contrats ──
+
+async function loadAdminContrats() {
+  const listEl    = document.getElementById('admin-contrats-list');
+  const totalEl   = document.getElementById('admin-contrats-total');
+  const signesEl  = document.getElementById('admin-contrats-signes');
+  const cosEl     = document.getElementById('admin-contrats-cosignes');
+  if (!listEl) return;
+  listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(252,224,168,.25);font-size:13px;">Chargement...</div>';
+
+  try {
+    const { data, error } = await supa
+      .from('agent_contrats')
+      .select('id, agent_nom, agent_telephone, agent_ville, signed_at, fondateur_signed_at, statut')
+      .order('signed_at', { ascending: false });
+    if (error) throw error;
+
+    const all     = data || [];
+    const aSign   = all.filter(c => c.statut === 'agent_signe');
+    const cosignes = all.filter(c => c.statut === 'cosigne');
+    if (totalEl)  totalEl.textContent  = all.length;
+    if (signesEl) signesEl.textContent = aSign.length;
+    if (cosEl)    cosEl.textContent    = cosignes.length;
+
+    if (all.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(252,224,168,.2);font-size:13px;">Aucun contrat signe pour l\'instant.</div>';
+      return;
+    }
+
+    listEl.innerHTML = all.map(c => {
+      const ds = c.signed_at ? new Date(c.signed_at).toLocaleDateString('fr-FR') : '-';
+      const isCo = c.statut === 'cosigne';
+      const dc = c.fondateur_signed_at ? new Date(c.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
+      return `<div style="background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:700;color:#FCE0A8;">${c.agent_nom||'-'}</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.45);margin-top:2px;">${c.agent_ville||'-'} &middot; ${c.agent_telephone||'-'}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:11px;font-family:'Geist Mono',monospace;font-weight:700;color:${isCo ? '#4ade80' : '#E8940A'};">${isCo ? 'Cosigne' : 'A contresigner'}</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:2px;">${ds}</div>
+          </div>
+        </div>
+        ${isCo
+          ? `<div style="margin-top:8px;font-size:11px;color:#4ade80;font-family:'Geist Mono',monospace;">Cosigne le ${dc}</div>`
+          : `<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);"><button type="button" onclick="openCosignModal('${c.id}')" style="padding:8px 16px;background:#E8940A;color:#14100A;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;">Contresigner</button></div>`
+        }
+      </div>`;
+    }).join('');
+  } catch(err) {
+    console.error('[loadAdminContrats]', err);
+    listEl.innerHTML = '<div style="color:#ef4444;font-size:13px;padding:12px;">Erreur de chargement.</div>';
+  }
+}
+
+let _cosignContratId = null;
+
+async function openCosignModal(contratId) {
+  _cosignContratId = contratId;
+  document.getElementById('cosign-contrat-id').value = contratId;
+
+  // Charger les détails complets (dont signature_data_url)
+  try {
+    const { data, error } = await supa
+      .from('agent_contrats')
+      .select('*')
+      .eq('id', contratId)
+      .single();
+    if (error || !data) { toast('Erreur chargement contrat', 'error'); return; }
+
+    document.getElementById('modal-cosign-ref').textContent = 'RT-CT-2026-018 - ' + (data.agent_nom || '');
+
+    const infoEl = document.getElementById('modal-cosign-agent-info');
+    if (infoEl) {
+      const ds = data.signed_at ? new Date(data.signed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
+      infoEl.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div><span style="font-size:10px;color:rgba(252,224,168,.4);">Agent :</span><br/><span style="font-size:13px;color:#FCE0A8;">${data.agent_nom||'-'}</span></div>
+        <div><span style="font-size:10px;color:rgba(252,224,168,.4);">Ville :</span><br/><span style="font-size:13px;color:#FCE0A8;">${data.agent_ville||'-'}</span></div>
+        <div><span style="font-size:10px;color:rgba(252,224,168,.4);">Tel :</span><br/><span style="font-size:13px;color:#FCE0A8;">${data.agent_telephone||'-'}</span></div>
+        <div><span style="font-size:10px;color:rgba(252,224,168,.4);">Signe le :</span><br/><span style="font-size:13px;color:#FCE0A8;">${ds}</span></div>
+      </div>`;
+    }
+
+    const imgEl = document.getElementById('modal-agent-sig-img');
+    if (imgEl) imgEl.src = data.signature_data_url || '';
+
+    // Reset canvas fondateur
+    _contratCanvasBound['fondateur'] = false;
+    const cv = document.getElementById('contrat-canvas-fondateur');
+    if (cv) cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+    const hint = document.getElementById('contrat-canvas-fondateur-hint');
+    if (hint) hint.style.display = 'flex';
+
+    document.getElementById('modal-cosign').style.display = 'flex';
+    setTimeout(() => initContratCanvas('fondateur'), 80);
+  } catch(err) {
+    console.error('[openCosignModal]', err);
+    toast('Erreur ouverture modal', 'error');
+  }
+}
+
+async function submitFondateurCosign() {
+  const contratId = _cosignContratId;
+  if (!contratId) return;
+  const canvas = document.getElementById('contrat-canvas-fondateur');
+  if (!canvas || _isCanvasEmpty(canvas)) { toast('Ajoute ta contresignature', 'error'); return; }
+
+  const btn = document.getElementById('btn-cosigner');
+  if (btn) { btn.disabled = true; btn.textContent = 'Signature en cours...'; }
+
+  try {
+    const sigDataUrl = canvas.toDataURL('image/png');
+    const now = new Date().toISOString();
+    const { error } = await supa.from('agent_contrats').update({
+      fondateur_signature_data_url: sigDataUrl,
+      fondateur_signed_at: now,
+      statut: 'cosigne',
+    }).eq('id', contratId);
+    if (error) throw error;
+
+    toast('Contrat contresigne avec succes', 'success');
+    document.getElementById('modal-cosign').style.display = 'none';
+    _cosignContratId = null;
+    await loadAdminContrats();
+  } catch(err) {
+    console.error('[submitFondateurCosign]', err);
+    toast('Erreur contresignature', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Contresigner et valider'; }
+  }
 }
 
 async function loadAgentJournalSection() {

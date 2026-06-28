@@ -2249,6 +2249,10 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('agent-classement')" id="dl-agent-classement">
             <i data-lucide="trophy"></i> <span>Classement equipe</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('agent-contrat')" id="dl-agent-contrat">
+            <i data-lucide="file-signature"></i> <span>Mon contrat</span>
+            <span id="agent-contrat-dot" style="display:none;margin-left:auto;width:8px;height:8px;background:#f87171;border-radius:50%;flex-shrink:0;"></span>
+          </button>
         </div>
       </div>
 
@@ -2284,6 +2288,9 @@ setTimeout(function(){
           </button>
           <button class="dash-link" onclick="showDashSection('fondateur-bourse')" id="dl-fondateur-bourse">
             <i data-lucide="award"></i> <span>Éligibilité Bourse</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('admin-contrats')" id="dl-admin-contrats">
+            <i data-lucide="file-check-2"></i> <span>Contrats signés</span>
           </button>
         </div>
       </div>
@@ -3733,6 +3740,170 @@ setTimeout(function(){
         <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Classement complet</div>
         <div id="classement-liste" style="display:flex;flex-direction:column;gap:6px;">
           <div style="text-align:center;padding:24px;color:rgba(252,224,168,.25);font-size:13px;">Chargement...</div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           AGENT TERRAIN — MON CONTRAT (DocuSign interne)
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-agent-contrat">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Mon contrat</h2>
+          <p style="color:rgba(252,224,168,.55);font-size:13px;margin-top:4px;">Accord de mission terrain et de commission - RT-CT-2026-018</p>
+        </div>
+
+        <!-- Statut du contrat -->
+        <div id="contrat-status-block" style="margin-bottom:20px;">
+          <div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;">Verification...</div>
+        </div>
+
+        <!-- Formulaire de signature (affiché si pas encore signé) -->
+        <div id="contrat-sign-form" style="display:none;">
+
+          <!-- Résumé des termes clés -->
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:16px;margin-bottom:20px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Termes principaux</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <div style="width:6px;height:6px;background:#E8940A;border-radius:50%;margin-top:7px;flex-shrink:0;"></div>
+                <div style="font-size:13px;color:rgba(252,224,168,.8);line-height:1.55;"><strong style="color:#FCE0A8;">Mission</strong> - Inscrire des professionnels sur WOZALI en tant qu'agent terrain independant.</div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <div style="width:6px;height:6px;background:#E8940A;border-radius:50%;margin-top:7px;flex-shrink:0;"></div>
+                <div style="font-size:13px;color:rgba(252,224,168,.8);line-height:1.55;"><strong style="color:#FCE0A8;">Commission</strong> - 1 000 FCFA/mois par membre Pro actif inscrit via ton lien (40% du tarif Pro). Si tu remportes la Battle mensuelle : 1 500 FCFA/membre actif ce mois-la.</div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <div style="width:6px;height:6px;background:#E8940A;border-radius:50%;margin-top:7px;flex-shrink:0;"></div>
+                <div style="font-size:13px;color:rgba(252,224,168,.8);line-height:1.55;"><strong style="color:#FCE0A8;">Statut</strong> - Agent independant. Pas de salaire fixe. Pas de lien de subordination.</div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <div style="width:6px;height:6px;background:#E8940A;border-radius:50%;margin-top:7px;flex-shrink:0;"></div>
+                <div style="font-size:13px;color:rgba(252,224,168,.8);line-height:1.55;"><strong style="color:#FCE0A8;">Duree</strong> - Contrat a duree indeterminee. Resiliable par l'une ou l'autre partie avec 7 jours de preavis.</div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <div style="width:6px;height:6px;background:#E8940A;border-radius:50%;margin-top:7px;flex-shrink:0;"></div>
+                <div style="font-size:13px;color:rgba(252,224,168,.8);line-height:1.55;"><strong style="color:#FCE0A8;">Confidentialite</strong> - Bases de donnees, methodes et donnees membres confidentiels. Obligation maintenue 2 ans apres fin de mission.</div>
+              </div>
+            </div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(232,148,10,.1);">
+              <a href="/formation-responsable/rt-18-contrat-agent-terrain.html" target="_blank" style="font-size:12px;color:#E8940A;text-decoration:none;font-family:'Geist Mono',monospace;">Voir le contrat complet &rarr;</a>
+            </div>
+          </div>
+
+          <!-- Champs de renseignement -->
+          <div style="display:grid;gap:14px;margin-bottom:20px;">
+            <div>
+              <label style="font-size:11px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:6px;">Nom complet</label>
+              <input type="text" id="contrat-nom" placeholder="Votre nom complet" style="width:100%;padding:12px 14px;background:#1a1a1a;border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#FCE0A8;font-size:14px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:6px;">Telephone</label>
+              <input type="tel" id="contrat-telephone" placeholder="+228 XX XX XX XX" style="width:100%;padding:12px 14px;background:#1a1a1a;border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#FCE0A8;font-size:14px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;" />
+            </div>
+            <div>
+              <label style="font-size:11px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:6px;">Ville</label>
+              <select id="contrat-ville" style="width:100%;padding:12px 14px;background:#1a1a1a;border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#FCE0A8;font-size:14px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;">
+                <option value="">Selectionner...</option>
+                <option value="Lome">Lome</option>
+                <option value="Cotonou">Cotonou</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:6px;">Fait a (lieu precis)</label>
+              <input type="text" id="contrat-lieu" placeholder="Ex: Lome, Be-Kpota" style="width:100%;padding:12px 14px;background:#1a1a1a;border:1px solid rgba(232,148,10,.25);border-radius:10px;color:#FCE0A8;font-size:14px;font-family:'Geist',sans-serif;outline:none;box-sizing:border-box;" />
+            </div>
+          </div>
+
+          <!-- Zone de signature canvas -->
+          <div style="margin-bottom:20px;">
+            <label style="font-size:11px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:6px;">Ta signature</label>
+            <div style="position:relative;background:#111;border:2px solid rgba(232,148,10,.25);border-radius:10px;overflow:hidden;">
+              <canvas id="contrat-canvas-agent" width="600" height="140" style="width:100%;height:140px;touch-action:none;cursor:crosshair;display:block;"></canvas>
+              <button type="button" onclick="clearContratCanvas('agent')" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(252,224,168,.5);cursor:pointer;font-family:'Geist Mono',monospace;letter-spacing:.5px;">Effacer</button>
+              <div id="contrat-canvas-agent-hint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                <span style="font-size:12px;color:rgba(252,224,168,.18);font-family:'Geist Mono',monospace;">Signer ici avec votre doigt ou la souris</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checkbox Lu et approuvé -->
+          <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:24px;padding:14px 16px;background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.12);border-radius:10px;">
+            <input type="checkbox" id="contrat-lu" style="margin-top:3px;width:16px;height:16px;accent-color:#E8940A;flex-shrink:0;cursor:pointer;" />
+            <label for="contrat-lu" style="font-size:13px;color:rgba(252,224,168,.8);line-height:1.55;cursor:pointer;">J'ai lu et j'accepte l'integralite des termes de cet accord de mission terrain et de commission. Je comprends que je suis un agent independant et non un salarie de WOZALI.</label>
+          </div>
+
+          <button type="button" onclick="submitAgentContrat()" id="btn-signer-contrat" style="width:100%;padding:16px;background:#E8940A;color:#14100A;font-size:15px;font-weight:800;font-family:'Geist',sans-serif;border:none;border-radius:12px;cursor:pointer;letter-spacing:.5px;">Signer le contrat</button>
+        </div>
+
+        <!-- Vue après signature -->
+        <div id="contrat-signe-view" style="display:none;"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           ADMIN — CONTRATS AGENTS TERRAIN
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-admin-contrats">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Contrats agents</h2>
+          <p style="color:rgba(252,224,168,.55);font-size:13px;margin-top:4px;">Signatures et contresignatures</p>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;text-align:center;">
+            <div id="admin-contrats-total" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#E8940A;line-height:1;">-</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">Total</div>
+          </div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;text-align:center;">
+            <div id="admin-contrats-signes" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;line-height:1;">-</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">A contresigner</div>
+          </div>
+          <div style="background:#161616;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;text-align:center;">
+            <div id="admin-contrats-cosignes" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#4ade80;line-height:1;">-</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">Valides</div>
+          </div>
+        </div>
+
+        <!-- Liste -->
+        <div id="admin-contrats-list">
+          <div style="text-align:center;padding:30px;color:rgba(252,224,168,.25);font-size:13px;">Chargement...</div>
+        </div>
+
+        <!-- Modal contresignature -->
+        <div id="modal-cosign" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);overflow-y:auto;">
+          <div style="min-height:100%;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+            <div style="background:#1a1207;border:1px solid rgba(232,148,10,.3);border-radius:20px;padding:28px;width:100%;max-width:480px;position:relative;">
+              <button type="button" onclick="document.getElementById('modal-cosign').style.display='none'" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;width:32px;height:32px;color:rgba(252,224,168,.5);cursor:pointer;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;">&times;</button>
+              <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;margin-bottom:2px;">Contresigner</div>
+              <div style="font-size:12px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;margin-bottom:20px;" id="modal-cosign-ref">RT-CT-2026-018</div>
+
+              <!-- Infos agent -->
+              <div id="modal-cosign-agent-info" style="background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 14px;margin-bottom:16px;"></div>
+
+              <!-- Signature de l'agent (preview) -->
+              <div style="margin-bottom:16px;">
+                <div style="font-size:10px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Signature de l'agent</div>
+                <div style="background:#111;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;height:90px;display:flex;align-items:center;justify-content:center;">
+                  <img id="modal-agent-sig-img" src="" alt="Signature agent" style="max-width:100%;max-height:90px;object-fit:contain;" />
+                </div>
+              </div>
+
+              <!-- Canvas fondateur -->
+              <div style="margin-bottom:20px;">
+                <div style="font-size:10px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Ta contresignature</div>
+                <div style="position:relative;background:#111;border:2px solid rgba(232,148,10,.25);border-radius:10px;overflow:hidden;">
+                  <canvas id="contrat-canvas-fondateur" width="600" height="120" style="width:100%;height:120px;touch-action:none;cursor:crosshair;display:block;"></canvas>
+                  <button type="button" onclick="clearContratCanvas('fondateur')" style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 8px;font-size:10px;color:rgba(252,224,168,.5);cursor:pointer;font-family:'Geist Mono',monospace;">Effacer</button>
+                  <div id="contrat-canvas-fondateur-hint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                    <span style="font-size:12px;color:rgba(252,224,168,.18);font-family:'Geist Mono',monospace;">Schealtiel Lawson - Fondateur WOZALI</span>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" onclick="submitFondateurCosign()" id="btn-cosigner" style="width:100%;padding:14px;background:#E8940A;color:#14100A;font-size:14px;font-weight:800;font-family:'Geist',sans-serif;border:none;border-radius:10px;cursor:pointer;letter-spacing:.5px;">Contresigner et valider</button>
+              <input type="hidden" id="cosign-contrat-id" value="" />
+            </div>
+          </div>
         </div>
       </div>
 
