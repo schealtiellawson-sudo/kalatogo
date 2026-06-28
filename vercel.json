@@ -39,6 +39,7 @@
     { "source": "/cgu", "destination": "/cgu.html" },
     { "source": "/confidentialite", "destination": "/politique-confidentialite.html" },
     { "source": "/bientot", "destination": "/bientot.html" },
-    { "source": "/pitch", "destination": "/pitch.html" }
+    { "source": "/pitch", "destination": "/pitch.html" },
+    { "source": "/temoignages", "destination": "/temoignages.html" }
   ]
 }

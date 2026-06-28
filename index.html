@@ -2179,6 +2179,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
             <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('temoignage-abus')" id="dl-temoignage-abus">
+            <i data-lucide="shield"></i> <span>Signaler un abus</span>
+          </button>
         </div>
       </div>
 
@@ -2340,6 +2343,20 @@ setTimeout(function(){
           </button>
           <button class="dash-link" onclick="showDashSection('responsable-ressources')" id="dl-admin-rt-ressources">
             <i data-lucide="library"></i> <span>Formation (20 docs)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Admin : Témoignages abus emploi -->
+      <div class="dash-group" data-group="admin-temoignages" id="dash-admin-temoignages-group" style="display:none;">
+        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)" style="border:1px solid rgba(220,38,38,.3);background:linear-gradient(135deg,rgba(220,38,38,.12),rgba(220,38,38,.04));">
+          <i data-lucide="shield-alert"></i>
+          <span class="dash-group-lbl" style="color:#fca5a5;font-weight:800;">Témoignages abus</span>
+          <i data-lucide="chevron-right" class="dash-chev"></i>
+        </button>
+        <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('admin-temoignages-abus')" id="dl-admin-temoignages">
+            <i data-lucide="eye"></i> <span>Modérer les témoignages</span>
           </button>
         </div>
       </div>
@@ -5017,6 +5034,49 @@ setTimeout(function(){
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════
+           ADMIN — MODÉRATION TÉMOIGNAGES ABUS
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-admin-temoignages-abus">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Témoignages abus emploi</h2>
+          <p style="color:var(--gris);font-size:13px;">Modération des témoignages soumis. Approuver = publié sur wozali.africa/temoignages. Refuser = supprimé. L'identité de la personne est visible ici uniquement.</p>
+        </div>
+
+        <!-- KPI bar -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;">
+          <div style="background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.2);border-radius:12px;padding:16px;text-align:center;">
+            <div id="temo-admin-kpi-total" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#fca5a5;">0</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">Total reçus</div>
+          </div>
+          <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:12px;padding:16px;text-align:center;">
+            <div id="temo-admin-kpi-attente" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#fbbf24;">0</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">En attente</div>
+          </div>
+          <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px;text-align:center;">
+            <div id="temo-admin-kpi-publies" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#86efac;">0</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">Publiés</div>
+          </div>
+          <div style="background:rgba(100,116,139,.06);border:1px solid rgba(100,116,139,.2);border-radius:12px;padding:16px;text-align:center;">
+            <div id="temo-admin-kpi-refuses" style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:rgba(252,224,168,.4);">0</div>
+            <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">Refusés</div>
+          </div>
+        </div>
+
+        <!-- Filtres -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+          <button onclick="loadAdminTemoignagesAbus('en_attente')" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;">En attente</button>
+          <button onclick="loadAdminTemoignagesAbus('publie')" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#86efac;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;">Publiés</button>
+          <button onclick="loadAdminTemoignagesAbus('refuse')" style="background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.2);color:rgba(252,224,168,.5);font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;">Refusés</button>
+          <button onclick="loadAdminTemoignagesAbus(null)" style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);color:#E8940A;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;">Tous</button>
+        </div>
+
+        <!-- Feed modération -->
+        <div id="temo-admin-feed" style="display:flex;flex-direction:column;gap:14px;">
+          <div style="text-align:center;padding:40px;color:rgba(252,224,168,.3);font-family:'Geist',sans-serif;font-size:14px;">Charge en cours...</div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
            AMBASSADEUR — MON ESPACE (visible si compte validé)
            ══════════════════════════════════════════════════════════════ -->
       <div class="dash-section" id="ds-ambassadeur">
@@ -5709,6 +5769,147 @@ setTimeout(function(){
 
   </div>
 </section>
+
+      <!-- ESPACE TÉMOIGNAGE ABUS EMPLOI -->
+      <section id="ds-temoignage-abus" class="dash-section" style="display:none;">
+        <div style="max-width:680px;margin:0 auto;padding:24px 0 48px;">
+
+          <!-- En-tête -->
+          <div style="margin-bottom:32px;">
+            <p style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:2px;color:#E8940A;text-transform:uppercase;margin:0 0 8px;">Emploi sécurisé</p>
+            <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:28px;font-weight:400;font-style:italic;color:#FCE0A8;margin:0 0 8px;line-height:1.2;">Tu n'es plus seul(e).</h2>
+            <p style="font-family:'Geist',system-ui,sans-serif;font-size:14px;color:rgba(252,224,168,0.6);margin:0;line-height:1.7;">Certains employeurs profitent de leur position pour demander des faveurs, imposer des conditions abusives, ou refuser de payer. Tu peux témoigner ici. Anonyme. Protégé. Publié après vérification pour exercer une pression communautaire sur ceux qui abusent.</p>
+          </div>
+
+          <!-- Bloc garanties -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:32px;">
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+              <div style="font-size:20px;margin-bottom:8px;">🔒</div>
+              <p style="font-family:'Geist',sans-serif;font-size:13px;color:rgba(252,224,168,.8);font-weight:600;margin:0 0 4px;">100% anonyme</p>
+              <p style="font-family:'Geist',sans-serif;font-size:12px;color:rgba(252,224,168,.4);margin:0;line-height:1.6;">Ton nom n'apparait jamais. Un compte WOZALI est requis uniquement pour prévenir les faux témoignages.</p>
+            </div>
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+              <div style="font-size:20px;margin-bottom:8px;">🌍</div>
+              <p style="font-family:'Geist',sans-serif;font-size:13px;color:rgba(252,224,168,.8);font-weight:600;margin:0 0 4px;">Pression mondiale</p>
+              <p style="font-family:'Geist',sans-serif;font-size:12px;color:rgba(252,224,168,.4);margin:0;line-height:1.6;">Les témoignages publiés sont visibles par tous — wozali.africa/temoignages. La honte publique est plus efficace.</p>
+            </div>
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;">
+              <div style="font-size:20px;margin-bottom:8px;">🔑</div>
+              <p style="font-family:'Geist',sans-serif;font-size:13px;color:rgba(252,224,168,.8);font-weight:600;margin:0 0 4px;">Code confidentiel</p>
+              <p style="font-family:'Geist',sans-serif;font-size:12px;color:rgba(252,224,168,.4);margin:0;line-height:1.6;">Un code unique à 8 caractères t'est remis. Preuve de ton témoignage sans jamais t'identifier.</p>
+            </div>
+          </div>
+
+          <!-- Bloc loading -->
+          <div id="abus-loading" style="text-align:center;padding:40px 0;color:rgba(252,224,168,.4);font-family:'Geist',sans-serif;font-size:14px;">Chargement...</div>
+
+          <!-- Bloc témoignage déjà soumis -->
+          <div id="abus-already" style="display:none;">
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:24px;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <span style="font-size:20px;">🛡️</span>
+                <div>
+                  <p style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:#FCE0A8;margin:0;">Ton témoignage est enregistré</p>
+                  <p id="abus-statut-label" style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin:4px 0 0;color:#E8940A;">En attente de modération</p>
+                </div>
+              </div>
+              <div style="background:rgba(232,148,10,.05);border-left:3px solid rgba(232,148,10,.4);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:12px;">
+                <p id="abus-recit-display" style="font-family:'Geist',sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.75);margin:0;font-style:italic;"></p>
+              </div>
+              <div style="background:rgba(0,0,0,.3);border:1px solid rgba(232,148,10,.2);border-radius:8px;padding:12px 16px;text-align:center;">
+                <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(252,224,168,.4);margin:0 0 4px;">Ton code confidentiel</p>
+                <p id="abus-code-display" style="font-family:'Geist Mono',monospace;font-size:20px;font-weight:700;letter-spacing:4px;color:#E8940A;margin:0;"></p>
+              </div>
+            </div>
+            <p style="font-family:'Geist',sans-serif;font-size:12px;color:rgba(252,224,168,.35);text-align:center;">Garde ce code. Il prouve ton témoignage sans jamais révéler ton identité.</p>
+          </div>
+
+          <!-- Formulaire -->
+          <div id="abus-form-wrapper" style="display:none;">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+              <!-- Pays -->
+              <div>
+                <label style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(252,224,168,.5);display:block;margin-bottom:6px;">Pays</label>
+                <select id="abus-pays" style="width:100%;background:#1E180E;border:1.5px solid rgba(232,148,10,.3);border-radius:10px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:14px;padding:11px 14px;outline:none;">
+                  <option value="TG">Togo</option>
+                  <option value="BJ">Bénin</option>
+                </select>
+              </div>
+              <!-- Ville -->
+              <div>
+                <label style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(252,224,168,.5);display:block;margin-bottom:6px;">Ville</label>
+                <input id="abus-ville" type="text" placeholder="Lomé, Cotonou..." style="width:100%;background:#1E180E;border:1.5px solid rgba(232,148,10,.3);border-radius:10px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:14px;padding:11px 14px;outline:none;box-sizing:border-box;">
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+              <!-- Secteur -->
+              <div>
+                <label style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(252,224,168,.5);display:block;margin-bottom:6px;">Secteur</label>
+                <select id="abus-secteur" style="width:100%;background:#1E180E;border:1.5px solid rgba(232,148,10,.3);border-radius:10px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:14px;padding:11px 14px;outline:none;">
+                  <option value="">Choisir...</option>
+                  <option value="emploi_formel">Emploi formel</option>
+                  <option value="emploi_informel">Emploi informel</option>
+                  <option value="artisan">Artisanat</option>
+                  <option value="commerce">Commerce</option>
+                  <option value="services">Services</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+              <!-- Type incident -->
+              <div>
+                <label style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(252,224,168,.5);display:block;margin-bottom:6px;">Type d'abus</label>
+                <select id="abus-type" style="width:100%;background:#1E180E;border:1.5px solid rgba(232,148,10,.3);border-radius:10px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:14px;padding:11px 14px;outline:none;">
+                  <option value="">Choisir...</option>
+                  <option value="avance_deshonnete">Avance déshonnête</option>
+                  <option value="abus_autorite">Abus d'autorité</option>
+                  <option value="conditions_abusives">Conditions abusives</option>
+                  <option value="discrimination">Discrimination</option>
+                  <option value="paiement_refuse">Paiement refusé</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Récit -->
+            <div style="margin-bottom:20px;">
+              <label style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(252,224,168,.5);display:block;margin-bottom:6px;">Ton récit (minimum 100 caractères)</label>
+              <textarea id="abus-recit" placeholder="Décris ce qui s'est passé. Pas besoin de nommer des personnes — le secteur, la situation, ce qu'on t'a demandé. Ton histoire peut aider quelqu'un d'autre." rows="7" style="width:100%;background:#1E180E;border:1.5px solid rgba(232,148,10,.3);border-radius:12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:14px;line-height:1.7;padding:14px 16px;resize:vertical;box-sizing:border-box;outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='rgba(232,148,10,.7)'" onblur="this.style.borderColor='rgba(232,148,10,.3)'" oninput="abusCountChars(this)"></textarea>
+              <div style="display:flex;justify-content:space-between;margin-top:6px;">
+                <span id="abus-char-count" style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.35);">0 / 100 caractères minimum</span>
+                <span id="abus-char-ok" style="display:none;font-family:'Geist Mono',monospace;font-size:11px;color:#E8940A;">✓ Longueur suffisante</span>
+              </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div style="background:rgba(0,0,0,.2);border:1px solid rgba(252,224,168,.08);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+              <p style="font-family:'Geist',sans-serif;font-size:12px;color:rgba(252,224,168,.4);margin:0;line-height:1.7;">En soumettant ce témoignage, tu confirmes que les faits décrits sont réels et vécus personnellement. Pas de noms d'entreprises ni de personnes dans le texte. Ton identité n'apparaitra jamais publiquement. Témoignage soumis à modération.</p>
+            </div>
+
+            <!-- CTA -->
+            <button id="abus-submit-btn" onclick="submitTemoignageAbus()" style="width:100%;background:#E8940A;color:#14100A;font-family:'Geist',sans-serif;font-size:15px;font-weight:700;padding:15px 24px;border:none;border-radius:12px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+              Soumettre mon témoignage
+            </button>
+          </div>
+
+          <!-- Bloc succès -->
+          <div id="abus-success" style="display:none;text-align:center;padding:40px 24px;">
+            <div style="font-size:48px;margin-bottom:16px;">🛡️</div>
+            <h3 style="font-family:'DM Serif Display',Georgia,serif;font-size:24px;font-weight:400;font-style:italic;color:#FCE0A8;margin:0 0 12px;">Reçu. Tu n'es plus seul(e).</h3>
+            <p style="font-family:'Geist',sans-serif;font-size:14px;color:rgba(252,224,168,.6);line-height:1.6;margin:0 0 24px;">Ton témoignage sera relu et publié si les faits sont clairs. Une fois en ligne, il sera visible dans le monde entier. La pression commence là.</p>
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:20px;display:inline-block;margin-bottom:20px;">
+              <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(252,224,168,.4);margin:0 0 8px;">Ton code confidentiel</p>
+              <p id="abus-success-code" style="font-family:'Geist Mono',monospace;font-size:24px;font-weight:700;letter-spacing:4px;color:#E8940A;margin:0;"></p>
+              <p style="font-family:'Geist',sans-serif;font-size:11px;color:rgba(252,224,168,.3);margin:8px 0 0;">Garde ce code. Preuve de ton témoignage.</p>
+            </div>
+            <div>
+              <a href="https://wozali.africa/temoignages" target="_blank" style="display:inline-block;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);color:#E8940A;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:10px 20px;border-radius:100px;text-decoration:none;">Voir les témoignages publiés →</a>
+            </div>
+          </div>
+
+        </div>
+      </section>
 
       <!-- EMPLOI : MODE EMPLOI -->
       <div class="dash-section" id="ds-emploi-mode">

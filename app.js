@@ -556,6 +556,8 @@ function showDashSection(section) {
   if (section === 'recompenses-mdr') loadRecompensesMDR();
   if (section === 'parrainage') loadParrainage();
   if (section === 'temoignage') { if (typeof window.loadTemoignageSection === 'function') window.loadTemoignageSection(); }
+  if (section === 'temoignage-abus') { loadTemoignageAbusSection(); }
+  if (section === 'admin-temoignages-abus') { loadAdminTemoignagesAbus('en_attente'); }
   if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} }
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
@@ -6239,6 +6241,7 @@ async function showProfil(recordId) {
       }
     }
     const f = record.fields;
+    const statutCompte = f['Statut Compte'] || f.statut_compte || 'actif';
 
     // Valeurs brutes (utilisées pour calculs / SEO / open graph / window.open)
     const nomRaw = f['Nom complet'] || 'Prestataire';
@@ -6470,7 +6473,20 @@ async function showProfil(recordId) {
   </div>
 </div>`;
 
+    const _suspensionBanner = statutCompte === 'suspendu_abus'
+      ? `<div style="background:rgba(220,38,38,.1);border:1.5px solid rgba(220,38,38,.4);border-radius:12px;padding:16px 20px;margin:16px 16px 0;text-align:center;">
+          <div style="font-size:22px;margin-bottom:8px;">🚫</div>
+          <p style="color:#fca5a5;font-family:'Geist',sans-serif;font-size:14px;font-weight:700;margin:0 0 4px;">Ce compte a été suspendu suite à des signalements de la communauté WOZALI.</p>
+          <p style="color:rgba(252,165,165,.55);font-family:'Geist',sans-serif;font-size:12px;margin:0;line-height:1.6;">Les abus signalés par la communauté ne restent jamais sans conséquences sur WOZALI.</p>
+        </div>`
+      : statutCompte === 'desactive'
+        ? `<div style="background:rgba(100,116,139,.1);border:1px solid rgba(148,163,184,.2);border-radius:10px;padding:12px 20px;margin:16px 16px 0;text-align:center;">
+            <p style="color:rgba(252,224,168,.45);font-family:'Geist',sans-serif;font-size:13px;margin:0;">Ce compte est désactivé.</p>
+          </div>`
+        : '';
+
     container.innerHTML = `
+      ${_suspensionBanner}
       <!-- Hero section dark -->
       <div class="profil-hero-section">
         <div class="profil-hero-inner">
@@ -9865,7 +9881,7 @@ async function checkAdminForDashboard() {
     const d = await r.json();
     if (d.ok) {
       _isAdminDash = true;
-      ['dash-admin-label','dash-admin-agents-group','dash-admin-ambassadeurs-group','dash-admin-responsable-group','dash-admin-end'].forEach(id => {
+      ['dash-admin-label','dash-admin-agents-group','dash-admin-ambassadeurs-group','dash-admin-responsable-group','dash-admin-temoignages-group','dash-admin-end'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = id.endsWith('-label') || id.endsWith('-end') ? 'block' : 'block';
       });
@@ -15927,4 +15943,236 @@ function filtreEquipe(pays) {
       row.style.display = isBJ ? '' : 'none';
     }
   });
+}
+
+// ================================================================
+// ESPACE TEMOIGNAGE ABUS
+// ================================================================
+
+function abusCountChars(textarea) {
+  const len = textarea.value.length;
+  const countEl = document.getElementById('abus-char-count');
+  const okEl = document.getElementById('abus-char-ok');
+  if (len >= 100) {
+    if (countEl) countEl.style.display = 'none';
+    if (okEl) okEl.style.display = 'inline';
+  } else {
+    if (countEl) { countEl.style.display = 'inline'; countEl.textContent = len + ' / 100 caracteres minimum'; }
+    if (okEl) okEl.style.display = 'none';
+  }
+}
+
+async function loadTemoignageAbusSection() {
+  const loading = document.getElementById('abus-loading');
+  const alreadyDiv = document.getElementById('abus-already');
+  const formWrapper = document.getElementById('abus-form-wrapper');
+  const successDiv = document.getElementById('abus-success');
+  if (!loading) return;
+
+  [alreadyDiv, formWrapper, successDiv].forEach(el => { if (el) el.style.display = 'none'; });
+  loading.style.display = 'block';
+
+  if (!currentUser) {
+    loading.style.display = 'none';
+    if (formWrapper) formWrapper.style.display = 'block';
+    return;
+  }
+
+  try {
+    const { data } = await supa
+      .from('temoignages_abus')
+      .select('id, statut, code_confidentialite')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+
+    loading.style.display = 'none';
+
+    if (data) {
+      if (alreadyDiv) {
+        const STATUT_LABEL = { en_attente: 'En attente de moderation', publie: 'Publie', refuse: 'Refuse' };
+        const STATUT_COLOR = { en_attente: '#E8940A', publie: '#22c55e', refuse: '#94a3b8' };
+        const c = STATUT_COLOR[data.statut] || '#E8940A';
+        alreadyDiv.innerHTML = `
+          <div style="text-align:center;padding:32px 20px;">
+            <div style="font-size:40px;margin-bottom:12px;">🛡️</div>
+            <h3 style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;font-weight:400;font-style:italic;color:#FCE0A8;margin:0 0 10px;">Ton temoignage est deja enregistre.</h3>
+            <p style="font-family:'Geist',sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin:0 0 20px;">Un seul temoignage par compte.</p>
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:16px;display:inline-block;margin-bottom:16px;">
+              <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(252,224,168,.4);margin:0 0 6px;">Code confidentiel</p>
+              <p style="font-family:'Geist Mono',monospace;font-size:22px;font-weight:700;letter-spacing:4px;color:#E8940A;margin:0;">${data.code_confidentialite || '--------'}</p>
+            </div>
+            <div>
+              <span style="display:inline-block;background:rgba(0,0,0,.2);border:1px solid ${c};color:${c};font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:1px;padding:4px 12px;border-radius:100px;">${STATUT_LABEL[data.statut] || data.statut}</span>
+            </div>
+          </div>`;
+        alreadyDiv.style.display = 'block';
+      }
+    } else {
+      if (formWrapper) formWrapper.style.display = 'block';
+    }
+  } catch (e) {
+    loading.style.display = 'none';
+    if (formWrapper) formWrapper.style.display = 'block';
+  }
+}
+
+async function submitTemoignageAbus() {
+  if (!currentUser) { alert('Tu dois etre connecte(e) pour soumettre un temoignage.'); return; }
+
+  const pays = document.getElementById('abus-pays')?.value || 'TG';
+  const ville = (document.getElementById('abus-ville')?.value || '').trim() || null;
+  const secteur = document.getElementById('abus-secteur')?.value;
+  const type_incident = document.getElementById('abus-type')?.value;
+  const recit = (document.getElementById('abus-recit')?.value || '').trim();
+
+  if (!secteur) { alert('Selectionnez un secteur.'); return; }
+  if (!type_incident) { alert("Selectionnez le type d'abus."); return; }
+  if (recit.length < 100) { alert('Ton recit doit faire au minimum 100 caracteres.'); return; }
+
+  const btn = document.getElementById('abus-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi...'; }
+
+  const nomComplet = currentPrestataire?.fields?.['Nom complet'] || '';
+  const parts = nomComplet.trim().split(' ');
+  const prenom = parts[0] || '';
+  const nom = parts.slice(1).join(' ') || nomComplet;
+
+  try {
+    const { data, error } = await supa
+      .from('temoignages_abus')
+      .insert({
+        user_id: currentUser.id,
+        nom: nom,
+        prenom: prenom,
+        email: currentUser.email || '',
+        pays: pays,
+        ville: ville,
+        secteur: secteur,
+        type_incident: type_incident,
+        recit: recit,
+        statut: 'en_attente'
+      })
+      .select('code_confidentialite')
+      .single();
+
+    if (error) throw error;
+
+    const formWrapper = document.getElementById('abus-form-wrapper');
+    const successDiv = document.getElementById('abus-success');
+    const codeEl = document.getElementById('abus-success-code');
+    if (formWrapper) formWrapper.style.display = 'none';
+    if (codeEl) codeEl.textContent = data?.code_confidentialite || '--------';
+    if (successDiv) successDiv.style.display = 'block';
+
+  } catch (e) {
+    console.error('submitTemoignageAbus:', e);
+    if (btn) { btn.disabled = false; btn.textContent = 'Soumettre mon temoignage'; }
+    if (e.code === '23505') {
+      alert('Tu as deja soumis un temoignage. Recharge la page pour voir son statut.');
+    } else {
+      alert('Une erreur est survenue. Reessaie dans quelques instants.');
+    }
+  }
+}
+
+let _temoAdminFilter = 'en_attente';
+
+async function loadAdminTemoignagesAbus(statut) {
+  if (!_isAdminDash) return;
+  if (statut !== undefined) _temoAdminFilter = statut;
+  const feed = document.getElementById('temo-admin-feed');
+  if (!feed) return;
+  feed.innerHTML = '<p style="color:rgba(252,224,168,.4);font-family:Geist,sans-serif;font-size:13px;padding:20px 0;">Chargement...</p>';
+
+  try {
+    const { data: allData } = await supa.from('temoignages_abus').select('statut');
+    const all = allData || [];
+    const kpiTotal = all.length;
+    const kpiPending = all.filter(r => r.statut === 'en_attente').length;
+    const kpiPublie = all.filter(r => r.statut === 'publie').length;
+    const kpiRefuse = all.filter(r => r.statut === 'refuse').length;
+
+    const elTotal = document.getElementById('temo-admin-kpi-total');
+    const elAttente = document.getElementById('temo-admin-kpi-attente');
+    const elPublies = document.getElementById('temo-admin-kpi-publies');
+    const elRefuses = document.getElementById('temo-admin-kpi-refuses');
+    if (elTotal) elTotal.textContent = kpiTotal;
+    if (elAttente) elAttente.textContent = kpiPending;
+    if (elPublies) elPublies.textContent = kpiPublie;
+    if (elRefuses) elRefuses.textContent = kpiRefuse;
+
+    let q = supa
+      .from('temoignages_abus')
+      .select('id, nom, prenom, email, ville, pays, secteur, type_incident, recit, code_confidentialite, statut, note_moderateur, created_at, reactions_temoignages_abus(count)')
+      .order('created_at', { ascending: false });
+    if (_temoAdminFilter) q = q.eq('statut', _temoAdminFilter);
+
+    const { data, error } = await q;
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      feed.innerHTML = '<p style="color:rgba(252,224,168,.4);font-family:Geist,sans-serif;font-size:14px;padding:30px 0;text-align:center;">Aucun temoignage dans cette categorie.</p>';
+      return;
+    }
+
+    const SECTEUR_LABELS = { emploi_formel: 'Emploi formel', emploi_informel: 'Emploi informel', artisan: 'Artisanat', commerce: 'Commerce', services: 'Services', autre: 'Autre' };
+    const TYPE_LABELS = { avance_deshonnete: 'Avance deshonnete', abus_autorite: "Abus d'autorite", conditions_abusives: 'Conditions abusives', discrimination: 'Discrimination', paiement_refuse: 'Paiement refuse', autre: 'Autre' };
+    const STATUT_COLOR = { en_attente: '#fbbf24', publie: '#86efac', refuse: 'rgba(252,224,168,.4)' };
+    const PAYS_LABELS = { TG: 'Togo', BJ: 'Benin' };
+
+    feed.innerHTML = data.map(t => {
+      const sc = STATUT_COLOR[t.statut] || '#E8940A';
+      const nbReact = t.reactions_temoignages_abus?.[0]?.count ?? 0;
+      const dateStr = new Date(t.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+      const modBtns = t.statut === 'en_attente' ? `
+        <div style="display:flex;gap:10px;margin-top:14px;">
+          <button onclick="modererTemoignageAbus('${t.id}','publie')" style="background:rgba(34,197,94,.12);border:1px solid #22c55e;color:#22c55e;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;padding:9px 20px;border-radius:100px;cursor:pointer;">Publier</button>
+          <button onclick="modererTemoignageAbus('${t.id}','refuse')" style="background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.4);color:rgba(252,224,168,.5);font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:9px 20px;border-radius:100px;cursor:pointer;">Refuser</button>
+        </div>` : '';
+      return `
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:18px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+            <div>
+              <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(252,224,168,.45);">${SECTEUR_LABELS[t.secteur] || t.secteur} - ${TYPE_LABELS[t.type_incident] || t.type_incident}</span>
+              <div style="margin-top:3px;font-family:'Geist',sans-serif;font-size:13px;color:rgba(252,224,168,.6);">${t.ville || PAYS_LABELS[t.pays] || t.pays} - ${dateStr}</div>
+            </div>
+            <span style="background:rgba(0,0,0,.3);border:1px solid ${sc};color:${sc};font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 12px;border-radius:100px;white-space:nowrap;">${t.statut.replace('_',' ')}</span>
+          </div>
+          <div style="background:rgba(0,0,0,.2);border-left:2.5px solid rgba(232,148,10,.35);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:12px;">
+            <p style="font-family:'Geist',sans-serif;font-size:13px;color:rgba(252,224,168,.78);line-height:1.75;margin:0;">${t.recit}</p>
+          </div>
+          <div style="font-family:'Geist',sans-serif;font-size:12px;color:rgba(252,224,168,.4);line-height:1.8;">
+            <span>Identite : ${t.prenom} ${t.nom}</span> &nbsp;|&nbsp;
+            <span>${t.email}</span> &nbsp;|&nbsp;
+            <span>Code : <strong style="color:#E8940A;letter-spacing:2px;">${t.code_confidentialite}</strong></span> &nbsp;|&nbsp;
+            <span>${nbReact} solidarite(s)</span>
+          </div>
+          ${t.note_moderateur ? `<p style="font-family:'Geist',sans-serif;font-size:11px;color:rgba(252,224,168,.3);margin:8px 0 0;">Note : ${t.note_moderateur}</p>` : ''}
+          ${modBtns}
+        </div>`;
+    }).join('');
+
+  } catch (e) {
+    console.error('loadAdminTemoignagesAbus:', e);
+    feed.innerHTML = '<p style="color:#ef4444;font-family:Geist,sans-serif;font-size:13px;padding:20px 0;">Erreur de chargement.</p>';
+  }
+}
+
+async function modererTemoignageAbus(id, statutAction) {
+  if (!_isAdminDash || !currentUser) return;
+  let note = null;
+  if (statutAction === 'refuse') {
+    note = prompt('Note de refus (optionnel) :') || null;
+  }
+  try {
+    const { error } = await supa
+      .from('temoignages_abus')
+      .update({ statut: statutAction, moderateur_id: currentUser.id, moderateur_at: new Date().toISOString(), note_moderateur: note })
+      .eq('id', id);
+    if (error) throw error;
+    loadAdminTemoignagesAbus(_temoAdminFilter);
+  } catch (e) {
+    console.error('modererTemoignageAbus:', e);
+    alert('Erreur lors de la moderation.');
+  }
 }
