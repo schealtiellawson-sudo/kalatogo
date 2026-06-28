@@ -14748,31 +14748,57 @@ async function loadAgentContrat() {
   statusBlock.innerHTML = '<div style="text-align:center;padding:16px;color:rgba(252,224,168,.3);font-size:13px;">Verification...</div>';
 
   try {
-    const { data, error } = await supa
+    // Charger les deux documents (contrat + charte)
+    const { data: docs, error } = await supa
       .from('agent_contrats')
       .select('*')
       .eq('agent_id', currentUser.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .in('document_type', ['contrat', 'charte']);
     if (error) throw error;
 
-    if (!data) {
-      statusBlock.innerHTML = `<div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:12px;"><div style="width:36px;height:36px;background:rgba(248,113,113,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">📄</div><div><div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:2px;">Contrat non signe</div><div style="font-size:12px;color:rgba(252,224,168,.5);">Lis les termes ci-dessous et signe ton contrat pour activer pleinement ton compte agent terrain.</div></div></div>`;
+    const contrat = (docs || []).find(d => d.document_type === 'contrat');
+    const charte  = (docs || []).find(d => d.document_type === 'charte');
+    const allSigned = contrat && charte;
+    const dot = document.getElementById('agent-contrat-dot');
+    if (dot) dot.style.display = allSigned ? 'none' : 'block';
+
+    function _badge(doc, label, slug, contractRef) {
+      if (!doc) return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.18);border-radius:10px;">
+        <div style="font-size:20px;flex-shrink:0;">📄</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:2px;">${label} — Non signe</div>
+          <div style="font-size:12px;color:rgba(252,224,168,.45);">Ouvre le document et signe directement.</div>
+        </div>
+        <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:8px 12px;background:#E8940A;color:#14100A;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;white-space:nowrap;">Signer →</a>
+      </div>`;
+      if (doc.statut === 'cosigne') {
+        const d = doc.fondateur_signed_at ? new Date(doc.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
+        return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);border-radius:10px;">
+          <div style="font-size:20px;flex-shrink:0;">✅</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#4ade80;margin-bottom:2px;">${label} — Valide</div><div style="font-size:12px;color:rgba(252,224,168,.45);">Cosigne le ${d}.</div></div>
+          <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:6px 10px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);color:#4ade80;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;">Voir →</a>
+        </div>`;
+      }
+      const d = doc.signed_at ? new Date(doc.signed_at).toLocaleDateString('fr-FR') : '-';
+      return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;">
+        <div style="font-size:20px;flex-shrink:0;">✍️</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">${label} — Signe le ${d}</div><div style="font-size:12px;color:rgba(252,224,168,.45);">En attente de contresignature du fondateur.</div></div>
+        <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:6px 10px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.2);color:#E8940A;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;">Voir →</a>
+      </div>`;
+    }
+
+    statusBlock.innerHTML = `<div style="display:flex;flex-direction:column;gap:10px;">
+      ${_badge(contrat, 'Contrat de mission', 'rt-18-contrat-agent-terrain', 'RT-CT-2026-018')}
+      ${_badge(charte,  'Charte deontologique', 'rt-12-charte-deontologique', 'RT-CD-2026-012')}
+    </div>`;
+
+    // Formulaire dashboard : signer le contrat uniquement si non signe
+    if (!contrat) {
       if (signForm) { signForm.style.display = 'block'; setTimeout(() => initContratCanvas('agent'), 80); }
       if (signeView) signeView.style.display = 'none';
-      const dot = document.getElementById('agent-contrat-dot');
-      if (dot) dot.style.display = 'block';
-    } else if (data.statut === 'agent_signe') {
-      const d = data.signed_at ? new Date(data.signed_at).toLocaleDateString('fr-FR') : '-';
-      statusBlock.innerHTML = `<div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:12px;"><div style="width:36px;height:36px;background:rgba(232,148,10,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">✍️</div><div><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">Signe le ${d}</div><div style="font-size:12px;color:rgba(252,224,168,.5);">En attente de la contresignature du fondateur.</div></div></div>`;
+    } else {
       if (signForm) signForm.style.display = 'none';
-      if (signeView) { signeView.style.display = 'block'; _renderContratSigneAgent(data); }
-    } else if (data.statut === 'cosigne') {
-      const d = data.fondateur_signed_at ? new Date(data.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
-      statusBlock.innerHTML = `<div style="display:flex;gap:12px;align-items:center;padding:14px 16px;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:12px;"><div style="width:36px;height:36px;background:rgba(74,222,128,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">✅</div><div><div style="font-size:13px;font-weight:700;color:#4ade80;margin-bottom:2px;">Contrat officiel signe des deux parties</div><div style="font-size:12px;color:rgba(252,224,168,.5);">Contresigne par Schealtiel Lawson le ${d}. Accord en vigueur.</div></div></div>`;
-      if (signForm) signForm.style.display = 'none';
-      if (signeView) { signeView.style.display = 'block'; _renderContratSigneAgent(data); }
+      if (signeView) { signeView.style.display = 'block'; _renderContratSigneAgent(contrat); }
     }
   } catch(err) {
     console.error('[loadAgentContrat]', err);
@@ -14819,8 +14845,9 @@ async function submitAgentContrat() {
   try {
     const signatureDataUrl = canvas.toDataURL('image/png');
     const now = new Date();
-    const { error } = await supa.from('agent_contrats').insert({
+    const { error } = await supa.from('agent_contrats').upsert({
       agent_id:           currentUser.id,
+      document_type:      'contrat',
       agent_nom:          nom,
       agent_telephone:    telephone,
       agent_ville:        ville,
@@ -14830,7 +14857,7 @@ async function submitAgentContrat() {
       signed_at:          now.toISOString(),
       statut:             'agent_signe',
       contract_ref:       'RT-CT-2026-018',
-    });
+    }, { onConflict: 'agent_id,document_type' });
     if (error) throw error;
 
     toast('Contrat signe. En attente de contresignature.', 'success');
@@ -14861,37 +14888,61 @@ async function loadAdminContrats() {
       .order('signed_at', { ascending: false });
     if (error) throw error;
 
-    const all     = data || [];
-    const aSign   = all.filter(c => c.statut === 'agent_signe');
-    const cosignes = all.filter(c => c.statut === 'cosigne');
-    if (totalEl)  totalEl.textContent  = all.length;
-    if (signesEl) signesEl.textContent = aSign.length;
-    if (cosEl)    cosEl.textContent    = cosignes.length;
+    const all      = data || [];
+    const agentIds = [...new Set(all.map(c => c.agent_id))];
+    const aSign    = all.filter(c => c.statut === 'agent_signe').length;
+    const cosignes = all.filter(c => c.statut === 'cosigne').length;
+    if (totalEl)  totalEl.textContent  = agentIds.length;
+    if (signesEl) signesEl.textContent = aSign;
+    if (cosEl)    cosEl.textContent    = cosignes;
 
     if (all.length === 0) {
       listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(252,224,168,.2);font-size:13px;">Aucun contrat signe pour l\'instant.</div>';
       return;
     }
 
-    listEl.innerHTML = all.map(c => {
-      const ds = c.signed_at ? new Date(c.signed_at).toLocaleDateString('fr-FR') : '-';
-      const isCo = c.statut === 'cosigne';
-      const dc = c.fondateur_signed_at ? new Date(c.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
-      return `<div style="background:#161616;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:700;color:#FCE0A8;">${c.agent_nom||'-'}</div>
-            <div style="font-size:12px;color:rgba(252,224,168,.45);margin-top:2px;">${c.agent_ville||'-'} &middot; ${c.agent_telephone||'-'}</div>
+    // Grouper par agent (nom + ville), chaque agent peut avoir 2 docs
+    const byAgent = {};
+    all.forEach(c => {
+      const key = c.agent_id;
+      if (!byAgent[key]) byAgent[key] = { nom: c.agent_nom, ville: c.agent_ville, tel: c.agent_telephone, docs: {} };
+      byAgent[key].docs[c.document_type] = c;
+    });
+
+    listEl.innerHTML = Object.values(byAgent).map(agent => {
+      const contrat = agent.docs['contrat'];
+      const charte  = agent.docs['charte'];
+      const allCo   = contrat?.statut === 'cosigne' && charte?.statut === 'cosigne';
+      const borderColor = allCo ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.06)';
+
+      function docRow(doc, label, slug) {
+        if (!doc) return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+          <span style="font-size:11px;color:rgba(252,224,168,.3);font-family:'Geist Mono',monospace;min-width:80px;">${label}</span>
+          <span style="font-size:11px;color:#f87171;">Non signe</span>
+        </div>`;
+        const isCo = doc.statut === 'cosigne';
+        const ds   = doc.signed_at ? new Date(doc.signed_at).toLocaleDateString('fr-FR') : '-';
+        const dc   = doc.fondateur_signed_at ? new Date(doc.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap;">
+          <span style="font-size:11px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;min-width:80px;">${label}</span>
+          <span style="font-size:11px;color:${isCo ? '#4ade80' : '#E8940A'};font-weight:700;">${isCo ? 'Cosigne' : 'A contresigner'}</span>
+          <span style="font-size:11px;color:rgba(252,224,168,.3);">${isCo ? dc : ds}</span>
+          ${!isCo ? `<button type="button" onclick="openCosignModal('${doc.id}')" style="margin-left:auto;padding:4px 10px;background:#E8940A;color:#14100A;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;">Contresigner</button>` : ''}
+        </div>`;
+      }
+
+      return `<div style="background:#161616;border:1px solid ${borderColor};border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;color:#FCE0A8;">${agent.nom||'-'}</div>
+            <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:2px;">${agent.ville||'-'} &middot; ${agent.tel||'-'}</div>
           </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div style="font-size:11px;font-family:'Geist Mono',monospace;font-weight:700;color:${isCo ? '#4ade80' : '#E8940A'};">${isCo ? 'Cosigne' : 'A contresigner'}</div>
-            <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:2px;">${ds}</div>
-          </div>
+          ${allCo ? '<span style="font-size:10px;font-family:\'Geist Mono\',monospace;color:#4ade80;border:1px solid rgba(74,222,128,.25);padding:3px 8px;border-radius:20px;">Complet</span>' : ''}
         </div>
-        ${isCo
-          ? `<div style="margin-top:8px;font-size:11px;color:#4ade80;font-family:'Geist Mono',monospace;">Cosigne le ${dc}</div>`
-          : `<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);"><button type="button" onclick="openCosignModal('${c.id}')" style="padding:8px 16px;background:#E8940A;color:#14100A;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;">Contresigner</button></div>`
-        }
+        <div style="border-top:1px solid rgba(255,255,255,.05);padding-top:8px;">
+          ${docRow(contrat, 'Contrat', 'rt-18-contrat-agent-terrain')}
+          ${docRow(charte,  'Charte',  'rt-12-charte-deontologique')}
+        </div>
       </div>`;
     }).join('');
   } catch(err) {

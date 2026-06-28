@@ -288,32 +288,235 @@
 
   <div class="divider"></div>
 
-  <!-- Signature -->
-  <div class="signature-section">
+  <!-- Signature interactive -->
+  <div class="signature-section" id="sig-section">
+
+    <!-- Partie fondateur (toujours statique) -->
     <div class="sig-title">Signatures</div>
-    <div class="sig-notice">Les deux parties certifient avoir lu et compris l'intégralité du présent contrat, et l'accepter sans réserve. Deux exemplaires originaux sont établis, un pour chaque partie.</div>
-    <div class="sig-grid">
+    <div class="sig-notice">Les deux parties certifient avoir lu et compris l'integralite du present contrat, et l'accepter sans reserve.</div>
+    <div class="sig-grid" style="margin-bottom:28px;">
       <div class="sig-col">
         <div class="sig-label">Le mandant — WOZALI</div>
         <div class="sig-name">Schealtiel Lawson</div>
-        <div class="sig-role">Fondateur et Directeur Général</div>
+        <div class="sig-role">Fondateur et Directeur General</div>
         <div class="sig-line"></div>
-        <div class="sig-placeholder">Signature</div>
-        <div class="sig-date-line">Fait à _____________, le _________ 2026</div>
+        <div id="fondateur-sig-block">
+          <div class="sig-placeholder">En attente de contresignature</div>
+        </div>
+        <div class="sig-date-line" id="fondateur-date-line">Fait a _____________, le _________ 2026</div>
       </div>
       <div class="sig-col">
         <div class="sig-label">L'agent terrain WOZALI</div>
-        <div class="sig-name">_______________________________</div>
-        <div class="sig-role">Agent terrain WOZALI · ____________</div>
+        <div id="agent-sig-name-display" class="sig-name">_______________________________</div>
+        <div id="agent-sig-role-display" class="sig-role">Agent terrain WOZALI · ____________</div>
         <div class="sig-line"></div>
-        <div class="sig-placeholder">Signature précédée de la mention "Lu et approuvé"</div>
-        <div class="sig-date-line">Fait à _____________, le _________ 2026</div>
+        <div id="agent-sig-preview" style="display:none;height:60px;display:none;align-items:center;justify-content:center;">
+          <img id="agent-sig-img" src="" alt="" style="max-width:100%;max-height:60px;object-fit:contain;" />
+        </div>
+        <div id="agent-sig-placeholder" class="sig-placeholder">Signature precedee de la mention "Lu et approuve"</div>
+        <div class="sig-date-line" id="agent-date-line">Fait a _____________, le _________ 2026</div>
       </div>
+    </div>
+
+    <!-- Zone signature agent (formulaire interactif) -->
+    <div id="sig-zone" style="margin-top:24px;padding-top:24px;border-top:1px dashed #e0d0b0;">
+
+      <!-- Chargement -->
+      <div id="sig-loading" style="text-align:center;padding:20px;font-size:13px;color:#999;font-family:'Geist Mono',monospace;">Verification...</div>
+
+      <!-- Non connecte -->
+      <div id="sig-not-logged" style="display:none;background:#f5f0e8;border:1px solid #e0c88a;border-radius:10px;padding:16px 20px;text-align:center;">
+        <div style="font-size:14px;font-weight:700;color:#14100A;margin-bottom:6px;">Connecte-toi pour signer</div>
+        <div style="font-size:12px;color:#888;margin-bottom:14px;">Tu dois etre connecte a ton compte WOZALI pour signer ce contrat.</div>
+        <a href="/" style="display:inline-block;padding:10px 20px;background:#E8940A;color:#14100A;font-weight:700;font-size:13px;border-radius:8px;text-decoration:none;font-family:'Geist',sans-serif;">Aller sur WOZALI</a>
+      </div>
+
+      <!-- Formulaire signature -->
+      <div id="sig-form" style="display:none;">
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;color:#14100A;margin-bottom:14px;">Signer ce contrat</div>
+        <div style="display:grid;gap:12px;margin-bottom:16px;">
+          <div>
+            <label style="font-size:10px;font-family:'Geist Mono',monospace;color:#999;text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Nom complet</label>
+            <input type="text" id="sig-nom" placeholder="Votre nom complet" style="width:100%;padding:10px 12px;border:1px solid #d4c89a;border-radius:8px;font-size:13px;font-family:'Geist',sans-serif;color:#14100A;background:#faf8f2;outline:none;box-sizing:border-box;" />
+          </div>
+          <div>
+            <label style="font-size:10px;font-family:'Geist Mono',monospace;color:#999;text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Telephone</label>
+            <input type="tel" id="sig-telephone" placeholder="+228 XX XX XX XX" style="width:100%;padding:10px 12px;border:1px solid #d4c89a;border-radius:8px;font-size:13px;font-family:'Geist',sans-serif;color:#14100A;background:#faf8f2;outline:none;box-sizing:border-box;" />
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:10px;font-family:'Geist Mono',monospace;color:#999;text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Ville</label>
+              <select id="sig-ville" style="width:100%;padding:10px 12px;border:1px solid #d4c89a;border-radius:8px;font-size:13px;font-family:'Geist',sans-serif;color:#14100A;background:#faf8f2;outline:none;box-sizing:border-box;">
+                <option value="">Selectionner...</option>
+                <option value="Lome">Lome</option>
+                <option value="Cotonou">Cotonou</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:10px;font-family:'Geist Mono',monospace;color:#999;text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;">Lieu precis</label>
+              <input type="text" id="sig-lieu" placeholder="Ex: Bè-Kpota" style="width:100%;padding:10px 12px;border:1px solid #d4c89a;border-radius:8px;font-size:13px;font-family:'Geist',sans-serif;color:#14100A;background:#faf8f2;outline:none;box-sizing:border-box;" />
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:10px;font-family:'Geist Mono',monospace;color:#999;text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:6px;">Ta signature</label>
+          <div style="position:relative;background:#faf8f2;border:2px solid #d4c89a;border-radius:8px;overflow:hidden;">
+            <canvas id="sig-canvas" width="600" height="130" style="width:100%;height:130px;touch-action:none;cursor:crosshair;display:block;"></canvas>
+            <button type="button" onclick="clearSigCanvas()" style="position:absolute;top:7px;right:7px;background:rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.12);border-radius:5px;padding:3px 8px;font-size:10px;color:#888;cursor:pointer;font-family:'Geist Mono',monospace;">Effacer</button>
+            <div id="sig-canvas-hint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+              <span style="font-size:12px;color:rgba(0,0,0,.2);font-family:'Geist Mono',monospace;">Signer ici avec votre doigt ou la souris</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:18px;padding:12px 14px;background:#f5f0e8;border:1px solid #e0c88a;border-radius:8px;">
+          <input type="checkbox" id="sig-lu" style="margin-top:2px;width:15px;height:15px;accent-color:#E8940A;flex-shrink:0;cursor:pointer;" />
+          <label for="sig-lu" style="font-size:12px;color:#555;line-height:1.5;cursor:pointer;">Lu et approuve. J'accepte l'integralite des termes de ce contrat de mission terrain et de commission.</label>
+        </div>
+        <button type="button" onclick="submitDocumentSignature('contrat')" id="btn-sig-submit" style="width:100%;padding:13px;background:#E8940A;color:#14100A;font-size:14px;font-weight:800;font-family:'Geist',sans-serif;border:none;border-radius:9px;cursor:pointer;">Signer le contrat</button>
+      </div>
+
+      <!-- Deja signe -->
+      <div id="sig-done" style="display:none;background:#f0f9f0;border:1px solid #86efac;border-radius:10px;padding:16px 20px;">
+        <div style="font-size:13px;font-weight:700;color:#166534;margin-bottom:4px;">Contrat signe</div>
+        <div id="sig-done-detail" style="font-size:12px;color:#15803d;"></div>
+      </div>
+
     </div>
   </div>
 
-  <p style="margin-top:28px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-CT-2026-018 · Contrat Agent Terrain · WOZALI · wozali.africa · Version 2.0 · Juillet 2026 · Ce contrat remplace toute version antérieure</p>
+  <p style="margin-top:28px;font-size:10px;color:#ccc;text-align:center;font-family:'Geist Mono',monospace;">RT-CT-2026-018 · Contrat Agent Terrain · WOZALI · wozali.africa · Version 2.0 · Juillet 2026</p>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  const SUPA_URL = 'https://wikgdksyeygwpmqzmhez.supabase.co';
+  const SUPA_KEY = 'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
+  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+  const DOC_TYPE = 'contrat';
+  let _drawing = false;
+
+  function show(id) { const e = document.getElementById(id); if (e) e.style.display = 'block'; }
+  function hide(id) { const e = document.getElementById(id); if (e) e.style.display = 'none'; }
+
+  function initCanvas() {
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    function getPos(e) {
+      const r = canvas.getBoundingClientRect();
+      const src = e.touches ? e.touches[0] : e;
+      return { x: (src.clientX - r.left) * (canvas.width / r.width), y: (src.clientY - r.top) * (canvas.height / r.height) };
+    }
+    canvas.addEventListener('mousedown', e => { _drawing = true; hide('sig-canvas-hint'); const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+    canvas.addEventListener('mousemove', e => { if (!_drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+    canvas.addEventListener('mouseup', () => _drawing = false);
+    canvas.addEventListener('mouseleave', () => _drawing = false);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); _drawing = true; hide('sig-canvas-hint'); const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!_drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+    canvas.addEventListener('touchend', () => _drawing = false);
+  }
+
+  window.clearSigCanvas = function() {
+    const canvas = document.getElementById('sig-canvas');
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    show('sig-canvas-hint');
+  };
+
+  function isCanvasEmpty() {
+    const canvas = document.getElementById('sig-canvas');
+    return !canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data.some(v => v !== 0);
+  }
+
+  function showSigned(data) {
+    hide('sig-form');
+    const dSign = data.signed_at ? new Date(data.signed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+    const isCo = data.statut === 'cosigne';
+    // Mettre a jour les champs statiques
+    const nameEl = document.getElementById('agent-sig-name-display');
+    const roleEl = document.getElementById('agent-sig-role-display');
+    const dateEl = document.getElementById('agent-date-line');
+    if (nameEl) nameEl.textContent = data.agent_nom || '';
+    if (roleEl) roleEl.textContent = 'Agent terrain WOZALI · ' + (data.agent_ville || '');
+    if (dateEl) dateEl.textContent = 'Fait a ' + (data.lieu_signature || data.agent_ville || '') + ', le ' + dSign;
+    // Preview signature
+    if (data.signature_data_url) {
+      const imgEl = document.getElementById('agent-sig-img');
+      if (imgEl) { imgEl.src = data.signature_data_url; document.getElementById('agent-sig-preview').style.display = 'flex'; hide('agent-sig-placeholder'); }
+    }
+    // Contresignature fondateur
+    if (isCo && data.fondateur_signature_data_url) {
+      const fb = document.getElementById('fondateur-sig-block');
+      const fd = document.getElementById('fondateur-date-line');
+      const dCo = data.fondateur_signed_at ? new Date(data.fondateur_signed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+      if (fb) fb.innerHTML = '<img src="' + data.fondateur_signature_data_url + '" style="max-width:120px;max-height:55px;object-fit:contain;margin:6px 0;" />';
+      if (fd) fd.textContent = 'Fait a Lome, le ' + dCo;
+    }
+    const detail = document.getElementById('sig-done-detail');
+    if (detail) detail.textContent = isCo ? 'Cosigne le ' + (data.fondateur_signed_at ? new Date(data.fondateur_signed_at).toLocaleDateString('fr-FR') : '') + '. Accord en vigueur.' : 'Signe le ' + dSign + '. En attente de contresignature du fondateur.';
+    show('sig-done');
+  }
+
+  window.submitDocumentSignature = async function(docType) {
+    const nom  = (document.getElementById('sig-nom')?.value || '').trim();
+    const tel  = (document.getElementById('sig-telephone')?.value || '').trim();
+    const ville= document.getElementById('sig-ville')?.value || '';
+    const lieu = (document.getElementById('sig-lieu')?.value || '').trim();
+    const lu   = document.getElementById('sig-lu')?.checked;
+    const canvas = document.getElementById('sig-canvas');
+    if (!nom)               { alert('Entre ton nom complet'); return; }
+    if (!ville)             { alert('Selectionne ta ville'); return; }
+    if (!lu)                { alert('Coche "Lu et approuve"'); return; }
+    if (isCanvasEmpty())    { alert('Dessine ta signature dans le cadre'); return; }
+
+    const btn = document.getElementById('btn-sig-submit');
+    if (btn) { btn.disabled = true; btn.textContent = 'Signature en cours...'; }
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { alert('Session expiree. Reconnecte-toi.'); if (btn) { btn.disabled = false; btn.textContent = 'Signer le contrat'; } return; }
+
+    const sigDataUrl = canvas.toDataURL('image/png');
+    const now = new Date();
+    const { error } = await sb.from('agent_contrats').upsert({
+      agent_id: session.user.id,
+      document_type: docType,
+      agent_nom: nom,
+      agent_telephone: tel,
+      agent_ville: ville,
+      lieu_signature: lieu || ville,
+      date_signature: now.toISOString().split('T')[0],
+      signature_data_url: sigDataUrl,
+      signed_at: now.toISOString(),
+      statut: 'agent_signe',
+      contract_ref: 'RT-CT-2026-018',
+    }, { onConflict: 'agent_id,document_type' });
+
+    if (error) { alert('Erreur : ' + error.message); if (btn) { btn.disabled = false; btn.textContent = 'Signer le contrat'; } return; }
+    hide('sig-form');
+    showSigned({ agent_nom: nom, agent_ville: ville, lieu_signature: lieu || ville, signed_at: now.toISOString(), statut: 'agent_signe', signature_data_url: sigDataUrl });
+  };
+
+  // Init
+  sb.auth.getSession().then(async ({ data: { session } }) => {
+    hide('sig-loading');
+    if (!session) { show('sig-not-logged'); return; }
+
+    // Prefill depuis prestataires
+    try {
+      const { data: p } = await sb.from('prestataires').select('nom, telephone').eq('user_id', session.user.id).maybeSingle();
+      if (p) {
+        const ni = document.getElementById('sig-nom'); if (ni && p.nom) ni.value = p.nom;
+        const ti = document.getElementById('sig-telephone'); if (ti && p.telephone) ti.value = p.telephone;
+      }
+    } catch(e) {}
+
+    // Chercher signature existante
+    const { data: existing } = await sb.from('agent_contrats').select('*').eq('agent_id', session.user.id).eq('document_type', DOC_TYPE).maybeSingle();
+    if (existing) { showSigned(existing); }
+    else { show('sig-form'); initCanvas(); }
+  });
+})();
+</script>
 </body>
 </html>
