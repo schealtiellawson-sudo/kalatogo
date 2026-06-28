@@ -833,6 +833,24 @@ setTimeout(function(){
   </section>
 
   <script>
+  function updateDashParrainSim(val) {
+    val = parseInt(val);
+    var montant = val * 1000;
+    var smig = 52500;
+    var pct = Math.min(Math.round((montant / smig) * 100), 999);
+    document.getElementById('dash-parrain-count').textContent = val;
+    document.getElementById('dash-parrain-montant').textContent = montant.toLocaleString('fr-FR') + ' FCFA';
+    document.getElementById('dash-parrain-pct').textContent = pct + '%';
+    document.getElementById('dash-parrain-bar').style.width = Math.min(pct, 100) + '%';
+    var label = '';
+    if (pct < 50) label = 'Continue — chaque filleul compte.';
+    else if (pct < 100) label = 'Tu te rapproches du SMIG. Encore un effort.';
+    else if (pct < 200) label = 'Tu dépasses le SMIG. Beaucoup en rêvent.';
+    else if (pct < 400) label = 'Tu gagnes plus que la majorité des salariés de la sous-région.';
+    else label = 'Tu as construit un vrai business. Récurrent. Sans patron.';
+    document.getElementById('dash-parrain-label').textContent = label;
+  }
+
   function updateParrainSimulator(val) {
     val = parseInt(val);
     var montant = val * 1000;
@@ -5186,7 +5204,31 @@ setTimeout(function(){
         <div style="background:var(--noir);border-radius:20px;padding:24px;">
           <h3 style="color:white;font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;margin-bottom:6px;">📊 Ce que tu peux gagner</h3>
           <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:6px;">Basé sur 40% des abonnements Pro (2 500 FCFA/mois) = <strong style="color:#E8940A;">1 000 FCFA/mois par filleul Pro</strong></p>
-          <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:18px;">Récurrent — chaque mois tant que ton filleul reste Pro</p>
+          <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:16px;">Récurrent — chaque mois tant que ton filleul reste Pro</p>
+
+          <!-- Simulateur projection dashboard -->
+          <div style="background:rgba(232,148,10,0.07);border:1.5px solid rgba(232,148,10,0.28);border-radius:16px;padding:20px 22px;margin-bottom:20px;">
+            <p style="font-family:'DM Serif Display',serif;font-size:17px;font-weight:900;color:#FCE0A8;margin:0 0 3px;">Tu connais combien de gens qui bossent sans clients ?</p>
+            <p style="font-size:12px;color:rgba(252,224,168,0.4);margin:0 0 16px;">Déplace le curseur. Vois ce que ça te rapporte chaque mois.</p>
+            <input type="range" id="dash-parrain-slider" min="1" max="500" value="10" oninput="updateDashParrainSim(this.value)" style="width:100%;accent-color:#E8940A;cursor:pointer;margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(252,224,168,0.3);font-family:'Geist Mono',monospace;margin-bottom:14px;">
+              <span>1</span><span>50</span><span>100</span><span>200</span><span>300</span><span>500</span>
+            </div>
+            <div style="text-align:center;margin-bottom:14px;">
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,0.45);letter-spacing:2px;margin-bottom:4px;">AVEC <span id="dash-parrain-count" style="color:#E8940A;font-weight:900;">10</span> FILLEULS PRO</div>
+              <div style="font-family:'DM Serif Display',serif;font-size:40px;font-weight:900;color:#E8940A;line-height:1;" id="dash-parrain-montant">10 000 FCFA</div>
+              <div style="font-size:12px;color:rgba(252,224,168,0.45);margin-top:4px;">par mois · récurrent · automatique</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+              <span style="color:rgba(252,224,168,0.45);">Vers le SMIG (52 500 FCFA/mois)</span>
+              <span style="color:#E8940A;font-weight:700;" id="dash-parrain-pct">19%</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:10px;height:9px;overflow:hidden;margin-bottom:8px;">
+              <div id="dash-parrain-bar" style="height:100%;background:linear-gradient(90deg,#E8940A,#f59e0b);border-radius:10px;transition:width 0.25s;width:19%;"></div>
+            </div>
+            <div id="dash-parrain-label" style="font-size:11px;color:rgba(252,224,168,0.4);text-align:center;">Continue — chaque filleul compte.</div>
+          </div>
+
           <div>
             <div class="parrain-calc-row" style="border:1px solid rgba(232,148,10,0.4);background:rgba(232,148,10,0.1);border-radius:10px;padding:8px;">
               <span style="color:rgba(232,148,10,0.9);font-weight:700;">3 filleuls → abonnement remboursé</span>
