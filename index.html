@@ -833,6 +833,11 @@ setTimeout(function(){
   </section>
 
   <script>
+  function shareMainsDOrWhatsApp() {
+    var msg = "Eh, j'ai quelque chose pour toi 👑\n\nTu sais la Bourse des Mains d'Or sur WOZALI ?\nChaque mois ils donnent 100 000 FCFA à une coiffeuse et une couturière — 1 au Togo, 1 au Bénin.\n\nPas besoin de payer un abonnement. Juste :\n✓ Un profil complet (2 min sur le téléphone)\n✓ Une photo de ta réalisation ce mois\n✓ Un avis d'une cliente\n\nC'est tout. Le premier tirage c'est le 25 septembre.\n\nInscris-toi gratuitement : https://wozali.africa\n\nTransmets à toutes les coiffeuses et couturières que tu connais.";
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  }
+
   function updateDashParrainSim(val) {
     val = parseInt(val);
     var montant = val * 1000;
@@ -6171,6 +6176,81 @@ setTimeout(function(){
           🚀 Passer Pro maintenant — 2 500 FCFA/mois
         </button>
       </div>
+    </div>
+  </section>
+
+  <!-- ══ BOURSE DES MAINS D'OR — LEVIER COIFFURE & COUTURE ══ -->
+  <section style="background:linear-gradient(135deg,#0f0a05,#1a1008,#0f0a05);padding:72px 0;border-top:1px solid rgba(232,148,10,0.2);border-bottom:1px solid rgba(232,148,10,0.2);position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 100% at 50% 0%,rgba(232,148,10,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+    <div class="container" style="position:relative;z-index:1;max-width:820px;">
+
+      <div style="text-align:center;margin-bottom:40px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:4px;color:#E8940A;margin-bottom:14px;text-transform:uppercase;">👑 LA BOURSE DES MAINS D'OR</div>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,46px);font-weight:900;color:#FCE0A8;line-height:1.15;margin-bottom:16px;">
+          Coiffeuse. Couturière.<br><em style="color:#E8940A;">Tes mains méritent une récompense.</em>
+        </h2>
+        <p style="font-size:16px;color:rgba(252,224,168,0.6);max-width:580px;margin:0 auto;line-height:1.75;">En Afrique de l'Ouest, ce sont les femmes qui font tourner l'économie de quartier. WOZALI les reconnaît. Chaque mois, <strong style="color:#E8940A;">100 000 FCFA</strong> pour 2 femmes — 1 au Togo, 1 au Bénin. Coiffeuse ou couturière. Gratuit. Aucun abonnement requis.</p>
+      </div>
+
+      <!-- Montants -->
+      <div style="background:rgba(232,148,10,0.08);border:2px solid rgba(232,148,10,0.35);border-radius:24px;padding:36px;margin-bottom:28px;text-align:center;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:24px;">
+          <div style="text-align:center;">
+            <div style="font-family:'DM Serif Display',serif;font-size:52px;font-weight:900;color:#E8940A;line-height:1;">100 000</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,0.45);letter-spacing:2px;margin-top:4px;">FCFA / GAGNANTE</div>
+          </div>
+          <div style="font-size:28px;color:rgba(232,148,10,0.3);">+</div>
+          <div style="text-align:center;">
+            <div style="font-family:'DM Serif Display',serif;font-size:52px;font-weight:900;color:#E8940A;line-height:1;">100 000</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,0.45);letter-spacing:2px;margin-top:4px;">FCFA / GAGNANTE</div>
+          </div>
+          <div style="font-size:28px;color:rgba(232,148,10,0.3);">=</div>
+          <div style="text-align:center;">
+            <div style="font-family:'DM Serif Display',serif;font-size:52px;font-weight:900;color:#E8940A;line-height:1;">200 000</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,0.45);letter-spacing:2px;margin-top:4px;">FCFA TOTAL / MOIS</div>
+          </div>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(232,148,10,0.15);border-radius:100px;padding:10px 20px;">
+          <span style="font-size:13px;font-weight:800;color:#E8940A;">🗓 Premier tirage : vendredi 25 septembre 2026 — 18h (heure de Lomé)</span>
+        </div>
+        <p style="font-size:12px;color:rgba(252,224,168,0.35);margin-top:10px;margin-bottom:0;">Puis le dernier vendredi de chaque mois. Reine Coiffure Togo + Reine Couture Bénin.</p>
+      </div>
+
+      <!-- 3 conditions -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:3px;color:rgba(252,224,168,0.4);text-transform:uppercase;text-align:center;margin-bottom:18px;">3 CONDITIONS — C'EST TOUT</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;">
+          <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:16px;padding:20px;text-align:center;">
+            <div style="font-size:28px;margin-bottom:10px;">📱</div>
+            <div style="font-weight:800;font-size:14px;color:#FCE0A8;margin-bottom:6px;">Profil complet</div>
+            <div style="font-size:12px;color:rgba(252,224,168,0.45);line-height:1.5;">Photo, métier, quartier, description. 2 minutes.</div>
+          </div>
+          <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:16px;padding:20px;text-align:center;">
+            <div style="font-size:28px;margin-bottom:10px;">📸</div>
+            <div style="font-weight:800;font-size:14px;color:#FCE0A8;margin-bottom:6px;">1 photo de réalisation</div>
+            <div style="font-size:12px;color:rgba(252,224,168,0.45);line-height:1.5;">Un vrai travail fait ce mois. Coiffure ou couture.</div>
+          </div>
+          <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:16px;padding:20px;text-align:center;">
+            <div style="font-size:28px;margin-bottom:10px;">⭐</div>
+            <div style="font-weight:800;font-size:14px;color:#FCE0A8;margin-bottom:6px;">1 avis client</div>
+            <div style="font-size:12px;color:rgba(252,224,168,0.45);line-height:1.5;">Une cliente réelle qui confirme ta qualité.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badge pas besoin Pro -->
+      <div style="background:rgba(34,197,94,0.07);border:1.5px solid rgba(34,197,94,0.22);border-radius:12px;padding:14px 20px;text-align:center;margin-bottom:32px;">
+        <p style="font-size:15px;font-weight:800;color:#4ade80;margin:0;">✓ Pas besoin d'être Pro. Le plan Gratuit suffit pour être éligible.</p>
+      </div>
+
+      <!-- CTAs -->
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">👑 S'inscrire — gratuit</button>
+        <button onclick="shareMainsDOrWhatsApp()" style="background:rgba(37,211,102,0.12);border:1.5px solid rgba(37,211,102,0.3);color:#4ade80;border-radius:100px;padding:14px 26px;font-weight:800;font-size:15px;cursor:pointer;font-family:inherit;">
+          📱 Partager avec une amie coiffeuse / couturière
+        </button>
+      </div>
+
     </div>
   </section>
 
