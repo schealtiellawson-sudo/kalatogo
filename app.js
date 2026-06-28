@@ -580,6 +580,7 @@ function showDashSection(section) {
   if (section === 'responsable-equipe') loadResponsableEquipe();
   if (section === 'responsable-journaux') loadResponsableJournaux();
   if (section === 'responsable-cr') loadResponsableCR();
+  if (section === 'responsable-plan-action') loadResponsablePlanAction();
   if (section === 'responsable-remun') loadResponsableRemun();
   if (section === 'fondateur-terrain') loadFondateurTerrain();
   if (section === 'fondateur-objectifs') loadFondateurObjectifs();
@@ -14543,6 +14544,9 @@ async function loadFondateurTerrain() {
     });
     ftJournaux.innerHTML = rows.join('');
   }
+
+  // Plans d'action recus
+  loadFondateurPlansAction();
 }
 
 async function checkAgentNotifications() {
@@ -15014,6 +15018,191 @@ async function submitResponsableCR() {
     if (msg) { msg.style.display = 'block'; msg.style.color = '#f87171'; msg.textContent = 'Erreur. Reessaie.'; }
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Soumettre le compte rendu'; }
+  }
+}
+
+// ── Plans d'action agents ────────────────────────────────────────────────────
+
+function toggleNouveauPlanAction() {
+  const block = document.getElementById('pa-form-block');
+  if (!block) return;
+  const open = block.style.display === 'none';
+  block.style.display = open ? 'block' : 'none';
+  const btn = document.getElementById('pa-toggle-btn');
+  if (btn) btn.textContent = open ? 'Annuler' : '+ Nouveau plan d\'action';
+  if (open) {
+    // Pre-remplir dates : lundi et dimanche de la semaine en cours
+    const today = new Date();
+    const day = today.getDay();
+    const monday = new Date(today); monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+    const fmt = d => d.toISOString().split('T')[0];
+    const du = document.getElementById('pa-semaine-du');
+    const au = document.getElementById('pa-semaine-au');
+    if (du && !du.value) du.value = fmt(monday);
+    if (au && !au.value) au.value = fmt(sunday);
+  }
+}
+
+async function loadResponsablePlanAction() {
+  if (!currentUser) return;
+  const el = document.getElementById('pa-liste');
+  if (!el) return;
+  try {
+    const { data, error } = await supa
+      .from('responsable_plans_action')
+      .select('*')
+      .eq('responsable_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (error) throw error;
+    if (!data || !data.length) {
+      el.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.25);font-size:13px;">Aucun plan d\'action soumis. Cree-en un via le protocole sous-performance (Step 4).</div>';
+      return;
+    }
+    el.innerHTML = data.map(p => _renderPlanActionCard(p, false)).join('');
+  } catch (e) {
+    console.error('[plan-action-load]', e);
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.25);font-size:13px;">Erreur de chargement.</div>';
+  }
+}
+
+async function submitPlanAction() {
+  if (!currentUser) return;
+  const btn = document.getElementById('pa-submit-btn');
+  const msg = document.getElementById('pa-submit-msg');
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const gi = id => parseInt(document.getElementById(id)?.value) || 0;
+
+  const agentNom = g('pa-agent-nom');
+  const ville = g('pa-ville');
+  const semaineDu = g('pa-semaine-du');
+  const semaineAu = g('pa-semaine-au');
+  const blocage = g('pa-blocage');
+  const objInscrits = gi('pa-obj-inscrits');
+  const objPros = gi('pa-obj-pros');
+
+  if (!agentNom || !ville || !semaineDu || !semaineAu || !blocage) {
+    if (msg) { msg.style.display = 'block'; msg.style.color = '#f87171'; msg.textContent = 'Remplis tous les champs obligatoires.'; }
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi...'; }
+
+  try {
+    const { error } = await supa.from('responsable_plans_action').insert({
+      responsable_id: currentUser.id,
+      agent_nom: agentNom,
+      ville,
+      semaine_du: semaineDu,
+      semaine_au: semaineAu,
+      blocage,
+      obj_inscrits: objInscrits,
+      obj_pros: objPros,
+      changement_terrain: g('pa-changement') || null,
+    });
+    if (error) throw error;
+
+    // Reset form
+    ['pa-agent-nom', 'pa-ville', 'pa-semaine-du', 'pa-semaine-au', 'pa-blocage', 'pa-obj-inscrits', 'pa-obj-pros', 'pa-changement'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    toggleNouveauPlanAction();
+    if (msg) { msg.style.display = 'none'; }
+    loadResponsablePlanAction();
+  } catch (e) {
+    console.error('[plan-action-submit]', e);
+    if (msg) { msg.style.display = 'block'; msg.style.color = '#f87171'; msg.textContent = 'Erreur. Reessaie.'; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer au fondateur'; }
+  }
+}
+
+async function updateStatutPlanAction(id, statut) {
+  try {
+    await supa.from('responsable_plans_action').update({ statut }).eq('id', id);
+    // Re-render selon contexte
+    if (_isAdminDash) loadFondateurPlansAction();
+    else loadResponsablePlanAction();
+  } catch (e) { console.error('[plan-action-statut]', e); }
+}
+
+async function savePlanActionNote(id) {
+  const ta = document.getElementById('pa-note-' + id);
+  if (!ta) return;
+  try {
+    await supa.from('responsable_plans_action').update({ note_fondateur: ta.value.trim() }).eq('id', id);
+    ta.style.borderColor = 'rgba(232,148,10,.6)';
+    setTimeout(() => { ta.style.borderColor = 'rgba(255,255,255,.08)'; }, 1500);
+  } catch (e) { console.error('[plan-action-note]', e); }
+}
+
+function _renderPlanActionCard(p, isFondateur) {
+  const du = new Date(p.semaine_du + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  const au = new Date(p.semaine_au + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  const createdAt = new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const statutCol = p.statut === 'termine' ? '#22c55e' : p.statut === 'annule' ? '#6b7280' : '#E8940A';
+  const statutLabel = p.statut === 'termine' ? 'Termine' : p.statut === 'annule' ? 'Annule' : 'En cours';
+
+  const noteBlock = isFondateur ? `
+    <div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.05);padding-top:12px;">
+      <label style="display:block;font-size:11px;color:rgba(252,224,168,.4);margin-bottom:6px;">Note fondateur</label>
+      <textarea id="pa-note-${p.id}" rows="2" onblur="savePlanActionNote('${p.id}')" placeholder="Observations, corrections, validation..." style="width:100%;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:12px;resize:vertical;box-sizing:border-box;">${p.note_fondateur || ''}</textarea>
+    </div>` : (p.note_fondateur ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:8px;font-size:12px;color:rgba(252,224,168,.7);">Note fondateur : ${p.note_fondateur}</div>` : '');
+
+  const statutBtns = isFondateur ? `
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="updateStatutPlanAction('${p.id}','actif')" style="flex:1;padding:7px;background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">En cours</button>
+      <button onclick="updateStatutPlanAction('${p.id}','termine')" style="flex:1;padding:7px;background:rgba(34,197,94,.08);color:#22c55e;border:1px solid rgba(34,197,94,.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">Termine</button>
+      <button onclick="updateStatutPlanAction('${p.id}','annule')" style="flex:1;padding:7px;background:rgba(107,114,128,.08);color:#9ca3af;border:1px solid rgba(107,114,128,.2);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">Annule</button>
+    </div>` : '';
+
+  return `<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#FCE0A8;">${p.agent_nom} <span style="font-size:11px;color:rgba(252,224,168,.35);font-weight:400;">${p.ville}</span></div>
+        <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:2px;font-family:'Geist Mono',monospace;">Sem. ${du} - ${au} - Soumis le ${createdAt}</div>
+      </div>
+      <span style="font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;color:${statutCol};border:1px solid ${statutCol};border-radius:4px;padding:2px 8px;white-space:nowrap;flex-shrink:0;">${statutLabel}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+      <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.12);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-family:'Geist Mono',monospace;font-size:20px;font-weight:900;color:#FCE0A8;">${p.obj_inscrits}</div>
+        <div style="font-size:10px;color:rgba(252,224,168,.4);margin-top:2px;">Inscrits/sem</div>
+      </div>
+      <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.12);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-family:'Geist Mono',monospace;font-size:20px;font-weight:900;color:#E8940A;">${p.obj_pros}</div>
+        <div style="font-size:10px;color:rgba(252,224,168,.4);margin-top:2px;">Pros/sem</div>
+      </div>
+      <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.12);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-family:'Geist Mono',monospace;font-size:20px;font-weight:900;color:#E8940A;">7/7</div>
+        <div style="font-size:10px;color:rgba(252,224,168,.4);margin-top:2px;">Journaux</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:rgba(252,224,168,.6);margin-bottom:${p.changement_terrain ? '6px' : '0'};">Blocage : <span style="color:rgba(252,224,168,.85);">${p.blocage}</span></div>
+    ${p.changement_terrain ? `<div style="font-size:12px;color:rgba(252,224,168,.6);">Changement terrain : <span style="color:rgba(252,224,168,.85);">${p.changement_terrain}</span></div>` : ''}
+    ${noteBlock}${statutBtns}
+  </div>`;
+}
+
+async function loadFondateurPlansAction() {
+  const el = document.getElementById('ft-plans-action');
+  if (!el) return;
+  try {
+    const { data, error } = await supa
+      .from('responsable_plans_action')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(30);
+    if (error) throw error;
+    if (!data || !data.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(252,224,168,.25);font-size:13px;">Aucun plan d\'action soumis.</div>';
+      return;
+    }
+    el.innerHTML = data.map(p => _renderPlanActionCard(p, true)).join('');
+  } catch (e) {
+    console.error('[ft-plans-action]', e);
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(252,224,168,.25);font-size:13px;">Erreur chargement.</div>';
   }
 }
 

@@ -2325,6 +2325,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('responsable-cr')" id="dl-admin-rt-cr">
             <i data-lucide="clipboard-list"></i> <span>CR hebdo</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('responsable-plan-action')" id="dl-admin-rt-plan-action">
+            <i data-lucide="file-pen-line"></i> <span>Plans d'action agents</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('responsable-remun')" id="dl-admin-rt-remun">
             <i data-lucide="wallet"></i> <span>Rémunération RT</span>
           </button>
@@ -2357,6 +2360,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('responsable-cr')" id="dl-responsable-cr">
             <i data-lucide="clipboard-list"></i> <span>Compte rendu hebdo</span>
             <span id="cr-notif-dot" style="display:none;margin-left:auto;width:8px;height:8px;background:#f87171;border-radius:50%;flex-shrink:0;"></span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('responsable-plan-action')" id="dl-responsable-plan-action">
+            <i data-lucide="file-pen-line"></i> <span>Plans d'action agents</span>
           </button>
           <button class="dash-link" onclick="showDashSection('responsable-remun')" id="dl-responsable-remun">
             <i data-lucide="wallet"></i> <span>Ma rémunération</span>
@@ -4095,6 +4101,91 @@ setTimeout(function(){
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════
+           RÉSEAU TERRAIN — PLANS D'ACTION AGENTS
+           ══════════════════════════════════════════════════════════════ -->
+      <div class="dash-section" id="ds-responsable-plan-action">
+        <div class="dash-header">
+          <h2 style="font-family:'DM Serif Display',serif;font-weight:900;">Plans d'action agents</h2>
+          <p style="color:var(--gris);font-size:13px;">Formalise le plan d'action 7 jours d'un agent en sous-performance. Remplace le formulaire papier de la Step 4 du protocole sous-performance. Visible immediatement par le fondateur.</p>
+        </div>
+
+        <!-- Bouton nouveau plan -->
+        <button onclick="toggleNouveauPlanAction()" id="pa-toggle-btn" style="width:100%;padding:13px;background:#E8940A;color:#0A0A0A;border:none;border-radius:12px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:20px;">+ Nouveau plan d'action</button>
+
+        <!-- Formulaire (masqué par defaut) -->
+        <div id="pa-form-block" style="display:none;background:#161616;border:1px solid rgba(232,148,10,.2);border-radius:16px;padding:24px;margin-bottom:20px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:18px;">Plan d'action - nouvel agent</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Nom de l'agent</label>
+              <input id="pa-agent-nom" type="text" placeholder="ex: Koffi Adjoumani" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Ville</label>
+              <select id="pa-ville" style="width:100%;padding:10px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+                <option value="">Choisir...</option>
+                <option value="Lomé">Lomé (Togo)</option>
+                <option value="Cotonou">Cotonou (Benin)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Semaine du</label>
+              <input id="pa-semaine-du" type="date" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Au</label>
+              <input id="pa-semaine-au" type="date" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;box-sizing:border-box;">
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Blocage identifie</label>
+            <textarea id="pa-blocage" rows="3" placeholder="ex: Script pas maitrise, refuse quand le prix est mentionne. Peur du refus visible dans la posture." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+          </div>
+
+          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;margin-bottom:14px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">Objectifs 7 jours</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+              <div>
+                <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Inscrits minimum</label>
+                <input id="pa-obj-inscrits" type="number" placeholder="ex: 120" min="0" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;box-sizing:border-box;">
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Pros minimum</label>
+                <input id="pa-obj-pros" type="number" placeholder="ex: 24" min="0" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;box-sizing:border-box;">
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Journaux</label>
+                <div style="padding:10px 12px;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:10px;font-family:'Geist Mono',monospace;font-size:18px;font-weight:900;color:#E8940A;">7/7</div>
+                <div style="font-size:10px;color:rgba(252,224,168,.3);margin-top:4px;">Obligatoire</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Changement terrain demande</label>
+            <textarea id="pa-changement" rows="2" placeholder="ex: Zone de prospection changee. Marche de Kegue a essayer lundi matin au lieu des boutiques." style="width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;"></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;">
+            <button onclick="submitPlanAction()" id="pa-submit-btn" style="flex:1;padding:13px;background:#E8940A;color:#0A0A0A;border:none;border-radius:12px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Envoyer au fondateur</button>
+            <button onclick="toggleNouveauPlanAction()" style="padding:13px 20px;background:rgba(255,255,255,.05);color:rgba(252,224,168,.5);border:1px solid rgba(255,255,255,.07);border-radius:12px;font-family:Geist,sans-serif;font-size:14px;cursor:pointer;">Annuler</button>
+          </div>
+          <div id="pa-submit-msg" style="display:none;margin-top:10px;text-align:center;font-size:13px;"></div>
+        </div>
+
+        <!-- Liste plans existants -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Plans soumis</div>
+        <div id="pa-liste" style="display:flex;flex-direction:column;gap:8px;">
+          <div style="text-align:center;padding:24px;color:rgba(252,224,168,.25);font-size:13px;">Chargement...</div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
            RÉSEAU TERRAIN — MA RÉMUNÉRATION
            ══════════════════════════════════════════════════════════════ -->
       <div class="dash-section" id="ds-responsable-remun">
@@ -4214,6 +4305,12 @@ setTimeout(function(){
         <!-- Journaux soumis aujourd'hui -->
         <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Journaux soumis aujourd'hui</div>
         <div id="ft-journaux" style="display:flex;flex-direction:column;gap:6px;">
+          <div style="text-align:center;padding:20px;color:rgba(252,224,168,.25);font-size:13px;">Chargement...</div>
+        </div>
+
+        <!-- Plans d'action recus -->
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;text-transform:uppercase;letter-spacing:2px;margin-top:24px;margin-bottom:12px;">Plans d'action agents (recus)</div>
+        <div id="ft-plans-action" style="display:flex;flex-direction:column;gap:8px;">
           <div style="text-align:center;padding:20px;color:rgba(252,224,168,.25);font-size:13px;">Chargement...</div>
         </div>
       </div>
