@@ -11340,13 +11340,13 @@ function switchFonctTab(tab) {
     if (section) section.style.display = t === tab ? 'block' : 'none';
     if (btn) {
       if (t === tab) {
-        btn.style.background = 'var(--vert)';
-        btn.style.color = 'white';
-        btn.style.borderColor = 'var(--vert)';
+        btn.style.background = '#E8940A';
+        btn.style.color = '#080808';
+        btn.style.borderColor = '#E8940A';
       } else {
-        btn.style.background = 'white';
-        btn.style.color = 'var(--gris-fonce)';
-        btn.style.borderColor = '#e5e7eb';
+        btn.style.background = 'rgba(255,255,255,0.06)';
+        btn.style.color = 'rgba(252,224,168,0.65)';
+        btn.style.borderColor = 'rgba(232,148,10,0.25)';
       }
     }
   });
