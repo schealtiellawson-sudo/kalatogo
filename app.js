@@ -6241,7 +6241,18 @@ async function showProfil(recordId) {
       }
     }
     const f = record.fields;
-    const statutCompte = f['Statut Compte'] || f.statut_compte || 'actif';
+    const _profilUserId = f['User ID'] || f.user_id || null;
+    let statutCompte = 'actif';
+    if (_profilUserId) {
+      try {
+        const { data: _scData } = await supa
+          .from('wolo_statut_compte')
+          .select('statut')
+          .eq('user_id', _profilUserId)
+          .maybeSingle();
+        if (_scData?.statut) statutCompte = _scData.statut;
+      } catch (_) {}
+    }
 
     // Valeurs brutes (utilisées pour calculs / SEO / open graph / window.open)
     const nomRaw = f['Nom complet'] || 'Prestataire';

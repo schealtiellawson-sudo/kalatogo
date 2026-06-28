@@ -56,7 +56,6 @@
     'Statut Artisan': 'statut_artisan',
     'Mode Emploi': 'mode_emploi',
     'Pays': 'pays',
-    'Statut Compte': 'statut_compte',
   };
 
   function _supa() { return window.supabase || window.supa; }
