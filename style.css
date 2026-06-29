@@ -6510,7 +6510,7 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 
 /* Cacher la sidebar dashboard sur mobile quand bottom nav actif */
 @media (max-width:768px) {
-  body.has-bottom-nav .dashboard-sidebar { display:none !important; }
+  body.has-bottom-nav #page-dashboard .dashboard-sidebar { display:none !important; }
 }
 
 /* ═══════════════════════════════════════════
