@@ -11476,7 +11476,7 @@ function renderOffreEmploi(offre) {
       <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler</button>
     </div>
     <div onclick="event.stopPropagation();" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.05);">
-      <a href="/temoignages" style="font-size:11px;color:rgba(0,0,0,0.3);text-decoration:none;" title="Signaler un abus lié à cette offre">🚩 Signaler un problème avec cette offre</a>
+      <a href="/temoignages" style="font-size:11px;color:rgba(0,0,0,0.3);text-decoration:none;" title="Avance déshonnête, conditions abusives ou paiement refusé ? Signale anonymement.">🚩 Avance déshonnête ou conditions abusives ? Signaler</a>
     </div>
   </div>`;
 }
@@ -11550,7 +11550,7 @@ function showOffreDetail(offreId) {
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${_titreJsArgD}','${_safeOffreIdD}')">📤 Partager</button>
     </div>
     <div style="margin-top:12px;text-align:center;">
-      <button onclick="window.wozaliSignalement?.open({offreId:'${_safeOffreIdD}',contextLabel:'Offre : ${_titreJsArgD.replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Signaler cette offre</button>
+      <button onclick="window.wozaliSignalement?.open({offreId:'${_safeOffreIdD}',contextLabel:'Offre : ${_titreJsArgD.replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Avance déshonnête, harcèlement ou arnaque ? Signaler cette offre</button>
     </div>
   `;
 
