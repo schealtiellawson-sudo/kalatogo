@@ -123,7 +123,6 @@ Toute situation inhabituelle va dans le groupe WhatsApp. Tu n'improvises pas seu
 # SLIDE 10 — Objectifs semaine 1
 
 - 10 profils créés dans les 7 premiers jours
-- Presenter le plan Pro à chaque fin d'inscription, sur place
 - 1 message dans le groupe chaque soir : nombre de profils du jour + une observation terrain
 
 **Le 1er du mois prochain : classement Agents terrain dans le groupe.**
