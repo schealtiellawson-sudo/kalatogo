@@ -2841,8 +2841,7 @@ function showPage(page, _fromPop) {
 function bntGo(tab) {
   switch(tab) {
     case 'accueil':
-      if (currentUser) { showPage('dashboard'); showDashSection('overview'); }
-      else showPage('home');
+      showPage('home');
       break;
     case 'explorer': showPage('search'); break;
     case 'jobs':     showPage('emploi'); break;
@@ -2851,7 +2850,7 @@ function bntGo(tab) {
       else showPage('login');
       break;
     case 'moi':
-      if (currentUser) { showPage('dashboard'); showDashSection('overview'); }
+      if (currentUser) viewMyProfile();
       else showPage('login');
       break;
   }
