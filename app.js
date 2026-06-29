@@ -561,7 +561,7 @@ function showDashSection(section) {
   if (section === 'temoignage') { if (typeof window.loadTemoignageSection === 'function') window.loadTemoignageSection(); }
   if (section === 'temoignage-abus') { loadTemoignageAbusSection(); }
   if (section === 'admin-temoignages-abus') { loadAdminTemoignagesAbus('en_attente'); }
-  if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} }
+  if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); }
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
   if (section === 'fil') loadFil();
@@ -4656,6 +4656,196 @@ async function sendWozaliChatMessage() {
 
   btn.disabled = false;
   btn.textContent = 'Envoyer ➤';
+}
+
+// ══════════════════════════════════════════
+// MESSAGERIE DM — Interface 2 colonnes
+// ══════════════════════════════════════════
+
+function initDmInterface() {
+  // Avatar initiale barre de compose
+  const composeAvatar = document.getElementById('dm-compose-avatar');
+  if (composeAvatar && window.currentPrestataire) {
+    const name = window.currentPrestataire.fields?.['Prénom'] || window.currentPrestataire.fields?.['Nom'] || '?';
+    composeAvatar.textContent = name.charAt(0).toUpperCase();
+  }
+
+  _initDmResize();
+
+  // Sur desktop : ouvrir le thread WOZALI d'office
+  if (window.innerWidth > 768) openDmThread('wozali');
+}
+
+function _initDmResize() {
+  const handle = document.getElementById('dm-resize-handle');
+  const col    = document.getElementById('dm-col-left');
+  if (!handle || !col) return;
+  // Éviter double-init
+  if (handle._dmResizeInit) return;
+  handle._dmResizeInit = true;
+
+  let dragging = false, startX = 0, startW = 0;
+
+  handle.addEventListener('mousedown', function(e) {
+    dragging = true; startX = e.clientX; startW = col.offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    col.style.width = Math.max(180, Math.min(440, startW + (e.clientX - startX))) + 'px';
+  });
+  document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+}
+
+function openDmThread(threadId) {
+  document.querySelectorAll('.dm-conv-item').forEach(el => el.classList.remove('active'));
+  const convItem = document.getElementById('dm-conv-' + threadId);
+  if (convItem) convItem.classList.add('active');
+
+  if (window.innerWidth <= 768) {
+    document.getElementById('dm-col-left')?.classList.add('dm-thread-open');
+    document.getElementById('dm-thread-panel')?.classList.add('dm-thread-open');
+  }
+
+  const emptyState   = document.getElementById('dm-empty-state');
+  const threadContent = document.getElementById('dm-thread-content');
+  if (emptyState) emptyState.style.display = 'none';
+  if (threadContent) threadContent.style.display = 'flex';
+
+  loadDmMessages(threadId);
+}
+
+function closeDmThread() {
+  document.getElementById('dm-col-left')?.classList.remove('dm-thread-open');
+  document.getElementById('dm-thread-panel')?.classList.remove('dm-thread-open');
+}
+
+function loadDmMessages(threadId) {
+  const list = document.getElementById('dm-messages-list');
+  if (!list) return;
+
+  if (threadId !== 'wozali') {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;font-family:\'Geist\',sans-serif;">Bientôt disponible.</div>';
+    return;
+  }
+
+  const messages = _getFondateurMessages();
+  let html = '<div class="dm-date-sep"><div class="dm-date-sep-line"></div><span class="dm-date-sep-label">MESSAGES</span><div class="dm-date-sep-line"></div></div>';
+
+  if (messages.length === 0) {
+    html += _dmBubbleIn('WOZALI', 'W', 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', false);
+  } else {
+    messages.forEach((m, i) => {
+      const dateStr = m.created_at
+        ? new Date(m.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+        : '';
+      const isLast  = i === messages.length - 1;
+      const isUnread = !m.read && isLast;
+      const title   = m.title ? `<strong>${m.title.replace(/</g,'&lt;')}</strong>\n` : '';
+      const body    = (m.body || '').replace(/</g,'&lt;');
+      html += _dmBubbleIn('WOZALI', 'W', title + body, dateStr, isUnread);
+      if (isUnread) markFondateurMessageRead(m.id);
+    });
+  }
+
+  list.innerHTML = html;
+  setTimeout(() => { list.scrollTop = list.scrollHeight; }, 60);
+
+  // Mettre à jour badge + preview dans la liste
+  const unread = messages.filter(m => !m.read).length;
+  const badge  = document.getElementById('dm-wozali-badge');
+  if (badge) { badge.style.display = unread > 0 ? 'flex' : 'none'; badge.textContent = String(unread); }
+  const preview = document.getElementById('dm-wozali-preview');
+  if (preview && messages.length > 0) {
+    const last = messages[messages.length - 1];
+    preview.textContent = (last.title || last.body || '').slice(0, 42) + '…';
+  }
+  const timeEl = document.getElementById('dm-wozali-time');
+  if (timeEl && messages.length > 0) {
+    const last = messages[messages.length - 1];
+    if (last.created_at) {
+      timeEl.textContent = new Date(last.created_at).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+    }
+  }
+}
+
+function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, isUnread) {
+  return `<div class="dm-msg-in">
+    <div class="dm-msg-avatar-sm">${initial}</div>
+    <div class="dm-msg-in-body">
+      ${timeStr ? `<div class="dm-msg-time">${senderName} · ${timeStr}</div>` : ''}
+      <div class="dm-bubble-in${isUnread ? ' unread' : ''}" style="white-space:pre-line;">${bodyHtml}</div>
+      ${isUnread ? '<div class="dm-unread-label"><div class="dm-unread-dot"></div><span class="dm-unread-text">Non lu</span></div>' : ''}
+    </div>
+  </div>`;
+}
+
+function _dmBubbleOut(bodyText, timeStr) {
+  return `<div class="dm-msg-out">
+    <div class="dm-msg-out-body">
+      ${timeStr ? `<div class="dm-msg-time" style="text-align:right;">${timeStr}</div>` : ''}
+      <div class="dm-bubble-out">${bodyText.replace(/</g,'&lt;')}</div>
+    </div>
+  </div>`;
+}
+
+async function sendDmMessage() {
+  const input   = document.getElementById('wozali-chat-input');
+  const sendBtn = document.getElementById('dm-send-btn');
+  const list    = document.getElementById('dm-messages-list');
+  if (!input || !sendBtn || !list) return;
+
+  const message = input.value.trim();
+  if (!message) { input.focus(); return; }
+
+  const nowStr = new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  const outWrap = document.createElement('div');
+  outWrap.innerHTML = _dmBubbleOut(message, nowStr);
+  list.appendChild(outWrap.firstElementChild);
+  list.scrollTop = list.scrollHeight;
+
+  input.value = ''; input.style.height = 'auto';
+  sendBtn.disabled = true;
+
+  const typingEl = document.createElement('div');
+  typingEl.className = 'dm-msg-in'; typingEl.id = 'dm-typing';
+  typingEl.innerHTML = `<div class="dm-msg-avatar-sm">W</div><div class="dm-bubble-in" style="color:rgba(252,224,168,.35);font-style:italic;font-family:'Geist',sans-serif;">…</div>`;
+  list.appendChild(typingEl); list.scrollTop = list.scrollHeight;
+
+  try {
+    const resp = await wozaliFetch('/api/wozali-pay/chat-wozali-send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+    const data = await resp.json();
+    document.getElementById('dm-typing')?.remove();
+
+    const reponse = (data.ok && data.reponse)
+      ? data.reponse
+      : (data.message_affiche || 'Message reçu. On revient vers toi bientôt.');
+
+    const replyWrap = document.createElement('div');
+    replyWrap.innerHTML = _dmBubbleIn('WOZALI', 'W', reponse.replace(/</g,'&lt;'), nowStr, false);
+    list.appendChild(replyWrap.firstElementChild);
+    list.scrollTop = list.scrollHeight;
+  } catch(e) {
+    document.getElementById('dm-typing')?.remove();
+    const errWrap = document.createElement('div');
+    errWrap.innerHTML = _dmBubbleIn('WOZALI', 'W', 'Ça a calé. Réessaie dans 2 secondes.', '', false);
+    list.appendChild(errWrap.firstElementChild);
+    list.scrollTop = list.scrollHeight;
+    console.error('[dm send]', e);
+  }
+  sendBtn.disabled = false; input.focus();
 }
 
 let _wozaliHistoryVisible = false;

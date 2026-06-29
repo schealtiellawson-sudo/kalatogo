@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — Navigation Desktop — Direction C</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0d0d0d;
+  font-family: 'Geist', sans-serif;
+  color: #FCE0A8;
+  min-height: 100vh;
+  padding: 32px 20px 60px;
+}
+h1.page-title {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 24px;
+  color: #E8940A;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.page-sub {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: rgba(252,224,168,.35);
+  text-align: center;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+/* =====================
+   BROWSER FRAME
+===================== */
+.browser-frame {
+  background: #1a1514;
+  border: 1px solid #2a2018;
+  border-radius: 14px;
+  overflow: hidden;
+  max-width: 1180px;
+  margin: 0 auto 48px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.7);
+}
+.browser-chrome {
+  background: #1a1514;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(232,148,10,.1);
+}
+.browser-dots { display: flex; gap: 6px; }
+.browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.browser-dots span:nth-child(1) { background: #ff5f57; }
+.browser-dots span:nth-child(2) { background: #ffbd2e; }
+.browser-dots span:nth-child(3) { background: #28ca41; }
+.browser-url {
+  flex: 1;
+  background: rgba(0,0,0,.35);
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: rgba(252,224,168,.35);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.browser-url span { color: rgba(252,224,168,.65); }
+
+/* =====================
+   APP SHELL — 3 colonnes
+===================== */
+.app-shell {
+  display: flex;
+  height: 640px;
+  background: #14100A;
+}
+
+/* =====================
+   SIDEBAR GAUCHE (navigation)
+   = l'actuelle dashboard-sidebar reformatée
+===================== */
+.sidebar {
+  width: 236px;
+  min-width: 236px;
+  background: #0f0b06;
+  border-right: 1px solid rgba(232,148,10,.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-logo {
+  padding: 18px 16px 16px;
+  border-bottom: 1px solid rgba(232,148,10,.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-mark {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 24px;
+  color: #E8940A;
+  line-height: 1;
+}
+.logo-mark span { color: #FCE0A8; font-style: normal; }
+
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232,148,10,.15) transparent;
+}
+
+/* Bouton profil public */
+.btn-profil-public {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #E8940A;
+  color: #0A0A0A;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 6px;
+  font-family: 'Geist', sans-serif;
+}
+.btn-profil-public svg { flex-shrink: 0; }
+
+/* Dash links */
+.dash-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
+  font-family: 'Geist', sans-serif;
+  font-weight: 500;
+  text-align: left;
+  transition: all .12s;
+  margin-bottom: 2px;
+}
+.dash-link:hover { background: rgba(232,148,10,.07); color: rgba(255,255,255,.8); }
+.dash-link.active { background: rgba(232,148,10,.13); color: #E8940A; }
+.dash-link svg { flex-shrink: 0; opacity: .75; }
+.dash-link.active svg { opacity: 1; }
+
+.notif-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: white;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 7px;
+  line-height: 1.6;
+  font-family: 'Geist Mono', monospace;
+}
+
+/* Groupes collapsibles */
+.dash-group { margin-bottom: 2px; }
+.dash-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255,255,255,.45);
+  font-family: 'Geist', sans-serif;
+  font-weight: 600;
+  text-align: left;
+  transition: all .12s;
+}
+.dash-group-head:hover { background: rgba(232,148,10,.05); color: rgba(255,255,255,.7); }
+.dash-group-head.open { color: rgba(255,255,255,.7); }
+.dash-chev {
+  margin-left: auto;
+  transition: transform .2s;
+  opacity: .4;
+}
+.dash-group-head.open .dash-chev { transform: rotate(90deg); }
+.dash-group-body {
+  padding-left: 12px;
+  display: none;
+}
+.dash-group-body.open { display: block; }
+.dash-group-body .dash-link { font-size: 12px; padding: 7px 10px; }
+
+.sidebar-bottom {
+  border-top: 1px solid rgba(232,148,10,.08);
+  padding: 10px 8px;
+}
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.user-chip:hover { background: rgba(232,148,10,.06); }
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8940A, #b86a00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0A0A0A;
+  flex-shrink: 0;
+}
+.user-name { font-size: 12px; font-weight: 700; color: #FFFFFF; line-height: 1.2; }
+.user-score { font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8940A; }
+
+/* =====================
+   ZONE CENTRALE (contenu actuel du dashboard)
+===================== */
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(232,148,10,.08);
+}
+.main-header {
+  background: #14100A;
+  border-bottom: 1px solid rgba(232,148,10,.08);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.main-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.main-breadcrumb {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.3);
+  font-family: 'Geist Mono', monospace;
+  margin-bottom: 2px;
+}
+.main-section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: #FFFFFF;
+}
+.main-header-right { display: flex; align-items: center; gap: 10px; }
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,.3);
+  border: 1px solid rgba(232,148,10,.1);
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+.search-bar span { font-size: 12px; color: rgba(255,255,255,.25); }
+.dispo-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(232,148,10,.3);
+  background: rgba(232,148,10,.08);
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+.dispo-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.main-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232,148,10,.15) transparent;
+}
+
+/* =====================
+   CONTENU DASHBOARD (fidele a l'app)
+===================== */
+/* Greeting */
+.dash-greeting {
+  margin-bottom: 18px;
+}
+.dash-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 4px;
+  font-family: 'Geist Mono', monospace;
+}
+.dash-welcome {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-family: 'DM Serif Display', serif;
+  margin-bottom: 2px;
+}
+.dash-subtitle { font-size: 12px; color: rgba(255,255,255,.45); }
+
+/* Score hero card — fidele a Direction C */
+.score-hero {
+  background: #161616;
+  border-radius: 14px;
+  padding: 22px;
+  border-top: 3px solid #E8940A;
+  margin-bottom: 12px;
+}
+.score-number-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.score-number {
+  font-size: 68px;
+  font-weight: 700;
+  color: #E8940A;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-family: 'DM Serif Display', serif;
+}
+.score-meta { padding-bottom: 6px; }
+.score-eyebrow {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 4px;
+  font-family: 'Geist Mono', monospace;
+}
+.score-level { font-size: 13px; font-weight: 500; color: #FFFFFF; }
+.score-sub { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+.score-bar-wrap {
+  height: 8px;
+  background: #202020;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 7px;
+}
+.score-bar {
+  height: 100%;
+  width: 85%;
+  background: #E8940A;
+  border-radius: 4px;
+}
+.score-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.score-bar-labels span { font-size: 10px; color: rgba(255,255,255,.4); }
+.score-bar-labels .val { color: #E8940A; }
+.score-trend { font-size: 12px; color: #E8940A; }
+
+/* 7 derniers jours - 3 KPI */
+.kpi-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 8px;
+  font-family: 'Geist Mono', monospace;
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.kpi-card {
+  background: #161616;
+  border-radius: 10px;
+  padding: 14px 12px;
+  border: 1px solid rgba(232,148,10,.12);
+  border-top: 3px solid #E8940A;
+}
+.kpi-val {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #FFFFFF;
+  font-family: 'DM Serif Display', serif;
+}
+.kpi-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.4);
+  margin-top: 7px;
+  font-family: 'Geist Mono', monospace;
+}
+.kpi-sub { font-size: 10px; color: #E8940A; font-weight: 600; margin-top: 2px; }
+
+/* Completion card */
+.completion-card {
+  background: #161616;
+  border-radius: 14px;
+  padding: 16px 18px;
+  border-top: 2px solid rgba(232,148,10,.3);
+  margin-bottom: 12px;
+}
+.completion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.completion-label { font-size: 13px; font-weight: 600; color: #FFFFFF; }
+.completion-pct { font-size: 20px; font-weight: 700; color: #E8940A; }
+.completion-bar-wrap {
+  height: 8px;
+  background: #202020;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.completion-bar {
+  height: 100%;
+  width: 92%;
+  background: #E8940A;
+  border-radius: 4px;
+}
+.completion-hint { font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.5; margin-bottom: 10px; }
+.completion-cta {
+  display: block;
+  width: 100%;
+  background: #E8940A;
+  color: #080808;
+  border: none;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Geist', sans-serif;
+}
+
+/* Parrainage banner */
+.parrainage-banner {
+  background: rgba(232,148,10,.08);
+  border: 1px solid rgba(232,148,10,.22);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.parrainage-title { font-size: 13px; font-weight: 700; color: #E8940A; margin-bottom: 3px; }
+.parrainage-sub { font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 12px; line-height: 1.5; }
+.parrainage-btn {
+  width: 100%;
+  background: #E8940A;
+  color: #0A0A0A;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Geist', sans-serif;
+}
+
+/* =====================
+   PANNEAU DROIT (stats rapides + notifs)
+   NOUVEAU PAR RAPPORT A LA VERSION MOBILE
+===================== */
+.right-panel {
+  width: 260px;
+  min-width: 260px;
+  background: #0f0b06;
+  overflow-y: auto;
+  padding: 16px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232,148,10,.15) transparent;
+}
+.right-panel-section { margin-bottom: 22px; }
+.rp-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.3);
+  margin-bottom: 12px;
+}
+
+/* Score mini ring */
+.score-ring-card {
+  background: #161616;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.score-ring-row { display: flex; align-items: center; gap: 14px; }
+.ring {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: conic-gradient(#E8940A 306deg, rgba(232,148,10,.12) 0deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ring-inner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #161616;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #E8940A;
+}
+.score-ring-detail p { font-size: 11px; color: rgba(255,255,255,.45); line-height: 1.7; }
+.score-ring-detail strong { color: #FFFFFF; }
+
+/* Suggestions / Jobs recommandes */
+.rp-job-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(232,148,10,.06);
+  cursor: pointer;
+}
+.rp-job-item:last-child { border-bottom: none; }
+.rp-job-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(232,148,10,.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.rp-job-info { flex: 1; min-width: 0; }
+.rp-job-title { font-size: 12px; font-weight: 600; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-job-meta { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 1px; }
+.rp-job-salary { font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8940A; font-weight: 700; flex-shrink: 0; }
+
+/* Notifications rapides */
+.rp-notif {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(232,148,10,.05);
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  line-height: 1.5;
+  cursor: pointer;
+}
+.rp-notif:last-child { border-bottom: none; }
+.rp-notif:hover { color: rgba(255,255,255,.7); }
+.rp-notif-dot { width: 6px; height: 6px; border-radius: 50%; background: #E8940A; flex-shrink: 0; margin-top: 4px; }
+.rp-notif.read .rp-notif-dot { background: rgba(232,148,10,.2); }
+
+/* Bourse eligibilite */
+.rp-bourse-card {
+  background: linear-gradient(135deg, rgba(232,148,10,.08), rgba(232,148,10,.03));
+  border: 1px solid rgba(232,148,10,.2);
+  border-radius: 12px;
+  padding: 14px;
+}
+.rp-bourse-icon { font-size: 22px; margin-bottom: 6px; }
+.rp-bourse-title { font-size: 12px; font-weight: 700; color: #FCE0A8; margin-bottom: 4px; }
+.rp-bourse-text { font-size: 11px; color: rgba(255,255,255,.45); line-height: 1.5; margin-bottom: 10px; }
+.rp-bourse-crit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 4px;
+}
+.crit-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+.crit-dot.warn { background: #f59e0b; }
+
+/* =====================
+   ANNOTATION CALLOUTS
+===================== */
+.annotation-strip {
+  max-width: 1180px;
+  margin: 0 auto 16px;
+  display: grid;
+  grid-template-columns: 236px 1fr 260px;
+  gap: 0;
+}
+.ann-col { padding: 12px 14px 0; }
+.ann-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #E8940A;
+  margin-bottom: 4px;
+}
+.ann-text { font-size: 11px; color: rgba(252,224,168,.5); line-height: 1.6; }
+
+/* =====================
+   ECRAN ETROIT (icones seules)
+===================== */
+.section-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #E8940A;
+  margin-bottom: 16px;
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(232,148,10,.15);
+}
+
+.sidebar-narrow {
+  width: 60px;
+  min-width: 60px;
+  background: #0f0b06;
+  border-right: 1px solid rgba(232,148,10,.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+}
+.narrow-logo {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 20px;
+  color: #E8940A;
+  margin-bottom: 20px;
+}
+.narrow-item {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  cursor: pointer;
+  color: rgba(255,255,255,.35);
+  transition: all .12s;
+  position: relative;
+}
+.narrow-item:hover { background: rgba(232,148,10,.08); color: rgba(255,255,255,.7); }
+.narrow-item.active { background: rgba(232,148,10,.15); color: #E8940A; }
+.narrow-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: #ef4444;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  font-weight: 800;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.narrow-sep { width: 28px; height: 1px; background: rgba(232,148,10,.1); margin: 8px 0; }
+.narrow-bottom { margin-top: auto; }
+.narrow-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8940A, #b86a00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0A0A0A;
+}
+</style>
+</head>
+<body>
+
+<h1 class="page-title">WOZALI — Navigation Desktop</h1>
+<div class="page-sub">Direction C — Structure actuelle preservee — Sidebar + Dashboard + Panneau droit</div>
+
+<!-- =====================
+     VERSION PLEINE (1280px+)
+===================== -->
+<div class="section-label" style="margin-bottom:16px;">
+  Version 1280px et plus — Sidebar complete avec labels
+</div>
+
+<div class="browser-frame">
+  <div class="browser-chrome">
+    <div class="browser-dots"><span></span><span></span><span></span></div>
+    <div class="browser-url">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      wozali.africa/<span>dashboard</span>
+    </div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- =================== SIDEBAR =================== -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">W<span>OZALI</span></div>
+      </div>
+
+      <div class="sidebar-scroll">
+        <!-- Profil public -->
+        <button class="btn-profil-public">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Mon Profil Public
+        </button>
+
+        <!-- Items directs -->
+        <button class="dash-link active" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Vue d'ensemble
+        </button>
+        <button class="dash-link" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Activite
+          <span class="notif-badge">3</span>
+        </button>
+        <button class="dash-link" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Disponibilite
+        </button>
+        <button class="dash-link" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Mon Agenda
+        </button>
+
+        <!-- Groupe : Mon profil -->
+        <div class="dash-group">
+          <button class="dash-group-head open" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Mon profil
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body open">
+            <button class="dash-link" onclick="activateLink(this)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Modifier mon profil
+            </button>
+            <button class="dash-link" onclick="activateLink(this)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Mes photos
+            </button>
+            <button class="dash-link" onclick="activateLink(this)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Mes posts
+            </button>
+          </div>
+        </div>
+
+        <!-- Groupe : Mon abonnement -->
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Mon abonnement
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Plan &amp; Paiement</button>
+            <button class="dash-link" onclick="activateLink(this)">Parrainage</button>
+            <button class="dash-link" onclick="activateLink(this)">Mon temoignage</button>
+          </div>
+        </div>
+
+        <!-- Groupe : Recompenses -->
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Recompenses
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Bourse de Croissance</button>
+            <button class="dash-link" onclick="activateLink(this)">Bourse des Mains d'Or</button>
+          </div>
+        </div>
+
+        <!-- Groupe : Mon emploi -->
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Mon emploi
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Trouver un emploi</button>
+            <button class="dash-link" onclick="activateLink(this)">Mes candidatures</button>
+            <button class="dash-link" onclick="activateLink(this)">Signaler un abus</button>
+          </div>
+        </div>
+
+        <!-- Groupe : Je recrute -->
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Je recrute
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Tableau de bord</button>
+            <button class="dash-link" onclick="activateLink(this)">Publier une offre</button>
+            <button class="dash-link" onclick="activateLink(this)">Mes offres</button>
+            <button class="dash-link" onclick="activateLink(this)">Candidatures recues</button>
+            <button class="dash-link" onclick="activateLink(this)">Mon equipe</button>
+          </div>
+        </div>
+
+        <!-- Groupe : Clients -->
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            Clients
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Mes avis</button>
+            <button class="dash-link" onclick="activateLink(this)">Mes favoris</button>
+            <button class="dash-link" onclick="activateLink(this)">Mes abonnements</button>
+            <button class="dash-link" onclick="activateLink(this)">WOZALI Match</button>
+          </div>
+        </div>
+
+        <!-- Groupe : Agent terrain -->
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)" style="border:1px solid rgba(232,148,10,.18);background:linear-gradient(135deg,rgba(232,148,10,.07),rgba(232,148,10,.02));border-radius:9px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span style="color:#E8940A;font-weight:800;">Agent terrain</span>
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Mes ressources</button>
+            <button class="dash-link" onclick="activateLink(this)">Mon journal de bord</button>
+            <button class="dash-link" onclick="activateLink(this)">Classement equipe</button>
+            <button class="dash-link" onclick="activateLink(this)">Mon contrat</button>
+          </div>
+        </div>
+
+      </div><!-- /sidebar-scroll -->
+
+      <div class="sidebar-bottom">
+        <div class="user-chip">
+          <div class="user-avatar">K</div>
+          <div>
+            <div class="user-name">Kofi Mensah</div>
+            <div class="user-score">Score 847</div>
+          </div>
+          <svg style="margin-left:auto;opacity:.3;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FCE0A8" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </div>
+      </div>
+    </div><!-- /sidebar -->
+
+    <!-- =================== MAIN CONTENT =================== -->
+    <div class="main-content">
+      <div class="main-header">
+        <div class="main-header-left">
+          <div>
+            <div class="main-breadcrumb">Tableau de bord</div>
+            <div class="main-section-title">Vue d'ensemble</div>
+          </div>
+        </div>
+        <div class="main-header-right">
+          <div class="dispo-pill">
+            <div class="dispo-dot"></div>
+            Disponible
+          </div>
+          <div style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(232,148,10,.25);background:rgba(232,148,10,.06);color:#E8940A;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">↻</div>
+        </div>
+      </div>
+
+      <div class="main-body">
+        <!-- Greeting -->
+        <div class="dash-greeting">
+          <div class="dash-eyebrow">Tableau de bord</div>
+          <div class="dash-welcome">Bonjour Kofi 👋</div>
+          <div class="dash-subtitle">Plombier · Lome · Plan Pro actif</div>
+        </div>
+
+        <!-- Score hero -->
+        <div class="score-hero">
+          <div class="score-number-row">
+            <div class="score-number">847</div>
+            <div class="score-meta">
+              <div class="score-eyebrow">Score WOZALI</div>
+              <div class="score-level">Top 12% a Lome</div>
+              <div class="score-sub">+15 pts cette semaine</div>
+            </div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar"></div>
+          </div>
+          <div class="score-bar-labels">
+            <span>0</span>
+            <span class="val">847 / 1000</span>
+          </div>
+          <div class="score-trend">↗ En progression · Profil 92% complet</div>
+        </div>
+
+        <!-- 3 KPI -->
+        <div class="kpi-section-label">7 derniers jours</div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-val">142</div>
+            <div class="kpi-lbl">Vues</div>
+            <div class="kpi-sub">+18% vs semaine passee</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">7</div>
+            <div class="kpi-lbl">Contacts</div>
+            <div class="kpi-sub">3 via Jobs, 4 via profil</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">3</div>
+            <div class="kpi-lbl">Filleuls</div>
+            <div class="kpi-sub">+450 FCFA ce mois</div>
+          </div>
+        </div>
+
+        <!-- Completion -->
+        <div class="completion-card">
+          <div class="completion-header">
+            <span class="completion-label">Profil a completer</span>
+            <span class="completion-pct">92%</span>
+          </div>
+          <div class="completion-bar-wrap">
+            <div class="completion-bar"></div>
+          </div>
+          <div class="completion-hint">Il manque 1 photo de realisation pour atteindre 100%.</div>
+          <button class="completion-cta">Completer mon profil →</button>
+        </div>
+
+        <!-- Parrainage banner -->
+        <div class="parrainage-banner">
+          <div class="parrainage-title">Parrainage · 3 filleuls actifs</div>
+          <div class="parrainage-sub">450 FCFA/mois · 1 000 FCFA par filleul Pro</div>
+          <button class="parrainage-btn">Partager mon lien de parrainage</button>
+        </div>
+      </div>
+    </div><!-- /main-content -->
+
+    <!-- =================== PANNEAU DROIT =================== -->
+    <div class="right-panel">
+
+      <!-- Score ring mini -->
+      <div class="right-panel-section">
+        <div class="rp-title">Progression</div>
+        <div class="score-ring-card">
+          <div class="score-ring-row">
+            <div class="ring"><div class="ring-inner">847</div></div>
+            <div class="score-ring-detail">
+              <p><strong>Top 12%</strong> a Lome</p>
+              <p>Profil <strong>92%</strong> complet</p>
+              <p>+15 pts cette semaine</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs recommandes -->
+      <div class="right-panel-section">
+        <div class="rp-title">Jobs pour toi</div>
+        <div class="rp-job-item">
+          <div class="rp-job-icon">🔧</div>
+          <div class="rp-job-info">
+            <div class="rp-job-title">Plombier plein-temps</div>
+            <div class="rp-job-meta">Lome · Cocotiers</div>
+          </div>
+          <span class="rp-job-salary">80K</span>
+        </div>
+        <div class="rp-job-item">
+          <div class="rp-job-icon">🏠</div>
+          <div class="rp-job-info">
+            <div class="rp-job-title">Renovation appart</div>
+            <div class="rp-job-meta">Lome · Mission</div>
+          </div>
+          <span class="rp-job-salary">150K</span>
+        </div>
+        <div class="rp-job-item">
+          <div class="rp-job-icon">🔧</div>
+          <div class="rp-job-info">
+            <div class="rp-job-title">Entretien bureau</div>
+            <div class="rp-job-meta">Zone BCEAO</div>
+          </div>
+          <span class="rp-job-salary">45K/m</span>
+        </div>
+      </div>
+
+      <!-- Bourse -->
+      <div class="right-panel-section">
+        <div class="rp-title">Bourse de Croissance</div>
+        <div class="rp-bourse-card">
+          <div class="rp-bourse-icon">🏆</div>
+          <div class="rp-bourse-title">300 000 FCFA — 25 sept.</div>
+          <div class="rp-bourse-text">Tu es eligible si tu maintiens ton rythme.</div>
+          <div class="rp-bourse-crit"><div class="crit-dot"></div> Plan Pro actif</div>
+          <div class="rp-bourse-crit"><div class="crit-dot"></div> Score ≥ 80</div>
+          <div class="rp-bourse-crit"><div class="crit-dot warn"></div> 2 avis manquants</div>
+        </div>
+      </div>
+
+      <!-- Notifs rapides -->
+      <div class="right-panel-section">
+        <div class="rp-title">Activite recente</div>
+        <div class="rp-notif"><div class="rp-notif-dot"></div> Nouveau contact d'Amina K. sur Jobs</div>
+        <div class="rp-notif"><div class="rp-notif-dot"></div> +15 pts Score - avis client</div>
+        <div class="rp-notif read"><div class="rp-notif-dot"></div> 1 filleul passe en Pro</div>
+        <div class="rp-notif read"><div class="rp-notif-dot"></div> Offre vue 28 fois hier</div>
+      </div>
+
+    </div><!-- /right-panel -->
+
+  </div><!-- /app-shell -->
+</div><!-- /browser-frame -->
+
+<!-- ANNOTATION STRIP -->
+<div class="annotation-strip">
+  <div class="ann-col">
+    <div class="ann-label">Sidebar gauche</div>
+    <div class="ann-text">La MEME structure que l'app actuelle. Tous les groupes (Mon profil, Mon emploi, Je recrute, Clients, Agent terrain) sont ici. Rien ne disparait.</div>
+  </div>
+  <div class="ann-col" style="padding-left:28px;">
+    <div class="ann-label">Zone centrale</div>
+    <div class="ann-text">Le vrai contenu de la section active. Score hero exactement comme dans l'app, 3 KPI, barre de completion, banner parrainage. Identique au mobile mais avec plus de place.</div>
+  </div>
+  <div class="ann-col">
+    <div class="ann-label">Panneau droit</div>
+    <div class="ann-text">NOUVEAU sur desktop uniquement. Score ring, jobs recommandes, statut bourse, activite recente. Tout ca est actuellement cache dans des sous-sections — ici c'est toujours visible.</div>
+  </div>
+</div>
+
+<!-- =====================
+     VUE MESSAGES — DM style Instagram
+===================== -->
+<div class="section-label" style="margin-top:56px; margin-bottom:16px;">
+  Vue Messages — Interface conversation (clic sur Messages dans la sidebar)
+</div>
+
+<div class="browser-frame">
+  <div class="browser-chrome">
+    <div class="browser-dots"><span></span><span></span><span></span></div>
+    <div class="browser-url">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      wozali.africa/<span>dashboard#messages</span>
+    </div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- ======= SIDEBAR (Messages actif) ======= -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">W<span>OZALI</span></div>
+      </div>
+      <div class="sidebar-scroll">
+        <button class="btn-profil-public">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Mon Profil Public
+        </button>
+        <button class="dash-link" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Vue d'ensemble
+        </button>
+        <button class="dash-link active" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Messages
+          <span class="notif-badge">1</span>
+        </button>
+        <button class="dash-link" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Disponibilite
+        </button>
+        <button class="dash-link" onclick="activateLink(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Mon Agenda
+        </button>
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Mon profil
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Modifier mon profil</button>
+            <button class="dash-link" onclick="activateLink(this)">Mes photos</button>
+          </div>
+        </div>
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Recompenses
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Bourse de Croissance</button>
+            <button class="dash-link" onclick="activateLink(this)">Bourse des Mains d'Or</button>
+          </div>
+        </div>
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Mon emploi
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Trouver un emploi</button>
+            <button class="dash-link" onclick="activateLink(this)">Mes candidatures</button>
+          </div>
+        </div>
+        <div class="dash-group">
+          <button class="dash-group-head" onclick="toggleGroup(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Je recrute
+            <svg class="dash-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div class="dash-group-body">
+            <button class="dash-link" onclick="activateLink(this)">Mes offres</button>
+            <button class="dash-link" onclick="activateLink(this)">Candidatures recues</button>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="user-chip">
+          <div class="user-avatar">K</div>
+          <div><div class="user-name">Kofi Mensah</div><div class="user-score">Score 847</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= ZONE CENTRALE = DM SPLIT ======= -->
+    <div class="main-content" style="flex-direction:row;overflow:hidden;">
+
+      <!-- Colonne conversations (~270px) -->
+      <div id="dm-col-left" style="width:270px;min-width:180px;max-width:420px;background:#0d0d0d;border-right:none;display:flex;flex-direction:column;position:relative;">
+
+        <!-- Header conversations -->
+        <div style="padding:14px 16px 12px;border-bottom:1px solid rgba(232,148,10,.08);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+          <div style="font-family:'DM Serif Display',serif;font-size:16px;color:#FCE0A8;font-weight:700;">Messages</div>
+          <button style="background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.25);color:#E8940A;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;">+ Nouveau</button>
+        </div>
+
+        <!-- Barre recherche -->
+        <div style="padding:10px 12px;flex-shrink:0;">
+          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:7px 12px;display:flex;align-items:center;gap:8px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span style="font-size:12px;color:rgba(255,255,255,.25);font-family:'Geist',sans-serif;">Rechercher...</span>
+          </div>
+        </div>
+
+        <!-- Liste conversations -->
+        <div style="flex:1;overflow-y:auto;">
+
+          <!-- Conversation WOZALI (active + non-lu) -->
+          <div id="conv-wozali" onclick="openConv('wozali')" style="padding:10px 14px;cursor:pointer;background:rgba(232,148,10,.08);border-left:3px solid #E8940A;display:flex;align-items:center;gap:11px;">
+            <a href="https://wozali.africa/schealtiel" target="_blank" onclick="event.stopPropagation()" title="Voir le profil" style="text-decoration:none;flex-shrink:0;display:block;">
+              <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:18px;font-weight:900;color:#0A0A0A;position:relative;">
+                W
+                <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid #0d0d0d;"></div>
+              </div>
+            </a>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <a href="https://wozali.africa/schealtiel" target="_blank" onclick="event.stopPropagation()" style="font-size:13px;font-weight:700;color:#FFFFFF;font-family:'Geist',sans-serif;text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(232,148,10,.35);">WOZALI</a>
+                <span style="font-size:10px;color:rgba(255,255,255,.35);font-family:'Geist Mono',monospace;">17h</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                <span style="font-size:12px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">Bienvenue Kofi ! Ton profil...</span>
+                <div style="background:#E8940A;min-width:18px;height:18px;border-radius:9px;font-size:10px;font-weight:800;color:#0A0A0A;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;font-family:'Geist Mono',monospace;">1</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Autres profils WOZALI -->
+          <a href="https://wozali.africa/kofi-plombier" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:11px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'">
+            <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#3a2a0a,#1a1208);border:1.5px solid rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#E8940A;flex-shrink:0;font-family:'Geist',sans-serif;">K</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <span style="font-size:13px;font-weight:600;color:#FFF;font-family:'Geist',sans-serif;">Kofi M. · Plombier</span>
+                <span style="font-size:10px;color:rgba(255,255,255,.3);font-family:'Geist Mono',monospace;">Hier</span>
+              </div>
+              <div style="font-size:12px;color:rgba(255,255,255,.4);">Score 712 · Lome</div>
+            </div>
+          </a>
+          <a href="https://wozali.africa/raissa-coiff" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:11px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,.03)'" onmouseout="this.style.background='transparent'">
+            <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2a0a1a,#120a12);border:1.5px solid rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#E8940A;flex-shrink:0;font-family:'Geist',sans-serif;">R</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <span style="font-size:13px;font-weight:600;color:#FFF;font-family:'Geist',sans-serif;">Raissa A. · Coiffeuse</span>
+                <span style="font-size:10px;color:rgba(255,255,255,.3);font-family:'Geist Mono',monospace;">Lun</span>
+              </div>
+              <div style="font-size:12px;color:rgba(255,255,255,.4);">Score 634 · Cotonou</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Handle resize draggable -->
+      <div id="dm-resize-handle" style="width:5px;min-width:5px;background:rgba(232,148,10,.07);cursor:col-resize;flex-shrink:0;position:relative;transition:background .15s;display:flex;align-items:center;justify-content:center;" title="Glisser pour redimensionner">
+        <div style="width:2px;height:36px;border-radius:2px;background:rgba(232,148,10,.25);transition:background .15s;" id="dm-handle-bar"></div>
+      </div>
+
+      <!-- Thread ouvert -->
+      <div id="thread-wozali" style="flex:1;display:flex;flex-direction:column;background:#14100A;">
+
+        <!-- Header thread -->
+        <div style="padding:12px 18px;border-bottom:1px solid rgba(232,148,10,.08);display:flex;align-items:center;gap:12px;flex-shrink:0;background:#0f0b06;">
+          <a href="https://wozali.africa/schealtiel" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:12px;cursor:pointer;" title="Voir le profil WOZALI">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:16px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#FFFFFF;font-family:'Geist',sans-serif;text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(232,148,10,.4);">WOZALI</div>
+              <div style="font-size:11px;color:#22c55e;font-family:'Geist',sans-serif;">En ligne</div>
+            </div>
+          </a>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <button style="background:transparent;border:1px solid rgba(232,148,10,.2);color:#E8940A;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;">Voir profil</button>
+          </div>
+        </div>
+
+        <!-- Messages scrollable -->
+        <div style="flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Separateur date -->
+          <div style="display:flex;align-items:center;gap:10px;margin:4px 0;">
+            <div style="flex:1;height:1px;background:rgba(255,255,255,.06);"></div>
+            <span style="font-size:10px;color:rgba(255,255,255,.25);font-family:'Geist Mono',monospace;letter-spacing:1px;">AUJOURD'HUI</span>
+            <div style="flex:1;height:1px;background:rgba(255,255,255,.06);"></div>
+          </div>
+
+          <!-- Message WOZALI 1 — bienvenue (depuis toi) -->
+          <div style="display:flex;gap:10px;align-items:flex-end;">
+            <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:13px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+            <div style="max-width:75%;">
+              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:5px;font-family:'Geist',sans-serif;">WOZALI · 8 mai, 06:26</div>
+              <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:0 14px 14px 14px;padding:12px 16px;font-size:13px;color:#FCE0A8;line-height:1.6;font-family:'Geist',sans-serif;">
+                Bienvenue Kofi ! 👋<br><br>
+                Ton profil est en ligne — visible à Cotonou et Lomé.<br><br>
+                Première mission (5 min) : ajoute 3 photos de ton travail. Les profils avec photos reçoivent <strong style="color:#E8940A;">3× plus de contacts</strong>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Message WOZALI 2 — J+1 -->
+          <div style="display:flex;gap:10px;align-items:flex-end;">
+            <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:13px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+            <div style="max-width:75%;">
+              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:5px;font-family:'Geist',sans-serif;">WOZALI · 8 mai, 10:00</div>
+              <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:0 14px 14px 14px;padding:12px 16px;font-size:13px;color:#FCE0A8;line-height:1.6;font-family:'Geist',sans-serif;">
+                Ton profil a déjà été vu <strong style="color:#E8940A;">12 fois</strong> depuis hier. 👀<br><br>
+                Les clients regardent — mais ils veulent voir ton travail avant de contacter. Ajoute une photo de réalisation pour convertir ces vues en contacts.
+              </div>
+            </div>
+          </div>
+
+          <!-- Message WOZALI 3 — non lu -->
+          <div style="display:flex;gap:10px;align-items:flex-end;">
+            <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:13px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+            <div style="max-width:75%;">
+              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:5px;font-family:'Geist',sans-serif;">WOZALI · 9 mai, 09:00</div>
+              <div style="background:#1E1208;border:1px solid rgba(232,148,10,.3);border-radius:0 14px 14px 14px;padding:12px 16px;font-size:13px;color:#FCE0A8;line-height:1.6;font-family:'Geist',sans-serif;box-shadow:0 0 0 1px rgba(232,148,10,.1);">
+                🏆 Tu es à <strong style="color:#E8940A;">3 avis clients</strong> d'être eligible a la Bourse de Croissance (300 000 FCFA).<br><br>
+                Demande un avis à tes 3 derniers clients — envoie leur ce lien : <span style="color:#E8940A;">wozali.africa/kofi</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+                <div style="width:8px;height:8px;border-radius:50%;background:#E8940A;"></div>
+                <span style="font-size:10px;color:#E8940A;font-family:'Geist',sans-serif;font-weight:600;">Non lu</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Input répondre -->
+        <div style="padding:12px 16px;border-top:1px solid rgba(232,148,10,.08);flex-shrink:0;background:#0f0b06;display:flex;align-items:center;gap:10px;">
+          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0A0A0A;flex-shrink:0;">K</div>
+          <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,.25);font-family:'Geist',sans-serif;">
+            Écrire à WOZALI...
+          </div>
+          <button style="width:36px;height:36px;border-radius:50%;background:#E8940A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+
+      </div>
+    </div><!-- /main-content DM -->
+
+    <!-- ======= PANNEAU DROIT (inchangé) ======= -->
+    <div class="right-panel">
+      <div class="right-panel-section">
+        <div class="rp-title">Progression</div>
+        <div class="score-ring-card">
+          <div class="score-ring-row">
+            <div class="ring"><div class="ring-inner">847</div></div>
+            <div class="score-ring-detail">
+              <p><strong>Top 12%</strong> a Lome</p>
+              <p>Profil <strong>92%</strong> complet</p>
+              <p>+15 pts cette semaine</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-panel-section">
+        <div class="rp-title">Bourse de Croissance</div>
+        <div class="rp-bourse-card">
+          <div class="rp-bourse-icon">🏆</div>
+          <div class="rp-bourse-title">300 000 FCFA — 25 sept.</div>
+          <div class="rp-bourse-text">Tu es eligible si tu maintiens ton rythme.</div>
+          <div class="rp-bourse-crit"><div class="crit-dot"></div> Plan Pro actif</div>
+          <div class="rp-bourse-crit"><div class="crit-dot"></div> Score ≥ 80</div>
+          <div class="rp-bourse-crit"><div class="crit-dot warn"></div> 2 avis manquants</div>
+        </div>
+      </div>
+      <div class="right-panel-section">
+        <div class="rp-title">Activite recente</div>
+        <div class="rp-notif"><div class="rp-notif-dot"></div> 12 vues profil depuis hier</div>
+        <div class="rp-notif"><div class="rp-notif-dot"></div> +15 pts Score cette semaine</div>
+        <div class="rp-notif read"><div class="rp-notif-dot"></div> 1 filleul passe en Pro</div>
+      </div>
+    </div>
+
+  </div><!-- /app-shell -->
+</div><!-- /browser-frame messages -->
+
+<!-- ANNOTATION MESSAGES -->
+<div class="annotation-strip">
+  <div class="ann-col">
+    <div class="ann-label">Sidebar — inchangee</div>
+    <div class="ann-text">Exactement la meme structure. "Messages" est active avec le badge rouge. Tous les autres groupes restent accessibles.</div>
+  </div>
+  <div class="ann-col" style="padding-left:28px;">
+    <div class="ann-label">DM split — 2 colonnes</div>
+    <div class="ann-text">Gauche : liste des conversations (WOZALI thread actif avec badge non-lu). Droite : fil de messages — séquence onboarding automatique envoyee comme des DMs personnels. L'utilisateur peut repondre directement.</div>
+  </div>
+  <div class="ann-col">
+    <div class="ann-label">Panneau droit — inchange</div>
+    <div class="ann-text">Score + Bourse toujours visibles. Le 3e message WOZALI (non lu) parle des avis manquants pour la Bourse — cohérence entre les deux colonnes.</div>
+  </div>
+</div>
+
+<!-- =====================
+     VERSION ETROITE (1024px)
+===================== -->
+<div class="section-label" style="margin-top:48px; margin-bottom:16px;">
+  Version 1024-1280px — Sidebar icones seules, panneau droit reduit
+</div>
+
+<div class="browser-frame" style="max-width:900px;">
+  <div class="browser-chrome">
+    <div class="browser-dots"><span></span><span></span><span></span></div>
+    <div class="browser-url">wozali.africa/<span>dashboard</span></div>
+  </div>
+  <div class="app-shell" style="height:340px;">
+
+    <!-- Sidebar narrow -->
+    <div class="sidebar-narrow">
+      <div class="narrow-logo">W</div>
+      <div class="narrow-item active" title="Vue d'ensemble">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="narrow-item" title="Activite">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="narrow-badge">3</div>
+      </div>
+      <div class="narrow-item" title="Mon profil">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="narrow-item" title="Mon emploi">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <div class="narrow-item" title="Je recrute">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div class="narrow-sep"></div>
+      <div class="narrow-item" title="Recompenses">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="narrow-item" title="Parrainage">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="narrow-bottom">
+        <div class="narrow-avatar">K</div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-content" style="border-right:none;">
+      <div class="main-header" style="padding:10px 18px;">
+        <div class="main-section-title" style="font-size:16px;">Vue d'ensemble</div>
+        <div class="dispo-pill" style="font-size:11px;padding:5px 11px;">
+          <div class="dispo-dot"></div>
+          Disponible
+        </div>
+      </div>
+      <div class="main-body" style="padding:16px 18px;">
+        <div class="score-hero" style="padding:18px;">
+          <div class="score-number-row" style="margin-bottom:12px;">
+            <div class="score-number" style="font-size:56px;">847</div>
+            <div class="score-meta">
+              <div class="score-eyebrow">Score WOZALI</div>
+              <div class="score-level">Top 12% a Lome</div>
+            </div>
+          </div>
+          <div class="score-bar-wrap"><div class="score-bar"></div></div>
+          <div class="score-trend" style="margin-top:6px;">↗ +15 pts cette semaine</div>
+        </div>
+        <div class="kpi-section-label" style="margin-top:12px;">7 derniers jours</div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-val" style="font-size:34px;">142</div><div class="kpi-lbl">Vues</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="font-size:34px;">7</div><div class="kpi-lbl">Contacts</div></div>
+          <div class="kpi-card"><div class="kpi-val" style="font-size:34px;">3</div><div class="kpi-lbl">Filleuls</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleGroup(btn) {
+  btn.classList.toggle('open');
+  var body = btn.nextElementSibling;
+  body.classList.toggle('open');
+}
+function activateLink(el) {
+  var all = document.querySelectorAll('.dash-link');
+  all.forEach(function(l) { l.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+/* ── Drag resize DM columns ── */
+(function() {
+  var handle = document.getElementById('dm-resize-handle');
+  var bar    = document.getElementById('dm-handle-bar');
+  var col    = document.getElementById('dm-col-left');
+  if (!handle || !col) return;
+
+  var dragging = false, startX = 0, startW = 0;
+
+  handle.addEventListener('mousedown', function(e) {
+    dragging = true;
+    startX   = e.clientX;
+    startW   = col.offsetWidth;
+    window._dmDragging = true;
+    handle.style.background = 'rgba(232,148,10,.35)';
+    bar.style.background    = 'rgba(232,148,10,.9)';
+    document.body.style.cursor     = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  handle.addEventListener('mouseenter', function() {
+    if (!dragging) { handle.style.background='rgba(232,148,10,.2)'; bar.style.background='rgba(232,148,10,.6)'; }
+  });
+  handle.addEventListener('mouseleave', function() {
+    if (!dragging) { handle.style.background='rgba(232,148,10,.07)'; bar.style.background='rgba(232,148,10,.25)'; }
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    var newW = Math.max(180, Math.min(480, startW + (e.clientX - startX)));
+    col.style.width = newW + 'px';
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    window._dmDragging = false;
+    handle.style.background = 'rgba(232,148,10,.07)';
+    bar.style.background    = 'rgba(232,148,10,.25)';
+    document.body.style.cursor     = '';
+    document.body.style.userSelect = '';
+  });
+})();
+</script>
+
+<!-- =====================
+     VUE MOBILE — Style WhatsApp
+     2 états : liste / thread (bouton toggle pour démo)
+===================== -->
+<div class="section-label" style="margin-top:56px; margin-bottom:16px;">
+  Vue Mobile — Navigation style WhatsApp (liste → thread avec bouton retour)
+</div>
+
+<div style="display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
+
+  <!-- ÉTAT 1 : Liste des conversations -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);">Etat 1 — Liste</div>
+    <div style="width:375px;border-radius:28px;overflow:hidden;border:1.5px solid rgba(232,148,10,.2);box-shadow:0 24px 60px rgba(0,0,0,.7);">
+      <!-- Status bar -->
+      <div style="background:#0d0d0d;padding:12px 20px 6px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;font-weight:700;color:#fff;font-family:'Geist',sans-serif;">18:27</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <svg width="14" height="10" viewBox="0 0 20 14" fill="white" opacity=".8"><rect x="0" y="4" width="3" height="10" rx="1"/><rect x="5" y="2" width="3" height="12" rx="1"/><rect x="10" y="0" width="3" height="14" rx="1"/><rect x="15" y="0" width="3" height="14" rx="1" opacity=".3"/></svg>
+          <svg width="14" height="10" viewBox="0 0 22 16" fill="none" stroke="white" stroke-width="1.5" opacity=".8"><path d="M1 4C4.5 1 8 0 11 0s6.5 1 10 4"/><path d="M3.5 7.5C6 5.5 8.5 4.5 11 4.5s5 1 7.5 3"/><path d="M6.5 11C8 9.5 9.5 9 11 9s3 .5 4.5 2"/><circle cx="11" cy="14" r="1.5" fill="white"/></svg>
+          <div style="width:22px;height:11px;border:1.5px solid rgba(255,255,255,.7);border-radius:3px;padding:1px;display:flex;align-items:center;">
+            <div style="width:60%;height:100%;background:#22c55e;border-radius:1px;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- App header -->
+      <div style="background:#0d0d0d;padding:6px 16px 14px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:22px;font-weight:900;color:#E8940A;">W<span style="color:#FCE0A8;font-style:normal;font-size:18px;">OZALI</span></div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+      </div>
+      <!-- Tabs filter -->
+      <div style="background:#0d0d0d;padding:0 16px 10px;display:flex;gap:8px;">
+        <div style="background:#E8940A;color:#0A0A0A;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;font-family:'Geist',sans-serif;">Toutes</div>
+        <div style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border-radius:20px;padding:5px 14px;font-size:12px;font-family:'Geist',sans-serif;">Non lus <span style="color:#E8940A;font-weight:700;">1</span></div>
+        <div style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border-radius:20px;padding:5px 14px;font-size:12px;font-family:'Geist',sans-serif;">Favoris</div>
+      </div>
+      <!-- Conversation list -->
+      <div style="background:#14100A;">
+        <!-- WOZALI — non lu, active -->
+        <div onclick="showMobileThread()" style="padding:14px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;background:rgba(232,148,10,.06);border-left:3px solid #E8940A;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="position:relative;flex-shrink:0;">
+            <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:20px;font-weight:900;color:#0A0A0A;">W</div>
+            <div style="position:absolute;bottom:1px;right:1px;width:13px;height:13px;border-radius:50%;background:#22c55e;border:2px solid #14100A;"></div>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:700;color:#FFFFFF;font-family:'Geist',sans-serif;">WOZALI</span>
+              <span style="font-size:11px;color:#E8940A;font-family:'Geist Mono',monospace;font-weight:600;">17h</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">Tu es a 3 avis de la Bourse...</span>
+              <div style="background:#E8940A;min-width:20px;height:20px;border-radius:10px;font-size:11px;font-weight:800;color:#0A0A0A;display:flex;align-items:center;justify-content:center;padding:0 5px;font-family:'Geist Mono',monospace;">1</div>
+            </div>
+          </div>
+        </div>
+        <!-- Autres profils WOZALI -->
+        <a href="https://wozali.africa/kofi-plombier" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;" onclick="showMobileThread()">
+          <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#3a2a0a,#1a1208);border:1.5px solid rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#E8940A;flex-shrink:0;font-family:'Geist',sans-serif;">K</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:600;color:#FFF;font-family:'Geist',sans-serif;">Kofi M. · Plombier</span>
+              <span style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Geist Mono',monospace;">Hier</span>
+            </div>
+            <span style="font-size:13px;color:rgba(255,255,255,.45);">Score 712 · Lome</span>
+          </div>
+        </a>
+        <a href="https://wozali.africa/raissa-coiff" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;" onclick="showMobileThread()">
+          <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#2a0a1a,#120a12);border:1.5px solid rgba(232,148,10,.2);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#E8940A;flex-shrink:0;font-family:'Geist',sans-serif;">R</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span style="font-size:15px;font-weight:600;color:#FFF;font-family:'Geist',sans-serif;">Raissa A. · Coiffeuse</span>
+              <span style="font-size:11px;color:rgba(255,255,255,.35);font-family:'Geist Mono',monospace;">Lun</span>
+            </div>
+            <span style="font-size:13px;color:rgba(255,255,255,.45);">Score 634 · Cotonou</span>
+          </div>
+        </a>
+        <!-- Espace vide bas -->
+        <div style="height:120px;"></div>
+      </div>
+      <!-- Bottom nav -->
+      <div style="background:#0d0d0d;border-top:1px solid rgba(255,255,255,.06);padding:10px 0 20px;display:flex;justify-content:space-around;align-items:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.45;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span style="font-size:9px;color:rgba(255,255,255,.4);font-family:'Geist',sans-serif;">Accueil</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.45;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span style="font-size:9px;color:rgba(255,255,255,.4);font-family:'Geist',sans-serif;">Explorer</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;">
+          <div style="position:absolute;top:-2px;right:-6px;width:8px;height:8px;border-radius:50%;background:#E8940A;"></div>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span style="font-size:9px;color:#E8940A;font-weight:700;font-family:'Geist',sans-serif;">Messages</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.45;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span style="font-size:9px;color:rgba(255,255,255,.4);font-family:'Geist',sans-serif;">Moi</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAT 2 : Thread ouvert (slide depuis la droite) -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);">Etat 2 — Thread ouvert</div>
+    <div id="mobile-thread-frame" style="width:375px;border-radius:28px;overflow:hidden;border:1.5px solid rgba(232,148,10,.2);box-shadow:0 24px 60px rgba(0,0,0,.7);">
+      <!-- Status bar -->
+      <div style="background:#0d0d0d;padding:12px 20px 6px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;font-weight:700;color:#fff;font-family:'Geist',sans-serif;">18:27</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <svg width="14" height="10" viewBox="0 0 20 14" fill="white" opacity=".8"><rect x="0" y="4" width="3" height="10" rx="1"/><rect x="5" y="2" width="3" height="12" rx="1"/><rect x="10" y="0" width="3" height="14" rx="1"/><rect x="15" y="0" width="3" height="14" rx="1" opacity=".3"/></svg>
+          <svg width="14" height="10" viewBox="0 0 22 16" fill="none" stroke="white" stroke-width="1.5" opacity=".8"><path d="M1 4C4.5 1 8 0 11 0s6.5 1 10 4"/><path d="M3.5 7.5C6 5.5 8.5 4.5 11 4.5s5 1 7.5 3"/><path d="M6.5 11C8 9.5 9.5 9 11 9s3 .5 4.5 2"/><circle cx="11" cy="14" r="1.5" fill="white"/></svg>
+          <div style="width:22px;height:11px;border:1.5px solid rgba(255,255,255,.7);border-radius:3px;padding:1px;display:flex;align-items:center;">
+            <div style="width:60%;height:100%;background:#22c55e;border-radius:1px;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Thread header avec bouton retour -->
+      <div style="background:#0d0d0d;padding:8px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(232,148,10,.08);">
+        <button onclick="showMobileList()" style="background:transparent;border:none;padding:4px;cursor:pointer;display:flex;align-items:center;color:rgba(255,255,255,.7);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <a href="https://wozali.africa/schealtiel" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:16px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#FFFFFF;font-family:'Geist',sans-serif;text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(232,148,10,.4);">WOZALI</div>
+            <div style="font-size:11px;color:#22c55e;font-family:'Geist',sans-serif;">En ligne</div>
+          </div>
+        </a>
+        <a href="https://wozali.africa/schealtiel" target="_blank" style="text-decoration:none;"><button style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.2);color:#E8940A;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;">Profil</button></a>
+      </div>
+      <!-- Messages -->
+      <div style="background:#14100A;padding:14px 14px;display:flex;flex-direction:column;gap:14px;min-height:460px;">
+        <div style="display:flex;align-items:center;gap:10px;margin:0 0 4px;">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,.06);"></div>
+          <span style="font-size:10px;color:rgba(255,255,255,.25);font-family:'Geist Mono',monospace;">AUJOURD'HUI</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,.06);"></div>
+        </div>
+        <!-- Msg 1 -->
+        <div style="display:flex;gap:9px;align-items:flex-end;">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:12px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+          <div style="max-width:78%;">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-family:'Geist',sans-serif;">8 mai · 06:26</div>
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:2px 14px 14px 14px;padding:10px 13px;font-size:13px;color:#FCE0A8;line-height:1.6;font-family:'Geist',sans-serif;">
+              Bienvenue Kofi ! 👋<br>Ton profil est en ligne — visible a Cotonou et Lome.<br><br>Premiere mission : ajoute <strong style="color:#E8940A;">3 photos</strong> de ton travail.
+            </div>
+          </div>
+        </div>
+        <!-- Msg 2 -->
+        <div style="display:flex;gap:9px;align-items:flex-end;">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:12px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+          <div style="max-width:78%;">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-family:'Geist',sans-serif;">8 mai · 10:00</div>
+            <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:2px 14px 14px 14px;padding:10px 13px;font-size:13px;color:#FCE0A8;line-height:1.6;font-family:'Geist',sans-serif;">
+              Ton profil a ete vu <strong style="color:#E8940A;">12 fois</strong> depuis hier. 👀 Les clients regardent — ils veulent voir ton travail avant de contacter.
+            </div>
+          </div>
+        </div>
+        <!-- Msg 3 — non lu -->
+        <div style="display:flex;gap:9px;align-items:flex-end;">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b86a00);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-style:italic;font-size:12px;font-weight:900;color:#0A0A0A;flex-shrink:0;">W</div>
+          <div style="max-width:78%;">
+            <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;font-family:'Geist',sans-serif;">9 mai · 09:00</div>
+            <div style="background:#1E1208;border:1px solid rgba(232,148,10,.3);border-radius:2px 14px 14px 14px;padding:10px 13px;font-size:13px;color:#FCE0A8;line-height:1.6;font-family:'Geist',sans-serif;box-shadow:0 0 0 1px rgba(232,148,10,.08);">
+              🏆 Tu es a <strong style="color:#E8940A;">3 avis</strong> de la Bourse de Croissance (300 000 FCFA). Envoie ton lien a tes derniers clients : <span style="color:#E8940A;">wozali.africa/kofi</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;margin-top:4px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:#E8940A;"></div>
+              <span style="font-size:10px;color:#E8940A;font-weight:600;font-family:'Geist',sans-serif;">Non lu</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Input bar -->
+      <div style="background:#0d0d0d;border-top:1px solid rgba(255,255,255,.06);padding:10px 14px 24px;display:flex;align-items:center;gap:10px;">
+        <button style="background:transparent;border:none;padding:4px;cursor:pointer;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </button>
+        <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:10px 16px;font-size:14px;color:rgba(255,255,255,.25);font-family:'Geist',sans-serif;">Ecrire a WOZALI...</div>
+        <button style="width:40px;height:40px;border-radius:50%;background:#E8940A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /mobile frames -->
+
+<div class="annotation-strip" style="margin-top:24px;">
+  <div class="ann-col">
+    <div class="ann-label">Navigation mobile</div>
+    <div class="ann-text">Etat 1 : liste plein ecran. Tap sur WOZALI → slide de droite vers l'etat 2. Fleche retour en haut a gauche → retour liste. Meme pattern que WhatsApp mobile.</div>
+  </div>
+  <div class="ann-col">
+    <div class="ann-label">Barre en bas</div>
+    <div class="ann-text">La bottom nav reste toujours visible (icone Messages active + point or). Le thread s'ouvre dans la zone principale, pas dans une modale.</div>
+  </div>
+  <div class="ann-col">
+    <div class="ann-label">Desktop : handle drag</div>
+    <div class="ann-text">La barre verticale entre les 2 colonnes passe en or au survol. Glisser gauche-droite pour ajuster la largeur. Min 180px, max 480px.</div>
+  </div>
+</div>
+
+<script>
+function showMobileThread() {
+  var frame = document.getElementById('mobile-thread-frame');
+  if (frame) frame.style.outline = '2px solid #E8940A';
+  alert('En production : le thread slide depuis la droite (translateX 100%→0). La liste slide hors de l\'ecran vers la gauche.');
+}
+function showMobileList() {
+  alert('Retour : le thread sort par la droite, la liste revient depuis la gauche.');
+}
+</script>
+
+</body>
+</html>

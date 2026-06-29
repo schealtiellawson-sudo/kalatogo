@@ -2664,77 +2664,114 @@ setTimeout(function(){
 
       <!-- ACTIVITÉ / NOTIFICATIONS -->
       <div class="dash-section" id="ds-notifications">
-        <div class="dash-header">
-          <h2>💬 Messages</h2>
-          <p>Tes échanges avec WOZALI, les messages du fondateur et tout ce qui se passe sur ton profil.</p>
-        </div>
-        <div class="dash-explainer">
-          💬 <strong>Ton espace messages.</strong> Écris à WOZALI, lis les réponses du fondateur, et surveille ce qui se passe sur ton profil — vues, contacts, avis. Chaque notification est un signal : un pic de vues après une photo ? Ta photo attire. Zéro contact depuis une semaine ? Ton profil a besoin d'un avis de plus.
-        </div>
-        <!-- Activation notifications push (PWA) -->
-        <div id="wozali-push-card" style="display:none;margin-bottom:18px;background:linear-gradient(135deg,#14100A 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,0.35);border-radius:14px;padding:16px 18px;color:#FCE0A8;">
-          <div style="display:flex;align-items:flex-start;gap:14px;">
-            <div style="font-size:30px;line-height:1;">🔔</div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:800;margin-bottom:4px;">Active les notifications</div>
-              <div id="wozali-push-status" style="font-size:13px;line-height:1.55;color:rgba(252, 224, 168,0.72);">Reçois les messages WOZALI sur ton téléphone — même quand l'app est fermée.</div>
+        <div class="dm-wrapper">
+
+          <!-- ── Colonne gauche : liste conversations ── -->
+          <div class="dm-col-left" id="dm-col-left">
+            <div class="dm-col-header">
+              <span class="dm-col-title">Messages</span>
             </div>
-            <button id="wozali-push-btn" type="button" onclick="enablePushNotifications()" style="background:#E8940A;color:#14100A;border:none;padding:10px 16px;border-radius:100px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;">Activer</button>
-          </div>
-        </div>
-        <!-- Boîte du Fondateur (messages de Schealtiel) -->
-        <div id="fondateur-inbox-block" style="display:none;margin-bottom:24px;"></div>
-
-        <!-- ✉️ Chat WOZALI — widget "Écrire à WOZALI" -->
-        <div id="wozali-chat-widget" style="margin-bottom:24px;">
-          <!-- Boutons d'action -->
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0;" id="wozali-chat-cta-row">
-            <button onclick="openWozaliChat()" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(232,148,10,0.15),rgba(232,148,10,0.05));border:1.5px solid rgba(232,148,10,0.4);color:#E8940A;padding:11px 20px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;" onmouseenter="this.style.background='rgba(232,148,10,0.22)'" onmouseleave="this.style.background='linear-gradient(135deg,rgba(232,148,10,0.15),rgba(232,148,10,0.05))'">
-              ✉️ Écrire à WOZALI
-            </button>
-            <button onclick="toggleWozaliHistory()" id="wozali-chat-history-btn" style="display:flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(252,224,168,0.15);color:rgba(252,224,168,0.5);padding:11px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;" onmouseenter="this.style.borderColor='rgba(252,224,168,0.3)';this.style.color='rgba(252,224,168,0.8)'" onmouseleave="this.style.borderColor='rgba(252,224,168,0.15)';this.style.color='rgba(252,224,168,0.5)'">
-              📜 Historique
-            </button>
-          </div>
-
-          <!-- Zone de saisie du message (cachée par défaut) -->
-          <div id="wozali-chat-compose" style="display:none;margin-top:14px;background:linear-gradient(135deg,rgba(232,148,10,0.06) 0%,rgba(20,16,10,0.8) 100%);border:1.5px solid rgba(232,148,10,0.3);border-radius:16px;padding:18px 20px;">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-              <div style="width:36px;height:36px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:18px;font-family:'DM Serif Display',serif;font-weight:900;flex-shrink:0;">W</div>
-              <div style="flex:1;">
-                <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:800;color:#FCE0A8;">Nouveau message à WOZALI</div>
-                <div style="font-size:11px;color:rgba(252,224,168,0.45);">Réponse rapide par l'IA · Questions complexes transmises au fondateur</div>
+            <div class="dm-col-search">
+              <div class="dm-search-inner">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span class="dm-search-placeholder">Rechercher...</span>
               </div>
-              <button onclick="closeWozaliChat()" style="background:transparent;border:none;color:rgba(252,224,168,0.4);font-size:18px;cursor:pointer;padding:4px;line-height:1;" title="Fermer">✕</button>
             </div>
-            <textarea id="wozali-chat-input" placeholder="Écris ta question ici... (Ex : Comment améliorer mon score ? Conditions de la Bourse de Croissance ?)" style="width:100%;min-height:90px;background:rgba(0,0,0,0.25);border:1px solid rgba(232,148,10,0.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-size:14px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;line-height:1.6;" onfocus="this.style.borderColor='rgba(232,148,10,0.5)'" onblur="this.style.borderColor='rgba(232,148,10,0.2)'" onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))sendWozaliChatMessage()"></textarea>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap;">
-              <div style="font-size:11px;color:rgba(252,224,168,0.35);">Ctrl+Entrée pour envoyer</div>
-              <button onclick="sendWozaliChatMessage()" id="wozali-chat-send-btn" style="background:#E8940A;color:#14100A;border:none;padding:10px 22px;border-radius:100px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;" onmouseenter="this.style.background='#f0a020'" onmouseleave="this.style.background='#E8940A'">
-                Envoyer ➤
-              </button>
+            <div class="dm-conv-list" id="dm-conv-list">
+              <!-- Thread WOZALI (fondateur) — toujours présent -->
+              <div class="dm-conv-item active" id="dm-conv-wozali" onclick="openDmThread('wozali')">
+                <a class="dm-conv-avatar-link" id="dm-wozali-avatar-link" href="https://wozali.africa/schealtiel" target="_blank" onclick="event.stopPropagation()" title="Voir le profil WOZALI">
+                  <div class="dm-conv-avatar">W</div>
+                  <div class="dm-online-dot"></div>
+                </a>
+                <div class="dm-conv-info">
+                  <div class="dm-conv-name-row">
+                    <a class="dm-conv-name" href="https://wozali.africa/schealtiel" target="_blank" onclick="event.stopPropagation()">WOZALI</a>
+                    <span class="dm-conv-time" id="dm-wozali-time"></span>
+                  </div>
+                  <div class="dm-conv-preview-row">
+                    <span class="dm-conv-preview" id="dm-wozali-preview">Bienvenue sur WOZALI !</span>
+                    <div class="dm-unread-badge" id="dm-wozali-badge" style="display:none;">1</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Autres conversations WOZALI (chargées dynamiquement) -->
+              <div id="dm-more-convs"></div>
             </div>
           </div>
 
-          <!-- Réponse IA (affichée après envoi) -->
-          <div id="wozali-chat-response" style="display:none;margin-top:14px;"></div>
+          <!-- ── Handle resize (desktop) ── -->
+          <div class="dm-resize-handle" id="dm-resize-handle">
+            <div class="dm-handle-bar" id="dm-handle-bar"></div>
+          </div>
 
-          <!-- Historique des échanges (caché par défaut) -->
-          <div id="wozali-chat-history" style="display:none;margin-top:14px;">
-            <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(252,224,168,0.4);margin-bottom:10px;">HISTORIQUE DES ÉCHANGES</div>
-            <div id="wozali-chat-history-list">
-              <div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">⏳ Chargement...</div>
+          <!-- ── Panneau thread ── -->
+          <div class="dm-thread-panel" id="dm-thread-panel">
+
+            <!-- Empty state -->
+            <div class="dm-empty-state" id="dm-empty-state">
+              <div class="dm-empty-icon">💬</div>
+              <div class="dm-empty-title">Tes messages</div>
+              <div class="dm-empty-sub">Sélectionne une conversation pour lire et répondre.</div>
             </div>
-          </div>
-        </div>
 
-        <div id="notifs-list">
-          <div style="text-align:center;padding:48px 0;color:#999;">
-            <div style="font-size:48px;margin-bottom:12px;">🔔</div>
-            <div style="font-weight:600;margin-bottom:6px;">Pas encore d'activité</div>
-            <div style="font-size:13px;">Tu verras ici les likes, commentaires et vues sur ton profil.</div>
-          </div>
-        </div>
+            <!-- Contenu thread (masqué jusqu'à sélection) -->
+            <div class="dm-thread-content" id="dm-thread-content" style="display:none;">
+
+              <!-- Header thread -->
+              <div class="dm-thread-header">
+                <button class="dm-back-btn" onclick="closeDmThread()" aria-label="Retour">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <a class="dm-thread-name-link" id="dm-thread-profile-link" href="https://wozali.africa/schealtiel" target="_blank">
+                  <div class="dm-thread-avatar" id="dm-thread-avatar">W</div>
+                  <div class="dm-thread-name-block">
+                    <span class="dm-thread-name" id="dm-thread-name">WOZALI</span>
+                    <span class="dm-thread-status">En ligne</span>
+                  </div>
+                </a>
+                <a href="https://wozali.africa/schealtiel" target="_blank" style="text-decoration:none;" id="dm-profile-btn-link">
+                  <button class="dm-profile-btn">Voir profil</button>
+                </a>
+              </div>
+
+              <!-- Notifications push (banner subtil dans le thread) -->
+              <div id="wozali-push-card" style="display:none;padding:10px 16px;background:rgba(232,148,10,.06);border-bottom:1px solid rgba(232,148,10,.12);">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <span style="font-size:20px;">🔔</span>
+                  <div style="flex:1;font-size:12px;color:rgba(252,224,168,.7);font-family:'Geist',sans-serif;" id="wozali-push-status">Active les notifications pour recevoir les messages même quand l'app est fermée.</div>
+                  <button id="wozali-push-btn" onclick="enablePushNotifications()" style="background:#E8940A;color:#14100A;border:none;padding:6px 12px;border-radius:20px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;">Activer</button>
+                </div>
+              </div>
+
+              <!-- Liste messages -->
+              <div class="dm-messages-list" id="dm-messages-list">
+                <div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;font-family:'Geist',sans-serif;">Chargement...</div>
+              </div>
+
+              <!-- Barre de composition -->
+              <div class="dm-compose-bar">
+                <div class="dm-compose-avatar" id="dm-compose-avatar">?</div>
+                <div class="dm-compose-input-wrap">
+                  <textarea id="wozali-chat-input" class="dm-compose-input" placeholder="Écrire à WOZALI..." rows="1"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDmMessage();}"
+                    oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+                </div>
+                <button class="dm-send-btn" id="dm-send-btn" onclick="sendDmMessage()" title="Envoyer">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+
+            </div><!-- /dm-thread-content -->
+          </div><!-- /dm-thread-panel -->
+
+        </div><!-- /dm-wrapper -->
+
+        <!-- Éléments conservés (utilisés par les fonctions JS existantes) -->
+        <div id="fondateur-inbox-block" style="display:none;"></div>
+        <div id="wozali-chat-response" style="display:none;"></div>
+        <div id="wozali-chat-history" style="display:none;"><div id="wozali-chat-history-list"></div></div>
+        <div id="notifs-list" style="display:none;"></div>
       </div>
 
       <!-- DISPONIBILITÉ -->

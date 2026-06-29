@@ -6530,3 +6530,247 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
   #dash-right-panel.visible { display:block; }
   .dashboard-main { padding-right:272px !important; }
 }
+
+/* ═══════════════════════════════════════════
+   MESSAGERIE DM — Interface 2 colonnes
+   (section ds-notifications)
+═══════════════════════════════════════════ */
+
+/* Section plein écran — annule padding du dashboard-main */
+#ds-notifications.active {
+  display: flex !important;
+  flex-direction: column;
+  margin: -36px;
+  height: calc(100vh - 68px);
+  overflow: hidden;
+  background: #0d0d0d;
+  animation: none !important;
+}
+
+/* Wrapper flex principal */
+.dm-wrapper { display:flex; height:100%; overflow:hidden; }
+
+/* ── Colonne gauche (liste conversations) ── */
+.dm-col-left {
+  width: 280px; min-width:180px; max-width:440px;
+  background:#0d0d0d; display:flex; flex-direction:column;
+  flex-shrink:0; overflow:hidden;
+  border-right:1px solid rgba(232,148,10,.08);
+}
+.dm-col-header {
+  padding:14px 16px 10px; border-bottom:1px solid rgba(232,148,10,.07);
+  display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+}
+.dm-col-title { font-family:'DM Serif Display',serif; font-size:16px; color:#FCE0A8; font-weight:700; }
+.dm-col-new-btn {
+  background:rgba(232,148,10,.12); border:1px solid rgba(232,148,10,.25); color:#E8940A;
+  border-radius:8px; padding:5px 10px; font-size:11px; font-weight:700; cursor:pointer;
+  font-family:'Geist',sans-serif; transition:background .15s;
+}
+.dm-col-new-btn:hover { background:rgba(232,148,10,.22); }
+.dm-col-search { padding:8px 12px; flex-shrink:0; }
+.dm-search-inner {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06);
+  border-radius:10px; padding:7px 12px; display:flex; align-items:center; gap:8px;
+}
+.dm-search-placeholder { font-size:12px; color:rgba(255,255,255,.25); font-family:'Geist',sans-serif; }
+.dm-conv-list {
+  flex:1; overflow-y:auto;
+  scrollbar-width:thin; scrollbar-color:rgba(232,148,10,.12) transparent;
+}
+
+/* Item conversation */
+.dm-conv-item {
+  display:flex; align-items:center; gap:11px; padding:10px 14px;
+  cursor:pointer; border-bottom:1px solid rgba(255,255,255,.03); transition:background .15s;
+  border-left:3px solid transparent;
+}
+.dm-conv-item:hover { background:rgba(255,255,255,.03); }
+.dm-conv-item.active { background:rgba(232,148,10,.07); border-left-color:#E8940A; }
+.dm-conv-avatar-link { text-decoration:none; display:block; flex-shrink:0; position:relative; }
+.dm-conv-avatar {
+  width:44px; height:44px; border-radius:50%;
+  background:linear-gradient(135deg,#E8940A,#b86a00);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Serif Display',serif; font-style:italic; font-size:18px;
+  font-weight:900; color:#0A0A0A;
+}
+.dm-online-dot {
+  position:absolute; bottom:0; right:0; width:12px; height:12px;
+  border-radius:50%; background:#22c55e; border:2px solid #0d0d0d;
+}
+.dm-conv-info { flex:1; min-width:0; }
+.dm-conv-name-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+.dm-conv-name {
+  font-size:13px; font-weight:700; color:#FFF; font-family:'Geist',sans-serif;
+  text-decoration:none;
+}
+.dm-conv-name:hover { text-decoration:underline; text-decoration-color:rgba(232,148,10,.5); text-underline-offset:2px; }
+.dm-conv-time { font-size:10px; color:rgba(255,255,255,.3); font-family:'Geist Mono',monospace; white-space:nowrap; }
+.dm-conv-preview-row { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+.dm-conv-preview { font-size:12px; color:rgba(255,255,255,.45); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px; }
+.dm-unread-badge {
+  background:#E8940A; min-width:18px; height:18px; border-radius:9px;
+  font-size:10px; font-weight:800; color:#0A0A0A;
+  display:flex; align-items:center; justify-content:center; padding:0 5px;
+  flex-shrink:0; font-family:'Geist Mono',monospace;
+}
+
+/* ── Handle de resize ── */
+.dm-resize-handle {
+  width:5px; min-width:5px; background:rgba(232,148,10,.06);
+  cursor:col-resize; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .15s;
+}
+.dm-resize-handle:hover, .dm-resize-handle.dragging { background:rgba(232,148,10,.3); }
+.dm-handle-bar { width:2px; height:36px; border-radius:2px; background:rgba(232,148,10,.2); transition:background .15s; }
+.dm-resize-handle:hover .dm-handle-bar, .dm-resize-handle.dragging .dm-handle-bar { background:rgba(232,148,10,.8); }
+
+/* ── Panneau thread ── */
+.dm-thread-panel {
+  flex:1; display:flex; flex-direction:column; overflow:hidden;
+  background:#14100A; min-width:0;
+}
+
+/* Empty state */
+.dm-empty-state {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:12px;
+}
+.dm-empty-icon { font-size:40px; }
+.dm-empty-title { font-family:'DM Serif Display',serif; font-size:20px; color:rgba(252,224,168,.6); }
+.dm-empty-sub { font-size:13px; color:rgba(252,224,168,.3); text-align:center; max-width:260px; line-height:1.5; }
+
+/* Thread content */
+.dm-thread-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+/* Thread header */
+.dm-thread-header {
+  padding:11px 16px; border-bottom:1px solid rgba(232,148,10,.07);
+  display:flex; align-items:center; gap:10px; flex-shrink:0; background:#0f0b06;
+}
+.dm-back-btn {
+  display:none; background:transparent; border:none; padding:4px;
+  cursor:pointer; color:rgba(255,255,255,.65); align-items:center; flex-shrink:0;
+}
+.dm-thread-name-link {
+  display:flex; align-items:center; gap:10px; text-decoration:none; flex:1; cursor:pointer;
+}
+.dm-thread-avatar {
+  width:36px; height:36px; border-radius:50%;
+  background:linear-gradient(135deg,#E8940A,#b86a00);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Serif Display',serif; font-style:italic;
+  font-size:16px; font-weight:900; color:#0A0A0A; flex-shrink:0;
+}
+.dm-thread-name-block { flex:1; min-width:0; }
+.dm-thread-name {
+  display:block; font-size:14px; font-weight:700; color:#FFF; font-family:'Geist',sans-serif;
+  text-decoration:underline; text-underline-offset:2px; text-decoration-color:rgba(232,148,10,.3);
+}
+.dm-thread-status { display:block; font-size:11px; color:#22c55e; font-family:'Geist',sans-serif; }
+.dm-profile-btn {
+  background:rgba(232,148,10,.1); border:1px solid rgba(232,148,10,.25); color:#E8940A;
+  border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700; cursor:pointer;
+  font-family:'Geist',sans-serif; transition:background .15s; white-space:nowrap;
+}
+.dm-profile-btn:hover { background:rgba(232,148,10,.22); }
+
+/* Liste messages */
+.dm-messages-list {
+  flex:1; overflow-y:auto; padding:16px;
+  display:flex; flex-direction:column; gap:14px;
+  scrollbar-width:thin; scrollbar-color:rgba(232,148,10,.08) transparent;
+}
+.dm-date-sep { display:flex; align-items:center; gap:10px; margin:2px 0; }
+.dm-date-sep-line { flex:1; height:1px; background:rgba(255,255,255,.05); }
+.dm-date-sep-label {
+  font-size:10px; color:rgba(255,255,255,.22); font-family:'Geist Mono',monospace; letter-spacing:1px; white-space:nowrap;
+}
+
+/* Bubble entrant (WOZALI) */
+.dm-msg-in { display:flex; gap:9px; align-items:flex-end; }
+.dm-msg-avatar-sm {
+  width:28px; height:28px; border-radius:50%;
+  background:linear-gradient(135deg,#E8940A,#b86a00);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Serif Display',serif; font-style:italic; font-size:12px;
+  font-weight:900; color:#0A0A0A; flex-shrink:0;
+}
+.dm-msg-in-body { max-width:75%; }
+.dm-msg-time { font-size:10px; color:rgba(255,255,255,.26); margin-bottom:4px; font-family:'Geist',sans-serif; }
+.dm-bubble-in {
+  background:#1E180E; border:1px solid rgba(232,148,10,.15);
+  border-radius:2px 14px 14px 14px; padding:11px 14px;
+  font-size:13px; color:#FCE0A8; line-height:1.65; font-family:'Geist',sans-serif;
+}
+.dm-bubble-in.unread { border-color:rgba(232,148,10,.35); background:#1E1208; box-shadow:0 0 0 1px rgba(232,148,10,.07); }
+.dm-unread-label { display:flex; align-items:center; gap:5px; margin-top:4px; }
+.dm-unread-dot { width:7px; height:7px; border-radius:50%; background:#E8940A; flex-shrink:0; }
+.dm-unread-text { font-size:10px; color:#E8940A; font-weight:600; font-family:'Geist',sans-serif; }
+
+/* Bubble sortant (utilisateur) */
+.dm-msg-out { display:flex; justify-content:flex-end; gap:9px; align-items:flex-end; }
+.dm-msg-out-body { max-width:75%; display:flex; flex-direction:column; align-items:flex-end; }
+.dm-bubble-out {
+  background:rgba(232,148,10,.14); border:1px solid rgba(232,148,10,.22);
+  border-radius:14px 2px 14px 14px; padding:11px 14px;
+  font-size:13px; color:#FCE0A8; line-height:1.65; font-family:'Geist',sans-serif;
+}
+
+/* Barre de composition */
+.dm-compose-bar {
+  padding:10px 14px 10px; border-top:1px solid rgba(232,148,10,.06);
+  flex-shrink:0; background:#0f0b06;
+  display:flex; align-items:center; gap:10px;
+}
+.dm-compose-avatar {
+  width:30px; height:30px; border-radius:50%;
+  background:rgba(232,148,10,.18); border:1px solid rgba(232,148,10,.28);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:#E8940A; flex-shrink:0; font-family:'Geist',sans-serif;
+}
+.dm-compose-input-wrap {
+  flex:1; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07);
+  border-radius:22px; padding:0 14px; display:flex; align-items:center;
+  transition:border-color .15s;
+}
+.dm-compose-input-wrap:focus-within { border-color:rgba(232,148,10,.3); }
+.dm-compose-input {
+  flex:1; background:transparent; border:none; outline:none; color:#FCE0A8;
+  font-size:13px; font-family:'Geist',sans-serif; resize:none;
+  padding:9px 0; line-height:1.5; max-height:100px; overflow-y:auto; scrollbar-width:none;
+}
+.dm-compose-input::placeholder { color:rgba(252,224,168,.28); }
+.dm-send-btn {
+  width:38px; height:38px; border-radius:50%; background:#E8940A; border:none;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  flex-shrink:0; transition:background .15s;
+}
+.dm-send-btn:hover { background:#f0a020; }
+.dm-send-btn:disabled { background:rgba(232,148,10,.28); cursor:not-allowed; }
+
+/* ── MOBILE : navigation WhatsApp ── */
+@media (max-width: 768px) {
+  #ds-notifications.active {
+    margin: -20px -20px;
+    height: calc(100vh - 126px);
+  }
+  .dm-wrapper { position:relative; }
+  .dm-col-left {
+    width:100% !important; max-width:100% !important;
+    position:absolute; inset:0; z-index:2;
+    transition:transform .28s cubic-bezier(.25,.46,.45,.94);
+  }
+  .dm-col-left.dm-thread-open { transform:translateX(-100%); }
+  .dm-resize-handle { display:none !important; }
+  .dm-thread-panel {
+    position:absolute; inset:0; z-index:1;
+    transform:translateX(100%);
+    transition:transform .28s cubic-bezier(.25,.46,.45,.94);
+  }
+  .dm-thread-panel.dm-thread-open { transform:translateX(0); z-index:3; }
+  .dm-back-btn { display:flex !important; }
+  .dm-msg-in-body, .dm-msg-out-body { max-width:85%; }
+}
