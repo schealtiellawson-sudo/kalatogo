@@ -57,7 +57,7 @@ Période de démarrage : du 1er août 2026 jusqu'à nouvel ordre.
 ## Outils fournis
 
 - Lien de parrainage personnel WOZALI
-- Scripts d'approche terrain (WhatsApp)
+- Scripts d'approche terrain (face-à-face)
 - Accès au groupe Agents terrain WOZALI (Lomé ou Cotonou)
 - Formation directe avec le fondateur avant le démarrage
 

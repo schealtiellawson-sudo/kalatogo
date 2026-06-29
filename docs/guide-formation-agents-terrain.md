@@ -59,7 +59,7 @@ Le paiement arrive le 5 du mois suivant sur ton Mobile Money.
 Compte : un membre passé au plan Pro qui se reconnecte au moins une fois dans les 30 jours.
 Ne compte pas : un membre gratuit. Un profil créé mais jamais passé Pro. Un compte inactif.
 
-**Conséquence pratique :** tu ne t'arrêtes pas à la création du profil. Tu suis tes membres les premiers jours. Un message WhatsApp de suivi suffit.
+**Conséquence pratique :** ton travail s'arrête quand le profil est en ligne. Tu passes au contact suivant. Le suivi des activations (vues, passage Pro) est visible dans ton dashboard WOZALI.
 
 ---
 
@@ -122,10 +122,10 @@ Durée : 5 à 10 minutes maximum.
 "Aucune. L'inscription est gratuite. Tu ne paies rien, tu ne me donnes rien. Je crée juste ton profil."
 
 **"Je n'ai pas de smartphone."**
-"On peut le faire avec mon téléphone. Ton profil sera en ligne, tu pourras le partager par WhatsApp."
+"On peut le faire avec mon téléphone. Ton profil sera en ligne, tu pourras le partager."
 
 **"Je n'ai pas le temps maintenant."**
-"Ça prend 5 minutes. Si tu veux, on le fait maintenant et c'est réglé."
+"D'accord. Voici mon numéro [DONNE LE TIEN]. On est aussi sur Instagram et TikTok @wozali. Tu nous contactes quand tu es prêt."
 
 **"C'est pour les grandes entreprises ça."**
 "C'est exactement le contraire. C'est fait pour les gens qui travaillent sans réseau. Pour toi."
@@ -134,13 +134,13 @@ Durée : 5 à 10 minutes maximum.
 
 ## MODULE 4 : Suivi et résultats (10 min)
 
-### Le suivi des membres (dans les 7 premiers jours)
+### Après l'inscription : pas de suivi agent
 
-J+1 : message WhatsApp pour confirmer que le profil est en ligne.
-J+3 : message pour vérifier si le membre a reçu des vues.
-J+7 : message pour demander si des clients ont contacté via le profil.
+Ton travail s'arrête quand le profil est en ligne. Tu ne rappelles pas le membre à J+1, J+3 ou J+7. Tu ne collectes pas son numéro pour faire du suivi. Tu passes au contact suivant.
 
-Tu n'as pas besoin d'en faire plus. Trois messages suffisent.
+Si le membre veut te contacter, il a ton numéro - tu le lui as donné s'il n'était pas prêt à s'inscrire sur place. C'est lui qui décide. Pas toi.
+
+Le suivi de l'activation (vues, premier avis, passage Pro) est visible dans ton dashboard WOZALI.
 
 ### Ce que tu remontés dans le groupe
 
