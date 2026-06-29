@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOZALI — L'Angle Dignité — Formation WOZALI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    font-family: 'Geist', sans-serif;
+    color: #1a1008;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 24px rgba(20,16,10,0.10);
+  }
+
+  .header {
+    background: #14100A;
+    border-bottom: 3px solid #E8940A;
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: #E8940A;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    font-style: normal;
+    color: #FCE0A8;
+  }
+
+  .doc-type {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #FCE0A8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .content {
+    padding: 48px 40px;
+  }
+
+  .doc-number {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .doc-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: #14100A;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .doc-subtitle {
+    font-size: 15px;
+    color: #6b5a3e;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+
+  section {
+    margin-bottom: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #f0e8d8;
+  }
+
+  section:last-child {
+    border-bottom: none;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #14100A;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2a1f12;
+    margin-bottom: 14px;
+  }
+
+  p:last-child { margin-bottom: 0; }
+
+  .highlight {
+    background: #14100A;
+    border-left: 4px solid #E8940A;
+    padding: 18px 22px;
+    border-radius: 0 8px 8px 0;
+    margin: 24px 0;
+  }
+
+  .highlight p {
+    color: #FCE0A8;
+    font-size: 15px;
+    margin-bottom: 0;
+  }
+
+  .alert-box {
+    background: #fff8ec;
+    border: 1px solid #E8940A;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 24px 0;
+  }
+
+  .alert-box strong {
+    display: block;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 8px;
+  }
+
+  .script-block {
+    background: #14100A;
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .script-block .script-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: #E8940A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .script-block p {
+    color: #FCE0A8;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 10px;
+  }
+
+  .script-block em {
+    color: rgba(252,224,168,.5);
+    font-size: 12px;
+    font-style: normal;
+  }
+
+  ul {
+    margin: 12px 0 14px 0;
+    padding-left: 22px;
+  }
+
+  li {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #2a1f12;
+    margin-bottom: 6px;
+  }
+
+  .avatar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .avatar-card {
+    background: #faf6f0;
+    border: 1px solid #e8d9c0;
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  .avatar-card .avatar-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #E8940A;
+    margin-bottom: 8px;
+  }
+
+  .avatar-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #14100A;
+    margin-bottom: 8px;
+  }
+
+  .avatar-card p {
+    font-size: 13px;
+    color: #5a4530;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+
+  .protocol-steps {
+    counter-reset: steps;
+    margin: 20px 0;
+  }
+
+  .protocol-step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: #E8940A;
+    color: #14100A;
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-content p {
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  .step-content strong {
+    display: block;
+    font-size: 14px;
+    color: #14100A;
+    margin-bottom: 4px;
+  }
+
+  .forbidden-list {
+    background: #fff5f5;
+    border: 1px solid rgba(239,68,68,.2);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+
+  .forbidden-list li {
+    color: #7f1d1d;
+  }
+
+  .footer {
+    background: #14100A;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: rgba(252,224,168,.4);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .footer-right {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: #E8940A;
+  }
+
+  @media (max-width: 600px) {
+    .content { padding: 32px 20px; }
+    .header { padding: 20px 20px; }
+    .footer { padding: 14px 20px; }
+    .avatar-grid { grid-template-columns: 1fr; }
+    .doc-title { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="header">
+    <div class="logo">W<span>OZALI</span></div>
+    <div class="doc-type">Formation Agents Terrain — Doc 21/21</div>
+  </div>
+
+  <div class="content">
+    <div class="doc-number">Document 21 — Angle Dignité</div>
+    <div class="doc-title">L'Angle Dignité : trouver du travail sans vendre sa dignité pour l'avoir</div>
+    <div class="doc-subtitle">Un troisième avatar à atteindre. Un argument supplémentaire. Une vraie raison d'exister pour ceux qui ont subi.</div>
+
+    <section>
+      <h2>Ce que tu sais déjà. Ce que tu ne sais pas encore.</h2>
+      <p>Tu connais les deux premiers avatars : l'artisan qui cherche des clients (la visibilité), et le chercheur d'emploi qui veut trouver un poste (l'emploi). Ce sont les personnes vers qui tu allais jusqu'ici.</p>
+      <p>Il en existe un troisième. Il est partout dans ta zone. Tu le croises sans le voir.</p>
+
+      <div class="avatar-grid">
+        <div class="avatar-card">
+          <div class="avatar-label">Avatar 1 — connu</div>
+          <h3>L'artisan invisible</h3>
+          <p>Bon travailleur, pas de clients parce qu'il n'est pas sur internet. WOZALI lui apporte de la visibilité.</p>
+        </div>
+        <div class="avatar-card">
+          <div class="avatar-label">Avatar 2 — connu</div>
+          <h3>Le chercheur d'emploi</h3>
+          <p>Diplômé ou pas, cherche un poste. WOZALI Jobs lui donne accès aux offres vérifiées.</p>
+        </div>
+        <div class="avatar-card" style="grid-column: 1 / -1; border-color: #E8940A; background: #fffbf2;">
+          <div class="avatar-label">Avatar 3 — angle dignité</div>
+          <h3>Celui qui a vécu un abus de recrutement</h3>
+          <p>On lui a demandé de payer pour travailler. On lui a promis un emploi qui n'existait pas. On lui a imposé des conditions inacceptables. Il a encaissé en silence parce qu'il n'avait nulle part où aller. WOZALI est la première plateforme qui lui offre une safe zone.</p>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <p>"WOZALI ne te trouve pas juste du travail plus vite. WOZALI te trouve du travail sans vendre ta dignité pour l'avoir."</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Comment identifier l'avatar dignité sur le terrain</h2>
+      <p>Il ne va pas te le dire spontanément. Tu dois créer le contexte pour qu'il s'exprime. Les signaux visibles :</p>
+      <ul>
+        <li>La personne a cherché du travail plusieurs fois sans résultat et elle est devenue méfiante</li>
+        <li>Elle dit des choses comme "j'ai déjà essayé", "on m'a arnaqué avant", "je ne fais plus confiance"</li>
+        <li>Elle hésite à l'idée de s'inscrire sur une plateforme — peur des arnaques</li>
+        <li>Elle a entendu parler de quelqu'un à qui on a demandé de l'argent pour un emploi dans le quartier</li>
+        <li>Elle évite de répondre quand tu parles de WOZALI Jobs, mais reste là</li>
+      </ul>
+      <p>Ces signaux ne sont pas un refus. C'est quelqu'un qui a été blessé et qui cherche à savoir si tu es différent.</p>
+    </section>
+
+    <section>
+      <h2>L'angle sécurité dans ton pitch</h2>
+      <p>Quand tu sens que tu parles à l'avatar dignité, tu adaptes ton entrée. Tu n'ouvres pas avec la visibilité ou l'emploi. Tu ouvres avec la protection.</p>
+
+      <div class="script-block">
+        <div class="script-label">Script — angle dignité (ouverture)</div>
+        <p>"T'as déjà payé pour avoir un emploi ?"</p>
+        <p><em>— Laisser répondre. Ne pas combler le silence.</em></p>
+        <p>"C'est du vol. Et c'est courant ici. Le problème c'est que jusqu'ici il n'y avait nulle part où le dire."</p>
+        <p>"Sur WOZALI, les employeurs sont vérifiés. Et si quelqu'un te demande de l'argent pour t'embaucher, la communauté le voit. Son profil est signalé publiquement."</p>
+        <p>"Tu t'inscris. Tu trouves du travail. Sans rien devoir à personne sauf ton travail."</p>
+        <p><em>— Pause. Attendre la réaction.</em></p>
+      </div>
+
+      <div class="alert-box">
+        <strong>Règle absolue</strong>
+        Tu ne promets pas à la personne que WOZALI va résoudre son problème passé. Tu ne lui demandes pas de te raconter son histoire. Tu lui montres que l'outil existe. C'est tout.
+      </div>
+
+      <h2 style="margin-top: 32px;">Réponses aux objections — angle dignité</h2>
+      <ul>
+        <li><strong>"J'ai déjà essayé une plateforme, on m'a arnaqué."</strong> — "Sur WOZALI, l'inscription est gratuite. Tu ne me donnes rien. Les employeurs qui demandent de l'argent sont signalés par la communauté et suspendus. C'est différent."</li>
+        <li><strong>"Comment je sais que les offres sont vraies ?"</strong> — "Les recruteurs sont vérifiés. Ceux qui n'ont jamais été signalés ont un badge 'Recruteur de confiance'. Tu peux voir leur profil avant de postuler."</li>
+        <li><strong>"Et si ça arrive quand même ?"</strong> — "Il y a un Espace Témoignage sur wozali.africa. Anonyme. Tu témoignes. La communauté te dit 'Je te crois'. L'admin modère et suspend. Tu n'es plus seul(e)."</li>
+        <li><strong>"Je vais y réfléchir."</strong> — "Pas de problème. Si tu entends parler d'un abus dans ton quartier, tu peux aller sur wozali.africa/temoignages. Même sans être inscrit. C'est ouvert à tout le monde." Puis tu pars.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Signaler pour protéger ta zone</h2>
+      <p>Tu n'es pas juste là pour inscrire des gens. Tu es le premier maillon de confiance dans ta zone. Si tu entends parler d'un abus de recrutement — une avance demandée, des conditions abusives, une promesse non tenue — tu as un rôle.</p>
+
+      <div class="protocol-steps">
+        <div class="protocol-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Écouter sans promettre</strong>
+            <p>Si quelqu'un te parle d'un abus, écoute. Ne dis pas "je vais régler ça" ou "je connais quelqu'un". Tu écoutes et tu orientes.</p>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Orienter vers /temoignages</strong>
+            <p>Dis-lui : "Il y a un espace sur WOZALI pour ça. Anonyme. Tu peux témoigner même sans être inscrit. wozali.africa/temoignages." C'est tout.</p>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <strong>Remonter au responsable si c'est grave</strong>
+            <p>Si tu entends parler d'un recruteur qui opère activement dans ta zone et arnaque des gens, tu en parles à ton responsable terrain dans les 24h. Pas de confrontation directe de ta part.</p>
+          </div>
+        </div>
+        <div class="protocol-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <strong>Tu ne joues pas l'enquêteur</strong>
+            <p>Tu ne cherches pas à identifier des recruteurs abusifs, tu ne fais pas de confrontation, tu ne promets pas de justice. Tu orientes. WOZALI s'occupe du reste.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <p>Un agent terrain WOZALI qui protège sa zone, c'est un agent terrain qui double sa crédibilité dans ce quartier. Les gens font confiance à ceux qui les défendent, pas seulement à ceux qui leur vendent quelque chose.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Ce que tu ne fais pas</h2>
+      <ul class="forbidden-list">
+        <li>Tu n'inventes pas de témoignages pour convaincre quelqu'un de s'inscrire</li>
+        <li>Tu ne répètes pas l'histoire de quelqu'un d'autre à des tiers — même dans ta zone</li>
+        <li>Tu ne confrontes pas un recruteur signalé — jamais, même si tu le connais</li>
+        <li>Tu ne promets pas à la victime que son cas va être réglé — tu n'as pas ce pouvoir</li>
+        <li>Tu ne parles pas de cas précis quand tu fais ton pitch — l'angle dignité reste général</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>La phrase clé à retenir</h2>
+      <div class="highlight">
+        <p>"Sur WOZALI, si quelqu'un te demande de l'argent pour t'embaucher, la communauté le voit."</p>
+      </div>
+      <p>C'est la phrase. Elle est courte. Elle est vraie. Elle dit tout ce que l'avatar dignité a besoin d'entendre.</p>
+      <p>L'Espace Témoignage est sur wozali.africa/temoignages. Anonyme. Ouvert à tous. Tu peux y envoyer n'importe qui dans ta zone, inscrit ou non.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">FORMATION AGENTS TERRAIN WOZALI - DOC 21/21</div>
+    <div class="footer-right">wozali.africa</div>
+  </div>
+</div>
+
+</body>
+</html>

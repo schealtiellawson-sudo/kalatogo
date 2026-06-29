@@ -14185,6 +14185,7 @@ const AGENT_DOCUMENTS = [
   { slug: '18-commission-battle',     titre: 'Ta commission et le Battle — comprendre et maximiser',  desc: 'Comment ton score monte et ta paie augmente.' },
   { slug: '19-semaine-terrain',       titre: 'Organiser ta semaine terrain + fixer ses objectifs',    desc: 'Planifier pour ne pas improviser.' },
   { slug: '20-passer-a-50',           titre: 'Atteindre 100 000 FCFA par mois : l\'effet cumulé, le suivi membres et les KPI',  desc: 'Le système de suivi qui fait la différence.' },
+  { slug: '21-angle-dignite',          titre: 'L\'Angle Dignité : trouver du travail sans vendre sa dignité',                    desc: 'Le 3e avatar. Le script sécurité. Comment protéger ta zone.' },
 ];
 
 // Cache local des slugs lus par l'agent
@@ -15780,6 +15781,7 @@ const AMBASSADEUR_DOCUMENTS = [
   { slug: 'ambs-11-recompenses',        num: '11', titre: 'Les récompenses mensuelles',   desc: '500 000 FCFA/mois - comment en parler sans survendre.' },
   { slug: 'ambs-12-wozali-jobs',        num: '12', titre: 'WOZALI Jobs',                  desc: 'Le module emploi - double ta cible de contenu.' },
   { slug: 'ambs-13-score-wozali',       num: '13', titre: 'Le Score WOZALI',              desc: 'Le coeur du système. Ton argument le plus fort.' },
+  { slug: 'ambs-14-angle-dignite',      num: '14', titre: 'L\'Angle Dignité',              desc: 'Un 3e avatar. Les phrases clés. Ce qu\'on ne dit pas.' },
 ];
 
 // Cache local des slugs lus par l'ambassadeur connecté
