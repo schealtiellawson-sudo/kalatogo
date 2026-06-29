@@ -4790,7 +4790,7 @@ function closeDmThread() {
   document.getElementById('dm-thread-panel')?.classList.remove('dm-thread-open');
 }
 
-function loadDmMessages(threadId) {
+async function loadDmMessages(threadId) {
   const list = document.getElementById('dm-messages-list');
   if (!list) return;
 
@@ -4799,45 +4799,88 @@ function loadDmMessages(threadId) {
     return;
   }
 
-  const messages = _getFondateurMessages();
-  let html = '<div class="dm-date-sep"><div class="dm-date-sep-line"></div><span class="dm-date-sep-label">MESSAGES</span><div class="dm-date-sep-line"></div></div>';
-
   const senderNom     = window._fondateurNom     || 'Schealtiel';
   const senderInitial = window._fondateurInitial || 'S';
 
-  if (messages.length === 0) {
+  // Welcome sequence from Notifications JSON
+  const welcomeMsgs = _getFondateurMessages();
+
+  // Chat history from API (user replies + fondateur responses)
+  let chatItems = [];
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/chat-wozali-history');
+    if (r && r.ok) {
+      const data = await r.json();
+      chatItems = data.messages || [];
+    }
+  } catch(e) {
+    console.warn('[dm] history fetch failed:', e);
+  }
+
+  // Build unified display items sorted chronologically
+  const displayItems = [];
+  welcomeMsgs.forEach(m => {
+    displayItems.push({
+      kind: 'welcome',
+      at: m.created_at ? new Date(m.created_at) : new Date(0),
+      id: m.id,
+      read: m.read,
+      title: m.title,
+      body: m.body,
+    });
+  });
+  chatItems.forEach(m => {
+    const at = new Date(m.created_at);
+    displayItems.push({ kind: 'user_sent', at, body: m.message });
+    if (m.reponse) {
+      displayItems.push({ kind: 'fondateur_reply', at: new Date(m.updated_at || m.created_at), body: m.reponse });
+    } else if (m.en_attente) {
+      displayItems.push({ kind: 'pending', at: new Date(m.updated_at || m.created_at) });
+    }
+  });
+  displayItems.sort((a, b) => a.at - b.at);
+
+  let html = '<div class="dm-date-sep"><div class="dm-date-sep-line"></div><span class="dm-date-sep-label">MESSAGES</span><div class="dm-date-sep-line"></div></div>';
+
+  if (displayItems.length === 0) {
     html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', false);
   } else {
-    messages.forEach((m, i) => {
-      const dateStr = m.created_at
-        ? new Date(m.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+    displayItems.forEach((item, i) => {
+      const dateStr = item.at.getTime() > 0
+        ? item.at.toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
         : '';
-      const isLast  = i === messages.length - 1;
-      const isUnread = !m.read && isLast;
-      const title   = m.title ? `<strong>${m.title.replace(/</g,'&lt;')}</strong>\n` : '';
-      const body    = (m.body || '').replace(/</g,'&lt;');
-      html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, isUnread);
-      if (isUnread) markFondateurMessageRead(m.id);
+      if (item.kind === 'welcome') {
+        const isLast   = i === displayItems.length - 1;
+        const isUnread = !item.read && isLast;
+        const title    = item.title ? `<strong>${item.title.replace(/</g,'&lt;')}</strong>\n` : '';
+        const body     = (item.body || '').replace(/</g,'&lt;');
+        html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, isUnread);
+        if (isUnread) markFondateurMessageRead(item.id);
+      } else if (item.kind === 'user_sent') {
+        html += _dmBubbleOut(item.body, dateStr);
+      } else if (item.kind === 'fondateur_reply') {
+        html += _dmBubbleIn(senderNom, senderInitial, item.body.replace(/</g,'&lt;'), dateStr, false);
+      } else if (item.kind === 'pending') {
+        html += `<div style="text-align:center;padding:8px 0 4px;font-style:italic;font-size:11px;color:rgba(252,224,168,0.3);font-family:'Geist',sans-serif;">Message envoyé, en attente de réponse...</div>`;
+      }
     });
   }
 
   list.innerHTML = html;
   setTimeout(() => { list.scrollTop = list.scrollHeight; }, 60);
 
-  // Mettre à jour badge + preview dans la liste
-  const unread = messages.filter(m => !m.read).length;
+  // Update badge + preview
+  const unread = welcomeMsgs.filter(m => !m.read).length;
   const badge  = document.getElementById('dm-wozali-badge');
   if (badge) { badge.style.display = unread > 0 ? 'flex' : 'none'; badge.textContent = String(unread); }
-  const preview = document.getElementById('dm-wozali-preview');
-  if (preview && messages.length > 0) {
-    const last = messages[messages.length - 1];
-    preview.textContent = (last.title || last.body || '').slice(0, 42) + '…';
-  }
-  const timeEl = document.getElementById('dm-wozali-time');
-  if (timeEl && messages.length > 0) {
-    const last = messages[messages.length - 1];
-    if (last.created_at) {
-      timeEl.textContent = new Date(last.created_at).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  if (displayItems.length > 0) {
+    const last = displayItems[displayItems.length - 1];
+    const previewText = last.body || last.title || (last.kind === 'pending' ? 'En attente de réponse...' : '');
+    const preview = document.getElementById('dm-wozali-preview');
+    if (preview && previewText) preview.textContent = previewText.slice(0, 42) + (previewText.length > 42 ? '…' : '');
+    const timeEl = document.getElementById('dm-wozali-time');
+    if (timeEl && last.at.getTime() > 0) {
+      timeEl.textContent = last.at.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
     }
   }
 }
@@ -4880,35 +4923,15 @@ async function sendDmMessage() {
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
 
-  const typingEl = document.createElement('div');
-  typingEl.className = 'dm-msg-in'; typingEl.id = 'dm-typing';
-  typingEl.innerHTML = `<div class="dm-msg-avatar-sm">W</div><div class="dm-bubble-in" style="color:rgba(252,224,168,.35);font-style:italic;font-family:'Geist',sans-serif;">…</div>`;
-  list.appendChild(typingEl); list.scrollTop = list.scrollHeight;
-
   try {
-    const resp = await wozaliFetch('/api/wozali-pay/chat-wozali-send', {
+    await wozaliFetch('/api/wozali-pay/chat-wozali-send', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message }),
     });
-    const data = await resp.json();
-    document.getElementById('dm-typing')?.remove();
-
-    const reponse = (data.ok && data.reponse)
-      ? data.reponse
-      : (data.message_affiche || 'Message reçu. On revient vers toi bientôt.');
-
-    const replyWrap = document.createElement('div');
-    replyWrap.innerHTML = _dmBubbleIn('WOZALI', 'W', reponse.replace(/</g,'&lt;'), nowStr, false);
-    list.appendChild(replyWrap.firstElementChild);
-    list.scrollTop = list.scrollHeight;
   } catch(e) {
-    document.getElementById('dm-typing')?.remove();
-    const errWrap = document.createElement('div');
-    errWrap.innerHTML = _dmBubbleIn('WOZALI', 'W', 'Ça a calé. Réessaie dans 2 secondes.', '', false);
-    list.appendChild(errWrap.firstElementChild);
-    list.scrollTop = list.scrollHeight;
     console.error('[dm send]', e);
   }
+
   sendBtn.disabled = false; input.focus();
 }
 
@@ -11193,11 +11216,37 @@ function renderBattle() {
 async function loadAdminDMs(statutFilter) {
   const el = document.getElementById('admin-content');
   if (!el) return;
+
+  // Lire les filtres depuis le DOM AVANT de vider el.innerHTML
+  if (!window._adminDmFilters) window._adminDmFilters = {};
+  const mf = document.getElementById('admin-dm-f-metier');
+  const gf = document.getElementById('admin-dm-f-genre');
+  const vf = document.getElementById('admin-dm-f-ville');
+  const a1 = document.getElementById('admin-dm-f-age-min');
+  const a2 = document.getElementById('admin-dm-f-age-max');
+  const af = document.getElementById('admin-dm-f-abo');
+  if (mf) window._adminDmFilters.metier  = mf.value.trim();
+  if (gf) window._adminDmFilters.genre   = gf.value;
+  if (vf) window._adminDmFilters.ville   = vf.value.trim();
+  if (a1) window._adminDmFilters.age_min = a1.value;
+  if (a2) window._adminDmFilters.age_max = a2.value;
+  if (af) window._adminDmFilters.abo     = af.value;
+  if (statutFilter !== undefined) window._adminDmFilters.statut = statutFilter;
+  const f = window._adminDmFilters;
+
   el.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.5);">⏳ Chargement des DMs...</div>';
 
   try {
-    const qs = statutFilter ? `?statut=${statutFilter}` : '';
-    // wozaliFetch ajoute le JWT Supabase automatiquement — le backend vérifie ADMIN_EMAILS
+    const params = new URLSearchParams();
+    if (f.statut)   params.set('statut',     f.statut);
+    if (f.metier)   params.set('metier',     f.metier);
+    if (f.genre)    params.set('genre',      f.genre);
+    if (f.ville)    params.set('ville',      f.ville);
+    if (f.age_min)  params.set('age_min',    f.age_min);
+    if (f.age_max)  params.set('age_max',    f.age_max);
+    if (f.abo)      params.set('abonnement', f.abo);
+    const qs = params.toString() ? '?' + params.toString() : '';
+
     const r = await wozaliFetch('/api/wozali-pay/chat-wozali-admin-list' + qs);
     const data = await r.json();
 
@@ -11206,7 +11255,7 @@ async function loadAdminDMs(statutFilter) {
       return;
     }
 
-    renderAdminDMs(data.messages || [], data.non_lus || 0, statutFilter);
+    renderAdminDMs(data.messages || [], data.non_lus || 0, f.statut);
   } catch(e) {
     console.error('[admin-dms]', e);
     el.innerHTML = '<div style="color:#f87171;padding:20px;">❌ Erreur réseau</div>';
@@ -11217,6 +11266,8 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
   const el = document.getElementById('admin-content');
   if (!el) return;
 
+  const sf = window._adminDmFilters || {};
+
   const filters = [
     { key: undefined, label: 'En attente (' + nonLus + ')' },
     { key: 'repondu_fondateur', label: 'Traités' },
@@ -11224,7 +11275,7 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
   ];
 
   const filterHtml = `
-    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
       ${filters.map(f => {
         const active = f.key === currentFilter || (!f.key && !currentFilter);
         return `<button onclick="loadAdminDMs(${f.key ? `'${f.key}'` : 'undefined'})"
@@ -11232,6 +11283,32 @@ function renderAdminDMs(messages, nonLus, currentFilter) {
       }).join('')}
       <button onclick="loadAdminDMs(${currentFilter ? `'${currentFilter}'` : 'undefined'})"
         style="margin-left:auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:12px;">🔄 Actualiser</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 12px;">
+      <input id="admin-dm-f-metier" type="text" placeholder="Métier" value="${escapeHtml(sf.metier||'')}"
+        style="flex:1;min-width:110px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 10px;color:white;font-size:12px;outline:none;font-family:inherit;" />
+      <select id="admin-dm-f-genre"
+        style="background:rgba(30,24,14,1);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 10px;color:rgba(255,255,255,0.7);font-size:12px;outline:none;font-family:inherit;">
+        <option value="">Genre</option>
+        <option value="Homme" ${sf.genre==='Homme'?'selected':''}>Homme</option>
+        <option value="Femme" ${sf.genre==='Femme'?'selected':''}>Femme</option>
+      </select>
+      <input id="admin-dm-f-ville" type="text" placeholder="Ville" value="${escapeHtml(sf.ville||'')}"
+        style="flex:1;min-width:90px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 10px;color:white;font-size:12px;outline:none;font-family:inherit;" />
+      <input id="admin-dm-f-age-min" type="number" placeholder="Age min" min="0" max="99" value="${sf.age_min||''}"
+        style="width:76px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 8px;color:white;font-size:12px;outline:none;font-family:inherit;" />
+      <input id="admin-dm-f-age-max" type="number" placeholder="Age max" min="0" max="99" value="${sf.age_max||''}"
+        style="width:76px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 8px;color:white;font-size:12px;outline:none;font-family:inherit;" />
+      <select id="admin-dm-f-abo"
+        style="background:rgba(30,24,14,1);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 10px;color:rgba(255,255,255,0.7);font-size:12px;outline:none;font-family:inherit;">
+        <option value="">Plan</option>
+        <option value="Pro" ${sf.abo==='Pro'?'selected':''}>Pro</option>
+        <option value="Gratuit" ${sf.abo==='Gratuit'?'selected':''}>Gratuit</option>
+      </select>
+      <button onclick="loadAdminDMs()"
+        style="background:#E8940A;color:#14100A;border:none;padding:6px 16px;border-radius:7px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;">Filtrer</button>
+      <button onclick="window._adminDmFilters={};loadAdminDMs()"
+        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);padding:6px 12px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;">Reset</button>
     </div>`;
 
   if (!messages.length) {

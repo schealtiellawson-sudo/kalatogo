@@ -298,157 +298,38 @@ async function handleSend(req, res) {
 
   const msgText = message.trim();
 
-  // Récupérer le genre et le plan du prestataire
   let genreUser = null;
-  let planUser  = null;
   try {
     const { data: prest } = await supabase
       .from('wolo_prestataires')
-      .select('genre, abonnement')
+      .select('genre')
       .eq('user_id', userId)
       .maybeSingle();
-    if (prest?.genre)     genreUser = prest.genre;
-    if (prest?.abonnement) planUser = prest.abonnement;
-  } catch (e) {
-    console.warn('[chat-wozali] prest fetch failed:', e.message);
-  }
+    if (prest?.genre) genreUser = prest.genre;
+  } catch (e) {}
 
-  // Insérer le message en statut attente_ia
   const { data: inserted, error: insertErr } = await supabase
     .from('wolo_chat_messages')
     .insert({
       user_id: userId,
       message: msgText,
-      statut: 'attente_ia',
+      statut: 'escalade_fondateur',
       genre_user: genreUser,
+      lu_par_fondateur: false,
     })
     .select('id')
     .single();
 
   if (insertErr) {
     console.error('[chat-wozali] insert error:', insertErr.message);
-    return res.status(500).json({ error: 'Erreur lors de l\'enregistrement du message' });
+    return res.status(500).json({ ok: false, error: "Erreur lors de l'enregistrement" });
   }
 
-  const messageId = inserted.id;
-
-  // 1. Détecter demande de rencontre avant l'IA
-  if (isRenconteRequest(msgText)) {
-    const isWoman = genreUser === 'Femme';
-
-    if (isWoman) {
-      // Escalade prioritaire : femme qui demande une rencontre
-      await supabase
-        .from('wolo_chat_messages')
-        .update({
-          statut: 'escalade_fondateur',
-          type_escalade: 'rencontre_prioritaire',
-        })
-        .eq('id', messageId);
-
-      return res.status(200).json({
-        ok: true,
-        message_id: messageId,
-        statut: 'escalade_fondateur',
-        reponse: null,
-        message_affiche: 'Message envoyé — nous reviendrons vers toi bientôt.',
-      });
-    } else {
-      // Homme ou genre non renseigné : ignorer silencieusement
-      await supabase
-        .from('wolo_chat_messages')
-        .update({
-          statut: 'ignore',
-          type_escalade: 'rencontre_ignoree',
-          reponse_ia: null,
-        })
-        .eq('id', messageId);
-
-      // Réponse neutre sans aucune indication du traitement interne
-      return res.status(200).json({
-        ok: true,
-        message_id: messageId,
-        statut: 'repondu_ia',
-        reponse: 'Message reçu. Pour toute demande particulière, tu peux aussi nous écrire sur Instagram @wozali.',
-        message_affiche: null,
-      });
-    }
-  }
-
-  // 2. Appel IA
-  let iaResponse = null;
-  let iaError = null;
-
-  try {
-    // Injecter le plan dans le contexte utilisateur pour upsell intelligent
-    const userContext = planUser && planUser !== 'Pro'
-      ? `${msgText}\n\n[CONTEXTE SYSTÈME: utilisateur sur Plan Gratuit]`
-      : msgText;
-
-    const result = await callGemini({
-      system: WOZALI_SYSTEM_PROMPT,
-      user: userContext,
-      jsonMode: false,
-      maxTokens: 600,
-    });
-
-    const { confidence, priorite, urgence, cleanText } = extractMeta(result.text);
-
-    if (confidence === 'LOW' || !cleanText || cleanText.length < 5) {
-      iaError = 'confidence_low';
-    } else {
-      iaResponse = cleanText;
-    }
-  } catch (e) {
-    console.error('[chat-wozali] IA error:', e.message);
-    iaError = 'ia_failed';
-  }
-
-  // 3. Sauvegarder selon le résultat IA
-  if (iaResponse) {
-    // Réponse IA disponible
-    await supabase
-      .from('wolo_chat_messages')
-      .update({
-        statut: 'repondu_ia',
-        reponse_ia: iaResponse,
-      })
-      .eq('id', messageId);
-
-    // Sauvegarder priorite/urgence (requiert migration 20260524_chat_priority.sql)
-    if (priorite || urgence) {
-      await supabase
-        .from('wolo_chat_messages')
-        .update({ priorite, urgence })
-        .eq('id', messageId)
-        .then(() => {});  // silencieux si colonnes absentes
-    }
-
-    return res.status(200).json({
-      ok: true,
-      message_id: messageId,
-      statut: 'repondu_ia',
-      reponse: iaResponse,
-      message_affiche: null,
-    });
-  } else {
-    // Escalade fondateur (IA insuffisante)
-    await supabase
-      .from('wolo_chat_messages')
-      .update({
-        statut: 'escalade_fondateur',
-        type_escalade: 'complexe',
-      })
-      .eq('id', messageId);
-
-    return res.status(200).json({
-      ok: true,
-      message_id: messageId,
-      statut: 'escalade_fondateur',
-      reponse: null,
-      message_affiche: 'Message envoyé — nous reviendrons vers toi bientôt.',
-    });
-  }
+  return res.status(200).json({
+    ok: true,
+    message_id: inserted.id,
+    statut: 'escalade_fondateur',
+  });
 }
 
 // ── GET chat-wozali-history ─────────────────────────────────────
@@ -489,8 +370,13 @@ async function handleHistory(req, res) {
 async function handleAdminList(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Optionnel : filtre statut via query
-  const statutFilter = req.query.statut; // 'escalade_fondateur' | 'repondu_fondateur' | 'all'
+  const statutFilter = req.query.statut;
+  const metierFilter = (req.query.metier || '').toLowerCase().trim();
+  const genreFilter  = req.query.genre || '';
+  const villeFilter  = (req.query.ville || '').toLowerCase().trim();
+  const ageMin = parseInt(req.query.age_min) || 0;
+  const ageMax = parseInt(req.query.age_max) || 999;
+  const abonFilter = req.query.abonnement || '';
 
   let query = supabase
     .from('wolo_chat_messages')
@@ -510,15 +396,14 @@ async function handleAdminList(req, res) {
       updated_at
     `)
     .order('created_at', { ascending: false })
-    .limit(200);
+    .limit(500);
 
   if (!statutFilter || statutFilter === 'pending') {
     query = query.eq('statut', 'escalade_fondateur');
-  } else if (statutFilter !== 'all') {
-    query = query.eq('statut', statutFilter);
-  } else {
-    // 'all' : tout sauf 'ignore' et 'attente_ia' et 'repondu_ia'
+  } else if (statutFilter === 'all') {
     query = query.in('statut', ['escalade_fondateur', 'repondu_fondateur']);
+  } else {
+    query = query.eq('statut', statutFilter);
   }
 
   const { data, error } = await query;
@@ -527,22 +412,23 @@ async function handleAdminList(req, res) {
     return res.status(500).json({ error: 'Erreur chargement DMs' });
   }
 
-  // Enrichir avec le nom du prestataire
   const userIds = [...new Set((data || []).map(m => m.user_id))];
   let prestMap = {};
   if (userIds.length > 0) {
     try {
       const { data: prests } = await supabase
         .from('wolo_prestataires')
-        .select('user_id, nom_complet, metier_principal, ville, photo_profil, genre')
+        .select('user_id, nom_complet, metier_principal, ville, photo_profil, genre, date_naissance, abonnement')
         .in('user_id', userIds);
       (prests || []).forEach(p => {
         prestMap[p.user_id] = {
-          nom: p.nom_complet || 'Inconnu',
-          metier: p.metier_principal || '',
-          ville: p.ville || '',
-          photo: p.photo_profil || null,
-          genre: p.genre || null,
+          nom:            p.nom_complet || 'Inconnu',
+          metier:         p.metier_principal || '',
+          ville:          p.ville || '',
+          photo:          p.photo_profil || null,
+          genre:          p.genre || null,
+          date_naissance: p.date_naissance || null,
+          abonnement:     p.abonnement || 'Gratuit',
         };
       });
     } catch (e) {
@@ -550,10 +436,33 @@ async function handleAdminList(req, res) {
     }
   }
 
-  const messages = (data || []).map(m => ({
+  let messages = (data || []).map(m => ({
     ...m,
     prestataire: prestMap[m.user_id] || { nom: 'Inconnu', metier: '', ville: '' },
   }));
+
+  // Filtres côté backend sur les données prestataire
+  const now = new Date();
+  if (metierFilter) {
+    messages = messages.filter(m => (m.prestataire.metier || '').toLowerCase().includes(metierFilter));
+  }
+  if (genreFilter) {
+    messages = messages.filter(m => m.prestataire.genre === genreFilter || m.genre_user === genreFilter);
+  }
+  if (villeFilter) {
+    messages = messages.filter(m => (m.prestataire.ville || '').toLowerCase().includes(villeFilter));
+  }
+  if (abonFilter) {
+    messages = messages.filter(m => m.prestataire.abonnement === abonFilter);
+  }
+  if (ageMin > 0 || ageMax < 999) {
+    messages = messages.filter(m => {
+      const dn = m.prestataire.date_naissance;
+      if (!dn) return true;
+      const age = Math.floor((now - new Date(dn)) / (365.25 * 24 * 3600 * 1000));
+      return age >= ageMin && age <= ageMax;
+    });
+  }
 
   const nonLus = messages.filter(m => !m.lu_par_fondateur && m.statut === 'escalade_fondateur').length;
 
