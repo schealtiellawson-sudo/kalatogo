@@ -14108,7 +14108,7 @@ async function _loadRecrutTrustSection() {
   const trustEl = document.getElementById('rd-trust-content');
   if (!trustEl) return;
   const userId = window.currentUser?.id;
-  if (!userId) return;
+  if (!userId) { setTimeout(_loadRecrutTrustSection, 1200); return; }
   trustEl.innerHTML = '<span style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.3);">Calcul...</span>';
   const trust = await getRecruteurTrustScore(userId);
   const isVerifie = currentPrestataire?.fields?.['Badge vérifié'] || currentPrestataire?.fields?.['Recruteur vérifié'];
