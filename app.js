@@ -4673,8 +4673,68 @@ function initDmInterface() {
 
   _initDmResize();
 
+  // Charger le profil fondateur en arrière-plan pour personnaliser l'affichage
+  _loadFondateurProfile();
+
   // Sur desktop : ouvrir le thread WOZALI d'office
   if (window.innerWidth > 768) openDmThread('wozali');
+}
+
+async function _loadFondateurProfile() {
+  if (window._fondateurProfileLoaded) return window._fondateurProfile;
+  window._fondateurProfileLoaded = true;
+  try {
+    if (!window.supaPrest) return null;
+    const r = await window.supaPrest.findByEmail('schealtiellawson@gmail.com');
+    if (!r) return null;
+    window._fondateurProfile = r;
+    _applyFondateurProfileToUI(r);
+    return r;
+  } catch(e) {
+    console.warn('[fondateur profile]', e);
+    return null;
+  }
+}
+
+function _applyFondateurProfileToUI(profil) {
+  if (!profil) return;
+  const f = profil.fields || {};
+  const nomComplet = f['Nom'] || f['Prénom'] || 'Schealtiel';
+  const prenom = nomComplet.split(' ')[0] || 'Schealtiel';
+  const initial = prenom.charAt(0).toUpperCase();
+  const photoUrl = _wPhotoUrl(f['Photo de profil']);
+  const recordId = profil.id;
+
+  window._fondateurNom = prenom;
+  window._fondateurInitial = initial;
+  window._fondateurRecordId = recordId;
+
+  const setAvatar = (el) => {
+    if (!el) return;
+    if (photoUrl) {
+      el.style.overflow = 'hidden';
+      el.style.padding = '0';
+      el.style.background = 'transparent';
+      el.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentNode.style.background='linear-gradient(135deg,#E8940A,#b86a00)';this.parentNode.innerHTML='${initial}';" />`;
+    } else {
+      el.textContent = initial;
+    }
+  };
+
+  // Liste conversations : avatar + nom + lien
+  const convAvatar = document.querySelector('#dm-conv-wozali .dm-conv-avatar');
+  setAvatar(convAvatar);
+  document.querySelectorAll('#dm-conv-wozali .dm-conv-name').forEach(el => el.textContent = prenom);
+
+  // Thread header : avatar + nom + liens
+  setAvatar(document.getElementById('dm-thread-avatar'));
+  const threadName = document.getElementById('dm-thread-name');
+  if (threadName) threadName.textContent = prenom;
+
+  // Mettre à jour les messages déjà affichés pour refléter le vrai nom
+  if (document.getElementById('dm-messages-list')?.children.length > 1) {
+    loadDmMessages('wozali');
+  }
 }
 
 function _initDmResize() {
@@ -4742,8 +4802,11 @@ function loadDmMessages(threadId) {
   const messages = _getFondateurMessages();
   let html = '<div class="dm-date-sep"><div class="dm-date-sep-line"></div><span class="dm-date-sep-label">MESSAGES</span><div class="dm-date-sep-line"></div></div>';
 
+  const senderNom     = window._fondateurNom     || 'Schealtiel';
+  const senderInitial = window._fondateurInitial || 'S';
+
   if (messages.length === 0) {
-    html += _dmBubbleIn('WOZALI', 'W', 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', false);
+    html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', false);
   } else {
     messages.forEach((m, i) => {
       const dateStr = m.created_at
@@ -4753,7 +4816,7 @@ function loadDmMessages(threadId) {
       const isUnread = !m.read && isLast;
       const title   = m.title ? `<strong>${m.title.replace(/</g,'&lt;')}</strong>\n` : '';
       const body    = (m.body || '').replace(/</g,'&lt;');
-      html += _dmBubbleIn('WOZALI', 'W', title + body, dateStr, isUnread);
+      html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, isUnread);
       if (isUnread) markFondateurMessageRead(m.id);
     });
   }
