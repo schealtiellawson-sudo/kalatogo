@@ -4552,7 +4552,6 @@ async function markFondateurMessageRead(msgId) {
       await window.supaPrest.update(window.currentPrestataire.id, { 'Notifications': arr });
     }
     window.currentPrestataire.fields['Notifications'] = arr;
-    renderFondateurInbox();
     updateNotifBadge(window.currentPrestataire.id);
   } catch(e) { console.warn('[mark fondateur read]', e); }
 }
@@ -4915,8 +4914,6 @@ async function toggleWozaliHistory() {
 // ──────────────────────────────────────────────
 
 function renderNotifications(recordId) {
-  // Boîte du Fondateur d'abord (Supabase notifications)
-  renderFondateurInbox();
   const key = `wozali_notifs_${recordId}`;
   const notifs = JSON.parse(localStorage.getItem(key) || '[]');
   // Marquer tout comme lu
