@@ -2851,7 +2851,7 @@ function bntGo(tab) {
       else showPage('login');
       break;
     case 'moi':
-      if (currentUser) showPage('dashboard');
+      if (currentUser) { showPage('dashboard'); showDashSection('overview'); }
       else showPage('login');
       break;
   }
@@ -11682,7 +11682,7 @@ function toggleMobileNav() {
     if (authEl) {
       if (currentUser && currentPrestataire) {
         const nom = currentPrestataire.fields['Nom complet'] || 'Mon espace';
-        authEl.innerHTML = `<button onclick="showPage('dashboard');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">👤 ${nom} — Dashboard</button>`;
+        authEl.innerHTML = `<button onclick="showPage('dashboard');showDashSection('overview');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">👤 ${nom} — Dashboard</button>`;
       } else {
         authEl.innerHTML = `
           <button onclick="showPage('login');closeMobileNav()" style="background:none;border:2px solid var(--vert);color:var(--vert);padding:14px;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">Se connecter</button>
