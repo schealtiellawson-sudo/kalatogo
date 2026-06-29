@@ -5153,6 +5153,9 @@ setTimeout(function(){
           <button onclick="loadAdminTemoignagesAbus(null)" style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);color:#E8940A;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 16px;border-radius:100px;cursor:pointer;">Tous</button>
         </div>
 
+        <!-- Alertes recruteurs 2+ signalements -->
+        <div id="temo-admin-alertes" style="display:none;"></div>
+
         <!-- Feed modération -->
         <div id="temo-admin-feed" style="display:flex;flex-direction:column;gap:14px;">
           <div style="text-align:center;padding:40px;color:rgba(252,224,168,.3);font-family:'Geist',sans-serif;font-size:14px;">Charge en cours...</div>
@@ -6085,6 +6088,13 @@ setTimeout(function(){
           <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
             <div id="rd-kpi-top-offre" style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A;line-height:1.3;word-break:break-word;">—</div>
             <div style="font-family:Geist,sans-serif;font-size:10px;color:rgba(252, 224, 168,.45);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Offre la + vue</div>
+          </div>
+        </div>
+        <!-- MON SCORE DE CONFIANCE RECRUTEUR -->
+        <div style="margin-bottom:24px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252, 224, 168,.35);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;">Mon score de confiance</div>
+          <div id="rd-trust-content" style="min-height:54px;">
+            <span style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.3);">Calcul...</span>
           </div>
         </div>
         <!-- ACTIONS RAPIDES -->

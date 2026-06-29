@@ -11395,6 +11395,51 @@ let _offresPage = 1;
 const _OFFRES_PER_PAGE = 12;
 let _currentOffreId = null;
 
+// ── Score de confiance recruteur ──────────────────────────────────────────────
+window._recruteurTrustCache = window._recruteurTrustCache || {};
+
+async function getRecruteurTrustScore(userId) {
+  if (!userId) return { count: 0, trusted: false, flagged: false };
+  if (window._recruteurTrustCache[userId] !== undefined) return window._recruteurTrustCache[userId];
+  try {
+    const supa = window.supabase || window.supa;
+    if (!supa) return { count: 0, trusted: false, flagged: false };
+    const { count } = await supa
+      .from('temoignages_abus')
+      .select('id', { count: 'exact', head: true })
+      .eq('recruteur_user_id', userId)
+      .eq('statut', 'publie');
+    const n = count || 0;
+    const result = { count: n, trusted: n === 0, flagged: n >= 3 };
+    window._recruteurTrustCache[userId] = result;
+    return result;
+  } catch(e) {
+    return { count: 0, trusted: false, flagged: false };
+  }
+}
+
+async function _enrichOffresTrustBadges() {
+  const spans = document.querySelectorAll('[data-trust-badge]');
+  if (!spans.length) return;
+  const uids = [...new Set([...spans].map(s => s.getAttribute('data-trust-badge')).filter(Boolean))];
+  await Promise.all(uids.map(uid => getRecruteurTrustScore(uid)));
+  // iterate as array (querySelectorAll live collection mutated by outerHTML swap)
+  Array.from(spans).forEach(span => {
+    if (!span.isConnected) return;
+    const uid = span.getAttribute('data-trust-badge');
+    const trust = window._recruteurTrustCache[uid];
+    if (!trust) return;
+    const verifie = span.getAttribute('data-trust-verifie') === '1';
+    if (trust.flagged) {
+      span.outerHTML = '<span style="display:inline-block;background:rgba(220,38,38,0.15);color:#f87171;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(220,38,38,0.3);" title="Ce recruteur a ete signale 3 fois ou plus par la communaute WOZALI">⚠️ Signalé</span>';
+    } else if (trust.trusted && verifie) {
+      span.outerHTML = '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — zero signalement, identite verifiee par WOZALI">🛡️ Confiance</span>';
+    } else {
+      span.remove();
+    }
+  });
+}
+
 // ── Charger les offres : Supabase d'abord, fallback Airtable ──
 async function loadOffresEmploi(filtres = {}) {
   if (window.supaOffres) {
@@ -11446,7 +11491,15 @@ function renderOffreEmploi(offre) {
   const _safeOffreId = escapeHtml(offre.id);
   const _waNumOffre = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
   const _titreJsArg = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
-  return `<div class="offre-card" onclick="showOffreDetail('${_safeOffreId}')">
+  // Trust badge dynamique (cache synchrone + enrichissement async post-render)
+  const _ruid = escapeHtml(f['Recruteur User ID'] || '');
+  const _trust = _ruid ? window._recruteurTrustCache[_ruid] : undefined;
+  const _trustBadge = _trust?.flagged
+    ? '<span style="display:inline-block;background:rgba(220,38,38,0.15);color:#f87171;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(220,38,38,0.3);" title="Ce recruteur a ete signale 3 fois ou plus par la communaute WOZALI">⚠️ Signalé</span>'
+    : (_trust?.trusted && f['Recruteur vérifié'])
+      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — zero signalement, identite verifiee">🛡️ Confiance</span>'
+      : (_ruid ? `<span data-trust-badge="${_ruid}" data-trust-verifie="${f['Recruteur vérifié']?'1':'0'}"></span>` : '');
+  return `<div class="offre-card" data-ruid="${_ruid}" onclick="showOffreDetail('${_safeOffreId}')">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <div>
         ${offre._isBoosted ? (window._renderBoostBadge ? window._renderBoostBadge(offre) : '<span style="background:#E8940A;color:#14100A;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;margin-right:4px;">⭐ À LA UNE</span>') : ''}
@@ -11458,7 +11511,7 @@ function renderOffreEmploi(offre) {
     <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
       ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurId}');showPage('profil')" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;">🏢 ${_safeRecruteurNom}</span>` : `🏢 ${_safeRecruteurNom}`}
       ${f['Recruteur vérifié'] ? '<span style="display:inline-block;background:rgba(232,148,10,0.15);color:#E8940A;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(232,148,10,0.3);" title="Identité vérifiée par WOZALI">✓ Vérifié</span>' : ''}
-      ${f['Recruteur de confiance'] ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — historique propre, aucun signalement">🛡️ Confiance</span>' : ''}
+      ${_trustBadge}
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
       <span class="badge badge-gris">${_flag} ${_safeQuartier}</span>
@@ -11506,6 +11559,14 @@ function showOffreDetail(offreId) {
   const _safeOffreIdD = escapeHtml(offre.id);
   const _waNumD = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
   const _titreJsArgD = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  // Trust badge modal (cache sync + async enrichment)
+  const _ruidD = escapeHtml(f['Recruteur User ID'] || '');
+  const _trustD = _ruidD ? window._recruteurTrustCache[_ruidD] : undefined;
+  const _trustBadgeD = _trustD?.flagged
+    ? '<span style="display:inline-block;background:rgba(220,38,38,0.15);color:#f87171;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:800;border:1px solid rgba(220,38,38,0.3);" title="Ce recruteur a ete signale 3 fois ou plus par la communaute WOZALI">⚠️ Signalé par la communauté</span>'
+    : (_trustD?.trusted && f['Recruteur vérifié'])
+      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — zero signalement, identite verifiee">🛡️ Recruteur de confiance</span>'
+      : (_ruidD ? `<span data-trust-badge="${_ruidD}" data-trust-verifie="${f['Recruteur vérifié']?'1':'0'}"></span>` : '');
 
   const container = document.getElementById('offre-detail-content');
   container.innerHTML = `
@@ -11515,6 +11576,7 @@ function showOffreDetail(offreId) {
       <div style="font-size:13px;color:rgba(252, 224, 168,0.6);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
         ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurIdD}');showPage('profil');document.getElementById('modal-offre-detail').style.display='none'" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;font-weight:600;">🏢 ${_safeRecruteurNomD}</span>` : `🏢 ${_safeRecruteurNomD}`}
         ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOZALI">✓ Vérifié</span>' : ''}
+        ${_trustBadgeD}
         <span>· Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</span>
       </div>
     </div>
@@ -11555,6 +11617,7 @@ function showOffreDetail(offreId) {
   `;
 
   document.getElementById('modal-offre-detail').style.display = 'flex';
+  setTimeout(_enrichOffresTrustBadges, 0);
 }
 
 // ── Page emploi principale ──
@@ -11902,6 +11965,7 @@ function renderOffresPage() {
   </div>`;
   }
   container.innerHTML = wozaliRecruitCard + page.map(renderOffreEmploi).join('');
+  setTimeout(_enrichOffresTrustBadges, 0);
 
   // Pagination
   const totalPages = Math.ceil(total / _OFFRES_PER_PAGE);
@@ -14036,6 +14100,64 @@ async function loadRecrutDashboard() {
     console.error('[loadRecrutDashboard]', err);
     if (latestEl) latestEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;font-size:13px;">Erreur de chargement.</div>';
   }
+  // Trust score recruteur — chargé en parallèle sans bloquer les KPI
+  _loadRecrutTrustSection();
+}
+
+async function _loadRecrutTrustSection() {
+  const trustEl = document.getElementById('rd-trust-content');
+  if (!trustEl) return;
+  const userId = window.currentUser?.id;
+  if (!userId) return;
+  trustEl.innerHTML = '<span style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.3);">Calcul...</span>';
+  const trust = await getRecruteurTrustScore(userId);
+  const isVerifie = currentPrestataire?.fields?.['Badge vérifié'] || currentPrestataire?.fields?.['Recruteur vérifié'];
+  let html = '';
+  if (trust.flagged) {
+    html = `
+      <div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:12px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;">
+        <div style="font-size:28px;line-height:1;flex-shrink:0;">⛔</div>
+        <div>
+          <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:800;color:#f87171;margin-bottom:4px;">Compte signalé (${trust.count} signalement${trust.count>1?'s':''})</div>
+          <div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(248,113,113,0.7);line-height:1.5;">Plusieurs candidats ont signalé des pratiques abusives. L'équipe WOZALI peut suspendre l'accès.</div>
+        </div>
+      </div>`;
+  } else if (trust.count >= 1) {
+    html = `
+      <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;">
+        <div style="font-size:28px;line-height:1;flex-shrink:0;">⚠️</div>
+        <div>
+          <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:800;color:#fbbf24;margin-bottom:4px;">${trust.count} signalement${trust.count>1?'s':''} en cours</div>
+          <div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(251,191,36,0.7);line-height:1.5;">Des candidats ont signalé une pratique. Aucune suite si le recrutement reste exemplaire.</div>
+        </div>
+      </div>`;
+    // Alerte admin si >= 2 signalements
+    if (trust.count >= 2) {
+      const alertKey = 'wozali_trust_alert_' + userId;
+      if (!localStorage.getItem(alertKey)) {
+        localStorage.setItem(alertKey, trust.count);
+        try {
+          const supa = window.supabase || window.supa;
+          if (supa) {
+            await supa.from('temoignages_abus').update({ note_moderateur: '[ALERTE AUTO] ' + trust.count + ' signalement(s) publies pour recruteur ' + userId }).eq('recruteur_user_id', userId).eq('statut', 'publie').is('note_moderateur', null);
+          }
+        } catch(e) { /* silencieux */ }
+      }
+    }
+  } else {
+    const badge = isVerifie
+      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:800;border:1px solid rgba(252,224,168,0.25);">🛡️ Recruteur de confiance</span>'
+      : '<span style="display:inline-block;background:rgba(232,148,10,0.08);color:#E8940A;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;border:1px solid rgba(232,148,10,0.2);">Aucun signalement</span>';
+    html = `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;">
+        <div style="font-size:24px;line-height:1;">✅</div>
+        <div>
+          <div style="font-family:Geist,sans-serif;font-size:13px;font-weight:700;color:#FCE0A8;margin-bottom:4px;">Historique propre ${badge}</div>
+          <div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,0.4);line-height:1.5;">Aucun signalement publié contre ton compte.</div>
+        </div>
+      </div>`;
+  }
+  trustEl.innerHTML = html;
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -16116,9 +16238,30 @@ async function loadAdminTemoignagesAbus(statut) {
     if (elPublies) elPublies.textContent = kpiPublie;
     if (elRefuses) elRefuses.textContent = kpiRefuse;
 
+    // Alerte recruteurs avec 2+ signalements publiés
+    const { data: publiesAll } = await supa.from('temoignages_abus').select('recruteur_user_id, nom, prenom').eq('statut', 'publie').not('recruteur_user_id', 'is', null);
+    if (publiesAll?.length) {
+      const byRecruteur = {};
+      publiesAll.forEach(t => {
+        if (!t.recruteur_user_id) return;
+        byRecruteur[t.recruteur_user_id] = (byRecruteur[t.recruteur_user_id] || 0) + 1;
+      });
+      const alertes = Object.entries(byRecruteur).filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]);
+      if (alertes.length) {
+        const alertEl = document.getElementById('temo-admin-alertes');
+        if (alertEl) {
+          alertEl.innerHTML = `<div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+            <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#f87171;margin-bottom:10px;">🚨 ALERTES RECRUTEURS (${alertes.length})</div>
+            ${alertes.map(([uid, n]) => `<div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(248,113,113,0.8);padding:4px 0;">⛔ ${uid.substring(0,8)}... — <strong>${n} signalement${n>1?'s':''} publiés</strong></div>`).join('')}
+          </div>`;
+          alertEl.style.display = 'block';
+        }
+      }
+    }
+
     let q = supa
       .from('temoignages_abus')
-      .select('id, nom, prenom, email, ville, pays, secteur, type_incident, recit, code_confidentialite, statut, note_moderateur, created_at, reactions_temoignages_abus(count)')
+      .select('id, nom, prenom, email, ville, pays, secteur, type_incident, recit, code_confidentialite, statut, note_moderateur, created_at, recruteur_user_id, reactions_temoignages_abus(count)')
       .order('created_at', { ascending: false });
     if (_temoAdminFilter) q = q.eq('statut', _temoAdminFilter);
 
