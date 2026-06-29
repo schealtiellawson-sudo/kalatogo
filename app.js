@@ -2847,7 +2847,7 @@ function bntGo(tab) {
     case 'explorer': showPage('search'); break;
     case 'jobs':     showPage('emploi'); break;
     case 'messages':
-      if (currentUser) { showPage('dashboard'); showDashSection('notifications'); }
+      if (currentUser) { showPage('dashboard'); showDashSection('notifications'); bntSetActive('messages'); }
       else showPage('login');
       break;
     case 'moi':

@@ -2203,7 +2203,7 @@ setTimeout(function(){
         <i data-lucide="layout-dashboard"></i> <span>Vue d'ensemble</span>
       </button>
       <button class="dash-link" onclick="showDashSection('notifications')" id="dl-notifications" style="position:relative;">
-        <i data-lucide="bell"></i> <span>Activité</span>
+        <i data-lucide="message-circle"></i> <span>Messages</span>
         <span id="notif-badge" style="display:none;background:#ef4444;color:white;border-radius:100px;font-size:10px;font-weight:800;padding:1px 7px;margin-left:auto;line-height:1.6;">0</span>
       </button>
       <button class="dash-link" onclick="showDashSection('dispo')" id="dl-dispo">
@@ -2665,11 +2665,11 @@ setTimeout(function(){
       <!-- ACTIVITÉ / NOTIFICATIONS -->
       <div class="dash-section" id="ds-notifications">
         <div class="dash-header">
-          <h2>🔔 Mon activité</h2>
-          <p>Tout ce qui se passe sur ton profil — qui t'a regardé, qui t'a contacté, ce que les clients pensent de toi.</p>
+          <h2>💬 Messages</h2>
+          <p>Tes échanges avec WOZALI, les messages du fondateur et tout ce qui se passe sur ton profil.</p>
         </div>
         <div class="dash-explainer">
-          🔔 <strong>Pourquoi surveiller ton activité ?</strong> Chaque notification est une information sur ce qui marche — ou pas. Un pic de vues après avoir ajouté une photo ? Ta photo attire. Zéro contact depuis une semaine ? Ton profil a besoin d'un avis ou d'une photo de plus. Lis tes notifications comme un rapport : ils te disent exactement quoi améliorer pour recevoir plus de clients.
+          💬 <strong>Ton espace messages.</strong> Écris à WOZALI, lis les réponses du fondateur, et surveille ce qui se passe sur ton profil — vues, contacts, avis. Chaque notification est un signal : un pic de vues après une photo ? Ta photo attire. Zéro contact depuis une semaine ? Ton profil a besoin d'un avis de plus.
         </div>
         <!-- Activation notifications push (PWA) -->
         <div id="wozali-push-card" style="display:none;margin-bottom:18px;background:linear-gradient(135deg,#14100A 0%,#1a1f1a 100%);border:1px solid rgba(232,148,10,0.35);border-radius:14px;padding:16px 18px;color:#FCE0A8;">
@@ -6510,7 +6510,7 @@ setTimeout(function(){
     <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(252,224,168,.35);margin-bottom:10px;">Actions rapides</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <button onclick="showDashSection('profil')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Mon profil</button>
-      <button onclick="showDashSection('notifications')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Notifications</button>
+      <button onclick="showDashSection('notifications')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">💬 Messages</button>
       <button onclick="showDashSection('parrainage')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Parrainage</button>
       <button onclick="showPage('emploi')" style="text-align:left;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:8px;padding:9px 12px;color:#E8940A;font-family:'Geist',sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:100%;">WOZALI Jobs</button>
     </div>
