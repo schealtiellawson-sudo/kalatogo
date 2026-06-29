@@ -11457,7 +11457,8 @@ function renderOffreEmploi(offre) {
     </div>
     <div style="font-size:13px;color:var(--gris-fonce);margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
       ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurId}');showPage('profil')" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;">🏢 ${_safeRecruteurNom}</span>` : `🏢 ${_safeRecruteurNom}`}
-      ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOZALI">✓</span>' : ''}
+      ${f['Recruteur vérifié'] ? '<span style="display:inline-block;background:rgba(232,148,10,0.15);color:#E8940A;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(232,148,10,0.3);" title="Identité vérifiée par WOZALI">✓ Vérifié</span>' : ''}
+      ${f['Recruteur de confiance'] ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — historique propre, aucun signalement">🛡️ Confiance</span>' : ''}
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
       <span class="badge badge-gris">${_flag} ${_safeQuartier}</span>
@@ -11473,6 +11474,9 @@ function renderOffreEmploi(offre) {
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('${_titreJsArg}','${_safeOffreId}')">📤 Partager</button>
       ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;">💬 Contacter</a>` : ''}
       <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler</button>
+    </div>
+    <div onclick="event.stopPropagation();" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.05);">
+      <a href="/temoignages" style="font-size:11px;color:rgba(0,0,0,0.3);text-decoration:none;" title="Signaler un abus lié à cette offre">🚩 Signaler un problème avec cette offre</a>
     </div>
   </div>`;
 }

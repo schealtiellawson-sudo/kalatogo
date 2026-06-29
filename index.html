@@ -259,6 +259,7 @@ setTimeout(function(){
           <p class="hero-sub" data-anim="up" data-anim-delay="2" style="color:var(--wolo-orange);font-weight:700;font-size:clamp(15px,2.2vw,20px);margin-top:-6px;">Ton profil sort en premier. Les clients t'appellent directement.</p>
           <p class="hero-sub" data-anim="up" data-anim-delay="2" style="margin-top:4px;">Artisans, prestataires, commerçants, à Cotonou et Lomé. Sans connexions. Sans favoritisme. Ton profil, tes avis, ton Score, et les clients te trouvent.</p>
           <p class="hero-sub hero-villain-stats" data-anim="up" data-anim-delay="2" style="margin:8px 0 6px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;font-family:'Geist Mono',monospace;font-size:13px;line-height:1.6;color:rgba(252,224,168,0.65);"><span><span style="color:var(--wolo-orange);font-weight:700;">80%</span> des contrats passent par réseau</span><span style="opacity:0.3;">·</span><span><span style="color:var(--wolo-orange);font-weight:700;">46%</span> de chômage chez les jeunes diplômés</span></p>
+          <p class="hero-sub" data-anim="up" data-anim-delay="2" style="margin:2px 0 10px;font-size:12px;color:rgba(252,224,168,0.4);">🛡️ Trouve du travail sans vendre ta dignité. <a href="/temoignages" style="color:rgba(232,148,10,0.65);text-decoration:none;border-bottom:1px solid rgba(232,148,10,0.35);">Espace Témoignage →</a></p>
           <div class="hero-actions" data-anim="up" data-anim-delay="3" style="flex-wrap:wrap;gap:10px;">
             <button class="btn btn-or btn-lg" onclick="showPage('inscription')">✦ Créer mon profil gratuit</button>
             <button class="btn btn-primary btn-lg" onclick="showPage('search')">→ Explorer les prestataires</button>
@@ -896,6 +897,7 @@ setTimeout(function(){
           <a onclick="showPage('emploi')" style="cursor:pointer;">WOZALI Jobs</a>
           <a onclick="showPage('recompenses')" style="cursor:pointer;">Récompenses</a>
           <a onclick="showPage('apropos')" style="cursor:pointer;">Notre Histoire</a>
+          <a href="/temoignages" style="cursor:pointer;">🛡️ Signaler un abus</a>
         </div>
         <div class="footer-col">
           <h4>Contact</h4>
@@ -6481,6 +6483,12 @@ setTimeout(function(){
           <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Suis tes candidatures en temps réel</h3>
           <p style="font-size:14px;color:var(--gris);line-height:1.7;">Dans ton dashboard : chaque candidature avec son statut — En attente, Vue, Retenue, Refusée. Tu sais exactement où tu en es avec chaque recruteur. Fini l'attente dans le vide.</p>
         </div>
+        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.25);">
+          <div style="width:52px;height:52px;background:rgba(232,148,10,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">🛡️</div>
+          <div style="font-size:12px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ta protection</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Tu n'es pas seul(e) face à l'abus</h3>
+          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Demande d'argent pour un emploi, conditions abusives, harcèlement : WOZALI n'accepte pas ça. Tu peux témoigner anonymement. <a href="/temoignages" style="color:#E8940A;font-weight:700;text-decoration:none;">Espace Témoignage →</a></p>
+        </div>
       </div>
       <div style="text-align:center;margin-top:40px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <button class="btn btn-primary btn-lg" onclick="showPage('emploi')">💼 Voir les offres d'emploi →</button>
@@ -7001,7 +7009,7 @@ setTimeout(function(){
         <div style="padding:24px;background:rgba(232,148,10,0.08);border-radius:16px;text-align:center;">
           <div style="font-size:32px;margin-bottom:12px;">🔒</div>
           <h4 style="font-weight:800;margin-bottom:8px;">Signalement possible</h4>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">Un problème avec un prestataire ? Tu peux le signaler directement. L'équipe WOZALI enquête sous 48h et agit.</p>
+          <p style="font-size:13px;color:var(--gris);line-height:1.6;">Un problème avec un prestataire ou un recruteur ? Tu peux le signaler. L'équipe WOZALI enquête sous 48h. <a href="/temoignages" style="color:var(--or);font-weight:700;text-decoration:none;">Espace Témoignage →</a></p>
         </div>
         <div style="padding:24px;background:var(--or-light);border-radius:16px;text-align:center;">
           <div style="font-size:32px;margin-bottom:12px;">🏆</div>
@@ -7022,6 +7030,58 @@ setTimeout(function(){
 
       <div style="display:flex;flex-direction:column;gap:12px;" id="faq-list">
         <!-- FAQ items injectées par JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SÉCURITÉ & DIGNITÉ -->
+  <section class="section" style="background:#14100A;">
+    <div class="container" style="max-width:760px;">
+      <div style="text-align:center;margin-bottom:40px;">
+        <div style="display:inline-block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;padding:6px 14px;border:1px solid rgba(232,148,10,0.35);border-radius:100px;margin-bottom:16px;">SÉCURITÉ ET DIGNITÉ</div>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:900;color:#FCE0A8;">Ce que WOZALI refuse de tolérer</h2>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.15);border-radius:14px;overflow:hidden;">
+          <div style="padding:20px 24px;font-weight:700;color:#FCE0A8;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+            <span>Un recruteur m'a demandé de l'argent pour un emploi. C'est quoi la démarche ?</span><span style="color:#E8940A;font-size:18px;">+</span>
+          </div>
+          <div style="padding:0 24px 20px;color:rgba(252,224,168,0.7);font-size:15px;line-height:1.75;display:none;">
+            C'est une arnaque. Aucun recruteur sérieux ne demande de l'argent pour te donner du travail. Tu peux signaler anonymement dans l'<a href="/temoignages" style="color:#E8940A;font-weight:700;text-decoration:none;">Espace Témoignage</a>. L'équipe WOZALI enquête sous 48h. Si le recruteur est sur la plateforme, son compte peut être suspendu.
+          </div>
+        </div>
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.15);border-radius:14px;overflow:hidden;">
+          <div style="padding:20px 24px;font-weight:700;color:#FCE0A8;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+            <span>Est-ce que mon témoignage est vraiment anonyme ?</span><span style="color:#E8940A;font-size:18px;">+</span>
+          </div>
+          <div style="padding:0 24px 20px;color:rgba(252,224,168,0.7);font-size:15px;line-height:1.75;display:none;">
+            Oui. Publiquement, ton identité n'apparaît jamais. Seule l'admin WOZALI peut voir ton compte — et uniquement pour enquêter. Tu reçois un code confidentiel à 8 caractères après soumission. C'est ta preuve, sans te nommer.
+          </div>
+        </div>
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.15);border-radius:14px;overflow:hidden;">
+          <div style="padding:20px 24px;font-weight:700;color:#FCE0A8;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+            <span>Le recruteur m'a promis 150 000 FCFA, j'ai signé, et maintenant il dit 80 000. Que faire ?</span><span style="color:#E8940A;font-size:18px;">+</span>
+          </div>
+          <div style="padding:0 24px 20px;color:rgba(252,224,168,0.7);font-size:15px;line-height:1.75;display:none;">
+            C'est un abus de confiance. Documente tout ce que tu as (messages, promesses). Partage ton expérience dans l'<a href="/temoignages" style="color:#E8940A;font-weight:700;text-decoration:none;">Espace Témoignage</a>. Ça protège les autres candidats qui passeront après toi, et ça crée une pression communautaire sur les mauvais acteurs.
+          </div>
+        </div>
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.15);border-radius:14px;overflow:hidden;">
+          <div style="padding:20px 24px;font-weight:700;color:#FCE0A8;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+            <span>J'ai subi du harcèlement de la part d'un client prestataire. WOZALI peut faire quoi ?</span><span style="color:#E8940A;font-size:18px;">+</span>
+          </div>
+          <div style="padding:0 24px 20px;color:rgba(252,224,168,0.7);font-size:15px;line-height:1.75;display:none;">
+            Signale dans l'Espace Témoignage (type "harcèlement"). L'admin WOZALI peut suspendre le compte concerné avec le badge "Suspendu — Abus signalé", visible sur son profil public. Tu n'as pas à prouver — ton récit suffit pour déclencher une enquête.
+          </div>
+        </div>
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.15);border-radius:14px;overflow:hidden;">
+          <div style="padding:20px 24px;font-weight:700;color:#FCE0A8;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">
+            <span>Pourquoi WOZALI a créé un Espace Témoignage ?</span><span style="color:#E8940A;font-size:18px;">+</span>
+          </div>
+          <div style="padding:0 24px 20px;color:rgba(252,224,168,0.7);font-size:15px;line-height:1.75;display:none;">
+            Parce que trouver du travail sans vendre ta dignité, c'est un droit. Les abus dans le monde du travail informel au Bénin et au Togo restent souvent dans l'ombre — pas de contrat, pas de recours, pas d'endroit pour parler. L'Espace Témoignage casse ce silence. <a href="/temoignages" style="color:#E8940A;font-weight:700;text-decoration:none;">Accéder à l'Espace Témoignage →</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -7162,7 +7222,7 @@ setTimeout(function(){
     <div class="container" style="max-width:780px;">
       <span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;padding:6px 14px;border:1px solid rgba(232,148,10,0.35);border-radius:100px;">MOT DU FONDATEUR</span>
       <h1 style="font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,52px);font-weight:900;color:#FCE0A8;line-height:1.1;margin:0 0 24px;">WOZALI t'appartient.</h1>
-      <p style="font-family:'Geist',sans-serif;font-size:17px;line-height:1.75;color:rgba(252, 224, 168,0.8);margin:0;">Nous avons construit WOZALI pour une seule raison : les travailleurs de Lomé et Cotonou méritent d'être vus, d'être payés, et de construire quelque chose qui dure.<br><br>Un menuisier d'Akpakpa qui fait du bon travail ne devrait pas perdre face à quelqu'un de moins compétent mais mieux connecté. Un artisan sérieux ne devrait pas courir après son argent ou subir le problème de monnaie à chaque prestation. Un travailleur invisible ne devrait pas rester invisible parce qu'il n'a pas de réseau.<br><br>Ton travail nourrit. Pas ton réseau.</p>
+      <p style="font-family:'Geist',sans-serif;font-size:17px;line-height:1.75;color:rgba(252, 224, 168,0.8);margin:0;">Nous avons construit WOZALI pour une seule raison : les travailleurs de Lomé et Cotonou méritent d'être vus, d'être payés, et de construire quelque chose qui dure.<br><br>Un menuisier d'Akpakpa qui fait du bon travail ne devrait pas perdre face à quelqu'un de moins compétent mais mieux connecté. Un artisan sérieux ne devrait pas courir après son argent ou subir le problème de monnaie à chaque prestation. Un travailleur invisible ne devrait pas rester invisible parce qu'il n'a pas de réseau.<br><br>Ton travail nourrit. Pas ton réseau.<br><br>Et un troisième droit que WOZALI garantit : travailler sans subir. La demande d'argent pour obtenir un emploi. Le recruteur qui disparaît après l'entretien. Les conditions promises qui changent le premier jour. Ça existe. WOZALI n'y est pas indifférent. L'Espace Témoignage existe pour que ces histoires ne restent plus dans l'ombre. <a href="/temoignages" style="color:#E8940A;border-bottom:1px solid rgba(232,148,10,0.4);text-decoration:none;">Partager ton témoignage →</a></p>
     </div>
   </section>
 
