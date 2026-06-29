@@ -6468,3 +6468,65 @@ input::placeholder, textarea::placeholder {
 #page-recrutement-agents section[style*="161b17"] {
   background: #161616 !important;
 }
+
+/* ═══════════════════════════════════════════
+   BOTTOM NAV MOBILE (Direction C)
+═══════════════════════════════════════════ */
+#bottom-nav {
+  position:fixed; top:auto !important; bottom:0 !important; left:0; right:0;
+  background:rgba(15,11,6,.98) !important;
+  backdrop-filter:none !important;
+  border-top:1px solid rgba(232,148,10,.15) !important;
+  border-bottom:none !important;
+  display:flex;
+  z-index:4900;
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+  height:60px !important;
+  box-shadow:0 -4px 24px rgba(0,0,0,.5);
+}
+@media (min-width:769px) { #bottom-nav { display:none !important; } }
+
+.bnt-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:3px; cursor:pointer; color:rgba(252,224,168,.35);
+  font-family:'Geist',sans-serif; font-size:10px; font-weight:600;
+  border:none; background:none; padding:8px 4px;
+  transition:color .15s; position:relative;
+  -webkit-tap-highlight-color:transparent;
+}
+.bnt-item.active { color:#E8940A; }
+.bnt-item svg { display:block; margin:0 auto; }
+.bnt-badge {
+  position:absolute; top:8px; right:calc(50% - 20px);
+  background:#ef4444; min-width:16px; height:16px;
+  border-radius:8px; font-size:9px; font-weight:800; color:white;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Geist Mono',monospace; line-height:1; padding:0 3px;
+}
+
+/* Padding pour que le contenu ne soit pas masque par la barre */
+body.has-bottom-nav .page.active { padding-bottom:68px; }
+body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
+
+/* Cacher la sidebar dashboard sur mobile quand bottom nav actif */
+@media (max-width:768px) {
+  body.has-bottom-nav .dashboard-sidebar { display:none !important; }
+}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD RIGHT PANEL (desktop)
+═══════════════════════════════════════════ */
+#dash-right-panel {
+  display:none;
+  position:fixed; right:0; top:68px;
+  width:252px; height:calc(100vh - 68px);
+  overflow-y:auto; background:#0a0e0c;
+  border-left:1px solid rgba(232,148,10,.08);
+  padding:20px 16px; z-index:90;
+  scrollbar-width:none;
+}
+#dash-right-panel::-webkit-scrollbar { display:none; }
+@media (min-width:1280px) {
+  #dash-right-panel.visible { display:block; }
+  .dashboard-main { padding-right:272px !important; }
+}

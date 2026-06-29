@@ -38,6 +38,7 @@ async function initAuth() {
     window.currentUser = currentUser;
     await loadCurrentPrestataire();
     updateNavAuth(true);
+    showBottomNav();
     try { _maybeAutoPromptPush(); } catch (e) {}
   }
   // Restaurer la page APRÈS avoir chargé la session (currentUser est déjà défini)
@@ -66,6 +67,7 @@ async function initAuth() {
         await loadCurrentPrestataire();
       }
       updateNavAuth(true);
+      showBottomNav();
       // Détecter si c'est une confirmation d'email (lien cliqué depuis la boîte mail)
       const hash = window.location.hash;
       if (hash.includes('type=signup') || hash.includes('type=email_change')) {
@@ -90,6 +92,7 @@ async function initAuth() {
       window.currentUser = null;
       currentPrestataire = null;
       updateNavAuth(false);
+      hideBottomNav();
     }
   });
 }
@@ -2781,6 +2784,13 @@ function showPage(page, _fromPop) {
     }
   } catch(e) {}
 
+  // Sync bottom nav active tab
+  var _bntMap = {'home':'accueil','search':'explorer','emploi':'jobs','dashboard':'moi'};
+  if (_bntMap[page]) bntSetActive(_bntMap[page]);
+  // Right panel visible seulement sur dashboard
+  var _rp = document.getElementById('dash-right-panel');
+  if (_rp) _rp.classList.toggle('visible', page === 'dashboard');
+
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
   const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','a-propos','agent-wozali','influenceurs','recrutement-agents','admin-agents'];
@@ -2826,6 +2836,45 @@ function showPage(page, _fromPop) {
     document.getElementById('login-error').style.display = 'none';
   }
 }
+
+// ── BOTTOM NAV ─────────────────────────────────────────────────────────
+function bntGo(tab) {
+  switch(tab) {
+    case 'accueil':
+      if (currentUser) { showPage('dashboard'); showDashSection('overview'); }
+      else showPage('home');
+      break;
+    case 'explorer': showPage('search'); break;
+    case 'jobs':     showPage('emploi'); break;
+    case 'messages':
+      if (currentUser) { showPage('dashboard'); showDashSection('notifications'); }
+      else showPage('login');
+      break;
+    case 'moi':
+      if (currentUser) showPage('dashboard');
+      else showPage('login');
+      break;
+  }
+}
+
+function bntSetActive(tab) {
+  document.querySelectorAll('.bnt-item').forEach(function(b) { b.classList.remove('active'); });
+  var btn = document.getElementById('bnt-' + tab);
+  if (btn) btn.classList.add('active');
+}
+
+function showBottomNav() {
+  var nav = document.getElementById('bottom-nav');
+  if (nav) { nav.style.display = 'flex'; document.body.classList.add('has-bottom-nav'); }
+}
+
+function hideBottomNav() {
+  var nav = document.getElementById('bottom-nav');
+  if (nav) { nav.style.display = 'none'; document.body.classList.remove('has-bottom-nav'); }
+  var rp = document.getElementById('dash-right-panel');
+  if (rp) rp.classList.remove('visible');
+}
+// ── FIN BOTTOM NAV ─────────────────────────────────────────────────────
 
 // Au chargement : restaurer la page depuis localStorage
 // Doit être appelé APRÈS getSession() pour que currentUser soit déjà défini

@@ -162,6 +162,30 @@ setTimeout(function(){
   </div>
 </div>
 
+<!-- BOTTOM NAV MOBILE (Direction C) -->
+<nav id="bottom-nav" style="display:none;">
+  <button class="bnt-item active" id="bnt-accueil" onclick="bntGo('accueil')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Accueil
+  </button>
+  <button class="bnt-item" id="bnt-explorer" onclick="bntGo('explorer')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Explorer
+  </button>
+  <button class="bnt-item" id="bnt-jobs" onclick="bntGo('jobs')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    Jobs
+  </button>
+  <button class="bnt-item" id="bnt-messages" onclick="bntGo('messages')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Messages
+  </button>
+  <button class="bnt-item" id="bnt-moi" onclick="bntGo('moi')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Moi
+  </button>
+</nav>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -6447,6 +6471,54 @@ setTimeout(function(){
 
   <!-- Grille employés -->
   <div id="equipe-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"></div>
+</div>
+
+<!-- PANEL DROIT DESKTOP (Direction C) — visible uniquement >= 1280px -->
+<div id="dash-right-panel">
+
+  <!-- Score WOZALI ring -->
+  <div style="margin-bottom:22px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(252,224,168,.35);margin-bottom:12px;">Ton Score</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="width:56px;height:56px;position:relative;flex-shrink:0;">
+        <svg width="56" height="56" viewBox="0 0 56 56" style="transform:rotate(-90deg);">
+          <circle cx="28" cy="28" r="23" fill="none" stroke="rgba(232,148,10,.15)" stroke-width="5"/>
+          <circle id="drp-score-arc" cx="28" cy="28" r="23" fill="none" stroke="#E8940A" stroke-width="5" stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="144.5"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:14px;font-weight:800;color:#FCE0A8;" id="drp-score-val">-</div>
+      </div>
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:15px;color:#FCE0A8;font-weight:700;line-height:1.2;">Score WOZALI</div>
+        <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:3px;" id="drp-score-sub">En attente...</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:1px;background:rgba(232,148,10,.08);margin-bottom:18px;"></div>
+
+  <!-- Bourse -->
+  <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:12px;padding:14px;margin-bottom:18px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#E8940A;margin-bottom:8px;">Bourse du mois</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#FCE0A8;line-height:1;">500 000</div>
+    <div style="font-size:11px;color:rgba(252,224,168,.5);margin-top:2px;margin-bottom:10px;">FCFA - 2 gagnants</div>
+    <div style="font-size:10px;color:rgba(252,224,168,.4);">Prochain tirage</div>
+    <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;color:#E8940A;margin-top:3px;">25 sept. 2026</div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div style="margin-bottom:18px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(252,224,168,.35);margin-bottom:10px;">Actions rapides</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <button onclick="showDashSection('profil')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Mon profil</button>
+      <button onclick="showDashSection('notifications')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Notifications</button>
+      <button onclick="showDashSection('parrainage')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Parrainage</button>
+      <button onclick="showPage('emploi')" style="text-align:left;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:8px;padding:9px 12px;color:#E8940A;font-family:'Geist',sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:100%;">WOZALI Jobs</button>
+    </div>
+  </div>
+
+  <!-- Voir profil public -->
+  <button onclick="viewMyProfile()" style="width:100%;background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:10px 0;font-family:'Geist',sans-serif;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.3px;">Voir mon profil public</button>
+
 </div>
 
 <script src="/app.js" defer></script>
