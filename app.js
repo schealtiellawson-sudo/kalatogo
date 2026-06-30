@@ -2785,7 +2785,7 @@ function showPage(page, _fromPop) {
   } catch(e) {}
 
   // Sync bottom nav active tab
-  var _bntMap = {'home':'accueil','search':'explorer','emploi':'jobs','dashboard':'moi'};
+  var _bntMap = {'home':'accueil','fil':'accueil','search':'explorer','emploi':'jobs','dashboard':'moi','profil':'moi'};
   if (_bntMap[page]) bntSetActive(_bntMap[page]);
   // Right panel visible seulement sur dashboard
   var _rp = document.getElementById('dash-right-panel');
@@ -2841,6 +2841,7 @@ function showPage(page, _fromPop) {
 function bntGo(tab) {
   switch(tab) {
     case 'accueil':
+      bntSetActive('accueil');
       if (currentUser) showPage('fil');
       else showPage('home');
       break;
@@ -2851,6 +2852,7 @@ function bntGo(tab) {
       else showPage('login');
       break;
     case 'moi':
+      bntSetActive('moi');
       if (currentUser) viewMyProfile();
       else showPage('login');
       break;
