@@ -400,9 +400,18 @@ document.addEventListener('DOMContentLoaded',()=>{
     const cutoff = new Date(Date.now() - 86400000).toISOString();
     let storiesItems = [];
     let aLaUne = [];
+    let myStories = [];
 
-    // 1. Stories des gens suivis (si connecté)
+    // 1. Ma propre story + stories des gens suivis (si connecté)
     if (sb && user) {
+      try {
+        // Story perso
+        const { data: ms } = await sb.from('wozali_stories')
+          .select('*').eq('user_id', user.id).gte('created_at', cutoff)
+          .order('created_at', { ascending: true });
+        myStories = ms || [];
+        if (myStories.length) window._storyUserIds.add(user.id);
+      } catch(e) {}
       try {
         const { data: abos } = await sb.from('wozali_abonnements')
           .select('suivi_id').eq('suiveur_id', user.id).limit(30);
@@ -422,7 +431,6 @@ document.addEventListener('DOMContentLoaded',()=>{
               window._storyUserIds.add(uid);
               storiesItems.push({ userId: uid, nom: (pr.nom_complet||'Pro').split(' ')[0], photo: pr.photo_profil||'', seen });
             }
-            // Non vues en premier
             storiesItems.sort((a, b) => (a.seen ? 1 : 0) - (b.seen ? 1 : 0));
           }
         }
@@ -447,9 +455,15 @@ document.addEventListener('DOMContentLoaded',()=>{
     // Construire le HTML
     const items = [];
 
-    // Ma Story
+    // Ma Story — ring si story active, sinon bouton "+"
     if (user) {
-      items.push(`<div class="story-item" onclick="openFilStoryComposer()"><div class="story-add">+</div><span class="story-label">Ma Story</span></div>`);
+      const myPhoto = window.currentPrestataire?.fields?.['Photo de profil'] || window.currentPrestataire?.photo_profil || '';
+      const myNom = (window.currentPrestataire?.fields?.['Nom complet'] || window.currentPrestataire?.nom_complet || 'Moi').split(' ')[0];
+      if (myStories.length > 0) {
+        items.push(`<div class="story-item" onclick="openProfilStory('${user.id}')"><div style="position:relative;"><div class="story-ring"><div class="story-avatar" style="background:${myPhoto ? 'transparent' : '#1a2018'}">${myPhoto ? `<img src="${escapeHtml(myPhoto)}" alt="${escapeHtml(myNom)}" loading="lazy">` : `<span style="font-size:22px;font-weight:700;color:#E8940A;">${escapeHtml(myNom.charAt(0))}</span>`}</div></div><div onclick="event.stopPropagation();openFilStoryComposer()" style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:#E8940A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#14100A;border:2px solid #0f0b07;">+</div></div><span class="story-label">${escapeHtml(myNom)}</span></div>`);
+      } else {
+        items.push(`<div class="story-item" onclick="openFilStoryComposer()"><div class="story-add">+</div><span class="story-label">Ma Story</span></div>`);
+      }
     }
 
     // Bourse

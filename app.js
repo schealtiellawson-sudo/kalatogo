@@ -5919,7 +5919,7 @@ async function openProfilStory(userId) {
       .eq('user_id', userId)
       .gte('created_at', cutoff)
       .order('created_at', { ascending: true });
-    if (!storiesData || !storiesData.length) { showToast('Pas de story disponible.', 'info'); return; }
+    if (!storiesData || !storiesData.length) { toast('Pas de story disponible.', 'info'); return; }
     let prest = {};
     try {
       const { data: p } = await supa.from('wozali_prestataires').select('nom_complet, photo_profil').eq('user_id', userId).maybeSingle();
@@ -6113,15 +6113,16 @@ async function onFilMediaSelected(event) {
   const old = preview.querySelector('img,video');
   if (old) old.remove();
   const url = URL.createObjectURL(file);
+  const isStoryMode = _filCurrentMediaType === 'story';
   if (file.type.startsWith('video/')) {
     const vid = document.createElement('video');
     vid.src = url; vid.controls = true; vid.muted = true;
-    vid.style.cssText = 'width:100%;max-height:280px;display:block;';
+    vid.style.cssText = `width:100%;max-height:${isStoryMode ? '480' : '280'}px;display:block;`;
     preview.appendChild(vid);
   } else {
     const img = document.createElement('img');
     img.src = url;
-    img.style.cssText = 'width:100%;max-height:280px;object-fit:cover;display:block;';
+    img.style.cssText = `width:100%;max-height:${isStoryMode ? '480' : '280'}px;object-fit:${isStoryMode ? 'contain' : 'cover'};display:block;background:#0f0b07;`;
     preview.appendChild(img);
   }
 }
@@ -6167,7 +6168,12 @@ async function submitFilPost() {
       if (error) throw new Error(error.message);
     }
     closeFilPostForm();
-    setTimeout(() => { loadFilStories(); loadFilFeed(); }, 500);
+    toast('Story publiée !', 'success');
+    setTimeout(() => {
+      loadFilStories();
+      loadFilFeed();
+      if (isStory && typeof chargerStoriesWOZALI === 'function') chargerStoriesWOZALI();
+    }, 500);
     if (isStory) toast && toast('Story publiée ! Elle disparaîtra dans 24h.', 'success');
   } catch(e) {
     if (fb) { fb.textContent = 'Erreur : ' + e.message; fb.style.color = '#f87171'; fb.style.display = 'block'; }
