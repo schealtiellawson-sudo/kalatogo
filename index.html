@@ -1617,21 +1617,28 @@ setTimeout(function(){
   <!-- FAB -->
   <button onclick="openFilComposer()" style="position:fixed;bottom:86px;right:18px;width:50px;height:50px;border-radius:50%;background:#E8940A;border:none;color:#14100A;font-size:28px;cursor:pointer;box-shadow:0 4px 18px rgba(232,148,10,0.45);z-index:200;display:flex;align-items:center;justify-content:center;line-height:1;font-weight:300;">+</button>
 
-  <!-- Story viewer overlay -->
-  <div id="fil-story-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;flex-direction:column;">
-    <div id="fil-story-progress" style="display:flex;gap:3px;padding:12px 12px 0;"></div>
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;">
-      <div id="fil-story-av" style="width:32px;height:32px;border-radius:50%;background:rgba(232,148,10,0.25);display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:13px;flex-shrink:0;overflow:hidden;"></div>
-      <div>
-        <div id="fil-story-nom" style="font-size:13px;font-weight:700;color:white;"></div>
-        <div id="fil-story-time" style="font-size:10px;color:rgba(255,255,255,0.45);"></div>
+  <!-- Story viewer overlay — fullscreen 9:16, media cover, UI overlaid -->
+  <div id="fil-story-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;overflow:hidden;">
+    <!-- Media remplit tout l'écran -->
+    <div id="fil-story-media" style="position:absolute;inset:0;"></div>
+    <!-- Gradient top + bottom pour lisibilité -->
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,transparent 22%,transparent 70%,rgba(0,0,0,0.45) 100%);pointer-events:none;z-index:1;"></div>
+    <!-- UI top (progress + header) -->
+    <div style="position:absolute;top:0;left:0;right:0;z-index:2;padding:env(safe-area-inset-top,0px) 0 0;">
+      <div id="fil-story-progress" style="display:flex;gap:3px;padding:12px 12px 8px;"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:0 14px 10px;">
+        <div id="fil-story-av" style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,0.25);display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:14px;flex-shrink:0;overflow:hidden;border:2px solid rgba(255,255,255,0.25);"></div>
+        <div>
+          <div id="fil-story-nom" style="font-size:13px;font-weight:700;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.6);"></div>
+          <div id="fil-story-time" style="font-size:10px;color:rgba(255,255,255,0.6);"></div>
+        </div>
+        <button onclick="closeStoryViewer()" style="margin-left:auto;background:rgba(0,0,0,0.35);border:none;color:white;font-size:20px;cursor:pointer;line-height:1;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;">&times;</button>
       </div>
-      <button onclick="closeStoryViewer()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.7);font-size:26px;cursor:pointer;padding:4px;line-height:1;">&times;</button>
     </div>
-    <div style="flex:1;display:flex;position:relative;">
-      <div style="position:absolute;inset:0;left:0;width:40%;z-index:10;cursor:pointer;" onclick="prevStory()"></div>
-      <div id="fil-story-media" style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
-      <div style="position:absolute;inset:0;right:0;left:40%;width:60%;z-index:10;cursor:pointer;" onclick="nextStory()"></div>
+    <!-- Zones tactiles gauche/droite -->
+    <div style="position:absolute;inset:0;z-index:3;display:flex;">
+      <div style="width:35%;height:100%;cursor:pointer;" onclick="prevStory()"></div>
+      <div style="flex:1;height:100%;cursor:pointer;" onclick="nextStory()"></div>
     </div>
   </div>
 
