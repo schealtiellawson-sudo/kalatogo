@@ -483,6 +483,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
 
     container.innerHTML = `<div class="stories-scroll">${items.join('')}</div>`;
+    window._reapplyStoryHalos?.();
   };
 
   // Coup du jour

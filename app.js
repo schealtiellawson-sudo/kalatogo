@@ -3525,7 +3525,7 @@ function renderCard(record) {
             ${distBadge}
             ${dispo ? '<div class="pcard-dispo" style="margin-top:6px;"><div class="dispo-dot" style="background:#E8940A;"></div> <span style="color:#E8940A;">Disponible</span></div>' : '<div style="margin-top:6px;font-size:12px;color:var(--gris);display:flex;align-items:center;gap:5px;"><div style="width:7px;height:7px;border-radius:50%;background:#d1d5db;"></div> Occupé</div>'}
           </div>
-          <div class="pcard-avatar${_sHas ? ' pcard-avatar--story' + (_sSeen ? ' seen' : '') : ''}" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;"${_sHas ? ` onclick="event.stopPropagation();openProfilStory('${_sUid}')"` : ''}>
+          <div class="pcard-avatar${_sHas ? ' pcard-avatar--story' + (_sSeen ? ' seen' : '') : ''}" data-story-uid="${_sUid}" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;"${_sHas ? ` onclick="event.stopPropagation();openProfilStory('${_sUid}')"` : `${_sUid ? ` onclick="event.stopPropagation();_checkAndOpenStory('${_sUid}')"` : ''}`}>
             ${photoProfil ? `<img src="${photoProfil}" alt="${nom}" loading="lazy">` : initiale}
           </div>
         </div>
@@ -5683,6 +5683,9 @@ async function loadFilStories() {
       if (!byPrest[s.prestataire_id]) byPrest[s.prestataire_id] = [];
       byPrest[s.prestataire_id].push(s);
     });
+    // Populate _storyUserIds pour les halos sur cartes et profils
+    if (!window._storyUserIds) window._storyUserIds = new Set();
+    stories.forEach(s => { if (s.user_id) window._storyUserIds.add(s.user_id); });
     const { data: prests } = await supa
       .from('wozali_prestataires')
       .select('id, nom_complet, photo_profil')
@@ -5712,6 +5715,7 @@ async function loadFilStories() {
       <div style="font-size:9px;color:rgba(252,224,168,0.4);white-space:nowrap;max-width:54px;overflow:hidden;text-overflow:ellipsis;text-align:center;">${nom.split(' ')[0]}</div>`;
       bar.appendChild(el);
     });
+    _reapplyStoryHalos();
   } catch(e) { console.error('Stories:', e); }
 }
 
@@ -5723,6 +5727,41 @@ function _renderMyStoryButton() {
     <div style="font-size:9px;color:rgba(252,224,168,0.35);">Ma story</div>
   </div>`;
 }
+
+// Met a jour les halos sur toutes les cartes visibles apres chargement des stories
+function _reapplyStoryHalos() {
+  document.querySelectorAll('[data-story-uid]').forEach(el => {
+    const uid = el.dataset.storyUid;
+    if (!uid) return;
+    const has = !!window._storyUserIds?.has(uid);
+    const seen = has && !!localStorage.getItem('wz_story_seen_' + uid);
+    if (has) {
+      el.classList.add('pcard-avatar--story');
+      if (seen) el.classList.add('seen'); else el.classList.remove('seen');
+      el.onclick = (e) => { e.stopPropagation(); openProfilStory(uid); };
+    } else {
+      el.classList.remove('pcard-avatar--story', 'seen');
+    }
+  });
+}
+window._reapplyStoryHalos = _reapplyStoryHalos;
+
+// Verifie en temps reel si un user a une story avant d'ouvrir le viewer
+async function _checkAndOpenStory(uid) {
+  if (!uid) return;
+  if (window._storyUserIds?.has(uid)) { openProfilStory(uid); return; }
+  try {
+    const since = new Date(Date.now() - 86400000).toISOString();
+    const { data } = await window.supabase.from('wozali_stories')
+      .select('id').eq('user_id', uid).gte('created_at', since).limit(1);
+    if (data && data.length) {
+      if (!window._storyUserIds) window._storyUserIds = new Set();
+      window._storyUserIds.add(uid);
+      openProfilStory(uid);
+    }
+  } catch(e) {}
+}
+window._checkAndOpenStory = _checkAndOpenStory;
 
 // ── FEED + REELS ─────────────────────────────────────────────────────
 async function loadFilFeed() {
@@ -7802,6 +7841,26 @@ async function showProfil(recordId) {
         </div>
       </div>
     `;
+
+    // Halo story async — si pas dans _storyUserIds, verifier Supabase directement
+    if (!_profHasStory && _profilUserId) {
+      (async () => {
+        try {
+          const since = new Date(Date.now() - 86400000).toISOString();
+          const { data } = await window.supabase.from('wozali_stories')
+            .select('id').eq('user_id', _profilUserId).gte('created_at', since).limit(1);
+          if (data && data.length) {
+            if (!window._storyUserIds) window._storyUserIds = new Set();
+            window._storyUserIds.add(_profilUserId);
+            const av = document.querySelector('.profil-avatar-lg');
+            if (av) {
+              av.classList.add('has-story');
+              av.onclick = () => openProfilStory(_profilUserId);
+            }
+          }
+        } catch(e) {}
+      })();
+    }
 
     // Charger le feed des posts après rendu (async Airtable)
     setTimeout(() => renderPostsFeed(recordId), 100);

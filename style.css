@@ -4791,13 +4791,24 @@ div[style*="position:sticky"][style*="background:#fff"] {
   border: 2px dashed rgba(232,148,10,0.4); display: flex; align-items: center;
   justify-content: center; font-size: 24px; color: #E8940A; cursor: pointer;
 }
-/* Story halos — non vue = or, vue = gris */
+/* Story halos — non vue = or vif, vue = gris pâle */
 .story-ring--seen { background: rgba(255,255,255,0.2) !important; }
-.pcard-avatar--story { box-shadow: 0 0 0 2.5px #0f0b07, 0 0 0 5px #E8940A; cursor:pointer; transition:box-shadow 0.2s; }
-.pcard-avatar--story.seen { box-shadow: 0 0 0 2.5px #0f0b07, 0 0 0 5px rgba(255,255,255,0.3); }
-.profil-avatar-lg.has-story { cursor:pointer; transition:box-shadow 0.2s; }
-.profil-avatar-lg.has-story:not(.seen) { outline: 3px solid #0f0b07; box-shadow: 0 0 0 5px #E8940A, 0 0 20px rgba(232,148,10,0.3); }
-.profil-avatar-lg.has-story.seen { outline: 3px solid #0f0b07; box-shadow: 0 0 0 5px rgba(255,255,255,0.25), 0 0 12px rgba(255,255,255,0.08); }
+
+/* Halo sur cartes profil (outline = jamais clipé par overflow:hidden parent) */
+.pcard-avatar--story { outline: 3px solid #E8940A; outline-offset: 2px; cursor:pointer; }
+.pcard-avatar--story.seen { outline: 3px solid rgba(255,255,255,0.22); outline-offset: 2px; }
+
+/* Halo sur avatar page profil public */
+.profil-avatar-lg.has-story { cursor:pointer; }
+.profil-avatar-lg.has-story:not(.seen) {
+  outline: 4px solid #E8940A;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 10px rgba(232,148,10,0.1), 0 0 28px rgba(232,148,10,0.18);
+}
+.profil-avatar-lg.has-story.seen {
+  outline: 3.5px solid rgba(255,255,255,0.2);
+  outline-offset: 3px;
+}
 
 /* Responsive */
 @media (max-width: 640px) {
