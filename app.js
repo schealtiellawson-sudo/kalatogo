@@ -3512,6 +3512,9 @@ function renderCard(record) {
   const champion = f['Champion WOZALI'] || '';
 
   const safeId = escapeHtml(record.id);
+  const _sUid = escapeHtml(f['User ID'] || '');
+  const _sHas = !!(_sUid && window._storyUserIds?.has(_sUid));
+  const _sSeen = _sHas && !!localStorage.getItem('wz_story_seen_'+_sUid);
   return `
     <div class="pcard" onclick="showProfil('${safeId}')">
       <div class="pcard-body">
@@ -3522,7 +3525,7 @@ function renderCard(record) {
             ${distBadge}
             ${dispo ? '<div class="pcard-dispo" style="margin-top:6px;"><div class="dispo-dot" style="background:#E8940A;"></div> <span style="color:#E8940A;">Disponible</span></div>' : '<div style="margin-top:6px;font-size:12px;color:var(--gris);display:flex;align-items:center;gap:5px;"><div style="width:7px;height:7px;border-radius:50%;background:#d1d5db;"></div> Occupé</div>'}
           </div>
-          <div class="pcard-avatar" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;">
+          <div class="pcard-avatar${_sHas ? ' pcard-avatar--story' + (_sSeen ? ' seen' : '') : ''}" style="width:54px;height:54px;flex-shrink:0;margin-left:12px;"${_sHas ? ` onclick="event.stopPropagation();openProfilStory('${_sUid}')"` : ''}>
             ${photoProfil ? `<img src="${photoProfil}" alt="${nom}" loading="lazy">` : initiale}
           </div>
         </div>
@@ -5641,6 +5644,7 @@ let _filStoryIndex = 0;
 let _filStoryTimer = null;
 let _filCurrentMediaType = 'image';
 let _filSelectedFile = null;
+let _storyPaused = false;
 
 async function loadFilPage() {
   const nb = document.getElementById('nav-fil-badge');
@@ -5857,10 +5861,74 @@ async function likeFilPost(postId, btn) {
 function openStoryViewer(stories, startIndex) {
   _filStoriesData = stories;
   _filStoryIndex = startIndex || 0;
+  _storyPaused = false;
   const ov = document.getElementById('fil-story-overlay');
   if (!ov) return;
-  ov.style.display = 'flex';
+
+  // Swipe + hold-to-pause (init une seule fois)
+  if (!ov._gestureInit) {
+    ov._gestureInit = true;
+    let _tx = 0, _ts = 0, _holdTimer = null;
+    ov.addEventListener('touchstart', e => {
+      _tx = e.touches[0].clientX;
+      _ts = Date.now();
+      _holdTimer = setTimeout(() => _pauseStoryViewer(), 180);
+    }, { passive: true });
+    ov.addEventListener('touchmove', () => clearTimeout(_holdTimer), { passive: true });
+    ov.addEventListener('touchend', e => {
+      clearTimeout(_holdTimer);
+      if (_storyPaused) { _resumeStoryViewer(); return; }
+      const dx = e.changedTouches[0].clientX - _tx;
+      const dt = Date.now() - _ts;
+      if (Math.abs(dx) > 60) {
+        dx < 0 ? nextStory() : prevStory();
+      } else if (dt < 250) {
+        e.changedTouches[0].clientX < window.innerWidth * 0.35 ? prevStory() : nextStory();
+      }
+    }, { passive: true });
+  }
+
+  ov.style.display = 'block';
   _renderCurrentStory();
+}
+
+function _pauseStoryViewer() {
+  if (_storyPaused) return;
+  _storyPaused = true;
+  clearTimeout(_filStoryTimer);
+  const bar = document.getElementById('fil-story-prog-bar');
+  if (bar) bar.style.animationPlayState = 'paused';
+  const vid = document.querySelector('#fil-story-media video');
+  if (vid) vid.pause();
+}
+
+function _resumeStoryViewer() {
+  if (!_storyPaused) return;
+  _storyPaused = false;
+  _renderCurrentStory();
+}
+
+async function openProfilStory(userId) {
+  if (!userId) return;
+  const supa = window.supabase || window.supa;
+  if (!supa) return;
+  try {
+    const cutoff = new Date(Date.now() - 86400000).toISOString();
+    const { data: storiesData } = await supa.from('wozali_stories')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('created_at', cutoff)
+      .order('created_at', { ascending: true });
+    if (!storiesData || !storiesData.length) { showToast('Pas de story disponible.', 'info'); return; }
+    let prest = {};
+    try {
+      const { data: p } = await supa.from('wozali_prestataires').select('nom_complet, photo_profil').eq('user_id', userId).maybeSingle();
+      if (p) prest = p;
+    } catch(_) {}
+    const stories = storiesData.map(s => ({ ...s, _prest: prest }));
+    localStorage.setItem('wz_story_seen_'+userId, new Date().toISOString());
+    openStoryViewer(stories, 0);
+  } catch(e) { console.error('openProfilStory', e); }
 }
 
 function _renderCurrentStory() {
@@ -7245,6 +7313,9 @@ async function showProfil(recordId) {
           </div>`
         : '';
 
+    const _profHasStory = !!(_profilUserId && window._storyUserIds?.has(_profilUserId));
+    const _profStorySeen = _profHasStory && !!localStorage.getItem('wz_story_seen_'+_profilUserId);
+
     container.innerHTML = `
       ${_suspensionBanner}
 
@@ -7254,7 +7325,7 @@ async function showProfil(recordId) {
         <div class="profil-header-body">
           <!-- Avatar -->
           <div class="profil-av-centered">
-            <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}">
+            <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}${_profHasStory ? (' has-story' + (_profStorySeen ? ' seen' : '')) : ''}" ${_profHasStory ? `onclick="openProfilStory('${escapeHtml(_profilUserId||'')}')"` : ''}>
               ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
             </div>
             <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>

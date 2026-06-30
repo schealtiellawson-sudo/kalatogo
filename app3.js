@@ -386,81 +386,89 @@ document.addEventListener('DOMContentLoaded',()=>{
     return null;
   };
 
-  // Stories enrichies (Ma Story + suivis + Pro vedette)
+  // Stories enrichies — système Instagram/TikTok complet (24h, halo, seen/unseen)
   window.chargerStoriesWOZALI = async function() {
     const container = document.getElementById('wozali-stories');
     if (!container) return;
     const sb = _sb();
     const user = await _currentUser();
-    let aLaUne = [], suivis = [];
 
-    try {
-      if (sb) {
-        const r = await sb.from('Une_Selections').select('*').eq('Active', true).limit(3);
-        aLaUne = r.data || [];
-        // Enrichir avec les données auteur
-        const uneAuteurIds = aLaUne.map(p => p.auteur_id).filter(Boolean);
-        if (uneAuteurIds.length > 0) {
-          const { data: auteurs } = await sb.from('wozali_prestataires').select('user_id, nom_complet, photo_profil').in('user_id', uneAuteurIds);
-          const auteurMap = {};
-          for (const a of (auteurs||[])) auteurMap[a.user_id] = a;
-          aLaUne.forEach(p => { p._auteur = auteurMap[p.auteur_id] || null; });
-        }
-      }
-    } catch(e) { aLaUne = []; }
+    // Set global utilisé pour les halos sur les cartes et pages profil
+    if (!window._storyUserIds) window._storyUserIds = new Set();
+    else window._storyUserIds.clear();
 
-    // Stories des membres suivis
+    const cutoff = new Date(Date.now() - 86400000).toISOString();
+    let storiesItems = [];
+    let aLaUne = [];
+
+    // 1. Stories des gens suivis (si connecté)
     if (sb && user) {
       try {
-        const { data: abos } = await sb.from('wozali_abonnements').select('suivi_id').eq('suiveur_id', user.id).limit(10);
-        if (abos && abos.length > 0) {
-          const ids = abos.map(a => a.suivi_id);
-          const { data: profils } = await sb.from('wozali_prestataires').select('user_id, nom_complet, photo_profil').in('user_id', ids);
-          suivis = (profils || []).map(p => ({
-            type: 'suivi', label: (p.nom_complet || 'Pro').split(' ')[0],
-            photo: p.photo_profil, id: p.user_id
-          }));
+        const { data: abos } = await sb.from('wozali_abonnements')
+          .select('suivi_id').eq('suiveur_id', user.id).limit(30);
+        if (abos && abos.length) {
+          const suiviIds = abos.map(a => a.suivi_id);
+          const { data: rawStories } = await sb.from('wozali_stories')
+            .select('user_id').in('user_id', suiviIds).gte('created_at', cutoff);
+          const uids = [...new Set((rawStories||[]).map(s => s.user_id))];
+          if (uids.length) {
+            const { data: profils } = await sb.from('wozali_prestataires')
+              .select('user_id, nom_complet, photo_profil').in('user_id', uids);
+            const pMap = {};
+            for (const p of (profils||[])) pMap[p.user_id] = p;
+            for (const uid of uids) {
+              const pr = pMap[uid] || {};
+              const seen = !!localStorage.getItem('wz_story_seen_'+uid);
+              window._storyUserIds.add(uid);
+              storiesItems.push({ userId: uid, nom: (pr.nom_complet||'Pro').split(' ')[0], photo: pr.photo_profil||'', seen });
+            }
+            // Non vues en premier
+            storiesItems.sort((a, b) => (a.seen ? 1 : 0) - (b.seen ? 1 : 0));
+          }
         }
       } catch(e) {}
     }
 
-    const stories = [
-      // Ma Story (si connecté)
-      ...(user ? [{ type: 'ma-story', label: 'Ma Story', action: 'ouvrirModalPublication()' }] : []),
-      // Bourse
-      { type: 'bourse', label: '🏆 Bourse', sousTitre: '🏆 Tirage', bg: '#E8940A', action: "showPage('recompenses')" },
-      // Suivis
-      ...suivis,
-      // À la Une
-      ...aLaUne.map(p => ({
-        type: 'une',
-        label: (p._auteur?.nom_complet || p._auteur?.nom || 'Pro').split(' ')[0],
-        sousTitre: '⭐ À la Une',
-        photo: p._auteur?.photo_profil || p._auteur?.photo_url,
-        id: p._auteur?.user_id || p.auteur_id
-      }))
-    ];
+    // 2. À la une (Pro vedette)
+    try {
+      if (sb) {
+        const r = await sb.from('Une_Selections').select('*').eq('Active', true).limit(3);
+        aLaUne = r.data || [];
+        const ids = aLaUne.map(p => p.auteur_id).filter(Boolean);
+        if (ids.length) {
+          const { data: auteurs } = await sb.from('wozali_prestataires').select('user_id, nom_complet, photo_profil').in('user_id', ids);
+          const aMap = {};
+          for (const a of (auteurs||[])) aMap[a.user_id] = a;
+          aLaUne.forEach(p => { p._auteur = aMap[p.auteur_id] || null; });
+        }
+      }
+    } catch(e) {}
 
-    container.innerHTML = `
-      <div class="stories-scroll">
-        ${stories.map(s => `
-          <div class="story-item" onclick="${s.action || (s.id ? `contacterAuteur('${s.id}')` : '')}">
-            ${s.type === 'ma-story' ? `
-              <div class="story-add">+</div>
-            ` : `
-              <div class="story-ring ${s.type === 'bourse' ? 'bourse' : ''}" style="${s.type === 'suivi' ? 'background:linear-gradient(135deg,#E8940A,#F5B82E)' : ''}">
-                <div class="story-avatar" style="background:${s.photo ? 'transparent' : (s.bg || '#1a2018')}">
-                  ${s.photo
-                    ? `<img src="${escapeHtml(s.photo)}" alt="${escapeHtml(s.label)}" loading="lazy">`
-                    : `<span class="story-emoji">${(s.sousTitre || '').split(' ')[0] || '⭐'}</span>`}
-                </div>
-              </div>
-            `}
-            <span class="story-label">${escapeHtml(s.label)}</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
+    // Construire le HTML
+    const items = [];
+
+    // Ma Story
+    if (user) {
+      items.push(`<div class="story-item" onclick="openFilStoryComposer()"><div class="story-add">+</div><span class="story-label">Ma Story</span></div>`);
+    }
+
+    // Bourse
+    items.push(`<div class="story-item" onclick="showPage('recompenses')"><div class="story-ring bourse"><div class="story-avatar" style="background:#1a2018;"><span class="story-emoji">🏆</span></div></div><span class="story-label">Bourse</span></div>`);
+
+    // Stories des suivis
+    for (const s of storiesItems) {
+      items.push(`<div class="story-item" onclick="openProfilStory('${s.userId}')"><div class="story-ring${s.seen ? ' story-ring--seen' : ''}"><div class="story-avatar" style="background:${s.photo ? 'transparent' : '#1a2018'}">${s.photo ? `<img src="${escapeHtml(s.photo)}" alt="${escapeHtml(s.nom)}" loading="lazy">` : `<span style="font-size:22px;font-weight:700;color:#E8940A;">${escapeHtml(s.nom.charAt(0))}</span>`}</div></div><span class="story-label">${escapeHtml(s.nom)}</span></div>`);
+    }
+
+    // À la une
+    for (const p of aLaUne) {
+      const a = p._auteur || {};
+      const nom = (a.nom_complet||'Pro').split(' ')[0];
+      const uid = a.user_id || p.auteur_id || '';
+      items.push(`<div class="story-item" onclick="${uid ? `showProfil('${uid}')` : ''}"><div class="story-ring"><div class="story-avatar" style="background:${a.photo_profil ? 'transparent' : '#1a2018'}">${a.photo_profil ? `<img src="${escapeHtml(a.photo_profil)}" alt="${escapeHtml(nom)}" loading="lazy">` : `<span class="story-emoji">⭐</span>`}</div></div><span class="story-label">${escapeHtml(nom)}</span></div>`);
+    }
+
+    container.innerHTML = `<div class="stories-scroll">${items.join('')}</div>`;
   };
 
   // Coup du jour
@@ -2362,7 +2370,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
       { icon:'hard-hat',   title:'Le travail ne paye pas. On change ça.', text:"Au Togo et au Bénin, le travail ne manque pas. C’est l’argent qui circule pas. À partir d’aujourd’hui, tes clients te trouvent. Ton business tourne. Ton travail paye.", primary:'Commencer' },
       { icon:'map-pin',    title:'Tes clients te trouvent. Sans réseau.', text:"Le client de Bè qui cherche un coiffeur. La famille d’Akpakpa qui veut un mécano. La mariée d’Adidogomé qui cherche une couturière. Avec ton GPS, ton WhatsApp et tes avis vérifiés, ils te trouvent en 30 secondes.", primary:'Suivant' },
       { icon:'trophy',     title:'500 000 FCFA versés chaque mois.', text:"Pas une promesse. Un virement. Bourse de Croissance 300K (1 gagnant/mois, Pro) pour les pros sérieux. Bourse des Mains d'Or 200K (100K × 2 Reines, 1 Togo + 1 Bénin) pour les femmes coiffeuses et couturières. Premier tirage le 30 août 2026. Ton travail te paye enfin.", primary:'Suivant' },
-      { icon:’users’,      title:’Fais tourner le commerce des autres. Le tien en profite.’, text:"Autour de toi, des gens qui travaillent dur mais sans clients. Tu leur montres WOZALI — ils s’inscrivent, les clients les trouvent, leur commerce démarre. Et pour chaque ami qui s’active en Pro : 1 000 FCFA/mois. À vie. Aider quelqu’un à faire marcher son business, maintenant ça paye.", primary:’Suivant’ },
+      { icon:'users',      title:'Fais tourner le commerce des autres. Le tien en profite.', text:"Autour de toi, des gens qui travaillent dur mais sans clients. Tu leur montres WOZALI — ils s’inscrivent, les clients les trouvent, leur commerce démarre. Et pour chaque ami qui s’active en Pro : 1 000 FCFA/mois. À vie. Aider quelqu’un à faire marcher son business, maintenant ça paye.", primary:'Suivant' },
       { icon:'badge-check',title:'Passe Pro — 2 500 FCFA/mois.', text:"1 cliente de plus dans le mois et c’est remboursé 10 fois. Badge Pro, priorité recherche, éligible aux 3 programmes (Bourse 300K + Bourse des Mains d'Or 200K + parrainage). 83 FCFA par jour. Le prix d’un café au coin de la rue.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
     ];
     var idx = 0;
