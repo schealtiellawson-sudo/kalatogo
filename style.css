@@ -1054,7 +1054,133 @@ h1 .gold { color:var(--or); }
 .profil-animate:nth-child(5) { animation-delay: 0.33s; }
 .profil-animate:nth-child(6) { animation-delay: 0.40s; }
 
-/* Hero section dark */
+/* ═══════════ NOUVEAU PROFIL — design centré v2 ═══════════ */
+.profil-new-header { background:#0f0b07; }
+.profil-cover-zone { height:90px; background:linear-gradient(135deg,#1A1208 0%,#2a1d0a 50%,#1A1208 100%); }
+/* Header body: stacked on mobile, flex on PC */
+.profil-header-body { display:block; }
+/* Avatar centré */
+.profil-av-centered { display:flex; justify-content:center; margin-top:-28px; position:relative; z-index:2; }
+.profil-av-centered .profil-avatar-lg {
+  width:64px; height:64px; font-size:24px;
+  box-shadow:0 0 0 3px #0f0b07, 0 0 0 5px rgba(232,148,10,0.25);
+  border:3px solid #0f0b07;
+  background:linear-gradient(135deg,rgba(232,148,10,0.35),rgba(232,148,10,0.1));
+}
+/* Bloc nom centré */
+.profil-center-block { text-align:center; padding:8px 16px 4px; }
+.profil-center-block .profil-name { font-size:19px; justify-content:center; }
+.profil-center-block .profil-sub { font-size:11px; justify-content:center; margin-bottom:8px; }
+/* Badges chips */
+.profil-chips-row { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; margin-bottom:6px; }
+.profil-chip { font-size:8px; font-weight:700; padding:2px 8px; border-radius:20px; letter-spacing:.2px; }
+.profil-chip.chip-or { background:#E8940A; color:#14100A; }
+.profil-chip.chip-vert { background:rgba(232,148,10,0.2); color:#E8940A; border:1px solid rgba(232,148,10,.35); }
+.profil-chip.chip-green { background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid rgba(74,222,128,.25); }
+.profil-chip.chip-off { background:rgba(255,255,255,0.07); color:rgba(252,224,168,.45); border:1px solid rgba(255,255,255,.1); }
+.profil-chip.chip-dk { background:rgba(255,255,255,0.07); color:rgba(252,224,168,.6); border:1px solid rgba(255,255,255,.1); }
+.profil-chip.chip-star { background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,.3); }
+/* Stats strip */
+.profil-stats-strip { display:flex; border-top:1px solid rgba(255,255,255,.07); border-bottom:1px solid rgba(255,255,255,.07); margin:8px 0; }
+.profil-stat-cell { flex:1; display:flex; flex-direction:column; align-items:center; padding:8px 4px; border-right:1px solid rgba(255,255,255,.07); }
+.profil-stat-cell:last-child { border-right:none; }
+.profil-stat-num { font-family:'DM Serif Display',serif; font-size:16px; font-weight:900; color:#FCE0A8; }
+.profil-stat-lbl { font-size:7px; color:rgba(252,224,168,.28); letter-spacing:.5px; margin-top:1px; }
+/* Icon grid */
+.profil-ic-grid { display:flex; justify-content:center; gap:16px; padding:10px 14px 6px; }
+.profil-ic-btn { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; background:none; border:none; }
+.profil-ic-circle { width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.ic-rdv { background:#E8940A; }
+.ic-wa  { background:#25D366; }
+.ic-tel  { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); }
+.ic-share { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); }
+.profil-ic-lbl { font-size:9px; color:rgba(252,224,168,.4); font-weight:700; }
+/* Social pills + follow (mobile) */
+.profil-soc-follow { display:flex; align-items:center; gap:8px; padding:0 14px 12px; flex-wrap:wrap; justify-content:center; }
+.profil-soc-pills { display:flex; gap:6px; flex-wrap:wrap; }
+.profil-soc-pill { display:flex; align-items:center; gap:4px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:5px 10px; font-size:10px; color:rgba(252,224,168,.55); text-decoration:none; }
+.profil-follow-btn { background:none; border:1.5px solid rgba(252,224,168,.18); border-radius:20px; color:rgba(252,224,168,.65); padding:6px 14px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Geist',sans-serif; }
+/* Tabs */
+.profil-tabs-nav { display:flex; border-bottom:2px solid rgba(255,255,255,.07); background:#0f0b07; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:50; }
+.profil-tab-btn { flex:1; min-width:0; padding:11px 4px; font-size:9px; font-weight:700; color:rgba(252,224,168,.35); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; letter-spacing:.3px; white-space:nowrap; font-family:'Geist',sans-serif; transition:color .15s; position:relative; bottom:-2px; }
+.profil-tab-btn.active { color:#E8940A; border-bottom-color:#E8940A; }
+.profil-tab-badge { display:inline-block; background:#E8940A; color:#14100A; font-size:7px; font-weight:900; border-radius:20px; padding:0 4px; line-height:14px; margin-left:3px; vertical-align:middle; }
+.profil-tab-pane { background:#0f0b07; min-height:200px; }
+/* Mini photo grid (tab Posts) */
+.profil-photo-mini-wrap { border-bottom:1px solid rgba(255,255,255,.07); padding-bottom:4px; }
+.profil-photo-mini-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px 6px; }
+.profil-photo-mini-title { font-size:12px; font-weight:700; color:#FCE0A8; }
+.profil-photo-mini-see-all { font-size:10px; color:#E8940A; cursor:pointer; background:none; border:none; font-weight:700; font-family:'Geist',sans-serif; }
+.profil-photo-mini-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.profil-photo-mini-item { aspect-ratio:1; overflow:hidden; cursor:pointer; position:relative; background:#1A1208; }
+.profil-photo-mini-item img { width:100%; height:100%; object-fit:cover; transition:transform .2s; }
+.profil-photo-mini-item:hover img { transform:scale(1.05); }
+.profil-photo-mini-more { display:flex; align-items:center; justify-content:center; background:rgba(15,11,7,.85) !important; }
+.profil-photo-mini-more span { font-size:15px; font-weight:800; color:#FCE0A8; font-family:'DM Serif Display',serif; }
+.profil-photo-mini-empty { grid-column:1/-1; display:flex; flex-direction:column; align-items:center; gap:6px; padding:20px; color:rgba(252,224,168,.25); font-size:13px; cursor:pointer; }
+/* Composer (owner) */
+.profil-composer-wrap { padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.07); }
+.profil-composer-av { width:36px; height:36px; border-radius:50%; background:rgba(232,148,10,.18); display:flex; align-items:center; justify-content:center; font-weight:800; color:#E8940A; font-size:14px; flex-shrink:0; }
+.profil-composer-textarea { width:100%; background:transparent; border:none; color:#FCE0A8; font-size:14px; line-height:1.6; resize:none; min-height:60px; outline:none; font-family:'Geist',sans-serif; }
+.profil-composer-footer { display:flex; align-items:center; justify-content:space-between; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.08); }
+.profil-composer-submit { background:#E8940A; color:#14100A; border:none; padding:7px 18px; border-radius:20px; font-weight:800; font-size:13px; cursor:pointer; font-family:'Geist',sans-serif; }
+/* Tab Photos: full grid */
+.profil-album-full { padding:14px; }
+.profil-album-full-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.profil-album-full-head h3 { font-family:'DM Serif Display',serif; font-size:16px; color:#FCE0A8; }
+.profil-album-fullscreen-btn { font-size:11px; color:#E8940A; background:none; border:none; font-weight:700; cursor:pointer; font-family:'Geist',sans-serif; }
+.profil-album-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
+.profil-album-grid-item { aspect-ratio:1; overflow:hidden; cursor:pointer; position:relative; background:#1A1208; border-radius:4px; }
+.profil-album-grid-item img { width:100%; height:100%; object-fit:cover; transition:transform .3s; }
+.profil-album-grid-item:hover img { transform:scale(1.06); }
+/* Tab Avis */
+.profil-avis-tab-content { padding:14px; }
+.profil-avis-summary { display:flex; gap:16px; align-items:flex-start; background:#1A1208; border-radius:14px; padding:16px; margin-bottom:12px; border:1px solid rgba(255,255,255,.06); }
+.profil-avis-big-note { font-family:'DM Serif Display',serif; font-size:40px; font-weight:900; color:#E8940A; line-height:1; }
+.profil-avis-summary-right { flex:1; }
+.profil-avis-stars { font-size:15px; color:#fbbf24; margin-bottom:3px; }
+.profil-avis-count { font-size:11px; color:rgba(252,224,168,.4); margin-bottom:8px; }
+.profil-avis-bars { display:flex; flex-direction:column; gap:3px; }
+.profil-avis-bar-row { display:flex; align-items:center; gap:6px; }
+.profil-avis-bar-lbl { font-size:9px; color:rgba(252,224,168,.35); width:10px; text-align:right; }
+.profil-avis-bar-track { flex:1; height:4px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
+.profil-avis-bar-fill { height:100%; background:#fbbf24; border-radius:2px; }
+.profil-add-avis-btn { width:100%; background:none; border:1px solid rgba(232,148,10,.3); border-radius:20px; color:#E8940A; padding:10px; font-size:13px; font-weight:700; cursor:pointer; margin-bottom:14px; font-family:'Geist',sans-serif; }
+.profil-voir-plus { width:100%; justify-content:center; margin-top:12px; }
+/* Tab À propos grid */
+.profil-apropos-grid { padding:14px; display:grid; grid-template-columns:1fr; gap:0; }
+
+/* ── PC overrides (>= 768px) ── */
+@media(min-width:768px) {
+  .profil-cover-zone { height:140px; }
+  .profil-header-body { display:flex; align-items:flex-start; max-width:1160px; margin:0 auto; padding:0 28px; }
+  .profil-av-centered { justify-content:flex-start; margin-top:-45px; flex-shrink:0; }
+  .profil-av-centered .profil-avatar-lg { width:90px; height:90px; font-size:34px; }
+  .profil-header-right { flex:1; padding-top:12px; padding-left:20px; }
+  .profil-center-block { text-align:left; padding:0 0 4px; max-width:1160px; margin:0 auto; }
+  .profil-center-block .profil-name { font-size:24px; justify-content:flex-start; }
+  .profil-center-block .profil-sub { justify-content:flex-start; }
+  .profil-chips-row { justify-content:flex-start; }
+  .profil-stats-strip { border-top:none; border-bottom:1px solid rgba(255,255,255,.07); gap:24px; padding:0 0 12px; justify-content:flex-start; margin:6px 0 10px; }
+  .profil-stat-cell { border-right:none; padding:0; align-items:flex-start; }
+  .profil-stat-num { font-size:20px; }
+  .profil-stat-lbl { font-size:9px; }
+  .profil-ic-grid { justify-content:flex-start; padding:0 0 14px; gap:8px; }
+  .profil-ic-btn { flex-direction:row; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:8px 14px; color:rgba(252,224,168,.7); font-size:12px; font-weight:700; font-family:'Geist',sans-serif; }
+  .profil-ic-btn.ic-rdv-btn { background:#E8940A; color:#14100A; border-color:#E8940A; }
+  .profil-ic-btn.ic-wa-btn  { background:#25D366; color:white; border-color:#25D366; }
+  .profil-ic-circle { width:auto; height:auto; border-radius:0; background:none !important; font-size:15px; border:none !important; }
+  .profil-ic-lbl { font-size:12px; color:inherit; }
+  .profil-soc-follow { display:none; }
+  .profil-tabs-nav { max-width:none; padding:0 20px; }
+  .profil-tab-btn { font-size:11px; padding:12px 16px; flex:none; }
+  .profil-apropos-grid { grid-template-columns:1fr 280px; gap:20px; padding:20px 28px; }
+  .profil-album-grid { grid-template-columns:repeat(4,1fr); gap:6px; }
+  .profil-album-grid-item { border-radius:8px; }
+  .profil-tab-pane,.profil-tabs-nav { max-width:none; }
+}
+
+/* Hero section dark (ancien — conservé pour compatibilité) */
 .profil-hero-section {
   background:#111; padding:0 0 0;
   border-bottom:1px solid rgba(255,255,255,0.06);

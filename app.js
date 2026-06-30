@@ -7223,195 +7223,259 @@ async function showProfil(recordId) {
 
     container.innerHTML = `
       ${_suspensionBanner}
-      <!-- Hero section dark -->
-      <div class="profil-hero-section">
-        <div class="profil-hero-inner">
-          <div class="profil-top">
-            <!-- Avatar + badge online -->
-            <div class="profil-avatar-wrap">
-              <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}">
-                ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
-              </div>
-              <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>
-            </div>
 
-            <div class="profil-info">
-              <!-- Nom + icône vérifié -->
+      <!-- ═══════════ NOUVEAU HEADER PROFIL v2 ═══════════ -->
+      <div class="profil-new-header">
+        <div class="profil-cover-zone"></div>
+        <div class="profil-header-body">
+          <!-- Avatar -->
+          <div class="profil-av-centered">
+            <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}">
+              ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
+            </div>
+            <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>
+          </div>
+          <!-- Right col (becomes full-width on mobile) -->
+          <div class="profil-header-right">
+            <!-- Nom + sous-titre + badges -->
+            <div class="profil-center-block">
               <div class="profil-name">
                 ${nom}
                 ${verifie ? '<span class="profil-verified-icon" title="Vérifié WOZALI">✓</span>' : ''}
               </div>
-
-              <!-- Métier, quartier, expérience -->
               <div class="profil-sub">
                 <span>${emoji} ${metier}</span>
                 ${quartier ? `<span>·</span><span>📍 ${quartier}</span>` : ''}
                 ${experience ? `<span>·</span><span>🏆 ${experience} ans</span>` : ''}
               </div>
-
-              <!-- Statut en ligne -->
-              <div class="profil-status-text">
-                <span class="profil-status-dot ${dispo ? '' : 'offline'}"></span>
-                <span style="color:rgba(255,255,255,0.6);">
-                  ${dispo ? '<span style="color:#E8940A;">⭐ Disponible maintenant</span>' : 'Occupé pour l\'instant'}
-                </span>
+              <div class="profil-chips-row">
+                ${abonnementRaw !== 'Base' ? `<span class="profil-chip chip-or">⭐ PRO</span>` : ''}
+                ${verifie ? '<span class="profil-chip chip-vert">✓ Vérifié</span>' : ''}
+                ${dispo ? '<span class="profil-chip chip-green">● Disponible</span>' : '<span class="profil-chip chip-off">⏸ Occupé</span>'}
+                ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="profil-chip chip-dk">🏅 Fondateur</span>' : ''}
+                ${note > 0 ? `<span class="profil-chip chip-star">★ ${note.toFixed(1)}</span>` : ''}
+                ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="profil-chip chip-vert">🏆 Éligible Bourse</span>' : ''}
               </div>
+            </div>
 
-              <!-- Badges -->
-              <div class="profil-badges">
-                ${verifie ? '<span class="badge badge-vert">✓ Vérifié WOZALI</span>' : ''}
-                ${abonnementRaw !== 'Base' ? `<span class="badge badge-or">⭐ ${abonnement}</span>` : ''}
-                ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Membre Fondateur WOZALI</span>' : ''}
-                ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="badge" style="background:linear-gradient(135deg,rgba(232,148,10,0.25),rgba(245,158,11,0.15));color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 Éligible Bourse de Croissance</span>' : ''}
-                ${f['Rang Top 50'] && f['Rang Top 50'] <= 50 ? `<span class="badge" style="background:rgba(232,148,10,0.25);color:#E8940A;border:1px solid rgba(232,148,10,0.5);">🏆 TOP ${f['Rang Top 50']} WOZALI ${(quartierRaw||'').toLowerCase().includes('cotonou')?'🇧🇯':'🇹🇬'}</span>` : ''}
-                ${f['Champion WOZALI'] ? `<span class="badge" style="background:rgba(232,148,10,0.2);color:#E8940A;border:1px solid rgba(232,148,10,0.4);">⚔️ Champion WOZALI ${escapeHtml(f['Champion WOZALI'])}</span>` : ''}
-                ${note > 0 ? `<span class="badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">${starsHtml(note)} ${note.toFixed(1)}</span>` : ''}
-                ${isDigital ? '<span class="badge" style="background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);">🎓 Pro du Web</span>' : ''}
-                ${f['Mode Emploi'] ? '<span class="badge" style="background:rgba(232,148,10,0.2);color:#F5B82E;border:1px solid rgba(232,148,10,0.4);">💼 Ouvert aux opportunités</span>' : ''}
+            <!-- Stats strip -->
+            <div class="profil-stats-strip">
+              <div class="profil-stat-cell">
+                <div class="profil-stat-num">${note > 0 ? note.toFixed(1) : '—'}</div>
+                <div class="profil-stat-lbl">NOTE</div>
               </div>
+              <div class="profil-stat-cell">
+                <div class="profil-stat-num">${nbAvis}</div>
+                <div class="profil-stat-lbl">AVIS</div>
+              </div>
+              <div class="profil-stat-cell">
+                <div class="profil-stat-num" style="color:#E8940A;">${score}</div>
+                <div class="profil-stat-lbl">SCORE</div>
+              </div>
+              ${nbTransactions > 0 ? `
+              <div class="profil-stat-cell">
+                <div class="profil-stat-num">${nbTransactions}</div>
+                <div class="profil-stat-lbl">PRESTATIONS</div>
+              </div>` : ''}
+              <div class="profil-stat-cell" style="cursor:pointer;" onclick="showPage('search')">
+                <div class="profil-stat-num" id="pstat-abonnes-${recordId}">…</div>
+                <div class="profil-stat-lbl">ABONNÉS</div>
+              </div>
+            </div>
 
-              <!-- Boutons d'action -->
-              <div class="profil-actions">
-                <a href="javascript:void(0)" class="btn-rdv" onclick="showRdvPage('${recordId}')">📅 Prendre RDV</a>
-                ${tel ? `<a href="${waLink}" class="btn btn-wa" target="_blank">💬 WhatsApp</a>` : ''}
-                ${tel ? `<a href="tel:${tel}" class="btn-dark-outline">📞 Appeler</a>` : ''}
-                ${tiktok ? `<a href="${tiktokSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>TikTok</a>` : ''}
-                ${instagram ? `<a href="${instagramSafe}" target="_blank" class="btn-dark-outline"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>` : ''}
-                <a href="javascript:void(0)" class="btn-dark-outline" onclick="shareProfile('${recordId}','${nom}')">🔗 Partager</a>
-                <!-- Paiement profil — activé quand FedaPay sera connecté -->
-                <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')"
-                  style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);padding:10px 18px;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;">
-                  ➕ Suivre
-                </button>
+            <!-- Actions icônes -->
+            <div class="profil-ic-grid">
+              <button class="profil-ic-btn ic-rdv-btn" onclick="showRdvPage('${recordId}')">
+                <div class="profil-ic-circle ic-rdv">📅</div>
+                <span class="profil-ic-lbl">RDV</span>
+              </button>
+              ${tel ? `
+              <a href="${waLink}" class="profil-ic-btn ic-wa-btn" target="_blank" style="text-decoration:none;">
+                <div class="profil-ic-circle ic-wa">💬</div>
+                <span class="profil-ic-lbl">WhatsApp</span>
+              </a>
+              <a href="tel:${tel}" class="profil-ic-btn" style="text-decoration:none;">
+                <div class="profil-ic-circle ic-tel">📞</div>
+                <span class="profil-ic-lbl">Appeler</span>
+              </a>` : ''}
+              <button class="profil-ic-btn" onclick="shareProfile('${recordId}','${nom}')">
+                <div class="profil-ic-circle ic-share">🔗</div>
+                <span class="profil-ic-lbl">Partager</span>
+              </button>
+              <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')" class="profil-follow-btn" style="display:none;">➕ Suivre</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile : socials + suivre (masqués sur PC) -->
+        <div class="profil-soc-follow">
+          <div class="profil-soc-pills">
+            ${tiktok ? `<a href="${tiktokSafe}" target="_blank" class="profil-soc-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg> TikTok</a>` : ''}
+            ${instagram ? `<a href="${instagramSafe}" target="_blank" class="profil-soc-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> Instagram</a>` : ''}
+          </div>
+          <button data-suivi-prest="${recordId}" onclick="toggleSuivi('${recordId}')" class="profil-follow-btn">➕ Suivre</button>
+        </div>
+      </div>
+
+      <!-- ═══════════ TABS NAV ═══════════ -->
+      <div class="profil-tabs-nav" id="profil-tabs-nav-${recordId}">
+        <button class="profil-tab-btn active" onclick="switchProfilTab('${recordId}','posts',this)">POSTS</button>
+        <button class="profil-tab-btn" onclick="switchProfilTab('${recordId}','photos',this)">PHOTOS</button>
+        <button class="profil-tab-btn" onclick="switchProfilTab('${recordId}','avis',this)">AVIS${nbAvis > 0 ? `<span class="profil-tab-badge">${nbAvis}</span>` : ''}</button>
+        <button class="profil-tab-btn" onclick="switchProfilTab('${recordId}','apropos',this)">À PROPOS</button>
+      </div>
+
+      <!-- ═══════════ TAB POSTS ═══════════ -->
+      <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
+        <!-- Mini grille photos -->
+        <div class="profil-photo-mini-wrap">
+          <div class="profil-photo-mini-head">
+            <span class="profil-photo-mini-title">📸 Photos & Vidéos</span>
+            <button class="profil-photo-mini-see-all" onclick="showAlbumsPage('${recordId}')">Voir l'album →</button>
+          </div>
+          <div class="profil-photo-mini-grid">
+            ${allPhotos.slice(0,5).map((url,i) => `<div class="profil-photo-mini-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}
+            ${allPhotos.length > 5 ? `<div class="profil-photo-mini-item profil-photo-mini-more" onclick="showAlbumsPage('${recordId}')"><span>+${allPhotos.length - 5}</span></div>` : ''}
+            ${allPhotos.length === 0 ? `<div class="profil-photo-mini-empty" onclick="showAlbumsPage('${recordId}')"><span>📷</span><div>Pas encore de photos</div></div>` : ''}
+          </div>
+        </div>
+        <!-- Composer (propriétaire) -->
+        ${isOwner ? `
+        <div class="profil-composer-wrap">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div class="profil-composer-av">${(f['Nom complet']||'?').charAt(0).toUpperCase()}</div>
+            <div style="flex:1;">
+              <textarea id="post-composer-${recordId}" class="profil-composer-textarea" placeholder="Partage une réalisation, une offre..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+              <div class="profil-composer-footer">
+                <label style="cursor:pointer;color:rgba(252,224,168,0.5);font-size:13px;display:flex;align-items:center;gap:6px;">
+                  <input type="file" accept="image/*,video/*" id="post-img-${recordId}" style="display:none;" onchange="previewPostMedia(this,'${recordId}')"> 📷 Photo / 🎬 Vidéo
+                </label>
+                <button onclick="submitPost('${recordId}')" class="profil-composer-submit">Publier</button>
+              </div>
+              <div id="post-img-preview-${recordId}" style="margin-top:8px;display:none;gap:8px;align-items:center;">
+                <img id="post-img-preview-img-${recordId}" style="max-height:200px;border-radius:10px;object-fit:cover;display:none;">
+                <video id="post-img-preview-vid-${recordId}" style="max-height:200px;border-radius:10px;max-width:100%;display:none;" controls muted playsinline></video>
+                <button onclick="clearPostMedia('${recordId}')" style="background:rgba(255,0,0,0.2);border:none;color:white;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;flex-shrink:0;">✕</button>
               </div>
             </div>
           </div>
-
-          <!-- Stats bar -->
-          <div class="profil-stats-bar">
-            <div class="pstat">
-              <div class="pstat-num">${note > 0 ? note.toFixed(1) : '—'}</div>
-              <div class="pstat-label">Note / 5</div>
-            </div>
-            <div class="pstat">
-              <div class="pstat-num">${nbAvis}</div>
-              <div class="pstat-label">Avis clients</div>
-            </div>
-            <div class="pstat">
-              <div class="pstat-num">${nbTransactions}</div>
-              <div class="pstat-label">Prestations</div>
-            </div>
-            <div class="pstat">
-              <div class="pstat-num" style="color:var(--or);">${score}</div>
-              <div class="pstat-label">Score WOZALI</div>
-            </div>
-            ${experience ? `<div class="pstat"><div class="pstat-num">${experience}</div><div class="pstat-label">Ans d'expérience</div></div>` : ''}
-            <div class="pstat" style="cursor:pointer;" onclick="showPage('search')">
-              <div class="pstat-num" id="pstat-abonnes-${recordId}">…</div>
-              <div class="pstat-label">Abonnés</div>
-            </div>
+        </div>` : ''}
+        <!-- Feed posts -->
+        <div id="posts-feed-${recordId}">
+          <div style="text-align:center;padding:40px 20px;color:rgba(252,224,168,0.3);">
+            <div style="font-size:32px;margin-bottom:10px;">📭</div>
+            <div style="font-size:14px;">${nom.split(' ')[0]} n'a pas encore publié de contenu.</div>
           </div>
         </div>
       </div>
 
-      <!-- Corps de la page — fond sombre -->
-      <div class="profil-page-bg">
-        <div class="container">
-          <div class="profil-body">
-            <!-- Colonne principale -->
-            <div>
-              ${description ? `
-              <div class="profil-section">
-                <h3>À propos</h3>
-                ${descHtml}
-              </div>` : ''}
+      <!-- ═══════════ TAB PHOTOS ═══════════ -->
+      <div class="profil-tab-pane" id="profil-tab-photos-${recordId}" style="display:none;">
+        <div class="profil-album-full">
+          <div class="profil-album-full-head">
+            <h3>${allPhotos.length} photo${allPhotos.length !== 1 ? 's' : ''}</h3>
+            ${allPhotos.length > 0 ? `<button class="profil-album-fullscreen-btn" onclick="showAlbumsPage('${recordId}')">Album complet →</button>` : ''}
+          </div>
+          ${allPhotos.length > 0 ? `
+          <div class="profil-album-grid">
+            ${allPhotos.map((url,i) => `<div class="profil-album-grid-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"><div class="album-overlay"><span class="album-overlay-icon">🔍</span></div></div>`).join('')}
+          </div>` : `
+          <div style="text-align:center;padding:48px 20px;color:rgba(252,224,168,0.3);">
+            <div style="font-size:40px;margin-bottom:12px;">📷</div>
+            <div style="font-size:14px;">${nom.split(' ')[0]} n'a pas encore ajouté de photos.</div>
+          </div>`}
+        </div>
+      </div>
 
-
-              ${diplomes && isDigital ? `
-              <div class="profil-section">
-                <h3>🎓 Diplômes &amp; expériences</h3>
-                <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.8;white-space:pre-wrap;">${diplomes}</p>
-              </div>` : ''}
-
-              ${albumsPreview}
-
-              ${languesSection}
-
-              ${postsSection}
-
-              <!-- Section Disponibilité -->
-              <div class="profil-section">
-                <h3 style="margin-bottom:12px;">Quand contacter ${nom.split(' ')[0]} ?</h3>
-                ${dispo
-                  ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> — répond généralement en moins d'1h.</p>`
-                  : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp — ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
-                <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px;">Disponible : Lun–Ven : 8h–18h / Samedi : 9h–14h</p>
-              </div>
-
-              <!-- Section Avis -->
-              <div class="profil-section">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-                  <h3 style="margin-bottom:0;">⭐ Ce que ses clients disent de ${nom.split(' ')[0]}.</h3>
-                  <button class="btn btn-secondary btn-sm" onclick="openModalAvis('${recordId}','${nom}')">+ Laisser un avis</button>
-                </div>
-                <div id="avis-container-${recordId}">${avisHtml}</div>
-                ${avisRecords.length > 3 ? `<button class="voir-plus-btn" style="margin-top:12px;width:100%;justify-content:center;" onclick="showAllAvis('${recordId}', ${JSON.stringify(avisRecords.map(a=>a.id))})">Voir tous les avis (${avisRecords.length}) ▾</button>` : ''}
+      <!-- ═══════════ TAB AVIS ═══════════ -->
+      <div class="profil-tab-pane" id="profil-tab-avis-${recordId}" style="display:none;">
+        <div class="profil-avis-tab-content">
+          ${nbAvis > 0 ? `
+          <div class="profil-avis-summary">
+            <div class="profil-avis-big-note">${note.toFixed(1)}</div>
+            <div class="profil-avis-summary-right">
+              <div class="profil-avis-stars">${starsHtml(note)}</div>
+              <div class="profil-avis-count">${nbAvis} avis clients</div>
+              <div class="profil-avis-bars">
+                ${[5,4,3,2,1].map(star => {
+                  const cnt = avisRecords.filter(r => Math.round(r.fields['Note globale sur 5']||0) === star).length;
+                  const pct = nbAvis > 0 ? Math.round((cnt/nbAvis)*100) : 0;
+                  return `<div class="profil-avis-bar-row"><span class="profil-avis-bar-lbl">${star}</span><div class="profil-avis-bar-track"><div class="profil-avis-bar-fill" style="width:${pct}%"></div></div></div>`;
+                }).join('')}
               </div>
             </div>
+          </div>
+          <button class="profil-add-avis-btn" onclick="openModalAvis('${recordId}','${nom}')">+ Laisser un avis</button>
+          <div id="avis-container-${recordId}">${avisHtml}</div>
+          ${avisRecords.length > 3 ? `<button class="voir-plus-btn profil-voir-plus" onclick="showAllAvis('${recordId}', ${JSON.stringify(avisRecords.map(a=>a.id))})">Voir tous les avis (${avisRecords.length}) ▾</button>` : ''}
+          ` : `
+          <div style="text-align:center;padding:48px 20px;">
+            <div style="font-size:40px;margin-bottom:12px;">⭐</div>
+            <p style="color:rgba(252,224,168,0.55);font-size:15px;font-weight:600;margin-bottom:8px;">${nom.split(' ')[0]} n'a pas encore d'avis.</p>
+            <p style="color:rgba(252,224,168,0.3);font-size:13px;line-height:1.7;margin-bottom:16px;">Si tu as fait appel à ses services, laisse un avis. C'est gratuit.</p>
+            <button class="btn btn-secondary btn-sm" onclick="openModalAvis('${recordId}','${nom}')">→ Laisser le premier avis</button>
+          </div>`}
+        </div>
+      </div>
 
-            <!-- Sidebar -->
-            <div>
-              <div class="sidebar-card">
-                ${(tarifMin || tarifMax) ? `
-                <div class="tarif-box">
-                  <div class="tarif-range">
-                    ${tarifMin ? 'À partir de ' + tarifMin.toLocaleString() + ' FCFA' : ''}${tarifMax ? '<br>Jusqu\'à ' + tarifMax.toLocaleString() + ' FCFA selon la prestation' : ''}
-                  </div>
-                  <div class="tarif-label" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;">Prix négociables directement avec ${nom.split(' ')[0]}.<br>Paiement : TMoney · Flooz (Togo) / MTN Money · Moov Money (Bénin)</div>
-                </div>` : ''}
-                ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#E8940A;color:white;" target="_blank">→ Contacter maintenant sur WhatsApp</a>` : ''}
-                <p style="font-size:12px;color:rgba(255,255,255,0.55);text-align:center;line-height:1.6;margin:0 0 6px;">Contact direct. Zéro intermédiaire.<br>Paiement : TMoney · Flooz (Togo) / MTN Mobile Money · Moov Money (Bénin)</p>
-                <div style="font-size:12px;color:rgba(255,255,255,0.35);text-align:center;line-height:1.6;">
-                  En contactant via WOZALI, tu bénéficies de la garantie prestataire vérifié.
-                </div>
-              </div>
-
-              <div class="sidebar-card">
-                <h4>Informations</h4>
-                <div style="font-size:14px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
-                  ${quartier ? `<div style="display:flex;align-items:center;gap:8px;">📍 <span><strong style="color:white;">Où trouver ${nom.split(' ')[0]}</strong> · ${quartier}</span></div>` : ''}
-                  ${(gpsLat && gpsLon) ? `
-                  <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);margin-top:4px;">
-                    <div id="profil-minimap-${recordId}" style="height:130px;background:linear-gradient(135deg,#151d28,#1a2820);display:flex;align-items:center;justify-content:center;">
-                      <div style="opacity:0.3;font-size:20px;">🗺️</div>
-                    </div>
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:13px;font-weight:800;text-decoration:none;letter-spacing:0.2px;" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-                      🗺️ Voir l'itinéraire — envoie au zem pour qu'il arrive directement
-                    </a>
-                  </div>` : quartier ? `
-                  <div>
-                    <a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-                      🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →
-                    </a>
-                  </div>` : ''}
-                  ${metier ? `<div style="display:flex;align-items:center;gap:8px;">${emoji} <span><strong style="color:white;">Métier</strong> · ${metier}</span></div>` : ''}
-                  ${experience ? `<div style="display:flex;align-items:center;gap:8px;">🏆 <span><strong style="color:white;">Expérience</strong> · ${experience} ans</span></div>` : ''}
-                  <div style="display:flex;align-items:center;gap:8px;">
-                    ${dispo ? '<span style="color:#E8940A;">⭐</span>' : '⚪'}
-                    <span><strong style="color:white;">Statut</strong> · ${dispo ? '<span style="color:#E8940A;">Disponible maintenant</span>' : 'Occupé pour l\'instant'}</span>
-                  </div>
-                </div>
-              </div>
-
-              ${(tiktok || instagram) ? `
-              <div class="sidebar-card">
-                <h4>Réseaux sociaux</h4>
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                  ${tiktok ? `<a href="${tiktokSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
-                  ${instagram ? `<a href="${instagramSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;transition:.2s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
-                </div>
-              </div>` : ''}
+      <!-- ═══════════ TAB À PROPOS ═══════════ -->
+      <div class="profil-tab-pane" id="profil-tab-apropos-${recordId}" style="display:none;">
+        <div class="profil-apropos-grid">
+          <!-- Colonne principale -->
+          <div>
+            ${description ? `
+            <div class="profil-section profil-animate">
+              <h3>À propos</h3>
+              ${descHtml}
+            </div>` : ''}
+            ${diplomes && isDigital ? `
+            <div class="profil-section profil-animate">
+              <h3>🎓 Diplômes &amp; expériences</h3>
+              <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.8;white-space:pre-wrap;">${diplomes}</p>
+            </div>` : ''}
+            ${languesSection}
+            <div class="profil-section profil-animate">
+              <h3 style="margin-bottom:12px;">Quand contacter ${nom.split(' ')[0]} ?</h3>
+              ${dispo
+                ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> — répond généralement en moins d'1h.</p>`
+                : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp — ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
+              <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px;">Lun–Ven : 8h–18h / Samedi : 9h–14h</p>
             </div>
+          </div>
+          <!-- Sidebar -->
+          <div>
+            <div class="sidebar-card">
+              ${(tarifMin || tarifMax) ? `
+              <div class="tarif-box">
+                <div class="tarif-range">${tarifMin ? 'À partir de ' + tarifMin.toLocaleString() + ' FCFA' : ''}${tarifMax ? '<br>Jusqu\'à ' + tarifMax.toLocaleString() + ' FCFA' : ''}</div>
+                <div class="tarif-label">Prix négociables directement avec ${nom.split(' ')[0]}.<br>Paiement : TMoney · Flooz / MTN · Moov Money</div>
+              </div>` : ''}
+              ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#E8940A;color:white;" target="_blank">→ Contacter sur WhatsApp</a>` : ''}
+            </div>
+            <div class="sidebar-card">
+              <h4>Informations</h4>
+              <div style="font-size:14px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
+                ${quartier ? `<div style="display:flex;align-items:center;gap:8px;">📍 <span><strong style="color:white;">Zone</strong> · ${quartier}</span></div>` : ''}
+                ${(gpsLat && gpsLon) ? `
+                <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
+                  <div id="profil-minimap-${recordId}" style="height:130px;background:linear-gradient(135deg,#151d28,#1a2820);display:flex;align-items:center;justify-content:center;"><div style="opacity:0.3;font-size:20px;">🗺️</div></div>
+                  <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:13px;font-weight:800;text-decoration:none;">🗺️ Voir l'itinéraire</a>
+                </div>` : quartier ? `
+                <div><a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;">🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →</a></div>` : ''}
+                ${metier ? `<div style="display:flex;align-items:center;gap:8px;">${emoji} <span><strong style="color:white;">Métier</strong> · ${metier}</span></div>` : ''}
+                ${experience ? `<div style="display:flex;align-items:center;gap:8px;">🏆 <span><strong style="color:white;">Expérience</strong> · ${experience} ans</span></div>` : ''}
+                <div style="display:flex;align-items:center;gap:8px;">${dispo ? '<span style="color:#E8940A;">⭐</span>' : '⚪'} <span><strong style="color:white;">Statut</strong> · ${dispo ? '<span style="color:#E8940A;">Disponible maintenant</span>' : 'Occupé pour l\'instant'}</span></div>
+              </div>
+            </div>
+            ${(tiktok || instagram) ? `
+            <div class="sidebar-card">
+              <h4>Réseaux sociaux</h4>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                ${tiktok ? `<a href="${tiktokSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
+                ${instagram ? `<a href="${instagramSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
+              </div>
+            </div>` : ''}
+            <div id="profil-flag-zone-${recordId}"></div>
           </div>
         </div>
       </div>
@@ -7421,7 +7485,7 @@ async function showProfil(recordId) {
         <div class="container">
           <div class="profil-section" style="margin-top:0;">
             <h3 style="margin-bottom:6px;">D'autres ${metier || 'professionnels'} à ${(quartier || '').split('—')[0] || 'cette ville'}</h3>
-            <p style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.7;margin-bottom:16px;">Ces prestataires travaillent dans le même domaine.<br>Tous vérifiés. Tous disponibles sur WOZALI.</p>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.7;margin-bottom:16px;">Ces prestataires travaillent dans le même domaine. Tous vérifiés sur WOZALI.</p>
             <div id="profils-similaires-${recordId}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
               <div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-size:13px;grid-column:1/-1;">Chargement des profils similaires…</div>
             </div>
@@ -7429,7 +7493,7 @@ async function showProfil(recordId) {
         </div>
       </div>
 
-      <!-- Lightbox dark premium -->
+      <!-- Lightboxes -->
       <div id="lb-real-${recordId}" class="lightbox-dark" onclick="if(event.target===this)closeLightboxDark('lb-real-${recordId}')">
         <div class="lightbox-dark-inner">
           <img class="lightbox-dark-img" id="lb-real-${recordId}-img" src="" alt="">
@@ -7520,12 +7584,25 @@ async function showProfil(recordId) {
 
     // Bouton signaler (anti-arnaque) — affiché uniquement si on n'est pas sur son propre profil
     if (!currentPrestataire || currentPrestataire.id !== recordId) {
-      const flagDiv = document.createElement('div');
-      flagDiv.style.cssText = 'text-align:center;margin:24px 0 8px;';
-      const userId = record.fields?.['User ID'] || '';
-      const safeName = (record.fields?.['Nom complet'] || 'ce prestataire').replace(/'/g,"\\'");
-      flagDiv.innerHTML = `<button onclick="window.wozaliSignalement?.open({targetUserId:'${userId}',contextLabel:'Profil : ${safeName}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;font-family:Geist,sans-serif;">🚨 Signaler ce profil</button>`;
-      container.appendChild(flagDiv);
+      const flagZone = document.getElementById('profil-flag-zone-' + recordId);
+      if (flagZone) {
+        const userId = record.fields?.['User ID'] || '';
+        const safeName = (record.fields?.['Nom complet'] || 'ce prestataire').replace(/'/g,"\\'");
+        flagZone.innerHTML = `<button onclick="window.wozaliSignalement?.open({targetUserId:'${userId}',contextLabel:'Profil : ${safeName}'})" style="background:none;border:none;color:rgba(252,224,168,.4);font-size:12px;cursor:pointer;text-decoration:underline;font-family:Geist,sans-serif;margin-top:8px;">🚨 Signaler ce profil</button>`;
+      }
+    }
+
+    // ── Tab switcher ──
+    if (typeof switchProfilTab === 'undefined') {
+      window.switchProfilTab = function(recordId, tab, btn) {
+        const nav = document.getElementById('profil-tabs-nav-' + recordId);
+        if (nav) nav.querySelectorAll('.profil-tab-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        ['posts','photos','avis','apropos'].forEach(t => {
+          const pane = document.getElementById('profil-tab-' + t + '-' + recordId);
+          if (pane) pane.style.display = t === tab ? '' : 'none';
+        });
+      };
     }
 
     // ── BADGE "Mains les Plus Demandées" pour Coiffeuse/Couturière ──
