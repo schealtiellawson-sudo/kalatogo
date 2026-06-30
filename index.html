@@ -3284,40 +3284,6 @@ setTimeout(function(){
           <input type="file" id="real-input-3" accept="image/*" style="display:none" onchange="uploadRealisationPhoto(3)">
         </div>
 
-        <!-- Photos libres (standalone) -->
-        <div style="background:white;border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-top:20px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span style="font-size:20px;">🖼️</span>
-              <div>
-                <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin:0;">Photos libres</h3>
-                <p style="font-size:12px;color:var(--gris);margin:0;">Photos sans album — visibles sur ton profil</p>
-              </div>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="addLibrePhoto()">➕ Ajouter une photo</button>
-          </div>
-          <div id="libres-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;">
-            <!-- populated by JS -->
-          </div>
-          <input type="file" id="libre-file-input" accept="image/*" style="display:none" onchange="handleLibrePhotoFile()">
-        </div>
-
-        <!-- Albums personnalisés -->
-        <div style="background:white;border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-top:20px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span style="font-size:20px;">🗂️</span>
-              <div>
-                <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin:0;">Mes albums</h3>
-                <p style="font-size:12px;color:var(--gris);margin:0;">Organise tes réalisations par catégorie. Un profil organisé inspire confiance.</p>
-              </div>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="createAlbum()">➕ Nouvel album</button>
-          </div>
-          <div id="albums-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
-            <!-- populated by JS -->
-          </div>
-        </div>
       </div>
 
 

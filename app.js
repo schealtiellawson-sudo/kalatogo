@@ -7326,6 +7326,7 @@ async function showProfil(recordId) {
         </div>
       </div>
 
+      <div class="profil-content-layout"><div class="profil-main-col">
       <!-- ═══════════ TABS NAV ═══════════ -->
       <div class="profil-tabs-nav" id="profil-tabs-nav-${recordId}">
         <button class="profil-tab-btn active" onclick="switchProfilTab('${recordId}','posts',this)">POSTS</button>
@@ -7336,18 +7337,8 @@ async function showProfil(recordId) {
 
       <!-- ═══════════ TAB POSTS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
-        <!-- Mini grille photos -->
-        <div class="profil-photo-mini-wrap">
-          <div class="profil-photo-mini-head">
-            <span class="profil-photo-mini-title">📸 Photos & Vidéos</span>
-            <button class="profil-photo-mini-see-all" onclick="showAlbumsPage('${recordId}')">Voir l'album →</button>
-          </div>
-          <div class="profil-photo-mini-grid">
-            ${allPhotos.slice(0,5).map((url,i) => `<div class="profil-photo-mini-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}
-            ${allPhotos.length > 5 ? `<div class="profil-photo-mini-item profil-photo-mini-more" onclick="showAlbumsPage('${recordId}')"><span>+${allPhotos.length - 5}</span></div>` : ''}
-            ${allPhotos.length === 0 ? `<div class="profil-photo-mini-empty" onclick="showAlbumsPage('${recordId}')"><span>📷</span><div>Pas encore de photos</div></div>` : ''}
-          </div>
-        </div>
+        <!-- Strip photos discret -->
+        ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
         <!-- Composer (propriétaire) -->
         ${isOwner ? `
         <div class="profil-composer-wrap">
@@ -7380,20 +7371,14 @@ async function showProfil(recordId) {
 
       <!-- ═══════════ TAB PHOTOS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-photos-${recordId}" style="display:none;">
-        <div class="profil-album-full">
-          <div class="profil-album-full-head">
-            <h3>${allPhotos.length} photo${allPhotos.length !== 1 ? 's' : ''}</h3>
-            ${allPhotos.length > 0 ? `<button class="profil-album-fullscreen-btn" onclick="showAlbumsPage('${recordId}')">Album complet →</button>` : ''}
-          </div>
-          ${allPhotos.length > 0 ? `
-          <div class="profil-album-grid">
-            ${allPhotos.map((url,i) => `<div class="profil-album-grid-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"><div class="album-overlay"><span class="album-overlay-icon">🔍</span></div></div>`).join('')}
-          </div>` : `
-          <div style="text-align:center;padding:48px 20px;color:rgba(252,224,168,0.3);">
-            <div style="font-size:40px;margin-bottom:12px;">📷</div>
-            <div style="font-size:14px;">${nom.split(' ')[0]} n'a pas encore ajouté de photos.</div>
-          </div>`}
-        </div>
+        ${allPhotos.length > 0 ? `
+        <div class="profil-ig-grid">
+          ${allPhotos.map((url,i) => `<div class="profil-ig-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}
+        </div>` : `
+        <div style="text-align:center;padding:60px 20px;color:rgba(252,224,168,0.25);">
+          <div style="font-size:40px;margin-bottom:12px;">📷</div>
+          <div style="font-size:13px;">${nom.split(' ')[0]} n'a pas encore de photos.</div>
+        </div>`}
       </div>
 
       <!-- ═══════════ TAB AVIS ═══════════ -->
@@ -7429,65 +7414,65 @@ async function showProfil(recordId) {
 
       <!-- ═══════════ TAB À PROPOS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-apropos-${recordId}" style="display:none;">
-        <div class="profil-apropos-grid">
-          <!-- Colonne principale -->
-          <div>
-            ${description ? `
-            <div class="profil-section profil-animate">
-              <h3>À propos</h3>
-              ${descHtml}
-            </div>` : ''}
-            ${diplomes && isDigital ? `
-            <div class="profil-section profil-animate">
-              <h3>🎓 Diplômes &amp; expériences</h3>
-              <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.8;white-space:pre-wrap;">${diplomes}</p>
-            </div>` : ''}
-            ${languesSection}
-            <div class="profil-section profil-animate">
-              <h3 style="margin-bottom:12px;">Quand contacter ${nom.split(' ')[0]} ?</h3>
-              ${dispo
-                ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> — répond généralement en moins d'1h.</p>`
-                : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp — ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
-              <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px;">Lun–Ven : 8h–18h / Samedi : 9h–14h</p>
-            </div>
-          </div>
-          <!-- Sidebar -->
-          <div>
-            <div class="sidebar-card">
-              ${(tarifMin || tarifMax) ? `
-              <div class="tarif-box">
-                <div class="tarif-range">${tarifMin ? 'À partir de ' + tarifMin.toLocaleString() + ' FCFA' : ''}${tarifMax ? '<br>Jusqu\'à ' + tarifMax.toLocaleString() + ' FCFA' : ''}</div>
-                <div class="tarif-label">Prix négociables directement avec ${nom.split(' ')[0]}.<br>Paiement : TMoney · Flooz / MTN · Moov Money</div>
-              </div>` : ''}
-              ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#E8940A;color:white;" target="_blank">→ Contacter sur WhatsApp</a>` : ''}
-            </div>
-            <div class="sidebar-card">
-              <h4>Informations</h4>
-              <div style="font-size:14px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
-                ${quartier ? `<div style="display:flex;align-items:center;gap:8px;">📍 <span><strong style="color:white;">Zone</strong> · ${quartier}</span></div>` : ''}
-                ${(gpsLat && gpsLon) ? `
-                <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
-                  <div id="profil-minimap-${recordId}" style="height:130px;background:linear-gradient(135deg,#151d28,#1a2820);display:flex;align-items:center;justify-content:center;"><div style="opacity:0.3;font-size:20px;">🗺️</div></div>
-                  <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:13px;font-weight:800;text-decoration:none;">🗺️ Voir l'itinéraire</a>
-                </div>` : quartier ? `
-                <div><a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;">🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →</a></div>` : ''}
-                ${metier ? `<div style="display:flex;align-items:center;gap:8px;">${emoji} <span><strong style="color:white;">Métier</strong> · ${metier}</span></div>` : ''}
-                ${experience ? `<div style="display:flex;align-items:center;gap:8px;">🏆 <span><strong style="color:white;">Expérience</strong> · ${experience} ans</span></div>` : ''}
-                <div style="display:flex;align-items:center;gap:8px;">${dispo ? '<span style="color:#E8940A;">⭐</span>' : '⚪'} <span><strong style="color:white;">Statut</strong> · ${dispo ? '<span style="color:#E8940A;">Disponible maintenant</span>' : 'Occupé pour l\'instant'}</span></div>
-              </div>
-            </div>
-            ${(tiktok || instagram) ? `
-            <div class="sidebar-card">
-              <h4>Réseaux sociaux</h4>
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                ${tiktok ? `<a href="${tiktokSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
-                ${instagram ? `<a href="${instagramSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
-              </div>
-            </div>` : ''}
-            <div id="profil-flag-zone-${recordId}"></div>
+        <div class="profil-apropos-main">
+          ${description ? `
+          <div class="profil-section profil-animate">
+            <h3>À propos</h3>
+            ${descHtml}
+          </div>` : ''}
+          ${diplomes && isDigital ? `
+          <div class="profil-section profil-animate">
+            <h3>🎓 Diplômes &amp; expériences</h3>
+            <p style="color:rgba(255,255,255,0.75);font-size:15px;line-height:1.8;white-space:pre-wrap;">${diplomes}</p>
+          </div>` : ''}
+          ${languesSection}
+          <div class="profil-section profil-animate">
+            <h3 style="margin-bottom:12px;">Quand contacter ${nom.split(' ')[0]} ?</h3>
+            ${dispo
+              ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> — répond généralement en moins d'1h.</p>`
+              : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp — ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px;">Lun–Ven : 8h–18h / Samedi : 9h–14h</p>
           </div>
         </div>
       </div>
+      </div><!-- /profil-main-col -->
+
+      <!-- Sidebar permanente (droite PC, bas mobile) -->
+      <div class="profil-sidebar-col">
+        <div class="sidebar-card">
+          ${(tarifMin || tarifMax) ? `
+          <div class="tarif-box">
+            <div class="tarif-range">${tarifMin ? 'À partir de ' + tarifMin.toLocaleString() + ' FCFA' : ''}${tarifMax ? '<br>Jusqu\'à ' + tarifMax.toLocaleString() + ' FCFA' : ''}</div>
+            <div class="tarif-label">Prix négociables directement avec ${nom.split(' ')[0]}.<br>Paiement : TMoney · Flooz / MTN · Moov Money</div>
+          </div>` : ''}
+          ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#E8940A;color:white;" target="_blank">→ Contacter sur WhatsApp</a>` : ''}
+        </div>
+        <div class="sidebar-card">
+          <h4>Informations</h4>
+          <div style="font-size:14px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
+            ${quartier ? `<div style="display:flex;align-items:center;gap:8px;">📍 <span><strong style="color:white;">Zone</strong> · ${quartier}</span></div>` : ''}
+            ${(gpsLat && gpsLon) ? `
+            <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
+              <div id="profil-minimap-${recordId}" style="height:130px;background:linear-gradient(135deg,#151d28,#1a2820);display:flex;align-items:center;justify-content:center;"><div style="opacity:0.3;font-size:20px;">🗺️</div></div>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:13px;font-weight:800;text-decoration:none;">🗺️ Voir l'itinéraire</a>
+            </div>` : quartier ? `
+            <div><a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;">🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →</a></div>` : ''}
+            ${metier ? `<div style="display:flex;align-items:center;gap:8px;">${emoji} <span><strong style="color:white;">Métier</strong> · ${metier}</span></div>` : ''}
+            ${experience ? `<div style="display:flex;align-items:center;gap:8px;">🏆 <span><strong style="color:white;">Expérience</strong> · ${experience} ans</span></div>` : ''}
+            <div style="display:flex;align-items:center;gap:8px;">${dispo ? '<span style="color:#E8940A;">⭐</span>' : '⚪'} <span><strong style="color:white;">Statut</strong> · ${dispo ? '<span style="color:#E8940A;">Disponible maintenant</span>' : 'Occupé pour l\'instant'}</span></div>
+          </div>
+        </div>
+        ${(tiktok || instagram) ? `
+        <div class="sidebar-card">
+          <h4>Réseaux sociaux</h4>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${tiktok ? `<a href="${tiktokSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:#010101;color:white;font-size:14px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.15a8.16 8.16 0 004.77 1.52V7.23a4.85 4.85 0 01-1-.54z"/></svg>Voir sur TikTok</a>` : ''}
+            ${instagram ? `<a href="${instagramSafe}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;font-size:14px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Voir sur Instagram</a>` : ''}
+          </div>
+        </div>` : ''}
+        <div id="profil-flag-zone-${recordId}"></div>
+      </div><!-- /profil-sidebar-col -->
+      </div><!-- /profil-content-layout -->
 
       <!-- Profils similaires -->
       <div class="profil-page-bg" style="padding-top:0;">
