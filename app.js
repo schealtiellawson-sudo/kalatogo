@@ -5645,6 +5645,8 @@ let _filStoryTimer = null;
 let _filCurrentMediaType = 'image';
 let _filSelectedFile = null;
 let _storyPaused = false;
+let _storyCreatorFile = null;
+let _storyCreatorURL = null;
 
 async function loadFilPage() {
   const nb = document.getElementById('nav-fil-badge');
@@ -6071,8 +6073,161 @@ function openFilPostComposer(type) {
 }
 
 function openFilStoryComposer() {
+  openStoryCreator();
+}
+
+// ── STORY CREATOR (expérience plein écran) ───────────────────────────
+function openStoryCreator() {
   closeFilComposer();
-  openFilPostComposer('story');
+  _storyCreatorFile = null;
+  if (_storyCreatorURL) { URL.revokeObjectURL(_storyCreatorURL); _storyCreatorURL = null; }
+  const ov = document.getElementById('story-creator-overlay');
+  if (!ov) return;
+  const pick = document.getElementById('story-phase-pick');
+  const preview = document.getElementById('story-phase-preview');
+  const media = document.getElementById('story-preview-media');
+  const feedback = document.getElementById('story-creator-feedback');
+  const btn = document.getElementById('story-publish-btn');
+  const publishText = document.getElementById('story-publish-text');
+  const publishIcon = document.getElementById('story-publish-icon');
+  if (pick) pick.style.display = 'flex';
+  if (preview) preview.style.display = 'none';
+  if (media) media.innerHTML = '';
+  if (feedback) { feedback.style.display = 'none'; feedback.textContent = ''; }
+  if (btn) btn.disabled = false;
+  if (publishText) publishText.textContent = 'Publier ma Story';
+  if (publishIcon) publishIcon.textContent = '✨';
+  const camIn = document.getElementById('story-camera-input');
+  const galIn = document.getElementById('story-gallery-input');
+  if (camIn) camIn.value = '';
+  if (galIn) galIn.value = '';
+  ov.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeStoryCreator() {
+  const ov = document.getElementById('story-creator-overlay');
+  if (ov) ov.style.display = 'none';
+  document.body.style.overflow = '';
+  _storyCreatorFile = null;
+  if (_storyCreatorURL) { URL.revokeObjectURL(_storyCreatorURL); _storyCreatorURL = null; }
+}
+
+function triggerStoryCamera() {
+  document.getElementById('story-camera-input')?.click();
+}
+
+function triggerStoryGallery() {
+  document.getElementById('story-gallery-input')?.click();
+}
+
+function resetStoryCreator() {
+  _storyCreatorFile = null;
+  if (_storyCreatorURL) { URL.revokeObjectURL(_storyCreatorURL); _storyCreatorURL = null; }
+  const pick = document.getElementById('story-phase-pick');
+  const preview = document.getElementById('story-phase-preview');
+  const media = document.getElementById('story-preview-media');
+  const feedback = document.getElementById('story-creator-feedback');
+  const btn = document.getElementById('story-publish-btn');
+  const publishText = document.getElementById('story-publish-text');
+  const publishIcon = document.getElementById('story-publish-icon');
+  if (pick) pick.style.display = 'flex';
+  if (preview) preview.style.display = 'none';
+  if (media) media.innerHTML = '';
+  if (feedback) { feedback.style.display = 'none'; }
+  if (btn) btn.disabled = false;
+  if (publishText) publishText.textContent = 'Publier ma Story';
+  if (publishIcon) publishIcon.textContent = '✨';
+  const camIn = document.getElementById('story-camera-input');
+  const galIn = document.getElementById('story-gallery-input');
+  if (camIn) camIn.value = '';
+  if (galIn) galIn.value = '';
+}
+
+async function onStoryMediaPicked(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (file.type.startsWith('video/')) {
+    const dur = await new Promise(res => {
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.onloadedmetadata = () => { URL.revokeObjectURL(v.src); res(v.duration); };
+      v.onerror = () => res(0);
+      v.src = URL.createObjectURL(file);
+    });
+    if (dur > 60) {
+      toast('Vidéo trop longue. 60 secondes maximum pour une story.', 'error');
+      event.target.value = '';
+      return;
+    }
+  }
+  _storyCreatorFile = file;
+  if (_storyCreatorURL) URL.revokeObjectURL(_storyCreatorURL);
+  _storyCreatorURL = URL.createObjectURL(file);
+  const media = document.getElementById('story-preview-media');
+  if (media) {
+    media.innerHTML = '';
+    if (file.type.startsWith('video/')) {
+      const vid = document.createElement('video');
+      vid.src = _storyCreatorURL;
+      vid.autoplay = true; vid.loop = true; vid.muted = true; vid.playsInline = true;
+      vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+      media.appendChild(vid);
+    } else {
+      const img = document.createElement('img');
+      img.src = _storyCreatorURL;
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;';
+      img.onload = () => {
+        if (img.naturalWidth > 0 && img.naturalWidth <= img.naturalHeight) {
+          img.style.objectFit = 'contain';
+        } else {
+          img.style.objectFit = 'cover';
+        }
+      };
+      media.appendChild(img);
+    }
+  }
+  const pick = document.getElementById('story-phase-pick');
+  const preview = document.getElementById('story-phase-preview');
+  if (pick) pick.style.display = 'none';
+  if (preview) preview.style.display = 'block';
+}
+
+async function publishStoryFromCreator() {
+  if (!currentUser) { closeStoryCreator(); showPage('login'); return; }
+  if (!_storyCreatorFile) { toast('Choisis une photo ou vidéo.', 'error'); return; }
+  const btn = document.getElementById('story-publish-btn');
+  const publishText = document.getElementById('story-publish-text');
+  const publishIcon = document.getElementById('story-publish-icon');
+  const feedback = document.getElementById('story-creator-feedback');
+  if (btn) btn.disabled = true;
+  if (publishText) publishText.textContent = 'Publication...';
+  if (publishIcon) publishIcon.textContent = '⏳';
+  if (feedback) feedback.style.display = 'none';
+  try {
+    const url = await uploadToImgBB(_storyCreatorFile);
+    if (!url) throw new Error('Upload échoué. Vérifie ta connexion.');
+    const isVideo = _storyCreatorFile.type.startsWith('video/');
+    const prestId = currentPrestataire?.id || currentPrestataire?.fields?.id || null;
+    const { error } = await window.supabase.from('wozali_stories').insert({
+      user_id: currentUser.id,
+      prestataire_id: prestId,
+      media_url: url,
+      media_type: isVideo ? 'video' : 'image'
+    });
+    if (error) throw new Error(error.message);
+    closeStoryCreator();
+    toast('Story publiée ! Visible pendant 24h.', 'success');
+    setTimeout(() => {
+      if (typeof loadFilStories === 'function') loadFilStories();
+      if (typeof chargerStoriesWOZALI === 'function') chargerStoriesWOZALI();
+    }, 500);
+  } catch(e) {
+    if (feedback) { feedback.textContent = e.message; feedback.style.display = 'block'; }
+    if (btn) btn.disabled = false;
+    if (publishText) publishText.textContent = 'Publier ma Story';
+    if (publishIcon) publishIcon.textContent = '✨';
+  }
 }
 
 function closeFilPostForm() {

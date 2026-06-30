@@ -1642,6 +1642,72 @@ setTimeout(function(){
     </div>
   </div>
 
+  <!-- Story Creator — full screen immersif (remplace le formulaire basique) -->
+  <div id="story-creator-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#0f0b07;overflow:hidden;">
+
+    <!-- PHASE 1 : Choix du media -->
+    <div id="story-phase-pick" style="display:flex;flex-direction:column;height:100%;height:100dvh;position:relative;">
+
+      <!-- En-tête -->
+      <div style="position:absolute;top:0;left:0;right:0;z-index:5;padding:max(env(safe-area-inset-top),14px) 16px 0;display:flex;align-items:center;padding-top:max(env(safe-area-inset-top),14px);">
+        <button onclick="closeStoryCreator()" style="background:rgba(0,0,0,0.5);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#10005;</button>
+        <span style="margin:0 auto;font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:18px;font-weight:700;letter-spacing:.2px;">Ma Story</span>
+        <div style="width:40px;"></div>
+      </div>
+
+      <!-- Zone centrale visuelle -->
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 32px 80px;">
+        <div style="position:relative;width:110px;height:110px;margin-bottom:24px;">
+          <div style="position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,#E8940A,#F5B82E);animation:wzPulse 2.4s ease-in-out infinite;"></div>
+          <div style="position:absolute;inset:6px;border-radius:50%;background:#14100A;border:1.5px dashed rgba(232,148,10,0.5);display:flex;align-items:center;justify-content:center;font-size:38px;">✨</div>
+        </div>
+        <h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:22px;font-weight:700;text-align:center;margin:0 0 8px;">Crée ta story</h3>
+        <p style="color:rgba(252,224,168,0.4);font-size:14px;text-align:center;margin:0;line-height:1.65;">Montre ton travail.<br>Visible par la communauté pendant 24h.</p>
+      </div>
+
+      <!-- Actions bas de page -->
+      <div style="padding:0 24px max(calc(env(safe-area-inset-bottom) + 20px),40px);">
+        <button onclick="triggerStoryCamera()" style="width:100%;background:linear-gradient(135deg,#E8940A,#C47A08);color:#14100A;border:none;border-radius:18px;padding:20px 24px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;box-shadow:0 8px 32px rgba(232,148,10,0.35);">
+          <span style="font-size:24px;">📷</span>Prendre une photo ou vidéo
+        </button>
+        <button onclick="triggerStoryGallery()" style="width:100%;background:rgba(252,224,168,0.06);border:1.5px solid rgba(252,224,168,0.15);color:#FCE0A8;border-radius:18px;padding:18px 24px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;">
+          <span style="font-size:22px;">🖼</span>Choisir depuis la galerie
+        </button>
+        <p style="color:rgba(252,224,168,0.2);font-size:11px;text-align:center;margin:14px 0 0;">Disparait automatiquement apres 24h</p>
+      </div>
+
+      <!-- Inputs cachés -->
+      <input id="story-camera-input" type="file" accept="image/*,video/*" capture="environment" style="display:none;" onchange="onStoryMediaPicked(event)">
+      <input id="story-gallery-input" type="file" accept="image/*,video/*" style="display:none;" onchange="onStoryMediaPicked(event)">
+    </div>
+
+    <!-- PHASE 2 : Preview avant publication -->
+    <div id="story-phase-preview" style="display:none;position:absolute;inset:0;">
+
+      <!-- Media plein écran -->
+      <div id="story-preview-media" style="position:absolute;inset:0;background:#000;"></div>
+
+      <!-- Dégradés de lisibilité -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 22%,transparent 68%,rgba(0,0,0,0.78) 100%);pointer-events:none;z-index:1;"></div>
+
+      <!-- Haut : retour + label -->
+      <div style="position:absolute;top:0;left:0;right:0;z-index:2;padding:max(env(safe-area-inset-top),14px) 16px 14px;display:flex;align-items:center;gap:12px;">
+        <button onclick="resetStoryCreator()" style="background:rgba(0,0,0,0.5);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8592;</button>
+        <span style="color:white;font-size:15px;font-weight:700;text-shadow:0 1px 6px rgba(0,0,0,0.7);">Apercu de ta story</span>
+      </div>
+
+      <!-- Bas : feedback + bouton publier -->
+      <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;padding:0 20px max(calc(env(safe-area-inset-bottom) + 16px),36px);">
+        <div id="story-creator-feedback" style="display:none;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.4);border-radius:10px;padding:10px 14px;color:#fca5a5;font-size:13px;text-align:center;margin-bottom:12px;"></div>
+        <button onclick="publishStoryFromCreator()" id="story-publish-btn" style="width:100%;background:#E8940A;color:#14100A;border:none;border-radius:16px;padding:19px 24px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 28px rgba(232,148,10,0.5);">
+          <span id="story-publish-icon" style="font-size:20px;">✨</span>
+          <span id="story-publish-text">Publier ma Story</span>
+        </button>
+        <p style="color:rgba(255,255,255,0.3);font-size:11px;text-align:center;margin:10px 0 0;text-shadow:0 1px 2px rgba(0,0,0,0.5);">Visible 24h par toute la communaute WOZALI</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Composer sheet -->
   <div id="fil-composer-overlay" onclick="if(event.target===this)closeFilComposer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9000;align-items:flex-end;justify-content:center;">
     <div id="fil-composer-panel" style="background:#1A1208;border-radius:20px 20px 0 0;padding:18px 16px 40px;width:100%;max-width:600px;transform:translateY(100%);transition:transform .3s;">
