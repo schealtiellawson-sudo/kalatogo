@@ -1601,24 +1601,83 @@ setTimeout(function(){
 <!-- ══════════════════════════════════════════
      PAGE FIL D'ACTUALITÉ
 ══════════════════════════════════════════ -->
-<div id="page-fil" class="page" style="background:#14100A;min-height:100vh;color:#FCE0A8;">
-  <div style="background:rgba(15,20,16,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,148,10,0.15);padding:14px 0;position:sticky;top:0;z-index:100;">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;margin:0;color:#FCE0A8;">📰 Mon Fil</h2>
-        <p style="font-size:12px;color:rgba(252, 224, 168,0.5);margin:2px 0 0;">Publications des pros que tu suis</p>
-      </div>
-      <button onclick="showDashSection('abonnements');showPage('dashboard')" style="background:none;border:1.5px solid var(--vert);color:var(--vert);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">👥 Mes abonnements</button>
-    </div>
-    <!-- Tabs -->
-    <div class="container" style="display:flex;gap:0;margin-top:10px;border-bottom:2px solid rgba(232,148,10,0.15);">
-      <button id="tab-fil" onclick="switchFilTab('fil')" style="flex:1;background:none;border:none;padding:8px 0;font-size:14px;font-weight:700;color:var(--vert);border-bottom:2px solid var(--vert);margin-bottom:-2px;cursor:pointer;">Publications</button>
-      <button id="tab-abonnes" onclick="switchFilTab('abonnes')" style="flex:1;background:none;border:none;padding:8px 0;font-size:14px;font-weight:600;color:rgba(252, 224, 168,0.5);cursor:pointer;">Qui je suis</button>
+<div id="page-fil" class="page" style="background:#0f0b07;min-height:100vh;padding-bottom:90px;">
+  <!-- Topbar -->
+  <div style="position:sticky;top:0;z-index:100;background:rgba(15,11,7,0.97);backdrop-filter:blur(14px);border-bottom:1px solid rgba(232,148,10,0.12);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:900;color:#E8940A;letter-spacing:.5px;">W<span style="color:#FCE0A8;">OZALI</span></div>
+    <div style="display:flex;gap:16px;align-items:center;">
+      <button onclick="openFilComposer()" style="background:none;border:none;color:rgba(252,224,168,0.55);cursor:pointer;font-size:22px;line-height:1;padding:2px;" title="Publier">+</button>
+      <button onclick="bntGo('messages')" style="background:none;border:none;color:rgba(252,224,168,0.55);cursor:pointer;font-size:18px;line-height:1;padding:2px;position:relative;" title="Messages">💬</button>
     </div>
   </div>
-  <div class="container" style="padding-top:20px;padding-bottom:40px;">
-    <div id="fil-page-list" style="max-width:560px;margin:0 auto;"></div>
-    <div id="fil-abonnes-list" style="display:none;max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
+  <!-- Story bar -->
+  <div id="fil-stories-bar" style="display:flex;gap:12px;padding:12px 14px 10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;min-height:84px;"></div>
+  <!-- Feed -->
+  <div id="fil-feed" style="max-width:600px;margin:0 auto;padding-bottom:20px;"></div>
+  <!-- FAB -->
+  <button onclick="openFilComposer()" style="position:fixed;bottom:86px;right:18px;width:50px;height:50px;border-radius:50%;background:#E8940A;border:none;color:#14100A;font-size:28px;cursor:pointer;box-shadow:0 4px 18px rgba(232,148,10,0.45);z-index:200;display:flex;align-items:center;justify-content:center;line-height:1;font-weight:300;">+</button>
+
+  <!-- Story viewer overlay -->
+  <div id="fil-story-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;flex-direction:column;">
+    <div id="fil-story-progress" style="display:flex;gap:3px;padding:12px 12px 0;"></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;">
+      <div id="fil-story-av" style="width:32px;height:32px;border-radius:50%;background:rgba(232,148,10,0.25);display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:13px;flex-shrink:0;overflow:hidden;"></div>
+      <div>
+        <div id="fil-story-nom" style="font-size:13px;font-weight:700;color:white;"></div>
+        <div id="fil-story-time" style="font-size:10px;color:rgba(255,255,255,0.45);"></div>
+      </div>
+      <button onclick="closeStoryViewer()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.7);font-size:26px;cursor:pointer;padding:4px;line-height:1;">&times;</button>
+    </div>
+    <div style="flex:1;display:flex;position:relative;">
+      <div style="position:absolute;inset:0;left:0;width:40%;z-index:10;cursor:pointer;" onclick="prevStory()"></div>
+      <div id="fil-story-media" style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
+      <div style="position:absolute;inset:0;right:0;left:40%;width:60%;z-index:10;cursor:pointer;" onclick="nextStory()"></div>
+    </div>
+  </div>
+
+  <!-- Composer sheet -->
+  <div id="fil-composer-overlay" onclick="if(event.target===this)closeFilComposer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9000;align-items:flex-end;justify-content:center;">
+    <div id="fil-composer-panel" style="background:#1A1208;border-radius:20px 20px 0 0;padding:18px 16px 40px;width:100%;max-width:600px;transform:translateY(100%);transition:transform .3s;">
+      <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 20px;"></div>
+      <h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;margin:0 0 18px;font-size:18px;">Publier</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+        <button onclick="openFilPostComposer('image')" style="background:#14100A;border:1.5px solid rgba(232,148,10,0.2);border-radius:14px;padding:20px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;color:#FCE0A8;transition:border-color .2s;">
+          <span style="font-size:28px;">📸</span>
+          <span style="font-size:12px;font-weight:700;">Photo</span>
+        </button>
+        <button onclick="openFilPostComposer('video')" style="background:#14100A;border:1.5px solid rgba(232,148,10,0.2);border-radius:14px;padding:20px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;color:#FCE0A8;">
+          <span style="font-size:28px;">🎬</span>
+          <span style="font-size:12px;font-weight:700;">Reel</span>
+          <span style="font-size:9px;color:rgba(252,224,168,0.4);">max 3 min</span>
+        </button>
+        <button onclick="openFilStoryComposer()" style="background:#14100A;border:1.5px solid rgba(232,148,10,0.2);border-radius:14px;padding:20px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;color:#FCE0A8;">
+          <span style="font-size:28px;">✨</span>
+          <span style="font-size:12px;font-weight:700;">Story</span>
+          <span style="font-size:9px;color:rgba(252,224,168,0.4);">24h</span>
+        </button>
+      </div>
+      <button onclick="closeFilComposer()" style="width:100%;background:none;border:1px solid rgba(252,224,168,0.1);border-radius:12px;padding:12px;color:rgba(252,224,168,0.4);font-size:14px;cursor:pointer;">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Post / Reel form overlay -->
+  <div id="fil-post-form-overlay" style="display:none;position:fixed;inset:0;background:#0f0b07;z-index:9100;flex-direction:column;overflow-y:auto;">
+    <div style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
+      <button onclick="closeFilPostForm()" style="background:none;border:none;color:rgba(252,224,168,0.6);font-size:22px;cursor:pointer;line-height:1;">&#8592;</button>
+      <span id="fil-post-form-title" style="font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:17px;font-weight:700;"></span>
+      <button onclick="submitFilPost()" id="fil-post-submit-btn" style="margin-left:auto;background:#E8940A;color:#14100A;border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:800;cursor:pointer;">Publier</button>
+    </div>
+    <div style="padding:16px;flex:1;">
+      <div id="fil-post-preview" onclick="triggerFilMediaPick()" style="background:#1A1208;border-radius:14px;min-height:220px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;cursor:pointer;position:relative;">
+        <div id="fil-post-preview-empty" style="display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(252,224,168,0.3);padding:40px 20px;text-align:center;">
+          <span style="font-size:40px;" id="fil-post-placeholder-icon">📸</span>
+          <span style="font-size:13px;">Touche pour choisir</span>
+        </div>
+      </div>
+      <input id="fil-post-media-input" type="file" style="display:none;" onchange="onFilMediaSelected(event)">
+      <textarea id="fil-post-caption" placeholder="Décris ton travail..." style="width:100%;box-sizing:border-box;background:#1A1208;border:1px solid rgba(232,148,10,0.18);border-radius:12px;padding:12px;color:#FCE0A8;font-size:14px;line-height:1.65;min-height:80px;resize:none;font-family:inherit;" rows="3"></textarea>
+      <div id="fil-post-feedback" style="margin-top:10px;font-size:13px;color:#E8940A;display:none;text-align:center;"></div>
+    </div>
   </div>
 </div>
 

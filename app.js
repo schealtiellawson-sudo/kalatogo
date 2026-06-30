@@ -2841,7 +2841,8 @@ function showPage(page, _fromPop) {
 function bntGo(tab) {
   switch(tab) {
     case 'accueil':
-      showPage('home');
+      if (currentUser) showPage('fil');
+      else showPage('home');
       break;
     case 'explorer': showPage('search'); break;
     case 'jobs':     showPage('emploi'); break;
@@ -5614,38 +5615,437 @@ async function loadFil() {
 }
 
 // ── Page Fil standalone ──
+// ══════════════════════════════════════════
+// FIL SOCIAL — STORIES + POSTS + REELS
+// ══════════════════════════════════════════
+
+let _filStoriesData = [];
+let _filStoryIndex = 0;
+let _filStoryTimer = null;
+let _filCurrentMediaType = 'image';
+let _filSelectedFile = null;
+
 async function loadFilPage() {
-  // Affiche le badge mobile
-  const mobileFil = document.getElementById('mobile-fil-btn');
-  if (mobileFil) mobileFil.style.display = 'block';
-  // Masquer badge NEW
   const nb = document.getElementById('nav-fil-badge');
   if (nb) nb.style.display = 'none';
-  switchFilTab('fil');
+  await Promise.all([loadFilStories(), loadFilFeed()]);
 }
 
-function switchFilTab(tab) {
-  const listEl   = document.getElementById('fil-page-list');
-  const abonnesEl = document.getElementById('fil-abonnes-list');
-  const tabFil    = document.getElementById('tab-fil');
-  const tabAb     = document.getElementById('tab-abonnes');
-  if (tab === 'fil') {
-    if (listEl)    { listEl.style.display = 'block'; }
-    if (abonnesEl) { abonnesEl.style.display = 'none'; }
-    if (tabFil)  { tabFil.style.color = 'var(--vert)'; tabFil.style.borderBottom = '2px solid var(--vert)'; }
-    if (tabAb)   { tabAb.style.color = 'var(--gris)'; tabAb.style.borderBottom = 'none'; }
-    loadFilPageFeed();
-  } else {
-    if (listEl)    { listEl.style.display = 'none'; }
-    if (abonnesEl) { abonnesEl.style.display = 'grid'; }
-    if (tabFil)  { tabFil.style.color = 'var(--gris)'; tabFil.style.borderBottom = 'none'; }
-    if (tabAb)   { tabAb.style.color = 'var(--vert)'; tabAb.style.borderBottom = '2px solid var(--vert)'; }
-    loadFilPageAbonnes();
+// ── STORIES ─────────────────────────────────────────────────────────
+async function loadFilStories() {
+  const bar = document.getElementById('fil-stories-bar');
+  if (!bar) return;
+  bar.innerHTML = _renderMyStoryButton();
+  if (!currentUser) return;
+  try {
+    const supa = window.supabase;
+    const { data: suivis } = await supa
+      .from('wozali_suivis')
+      .select('suivi_prestataire_id')
+      .eq('suiveur_user_id', currentUser.id)
+      .limit(50);
+    if (!suivis || !suivis.length) return;
+    const prestIds = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
+    const since = new Date(Date.now() - 24*60*60*1000).toISOString();
+    const { data: stories } = await supa
+      .from('wozali_stories')
+      .select('*')
+      .in('prestataire_id', prestIds)
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(30);
+    if (!stories || !stories.length) return;
+    const byPrest = {};
+    stories.forEach(s => {
+      if (!byPrest[s.prestataire_id]) byPrest[s.prestataire_id] = [];
+      byPrest[s.prestataire_id].push(s);
+    });
+    const { data: prests } = await supa
+      .from('wozali_prestataires')
+      .select('id, nom_complet, photo_profil')
+      .in('id', Object.keys(byPrest));
+    const prestMap = {};
+    (prests || []).forEach(p => { prestMap[p.id] = p; });
+    _filStoriesData = [];
+    Object.keys(byPrest).forEach(pid => {
+      const prest = prestMap[pid] || {};
+      byPrest[pid].forEach(s => { _filStoriesData.push({ ...s, _prest: prest }); });
+    });
+    Object.keys(byPrest).forEach(pid => {
+      const prest = prestMap[pid] || {};
+      const storyList = byPrest[pid];
+      const firstIdx = _filStoriesData.findIndex(s => s.prestataire_id === pid);
+      const seen = storyList.every(s => (s.vue_par || []).includes(currentUser.id));
+      const nom = prest.nom_complet || 'Pro';
+      const photo = prest.photo_profil || '';
+      const el = document.createElement('div');
+      el.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;cursor:pointer;';
+      el.onclick = () => openStoryViewer(_filStoriesData, firstIdx);
+      el.innerHTML = `<div style="width:52px;height:52px;border-radius:50%;padding:2.5px;background:${seen ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg,#E8940A,#f5c06a)'};">
+        <div style="width:100%;height:100%;border-radius:50%;background:#1E180E;border:2px solid #0f0b07;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:15px;">
+          ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : nom.charAt(0).toUpperCase()}
+        </div>
+      </div>
+      <div style="font-size:9px;color:rgba(252,224,168,0.4);white-space:nowrap;max-width:54px;overflow:hidden;text-overflow:ellipsis;text-align:center;">${nom.split(' ')[0]}</div>`;
+      bar.appendChild(el);
+    });
+  } catch(e) { console.error('Stories:', e); }
+}
+
+function _renderMyStoryButton() {
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;cursor:pointer;" onclick="openFilStoryComposer()">
+    <div style="width:52px;height:52px;border-radius:50%;padding:2.5px;background:rgba(255,255,255,0.05);border:1.5px dashed rgba(232,148,10,0.3);">
+      <div style="width:100%;height:100%;border-radius:50%;background:#1A1208;border:2px solid #0f0b07;display:flex;align-items:center;justify-content:center;font-size:22px;color:#E8940A;font-weight:300;line-height:1;">+</div>
+    </div>
+    <div style="font-size:9px;color:rgba(252,224,168,0.35);">Ma story</div>
+  </div>`;
+}
+
+// ── FEED + REELS ─────────────────────────────────────────────────────
+async function loadFilFeed() {
+  const feed = document.getElementById('fil-feed');
+  if (!feed) return;
+  feed.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div class="spinner"></div></div>';
+  if (!currentUser) {
+    feed.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(252,224,168,0.4);"><div style="font-size:48px;margin-bottom:12px;">🔒</div><p>Connecte-toi pour voir le feed.</p><button onclick="showPage('login')" style="margin-top:12px;background:#E8940A;color:#14100A;border:none;border-radius:20px;padding:10px 24px;font-size:13px;font-weight:800;cursor:pointer;">Se connecter</button></div>`;
+    return;
+  }
+  try {
+    const supa = window.supabase;
+    const { data: suivis } = await supa.from('wozali_suivis').select('suivi_prestataire_id').eq('suiveur_user_id', currentUser.id).limit(100);
+    if (!suivis || !suivis.length) {
+      feed.innerHTML = `<div style="text-align:center;padding:70px 20px;color:rgba(252,224,168,0.4);"><div style="font-size:52px;margin-bottom:14px;">📭</div><h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;margin-bottom:8px;">Ton feed est vide</h3><p style="font-size:14px;line-height:1.6;">Suis des pros pour voir leurs publications ici.</p><button onclick="showPage('search')" style="margin-top:16px;background:#E8940A;color:#14100A;border:none;border-radius:20px;padding:10px 24px;font-size:13px;font-weight:800;cursor:pointer;">Découvrir des pros</button></div>`;
+      return;
+    }
+    const prestIds = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
+    const [{ data: posts }, { data: reels }] = await Promise.all([
+      supa.from('wozali_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).neq('media_type','video').order('created_at',{ascending:false}).limit(30),
+      supa.from('wozali_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).eq('media_type','video').order('created_at',{ascending:false}).limit(10)
+    ]);
+    const allIds = [...new Set([...(posts||[]).map(p=>p.prestataire_id),...(reels||[]).map(r=>r.prestataire_id)].filter(Boolean))];
+    let prestMap = {};
+    if (allIds.length) {
+      const { data: pr } = await supa.from('wozali_prestataires').select('id,nom_complet,metier_principal,photo_profil,quartier,score_wozali').in('id', allIds);
+      (pr||[]).forEach(p => { prestMap[p.id] = p; });
+    }
+    let html = '';
+    if (reels && reels.length) html += _renderReelsRow(reels, prestMap);
+    if (!posts || !posts.length) {
+      html += `<div style="text-align:center;padding:50px 20px;color:rgba(252,224,168,0.35);"><div style="font-size:40px;margin-bottom:10px;">🕐</div><p style="font-size:14px;">Pas encore de photos publiées.</p></div>`;
+    } else {
+      html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{})).join('');
+    }
+    feed.innerHTML = html;
+  } catch(e) {
+    feed.innerHTML = `<div style="text-align:center;padding:40px;color:rgba(252,224,168,0.35);">Erreur de chargement.</div>`;
+    console.error('Feed error:', e);
   }
 }
 
+function _renderReelsRow(reels, prestMap) {
+  const cards = reels.map(r => {
+    const pr = prestMap[r.prestataire_id] || {};
+    const nom = (pr.nom_complet || 'Pro').split(' ')[0];
+    const vues = r.nb_vues || 0;
+    return `<div onclick="playFilReel('${r.image_url||''}')" style="width:96px;aspect-ratio:9/16;border-radius:12px;background:#1A1208;flex-shrink:0;position:relative;overflow:hidden;cursor:pointer;">
+      ${r.image_url ? `<video src="${r.image_url}" style="width:100%;height:100%;object-fit:cover;" muted playsinline preload="none"></video>` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">🎬</div>`}
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,0.75));"></div>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;background:rgba(255,255,255,0.22);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 7px;">
+        <div style="font-size:9px;font-weight:700;color:white;">${nom}</div>
+        ${vues ? `<div style="font-size:8px;color:rgba(255,255,255,0.5);">${vues>=1000?(vues/1000).toFixed(1)+'k':vues} vues</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  return `<div style="padding:14px 14px 4px;">
+    <div style="font-size:9px;font-weight:800;color:rgba(232,148,10,0.5);letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">REELS<span style="flex:1;height:1px;background:rgba(255,255,255,0.05);display:inline-block;vertical-align:middle;margin-left:8px;"></span></div>
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">${cards}</div>
+  </div>`;
+}
+
+function _renderFilPostCard(post, pr) {
+  const nom = pr.nom_complet || post.auteur_nom || 'Pro';
+  const metier = pr.metier_principal || '';
+  const quartier = pr.quartier || '';
+  const score = pr.score_wozali || 0;
+  const photo = pr.photo_profil || '';
+  const prestId = post.prestataire_id;
+  const likes = post.nb_likes || 0;
+  const contenu = (post.contenu || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const mediaUrl = post.image_url || '';
+  const depuis = _relativeTime(post.created_at);
+  const initiale = nom.charAt(0).toUpperCase();
+  return `<div style="border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:4px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 14px 8px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
+      <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;border:1.5px solid rgba(232,148,10,0.28);background:#1A1208;display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:14px;">
+        ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : initiale}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12.5px;font-weight:700;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}${score>=80?' <span style="display:inline-block;width:9px;height:9px;background:#E8940A;border-radius:50%;vertical-align:middle;margin-left:3px;"></span>':''}</div>
+        <div style="font-size:10px;color:rgba(252,224,168,0.32);">${metier}${quartier?' · '+quartier:''}${depuis?' · '+depuis:''}</div>
+      </div>
+    </div>
+    ${contenu ? `<div style="padding:0 14px 10px;font-size:13px;color:rgba(252,224,168,0.8);line-height:1.65;">${contenu}</div>` : ''}
+    ${mediaUrl ? `<div style="overflow:hidden;background:#1A1208;"><img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;display:block;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');"></div>` : ''}
+    ${score>0||quartier ? `<div style="padding:6px 14px 2px;display:flex;gap:6px;flex-wrap:wrap;">
+      ${score>=70 ? `<span style="font-size:9px;font-weight:800;color:#E8940A;background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.22);border-radius:20px;padding:2px 8px;">Score ${score}</span>` : ''}
+      ${quartier ? `<span style="font-size:9px;color:rgba(252,224,168,0.32);background:rgba(255,255,255,0.04);border-radius:20px;padding:2px 8px;">📍 ${quartier}</span>` : ''}
+    </div>` : ''}
+    <div style="display:flex;align-items:center;padding:8px 14px 10px;gap:0;">
+      <button onclick="likeFilPost('${post.id}',this)" style="display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:rgba(252,224,168,0.4);font-size:12px;padding:4px 10px 4px 0;" data-liked="false" data-likes="${likes}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>${likes}</span>
+      </button>
+      <div style="margin-left:auto;">
+        <button onclick="showProfil('${prestId}');showPage('profil');" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.18);border-radius:20px;font-size:10px;font-weight:700;padding:4px 12px;cursor:pointer;">Voir profil</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function _relativeTime(isoStr) {
+  if (!isoStr) return '';
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const min = Math.floor(diff/60000);
+  if (min < 1) return "à l'instant";
+  if (min < 60) return min+'min';
+  const h = Math.floor(min/60);
+  if (h < 24) return h+'h';
+  return Math.floor(h/24)+'j';
+}
+
+// ── LIKE ────────────────────────────────────────────────────────────
+async function likeFilPost(postId, btn) {
+  if (!currentUser || !postId) return;
+  const isLiked = btn.dataset.liked === 'true';
+  const span = btn.querySelector('span');
+  const svg = btn.querySelector('svg');
+  const newLiked = !isLiked;
+  const newCount = Math.max(0, parseInt(btn.dataset.likes||0) + (newLiked ? 1 : -1));
+  btn.dataset.liked = newLiked;
+  btn.dataset.likes = newCount;
+  if (span) span.textContent = newCount;
+  if (svg) { svg.setAttribute('fill', newLiked ? '#f472b6' : 'none'); svg.setAttribute('stroke', newLiked ? '#f472b6' : 'currentColor'); }
+  try {
+    await window.supabase.from('wozali_posts_v2').update({ nb_likes: newCount }).eq('id', postId);
+  } catch(e) {
+    btn.dataset.liked = isLiked;
+    btn.dataset.likes = parseInt(btn.dataset.likes) + (newLiked ? -1 : 1);
+  }
+}
+
+// ── STORY VIEWER ────────────────────────────────────────────────────
+function openStoryViewer(stories, startIndex) {
+  _filStoriesData = stories;
+  _filStoryIndex = startIndex || 0;
+  const ov = document.getElementById('fil-story-overlay');
+  if (!ov) return;
+  ov.style.display = 'flex';
+  _renderCurrentStory();
+}
+
+function _renderCurrentStory() {
+  if (!_filStoriesData.length || _filStoryIndex >= _filStoriesData.length) { closeStoryViewer(); return; }
+  const s = _filStoriesData[_filStoryIndex];
+  const pr = s._prest || {};
+  const prog = document.getElementById('fil-story-progress');
+  if (prog) {
+    prog.innerHTML = _filStoriesData.map((_, i) =>
+      `<div style="flex:1;height:2px;border-radius:1px;background:${i<_filStoryIndex?'#E8940A':i===_filStoryIndex?'rgba(232,148,10,0.55)':'rgba(255,255,255,0.18)'}"></div>`
+    ).join('');
+  }
+  const nom = pr.nom_complet || 'Pro';
+  const avEl = document.getElementById('fil-story-av');
+  if (avEl) avEl.innerHTML = pr.photo_profil ? `<img src="${pr.photo_profil}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : nom.charAt(0).toUpperCase();
+  const nomEl = document.getElementById('fil-story-nom');
+  if (nomEl) nomEl.textContent = nom;
+  const timeEl = document.getElementById('fil-story-time');
+  if (timeEl) timeEl.textContent = _relativeTime(s.created_at);
+  const mediaEl = document.getElementById('fil-story-media');
+  if (mediaEl) {
+    if (s.media_type === 'video') {
+      mediaEl.innerHTML = `<video src="${s.media_url}" autoplay muted playsinline style="max-width:100%;max-height:100%;object-fit:contain;" onended="nextStory()"></video>`;
+    } else {
+      mediaEl.innerHTML = `<img src="${s.media_url}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+    }
+  }
+  clearTimeout(_filStoryTimer);
+  if (s.media_type !== 'video') _filStoryTimer = setTimeout(nextStory, 5000);
+  if (currentUser && s.id) {
+    const vuePar = [...(s.vue_par||[])];
+    if (!vuePar.includes(currentUser.id)) {
+      vuePar.push(currentUser.id);
+      window.supabase.from('wozali_stories').update({ vue_par: vuePar }).eq('id', s.id).then(()=>{});
+    }
+  }
+}
+
+function nextStory() {
+  clearTimeout(_filStoryTimer);
+  _filStoryIndex++;
+  _filStoryIndex >= _filStoriesData.length ? closeStoryViewer() : _renderCurrentStory();
+}
+
+function prevStory() {
+  clearTimeout(_filStoryTimer);
+  if (_filStoryIndex > 0) { _filStoryIndex--; _renderCurrentStory(); }
+}
+
+function closeStoryViewer() {
+  clearTimeout(_filStoryTimer);
+  const ov = document.getElementById('fil-story-overlay');
+  if (ov) ov.style.display = 'none';
+  const m = document.getElementById('fil-story-media');
+  if (m) m.innerHTML = '';
+}
+
+// ── REEL PLAYER ─────────────────────────────────────────────────────
+function playFilReel(url) {
+  if (!url) return;
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;';
+  ov.innerHTML = `<div style="padding:12px 16px;display:flex;"><button onclick="this.closest('div').remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:28px;cursor:pointer;line-height:1;">&times;</button></div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;"><video src="${url}" autoplay controls playsinline style="max-width:100%;max-height:100%;object-fit:contain;"></video></div>`;
+  document.body.appendChild(ov);
+}
+
+// ── COMPOSER ────────────────────────────────────────────────────────
+function openFilComposer() {
+  const ov = document.getElementById('fil-composer-overlay');
+  const panel = document.getElementById('fil-composer-panel');
+  if (!ov || !panel) return;
+  ov.style.display = 'flex';
+  requestAnimationFrame(() => { panel.style.transform = 'translateY(0)'; });
+}
+
+function closeFilComposer() {
+  const panel = document.getElementById('fil-composer-panel');
+  const ov = document.getElementById('fil-composer-overlay');
+  if (!panel) return;
+  panel.style.transform = 'translateY(100%)';
+  setTimeout(() => { if (ov) ov.style.display = 'none'; }, 300);
+}
+
+function openFilPostComposer(type) {
+  closeFilComposer();
+  _filCurrentMediaType = type;
+  _filSelectedFile = null;
+  const ov = document.getElementById('fil-post-form-overlay');
+  const title = document.getElementById('fil-post-form-title');
+  const icon = document.getElementById('fil-post-placeholder-icon');
+  const input = document.getElementById('fil-post-media-input');
+  const caption = document.getElementById('fil-post-caption');
+  const previewEmpty = document.getElementById('fil-post-preview-empty');
+  const preview = document.getElementById('fil-post-preview');
+  const fb = document.getElementById('fil-post-feedback');
+  if (!ov) return;
+  const labels = { image: ['Nouvelle Photo','📸'], video: ['Nouveau Reel','🎬'], story: ['Nouvelle Story (24h)','✨'] };
+  const [t, ic] = labels[type] || labels.image;
+  if (title) title.textContent = t;
+  if (icon) icon.textContent = ic;
+  if (caption) { caption.value = ''; caption.style.display = type === 'story' ? 'none' : 'block'; caption.placeholder = type === 'video' ? 'Décris ce reel...' : 'Décris ton travail...'; }
+  if (previewEmpty) previewEmpty.style.display = 'flex';
+  if (preview) { const old = preview.querySelector('img,video'); if (old) old.remove(); }
+  if (fb) { fb.style.display = 'none'; fb.textContent = ''; }
+  if (input) { input.accept = type === 'video' ? 'video/*' : type === 'story' ? 'image/*,video/*' : 'image/*'; input.value = ''; }
+  ov.style.display = 'flex';
+}
+
+function openFilStoryComposer() {
+  closeFilComposer();
+  openFilPostComposer('story');
+}
+
+function closeFilPostForm() {
+  const ov = document.getElementById('fil-post-form-overlay');
+  if (ov) ov.style.display = 'none';
+  _filSelectedFile = null;
+  const caption = document.getElementById('fil-post-caption');
+  if (caption) { caption.style.display = 'block'; caption.value = ''; }
+}
+
+function triggerFilMediaPick() {
+  document.getElementById('fil-post-media-input')?.click();
+}
+
+async function onFilMediaSelected(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (file.type.startsWith('video/')) {
+    const dur = await new Promise(res => {
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.onloadedmetadata = () => { URL.revokeObjectURL(v.src); res(v.duration); };
+      v.onerror = () => res(0);
+      v.src = URL.createObjectURL(file);
+    });
+    if (dur > 180) {
+      const fb = document.getElementById('fil-post-feedback');
+      if (fb) { fb.textContent = 'Vidéo trop longue. Maximum 3 minutes.'; fb.style.color = '#f87171'; fb.style.display = 'block'; }
+      event.target.value = '';
+      return;
+    }
+  }
+  _filSelectedFile = file;
+  const preview = document.getElementById('fil-post-preview');
+  const previewEmpty = document.getElementById('fil-post-preview-empty');
+  if (!preview) return;
+  if (previewEmpty) previewEmpty.style.display = 'none';
+  const old = preview.querySelector('img,video');
+  if (old) old.remove();
+  const url = URL.createObjectURL(file);
+  if (file.type.startsWith('video/')) {
+    const vid = document.createElement('video');
+    vid.src = url; vid.controls = true; vid.muted = true;
+    vid.style.cssText = 'width:100%;max-height:280px;display:block;';
+    preview.appendChild(vid);
+  } else {
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'width:100%;max-height:280px;object-fit:cover;display:block;';
+    preview.appendChild(img);
+  }
+}
+
+async function submitFilPost() {
+  if (!currentUser || !currentPrestataire) { showPage('login'); return; }
+  if (!_filSelectedFile) {
+    const fb = document.getElementById('fil-post-feedback');
+    if (fb) { fb.textContent = "Choisis un fichier d'abord."; fb.style.color = '#f87171'; fb.style.display = 'block'; }
+    return;
+  }
+  const btn = document.getElementById('fil-post-submit-btn');
+  const fb = document.getElementById('fil-post-feedback');
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi...'; }
+  if (fb) fb.style.display = 'none';
+  try {
+    const url = await uploadToImgBB(_filSelectedFile);
+    if (!url) throw new Error('Upload échoué');
+    const isVideo = _filSelectedFile.type.startsWith('video/');
+    const isStory = _filCurrentMediaType === 'story';
+    const caption = document.getElementById('fil-post-caption')?.value?.trim() || '';
+    const supa = window.supabase;
+    const prestId = currentPrestataire?.id || currentPrestataire?.fields?.id;
+    if (isStory) {
+      await supa.from('wozali_stories').insert({ user_id: currentUser.id, prestataire_id: prestId, media_url: url, media_type: isVideo ? 'video' : 'image' });
+    } else {
+      const nomComplet = currentPrestataire?.nom_complet || currentPrestataire?.fields?.['Nom complet'] || '';
+      await supa.from('wozali_posts_v2').insert({ prestataire_id: prestId, auteur_nom: nomComplet, contenu: caption, image_url: url, media_type: isVideo ? 'video' : 'image', actif: true, nb_likes: 0 });
+    }
+    closeFilPostForm();
+    setTimeout(() => { loadFilStories(); loadFilFeed(); }, 500);
+  } catch(e) {
+    if (fb) { fb.textContent = 'Erreur : ' + e.message; fb.style.color = '#f87171'; fb.style.display = 'block'; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Publier'; }
+  }
+}
+
+// (legacy - remplacé par loadFilFeed)
 async function loadFilPageFeed() {
-  if (!currentUser) return;
+  return loadFilFeed();
   const container = document.getElementById('fil-page-list');
   if (!container) return;
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);"><div class="spinner"></div></div>';
