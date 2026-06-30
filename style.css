@@ -1089,7 +1089,7 @@ h1 .gold { color:var(--or); }
 /* Icon grid */
 .profil-ic-grid { display:flex; justify-content:center; gap:16px; padding:10px 14px 6px; }
 .profil-ic-btn { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; background:none; border:none; }
-.profil-ic-circle { width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.profil-ic-circle { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; }
 .ic-rdv { background:#E8940A; }
 .ic-wa  { background:#25D366; }
 .ic-tel  { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); }
@@ -5205,6 +5205,20 @@ body.wozali-v2-active .profil-avatar-lg {
   border:4px solid var(--wv2-dark) !important;
   box-shadow:0 6px 20px rgba(0,0,0,.35) !important;
   background:linear-gradient(135deg,var(--wv2-or),var(--wv2-or-hover)) !important;
+}
+/* Override spécifique profil-av-centered — annule le 88px général ci-dessus */
+body.wozali-v2-active .profil-av-centered .profil-avatar-lg {
+  width:68px !important; height:68px !important;
+  font-size:26px !important;
+  box-shadow:0 0 0 3px #0f0b07, 0 0 0 5px rgba(232,148,10,0.3) !important;
+  border:3px solid #0f0b07 !important;
+  background:linear-gradient(135deg,rgba(232,148,10,0.35),rgba(232,148,10,0.1)) !important;
+}
+@media(min-width:768px) {
+  body.wozali-v2-active .profil-av-centered .profil-avatar-lg {
+    width:94px !important; height:94px !important;
+    font-size:36px !important;
+  }
 }
 body.wozali-v2-active .profil-cover-btn {
   background:rgba(15,20,16,.55) !important;

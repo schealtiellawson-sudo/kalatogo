@@ -6939,18 +6939,27 @@ async function showProfil(recordId) {
           })
           .catch(() => { if (window._profilRefreshing) window._profilRefreshing[recordId] = false; });
       }
-    } else if (window.supaPrest) {
-      // Pas de cache : fetch direct (timeout court pour réactivité)
-      try {
-        record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
-      } catch (_e1) {
-        // Retry unique après 1s
-        await new Promise(r => setTimeout(r, 1000));
-        record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
-      }
-      if (!record) throw new Error('Profil introuvable');
     } else {
-      throw new Error('Profil introuvable');
+      // supaPrest peut ne pas être encore chargé (race condition defer) — attendre jusqu'à 4s
+      if (!window.supaPrest) {
+        for (let _wi = 0; _wi < 8; _wi++) {
+          await new Promise(r => setTimeout(r, 500));
+          if (window.supaPrest) break;
+        }
+      }
+      if (window.supaPrest) {
+        // Pas de cache : fetch direct
+        try {
+          record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
+        } catch (_e1) {
+          // Retry unique après 1s
+          await new Promise(r => setTimeout(r, 1000));
+          record = await _withTimeout(window.supaPrest.findById(recordId), 8000);
+        }
+        if (!record) throw new Error('Profil introuvable');
+      } else {
+        throw new Error('Impossible de charger le profil. Actualise la page.');
+      }
     }
 
     clearTimeout(_failsafe);
