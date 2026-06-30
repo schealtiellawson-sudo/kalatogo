@@ -36,6 +36,13 @@ async function initAuth() {
   if (session?.user) {
     currentUser = session.user;
     window.currentUser = currentUser;
+    // Attendre supaPrest (max 4s) avant de charger le profil
+    if (!window.supaPrest) {
+      for (let _si = 0; _si < 8; _si++) {
+        await new Promise(r => setTimeout(r, 500));
+        if (window.supaPrest) break;
+      }
+    }
     await loadCurrentPrestataire();
     updateNavAuth(true);
     showBottomNav();
@@ -451,8 +458,16 @@ async function viewMyProfile() {
     const container = document.getElementById('profil-content');
     if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement de ton profil…</div>';
 
-    // Attendre jusqu'à 12s en rechargements successifs de 1s
-    for (let i = 0; i < 12; i++) {
+    // Attendre que supaPrest soit prêt (max 6s) avant de lancer la boucle
+    if (!window.supaPrest) {
+      for (let _wi = 0; _wi < 12; _wi++) {
+        await new Promise(r => setTimeout(r, 500));
+        if (window.supaPrest) break;
+      }
+    }
+
+    // Attendre jusqu'à 20s en rechargements successifs de 1s
+    for (let i = 0; i < 20; i++) {
       if (!currentPrestataire) {
         try { await loadCurrentPrestataire(); } catch(e) {}
       }
@@ -470,9 +485,9 @@ async function viewMyProfile() {
       await new Promise(r => setTimeout(r, 1000));
     }
 
-    // Après 12s toujours rien → dashboard (jamais login si connecté)
+    // Après 20s toujours rien → dashboard
     showPage('dashboard');
-    toast('Profil introuvable. Contacte le support si le problème persiste.', 'error');
+    toast('Profil introuvable. Réessaie dans quelques secondes.', 'error');
     return;
   }
 
