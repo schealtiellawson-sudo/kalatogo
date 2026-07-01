@@ -9075,7 +9075,9 @@ async function loadParrainage() {
   let supabaseCode = '';
   try {
     if (currentUser?.id) {
-      const r = await fetch(`/api/wozali-pay/parrainage-stats?user_id=${currentUser.id}`);
+      // Timeout 4s : ne jamais bloquer l'affichage du lien / des filleuls si l'API traine
+      const _to = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000));
+      const r = await Promise.race([fetch(`/api/wozali-pay/parrainage-stats?user_id=${currentUser.id}`), _to]);
       const d = await r.json();
       if (d?.ok) supabaseCode = d.code_parrainage || '';
     }
