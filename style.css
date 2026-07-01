@@ -6701,15 +6701,20 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 @media (max-width:768px) {
   #dash-menu-fab {
     display:flex; align-items:center; gap:8px;
-    position:fixed; top:62px; left:12px; z-index:180;
-    background:#1E180E; color:#E8940A;
-    border:1.5px solid rgba(232,148,10,.55); border-radius:100px;
-    padding:9px 16px 9px 13px;
-    font-family:'Geist', sans-serif; font-size:13px; font-weight:800; letter-spacing:.3px;
-    box-shadow:0 6px 22px rgba(0,0,0,.5);
+    position:fixed; top:64px; left:12px; z-index:180;
+    background:#E8940A; color:#0F0C09;
+    border:2px solid #FCE0A8; border-radius:100px;
+    padding:11px 18px 11px 15px;
+    font-family:'Geist', sans-serif; font-size:14px; font-weight:800; letter-spacing:.3px;
+    box-shadow:0 4px 18px rgba(232,148,10,.55), 0 2px 8px rgba(0,0,0,.4);
     cursor:pointer; -webkit-tap-highlight-color:transparent;
+    animation:dashFabPulse 2.6s ease-in-out infinite;
   }
-  #dash-menu-fab:active { background:#2a2214; }
+  #dash-menu-fab:active { transform:scale(.95); }
+  @keyframes dashFabPulse {
+    0%, 100% { box-shadow:0 4px 18px rgba(232,148,10,.55), 0 2px 8px rgba(0,0,0,.4); }
+    50% { box-shadow:0 4px 26px rgba(232,148,10,.9), 0 2px 8px rgba(0,0,0,.4); }
+  }
   /* Cacher le bouton quand le tiroir est deja ouvert */
   body.dash-menu-locked #dash-menu-fab { opacity:0; pointer-events:none; }
 }
