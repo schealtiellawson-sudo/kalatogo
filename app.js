@@ -8824,20 +8824,13 @@ async function submitInscription(e) {
       try {
         const existing = await window.supaPrest.findByUserId(effectiveUser.id);
         if (existing) {
-          // Mise à jour des champs manquants (surtout les photos uploadées lors de ce retry)
-          const updateFields = {};
-          if (profilUrl && !existing.fields['Photo de profil']) updateFields['Photo de profil'] = profilUrl;
-          if (photo1Url && !existing.fields['Photo Réalisation 1']) updateFields['Photo Réalisation 1'] = photo1Url;
-          if (photo2Url && !existing.fields['Photo Réalisation 2']) updateFields['Photo Réalisation 2'] = photo2Url;
-          if (photo3Url && !existing.fields['Photo Réalisation 3']) updateFields['Photo Réalisation 3'] = photo3Url;
-          if (Object.keys(updateFields).length > 0) {
-            try { record = await window.supaPrest.update(existing.id, updateFields); }
-            catch(eUp) { record = existing; }
-          } else {
-            record = existing;
-          }
+          // Le profil a pu etre cree en amont (auto-create de loadCurrentPrestataire au
+          // moment du SIGNED_IN) avec seulement Email/Nom/User ID. On le complete ici avec
+          // TOUTES les donnees de l'inscription : parrain_code, prenom, nom, metier, photos...
+          try { record = await window.supaPrest.update(existing.id, fields); }
+          catch(eUp) { record = existing; }
           createOk = true;
-          console.log('[wozali] Profil existant récupéré, on continue.');
+          console.log('[wozali] Profil existant complété avec les données d\'inscription.');
         }
       } catch(eCheck) { /* pas de profil existant, on crée */ }
     }
