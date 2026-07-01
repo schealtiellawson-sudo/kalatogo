@@ -4471,72 +4471,133 @@ async function renderPostsFeed(recordId) {
     return;
   }
 
+  // Stocker les posts pour la modal d'ouverture
+  window._profilPosts = window._profilPosts || {};
+  window._profilPosts[recordId] = posts;
+
+  feedEl.classList.add('profil-posts-grid');
   feedEl.innerHTML = posts.map(p => {
-    const isOwner = currentUser && currentPrestataire?.id === recordId;
-    const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-    const initiale = (p.auteur || '?').charAt(0).toUpperCase();
-    const likeId = `${recordId}_${p.id}`;
-    const hasLiked = liked.includes(likeId);
-    const likeCount = p.likes || 0;
-    const comments = p.comments || [];
-    const commentCount = comments.length;
-
-    const commentsHtml = comments.map(c => {
-      const cInit = (c.auteur || '?').charAt(0).toUpperCase();
-      const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
-      return `<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid rgba(255,255,255,0.06);">
-        ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');" loading="lazy">` : `<div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:800;color:rgba(255,255,255,0.6);font-size:12px;flex-shrink:0;cursor:pointer;" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${cInit}</div>`}
-        <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 12px;">
-          <div style="font-weight:700;color:white;font-size:13px;margin-bottom:2px;cursor:${c.auteurId ? 'pointer' : 'default'};" onclick="if('${c.auteurId}') showProfil('${c.auteurId}');">${c.auteur} <span style="font-weight:400;color:rgba(255,255,255,0.35);font-size:11px;">· ${cDate}</span></div>
-          <div style="color:rgba(255,255,255,0.8);font-size:13px;line-height:1.5;">${c.texte.replace(/\n/g,'<br>')}</div>
-        </div>
-      </div>`;
-    }).join('');
-
-    return `
-    <div id="post-card-${p.id}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:12px;">
-      <!-- Header -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        ${p.auteurPhoto ? `<img src="${p.auteurPhoto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');" loading="lazy">` : `<div style="width:38px;height:38px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;cursor:pointer;" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">${initiale}</div>`}
-        <div style="cursor:${p.auteurId ? 'pointer' : 'default'};" onclick="if('${p.auteurId}') showProfil('${p.auteurId}');">
-          <div style="font-weight:700;color:white;font-size:14px;">${p.auteur}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.4);">${dateStr}</div>
-        </div>
-        ${isOwner ? `<button onclick="deletePost('${recordId}','${p.id}')" style="margin-left:auto;background:rgba(255,0,0,0.1);border:none;color:rgba(255,100,100,0.6);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;">Supprimer</button>` : ''}
-      </div>
-      <!-- Contenu -->
-      ${p.texte ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;margin:0 0 ${p.photo ? '12px' : '0'};">${p.texte.replace(/\n/g,'<br>')}</p>` : ''}
-      ${p.photo && p.mediaType === 'video'
-        ? `<video src="${p.photo}" controls playsinline preload="metadata"
-             style="width:100%;max-height:420px;border-radius:10px;background:#000;cursor:pointer;margin-bottom:4px;display:block;"
-             onclick="openLightboxMedia('${p.photo}','video')"></video>`
-        : p.photo
-          ? `<img src="${p.photo}" onclick="openLightboxMedia('${p.photo}','photo')" style="width:100%;max-height:400px;object-fit:cover;border-radius:10px;cursor:pointer;margin-bottom:4px;" loading="lazy">`
-          : ''
-      }
-      <!-- Actions (like + commenter) -->
-      <div style="display:flex;gap:4px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);margin-top:10px;">
-        <button onclick="likePost('${recordId}','${p.id}')" style="display:flex;align-items:center;gap:6px;background:${hasLiked ? 'rgba(239,68,68,0.15)' : 'transparent'};border:none;color:${hasLiked ? '#f87171' : 'rgba(255,255,255,0.5)'};padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;" onmouseenter="this.style.background='rgba(239,68,68,0.12)'" onmouseleave="this.style.background='${hasLiked ? 'rgba(239,68,68,0.15)' : 'transparent'}'">
-          ${hasLiked ? '❤️' : '🤍'} <span id="like-count-${p.id}">${likeCount > 0 ? likeCount : ''}</span>${likeCount === 0 ? "J'aime" : ''}
-        </button>
-        <button onclick="toggleCommentBox('${recordId}','${p.id}')" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.06)'" onmouseleave="this.style.background='transparent'">
-          💬 <span>${commentCount > 0 ? commentCount + ' commentaire' + (commentCount > 1 ? 's' : '') : 'Commenter'}</span>
-        </button>
-      </div>
-      <!-- Section commentaires -->
-      <div id="comments-section-${p.id}" style="display:none;margin-top:10px;">
-        ${commentsHtml}
-        <!-- Saisie nouveau commentaire -->
-        <div style="display:flex;gap:10px;align-items:flex-start;padding-top:${commentCount > 0 ? '10px' : '0'};">
-          <div style="width:30px;height:30px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:12px;flex-shrink:0;">${(currentPrestataire?.fields?.['Nom complet'] || 'V').charAt(0).toUpperCase()}</div>
-          <div style="flex:1;display:flex;gap:8px;align-items:center;">
-            <input id="comment-input-${p.id}" type="text" placeholder="Écrire un commentaire..." style="flex:1;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:100px;padding:8px 16px;color:white;font-size:13px;font-family:inherit;outline:none;" onfocus="this.style.borderColor='var(--vert)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" onkeydown="if(event.key==='Enter')submitComment('${recordId}','${p.id}')">
-            <button onclick="submitComment('${recordId}','${p.id}')" style="background:var(--vert);border:none;color:white;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">➤</button>
-          </div>
-        </div>
-      </div>
+    const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+    const isVideo = p.mediaType === 'video';
+    const commentCount = (p.comments || []).length;
+    const photoSafe = encodeURI(p.photo || '');
+    let media;
+    if (p.photo && isVideo) {
+      media = `<video src="${photoSafe}#t=0.1" muted playsinline preload="metadata" class="ppg-media"></video><span class="ppg-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>`;
+    } else if (p.photo) {
+      media = `<img src="${photoSafe}" loading="lazy" class="ppg-media">`;
+    } else {
+      media = `<div class="ppg-text">${escapeHtml((p.texte || '').slice(0,160))}</div>`;
+    }
+    const meta = (p.likes > 0 ? '❤ ' + p.likes + '  ' : '') + (commentCount > 0 ? '💬 ' + commentCount : '');
+    return `<div class="ppg-tile" onclick="openPostModal('${p.id}','${recordId}')">
+      <div class="ppg-media-wrap">${media}</div>
+      <div class="ppg-footer"><span class="ppg-date">${dateStr}</span><span class="ppg-meta">${meta}</span></div>
     </div>`;
   }).join('');
+}
+
+// ── Modal d'un post (média + légende + like + commentaires) ─────────────
+function closePostModal() {
+  const m = document.getElementById('post-modal');
+  if (m) m.style.display = 'none';
+  document.body.classList.remove('dash-menu-locked');
+}
+
+function openPostModal(postId, recordId) {
+  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+  const p = posts.find(x => String(x.id) === String(postId));
+  if (!p) return;
+  let modal = document.getElementById('post-modal');
+  if (!modal) { modal = document.createElement('div'); modal.id = 'post-modal'; modal.onclick = function(e){ if (e.target === modal) closePostModal(); }; document.body.appendChild(modal); }
+  modal.className = 'pm-overlay';
+  modal.innerHTML = _renderPostModalBody(p, recordId);
+  modal.style.display = 'flex';
+  document.body.classList.add('dash-menu-locked');
+}
+
+function _renderPostModalBody(p, recordId) {
+  const liked = JSON.parse(localStorage.getItem('wozali_liked') || '[]');
+  const hasLiked = liked.includes(`${recordId}_${p.id}`);
+  const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  const initiale = (p.auteur || '?').charAt(0).toUpperCase();
+  const isVideo = p.mediaType === 'video';
+  const photoSafe = encodeURI(p.photo || '');
+  const media = p.photo ? (isVideo
+    ? `<video src="${photoSafe}" controls playsinline preload="metadata" class="pm-media"></video>`
+    : `<img src="${photoSafe}" class="pm-media">`) : '';
+  const comments = p.comments || [];
+  const commentsHtml = comments.length ? comments.map(c => {
+    const cInit = (c.auteur || '?').charAt(0).toUpperCase();
+    const cDate = c.date ? new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) : '';
+    const cPhoto = c.auteurPhoto ? `<img src="${encodeURI(c.auteurPhoto)}" class="pm-cav">` : `<div class="pm-cav pm-cav-ini">${cInit}</div>`;
+    return `<div class="pm-comment">${cPhoto}<div class="pm-cbody"><div class="pm-cnom">${escapeHtml(c.auteur || '')} <span class="pm-cdate">· ${cDate}</span></div><div class="pm-ctext">${escapeHtml(c.texte || '').replace(/\n/g,'<br>')}</div></div></div>`;
+  }).join('') : '<div class="pm-nocomment">Aucun commentaire. Sois le premier.</div>';
+  const authorClick = p.auteurId ? `onclick="closePostModal();showProfil('${p.auteurId}');showPage('profil');"` : '';
+  return `<div class="pm-box">
+    <div class="pm-head">
+      <div class="pm-author" ${authorClick}>
+        ${p.auteurPhoto ? `<img src="${encodeURI(p.auteurPhoto)}" class="pm-hav">` : `<div class="pm-hav pm-hav-ini">${initiale}</div>`}
+        <div><div class="pm-nom">${escapeHtml(p.auteur || '')}</div><div class="pm-date">${dateStr}</div></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        ${(currentUser && currentPrestataire?.id === recordId) ? `<button class="pm-close" style="color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.1);" onclick="closePostModal();deletePost('${recordId}','${p.id}')" aria-label="Supprimer">🗑</button>` : ''}
+        <button class="pm-close" onclick="closePostModal()" aria-label="Fermer">✕</button>
+      </div>
+    </div>
+    ${media ? `<div class="pm-media-wrap">${media}</div>` : ''}
+    ${p.texte ? `<div class="pm-caption">${escapeHtml(p.texte).replace(/\n/g,'<br>')}</div>` : ''}
+    <div class="pm-actions">
+      <button class="pm-actbtn pm-likebtn ${hasLiked ? 'liked' : ''}" onclick="likePostFromModal('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span id="pm-like-${p.id}">${p.likes || 0}</span></button>
+      <button class="pm-actbtn" onclick="document.getElementById('pm-comment-input').focus()">💬 <span>${comments.length}</span></button>
+    </div>
+    <div class="pm-comments">${commentsHtml}</div>
+    <div class="pm-addcomment">
+      <input id="pm-comment-input" placeholder="Écrire un commentaire..." onkeydown="if(event.key==='Enter')submitPostModalComment('${recordId}','${p.id}')">
+      <button onclick="submitPostModalComment('${recordId}','${p.id}')" aria-label="Envoyer">➤</button>
+    </div>
+  </div>`;
+}
+
+async function likePostFromModal(recordId, postId) {
+  const likedKey = 'wozali_liked';
+  const liked = JSON.parse(localStorage.getItem(likedKey) || '[]');
+  const likeId = `${recordId}_${postId}`;
+  const already = liked.includes(likeId);
+  const supa = window.supabase;
+  if (!supa) return;
+  let cur = 0;
+  try { const { data } = await supa.from('wozali_posts_v2').select('nb_likes').eq('id', postId).maybeSingle(); cur = data?.nb_likes || 0; } catch { return; }
+  const nl = already ? Math.max(0, cur - 1) : cur + 1;
+  try { await supa.from('wozali_posts_v2').update({ nb_likes: nl }).eq('id', postId); } catch { return; }
+  localStorage.setItem(likedKey, JSON.stringify(already ? liked.filter(l => l !== likeId) : [...liked, likeId]));
+  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+  const p = posts.find(x => String(x.id) === String(postId));
+  if (p) p.likes = nl;
+  const btn = document.querySelector('#post-modal .pm-likebtn');
+  if (btn) { btn.classList.toggle('liked', !already); btn.innerHTML = (already ? '🤍' : '❤️') + ' <span id="pm-like-' + postId + '">' + nl + '</span>'; }
+  if (!already) pushNotif(recordId, { type: 'like', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un visiteur', postTexte: p?.texte || '', postId });
+}
+
+async function submitPostModalComment(recordId, postId) {
+  if (!currentPrestataire) { toast('Connecte-toi pour commenter', 'info'); return; }
+  const input = document.getElementById('pm-comment-input');
+  const texte = input?.value?.trim();
+  if (!texte || texte.length < 1) { toast('Écris un commentaire', 'error'); return; }
+  if (texte.length > 500) { toast('Trop long (max 500 caractères)', 'error'); return; }
+  const supa = window.supabase;
+  if (!supa) return;
+  const auteur = currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur';
+  try {
+    const { data: post } = await supa.from('wozali_posts_v2').select('commentaires').eq('id', postId).maybeSingle();
+    const comments = Array.isArray(post?.commentaires) ? post.commentaires : [];
+    comments.push({ id: Date.now().toString(), texte, auteur, auteurPhoto: _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']) || _wPhotoUrl(currentPrestataire?.fields?.['WhatsApp']), auteurId: currentPrestataire?.id || null, date: new Date().toISOString() });
+    await supa.from('wozali_posts_v2').update({ commentaires: comments }).eq('id', postId);
+    const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+    const p = posts.find(x => String(x.id) === String(postId));
+    if (p) { p.comments = comments; const m = document.getElementById('post-modal'); if (m) m.innerHTML = _renderPostModalBody(p, recordId); setTimeout(() => { const inp = document.getElementById('pm-comment-input'); if (inp) inp.focus(); }, 20); }
+    pushNotif(recordId, { type: 'comment', auteur, texte, postId });
+  } catch { toast('Erreur commentaire', 'error'); }
 }
 
 // ── SYSTÈME DE NOTIFICATIONS / ACTIVITÉ ──
