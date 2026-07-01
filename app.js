@@ -7655,10 +7655,11 @@ async function showProfil(recordId) {
                 ${experience ? `<span>·</span><span>🏆 ${experience} ans</span>` : ''}
               </div>
               <div class="profil-chips-row">
+                ${((f['Email']||'').toLowerCase() === 'schealtiellawson@gmail.com') ? '<span class="profil-chip chip-founder">👑 Fondateur WOZALI</span>' : ''}
                 ${abonnementRaw !== 'Base' ? `<span class="profil-chip chip-or">⭐ PRO</span>` : ''}
                 ${verifie ? '<span class="profil-chip chip-vert">✓ Vérifié</span>' : ''}
                 ${dispo ? '<span class="profil-chip chip-green">● Disponible</span>' : '<span class="profil-chip chip-off">⏸ Occupé</span>'}
-                ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="profil-chip chip-dk">🏅 Fondateur</span>' : ''}
+                ${((f['Badge Fondateur'] || f['Fondateur']) && (f['Email']||'').toLowerCase() !== 'schealtiellawson@gmail.com') ? '<span class="profil-chip chip-dk">🏅 Fondateur</span>' : ''}
                 ${note > 0 ? `<span class="profil-chip chip-star">★ ${note.toFixed(1)}</span>` : ''}
                 ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="profil-chip chip-vert">🏆 Éligible Bourse</span>' : ''}
               </div>
