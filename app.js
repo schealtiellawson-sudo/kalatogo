@@ -3317,7 +3317,21 @@ async function uploadToImgBB(file) {
 // ══════════════════════════════════════════
 // AIRTABLE — FETCH PRESTATAIRES
 // ══════════════════════════════════════════
+// Cache mémoire des listes prestataires (stale-while-revalidate léger).
+// Une revisite de page avec les mêmes filtres dans les 45s s'affiche instantanément.
+window._prestListCache = window._prestListCache || {};
+const _PREST_TTL = 45000;
+function _prestKey(o) { return (o.metier||'') + '|' + (o.quartier||'') + '|' + (o.dispo||'') + '|' + (o.tarifMax||''); }
+function _prestCacheFresh(o) {
+  const e = window._prestListCache[_prestKey(o)];
+  return (e && (Date.now() - e.t) < _PREST_TTL) ? e.records : null;
+}
+
 async function fetchPrestataires(opts = {}) {
+  // Cache frais → retour instantané, aucun appel réseau
+  const _cachedFresh = _prestCacheFresh(opts);
+  if (_cachedFresh) return _cachedFresh;
+
   let records = [];
 
   if (window.supaPrest) {
@@ -3362,6 +3376,8 @@ async function fetchPrestataires(opts = {}) {
     const bScore = (bIsPro ? 100 : 0) + (bDispo ? 10 : 0) + bNote;
     return bScore - aScore;
   });
+  // Mémoriser pour les revisites rapides (uniquement si on a bien des résultats)
+  if (records.length) window._prestListCache[_prestKey(opts)] = { t: Date.now(), records };
   return records;
 }
 
@@ -3805,7 +3821,7 @@ function afficherCarteProfil(lat, lon, nom) {
 // ══════════════════════════════════════════
 // HOME
 // ══════════════════════════════════════════
-async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;try{let records=[];if(window.supaPrest){try{const _t=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000));records=await Promise.race([window.supaPrest.list({limit:30,orderBy:'note_moyenne',orderDir:'desc'}),_t]);records=records.filter(r=>r.fields?.['Nom complet']&&r.fields?.['Métier principal']);}catch(e){console.warn('[Vedette] supaPrest timeout/err:',e);records=[];}}if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,12).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['Photo Profil']||f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(252, 224, 168,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(252, 224, 168,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
+async function loadHomeVedette(){const grid=document.getElementById('vedette-grid');if(!grid)return;if(window._vedetteCache&&(Date.now()-window._vedetteCache.t)<60000){grid.innerHTML=window._vedetteCache.html;var _vs0=document.getElementById('vedette-section');if(_vs0)_vs0.style.display='';return;}try{let records=[];if(window.supaPrest){try{const _t=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000));records=await Promise.race([window.supaPrest.list({limit:30,orderBy:'note_moyenne',orderDir:'desc'}),_t]);records=records.filter(r=>r.fields?.['Nom complet']&&r.fields?.['Métier principal']);}catch(e){console.warn('[Vedette] supaPrest timeout/err:',e);records=[];}}if(records.length===0){grid.innerHTML='';document.getElementById('vedette-section').style.display='none';return;}records.sort((a,b)=>{const aP=a.fields['Abonnement']==='Pro'?1:0;const bP=b.fields['Abonnement']==='Pro'?1:0;if(aP!==bP)return bP-aP;return(b.fields['Note moyenne']||0)-(a.fields['Note moyenne']||0);});grid.innerHTML=records.slice(0,12).map(r=>{const f=r.fields;const nom=escapeHtml(f['Nom complet']||'Prestataire');const initiale=nom.charAt(0).toUpperCase();const metier=escapeHtml(f['Métier principal']||'');const ville=escapeHtml(f['Quartier']||f['Ville']||'');const note=f['Note moyenne']||0;const nbAvis=f["Nombre d'avis reçus"]||0;const photo=escapeHtml(f['Photo Profil']||f['WhatsApp']||(f['Photo de profil']&&f['Photo de profil'][0]?f['Photo de profil'][0].url:'')||'');const safeId=escapeHtml(r.id);const starsHtml=note>0?(typeof renderStars==='function'?renderStars(note):'&#9733;'.repeat(Math.round(note)))+` <span style="color:rgba(252, 224, 168,0.5);font-size:12px;">${note.toFixed(1)} (${nbAvis})</span>`:'<span style="color:rgba(252, 224, 168,0.3);font-size:12px;">Nouveau</span>';const _loc=((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();const _isBJ=['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));const flag=_isBJ?'\u{1F1E7}\u{1F1EF}':'\u{1F1F9}\u{1F1EC}';return`<div class="vedette-card" onclick="showProfil('${safeId}')"><div class="vedette-avatar">${photo?`<img src="${photo}" alt="${nom}" loading="lazy">`:initiale}</div><div class="vedette-nom">${nom}</div><div class="vedette-metier">${metier}</div><div class="vedette-ville">${flag} ${ville}</div><div class="vedette-stars">${starsHtml}</div></div>`;}).join('');window._vedetteCache={t:Date.now(),html:grid.innerHTML};}catch(e){console.warn('[Vedette] load fail:',e);grid.innerHTML='';const sec=document.getElementById('vedette-section');if(sec)sec.style.display='none';}}
 
 async function initHome() {
   buildVilleOptions('home-search-quartier');
@@ -4117,7 +4133,13 @@ function rechercheDebounce(fn, delay=300) {
 async function loadSearch() {
   const container = document.getElementById('search-cards');
   const meta = document.getElementById('results-meta');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div> Recherche...</div>';
+  // Ne vider l'écran (spinner) que si on n'a pas déjà les résultats en cache frais
+  const _sm = document.getElementById('s-metier')?.value || '';
+  const _sq = document.getElementById('s-quartier')?.value || '';
+  const _stf = document.getElementById('s-tarif')?.value || '';
+  if (!_prestCacheFresh({ metier:_sm, quartier:_sq, dispo:dispoFilter, tarifMax:_stf ? parseInt(_stf) : null })) {
+    container.innerHTML = '<div class="loading"><div class="spinner"></div> Recherche...</div>';
+  }
   getUserLocation();
 
   const metier = document.getElementById('s-metier')?.value || '';
