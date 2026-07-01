@@ -22,7 +22,7 @@
     { "path": "/api/wozali-pay/whatsapp-flush", "schedule": "0 12 * * *" }
   ],
   "redirects": [
-    { "source": "/postuler", "destination": "/#recrutement-agents", "permanent": true }
+    { "source": "/postuler", "destination": "/offre-agents-terrain#recrutement-agents", "permanent": true }
   ],
   "rewrites": [
     { "source": "/", "destination": "/bientot.html" },

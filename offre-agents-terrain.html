@@ -8,13 +8,12 @@
 <meta property="og:title" content="WOZALI recrute — Sois là depuis le premier jour">
 <meta property="og:description" content="Le 1er août 2026, quelque chose change à Lomé et Cotonou. 20 places pour en faire partie.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://wozali.vercel.app/offre-agents terrain">
-<meta property="og:image" content="https://wozali.vercel.app/logos/og-image-1200x630.png">
+<meta property="og:url" content="https://wozali.africa/offre-agents-terrain">
+<meta property="og:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <meta name="theme-color" content="#14100A">
 <link rel="icon" href="/logos/favicon-32.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#14100A;color:#FCE0A8;font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;max-width:100%;}
@@ -629,6 +628,40 @@ footer p{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,16
         </select>
       </div>
 
+      <!-- PHOTOS -->
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.6;margin:28px 0 16px;">Photos (optionnel)</div>
+      <p style="font-size:13px;color:rgba(252,224,168,.55);margin-bottom:18px;line-height:1.55;">Une photo de toi ou de ton quartier - ca aide beaucoup. Max 2 photos.</p>
+
+      <div style="display:flex;gap:14px;margin-bottom:28px;" id="photo-slots">
+
+        <!-- Slot 1 -->
+        <div style="flex:1;">
+          <input type="file" id="c-photo-1" accept="image/*" style="display:none;" onchange="candPhotoPreview(this,1)">
+          <div id="c-photo-1-zone" onclick="document.getElementById('c-photo-1').click()" style="aspect-ratio:1;border:2px dashed rgba(232,148,10,.3);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;background:rgba(255,255,255,.03);transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.7)'" onmouseout="this.style.borderColor='rgba(232,148,10,.3)'">
+            <div id="c-photo-1-placeholder" style="text-align:center;pointer-events:none;">
+              <div style="font-size:28px;color:#E8940A;opacity:.5;line-height:1;">+</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">Photo 1</div>
+            </div>
+            <img id="c-photo-1-preview" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+            <button type="button" id="c-photo-1-rm" onclick="event.stopPropagation();candPhotoRemove(1)" style="display:none;position:absolute;top:6px;right:6px;background:rgba(20,16,10,.85);border:none;border-radius:50%;width:24px;height:24px;color:#FCE0A8;font-size:14px;cursor:pointer;line-height:1;font-weight:700;">×</button>
+          </div>
+        </div>
+
+        <!-- Slot 2 -->
+        <div style="flex:1;">
+          <input type="file" id="c-photo-2" accept="image/*" style="display:none;" onchange="candPhotoPreview(this,2)">
+          <div id="c-photo-2-zone" onclick="document.getElementById('c-photo-2').click()" style="aspect-ratio:1;border:2px dashed rgba(232,148,10,.3);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;background:rgba(255,255,255,.03);transition:border-color .2s;" onmouseover="this.style.borderColor='rgba(232,148,10,.7)'" onmouseout="this.style.borderColor='rgba(232,148,10,.3)'">
+            <div id="c-photo-2-placeholder" style="text-align:center;pointer-events:none;">
+              <div style="font-size:28px;color:#E8940A;opacity:.5;line-height:1;">+</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:4px;">Photo 2</div>
+            </div>
+            <img id="c-photo-2-preview" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+            <button type="button" id="c-photo-2-rm" onclick="event.stopPropagation();candPhotoRemove(2)" style="display:none;position:absolute;top:6px;right:6px;background:rgba(20,16,10,.85);border:none;border-radius:50%;width:24px;height:24px;color:#FCE0A8;font-size:14px;cursor:pointer;line-height:1;font-weight:700;">×</button>
+          </div>
+        </div>
+
+      </div>
+
       <div id="cand-error" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#fca5a5;margin-bottom:18px;line-height:1.5;"></div>
 
       <button type="submit" id="cand-submit"
@@ -651,15 +684,76 @@ footer p{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,16
     <div class="footer-logo">
       <span class="footer-w">W</span><span class="footer-o">OZALI</span>
     </div>
-    <p>Lancement 1er août 2026 · Lomé (Togo) &amp; Cotonou (Bénin)<br>wozali.vercel.app</p>
+    <p>Lancement 1er août 2026 · Lomé (Togo) &amp; Cotonou (Bénin)<br>wozali.africa</p>
   </div>
 </footer>
 
 <script>
-// ── Supabase ─────────────────────────────────────────────────────────────────
+// ── Supabase REST direct (no SDK, compatible file://) ────────────────────────
 const SUPA_URL  = 'https://wikgdksyeygwpmqzmhez.supabase.co';
 const SUPA_ANON = 'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
-const _supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+async function supaInsert(table, data) {
+  const res = await fetch(SUPA_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPA_ANON,
+      'Authorization': 'Bearer ' + SUPA_ANON,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    let detail = '';
+    try { const j = await res.json(); detail = j.message || j.error || JSON.stringify(j); } catch {}
+    throw new Error('HTTP ' + res.status + (detail ? ' : ' + detail : ''));
+  }
+}
+
+// ── Photos ───────────────────────────────────────────────────────────────────
+function candPhotoPreview(input, slot) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('c-photo-' + slot + '-placeholder').style.display = 'none';
+    const img = document.getElementById('c-photo-' + slot + '-preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('c-photo-' + slot + '-rm').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function candPhotoRemove(slot) {
+  document.getElementById('c-photo-' + slot).value = '';
+  document.getElementById('c-photo-' + slot + '-preview').src = '';
+  document.getElementById('c-photo-' + slot + '-preview').style.display = 'none';
+  document.getElementById('c-photo-' + slot + '-rm').style.display = 'none';
+  document.getElementById('c-photo-' + slot + '-placeholder').style.display = 'block';
+}
+
+async function uploadCandPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      const base64 = e.target.result.split(',')[1];
+      try {
+        const res = await fetch('https://wozali.africa/api/imgbb-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64 })
+        });
+        const data = await res.json();
+        if (data.success) resolve(data.data.url);
+        else reject(new Error(data.error?.message || 'Upload echoue'));
+      } catch (err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 // ── Quartiers ────────────────────────────────────────────────────────────────
 const CAND_QUARTIERS = {
@@ -741,21 +835,30 @@ document.getElementById('form-candidature').addEventListener('submit', async e =
   document.getElementById('cand-label').textContent = 'Envoi en cours...';
 
   try {
-    const { error } = await _supa
-      .from('wozali_candidatures_agents_terrain')
-      .insert({
-        prenom, nom, telephone, whatsapp, age, genre,
-        ville, quartier,
-        disponibilite: dispo,
-        pourquoi,
-        situation: situation || null,
-        reseau_quartier: reseau || null,
-        comment_trouve: source || null,
-        source: 'wozali.africa/offre-agents-terrain',
-        statut: 'En attente'
-      });
+    // Upload photos si présentes
+    const photoUrls = [];
+    for (const slot of [1, 2]) {
+      const file = document.getElementById('c-photo-' + slot).files[0];
+      if (file) {
+        document.getElementById('cand-label').textContent = 'Upload photo ' + slot + '/2...';
+        try { photoUrls.push(await uploadCandPhoto(file)); }
+        catch { /* photo optionnelle, on continue sans */ }
+      }
+    }
 
-    if (error) throw error;
+    document.getElementById('cand-label').textContent = 'Enregistrement...';
+    await supaInsert('wozali_candidatures_agents_terrain', {
+      prenom, nom, telephone, whatsapp, age, genre,
+      ville, quartier,
+      disponibilite: dispo,
+      pourquoi,
+      situation: situation || null,
+      reseau_quartier: reseau || null,
+      comment_trouve: source || null,
+      source: 'wozali.africa/offre-agents-terrain',
+      photos: photoUrls.length ? JSON.stringify(photoUrls) : null,
+      statut: 'En attente'
+    });
 
     // Afficher confirmation inline
     document.getElementById('form-candidature').style.display = 'none';
@@ -768,7 +871,7 @@ document.getElementById('form-candidature').addEventListener('submit', async e =
 
   } catch (ex) {
     console.error('[candidature]', ex);
-    showErr('Ça a calé. Vérifie ta connexion et réessaie dans 2 secondes.');
+    showErr('Erreur : ' + (ex.message || 'Vérifie ta connexion et réessaie.'));
     btn.disabled = false;
     document.getElementById('cand-spinner').style.display = 'none';
     document.getElementById('cand-label').textContent = 'Envoyer ma candidature';
@@ -785,7 +888,7 @@ function partager() {
     "Ton rôle : aller sur le terrain, rencontrer les artisans, créer leur profil.\n" +
     "100 000 FCFA atteignables dès le 2e mois · mobile money\n\n" +
     "Pas de diplôme requis. Gratuit. 20 places.\n" +
-    "👉 https://wozali.vercel.app/offre-agents terrain"
+    "👉 https://wozali.africa/offre-agents-terrain"
   );
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
