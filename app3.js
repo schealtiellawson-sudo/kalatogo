@@ -1817,7 +1817,9 @@ function renderCandGrid(records) {
   var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">';
   records.forEach(function(r) {
     var f = r.fields;
-    var photos = (f['Photos']||'').split('\n').filter(Boolean);
+    var _rp = f['Photos'] || '';
+    var photos = [];
+    try { photos = _rp.trim().startsWith('[') ? JSON.parse(_rp).filter(Boolean) : _rp.split('\n').filter(Boolean); } catch(e) { photos = _rp.split('\n').filter(Boolean); }
     var photo = photos[0] || '';
     var statut = f['Statut'] || 'En attente';
     var genreLabel = f['Genre']==='H'?'Homme':f['Genre']==='F'?'Femme':'—';
@@ -2224,7 +2226,9 @@ function showCandDetail(recordId) {
   var rec = _candCache.find(function(r){ return r.id === recordId; });
   if (!rec) return;
   var f = rec.fields;
-  var photos = (f['Photos']||'').split('\n').filter(Boolean);
+  var _fp = f['Photos'] || '';
+  var photos = [];
+  try { photos = _fp.trim().startsWith('[') ? JSON.parse(_fp).filter(Boolean) : _fp.split('\n').filter(Boolean); } catch(e) { photos = _fp.split('\n').filter(Boolean); }
   var statut = f['Statut'] || 'En attente';
   var html = '';
 
