@@ -1065,6 +1065,27 @@ h1 .gold { color:var(--or); }
 .profil-header-body { display:block; }
 /* Avatar centré */
 .profil-av-centered { display:flex; justify-content:center; margin-top:-28px; position:relative; z-index:2; }
+/* Boutons sur la photo de profil (mon profil) : + story + crayon edit */
+.profil-av-wrap { position:relative; display:inline-flex; }
+.profil-av-btn {
+  position:absolute; z-index:6;
+  display:flex; align-items:center; justify-content:center;
+  border:none; cursor:pointer; padding:0;
+  color:#0F0C09; -webkit-tap-highlight-color:transparent;
+  transition:transform .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+.profil-av-btn:active { transform:scale(.9); }
+.profil-av-story {
+  bottom:-3px; right:-3px;
+  width:30px; height:30px; border-radius:50%;
+  background:#E8940A; border:3px solid #0f0b07;
+}
+.profil-av-edit {
+  top:-3px; right:-3px;
+  width:27px; height:27px; border-radius:50%;
+  background:#FCE0A8; border:3px solid #0f0b07;
+}
 .profil-av-centered .profil-avatar-lg {
   width:64px; height:64px; font-size:24px;
   box-shadow:0 0 0 3px #0f0b07, 0 0 0 5px rgba(232,148,10,0.25);

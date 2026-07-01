@@ -495,6 +495,12 @@ async function viewMyProfile() {
   showPage('login');
 }
 
+// Édition rapide depuis la photo de profil (crayon) → ouvre direct le formulaire de modif
+function openQuickEditProfil() {
+  showPage('dashboard');
+  showDashSection('profil');
+}
+
 // ══════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════
@@ -7624,9 +7630,15 @@ async function showProfil(recordId) {
         <div class="profil-header-body">
           <!-- Avatar -->
           <div class="profil-av-centered">
-            <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}${_profHasStory ? (' has-story' + (_profStorySeen ? ' seen' : '')) : ''}" ${_profHasStory ? `onclick="openProfilStory('${escapeHtml(_profilUserId||'')}')"` : ''}>
-              ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
-            </div>
+            <span class="profil-av-wrap${_isOwnProfil ? ' is-me' : ''}">
+              <div class="profil-avatar-lg ${abonnementRaw !== 'Base' ? 'premium' : ''}${_profHasStory ? (' has-story' + (_profStorySeen ? ' seen' : '')) : ''}" ${_profHasStory ? `onclick="openProfilStory('${escapeHtml(_profilUserId||'')}')"` : ''}>
+                ${photoProfil ? `<img src="${photoProfilSafe}" alt="${nom}" loading="lazy">` : initiale}
+              </div>
+              ${_isOwnProfil ? `
+              <button class="profil-av-btn profil-av-story" onclick="event.stopPropagation();openStoryCreator();" aria-label="Ajouter une story" title="Ajouter une story"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <button class="profil-av-btn profil-av-edit" onclick="event.stopPropagation();openQuickEditProfil();" aria-label="Modifier mon profil" title="Modifier mon profil"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+              ` : ''}
+            </span>
             <div class="profil-online-badge ${dispo ? '' : 'offline'}" style="${dispo ? 'background:#E8940A;' : ''}"></div>
           </div>
           <!-- Right col (becomes full-width on mobile) -->
