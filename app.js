@@ -2808,7 +2808,7 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','a-propos','agent-wozali','influenceurs','recrutement-agents','admin-agents'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','a-propos','agent-wozali','influenceurs','admin-agents'];
   if (publicPages.includes(page))  localStorage.setItem('wozali_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wozali_last_page', page);
 
@@ -2831,7 +2831,7 @@ function showPage(page, _fromPop) {
   // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
   if (page === 'awards') loadPageAwards();
   if (page === 'match') { try { initWozaliMatch(); } catch(e){ console.warn('match init', e); } }
-  if (page === 'recrutement-agents') { setTimeout(() => { if (typeof updateRecrutQuartiers === 'function') updateRecrutQuartiers(); }, 50); }
+
   if (page === 'admin-agents') loadAdminAgents();
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
@@ -2900,11 +2900,11 @@ function _restorePageFromURL() {
   const hash = window.location.hash;
   if (hash.includes('access_token') || hash.includes('type=') || hash.includes('error=')) return;
 
-  // ── Pathname routing : /recrutement-agents ──
-  if (window.location.pathname === '/recrutement-agents') { showPage('recrutement-agents'); return; }
+  // ── Pathname routing : /recrutement-agents → redirect vers la vraie page ──
+  if (window.location.pathname === '/recrutement-agents') { window.location.replace('/offre-agents-terrain'); return; }
 
-  // ── Hash routing : #recrutement-agents ──
-  if (hash === '#recrutement-agents') { showPage('recrutement-agents'); return; }
+  // ── Hash routing : #recrutement-agents → redirect vers la vraie page ──
+  if (hash === '#recrutement-agents') { window.location.replace('/offre-agents-terrain'); return; }
 
   // ── SEO : détecter /profil/[slug] dans le pathname ──
   const pathMatch = window.location.pathname.match(/^\/profil\/([a-z0-9-]+)/);
@@ -13195,8 +13195,8 @@ function renderOffresPage() {
     <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Places limitées</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié aujourd'hui</div>
     <div class="offre-actions" onclick="event.stopPropagation();">
-      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('Agent terrain WOZALI - Lomé & Cotonou','recrutement-agents')">📤 Partager</button>
-      <button class="btn btn-primary btn-sm" onclick="showPage('recrutement-agents')">→ Postuler</button>
+      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="(function(){var u='https://wozali.africa/offre-agents-terrain';var t='📢 WOZALI recrute des agents terrain à Lomé et Cotonou\\n\\n100 000 FCFA dès le 1er mois. 20 places seulement.\\n\\nPostule en 2 minutes :\\n'+u;if(navigator.share){navigator.share({title:'Agent terrain WOZALI',text:t,url:u}).catch(function(){});}else{window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank');}})()">📤 Partager</button>
+      <button class="btn btn-primary btn-sm" onclick="window.location.href='/offre-agents-terrain'">→ Postuler</button>
     </div>
   </div>`;
   }
