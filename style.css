@@ -1090,6 +1090,8 @@ h1 .gold { color:var(--or); }
   width:28px; height:28px; border-radius:50%;
   background:#FCE0A8; border:2px solid rgba(232,148,10,.5);
 }
+/* Sur mon profil, masquer le badge statut (le + prend sa place) */
+.profil-av-wrap.is-me ~ .profil-online-badge { display:none !important; }
 .profil-av-centered .profil-avatar-lg {
   width:64px; height:64px; font-size:24px;
   box-shadow:0 0 0 3px #0f0b07, 0 0 0 5px rgba(232,148,10,0.25);
