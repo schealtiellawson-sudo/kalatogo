@@ -534,6 +534,9 @@ function showDashSection(section) {
     section = window.DASH_SECTION_ALIASES[section];
   }
 
+  // Fermer le tiroir menu mobile après sélection d'une section
+  if (typeof closeDashMenu === 'function') closeDashMenu();
+
   document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.dash-link').forEach(l => l.classList.remove('active'));
   document.getElementById('ds-' + section)?.classList.add('active');
@@ -2868,7 +2871,7 @@ function bntGo(tab) {
       break;
     case 'moi':
       bntSetActive('moi');
-      if (currentUser) viewMyProfile();
+      if (currentUser) openDashMenu();
       else showPage('login');
       break;
   }
@@ -2890,6 +2893,24 @@ function hideBottomNav() {
   if (nav) { nav.style.display = 'none'; document.body.classList.remove('has-bottom-nav'); }
   var rp = document.getElementById('dash-right-panel');
   if (rp) rp.classList.remove('visible');
+}
+// ── TIROIR MENU MOBILE (sidebar dashboard en drawer) ───────────────────
+function openDashMenu() {
+  var dash = document.getElementById('page-dashboard');
+  if (dash && !dash.classList.contains('active')) showPage('dashboard');
+  var sb = document.querySelector('#page-dashboard .dashboard-sidebar');
+  var ov = document.getElementById('dash-menu-overlay');
+  if (sb) sb.classList.add('menu-open');
+  if (ov) ov.classList.add('menu-open');
+  document.body.classList.add('dash-menu-locked');
+}
+
+function closeDashMenu() {
+  var sb = document.querySelector('#page-dashboard .dashboard-sidebar');
+  var ov = document.getElementById('dash-menu-overlay');
+  if (sb) sb.classList.remove('menu-open');
+  if (ov) ov.classList.remove('menu-open');
+  document.body.classList.remove('dash-menu-locked');
 }
 // ── FIN BOTTOM NAV ─────────────────────────────────────────────────────
 

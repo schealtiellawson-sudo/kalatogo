@@ -181,8 +181,8 @@ setTimeout(function(){
     Messages
   </button>
   <button class="bnt-item" id="bnt-moi" onclick="bntGo('moi')">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    Moi
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    Menu
   </button>
 </nav>
 
@@ -2326,9 +2326,19 @@ setTimeout(function(){
 <div id="page-dashboard" class="page">
   <div class="dashboard-layout">
 
+    <!-- Overlay tiroir menu mobile -->
+    <div id="dash-menu-overlay" onclick="closeDashMenu()"></div>
+
     <!-- Sidebar collapsible (refonte sprint 2026-04-09) -->
     <div class="dashboard-sidebar">
-      <button class="dash-link" onclick="viewMyProfile()" style="font-weight:800;border:none !important;background:#E8940A !important;color:#0A0A0A !important;border-radius:10px !important;margin-bottom:6px;">
+      <!-- En-tête tiroir (mobile uniquement) -->
+      <div class="dash-drawer-head">
+        <span class="dash-drawer-title">MENU</span>
+        <button class="dash-drawer-close" onclick="closeDashMenu()" aria-label="Fermer le menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <button class="dash-link" onclick="closeDashMenu();viewMyProfile()" style="font-weight:800;border:none !important;background:#E8940A !important;color:#0A0A0A !important;border-radius:10px !important;margin-bottom:6px;">
         <i data-lucide="user-circle"></i> <span>Mon Profil Public</span>
       </button>
       <button class="dash-link active" onclick="showDashSection('overview')" id="dl-overview">

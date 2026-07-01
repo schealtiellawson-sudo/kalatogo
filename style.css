@@ -6692,9 +6692,64 @@ input::placeholder, textarea::placeholder {
 body.has-bottom-nav .page.active { padding-bottom:68px; }
 body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 
-/* Cacher la sidebar dashboard sur mobile quand bottom nav actif */
+/* En-tête tiroir + overlay : cachés sur desktop */
+.dash-drawer-head { display:none; }
+#dash-menu-overlay { display:none; }
+
+/* Sidebar dashboard = tiroir coulissant sur mobile (accès à toutes les sections) */
 @media (max-width:768px) {
-  body.has-bottom-nav #page-dashboard .dashboard-sidebar { display:none !important; }
+  body.has-bottom-nav #page-dashboard .dashboard-sidebar {
+    display:block !important;
+    position:fixed !important;
+    top:0; left:0; bottom:0;
+    width:min(86vw, 330px); max-width:330px;
+    height:100vh; height:100dvh;
+    margin:0 !important;
+    z-index:6000;
+    border-radius:0 20px 20px 0 !important;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:18px 16px calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    transform:translateX(-102%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow:10px 0 48px rgba(0,0,0,.65);
+  }
+  body.has-bottom-nav #page-dashboard .dashboard-sidebar.menu-open {
+    transform:translateX(0);
+  }
+
+  /* Overlay sombre derrière le tiroir */
+  #dash-menu-overlay {
+    display:block;
+    position:fixed; inset:0;
+    background:rgba(0,0,0,.62);
+    z-index:5950;
+    opacity:0; visibility:hidden;
+    transition:opacity .28s ease, visibility .28s ease;
+  }
+  #dash-menu-overlay.menu-open { opacity:1; visibility:visible; }
+
+  /* Bloquer le scroll du fond quand le tiroir est ouvert */
+  body.dash-menu-locked { overflow:hidden; }
+
+  /* En-tête du tiroir (titre + croix de fermeture) */
+  .dash-drawer-head {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px; padding-bottom:14px;
+    border-bottom:1px solid rgba(232,148,10,.18);
+  }
+  .dash-drawer-title {
+    font-family:'Geist Mono', monospace;
+    font-size:12px; font-weight:800; letter-spacing:2px;
+    color:rgba(232,148,10,.85);
+  }
+  .dash-drawer-close {
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:10px;
+    background:rgba(232,148,10,.1); border:1px solid rgba(232,148,10,.25);
+    color:#E8940A; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .dash-drawer-close:active { background:rgba(232,148,10,.22); }
 }
 
 /* ═══════════════════════════════════════════
