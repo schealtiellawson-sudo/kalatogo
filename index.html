@@ -1856,7 +1856,7 @@ setTimeout(function(){
         <p style="font-size:11px;color:rgba(252, 224, 168,0.4);margin-top:8px;">5 filleuls Pro = 5 000 FCFA/mois · 20 filleuls Pro = 20 000 FCFA/mois</p>
       </div>
 
-      <button class="btn btn-primary btn-lg" onclick="showPage('dashboard')" style="width:100%;justify-content:center;margin-bottom:12px;">🚀 Accéder à mon espace</button>
+      <button class="btn btn-primary btn-lg" onclick="localStorage.removeItem('wozali_just_signed_up');showPage('dashboard');if(window.showWozaliOnboarding)setTimeout(window.showWozaliOnboarding,300);" style="width:100%;justify-content:center;margin-bottom:12px;">🚀 Accéder à mon espace</button>
       <!-- Point 58/59 — Bouton WhatsApp post-inscription -->
       <button class="btn btn-sm" onclick="shareInscriptionWhatsApp()" style="width:100%;justify-content:center;margin-bottom:12px;background:#25d366;color:white;border:none;font-weight:800;">📱 Partager sur WhatsApp</button>
       <button class="btn btn-ghost btn-sm" onclick="showPage('login')" style="width:100%;justify-content:center;">Se connecter avec mes identifiants</button>
@@ -9532,7 +9532,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 <!-- ══════════════════════════════════════════
      SPRINT 2 — ONBOARDING + NOTIF TEMPLATES
 ════════════════════════════════════════════ -->
-<script src="/app3.js?v=20260701h" defer></script>
+<script src="/app3.js?v=20260701j" defer></script>
 
 <!-- TODO wozali-v2 — Sections reportées (risque de casser JS existant) :
   * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wozali-v2-header + body.wozali-v2-active prêtes à l'emploi.

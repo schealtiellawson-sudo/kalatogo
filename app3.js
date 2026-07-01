@@ -2441,9 +2441,8 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
   // Auto-trigger après inscription (1er login)
   document.addEventListener('DOMContentLoaded', function(){
     try {
-      var done = localStorage.getItem(STORAGE_KEY);
       var justSigned = localStorage.getItem('wozali_just_signed_up');
-      if (!done && justSigned === '1') {
+      if (justSigned === '1') {
         localStorage.removeItem('wozali_just_signed_up');
         setTimeout(buildOnboarding, 600);
       }
