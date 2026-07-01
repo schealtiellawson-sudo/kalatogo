@@ -5539,6 +5539,125 @@ async function loadFollowerCount(prestataireId) {
   } catch { el.textContent = '0'; }
 }
 
+// Compteur d'abonnements (qui ce profil suit)
+async function loadFollowingCount(userId, recordId) {
+  const el = document.getElementById(`pstat-abonnements-${recordId}`);
+  if (!el) return;
+  if (!userId) { el.textContent = '0'; return; }
+  try {
+    const supa = window.supabase;
+    if (!supa) { el.textContent = '0'; return; }
+    const { count } = await supa.from('wozali_suivis')
+      .select('id', { count: 'exact', head: true })
+      .eq('suiveur_user_id', userId);
+    el.textContent = count || 0;
+  } catch { el.textContent = '0'; }
+}
+
+// ── Modal liste Abonnés / Abonnements (style Insta/TikTok) ──────────────
+async function openFollowModal(type, ownerRecordId, ownerUserId) {
+  const supa = window.supabase;
+  if (!supa) { toast('Ça a calé. Réessaie.', 'error'); return; }
+  let modal = document.getElementById('follow-modal');
+  if (!modal) { modal = document.createElement('div'); modal.id = 'follow-modal'; document.body.appendChild(modal); }
+  const titre = type === 'followers' ? 'Abonnés' : 'Abonnements';
+  modal.className = 'fm-overlay';
+  modal.innerHTML = ''
+    + '<div class="fm-box">'
+    +   '<div class="fm-head"><span class="fm-title">' + titre + '</span><button class="fm-close" onclick="closeFollowModal()" aria-label="Fermer">✕</button></div>'
+    +   '<div class="fm-search"><input id="fm-search-input" placeholder="Rechercher" oninput="_fmFilter(this.value)" autocomplete="off"></div>'
+    +   '<div class="fm-list" id="fm-list"><div class="fm-loading"><div class="spinner"></div></div></div>'
+    + '</div>';
+  modal.style.display = 'flex';
+  document.body.classList.add('dash-menu-locked');
+  try {
+    // Set des prestataires que MOI je suis (pour l'état des boutons)
+    const myFollowing = new Set();
+    if (currentUser) {
+      const { data: mine } = await supa.from('wozali_suivis').select('suivi_prestataire_id').eq('suiveur_user_id', currentUser.id).limit(1000);
+      (mine || []).forEach(r => myFollowing.add(r.suivi_prestataire_id));
+    }
+    let prests = [];
+    if (type === 'followers') {
+      const { data } = await supa.from('wozali_suivis').select('suiveur_user_id').eq('suivi_prestataire_id', ownerRecordId).limit(500);
+      const userIds = (data || []).map(r => r.suiveur_user_id).filter(Boolean);
+      if (userIds.length) {
+        const { data: p } = await supa.from('wozali_prestataires').select('id, user_id, nom_complet, metier_principal, quartier, photo_profil, abonnement').in('user_id', userIds);
+        prests = p || [];
+      }
+    } else {
+      const { data } = await supa.from('wozali_suivis').select('suivi_prestataire_id').eq('suiveur_user_id', ownerUserId).limit(500);
+      const ids = (data || []).map(r => r.suivi_prestataire_id).filter(Boolean);
+      if (ids.length) {
+        const { data: p } = await supa.from('wozali_prestataires').select('id, user_id, nom_complet, metier_principal, quartier, photo_profil, abonnement').in('id', ids);
+        prests = p || [];
+      }
+    }
+    _fmRender(prests, myFollowing);
+  } catch (e) {
+    const list = document.getElementById('fm-list');
+    if (list) list.innerHTML = '<div class="fm-empty">Impossible de charger la liste.</div>';
+  }
+}
+
+function _fmRender(prests, myFollowing) {
+  const list = document.getElementById('fm-list');
+  if (!list) return;
+  if (!prests.length) { list.innerHTML = '<div class="fm-empty">Personne pour l\'instant.</div>'; return; }
+  list.innerHTML = prests.map(p => {
+    const nomRaw = p.nom_complet || '—';
+    const nom = escapeHtml(nomRaw);
+    const metier = escapeHtml((p.metier_principal || '') + (p.quartier ? ' · ' + p.quartier : ''));
+    const photo = encodeURI(p.photo_profil || '');
+    const pid = escapeHtml(p.id || '');
+    const isMe = currentUser && p.user_id === currentUser.id;
+    const following = myFollowing.has(p.id);
+    const btn = (!currentUser || isMe) ? ''
+      : '<button class="fm-btn ' + (following ? 'fm-unfollow' : 'fm-follow') + '" data-following="' + (following ? '1' : '0') + '" onclick="event.stopPropagation();followModalToggle(\'' + pid + '\',this)">' + (following ? 'Suivi(e)' : 'Suivre') + '</button>';
+    const av = photo ? '<img src="' + photo + '" loading="lazy">' : escapeHtml(nomRaw.charAt(0).toUpperCase());
+    return '<div class="fm-row" data-nom="' + nom.toLowerCase() + '" onclick="closeFollowModal();showProfil(\'' + pid + '\');showPage(\'profil\');">'
+      + '<div class="fm-av">' + av + '</div>'
+      + '<div class="fm-info"><div class="fm-nom">' + nom + '</div><div class="fm-metier">' + metier + '</div></div>'
+      + btn
+      + '</div>';
+  }).join('');
+}
+
+function _fmFilter(q) {
+  q = (q || '').toLowerCase().trim();
+  document.querySelectorAll('#fm-list .fm-row').forEach(row => {
+    row.style.display = (!q || (row.dataset.nom || '').includes(q)) ? 'flex' : 'none';
+  });
+}
+
+async function followModalToggle(prestId, btn) {
+  if (!currentUser) { closeFollowModal(); showPage('inscription'); return; }
+  const supa = window.supabase;
+  if (!supa) { toast('Ça a calé. Réessaie.', 'error'); return; }
+  const isFollowing = btn.dataset.following === '1';
+  btn.disabled = true;
+  try {
+    if (isFollowing) {
+      const { data } = await supa.from('wozali_suivis').select('id').eq('suiveur_user_id', currentUser.id).eq('suivi_prestataire_id', prestId).limit(1);
+      if (data && data[0]) await supa.from('wozali_suivis').delete().eq('id', data[0].id);
+      btn.dataset.following = '0'; btn.textContent = 'Suivre'; btn.className = 'fm-btn fm-follow';
+    } else {
+      await supa.from('wozali_suivis').insert({ suiveur_user_id: currentUser.id, suivi_prestataire_id: prestId });
+      btn.dataset.following = '1'; btn.textContent = 'Suivi(e)'; btn.className = 'fm-btn fm-unfollow';
+    }
+    // Rafraîchir les compteurs visibles + le bouton Suivre du profil
+    document.querySelectorAll('[id^="pstat-abonnes-"]').forEach(el => { const rid = el.id.replace('pstat-abonnes-', ''); loadFollowerCount(rid); });
+    if (typeof updateSuiviBtn === 'function') updateSuiviBtn(prestId);
+  } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+  btn.disabled = false;
+}
+
+function closeFollowModal() {
+  const modal = document.getElementById('follow-modal');
+  if (modal) modal.style.display = 'none';
+  document.body.classList.remove('dash-menu-locked');
+}
+
 async function loadAbonnements() {
   if (!currentUser) return;
   const container = document.getElementById('abonnements-list');
@@ -7699,7 +7818,11 @@ async function showProfil(recordId) {
                 <div class="profil-stat-num">${nbTransactions}</div>
                 <div class="profil-stat-lbl">PRESTATIONS</div>
               </div>` : ''}
-              <div class="profil-stat-cell" style="cursor:pointer;" onclick="showPage('search')">
+              <div class="profil-stat-cell" style="cursor:pointer;" onclick="openFollowModal('following','${recordId}','${escapeHtml(_profilUserId||'')}')">
+                <div class="profil-stat-num" id="pstat-abonnements-${recordId}">…</div>
+                <div class="profil-stat-lbl">ABONNEMENTS</div>
+              </div>
+              <div class="profil-stat-cell" style="cursor:pointer;" onclick="openFollowModal('followers','${recordId}','${escapeHtml(_profilUserId||'')}')">
                 <div class="profil-stat-num" id="pstat-abonnes-${recordId}">…</div>
                 <div class="profil-stat-lbl">ABONNÉS</div>
               </div>
@@ -7980,6 +8103,7 @@ async function showProfil(recordId) {
     // Mettre à jour le bouton Suivre + compteur abonnés
     setTimeout(() => updateSuiviBtn(recordId), 200);
     setTimeout(() => loadFollowerCount(recordId), 300);
+    setTimeout(() => loadFollowingCount(_profilUserId, recordId), 300);
     // Charger les stats photos (likes)
     setTimeout(() => loadPhotoLikeCounts(recordId), 300);
 
