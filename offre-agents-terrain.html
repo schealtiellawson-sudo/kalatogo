@@ -759,7 +759,7 @@ async function uploadCandPhoto(file) {
     body: JSON.stringify({ image: base64 })
   });
   const data = await resp.json();
-  if (data.success) return data.data.url;
+  if (data.success) return data.data.image?.url || data.data.display_url || data.data.url;
   throw new Error(data.error?.message || 'Upload echoue');
 }
 

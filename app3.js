@@ -1830,7 +1830,7 @@ function renderCandGrid(records) {
     // Photo header
     if (photo) {
       html += '<div style="width:100%;height:220px;overflow:hidden;position:relative;">';
-      html += '<img src="' + photo + '" style="width:100%;height:100%;object-fit:cover;">';
+      html += '<img src="' + photo + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">';
       if (photos.length > 1) html += '<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 8px;border-radius:6px;font-family:Geist Mono,monospace;">+' + (photos.length - 1) + '</div>';
       html += '<div style="position:absolute;top:8px;left:8px;">' + getCandBadge(statut) + '</div>';
       html += '</div>';
@@ -2236,7 +2236,7 @@ function showCandDetail(recordId) {
   if (photos.length) {
     html += '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">';
     photos.forEach(function(url) {
-      html += '<img src="' + url + '" onclick="openPhotoLightbox(\'' + url.replace(/'/g,"\\'") + '\')" style="width:' + (photos.length === 1 ? '220px' : '160px') + ';height:' + (photos.length === 1 ? '280px' : '200px') + ';border-radius:14px;object-fit:cover;border:2px solid rgba(232,148,10,.15);cursor:pointer;transition:transform .15s;" onmouseover="this.style.transform=\'scale(1.03)\'" onmouseout="this.style.transform=\'scale(1)\'">';
+      html += '<img src="' + url + '" onclick="openPhotoLightbox(\'' + url.replace(/'/g,"\\'") + '\')" onerror="this.parentElement.remove()" style="width:' + (photos.length === 1 ? '220px' : '160px') + ';height:' + (photos.length === 1 ? '280px' : '200px') + ';border-radius:14px;object-fit:cover;border:2px solid rgba(232,148,10,.15);cursor:pointer;transition:transform .15s;" onmouseover="this.style.transform=\'scale(1.03)\'" onmouseout="this.style.transform=\'scale(1)\'">';
     });
     html += '</div>';
   }
