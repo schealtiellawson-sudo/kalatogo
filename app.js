@@ -8010,8 +8010,8 @@ async function showProfil(recordId) {
       </div><!-- /profil-sidebar-col -->
       </div><!-- /profil-content-layout -->
 
-      <!-- Profils similaires -->
-      <div class="profil-page-bg" style="padding-top:0;">
+      <!-- Profils similaires (masqué par défaut, affiché seulement si résultats) -->
+      <div class="profil-page-bg" id="similar-section-${recordId}" style="padding-top:0;display:none;">
         <div class="container">
           <div class="profil-section" style="margin-top:0;">
             <h3 style="margin-bottom:6px;">D'autres ${metier || 'professionnels'} à ${(quartier || '').split('—')[0] || 'cette ville'}</h3>
@@ -8069,13 +8069,17 @@ async function showProfil(recordId) {
     // Charger profils similaires
     setTimeout(async () => {
       const box = document.getElementById(`profils-similaires-${recordId}`);
+      const sec = document.getElementById(`similar-section-${recordId}`);
       if (!box) return;
+      // Métier non pertinent (Autre / non précisé) → on masque la section
+      if (!metierRaw || /^Autre/i.test(metierRaw)) { if (sec) sec.style.display = 'none'; return; }
       try {
         const similar = await fetchPrestataires({ metier: metierRaw });
         const filtered = (similar || []).filter(r => r.id !== recordId).slice(0, 4);
         if (filtered.length === 0) {
-          box.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.35);font-size:13px;grid-column:1/-1;">Pas d'autre ${metier || 'prestataire'} pour l'instant.</div>`;
+          if (sec) sec.style.display = 'none';
         } else {
+          if (sec) sec.style.display = '';
           box.innerHTML = filtered.map(r => {
             const ff = r.fields;
             const pp = ff['Photo de profil'] || ff['WhatsApp'] || '';
