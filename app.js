@@ -9044,7 +9044,11 @@ function getRefFromURL() {
       return urlRef;
     }
     // 2) Fallback localStorage (capturé plus tôt dans le parcours)
-    return localStorage.getItem('wozali_ref') || '';
+    const ls = localStorage.getItem('wozali_ref');
+    if (ls) return ls;
+    // 3) Fallback cookie (capturé en inline dès le chargement, survit à localStorage vide)
+    const m = document.cookie.match(/(?:^|;\s*)wozali_ref=([^;]+)/);
+    return m ? decodeURIComponent(m[1]) : '';
   } catch { return ''; }
 }
 

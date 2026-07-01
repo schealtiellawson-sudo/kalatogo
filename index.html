@@ -3,6 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){
+  try{
+    var sp = new URLSearchParams(window.location.search);
+    var hp = window.location.hash.indexOf('?') > -1 ? new URLSearchParams(window.location.hash.split('?')[1]) : null;
+    var ref = sp.get('ref') || (hp && hp.get('ref')) || '';
+    var agent = sp.get('agent') || (hp && hp.get('agent')) || '';
+    var save = function(k,v){ if(!v) return; try{localStorage.setItem(k,v);}catch(e){} try{document.cookie=k+'='+encodeURIComponent(v)+';path=/;max-age='+(60*60*24*30)+';SameSite=Lax';}catch(e){} };
+    save('wozali_ref', ref);
+    save('wozali_agent', agent);
+  }catch(e){}
+})();
+</script>
 <meta name="google-site-verification" content="lXOGmTJAXq9qRgT3GoiQIXYHzI_515w89aDfHhi2msw" />
 <title>WOZALI — Visibilité. Emploi. Revenus. Bénin & Togo.</title>
 <meta name="description" content="WOZALI : trouve un prestataire ou un emploi à Lomé et Cotonou. Profils vérifiés, avis clients. 500 000 FCFA distribués chaque mois.">
@@ -18,7 +31,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260701g">
+<link rel="stylesheet" href="/style.css?v=20260701i">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +57,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 <!-- Helpers Supabase (defer — s'exécutent avant app.js car plus tôt dans le doc) -->
-<script src="components/supa-prest.js?v=20260701g" defer></script>
+<script src="components/supa-prest.js?v=20260701i" defer></script>
 <script src="components/supa-offres.js" defer></script>
 <script src="components/supa-candidatures.js" defer></script>
 <script src="components/supa-avis.js" defer></script>
@@ -6700,7 +6713,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260701g" defer></script>
+<script src="/app.js?v=20260701i" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
