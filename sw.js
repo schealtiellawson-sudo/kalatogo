@@ -1,5 +1,5 @@
 // WOZALI — Service Worker (PWA install + Web Push)
-const CACHE_NAME = 'wozali-v1';
+const CACHE_NAME = 'wozali-v2';
 const PRECACHE = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', function(e) {
