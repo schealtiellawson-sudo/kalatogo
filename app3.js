@@ -2366,7 +2366,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
   });
 })();
 
-// ── Onboarding 3 écrans ──
+// ── Onboarding 6 écrans (dignité, activation, pas de Pro) ──
 (function(){
   var STORAGE_KEY = 'wozali_onboarding_done';
 
@@ -2374,40 +2374,43 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
     if (document.getElementById('wozali-onboarding-modal')) return;
     var wrap = document.createElement('div');
     wrap.id = 'wozali-onboarding-modal';
-    wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,20,16,0.96);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Geist,sans-serif;';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,8,5,0.97);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Geist,sans-serif;';
     wrap.innerHTML = ''
-      + '<div style="max-width:460px;width:100%;background:linear-gradient(180deg,#1F2937 0%,#14100A 100%);border:1px solid rgba(232,148,10,0.3);border-radius:24px;padding:40px 28px 32px;text-align:center;color:#FCE0A8;box-shadow:0 30px 80px rgba(0,0,0,0.6);">'
-      +   '<div id="wozali-onb-icon" style="width:88px;height:88px;margin:0 auto 24px;border-radius:50%;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.4);display:flex;align-items:center;justify-content:center;"></div>'
-      +   '<h2 id="wozali-onb-title" style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:900;margin:0 0 14px;color:#FCE0A8;line-height:1.2;"></h2>'
-      +   '<p id="wozali-onb-text" style="font-size:15px;line-height:1.65;color:rgba(252, 224, 168,0.8);margin:0 0 30px;"></p>'
-      +   '<div id="wozali-onb-dots" style="display:flex;gap:8px;justify-content:center;margin-bottom:24px;"></div>'
-      +   '<div id="wozali-onb-btns" style="display:flex;flex-direction:column;gap:10px;"></div>'
+      + '<div style="max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;">'
+      +   '<div style="font-family:\'DM Serif Display\',serif;font-style:italic;font-size:20px;color:#E8940A;letter-spacing:.5px;margin-bottom:18px;">WOZALI</div>'
+      +   '<div style="width:100%;background:#181209;border:1px solid rgba(232,148,10,0.22);border-radius:24px;padding:34px 26px 26px;text-align:center;color:#FCE0A8;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;">'
+      +     '<div style="position:absolute;top:0;left:26px;right:26px;height:1px;background:rgba(252,224,168,0.14);"></div>'
+      +     '<div id="wozali-onb-icon" style="width:86px;height:86px;margin:6px auto 20px;border-radius:50%;background:#20180C;border:1px solid rgba(232,148,10,0.45);display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px rgba(232,148,10,0.22);"></div>'
+      +     '<div id="wozali-onb-eyebrow" style="font-family:\'Geist Mono\',monospace;font-size:11px;letter-spacing:2.5px;color:#E8940A;text-transform:uppercase;margin-bottom:14px;"></div>'
+      +     '<h2 id="wozali-onb-title" style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:400;margin:0 0 14px;color:#FCE0A8;line-height:1.16;"></h2>'
+      +     '<p id="wozali-onb-text" style="font-size:14px;line-height:1.66;color:rgba(252,224,168,0.66);margin:0 0 26px;"></p>'
+      +     '<div id="wozali-onb-dots" style="display:flex;gap:7px;justify-content:center;margin-bottom:22px;"></div>'
+      +     '<div id="wozali-onb-btns"></div>'
+      +   '</div>'
       + '</div>';
     document.body.appendChild(wrap);
 
     var steps = [
-      { icon:'hard-hat',   title:'Le travail ne paye pas. On change ça.', text:"Au Togo et au Bénin, le travail ne manque pas. C’est l’argent qui circule pas. À partir d’aujourd’hui, tes clients te trouvent. Ton business tourne. Ton travail paye.", primary:'Commencer' },
-      { icon:'map-pin',    title:'Tes clients te trouvent. Sans réseau.', text:"Le client de Bè qui cherche un coiffeur. La famille d’Akpakpa qui veut un mécano. La mariée d’Adidogomé qui cherche une couturière. Avec ton GPS, ton WhatsApp et tes avis vérifiés, ils te trouvent en 30 secondes.", primary:'Suivant' },
-      { icon:'trophy',     title:'500 000 FCFA versés chaque mois.', text:"Pas une promesse. Un virement. Bourse de Croissance 300K (1 gagnant/mois, Pro) pour les pros sérieux. Bourse des Mains d'Or 200K (100K × 2 Reines, 1 Togo + 1 Bénin) pour les femmes coiffeuses et couturières. Premier tirage le 30 août 2026. Ton travail te paye enfin.", primary:'Suivant' },
-      { icon:'users',      title:'Fais tourner le commerce des autres. Le tien en profite.', text:"Autour de toi, des gens qui travaillent dur mais sans clients. Tu leur montres WOZALI — ils s’inscrivent, les clients les trouvent, leur commerce démarre. Et pour chaque ami qui s’active en Pro : 1 000 FCFA/mois. À vie. Aider quelqu’un à faire marcher son business, maintenant ça paye.", primary:'Suivant' },
-      { icon:'badge-check',title:'Passe Pro — 2 500 FCFA/mois.', text:"1 cliente de plus dans le mois et c’est remboursé 10 fois. Badge Pro, priorité recherche, éligible aux 3 programmes (Bourse 300K + Bourse des Mains d'Or 200K + parrainage). 83 FCFA par jour. Le prix d’un café au coin de la rue.", primary:'Passer Pro maintenant', secondary:'Plus tard' }
+      { icon:'wallet',    eyebrow:'Le démarrage',  title:"Le problème, c'est pas ton travail.", text:"Tu bosses dur. Tu connais ton métier. Et pourtant l'argent ne rentre pas comme il devrait. Au Togo et au Bénin, le travail ne manque pas. C'est l'argent qui circule pas. Pas parce que tu vaux moins. Parce que personne ne te voit.", primary:'Suivant' },
+      { icon:'crown',     eyebrow:'Ta dignité',    title:"Fini de demander. Fini de quémander.", text:"Combien de fois t'as dû connaître quelqu'un pour décrocher un contrat ? Combien ont accepté n'importe quoi juste pour être choisis ? Ici c'est différent. Ton travail parle à ta place. Tu ne demandes plus une faveur, tu montres ce que tu sais faire. Ta valeur a enfin une place.", primary:'Suivant' },
+      { icon:'map-pin',   eyebrow:'Tes clients',   title:"Tes clients te trouvent. Sans réseau.", text:"Le client de Bè qui cherche un coiffeur. La famille d'Akpakpa qui veut un mécano. La mariée d'Adidogomé qui cherche une couturière. Ton GPS, ton WhatsApp, tes avis vérifiés. Ils te trouvent en 30 secondes et te contactent direct. Tu vends plus, plus souvent.", primary:'Suivant' },
+      { icon:'briefcase', eyebrow:"L'emploi",      title:"Trouver un job, sans galère.", text:"Marre des annonces floues et des « envoie ton CV et attends » ? Marre qu'on te demande des choses en échange d'un poste ? Sur WOZALI, les offres sont claires : métier, quartier, salaire affiché, contact direct. Tu postules en deux clics depuis ton téléphone. On te choisit pour ton travail, pas pour tes relations.", primary:'Suivant' },
+      { icon:'trophy',    eyebrow:'La récompense', title:"Ton sérieux te rapporte. Chaque mois.", text:"Chaque mois, WOZALI verse 500 000 FCFA à ses membres les plus sérieux. Pas une promesse, un virement. La Bourse de Croissance, 300 000 FCFA. La Bourse des Mains d'Or, 200 000 FCFA réservés aux femmes coiffeuses et couturières, sans condition de plan. Premier tirage le 25 septembre 2026. Ton travail te paye enfin.", primary:'Suivant' },
+      { icon:'sparkles',  eyebrow:'Bienvenue',     title:"WOZALI t'appartient.", text:"Tu as fait le premier pas que beaucoup n'osent pas faire. À partir d'aujourd'hui, ton travail te ramène des clients, pas des faveurs. Ajoute tes photos, complète ton profil, et laisse ton travail parler. Bienvenue sur WOZALI. Ta place est ici, et elle t'attendait.", primary:'Voir mon espace' }
     ];
     var idx = 0;
 
     function render(){
       var s = steps[idx];
-      document.getElementById('wozali-onb-icon').innerHTML = '<i data-lucide="'+s.icon+'" style="width:42px;height:42px;color:#E8940A;"></i>';
+      document.getElementById('wozali-onb-icon').innerHTML = '<i data-lucide="'+s.icon+'" style="width:40px;height:40px;color:#E8940A;"></i>';
+      document.getElementById('wozali-onb-eyebrow').textContent = s.eyebrow || '';
       document.getElementById('wozali-onb-title').textContent = s.title;
       document.getElementById('wozali-onb-text').textContent = s.text;
       var dots = steps.map(function(_,i){
-        return '<span style="width:'+(i===idx?'24px':'8px')+';height:8px;border-radius:100px;background:'+(i===idx?'#E8940A':'rgba(252, 224, 168,0.25)')+';transition:all .25s;"></span>';
+        return '<span style="width:'+(i===idx?'24px':'7px')+';height:7px;border-radius:100px;background:'+(i===idx?'#E8940A':'rgba(232,148,10,0.28)')+';transition:all .25s;"></span>';
       }).join('');
       document.getElementById('wozali-onb-dots').innerHTML = dots;
-      var btns = '<button id="wozali-onb-primary" style="background:#E8940A;color:#14100A;border:none;padding:14px 24px;border-radius:100px;font-weight:800;font-size:15px;cursor:pointer;">'+s.primary+'</button>';
-      if (s.secondary) {
-        btns += '<button id="wozali-onb-secondary" style="background:transparent;color:rgba(252, 224, 168,0.7);border:1px solid rgba(252, 224, 168,0.25);padding:12px 24px;border-radius:100px;font-weight:700;font-size:14px;cursor:pointer;">'+s.secondary+'</button>';
-      }
-      document.getElementById('wozali-onb-btns').innerHTML = btns;
+      document.getElementById('wozali-onb-btns').innerHTML = '<button id="wozali-onb-primary" style="width:100%;background:#E8940A;color:#0F0C09;border:none;padding:16px 24px;border-radius:100px;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(232,148,10,0.28);">'+s.primary+'</button>';
       if (window.lucide && lucide.createIcons) { try { lucide.createIcons(); } catch(e){} }
 
       document.getElementById('wozali-onb-primary').onclick = function(){
@@ -2421,11 +2424,6 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
             if (typeof showPage === 'function') showPage('inscription');
           }
         }
-      };
-      var sec = document.getElementById('wozali-onb-secondary');
-      if (sec) sec.onclick = function(){
-        close();
-        if (window.currentUser && typeof viewMyProfile === 'function') viewMyProfile();
       };
     }
 
