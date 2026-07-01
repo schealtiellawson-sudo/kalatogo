@@ -1071,20 +1071,24 @@ h1 .gold { color:var(--or); }
   position:absolute; z-index:6;
   display:flex; align-items:center; justify-content:center;
   border:none; cursor:pointer; padding:0;
+  min-width:0 !important; min-height:0 !important;
   color:#0F0C09; -webkit-tap-highlight-color:transparent;
   transition:transform .15s;
   box-shadow:0 2px 8px rgba(0,0,0,.45);
 }
 .profil-av-btn:active { transform:scale(.9); }
+/* + story : tout petit, discret, sur le bord bas-droit, sans recouvrir la photo */
 .profil-av-story {
-  bottom:-3px; right:-3px;
-  width:30px; height:30px; border-radius:50%;
-  background:#E8940A; border:3px solid #0f0b07;
+  bottom:1px; right:1px;
+  width:20px; height:20px; border-radius:50%;
+  background:#E8940A; border:2px solid #0f0b07;
 }
+.profil-av-story svg { width:11px; height:11px; }
+/* crayon edit : a cote de la photo (en dehors, en haut a droite) */
 .profil-av-edit {
-  top:-3px; right:-3px;
-  width:27px; height:27px; border-radius:50%;
-  background:#FCE0A8; border:3px solid #0f0b07;
+  top:4px; left:calc(100% + 8px);
+  width:28px; height:28px; border-radius:50%;
+  background:#FCE0A8; border:2px solid rgba(232,148,10,.5);
 }
 .profil-av-centered .profil-avatar-lg {
   width:64px; height:64px; font-size:24px;
