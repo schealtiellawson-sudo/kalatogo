@@ -2879,7 +2879,7 @@ function bntGo(tab) {
       break;
     case 'moi':
       bntSetActive('moi');
-      if (currentUser) openDashMenu();
+      if (currentUser) viewMyProfile();
       else showPage('login');
       break;
   }
