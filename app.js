@@ -32,7 +32,22 @@ let _profileLoadingPromise = null; // guard anti-double-load
 
 // Vérifier session au chargement
 async function initAuth() {
-  const { data: { session } } = await supa.auth.getSession();
+  let { data: { session } } = await supa.auth.getSession();
+  // Résilience refresh : si pas de session mais un token existe en storage
+  // (race de lecture storage / lenteur réseau), réessayer puis forcer un refresh.
+  if (!session) {
+    let hasToken = false;
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf('-auth-token') > -1) { hasToken = true; break; } } } catch (e) {}
+    if (hasToken) {
+      for (let _r = 0; _r < 3 && !session; _r++) {
+        await new Promise(r => setTimeout(r, 400));
+        try { session = (await supa.auth.getSession()).data.session; } catch (e) {}
+      }
+      if (!session) {
+        try { session = (await supa.auth.refreshSession()).data.session; } catch (e) {}
+      }
+    }
+  }
   if (session?.user) {
     currentUser = session.user;
     window.currentUser = currentUser;
