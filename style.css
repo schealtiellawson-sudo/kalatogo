@@ -6692,9 +6692,27 @@ input::placeholder, textarea::placeholder {
 body.has-bottom-nav .page.active { padding-bottom:68px; }
 body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 
-/* En-tête tiroir + overlay : cachés sur desktop */
+/* En-tête tiroir + overlay + bouton flottant : cachés sur desktop */
 .dash-drawer-head { display:none; }
 #dash-menu-overlay { display:none; }
+#dash-menu-fab { display:none; }
+
+/* Bouton menu flottant — visible sur mobile dans le dashboard */
+@media (max-width:768px) {
+  #dash-menu-fab {
+    display:flex; align-items:center; gap:8px;
+    position:fixed; top:62px; left:12px; z-index:180;
+    background:#1E180E; color:#E8940A;
+    border:1.5px solid rgba(232,148,10,.55); border-radius:100px;
+    padding:9px 16px 9px 13px;
+    font-family:'Geist', sans-serif; font-size:13px; font-weight:800; letter-spacing:.3px;
+    box-shadow:0 6px 22px rgba(0,0,0,.5);
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #dash-menu-fab:active { background:#2a2214; }
+  /* Cacher le bouton quand le tiroir est deja ouvert */
+  body.dash-menu-locked #dash-menu-fab { opacity:0; pointer-events:none; }
+}
 
 /* Sidebar dashboard = tiroir coulissant sur mobile (accès à toutes les sections) */
 @media (max-width:768px) {

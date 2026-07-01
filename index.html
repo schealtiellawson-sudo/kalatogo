@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260701b">
+<link rel="stylesheet" href="/style.css?v=20260701c">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2324,6 +2324,13 @@ setTimeout(function(){
      PAGE DASHBOARD
 ══════════════════════════════════════════ -->
 <div id="page-dashboard" class="page">
+
+  <!-- Bouton menu flottant (mobile) : ouvre le tiroir des sections -->
+  <button id="dash-menu-fab" onclick="openDashMenu()" aria-label="Ouvrir le menu des sections">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span>Menu</span>
+  </button>
+
   <div class="dashboard-layout">
 
     <!-- Overlay tiroir menu mobile -->
@@ -6666,7 +6673,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260701b" defer></script>
+<script src="/app.js?v=20260701c" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
