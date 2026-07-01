@@ -1131,6 +1131,8 @@ h1 .gold { color:var(--or); }
 .profil-soc-follow { display:flex; align-items:center; gap:8px; padding:0 14px 12px; flex-wrap:wrap; justify-content:center; }
 .profil-soc-pills { display:flex; gap:6px; flex-wrap:wrap; }
 .profil-soc-pill { display:flex; align-items:center; gap:4px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:5px 10px; font-size:10px; color:rgba(252,224,168,.55); text-decoration:none; }
+.profil-soc-pill.soc-tiktok { background:#010101; border-color:#010101; color:#fff; font-weight:700; }
+.profil-soc-pill.soc-insta { background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); border:none; color:#fff; font-weight:700; }
 .profil-follow-btn { background:none; border:1.5px solid rgba(252,224,168,.18); border-radius:20px; color:rgba(252,224,168,.65); padding:6px 14px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Geist',sans-serif; }
 /* Tabs */
 .profil-tabs-nav { display:flex; border-bottom:2px solid rgba(255,255,255,.07); background:#0f0b07; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:50; }
