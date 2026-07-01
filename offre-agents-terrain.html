@@ -735,24 +735,32 @@ function candPhotoRemove(slot) {
 }
 
 async function uploadCandPhoto(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const base64 = e.target.result.split(',')[1];
-      try {
-        const res = await fetch('https://wozali.africa/api/imgbb-proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64 })
-        });
-        const data = await res.json();
-        if (data.success) resolve(data.data.url);
-        else reject(new Error(data.error?.message || 'Upload echoue'));
-      } catch (err) { reject(err); }
+  // Compression canvas avant upload (max 800px, JPEG 0.75)
+  const base64 = await new Promise((res, rej) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 800;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width  = Math.round(img.width  * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL('image/jpeg', 0.75).split(',')[1]);
     };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    img.onerror = rej;
+    img.src = url;
   });
+
+  const resp = await fetch('https://wozali.africa/api/imgbb-proxy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: base64 })
+  });
+  const data = await resp.json();
+  if (data.success) return data.data.url;
+  throw new Error(data.error?.message || 'Upload echoue');
 }
 
 // ── Quartiers ────────────────────────────────────────────────────────────────
@@ -835,16 +843,18 @@ document.getElementById('form-candidature').addEventListener('submit', async e =
   document.getElementById('cand-label').textContent = 'Envoi en cours...';
 
   try {
-    // Upload photos si présentes
-    const photoUrls = [];
-    for (const slot of [1, 2]) {
-      const file = document.getElementById('c-photo-' + slot).files[0];
-      if (file) {
-        document.getElementById('cand-label').textContent = 'Upload photo ' + slot + '/2...';
-        try { photoUrls.push(await uploadCandPhoto(file)); }
-        catch { /* photo optionnelle, on continue sans */ }
-      }
+    // Upload photos en parallèle (compressées)
+    const photoFiles = [1, 2]
+      .map(s => document.getElementById('c-photo-' + s).files[0])
+      .filter(Boolean);
+
+    if (photoFiles.length) {
+      document.getElementById('cand-label').textContent = 'Upload photos...';
     }
+
+    const photoUrls = (await Promise.all(
+      photoFiles.map(f => uploadCandPhoto(f).catch(() => null))
+    )).filter(Boolean);
 
     document.getElementById('cand-label').textContent = 'Enregistrement...';
     await supaInsert('wozali_candidatures_agents_terrain', {
