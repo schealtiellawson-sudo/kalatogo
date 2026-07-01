@@ -14,6 +14,7 @@
 <link rel="icon" href="/logos/favicon-32.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#14100A;color:#FCE0A8;font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;max-width:100%;}
@@ -177,7 +178,7 @@ footer p{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,16
     </h1>
     <p class="hero-sub">Pour la première fois, les meilleurs artisans de Lomé et Cotonou vont être visibles. Trouvables. Choisis pour leur travail, pas pour leurs connexions. Tu peux être là depuis le premier jour.</p>
     <div class="hero-cta-group">
-      <a href="/postuler" class="btn-primary btn-xl">Je veux faire partie de ça →</a>
+      <a href="#recrutement-agents" class="btn-primary btn-xl">Je veux faire partie de ça →</a>
       <span class="hero-note">20 places. Gratuit. Aucun diplôme requis.</span>
     </div>
     <div class="countdown-strip">
@@ -455,13 +456,194 @@ footer p{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,16
     <div class="final-eyebrow">20 places · Lomé &amp; Cotonou · Gratuit</div>
     <h2>WOZALI<br><em>t'appartient.</em></h2>
     <p class="final-sub">Ton travail nourrit. Pas ton réseau.<br>Sois là depuis le premier jour.</p>
-    <a href="/postuler" class="btn-primary btn-xl">Postuler maintenant — c'est gratuit →</a>
+    <a href="#recrutement-agents" class="btn-primary btn-xl">Postuler maintenant - c'est gratuit →</a>
     <div class="share-zone">
       <p>Tu connais quelqu'un à Lomé ou Cotonou que ça peut intéresser ?</p>
       <button onclick="partager()" class="btn-wa">💬 Partager sur WhatsApp</button>
     </div>
   </div>
 </section>
+
+<!-- ── FORMULAIRE CANDIDATURE ──────────────────────────────────── -->
+<section id="recrutement-agents" style="background:#1A1208;border-top:1px solid rgba(232,148,10,.15);padding:72px 0 80px;">
+  <div class="wrap">
+
+    <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.7;margin-bottom:12px;">Postuler - 2 minutes</div>
+    <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(32px,6vw,46px);color:#FCE0A8;line-height:1.1;margin-bottom:8px;">Candidature<br><em style="font-style:italic;color:#E8940A;">agent terrain WOZALI</em></h2>
+    <p style="font-size:15px;color:rgba(252,224,168,.6);line-height:1.6;margin-bottom:36px;">20 places au total · 10 Lomé · 10 Cotonou · Candidatures traitées dans les 48h.</p>
+
+    <!-- Confirmation inline -->
+    <div id="cand-confirm" style="display:none;text-align:center;padding:48px 0;">
+      <div style="font-size:56px;margin-bottom:20px;">✓</div>
+      <h3 style="font-family:'DM Serif Display',serif;font-size:32px;color:#FCE0A8;margin-bottom:12px;">Candidature reçue.</h3>
+      <p style="font-size:15px;color:rgba(252,224,168,.65);line-height:1.75;max-width:400px;margin:0 auto 32px;">On revient vers toi sur WhatsApp dans les 48h. Garde ton téléphone à portée.</p>
+      <a id="wa-confirm-btn" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:white;text-decoration:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:700;font-family:'Geist',sans-serif;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Envoyer un message WhatsApp
+      </a>
+    </div>
+
+    <form id="form-candidature" novalidate>
+
+      <!-- QUI ES-TU -->
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.6;margin:0 0 16px;">Qui es-tu ?</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Prénom <span style="color:#E8940A;">*</span></label>
+          <input type="text" id="c-prenom" placeholder="Kofi" autocomplete="given-name" required
+            style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;">
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Nom <span style="color:#E8940A;">*</span></label>
+          <input type="text" id="c-nom" placeholder="Mensah" autocomplete="family-name" required
+            style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;">
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Genre <span style="color:#E8940A;">*</span></label>
+        <div style="display:flex;gap:12px;">
+          <div style="flex:1;position:relative;">
+            <input type="radio" id="cg-h" name="c-genre" value="H" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="cg-h" id="cg-h-lbl" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;cursor:pointer;font-size:15px;font-weight:600;color:rgba(252,224,168,.6);margin-bottom:0;transition:all .2s;">&#9794; Homme</label>
+          </div>
+          <div style="flex:1;position:relative;">
+            <input type="radio" id="cg-f" name="c-genre" value="F" style="position:absolute;opacity:0;width:0;height:0;">
+            <label for="cg-f" id="cg-f-lbl" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;cursor:pointer;font-size:15px;font-weight:600;color:rgba(252,224,168,.6);margin-bottom:0;transition:all .2s;">&#9792; Femme</label>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Âge <span style="color:#E8940A;">*</span></label>
+        <input type="number" id="c-age" placeholder="25" min="18" max="60" required
+          style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;">
+      </div>
+
+      <!-- CONTACTS -->
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.6;margin:28px 0 16px;">Tes contacts</div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Téléphone <span style="color:#E8940A;">*</span></label>
+        <input type="tel" id="c-telephone" placeholder="+228 90 00 00 00" autocomplete="tel" required
+          style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;">
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">WhatsApp <span style="color:#E8940A;">*</span></label>
+        <input type="tel" id="c-whatsapp" placeholder="+228 90 00 00 00" autocomplete="tel" required
+          style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;">
+      </div>
+
+      <label style="display:flex;align-items:flex-start;gap:12px;background:rgba(252,224,168,.04);border:1px solid rgba(252,224,168,.1);border-radius:12px;padding:14px 16px;cursor:pointer;margin-bottom:18px;">
+        <input type="checkbox" id="c-wa-actif" style="width:20px;height:20px;accent-color:#E8940A;flex-shrink:0;margin-top:2px;">
+        <span style="font-size:14px;color:rgba(252,224,168,.85);line-height:1.5;">
+          <strong style="color:#FCE0A8;font-weight:700;">Mon WhatsApp est actif et je réponds aux messages</strong><br>
+          <span style="font-size:12px;opacity:.6;">Toute la coordination se fait par WhatsApp</span>
+        </span>
+      </label>
+
+      <!-- OÙ ES-TU -->
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.6;margin:28px 0 16px;">Où es-tu ?</div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Ville <span style="color:#E8940A;">*</span></label>
+        <select id="c-ville" required onchange="candUpdateQuartiers()"
+          style="width:100%;background:rgba(30,24,14,1);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 40px 13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%23E8940A\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 14px center;">
+          <option value="">Sélectionne ta ville</option>
+          <option value="Lomé">Lomé (Togo)</option>
+          <option value="Cotonou">Cotonou (Bénin)</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Quartier <span style="color:#E8940A;">*</span></label>
+        <select id="c-quartier" required disabled
+          style="width:100%;background:rgba(30,24,14,1);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 40px 13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;opacity:.5;background-image:url('data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%23E8940A\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 14px center;">
+          <option value="">Choisis d'abord ta ville</option>
+        </select>
+      </div>
+
+      <!-- DISPONIBILITÉ -->
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.6;margin:28px 0 16px;">Disponibilité</div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Quand peux-tu commencer ? <span style="color:#E8940A;">*</span></label>
+        <select id="c-dispo" required
+          style="width:100%;background:rgba(30,24,14,1);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 40px 13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%23E8940A\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 14px center;">
+          <option value="">Sélectionne</option>
+          <option value="Immédiatement">Immédiatement</option>
+          <option value="Dans 1 semaine">Dans 1 semaine</option>
+          <option value="Dans 2 semaines">Dans 2 semaines</option>
+          <option value="Dans 1 mois">Dans 1 mois</option>
+        </select>
+      </div>
+
+      <!-- SITUATION -->
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.6;margin:28px 0 16px;">Ta situation</div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Tu es en ce moment <span style="color:#E8940A;">*</span></label>
+        <select id="c-situation" required
+          style="width:100%;background:rgba(30,24,14,1);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 40px 13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%23E8940A\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 14px center;">
+          <option value="">Sélectionne</option>
+          <option value="Sans emploi">Sans emploi</option>
+          <option value="Petit boulot pas stable">Petit boulot, pas stable</option>
+          <option value="Emploi stable, cherche en plus">J'ai un emploi, je cherche en plus</option>
+          <option value="Etudiant">Etudiant(e)</option>
+          <option value="Autre">Autre situation</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Tu connais des gens qui travaillent bien dans ton quartier ? <span style="color:#E8940A;">*</span></label>
+        <select id="c-reseau" required
+          style="width:100%;background:rgba(30,24,14,1);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 40px 13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%23E8940A\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 14px center;">
+          <option value="">Sélectionne</option>
+          <option value="Beaucoup, je connais tout le monde">Oui, je connais beaucoup de monde</option>
+          <option value="Quelques-uns">Quelques-uns</option>
+          <option value="Pas encore mais pret a prospecter">Pas encore, mais je suis prêt à aller les rencontrer</option>
+        </select>
+      </div>
+
+      <!-- MOTIVATION -->
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;opacity:.6;margin:28px 0 16px;">Motivation</div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Pourquoi veux-tu rejoindre l'équipe ? <span style="color:#E8940A;">*</span></label>
+        <textarea id="c-pourquoi" placeholder="Dis-nous en quelques phrases. Sois concret et honnête." rows="4" required
+          style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;resize:vertical;min-height:100px;line-height:1.6;"></textarea>
+      </div>
+
+      <div style="margin-bottom:32px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:rgba(252,224,168,.75);margin-bottom:7px;">Comment tu as entendu parler de WOZALI ?</label>
+        <select id="c-source"
+          style="width:100%;background:rgba(30,24,14,1);border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:13px 40px 13px 16px;font-size:15px;color:#FCE0A8;font-family:'Geist',sans-serif;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L5 5L9 1\' stroke=\'%23E8940A\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 14px center;">
+          <option value="">Sélectionne (optionnel)</option>
+          <option value="WhatsApp">WhatsApp</option>
+          <option value="Facebook / Instagram">Facebook / Instagram</option>
+          <option value="TikTok">TikTok</option>
+          <option value="Un ami">Un ami m'a parlé de vous</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+
+      <div id="cand-error" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#fca5a5;margin-bottom:18px;line-height:1.5;"></div>
+
+      <button type="submit" id="cand-submit"
+        style="width:100%;background:#E8940A;color:#14100A;border:none;border-radius:14px;padding:17px 24px;font-family:'Geist',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;">
+        <div id="cand-spinner" style="display:none;width:18px;height:18px;border:2.5px solid rgba(20,16,10,.3);border-top-color:#14100A;border-radius:50%;animation:cand-spin .7s linear infinite;flex-shrink:0;"></div>
+        <span id="cand-label">Envoyer ma candidature</span>
+      </button>
+
+    </form>
+  </div>
+</section>
+
+<style>
+@keyframes cand-spin { to { transform:rotate(360deg); } }
+</style>
 
 <!-- ── FOOTER ─────────────────────────────────────────────────────── -->
 <footer>
@@ -474,6 +656,126 @@ footer p{font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,16
 </footer>
 
 <script>
+// ── Supabase ─────────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://wikgdksyeygwpmqzmhez.supabase.co';
+const SUPA_ANON = 'sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
+const _supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+// ── Quartiers ────────────────────────────────────────────────────────────────
+const CAND_QUARTIERS = {
+  'Lomé':    ['Lomé Centre','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Cassablanca','Avédji','Attiégou','Autre'],
+  'Cotonou': ['Akpakpa','Cadjèhoun','Cotonou Centre','Fidjrossè','Gbèdjromèdé','Zogbo','Mènontin','Vèdoko','Agla','Dantokpa','Abomey-Calavi','Autre']
+};
+
+function candUpdateQuartiers() {
+  const ville = document.getElementById('c-ville').value;
+  const sel   = document.getElementById('c-quartier');
+  sel.innerHTML = '<option value="">Sélectionne ton quartier</option>';
+  if (CAND_QUARTIERS[ville]) {
+    CAND_QUARTIERS[ville].forEach(q => {
+      const o = document.createElement('option');
+      o.value = o.textContent = q;
+      sel.appendChild(o);
+    });
+    sel.disabled = false;
+    sel.style.opacity = '1';
+  } else {
+    sel.innerHTML = '<option value="">Choisis d\'abord ta ville</option>';
+    sel.disabled = true;
+    sel.style.opacity = '0.5';
+  }
+}
+
+// ── Genre radio highlight ────────────────────────────────────────────────────
+document.querySelectorAll('input[name="c-genre"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.getElementById('cg-h-lbl').style.cssText += radio.value === 'H'
+      ? ';background:rgba(232,148,10,.12);border-color:#E8940A;color:#E8940A;'
+      : ';background:rgba(255,255,255,.05);border-color:rgba(232,148,10,.2);color:rgba(252,224,168,.6);';
+    document.getElementById('cg-f-lbl').style.cssText += radio.value === 'F'
+      ? ';background:rgba(232,148,10,.12);border-color:#E8940A;color:#E8940A;'
+      : ';background:rgba(255,255,255,.05);border-color:rgba(232,148,10,.2);color:rgba(252,224,168,.6);';
+  });
+});
+
+// ── Form submit ──────────────────────────────────────────────────────────────
+document.getElementById('form-candidature').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = document.getElementById('cand-error');
+  err.style.display = 'none';
+
+  const prenom    = document.getElementById('c-prenom').value.trim();
+  const nom       = document.getElementById('c-nom').value.trim();
+  const genre     = document.querySelector('input[name="c-genre"]:checked')?.value || '';
+  const age       = parseInt(document.getElementById('c-age').value) || null;
+  const telephone = document.getElementById('c-telephone').value.trim();
+  const whatsapp  = document.getElementById('c-whatsapp').value.trim();
+  const waActif   = document.getElementById('c-wa-actif').checked;
+  const ville     = document.getElementById('c-ville').value;
+  const quartier  = document.getElementById('c-quartier').value;
+  const dispo     = document.getElementById('c-dispo').value;
+  const situation = document.getElementById('c-situation').value;
+  const reseau    = document.getElementById('c-reseau').value;
+  const pourquoi  = document.getElementById('c-pourquoi').value.trim();
+  const source    = document.getElementById('c-source').value;
+
+  const showErr = msg => { err.textContent = msg; err.style.display = 'block'; err.scrollIntoView({behavior:'smooth',block:'nearest'}); };
+
+  if (!prenom)    return showErr('Prénom requis.');
+  if (!nom)       return showErr('Nom requis.');
+  if (!genre)     return showErr('Sélectionne ton genre.');
+  if (!age || age < 18) return showErr('Âge requis (minimum 18 ans).');
+  if (!telephone) return showErr('Numéro de téléphone requis.');
+  if (!whatsapp)  return showErr('Numéro WhatsApp requis.');
+  if (!waActif)   return showErr('Confirme que ton WhatsApp est actif - c\'est indispensable pour ce poste.');
+  if (!ville)     return showErr('Sélectionne ta ville.');
+  if (!quartier)  return showErr('Sélectionne ton quartier.');
+  if (!dispo)     return showErr('Indique ta disponibilité.');
+  if (!situation) return showErr('Indique ta situation actuelle.');
+  if (!reseau)    return showErr('Dis-nous si tu connais des gens dans ton quartier.');
+  if (!pourquoi || pourquoi.length < 20) return showErr('Explique ta motivation en quelques lignes (minimum 20 caractères).');
+
+  const btn = document.getElementById('cand-submit');
+  btn.disabled = true;
+  document.getElementById('cand-spinner').style.display = 'block';
+  document.getElementById('cand-label').textContent = 'Envoi en cours...';
+
+  try {
+    const { error } = await _supa
+      .from('wozali_candidatures_agents_terrain')
+      .insert({
+        prenom, nom, telephone, whatsapp, age, genre,
+        ville, quartier,
+        disponibilite: dispo,
+        pourquoi,
+        situation: situation || null,
+        reseau_quartier: reseau || null,
+        comment_trouve: source || null,
+        source: 'wozali.africa/offre-agents-terrain',
+        statut: 'En attente'
+      });
+
+    if (error) throw error;
+
+    // Afficher confirmation inline
+    document.getElementById('form-candidature').style.display = 'none';
+    document.getElementById('cand-confirm').style.display = 'block';
+    document.getElementById('wa-confirm-btn').href =
+      'https://wa.me/+33743606916?text=' + encodeURIComponent(
+        'Bonjour, je viens de soumettre ma candidature pour devenir agent terrain WOZALI. Mon prénom : ' + prenom + '. Merci !'
+      );
+    document.getElementById('cand-confirm').scrollIntoView({behavior:'smooth'});
+
+  } catch (ex) {
+    console.error('[candidature]', ex);
+    showErr('Ça a calé. Vérifie ta connexion et réessaie dans 2 secondes.');
+    btn.disabled = false;
+    document.getElementById('cand-spinner').style.display = 'none';
+    document.getElementById('cand-label').textContent = 'Envoyer ma candidature';
+  }
+});
+
+// ── Partager ─────────────────────────────────────────────────────────────────
 function partager() {
   const msg = encodeURIComponent(
     "📢 WOZALI recrute 20 Agents terrain à Lomé et Cotonou\n\n" +
