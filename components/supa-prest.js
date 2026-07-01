@@ -10,6 +10,8 @@
   const AT_TO_SUPA = {
     'Email': 'email',
     'Nom complet': 'nom_complet',
+    'Prénom': 'prenom',
+    'Nom': 'nom',
     'Numéro de téléphone': 'numero_telephone',
     'WhatsApp': 'whatsapp',
     'Métier principal': 'metier_principal',

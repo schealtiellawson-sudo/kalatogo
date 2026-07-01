@@ -103,7 +103,7 @@ async function sendToInbox(supa, userId, templateKey, content) {
   // Charger notifications actuelles
   const { data: row, error: rErr } = await supa
     .from('wozali_prestataires')
-    .select('id, email, notifications, nom_complet')
+    .select('id, email, notifications, nom_complet, prenom')
     .eq('user_id', userId).maybeSingle();
   if (rErr || !row) return { ok: false, reason: 'prestataire introuvable' };
 
@@ -123,7 +123,7 @@ async function sendToInbox(supa, userId, templateKey, content) {
   const { error: uErr } = await supa
     .from('wozali_prestataires').update({ notifications: updated }).eq('id', row.id);
   if (uErr) return { ok: false, reason: uErr.message };
-  return { ok: true, email: row.email, prenom: (row.nom_complet || '').split(' ')[0] };
+  return { ok: true, email: row.email, prenom: (row.prenom || '').trim() || (row.nom_complet || '').split(' ')[0] };
 }
 
 async function sendEmailResend(toEmail, subject, content, prenom) {

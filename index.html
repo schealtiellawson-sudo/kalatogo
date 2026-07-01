@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260701d">
+<link rel="stylesheet" href="/style.css?v=20260701e">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +44,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 <!-- Helpers Supabase (defer — s'exécutent avant app.js car plus tôt dans le doc) -->
-<script src="components/supa-prest.js" defer></script>
+<script src="components/supa-prest.js?v=20260701e" defer></script>
 <script src="components/supa-offres.js" defer></script>
 <script src="components/supa-candidatures.js" defer></script>
 <script src="components/supa-avis.js" defer></script>
@@ -1870,10 +1870,24 @@ setTimeout(function(){
           <input type="file" id="upload-profil" accept="image/*" style="display:none" onchange="previewPhoto('upload-profil','upload-profil-preview','upload-profil-placeholder','upload-profil-zone')">
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom <span class="req">*</span></label>
+            <input type="text" id="f-prenom" placeholder="Ex : Kofi" required autocomplete="new-password" name="wozali-prenom-x">
+          </div>
+          <div class="form-group">
+            <label>Nom <span class="req">*</span></label>
+            <input type="text" id="f-nomfamille" placeholder="Ex : Mensah" required autocomplete="new-password" name="wozali-nomf-x">
+          </div>
+        </div>
         <div class="form-group">
-          <label>Nom complet <span class="req">*</span></label>
-          <input type="text" id="f-nom" placeholder="Ex : Kofi Mensah" required autocomplete="new-password" name="wozali-nom-x">
-          <small style="color:#888;font-size:12px;margin-top:4px;display:block;">Ton nom et prénom si tu t'inscris pour toi-même, ou le nom de ta boutique / entreprise si tu crées un compte professionnel.</small>
+          <small style="color:#888;font-size:12px;display:block;">Ton vrai prénom et nom. On les garde privés, ils servent à te reconnaître et à te parler personnellement.</small>
+        </div>
+
+        <div class="form-group">
+          <label>Nom affiché sur WOZALI <span style="font-weight:500;color:var(--gris);">(optionnel)</span></label>
+          <input type="text" id="f-nom" placeholder="Ex : Chez Kofi, Resto Mensah, ou ton nom" autocomplete="new-password" name="wozali-nom-x">
+          <small style="color:#888;font-size:12px;margin-top:4px;display:block;">C'est le nom que les clients voient sur ton profil. Mets ce que tu veux : nom de ta boutique, ton restaurant, ton nom d'artiste. Si tu laisses vide, on affiche ton prénom et ton nom.</small>
         </div>
 
         <div class="form-row">
@@ -3053,8 +3067,21 @@ setTimeout(function(){
           <h3>Informations générales</h3>
           <div class="form-row">
             <div class="form-group">
-              <label>Nom complet</label>
-              <input type="text" id="edit-nom">
+              <label>Prénom</label>
+              <input type="text" id="edit-prenom" placeholder="Ton vrai prénom">
+            </div>
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" id="edit-nomfamille" placeholder="Ton vrai nom">
+            </div>
+          </div>
+          <div class="form-group">
+            <small style="color:#888;font-size:12px;display:block;">Ton vrai prénom et nom, gardés privés. On les utilise pour te parler personnellement.</small>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nom affiché sur WOZALI</label>
+              <input type="text" id="edit-nom" placeholder="Nom de ta boutique, resto, ou ton nom">
             </div>
             <div class="form-group">
               <label>Téléphone / WhatsApp</label>
@@ -6673,7 +6700,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260701d" defer></script>
+<script src="/app.js?v=20260701e" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

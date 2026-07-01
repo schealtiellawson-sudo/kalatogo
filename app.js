@@ -651,7 +651,7 @@ async function loadDashboard() {
   if (!currentPrestataire) return;
 
   const nom = currentPrestataire?.fields?.['Nom complet'] || 'Prestataire';
-  const prenom = nom.split(' ')[0];
+  const prenom = (currentPrestataire?.fields?.['Prénom'] || '').trim() || nom.split(' ')[0];
   document.getElementById('dash-welcome').textContent = `Bonjour ${prenom}. 👋`;
   // Branche conditionnelle : nouveaux (< 7j) vs actifs
   try {
@@ -881,7 +881,7 @@ function renderPremierPasWizard() {
   // Code parrainage / lien WhatsApp
   const parrainCode = f['Code Parrainage'] || '';
   const profilUrl = parrainCode ? `https://wozali.africa?ref=${encodeURIComponent(parrainCode)}` : 'https://wozali.africa';
-  const prenom = (f['Nom complet'] || '').split(' ')[0] || '';
+  const prenom = (f['Prénom'] || '').trim() || (f['Nom complet'] || '').split(' ')[0] || '';
 
   if (allDone) {
     wrap.style.display = 'block';
@@ -1284,6 +1284,8 @@ async function updateDispo() {
 function loadEditForm() {
   if (!currentPrestataire) return;
   const f = currentPrestataire.fields;
+  const _ep = document.getElementById('edit-prenom'); if (_ep) _ep.value = f['Prénom'] || '';
+  const _enf = document.getElementById('edit-nomfamille'); if (_enf) _enf.value = f['Nom'] || '';
   document.getElementById('edit-nom').value = f['Nom complet'] || '';
   document.getElementById('edit-tel').value = f['Numéro de téléphone'] || '';
   document.getElementById('edit-description').value = f['Description des services'] || '';
@@ -1376,7 +1378,11 @@ async function saveProfile() {
   btn.disabled = true;
 
   const fields = {};
-  const nom = document.getElementById('edit-nom').value.trim();
+  const prenomReel = document.getElementById('edit-prenom')?.value.trim() || '';
+  const nomReel = document.getElementById('edit-nomfamille')?.value.trim() || '';
+  const nomAffiche = document.getElementById('edit-nom').value.trim();
+  // Nom affiché = saisie, sinon "Prénom Nom"
+  const nom = nomAffiche || `${prenomReel} ${nomReel}`.trim();
   const tel = document.getElementById('edit-tel').value.trim();
   const desc = document.getElementById('edit-description').value.trim();
   const tiktok = document.getElementById('edit-tiktok').value.trim();
@@ -1387,7 +1393,9 @@ async function saveProfile() {
   const metier = document.getElementById('edit-metier').value;
   const quartier = document.getElementById('edit-quartier').value;
 
-  if (nom)       fields['Nom complet']              = nom;
+  if (nom)         fields['Nom complet']            = nom;
+  if (prenomReel)  fields['Prénom']                 = prenomReel;
+  if (nomReel)     fields['Nom']                    = nomReel;
   if (tel)       fields['Numéro de téléphone']      = tel;
   if (desc)      fields['Description des services'] = desc;
   if (tiktok)    fields['Lien TikTok']              = tiktok;
@@ -3011,7 +3019,7 @@ function resetInscriptionForm() {
 
   // Vider les champs — double reset pour contrer l'autofill Chrome
   const _clearFields = () => {
-    ['f-nom','f-tel','f-email','f-description','f-tarif-min','f-tarif-max','f-tiktok','f-instagram','f-password','f-diplomes'].forEach(id => {
+    ['f-prenom','f-nomfamille','f-nom','f-tel','f-email','f-description','f-tarif-min','f-tarif-max','f-tiktok','f-instagram','f-password','f-diplomes'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -8396,11 +8404,13 @@ let currentStep = 1;
 function nextStep(step) {
   if (step > currentStep) {
     if (currentStep === 1) {
-      const nom = document.getElementById('f-nom').value;
+      const prenom = document.getElementById('f-prenom').value;
+      const nomFamille = document.getElementById('f-nomfamille').value;
       const tel = document.getElementById('f-tel').value;
       const email = document.getElementById('f-email').value;
       const pw = document.getElementById('f-password').value;
-      if (!nom.trim() || !tel.trim()) { toast('Nom et téléphone obligatoires', 'error'); return; }
+      if (!prenom.trim() || !nomFamille.trim()) { toast('Prénom et nom obligatoires', 'error'); return; }
+      if (!tel.trim()) { toast('Téléphone obligatoire', 'error'); return; }
       if (!email.trim()) { toast('Email obligatoire pour accéder à ton espace', 'error'); return; }
       if (!pw || pw.length < 6) { toast('Mot de passe obligatoire (min 6 caractères)', 'error'); return; }
     }
@@ -8597,9 +8607,23 @@ async function submitInscription(e) {
   };
 
   try {
-    const nom = document.getElementById('f-nom').value.trim();
+    const prenomReel = document.getElementById('f-prenom').value.trim();
+    const nomReel = document.getElementById('f-nomfamille').value.trim();
+    const nomAffiche = document.getElementById('f-nom').value.trim();
+    // Nom d'affichage public = ce que le prestataire a saisi, sinon "Prénom Nom"
+    const nom = nomAffiche || `${prenomReel} ${nomReel}`.trim();
     const email = document.getElementById('f-email').value.trim();
     const tel = document.getElementById('f-tel').value.trim();
+
+    if (!prenomReel || !nomReel) {
+      toast('Prénom et nom obligatoires', 'error');
+      btn.textContent = '✦ Créer mon profil';
+      btn.disabled = false;
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (formEl) formEl.classList.remove('form-hidden');
+      if (progressEl) progressEl.classList.remove('form-hidden');
+      return;
+    }
 
     // Vérifier email obligatoire pour la connexion
     if (!email) {
@@ -8674,6 +8698,8 @@ async function submitInscription(e) {
     const parrainRef = getRefFromURL();
     const fields = {
       'Nom complet': nom,
+      'Prénom': prenomReel,
+      'Nom': nomReel,
       'Abonnement': 'Base',
       'Code Parrainage': parrainageCode,
     };
@@ -8847,7 +8873,7 @@ async function submitInscription(e) {
       try {
         if (authData?.user?.id && tel) {
           const phoneNorm = tel.replace(/[^\d+]/g, '');
-          const prenom = (nom || '').split(' ')[0] || 'sœur';
+          const prenom = prenomReel || (nom || '').split(' ')[0] || 'sœur';
           const villeStr = document.getElementById('f-ville')?.value || '';
           // Séquence A — Onboarding (toutes inscriptions)
           wozaliFetch('/api/wozali-pay/whatsapp-enqueue', {
@@ -8877,7 +8903,7 @@ async function submitInscription(e) {
       } catch(e) { console.warn('[whatsapp enqueue]', e); }
       // Séquence messages de bienvenue fondateur (J0 a J+5/J+6)
       try {
-        const prenom = (nom || '').split(' ')[0] || '';
+        const prenom = prenomReel || (nom || '').split(' ')[0] || '';
         const metierStr = metier || '';
         const isCoiffCoutur = /coiff|coutur/i.test(metierStr);
         const day = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString(); };
@@ -8925,7 +8951,7 @@ async function submitInscription(e) {
           if (fallbackMsg) fallbackMsg.style.display = 'none';
           // Quick Win J+0 — message personnalisé (Hormozi + SB7 Success + LF7)
           try {
-            const prenom = (document.getElementById('f-nom')?.value || '').trim().split(' ')[0];
+            const prenom = (document.getElementById('f-prenom')?.value || '').trim() || (document.getElementById('f-nom')?.value || '').trim().split(' ')[0];
             const metier = document.getElementById('f-metier')?.value || '';
             const quartier = document.getElementById('f-quartier')?.value || '';
             const hl = document.getElementById('pi-ql-headline');

@@ -32,7 +32,7 @@ function substitute(content, payload) {
 async function pushInbox(userId, templateKey, content) {
   const { data: row } = await supabase
     .from('wozali_prestataires')
-    .select('id, email, notifications, nom_complet')
+    .select('id, email, notifications, nom_complet, prenom')
     .eq('user_id', userId).maybeSingle();
   if (!row) return null;
   const current = Array.isArray(row.notifications) ? row.notifications : [];
@@ -48,7 +48,7 @@ async function pushInbox(userId, templateKey, content) {
   };
   const updated = [newMsg, ...current].slice(0, 200);
   await supabase.from('wozali_prestataires').update({ notifications: updated }).eq('id', row.id);
-  return { email: row.email, prenom: (row.nom_complet || '').split(' ')[0] };
+  return { email: row.email, prenom: (row.prenom || '').trim() || (row.nom_complet || '').split(' ')[0] };
 }
 
 async function sendEmailResend(toEmail, subject, content) {
