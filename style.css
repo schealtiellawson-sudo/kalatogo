@@ -1157,7 +1157,7 @@ h1 .gold { color:var(--or); }
 /* ── Grille de posts (profil, façon Insta) ── */
 .profil-posts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
 .ppg-tile { cursor:pointer; }
-.ppg-media-wrap { position:relative; width:100%; aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#1E180E; }
+.ppg-media-wrap { position:relative; width:100%; aspect-ratio:4/5; border-radius:10px; overflow:hidden; background:#1E180E; }
 .ppg-media { width:100%; height:100%; object-fit:cover; display:block; }
 .ppg-badge { position:absolute; top:6px; right:6px; color:#fff; background:rgba(0,0,0,.5); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
 .ppg-text { width:100%; height:100%; padding:12px; font-size:12px; line-height:1.5; color:#FCE0A8; overflow:hidden; display:flex; align-items:center; }
@@ -1174,8 +1174,8 @@ h1 .gold { color:var(--or); }
 .pm-nom { font-size:14px; font-weight:700; color:#FCE0A8; }
 .pm-date { font-size:11px; color:rgba(252,224,168,.45); }
 .pm-close { background:rgba(232,148,10,.1); border:1px solid rgba(232,148,10,.25); color:#E8940A; width:32px; height:32px; border-radius:50%; cursor:pointer; flex-shrink:0; }
-.pm-media-wrap { background:#000; max-height:52vh; display:flex; align-items:center; justify-content:center; }
-.pm-media { width:100%; max-height:52vh; object-fit:contain; display:block; }
+.pm-media-wrap { background:#000; max-height:60vh; display:flex; align-items:center; justify-content:center; }
+.pm-media { width:100%; max-height:60vh; object-fit:contain; display:block; }
 .pm-caption { padding:12px 16px; color:rgba(252,224,168,.9); font-size:14px; line-height:1.6; }
 .pm-actions { display:flex; gap:8px; padding:8px 12px; border-top:1px solid rgba(232,148,10,.1); border-bottom:1px solid rgba(232,148,10,.1); }
 .pm-actbtn { background:none; border:none; color:rgba(252,224,168,.6); font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:8px; }
