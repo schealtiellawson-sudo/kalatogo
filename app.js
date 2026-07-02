@@ -4458,6 +4458,7 @@ async function renderPostsFeed(recordId) {
       auteurPhoto: r.auteur_photo || '',
       auteurId:    r.prestataire_id || null,
       likes:       r.nb_likes     || 0,
+      partages:    r.nb_partages  || 0,
       comments:    Array.isArray(r.commentaires) ? r.commentaires : []
     }));
   } catch(e) { feedEl.innerHTML = `<div style="color:rgba(255,100,100,0.6);padding:16px;font-size:13px;">Erreur de chargement</div>`; return; }
@@ -4550,6 +4551,7 @@ function _renderPostModalBody(p, recordId) {
     <div class="pm-actions">
       <button class="pm-actbtn pm-likebtn ${hasLiked ? 'liked' : ''}" onclick="likePostFromModal('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span id="pm-like-${p.id}">${p.likes || 0}</span></button>
       <button class="pm-actbtn" onclick="document.getElementById('pm-comment-input').focus()">💬 <span>${comments.length}</span></button>
+      <button class="pm-actbtn pm-sharebtn" onclick="sharePost('${recordId}','${p.id}')">✈️ <span id="pm-share-${p.id}">${p.partages || 0}</span></button>
     </div>
     <div class="pm-comments">${commentsHtml}</div>
     <div class="pm-addcomment">
@@ -4577,6 +4579,31 @@ async function likePostFromModal(recordId, postId) {
   const btn = document.querySelector('#post-modal .pm-likebtn');
   if (btn) { btn.classList.toggle('liked', !already); btn.innerHTML = (already ? '🤍' : '❤️') + ' <span id="pm-like-' + postId + '">' + nl + '</span>'; }
   if (!already) pushNotif(recordId, { type: 'like', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un visiteur', postTexte: p?.texte || '', postId });
+}
+
+async function sharePost(recordId, postId) {
+  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+  const p = posts.find(x => String(x.id) === String(postId));
+  if (!p) return;
+  // Incrémenter le compteur de partages
+  const supa = window.supabase;
+  try {
+    if (supa) {
+      const { data } = await supa.from('wozali_posts_v2').select('nb_partages').eq('id', postId).maybeSingle();
+      const cur = data?.nb_partages || 0;
+      await supa.from('wozali_posts_v2').update({ nb_partages: cur + 1 }).eq('id', postId);
+      p.partages = cur + 1;
+      const el = document.getElementById('pm-share-' + postId);
+      if (el) el.textContent = p.partages;
+    }
+  } catch (e) {}
+  // Ouvrir le partage natif (ou WhatsApp en fallback)
+  const txt = (p.texte ? p.texte + '\n\n' : '') + 'Vu sur WOZALI';
+  const url = 'https://wozali.africa';
+  try {
+    if (navigator.share) { await navigator.share({ title: 'WOZALI', text: txt, url }); }
+    else { window.open('https://wa.me/?text=' + encodeURIComponent(txt + '\n' + url), '_blank'); }
+  } catch (e) {}
 }
 
 async function submitPostModalComment(recordId, postId) {
