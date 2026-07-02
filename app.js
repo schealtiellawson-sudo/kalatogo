@@ -4482,41 +4482,85 @@ async function renderPostsFeed(recordId) {
   });
   window._profilPosts = window._profilPosts || {};
   window._profilPosts[recordId] = posts;
-  _renderPostsGrid(recordId);
+  _renderPostsFeedCards(recordId);
 }
 
-function _renderPostsGrid(recordId) {
+// ── Feed façon Threads/Twitter : texte seul, photo ou vidéo, tout visible directement ──
+function _renderPostsFeedCards(recordId) {
   const feedEl = document.getElementById(`posts-feed-${recordId}`);
   if (!feedEl) return;
   const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
   const isOwner = currentUser && currentPrestataire?.id === recordId;
   const reordering = window._pfReorder === recordId;
-  const tilesHtml = posts.map((p, idx) => {
-    const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+  const liked = JSON.parse(localStorage.getItem('wozali_liked') || '[]');
+
+  const cardsHtml = posts.map((p, idx) => {
+    const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
     const isVideo = p.mediaType === 'video';
-    const commentCount = (p.comments || []).length;
     const photoSafe = encodeURI(p.photo || '');
-    let media;
-    if (p.photo && isVideo) media = `<video src="${photoSafe}#t=0.1" muted playsinline preload="metadata" class="ppg-media"></video><span class="ppg-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>`;
-    else if (p.photo) media = `<img src="${photoSafe}" loading="lazy" class="ppg-media">`;
-    else media = `<div class="ppg-text">${escapeHtml((p.texte || '').slice(0,160))}</div>`;
-    const meta = (p.likes > 0 ? '❤ ' + p.likes + '  ' : '') + (commentCount > 0 ? '💬 ' + commentCount : '');
-    const reorderCtrls = (isOwner && reordering)
-      ? `<div class="ppg-reorder">${idx > 0 ? `<button onclick="event.stopPropagation();movePost('${recordId}','${p.id}',-1)">←</button>` : '<span></span>'}${idx < posts.length - 1 ? `<button onclick="event.stopPropagation();movePost('${recordId}','${p.id}',1)">→</button>` : '<span></span>'}</div>`
+    const initiale = (p.auteur || '?').charAt(0).toUpperCase();
+    const hasLiked = liked.includes(`${recordId}_${p.id}`);
+    const comments = p.comments || [];
+
+    const media = p.photo
+      ? (isVideo
+          ? `<video src="${photoSafe}" controls playsinline preload="metadata" class="pf-card-media"></video>`
+          : `<img src="${photoSafe}" loading="lazy" class="pf-card-media">`)
       : '';
-    const click = reordering ? '' : `onclick="openPostModal('${p.id}','${recordId}')"`;
-    return `<div class="ppg-tile ${reordering ? 'reordering' : ''}" ${click}>
-      <div class="ppg-media-wrap">${media}${reorderCtrls}</div>
-      <div class="ppg-footer"><span class="ppg-date">${dateStr}</span><span class="ppg-meta">${meta}</span></div>
+
+    const commentsHtml = comments.length
+      ? comments.map(c => {
+          const cInit = (c.auteur || '?').charAt(0).toUpperCase();
+          const cDate = c.date ? new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) : '';
+          const cPhoto = c.auteurPhoto ? `<img src="${encodeURI(c.auteurPhoto)}" class="pf-cav">` : `<div class="pf-cav pf-cav-ini">${cInit}</div>`;
+          return `<div class="pf-comment">${cPhoto}<div class="pf-cbody"><div class="pf-cnom">${escapeHtml(c.auteur || '')} <span class="pf-cdate">· ${cDate}</span></div><div class="pf-ctext">${escapeHtml(c.texte || '').replace(/\n/g,'<br>')}</div></div></div>`;
+        }).join('')
+      : '<div class="pf-nocomment">Aucun commentaire. Sois le premier.</div>';
+
+    const reorderCtrls = (isOwner && reordering && posts.length > 1)
+      ? `<div class="pf-card-reorder">${idx > 0 ? `<button onclick="movePost('${recordId}','${p.id}',-1)" aria-label="Monter">↑</button>` : ''}${idx < posts.length - 1 ? `<button onclick="movePost('${recordId}','${p.id}',1)" aria-label="Descendre">↓</button>` : ''}</div>`
+      : '';
+
+    const authorClick = p.auteurId ? `onclick="showProfil('${p.auteurId}');showPage('profil');"` : '';
+
+    return `<div class="pf-card">
+      <div class="pf-card-head">
+        <div class="pf-card-author" ${authorClick}>
+          ${p.auteurPhoto ? `<img src="${encodeURI(p.auteurPhoto)}" class="pf-hav">` : `<div class="pf-hav pf-hav-ini">${initiale}</div>`}
+          <div><div class="pf-nom">${escapeHtml(p.auteur || '')}</div><div class="pf-date">${dateStr}</div></div>
+        </div>
+        <div class="pf-card-headctrl">
+          ${reorderCtrls}
+          ${(isOwner && !reordering) ? `<button class="pf-delbtn" onclick="deletePost('${recordId}','${p.id}')" aria-label="Supprimer">🗑</button>` : ''}
+        </div>
+      </div>
+      ${p.texte ? `<div class="pf-card-text">${escapeHtml(p.texte).replace(/\n/g,'<br>')}</div>` : ''}
+      ${media ? `<div class="pf-card-media-wrap">${media}</div>` : ''}
+      <div class="pf-card-actions">
+        <button class="pf-actbtn ${hasLiked ? 'liked' : ''}" onclick="likePost('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span>${p.likes || 0}</span></button>
+        <button class="pf-actbtn" onclick="toggleCommentBox('${recordId}','${p.id}')">💬 <span>${comments.length}</span></button>
+        <button class="pf-actbtn" onclick="sharePost('${recordId}','${p.id}')">➤ <span id="pf-share-${p.id}">${p.partages || 0}</span></button>
+      </div>
+      <div id="comments-section-${p.id}" class="pf-comments" style="display:none;">
+        ${commentsHtml}
+        <div class="pf-addcomment">
+          <input id="comment-input-${p.id}" placeholder="Écrire un commentaire..." onkeydown="if(event.key==='Enter')submitComment('${recordId}','${p.id}')">
+          <button onclick="submitComment('${recordId}','${p.id}')" aria-label="Envoyer">➤</button>
+        </div>
+      </div>
     </div>`;
   }).join('');
-  feedEl.classList.remove('profil-posts-grid');
-  feedEl.innerHTML = (isOwner ? `<div class="pf-toolbar"><button class="pf-reorder-btn ${reordering ? 'on' : ''}" onclick="toggleReorderMode('${recordId}')">${reordering ? '✓ Terminé' : '↕ Réorganiser mes posts'}</button></div>` : '') + `<div class="profil-posts-grid">${tilesHtml}</div>`;
+
+  const showReorderBtn = isOwner && posts.length > 1;
+  const toolbar = showReorderBtn
+    ? `<div class="pf-toolbar">${reordering ? '<span class="pf-reorder-hint">Utilise les flèches ↑ ↓ sur chaque post</span>' : ''}<button class="pf-reorder-btn ${reordering ? 'on' : ''}" onclick="toggleReorderMode('${recordId}')">${reordering ? '✓ Terminé' : '↕ Réorganiser mes posts'}</button></div>`
+    : '';
+  feedEl.innerHTML = toolbar + `<div class="pf-feed-list">${cardsHtml}</div>`;
 }
 
 function toggleReorderMode(recordId) {
   window._pfReorder = (window._pfReorder === recordId) ? null : recordId;
-  _renderPostsGrid(recordId);
+  _renderPostsFeedCards(recordId);
 }
 
 async function movePost(recordId, postId, dir) {
@@ -4525,93 +4569,10 @@ async function movePost(recordId, postId, dir) {
   const j = i + dir;
   if (i < 0 || j < 0 || j >= posts.length) return;
   const tmp = posts[i]; posts[i] = posts[j]; posts[j] = tmp;
-  _renderPostsGrid(recordId);
+  _renderPostsFeedCards(recordId);
   const supa = window.supabase;
   if (!supa) return;
   try { await Promise.all(posts.map((p, k) => { p.ordre = k; return supa.from('wozali_posts_v2').update({ ordre: k }).eq('id', p.id); })); } catch (e) {}
-}
-
-// ── Modal d'un post (média + légende + like + commentaires) ─────────────
-function closePostModal() {
-  const m = document.getElementById('post-modal');
-  if (m) m.style.display = 'none';
-  document.body.classList.remove('dash-menu-locked');
-}
-
-function openPostModal(postId, recordId) {
-  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
-  const p = posts.find(x => String(x.id) === String(postId));
-  if (!p) return;
-  let modal = document.getElementById('post-modal');
-  if (!modal) { modal = document.createElement('div'); modal.id = 'post-modal'; modal.onclick = function(e){ if (e.target === modal) closePostModal(); }; document.body.appendChild(modal); }
-  modal.className = 'pm-overlay';
-  modal.innerHTML = _renderPostModalBody(p, recordId);
-  modal.style.display = 'flex';
-  document.body.classList.add('dash-menu-locked');
-}
-
-function _renderPostModalBody(p, recordId) {
-  const liked = JSON.parse(localStorage.getItem('wozali_liked') || '[]');
-  const hasLiked = liked.includes(`${recordId}_${p.id}`);
-  const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-  const initiale = (p.auteur || '?').charAt(0).toUpperCase();
-  const isVideo = p.mediaType === 'video';
-  const photoSafe = encodeURI(p.photo || '');
-  const media = p.photo ? (isVideo
-    ? `<video src="${photoSafe}" controls playsinline preload="metadata" class="pm-media"></video>`
-    : `<img src="${photoSafe}" class="pm-media">`) : '';
-  const comments = p.comments || [];
-  const commentsHtml = comments.length ? comments.map(c => {
-    const cInit = (c.auteur || '?').charAt(0).toUpperCase();
-    const cDate = c.date ? new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) : '';
-    const cPhoto = c.auteurPhoto ? `<img src="${encodeURI(c.auteurPhoto)}" class="pm-cav">` : `<div class="pm-cav pm-cav-ini">${cInit}</div>`;
-    return `<div class="pm-comment">${cPhoto}<div class="pm-cbody"><div class="pm-cnom">${escapeHtml(c.auteur || '')} <span class="pm-cdate">· ${cDate}</span></div><div class="pm-ctext">${escapeHtml(c.texte || '').replace(/\n/g,'<br>')}</div></div></div>`;
-  }).join('') : '<div class="pm-nocomment">Aucun commentaire. Sois le premier.</div>';
-  const authorClick = p.auteurId ? `onclick="closePostModal();showProfil('${p.auteurId}');showPage('profil');"` : '';
-  return `<div class="pm-box">
-    <div class="pm-head">
-      <div class="pm-author" ${authorClick}>
-        ${p.auteurPhoto ? `<img src="${encodeURI(p.auteurPhoto)}" class="pm-hav">` : `<div class="pm-hav pm-hav-ini">${initiale}</div>`}
-        <div><div class="pm-nom">${escapeHtml(p.auteur || '')}</div><div class="pm-date">${dateStr}</div></div>
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0;">
-        ${(currentUser && currentPrestataire?.id === recordId) ? `<button class="pm-close" style="color:#f87171;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.1);" onclick="closePostModal();deletePost('${recordId}','${p.id}')" aria-label="Supprimer">🗑</button>` : ''}
-        <button class="pm-close" onclick="closePostModal()" aria-label="Fermer">✕</button>
-      </div>
-    </div>
-    ${media ? `<div class="pm-media-wrap">${media}</div>` : ''}
-    ${p.texte ? `<div class="pm-caption">${escapeHtml(p.texte).replace(/\n/g,'<br>')}</div>` : ''}
-    <div class="pm-actions">
-      <button class="pm-actbtn pm-likebtn ${hasLiked ? 'liked' : ''}" onclick="likePostFromModal('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span id="pm-like-${p.id}">${p.likes || 0}</span></button>
-      <button class="pm-actbtn" onclick="document.getElementById('pm-comment-input').focus()">💬 <span>${comments.length}</span></button>
-      <button class="pm-actbtn pm-sharebtn" onclick="sharePost('${recordId}','${p.id}')">✈️ <span id="pm-share-${p.id}">${p.partages || 0}</span></button>
-    </div>
-    <div class="pm-comments">${commentsHtml}</div>
-    <div class="pm-addcomment">
-      <input id="pm-comment-input" placeholder="Écrire un commentaire..." onkeydown="if(event.key==='Enter')submitPostModalComment('${recordId}','${p.id}')">
-      <button onclick="submitPostModalComment('${recordId}','${p.id}')" aria-label="Envoyer">➤</button>
-    </div>
-  </div>`;
-}
-
-async function likePostFromModal(recordId, postId) {
-  const likedKey = 'wozali_liked';
-  const liked = JSON.parse(localStorage.getItem(likedKey) || '[]');
-  const likeId = `${recordId}_${postId}`;
-  const already = liked.includes(likeId);
-  const supa = window.supabase;
-  if (!supa) return;
-  let cur = 0;
-  try { const { data } = await supa.from('wozali_posts_v2').select('nb_likes').eq('id', postId).maybeSingle(); cur = data?.nb_likes || 0; } catch { return; }
-  const nl = already ? Math.max(0, cur - 1) : cur + 1;
-  try { await supa.from('wozali_posts_v2').update({ nb_likes: nl }).eq('id', postId); } catch { return; }
-  localStorage.setItem(likedKey, JSON.stringify(already ? liked.filter(l => l !== likeId) : [...liked, likeId]));
-  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
-  const p = posts.find(x => String(x.id) === String(postId));
-  if (p) p.likes = nl;
-  const btn = document.querySelector('#post-modal .pm-likebtn');
-  if (btn) { btn.classList.toggle('liked', !already); btn.innerHTML = (already ? '🤍' : '❤️') + ' <span id="pm-like-' + postId + '">' + nl + '</span>'; }
-  if (!already) pushNotif(recordId, { type: 'like', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un visiteur', postTexte: p?.texte || '', postId });
 }
 
 async function sharePost(recordId, postId) {
@@ -4626,7 +4587,7 @@ async function sharePost(recordId, postId) {
       const cur = data?.nb_partages || 0;
       await supa.from('wozali_posts_v2').update({ nb_partages: cur + 1 }).eq('id', postId);
       p.partages = cur + 1;
-      const el = document.getElementById('pm-share-' + postId);
+      const el = document.getElementById('pf-share-' + postId);
       if (el) el.textContent = p.partages;
     }
   } catch (e) {}
@@ -4637,27 +4598,6 @@ async function sharePost(recordId, postId) {
     if (navigator.share) { await navigator.share({ title: 'WOZALI', text: txt, url }); }
     else { window.open('https://wa.me/?text=' + encodeURIComponent(txt + '\n' + url), '_blank'); }
   } catch (e) {}
-}
-
-async function submitPostModalComment(recordId, postId) {
-  if (!currentPrestataire) { toast('Connecte-toi pour commenter', 'info'); return; }
-  const input = document.getElementById('pm-comment-input');
-  const texte = input?.value?.trim();
-  if (!texte || texte.length < 1) { toast('Écris un commentaire', 'error'); return; }
-  if (texte.length > 500) { toast('Trop long (max 500 caractères)', 'error'); return; }
-  const supa = window.supabase;
-  if (!supa) return;
-  const auteur = currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur';
-  try {
-    const { data: post } = await supa.from('wozali_posts_v2').select('commentaires').eq('id', postId).maybeSingle();
-    const comments = Array.isArray(post?.commentaires) ? post.commentaires : [];
-    comments.push({ id: Date.now().toString(), texte, auteur, auteurPhoto: _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']) || _wPhotoUrl(currentPrestataire?.fields?.['WhatsApp']), auteurId: currentPrestataire?.id || null, date: new Date().toISOString() });
-    await supa.from('wozali_posts_v2').update({ commentaires: comments }).eq('id', postId);
-    const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
-    const p = posts.find(x => String(x.id) === String(postId));
-    if (p) { p.comments = comments; const m = document.getElementById('post-modal'); if (m) m.innerHTML = _renderPostModalBody(p, recordId); setTimeout(() => { const inp = document.getElementById('pm-comment-input'); if (inp) inp.focus(); }, 20); }
-    pushNotif(recordId, { type: 'comment', auteur, texte, postId });
-  } catch { toast('Erreur commentaire', 'error'); }
 }
 
 // ── SYSTÈME DE NOTIFICATIONS / ACTIVITÉ ──

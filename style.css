@@ -1154,51 +1154,41 @@ h1 .gold { color:var(--or); }
 .fm-btn { flex-shrink:0; border:none; border-radius:8px; padding:7px 14px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Geist',sans-serif; }
 .fm-btn.fm-follow { background:#E8940A; color:#14100A; }
 .fm-btn.fm-unfollow { background:rgba(255,255,255,.08); color:rgba(252,224,168,.8); border:1px solid rgba(255,255,255,.12); }
-/* ── Grille de posts (profil, façon Insta) ── */
-.profil-posts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.ppg-tile { cursor:pointer; }
-.ppg-media-wrap { position:relative; width:100%; aspect-ratio:4/5; border-radius:10px; overflow:hidden; background:#1E180E; }
-.ppg-media { width:100%; height:100%; object-fit:cover; display:block; }
-.ppg-badge { position:absolute; top:6px; right:6px; color:#fff; background:rgba(0,0,0,.5); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
-.ppg-text { width:100%; height:100%; padding:12px; font-size:12px; line-height:1.5; color:#FCE0A8; overflow:hidden; display:flex; align-items:center; }
-.ppg-footer { display:flex; align-items:center; justify-content:space-between; gap:6px; padding:5px 2px 2px; font-size:10px; color:rgba(252,224,168,.5); }
-.ppg-date { font-family:'Geist Mono',monospace; }
-.ppg-meta { white-space:nowrap; }
-.pf-toolbar { display:flex; justify-content:flex-end; margin-bottom:10px; }
+/* ── Feed de posts (profil, façon Threads/Twitter) — tout visible directement, pas de clic requis ── */
+.pf-toolbar { display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-bottom:10px; }
+.pf-reorder-hint { font-size:11px; color:rgba(252,224,168,.55); font-family:'Geist Mono',monospace; }
 .pf-reorder-btn { background:rgba(232,148,10,.1); border:1px solid rgba(232,148,10,.3); color:#E8940A; border-radius:100px; padding:7px 14px; font-size:12px; font-weight:700; cursor:pointer; }
 .pf-reorder-btn.on { background:#E8940A; color:#14100A; }
-.ppg-tile.reordering .ppg-media-wrap { outline:2px dashed rgba(232,148,10,.6); }
-.ppg-reorder { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; padding:0 5px; background:rgba(0,0,0,.4); }
-.ppg-reorder button { width:34px; height:34px; border-radius:50%; background:#E8940A; color:#14100A; border:none; font-size:16px; font-weight:800; cursor:pointer; }
-.ppg-reorder span { width:34px; }
-/* ── Modal post ── */
-.pm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.78); z-index:9600; display:none; align-items:center; justify-content:center; padding:16px; }
-.pm-box { width:100%; max-width:480px; max-height:88vh; background:#14100A; border:1px solid rgba(232,148,10,.22); border-radius:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.6); }
-.pm-head { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid rgba(232,148,10,.12); }
-.pm-author { display:flex; align-items:center; gap:10px; cursor:pointer; min-width:0; }
-.pm-hav,.pm-hav-ini { width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; }
-.pm-hav-ini { background:#E8940A; color:#14100A; display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif; font-weight:800; }
-.pm-nom { font-size:14px; font-weight:700; color:#FCE0A8; }
-.pm-date { font-size:11px; color:rgba(252,224,168,.45); }
-.pm-close { background:rgba(232,148,10,.1); border:1px solid rgba(232,148,10,.25); color:#E8940A; width:32px; height:32px; border-radius:50%; cursor:pointer; flex-shrink:0; }
-.pm-media-wrap { background:#000; max-height:60vh; display:flex; align-items:center; justify-content:center; }
-.pm-media { width:100%; max-height:60vh; object-fit:contain; display:block; }
-.pm-caption { padding:12px 16px; color:rgba(252,224,168,.9); font-size:14px; line-height:1.6; }
-.pm-actions { display:flex; gap:8px; padding:8px 12px; border-top:1px solid rgba(232,148,10,.1); border-bottom:1px solid rgba(232,148,10,.1); }
-.pm-actbtn { background:none; border:none; color:rgba(252,224,168,.6); font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:8px; }
-.pm-actbtn.liked { color:#f87171; }
-.pm-comments { overflow-y:auto; padding:8px 14px; flex:1; min-height:60px; }
-.pm-nocomment { color:rgba(252,224,168,.4); font-size:13px; text-align:center; padding:20px; }
-.pm-comment { display:flex; gap:10px; padding:8px 0; }
-.pm-cav,.pm-cav-ini { width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0; }
-.pm-cav-ini { background:rgba(232,148,10,.2); color:#E8940A; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; }
-.pm-cbody { flex:1; background:rgba(255,255,255,.04); border-radius:12px; padding:8px 12px; }
-.pm-cnom { font-size:13px; font-weight:700; color:#FCE0A8; }
-.pm-cdate { font-weight:400; color:rgba(252,224,168,.35); font-size:11px; }
-.pm-ctext { font-size:13px; color:rgba(252,224,168,.8); line-height:1.5; }
-.pm-addcomment { display:flex; gap:8px; padding:10px 14px; border-top:1px solid rgba(232,148,10,.12); }
-.pm-addcomment input { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(232,148,10,.2); border-radius:100px; padding:9px 14px; color:#FCE0A8; font-size:13px; outline:none; }
-.pm-addcomment button { background:#E8940A; border:none; color:#14100A; width:38px; height:38px; border-radius:50%; cursor:pointer; flex-shrink:0; font-size:15px; }
+.pf-feed-list { display:flex; flex-direction:column; gap:14px; }
+.pf-card { background:#1E180E; border:1px solid rgba(232,148,10,.14); border-radius:16px; padding:14px 16px; }
+.pf-card-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.pf-card-author { display:flex; align-items:center; gap:10px; cursor:pointer; min-width:0; }
+.pf-hav,.pf-hav-ini { width:38px; height:38px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+.pf-hav-ini { background:#E8940A; color:#14100A; display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif; font-weight:800; }
+.pf-nom { font-size:14px; font-weight:700; color:#FCE0A8; }
+.pf-date { font-size:11px; color:rgba(252,224,168,.45); font-family:'Geist Mono',monospace; }
+.pf-card-headctrl { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.pf-delbtn { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3); color:#f87171; width:30px; height:30px; border-radius:50%; cursor:pointer; }
+.pf-card-reorder { display:flex; gap:6px; }
+.pf-card-reorder button { width:30px; height:30px; border-radius:50%; background:#E8940A; color:#14100A; border:none; font-size:14px; font-weight:800; cursor:pointer; }
+.pf-card-text { color:rgba(252,224,168,.9); font-size:14px; line-height:1.6; margin-bottom:10px; white-space:pre-line; }
+.pf-card-media-wrap { background:#000; border-radius:12px; overflow:hidden; max-height:520px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+.pf-card-media { width:100%; max-height:520px; object-fit:contain; display:block; }
+.pf-card-actions { display:flex; gap:8px; padding-top:8px; border-top:1px solid rgba(232,148,10,.1); }
+.pf-actbtn { background:none; border:none; color:rgba(252,224,168,.6); font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:8px; }
+.pf-actbtn.liked { color:#f87171; }
+.pf-comments { margin-top:10px; padding-top:10px; border-top:1px solid rgba(232,148,10,.1); }
+.pf-nocomment { color:rgba(252,224,168,.4); font-size:13px; padding:8px 0; }
+.pf-comment { display:flex; gap:10px; padding:8px 0; }
+.pf-cav,.pf-cav-ini { width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+.pf-cav-ini { background:rgba(232,148,10,.2); color:#E8940A; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; }
+.pf-cbody { flex:1; background:rgba(255,255,255,.04); border-radius:12px; padding:8px 12px; }
+.pf-cnom { font-size:13px; font-weight:700; color:#FCE0A8; }
+.pf-cdate { font-weight:400; color:rgba(252,224,168,.35); font-size:11px; }
+.pf-ctext { font-size:13px; color:rgba(252,224,168,.8); line-height:1.5; }
+.pf-addcomment { display:flex; gap:8px; margin-top:8px; }
+.pf-addcomment input { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(232,148,10,.2); border-radius:100px; padding:9px 14px; color:#FCE0A8; font-size:13px; outline:none; }
+.pf-addcomment button { background:#E8940A; border:none; color:#14100A; width:38px; height:38px; border-radius:50%; cursor:pointer; flex-shrink:0; font-size:15px; }
 .profil-follow-btn { background:none; border:1.5px solid rgba(252,224,168,.18); border-radius:20px; color:rgba(252,224,168,.65); padding:6px 14px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Geist',sans-serif; }
 /* Tabs */
 .profil-tabs-nav { display:flex; border-bottom:2px solid rgba(255,255,255,.07); background:#0f0b07; overflow-x:auto; scrollbar-width:none; position:sticky; top:0; z-index:50; }
