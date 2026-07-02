@@ -1164,6 +1164,13 @@ h1 .gold { color:var(--or); }
 .ppg-footer { display:flex; align-items:center; justify-content:space-between; gap:6px; padding:5px 2px 2px; font-size:10px; color:rgba(252,224,168,.5); }
 .ppg-date { font-family:'Geist Mono',monospace; }
 .ppg-meta { white-space:nowrap; }
+.pf-toolbar { display:flex; justify-content:flex-end; margin-bottom:10px; }
+.pf-reorder-btn { background:rgba(232,148,10,.1); border:1px solid rgba(232,148,10,.3); color:#E8940A; border-radius:100px; padding:7px 14px; font-size:12px; font-weight:700; cursor:pointer; }
+.pf-reorder-btn.on { background:#E8940A; color:#14100A; }
+.ppg-tile.reordering .ppg-media-wrap { outline:2px dashed rgba(232,148,10,.6); }
+.ppg-reorder { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; padding:0 5px; background:rgba(0,0,0,.4); }
+.ppg-reorder button { width:34px; height:34px; border-radius:50%; background:#E8940A; color:#14100A; border:none; font-size:16px; font-weight:800; cursor:pointer; }
+.ppg-reorder span { width:34px; }
 /* ── Modal post ── */
 .pm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.78); z-index:9600; display:none; align-items:center; justify-content:center; padding:16px; }
 .pm-box { width:100%; max-width:480px; max-height:88vh; background:#14100A; border:1px solid rgba(232,148,10,.22); border-radius:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.6); }

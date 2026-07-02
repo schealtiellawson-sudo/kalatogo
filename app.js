@@ -4459,6 +4459,7 @@ async function renderPostsFeed(recordId) {
       auteurId:    r.prestataire_id || null,
       likes:       r.nb_likes     || 0,
       partages:    r.nb_partages  || 0,
+      ordre:       (r.ordre ?? null),
       comments:    Array.isArray(r.commentaires) ? r.commentaires : []
     }));
   } catch(e) { feedEl.innerHTML = `<div style="color:rgba(255,100,100,0.6);padding:16px;font-size:13px;">Erreur de chargement</div>`; return; }
@@ -4472,30 +4473,62 @@ async function renderPostsFeed(recordId) {
     return;
   }
 
-  // Stocker les posts pour la modal d'ouverture
+  // Trier : ordre manuel d'abord (si défini), sinon par date décroissante
+  posts.sort((a, b) => {
+    const ao = (a.ordre == null) ? Infinity : a.ordre;
+    const bo = (b.ordre == null) ? Infinity : b.ordre;
+    if (ao !== bo) return ao - bo;
+    return new Date(b.date) - new Date(a.date);
+  });
   window._profilPosts = window._profilPosts || {};
   window._profilPosts[recordId] = posts;
+  _renderPostsGrid(recordId);
+}
 
-  feedEl.classList.add('profil-posts-grid');
-  feedEl.innerHTML = posts.map(p => {
+function _renderPostsGrid(recordId) {
+  const feedEl = document.getElementById(`posts-feed-${recordId}`);
+  if (!feedEl) return;
+  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+  const isOwner = currentUser && currentPrestataire?.id === recordId;
+  const reordering = window._pfReorder === recordId;
+  const tilesHtml = posts.map((p, idx) => {
     const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
     const isVideo = p.mediaType === 'video';
     const commentCount = (p.comments || []).length;
     const photoSafe = encodeURI(p.photo || '');
     let media;
-    if (p.photo && isVideo) {
-      media = `<video src="${photoSafe}#t=0.1" muted playsinline preload="metadata" class="ppg-media"></video><span class="ppg-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>`;
-    } else if (p.photo) {
-      media = `<img src="${photoSafe}" loading="lazy" class="ppg-media">`;
-    } else {
-      media = `<div class="ppg-text">${escapeHtml((p.texte || '').slice(0,160))}</div>`;
-    }
+    if (p.photo && isVideo) media = `<video src="${photoSafe}#t=0.1" muted playsinline preload="metadata" class="ppg-media"></video><span class="ppg-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>`;
+    else if (p.photo) media = `<img src="${photoSafe}" loading="lazy" class="ppg-media">`;
+    else media = `<div class="ppg-text">${escapeHtml((p.texte || '').slice(0,160))}</div>`;
     const meta = (p.likes > 0 ? '❤ ' + p.likes + '  ' : '') + (commentCount > 0 ? '💬 ' + commentCount : '');
-    return `<div class="ppg-tile" onclick="openPostModal('${p.id}','${recordId}')">
-      <div class="ppg-media-wrap">${media}</div>
+    const reorderCtrls = (isOwner && reordering)
+      ? `<div class="ppg-reorder">${idx > 0 ? `<button onclick="event.stopPropagation();movePost('${recordId}','${p.id}',-1)">←</button>` : '<span></span>'}${idx < posts.length - 1 ? `<button onclick="event.stopPropagation();movePost('${recordId}','${p.id}',1)">→</button>` : '<span></span>'}</div>`
+      : '';
+    const click = reordering ? '' : `onclick="openPostModal('${p.id}','${recordId}')"`;
+    return `<div class="ppg-tile ${reordering ? 'reordering' : ''}" ${click}>
+      <div class="ppg-media-wrap">${media}${reorderCtrls}</div>
       <div class="ppg-footer"><span class="ppg-date">${dateStr}</span><span class="ppg-meta">${meta}</span></div>
     </div>`;
   }).join('');
+  feedEl.classList.remove('profil-posts-grid');
+  feedEl.innerHTML = (isOwner ? `<div class="pf-toolbar"><button class="pf-reorder-btn ${reordering ? 'on' : ''}" onclick="toggleReorderMode('${recordId}')">${reordering ? '✓ Terminé' : '↕ Réorganiser mes posts'}</button></div>` : '') + `<div class="profil-posts-grid">${tilesHtml}</div>`;
+}
+
+function toggleReorderMode(recordId) {
+  window._pfReorder = (window._pfReorder === recordId) ? null : recordId;
+  _renderPostsGrid(recordId);
+}
+
+async function movePost(recordId, postId, dir) {
+  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+  const i = posts.findIndex(x => String(x.id) === String(postId));
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= posts.length) return;
+  const tmp = posts[i]; posts[i] = posts[j]; posts[j] = tmp;
+  _renderPostsGrid(recordId);
+  const supa = window.supabase;
+  if (!supa) return;
+  try { await Promise.all(posts.map((p, k) => { p.ordre = k; return supa.from('wozali_posts_v2').update({ ordre: k }).eq('id', p.id); })); } catch (e) {}
 }
 
 // ── Modal d'un post (média + légende + like + commentaires) ─────────────
