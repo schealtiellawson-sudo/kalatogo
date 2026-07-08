@@ -1362,7 +1362,7 @@ Mariam n'a pas de site web, pas de page Facebook pro, et son numéro circule mal
 
 **Hook marketing** :
 - Punch : *"Tu choisis ton métier. WOZALI choisit le reste."*
-- Viral : *"Pas un site builder. Une marketplace."*
+- Viral : *"Pas un site builder. Une application."*
 
 **État** : ✅ Live (`widgets-metier-config.js` — 60+ métiers mappés)
 
@@ -1888,7 +1888,7 @@ Planning quotidien (1 contenu/jour) sur 90 jours, du **début juillet 2026** (la
 | J6 | 14 juin | IG | Story | Battle Bénin vs Togo | "Score actuel : 🇧🇯 mène. Réplique 🇹🇬 ?" |
 | J7 | 15 juin | TikTok + IG | Reel témoignage | Kodjo recrute | "Kodjo a recruté son apprenti en 4h." |
 | J8 | 16 juin | TikTok | Reel | Score IA recruteur | "Indeed Premium 89€. WOZALI IA 0F." |
-| J9 | 17 juin | IG | Carrousel | Widgets métier 9 verticales | "9 boutons. 60 métiers. 1 marketplace." |
+| J9 | 17 juin | IG | Carrousel | Widgets métier 9 verticales | "9 boutons. 60 métiers. 1 application." |
 | J10 | 11 juillet | TikTok | Reel | Akossiwa portfolio | "Behance pour le vrai monde." |
 | J11 | 19 juin | IG | Post storytelling | Madame Adjo réservation | "Vendredi midi, son serveur lâche. 17h, relève trouvée." |
 | J12 | 20 juin | TikTok | Reel | Parrainage simulateur | "Glisse à 53 filleuls. T'es au SMIG. À vie." |

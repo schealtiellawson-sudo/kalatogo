@@ -23,7 +23,7 @@ Un profil WOZALI, c'est :
 - Une position dans les résultats quand quelqu'un cherche un prestataire dans son quartier
 - Visible sur wozali.africa dès l'inscription
 
-Lancement officiel : **1er août 2026** à Lomé et Cotonou.
+Lancement officiel : **15 août 2026** à Lomé et Cotonou.
 
 ---
 
@@ -76,4 +76,4 @@ wozali.africa
 
 ---
 
-*Lancement 1er août 2026 · Lomé et Cotonou · Expansion Afrique de l'Ouest*
+*Lancement 15 août 2026 · Lomé et Cotonou · Expansion Afrique de l'Ouest*

@@ -31,16 +31,61 @@ Avant de répondre, vérifier et confirmer explicitement :
    - Commission agents : 40% normal (1 000 FCFA/Pro), 60% si battle gagnée (1 500 FCFA/Pro)
    - 100 000 FCFA = 100 membres Pro actifs
    - Pas de fixe. Pas de prime.
-   - Date lancement : 1er août 2026
+   - Date lancement : 15 août 2026
    - Premier tirage : 25 septembre 2026
    - JAMAIS em dash "—"
    - JAMAIS "agent terrain" → "agent terrain WOZALI"
    - Documents internes : PDF, JAMAIS .md livré seul
 
+6. **Logique application respectée ?** (ajouté 2026-07-02, voir section "Framework Application" plus bas)
+   - Densité locale avant expansion (réseau atomique)
+   - Effort disproportionné sur le côté dur (l'offre : prestataires), pas la demande
+   - Liquidité réelle visée (probabilité de match), pas juste le nombre d'inscrits
+   - Valeur "mode solo" qui marche même sans effet de réseau encore installé
+
+7. **Style WOZALI actif sur tout script/copy dit à voix haute ?** (voir section "STYLE WOZALI" plus bas)
+   - Rythme marteau, zéro trace IA, "C'est pas X, c'est Y" interdit total
+   - Closer sur mesure par script, jamais de signature fixe répétée
+   - Douleur concrète (repas du soir, nourrir les enfants, loyer), jamais de métaphore de compte bancaire
+
 **Cette règle a été violée. Le fondateur l'a demandé plusieurs fois. Elle est non négociable.**
 
 **AU LANCEMENT DE CHAQUE SESSION :** envoyer ce message au fondateur avant toute chose :
 "🧠 Cerveau Claude actif. Toutes mes réponses et réflexions cette session seront vérifiées avec le Cerveau Claude, sans exception."
+
+---
+
+## STYLE WOZALI — écriture scripts vidéo/copy (gravé 2026-07-02)
+
+Nom officiel du style d'écriture pour tout script vidéo (Face cam, Interview terrain, Reels), tout copy, tout texte destiné à être dit ou lu à voix haute. Rythme marteau, cascade de répétition, ironie froide, zéro trace d'écriture IA.
+
+**Interdit total, zéro exception** : la structure "C'est pas X. C'est Y." (et toute variante déguisée, ex. "Ça veut pas dire X, ça veut dire Y") — repérée comme tic répété sur plusieurs scripts, jugée "100% IA" par le fondateur.
+
+**Closer sur mesure** : depuis le 2026-07-02, plus de ligne de fin fixe répétée à chaque vidéo. Chaque script se termine par sa propre dernière phrase, écrite pour ce script précis (l'ancienne signature "Il travaille bien. Personne ne le sait." est abandonnée comme refrain universel).
+
+**Douleur d'entrée** : l'argent qui circule pas, jamais une métaphore de compte bancaire (économie majoritairement informelle/cash). Concret : le repas du soir, nourrir les enfants, le loyer, l'école.
+
+Détails complets (10 techniques, structure, angle dignité) : skill `wozali-script-video` (`.claude/skills/wozali-script-video/SKILL.md`), déclenché automatiquement dès qu'on touche un script vidéo WOZALI.
+
+---
+
+## FRAMEWORK APPLICATION, Andrew Chen, NFX (gravé 2026-07-02)
+
+WOZALI est une application à deux faces (prestataires/artisans côté offre, clients/recruteurs côté demande). Les frameworks de copywriting/vente (Hormozi, Sabri Suby, SB7) couvrent le discours, mais pas la mécanique de croissance d'une application à deux faces. Ces quatre concepts doivent guider toute décision de stratégie de lancement, d'expansion géographique, ou de priorisation produit.
+
+**Cold Start Problem (Andrew Chen)** : une application à deux faces vaut zéro tant qu'il n'y a pas assez des deux côtés en même temps. La solution n'est jamais "lancer partout d'un coup", il faut gagner un "réseau atomique" minuscule et dense d'abord (une ville, un quartier, une niche précise) où la valeur est immédiate, avant d'étendre au suivant. Pour WOZALI : Lomé + Cotonou est déjà le bon niveau (pas toute l'Afrique de l'Ouest dès le départ). À l'intérieur de ces deux villes, viser la densité par quartier et par métier (ex : 50 coiffeuses solides et bien notées à Bè) bat 500 prestataires éparpillés sans liquidité nulle part.
+
+**Chicken-and-egg (quel côté amorcer en premier)** : le "côté dur" de l'application, celui qui doit faire confiance à une demande pas encore visible, demande un effort manuel disproportionné au départ (concierge, recrutement terrain, parfois une "valeur mode solo" qui marche même sans l'autre côté). Pour WOZALI, le côté dur c'est l'offre (les prestataires, qui doivent croire que des clients viendront), pas la demande (un client cherche, effort minimal, résultat immédiat). C'est exactement ce qui justifie et valide la stratégie agents terrain déjà en place : recrutement manuel et payant du côté dur, avant d'attendre que le marché s'auto-alimente tout seul.
+
+**Liquidité** : la vraie mesure de succès d'une application à deux faces c'est pas le nombre total d'inscrits, c'est la probabilité qu'une recherche trouve un match dans un délai raisonnable. 1000 prestataires enregistrés mais 2 par quartier/métier, c'est une liquidité nulle : l'expérience utilisateur échoue quand même, peu importe le total affiché. Priorité produit et terrain : atteindre la liquidité minimale viable sur un petit périmètre avant d'élargir, jamais l'inverse.
+
+**Effets de réseau (NFX)** : les effets de réseau composent avec le temps, ils sont pas la source de la croissance initiale, et s'appuyer dessus trop tôt est une erreur classique de fondateur. Au lancement, la croissance vient d'une utilité "single-player" qui a de la valeur même sans l'autre côté du réseau : WOZALI a déjà ça avec le profil public partageable (utile comme CV/carte de visite même à un seul prestataire isolé) et le CV WOZALI. Les effets de données (le Score WOZALI qui s'affine avec chaque avis, chaque interaction) sont un deuxième layer d'effet réseau à mettre en avant dans le discours produit une fois la base installée, pas avant.
+
+**Application concrète — se poser ces 4 questions avant toute décision de lancement/expansion** :
+1. Est-ce qu'on gagne une densité réelle sur un périmètre petit avant d'élargir ?
+2. Est-ce qu'on met l'effort disproportionné sur le côté dur (l'offre), pas la demande ?
+3. Est-ce qu'on mesure la liquidité réelle (probabilité de match), pas juste le nombre d'inscrits ?
+4. Est-ce que la valeur existe en mode solo, même avant que l'effet de réseau soit installé ?
 
 ---
 
@@ -89,7 +134,7 @@ Avant de répondre, vérifier et confirmer explicitement :
 - ⬜ Séquence WhatsApp J30 (J0-J7 existent, manque `WHATSAPP_CLOUD_TOKEN` Vercel)
 - ✅ Bouton Embaucher → fiche employé (sprint J) — migration wozali_employes appliquée 2026-06-14
 - ⬜ Espace équipe (sprint K)
-- ⬜ 150-200 vrais profils avant 1er août (terrain)
+- ⬜ 150-200 vrais profils avant 15 août (terrain)
 - ⬜ 3-5 agents terrain WOZALI Lomé + Cotonou (recrutement terrain)
 
 ---
@@ -254,7 +299,7 @@ function renderBattle()            // hPro/fPro depuis _battleProByCode (pas nb_
 
 **Messages WhatsApp admin (dans admin-agents terrain.html) :**
 - Validé : "Ta candidature est retenue. Tu fais partie des Agents terrain WOZALI. Je t'appelle très bientôt."
-- Recalé : bienveillant, porte pas fermée, premier membre le 1er août quand la plateforme ouvre
+- Recalé : bienveillant, porte pas fermée, premier membre le 15 août quand la plateforme ouvre
 
 **Règles établies cette session :**
 - "Schealtiel Lawson" autorisé sur merci.html (les candidats doivent mettre un nom sur le visage) — EXCEPTION à la règle générale
@@ -335,7 +380,7 @@ Tous les domaines : wozali.africa/postuler (mis à jour session 2026-05-27)
 - ⬜ 6. Séquence WhatsApp J0→J3→J7→J30 (J0-J7 existent, J30 à ajouter, manque WHATSAPP_CLOUD_TOKEN Vercel)
 - ⬜ 7. Bouton Embaucher → fiche employé — sprint J
 - ⬜ 8. Espace équipe — sprint K
-- ⬜ 9. 150-200 vrais profils avant 1er août (terrain)
+- ⬜ 9. 150-200 vrais profils avant 15 août (terrain)
 - ⬜ 10. 3-5 agents terrain Lomé + Cotonou (terrain)
 
 ---

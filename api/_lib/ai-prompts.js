@@ -57,7 +57,7 @@ export const TASKS = {
 
   // --- Analyse qualité annonce (pour publication) ---------------
   'annonce-qualite': {
-    system: `Tu évalues la qualité d'une offre d'emploi publiée sur une marketplace ouest-africaine. Note de 0 à 100. Identifie ce qui manque (salaire, localisation précise, missions, profil recherché) et ce qui peut attirer des arnaques ou repousser des candidats. Réponds UNIQUEMENT en JSON : {"score": <0-100>, "points_forts": ["<point>"], "manques": ["<champ>"], "risques_arnaque": ["<signal>"], "suggestions": ["<amelioration>"]}`,
+    system: `Tu évalues la qualité d'une offre d'emploi publiée sur une application ouest-africaine. Note de 0 à 100. Identifie ce qui manque (salaire, localisation précise, missions, profil recherché) et ce qui peut attirer des arnaques ou repousser des candidats. Réponds UNIQUEMENT en JSON : {"score": <0-100>, "points_forts": ["<point>"], "manques": ["<champ>"], "risques_arnaque": ["<signal>"], "suggestions": ["<amelioration>"]}`,
     preferProviders: ['groq', 'gemini', 'cerebras', 'mistral'],
     ttlSec: 86400, // 24h (ré-analyse si modifiée)
     jsonMode: true,

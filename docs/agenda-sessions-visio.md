@@ -40,7 +40,7 @@
 
 ---
 
-## SESSION 3 — Lancement officiel (J-1 avant lancement, veille du 1er août)
+## SESSION 3 — Lancement officiel (J-1 avant lancement, veille du 15 août)
 **Durée :** 20 minutes
 **Participants :** Tous les Agents terrain
 **Objectif :** dernier cadrage avant le terrain
@@ -49,7 +49,7 @@
 
 | Temps | Contenu |
 |---|---|
-| 0-5 min | Rappel : lancement officiel demain. Ce qui change à partir du 1er août. |
+| 0-5 min | Rappel : lancement officiel demain. Ce qui change à partir du 15 août. |
 | 5-10 min | Rappel ligne rouge (charte de conduite). Pas de collecte d'argent, pas de politique. |
 | 10-15 min | Organisation pratique : horaires terrain, fréquence messages dans le groupe, quoi remonter. |
 | 15-20 min | Motivation. Pourquoi ce travail compte. Questions finales. |

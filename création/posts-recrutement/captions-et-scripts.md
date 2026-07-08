@@ -46,7 +46,7 @@ Tu vas dans ton quartier, tu inscris les gens qui bossent bien sur WOZALI. Des c
 
 5 minutes par profil. 1 000 FCFA par membre Pro actif (40% du plan).
 
-20 places disponibles. Lancement 1er août 2026.
+20 places disponibles. Lancement 15 août 2026.
 
 wozali.africa/postuler
 ```
@@ -100,7 +100,7 @@ Voilà ce que fait un Agent terrain WOZALI dans une journée.
 
 100 membres Pro actifs = 100 000 FCFA par mois.
 
-20 places disponibles. Lancement 1er août 2026.
+20 places disponibles. Lancement 15 août 2026.
 
 Postuler : wozali.africa/postuler
 ```
@@ -123,7 +123,7 @@ Tu connais les gens de ton quartier. Tu les inscris sur WOZALI. 5 minutes par pr
 7 profils dans une journée = 7 000 FCFA en cours.
 100 Pro actifs dans le mois = 100 000 FCFA.
 
-20 places. 1er août 2026.
+20 places. 15 août 2026.
 
 wozali.africa/postuler
 ```
@@ -161,7 +161,7 @@ Tu connais les gens qui bossent bien dans ton quartier. WOZALI aussi veut les co
 
 Agent terrain WOZALI : 1 000 FCFA par membre Pro actif (40% du plan). 100 membres Pro = 100 000 FCFA/mois.
 
-20 places. Lomé et Cotonou. Lancement 1er août 2026.
+20 places. Lomé et Cotonou. Lancement 15 août 2026.
 
 wozali.africa/postuler
 ```

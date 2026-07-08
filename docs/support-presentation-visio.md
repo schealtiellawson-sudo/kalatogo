@@ -7,7 +7,7 @@
 
 > **Rendre visibles les gens qui bossent sérieusement et que personne ne trouve.**
 
-Lomé et Cotonou. Lancement 1er août 2026.
+Lomé et Cotonou. Lancement 15 août 2026.
 
 ---
 
@@ -129,4 +129,4 @@ Toute situation inhabituelle va dans le groupe WhatsApp. Tu n'improvises pas seu
 
 ---
 
-*WOZALI · wozali.africa · Lancement 1er août 2026 · Lomé et Cotonou*
+*WOZALI · wozali.africa · Lancement 15 août 2026 · Lomé et Cotonou*

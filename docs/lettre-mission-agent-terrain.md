@@ -50,7 +50,7 @@ Ta mission est d'identifier et d'inscrire les commerçants, prestataires et ind�
 
 Mission à durée indéterminée, résiliable par l'une ou l'autre partie avec 7 jours de préavis par WhatsApp.
 
-Période de démarrage : du 1er août 2026 jusqu'à nouvel ordre.
+Période de démarrage : du 15 août 2026 jusqu'à nouvel ordre.
 
 ---
 

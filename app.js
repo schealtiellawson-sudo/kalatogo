@@ -10283,7 +10283,7 @@ async function injectSprint6Upgrade(){
       <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px">
         <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin-bottom:2px">Gratuit</div>
         <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:rgba(252, 224, 168,.75);margin-bottom:8px">0 FCFA<span style="font-size:11px;color:rgba(252, 224, 168,.5)">/mois</span></div>
-        ${sectionTitle('MARKETPLACE')}
+        ${sectionTitle('APPLICATION')}
         ${rowOk('Profil visible')}
         ${rowOk('Avis clients')}
         ${rowKo('Badge Pro')}
@@ -10298,7 +10298,7 @@ async function injectSprint6Upgrade(){
         <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#E8940A;margin-top:4px">Pro</div>
         <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:#E8940A">2 500 FCFA<span style="font-size:11px">/mois</span></div>
         <div style="font-size:10px;color:rgba(252, 224, 168,.5);margin-bottom:8px">Soit 83 FCFA par jour</div>
-        ${sectionTitle('MARKETPLACE')}
+        ${sectionTitle('APPLICATION')}
         ${rowOk('<strong>Badge Pro</strong> visible')}
         ${rowOk('Priorité résultats')}
         ${rowOk('À la Une homepage')}
@@ -12907,7 +12907,7 @@ const _origShowDash = window.showDashSection;
 window.showDashSection = function(...args) { const r = _origShowDash?.(...args); setTimeout(_fixAutocomplete, 100); return r; };
 
 // ══════════════════════════════════════════
-// MARKETPLACE EMPLOI
+// APPLICATION EMPLOI
 // ══════════════════════════════════════════
 
 let _offresCache = [];
@@ -13476,7 +13476,7 @@ function renderOffresPage() {
       <span class="badge" style="background:rgba(232,148,10,0.1);color:#E8940A;">Mission terrain</span>
     </div>
     <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 100 000 FCFA — dès le 1er mois</div>
-    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er août. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
+    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 15 août. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
     <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Places limitées</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié aujourd'hui</div>
     <div class="offre-actions" onclick="event.stopPropagation();">
