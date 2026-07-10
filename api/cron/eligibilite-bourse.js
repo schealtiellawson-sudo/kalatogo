@@ -37,48 +37,36 @@ export default async function handler(req, res) {
     const profileMap = {};
     for (const p of (profiles || [])) profileMap[p.user_id] = p;
 
-    // 3. Récupérer les avis des 30 derniers jours depuis Airtable
-    const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
-    const AT_URL = `https://api.airtable.com/v0/${AIRTABLE_BASE}`;
-    const AT_HEADERS = { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` };
-
-    // Fetch all Avis (on filtre par date ensuite)
+    // 3. Récupérer les avis des 30 derniers jours depuis Supabase (validés)
+    //    Pagination .range() car un scan complet peut dépasser 1000 lignes.
     let allAvis = [];
-    let offset = '';
-    do {
-      const url = `${AT_URL}/Avis${offset ? `?offset=${offset}` : ''}`;
-      const r = await fetch(url, { headers: AT_HEADERS });
-      const d = await r.json();
-      allAvis.push(...(d.records || []));
-      offset = d.offset || '';
-    } while (offset);
+    {
+      const PAGE = 1000;
+      let from = 0;
+      while (true) {
+        const { data: page, error: avisErr } = await supabase
+          .from('wozali_avis')
+          .select('prestataire_user_id, note_globale, date_avis, created_at')
+          .eq('validated', true)
+          .gte('date_avis', il30jours)
+          .range(from, from + PAGE - 1);
+        if (avisErr) throw avisErr;
+        if (!page || page.length === 0) break;
+        allAvis.push(...page);
+        if (page.length < PAGE) break;
+        from += PAGE;
+      }
+    }
 
-    // Grouper les avis récents par Prestataire ID
+    // Grouper les avis récents par user_id du prestataire
     const avisRecentsParPrest = {};
     for (const a of allAvis) {
-      const dateAvis = a.fields['Date'] || a.createdTime;
+      const dateAvis = a.date_avis || a.created_at;
       if (dateAvis < il30jours) continue;
-      const pid = a.fields['Prestataire ID'];
+      const pid = a.prestataire_user_id;
       if (!pid) continue;
       if (!avisRecentsParPrest[pid]) avisRecentsParPrest[pid] = [];
       avisRecentsParPrest[pid].push(a);
-    }
-
-    // 4. Fetch prestataires pour mapper email → Airtable ID
-    let prestataires = [];
-    offset = '';
-    do {
-      const url = `${AT_URL}/Prestataires?fields[]=Email&fields[]=User%20ID${offset ? `&offset=${offset}` : ''}`;
-      const r = await fetch(url, { headers: AT_HEADERS });
-      const d = await r.json();
-      prestataires.push(...(d.records || []));
-      offset = d.offset || '';
-    } while (offset);
-
-    const prestByUserId = {};
-    for (const p of prestataires) {
-      const uid = p.fields['User ID'];
-      if (uid) prestByUserId[uid] = p.id;
     }
 
     // 5. Vérifier les gagnants des 3 derniers mois
@@ -110,21 +98,20 @@ export default async function handler(req, res) {
         ? Math.floor((now.getTime() - new Date(abo.created_at).getTime()) / (30 * 86400000))
         : 0;
 
-      // Avis récents pour ce prestataire
-      const prestId = prestByUserId[userId];
-      const avisRecents = prestId ? (avisRecentsParPrest[prestId] || []) : [];
+      // Avis récents pour ce prestataire (indexés par user_id)
+      const avisRecents = avisRecentsParPrest[userId] || [];
       const nbAvisRecents = avisRecents.length;
 
       // Note moyenne sur 30 jours
       let noteMoyRecente = 0;
       if (nbAvisRecents > 0) {
-        const sum = avisRecents.reduce((s, a) => s + (a.fields['Note globale sur 5'] || 0), 0);
+        const sum = avisRecents.reduce((s, a) => s + (a.note_globale || 0), 0);
         noteMoyRecente = sum / nbAvisRecents;
       }
 
       // Condition 5 : aucun avis de moins de 14 jours (anti-manipulation)
       const avisRecentsOk = !avisRecents.some(a => {
-        const d = a.fields['Date'] || a.createdTime;
+        const d = a.date_avis || a.created_at;
         return d > il14jours;
       });
 

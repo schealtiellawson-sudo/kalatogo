@@ -3,10 +3,7 @@
 // Route : /sitemap.xml (via rewrite vercel.json)
 // ================================================================
 
-const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
-const AIRTABLE_KEY  = process.env.AIRTABLE_API_KEY;
-const AT_URL        = `https://api.airtable.com/v0/${AIRTABLE_BASE}`;
-const AT_HEADERS    = { Authorization: `Bearer ${AIRTABLE_KEY}` };
+import { supabase } from './_lib/supabase.js';
 
 function buildSlug(nom, metier, ville) {
   return [nom, metier, ville].filter(Boolean).join(' ')
@@ -16,24 +13,30 @@ function buildSlug(nom, metier, ville) {
 
 export default async function handler(req, res) {
   try {
+    // Supabase plafonne une requête à 1000 lignes par défaut :
+    // on pagine avec .range() pour récupérer tous les prestataires.
+    const PAGE_SIZE = 1000;
     let allRecords = [];
-    let offset = '';
+    let from = 0;
 
-    do {
-      const url = `${AT_URL}/Prestataires?fields%5B%5D=Nom%20complet&fields%5B%5D=M%C3%A9tier%20principal&pageSize=100${offset ? '&offset=' + offset : ''}`;
-      const r = await fetch(url, { headers: AT_HEADERS });
-      const data = await r.json();
-      allRecords = allRecords.concat(data.records || []);
-      offset = data.offset || '';
-    } while (offset);
+    while (true) {
+      const { data, error } = await supabase
+        .from('wozali_prestataires')
+        .select('nom_complet, metier_principal')
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw error;
+      const rows = data || [];
+      allRecords = allRecords.concat(rows);
+      if (rows.length < PAGE_SIZE) break;
+      from += PAGE_SIZE;
+    }
 
     const today = new Date().toISOString().slice(0, 10);
 
     const urls = allRecords
-      .filter(r => r.fields['Nom complet'])
+      .filter(r => r['nom_complet'])
       .map(r => {
-        const f = r.fields;
-        const slug = buildSlug(f['Nom complet'], f['Métier principal'], '');
+        const slug = buildSlug(r['nom_complet'], r['metier_principal'], '');
         return `  <url>
     <loc>https://wozali.com/profil/${slug}</loc>
     <lastmod>${today}</lastmod>

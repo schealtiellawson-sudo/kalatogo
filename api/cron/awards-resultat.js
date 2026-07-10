@@ -142,7 +142,7 @@ export default async function handler(req, res) {
     // 6. Notification gagnant
     await envoyerNotification({
       user_id: gagnant.user_id,
-      titre: '👑 Tu es la Reine du Bourse des Mains d'Or !',
+      titre: '👑 Tu es la Reine de la Bourse des Mains d\'Or !',
       corps: `100 000 FCFA ont été crédités sur ton Crédit WOZALI. La communauté t'a élue Reine du mois de ${moisCourant}.`
     });
 
@@ -157,7 +157,7 @@ export default async function handler(req, res) {
 
       await envoyerNotification({
         user_id: viceChampion.user_id,
-        titre: '🥈 Vice-Reine du Bourse des Mains d'Or !',
+        titre: '🥈 Vice-Reine de la Bourse des Mains d\'Or !',
         corps: `Tu termines 2e du Bourse des Mains d'Or de ${moisCourant}. Un badge spécial est affiché sur ton profil pendant 30 jours.`
       });
     }

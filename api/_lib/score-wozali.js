@@ -1,12 +1,8 @@
 // ================================================================
 // Score WOZALI — Calcul complet sur 100 points (6 composantes)
 // Utilisé par le cron horaire + endpoint dashboard
+// Source de données : Supabase (100% — Airtable retiré)
 // ================================================================
-
-const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
-const AIRTABLE_KEY  = process.env.AIRTABLE_API_KEY;
-const AT_BASE_URL   = `https://api.airtable.com/v0/${AIRTABLE_BASE}`;
-const AT_HEADERS    = { Authorization: `Bearer ${AIRTABLE_KEY}`, 'Content-Type': 'application/json' };
 
 // ── 1. Profil complet (max 30 pts) ──
 // Photo 8, Bio 7, Métier 5, Ville+Quartier 5, Numéro 5
@@ -100,73 +96,87 @@ export function penteDouce(scoreActuel, derniereActivite) {
   return Math.max(0, scoreActuel - malus);
 }
 
-// ── Fetch Airtable helpers ──
-async function fetchAllAirtable(table, params = '') {
-  const records = [];
-  let offset = '';
-  do {
-    const sep = params ? '&' : '?';
-    const url = `${AT_BASE_URL}/${encodeURIComponent(table)}${params ? '?' + params : ''}${offset ? `${sep}offset=${offset}` : ''}`;
-    const r = await fetch(url, { headers: AT_HEADERS });
-    if (!r.ok) { console.error(`[AT] ${table}:`, r.status); break; }
-    const d = await r.json();
-    records.push(...(d.records || []));
-    offset = d.offset || '';
-  } while (offset);
-  return records;
+// ── Fetch Supabase helpers ──
+// Supabase plafonne une requête à 1000 lignes par défaut : on pagine
+// avec .range() pour couvrir toutes les lignes (scan de table complet).
+async function fetchAllSupabase(supabase, table, columns, applyFilters) {
+  const rows = [];
+  const pageSize = 1000;
+  let from = 0;
+  while (true) {
+    let query = supabase.from(table).select(columns).range(from, from + pageSize - 1);
+    if (typeof applyFilters === 'function') query = applyFilters(query);
+    const { data, error } = await query;
+    if (error) { console.error(`[supa] ${table}:`, error.message || error); break; }
+    const batch = data || [];
+    rows.push(...batch);
+    if (batch.length < pageSize) break;
+    from += pageSize;
+  }
+  return rows;
 }
 
 // ── Batch recalcul pour tous les membres ──
-// Retourne un Map<email, { score, composantes }>
+// Retourne un tableau [{ userId, email, scoreFinal, composantes, ancienScore, derniereActivite }]
 export async function recalculerTousLesScores(supabase) {
-  // 1. Charger TOUS les prestataires Airtable
-  const prestataires = await fetchAllAirtable('Prestataires');
+  // 1. Charger TOUS les prestataires Supabase (source unique de vérité)
+  //    On lit directement les colonnes nécessaires au scoring + vues + updated_at + score courant.
+  const prestataires = await fetchAllSupabase(
+    supabase,
+    'wozali_prestataires',
+    'id, user_id, email, photo_profil, photo_realisation_1, photo_realisation_2, photo_realisation_3, albums, description_services, metier_principal, quartier, ville, numero_telephone, whatsapp, score_wozali, vues_30j, nb_vues_profil, updated_at'
+  );
 
-  // 2. Charger TOUS les avis Airtable (pour note + nb)
-  const avis = await fetchAllAirtable('Avis');
+  // 2. Charger TOUS les avis validés Supabase (pour note + nb)
+  const avis = await fetchAllSupabase(
+    supabase,
+    'wozali_avis',
+    'prestataire_id, note_globale, validated',
+    (q) => q.eq('validated', true)
+  );
 
-  // 3. Grouper les avis par Prestataire ID
+  // 3. Grouper les avis par Prestataire ID (id du record wozali_prestataires)
   const avisParPrest = {};
   for (const a of avis) {
-    const pid = a.fields['Prestataire ID'];
+    const pid = a.prestataire_id;
     if (!pid) continue;
     if (!avisParPrest[pid]) avisParPrest[pid] = [];
     avisParPrest[pid].push(a);
   }
 
-  // 4. Charger les prestataires Supabase pour vues_30j + updated_at + score_wozali
-  const { data: supaPrests } = await supabase
-    .from('wozali_prestataires')
-    .select('user_id, email, score_wozali, vues_30j, nb_vues_profil, updated_at');
-
-  const profilesByEmail = {};
-  for (const p of (supaPrests || [])) {
-    if (p.email) profilesByEmail[p.email.toLowerCase()] = p;
-  }
-
-  // 5. Calculer pour chaque prestataire
+  // 4. Calculer pour chaque prestataire
   const resultats = [];
 
   for (const prest of prestataires) {
-    const f = prest.fields;
-    const email = (f['Email'] || '').toLowerCase();
-    if (!email) continue;
-
-    const profile = profilesByEmail[email];
-    if (!profile) continue;
+    // Reconstruit un objet `fields` au format attendu par les fonctions de scoring
+    const f = {
+      'Photo Profil':             prest.photo_profil,
+      'Photo Réalisation 1':       prest.photo_realisation_1,
+      'Photo Réalisation 2':       prest.photo_realisation_2,
+      'Photo Réalisation 3':       prest.photo_realisation_3,
+      // albums est du JSONB Supabase (objet/array) ; scorePhotos fait JSON.parse,
+      // donc on le re-stringifie si nécessaire pour rester compatible.
+      'Albums':                    typeof prest.albums === 'string' ? prest.albums : JSON.stringify(prest.albums || []),
+      'Description des services':  prest.description_services,
+      'Métier principal':          prest.metier_principal,
+      'Quartier':                  prest.quartier,
+      'Ville':                     prest.ville,
+      'Numéro de téléphone':       prest.numero_telephone,
+      'WhatsApp':                  prest.whatsapp,
+    };
 
     // Avis pour ce prestataire
     const mesAvis = avisParPrest[prest.id] || [];
     const nbAvis = mesAvis.length;
     let noteMoyenne = 0;
     if (nbAvis > 0) {
-      const sum = mesAvis.reduce((s, a) => s + (a.fields['Note globale sur 5'] || 0), 0);
+      const sum = mesAvis.reduce((s, a) => s + (a.note_globale || 0), 0);
       noteMoyenne = sum / nbAvis;
     }
 
     // updated_at = meilleur proxy pour dernière activité
-    const derniereActivite = profile.updated_at || null;
-    const vuesMois = profile.vues_30j || profile.nb_vues_profil || 0;
+    const derniereActivite = prest.updated_at || null;
+    const vuesMois = prest.vues_30j || prest.nb_vues_profil || 0;
 
     const composantes = calculerScoreWozali({
       fields: f,
@@ -180,11 +190,11 @@ export async function recalculerTousLesScores(supabase) {
     const scoreFinal = penteDouce(composantes.total, derniereActivite);
 
     resultats.push({
-      userId:    profile.user_id,
-      email,
+      userId:    prest.user_id,
+      email:     (prest.email || '').toLowerCase(),
       scoreFinal,
       composantes,
-      ancienScore: profile.score_wozali || 0,
+      ancienScore: prest.score_wozali || 0,
       derniereActivite,
     });
   }

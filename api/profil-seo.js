@@ -6,11 +6,7 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-
-const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
-const AIRTABLE_KEY  = process.env.AIRTABLE_API_KEY;
-const AT_URL        = `https://api.airtable.com/v0/${AIRTABLE_BASE}`;
-const AT_HEADERS    = { Authorization: `Bearer ${AIRTABLE_KEY}` };
+import { supabase } from './_lib/supabase.js';
 
 function buildSlug(nom, metier, ville) {
   return [nom, metier, ville].filter(Boolean).join(' ')
@@ -31,36 +27,41 @@ export default async function handler(req, res) {
     return res.status(500).send('index.html introuvable');
   }
 
-  // Chercher le prestataire correspondant au slug dans Airtable
-  // On fetch tous les prestataires et on compare les slugs (pas de champ slug en base)
+  // Chercher le prestataire correspondant au slug dans Supabase
+  // On scanne les prestataires et on compare les slugs (pas de champ slug en base)
   let matched = null;
   let matchedAvis = [];
   try {
-    const fields = ['Nom complet','Métier principal','Quartier','Description des services',
-                    'WhatsApp','Photo de profil','Numéro de téléphone'].map(f => `fields%5B%5D=${encodeURIComponent(f)}`).join('&');
-    let offset = '';
+    const PAGE = 1000; // Supabase plafonne à 1000 lignes par requête
+    let from = 0;
     do {
-      const url = `${AT_URL}/Prestataires?${fields}&pageSize=100${offset ? '&offset=' + offset : ''}`;
-      const r = await fetch(url, { headers: AT_HEADERS });
-      const data = await r.json();
-      for (const rec of (data.records || [])) {
-        const f = rec.fields;
-        const s = buildSlug(f['Nom complet'], f['Métier principal'], '');
+      const { data, error } = await supabase
+        .from('wozali_prestataires')
+        .select('id, nom_complet, metier_principal, quartier, description_services, whatsapp, photo_profil, numero_telephone')
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      const rows = data || [];
+      for (const rec of rows) {
+        const s = buildSlug(rec.nom_complet, rec.metier_principal, '');
         if (s === slug) { matched = rec; break; }
       }
       if (matched) break;
-      offset = data.offset || '';
-    } while (offset);
+      if (rows.length < PAGE) break;
+      from += PAGE;
+    } while (true);
 
-    // Fetch avis count + note
+    // Fetch avis count + note (avis validés uniquement)
     if (matched) {
-      const formula = encodeURIComponent(`{Prestataire ID}='${matched.id}'`);
-      const avisRes = await fetch(`${AT_URL}/Avis?filterByFormula=${formula}&fields%5B%5D=${encodeURIComponent('Note globale sur 5')}&pageSize=100`, { headers: AT_HEADERS });
-      const avisData = await avisRes.json();
-      matchedAvis = avisData.records || [];
+      const { data: avisData, error: avisError } = await supabase
+        .from('wozali_avis')
+        .select('note_globale')
+        .eq('prestataire_id', matched.id)
+        .eq('validated', true);
+      if (avisError) throw avisError;
+      matchedAvis = avisData || [];
     }
   } catch (e) {
-    console.error('profil-seo airtable:', e);
+    console.error('profil-seo supabase:', e);
   }
 
   if (!matched) {
@@ -69,16 +70,15 @@ export default async function handler(req, res) {
     return res.status(200).send(html);
   }
 
-  const f = matched.fields;
-  const nom = f['Nom complet'] || '';
-  const metier = f['Métier principal'] || '';
-  const ville = f['Quartier'] || '';
-  const quartier = f['Quartier'] || '';
-  const bio = f['Description des services'] || '';
-  const photo = f['WhatsApp'] || (f['Photo de profil'] && f['Photo de profil'][0]?.url) || '';
-  const tel = f['Numéro de téléphone'] || '';
+  const nom = matched.nom_complet || '';
+  const metier = matched.metier_principal || '';
+  const ville = matched.quartier || '';
+  const quartier = matched.quartier || '';
+  const bio = matched.description_services || '';
+  const photo = matched.whatsapp || matched.photo_profil || '';
+  const tel = matched.numero_telephone || '';
   const nbAvis = matchedAvis.length;
-  const note = nbAvis > 0 ? (matchedAvis.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0) / nbAvis) : 0;
+  const note = nbAvis > 0 ? (matchedAvis.reduce((s, r) => s + (r.note_globale || 0), 0) / nbAvis) : 0;
 
   const canonicalUrl = `https://wozali.com/profil/${slug}`;
   const pageTitle = `${escHtml(nom)} — ${escHtml(metier)} à ${escHtml(ville)} · WOZALI`;

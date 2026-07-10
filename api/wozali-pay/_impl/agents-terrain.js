@@ -7,9 +7,6 @@
 import { supabase } from '../../_lib/supabase.js';
 import { syncToAirtable, updateAirtable } from '../../_lib/airtable-sync.js';
 
-const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
-const AIRTABLE_KEY = process.env.AIRTABLE_API_KEY;
-
 async function verifyAdmin(token) {
   const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
   if (!ADMIN_EMAILS.length) return null;
@@ -18,17 +15,6 @@ async function verifyAdmin(token) {
   if (error || !user) return null;
   if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) return null;
   return user;
-}
-
-async function airtableGet(formula) {
-  if (!AIRTABLE_KEY) return [];
-  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent('Prestataires')}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=20`;
-  const res = await fetch(url, {
-    headers: { 'Authorization': `Bearer ${AIRTABLE_KEY}` }
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.records || [];
 }
 
 export default async function handler(req, res) {
@@ -82,28 +68,37 @@ export default async function handler(req, res) {
       const { q } = body;
       if (!q || q.length < 2) return res.status(200).json({ ok: true, results: [] });
 
-      // Recherche dans Airtable Prestataires par téléphone ou nom
-      const isPhone = /^\d/.test(q.trim());
-      let formula;
+      const term = q.trim();
+      const isPhone = /^\d/.test(term);
+
+      // Recherche dans Supabase wozali_prestataires par téléphone ou nom
+      let query = supabase
+        .from('wozali_prestataires')
+        .select('id, nom_complet, numero_telephone, whatsapp, metier_principal, quartier, photo_profil, abonnement, email, genre');
+
       if (isPhone) {
-        formula = `FIND("${q.trim()}", {Numéro de téléphone})`;
+        // Téléphone : chercher dans numero_telephone OU whatsapp
+        const esc = term.replace(/[%_,()]/g, '');
+        query = query.or(`numero_telephone.ilike.%${esc}%,whatsapp.ilike.%${esc}%`);
       } else {
-        formula = `FIND(LOWER("${q.trim().toLowerCase()}"), LOWER({Nom complet}))`;
+        // Nom : recherche insensible à la casse dans nom_complet
+        query = query.ilike('nom_complet', `%${term}%`);
       }
 
-      const records = await airtableGet(formula);
+      const { data: rows, error } = await query.limit(20);
+      if (error) throw error;
 
-      const results = records.map(r => ({
+      const results = (rows || []).map(r => ({
         airtable_id: r.id,
-        nom: r.fields['Nom complet'] || '',
-        telephone: r.fields['Numéro de téléphone'] || '',
-        metier: r.fields['Métier principal'] || '',
-        quartier: r.fields['Quartier'] || '',
-        photo: r.fields['Photo Profil'] || '',
-        abonnement: r.fields['Abonnement'] || 'Base',
-        code_parrainage: r.fields['Code Parrainage'] || '',
-        email: r.fields['Email'] || '',
-        genre: r.fields['Genre'] || ''
+        nom: r.nom_complet || '',
+        telephone: r.numero_telephone || r.whatsapp || '',
+        metier: r.metier_principal || '',
+        quartier: r.quartier || '',
+        photo: r.photo_profil || '',
+        abonnement: r.abonnement || 'Base',
+        code_parrainage: '',
+        email: r.email || '',
+        genre: r.genre || ''
       }));
 
       return res.status(200).json({ ok: true, results });
