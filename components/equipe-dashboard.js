@@ -92,13 +92,13 @@
 
   function employeCardHTML(emp){
     const f = emp.fields || {};
-    const nom = f['Nom complet'] || 'Sans nom';
-    const poste = f['Poste'] || '—';
-    const statut = f['Statut'] || 'En attente';
+    const nom = window.escapeHtml(f['Nom complet'] || 'Sans nom');
+    const poste = window.escapeHtml(f['Poste'] || '—');
+    const statut = window.escapeHtml(f['Statut'] || 'En attente');
     const photo = f['Photo'] || '';
     const salaire = f['Salaire FCFA'] || 0;
     return `<div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px;">
-      <div style="width:48px;height:48px;border-radius:50%;background:${photo ? 'url('+photo+') center/cover' : 'rgba(232,148,10,.15)'};flex-shrink:0;"></div>
+      <div style="width:48px;height:48px;border-radius:50%;background:${photo ? "url('"+encodeURI(photo)+"') center/cover" : 'rgba(232,148,10,.15)'};flex-shrink:0;"></div>
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:14px;">${nom}</div>
         <div style="font-size:12px;color:rgba(252, 224, 168,.55);">${poste}${salaire ? ' · ' + Number(salaire).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</div>
@@ -250,15 +250,15 @@
       <div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)document.getElementById('employe-detail-modal')?.remove()">
         <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:460px;width:100%;font-family:'Geist',sans-serif;color:#FCE0A8;">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-            <div style="width:56px;height:56px;border-radius:50%;background:${f['Photo'] ? 'url('+f['Photo']+') center/cover' : 'rgba(232,148,10,.15)'};flex-shrink:0;"></div>
+            <div style="width:56px;height:56px;border-radius:50%;background:${f['Photo'] ? "url('"+encodeURI(f['Photo'])+"') center/cover" : 'rgba(232,148,10,.15)'};flex-shrink:0;"></div>
             <div>
-              <h2 style="font-family:'Fraunces',serif;font-size:20px;margin:0;">${f['Nom complet'] || 'Employé'}</h2>
-              <p style="font-size:12px;color:rgba(252, 224, 168,.5);margin:2px 0 0;">${f['Poste'] || '—'}${f['Salaire FCFA'] ? ' · ' + Number(f['Salaire FCFA']).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</p>
+              <h2 style="font-family:'Fraunces',serif;font-size:20px;margin:0;">${window.escapeHtml(f['Nom complet'] || 'Employé')}</h2>
+              <p style="font-size:12px;color:rgba(252, 224, 168,.5);margin:2px 0 0;">${window.escapeHtml(f['Poste'] || '—')}${f['Salaire FCFA'] ? ' · ' + Number(f['Salaire FCFA']).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</p>
             </div>
           </div>
 
           <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">IBAN / RIB</label>
-          <input id="emp-iban" type="text" value="${f['IBAN'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:'Geist Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
+          <input id="emp-iban" type="text" value="${window.escapeHtml(f['IBAN'] || '')}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:'Geist Mono',monospace;letter-spacing:1px;" placeholder="BJ000 0000 0000 0000 0000">
 
           <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Salaire mensuel (FCFA)</label>
           <input id="emp-salaire" type="number" value="${f['Salaire FCFA'] || ''}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:20px;font-family:inherit;" placeholder="50000">

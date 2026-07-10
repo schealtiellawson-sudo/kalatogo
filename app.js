@@ -9136,8 +9136,27 @@ async function submitInscription(e) {
           createErr = 'supaPrest non chargé';
         }
       } catch (eSupa) {
-        createErr = eSupa?.message || eSupa?.error_description || JSON.stringify(eSupa);
-        console.error('[wozali] supaPrest.create failed:', eSupa);
+        // Race d'inscription : l'auto-create de loadCurrentPrestataire (SIGNED_IN) a pu
+        // créer la ligne juste avant nous → Postgres renvoie 23505 (UNIQUE user_id/email).
+        // Ce n'est PAS une erreur : on récupère la ligne et on la complète avec les
+        // données d'inscription, comme le chemin "profil existant" plus haut.
+        const _msg = eSupa?.message || eSupa?.error_description || '';
+        const _isDup = eSupa?.code === '23505' || /duplicate key/i.test(_msg);
+        if (_isDup && effectiveUser?.id && window.supaPrest) {
+          try {
+            const existing = await window.supaPrest.findByUserId(effectiveUser.id);
+            if (existing) {
+              try { record = await window.supaPrest.update(existing.id, fields); }
+              catch (eUp) { record = existing; }
+              createOk = true;
+              console.log('[wozali] create 23505 (race) : profil existant récupéré et complété.');
+            }
+          } catch (eRefetch) { /* refetch raté → bloc erreur ci-dessous */ }
+        }
+        if (!createOk) {
+          createErr = _msg || eSupa?.error_description || JSON.stringify(eSupa);
+          console.error('[wozali] supaPrest.create failed:', eSupa);
+        }
       }
     }
 

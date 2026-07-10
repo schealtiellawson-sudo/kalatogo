@@ -167,9 +167,12 @@
     if (!supa) throw new Error('Supabase client non chargé');
     const row = _toSupaRow(fields);
     if (!row.user_id && window.currentUser?.id) row.user_id = window.currentUser.id;
+    // upsert onConflict user_id : si une insert concurrente a déjà créé la ligne
+    // (auto-create SIGNED_IN vs submitInscription), on ne jette plus 23505 —
+    // on merge sur les colonnes fournies et on renvoie la ligne existante.
     const { data, error } = await supa
       .from('wozali_prestataires')
-      .insert(row)
+      .upsert(row, { onConflict: 'user_id', ignoreDuplicates: false })
       .select('*')
       .single();
     if (error) throw error;

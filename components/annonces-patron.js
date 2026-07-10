@@ -58,8 +58,8 @@
         return `<div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
             <div style="flex:1;">
-              <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${f['Titre'] || 'Annonce'}</div>
-              <div style="font-size:12px;color:rgba(252, 224, 168,.7);line-height:1.5;">${f['Message'] || ''}</div>
+              <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${window.escapeHtml(f['Titre'] || 'Annonce')}</div>
+              <div style="font-size:12px;color:rgba(252, 224, 168,.7);line-height:1.5;">${window.escapeHtml(f['Message'] || '')}</div>
             </div>
             <span style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace;white-space:nowrap;">${f['Date'] ? new Date(f['Date']).toLocaleDateString('fr-FR') : ''}</span>
           </div>

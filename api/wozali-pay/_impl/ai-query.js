@@ -7,13 +7,14 @@ import { PROVIDERS, availableProviders } from '../../_lib/ai-providers.js';
 import { anonymize, deanonymize } from '../../_lib/ai-anonymize.js';
 import { cacheGet, cacheSet, checkRateLimit, logUsage, hashKey } from '../../_lib/ai-cache.js';
 import { TASKS } from '../../_lib/ai-prompts.js';
+import { supabase } from '../../_lib/supabase.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { task, input, plan = 'gratuit' } = req.body || {};
+  const { task, input } = req.body || {};
   const userId = req.authenticatedUser?.user_id || null;
 
   if (!task || !TASKS[task]) {
@@ -25,7 +26,19 @@ export default async function handler(req, res) {
 
   const spec = TASKS[task];
 
-  // 1. Rate limit par plan
+  // 1. Déterminer le plan côté serveur depuis l'abonnement réel (jamais depuis le body).
+  //    Un free-tier qui envoyait {plan:'pro'} obtenait le quota Pro (50/j vs 10/j).
+  let plan = 'gratuit';
+  if (userId) {
+    const { data: prest } = await supabase
+      .from('wozali_prestataires')
+      .select('abonnement')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (String(prest?.abonnement || '').toLowerCase() === 'pro') plan = 'pro';
+  }
+
+  // 2. Rate limit par plan (plan résolu serveur)
   const rl = await checkRateLimit(userId, plan);
   if (!rl.ok) {
     return res.status(429).json({

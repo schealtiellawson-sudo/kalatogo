@@ -51,9 +51,9 @@
 
     const f = state.employe.fields || {};
     const nom = f['Nom complet'] || '—';
-    const poste = f['Poste'] || '—';
+    const poste = window.escapeHtml(f['Poste'] || '—');
     const salaire = parseInt(f['Salaire FCFA'])||0;
-    const patronNom = f['Patron Nom'] || 'Mon patron';
+    const patronNom = window.escapeHtml(f['Patron Nom'] || 'Mon patron');
 
     const totalPaye = state.paiements.reduce((s,p)=> s + (parseInt(p.fields?.['Montant FCFA'])||0), 0);
     const dernierMois = state.paiements[0]?.fields?.['Mois'] || '—';
@@ -107,10 +107,10 @@
         const f = a.fields || {};
         return `<div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px;">
           <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;">
-            <div style="font-weight:700;font-size:13px;">${f['Titre'] || 'Annonce'}</div>
+            <div style="font-weight:700;font-size:13px;">${window.escapeHtml(f['Titre'] || 'Annonce')}</div>
             <span style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace;white-space:nowrap;">${f['Date'] ? new Date(f['Date']).toLocaleDateString('fr-FR') : ''}</span>
           </div>
-          <div style="font-size:12px;color:rgba(252, 224, 168,.7);line-height:1.4;">${f['Message'] || ''}</div>
+          <div style="font-size:12px;color:rgba(252, 224, 168,.7);line-height:1.4;">${window.escapeHtml(f['Message'] || '')}</div>
         </div>`;
       }).join('')}
     </div>`;

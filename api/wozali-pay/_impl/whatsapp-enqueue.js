@@ -78,9 +78,17 @@ async function sendEmailResend(toEmail, subject, content) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
-  const { user_id, phone, sequence, payload = {} } = req.body || {};
-  if (!user_id || !sequence) {
-    return res.status(400).json({ error: 'user_id et sequence requis' });
+  const { phone, sequence, payload = {} } = req.body || {};
+  // SÉCURITÉ : l'utilisateur ne peut enqueue QUE pour lui-même. On ignore tout
+  // user_id du body (usurpable) et on force celui du JWT vérifié par le router.
+  // Sinon un attaquant authentifié injectait des messages/emails « fondateur »
+  // usurpés dans la boîte de n'importe quel utilisateur.
+  const user_id = req.authenticatedUser?.user_id;
+  if (!user_id) {
+    return res.status(401).json({ error: 'Authentification requise' });
+  }
+  if (!sequence) {
+    return res.status(400).json({ error: 'sequence requise' });
   }
   if (!ALLOWED_SEQUENCES.includes(sequence)) {
     return res.status(400).json({ error: 'sequence inconnue' });

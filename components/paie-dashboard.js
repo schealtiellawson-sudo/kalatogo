@@ -102,16 +102,16 @@
     const paye = !!paiement;
     return `<tr style="border-top:1px solid rgba(255,255,255,.04);">
       <td style="padding:10px;">
-        <div style="font-weight:600;">${nom}</div>
-        ${iban ? `<div style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace;margin-top:2px;">${iban}</div>` : `<div style="font-size:10px;color:#ef4444;margin-top:2px;">IBAN manquant</div>`}
+        <div style="font-weight:600;">${window.escapeHtml(nom)}</div>
+        ${iban ? `<div style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace;margin-top:2px;">${window.escapeHtml(iban)}</div>` : `<div style="font-size:10px;color:#ef4444;margin-top:2px;">IBAN manquant</div>`}
       </td>
-      <td style="padding:10px;color:rgba(252, 224, 168,.6);">${poste}</td>
+      <td style="padding:10px;color:rgba(252, 224, 168,.6);">${window.escapeHtml(poste)}</td>
       <td style="padding:10px;text-align:right;font-family:'Geist Mono',monospace;">${formatFCFA(salaire)}</td>
       <td style="padding:10px;text-align:center;">
         ${paye
           ? `<span style="background:rgba(34,197,94,.15);color:#22c55e;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;">Viré ✓</span>`
           : `<label style="display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
-              <input type="checkbox" onchange="marquerVirement('${emp.id}', ${salaire}, '${nom.replace(/'/g,"\\'")}')" style="accent-color:#E8940A;width:16px;height:16px;cursor:pointer;">
+              <input type="checkbox" onchange="marquerVirement('${emp.id}', ${salaire}, '${window.escapeHtml(nom).replace(/'/g,"\\'")}')" style="accent-color:#E8940A;width:16px;height:16px;cursor:pointer;">
               <span style="font-size:11px;color:rgba(252, 224, 168,.6);">Viré</span>
             </label>`
         }
