@@ -28,7 +28,9 @@
     var acces = sp.get('acces') || (hp && hp.get('acces')) || '';
 
     var unlocked = false;
-    try { unlocked = localStorage.getItem('wozali_access') === '1'; } catch(e){}
+    // Lien de profil public partage (/profil/nom-metier-ville) -> toujours accessible, verrou desactive
+    if (window.location.pathname.indexOf('/profil/') === 0) { unlocked = true; }
+    if (!unlocked) { try { unlocked = localStorage.getItem('wozali_access') === '1'; } catch(e){} }
     if (!unlocked) { try { unlocked = /(?:^|;\s*)wozali_access=1/.test(document.cookie); } catch(e){} }
     // Utilisateur deja connecte (token Supabase present) -> acces autorise
     if (!unlocked) { try { for (var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k && k.indexOf('-auth-token')>-1){ unlocked=true; break; } } } catch(e){} }
