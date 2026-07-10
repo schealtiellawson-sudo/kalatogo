@@ -9036,6 +9036,15 @@ async function submitInscription(e) {
     let createOk = false;
     let createErr = null;
 
+    // Attendre que supaPrest soit chargé (connexion lente) avant d'abandonner
+    if (!window.supaPrest) {
+      setStep('Finalisation…');
+      for (let _wp = 0; _wp < 16; _wp++) {
+        await new Promise(r => setTimeout(r, 500));
+        if (window.supaPrest) break;
+      }
+    }
+
     // Vérifier si un profil existe déjà pour ce user_id (cas retry)
     if (effectiveUser?.id && window.supaPrest) {
       try {
