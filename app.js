@@ -4848,12 +4848,20 @@ function initDmInterface() {
 async function _loadFondateurProfile() {
   if (window._fondateurProfileLoaded) return window._fondateurProfile;
   window._fondateurProfileLoaded = true;
+
+  // Cache local : affichage instantané (nom + photo) pendant que le réseau charge en arrière-plan
+  try {
+    const cached = JSON.parse(localStorage.getItem('wozali_fondateur_cache') || 'null');
+    if (cached) _applyFondateurProfileToUI(cached);
+  } catch(e) {}
+
   try {
     if (!window.supaPrest) return null;
     const r = await window.supaPrest.findByEmail('schealtiellawson@gmail.com');
     if (!r) return null;
     window._fondateurProfile = r;
     _applyFondateurProfileToUI(r);
+    try { localStorage.setItem('wozali_fondateur_cache', JSON.stringify(r)); } catch(e) {}
     return r;
   } catch(e) {
     console.warn('[fondateur profile]', e);
@@ -4870,15 +4878,10 @@ function _applyFondateurProfileToUI(profil) {
   const photoUrl = _wPhotoUrl(f['Photo de profil']);
   const recordId = profil.id;
 
-  // Lien profil public réel (le slug /schealtiel n'a jamais existé → 404)
-  const slug = _buildProfilSlug(nomAffiche, f['Métier principal'], f['Ville']);
-  const profileUrl = `https://wozali.africa/profil/${slug}`;
-
   window._fondateurNom = nomAffiche;
   window._fondateurInitial = initial;
   window._fondateurRecordId = recordId;
   window._fondateurPhotoUrl = photoUrl;
-  window._fondateurProfileUrl = profileUrl;
 
   const setAvatar = (el) => {
     if (!el) return;
@@ -4892,12 +4895,18 @@ function _applyFondateurProfileToUI(profil) {
     }
   };
 
-  // Corrige tous les liens vers le profil (l'ancien /schealtiel codé en dur était cassé)
+  // Navigation interne vers le profil (l'ancien lien externe /schealtiel n'a jamais existé → 404,
+  // et un slug reconstruit côté client peut ne pas correspondre à Airtable côté serveur).
+  // showProfil(id) est le même mécanisme déjà utilisé partout ailleurs dans l'app, fiable à 100%.
+  const goToProfil = `event.preventDefault();showProfil('${recordId}');showPage('profil');`;
   ['dm-wozali-avatar-link', 'dm-thread-profile-link', 'dm-profile-btn-link'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.href = profileUrl;
+    if (el) { el.removeAttribute('target'); el.setAttribute('onclick', goToProfil); }
   });
-  document.querySelectorAll('#dm-conv-wozali .dm-conv-name').forEach(el => el.href = profileUrl);
+  document.querySelectorAll('#dm-conv-wozali .dm-conv-name').forEach(el => {
+    el.removeAttribute('target');
+    el.setAttribute('onclick', goToProfil);
+  });
 
   // Liste conversations : avatar + nom + lien
   const convAvatar = document.querySelector('#dm-conv-wozali .dm-conv-avatar');
@@ -4980,7 +4989,7 @@ async function loadDmMessages(threadId) {
   const senderNom     = window._fondateurNom     || 'Schealtiel';
   const senderInitial = window._fondateurInitial || 'S';
   const senderPhoto   = window._fondateurPhotoUrl || '';
-  const senderProfilUrl = window._fondateurProfileUrl || 'https://wozali.africa/schealtiel';
+  const senderRecordId = window._fondateurRecordId || '';
 
   // Welcome sequence from Notifications JSON
   const welcomeMsgs = _getFondateurMessages();
@@ -5023,7 +5032,7 @@ async function loadDmMessages(threadId) {
   let html = '<div class="dm-date-sep"><div class="dm-date-sep-line"></div><span class="dm-date-sep-label">MESSAGES</span><div class="dm-date-sep-line"></div></div>';
 
   if (displayItems.length === 0) {
-    html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', null, senderPhoto, senderProfilUrl);
+    html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', null, senderPhoto, senderRecordId);
   } else {
     displayItems.forEach((item, i) => {
       const dateStr = item.at.getTime() > 0
@@ -5036,12 +5045,12 @@ async function loadDmMessages(threadId) {
         const status   = isUnread ? 'unread' : (item.read ? 'seen' : null);
         const title    = item.title ? `<strong>${item.title.replace(/</g,'&lt;')}</strong>\n` : '';
         const body     = (item.body || '').replace(/</g,'&lt;');
-        html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, status, senderPhoto, senderProfilUrl);
+        html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, status, senderPhoto, senderRecordId);
         if (isUnread) markFondateurMessageRead(item.id);
       } else if (item.kind === 'user_sent') {
         html += _dmBubbleOut(item.body, dateStr);
       } else if (item.kind === 'fondateur_reply') {
-        html += _dmBubbleIn(senderNom, senderInitial, item.body.replace(/</g,'&lt;'), dateStr, null, senderPhoto, senderProfilUrl);
+        html += _dmBubbleIn(senderNom, senderInitial, item.body.replace(/</g,'&lt;'), dateStr, null, senderPhoto, senderRecordId);
       } else if (item.kind === 'pending') {
         html += `<div style="text-align:center;padding:8px 0 4px;font-style:italic;font-size:11px;color:rgba(252,224,168,0.3);font-family:'Geist',sans-serif;">Message envoyé, en attente de réponse...</div>`;
       }
@@ -5068,7 +5077,7 @@ async function loadDmMessages(threadId) {
   }
 }
 
-function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, status, photoUrl, profileUrl) {
+function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, status, photoUrl, recordId) {
   // status : 'unread' (non lu) | 'seen' (vu) | null (pas de statut à afficher)
   const isUnread = status === 'unread';
   let statusTag = '';
@@ -5077,12 +5086,13 @@ function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, status, photoUrl, p
   } else if (status === 'seen') {
     statusTag = '<div class="dm-seen-label"><span class="dm-seen-check">✓</span><span class="dm-seen-text">Vu</span></div>';
   }
-  // Avatar : photo réelle si dispo (cliquable vers le profil), sinon initiale en repli
+  // Avatar : photo réelle si dispo, sinon initiale en repli. Cliquable vers le profil
+  // via navigation interne (showProfil par ID), pas un lien externe reconstruit qui peut 404.
   const avatarInner = photoUrl
     ? `<img src="${photoUrl}" alt="${senderName}" onerror="this.parentNode.textContent='${initial}';this.parentNode.classList.add('fallback');" />`
     : initial;
-  const avatarHtml = profileUrl
-    ? `<a class="dm-msg-avatar-sm${photoUrl ? '' : ' fallback'}" href="${profileUrl}" target="_blank" title="Voir le profil">${avatarInner}</a>`
+  const avatarHtml = recordId
+    ? `<a class="dm-msg-avatar-sm${photoUrl ? '' : ' fallback'}" href="#" onclick="event.preventDefault();showProfil('${recordId}');showPage('profil');" title="Voir le profil">${avatarInner}</a>`
     : `<div class="dm-msg-avatar-sm${photoUrl ? '' : ' fallback'}">${avatarInner}</div>`;
   return `<div class="dm-msg-in">
     ${avatarHtml}
