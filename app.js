@@ -8046,14 +8046,14 @@ async function showProfil(recordId) {
         </div>
         <div class="sidebar-card">
           <h4>Informations</h4>
-          <div style="font-size:14px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
+          <div style="font-size:15px;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;gap:12px;">
             ${quartier ? `<div style="display:flex;align-items:center;gap:8px;">📍 <span><strong style="color:white;">Zone</strong> · ${quartier}</span></div>` : ''}
             ${(gpsLat && gpsLon) ? `
             <div style="border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
               <div id="profil-minimap-${recordId}" style="height:130px;background:linear-gradient(135deg,#151d28,#1a2820);display:flex;align-items:center;justify-content:center;"><div style="opacity:0.3;font-size:20px;">🗺️</div></div>
-              <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:13px;font-weight:800;text-decoration:none;">🗺️ Voir l'itinéraire</a>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=${gpsLat},${gpsLon}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;background:linear-gradient(135deg,#1a73e8,#1557b0);color:white;font-size:14px;font-weight:800;text-decoration:none;">🗺️ Voir l'itinéraire</a>
             </div>` : quartier ? `
-            <div><a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:13px;font-weight:700;text-decoration:none;">🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →</a></div>` : ''}
+            <div><a href="https://www.google.com/maps/search/${encodeURIComponent(quartierRaw + ' ' + metierRaw + ' Lomé Togo')}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(26,115,232,0.15);border:1px solid rgba(26,115,232,0.4);color:#60a5fa;font-size:14px;font-weight:700;text-decoration:none;">🗺️ Trouver ${nom.split(' ')[0]} dans ce quartier →</a></div>` : ''}
             ${metier ? `<div style="display:flex;align-items:center;gap:8px;">${emoji} <span><strong style="color:white;">Métier</strong> · ${metier}</span></div>` : ''}
             ${experience ? `<div style="display:flex;align-items:center;gap:8px;">🏆 <span><strong style="color:white;">Expérience</strong> · ${experience} ans</span></div>` : ''}
             <div style="display:flex;align-items:center;gap:8px;">${dispo ? '<span style="color:#E8940A;">⭐</span>' : '⚪'} <span><strong style="color:white;">Statut</strong> · ${dispo ? '<span style="color:#E8940A;">Disponible maintenant</span>' : 'Occupé pour l\'instant'}</span></div>
