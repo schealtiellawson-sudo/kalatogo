@@ -4870,11 +4870,15 @@ function _applyFondateurProfileToUI(profil) {
   const photoUrl = _wPhotoUrl(f['Photo de profil']);
   const recordId = profil.id;
 
+  // Lien profil public réel (le slug /schealtiel n'a jamais existé → 404)
+  const slug = _buildProfilSlug(nomAffiche, f['Métier principal'], f['Ville']);
+  const profileUrl = `https://wozali.africa/profil/${slug}`;
+
   window._fondateurNom = nomAffiche;
   window._fondateurInitial = initial;
   window._fondateurRecordId = recordId;
   window._fondateurPhotoUrl = photoUrl;
-  window._fondateurProfileUrl = 'https://wozali.africa/schealtiel';
+  window._fondateurProfileUrl = profileUrl;
 
   const setAvatar = (el) => {
     if (!el) return;
@@ -4887,6 +4891,13 @@ function _applyFondateurProfileToUI(profil) {
       el.textContent = initial;
     }
   };
+
+  // Corrige tous les liens vers le profil (l'ancien /schealtiel codé en dur était cassé)
+  ['dm-wozali-avatar-link', 'dm-thread-profile-link', 'dm-profile-btn-link'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.href = profileUrl;
+  });
+  document.querySelectorAll('#dm-conv-wozali .dm-conv-name').forEach(el => el.href = profileUrl);
 
   // Liste conversations : avatar + nom + lien
   const convAvatar = document.querySelector('#dm-conv-wozali .dm-conv-avatar');
