@@ -7045,11 +7045,13 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 .dm-msg-in { display:flex; gap:9px; align-items:flex-end; }
 .dm-msg-avatar-sm {
   width:28px; height:28px; border-radius:50%;
-  background:linear-gradient(135deg,#E8940A,#b86a00);
   display:flex; align-items:center; justify-content:center;
   font-family:'DM Serif Display',serif; font-style:italic; font-size:12px;
   font-weight:900; color:#0A0A0A; flex-shrink:0;
+  overflow:hidden; text-decoration:none; cursor:pointer;
 }
+.dm-msg-avatar-sm img { width:100%; height:100%; object-fit:cover; display:block; }
+.dm-msg-avatar-sm.fallback { background:linear-gradient(135deg,#E8940A,#b86a00); }
 .dm-msg-in-body { max-width:75%; }
 .dm-msg-time { font-size:10px; color:rgba(255,255,255,.26); margin-bottom:4px; font-family:'Geist',sans-serif; }
 .dm-bubble-in {

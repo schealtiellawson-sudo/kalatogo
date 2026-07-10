@@ -4873,6 +4873,8 @@ function _applyFondateurProfileToUI(profil) {
   window._fondateurNom = nomAffiche;
   window._fondateurInitial = initial;
   window._fondateurRecordId = recordId;
+  window._fondateurPhotoUrl = photoUrl;
+  window._fondateurProfileUrl = 'https://wozali.africa/schealtiel';
 
   const setAvatar = (el) => {
     if (!el) return;
@@ -4966,6 +4968,8 @@ async function loadDmMessages(threadId) {
 
   const senderNom     = window._fondateurNom     || 'Schealtiel';
   const senderInitial = window._fondateurInitial || 'S';
+  const senderPhoto   = window._fondateurPhotoUrl || '';
+  const senderProfilUrl = window._fondateurProfileUrl || 'https://wozali.africa/schealtiel';
 
   // Welcome sequence from Notifications JSON
   const welcomeMsgs = _getFondateurMessages();
@@ -5008,7 +5012,7 @@ async function loadDmMessages(threadId) {
   let html = '<div class="dm-date-sep"><div class="dm-date-sep-line"></div><span class="dm-date-sep-label">MESSAGES</span><div class="dm-date-sep-line"></div></div>';
 
   if (displayItems.length === 0) {
-    html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', null);
+    html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', null, senderPhoto, senderProfilUrl);
   } else {
     displayItems.forEach((item, i) => {
       const dateStr = item.at.getTime() > 0
@@ -5021,12 +5025,12 @@ async function loadDmMessages(threadId) {
         const status   = isUnread ? 'unread' : (item.read ? 'seen' : null);
         const title    = item.title ? `<strong>${item.title.replace(/</g,'&lt;')}</strong>\n` : '';
         const body     = (item.body || '').replace(/</g,'&lt;');
-        html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, status);
+        html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, status, senderPhoto, senderProfilUrl);
         if (isUnread) markFondateurMessageRead(item.id);
       } else if (item.kind === 'user_sent') {
         html += _dmBubbleOut(item.body, dateStr);
       } else if (item.kind === 'fondateur_reply') {
-        html += _dmBubbleIn(senderNom, senderInitial, item.body.replace(/</g,'&lt;'), dateStr, null);
+        html += _dmBubbleIn(senderNom, senderInitial, item.body.replace(/</g,'&lt;'), dateStr, null, senderPhoto, senderProfilUrl);
       } else if (item.kind === 'pending') {
         html += `<div style="text-align:center;padding:8px 0 4px;font-style:italic;font-size:11px;color:rgba(252,224,168,0.3);font-family:'Geist',sans-serif;">Message envoyé, en attente de réponse...</div>`;
       }
@@ -5053,7 +5057,7 @@ async function loadDmMessages(threadId) {
   }
 }
 
-function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, status) {
+function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, status, photoUrl, profileUrl) {
   // status : 'unread' (non lu) | 'seen' (vu) | null (pas de statut à afficher)
   const isUnread = status === 'unread';
   let statusTag = '';
@@ -5062,8 +5066,15 @@ function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, status) {
   } else if (status === 'seen') {
     statusTag = '<div class="dm-seen-label"><span class="dm-seen-check">✓</span><span class="dm-seen-text">Vu</span></div>';
   }
+  // Avatar : photo réelle si dispo (cliquable vers le profil), sinon initiale en repli
+  const avatarInner = photoUrl
+    ? `<img src="${photoUrl}" alt="${senderName}" onerror="this.parentNode.textContent='${initial}';this.parentNode.classList.add('fallback');" />`
+    : initial;
+  const avatarHtml = profileUrl
+    ? `<a class="dm-msg-avatar-sm${photoUrl ? '' : ' fallback'}" href="${profileUrl}" target="_blank" title="Voir le profil">${avatarInner}</a>`
+    : `<div class="dm-msg-avatar-sm${photoUrl ? '' : ' fallback'}">${avatarInner}</div>`;
   return `<div class="dm-msg-in">
-    <div class="dm-msg-avatar-sm">${initial}</div>
+    ${avatarHtml}
     <div class="dm-msg-in-body">
       ${timeStr ? `<div class="dm-msg-time">${senderName} · ${timeStr}</div>` : ''}
       <div class="dm-bubble-in${isUnread ? ' unread' : ''}" style="white-space:pre-line;">${bodyHtml}</div>
