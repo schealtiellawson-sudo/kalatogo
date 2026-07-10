@@ -61,6 +61,7 @@ async function initAuth() {
     await loadCurrentPrestataire();
     updateNavAuth(true);
     showBottomNav();
+    try { updateNotifBadge(currentPrestataire?.id); } catch (e) {}
     try { _maybeAutoPromptPush(); } catch (e) {}
   }
   // Restaurer la page APRÈS avoir chargé la session (currentUser est déjà défini)
@@ -90,6 +91,7 @@ async function initAuth() {
       }
       updateNavAuth(true);
       showBottomNav();
+      try { updateNotifBadge(currentPrestataire?.id); } catch (e) {}
       // Détecter si c'est une confirmation d'email (lien cliqué depuis la boîte mail)
       const hash = window.location.hash;
       if (hash.includes('type=signup') || hash.includes('type=email_change')) {
@@ -4627,6 +4629,16 @@ function updateNotifBadge(recordId) {
       badge.style.display = 'inline-block';
     } else {
       badge.style.display = 'none';
+    }
+  }
+  // Même badge sur l'onglet Messages de la barre de navigation mobile
+  const bntBadge = document.getElementById('bnt-messages-badge');
+  if (bntBadge) {
+    if (unread > 0) {
+      bntBadge.textContent = unread > 99 ? '99+' : String(unread);
+      bntBadge.style.display = 'flex';
+    } else {
+      bntBadge.style.display = 'none';
     }
   }
 }
