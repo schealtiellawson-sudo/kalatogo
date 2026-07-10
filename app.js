@@ -4864,13 +4864,13 @@ async function _loadFondateurProfile() {
 function _applyFondateurProfileToUI(profil) {
   if (!profil) return;
   const f = profil.fields || {};
-  const nomComplet = f['Nom'] || f['Prénom'] || 'Schealtiel';
-  const prenom = nomComplet.split(' ')[0] || 'Schealtiel';
-  const initial = prenom.charAt(0).toUpperCase();
+  // Nom affiché : toujours le nom public choisi (Nom complet), jamais le nom de famille privé
+  const nomAffiche = f['Nom complet'] || f['Prénom'] || 'Schealtiel';
+  const initial = nomAffiche.charAt(0).toUpperCase();
   const photoUrl = _wPhotoUrl(f['Photo de profil']);
   const recordId = profil.id;
 
-  window._fondateurNom = prenom;
+  window._fondateurNom = nomAffiche;
   window._fondateurInitial = initial;
   window._fondateurRecordId = recordId;
 
@@ -4889,12 +4889,12 @@ function _applyFondateurProfileToUI(profil) {
   // Liste conversations : avatar + nom + lien
   const convAvatar = document.querySelector('#dm-conv-wozali .dm-conv-avatar');
   setAvatar(convAvatar);
-  document.querySelectorAll('#dm-conv-wozali .dm-conv-name').forEach(el => el.textContent = prenom);
+  document.querySelectorAll('#dm-conv-wozali .dm-conv-name').forEach(el => el.textContent = nomAffiche);
 
   // Thread header : avatar + nom + liens
   setAvatar(document.getElementById('dm-thread-avatar'));
   const threadName = document.getElementById('dm-thread-name');
-  if (threadName) threadName.textContent = prenom;
+  if (threadName) threadName.textContent = nomAffiche;
 
   // Mettre à jour les messages déjà affichés pour refléter le vrai nom
   if (document.getElementById('dm-messages-list')?.children.length > 1) {
@@ -5008,7 +5008,7 @@ async function loadDmMessages(threadId) {
   let html = '<div class="dm-date-sep"><div class="dm-date-sep-line"></div><span class="dm-date-sep-label">MESSAGES</span><div class="dm-date-sep-line"></div></div>';
 
   if (displayItems.length === 0) {
-    html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', false);
+    html += _dmBubbleIn(senderNom, senderInitial, 'Bienvenue sur WOZALI ! 👋\n\nTon profil est maintenant en ligne. Écris-moi si tu as des questions.', '', null);
   } else {
     displayItems.forEach((item, i) => {
       const dateStr = item.at.getTime() > 0
@@ -5017,14 +5017,16 @@ async function loadDmMessages(threadId) {
       if (item.kind === 'welcome') {
         const isLast   = i === displayItems.length - 1;
         const isUnread = !item.read && isLast;
+        // Statut affiché : "Non lu" tant que pas ouvert, "Vu" une fois lu (au lieu de disparaître)
+        const status   = isUnread ? 'unread' : (item.read ? 'seen' : null);
         const title    = item.title ? `<strong>${item.title.replace(/</g,'&lt;')}</strong>\n` : '';
         const body     = (item.body || '').replace(/</g,'&lt;');
-        html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, isUnread);
+        html += _dmBubbleIn(senderNom, senderInitial, title + body, dateStr, status);
         if (isUnread) markFondateurMessageRead(item.id);
       } else if (item.kind === 'user_sent') {
         html += _dmBubbleOut(item.body, dateStr);
       } else if (item.kind === 'fondateur_reply') {
-        html += _dmBubbleIn(senderNom, senderInitial, item.body.replace(/</g,'&lt;'), dateStr, false);
+        html += _dmBubbleIn(senderNom, senderInitial, item.body.replace(/</g,'&lt;'), dateStr, null);
       } else if (item.kind === 'pending') {
         html += `<div style="text-align:center;padding:8px 0 4px;font-style:italic;font-size:11px;color:rgba(252,224,168,0.3);font-family:'Geist',sans-serif;">Message envoyé, en attente de réponse...</div>`;
       }
@@ -5038,6 +5040,7 @@ async function loadDmMessages(threadId) {
   const unread = welcomeMsgs.filter(m => !m.read).length;
   const badge  = document.getElementById('dm-wozali-badge');
   if (badge) { badge.style.display = unread > 0 ? 'flex' : 'none'; badge.textContent = String(unread); }
+  document.getElementById('dm-conv-wozali')?.classList.toggle('unread', unread > 0);
   if (displayItems.length > 0) {
     const last = displayItems[displayItems.length - 1];
     const previewText = last.body || last.title || (last.kind === 'pending' ? 'En attente de réponse...' : '');
@@ -5050,13 +5053,21 @@ async function loadDmMessages(threadId) {
   }
 }
 
-function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, isUnread) {
+function _dmBubbleIn(senderName, initial, bodyHtml, timeStr, status) {
+  // status : 'unread' (non lu) | 'seen' (vu) | null (pas de statut à afficher)
+  const isUnread = status === 'unread';
+  let statusTag = '';
+  if (status === 'unread') {
+    statusTag = '<div class="dm-unread-label"><div class="dm-unread-dot"></div><span class="dm-unread-text">Non lu</span></div>';
+  } else if (status === 'seen') {
+    statusTag = '<div class="dm-seen-label"><span class="dm-seen-check">✓</span><span class="dm-seen-text">Vu</span></div>';
+  }
   return `<div class="dm-msg-in">
     <div class="dm-msg-avatar-sm">${initial}</div>
     <div class="dm-msg-in-body">
       ${timeStr ? `<div class="dm-msg-time">${senderName} · ${timeStr}</div>` : ''}
       <div class="dm-bubble-in${isUnread ? ' unread' : ''}" style="white-space:pre-line;">${bodyHtml}</div>
-      ${isUnread ? '<div class="dm-unread-label"><div class="dm-unread-dot"></div><span class="dm-unread-text">Non lu</span></div>' : ''}
+      ${statusTag}
     </div>
   </div>`;
 }

@@ -6958,6 +6958,9 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 .dm-conv-time { font-size:10px; color:rgba(255,255,255,.3); font-family:'Geist Mono',monospace; white-space:nowrap; }
 .dm-conv-preview-row { display:flex; justify-content:space-between; align-items:center; gap:6px; }
 .dm-conv-preview { font-size:12px; color:rgba(255,255,255,.45); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px; }
+/* Conversation avec message(s) non lu(s) : texte plus lumineux, façon WhatsApp */
+.dm-conv-item.unread .dm-conv-preview { color:#FCE0A8; font-weight:600; }
+.dm-conv-item.unread .dm-conv-name { color:#E8940A; }
 .dm-unread-badge {
   background:#E8940A; min-width:18px; height:18px; border-radius:9px;
   font-size:10px; font-weight:800; color:#0A0A0A;
@@ -7058,6 +7061,10 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 .dm-unread-label { display:flex; align-items:center; gap:5px; margin-top:4px; }
 .dm-unread-dot { width:7px; height:7px; border-radius:50%; background:#E8940A; flex-shrink:0; }
 .dm-unread-text { font-size:10px; color:#E8940A; font-weight:600; font-family:'Geist',sans-serif; }
+/* Statut "Vu" — reste affiché une fois le message lu, au lieu de disparaître */
+.dm-seen-label { display:flex; align-items:center; gap:4px; margin-top:4px; }
+.dm-seen-check { font-size:10px; color:rgba(252,224,168,.35); line-height:1; }
+.dm-seen-text { font-size:10px; color:rgba(252,224,168,.35); font-weight:500; font-family:'Geist',sans-serif; }
 
 /* Bubble sortant (utilisateur) */
 .dm-msg-out { display:flex; justify-content:flex-end; gap:9px; align-items:flex-end; }
