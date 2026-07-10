@@ -7,8 +7,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { user_id, code } = body;
-    if (!user_id || !code) return res.status(400).json({ error: 'user_id et code requis' });
+    const { code } = body;
+    // Filleul dérivé du token vérifié, jamais du body (empêche de lier un tiers à un code)
+    const user_id = req.authenticatedUser?.user_id;
+    if (!user_id || !code) return res.status(400).json({ error: 'code requis' });
 
     const codeNorm = String(code).trim().toUpperCase();
 

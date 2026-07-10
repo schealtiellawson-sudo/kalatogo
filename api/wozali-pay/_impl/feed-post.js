@@ -17,8 +17,9 @@ import { supabase } from '../../_lib/supabase.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
+  // Identité dérivée du token vérifié, jamais du body (anti-usurpation d'auteur)
+  const user_id = req.authenticatedUser?.user_id;
   const {
-    user_id,
     photo_url,
     photos_url,                   // tableau jusqu'à 3 photos
     description = '',
@@ -33,7 +34,7 @@ export default async function handler(req, res) {
   } = req.body || {};
 
   if (!user_id || !photo_url || !categorie) {
-    return res.status(400).json({ error: 'user_id, photo_url, categorie requis' });
+    return res.status(400).json({ error: 'photo_url, categorie requis' });
   }
   if (!['coiffure','couture','libre'].includes(categorie)) {
     return res.status(400).json({ error: 'categorie invalide' });

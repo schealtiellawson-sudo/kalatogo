@@ -105,7 +105,7 @@ import employeUpdate from './_impl/employe-update.js';
 
 const PUBLIC_ACTIONS = new Set([
   'awards-candidats',
-  'awards-vote',
+  // 'awards-vote' retiré 2026-07-10 : doit être authentifié (le votant vient du token, anti-fraude)
   'recompenses-status',
   'admin-verify',
   'agents-terrain',

@@ -1006,7 +1006,7 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 
 **Activations (user actions)**
 - **WhatsApp Cloud OU Twilio en prod** : ajouter `WHATSAPP_CLOUD_TOKEN` + `WHATSAPP_PHONE_ID` (Meta) OU `TWILIO_SID/TOKEN/FROM` dans Vercel env. Sans ça, mode log (status=sent, provider=log) — utile pour test sans coût.
-- **Régénérer credentials exposés** : Gemini API Key (`AIzaSyCKdPlSftDOltyj4Ef_qDdhXCQaDTDrum8`) + Supabase PAT actif (`sbp_6a944ed0c1157acd6a56186ea6f5a02a9b5eb02a`). Régénère les deux après stabilisation.
+- **Régénérer credentials exposés** : Gemini API Key + Supabase PAT (valeurs retirées de ce fichier le 2026-07-10 pour raison de sécurité — voir section audit). À RÉGÉNÉRER côté Google AI Studio + Supabase.
 
 **Décisions stratégiques à trancher (issues du rapport Beauté/Couture)**
 1. Verticale phare lancement = combo "Reines + Bâtisseurs" (Coiffure/Couture + Construction) ou Beauté seul ?
@@ -1033,10 +1033,10 @@ Un bouton `⤓ Export CSV` vert a été ajouté dans la barre actions à côté 
 - Frères/maris dans le copy (cible diaspora qui finance la nièce/cousine apprentie)
 - À intégrer lors du prochain sprint marketing/social (séquence virale 30 jours)
 
-### Crédits API exposés en chat (à RÉGÉNÉRER après commit)
-- Supabase Personal Access Token : `sbp_62da29bde3edb1fa6465b20b43afe597eeca3166`
-- Gemini API Key : `AIzaSyCKdPlSftDOltyj4Ef_qDdhXCQaDTDrum8` (utilisée dans Vercel env GEMINI_API_KEY)
-- → User doit régénérer ces deux après validation des changements.
+### Crédits API exposés (valeurs RETIRÉES le 2026-07-10 — À RÉGÉNÉRER)
+- Supabase Personal Access Token : [valeur retirée pour sécurité — régénérer sur supabase.com/dashboard/account/tokens]
+- Gemini API Key : [valeur retirée pour sécurité — régénérer sur aistudio.google.com, utilisée dans Vercel env GEMINI_API_KEY]
+- → Ces deux clés étaient committées en clair dans ce fichier public. Les RÉVOQUER et régénérer immédiatement, puis mettre à jour Vercel env.
 
 ### Décisions stratégiques validées (à NE PAS revenir dessus)
 - King & Queen tué (redondance avec MdR)

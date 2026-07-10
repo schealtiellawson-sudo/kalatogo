@@ -9,9 +9,11 @@ import { supabase } from '../../_lib/supabase.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
-  const { votant_id, candidat_id } = req.body || {};
+  // Votant dérivé du token vérifié, jamais du body (anti-fraude : 1 vote/mois réel)
+  const votant_id = req.authenticatedUser?.user_id;
+  const { candidat_id } = req.body || {};
   if (!votant_id || !candidat_id) {
-    return res.status(400).json({ error: 'votant_id et candidat_id requis' });
+    return res.status(400).json({ error: 'candidat_id requis' });
   }
 
   try {

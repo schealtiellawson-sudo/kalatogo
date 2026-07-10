@@ -126,7 +126,7 @@ export default async function handler(req, res) {
   <meta property="og:image" content="${escHtml(photo)}">
   <meta property="og:url" content="${canonicalUrl}">
   <link rel="canonical" href="${canonicalUrl}">
-  <script type="application/ld+json">${JSON.stringify(schema)}</script>
+  <script type="application/ld+json">${JSON.stringify(schema).replace(/</g,'\\u003c').replace(/>/g,'\\u003e')}</script>
   <meta name="wozali-profil-id" content="${matched.id}">`;
 
   // Remplacer le <title> existant et injecter après </title>

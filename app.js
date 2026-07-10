@@ -125,18 +125,23 @@ async function initAuth() {
 function updateNavAuth(connected) {
   const guest = document.getElementById('nav-guest');
   const user = document.getElementById('nav-user');
+  // Garde-fou : appelé depuis le callback auth Supabase (onAuthStateChange, visibilitychange),
+  // parfois avant que la nav soit dans le DOM. Sans ça, un throw ici avortait toute la suite
+  // du callback (showBottomNav, updateNotifBadge…).
   if (connected && currentUser) {
-    guest.style.display = 'none';
-    user.style.display = 'flex';
+    if (guest) guest.style.display = 'none';
+    if (user) user.style.display = 'flex';
     const nom = currentPrestataire?.fields?.['Nom complet'] || currentUser.email?.split('@')[0] || 'Moi';
-    document.getElementById('nav-username').textContent = nom.split(' ')[0];
-    document.getElementById('nav-avatar').textContent = nom.charAt(0).toUpperCase();
+    const unameEl = document.getElementById('nav-username');
+    if (unameEl) unameEl.textContent = nom.split(' ')[0];
+    const avatarEl = document.getElementById('nav-avatar');
+    if (avatarEl) avatarEl.textContent = nom.charAt(0).toUpperCase();
     // Afficher "Mon Fil" dans la nav mobile
     const mobileFil = document.getElementById('mobile-fil-btn');
     if (mobileFil) mobileFil.style.display = 'block';
   } else {
-    guest.style.display = 'flex';
-    user.style.display = 'none';
+    if (guest) guest.style.display = 'flex';
+    if (user) user.style.display = 'none';
     const mobileFil = document.getElementById('mobile-fil-btn');
     if (mobileFil) mobileFil.style.display = 'none';
   }
@@ -2622,6 +2627,10 @@ async function wozaliFetch(url, opts = {}) {
   }
   return fetch(url, { ...opts, headers });
 }
+// Exposé globalement : les composants (mur-des-reines, king-queen…) font
+// `window.wozaliFetch || fetch`. Sans cette ligne, ils retombaient sur fetch
+// SANS le JWT — appels API non authentifiés. Root cause corrigé 2026-07-10.
+window.wozaliFetch = wozaliFetch;
 
 // ══════════════════════════════════════════
 // NOTIFICATIONS PUSH WEB (PWA / VAPID)
@@ -6953,18 +6962,18 @@ async function openPhotoWithComments(prestatireId, slot, photoUrl, nom) {
               <div style="display:flex;gap:10px;margin-bottom:16px;">
                 ${c.auteurId
                   ? `<div onclick="showProfil('${c.auteurId}');showPage('profil');document.getElementById('photo-comments-overlay').remove();" style="cursor:pointer;flex-shrink:0;">
-                      ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${(c.auteur||'?').charAt(0)}</div>`}
+                      ${c.auteurPhoto ? `<img src="${encodeURI(c.auteurPhoto)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:36px;height:36px;border-radius:50%;background:var(--vert);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${escapeHtml((c.auteur||'?').charAt(0))}</div>`}
                      </div>`
-                  : `<div style="width:36px;height:36px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;flex-shrink:0;">${(c.auteur||'?').charAt(0)}</div>`}
+                  : `<div style="width:36px;height:36px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;flex-shrink:0;">${escapeHtml((c.auteur||'?').charAt(0))}</div>`}
                 <div style="flex:1;">
                   <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                     <span style="font-weight:700;color:white;font-size:13px;${c.auteurId ? 'cursor:pointer;' : ''}"
                       ${c.auteurId ? `onclick="showProfil('${c.auteurId}');showPage('profil');document.getElementById('photo-comments-overlay').remove();"` : ''}>
-                      ${c.auteur || 'Utilisateur'}
+                      ${escapeHtml(c.auteur || 'Utilisateur')}
                     </span>
                     <span style="font-size:11px;color:rgba(255,255,255,0.4);">${cDate}</span>
                   </div>
-                  <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:0;line-height:1.5;">${c.texte}</p>
+                  <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:0;line-height:1.5;">${escapeHtml(c.texte).replace(/\n/g,'<br>')}</p>
                 </div>
               </div>`;
           }).join('')}
@@ -7657,8 +7666,10 @@ async function showProfil(recordId) {
     const instagram = f['Lien Instagram'] || '';
     const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
     // URLs pour href (encodage URI pour éviter d'introduire JS)
-    const tiktokSafe = encodeURI(tiktok);
-    const instagramSafe = encodeURI(instagram);
+    // N'autoriser que http(s) : bloque javascript:, data:, etc. (lien fourni par le prestataire)
+    const _safeUrl = (u) => /^https?:\/\//i.test(u) ? encodeURI(u) : '#';
+    const tiktokSafe = _safeUrl(tiktok);
+    const instagramSafe = _safeUrl(instagram);
     const photoProfilSafe = encodeURI(photoProfil);
     const emoji = METIER_EMOJI[metierRaw] || '⚡';
     const isDigital = isDigitalMetier(metierRaw);
@@ -8358,8 +8369,8 @@ function renderAvis(record) {
   const { nom, auteurId, photo, comment } = parseAvisCommentaire(rawComment);
 
   const avatarHtml = photo
-    ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
-    : `<span style="font-weight:800;color:white;font-size:14px;">${nom.charAt(0).toUpperCase()}</span>`;
+    ? `<img src="${encodeURI(photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" loading="lazy">`
+    : `<span style="font-weight:800;color:white;font-size:14px;">${escapeHtml(nom.charAt(0).toUpperCase())}</span>`;
 
   const authorOnclick = auteurId ? `onclick="closeModal();showProfil('${auteurId}')"` : '';
   const authorStyle = auteurId ? 'color:var(--vert);font-weight:700;text-decoration:underline;text-underline-offset:2px;' : 'font-weight:700;';
@@ -8370,13 +8381,13 @@ function renderAvis(record) {
         <div ${authorOnclick} style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;${auteurId ? 'cursor:pointer;' : ''}">${avatarHtml}</div>
         <div style="flex:1;">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
-            <span class="avis-author" ${authorOnclick} style="${authorStyle}">${nom}${auteurId ? ' ↗' : ''}</span>
+            <span class="avis-author" ${authorOnclick} style="${authorStyle}">${escapeHtml(nom)}${auteurId ? ' ↗' : ''}</span>
             <div style="display:flex;align-items:center;gap:8px;">
               <span class="stars" style="font-size:13px;">${renderStars(note)}</span>
               ${date ? `<span class="avis-date">${date}</span>` : ''}
             </div>
           </div>
-          ${comment ? `<p class="avis-text" style="margin-top:6px;">${comment}</p>` : ''}
+          ${comment ? `<p class="avis-text" style="margin-top:6px;">${escapeHtml(comment).replace(/\n/g,'<br>')}</p>` : ''}
         </div>
       </div>
     </div>`;
@@ -9351,7 +9362,7 @@ async function loadParrainage() {
     if (currentUser?.id) {
       // Timeout 4s : ne jamais bloquer l'affichage du lien / des filleuls si l'API traine
       const _to = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000));
-      const r = await Promise.race([fetch(`/api/wozali-pay/parrainage-stats?user_id=${currentUser.id}`), _to]);
+      const r = await Promise.race([wozaliFetch(`/api/wozali-pay/parrainage-stats`), _to]);
       const d = await r.json();
       if (d?.ok) supabaseCode = d.code_parrainage || '';
     }

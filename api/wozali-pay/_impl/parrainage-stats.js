@@ -4,8 +4,9 @@ import { supabase } from '../../_lib/supabase.js';
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    const { user_id } = req.query;
-    if (!user_id) return res.status(400).json({ error: 'user_id requis' });
+    // Portée limitée au propriétaire du token : empêche de lire les gains/filleuls d'autrui (IDOR)
+    const user_id = req.authenticatedUser?.user_id;
+    if (!user_id) return res.status(401).json({ error: 'Authentification requise' });
 
     const { data: profile } = await supabase
       .from('wozali_prestataires')

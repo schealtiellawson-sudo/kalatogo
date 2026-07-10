@@ -16,21 +16,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Vérification de la signature FedaPay (si configurée)
+    // Vérification de la signature FedaPay — FAIL CLOSED.
+    // Sans secret configuré, on REFUSE tout (sinon un attaquant POST un faux
+    // "transaction.approved" et s'auto-crédite Pro gratuitement une fois FedaPay en prod).
     const webhookSecret = process.env.FEDAPAY_WEBHOOK_SECRET;
-    if (webhookSecret) {
-      const signature = req.headers['x-fedapay-signature'] || req.headers['x-webhook-signature'] || '';
-      if (!signature) {
-        console.error('[webhook fedapay] Signature manquante');
-        return res.status(403).json({ error: 'Signature manquante' });
-      }
-      // Vérification HMAC SHA256
-      const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-      const expected = createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
-      if (!timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-        console.error('[webhook fedapay] Signature invalide');
-        return res.status(403).json({ error: 'Signature invalide' });
-      }
+    if (!webhookSecret) {
+      console.error('[webhook fedapay] FEDAPAY_WEBHOOK_SECRET non configuré — webhook refusé');
+      return res.status(503).json({ error: 'Webhook non configuré' });
+    }
+    const signature = req.headers['x-fedapay-signature'] || req.headers['x-webhook-signature'] || '';
+    if (!signature) {
+      console.error('[webhook fedapay] Signature manquante');
+      return res.status(403).json({ error: 'Signature manquante' });
+    }
+    // Vérification HMAC SHA256 (garde de longueur : timingSafeEqual throw si tailles différentes)
+    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const expected = createHmac('sha256', webhookSecret).update(rawBody).digest('hex');
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expected);
+    if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) {
+      console.error('[webhook fedapay] Signature invalide');
+      return res.status(403).json({ error: 'Signature invalide' });
     }
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;

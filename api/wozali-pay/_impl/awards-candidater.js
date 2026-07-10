@@ -9,9 +9,11 @@ import { supabase } from '../../_lib/supabase.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
-  const { user_id, video_url, pays } = req.body || {};
+  // Candidat dérivé du token vérifié, jamais du body (anti-usurpation)
+  const user_id = req.authenticatedUser?.user_id;
+  const { video_url, pays } = req.body || {};
   if (!user_id || !video_url) {
-    return res.status(400).json({ error: 'user_id et video_url requis' });
+    return res.status(400).json({ error: 'video_url requis' });
   }
 
   if (pays && !['BJ', 'TG'].includes(pays)) {

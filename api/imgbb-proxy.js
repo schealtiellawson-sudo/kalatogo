@@ -3,14 +3,20 @@
 // POST /api/imgbb-proxy  body: FormData avec champ 'image'
 // ================================================================
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type'
-};
+// N'autoriser QUE les origines WOZALI (empêche un site tiers d'utiliser notre clé ImgBB).
+const ALLOWED_ORIGINS = [
+  'https://wozali.africa',
+  'https://www.wozali.africa',
+  'https://wolomarket.vercel.app',
+];
 
 export default async function handler(req, res) {
-  Object.entries(CORS).forEach(([k, v]) => res.setHeader(k, v));
+  const origin = req.headers.origin || '';
+  const allowOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  res.setHeader('Access-Control-Allow-Origin', allowOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Vary', 'Origin');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 

@@ -8,9 +8,11 @@ import { supabase } from '../../_lib/supabase.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
-  const { user_id, photo_id } = req.body || {};
+  // Identité dérivée du token vérifié, jamais du body (anti-usurpation)
+  const user_id = req.authenticatedUser?.user_id;
+  const { photo_id } = req.body || {};
   if (!user_id || !photo_id) {
-    return res.status(400).json({ error: 'user_id et photo_id requis' });
+    return res.status(400).json({ error: 'photo_id requis' });
   }
 
   try {

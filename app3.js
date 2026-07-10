@@ -236,7 +236,7 @@ async function afficherTop50(paysFiltre){
   container.innerHTML=list.map((p,i)=>{
     const rang=i+1;const rangCls=rang<=3?`rang-${rang}`:'';const top10=rang<=10?'<span class="badge-top10">TOP 10</span>':'';
     const score=p.score_wozali||0;
-    return `<div class="top50-card"><div class="top50-rang-col"><span class="top50-rang ${rangCls}">#${rang}</span>${top10}</div><img class="top50-photo" src="${p.photo_profil||p.photo_url||''}" alt=""><div class="top50-info"><strong class="top50-nom">${p.nom_complet||p.nom||'—'}</strong><span>${p.metier_principal||p.metier||''}</span><span>${p.ville||''} ${p.pays?('· '+p.pays):''}</span><div class="top50-score-bar"><div class="top50-score-fill" style="width:${score}%"></div></div></div><a class="top50-voir" href="#" onclick="showPage('profil','${p.user_id||p.id}');return false;">Voir →</a></div>`;
+    return `<div class="top50-card"><div class="top50-rang-col"><span class="top50-rang ${rangCls}">#${rang}</span>${top10}</div><img class="top50-photo" src="${encodeURI(p.photo_profil||p.photo_url||'')}" alt=""><div class="top50-info"><strong class="top50-nom">${escapeHtml(p.nom_complet||p.nom||'—')}</strong><span>${escapeHtml(p.metier_principal||p.metier||'')}</span><span>${escapeHtml(p.ville||'')} ${p.pays?('· '+escapeHtml(p.pays)):''}</span><div class="top50-score-bar"><div class="top50-score-fill" style="width:${score}%"></div></div></div><a class="top50-voir" href="#" onclick="showPage('profil','${p.user_id||p.id}');return false;">Voir →</a></div>`;
   }).join('');
 }
 document.addEventListener('click',(e)=>{
@@ -298,7 +298,7 @@ async function afficherTalentsRecommandesApresPublication(offre){
   const c=document.getElementById('talents-recommandes-container');if(!c)return;
   const talents=await calculerMatchsEmployeurPourOffre(offre);
   if(!talents.length){c.innerHTML='';return;}
-  c.innerHTML=`<div class="section-matchs"><div class="matchs-header"><h4>🎯 Pros qui matchent ton offre</h4></div>${talents.map(t=>`<div class="talent-card"><img class="talent-photo" src="${t.photo_profil||t.photo_url||''}" alt=""><div class="talent-info"><strong>${t.nom_complet||t.nom||'—'}</strong><span>${t.metier_principal||t.metier||''} · ${t.ville||''}</span><span class="talent-match-score">Match ${t.match_score}%</span></div><a class="talent-contact-btn" href="#" onclick="showPage('profil','${t.user_id||t.id}');return false;">Contacter</a></div>`).join('')}</div>`;
+  c.innerHTML=`<div class="section-matchs"><div class="matchs-header"><h4>🎯 Pros qui matchent ton offre</h4></div>${talents.map(t=>`<div class="talent-card"><img class="talent-photo" src="${encodeURI(t.photo_profil||t.photo_url||'')}" alt=""><div class="talent-info"><strong>${escapeHtml(t.nom_complet||t.nom||'—')}</strong><span>${escapeHtml(t.metier_principal||t.metier||'')} · ${escapeHtml(t.ville||'')}</span><span class="talent-match-score">Match ${t.match_score}%</span></div><a class="talent-contact-btn" href="#" onclick="showPage('profil','${t.user_id||t.id}');return false;">Contacter</a></div>`).join('')}</div>`;
 }
 // alias sans "Apres" au cas où référencé
 const afficherTalentsRecommandesAprePublication=afficherTalentsRecommandesApresPublication;

@@ -42,9 +42,11 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { user_id, photo_id, contenu } = req.body || {};
+    // Identité dérivée du token vérifié, jamais du body (anti-usurpation)
+    const user_id = req.authenticatedUser?.user_id;
+    const { photo_id, contenu } = req.body || {};
     if (!user_id || !photo_id || !contenu) {
-      return res.status(400).json({ error: 'user_id, photo_id, contenu requis' });
+      return res.status(400).json({ error: 'photo_id, contenu requis' });
     }
     const txt = String(contenu).trim();
     if (txt.length === 0) return res.status(400).json({ error: 'Commentaire vide' });
