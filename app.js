@@ -665,6 +665,12 @@ async function loadDashboard() {
     if (sk) { sk.style.opacity = '0'; sk.style.transition = 'opacity .2s'; setTimeout(() => sk.remove(), 220); }
   };
 
+  // ── Rôles (admin / agent terrain / responsable / ambassadeur) ──
+  // Lancé AVANT le chargement du profil : ces vérifications ne dépendent pas
+  // de wozali_prestataires, et le `return` plus bas (profil introuvable ou
+  // timeout réseau) ne doit jamais priver un Responsable Terrain de sa sidebar.
+  checkAdminForDashboard();
+
   // ── Profil : cache immédiat, refresh silencieux en arrière-plan ──
   const profileAlreadyLoaded = !!currentPrestataire;
   if (!profileAlreadyLoaded) {
@@ -712,8 +718,8 @@ async function loadDashboard() {
   const recrutSection = document.getElementById('dl-recrut-section');
   if (recrutSection) recrutSection.style.display = 'block';
 
-  // Vérification admin pour section Agents Terrain
-  checkAdminForDashboard();
+  // (checkAdminForDashboard est désormais lancé en tout début de loadDashboard,
+  //  avant le chargement du profil — voir plus haut)
 }
 
 // ══ BANDEAU APPRENTI — généralisé pour TOUS les métiers via WozaliMetierStatuts ══
@@ -11511,9 +11517,16 @@ let _kpiData = {}; // agentCode -> { buckets: { weekKey: { inscrits, pro } } }
 let _kpiStatutOverrides = {}; // agentId -> { statut_agent, notes }
 
 async function checkAdminForDashboard() {
+  // Chaque vérification est isolée : si admin-verify plante (API down, réseau,
+  // réponse non-JSON), les checks agent terrain / responsable / ambassadeur
+  // doivent quand même s'exécuter. Avant, un seul try/catch avalait tout et
+  // le Responsable Terrain perdait sa sidebar dès qu'admin-verify toussait.
+  let session = null;
   try {
-    const { data: { session } } = await supa.auth.getSession();
-    if (!session) return;
+    ({ data: { session } } = await supa.auth.getSession());
+  } catch (e) { console.error('[admin-dash] session', e); return; }
+  if (!session) return;
+  try {
     const r = await fetch('/api/wozali-pay/admin-verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -11527,11 +11540,11 @@ async function checkAdminForDashboard() {
         if (el) el.style.display = id.endsWith('-label') || id.endsWith('-end') ? 'block' : 'block';
       });
     }
-    // Vérifier si l'utilisateur est un agent terrain actif
-    await checkAgentTerrainForDashboard(session);
-    // Vérifier si l'utilisateur est un ambassadeur validé
-    await checkAmbassadeurForDashboard(session);
-  } catch (e) { console.error('[admin-dash]', e); }
+  } catch (e) { console.warn('[admin-dash] admin-verify inaccessible :', e?.message); }
+  // Vérifier si l'utilisateur est un agent terrain actif (+ responsable)
+  try { await checkAgentTerrainForDashboard(session); } catch (e) { console.error('[agent-dash]', e); }
+  // Vérifier si l'utilisateur est un ambassadeur validé
+  try { await checkAmbassadeurForDashboard(session); } catch (e) { console.error('[ambs-dash]', e); }
 }
 
 async function checkAgentTerrainForDashboard(session) {
