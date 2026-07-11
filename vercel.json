@@ -3,59 +3,149 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(self)" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(self)"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        }
       ]
     },
     {
       "source": "/",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
     {
       "source": "/(.*\\.html)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
     {
       "source": "/sw.js",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
       ]
     }
   ],
   "crons": [
-    { "path": "/api/cron/score-wozali", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/coup-du-jour", "schedule": "0 8 * * *" },
-    { "path": "/api/cron/eligibilite-bourse", "schedule": "0 7 * * *" },
-    { "path": "/api/wozali-pay/whatsapp-flush", "schedule": "0 12 * * *" }
+    {
+      "path": "/api/cron/score-wozali",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/coup-du-jour",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/eligibilite-bourse",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/wozali-pay/whatsapp-flush",
+      "schedule": "0 12 * * *"
+    }
   ],
   "redirects": [
-    { "source": "/postuler", "destination": "/offre-agents-terrain#recrutement-agents", "permanent": true }
+    {
+      "source": "/postuler",
+      "destination": "/offre-agents-terrain#recrutement-agents",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/", "destination": "/bientot.html" },
-    { "source": "/profil/:slug", "destination": "/api/profil-seo" },
-    { "source": "/pay/:id", "destination": "/pay.html" },
-    { "source": "/offre-agents-terrain", "destination": "/offre-agents-terrain.html" },
-    { "source": "/recruter", "destination": "/offre-agents-terrain.html" },
-    { "source": "/merci", "destination": "/merci.html" },
-    { "source": "/admin-agents-terrain", "destination": "/admin-agents-terrain.html" },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/formation/:slug", "destination": "/formation/:slug.html" },
-    { "source": "/formation-ambassadeurs/:slug", "destination": "/formation-ambassadeurs/:slug.html" },
-    { "source": "/formation-responsable/:slug", "destination": "/formation-responsable/:slug.html" },
-    { "source": "/ambassadeurs", "destination": "/ambassadeurs.html" },
-    { "source": "/cgu", "destination": "/cgu.html" },
-    { "source": "/confidentialite", "destination": "/politique-confidentialite.html" },
-    { "source": "/bientot", "destination": "/bientot.html" },
-    { "source": "/pitch", "destination": "/pitch.html" },
-    { "source": "/temoignages", "destination": "/temoignages.html" }
+    {
+      "source": "/",
+      "destination": "/bientot.html"
+    },
+    {
+      "source": "/profil/:slug",
+      "destination": "/api/profil-seo"
+    },
+    {
+      "source": "/pay/:id",
+      "destination": "/pay.html"
+    },
+    {
+      "source": "/offre-agents-terrain",
+      "destination": "/offre-agents-terrain.html"
+    },
+    {
+      "source": "/recruter",
+      "destination": "/offre-agents-terrain.html"
+    },
+    {
+      "source": "/merci",
+      "destination": "/merci.html"
+    },
+    {
+      "source": "/admin-agents-terrain",
+      "destination": "/admin-agents-terrain.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/formation/:slug",
+      "destination": "/formation/:slug.html"
+    },
+    {
+      "source": "/formation-ambassadeurs/:slug",
+      "destination": "/formation-ambassadeurs/:slug.html"
+    },
+    {
+      "source": "/formation-responsable/:slug",
+      "destination": "/formation-responsable/:slug.html"
+    },
+    {
+      "source": "/ambassadeurs",
+      "destination": "/ambassadeurs.html"
+    },
+    {
+      "source": "/cgu",
+      "destination": "/cgu.html"
+    },
+    {
+      "source": "/confidentialite",
+      "destination": "/politique-confidentialite.html"
+    },
+    {
+      "source": "/bientot",
+      "destination": "/bientot.html"
+    },
+    {
+      "source": "/pitch",
+      "destination": "/pitch.html"
+    }
   ]
 }

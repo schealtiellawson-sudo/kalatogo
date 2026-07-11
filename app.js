@@ -604,9 +604,6 @@ function showDashSection(section) {
   if (section === 'recompenses') loadRecompensesWidgets();
   if (section === 'recompenses-mdr') loadRecompensesMDR();
   if (section === 'parrainage') loadParrainage();
-  if (section === 'temoignage') { if (typeof window.loadTemoignageSection === 'function') window.loadTemoignageSection(); }
-  if (section === 'temoignage-abus') { loadTemoignageAbusSection(); }
-  if (section === 'admin-temoignages-abus') { loadAdminTemoignagesAbus('en_attente'); }
   if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); }
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
@@ -710,10 +707,6 @@ async function loadDashboard() {
   loadDashOverview();
   updateNotifBadge(currentPrestataire?.id);
   injectApprentieBanner();
-  // Déclencheurs automatiques témoignage (J+7, premier avis, J+30, Bourse gagnée)
-  if (window.temoignageTriggers && currentPrestataire) {
-    setTimeout(() => window.temoignageTriggers.checkAll(currentPrestataire), 2000);
-  }
   // Afficher la sidebar "Je recrute" pour tous les users connectés.
   const recrutSection = document.getElementById('dl-recrut-section');
   if (recrutSection) recrutSection.style.display = 'block';
@@ -13257,9 +13250,6 @@ function renderOffreEmploi(offre, forceMode) {
       ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;">💬 Contacter</a>` : ''}
       <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler</button>
     </div>
-    <div onclick="event.stopPropagation();" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.05);">
-      <a href="/temoignages" style="font-size:11px;color:rgba(0,0,0,0.3);text-decoration:none;" title="Avance déshonnête, conditions abusives ou paiement refusé ? Signale anonymement.">🚩 Avance déshonnête ou conditions abusives ? Signaler</a>
-    </div>
   </div>`;
 }
 
@@ -13341,7 +13331,7 @@ function showOffreDetail(offreId) {
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${_titreJsArgD}','${_safeOffreIdD}')">📤 Partager</button>
     </div>
     <div style="margin-top:12px;text-align:center;">
-      <button onclick="window.wozaliSignalement?.open({offreId:'${_safeOffreIdD}',contextLabel:'Offre : ${_titreJsArgD.replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Avance déshonnête, harcèlement ou arnaque ? Signaler cette offre</button>
+      <button onclick="window.wozaliSignalement?.open({offreId:'${_safeOffreIdD}',contextLabel:'Offre : ${_titreJsArgD.replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Offre suspecte ou faux recruteur ? Signaler cette offre</button>
     </div>
   `;
 
@@ -15953,7 +15943,6 @@ const AGENT_DOCUMENTS = [
   { slug: '18-commission-battle',     titre: 'Ta commission et le Battle — comprendre et maximiser',  desc: 'Comment ton score monte et ta paie augmente.' },
   { slug: '19-semaine-terrain',       titre: 'Organiser ta semaine terrain + fixer ses objectifs',    desc: 'Planifier pour ne pas improviser.' },
   { slug: '20-passer-a-50',           titre: 'Atteindre 100 000 FCFA par mois : l\'effet cumulé, le suivi membres et les KPI',  desc: 'Le système de suivi qui fait la différence.' },
-  { slug: '21-angle-dignite',          titre: 'L\'Angle Dignité : trouver du travail sans vendre sa dignité',                    desc: 'Le 3e avatar. Le script sécurité. Comment protéger ta zone.' },
 ];
 
 // Cache local des slugs lus par l'agent
@@ -17549,7 +17538,6 @@ const AMBASSADEUR_DOCUMENTS = [
   { slug: 'ambs-11-recompenses',        num: '11', titre: 'Les récompenses mensuelles',   desc: '500 000 FCFA/mois - comment en parler sans survendre.' },
   { slug: 'ambs-12-wozali-jobs',        num: '12', titre: 'WOZALI Jobs',                  desc: 'Le module emploi - double ta cible de contenu.' },
   { slug: 'ambs-13-score-wozali',       num: '13', titre: 'Le Score WOZALI',              desc: 'Le coeur du système. Ton argument le plus fort.' },
-  { slug: 'ambs-14-angle-dignite',      num: '14', titre: 'L\'Angle Dignité',              desc: 'Un 3e avatar. Les phrases clés. Ce qu\'on ne dit pas.' },
 ];
 
 // Cache local des slugs lus par l'ambassadeur connecté

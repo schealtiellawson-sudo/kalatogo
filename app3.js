@@ -2373,7 +2373,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
   });
 })();
 
-// ── Onboarding 6 écrans (dignité, activation, pas de Pro) ──
+// ── Onboarding 6 écrans (valeur, activation, pas de Pro) ──
 (function(){
   var STORAGE_KEY = 'wozali_onboarding_done';
 
@@ -2399,7 +2399,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
 
     var steps = [
       { icon:'wallet',    eyebrow:'Le démarrage',  title:"Le problème, c'est pas ton travail.", text:"Tu bosses dur. Tu connais ton métier. Et pourtant l'argent ne rentre pas comme il devrait. Au Togo et au Bénin, le travail ne manque pas. C'est l'argent qui circule pas. Pas parce que tu vaux moins. Parce que personne ne te voit.", primary:'Suivant' },
-      { icon:'crown',     eyebrow:'Ta dignité',    title:"Fini de demander. Fini de quémander.", text:"Combien de fois t'as dû connaître quelqu'un pour décrocher un contrat ? Combien ont accepté n'importe quoi juste pour être choisis ? Ici c'est différent. Ton travail parle à ta place. Tu ne demandes plus une faveur, tu montres ce que tu sais faire. Ta valeur a enfin une place.", primary:'Suivant' },
+      { icon:'crown',     eyebrow:'Ta valeur',     title:"Fini de demander. Fini de quémander.", text:"Combien de fois t'as dû connaître quelqu'un pour décrocher un contrat ? Ici c'est différent. Ton travail parle à ta place. Tu ne demandes plus une faveur, tu montres ce que tu sais faire. Ta valeur a enfin une place.", primary:'Suivant' },
       { icon:'map-pin',   eyebrow:'Tes clients',   title:"Tes clients te trouvent. Sans réseau.", text:"Le client de Bè qui cherche un coiffeur. La famille d'Akpakpa qui veut un mécano. La mariée d'Adidogomé qui cherche une couturière. Ton GPS, ton WhatsApp, tes avis vérifiés. Ils te trouvent en 30 secondes et te contactent direct. Tu vends plus, plus souvent.", primary:'Suivant' },
       { icon:'briefcase', eyebrow:"L'emploi",      title:"Trouver un job, sans galère.", text:"Marre des annonces floues et des « envoie ton CV et attends » ? Marre qu'on te demande des choses en échange d'un poste ? Sur WOZALI, les offres sont claires : métier, quartier, salaire affiché, contact direct. Tu postules en deux clics depuis ton téléphone. On te choisit pour ton travail, pas pour tes relations.", primary:'Suivant' },
       { icon:'trophy',    eyebrow:'La récompense', title:"Ton sérieux te rapporte. Chaque mois.", text:"Chaque mois, WOZALI verse 500 000 FCFA à ses membres les plus sérieux. Pas une promesse, un virement. La Bourse de Croissance, 300 000 FCFA. La Bourse des Mains d'Or, 200 000 FCFA réservés aux femmes coiffeuses et couturières, sans condition de plan. Premier tirage le 25 septembre 2026. Ton travail te paye enfin.", primary:'Suivant' },
