@@ -218,10 +218,10 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
         ${r.message_employeur ? `
           <div style="margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <div style="font-size:12px;color:#22c55e;font-weight:700;">Message à envoyer côté employeur</div>
-              <button onclick="${copyMsg('mediation-msg-emp')}" style="background:rgba(34,197,94,.12);color:#22c55e;border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;">Copier</button>
+              <div style="font-size:12px;color:#E8940A;font-weight:700;">Message à envoyer côté employeur</div>
+              <button onclick="${copyMsg('mediation-msg-emp')}" style="background:rgba(232,148,10,.12);color:#E8940A;border:none;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;">Copier</button>
             </div>
-            <div id="mediation-msg-emp" style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px;font-size:13px;line-height:1.55;white-space:pre-wrap;">${escapeHtml(r.message_employeur)}</div>
+            <div id="mediation-msg-emp" style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:8px;padding:10px;font-size:13px;line-height:1.55;white-space:pre-wrap;">${escapeHtml(r.message_employeur)}</div>
           </div>
         ` : ''}
 
@@ -240,7 +240,7 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
   const STATUT_BADGE = {
     nouveau:  { label: 'Nouveau',  bg: 'rgba(232,148,10,.15)', color: '#E8940A' },
     en_cours: { label: 'En cours', bg: 'rgba(96,165,250,.15)', color: '#60a5fa' },
-    resolu:   { label: 'Résolu',   bg: 'rgba(34,197,94,.15)',  color: '#22c55e' },
+    resolu:   { label: 'Résolu',   bg: 'rgba(232,148,10,.15)',  color: '#E8940A' },
     rejete:   { label: 'Rejeté',   bg: 'rgba(255,255,255,.06)', color: 'rgba(252, 224, 168,.5)' },
   };
   const MOTIF_LABEL = {

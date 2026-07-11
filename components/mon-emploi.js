@@ -67,7 +67,7 @@
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px;">
           ${kpiCard('Salaire mensuel', formatFCFA(salaire), '#E8940A')}
-          ${kpiCard('Total perçu', formatFCFA(totalPaye), '#22c55e')}
+          ${kpiCard('Total perçu', formatFCFA(totalPaye), '#E8940A')}
           ${kpiCard('Dernier paiement', dernierMois, '#3b82f6')}
           ${kpiCard('Bulletins', state.fiches.length, '#a855f7')}
         </div>

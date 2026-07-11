@@ -70,7 +70,7 @@
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px;">
-          ${kpi('CA du mois', formatFCFA(totalCA), '#22c55e')}
+          ${kpi('CA du mois', formatFCFA(totalCA), '#E8940A')}
           ${kpi('Dépenses', formatFCFA(totalDep), '#ef4444')}
           ${kpi('Bénéfice net', formatFCFA(benef), benef >= 0 ? '#E8940A' : '#ef4444')}
           ${kpi('Jours saisis', state.caEntries.length + '/' + daysInMonth, '#3b82f6')}
@@ -87,9 +87,9 @@
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div style="background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.15);border-radius:12px;padding:14px;">
-            <h4 style="font-family:'Fraunces',serif;font-size:14px;margin:0 0 10px;color:#22c55e;">Derniers CA</h4>
-            ${state.caEntries.slice(0,5).map(e => entryHTML(e, '#22c55e')).join('') || '<p style="font-size:12px;color:rgba(252, 224, 168,.4);margin:0;">Aucune saisie.</p>'}
+          <div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px;">
+            <h4 style="font-family:'Fraunces',serif;font-size:14px;margin:0 0 10px;color:#E8940A;">Derniers CA</h4>
+            ${state.caEntries.slice(0,5).map(e => entryHTML(e, '#E8940A')).join('') || '<p style="font-size:12px;color:rgba(252, 224, 168,.4);margin:0;">Aucune saisie.</p>'}
           </div>
           <div style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15);border-radius:12px;padding:14px;">
             <h4 style="font-family:'Fraunces',serif;font-size:14px;margin:0 0 10px;color:#ef4444;">Dernières dépenses</h4>
@@ -128,21 +128,21 @@
     const modal = document.createElement('div');
     modal.innerHTML = `
       <div id="ca-modal-bg" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.remove()">
-        <div style="background:#14100A;border:1px solid rgba(34,197,94,.3);border-radius:16px;padding:24px;max-width:420px;width:100%;font-family:'Geist',sans-serif;color:#FCE0A8;">
+        <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:24px;max-width:420px;width:100%;font-family:'Geist',sans-serif;color:#FCE0A8;">
           <h2 style="font-family:'Fraunces',serif;font-size:22px;margin:0 0 16px;">Saisir un CA</h2>
           <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Date</label>
-          <input id="ca-date" type="date" value="${todayKey()}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;">
+          <input id="ca-date" type="date" value="${todayKey()}" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;">
           <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Montant (FCFA)</label>
-          <input id="ca-mt" type="number" placeholder="25000" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;">
+          <input id="ca-mt" type="number" placeholder="25000" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;">
           <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Catégorie</label>
-          <select id="ca-cat" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;">
+          <select id="ca-cat" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:14px;font-family:inherit;">
             <option>Ventes</option><option>Prestations</option><option>Acomptes</option><option>Autre</option>
           </select>
           <label style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(252, 224, 168,.5);">Note (optionnel)</label>
-          <input id="ca-note" type="text" placeholder="Ex: paiement client X" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:20px;font-family:inherit;">
+          <input id="ca-note" type="text" placeholder="Ex: paiement client X" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;margin-top:6px;margin-bottom:20px;font-family:inherit;">
           <div style="display:flex;gap:10px;">
             <button onclick="document.getElementById('ca-modal-bg').remove()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(252, 224, 168,.15);color:#FCE0A8;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;">Annuler</button>
-            <button onclick="submitCA()" style="flex:2;background:#22c55e;border:none;color:#14100A;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Enregistrer</button>
+            <button onclick="submitCA()" style="flex:2;background:#E8940A;border:none;color:#14100A;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Enregistrer</button>
           </div>
         </div>
       </div>`;

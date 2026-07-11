@@ -156,7 +156,7 @@ Message: ${c['Message'] || ''}`;
 
   function renderScoreResult(r, meta) {
     const score = r?.score || 0;
-    const color = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : '#f87171';
+    const color = score >= 70 ? '#E8940A' : score >= 40 ? '#E8940A' : '#f87171';
     const html = `
       <div style="text-align:center;margin-bottom:20px;">
         <div style="font-family:'Geist Mono',monospace;font-size:56px;font-weight:900;color:${color};line-height:1;">${score}</div>
@@ -168,7 +168,7 @@ Message: ${c['Message'] || ''}`;
       </div>
       ${Array.isArray(r?.forces) && r.forces.length ? `
         <div style="margin-bottom:12px;">
-          <div style="font-size:12px;color:#22c55e;margin-bottom:6px;font-weight:700;">✓ Forces</div>
+          <div style="font-size:12px;color:#E8940A;margin-bottom:6px;font-weight:700;">✓ Forces</div>
           <ul style="margin:0;padding-left:20px;color:rgba(252, 224, 168,.8);">
             ${r.forces.map(f => `<li style="margin-bottom:4px;">${f}</li>`).join('')}
           </ul>
@@ -268,13 +268,13 @@ Description: ${offreFields['Description'] || ''}`;
       const plan = window.isProUser && window.isProUser() ? 'pro' : 'gratuit';
       const { result, provider, cached, quota } = await query('annonce-qualite', input, plan);
       const score = result?.score || 0;
-      const color = score >= 70 ? '#22c55e' : score >= 40 ? '#E8940A' : '#f87171';
+      const color = score >= 70 ? '#E8940A' : score >= 40 ? '#E8940A' : '#f87171';
       const html = `
         <div style="text-align:center;margin-bottom:20px;">
           <div style="font-family:'Geist Mono',monospace;font-size:48px;font-weight:900;color:${color};line-height:1;">${score}/100</div>
           <div style="font-size:11px;color:rgba(252, 224, 168,.4);text-transform:uppercase;letter-spacing:1px;margin-top:6px;">Qualité annonce</div>
         </div>
-        ${listBlock('✓ Points forts', result?.points_forts, '#22c55e')}
+        ${listBlock('✓ Points forts', result?.points_forts, '#E8940A')}
         ${listBlock('⚠ Manques', result?.manques, '#E8940A')}
         ${listBlock('🚨 Risques arnaque', result?.risques_arnaque, '#f87171')}
         ${listBlock('💡 Suggestions', result?.suggestions, '#60a5fa')}

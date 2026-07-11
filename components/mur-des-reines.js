@@ -205,8 +205,8 @@
         </div>
 
         <!-- BLOC DIASPORA -->
-        <div style="background:rgba(34,197,94,.05);border:1px dashed rgba(34,197,94,.3);border-radius:14px;padding:14px 18px;margin-bottom:18px;max-width:720px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:#22c55e;margin-bottom:6px;">📲 LA DIASPORA AUSSI</div>
+        <div style="background:rgba(232,148,10,.05);border:1px dashed rgba(232,148,10,.3);border-radius:14px;padding:14px 18px;margin-bottom:18px;max-width:720px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:6px;">📲 LA DIASPORA AUSSI</div>
           <p style="margin:0;font-size:13px;color:rgba(252, 224, 168,.8);line-height:1.6;"><strong style="color:#FCE0A8;">Ta cousine à Paris ? Ta tante à Bruxelles ?</strong> Elles peuvent voter. Partage le lien WhatsApp. Une voix de Cotonou compte autant qu'une voix de Brooklyn.</p>
         </div>
 
@@ -618,27 +618,27 @@
 
   window.murSwipeNext = () => { state.swipeIndex++; render(); };
   window.murSwipeLike = async (photoId) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder à la Bourse des Mains d\'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.wozaliFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     state.swipeIndex++;
     render();
   };
   window.murDuelVote = async (photoId) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder à la Bourse des Mains d\'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.wozaliFetch || fetch;
     await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).catch(()=>{});
     await loadDiscover(); render();
   };
   window.murDuelVoteGlobal = async (duelId, choix) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder à la Bourse des Mains d\'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.wozaliFetch || fetch;
     await fn(`${API}/duels-list`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, duel_id: duelId, choix }) }).catch(()=>{});
     await loadPodium(); render();
   };
 
   window.murToggleLike = async (photoId, btn) => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder à la Bourse des Mains d\'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const fn = window.wozaliFetch || fetch;
     try {
       const r = await fn(`${API}/feed-like`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: window.currentUser.id, photo_id: photoId }) }).then(r => r.json());
@@ -733,7 +733,7 @@
   // UPLOAD PHOTO (Poster)
   // ──────────────────────────────────────────
   window.murOpenPoster = () => {
-    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder au Bourse des Mains d'Or');}else{window.showPage&&window.showPage('inscription');} return; }
+    if (!window.currentUser?.id) { if(typeof verifierConnexionOuPopup==='function'){verifierConnexionOuPopup('accéder à la Bourse des Mains d\'Or');}else{window.showPage&&window.showPage('inscription');} return; }
     const existing = document.getElementById('mur-poster-modal');
     if (existing) existing.remove();
     const t = state.theme || {};
@@ -822,7 +822,7 @@
     const isAwards = document.getElementById('murAwards')?.checked || false;
 
     if (isAwards && !tagPro) {
-      if (msg) msg.textContent = '⚠️ Pour candidater au Bourse des Mains d'Or, le tag de la coiffeuse / couturière est obligatoire (sinon ta photo n\'est pas éligible).';
+      if (msg) msg.textContent = '⚠️ Pour candidater à la Bourse des Mains d\'Or, le tag de la coiffeuse / couturière est obligatoire (sinon ta photo n\'est pas éligible).';
       btn.disabled = false; btn.textContent = 'Poster sur le mur ✨';
       return;
     }

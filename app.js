@@ -16542,10 +16542,10 @@ async function loadAgentContrat() {
       </div>`;
       if (doc.statut === 'cosigne') {
         const d = doc.fondateur_signed_at ? new Date(doc.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
-        return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);border-radius:10px;">
+        return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;">
           <div style="font-size:20px;flex-shrink:0;">✅</div>
-          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#4ade80;margin-bottom:2px;">${label} — Valide</div><div style="font-size:12px;color:rgba(252,224,168,.45);">Cosigne le ${d}.</div></div>
-          <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:6px 10px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);color:#4ade80;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;">Voir →</a>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">${label} — Valide</div><div style="font-size:12px;color:rgba(252,224,168,.45);">Cosigne le ${d}.</div></div>
+          <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:6px 10px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.2);color:#E8940A;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;">Voir →</a>
         </div>`;
       }
       const d = doc.signed_at ? new Date(doc.signed_at).toLocaleDateString('fr-FR') : '-';
@@ -16590,7 +16590,7 @@ function _renderContratSigneAgent(data) {
         <div><span style="font-size:11px;color:rgba(252,224,168,.4);">Date signature :</span> <span style="font-size:13px;color:#FCE0A8;">${dSign}</span></div>
       </div>
       ${data.signature_data_url ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,.1);"><div style="font-size:11px;color:rgba(252,224,168,.4);margin-bottom:8px;">Ta signature :</div><div style="background:#111;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;height:80px;display:flex;align-items:center;justify-content:center;"><img src="${data.signature_data_url}" alt="Signature" style="max-width:100%;max-height:80px;object-fit:contain;"/></div></div>` : ''}
-      ${data.fondateur_signature_data_url ? `<div style="margin-top:12px;"><div style="font-size:11px;color:rgba(252,224,168,.4);margin-bottom:8px;">Contresignature fondateur :</div><div style="background:#111;border:1px solid rgba(74,222,128,.12);border-radius:8px;overflow:hidden;height:80px;display:flex;align-items:center;justify-content:center;"><img src="${data.fondateur_signature_data_url}" alt="Contresignature" style="max-width:100%;max-height:80px;object-fit:contain;"/></div></div>` : ''}
+      ${data.fondateur_signature_data_url ? `<div style="margin-top:12px;"><div style="font-size:11px;color:rgba(252,224,168,.4);margin-bottom:8px;">Contresignature fondateur :</div><div style="background:#111;border:1px solid rgba(232,148,10,.12);border-radius:8px;overflow:hidden;height:80px;display:flex;align-items:center;justify-content:center;"><img src="${data.fondateur_signature_data_url}" alt="Contresignature" style="max-width:100%;max-height:80px;object-fit:contain;"/></div></div>` : ''}
     </div>
     <div style="margin-top:12px;text-align:center;"><a href="/formation-responsable/rt-18-contrat-agent-terrain.html" target="_blank" style="font-size:12px;color:#E8940A;text-decoration:none;font-family:'Geist Mono',monospace;">Voir le contrat complet &rarr;</a></div>`;
 }
@@ -16682,7 +16682,7 @@ async function loadAdminContrats() {
       const contrat = agent.docs['contrat'];
       const charte  = agent.docs['charte'];
       const allCo   = contrat?.statut === 'cosigne' && charte?.statut === 'cosigne';
-      const borderColor = allCo ? 'rgba(74,222,128,.15)' : 'rgba(255,255,255,.06)';
+      const borderColor = allCo ? 'rgba(232,148,10,.15)' : 'rgba(255,255,255,.06)';
 
       function docRow(doc, label, slug) {
         if (!doc) return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
@@ -16694,7 +16694,7 @@ async function loadAdminContrats() {
         const dc   = doc.fondateur_signed_at ? new Date(doc.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
         return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap;">
           <span style="font-size:11px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;min-width:80px;">${label}</span>
-          <span style="font-size:11px;color:${isCo ? '#4ade80' : '#E8940A'};font-weight:700;">${isCo ? 'Cosigne' : 'A contresigner'}</span>
+          <span style="font-size:11px;color:${isCo ? '#E8940A' : '#E8940A'};font-weight:700;">${isCo ? 'Cosigne' : 'A contresigner'}</span>
           <span style="font-size:11px;color:rgba(252,224,168,.3);">${isCo ? dc : ds}</span>
           ${!isCo ? `<button type="button" onclick="openCosignModal('${doc.id}')" style="margin-left:auto;padding:4px 10px;background:#E8940A;color:#14100A;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;">Contresigner</button>` : ''}
         </div>`;
@@ -16706,7 +16706,7 @@ async function loadAdminContrats() {
             <div style="font-size:14px;font-weight:700;color:#FCE0A8;">${agent.nom||'-'}</div>
             <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:2px;">${agent.ville||'-'} &middot; ${agent.tel||'-'}</div>
           </div>
-          ${allCo ? '<span style="font-size:10px;font-family:\'Geist Mono\',monospace;color:#4ade80;border:1px solid rgba(74,222,128,.25);padding:3px 8px;border-radius:20px;">Complet</span>' : ''}
+          ${allCo ? '<span style="font-size:10px;font-family:\'Geist Mono\',monospace;color:#E8940A;border:1px solid rgba(232,148,10,.25);padding:3px 8px;border-radius:20px;">Complet</span>' : ''}
         </div>
         <div style="border-top:1px solid rgba(255,255,255,.05);padding-top:8px;">
           ${docRow(contrat, 'Contrat', 'rt-18-contrat-agent-terrain')}
@@ -17270,7 +17270,7 @@ function _renderPlanActionCard(p, isFondateur) {
   const du = new Date(p.semaine_du + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
   const au = new Date(p.semaine_au + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
   const createdAt = new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  const statutCol = p.statut === 'termine' ? '#22c55e' : p.statut === 'annule' ? '#6b7280' : '#E8940A';
+  const statutCol = p.statut === 'termine' ? '#E8940A' : p.statut === 'annule' ? '#6b7280' : '#E8940A';
   const statutLabel = p.statut === 'termine' ? 'Termine' : p.statut === 'annule' ? 'Annule' : 'En cours';
 
   const noteBlock = isFondateur ? `
@@ -17282,7 +17282,7 @@ function _renderPlanActionCard(p, isFondateur) {
   const statutBtns = isFondateur ? `
     <div style="display:flex;gap:8px;margin-top:10px;">
       <button onclick="updateStatutPlanAction('${p.id}','actif')" style="flex:1;padding:7px;background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">En cours</button>
-      <button onclick="updateStatutPlanAction('${p.id}','termine')" style="flex:1;padding:7px;background:rgba(34,197,94,.08);color:#22c55e;border:1px solid rgba(34,197,94,.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">Termine</button>
+      <button onclick="updateStatutPlanAction('${p.id}','termine')" style="flex:1;padding:7px;background:rgba(232,148,10,.08);color:#E8940A;border:1px solid rgba(232,148,10,.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">Termine</button>
       <button onclick="updateStatutPlanAction('${p.id}','annule')" style="flex:1;padding:7px;background:rgba(107,114,128,.08);color:#9ca3af;border:1px solid rgba(107,114,128,.2);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">Annule</button>
     </div>` : '';
 
@@ -17744,7 +17744,7 @@ async function loadTemoignageAbusSection() {
     if (data) {
       if (alreadyDiv) {
         const STATUT_LABEL = { en_attente: 'En attente de moderation', publie: 'Publie', refuse: 'Refuse' };
-        const STATUT_COLOR = { en_attente: '#E8940A', publie: '#22c55e', refuse: '#94a3b8' };
+        const STATUT_COLOR = { en_attente: '#E8940A', publie: '#E8940A', refuse: '#94a3b8' };
         const c = STATUT_COLOR[data.statut] || '#E8940A';
         alreadyDiv.innerHTML = `
           <div style="text-align:center;padding:32px 20px;">
@@ -17892,7 +17892,7 @@ async function loadAdminTemoignagesAbus(statut) {
 
     const SECTEUR_LABELS = { emploi_formel: 'Emploi formel', emploi_informel: 'Emploi informel', artisan: 'Artisanat', commerce: 'Commerce', services: 'Services', autre: 'Autre' };
     const TYPE_LABELS = { avance_deshonnete: 'Avance deshonnete', abus_autorite: "Abus d'autorite", conditions_abusives: 'Conditions abusives', discrimination: 'Discrimination', paiement_refuse: 'Paiement refuse', autre: 'Autre' };
-    const STATUT_COLOR = { en_attente: '#fbbf24', publie: '#86efac', refuse: 'rgba(252,224,168,.4)' };
+    const STATUT_COLOR = { en_attente: '#fbbf24', publie: '#F5B82E', refuse: 'rgba(252,224,168,.4)' };
     const PAYS_LABELS = { TG: 'Togo', BJ: 'Benin' };
 
     feed.innerHTML = data.map(t => {
@@ -17901,7 +17901,7 @@ async function loadAdminTemoignagesAbus(statut) {
       const dateStr = new Date(t.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
       const modBtns = t.statut === 'en_attente' ? `
         <div style="display:flex;gap:10px;margin-top:14px;">
-          <button onclick="modererTemoignageAbus('${t.id}','publie')" style="background:rgba(34,197,94,.12);border:1px solid #22c55e;color:#22c55e;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;padding:9px 20px;border-radius:100px;cursor:pointer;">Publier</button>
+          <button onclick="modererTemoignageAbus('${t.id}','publie')" style="background:rgba(232,148,10,.12);border:1px solid #E8940A;color:#E8940A;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;padding:9px 20px;border-radius:100px;cursor:pointer;">Publier</button>
           <button onclick="modererTemoignageAbus('${t.id}','refuse')" style="background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.4);color:rgba(252,224,168,.5);font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:9px 20px;border-radius:100px;cursor:pointer;">Refuser</button>
         </div>` : '';
       return `

@@ -24,7 +24,7 @@
 
   const RESULTAT_BADGE = {
     pending:        { label: 'À venir',        bg: 'rgba(232,148,10,.15)', color: '#E8940A' },
-    concluant:      { label: 'Concluant',      bg: 'rgba(34,197,94,.15)',  color: '#22c55e' },
+    concluant:      { label: 'Concluant',      bg: 'rgba(232,148,10,.15)',  color: '#E8940A' },
     non_concluant:  { label: 'Non concluant',  bg: 'rgba(239,68,68,.12)',  color: '#f87171' },
     annule:         { label: 'Annulé',         bg: 'rgba(255,255,255,.06)', color: 'rgba(252, 224, 168,.5)' },
   };
@@ -104,7 +104,7 @@
         <div style="font-size:11px;color:rgba(252, 224, 168,.4);margin-bottom:10px;">${peerLabel} · vous êtes ${isRecru ? 'recruteur' : 'candidat'}</div>
         ${isRecru && past && e.resultat === 'pending' ? `
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button onclick="window.wozaliEntretiensList.setResultat('${e.id}','concluant')" style="padding:5px 10px;border-radius:8px;background:rgba(34,197,94,.15);color:#22c55e;border:none;cursor:pointer;font-size:12px;font-weight:700;">✓ Concluant</button>
+            <button onclick="window.wozaliEntretiensList.setResultat('${e.id}','concluant')" style="padding:5px 10px;border-radius:8px;background:rgba(232,148,10,.15);color:#E8940A;border:none;cursor:pointer;font-size:12px;font-weight:700;">✓ Concluant</button>
             <button onclick="window.wozaliEntretiensList.setResultat('${e.id}','non_concluant')" style="padding:5px 10px;border-radius:8px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;font-weight:700;">✗ Non concluant</button>
             <button onclick="window.wozaliEntretiensList.setResultat('${e.id}','annule')" style="padding:5px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(252, 224, 168,.6);border:none;cursor:pointer;font-size:12px;">Annuler</button>
           </div>

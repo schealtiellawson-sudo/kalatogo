@@ -164,9 +164,9 @@
       kpi('Nouveaux', counts.nouveau, '#FCE0A8') +
       kpi('Shortlist', counts.shortlist, '#3b82f6') +
       kpi('Entretien', counts.entretien, '#a78bfa') +
-      kpi('Retenu', counts.retenu, '#22c55e') +
+      kpi('Retenu', counts.retenu, '#E8940A') +
       kpi('Onboarding', counts.onboarding, '#E8940A') +
-      kpi('Équipe', counts.equipe, '#22c55e') +
+      kpi('Équipe', counts.equipe, '#E8940A') +
       kpi('Parti', counts.parti, 'rgba(252, 224, 168,.4)');
   }
 
@@ -323,9 +323,9 @@
       nouveau: ['👀','#FCE0A8','Nouveau'],
       shortlist: ['⭐','#3b82f6','Shortlist'],
       entretien: ['📞','#a78bfa','Entretien'],
-      retenu: ['✅','#22c55e','Retenu'],
+      retenu: ['✅','#E8940A','Retenu'],
       onboarding: ['🎯','#E8940A','Onboarding'],
-      equipe: ['💼','#22c55e','Équipe'],
+      equipe: ['💼','#E8940A','Équipe'],
       parti: ['🚪','rgba(252, 224, 168,.5)','Parti']
     };
     var m = map[col] || ['•','#FCE0A8','—'];

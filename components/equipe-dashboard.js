@@ -53,7 +53,7 @@
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;">
           ${kpiCard('Total équipe', totalEmp, '#E8940A')}
-          ${kpiCard('Actifs', actifs, '#22c55e')}
+          ${kpiCard('Actifs', actifs, '#E8940A')}
           ${kpiCard('Invitations en attente', invPendantes, '#3b82f6')}
         </div>
 
@@ -103,7 +103,7 @@
         <div style="font-weight:700;font-size:14px;">${nom}</div>
         <div style="font-size:12px;color:rgba(252, 224, 168,.55);">${poste}${salaire ? ' · ' + Number(salaire).toLocaleString('fr-FR') + ' FCFA/mois' : ''}</div>
       </div>
-      <span style="background:rgba(34,197,94,.12);color:#22c55e;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;">${statut}</span>
+      <span style="background:rgba(232,148,10,.12);color:#E8940A;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;">${statut}</span>
       <button onclick="openEmployeDetail('${emp.id}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;">Détail</button>
     </div>`;
   }

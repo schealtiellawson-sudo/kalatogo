@@ -1805,7 +1805,7 @@ function setCandView(view) {
 
 function getCandBadge(statut) {
   if (statut === 'Présélectionné') return '<span style="display:inline-block;background:rgba(59,130,246,.15);color:#3b82f6;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">Présélectionné</span>';
-  if (statut === 'Validé') return '<span style="display:inline-block;background:rgba(34,197,94,.15);color:#22c55e;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">Validé</span>';
+  if (statut === 'Validé') return '<span style="display:inline-block;background:rgba(232,148,10,.15);color:#E8940A;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">Validé</span>';
   if (statut === 'Refusé') return '<span style="display:inline-block;background:rgba(255,107,107,.1);color:#ff6b6b;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">Refusé</span>';
   return '<span style="display:inline-block;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;">En attente</span>';
 }
@@ -1823,7 +1823,7 @@ function renderCandGrid(records) {
     var photo = photos[0] || '';
     var statut = f['Statut'] || 'En attente';
     var genreLabel = f['Genre']==='H'?'Homme':f['Genre']==='F'?'Femme':'—';
-    var borderColor = statut === 'Présélectionné' ? 'rgba(59,130,246,.3)' : statut === 'Validé' ? 'rgba(34,197,94,.3)' : statut === 'Refusé' ? 'rgba(255,107,107,.15)' : 'rgba(232,148,10,.1)';
+    var borderColor = statut === 'Présélectionné' ? 'rgba(59,130,246,.3)' : statut === 'Validé' ? 'rgba(232,148,10,.3)' : statut === 'Refusé' ? 'rgba(255,107,107,.15)' : 'rgba(232,148,10,.1)';
 
     html += '<div style="background:#161b17;border:1px solid ' + borderColor + ';border-radius:16px;overflow:hidden;cursor:pointer;" onclick="showCandDetail(\'' + r.id + '\')">';
 
@@ -2053,7 +2053,7 @@ function _scoreCandidature(rec) {
 
   // LABEL
   var label, labelColor, labelBg;
-  if      (total >= 78) { label = '⭐ Fort potentiel'; labelColor = '#22c55e'; labelBg = 'rgba(34,197,94,.15)';  }
+  if      (total >= 78) { label = '⭐ Fort potentiel'; labelColor = '#E8940A'; labelBg = 'rgba(232,148,10,.15)';  }
   else if (total >= 58) { label = 'Bon profil';        labelColor = '#E8940A'; labelBg = 'rgba(232,148,10,.15)'; }
   else if (total >= 38) { label = 'Profil moyen';      labelColor = '#FCE0A8'; labelBg = 'rgba(252,224,168,.08)';}
   else                  { label = 'Profil faible';     labelColor = 'rgba(252,224,168,.35)'; labelBg = 'rgba(255,255,255,.04)'; }
@@ -2127,7 +2127,7 @@ function _renderIAPanel() {
 
   // Distribution
   html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">';
-  html += '<div style="font-size:12px;padding:5px 12px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:8px;color:#22c55e;font-weight:700;">⭐ ' + forts + ' fort' + (forts!==1?'s':'') + '</div>';
+  html += '<div style="font-size:12px;padding:5px 12px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);border-radius:8px;color:#E8940A;font-weight:700;">⭐ ' + forts + ' fort' + (forts!==1?'s':'') + '</div>';
   html += '<div style="font-size:12px;padding:5px 12px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.25);border-radius:8px;color:#E8940A;font-weight:700;">👍 ' + bons + ' bon' + (bons!==1?'s':'') + '</div>';
   html += '<div style="font-size:12px;padding:5px 12px;background:rgba(252,224,168,.06);border:1px solid rgba(252,224,168,.1);border-radius:8px;color:rgba(252,224,168,.6);font-weight:700;">👤 ' + moyens + ' moyen' + (moyens!==1?'s':'') + '</div>';
   if (faibles) html += '<div style="font-size:12px;padding:5px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;color:rgba(252,224,168,.3);font-weight:700;">✗ ' + faibles + ' faible' + (faibles!==1?'s':'') + '</div>';
@@ -2150,7 +2150,7 @@ function _renderIAPanel() {
     if (pendingTop.length) {
       html += '<button onclick="window._preselectGroup(\'' + city + '\')" style="width:100%;padding:7px;background:rgba(59,130,246,.12);color:#3b82f6;border:1px solid rgba(59,130,246,.25);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">Présélectionner ' + city + ' (' + pendingTop.length + ')</button>';
     } else {
-      html += '<div style="font-size:11px;text-align:center;color:rgba(34,197,94,.7);padding:6px;">✓ Tops déjà présélectionnés</div>';
+      html += '<div style="font-size:11px;text-align:center;color:rgba(232,148,10,.7);padding:6px;">✓ Tops déjà présélectionnés</div>';
     }
     html += '</div>';
   });

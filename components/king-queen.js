@@ -139,7 +139,7 @@
         </div>
 
         <div style="background:rgba(232,148,10,.04);border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:14px 18px;margin-bottom:18px;max-width:720px;text-align:center;">
-          <div style="font-size:14px;color:#FCE0A8;line-height:1.6;">Jouer = <strong style="color:#4ade80;">gratuit</strong>. Voter = <strong style="color:#4ade80;">gratuit</strong>. Encaisser = <strong style="color:#E8940A;">Pro</strong>.</div>
+          <div style="font-size:14px;color:#FCE0A8;line-height:1.6;">Jouer = <strong style="color:#E8940A;">gratuit</strong>. Voter = <strong style="color:#E8940A;">gratuit</strong>. Encaisser = <strong style="color:#E8940A;">Pro</strong>.</div>
           <div style="font-size:12px;color:rgba(252, 224, 168,.5);margin-top:4px;">Passe au Pro maintenant et joue ta chance dès ce mois-ci.</div>
         </div>
 
@@ -400,7 +400,7 @@
               <div style="width:12px;height:12px;border-radius:50%;background:${nbPhotos >= i ? '#E8940A' : 'rgba(232,148,10,.2)'};"></div>
             `).join('')}
           </div>
-          <div style="font-size:12px;color:${complete ? '#4ade80' : 'rgba(252, 224, 168,.5)'};margin-top:6px;">
+          <div style="font-size:12px;color:${complete ? '#E8940A' : 'rgba(252, 224, 168,.5)'};margin-top:6px;">
             ${complete ? '✅ Participation complète — tu es dans les duels !' : `${nbPhotos}/3 photos · ${3 - nbPhotos} restante${3 - nbPhotos > 1 ? 's' : ''}`}
           </div>
         </div>
@@ -428,9 +428,9 @@
         ${!complete ? `
           <button onclick="kqOpenUpload(${nbPhotos + 1})" style="width:100%;padding:16px;background:#E8940A;color:#14100A;border:none;border-radius:14px;font-weight:900;font-size:15px;cursor:pointer;">📸 Ajouter la photo ${nbPhotos + 1}</button>
         ` : `
-          <div style="background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.3);border-radius:14px;padding:16px;text-align:center;">
+          <div style="background:rgba(232,148,10,.05);border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:16px;text-align:center;">
             <div style="font-size:24px;margin-bottom:8px;">✅</div>
-            <div style="font-weight:700;color:#4ade80;margin-bottom:4px;">Tu es dans les duels !</div>
+            <div style="font-weight:700;color:#E8940A;margin-bottom:4px;">Tu es dans les duels !</div>
             <div style="font-size:13px;color:rgba(252, 224, 168,.6);">Tes photos apparaissent dans les duels de la communauté. Partage ton profil sur WhatsApp pour récolter plus de votes.</div>
             <button onclick="kqShareWhatsApp()" style="margin-top:12px;padding:10px 20px;background:#25D366;color:white;border:none;border-radius:999px;font-weight:700;cursor:pointer;">📲 Partager sur WhatsApp</button>
           </div>
@@ -546,7 +546,7 @@
       const cards = grid.querySelectorAll('.kq-duel-card');
       const winIdx = side === 'a' ? 0 : 1;
       const loseIdx = side === 'a' ? 1 : 0;
-      if (cards[winIdx]) cards[winIdx].style.borderColor = '#4ade80';
+      if (cards[winIdx]) cards[winIdx].style.borderColor = '#E8940A';
       if (cards[loseIdx]) { cards[loseIdx].style.opacity = '0.3'; cards[loseIdx].style.transform = 'scale(0.95)'; }
     }
 
