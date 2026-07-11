@@ -13080,7 +13080,39 @@ async function loadOffresEmploi(filtres = {}) {
 }
 
 // ── Rendu d'une carte offre ──
-function renderOffreEmploi(offre) {
+// Vue liste compacte : rangée fine, pensée mobile (beaucoup d'offres à l'écran)
+function renderOffreEmploiCompact(offre) {
+  const f = offre.fields;
+  const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : null;
+  const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
+    ? `${(f['Salaire min FCFA']).toLocaleString()}${f['Salaire max FCFA'] ? ' – ' + f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
+    : 'À négocier';
+  const _loc = ((f['Quartier']||'') + ' ' + (f['Ville']||'')).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','natitingou'].some(v=>_loc.includes(v));
+  const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
+  const _safeTitre = escapeHtml(f['Titre'] || 'Sans titre');
+  const _safeOffreId = escapeHtml(offre.id);
+  const _titreJsArg = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  const metaParts = [
+    '🏢 ' + escapeHtml(f['Recruteur Nom'] || 'Recruteur') + (f['Recruteur vérifié'] ? ' ✓' : ''),
+    _flag + ' ' + escapeHtml(f['Quartier'] || f['Ville'] || ''),
+  ];
+  if (f['Type de contrat']) metaParts.push(escapeHtml(f['Type de contrat']));
+  if (joursDepuis != null) metaParts.push(joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' j');
+  return `<div class="offre-row" onclick="showOffreDetail('${_safeOffreId}')">
+    <div class="offre-row-main">
+      <div class="offre-row-titre">${f['Urgente'] ? '<span class="offre-row-dot" title="Urgente"></span>' : ''}${offre._isBoosted ? '<span class="offre-row-boost" title="À la une">★</span>' : ''}${_safeTitre}</div>
+      <div class="offre-row-meta">${metaParts.join(' · ')}</div>
+    </div>
+    <div class="offre-row-right">
+      <div class="offre-row-salaire">${salaire}</div>
+      <button class="offre-row-cta" onclick="event.stopPropagation();ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">Postuler</button>
+    </div>
+  </div>`;
+}
+
+function renderOffreEmploi(offre, forceMode) {
+  if ((forceMode || _emploiViewMode) === 'list') return renderOffreEmploiCompact(offre);
   const f = offre.fields;
   const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : '?';
   const contrat = f['Type de contrat'] || '';
@@ -13416,30 +13448,55 @@ function _getOffreCoords(f) {
 
 let _emploiMap = null;
 let _emploiMarkers = [];
-let _emploiViewMode = 'list';
+// 3 vues : 'grid' (gros carrés) · 'list' (rangées compactes, défaut mobile) · 'map' (carte)
+let _emploiViewMode = (function(){
+  try {
+    const saved = localStorage.getItem('wozali_emploi_view');
+    if (saved === 'grid' || saved === 'list') return saved;
+  } catch(e) {}
+  return (window.innerWidth <= 700) ? 'list' : 'grid';
+})();
+
+function _applyEmploiLayout(container) {
+  if (!container) return;
+  if (_emploiViewMode === 'list') {
+    container.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+  } else {
+    container.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;';
+  }
+}
+
+function _syncEmploiViewButtons() {
+  const onStyle  = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#14100A;font-size:12px;font-weight:700;cursor:pointer;';
+  const offStyle = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;';
+  const btns = {
+    grid: document.getElementById('emploi-view-grid'),
+    list: document.getElementById('emploi-view-list'),
+    map:  document.getElementById('emploi-view-map'),
+  };
+  Object.keys(btns).forEach(k => { if (btns[k]) btns[k].style.cssText = (k === _emploiViewMode) ? onStyle : offStyle; });
+}
 
 function setEmploiView(mode) {
   _emploiViewMode = mode;
+  try { if (mode !== 'map') localStorage.setItem('wozali_emploi_view', mode); } catch(e) {}
   const list = document.getElementById('emploi-list');
   const map = document.getElementById('emploi-map');
   const pagination = document.getElementById('emploi-pagination');
-  const btnList = document.getElementById('emploi-view-list');
-  const btnMap = document.getElementById('emploi-view-map');
-  const onStyle  = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#14100A;font-size:12px;font-weight:700;cursor:pointer;';
-  const offStyle = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;';
+  _syncEmploiViewButtons();
   if (mode === 'map') {
-    list.style.display = 'none';
-    pagination.style.display = 'none';
-    map.style.display = 'block';
-    if (btnMap) btnMap.style.cssText = onStyle;
-    if (btnList) btnList.style.cssText = offStyle;
+    if (list) list.style.display = 'none';
+    if (pagination) pagination.style.display = 'none';
+    if (map) map.style.display = 'block';
     initEmploiMap();
   } else {
-    list.style.display = 'grid';
-    pagination.style.display = '';
-    map.style.display = 'none';
-    if (btnList) btnList.style.cssText = onStyle;
-    if (btnMap) btnMap.style.cssText = offStyle;
+    if (map) map.style.display = 'none';
+    if (pagination) pagination.style.display = '';
+    _applyEmploiLayout(list);
+    // Re-render : le markup des cartes diffère entre grille et liste compacte
+    if (typeof _offresCurrent !== 'undefined' && _offresCurrent && _offresCurrent.length >= 0) {
+      try { renderOffresPage(); } catch(e) {}
+    }
   }
 }
 
@@ -13552,9 +13609,22 @@ function renderOffresPage() {
     return;
   }
 
+  _applyEmploiLayout(container);
+  _syncEmploiViewButtons();
   // Hard-coded WOZALI recruitment card (first page only)
   var wozaliRecruitCard = '';
-  if (_offresPage === 1) {
+  if (_offresPage === 1 && _emploiViewMode === 'list') {
+    wozaliRecruitCard = `<div class="offre-row offre-row--wozali" onclick="window.location.href='/offre-agents-terrain'">
+    <div class="offre-row-main">
+      <div class="offre-row-titre"><span class="offre-row-badge-wz">WOZALI RECRUTE</span>Agent terrain WOZALI · Lomé &amp; Cotonou</div>
+      <div class="offre-row-meta">🏢 WOZALI ✓ · 🇹🇬 Lomé · 🇧🇯 Cotonou · Mission terrain · 20 places</div>
+    </div>
+    <div class="offre-row-right">
+      <div class="offre-row-salaire">100 000 FCFA</div>
+      <button class="offre-row-cta" onclick="event.stopPropagation();window.location.href='/offre-agents-terrain'">Postuler</button>
+    </div>
+  </div>`;
+  } else if (_offresPage === 1) {
     wozaliRecruitCard = `<div class="offre-card" style="border-left:3px solid #E8940A;position:relative;">
     <div style="position:absolute;top:12px;right:12px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;padding:4px 10px;border-radius:4px;font-weight:700;">WOZALI RECRUTE</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
@@ -13581,7 +13651,7 @@ function renderOffresPage() {
     </div>
   </div>`;
   }
-  container.innerHTML = wozaliRecruitCard + page.map(renderOffreEmploi).join('');
+  container.innerHTML = wozaliRecruitCard + page.map(o => renderOffreEmploi(o)).join('');
   setTimeout(_enrichOffresTrustBadges, 0);
 
   // Pagination
@@ -13642,7 +13712,8 @@ async function loadHomeOffresEmploi() {
       container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><p>Aucune offre disponible pour l\'instant.</p><button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="showPage(\'inscription\')">Publier une offre →</button></div>';
       return;
     }
-    container.innerHTML = recent.map(renderOffreEmploi).join('');
+    // Home : toujours les grandes cartes, quelle que soit la vue choisie sur WOZALI Jobs
+    container.innerHTML = recent.map(o => renderOffreEmploi(o, 'grid')).join('');
   } catch(e) {
     container.innerHTML = '<p style="text-align:center;color:var(--gris);padding:20px;">Erreur de chargement.</p>';
   }
