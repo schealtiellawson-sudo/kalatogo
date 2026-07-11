@@ -832,15 +832,14 @@ document.addEventListener('DOMContentLoaded',()=>{
     const countEl = document.getElementById(`likes-${postId}`);
     const current = parseInt(countEl?.textContent || '0') || 0;
     try {
+      // nb_likes est maintenu par trigger SQL sur wozali_likes (RLS bloquait l'update direct par les non-auteurs)
       if (isLiked) {
         await sb.from('wozali_likes').delete().eq('post_id', postId).eq('user_id', user.id);
-        await sb.from('wozali_posts').update({ nb_likes: Math.max(0, current - 1) }).eq('id', postId);
         btn.classList.remove('liked');
         const ic = btn.querySelector('.like-icon'); if (ic) ic.textContent = '🤍';
         if (countEl) countEl.textContent = Math.max(0, current - 1);
       } else {
         await sb.from('wozali_likes').insert({ post_id: postId, user_id: user.id });
-        await sb.from('wozali_posts').update({ nb_likes: current + 1 }).eq('id', postId);
         btn.classList.add('liked');
         const ic = btn.querySelector('.like-icon'); if (ic) ic.textContent = '❤️';
         if (countEl) countEl.textContent = current + 1;
@@ -896,9 +895,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const sb = _sb(); if (!sb) return;
     try {
       await sb.from('wozali_commentaires').insert({ post_id: postId, auteur_id: user.id, contenu });
-      // Increment count (fetch + update)
-      const { data: cur } = await sb.from('wozali_posts').select('nb_commentaires').eq('id', postId).maybeSingle();
-      await sb.from('wozali_posts').update({ nb_commentaires: (cur?.nb_commentaires || 0) + 1 }).eq('id', postId);
+      // nb_commentaires est maintenu par trigger SQL sur wozali_commentaires (RLS bloquait l'update direct)
       input.value = '';
       // Re-open comments (toggle twice to refresh)
       const zone = document.getElementById(`commentaires-${postId}`);
@@ -1046,22 +1043,32 @@ document.addEventListener('DOMContentLoaded',()=>{
     const files = window._postFiles || [];
     let photos = [], mediaUrl = null, mediaType = null;
 
-    // Upload chaque fichier
+    // Upload chaque fichier — images via ImgBB (comme les stories), vidéos via Supabase Storage
+    let uploadEchecs = 0;
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const isVideo = file.type.startsWith('video/');
       try {
-        const fileName = `posts/${user.id}/${Date.now()}_${i}.${file.name.split('.').pop()}`;
-        const { data: uploadData, error: upErr } = await sb.storage.from('wozali-media').upload(fileName, file, { upsert: false });
-        if (!upErr && uploadData) {
+        if (isVideo) {
+          const fileName = `posts/${user.id}/${Date.now()}_${i}.${file.name.split('.').pop()}`;
+          const { error: upErr } = await sb.storage.from('wozali-media').upload(fileName, file, { upsert: false });
+          if (upErr) throw upErr;
           const { data: pub } = sb.storage.from('wozali-media').getPublicUrl(fileName);
-          const url = pub?.publicUrl;
-          if (url) {
-            if (isVideo) { mediaUrl = url; mediaType = 'video'; }
-            else photos.push(url);
-          }
+          if (pub?.publicUrl) { mediaUrl = pub.publicUrl; mediaType = 'video'; }
+          else uploadEchecs++;
+        } else {
+          const url = (typeof uploadToImgBB === 'function') ? await uploadToImgBB(file) : null;
+          if (url) photos.push(url);
+          else uploadEchecs++;
         }
-      } catch(e) { console.warn('upload', e); }
+      } catch(e) { console.warn('upload', e); uploadEchecs++; }
+    }
+
+    // Si des fichiers étaient sélectionnés mais qu'aucun n'est passé, ne pas publier un post vide
+    if (files.length > 0 && photos.length === 0 && !mediaUrl) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Publier'; }
+      alert("L'upload a échoué. Vérifie ta connexion et réessaie.");
+      return;
     }
 
     // Backward compat: si 1 seule photo, mettre aussi en media_url

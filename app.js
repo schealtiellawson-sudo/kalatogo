@@ -6329,21 +6329,21 @@ function _renderCurrentStory() {
   const mediaEl = document.getElementById('fil-story-media');
   if (mediaEl) {
     if (s.media_type === 'video') {
-      mediaEl.innerHTML = `<video src="${s.media_url}" autoplay muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onloadedmetadata="(function(v){const b=document.getElementById('fil-story-prog-bar');if(b&&v.duration>0)b.style.animation='storyFill '+Math.round(v.duration*1000)+'ms linear forwards';})(this)" onended="nextStory()"></video>`;
+      mediaEl.innerHTML = `<video src="${escapeHtml(s.media_url||'')}" autoplay muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onloadedmetadata="(function(v){const b=document.getElementById('fil-story-prog-bar');if(b&&v.duration>0)b.style.animation='storyFill '+Math.round(v.duration*1000)+'ms linear forwards';})(this)" onended="nextStory()"></video>`;
     } else {
-      mediaEl.innerHTML = `<img src="${s.media_url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">`;
+      mediaEl.innerHTML = `<img src="${escapeHtml(s.media_url||'')}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">`;
     }
   }
 
   clearTimeout(_filStoryTimer);
   if (dur) _filStoryTimer = setTimeout(nextStory, dur);
 
-  // Marquer comme vue
+  // Marquer comme vue — via RPC SECURITY DEFINER (RLS bloque l'update direct sur la story d'un autre)
   if (currentUser && s.id) {
-    const vuePar = [...(s.vue_par||[])];
+    const vuePar = s.vue_par || [];
     if (!vuePar.includes(currentUser.id)) {
-      vuePar.push(currentUser.id);
-      window.supabase.from('wozali_stories').update({ vue_par: vuePar }).eq('id', s.id).then(()=>{});
+      s.vue_par = [...vuePar, currentUser.id];
+      window.supabase.rpc('wozali_story_vue', { p_story_id: s.id }).then(()=>{}, ()=>{});
     }
   }
 }
