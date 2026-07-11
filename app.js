@@ -17951,3 +17951,102 @@ async function modererTemoignageAbus(id, statutAction) {
     alert('Erreur lors de la moderation.');
   }
 }
+
+// ══════════════════════════════════════════════════════════════
+// HERO BRAISES — particules dorées qui montent du noir (maquette validée)
+// Léger : ~50 particules desktop / 24 mobile, pause hors écran + onglet caché,
+// désactivé si prefers-reduced-motion.
+// ══════════════════════════════════════════════════════════════
+(function(){
+  function initHeroBraises(){
+    const canvas = document.getElementById('hero-braises');
+    if (!canvas) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { canvas.remove(); return; }
+    const ctx = canvas.getContext('2d');
+    // Le hero v2 (construit au DOMContentLoaded) déplace le canvas chez lui —
+    // on se dimensionne sur le conteneur réel au moment de l'init différée
+    const hero = canvas.closest('.wv2-hero-v2') || canvas.closest('.hero') || canvas.parentElement;
+    let W = 0, H = 0, parts = [], raf = null, visible = false;
+
+    function resize(){
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = hero.offsetWidth; H = hero.offsetHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function spawn(initial){
+      return {
+        x: Math.random() * W,
+        y: initial ? Math.random() * H : H + 8,
+        r: 0.6 + Math.random() * 1.9,
+        vy: 0.18 + Math.random() * 0.5,
+        drift: (Math.random() - 0.5) * 0.25,
+        baseA: 0.12 + Math.random() * 0.45,
+        tw: Math.random() * Math.PI * 2,
+        twS: 0.008 + Math.random() * 0.02
+      };
+    }
+
+    function build(){
+      const n = W < 640 ? 24 : 50;
+      parts = Array.from({ length: n }, () => spawn(true));
+    }
+
+    function tick(){
+      if (!visible || document.hidden) { raf = null; return; }
+      ctx.clearRect(0, 0, W, H);
+      for (const p of parts){
+        p.y -= p.vy;
+        p.x += p.drift + Math.sin(p.y * 0.012 + p.tw) * 0.22;
+        p.tw += p.twS;
+        if (p.y < -10 || p.x < -12 || p.x > W + 12) Object.assign(p, spawn(false));
+        const flicker = 0.65 + 0.35 * Math.sin(p.tw * 6);
+        const a = p.baseA * flicker * Math.min(1, (H - p.y) / (H * 0.25) + 0.3);
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3.2);
+        g.addColorStop(0, 'rgba(245,177,61,' + a.toFixed(3) + ')');
+        g.addColorStop(0.5, 'rgba(232,148,10,' + (a * 0.45).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(232,148,10,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 3.2, 0, Math.PI * 2); ctx.fill();
+      }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start(){
+      if (!visible || document.hidden) return;
+      if ((!W || !H) && hero.offsetWidth) { resize(); build(); }
+      if (!raf) raf = requestAnimationFrame(tick);
+    }
+
+    resize(); build();
+    let rT = null;
+    window.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => { resize(); build(); }, 200); });
+    document.addEventListener('visibilitychange', start);
+    const obs = new IntersectionObserver((entries) => {
+      visible = entries[0].isIntersecting;
+      // Si le hero était masqué à l'init (autre page active), mesurer maintenant
+      if (visible && (!W || !H) && hero.offsetWidth) { resize(); build(); }
+      start();
+    }, { threshold: 0.05 });
+    obs.observe(hero);
+
+    // Fallback : si l'observer ne se déclenche pas (hero masqué à l'init par la
+    // home v2 connectée), vérifier périodiquement jusqu'au premier lancement réussi
+    const sizer = setInterval(() => {
+      if (W && H && raf) { clearInterval(sizer); return; }
+      if (!hero.offsetWidth || document.hidden) return;
+      const r = hero.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight) {
+        if (!W || !H) { resize(); build(); }
+        visible = true;
+        start();
+      }
+    }, 1200);
+  }
+  // Init différée : le hero v2 déplace le canvas à DOMContentLoaded (+50ms)
+  function scheduleHeroBraises(){ setTimeout(initHeroBraises, 200); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleHeroBraises);
+  else scheduleHeroBraises();
+})();

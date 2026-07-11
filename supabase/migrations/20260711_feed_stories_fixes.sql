@@ -106,3 +106,11 @@ DO $$ BEGIN
       USING (bucket_id = 'wozali-media' AND (storage.foldername(name))[2] = auth.uid()::text);
   END IF;
 END $$;
+
+-- ─────────────────────────────────────────────
+-- 5. Backfill profiles manquants (le trigger avalait les erreurs en silence :
+--    3 comptes réels n'avaient pas de ligne profiles → posts/follows impossibles, FK violée)
+-- ─────────────────────────────────────────────
+INSERT INTO public.profiles (id, email)
+SELECT id, email FROM auth.users
+ON CONFLICT (id) DO NOTHING;

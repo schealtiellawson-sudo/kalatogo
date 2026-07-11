@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260711c">
+<link rel="stylesheet" href="/style.css?v=20260711d">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -311,6 +311,8 @@ setTimeout(function(){
     <div class="hero-bg-grid"></div>
     <div class="hero-bg"></div>
     <div class="hero-dots"></div>
+    <div class="hero-glow-deep" aria-hidden="true"></div>
+    <canvas class="hero-braises" id="hero-braises" aria-hidden="true"></canvas>
     <div class="hero-particles">
       <div class="hero-particle hp1"></div>
       <div class="hero-particle hp2"></div>
@@ -344,39 +346,51 @@ setTimeout(function(){
           </div>
         </div>
 
-        <!-- ══ HERO CINÉMATIQUE — 15 sec (3 scènes) ══ -->
+        <!-- ══ HERO "LE TRAVAIL QUI SORT DE L'OMBRE" — cartes profils qui s'élèvent du noir ══ -->
         <div class="hero-visual" data-anim="scale" data-anim-delay="2">
-          <div class="hero-cine" id="hero-cine">
-            <!-- Scène 1 — Le problème (0-5s) -->
-            <div class="hc-scene hc-s1 hc-active">
-              <div class="hc-bg" style="background:radial-gradient(ellipse at 30% 40%,rgba(248,113,113,0.12),transparent 70%);"></div>
-              <div class="hc-eyebrow">LOMÉ · COTONOU · 2026</div>
-              <div class="hc-big">Personne ne sait<br>que tu existes.</div>
-              <div class="hc-sub">Celui qui a des connexions mange.<br>Celui qui travaille bien — attend.<br><span style="font-size:0.85em;opacity:0.65;">Et sa famille attend avec lui.</span></div>
-              <div class="hc-stat"><span class="hc-stat-num">92%</span> des artisans n'ont aucune présence en ligne</div>
-            </div>
-            <!-- Scène 2 — La solution (5-11s) -->
-            <div class="hc-scene hc-s2">
-              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.15),transparent 60%);"></div>
-              <div class="hc-logo-reveal">W</div>
-              <div class="hc-big" style="color:#E8940A;">2 minutes.<br>Tu existes en ligne.</div>
-              <div class="hc-features">
-                <div class="hc-feat hc-feat-1"><span>👁️</span> Visibilité — ton profil pro, visible partout</div>
-                <div class="hc-feat hc-feat-2"><span>🏆</span> 500 000 FCFA distribués chaque mois</div>
-                <div class="hc-feat hc-feat-3"><span>📈</span> Parrainage — 1 000 FCFA par filleul actif</div>
+          <div class="hero-ombre" id="hero-ombre" aria-hidden="false">
+            <div class="ho-halo"></div>
+
+            <div class="ho-card ho-card-1">
+              <div class="ho-card-top">
+                <div class="ho-avatar">K</div>
+                <div class="ho-id">
+                  <div class="ho-nom">Kofi Mensah</div>
+                  <div class="ho-meta">Menuisier · Bè, Lomé</div>
+                </div>
+                <div class="ho-score"><span class="ho-score-num">92</span><span class="ho-score-label">SCORE</span></div>
               </div>
+              <div class="ho-bar"><div class="ho-bar-fill" style="--pct:92%;"></div></div>
+              <div class="ho-badges"><span class="ho-badge">VÉRIFIÉ</span><span class="ho-badge ho-badge-dim">18 AVIS</span></div>
             </div>
-            <!-- Scène 3 — CTA final (11-15s) -->
-            <div class="hc-scene hc-s3">
-              <div class="hc-bg" style="background:radial-gradient(ellipse at 50% 50%,rgba(232,148,10,0.2),transparent 50%);"></div>
-              <div class="hc-big" style="font-size:clamp(20px,4vw,28px);">Ton travail parle.<br>Pas tes connexions.</div>
-              <button class="hc-cta" onclick="showPage('inscription')">✦ Créer mon profil — gratuit · 2 min</button>
-              <div class="hc-sub" style="margin-top:10px;font-size:11px;opacity:0.5;">WOZALI t'appartient.</div>
+
+            <div class="ho-card ho-card-2">
+              <div class="ho-card-top">
+                <div class="ho-avatar">A</div>
+                <div class="ho-id">
+                  <div class="ho-nom">Ama Djidonou</div>
+                  <div class="ho-meta">Couturière · Cotonou</div>
+                </div>
+                <div class="ho-score"><span class="ho-score-num">88</span><span class="ho-score-label">SCORE</span></div>
+              </div>
+              <div class="ho-bar"><div class="ho-bar-fill" style="--pct:88%;"></div></div>
+              <div class="ho-badges"><span class="ho-badge ho-badge-or">PRO</span><span class="ho-badge ho-badge-dim">DISPONIBLE</span></div>
             </div>
-            <!-- Barre de progression -->
-            <div class="hc-progress"><div class="hc-progress-bar" id="hc-progress-bar"></div></div>
-            <!-- Dots navigation -->
-            <div class="hc-dots" id="hc-dots"></div>
+
+            <div class="ho-card ho-card-3">
+              <div class="ho-card-top">
+                <div class="ho-avatar">M</div>
+                <div class="ho-id">
+                  <div class="ho-nom">Mariam A.</div>
+                  <div class="ho-meta">Coiffeuse · Tokoin</div>
+                </div>
+                <div class="ho-score"><span class="ho-score-num">95</span><span class="ho-score-label">SCORE</span></div>
+              </div>
+              <div class="ho-bar"><div class="ho-bar-fill" style="--pct:95%;"></div></div>
+              <div class="ho-badges"><span class="ho-badge ho-badge-or">PRO</span><span class="ho-badge ho-badge-dim">⭐ 4,9 · 27 AVIS</span></div>
+            </div>
+
+            <div class="ho-caption">Chaque profil s'élève du noir vers la lumière.<br><button class="ho-cta" onclick="showPage('inscription')">✦ Créer mon profil — gratuit · 2 min</button></div>
           </div>
         </div>
       </div>
@@ -6744,7 +6758,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260711c" defer></script>
+<script src="/app.js?v=20260711g" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -9187,11 +9201,15 @@ window.addEventListener('beforeinstallprompt', function(e){
       +   '</div>'
       +   '<div id="wv2-hero-cine-slot"></div>'
       + '</div>';
-    // Déplacer le hero-cine dans le slot v2
+    // Déplacer la scène "sort de l'ombre" (cartes + braises + glow) dans le hero v2
     setTimeout(function(){
-      var cine = document.getElementById('hero-cine');
       var slot = document.getElementById('wv2-hero-cine-slot');
-      if (cine && slot) slot.appendChild(cine);
+      var ombre = document.getElementById('hero-ombre');
+      if (ombre && slot) slot.appendChild(ombre);
+      var braises = document.getElementById('hero-braises');
+      if (braises) section.insertBefore(braises, section.firstChild);
+      var glow = document.querySelector('.hero-glow-deep');
+      if (glow) section.insertBefore(glow, section.firstChild);
     }, 50);
     if (legacyHero && legacyHero.parentNode) {
       legacyHero.parentNode.insertBefore(section, legacyHero);
