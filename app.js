@@ -3555,7 +3555,37 @@ function getUserLocation() {
   }, () => {}, { timeout: 6000 });
 }
 
-function renderCard(record) {
+// Vue liste compacte : rangée fine prestataire (mobile, beaucoup de profils à l'écran)
+function renderCardCompact(record) {
+  const f = record.fields;
+  const nom = escapeHtml(f['Nom complet'] || 'Prestataire');
+  const initiale = nom.charAt(0).toUpperCase();
+  const metier = escapeHtml(f['Métier principal'] || '');
+  const quartier = escapeHtml(f['Quartier'] || '');
+  const dispo = f['Disponible maintenant'];
+  const scoreW = f['Score WOZALI'] || 0;
+  const note = f['Note moyenne'] || 0;
+  const rawPhoto = f['Photo de profil'] || '';
+  const photo = escapeHtml(rawPhoto);
+  const emoji = METIER_EMOJI[f['Métier principal']] || '⚡';
+  const _loc = ((f['Quartier']||'')+' '+(f['Ville']||'')).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','calavi'].some(v=>_loc.includes(v));
+  const flagC = _isBJ ? '🇧🇯' : '🇹🇬';
+  const safeId = escapeHtml(record.id);
+  const metaParts = [emoji + ' ' + metier, flagC + ' ' + quartier];
+  if (note > 0) metaParts.push('★ ' + note.toFixed(1));
+  return `<div class="presta-row" onclick="showProfil('${safeId}')">
+    <div class="presta-row-avatar">${photo ? `<img src="${photo}" alt="${nom}" loading="lazy">` : initiale}</div>
+    <div class="presta-row-main">
+      <div class="presta-row-nom">${nom}${isProUser({fields:f}) ? '<span class="presta-row-pro">PRO</span>' : ''}${dispo ? '<span class="presta-row-dispo" title="Disponible maintenant"></span>' : ''}</div>
+      <div class="presta-row-meta">${metaParts.join(' · ')}</div>
+    </div>
+    <div class="presta-row-score"><span class="presta-row-score-num">${scoreW}</span><span class="presta-row-score-lbl">SCORE</span></div>
+  </div>`;
+}
+
+function renderCard(record, forceMode) {
+  if ((forceMode || _searchViewMode) === 'list') return renderCardCompact(record);
   const f = record.fields;
   const nom = escapeHtml(f['Nom complet'] || 'Prestataire');
   const initiale = nom.charAt(0).toUpperCase();
@@ -3896,14 +3926,14 @@ async function initHome() {
       return;
     }
 
-    container.innerHTML = records.slice(0, 6).map(r => renderCard(r)).join('');
+    container.innerHTML = records.slice(0, 6).map(r => renderCard(r, 'grid')).join('');
   } catch (e) {
     // Fallback : afficher des données de démo
     console.warn('Airtable inaccessible, affichage démo:', e.message);
     const count = MOCK_PRESTATAIRES.length;
     document.getElementById('m-prestataires').textContent = count;
     if (document.getElementById('proof-count')) document.getElementById('proof-count').textContent = count;
-    container.innerHTML = MOCK_PRESTATAIRES.map(r => renderCard(r)).join('');
+    container.innerHTML = MOCK_PRESTATAIRES.map(r => renderCard(r, 'grid')).join('');
   }
 
   // Mettre à jour l'affichage des commissions
@@ -3984,31 +4014,66 @@ function quickFilter(metier) {
   }, 100);
 }
 
-// ── Map view state ──────────────────────────────────────────────
+// ── Vues recherche : 'list' (rangées compactes, défaut mobile) · 'grid' (gros carrés) · carte ──
 let _mapViewActive = false;
 let _searchMapInstance = null;
+let _searchViewMode = (function(){
+  try {
+    const saved = localStorage.getItem('wozali_search_view');
+    if (saved === 'grid' || saved === 'list') return saved;
+  } catch(e) {}
+  return (window.innerWidth <= 700) ? 'list' : 'grid';
+})();
 
-function toggleMapView() {
-  _mapViewActive = !_mapViewActive;
-  const btn = document.getElementById('map-toggle-btn');
+function _applySearchLayout(cardsEl) {
+  if (!cardsEl) return;
+  if (_searchViewMode === 'list') {
+    cardsEl.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+  } else {
+    cardsEl.style.cssText = '';
+    cardsEl.style.display = 'grid';
+  }
+}
+
+function _syncSearchViewButtons() {
+  const onStyle  = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#14100A;font-size:12px;font-weight:700;cursor:pointer;';
+  const offStyle = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;';
+  const active = _mapViewActive ? 'map' : _searchViewMode;
+  const btns = {
+    list: document.getElementById('search-view-list'),
+    grid: document.getElementById('search-view-grid'),
+    map:  document.getElementById('search-view-map'),
+  };
+  Object.keys(btns).forEach(k => { if (btns[k]) btns[k].style.cssText = (k === active) ? onStyle : offStyle; });
+}
+
+function setSearchView(mode) {
   const mapEl = document.getElementById('search-map');
   const cardsEl = document.getElementById('search-cards');
-  if (_mapViewActive) {
-    btn.textContent = '📋 Vue liste';
-    btn.classList.add('active');
-    mapEl.style.display = 'block';
-    cardsEl.style.display = 'none';
+  if (mode === 'map') {
+    _mapViewActive = true;
+    if (mapEl) mapEl.style.display = 'block';
+    if (cardsEl) cardsEl.style.display = 'none';
     renderSearchMap(window._lastSearchRecords || []);
   } else {
-    btn.textContent = '🗺️ Vue carte';
-    btn.classList.remove('active');
-    mapEl.style.display = 'none';
-    cardsEl.style.display = 'grid';
+    _mapViewActive = false;
+    _searchViewMode = mode;
+    try { localStorage.setItem('wozali_search_view', mode); } catch(e) {}
+    if (mapEl) mapEl.style.display = 'none';
     const noticeEl = document.getElementById('search-map-notice');
     if (noticeEl) noticeEl.style.display = 'none';
     if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
+    _applySearchLayout(cardsEl);
+    // Re-render : le markup diffère entre grille et liste compacte
+    if (cardsEl && window._lastSearchRecords && window._lastSearchRecords.length) {
+      cardsEl.innerHTML = window._lastSearchRecords.map(r => renderCard(r)).join('');
+    }
   }
+  _syncSearchViewButtons();
 }
+
+// Compat : le bouton "Voir tous" du bandeau carte repasse sur la vue précédente
+function toggleMapView() { setSearchView(_mapViewActive ? _searchViewMode : 'map'); }
 
 function renderSearchMap(records) {
   if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
@@ -4166,6 +4231,8 @@ function rechercheDebounce(fn, delay=300) {
 async function loadSearch() {
   const container = document.getElementById('search-cards');
   const meta = document.getElementById('results-meta');
+  if (!_mapViewActive) _applySearchLayout(container);
+  _syncSearchViewButtons();
   // Ne vider l'écran (spinner) que si on n'a pas déjà les résultats en cache frais
   const _sm = document.getElementById('s-metier')?.value || '';
   const _sq = document.getElementById('s-quartier')?.value || '';

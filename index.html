@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260711f">
+<link rel="stylesheet" href="/style.css?v=20260711g">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1253,7 +1253,11 @@ setTimeout(function(){
       </div>
       <div class="map-toggle-bar">
         <div class="results-meta" id="results-meta">Chargement...</div>
-        <button class="map-toggle-btn" id="map-toggle-btn" onclick="toggleMapView()">🗺️ Vue carte</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="search-view-list" onclick="setSearchView('list')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">☰ Liste</button>
+          <button id="search-view-grid" onclick="setSearchView('grid')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">▦ Grille</button>
+          <button id="search-view-map" onclick="setSearchView('map')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">🗺️ Carte</button>
+        </div>
       </div>
     </div>
   </div>
@@ -6759,7 +6763,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260711i" defer></script>
+<script src="/app.js?v=20260711j" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
