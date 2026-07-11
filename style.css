@@ -7132,3 +7132,81 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
   .dm-back-btn { display:flex !important; }
   .dm-msg-in-body, .dm-msg-out-body { max-width:85%; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   COUCHE POLISH — 2026-07-11
+   Élève l'app d'un cran : profondeur, glow, squelettes dorés,
+   micro-interactions. Scopé sur les classes existantes, non cassant.
+   Respecte prefers-reduced-motion.
+═══════════════════════════════════════════════════════════════ */
+
+/* --- Boutons : élévation + glow doré au survol, retour tactile au clic --- */
+.btn, .btn-or, .btn-primary, .btn-rdv, .dm-profile-btn {
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, background .18s ease, filter .18s ease;
+  will-change: transform;
+}
+.btn-primary:hover, .btn-or:hover, .btn-rdv:hover,
+.btn.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 34px -10px rgba(232,148,10,.7);
+  filter: saturate(1.05);
+}
+.btn:active, .btn-or:active, .btn-primary:active, .btn-rdv:active { transform: translateY(0) scale(.98); }
+
+/* Accessibilité : anneau de focus visible et cohérent */
+.btn:focus-visible, button:focus-visible, a:focus-visible,
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--wozali-orange, #E8940A);
+  outline-offset: 2px;
+}
+
+/* --- Cartes : léger relief (liseré lumineux interne) --- */
+.stat-card, .kpi-card, #page-dashboard .dash-card,
+.profil-page-bg .sidebar-card, .pf-card {
+  box-shadow: 0 1px 0 rgba(252,224,168,.05) inset, 0 20px 50px -30px rgba(0,0,0,.7);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.pf-card:hover, .stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232,148,10,.28) !important;
+  box-shadow: 0 1px 0 rgba(252,224,168,.07) inset, 0 26px 60px -28px rgba(0,0,0,.8);
+}
+
+/* --- Chiffres clés : rendu serif italic doré, chiffres alignés --- */
+.stat-card-num, .profil-stat-num, .kpi .n, .kpi-card-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+
+/* --- Squelette de chargement doré (utilitaire réutilisable) --- */
+.wz-skel {
+  position: relative; overflow: hidden;
+  background: linear-gradient(90deg, rgba(252,224,168,.05), rgba(252,224,168,.09), rgba(252,224,168,.05));
+  background-size: 200% 100%;
+  animation: wz-shimmer 1.4s ease-in-out infinite;
+  border-radius: 10px;
+}
+.wz-skel-line { height: 12px; margin: 8px 0; }
+.wz-skel-av { width: 46px; height: 46px; border-radius: 50%; }
+@keyframes wz-shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+
+/* --- Spinner : passe au doré chaud (au lieu du vert-light hérité) --- */
+.spinner { border-color: rgba(232,148,10,.18); border-top-color: #E8940A; }
+
+/* --- Apparition douce des sections dashboard --- */
+#page-dashboard .dash-section.active { animation: wz-rise .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes wz-rise { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform:none; } }
+
+/* --- Barre de progression / score : transition douce du remplissage --- */
+[class*="score-fill"], .top50-score-fill, .pbar i, .profil-avis-bar-fill {
+  transition: width .8s cubic-bezier(.2,.8,.2,1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn-or, .btn-primary, .btn-rdv, .pf-card, .stat-card,
+  #page-dashboard .dash-section.active, .wz-skel, [class*="score-fill"], .pbar i {
+    animation: none !important;
+    transition: none !important;
+  }
+  .btn-primary:hover, .btn-or:hover, .pf-card:hover, .stat-card:hover { transform: none; }
+}

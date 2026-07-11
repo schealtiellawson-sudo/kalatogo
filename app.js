@@ -979,7 +979,7 @@ function renderPremierPasWizard() {
         <div style="font-size:24px;">📲</div>
         <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#14100A;line-height:1.3;">Partage ton profil sur WhatsApp</div>
         <div style="font-size:12px;color:var(--gris);line-height:1.5;">Tes premiers clients viennent de tes contacts. Lance la machine.</div>
-        <button onclick="markPremierPasShared('${waUrl.replace(/'/g, '%27')}')" style="margin-top:auto;background:#25d366;color:white;border:none;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Partager maintenant</button>
+        <button onclick="markPremierPasShared('${waUrl.replace(/'/g, '%27')}')" style="margin-top:auto;background:#E8940A;color:#14100A;border:none;padding:9px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;">Partager maintenant</button>
       </div>
     `);
   } else {
