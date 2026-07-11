@@ -1061,7 +1061,17 @@ h1 .gold { color:var(--or); }
 
 /* ═══════════ NOUVEAU PROFIL — design centré v2 ═══════════ */
 .profil-new-header { background:#0f0b07; }
-.profil-cover-zone { height:90px; background:linear-gradient(135deg,#1A1208 0%,#2a1d0a 50%,#1A1208 100%); }
+.profil-cover-zone {
+  height:120px; position:relative; overflow:hidden;
+  background:
+    radial-gradient(480px 210px at 76% -30%, rgba(232,148,10,.30), transparent 66%),
+    radial-gradient(360px 180px at 12% 130%, rgba(232,148,10,.10), transparent 60%),
+    linear-gradient(135deg,#1A1208 0%,#241a0c 50%,#14100A 100%);
+}
+.profil-cover-zone::after {
+  content:""; position:absolute; left:0; right:0; bottom:0; height:52px;
+  background:linear-gradient(transparent,#0f0b07); pointer-events:none;
+}
 /* Header body: stacked on mobile, flex on PC */
 .profil-header-body { display:block; }
 /* Avatar centré */
