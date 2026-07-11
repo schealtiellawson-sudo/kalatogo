@@ -18,7 +18,7 @@ function lancerCountdown(){
     if(diff <= 0){
       var timer = document.getElementById('wozali-countdown-timer');
       if(timer){
-        timer.innerHTML = '<div style="font-family:Georgia,serif;color:#E8940A;font-size:22px;">🏆 Le tirage a eu lieu. Voir les résultats.</div>';
+        timer.innerHTML = '<div style="font-family:Georgia,serif;color:#E8940A;font-size:22px;">🏆 Le classement du mois est calculé. Voir les résultats.</div>';
       }
       clearInterval(intv);
       return;
@@ -174,16 +174,16 @@ async function afficherWidgetBourse(userId){
   const {eligible,conditions,manque,joursRestants,prochainTirage}=r;
   const dateFmt=new Date(prochainTirage).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
   if(!conditions.estPro){
-    c.innerHTML=`<div class="widget-bourse etat-non-pro"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut rouge">Non éligible</span></div><p class="widget-montant-preview"><span class="montant-juillet">300 000 FCFA</span><span class="montant-label">lancement juin</span></p><p>La Bourse de Croissance est réservée aux membres Pro.</p><a href="#abonnement" class="widget-cta">→ Passer au Plan Pro pour participer</a></div>`;return;
+    c.innerHTML=`<div class="widget-bourse etat-non-pro"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut rouge">Non éligible</span></div><p class="widget-montant-preview"><span class="montant-juillet">100 000 FCFA × 3</span><span class="montant-label">les mieux classés</span></p><p>La Bourse de Croissance est réservée aux membres Pro.</p><a href="#abonnement" class="widget-cta">→ Passer au Plan Pro pour participer</a></div>`;return;
   }
   if(!eligible){
     const act={scoreOk:`→ Il te manque ${80-r.scoreActuel} points de Score WOZALI`,avisOk:`→ Il te manque ${4-r.nbAvisRecents} avis clients récents`,noteOk:`→ Ta note moyenne (${r.noteMoyenne}★) doit atteindre 4,2★`};
-    c.innerHTML=`<div class="widget-bourse etat-incomplet"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut orange">Incomplet</span></div><p>Tirage le <strong>${dateFmt}</strong> — dans ${joursRestants} jours.</p><p>Tu es éligible en durée. Mais il te manque :</p><ul class="widget-manque">${manque.filter(m=>act[m]).map(m=>`<li>${act[m]}</li>`).join('')}</ul><p class="widget-urgence">Il reste ${joursRestants} jours avant le tirage.</p></div>`;return;
+    c.innerHTML=`<div class="widget-bourse etat-incomplet"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut orange">Incomplet</span></div><p>Résultats le <strong>${dateFmt}</strong> — dans ${joursRestants} jours.</p><p>Tu es éligible en durée. Mais il te manque :</p><ul class="widget-manque">${manque.filter(m=>act[m]).map(m=>`<li>${act[m]}</li>`).join('')}</ul><p class="widget-urgence">Il reste ${joursRestants} jours avant le classement.</p></div>`;return;
   }
-  c.innerHTML=`<div class="widget-bourse etat-eligible"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut or">✓ Éligible</span></div><div class="widget-eligible-checks"><span>✓ Plan Pro actif</span><span>✓ Score WOZALI : ${r.scoreActuel}/100</span><span>✓ ${r.nbAvisRecents} avis clients récents</span></div><p>Prochain tirage : <strong>${dateFmt} à 18h00</strong></p><p class="widget-countdown-mini" id="bourse-mini-countdown"></p><p class="widget-sub">Reste actif. Reste Pro. Tu es dans la course.</p></div>`;
+  c.innerHTML=`<div class="widget-bourse etat-eligible"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut or">✓ Éligible</span></div><div class="widget-eligible-checks"><span>✓ Plan Pro actif</span><span>✓ Score WOZALI : ${r.scoreActuel}/100</span><span>✓ ${r.nbAvisRecents} avis clients récents</span></div><p>Prochains résultats : <strong>${dateFmt} à 18h00</strong></p><p class="widget-countdown-mini" id="bourse-mini-countdown"></p><p class="widget-sub">Reste actif. Reste Pro. Tu es dans la course.</p></div>`;
   lancerMiniCountdown('bourse-mini-countdown',new Date(prochainTirage));
 }
-function lancerMiniCountdown(id,cible){function maj(){const e=document.getElementById(id);if(!e)return;const d=cible-new Date();if(d<=0){e.textContent='Le tirage a lieu maintenant.';return;}const j=Math.floor(d/86400000),h=Math.floor((d%86400000)/3600000),m=Math.floor((d%3600000)/60000);e.textContent=`J-${j} · ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}min`;}maj();setInterval(maj,60000);}
+function lancerMiniCountdown(id,cible){function maj(){const e=document.getElementById(id);if(!e)return;const d=cible-new Date();if(d<=0){e.textContent='Le classement est calculé maintenant.';return;}const j=Math.floor(d/86400000),h=Math.floor((d%86400000)/3600000),m=Math.floor((d%3600000)/60000);e.textContent=`J-${j} · ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}min`;}maj();setInterval(maj,60000);}
 
 // === Recalcul Score WOZALI ===
 async function majActiviteEtScore(userId){
@@ -2298,7 +2298,7 @@ function showCandDetail(recordId) {
 window.WOZALI_NOTIF_TEMPLATES = {
   commission:      { titre: "Commission reçue",                   corps: "Tu as reçu {montant} FCFA · {filleul} vient de renouveler son Plan Pro" },
   rappel_abo:      { titre: "Ton Plan Pro expire dans 3 jours",   corps: "Renouvelle maintenant pour garder tes avantages Pro" },
-  bourse:          { titre: "Tirage dans 24h",                    corps: "Tu es éligible à la Bourse de Croissance. Le tirage a lieu vendredi à 18h00." }
+  bourse:          { titre: "Résultats dans 24h",                 corps: "Tu es dans la course pour la Bourse de Croissance. Le classement est calculé vendredi à 18h00." }
 };
 window.wozaliNotif = function(key, vars){
   var tpl = window.WOZALI_NOTIF_TEMPLATES[key];
@@ -2358,7 +2358,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
           }
         }
 
-        // B) Bourse de Croissance — tirage le dernier vendredi du mois, notif J-1 (jeudi)
+        // B) Bourse de Croissance — classement le dernier vendredi du mois, notif J-1 (jeudi)
         var now = new Date();
         var isTwentyNinth = now.getDay() === 4 && (prochainVendrediFinMois() - now.getTime()) < 86400000 * 1.5;
         if (isTwentyNinth && (f['Abonnement']||'Base') !== 'Base') {
@@ -2402,7 +2402,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
       { icon:'crown',     eyebrow:'Ta valeur',     title:"Fini de demander. Fini de quémander.", text:"Combien de fois t'as dû connaître quelqu'un pour décrocher un contrat ? Ici c'est différent. Ton travail parle à ta place. Tu ne demandes plus une faveur, tu montres ce que tu sais faire. Ta valeur a enfin une place.", primary:'Suivant' },
       { icon:'map-pin',   eyebrow:'Tes clients',   title:"Tes clients te trouvent. Sans réseau.", text:"Le client de Bè qui cherche un coiffeur. La famille d'Akpakpa qui veut un mécano. La mariée d'Adidogomé qui cherche une couturière. Ton GPS, ton WhatsApp, tes avis vérifiés. Ils te trouvent en 30 secondes et te contactent direct. Tu vends plus, plus souvent.", primary:'Suivant' },
       { icon:'briefcase', eyebrow:"L'emploi",      title:"Trouver un job, sans galère.", text:"Marre des annonces floues et des « envoie ton CV et attends » ? Marre qu'on te demande des choses en échange d'un poste ? Sur WOZALI, les offres sont claires : métier, quartier, salaire affiché, contact direct. Tu postules en deux clics depuis ton téléphone. On te choisit pour ton travail, pas pour tes relations.", primary:'Suivant' },
-      { icon:'trophy',    eyebrow:'La récompense', title:"Ton sérieux te rapporte. Chaque mois.", text:"Chaque mois, WOZALI verse 500 000 FCFA à ses membres les plus sérieux. Pas une promesse, un virement. La Bourse de Croissance, 300 000 FCFA. La Bourse des Mains d'Or, 200 000 FCFA réservés aux femmes coiffeuses et couturières, sans condition de plan. Premier tirage le 25 septembre 2026. Ton travail te paye enfin.", primary:'Suivant' },
+      { icon:'trophy',    eyebrow:'La récompense', title:"Ton sérieux te rapporte. Chaque mois.", text:"Chaque mois, WOZALI verse 500 000 FCFA à ses membres les plus sérieux. Pas une promesse, un virement. La Bourse de Croissance, 100 000 FCFA aux 3 mieux classés. La Bourse des Mains d'Or, 200 000 FCFA réservés aux femmes coiffeuses et couturières, sans condition de plan. Premiers résultats le 25 septembre 2026. Ton travail te paye enfin.", primary:'Suivant' },
       { icon:'sparkles',  eyebrow:'Bienvenue',     title:"WOZALI t'appartient.", text:"Tu as fait le premier pas que beaucoup n'osent pas faire. À partir d'aujourd'hui, ton travail te ramène des clients, pas des faveurs. Ajoute tes photos, complète ton profil, et laisse ton travail parler. Bienvenue sur WOZALI. Ta place est ici, et elle t'attendait.", primary:'Voir mon espace' }
     ];
     var idx = 0;

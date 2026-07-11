@@ -151,8 +151,8 @@ export default async function handler(req, res) {
         if (estEligible && !existing.eligible) {
           await envoyerNotification({
             user_id: userId,
-            titre: '🏆 Tu es éligible à la Bourse de Croissance !',
-            corps: 'Tu remplis toutes les conditions ce mois. Bonne chance pour le tirage !'
+            titre: '🏆 Tu es dans la course pour la Bourse de Croissance !',
+            corps: 'Tu remplis toutes les conditions ce mois. Les 3 mieux classés sont désignés le dernier vendredi du mois.'
           });
           nouveauxEligibles++;
         }
@@ -161,8 +161,8 @@ export default async function handler(req, res) {
         if (estEligible) {
           await envoyerNotification({
             user_id: userId,
-            titre: '🏆 Tu es éligible à la Bourse de Croissance !',
-            corps: 'Tu remplis toutes les conditions ce mois. Bonne chance pour le tirage !'
+            titre: '🏆 Tu es dans la course pour la Bourse de Croissance !',
+            corps: 'Tu remplis toutes les conditions ce mois. Les 3 mieux classés sont désignés le dernier vendredi du mois.'
           });
           nouveauxEligibles++;
         }

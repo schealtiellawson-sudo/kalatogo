@@ -1,9 +1,14 @@
 // ════════════════════════════════════════════════════════════════
-// Bourse des Mains d'Or — Tirage mensuel
+// Bourse des Mains d'Or — Classement mensuel
 // ════════════════════════════════════════════════════════════════
 // POST /api/wozali-pay/mdr-tirage-mensuel (protégé par CRON_SECRET header)
-// Effectue le tirage 100% aléatoire : 1 gagnante Togo + 1 gagnante Bénin
-// parmi toutes les candidates qui remplissent les 7 conditions du mois en cours.
+// Classement au MÉRITE, zéro hasard : la candidate avec le meilleur
+// Score WOZALI (départage : note moyenne puis nb avis) au Togo et
+// celle au Bénin remportent chacune 100 000 FCFA, parmi toutes les
+// candidates qui remplissent les conditions du mois en cours.
+// (Avant 2026-07-11 : tirage 100% aléatoire — remplacé suite à
+// l'analyse juridique : un gain dû même partiellement au hasard
+// tombe sous le régime des loteries, monopole d'État au Togo/Bénin.)
 // ════════════════════════════════════════════════════════════════
 import { createClient } from '@supabase/supabase-js';
 
@@ -107,10 +112,17 @@ export default async function handler(req, res) {
     const eligiblesTG = eligibles.filter(c => inferPays(c) === 'TG');
     const eligiblesBJ = eligibles.filter(c => inferPays(c) === 'BJ');
 
-    // 4) Tirage 100% aléatoire
-    const pickRandom = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
-    const gagnanteTG = pickRandom(eligiblesTG);
-    const gagnanteBJ = pickRandom(eligiblesBJ);
+    // 4) Classement au mérite — zéro hasard (Score WOZALI, départage note puis nb avis)
+    const classerParMerite = (arr) => [...arr].sort((a, b) => {
+      const scoreA = a.score_wozali || 0, scoreB = b.score_wozali || 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      const noteA = a.note_moyenne || 0, noteB = b.note_moyenne || 0;
+      if (noteB !== noteA) return noteB - noteA;
+      return (b.nb_avis_recus || 0) - (a.nb_avis_recus || 0);
+    });
+    const pickMeilleure = (arr) => arr.length > 0 ? classerParMerite(arr)[0] : null;
+    const gagnanteTG = pickMeilleure(eligiblesTG);
+    const gagnanteBJ = pickMeilleure(eligiblesBJ);
 
     const inserts = [];
     if (gagnanteTG) {

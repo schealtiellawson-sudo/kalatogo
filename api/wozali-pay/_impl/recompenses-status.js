@@ -23,23 +23,23 @@ export default async function handler(req, res) {
       .eq('mois', moisCourant)
       .maybeSingle();
 
-    // Gagnant du mois courant ?
-    const { data: gagnantBourse } = await supabase
+    // Mieux classés du mois courant (jusqu'à 3 — classement au mérite, plus de tirage à 1 gagnant)
+    const { data: gagnantsBourseListe } = await supabase
       .from('bourse_croissance')
       .select('user_id, score_wozali')
       .eq('mois', moisCourant)
-      .eq('gagnant', true)
-      .maybeSingle();
+      .eq('gagnant', true);
 
-    // Nom du gagnant pour affichage
+    const gagnantBourse = (gagnantsBourseListe && gagnantsBourseListe.length > 0) ? gagnantsBourseListe[0] : null;
+
+    // Noms des mieux classés pour affichage
     let gagnantBourseNom = null;
-    if (gagnantBourse) {
-      const { data: pGagnant } = await supabase
+    if (gagnantsBourseListe && gagnantsBourseListe.length > 0) {
+      const { data: profilsGagnants } = await supabase
         .from('wozali_prestataires')
         .select('nom_complet')
-        .eq('user_id', gagnantBourse.user_id)
-        .maybeSingle();
-      gagnantBourseNom = pGagnant?.nom_complet || null;
+        .in('user_id', gagnantsBourseListe.map(g => g.user_id));
+      gagnantBourseNom = (profilsGagnants || []).map(p => p.nom_complet).filter(Boolean).join(', ') || null;
     }
 
     // Conditions détaillées pour le widget
@@ -159,7 +159,7 @@ export default async function handler(req, res) {
         conditions,
         gagnant_nom: gagnantBourseNom,
         gagnant_user_id: gagnantBourse?.user_id || null,
-        montant: 300000,
+        montant: 100000,
       },
       awards: {
         etat: etatAwards,
