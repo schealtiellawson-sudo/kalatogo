@@ -7347,3 +7347,134 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   .ho-card, .ho-caption { opacity: 1; transform: none; animation: none; }
   .ho-bar-fill { width: var(--pct, 80%); animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   DIRECTION VISUELLE — écrans au-delà du hero (maquette validée)
+   Profil public · Trouver un pro · Dashboard · Notre Histoire
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── PROFIL PUBLIC — cover or pleine présence (maquette) ── */
+.profil-cover-zone {
+  height: 168px;
+  background:
+    radial-gradient(ellipse 70% 120% at 50% -30%, rgba(255,255,255,0.22), transparent 55%),
+    linear-gradient(118deg, #8a5603 0%, #E8940A 52%, #f5b13d 100%);
+}
+.profil-cover-zone::after {
+  height: 86px;
+  background: linear-gradient(transparent, rgba(15,11,7,0.55) 55%, #0f0b07);
+}
+.profil-av-centered { margin-top: -46px; }
+.profil-av-centered .profil-avatar-lg {
+  width: 92px; height: 92px; font-size: 40px;
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  border-radius: 30%;
+  border: 3px solid #0f0b07;
+  box-shadow: 0 0 0 2px rgba(232,148,10,0.55), 0 18px 40px -12px rgba(0,0,0,0.8), 0 6px 22px -6px rgba(232,148,10,0.35);
+  background: radial-gradient(circle at 35% 30%, rgba(245,177,61,0.5), rgba(181,111,6,0.25));
+}
+.profil-av-centered .profil-avatar-lg img { border-radius: inherit; }
+.profil-center-block .profil-name {
+  font-family: 'DM Serif Display', serif; font-size: 26px; letter-spacing: 0.2px;
+}
+.profil-center-block .profil-sub { font-family: 'Geist Mono', monospace; font-size: 12px; color: rgba(252,224,168,0.55); }
+.profil-chip {
+  font-family: 'Geist Mono', monospace; font-size: 9.5px;
+  letter-spacing: 1.2px; text-transform: uppercase; padding: 4px 11px;
+}
+/* Stats : chiffres serif italic or, labels mono */
+.profil-stats-strip { border-color: rgba(232,148,10,0.14); margin: 12px 0 6px; }
+.profil-stat-cell { border-right-color: rgba(232,148,10,0.1); padding: 11px 4px 9px; }
+.profil-stat-num {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 24px; color: #FCE0A8; line-height: 1;
+}
+.profil-stat-num[style*="E8940A"] { text-shadow: 0 0 16px rgba(232,148,10,0.45); }
+.profil-stat-lbl { font-family: 'Geist Mono', monospace; font-size: 8.5px; letter-spacing: 1.8px; color: rgba(252,224,168,0.38); margin-top: 4px; }
+
+/* Gros CTA WhatsApp or (maquette profil) */
+.profil-cta-row { display: flex; justify-content: center; padding: 12px 16px 2px; }
+.profil-cta-wa {
+  display: block; width: min(360px, 100%); text-align: center;
+  font-family: 'Geist', sans-serif; font-weight: 800; font-size: 15.5px;
+  color: #14100A !important; text-decoration: none;
+  background: linear-gradient(135deg, #f5b13d, #E8940A);
+  border-radius: 32px; padding: 15px 28px;
+  box-shadow: 0 12px 30px -8px rgba(232,148,10,0.55), inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.profil-cta-wa:hover { transform: translateY(-2px); box-shadow: 0 16px 38px -8px rgba(232,148,10,0.7), inset 0 1px 0 rgba(255,255,255,0.35); }
+
+/* ── TROUVER UN PRO — cards résultats (maquette) ── */
+.pcard {
+  background: linear-gradient(160deg, rgba(36,28,16,0.9), rgba(22,17,10,0.95)) !important;
+  border: 1px solid rgba(232,148,10,0.16) !important;
+  box-shadow: 0 16px 36px -16px rgba(0,0,0,0.7), inset 0 1px 0 rgba(252,224,168,0.05) !important;
+}
+.pcard:hover {
+  border-color: rgba(232,148,10,0.55) !important;
+  box-shadow: 0 22px 46px -16px rgba(0,0,0,0.85), 0 8px 26px -8px rgba(232,148,10,0.3) !important;
+}
+.pcard .pcard-name { color: #FCE0A8 !important; }
+.pcard .pcard-meta { color: rgba(252,224,168,0.5) !important; font-family: 'Geist Mono', monospace !important; font-size: 12px !important; }
+.pcard .pcard-avatar { border-radius: 26% !important; box-shadow: 0 6px 18px -6px rgba(232,148,10,0.5); }
+.pcard .pcard-avatar img { border-radius: inherit; }
+.pcard-score-serif {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 24px; line-height: 1; color: #E8940A;
+  text-shadow: 0 0 14px rgba(232,148,10,0.4);
+}
+.pcard .pcard-footer { border-top-color: rgba(232,148,10,0.12) !important; }
+.search-page-header {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 120% at 80% -40%, rgba(232,148,10,0.14), transparent 60%),
+    #14100A;
+  border-bottom: 1px solid rgba(232,148,10,0.1);
+}
+
+/* ── DASHBOARD — cards KPI profondeur (sans données fictives) ── */
+.stat-card {
+  background: linear-gradient(160deg, rgba(36,28,16,0.85), rgba(22,17,10,0.92));
+  border: 1px solid rgba(232,148,10,0.16);
+  box-shadow: 0 14px 32px -16px rgba(0,0,0,0.7), inset 0 1px 0 rgba(252,224,168,0.05);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232,148,10,0.4);
+  box-shadow: 0 20px 42px -16px rgba(0,0,0,0.8), 0 6px 22px -8px rgba(232,148,10,0.25);
+}
+.stat-card .stat-card-num {
+  font-family: 'DM Serif Display', serif; font-style: italic; color: #E8940A;
+  text-shadow: 0 0 14px rgba(232,148,10,0.35);
+}
+.stat-card .stat-card-label {
+  font-family: 'Geist Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(252,224,168,0.42); font-size: 10px;
+}
+
+/* ── NOTRE HISTOIRE — cohérence typographique + matière ── */
+#page-apropos h1, #page-apropos h2 {
+  font-family: 'DM Serif Display', serif !important; font-style: italic;
+  color: #FCE0A8;
+}
+#page-apropos h3 { font-family: 'DM Serif Display', serif !important; color: #FCE0A8; }
+#page-apropos img {
+  border-radius: 16px;
+  box-shadow: 0 20px 44px -18px rgba(0,0,0,0.85), 0 4px 20px -6px rgba(232,148,10,0.18);
+  border: 1px solid rgba(232,148,10,0.14);
+}
+#page-apropos blockquote, #page-apropos .apropos-quote {
+  border-left: 3px solid #E8940A;
+  background: linear-gradient(160deg, rgba(36,28,16,0.8), rgba(22,17,10,0.9));
+  border-radius: 0 14px 14px 0;
+  box-shadow: 0 14px 30px -16px rgba(0,0,0,0.7);
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .profil-cover-zone { height: 138px; }
+  .profil-av-centered .profil-avatar-lg { width: 84px; height: 84px; font-size: 34px; }
+  .profil-cta-wa { font-size: 14.5px; padding: 14px 22px; }
+}

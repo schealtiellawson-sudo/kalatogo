@@ -3620,11 +3620,12 @@ function renderCard(record) {
         </div>
         <!-- Score WOZALI bar -->
         <div style="margin-top:10px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;font-weight:700;margin-bottom:4px;">
-            <span>Score WOZALI</span><span style="color:#E8940A;">${scoreW}/100</span>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+            <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(252,224,168,0.45);">SCORE WOZALI</span>
+            <span class="pcard-score-serif">${scoreW}</span>
           </div>
-          <div style="height:5px;background:#f3f4f6;border-radius:100px;overflow:hidden;">
-            <div style="height:100%;width:${Math.min(scoreW,100)}%;background:linear-gradient(90deg,#E8940A,#f59e0b);"></div>
+          <div style="height:5px;background:rgba(252,224,168,0.1);border-radius:100px;overflow:hidden;">
+            <div style="height:100%;width:${Math.min(scoreW,100)}%;background:linear-gradient(90deg,#b56f06,#E8940A 60%,#f5b13d);box-shadow:0 0 8px rgba(232,148,10,0.5);"></div>
           </div>
         </div>
       </div>
@@ -7955,6 +7956,7 @@ async function showProfil(recordId) {
               </div>
             </div>
 
+            ${tel ? `<div class="profil-cta-row"><a class="profil-cta-wa" href="${waLink}" target="_blank" rel="noopener">Contacter sur WhatsApp</a></div>` : ''}
             <!-- Actions icônes -->
             <div class="profil-ic-grid">
               <button class="profil-ic-btn ic-rdv-btn" onclick="showRdvPage('${recordId}')">
