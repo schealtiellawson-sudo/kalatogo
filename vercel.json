@@ -144,8 +144,12 @@
       "destination": "/bientot.html"
     },
     {
-      "source": "/pitch",
+      "source": "/pitchambassadeurs",
       "destination": "/pitch.html"
+    },
+    {
+      "source": "/pitch-agent-terrain",
+      "destination": "/pitch-agent-terrain.html"
     }
   ]
 }

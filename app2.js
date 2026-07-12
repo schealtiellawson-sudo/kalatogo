@@ -75,7 +75,7 @@ const faqData = [
   },
   {
     q: "Faut-il être Pro pour gagner La Bourse des Mains d'Or ?",
-    a: "Non — La Bourse des Mains d'Or est <strong>ouverte à toutes les coiffeuses et couturières du Togo et du Bénin</strong>, Pro ou pas. Profil complet, au moins 1 photo de réalisation et 1 avis client. Tirage automatique le 30. La Bourse de Croissance (300 000 FCFA) est réservée aux membres Pro."
+    a: "Non, La Bourse des Mains d'Or est <strong>ouverte à toutes les coiffeuses et couturières du Togo et du Bénin</strong>, Pro ou pas. Profil complet, au moins 1 photo de réalisation et 1 avis client. Classement automatique le 30. La Bourse de Croissance (100 000 FCFA chacun pour les 3 meilleurs Pro du mois) est réservée aux membres Pro."
   }
 ];
 

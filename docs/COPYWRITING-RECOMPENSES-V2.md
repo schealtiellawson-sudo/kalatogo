@@ -53,13 +53,13 @@ Les deux coexistent. L'une dit "viens te montrer". L'autre dit "fais ton boulot 
 
 ### 2.1 Le profil du "pro sérieux" — ce qui le distingue
 
-Dans les applications de services, **la réputation digitale est le seul actif qui rend un pro informel "scalable"**. Sans réputation portable, chaque nouveau client repart de zéro. Sans réputation portable, le bouche à oreille reste géographique (5 km autour de l'atelier).
+Dans les plateformes de services, **la réputation digitale est le seul actif qui rend un pro informel "scalable"**. Sans réputation portable, chaque nouveau client repart de zéro. Sans réputation portable, le bouche à oreille reste géographique (5 km autour de l'atelier).
 
 Les marqueurs du pro sérieux dans les études comportementales :
-- **Réponse rapide** : un pro qui répond en < 1h convertit 3× plus qu'un pro qui répond en 24h (donnée transposée de l'étude HubSpot 2024 sur lead response time, applicable aux applications de services).
+- **Réponse rapide** : un pro qui répond en < 1h convertit 3× plus qu'un pro qui répond en 24h (donnée transposée de l'étude HubSpot 2024 sur lead response time, applicable aux plateformes de services).
 - **Taux d'avis** : un pro qui collecte 1 avis tous les 3 chantiers / 3 clients a un score de fiabilité robuste. Sous 1 avis pour 10 clients, on parle de pro "invisible".
 - **Note moyenne ≥ 4.2★** : seuil au-dessus duquel les nouveaux clients déclenchent l'achat sans hésitation (étude *Spiegel Research Center* — produits notés 4.0–4.7 convertissent mieux que ceux notés 5.0 jugés "trop beaux pour être vrais").
-- **Activité récente** : un profil dormant depuis 30 jours perd 60 % de sa visibilité algorithmique sur la plupart des applications de services (logique implémentée par Indeed, Yelp, Frizbiz).
+- **Activité récente** : un profil dormant depuis 30 jours perd 60 % de sa visibilité algorithmique sur la plupart des plateformes de services (logique implémentée par Indeed, Yelp, Frizbiz).
 
 Source clé : la plateforme française **Plus que PRO** a construit son business model entier sur la sécurisation blockchain des avis clients pour artisans et prestataires, prouvant que la fiabilité de la réputation digitale est le levier #1 de croissance pour un pro indépendant ([Plus que PRO — Communiqué](https://www.relations-publiques.pro/207491/artisans-prestataires-de-services-plus-que-pro-la-premiere-plateforme-qui-utilise-la-technologie-blockchain-pour-securiser-les-avis.html)).
 

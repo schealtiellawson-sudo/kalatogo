@@ -172,7 +172,7 @@
               <span style="font-size:20px;flex-shrink:0;">❤️</span>
               <div>
                 <div style="font-weight:700;font-size:13px;color:#FCE0A8;margin-bottom:2px;">2. La communauté like et commente</div>
-                <div style="font-size:12px;color:rgba(252, 224, 168,.6);line-height:1.5;">Plus tu reçois de likes, plus tu as de chances lors du tirage automatique le 30 du mois.</div>
+                <div style="font-size:12px;color:rgba(252, 224, 168,.6);line-height:1.5;">Plus tu reçois de likes et d'avis, plus ton classement monte pour le 30 du mois.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">

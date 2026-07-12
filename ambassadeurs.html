@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Ambassadeur WOZALI — Monétise ton audience sur Togo et Bénin</title>
-<meta name="description" content="Tu crées du contenu, tu as une audience. WOZALI te permet de la monétiser sans vendre ta ligne éditoriale. 10 places. Lancement 15 août 2026.">
+<meta name="description" content="Tu crées du contenu, tu as une audience. WOZALI te permet de la monétiser sans vendre ta ligne éditoriale. Programme ouvert. Lancement 15 août 2026.">
 <meta property="og:title" content="Tu as une audience. Elle ne te nourrit pas encore.">
-<meta property="og:description" content="WOZALI recrute 10 ambassadeurs pour le lancement au Togo et au Bénin. Commission récurrente. Contenu fourni. 10 places.">
+<meta property="og:description" content="WOZALI ouvre son programme affiliation créateurs pour le lancement au Togo et au Bénin. Commission récurrente. Contenu fourni. Ouvert à tous.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#14100A">
 <link rel="icon" href="/logos/favicon-32.png" type="image/png">
@@ -181,7 +181,7 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
   <div class="nav-logo">
     <span class="nav-w">W</span><span class="nav-o">OZALI</span>
   </div>
-  <span class="nav-pill">10 PLACES</span>
+  <span class="nav-pill">AFFILIATION CRÉATEURS</span>
 </nav>
 
 <!-- HERO -->
@@ -201,12 +201,12 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
 
     <div class="places-badge">
       <div class="places-dot"></div>
-      <span class="places-txt">10 places ambassadeur - Lancement 15 août 2026</span>
+      <span class="places-txt">Programme ouvert à tous les créateurs - Lancement 15 août 2026</span>
     </div>
 
     <div class="cta-group">
       <button class="btn-primary" onclick="document.getElementById('formulaire').scrollIntoView({behavior:'smooth'})">
-        Je veux une place &rarr;
+        Je rejoins le programme &rarr;
       </button>
       <button class="btn-ghost" onclick="document.getElementById('simulator').scrollIntoView({behavior:'smooth'})">
         Voir ce que je peux gagner
@@ -452,12 +452,12 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
 
   <!-- FORM SECTION -->
   <section id="formulaire" style="border-bottom:none;">
-    <div class="section-label">Candidature</div>
-    <h2>Les 10 places.<br><span class="it gold">C'est maintenant.</span></h2>
-    <p class="lead">Remplis le formulaire. Je te réponds en direct sur WhatsApp sous 24h. Pas de process interminable.</p>
+    <div class="section-label">Rejoindre</div>
+    <h2>C'est ouvert.<br><span class="it gold">C'est maintenant.</span></h2>
+    <p class="lead">Remplis tes infos. Je t'envoie ton lien directement sur WhatsApp. Pas de sélection, pas d'attente.</p>
 
     <div class="form-section">
-      <div class="form-title">Ta candidature</div>
+      <div class="form-title">Tes infos</div>
       <p class="form-sub">Remplis tes infos. En cliquant sur envoyer, un message WhatsApp s'ouvre avec ton profil - je sais directement qui tu es.</p>
 
       <div class="platform-block tiktok">
@@ -495,7 +495,7 @@ footer p{font-size:12px;color:rgba(252,224,168,.25);font-family:'Geist Mono',mon
       </div>
 
       <button class="btn-submit" onclick="submitForm()">
-        Envoyer ma candidature sur WhatsApp &rarr;
+        Recevoir mon lien sur WhatsApp &rarr;
       </button>
 
       <div class="form-divider">ou</div>
@@ -577,6 +577,8 @@ function buildWaMessage(tiktokUser, tiktokFollowers, instaUser, instaFollowers) 
     if (instaFollowers) msg += ' (' + parseInt(instaFollowers).toLocaleString('fr') + ' abonnés)';
   }
   msg += '. Je suis intéressé par le programme Ambassadeur WOZALI pour le lancement au Togo et au Bénin.';
+  var src = new URLSearchParams(window.location.search).get('src');
+  if (src) msg += ' (via lien : ' + src + ')';
   return encodeURIComponent(msg);
 }
 
@@ -625,7 +627,7 @@ async function submitForm() {
     window.open('https://wa.me/33743606916?text=' + msg, '_blank');
 
     // 3. Afficher succès
-    btn.textContent = 'Candidature envoyée ✓';
+    btn.textContent = 'Lien envoyé ✓';
     btn.style.background = '#22c55e';
     btn.style.color = '#fff';
 
@@ -635,7 +637,7 @@ async function submitForm() {
     const msg = buildWaMessage(tiktokUser, String(tiktokFollowers || ''), instaUser, String(instaFollowers || ''));
     window.open('https://wa.me/33743606916?text=' + msg, '_blank');
     btn.disabled = false;
-    btn.textContent = 'Envoyer ma candidature sur WhatsApp →';
+    btn.textContent = 'Recevoir mon lien sur WhatsApp →';
   }
 }
 

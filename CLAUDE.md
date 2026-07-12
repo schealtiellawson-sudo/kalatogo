@@ -1312,7 +1312,7 @@ Airtable free tier = 5 req/s. Le dashboard envoie trop de requêtes en parallèl
 
 ## Projet
 
-WOZALI Market (anciennement KalaTogo) — Application web SPA pour trouver des prestataires de services au Bénin et au Togo. Un seul fichier `index.html` (~24 700 lignes). Déployé sur Vercel à https://wozali.vercel.app.
+WOZALI Market (anciennement KalaTogo) — Site web (SPA) pour trouver des prestataires de services au Bénin et au Togo. Toujours dire "site" ou "plateforme", jamais "application" (décision fondateur 2026-07-12, voir mémoire `project_decision_expansion_vs_concentration_2026-07-12`). Un seul fichier `index.html` (~24 700 lignes). Déployé sur Vercel à https://wozali.vercel.app.
 
 ## Commandes
 

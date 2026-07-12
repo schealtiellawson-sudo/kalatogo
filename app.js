@@ -10445,7 +10445,7 @@ async function injectSprint6Upgrade(){
       <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px">
         <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin-bottom:2px">Gratuit</div>
         <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:rgba(252, 224, 168,.75);margin-bottom:8px">0 FCFA<span style="font-size:11px;color:rgba(252, 224, 168,.5)">/mois</span></div>
-        ${sectionTitle('APPLICATION')}
+        ${sectionTitle('PLATEFORME')}
         ${rowOk('Profil visible')}
         ${rowOk('Avis clients')}
         ${rowKo('Badge Pro')}
@@ -10460,7 +10460,7 @@ async function injectSprint6Upgrade(){
         <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#E8940A;margin-top:4px">Pro</div>
         <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:#E8940A">2 500 FCFA<span style="font-size:11px">/mois</span></div>
         <div style="font-size:10px;color:rgba(252, 224, 168,.5);margin-bottom:8px">Soit 83 FCFA par jour</div>
-        ${sectionTitle('APPLICATION')}
+        ${sectionTitle('PLATEFORME')}
         ${rowOk('<strong>Badge Pro</strong> visible')}
         ${rowOk('Priorité résultats')}
         ${rowOk('À la Une homepage')}

@@ -34,7 +34,7 @@
 
 ### 2.1 Finalité principale
 
-WOZALI est une application numérique dont la mission est de rendre visible l'économie informelle en Afrique de l'Ouest, en commençant par le Togo (Lomé) et le Bénin (Cotonou). La plateforme met en relation prestataires informels/formels, clients, recruteurs et candidats.
+WOZALI est un site numérique dont la mission est de rendre visible l'économie informelle en Afrique de l'Ouest, en commençant par le Togo (Lomé) et le Bénin (Cotonou). La plateforme met en relation prestataires informels/formels, clients, recruteurs et candidats.
 
 ### 2.2 Finalités opérationnelles déclarées
 
