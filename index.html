@@ -2650,6 +2650,9 @@ setTimeout(function(){
           <i data-lucide="chevron-right" class="dash-chev"></i>
         </button>
         <div class="dash-group-body">
+          <button class="dash-link" onclick="showDashSection('signaler')" id="dl-signaler">
+            <i data-lucide="flag"></i> <span>Signaler quelqu'un</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('securite')" id="dl-securite">
             <i data-lucide="shield"></i> <span>Sécurité</span>
           </button>
@@ -5352,6 +5355,21 @@ setTimeout(function(){
               Copier le lien
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- SIGNALER QUELQU'UN -->
+      <div class="dash-section" id="ds-signaler">
+        <div class="dash-header">
+          <h2>Signaler quelqu'un</h2>
+          <p>Tape le nom affiché sur le profil que tu veux signaler. On protège ton identité, l'équipe WOZALI examine chaque signalement.</p>
+        </div>
+        <div class="edit-form-section">
+          <div class="form-group">
+            <label>Nom du profil</label>
+            <input type="text" id="signaler-search-input" placeholder="Ex : Amina Coiffeuse" autocomplete="off" oninput="_signalerSearchDebounced()" style="width:100%;">
+          </div>
+          <div id="signaler-search-results" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;"></div>
         </div>
       </div>
 

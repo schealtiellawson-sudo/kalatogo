@@ -15701,6 +15701,72 @@ function signalerCandidat(candidatureId) {
   });
 }
 
+function signalerProfilPublic(targetUserId, nom) {
+  if (!window.wozaliSignalement) { toast('Module signalement non chargé', 'error'); return; }
+  if (!targetUserId) { toast('Impossible de signaler ce profil pour le moment', 'error'); return; }
+  window.wozaliSignalement.open({
+    targetUserId,
+    contextLabel: nom ? `Profil : ${nom}` : 'Profil',
+  });
+}
+
+// ── Section dashboard "Signaler quelqu'un" — recherche par nom affiché ──────
+let _signalerSearchTimer = null;
+function _signalerSearchDebounced() {
+  clearTimeout(_signalerSearchTimer);
+  _signalerSearchTimer = setTimeout(_runSignalerSearch, 300);
+}
+
+async function _runSignalerSearch() {
+  const input = document.getElementById('signaler-search-input');
+  const resultsEl = document.getElementById('signaler-search-results');
+  if (!input || !resultsEl) return;
+  const q = input.value.trim();
+
+  if (q.length < 2) {
+    resultsEl.innerHTML = q.length === 0 ? '' : '<div style="color:rgba(255,255,255,.4);font-size:13px;padding:8px 0;">Tape au moins 2 caractères…</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:13px;padding:8px 0;">Recherche…</div>';
+
+  const sb = _sb();
+  if (!sb) { resultsEl.innerHTML = '<div style="color:#f87171;font-size:13px;">Connexion indisponible, réessaie.</div>'; return; }
+
+  const { data, error } = await sb
+    .from('wozali_prestataires')
+    .select('user_id, nom_complet, metier_principal, quartier, photo_profil')
+    .ilike('nom_complet', `%${q}%`)
+    .limit(10);
+
+  if (error) {
+    resultsEl.innerHTML = '<div style="color:#f87171;font-size:13px;">Erreur de recherche, réessaie.</div>';
+    return;
+  }
+  if (!data || data.length === 0) {
+    resultsEl.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:13px;padding:8px 0;">Aucun profil trouvé avec ce nom.</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = data.map(p => {
+    const nomSafe = escapeHtml(p.nom_complet || 'Profil');
+    const metierSafe = escapeHtml(p.metier_principal || '');
+    const quartierSafe = escapeHtml(p.quartier || '');
+    const initiale = (p.nom_complet || '?').trim().charAt(0).toUpperCase();
+    const photo = p.photo_profil ? `<img src="${escapeHtml(p.photo_profil)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">` : `<div style="width:44px;height:44px;border-radius:50%;background:rgba(232,148,10,.15);color:#E8940A;display:flex;align-items:center;justify-content:center;font-weight:700;">${initiale}</div>`;
+    return `
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;">
+        ${photo}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;color:#FCE0A8;">${nomSafe}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.45);">${metierSafe}${metierSafe && quartierSafe ? ' · ' : ''}${quartierSafe}</div>
+        </div>
+        <button onclick="signalerProfilPublic('${escapeHtml(p.user_id || '')}','${nomSafe.replace(/'/g, "\\'")}')" style="background:rgba(220,38,38,.12);color:#f87171;border:1px solid rgba(220,38,38,.3);padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;">🚨 Signaler</button>
+      </div>
+    `;
+  }).join('');
+}
+
 // Notif candidat sur planification entretien (réutilise Prestataires.Notifications JSON)
 window.notifyCandidatEntretien = async function(candidature, body) {
   try {

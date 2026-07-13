@@ -3,7 +3,7 @@
 // Sprint Polish — anti-arnaque + médiation
 import { supabase } from '../../_lib/supabase.js';
 
-const VALID_MOTIFS = ['arnaque', 'ghosting', 'fake_offre', 'harcelement', 'autre'];
+const VALID_MOTIFS = ['arnaque', 'ghosting', 'fake_offre', 'harcelement', 'contenu_inapproprie', 'autre'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

@@ -12,6 +12,7 @@
     { v: 'ghosting',    l: '👻 Ghosting (aucune réponse depuis longtemps)' },
     { v: 'fake_offre',  l: '🚩 Fausse offre (poste inexistant)' },
     { v: 'harcelement', l: '⚠️ Harcèlement / propos déplacés' },
+    { v: 'contenu_inapproprie', l: '🚫 Contenu inapproprié / sollicitation' },
     { v: 'autre',       l: '📝 Autre' },
   ];
 
@@ -71,7 +72,11 @@
             On reçoit ton signalement, on l'examine, et on protège la communauté. Ton identité reste confidentielle.
           </div>
 
-          <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(252, 224, 168,.65);cursor:pointer;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);padding:10px;border-radius:8px;">
+          <div id="flag-inapproprie-note" style="display:none;font-size:12px;color:#fca5a5;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);padding:10px;border-radius:8px;">
+            🚫 Ce type de signalement est transmis directement à l'équipe WOZALI en priorité et peut entraîner la suspension immédiate du profil concerné.
+          </div>
+
+          <label id="flag-mediation-label" style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(252, 224, 168,.65);cursor:pointer;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);padding:10px;border-radius:8px;">
             <input type="checkbox" id="flag-mediation" style="accent-color:#c084fc;margin-top:2px;flex-shrink:0;">
             <span><strong style="color:#c084fc;">🤖 Demander aussi une analyse IA</strong> — un médiateur IA analyse la situation et te propose 3 étapes de résolution + 2 messages-types prêts à envoyer. Gratuit (1 requête sur ton quota).</span>
           </label>
@@ -87,6 +92,19 @@
 
     document.getElementById('wozali-flag-close').addEventListener('click', close);
     document.getElementById('wozali-flag-cancel').addEventListener('click', close);
+
+    const motifSelect = document.getElementById('flag-motif');
+    const inapproprieNote = document.getElementById('flag-inapproprie-note');
+    const mediationLabel = document.getElementById('flag-mediation-label');
+    const mediationCheckbox = document.getElementById('flag-mediation');
+    function toggleInapproprieUi() {
+      const isInapproprie = motifSelect.value === 'contenu_inapproprie';
+      inapproprieNote.style.display = isInapproprie ? 'block' : 'none';
+      mediationLabel.style.display = isInapproprie ? 'none' : 'flex';
+      if (isInapproprie) mediationCheckbox.checked = false;
+    }
+    motifSelect.addEventListener('change', toggleInapproprieUi);
+    toggleInapproprieUi();
 
     document.getElementById('wozali-flag-form').addEventListener('submit', async (ev) => {
       ev.preventDefault();
@@ -110,7 +128,7 @@
         if (!res.ok) throw new Error(data?.error || 'Erreur envoi');
         window.toast?.('Signalement enregistré. Merci.', 'success');
 
-        if (wantMediation) {
+        if (wantMediation && motif !== 'contenu_inapproprie') {
           await runMediation({ motif, desc, contextLabel });
           // close() est appelé depuis runMediation après l'affichage, ne pas fermer ici
         } else {
@@ -245,7 +263,7 @@ Tu dois répondre UNIQUEMENT en JSON valide. Si tu manques de contexte, propose 
   };
   const MOTIF_LABEL = {
     arnaque: '💸 Arnaque', ghosting: '👻 Ghosting', fake_offre: '🚩 Fausse offre',
-    harcelement: '⚠️ Harcèlement', autre: '📝 Autre',
+    harcelement: '⚠️ Harcèlement', contenu_inapproprie: '🚫 Contenu inapproprié', autre: '📝 Autre',
   };
 
   async function openHistory() {
