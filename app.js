@@ -602,8 +602,7 @@ function showDashSection(section) {
   if (section === 'posts') loadDashPosts();
   if (section === 'abonnement') { injectSprint6Upgrade(); loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
-  if (section === 'recompenses-mdr') loadRecompensesMDR();
-  if (section === 'parrainage') loadParrainage();
+    if (section === 'parrainage') loadParrainage();
   if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); }
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
@@ -2626,7 +2625,7 @@ async function wozaliFetch(url, opts = {}) {
   }
   return fetch(url, { ...opts, headers });
 }
-// Exposé globalement : les composants (mur-des-reines, king-queen…) font
+// Exposé globalement : les anciens composants récompenses faisaient
 // `window.wozaliFetch || fetch`. Sans cette ligne, ils retombaient sur fetch
 // SANS le JWT — appels API non authentifiés. Root cause corrigé 2026-07-10.
 window.wozaliFetch = wozaliFetch;
@@ -2811,8 +2810,7 @@ const _seoPageMeta = {
   home:         { title: 'WOZALI — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.' },
   search:       { title: 'Trouver un pro — WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOZALI Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
-  recompenses:  { title: 'Récompenses WOZALI — 500 000 FCFA/mois', desc: 'Bourse de Croissance (300K, les 3 mieux classés, Pro) + La Bourse des Mains d\'Or (200K, 100K × 2 Reines, toutes les femmes B/T). 500 000 FCFA distribués chaque mois. Premiers résultats le 25 septembre 2026.' },
-  awards:       { title: 'La Bourse des Mains d\'Or — Bénin & Togo', desc: 'Poste ta plus belle photo coiffure ou couture. La communauté vote. 2 reines couronnées chaque mois — 100 000 FCFA chacune. Toutes les femmes peuvent gagner.' },
+  recompenses:  { title: 'Récompenses WOZALI — 500 000 FCFA/mois', desc: 'Bourse de Croissance : 100 000 FCFA chacun pour les 5 meilleurs profils du mois (Pro, Togo + Bénin). Classement 100% mérite : avis clients vérifiés, note, constance. Premiers résultats le 25 septembre 2026.' },
   inscription:  { title: 'Inscription gratuite — WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche — WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
 };
@@ -8354,44 +8352,8 @@ async function showProfil(recordId) {
       };
     }
 
-    // ── BADGE "Mains les Plus Demandées" pour Coiffeuse/Couturière ──
-    // Affiché si la pro est taguée dans des photos du Bourse des Mains d'Or ce mois.
-    try {
-      const userIdPro = record.fields?.['User ID'];
-      const metierPro = (record.fields?.['Métier principal'] || '').toLowerCase();
-      if (userIdPro && /coiff|coutur|tress/.test(metierPro)) {
-        loadProTagBadge(userIdPro, container);
-      }
-    } catch(e) { /* silencieux */ }
-
   } catch (e) {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Profil introuvable</h3><p>${e.message}</p></div>`;
-  }
-}
-
-// ══ Badge "Mains les Plus Demandées" — affiché sur le profil pro ══
-async function loadProTagBadge(userIdPro, container) {
-  try {
-    const r = await fetch(`/api/wozali-pay/feed-tag-stats?user_id=${encodeURIComponent(userIdPro)}`).then(x => x.json());
-    if (!r?.ok) return;
-    const moisCount = r.count_mois || 0;
-    const totalCount = r.count_total || 0;
-    if (moisCount === 0 && totalCount === 0) return;
-    const badge = document.createElement('div');
-    badge.style.cssText = 'background:linear-gradient(135deg,rgba(232,148,10,0.15) 0%,rgba(232,148,10,0.05) 100%);border:1px solid rgba(232,148,10,0.35);border-radius:14px;padding:14px 18px;margin:18px auto;max-width:600px;display:flex;align-items:center;gap:14px;';
-    const moisNom = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][new Date().getMonth()];
-    badge.innerHTML = `
-      <div style="font-size:30px;flex-shrink:0;">✨</div>
-      <div style="flex:1;">
-        <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:#E8940A;margin-bottom:4px;">LES MAINS LES PLUS DEMANDÉES</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:800;color:#FCE0A8;">${moisCount > 0 ? `${moisCount} reine${moisCount > 1 ? 's' : ''} porte${moisCount > 1 ? 'nt' : ''} son travail ce ${moisNom}` : `${totalCount} reine${totalCount > 1 ? 's' : ''} ont porté son travail`}</div>
-        <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-top:2px;">Visible sur La Bourse des Mains d'Or · WOZALI</div>
-      </div>
-      <a href="#" onclick="showPage('recompenses');return false;" style="background:#E8940A;color:#14100A;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:800;text-decoration:none;flex-shrink:0;">Voir →</a>
-    `;
-    container.insertBefore(badge, container.firstChild);
-  } catch(e) {
-    console.warn('[loadProTagBadge]', e);
   }
 }
 
@@ -9304,23 +9266,16 @@ async function submitInscription(e) {
         const bodyJ1 = `${prenom},\n\nImagine quelqu'un dans ton quartier qui cherche ${metierStr ? 'un ' + metierStr : 'ton métier'} en ce moment.\n\nIl ouvre WOZALI. Il tape son quartier.\n\nLa liste des prestataires apparaît. Il appelle le premier.\nPas forcément le meilleur. Le premier.\n\nC'est là que le Score WOZALI change tout pour toi.\n\n---\n\nLe Score, c'est ton rang dans les résultats de recherche.\nPlus il est élevé, plus tu apparais en haut de la liste.\nEt celui qui est en haut reçoit l'appel.\n\nPas le plus connu. Pas le mieux connecté.\nCelui dont le profil montre qu'il est sérieux.\n\nTrois choses font monter ton Score :\n\nTon profil complet.\nPhoto de profil, description de ce que tu fais, tes tarifs, des photos de tes réalisations. Chaque élément manquant, c'est une place perdue dans les résultats.\n\nLes avis de tes clients.\nChaque étoile que quelqu'un laisse sur ton profil dit aux autres clients : cette personne fait bien son travail. C'est pour ça que je t'avais demandé hier de partager ton lien à 5 personnes. Ce n'est pas un détail - c'est le carburant de ton Score.\n\nTa présence régulière.\nConnecte-toi. Mets à jour ton profil. WOZALI récompense ceux qui sont actifs.\n\n---\n\nAujourd'hui, ajoute une photo de ta dernière réalisation.\nUne seule suffit pour commencer.\n\nParce que chaque photo que tu ajoutes, c'est un client qui voit la qualité de ton travail avant même de t'appeler. Et un client qui voit, c'est un client qui fait confiance. Et la confiance, ça se transforme en argent.\n\nA demain.`;
         const bodyJ2 = `${prenom},\n\nCombien de personnes autour de toi ont eu un emploi grâce à quelqu'un qui voulait quelque chose en retour ?\n\nUn contact. Un intermédiaire. Un chef qui fixe ses conditions avant même que tu commences à travailler.\n\nC'est le marché de l'emploi ici. Et ce n'est pas normal.\n\n---\n\nWOZALI Jobs existe pour que ça ne soit plus ton seul chemin.\n\nQuand un employeur publie une offre sur WOZALI, il voit ton profil, ton Score, tes réalisations, les avis de tes clients. Il te contacte parce que ton travail lui convient.\n\nPas parce que tu connais quelqu'un.\nPas parce que tu as accepté quelque chose.\nPas parce que tu viens de la bonne famille.\n\nJuste ton dossier qui parle pour toi.\n\nEt toi tu postules depuis ton téléphone, en deux clics, sans te déplacer, sans intermédiaire entre vous.\n\n---\n\nVa dans la section "Emploi" de ton dashboard.\n\nRegarde les offres disponibles dans ta ville. Si quelque chose te correspond, envoie ta candidature.\n\nUn emploi trouvé proprement, c'est aussi ce que tu mérites. Et c'est ce que WOZALI rend possible.\n\nA demain.`;
         const bodyJ3 = `${prenom},\n\nIl y a deux types de revenus.\n\nCelui que tu gagnes quand tu travailles.\nEt celui qui rentre même quand tu ne travailles pas.\n\nLe premier, tu le connais déjà. Tu travailles, tu es payé. Tu ne travailles pas, il ne rentre rien. C'est épuisant de dépendre uniquement de ça.\n\nLe deuxième, c'est ce que le parrainage WOZALI te donne.\n\n---\n\nVoici comment ça fonctionne.\n\nTu as un code de parrainage unique. Chaque personne qui s'inscrit avec ton code et passe au Plan Pro te rapporte 1 000 FCFA par mois. Tant qu'elle reste Pro.\n\nPas une seule fois. Chaque mois.\n\n3 filleuls Pro - 3 000 FCFA par mois.\n10 filleuls Pro - 10 000 FCFA par mois.\n50 filleuls Pro - 50 000 FCFA par mois.\n\nLe SMIG au Togo est de 52 500 FCFA.\n53 filleuls Pro suffisent pour le dépasser.\nSans travailler plus. Juste parce que tu as parlé de WOZALI aux bonnes personnes.\n\n---\n\nDans ton dashboard, section "Mon Parrainage", tu trouveras ton lien et ton code. Il y a aussi un simulateur pour voir exactement ce que tu peux gagner selon le nombre de filleuls.\n\nPartage ton lien aujourd'hui à des gens qui travaillent, qui ont un métier, qui cherchent à être vus. Ce sont eux qui ont le plus à gagner avec WOZALI. Et toi avec eux.\n\nTu te demandes sûrement ce qu'est le Plan Pro.\nDemain je t'explique tout.\n\nA demain.`;
-        const bodyMainsOr = `${prenom},\n\nCe message, je l'ai écrit pour toi spécifiquement.\n\nPense à ce que tu fais vraiment.\n\nChaque femme qui sort de chez toi la tête haute, c'est toi qui as fait ça. Chaque mariée rayonnante le jour de sa cérémonie, chaque mère impeccable pour le baptême de son enfant, chaque femme qui reprend confiance en elle devant ton miroir - c'est ton travail. Tes mains. Ton talent.\n\nLes couturières et les coiffeuses sont partout dans ce pays. Dans chaque quartier, dans chaque rue, dans chaque moment important de la vie des gens. Vous êtes celles sur qui tout le monde compte sans jamais vraiment le dire.\n\nVous nourrissez vos familles. Vous formez des apprenties. Vous tenez des pans entiers de l'économie de ce pays avec vos mains. Et la plupart du temps, personne ne vous dit merci.\n\nWOZALI va changer ça.\n\n---\n\nLa Bourse des Mains d'Or : 200 000 FCFA chaque mois.\n\n100 000 FCFA pour une femme au Togo.\n100 000 FCFA pour une femme au Bénin.\n\nRéservée uniquement aux femmes. Pour ce métier que tu exerces chaque jour et qui mérite enfin d'être reconnu à sa vraie valeur.\n\nEt contrairement à d'autres récompenses sur WOZALI, celle-ci ne requiert pas le Plan Pro.\n\nProfil complet. C'est tout ce qu'il faut.\n\n---\n\nPremiers résultats : 25 septembre 2026.\n\nProfil complet, des avis de tes clientes - c'est pour ça que je t'avais demandé de partager ton lien dès le premier jour.\n\nChaque avis que tu reçois te rapproche de 100 000 FCFA.\n\nTu mérites cette reconnaissance.\nDepuis longtemps.\n\nA demain.`;
-        const bodyPro = (hier) => `${prenom},\n\nJe t'avais promis de t'expliquer le Plan Pro.\n\nSur WOZALI il y a deux façons d'être présent.\n\nLe Plan Gratuit : ton profil existe, tu es visible.\nC'est déjà bien. Mais tu es dans la liste avec tout le monde.\n\nLe Plan Pro : tu passes devant tout le monde. Toujours.\n\n---\n\nVoilà ce que ça change concrètement.\n\nQuand quelqu'un cherche ton métier dans ton quartier, les profils Pro apparaissent en premier dans les résultats. Systématiquement. Peu importe qui s'est inscrit avant toi.\n\nEn clair : un prestataire gratuit inscrit depuis 2 ans apparaît après toi si tu es Pro.\n\nC'est ça la priorité Pro.\n\n---\n\nMais ce n'est pas tout.\n\nLe parrainage dont je t'ai parlé ${hier} - les 1 000 FCFA par filleul par mois - n'est actif qu'en Plan Pro. En gratuit, tu ne peux pas en bénéficier.\n\nLes statistiques : tu vois combien de personnes ont vu ton profil, combien ont cherché à te contacter. Tu sais exactement où tu en es.\n\n---\n\nLe Plan Pro coûte 2 500 FCFA par mois.\n\nC'est le prix d'un repas. Pour une visibilité qui peut te rapporter dix, vingt, cinquante fois plus que ça.\n\nPour passer au Pro : Dashboard, section "Mon abonnement".\n\n---\n\nEt demain je te parle de quelque chose que peu de plateformes font : 500 000 FCFA distribués chaque mois aux prestataires les plus sérieux. Gratuit ou Pro.\n\nA demain. Ce que je t'annonce mérite que tu sois là.`;
-        const bodyFinal = `${prenom},\n\nCette semaine je t'ai parlé de plusieurs choses.\n\nTon Score qui fait venir les clients sans chercher.\nWOZALI Jobs qui te donne accès à l'emploi sans compromis.\nLe parrainage qui construit un revenu récurrent.\nLe Plan Pro qui te met devant tout le monde.\n\nTout ça existe. Tout ça est disponible pour toi maintenant.\n\nMais aujourd'hui je veux te parler de ce que WOZALI fait qu'aucune autre plateforme ne fait ici.\n\n---\n\nChaque mois, WOZALI distribue 500 000 FCFA à ses membres les plus sérieux.\n\nPas les plus connus. Les plus constants.\n\nLa Bourse de Croissance : 100 000 FCFA chacun pour les 3 prestataires les mieux classés, hommes ou femmes, Togo ou Bénin. Conditions : Plan Pro, profil complet, Score WOZALI à 80 sur 100 minimum, 3 avis clients sur les 30 derniers jours.\n\nLa Bourse des Mains d'Or : 200 000 FCFA réservés aux femmes. 100 000 FCFA pour une femme au Togo, 100 000 FCFA pour une femme au Bénin. Aucune condition de plan - gratuit ou Pro, tu es éligible si ton profil est complet.\n\nPremiers résultats : 25 septembre 2026.\n\n---\n\nVoilà où tu en es aujourd'hui.\n\nTu as un profil en ligne.\nTu as un Score qui peut monter.\nTu as un code de parrainage.\nTu as accès aux offres d'emploi.\nTu peux être éligible à 500 000 FCFA distribués chaque mois.\n\nTout ça parce que tu as agi il y a quelques jours.\n\nLa seule question maintenant c'est : est-ce que tu vas vraiment utiliser ce que tu as entre les mains ?\n\nLes gens qui gagnent sur WOZALI ne sont pas plus talentueux que toi. Ils sont juste plus constants.\n\nSois de ceux-là.\n\nSchealtiel`;
+        const bodyPro = (hier) => `${prenom},\n\nJe t'avais promis de t'expliquer le Plan Pro.\n\nSur WOZALI il y a deux façons d'être présent.\n\nLe Plan Gratuit : ton profil existe, tu es visible.\nC'est déjà bien. Mais tu es dans la liste avec tout le monde.\n\nLe Plan Pro : tu passes devant tout le monde. Toujours.\n\n---\n\nVoilà ce que ça change concrètement.\n\nQuand quelqu'un cherche ton métier dans ton quartier, les profils Pro apparaissent en premier dans les résultats. Systématiquement. Peu importe qui s'est inscrit avant toi.\n\nEn clair : un prestataire gratuit inscrit depuis 2 ans apparaît après toi si tu es Pro.\n\nC'est ça la priorité Pro.\n\n---\n\nMais ce n'est pas tout.\n\nLe parrainage dont je t'ai parlé ${hier} - les 1 000 FCFA par filleul par mois - n'est actif qu'en Plan Pro. En gratuit, tu ne peux pas en bénéficier.\n\nLes statistiques : tu vois combien de personnes ont vu ton profil, combien ont cherché à te contacter. Tu sais exactement où tu en es.\n\n---\n\nLe Plan Pro coûte 2 500 FCFA par mois.\n\nC'est le prix d'un repas. Pour une visibilité qui peut te rapporter dix, vingt, cinquante fois plus que ça.\n\nPour passer au Pro : Dashboard, section "Mon abonnement".\n\n---\n\nEt demain je te parle de quelque chose que peu de plateformes font : 500 000 FCFA distribués chaque mois aux prestataires les plus sérieux.\n\nA demain. Ce que je t'annonce mérite que tu sois là.`;
+        const bodyFinal = `${prenom},\n\nCette semaine je t'ai parlé de plusieurs choses.\n\nTon Score qui fait venir les clients sans chercher.\nWOZALI Jobs qui te donne accès à l'emploi sans compromis.\nLe parrainage qui construit un revenu récurrent.\nLe Plan Pro qui te met devant tout le monde.\n\nTout ça existe. Tout ça est disponible pour toi maintenant.\n\nMais aujourd'hui je veux te parler de ce que WOZALI fait qu'aucune autre plateforme ne fait ici.\n\n---\n\nChaque mois, WOZALI distribue 500 000 FCFA à ses membres les plus sérieux.\n\nPas les plus connus. Les plus constants.\n\nLa Bourse de Croissance : 100 000 FCFA chacun pour les 5 meilleurs profils du mois, hommes ou femmes, Togo ou Bénin. Conditions : Plan Pro, profil complet, Score WOZALI à 80 sur 100 minimum, 3 avis clients sur les 30 derniers jours.\n\nLe classement regarde ton travail. Tes avis clients, ta note, ta constance. Pas tes abonnés. Pas ton nombre de vues. Quelqu'un avec 10 clientes satisfaites passe devant quelqu'un avec 100 000 abonnés et des avis moyens.\n\nPremiers résultats : 25 septembre 2026.\n\n---\n\nVoilà où tu en es aujourd'hui.\n\nTu as un profil en ligne.\nTu as un Score qui peut monter.\nTu as un code de parrainage.\nTu as accès aux offres d'emploi.\nTu peux être éligible à 500 000 FCFA distribués chaque mois.\n\nTout ça parce que tu as agi il y a quelques jours.\n\nLa seule question maintenant c'est : est-ce que tu vas vraiment utiliser ce que tu as entre les mains ?\n\nLes gens qui gagnent sur WOZALI ne sont pas plus talentueux que toi. Ils sont juste plus constants.\n\nSois de ceux-là.\n\nSchealtiel`;
         const msgs = [
           { id: 'w_j0', type: 'message_fondateur', title: 'Coucou ' + prenom, body: bodyJ0, created_at: day(0), read: false, from: 'Schealtiel' },
           { id: 'w_j1', type: 'message_fondateur', title: 'Le Score qui change tout', body: bodyJ1, created_at: day(1), read: false, from: 'Schealtiel' },
           { id: 'w_j2', type: 'message_fondateur', title: "L'emploi sans compromis", body: bodyJ2, created_at: day(2), read: false, from: 'Schealtiel' },
           { id: 'w_j3', type: 'message_fondateur', title: "De l'argent même quand tu ne travailles pas", body: bodyJ3, created_at: day(3), read: false, from: 'Schealtiel' },
         ];
-        if (isCoiffCoutur) {
-          msgs.push({ id: 'w_j4_mo', type: 'message_fondateur', title: "La Bourse des Mains d'Or", body: bodyMainsOr, created_at: day(4), read: false, from: 'Schealtiel' });
-          msgs.push({ id: 'w_j5_pro', type: 'message_fondateur', title: 'Le Plan Pro', body: bodyPro('il y a deux jours'), created_at: day(5), read: false, from: 'Schealtiel' });
-          msgs.push({ id: 'w_j6', type: 'message_fondateur', title: "Ce qui s'ouvre devant toi", body: bodyFinal, created_at: day(6), read: false, from: 'Schealtiel' });
-        } else {
-          msgs.push({ id: 'w_j4_pro', type: 'message_fondateur', title: 'Le Plan Pro', body: bodyPro('hier'), created_at: day(4), read: false, from: 'Schealtiel' });
-          msgs.push({ id: 'w_j5', type: 'message_fondateur', title: "Ce qui s'ouvre devant toi", body: bodyFinal, created_at: day(5), read: false, from: 'Schealtiel' });
-        }
+        msgs.push({ id: 'w_j4_pro', type: 'message_fondateur', title: 'Le Plan Pro', body: bodyPro('hier'), created_at: day(4), read: false, from: 'Schealtiel' });
+        msgs.push({ id: 'w_j5', type: 'message_fondateur', title: "Ce qui s'ouvre devant toi", body: bodyFinal, created_at: day(5), read: false, from: 'Schealtiel' });
         if (record?.id && window.supaPrest) {
           await window.supaPrest.update(record.id, { 'Notifications': JSON.stringify(msgs) });
           if (window.currentPrestataire) window.currentPrestataire.fields['Notifications'] = JSON.stringify(msgs);
@@ -10433,10 +10388,9 @@ async function injectSprint6Upgrade(){
     <div style="background:#14100A;border:2px solid #E8940A;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
       <div style="font-size:40px;margin-bottom:6px">🏆</div>
       <div style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:4px">500 000 FCFA distribués chaque mois</div>
-      <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:14px">Bourse de Croissance (Pro) + Bourse des Mains d'Or (toutes les femmes B/T)</div>
+      <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:14px">Bourse de Croissance — les 5 meilleurs profils du mois (Pro, 100% mérite)</div>
       <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Geist Mono'">100K × 3</strong></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">👑 La Bourse des Mains d'Or</span><strong style="color:#E8940A;font-family:'Geist Mono'">100 000 × 2</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Geist Mono'">100K × 5</strong></div>
       </div>
     </div>
 
@@ -10450,8 +10404,7 @@ async function injectSprint6Upgrade(){
         ${rowKo('Badge Pro')}
         ${rowKo('Priorité résultats')}
         ${sectionTitle('RÉCOMPENSES')}
-        ${rowKo('Bourse 100 000 FCFA × 3/mois (Pro only)')}
-        ${rowOk('Bourse des Mains d\'Or 100K × 2 — ouverte à toutes les femmes (coiffeuses &amp; couturières)')}
+        ${rowKo('Bourse 100 000 FCFA × 5/mois (Pro only)')}
         ${rowKo('Commissions parrainage')}
       </div>
       <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
@@ -10464,8 +10417,7 @@ async function injectSprint6Upgrade(){
         ${rowOk('Priorité résultats')}
         ${rowOk('À la Une homepage')}
         ${sectionTitle('RÉCOMPENSES')}
-        ${rowOk('<strong>Bourse 100 000 FCFA × 3/mois</strong>')}
-        ${rowOk('<strong>Bourse des Mains d\'Or 100K × 2</strong> — ouverte à toutes les femmes')}
+        ${rowOk('<strong>Bourse 100 000 FCFA × 5/mois</strong>')}
         ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
       </div>
     </div>
@@ -10500,8 +10452,7 @@ function sp6ShowSuccess(){
     <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es Pro !</div>
     <div style="font-size:14px;color:rgba(252, 224, 168,.7);margin-bottom:28px">Ton Plan Pro est actif jusqu'au ${dateFin.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
     <div style="max-width:360px;width:100%">
-      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#FCE0A8">🏆 <strong>Bourse de Croissance 100 000 FCFA × 3</strong> — prochains résultats vendredi 18h00</div>
-      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#FCE0A8">👑 <strong>Bourse des Mains d'Or 100 000 FCFA × 2</strong> — ✂️ Reine Coiffure + 👗 Reine Couture · 1 par pays/mois</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#FCE0A8">🏆 <strong>Bourse de Croissance 100 000 FCFA × 5</strong> — les 5 meilleurs profils du mois · prochains résultats vendredi 18h00</div>
       <button onclick="this.closest('[style*=fixed]').remove();showDashSection('profil')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Aller au dashboard →</button>
     </div>`;
   document.body.appendChild(overlay);
@@ -10510,46 +10461,6 @@ function sp6ShowSuccess(){
 
 
 // ══ SPRINT 7 — WIDGETS RÉCOMPENSES DASHBOARD ══
-function loadRecompensesMDR() {
-  const host = document.getElementById('recompenses-mdr-widgets');
-  if (!host) return;
-  const metier = (currentPrestataire?.fields?.['Métier principal'] || '').toLowerCase();
-  const isEligible = metier.includes('coiff') || metier.includes('coutur') || metier.includes('tress');
-  host.innerHTML = `
-    <div style="max-width:700px;margin:0 auto;padding:0 0 40px">
-      ${!isEligible ? `<div style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:#FCE0A8;">
-        ⚠️ La Bourse des Mains d'Or est réservée aux <strong>coiffeuses et couturières</strong>. Ton métier (<strong>${currentPrestataire?.fields?.['Métier principal'] || 'non renseigné'}</strong>) n'y est pas éligible.
-      </div>` : ''}
-      <div style="background:rgba(232,148,10,.06);border:1.5px solid rgba(232,148,10,.3);border-radius:20px;padding:28px 24px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <span style="font-size:36px">👑</span>
-          <div>
-            <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;">La Bourse des Mains d'Or</div>
-            <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">100 000 FCFA × 2 · 1 TOGO + 1 BÉNIN · CLASSEMENT MENSUEL</div>
-          </div>
-        </div>
-        <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px"><strong>Ta grand-mère a tressé pour nourrir. Ta mère a cousu pour t'envoyer à l'école. Maintenant c'est ton tour.</strong><br><br>Chaque mois, 2 Reines gagnent 100 000 FCFA chacune — une au Togo, une au Bénin. Pas besoin d'être Pro. Ouverte à toutes les coiffeuses et couturières.</p>
-        <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:16px;margin-bottom:16px">
-          <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</div>
-          <div style="display:grid;gap:8px;font-size:13px;color:rgba(252,224,168,.8)">
-            <div>✓ Être une femme au Togo ou au Bénin</div>
-            <div>✓ Métier : ✂️ Coiffeuse (mois impair) ou 👗 Couturière (mois pair)</div>
-            <div>✓ Profil complet (photo + ville/quartier)</div>
-            <div>✓ Au moins <strong>1 photo de réalisation</strong> sur ton profil ce mois</div>
-            <div>✓ Au moins <strong>1 avis client</strong> reçu sur les 30 derniers jours</div>
-            <div>✓ Connexion récente (≤ 14 jours)</div>
-          </div>
-        </div>
-        <button onclick="showDashSection('photos')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">📸 Ajouter des photos de réalisations →</button>
-      </div>
-      <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
-        <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premiers résultats</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">25 septembre 2026</div>
-        <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le dernier vendredi du mois · Classement 100% automatique, au mérite</div>
-      </div>
-    </div>`;
-}
-
 async function loadRecompensesWidgets() {
   const host = document.getElementById('recompenses-widgets');
   if (!host) return;
@@ -10566,10 +10477,10 @@ async function loadRecompensesWidgets() {
             <span style="font-size:36px">🏆</span>
             <div>
               <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;">Bourse de Croissance</div>
-              <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">100 000 FCFA × 3 · LES MIEUX CLASSÉS · PRO</div>
+              <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">100 000 FCFA × 5 · LES 5 MEILLEURS PROFILS · PRO</div>
             </div>
           </div>
-          <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px">Chaque mois, les 3 Pro les plus sérieux du Bénin et du Togo gagnent <strong>100 000 FCFA chacun</strong>. Pas de dossier à remplir — si tu remplis les conditions, tu es dans le classement automatiquement. Résultats le dernier vendredi du mois.</p>
+          <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px">Chaque mois, les 5 Pro les plus sérieux du Bénin et du Togo gagnent <strong>100 000 FCFA chacun</strong>. Le classement regarde ton travail — tes avis, ta note, ta constance — pas tes abonnés. Pas de dossier à remplir — si tu remplis les conditions, tu es dans le classement automatiquement. Résultats le dernier vendredi du mois.</p>
           <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:16px;margin-bottom:16px">
             <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</div>
             <div style="display:grid;gap:8px;font-size:13px;color:rgba(252,224,168,.8)">
@@ -10630,7 +10541,7 @@ function _widgetBourse(bourse, countdown) {
         <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Le virement sera effectué sous 48h.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Mon abonnement</button>
-          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 Je fais partie des 3 mieux classés de la Bourse de Croissance WOZALI ! 100 000 FCFA pour les membres Pro les plus méritants. Rejoins WOZALI : wozali.africa'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
+          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 Je fais partie des 5 meilleurs profils de la Bourse de Croissance WOZALI ! 100 000 FCFA pour les membres Pro les plus méritants. Rejoins WOZALI : wozali.africa'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
         </div>
       </div>`;
   }
@@ -10673,7 +10584,7 @@ function _widgetBourse(bourse, countdown) {
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
         <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(252, 224, 168,.3)">🔒</div>
         <div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin:0">Bourse de Croissance · 100 000 FCFA × 3</h3>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin:0">Bourse de Croissance · 100 000 FCFA × 5</h3>
           <p style="font-size:12px;color:rgba(252, 224, 168,.5);margin:2px 0 0">Tu n'es pas encore éligible ce mois</p>
         </div>
       </div>
@@ -10717,9 +10628,6 @@ async function loadPageRecompenses() {
   const ctaPro = document.getElementById('recomp-cta-pro');
   if (ctaPro) ctaPro.style.display = isBase ? 'block' : 'none';
 
-  // Section Top Mains les Plus Demandées (publique)
-  try { loadTopMains(); } catch(e) { console.warn('[topmains init]', e); }
-
   // 🆕 Section TikTok partagée + Checklists dynamiques (si user connecté)
   try { renderTikTokSharedSection(); } catch(e) { console.warn('[tiktok shared]', e); }
   try { loadChecklistsRecompenses(); } catch(e) { console.warn('[checklists recompenses]', e); }
@@ -10746,15 +10654,6 @@ async function loadPageRecompenses() {
     }
 
   } catch(e) { console.warn('[page recompenses]', e); }
-}
-
-// ════════════════════════════════════════════════════════════════
-// TOP MAINS LES PLUS DEMANDÉES — section publique sur Récompenses
-// ════════════════════════════════════════════════════════════════
-window._topMainsState = { categorie: 'coiffure', pays: '' };
-
-function _tmEscape(s) {
-  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -10813,14 +10712,6 @@ async function toggleTikTokSuivi(field) {
 
 async function loadChecklistsRecompenses() {
   if (!currentUser) return;
-  // MdR
-  try {
-    const r = await wozaliFetch('/api/wozali-pay/mdr-eligibilite');
-    const d = await r.json();
-    renderChecklist('mdr', d);
-  } catch (e) {
-    console.warn('[mdr-eligibilite fetch]', e);
-  }
   // Bourse
   try {
     const r = await wozaliFetch('/api/wozali-pay/bourse-eligibilite');
@@ -10845,17 +10736,7 @@ function renderChecklist(prefix, d) {
     return;
   }
 
-  const labels = (prefix === 'mdr') ? {
-    profil_complet: 'Profil complet (photo + métier + ville/quartier + numéro)',
-    metier_ok: 'Métier compatible (Coiffeuse mois impair · Couturière mois pair)',
-    photo_du_mois: '≥ 1 photo de réalisation sur ton profil ce mois',
-    avis_30j: '≥ 1 avis client sur les 30 derniers jours',
-    activite_recente: 'Connexion récente (≤ 14 jours)',
-    tiktok_wolomarket: '⚡ Bonus — Suivre @wozali sur TikTok',
-    tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
-    insta_suivi_wozali: '⚡ Bonus — Suivre @wozali sur Instagram',
-    insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
-  } : {
+  const labels = {
     plan_pro_actif: 'Plan Pro actif ce mois-ci',
     profil_complet: 'Profil complet (photo + métier + ville/quartier + numéro)',
     score_wozali_80: 'Score WOZALI ≥ 80/100',
@@ -10888,120 +10769,6 @@ function renderChecklist(prefix, d) {
       status.style.color = 'rgba(252, 224, 168,.7)';
     }
   }
-}
-
-async function loadTopMains() {
-  const host = document.getElementById('recomp-top-mains');
-  if (!host) return;
-
-  // Bind boutons
-  host.querySelectorAll('.tm-cat-btn').forEach(btn => {
-    btn.onclick = () => {
-      window._topMainsState.categorie = btn.dataset.cat;
-      _tmRefreshButtons();
-      loadTopMains();
-    };
-  });
-  host.querySelectorAll('.tm-pays-btn').forEach(btn => {
-    btn.onclick = () => {
-      window._topMainsState.pays = btn.dataset.pays || '';
-      _tmRefreshButtons();
-      loadTopMains();
-    };
-  });
-  _tmRefreshButtons();
-
-  const podiumEl = document.getElementById('topmains-podium');
-  const listEl = document.getElementById('topmains-list');
-  const emptyEl = document.getElementById('topmains-empty');
-  if (!podiumEl || !listEl || !emptyEl) return;
-
-  podiumEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(252, 224, 168,.4);font-size:13px">Chargement…</div>';
-  listEl.innerHTML = '';
-  emptyEl.style.display = 'none';
-
-  const { categorie, pays } = window._topMainsState;
-  const params = new URLSearchParams({ categorie, limit: '10' });
-  if (pays) params.set('pays', pays);
-
-  try {
-    const fn = window.wozaliFetch || fetch;
-    const r = await fn(`/api/wozali-pay/top-mains-list?${params.toString()}`);
-    const d = await r.json();
-    if (!d.ok) throw new Error(d.error || 'Erreur');
-
-    const pros = d.pros || [];
-    if (pros.length === 0) {
-      podiumEl.innerHTML = '';
-      listEl.innerHTML = '';
-      emptyEl.style.display = 'block';
-      return;
-    }
-
-    const top3 = pros.slice(0, 3);
-    const rest = pros.slice(3, 10);
-
-    // Podium top 3
-    podiumEl.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(${top3.length},1fr);gap:10px">
-        ${top3.map(p => `
-          <div onclick="goToPro('${_tmEscape(p.user_id)}')" style="cursor:pointer;background:linear-gradient(180deg,rgba(232,148,10,.12),rgba(232,148,10,.02));border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:18px 12px;text-align:center;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="font-size:28px;line-height:1">${p.emoji}</div>
-            <div style="margin:8px auto;width:64px;height:64px;border-radius:50%;background:rgba(232,148,10,.15);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #E8940A">
-              ${p.photo_profil ? `<img src="${_tmEscape(p.photo_profil)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">` : '<span style="font-size:24px">👤</span>'}
-            </div>
-            <div style="font-family:'DM Serif Display',serif;font-weight:900;font-size:14px;color:#FCE0A8;margin-bottom:2px">${_tmEscape(p.nom)}</div>
-            <div style="font-size:11px;color:rgba(252, 224, 168,.45)">${_tmEscape(p.metier)}${p.ville ? ' · ' + _tmEscape(p.ville) : ''}</div>
-            <div style="margin-top:10px;font-family:'Geist Mono',monospace;font-size:18px;font-weight:800;color:#E8940A">${p.count}</div>
-            <div style="font-size:10px;color:rgba(252, 224, 168,.45);font-family:'Geist Mono',monospace;letter-spacing:1px">TAG${p.count > 1 ? 'S' : ''} CE MOIS</div>
-          </div>
-        `).join('')}
-      </div>`;
-
-    // Liste 4-10
-    if (rest.length > 0) {
-      listEl.innerHTML = `
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
-          ${rest.map(p => `
-            <div onclick="goToPro('${_tmEscape(p.user_id)}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 14px;transition:background .15s" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">
-              <div style="font-family:'Geist Mono',monospace;font-size:14px;font-weight:800;color:#E8940A;min-width:32px">#${p.rang}</div>
-              <div style="width:42px;height:42px;border-radius:50%;background:rgba(232,148,10,.1);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
-                ${p.photo_profil ? `<img src="${_tmEscape(p.photo_profil)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">` : '<span style="font-size:18px">👤</span>'}
-              </div>
-              <div style="flex:1;min-width:0">
-                <div style="font-weight:700;font-size:14px;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_tmEscape(p.nom)} ${p.emoji}</div>
-                <div style="font-size:11px;color:rgba(252, 224, 168,.45)">${_tmEscape(p.metier)}${p.ville ? ' · ' + _tmEscape(p.ville) : ''}</div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-family:'Geist Mono',monospace;font-size:15px;font-weight:800;color:#E8940A">${p.count}</div>
-                <div style="font-size:10px;color:rgba(252, 224, 168,.4);font-family:'Geist Mono',monospace">tag${p.count > 1 ? 's' : ''}</div>
-              </div>
-            </div>
-          `).join('')}
-        </div>`;
-    } else {
-      listEl.innerHTML = '';
-    }
-  } catch (err) {
-    console.warn('[loadTopMains]', err);
-    podiumEl.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(252, 224, 168,.4);font-size:13px">Erreur de chargement.</div>';
-  }
-}
-
-function _tmRefreshButtons() {
-  const { categorie, pays } = window._topMainsState;
-  document.querySelectorAll('#topmains-filters .tm-cat-btn').forEach(b => {
-    const active = b.dataset.cat === categorie;
-    b.style.background = active ? '#E8940A' : 'transparent';
-    b.style.color = active ? '#14100A' : '#FCE0A8';
-    b.style.fontWeight = active ? 800 : 700;
-  });
-  document.querySelectorAll('#topmains-filters .tm-pays-btn').forEach(b => {
-    const active = (b.dataset.pays || '') === (pays || '');
-    b.style.background = active ? '#E8940A' : 'transparent';
-    b.style.color = active ? '#14100A' : '#FCE0A8';
-    b.style.fontWeight = active ? 800 : 700;
-  });
 }
 
 function goToPro(userId) {
@@ -16175,10 +15942,10 @@ async function loadFondateurBourse() {
   if (error) { set('bourse-eligibles-total', 'Err'); return; }
   const eligibles = pros || [];
 
-  const reines = eligibles.filter(p => (p.genre || '').toUpperCase() === 'F');
+  const femmes = eligibles.filter(p => (p.genre || '').toUpperCase() === 'F');
 
   set('bourse-eligibles-total', eligibles.length);
-  set('bourse-eligibles-reines', reines.length);
+  set('bourse-eligibles-reines', femmes.length);
 
   const liste = document.getElementById('bourse-liste');
   if (!liste) return;
@@ -16189,17 +15956,15 @@ async function loadFondateurBourse() {
   }
 
   liste.innerHTML = eligibles.map(p => {
-    const isReine = (p.genre || '').toUpperCase() === 'F';
     const dateInscr = new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
     return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
-      <div style="font-size:14px;">${isReine ? '👑' : '⭐'}</div>
+      <div style="font-size:14px;">⭐</div>
       <div style="flex:1;">
         <div style="font-size:13px;font-weight:600;color:rgba(252,224,168,.85);">${p.nom || ''} ${p.prenom || ''} <span style="color:rgba(252,224,168,.35);">${p.metier || ''} - ${p.ville || ''}</span></div>
         <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pro depuis le ${dateInscr}</div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
         <span style="font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:4px;padding:2px 7px;">BOURSE</span>
-        ${isReine ? '<span style="font-size:10px;font-weight:800;font-family:\'Geist Mono\',monospace;color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:4px;padding:2px 7px;">REINE</span>' : ''}
       </div>
     </div>`;
   }).join('');

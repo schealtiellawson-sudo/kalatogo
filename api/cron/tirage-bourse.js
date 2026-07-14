@@ -3,7 +3,7 @@
 // Vercel schedule : 0 17 * * 5  (vendredi 17h UTC = 18h WAT)
 // Le handler vérifie si c'est le dernier vendredi du mois
 //
-// Mécanisme : classement au MÉRITE, zéro hasard. Les 3 membres Pro
+// Mécanisme : classement au MÉRITE, zéro hasard. Les 5 membres Pro
 // éligibles avec le meilleur Score WOZALI (départage : note moyenne
 // puis nombre d'avis) reçoivent chacun 100 000 FCFA.
 // (Avant 2026-07-11 : tirage aléatoire pondéré par score — remplacé
@@ -15,7 +15,7 @@ import { supabase } from '../_lib/supabase.js';
 import { crediterCreditWozali, envoyerNotification } from '../_utils/credit.js';
 
 const MONTANT_PAR_GAGNANT = 100000;
-const NB_GAGNANTS = 3;
+const NB_GAGNANTS = 5;
 
 function isLastFridayOfMonth() {
   const now = new Date();
@@ -93,8 +93,8 @@ export default async function handler(req, res) {
       // 6. Notification
       await envoyerNotification({
         user_id: gagnant.user_id,
-        titre: '🏆 Félicitations ! Tu fais partie des 3 mieux classés de la Bourse de Croissance !',
-        corps: `100 000 FCFA ont été crédités sur ton Crédit WOZALI. Tu es l'un des 3 membres Pro les plus méritants de ${moisCourant}.`
+        titre: '🏆 Félicitations ! Tu fais partie des 5 meilleurs profils de la Bourse de Croissance !',
+        corps: `100 000 FCFA ont été crédités sur ton Crédit WOZALI. Tu es l'un des 5 membres Pro les plus méritants de ${moisCourant}.`
       });
     }
 

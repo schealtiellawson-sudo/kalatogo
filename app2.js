@@ -70,12 +70,8 @@ const faqData = [
     a: "Non. WOZALI s'ajoute à ce que tu fais déjà. Les clients te trouvent sur WOZALI, te contactent sur WhatsApp — comme avant, mais en beaucoup plus grand. Tu gardes ta façon de travailler, tes prix, tes habitudes. Tu ajoutes juste une vitrine permanente visible par tout le Bénin et le Togo. Rien ne change — sauf le nombre de clients."
   },
   {
-    q: "C'est quoi La Bourse des Mains d'Or exactement ?",
-    a: "Un concours mensuel ouvert à toutes les coiffeuses et couturières du Togo et du Bénin — coiffure et couture, en alternance. 2 Reines par mois (1 Bénin + 1 Togo). 100 000 FCFA chacune. Tirage 100% automatique le 30 du mois parmi les membres éligibles. Profil complet, au moins 1 photo de réalisation et 1 avis client. Pas besoin d'être Pro, pas besoin de postuler — si tu es éligible, tu es automatiquement dans le tirage."
-  },
-  {
-    q: "Faut-il être Pro pour gagner La Bourse des Mains d'Or ?",
-    a: "Non, La Bourse des Mains d'Or est <strong>ouverte à toutes les coiffeuses et couturières du Togo et du Bénin</strong>, Pro ou pas. Profil complet, au moins 1 photo de réalisation et 1 avis client. Classement automatique le 30. La Bourse de Croissance (100 000 FCFA chacun pour les 3 meilleurs Pro du mois) est réservée aux membres Pro."
+    q: "C'est quoi la Bourse de Croissance exactement ?",
+    a: "Chaque mois, WOZALI verse <strong>100 000 FCFA chacun aux 5 meilleurs profils</strong> du Togo et du Bénin — 500 000 FCFA au total. Réservée aux membres Pro. Le classement est 100% au mérite : tes avis clients vérifiés, ta note, ta constance. Pas tes abonnés, pas ton nombre de vues. Pas de dossier à remplir, pas de tirage au sort — si tu remplis les conditions, tu es automatiquement dans le classement. Résultats le dernier vendredi du mois, premiers résultats le 25 septembre 2026."
   }
 ];
 
