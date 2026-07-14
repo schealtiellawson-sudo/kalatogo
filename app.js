@@ -2850,14 +2850,13 @@ function showPage(page, _fromPop) {
 
   // Sauvegarder la page dans localStorage pour le refresh
   const privatePages = ['dashboard','fil'];
-  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','feed','recompenses','match','awards','a-propos','agent-wozali','influenceurs','admin-agents'];
+  const publicPages  = ['home','search','profil','apropos','fonctionnement','emploi','recompenses','match'];
   if (publicPages.includes(page))  localStorage.setItem('wozali_last_page', page);
   if (privatePages.includes(page)) localStorage.setItem('wozali_last_page', page);
 
   if (page === 'home') initHome();
   if (page === 'search') loadSearch();
   if (page === 'emploi') showPageEmploi();
-  if (page === 'feed') { try { initFeedWOZALI(); } catch(e){ console.warn('feed init', e); } }
   if (page === 'inscription') resetInscriptionForm();
   if (page === 'fil') {
     if (!currentUser) { localStorage.setItem('wozali_pending_page','fil'); showPage('login'); return; }
@@ -2870,11 +2869,7 @@ function showPage(page, _fromPop) {
     setTimeout(() => loadFounderCounter(), 500);
   }
   if (page === 'recompenses') loadPageRecompenses();
-  // if (page === 'battle') loadBattlePage(); — retiré 2026-05-15
-  if (page === 'awards') loadPageAwards();
   if (page === 'match') { try { initWozaliMatch(); } catch(e){ console.warn('match init', e); } }
-
-  if (page === 'admin-agents') loadAdminAgents();
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
       setTimeout(() => {
@@ -2983,6 +2978,10 @@ function _restorePageFromURL() {
 
   const lastPage = localStorage.getItem('wozali_last_page');
   if (!lastPage || lastPage === 'home') return;
+
+  // Pages supprimées (purge 2026-07-14) : un localStorage périmé ne doit pas restaurer une page qui n'existe plus
+  const restorablePages = ['search','profil','apropos','fonctionnement','emploi','recompenses','match','dashboard','fil'];
+  if (!restorablePages.includes(lastPage)) { localStorage.removeItem('wozali_last_page'); return; }
 
   const privatePages = ['dashboard','fil'];
 
