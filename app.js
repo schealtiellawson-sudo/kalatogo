@@ -1310,6 +1310,13 @@ function loadEditForm() {
   document.getElementById('edit-nom').value = f['Nom complet'] || '';
   document.getElementById('edit-tel').value = f['Numéro de téléphone'] || '';
   document.getElementById('edit-description').value = f['Description des services'] || '';
+  const bioExistingEl = document.getElementById('bio-vocal-existing');
+  if (bioExistingEl) {
+    bioExistingEl.innerHTML = f['Bio Audio URL']
+      ? `<div style="margin-bottom:8px;">${wzVoicePlayer(f['Bio Audio URL'], f['Bio Audio Durée'])}</div>`
+      : '';
+  }
+  resetVocalRec('bio'); // efface un éventuel enregistrement en attente d'un précédent passage
   const editDiplomesEl = document.getElementById('edit-diplomes');
   if (editDiplomesEl) editDiplomesEl.value = f['Diplomes'] || '';
   const editDiplomesGroup = document.getElementById('edit-diplomes-group');
@@ -1394,6 +1401,13 @@ function toggleLangue(checkbox) {
 
 async function saveProfile() {
   if (!currentPrestataire) return;
+  // Si l'enregistrement de la bio vocale tourne encore, on le termine proprement d'abord
+  const bioSt = _vocalRec['bio'];
+  if (bioSt && bioSt.recorder && bioSt.recorder.state === 'recording') {
+    stopVocalRec('bio');
+    toast('Ton vocal est prêt. Écoute-le, puis appuie à nouveau sur Sauvegarder.', 'info');
+    return;
+  }
   const btn = document.getElementById('save-profile-btn');
   btn.textContent = '⏳ Sauvegarde...';
   btn.disabled = true;
@@ -1442,10 +1456,25 @@ async function saveProfile() {
   fields['Lien Instagram']  = instagram || '';
   fields['Langues parlées'] = langues   || null; // null → TEXT[] Supabase accepte, '' → malformed array literal
 
+  // Bio vocale : upload si un nouvel enregistrement est en attente
+  if (bioSt && bioSt.blob && bioSt.blob.size) {
+    try {
+      const audioUrl = await _uploadVocal(bioSt.blob, `bios/${currentUser.id}`);
+      fields['Bio Audio URL']    = audioUrl;
+      fields['Bio Audio Durée'] = bioSt.duree;
+    } catch (e) {
+      toast('L\'envoi du vocal a échoué. Vérifie ta connexion et réessaie.', 'error');
+      btn.textContent = '💾 Sauvegarder les modifications';
+      btn.disabled = false;
+      return;
+    }
+  }
+
   try {
     const updated = await window.supaPrest.update(currentPrestataire.id, fields);
     currentPrestataire = updated;
     window.currentPrestataire = updated;
+    resetVocalRec('bio');
     updateNavAuth(true);
     toast('✅ Profil mis à jour !', 'success');
   } catch (e) {
@@ -8018,8 +8047,10 @@ async function showProfil(recordId) {
 
     // Description avec "Voir plus" — découpe sur le raw, escape ensuite
     const _descShortSafe = descriptionRaw.length > 200 ? escapeHtml(descriptionRaw.slice(0, 200)) + '…' : escapeHtml(descriptionRaw);
-    const descHtml = descriptionRaw ? `
-      <p class="description-text" id="desc-short-${recordId}">${_descShortSafe}</p>
+    const bioAudioHtml = f['Bio Audio URL'] ? `<div style="margin-bottom:12px;">${wzVoicePlayer(f['Bio Audio URL'], f['Bio Audio Durée'])}</div>` : '';
+    const descHtml = (bioAudioHtml || descriptionRaw) ? `
+      ${bioAudioHtml}
+      ${descriptionRaw ? `<p class="description-text" id="desc-short-${recordId}">${_descShortSafe}</p>` : ''}
       ${descriptionRaw.length > 200 ? `
         <p class="description-text" id="desc-full-${recordId}" style="display:none;">${escapeHtml(descriptionRaw)}</p>
         <button class="voir-plus-btn" onclick="toggleDesc('${recordId}')">
@@ -8325,7 +8356,7 @@ async function showProfil(recordId) {
       <!-- ═══════════ TAB À PROPOS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-apropos-${recordId}" style="display:none;">
         <div class="profil-apropos-main">
-          ${description ? `
+          ${(description || f['Bio Audio URL']) ? `
           <div class="profil-section profil-animate">
             <h3>À propos</h3>
             ${descHtml}
@@ -8661,6 +8692,102 @@ async function _uploadVocal(blob, dossier) {
   const { error } = await supa.storage.from('wozali-vocaux').upload(path, blob, { contentType: type, cacheControl: '31536000' });
   if (error) throw error;
   return supa.storage.from('wozali-vocaux').getPublicUrl(path).data.publicUrl;
+}
+
+// ── Enregistreur vocal générique réutilisable (bio profil, description réalisation...) ──
+// État par namespace : { recorder, chunks, blob, duree, stream, timer }
+const _vocalRec = {};
+function _vocalElIds(ns) {
+  return { idle: ns + '-vocal-idle', rec: ns + '-vocal-rec', done: ns + '-vocal-done', timer: ns + '-vocal-timer', player: ns + '-vocal-player' };
+}
+async function startVocalRec(ns, maxSec) {
+  maxSec = maxSec || 60;
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    toast('Ton téléphone ne permet pas d\'enregistrer la voix ici.', 'error');
+    return;
+  }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    toast('Le micro est bloqué. Autorise le micro dans ton navigateur.', 'error');
+    return;
+  }
+  const mime = _vocalMimeType();
+  let recorder;
+  try {
+    recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+  } catch (e) {
+    stream.getTracks().forEach(t => t.stop());
+    toast('L\'enregistrement n\'a pas pu démarrer.', 'error');
+    return;
+  }
+  const st = _vocalRec[ns] = { recorder, chunks: [], blob: null, duree: 0, stream, timer: null };
+  recorder.ondataavailable = (e) => { if (e.data && e.data.size) st.chunks.push(e.data); };
+  recorder.onstop = () => {
+    st.blob = new Blob(st.chunks, { type: recorder.mimeType || 'audio/webm' });
+    if (st.stream) { st.stream.getTracks().forEach(t => t.stop()); st.stream = null; }
+    _renderVocalRecDone(ns);
+  };
+  recorder.start();
+  const ids = _vocalElIds(ns);
+  const t0 = Date.now();
+  const idle = document.getElementById(ids.idle);
+  const done = document.getElementById(ids.done);
+  const rec  = document.getElementById(ids.rec);
+  if (idle) idle.style.display = 'none';
+  if (done) done.style.display = 'none';
+  if (rec)  rec.style.display  = 'flex';
+  st.timer = setInterval(() => {
+    const sec = Math.floor((Date.now() - t0) / 1000);
+    st.duree = Math.min(sec, maxSec);
+    const el = document.getElementById(ids.timer);
+    if (el) el.textContent = _fmtVocalTime(st.duree) + ' / ' + _fmtVocalTime(maxSec);
+    if (sec >= maxSec) stopVocalRec(ns);
+  }, 250);
+}
+function stopVocalRec(ns) {
+  const st = _vocalRec[ns];
+  if (!st) return;
+  if (st.timer) { clearInterval(st.timer); st.timer = null; }
+  if (st.recorder && st.recorder.state !== 'inactive') st.recorder.stop();
+}
+function resetVocalRec(ns) {
+  const st = _vocalRec[ns];
+  const ids = _vocalElIds(ns);
+  if (st) {
+    if (st.timer) { clearInterval(st.timer); st.timer = null; }
+    if (st.recorder && st.recorder.state !== 'inactive') { st.recorder.onstop = null; st.recorder.stop(); }
+    if (st.stream) { st.stream.getTracks().forEach(t => t.stop()); st.stream = null; }
+  }
+  _vocalRec[ns] = { recorder: null, chunks: [], blob: null, duree: 0, stream: null, timer: null };
+  const player = document.getElementById(ids.player);
+  if (player) {
+    player.querySelectorAll('audio').forEach(a => { a.pause(); if (a.src.startsWith('blob:')) URL.revokeObjectURL(a.src); });
+    player.innerHTML = '';
+  }
+  const rec  = document.getElementById(ids.rec);
+  const done = document.getElementById(ids.done);
+  const idle = document.getElementById(ids.idle);
+  if (rec)  rec.style.display  = 'none';
+  if (done) done.style.display = 'none';
+  if (idle) idle.style.display = 'block';
+}
+function _renderVocalRecDone(ns) {
+  const st = _vocalRec[ns];
+  const ids = _vocalElIds(ns);
+  if (!st || !st.blob || !st.blob.size || st.duree < 2) {
+    resetVocalRec(ns);
+    toast('Le vocal est trop court. Appuie sur le micro et parle au moins 2 secondes.', 'error');
+    return;
+  }
+  const url = URL.createObjectURL(st.blob);
+  const rec  = document.getElementById(ids.rec);
+  const done = document.getElementById(ids.done);
+  const player = document.getElementById(ids.player);
+  if (rec)  rec.style.display  = 'none';
+  if (done) done.style.display = 'flex';
+  if (player) player.innerHTML = wzVoicePlayer(url, st.duree);
 }
 
 // Lecteur vocal inline (style WhatsApp) — HTML autonome, réutilisable partout

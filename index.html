@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260715o">
+<link rel="stylesheet" href="/style.css?v=20260715p">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3019,6 +3019,24 @@ setTimeout(function(){
           <div class="form-group">
             <label>Qu'est-ce que tu fais exactement ? ✦</label>
             <textarea id="edit-description" style="min-height:130px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Ta bio en vocal 🎤 <span style="font-weight:400;color:var(--gris);">(1 minute max, optionnel)</span></label>
+            <div id="bio-vocal-existing"></div>
+            <div id="bio-vocal-idle">
+              <button type="button" class="wz-voice-record-btn" onclick="startVocalRec('bio')">
+                <span class="wz-voice-record-mic">🎤</span> Enregistrer ma bio
+              </button>
+            </div>
+            <div id="bio-vocal-rec" class="wz-voice-recording" style="display:none;">
+              <span class="wz-rec-dot"></span>
+              <span id="bio-vocal-timer" class="wz-voice-time">0:00 / 1:00</span>
+              <button type="button" class="wz-voice-stop-btn" onclick="stopVocalRec('bio')">■ Terminer</button>
+            </div>
+            <div id="bio-vocal-done" style="display:none;">
+              <div id="bio-vocal-player"></div>
+              <button type="button" class="wz-voice-redo-btn" onclick="resetVocalRec('bio')">🗑 Refaire</button>
+            </div>
           </div>
           <div class="form-group" id="edit-diplomes-group" style="display:none;">
             <label>🎓 Ta formation, tes certifications, tes années d'expérience</label>
@@ -6300,7 +6318,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715o" defer></script>
+<script src="/app.js?v=20260715p" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

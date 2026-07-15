@@ -58,6 +58,8 @@
     'Statut Artisan': 'statut_artisan',
     'Mode Emploi': 'mode_emploi',
     'Pays': 'pays',
+    'Bio Audio URL': 'bio_audio_url',
+    'Bio Audio Durée': 'bio_audio_duree_sec',
   };
 
   function _supa() { return window.supabase || window.supa; }
