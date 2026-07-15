@@ -60,6 +60,7 @@
     'Pays': 'pays',
     'Bio Audio URL': 'bio_audio_url',
     'Bio Audio Durée': 'bio_audio_duree_sec',
+    'Realisations Audio': 'realisations_audio',
   };
 
   function _supa() { return window.supabase || window.supa; }
@@ -72,7 +73,7 @@
       const v = row[supaCol];
       if (v != null) {
         // Albums + Notifications + Disponibilités Hebdo : Supabase JSONB → stringify pour compat JSON.parse()
-        if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof v === 'object') {
+        if (['albums', 'notifications', 'disponibilites_hebdo', 'realisations_audio'].includes(supaCol) && typeof v === 'object') {
           fields[atName] = JSON.stringify(v);
         } else if (supaCol === 'langues_parlees' && Array.isArray(v)) {
           // TEXT[] Supabase → string CSV pour compat code existant
@@ -106,7 +107,7 @@
           row[supaCol] = null;
         }
       // Parser les JSON strings vers objets pour les colonnes JSONB
-      } else if (['albums', 'notifications', 'disponibilites_hebdo'].includes(supaCol) && typeof value === 'string') {
+      } else if (['albums', 'notifications', 'disponibilites_hebdo', 'realisations_audio'].includes(supaCol) && typeof value === 'string') {
         try { row[supaCol] = JSON.parse(value); } catch { row[supaCol] = null; }
       } else if (supaCol === 'langues_parlees') {
         // TEXT[] Supabase : convertir string CSV → array, '' ou null → null

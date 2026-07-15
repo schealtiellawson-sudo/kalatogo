@@ -1739,6 +1739,74 @@ function renderRealisationsGrid() {
   const bar = document.getElementById('real-progress-bar');
   if (counter) counter.textContent = `${filled} / 3`;
   if (bar) bar.style.width = `${Math.round((filled / 3) * 100)}%`;
+
+  renderRealisationsAudioGrid();
+}
+
+// ── Description vocale par photo de réalisation (étape 9.3) ──
+function _getRealisationsAudio() {
+  try { return JSON.parse(currentPrestataire?.fields['Realisations Audio'] || '{}'); } catch { return {}; }
+}
+
+function renderRealisationsAudioGrid() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const audios = _getRealisationsAudio();
+  const grid = document.getElementById('real-audio-grid');
+  if (!grid) return;
+
+  const slotsFilled = [1, 2, 3].filter(slot => !!f[`Photo Réalisation ${slot}`]);
+  if (!slotsFilled.length) { grid.innerHTML = ''; return; }
+
+  grid.innerHTML = slotsFilled.map(slot => {
+    const ns = `real${slot}`;
+    const existing = audios[slot];
+    return `
+    <div style="border:1px solid rgba(232,148,10,0.15);border-radius:12px;padding:10px 12px;">
+      <div style="font-size:12px;font-weight:700;color:var(--or);margin-bottom:6px;">🎤 Photo ${slot} — explique en vocal ce que tu as fait</div>
+      ${existing?.url ? `<div style="margin-bottom:8px;">${wzVoicePlayer(existing.url, existing.duree)}</div>` : ''}
+      <div id="${ns}-vocal-idle">
+        <button type="button" class="wz-voice-record-btn" onclick="startVocalRec('${ns}')">
+          <span class="wz-voice-record-mic">🎤</span> ${existing?.url ? 'Refaire la description' : 'Enregistrer une description'}
+        </button>
+      </div>
+      <div id="${ns}-vocal-rec" class="wz-voice-recording" style="display:none;">
+        <span class="wz-rec-dot"></span>
+        <span id="${ns}-vocal-timer" class="wz-voice-time">0:00 / 1:00</span>
+        <button type="button" class="wz-voice-stop-btn" onclick="stopVocalRec('${ns}')">■ Terminer</button>
+      </div>
+      <div id="${ns}-vocal-done" style="display:none;">
+        <div id="${ns}-vocal-player"></div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <button type="button" class="wz-voice-redo-btn" onclick="resetVocalRec('${ns}')">🗑 Refaire</button>
+          <button type="button" class="wz-voice-save-btn" onclick="saveRealisationVocal(${slot})">✅ Valider</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function saveRealisationVocal(slot) {
+  const ns = 'real' + slot;
+  const st = _vocalRec[ns];
+  if (!st || !st.blob || !st.blob.size) return;
+  if (!currentPrestataire || !currentUser) return;
+  const btn = document.querySelector(`#${ns}-vocal-done .wz-voice-save-btn`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi...'; }
+  try {
+    const audioUrl = await _uploadVocal(st.blob, `realisations/${currentUser.id}`);
+    const audios = _getRealisationsAudio();
+    audios[slot] = { url: audioUrl, duree: st.duree };
+    const updated = await window.supaPrest.updateField(currentPrestataire.id, 'Realisations Audio', JSON.stringify(audios));
+    currentPrestataire = updated;
+    window.currentPrestataire = updated;
+    resetVocalRec(ns);
+    renderRealisationsAudioGrid();
+    toast('Description vocale enregistrée !', 'success');
+  } catch (e) {
+    toast('L\'envoi du vocal a échoué. Vérifie ta connexion et réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Valider'; }
+  }
 }
 
 function uploadNewPhoto() {
@@ -1865,6 +1933,13 @@ async function deleteRealisationPhoto(slot) {
 
   if (deletedOk) {
     currentPrestataire.fields[fieldName] = null;
+    // Nettoie la description vocale associée à ce slot, si elle existe
+    const audios = _getRealisationsAudio();
+    if (audios[slot]) {
+      delete audios[slot];
+      try { await window.supaPrest.updateField(currentPrestataire.id, 'Realisations Audio', JSON.stringify(audios)); } catch (e) {}
+      currentPrestataire.fields['Realisations Audio'] = JSON.stringify(audios);
+    }
     renderRealisationsGrid();
     toast(`Photo ${slot} supprimée.`, 'success');
   } else {
@@ -8013,9 +8088,16 @@ async function showProfil(recordId) {
     }
 
     // Photos pour la galerie
-    const realisations = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']].map(_wPhotoUrl).filter(Boolean);
+    const _realSlotsRaw = [f['Photo Réalisation 1'], f['Photo Réalisation 2'], f['Photo Réalisation 3']];
+    const _realisationsAudioMap = (() => { try { return JSON.parse(f['Realisations Audio'] || '{}'); } catch { return {}; } })();
+    const realisations = _realSlotsRaw.map(_wPhotoUrl).filter(Boolean);
+    // Tableau aligné sur `realisations` (même filtre) : description vocale par slot, ou null
+    const realisationsAudioAligned = _realSlotsRaw
+      .map((url, i) => (_wPhotoUrl(url) ? (_realisationsAudioMap[i + 1] || null) : undefined))
+      .filter(v => v !== undefined);
     const photosMe = photoProfil ? [photoProfil] : [];
     const allPhotos = [...photosMe, ...realisations];
+    const allPhotosAudio = [...photosMe.map(() => null), ...realisationsAudioAligned];
 
     // Étoiles note
     const starsHtml = (n) => {
@@ -8279,7 +8361,7 @@ async function showProfil(recordId) {
       <!-- ═══════════ TAB POSTS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
         <!-- Strip photos discret -->
-        ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
+        ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
         <!-- Composer (propriétaire) -->
         ${isOwner ? `
         <div class="profil-composer-wrap">
@@ -8314,7 +8396,7 @@ async function showProfil(recordId) {
       <div class="profil-tab-pane" id="profil-tab-photos-${recordId}" style="display:none;">
         ${allPhotos.length > 0 ? `
         <div class="profil-ig-grid">
-          ${allPhotos.map((url,i) => `<div class="profil-ig-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}
+          ${allPhotos.map((url,i) => `<div class="profil-ig-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}
         </div>` : `
         <div style="text-align:center;padding:60px 20px;color:rgba(252,224,168,0.25);">
           <div style="font-size:40px;margin-bottom:12px;">📷</div>
@@ -8436,6 +8518,7 @@ async function showProfil(recordId) {
           <button class="lightbox-nav lightbox-prev" onclick="navLightboxDark('lb-real-${recordId}',-1)">‹</button>
           <button class="lightbox-nav lightbox-next" onclick="navLightboxDark('lb-real-${recordId}',1)">›</button>
           <div class="lightbox-counter" id="lb-real-${recordId}-counter"></div>
+          <div id="lb-real-${recordId}-audio" style="position:absolute;bottom:44px;left:50%;transform:translateX(-50%);width:90%;max-width:340px;"></div>
         </div>
       </div>
       <div id="lb-me-${recordId}" class="lightbox-dark" onclick="if(event.target===this)closeLightboxDark('lb-me-${recordId}')">
@@ -9073,10 +9156,10 @@ let currentGalleryPhotos = [];
 let currentGalleryIndex = 0;
 const lbState = {}; // { lbId: { photos, index } }
 
-function openLightboxDark(lbId, photos, index) {
+function openLightboxDark(lbId, photos, index, audios) {
   photos = photos.filter(Boolean);
   if (!photos.length) return;
-  lbState[lbId] = { photos, index: index || 0 };
+  lbState[lbId] = { photos, index: index || 0, audios: audios || null };
   const lb = document.getElementById(lbId);
   if (!lb) return;
   lb.classList.add('open');
@@ -9088,6 +9171,8 @@ function closeLightboxDark(lbId) {
   const lb = document.getElementById(lbId);
   if (lb) lb.classList.remove('open');
   document.body.style.overflow = '';
+  const audioEl = document.getElementById(lbId + '-audio');
+  if (audioEl) audioEl.querySelectorAll('audio').forEach(a => a.pause());
 }
 
 function navLightboxDark(lbId, dir) {
@@ -9110,6 +9195,13 @@ function _updateLightboxImg(lbId) {
     lb.querySelectorAll('.lightbox-nav').forEach(btn => {
       btn.style.display = s.photos.length <= 1 ? 'none' : '';
     });
+  }
+  // Description vocale de la réalisation affichée, si elle existe
+  const audioEl = document.getElementById(lbId + '-audio');
+  if (audioEl) {
+    audioEl.querySelectorAll('audio').forEach(a => a.pause());
+    const meta = s.audios && s.audios[s.index];
+    audioEl.innerHTML = (meta && meta.url) ? wzVoicePlayer(meta.url, meta.duree) : '';
   }
 }
 
