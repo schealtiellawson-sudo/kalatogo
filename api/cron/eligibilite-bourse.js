@@ -5,6 +5,7 @@
 // ================================================================
 import { supabase } from '../_lib/supabase.js';
 import { envoyerNotification } from '../_utils/credit.js';
+import { calculerScoreMerite } from '../_lib/score-merite.js';
 
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -31,14 +32,15 @@ export default async function handler(req, res) {
     const userIds = abos.map(a => a.user_id);
     const { data: profiles } = await supabase
       .from('wozali_prestataires')
-      .select('user_id, score_wozali')
+      .select('user_id, score_wozali, photo_profil, photo_realisation_1, photo_realisation_2, photo_realisation_3, albums, description_services, metier_principal, quartier, ville, numero_telephone, whatsapp, updated_at')
       .in('user_id', userIds);
 
     const profileMap = {};
     for (const p of (profiles || [])) profileMap[p.user_id] = p;
 
-    // 3. Récupérer les avis des 30 derniers jours depuis Supabase (validés)
-    //    Pagination .range() car un scan complet peut dépasser 1000 lignes.
+    // 3. Récupérer TOUS les avis validés (pagination .range()) : les 30
+    //    derniers jours servent aux conditions, l'historique complet sert
+    //    aux clients récurrents du Score Mérite.
     let allAvis = [];
     {
       const PAGE = 1000;
@@ -46,9 +48,8 @@ export default async function handler(req, res) {
       while (true) {
         const { data: page, error: avisErr } = await supabase
           .from('wozali_avis')
-          .select('prestataire_user_id, note_globale, date_avis, created_at')
+          .select('prestataire_user_id, note_globale, date_avis, created_at, auteur_user_id, auteur_whatsapp')
           .eq('validated', true)
-          .gte('date_avis', il30jours)
           .range(from, from + PAGE - 1);
         if (avisErr) throw avisErr;
         if (!page || page.length === 0) break;
@@ -58,13 +59,16 @@ export default async function handler(req, res) {
       }
     }
 
-    // Grouper les avis récents par user_id du prestataire
+    // Grouper par user_id du prestataire : récents (30j) + historique complet
     const avisRecentsParPrest = {};
+    const avisTousParPrest = {};
     for (const a of allAvis) {
-      const dateAvis = a.date_avis || a.created_at;
-      if (dateAvis < il30jours) continue;
       const pid = a.prestataire_user_id;
       if (!pid) continue;
+      if (!avisTousParPrest[pid]) avisTousParPrest[pid] = [];
+      avisTousParPrest[pid].push(a);
+      const dateAvis = a.date_avis || a.created_at;
+      if (dateAvis < il30jours) continue;
       if (!avisRecentsParPrest[pid]) avisRecentsParPrest[pid] = [];
       avisRecentsParPrest[pid].push(a);
     }
@@ -127,6 +131,14 @@ export default async function handler(req, res) {
 
       const estEligible = Object.values(conditions).every(v => v);
 
+      // Score Mérite — le classement qui désigne les 5 gagnants.
+      // Zéro point pour les vues, les abonnés ou les partages.
+      const merite = calculerScoreMerite({
+        prestataire: profile,
+        avis30j: avisRecents,
+        avisTous: avisTousParPrest[userId] || [],
+      });
+
       // Upsert dans bourse_croissance
       const { data: existing } = await supabase
         .from('bourse_croissance')
@@ -140,6 +152,7 @@ export default async function handler(req, res) {
         mois: moisCourant,
         eligible: estEligible,
         score_wozali: scoreWozali,
+        score_merite: merite.total,
         nb_avis: nbAvisRecents,
         note_moyenne: noteMoyRecente,
         pro_mois_consecutifs: moisPro,
@@ -152,7 +165,7 @@ export default async function handler(req, res) {
           await envoyerNotification({
             user_id: userId,
             titre: '🏆 Tu es dans la course pour la Bourse de Croissance !',
-            corps: 'Tu remplis toutes les conditions ce mois. Les 3 mieux classés sont désignés le dernier vendredi du mois.'
+            corps: 'Tu remplis toutes les conditions ce mois. Les 5 meilleurs profils sont désignés le dernier vendredi du mois. Le classement regarde ton travail, pas ton audience.'
           });
           nouveauxEligibles++;
         }
@@ -162,7 +175,7 @@ export default async function handler(req, res) {
           await envoyerNotification({
             user_id: userId,
             titre: '🏆 Tu es dans la course pour la Bourse de Croissance !',
-            corps: 'Tu remplis toutes les conditions ce mois. Les 3 mieux classés sont désignés le dernier vendredi du mois.'
+            corps: 'Tu remplis toutes les conditions ce mois. Les 5 meilleurs profils sont désignés le dernier vendredi du mois. Le classement regarde ton travail, pas ton audience.'
           });
           nouveauxEligibles++;
         }

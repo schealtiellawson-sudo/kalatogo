@@ -8449,9 +8449,14 @@ function openModalAvis(prestatairesId, prestataireNom) {
       </div>`;
   } else {
     section.innerHTML = `
-      <div class="form-group" style="margin-bottom:0;">
+      <div class="form-group" style="margin-bottom:12px;">
         <label>Ton nom <span class="req">*</span></label>
         <input type="text" id="avis-nom" placeholder="Kofi Mensah">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Ton numéro WhatsApp <span class="req">*</span></label>
+        <input type="tel" id="avis-whatsapp" placeholder="90 12 34 56" inputmode="tel">
+        <p style="font-size:11px;color:var(--gris);margin-top:4px;">Ton numéro sert uniquement à vérifier que l'avis vient d'un vrai client. Il n'est jamais affiché publiquement. Un avis par prestataire par mois.</p>
         <p style="font-size:11px;color:var(--gris);margin-top:4px;"><a href="#" onclick="closeModal();showPage('login')" style="color:var(--vert);font-weight:600;">Connecte-toi</a> pour que ton profil WOZALI s'affiche automatiquement.</p>
       </div>`;
   }
@@ -8477,7 +8482,9 @@ async function submitAvis() {
   if (!currentAvisPrestataire) { toast('Erreur : prestataire introuvable', 'error'); return; }
 
   // Construire le préfixe auteur : [Nom|recID|photoURL] si connecté, [Nom] sinon
+  // + numéro WhatsApp de l'auteur (vérification anti-fraude : 1 avis/client/mois)
   let commentFinal;
+  let auteurWhatsapp = '';
   if (currentPrestataire) {
     const f = currentPrestataire.fields;
     const nom = (f['Nom complet'] || '').trim();
@@ -8485,6 +8492,7 @@ async function submitAvis() {
     const photo = (f['Photo de profil'] || f['WhatsApp'] || '').trim();
     if (!nom) { toast('Erreur : nom du profil manquant', 'error'); return; }
     commentFinal = `[${nom}|${id}|${photo}]\n${comment}`;
+    auteurWhatsapp = String(f['Numéro de téléphone'] || f['WhatsApp'] || '').replace(/\D/g, '');
   } else {
     const nomInput = document.getElementById('avis-nom');
     const nom = nomInput ? nomInput.value.trim() : '';
@@ -8492,6 +8500,13 @@ async function submitAvis() {
       nom: { type: 'name', value: nom, name: 'Prénom' }
     })) {
       nomInput?.focus();
+      return;
+    }
+    const waInput = document.getElementById('avis-whatsapp');
+    auteurWhatsapp = (waInput ? waInput.value : '').replace(/\D/g, '');
+    if (auteurWhatsapp.length < 8) {
+      toast('Entre ton numéro WhatsApp (au moins 8 chiffres). Il sert à vérifier ton avis, il reste privé.', 'error');
+      waInput?.focus();
       return;
     }
     commentFinal = `[${nom}]\n${comment}`;
@@ -8517,6 +8532,7 @@ async function submitAvis() {
         'Commentaire':        commentFinal,
         'Auteur Nom':         auteurNom,
         'Auteur User ID':     currentUser?.id || null,
+        'Auteur WhatsApp':    auteurWhatsapp || null,
         'Auteur Photo':       auteurPhoto || '',
       });
     } else {
@@ -8526,8 +8542,14 @@ async function submitAvis() {
     toast('Merci pour ton avis ! 🎉', 'success');
     // Recharger le profil pour afficher le nouvel avis
     if (currentAvisPrestataire) showProfil(currentAvisPrestataire);
-  } catch {
-    toast('Problème de connexion', 'error');
+  } catch (e) {
+    // 23505 = index unique : ce client a déjà noté ce prestataire ce mois-ci
+    const msg = String(e?.message || e?.code || '');
+    if (msg.includes('23505') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('uniq_avis')) {
+      toast('Tu as déjà noté ce prestataire ce mois-ci. Tu pourras le noter à nouveau le mois prochain.', 'error');
+    } else {
+      toast('Problème de connexion', 'error');
+    }
   }
 }
 
@@ -15955,16 +15977,42 @@ async function loadFondateurBourse() {
     return;
   }
 
-  liste.innerHTML = eligibles.map(p => {
+  // Verrou fondateur : classement Score Mérite du mois (bourse_croissance).
+  // Les 5 premiers sont à vérifier manuellement avant le virement
+  // (photos réelles, appeler 2-3 clients), puis déclencher le cron tirage.
+  let meriteByUser = {};
+  try {
+    const moisCourant = new Date().toISOString().slice(0, 7);
+    const { data: rows } = await supa
+      .from('bourse_croissance')
+      .select('user_id, score_merite, score_wozali, nb_avis, note_moyenne, eligible')
+      .eq('mois', moisCourant);
+    for (const r of (rows || [])) meriteByUser[r.user_id] = r;
+  } catch (e) { console.warn('[fondateur bourse] score_merite indisponible', e); }
+
+  // Tri : Score Mérite décroissant (les sans-score en fin, par date d'inscription)
+  const classes = [...eligibles].sort((a, b) => {
+    const mA = meriteByUser[a.user_id]?.score_merite ?? -1;
+    const mB = meriteByUser[b.user_id]?.score_merite ?? -1;
+    if (mB !== mA) return mB - mA;
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
+  liste.innerHTML = classes.map((p, i) => {
     const dateInscr = new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
-    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
-      <div style="font-size:14px;">⭐</div>
+    const m = meriteByUser[p.user_id];
+    const rang = i + 1;
+    const isTop5 = rang <= 5 && m && (m.score_merite || 0) > 0;
+    const scoreTxt = m && m.score_merite != null ? Math.round(m.score_merite) + '/100' : '—';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:${isTop5 ? 'rgba(232,148,10,.08)' : 'rgba(255,255,255,.02)'};border:1px solid ${isTop5 ? 'rgba(232,148,10,.35)' : 'rgba(255,255,255,.05)'};border-radius:8px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:800;color:${isTop5 ? '#E8940A' : 'rgba(252,224,168,.35)'};min-width:28px;">#${rang}</div>
       <div style="flex:1;">
         <div style="font-size:13px;font-weight:600;color:rgba(252,224,168,.85);">${p.nom || ''} ${p.prenom || ''} <span style="color:rgba(252,224,168,.35);">${p.metier || ''} - ${p.ville || ''}</span></div>
-        <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pro depuis le ${dateInscr}</div>
+        <div style="font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pro depuis le ${dateInscr}${m ? ` · ${m.nb_avis || 0} avis · note ${(m.note_moyenne || 0).toFixed(1)}` : ''}</div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
-        <span style="font-size:10px;font-weight:800;font-family:'Geist Mono',monospace;color:#E8940A;border:1px solid rgba(232,148,10,.3);border-radius:4px;padding:2px 7px;">BOURSE</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
+        <span style="font-size:11px;font-weight:800;font-family:'Geist Mono',monospace;color:#FCE0A8;">Mérite ${scoreTxt}</span>
+        ${isTop5 ? '<span style="font-size:10px;font-weight:800;font-family:\'Geist Mono\',monospace;color:#14100A;background:#E8940A;border-radius:4px;padding:2px 7px;">TOP 5 · À VÉRIFIER</span>' : ''}
       </div>
     </div>`;
   }).join('');

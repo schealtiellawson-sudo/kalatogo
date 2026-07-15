@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     // 1. Récupérer tous les éligibles du mois, enrichis avec note moyenne + nb avis pour le départage
     const { data: eligibles } = await supabase
       .from('bourse_croissance')
-      .select('id, user_id, score_wozali, nb_avis, note_moyenne')
+      .select('id, user_id, score_wozali, score_merite, nb_avis, note_moyenne')
       .eq('mois', moisCourant)
       .eq('eligible', true)
       .eq('gagnant', false);
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       mois: moisCourant,
-      gagnants: gagnants.map(g => ({ user_id: g.user_id, score: g.score_wozali })),
+      gagnants: gagnants.map(g => ({ user_id: g.user_id, score_merite: g.score_merite, score: g.score_wozali })),
       montant_par_gagnant: MONTANT_PAR_GAGNANT,
       nb_eligibles: eligibles.length,
     });
@@ -111,9 +111,12 @@ export default async function handler(req, res) {
   }
 }
 
-// Classement au mérite — aucun hasard. Départage par note moyenne puis nombre d'avis.
+// Classement au mérite — aucun hasard. Score Mérite d'abord (qualité du
+// travail, zéro point d'audience), puis Score WOZALI, puis note, puis avis.
 function classerParMerite(eligibles) {
   return [...eligibles].sort((a, b) => {
+    const meriteA = a.score_merite || 0, meriteB = b.score_merite || 0;
+    if (meriteB !== meriteA) return meriteB - meriteA;
     const scoreA = a.score_wozali || 0, scoreB = b.score_wozali || 0;
     if (scoreB !== scoreA) return scoreB - scoreA;
     const noteA = a.note_moyenne || 0, noteB = b.note_moyenne || 0;
