@@ -7678,7 +7678,3 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600;
   color: #b4700a; flex-shrink: 0;
 }
-
-/* Le FAB "Besoin d'aide ?" s'efface quand un modal est ouvert
-   (sur mobile il recouvrait le CTA "Publier mon avis" du modal avis) */
-body:has(.modal-overlay.active) #aide-fab { display: none !important; }

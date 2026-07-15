@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260715n">
+<link rel="stylesheet" href="/style.css?v=20260715o">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -228,12 +228,8 @@ setTimeout(function(){
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ══ ASSISTANCE WOZALI (étape 7) — bouton visible partout ══ -->
-<button id="aide-fab" onclick="openAideModal()" aria-label="Besoin d'aide ?"
-  style="position:fixed;left:16px;bottom:16px;z-index:8500;display:flex;align-items:center;gap:8px;background:#1E180E;border:1.5px solid rgba(232,148,10,0.5);color:#E8940A;border-radius:100px;padding:10px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Geist',sans-serif;box-shadow:0 4px 18px rgba(0,0,0,0.45);">
-  <span style="width:20px;height:20px;border-radius:50%;background:#E8940A;color:#14100A;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;">?</span>
-  Besoin d'aide ?
-</button>
+<!-- ══ ASSISTANCE WOZALI (étape 7, déplacée dans le dashboard le 2026-07-15) —
+     accès via sidebar "Plus d'options" → Besoin d'aide ? (id dl-besoin-aide) ══ -->
 
 <!-- Modal assistance : nouvelle demande + suivi de mes demandes -->
 <div id="aide-overlay" onclick="if(event.target===this)closeAideModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10001;align-items:flex-end;justify-content:center;">
@@ -2399,6 +2395,9 @@ setTimeout(function(){
           </button>
           <button class="dash-link" onclick="showDashSection('wozali-match')" id="dl-wozali-match">
             <i data-lucide="handshake"></i> <span>WOZALI Match</span>
+          </button>
+          <button class="dash-link" onclick="closeDashMenu();openAideModal()" id="dl-besoin-aide">
+            <i data-lucide="life-buoy"></i> <span>Besoin d'aide ?</span>
           </button>
         </div>
       </div>
@@ -6301,7 +6300,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715n" defer></script>
+<script src="/app.js?v=20260715o" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
