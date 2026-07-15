@@ -36,7 +36,10 @@ BEGIN
 END $$;
 GRANT EXECUTE ON FUNCTION public.wozali_post_partage(UUID) TO authenticated, anon;
 
--- 4. Copier les posts de l'ancien système (wolo_posts_v2) vers wozali_posts
+-- 4. Copier les posts de l'ancien système vers wozali_posts.
+--    Source = la VUE wozali_posts_v2 (la table de base wolo_posts_v2 n'a pas
+--    toutes les colonnes, ex. nb_partages : erreur 42703 à la 1re exécution).
+--    La vue est supprimée à l'étape 6, APRÈS la copie.
 INSERT INTO public.wozali_posts
   (auteur_id, prestataire_id, type, contenu, media_url, media_type, nb_likes, nb_partages, actif, created_at, ordre)
 SELECT
@@ -53,7 +56,7 @@ SELECT
   COALESCE(v.actif, true),
   v.created_at,
   v.ordre
-FROM public.wolo_posts_v2 v
+FROM public.wozali_posts_v2 v
 WHERE NOT EXISTS (
   SELECT 1 FROM public.wozali_posts p
   WHERE p.created_at = v.created_at AND COALESCE(p.contenu,'') = COALESCE(v.contenu,'')
