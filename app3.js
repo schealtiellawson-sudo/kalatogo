@@ -784,7 +784,7 @@ async function submitRecrutement(e) {
       var url = await uploadToImgBB(photoFiles[i]);
       if (url) photoUrls.push(url);
     }
-    if (photoUrls.length === 0) { toast('Erreur upload photos', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
+    if (photoUrls.length === 0) { toast('Les photos ne sont pas passées. Vérifie ta connexion ou choisis des photos plus légères.', 'error'); btn.disabled = false; btn.textContent = 'Envoyer ma candidature →'; return; }
 
     // Submit to Airtable
     var fields = {
@@ -830,7 +830,7 @@ async function submitRecrutement(e) {
 
   } catch(err) {
     console.error('Recrutement submit error:', err);
-    toast('Erreur lors de l\'envoi. Réessaie.', 'error');
+    toast('Ton message n\'est pas parti. Vérifie ta connexion et réessaie.', 'error');
     btn.disabled = false;
     btn.textContent = 'Envoyer ma candidature →';
   }
@@ -1124,7 +1124,7 @@ async function updateCandStatus(recordId, status) {
     }
   } catch(err) {
     console.error('updateCandStatus error:', err);
-    toast('Erreur mise à jour', 'error');
+    toast('La mise à jour n\'est pas passée. Réessaie dans un instant.', 'error');
   }
 }
 
@@ -1162,7 +1162,7 @@ async function validateAgent(recordId) {
 
   } catch(err) {
     console.error('validateAgent error:', err);
-    toast('Erreur validation', 'error');
+    toast('La validation n\'est pas passée. Réessaie dans un instant.', 'error');
   }
 }
 
@@ -1370,7 +1370,7 @@ async function _batchPreselect(records) {
     toast(ids.length + ' candidat(s) présélectionné(s)', 'success');
   } catch(err) {
     console.error('_batchPreselect error:', err);
-    toast('Erreur lors de la présélection', 'error');
+    toast('La présélection n\'a pas marché. Réessaie.', 'error');
   }
 }
 

@@ -358,7 +358,7 @@ async function submitLogin() {
   } catch (err) {
     clearTimeout(_loginSafety);
     console.error('[submitLogin]', err);
-    showLoginError('Une erreur est survenue. Réessaie dans quelques secondes.');
+    showLoginError('La connexion n\'a pas abouti. Vérifie ton email et ton mot de passe, puis réessaie. Toujours bloqué ? Utilise \'Mot de passe oublié\'.');
     btn.textContent = 'Se connecter';
     btn.disabled = false;
   }
@@ -1450,7 +1450,7 @@ async function saveProfile() {
     toast('✅ Profil mis à jour !', 'success');
   } catch (e) {
     console.error('saveProfile:', e);
-    toast('Erreur sauvegarde : ' + (e.message || 'Réessaie'), 'error');
+    toast('Tes changements ne sont pas enregistrés. Vérifie ta connexion et réessaie.', 'error');
   }
 
   btn.textContent = '💾 Sauvegarder les modifications';
@@ -1559,7 +1559,7 @@ async function saveDashLocation() {
     const status = document.getElementById('dash-gps-status');
     if (status) status.textContent = `✅ Position enregistrée (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
     toast('📍 Position enregistrée ! Visible sur ton profil.', 'success');
-  } catch(e) { toast('Erreur réseau : ' + e.message, 'error'); }
+  } catch(e) { toast('Pas de réseau on dirait. Vérifie ta connexion et réessaie.', 'error'); }
   finally { if (btn) { btn.textContent = '💾 Confirmer et enregistrer cette position'; btn.disabled = false; } }
 }
 
@@ -1581,7 +1581,7 @@ async function saveDashLiveMode() {
       toast('📡 Position GPS mise à jour avec succès !', 'success');
     } catch(e2) {
       if (status) status.textContent = '❌ Erreur réseau';
-      toast('Erreur : ' + e2.message, 'error');
+      toast('Ça n\'a pas marché (' + e2.message + '). Réessaie dans un instant.', 'error');
     }
     if (btn) { btn.disabled = false; btn.textContent = '📡 Mettre à jour ma position maintenant'; }
   }, err => {
@@ -1606,7 +1606,7 @@ async function wizardActiverGPS() {
       toast('📍 Position enregistrée ! Tu es visible sur la carte.', 'success');
       if (typeof renderWizardPremierPas === 'function') renderWizardPremierPas();
     } catch(e) {
-      toast('Erreur réseau : ' + e.message, 'error');
+      toast('Pas de réseau on dirait. Vérifie ta connexion et réessaie.', 'error');
     }
     if (btn) { btn.textContent = 'Activer ma position'; btn.disabled = false; }
   }, err => {
@@ -1840,7 +1840,7 @@ async function deleteRealisationPhoto(slot) {
     toast(`Photo ${slot} supprimée.`, 'success');
   } else {
     if (slotEl) slotEl.style.opacity = '1';
-    toast('Erreur lors de la suppression.', 'error');
+    toast('La suppression n\'a pas marché. Réessaie dans un instant.', 'error');
   }
 }
 
@@ -2114,7 +2114,7 @@ function handleLibrePhotoFile() {
       const statusEl = document.createElement('div');
       toast('Upload en cours...', 'info');
       const url = await uploadToImgBB(blob instanceof Blob ? blob : await fetch(blob).then(r=>r.blob()));
-      if (!url) { toast('Erreur upload', 'error'); return; }
+      if (!url) { toast('La photo n\'est pas passée. Vérifie ta connexion ou choisis une photo plus légère.', 'error'); return; }
       const photos = _getLibrePhotos();
       photos.push(url);
       const ok = await _saveLibrePhotos(photos);
@@ -2147,7 +2147,7 @@ async function createAlbum() {
     toast(`Album "${nom.trim()}" créé !`, 'success');
     openAlbumManager(newAlbum.id);
   } else {
-    toast('Erreur lors de la création.', 'error');
+    toast('La création n\'a pas abouti. Vérifie ta connexion et réessaie.', 'error');
   }
 }
 
@@ -2265,7 +2265,7 @@ async function deletePhotoFromAlbum(albumId, photoIdx) {
   alb.photos.splice(photoIdx, 1);
   const ok = await _saveAlbums(albums);
   if (ok) { _renderAlbumPhotosGrid(albumId); renderAlbumsSection(); toast('Photo supprimée.', 'success'); }
-  else toast('Erreur lors de la suppression.', 'error');
+  else toast('La suppression n\'a pas marché. Réessaie dans un instant.', 'error');
 }
 
 async function renameAlbum(albumId) {
@@ -2281,7 +2281,7 @@ async function renameAlbum(albumId) {
     if (titleEl) titleEl.textContent = alb.nom;
     renderAlbumsSection();
     toast(`Album renommé en "${alb.nom}"`, 'success');
-  } else { toast('Erreur lors du renommage.', 'error'); }
+  } else { toast('Le nouveau nom n\'a pas été enregistré. Réessaie.', 'error'); }
 }
 
 async function deleteAlbum(albumId) {
@@ -2295,7 +2295,7 @@ async function deleteAlbum(albumId) {
     document.getElementById('album-mgr-' + albumId)?.remove();
     renderAlbumsSection();
     toast(`Album "${alb.nom}" supprimé.`, 'success');
-  } else { toast('Erreur lors de la suppression.', 'error'); }
+  } else { toast('La suppression n\'a pas marché. Réessaie dans un instant.', 'error'); }
 }
 
 function cropAlbumPhoto(albumId, photoIdx) {
@@ -2585,7 +2585,7 @@ async function changePassword() {
   if (pw !== confirm) { toast('Les mots de passe ne correspondent pas', 'error'); return; }
 
   const { error } = await supa.auth.updateUser({ password: pw });
-  if (error) { toast('Erreur : ' + error.message, 'error'); return; }
+  if (error) { toast('Ça n\'a pas marché (' + error.message + '). Réessaie dans un instant.', 'error'); return; }
   toast('✅ Mot de passe mis à jour !', 'success');
   document.getElementById('new-pw').value = '';
   document.getElementById('confirm-pw').value = '';
@@ -3080,11 +3080,28 @@ function resetInscriptionForm() {
 // ══════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════
-function toast(msg, type = 'info') {
+function toast(msg, type = 'info', opts = {}) {
+  // Étape 8 : confirmations ✓✓ façon WhatsApp + erreurs actionnables.
+  // Chaque erreur propose une porte de sortie vers l'assistance interne.
   const el = document.getElementById('toast');
-  el.textContent = msg;
+  if (!el) return;
+  clearTimeout(el._hideTimer);
+  const safe = escapeHtml(String(msg));
+  if (type === 'success') {
+    el.innerHTML = `<span class="toast-check" aria-hidden="true">✓✓</span><span>${safe}</span>`;
+  } else if (type === 'error') {
+    el.innerHTML = `<span aria-hidden="true">⚠️</span><span>${safe}${opts.aide === false ? '' : ` <button onclick="closeToast();openAideModal()" class="toast-aide-btn">Besoin d'aide ?</button>`}</span>`;
+  } else {
+    el.innerHTML = `<span>${safe}</span>`;
+  }
   el.className = `toast toast-${type} show`;
-  setTimeout(() => el.classList.remove('show'), 4000);
+  const dur = opts.duree || (type === 'error' ? 7000 : 4000);
+  el._hideTimer = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+function closeToast() {
+  const el = document.getElementById('toast');
+  if (el) { clearTimeout(el._hideTimer); el.classList.remove('show'); }
 }
 
 // ── KPI Tooltips ──
@@ -3327,12 +3344,12 @@ async function uploadToImgBB(file) {
       return data.data.url;
     } else {
       console.error('❌ ImgBB erreur:', data.error?.message || 'Upload failed');
-      toast('Erreur upload photo: ' + (data.error?.message || 'Unknown error'), 'error');
+      toast('La photo n\'est pas passée. Vérifie ta connexion ou choisis une photo plus légère.', 'error');
       return null;
     }
   } catch (e) {
     console.error('❌ ImgBB exception:', e.message);
-    toast('Erreur upload photo: ' + e.message, 'error');
+    toast('La photo n\'est pas passée. Vérifie ta connexion ou choisis une photo plus légère.', 'error');
     return null;
   }
 }
@@ -4499,7 +4516,7 @@ async function submitPost(recordId) {
       }
     } catch(e) {
       console.error('Upload media failed', e);
-      toast('Erreur upload : ' + (e.message || 'réessaie'), 'error');
+      toast('Le fichier n\'est pas passé. Vérifie ta connexion ou choisis un fichier plus léger.', 'error');
       if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
       return;
     }
@@ -4526,7 +4543,7 @@ async function submitPost(recordId) {
     }
   } catch(e) {
     console.error('[submitPost]', e);
-    toast('Erreur publication : ' + (e?.message || 'réessaie'), 'error');
+    toast('Ta publication n\'est pas partie. Vérifie ta connexion et réessaie.', 'error');
     if (btn) { btn.textContent = 'Publier'; btn.disabled = false; }
     return;
   }
@@ -5561,7 +5578,7 @@ async function submitComment(recordId, postId) {
       contenu:   texte
     });
     if (insErr) throw insErr;
-  } catch { toast('Erreur commentaire', 'error'); return; }
+  } catch { toast('Ton commentaire n\'est pas parti. Vérifie ta connexion et réessaie.', 'error'); return; }
 
   pushNotif(recordId, { type: 'comment', auteur: auteurCommentaire, texte, postId });
   if (input) input.value = '';
@@ -5579,7 +5596,7 @@ async function deletePost(recordId, postId) {
     if (!supa) throw new Error('Supabase non chargé');
     const { error } = await supa.from('wozali_posts').update({ actif: false }).eq('id', postId);
     if (error) throw error;
-  } catch { toast('Erreur suppression', 'error'); return; }
+  } catch { toast('La suppression n\'a pas marché. Réessaie dans un instant.', 'error'); return; }
   renderPostsFeed(recordId);
 }
 
@@ -5837,7 +5854,7 @@ async function toggleSuivi(prestataireId) {
       if (error) throw error;
       toast('✅ Tu suis ce prestataire !', 'success');
       pushNotif(prestataireId, { type: 'suivi', auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un utilisateur' });
-    } catch(e) { _setSuiviBtnState(prestataireId, false); toast('Erreur : ' + e.message, 'error'); return; }
+    } catch(e) { _setSuiviBtnState(prestataireId, false); toast('Ça n\'a pas marché (' + e.message + '). Réessaie dans un instant.', 'error'); return; }
   }
   loadFollowerCount(prestataireId);
 }
@@ -7643,7 +7660,7 @@ async function confirmRdvPage(recordId) {
     }
     toast('✅ Demande de RDV envoyée !', 'success');
   } catch(e) {
-    toast('Erreur lors de l\'envoi', 'error');
+    toast('Ton message n\'est pas parti. Vérifie ta connexion et réessaie.', 'error');
     if (btn) { btn.textContent = '✅ Confirmer le rendez-vous →'; btn.disabled = false; }
   }
 }
@@ -8644,7 +8661,7 @@ async function submitAvis() {
   if (!selectedStars || selectedStars < 1 || selectedStars > 5) { toast('Choisis une note de 1 à 5 étoiles', 'error'); return; }
   if (comment.length < 10) { toast('Le commentaire doit faire au minimum 10 caractères', 'error'); return; }
   if (comment.length > 1000) { toast('Le commentaire ne doit pas dépasser 1000 caractères', 'error'); return; }
-  if (!currentAvisPrestataire) { toast('Erreur : prestataire introuvable', 'error'); return; }
+  if (!currentAvisPrestataire) { toast('Profil introuvable. Recharge la page et réessaie.', 'error'); return; }
 
   // Construire le préfixe auteur : [Nom|recID|photoURL] si connecté, [Nom] sinon
   // + numéro WhatsApp de l'auteur (vérification anti-fraude : 1 avis/client/mois)
@@ -8655,7 +8672,7 @@ async function submitAvis() {
     const nom = (f['Nom complet'] || '').trim();
     const id  = currentPrestataire.id;
     const photo = (f['Photo de profil'] || f['WhatsApp'] || '').trim();
-    if (!nom) { toast('Erreur : nom du profil manquant', 'error'); return; }
+    if (!nom) { toast('Complète d\'abord ton nom dans ton profil, puis réessaie.', 'error'); return; }
     commentFinal = `[${nom}|${id}|${photo}]\n${comment}`;
     auteurWhatsapp = String(f['Numéro de téléphone'] || f['WhatsApp'] || '').replace(/\D/g, '');
   } else {
@@ -8701,7 +8718,7 @@ async function submitAvis() {
         'Auteur Photo':       auteurPhoto || '',
       });
     } else {
-      toast('Erreur : service avis non disponible', 'error'); return;
+      toast('Les avis sont indisponibles pour l\'instant. Recharge la page et réessaie.', 'error'); return;
     }
     closeModal();
     toast('Merci pour ton avis ! 🎉', 'success');
@@ -8713,7 +8730,7 @@ async function submitAvis() {
     if (msg.includes('23505') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('uniq_avis')) {
       toast('Tu as déjà noté ce prestataire ce mois-ci. Tu pourras le noter à nouveau le mois prochain.', 'error');
     } else {
-      toast('Problème de connexion', 'error');
+      toast('Pas de réseau on dirait. Vérifie ta connexion et réessaie.', 'error');
     }
   }
 }
@@ -9173,7 +9190,7 @@ async function submitInscription(e) {
     });
 
     if (authError && !authError.message.includes('already registered') && !authError.message.toLowerCase().includes('rate limit') && !authError.message.toLowerCase().includes('sending confirmation email')) {
-      toast('Erreur compte : ' + authError.message, 'error');
+      toast('Le compte n\'a pas pu être créé (' + authError.message + '). Vérifie l\'email et réessaie.', 'error');
       btn.textContent = '✦ Créer mon profil';
       btn.disabled = false;
       return;
@@ -10279,7 +10296,7 @@ async function updateRDVStatut(rdvId, statut) {
       toast(statut === 'Confirmé' ? '✅ RDV confirmé !' : '❌ RDV annulé', statut === 'Confirmé' ? 'success' : 'error');
       filterAndRenderRDVs();
     }
-  } catch { toast('Erreur de connexion', 'error'); }
+  } catch { toast('Pas de réseau on dirait. Vérifie ta connexion et réessaie.', 'error'); }
 }
 
 async function deleteRDV(rdvId) {
@@ -10518,7 +10535,7 @@ async function submitRDV(containerId, btn) {
     msgEl.style.display = 'block'; msgEl.style.color = '#dc2626';
     msgEl.textContent = '❌ Erreur de connexion. Vérifie ta connexion et réessaie.';
     btn.disabled = false; btn.textContent = '✅ Confirmer le rendez-vous';
-    toast('Erreur réseau: impossible de créer le RDV', 'error');
+    toast('Le rendez-vous n\'a pas été créé. Vérifie ta connexion et réessaie.', 'error');
   }
 }
 
@@ -11632,11 +11649,11 @@ async function loadAdminAmbassadeurs() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) { toast('Erreur chargement ambassadeurs', 'error'); return; }
+    if (error) { toast('La liste n\'a pas chargé. Recharge la page.', 'error'); return; }
     _ambassadeursCache = data || [];
     _renderAmbassadeurs(_ambassadeursCache);
     _renderAmbassadeursKpi(_ambassadeursCache);
-  } catch (e) { console.error('[admin-amb]', e); toast('Erreur', 'error'); }
+  } catch (e) { console.error('[admin-amb]', e); toast('Ça n\'a pas marché. Réessaie dans un instant.', 'error'); }
 }
 
 function _renderAmbassadeursKpi(list) {
@@ -11723,7 +11740,7 @@ async function validerAmbassadeur(id) {
       })
       .eq('id', id);
 
-    if (error) { toast('Erreur validation', 'error'); return; }
+    if (error) { toast('La validation n\'est pas passée. Réessaie dans un instant.', 'error'); return; }
 
     // Si l'ambassadeur a un user_id, passer son compte Pro
     if (amb.user_id) {
@@ -11735,7 +11752,7 @@ async function validerAmbassadeur(id) {
 
     toast('Ambassadeur validé. Code : ' + code, 'success');
     await loadAdminAmbassadeurs();
-  } catch (e) { console.error('[valider-amb]', e); toast('Erreur', 'error'); }
+  } catch (e) { console.error('[valider-amb]', e); toast('Ça n\'a pas marché. Réessaie dans un instant.', 'error'); }
 }
 
 async function refuserAmbassadeur(id) {
@@ -11745,10 +11762,10 @@ async function refuserAmbassadeur(id) {
       .update({ statut: 'refuse' })
       .eq('id', id);
 
-    if (error) { toast('Erreur', 'error'); return; }
+    if (error) { toast('Ça n\'a pas marché. Réessaie dans un instant.', 'error'); return; }
     toast('Candidature refusée', 'info');
     await loadAdminAmbassadeurs();
-  } catch (e) { console.error('[refuser-amb]', e); toast('Erreur', 'error'); }
+  } catch (e) { console.error('[refuser-amb]', e); toast('Ça n\'a pas marché. Réessaie dans un instant.', 'error'); }
 }
 
 async function _adminToken() {
@@ -11770,7 +11787,7 @@ async function _agentsAPI(action, extra = {}) {
 async function loadAgentsTerrain() {
   if (!_isAdminDash) return;
   const d = await _agentsAPI('list');
-  if (!d.ok) { toast('Erreur chargement agents', 'error'); return; }
+  if (!d.ok) { toast('La liste n\'a pas chargé. Recharge la page.', 'error'); return; }
   _agentsTerrainCache = d.agents || [];
   // Enrichir avec le nombre de docs lus par agent
   await _enrichAgentsWithDocCounts();
@@ -12258,7 +12275,7 @@ async function saveKPIStatut(agentId, agentNom) {
       inscrits_gratuit: 0, pro_signes: 0, statut_agent: statut, notes },
     { onConflict: 'agent_id,semaine_debut' }
   );
-  if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+  if (error) { toast('Ça n\'a pas marché (' + error.message + '). Réessaie dans un instant.', 'error'); return; }
   _kpiStatutOverrides[agentId] = { statut_agent: statut, notes };
   document.getElementById('modal-kpi-statut')?.remove();
   toast('Statut mis a jour.', 'success');
@@ -12665,7 +12682,7 @@ async function adminSendDMReply(messageId) {
       }
       if (typeof toast === 'function') toast('Réponse envoyée.', 'success');
     } else {
-      toast('Erreur : ' + (data.error || 'réessaie'), 'error');
+      toast('Ça n\'a pas marché (' + (data.error || 'réseau') + '). Réessaie dans un instant.', 'error');
       if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ➤'; }
     }
   } catch(e) {
@@ -13957,7 +13974,7 @@ async function toggleModeEmploi() {
     toast(actif ? '✅ Mode emploi activé !' : 'Mode emploi désactivé', 'info');
   } catch(e) {
     _updateEmploiModeUI(!actif);
-    toast('Erreur de sauvegarde', 'error');
+    toast('Tes changements ne sont pas enregistrés. Vérifie ta connexion et réessaie.', 'error');
   }
 }
 
@@ -14275,7 +14292,7 @@ async function publierOffre() {
       throw new Error(data.error?.message || 'Erreur');
     }
   } catch(e) {
-    toast('Erreur : ' + e.message, 'error');
+    toast('Ça n\'a pas marché (' + e.message + '). Réessaie dans un instant.', 'error');
   }
 }
 
@@ -14571,7 +14588,7 @@ async function sauvegarderEditionOffre(offreId) {
       if (modal) modal.remove();
       await loadMesOffres();
     } else { throw new Error('Erreur de mise à jour'); }
-  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+  } catch(e) { toast('Ça n\'a pas marché (' + e.message + '). Réessaie dans un instant.', 'error'); }
 }
 
 async function toggleOffreActive(offreId, actif) {
@@ -14579,7 +14596,7 @@ async function toggleOffreActive(offreId, actif) {
     await window.supaOffres.update(offreId, { 'Active': actif });
     toast(actif ? 'Offre réactivée' : 'Offre désactivée', 'info');
     loadMesOffres();
-  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+  } catch(e) { toast('Ça n\'a pas marché (' + e.message + '). Réessaie dans un instant.', 'error'); }
 }
 
 // ══════════════════════════════════════════
@@ -14690,7 +14707,7 @@ async function _confirmerBoostDemande(offreId) {
     // Rafraîchir la liste
     await loadMesOffres();
   } catch (e) {
-    toast('Erreur lors de la demande boost. Réessaie.', 'error');
+    toast('La demande de boost n\'est pas partie. Vérifie ta connexion et réessaie.', 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Confirmer ma demande →'; }
   }
 }
@@ -14722,7 +14739,7 @@ async function supprimerOffre(offreId, titrte) {
     toast('✅ Offre supprimée', 'success');
     loadMesOffres();
   } catch(e) {
-    toast('Erreur lors de la suppression : ' + e.message, 'error');
+    toast('La suppression n\'a pas marché (' + e.message + '). Réessaie dans un instant.', 'error');
   }
 }
 
@@ -15370,7 +15387,7 @@ async function kanbanMoveCard(candidatureId, newStatut) {
   try {
     await updateStatutCandidature(candidatureId, newStatut);
     // loadCandidaturesRecues() est appelé dans updateStatutCandidature
-  } catch(e) { toast('Erreur déplacement', 'error'); }
+  } catch(e) { toast('Le déplacement n\'a pas marché. Réessaie.', 'error'); }
 }
 
 async function kanbanRefusCard(candidatureId) {
@@ -15385,7 +15402,7 @@ async function updateStatutCandidature(candidatureId, statut) {
     notifyCandidatStatut(candidatureId, statut); // fire-and-forget
     loadCandidaturesRecues();
   } catch(e) {
-    toast('Erreur de mise à jour', 'error');
+    toast('La mise à jour n\'est pas passée. Réessaie dans un instant.', 'error');
   }
 }
 
@@ -15501,7 +15518,7 @@ async function _confirmEmbauche(candidatureId) {
     sDiv.onclick = e => { if (e.target === sDiv) sDiv.remove(); };
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✅ Confirmer l\'embauche'; }
-    toast('Erreur : ' + (e?.message || 'Réessaie'), 'error');
+    toast('Ça n\'a pas marché (' + (e?.message || 'réseau') + '). Réessaie dans un instant.', 'error');
   }
 }
 
@@ -15614,7 +15631,7 @@ async function _updateEquipeStatut(id, statut) {
     toast(statut === 'actif' ? '✅ Contrat réactivé' : 'Contrat terminé', 'success');
     loadMonEquipe();
   } catch(e) {
-    toast('Erreur : ' + (e?.message || 'Réessaie'), 'error');
+    toast('Ça n\'a pas marché (' + (e?.message || 'réseau') + '). Réessaie dans un instant.', 'error');
   }
 }
 
@@ -16823,7 +16840,7 @@ async function submitAgentContrat() {
     await loadAgentContrat();
   } catch(err) {
     console.error('[submitAgentContrat]', err);
-    toast('Erreur lors de la signature. Reessaie.', 'error');
+    toast('La signature n\'est pas passée. Réessaie dans un instant.', 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Signer le contrat'; }
   }
 }
@@ -16921,7 +16938,7 @@ async function openCosignModal(contratId) {
       .select('*')
       .eq('id', contratId)
       .single();
-    if (error || !data) { toast('Erreur chargement contrat', 'error'); return; }
+    if (error || !data) { toast('Le contrat n\'a pas chargé. Recharge la page ou réessaie plus tard.', 'error'); return; }
 
     document.getElementById('modal-cosign-ref').textContent = 'RT-CT-2026-018 - ' + (data.agent_nom || '');
 
@@ -16950,7 +16967,7 @@ async function openCosignModal(contratId) {
     setTimeout(() => initContratCanvas('fondateur'), 80);
   } catch(err) {
     console.error('[openCosignModal]', err);
-    toast('Erreur ouverture modal', 'error');
+    toast('Ça n\'a pas voulu s\'ouvrir. Recharge la page et réessaie.', 'error');
   }
 }
 
@@ -16979,7 +16996,7 @@ async function submitFondateurCosign() {
     await loadAdminContrats();
   } catch(err) {
     console.error('[submitFondateurCosign]', err);
-    toast('Erreur contresignature', 'error');
+    toast('La contresignature n\'est pas passée. Réessaie dans un instant.', 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Contresigner et valider'; }
   }
 }
@@ -18011,7 +18028,7 @@ async function submitTemoignageAbus() {
     if (e.code === '23505') {
       alert('Tu as deja soumis un temoignage. Recharge la page pour voir son statut.');
     } else {
-      alert('Une erreur est survenue. Reessaie dans quelques instants.');
+      alert('Ça n\'a pas marché. Vérifie ta connexion et réessaie dans quelques instants.');
     }
   }
 }
