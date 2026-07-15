@@ -8201,8 +8201,7 @@ async function showProfil(recordId) {
               </div>
             </div>
 
-            ${tel ? `<div class="profil-cta-row"><a class="profil-cta-wa" href="${waLink}" target="_blank" rel="noopener">Contacter sur WhatsApp</a></div>` : ''}
-            <!-- Actions icônes -->
+            <!-- Actions icônes (WhatsApp au même gabarit que les autres — demande fondateur 2026-07-15) -->
             <div class="profil-ic-grid">
               <button class="profil-ic-btn ic-rdv-btn" onclick="showRdvPage('${recordId}')">
                 <div class="profil-ic-circle ic-rdv">📅</div>
