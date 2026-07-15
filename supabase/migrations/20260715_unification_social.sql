@@ -70,7 +70,13 @@ WHERE EXISTS (SELECT 1 FROM public.profiles pr WHERE pr.id = v.auteur_user_id)
   );
 
 -- 5. wozali_suivis : la vue devient une vraie table (même shape, le code ne change pas)
-DROP VIEW IF EXISTS public.wozali_suivis;
+--    En prod wozali_suivis est déjà une TABLE (erreur 42809 sur DROP VIEW) :
+--    on ne droppe la vue que si c'en est une, sinon on garde la table existante.
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.views WHERE table_schema='public' AND table_name='wozali_suivis') THEN
+    EXECUTE 'DROP VIEW public.wozali_suivis';
+  END IF;
+END $$;
 CREATE TABLE IF NOT EXISTS public.wozali_suivis (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   suiveur_user_id      UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -80,6 +86,9 @@ CREATE TABLE IF NOT EXISTS public.wozali_suivis (
 );
 CREATE INDEX IF NOT EXISTS idx_wozali_suivis_suiveur ON public.wozali_suivis (suiveur_user_id);
 CREATE INDEX IF NOT EXISTS idx_wozali_suivis_suivi   ON public.wozali_suivis (suivi_prestataire_id);
+-- Si la table existait déjà sans contrainte d'unicité, on l'ajoute en index
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_wozali_suivis_pair
+  ON public.wozali_suivis (suiveur_user_id, suivi_prestataire_id);
 
 -- Copie best-effort depuis l'ancienne table (vide en pratique ; si son
 -- schéma legacy diffère, on n'échoue pas toute la migration pour 0 ligne).
@@ -108,6 +117,15 @@ END $$;
 
 -- 6. Retirer les doublons de l'ancien système
 --    (wolo_posts_v2 et wolo_suivis sont conservés en archive, plus jamais lus)
-DROP VIEW IF EXISTS public.wozali_posts_v2;
-DROP VIEW IF EXISTS public.wozali_abonnements;
-DROP TABLE IF EXISTS public.wozali_abonnements;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.views WHERE table_schema='public' AND table_name='wozali_posts_v2') THEN
+    EXECUTE 'DROP VIEW public.wozali_posts_v2';
+  ELSIF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='wozali_posts_v2' AND table_type='BASE TABLE') THEN
+    EXECUTE 'DROP TABLE public.wozali_posts_v2';
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.views WHERE table_schema='public' AND table_name='wozali_abonnements') THEN
+    EXECUTE 'DROP VIEW public.wozali_abonnements';
+  ELSIF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='wozali_abonnements' AND table_type='BASE TABLE') THEN
+    EXECUTE 'DROP TABLE public.wozali_abonnements';
+  END IF;
+END $$;
