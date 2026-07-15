@@ -2511,6 +2511,150 @@ async function deleteDashAvis(avisId) {
 
 // ══ STORY RÉALISATION VÉRIFIÉE ══
 // ══════════════════════════════════════════════════════════
+// RECHERCHE VOCALE (étape 12 Phase C)
+// Web Speech API. Les listes métiers/quartiers sont lues dans le DOM,
+// jamais redupliquées : elles restent synchronisées toutes seules.
+// ══════════════════════════════════════════════════════════
+let _wzSR = null;
+
+// minuscules, sans accents, sans ponctuation
+function _wzNorm(s) {
+  return (s || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+
+// La phrase apparaît-elle en mots entiers ? ("be" ne matche pas "besoin")
+function _wzHasPhrase(hay, needle) {
+  if (!needle) return false;
+  const esc = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp('(^|\\s)' + esc + '(\\s|$)').test(hay);
+}
+
+// Candidats {value, variantes[]} depuis les <option> d'un select
+// villeQuartier:true → "Cotonou — Akpakpa" ne garde que "akpakpa" :
+// personne ne dit la ville collée au quartier à voix haute.
+function _wzOptionCandidates(selectId, opts) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return [];
+  const villeQuartier = !!(opts && opts.villeQuartier);
+  return Array.from(sel.options)
+    .filter(o => o.value)
+    .map(o => {
+      const base = o.value.replace(/\(.*?\)/g, '');
+      let variantes;
+      if (villeQuartier) {
+        const parts = base.split(/[—–-]/);
+        variantes = [_wzNorm(parts[parts.length - 1])];
+      } else {
+        // "Coiffeur/Coiffeuse" → ["coiffeur", "coiffeuse"]
+        variantes = base.split(/[\/,]/).map(_wzNorm);
+      }
+      // Seuil à 2 : "Bè" fait 2 lettres, c'est le quartier de référence
+      return { value: o.value, variantes: variantes.filter(v => v.length >= 2) };
+    })
+    .filter(c => c.variantes.length);
+}
+
+// Cherche le match le plus spécifique (variante la plus longue d'abord)
+function _wzMatchIn(texte, candidats) {
+  let best = null;
+  for (const c of candidats) {
+    for (const v of c.variantes) {
+      if (_wzHasPhrase(texte, v) && (!best || v.length > best.variante.length)) {
+        best = { value: c.value, variante: v };
+      }
+    }
+  }
+  return best;
+}
+
+const _WZ_STOPWORDS = new Set(['je','tu','il','elle','on','cherche','chercher','trouve','trouver','veux','voudrais','besoin','un','une','des','le','la','les','de','du','d','a','au','aux','pour','moi','mon','ma','svp','plait','plais','s','il','vous','wozali','bonjour','salut','qui','est','ou','vers','pres','proche','quartier','ville']);
+
+// "je cherche une coiffeuse à Bè" → { metier, quartier, reste }
+function _wzParleRecherche(transcript) {
+  let t = _wzNorm(transcript);
+  const metier = _wzMatchIn(t, _wzOptionCandidates('s-metier'));
+  if (metier) t = t.replace(new RegExp('(^|\\s)' + metier.variante.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\s|$)'), ' ');
+  const quartier = _wzMatchIn(t, _wzOptionCandidates('s-quartier', { villeQuartier: true }));
+  if (quartier) t = t.replace(new RegExp('(^|\\s)' + quartier.variante.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\s|$)'), ' ');
+  // Ce qui reste, une fois les mots vides retirés : sûrement un nom de personne
+  const reste = t.split(/\s+/).filter(w => w && !_WZ_STOPWORDS.has(w)).join(' ').trim();
+  return { metier: metier?.value || '', quartier: quartier?.value || '', reste };
+}
+
+function _wzSetMicState(on) {
+  const btn = document.getElementById('s-mic-btn');
+  if (btn) btn.classList.toggle('listening', on);
+}
+
+function wzVoiceSearch() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { toast('Ton navigateur ne permet pas de chercher en parlant. Écris ta recherche juste à côté.', 'error'); return; }
+  if (_wzSR) { try { _wzSR.stop(); } catch (e) {} return; } // 2e tap = on arrête
+
+  const rec = new SR();
+  _wzSR = rec;
+  rec.lang = 'fr-FR';
+  rec.interimResults = false;
+  rec.continuous = false;
+  rec.maxAlternatives = 4; // on testera les alternatives : ça rattrape les accents
+
+  _wzSetMicState(true);
+  toast('🎤 Parle maintenant. Dis par exemple : coiffeuse à Bè', 'info');
+
+  rec.onerror = (e) => {
+    _wzSR = null; _wzSetMicState(false);
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      toast('Le micro est bloqué. Autorise le micro dans ton navigateur, ou écris ta recherche.', 'error');
+    } else if (e.error === 'no-speech') {
+      toast('Je n\'ai rien entendu. Appuie sur le micro et parle plus près du téléphone.', 'error');
+    } else if (e.error === 'network') {
+      toast('La recherche vocale a besoin de connexion. Vérifie ta data, ou écris ta recherche.', 'error');
+    } else {
+      toast('La recherche vocale a calé. Réessaie, ou écris ta recherche.', 'error');
+    }
+  };
+  rec.onend = () => { _wzSR = null; _wzSetMicState(false); };
+
+  rec.onresult = (ev) => {
+    const alts = Array.from(ev.results[0] || []).map(a => a.transcript).filter(Boolean);
+    if (!alts.length) { toast('Je n\'ai rien compris. Réessaie en parlant plus lentement.', 'error'); return; }
+
+    // On garde la 1re alternative qui reconnaît un métier ou un quartier
+    let choisi = null;
+    for (const a of alts) {
+      const p = _wzParleRecherche(a);
+      if (p.metier || p.quartier) { choisi = { ...p, brut: a }; break; }
+    }
+    if (!choisi) choisi = { ..._wzParleRecherche(alts[0]), brut: alts[0] };
+
+    const sm = document.getElementById('s-metier');
+    const sq = document.getElementById('s-quartier');
+    const st = document.getElementById('s-text');
+    if (sm) sm.value = choisi.metier || '';
+    if (sq) sq.value = choisi.quartier || '';
+    // Rien reconnu dans les listes → on cherche le texte tel quel (nom, description)
+    if (st) st.value = (!choisi.metier && !choisi.quartier) ? choisi.brut : (choisi.reste || '');
+
+    const compris = [choisi.metier, choisi.quartier].filter(Boolean).join(' · ');
+    toast(compris ? `🎤 Compris : ${compris}` : `🎤 Je cherche : « ${choisi.brut} »`, 'success');
+    loadSearch();
+  };
+
+  try { rec.start(); } catch (e) { _wzSR = null; _wzSetMicState(false); }
+}
+
+// Masque le micro si le navigateur ne sait pas faire (pas de bouton mort)
+function _wzInitMicBtn() {
+  const btn = document.getElementById('s-mic-btn');
+  if (!btn) return;
+  if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) btn.style.display = 'none';
+}
+document.addEventListener('DOMContentLoaded', _wzInitMicBtn);
+
+// ══════════════════════════════════════════════════════════
 // MES OUTILS — carte de visite + affiches commerce (étape 11)
 // Maquettes validées 2026-07-15. Impression via window.print()
 // (texte vectoriel = net, et "Enregistrer en PDF" natif).

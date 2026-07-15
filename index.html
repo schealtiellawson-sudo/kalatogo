@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260715s">
+<link rel="stylesheet" href="/style.css?v=20260715u">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1217,6 +1217,9 @@ setTimeout(function(){
         <select id="s-quartier" onchange="loadSearch()"><option value="">Toutes les villes</option></select>
         <button class="search-bar-btn" onclick="loadSearch()">Trouver maintenant →</button>
         <input type="text" id="s-text" placeholder="Nom, prénom, description..." oninput="rechercheDebounce(loadSearch)" style="flex:1;padding:10px 16px;border:none;background:transparent;font-size:15px;font-family:inherit;outline:none;color:var(--noir);min-width:140px;">
+        <button class="s-mic" id="s-mic-btn" onclick="wzVoiceSearch()" title="Chercher en parlant" aria-label="Chercher en parlant">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        </button>
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;">
         <select class="filter-select" id="s-pays" onchange="loadSearch()" style="padding:8px 14px;border-radius:100px;border:1.5px solid rgba(232,148,10,0.4);background:white;font-weight:700;color:#E8940A;font-family:inherit;cursor:pointer;">
@@ -6381,7 +6384,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715s" defer></script>
+<script src="/app.js?v=20260715u" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
