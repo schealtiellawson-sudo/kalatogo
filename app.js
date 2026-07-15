@@ -2510,6 +2510,239 @@ async function deleteDashAvis(avisId) {
 }
 
 // ══ STORY RÉALISATION VÉRIFIÉE ══
+// ══════════════════════════════════════════════════════════
+// MES OUTILS — carte de visite + affiches commerce (étape 11)
+// Maquettes validées 2026-07-15. Impression via window.print()
+// (texte vectoriel = net, et "Enregistrer en PDF" natif).
+// ══════════════════════════════════════════════════════════
+window._wzo = { type: 'carte', mode: 'nuit', data: null };
+
+// Charge qrcodejs à la demande (pas sur toutes les pages)
+function _wzoEnsureQR() {
+  if (window.QRCode) return Promise.resolve();
+  if (window._wzoQRLoading) return window._wzoQRLoading;
+  window._wzoQRLoading = new Promise((ok, fail) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload = ok; s.onerror = fail;
+    document.head.appendChild(s);
+  });
+  return window._wzoQRLoading;
+}
+
+function _wzoLogo() {
+  return `<div class="wzo-lg"><span class="wzo-lg-w">W</span><span class="wzo-lg-r">OZALI</span></div>`;
+}
+
+async function _wzoBuildData() {
+  const f = currentPrestataire.fields;
+  const nom = f['Nom complet'] || 'Prestataire';
+  const metier = f['Métier principal'] || '';
+  const ville = f['Ville'] || '';
+  const quartier = f['Quartier'] || '';
+  const tel = String(f['Numéro de téléphone'] || f['WhatsApp'] || '').trim();
+  // Note et nombre d'avis : on lit les avis réels, les champs du record peuvent être en retard
+  let note = 0, nbAvis = 0;
+  try {
+    const avis = await fetchAvis(currentPrestataire.id);
+    nbAvis = avis.length;
+    if (nbAvis) note = avis.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0) / nbAvis;
+  } catch (e) {
+    nbAvis = Number(f["Nombre d'avis reçus"] || 0);
+    note = Number(f['Note moyenne'] || 0);
+  }
+  return {
+    nom, metier, ville, quartier, tel,
+    photo: _wPhotoUrl(f['Photo de profil']) || '',
+    note, nbAvis,
+    score: Math.round(f['Score WOZALI'] || 0),
+    slug: _buildProfilSlug(nom, metier, ville),
+  };
+}
+
+function _wzoAvatar(d, cls, iniCls) {
+  return d.photo
+    ? `<img class="${cls}" src="${encodeURI(d.photo)}" alt="">`
+    : `<div class="${cls} ${iniCls}">${escapeHtml((d.nom || '?').charAt(0).toUpperCase())}</div>`;
+}
+
+function _wzoCarte(mode, d) {
+  const lieu = [d.quartier, d.ville].filter(Boolean).join(' · ');
+  return `
+  <div>
+    <div class="wzo-page-lbl">Recto</div>
+    <div class="wzo-doc wzo-carte wzo-c-recto wzo-${mode}">
+      <div class="wzo-side"></div><div class="wzo-glow"></div>
+      <div class="wzo-c-top">${_wzoLogo()}</div>
+      <div class="wzo-c-id">
+        ${_wzoAvatar(d, 'wzo-c-photo', 'wzo-c-ini')}
+        <div>
+          <div class="wzo-c-nom">${escapeHtml(d.nom)}</div>
+          <div class="wzo-c-metier">${escapeHtml(d.metier)}</div>
+          <div class="wzo-c-lieu">${escapeHtml(lieu)}</div>
+        </div>
+      </div>
+      <div class="wzo-c-bot">
+        ${d.tel ? `<div class="wzo-c-tel-lbl">Appelle ou écris</div><div class="wzo-c-tel">${escapeHtml(d.tel)}</div>` : ''}
+      </div>
+    </div>
+  </div>
+  <div class="wzo-pagebreak">
+    <div class="wzo-page-lbl">Verso</div>
+    <div class="wzo-doc wzo-carte wzo-c-verso wzo-${mode}">
+      <div class="wzo-qr" data-wzo-qr="profil" data-size="30"></div>
+      <div class="wzo-v-right">
+        <div class="wzo-v-titre">Ouvre l'appareil photo. Vise le carré.</div>
+        <div class="wzo-v-sub">Tu verras mon travail, mes photos et mes avis clients.</div>
+        <div class="wzo-v-rule"></div>
+        <div class="wzo-v-foot">${_wzoLogo()}<span class="wzo-dom">wozali.africa</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function _wzoAffiche(kind, mode, d) {
+  const lieu = [d.quartier, d.ville].filter(Boolean).join(' · ');
+  const dateStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (kind === 'caisse') {
+    return `
+    <div>
+      <div class="wzo-page-lbl">Affiche Caisse · A4</div>
+      <div class="wzo-doc wzo-a4 wzo-caisse wzo-${mode}">
+        <div class="wzo-side"></div><div class="wzo-glow"></div>
+        <div class="wzo-p-head">${_wzoLogo()}<span class="wzo-badge">✓ AVIS VÉRIFIÉ</span></div>
+        <div class="wzo-p-titre" style="margin-top:16mm;font-size:16mm;">Ton avis fait venir<br>le prochain client.</div>
+        <div class="wzo-p-sub">Trente secondes. C'est ce qui fait tourner cette boutique.</div>
+        <div class="wzo-vocal">
+          <span class="wzo-vocal-ico">🎤</span>
+          <span class="wzo-vocal-txt">Tu peux le dire à voix haute. Pas besoin d'écrire.</span>
+        </div>
+        <div class="wzo-p-qrwrap">
+          <div class="wzo-qr" data-wzo-qr="avis" data-size="82"></div>
+          <div style="flex:1;">
+            <div class="wzo-p-instr">Ouvre l'appareil photo. Vise le carré.</div>
+            <div class="wzo-p-instr-sub">Tu tombes direct sur la page pour donner ton avis.</div>
+          </div>
+        </div>
+        <div class="wzo-p-foot">
+          <div>
+            ${_wzoLogo()}
+            <div class="wzo-p-lieu" style="margin-top:2mm;">${escapeHtml([d.nom, d.metier, d.quartier].filter(Boolean).join(' · '))}</div>
+          </div>
+          <span class="wzo-dom">wozali.africa</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Vitrine — le bloc preuve n'apparaît qu'à partir de 3 avis (sinon il dessert le commerce)
+  const showPreuve = d.nbAvis >= 3;
+  const noteStr = d.note > 0 ? d.note.toFixed(1).replace('.', ',') : '—';
+  const nFull = Math.round(d.note);
+  const stars = '★'.repeat(Math.max(0, nFull)) + '☆'.repeat(Math.max(0, 5 - nFull));
+  return `
+  <div>
+    <div class="wzo-page-lbl">Affiche Vitrine · A4</div>
+    <div class="wzo-doc wzo-a4 wzo-${mode}">
+      <div class="wzo-side"></div><div class="wzo-glow"></div>
+      <div class="wzo-p-head">${_wzoLogo()}<span class="wzo-badge">✓ PROFIL VÉRIFIÉ</span></div>
+      <div class="wzo-p-id">
+        ${_wzoAvatar(d, 'wzo-p-photo', 'wzo-p-ini')}
+        <div>
+          <div class="wzo-p-nom">${escapeHtml(d.nom)}</div>
+          <div class="wzo-p-metier">${escapeHtml(d.metier)}</div>
+          <div class="wzo-p-lieu">${escapeHtml(lieu)}</div>
+        </div>
+      </div>
+      ${showPreuve ? `
+      <div class="wzo-preuve">
+        <div class="wzo-pv">
+          <div class="wzo-pv-big">${noteStr}</div>
+          <div class="wzo-pv-stars">${stars}</div>
+          <div class="wzo-pv-lbl">Note clients</div>
+        </div>
+        <div class="wzo-pv">
+          <div class="wzo-pv-big">${d.nbAvis}</div>
+          <div class="wzo-pv-lbl">Avis vérifiés</div>
+        </div>
+        <div class="wzo-pv">
+          <div class="wzo-pv-big">${d.score}</div>
+          <div class="wzo-pv-lbl">Score WOZALI</div>
+        </div>
+      </div>` : ''}
+      <div class="wzo-p-titre">Vois mon travail<br>avant de choisir.</div>
+      <div class="wzo-p-sub">Mes réalisations, mes tarifs, et ce que les clients passés ont dit. Tout est là.</div>
+      <div class="wzo-p-qrwrap">
+        <div class="wzo-qr" data-wzo-qr="profil" data-size="62"></div>
+        <div style="flex:1;">
+          <div class="wzo-p-instr">Ouvre l'appareil photo. Vise le carré.</div>
+          <div class="wzo-p-instr-sub">Pas besoin d'installer quoi que ce soit.</div>
+        </div>
+      </div>
+      <div class="wzo-p-foot">
+        <div>
+          ${_wzoLogo()}
+          ${showPreuve ? `<div class="wzo-date">Chiffres au ${dateStr}. Réimprime quand ton Score monte.</div>` : ''}
+        </div>
+        <span class="wzo-dom">wozali.africa</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function openOutil(type) {
+  if (!currentPrestataire) { toast('Connecte-toi pour générer tes outils.', 'error'); return; }
+  window._wzo.type = type;
+  const ov = document.getElementById('wzo-overlay');
+  const stage = document.getElementById('wzo-stage');
+  ov.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  stage.innerHTML = '<div style="color:rgba(252,224,168,0.5);padding:40px;">⏳ Préparation...</div>';
+  try {
+    await _wzoEnsureQR();
+    window._wzo.data = await _wzoBuildData();
+    _wzoRender();
+  } catch (e) {
+    stage.innerHTML = '<div style="color:#ef4444;padding:40px;">Impossible de préparer l\'outil. Vérifie ta connexion et réessaie.</div>';
+  }
+}
+
+function _wzoRender() {
+  const { type, mode, data } = window._wzo;
+  if (!data) return;
+  const stage = document.getElementById('wzo-stage');
+  stage.innerHTML = type === 'carte' ? _wzoCarte(mode, data) : _wzoAffiche(type, mode, data);
+
+  // Boutons de mode
+  document.querySelectorAll('#wzo-toolbar .wzo-seg button').forEach(b => {
+    b.classList.toggle('on', b.dataset.mode === mode);
+  });
+
+  // QR : profil pour la vitrine et la carte, formulaire d'avis direct pour la caisse
+  const base = `https://wozali.africa/profil/${data.slug}`;
+  stage.querySelectorAll('[data-wzo-qr]').forEach(el => {
+    const url = el.dataset.wzoQr === 'avis' ? `${base}?action=avis` : base;
+    const mm = el.dataset.size;
+    el.innerHTML = '';
+    new QRCode(el, { text: url, width: 420, height: 420, colorDark: '#14100A', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+    el.querySelectorAll('img, canvas').forEach(n => { n.style.width = mm + 'mm'; n.style.height = mm + 'mm'; });
+    const img = el.querySelector('img'); if (img) img.style.display = 'block';
+  });
+}
+
+function setOutilMode(mode) {
+  window._wzo.mode = mode;
+  _wzoRender();
+}
+
+function printOutil() { window.print(); }
+
+function closeOutil() {
+  document.getElementById('wzo-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 // ── Helpers partagés — cartes visuelles "Story WOZALI" (étape 10 Phase C) ──
 function _wzLoadImg(src) {
   return new Promise((ok, fail) => {
@@ -3298,6 +3531,12 @@ function _restorePageFromURL() {
   const pathMatch = window.location.pathname.match(/^\/profil\/([a-z0-9-]+)/);
   if (pathMatch) {
     const slug = pathMatch[1];
+    // QR contextuel (affiche Caisse) : ?action=avis → showProfil ouvrira le formulaire d'avis
+    try {
+      if (new URLSearchParams(window.location.search).get('action') === 'avis') {
+        window._pendingAvisAction = true;
+      }
+    } catch (e) {}
     // Le profil-seo API a injecté l'ID Airtable dans meta[name=wozali-profil-id]
     const metaId = document.querySelector('meta[name="wozali-profil-id"]');
     if (metaId?.content) {
@@ -8790,6 +9029,13 @@ async function showProfil(recordId) {
 
     // Charger le feed des posts après rendu (async Airtable)
     setTimeout(() => renderPostsFeed(recordId), 100);
+
+    // QR contextuel (affiche Caisse) : ?action=avis ouvre direct le formulaire d'avis
+    if (window._pendingAvisAction) {
+      window._pendingAvisAction = false;
+      setTimeout(() => { try { openModalAvis(recordId, nomRaw); } catch (e) {} }, 350);
+    }
+
     // Charger profils similaires
     setTimeout(async () => {
       const box = document.getElementById(`profils-similaires-${recordId}`);

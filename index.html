@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260715r">
+<link rel="stylesheet" href="/style.css?v=20260715s">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -227,6 +227,21 @@ setTimeout(function(){
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- ══ MES OUTILS — aperçu imprimable (étape 11) ══
+     Vit dans <body>, hors #page-dashboard : les couleurs des documents
+     ne sont pas écrasées par la règle globale #page-dashboard span{color:inherit} -->
+<div id="wzo-overlay">
+  <div id="wzo-toolbar">
+    <div class="wzo-seg">
+      <button data-mode="nuit" class="on" onclick="setOutilMode('nuit')">Nuit</button>
+      <button data-mode="jour" onclick="setOutilMode('jour')">Jour</button>
+    </div>
+    <button class="wzo-btn wzo-btn-or" onclick="printOutil()">🖨️ Imprimer / Enregistrer en PDF</button>
+    <button class="wzo-btn wzo-btn-gh" onclick="closeOutil()">Fermer</button>
+  </div>
+  <div id="wzo-stage"></div>
+</div>
 
 <!-- ══ ASSISTANCE WOZALI (étape 7, déplacée dans le dashboard le 2026-07-15) —
      accès via sidebar "Plus d'options" → Besoin d'aide ? (id dl-besoin-aide) ══ -->
@@ -2396,6 +2411,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('wozali-match')" id="dl-wozali-match">
             <i data-lucide="handshake"></i> <span>WOZALI Match</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('outils')" id="dl-outils">
+            <i data-lucide="printer"></i> <span>Mes outils à imprimer</span>
+          </button>
           <button class="dash-link" onclick="closeDashMenu();openAideModal()" id="dl-besoin-aide">
             <i data-lucide="life-buoy"></i> <span>Besoin d'aide ?</span>
           </button>
@@ -3435,6 +3453,47 @@ setTimeout(function(){
       </div>
 
       <!-- FAVORIS (conservé pour compatibilité) -->
+      <!-- MES OUTILS — carte de visite + affiches commerce (étape 11) -->
+      <div class="dash-section" id="ds-outils">
+        <div class="dash-header">
+          <h2>🖨️ Mes outils à imprimer</h2>
+          <p>Ta carte de visite et tes affiches. Le client scanne, il tombe sur ton profil.</p>
+        </div>
+        <div class="dash-explainer">
+          🎯 <strong>Chaque outil a un seul travail.</strong> La carte se donne en main. L'affiche vitrine rassure celui qui arrive. L'affiche caisse récolte l'avis de celui qui repart. Les trois se choisissent en Nuit ou en Jour.
+        </div>
+
+        <div class="wzo-grid">
+          <div class="wzo-card">
+            <h4>Carte de visite</h4>
+            <div class="wzo-where">Dans ta poche · 85 × 55 mm</div>
+            <p>Tu la donnes en main après un contact. Le client la garde, il scanne quand il en a besoin.</p>
+            <button class="wzo-btn wzo-btn-or" style="width:100%;" onclick="openOutil('carte')">Générer ma carte</button>
+          </div>
+          <div class="wzo-card">
+            <h4>Affiche Vitrine</h4>
+            <div class="wzo-where">À l'entrée, sur la vitre · A4</div>
+            <p>Le client arrive, il ne connaît pas encore ton travail. Cette affiche lui montre ta note et tes avis.</p>
+            <button class="wzo-btn wzo-btn-or" style="width:100%;" onclick="openOutil('vitrine')">Générer mon affiche</button>
+          </div>
+          <div class="wzo-card">
+            <h4>Affiche Caisse</h4>
+            <div class="wzo-where">Au comptoir, là où on paie · A4</div>
+            <p>Le client vient d'être servi. Il scanne, il donne son avis à voix haute en trente secondes.</p>
+            <button class="wzo-btn wzo-btn-or" style="width:100%;" onclick="openOutil('caisse')">Générer mon affiche</button>
+          </div>
+        </div>
+
+        <div style="background:#161616;border-radius:14px;padding:20px;margin-top:16px;border-left:3px solid #E8940A;">
+          <div style="font-family:'DM Serif Display',serif;font-size:16px;color:#FCE0A8;margin-bottom:10px;">Avant d'aller au cyber</div>
+          <div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.55);">
+            <p style="margin:0 0 8px;"><strong style="color:#E8940A;">Le mode Jour coûte moins cher à imprimer.</strong> Un A4 tout noir demande beaucoup d'encre : compte autour de 500 à 1000 FCFA la page couleur, contre environ 100 FCFA en noir et blanc. Le Jour reste lisible même photocopié.</p>
+            <p style="margin:0 0 8px;"><strong style="color:#E8940A;">Fais plastifier tes affiches.</strong> Environ 200 FCFA au cyber. Elles tiendront la poussière et la saison des pluies.</p>
+            <p style="margin:0;"><strong style="color:#E8940A;">Réimprime quand ton Score monte.</strong> Tes chiffres sont figés sur le papier le jour où tu imprimes. Ton profil, lui, continue de vivre.</p>
+          </div>
+        </div>
+      </div>
+
       <div class="dash-section" id="ds-favoris">
         <div class="dash-header">
           <h2>❤️ Mes Favoris</h2>
@@ -6322,7 +6381,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715r" defer></script>
+<script src="/app.js?v=20260715s" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
