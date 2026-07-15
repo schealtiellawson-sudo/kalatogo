@@ -1728,6 +1728,39 @@ footer {
 .dash-link.active { background:var(--vert); color:white; }
 .dash-link .icon { font-size:18px; width:20px; text-align:center; }
 
+/* ── Étape 4 : dashboard à plat — grandes entrées icône+mot+couleur ── */
+.dash-link.dash-big {
+  padding: 13px 14px;
+  font-size: 15.5px;
+  font-weight: 800;
+  gap: 12px;
+  border-radius: 12px;
+  margin-bottom: 2px;
+}
+.dash-big-chip {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.dash-big-chip i.lucide, .dash-big-chip svg { width: 19px; height: 19px; }
+/* Préfixe #page-dashboard obligatoire : une règle globale
+   "#page-dashboard span { color: inherit }" écrase sinon les couleurs. */
+#page-dashboard .wchip-or         { background: rgba(232,148,10,.16); color: #E8940A; }
+#page-dashboard .wchip-ambre      { background: rgba(245,184,46,.16);  color: #F5B82E; }
+#page-dashboard .wchip-cuivre     { background: rgba(196,122,8,.18);   color: #D89440; }
+#page-dashboard .wchip-peche      { background: rgba(240,163,94,.16);  color: #F0A35E; }
+#page-dashboard .wchip-terracotta { background: rgba(224,120,64,.16);  color: #E07840; }
+#page-dashboard .wchip-caramel    { background: rgba(217,131,36,.16);  color: #D98324; }
+#page-dashboard .wchip-orclair    { background: rgba(252,211,77,.16);  color: #FCD34D; }
+#page-dashboard .wchip-sable      { background: rgba(232,181,74,.16);  color: #E8B54A; }
+.dash-link.dash-big.active { background: rgba(232,148,10,.14); color: #E8940A; }
+#page-dashboard .dash-link.dash-big.active .dash-big-chip { background: #E8940A; color: #14100A; }
+@media (max-width: 900px) {
+  .dash-link.dash-big { padding: 14px 14px; font-size: 16px; }
+  .dash-big-chip { width: 40px; height: 40px; }
+}
+
 .dashboard-main { padding:36px; background:#14100A; }
 .dash-section { display:none; }
 .dash-section.active { display:block; animation:fadeIn 0.3s ease; }

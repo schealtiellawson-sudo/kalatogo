@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260711h">
+<link rel="stylesheet" href="/style.css?v=20260715e">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2236,86 +2236,73 @@ setTimeout(function(){
       <button class="dash-link" onclick="closeDashMenu();viewMyProfile()" style="font-weight:800;border:none !important;background:#E8940A !important;color:#0A0A0A !important;border-radius:10px !important;margin-bottom:6px;">
         <i data-lucide="user-circle"></i> <span>Mon Profil Public</span>
       </button>
-      <button class="dash-link active" onclick="showDashSection('overview')" id="dl-overview">
-        <i data-lucide="layout-dashboard"></i> <span>Vue d'ensemble</span>
+      <!-- ══ 8 GRANDES ENTRÉES (étape 4 : dashboard à plat) ══
+           Une icône, un mot, une couleur fixe par univers. -->
+      <button class="dash-link dash-big active" onclick="showDashSection('overview')" id="dl-overview">
+        <span class="dash-big-chip wchip-or"><i data-lucide="layout-dashboard"></i></span>
+        <span>Vue d'ensemble</span>
       </button>
-      <button class="dash-link" onclick="showDashSection('notifications')" id="dl-notifications" style="position:relative;">
-        <i data-lucide="bell"></i> <span>Activité</span>
+      <button class="dash-link dash-big" onclick="showDashSection('notifications')" id="dl-notifications" style="position:relative;">
+        <span class="dash-big-chip wchip-ambre"><i data-lucide="bell"></i></span>
+        <span>Activité</span>
         <span id="notif-badge" style="display:none;background:#ef4444;color:white;border-radius:100px;font-size:10px;font-weight:800;padding:1px 7px;margin-left:auto;line-height:1.6;">0</span>
       </button>
-      <button class="dash-link" onclick="showDashSection('dispo')" id="dl-dispo">
-        <i data-lucide="circle-dot"></i> <span>Disponibilité</span>
+      <button class="dash-link dash-big" onclick="showDashSection('profil')" id="dl-profil">
+        <span class="dash-big-chip wchip-cuivre"><i data-lucide="user"></i></span>
+        <span>Mon profil</span>
       </button>
-      <button class="dash-link" onclick="showDashSection('rdv')" id="dl-rdv">
-        <i data-lucide="calendar"></i> <span>Mon Agenda</span>
+      <button class="dash-link dash-big" onclick="showDashSection('photos')" id="dl-photos">
+        <span class="dash-big-chip wchip-peche"><i data-lucide="image"></i></span>
+        <span>Mes photos</span>
+      </button>
+      <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
+        <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
+        <span>Mes avis</span>
+      </button>
+      <button class="dash-link dash-big" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
+        <span class="dash-big-chip wchip-caramel"><i data-lucide="briefcase"></i></span>
+        <span>Emploi</span>
+      </button>
+      <button class="dash-link dash-big" onclick="showDashSection('recompenses')" id="dl-recompenses">
+        <span class="dash-big-chip wchip-orclair"><i data-lucide="trophy"></i></span>
+        <span>Récompenses</span>
+      </button>
+      <button class="dash-link dash-big" onclick="showDashSection('abonnement')" id="dl-abonnement">
+        <span class="dash-big-chip wchip-sable"><i data-lucide="badge-check"></i></span>
+        <span>Mon abonnement</span>
       </button>
 
-      <!-- Mon profil -->
-      <div class="dash-group" data-group="profil">
+      <!-- Plus d'options (secondaire, replié) -->
+      <div class="dash-group" data-group="plus">
         <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
-          <i data-lucide="user"></i>
-          <span class="dash-group-lbl">Mon profil</span>
+          <i data-lucide="more-horizontal"></i>
+          <span class="dash-group-lbl">Plus d'options</span>
           <i data-lucide="chevron-right" class="dash-chev"></i>
         </button>
         <div class="dash-group-body">
-          <button class="dash-link" onclick="showDashSection('profil')" id="dl-profil">
-            <i data-lucide="edit-3"></i> <span>Modifier mon profil</span>
+          <button class="dash-link" onclick="showDashSection('rdv')" id="dl-rdv">
+            <i data-lucide="calendar"></i> <span>Mon Agenda</span>
           </button>
-          <button class="dash-link" onclick="showDashSection('photos')" id="dl-photos">
-            <i data-lucide="image"></i> <span>Mes photos</span>
+          <button class="dash-link" onclick="showDashSection('dispo')" id="dl-dispo">
+            <i data-lucide="circle-dot"></i> <span>Disponibilité</span>
           </button>
-
           <button class="dash-link" onclick="showDashSection('posts')" id="dl-posts">
             <i data-lucide="file-text"></i> <span>Mes posts</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Mon abonnement -->
-      <div class="dash-group" data-group="finances">
-        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
-          <i data-lucide="wallet"></i>
-          <span class="dash-group-lbl">Mon abonnement</span>
-          <i data-lucide="chevron-right" class="dash-chev"></i>
-        </button>
-        <div class="dash-group-body">
-          <button class="dash-link" onclick="showDashSection('abonnement')" id="dl-abonnement">
-            <i data-lucide="badge-check"></i> <span>Plan & Paiement</span>
           </button>
           <button class="dash-link" onclick="showDashSection('parrainage')" id="dl-parrainage">
             <i data-lucide="gift"></i> <span>Parrainage</span>
           </button>
-        </div>
-      </div>
-
-      <!-- Récompenses -->
-      <div class="dash-group" data-group="recompenses">
-        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
-          <i data-lucide="trophy"></i>
-          <span class="dash-group-lbl">Récompenses</span>
-          <i data-lucide="chevron-right" class="dash-chev"></i>
-        </button>
-        <div class="dash-group-body">
-          <button class="dash-link" onclick="showDashSection('recompenses')" id="dl-recompenses">
-            <i data-lucide="award"></i> <span>Bourse de Croissance</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Mon emploi (candidat) -->
-      <div class="dash-group" data-group="mon-emploi-candidat">
-        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
-          <i data-lucide="search"></i>
-          <span class="dash-group-lbl">Mon emploi</span>
-          <i data-lucide="chevron-right" class="dash-chev"></i>
-        </button>
-        <div class="dash-group-body">
-          <button class="dash-link" onclick="showDashSection('emploi-mode')" id="dl-emploi-mode">
-            <i data-lucide="search"></i> <span>Trouver un emploi</span>
-          </button>
-
           <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
             <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('favoris')" id="dl-favoris">
+            <i data-lucide="heart"></i> <span>Mes favoris</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('abonnements')" id="dl-abonnements">
+            <i data-lucide="users"></i> <span>Mes abonnements</span>
+          </button>
+          <button class="dash-link" onclick="showDashSection('wozali-match')" id="dl-wozali-match">
+            <i data-lucide="handshake"></i> <span>WOZALI Match</span>
           </button>
         </div>
       </div>
@@ -2342,29 +2329,6 @@ setTimeout(function(){
           </button>
           <button class="dash-link" onclick="showDashSection('mon-equipe')" id="dl-mon-equipe">
             <i data-lucide="user-check"></i> <span>Mon équipe</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Clients -->
-      <div class="dash-group" data-group="clients">
-        <button type="button" class="dash-group-head" onclick="toggleDashGroup(this)">
-          <i data-lucide="heart"></i>
-          <span class="dash-group-lbl">Clients</span>
-          <i data-lucide="chevron-right" class="dash-chev"></i>
-        </button>
-        <div class="dash-group-body">
-          <button class="dash-link" onclick="showDashSection('avis')" id="dl-avis">
-            <i data-lucide="star"></i> <span>Mes avis</span>
-          </button>
-          <button class="dash-link" onclick="showDashSection('favoris')" id="dl-favoris">
-            <i data-lucide="heart"></i> <span>Mes favoris</span>
-          </button>
-          <button class="dash-link" onclick="showDashSection('abonnements')" id="dl-abonnements">
-            <i data-lucide="users"></i> <span>Mes abonnements</span>
-          </button>
-          <button class="dash-link" onclick="showDashSection('wozali-match')" id="dl-wozali-match">
-            <i data-lucide="handshake"></i> <span>WOZALI Match</span>
           </button>
         </div>
       </div>
@@ -2585,12 +2549,12 @@ setTimeout(function(){
 
         <!-- SCORE WOZALI — carte héro Direction C -->
         <div style="background:#161616;border-radius:14px;padding:24px;border-top:3px solid #E8940A;margin-bottom:14px;">
-          <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:14px;">
-            <div id="kpi-score" style="font-size:72px;font-weight:700;color:#E8940A;line-height:1;letter-spacing:-0.03em;">—</div>
-            <div style="padding-bottom:6px;">
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.4);margin-bottom:4px;">Score WOZALI</div>
-              <div id="kpi-score-level" style="font-size:14px;font-weight:500;color:#FFFFFF;">Calcul en cours...</div>
-              <div id="kpi-score-sub" style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">—</div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.45);margin-bottom:8px;">Score WOZALI</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+            <div id="kpi-score" style="font-size:42px;font-weight:700;color:#E8940A;line-height:1;letter-spacing:-0.02em;font-family:'DM Serif Display',serif;">—</div>
+            <div>
+              <div id="kpi-score-level" style="font-size:15px;font-weight:600;color:#FFFFFF;">Calcul en cours...</div>
+              <div id="kpi-score-sub" style="font-size:13px;color:rgba(255,255,255,0.45);margin-top:2px;">—</div>
             </div>
           </div>
           <div style="height:8px;background:#202020;border-radius:4px;overflow:hidden;margin-bottom:8px;">
@@ -2611,15 +2575,15 @@ setTimeout(function(){
 
           <!-- Vues -->
           <div class="kpi-card" style="background:#161616;border-radius:10px;padding:14px 12px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;">
-            <div style="font-size:44px;font-weight:700;letter-spacing:-0.03em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-views">—</div>
-            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.4);margin-top:7px;">Vues</div>
+            <div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-views">—</div>
+            <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.55);margin-top:7px;">Vues du profil</div>
             <div style="font-size:10px;color:#E8940A;font-weight:600;margin-top:2px;" id="kpi-views-sub"></div>
           </div>
 
           <!-- Contacts WhatsApp -->
           <div class="kpi-card" id="kpi-card-wa" style="background:#161616;border-radius:10px;padding:14px 12px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;position:relative;overflow:hidden;">
-            <div style="font-size:44px;font-weight:700;letter-spacing:-0.03em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-wa">—</div>
-            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.4);margin-top:7px;">Contacts</div>
+            <div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-wa">—</div>
+            <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.55);margin-top:7px;">Contacts WhatsApp</div>
             <div style="font-size:10px;color:#E8940A;font-weight:600;margin-top:2px;" id="kpi-wa-sub"></div>
             <div id="kpi-wa-lock" style="display:none;position:absolute;inset:0;background:rgba(10,10,10,0.88);border-radius:10px;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:2px;" onclick="showDashSection('abonnement')">
               <div style="font-size:18px;">🔒</div>
@@ -2629,8 +2593,8 @@ setTimeout(function(){
 
           <!-- Filleuls -->
           <div class="kpi-card" style="background:#161616;border-radius:10px;padding:14px 12px;border:1px solid rgba(232,148,10,0.12);border-top:3px solid #E8940A;">
-            <div style="font-size:44px;font-weight:700;letter-spacing:-0.03em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-filleuls">—</div>
-            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.4);margin-top:7px;">Filleuls</div>
+            <div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;line-height:1;color:#FFFFFF;font-family:'DM Serif Display',serif;" id="kpi-filleuls">—</div>
+            <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.55);margin-top:7px;">Filleuls</div>
             <div style="font-size:10px;color:#E8940A;font-weight:600;margin-top:2px;" id="kpi-filleuls-sub"></div>
           </div>
         </div>
@@ -6201,7 +6165,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715b" defer></script>
+<script src="/app.js?v=20260715c" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -7288,7 +7252,7 @@ setTimeout(function(){
   </footer>
 </div>
 
-<script src="/app2.js?v=20260715b" defer></script>
+<script src="/app2.js?v=20260715c" defer></script>
 
 <!-- Modal Retrait Commissions -->
 <div class="modal-overlay" id="modal-retrait">
@@ -8357,7 +8321,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 <!-- ══════════════════════════════════════════
      SPRINT 2 — ONBOARDING + NOTIF TEMPLATES
 ════════════════════════════════════════════ -->
-<script src="/app3.js?v=20260715b" defer></script>
+<script src="/app3.js?v=20260715c" defer></script>
 
 <!-- TODO wozali-v2 — Sections reportées (risque de casser JS existant) :
   * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wozali-v2-header + body.wozali-v2-active prêtes à l'emploi.

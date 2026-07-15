@@ -528,9 +528,8 @@ function toggleDashGroup(head){
 }
 document.addEventListener('DOMContentLoaded', function(){
   try { if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons(); } catch(e){}
-  // Ouvre par défaut le groupe "Mon profil"
-  var first = document.querySelector('.dashboard-sidebar .dash-group[data-group="profil"]');
-  if (first) first.classList.add('open');
+  // Étape 4 : sidebar à plat, plus de groupe ouvert par défaut
+  // (les 8 grandes entrées sont directement visibles)
 });
 function openDashGroupContaining(linkEl){
   if (!linkEl) return;
