@@ -117,15 +117,18 @@ END $$;
 
 -- 6. Retirer les doublons de l'ancien système
 --    (wolo_posts_v2 et wolo_suivis sont conservés en archive, plus jamais lus)
+-- CASCADE : en prod wozali_posts_v2 est la TABLE et wolo_posts_v2 une VUE
+-- dessus (héritage du renommage wolo→wozali). Le CASCADE emporte les vues
+-- legacy dépendantes, toutes inutilisées par le code depuis l'étape 5.
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.views WHERE table_schema='public' AND table_name='wozali_posts_v2') THEN
-    EXECUTE 'DROP VIEW public.wozali_posts_v2';
+    EXECUTE 'DROP VIEW public.wozali_posts_v2 CASCADE';
   ELSIF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='wozali_posts_v2' AND table_type='BASE TABLE') THEN
-    EXECUTE 'DROP TABLE public.wozali_posts_v2';
+    EXECUTE 'DROP TABLE public.wozali_posts_v2 CASCADE';
   END IF;
   IF EXISTS (SELECT 1 FROM information_schema.views WHERE table_schema='public' AND table_name='wozali_abonnements') THEN
-    EXECUTE 'DROP VIEW public.wozali_abonnements';
+    EXECUTE 'DROP VIEW public.wozali_abonnements CASCADE';
   ELSIF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='wozali_abonnements' AND table_type='BASE TABLE') THEN
-    EXECUTE 'DROP TABLE public.wozali_abonnements';
+    EXECUTE 'DROP TABLE public.wozali_abonnements CASCADE';
   END IF;
 END $$;
