@@ -136,14 +136,9 @@ function updateNavAuth(connected) {
     if (unameEl) unameEl.textContent = nom.split(' ')[0];
     const avatarEl = document.getElementById('nav-avatar');
     if (avatarEl) avatarEl.textContent = nom.charAt(0).toUpperCase();
-    // Afficher "Mon Fil" dans la nav mobile
-    const mobileFil = document.getElementById('mobile-fil-btn');
-    if (mobileFil) mobileFil.style.display = 'block';
   } else {
     if (guest) guest.style.display = 'flex';
     if (user) user.style.display = 'none';
-    const mobileFil = document.getElementById('mobile-fil-btn');
-    if (mobileFil) mobileFil.style.display = 'none';
   }
 }
 
@@ -6029,8 +6024,6 @@ let _storyCreatorFile = null;
 let _storyCreatorURL = null;
 
 async function loadFilPage() {
-  const nb = document.getElementById('nav-fil-badge');
-  if (nb) nb.style.display = 'none';
   await Promise.all([loadFilStories(), loadFilFeed()]);
 }
 
@@ -6100,7 +6093,7 @@ async function loadFilStories() {
 }
 
 function _renderMyStoryButton() {
-  return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;cursor:pointer;" onclick="openFilStoryComposer()">
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;cursor:pointer;" onclick="openFilComposer()">
     <div style="width:52px;height:52px;border-radius:50%;padding:2.5px;background:rgba(255,255,255,0.05);border:1.5px dashed rgba(232,148,10,0.3);">
       <div style="width:100%;height:100%;border-radius:50%;background:#1A1208;border:2px solid #0f0b07;display:flex;align-items:center;justify-content:center;font-size:22px;color:#E8940A;font-weight:300;line-height:1;">+</div>
     </div>
@@ -6444,6 +6437,12 @@ function playFilReel(url) {
 
 // ── COMPOSER ────────────────────────────────────────────────────────
 function openFilComposer() {
+  // Point d'entrée UNIQUE de publication (post photo, reel, story).
+  // Fonctionne depuis n'importe quelle page : bascule sur le Fil si besoin
+  // (les overlays vivent dans #page-fil, invisibles si la page est inactive).
+  if (!currentUser) { localStorage.setItem('wozali_pending_page','fil'); showPage('login'); return; }
+  const pf = document.getElementById('page-fil');
+  if (pf && !pf.classList.contains('active')) showPage('fil');
   const ov = document.getElementById('fil-composer-overlay');
   const panel = document.getElementById('fil-composer-panel');
   if (!ov || !panel) return;
@@ -6497,6 +6496,9 @@ function openFilStoryComposer() {
 
 // ── STORY CREATOR (expérience plein écran) ───────────────────────────
 function openStoryCreator() {
+  if (!currentUser) { localStorage.setItem('wozali_pending_page','fil'); showPage('login'); return; }
+  const pfil = document.getElementById('page-fil');
+  if (pfil && !pfil.classList.contains('active')) showPage('fil');
   closeFilComposer();
   _storyCreatorFile = null;
   if (_storyCreatorURL) { URL.revokeObjectURL(_storyCreatorURL); _storyCreatorURL = null; }
@@ -6890,14 +6892,6 @@ async function loadFilPageAbonnes() {
   } catch(e) {
     container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;">Erreur: ${e.message}</div>`;
   }
-}
-
-// ── Afficher "Mon Fil" dans la nav quand connecté ──
-function showFilNav() {
-  const navFilBtn = document.getElementById('nav-fil-btn');
-  const mobileFil = document.getElementById('mobile-fil-btn');
-  if (navFilBtn) navFilBtn.style.display = 'flex';
-  if (mobileFil) mobileFil.style.display = 'block';
 }
 
 // ══════════════════════════════════════════

@@ -460,9 +460,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       const myPhoto = window.currentPrestataire?.fields?.['Photo de profil'] || window.currentPrestataire?.photo_profil || '';
       const myNom = (window.currentPrestataire?.fields?.['Nom complet'] || window.currentPrestataire?.nom_complet || 'Moi').split(' ')[0];
       if (myStories.length > 0) {
-        items.push(`<div class="story-item" onclick="openProfilStory('${user.id}')"><div style="position:relative;"><div class="story-ring"><div class="story-avatar" style="background:${myPhoto ? 'transparent' : '#1a2018'}">${myPhoto ? `<img src="${escapeHtml(myPhoto)}" alt="${escapeHtml(myNom)}" loading="lazy">` : `<span style="font-size:22px;font-weight:700;color:#E8940A;">${escapeHtml(myNom.charAt(0))}</span>`}</div></div><div onclick="event.stopPropagation();openFilStoryComposer()" style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:#E8940A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#14100A;border:2px solid #0f0b07;">+</div></div><span class="story-label">${escapeHtml(myNom)}</span></div>`);
+        items.push(`<div class="story-item" onclick="openProfilStory('${user.id}')"><div style="position:relative;"><div class="story-ring"><div class="story-avatar" style="background:${myPhoto ? 'transparent' : '#1a2018'}">${myPhoto ? `<img src="${escapeHtml(myPhoto)}" alt="${escapeHtml(myNom)}" loading="lazy">` : `<span style="font-size:22px;font-weight:700;color:#E8940A;">${escapeHtml(myNom.charAt(0))}</span>`}</div></div><div onclick="event.stopPropagation();openFilComposer()" style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:#E8940A;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#14100A;border:2px solid #0f0b07;">+</div></div><span class="story-label">${escapeHtml(myNom)}</span></div>`);
       } else {
-        items.push(`<div class="story-item" onclick="openFilStoryComposer()"><div class="story-add">+</div><span class="story-label">Ma Story</span></div>`);
+        items.push(`<div class="story-item" onclick="openFilComposer()"><div class="story-add">+</div><span class="story-label">Ma Story</span></div>`);
       }
     }
 

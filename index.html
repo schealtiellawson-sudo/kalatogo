@@ -134,8 +134,8 @@ setTimeout(function(){
     </a>
     <div class="nav-links" id="nav-links-desktop">
       <button class="nav-link" data-nav="home" onclick="showPage('home')">Accueil</button>
-      <button class="nav-link" data-nav="search" onclick="showPage('search')">Trouver un pro</button>
-      <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 WOZALI Jobs</button>
+      <button class="nav-link" data-nav="search" onclick="showPage('search')">Trouver</button>
+      <button class="nav-link" data-nav="emploi" onclick="showPage('emploi')">💼 Jobs</button>
       <button class="nav-link" data-nav="recompenses" onclick="showPage('recompenses')">🏆 Récompenses</button>
       <button class="nav-link" data-nav="fonctionnement" onclick="showPage('fonctionnement')">Comment ça marche</button>
       <button class="nav-link" data-nav="apropos" onclick="showPage('apropos')">Notre Histoire</button>
@@ -147,10 +147,6 @@ setTimeout(function(){
       </div>
       <!-- Boutons connecté (caché par défaut) -->
       <div id="nav-user" style="display:none;align-items:center;gap:8px;">
-        <button class="nav-link" id="nav-fil-btn" onclick="showPage('fil')" style="display:flex;align-items:center;gap:5px;font-weight:700;position:relative;">
-          📰 Mon Fil
-          <span id="nav-fil-badge" style="display:none;position:absolute;top:-4px;right:-6px;background:#ef4444;color:white;font-size:9px;font-weight:800;padding:2px 5px;border-radius:20px;line-height:1;">NEW</span>
-        </button>
         <button class="nav-user" onclick="showPage('dashboard')">
           <div class="nav-user-avatar" id="nav-avatar">?</div>
           <span class="nav-user-name" id="nav-username">Mon espace</span>
@@ -194,9 +190,8 @@ setTimeout(function(){
   </div>
   <div style="padding:16px 20px;display:flex;flex-direction:column;gap:4px;flex:1;">
     <button onclick="showPage('home');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏠 Accueil</button>
-    <button onclick="showPage('search');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🔍 Trouver un pro</button>
-    <button id="mobile-fil-btn" onclick="showPage('fil');closeMobileNav()" style="display:none;text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:var(--vert);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">📰 Mon Fil</button>
-    <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 WOZALI Jobs</button>
+    <button onclick="showPage('search');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:var(--gris-fonce);padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🔍 Trouver</button>
+    <button onclick="showPage('emploi');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">💼 Jobs</button>
     <button onclick="showPage('recompenses');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#E8940A;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">🏆 Récompenses</button>
     <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:#FCE0A8;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">Comment ça marche</button>
     <button onclick="showPage('apropos');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#FCE0A8;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">Notre Histoire</button>
@@ -213,15 +208,15 @@ setTimeout(function(){
   </button>
   <button class="bnt-item" id="bnt-explorer" onclick="bntGo('explorer')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    Explorer
+    Trouver
   </button>
   <button class="bnt-item" id="bnt-jobs" onclick="bntGo('jobs')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
     Jobs
   </button>
   <button class="bnt-item" id="bnt-messages" onclick="bntGo('messages')">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Messages
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    Activité
     <span class="bnt-badge" id="bnt-messages-badge" style="display:none;">0</span>
   </button>
   <button class="bnt-item" id="bnt-moi" onclick="bntGo('moi')">
@@ -1486,8 +1481,7 @@ setTimeout(function(){
   <div style="position:sticky;top:0;z-index:100;background:rgba(15,11,7,0.97);backdrop-filter:blur(14px);border-bottom:1px solid rgba(232,148,10,0.12);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
     <div style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:900;color:#E8940A;letter-spacing:.5px;">W<span style="color:#FCE0A8;">OZALI</span></div>
     <div style="display:flex;gap:16px;align-items:center;">
-      <button onclick="openFilComposer()" style="background:none;border:none;color:rgba(252,224,168,0.55);cursor:pointer;font-size:22px;line-height:1;padding:2px;" title="Publier">+</button>
-      <button onclick="bntGo('messages')" style="background:none;border:none;color:rgba(252,224,168,0.55);cursor:pointer;font-size:18px;line-height:1;padding:2px;position:relative;" title="Messages">💬</button>
+      <button onclick="bntGo('messages')" style="background:none;border:none;color:rgba(252,224,168,0.55);cursor:pointer;font-size:18px;line-height:1;padding:2px;position:relative;" title="Activité">🔔</button>
     </div>
   </div>
   <!-- Story bar -->
@@ -2246,7 +2240,7 @@ setTimeout(function(){
         <i data-lucide="layout-dashboard"></i> <span>Vue d'ensemble</span>
       </button>
       <button class="dash-link" onclick="showDashSection('notifications')" id="dl-notifications" style="position:relative;">
-        <i data-lucide="message-circle"></i> <span>Messages</span>
+        <i data-lucide="bell"></i> <span>Activité</span>
         <span id="notif-badge" style="display:none;background:#ef4444;color:white;border-radius:100px;font-size:10px;font-weight:800;padding:1px 7px;margin-left:auto;line-height:1.6;">0</span>
       </button>
       <button class="dash-link" onclick="showDashSection('dispo')" id="dl-dispo">
@@ -2692,7 +2686,7 @@ setTimeout(function(){
           <!-- ── Colonne gauche : liste conversations ── -->
           <div class="dm-col-left" id="dm-col-left">
             <div class="dm-col-header">
-              <span class="dm-col-title">Messages</span>
+              <span class="dm-col-title">Activité</span>
             </div>
             <div class="dm-col-search">
               <div class="dm-search-inner">
@@ -3271,8 +3265,8 @@ setTimeout(function(){
             <h2>📝 Mes Publications</h2>
             <p style="color:var(--gris);font-size:14px;margin-top:4px;">Publie 1 fois par semaine — ça suffit pour rester visible et monter dans les résultats.</p>
           </div>
-          <button onclick="viewMyProfile()" class="btn btn-primary btn-sm" style="white-space:nowrap;">
-            ✏️ Publier un post
+          <button onclick="openFilComposer()" class="btn btn-primary btn-sm" style="white-space:nowrap;">
+            + Publier
           </button>
         </div>
         <div class="dash-explainer">
@@ -6196,7 +6190,7 @@ setTimeout(function(){
     <div style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(252,224,168,.35);margin-bottom:10px;">Actions rapides</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <button onclick="showDashSection('profil')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Mon profil</button>
-      <button onclick="showDashSection('notifications')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">💬 Messages</button>
+      <button onclick="showDashSection('notifications')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">🔔 Activité</button>
       <button onclick="showDashSection('parrainage')" style="text-align:left;background:rgba(252,224,168,.05);border:1px solid rgba(252,224,168,.1);border-radius:8px;padding:9px 12px;color:#FCE0A8;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Parrainage</button>
       <button onclick="showPage('emploi')" style="text-align:left;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.2);border-radius:8px;padding:9px 12px;color:#E8940A;font-family:'Geist',sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:100%;">WOZALI Jobs</button>
     </div>
@@ -6207,7 +6201,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715a" defer></script>
+<script src="/app.js?v=20260715b" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -7294,7 +7288,7 @@ setTimeout(function(){
   </footer>
 </div>
 
-<script src="/app2.js?v=20260715a" defer></script>
+<script src="/app2.js?v=20260715b" defer></script>
 
 <!-- Modal Retrait Commissions -->
 <div class="modal-overlay" id="modal-retrait">
@@ -8363,7 +8357,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 <!-- ══════════════════════════════════════════
      SPRINT 2 — ONBOARDING + NOTIF TEMPLATES
 ════════════════════════════════════════════ -->
-<script src="/app3.js?v=20260715a" defer></script>
+<script src="/app3.js?v=20260715b" defer></script>
 
 <!-- TODO wozali-v2 — Sections reportées (risque de casser JS existant) :
   * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wozali-v2-header + body.wozali-v2-active prêtes à l'emploi.
