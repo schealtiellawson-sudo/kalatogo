@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260715f">
+<link rel="stylesheet" href="/style.css?v=20260715i">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1513,6 +1513,32 @@ setTimeout(function(){
     <div style="position:absolute;inset:0;z-index:3;display:flex;">
       <div style="width:35%;height:100%;cursor:pointer;" onclick="prevStory()"></div>
       <div style="flex:1;height:100%;cursor:pointer;" onclick="nextStory()"></div>
+    </div>
+    <!-- Barre du bas : vues (ma story) OU répondre (story d'un autre) -->
+    <div style="position:absolute;bottom:0;left:0;right:0;z-index:4;padding:0 16px calc(env(safe-area-inset-bottom, 0px) + 18px);display:flex;justify-content:center;gap:10px;">
+      <button id="fil-story-vues-btn" onclick="event.stopPropagation();openStoryViewers()" style="display:none;align-items:center;gap:8px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.25);color:white;border-radius:100px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;backdrop-filter:blur(6px);">
+        👁 <span id="fil-story-vues-count">0</span> <span style="font-weight:500;opacity:.75;">vues</span>
+      </button>
+      <div id="fil-story-reply-bar" style="display:none;flex:1;max-width:440px;align-items:center;gap:8px;">
+        <input id="fil-story-reply-input" placeholder="Réponds à cette story..." maxlength="500" autocomplete="off"
+          onfocus="pauseStoryForReply()" onclick="event.stopPropagation()"
+          onkeydown="if(event.key==='Enter')envoyerReponseStory()"
+          style="flex:1;min-width:0;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:100px;padding:12px 18px;font-size:14px;font-family:inherit;outline:none;backdrop-filter:blur(6px);">
+        <button onclick="event.stopPropagation();envoyerReponseStory()" aria-label="Envoyer"
+          style="width:44px;height:44px;border-radius:50%;background:#E8940A;border:none;color:#14100A;font-size:18px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sheet : qui a vu ma story (liste complète, cliquable vers les profils) -->
+  <div id="story-viewers-overlay" onclick="if(event.target===this)closeStoryViewers()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;align-items:flex-end;justify-content:center;">
+    <div style="background:#1A1208;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:70vh;display:flex;flex-direction:column;padding:16px 0 calc(env(safe-area-inset-bottom, 0px) + 12px);">
+      <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 14px;flex-shrink:0;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 18px 12px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
+        <h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;margin:0;font-size:17px;">👁 Vu par <span id="story-viewers-total">0</span></h3>
+        <button onclick="closeStoryViewers()" style="background:none;border:none;color:rgba(252,224,168,0.5);font-size:22px;cursor:pointer;line-height:1;">✕</button>
+      </div>
+      <div id="story-viewers-list" style="overflow-y:auto;padding:8px 12px;"></div>
     </div>
   </div>
 
@@ -6165,7 +6191,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715f" defer></script>
+<script src="/app.js?v=20260715i" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -7252,7 +7278,7 @@ setTimeout(function(){
   </footer>
 </div>
 
-<script src="/app2.js?v=20260715f" defer></script>
+<script src="/app2.js?v=20260715i" defer></script>
 
 <!-- Modal Retrait Commissions -->
 <div class="modal-overlay" id="modal-retrait">
@@ -8321,7 +8347,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 <!-- ══════════════════════════════════════════
      SPRINT 2 — ONBOARDING + NOTIF TEMPLATES
 ════════════════════════════════════════════ -->
-<script src="/app3.js?v=20260715f" defer></script>
+<script src="/app3.js?v=20260715i" defer></script>
 
 <!-- TODO wozali-v2 — Sections reportées (risque de casser JS existant) :
   * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wozali-v2-header + body.wozali-v2-active prêtes à l'emploi.

@@ -597,7 +597,7 @@ function showDashSection(section) {
   if (section === 'abonnement') { injectSprint6Upgrade(); loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
     if (section === 'parrainage') loadParrainage();
-  if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); }
+  if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
   if (section === 'fil') loadFil();
@@ -4733,6 +4733,7 @@ function updateNotifBadge(recordId) {
     const fondateur = _getFondateurMessages();
     unread += fondateur.filter(m => !m.read).length;
   } catch(e){}
+  unread += (window._storyRepsUnread || 0);
   const badge = document.getElementById('notif-badge');
   if (badge) {
     if (unread > 0) {
@@ -4751,6 +4752,114 @@ function updateNotifBadge(recordId) {
     } else {
       bntBadge.style.display = 'none';
     }
+  }
+}
+
+// ══ RÉPONSES AUX STORIES — conversations dans l'Activité (étape 6) ══
+// Chaque personne qui répond à une story devient une conversation.
+async function loadStoryReponsesConvs() {
+  const host = document.getElementById('dm-more-convs');
+  if (!host || !currentUser) return;
+  try {
+    const { data: reps } = await window.supabase
+      .from('wozali_story_reponses')
+      .select('*')
+      .eq('vers_user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (!reps || !reps.length) { host.innerHTML = ''; window._storyRepsUnread = 0; updateNotifBadge(currentPrestataire?.id); return; }
+
+    // Grouper par expéditeur
+    const bySender = {};
+    reps.forEach(r => {
+      if (!bySender[r.de_user_id]) bySender[r.de_user_id] = [];
+      bySender[r.de_user_id].push(r);
+    });
+    window._storyRepsBySender = bySender;
+    window._storyRepsUnread = reps.filter(r => !r.lu).length;
+
+    const senderIds = Object.keys(bySender);
+    const { data: prs } = await window.supabase
+      .from('wozali_prestataires')
+      .select('id, user_id, nom_complet, metier_principal, photo_profil')
+      .in('user_id', senderIds);
+    const pMap = {};
+    (prs || []).forEach(p => { pMap[p.user_id] = p; });
+    window._storyRepsSenders = pMap;
+
+    host.innerHTML = senderIds.map(uid => {
+      const p = pMap[uid] || {};
+      const msgs = bySender[uid];
+      const nom = p.nom_complet || 'Utilisateur WOZALI';
+      const ini = nom.charAt(0).toUpperCase();
+      const nonLus = msgs.filter(m => !m.lu).length;
+      const dernier = msgs[0];
+      return `<div class="dm-conv-item" id="dm-conv-story-${uid}" onclick="openDmThread('story-${uid}')">
+        <div class="dm-conv-avatar-link">
+          <div class="dm-conv-avatar" style="${p.photo_profil ? 'overflow:hidden;padding:0;background:transparent;' : ''}">${p.photo_profil ? `<img src="${encodeURI(p.photo_profil)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : ini}</div>
+        </div>
+        <div class="dm-conv-info">
+          <div class="dm-conv-name-row">
+            <span class="dm-conv-name">${escapeHtml(nom)}</span>
+            <span class="dm-conv-time">${_relativeTime(dernier.created_at)}</span>
+          </div>
+          <div class="dm-conv-preview-row">
+            <span class="dm-conv-preview">✨ ${escapeHtml((dernier.contenu || '').slice(0, 48))}</span>
+            ${nonLus ? `<div class="dm-unread-badge">${nonLus}</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    updateNotifBadge(currentPrestataire?.id);
+  } catch(e) { console.warn('[story reps convs]', e); }
+}
+
+async function _loadStoryThread(senderUid) {
+  const list = document.getElementById('dm-messages-list');
+  if (!list) return;
+  // V1 : thread en lecture (réponse directe dans un prochain sprint) — le
+  // composer "Écrire à WOZALI" appartient au thread fondateur, on le masque.
+  const composer = document.querySelector('.dm-compose-bar');
+  if (composer) { composer.style.display = 'none'; composer.dataset.hiddenForStory = '1'; }
+  const msgs = (window._storyRepsBySender || {})[senderUid] || [];
+  const p = (window._storyRepsSenders || {})[senderUid] || {};
+  const nom = p.nom_complet || 'Utilisateur WOZALI';
+
+  // Header du thread : la personne qui a répondu, cliquable vers son profil
+  const av = document.getElementById('dm-thread-avatar');
+  if (av) {
+    if (p.photo_profil) { av.style.overflow='hidden'; av.style.padding='0'; av.style.background='transparent'; av.innerHTML = `<img src="${encodeURI(p.photo_profil)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`; }
+    else { av.style.overflow=''; av.style.background=''; av.innerHTML = ''; av.textContent = nom.charAt(0).toUpperCase(); }
+  }
+  const nameEl = document.getElementById('dm-thread-name');
+  if (nameEl) nameEl.textContent = nom;
+  const profileLink = document.getElementById('dm-thread-profile-link');
+  if (profileLink && p.id) { profileLink.removeAttribute('target'); profileLink.removeAttribute('href'); profileLink.setAttribute('onclick', `event.preventDefault();showProfil('${p.id}');showPage('profil');`); }
+
+  // Messages (réponses à mes stories, du plus ancien au plus récent)
+  const chrono = [...msgs].reverse();
+  list.innerHTML = `<div style="text-align:center;padding:10px 0 4px;color:rgba(252,224,168,0.35);font-size:11px;">✨ Réponses à tes stories</div>` +
+    chrono.map(m => `
+    <div style="display:flex;justify-content:flex-start;padding:4px 12px;">
+      <div style="max-width:78%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:14px 14px 14px 4px;padding:10px 14px;">
+        <div style="font-size:14px;color:#FCE0A8;line-height:1.5;">${escapeHtml(m.contenu || '')}</div>
+        <div style="font-size:10px;color:rgba(252,224,168,0.35);margin-top:4px;">${_relativeTime(m.created_at)}</div>
+      </div>
+    </div>`).join('') +
+    (p.id ? `<div style="text-align:center;padding:14px 0;"><button onclick="showProfil('${p.id}');showPage('profil');" style="background:rgba(232,148,10,0.12);color:#E8940A;border:1px solid rgba(232,148,10,0.3);border-radius:100px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Voir son profil →</button></div>` : '');
+  list.scrollTop = list.scrollHeight;
+
+  // Marquer comme lues + rafraîchir badges
+  const nonLuIds = msgs.filter(m => !m.lu).map(m => m.id);
+  if (nonLuIds.length) {
+    try {
+      await window.supabase.from('wozali_story_reponses').update({ lu: true }).in('id', nonLuIds);
+      msgs.forEach(m => { m.lu = true; });
+      window._storyRepsUnread = Math.max(0, (window._storyRepsUnread || 0) - nonLuIds.length);
+      const convBadge = document.querySelector('#dm-conv-story-' + senderUid + ' .dm-unread-badge');
+      if (convBadge) convBadge.remove();
+      updateNotifBadge(currentPrestataire?.id);
+    } catch(e) {}
   }
 }
 
@@ -5092,10 +5201,15 @@ async function loadDmMessages(threadId) {
   const list = document.getElementById('dm-messages-list');
   if (!list) return;
 
+  if (String(threadId).startsWith('story-')) { return _loadStoryThread(threadId.slice(6)); }
   if (threadId !== 'wozali') {
     list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;font-family:\'Geist\',sans-serif;">Bientôt disponible.</div>';
     return;
   }
+  // Thread fondateur : restaurer le header + le composer (un thread story a pu les modifier)
+  try { if (window._fondateurNom) _applyFondateurProfileToUI({ id: window._fondateurRecordId, fields: { 'Nom complet': window._fondateurNom, 'Photo de profil': window._fondateurPhotoUrl } }); } catch(e){}
+  const composerW = document.querySelector('[data-hidden-for-story="1"]');
+  if (composerW) { composerW.style.display = ''; delete composerW.dataset.hiddenForStory; }
 
   const senderNom     = window._fondateurNom     || 'Schealtiel';
   const senderInitial = window._fondateurInitial || 'S';
@@ -6416,13 +6530,129 @@ function _renderCurrentStory() {
   clearTimeout(_filStoryTimer);
   if (dur) _filStoryTimer = setTimeout(nextStory, dur);
 
+  // ── Pack Stories (étape 6) : bouton vues (ma story) OU répondre (story d'un autre) ──
+  window._currentStory = s;
+  const isMine = !!(currentUser && s.user_id === currentUser.id);
+  const vuesBtn = document.getElementById('fil-story-vues-btn');
+  if (vuesBtn) {
+    vuesBtn.style.display = isMine ? 'flex' : 'none';
+    if (isMine) {
+      const nbVues = (s.vue_par || []).filter(uid => uid && uid !== s.user_id).length;
+      const cEl = document.getElementById('fil-story-vues-count');
+      if (cEl) cEl.textContent = nbVues;
+    }
+  }
+  const replyBar = document.getElementById('fil-story-reply-bar');
+  if (replyBar) replyBar.style.display = (!isMine && currentUser) ? 'flex' : 'none';
+
   // Marquer comme vue — via RPC SECURITY DEFINER (RLS bloque l'update direct sur la story d'un autre)
-  if (currentUser && s.id) {
+  if (currentUser && s.id && !isMine) {
     const vuePar = s.vue_par || [];
     if (!vuePar.includes(currentUser.id)) {
       s.vue_par = [...vuePar, currentUser.id];
       window.supabase.rpc('wozali_story_vue', { p_story_id: s.id }).then(()=>{}, ()=>{});
     }
+  }
+}
+
+// ── Pack Stories (étape 6) : liste complète des viewers, cliquables vers leur profil ──
+async function openStoryViewers() {
+  const s = window._currentStory;
+  if (!s) return;
+  clearTimeout(_filStoryTimer);
+  _storyPaused = true;
+  const ov = document.getElementById('story-viewers-overlay');
+  const list = document.getElementById('story-viewers-list');
+  const total = document.getElementById('story-viewers-total');
+  if (!ov || !list) return;
+  const viewerIds = (s.vue_par || []).filter(uid => uid && uid !== s.user_id);
+  if (total) total.textContent = viewerIds.length;
+  ov.style.display = 'flex';
+  if (!viewerIds.length) {
+    list.innerHTML = `<div style="text-align:center;padding:36px 20px;color:rgba(252,224,168,0.4);font-size:14px;"><div style="font-size:36px;margin-bottom:10px;">👀</div>Personne n'a encore vu cette story.<br><span style="font-size:12px;opacity:.7;">Partage ton profil pour être suivi par plus de monde.</span></div>`;
+    return;
+  }
+  list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">Chargement...</div>';
+  try {
+    const { data: prs } = await window.supabase
+      .from('wozali_prestataires')
+      .select('id, user_id, nom_complet, metier_principal, quartier, photo_profil')
+      .in('user_id', viewerIds);
+    const pMap = {};
+    (prs || []).forEach(p => { pMap[p.user_id] = p; });
+    list.innerHTML = viewerIds.map(uid => {
+      const p = pMap[uid];
+      if (p) {
+        const nom = p.nom_complet || 'Membre WOZALI';
+        const ini = nom.charAt(0).toUpperCase();
+        const sub = [p.metier_principal, p.quartier].filter(Boolean).join(' · ');
+        return `<div onclick="goToStoryViewerProfil('${p.id}')" style="display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:12px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='none'">
+          <div style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:16px;">
+            ${p.photo_profil ? `<img src="${encodeURI(p.photo_profil)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : ini}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:700;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(nom)}</div>
+            ${sub ? `<div style="font-size:11px;color:rgba(252,224,168,0.4);">${escapeHtml(sub)}</div>` : ''}
+          </div>
+          <span style="color:rgba(232,148,10,0.6);font-size:16px;">›</span>
+        </div>`;
+      }
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 8px;opacity:.55;">
+        <div style="width:44px;height:44px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
+        <div style="font-size:14px;color:rgba(252,224,168,0.6);">Utilisateur WOZALI</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">Ça a calé. Réessaie dans 2 secondes.</div>`;
+  }
+}
+
+function goToStoryViewerProfil(prestataireId) {
+  closeStoryViewers();
+  closeStoryViewer();
+  showProfil(prestataireId);
+  showPage('profil');
+}
+
+function closeStoryViewers() {
+  const ov = document.getElementById('story-viewers-overlay');
+  if (ov) ov.style.display = 'none';
+  // Reprendre la story en cours là où on l'a laissée
+  if (window._currentStory) { _storyPaused = false; _renderCurrentStory(); }
+}
+
+// ── Pack Stories (étape 6) : répondre à la story → messagerie interne WOZALI ──
+// Décision fondateur : la réponse arrive dans l'Activité du prestataire,
+// jamais sur WhatsApp.
+function pauseStoryForReply() {
+  clearTimeout(_filStoryTimer);
+  _storyPaused = true;
+  const vid = document.querySelector('#fil-story-media video');
+  if (vid) vid.pause();
+}
+
+async function envoyerReponseStory() {
+  const s = window._currentStory;
+  if (!s || !currentUser) return;
+  const input = document.getElementById('fil-story-reply-input');
+  const contenu = (input?.value || '').trim();
+  if (!contenu) { toast('Écris ta réponse d\'abord', 'info'); return; }
+  if (contenu.length > 500) { toast('Réponse trop longue (max 500 caractères)', 'error'); return; }
+  try {
+    const { error } = await window.supabase.from('wozali_story_reponses').insert({
+      story_id:     s.id || null,
+      de_user_id:   currentUser.id,
+      vers_user_id: s.user_id,
+      contenu
+    });
+    if (error) throw error;
+    if (input) { input.value = ''; input.blur(); }
+    toast('Réponse envoyée 📨 Il la verra dans son Activité.', 'success');
+    _storyPaused = false;
+    _renderCurrentStory();
+  } catch(e) {
+    console.warn('[reponse story]', e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
   }
 }
 
