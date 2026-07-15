@@ -2375,6 +2375,7 @@ async function loadDashAvis() {
                 onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">🗑️</button>
             </div>
           </div>
+          ${f['Audio URL'] ? `<div style="margin-top:8px;">${wzVoicePlayer(f['Audio URL'], f['Audio Durée'])}</div>` : ''}
           ${comment ? `<p style="font-size:13px;color:var(--gris-fonce);line-height:1.6;margin-top:6px;margin-bottom:0;">${comment}</p>` : ''}
           ${note >= 4 ? `<button onclick="generateStory('${a.id}',${note},'${auteur.replace(/'/g,"\\'")}','${comment.replace(/'/g,"\\'").replace(/\n/g,' ')}')" style="margin-top:10px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">⭐ Générer ma Story</button>` : ''}
         </div>
@@ -8544,6 +8545,177 @@ async function showProfil(recordId) {
 let selectedStars = 0;
 let currentAvisPrestataire = null;
 
+// ══════════════════════════════════════════
+// VOCAUX — enregistreur + lecteur inline
+// Réutilisable : avis (ici), bio vocale et réalisations (étapes suivantes)
+// ══════════════════════════════════════════
+let _avisVocalRecorder = null;
+let _avisVocalChunks = [];
+let _avisVocalBlob = null;
+let _avisVocalDuree = 0;
+let _avisVocalTimer = null;
+let _avisVocalStream = null;
+const AVIS_VOCAL_MAX_SEC = 60;
+
+function _fmtVocalTime(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+}
+
+function _vocalMimeType() {
+  if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+  for (const c of candidates) { if (MediaRecorder.isTypeSupported(c)) return c; }
+  return '';
+}
+
+async function startAvisVocal() {
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+    toast('Ton téléphone ne permet pas d\'enregistrer la voix ici. Écris ton avis juste en dessous.', 'error');
+    return;
+  }
+  try {
+    _avisVocalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    toast('Le micro est bloqué. Autorise le micro dans ton navigateur, ou écris ton avis en dessous.', 'error');
+    return;
+  }
+  _avisVocalChunks = []; _avisVocalBlob = null; _avisVocalDuree = 0;
+  const mime = _vocalMimeType();
+  try {
+    _avisVocalRecorder = mime ? new MediaRecorder(_avisVocalStream, { mimeType: mime }) : new MediaRecorder(_avisVocalStream);
+  } catch (e) {
+    _avisVocalStream.getTracks().forEach(t => t.stop()); _avisVocalStream = null;
+    toast('L\'enregistrement n\'a pas pu démarrer. Écris ton avis en dessous.', 'error');
+    return;
+  }
+  _avisVocalRecorder.ondataavailable = (e) => { if (e.data && e.data.size) _avisVocalChunks.push(e.data); };
+  _avisVocalRecorder.onstop = () => {
+    _avisVocalBlob = new Blob(_avisVocalChunks, { type: (_avisVocalRecorder && _avisVocalRecorder.mimeType) || 'audio/webm' });
+    if (_avisVocalStream) { _avisVocalStream.getTracks().forEach(t => t.stop()); _avisVocalStream = null; }
+    _renderAvisVocalDone();
+  };
+  _avisVocalRecorder.start();
+  const t0 = Date.now();
+  const idle = document.getElementById('avis-vocal-idle');
+  const rec  = document.getElementById('avis-vocal-rec');
+  const done = document.getElementById('avis-vocal-done');
+  if (idle) idle.style.display = 'none';
+  if (done) done.style.display = 'none';
+  if (rec)  rec.style.display  = 'flex';
+  _avisVocalTimer = setInterval(() => {
+    const sec = Math.floor((Date.now() - t0) / 1000);
+    _avisVocalDuree = Math.min(sec, AVIS_VOCAL_MAX_SEC);
+    const el = document.getElementById('avis-vocal-timer');
+    if (el) el.textContent = _fmtVocalTime(_avisVocalDuree) + ' / 1:00';
+    if (sec >= AVIS_VOCAL_MAX_SEC) stopAvisVocal();
+  }, 250);
+}
+
+function stopAvisVocal() {
+  if (_avisVocalTimer) { clearInterval(_avisVocalTimer); _avisVocalTimer = null; }
+  if (_avisVocalRecorder && _avisVocalRecorder.state !== 'inactive') _avisVocalRecorder.stop();
+}
+
+function resetAvisVocal() {
+  if (_avisVocalTimer) { clearInterval(_avisVocalTimer); _avisVocalTimer = null; }
+  if (_avisVocalRecorder && _avisVocalRecorder.state !== 'inactive') {
+    _avisVocalRecorder.onstop = null; // pas de preview, on jette
+    _avisVocalRecorder.stop();
+  }
+  _avisVocalRecorder = null; _avisVocalBlob = null; _avisVocalChunks = []; _avisVocalDuree = 0;
+  if (_avisVocalStream) { _avisVocalStream.getTracks().forEach(t => t.stop()); _avisVocalStream = null; }
+  const player = document.getElementById('avis-vocal-player');
+  if (player) {
+    player.querySelectorAll('audio').forEach(a => { a.pause(); if (a.src.startsWith('blob:')) URL.revokeObjectURL(a.src); });
+    player.innerHTML = '';
+  }
+  const idle = document.getElementById('avis-vocal-idle');
+  const rec  = document.getElementById('avis-vocal-rec');
+  const done = document.getElementById('avis-vocal-done');
+  if (rec)  rec.style.display  = 'none';
+  if (done) done.style.display = 'none';
+  if (idle) idle.style.display = 'block';
+}
+
+function _renderAvisVocalDone() {
+  if (!_avisVocalBlob || !_avisVocalBlob.size || _avisVocalDuree < 2) {
+    resetAvisVocal();
+    toast('Le vocal est trop court. Appuie sur le micro et parle au moins 2 secondes.', 'error');
+    return;
+  }
+  const url = URL.createObjectURL(_avisVocalBlob);
+  const rec  = document.getElementById('avis-vocal-rec');
+  const done = document.getElementById('avis-vocal-done');
+  const player = document.getElementById('avis-vocal-player');
+  if (rec)  rec.style.display  = 'none';
+  if (done) done.style.display = 'flex';
+  if (player) player.innerHTML = wzVoicePlayer(url, _avisVocalDuree);
+}
+
+// Upload d'un blob audio vers le bucket wozali-vocaux → URL publique
+async function _uploadVocal(blob, dossier) {
+  const type = (blob.type || 'audio/webm').split(';')[0];
+  const ext = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : type.includes('mpeg') ? 'mp3' : 'webm';
+  const path = `${dossier}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supa.storage.from('wozali-vocaux').upload(path, blob, { contentType: type, cacheControl: '31536000' });
+  if (error) throw error;
+  return supa.storage.from('wozali-vocaux').getPublicUrl(path).data.publicUrl;
+}
+
+// Lecteur vocal inline (style WhatsApp) — HTML autonome, réutilisable partout
+function wzVoicePlayer(url, dureeSec) {
+  const id = 'wzvp-' + Math.random().toString(36).slice(2, 9);
+  return `
+    <div class="wz-voice-player" id="${id}" data-duree="${Number(dureeSec) || 0}">
+      <button type="button" class="wz-voice-play" onclick="wzVoiceToggle('${id}')" aria-label="Écouter le vocal">▶</button>
+      <div class="wz-voice-track" onclick="wzVoiceSeek(event,'${id}')"><div class="wz-voice-progress"></div></div>
+      <span class="wz-voice-time">${_fmtVocalTime(dureeSec)}</span>
+      <audio preload="none" src="${escapeHtml(url)}"></audio>
+    </div>`;
+}
+
+function wzVoiceToggle(id) {
+  const box = document.getElementById(id);
+  if (!box) return;
+  const audio = box.querySelector('audio');
+  const btn = box.querySelector('.wz-voice-play');
+  if (!audio._wzWired) {
+    audio._wzWired = true;
+    audio.addEventListener('play',  () => { btn.textContent = '❚❚'; });
+    audio.addEventListener('pause', () => { btn.textContent = '▶'; });
+    audio.addEventListener('ended', () => {
+      btn.textContent = '▶';
+      const p = box.querySelector('.wz-voice-progress'); if (p) p.style.width = '0%';
+      box.querySelector('.wz-voice-time').textContent = _fmtVocalTime(Number(box.dataset.duree) || 0);
+    });
+    audio.addEventListener('timeupdate', () => {
+      const d = (audio.duration && isFinite(audio.duration)) ? audio.duration : (Number(box.dataset.duree) || 0);
+      const p = box.querySelector('.wz-voice-progress');
+      if (d && p) p.style.width = Math.min(100, (audio.currentTime / d) * 100) + '%';
+      box.querySelector('.wz-voice-time').textContent = _fmtVocalTime(audio.currentTime);
+    });
+  }
+  if (audio.paused) {
+    // Un seul vocal joue à la fois
+    document.querySelectorAll('.wz-voice-player audio').forEach(a => { if (a !== audio && !a.paused) a.pause(); });
+    audio.play().catch(() => toast('Impossible de lire le vocal. Vérifie ta connexion et réessaie.', 'error'));
+  } else {
+    audio.pause();
+  }
+}
+
+function wzVoiceSeek(ev, id) {
+  const box = document.getElementById(id);
+  if (!box) return;
+  const audio = box.querySelector('audio');
+  const d = (audio.duration && isFinite(audio.duration)) ? audio.duration : (Number(box.dataset.duree) || 0);
+  if (!d) return;
+  const rect = ev.currentTarget.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+  try { audio.currentTime = Math.min(d - 0.1, ratio * d); } catch (e) { /* pas encore chargé */ }
+}
+
 async function fetchAvis(prestatairesId) {
   // Migration progressive : Supabase d'abord, fallback Airtable si quota épuisé
   if (window.supaAvis && prestatairesId) {
@@ -8597,6 +8769,7 @@ function renderAvis(record) {
               ${date ? `<span class="avis-date">${date}</span>` : ''}
             </div>
           </div>
+          ${f['Audio URL'] ? `<div style="margin-top:8px;">${wzVoicePlayer(f['Audio URL'], f['Audio Durée'])}</div>` : ''}
           ${comment ? `<p class="avis-text" style="margin-top:6px;">${escapeHtml(comment).replace(/\n/g,'<br>')}</p>` : ''}
         </div>
       </div>
@@ -8609,6 +8782,9 @@ function openModalAvis(prestatairesId, prestataireNom) {
   selectedStars = 0;
   setStars(0);
   document.getElementById('avis-comment').value = '';
+  resetAvisVocal();
+  const submitBtn = document.getElementById('avis-submit-btn');
+  if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Publier mon avis, c\'est gratuit'; }
 
   // Section auteur : profil WOZALI si connecté, champ texte sinon
   const section = document.getElementById('avis-auteur-section');
@@ -8646,6 +8822,7 @@ function openModalAvis(prestatairesId, prestataireNom) {
 
 function closeModal() {
   document.getElementById('modal-avis').classList.remove('active');
+  resetAvisVocal(); // coupe le micro si un enregistrement était en cours
 }
 
 function setStars(val) {
@@ -8657,8 +8834,15 @@ function setStars(val) {
 
 async function submitAvis() {
   const comment = document.getElementById('avis-comment').value.trim();
+  // Si l'enregistrement tourne encore, on le termine proprement d'abord
+  if (_avisVocalRecorder && _avisVocalRecorder.state === 'recording') {
+    stopAvisVocal();
+    toast('Ton vocal est prêt. Écoute-le, puis appuie à nouveau sur Publier.', 'info');
+    return;
+  }
+  const hasVocal = !!(_avisVocalBlob && _avisVocalBlob.size);
   if (!selectedStars || selectedStars < 1 || selectedStars > 5) { toast('Choisis une note de 1 à 5 étoiles', 'error'); return; }
-  if (comment.length < 10) { toast('Le commentaire doit faire au minimum 10 caractères', 'error'); return; }
+  if (!hasVocal && comment.length < 10) { toast('Enregistre un vocal avec le micro, ou écris au moins 10 caractères.', 'error'); return; }
   if (comment.length > 1000) { toast('Le commentaire ne doit pas dépasser 1000 caractères', 'error'); return; }
   if (!currentAvisPrestataire) { toast('Profil introuvable. Recharge la page et réessaie.', 'error'); return; }
 
@@ -8701,6 +8885,22 @@ async function submitAvis() {
     'Prestataire évalué': [currentAvisPrestataire],
   };
 
+  const submitBtn = document.getElementById('avis-submit-btn');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = hasVocal ? 'Envoi du vocal...' : 'Envoi...'; }
+  const _restoreBtn = () => { if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Publier mon avis, c\'est gratuit'; } };
+
+  // Upload du vocal AVANT l'insertion (bucket wozali-vocaux, dossier avis/)
+  let audioUrl = null;
+  if (hasVocal) {
+    try {
+      audioUrl = await _uploadVocal(_avisVocalBlob, 'avis');
+    } catch (e) {
+      _restoreBtn();
+      toast('L\'envoi du vocal a échoué. Vérifie ta connexion et réessaie.', 'error');
+      return;
+    }
+  }
+
   try {
     if (window.supaAvis) {
       // Supabase — chemin principal
@@ -8715,15 +8915,20 @@ async function submitAvis() {
         'Auteur User ID':     currentUser?.id || null,
         'Auteur WhatsApp':    auteurWhatsapp || null,
         'Auteur Photo':       auteurPhoto || '',
+        ...(audioUrl ? { 'Audio URL': audioUrl, 'Audio Durée': _avisVocalDuree || null } : {}),
       });
     } else {
+      _restoreBtn();
       toast('Les avis sont indisponibles pour l\'instant. Recharge la page et réessaie.', 'error'); return;
     }
+    _restoreBtn();
+    resetAvisVocal();
     closeModal();
     toast('Merci pour ton avis ! 🎉', 'success');
     // Recharger le profil pour afficher le nouvel avis
     if (currentAvisPrestataire) showProfil(currentAvisPrestataire);
   } catch (e) {
+    _restoreBtn();
     // 23505 = index unique : ce client a déjà noté ce prestataire ce mois-ci
     const msg = String(e?.message || e?.code || '');
     if (msg.includes('23505') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('uniq_avis')) {

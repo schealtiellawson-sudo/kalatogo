@@ -18,6 +18,8 @@
     'Note ponctualité':     'note_ponctualite',
     'Note communication':   'note_communication',
     'Commentaire':          'commentaire',
+    'Audio URL':            'audio_url',
+    'Audio Durée':          'audio_duree_sec',
     'Validé':               'validated',
     'Validated':            'validated',
     'Flagged':              'flagged',

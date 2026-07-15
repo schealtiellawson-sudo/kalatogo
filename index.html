@@ -61,7 +61,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260715m">
+<link rel="stylesheet" href="/style.css?v=20260715n">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,7 +90,7 @@
 <script src="components/supa-prest.js?v=20260710e" defer></script>
 <script src="components/supa-offres.js" defer></script>
 <script src="components/supa-candidatures.js" defer></script>
-<script src="components/supa-avis.js" defer></script>
+<script src="components/supa-avis.js?v=20260715n" defer></script>
 <script src="components/supa-rdv.js" defer></script>
 <script src="components/metier-statuts-config.js" defer></script>
 </head>
@@ -337,12 +337,30 @@ setTimeout(function(){
     </div>
 
     <div class="form-group">
-      <label>Décris ce qu'il a fait. Comment c'était. Si tu recommanderais — dis pourquoi.</label>
+      <label>Dis ton avis avec ta voix 🎤 <span style="font-weight:400;color:var(--gris);">(1 minute max)</span></label>
+      <div id="avis-vocal-idle">
+        <button type="button" class="wz-voice-record-btn" onclick="startAvisVocal()">
+          <span class="wz-voice-record-mic">🎤</span> Appuie et parle
+        </button>
+      </div>
+      <div id="avis-vocal-rec" class="wz-voice-recording" style="display:none;">
+        <span class="wz-rec-dot"></span>
+        <span id="avis-vocal-timer" class="wz-voice-time">0:00 / 1:00</span>
+        <button type="button" class="wz-voice-stop-btn" onclick="stopAvisVocal()">■ Terminer</button>
+      </div>
+      <div id="avis-vocal-done" style="display:none;">
+        <div id="avis-vocal-player"></div>
+        <button type="button" class="wz-voice-redo-btn" onclick="resetAvisVocal()">🗑 Refaire</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Ou écris-le. Ce qu'il a fait, comment c'était, si tu le recommandes.</label>
       <textarea id="avis-comment" placeholder="Les vrais avis aident les vrais artisans."></textarea>
     </div>
 
-    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitAvis()">
-      Publier mon avis — c'est gratuit
+    <button class="btn btn-primary" id="avis-submit-btn" style="width:100%;justify-content:center;" onclick="submitAvis()">
+      Publier mon avis, c'est gratuit
     </button>
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:8px;line-height:1.5;">Ton avis est lu par tous les visiteurs de WOZALI<br>à Cotonou et à Lomé.</p>
   </div>
@@ -6283,7 +6301,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715l" defer></script>
+<script src="/app.js?v=20260715n" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
