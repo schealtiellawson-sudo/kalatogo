@@ -598,6 +598,7 @@ function showDashSection(section) {
   if (section === 'recompenses') loadRecompensesWidgets();
     if (section === 'parrainage') loadParrainage();
   if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
+  if (section === 'support-admin') loadSupportAdmin();
   if (section === 'favoris') loadFavoris();
   if (section === 'abonnements') loadAbonnements();
   if (section === 'fil') loadFil();
@@ -11489,6 +11490,8 @@ async function checkAdminForDashboard() {
   } catch (e) { console.warn('[admin-dash] admin-verify inaccessible :', e?.message); }
   // Vérifier si l'utilisateur est un agent terrain actif (+ responsable)
   try { await checkAgentTerrainForDashboard(session); } catch (e) { console.error('[agent-dash]', e); }
+  // Vérifier si l'utilisateur est un agent du support (assistance WOZALI)
+  try { await checkSupportAgentForDashboard(); } catch (e) { console.error('[support-dash]', e); }
   // Vérifier si l'utilisateur est un ambassadeur validé
   try { await checkAmbassadeurForDashboard(session); } catch (e) { console.error('[ambs-dash]', e); }
 }
@@ -18234,3 +18237,453 @@ async function modererTemoignageAbus(id, statutAction) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleHeroBraises);
   else scheduleHeroBraises();
 })();
+
+
+// ══════════════════════════════════════════════════════════════════
+// ASSISTANCE WOZALI (étape 7) — service interne, jamais WhatsApp.
+// Client : bouton "Besoin d'aide ?" partout → demande écrite ou rappel.
+// Équipe : centre d'assistance (file, attribution, réponses, statuts).
+// Fondateur : volumes, sujets, performance et notes clients par agent.
+// ══════════════════════════════════════════════════════════════════
+
+const SUPPORT_SUJETS = {
+  compte:      'Mon compte / Connexion',
+  paiement:    'Paiement & abonnement',
+  profil:      'Mon profil',
+  emploi:      'Emploi & candidatures',
+  technique:   'Problème technique',
+  signalement: 'Signaler quelqu\'un',
+  autre:       'Autre'
+};
+const SUPPORT_STATUTS = {
+  nouvelle: { lbl: 'Nouvelle',   c: '#ef4444' },
+  assignee: { lbl: 'Assignée',   c: '#F5B82E' },
+  en_cours: { lbl: 'En cours',   c: '#E8940A' },
+  traitee:  { lbl: 'Traitée',    c: '#4ade80' },
+  fermee:   { lbl: 'Fermée',     c: '#9ca3af' }
+};
+let _aideType = 'ecrit';
+let _supportEstAdmin = false;
+let _supportFiltre = 'actives';
+
+// ── CLIENT : bouton + modal ─────────────────────────────────────────
+function openAideModal() {
+  if (!currentUser) { localStorage.setItem('wozali_pending_page','dashboard'); toast('Connecte-toi pour contacter l\'assistance', 'info'); showPage('login'); return; }
+  const ov = document.getElementById('aide-overlay');
+  if (ov) ov.style.display = 'flex';
+  switchAideTab('nouvelle');
+  _refreshAideSuiviCount();
+}
+
+function closeAideModal() {
+  const ov = document.getElementById('aide-overlay');
+  if (ov) ov.style.display = 'none';
+}
+
+function switchAideTab(tab) {
+  const isNew = tab === 'nouvelle';
+  document.getElementById('aide-pane-nouvelle').style.display = isNew ? 'block' : 'none';
+  document.getElementById('aide-pane-suivi').style.display = isNew ? 'none' : 'block';
+  const tNew = document.getElementById('aide-tab-nouvelle');
+  const tSuivi = document.getElementById('aide-tab-suivi');
+  tNew.style.background = isNew ? '#E8940A' : 'rgba(255,255,255,0.05)';
+  tNew.style.color = isNew ? '#14100A' : 'rgba(252,224,168,0.6)';
+  tSuivi.style.background = isNew ? 'rgba(255,255,255,0.05)' : '#E8940A';
+  tSuivi.style.color = isNew ? 'rgba(252,224,168,0.6)' : '#14100A';
+  if (!isNew) loadMesDemandesAide();
+}
+
+function setAideType(type) {
+  _aideType = type;
+  const ecrit = document.getElementById('aide-type-ecrit');
+  const rappel = document.getElementById('aide-type-rappel');
+  const on  = 'background:rgba(232,148,10,0.15);border:1.5px solid #E8940A;color:#E8940A;';
+  const off = 'background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);color:rgba(252,224,168,0.6);';
+  const base = 'flex:1;border-radius:12px;padding:12px 8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;';
+  if (ecrit)  ecrit.style.cssText  = base + (type === 'ecrit'  ? on : off);
+  if (rappel) rappel.style.cssText = base + (type === 'rappel' ? on : off);
+  const telWrap = document.getElementById('aide-tel-wrap');
+  if (telWrap) telWrap.style.display = type === 'rappel' ? 'block' : 'none';
+  if (type === 'rappel') {
+    const tel = document.getElementById('aide-tel');
+    if (tel && !tel.value) tel.value = currentPrestataire?.fields?.['Numéro de téléphone'] || currentPrestataire?.fields?.['WhatsApp'] || '';
+  }
+}
+
+async function submitDemandeAide() {
+  if (!currentUser) { showPage('login'); return; }
+  const sujet = document.getElementById('aide-sujet')?.value || 'autre';
+  const message = (document.getElementById('aide-message')?.value || '').trim();
+  const tel = (document.getElementById('aide-tel')?.value || '').trim();
+  if (message.length < 3) { toast('Explique ton problème en quelques mots', 'error'); return; }
+  if (_aideType === 'rappel' && tel.replace(/\D/g,'').length < 8) { toast('Entre ton numéro pour le rappel', 'error'); return; }
+  const btn = document.getElementById('aide-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi...'; }
+  try {
+    const { error } = await window.supabase.from('wozali_support_demandes').insert({
+      user_id: currentUser.id,
+      sujet,
+      type: _aideType,
+      message,
+      telephone: _aideType === 'rappel' ? tel : null
+    });
+    if (error) throw error;
+    document.getElementById('aide-message').value = '';
+    toast(_aideType === 'rappel' ? 'Demande envoyée 📞 L\'équipe te rappelle vite.' : 'Demande envoyée 🎧 L\'équipe te répond ici.', 'success');
+    switchAideTab('suivi');
+  } catch(e) {
+    console.warn('[aide submit]', e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ma demande'; }
+}
+
+async function loadMesDemandesAide() {
+  const pane = document.getElementById('aide-pane-suivi');
+  if (!pane || !currentUser) return;
+  pane.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">Chargement...</div>';
+  try {
+    const supa = window.supabase;
+    const { data: demandes } = await supa.from('wozali_support_demandes').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(30);
+    if (!demandes || !demandes.length) {
+      pane.innerHTML = '<div style="text-align:center;padding:36px 16px;color:rgba(252,224,168,0.4);font-size:14px;"><div style="font-size:34px;margin-bottom:10px;">🎧</div>Aucune demande pour l\'instant.</div>';
+      return;
+    }
+    const ids = demandes.map(d => d.id);
+    const [{ data: msgs }, { data: notes }] = await Promise.all([
+      supa.from('wozali_support_messages').select('*').in('demande_id', ids).order('created_at', { ascending: true }),
+      supa.from('wozali_support_notes').select('demande_id, note').in('demande_id', ids)
+    ]);
+    const msgsBy = {}; (msgs||[]).forEach(m => { (msgsBy[m.demande_id] = msgsBy[m.demande_id] || []).push(m); });
+    const notesBy = {}; (notes||[]).forEach(n => { notesBy[n.demande_id] = n.note; });
+    pane.innerHTML = demandes.map(d => {
+      const st = SUPPORT_STATUTS[d.statut] || SUPPORT_STATUTS.nouvelle;
+      const fil = (msgsBy[d.id] || []).map(m => `
+        <div style="display:flex;justify-content:${m.role === 'client' ? 'flex-end' : 'flex-start'};margin:5px 0;">
+          <div style="max-width:82%;background:${m.role === 'client' ? 'rgba(232,148,10,0.16)' : 'rgba(255,255,255,0.06)'};border-radius:${m.role === 'client' ? '12px 12px 4px 12px' : '12px 12px 12px 4px'};padding:8px 12px;font-size:13px;color:#FCE0A8;line-height:1.5;">${escapeHtml(m.contenu)}<div style="font-size:9px;color:rgba(252,224,168,0.35);margin-top:3px;">${m.role === 'agent' ? '🎧 Assistance · ' : ''}${_relativeTime(m.created_at)}</div></div>
+        </div>`).join('');
+      const peutNoter = (d.statut === 'traitee' || d.statut === 'fermee') && !notesBy[d.id];
+      const noteBloc = peutNoter ? `
+        <div style="background:rgba(232,148,10,0.07);border:1px solid rgba(232,148,10,0.2);border-radius:10px;padding:10px 12px;margin-top:8px;">
+          <div style="font-size:12px;font-weight:700;color:#E8940A;margin-bottom:6px;">Ta demande est traitée. Note la réponse de l'équipe :</div>
+          <div style="display:flex;gap:6px;">${[1,2,3,4,5].map(n => `<button onclick="noterDemandeAide('${d.id}', ${n})" style="background:none;border:none;font-size:22px;cursor:pointer;padding:2px;">⭐</button>`).join('')}</div>
+        </div>` : (notesBy[d.id] ? `<div style="font-size:11px;color:rgba(252,224,168,0.45);margin-top:8px;">Ta note : ${'⭐'.repeat(notesBy[d.id])}</div>` : '');
+      const repondre = (d.statut !== 'fermee') ? `
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <input id="aide-rep-${d.id}" placeholder="Répondre..." maxlength="2000" onkeydown="if(event.key==='Enter')envoyerMessageAide('${d.id}')" style="flex:1;background:#14100A;border:1px solid rgba(232,148,10,0.2);color:#FCE0A8;border-radius:100px;padding:9px 14px;font-size:13px;font-family:inherit;outline:none;">
+          <button onclick="envoyerMessageAide('${d.id}')" style="width:38px;height:38px;border-radius:50%;background:#E8940A;border:none;color:#14100A;font-weight:900;cursor:pointer;">➤</button>
+        </div>` : '';
+      return `
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+          <div style="font-size:13px;font-weight:800;color:#FCE0A8;">${d.type === 'rappel' ? '📞' : '✉️'} ${SUPPORT_SUJETS[d.sujet] || d.sujet}</div>
+          <span style="font-size:10px;font-weight:800;color:${st.c};border:1px solid ${st.c}44;border-radius:100px;padding:2px 9px;">${st.lbl}</span>
+        </div>
+        <div style="font-size:12px;color:rgba(252,224,168,0.6);line-height:1.5;margin-bottom:6px;">${escapeHtml(d.message)}</div>
+        <div style="font-size:10px;color:rgba(252,224,168,0.3);">${_relativeTime(d.created_at)}</div>
+        ${fil}
+        ${repondre}
+        ${noteBloc}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.warn('[mes demandes aide]', e);
+    pane.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,0.4);font-size:13px;">Ça a calé. Réessaie dans 2 secondes.</div>';
+  }
+}
+
+async function envoyerMessageAide(demandeId) {
+  const input = document.getElementById('aide-rep-' + demandeId);
+  const contenu = (input?.value || '').trim();
+  if (!contenu) return;
+  try {
+    const { error } = await window.supabase.from('wozali_support_messages').insert({
+      demande_id: demandeId, de_user_id: currentUser.id, role: 'client', contenu
+    });
+    if (error) throw error;
+    loadMesDemandesAide();
+  } catch(e) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
+}
+
+async function noterDemandeAide(demandeId, note) {
+  const commentaire = prompt('Un mot sur la réponse reçue ? (facultatif)') || null;
+  try {
+    const { error } = await window.supabase.from('wozali_support_notes').insert({
+      demande_id: demandeId, user_id: currentUser.id, note, commentaire
+    });
+    if (error) throw error;
+    toast('Merci pour ta note ' + '⭐'.repeat(note), 'success');
+    loadMesDemandesAide();
+  } catch(e) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
+}
+
+async function _refreshAideSuiviCount() {
+  try {
+    const { count } = await window.supabase.from('wozali_support_demandes').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+    const el = document.getElementById('aide-suivi-count');
+    if (el) { el.textContent = count || 0; el.style.display = count ? 'inline-block' : 'none'; }
+  } catch(e) {}
+}
+
+// ── ÉQUIPE / FONDATEUR : centre d'assistance ────────────────────────
+async function checkSupportAgentForDashboard() {
+  if (!currentUser) return;
+  try {
+    const { data } = await window.supabase.from('wozali_support_agents').select('id, role').eq('user_id', currentUser.id).eq('actif', true).maybeSingle();
+    if (data) {
+      _supportEstAdmin = data.role === 'admin';
+      const g = document.getElementById('dash-support-group');
+      if (g) g.style.display = 'block';
+      // Badge : demandes non traitées
+      const { count } = await window.supabase.from('wozali_support_demandes').select('*', { count: 'exact', head: true }).in('statut', ['nouvelle','assignee','en_cours']);
+      const b = document.getElementById('support-badge');
+      if (b) { b.textContent = count || 0; b.style.display = count ? 'inline-block' : 'none'; }
+    }
+  } catch(e) {}
+}
+
+async function loadSupportAdmin() {
+  const kpis = document.getElementById('support-kpis');
+  if (!kpis) return;
+  kpis.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:rgba(252,224,168,0.4);font-size:13px;">Chargement...</div>';
+  try {
+    const supa = window.supabase;
+    const [{ data: demandes }, { data: agents }, { data: notes }] = await Promise.all([
+      supa.from('wozali_support_demandes').select('*').order('created_at', { ascending: false }).limit(500),
+      supa.from('wozali_support_agents').select('*').order('created_at'),
+      supa.from('wozali_support_notes').select('*')
+    ]);
+    window._supportDemandes = demandes || [];
+    window._supportAgents = agents || [];
+    window._supportNotes = notes || [];
+
+    // Profils des demandeurs
+    const userIds = [...new Set((demandes||[]).map(d => d.user_id))];
+    let uMap = {};
+    if (userIds.length) {
+      const { data: prs } = await supa.from('wozali_prestataires').select('id, user_id, nom_complet, metier_principal, numero_telephone, whatsapp').in('user_id', userIds);
+      (prs||[]).forEach(p => { uMap[p.user_id] = p; });
+    }
+    window._supportUsers = uMap;
+
+    _renderSupportKpis();
+    _renderSupportSujets();
+    _renderSupportFiltres();
+    _renderSupportListe();
+    _renderSupportEquipe();
+    _renderSupportPerf();
+  } catch(e) {
+    console.warn('[support admin]', e);
+    kpis.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#ef4444;font-size:13px;">Erreur de chargement (la migration assistance est-elle appliquée ?)</div>';
+  }
+}
+
+function _renderSupportKpis() {
+  const d = window._supportDemandes, notes = window._supportNotes;
+  const nouvelles = d.filter(x => x.statut === 'nouvelle').length;
+  const enCours = d.filter(x => x.statut === 'assignee' || x.statut === 'en_cours').length;
+  const traitees = d.filter(x => x.statut === 'traitee' || x.statut === 'fermee').length;
+  const moy = notes.length ? (notes.reduce((s,n) => s + n.note, 0) / notes.length).toFixed(1) : '—';
+  const tile = (val, lbl, color) => `<div style="background:#161616;border-radius:12px;padding:14px 12px;border-top:3px solid ${color};"><div style="font-size:24px;font-weight:700;color:#FFFFFF;font-family:'DM Serif Display',serif;">${val}</div><div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);margin-top:4px;">${lbl}</div></div>`;
+  document.getElementById('support-kpis').innerHTML =
+    tile(d.length, 'Demandes au total', '#E8940A') +
+    tile(nouvelles, 'Nouvelles', '#ef4444') +
+    tile(enCours, 'En cours', '#F5B82E') +
+    tile(traitees, 'Traitées', '#4ade80') +
+    tile(moy + (moy !== '—' ? ' ★' : ''), 'Note moyenne équipe', '#FCD34D');
+}
+
+function _renderSupportSujets() {
+  const d = window._supportDemandes;
+  const host = document.getElementById('support-sujets');
+  if (!d.length) { host.innerHTML = '<div style="font-size:12px;color:rgba(252,224,168,0.4);">Les sujets des demandes apparaîtront ici.</div>'; return; }
+  const counts = {};
+  d.forEach(x => { counts[x.sujet] = (counts[x.sujet] || 0) + 1; });
+  const max = Math.max(...Object.values(counts));
+  host.innerHTML = '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Demandes par sujet</div>' +
+    Object.entries(counts).sort((a,b) => b[1]-a[1]).map(([sujet, n]) => `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <div style="width:170px;font-size:12px;color:rgba(252,224,168,0.7);flex-shrink:0;">${SUPPORT_SUJETS[sujet] || sujet}</div>
+        <div style="flex:1;height:8px;background:#202020;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${Math.round(n/max*100)}%;background:#E8940A;border-radius:4px;"></div></div>
+        <div style="width:28px;font-size:12px;font-weight:700;color:#E8940A;text-align:right;">${n}</div>
+      </div>`).join('');
+}
+
+function _renderSupportFiltres() {
+  const host = document.getElementById('support-filtres');
+  const filtres = [['actives','À traiter'],['nouvelle','Nouvelles'],['en_cours','En cours'],['traitee','Traitées'],['toutes','Toutes']];
+  host.innerHTML = filtres.map(([k, lbl]) => `
+    <button onclick="_supportFiltre='${k}';_renderSupportListe();_renderSupportFiltres();" style="background:${_supportFiltre === k ? '#E8940A' : 'rgba(255,255,255,0.05)'};color:${_supportFiltre === k ? '#14100A' : 'rgba(252,224,168,0.6)'};border:none;border-radius:100px;padding:7px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;">${lbl}</button>`).join('');
+}
+
+function _supportDemandesFiltrees() {
+  const d = window._supportDemandes;
+  if (_supportFiltre === 'toutes') return d;
+  if (_supportFiltre === 'actives') return d.filter(x => x.statut !== 'traitee' && x.statut !== 'fermee');
+  if (_supportFiltre === 'en_cours') return d.filter(x => x.statut === 'assignee' || x.statut === 'en_cours');
+  if (_supportFiltre === 'traitee') return d.filter(x => x.statut === 'traitee' || x.statut === 'fermee');
+  return d.filter(x => x.statut === _supportFiltre);
+}
+
+function _renderSupportListe() {
+  const host = document.getElementById('support-liste');
+  const list = _supportDemandesFiltrees();
+  if (!list.length) { host.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(252,224,168,0.35);font-size:13px;">Aucune demande dans ce filtre. 🎉</div>'; return; }
+  const agents = window._supportAgents.filter(a => a.actif);
+  host.innerHTML = list.map(d => {
+    const u = window._supportUsers[d.user_id] || {};
+    const st = SUPPORT_STATUTS[d.statut] || SUPPORT_STATUTS.nouvelle;
+    const note = window._supportNotes.find(n => n.demande_id === d.id);
+    const agentOptions = ['<option value="">Non assignée</option>'].concat(agents.map(a => `<option value="${a.id}" ${d.agent_id === a.id ? 'selected' : ''}>${escapeHtml(a.nom)}</option>`)).join('');
+    return `
+    <div style="background:#161616;border-radius:14px;padding:14px;border-left:3px solid ${st.c};">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:800;color:#FCE0A8;">
+          ${d.type === 'rappel' ? '📞' : '✉️'} ${escapeHtml(u.nom_complet || 'Membre WOZALI')}
+          <span style="font-weight:500;color:rgba(252,224,168,0.4);font-size:11px;">· ${SUPPORT_SUJETS[d.sujet] || d.sujet} · ${_relativeTime(d.created_at)}</span>
+        </div>
+        <span style="font-size:10px;font-weight:800;color:${st.c};border:1px solid ${st.c}44;border-radius:100px;padding:2px 9px;">${st.lbl}</span>
+      </div>
+      ${d.type === 'rappel' && d.telephone ? `<div style="font-size:12px;color:#E8940A;font-weight:700;margin-bottom:4px;">📞 Rappeler au : ${escapeHtml(d.telephone)}</div>` : ''}
+      <div style="font-size:13px;color:rgba(252,224,168,0.75);line-height:1.55;margin-bottom:10px;">${escapeHtml(d.message)}</div>
+      ${note ? `<div style="font-size:11px;color:#FCD34D;margin-bottom:8px;">Note client : ${'⭐'.repeat(note.note)}${note.commentaire ? ' · « ' + escapeHtml(note.commentaire) + ' »' : ''}</div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <select onchange="assignerDemandeSupport('${d.id}', this.value)" style="background:#14100A;border:1px solid rgba(232,148,10,0.25);color:#FCE0A8;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;">${agentOptions}</select>
+        <button onclick="ouvrirDemandeSupport('${d.id}')" style="background:rgba(232,148,10,0.12);color:#E8940A;border:1px solid rgba(232,148,10,0.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">💬 Répondre</button>
+        ${d.statut !== 'traitee' && d.statut !== 'fermee' ? `<button onclick="setStatutDemandeSupport('${d.id}','traitee')" style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✓ Marquer traitée</button>` : ''}
+      </div>
+      <div id="support-detail-${d.id}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;"></div>
+    </div>`;
+  }).join('');
+}
+
+async function ouvrirDemandeSupport(demandeId) {
+  const det = document.getElementById('support-detail-' + demandeId);
+  if (!det) return;
+  if (det.style.display === 'block') { det.style.display = 'none'; return; }
+  det.style.display = 'block';
+  det.innerHTML = '<div style="font-size:12px;color:rgba(252,224,168,0.4);">Chargement du fil...</div>';
+  try {
+    const { data: msgs } = await window.supabase.from('wozali_support_messages').select('*').eq('demande_id', demandeId).order('created_at', { ascending: true });
+    det.innerHTML = (msgs||[]).map(m => `
+      <div style="display:flex;justify-content:${m.role === 'agent' ? 'flex-end' : 'flex-start'};margin:5px 0;">
+        <div style="max-width:82%;background:${m.role === 'agent' ? 'rgba(232,148,10,0.16)' : 'rgba(255,255,255,0.06)'};border-radius:12px;padding:8px 12px;font-size:13px;color:#FCE0A8;line-height:1.5;">${escapeHtml(m.contenu)}<div style="font-size:9px;color:rgba(252,224,168,0.35);margin-top:3px;">${m.role === 'agent' ? '🎧 Équipe' : 'Client'} · ${_relativeTime(m.created_at)}</div></div>
+      </div>`).join('') + `
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <input id="support-rep-${demandeId}" placeholder="Répondre au client..." maxlength="2000" onkeydown="if(event.key==='Enter')repondreDemandeSupport('${demandeId}')" style="flex:1;background:#14100A;border:1px solid rgba(232,148,10,0.25);color:#FCE0A8;border-radius:100px;padding:9px 14px;font-size:13px;font-family:inherit;outline:none;">
+        <button onclick="repondreDemandeSupport('${demandeId}')" style="width:38px;height:38px;border-radius:50%;background:#E8940A;border:none;color:#14100A;font-weight:900;cursor:pointer;">➤</button>
+      </div>`;
+  } catch(e) { det.innerHTML = '<div style="font-size:12px;color:#ef4444;">Erreur de chargement.</div>'; }
+}
+
+async function repondreDemandeSupport(demandeId) {
+  const input = document.getElementById('support-rep-' + demandeId);
+  const contenu = (input?.value || '').trim();
+  if (!contenu) return;
+  try {
+    const supa = window.supabase;
+    const { error } = await supa.from('wozali_support_messages').insert({
+      demande_id: demandeId, de_user_id: currentUser.id, role: 'agent', contenu
+    });
+    if (error) throw error;
+    // Une demande à laquelle on répond passe en cours
+    const d = window._supportDemandes.find(x => x.id === demandeId);
+    if (d && (d.statut === 'nouvelle' || d.statut === 'assignee')) {
+      await supa.from('wozali_support_demandes').update({ statut: 'en_cours' }).eq('id', demandeId);
+      d.statut = 'en_cours';
+    }
+    input.value = '';
+    const det = document.getElementById('support-detail-' + demandeId);
+    if (det) det.style.display = 'none';
+    ouvrirDemandeSupport(demandeId); // recharge le fil
+    toast('Réponse envoyée au client 🎧', 'success');
+  } catch(e) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
+}
+
+async function assignerDemandeSupport(demandeId, agentId) {
+  try {
+    const patch = agentId ? { agent_id: agentId, statut: 'assignee' } : { agent_id: null };
+    const { error } = await window.supabase.from('wozali_support_demandes').update(patch).eq('id', demandeId);
+    if (error) throw error;
+    const d = window._supportDemandes.find(x => x.id === demandeId);
+    if (d) { d.agent_id = agentId || null; if (agentId && d.statut === 'nouvelle') d.statut = 'assignee'; }
+    _renderSupportKpis(); _renderSupportListe();
+    toast(agentId ? 'Demande assignée ✓' : 'Assignation retirée', 'success');
+  } catch(e) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
+}
+
+async function setStatutDemandeSupport(demandeId, statut) {
+  try {
+    const patch = { statut };
+    if (statut === 'traitee') patch.traitee_at = new Date().toISOString();
+    const { error } = await window.supabase.from('wozali_support_demandes').update(patch).eq('id', demandeId);
+    if (error) throw error;
+    const d = window._supportDemandes.find(x => x.id === demandeId);
+    if (d) { d.statut = statut; d.traitee_at = patch.traitee_at || d.traitee_at; }
+    _renderSupportKpis(); _renderSupportListe();
+    toast('Demande marquée traitée ✓ Le client peut noter la réponse.', 'success');
+  } catch(e) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
+}
+
+function _renderSupportEquipe() {
+  const host = document.getElementById('support-equipe');
+  const ajout = document.getElementById('support-ajout-agent');
+  if (ajout) ajout.style.display = _supportEstAdmin ? 'flex' : 'none';
+  const agents = window._supportAgents;
+  if (!agents.length) { host.innerHTML = '<div style="font-size:12px;color:rgba(252,224,168,0.4);">Aucune assistante pour l\'instant. Le socle est prêt : ajoute-les dès le recrutement.</div>'; return; }
+  host.innerHTML = agents.map(a => `
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.03);border-radius:10px;padding:10px 14px;">
+      <div style="width:34px;height:34px;border-radius:50%;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;">${escapeHtml((a.nom||'?').charAt(0).toUpperCase())}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;color:#FCE0A8;">${escapeHtml(a.nom)} ${a.role === 'admin' ? '<span style="font-size:9px;color:#E8940A;border:1px solid rgba(232,148,10,0.4);border-radius:4px;padding:1px 5px;margin-left:4px;">ADMIN</span>' : ''}</div>
+        <div style="font-size:11px;color:${a.actif ? '#4ade80' : '#9ca3af'};">${a.actif ? '● Active' : '○ Désactivée'}</div>
+      </div>
+      ${_supportEstAdmin && a.role !== 'admin' ? `<button onclick="toggleAgentSupport('${a.id}', ${!a.actif})" style="background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(252,224,168,0.6);border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;font-family:inherit;">${a.actif ? 'Désactiver' : 'Réactiver'}</button>` : ''}
+    </div>`).join('');
+}
+
+async function ajouterAgentSupport() {
+  const email = (document.getElementById('support-new-agent-email')?.value || '').trim().toLowerCase();
+  if (!email || !email.includes('@')) { toast('Entre l\'email du compte WOZALI de l\'assistante', 'error'); return; }
+  try {
+    const supa = window.supabase;
+    const { data: pr } = await supa.from('wozali_prestataires').select('user_id, nom_complet').ilike('email', email).maybeSingle();
+    if (!pr || !pr.user_id) { toast('Aucun compte WOZALI avec cet email. Elle doit d\'abord s\'inscrire.', 'error'); return; }
+    const { error } = await supa.from('wozali_support_agents').insert({ user_id: pr.user_id, nom: pr.nom_complet || email, role: 'agent', actif: true });
+    if (error) throw error;
+    document.getElementById('support-new-agent-email').value = '';
+    toast(pr.nom_complet + ' rejoint l\'équipe d\'assistance 🎧', 'success');
+    loadSupportAdmin();
+  } catch(e) {
+    console.warn('[ajout agent]', e);
+    toast(String(e?.message || '').includes('duplicate') ? 'Cette personne est déjà dans l\'équipe.' : 'Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+
+async function toggleAgentSupport(agentId, actif) {
+  try {
+    const { error } = await window.supabase.from('wozali_support_agents').update({ actif }).eq('id', agentId);
+    if (error) throw error;
+    loadSupportAdmin();
+  } catch(e) { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); }
+}
+
+function _renderSupportPerf() {
+  const host = document.getElementById('support-perf');
+  const agents = window._supportAgents.filter(a => a.role !== 'admin');
+  if (!agents.length) { host.innerHTML = ''; return; }
+  const d = window._supportDemandes, notes = window._supportNotes;
+  host.innerHTML = '<h3 style="font-family:\'DM Serif Display\',serif;font-size:17px;font-weight:800;color:#FCE0A8;margin-bottom:12px;">📊 Performance de l\'équipe</h3>' +
+    agents.map(a => {
+      const mesDemandes = d.filter(x => x.agent_id === a.id);
+      const traitees = mesDemandes.filter(x => x.statut === 'traitee' || x.statut === 'fermee');
+      const mesNotes = notes.filter(n => traitees.some(t => t.id === n.demande_id));
+      const moy = mesNotes.length ? (mesNotes.reduce((s,n) => s + n.note, 0) / mesNotes.length).toFixed(1) : '—';
+      return `<div style="display:flex;align-items:center;gap:12px;background:#161616;border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+        <div style="flex:1;font-size:13px;font-weight:700;color:#FCE0A8;">${escapeHtml(a.nom)}</div>
+        <div style="font-size:12px;color:rgba(252,224,168,0.6);">${mesDemandes.length} assignées</div>
+        <div style="font-size:12px;color:#4ade80;">${traitees.length} traitées</div>
+        <div style="font-size:12px;font-weight:800;color:#FCD34D;">${moy} ★ <span style="font-weight:500;color:rgba(252,224,168,0.4);">(${mesNotes.length} note${mesNotes.length > 1 ? 's' : ''})</span></div>
+      </div>`;
+    }).join('');
+}
