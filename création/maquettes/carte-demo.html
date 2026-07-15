@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WOZALI · Démo carte (profils fictifs)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root { --night-1:#14100A; --night-2:#1E180E; --cream:#FCE0A8; --or:#E8940A; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--night-1); color: var(--cream); font-family: 'Geist', sans-serif; padding: 30px 20px 60px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  .eyebrow { font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--or); margin-bottom:10px; }
+  h1 { font-family:'DM Serif Display',serif; font-size:32px; font-weight:400; color:var(--cream); margin-bottom:10px; }
+  .lede { font-size:14px; line-height:1.7; color:rgba(252,224,168,0.6); max-width:760px; margin-bottom:8px; }
+  .warn { display:inline-block; font-family:'Geist Mono',monospace; font-size:11px; color:#fca5a5; border:1px solid rgba(248,113,113,0.4); background:rgba(248,113,113,0.08); padding:6px 12px; border-radius:100px; margin:14px 0 24px; }
+
+  .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .tb {
+    border:1px solid rgba(232,148,10,0.4); background:rgba(232,148,10,0.08); color:var(--or);
+    border-radius:100px; padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Geist',sans-serif;
+  }
+  .tb:hover { background:rgba(232,148,10,0.2); }
+
+  #demo-map { background:#EFE9DC; height: 620px; border-radius:16px; overflow:hidden; border:1px solid rgba(232,148,10,0.25); }
+
+  /* Bouton me localiser — identique au site */
+  .wz-locate-btn {
+    width:40px; height:40px; border-radius:10px; cursor:pointer;
+    background:#fff; border:1px solid rgba(0,0,0,0.18); color:#14100A;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 6px rgba(0,0,0,0.2); margin-bottom:8px;
+  }
+  .wz-locate-btn:hover { background:#E8940A; color:#fff; border-color:#E8940A; }
+
+  .leaflet-popup-content-wrapper { border-radius:12px; }
+  .leaflet-popup-content { margin:14px 20px; }
+
+  .notes { margin-top:28px; border-top:1px solid rgba(232,148,10,0.2); padding-top:24px; }
+  .notes h2 { font-family:'DM Serif Display',serif; font-size:20px; color:var(--cream); margin-bottom:14px; }
+  .note { background:var(--night-2); border-left:2px solid var(--or); border-radius:0 8px 8px 0; padding:13px 16px; margin-bottom:10px; }
+  .note-t { font-size:13px; font-weight:700; color:var(--or); margin-bottom:4px; }
+  .note-b { font-size:13px; line-height:1.7; color:rgba(252,224,168,0.65); }
+  .note-b b { color:var(--cream); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Carte · Démo pour validation</div>
+  <h1>La carte avec des profils autour de toi</h1>
+  <p class="lede">Voilà à quoi ressemble la carte quand des pros ont renseigné leur position. Clique sur une pastille pour voir la fiche. Le bouton en bas à droite recentre sur ta position réelle, teste-le. Tu peux dézoomer jusqu'au monde entier et te balader, la carte ne te ramène plus de force.</p>
+  <div class="warn">⚠️ Les 8 profils ci-dessous sont FICTIFS. Ils servent uniquement à te montrer le rendu, ils ne sont pas en production.</div>
+
+  <div class="toolbar">
+    <button class="tb" onclick="goTo(6.1319,1.2228,14)">🇹🇬 Lomé</button>
+    <button class="tb" onclick="goTo(6.3703,2.3912,14)">🇧🇯 Cotonou</button>
+    <button class="tb" onclick="goTo(9.5,2.0,6)">Vue régionale</button>
+    <button class="tb" onclick="goTo(15,0,2)">🌍 Le monde</button>
+  </div>
+
+  <div id="demo-map"></div>
+
+  <div class="notes">
+    <h2>Ce qui a changé sur la vraie carte</h2>
+    <div class="note">
+      <div class="note-t">La carte n'est plus détruite à chaque recherche</div>
+      <div class="note-b">C'était la cause du "charge mal quand on dézoome" : à chaque frappe et à chaque filtre, la carte entière était rasée puis reconstruite, et toutes les tuiles rechargées. <b>Maintenant elle est créée une seule fois, et seules les pastilles des pros sont mises à jour.</b></div>
+    </div>
+    <div class="note">
+      <div class="note-t">La carte ne te ramène plus de force</div>
+      <div class="note-b">Dès que tu déplaces ou zoomes, le recadrage automatique se désactive. <b>Avant, chaque recherche te recentrait sous les doigts</b>, ce qui rendait impossible d'aller voir une autre ville.</div>
+    </div>
+    <div class="note">
+      <div class="note-t">Bouton "me localiser"</div>
+      <div class="note-b">En bas à droite. Il recentre sur ta position réelle au zoom 15, avec le point bleu. Si la localisation est refusée ou trop lente, le message dit quoi faire au lieu d'échouer en silence.</div>
+    </div>
+    <div class="note">
+      <div class="note-t">Dézoom mondial et données divisées par trois</div>
+      <div class="note-b">Zoom minimum passé au monde entier, pan continu autour du globe. Mesure faite sur ta connexion : <b>~5 secondes par tuile, quelle que soit la source</b>. Donc on demande moins : tuiles normales au lieu de retina (3 à 4× plus légères), chargement uniquement à l'arrêt du geste pour ne pas gaspiller de requêtes en route, et <b>les tuiles échouées sont retentées automatiquement</b> au lieu de rester grises.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Profils FICTIFS, pour la démo uniquement ──
+const DEMO = [
+  { nom:'Kofi Mensah',      metier:'Menuisier',   emoji:'🪚', quartier:'Bè, Lomé',        lat:6.1425, lon:1.2450, note:4.8, avis:27, tarif:15000, pro:true,  dispo:true,  img:12 },
+  { nom:'Mariam Adjovi',    metier:'Coiffeuse',   emoji:'💇🏾‍♀️', quartier:'Tokoin, Lomé',    lat:6.1580, lon:1.2180, note:4.9, avis:41, tarif:5000,  pro:true,  dispo:true,  img:47 },
+  { nom:'Yao Koffi',        metier:'Plombier',    emoji:'🔧', quartier:'Nyékonakpoè, Lomé', lat:6.1290, lon:1.2050, note:4.5, avis:12, tarif:10000, pro:false, dispo:false, img:33 },
+  { nom:'Akossiwa Dogbe',   metier:'Couturière',  emoji:'🧵', quartier:'Hédzranawoé, Lomé', lat:6.1720, lon:1.2390, note:4.7, avis:19, tarif:8000,  pro:true,  dispo:false, img:45 },
+  { nom:'Sena Amegah',      metier:'Électricien', emoji:'⚡', quartier:'Adidogomé, Lomé',   lat:6.1810, lon:1.1720, note:4.2, avis:8,  tarif:12000, pro:false, dispo:true,  img:15 },
+  { nom:'Ama Djidonou',     metier:'Couturière',  emoji:'🧵', quartier:'Akpakpa, Cotonou',  lat:6.3610, lon:2.4310, note:4.9, avis:33, tarif:9000,  pro:true,  dispo:true,  img:44 },
+  { nom:'Kodjo Agbeko',     metier:'Mécanicien moto', emoji:'🏍️', quartier:'Cadjehoun, Cotonou', lat:6.3690, lon:2.3790, note:4.4, avis:16, tarif:6000, pro:false, dispo:true, img:52 },
+  { nom:'Blaise Sossou',    metier:'Maçon',       emoji:'🧱', quartier:'Dantokpa, Cotonou', lat:6.3660, lon:2.4180, note:0,   avis:0,  tarif:0,     pro:false, dispo:false, img:60 },
+];
+
+const map = L.map('demo-map', { zoomControl:false, worldCopyJump:true }).setView([6.1375, 1.2123], 12);
+const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+  attribution:'© <a href="https://carto.com/">CARTO</a> © OpenStreetMap',
+  subdomains:'abcd', maxZoom:19, maxNativeZoom:18, minZoom:2,
+  updateWhenIdle:true, updateWhenZooming:false, keepBuffer:3,
+}).addTo(map);
+// Retente une fois les tuiles échouées au lieu de les laisser grises
+tiles.on('tileerror', e => {
+  const img = e.tile;
+  if (img._retried) return;
+  img._retried = true;
+  const src = img.src;
+  setTimeout(() => { img.src = src.split('#')[0] + '#retry'; }, 1500);
+});
+L.control.zoom({ position:'bottomright' }).addTo(map);
+
+// Bouton me localiser — même comportement que sur le site
+const LocateCtl = L.Control.extend({
+  options:{ position:'bottomright' },
+  onAdd:function(){
+    const b = L.DomUtil.create('button','wz-locate-btn');
+    b.type='button'; b.title='Me localiser';
+    b.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>';
+    L.DomEvent.disableClickPropagation(b);
+    L.DomEvent.on(b,'click',L.DomEvent.stop);
+    L.DomEvent.on(b,'click',locateMe);
+    return b;
+  }
+});
+map.addControl(new LocateCtl());
+
+let userMarker = null;
+function locateMe(){
+  if(!navigator.geolocation){ alert('Ton navigateur ne sait pas te localiser.'); return; }
+  navigator.geolocation.getCurrentPosition(p=>{
+    const {latitude:lat, longitude:lon} = p.coords;
+    if(userMarker) map.removeLayer(userMarker);
+    userMarker = L.marker([lat,lon],{
+      icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:#2563eb;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(37,99,235,.5);"></div>',iconSize:[16,16],iconAnchor:[8,8]}),
+      zIndexOffset:1000
+    }).addTo(map).bindPopup('<strong>📍 Ma position</strong>');
+    map.setView([lat,lon],15,{animate:true});
+  }, e=>{ alert('Localisation refusée ou indisponible. Sur le site, un message explique quoi faire.'); },
+  { enableHighAccuracy:true, timeout:10000, maximumAge:60000 });
+}
+
+function goTo(lat,lon,z){ map.setView([lat,lon],z,{animate:true}); }
+
+// Pastilles — même rendu que sur le site
+const layer = L.layerGroup().addTo(map);
+let active = null;
+
+DEMO.forEach(d=>{
+  const photo = `https://i.pravatar.cc/160?img=${d.img}`;
+  const border = d.dispo ? '#E8940A' : d.pro ? '#f59e0b' : '#111';
+  const size = 52;
+  const makeIcon = (on)=>L.divIcon({
+    className:'',
+    html:`
+      <div style="position:relative;width:${size}px;height:${size}px;border-radius:50%;
+        border:3px solid ${on?'#111':border};
+        box-shadow:${on?'0 4px 20px rgba(0,0,0,.40)':'0 2px 10px rgba(0,0,0,.22)'};
+        overflow:hidden;background:#f1f5f9;transform:${on?'scale(1.18)':'scale(1)'};transition:transform .15s;cursor:pointer;">
+        <img src="${photo}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
+        ${d.dispo?`<div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:#E8940A;"></div>`:''}
+      </div>
+      <div style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;
+        border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid ${on?'#111':border};"></div>`,
+    iconSize:[size,size+8], iconAnchor:[size/2,size+8]
+  });
+
+  const m = L.marker([d.lat,d.lon],{icon:makeIcon(false)}).addTo(layer);
+  const noteStr = d.avis ? `⭐ ${d.note.toFixed(1).replace('.',',')} · ${d.avis} avis` : 'Pas encore d\'avis';
+  m.bindPopup(`
+    <div style="font-family:'Geist',sans-serif;width:220px;">
+      <div style="width:220px;height:128px;border-radius:10px 10px 0 0;overflow:hidden;background:#f1f5f9;margin:-14px -20px 10px -20px;">
+        <img src="${photo}" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+        <div style="font-weight:800;font-size:14px;">${d.nom}</div>
+        ${d.pro?'<span style="background:#f59e0b;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">⭐ Pro</span>':''}
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:3px;">${d.emoji} ${d.metier} · ${d.quartier}</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px;">${noteStr}${d.dispo?' · <span style="color:#E8940A;font-weight:700;">Dispo</span>':''}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:13px;font-weight:800;">${d.tarif?`${d.tarif.toLocaleString('fr-FR')} <span style="font-weight:400;font-size:11px;">FCFA</span>`:'<span style="font-size:11px;color:#94a3b8;">Tarif libre</span>'}</div>
+        <button style="background:#111;color:white;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;">Voir profil</button>
+      </div>
+    </div>`, { maxWidth:240, offset:[0,-8] });
+
+  m.on('click',()=>{ if(active&&active!==m) active.setIcon(active._off); m.setIcon(makeIcon(true)); m._off=makeIcon(false); active=m; });
+  m.on('popupclose',()=>{ m.setIcon(makeIcon(false)); if(active===m) active=null; });
+});
+
+map.fitBounds(DEMO.map(d=>[d.lat,d.lon]), { padding:[70,70], maxZoom:12 });
+</script>
+</body>
+</html>

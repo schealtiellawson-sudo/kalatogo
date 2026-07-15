@@ -4748,6 +4748,9 @@ function quickFilter(metier) {
 // ── Vues recherche : 'list' (rangées compactes, défaut mobile) · 'grid' (gros carrés) · carte ──
 let _mapViewActive = false;
 let _searchMapInstance = null;
+let _searchMarkersLayer = null;  // calque des pros : on le vide, la carte reste
+let _searchUserMarker = null;    // point bleu "ma position"
+let _wzMapUserMoved = false;     // l'utilisateur s'est baladé → on ne recadre plus
 let _searchViewMode = (function(){
   try {
     const saved = localStorage.getItem('wozali_search_view');
@@ -4793,7 +4796,7 @@ function setSearchView(mode) {
     if (mapEl) mapEl.style.display = 'none';
     const noticeEl = document.getElementById('search-map-notice');
     if (noticeEl) noticeEl.style.display = 'none';
-    if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
+    // On garde la carte en mémoire : la détruire obligeait à tout recharger au retour
     _applySearchLayout(cardsEl);
     // Re-render : le markup diffère entre grille et liste compacte
     if (cardsEl && window._lastSearchRecords && window._lastSearchRecords.length) {
@@ -4806,34 +4809,126 @@ function setSearchView(mode) {
 // Compat : le bouton "Voir tous" du bandeau carte repasse sur la vue précédente
 function toggleMapView() { setSearchView(_mapViewActive ? _searchViewMode : 'map'); }
 
-function renderSearchMap(records) {
-  if (_searchMapInstance) { _searchMapInstance.remove(); _searchMapInstance = null; }
-  const mapEl = document.getElementById('search-map');
-  if (!mapEl) return;
+// Marqueur "ma position" — point bleu, recréé à chaque nouvelle position
+function _wzPlaceUserMarker() {
+  if (!_searchMapInstance || !window._userLat) return;
+  if (_searchUserMarker) { _searchMapInstance.removeLayer(_searchUserMarker); _searchUserMarker = null; }
+  _searchUserMarker = L.marker([window._userLat, window._userLon], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="width:16px;height:16px;background:#2563eb;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(37,99,235,.5);"></div>`,
+      iconSize: [16,16], iconAnchor: [8,8]
+    }),
+    zIndexOffset: 1000
+  }).addTo(_searchMapInstance).bindPopup('<strong>📍 Ma position</strong>');
+}
 
+// Recentre la carte sur l'utilisateur (bouton dédié)
+function wzLocateMe() {
+  if (!navigator.geolocation) {
+    toast('Ton navigateur ne sait pas te localiser. Choisis ta ville dans la liste à côté.', 'error');
+    return;
+  }
+  const btn = document.querySelector('.wz-locate-btn');
+  if (btn) btn.classList.add('locating');
+  toast('📍 Je cherche où tu es...', 'info');
+  navigator.geolocation.getCurrentPosition(pos => {
+    if (btn) btn.classList.remove('locating');
+    window._userLat = pos.coords.latitude;
+    window._userLon = pos.coords.longitude;
+    if (_searchMapInstance) {
+      _wzMapUserMoved = true; // on ne veut plus de recadrage auto après un geste volontaire
+      _searchMapInstance.setView([window._userLat, window._userLon], 15, { animate: true });
+      _wzPlaceUserMarker();
+    }
+    toast('📍 Voilà les pros autour de toi.', 'success');
+  }, err => {
+    if (btn) btn.classList.remove('locating');
+    if (err.code === 1) toast('La position est bloquée. Autorise la localisation dans ton navigateur, ou choisis ta ville dans la liste.', 'error');
+    else if (err.code === 3) toast('Ça prend trop de temps de te localiser. Réessaie, ou choisis ta ville dans la liste.', 'error');
+    else toast('Impossible de te localiser. Choisis ta ville dans la liste à côté.', 'error');
+  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+}
+
+// Crée la carte UNE fois. La recréer à chaque recherche faisait perdre
+// le zoom et la position, et rechargeait toutes les tuiles.
+function _ensureSearchMap() {
+  if (_searchMapInstance) return _searchMapInstance;
   const centerLat = window._userLat || 6.1375;
   const centerLon = window._userLon || 1.2123;
 
-  _searchMapInstance = L.map('search-map', { zoomControl: false }).setView([centerLat, centerLon], 13);
+  _searchMapInstance = L.map('search-map', {
+    zoomControl: false,
+    worldCopyJump: true, // pan continu autour du globe
+  }).setView([centerLat, centerLon], 13);
 
-  // Carto Voyager — tuiles propres style Airbnb
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  // Carto Voyager — tuiles propres style Airbnb.
+  // PAS de {r} retina : la tuile @2x pèse 3-4× plus, et sur les connexions
+  // d'ici (mesuré ~5s/tuile) c'est la différence entre utilisable et gris.
+  const _tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
     attribution: '© <a href="https://carto.com/">CARTO</a> © OpenStreetMap',
-    subdomains: 'abcd', maxZoom: 19
+    subdomains: 'abcd',
+    maxZoom: 19,
+    maxNativeZoom: 18,      // au-delà on étire la tuile 18 au lieu d'en demander une neuve
+    minZoom: 2,             // dézoom jusqu'au monde entier
+    updateWhenIdle: true,   // réseau lent : ne demander les tuiles qu'à l'arrêt du geste,
+    updateWhenZooming: false, // les requêtes gaspillées en route bouchent la file 5s chacune
+    keepBuffer: 3,          // garde les tuiles déjà chargées autour de l'écran
   }).addTo(_searchMapInstance);
+  // Une tuile qui échoue reste grise pour toujours : on la retente une fois après 1,5s
+  _tiles.on('tileerror', (e) => {
+    const img = e.tile;
+    if (img._wzRetried) return;
+    img._wzRetried = true;
+    const src = img.src;
+    setTimeout(() => { img.src = src.split('#')[0] + '#retry'; }, 1500);
+  });
 
   L.control.zoom({ position: 'bottomright' }).addTo(_searchMapInstance);
 
-  // Marqueur position utilisateur — point bleu
-  if (window._userLat) {
-    L.divIcon && L.marker([window._userLat, window._userLon], {
-      icon: L.divIcon({
-        className: '',
-        html: `<div style="width:16px;height:16px;background:#2563eb;border-radius:50%;border:3px solid white;box-shadow:0 2px 10px rgba(37,99,235,.5);"></div>`,
-        iconSize: [16,16], iconAnchor: [8,8]
-      })
-    }).addTo(_searchMapInstance).bindPopup('<strong>📍 Ma position</strong>');
-  }
+  // Bouton "ma position"
+  const LocateCtl = L.Control.extend({
+    options: { position: 'bottomright' },
+    onAdd: function () {
+      const b = L.DomUtil.create('button', 'wz-locate-btn');
+      b.type = 'button';
+      b.title = 'Me localiser';
+      b.setAttribute('aria-label', 'Me localiser');
+      b.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>';
+      L.DomEvent.disableClickPropagation(b);
+      L.DomEvent.on(b, 'click', L.DomEvent.stop);
+      L.DomEvent.on(b, 'click', wzLocateMe);
+      return b;
+    }
+  });
+  _searchMapInstance.addControl(new LocateCtl());
+
+  _searchMarkersLayer = L.layerGroup().addTo(_searchMapInstance);
+
+  // Dès que l'utilisateur se balade, on arrête de recadrer sous ses doigts.
+  // Gestes RÉELS uniquement : 'zoomstart' se déclenche aussi sur nos propres
+  // fitBounds/setView et aurait gelé le suivi des recherches dès le 1er cadrage.
+  const _userMoved = () => { _wzMapUserMoved = true; };
+  _searchMapInstance.on('dragstart', _userMoved);
+  const _mapDom = _searchMapInstance.getContainer();
+  _mapDom.addEventListener('wheel', _userMoved, { passive: true });
+  _mapDom.addEventListener('touchstart', (e) => { if (e.touches && e.touches.length >= 2) _userMoved(); }, { passive: true });
+  _mapDom.addEventListener('click', (e) => { if (e.target.closest('.leaflet-control-zoom')) _userMoved(); });
+
+  return _searchMapInstance;
+}
+
+function renderSearchMap(records) {
+  const mapEl = document.getElementById('search-map');
+  if (!mapEl || typeof L === 'undefined') return;
+
+  _ensureSearchMap();
+  // Le conteneur était masqué : Leaflet ignore sa taille réelle → tuiles grises
+  setTimeout(() => { try { _searchMapInstance.invalidateSize(); } catch (e) {} }, 0);
+  _wzPlaceUserMarker();
+
+  // On ne vide QUE les marqueurs, la carte et ses tuiles restent en place
+  if (_searchMarkersLayer) _searchMarkersLayer.clearLayers();
 
   let _activeMarker = null;
   let countWithGPS = 0, countWithoutGPS = 0;
@@ -4895,7 +4990,7 @@ function renderSearchMap(records) {
       iconAnchor: [size/2, size + 8]
     });
 
-    const marker = L.marker([lat, lon], { icon: makeIcon(false) }).addTo(_searchMapInstance);
+    const marker = L.marker([lat, lon], { icon: makeIcon(false) }).addTo(_searchMarkersLayer);
 
     // Popup card style Airbnb
     const popupHtml = `
@@ -4933,10 +5028,14 @@ function renderSearchMap(records) {
     });
   });
 
-  if (bounds.length > 1) {
-    _searchMapInstance.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
-  } else if (bounds.length === 1) {
-    _searchMapInstance.setView(bounds[0], 14);
+  // Recadrage automatique UNIQUEMENT tant que l'utilisateur n'a pas bougé la carte.
+  // Sinon, chaque recherche le ramenait de force et l'empêchait d'explorer.
+  if (!_wzMapUserMoved) {
+    if (bounds.length > 1) {
+      _searchMapInstance.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+    } else if (bounds.length === 1) {
+      _searchMapInstance.setView(bounds[0], 14);
+    }
   }
 
   // Bandeau informatif si des prestataires sont hors carte
@@ -4975,6 +5074,14 @@ async function loadSearch() {
 
   const metier = document.getElementById('s-metier')?.value || '';
   const quartier = document.getElementById('s-quartier')?.value || '';
+
+  // Nouvelle intention de recherche (filtres changés) → la carte a le droit
+  // de recadrer à nouveau, même si l'utilisateur s'était baladé avant
+  const _filtresSig = [metier, quartier, document.getElementById('s-text')?.value || ''].join('|');
+  if (window._wzLastFiltresSig !== undefined && window._wzLastFiltresSig !== _filtresSig) {
+    _wzMapUserMoved = false;
+  }
+  window._wzLastFiltresSig = _filtresSig;
 
   // Point 52 — SEO: meta descriptions dynamiques par metier
   (function updateSEOMeta() {
