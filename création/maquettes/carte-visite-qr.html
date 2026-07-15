@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WOZALI · Maquette carte de visite QR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --night-1: #14100A;
+    --night-2: #1E180E;
+    --cream: #FCE0A8;
+    --or: #E8940A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--night-1);
+    color: var(--cream);
+    font-family: 'Geist', sans-serif;
+    padding: 40px 24px 80px;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+
+  .page-head { margin-bottom: 40px; border-bottom: 1px solid rgba(232,148,10,0.2); padding-bottom: 24px; }
+  .eyebrow { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--or); margin-bottom: 10px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 34px; font-weight: 400; color: var(--cream); margin-bottom: 10px; }
+  .lede { font-size: 14px; line-height: 1.7; color: rgba(252,224,168,0.6); max-width: 720px; }
+
+  .opt { margin-bottom: 56px; }
+  .opt-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+  .opt-num { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--or); font-weight: 700; }
+  .opt-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--cream); }
+  .opt-desc { font-size: 13px; line-height: 1.7; color: rgba(252,224,168,0.55); max-width: 660px; margin-bottom: 22px; }
+  .opt-tag { font-family: 'Geist Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 100px; border: 1px solid rgba(232,148,10,0.4); color: var(--or); }
+
+  .cards { display: flex; gap: 30px; flex-wrap: wrap; align-items: flex-start; }
+  .card-lbl { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(252,224,168,0.4); margin-bottom: 8px; }
+  .card-zoom { zoom: 1.7; }
+
+  /* ── Carte : format standard 85 × 55 mm ── */
+  .card {
+    width: 85mm; height: 55mm;
+    border-radius: 2.5mm;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    box-shadow: 0 6px 26px rgba(0,0,0,0.5);
+  }
+
+  /* Logo réutilisable */
+  .lg { display: flex; align-items: baseline; line-height: 1; white-space: nowrap; }
+  .lg-w { font-family: 'DM Serif Display', serif; font-style: italic; color: var(--or); letter-spacing: -0.04em; }
+  .lg-rest { font-family: 'DM Serif Display', serif; letter-spacing: -0.02em; }
+  .dom { font-family: 'Geist Mono', monospace; font-size: 2.5mm; color: var(--or); font-weight: 700; }
+
+  /* ══ RECTO : structure commune (logo haut · identité centre · tel bas) ══ */
+  .recto { flex-direction: column; padding: 5mm 6mm; justify-content: space-between; }
+  .r-id { display: flex; gap: 4mm; align-items: center; position: relative; }
+  .r-photo { width: 16mm; height: 16mm; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+  .r-nom { font-family: 'DM Serif Display', serif; font-size: 5.6mm; line-height: 1.1; }
+  .r-metier { font-size: 3.1mm; font-weight: 600; margin-top: 0.9mm; }
+  .r-lieu { font-family: 'Geist Mono', monospace; font-size: 2.5mm; margin-top: 0.9mm; }
+  .r-tel-lbl { font-size: 2.3mm; font-weight: 500; margin-bottom: 0.6mm; }
+  .r-tel { font-family: 'Geist Mono', monospace; font-size: 3.6mm; font-weight: 700; }
+  .r-top { display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .r-bot { position: relative; }
+  .recto .lg { font-size: 3.8mm; }
+
+  /* ══ VERSO : QR à gauche, texte à droite (la carte est en paysage) ══ */
+  .verso { flex-direction: row; align-items: center; gap: 5mm; padding: 5mm 6mm; }
+  .v-qr { padding: 1.5mm; background: #FFFFFF; border-radius: 1.5mm; flex-shrink: 0; }
+  .v-right { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2mm; min-width: 0; }
+  .v-titre { font-family: 'DM Serif Display', serif; font-size: 4mm; line-height: 1.25; }
+  .v-sub { font-size: 2.7mm; line-height: 1.4; }
+  .v-rule { height: 0.3mm; width: 12mm; background: var(--or); margin: 0.5mm 0; }
+  .v-foot { display: flex; align-items: baseline; gap: 2mm; flex-wrap: wrap; }
+  .verso .lg { font-size: 3.2mm; }
+
+  /* ═══ OPTION A · BLANC ═══ */
+  .a-recto { background: #FFFFFF; }
+  .a-bar { position: absolute; top: 0; left: 0; right: 0; height: 1.6mm; background: var(--or); }
+  .a-recto .r-photo { border: 0.5mm solid var(--or); background: #eee; }
+  .a-recto .r-nom { color: #14100A; }
+  .a-recto .r-metier { color: var(--or); }
+  .a-recto .r-lieu { color: #8a8175; }
+  .a-recto .r-tel-lbl { color: #8a8175; }
+  .a-recto .r-tel { color: #14100A; }
+  .a-recto .lg-rest { color: #14100A; }
+
+  .a-verso { background: #FFFFFF; }
+  .a-verso .v-titre { color: #14100A; }
+  .a-verso .v-sub { color: #8a8175; }
+  .a-verso .lg-rest { color: #14100A; }
+
+  /* ═══ OPTION B · NUIT ═══ */
+  .b-recto { background: var(--night-1); padding-left: 7mm; }
+  .b-side { position: absolute; top: 0; bottom: 0; left: 0; width: 1.8mm; background: var(--or); }
+  .b-glow { position: absolute; top: -22mm; right: -22mm; width: 58mm; height: 58mm; border-radius: 50%; background: radial-gradient(circle, rgba(232,148,10,0.18), transparent 70%); }
+  .b-recto .r-photo { border: 0.5mm solid var(--or); background: #333; }
+  .b-recto .r-nom { color: var(--cream); }
+  .b-recto .r-metier { color: var(--or); }
+  .b-recto .r-lieu { color: rgba(252,224,168,0.45); }
+  .b-recto .r-tel-lbl { color: rgba(252,224,168,0.4); }
+  .b-recto .r-tel { color: var(--cream); }
+  .b-recto .lg-rest { color: var(--cream); }
+
+  .b-verso { background: var(--night-1); }
+  .b-verso .v-titre { color: var(--cream); }
+  .b-verso .v-sub { color: rgba(252,224,168,0.5); }
+  .b-verso .lg-rest { color: var(--cream); }
+  .b-verso .v-qr { padding: 2.5mm; }
+
+  /* ═══ OPTION C · OR ═══ */
+  .c-recto { background: var(--or); }
+  .c-recto .r-photo { border: 0.5mm solid #14100A; background: #d98209; }
+  .c-recto .r-nom { color: #14100A; }
+  .c-recto .r-metier { color: #5a3a03; font-weight: 700; }
+  .c-recto .r-lieu { color: rgba(20,16,10,0.6); }
+  .c-recto .r-tel-lbl { color: rgba(20,16,10,0.55); font-weight: 600; }
+  .c-recto .r-tel { color: #14100A; }
+  .c-recto .lg-w { color: #14100A; }
+  .c-recto .lg-rest { color: #14100A; }
+
+  .c-verso { background: #FFFFFF; }
+  .c-verso::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1.6mm; background: var(--or); }
+  .c-verso .v-titre { color: #14100A; }
+  .c-verso .v-sub { color: #8a8175; }
+  .c-verso .lg-rest { color: #14100A; }
+
+  /* ── Notes ── */
+  .notes { margin-top: 20px; border-top: 1px solid rgba(232,148,10,0.2); padding-top: 30px; }
+  .notes h2 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--cream); margin-bottom: 16px; }
+  .note { background: var(--night-2); border-left: 2px solid var(--or); border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 12px; }
+  .note-t { font-size: 13px; font-weight: 700; color: var(--or); margin-bottom: 5px; }
+  .note-b { font-size: 13px; line-height: 1.7; color: rgba(252,224,168,0.65); }
+  .note-b b { color: var(--cream); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-head">
+    <div class="eyebrow">Étape 11 · Phase C · Maquette pour validation</div>
+    <h1>Carte de visite WOZALI, imprimable</h1>
+    <p class="lede">Le client scanne le carré, il tombe sur le profil : les photos, les avis, le Score. Trois directions au format standard 85 × 55 mm. Les QR ci-dessous sont réels, teste-les avec ton téléphone.</p>
+  </div>
+
+  <!-- ══ OPTION A ══ -->
+  <div class="opt">
+    <div class="opt-head">
+      <span class="opt-num">OPTION A</span>
+      <span class="opt-title">Blanc</span>
+      <span class="opt-tag">impression la moins chère</span>
+    </div>
+    <p class="opt-desc">Le fond blanc coûte le moins d'encre chez l'imprimeur de quartier, ne marque pas les doigts, et reste net sur du papier bon marché. L'or sert d'accent, pas de fond.</p>
+    <div class="cards">
+      <div>
+        <div class="card-lbl">Recto</div>
+        <div class="card-zoom"><div class="card recto a-recto">
+          <div class="a-bar"></div>
+          <div class="r-top">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+          </div>
+          <div class="r-id">
+            <img class="r-photo" src="https://i.pravatar.cc/300?img=12" alt="">
+            <div>
+              <div class="r-nom">Kofi Mensah</div>
+              <div class="r-metier">Menuisier</div>
+              <div class="r-lieu">Bè · Lomé</div>
+            </div>
+          </div>
+          <div class="r-bot">
+            <div class="r-tel-lbl">Appelle ou écris</div>
+            <div class="r-tel">90 12 34 56</div>
+          </div>
+        </div></div>
+      </div>
+      <div>
+        <div class="card-lbl">Verso</div>
+        <div class="card-zoom"><div class="card verso a-verso">
+          <div class="v-qr"><div class="qr" data-qr></div></div>
+          <div class="v-right">
+            <div class="v-titre">Ouvre l'appareil photo. Vise le carré.</div>
+            <div class="v-sub">Tu verras mon travail, mes photos et mes avis clients.</div>
+            <div class="v-rule"></div>
+            <div class="v-foot">
+              <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+              <span class="dom">wozali.africa</span>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION B ══ -->
+  <div class="opt">
+    <div class="opt-head">
+      <span class="opt-num">OPTION B</span>
+      <span class="opt-title">Nuit</span>
+      <span class="opt-tag">charte pure</span>
+    </div>
+    <p class="opt-desc">La Direction Nuit telle quelle, celle du site. Le QR reste posé sur une pastille blanche : c'est ce qui garantit qu'un téléphone d'entrée de gamme le lit. Plus cher à imprimer, et le noir plein marque les traces de doigts.</p>
+    <div class="cards">
+      <div>
+        <div class="card-lbl">Recto</div>
+        <div class="card-zoom"><div class="card recto b-recto">
+          <div class="b-side"></div>
+          <div class="b-glow"></div>
+          <div class="r-top">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+          </div>
+          <div class="r-id">
+            <img class="r-photo" src="https://i.pravatar.cc/300?img=12" alt="">
+            <div>
+              <div class="r-nom">Kofi Mensah</div>
+              <div class="r-metier">Menuisier</div>
+              <div class="r-lieu">Bè · Lomé</div>
+            </div>
+          </div>
+          <div class="r-bot">
+            <div class="r-tel-lbl">Appelle ou écris</div>
+            <div class="r-tel">90 12 34 56</div>
+          </div>
+        </div></div>
+      </div>
+      <div>
+        <div class="card-lbl">Verso</div>
+        <div class="card-zoom"><div class="card verso b-verso">
+          <div class="v-qr"><div class="qr" data-qr></div></div>
+          <div class="v-right">
+            <div class="v-titre">Ouvre l'appareil photo. Vise le carré.</div>
+            <div class="v-sub">Tu verras mon travail, mes photos et mes avis clients.</div>
+            <div class="v-rule"></div>
+            <div class="v-foot">
+              <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+              <span class="dom">wozali.africa</span>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ OPTION C ══ -->
+  <div class="opt">
+    <div class="opt-head">
+      <span class="opt-num">OPTION C</span>
+      <span class="opt-title">Or</span>
+      <span class="opt-tag">le plus visible dans une main</span>
+    </div>
+    <p class="opt-desc">Recto or plein, verso blanc pour le QR. C'est la carte qu'on repère dans un tas. L'or est la couleur que le public associe déjà à WOZALI dans le feed.</p>
+    <div class="cards">
+      <div>
+        <div class="card-lbl">Recto</div>
+        <div class="card-zoom"><div class="card recto c-recto">
+          <div class="r-top">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+          </div>
+          <div class="r-id">
+            <img class="r-photo" src="https://i.pravatar.cc/300?img=12" alt="">
+            <div>
+              <div class="r-nom">Kofi Mensah</div>
+              <div class="r-metier">Menuisier</div>
+              <div class="r-lieu">Bè · Lomé</div>
+            </div>
+          </div>
+          <div class="r-bot">
+            <div class="r-tel-lbl">Appelle ou écris</div>
+            <div class="r-tel">90 12 34 56</div>
+          </div>
+        </div></div>
+      </div>
+      <div>
+        <div class="card-lbl">Verso</div>
+        <div class="card-zoom"><div class="card verso c-verso">
+          <div class="v-qr"><div class="qr" data-qr></div></div>
+          <div class="v-right">
+            <div class="v-titre">Ouvre l'appareil photo. Vise le carré.</div>
+            <div class="v-sub">Tu verras mon travail, mes photos et mes avis clients.</div>
+            <div class="v-rule"></div>
+            <div class="v-foot">
+              <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+              <span class="dom">wozali.africa</span>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ NOTES ══ -->
+  <div class="notes">
+    <h2>Ce que j'ai tranché, et pourquoi</h2>
+
+    <div class="note">
+      <div class="note-t">Le QR reste toujours sombre sur fond clair</div>
+      <div class="note-b">Un QR inversé (clair sur noir) n'est pas lu de façon fiable par les téléphones d'entrée de gamme, très courants chez le public visé. Sur l'option Nuit, le QR est donc posé sur une pastille blanche. <b>Ce n'est pas une préférence esthétique, c'est ce qui fait que la carte marche.</b></div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Pas de Score WOZALI imprimé</div>
+      <div class="note-b">Le Score bouge chaque semaine, la carte est figée pour un an. Un artisan qui distribue une carte affichant 82 alors qu'il est descendu à 40 se décrédibilise. <b>Le Score vit sur le profil, que le QR ouvre.</b></div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">"Ouvre l'appareil photo. Vise le carré."</div>
+      <div class="note-b">Plutôt que "Scanne le QR code", qui suppose de savoir ce qu'est un QR. Là, la phrase dit le geste exact à faire. <b>À valider ou à changer, c'est le texte que verront tous les clients.</b></div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Format 85 × 55 mm, le standard des imprimeurs de Lomé et Cotonou</div>
+      <div class="note-b">Les cartes ci-dessus sont à la taille réelle d'impression (affichées agrandies à l'écran). À l'implémentation je prévois <b>2 mm de fond perdu et un PDF prêt à donner à l'imprimeur</b>, pas juste une image d'écran.</div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Ce que je te demande de trancher</div>
+      <div class="note-b">1. Quelle option : <b>A blanc</b>, <b>B nuit</b>, ou <b>C or</b> ?<br>2. La phrase du verso, on la garde ?<br>3. La photo de l'artisan sur le recto : on la garde, ou nom seul (moins cher en impression couleur) ?</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // QR réels et scannables, pointant vers un profil d'exemple
+  var PROFIL_URL = 'https://wozali.africa/profil/kofi-mensah-menuisier-lome';
+  document.querySelectorAll('[data-qr]').forEach(function (el) {
+    new QRCode(el, {
+      text: PROFIL_URL,
+      width: 160,
+      height: 160,
+      colorDark: '#14100A',
+      colorLight: '#FFFFFF',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    // Taille finale à l'impression : 30 mm de côté
+    el.querySelectorAll('img, canvas').forEach(function (n) {
+      n.style.width = '30mm'; n.style.height = '30mm';
+    });
+    var img = el.querySelector('img');
+    if (img) img.style.display = 'block';
+  });
+</script>
+</body>
+</html>
