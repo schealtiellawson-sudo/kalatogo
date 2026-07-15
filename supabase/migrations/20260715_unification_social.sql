@@ -74,9 +74,15 @@ CREATE TABLE IF NOT EXISTS public.wozali_suivis (
 CREATE INDEX IF NOT EXISTS idx_wozali_suivis_suiveur ON public.wozali_suivis (suiveur_user_id);
 CREATE INDEX IF NOT EXISTS idx_wozali_suivis_suivi   ON public.wozali_suivis (suivi_prestataire_id);
 
-INSERT INTO public.wozali_suivis (suiveur_user_id, suivi_prestataire_id, created_at)
-SELECT suiveur_user_id, suivi_prestataire_id, created_at FROM public.wolo_suivis
-ON CONFLICT DO NOTHING;
+-- Copie best-effort depuis l'ancienne table (vide en pratique ; si son
+-- schéma legacy diffère, on n'échoue pas toute la migration pour 0 ligne).
+DO $$ BEGIN
+  INSERT INTO public.wozali_suivis (suiveur_user_id, suivi_prestataire_id, created_at)
+  SELECT suiveur_user_id, suivi_prestataire_id, created_at FROM public.wolo_suivis
+  ON CONFLICT DO NOTHING;
+EXCEPTION WHEN others THEN
+  RAISE NOTICE 'Copie wolo_suivis ignorée : %', SQLERRM;
+END $$;
 
 ALTER TABLE public.wozali_suivis ENABLE ROW LEVEL SECURITY;
 DO $$ BEGIN
