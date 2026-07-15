@@ -4415,6 +4415,46 @@ function clearPostMedia(recordId) {
 }
 function clearPostImg(recordId) { clearPostMedia(recordId); }
 
+// ══ UNIFICATION SOCIAL (étape 5) : UNE table wozali_posts + wozali_likes
+// + wozali_commentaires. Les likes vivent en base, plus en localStorage. ══
+async function wzFetchMyLikes(postIds) {
+  if (!currentUser || !postIds.length) return new Set();
+  try {
+    const { data } = await window.supabase.from('wozali_likes').select('post_id').eq('user_id', currentUser.id).in('post_id', postIds);
+    return new Set((data || []).map(r => r.post_id));
+  } catch { return new Set(); }
+}
+
+async function wzToggleLike(postId, wantLike) {
+  const supa = window.supabase;
+  if (wantLike) {
+    const { error } = await supa.from('wozali_likes').insert({ post_id: postId, user_id: currentUser.id });
+    if (error && !String(error.message || '').toLowerCase().includes('duplicate')) throw error;
+  } else {
+    const { error } = await supa.from('wozali_likes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+    if (error) throw error;
+  }
+}
+
+async function wzFetchComments(postIds) {
+  if (!postIds.length) return {};
+  const supa = window.supabase;
+  const { data: rows } = await supa.from('wozali_commentaires').select('*').in('post_id', postIds).eq('actif', true).order('created_at', { ascending: true });
+  const auteurIds = [...new Set((rows || []).map(r => r.auteur_id).filter(Boolean))];
+  let aMap = {};
+  if (auteurIds.length) {
+    const { data: prs } = await supa.from('wozali_prestataires').select('id, user_id, nom_complet, photo_profil').in('user_id', auteurIds);
+    (prs || []).forEach(p => { aMap[p.user_id] = p; });
+  }
+  const byPost = {};
+  (rows || []).forEach(r => {
+    const a = aMap[r.auteur_id] || {};
+    if (!byPost[r.post_id]) byPost[r.post_id] = [];
+    byPost[r.post_id].push({ id: r.id, texte: r.contenu || '', auteur: a.nom_complet || 'Utilisateur', auteurPhoto: a.photo_profil || '', auteurId: a.id || null, date: r.created_at });
+  });
+  return byPost;
+}
+
 async function submitPost(recordId) {
   const textarea = document.getElementById(`post-composer-${recordId}`);
   const mediaInput = document.getElementById(`post-img-${recordId}`);
@@ -4464,20 +4504,18 @@ async function submitPost(recordId) {
     }
   }
 
-  // Sauvegarder dans Supabase wolo_posts_v2
+  // Sauvegarder dans Supabase wozali_posts (système unifié)
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    const { data: postData, error: postErr } = await supa.from('wozali_posts_v2').insert({
+    const { data: postData, error: postErr } = await supa.from('wozali_posts').insert({
+      auteur_id:      currentUser?.id || null,
       prestataire_id: recordId,
-      auteur_user_id: currentUser?.id || null,
-      auteur_nom:     currentPrestataire?.fields?.['Nom complet'] || '',
-      auteur_photo:   _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']),
+      type:           'realisation',
       contenu:        texte || '',
-      image_url:      mediaUrl || '',
+      media_url:      mediaUrl || null,
       media_type:     mediaType || 'text',
-      nb_likes:       0,
-      commentaires:   [],
+      actif:          true,
     }).select('id').single();
     if (postErr) throw postErr;
     // Auto-ajouter au album Publications si l'owner publie
@@ -4504,37 +4542,46 @@ async function renderPostsFeed(recordId) {
   if (!feedEl) return;
   feedEl.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3);font-size:13px;">⏳ Chargement...</div>`;
 
-  // Charger depuis Supabase wolo_posts_v2
+  // Charger depuis Supabase wozali_posts (système unifié)
   let posts = [];
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
     const { data: rows, error: postsErr } = await supa
-      .from('wozali_posts_v2')
+      .from('wozali_posts')
       .select('*')
       .eq('prestataire_id', recordId)
       .eq('actif', true)
       .order('created_at', { ascending: false })
       .limit(50);
     if (postsErr) throw postsErr;
-    posts = (rows || []).map(r => ({
-      id:          r.id,
-      texte:       r.contenu      || '',
-      photo:       r.image_url    || '',
-      mediaType:   r.media_type   || 'text',
-      date:        r.created_at   || '',
-      auteur:      r.auteur_nom   || '',
-      auteurPhoto: r.auteur_photo || '',
-      auteurId:    r.prestataire_id || null,
-      likes:       r.nb_likes     || 0,
-      partages:    r.nb_partages  || 0,
-      ordre:       (r.ordre ?? null),
-      comments:    Array.isArray(r.commentaires) ? r.commentaires : []
-    }));
+    const postIds = (rows || []).map(r => r.id);
+    const [commentsByPost, myLikes] = await Promise.all([wzFetchComments(postIds), wzFetchMyLikes(postIds)]);
+    const auteurIds = [...new Set((rows || []).map(r => r.auteur_id).filter(Boolean))];
+    let auteurMap = {};
+    if (auteurIds.length) {
+      const { data: prs } = await supa.from('wozali_prestataires').select('id, user_id, nom_complet, photo_profil').in('user_id', auteurIds);
+      (prs || []).forEach(p => { auteurMap[p.user_id] = p; });
+    }
+    posts = (rows || []).map(r => {
+      const a = auteurMap[r.auteur_id] || {};
+      return {
+        id:          r.id,
+        texte:       r.contenu      || '',
+        photo:       r.media_url    || '',
+        mediaType:   r.media_type   || 'text',
+        date:        r.created_at   || '',
+        auteur:      a.nom_complet  || '',
+        auteurPhoto: a.photo_profil || '',
+        auteurId:    a.id           || null,
+        likes:       r.nb_likes     || 0,
+        partages:    r.nb_partages  || 0,
+        ordre:       (r.ordre ?? null),
+        hasLiked:    myLikes.has(r.id),
+        comments:    commentsByPost[r.id] || []
+      };
+    });
   } catch(e) { feedEl.innerHTML = `<div style="color:rgba(255,100,100,0.6);padding:16px;font-size:13px;">Erreur de chargement</div>`; return; }
-
-  const likedKey = 'wozali_liked';
-  const liked = JSON.parse(localStorage.getItem(likedKey) || '[]');
 
   if (posts.length === 0) {
     const isOwner = currentUser && currentPrestataire?.id === recordId;
@@ -4561,14 +4608,13 @@ function _renderPostsFeedCards(recordId) {
   const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
   const isOwner = currentUser && currentPrestataire?.id === recordId;
   const reordering = window._pfReorder === recordId;
-  const liked = JSON.parse(localStorage.getItem('wozali_liked') || '[]');
 
   const cardsHtml = posts.map((p, idx) => {
     const dateStr = new Date(p.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
     const isVideo = p.mediaType === 'video';
     const photoSafe = encodeURI(p.photo || '');
     const initiale = (p.auteur || '?').charAt(0).toUpperCase();
-    const hasLiked = liked.includes(`${recordId}_${p.id}`);
+    const hasLiked = !!p.hasLiked;
     const comments = p.comments || [];
 
     const media = p.photo
@@ -4641,7 +4687,7 @@ async function movePost(recordId, postId, dir) {
   _renderPostsFeedCards(recordId);
   const supa = window.supabase;
   if (!supa) return;
-  try { await Promise.all(posts.map((p, k) => { p.ordre = k; return supa.from('wozali_posts_v2').update({ ordre: k }).eq('id', p.id); })); } catch (e) {}
+  try { await Promise.all(posts.map((p, k) => { p.ordre = k; return supa.from('wozali_posts').update({ ordre: k }).eq('id', p.id); })); } catch (e) {}
 }
 
 async function sharePost(recordId, postId) {
@@ -4652,10 +4698,8 @@ async function sharePost(recordId, postId) {
   const supa = window.supabase;
   try {
     if (supa) {
-      const { data } = await supa.from('wozali_posts_v2').select('nb_partages').eq('id', postId).maybeSingle();
-      const cur = data?.nb_partages || 0;
-      await supa.from('wozali_posts_v2').update({ nb_partages: cur + 1 }).eq('id', postId);
-      p.partages = cur + 1;
+      await supa.rpc('wozali_post_partage', { p_post_id: postId });
+      p.partages = (p.partages || 0) + 1;
       const el = document.getElementById('pf-share-' + postId);
       if (el) el.textContent = p.partages;
     }
@@ -5342,39 +5386,18 @@ function renderNotifications(recordId) {
 }
 
 async function likePost(recordId, postId) {
-  const likedKey = 'wozali_liked';
-  const liked    = JSON.parse(localStorage.getItem(likedKey) || '[]');
-  const likeId   = `${recordId}_${postId}`;
-  const alreadyLiked = liked.includes(likeId);
-
-  // Lire le nombre de likes actuel depuis Supabase
-  let currentLikes = 0;
-  let postTexte = '';
+  if (!currentUser) { toast('Connecte-toi pour aimer une publication', 'info'); showPage('login'); return; }
+  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+  const p = posts.find(x => String(x.id) === String(postId));
+  const alreadyLiked = !!(p && p.hasLiked);
   try {
-    const supa = window.supabase;
-    if (!supa) return;
-    const { data: post } = await supa.from('wozali_posts_v2').select('nb_likes, contenu').eq('id', postId).maybeSingle();
-    currentLikes = post?.nb_likes || 0;
-    postTexte    = post?.contenu  || '';
-  } catch { return; }
-
-  const newLikes = alreadyLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
-
-  // Mettre à jour dans Supabase
-  try {
-    const supa = window.supabase;
-    await supa.from('wozali_posts_v2').update({ nb_likes: newLikes }).eq('id', postId);
-  } catch { return; }
-
-  // Mettre à jour localStorage liked
-  if (alreadyLiked) {
-    localStorage.setItem(likedKey, JSON.stringify(liked.filter(l => l !== likeId)));
-  } else {
-    localStorage.setItem(likedKey, JSON.stringify([...liked, likeId]));
+    await wzToggleLike(postId, !alreadyLiked);
+  } catch { toast('Ça a calé. Réessaie dans 2 secondes.', 'error'); return; }
+  if (!alreadyLiked) {
     pushNotif(recordId, {
       type: 'like',
       auteur: currentPrestataire?.fields?.['Nom complet'] || 'Un visiteur',
-      postTexte, postId
+      postTexte: p?.texte || '', postId
     });
   }
   renderPostsFeed(recordId);
@@ -5413,21 +5436,16 @@ async function submitComment(recordId, postId) {
   }
   const auteurCommentaire = currentPrestataire?.fields?.['Nom complet'] || 'Utilisateur';
 
-  // Lire les commentaires actuels depuis Supabase, ajouter, puis mettre à jour
+  // Insérer dans la table wozali_commentaires (compteur maintenu par trigger)
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    const { data: post } = await supa.from('wozali_posts_v2').select('commentaires').eq('id', postId).maybeSingle();
-    const comments = Array.isArray(post?.commentaires) ? post.commentaires : [];
-    comments.push({
-      id: Date.now().toString(), texte,
-      auteur: auteurCommentaire,
-      auteurPhoto: _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']) || _wPhotoUrl(currentPrestataire?.fields?.['WhatsApp']),
-      auteurId: currentPrestataire?.id || null,
-      date: new Date().toISOString()
+    const { error: insErr } = await supa.from('wozali_commentaires').insert({
+      post_id:   postId,
+      auteur_id: currentUser?.id || null,
+      contenu:   texte
     });
-    const { error: updErr } = await supa.from('wozali_posts_v2').update({ commentaires: comments }).eq('id', postId);
-    if (updErr) throw updErr;
+    if (insErr) throw insErr;
   } catch { toast('Erreur commentaire', 'error'); return; }
 
   pushNotif(recordId, { type: 'comment', auteur: auteurCommentaire, texte, postId });
@@ -5444,7 +5462,7 @@ async function deletePost(recordId, postId) {
   try {
     const supa = window.supabase;
     if (!supa) throw new Error('Supabase non chargé');
-    const { error } = await supa.from('wozali_posts_v2').delete().eq('id', postId);
+    const { error } = await supa.from('wozali_posts').update({ actif: false }).eq('id', postId);
     if (error) throw error;
   } catch { toast('Erreur suppression', 'error'); return; }
   renderPostsFeed(recordId);
@@ -5949,7 +5967,7 @@ async function loadFil() {
     }
     const prestIds = suivis.map(s => s.suivi_prestataire_id).filter(Boolean);
     // 2. Récupérer les posts de ces prestataires
-    const { data: posts } = await supa.from('wozali_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).order('created_at', { ascending: false }).limit(50);
+    const { data: posts } = await supa.from('wozali_posts').select('*').in('prestataire_id', prestIds).eq('actif', true).order('created_at', { ascending: false }).limit(50);
     if (!posts || !posts.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:60px 20px;color:var(--gris);">
@@ -5971,11 +5989,11 @@ async function loadFil() {
     container.innerHTML = posts.map(post => {
       const prestId     = post.prestataire_id;
       const prest       = prestMap[prestId] || {};
-      const nom         = prest.nom_complet      || post.auteur_nom || 'Prestataire';
+      const nom         = prest.nom_complet      || 'Prestataire';
       const metier      = prest.metier_principal || '';
-      const photoProfil = prest.photo_profil     || post.auteur_photo || '';
+      const photoProfil = prest.photo_profil     || '';
       const contenu     = post.contenu   || '';
-      const mediaUrl    = post.image_url || '';
+      const mediaUrl    = post.media_url || '';
       const mediaType   = post.media_type || '';
       const datePost    = post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
       const likes       = post.nb_likes || 0;
@@ -6153,9 +6171,10 @@ async function loadFilFeed() {
     }
     const prestIds = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
     const [{ data: posts }, { data: reels }] = await Promise.all([
-      supa.from('wozali_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).neq('media_type','video').order('created_at',{ascending:false}).limit(30),
-      supa.from('wozali_posts_v2').select('*').in('prestataire_id', prestIds).eq('actif', true).eq('media_type','video').order('created_at',{ascending:false}).limit(10)
+      supa.from('wozali_posts').select('*').in('prestataire_id', prestIds).eq('actif', true).neq('media_type','video').order('created_at',{ascending:false}).limit(30),
+      supa.from('wozali_posts').select('*').in('prestataire_id', prestIds).eq('actif', true).eq('media_type','video').order('created_at',{ascending:false}).limit(10)
     ]);
+    const myLikes = await wzFetchMyLikes([...(posts||[]), ...(reels||[])].map(p => p.id));
     const allIds = [...new Set([...(posts||[]).map(p=>p.prestataire_id),...(reels||[]).map(r=>r.prestataire_id)].filter(Boolean))];
     let prestMap = {};
     if (allIds.length) {
@@ -6167,7 +6186,7 @@ async function loadFilFeed() {
     if (!posts || !posts.length) {
       html += `<div style="text-align:center;padding:50px 20px;color:rgba(252,224,168,0.35);"><div style="font-size:40px;margin-bottom:10px;">🕐</div><p style="font-size:14px;">Pas encore de photos publiées.</p></div>`;
     } else {
-      html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{})).join('');
+      html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{}, myLikes.has(p.id))).join('');
     }
     feed.innerHTML = html;
   } catch(e) {
@@ -6181,8 +6200,8 @@ function _renderReelsRow(reels, prestMap) {
     const pr = prestMap[r.prestataire_id] || {};
     const nom = (pr.nom_complet || 'Pro').split(' ')[0];
     const vues = r.nb_vues || 0;
-    return `<div onclick="playFilReel('${r.image_url||''}')" style="width:96px;aspect-ratio:9/16;border-radius:12px;background:#1A1208;flex-shrink:0;position:relative;overflow:hidden;cursor:pointer;">
-      ${r.image_url ? `<video src="${r.image_url}" style="width:100%;height:100%;object-fit:cover;" muted playsinline preload="none"></video>` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">🎬</div>`}
+    return `<div onclick="playFilReel('${r.media_url||''}')" style="width:96px;aspect-ratio:9/16;border-radius:12px;background:#1A1208;flex-shrink:0;position:relative;overflow:hidden;cursor:pointer;">
+      ${r.media_url ? `<video src="${r.media_url}" style="width:100%;height:100%;object-fit:cover;" muted playsinline preload="none"></video>` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">🎬</div>`}
       <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,0.75));"></div>
       <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;background:rgba(255,255,255,0.22);border-radius:50%;display:flex;align-items:center;justify-content:center;">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -6199,8 +6218,8 @@ function _renderReelsRow(reels, prestMap) {
   </div>`;
 }
 
-function _renderFilPostCard(post, pr) {
-  const nom = pr.nom_complet || post.auteur_nom || 'Pro';
+function _renderFilPostCard(post, pr, hasLiked) {
+  const nom = pr.nom_complet || 'Pro';
   const metier = pr.metier_principal || '';
   const quartier = pr.quartier || '';
   const score = pr.score_wozali || 0;
@@ -6208,7 +6227,7 @@ function _renderFilPostCard(post, pr) {
   const prestId = post.prestataire_id;
   const likes = post.nb_likes || 0;
   const contenu = (post.contenu || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const mediaUrl = post.image_url || '';
+  const mediaUrl = post.media_url || '';
   const depuis = _relativeTime(post.created_at);
   const initiale = nom.charAt(0).toUpperCase();
   return `<div style="border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:4px;">
@@ -6228,8 +6247,8 @@ function _renderFilPostCard(post, pr) {
       ${quartier ? `<span style="font-size:9px;color:rgba(252,224,168,0.32);background:rgba(255,255,255,0.04);border-radius:20px;padding:2px 8px;">📍 ${quartier}</span>` : ''}
     </div>` : ''}
     <div style="display:flex;align-items:center;padding:8px 14px 10px;gap:0;">
-      <button onclick="likeFilPost('${post.id}',this)" style="display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:rgba(252,224,168,0.4);font-size:12px;padding:4px 10px 4px 0;" data-liked="false" data-likes="${likes}">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <button onclick="likeFilPost('${post.id}',this)" style="display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:rgba(252,224,168,0.4);font-size:12px;padding:4px 10px 4px 0;" data-liked="${hasLiked ? 'true' : 'false'}" data-likes="${likes}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="${hasLiked ? '#f472b6' : 'none'}" stroke="${hasLiked ? '#f472b6' : 'currentColor'}" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         <span>${likes}</span>
       </button>
       <div style="margin-left:auto;">
@@ -6252,7 +6271,8 @@ function _relativeTime(isoStr) {
 
 // ── LIKE ────────────────────────────────────────────────────────────
 async function likeFilPost(postId, btn) {
-  if (!currentUser || !postId) return;
+  if (!currentUser) { showPage('login'); return; }
+  if (!postId) return;
   const isLiked = btn.dataset.liked === 'true';
   const span = btn.querySelector('span');
   const svg = btn.querySelector('svg');
@@ -6263,10 +6283,12 @@ async function likeFilPost(postId, btn) {
   if (span) span.textContent = newCount;
   if (svg) { svg.setAttribute('fill', newLiked ? '#f472b6' : 'none'); svg.setAttribute('stroke', newLiked ? '#f472b6' : 'currentColor'); }
   try {
-    await window.supabase.from('wozali_posts_v2').update({ nb_likes: newCount }).eq('id', postId);
+    await wzToggleLike(postId, newLiked);
   } catch(e) {
     btn.dataset.liked = isLiked;
     btn.dataset.likes = parseInt(btn.dataset.likes) + (newLiked ? -1 : 1);
+    if (span) span.textContent = btn.dataset.likes;
+    if (svg) { svg.setAttribute('fill', isLiked ? '#f472b6' : 'none'); svg.setAttribute('stroke', isLiked ? '#f472b6' : 'currentColor'); }
   }
 }
 
@@ -6730,15 +6752,14 @@ async function submitFilPost() {
       });
       if (error) throw new Error(error.message);
     } else {
-      const nomComplet = currentPrestataire?.nom_complet || currentPrestataire?.fields?.['Nom complet'] || '';
-      const { error } = await supa.from('wozali_posts_v2').insert({
+      const { error } = await supa.from('wozali_posts').insert({
+        auteur_id: currentUser.id,
         prestataire_id: prestId,
-        auteur_nom: nomComplet,
+        type: 'realisation',
         contenu: caption,
-        image_url: url,
-        media_type: isVideo ? 'video' : 'image',
-        actif: true,
-        nb_likes: 0
+        media_url: url,
+        media_type: isVideo ? 'video' : 'photo',
+        actif: true
       });
       if (error) throw new Error(error.message);
     }
@@ -6760,86 +6781,6 @@ async function submitFilPost() {
 // (legacy - remplacé par loadFilFeed)
 async function loadFilPageFeed() {
   return loadFilFeed();
-  const container = document.getElementById('fil-page-list');
-  if (!container) return;
-  container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);"><div class="spinner"></div></div>';
-  try {
-    const supa = window.supabase;
-    // 1. Abonnements depuis wolo_suivis
-    const { data: suivis } = await supa
-      .from('wozali_suivis')
-      .select('suivi_prestataire_id')
-      .eq('suiveur_user_id', currentUser.id)
-      .limit(100);
-    if (!suivis || !suivis.length) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
-          <div style="font-size:56px;margin-bottom:16px;">📭</div>
-          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Ton fil est vide</h3>
-          <p style="font-size:14px;line-height:1.6;">Suis des prestataires pour voir leurs publications ici.</p>
-          <button class="btn btn-primary" onclick="showPage('search')" style="margin-top:16px;">🔍 Découvrir des pros</button>
-        </div>`;
-      return;
-    }
-    const prestIds = suivis.map(r => r.suivi_prestataire_id).filter(Boolean);
-    // 2. Posts depuis wolo_posts_v2
-    const { data: posts } = await supa
-      .from('wozali_posts_v2')
-      .select('*')
-      .in('prestataire_id', prestIds)
-      .eq('actif', true)
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (!posts || !posts.length) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:60px 20px;color:var(--gris);">
-          <div style="font-size:56px;margin-bottom:16px;">🕐</div>
-          <h3 style="font-family:'DM Serif Display',serif;color:var(--noir);margin-bottom:8px;">Pas encore de publications</h3>
-          <p style="font-size:14px;">Les pros que tu suis n'ont pas encore publié. Reviens bientôt !</p>
-        </div>`;
-      return;
-    }
-    // 3. Prestataires en batch
-    const uniqueIds = [...new Set(posts.map(p => p.prestataire_id).filter(Boolean))];
-    const { data: prests } = await supa
-      .from('wozali_prestataires')
-      .select('id, nom_complet, metier_principal, photo_profil')
-      .in('id', uniqueIds);
-    const prestMap = {};
-    (prests || []).forEach(p => { prestMap[p.id] = p; });
-    container.innerHTML = posts.map(post => {
-      const pr = prestMap[post.prestataire_id] || {};
-      const prestId = post.prestataire_id;
-      const nom = pr.nom_complet || post.auteur_nom || 'Prestataire';
-      const metier = pr.metier_principal || '';
-      const photo = pr.photo_profil || '';
-      const contenu = post.contenu || '';
-      const mediaUrl = post.image_url || '';
-      const mediaType = post.media_type || '';
-      const datePost = post.created_at ? new Date(post.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '';
-      const likes = post.nb_likes || 0;
-      const initiale = nom.charAt(0).toUpperCase();
-      return `
-        <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:14px;">
-          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
-            ${photo ? `<img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,148,10,0.2);" loading="lazy">` : `<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-family:'DM Serif Display',serif;">${initiale}</div>`}
-            <div style="flex:1;">
-              <div style="font-weight:800;font-size:14px;color:var(--noir);">${nom}</div>
-              <div style="font-size:11px;color:var(--gris);">${metier}${datePost ? ' · '+datePost : ''}</div>
-            </div>
-            <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
-          </div>
-          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${contenu}</div>` : ''}
-          ${mediaUrl && mediaType==='image' ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
-          ${mediaUrl && mediaType==='video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
-          <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
-            <button onclick="likePost('${prestId}','${post.id}')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;color:var(--gris);font-weight:600;">❤️ <span>${likes}</span></button>
-          </div>
-        </div>`;
-    }).join('');
-  } catch(e) {
-    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gris);">Erreur: ${e.message}</div>`;
-  }
 }
 
 async function loadFilPageAbonnes() {
@@ -6849,7 +6790,7 @@ async function loadFilPageAbonnes() {
   container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gris);grid-column:1/-1;"><div class="spinner"></div></div>';
   try {
     const supa = window.supabase;
-    // 1. Abonnements depuis wolo_suivis
+    // 1. Abonnements depuis wozali_suivis
     const { data: suivis } = await supa
       .from('wozali_suivis')
       .select('id, suivi_prestataire_id, created_at')
@@ -11048,22 +10989,23 @@ async function loadDashPosts() {
   if (!currentPrestataire?.id) return;
   const prestId = currentPrestataire.id;
 
-  // Charger depuis wolo_posts_v2 (Supabase)
+  // Charger depuis wozali_posts (système unifié) + commentaires table
   let posts = [];
   try {
     const supa = window.supabase;
     const { data: rows } = await supa
-      .from('wozali_posts_v2')
-      .select('id, contenu, nb_likes, commentaires')
+      .from('wozali_posts')
+      .select('id, contenu, nb_likes')
       .eq('prestataire_id', prestId)
       .eq('actif', true)
       .order('created_at', { ascending: false })
       .limit(100);
+    const commentsByPost = await wzFetchComments((rows || []).map(r => r.id));
     posts = (rows || []).map(r => ({
       id:       r.id,
       texte:    r.contenu || '',
       likes:    r.nb_likes || 0,
-      comments: Array.isArray(r.commentaires) ? r.commentaires : []
+      comments: commentsByPost[r.id] || []
     }));
   } catch { /* silencieux */ }
 
