@@ -40,6 +40,12 @@ GRANT EXECUTE ON FUNCTION public.wozali_post_partage(UUID) TO authenticated, ano
 --    Source = la VUE wozali_posts_v2 (la table de base wolo_posts_v2 n'a pas
 --    toutes les colonnes, ex. nb_partages : erreur 42703 à la 1re exécution).
 --    La vue est supprimée à l'étape 6, APRÈS la copie.
+-- Resynchroniser profiles d'abord (FK wozali_posts.auteur_id → profiles) :
+-- certains comptes auth n'ont pas de ligne profiles (trigger silencieux).
+INSERT INTO public.profiles (id, email)
+SELECT id, email FROM auth.users
+ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO public.wozali_posts
   (auteur_id, prestataire_id, type, contenu, media_url, media_type, nb_likes, nb_partages, actif, created_at, ordre)
 SELECT
@@ -57,10 +63,11 @@ SELECT
   v.created_at,
   v.ordre
 FROM public.wozali_posts_v2 v
-WHERE NOT EXISTS (
-  SELECT 1 FROM public.wozali_posts p
-  WHERE p.created_at = v.created_at AND COALESCE(p.contenu,'') = COALESCE(v.contenu,'')
-);
+WHERE EXISTS (SELECT 1 FROM public.profiles pr WHERE pr.id = v.auteur_user_id)
+  AND NOT EXISTS (
+    SELECT 1 FROM public.wozali_posts p
+    WHERE p.created_at = v.created_at AND COALESCE(p.contenu,'') = COALESCE(v.contenu,'')
+  );
 
 -- 5. wozali_suivis : la vue devient une vraie table (même shape, le code ne change pas)
 DROP VIEW IF EXISTS public.wozali_suivis;
