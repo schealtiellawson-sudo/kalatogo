@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WOZALI · Maquettes affiches commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --night-1: #14100A;
+    --night-2: #1E180E;
+    --cream: #FCE0A8;
+    --or: #E8940A;
+    --jour-bg: #FDF5E6;
+    --jour-ink: #14100A;
+    --jour-or-fonce: #A85F06;
+    --jour-gris: #7A6A4F;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--night-1);
+    color: var(--cream);
+    font-family: 'Geist', sans-serif;
+    padding: 40px 24px 80px;
+  }
+  .wrap { max-width: 1300px; margin: 0 auto; }
+
+  .page-head { margin-bottom: 40px; border-bottom: 1px solid rgba(232,148,10,0.2); padding-bottom: 24px; }
+  .eyebrow-p { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--or); margin-bottom: 10px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 34px; font-weight: 400; color: var(--cream); margin-bottom: 10px; }
+  .lede { font-size: 14px; line-height: 1.7; color: rgba(252,224,168,0.6); max-width: 780px; }
+
+  .sec { margin-bottom: 60px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+  .sec-num { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--or); font-weight: 700; }
+  .sec-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--cream); }
+  .sec-tag { font-family: 'Geist Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 100px; border: 1px solid rgba(232,148,10,0.4); color: var(--or); }
+  .sec-desc { font-size: 13px; line-height: 1.7; color: rgba(252,224,168,0.55); max-width: 700px; margin-bottom: 22px; }
+  .sec-desc b { color: var(--cream); font-weight: 600; }
+
+  .posters { display: flex; gap: 34px; flex-wrap: wrap; align-items: flex-start; }
+  .p-lbl { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(252,224,168,0.4); margin-bottom: 8px; }
+  .p-zoom { zoom: 0.62; }
+
+  /* ── Affiche A4 : 210 × 297 mm ── */
+  .a4 {
+    width: 210mm; height: 297mm;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 20mm 18mm 16mm 22mm;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  }
+  .side-bar { position: absolute; top: 0; bottom: 0; left: 0; width: 4mm; background: var(--or); }
+  .glow { position: absolute; top: -60mm; right: -60mm; width: 160mm; height: 160mm; border-radius: 50%; }
+
+  /* Logo */
+  .lg { display: flex; align-items: baseline; line-height: 1; white-space: nowrap; }
+  .lg-w { font-family: 'DM Serif Display', serif; font-style: italic; color: var(--or); letter-spacing: -0.04em; }
+  .lg-rest { font-family: 'DM Serif Display', serif; letter-spacing: -0.02em; }
+  .a4 .lg { font-size: 9mm; }
+
+  .p-head { display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .badge-verif { font-family: 'Geist Mono', monospace; font-size: 3mm; font-weight: 700; padding: 1.5mm 4mm; border-radius: 100px; border: 0.4mm solid var(--or); color: var(--or); letter-spacing: 0.5px; }
+
+  /* Bloc identité */
+  .p-id { display: flex; align-items: center; gap: 6mm; position: relative; margin-top: 12mm; }
+  .p-photo { width: 32mm; height: 32mm; border-radius: 50%; object-fit: cover; border: 0.8mm solid var(--or); flex-shrink: 0; }
+  .p-nom { font-family: 'DM Serif Display', serif; font-size: 11mm; line-height: 1.05; }
+  .p-metier { font-size: 5mm; font-weight: 600; margin-top: 1.5mm; }
+  .p-lieu { font-family: 'Geist Mono', monospace; font-size: 3.6mm; margin-top: 1.5mm; }
+
+  /* Bloc preuve */
+  .p-preuve { display: flex; align-items: stretch; gap: 0; margin-top: 10mm; border-radius: 3mm; overflow: hidden; position: relative; }
+  .pv-cell { flex: 1; padding: 5mm 4mm; text-align: center; }
+  .pv-cell + .pv-cell { border-left: 0.3mm solid rgba(232,148,10,0.3); }
+  .pv-big { font-family: 'DM Serif Display', serif; font-size: 13mm; line-height: 1; }
+  .pv-lbl { font-family: 'Geist Mono', monospace; font-size: 2.8mm; letter-spacing: 0.5px; margin-top: 2mm; text-transform: uppercase; }
+  .pv-stars { font-size: 4mm; letter-spacing: 1px; margin-top: 1.5mm; color: var(--or); }
+
+  /* Titre */
+  .p-titre { font-family: 'DM Serif Display', serif; font-size: 13mm; line-height: 1.15; margin-top: 11mm; position: relative; }
+  .p-sub { font-size: 4.6mm; line-height: 1.5; margin-top: 4mm; position: relative; }
+
+  /* QR */
+  .p-qr-wrap { display: flex; align-items: center; gap: 8mm; margin-top: auto; position: relative; }
+  /* Affiche Caisse : le QR est le seul objet du bas, on le remonte et on l'agrandit */
+  .caisse .p-qr-wrap { margin-top: 16mm; }
+  .caisse .p-instr { font-size: 8mm; }
+  .p-qr { padding: 4mm; background: #FFFFFF; border-radius: 3mm; flex-shrink: 0; }
+  .p-qr-txt { flex: 1; }
+  .p-instr { font-family: 'DM Serif Display', serif; font-size: 7mm; line-height: 1.2; }
+  .p-instr-sub { font-size: 3.8mm; line-height: 1.5; margin-top: 3mm; }
+  .p-vocal { display: flex; align-items: center; gap: 3mm; margin-top: 5mm; padding: 3.5mm 4mm; border-radius: 2.5mm; border: 0.4mm solid var(--or); }
+  .p-vocal-ico { font-size: 6mm; }
+  .p-vocal-txt { font-size: 3.6mm; line-height: 1.4; font-weight: 600; }
+
+  .p-foot { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10mm; padding-top: 5mm; position: relative; }
+  .p-foot .lg { font-size: 6mm; }
+  .dom { font-family: 'Geist Mono', monospace; font-size: 4.5mm; font-weight: 700; color: var(--or); }
+
+  /* ═══ NUIT ═══ */
+  .nuit { background: var(--night-1); }
+  .nuit .glow { background: radial-gradient(circle, rgba(232,148,10,0.16), transparent 70%); }
+  .nuit .lg-rest { color: var(--cream); }
+  .nuit .p-nom { color: var(--cream); }
+  .nuit .p-metier { color: var(--or); }
+  .nuit .p-lieu { color: rgba(252,224,168,0.45); }
+  .nuit .p-preuve { background: rgba(232,148,10,0.07); border: 0.4mm solid rgba(232,148,10,0.35); }
+  .nuit .pv-big { color: var(--cream); }
+  .nuit .pv-lbl { color: rgba(252,224,168,0.5); }
+  .nuit .p-titre { color: var(--cream); }
+  .nuit .p-sub { color: rgba(252,224,168,0.6); }
+  .nuit .p-instr { color: var(--cream); }
+  .nuit .p-instr-sub { color: rgba(252,224,168,0.55); }
+  .nuit .p-vocal { background: rgba(232,148,10,0.1); }
+  .nuit .p-vocal-txt { color: var(--cream); }
+  .nuit .p-foot { border-top: 0.3mm solid rgba(232,148,10,0.3); }
+  .nuit .p-photo { background: #333; }
+
+  /* ═══ JOUR ═══ */
+  .jour { background: var(--jour-bg); }
+  .jour .glow { background: radial-gradient(circle, rgba(232,148,10,0.28), transparent 70%); }
+  .jour .lg-rest { color: var(--jour-ink); }
+  .jour .p-nom { color: var(--jour-ink); }
+  .jour .p-metier { color: var(--jour-or-fonce); }
+  .jour .p-lieu { color: var(--jour-gris); }
+  .jour .p-preuve { background: rgba(232,148,10,0.10); border: 0.4mm solid rgba(168,95,6,0.35); }
+  .jour .pv-big { color: var(--jour-ink); }
+  .jour .pv-lbl { color: var(--jour-gris); }
+  .jour .p-titre { color: var(--jour-ink); }
+  .jour .p-sub { color: var(--jour-gris); }
+  .jour .p-instr { color: var(--jour-ink); }
+  .jour .p-instr-sub { color: var(--jour-gris); }
+  .jour .p-vocal { background: rgba(232,148,10,0.14); border-color: var(--jour-or-fonce); }
+  .jour .p-vocal-txt { color: var(--jour-ink); }
+  .jour .p-foot { border-top: 0.3mm solid rgba(168,95,6,0.3); }
+  .jour .dom { color: var(--jour-or-fonce); }
+  .jour .badge-verif { border-color: var(--jour-or-fonce); color: var(--jour-or-fonce); }
+  .jour .p-photo { background: #e8ddc8; }
+  .jour .pv-stars { color: var(--jour-or-fonce); }
+
+  /* ── Notes ── */
+  .notes { margin-top: 20px; border-top: 1px solid rgba(232,148,10,0.2); padding-top: 30px; }
+  .notes h2 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--cream); margin-bottom: 16px; }
+  .note { background: var(--night-2); border-left: 2px solid var(--or); border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 12px; }
+  .note-t { font-size: 13px; font-weight: 700; color: var(--or); margin-bottom: 5px; }
+  .note-b { font-size: 13px; line-height: 1.7; color: rgba(252,224,168,0.65); }
+  .note-b b { color: var(--cream); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-head">
+    <div class="eyebrow-p">Affiches commerce · Phase C · Maquettes pour validation</div>
+    <h1>Deux affiches, deux moments</h1>
+    <p class="lede">L'entrée et la caisse ne parlent pas au même client. À l'entrée, il arrive et ne sait pas encore si le travail est bon : il lui faut la preuve. À la caisse, il vient d'être servi : c'est le seul moment où il laissera un avis. Chaque affiche a un seul travail, et un QR qui mène à une seule action. Format A4, Nuit ou Jour au choix du commerçant.</p>
+  </div>
+
+  <!-- ══ AFFICHE 1 · VITRINE ══ -->
+  <div class="sec">
+    <div class="sec-head">
+      <span class="sec-num">AFFICHE 1</span>
+      <span class="sec-title">Vitrine</span>
+      <span class="sec-tag">à l'entrée, sur la vitre, au mur</span>
+    </div>
+    <p class="sec-desc">Le client arrive, il ne connaît pas encore le travail. Cette affiche lui donne la preuve : la note, les avis, le Score. <b>Le QR mène au profil</b> : il voit les réalisations, les tarifs, et il peut suivre le commerce pour la suite. Objectif : transformer le passant en client.</p>
+    <div class="posters">
+      <div>
+        <div class="p-lbl">Nuit</div>
+        <div class="p-zoom"><div class="a4 nuit">
+          <div class="side-bar"></div><div class="glow"></div>
+          <div class="p-head">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+            <span class="badge-verif">✓ PROFIL VÉRIFIÉ</span>
+          </div>
+          <div class="p-id">
+            <img class="p-photo" src="https://i.pravatar.cc/300?img=12" alt="">
+            <div>
+              <div class="p-nom">Kofi Mensah</div>
+              <div class="p-metier">Menuisier</div>
+              <div class="p-lieu">Bè · Lomé</div>
+            </div>
+          </div>
+          <div class="p-preuve">
+            <div class="pv-cell">
+              <div class="pv-big">4,8</div>
+              <div class="pv-stars">★★★★★</div>
+              <div class="pv-lbl">Note clients</div>
+            </div>
+            <div class="pv-cell">
+              <div class="pv-big">27</div>
+              <div class="pv-lbl">Avis vérifiés</div>
+            </div>
+            <div class="pv-cell">
+              <div class="pv-big">82</div>
+              <div class="pv-lbl">Score WOZALI</div>
+            </div>
+          </div>
+          <div class="p-titre">Vois mon travail<br>avant de choisir.</div>
+          <div class="p-sub">Mes réalisations, mes tarifs, et ce que les clients passés ont dit. Tout est là.</div>
+          <div class="p-qr-wrap">
+            <div class="p-qr"><div class="qr" data-qr="profil"></div></div>
+            <div class="p-qr-txt">
+              <div class="p-instr">Ouvre l'appareil photo. Vise le carré.</div>
+              <div class="p-instr-sub">Pas besoin d'installer quoi que ce soit.</div>
+            </div>
+          </div>
+          <div class="p-foot">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+            <span class="dom">wozali.africa</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div>
+        <div class="p-lbl">Jour</div>
+        <div class="p-zoom"><div class="a4 jour">
+          <div class="side-bar"></div><div class="glow"></div>
+          <div class="p-head">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+            <span class="badge-verif">✓ PROFIL VÉRIFIÉ</span>
+          </div>
+          <div class="p-id">
+            <img class="p-photo" src="https://i.pravatar.cc/300?img=12" alt="">
+            <div>
+              <div class="p-nom">Kofi Mensah</div>
+              <div class="p-metier">Menuisier</div>
+              <div class="p-lieu">Bè · Lomé</div>
+            </div>
+          </div>
+          <div class="p-preuve">
+            <div class="pv-cell">
+              <div class="pv-big">4,8</div>
+              <div class="pv-stars">★★★★★</div>
+              <div class="pv-lbl">Note clients</div>
+            </div>
+            <div class="pv-cell">
+              <div class="pv-big">27</div>
+              <div class="pv-lbl">Avis vérifiés</div>
+            </div>
+            <div class="pv-cell">
+              <div class="pv-big">82</div>
+              <div class="pv-lbl">Score WOZALI</div>
+            </div>
+          </div>
+          <div class="p-titre">Vois mon travail<br>avant de choisir.</div>
+          <div class="p-sub">Mes réalisations, mes tarifs, et ce que les clients passés ont dit. Tout est là.</div>
+          <div class="p-qr-wrap">
+            <div class="p-qr"><div class="qr" data-qr="profil"></div></div>
+            <div class="p-qr-txt">
+              <div class="p-instr">Ouvre l'appareil photo. Vise le carré.</div>
+              <div class="p-instr-sub">Pas besoin d'installer quoi que ce soit.</div>
+            </div>
+          </div>
+          <div class="p-foot">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+            <span class="dom">wozali.africa</span>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AFFICHE 2 · CAISSE ══ -->
+  <div class="sec">
+    <div class="sec-head">
+      <span class="sec-num">AFFICHE 2</span>
+      <span class="sec-title">Caisse</span>
+      <span class="sec-tag">au comptoir, là où le client paie</span>
+    </div>
+    <p class="sec-desc">Le client vient d'être servi. Il sait ce qu'il pense. <b>Le QR ouvre directement le formulaire d'avis</b>, micro déjà affiché : il parle vingt secondes, c'est fini. Objectif : transformer le client en preuve, qui fera venir le suivant.</p>
+    <div class="posters">
+      <div>
+        <div class="p-lbl">Nuit</div>
+        <div class="p-zoom"><div class="a4 nuit caisse">
+          <div class="side-bar"></div><div class="glow"></div>
+          <div class="p-head">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+            <span class="badge-verif">✓ AVIS VÉRIFIÉ</span>
+          </div>
+          <div class="p-titre" style="margin-top:16mm;font-size:16mm;">Ton avis fait venir<br>le prochain client.</div>
+          <div class="p-sub">Trente secondes. C'est ce qui fait tourner cette boutique.</div>
+          <div class="p-vocal">
+            <span class="p-vocal-ico">🎤</span>
+            <span class="p-vocal-txt">Tu peux le dire à voix haute. Pas besoin d'écrire.</span>
+          </div>
+          <div class="p-qr-wrap">
+            <div class="p-qr"><div class="qr" data-qr="avis"></div></div>
+            <div class="p-qr-txt">
+              <div class="p-instr">Ouvre l'appareil photo. Vise le carré.</div>
+              <div class="p-instr-sub">Tu tombes direct sur la page pour donner ton avis.</div>
+            </div>
+          </div>
+          <div class="p-foot">
+            <div>
+              <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+              <div class="p-lieu" style="margin-top:2mm;">Kofi Mensah · Menuisier · Bè</div>
+            </div>
+            <span class="dom">wozali.africa</span>
+          </div>
+        </div></div>
+      </div>
+
+      <div>
+        <div class="p-lbl">Jour</div>
+        <div class="p-zoom"><div class="a4 jour caisse">
+          <div class="side-bar"></div><div class="glow"></div>
+          <div class="p-head">
+            <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+            <span class="badge-verif">✓ AVIS VÉRIFIÉ</span>
+          </div>
+          <div class="p-titre" style="margin-top:16mm;font-size:16mm;">Ton avis fait venir<br>le prochain client.</div>
+          <div class="p-sub">Trente secondes. C'est ce qui fait tourner cette boutique.</div>
+          <div class="p-vocal">
+            <span class="p-vocal-ico">🎤</span>
+            <span class="p-vocal-txt">Tu peux le dire à voix haute. Pas besoin d'écrire.</span>
+          </div>
+          <div class="p-qr-wrap">
+            <div class="p-qr"><div class="qr" data-qr="avis"></div></div>
+            <div class="p-qr-txt">
+              <div class="p-instr">Ouvre l'appareil photo. Vise le carré.</div>
+              <div class="p-instr-sub">Tu tombes direct sur la page pour donner ton avis.</div>
+            </div>
+          </div>
+          <div class="p-foot">
+            <div>
+              <div class="lg"><span class="lg-w">W</span><span class="lg-rest">OZALI</span></div>
+              <div class="p-lieu" style="margin-top:2mm;">Kofi Mensah · Menuisier · Bè</div>
+            </div>
+            <span class="dom">wozali.africa</span>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ NOTES ══ -->
+  <div class="notes">
+    <h2>Ce que j'ai tranché, et pourquoi</h2>
+
+    <div class="note">
+      <div class="note-t">La douleur de l'artisan n'apparaît nulle part sur l'affiche</div>
+      <div class="note-b">Un salon n'écrit pas "je galère à trouver des clients" devant ses clients, ça le rabaisse. La douleur est retournée en pouvoir d'agir du client : <b>"Ton avis fait venir le prochain client."</b> Le client comprend qu'il tient le premier maillon de la chaîne qui fait circuler l'argent. L'artisan reste digne, le client devient acteur.</div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Les deux affiches forment un cycle, elles ne se répètent pas</div>
+      <div class="note-b">La Vitrine convertit le passant en client. La Caisse convertit le client en preuve, qui fait revenir un passant. <b>C'est la boucle qui fait tourner le commerce</b>, et c'est pour ça qu'une seule affiche générique ne pouvait pas marcher.</div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Chaque QR mène à une seule action</div>
+      <div class="note-b">Vitrine → le profil. Caisse → <b>directement le formulaire d'avis</b>, pas le profil. Un client qui atterrit sur une page avec quatre choix possibles n'en fait aucun. Techniquement : <b>wozali.africa/profil/kofi-mensah?action=avis</b>, le routage existe déjà, il reste à brancher le paramètre.</div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Le Score et la note SONT sur l'affiche, contrairement à la carte</div>
+      <div class="note-b">La carte est figée un an, l'affiche se réimprime gratuitement depuis le dashboard. Elle peut donc afficher la preuve fraîche. <b>Et ça crée une boucle de réengagement : "ton Score est monté, réimprime ton affiche".</b> À l'implémentation, j'ajouterai la date de génération en tout petit.</div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Le Jour reste le défaut recommandé pour l'A4</div>
+      <div class="note-b">Un A4 noir plein coûte cher au cyber du quartier (500 à 1000 FCFA la page couleur contre ~100 FCFA en noir et blanc), fait gondoler le papier en jet d'encre et bave en photocopie. <b>Les deux modes existent comme tu veux, mais l'outil dira honnêtement au commerçant ce que le Nuit coûte à imprimer</b> au lieu de le lui laisser découvrir à ses frais.</div>
+    </div>
+
+    <div class="note">
+      <div class="note-t">Ce qui reste à trancher</div>
+      <div class="note-b">1. Les titres : <b>"Vois mon travail avant de choisir"</b> (vitrine) et <b>"Ton avis fait venir le prochain client"</b> (caisse), on garde ?<br>2. Le bloc preuve à 3 chiffres (note, avis, Score) : c'est bon, ou trop chargé pour être lu de loin ?<br>3. Un commerce qui débute a 0 avis et un Score bas. <b>Je masque le bloc preuve tant qu'il n'y a pas au moins 3 avis</b>, sinon l'affiche se retourne contre lui. Tu confirmes ?</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var SLUG = 'kofi-mensah-menuisier-lome';
+  var URLS = {
+    profil: 'https://wozali.africa/profil/' + SLUG,
+    avis:   'https://wozali.africa/profil/' + SLUG + '?action=avis'
+  };
+  document.querySelectorAll('[data-qr]').forEach(function (el) {
+    var kind = el.getAttribute('data-qr');
+    new QRCode(el, {
+      text: URLS[kind],
+      width: 320, height: 320,
+      colorDark: '#14100A', colorLight: '#FFFFFF',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    // Taille finale à l'impression : 62 mm de côté (scan confortable jusqu'à ~1 m)
+    var isCaisse = !!el.closest('.caisse');
+    var size = isCaisse ? '82mm' : '62mm';
+    el.querySelectorAll('img, canvas').forEach(function (n) {
+      n.style.width = size; n.style.height = size;
+    });
+    var img = el.querySelector('img');
+    if (img) img.style.display = 'block';
+  });
+</script>
+</body>
+</html>
