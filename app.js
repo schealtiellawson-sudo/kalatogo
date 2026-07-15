@@ -2510,6 +2510,253 @@ async function deleteDashAvis(avisId) {
 }
 
 // ══ STORY RÉALISATION VÉRIFIÉE ══
+// ── Helpers partagés — cartes visuelles "Story WOZALI" (étape 10 Phase C) ──
+function _wzLoadImg(src) {
+  return new Promise((ok, fail) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => ok(img); img.onerror = fail; img.src = src;
+  });
+}
+function _wzWrapText(ctx, text, x, y, maxW, lineH, font, color, align) {
+  ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align || 'center';
+  const words = text.split(' '); let line = '';
+  for (const w of words) {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line.trim(), x, y); y += lineH; line = w + ' ';
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, y);
+  return y + lineH;
+}
+
+// Modal de partage — téléchargement + partage natif (Web Share API = vrai 1 tap vers le Statut WhatsApp sur mobile)
+function _wzShowStoryModal(dataUrl, { filename, waText, title, subtitle }) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;';
+  const canShareFiles = !!(navigator.canShare && navigator.share);
+  overlay.innerHTML = `
+    <div style="background:#1E180E;border-radius:20px;max-width:400px;width:100%;overflow:hidden;border:1px solid rgba(232,148,10,0.3);">
+      <div style="padding:16px;text-align:center;">
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">${title || '✅ Ta carte est prête !'}</div>
+        <p style="font-size:13px;color:rgba(252,224,168,0.5);">${subtitle || 'Partage-la en Statut WhatsApp pour attirer de nouveaux clients.'}</p>
+      </div>
+      <img src="${dataUrl}" style="width:100%;display:block;" alt="Carte WOZALI" loading="lazy">
+      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+        ${canShareFiles ? `<button id="wz-story-share-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">📤 Partager sur mon Statut</button>` : ''}
+        <a href="${dataUrl}" download="${filename}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:${canShareFiles ? 'transparent' : 'linear-gradient(135deg,#E8940A,#d97706)'};color:${canShareFiles ? '#FCE0A8' : 'white'};border:${canShareFiles ? '1px solid rgba(255,255,255,0.15)' : 'none'};border-radius:100px;padding:12px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;">⬇️ Télécharger</a>
+        ${!canShareFiles ? `<button onclick="window.open('https://wa.me/?text=${encodeURIComponent(waText || '')}','_blank')" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">📱 Partager sur WhatsApp</button>` : ''}
+        <button onclick="this.closest('[style*=fixed]').remove()" style="background:transparent;color:rgba(252,224,168,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:10px;font-size:13px;cursor:pointer;">Fermer</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  if (canShareFiles) {
+    const shareBtn = overlay.querySelector('#wz-story-share-btn');
+    shareBtn.onclick = async () => {
+      try {
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], filename, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text: waText || '' });
+        } else {
+          window.open(`https://wa.me/?text=${encodeURIComponent(waText || '')}`, '_blank');
+        }
+      } catch (e) {
+        if (e?.name !== 'AbortError') toast('Le partage a échoué. Utilise le téléchargement.', 'error');
+      }
+    };
+  }
+}
+
+// ── Étape 10 : export carte "Statut WhatsApp" depuis le PROFIL ──
+async function generateProfilStory() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const nom = f['Nom complet'] || 'Prestataire';
+  const metier = f['Métier principal'] || '';
+  const ville = f['Ville'] || '';
+  const quartier = f['Quartier'] || '';
+  const photoProfil = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['WhatsApp']) || '';
+  const score = Math.round(f['Score WOZALI'] || 0);
+  const dispo = !!f['Disponible maintenant'];
+  const emoji = window.METIER_EMOJI?.[metier] || '⚡';
+
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+
+  // Logo
+  const logoY = H * 0.09;
+  ctx.font = '900 56px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.fillText('W', W / 2, logoY);
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(W * 0.2, logoY + 24); ctx.lineTo(W * 0.8, logoY + 24); ctx.stroke();
+  ctx.font = '700 12px "Geist Mono", monospace'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('W  O  Z  A  L  I', W / 2, logoY + 48);
+
+  // Avatar central
+  const avCx = W / 2, avCy = H * 0.32, avR = 130;
+  try {
+    if (photoProfil) {
+      const img = await _wzLoadImg(photoProfil);
+      ctx.save(); ctx.beginPath(); ctx.arc(avCx, avCy, avR, 0, Math.PI * 2); ctx.clip();
+      const ratio = img.width / img.height;
+      let dw = avR * 2, dh = avR * 2;
+      if (ratio > 1) { dw = dh * ratio; } else { dh = dw / ratio; }
+      ctx.drawImage(img, avCx - dw / 2, avCy - dh / 2, dw, dh);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#1E180E'; ctx.beginPath(); ctx.arc(avCx, avCy, avR, 0, Math.PI * 2); ctx.fill();
+      ctx.font = '110px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
+      ctx.fillText(emoji, avCx, avCy + 40);
+    }
+  } catch (e) {
+    ctx.fillStyle = '#1E180E'; ctx.beginPath(); ctx.arc(avCx, avCy, avR, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '110px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
+    ctx.fillText(emoji, avCx, avCy + 40);
+  }
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.arc(avCx, avCy, avR, 0, Math.PI * 2); ctx.stroke();
+
+  let afterAvatarY = avCy + avR + 60;
+  if (dispo) {
+    const bw = 260, bh = 46, bx = avCx - bw / 2, by = avCy + avR + 20;
+    ctx.fillStyle = 'rgba(34,197,94,0.15)'; ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 100); ctx.fill(); ctx.stroke();
+    ctx.font = '700 18px Geist, sans-serif'; ctx.fillStyle = '#4ade80'; ctx.textAlign = 'center';
+    ctx.fillText('🟢 Disponible maintenant', avCx, by + bh / 2 + 6);
+    afterAvatarY = by + bh + 50;
+  }
+
+  // Nom + métier + ville
+  ctx.font = '900 46px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8'; ctx.textAlign = 'center';
+  ctx.fillText(nom, W / 2, afterAvatarY);
+  ctx.font = '400 24px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(metier, W / 2, afterAvatarY + 40);
+  ctx.font = '400 16px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText([quartier, ville].filter(Boolean).join(' · '), W / 2, afterAvatarY + 70);
+
+  // Score WOZALI
+  const scoreY = afterAvatarY + 110;
+  const boxW = W * 0.6, boxX = (W - boxW) / 2, boxH = 130;
+  ctx.fillStyle = 'rgba(232,148,10,0.08)'; ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(boxX, scoreY, boxW, boxH, 20); ctx.fill(); ctx.stroke();
+  ctx.font = '700 15px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.6)'; ctx.textAlign = 'center';
+  ctx.fillText('SCORE WOZALI', W / 2, scoreY + 40);
+  ctx.font = '900 64px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(String(score), W / 2, scoreY + 100);
+
+  // Footer CTA
+  const footY = H * 0.9;
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W * 0.1, footY); ctx.lineTo(W * 0.9, footY); ctx.stroke();
+  ctx.font = '400 14px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.6)'; ctx.textAlign = 'center';
+  ctx.fillText('Trouve-moi sur WOZALI', W / 2, footY + 36);
+  ctx.font = '700 18px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('wozali.africa', W / 2, footY + 66);
+
+  const dataUrl = canvas.toDataURL('image/png');
+  const slug = _buildProfilSlug(nom, metier, ville);
+  const profilUrl = `https://wozali.africa/profil/${slug}`;
+  const prenom = nom.split(' ')[0] || nom;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const filename = `WOZALI-Profil-${prenom}-${dateStr}.png`;
+  const waText = `👋 Voici mon profil WOZALI !\nRetrouve mes services et mes avis clients :\n👉 ${profilUrl}`;
+
+  _wzShowStoryModal(dataUrl, {
+    filename, waText,
+    title: '📤 Ta carte profil est prête !',
+    subtitle: 'Partage-la en Statut WhatsApp pour que tes contacts te trouvent.'
+  });
+}
+
+// ── Étape 10 : export carte "Statut WhatsApp" depuis un POST ──
+async function generatePostStory(recordId, postId) {
+  const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
+  const p = posts.find(x => String(x.id) === String(postId));
+  if (!p || !p.photo) { toast('Cette publication n\'a pas de photo à exporter.', 'error'); return; }
+  const f = currentPrestataire?.fields || {};
+  const nom = p.auteur || f['Nom complet'] || 'Prestataire';
+  const metier = f['Métier principal'] || '';
+  const ville = f['Ville'] || '';
+  const photoAuteur = p.auteurPhoto || _wPhotoUrl(f['Photo de profil']) || '';
+
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+
+  const photoH = H * 0.78;
+  try {
+    const img = await _wzLoadImg(p.photo);
+    const ratio = img.width / img.height;
+    let dw = W, dh = photoH;
+    if (ratio > W / photoH) { dw = photoH * ratio; } else { dh = W / ratio; }
+    ctx.drawImage(img, (W - dw) / 2, (photoH - dh) / 2, dw, dh);
+  } catch (e) {
+    ctx.fillStyle = '#1E180E'; ctx.fillRect(0, 0, W, photoH);
+  }
+  const gradTop = ctx.createLinearGradient(0, 0, 0, photoH * 0.25);
+  gradTop.addColorStop(0, 'rgba(20,16,10,0.7)'); gradTop.addColorStop(1, 'transparent');
+  ctx.fillStyle = gradTop; ctx.fillRect(0, 0, W, photoH * 0.25);
+  const gradBot = ctx.createLinearGradient(0, photoH * 0.55, 0, photoH);
+  gradBot.addColorStop(0, 'transparent'); gradBot.addColorStop(1, 'rgba(20,16,10,0.95)');
+  ctx.fillStyle = gradBot; ctx.fillRect(0, photoH * 0.55, W, photoH * 0.45);
+
+  ctx.font = '900 40px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.fillText('W', W / 2, H * 0.06);
+  ctx.font = '700 11px "Geist Mono", monospace'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('W  O  Z  A  L  I', W / 2, H * 0.06 + 26);
+
+  if (p.texte) {
+    _wzWrapText(ctx, p.texte.length > 140 ? p.texte.slice(0, 137) + '...' : p.texte, W / 2, photoH - 60, W * 0.82, 30, '600 24px Geist, sans-serif', '#FCE0A8', 'center');
+  }
+
+  const idY = photoH + H * 0.03;
+  const avS = 64, avX = W * 0.12, avY = idY;
+  try {
+    if (photoAuteur) {
+      const avImg = await _wzLoadImg(photoAuteur);
+      ctx.save(); ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.clip();
+      ctx.drawImage(avImg, avX, avY, avS, avS); ctx.restore();
+    } else {
+      ctx.fillStyle = '#E8940A'; ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
+    }
+  } catch (e) {
+    ctx.fillStyle = '#E8940A'; ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.stroke();
+  ctx.textAlign = 'left';
+  ctx.font = '700 26px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(nom, avX + avS + 20, avY + 30);
+  ctx.font = '400 16px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText([metier, ville].filter(Boolean).join(' · '), avX + avS + 20, avY + 56);
+
+  const footY = H * 0.94;
+  const slug = _buildProfilSlug(nom, metier, ville);
+  const profilUrl = `https://wozali.africa/profil/${slug}`;
+  ctx.font = '700 18px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.fillText('wozali.africa', W / 2, footY);
+
+  const dataUrl = canvas.toDataURL('image/png');
+  const prenom = nom.split(' ')[0] || nom;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const filename = `WOZALI-Post-${prenom}-${dateStr}.png`;
+  const waText = `📸 Découvre ma dernière réalisation sur WOZALI !\n👉 ${profilUrl}`;
+
+  _wzShowStoryModal(dataUrl, {
+    filename, waText,
+    title: '📤 Ta publication est prête à partager !',
+    subtitle: 'Mets-la en Statut WhatsApp — tes contacts verront ton travail.'
+  });
+}
+
 async function generateStory(avisId, note, auteur, commentaire) {
   if (!currentPrestataire) return;
   const f = currentPrestataire.fields;
@@ -2656,25 +2903,13 @@ async function generateStory(avisId, note, auteur, commentaire) {
   const dateStr = new Date().toISOString().slice(0, 10);
   const filename = `WOZALI-Story-${prenom}-${dateStr}.png`;
 
-  const waMsg = encodeURIComponent(`\u2B50 J'ai re\u00e7u un nouvel avis client sur WOZALI !\nD\u00e9couvre mon profil et mes r\u00e9alisations :\n\uD83D\uDC49 ${profilUrl}\n\uD83D\uDCF2 Rejoins WOZALI \u2014 cr\u00e9e ton profil gratuit.`);
+  const waText = `\u2B50 J'ai re\u00e7u un nouvel avis client sur WOZALI !\nD\u00e9couvre mon profil et mes r\u00e9alisations :\n\uD83D\uDC49 ${profilUrl}\n\uD83D\uDCF2 Rejoins WOZALI \u2014 cr\u00e9e ton profil gratuit.`;
 
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px;';
-  overlay.innerHTML = `
-    <div style="background:#1E180E;border-radius:20px;max-width:400px;width:100%;overflow:hidden;border:1px solid rgba(232,148,10,0.3);">
-      <div style="padding:16px;text-align:center;">
-        <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">\u2B50 Ta Story est pr\u00eate !</div>
-        <p style="font-size:13px;color:rgba(252, 224, 168,0.5);">Partage-la sur tes r\u00e9seaux pour attirer de nouveaux clients.</p>
-      </div>
-      <img src="${dataUrl}" style="width:100%;display:block;" alt="Story WOZALI" loading="lazy">
-      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
-        <a href="${dataUrl}" download="${filename}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;">\u2B07\uFE0F T\u00e9l\u00e9charger ma Story</a>
-        <button onclick="window.open('https://wa.me/?text=${waMsg}','_blank')" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">\uD83D\uDCF1 Partager sur WhatsApp</button>
-        <button onclick="this.closest('[style*=fixed]').remove()" style="background:transparent;color:rgba(252, 224, 168,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:10px;font-size:13px;cursor:pointer;">Fermer</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+  _wzShowStoryModal(dataUrl, {
+    filename, waText,
+    title: '\u2B50 Ta Story est pr\u00eate !',
+    subtitle: 'Partage-la sur tes r\u00e9seaux pour attirer de nouveaux clients.'
+  });
 }
 
 // ══ VOIR MON PROFIL PUBLIC ══
@@ -4778,6 +5013,7 @@ function _renderPostsFeedCards(recordId) {
         <button class="pf-actbtn ${hasLiked ? 'liked' : ''}" onclick="likePost('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span>${p.likes || 0}</span></button>
         <button class="pf-actbtn" onclick="toggleCommentBox('${recordId}','${p.id}')">💬 <span>${comments.length}</span></button>
         <button class="pf-actbtn" onclick="sharePost('${recordId}','${p.id}')">➤ <span id="pf-share-${p.id}">${p.partages || 0}</span></button>
+        ${(isOwner && p.photo) ? `<button class="pf-actbtn" onclick="generatePostStory('${recordId}','${p.id}')" title="Exporter en Statut WhatsApp">📤</button>` : ''}
       </div>
       <div id="comments-section-${p.id}" class="pf-comments" style="display:none;">
         ${commentsHtml}
