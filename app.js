@@ -5346,6 +5346,87 @@ async function wzToggleLike(postId, wantLike) {
   }
 }
 
+// ── Réactions emoji (étape 14) : une réaction par personne, stockée dans wozali_likes ──
+const WZ_REACTIONS = ['👏', '🔥', '❤️', '🙏'];
+
+async function wzFetchMyReactions(postIds) {
+  if (!currentUser || !postIds.length) return {};
+  try {
+    const { data } = await window.supabase.from('wozali_likes')
+      .select('post_id, emoji').eq('user_id', currentUser.id).in('post_id', postIds);
+    const map = {};
+    (data || []).forEach(r => { map[r.post_id] = r.emoji || '❤️'; });
+    return map;
+  } catch { return {}; }
+}
+
+// Pose, change, ou retire la réaction de l'utilisateur. Renvoie le delta du compteur (+1/0/-1).
+async function wzSetReaction(postId, emoji, currentEmoji) {
+  const supa = window.supabase;
+  if (currentEmoji === emoji) {
+    // Re-tap le même emoji = on retire la réaction
+    const { error } = await supa.from('wozali_likes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+    if (error) throw error;
+    return -1;
+  }
+  if (currentEmoji) {
+    // Changement d'emoji : le total ne bouge pas
+    const { error } = await supa.from('wozali_likes').update({ emoji }).eq('post_id', postId).eq('user_id', currentUser.id);
+    if (error) throw error;
+    return 0;
+  }
+  // Première réaction
+  const { error } = await supa.from('wozali_likes').insert({ post_id: postId, user_id: currentUser.id, emoji });
+  if (error && !String(error.message || '').toLowerCase().includes('duplicate')) throw error;
+  return error ? 0 : 1;
+}
+
+// Barre de réactions inline : 4 emoji + total. Le mien est surligné.
+function _wzReactionBar(postId, total, myEmoji) {
+  const btns = WZ_REACTIONS.map(e => {
+    const on = e === myEmoji;
+    return `<button type="button" onclick="wzReact(event,'${postId}','${e}')" aria-label="Réagir ${e}"
+      style="background:${on ? 'rgba(232,148,10,0.18)' : 'none'};border:${on ? '1px solid rgba(232,148,10,0.5)' : '1px solid transparent'};border-radius:100px;font-size:17px;line-height:1;padding:5px 8px;cursor:pointer;transition:transform .1s;"
+      ontouchstart="" >${e}</button>`;
+  }).join('');
+  return `<div class="wz-react-bar" data-post="${postId}" data-mine="${myEmoji || ''}" style="display:flex;align-items:center;gap:2px;">
+    ${btns}
+    <span class="wz-react-total" style="font-size:12px;color:rgba(252,224,168,0.4);margin-left:6px;">${total > 0 ? total : ''}</span>
+  </div>`;
+}
+
+async function wzReact(ev, postId, emoji) {
+  if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+  if (!currentUser) { toast('Connecte-toi pour réagir.', 'info'); showPage('login'); return; }
+  const bar = document.querySelector(`.wz-react-bar[data-post="${postId}"]`);
+  if (!bar) return;
+  const currentEmoji = bar.dataset.mine || '';
+  const totalEl = bar.querySelector('.wz-react-total');
+  let total = parseInt(totalEl.textContent || '0') || 0;
+
+  // Optimiste : on met à jour l'écran avant la réponse réseau
+  let delta = currentEmoji === emoji ? -1 : (currentEmoji ? 0 : 1);
+  const newMine = currentEmoji === emoji ? '' : emoji;
+  bar.dataset.mine = newMine;
+  total = Math.max(0, total + delta);
+  totalEl.textContent = total > 0 ? total : '';
+  bar.querySelectorAll('button').forEach(b => {
+    const on = b.textContent.trim() === newMine;
+    b.style.background = on ? 'rgba(232,148,10,0.18)' : 'none';
+    b.style.border = on ? '1px solid rgba(232,148,10,0.5)' : '1px solid transparent';
+    if (on) { b.style.transform = 'scale(1.25)'; setTimeout(() => { b.style.transform = ''; }, 140); }
+  });
+
+  try {
+    await wzSetReaction(postId, emoji, currentEmoji);
+  } catch (e) {
+    // Rollback
+    bar.dataset.mine = currentEmoji;
+    totalEl.textContent = (total - delta) > 0 ? (total - delta) : '';
+    toast('Ta réaction n\'est pas partie. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+
 async function wzFetchComments(postIds) {
   if (!postIds.length) return {};
   const supa = window.supabase;
@@ -7199,7 +7280,7 @@ async function loadFilFeed() {
       supa.from('wozali_posts').select('*').in('prestataire_id', prestIds).eq('actif', true).neq('media_type','video').order('created_at',{ascending:false}).limit(30),
       supa.from('wozali_posts').select('*').in('prestataire_id', prestIds).eq('actif', true).eq('media_type','video').order('created_at',{ascending:false}).limit(10)
     ]);
-    const myLikes = await wzFetchMyLikes([...(posts||[]), ...(reels||[])].map(p => p.id));
+    const myReactions = await wzFetchMyReactions((posts||[]).map(p => p.id));
     const allIds = [...new Set([...(posts||[]).map(p=>p.prestataire_id),...(reels||[]).map(r=>r.prestataire_id)].filter(Boolean))];
     let prestMap = {};
     if (allIds.length) {
@@ -7211,7 +7292,7 @@ async function loadFilFeed() {
     if (!posts || !posts.length) {
       html += `<div style="text-align:center;padding:50px 20px;color:rgba(252,224,168,0.35);"><div style="font-size:40px;margin-bottom:10px;">🕐</div><p style="font-size:14px;">Pas encore de photos publiées.</p></div>`;
     } else {
-      html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{}, myLikes.has(p.id))).join('');
+      html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{}, false, myReactions[p.id]||'')).join('');
     }
     feed.innerHTML = html;
     _wzSaveFilCache(posts, prestMap);
@@ -7277,7 +7358,7 @@ function _renderReelsRow(reels, prestMap) {
   </div>`;
 }
 
-function _renderFilPostCard(post, pr, hasLiked) {
+function _renderFilPostCard(post, pr, hasLiked, myReaction) {
   const nom = pr.nom_complet || 'Pro';
   const metier = pr.metier_principal || '';
   const quartier = pr.quartier || '';
@@ -7306,10 +7387,7 @@ function _renderFilPostCard(post, pr, hasLiked) {
       ${quartier ? `<span style="font-size:9px;color:rgba(252,224,168,0.32);background:rgba(255,255,255,0.04);border-radius:20px;padding:2px 8px;">📍 ${quartier}</span>` : ''}
     </div>` : ''}
     <div style="display:flex;align-items:center;padding:8px 14px 10px;gap:0;">
-      <button onclick="likeFilPost('${post.id}',this)" style="display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:rgba(252,224,168,0.4);font-size:12px;padding:4px 10px 4px 0;" data-liked="${hasLiked ? 'true' : 'false'}" data-likes="${likes}">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="${hasLiked ? '#f472b6' : 'none'}" stroke="${hasLiked ? '#f472b6' : 'currentColor'}" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span>${likes}</span>
-      </button>
+      ${_wzReactionBar(post.id, likes, myReaction)}
       <div style="margin-left:auto;">
         <button onclick="showProfil('${prestId}');showPage('profil');" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.18);border-radius:20px;font-size:10px;font-weight:700;padding:4px 12px;cursor:pointer;">Voir profil</button>
       </div>
