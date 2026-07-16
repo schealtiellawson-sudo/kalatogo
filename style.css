@@ -7887,3 +7887,22 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 }
 @keyframes wz-locate-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
 @media (prefers-reduced-motion: reduce) { .wz-locate-btn.locating { animation: none; } }
+
+/* ── Mode économie de données (étape 13) ── */
+img.wz-dl {
+  cursor: pointer;
+  background: #EFE9DC;
+  object-fit: contain !important;
+  min-width: 28px; min-height: 28px;
+  border: 1px dashed rgba(168,95,6,0.35);
+  border-radius: 6px;
+}
+img.wz-dl:hover { border-color: #E8940A; background: #F7EFE0; }
+/* Le bandeau hors ligne */
+#wz-offline-bar {
+  display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10060;
+  background: #1E180E; border-top: 2px solid #E8940A; color: #FCE0A8;
+  font-size: 13px; font-weight: 600; text-align: center;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+html.wz-offline #wz-offline-bar { display: block; }

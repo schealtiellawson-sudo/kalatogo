@@ -60,8 +60,116 @@
 <meta property="og:image" content="https://wozali.africa/logos/og-image-1200x630.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://wozali.africa/logos/og-image-1200x630.png">
+<!-- ══ MODE ÉCONOMIE DE DONNÉES (étape 13) ══
+     INLINE et NON-defer volontairement : pour empêcher le téléchargement
+     d'une image il faut lui retirer son src AVANT que le navigateur la
+     demande. Un script defer arriverait après la requête réseau. -->
+<script>
+(function () {
+  var KEY = 'wozali_datalight';
+  var on = false;
+  try { on = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  window.wzDataLight = on;
+  if (on) document.documentElement.classList.add('data-light');
+
+  // Placeholder local (data URI) : zéro requête réseau
+  window._wzPH = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23EFE9DC'/%3E%3Cg fill='none' stroke='%23A85F06' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='24' y='34' width='52' height='36' rx='5'/%3E%3Ccircle cx='50' cy='52' r='10'/%3E%3Cpath d='M39 34l4-6h14l4 6'/%3E%3C/g%3E%3C/svg%3E";
+
+  // Réécrit le HTML AVANT son insertion. Indispensable : le navigateur lance la
+  // requête image dès que innerHTML est posé, donc le MutationObserver (microtask)
+  // arrive toujours trop tard pour l'empêcher. Mesuré : 7 images téléchargées
+  // malgré le blocage, tant que ce filtre n'existait pas.
+  function filtreHtml(html) {
+    if (!window.wzDataLight || typeof html !== 'string' || html.indexOf('<img') === -1) return html;
+    try {
+      return html.replace(/<img\b[^>]*>/gi, function (tag) {
+        if (/data-wz-keep/i.test(tag) || /data-wz-src/i.test(tag)) return tag;
+        var m = tag.match(/\ssrc\s*=\s*("([^"]*)"|'([^']*)')/i);
+        if (!m) return tag;
+        var url = m[2] !== undefined ? m[2] : m[3];
+        if (!url || url.indexOf('data:') === 0) return tag;
+        return tag.replace(m[0], ' src="' + window._wzPH + '" data-wz-src="' + url.replace(/"/g, '&quot;') + '"');
+      });
+    } catch (e) { return html; }
+  }
+  var _ihDesc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+  if (_ihDesc && _ihDesc.set) {
+    Object.defineProperty(Element.prototype, 'innerHTML', {
+      configurable: true, enumerable: _ihDesc.enumerable,
+      get: function () { return _ihDesc.get.call(this); },
+      set: function (v) { _ihDesc.set.call(this, filtreHtml(v)); }
+    });
+  }
+  var _iahDesc = Element.prototype.insertAdjacentHTML;
+  if (_iahDesc) {
+    Element.prototype.insertAdjacentHTML = function (pos, html) {
+      return _iahDesc.call(this, pos, filtreHtml(html));
+    };
+  }
+
+  function blockImg(el) {
+    if (!window.wzDataLight) return;
+    if (el.hasAttribute('data-wz-keep')) return;
+    if (el.classList.contains('wz-dl-loaded')) return;
+    // Déjà neutralisée par filtreHtml : il ne reste qu'à l'habiller
+    if (el.hasAttribute('data-wz-src')) {
+      if (!el.classList.contains('wz-dl')) {
+        el.classList.add('wz-dl');
+        el.title = 'Appuie pour charger la photo';
+      }
+      return;
+    }
+    if (el.classList.contains('wz-dl')) return;
+    var s = el.getAttribute('src');
+    if (!s || s.indexOf('data:') === 0) return;
+    el.setAttribute('data-wz-src', s);
+    el.classList.add('wz-dl');
+    el.title = 'Appuie pour charger la photo';
+    el.setAttribute('src', window._wzPH);
+  }
+  function blockVideo(el) {
+    if (!window.wzDataLight) return;
+    if (el.hasAttribute('data-wz-keep')) return;
+    el.autoplay = false;
+    el.removeAttribute('autoplay');
+    el.preload = 'none';
+    el.setAttribute('preload', 'none');
+  }
+  function scan(node) {
+    if (!node || node.nodeType !== 1) return;
+    if (node.tagName === 'IMG') blockImg(node);
+    else if (node.tagName === 'VIDEO') blockVideo(node);
+    if (node.querySelectorAll) {
+      var i, im = node.querySelectorAll('img');   for (i = 0; i < im.length; i++) blockImg(im[i]);
+      var vd = node.querySelectorAll('video');    for (i = 0; i < vd.length; i++) blockVideo(vd[i]);
+    }
+  }
+  window._wzScanMedia = scan;
+
+  new MutationObserver(function (muts) {
+    if (!window.wzDataLight) return;
+    for (var i = 0; i < muts.length; i++) {
+      var m = muts[i];
+      for (var j = 0; j < m.addedNodes.length; j++) scan(m.addedNodes[j]);
+      // Un src réécrit par le code doit être rebloqué. La classe wz-dl-loaded
+      // évite la boucle infinie quand c'est NOUS qui restaurons l'image.
+      if (m.type === 'attributes' && m.target.tagName === 'IMG') blockImg(m.target);
+    }
+  }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+
+  // Le tap charge l'image, sans déclencher l'action du conteneur (lightbox, profil...)
+  document.addEventListener('click', function (e) {
+    if (!window.wzDataLight || !e.target || !e.target.closest) return;
+    var img = e.target.closest('img.wz-dl');
+    if (!img) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.wzLoadImg) window.wzLoadImg(img);
+  }, true);
+})();
+</script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260715w">
+<link rel="stylesheet" href="/style.css?v=20260716c">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -196,6 +304,11 @@ setTimeout(function(){
     <button onclick="showPage('fonctionnement');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:600;color:#FCE0A8;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">Comment ça marche</button>
     <button onclick="showPage('apropos');closeMobileNav()" style="text-align:left;background:none;border:none;font-size:17px;font-weight:700;color:#FCE0A8;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;border-bottom:1px solid rgba(0,0,0,0.06);">Notre Histoire</button>
 <!-- Battle Bénin vs Togo retiré 2026-05-15 (mobile nav) -->
+    <!-- Réglage, pas une destination : n'entre pas dans le vocabulaire de nav gelé -->
+    <button onclick="wzToggleDataLight()" style="text-align:left;background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);font-size:15px;font-weight:600;color:#FCE0A8;padding:14px 16px;border-radius:12px;cursor:pointer;font-family:inherit;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <span>📉 Économie de données</span>
+      <span data-wz-dl-state style="font-size:12px;font-family:'Geist Mono',monospace;color:rgba(255,255,255,0.4);">Désactivé</span>
+    </button>
     <div id="mobile-nav-auth" style="margin-top:24px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 </div>
@@ -227,6 +340,9 @@ setTimeout(function(){
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- Bandeau hors ligne (étape 13) -->
+<div id="wz-offline-bar">📴 Pas de connexion. Tu peux lire ce qui est déjà chargé.</div>
 
 <!-- ══ MES OUTILS — aperçu imprimable (étape 11) ══
      Vit dans <body>, hors #page-dashboard : les couleurs des documents
@@ -300,7 +416,7 @@ setTimeout(function(){
 
     <!-- Zone cropper — pas de overflow:hidden pour que les handles soient visibles -->
     <div style="width:100%;height:380px;border-radius:12px;background:#111;position:relative;">
-      <img id="crop-source-img" src="" alt="Recadrer" style="display:block;max-width:100%;max-height:100%;">
+      <img data-wz-keep id="crop-source-img" src="" alt="Recadrer" style="display:block;max-width:100%;max-height:100%;">
     </div>
 
     <!-- Contrôles -->
@@ -2417,6 +2533,10 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('outils')" id="dl-outils">
             <i data-lucide="printer"></i> <span>Mes outils à imprimer</span>
           </button>
+          <button class="dash-link" onclick="wzToggleDataLight()" id="dl-datalight" style="justify-content:space-between;">
+            <span style="display:flex;align-items:center;gap:12px;"><i data-lucide="gauge"></i> <span>Économie de données</span></span>
+            <span data-wz-dl-state style="font-size:11px;font-family:'Geist Mono',monospace;color:rgba(255,255,255,0.4);">Désactivé</span>
+          </button>
           <button class="dash-link" onclick="closeDashMenu();openAideModal()" id="dl-besoin-aide">
             <i data-lucide="life-buoy"></i> <span>Besoin d'aide ?</span>
           </button>
@@ -4199,7 +4319,7 @@ setTimeout(function(){
               <div style="margin-bottom:16px;">
                 <div style="font-size:10px;font-family:'Geist Mono',monospace;color:rgba(252,224,168,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Signature de l'agent</div>
                 <div style="background:#111;border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden;height:90px;display:flex;align-items:center;justify-content:center;">
-                  <img id="modal-agent-sig-img" src="" alt="Signature agent" style="max-width:100%;max-height:90px;object-fit:contain;" />
+                  <img data-wz-keep id="modal-agent-sig-img" src="" alt="Signature agent" style="max-width:100%;max-height:90px;object-fit:contain;" />
                 </div>
               </div>
 
@@ -6384,7 +6504,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260715w" defer></script>
+<script src="/app.js?v=20260716c" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -7037,7 +7157,7 @@ setTimeout(function(){
 
     <!-- Photo en fond partiel -->
     <div style="position:absolute;right:0;top:0;bottom:0;width:45%;overflow:hidden;">
-      <img src="/assets/fondateur.jpg" id="schealtiel-photo" alt="Schealtiel Lawson" style="width:100%;height:100%;object-fit:cover;object-position:top center;opacity:0.5;">
+      <img src="/assets/fondateur.jpg" id="schealtiel-photo" loading="lazy" alt="Schealtiel Lawson" style="width:100%;height:100%;object-fit:cover;object-position:top center;opacity:0.5;">
       <div style="position:absolute;inset:0;background:linear-gradient(to right,var(--noir) 0%,transparent 40%,var(--noir) 100%);"></div>
     </div>
 

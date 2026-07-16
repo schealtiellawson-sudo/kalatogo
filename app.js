@@ -2511,6 +2511,68 @@ async function deleteDashAvis(avisId) {
 
 // ══ STORY RÉALISATION VÉRIFIÉE ══
 // ══════════════════════════════════════════════════════════
+// MODE ÉCONOMIE DE DONNÉES (étape 13 Phase C)
+// Le blocage des médias est amorcé par le script inline du <head>
+// (il doit tourner avant la première requête image). Ici : le pilotage.
+// ══════════════════════════════════════════════════════════
+window.wzLoadImg = function (img) {
+  const real = img.getAttribute('data-wz-src');
+  if (!real) return;
+  img.classList.remove('wz-dl');
+  img.classList.add('wz-dl-loaded'); // empêche l'observer de la rebloquer
+  img.removeAttribute('title');
+  img.src = real;
+};
+
+function _wzSyncDataLightUI() {
+  const on = !!window.wzDataLight;
+  document.querySelectorAll('[data-wz-dl-state]').forEach(el => {
+    el.textContent = on ? 'Activé' : 'Désactivé';
+    el.style.color = on ? '#4ade80' : 'rgba(255,255,255,0.4)';
+  });
+  document.querySelectorAll('[data-wz-dl-switch]').forEach(el => {
+    el.classList.toggle('on', on);
+  });
+}
+
+function wzToggleDataLight(silencieux) {
+  const on = !window.wzDataLight;
+  window.wzDataLight = on;
+  try { localStorage.setItem('wozali_datalight', on ? '1' : '0'); } catch (e) {}
+  document.documentElement.classList.toggle('data-light', on);
+
+  if (on) {
+    if (window._wzScanMedia) window._wzScanMedia(document.body);
+    if (!silencieux) toast('📉 Économie de données activée. Les photos se chargent quand tu appuies dessus.', 'success');
+  } else {
+    // On rend la page normale tout de suite : plus d'images en attente
+    document.querySelectorAll('img.wz-dl').forEach(window.wzLoadImg);
+    document.querySelectorAll('video[preload="none"]').forEach(v => v.preload = 'metadata');
+    if (!silencieux) toast('Économie de données désactivée. Les photos se chargent toutes seules.', 'success');
+  }
+  _wzSyncDataLightUI();
+}
+
+// Propose le mode quand le téléphone est en économiseur de données ou en 2G.
+// Une seule fois : on ne harcèle pas.
+function _wzMaybeSuggestDataLight() {
+  if (window.wzDataLight) return;
+  try { if (localStorage.getItem('wozali_datalight_suggested') === '1') return; } catch (e) {}
+  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!c) return;
+  const lent = c.saveData === true || ['slow-2g', '2g'].includes(c.effectiveType);
+  if (!lent) return;
+  try { localStorage.setItem('wozali_datalight_suggested', '1'); } catch (e) {}
+  setTimeout(() => {
+    toast('📉 Ta connexion est lente. Active l\'économie de données dans le menu : les photos ne se chargeront que si tu appuies.', 'info');
+  }, 4000);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  _wzSyncDataLightUI();
+  _wzMaybeSuggestDataLight();
+});
+
+// ══════════════════════════════════════════════════════════
 // RECHERCHE VOCALE (étape 12 Phase C)
 // Web Speech API. Les listes métiers/quartiers sont lues dans le DOM,
 // jamais redupliquées : elles restent synchronisées toutes seules.
@@ -7152,11 +7214,45 @@ async function loadFilFeed() {
       html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{}, myLikes.has(p.id))).join('');
     }
     feed.innerHTML = html;
+    _wzSaveFilCache(posts, prestMap);
   } catch(e) {
+    // Coupure réseau ou courant : on ressort le dernier fil au lieu d'un écran mort
+    if (_wzRenderFilCache(feed)) return;
     feed.innerHTML = `<div style="text-align:center;padding:40px;color:rgba(252,224,168,0.35);">Erreur de chargement.</div>`;
     console.error('Feed error:', e);
   }
 }
+
+// ── Hors ligne : le dernier fil reste lisible (étape 13) ──
+function _wzSaveFilCache(posts, prestMap) {
+  try {
+    localStorage.setItem('wozali_fil_cache', JSON.stringify({
+      at: Date.now(),
+      posts: (posts || []).slice(0, 15),
+      prestMap: prestMap || {}
+    }));
+  } catch (e) { /* quota plein : tant pis, ce n'est qu'un confort */ }
+}
+
+function _wzRenderFilCache(feed) {
+  let c = null;
+  try { c = JSON.parse(localStorage.getItem('wozali_fil_cache') || 'null'); } catch (e) {}
+  if (!c || !Array.isArray(c.posts) || !c.posts.length) return false;
+  const mins = Math.round((Date.now() - (c.at || 0)) / 60000);
+  const quand = mins < 60 ? `il y a ${Math.max(1, mins)} min` : `il y a ${Math.round(mins / 60)} h`;
+  let html = `<div style="background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.3);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#FCE0A8;line-height:1.5;">
+    📴 <strong>Pas de connexion.</strong> Voilà ce que tu avais déjà chargé, ${quand}.</div>`;
+  html += c.posts.map(p => _renderFilPostCard(p, (c.prestMap || {})[p.prestataire_id] || {}, false)).join('');
+  feed.innerHTML = html;
+  return true;
+}
+
+function _wzSetOffline(off) {
+  document.documentElement.classList.toggle('wz-offline', !!off);
+}
+window.addEventListener('offline', () => _wzSetOffline(true));
+window.addEventListener('online',  () => _wzSetOffline(false));
+document.addEventListener('DOMContentLoaded', () => _wzSetOffline(!navigator.onLine));
 
 function _renderReelsRow(reels, prestMap) {
   const cards = reels.map(r => {
