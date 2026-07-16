@@ -601,6 +601,7 @@ function showDashSection(section) {
   if (section === 'support-admin') loadSupportAdmin();
   if (section === 'favoris') loadFavoris();
   if (section === 'enregistres') loadDashEnregistres();
+  if (section === 'vues') loadDashVues();
   if (section === 'abonnements') loadAbonnements();
   if (section === 'fil') loadFil();
   if (section === 'emploi-mode') loadEmploiMode();
@@ -7804,6 +7805,148 @@ async function loadDashEnregistres() {
   }
 }
 
+// ── Étape 19 — Qui a vu ton profil (modèle LinkedIn) ──
+// Gratuit : compte de la semaine + liste floutée + conversion Pro.
+// Pro : liste réelle des visiteurs, cliquable vers leur profil.
+function _wzVuesTempsEcoule(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "à l'instant";
+  if (mins < 60) return `il y a ${mins} min`;
+  const h = Math.floor(mins / 60);
+  if (h < 24) return `il y a ${h} h`;
+  const j = Math.floor(h / 24);
+  if (j === 1) return 'hier';
+  if (j < 7) return `il y a ${j} j`;
+  const s = Math.floor(j / 7);
+  return s === 1 ? 'il y a 1 sem' : `il y a ${s} sem`;
+}
+
+async function loadDashVues() {
+  const box = document.getElementById('dash-vues-list');
+  if (!box || !currentPrestataire?.id) return;
+  box.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    const supa = window.supabase;
+    const depuis30j = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data: vues } = await supa.from('wozali_profil_vues')
+      .select('id, viewer_id, viewer_prest_id, created_at')
+      .eq('profil_id', currentPrestataire.id)
+      .gte('created_at', depuis30j)
+      .order('created_at', { ascending: false })
+      .limit(200);
+    const rows = vues || [];
+
+    // Compte de la semaine : personnes distinctes sur 7 jours
+    const il7j = Date.now() - 7 * 86400000;
+    const semaineKeys = new Set();
+    rows.forEach(v => {
+      if (new Date(v.created_at).getTime() >= il7j) {
+        semaineKeys.add(v.viewer_prest_id || v.viewer_id || ('anon-' + v.id));
+      }
+    });
+    const nbSemaine = semaineKeys.size;
+    const nSem = nbSemaine === 1 ? '1 personne a regardé' : `${nbSemaine} personnes ont regardé`;
+
+    const entete = `
+      <div style="background:linear-gradient(135deg,#1E180E,#14100A);border:1px solid rgba(232,148,10,0.25);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:34px;font-weight:800;color:#E8940A;line-height:1;font-family:'Geist',sans-serif;">${nbSemaine}</div>
+        <div style="color:#FCE0A8;font-size:14px;margin-top:6px;">${nSem} ton profil cette semaine</div>
+      </div>`;
+
+    const isPro = isProUser();
+
+    // Déduplique par visiteur, garde la visite la plus récente (déjà triées desc)
+    const vus = [];
+    const seen = new Set();
+    rows.forEach(v => {
+      const key = v.viewer_prest_id || v.viewer_id || ('anon-' + v.id);
+      if (seen.has(key)) return;
+      seen.add(key);
+      vus.push(v);
+    });
+
+    if (!rows.length) {
+      box.innerHTML = entete + `
+        <div class="empty-state"><div class="empty-icon">👀</div>
+          <h3>Personne pour l'instant</h3>
+          <p>Partage ton profil sur WhatsApp. Chaque visite apparaîtra ici.</p></div>`;
+      return;
+    }
+
+    if (!isPro) {
+      // Gratuit : liste floutée + moteur de conversion Pro (SB7 : le pro = héros)
+      const flou = vus.slice(0, 4).map(() => `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);filter:blur(5px);opacity:0.65;pointer-events:none;">
+          <div style="width:44px;height:44px;border-radius:50%;background:#3a3020;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="height:12px;width:120px;background:#3a3020;border-radius:6px;margin-bottom:7px;"></div>
+            <div style="height:10px;width:80px;background:#2a2416;border-radius:6px;"></div>
+          </div>
+        </div>`).join('');
+      box.innerHTML = entete + `
+        <div style="background:#14100A;border-radius:14px;overflow:hidden;position:relative;">
+          ${flou}
+          <div style="padding:22px 18px;text-align:center;background:#14100A;">
+            <div style="font-size:15px;color:#FCE0A8;font-weight:700;margin-bottom:6px;">Un client qui hésite. Un patron qui recrute.</div>
+            <p style="color:rgba(252,224,168,0.65);font-size:13px;margin:0 0 16px;line-height:1.5;">
+              Tu ne sais pas encore qui est passé. Avec Pro, tu vois chaque visiteur et tu le rappelles avant qu'il aille voir ailleurs.</p>
+            <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:13px 26px;font-weight:800;font-size:14px;cursor:pointer;">
+              Passer Pro pour voir qui
+            </button>
+            <div style="color:rgba(252,224,168,0.4);font-size:11px;margin-top:10px;font-family:'Geist Mono',monospace;">2 500 FCFA / mois</div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    // Pro : liste réelle
+    const prestIds = [...new Set(vus.map(v => v.viewer_prest_id).filter(Boolean))];
+    let prestMap = {};
+    if (prestIds.length) {
+      const { data: prs } = await supa.from('wozali_prestataires')
+        .select('id,nom_complet,metier_principal,photo_profil,quartier')
+        .in('id', prestIds);
+      (prs || []).forEach(p => { prestMap[p.id] = p; });
+    }
+    const cards = vus.map(v => {
+      const p = v.viewer_prest_id ? prestMap[v.viewer_prest_id] : null;
+      const quand = _wzVuesTempsEcoule(v.created_at);
+      if (!p) {
+        // Visiteur non inscrit / anonyme
+        return `
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="width:44px;height:44px;border-radius:50%;background:#2a2416;display:flex;align-items:center;justify-content:center;color:rgba(252,224,168,0.5);flex-shrink:0;">?</div>
+            <div style="flex:1;min-width:0;">
+              <div style="color:rgba(252,224,168,0.75);font-weight:600;font-size:14px;">Visiteur non inscrit</div>
+              <div style="color:rgba(252,224,168,0.4);font-size:12px;">${quand}</div>
+            </div>
+          </div>`;
+      }
+      const nom = escapeHtml(p.nom_complet || 'Prestataire');
+      const metier = escapeHtml(p.metier_principal || '');
+      const quartier = escapeHtml(p.quartier || '');
+      const photo = _wPhotoUrl(p.photo_profil);
+      const avatar = photo
+        ? `<img src="${photo}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+        : `<div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;">${escapeHtml((p.nom_complet || 'W').charAt(0).toUpperCase())}</div>`;
+      const sousTitre = [metier, quartier].filter(Boolean).join(' · ');
+      return `
+        <div onclick="showProfil('${p.id}');showPage('profil');" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;">
+          ${avatar}
+          <div style="flex:1;min-width:0;">
+            <div style="color:#FCE0A8;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+            ${sousTitre ? `<div style="color:rgba(252,224,168,0.55);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sousTitre}</div>` : ''}
+          </div>
+          <div style="color:rgba(252,224,168,0.4);font-size:11px;font-family:'Geist Mono',monospace;flex-shrink:0;white-space:nowrap;">${quand}</div>
+        </div>`;
+    }).join('');
+    box.innerHTML = entete + `<div style="background:#14100A;border-radius:14px;overflow:hidden;">${cards}</div>`;
+  } catch (e) {
+    box.innerHTML = '<div class="empty-state"><p>Impossible de charger tes visiteurs. Vérifie ta connexion et réessaie.</p></div>';
+  }
+}
+
 // Barre d'actions du fil, style Instagram adapté WOZALI : icônes fines or, pas d'emoji
 function _wzFilActions(post, likes, myReaction, peutRepartager, prestId, isSaved) {
   const liked = !!myReaction; // toute réaction = "aimé"
@@ -9524,7 +9667,16 @@ async function showProfil(recordId) {
       const lastView = localStorage.getItem(viewKey);
       if (!lastView || (Date.now() - parseInt(lastView)) > 3600000) {
         localStorage.setItem(viewKey, Date.now().toString());
-        pushNotif(recordId, { type: 'vue' });
+        // Étape 19 — journaliser la vue en base pour "Qui a vu ton profil"
+        try {
+          if (window.supabase) {
+            window.supabase.from('wozali_profil_vues').insert({
+              profil_id: recordId,
+              viewer_id: currentUser?.id || null,
+              viewer_prest_id: currentPrestataire?.id || null
+            }).then(() => {}, () => {});
+          }
+        } catch (_) {}
       }
     }
     const f = record.fields;

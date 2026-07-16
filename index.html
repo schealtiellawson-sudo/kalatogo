@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260716s">
+<link rel="stylesheet" href="/style.css?v=20260716t">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -195,7 +195,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 <!-- Helpers Supabase (defer — s'exécutent avant app.js car plus tôt dans le doc) -->
-<script src="components/supa-prest.js?v=20260716s" defer></script>
+<script src="components/supa-prest.js?v=20260716t" defer></script>
 <script src="components/supa-offres.js" defer></script>
 <script src="components/supa-candidatures.js" defer></script>
 <script src="components/supa-avis.js?v=20260715n" defer></script>
@@ -2559,6 +2559,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('favoris')" id="dl-favoris">
             <i data-lucide="heart"></i> <span>Mes favoris</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('vues')" id="dl-vues">
+            <i data-lucide="eye"></i> <span>Qui a vu ton profil</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('enregistres')" id="dl-enregistres">
             <i data-lucide="bookmark"></i> <span>Enregistrés</span>
           </button>
@@ -3666,6 +3669,15 @@ setTimeout(function(){
             <p style="margin:0;"><strong style="color:#E8940A;">Réimprime quand ton Score monte.</strong> Tes chiffres sont figés sur le papier le jour où tu imprimes. Ton profil, lui, continue de vivre.</p>
           </div>
         </div>
+      </div>
+
+      <!-- QUI A VU TON PROFIL — journal des visiteurs, modèle LinkedIn (étape 19) -->
+      <div class="dash-section" id="ds-vues">
+        <div class="dash-header">
+          <h2>👀 Qui a vu ton profil</h2>
+          <p>Les gens qui sont passés sur ton profil. Un visiteur, c'est un client possible.</p>
+        </div>
+        <div id="dash-vues-list"></div>
       </div>
 
       <!-- ENREGISTRÉS — posts gardés avec le signet (étape 18) -->
@@ -6564,7 +6576,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260716s" defer></script>
+<script src="/app.js?v=20260716t" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
