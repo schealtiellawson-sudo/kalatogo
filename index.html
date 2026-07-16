@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260716d">
+<link rel="stylesheet" href="/style.css?v=20260716e">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1695,6 +1695,8 @@ setTimeout(function(){
   <div id="fil-story-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:9998;overflow:hidden;">
     <!-- Media remplit tout l'écran -->
     <div id="fil-story-media" style="position:absolute;inset:0;"></div>
+    <!-- Sondage (étape 15) : injecté par _renderStorySondage, centré -->
+    <div id="fil-story-sondage" style="display:none;position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:3;padding:0 26px;"></div>
     <!-- Gradient top + bottom pour lisibilité -->
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,transparent 22%,transparent 70%,rgba(0,0,0,0.45) 100%);pointer-events:none;z-index:1;"></div>
     <!-- UI top (progress + header) -->
@@ -1796,8 +1798,19 @@ setTimeout(function(){
         <span style="color:white;font-size:15px;font-weight:700;text-shadow:0 1px 6px rgba(0,0,0,0.7);">Apercu de ta story</span>
       </div>
 
-      <!-- Bas : feedback + bouton publier -->
+      <!-- Bas : sondage optionnel + feedback + bouton publier -->
       <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;padding:0 20px max(calc(env(safe-area-inset-bottom) + 16px),36px);">
+        <!-- Sondage (étape 15) : replié par défaut -->
+        <div id="story-sondage-toggle" onclick="toggleStorySondage()" style="display:inline-flex;align-items:center;gap:7px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:8px 14px;color:white;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;">
+          📊 <span id="story-sondage-toggle-txt">Ajouter un sondage</span>
+        </div>
+        <div id="story-sondage-fields" style="display:none;background:rgba(0,0,0,0.55);border-radius:14px;padding:12px;margin-bottom:12px;">
+          <input id="story-sondage-q" maxlength="80" placeholder="Ta question (ex : Quelle couleur ?)" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:11px 13px;color:white;font-size:14px;font-family:inherit;outline:none;margin-bottom:8px;">
+          <div style="display:flex;gap:8px;">
+            <input id="story-sondage-o1" maxlength="24" placeholder="Choix 1" style="flex:1;min-width:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:11px 13px;color:white;font-size:14px;font-family:inherit;outline:none;">
+            <input id="story-sondage-o2" maxlength="24" placeholder="Choix 2" style="flex:1;min-width:0;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:11px 13px;color:white;font-size:14px;font-family:inherit;outline:none;">
+          </div>
+        </div>
         <div id="story-creator-feedback" style="display:none;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.4);border-radius:10px;padding:10px 14px;color:#fca5a5;font-size:13px;text-align:center;margin-bottom:12px;"></div>
         <button onclick="publishStoryFromCreator()" id="story-publish-btn" style="width:100%;background:#E8940A;color:#14100A;border:none;border-radius:16px;padding:19px 24px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 28px rgba(232,148,10,0.5);">
           <span id="story-publish-icon" style="font-size:20px;">✨</span>
@@ -6504,7 +6517,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260716d" defer></script>
+<script src="/app.js?v=20260716e" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

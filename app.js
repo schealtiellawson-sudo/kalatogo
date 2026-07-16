@@ -7508,7 +7508,8 @@ function _renderCurrentStory() {
   _storyPaused = false;
   const s = _filStoriesData[_filStoryIndex];
   const pr = s._prest || {};
-  const dur = s.media_type === 'video' ? null : 5000;
+  // Un sondage demande plus de temps pour lire et voter : 14s au lieu de 5s
+  const dur = s.media_type === 'video' ? null : (s.sondage_question ? 14000 : 5000);
 
   // Injecter keyframes une seule fois
   if (!document.getElementById('story-anim-style')) {
@@ -7575,6 +7576,65 @@ function _renderCurrentStory() {
       s.vue_par = [...vuePar, currentUser.id];
       window.supabase.rpc('wozali_story_vue', { p_story_id: s.id }).then(()=>{}, ()=>{});
     }
+  }
+
+  // Sondage (étape 15)
+  _renderStorySondage(s, isMine);
+}
+
+// ── Sondage dans le viewer de story ──
+async function _renderStorySondage(s, isMine) {
+  const box = document.getElementById('fil-story-sondage');
+  if (!box) return;
+  if (!s || !s.sondage_question || !s.sondage_opt1 || !s.sondage_opt2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.style.display = 'block';
+
+  // Charge les votes + mon vote éventuel
+  let v1 = 0, v2 = 0, monChoix = 0;
+  try {
+    const { data } = await window.supabase.from('wozali_story_votes').select('choix, user_id').eq('story_id', s.id);
+    (data || []).forEach(r => {
+      if (r.choix === 1) v1++; else if (r.choix === 2) v2++;
+      if (currentUser && r.user_id === currentUser.id) monChoix = r.choix;
+    });
+  } catch (e) {}
+  // Le créateur voit toujours les résultats. Un votant aussi. Sinon, choix à faire.
+  const revele = isMine || monChoix > 0;
+  const total = v1 + v2;
+  const pct = (n) => total ? Math.round((n / total) * 100) : 0;
+
+  const opt = (num, label, votes) => {
+    const p = pct(votes);
+    const mine = monChoix === num;
+    if (revele) {
+      return `<div style="position:relative;overflow:hidden;background:rgba(255,255,255,0.14);border:1.5px solid ${mine ? '#E8940A' : 'rgba(255,255,255,0.25)'};border-radius:12px;padding:13px 15px;margin-bottom:10px;">
+        <div style="position:absolute;inset:0;width:${p}%;background:${mine ? 'rgba(232,148,10,0.35)' : 'rgba(255,255,255,0.16)'};transition:width .5s;"></div>
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;color:white;font-size:15px;font-weight:700;">
+          <span>${mine ? '✓ ' : ''}${escapeHtml(label)}</span><span>${p}%</span>
+        </div></div>`;
+    }
+    return `<button type="button" onclick="wzVoteStory('${s.id}',${num})" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,0.14);border:1.5px solid rgba(255,255,255,0.3);border-radius:12px;padding:14px 15px;margin-bottom:10px;color:white;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(label)}</button>`;
+  };
+
+  box.innerHTML = `
+    <div style="background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);border-radius:18px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.4);">
+      <div style="color:white;font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:14px;text-align:center;">${escapeHtml(s.sondage_question)}</div>
+      ${opt(1, s.sondage_opt1, v1)}
+      ${opt(2, s.sondage_opt2, v2)}
+      ${revele ? `<div style="color:rgba(255,255,255,0.6);font-size:12px;text-align:center;margin-top:4px;">${total} vote${total > 1 ? 's' : ''}</div>` : ''}
+    </div>`;
+}
+
+async function wzVoteStory(storyId, choix) {
+  if (!currentUser) { toast('Connecte-toi pour voter.', 'info'); return; }
+  // Pause le défilement pendant le vote
+  const s = _filStoriesData[_filStoryIndex];
+  try {
+    const { error } = await window.supabase.from('wozali_story_votes').insert({ story_id: storyId, user_id: currentUser.id, choix });
+    if (error && !String(error.message || '').toLowerCase().includes('duplicate')) throw error;
+    if (s) _renderStorySondage(s, false); // ré-affiche avec les résultats
+  } catch (e) {
+    toast('Ton vote n\'est pas parti. Vérifie ta connexion et réessaie.', 'error');
   }
 }
 
@@ -7888,9 +7948,33 @@ async function onStoryMediaPicked(event) {
   if (preview) preview.style.display = 'block';
 }
 
+// ── Sondage story (étape 15) : pli/dépli dans le créateur ──
+function toggleStorySondage() {
+  const f = document.getElementById('story-sondage-fields');
+  const txt = document.getElementById('story-sondage-toggle-txt');
+  if (!f) return;
+  const open = f.style.display === 'none';
+  f.style.display = open ? 'block' : 'none';
+  if (txt) txt.textContent = open ? 'Retirer le sondage' : 'Ajouter un sondage';
+  if (!open) { ['story-sondage-q','story-sondage-o1','story-sondage-o2'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }
+}
+
 async function publishStoryFromCreator() {
   if (!currentUser) { closeStoryCreator(); showPage('login'); return; }
   if (!_storyCreatorFile) { toast('Choisis une photo ou vidéo.', 'error'); return; }
+  // Sondage : soit rien, soit les 3 champs remplis (pas de demi-sondage)
+  const _sf = document.getElementById('story-sondage-fields');
+  let _sondage = null;
+  if (_sf && _sf.style.display !== 'none') {
+    const q = (document.getElementById('story-sondage-q')?.value || '').trim();
+    const o1 = (document.getElementById('story-sondage-o1')?.value || '').trim();
+    const o2 = (document.getElementById('story-sondage-o2')?.value || '').trim();
+    if (q || o1 || o2) {
+      if (!q || !o1 || !o2) { toast('Pour un sondage : remplis la question et les deux choix, ou retire-le.', 'error'); return; }
+      _sondage = { sondage_question: q, sondage_opt1: o1, sondage_opt2: o2 };
+    }
+  }
+  window._storyPendingSondage = _sondage;
   const btn = document.getElementById('story-publish-btn');
   const publishText = document.getElementById('story-publish-text');
   const publishIcon = document.getElementById('story-publish-icon');
@@ -7908,8 +7992,10 @@ async function publishStoryFromCreator() {
       user_id: currentUser.id,
       prestataire_id: prestId,
       media_url: url,
-      media_type: isVideo ? 'video' : 'image'
+      media_type: isVideo ? 'video' : 'image',
+      ...(window._storyPendingSondage || {})
     });
+    window._storyPendingSondage = null;
     if (error) throw new Error(error.message);
     closeStoryCreator();
     toast('Story publiée ! Visible pendant 24h.', 'success');
