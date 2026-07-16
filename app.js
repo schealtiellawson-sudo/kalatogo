@@ -600,6 +600,7 @@ function showDashSection(section) {
   if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
   if (section === 'support-admin') loadSupportAdmin();
   if (section === 'favoris') loadFavoris();
+  if (section === 'enregistres') loadDashEnregistres();
   if (section === 'abonnements') loadAbonnements();
   if (section === 'fil') loadFil();
   if (section === 'emploi-mode') loadEmploiMode();
@@ -4260,6 +4261,220 @@ async function fetchPrestataires(opts = {}) {
   return records;
 }
 
+// ══════════════════════════════════════════════════════════
+// DÉCOUVERTE SWIPE PLEIN ÉCRAN (étape 18) — pattern TikTok + périmètre
+// ══════════════════════════════════════════════════════════
+const _wzDisc = { pool: [], index: 0, perimetre: 'ville', loading: false };
+
+function _wzDiscDefaultPerimetre() {
+  const f = currentPrestataire?.fields || {};
+  if (f['Ville']) return 'ville';
+  if (f['Pays']) return 'pays';
+  return 'monde'; // pas de géo connue → on montre tout
+}
+
+async function openDiscover() {
+  const ov = document.getElementById('wz-discover');
+  if (!ov) return;
+  ov.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  _wzDisc.perimetre = _wzDiscDefaultPerimetre();
+  _wzSyncDiscChips();
+  await _wzLoadDiscoverPool();
+}
+
+function closeDiscover() {
+  const ov = document.getElementById('wz-discover');
+  if (ov) ov.style.display = 'none';
+  document.body.style.overflow = '';
+  const stage = document.getElementById('wz-disc-stage');
+  if (stage) stage.querySelectorAll('video').forEach(v => v.pause());
+}
+
+function _wzSyncDiscChips() {
+  document.querySelectorAll('#wz-disc-perim .wz-disc-chip').forEach(b => {
+    b.classList.toggle('on', b.dataset.p === _wzDisc.perimetre);
+  });
+}
+
+async function setDiscoverPerimetre(p) {
+  if (_wzDisc.perimetre === p && _wzDisc.pool.length) return;
+  _wzDisc.perimetre = p;
+  _wzSyncDiscChips();
+  await _wzLoadDiscoverPool();
+}
+
+async function _wzLoadDiscoverPool() {
+  const stage = document.getElementById('wz-disc-stage');
+  if (!stage) return;
+  _wzDisc.loading = true;
+  stage.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);">✨ Chargement...</div>';
+
+  const f = currentPrestataire?.fields || {};
+  const opts = { limit: 60, orderBy: 'note_moyenne', orderDir: 'desc' };
+  const per = _wzDisc.perimetre;
+  if (per === 'quartier' && f['Quartier']) opts.quartier = f['Quartier'];
+  else if (per === 'ville' && f['Ville']) opts.ville = f['Ville'];
+  else if (per === 'pays' && f['Pays'])   opts.pays = f['Pays'];
+  // afrique / monde : pas de filtre géo (WOZALI Togo+Bénin aujourd'hui, prêt pour l'expansion)
+
+  let pool = [];
+  try {
+    pool = await window.supaPrest.list(opts);
+  } catch (e) { pool = []; }
+  // Ne pas se proposer soi-même
+  pool = (pool || []).filter(r => r.id !== currentPrestataire?.id);
+  // Mélange léger pour que la découverte ne soit pas toujours identique (Pro/note gardent la priorité globale via l'ordre serveur)
+  _wzDisc.pool = pool;
+  _wzDisc.index = 0;
+  _wzDisc.loading = false;
+
+  if (!pool.length) {
+    const libelle = { quartier: 'ton quartier', ville: 'ta ville', pays: 'ton pays', afrique: 'toute l\'Afrique', monde: 'le monde' }[per] || 'cette zone';
+    stage.innerHTML = `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:rgba(255,255,255,0.6);">
+      <div style="font-size:44px;margin-bottom:14px;">🧭</div>
+      <div style="font-size:16px;font-weight:700;color:#FCE0A8;margin-bottom:8px;">Personne à découvrir dans ${libelle} pour l'instant.</div>
+      <div style="font-size:13px;line-height:1.6;">Élargis la zone en haut, ou reviens bientôt.</div>
+    </div>`;
+    const hint = document.getElementById('wz-disc-hint'); if (hint) hint.style.display = 'none';
+    return;
+  }
+  const hint = document.getElementById('wz-disc-hint'); if (hint) hint.style.display = pool.length > 1 ? 'block' : 'none';
+  _wzRenderDiscoverCard();
+}
+
+function _wzDiscCardHtml(rec) {
+  const f = rec.fields;
+  const nom = escapeHtml(f['Nom complet'] || 'Prestataire');
+  const metier = escapeHtml(f['Métier principal'] || '');
+  const quartier = escapeHtml(f['Quartier'] || '');
+  const ville = escapeHtml(f['Ville'] || '');
+  const emoji = METIER_EMOJI[f['Métier principal']] || '⚡';
+  const photo = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['Photo Réalisation 1']) || '';
+  const note = f['Note moyenne'] || 0;
+  const nbAvis = f["Nombre d'avis reçus"] || 0;
+  const score = Math.round(f['Score WOZALI'] || 0);
+  const dispo = f['Disponible maintenant'];
+  const isPro = isProUser({ fields: f });
+  const desc = escapeHtml((f['Description des services'] || '').slice(0, 110));
+  const lieu = [quartier, ville].filter(Boolean).join(' · ');
+  const initiale = (f['Nom complet'] || '?').charAt(0).toUpperCase();
+  const goProfil = `closeDiscover();showProfil('${rec.id}');showPage('profil');`;
+
+  const fond = photo
+    ? `<img src="${encodeURI(photo)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" loading="lazy">`
+    : `<div style="position:absolute;inset:0;background:linear-gradient(135deg,#2a2113,#14100A);display:flex;align-items:center;justify-content:center;font-size:120px;">${emoji}</div>`;
+
+  // Icônes traits blancs façon TikTok
+  const I = (path) => `<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 4px rgba(0,0,0,0.6));">${path}</svg>`;
+  const bookmark = '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>';
+  const chat  = '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>';
+  const send  = '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>';
+
+  return `
+    <div style="position:absolute;inset:0;background:#14100A;">
+      ${fond}
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,transparent 45%,transparent 65%,rgba(0,0,0,0.5) 100%);"></div>
+
+      <!-- Rail d'actions vertical, façon TikTok -->
+      <div style="position:absolute;right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);z-index:2;display:flex;flex-direction:column;align-items:center;gap:13px;">
+        <!-- Avatar + suivre -->
+        <div style="position:relative;margin-bottom:4px;">
+          <div onclick="${goProfil}" style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:1.5px solid #fff;background:#1A1208;display:flex;align-items:center;justify-content:center;color:#E8940A;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.5);">
+            ${photo ? `<img src="${encodeURI(photo)}" style="width:100%;height:100%;object-fit:cover;">` : initiale}
+          </div>
+          <button onclick="event.stopPropagation();toggleSuivi('${rec.id}')" aria-label="Suivre" style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:50%;background:#E8940A;color:#14100A;border:none;font-size:13px;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+        <!-- Enregistrer (favoris) -->
+        <button onclick="event.stopPropagation();toggleFavori('${rec.id}')" aria-label="Enregistrer dans mes favoris" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;padding:0;">
+          ${I(bookmark)}<span style="font-size:9.5px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.7);">Garder</span>
+        </button>
+        <!-- Avis -->
+        <button onclick="event.stopPropagation();openModalAvis('${rec.id}','${nom.replace(/'/g, "\\'")}')" aria-label="Laisser un avis" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;padding:0;">
+          ${I(chat)}<span style="font-size:9.5px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.7);">Avis</span>
+        </button>
+        <!-- Envoyer -->
+        <button onclick="event.stopPropagation();wzShareProfilExterne('${rec.id}')" aria-label="Envoyer" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;padding:0;">
+          ${I(send)}<span style="font-size:9.5px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.7);">Envoyer</span>
+        </button>
+      </div>
+
+      <!-- Infos en bas à gauche : tout est tappable vers le profil -->
+      <div onclick="${goProfil}" style="position:absolute;left:0;right:84px;bottom:calc(env(safe-area-inset-bottom,0px) + 54px);padding:0 18px;cursor:pointer;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          ${dispo ? '<span style="background:#E8940A;color:#14100A;font-size:11px;font-weight:800;padding:4px 11px;border-radius:100px;">● Disponible</span>' : ''}
+          ${isPro ? '<span style="background:rgba(232,148,10,0.9);color:#14100A;font-size:11px;font-weight:800;padding:4px 11px;border-radius:100px;">⭐ PRO</span>' : ''}
+          ${score >= 70 ? `<span style="background:rgba(0,0,0,0.5);color:#E8940A;border:1px solid #E8940A;font-size:11px;font-weight:800;padding:4px 11px;border-radius:100px;">Score ${score}</span>` : ''}
+        </div>
+        <div style="font-family:'DM Serif Display',serif;font-size:27px;color:#fff;line-height:1.1;">${nom}</div>
+        <div style="font-size:14px;color:#FCE0A8;font-weight:600;margin-top:5px;">${emoji} ${metier}${lieu ? ` <span style="color:rgba(255,255,255,0.6);font-weight:400;">· ${lieu}</span>` : ''}</div>
+        ${note > 0 ? `<div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:5px;">⭐ ${note.toFixed(1)} · ${nbAvis} avis</div>` : ''}
+        ${desc ? `<div style="font-size:12.5px;color:rgba(255,255,255,0.65);line-height:1.5;margin-top:8px;">${desc}${desc.length >= 110 ? '…' : ''}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function _wzRenderDiscoverCard() {
+  const stage = document.getElementById('wz-disc-stage');
+  if (!stage) return;
+  const rec = _wzDisc.pool[_wzDisc.index];
+  if (!rec) return;
+  const card = document.createElement('div');
+  card.className = 'wz-disc-card';
+  card.innerHTML = _wzDiscCardHtml(rec);
+  stage.innerHTML = '';
+  stage.appendChild(card);
+  _wzAttachDiscSwipe(card);
+}
+
+function wzDiscoverGo(dir) {
+  // dir +1 = suivant, -1 = précédent
+  const next = _wzDisc.index + dir;
+  if (next < 0 || next >= _wzDisc.pool.length) return false;
+  _wzDisc.index = next;
+  _wzRenderDiscoverCard();
+  const hint = document.getElementById('wz-disc-hint');
+  if (hint && _wzDisc.index >= 1) hint.style.display = 'none';
+  return true;
+}
+
+// Swipe vertical (haut = suivant) + tap zones haut/bas
+function _wzAttachDiscSwipe(card) {
+  let y0 = null, t0 = 0;
+  const H = window.innerHeight;
+  card.addEventListener('touchstart', (e) => { y0 = e.touches[0].clientY; t0 = Date.now(); }, { passive: true });
+  card.addEventListener('touchmove', (e) => {
+    if (y0 == null) return;
+    const dy = e.touches[0].clientY - y0;
+    card.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  card.addEventListener('touchend', (e) => {
+    if (y0 == null) return;
+    const dy = e.changedTouches[0].clientY - y0;
+    const fast = (Date.now() - t0) < 300;
+    const seuil = fast ? 60 : H * 0.18;
+    card.classList.add('anim');
+    if (dy < -seuil) { // vers le haut = suivant
+      card.style.transform = `translateY(${-H}px)`;
+      card.style.opacity = '0';
+      setTimeout(() => { if (!wzDiscoverGo(1)) { card.classList.remove('anim'); card.style.transform=''; card.style.opacity=''; } }, 220);
+    } else if (dy > seuil) { // vers le bas = précédent
+      card.style.transform = `translateY(${H}px)`;
+      card.style.opacity = '0';
+      setTimeout(() => { if (!wzDiscoverGo(-1)) { card.classList.remove('anim'); card.style.transform=''; card.style.opacity=''; } }, 220);
+    } else {
+      card.style.transform = '';
+    }
+    y0 = null;
+  });
+  // Souris (desktop) : molette
+  card.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) < 30) return;
+    e.preventDefault();
+    wzDiscoverGo(e.deltaY > 0 ? 1 : -1);
+  }, { passive: false });
+}
+
 // Données de démo affichées si Airtable est inaccessible (preview uniquement)
 const MOCK_PRESTATAIRES = [
   { id:'mock1', fields:{ 'Nom complet':'Aminata Kokou','Métier principal':'Esthéticienne','Quartier':'Adidogomé','Disponible maintenant':true,'Tarif minimum FCFA':3000,'Note moyenne':4.9,'Nombre d\'avis reçus':47,'Description des services':'Spécialiste onglerie, maquillage et soins visage. 5 ans d\'expérience à Lomé.','Abonnement':'Pro' }},
@@ -7337,6 +7552,7 @@ async function loadFilFeed() {
     const myReactions = await wzFetchMyReactions((posts||[]).map(p => p.id));
     const commentsByPost = await wzFetchComments((posts||[]).map(p => p.id));
     window._filComments = commentsByPost;
+    window._filSaved = await wzFetchMySaved((posts||[]).map(p => p.id));
 
     // Reposts : charger les posts d'origine + leurs auteurs (étape 17)
     const repostIds = [...new Set((posts||[]).map(p => p.repost_of).filter(Boolean))];
@@ -7502,13 +7718,94 @@ function _renderFilPostCard(post, pr, hasLiked, myReaction, original) {
       ${score>=70 ? `<span style="font-size:9px;font-weight:800;color:#E8940A;background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.22);border-radius:20px;padding:2px 8px;">Score ${score}</span>` : ''}
       ${quartier ? `<span style="font-size:9px;color:rgba(252,224,168,0.32);background:rgba(255,255,255,0.04);border-radius:20px;padding:2px 8px;">📍 ${quartier}</span>` : ''}
     </div>` : ''}
-    ${_wzFilActions(post, likes, myReaction, peutRepartager, prestId)}
+    ${_wzFilActions(post, likes, myReaction, peutRepartager, prestId, !!(window._filSaved && window._filSaved.has(post.id)))}
     <div class="wz-fil-comments" id="wz-fil-comments-${post.id}" style="display:none;padding:0 14px 12px;"></div>
   </div>`;
 }
 
+// ── Posts enregistrés (signet façon Insta/TikTok) ──
+async function wzFetchMySaved(postIds) {
+  if (!currentUser || !postIds.length) return new Set();
+  try {
+    const { data } = await window.supabase.from('wozali_posts_enregistres')
+      .select('post_id').eq('user_id', currentUser.id).in('post_id', postIds);
+    return new Set((data || []).map(r => r.post_id));
+  } catch { return new Set(); }
+}
+
+async function wzToggleSavePost(postId) {
+  if (!currentUser) { toast('Connecte-toi pour enregistrer une publication.', 'info'); showPage('login'); return; }
+  const bar = document.querySelector(`.wz-fil-actions[data-post="${postId}"]`);
+  const btn = bar ? bar.querySelector('button[data-save]') : null;
+  const wasSaved = btn ? btn.dataset.save === 'true' : false;
+  const nowSaved = !wasSaved;
+  // Optimiste
+  if (btn) {
+    btn.dataset.save = nowSaved;
+    const svg = btn.querySelector('svg');
+    if (svg) { svg.setAttribute('fill', nowSaved ? '#E8940A' : 'none'); svg.setAttribute('stroke', nowSaved ? '#E8940A' : 'currentColor'); }
+  }
+  try {
+    const supa = window.supabase;
+    if (nowSaved) {
+      const { error } = await supa.from('wozali_posts_enregistres').insert({ user_id: currentUser.id, post_id: postId });
+      if (error && !String(error.message || '').toLowerCase().includes('duplicate')) throw error;
+      toast('Enregistré. Retrouve-le dans Mon espace, section Enregistrés.', 'success');
+    } else {
+      const { error } = await supa.from('wozali_posts_enregistres').delete().eq('user_id', currentUser.id).eq('post_id', postId);
+      if (error) throw error;
+      toast('Retiré de tes enregistrés.', 'info');
+    }
+  } catch (e) {
+    if (btn) {
+      btn.dataset.save = wasSaved;
+      const svg = btn.querySelector('svg');
+      if (svg) { svg.setAttribute('fill', wasSaved ? '#E8940A' : 'none'); svg.setAttribute('stroke', wasSaved ? '#E8940A' : 'currentColor'); }
+    }
+    toast('Ça n\'a pas été enregistré. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+
+// Dashboard → section "Enregistrés" : tous les posts gardés avec le signet
+async function loadDashEnregistres() {
+  const box = document.getElementById('dash-enregistres-list');
+  if (!box || !currentUser) return;
+  box.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    const supa = window.supabase;
+    const { data: saves } = await supa.from('wozali_posts_enregistres')
+      .select('post_id, created_at').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false }).limit(100);
+    const ids = (saves || []).map(s => s.post_id);
+    if (!ids.length) {
+      box.innerHTML = `<div class="empty-state"><div class="empty-icon">🔖</div>
+        <h3>Rien d'enregistré pour l'instant</h3>
+        <p>Sur le fil, appuie sur le signet d'une publication pour la garder ici.</p></div>`;
+      return;
+    }
+    const { data: posts } = await supa.from('wozali_posts').select('*').in('id', ids).eq('actif', true);
+    const prestIds = [...new Set((posts || []).map(p => p.prestataire_id).filter(Boolean))];
+    let prestMap = {};
+    if (prestIds.length) {
+      const { data: prs } = await supa.from('wozali_prestataires').select('id,nom_complet,metier_principal,photo_profil,quartier,score_wozali').in('id', prestIds);
+      (prs || []).forEach(p => { prestMap[p.id] = p; });
+    }
+    // Remettre dans l'ordre d'enregistrement (le plus récent d'abord)
+    const ordre = new Map(ids.map((id, i) => [id, i]));
+    const tri = (posts || []).sort((a, b) => (ordre.get(a.id) ?? 999) - (ordre.get(b.id) ?? 999));
+    window._filSaved = new Set(ids);
+    window._filComments = await wzFetchComments(tri.map(p => p.id));
+    const myReactions = await wzFetchMyReactions(tri.map(p => p.id));
+    box.innerHTML = `<div style="background:#14100A;border-radius:14px;overflow:hidden;">`
+      + tri.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id] || {}, false, myReactions[p.id] || '', null)).join('')
+      + `</div>`;
+  } catch (e) {
+    box.innerHTML = '<div class="empty-state"><p>Impossible de charger tes enregistrés. Vérifie ta connexion et réessaie.</p></div>';
+  }
+}
+
 // Barre d'actions du fil, style Instagram adapté WOZALI : icônes fines or, pas d'emoji
-function _wzFilActions(post, likes, myReaction, peutRepartager, prestId) {
+function _wzFilActions(post, likes, myReaction, peutRepartager, prestId, isSaved) {
   const liked = !!myReaction; // toute réaction = "aimé"
   const reposts = post.nb_partages || 0;
   const nbComs = ((window._filComments || {})[post.id] || []).length;
@@ -7517,6 +7814,7 @@ function _wzFilActions(post, likes, myReaction, peutRepartager, prestId) {
   const chat = '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>';
   const repostIco = '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>';
   const send = '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>';
+  const bookmark = '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>';
   return `
     <div class="wz-fil-actions" data-post="${post.id}" style="display:flex;align-items:center;gap:2px;padding:8px 10px 10px;color:rgba(252,224,168,0.75);">
       <button type="button" onclick="wzLikeHeart('${post.id}')" data-liked="${liked}" aria-label="J'aime" style="background:none;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;gap:4px;padding:6px;">
@@ -7530,6 +7828,7 @@ function _wzFilActions(post, likes, myReaction, peutRepartager, prestId) {
         ${S(repostIco, false)}${reposts > 0 ? `<span style="font-size:13px;font-weight:600;color:rgba(252,224,168,0.6);">${reposts}</span>` : ''}
       </button>` : ''}
       <button type="button" onclick="wzShareProfilExterne('${prestId}')" aria-label="Envoyer" style="background:none;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;padding:6px;">${S(send, false)}</button>
+      <button type="button" onclick="wzToggleSavePost('${post.id}')" data-save="${!!isSaved}" aria-label="Enregistrer" style="margin-left:auto;background:none;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;padding:6px;">${S(bookmark, !!isSaved)}</button>
     </div>`;
 }
 

@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260716m">
+<link rel="stylesheet" href="/style.css?v=20260716s">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -195,7 +195,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 <!-- Helpers Supabase (defer — s'exécutent avant app.js car plus tôt dans le doc) -->
-<script src="components/supa-prest.js?v=20260716m" defer></script>
+<script src="components/supa-prest.js?v=20260716s" defer></script>
 <script src="components/supa-offres.js" defer></script>
 <script src="components/supa-candidatures.js" defer></script>
 <script src="components/supa-avis.js?v=20260715n" defer></script>
@@ -347,6 +347,27 @@ setTimeout(function(){
 <!-- ══ MES OUTILS — aperçu imprimable (étape 11) ══
      Vit dans <body>, hors #page-dashboard : les couleurs des documents
      ne sont pas écrasées par la règle globale #page-dashboard span{color:inherit} -->
+<!-- ══ DÉCOUVERTE SWIPE PLEIN ÉCRAN (étape 18) — pattern TikTok, réglage de périmètre ══ -->
+<div id="wz-discover" style="display:none;position:fixed;inset:0;z-index:10040;background:#000;">
+  <!-- Barre haute : périmètre + fermer -->
+  <div style="position:absolute;top:0;left:0;right:0;z-index:3;padding:max(env(safe-area-inset-top),12px) 12px 10px;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="flex:1;overflow-x:auto;display:flex;gap:6px;-webkit-overflow-scrolling:touch;" id="wz-disc-perim">
+        <button data-p="quartier" onclick="setDiscoverPerimetre('quartier')" class="wz-disc-chip">Mon quartier</button>
+        <button data-p="ville"    onclick="setDiscoverPerimetre('ville')"    class="wz-disc-chip">Ma ville</button>
+        <button data-p="pays"     onclick="setDiscoverPerimetre('pays')"     class="wz-disc-chip">Mon pays</button>
+        <button data-p="afrique"  onclick="setDiscoverPerimetre('afrique')"  class="wz-disc-chip">Afrique</button>
+        <button data-p="monde"    onclick="setDiscoverPerimetre('monde')"    class="wz-disc-chip">Le monde</button>
+      </div>
+      <button onclick="closeDiscover()" aria-label="Fermer" style="flex-shrink:0;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+  </div>
+  <!-- Carte plein écran (une seule à la fois) -->
+  <div id="wz-disc-stage" style="position:absolute;inset:0;"></div>
+  <!-- Indice de geste -->
+  <div id="wz-disc-hint" style="position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);left:0;right:0;text-align:center;z-index:3;color:rgba(255,255,255,0.55);font-size:12px;pointer-events:none;">↑ Glisse vers le haut pour le suivant</div>
+</div>
+
 <div id="wzo-overlay">
   <div id="wzo-toolbar">
     <div class="wzo-seg">
@@ -1369,6 +1390,7 @@ setTimeout(function(){
           <button id="search-view-list" onclick="setSearchView('list')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">☰ Liste</button>
           <button id="search-view-grid" onclick="setSearchView('grid')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">▦ Grille</button>
           <button id="search-view-map" onclick="setSearchView('map')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">🗺️ Carte</button>
+          <button id="search-view-discover" onclick="openDiscover()" style="padding:7px 14px;border-radius:10px;border:1px solid #E8940A;background:#E8940A;color:#14100A;font-size:12px;font-weight:800;cursor:pointer;">✨ Découvrir</button>
         </div>
       </div>
     </div>
@@ -2537,6 +2559,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('favoris')" id="dl-favoris">
             <i data-lucide="heart"></i> <span>Mes favoris</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('enregistres')" id="dl-enregistres">
+            <i data-lucide="bookmark"></i> <span>Enregistrés</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('abonnements')" id="dl-abonnements">
             <i data-lucide="users"></i> <span>Mes abonnements</span>
           </button>
@@ -3641,6 +3666,15 @@ setTimeout(function(){
             <p style="margin:0;"><strong style="color:#E8940A;">Réimprime quand ton Score monte.</strong> Tes chiffres sont figés sur le papier le jour où tu imprimes. Ton profil, lui, continue de vivre.</p>
           </div>
         </div>
+      </div>
+
+      <!-- ENREGISTRÉS — posts gardés avec le signet (étape 18) -->
+      <div class="dash-section" id="ds-enregistres">
+        <div class="dash-header">
+          <h2>🔖 Enregistrés</h2>
+          <p>Les publications que tu as gardées pour les retrouver vite.</p>
+        </div>
+        <div id="dash-enregistres-list"></div>
       </div>
 
       <div class="dash-section" id="ds-favoris">
@@ -6530,7 +6564,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260716m" defer></script>
+<script src="/app.js?v=20260716s" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

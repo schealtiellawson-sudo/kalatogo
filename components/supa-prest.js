@@ -211,6 +211,7 @@
     if (options.metier)    q = q.eq('metier_principal', options.metier);
     if (options.quartier)  q = q.eq('quartier', options.quartier);
     if (options.ville)     q = q.eq('ville', options.ville);
+    if (options.pays)      q = q.eq('pays', options.pays);
     if (options.abonnement) q = q.eq('abonnement', options.abonnement);
     if (options.disponible === true) q = q.eq('disponible_maintenant', true);
     if (Array.isArray(options.ids) && options.ids.length > 0) q = q.in('id', options.ids);

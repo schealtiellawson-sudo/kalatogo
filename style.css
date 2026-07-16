@@ -7906,3 +7906,29 @@ img.wz-dl:hover { border-color: #E8940A; background: #F7EFE0; }
   padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
 }
 html.wz-offline #wz-offline-bar { display: block; }
+
+/* ── Découverte swipe plein écran (étape 18) ── */
+.wz-disc-chip {
+  flex-shrink: 0; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.4);
+  color: rgba(255,255,255,0.8); border-radius: 100px; padding: 7px 14px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: 'Geist', sans-serif;
+}
+.wz-disc-chip.on { background: #E8940A; border-color: #E8940A; color: #14100A; }
+.wz-disc-card { position: absolute; inset: 0; will-change: transform; }
+.wz-disc-card.anim { transition: transform .28s cubic-bezier(.22,.61,.36,1), opacity .28s; }
+
+/* Périmètre découverte : forcer la ligne horizontale scrollable (des règles globales !important cassaient la disposition) */
+#wz-disc-perim { flex-direction: row !important; align-items: center; }
+#wz-disc-perim .wz-disc-chip { display: inline-flex !important; align-items: center; width: auto !important; flex: 0 0 auto !important; }
+
+/* Badge + suivre du rail découverte : la règle tactile globale 44px l'écrasait sur l'avatar */
+#wz-disc-stage button[aria-label="Suivre"] {
+  min-width: 18px !important; min-height: 18px !important;
+  width: 18px !important; height: 18px !important;
+}
+/* Rail découverte : les boutons icône+label ne doivent pas être gonflés par la règle tactile 44px */
+#wz-disc-stage button[aria-label="Enregistrer dans mes favoris"],
+#wz-disc-stage button[aria-label="Laisser un avis"],
+#wz-disc-stage button[aria-label="Envoyer"] {
+  min-width: 0 !important; min-height: 0 !important;
+}
