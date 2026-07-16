@@ -16,15 +16,79 @@ export default async function handler(req, res) {
   try {
     const resultats = await recalculerTousLesScores(supabase);
 
+    // ── Étape 20 : badges comportementaux automatiques ──
+    // repond_vite  : >= 2 RDV répondus sur 30j, temps de réponse médian <= 3h
+    // tres_demande : >= 15 visiteurs distincts sur 7j OU >= 3 demandes RDV sur 7j
+    // 100% automatique, zéro intervention humaine. +2 pts Score par badge.
+    let badgesMaj = 0;
+    const badgesParUser = {}; // user_id -> ['repond_vite', 'tres_demande']
+    try {
+      const { data: prests } = await supabase
+        .from('wozali_prestataires')
+        .select('id, user_id, badges_auto');
+      const il7j = new Date(Date.now() - 7 * 86400000).toISOString();
+      const il30j = new Date(Date.now() - 30 * 86400000).toISOString();
+
+      const { data: rdvs } = await supabase
+        .from('wozali_rdv')
+        .select('prestataire_id, statut, created_at, updated_at')
+        .gte('created_at', il30j);
+
+      const { data: vues } = await supabase
+        .from('wozali_profil_vues')
+        .select('id, profil_id, viewer_id, viewer_prest_id')
+        .gte('created_at', il7j);
+
+      // Agrégats par prestataire
+      const reponses = {};  // prest_id -> [heures de réponse]
+      const rdv7j = {};     // prest_id -> nb demandes RDV sur 7j
+      const seuil7j = Date.now() - 7 * 86400000;
+      (rdvs || []).forEach(r => {
+        if (!r.prestataire_id) return;
+        if (new Date(r.created_at).getTime() >= seuil7j) {
+          rdv7j[r.prestataire_id] = (rdv7j[r.prestataire_id] || 0) + 1;
+        }
+        // RDV répondu = statut sorti de "Demandé" ; temps de réponse = updated_at - created_at
+        if (r.statut && r.statut !== 'Demandé' && r.updated_at && r.updated_at !== r.created_at) {
+          const h = (new Date(r.updated_at) - new Date(r.created_at)) / 3600000;
+          if (h >= 0) (reponses[r.prestataire_id] = reponses[r.prestataire_id] || []).push(h);
+        }
+      });
+      const visiteurs = {}; // prest_id -> Set de visiteurs distincts
+      (vues || []).forEach(v => {
+        const key = v.viewer_prest_id || v.viewer_id || ('anon-' + v.id);
+        (visiteurs[v.profil_id] = visiteurs[v.profil_id] || new Set()).add(key);
+      });
+
+      for (const p of (prests || [])) {
+        const badges = [];
+        const reps = (reponses[p.id] || []).sort((a, b) => a - b);
+        if (reps.length >= 2 && reps[Math.floor(reps.length / 2)] <= 3) badges.push('repond_vite');
+        if ((visiteurs[p.id]?.size || 0) >= 15 || (rdv7j[p.id] || 0) >= 3) badges.push('tres_demande');
+        if (p.user_id) badgesParUser[p.user_id] = badges;
+        const anciens = (p.badges_auto || []).slice().sort().join(',');
+        if (anciens !== badges.slice().sort().join(',')) {
+          await supabase
+            .from('wozali_prestataires')
+            .update({ badges_auto: badges })
+            .eq('id', p.id);
+          badgesMaj++;
+        }
+      }
+    } catch (e) { console.warn('[score-wozali] badges auto', e); }
+
     let updates = 0;
     let alertes = 0;
 
     for (const r of resultats) {
+      // Bonus badges : +2 pts par badge actif, plafonné à 100
+      const bonusBadges = 2 * (badgesParUser[r.userId] || []).length;
+      const scoreAvecBonus = Math.min(100, r.scoreFinal + bonusBadges);
       // Mettre à jour le score dans profiles si changement
-      if (r.scoreFinal !== r.ancienScore) {
+      if (scoreAvecBonus !== r.ancienScore) {
         await supabase
           .from('wozali_prestataires')
-          .update({ score_wozali: r.scoreFinal })
+          .update({ score_wozali: scoreAvecBonus })
           .eq('user_id', r.userId);
         updates++;
       }
@@ -107,6 +171,7 @@ export default async function handler(req, res) {
       updates,
       alertes,
       verifications,
+      badgesMaj,
       timestamp: now.toISOString()
     });
   } catch (err) {

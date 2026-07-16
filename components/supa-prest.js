@@ -48,6 +48,7 @@
     'Score WOZALI': 'score_wozali',
     'Résumé Profil IA': 'resume_profil_ia',
     'Badge vérifié': 'badge_verifie',
+    'Badges Auto': 'badges_auto',
     'Recruteur vérifié': 'recruteur_verifie',
     'Notifications': 'notifications',
     'Genre': 'genre',

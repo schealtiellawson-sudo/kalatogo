@@ -9988,6 +9988,8 @@ async function showProfil(recordId) {
                 ${abonnementRaw !== 'Base' ? `<span class="profil-chip chip-or">⭐ PRO</span>` : ''}
                 ${verifie ? '<span class="profil-chip chip-vert">✓ Vérifié</span>' : ''}
                 ${dispo ? '<span class="profil-chip chip-green">● Disponible</span>' : '<span class="profil-chip chip-off">⏸ Occupé</span>'}
+                ${(f['Badges Auto'] || []).includes('repond_vite') ? '<span class="profil-chip chip-vert">⚡ Répond vite</span>' : ''}
+                ${(f['Badges Auto'] || []).includes('tres_demande') ? '<span class="profil-chip chip-vert">🔥 Très demandé</span>' : ''}
                 ${((f['Badge Fondateur'] || f['Fondateur']) && (f['Email']||'').toLowerCase() !== 'schealtiellawson@gmail.com') ? '<span class="profil-chip chip-dk">🏅 Fondateur</span>' : ''}
                 ${note > 0 ? `<span class="profil-chip chip-star">★ ${note.toFixed(1)}</span>` : ''}
                 ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="profil-chip chip-vert">🏆 Éligible Bourse</span>' : ''}
