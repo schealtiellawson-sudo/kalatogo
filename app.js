@@ -7335,6 +7335,26 @@ async function loadFilFeed() {
       supa.from('wozali_posts').select('*').in('prestataire_id', prestIds).eq('actif', true).eq('media_type','video').order('created_at',{ascending:false}).limit(10)
     ]);
     const myReactions = await wzFetchMyReactions((posts||[]).map(p => p.id));
+    const commentsByPost = await wzFetchComments((posts||[]).map(p => p.id));
+    window._filComments = commentsByPost;
+
+    // Reposts : charger les posts d'origine + leurs auteurs (étape 17)
+    const repostIds = [...new Set((posts||[]).map(p => p.repost_of).filter(Boolean))];
+    let origMap = {};
+    if (repostIds.length) {
+      const { data: origs } = await supa.from('wozali_posts').select('id, contenu, media_url, media_type, prestataire_id').in('id', repostIds).eq('actif', true);
+      const origPrestIds = [...new Set((origs||[]).map(o => o.prestataire_id).filter(Boolean))];
+      let origPrestMap = {};
+      if (origPrestIds.length) {
+        const { data: op } = await supa.from('wozali_prestataires').select('id, nom_complet, metier_principal, photo_profil').in('id', origPrestIds);
+        (op||[]).forEach(p => { origPrestMap[p.id] = p; });
+      }
+      (origs||[]).forEach(o => {
+        const a = origPrestMap[o.prestataire_id] || {};
+        origMap[o.id] = { contenu: o.contenu, media_url: o.media_url, media_type: o.media_type, prestataire_id: o.prestataire_id, auteur_nom: a.nom_complet, auteur_metier: a.metier_principal, auteur_photo: a.photo_profil };
+      });
+    }
+
     const allIds = [...new Set([...(posts||[]).map(p=>p.prestataire_id),...(reels||[]).map(r=>r.prestataire_id)].filter(Boolean))];
     let prestMap = {};
     if (allIds.length) {
@@ -7346,7 +7366,7 @@ async function loadFilFeed() {
     if (!posts || !posts.length) {
       html += `<div style="text-align:center;padding:50px 20px;color:rgba(252,224,168,0.35);"><div style="font-size:40px;margin-bottom:10px;">🕐</div><p style="font-size:14px;">Pas encore de photos publiées.</p></div>`;
     } else {
-      html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{}, false, myReactions[p.id]||'')).join('');
+      html += posts.map(p => _renderFilPostCard(p, prestMap[p.prestataire_id]||{}, false, myReactions[p.id]||'', p.repost_of ? origMap[p.repost_of] : null)).join('');
     }
     feed.innerHTML = html;
     _wzSaveFilCache(posts, prestMap);
@@ -7385,8 +7405,25 @@ function _wzRenderFilCache(feed) {
 function _wzSetOffline(off) {
   document.documentElement.classList.toggle('wz-offline', !!off);
 }
-window.addEventListener('offline', () => _wzSetOffline(true));
-window.addEventListener('online',  () => _wzSetOffline(false));
+
+// Au retour d'internet : masquer le bandeau ET recharger tout seul la page active,
+// pour que le contenu (fil, recherche, profil) et les photos redeviennent frais sans geste.
+let _wzWasOffline = !navigator.onLine;
+function _wzOnBackOnline() {
+  _wzSetOffline(false);
+  if (!_wzWasOffline) return; // on n'était pas vraiment hors ligne, rien à recharger
+  _wzWasOffline = false;
+  const active = document.querySelector('.page.active')?.id || '';
+  try {
+    if (active === 'page-fil') { if (typeof loadFilStories === 'function') loadFilStories(); if (typeof loadFilFeed === 'function') loadFilFeed(); }
+    else if (active === 'page-search' && typeof loadSearch === 'function') loadSearch();
+    else if (active === 'page-home' && typeof loadHomeVedette === 'function') loadHomeVedette();
+    else if (active === 'page-profil' && typeof currentProfilId !== 'undefined' && currentProfilId && typeof showProfil === 'function') showProfil(currentProfilId);
+  } catch (e) {}
+  toast('De retour en ligne. On rafraîchit.', 'success');
+}
+window.addEventListener('offline', () => { _wzWasOffline = true; _wzSetOffline(true); });
+window.addEventListener('online',  _wzOnBackOnline);
 document.addEventListener('DOMContentLoaded', () => _wzSetOffline(!navigator.onLine));
 
 function _renderReelsRow(reels, prestMap) {
@@ -7412,7 +7449,28 @@ function _renderReelsRow(reels, prestMap) {
   </div>`;
 }
 
-function _renderFilPostCard(post, pr, hasLiked, myReaction) {
+// Rendu compact du post original à l'intérieur d'un repost
+function _renderOriginalInline(orig) {
+  if (!orig) return `<div style="margin:0 14px 10px;padding:12px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:rgba(252,224,168,0.4);font-size:12px;">Publication d'origine supprimée.</div>`;
+  const nom = orig.auteur_nom || 'Pro';
+  const metier = orig.auteur_metier || '';
+  const photo = orig.auteur_photo || '';
+  const ini = nom.charAt(0).toUpperCase();
+  const contenu = (orig.contenu || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const media = orig.media_url || '';
+  const pid = orig.prestataire_id;
+  return `<div style="margin:0 14px 10px;border:1px solid rgba(232,148,10,0.18);border-radius:12px;overflow:hidden;cursor:pointer;" onclick="showProfil('${pid}');showPage('profil');">
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 12px 6px;">
+      <div style="width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#1A1208;display:flex;align-items:center;justify-content:center;color:#E8940A;font-weight:900;font-size:11px;">${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : ini}</div>
+      <div style="font-size:11.5px;font-weight:700;color:#FCE0A8;">${nom}${metier ? ` <span style="font-weight:400;color:rgba(252,224,168,0.4);">· ${metier}</span>` : ''}</div>
+    </div>
+    ${contenu ? `<div style="padding:0 12px 8px;font-size:12.5px;color:rgba(252,224,168,0.78);line-height:1.55;">${contenu}</div>` : ''}
+    ${media ? `<img src="${media}" style="width:100%;max-height:320px;object-fit:cover;display:block;" loading="lazy">` : ''}
+  </div>`;
+}
+
+function _renderFilPostCard(post, pr, hasLiked, myReaction, original) {
+  const isRepost = !!post.repost_of;
   const nom = pr.nom_complet || 'Pro';
   const metier = pr.metier_principal || '';
   const quartier = pr.quartier || '';
@@ -7424,8 +7482,12 @@ function _renderFilPostCard(post, pr, hasLiked, myReaction) {
   const mediaUrl = post.media_url || '';
   const depuis = _relativeTime(post.created_at);
   const initiale = nom.charAt(0).toUpperCase();
+  // Sur un repost : mon propre contenu = le commentaire optionnel + l'original imbriqué
+  const estMien = !!(currentUser && post.auteur_id === currentUser.id);
+  const peutRepartager = !!(currentUser && !isRepost && !estMien);
   return `<div style="border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:4px;">
-    <div style="display:flex;align-items:center;gap:10px;padding:11px 14px 8px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
+    ${isRepost ? `<div style="display:flex;align-items:center;gap:6px;padding:9px 14px 2px;font-size:11px;color:rgba(252,224,168,0.45);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> ${nom} a partagé</div>` : ''}
+    <div style="display:flex;align-items:center;gap:10px;padding:${isRepost ? '4px' : '11px'} 14px 8px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
       <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;border:1.5px solid rgba(232,148,10,0.28);background:#1A1208;display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:14px;">
         ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : initiale}
       </div>
@@ -7435,18 +7497,172 @@ function _renderFilPostCard(post, pr, hasLiked, myReaction) {
       </div>
     </div>
     ${contenu ? `<div style="padding:0 14px 10px;font-size:13px;color:rgba(252,224,168,0.8);line-height:1.65;">${contenu}</div>` : ''}
-    ${mediaUrl ? `<div style="overflow:hidden;background:#1A1208;"><img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;display:block;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');"></div>` : ''}
-    ${score>0||quartier ? `<div style="padding:6px 14px 2px;display:flex;gap:6px;flex-wrap:wrap;">
+    ${isRepost ? _renderOriginalInline(original) : (mediaUrl ? `<div style="overflow:hidden;background:#1A1208;"><img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;display:block;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');"></div>` : '')}
+    ${!isRepost && (score>0||quartier) ? `<div style="padding:6px 14px 2px;display:flex;gap:6px;flex-wrap:wrap;">
       ${score>=70 ? `<span style="font-size:9px;font-weight:800;color:#E8940A;background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.22);border-radius:20px;padding:2px 8px;">Score ${score}</span>` : ''}
       ${quartier ? `<span style="font-size:9px;color:rgba(252,224,168,0.32);background:rgba(255,255,255,0.04);border-radius:20px;padding:2px 8px;">📍 ${quartier}</span>` : ''}
     </div>` : ''}
-    <div style="display:flex;align-items:center;padding:8px 14px 10px;gap:0;">
-      ${_wzReactionBar(post.id, likes, myReaction)}
-      <div style="margin-left:auto;">
-        <button onclick="showProfil('${prestId}');showPage('profil');" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.18);border-radius:20px;font-size:10px;font-weight:700;padding:4px 12px;cursor:pointer;">Voir profil</button>
-      </div>
-    </div>
+    ${_wzFilActions(post, likes, myReaction, peutRepartager, prestId)}
+    <div class="wz-fil-comments" id="wz-fil-comments-${post.id}" style="display:none;padding:0 14px 12px;"></div>
   </div>`;
+}
+
+// Barre d'actions du fil, style Instagram adapté WOZALI : icônes fines or, pas d'emoji
+function _wzFilActions(post, likes, myReaction, peutRepartager, prestId) {
+  const liked = !!myReaction; // toute réaction = "aimé"
+  const reposts = post.nb_partages || 0;
+  const nbComs = ((window._filComments || {})[post.id] || []).length;
+  const S = (path, filled) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="${filled ? '#E8940A' : 'none'}" stroke="${filled ? '#E8940A' : 'currentColor'}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+  const heart = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>';
+  const chat = '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>';
+  const repostIco = '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>';
+  const send = '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>';
+  return `
+    <div class="wz-fil-actions" data-post="${post.id}" style="display:flex;align-items:center;gap:2px;padding:8px 10px 10px;color:rgba(252,224,168,0.75);">
+      <button type="button" onclick="wzLikeHeart('${post.id}')" data-liked="${liked}" aria-label="J'aime" style="background:none;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;gap:4px;padding:6px;">
+        <span class="wz-heart">${S(heart, liked)}</span>
+        <span class="wz-like-count" style="font-size:13px;font-weight:600;color:${liked ? '#E8940A' : 'rgba(252,224,168,0.6)'};">${likes > 0 ? likes : ''}</span>
+      </button>
+      <button type="button" onclick="wzToggleFilComments('${post.id}')" aria-label="Commenter" style="background:none;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;gap:4px;padding:6px;">
+        ${S(chat, false)}<span class="wz-com-count" style="font-size:13px;font-weight:600;color:rgba(252,224,168,0.6);">${nbComs > 0 ? nbComs : ''}</span>
+      </button>
+      ${peutRepartager ? `<button type="button" onclick="wzRepost('${post.id}')" aria-label="Repartager sur mon fil" style="background:none;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;gap:4px;padding:6px;">
+        ${S(repostIco, false)}${reposts > 0 ? `<span style="font-size:13px;font-weight:600;color:rgba(252,224,168,0.6);">${reposts}</span>` : ''}
+      </button>` : ''}
+      <button type="button" onclick="wzShareProfilExterne('${prestId}')" aria-label="Envoyer" style="background:none;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;padding:6px;">${S(send, false)}</button>
+    </div>`;
+}
+
+// Commentaires du fil (inline) — réutilise la table wozali_commentaires
+function _wzRenderFilComments(postId) {
+  const box = document.getElementById(`wz-fil-comments-${postId}`);
+  if (!box) return;
+  const coms = (window._filComments || {})[postId] || [];
+  const list = coms.length
+    ? coms.map(c => {
+        const ini = (c.auteur || '?').charAt(0).toUpperCase();
+        const av = c.auteurPhoto ? `<img src="${encodeURI(c.auteurPhoto)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;">` : `<div style="width:28px;height:28px;border-radius:50%;background:#1A1208;color:#E8940A;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;">${ini}</div>`;
+        return `<div style="display:flex;gap:8px;margin-bottom:9px;">${av}<div style="flex:1;min-width:0;"><span style="font-size:12.5px;font-weight:700;color:#FCE0A8;">${escapeHtml(c.auteur||'')}</span> <span style="font-size:12.5px;color:rgba(252,224,168,0.75);">${escapeHtml(c.texte||'').replace(/\n/g,'<br>')}</span></div></div>`;
+      }).join('')
+    : `<div style="font-size:12px;color:rgba(252,224,168,0.35);padding:2px 0 10px;">Aucun commentaire. Sois le premier.</div>`;
+  box.innerHTML = list + `
+    <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+      <input id="wz-fil-cinput-${postId}" placeholder="Écrire un commentaire..." maxlength="500" onkeydown="if(event.key==='Enter')wzSubmitFilComment('${postId}')" style="flex:1;min-width:0;background:rgba(255,255,255,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:100px;padding:9px 14px;color:#FCE0A8;font-size:13px;font-family:inherit;outline:none;">
+      <button onclick="wzSubmitFilComment('${postId}')" aria-label="Envoyer" style="background:#E8940A;color:#14100A;border:none;border-radius:50%;width:34px;height:34px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>`;
+}
+
+function wzToggleFilComments(postId) {
+  const box = document.getElementById(`wz-fil-comments-${postId}`);
+  if (!box) return;
+  const open = box.style.display === 'none';
+  box.style.display = open ? 'block' : 'none';
+  if (open) {
+    _wzRenderFilComments(postId);
+    document.getElementById(`wz-fil-cinput-${postId}`)?.focus();
+  }
+}
+
+async function wzSubmitFilComment(postId) {
+  if (!currentUser) { toast('Connecte-toi pour commenter.', 'info'); showPage('login'); return; }
+  const input = document.getElementById(`wz-fil-cinput-${postId}`);
+  const texte = (input?.value || '').trim();
+  if (texte.length < 2) { toast('Écris un commentaire un peu plus long.', 'error'); return; }
+  try {
+    const { error } = await window.supabase.from('wozali_commentaires').insert({
+      post_id: postId, auteur_id: currentUser.id, contenu: texte
+    });
+    if (error) throw error;
+    // Ajoute localement pour un rendu immédiat
+    window._filComments = window._filComments || {};
+    (window._filComments[postId] = window._filComments[postId] || []).push({
+      id: 'tmp', texte, auteur: currentPrestataire?.fields?.['Nom complet'] || 'Toi',
+      auteurPhoto: _wPhotoUrl(currentPrestataire?.fields?.['Photo de profil']) || '', date: new Date().toISOString()
+    });
+    if (input) input.value = '';
+    _wzRenderFilComments(postId);
+    // Met à jour le compteur dans la barre
+    const bar = document.querySelector(`.wz-fil-actions[data-post="${postId}"] .wz-com-count`);
+    if (bar) bar.textContent = window._filComments[postId].length;
+  } catch (e) {
+    toast('Ton commentaire n\'est pas parti. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+
+// Like du fil : le cœur = réaction ❤️, tap pour aimer / retirer (optimiste)
+async function wzLikeHeart(postId) {
+  if (!currentUser) { toast('Connecte-toi pour aimer.', 'info'); showPage('login'); return; }
+  const bar = document.querySelector(`.wz-fil-actions[data-post="${postId}"]`);
+  if (!bar) return;
+  const btn = bar.querySelector('button[data-liked]');
+  const heartWrap = bar.querySelector('.wz-heart');
+  const countEl = bar.querySelector('.wz-like-count');
+  const wasLiked = btn.dataset.liked === 'true';
+  const nowLiked = !wasLiked;
+  let count = parseInt(countEl.textContent || '0') || 0;
+  count = Math.max(0, count + (nowLiked ? 1 : -1));
+  // Optimiste
+  btn.dataset.liked = nowLiked;
+  const svg = heartWrap.querySelector('svg');
+  svg.setAttribute('fill', nowLiked ? '#E8940A' : 'none');
+  svg.setAttribute('stroke', nowLiked ? '#E8940A' : 'currentColor');
+  countEl.textContent = count > 0 ? count : '';
+  countEl.style.color = nowLiked ? '#E8940A' : 'rgba(252,224,168,0.6)';
+  if (nowLiked) { svg.style.transform = 'scale(1.25)'; setTimeout(() => { svg.style.transform = ''; }, 150); }
+  try {
+    await wzSetReaction(postId, '❤️', wasLiked ? '❤️' : '');
+  } catch (e) {
+    // Rollback
+    btn.dataset.liked = wasLiked;
+    svg.setAttribute('fill', wasLiked ? '#E8940A' : 'none');
+    svg.setAttribute('stroke', wasLiked ? '#E8940A' : 'currentColor');
+    const back = Math.max(0, count + (nowLiked ? -1 : 1));
+    countEl.textContent = back > 0 ? back : '';
+    toast('Ton j\'aime n\'est pas parti. Réessaie.', 'error');
+  }
+}
+
+// Envoyer : partage natif (ou WhatsApp) du profil du pro
+async function wzShareProfilExterne(prestId) {
+  try {
+    let slug = prestId;
+    try {
+      const { data } = await window.supabase.from('wozali_prestataires').select('nom_complet, metier_principal, ville').eq('id', prestId).maybeSingle();
+      if (data) slug = _buildProfilSlug(data.nom_complet, data.metier_principal, data.ville);
+    } catch (e) {}
+    const url = `https://wozali.africa/profil/${slug}`;
+    const texte = `Regarde ce pro sur WOZALI :\n${url}`;
+    if (navigator.share) { await navigator.share({ text: texte, url }); }
+    else { window.open(`https://wa.me/?text=${encodeURIComponent(texte)}`, '_blank'); }
+  } catch (e) {
+    if (e?.name !== 'AbortError') toast('Le partage a calé. Réessaie.', 'error');
+  }
+}
+
+// Repost interne : repartager le post de quelqu'un sur son propre fil
+async function wzRepost(postId) {
+  if (!currentUser) { toast('Connecte-toi pour partager.', 'info'); showPage('login'); return; }
+  if (!currentPrestataire) { toast('Complète ton profil pour partager sur ton fil.', 'info'); return; }
+  try {
+    const { error } = await window.supabase.from('wozali_posts').insert({
+      auteur_id: currentUser.id,
+      prestataire_id: currentPrestataire.id,
+      type: 'repost',
+      contenu: '',
+      media_type: 'text',
+      repost_of: postId,
+      actif: true
+    });
+    if (error) {
+      if (String(error.message || '').toLowerCase().includes('duplicate') || String(error.code) === '23505') {
+        toast('Tu as déjà partagé cette publication.', 'info'); return;
+      }
+      throw error;
+    }
+    toast('Partagé sur ton fil !', 'success');
+  } catch (e) {
+    toast('Le partage n\'est pas parti. Vérifie ta connexion et réessaie.', 'error');
+  }
 }
 
 function _relativeTime(isoStr) {
