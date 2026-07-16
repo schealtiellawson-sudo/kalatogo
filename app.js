@@ -1030,6 +1030,7 @@ async function loadDashOverview() {
 
   // U2 — Wizard Premier pas (avant les KPI)
   try { renderPremierPasWizard(); } catch(e) { console.warn('[premier-pas]', e); }
+  try { _wzPrefillStatutJour(); } catch(e) {}
 
   // Date
   const now = new Date();
@@ -1299,6 +1300,59 @@ async function updateDispo() {
     currentPrestataire.fields['Disponible maintenant'] = dispo;
     toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
   } catch (e) { toast('Problème de connexion : ' + e.message, 'error'); }
+}
+
+// ── Statut du jour (étape 16) : phrase courte, expire 24h ──
+function _wzStatutJourFrais(f) {
+  // Renvoie le texte si posé il y a moins de 24h, sinon ''
+  const txt = (f['Statut Jour'] || '').trim();
+  const at = f['Statut Jour Date'];
+  if (!txt || !at) return '';
+  if (Date.now() - new Date(at).getTime() > 24 * 60 * 60 * 1000) return '';
+  return txt;
+}
+
+function _wzPrefillStatutJour() {
+  const input = document.getElementById('statut-jour-input');
+  const etat = document.getElementById('statut-jour-etat');
+  const count = document.getElementById('statut-jour-count');
+  if (!input || !currentPrestataire) return;
+  const f = currentPrestataire.fields;
+  const frais = _wzStatutJourFrais(f);
+  input.value = frais;
+  if (count) count.textContent = frais.length + '/60';
+  if (etat) {
+    if (frais) {
+      const h = Math.max(0, 24 - Math.floor((Date.now() - new Date(f['Statut Jour Date']).getTime()) / 3600000));
+      etat.textContent = `Visible encore ~${h}h`;
+      etat.style.color = '#4ade80';
+    } else {
+      etat.textContent = 'Aucun statut en ce moment';
+      etat.style.color = 'rgba(255,255,255,0.4)';
+    }
+  }
+}
+
+async function saveStatutJour() {
+  if (!currentPrestataire) return;
+  const input = document.getElementById('statut-jour-input');
+  if (!input) return;
+  const txt = input.value.trim().slice(0, 60);
+  const etat = document.getElementById('statut-jour-etat');
+  try {
+    const nowIso = new Date().toISOString();
+    const updated = await window.supaPrest.update(currentPrestataire.id, {
+      'Statut Jour': txt || null,
+      'Statut Jour Date': txt ? nowIso : null
+    });
+    currentPrestataire = updated;
+    window.currentPrestataire = updated;
+    if (currentPrestataire.id && window._profilCache) delete window._profilCache[currentPrestataire.id];
+    _wzPrefillStatutJour();
+    toast(txt ? 'Statut du jour publié !' : 'Statut du jour retiré.', 'success');
+  } catch (e) {
+    if (etat) { etat.textContent = 'Ça n\'a pas été enregistré, réessaie.'; etat.style.color = '#f87171'; }
+  }
 }
 
 // ══ MODIFIER PROFIL ══
@@ -9261,6 +9315,7 @@ async function showProfil(recordId) {
                 ${quartier ? `<span>·</span><span>📍 ${quartier}</span>` : ''}
                 ${experience ? `<span>·</span><span>🏆 ${experience} ans</span>` : ''}
               </div>
+              ${(() => { const sj = _wzStatutJourFrais(f); return sj ? `<div style="display:inline-flex;align-items:center;gap:7px;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);border-radius:100px;padding:6px 13px;margin-top:8px;font-size:13px;color:#FCE0A8;font-weight:600;">💬 ${escapeHtml(sj)}</div>` : ''; })()}
               <div class="profil-chips-row">
                 ${((f['Email']||'').toLowerCase() === 'schealtiellawson@gmail.com') ? '<span class="profil-chip chip-founder">👑 Fondateur WOZALI</span>' : ''}
                 ${abonnementRaw !== 'Base' ? `<span class="profil-chip chip-or">⭐ PRO</span>` : ''}

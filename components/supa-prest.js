@@ -61,6 +61,8 @@
     'Bio Audio URL': 'bio_audio_url',
     'Bio Audio Durée': 'bio_audio_duree_sec',
     'Realisations Audio': 'realisations_audio',
+    'Statut Jour': 'statut_jour',
+    'Statut Jour Date': 'statut_jour_at',
   };
 
   function _supa() { return window.supabase || window.supa; }
