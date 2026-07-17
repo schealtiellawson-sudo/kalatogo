@@ -172,6 +172,19 @@ const LECONS = [
     corps: "Ta carte de visite WOZALI avec ton code QR : il la scanne, il tombe sur ton profil, tes photos, tes avis. Il la montre à quelqu'un, et ce quelqu'un devient ton client. Imprime-la, pose-la où tes clients passent.",
     cta: 'Voir mes outils à imprimer', target: 'outils',
   },
+  // ── Affiliation coachée (Chantier 7) : le BON moment seulement ──
+  // Membre Pro, actif, avec des clients qui témoignent : son entourage
+  // l'écoute. Message envoyé UNE fois, en privé (jamais sur un visuel).
+  {
+    key: 'affiliation',
+    cond: (c) => String(c.p.abonnement || '').trim().toLowerCase() === 'pro'
+      && (c.p.nb_avis_recus || 0) >= 2
+      && (c.p.note_moyenne || 0) >= 4
+      && (c.p.score_wozali || 0) >= 60,
+    titre: "Tes clients te font confiance. Ça vaut de l'argent.",
+    corpsFn: (c) => `${c.fam.clis.charAt(0).toUpperCase() + c.fam.clis.slice(1)} te font confiance, ton Score le prouve. Tu connais forcément 3 personnes qui travaillent bien mais que personne ne trouve : une couturière, un mécano, une vendeuse. Chaque personne qui s'inscrit avec ton code et passe Pro, c'est 1 000 FCFA qui rentrent chez toi chaque mois. Pas une fois. Chaque mois. 3 filleuls Pro, 3 000 FCFA par mois. 10 filleuls, 10 000. Ton lien est prêt, je te montre où.`,
+    cta: 'Voir mon code de parrainage', target: 'parrainage',
+  },
 ];
 
 function _hier(now) { return new Date(now.getTime() - 86400000); }
@@ -362,7 +375,7 @@ export async function runCoachZali(supabase) {
   // Données du jour (une requête par table, agrégées en mémoire)
   const [{ data: prests }, { data: vues }, { data: rdvs }, { data: posts }, { data: msgs }, { data: avisRecents }, { data: tousPrests }] = await Promise.all([
     supabase.from('wozali_prestataires')
-      .select('user_id, metier_principal, ville, abonnement, mode_emploi, photo_realisation_1, photo_realisation_2, photo_realisation_3, tarif_min_fcfa, tarif_max_fcfa, latitude, description_services, statut_jour, statut_jour_at, nb_avis_recus, score_wozali, badges_auto')
+      .select('user_id, metier_principal, ville, abonnement, mode_emploi, photo_realisation_1, photo_realisation_2, photo_realisation_3, tarif_min_fcfa, tarif_max_fcfa, latitude, description_services, statut_jour, statut_jour_at, nb_avis_recus, note_moyenne, score_wozali, badges_auto')
       .in('user_id', userIds),
     supabase.from('wozali_profil_vues').select('profil_id, viewer_id, viewer_prest_id, id, created_at')
       .gte('created_at', il7j),
