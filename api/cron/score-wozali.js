@@ -6,7 +6,7 @@
 import { supabase } from '../_lib/supabase.js';
 import { recalculerTousLesScores } from '../_lib/score-wozali.js';
 import { envoyerNotification } from '../_utils/credit.js';
-import { runCoachZali } from '../_lib/coach-zali.js';
+import { runCoachSandy } from '../_lib/coach-sandy.js';
 import { runSequenceFondateur, runFondateurEvents } from '../_lib/sequence-fondateur.js';
 
 export default async function handler(req, res) {
@@ -161,11 +161,11 @@ export default async function handler(req, res) {
       }
     } catch(e) { console.warn('[score-wozali] verif posts', e); }
 
-    // ── Coach Zali : leçon du jour + messages résultat (séquenceur) ──
+    // ── Coach Sandy : leçon du jour + messages résultat (séquenceur) ──
     let coach = { resultats: 0, lecons: 0, reduits: 0 };
     try {
-      coach = await runCoachZali(supabase);
-    } catch (e) { console.warn('[score-wozali] coach zali', e); }
+      coach = await runCoachSandy(supabase);
+    } catch (e) { console.warn('[score-wozali] coach sandy', e); }
 
     // ── Séquence fondateur J1-J5 : message du jour aux nouveaux inscrits ──
     let sequence = { envoyes: 0 };

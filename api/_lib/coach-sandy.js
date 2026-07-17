@@ -1,5 +1,5 @@
 // ================================================================
-// COACH ZALI — séquenceur quotidien (appelé par le cron score-wozali)
+// COACH SANDY — séquenceur quotidien (appelé par le cron score-wozali)
 // Pour chaque membre qui a ouvert sa conversation Coach :
 //   1. Si la dernière leçon a été suivie d'action → message RÉSULTAT
 //      avec ses chiffres réels (vues, demandes) : la boucle de preuve.
@@ -8,7 +8,7 @@
 // Anti-spam : max 1 leçon/jour ; 3 leçons ignorées d'affilée →
 // rythme 'reduit' (1 leçon tous les 3 jours) ; une action faite →
 // retour au rythme quotidien.
-// Charte Zali : langue de la rue, douleur argent, une action par
+// Charte Sandy : langue de la rue, douleur argent, une action par
 // leçon, jamais de promesse chiffrée de gains.
 // ================================================================
 
@@ -361,7 +361,7 @@ function _resultatCorps(ctx) {
 
 // ── Séquenceur principal ──
 // Retourne { resultats, lecons, reduits } (compteurs pour le JSON du cron).
-export async function runCoachZali(supabase) {
+export async function runCoachSandy(supabase) {
   const now = new Date();
   const debutJour = new Date(now); debutJour.setUTCHours(0, 0, 0, 0);
   const il7j = new Date(now.getTime() - 7 * 86400000).toISOString();

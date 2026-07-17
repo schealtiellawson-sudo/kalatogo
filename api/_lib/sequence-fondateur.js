@@ -7,7 +7,7 @@
 // rien. Désormais l'inscription n'écrit que le J0 ; le cron écrit le
 // message du jour, en regardant ce que le membre a déjà fait.
 //
-// Rôles : Schealtiel = le POURQUOI (mission, piliers). Coach Zali =
+// Rôles : Schealtiel = le POURQUOI (mission, piliers). Coach Sandy =
 // le COMMENT quotidien. Le J5 fait la passation explicite.
 // Chaque message porte UN bouton d'action (action_label +
 // action_section) rendu dans la Boîte WOZALI et le fil Activité.
@@ -166,7 +166,7 @@ Tu vois QUI a regardé ton profil. Pas juste un chiffre : la liste des personnes
 
 Le parrainage dont je t'ai parlé hier, les 1 000 FCFA par filleul par mois, n'est actif qu'en Plan Pro.
 
-Et ton coach WOZALI va plus loin avec toi : tu lui poses TES questions, il analyse TES chiffres.
+Et Coach Sandy va plus loin avec toi : tu lui poses TES questions, elle analyse TES chiffres.
 
 ---
 
@@ -208,7 +208,7 @@ Premiers résultats : 25 septembre 2026.
 
 Une dernière chose, et elle compte.
 
-À partir de demain, ton coach WOZALI prend le relais. Il s'appelle Coach Zali. Chaque matin, un conseil, une action précise, tes chiffres réels. Il connaît ton profil et il sait exactement ce qui te bloque.
+À partir de demain, ta coach WOZALI prend le relais. Elle s'appelle Coach Sandy : une intelligence artificielle experte du marché d'ici, formée sur ton métier, ta ville, tes réalités. Chaque matin, un conseil, une action précise, tes chiffres réels. Elle connaît ton profil et elle sait exactement ce qui te bloque.
 
 Moi je reviendrai te parler aux grands moments : ton premier avis, ton Score qui décolle, le jour où tu deviens éligible à la Bourse.
 
@@ -217,7 +217,7 @@ Les gens qui gagnent sur WOZALI ne sont pas plus talentueux que toi. Ils sont ju
 Sois de ceux-là.
 
 Schealtiel`,
-    'Faire connaissance avec Coach Zali', 'coach'),
+    'Faire connaissance avec Coach Sandy', 'coach'),
 };
 
 // ── Messages événementiels : la voix mission pour les victoires ──

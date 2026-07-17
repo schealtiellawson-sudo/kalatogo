@@ -6207,7 +6207,7 @@ async function markFondateurMessageRead(msgId) {
 }
 
 // Bouton d'action des messages de la séquence fondateur :
-// marque lu + ouvre l'écran lié ('coach' = la conversation Coach Zali)
+// marque lu + ouvre l'écran lié ('coach' = la conversation Coach Sandy)
 function _wzSeqAction(msgId, section) {
   try { markFondateurMessageRead(msgId); } catch (e) {}
   if (section === 'coach') {
@@ -6319,7 +6319,7 @@ async function sendWozaliChatMessage() {
 }
 
 // ══════════════════════════════════════════
-// COACH ZALI — conseiller business (conversation épinglée dans Activité)
+// COACH SANDY — experte business (conversation épinglée dans Activité)
 // Présentation + questionnaire adaptatif + première leçon immédiate.
 // Les leçons quotidiennes viennent du cron (Chantier 2 suite).
 // ══════════════════════════════════════════
@@ -6505,7 +6505,7 @@ function _coachRenderThread() {
     interact = _coachOptButtons([{ k: 'go', l: "C'est parti →" }], 'wzCoachStart')
       + `<div style="padding:2px;"><button onclick="wzCoachLater()" style="width:100%;background:none;border:1.5px dashed rgba(255,255,255,.18);color:rgba(252,224,168,.5);border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:600;text-align:left;font-family:inherit;cursor:pointer;">Plus tard</button></div>`;
   } else if (p.questionnaire_etat === 'passe') {
-    interact = `<div style="padding:2px;margin-bottom:8px;"><button onclick="wzCoachStart('go')" style="width:100%;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;">Répondre aux 4 questions de Zali</button></div>`
+    interact = `<div style="padding:2px;margin-bottom:8px;"><button onclick="wzCoachStart('go')" style="width:100%;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;">Répondre aux 4 questions de Sandy</button></div>`
       + _coachChatComposer();
   } else {
     // Questionnaire fait : la conversation libre (Pro) ou le verrou (gratuit au moment d'envoyer)
@@ -6518,11 +6518,11 @@ function _coachRenderThread() {
   list.scrollTop = list.scrollHeight;
 }
 
-// ── Conversation libre avec Zali (Pro) ──
+// ── Conversation libre avec Sandy (Pro) ──
 function _coachChatComposer() {
   return `
     <div style="display:flex;gap:8px;align-items:flex-end;">
-      <textarea id="coach-chat-input" rows="1" placeholder="Pose ta question à Zali…"
+      <textarea id="coach-chat-input" rows="1" placeholder="Pose ta question à Sandy…"
         style="flex:1;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;color:#FCE0A8;font-size:13.5px;font-family:inherit;resize:none;line-height:1.4;"
         oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,110)+'px'"></textarea>
       <button onclick="wzCoachChatSend()" aria-label="Envoyer" style="width:44px;height:44px;border-radius:50%;background:#E8940A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
@@ -6538,9 +6538,9 @@ function _coachProLock(question) {
     <div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${escapeHtml(question)}</div>
     <div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 16px;text-align:center;margin:4px 0;">
       <div style="filter:blur(4px);opacity:.55;font-size:13px;line-height:1.6;text-align:left;margin-bottom:14px;color:rgba(252,224,168,.8);">Bonne question. J'ai regardé tes données : tes visites de la semaine, tes demandes, ce qui manque encore sur ton profil. En général ça vient de trois choses, et chez toi je vois surtout que…</div>
-      <div style="font-size:14.5px;color:#FCE0A8;font-weight:800;margin-bottom:6px;">Zali a la réponse. Elle est dans tes données.</div>
+      <div style="font-size:14.5px;color:#FCE0A8;font-weight:800;margin-bottom:6px;">Sandy a la réponse. Elle est dans tes données.</div>
       <p style="font-size:12.5px;color:rgba(252,224,168,.6);margin:0 0 14px;line-height:1.5;">Avec Pro, tu discutes avec ton coach quand tu veux : tu poses TES questions, il analyse TES chiffres et te répond tout de suite.</p>
-      <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:13.5px;font-family:inherit;cursor:pointer;">Passer Pro et discuter avec Zali</button>
+      <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:13.5px;font-family:inherit;cursor:pointer;">Passer Pro et discuter avec Sandy</button>
       <div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.4);margin-top:8px;">2 500 FCFA / mois</div>
     </div>`;
 }
@@ -6560,11 +6560,11 @@ async function wzCoachChatSend() {
     return;
   }
 
-  // Pro : bulle optimiste + appel Zali
+  // Pro : bulle optimiste + appel Sandy
   if (zone) {
     zone.insertAdjacentHTML('beforeend',
       `<div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${escapeHtml(question)}</div>
-       <div id="coach-typing" style="align-self:flex-start;background:#1E180E;border:1px solid rgba(232,148,10,.18);border-radius:16px;border-bottom-left-radius:5px;padding:11px 16px;color:rgba(252,224,168,.5);font-size:13px;margin:4px 0;">Zali regarde tes chiffres…</div>`);
+       <div id="coach-typing" style="align-self:flex-start;background:#1E180E;border:1px solid rgba(232,148,10,.18);border-radius:16px;border-bottom-left-radius:5px;padding:11px 16px;color:rgba(252,224,168,.5);font-size:13px;margin:4px 0;">Sandy regarde tes chiffres…</div>`);
   }
   if (input) { input.value = ''; input.style.height = 'auto'; }
   if (list) list.scrollTop = list.scrollHeight;
@@ -6601,11 +6601,11 @@ async function _loadCoachThread() {
   const list = document.getElementById('dm-messages-list');
   if (!list || !currentUser) return;
 
-  // Header du thread → Coach Zali
+  // Header du thread → Coach Sandy
   const av = document.getElementById('dm-thread-avatar');
-  if (av) { av.style.overflow = ''; av.style.padding = ''; av.style.background = 'linear-gradient(135deg,#E8940A,#b56f05)'; av.innerHTML = '<span style="font-family:\'DM Serif Display\',serif;font-style:italic;color:#14100A;">Z</span>'; }
+  if (av) { av.style.overflow = ''; av.style.padding = ''; av.style.background = 'linear-gradient(135deg,#E8940A,#b56f05)'; av.innerHTML = '<span style="font-family:\'DM Serif Display\',serif;font-style:italic;color:#14100A;">S</span>'; }
   const nm = document.getElementById('dm-thread-name');
-  if (nm) nm.textContent = 'Coach Zali';
+  if (nm) nm.textContent = 'Coach Sandy';
   // Pas de composer libre (conversation guidée — le chat libre arrive avec Pro)
   const composer = document.querySelector('.dm-compose-bar');
   if (composer) { composer.style.display = 'none'; composer.dataset.hiddenForStory = '1'; }
@@ -6618,13 +6618,13 @@ async function _loadCoachThread() {
     ]);
     _coachState = { profil, msgs: msgs || [], step: null, answers: {} };
 
-    // Premier passage : Zali se présente (messages persistés une seule fois)
+    // Premier passage : Sandy se présente (messages persistés une seule fois)
     if (!_coachState.msgs.length) {
       const prenom = _coachPrenom();
       const f = window.currentPrestataire?.fields || {};
       const metier = (f['Métier principal'] || '').toLowerCase();
       await _coachInsertMsg({ type: 'systeme', corps:
-        `Salut${prenom ? ' ' + prenom : ''} 👋🏾\n\nMoi c'est Coach Zali. Je suis ton conseiller business personnel sur WOZALI.\n\nMon travail : t'aider à faire rentrer plus d'argent${metier ? ' avec ton métier de ' + metier : ' avec ton travail'}.\n\nJ'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.` });
+        `Salut${prenom ? ' ' + prenom : ''} 👋🏾\n\nMoi c'est Coach Sandy. Je suis ton experte business personnelle sur WOZALI, une intelligence artificielle formée sur le marché d'ici. Pas une personne, mais je connais ton marché mieux que personne.\n\nMon travail : t'aider à faire rentrer plus d'argent${metier ? ' avec ton métier de ' + metier : ' avec ton travail'}.\n\nJ'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.` });
       await _coachInsertMsg({ type: 'systeme', corps:
         "Avant de commencer, j'ai 4 petites questions pour te connaître. Tu réponds juste en appuyant sur un bouton. Ça prend 1 minute." });
     }
@@ -6758,7 +6758,7 @@ async function _loadCoachPreview() {
     const time = document.getElementById('dm-coach-time');
     const badge = document.getElementById('dm-coach-badge');
     if (!last || !last.length) {
-      if (preview) preview.textContent = 'Ton conseiller business';
+      if (preview) preview.textContent = 'Ton experte business';
       if (badge) { badge.style.display = 'inline-flex'; badge.textContent = '1'; }
       return;
     }
@@ -6790,7 +6790,7 @@ function initDmInterface() {
   // Charger le profil fondateur en arrière-plan pour personnaliser l'affichage
   _loadFondateurProfile();
 
-  // Coach Zali : aperçu + badge non-lu de la conversation épinglée
+  // Coach Sandy : aperçu + badge non-lu de la conversation épinglée
   try { _loadCoachPreview(); } catch (e) {}
 
   // Sur desktop : ouvrir le thread WOZALI d'office

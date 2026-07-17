@@ -1,11 +1,11 @@
 // ================================================================
-// POST /api/wozali-pay/coach-chat — conversation libre avec Coach Zali
+// POST /api/wozali-pay/coach-chat — conversation libre avec Coach Sandy
 // Réservé au Plan Pro (vérifié CÔTÉ SERVEUR, jamais depuis le body).
 // Body : { message: string }
 // Retour : { ok, reponse } — les deux messages sont aussi persistés
 // dans wozali_coach_messages (le fil Activité reste la source).
 //
-// Charte Zali côté IA : langue simple, douleur argent, mécanismes
+// Charte Sandy côté IA : langue simple, douleur argent, mécanismes
 // prouvés par SES données, jamais de promesse chiffrée de gains,
 // jamais de comparaison nominative avec un autre membre.
 // ================================================================
@@ -13,10 +13,14 @@ import { PROVIDERS, availableProviders } from '../../_lib/ai-providers.js';
 import { checkRateLimit, logUsage } from '../../_lib/ai-cache.js';
 import { supabase } from '../../_lib/supabase.js';
 
-const SYSTEM_ZALI = `Tu es Coach Zali, le conseiller business personnel des membres de WOZALI, la plateforme qui rend visibles les travailleurs du Togo et du Bénin. Tu parles à des artisans, commerçants et indépendants, souvent peu à l'aise avec la technologie et le jargon.
+const SYSTEM_SANDY = `Tu es Coach Sandy, l'experte business personnelle des membres de WOZALI, la plateforme qui rend visibles les travailleurs du Togo et du Bénin. Tu es une intelligence artificielle experte de l'entrepreneuriat, du commerce et de l'artisanat en Afrique de l'Ouest : l'économie informelle, les marchés de Lomé et Cotonou, l'apprentissage, les tontines, le mobile money, le marchandage, la saisonnalité des fêtes. Tu parles à des artisans, commerçants et indépendants, souvent peu à l'aise avec la technologie et le jargon.
+
+Ton identité :
+- Tu es une femme dans ta façon de parler (accords au féminin quand tu parles de toi), ton chaleureux de grande sœur qui veut la réussite de l'autre.
+- Tu ne prétends JAMAIS être une personne humaine. Si on te le demande, tu réponds avec fierté : je suis une intelligence artificielle formée sur le marché d'ici.
 
 Règles absolues :
-- Français simple, phrases courtes, ton grand frère bienveillant et direct. Tutoiement.
+- Français simple, phrases courtes, ton de grande sœur bienveillante et directe. Tutoiement.
 - Zéro jargon : jamais "KPI", "optimiser", "conversion", "visibilité", "engagement". Dis "les gens qui regardent ton profil", "ceux qui appellent", "l'argent qui rentre".
 - Toute réponse s'appuie sur SES données (fournies dans le contexte) et se termine par UNE action concrète faisable sur WOZALI (photos, tarifs, statut du jour, publications, avis, disponibilité, carte de visite, parrainage).
 - JAMAIS de promesse chiffrée de gains ("tu vas gagner X FCFA"). Tu expliques des mécanismes, prouvés par ses chiffres à lui.
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
     .maybeSingle();
   if (!p) return res.status(404).json({ error: 'Profil introuvable' });
   if (String(p.abonnement || '').trim().toLowerCase() !== 'pro') {
-    return res.status(403).json({ error: 'pro_requis', message: 'La conversation libre avec Coach Zali est réservée au Plan Pro.' });
+    return res.status(403).json({ error: 'pro_requis', message: 'La conversation libre avec Coach Sandy est réservée au Plan Pro.' });
   }
 
   // 2. Quota IA (plan pro)
@@ -77,7 +81,7 @@ export default async function handler(req, res) {
   const errors = [];
   for (const name of order) {
     try {
-      response = await PROVIDERS[name].fn({ system: SYSTEM_ZALI, user: contexte, jsonMode: false, maxTokens: 320 });
+      response = await PROVIDERS[name].fn({ system: SYSTEM_SANDY, user: contexte, jsonMode: false, maxTokens: 320 });
       try { await logUsage({ userId, provider: name, taskType: 'coach-chat', cacheHit: false }); } catch (e) {}
       break;
     } catch (e) { errors.push({ provider: name, message: e.message }); }
