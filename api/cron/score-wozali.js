@@ -7,6 +7,7 @@ import { supabase } from '../_lib/supabase.js';
 import { recalculerTousLesScores } from '../_lib/score-wozali.js';
 import { envoyerNotification } from '../_utils/credit.js';
 import { runCoachZali } from '../_lib/coach-zali.js';
+import { runSequenceFondateur } from '../_lib/sequence-fondateur.js';
 
 export default async function handler(req, res) {
   // Auth cron Vercel
@@ -166,6 +167,12 @@ export default async function handler(req, res) {
       coach = await runCoachZali(supabase);
     } catch (e) { console.warn('[score-wozali] coach zali', e); }
 
+    // ── Séquence fondateur J1-J5 : message du jour aux nouveaux inscrits ──
+    let sequence = { envoyes: 0 };
+    try {
+      sequence = await runSequenceFondateur(supabase);
+    } catch (e) { console.warn('[score-wozali] sequence fondateur', e); }
+
     // Reset vues_mois au 1er du mois
     const now = new Date();
     if (now.getUTCDate() === 1 && now.getUTCHours() === 0) {
@@ -180,6 +187,7 @@ export default async function handler(req, res) {
       verifications,
       badgesMaj,
       coach,
+      sequence,
       timestamp: now.toISOString()
     });
   } catch (err) {
