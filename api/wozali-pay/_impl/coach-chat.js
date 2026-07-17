@@ -12,6 +12,7 @@
 import { PROVIDERS, availableProviders } from '../../_lib/ai-providers.js';
 import { checkRateLimit, logUsage } from '../../_lib/ai-cache.js';
 import { supabase } from '../../_lib/supabase.js';
+import { briquesPour, BRIQUES } from '../../_lib/corpus-sandy.js';
 
 const SYSTEM_SANDY = `Tu es Coach Sandy, l'experte business personnelle des membres de WOZALI, la plateforme qui rend visibles les travailleurs du Togo et du Bénin. Tu es une intelligence artificielle experte de l'entrepreneuriat, du commerce et de l'artisanat en Afrique de l'Ouest : l'économie informelle, les marchés de Lomé et Cotonou, l'apprentissage, les tontines, le mobile money, le marchandage, la saisonnalité des fêtes. Tu parles à des artisans, commerçants et indépendants, souvent peu à l'aise avec la technologie et le jargon.
 
@@ -70,6 +71,9 @@ export default async function handler(req, res) {
     `Chiffres : Score WOZALI ${p.score_wozali || 0}/100, ${p.nb_avis_recus || 0} avis (note ${p.note_moyenne || 'n/a'}), ${visiteurs} visiteurs sur 7 jours, ${(rdvs || []).length} demandes de RDV sur 7 jours, badges : ${(p.badges_auto || []).join(', ') || 'aucun'}.`,
     coachProfil ? `Coaching : objectif ${coachProfil.objectif || 'n/a'}, blocage ${coachProfil.blocage || 'n/a'}.` : '',
     (derniers || []).length ? `Derniers échanges (récents d'abord) : ${(derniers || []).map(m => `[${m.type}] ${(m.titre ? m.titre + ' : ' : '') + (m.corps || '').slice(0, 120)}`).join(' | ')}` : '',
+    // Corpus Sandy : briques de connaissance marché selon le thème détecté
+    briquesPour(`${message} ${p.metier_principal || ''}`),
+    (BRIQUES.langage_terrain.texte ? `[Ton et langage du terrain]\n${BRIQUES.langage_terrain.texte}` : ''),
     `Question du membre : ${message}`,
   ].filter(Boolean).join('\n');
 
