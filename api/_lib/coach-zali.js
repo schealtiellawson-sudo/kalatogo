@@ -173,6 +173,87 @@ const LECONS = [
 
 function _hier(now) { return new Date(now.getTime() - 86400000); }
 
+// ── Chantier 6 : gamification légère ──
+// Paliers dignité métier (jamais de points imaginaires, jamais de
+// classement public). Le palier se calcule depuis les données, la
+// célébration part quand il monte.
+const PALIERS = [
+  null,
+  { nom: 'Profil solide',
+    msg: "Photos, tarifs, description, position : ton profil est complet. Un client qui tombe dessus a tout ce qu'il faut pour te choisir. Prochaine étape : qu'on te VOIE. Statut du jour, publications, et le quartier saura que tu es là.",
+  },
+  { nom: 'Visible dans ton quartier',
+    msg: "Les gens te regardent maintenant. Ton profil vit, tes visites montent. Prochaine étape : que tes clients parlent pour toi. 3 avis, et tu passes dans la catégorie de ceux qu'on recommande.",
+  },
+  { nom: 'Recommandé par tes clients',
+    msg: "3 avis ou plus. Tes clients te défendent publiquement, et ça, aucun concurrent ne peut le copier. Prochaine étape : la référence de ton métier. Score 80 et un badge de comportement, et tu joues dans la cour de la Bourse.",
+  },
+  { nom: 'Référence de ton métier',
+    msg: "Score au sommet, badge gagné, clients qui témoignent. Dans ton métier, dans ta ville, tu fais partie de ceux qu'on cite. Maintenant ton travail, c'est de le rester : la constance paie chaque mois sur WOZALI.",
+  },
+];
+
+function _palierFor(c) {
+  const p = c.p;
+  const p1 = !!((p.photo_realisation_1 || p.photo_realisation_2)
+    && (p.tarif_min_fcfa || p.tarif_max_fcfa)
+    && (p.description_services || '').trim().length > 10
+    && p.latitude);
+  if (!p1) return 0;
+  const p2 = !!(c.aPoste || p.statut_jour) && c.vues7j >= 5;
+  if (!p2) return 1;
+  if ((p.nb_avis_recus || 0) < 3) return 2;
+  const p4 = (p.score_wozali || 0) >= 80 && (p.badges_auto || []).length > 0;
+  return p4 ? 4 : 3;
+}
+
+// Badges auto (étape 20) : célébrés une fois quand ils tombent.
+const BADGE_CELEBRATIONS = {
+  repond_vite: {
+    titre: 'Badge gagné : ⚡ Répond vite',
+    corps: "Tous les clients qui visitent ton profil voient maintenant que tu réponds vite. Tu sais ce que ça change ? Celui qui hésite entre deux pros choisit celui qui ne le fera pas attendre. Ce badge, tu le gardes tant que tu continues à répondre. Il travaille pour toi.",
+  },
+  tres_demande: {
+    titre: 'Badge gagné : 🔥 Très demandé',
+    corps: "Ton profil fait partie des plus regardés de ton métier. Les clients le voient en arrivant : les autres viennent chez toi, donc on peut te faire confiance. La demande appelle la demande. Continue à répondre présent.",
+  },
+};
+
+// Défis de la semaine (lundi) : objectif simple, mesuré par les
+// données, bilan chiffré le lundi suivant.
+const DEFIS = {
+  defi_photos: {
+    cond: (c) => !(c.p.photo_realisation_1 && c.p.photo_realisation_2 && c.p.photo_realisation_3),
+    titre: 'Tes 3 photos de travail',
+    corps: "D'ici dimanche, complète tes 3 photos de réalisations. Trois preuves valent mieux qu'une promesse : le client qui voit trois travaux réussis ne se demande plus si tu sais faire.",
+    cta: 'Ajouter mes photos', target: 'photos',
+    reussi: (c) => !!(c.p.photo_realisation_1 && c.p.photo_realisation_2 && c.p.photo_realisation_3),
+    bravo: 'Tes 3 photos sont en ligne. Ton profil montre maintenant ce que tes mains savent faire.',
+  },
+  defi_post: {
+    cond: (c) => c.posts7j < 2,
+    titre: '2 publications d\'ici dimanche',
+    corps: "D'ici dimanche, publie 2 fois : une photo de ton travail, une info, une offre. Chaque publication, c'est ta vitrine qui parle au quartier pendant que tu travailles.",
+    cta: 'Publier maintenant', target: 'posts',
+    reussi: (c) => c.posts7j >= 2,
+    bravoFn: (c) => `${c.posts7j} publication${c.posts7j > 1 ? 's' : ''} cette semaine. Ta vitrine a parlé pour toi.`,
+  },
+  defi_avis: {
+    cond: () => true,
+    titre: '1 nouvel avis client',
+    corps: "D'ici dimanche, obtiens 1 nouvel avis. Pense à ton dernier client satisfait : envoie-lui ton profil et demande-lui deux phrases honnêtes. C'est lui qui convaincra le prochain.",
+    cta: 'Voir ma page avis', target: 'avis',
+    reussi: (c) => c.avis7j >= 1,
+    bravoFn: (c) => `${c.avis7j} nouvel${c.avis7j > 1 ? 's avis' : ' avis'} cette semaine. Un client qui parle, c'est dix clients qui écoutent.`,
+  },
+};
+function _choisirDefi(c, dejaKeys) {
+  for (const k of ['defi_photos', 'defi_post', 'defi_avis']) {
+    if (!dejaKeys.has(k) && DEFIS[k].cond(c)) return k;
+  }
+  return 'defi_avis'; // le défi avis est toujours rejouable
+}
+
 // Message résultat : ses chiffres réels depuis la veille (boucle de preuve)
 function _resultatCorps(ctx) {
   const lignes = [];
@@ -199,19 +280,20 @@ export async function runCoachZali(supabase) {
   const userIds = profils.map(p => p.user_id);
 
   // Données du jour (une requête par table, agrégées en mémoire)
-  const [{ data: prests }, { data: vues }, { data: rdvs }, { data: posts }, { data: msgs }] = await Promise.all([
+  const [{ data: prests }, { data: vues }, { data: rdvs }, { data: posts }, { data: msgs }, { data: avisRecents }] = await Promise.all([
     supabase.from('wozali_prestataires')
-      .select('user_id, metier_principal, mode_emploi, photo_realisation_1, photo_realisation_2, tarif_min_fcfa, tarif_max_fcfa, latitude, description_services, statut_jour, statut_jour_at, nb_avis_recus')
+      .select('user_id, metier_principal, mode_emploi, photo_realisation_1, photo_realisation_2, photo_realisation_3, tarif_min_fcfa, tarif_max_fcfa, latitude, description_services, statut_jour, statut_jour_at, nb_avis_recus, score_wozali, badges_auto')
       .in('user_id', userIds),
     supabase.from('wozali_profil_vues').select('profil_id, viewer_id, viewer_prest_id, id, created_at')
       .gte('created_at', il7j),
     supabase.from('wozali_rdv').select('prestataire_user_id, created_at').gte('created_at', il7j),
-    supabase.from('wozali_posts').select('auteur_id').in('auteur_id', userIds).eq('actif', true).limit(2000),
+    supabase.from('wozali_posts').select('auteur_id, created_at').in('auteur_id', userIds).eq('actif', true).limit(2000),
     supabase.from('wozali_coach_messages')
       .select('user_id, type, lecon_key, action_faite, created_at')
-      .in('user_id', userIds).in('type', ['lecon', 'resultat'])
+      .in('user_id', userIds).in('type', ['lecon', 'resultat', 'defi', 'celebration'])
       .gte('created_at', new Date(now.getTime() - 30 * 86400000).toISOString())
       .order('created_at', { ascending: true }),
+    supabase.from('avis').select('prestataire_id, created_at').gte('created_at', il7j),
   ]);
 
   const prestByUser = {}; (prests || []).forEach(p => { prestByUser[p.user_id] = p; });
@@ -231,12 +313,22 @@ export async function runCoachZali(supabase) {
   });
   const rdv7jByUser = {};
   (rdvs || []).forEach(r => { if (r.prestataire_user_id) rdv7jByUser[r.prestataire_user_id] = (rdv7jByUser[r.prestataire_user_id] || 0) + 1; });
-  const posteByUser = {}; (posts || []).forEach(p => { posteByUser[p.auteur_id] = true; });
+  const posteByUser = {}, posts7jByUser = {};
+  (posts || []).forEach(p => {
+    posteByUser[p.auteur_id] = true;
+    if (p.created_at >= il7j) posts7jByUser[p.auteur_id] = (posts7jByUser[p.auteur_id] || 0) + 1;
+  });
+  const avis7jByUser = {};
+  (avisRecents || []).forEach(a => {
+    const uid = userByPrestId[a.prestataire_id];
+    if (uid) avis7jByUser[uid] = (avis7jByUser[uid] || 0) + 1;
+  });
 
   const histByUser = {};
   (msgs || []).forEach(m => { (histByUser[m.user_id] = histByUser[m.user_id] || []).push(m); });
 
-  let nResultats = 0, nLecons = 0, nReduits = 0;
+  let nResultats = 0, nLecons = 0, nReduits = 0, nPaliers = 0, nBadges = 0, nDefis = 0;
+  const estLundi = now.getUTCDay() === 1;
 
   for (const profil of profils) {
     const uid = profil.user_id;
@@ -245,7 +337,8 @@ export async function runCoachZali(supabase) {
     const hist = histByUser[uid] || [];
     const lecons = hist.filter(m => m.type === 'lecon');
     const derniere = lecons[lecons.length - 1] || null;
-    const dejaEnvoyees = new Set(lecons.map(m => m.lecon_key).filter(Boolean));
+    const dernierMsg = hist[hist.length - 1] || null;
+    const dejaEnvoyees = new Set(hist.map(m => m.lecon_key).filter(Boolean));
     const ctx = {
       p,
       fam: _familleFor(p.metier_principal),
@@ -253,10 +346,12 @@ export async function runCoachZali(supabase) {
       vuesHier: (vuesHierByUser[uid] || new Set()).size,
       rdv7j: rdv7jByUser[uid] || 0,
       aPoste: !!posteByUser[uid],
+      posts7j: posts7jByUser[uid] || 0,
+      avis7j: avis7jByUser[uid] || 0,
     };
 
-    // Déjà une leçon aujourd'hui ? On ne double jamais.
-    if (derniere && derniere.created_at >= debutJour.toISOString()) continue;
+    // Déjà un message aujourd'hui ? On ne double jamais.
+    if (dernierMsg && dernierMsg.created_at >= debutJour.toISOString()) continue;
 
     // 1. RÉSULTAT : la dernière leçon date d'hier et l'action a été faite,
     //    et aucun résultat n'a suivi.
@@ -273,7 +368,57 @@ export async function runCoachZali(supabase) {
       continue; // le résultat EST le message du jour
     }
 
-    // 2. Anti-spam : rythme réduit = 1 leçon tous les 3 jours
+    // 2. PALIER : la progression dignité métier vient de monter → célébration
+    const palierCalcule = _palierFor(ctx);
+    if (palierCalcule > (profil.palier || 0)) {
+      const pal = PALIERS[palierCalcule];
+      await supabase.from('wozali_coach_messages').insert({
+        user_id: uid, type: 'celebration', lecon_key: 'palier_' + palierCalcule,
+        titre: 'Palier atteint : ' + pal.nom, corps: pal.msg,
+      });
+      await supabase.from('wozali_coach_profil').update({
+        palier: palierCalcule, lecons_ignorees: 0, rythme: 'quotidien', updated_at: now.toISOString(),
+      }).eq('user_id', uid);
+      nPaliers++;
+      continue; // la célébration EST le message du jour
+    }
+
+    // 3. BADGE : un badge auto vient de tomber → célébration unique
+    const badgeNouveau = (p.badges_auto || []).find(b => BADGE_CELEBRATIONS[b] && !dejaEnvoyees.has('badge_' + b));
+    if (badgeNouveau) {
+      const bc = BADGE_CELEBRATIONS[badgeNouveau];
+      await supabase.from('wozali_coach_messages').insert({
+        user_id: uid, type: 'celebration', lecon_key: 'badge_' + badgeNouveau,
+        titre: bc.titre, corps: bc.corps,
+      });
+      nBadges++;
+      continue;
+    }
+
+    // 4. DÉFI DE LA SEMAINE (lundi) : bilan chiffré du précédent + nouveau défi
+    if (estLundi) {
+      const defisPassés = hist.filter(m => m.type === 'defi');
+      const dernierDefi = defisPassés[defisPassés.length - 1] || null;
+      let bilan = '';
+      if (dernierDefi && DEFIS[dernierDefi.lecon_key]
+          && (now - new Date(dernierDefi.created_at)) <= 8 * 86400000) {
+        const D = DEFIS[dernierDefi.lecon_key];
+        bilan = D.reussi(ctx)
+          ? `Défi de la semaine dernière : réussi. ${D.bravoFn ? D.bravoFn(ctx) : D.bravo}\n\n`
+          : `Le défi de la semaine dernière n'est pas passé, et ce n'est pas grave : ce qui compte, c'est de rester dans le jeu.\n\n`;
+      }
+      const defiKey = _choisirDefi(ctx, new Set(defisPassés.map(m => m.lecon_key)));
+      const D = DEFIS[defiKey];
+      await supabase.from('wozali_coach_messages').insert({
+        user_id: uid, type: 'defi', lecon_key: defiKey,
+        titre: D.titre, corps: bilan + D.corps,
+        cta_label: D.cta, cta_target: D.target,
+      });
+      nDefis++;
+      continue;
+    }
+
+    // 5. Anti-spam : rythme réduit = 1 leçon tous les 3 jours
     let ignorees = profil.lecons_ignorees || 0;
     let rythme = profil.rythme || 'quotidien';
     if (derniere && !derniere.action_faite) {
@@ -291,7 +436,7 @@ export async function runCoachZali(supabase) {
       continue;
     }
 
-    // 3. LEÇON DU JOUR : la première pertinente jamais envoyée
+    // 6. LEÇON DU JOUR : la première pertinente jamais envoyée
     const lecon = LECONS.find(L => !dejaEnvoyees.has(L.key) && L.cond(ctx));
     if (lecon) {
       await supabase.from('wozali_coach_messages').insert({
@@ -309,5 +454,5 @@ export async function runCoachZali(supabase) {
     }).eq('user_id', uid);
   }
 
-  return { resultats: nResultats, lecons: nLecons, reduits: nReduits };
+  return { resultats: nResultats, lecons: nLecons, reduits: nReduits, paliers: nPaliers, badges: nBadges, defis: nDefis };
 }

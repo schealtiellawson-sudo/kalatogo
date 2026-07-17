@@ -6442,15 +6442,15 @@ function _coachBubble(m) {
       : esc(m.corps);
     return `<div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${inner}</div>`;
   }
-  if (m.type === 'lecon') {
+  if (m.type === 'lecon' || m.type === 'defi') {
     return `<div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:16px;overflow:hidden;margin:6px 0;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);">
-        <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;">Ton action du moment</span>
+        <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;">${m.type === 'defi' ? 'Défi de la semaine' : 'Ton action du moment'}</span>
         ${m.audio_url ? `<button onclick="new Audio('${esc(m.audio_url)}').play()" style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(252,224,168,.6);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:4px 10px;cursor:pointer;font-family:inherit;">🔊 Écouter</button>` : ''}
       </div>
       <div style="padding:14px;">
         <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:18px;color:#FCE0A8;margin-bottom:8px;">${esc(m.titre)}</div>
-        <div style="font-size:13.5px;line-height:1.6;color:rgba(252,224,168,.85);">${esc(m.corps)}</div>
+        <div style="font-size:13.5px;line-height:1.6;color:rgba(252,224,168,.85);white-space:pre-line;">${esc(m.corps)}</div>
         ${m.cta_label ? `<button onclick="wzCoachCta('${m.id}','${esc(m.cta_target)}')" style="display:block;width:100%;margin-top:13px;background:${m.action_faite ? 'rgba(232,148,10,.25)' : '#E8940A'};color:${m.action_faite ? '#E8940A' : '#14100A'};border:none;border-radius:12px;padding:13px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;">${m.action_faite ? '✓ ' : ''}${esc(m.cta_label)} →</button>` : ''}
       </div>
     </div>`;
