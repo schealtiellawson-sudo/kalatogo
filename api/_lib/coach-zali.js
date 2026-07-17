@@ -70,14 +70,17 @@ const FAMILLES = {
     rdv: false,
   },
 };
-function _familleFor(metier) {
+function _familleKeyFor(metier) {
   const n = _normMetier(metier);
-  if (!n) return FAMILLES.defaut;
+  if (!n) return 'defaut';
   for (const key of Object.keys(FAMILLES)) {
     if (key === 'defaut') continue;
-    if (FAMILLES[key].match.some(m => n.includes(m))) return FAMILLES[key];
+    if (FAMILLES[key].match.some(m => n.includes(m))) return key;
   }
-  return FAMILLES.defaut;
+  return 'defaut';
+}
+function _familleFor(metier) {
+  return FAMILLES[_familleKeyFor(metier)];
 }
 
 // ── Bibliothèque de leçons (clé stable = jamais renvoyée deux fois) ──
@@ -254,6 +257,83 @@ function _choisirDefi(c, dejaKeys) {
   return 'defi_avis'; // le défi avis est toujours rejouable
 }
 
+// ── Radar du marché (Pro, le lundi) ──
+// Compare le membre aux MEILLEURS de sa famille de métier dans sa
+// ville (groupe anonyme, jamais une personne nommée). Chaque écart
+// vient avec sa cause et UNE action : le Radar EST le défi de la
+// semaine du membre Pro.
+function _median(arr) {
+  if (!arr.length) return null;
+  const s = arr.slice().sort((a, b) => a - b);
+  return s[Math.floor(s.length / 2)];
+}
+
+// Construit les stats des groupes (famille|ville) à partir de TOUS
+// les prestataires. Fallback famille entière si le groupe ville est
+// trop petit (< 5 profils).
+function _buildRadarGroupes(tousPrests, reponsesParUser, il7jIso) {
+  const groupes = {};
+  (tousPrests || []).forEach(r => {
+    const fam = _familleKeyFor(r.metier_principal);
+    const ville = _normMetier(r.ville) || '*';
+    for (const key of [fam + '|' + ville, fam + '|*']) {
+      (groupes[key] = groupes[key] || []).push(r);
+    }
+  });
+  const stats = {};
+  for (const key of Object.keys(groupes)) {
+    const rows = groupes[key].filter(r => (r.score_wozali || 0) > 0);
+    if (rows.length < 5) continue;
+    rows.sort((a, b) => (b.score_wozali || 0) - (a.score_wozali || 0));
+    const top = rows.slice(0, Math.max(3, Math.ceil(rows.length * 0.3)));
+    const statutPct = top.filter(r => r.statut_jour_at && r.statut_jour_at >= il7jIso).length / top.length;
+    const photosPct = top.filter(r => [r.photo_realisation_1, r.photo_realisation_2, r.photo_realisation_3].filter(Boolean).length >= 2).length / top.length;
+    const reps = [];
+    top.forEach(r => { (reponsesParUser[r.user_id] || []).forEach(h => reps.push(h)); });
+    stats[key] = { n: top.length, statutPct, photosPct, reponseMedH: _median(reps) };
+  }
+  return stats;
+}
+
+// Compose le message Radar : lignes elles/toi + l'action corrective.
+function _radarMessage(ctx, grp, mesReponsesH, il7jIso) {
+  const fem = ctx.fam.cli === 'ta cliente';
+  const eux = fem ? 'elles' : 'eux';
+  const lignes = [];
+  const ecarts = [];
+
+  const monStatut = !!(ctx.p.statut_jour_at && ctx.p.statut_jour_at >= il7jIso);
+  if (grp.statutPct >= 0.5) {
+    lignes.push(`Statut du jour cette semaine · ${eux} : oui · toi : ${monStatut ? 'oui ✓' : 'NON'}`);
+    if (!monStatut) ecarts.push({ k: 'statut', cause: `${fem ? 'Elles disent' : 'Ils disent'} au quartier quand ${fem ? 'elles sont' : 'ils sont'} disponibles. Toi, personne ne le sait.`, cta: 'Écrire mon statut du jour', target: 'overview' });
+  }
+  const mesPhotos = [ctx.p.photo_realisation_1, ctx.p.photo_realisation_2, ctx.p.photo_realisation_3].filter(Boolean).length;
+  if (grp.photosPct >= 0.5) {
+    lignes.push(`Photos du travail (2 et plus) · ${eux} : oui · toi : ${mesPhotos >= 2 ? 'oui ✓' : 'NON (' + mesPhotos + ')'}`);
+    if (mesPhotos < 2) ecarts.push({ k: 'photos', cause: `Le client compare les photos avant d'appeler. Là, il ne peut pas te comparer, donc il ne t'appelle pas.`, cta: 'Ajouter mes photos', target: 'photos' });
+  }
+  const maRep = _median(mesReponsesH || []);
+  if (grp.reponseMedH != null) {
+    const euxH = Math.max(1, Math.round(grp.reponseMedH));
+    lignes.push(`Temps de réponse aux demandes · ${eux} : ${euxH} h · toi : ${maRep != null ? Math.round(maRep) + ' h' : 'pas encore mesuré'}`);
+    if (maRep != null && maRep > grp.reponseMedH * 2) ecarts.push({ k: 'reponse', cause: `Le client écrit, la réponse tarde, il appelle quelqu'un d'autre. C'est exactement là que ça part.`, cta: 'Voir mes demandes', target: 'rdv' });
+  }
+  if (!lignes.length) return null;
+
+  const ecart = ecarts[0] || null;
+  const corps = `J'ai analysé les ${fem ? 'mieux classées' : 'mieux classés'} de ton métier${grp.ville ? ' dans ta ville' : ''} cette semaine (${grp.n} profils, personne n'est nommé). Voilà ce qu'${eux === 'elles' ? 'elles font' : 'ils font'}, et où tu en es :\n\n`
+    + lignes.join('\n')
+    + (ecart
+      ? `\n\n${ecart.cause}\n\nCette semaine on corrige UNE chose. C'est ton défi.`
+      : `\n\nTu tiens le rythme des meilleurs. Cette semaine, on ne change rien : on tient.`);
+  return {
+    titre: '📡 Ton Radar du marché',
+    corps,
+    cta_label: ecart ? ecart.cta : null,
+    cta_target: ecart ? ecart.target : null,
+  };
+}
+
 // Message résultat : ses chiffres réels depuis la veille (boucle de preuve)
 function _resultatCorps(ctx) {
   const lignes = [];
@@ -280,13 +360,13 @@ export async function runCoachZali(supabase) {
   const userIds = profils.map(p => p.user_id);
 
   // Données du jour (une requête par table, agrégées en mémoire)
-  const [{ data: prests }, { data: vues }, { data: rdvs }, { data: posts }, { data: msgs }, { data: avisRecents }] = await Promise.all([
+  const [{ data: prests }, { data: vues }, { data: rdvs }, { data: posts }, { data: msgs }, { data: avisRecents }, { data: tousPrests }] = await Promise.all([
     supabase.from('wozali_prestataires')
-      .select('user_id, metier_principal, mode_emploi, photo_realisation_1, photo_realisation_2, photo_realisation_3, tarif_min_fcfa, tarif_max_fcfa, latitude, description_services, statut_jour, statut_jour_at, nb_avis_recus, score_wozali, badges_auto')
+      .select('user_id, metier_principal, ville, abonnement, mode_emploi, photo_realisation_1, photo_realisation_2, photo_realisation_3, tarif_min_fcfa, tarif_max_fcfa, latitude, description_services, statut_jour, statut_jour_at, nb_avis_recus, score_wozali, badges_auto')
       .in('user_id', userIds),
     supabase.from('wozali_profil_vues').select('profil_id, viewer_id, viewer_prest_id, id, created_at')
       .gte('created_at', il7j),
-    supabase.from('wozali_rdv').select('prestataire_user_id, created_at').gte('created_at', il7j),
+    supabase.from('wozali_rdv').select('prestataire_user_id, statut, created_at, updated_at').gte('created_at', il7j),
     supabase.from('wozali_posts').select('auteur_id, created_at').in('auteur_id', userIds).eq('actif', true).limit(2000),
     supabase.from('wozali_coach_messages')
       .select('user_id, type, lecon_key, action_faite, created_at')
@@ -294,6 +374,10 @@ export async function runCoachZali(supabase) {
       .gte('created_at', new Date(now.getTime() - 30 * 86400000).toISOString())
       .order('created_at', { ascending: true }),
     supabase.from('avis').select('prestataire_id, created_at').gte('created_at', il7j),
+    // Radar du marché : tous les prestataires (groupes anonymes famille|ville)
+    supabase.from('wozali_prestataires')
+      .select('user_id, metier_principal, ville, score_wozali, statut_jour_at, photo_realisation_1, photo_realisation_2, photo_realisation_3')
+      .limit(5000),
   ]);
 
   const prestByUser = {}; (prests || []).forEach(p => { prestByUser[p.user_id] = p; });
@@ -311,8 +395,18 @@ export async function runCoachZali(supabase) {
       (vuesHierByUser[uid] = vuesHierByUser[uid] || new Set()).add(key);
     }
   });
-  const rdv7jByUser = {};
-  (rdvs || []).forEach(r => { if (r.prestataire_user_id) rdv7jByUser[r.prestataire_user_id] = (rdv7jByUser[r.prestataire_user_id] || 0) + 1; });
+  const rdv7jByUser = {}, reponsesParUser = {};
+  (rdvs || []).forEach(r => {
+    if (!r.prestataire_user_id) return;
+    rdv7jByUser[r.prestataire_user_id] = (rdv7jByUser[r.prestataire_user_id] || 0) + 1;
+    // Temps de réponse (heures) : statut sorti de "Demandé"
+    if (r.statut && r.statut !== 'Demandé' && r.updated_at && r.updated_at !== r.created_at) {
+      const h = (new Date(r.updated_at) - new Date(r.created_at)) / 3600000;
+      if (h >= 0) (reponsesParUser[r.prestataire_user_id] = reponsesParUser[r.prestataire_user_id] || []).push(h);
+    }
+  });
+  // Stats de groupes pour le Radar du marché (Pro, lundi)
+  const radarStats = _buildRadarGroupes(tousPrests, reponsesParUser, il7j);
   const posteByUser = {}, posts7jByUser = {};
   (posts || []).forEach(p => {
     posteByUser[p.auteur_id] = true;
@@ -327,7 +421,7 @@ export async function runCoachZali(supabase) {
   const histByUser = {};
   (msgs || []).forEach(m => { (histByUser[m.user_id] = histByUser[m.user_id] || []).push(m); });
 
-  let nResultats = 0, nLecons = 0, nReduits = 0, nPaliers = 0, nBadges = 0, nDefis = 0;
+  let nResultats = 0, nLecons = 0, nReduits = 0, nPaliers = 0, nBadges = 0, nDefis = 0, nRadars = 0;
   const estLundi = now.getUTCDay() === 1;
 
   for (const profil of profils) {
@@ -395,7 +489,30 @@ export async function runCoachZali(supabase) {
       continue;
     }
 
-    // 4. DÉFI DE LA SEMAINE (lundi) : bilan chiffré du précédent + nouveau défi
+    // 4. RADAR DU MARCHÉ (lundi, Pro) : pour le membre Pro, le Radar
+    //    remplace le défi — son écart corrigé EST le défi de la semaine.
+    if (estLundi && String(p.abonnement || '').trim().toLowerCase() === 'pro') {
+      const famKey = _familleKeyFor(p.metier_principal);
+      const villeKey = _normMetier(p.ville) || '*';
+      const grp = radarStats[famKey + '|' + villeKey]
+        ? { ...radarStats[famKey + '|' + villeKey], ville: true }
+        : (radarStats[famKey + '|*'] ? { ...radarStats[famKey + '|*'], ville: false } : null);
+      if (grp) {
+        const radar = _radarMessage(ctx, grp, reponsesParUser[uid] || [], il7j);
+        if (radar) {
+          await supabase.from('wozali_coach_messages').insert({
+            user_id: uid, type: 'radar', lecon_key: 'radar',
+            titre: radar.titre, corps: radar.corps,
+            cta_label: radar.cta_label, cta_target: radar.cta_target,
+          });
+          nRadars++;
+          continue;
+        }
+      }
+      // Pas assez de profils dans sa niche : il reçoit le défi classique.
+    }
+
+    // 5. DÉFI DE LA SEMAINE (lundi) : bilan chiffré du précédent + nouveau défi
     if (estLundi) {
       const defisPassés = hist.filter(m => m.type === 'defi');
       const dernierDefi = defisPassés[defisPassés.length - 1] || null;
@@ -418,7 +535,7 @@ export async function runCoachZali(supabase) {
       continue;
     }
 
-    // 5. Anti-spam : rythme réduit = 1 leçon tous les 3 jours
+    // 6. Anti-spam : rythme réduit = 1 leçon tous les 3 jours
     let ignorees = profil.lecons_ignorees || 0;
     let rythme = profil.rythme || 'quotidien';
     if (derniere && !derniere.action_faite) {
@@ -436,7 +553,7 @@ export async function runCoachZali(supabase) {
       continue;
     }
 
-    // 6. LEÇON DU JOUR : la première pertinente jamais envoyée
+    // 7. LEÇON DU JOUR : la première pertinente jamais envoyée
     const lecon = LECONS.find(L => !dejaEnvoyees.has(L.key) && L.cond(ctx));
     if (lecon) {
       await supabase.from('wozali_coach_messages').insert({
@@ -454,5 +571,5 @@ export async function runCoachZali(supabase) {
     }).eq('user_id', uid);
   }
 
-  return { resultats: nResultats, lecons: nLecons, reduits: nReduits, paliers: nPaliers, badges: nBadges, defis: nDefis };
+  return { resultats: nResultats, lecons: nLecons, reduits: nReduits, paliers: nPaliers, badges: nBadges, defis: nDefis, radars: nRadars };
 }
