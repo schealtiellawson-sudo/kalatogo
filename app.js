@@ -6307,6 +6307,378 @@ async function sendWozaliChatMessage() {
 }
 
 // ══════════════════════════════════════════
+// COACH ZALI — conseiller business (conversation épinglée dans Activité)
+// Présentation + questionnaire adaptatif + première leçon immédiate.
+// Les leçons quotidiennes viennent du cron (Chantier 2 suite).
+// ══════════════════════════════════════════
+
+// Arbre adaptatif du questionnaire : Q2 et Q3 dépendent de l'objectif choisi.
+const _COACH_TREE = {
+  q1: { question: "C'est quoi ton objectif numéro 1 ?", opts: [
+    { k: 'clients',      l: 'Plus de clients' },
+    { k: 'emploi',       l: 'Trouver un emploi' },
+    { k: 'recruter',     l: "Recruter quelqu'un" },
+    { k: 'mieux_gagner', l: 'Mieux gagner avec mes clients actuels' },
+  ]},
+  q2: {
+    clients:      { question: "OK. Et le vrai blocage aujourd'hui, c'est lequel ?", opts: [
+      { k: 'inconnu',   l: 'Personne ne me connaît en dehors de mon quartier' },
+      { k: 'pas_appel', l: "On me connaît, mais on n'appelle pas" },
+      { k: 'pas_achat', l: "On appelle, mais ça n'achète pas" } ]},
+    emploi:       { question: "T'en es où ?", opts: [
+      { k: 'longtemps', l: 'Je cherche depuis longtemps' },
+      { k: 'formation', l: 'Je viens de finir ma formation' },
+      { k: 'mieux',     l: "J'ai un travail mais je veux mieux" } ]},
+    recruter:     { question: 'Tu cherches quoi ?', opts: [
+      { k: 'apprenti',  l: 'Un apprenti' },
+      { k: 'confirme',  l: 'Un employé confirmé' },
+      { k: 'ponctuel',  l: 'Ponctuel, selon les commandes' } ]},
+    mieux_gagner: { question: 'Le problème ?', opts: [
+      { k: 'negocie',       l: 'Les clients négocient trop' },
+      { k: 'reviennent_pas', l: 'Ils ne reviennent pas' },
+      { k: 'tarif',         l: 'Je ne sais pas quoi facturer' } ]},
+  },
+  q3: {
+    clients:      { question: "Aujourd'hui, tes clients te trouvent comment ?", opts: [
+      { k: 'bouche',   l: 'Bouche-à-oreille' },
+      { k: 'whatsapp', l: 'WhatsApp' },
+      { k: 'passage',  l: 'Les gens passent devant' },
+      { k: 'rien',     l: 'Justement, ils me trouvent pas' } ]},
+    emploi:       { question: 'Tu postules comment aujourd\'hui ?', opts: [
+      { k: 'whatsapp', l: "J'envoie mon CV sur WhatsApp" },
+      { k: 'reseau',   l: 'Par des connaissances' },
+      { k: 'rien',     l: 'Je ne sais pas où postuler' } ]},
+    recruter:     { question: "Tu recrutes comment d'habitude ?", opts: [
+      { k: 'bouche',  l: 'Bouche-à-oreille' },
+      { k: 'famille', l: 'Dans la famille, le quartier' },
+      { k: 'rien',    l: "C'est la première fois" } ]},
+    mieux_gagner: { question: 'Tes prix, tu les fixes comment ?', opts: [
+      { k: 'tete',    l: 'De tête, selon le client' },
+      { k: 'marche',  l: 'Comme tout le monde au marché' },
+      { k: 'affiche', l: "J'ai des prix fixes affichés" } ]},
+  },
+  q4: { question: "Dernière chose : tu préfères que je t'écrive ou que je te parle ?", opts: [
+    { k: 'lire',    l: 'Je préfère lire' },
+    { k: 'ecouter', l: 'Je préfère écouter 🔊' },
+  ]},
+};
+
+// Plans de reformulation par objectif (le résumé qui verrouille)
+const _COACH_PLANS = {
+  clients:      "1. On rend ton profil irrésistible.\n2. On te fait voir au-delà de ton quartier.\n3. On transforme les visites en rendez-vous.",
+  emploi:       "1. On rend ton CV WOZALI solide.\n2. On te met devant les bonnes offres.\n3. On prépare tes candidatures pour qu'on te rappelle.",
+  recruter:     "1. On écrit une offre claire.\n2. On la met devant les bons profils.\n3. On t'aide à choisir sans te tromper.",
+  mieux_gagner: "1. On montre la qualité de ton travail : photos, avis.\n2. On affiche tes tarifs pour cadrer la négociation.\n3. On fait revenir tes clients.",
+};
+
+// Leçons de démarrage (bibliothèque complète = Chantier 3, générée par le cron)
+const _COACH_STARTER_LECONS = {
+  photos: { titre: "Ton profil n'a pas encore de photos de ton travail.",
+    corps: "Un client qui ne te connaît pas ne peut pas deviner que tu travailles bien. Il regarde les photos. Pas de photos, il passe chez un autre. Ajoute une seule photo de ta dernière réalisation, celle dont tu es fier.",
+    cta: 'Ajouter ma photo maintenant', target: 'photos' },
+  tarifs: { titre: 'Celui qui ne voit pas tes prix imagine le pire.',
+    corps: "Un client qui hésite regarde une chose : est-ce que je peux me le permettre. Pas de prix affiché, il n'ose pas demander, il va ailleurs. Mets une fourchette simple, ça suffit.",
+    cta: 'Ajouter mes tarifs', target: 'profil' },
+  gps: { titre: 'Les clients cherchent près de chez eux.',
+    corps: "Quand quelqu'un cherche ton métier, les profils localisés sortent sur la carte. Sans ta position, tu n'existes pas sur la carte de ton propre quartier. Ça prend 30 secondes.",
+    cta: 'Ajouter ma position', target: 'profil' },
+  statut_jour: { titre: "Quand tu es libre et que personne ne le sait, c'est une journée sans argent.",
+    corps: "Le statut du jour, c'est une phrase sur ton profil qui dit au quartier : je suis là, maintenant. \"Libre cet après-midi.\" Celui qui hésitait n'hésite plus, il vient aujourd'hui.",
+    cta: 'Écrire mon statut du jour', target: 'overview' },
+};
+
+let _coachState = { profil: null, msgs: [], step: null, answers: {} };
+
+function _coachPrenom() {
+  const f = window.currentPrestataire?.fields || {};
+  return (f['Prénom'] || (f['Nom complet'] || '').split(' ')[0] || '').trim();
+}
+
+async function _coachFetchProfil() {
+  if (!currentUser) return null;
+  try {
+    const { data } = await supa.from('wozali_coach_profil').select('*').eq('user_id', currentUser.id).maybeSingle();
+    return data || null;
+  } catch (e) { return null; }
+}
+
+async function _coachUpsertProfil(patch) {
+  if (!currentUser) return;
+  try {
+    await supa.from('wozali_coach_profil').upsert({ user_id: currentUser.id, updated_at: new Date().toISOString(), ...patch });
+    _coachState.profil = { ...( _coachState.profil || {}), ...patch };
+  } catch (e) { console.warn('[coach profil]', e); }
+}
+
+async function _coachInsertMsg(msg) {
+  if (!currentUser) return null;
+  try {
+    const { data, error } = await supa.from('wozali_coach_messages')
+      .insert({ user_id: currentUser.id, ...msg }).select().single();
+    if (error) throw error;
+    _coachState.msgs.push(data);
+    return data;
+  } catch (e) { console.warn('[coach msg]', e); return null; }
+}
+
+// ── Rendu ──
+function _coachBubble(m) {
+  const esc = (s) => escapeHtml(s || '');
+  if (m.type === 'reponse_membre') {
+    const inner = m.audio_url
+      ? (typeof wzVoicePlayer === 'function' ? wzVoicePlayer(m.audio_url, 0) : `<audio controls src="${esc(m.audio_url)}" style="max-width:200px;"></audio>`)
+      : esc(m.corps);
+    return `<div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${inner}</div>`;
+  }
+  if (m.type === 'lecon') {
+    return `<div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:16px;overflow:hidden;margin:6px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);">
+        <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;">Ton action du moment</span>
+        ${m.audio_url ? `<button onclick="new Audio('${esc(m.audio_url)}').play()" style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(252,224,168,.6);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:4px 10px;cursor:pointer;font-family:inherit;">🔊 Écouter</button>` : ''}
+      </div>
+      <div style="padding:14px;">
+        <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:18px;color:#FCE0A8;margin-bottom:8px;">${esc(m.titre)}</div>
+        <div style="font-size:13.5px;line-height:1.6;color:rgba(252,224,168,.85);">${esc(m.corps)}</div>
+        ${m.cta_label ? `<button onclick="wzCoachCta('${m.id}','${esc(m.cta_target)}')" style="display:block;width:100%;margin-top:13px;background:${m.action_faite ? 'rgba(232,148,10,.25)' : '#E8940A'};color:${m.action_faite ? '#E8940A' : '#14100A'};border:none;border-radius:12px;padding:13px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;">${m.action_faite ? '✓ ' : ''}${esc(m.cta_label)} →</button>` : ''}
+      </div>
+    </div>`;
+  }
+  // systeme / question / resultat → bulle Coach
+  return `<div style="align-self:flex-start;max-width:86%;background:#1E180E;border:1px solid rgba(232,148,10,.18);border-radius:16px;border-bottom-left-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.6;color:#FCE0A8;white-space:pre-line;margin:4px 0;">${m.titre ? `<div style="color:#E8940A;font-weight:800;margin-bottom:5px;">${escapeHtml(m.titre)}</div>` : ''}${escapeHtml(m.corps || '')}</div>`;
+}
+
+function _coachOptButtons(opts, handler) {
+  return `<div style="display:flex;flex-direction:column;gap:7px;padding:4px 2px;">` + opts.map(o =>
+    `<button onclick="${handler}('${o.k}')" style="background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;text-align:left;font-family:inherit;cursor:pointer;">${escapeHtml(o.l)}</button>`
+  ).join('') + `</div>`;
+}
+
+function _coachRenderThread() {
+  const list = document.getElementById('dm-messages-list');
+  if (!list) return;
+  const p = _coachState.profil;
+  let interact = '';
+
+  if (_coachState.step === 'q1' || _coachState.step === 'q2' || _coachState.step === 'q3' || _coachState.step === 'q4') {
+    const node = _coachState.step === 'q1' ? _COACH_TREE.q1
+      : _coachState.step === 'q4' ? _COACH_TREE.q4
+      : _COACH_TREE[_coachState.step][_coachState.answers.objectif];
+    interact = _coachOptButtons(node.opts, 'wzCoachAnswer');
+  } else if (_coachState.step === 'libre') {
+    interact = `
+      <div id="coach-vocal-idle" style="display:flex;gap:8px;align-items:center;">
+        <textarea id="coach-libre-input" rows="2" placeholder="Écris ici… ou appuie sur le micro et parle" style="flex:1;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:11px 14px;color:#FCE0A8;font-size:13.5px;font-family:inherit;resize:none;"></textarea>
+        <button onclick="startVocalRec('coach', 60)" aria-label="Parler" style="width:44px;height:44px;border-radius:50%;background:#E8940A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14100A" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        </button>
+      </div>
+      <div id="coach-vocal-rec" style="display:none;align-items:center;gap:10px;background:#1E180E;border:1px solid rgba(232,148,10,.4);border-radius:14px;padding:11px 14px;">
+        <span style="width:9px;height:9px;border-radius:50%;background:#f87171;animation:pulse 1s infinite;"></span>
+        <span id="coach-vocal-timer" style="font-family:'Geist Mono',monospace;font-size:12px;color:#FCE0A8;flex:1;">0:00 / 1:00</span>
+        <button onclick="stopVocalRec('coach')" style="background:#E8940A;color:#14100A;border:none;border-radius:100px;padding:8px 16px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;">■ Terminer</button>
+      </div>
+      <div id="coach-vocal-done" style="display:none;flex-direction:column;gap:8px;">
+        <div id="coach-vocal-player"></div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="resetVocalRec('coach')" style="flex:1;background:none;border:1px dashed rgba(255,255,255,.2);color:rgba(252,224,168,.5);border-radius:12px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;">Recommencer</button>
+          <button onclick="wzCoachFreeSendVocal()" style="flex:1;background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:10px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;">Envoyer le vocal</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button onclick="wzCoachFreeSendText()" style="flex:1;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:11px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">Envoyer</button>
+        <button onclick="wzCoachFinish()" style="flex:1;background:none;border:1px dashed rgba(255,255,255,.18);color:rgba(252,224,168,.5);border-radius:13px;padding:11px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Terminer</button>
+      </div>`;
+  } else if (!p || p.questionnaire_etat === 'a_faire') {
+    interact = _coachOptButtons([{ k: 'go', l: "C'est parti →" }], 'wzCoachStart')
+      + `<div style="padding:2px;"><button onclick="wzCoachLater()" style="width:100%;background:none;border:1.5px dashed rgba(255,255,255,.18);color:rgba(252,224,168,.5);border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:600;text-align:left;font-family:inherit;cursor:pointer;">Plus tard</button></div>`;
+  } else if (p.questionnaire_etat === 'passe') {
+    interact = `<div style="padding:2px;"><button onclick="wzCoachStart('go')" style="width:100%;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;">Répondre aux 4 questions de Zali</button></div>`;
+  }
+
+  list.innerHTML = `<div style="display:flex;flex-direction:column;gap:2px;padding:6px 2px;">`
+    + _coachState.msgs.map(_coachBubble).join('')
+    + `</div><div id="wz-coach-interact" style="padding:8px 2px 16px;">${interact}</div>`;
+  list.scrollTop = list.scrollHeight;
+}
+
+// ── Chargement du thread ──
+async function _loadCoachThread() {
+  const list = document.getElementById('dm-messages-list');
+  if (!list || !currentUser) return;
+
+  // Header du thread → Coach Zali
+  const av = document.getElementById('dm-thread-avatar');
+  if (av) { av.style.overflow = ''; av.style.padding = ''; av.style.background = 'linear-gradient(135deg,#E8940A,#b56f05)'; av.innerHTML = '<span style="font-family:\'DM Serif Display\',serif;font-style:italic;color:#14100A;">Z</span>'; }
+  const nm = document.getElementById('dm-thread-name');
+  if (nm) nm.textContent = 'Coach Zali';
+  // Pas de composer libre (conversation guidée — le chat libre arrive avec Pro)
+  const composer = document.querySelector('.dm-compose-bar');
+  if (composer) { composer.style.display = 'none'; composer.dataset.hiddenForStory = '1'; }
+
+  list.innerHTML = '<div class="loading"><div class="spinner"></div> Chargement...</div>';
+  try {
+    const [profil, { data: msgs }] = await Promise.all([
+      _coachFetchProfil(),
+      supa.from('wozali_coach_messages').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: true }).limit(200),
+    ]);
+    _coachState = { profil, msgs: msgs || [], step: null, answers: {} };
+
+    // Premier passage : Zali se présente (messages persistés une seule fois)
+    if (!_coachState.msgs.length) {
+      const prenom = _coachPrenom();
+      const f = window.currentPrestataire?.fields || {};
+      const metier = (f['Métier principal'] || '').toLowerCase();
+      await _coachInsertMsg({ type: 'systeme', corps:
+        `Salut${prenom ? ' ' + prenom : ''} 👋🏾\n\nMoi c'est Coach Zali. Je suis ton conseiller business personnel sur WOZALI.\n\nMon travail : t'aider à faire rentrer plus d'argent${metier ? ' avec ton métier de ' + metier : ' avec ton travail'}.\n\nJ'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.` });
+      await _coachInsertMsg({ type: 'systeme', corps:
+        "Avant de commencer, j'ai 4 petites questions pour te connaître. Tu réponds juste en appuyant sur un bouton. Ça prend 1 minute." });
+    }
+
+    // Marquer lu
+    supa.from('wozali_coach_messages').update({ lu: true }).eq('user_id', currentUser.id).eq('lu', false).then(() => { _loadCoachPreview(); }, () => {});
+    _coachRenderThread();
+  } catch (e) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.4);font-size:13px;">Impossible de charger le Coach. Vérifie ta connexion et réessaie.</div>';
+  }
+}
+
+// ── Questionnaire ──
+async function wzCoachStart() {
+  await _coachUpsertProfil({ questionnaire_etat: 'a_faire' });
+  _coachState.step = 'q1';
+  await _coachInsertMsg({ type: 'question', titre: 'Question 1 sur 4', corps: _COACH_TREE.q1.question });
+  _coachRenderThread();
+}
+
+async function wzCoachLater() {
+  await _coachUpsertProfil({ questionnaire_etat: 'passe' });
+  await _coachInsertMsg({ type: 'systeme', corps: "Pas de souci. Je suis là quand tu veux. En attendant, je continue d'observer ton profil et je te donnerai quand même mes conseils." });
+  _coachState.step = null;
+  _coachRenderThread();
+}
+
+async function wzCoachAnswer(key) {
+  const step = _coachState.step;
+  const node = step === 'q1' ? _COACH_TREE.q1 : step === 'q4' ? _COACH_TREE.q4 : _COACH_TREE[step][_coachState.answers.objectif];
+  const opt = (node.opts || []).find(o => o.k === key);
+  if (!opt) return;
+  await _coachInsertMsg({ type: 'reponse_membre', corps: opt.l });
+
+  if (step === 'q1') {
+    _coachState.answers.objectif = key;
+    _coachState.step = 'q2';
+    await _coachInsertMsg({ type: 'question', titre: 'Question 2 sur 4', corps: _COACH_TREE.q2[key].question });
+  } else if (step === 'q2') {
+    _coachState.answers.blocage = key;
+    _coachState.step = 'q3';
+    await _coachInsertMsg({ type: 'question', titre: 'Question 3 sur 4', corps: _COACH_TREE.q3[_coachState.answers.objectif].question });
+  } else if (step === 'q3') {
+    _coachState.answers.canal = key;
+    _coachState.step = 'q4';
+    await _coachInsertMsg({ type: 'question', titre: 'Question 4 sur 4', corps: _COACH_TREE.q4.question });
+  } else if (step === 'q4') {
+    _coachState.answers.audio = (key === 'ecouter');
+    await _coachUpsertProfil({
+      objectif: _coachState.answers.objectif,
+      blocage: _coachState.answers.blocage,
+      canal: _coachState.answers.canal,
+      prefere_audio: _coachState.answers.audio,
+      questionnaire_etat: 'fait',
+    });
+    _coachState.step = 'libre';
+    await _coachInsertMsg({ type: 'systeme', corps: "Une dernière chose.\n\nSi tu as un besoin précis que je ne t'ai pas demandé, dis-le moi ici. Écris une phrase claire, ou appuie sur le micro et parle.\n\nSinon, appuie sur Terminer." });
+  }
+  _coachRenderThread();
+}
+
+// ── Champ libre (texte ou vocal) ──
+async function wzCoachFreeSendText() {
+  const input = document.getElementById('coach-libre-input');
+  const txt = (input?.value || '').trim();
+  if (!txt) { wzCoachFinish(); return; }
+  await _coachInsertMsg({ type: 'reponse_membre', corps: txt });
+  await _coachUpsertProfil({ note_libre: txt });
+  wzCoachFinish(true);
+}
+
+async function wzCoachFreeSendVocal() {
+  const st = _vocalRec['coach'];
+  if (!st?.blob) { wzCoachFinish(); return; }
+  try {
+    const url = await _uploadVocal(st.blob, 'coach');
+    await _coachInsertMsg({ type: 'reponse_membre', corps: '[vocal]', audio_url: url });
+    await _coachUpsertProfil({ note_libre: '[vocal] ' + url });
+    resetVocalRec('coach');
+    wzCoachFinish(true);
+  } catch (e) {
+    toast("Le vocal n'est pas parti. Vérifie ta connexion et réessaie.", 'error');
+  }
+}
+
+// ── Reformulation + première leçon IMMÉDIATE ──
+async function wzCoachFinish(hadNote) {
+  _coachState.step = null;
+  const a = _coachState.answers.objectif ? _coachState.answers : {
+    objectif: _coachState.profil?.objectif, blocage: _coachState.profil?.blocage,
+  };
+  if (hadNote) {
+    await _coachInsertMsg({ type: 'systeme', corps: "C'est noté. On va commencer par ce qui dépend de toi ici : ton business." });
+  }
+  const prenom = _coachPrenom();
+  const objLabel = (_COACH_TREE.q1.opts.find(o => o.k === a.objectif) || {}).l || '';
+  const blocNode = a.objectif && _COACH_TREE.q2[a.objectif];
+  const blocLabel = blocNode ? ((blocNode.opts.find(o => o.k === a.blocage) || {}).l || '') : '';
+  const plan = _COACH_PLANS[a.objectif] || _COACH_PLANS.clients;
+  await _coachInsertMsg({ type: 'systeme', corps:
+    `OK${prenom ? ' ' + prenom : ''}. Je résume :\n\n🎯 Ton objectif : ${objLabel.toLowerCase() || 'avancer'}.${blocLabel ? '\n🧱 Ton blocage : ' + blocLabel.toLowerCase() + '.' : ''}\n\nVoilà mon plan pour toi :\n\n${plan}\n\nEt on commence tout de suite.` });
+
+  // Première leçon choisie par SES données (jamais "demain matin")
+  const f = window.currentPrestataire?.fields || {};
+  let key = 'statut_jour';
+  if (!f['Photo Réalisation 1'] && !f['Photo Réalisation 2']) key = 'photos';
+  else if (!f['Tarif minimum FCFA'] && !f['Tarif maximum FCFA']) key = 'tarifs';
+  else if (!f['Latitude']) key = 'gps';
+  const lecon = _COACH_STARTER_LECONS[key];
+  await _coachInsertMsg({ type: 'lecon', lecon_key: key, titre: lecon.titre, corps: lecon.corps, cta_label: lecon.cta, cta_target: lecon.target });
+  await _coachUpsertProfil({ derniere_lecon_at: new Date().toISOString() });
+  _coachRenderThread();
+}
+
+// ── CTA d'une leçon : action faite + deep link ──
+async function wzCoachCta(msgId, target) {
+  try { await supa.from('wozali_coach_messages').update({ action_faite: true }).eq('id', msgId); } catch (e) {}
+  const m = _coachState.msgs.find(x => x.id === msgId);
+  if (m) m.action_faite = true;
+  if (target && typeof showDashSection === 'function') showDashSection(target);
+}
+
+// ── Aperçu + badge non-lu dans la liste des conversations ──
+async function _loadCoachPreview() {
+  if (!currentUser) return;
+  try {
+    const { data: last } = await supa.from('wozali_coach_messages')
+      .select('corps, titre, type, created_at, lu')
+      .eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(20);
+    const preview = document.getElementById('dm-coach-preview');
+    const time = document.getElementById('dm-coach-time');
+    const badge = document.getElementById('dm-coach-badge');
+    if (!last || !last.length) {
+      if (preview) preview.textContent = 'Ton conseiller business';
+      if (badge) { badge.style.display = 'inline-flex'; badge.textContent = '1'; }
+      return;
+    }
+    const m = last[0];
+    if (preview) preview.textContent = (m.titre || m.corps || '').slice(0, 42);
+    if (time) time.textContent = new Date(m.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    const unread = last.filter(x => !x.lu && x.type !== 'reponse_membre').length;
+    if (badge) {
+      badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+      badge.textContent = unread > 9 ? '9+' : String(unread);
+    }
+  } catch (e) {}
+}
+
+// ══════════════════════════════════════════
 // MESSAGERIE DM — Interface 2 colonnes
 // ══════════════════════════════════════════
 
@@ -6322,6 +6694,9 @@ function initDmInterface() {
 
   // Charger le profil fondateur en arrière-plan pour personnaliser l'affichage
   _loadFondateurProfile();
+
+  // Coach Zali : aperçu + badge non-lu de la conversation épinglée
+  try { _loadCoachPreview(); } catch (e) {}
 
   // Sur desktop : ouvrir le thread WOZALI d'office
   if (window.innerWidth > 768) openDmThread('wozali');
@@ -6464,6 +6839,7 @@ async function loadDmMessages(threadId) {
   if (!list) return;
 
   if (String(threadId).startsWith('story-')) { return _loadStoryThread(threadId.slice(6)); }
+  if (threadId === 'coach') { return _loadCoachThread(); }
   if (threadId !== 'wozali') {
     list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;font-family:\'Geist\',sans-serif;">Bientôt disponible.</div>';
     return;
