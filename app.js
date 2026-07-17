@@ -6504,13 +6504,95 @@ function _coachRenderThread() {
     interact = _coachOptButtons([{ k: 'go', l: "C'est parti →" }], 'wzCoachStart')
       + `<div style="padding:2px;"><button onclick="wzCoachLater()" style="width:100%;background:none;border:1.5px dashed rgba(255,255,255,.18);color:rgba(252,224,168,.5);border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:600;text-align:left;font-family:inherit;cursor:pointer;">Plus tard</button></div>`;
   } else if (p.questionnaire_etat === 'passe') {
-    interact = `<div style="padding:2px;"><button onclick="wzCoachStart('go')" style="width:100%;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;">Répondre aux 4 questions de Zali</button></div>`;
+    interact = `<div style="padding:2px;margin-bottom:8px;"><button onclick="wzCoachStart('go')" style="width:100%;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;">Répondre aux 4 questions de Zali</button></div>`
+      + _coachChatComposer();
+  } else {
+    // Questionnaire fait : la conversation libre (Pro) ou le verrou (gratuit au moment d'envoyer)
+    interact = _coachChatComposer();
   }
 
   list.innerHTML = `<div style="display:flex;flex-direction:column;gap:2px;padding:6px 2px;">`
     + _coachState.msgs.map(_coachBubble).join('')
     + `</div><div id="wz-coach-interact" style="padding:8px 2px 16px;">${interact}</div>`;
   list.scrollTop = list.scrollHeight;
+}
+
+// ── Conversation libre avec Zali (Pro) ──
+function _coachChatComposer() {
+  return `
+    <div style="display:flex;gap:8px;align-items:flex-end;">
+      <textarea id="coach-chat-input" rows="1" placeholder="Pose ta question à Zali…"
+        style="flex:1;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;color:#FCE0A8;font-size:13.5px;font-family:inherit;resize:none;line-height:1.4;"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,110)+'px'"></textarea>
+      <button onclick="wzCoachChatSend()" aria-label="Envoyer" style="width:44px;height:44px;border-radius:50%;background:#E8940A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#14100A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>`;
+}
+
+// Verrou Pro (écran 8 de la maquette) : la question s'affiche, la
+// réponse floutée derrière le CTA Passer Pro.
+function _coachProLock(question) {
+  return `
+    <div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${escapeHtml(question)}</div>
+    <div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 16px;text-align:center;margin:4px 0;">
+      <div style="filter:blur(4px);opacity:.55;font-size:13px;line-height:1.6;text-align:left;margin-bottom:14px;color:rgba(252,224,168,.8);">Bonne question. J'ai regardé tes données : tes visites de la semaine, tes demandes, ce qui manque encore sur ton profil. En général ça vient de trois choses, et chez toi je vois surtout que…</div>
+      <div style="font-size:14.5px;color:#FCE0A8;font-weight:800;margin-bottom:6px;">Zali a la réponse. Elle est dans tes données.</div>
+      <p style="font-size:12.5px;color:rgba(252,224,168,.6);margin:0 0 14px;line-height:1.5;">Avec Pro, tu discutes avec ton coach quand tu veux : tu poses TES questions, il analyse TES chiffres et te répond tout de suite.</p>
+      <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:13.5px;font-family:inherit;cursor:pointer;">Passer Pro et discuter avec Zali</button>
+      <div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.4);margin-top:8px;">2 500 FCFA / mois</div>
+    </div>`;
+}
+
+async function wzCoachChatSend() {
+  const input = document.getElementById('coach-chat-input');
+  const question = (input?.value || '').trim();
+  if (!question) { input?.focus(); return; }
+  const list = document.getElementById('dm-messages-list');
+  const zone = list?.querySelector('div'); // conteneur des bulles
+
+  // Gratuit : le verrou s'affiche à la place de la réponse (aucun appel serveur)
+  if (!isProUser()) {
+    if (zone) { zone.insertAdjacentHTML('beforeend', _coachProLock(question)); }
+    if (input) input.value = '';
+    if (list) list.scrollTop = list.scrollHeight;
+    return;
+  }
+
+  // Pro : bulle optimiste + appel Zali
+  if (zone) {
+    zone.insertAdjacentHTML('beforeend',
+      `<div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${escapeHtml(question)}</div>
+       <div id="coach-typing" style="align-self:flex-start;background:#1E180E;border:1px solid rgba(232,148,10,.18);border-radius:16px;border-bottom-left-radius:5px;padding:11px 16px;color:rgba(252,224,168,.5);font-size:13px;margin:4px 0;">Zali regarde tes chiffres…</div>`);
+  }
+  if (input) { input.value = ''; input.style.height = 'auto'; }
+  if (list) list.scrollTop = list.scrollHeight;
+
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/coach-chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: question }),
+    });
+    const data = await r.json();
+    const typing = document.getElementById('coach-typing');
+    if (data?.ok && data.reponse) {
+      if (typing) typing.outerHTML = _coachBubble({ type: 'chat', corps: data.reponse });
+      _coachState.msgs.push({ type: 'reponse_membre', corps: question }, { type: 'chat', corps: data.reponse });
+    } else if (r.status === 429) {
+      if (typing) typing.textContent = data?.message || "On a beaucoup discuté aujourd'hui. Je reviens demain.";
+    } else if (r.status === 403) {
+      if (typing) typing.remove();
+      const z = document.getElementById('dm-messages-list')?.querySelector('div');
+      if (z) z.insertAdjacentHTML('beforeend', _coachProLock(question));
+    } else {
+      if (typing) typing.textContent = 'Ça a calé. Réessaie dans quelques secondes.';
+    }
+  } catch (e) {
+    const typing = document.getElementById('coach-typing');
+    if (typing) typing.textContent = 'Ça a calé. Vérifie ta connexion et réessaie.';
+  }
+  const l2 = document.getElementById('dm-messages-list');
+  if (l2) l2.scrollTop = l2.scrollHeight;
 }
 
 // ── Chargement du thread ──

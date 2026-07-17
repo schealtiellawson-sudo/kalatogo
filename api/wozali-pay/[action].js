@@ -90,6 +90,7 @@ import healthCheck from './_impl/health-check.js';
 import healthMetrics from './_impl/health-metrics.js';
 // Chat interne WOZALI — IA auto-reply + escalade fondateur (2026-05-20)
 import chatWozali from './_impl/chat-wozali.js';
+import coachChat from './_impl/coach-chat.js';
 // RDV Supabase (2026-05-21 — migration hors Airtable)
 import rdvCreate from './_impl/rdv-create.js';
 import rdvList from './_impl/rdv-list.js';
@@ -225,6 +226,8 @@ const handlers = {
   'health-metrics': healthMetrics,
   // Chat interne WOZALI — IA auto-reply + escalade fondateur (2026-05-20)
   // Un seul module gère les 4 actions, le router lui passe req.query.action
+  // Coach Zali — conversation libre (Pro, vérifié serveur) (2026-07-17)
+  'coach-chat': coachChat,
   'chat-wozali-send':         chatWozali,
   'chat-wozali-history':      chatWozali,
   'chat-wozali-admin-list':   chatWozali,
