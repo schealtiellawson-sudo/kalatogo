@@ -220,6 +220,110 @@ Schealtiel`,
     'Faire connaissance avec Coach Zali', 'coach'),
 };
 
+// ── Messages événementiels : la voix mission pour les victoires ──
+// Détectés chaque jour par les données, envoyés UNE seule fois
+// (marqueur = l'id du message dans le JSON Notifications).
+// Un seul événement célébré par jour et par membre : la victoire
+// mérite sa place, pas une pile de confettis d'un coup.
+const EVENEMENTS = [
+  {
+    id: 'ev_avis1',
+    cond: (p) => (p.nb_avis_recus || 0) >= 1,
+    build: (c) => _msg('ev_avis1', 'Ton premier avis est arrivé',
+`${c.prenom},
+
+Quelqu'un a pris le temps d'écrire publiquement que ton travail vaut quelque chose.
+
+Réfléchis à ce que ça veut dire. Cette personne n'y gagne rien. Elle l'a fait parce que tu l'as mérité.
+
+Ce premier avis, personne ne pourra te l'enlever. Et chaque client qui visite ton profil à partir d'aujourd'hui le lira avant de te contacter.
+
+Le premier est le plus dur. Maintenant, demande le deuxième.
+
+Schealtiel`,
+      'Lire mon avis', 'avis'),
+  },
+  {
+    id: 'ev_pro',
+    cond: (p) => String(p.abonnement || '').trim().toLowerCase() === 'pro',
+    build: (c) => _msg('ev_pro', 'Tu viens de passer devant tout le monde',
+`${c.prenom},
+
+Tu es Pro maintenant.
+
+Concrètement, à partir de cette minute : quand quelqu'un cherche ton métier dans ton quartier, tu apparais avant les autres. Ton parrainage est actif, chaque filleul Pro te rapporte 1 000 FCFA par mois. Et tu vois QUI regarde ton profil.
+
+Tu as investi dans ton travail. La plupart des gens n'osent pas faire ça.
+
+Maintenant fais travailler cet investissement : regarde qui est passé sur ton profil, et rappelle ceux qui hésitent.
+
+Schealtiel`,
+      'Voir qui a regardé mon profil', 'vues'),
+  },
+  {
+    id: 'ev_score80',
+    cond: (p) => (p.score_wozali || 0) >= 80,
+    build: (c) => _msg('ev_score80', '80 sur 100',
+`${c.prenom},
+
+Ton Score WOZALI vient de passer 80.
+
+Tu sais ce que ça veut dire ? La majorité des profils n'y arrivent jamais. Toi tu y es, parce que tu as fait le travail : profil complet, clients satisfaits, présence régulière.
+
+À ce niveau, tu sors en haut des recherches. Et la Bourse de Croissance, les 100 000 FCFA mensuels pour les meilleurs profils, exige exactement ce score.
+
+Tu n'es plus en train de découvrir WOZALI. Tu es en train de gagner dessus.
+
+Schealtiel`,
+      'Voir les récompenses', 'recompenses'),
+  },
+  {
+    id: 'ev_bourse',
+    cond: (p) => String(p.abonnement || '').trim().toLowerCase() === 'pro'
+      && (p.score_wozali || 0) >= 80 && (p.nb_avis_recus || 0) >= 3,
+    build: (c) => _msg('ev_bourse', 'La Bourse te regarde maintenant',
+`${c.prenom},
+
+Plan Pro. Score au-dessus de 80. Des avis clients réels.
+
+Tu coches les conditions principales de la Bourse de Croissance : 100 000 FCFA pour chacun des 5 meilleurs profils du mois. Le classement regarde ton travail, tes avis, ta constance. Rien d'autre.
+
+Beaucoup rêvent de ce genre de reconnaissance. Toi tu l'as construite, avis après avis, client après client.
+
+Reste constant jusqu'au tirage. C'est tout ce qui te sépare de la liste des gagnants.
+
+Schealtiel`,
+      'Voir où j\'en suis', 'recompenses'),
+  },
+];
+
+// Détecte et envoie les messages événementiels (1 max/jour/membre).
+export async function runFondateurEvents(supabase) {
+  const { data: rows } = await supabase
+    .from('wozali_prestataires')
+    .select('id, user_id, prenom, nom_complet, notifications, abonnement, score_wozali, nb_avis_recus');
+  if (!rows || !rows.length) return { evenements: 0 };
+
+  let envoyes = 0;
+  for (const r of rows) {
+    let arr = [];
+    try { arr = typeof r.notifications === 'string' ? JSON.parse(r.notifications) : (r.notifications || []); } catch (e) { arr = []; }
+    if (!Array.isArray(arr)) arr = [];
+    const dejaId = (id) => arr.some(m => m && m.id === id);
+
+    const ev = EVENEMENTS.find(E => !dejaId(E.id) && E.cond(r));
+    if (!ev) continue;
+    const ctx = { prenom: (r.prenom || (r.nom_complet || '').split(' ')[0] || '').trim() };
+    arr.push(ev.build(ctx));
+    const { error } = await supabase
+      .from('wozali_prestataires')
+      .update({ notifications: JSON.stringify(arr) })
+      .eq('id', r.id);
+    if (!error) envoyes++;
+  }
+  return { evenements: envoyes };
+}
+
 // ── Générateur quotidien ──
 // Écrit le message du jour (J1..J5) aux membres inscrits il y a 1 à 5
 // jours, s'il n'existe pas déjà dans leur JSON Notifications.
