@@ -1,0 +1,250 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette — Coach Zali</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;600;700;800&family=Geist+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{ --night:#14100A; --night2:#1E180E; --or:#E8940A; --cream:#FCE0A8; }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0a0805;font-family:'Geist',system-ui,sans-serif;color:var(--cream);}
+  .phone{max-width:400px;margin:0 auto;min-height:100vh;background:var(--night);display:flex;flex-direction:column;}
+
+  /* Nav maquette */
+  .mnav{position:sticky;top:0;z-index:50;background:#0a0805;padding:10px 10px 8px;border-bottom:1px solid rgba(232,148,10,.2);}
+  .mnav-title{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--or);text-transform:uppercase;margin:0 0 8px;text-align:center;}
+  .mnav-tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+  .mnav-tabs a{flex-shrink:0;font-size:11px;font-weight:700;color:rgba(252,224,168,.55);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:6px 11px;text-decoration:none;white-space:nowrap;}
+  .mnav-tabs a.on{background:var(--or);color:var(--night);border-color:var(--or);}
+
+  /* Header conversation */
+  .chead{display:flex;align-items:center;gap:11px;padding:13px 15px;background:var(--night2);border-bottom:1px solid rgba(255,255,255,.06);}
+  .chead .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b56f05);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .chead .av span{font-family:'DM Serif Display',serif;font-style:italic;font-size:22px;color:var(--night);line-height:1;}
+  .chead .nm{font-weight:800;font-size:15px;}
+  .chead .st{font-size:11px;color:var(--or);display:flex;align-items:center;gap:5px;}
+  .chead .st::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--or);display:inline-block;}
+
+  /* Chat */
+  .chat{flex:1;padding:16px 12px 30px;display:none;flex-direction:column;gap:10px;}
+  .chat.show{display:flex;}
+  .day{align-self:center;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);letter-spacing:1px;margin:4px 0;}
+  .b{max-width:86%;border-radius:16px;padding:12px 14px;font-size:13.5px;line-height:1.55;}
+  .b.z{align-self:flex-start;background:var(--night2);border:1px solid rgba(232,148,10,.18);border-bottom-left-radius:5px;}
+  .b.u{align-self:flex-end;background:var(--or);color:var(--night);font-weight:700;border-bottom-right-radius:5px;}
+  .b p{margin:0 0 9px;} .b p:last-child{margin:0;}
+  .b .hl{color:var(--or);font-weight:800;}
+  .b.u .hl{color:var(--night);}
+
+  /* Boutons réponses */
+  .opts{display:flex;flex-direction:column;gap:7px;align-self:stretch;padding:0 6px;}
+  .opts button{background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:var(--cream);border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;text-align:left;font-family:inherit;cursor:pointer;}
+  .opts button.picked{background:var(--or);color:var(--night);border-color:var(--or);}
+  .opts .later{border-style:dashed;border-color:rgba(255,255,255,.18);color:rgba(252,224,168,.5);background:none;font-weight:600;}
+
+  /* Carte leçon */
+  .lesson{align-self:stretch;background:var(--night2);border:1px solid rgba(232,148,10,.25);border-radius:16px;overflow:hidden;}
+  .lesson .top{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);}
+  .lesson .eyebrow{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:var(--or);text-transform:uppercase;}
+  .listen{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(252,224,168,.6);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:4px 10px;}
+  .listen svg{width:13px;height:13px;stroke:var(--or);}
+  .lesson .body{padding:14px;}
+  .lesson h3{font-family:'DM Serif Display',serif;font-style:italic;font-size:19px;margin:0 0 8px;color:var(--cream);font-weight:400;}
+  .lesson .txt{font-size:13.5px;line-height:1.6;color:rgba(252,224,168,.85);}
+  .lesson .visual{margin:12px 0;background:var(--night);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;display:flex;align-items:center;gap:11px;}
+  .lesson .visual .mini{width:52px;height:52px;border-radius:10px;background:rgba(232,148,10,.12);border:1px dashed rgba(232,148,10,.4);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .lesson .visual .cap{font-size:11.5px;color:rgba(252,224,168,.55);line-height:1.5;}
+  .lesson .cta{display:block;width:100%;background:var(--or);color:var(--night);border:none;border-radius:12px;padding:13px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;}
+  .lesson .why{font-size:11px;color:rgba(252,224,168,.4);text-align:center;margin-top:8px;}
+
+  /* Data card (résultat / radar) */
+  .stat-line{display:flex;align-items:center;gap:10px;background:var(--night);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:10px 12px;margin-bottom:7px;}
+  .stat-line .n{font-family:'Geist Mono',monospace;font-size:19px;font-weight:700;color:var(--or);min-width:34px;text-align:center;}
+  .stat-line .l{font-size:12px;color:rgba(252,224,168,.75);line-height:1.4;}
+  .radar-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px;}
+  .radar-row:last-child{border:none;}
+  .radar-row .them{color:rgba(252,224,168,.55);font-family:'Geist Mono',monospace;font-size:11px;}
+  .radar-row .me-bad{color:#f87171;font-family:'Geist Mono',monospace;font-size:11px;}
+  .radar-row .me-ok{color:var(--or);font-family:'Geist Mono',monospace;font-size:11px;}
+
+  /* Saisie */
+  .inputbar{display:flex;align-items:center;gap:8px;align-self:stretch;background:var(--night2);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:8px 8px 8px 16px;}
+  .inputbar .ph{flex:1;font-size:13px;color:rgba(252,224,168,.35);}
+  .inputbar .mic{width:38px;height:38px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .inputbar .mic svg{width:17px;height:17px;stroke:var(--night);fill:none;stroke-width:2;}
+
+  /* Verrou Pro */
+  .prolock{align-self:stretch;background:var(--night2);border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 16px;text-align:center;}
+  .prolock .blur-msg{filter:blur(4px);opacity:.55;font-size:13px;line-height:1.6;text-align:left;margin-bottom:14px;color:rgba(252,224,168,.8);}
+  .prolock h4{font-size:14.5px;margin:0 0 6px;color:var(--cream);}
+  .prolock p{font-size:12.5px;color:rgba(252,224,168,.6);margin:0 0 14px;line-height:1.5;}
+  .prolock .go{background:var(--or);color:var(--night);border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:13.5px;font-family:inherit;cursor:pointer;}
+  .prolock .price{font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.4);margin-top:8px;}
+  .note{align-self:center;font-size:10.5px;color:rgba(252,224,168,.35);text-align:center;max-width:88%;line-height:1.5;font-family:'Geist Mono',monospace;}
+</style></head><body>
+<div class="phone">
+  <div class="mnav">
+    <p class="mnav-title">Maquette Coach Zali · 7 écrans</p>
+    <div class="mnav-tabs" id="tabs">
+      <a href="#1">1 Présentation</a><a href="#2">2 Questions</a><a href="#3">3 Champ libre</a>
+      <a href="#4">4 Plan + leçon</a><a href="#5">5 Leçon du jour</a><a href="#6">6 Résultat</a>
+      <a href="#7">7 Radar Pro</a><a href="#8">8 Verrou Pro</a>
+    </div>
+  </div>
+
+  <div class="chead">
+    <div class="av"><span>Z</span></div>
+    <div><div class="nm">Coach Zali</div><div class="st">Ton conseiller business</div></div>
+  </div>
+
+  <!-- 1 · PRÉSENTATION -->
+  <div class="chat" id="s1">
+    <div class="day">AUJOURD'HUI</div>
+    <div class="b z">
+      <p>Salut Mariam 👋🏾</p>
+      <p>Moi c'est <span class="hl">Coach Zali</span>. Je suis ton conseiller business personnel sur WOZALI.</p>
+      <p>Mon travail : t'aider à faire rentrer <span class="hl">plus d'argent</span> avec ton métier de coiffeuse.</p>
+      <p>J'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.</p>
+    </div>
+    <div class="b z">
+      <p>Avant de commencer, j'ai 4 petites questions pour te connaître. Tu réponds juste en appuyant sur un bouton. Ça prend 1 minute.</p>
+    </div>
+    <div class="opts">
+      <button class="picked">C'est parti →</button>
+      <button class="later">Plus tard</button>
+    </div>
+  </div>
+
+  <!-- 2 · QUESTIONNAIRE ADAPTATIF -->
+  <div class="chat" id="s2">
+    <div class="b z"><p><span class="hl">Question 1 sur 4</span></p><p>C'est quoi ton objectif numéro 1 ?</p></div>
+    <div class="opts">
+      <button class="picked">Plus de clientes</button>
+      <button>Trouver un emploi</button>
+      <button>Recruter quelqu'un</button>
+      <button>Mieux gagner avec mes clientes actuelles</button>
+    </div>
+    <div class="b u">Plus de clientes</div>
+    <div class="b z"><p><span class="hl">Question 2 sur 4</span></p><p>OK. Et le vrai blocage aujourd'hui, c'est lequel ?</p></div>
+    <div class="opts">
+      <button class="picked">Personne ne me connaît en dehors de mon quartier</button>
+      <button>On me connaît, mais on n'appelle pas</button>
+      <button>On appelle, mais ça n'achète pas</button>
+    </div>
+    <div class="note">↑ La question 2 change selon la réponse 1. Si elle avait choisi "Trouver un emploi", Zali aurait demandé : "T'en es où ?" (Je cherche depuis longtemps / Je viens de finir ma formation / J'ai un travail mais je veux mieux)</div>
+    <div class="b u">Personne ne me connaît en dehors de mon quartier</div>
+    <div class="b z"><p><span class="hl">Question 4 sur 4</span></p><p>Dernière chose : tu préfères que je t'écrive ou que je te parle ?</p></div>
+    <div class="opts">
+      <button>Je préfère lire</button>
+      <button class="picked">Je préfère écouter 🔊</button>
+    </div>
+    <div class="note">Modifiable à tout moment : réglage dans la conversation + petit bouton 🔊 sur chaque leçon.</div>
+  </div>
+
+  <!-- 3 · CHAMP LIBRE -->
+  <div class="chat" id="s3">
+    <div class="b z">
+      <p>Une dernière chose, Mariam.</p>
+      <p>Si tu as un besoin précis que je ne t'ai pas demandé, dis-le moi ici. <span class="hl">Écris une phrase claire, ou appuie sur le micro et parle.</span></p>
+      <p>Sinon, appuie sur Terminer.</p>
+    </div>
+    <div class="inputbar">
+      <div class="ph">Écris ici… ou parle 🎙</div>
+      <div class="mic"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+    </div>
+    <div class="opts"><button class="later">Terminer</button></div>
+    <div class="note">Garde-fou : si la réponse est hors sujet ("je veux devenir milliardaire"), Zali répond "C'est noté. On va commencer par ce qui dépend de toi ici : ton business." et avance sur les réponses boutons. Zéro confrontation.</div>
+  </div>
+
+  <!-- 4 · REFORMULATION + PREMIÈRE LEÇON IMMÉDIATE -->
+  <div class="chat" id="s4">
+    <div class="b z">
+      <p>OK Mariam. Je résume :</p>
+      <p>🎯 Ton objectif : <span class="hl">plus de clientes</span>.<br>🧱 Ton blocage : <span class="hl">personne ne te connaît en dehors de Bè</span>.</p>
+      <p>Voilà mon plan pour toi :</p>
+      <p>1. On rend ton profil irrésistible.<br>2. On te fait voir au-delà de ton quartier.<br>3. On transforme les visites en rendez-vous.</p>
+      <p><span class="hl">Et on commence tout de suite.</span></p>
+    </div>
+    <div class="lesson">
+      <div class="top">
+        <span class="eyebrow">Ta première action · 2 min</span>
+        <span class="listen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter</span>
+      </div>
+      <div class="body">
+        <h3>Ton profil n'a pas encore de photos de ton travail.</h3>
+        <div class="txt">Une cliente qui ne connaît pas ton salon ne peut pas deviner que tu travailles bien. Elle regarde les photos. Pas de photos, elle passe chez une autre. Ajoute une seule photo de ta dernière coiffure, celle dont tu es fière.</div>
+        <div class="visual"><div class="mini">📸</div><div class="cap">Mon espace → Mes photos → le bouton "+" en haut. Choisis la photo, c'est tout.</div></div>
+        <button class="cta">Ajouter ma photo maintenant →</button>
+        <div class="why">Demain matin, je te dis combien de personnes l'ont vue.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 · LEÇON DU JOUR (rythme de croisière) -->
+  <div class="chat" id="s5">
+    <div class="day">JEUDI · 8H02</div>
+    <div class="b z"><p>Salut Mariam. <span class="hl">7 personnes</span> ont regardé ton profil cette semaine. Aucune ne t'a écrit. Je sais pourquoi.</p></div>
+    <div class="lesson">
+      <div class="top">
+        <span class="eyebrow">Leçon du jour · Le statut du jour</span>
+        <span class="listen"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Écouter</span>
+      </div>
+      <div class="body">
+        <h3>Quand tu es libre et que personne ne le sait, c'est un après-midi sans argent.</h3>
+        <div class="txt">Le statut du jour, c'est une phrase sur ton profil qui dit au quartier : <b>je suis là, maintenant</b>. "Libre cet après-midi à Bè." Celle qui hésitait n'hésite plus, elle vient aujourd'hui.</div>
+        <div class="visual"><div class="mini">💬</div><div class="cap">Profil → la case sous ton métier → écris ta phrase → Publier. Ça disparaît tout seul après 24h.</div></div>
+        <button class="cta">Écrire mon statut du jour →</button>
+        <div class="why">Les coiffeuses qui le font sortent devant dans les recherches.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 · RÉSULTAT DU LENDEMAIN -->
+  <div class="chat" id="s6">
+    <div class="day">VENDREDI · 8H01</div>
+    <div class="b z">
+      <p>Mariam. Hier tu as publié ton statut du jour. Regarde ce que ça a donné :</p>
+    </div>
+    <div class="lesson"><div class="body" style="padding-top:16px;">
+      <div class="stat-line"><div class="n">11</div><div class="l">personnes ont vu ton profil hier. Ta meilleure journée depuis ton inscription.</div></div>
+      <div class="stat-line"><div class="n">2</div><div class="l">ont regardé tes photos de réalisations.</div></div>
+      <div class="stat-line"><div class="n">1</div><div class="l">a ouvert la page de rendez-vous. Elle n'a pas encore réservé.</div></div>
+      <div class="txt" style="margin-top:10px;">Tu vois ? Tu n'as rien payé. Tu as juste dit que tu étais là, et les gens ont regardé. On refait pareil aujourd'hui, et cette fois on ajoute tes tarifs pour que celle qui hésite ait sa réponse.</div>
+      <button class="cta" style="margin-top:12px;">Ajouter mes tarifs →</button>
+    </div></div>
+  </div>
+
+  <!-- 7 · RADAR DU MARCHÉ (PRO) -->
+  <div class="chat" id="s7">
+    <div class="day">LUNDI · 8H03 · MEMBRE PRO</div>
+    <div class="b z"><p><span class="hl">📡 Ton Radar du marché est prêt</span>, Mariam. J'ai analysé les coiffeuses les mieux classées de Lomé cette semaine. Voilà ce qu'elles font, et où tu en es :</p></div>
+    <div class="lesson"><div class="body" style="padding-top:14px;">
+      <div class="radar-row"><span>Statuts du jour publiés / semaine</span><span><span class="them">elles : 3+</span> · <span class="me-bad">toi : 1</span></span></div>
+      <div class="radar-row"><span>Photos récentes du travail</span><span><span class="them">elles : oui</span> · <span class="me-ok">toi : oui ✓</span></span></div>
+      <div class="radar-row"><span>Temps de réponse aux demandes</span><span><span class="them">elles : &lt; 3h</span> · <span class="me-bad">toi : 9h</span></span></div>
+      <div class="txt" style="margin-top:12px;">C'est exactement là que tes clientes partent : elles écrivent, la réponse tarde, elles appellent une autre. Cette semaine on corrige UNE chose : répondre plus vite. Je t'envoie une alerte dès qu'une demande arrive.</div>
+      <button class="cta" style="margin-top:12px;">Activer les alertes de demande →</button>
+      <div class="why">Personne n'est nommé : je compare aux meilleures de ton métier, jamais à une personne précise.</div>
+    </div></div>
+  </div>
+
+  <!-- 8 · VERROU PRO (côté gratuit) -->
+  <div class="chat" id="s8">
+    <div class="b u">Coach, pourquoi mes clientes ne reviennent pas ?</div>
+    <div class="prolock">
+      <div class="blur-msg">Bonne question Mariam. J'ai regardé tes données : sur tes 9 dernières clientes, 7 ne sont venues qu'une fois. En général ça vient de trois choses, et chez toi je vois surtout que…</div>
+      <h4>Zali a la réponse. Elle est dans tes données.</h4>
+      <p>Avec Pro, tu discutes avec ton coach quand tu veux : tu poses TES questions, il analyse TES chiffres et te répond tout de suite. Et chaque lundi, ton Radar du marché te montre pourquoi les clients vont chez les autres.</p>
+      <button class="go">Passer Pro et discuter avec Zali</button>
+      <div class="price">2 500 FCFA / mois</div>
+    </div>
+  </div>
+</div>
+<script>
+  const show = () => {
+    const h = (location.hash || '#1').slice(1);
+    document.querySelectorAll('.chat').forEach(c => c.classList.toggle('show', c.id === 's'+h));
+    document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#'+h));
+    window.scrollTo(0,0);
+  };
+  window.addEventListener('hashchange', show); show();
+</script>
+</body></html>
