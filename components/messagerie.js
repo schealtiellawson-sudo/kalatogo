@@ -185,7 +185,18 @@
             <h3 style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:#FCE0A8;margin:4px 0 0;">${escapeHtml(peerName)}</h3>
             <div style="font-size:11px;color:rgba(252, 224, 168,.4);">${escapeHtml(f['Offre Titre'] || '')}</div>
           </div>
-          <button id="wozali-msg-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;">×</button>
+          <div style="display:flex;align-items:center;gap:2px;position:relative;">
+            <button id="wozali-msg-menu" aria-label="Options" style="background:none;border:none;color:rgba(252,224,168,.5);cursor:pointer;padding:6px;line-height:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+            <button id="wozali-msg-close" style="background:none;border:none;color:rgba(252, 224, 168,.5);font-size:24px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+            <div id="wozali-msg-menu-dd" style="display:none;position:absolute;top:34px;right:0;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:12px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:10;overflow:hidden;">
+              <button type="button" id="wozali-menu-signaler" style="display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;color:#FCE0A8;font-size:13.5px;padding:13px 16px;cursor:pointer;text-align:left;font-family:inherit;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                Signaler la conversation
+              </button>
+            </div>
+          </div>
         </div>
         <div id="wozali-msg-list" style="flex:1;min-height:300px;max-height:50vh;overflow-y:auto;padding:16px 20px;background:rgba(0,0,0,.2);">
           <div style="text-align:center;padding:40px 20px;color:rgba(252, 224, 168,.4);font-size:13px;">Chargement…</div>
@@ -195,11 +206,70 @@
           <textarea id="wozali-msg-input" placeholder="Écris ton message…" rows="2" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;padding:10px 12px;border-radius:10px;font-family:Poppins,sans-serif;font-size:14px;resize:vertical;outline:none;"></textarea>
           <button type="submit" id="wozali-msg-send" style="padding:0 18px;border-radius:10px;background:#E8940A;color:#14100A;font-weight:700;border:none;cursor:pointer;font-size:13px;">Envoyer</button>
         </form>
+        <div id="wozali-msg-malaise-zone" style="padding:0 20px;"></div>
       </div>
     `;
     document.body.appendChild(overlay);
 
     document.getElementById('wozali-msg-close').addEventListener('click', () => { stopPolling(); close(); });
+
+    // ── Chantier 8 Dignité : signalement via le menu ⋮ (pattern WhatsApp) ──
+    // Rien de visible en permanence : l'option vit dans le menu de la
+    // conversation. Confirmation douce → signalement avec la conversation
+    // → message de soutien immédiat. La victime n'est jamais laissée seule.
+    const malaiseZone = document.getElementById('wozali-msg-malaise-zone');
+    const menuDd = document.getElementById('wozali-msg-menu-dd');
+    document.getElementById('wozali-msg-menu')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (menuDd) menuDd.style.display = menuDd.style.display === 'none' ? 'block' : 'none';
+    });
+    overlay.addEventListener('click', () => { if (menuDd) menuDd.style.display = 'none'; });
+    const malaiseLien = () => { if (malaiseZone) malaiseZone.innerHTML = ''; };
+    const malaiseConfirm = () => {
+      if (menuDd) menuDd.style.display = 'none';
+      if (!malaiseZone) return;
+      malaiseZone.innerHTML = `
+        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.25);border-radius:12px;padding:12px 14px;text-align:left;">
+          <div style="font-size:13px;color:#FCE0A8;font-weight:700;margin-bottom:4px;">Tu veux nous signaler cette conversation ?</div>
+          <div style="font-size:12px;color:rgba(252,224,168,.6);line-height:1.5;margin-bottom:10px;">Elle sera analysée en toute confidentialité. L'autre personne ne saura pas que ça vient de toi.</div>
+          <div style="display:flex;gap:8px;">
+            <button type="button" id="wozali-malaise-oui" style="flex:1;background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:9px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;">Oui, signaler</button>
+            <button type="button" id="wozali-malaise-non" style="flex:1;background:none;border:1px solid rgba(255,255,255,.15);color:rgba(252,224,168,.55);border-radius:10px;padding:9px;font-size:12.5px;cursor:pointer;font-family:inherit;">Annuler</button>
+          </div>
+        </div>`;
+      document.getElementById('wozali-malaise-non')?.addEventListener('click', malaiseLien);
+      document.getElementById('wozali-malaise-oui')?.addEventListener('click', async () => {
+        malaiseZone.innerHTML = `<div style="font-size:12px;color:rgba(252,224,168,.5);padding:8px;">Envoi…</div>`;
+        try {
+          const myId = window.currentUser?.id;
+          const peerId = role === 'candidat'
+            ? (f['Recruteur User ID'] || f['Recruteur Supabase ID'] || null)
+            : (f['Candidat User ID'] || f['Candidat Supabase ID'] || null);
+          const conversation = (state.messages || []).slice(-20).map(m => ({
+            de: m.sender_user_id === myId ? 'moi' : 'autre',
+            texte: m.content || '',
+          }));
+          const wFetch = window.wozaliFetch || window.woloFetch || fetch;
+          const r = await wFetch('/api/wozali-pay/signalement-create', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              motif: 'malaise',
+              target_user_id: peerId,
+              target_candidature_airtable_id: candidature.id,
+              conversation,
+            }),
+          });
+          const data = await r.json();
+          malaiseZone.innerHTML = `
+            <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;text-align:left;">
+              <div style="font-size:13px;color:#FCE0A8;line-height:1.6;">${escapeHtml(data?.soutien || 'Signalement bien reçu. Notre équipe va vérifier.')}</div>
+            </div>`;
+        } catch (e) {
+          malaiseZone.innerHTML = `<div style="font-size:12px;color:#f87171;padding:8px;">Ça n'est pas parti. Vérifie ta connexion et réessaie.</div>`;
+        }
+      });
+    };
+    document.getElementById('wozali-menu-signaler')?.addEventListener('click', (e) => { e.stopPropagation(); malaiseConfirm(); });
 
     // Templates
     overlay.querySelectorAll('[data-tmpl]').forEach(b => {
