@@ -6443,8 +6443,8 @@ function _coachBubble(m) {
       : esc(m.corps);
     return `<div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${inner}</div>`;
   }
-  if (m.type === 'lecon' || m.type === 'defi' || m.type === 'radar') {
-    const eyebrow = m.type === 'defi' ? 'Défi de la semaine' : m.type === 'radar' ? 'Radar du marché · Pro' : 'Ton action du moment';
+  if (m.type === 'lecon' || m.type === 'defi' || m.type === 'radar' || m.type === 'bilan') {
+    const eyebrow = m.type === 'defi' ? 'Défi de la semaine' : m.type === 'radar' ? 'Radar du marché · Pro' : m.type === 'bilan' ? 'Ton bilan du mois · Pro' : 'Ton action du moment';
     return `<div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:16px;overflow:hidden;margin:6px 0;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);">
         <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;">${eyebrow}</span>

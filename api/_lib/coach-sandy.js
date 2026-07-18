@@ -381,6 +381,45 @@ function _resultatCorps(ctx) {
     + `\n\nTu vois ? Tu n'as rien payé. Tu as juste agi, et les gens ont regardé. On continue.`;
 }
 
+// ── Bilan mensuel (Pro) : progression vs mois précédent ──
+// Le seul message qui montre une TRAJECTOIRE (ce mois vs le mois d'avant),
+// ce que le quotidien et l'hebdo ne peuvent pas dire. Réservé Pro.
+const MOIS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+function _bilanMensuelMessage(mois, vuesCe, vuesAvant, rdvCe, rdvAvant) {
+  const pct = vuesAvant > 0 ? Math.round((vuesCe - vuesAvant) / vuesAvant * 100) : null;
+  const gens = (n) => `${n} ${n > 1 ? 'personnes ont' : 'personne a'} regardé ton profil en ${mois}`;
+  const rdvLigne = rdvCe > 0
+    ? `\n\n${rdvCe} demande${rdvCe > 1 ? 's' : ''} de rendez-vous ce mois-ci${(rdvAvant > 0 && rdvCe > rdvAvant) ? `, plus que le mois d'avant` : ''}.`
+    : '';
+  // Pas de mois précédent comparable (aucune vue le mois d'avant) : on pose la base.
+  if (pct === null) {
+    return {
+      titre: `Ton bilan de ${mois}`,
+      corps: `${gens(vuesCe)}. C'est ta base de départ, le point à partir duquel on fait monter.${rdvLigne}\n\nCe mois, publie et garde ton statut à jour. La base grandit.`,
+      cta_label: 'Publier maintenant', cta_target: 'posts',
+    };
+  }
+  if (pct >= 10) {
+    return {
+      titre: `Ton bilan de ${mois} : ça monte.`,
+      corps: `${gens(vuesCe)}, ${pct}% de plus que le mois d'avant. Ton travail se voit de plus en plus, et ça ne s'arrête pas tout seul.${rdvLigne}\n\nContinue à publier et à répondre vite, la courbe reste dans ce sens.`,
+      cta_label: 'Publier maintenant', cta_target: 'posts',
+    };
+  }
+  if (pct <= -10) {
+    return {
+      titre: `Ton bilan de ${mois}.`,
+      corps: `${gens(vuesCe)}, un peu moins que le mois d'avant. Ça se rattrape vite.${rdvLigne}\n\nPublie deux fois cette semaine et mets ton statut du jour, ton profil remonte là où les clients cherchent.`,
+      cta_label: 'Publier maintenant', cta_target: 'posts',
+    };
+  }
+  return {
+    titre: `Ton bilan de ${mois} : tu tiens.`,
+    corps: `${gens(vuesCe)}, à peu près comme le mois d'avant. Tu tiens ton niveau, maintenant on passe au-dessus.${rdvLigne}\n\nDemande un avis à ton dernier client content. La preuve attire la demande.`,
+    cta_label: 'Voir ma page avis', cta_target: 'avis',
+  };
+}
+
 // ── Séquenceur principal ──
 // Retourne { resultats, lecons, reduits } (compteurs pour le JSON du cron).
 export async function runCoachSandy(supabase) {
@@ -405,7 +444,7 @@ export async function runCoachSandy(supabase) {
     supabase.from('wozali_posts').select('auteur_id, created_at').in('auteur_id', userIds).eq('actif', true).limit(2000),
     supabase.from('wozali_coach_messages')
       .select('user_id, type, lecon_key, action_faite, created_at')
-      .in('user_id', userIds).in('type', ['lecon', 'resultat', 'defi', 'celebration'])
+      .in('user_id', userIds).in('type', ['lecon', 'resultat', 'defi', 'celebration', 'bilan'])
       .gte('created_at', new Date(now.getTime() - 30 * 86400000).toISOString())
       .order('created_at', { ascending: true }),
     supabase.from('avis').select('prestataire_id, created_at').gte('created_at', il7j),
@@ -453,10 +492,51 @@ export async function runCoachSandy(supabase) {
     if (uid) avis7jByUser[uid] = (avis7jByUser[uid] || 0) + 1;
   });
 
+  // ── Bilan mensuel (Pro) : bornes de mois + agrégation vues/RDV sur 2 mois.
+  //    Uniquement dans la fenêtre de début de mois et sur les membres Pro,
+  //    pour ne pas alourdir le cron le reste du temps.
+  const _bilanWindow = now.getUTCDate() <= 6;
+  const _by = now.getUTCFullYear(), _bm = now.getUTCMonth();
+  const _firstThisMonth = new Date(Date.UTC(_by, _bm, 1)).toISOString();
+  const _firstPrevMonth = new Date(Date.UTC(_by, _bm - 1, 1)).toISOString();
+  const _firstPrevPrevMonth = new Date(Date.UTC(_by, _bm - 2, 1)).toISOString();
+  const _prevM = (_bm + 11) % 12;
+  const _prevY = _bm === 0 ? _by - 1 : _by;
+  const _bilanKey = 'bilan_' + _prevY + '_' + String(_prevM + 1).padStart(2, '0');
+  const _nomMoisPrev = MOIS_FR[_prevM];
+  const vuesMoisByUser = {}, rdvMoisByUser = {};
+  if (_bilanWindow) {
+    const proUserIds = (prests || []).filter(pr => String(pr.abonnement || '').trim().toLowerCase() === 'pro').map(pr => pr.user_id);
+    if (proUserIds.length) {
+      const proPrestIds = (prestIds || []).filter(r => proUserIds.includes(r.user_id)).map(r => r.id);
+      const [{ data: vuesM }, { data: rdvM }] = await Promise.all([
+        supabase.from('wozali_profil_vues').select('profil_id, viewer_id, viewer_prest_id, id, created_at')
+          .gte('created_at', _firstPrevPrevMonth).lt('created_at', _firstThisMonth)
+          .in('profil_id', proPrestIds.length ? proPrestIds : ['-']),
+        supabase.from('wozali_rdv').select('prestataire_user_id, created_at')
+          .gte('created_at', _firstPrevPrevMonth).lt('created_at', _firstThisMonth)
+          .in('prestataire_user_id', proUserIds),
+      ]);
+      (vuesM || []).forEach(v => {
+        const uid = userByPrestId[v.profil_id]; if (!uid) return;
+        const bucket = v.created_at >= _firstPrevMonth ? 'prev' : 'prevPrev';
+        const k = v.viewer_prest_id || v.viewer_id || ('anon-' + v.id);
+        const mm = (vuesMoisByUser[uid] = vuesMoisByUser[uid] || { prev: new Set(), prevPrev: new Set() });
+        mm[bucket].add(k);
+      });
+      (rdvM || []).forEach(r => {
+        if (!r.prestataire_user_id) return;
+        const bucket = r.created_at >= _firstPrevMonth ? 'prev' : 'prevPrev';
+        const mm = (rdvMoisByUser[r.prestataire_user_id] = rdvMoisByUser[r.prestataire_user_id] || { prev: 0, prevPrev: 0 });
+        mm[bucket]++;
+      });
+    }
+  }
+
   const histByUser = {};
   (msgs || []).forEach(m => { (histByUser[m.user_id] = histByUser[m.user_id] || []).push(m); });
 
-  let nResultats = 0, nLecons = 0, nReduits = 0, nPaliers = 0, nBadges = 0, nDefis = 0, nRadars = 0;
+  let nResultats = 0, nLecons = 0, nReduits = 0, nPaliers = 0, nBadges = 0, nDefis = 0, nRadars = 0, nBilans = 0;
   const estLundi = now.getUTCDay() === 1;
 
   for (const profil of profils) {
@@ -522,6 +602,26 @@ export async function runCoachSandy(supabase) {
       });
       nBadges++;
       continue;
+    }
+
+    // 3.5 BILAN MENSUEL (Pro, début de mois) : progression vs mois précédent.
+    //     Envoyé une seule fois par mois (dedup via _bilanKey). Uniquement
+    //     s'il y a eu des vues le mois écoulé, pour ne jamais tomber sur un
+    //     bilan démoralisant.
+    if (_bilanWindow && String(p.abonnement || '').trim().toLowerCase() === 'pro'
+        && !dejaEnvoyees.has(_bilanKey)) {
+      const vb = vuesMoisByUser[uid] || { prev: new Set(), prevPrev: new Set() };
+      const vuesCe = vb.prev.size, vuesAvant = vb.prevPrev.size;
+      if (vuesCe > 0) {
+        const rb = rdvMoisByUser[uid] || { prev: 0, prevPrev: 0 };
+        const b = _bilanMensuelMessage(_nomMoisPrev, vuesCe, vuesAvant, rb.prev, rb.prevPrev);
+        await supabase.from('wozali_coach_messages').insert({
+          user_id: uid, type: 'bilan', lecon_key: _bilanKey,
+          titre: b.titre, corps: b.corps, cta_label: b.cta_label, cta_target: b.cta_target,
+        });
+        nBilans++;
+        continue;
+      }
     }
 
     // 4. RADAR DU MARCHÉ (lundi, Pro) : pour le membre Pro, le Radar
@@ -606,5 +706,5 @@ export async function runCoachSandy(supabase) {
     }).eq('user_id', uid);
   }
 
-  return { resultats: nResultats, lecons: nLecons, reduits: nReduits, paliers: nPaliers, badges: nBadges, defis: nDefis, radars: nRadars };
+  return { resultats: nResultats, lecons: nLecons, reduits: nReduits, paliers: nPaliers, badges: nBadges, defis: nDefis, radars: nRadars, bilans: nBilans };
 }
