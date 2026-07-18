@@ -3698,6 +3698,7 @@ function showPage(page, _fromPop) {
   }
   if (page === 'recompenses') loadPageRecompenses();
   if (page === 'match') { try { initWozaliMatch(); } catch(e){ console.warn('match init', e); } }
+  if (page === 'apropos') { try { loadTemoignages(); } catch(e){} }
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
       setTimeout(() => {
@@ -8421,6 +8422,115 @@ async function loadDashVues() {
     box.innerHTML = entete + `<div style="background:#14100A;border-radius:14px;overflow:hidden;">${cards}</div>`;
   } catch (e) {
     box.innerHTML = '<div class="empty-state"><p>Impossible de charger tes visiteurs. Vérifie ta connexion et réessaie.</p></div>';
+  }
+}
+
+// ── Mur des témoignages anonymes (Chantier 8 Dignité) ──
+// Lecture publique + dépôt (membre connecté, filtre IA anti-noms côté
+// serveur) + modération inline pour l'admin. Aucun nom, jamais.
+async function loadTemoignages() {
+  const box = document.getElementById('mur-temoignages-list');
+  if (!box) return;
+  try {
+    const wf = window.wozaliFetch || fetch;
+    const r = await wf('/api/wozali-pay/temoignage-list');
+    const data = await r.json();
+    const items = data?.temoignages || [];
+    if (!items.length) {
+      box.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(252,224,168,.4);font-size:13px;">Les premières histoires arrivent bientôt. La tienne peut ouvrir le mur.</div>`;
+    } else {
+      box.innerHTML = items.map(t => `
+        <div style="background:rgba(255,255,255,.04);border-left:3px solid #E8940A;border-radius:0 14px 14px 0;padding:18px 20px;margin-bottom:14px;">
+          <div style="font-size:14.5px;line-height:1.7;color:#FCE0A8;font-style:italic;">« ${escapeHtml(t.texte)} »</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.35);margin-top:10px;">Membre WOZALI · ${escapeHtml(t.mois || '')}</div>
+        </div>`).join('');
+    }
+  } catch (e) { box.innerHTML = ''; }
+
+  // Modération admin (le serveur ne répond avec des ids qu'aux ADMIN_EMAILS)
+  const modBox = document.getElementById('mur-moderation');
+  if (!modBox || !currentUser) return;
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/temoignage-list?moderation=1');
+    const data = await r.json();
+    const attente = (data?.temoignages || []).filter(t => t.id);
+    if (!attente.length) { modBox.innerHTML = ''; return; }
+    modBox.innerHTML = `
+      <div style="background:rgba(232,148,10,.06);border:1px dashed rgba(232,148,10,.4);border-radius:14px;padding:16px;margin:18px 0;">
+        <div style="font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;margin-bottom:12px;">Admin · ${attente.length} à valider</div>
+        ${attente.map(t => `
+          <div style="background:#14100A;border-radius:12px;padding:14px;margin-bottom:10px;">
+            <div style="font-size:13.5px;line-height:1.6;color:rgba(252,224,168,.85);">${escapeHtml(t.texte)}</div>
+            <div style="font-size:10.5px;color:rgba(252,224,168,.4);margin:8px 0;font-family:'Geist Mono',monospace;">filtre IA : ${escapeHtml(t.ia_verdict || 'n/a')}</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="modererTemoignage('${t.id}','approuver')" style="flex:1;background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:9px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;">Publier</button>
+              <button onclick="modererTemoignage('${t.id}','rejeter')" style="flex:1;background:none;border:1px solid rgba(255,255,255,.15);color:rgba(252,224,168,.55);border-radius:10px;padding:9px;font-size:12.5px;cursor:pointer;font-family:inherit;">Rejeter</button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } catch (e) { modBox.innerHTML = ''; }
+}
+
+async function modererTemoignage(id, decision) {
+  try {
+    await wozaliFetch('/api/wozali-pay/temoignage-moderer', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, decision }),
+    });
+    toast(decision === 'approuver' ? 'Témoignage publié.' : 'Témoignage rejeté.', 'success');
+    loadTemoignages();
+  } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+function openTemoignageModal() {
+  if (!currentUser) { toast('Connecte-toi pour raconter ton histoire (elle restera anonyme).', 'info'); showPage('login'); return; }
+  const old = document.getElementById('temoignage-modal'); if (old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'temoignage-modal';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10002;display:flex;align-items:center;justify-content:center;padding:16px;';
+  ov.addEventListener('click', (e) => { if (e.target === ov) ov.remove(); });
+  ov.innerHTML = `
+    <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;width:min(520px,100%);padding:22px 20px;">
+      <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:20px;color:#FCE0A8;margin-bottom:6px;">Raconte ce que tu as vécu.</div>
+      <p style="font-size:12.5px;color:rgba(252,224,168,.6);line-height:1.6;margin:0 0 6px;">Ton histoire sera publiée <b>sans aucun nom, même pas le tien</b>. Une seule règle : ne nomme personne. Ni personne, ni salon, ni entreprise. Dis "ma patronne", "un recruteur", "un atelier de mon quartier".</p>
+      <textarea id="temoignage-input" rows="6" maxlength="800" placeholder="Ex : Après 3 ans d'apprentissage, ma patronne refusait de me libérer tant que je ne payais pas encore..." style="width:100%;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;margin:10px 0 4px;"></textarea>
+      <div id="temoignage-feedback" style="font-size:12.5px;line-height:1.5;margin:6px 0;"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button onclick="submitTemoignage()" id="temoignage-send" style="flex:1;background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:13px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;">Envoyer anonymement</button>
+        <button onclick="document.getElementById('temoignage-modal').remove()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(252,224,168,.55);border-radius:12px;padding:13px 18px;font-size:13px;cursor:pointer;font-family:inherit;">Annuler</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  setTimeout(() => document.getElementById('temoignage-input')?.focus(), 60);
+}
+
+async function submitTemoignage() {
+  const input = document.getElementById('temoignage-input');
+  const fb = document.getElementById('temoignage-feedback');
+  const btn = document.getElementById('temoignage-send');
+  const texte = (input?.value || '').trim();
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/temoignage-create', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texte }),
+    });
+    const data = await r.json();
+    if (data?.ok) {
+      const modal = document.getElementById('temoignage-modal');
+      if (modal) modal.querySelector('div').innerHTML = `
+        <div style="text-align:center;padding:14px 6px;">
+          <div style="font-size:34px;margin-bottom:10px;">🤍</div>
+          <div style="font-size:14.5px;color:#FCE0A8;line-height:1.7;">${escapeHtml(data.message || 'Reçu. Merci.')}</div>
+          <button onclick="document.getElementById('temoignage-modal').remove()" style="margin-top:16px;background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:12px 26px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;">Fermer</button>
+        </div>`;
+    } else {
+      if (fb) { fb.style.color = '#E8940A'; fb.textContent = data?.message || 'Ça n\'est pas passé. Réessaie.'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Envoyer anonymement'; }
+    }
+  } catch (e) {
+    if (fb) { fb.style.color = '#f87171'; fb.textContent = 'Ça a calé. Vérifie ta connexion et réessaie.'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer anonymement'; }
   }
 }
 

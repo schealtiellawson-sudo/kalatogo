@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260718a">
+<link rel="stylesheet" href="/style.css?v=20260718c">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -195,7 +195,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" defer></script>
 <!-- Helpers Supabase (defer — s'exécutent avant app.js car plus tôt dans le doc) -->
-<script src="components/supa-prest.js?v=20260718a" defer></script>
+<script src="components/supa-prest.js?v=20260718c" defer></script>
 <script src="components/supa-offres.js" defer></script>
 <script src="components/supa-candidatures.js" defer></script>
 <script src="components/supa-avis.js?v=20260715n" defer></script>
@@ -6593,7 +6593,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260718a" defer></script>
+<script src="/app.js?v=20260718c" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -7617,6 +7617,20 @@ setTimeout(function(){
           <div style="color:rgba(255,255,255,0.5);font-size:11px;">2028+</div>
         </div>
       </div>
+      <!-- Mur des témoignages anonymes (Chantier 8 Dignité) -->
+      <div id="mur-temoignages" style="max-width:720px;margin:0 auto 56px;padding:0 4px;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:2.5px;color:#E8940A;text-transform:uppercase;margin-bottom:10px;">Le mur des témoignages</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(24px,5vw,34px);color:#FCE0A8;margin:0 0 10px;">Ce qu'on ne devrait plus jamais accepter.</h2>
+          <p style="color:rgba(252,224,168,0.6);font-size:14px;line-height:1.6;max-width:520px;margin:0 auto;">Des histoires vraies, racontées anonymement par des membres. Aucun nom, jamais. Juste la vérité de ce que ce marché fait vivre aux gens qui travaillent bien.</p>
+        </div>
+        <div id="mur-temoignages-list"></div>
+        <div id="mur-moderation"></div>
+        <div style="text-align:center;margin-top:20px;">
+          <button onclick="openTemoignageModal()" style="background:none;border:1.5px solid rgba(232,148,10,.5);color:#E8940A;border-radius:100px;padding:12px 26px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;">Raconter mon histoire, anonymement</button>
+        </div>
+      </div>
+
       <!-- Suivre le fondateur -->
       <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:32px;">
         <p style="color:rgba(255,255,255,0.6);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Suis le fondateur</p>
