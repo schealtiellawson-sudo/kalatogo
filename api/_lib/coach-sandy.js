@@ -152,25 +152,47 @@ const LECONS = [
     cta: 'Régler ma disponibilité', target: 'dispo',
   },
   {
-    key: 'vitrine',
-    cond: (c) => !!c.fam.vitrine,
-    titre: 'Ceux qui passent devant toi ne sont pas les seuls acheteurs du quartier.',
-    corps: "Ta vitrine WOZALI, c'est ton étal visible par tout le monde : ce que tu vends aujourd'hui, ton prix, où te trouver. Celui qui cherche depuis chez lui te voit, et vient. Mets un produit, une photo, un prix.",
-    cta: 'Ouvrir ma vitrine', target: 'vente-ambulante',
-  },
-  {
-    key: 'cv_wozali',
-    cond: (c) => c.p.mode_emploi === true,
-    titre: 'Ton CV WOZALI travaille pendant que tu dors.',
-    corps: "Les patrons qui publient des offres regardent les profils disponibles. Un CV complet avec ton expérience et tes preuves de travail, c'est toi qu'on appelle en premier. Complète-le une fois, il parle pour toi tous les jours.",
-    cta: 'Compléter mon CV WOZALI', target: 'emploi-cv',
-  },
-  {
     key: 'carte_qr',
     cond: (c) => !!(c.p.photo_realisation_1 && (c.p.tarif_min_fcfa || c.p.tarif_max_fcfa)),
     titre: 'Le client qui sort de chez toi doit pouvoir te retrouver.',
     corps: "Ta carte de visite WOZALI avec ton code QR : il la scanne, il tombe sur ton profil, tes photos, tes avis. Il la montre à quelqu'un, et ce quelqu'un devient ton client. Imprime-la, pose-la où tes clients passent.",
     cta: 'Voir mes outils à imprimer', target: 'outils',
+  },
+  // ── Engagement & diffusion (features vivantes) ──
+  {
+    key: 'story_sondage',
+    cond: (c) => !!(c.p.photo_realisation_1 || c.p.photo_realisation_2),
+    titre: "Ce que tu as fait aujourd'hui, montre-le avant demain.",
+    corps: "Une story, c'est une photo ou une vidéo de ton travail que le quartier voit pendant 24 heures, puis elle disparaît. Celui qui la voit sait que tu es au travail en ce moment, et ça donne envie de venir. Ajoute un sondage, pose une question, les gens votent. Quelqu'un qui a voté chez toi revient voir la suite.",
+    cta: 'Publier une story', target: 'fil',
+  },
+  {
+    key: 'avis_vocal',
+    cond: (c) => (c.p.nb_avis_recus || 0) >= 1,
+    titre: "Une voix contente convainc plus qu'un long texte.",
+    corps: "Beaucoup de tes clients n'aiment pas écrire, mais ils savent parler. Sur WOZALI, un client peut laisser son avis en enregistrant sa voix, directement. Celui qui hésite entend une vraie personne dire que tu fais du bon travail, et il t'appelle. Demande à ton dernier client satisfait de te laisser un avis vocal.",
+    cta: 'Voir ma page avis', target: 'avis',
+  },
+  {
+    key: 'statut_whatsapp',
+    cond: (c) => !!(c.p.photo_realisation_1 || c.p.photo_realisation_2),
+    titre: "Dans ton téléphone, il y a des clients qui ne savent pas que tu travailles.",
+    corps: "Tes contacts regardent les Statuts WhatsApp tous les jours, y compris le tien. WOZALI te prépare une belle image de ton profil, tu la partages dans ton Statut en un geste. Ceux qui te connaissent découvrent ton métier, tes photos, et où te trouver. Un contact qui savait à peine ce que tu fais devient un client.",
+    cta: 'Exporter mon profil en Statut', target: 'overview',
+  },
+  {
+    key: 'affiche',
+    cond: (c) => !!c.p.photo_realisation_1,
+    titre: "Des gens passent devant chez toi chaque jour sans savoir qui tu es.",
+    corps: "Dans Mes outils à imprimer, tu as une affiche avec ton nom, ton métier et ton code QR. Tu l'imprimes et tu la colles sur le mur de ta boutique, de ton atelier ou à ton point de vente. Celui qui passe scanne et tombe sur ton profil complet, tes photos, tes avis. Le mur travaille pour toi même quand tu es occupé.",
+    cta: 'Voir mes outils à imprimer', target: 'outils',
+  },
+  {
+    key: 'boost_social',
+    cond: (c) => !!(c.p.photo_realisation_1 || c.p.photo_realisation_2),
+    titre: "Ton travail est déjà sur TikTok. Fais-le compter ici aussi.",
+    corps: "Si tu montres ton travail sur TikTok ou Instagram, déclare tes comptes dans la section Récompenses. C'est gratuit, c'est optionnel, et ça renforce ton dossier dans le classement des récompenses. En plus, d'autres pros et des clients découvrent ce que tu fais. Deux minutes, rien à perdre.",
+    cta: 'Renforcer mon dossier', target: 'recompenses',
   },
   // ── Affiliation coachée (Chantier 7) : le BON moment seulement ──
   // Membre Pro, actif, avec des clients qui témoignent : son entourage
