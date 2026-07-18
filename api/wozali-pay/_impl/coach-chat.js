@@ -26,6 +26,7 @@ Règles absolues :
 - Toute réponse s'appuie sur SES données (fournies dans le contexte) et se termine par UNE action concrète faisable sur WOZALI (photos, tarifs, statut du jour, publications, avis, disponibilité, carte de visite, parrainage).
 - JAMAIS de promesse chiffrée de gains ("tu vas gagner X FCFA"). Tu expliques des mécanismes, prouvés par ses chiffres à lui.
 - JAMAIS de comparaison avec un autre membre nommé.
+- Utilise la mémoire de la relation quand elle est fournie : rappelle-toi de ce que tu as déjà conseillé, vérifie si ça a été fait avant de conseiller autre chose, et relance naturellement ("La dernière fois je t'avais dit de..., tu l'as fait ?"). Ne redonne pas un conseil déjà donné sans le mentionner.
 - Si la question sort du business (santé, politique, religion, vie privée, demandes déplacées), réponds en une phrase polie que tu es là pour son business, et ramène à son activité.
 - Maximum 120 mots. Pas de listes à puces, pas de markdown : du texte parlé.`;
 
@@ -59,7 +60,7 @@ export default async function handler(req, res) {
   const [{ data: vues }, { data: rdvs }, { data: coachProfil }, { data: derniers }] = await Promise.all([
     supabase.from('wozali_profil_vues').select('id, viewer_id, viewer_prest_id').eq('profil_id', p.id).gte('created_at', il7j),
     supabase.from('wozali_rdv').select('id, statut').eq('prestataire_user_id', userId).gte('created_at', il7j),
-    supabase.from('wozali_coach_profil').select('objectif, blocage, canal, note_libre').eq('user_id', userId).maybeSingle(),
+    supabase.from('wozali_coach_profil').select('objectif, blocage, canal, note_libre, memoire').eq('user_id', userId).maybeSingle(),
     supabase.from('wozali_coach_messages').select('type, titre, corps').eq('user_id', userId)
       .in('type', ['reponse_membre', 'chat', 'lecon', 'resultat']).order('created_at', { ascending: false }).limit(8),
   ]);
@@ -70,6 +71,9 @@ export default async function handler(req, res) {
     `Profil : photos réalisations ${p.photo_realisation_1 || p.photo_realisation_2 ? 'oui' : 'NON'}, tarifs ${p.tarif_min_fcfa || p.tarif_max_fcfa ? 'affichés' : 'NON affichés'}, description ${(p.description_services || '').trim().length > 10 ? 'oui' : 'NON'}, statut du jour ${p.statut_jour ? 'actif' : 'non'}.`,
     `Chiffres : Score WOZALI ${p.score_wozali || 0}/100, ${p.nb_avis_recus || 0} avis (note ${p.note_moyenne || 'n/a'}), ${visiteurs} visiteurs sur 7 jours, ${(rdvs || []).length} demandes de RDV sur 7 jours, badges : ${(p.badges_auto || []).join(', ') || 'aucun'}.`,
     coachProfil ? `Coaching : objectif ${coachProfil.objectif || 'n/a'}, blocage ${coachProfil.blocage || 'n/a'}.` : '',
+    // Mémoire longue : notes des échanges passés (Sandy s'en sert pour
+    // assurer la continuité et relancer sur ses propres conseils)
+    (coachProfil?.memoire ? `Mémoire de la relation (tes notes des échanges passés, du plus ancien au plus récent) :\n${coachProfil.memoire}` : ''),
     (derniers || []).length ? `Derniers échanges (récents d'abord) : ${(derniers || []).map(m => `[${m.type}] ${(m.titre ? m.titre + ' : ' : '') + (m.corps || '').slice(0, 120)}`).join(' | ')}` : '',
     // Corpus Sandy : briques de connaissance marché selon le thème détecté
     briquesPour(`${message} ${p.metier_principal || ''}`),
@@ -101,6 +105,20 @@ export default async function handler(req, res) {
       { user_id: userId, type: 'chat', corps: reponse, lu: true },
     ]);
   } catch (e) { console.warn('[coach-chat] persist', e); }
+
+  // 6. Mémoire longue : une note par échange (question + cœur du conseil),
+  //    ~15 dernières lignes conservées. Déterministe, zéro appel IA en plus.
+  try {
+    const dateStr = new Date().toISOString().slice(5, 10); // MM-DD
+    const q = message.replace(/\s+/g, ' ').slice(0, 90);
+    const r = reponse.replace(/\s+/g, ' ').slice(0, 110);
+    const ligne = `[${dateStr}] Q: ${q} → Conseil: ${r}`;
+    const lignes = String(coachProfil?.memoire || '').split('\n').filter(Boolean);
+    lignes.push(ligne);
+    const memoire = lignes.slice(-15).join('\n');
+    await supabase.from('wozali_coach_profil')
+      .upsert({ user_id: userId, memoire, updated_at: new Date().toISOString() });
+  } catch (e) { console.warn('[coach-chat] memoire', e); }
 
   return res.status(200).json({ ok: true, reponse });
 }
