@@ -19,12 +19,21 @@ export default async function handler(req, res) {
     let allRecords = [];
     let from = 0;
 
+    // On tente d'inclure la colonne slug ; si elle n'existe pas encore
+    // (migration non appliquée), on rebascule sur le calcul.
+    let withSlug = true;
     while (true) {
+      const cols = withSlug
+        ? 'nom_complet, metier_principal, ville, slug'
+        : 'nom_complet, metier_principal, ville';
       const { data, error } = await supabase
         .from('wozali_prestataires')
-        .select('nom_complet, metier_principal')
+        .select(cols)
         .range(from, from + PAGE_SIZE - 1);
-      if (error) throw error;
+      if (error) {
+        if (withSlug) { withSlug = false; allRecords = []; from = 0; continue; }
+        throw error;
+      }
       const rows = data || [];
       allRecords = allRecords.concat(rows);
       if (rows.length < PAGE_SIZE) break;
@@ -36,7 +45,9 @@ export default async function handler(req, res) {
     const urls = allRecords
       .filter(r => r['nom_complet'])
       .map(r => {
-        const slug = buildSlug(r['nom_complet'], r['metier_principal'], '');
+        // slug stocké (source de vérité, gère les homonymes) sinon calcul
+        // avec la ville, identique à la formule du client.
+        const slug = r['slug'] || buildSlug(r['nom_complet'], r['metier_principal'], r['ville']);
         return `  <url>
     <loc>https://wozali.africa/profil/${slug}</loc>
     <lastmod>${today}</lastmod>

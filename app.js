@@ -8656,8 +8656,8 @@ async function wzShareProfilExterne(prestId) {
   try {
     let slug = prestId;
     try {
-      const { data } = await window.supabase.from('wozali_prestataires').select('nom_complet, metier_principal, ville').eq('id', prestId).maybeSingle();
-      if (data) slug = _buildProfilSlug(data.nom_complet, data.metier_principal, data.ville);
+      const { data } = await window.supabase.from('wozali_prestataires').select('nom_complet, metier_principal, ville, slug').eq('id', prestId).maybeSingle();
+      if (data) slug = data.slug || _buildProfilSlug(data.nom_complet, data.metier_principal, data.ville);
     } catch (e) {}
     const url = `https://wozali.africa/profil/${slug}`;
     const texte = `Regarde ce pro sur WOZALI :\n${url}`;
@@ -10350,7 +10350,8 @@ async function showProfil(recordId) {
 
     // ── SEO : meta tags dynamiques + Schema.org ──
     const _seoVille = f['Ville'] || '';
-    const _seoSlug = _buildProfilSlug(nomRaw, metierRaw, _seoVille);
+    // slug stocké (source de vérité serveur, gère les homonymes) sinon calcul
+    const _seoSlug = f['slug'] || f['Slug'] || _buildProfilSlug(nomRaw, metierRaw, _seoVille);
     const _seoUrl = `https://wozali.africa/profil/${_seoSlug}`;
     document.title = `${nomRaw} — ${metierRaw} à ${_seoVille} · WOZALI`;
     _setMeta('description', nbAvis > 0

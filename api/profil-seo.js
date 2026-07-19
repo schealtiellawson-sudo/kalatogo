@@ -27,28 +27,42 @@ export default async function handler(req, res) {
     return res.status(500).send('index.html introuvable');
   }
 
-  // Chercher le prestataire correspondant au slug dans Supabase
-  // On scanne les prestataires et on compare les slugs (pas de champ slug en base)
+  // Chercher le prestataire correspondant au slug dans Supabase.
   let matched = null;
   let matchedAvis = [];
+  const COLS = 'id, nom_complet, metier_principal, ville, quartier, description_services, whatsapp, photo_profil, numero_telephone, slug';
   try {
-    const PAGE = 1000; // Supabase plafonne à 1000 lignes par requête
-    let from = 0;
-    do {
+    // 1. Lecture INDEXÉE par la colonne slug (instantané à l'échelle).
+    try {
       const { data, error } = await supabase
         .from('wozali_prestataires')
-        .select('id, nom_complet, metier_principal, quartier, description_services, whatsapp, photo_profil, numero_telephone')
-        .range(from, from + PAGE - 1);
+        .select(COLS).eq('slug', slug).limit(1);
       if (error) throw error;
-      const rows = data || [];
-      for (const rec of rows) {
-        const s = buildSlug(rec.nom_complet, rec.metier_principal, '');
-        if (s === slug) { matched = rec; break; }
-      }
-      if (matched) break;
-      if (rows.length < PAGE) break;
-      from += PAGE;
-    } while (true);
+      if (data && data.length) matched = data[0];
+    } catch (eSlug) {
+      // Colonne slug pas encore créée (migration non appliquée) : on ignore
+      // et on tombe sur le scan de secours ci-dessous.
+    }
+
+    // 2. Secours : scan de la table avec la MÊME formule que le client
+    //    (nom + métier + ville). Sert tant que la colonne slug n'existe pas.
+    if (!matched) {
+      const PAGE = 1000;
+      let from = 0;
+      do {
+        const { data, error } = await supabase
+          .from('wozali_prestataires')
+          .select('id, nom_complet, metier_principal, ville, quartier, description_services, whatsapp, photo_profil, numero_telephone')
+          .range(from, from + PAGE - 1);
+        if (error) throw error;
+        const rows = data || [];
+        for (const rec of rows) {
+          if (buildSlug(rec.nom_complet, rec.metier_principal, rec.ville) === slug) { matched = rec; break; }
+        }
+        if (matched || rows.length < PAGE) break;
+        from += PAGE;
+      } while (true);
+    }
 
     // Fetch avis count + note (avis validés uniquement)
     if (matched) {
@@ -72,7 +86,7 @@ export default async function handler(req, res) {
 
   const nom = matched.nom_complet || '';
   const metier = matched.metier_principal || '';
-  const ville = matched.quartier || '';
+  const ville = matched.ville || matched.quartier || '';
   const quartier = matched.quartier || '';
   const bio = matched.description_services || '';
   // photo_profil d'abord (comme le client app.js) ; whatsapp seulement s'il

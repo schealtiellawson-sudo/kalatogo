@@ -9,6 +9,7 @@
   // Mapping bidirectionnel champs Airtable ↔ colonnes Supabase
   const AT_TO_SUPA = {
     'Email': 'email',
+    'Slug': 'slug',
     'Nom complet': 'nom_complet',
     'Prénom': 'prenom',
     'Nom': 'nom',
