@@ -6379,7 +6379,7 @@ const _COACH_TREE = {
 // Plans de reformulation par objectif (le résumé qui verrouille)
 const _COACH_PLANS = {
   clients:      "1. On rend ton profil irrésistible.\n2. On te fait voir au-delà de ton quartier.\n3. On transforme les visites en rendez-vous.",
-  emploi:       "1. On rend ton CV WOZALI solide.\n2. On te met devant les bonnes offres.\n3. On prépare tes candidatures pour qu'on te rappelle.",
+  emploi:       "1. On te met devant les bonnes offres.\n2. On prépare tes candidatures pour qu'on te rappelle.",
   recruter:     "1. On écrit une offre claire.\n2. On la met devant les bons profils.\n3. On t'aide à choisir sans te tromper.",
   mieux_gagner: "1. On montre la qualité de ton travail : photos, avis.\n2. On affiche tes tarifs pour cadrer la négociation.\n3. On fait revenir tes clients.",
 };
@@ -16404,7 +16404,7 @@ function renderOffresPage() {
       <span class="badge" style="background:rgba(232,148,10,0.1);color:#E8940A;">Mission terrain</span>
     </div>
     <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 100 000 FCFA — dès le 1er mois</div>
-    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 15 août. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
+    <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er septembre. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
     <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Places limitées</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié aujourd'hui</div>
     <div class="offre-actions" onclick="event.stopPropagation();">
