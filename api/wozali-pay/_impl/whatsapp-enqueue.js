@@ -62,7 +62,7 @@ async function sendEmailResend(toEmail, subject, content) {
   </div>
   <div style="font-size:15px;line-height:1.7;opacity:0.85;white-space:pre-line;">${(content||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
   <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(232,148,10,0.2);font-size:12px;opacity:0.5;">
-    <a href="https://wozali.com/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a>
+    <a href="https://wozali.africa/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a>
   </div>
 </div></body></html>`;
   try {
@@ -139,11 +139,11 @@ export default async function handler(req, res) {
     const firstTpl = templates.find(t => t.delay_hours === 0);
     if (firstTpl) {
       const finalContent = substitute(firstTpl.content, {
-        url_dashboard: 'https://wozali.com/#dashboard',
-        url_awards: 'https://wozali.com/#awards',
-        url_recompenses: 'https://wozali.com/#recompenses',
-        url_parrainage: 'https://wozali.com/#dashboard',
-        url_profil: 'https://wozali.com/#dashboard',
+        url_dashboard: 'https://wozali.africa/#dashboard',
+        url_awards: 'https://wozali.africa/#awards',
+        url_recompenses: 'https://wozali.africa/#recompenses',
+        url_parrainage: 'https://wozali.africa/#dashboard',
+        url_profil: 'https://wozali.africa/#dashboard',
         prenom: payload.prenom || 'sœur',
         ...payload,
       });

@@ -75,12 +75,14 @@ export default async function handler(req, res) {
   const ville = matched.quartier || '';
   const quartier = matched.quartier || '';
   const bio = matched.description_services || '';
-  const photo = matched.whatsapp || matched.photo_profil || '';
+  // photo_profil d'abord (comme le client app.js) ; whatsapp seulement s'il
+  // contient une vraie URL (ancien schéma legacy), jamais un numéro de tél.
+  const photo = matched.photo_profil || (/^https?:\/\//.test(matched.whatsapp || '') ? matched.whatsapp : '') || '';
   const tel = matched.numero_telephone || '';
   const nbAvis = matchedAvis.length;
   const note = nbAvis > 0 ? (matchedAvis.reduce((s, r) => s + (r.note_globale || 0), 0) / nbAvis) : 0;
 
-  const canonicalUrl = `https://wozali.com/profil/${slug}`;
+  const canonicalUrl = `https://wozali.africa/profil/${slug}`;
   const pageTitle = `${escHtml(nom)} — ${escHtml(metier)} à ${escHtml(ville)} · WOZALI`;
   const metaDesc = nbAvis > 0
     ? `${escHtml(nom)}, ${escHtml(metier)} à ${escHtml(quartier)}, ${escHtml(ville)}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOZALI.`

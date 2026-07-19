@@ -38,7 +38,7 @@ export default async function handler(req, res) {
       .map(r => {
         const slug = buildSlug(r['nom_complet'], r['metier_principal'], '');
         return `  <url>
-    <loc>https://wozali.com/profil/${slug}</loc>
+    <loc>https://wozali.africa/profil/${slug}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://wozali.com</loc>
+    <loc>https://wozali.africa</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>

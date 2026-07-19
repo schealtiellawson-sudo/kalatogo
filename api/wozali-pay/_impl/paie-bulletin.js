@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     ${f['Primes FCFA'] ? `<div class="row"><span>Primes</span><span>${fmt(f['Primes FCFA'])}</span></div>` : ''}
     ${f['Retenues FCFA'] ? `<div class="row"><span>Retenues</span><span>- ${fmt(f['Retenues FCFA'])}</span></div>` : ''}
     <div class="row total"><span>Net à payer</span><span>${fmt(f['Net FCFA'] || f['Salaire FCFA'])}</span></div>
-    <div class="footer">Bulletin généré par WOZALI — wozali.com</div>
+    <div class="footer">Bulletin généré par WOZALI · wozali.africa</div>
   </div>
 </body></html>`);
   } catch (err) {

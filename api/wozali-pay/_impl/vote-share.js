@@ -25,8 +25,8 @@ export default async function handler(req, res) {
 
       if (error) throw error;
 
-      // URL cible : https://wozali.com/?share=token → page Awards avec highlight
-      const baseUrl = process.env.SITE_URL || 'https://wozali.com';
+      // URL cible : https://wozali.africa/?share=token → page Awards avec highlight
+      const baseUrl = process.env.SITE_URL || 'https://wozali.africa';
       const shareUrl = `${baseUrl}/?r=${partage.token}`;
 
       // Message WhatsApp pré-écrit

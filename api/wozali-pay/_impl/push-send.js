@@ -9,7 +9,7 @@
 // Variables d'env requises :
 //   VAPID_PUBLIC_KEY
 //   VAPID_PRIVATE_KEY
-//   VAPID_SUBJECT (optionnel, défaut mailto:contact@wozali.com)
+//   VAPID_SUBJECT (optionnel, défaut mailto:contact@wozali.africa)
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
 
@@ -32,7 +32,7 @@ async function ensureVapid(webpush) {
   if (_vapidConfigured) return true;
   const pub = process.env.VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || 'mailto:contact@wozali.com';
+  const subject = process.env.VAPID_SUBJECT || 'mailto:contact@wozali.africa';
   if (!pub || !priv) {
     console.warn('[push-send] VAPID keys absentes — push désactivé (fallback inbox seul).');
     return false;

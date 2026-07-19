@@ -142,7 +142,7 @@ async function sendEmailResend(toEmail, subject, content, prenom) {
   <div style="font-size:15px;line-height:1.7;color:rgba(248,246,241,0.85);white-space:pre-line;">${(content || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
   <div style="margin-top:32px;padding-top:24px;border-top:1px solid rgba(232,148,10,0.2);font-size:12px;color:rgba(248,246,241,0.5);">
     Tu reçois ce message parce que tu fais partie de la communauté WOZALI.<br>
-    <a href="https://wozali.com/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a> · <a href="https://wozali.com/#cgu" style="color:rgba(248,246,241,0.5);">Désinscrire</a>
+    <a href="https://wozali.africa/#dashboard" style="color:#E8940A;">Ouvrir mon dashboard</a> · <a href="https://wozali.africa/#cgu" style="color:rgba(248,246,241,0.5);">Désinscrire</a>
   </div>
 </div></body></html>`;
   try {
@@ -209,12 +209,12 @@ export default async function handler(req, res) {
       }
       // 4a. Substituer les variables (avec defaults)
       let finalContent = substitute(tplContent, {
-        url_dashboard: 'https://wozali.com/#dashboard',
-        url_awards: 'https://wozali.com/#awards',
-        url_recompenses: 'https://wozali.com/#recompenses',
-        url_parrainage: 'https://wozali.com/#dashboard',
-        url_profil: 'https://wozali.com/#dashboard',
-        url_search: 'https://wozali.com/#search',
+        url_dashboard: 'https://wozali.africa/#dashboard',
+        url_awards: 'https://wozali.africa/#awards',
+        url_recompenses: 'https://wozali.africa/#recompenses',
+        url_parrainage: 'https://wozali.africa/#dashboard',
+        url_profil: 'https://wozali.africa/#dashboard',
+        url_search: 'https://wozali.africa/#search',
         prenom: 'sœur',
         ...(m.payload || {}),
       });
@@ -239,7 +239,7 @@ export default async function handler(req, res) {
               await sendPushToUser(m.user_id, {
                 title,
                 body: previewBody,
-                url: 'https://wozali.com/#dashboard',
+                url: 'https://wozali.africa/#dashboard',
                 tag: 'fondateur-' + m.template_key,
                 data: { template_key: m.template_key },
               });
