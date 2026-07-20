@@ -2,7 +2,7 @@
 // Bourse de Croissance — Éligibilité Pro du mois
 // ════════════════════════════════════════════════════════════════
 // GET /api/wozali-pay/bourse-eligibilite (auth required)
-// Conditions (9) :
+// Conditions (8) :
 //   1. plan_pro_actif (CE MOIS)
 //   2. profil_complet
 //   3. score_wozali_80 (Score WOZALI ≥ 80/100)
@@ -11,7 +11,13 @@
 //   6. activite_recente (connexion ≤ 14 jours)
 //   7. pas_gagne_recent (anti-doublon : pas gagné dans les 3 derniers mois)
 //   8. tiktok_wolomarket
-//   9. tiktok_schealtiel
+//
+// Purge 2026-07-20 : condition 9 tiktok_schealtiel supprimée. Il n'y a
+// plus de case TikTok obligatoire liée au fondateur, seul le compte
+// WOZALI reste. Rappel modèle : Bourse par pays, débloquée à 5 000
+// membres Pro dans ce pays, 10 gagnants/pays/mois au mérite, gain =
+// un salaire (le SMIG du pays du gagnant). Voir api/cron/tirage-bourse.js
+// et api/_lib/smig.js.
 // ════════════════════════════════════════════════════════════════
 import { createClient } from '@supabase/supabase-js';
 
@@ -109,9 +115,8 @@ export default async function handler(req, res) {
       pas_gagne_recent = true;
     }
 
-    // 8, 9. TikTok
+    // 8. TikTok, plus de case obligatoire liée au fondateur (purgée 2026-07-20)
     const tiktok_wolomarket = Boolean(prest.tiktok_suivi_wolomarket);
-    const tiktok_schealtiel = Boolean(prest.tiktok_suivi_schealtiel);
 
     const conditions = {
       plan_pro_actif,
@@ -122,16 +127,15 @@ export default async function handler(req, res) {
       activite_recente,
       pas_gagne_recent,
       tiktok_wolomarket,
-      tiktok_schealtiel,
     };
 
     const okCount = Object.values(conditions).filter(Boolean).length;
-    const eligible = okCount === 9;
+    const eligible = okCount === 8;
 
     return res.status(200).json({
       eligible,
       conditions,
-      ratio: `${okCount}/9`,
+      ratio: `${okCount}/8`,
       mois: moisAAStr,
       score_actuel: scoreActuel,
       note_moyenne_30j: Math.round(noteMoyenne30j * 10) / 10,

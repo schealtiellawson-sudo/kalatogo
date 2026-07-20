@@ -63,38 +63,23 @@ Depuis le dashboard → "Mon abonnement" → cliquer "Passer au Pro" → suivre 
 
 ## BOURSE DE CROISSANCE
 
-- Montant : 100 000 FCFA chacun pour les 3 meilleurs Pro du mois (Togo et Bénin confondus, classement au mérite le 30 du mois, zéro hasard)
+- Par pays : le Togo et le Bénin ont chacun leur classement séparé, indépendants l'un de l'autre
+- La Bourse d'un pays s'ouvre uniquement une fois que ce pays atteint 5 000 membres Pro. En dessous de ce seuil, aucun tirage ce mois pour ce pays
+- Gain : un salaire, le salaire minimum légal (SMIG) du pays du gagnant, Togo 52 500 FCFA, Bénin 52 000 FCFA
+- 10 gagnants par pays et par mois, classement au mérite le dernier vendredi du mois, zéro hasard
 - Conditions pour être éligible :
-  1. Plan Pro ce mois (pas besoin de 2 mois consécutifs)
+  1. Plan Pro ce mois
   2. Profil 100% complet (photo profil + bio + métier + ville/quartier + numéro)
   3. Score WOZALI ≥ 80/100
   4. Minimum 3 avis clients sur les 30 derniers jours
   5. Note moyenne ≥ 4.2 étoiles sur les 30 derniers jours
   6. Dernière connexion ≤ 14 jours
   7. Pas gagné la Bourse de Croissance les 3 derniers mois
-  8. Avoir déclaré suivre les 2 comptes TikTok (bonus, non obligatoire mais augmente les chances)
-- Classement final parmi les éligibles : Score WOZALI décroissant, puis note moyenne, puis nombre d'avis
+  8. Avoir déclaré suivre le compte TikTok WOZALI (bonus, non obligatoire mais augmente les chances)
+- Classement final parmi les éligibles de chaque pays : Score Mérite décroissant, puis Score WOZALI, puis note moyenne, puis nombre d'avis
 - Vérifier son éligibilité : dashboard → "Récompenses"
 - "Pas le plus connu. Le plus sérieux." Ce prix récompense la constance, pas la notoriété
-
----
-
-## BOURSE DES MAINS D'OR
-
-- Montant : 100 000 FCFA × 2 = 200 000 FCFA/mois (1 gagnante Togo + 1 gagnante Bénin)
-- Réservé aux femmes coiffeuses et couturières
-- Pas besoin d'être Pro (ouvert à toutes)
-- Alternance : coiffure les mois impairs, couture les mois pairs
-- Classement au mérite le 30 du mois, zéro hasard
-- Conditions :
-  1. Métier = Coiffeuse ou Couturière (selon le mois en cours)
-  2. Profil complet
-  3. Au moins 1 photo de réalisation sur ton profil ce mois
-  4. Au moins 1 avis client sur les 30 derniers jours
-  5. Dernière connexion ≤ 14 jours
-  6. Avoir déclaré suivre les comptes TikTok (bonus)
-- Phrase clé : "Une machine Singer neuve coûte 95 000 FCFA. La Bourse des Mains d'Or paie 100 000 FCFA."
-- Finale annuelle en décembre : 500 000 FCFA × 2 (Reine de l'Année Coiffure + Couture)
+- La Bourse des Mains d'Or n'existe plus. La Bourse de Croissance est la seule récompense mensuelle WOZALI
 
 ---
 
@@ -139,7 +124,7 @@ Depuis le dashboard → "Mon abonnement" → cliquer "Passer au Pro" → suivre 
 - GPS : activer sa géolocalisation pour apparaître sur la carte
 - Mon abonnement : voir son plan, passer au Pro
 - Mon Parrainage : code, simulateur, historique commissions
-- Récompenses : Bourse de Croissance + Bourse des Mains d'Or
+- Récompenses : Bourse de Croissance
 - Trouver un emploi : offres d'emploi, carte, alertes
 - Mes candidatures : candidatures envoyées
 - Mon CV WOZALI : CV généré automatiquement

@@ -174,7 +174,7 @@ Le Plan Pro coûte 2 500 FCFA par mois.
 
 C'est le prix d'un repas. Pour une visibilité qui peut te rapporter dix, vingt, cinquante fois plus que ça.
 
-Et demain je te parle de quelque chose que peu de plateformes font : 500 000 FCFA distribués chaque mois aux membres les plus sérieux.
+Et demain je te parle de quelque chose que peu de plateformes font : payer chaque mois ses membres les plus sérieux, un salaire chacun.
 
 A demain. Ce que je t'annonce mérite que tu sois là.`,
     'Découvrir le Plan Pro', 'abonnement'),
@@ -194,15 +194,15 @@ Mais aujourd'hui je veux te parler de ce que WOZALI fait qu'aucune autre platefo
 
 ---
 
-Chaque mois, WOZALI distribue 500 000 FCFA à ses membres les plus sérieux.
+Chaque mois, WOZALI paie ses membres les plus sérieux. Pas un bonus symbolique : un salaire.
 
 Pas les plus connus. Les plus constants.
 
-La Bourse de Croissance : 100 000 FCFA chacun pour les 5 meilleurs profils du mois, hommes ou femmes, Togo ou Bénin. Conditions : Plan Pro, profil complet, Score WOZALI à 80 sur 100 minimum, 3 avis clients sur les 30 derniers jours.
+La Bourse de Croissance : dans chaque pays, une fois 5 000 membres Pro atteints, les 10 meilleurs profils du mois gagnent chacun un salaire, le salaire minimum légal de leur pays. Togo ou Bénin, chaque pays son classement. Conditions : Plan Pro, profil complet, Score WOZALI à 80 sur 100 minimum, 3 avis clients sur les 30 derniers jours.
 
 Le classement regarde ton travail. Tes avis clients, ta note, ta constance. Pas tes abonnés. Pas ton nombre de vues. Quelqu'un avec 10 clientes satisfaites passe devant quelqu'un avec 100 000 abonnés et des avis moyens.
 
-Premiers résultats : 25 septembre 2026.
+Résultats chaque dernier vendredi du mois, dans les pays qui ont débloqué leur Bourse.
 
 ---
 
@@ -270,7 +270,7 @@ Ton Score WOZALI vient de passer 80.
 
 Tu sais ce que ça veut dire ? La majorité des profils n'y arrivent jamais. Toi tu y es, parce que tu as fait le travail : profil complet, clients satisfaits, présence régulière.
 
-À ce niveau, tu sors en haut des recherches. Et la Bourse de Croissance, les 100 000 FCFA mensuels pour les meilleurs profils, exige exactement ce score.
+À ce niveau, tu sors en haut des recherches. Et la Bourse de Croissance, un salaire chaque mois pour les 10 meilleurs profils de ton pays, exige exactement ce score.
 
 Tu n'es plus en train de découvrir WOZALI. Tu es en train de gagner dessus.
 
@@ -286,7 +286,7 @@ Schealtiel`,
 
 Plan Pro. Score au-dessus de 80. Des avis clients réels.
 
-Tu coches les conditions principales de la Bourse de Croissance : 100 000 FCFA pour chacun des 5 meilleurs profils du mois. Le classement regarde ton travail, tes avis, ta constance. Rien d'autre.
+Tu coches les conditions principales de la Bourse de Croissance : un salaire pour chacun des 10 meilleurs profils de ton pays, ce mois. Le classement regarde ton travail, tes avis, ta constance. Rien d'autre.
 
 Beaucoup rêvent de ce genre de reconnaissance. Toi tu l'as construite, avis après avis, client après client.
 

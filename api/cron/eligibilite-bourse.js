@@ -165,7 +165,7 @@ export default async function handler(req, res) {
           await envoyerNotification({
             user_id: userId,
             titre: '🏆 Tu es dans la course pour la Bourse de Croissance !',
-            corps: 'Tu remplis toutes les conditions ce mois. Les 5 meilleurs profils sont désignés le dernier vendredi du mois. Le classement regarde ton travail, pas ton audience.'
+            corps: "Tu remplis toutes les conditions ce mois. Les 10 meilleurs profils de ton pays sont désignés le dernier vendredi du mois, une fois 5 000 membres Pro atteints dans ton pays. Le classement regarde ton travail, pas ton audience."
           });
           nouveauxEligibles++;
         }
@@ -175,7 +175,7 @@ export default async function handler(req, res) {
           await envoyerNotification({
             user_id: userId,
             titre: '🏆 Tu es dans la course pour la Bourse de Croissance !',
-            corps: 'Tu remplis toutes les conditions ce mois. Les 5 meilleurs profils sont désignés le dernier vendredi du mois. Le classement regarde ton travail, pas ton audience.'
+            corps: "Tu remplis toutes les conditions ce mois. Les 10 meilleurs profils de ton pays sont désignés le dernier vendredi du mois, une fois 5 000 membres Pro atteints dans ton pays. Le classement regarde ton travail, pas ton audience."
           });
           nouveauxEligibles++;
         }

@@ -1,8 +1,14 @@
 // ================================================================
-// WOZALI Pay — Statut récompenses (Bourse + Awards) pour un user
+// WOZALI Pay, statut récompenses (Bourse + Awards) pour un user
 // GET /api/wozali-pay/recompenses-status?user_id=xxx
 // ================================================================
+// Bourse de Croissance, modèle définitif (fondateur, 2026-07-19) :
+// par pays (Togo/Bénin), 10 gagnants/pays/mois au mérite, gain = un
+// salaire (le SMIG du pays du gagnant). Voir api/_lib/smig.js et
+// api/cron/tirage-bourse.js pour le calcul des gagnants.
+// ================================================================
 import { supabase } from '../../_lib/supabase.js';
+import { SMIG_PAR_PAYS } from '../../_lib/smig.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' });
@@ -23,30 +29,62 @@ export default async function handler(req, res) {
       .eq('mois', moisCourant)
       .maybeSingle();
 
-    // Mieux classés du mois courant (jusqu'à 3 — classement au mérite, plus de tirage à 1 gagnant)
-    const { data: gagnantsBourseListe } = await supabase
+    // Pays du membre (pour son SMIG et pour ne comparer qu'à son propre pays)
+    let userPays = null;
+    if (!isPublic) {
+      const { data: profilUser } = await supabase
+        .from('wozali_prestataires')
+        .select('pays')
+        .eq('user_id', user_id)
+        .maybeSingle();
+      userPays = profilUser?.pays || null;
+    }
+
+    // Tous les gagnants du mois courant, toutes pays confondus (jusqu'à
+    // 10 par pays, classement au mérite, plus de tirage à 1 gagnant global)
+    const { data: gagnantsBourseListeBrut } = await supabase
       .from('bourse_croissance')
-      .select('user_id, score_wozali')
+      .select('user_id, score_wozali, montant_gagne')
       .eq('mois', moisCourant)
       .eq('gagnant', true);
 
-    const gagnantBourse = (gagnantsBourseListe && gagnantsBourseListe.length > 0) ? gagnantsBourseListe[0] : null;
-
-    // Noms des mieux classés pour affichage
-    let gagnantBourseNom = null;
-    if (gagnantsBourseListe && gagnantsBourseListe.length > 0) {
+    let profilsGagnantsMap = {};
+    if (gagnantsBourseListeBrut && gagnantsBourseListeBrut.length > 0) {
       const { data: profilsGagnants } = await supabase
         .from('wozali_prestataires')
-        .select('nom_complet')
-        .in('user_id', gagnantsBourseListe.map(g => g.user_id));
-      gagnantBourseNom = (profilsGagnants || []).map(p => p.nom_complet).filter(Boolean).join(', ') || null;
+        .select('user_id, nom_complet, pays')
+        .in('user_id', gagnantsBourseListeBrut.map(g => g.user_id));
+      (profilsGagnants || []).forEach(p => { profilsGagnantsMap[p.user_id] = p; });
     }
 
-    // Conditions détaillées pour le widget
+    // On ne compare le membre qu'aux gagnants de SON pays (chaque pays a
+    // son classement séparé). Pour l'affichage public sans pays connu, on
+    // retombe sur le pays du premier gagnant trouvé, à défaut de mieux.
+    const paysAffiche = userPays || profilsGagnantsMap[(gagnantsBourseListeBrut || [])[0]?.user_id]?.pays || null;
+    const gagnantsBourseListe = (gagnantsBourseListeBrut || [])
+      .filter(g => !paysAffiche || profilsGagnantsMap[g.user_id]?.pays === paysAffiche)
+      .sort((a, b) => (b.score_wozali || 0) - (a.score_wozali || 0));
+
+    const gagnantBourse = gagnantsBourseListe.length > 0 ? gagnantsBourseListe[0] : null;
+
+    // Noms des gagnants du pays affiché, pour le widget
+    let gagnantBourseNom = null;
+    if (gagnantsBourseListe.length > 0) {
+      gagnantBourseNom = gagnantsBourseListe
+        .map(g => profilsGagnantsMap[g.user_id]?.nom_complet)
+        .filter(Boolean)
+        .join(', ') || null;
+    }
+
+    // Montant applicable au membre : ce qu'il a réellement gagné s'il est
+    // gagnant, sinon le SMIG de son pays (le montant qu'il gagnerait).
+    const montantBourse = bourse?.montant_gagne || SMIG_PAR_PAYS[userPays] || SMIG_PAR_PAYS[paysAffiche] || null;
+
+    // Conditions détaillées pour le widget (clés alignées sur le front)
     let conditions = null;
     if (bourse) {
       conditions = {
-        pro_2_mois: (bourse.pro_mois_consecutifs || 0) >= 1,
+        estPro: !!bourse.eligible || (bourse.pro_mois_consecutifs || 0) >= 1,
         score_80: (bourse.score_wozali || 0) >= 80,
         avis_4: (bourse.nb_avis || 0) >= 4,
         note_42: (bourse.note_moyenne || 0) >= 4.2,
@@ -129,22 +167,22 @@ export default async function handler(req, res) {
       .order('created_at', { ascending: false })
       .limit(6);
 
-    // Enrichir avec les noms
+    // Enrichir avec les noms + le vrai pays (colonne wozali_prestataires.pays,
+    // plus fiable qu'une déduction depuis le nom de ville)
     const allIds = new Set();
     for (const g of [...(palmaresBourse || []), ...(palmaresAwards || [])]) {
       allIds.add(g.user_id);
     }
     const { data: profilesGagnants } = allIds.size > 0
-      ? await supabase.from('wozali_prestataires').select('user_id, nom_complet, ville').in('user_id', [...allIds])
+      ? await supabase.from('wozali_prestataires').select('user_id, nom_complet, ville, pays').in('user_id', [...allIds])
       : { data: [] };
     const nomMap = {};
     for (const p of (profilesGagnants || [])) nomMap[p.user_id] = p;
 
-    const _paysDeville = (v) => v && /cotonou|porto|abomey|parakou|bohicon/i.test(v) ? 'BJ' : (v ? 'TG' : '');
     const enrichir = (liste) => (liste || []).map(g => ({
       ...g,
-      nom: nomMap[g.user_id]?.nom_complet || '—',
-      pays: _paysDeville(nomMap[g.user_id]?.ville),
+      nom: nomMap[g.user_id]?.nom_complet || '',
+      pays: nomMap[g.user_id]?.pays || '',
     }));
 
     // ── Countdown tirage (dernier vendredi du mois 18h WAT = 17h UTC) ──
@@ -159,7 +197,8 @@ export default async function handler(req, res) {
         conditions,
         gagnant_nom: gagnantBourseNom,
         gagnant_user_id: gagnantBourse?.user_id || null,
-        montant: 100000,
+        pays: paysAffiche,
+        montant: montantBourse,
       },
       awards: {
         etat: etatAwards,
