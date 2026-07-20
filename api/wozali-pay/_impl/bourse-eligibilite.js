@@ -2,7 +2,7 @@
 // Bourse de Croissance — Éligibilité Pro du mois
 // ════════════════════════════════════════════════════════════════
 // GET /api/wozali-pay/bourse-eligibilite (auth required)
-// Conditions (8) :
+// Conditions (7), 100% au mérite :
 //   1. plan_pro_actif (CE MOIS)
 //   2. profil_complet
 //   3. score_wozali_80 (Score WOZALI ≥ 80/100)
@@ -10,11 +10,10 @@
 //   5. note_42 (Note moyenne ≥ 4.2★ sur 30j)
 //   6. activite_recente (connexion ≤ 14 jours)
 //   7. pas_gagne_recent (anti-doublon : pas gagné dans les 3 derniers mois)
-//   8. tiktok_wolomarket
 //
-// Purge 2026-07-20 : condition 9 tiktok_schealtiel supprimée. Il n'y a
-// plus de case TikTok obligatoire liée au fondateur, seul le compte
-// WOZALI reste. Rappel modèle : Bourse par pays, débloquée à 5 000
+// Purge 2026-07-20 : toute condition TikTok supprimée (schealtiel ET
+// wolomarket). Éligibilité 100% au mérite. Rappel modèle : Bourse par
+// pays, débloquée à 5 000
 // membres Pro dans ce pays, 10 gagnants/pays/mois au mérite, gain =
 // un salaire (le SMIG du pays du gagnant). Voir api/cron/tirage-bourse.js
 // et api/_lib/smig.js.
@@ -115,8 +114,7 @@ export default async function handler(req, res) {
       pas_gagne_recent = true;
     }
 
-    // 8. TikTok, plus de case obligatoire liée au fondateur (purgée 2026-07-20)
-    const tiktok_wolomarket = Boolean(prest.tiktok_suivi_wolomarket);
+    // Plus aucune condition TikTok (purgée 2026-07-20) : éligibilité 100% au mérite.
 
     const conditions = {
       plan_pro_actif,
@@ -126,16 +124,15 @@ export default async function handler(req, res) {
       note_42,
       activite_recente,
       pas_gagne_recent,
-      tiktok_wolomarket,
     };
 
     const okCount = Object.values(conditions).filter(Boolean).length;
-    const eligible = okCount === 8;
+    const eligible = okCount === 7;
 
     return res.status(200).json({
       eligible,
       conditions,
-      ratio: `${okCount}/8`,
+      ratio: `${okCount}/7`,
       mois: moisAAStr,
       score_actuel: scoreActuel,
       note_moyenne_30j: Math.round(noteMoyenne30j * 10) / 10,

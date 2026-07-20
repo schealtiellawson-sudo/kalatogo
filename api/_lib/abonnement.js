@@ -57,12 +57,12 @@ export async function traiterPaiementAbonnement({ user_id, paiement_id, montant,
     const commission = Math.floor(montant * Number(parrainage.taux_commission || 0.40));
 
     if (commission > 0) {
-      await crediterCreditWozali({
-        user_id: parrainage.parrain_id,
-        montant: commission,
-        type: 'credit_parrainage',
-        description: 'Commission parrainage — abonnement Pro filleul'
-      });
+      await crediterCreditWozali(
+        parrainage.parrain_id,
+        commission,
+        'credit_parrainage',
+        'Commission parrainage : abonnement Pro filleul'
+      );
 
       await supabase.from('commissions_parrainage').insert({
         parrainage_id: parrainage.id,

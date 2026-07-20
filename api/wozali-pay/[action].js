@@ -24,9 +24,7 @@ import feedPost from './_impl/feed-post.js';
 import feedLike from './_impl/feed-like.js';
 import feedComment from './_impl/feed-comment.js';
 import themeMois from './_impl/theme-mois.js';
-// Refonte récompenses 2026-05-15
-import mdrEligibilite from './_impl/mdr-eligibilite.js';
-import mdrTirageMensuel from './_impl/mdr-tirage-mensuel.js';
+// Refonte récompenses 2026-05-15 (mdr-* Mains d'Or retiré du routeur 2026-07-20 : modèle supprimé)
 import bourseEligibilite from './_impl/bourse-eligibilite.js';
 import bourseTirageMensuel from './_impl/bourse-tirage-mensuel.js';
 // Endpoints jeux désinscrits 2026-05-15 (refonte récompenses : tirage aléatoire simple) :
@@ -172,9 +170,7 @@ const handlers = {
   'feed-like': feedLike,
   'feed-comment': feedComment,
   'theme-mois': themeMois,
-  // Refonte récompenses 2026-05-15 — éligibilité + tirage mensuel
-  'mdr-eligibilite': mdrEligibilite,
-  'mdr-tirage-mensuel': mdrTirageMensuel,
+  // Bourse de Croissance : éligibilité + tirage mensuel
   'bourse-eligibilite': bourseEligibilite,
   'bourse-tirage-mensuel': bourseTirageMensuel,
   // Endpoints jeux désinscrits 2026-05-15 : feed-discover, badges-list, leaderboard, duels-list, vote-share, boost-acheter
