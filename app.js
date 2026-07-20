@@ -3702,10 +3702,11 @@ function showPage(page, _fromPop) {
   if (page === 'fonctionnement' || page === 'apropos') {
     if (page === 'fonctionnement') {
       setTimeout(() => {
-        const faqContainer = document.getElementById('faq-list');
-        if (faqContainer && faqContainer.children.length === 0 && typeof renderFAQ === 'function') renderFAQ();
         // Show default tab
         switchFonctTab('client');
+        // Jauges Bourse (Togo/Bénin) + compteur Badge Fondateur : rafraîchir à l'affichage
+        try { if (typeof window.chargerJaugesBourse === 'function') window.chargerJaugesBourse(); } catch(e) {}
+        try { if (typeof loadFounderCounter === 'function') loadFounderCounter(); } catch(e) {}
       }, 80);
     }
   }

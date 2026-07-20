@@ -3923,10 +3923,8 @@ input:checked + .toggle-slider { background:#E8940A !important; }
 .profil-score-bar { background:rgba(255,255,255,0.08) !important; }
 /* Pages globales */
 #page-search, #page-emploi, #page-feed, #page-match, #page-login, #page-forgot, #page-inscription, #page-fonctionnement, #page-apropos, #page-cgu, #page-fil, #page-tutoriels, #page-recompenses, #page-awards, #page-home, #page-a-propos, #page-agent-wozali, #page-influenceurs { background:#14100A !important; color:#FCE0A8 !important; }
-/* Fonctionnement page sections */
-#page-fonctionnement section { background:#14100A !important; }
-#page-fonctionnement h2, #page-fonctionnement h3 { color:#FCE0A8 !important; }
-#page-fonctionnement p { color:rgba(252, 224, 168,0.65) !important; }
+/* Fonctionnement page : overrides legacy retirés (refonte premium 2026-07-20,
+   la page est nativement Nuit, plus aucun fond clair à écraser) */
 
 /* ════ GLOBAL DARK — Override ALL inline white/cream backgrounds site-wide ════ */
 /* Catch-all: any element with inline background:white/cream → dark glass */
@@ -4000,22 +3998,9 @@ input:checked + .toggle-slider { background:#E8940A !important; }
   border-color: rgba(232,148,10,0.2) !important;
 }
 
-/* Fonctionnement page: sections and tabs */
-#page-fonctionnement section,
-#tab-client, #tab-emploi, #tab-recrut, #tab-presta {
-  background: #14100A !important;
-  color: #FCE0A8 !important;
-}
-#page-fonctionnement button,
-#tab-client button, #tab-emploi button, #tab-recrut button, #tab-presta button {
-  background: rgba(255,255,255,0.04) !important;
-  color: #FCE0A8 !important;
-  border-color: rgba(232,148,10,0.15) !important;
-}
-#page-fonctionnement button:hover,
-#tab-client button:hover, #tab-emploi button:hover, #tab-recrut button:hover, #tab-presta button:hover {
-  border-color: #E8940A !important;
-}
+/* Fonctionnement page : overrides boutons/sections legacy retirés
+   (refonte premium 2026-07-20 — boutons stylés nativement, les !important
+   cassaient l'état actif des onglets posé en inline par switchFonctTab) */
 
 /* À propos page sections */
 #page-apropos section {
@@ -6566,32 +6551,9 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ── COMMENT ÇA MARCHE ───────────────────────── */
-#page-fonctionnement { background: #0A0A0A !important; }
-#page-fonctionnement section {
-  background: transparent !important;
-  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-}
-#page-fonctionnement h2 {
-  color: #FFFFFF !important;
-  font-family: 'DM Serif Display', serif !important;
-  font-size: clamp(24px, 4vw, 40px) !important;
-}
-#page-fonctionnement h3 {
-  color: #E8940A !important;
-  font-family: 'Geist Mono', monospace !important;
-  font-size: 11px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1.5px !important;
-}
-#page-fonctionnement p { color: rgba(255,255,255,0.55) !important; }
-#page-fonctionnement .fonct-step,
-#page-fonctionnement [class*="step-card"],
-#page-fonctionnement [class*="fonct-card"] {
-  background: #161616 !important;
-  border: 1px solid rgba(232,148,10,0.1) !important;
-  border-top: 3px solid #E8940A !important;
-  border-radius: 12px !important;
-}
+/* Overrides legacy retirés (refonte premium 2026-07-20) : la page est
+   nativement Nuit (#14100A), typographiée en classes wzf-*, plus rien
+   à écraser en !important ici. */
 
 /* ── NOTRE HISTOIRE ──────────────────────────── */
 #page-apropos, #page-a-propos { background: #0A0A0A !important; }
@@ -8407,4 +8369,243 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 }
 @media (prefers-reduced-motion:reduce){
   a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover { transform:none; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE COMMENT ÇA MARCHE — refonte premium 2026-07-20 (Fable)
+   Même langage que l'accueil : eyebrows mono numérotés, titres
+   DM Serif + accent or italique, cartes premium, reveals sobres.
+   Charte Nuit verrouillée : #14100A / #1E180E / #FCE0A8 / #E8940A.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ---------- Hero ---------- */
+.wzf-hero {
+  position:relative; background:#14100A; overflow:hidden;
+  padding:clamp(72px,10vw,120px) 0 clamp(48px,6vw,72px);
+}
+.wzf-hero::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 62% 72% at 50% 0%, rgba(232,148,10,.13), transparent 70%);
+}
+.wzf-grain {
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wzf-hero .container { position:relative; z-index:2; text-align:center; }
+.wzf-h1 {
+  font-family:'DM Serif Display',serif; font-weight:400;
+  font-size:clamp(34px,5.6vw,60px); line-height:1.08; letter-spacing:-.01em;
+  color:#FCE0A8; margin:0 auto 18px; max-width:840px;
+}
+.wzf-h1 em { color:#E8940A; font-style:italic; }
+.wzf-h1 em::after { display:none; } /* même choix que le hero accueil : pas de soulignement décoratif global */
+.wzf-hero-sub {
+  font-family:'Geist',sans-serif; font-size:16px; line-height:1.75;
+  color:rgba(252,224,168,.72); max-width:620px; margin:0 auto 14px;
+}
+.wzf-hero-note {
+  font-family:'Geist Mono',monospace; font-size:12px; letter-spacing:.06em;
+  color:rgba(252,224,168,.5); margin:0 auto;
+}
+
+/* ---------- Sous-titres / stats mono ---------- */
+.wzf-sub {
+  font-family:'Geist',sans-serif; font-size:15px; line-height:1.75;
+  color:rgba(252,224,168,.65); max-width:620px; margin:0 auto;
+}
+.wzf-mono-stats {
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 14px;
+  font-family:'Geist Mono',monospace; font-size:12px;
+  color:rgba(252,224,168,.55); line-height:1.6; margin:16px auto 0;
+}
+.wzf-mono-stats .st { color:#E8940A; font-weight:700; }
+.wzf-mono-stats .sep { opacity:.3; }
+
+/* ---------- Onglets ---------- */
+.wzf-tabs-intro { background:#14100A; padding:clamp(40px,6vw,64px) 0 8px; }
+.wzf-tabs { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.wzf-tab {
+  padding:11px 22px; border-radius:999px; border:1.5px solid rgba(232,148,10,.25);
+  font-family:'Geist',sans-serif; font-weight:700; font-size:14px; cursor:pointer;
+  transition:transform .25s cubic-bezier(.22,.7,.28,1), border-color .25s, background .25s, color .25s;
+}
+.wzf-tab:hover { transform:translateY(-1px); }
+
+/* ---------- Panneaux d'onglets + sections ---------- */
+.wzf-pane { background:#14100A; padding:clamp(48px,7vw,80px) 0; }
+.wzf-pane-head { text-align:center; max-width:660px; margin:0 auto 44px; }
+.wzf-pane-head .wz-h2 { margin-bottom:12px; }
+
+/* ---------- Cartes premium ---------- */
+.wzf-steps {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px; max-width:980px; margin:0 auto;
+}
+.wzf-card {
+  position:relative; overflow:hidden;
+  background:linear-gradient(160deg,#26200F 0%,#1E180E 60%);
+  border:1px solid rgba(252,224,168,.12); border-radius:18px;
+  padding:26px 24px;
+  transition:transform .35s cubic-bezier(.22,.7,.28,1), border-color .35s ease, box-shadow .35s ease;
+}
+.wzf-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,#E8940A 35%,#f5b13d 55%,transparent);
+  opacity:0; transition:opacity .35s ease;
+}
+.wzf-card:hover {
+  transform:translateY(-4px); border-color:rgba(232,148,10,.35);
+  box-shadow:0 22px 50px -20px rgba(0,0,0,.8), 0 0 50px -26px rgba(232,148,10,.4);
+}
+.wzf-card:hover::before { opacity:1; }
+.wzf-card-hl { border-color:rgba(232,148,10,.4); background:linear-gradient(160deg,rgba(232,148,10,.1),#1E180E 65%); }
+.wzf-card-hl::before { opacity:.7; }
+.wzf-step-num {
+  display:flex; align-items:center; gap:10px;
+  font-family:'Geist Mono',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.2em; text-transform:uppercase; color:#E8940A; margin-bottom:12px;
+}
+.wzf-step-num::after { content:''; flex:1; height:1px; background:rgba(232,148,10,.25); }
+.wzf-card h3 { font-family:'Geist',sans-serif; font-weight:700; font-size:17px; color:#FCE0A8; margin:0 0 8px; }
+.wzf-card p { font-family:'Geist',sans-serif; font-size:13.5px; line-height:1.7; color:rgba(252,224,168,.62); margin:0; }
+
+/* ---------- Bandeau info + CTAs ---------- */
+.wzf-strip {
+  max-width:760px; margin:36px auto 0; text-align:center;
+  background:rgba(232,148,10,.07); border:1px solid rgba(232,148,10,.25);
+  border-radius:14px; padding:16px 22px;
+  font-family:'Geist',sans-serif; font-size:14px; line-height:1.7; color:#FCE0A8;
+}
+.wzf-strip strong { color:#E8940A; }
+.wzf-ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:36px; }
+
+/* ---------- Onglet prestataire : flow + Sandy ---------- */
+.wzf-presta-grid {
+  display:grid; grid-template-columns:1.05fr .95fr; gap:48px;
+  align-items:center; max-width:1020px; margin:0 auto;
+}
+.wzf-flow { display:flex; flex-direction:column; gap:18px; }
+.wzf-flow-item { display:flex; gap:16px; align-items:flex-start; }
+.wzf-flow-num {
+  width:40px; height:40px; border-radius:12px; flex-shrink:0;
+  background:rgba(232,148,10,.12); border:1px solid rgba(232,148,10,.3);
+  color:#E8940A; display:flex; align-items:center; justify-content:center;
+  font-family:'Geist Mono',monospace; font-weight:700; font-size:15px;
+}
+.wzf-flow-item h4 { font-family:'Geist',sans-serif; font-weight:700; font-size:15.5px; color:#FCE0A8; margin:0 0 4px; }
+.wzf-flow-item p { font-family:'Geist',sans-serif; font-size:13.5px; line-height:1.65; color:rgba(252,224,168,.62); margin:0; }
+.wzf-flow-hl {
+  background:rgba(232,148,10,.06); border:1px solid rgba(232,148,10,.25);
+  border-radius:14px; padding:16px;
+}
+.wzf-flow-hl .wzf-flow-num { background:#E8940A; color:#14100A; }
+
+/* ---------- Section Pro + plans ---------- */
+.wzf-pro {
+  background:linear-gradient(180deg,#14100A,#1E180E 45%,#14100A);
+  padding:clamp(56px,8vw,96px) 0; position:relative; overflow:hidden;
+}
+.wzf-pro::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 50% 60% at 80% 20%, rgba(232,148,10,.07), transparent 70%);
+}
+.wzf-pro .container { position:relative; z-index:1; }
+.wzf-plans-section { background:#14100A; padding:clamp(56px,8vw,96px) 0; }
+.wzf-plans {
+  display:grid; grid-template-columns:1fr 1fr; gap:24px;
+  max-width:920px; margin:0 auto 36px; align-items:start;
+}
+.wzf-plan { border-radius:20px; padding:34px 28px; }
+.wzf-plan-free { background:rgba(255,255,255,.04); border:1.5px solid rgba(252,224,168,.12); }
+.wzf-plan-pro {
+  background:linear-gradient(160deg,rgba(232,148,10,.14),rgba(232,148,10,.04) 70%);
+  border:2px solid #E8940A; position:relative;
+  box-shadow:0 24px 60px -24px rgba(232,148,10,.35);
+}
+.wzf-plan-flag {
+  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  background:linear-gradient(90deg,#E8940A,#f5b13d); color:#14100A;
+  font-family:'Geist Mono',monospace; font-size:10px; font-weight:800;
+  letter-spacing:.14em; padding:5px 16px; border-radius:999px; white-space:nowrap;
+}
+.wzf-plan h3 { font-family:'DM Serif Display',serif; font-weight:400; font-size:26px; color:#FCE0A8; margin:0; }
+.wzf-plan-price { font-family:'DM Serif Display',serif; font-size:42px; color:#E8940A; line-height:1.1; margin:8px 0 4px; }
+.wzf-plan-price small { font-size:17px; }
+.wzf-plan-note { font-family:'Geist Mono',monospace; font-size:11px; color:rgba(252,224,168,.5); margin-bottom:20px; }
+.wzf-plan-list { display:flex; flex-direction:column; gap:9px; text-align:left; }
+.wzf-plan-list .ok, .wzf-plan-list .off {
+  display:flex; gap:9px; font-family:'Geist',sans-serif; font-size:13.5px; line-height:1.55;
+}
+.wzf-plan-list .ok { color:rgba(252,224,168,.78); }
+.wzf-plan-list .ok span { color:#E8940A; font-weight:700; }
+.wzf-plan-list .off { color:rgba(252,224,168,.32); }
+.wzf-plan-sep { height:1px; background:rgba(252,224,168,.08); margin:6px 0; }
+
+/* ---------- Paiement Mobile Money ---------- */
+.wzf-pay { background:#14100A; padding:clamp(56px,8vw,88px) 0; border-top:1px solid rgba(232,148,10,.08); }
+.wzf-pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; max-width:980px; margin:0 auto; }
+.wzf-pay-chips { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+.wzf-pay-chip {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(252,224,168,.14);
+  border-radius:999px; padding:9px 16px;
+  font-family:'Geist',sans-serif; font-size:13px; font-weight:700; color:#FCE0A8;
+}
+.wzf-pay-chip small { font-family:'Geist Mono',monospace; font-size:10px; color:rgba(252,224,168,.45); font-weight:500; }
+
+/* ---------- Déblocage Bourse ---------- */
+.wzf-unlock {
+  background:linear-gradient(180deg,#14100A,#1E180E 50%,#14100A);
+  padding:clamp(56px,8vw,96px) 0; position:relative; overflow:hidden;
+}
+.wzf-unlock::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 55% 60% at 50% 100%, rgba(232,148,10,.07), transparent 70%);
+}
+.wzf-unlock .container { position:relative; z-index:1; }
+
+/* ---------- FAQ premium ---------- */
+.wzf-faq-section { background:#14100A; padding:clamp(56px,8vw,88px) 0; }
+.wzf-faq { display:flex; flex-direction:column; gap:10px; }
+.wzf-faq .faq-item {
+  background:linear-gradient(160deg,#26200F 0%,#1E180E 70%);
+  border:1px solid rgba(232,148,10,.18); border-radius:14px;
+  padding:16px 20px; transition:border-color .3s ease;
+}
+.wzf-faq .faq-item:hover { border-color:rgba(232,148,10,.45); }
+.wzf-faq .faq-item:last-child { border-bottom:1px solid rgba(232,148,10,.18); }
+.wzf-faq .faq-q { font-family:'Geist',sans-serif; font-size:15px; }
+.wzf-faq .faq-r p { margin:0 0 8px; }
+.wzf-faq .faq-r p:last-child { margin-bottom:0; }
+.wzf-faq .faq-r strong { color:#E8940A; }
+
+/* ---------- CTA final ---------- */
+.wzf-final {
+  position:relative; overflow:hidden;
+  background:linear-gradient(180deg,#14100A,#1E180E 55%,#14100A);
+  padding:clamp(64px,9vw,104px) 0;
+}
+.wzf-final::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 60% 70% at 50% 30%, rgba(232,148,10,.1), transparent 70%);
+}
+
+/* ---------- Responsive ---------- */
+@media(max-width:900px){
+  .wzf-presta-grid { grid-template-columns:1fr; gap:36px; }
+  .wzf-pay-grid { grid-template-columns:1fr; gap:32px; }
+}
+@media(max-width:820px){
+  .wzf-plans { grid-template-columns:1fr; }
+}
+@media(max-width:560px){
+  .wzf-card { padding:22px 18px; }
+  .wzf-plan { padding:28px 20px; }
+  .wz-chat { max-width:100%; }
+}
+
+/* ---------- prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  .wzf-card, .wzf-card:hover, .wzf-tab, .wzf-tab:hover { transform:none !important; transition:none !important; }
 }

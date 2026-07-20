@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260720e">
+<link rel="stylesheet" href="/style.css?v=20260720f">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6583,248 +6583,217 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260720e" defer></script>
+<script src="/app.js?v=20260720f" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
 ══════════════════════════════════════════ -->
 <div id="page-fonctionnement" class="page">
 
-  <!-- HERO -->
-  <section style="background:var(--noir);padding:80px 0 60px;position:relative;overflow:hidden;">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 30% 50%,rgba(232,148,10,0.15) 0%,transparent 70%);"></div>
-    <div class="container" style="position:relative;z-index:1;text-align:center;">
-      <div class="badge" style="background:rgba(232,148,10,0.2);color:var(--or);margin-bottom:20px;">Simple. Gratuit. En 2 minutes.</div>
-      <h1 style="color:white;font-size:clamp(36px,5vw,58px);margin-bottom:20px;max-width:800px;margin-left:auto;margin-right:auto;">
-        En 2 minutes,<br><em style="color:var(--or);">tu existes en ligne.</em>
-      </h1>
-      <p style="color:rgba(255,255,255,0.65);font-size:18px;max-width:560px;margin:0 auto 36px;">
-        Pas de carte bancaire. Pas de technicien. Juste ton téléphone et ton métier — et les clients de Cotonou et de Lomé peuvent te trouver.
-      </p>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary btn-lg" onclick="showPage('search')">Trouver un pro</button>
-        <button class="btn" style="background:rgba(255,255,255,0.1);color:white;border:1.5px solid rgba(255,255,255,0.2);" onclick="showPage('inscription')">Rejoindre comme prestataire</button>
+  <!-- ══ HERO : Comment ça marche (premium Nuit) ══ -->
+  <section class="wzf-hero">
+    <div class="wzf-grain" aria-hidden="true"></div>
+    <div class="container">
+      <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">Comment ça marche</div>
+      <h1 class="wzf-h1">En 2 minutes,<br><em>ton travail devient trouvable.</em></h1>
+      <p class="wzf-hero-sub">Des clients paient chaque jour pour ce que tu sais faire. La seule question, c'est s'ils te trouvent toi, ou quelqu'un d'autre. Cette page t'explique exactement comment WOZALI te met sur leur chemin.</p>
+      <p class="wzf-hero-note">Pas de carte bancaire · Pas de paperasse · Ton téléphone et ton métier</p>
+      <div class="wzf-ctas" style="margin-top:28px;">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('inscription')">✦ Créer mon profil gratuit</button>
+        <button class="btn btn-secondary btn-lg" onclick="showPage('search')">Trouver un pro →</button>
       </div>
     </div>
   </section>
 
-  <!-- ONGLETS COMMENT CA MARCHE -->
-  <section style="background:#14100A;padding:56px 0 0;">
+  <!-- ══ 01 · ONGLETS ══ -->
+  <section class="wzf-tabs-intro">
     <div class="container">
-      <div style="text-align:center;margin-bottom:32px;">
-        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,40px);font-weight:900;color:#FCE0A8;">Comment ça marche ?</h2>
-        <p style="color:rgba(252, 224, 168,0.55);font-size:16px;margin-top:8px;">Choisis ton profil — on t'explique tout en 60 secondes.</p>
+      <div class="wzf-pane-head wz-reveal" style="margin-bottom:28px;">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">01 · Choisis ton profil</div>
+        <h2 class="wz-h2">Quatre façons d'utiliser <em class="wz-gold-it">WOZALI.</em></h2>
+        <p class="wzf-sub">Client, chercheur d'emploi, recruteur ou prestataire : choisis ton cas, tout s'explique en 60 secondes.</p>
       </div>
-      <!-- Onglets -->
-      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:36px;flex-wrap:wrap;">
-        <button id="tab-btn-client" onclick="switchFonctTab('client')" style="padding:10px 22px;border-radius:100px;border:2px solid #E8940A;background:#E8940A;color:#080808;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">🔍 Je cherche un pro</button>
-        <button id="tab-btn-emploi" onclick="switchFonctTab('emploi')" style="padding:10px 22px;border-radius:100px;border:2px solid rgba(232,148,10,0.25);background:rgba(255,255,255,0.06);color:rgba(252,224,168,0.65);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">🎯 Je cherche du travail</button>
-        <button id="tab-btn-recrut" onclick="switchFonctTab('recrut')" style="padding:10px 22px;border-radius:100px;border:2px solid rgba(232,148,10,0.25);background:rgba(255,255,255,0.06);color:rgba(252,224,168,0.65);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">👔 Je recrute</button>
-        <button id="tab-btn-presta" onclick="switchFonctTab('presta')" style="padding:10px 22px;border-radius:100px;border:2px solid rgba(232,148,10,0.25);background:rgba(255,255,255,0.06);color:rgba(252,224,168,0.65);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s;">🔧 Je suis prestataire</button>
+      <div class="wzf-tabs">
+        <button id="tab-btn-client" class="wzf-tab" onclick="switchFonctTab('client')" style="background:#E8940A;color:#080808;border-color:#E8940A;">Je cherche un pro</button>
+        <button id="tab-btn-emploi" class="wzf-tab" onclick="switchFonctTab('emploi')" style="background:rgba(255,255,255,0.06);color:rgba(252,224,168,0.65);border-color:rgba(232,148,10,0.25);">Je cherche du travail</button>
+        <button id="tab-btn-recrut" class="wzf-tab" onclick="switchFonctTab('recrut')" style="background:rgba(255,255,255,0.06);color:rgba(252,224,168,0.65);border-color:rgba(232,148,10,0.25);">Je recrute</button>
+        <button id="tab-btn-presta" class="wzf-tab" onclick="switchFonctTab('presta')" style="background:rgba(255,255,255,0.06);color:rgba(252,224,168,0.65);border-color:rgba(232,148,10,0.25);">Je suis prestataire</button>
       </div>
     </div>
   </section>
 
-  <!-- POUR LES CLIENTS -->
-  <section id="tab-client" class="section" style="background:white;">
+  <!-- ══ ONGLET CLIENTS ══ -->
+  <section id="tab-client" class="wzf-pane">
     <div class="container">
-      <div style="text-align:center;margin-bottom:52px;">
-        <div class="badge badge-vert" style="margin-bottom:14px;">Pour les clients</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;">Besoin d'un pro ? <em style="color:#E8940A;">Trouvé en 60 secondes.</em></h2>
-        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:500px;margin-left:auto;margin-right:auto;">73% des habitants trouvent encore leurs prestataires par bouche-à-oreille. Résultat : tu tombes sur le cousin du cousin, tu n'as aucun avis, aucun prix, aucune garantie. Sur WOZALI : tu filtres par quartier, tu vois les vraies photos de réalisations, tu lis les avis d'autres clients de Lomé — et tu contactes directement sur WhatsApp. En 60 secondes.</p>
+      <div class="wzf-pane-head">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">Pour les clients</div>
+        <h2 class="wz-h2">Besoin d'un pro ? <em class="wz-gold-it">Trouvé en 60 secondes.</em></h2>
+        <p class="wzf-sub">Fini le cousin du cousin qu'on te recommande sans photo, sans prix, sans avis. Sur WOZALI, tu compares les vrais profils de ton quartier et tu contactes direct.</p>
       </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">
-        <div style="background:var(--blanc);border-radius:20px;padding:32px;border:1.5px solid rgba(232,148,10,0.1);">
-          <div style="width:52px;height:52px;background:#E8940A;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">🔍</div>
-          <div style="font-size:12px;font-weight:700;color:#E8940A;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Étape 1</div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;margin-bottom:10px;">Tu cherches par métier</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Coiffeur à Akpakpa ou Adidogomé ? Électricien à Menontin ou Tokoin disponible maintenant ? Tu filtres par métier, quartier et disponibilité. Tu vois les profils, les photos, les avis d'autres clients togolais.</p>
+      <div class="wzf-steps">
+        <div class="wzf-card wz-reveal">
+          <div class="wzf-step-num">Étape 01</div>
+          <h3>Cherche par métier et quartier</h3>
+          <p>Coiffeuse à Akpakpa, électricien à Tokoin, disponible maintenant. Tu filtres, tu vois les photos de réalisations, les avis d'autres clients et le Score WOZALI de chaque profil.</p>
         </div>
-        <div style="background:var(--blanc);border-radius:20px;padding:32px;border:1.5px solid rgba(232,148,10,0.1);">
-          <div style="width:52px;height:52px;background:var(--or);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">💬</div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Étape 2</div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;margin-bottom:10px;">Tu contactes direct sur WhatsApp</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Un seul clic. Le message est déjà rédigé pour toi. Le prestataire reçoit ton WhatsApp, vous discutez du détail, vous fixez le rendez-vous. Simple comme ça.</p>
+        <div class="wzf-card wz-reveal" data-d="1">
+          <div class="wzf-step-num">Étape 02</div>
+          <h3>Contacte direct sur WhatsApp</h3>
+          <p>Un clic, le message est déjà rédigé. Vous discutez du détail et du prix entre vous, sans intermédiaire. Tu fixes le rendez-vous.</p>
         </div>
-        <div style="background:var(--blanc);border-radius:20px;padding:32px;border:1.5px solid rgba(232,148,10,0.1);">
-          <div style="width:52px;height:52px;background:#E8940A;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;">⭐</div>
-          <div style="font-size:12px;font-weight:700;color:#E8940A;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Étape 3</div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;margin-bottom:10px;">Tu laisses un avis</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Après la prestation, tu notes le professionnel. Tu aides les autres clients à choisir en confiance. C'est comme ça qu'on construit ensemble une économie locale plus forte.</p>
+        <div class="wzf-card wz-reveal" data-d="2">
+          <div class="wzf-step-num">Étape 03</div>
+          <h3>Laisse un avis</h3>
+          <p>Après la prestation, tu notes le professionnel. Ton avis fait monter les sérieux et protège les prochains clients. Le mérite devient visible.</p>
         </div>
+      </div>
+      <div class="wzf-strip wz-reveal"><strong>Zéro commission pour les clients.</strong> Tu paies uniquement le prestataire, directement, comme tu veux.</div>
+      <div class="wzf-ctas">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('search')">Trouver un pro maintenant →</button>
       </div>
     </div>
   </section>
 
-  <!-- SÉPARATEUR VISUEL -->
-  <div style="background:#1E180E;padding:48px 0;border-top:1px solid rgba(232,148,10,0.18);border-bottom:1px solid rgba(232,148,10,0.18);">
-    <div class="container" style="text-align:center;">
-      <p style="font-size:18px;font-weight:700;color:#E8940A;">🌍 WOZALI, c'est zéro commission pour les clients. Tu paies uniquement le prestataire — directement, comme tu veux.</p>
-    </div>
-  </div>
-
-  <!-- POUR LES CHERCHEURS D'EMPLOI -->
-  <section id="tab-emploi" class="section" style="background:var(--blanc);display:none;">
+  <!-- ══ ONGLET CHERCHEURS D'EMPLOI ══ -->
+  <section id="tab-emploi" class="wzf-pane" style="display:none;">
     <div class="container">
-      <div style="text-align:center;margin-bottom:52px;">
-        <div class="badge" style="background:rgba(232,148,10,0.15);color:#E8940A;margin-bottom:14px;">Pour les chercheurs d'emploi</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(24px,3.5vw,36px);font-weight:900;">T'as le diplôme.<br><em style="color:#E8940A;">Fini d'attendre qu'on te remarque.</em></h2>
-        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">Au Bénin comme au Togo, 80% des postes ne sont jamais publiés officiellement. Ils se donnent par réseau, par qui tu connais. Ton profil WOZALI parle à ta place — avant même que tu décroches un téléphone.</p>
+      <div class="wzf-pane-head">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">Pour les chercheurs d'emploi</div>
+        <h2 class="wz-h2">T'as les compétences.<br><em class="wz-gold-it">Fini d'attendre qu'on te rappelle.</em></h2>
+        <p class="wzf-sub">Des postes se pourvoient chaque semaine à Cotonou et à Lomé. La plupart ne sont jamais publiés : ils passent par réseau. Ton profil WOZALI parle pour toi, avant même le premier appel.</p>
+        <p class="wzf-mono-stats"><span><span class="st">80%</span> des contrats passent par réseau</span><span class="sep">·</span><span><span class="st">46%</span> de chômage chez les jeunes diplômés</span></p>
       </div>
-
-      <!-- Stats douleur -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;max-width:700px;margin:0 auto 48px;">
-        <div style="background:white;border-radius:16px;padding:20px;text-align:center;border:1.5px solid rgba(124,58,237,0.1);">
-          <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#E8940A;">46%</div>
-          <div style="font-size:13px;color:var(--gris);margin-top:4px;">des jeunes sans emploi et en recherche active</div>
+      <div class="wzf-steps">
+        <div class="wzf-card wz-reveal">
+          <div class="wzf-step-num">Étape 01</div>
+          <h3>Crée ton profil, ton vrai CV</h3>
+          <p>Photos de tes réalisations, avis de vrais clients, Score WOZALI sur 100. Pas un PDF que personne ne lit : un profil vivant qui prouve ce que tu vaux.</p>
         </div>
-        <div style="background:white;border-radius:16px;padding:20px;text-align:center;border:1.5px solid rgba(124,58,237,0.1);">
-          <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#E8940A;">80%</div>
-          <div style="font-size:13px;color:var(--gris);margin-top:4px;">des offres jamais publiées — distribuées uniquement par réseau</div>
+        <div class="wzf-card wz-reveal" data-d="1">
+          <div class="wzf-step-num">Étape 02</div>
+          <h3>Active le Mode Emploi</h3>
+          <p>Un seul bouton dans ton espace. Ton profil devient visible pour les recruteurs qui cherchent exactement ton métier dans ta zone.</p>
         </div>
-        <div style="background:white;border-radius:16px;padding:20px;text-align:center;border:1.5px solid rgba(124,58,237,0.1);">
-          <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#E8940A;">1 clic</div>
-          <div style="font-size:13px;color:var(--gris);margin-top:4px;">pour postuler avec ton profil complet — sans CV Word</div>
+        <div class="wzf-card wz-reveal" data-d="2">
+          <div class="wzf-step-num">Étape 03</div>
+          <h3>Postule en 1 clic</h3>
+          <p>CDI, CDD, missions, stages à Cotonou et Lomé. Tu cliques Postuler, ton profil complet part chez le recruteur. Pas de lettre formatée, juste toi.</p>
         </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:920px;margin:0 auto;">
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
-          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">📱</div>
-          <div style="font-size:12px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 1</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Crée ton profil — ton vrai CV</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Photos de tes réalisations. Avis de vrais clients. Score WOZALI sur 100. Pas un PDF que personne ne lit — un profil vivant qui prouve ce que tu vaux avant même de parler.</p>
+        <div class="wzf-card wz-reveal" data-d="1">
+          <div class="wzf-step-num">En plus</div>
+          <h3>Suis tes candidatures en temps réel</h3>
+          <p>Chaque candidature avec son statut : En attente, Vue, Retenue, Refusée. Tu sais exactement où tu en es. Fini l'attente dans le vide.</p>
         </div>
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
-          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">🎯</div>
-          <div style="font-size:12px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 2</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Active le Mode Emploi</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Un seul toggle dans ton dashboard. Ton profil apparaît dans les recherches des recruteurs. Tu deviens visible pour ceux qui cherchent exactement ton métier dans ta zone.</p>
-        </div>
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
-          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">💼</div>
-          <div style="font-size:12px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 3</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Postule en 1 clic sur les offres</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Des dizaines d'offres CDI, CDD, missions, stages à Cotonou et Lomé. Tu cliques "Postuler" — ton profil complet est envoyé au recruteur. Pas de CV Word, pas de lettre formatée. Juste toi, tel que tu es vraiment.</p>
-        </div>
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(124,58,237,0.1);">
-          <div style="width:52px;height:52px;background:#ede9fe;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">📋</div>
-          <div style="font-size:12px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">En plus</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Suis tes candidatures en temps réel</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Dans ton dashboard : chaque candidature avec son statut — En attente, Vue, Retenue, Refusée. Tu sais exactement où tu en es avec chaque recruteur. Fini l'attente dans le vide.</p>
-        </div>
-        <div style="background:white;border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.25);">
-          <div style="width:52px;height:52px;background:rgba(232,148,10,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">🛡️</div>
-          <div style="font-size:12px;font-weight:700;color:#E8940A;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Ta protection</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Tu n'es pas seul(e) face à l'abus</h3>
+        <div class="wzf-card wzf-card-hl wz-reveal" data-d="2">
+          <div class="wzf-step-num">Ta protection</div>
+          <h3>Tu n'es pas seul(e) face à l'abus</h3>
+          <p>Fausse offre, recruteur qui exige de l'argent, comportement déplacé : tu signales en un clic depuis l'offre ou la candidature. Un recruteur signalé perd sa visibilité sur WOZALI, et les recruteurs vérifiés portent un badge.</p>
         </div>
       </div>
-      <div style="text-align:center;margin-top:40px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary btn-lg" onclick="showPage('emploi')">💼 Voir les offres d'emploi →</button>
-        <button class="btn btn-secondary btn-lg" onclick="showPage('inscription')">Créer mon profil — gratuit</button>
+      <div class="wzf-ctas">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('emploi')">Voir les offres d'emploi →</button>
+        <button class="btn btn-secondary btn-lg" onclick="showPage('inscription')">Créer mon profil gratuit</button>
       </div>
     </div>
   </section>
 
-  <!-- POUR LES RECRUTEURS -->
-  <section id="tab-recrut" class="section" style="background:white;display:none;">
+  <!-- ══ ONGLET RECRUTEURS ══ -->
+  <section id="tab-recrut" class="wzf-pane" style="display:none;">
     <div class="container">
-      <div style="text-align:center;margin-bottom:52px;">
-        <div class="badge badge-or" style="margin-bottom:14px;">Pour les recruteurs</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(24px,3.5vw,36px);font-weight:900;">Fini de recruter à l'aveugle. <em style="color:var(--or);">Tu vois le vrai profil avant même d'appeler.</em></h2>
-        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;">Tu as besoin de quelqu'un ? Avant WOZALI, tu postes sur un groupe WhatsApp, tu reçois 50 messages, tu passes 2 jours à trier — et tu finis par prendre quelqu'un au hasard. Sur WOZALI, tu vois les bons profils directement — vérifiés, notés par de vrais clients, dans ta zone.</p>
+      <div class="wzf-pane-head">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">Pour les recruteurs</div>
+        <h2 class="wz-h2">Fini de recruter à l'aveugle.<br><em class="wz-gold-it">Tu vois le vrai profil avant d'appeler.</em></h2>
+        <p class="wzf-sub">Un poste sur un groupe WhatsApp, 50 messages, deux jours de tri, et au final un pari. Sur WOZALI, tu vois directement les profils notés par de vrais clients, dans ta zone.</p>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;max-width:920px;margin:0 auto;">
-        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.15);">
-          <div style="width:52px;height:52px;background:var(--or-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">📢</div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 1</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Publie ton offre en 3 minutes.</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Titre. Description. Localisation. Type de contrat.<br>Visible par tous les membres au Bénin et au Togo immédiatement.</p>
+      <div class="wzf-steps">
+        <div class="wzf-card wz-reveal">
+          <div class="wzf-step-num">Étape 01</div>
+          <h3>Publie ton offre en 3 minutes</h3>
+          <p>Titre, description, quartier, type de contrat. Ton offre est visible par tous les membres au Bénin et au Togo, immédiatement.</p>
         </div>
-        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.15);">
-          <div style="width:52px;height:52px;background:var(--or-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">📋</div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 2</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">WOZALI Match fait le travail.</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Dans les 5 minutes, WOZALI Match identifie les profils qui correspondent à tes besoins.<br>Tu reçois une liste de candidats qualifiés.</p>
+        <div class="wzf-card wz-reveal" data-d="1">
+          <div class="wzf-step-num">Étape 02</div>
+          <h3>WOZALI Match trie pour toi</h3>
+          <p>Les profils qui correspondent à ton besoin remontent d'eux-mêmes : Score, avis, photos, disponibilité. Tu reçois des candidats qualifiés, pas une pile de messages.</p>
         </div>
-        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.15);">
-          <div style="width:52px;height:52px;background:var(--or-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">✅</div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Étape 3</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Contacte. Recrute. En 2 minutes.</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Tu consultes les profils recommandés.<br>Tu vois les avis, la note, les photos de réalisations.<br>Tu contactes directement sur WhatsApp.</p>
+        <div class="wzf-card wz-reveal" data-d="2">
+          <div class="wzf-step-num">Étape 03</div>
+          <h3>Contacte, rencontre, recrute</h3>
+          <p>Tu consultes les profils recommandés, tu contactes direct sur WhatsApp. Zéro commission sur les embauches, zéro agence.</p>
         </div>
-        <div style="background:var(--blanc);border-radius:20px;padding:28px;border:1.5px solid rgba(232,148,10,0.15);">
-          <div style="width:52px;height:52px;background:var(--or-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;">⭐</div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">La différence</div>
-          <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Des profils vérifiés par de vrais avis</h3>
-          <p style="font-size:14px;color:var(--gris);line-height:1.7;">Sur WOZALI, chaque candidat a des avis de vrais clients sur 4 critères : ponctualité, qualité, communication, rapport qualité/prix. Tu sais qui sera fiable avant même de lui parler. Tu recrutes avec confiance, pas avec des espoirs.</p>
+        <div class="wzf-card wzf-card-hl wz-reveal" data-d="1">
+          <div class="wzf-step-num">La différence</div>
+          <h3>Des profils vérifiés par de vrais avis</h3>
+          <p>Chaque candidat est noté par de vrais clients sur 4 critères : ponctualité, qualité, communication, rapport qualité-prix. Tu sais qui sera fiable avant même de lui parler.</p>
         </div>
       </div>
-      <div style="background:var(--or-light);border-radius:16px;padding:20px;max-width:700px;margin:36px auto 0;text-align:center;border:1.5px solid rgba(232,148,10,0.2);">
-        <p style="font-size:15px;font-weight:700;color:#92400e;">⭐ Fonctionnalité Plan Pro — 2 500 FCFA/mois · Aucune commission sur les embauches · Résiliable à tout moment</p>
-      </div>
-      <div style="text-align:center;margin-top:20px;">
-        <button class="btn btn-or btn-lg" onclick="showDashSection('recrut-publier');showPage('dashboard')">👔 Publier une offre maintenant →</button>
+      <div class="wzf-strip wz-reveal"><strong>Fonctionnalité du Plan Pro</strong> · 2 500 FCFA/mois · Aucune commission sur les embauches · Résiliable à tout moment</div>
+      <div class="wzf-ctas">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showDashSection('recrut-publier');showPage('dashboard')">Publier une offre maintenant →</button>
       </div>
     </div>
   </section>
 
-  <!-- POUR LES PRESTATAIRES -->
-  <section id="tab-presta" class="section" style="background:var(--blanc);display:none;">
+  <!-- ══ ONGLET PRESTATAIRES ══ -->
+  <section id="tab-presta" class="wzf-pane" style="display:none;">
     <div class="container">
-      <div style="text-align:center;margin-bottom:52px;">
-        <div class="badge badge-or" style="margin-bottom:14px;">Pour les prestataires</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;">Tu as un métier ? <em style="color:var(--or);">Il est temps que le Bénin et le Togo le sachent.</em></h2>
-        <p style="color:var(--gris);font-size:16px;margin-top:12px;max-width:520px;margin-left:auto;margin-right:auto;">92% des prestataires de la sous-région ont manqué de revenus dans l'année. Pas parce qu'ils ne travaillaient pas — parce que personne ne les trouvait. WOZALI règle ça.</p>
+      <div class="wzf-pane-head">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">Pour les prestataires</div>
+        <h2 class="wz-h2">Tu as un métier ?<br><em class="wz-gold-it">Fais-le travailler pour toi.</em></h2>
+        <p class="wzf-sub">Le travail ne t'a jamais manqué. Ce qui manque, c'est le client qui paie au bon moment. WOZALI met ton profil sur le chemin de ceux qui cherchent, dans ton quartier.</p>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
-        <div>
-          <div style="display:flex;flex-direction:column;gap:20px;">
-            <div style="display:flex;gap:16px;align-items:flex-start;">
-              <div style="width:44px;height:44px;background:var(--or-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;font-weight:900;color:var(--or);">1</div>
-              <div>
-                <h4 style="font-weight:800;margin-bottom:4px;">Crée ton profil. Gratuit. 2 minutes.</h4>
-                <p style="font-size:14px;color:var(--gris);line-height:1.6;">Nom. Métier. Quartier. Photo. Description. Tarifs.<br>Tu apparais immédiatement dans les résultats quand quelqu'un cherche ton métier à Cotonou ou à Lomé.</p>
-              </div>
+      <div class="wzf-presta-grid">
+        <div class="wzf-flow wz-reveal">
+          <div class="wzf-flow-item">
+            <div class="wzf-flow-num">1</div>
+            <div>
+              <h4>Crée ton profil. Gratuit. 2 minutes.</h4>
+              <p>Nom, métier, quartier, photos, tarifs. Tu apparais immédiatement dans les résultats quand quelqu'un cherche ton métier à Cotonou ou à Lomé.</p>
             </div>
-            <div style="display:flex;gap:16px;align-items:flex-start;">
-              <div style="width:44px;height:44px;background:var(--or-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;font-weight:900;color:var(--or);">2</div>
-              <div>
-                <h4 style="font-weight:800;margin-bottom:4px;">Active ta disponibilité.</h4>
-                <p style="font-size:14px;color:var(--gris);line-height:1.6;">Un simple toggle. Quand tu es disponible — les clients te trouvent.<br>Les offres qui correspondent à ton profil arrivent directement chez toi.</p>
-              </div>
+          </div>
+          <div class="wzf-flow-item">
+            <div class="wzf-flow-num">2</div>
+            <div>
+              <h4>Active ta disponibilité.</h4>
+              <p>Un simple bouton. Quand tu es disponible, les clients te trouvent, et les offres qui correspondent à ton profil arrivent directement chez toi.</p>
             </div>
-            <div style="display:flex;gap:16px;align-items:flex-start;">
-              <div style="width:44px;height:44px;background:var(--or-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;font-weight:900;color:var(--or);">3</div>
-              <div>
-                <h4 style="font-weight:800;margin-bottom:4px;">Le client te contacte sur WhatsApp.</h4>
-                <p style="font-size:14px;color:var(--gris);line-height:1.6;">Contact direct. Zéro commission. Zéro intermédiaire.<br>L'argent va directement dans ta caisse.</p>
-              </div>
+          </div>
+          <div class="wzf-flow-item">
+            <div class="wzf-flow-num">3</div>
+            <div>
+              <h4>Le client te contacte sur WhatsApp.</h4>
+              <p>Contact direct. Zéro commission, zéro intermédiaire. L'argent va directement dans ta caisse.</p>
             </div>
+          </div>
+          <div class="wzf-flow-item wzf-flow-hl">
+            <div class="wzf-flow-num">4</div>
+            <div>
+              <h4>Sandy te coache chaque jour.</h4>
+              <p>Sandy, ta coach business, regarde tes vues, tes avis, tes appels. Et chaque jour, elle te donne une chose à faire pour avoir plus de clients. Gratuite, dans ton espace. Tu ne crées pas un profil pour attendre : tu crées un profil qui progresse.</p>
+            </div>
+          </div>
+          <div style="margin-top:6px;">
+            <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('inscription')">✦ Créer mon profil gratuit</button>
           </div>
         </div>
 
-        <div style="background:white;border-radius:24px;padding:32px;box-shadow:var(--shadow-lg);">
-          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:8px;">Les chiffres qui parlent</h3>
-          <p style="font-size:14px;color:var(--gris);margin-bottom:24px;">Ce que ça change concrètement pour un prestataire à Cotonou ou Lomé</p>
-          <div style="display:flex;flex-direction:column;gap:16px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(232,148,10,0.08);border-radius:12px;">
-              <span style="font-size:14px;font-weight:600;">Nouveaux clients potentiels</span>
-              <span style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#E8940A;">×3</span>
+        <div class="wz-reveal" data-d="1" aria-hidden="true">
+          <div class="wz-chat">
+            <div class="wz-chat-head">
+              <div class="wz-chat-avatar">S</div>
+              <div>
+                <div class="wz-chat-name">Sandy</div>
+                <div class="wz-chat-role">Coach business · WOZALI</div>
+              </div>
+              <span class="wz-chat-live"><span class="wz-live-dot"></span>En ligne</span>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--or-light);border-radius:12px;">
-              <span style="font-size:14px;font-weight:600;">Avec photos de réalisations</span>
-              <span style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:var(--or);">+300%</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(232,148,10,0.08);border-radius:12px;">
-              <span style="font-size:14px;font-weight:600;">Avec lien TikTok actif</span>
-              <span style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#E8940A;">+60%</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--gris-light);border-radius:12px;">
-              <span style="font-size:14px;font-weight:600;">Coût pour commencer</span>
-              <span style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#E8940A;">0 FCFA</span>
+            <div class="wz-chat-body">
+              <div class="wz-msg wz-msg-sandy wz-msg-a1">Bonjour Kossi. <strong>9 personnes</strong> ont vu ton profil hier. Mais ta dernière photo de chantier date d'il y a un mois.</div>
+              <div class="wz-msg wz-msg-sandy wz-msg-a2">Une chose à faire aujourd'hui : ajoute la photo du portail que tu as terminé vendredi.</div>
+              <div class="wz-msg wz-msg-me wz-msg-a3">C'est fait, je viens de la mettre.</div>
+              <div class="wz-chat-day wz-msg-a4">3 jours plus tard</div>
+              <div class="wz-msg wz-msg-sandy wz-msg-a5">Un client de Tokoin t'a contacté depuis ton profil. Prochain objectif : <strong>2 avis</strong> de plus ce mois. On y va ?</div>
+              <div class="wz-typing wz-msg-a6"><span></span><span></span><span></span></div>
             </div>
           </div>
         </div>
@@ -6832,216 +6801,207 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- ══ POURQUOI PASSER PRO ══ -->
-  <section style="background:linear-gradient(135deg,#1a1408,#1a1710);padding:60px 0;border-top:1px solid rgba(255,255,255,0.05);">
+  <div class="wz-hairline"></div>
+
+  <!-- ══ 02 · POURQUOI PASSER PRO ══ -->
+  <section class="wzf-pro">
     <div class="container">
-      <div style="text-align:center;margin-bottom:40px;">
-        <div class="badge" style="background:rgba(245,158,11,0.15);color:var(--or);margin-bottom:14px;">⭐ Plan Pro — 2 500 FCFA/mois</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(24px,3.5vw,38px);font-weight:900;color:white;margin-bottom:12px;">Pourquoi passer Pro change tout</h2>
-        <p style="color:rgba(255,255,255,0.5);font-size:15px;max-width:500px;margin:0 auto;">En gros : le plan Gratuit te met en ligne. Le plan Pro te fait gagner de l'argent même quand tu dors.</p>
+      <div class="wzf-pane-head wz-reveal">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">02 · Le Plan Pro</div>
+        <h2 class="wz-h2">Le Gratuit te met en ligne.<br><em class="wz-gold-it">Le Pro te met devant.</em></h2>
+        <p class="wzf-sub">2 500 FCFA par mois. Une seule prestation supplémentaire suffit à le rembourser.</p>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:900px;margin:0 auto;">
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:24px;">
-          <div style="font-size:32px;margin-bottom:12px;">🏆</div>
-          <h4 style="color:white;font-weight:800;margin-bottom:8px;">1er dans les recherches</h4>
-          <p style="color:rgba(255,255,255,0.55);font-size:13px;line-height:1.7;">Quand un client cherche un électricien à Tokoin, tu apparais AVANT les autres. Pas en page 2. Tout en haut.</p>
+      <div class="wzf-steps" style="max-width:900px;">
+        <div class="wzf-card wz-reveal">
+          <div class="wzf-step-num">Visibilité</div>
+          <h3>Premier dans les recherches</h3>
+          <p>Quand un client cherche ton métier dans ton quartier, tu apparais avant les profils gratuits. Pas en page 2. En haut.</p>
         </div>
-        <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:18px;padding:24px;">
-          <div style="font-size:32px;margin-bottom:12px;">💰</div>
-          <h4 style="color:var(--or);font-weight:800;margin-bottom:8px;">Parrainage 40% récurrents</h4>
-          <p style="color:rgba(255,255,255,0.55);font-size:13px;line-height:1.7;">La seule feature qui peut te rapporter PLUS que ce que tu paies. 7 filleuls actifs = abonnement remboursé + bénéfice net.</p>
-          <div style="margin-top:10px;font-size:11px;color:var(--or);font-weight:700;">✓ EXCLUSIF PRO</div>
+        <div class="wzf-card wzf-card-hl wz-reveal" data-d="1">
+          <div class="wzf-step-num">Coach</div>
+          <h3>Chat en temps réel avec Sandy</h3>
+          <p>Le plan Gratuit reçoit son conseil du jour. En Pro, tu discutes avec Sandy quand tu veux : tes prix, un client difficile, ta prochaine étape.</p>
         </div>
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:24px;">
-          <div style="font-size:32px;margin-bottom:12px;">⭐</div>
-          <h4 style="color:white;font-weight:800;margin-bottom:8px;">Badge Pro visible</h4>
-          <p style="color:rgba(255,255,255,0.55);font-size:13px;line-height:1.7;">Les clients font confiance aux pros vérifiés. Le badge Pro sur ton profil, c'est comme avoir un panneau "sérieux et fiable" 24h/24.</p>
+        <div class="wzf-card wzf-card-hl wz-reveal" data-d="2">
+          <div class="wzf-step-num">Récompense</div>
+          <h3>La Bourse de Croissance</h3>
+          <p>Chaque mois, dans chaque pays qui a débloqué sa Bourse, les 10 meilleurs profils Pro gagnent un salaire. Au mérite : avis vérifiés, note, constance. Jamais au hasard.</p>
         </div>
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:24px;">
-          <div style="font-size:32px;margin-bottom:12px;">📊</div>
-          <h4 style="color:white;font-weight:800;margin-bottom:8px;">Stats & visibilité complètes</h4>
-          <p style="color:rgba(255,255,255,0.55);font-size:13px;line-height:1.7;">Combien de personnes ont vu ton profil cette semaine. Combien t'ont contacté. Tu sais exactement ce qui marche.</p>
+        <div class="wzf-card wz-reveal" data-d="3">
+          <div class="wzf-step-num">Revenus</div>
+          <h3>Parrainage : 1 000 FCFA/mois par filleul Pro</h3>
+          <p>Chaque personne que tu fais passer Pro te rapporte 1 000 FCFA par mois, tant qu'elle reste abonnée. 3 filleuls et ton abonnement est remboursé.</p>
         </div>
       </div>
-      <div style="text-align:center;margin-top:36px;">
-        <div style="color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:14px;">💡 Calcul rapide : une seule prestation supplémentaire grâce à WOZALI = abonnement remboursé pour 1 mois entier</div>
-        <button onclick="if(window.currentUser){showPage('dashboard');setTimeout(function(){showDashSection('abonnement');},400);}else{showPage('inscription');}" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:black;border:none;padding:16px 36px;border-radius:100px;font-weight:900;font-size:16px;cursor:pointer;">
-          🚀 Passer Pro maintenant — 2 500 FCFA/mois
-        </button>
+      <div class="wzf-ctas">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="if(window.currentUser){showPage('dashboard');setTimeout(function(){showDashSection('abonnement');},400);}else{showPage('inscription');}">Passer Pro · 2 500 FCFA/mois</button>
       </div>
     </div>
   </section>
 
-  <!-- MODÈLE ÉCONOMIQUE -->
-  <section class="section" style="background:var(--noir);">
+  <!-- ══ 03 · LES DEUX PLANS ══ -->
+  <section class="wzf-plans-section">
     <div class="container">
-      <div style="text-align:center;margin-bottom:52px;">
-        <div class="badge" style="background:rgba(232,148,10,0.15);color:var(--or);margin-bottom:14px;">Modèle économique</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;color:white;">Transparent. Équitable. <em style="color:var(--or);">Ouest-Africain.</em></h2>
-        <p style="color:rgba(255,255,255,0.6);font-size:16px;margin-top:12px;max-width:540px;margin-left:auto;margin-right:auto;">On ne cache rien. Voici exactement comment ça fonctionne financièrement.</p>
+      <div class="wzf-pane-head wz-reveal">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">03 · Les deux plans</div>
+        <h2 class="wz-h2">Transparent. Équitable. <em class="wz-gold-it">Ouest-africain.</em></h2>
+        <p class="wzf-sub">On ne cache rien. Voici exactement ce que chaque plan contient.</p>
       </div>
 
-      <!-- Tableau comparatif 2 plans -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:48px;max-width:860px;margin-left:auto;margin-right:auto;">
-
+      <div class="wzf-plans">
         <!-- Plan Gratuit -->
-        <div style="background:rgba(255,255,255,0.05);border-radius:20px;padding:32px;border:1.5px solid rgba(255,255,255,0.1);">
-          <div style="font-size:40px;margin-bottom:16px;">🆓</div>
-          <h3 style="color:white;font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;margin-bottom:8px;">Plan Gratuit</h3>
-          <div style="font-family:'DM Serif Display',serif;font-size:38px;font-weight:900;color:#E8940A;margin-bottom:8px;">0 FCFA</div>
-          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:20px;">Pour démarrer ta visibilité en ligne</p>
-          <div style="text-align:left;display:flex;flex-direction:column;gap:10px;">
-            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#E8940A;">✓</span> Profil visible sur WOZALI</div>
-            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#E8940A;">✓</span> Photos de réalisations (portfolio)</div>
-            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#E8940A;">✓</span> Contact WhatsApp direct</div>
-            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#E8940A;">✓</span> Système d'avis clients</div>
-            <div style="font-size:14px;color:rgba(255,255,255,0.7);display:flex;gap:8px;"><span style="color:#E8940A;">✓</span> Postuler aux offres d'emploi</div>
-            <div style="font-size:14px;color:rgba(255,255,255,0.4);display:flex;gap:8px;opacity:0.6;"><span style="color:#e74c3c;">✗</span> <span style="text-decoration:line-through;">Programme parrainage</span> <span style="font-size:11px;background:#f59e0b;color:black;padding:1px 6px;border-radius:100px;font-weight:700;margin-left:4px;">PRO</span></div>
-            <div style="height:1px;background:rgba(255,255,255,0.08);margin:6px 0;"></div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Priorité dans les résultats</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Badge Pro visible</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Publier des offres d'emploi</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.3);display:flex;gap:8px;"><span>✗</span> Stats de vues et contacts</div>
+        <div class="wzf-plan wzf-plan-free wz-reveal">
+          <h3>Plan Gratuit</h3>
+          <div class="wzf-plan-price">0 <small>FCFA</small></div>
+          <div class="wzf-plan-note">Pour démarrer ta visibilité en ligne</div>
+          <div class="wzf-plan-list">
+            <div class="ok"><span>✓</span> Profil visible sur WOZALI</div>
+            <div class="ok"><span>✓</span> Photos de réalisations (portfolio)</div>
+            <div class="ok"><span>✓</span> Contact WhatsApp direct</div>
+            <div class="ok"><span>✓</span> Système d'avis clients</div>
+            <div class="ok"><span>✓</span> Postuler aux offres d'emploi</div>
+            <div class="ok"><span>✓</span> Coach Sandy : un conseil business chaque jour</div>
+            <div class="wzf-plan-sep"></div>
+            <div class="off"><span>✗</span> Priorité dans les résultats</div>
+            <div class="off"><span>✗</span> Chat en temps réel avec Sandy</div>
+            <div class="off"><span>✗</span> Bourse de Croissance</div>
+            <div class="off"><span>✗</span> Programme parrainage</div>
+            <div class="off"><span>✗</span> Publier des offres d'emploi</div>
+            <div class="off"><span>✗</span> Stats de vues et contacts</div>
           </div>
           <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:24px;" onclick="showPage('inscription')">Commencer gratuitement</button>
         </div>
 
         <!-- Plan Pro -->
-        <div style="background:linear-gradient(135deg,rgba(232,148,10,0.15),rgba(232,148,10,0.1));border-radius:20px;padding:32px;border:2px solid var(--or);position:relative;">
-          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--or),#f59e0b);color:#14100A;font-size:11px;font-weight:800;padding:5px 18px;border-radius:100px;white-space:nowrap;box-shadow:0 4px 12px rgba(232,148,10,0.4);">🔥 PASSE AU NIVEAU SUPÉRIEUR</div>
+        <div class="wzf-plan wzf-plan-pro wz-reveal" data-d="1">
+          <div class="wzf-plan-flag">LE NIVEAU SUPÉRIEUR</div>
 
-          <!-- Bloc Gains Bourse de Croissance -->
+          <h3>Plan Pro</h3>
+          <div class="wzf-plan-price">2 500 <small>FCFA</small></div>
+          <div class="wzf-plan-note">par mois · résiliable à tout moment</div>
+
+          <!-- Bloc Bourse de Croissance (nouveau modèle) -->
           <div class="wozali-pro-gains-bloc">
-            <div class="wozali-pro-gains-eyebrow">🏆 CHAQUE MOIS · AU MÉRITE</div>
+            <div class="wozali-pro-gains-eyebrow">🏆 LA BOURSE DE CROISSANCE · RÉSERVÉ PRO</div>
             <div class="wozali-pro-gains-grid">
               <div class="wozali-pro-gains-item">
                 <div class="icon">🏆</div>
-                <div class="label">Bourse de Croissance</div>
+                <div class="label">Chaque mois, dans ton pays</div>
                 <div class="montant">Un salaire</div>
-                <div class="desc">à chacun des 10 meilleurs profils du mois · réservé Pro</div>
+                <div class="desc">le salaire minimum légal de ton pays, versé à chacun des 10 meilleurs profils Pro du mois</div>
               </div>
             </div>
             <div class="wozali-pro-gains-total">
-              <div class="total-label">CHAQUE MOIS, DANS TON PAYS</div>
-              <div class="total-amount">Un vrai salaire</div>
-              <div class="total-sub">Le dernier vendredi du mois. Réservé aux pays qui ont débloqué leur Bourse (5 000 membres Pro).</div>
+              <div class="total-label">CLASSEMENT REMIS À ZÉRO CHAQUE MOIS</div>
+              <div class="total-amount">10 gagnants</div>
+              <div class="total-sub">La Bourse d'un pays s'ouvre à 5 000 membres Pro. Togo et Bénin ont chacun leur classement.</div>
             </div>
             <div class="wozali-pro-gains-warning">
-              ⚠️ Réservée aux membres Pro. Classement 100% mérite : avis clients vérifiés, note, constance — pas tes abonnés, pas tes contacts.
+              100% mérite : avis clients vérifiés, note, constance. Pas tes abonnés, pas tes contacts, pas le hasard.
             </div>
-          </div>
-
-          <div style="font-size:40px;margin-bottom:16px;">🚀</div>
-          <h3 style="color:white;font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:8px;">Plan Pro</h3>
-          <div style="font-family:'DM Serif Display',serif;font-size:38px;font-weight:900;color:var(--or);margin-bottom:4px;">2 500 <span style="font-size:18px;">FCFA</span></div>
-          <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:8px;">par mois · résiliable à tout moment</p>
-          <div style="background:rgba(232,148,10,0.15);border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:13px;color:var(--or);font-weight:700;">
-            ⚡ Amortissable dès 1 ou 2 clients supplémentaires par mois
           </div>
 
           <div class="wozali-pro-features-list">
             <div class="wozali-pro-feature-item">
               <div class="icon">🔝</div>
               <div class="body">
-                <div class="titre">Tu apparais en premier — toujours.</div>
-                <div class="sous">Quand un client cherche ton métier dans ton quartier, tu es en haut. Pas en page 2. Toujours.</div>
+                <div class="titre">Tu apparais en premier. Toujours.</div>
+                <div class="sous">Quand un client cherche ton métier dans ton quartier, tu es en haut de la liste.</div>
+              </div>
+            </div>
+            <div class="wozali-pro-feature-item wozali-feature-highlight">
+              <div class="icon">💬</div>
+              <div class="body">
+                <div class="titre">Chat en temps réel avec Sandy</div>
+                <div class="sous">Ta coach business répond quand tu veux, pas seulement une fois par jour.</div>
               </div>
             </div>
             <div class="wozali-pro-feature-item wozali-feature-highlight">
               <div class="icon">🏆</div>
               <div class="body">
                 <div class="titre">Bourse de Croissance</div>
-                <div class="sous">Classement mérite réservé Pro · <span class="wozali-feature-montant">un salaire</span> aux 10 meilleurs chaque mois</div>
+                <div class="sous">Classement au mérite réservé Pro · <span class="wozali-feature-montant">un salaire</span> à chacun des 10 meilleurs profils du mois</div>
               </div>
             </div>
             <div class="wozali-pro-feature-item">
               <div class="icon">⭐</div>
               <div class="body">
                 <div class="titre">Tu peux passer À la Une de WOZALI</div>
-                <div class="sous">Devant tous les visiteurs de la home. Premium uniquement.</div>
+                <div class="sous">Devant tous les visiteurs de la page d'accueil. Réservé Pro.</div>
               </div>
             </div>
             <div class="wozali-pro-feature-item">
               <div class="icon">🥇</div>
               <div class="body">
-                <div class="titre">Top 50 WOZALI — Mur de la Gloire</div>
-                <div class="sous">Le classement public Bénin-Togo des 50 meilleurs prestataires. Réservé Pro.</div>
+                <div class="titre">Top 50 WOZALI · Mur de la Gloire</div>
+                <div class="sous">Le classement public Bénin-Togo des 50 meilleurs prestataires.</div>
               </div>
             </div>
             <div class="wozali-pro-feature-item">
               <div class="icon">💰</div>
               <div class="body">
-                <div class="titre">Programme parrainage 40% — revenus récurrents à vie</div>
-                <div class="sous">3 filleuls Pro = ton abonnement remboursé + bénéfice. À partir du 4ème, c'est du gain pur.</div>
+                <div class="titre">Programme parrainage : revenus récurrents</div>
+                <div class="sous">1 000 FCFA/mois par filleul Pro. 3 filleuls = abonnement remboursé. Au 4ème, c'est du gain.</div>
               </div>
             </div>
             <div class="wozali-pro-feature-item">
               <div class="icon">📊</div>
               <div class="body">
                 <div class="titre">Tu vois exactement ce que tu rates.</div>
-                <div class="sous">Combien de clients t'ont cherché. Combien ont contacté ton concurrent à la place. Sans données, tu navigues à l'aveugle.</div>
+                <div class="sous">Combien de clients t'ont cherché, combien t'ont contacté. Sans données, tu avances à l'aveugle.</div>
               </div>
             </div>
             <div class="wozali-pro-feature-item">
               <div class="icon">💼</div>
               <div class="body">
-                <div class="titre">Publier des offres WOZALI Jobs · Badge Recruteur Vérifié</div>
-                <div class="sous">Recrute du personnel en quelques clics. Pas d'agence. Pas de commission.</div>
+                <div class="titre">Publier des offres WOZALI Jobs</div>
+                <div class="sous">Recrute du personnel en quelques clics. Pas d'agence, pas de commission.</div>
               </div>
             </div>
           </div>
 
-          <a href="#inscription-pro" class="wozali-btn-pro-principal" onclick="showPage('inscription');return false;">🚀 Rejoindre en Plan Pro — 2 500 FCFA/mois</a>
-          <p class="wozali-btn-pro-sub">Moins qu'une recharge MTN · Résiliable à tout moment · Sans engagement</p>
-          <p class="wozali-btn-pro-urgence">⚡ Tu entres dans le classement de la Bourse de Croissance dès ton premier mois Pro.</p>
+          <a href="#inscription-pro" class="wozali-btn-pro-principal wz-btn-sheen" onclick="showPage('inscription');return false;">Rejoindre en Plan Pro · 2 500 FCFA/mois</a>
+          <p class="wozali-btn-pro-sub">Moins qu'une recharge téléphone · Sans engagement</p>
+          <p class="wozali-btn-pro-urgence">Tu entres dans le classement de la Bourse dès ton premier mois Pro.</p>
         </div>
       </div>
 
       <!-- Bloc ROI concret -->
-      <div style="background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.3);border-radius:20px;padding:28px;max-width:860px;margin:0 auto 40px;text-align:center;">
-        <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:white;margin-bottom:10px;">🧮 Le calcul est simple</h3>
-        <p style="color:rgba(255,255,255,0.7);font-size:15px;line-height:1.8;max-width:640px;margin:0 auto;">
-          Le Plan Pro coûte <strong style="color:var(--or);">2 500 FCFA/mois</strong>. À Lomé, une prestation moyenne coûte entre 3 000 et 15 000 FCFA.<br>
-          <strong style="color:white;">1 à 2 nouveaux clients par mois suffisent pour l'amortir.</strong><br>
-          Le reste — 10, 20, 30 nouveaux clients — c'est du pur bénéfice.
-        </p>
+      <div class="wzf-strip wz-reveal" style="max-width:860px;">
+        <strong>Le calcul est simple.</strong> Le Plan Pro coûte 2 500 FCFA/mois. Une prestation moyenne se paie entre 3 000 et 15 000 FCFA. Un ou deux nouveaux clients par mois suffisent à l'amortir. Tout le reste, c'est du bénéfice.
       </div>
+    </div>
+  </section>
 
-      <!-- Paiement TMoney/Flooz -->
-      <div style="background:rgba(255,255,255,0.04);border-radius:20px;padding:32px;border:1.5px solid rgba(232,148,10,0.3);">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;">
-          <div>
-            <div class="badge" style="background:rgba(232,148,10,0.15);color:#F5B82E;margin-bottom:14px;">Paiement 100% local</div>
-            <h3 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:white;margin-bottom:12px;">Tu paies avec ce que tu as déjà dans ton téléphone</h3>
-            <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7;margin-bottom:20px;">Pas besoin de carte bancaire. Pas besoin d'aller à la banque. Tu paies ton abonnement WOZALI directement depuis ton <strong style="color:white;">TMoney</strong> ou ton <strong style="color:white;">Flooz</strong> — en quelques secondes.</p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;">
-              <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;">
-                <span style="font-size:18px;">📱</span>
-                <span style="color:white;font-weight:700;font-size:14px;">TMoney</span>
-                <span style="color:rgba(255,255,255,0.4);font-size:12px;">Togocel</span>
-              </div>
-              <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;">
-                <span style="font-size:18px;">💚</span>
-                <span style="color:white;font-weight:700;font-size:14px;">Flooz</span>
-                <span style="color:rgba(255,255,255,0.4);font-size:12px;">Moov Togo</span>
-              </div>
-            </div>
+  <!-- ══ 04 · PAIEMENT MOBILE MONEY ══ -->
+  <section class="wzf-pay">
+    <div class="container">
+      <div class="wzf-pay-grid">
+        <div class="wz-reveal">
+          <div class="wz-eyebrow">04 · Paiement 100% local</div>
+          <h2 class="wz-h2">Tu paies avec ce que tu as <em class="wz-gold-it">déjà dans ton téléphone.</em></h2>
+          <p class="wz-lead">Pas besoin de carte bancaire. Pas besoin d'aller à la banque. Tu paies ton abonnement en Mobile Money, selon ton pays, en quelques secondes.</p>
+          <div class="wzf-pay-chips">
+            <div class="wzf-pay-chip">TMoney <small>Togo</small></div>
+            <div class="wzf-pay-chip">Flooz <small>Togo</small></div>
+            <div class="wzf-pay-chip">MTN MoMo <small>Bénin</small></div>
+            <div class="wzf-pay-chip">Moov Money <small>Bénin</small></div>
           </div>
-          <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:24px;">
-            <h4 style="color:rgba(255,255,255,0.9);font-weight:800;margin-bottom:16px;">Comment ça se passe ?</h4>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <div style="display:flex;gap:12px;align-items:flex-start;">
-                <div style="width:24px;height:24px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#080808;flex-shrink:0;">1</div>
-                <p style="color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;">Tu choisis ton plan depuis ton espace prestataire</p>
-              </div>
-              <div style="display:flex;gap:12px;align-items:flex-start;">
-                <div style="width:24px;height:24px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#080808;flex-shrink:0;">2</div>
-                <p style="color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;">Tu reçois un message sur ton numéro avec les instructions de paiement TMoney/Flooz</p>
-              </div>
-              <div style="display:flex;gap:12px;align-items:flex-start;">
-                <div style="width:24px;height:24px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#080808;flex-shrink:0;">3</div>
-                <p style="color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;">En moins d'une minute, ton badge Pro est activé sur ton profil</p>
-              </div>
+        </div>
+        <div class="wzf-card wz-reveal" data-d="1" style="cursor:default;">
+          <h3 style="margin-bottom:16px;">Comment ça se passe ?</h3>
+          <div class="wzf-flow" style="gap:14px;">
+            <div class="wzf-flow-item">
+              <div class="wzf-flow-num" style="width:28px;height:28px;font-size:12px;border-radius:50%;">1</div>
+              <p style="align-self:center;">Tu choisis ton plan depuis ton espace prestataire</p>
+            </div>
+            <div class="wzf-flow-item">
+              <div class="wzf-flow-num" style="width:28px;height:28px;font-size:12px;border-radius:50%;">2</div>
+              <p style="align-self:center;">Tu paies en Mobile Money : TMoney, Flooz, MTN MoMo ou Moov Money, selon ton pays</p>
+            </div>
+            <div class="wzf-flow-item">
+              <div class="wzf-flow-num" style="width:28px;height:28px;font-size:12px;border-radius:50%;">3</div>
+              <p style="align-self:center;">En moins d'une minute, ton badge Pro est activé sur ton profil</p>
             </div>
           </div>
         </div>
@@ -7049,43 +7009,45 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- ══ DÉBLOCAGE BOURSE (ex-countdown premier tirage) — jauges membres Pro. #cnt-jours/heures/minutes/secondes retirés du DOM : lancerCountdown() (app3.js) fait getElementById('cnt-jours'), jEl est null, la fonction return tôt (if(!jEl) return;), no-op propre. ══ -->
-  <section style="background:#14100A;padding:60px 24px;">
-    <div class="wozali-countdown-section">
-      <div class="wozali-countdown-eyebrow">🔓 LE DÉBLOCAGE</div>
-      <h2 class="wozali-countdown-title">La Bourse s'ouvre quand ton pays est prêt</h2>
-      <p class="wozali-countdown-sub">À 5 000 membres Pro, la Bourse d'un pays s'ouvre. Définitivement. En dessous, trop peu de profils et trop peu d'avis pour qu'un classement national veuille dire quelque chose. Deux pays, deux jauges, une question : qui prouvera en premier que son marché est réel ?</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;max-width:640px;margin:24px auto;text-align:left;">
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇹🇬 TOGO · <span data-nb-pro-tg>…</span> / 5 000</div>
-          <div style="height:8px;border-radius:99px;background:rgba(252,224,168,.12);overflow:hidden;"><div data-nb-pro-tg-fill style="height:100%;width:0%;background:#E8940A;border-radius:99px;"></div></div>
+  <!-- ══ 05 · DÉBLOCAGE BOURSE : jauges par pays. #cnt-jours absent du DOM : lancerCountdown() (app3.js) no-op propre. ══ -->
+  <section class="wzf-unlock">
+    <div class="container" style="max-width:820px;text-align:center;">
+      <div class="wz-eyebrow wz-reveal" style="justify-content:center;margin-left:auto;margin-right:auto;">05 · Le déblocage</div>
+      <h2 class="wz-h2 wz-reveal" data-d="1">La Bourse s'ouvre quand <em class="wz-gold-it">ton pays est prêt.</em></h2>
+      <p class="wzf-sub wz-reveal" data-d="2" style="margin:0 auto 26px;">À 5 000 membres Pro, la Bourse d'un pays s'ouvre. Définitivement. En dessous, trop peu de profils et trop peu d'avis pour qu'un classement national veuille dire quelque chose. Deux pays, deux jauges, une question : qui prouvera en premier que son marché est réel ?</p>
+      <div class="wz-reveal" data-d="2" aria-live="polite" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;text-align:left;margin-bottom:24px;">
+        <div class="wz-gauge">
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇹🇬 TOGO · <span data-nb-pro-tg>…</span> / 5 000 membres Pro</div>
+          <div class="wz-gauge-track"><div data-nb-pro-tg-fill class="wz-gauge-fill" style="height:100%;width:0%;"></div></div>
+          <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-tg>5 000</span> Pro pour ouvrir la Bourse du Togo.</div>
         </div>
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇧🇯 BÉNIN · <span data-nb-pro-bj>…</span> / 5 000</div>
-          <div style="height:8px;border-radius:99px;background:rgba(252,224,168,.12);overflow:hidden;"><div data-nb-pro-bj-fill style="height:100%;width:0%;background:#E8940A;border-radius:99px;"></div></div>
+        <div class="wz-gauge">
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇧🇯 BÉNIN · <span data-nb-pro-bj>…</span> / 5 000 membres Pro</div>
+          <div class="wz-gauge-track"><div data-nb-pro-bj-fill class="wz-gauge-fill" style="height:100%;width:0%;"></div></div>
+          <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-bj>5 000</span> Pro pour ouvrir la Bourse du Bénin.</div>
         </div>
       </div>
-      <div class="wozali-countdown-fomo">
-        <span id="cnt-membres-pro">—</span> membres Pro actuellement inscrits<br>
-        <span id="cnt-fondateurs">—</span> places Fondateur restantes
+      <p class="wz-reveal" data-d="3" style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,.55);line-height:1.8;margin:0 0 20px;">
+        <span id="cnt-membres-pro">…</span> membres Pro actuellement inscrits<br>
+        <span id="cnt-fondateurs">…</span> places Fondateur restantes
+      </p>
+      <div class="wzf-ctas" style="margin-top:8px;">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('inscription')">Je rejoins maintenant →</button>
       </div>
-      <div class="wozali-countdown-cta">
-        Tu entres dans le classement dès ton premier mois Pro.
-      </div>
-      <a href="#inscription-pro" class="wozali-btn-pro-principal" style="max-width:360px;margin:0 auto;" onclick="showPage('inscription');return false;">→ Je rejoins maintenant</a>
+      <p style="font-size:13px;color:rgba(252,224,168,.6);margin-top:14px;">Tu entres dans le classement dès ton premier mois Pro.</p>
     </div>
   </section>
 
-  <!-- ══ MUR DES GAGNANTS ══ -->
+  <!-- ══ 06 · MUR DES GAGNANTS ══ -->
   <section class="wozali-gagnants-section">
     <div class="container">
-      <div class="wozali-gagnants-eyebrow">🏆 ILS ONT GAGNÉ AVEC LEUR PLAN PRO</div>
+      <div class="wz-eyebrow wz-reveal" style="justify-content:center;margin-left:auto;margin-right:auto;">06 · Le mur des gagnants</div>
       <p class="wozali-gagnants-sub">Noms réels. Salaires réels. Vérifiés publiquement.</p>
       <div id="wozali-gagnants-liste" class="wozali-gagnants-liste">
         <div class="wozali-gagnant-card wozali-gagnant-placeholder">
           <div class="icon">🏆</div>
           <h4>Les 10 premiers noms s'écriront ici</h4>
-          <p>Le mois où la Bourse de ton pays s'ouvre, le classement tourne. Et le dernier vendredi du mois, à 18h, heure de Lomé et Cotonou, WOZALI verse un salaire à chacun des 10 meilleurs profils du mois. Leur nom. Leur métier. Leur quartier. Leur Score. Publics. Vérifiables. Puis le mois suivant, dix nouveaux noms.</p>
+          <p>Dès que ton pays débloque sa Bourse, les 10 meilleurs profils du mois s'affichent ici. Nom, métier, quartier, Score. Publiquement. Puis le mois suivant, le classement repart de zéro et dix nouveaux noms s'écrivent.</p>
           <div class="montant">Un salaire</div>
           <div class="question">Ce nom, c'est le tien ?</div>
         </div>
@@ -7093,96 +7055,100 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- ══ FAQ PRO VIRALE ══ -->
-  <section style="background:#14100A;padding:60px 0;">
-    <div class="wozali-faq-pro">
-      <h2>Les vraies questions Pro</h2>
-      <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Je travaille bien. Pourquoi les clients ne viennent pas ?</button>
-        <div class="wozali-faq-reponse"><p>C'est la douleur la plus répandue au Togo et au Bénin. Tu travailles. Tu es bon. Mais tu es <strong>invisible</strong>. Un maçon à Tokoin, une coiffeuse à Bè, un mécanicien à Akpakpa — chaque jour, des clients cherchent exactement ce que tu fais. Ils trouvent le concurrent qui a un profil WOZALI avec des avis réels et des photos de son travail. Toi, tu restes invisible. Tu perds des clients que tu n'as jamais rencontrés. Le Plan Pro te met en tête de liste — devant tous les profils gratuits — dès qu'un client cherche ton métier dans ton quartier.</p></div>
-      </div>
-      <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">2 500 FCFA par mois, c'est trop pour moi en ce moment.</button>
-        <div class="wozali-faq-reponse"><p>Combien tu perds chaque mois à rester invisible ? Une seule cliente qui ne te trouve pas. Un seul chantier qui file chez ton concurrent parce qu'il avait son numéro sur WOZALI. Un seul rendez-vous manqué. <strong>2 500 FCFA par mois = 83 FCFA par jour.</strong> Moins que le transport un trajet. Une seule prestation de 5 000 FCFA couvre 2 mois d'abonnement. Le reste du mois, c'est du gain pur. La vraie question n'est pas "est-ce que je peux me permettre le Pro". C'est "est-ce que je peux me permettre de continuer à être invisible".</p></div>
-      </div>
-      <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Est-ce que mon abonnement peut vraiment se payer tout seul ?</button>
-        <div class="wozali-faq-reponse"><p>Oui — mathématiquement. Avec le parrainage, tu gagnes <strong>1 000 FCFA par filleul Pro actif, chaque mois où il reste abonné.</strong> C'est une commission sur un abonnement réel, pas un bonus de recrutement. 3 filleuls Pro = 3 000 FCFA. Ton abonnement coûte 2 500 FCFA. 3 filleuls Pro = abonnement remboursé + 500 FCFA de bénéfice net. 10 filleuls Pro = 10 000 FCFA/mois. 20 filleuls Pro = 20 000 FCFA/mois. Récurrent, tant qu'ils restent Pro. Partage ton lien de parrainage sur WhatsApp — c'est parti.</p></div>
-      </div>
-      <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">C'est quoi la Bourse de Croissance et comment je peux gagner ?</button>
-        <div class="wozali-faq-reponse"><p><strong>Un salaire</strong>, le salaire minimum légal de ton pays, pour chacun des 10 meilleurs profils du mois de ton pays. Togo et Bénin ont chacun leur propre classement. Les Pro les plus sérieux du mois : Score WOZALI ≥ 80, au moins 3 avis clients récents, note ≥ 4,2★, Plan Pro actif ce mois. Le classement regarde la qualité de ton travail : tes avis vérifiés, ta note, ta constance. Tes abonnés TikTok et les vues de ton profil ne comptent pas, zéro point pour l'audience. Classement calculé le dernier vendredi du mois, pas de dossier à remplir. La Bourse de ton pays s'ouvre à 5 000 membres Pro. Si tu es éligible, tu es dans la course. C'est réel. C'est réservé aux membres Pro. Et ça se prépare maintenant.</p></div>
-      </div>
-      <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Combien de Pro sont déjà inscrits ? Est-ce que ça vaut encore le coup ?</button>
-        <div class="wozali-faq-reponse"><p><span id="faq-nb-pro">—</span> membres Pro actifs à Cotonou et à Lomé en ce moment. Chaque semaine, ce nombre augmente. Et pendant que tu réfléchis, ils accumulent des avis clients, montent leur Score WOZALI, gagnent en visibilité. <strong>Le classement WOZALI s'éloigne.</strong> Les résultats mensuels passent. Ils ne se rattrapent pas. Est-ce que ça vaut encore le coup ? Pose-toi la bonne question : est-ce que tu peux te permettre de laisser ton concurrent 6 mois d'avance sur toi ?</p></div>
-      </div>
-      <div class="wozali-faq-item">
-        <button class="wozali-faq-question" type="button">Je peux arrêter quand je veux ?</button>
-        <div class="wozali-faq-reponse"><p>Oui. Pas de contrat. Pas d'engagement. Résiliable n'importe quand, sans explication. Mais pendant le mois où tu hésites, d'autres Pros avancent. Tu n'as pas à décider "pour toujours". Tu décides pour <em>ce mois</em>. Une prestation. Un client trouvé via WOZALI. Et tu vois ce que ça change.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- GARANTIE & SÉCURITÉ -->
-  <section class="section" style="background:white;">
+  <!-- ══ 07 · LA GARANTIE WOZALI ══ -->
+  <section class="wzf-pane" style="border-top:1px solid rgba(232,148,10,.08);">
     <div class="container">
-      <div style="text-align:center;margin-bottom:48px;">
-        <div class="badge" style="background:rgba(232,148,10,0.15);color:#E8940A;margin-bottom:14px;">La garantie WOZALI</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;">Tu es protégé. On a tout prévu.</h2>
+      <div class="wzf-pane-head wz-reveal">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">07 · La garantie WOZALI</div>
+        <h2 class="wz-h2">Tu es protégé. <em class="wz-gold-it">On a tout prévu.</em></h2>
       </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">
-        <div style="padding:24px;background:rgba(232,148,10,0.08);border-radius:16px;text-align:center;">
-          <div style="font-size:32px;margin-bottom:12px;">✓</div>
-          <h4 style="font-weight:800;margin-bottom:8px;">Prestataires vérifiés</h4>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">Chaque prestataire avec le badge ✓ a été vérifié par l'équipe WOZALI. Son identité, son métier, sa localisation.</p>
+      <div class="wzf-steps" style="max-width:1020px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));">
+        <div class="wzf-card wz-reveal">
+          <div class="wzf-step-num">Identité</div>
+          <h3>Prestataires vérifiés</h3>
+          <p>Chaque prestataire avec le badge vérifié a été contrôlé par l'équipe WOZALI : identité, métier, localisation.</p>
         </div>
-        <div style="padding:24px;background:var(--or-light);border-radius:16px;text-align:center;">
-          <div style="font-size:32px;margin-bottom:12px;">⭐</div>
-          <h4 style="font-weight:800;margin-bottom:8px;">Avis 100% réels</h4>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">Chaque avis vient d'un vrai client. Impossible de se noter soi-même. Le Score WOZALI reflète la vraie réalité.</p>
+        <div class="wzf-card wz-reveal" data-d="1">
+          <div class="wzf-step-num">Confiance</div>
+          <h3>Avis 100% réels</h3>
+          <p>Chaque avis vient d'un vrai client. Impossible de se noter soi-même. Le Score WOZALI reflète la réalité du terrain.</p>
         </div>
-        <div style="padding:24px;background:rgba(232,148,10,0.08);border-radius:16px;text-align:center;">
-          <div style="font-size:32px;margin-bottom:12px;">🔒</div>
-          <h4 style="font-weight:800;margin-bottom:8px;">Signalement possible</h4>
+        <div class="wzf-card wz-reveal" data-d="2">
+          <div class="wzf-step-num">Sécurité</div>
+          <h3>Signalement en un clic</h3>
+          <p>Profil suspect, fausse offre, comportement déplacé : un bouton Signaler existe sur chaque profil et chaque offre. Chaque signalement est traité, et les comptes signalés perdent leur visibilité.</p>
         </div>
-        <div style="padding:24px;background:var(--or-light);border-radius:16px;text-align:center;">
-          <div style="font-size:32px;margin-bottom:12px;">🏆</div>
-          <h4 style="font-weight:800;margin-bottom:8px;">Score WOZALI</h4>
-          <p style="font-size:13px;color:var(--gris);line-height:1.6;">Profil complet + note + avis + photos + vues + commentaires écrits = Score sur 100. Les prestataires sérieux montent. Le mérite récompensé.</p>
+        <div class="wzf-card wz-reveal" data-d="3">
+          <div class="wzf-step-num">Mérite</div>
+          <h3>Score WOZALI</h3>
+          <p>Profil complet, note, avis, photos, activité : un Score sur 100, le même calcul pour tout le monde. Les sérieux montent, le mérite est récompensé.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section class="section" style="background:var(--blanc);">
-    <div class="container" style="max-width:760px;">
-      <div style="text-align:center;margin-bottom:48px;">
-        <h2 style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;">Les questions que tu te poses</h2>
-        <p style="font-size:16px;color:var(--gris);margin-top:12px;max-width:560px;margin:12px auto 0;">On sait ce que tu te dis. On a entendu les mêmes doutes de la bouche de centaines de prestataires au Bénin et au Togo. Voilà les vraies réponses.</p>
+  <!-- ══ 08 · FAQ ══ -->
+  <section class="wzf-faq-section">
+    <div class="container" style="max-width:820px;">
+      <div class="wzf-pane-head wz-reveal">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">08 · Questions</div>
+        <h2 class="wz-h2">Les questions que <em class="wz-gold-it">tu te poses.</em></h2>
+        <p class="wzf-sub">On a entendu les mêmes doutes de la bouche de centaines de prestataires au Bénin et au Togo. Voilà les vraies réponses.</p>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:12px;" id="faq-list">
-        <!-- FAQ items injectées par JS -->
+      <div class="wzf-faq">
+        <div class="faq-item">
+          <div class="faq-q">Combien ça coûte ?</div>
+          <div class="faq-r"><p>Créer ton profil, être trouvé, recevoir des clients, postuler aux offres : <strong>gratuit</strong>. Le Plan Pro, à 2 500 FCFA/mois, te met en premier dans les recherches, débloque le chat avec Sandy, le parrainage et la Bourse de Croissance. Et WOZALI ne prend aucune commission sur ce que tes clients te paient.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Je travaille bien. Pourquoi les clients ne viennent pas ?</div>
+          <div class="faq-r"><p>Chaque semaine, des clients de ton quartier paient quelqu'un pour exactement ce que tu sais faire. La question, c'est qui ils trouvent en premier. Aujourd'hui, ils trouvent celui qui a un profil avec des avis réels et des photos de son travail. L'argent va vers lui, pas vers le meilleur. Le Plan Pro te met en tête de liste dès qu'un client cherche ton métier dans ta zone.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">2 500 FCFA par mois, c'est trop pour moi en ce moment.</div>
+          <div class="faq-r"><p>Compte ce que tu perds chaque mois : une seule cliente qui ne te trouve pas, un seul chantier qui file chez le concurrent qui avait son numéro sur WOZALI. <strong>2 500 FCFA par mois, c'est 83 FCFA par jour.</strong> Une seule prestation de 5 000 FCFA couvre deux mois d'abonnement. La vraie question n'est pas "est-ce que je peux me permettre le Pro", c'est "combien me coûte le fait de rester introuvable".</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Est-ce que mon abonnement peut vraiment se payer tout seul ?</div>
+          <div class="faq-r"><p>Oui, mathématiquement. Avec le parrainage, tu gagnes <strong>1 000 FCFA par filleul Pro actif, chaque mois où il reste abonné</strong>. 3 filleuls Pro = 3 000 FCFA, ton abonnement de 2 500 FCFA est remboursé avec 500 FCFA de bénéfice. 10 filleuls = 10 000 FCFA/mois. Récurrent, tant qu'ils restent Pro. Ton lien de parrainage se partage en un clic.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">C'est quoi la Bourse de Croissance et comment je peux gagner ?</div>
+          <div class="faq-r"><p><strong>Un salaire</strong>, le salaire minimum légal de ton pays, versé à chacun des 10 meilleurs profils Pro du mois. Togo et Bénin ont chacun leur classement. Le classement regarde la qualité de ton travail : avis clients vérifiés, note, constance. Tes abonnés et tes contacts ne comptent pas, zéro point pour l'audience. Pas de dossier à remplir : si ton profil est sérieux, tu es dans la course. La Bourse de ton pays s'ouvre à 5 000 membres Pro, puis le classement est remis à zéro chaque mois. Personne ne s'installe, tout le monde se bat.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">C'est qui, Sandy ?</div>
+          <div class="faq-r"><p>Sandy, c'est ta coach business dans ton espace WOZALI. Elle regarde tes chiffres réels : tes vues, tes contacts, tes avis. Chaque jour, elle te donne une chose concrète à faire pour avoir plus de clients, puis elle mesure le résultat avec toi. C'est gratuit pour tous les membres. En Pro, tu peux discuter avec elle en temps réel, quand tu veux.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Combien de Pro sont déjà inscrits ? Est-ce que ça vaut encore le coup ?</div>
+          <div class="faq-r"><p><span id="faq-nb-pro">…</span> membres Pro actifs à Cotonou et à Lomé en ce moment, et ce nombre monte chaque semaine. Pendant que tu réfléchis, ils accumulent des avis, montent leur Score, prennent de l'avance. Plus tôt tu commences, plus vite ton profil pèse. La bonne question : est-ce que tu peux laisser ton concurrent prendre six mois d'avance ?</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Je peux arrêter quand je veux ?</div>
+          <div class="faq-r"><p>Oui. Pas de contrat, pas d'engagement. Résiliable n'importe quand, sans explication. Tu n'as pas à décider pour toujours : tu décides pour ce mois. Un client trouvé via WOZALI, et tu vois ce que ça change.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Et si je tombe sur une arnaque ou un abus ?</div>
+          <div class="faq-r"><p>Tu signales en un clic, depuis le profil, l'offre ou la candidature concernée. L'équipe WOZALI traite chaque signalement, et un compte signalé perd sa visibilité. Aucune offre sérieuse ne te demandera jamais de payer pour être embauché : si on te le demande, c'est une arnaque, signale-la.</p></div>
+        </div>
       </div>
     </div>
   </section>
 
-
-  <!-- CTA FINAL -->
-  <section style="background:linear-gradient(135deg,#0f0a05,#1a1008);padding:72px 0;">
-    <div class="container" style="text-align:center;">
-      <h2 style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;color:white;margin-bottom:16px;">Chaque jour qui passe, c'est un client qui ne te trouve pas.</h2>
-      <p style="color:rgba(255,255,255,0.8);font-size:17px;margin-bottom:20px;">Pendant que tu lis ces lignes, un autre prestataire de ton quartier crée son profil. Il va apparaître avant toi. Et prendre tes clients.</p>
-      <div id="cta-fondateur-counter" style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,200,0,0.5);border-radius:100px;padding:10px 20px;margin-bottom:24px;">
-        <span style="font-size:18px;">🏅</span>
-        <span style="color:white;font-weight:700;font-size:15px;">Badge Fondateur — <span id="cta-spots">...</span> places restantes sur 1 000</span>
+  <!-- ══ CTA FINAL ══ -->
+  <section class="wzf-final">
+    <div class="container" style="text-align:center;position:relative;z-index:1;">
+      <h2 class="wz-h2 wz-reveal" style="max-width:760px;margin-left:auto;margin-right:auto;">Chaque jour qui passe, un client de ton quartier <em class="wz-gold-it">paie quelqu'un d'autre.</em></h2>
+      <p class="wzf-sub wz-reveal" data-d="1" style="margin-bottom:22px;">Pendant que tu lis ces lignes, un autre prestataire crée son profil. Il apparaîtra avant toi.</p>
+      <div id="cta-fondateur-counter" class="wz-reveal" data-d="2" style="display:inline-flex;align-items:center;gap:10px;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.4);border-radius:100px;padding:10px 20px;margin-bottom:16px;">
+        <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#FCE0A8;font-weight:700;">Badge Fondateur · <span id="cta-spots" style="color:#E8940A;">…</span> places restantes sur 1 000</span>
       </div>
-      <br>
-      <p style="color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:28px;">Le badge Fondateur c'est une marque de confiance permanente sur ton profil. Une fois les 1 000 places prises, il disparaît pour toujours.</p>
-      <button class="btn btn-or btn-lg" onclick="showPage('inscription')">✦ Créer mon profil maintenant — c'est gratuit</button>
+      <p class="wz-reveal" data-d="2" style="font-size:13px;color:rgba(252,224,168,.55);max-width:520px;margin:0 auto 26px;line-height:1.7;">Le badge Fondateur est une marque de confiance permanente sur ton profil. Une fois les 1 000 places prises, il disparaît pour toujours.</p>
+      <div class="wzf-ctas wz-reveal" data-d="3" style="margin-top:0;">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('inscription')">✦ Créer mon profil maintenant, c'est gratuit</button>
+      </div>
     </div>
   </section>
 
