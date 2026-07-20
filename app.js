@@ -13551,6 +13551,9 @@ async function loadPageRecompenses() {
   const ctaPro = document.getElementById('recomp-cta-pro');
   if (ctaPro) ctaPro.style.display = isBase ? 'block' : 'none';
 
+  // Jauges Bourse par pays (Pro/5000) — rafraîchies à chaque ouverture de la page
+  try { if (window.chargerJaugesBourse) window.chargerJaugesBourse(); } catch(e) { console.warn('[jauges bourse]', e); }
+
   // 🆕 Section TikTok partagée + Checklists dynamiques (si user connecté)
   try { renderTikTokSharedSection(); } catch(e) { console.warn('[tiktok shared]', e); }
   try { loadChecklistsRecompenses(); } catch(e) { console.warn('[checklists recompenses]', e); }

@@ -6605,7 +6605,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260720b" defer></script>
+<script src="/app.js?v=20260720c" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -8194,6 +8194,30 @@ setTimeout(function(){
   }
   window.chargerNbProLive=chargerNbProLive;
 
+  // Jauges Bourse : compte les membres Pro PAR PAYS (Togo/Bénin), seuil déblocage 5 000. Remplit les 4 blocs de jauges (accueil, dashboard, comment ça marche, page Récompenses).
+  async function chargerJaugesBourse(){
+    try{
+      var supa=window.supabase;if(!supa)return;
+      var SEUIL=5000;
+      async function cnt(pays){
+        var r=await supa.from('wozali_prestataires').select('*',{count:'exact',head:true}).eq('abonnement','Pro').eq('pays',pays);
+        return (r&&r.count)||0;
+      }
+      var tg=await cnt('Togo');
+      var bj=await cnt('Bénin');
+      function fmt(n){return (n||0).toLocaleString('fr-FR');}
+      function apply(sel,fillSel,resteSel,n){
+        var pct=Math.min(100,Math.round((n/SEUIL)*100));
+        document.querySelectorAll('['+sel+']').forEach(function(el){el.textContent=fmt(n);});
+        document.querySelectorAll('['+fillSel+']').forEach(function(el){el.style.width=pct+'%';});
+        document.querySelectorAll('['+resteSel+']').forEach(function(el){el.textContent=fmt(Math.max(0,SEUIL-n));});
+      }
+      apply('data-nb-pro-tg','data-nb-pro-tg-fill','data-reste-tg',tg);
+      apply('data-nb-pro-bj','data-nb-pro-bj-fill','data-reste-bj',bj);
+    }catch(e){console.warn('[Bourse] jauges fail',e);}
+  }
+  window.chargerJaugesBourse=chargerJaugesBourse;
+
   // FAQ accordion : delegation globale (couvre .wozali-faq-pro ET la FAQ Bourse page Recompenses, quel que soit le moment d'injection)
   function initFaqPro(){
     if(window.__faqDelegated)return;
@@ -8274,12 +8298,14 @@ setTimeout(function(){
     lancerCountdownJuillet();
     initFaqPro();
     chargerNbProLive();
+    chargerJaugesBourse();
     afficherMurGagnants();
   });
   if(document.readyState!=='loading'){
     lancerCountdownJuillet();
     initFaqPro();
     chargerNbProLive();
+    chargerJaugesBourse();
     afficherMurGagnants();
   }
 })();
