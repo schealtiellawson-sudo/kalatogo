@@ -6431,26 +6431,53 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ── WOZALI JOBS ─────────────────────────────── */
-/* Filtres emploi — selecteurs blancs → dark */
-#emploi-filter-pays, #emploi-filter-quartier,
+/* Filtres emploi — Nuit unifiée (surface #1E180E, crème) */
+#emploi-filter-pays, #emploi-filter-quartier, #emploi-filter-metier,
 #emploi-filter-contrat, #emploi-search-q {
-  background: #161616 !important;
-  border: 1.5px solid rgba(232,148,10,0.2) !important;
-  color: rgba(255,255,255,0.8) !important;
+  background: #1E180E !important;
+  border: 1.5px solid rgba(232,148,10,0.22) !important;
+  color: #FCE0A8 !important;
   border-radius: 10px !important;
 }
+#emploi-search-q::placeholder { color: rgba(252,224,168,0.4); }
+#emploi-filter-pays option, #emploi-filter-quartier option, #emploi-filter-metier option,
+#emploi-filter-contrat option, #emploi-filter-quartier optgroup {
+  background: #1E180E; color: #FCE0A8;
+}
 
-/* Carte offre d'emploi */
+/* Carte offre d'emploi — Nuit premium (liseré + glow or) */
 .offre-card, [class*="offre-card"] {
-  background: #161616 !important;
-  border: 1px solid rgba(232,148,10,0.08) !important;
+  background: linear-gradient(160deg, #221A0E, #1E180E 60%) !important;
+  border: 1px solid rgba(232,148,10,0.14) !important;
   border-top: 3px solid #E8940A !important;
-  border-radius: 12px !important;
-  color: #FFFFFF !important;
+  border-radius: 14px !important;
+  color: #FCE0A8 !important;
 }
 .offre-card:hover {
-  border-color: rgba(232,148,10,0.3) !important;
-  box-shadow: 0 6px 24px rgba(232,148,10,0.08) !important;
+  border-color: rgba(232,148,10,0.45) !important;
+  box-shadow: 0 12px 32px -12px rgba(232,148,10,0.18) !important;
+}
+
+/* Badges contrat WOZALI Jobs — chips Nuit (zéro pastel clair, zéro bleu/violet) */
+#page-emploi .badge-cdd, #modal-offre-detail .badge-cdd,
+#modal-candidature .badge-cdd {
+  background: rgba(245,184,46,0.14) !important; color: #F5B82E !important;
+}
+#page-emploi .badge-freelance, #modal-offre-detail .badge-freelance,
+#modal-candidature .badge-freelance {
+  background: rgba(232,148,10,0.1) !important; color: #E8940A !important;
+}
+#page-emploi .badge-stage, #modal-offre-detail .badge-stage,
+#page-emploi .badge-alternance, #modal-offre-detail .badge-alternance,
+#page-emploi .badge-benevole, #modal-offre-detail .badge-benevole {
+  background: rgba(252,224,168,0.09) !important; color: rgba(252,224,168,0.8) !important;
+}
+#page-emploi .badge-mission, #modal-offre-detail .badge-mission {
+  background: rgba(196,122,8,0.16) !important; color: #F5B82E !important;
+}
+#page-emploi .badge-urgente, #modal-offre-detail .badge-urgente {
+  background: rgba(220,38,38,0.12) !important; color: #f87171 !important;
+  border-color: rgba(220,38,38,0.35) !important;
 }
 
 /* Bloc différenciation emploi */

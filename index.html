@@ -1401,32 +1401,41 @@ setTimeout(function(){
      PAGE EMPLOI
 ══════════════════════════════════════════ -->
 <div id="page-emploi" class="page">
-  <!-- HERO -->
-  <section style="background:#14100A;color:#FCE0A8;padding:80px 0 60px;position:relative;overflow:hidden;">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 30% 50%,rgba(232,148,10,0.15) 0%,transparent 70%);"></div>
-    <div class="container" style="position:relative;z-index:1;">
-      <div style="max-width:700px;">
-        <div style="font-size:12px;font-weight:700;color:#E8940A;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">BÉNIN · TOGO</div>
-        <h1 style="color:white;font-size:clamp(28px,4vw,48px);margin-bottom:14px;font-family:'DM Serif Display',serif;"><span style="color:#E8940A;">Les offres qui t'attendent.</span><br>Pas de CV Word. Pas de connexion requise.<br>Juste ton profil WOZALI.</h1>
-        <p style="color:rgba(255,255,255,0.75);font-size:16px;margin-bottom:16px;line-height:1.7;">Postule en 1 clic avec ton profil WOZALI déjà généré. Le recruteur voit ton métier, tes avis, ta localisation. Ici, c'est ton travail qui parle. Pas tes connexions.</p>
-        <!-- Bloc différenciation -->
-        <div style="background:rgba(232,148,10,0.15);border:1px solid rgba(232,148,10,0.35);border-radius:14px;padding:18px 22px;margin-bottom:22px;">
-          <p style="color:rgba(255,255,255,0.9);font-size:14px;line-height:1.8;margin:0;">Les démarches classiques prennent des semaines. Les candidatures envoyées dans le vide restent sans réponse. Les entreprises lisent <strong style="color:white;">1 CV sur 50</strong> — et rappellent encore moins.<br><br><strong style="color:#E8940A;">WOZALI Jobs ne te promet pas un emploi. Il te promet d'être vu par ceux qui recrutent vraiment.</strong><br><span style="color:rgba(255,255,255,0.7);">À Cotonou. À Lomé. Maintenant.</span></p>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          <button class="btn btn-or" onclick="showDashSection('recrut-publier');showPage('dashboard')">→ Publier une offre d'emploi — réservé Plan Pro</button>
-          <button class="btn btn-dark" onclick="document.getElementById('emploi-list')?.scrollIntoView({behavior:'smooth'})">→ Voir toutes les offres</button>
-        </div>
+  <!-- HERO : WOZALI Jobs (premium Nuit) -->
+  <section class="wzf-hero" style="padding:clamp(64px,9vw,104px) 0 clamp(40px,6vw,56px);">
+    <div class="wzf-grain" aria-hidden="true"></div>
+    <div class="container">
+      <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">WOZALI Jobs · Bénin · Togo</div>
+      <h1 class="wzf-h1">Les offres qui t'attendent.<br><em>Ton profil WOZALI suffit.</em></h1>
+      <p class="wzf-hero-sub">Pas de CV Word, pas de connexion requise. Tu postules en 1 clic avec ton profil WOZALI : le recruteur voit ton métier, tes avis, ton quartier. Ici, c'est ton travail qui parle. Pas tes connexions.</p>
+      <p class="wzf-hero-note">Postuler est gratuit · Publier une offre est gratuit · À Cotonou, à Lomé, maintenant</p>
+      <div class="wzf-ctas" style="margin-top:26px;">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="document.getElementById('emploi-list')?.scrollIntoView({behavior:'smooth'})">Voir les offres et postuler →</button>
       </div>
+      <p style="margin:16px 0 0;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;">
+        <a href="#" onclick="event.preventDefault();showDashSection('recrut-publier');showPage('dashboard')" style="color:rgba(252,224,168,.55);text-decoration:underline;text-underline-offset:4px;">Je recrute · publier une offre gratuitement</a>
+      </p>
     </div>
   </section>
 
-  <!-- FILTRES -->
-  <div style="background:rgba(15,20,16,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,148,10,0.15);padding:16px 0;position:sticky;top:68px;z-index:100;">
+  <!-- 01 · POURQUOI CETTE PAGE EXISTE -->
+  <section style="background:#14100A;padding:0 0 clamp(36px,5vw,52px);">
+    <div class="container">
+      <div class="wzf-strip wz-reveal" style="max-width:720px;margin:0 auto;">
+        <strong>Des semaines de démarches, zéro réponse, zéro salaire qui tombe.</strong> Ici le recruteur voit ton profil, tes avis, ton quartier, et te répond dans la plateforme.
+      </div>
+      <p class="wz-reveal" data-d="1" style="max-width:680px;margin:18px auto 0;text-align:center;font-family:'Geist',sans-serif;font-size:13.5px;line-height:1.75;color:rgba(252,224,168,.62);">
+        Il y a deux invisibles. L'artisan que personne ne trouve. Et le chercheur d'emploi que personne n'appelle. Cette page existe pour le deuxième : celui qui sait travailler et qui attend juste qu'on le voie.
+      </p>
+    </div>
+  </section>
+
+  <!-- FILTRES (sticky, Nuit unifiée) -->
+  <div style="background:rgba(20,16,10,0.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid rgba(232,148,10,0.12);border-bottom:1px solid rgba(232,148,10,0.15);padding:14px 0;position:sticky;top:68px;z-index:100;">
     <div class="container">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <input type="text" id="emploi-search-q" placeholder="🔍 Rechercher (titre, métier...)" style="flex:1;min-width:200px;padding:10px 16px;border:1.5px solid rgba(232,148,10,0.2);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:rgba(255,255,255,0.06);color:#FCE0A8;" oninput="rechercheDebounce(filterOffres)">
-        <select id="emploi-filter-metier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid rgba(232,148,10,0.2);border-radius:10px;font-size:14px;font-family:inherit;background:rgba(255,255,255,0.06);cursor:pointer;color:#FCE0A8;">
+        <input type="text" id="emploi-search-q" placeholder="🔍 Rechercher (titre, métier...)" style="flex:1;min-width:200px;padding:10px 16px;border:1.5px solid rgba(232,148,10,0.22);border-radius:10px;font-size:13.5px;font-family:'Geist',sans-serif;outline:none;background:#1E180E;color:#FCE0A8;" onfocus="this.style.borderColor='#E8940A'" onblur="this.style.borderColor='rgba(232,148,10,0.22)'" oninput="rechercheDebounce(filterOffres)">
+        <select id="emploi-filter-metier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid rgba(232,148,10,0.22);border-radius:10px;font-size:13.5px;font-family:'Geist',sans-serif;background:#1E180E;cursor:pointer;color:#FCE0A8;outline:none;">
           <option value="">Tous les métiers</option>
           <option>Plombier</option><option>Électricien</option><option>Menuisier</option><option>Maçon</option>
           <option>Peintre</option><option>Soudeur</option><option>Mécanicien</option><option>Coiffeur</option>
@@ -1438,34 +1447,37 @@ setTimeout(function(){
           <option>Secrétaire</option><option>Agent de sécurité</option><option>Infirmier</option>
           <option>Agriculture / Maraîchage</option><option>Pêcheur/Pêcheuse</option><option>Autre</option>
         </select>
-        <select id="emploi-filter-pays" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;background:white;cursor:pointer;">
+        <select id="emploi-filter-pays" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid rgba(232,148,10,0.22);border-radius:10px;font-size:13.5px;font-family:'Geist',sans-serif;background:#1E180E;cursor:pointer;color:#FCE0A8;outline:none;">
           <option value="">🌍 Tous pays</option>
           <option value="benin">🇧🇯 Bénin</option>
           <option value="togo">🇹🇬 Togo</option>
         </select>
-        <select id="emploi-filter-quartier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;background:white;cursor:pointer;">
+        <select id="emploi-filter-quartier" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid rgba(232,148,10,0.22);border-radius:10px;font-size:13.5px;font-family:'Geist',sans-serif;background:#1E180E;cursor:pointer;color:#FCE0A8;outline:none;">
           <option value="">Toutes les villes</option>
           <optgroup label="🇧🇯 Bénin">
-            <option>Cotonou</option><option>Porto-Novo</option><option>Parakou</option>
+            <option>Cotonou</option><option>Akpakpa</option><option>Cadjèhoun</option>
+            <option>Gbégamey</option><option>Dantokpa</option><option>Fidjrossè</option>
+            <option>Sainte-Rita</option><option>Vèdoko</option><option>Cocotomey</option>
+            <option>Porto-Novo</option><option>Parakou</option>
           </optgroup>
           <optgroup label="🇹🇬 Togo">
-            <option>Lomé Centre</option><option>Kpalimé</option><option>Atakpamé</option>
-            <option>Adidogomé</option><option>Tokoin</option><option>Bè</option>
-            <option>Agoè</option><option>Hédzranawoé</option><option>Kodjoviakopé</option>
-            <option>Djidjolé</option><option>Nyékonakpoè</option><option>Cassablanca</option>
-            <option>Avédji</option><option>Attiégou</option>
+            <option>Lomé Centre</option><option>Adidogomé</option><option>Tokoin</option>
+            <option>Bè</option><option>Agoè</option><option>Hédzranawoé</option>
+            <option>Kodjoviakopé</option><option>Djidjolé</option><option>Nyékonakpoè</option>
+            <option>Cassablanca</option><option>Avédji</option><option>Attiégou</option>
+            <option>Kpalimé</option><option>Atakpamé</option>
           </optgroup>
           <option>Autre</option>
         </select>
-        <select id="emploi-filter-contrat" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;background:white;cursor:pointer;">
+        <select id="emploi-filter-contrat" onchange="filterOffres()" style="padding:10px 14px;border:1.5px solid rgba(232,148,10,0.22);border-radius:10px;font-size:13.5px;font-family:'Geist',sans-serif;background:#1E180E;cursor:pointer;color:#FCE0A8;outline:none;">
           <option value="">Tous les contrats</option>
           <option>CDI</option><option>CDD</option><option>Freelance</option><option>Mission ponctuelle</option><option>Stage</option><option>Bénévole</option><option>Alternance</option>
         </select>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#374151;cursor:pointer;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;font-family:'Geist',sans-serif;color:rgba(252,224,168,0.7);cursor:pointer;">
           <input type="checkbox" id="emploi-filter-recent" onchange="filterOffres()" style="accent-color:#E8940A;"> 🕐 Moins de 48h
         </label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#374151;cursor:pointer;">
-          <input type="checkbox" id="emploi-filter-verifie" onchange="filterOffres()" style="accent-color:#E8940A;"> ✅ Recruteur vérifié
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;font-family:'Geist',sans-serif;color:rgba(252,224,168,0.7);cursor:pointer;">
+          <input type="checkbox" id="emploi-filter-verifie" onchange="filterOffres()" style="accent-color:#E8940A;"> ✓ Recruteur vérifié
         </label>
       </div>
     </div>
@@ -1474,22 +1486,22 @@ setTimeout(function(){
   <!-- LISTE OFFRES -->
   <div class="container" style="padding-top:32px;padding-bottom:60px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-      <div id="emploi-count" style="font-size:13px;color:var(--gris);"></div>
+      <div id="emploi-count" style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <button id="emploi-view-list" onclick="setEmploiView('list')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">☰ Liste</button>
-        <button id="emploi-view-grid" onclick="setEmploiView('grid')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">▦ Grille</button>
-        <button id="emploi-view-map" onclick="setEmploiView('map')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">🗺️ Carte</button>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gris);cursor:pointer;">
-          <input type="checkbox" id="emploi-tri-match" onchange="toggleTriMatch()" style="accent-color:#c084fc;"> 🤖 Trier par match IA
+        <button id="emploi-view-list" onclick="setEmploiView('list')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:rgba(252,224,168,.65);font-size:12px;font-weight:700;cursor:pointer;">☰ Liste</button>
+        <button id="emploi-view-grid" onclick="setEmploiView('grid')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:rgba(252,224,168,.65);font-size:12px;font-weight:700;cursor:pointer;">▦ Grille</button>
+        <button id="emploi-view-map" onclick="setEmploiView('map')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:rgba(252,224,168,.65);font-size:12px;font-weight:700;cursor:pointer;">🗺️ Carte</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-family:'Geist',sans-serif;color:rgba(252,224,168,.6);cursor:pointer;">
+          <input type="checkbox" id="emploi-tri-match" onchange="toggleTriMatch()" style="accent-color:#E8940A;"> 🤖 Trier par match IA
         </label>
-        <button id="emploi-batch-match" onclick="batchMatchOffres()" title="Calcule le score IA d'adéquation pour les offres affichées (max 5)" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🤖 Trouver mes meilleurs matches</button>
+        <button id="emploi-batch-match" onclick="batchMatchOffres()" title="Calcule le score IA d'adéquation pour les offres affichées (max 5)" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🤖 Trouver mes meilleurs matches</button>
         <button onclick="ouvrirAlertesModal()" title="Active une alerte sur cette recherche" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:7px 14px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🔔 Mes alertes</button>
       </div>
     </div>
     <div id="emploi-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
       <div class="loading"><div class="spinner"></div> Chargement des offres...</div>
     </div>
-    <div id="emploi-map" style="display:none;height:560px;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.08);"></div>
+    <div id="emploi-map" style="display:none;height:560px;border-radius:14px;overflow:hidden;border:1px solid rgba(232,148,10,.18);"></div>
     <!-- Pagination -->
     <div id="emploi-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:36px;flex-wrap:wrap;"></div>
   </div>
@@ -1500,28 +1512,28 @@ setTimeout(function(){
   <div class="modal" style="max-width:500px;">
     <button class="modal-close" onclick="document.getElementById('modal-candidature').style.display='none'">✕</button>
     <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:6px;">Tu postules pour : <span id="modal-cand-titre-head"></span></h3>
-    <p id="modal-cand-titre" style="color:var(--gris);font-size:14px;margin-bottom:10px;"></p>
-    <p style="color:var(--gris);font-size:13px;line-height:1.6;margin-bottom:16px;">Ton profil WOZALI est ton CV. Le recruteur voit tes avis, tes photos, ta note.</p>
+    <p id="modal-cand-titre" style="color:rgba(252,224,168,.6);font-size:14px;margin-bottom:10px;"></p>
+    <p style="color:rgba(252,224,168,.6);font-size:13px;line-height:1.6;margin-bottom:16px;">Ton profil WOZALI est ton CV. Le recruteur voit tes avis, tes photos, ta note.</p>
 
     <!-- Profil auto-rempli -->
-    <div id="modal-cand-profil" style="background:var(--blanc);border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid #e5e7eb;"></div>
+    <div id="modal-cand-profil" style="background:rgba(255,255,255,.04);border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid rgba(232,148,10,.18);"></div>
 
     <!-- Message optionnel -->
-    <label style="font-weight:700;font-size:14px;display:block;margin-bottom:6px;">Dis pourquoi c'est toi le bon profil <span style="color:#E8940A;">(fortement recommandé)</span></label>
-    <textarea id="modal-cand-message" placeholder="Bonjour, je suis [MÉTIER] à [QUARTIER]. J'ai [X] ans d'expérience et [NB] avis clients vérifiés sur WOZALI. Je suis disponible dès [DATE]..." style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px;font-size:14px;font-family:inherit;resize:vertical;min-height:100px;outline:none;" onfocus="this.style.borderColor='#E8940A'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+    <label style="font-weight:700;font-size:14px;display:block;margin-bottom:6px;color:#FCE0A8;">Dis pourquoi c'est toi le bon profil <span style="color:#E8940A;">(fortement recommandé)</span></label>
+    <textarea id="modal-cand-message" placeholder="Bonjour, je suis [MÉTIER] à [QUARTIER]. J'ai [X] ans d'expérience et [NB] avis clients vérifiés sur WOZALI. Je suis disponible dès [DATE]..." style="width:100%;border:1.5px solid rgba(232,148,10,.25);background:#1E180E;color:#FCE0A8;border-radius:10px;padding:12px;font-size:14px;font-family:'Geist',sans-serif;resize:vertical;min-height:100px;outline:none;" onfocus="this.style.borderColor='#E8940A'" onblur="this.style.borderColor='rgba(232,148,10,.25)'"></textarea>
 
-    <p style="font-size:11px;color:var(--gris);margin-top:6px;line-height:1.5;">Les candidatures avec message sont lues en premier. 3 phrases suffisent. Sois direct(e).</p>
-    <div id="modal-cand-error" style="color:#dc2626;font-size:13px;margin-top:8px;display:none;"></div>
+    <p style="font-size:11px;color:rgba(252,224,168,.55);margin-top:6px;line-height:1.5;">Les candidatures avec message sont lues en premier. 3 phrases suffisent. Sois direct(e).</p>
+    <div id="modal-cand-error" style="color:#f87171;font-size:13px;margin-top:8px;display:none;"></div>
 
     <div style="display:flex;gap:10px;margin-top:16px;">
       <button class="btn btn-ghost btn-sm" onclick="document.getElementById('modal-candidature').style.display='none'" style="flex:1;justify-content:center;">Annuler</button>
       <button class="btn btn-primary" id="modal-cand-submit-btn" onclick="submitCandidature()" style="flex:2;justify-content:center;">→ Envoyer ma candidature</button>
     </div>
-    <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:10px;line-height:1.5;">Ton profil WOZALI complet est joint automatiquement.<br>Le recruteur reçoit ta candidature immédiatement.</p>
+    <p style="font-size:11px;color:rgba(252,224,168,.55);text-align:center;margin-top:10px;line-height:1.5;">Ton profil WOZALI complet est joint automatiquement.<br>Le recruteur reçoit ta candidature immédiatement.</p>
   </div>
 </div>
 
-<!-- MODAL DÉTAIL OFFRE D'EMPLOI — style page Indeed -->
+<!-- MODAL DÉTAIL OFFRE D'EMPLOI (style page Indeed) -->
 <div class="modal-overlay" id="modal-offre-detail" style="display:none;z-index:10000;">
   <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
     <button class="modal-close" onclick="document.getElementById('modal-offre-detail').style.display='none'">✕</button>

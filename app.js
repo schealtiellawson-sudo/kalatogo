@@ -15915,14 +15915,14 @@ function renderOffreEmploi(offre, forceMode) {
   const _trustBadge = _trust?.flagged
     ? '<span style="display:inline-block;background:rgba(220,38,38,0.15);color:#f87171;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(220,38,38,0.3);" title="Ce recruteur a ete signale 3 fois ou plus par la communaute WOZALI">⚠️ Signalé</span>'
     : (_trust?.trusted && f['Recruteur vérifié'])
-      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — zero signalement, identite verifiee">🛡️ Confiance</span>'
+      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance : zero signalement, identite verifiee">🛡️ Confiance</span>'
       : (_ruid ? `<span data-trust-badge="${_ruid}" data-trust-verifie="${f['Recruteur vérifié']?'1':'0'}"></span>` : '');
   return `<div class="offre-card" data-ruid="${_ruid}" onclick="showOffreDetail('${_safeOffreId}')">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <div>
         ${offre._isBoosted ? (window._renderBoostBadge ? window._renderBoostBadge(offre) : '<span style="background:#E8940A;color:#14100A;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;margin-right:4px;">⭐ À LA UNE</span>') : ''}
         ${f['Urgente'] ? '<span class="badge-urgente">🔴 URGENTE</span> ' : ''}
-        ${_matchScore != null ? `<span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(168,85,247,.15);color:${_matchColor};border:1px solid rgba(168,85,247,.3);">🤖 Match ${_matchScore}/100</span>` : ''}
+        ${_matchScore != null ? `<span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(232,148,10,.12);color:${_matchColor};border:1px solid rgba(232,148,10,.3);">🤖 Match ${_matchScore}/100</span>` : ''}
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;margin-top:6px;line-height:1.3;">${_safeTitre}</h3>
       </div>
     </div>
@@ -15980,7 +15980,7 @@ function showOffreDetail(offreId) {
   const _trustBadgeD = _trustD?.flagged
     ? '<span style="display:inline-block;background:rgba(220,38,38,0.15);color:#f87171;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:800;border:1px solid rgba(220,38,38,0.3);" title="Ce recruteur a ete signale 3 fois ou plus par la communaute WOZALI">⚠️ Signalé par la communauté</span>'
     : (_trustD?.trusted && f['Recruteur vérifié'])
-      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — zero signalement, identite verifiee">🛡️ Recruteur de confiance</span>'
+      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance : zero signalement, identite verifiee">🛡️ Recruteur de confiance</span>'
       : (_ruidD ? `<span data-trust-badge="${_ruidD}" data-trust-verifie="${f['Recruteur vérifié']?'1':'0'}"></span>` : '');
 
   const container = document.getElementById('offre-detail-content');
@@ -16370,7 +16370,7 @@ function renderOffresPage() {
 
   if (page.length === 0 && _offresPage !== 1) {
     const _metSel = document.getElementById('emploi-filter-metier')?.value || 'ce métier';
-    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--gris);grid-column:1/-1;"><div style="font-size:48px;margin-bottom:16px;">💼</div><h3 style="font-family:'DM Serif Display',serif;color:var(--noir);font-size:20px;margin-bottom:10px;">Aucune offre pour "${_metSel}" en ce moment.</h3><p style="font-size:14px;line-height:1.7;max-width:520px;margin:0 auto 18px;">Deux options :<br>→ <strong>Active les alertes</strong>, on te prévient dès qu'une offre apparaît<br>→ <strong>Crée ton profil prestataire</strong>, les employeurs peuvent aussi te contacter directement.</p><p style="font-size:13px;color:#E8940A;font-weight:700;margin-bottom:18px;">Les meilleurs candidats ne cherchent plus. Ils sont trouvés.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil WOZALI — gratuit</button><button class="btn btn-secondary btn-sm" onclick="ouvrirAlertesModal()">🔔 Activer les alertes</button></div><p style="font-size:12px;margin-top:22px;color:var(--gris);max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;">Les premières offres arrivent. Crée ton profil maintenant pendant que c'est encore vide. Quand les offres arrivent, tu es déjà visible.</p></div>`;
+    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:rgba(252,224,168,.6);grid-column:1/-1;"><div style="font-size:48px;margin-bottom:16px;">💼</div><h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:20px;margin-bottom:10px;">Aucune offre pour "${_metSel}" en ce moment.</h3><p style="font-size:14px;line-height:1.7;max-width:520px;margin:0 auto 18px;">Deux options :<br>→ <strong style="color:#FCE0A8;">Active les alertes</strong>, on te prévient dès qu'une offre apparaît<br>→ <strong style="color:#FCE0A8;">Crée ton profil prestataire</strong>, les employeurs peuvent aussi te contacter directement.</p><p style="font-size:13px;color:#E8940A;font-weight:700;margin-bottom:18px;">Les meilleurs candidats ne cherchent plus. Ils sont trouvés.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil WOZALI, gratuit</button><button class="btn btn-secondary btn-sm" onclick="ouvrirAlertesModal()">🔔 Activer les alertes</button></div><p style="font-size:12px;margin-top:22px;color:rgba(252,224,168,.5);max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;">Les premières offres arrivent. Crée ton profil maintenant pendant que c'est encore vide. Quand les offres arrivent, tu es déjà visible.</p></div>`;
     document.getElementById('emploi-pagination').innerHTML = '';
     return;
   }
@@ -16407,7 +16407,7 @@ function renderOffresPage() {
       <span class="badge badge-gris">🇧🇯 Cotonou</span>
       <span class="badge" style="background:rgba(232,148,10,0.1);color:#E8940A;">Mission terrain</span>
     </div>
-    <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 100 000 FCFA — dès le 1er mois</div>
+    <div style="font-size:15px;font-weight:800;color:#E8940A;margin-bottom:14px;">💰 100 000 FCFA dès le 1er mois</div>
     <p style="font-size:13px;color:var(--gris);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">Tu connais ton quartier. WOZALI lance le 1er septembre. On constitue notre équipe d'agents terrain de 20 référents pour Lomé et Cotonou. Pas de diplôme requis, juste du sérieux.</p>
     <div style="display:inline-block;background:rgba(220,38,38,0.08);color:#dc2626;font-size:12px;padding:4px 10px;border-radius:6px;margin-bottom:12px;font-weight:600;">⚡ 20 places · Places limitées</div>
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié aujourd'hui</div>
@@ -16417,14 +16417,24 @@ function renderOffresPage() {
     </div>
   </div>`;
   }
-  container.innerHTML = wozaliRecruitCard + page.map(o => renderOffreEmploi(o)).join('');
+  // État vide travaillé (page 1, aucune offre pour ce filtre)
+  const emptyStateHtml = (total === 0) ? `<div style="grid-column:1/-1;text-align:center;padding:48px 24px;background:rgba(255,255,255,.03);border:1px solid rgba(232,148,10,.15);border-radius:16px;">
+    <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#E8940A;margin-bottom:12px;">Sois le premier informé</div>
+    <h3 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:22px;color:#FCE0A8;margin:0 0 10px;">Aucune offre pour ce filtre <em style="color:#E8940A;font-style:italic;">aujourd'hui.</em></h3>
+    <p style="font-family:'Geist',sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.6);max-width:460px;margin:0 auto 20px;">Active une alerte, tu seras prévenu avant tout le monde. Et pendant que c'est calme, crée ton profil : les recruteurs contactent aussi directement.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-or btn-sm" onclick="ouvrirAlertesModal()">🔔 Activer une alerte</button>
+      <button class="btn btn-secondary btn-sm" onclick="showPage('inscription')">Créer mon profil gratuit →</button>
+    </div>
+  </div>` : '';
+  container.innerHTML = wozaliRecruitCard + page.map(o => renderOffreEmploi(o)).join('') + emptyStateHtml;
   setTimeout(_enrichOffresTrustBadges, 0);
 
   // Pagination
   const totalPages = Math.ceil(total / _OFFRES_PER_PAGE);
   let paginHTML = '';
   for (let i = 1; i <= totalPages; i++) {
-    paginHTML += `<button onclick="_offresPage=${i};renderOffresPage();window.scrollTo({top:200})" style="width:36px;height:36px;border-radius:50%;border:2px solid ${i===_offresPage?'var(--vert)':'#e5e7eb'};background:${i===_offresPage?'var(--vert)':'white'};color:${i===_offresPage?'white':'var(--gris-fonce)'};font-weight:700;cursor:pointer;transition:.15s;">${i}</button>`;
+    paginHTML += `<button onclick="_offresPage=${i};renderOffresPage();window.scrollTo({top:200})" style="width:36px;height:36px;border-radius:50%;border:1px solid ${i===_offresPage?'#E8940A':'rgba(232,148,10,.25)'};background:${i===_offresPage?'#E8940A':'transparent'};color:${i===_offresPage?'#14100A':'rgba(252,224,168,.65)'};font-weight:700;cursor:pointer;transition:.15s;">${i}</button>`;
   }
   document.getElementById('emploi-pagination').innerHTML = paginHTML;
 }
@@ -16502,7 +16512,7 @@ function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
   document.getElementById('modal-cand-error').style.display = 'none';
 
   if (!currentUser || !currentPrestataire) {
-    document.getElementById('modal-cand-profil').innerHTML = '<p style="text-align:center;color:var(--gris);font-size:14px;">🔒 <a onclick="showPage(\'login\')" style="color:var(--vert);cursor:pointer;font-weight:700;">Connecte-toi</a> pour postuler à cette offre.</p>';
+    document.getElementById('modal-cand-profil').innerHTML = '<p style="text-align:center;color:rgba(252,224,168,.6);font-size:14px;">🔒 <a onclick="showPage(\'login\')" style="color:#E8940A;cursor:pointer;font-weight:700;">Connecte-toi</a> pour postuler à cette offre.</p>';
     document.getElementById('modal-cand-submit-btn').disabled = true;
     modal.style.display = 'flex';
     return;
@@ -16527,9 +16537,9 @@ function ouvrirModalCandidature(offreId, offreTitre, recruteurId) {
         ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : (f['Nom complet']||'?')[0]}
       </div>
       <div>
-        <div style="font-weight:800;font-size:15px;">${f['Nom complet']||'—'}</div>
-        <div style="color:var(--vert);font-size:13px;font-weight:600;">${f['Métier principal']||''}</div>
-        <div style="font-size:12px;color:var(--gris);">Score WOZALI : <strong>${score}/100</strong> · 📍 ${f['Quartier']||''}</div>
+        <div style="font-weight:800;font-size:15px;color:#FCE0A8;">${f['Nom complet']||'?'}</div>
+        <div style="color:#E8940A;font-size:13px;font-weight:600;">${f['Métier principal']||''}</div>
+        <div style="font-size:12px;color:rgba(252,224,168,.6);">Score WOZALI : <strong style="color:#FCE0A8;">${score}/100</strong> · 📍 ${f['Quartier']||''}</div>
       </div>
     </div>`;
 
@@ -16680,7 +16690,7 @@ function _updateEmploiModeUI(actif) {
 
   if (track) track.style.background = actif ? 'var(--vert)' : '#e5e7eb';
   if (thumb) thumb.style.transform = actif ? 'translateX(30px)' : 'translateX(0)';
-  if (statusText) statusText.textContent = actif ? '✅ Mode emploi activé — tu apparais dans les recherches des recruteurs' : 'Mode emploi désactivé';
+  if (statusText) statusText.textContent = actif ? '✅ Mode emploi activé : tu apparais dans les recherches des recruteurs' : 'Mode emploi désactivé';
   if (labelOn) labelOn.style.opacity = actif ? '1' : '0.4';
   if (labelOff) labelOff.style.opacity = actif ? '0.4' : '1';
   if (currentPrestataire) currentPrestataire.fields['Mode Emploi'] = actif;
@@ -16754,11 +16764,11 @@ async function loadMesCandidatures() {
       </tr></thead>
       <tbody>${cands.map(c => {
         const f = c.fields;
-        const d = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+        const d = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '·';
         const sc = statutClass[f['Statut']] || 'statut-attente';
         const isRetenue = f['Statut'] === 'Retenue';
-        const _safeOffreTitreM = escapeHtml(f['Offre Titre']||'—');
-        const _safeRecruteurNomM = escapeHtml(f['Recruteur Nom']||'—');
+        const _safeOffreTitreM = escapeHtml(f['Offre Titre']||'Offre');
+        const _safeRecruteurNomM = escapeHtml(f['Recruteur Nom']||'Recruteur');
         const _safeStatutM = escapeHtml(f['Statut']||'En attente');
         return `<tr style="border-bottom:1px solid #f3f4f6;">
           <td style="padding:12px;">${_safeOffreTitreM}</td>
@@ -16811,11 +16821,11 @@ function signalerOffreCandidat(candidatureId) {
 // ── Dashboard : Publier une offre ──
 function initRecrutPublier() {
   if (!currentPrestataire) return;
-  const isPro = isProUser();
+  // Publication d'offres GRATUITE pour tous (décision fondateur 2026-07-20) : le verrou Pro reste masqué.
   const lockEl = document.getElementById('recrut-pro-lock');
   const formEl = document.getElementById('recrut-form-wrap');
-  if (lockEl) lockEl.style.display = isPro ? 'none' : 'block';
-  if (formEl) formEl.style.display = isPro ? 'block' : 'none';
+  if (lockEl) lockEl.style.display = 'none';
+  if (formEl) formEl.style.display = 'block';
 }
 
 // ── Photos offre d'emploi (max 3) ──
@@ -16921,9 +16931,7 @@ function _recrutUpdateQuartiers(ville) {
 }
 async function publierOffre() {
   if (!currentPrestataire) return;
-  if (!isProUser()) {
-    toast('Fonctionnalité réservée au Plan Pro', 'error'); return;
-  }
+  // Publication d'offres GRATUITE pour tous (décision fondateur 2026-07-20) : plus de gating Pro ici.
   const f = currentPrestataire.fields;
   const get = id => document.getElementById(id)?.value?.trim() || '';
   const getChk = id => document.getElementById(id)?.checked || false;
@@ -17829,7 +17837,7 @@ function renderRecrutCandidatures(cands) {
         const f = c.fields;
         const statut  = f['Statut'] || 'En attente';
         const sc      = statutColors[statut] || statutColors['En attente'];
-        const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+        const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '·';
         const photo   = f['Candidat Photo'] || '';
         const score   = f['Candidat Score WOZALI'] || 0;
         const scoreColor = score >= 70 ? '#E8940A' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
@@ -17841,7 +17849,7 @@ function renderRecrutCandidatures(cands) {
 
         const _safeCandNom = escapeHtml(f['Candidat Nom']||'—');
         const _safeCandMetier = escapeHtml(f['Candidat Métier']||'');
-        const _safeOffreTitre = escapeHtml(f['Offre Titre']||'—');
+        const _safeOffreTitre = escapeHtml(f['Offre Titre']||'Offre');
         const _safeMessage = escapeHtml(f['Message']||'');
         const _safePhotoUrl = encodeURI(photo || '');
         const _safeWa = encodeURIComponent((wa||'').replace(/\D/g,''));
@@ -17893,7 +17901,7 @@ function renderRecrutCandidatures(cands) {
             const f = c.fields;
             const statut  = f['Statut'] || 'En attente';
             const sc      = statutColors[statut] || statutColors['En attente'];
-            const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '—';
+            const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '·';
             const photo   = f['Candidat Photo'] || '';
             const score   = f['Candidat Score WOZALI'] || 0;
             const scoreColor = score >= 70 ? '#E8940A' : score >= 40 ? '#E8940A' : 'rgba(252, 224, 168,.4)';
@@ -17907,7 +17915,7 @@ function renderRecrutCandidatures(cands) {
             const aiColor = aiScore >= 70 ? '#E8940A' : aiScore >= 40 ? '#E8940A' : '#f87171';
             const _safeCandNomT = escapeHtml(f['Candidat Nom']||'—');
             const _safeCandMetierT = escapeHtml(f['Candidat Métier']||'—');
-            const _safeOffreTitreT = escapeHtml(f['Offre Titre']||'—');
+            const _safeOffreTitreT = escapeHtml(f['Offre Titre']||'Offre');
             const _safePhotoUrlT = encodeURI(photo || '');
             const _safeWaT = encodeURIComponent((wa||'').replace(/\D/g,''));
             return `<tr style="border-bottom:1px solid rgba(255,255,255,.05);background:${rowBg};transition:background .15s;" onmouseover="this.style.background='rgba(232,148,10,.06)'" onmouseout="this.style.background='${rowBg}'">
@@ -18287,7 +18295,7 @@ async function loadMonEquipe() {
       const quartier = escapeHtml(e.employe_quartier || e.employe_ville || '');
       const contrat = escapeHtml(e.type_contrat || '');
       const salaire = e.salaire_fcfa ? e.salaire_fcfa.toLocaleString('fr-FR') + ' FCFA/mois' : null;
-      const dateEmb = e.date_embauche ? new Date(e.date_embauche).toLocaleDateString('fr-FR') : '—';
+      const dateEmb = e.date_embauche ? new Date(e.date_embauche).toLocaleDateString('fr-FR') : '·';
       const statutColors = { actif: { bg: 'rgba(232,148,10,.12)', color: '#E8940A', label: 'Actif' }, fin_contrat: { bg: 'rgba(239,68,68,.12)', color: '#f87171', label: 'Fin de contrat' }, suspendu: { bg: 'rgba(234,179,8,.12)', color: '#fbbf24', label: 'Suspendu' } };
       const sc = statutColors[e.statut] || statutColors.actif;
 
