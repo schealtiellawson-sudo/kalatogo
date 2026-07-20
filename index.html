@@ -7698,159 +7698,227 @@ setTimeout(function(){
 </div>
 
 <!-- ══ PAGE RÉCOMPENSES (Sprint 7) ══ -->
-<div id="page-recompenses" class="page" style="background:#14100A;min-height:100vh;padding:0 0 80px;">
-  <div style="max-width:860px;margin:0 auto;padding:24px 16px;">
+<div id="page-recompenses" class="page" style="background:#14100A;min-height:100vh;padding:0;">
 
-    <!-- Header -->
-    <div style="text-align:center;padding:40px 0 30px">
-      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:12px">LA BOURSE DE CROISSANCE</div>
-      <h1 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,42px);font-weight:900;color:#FCE0A8;margin:0 0 10px">Un salaire. Chaque mois.<br>Pour les 10 meilleurs.</h1>
-      <p style="font-size:15px;color:rgba(252, 224, 168,.6);max-width:520px;margin:0 auto">Chaque mois, WOZALI verse un salaire, le salaire minimum légal de ton pays, à chacun des 10 meilleurs profils Pro du mois. Le classement repart à zéro le 1er de chaque mois.<br>Pas le plus connu. Le plus sérieux.</p>
+  <!-- ══ HERO : La Bourse de Croissance (premium Nuit) ══ -->
+  <section class="wzf-hero">
+    <div class="wzf-grain" aria-hidden="true"></div>
+    <div class="container">
+      <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">La Bourse de Croissance</div>
+      <h1 class="wzf-h1">Un salaire. Chaque mois.<br><em>Pour les 10 meilleurs.</em></h1>
+      <p class="wzf-hero-sub">Chaque mois, WOZALI verse un salaire, le salaire minimum légal de ton pays, à chacun des 10 meilleurs profils Pro du mois. Pas le plus connu. Le plus sérieux.</p>
+      <p class="wzf-hero-note">100% mérite · Zéro tirage au sort · Nouveau mois, nouveau classement</p>
     </div>
+  </section>
 
-    <!-- ⚡ Bloc Mécanique — verrouillée / débloquée / chaque mois 10 salaires -->
-    <div style="background:linear-gradient(135deg,rgba(232,148,10,0.18),rgba(232,148,10,0.06));border:2px solid rgba(232,148,10,0.5);border-radius:20px;padding:28px 24px;margin-bottom:28px;text-align:left;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#E8940A,transparent);"></div>
-      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;text-align:center">📅 COMMENT ÇA MARCHE</div>
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="flex-shrink:0;font-size:22px;">🔒</div>
-          <div>
-            <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">Étape 1 · VERROUILLÉE</div>
-            <p style="font-size:13px;color:rgba(252,224,168,.65);line-height:1.6;margin:0;">La Bourse de ton pays est verrouillée tant qu'il n'a pas atteint 5 000 membres Pro. En dessous de ce seuil, un classement national ne veut rien dire : trop peu de profils, trop peu d'avis. La Bourse s'ouvre quand le marché est réel.</p>
+  <!-- ══ 01 · MÉCANIQUE : verrouillée / débloquée / 10 salaires ══ -->
+  <section class="wzf-pane">
+    <div class="container">
+      <div class="wzf-pane-head wz-reveal">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">01 · Comment ça marche</div>
+        <h2 class="wz-h2">Trois étapes. <em class="wz-gold-it">Zéro hasard.</em></h2>
+        <p class="wzf-sub">La Bourse ne se tire pas au sort. Elle se débloque, puis elle se gagne. Chaque mois, au mérite.</p>
+      </div>
+      <div class="wzf-steps">
+        <div class="wzf-card wz-reveal">
+          <div class="wzf-step-num">Étape 01 · 🔒 Verrouillée</div>
+          <h3>Ton pays doit prouver que le marché est réel</h3>
+          <p>La Bourse de ton pays est verrouillée tant qu'il n'a pas atteint 5 000 membres Pro. En dessous de ce seuil, un classement national ne veut rien dire : trop peu de profils, trop peu d'avis. La Bourse s'ouvre quand le marché est réel.</p>
+        </div>
+        <div class="wzf-card wz-reveal" data-d="1">
+          <div class="wzf-step-num">Étape 02 · 🔓 Débloquée</div>
+          <h3>À 5 000 Pro, la Bourse s'ouvre. Définitivement.</h3>
+          <p>Le jour où ton pays atteint 5 000 Pro, sa Bourse s'ouvre. Le premier classement démarre le mois suivant, et tourne ensuite chaque mois, sans interruption.</p>
+        </div>
+        <div class="wzf-card wzf-card-hl wz-reveal" data-d="2">
+          <div class="wzf-step-num">Étape 03 · 🏆 10 salaires</div>
+          <h3>Chaque mois, 10 profils touchent un salaire</h3>
+          <p>Le dernier vendredi du mois, à 18h, heure de Lomé et Cotonou, le classement du mois est arrêté. WOZALI verse un salaire à chacun des 10 meilleurs profils du mois. Puis tout repart à zéro pour le mois suivant. Personne ne s'installe. Tout le monde se bat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wz-hairline"></div>
+
+  <!-- ══ 02 · LA COURSE AU DÉBLOCAGE (jauges par pays) ══ -->
+  <section class="wzf-unlock">
+    <div class="container">
+      <div class="wzf-pane-head wz-reveal" style="margin-bottom:28px;">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">02 · La course au déblocage</div>
+        <h2 class="wz-h2">Deux pays. Deux Bourses.<br><em class="wz-gold-it">Qui débloque en premier ?</em></h2>
+        <p class="wzf-sub">Chaque pays a sa propre Bourse et son propre classement. Un Togolais est classé face aux Togolais. Un Béninois face aux Béninois. Le mérite se mesure chez soi.</p>
+      </div>
+      <div class="wz-reveal" data-d="1" aria-live="polite" style="max-width:640px;margin:0 auto;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
+          <div class="wz-gauge">
+            <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇹🇬 TOGO · <span data-nb-pro-tg>…</span> / 5 000 membres Pro</div>
+            <div class="wz-gauge-track"><div data-nb-pro-tg-fill class="wz-gauge-fill" style="height:100%;width:0%;"></div></div>
+            <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-tg>5 000</span> Pro pour ouvrir la Bourse du Togo.</div>
+          </div>
+          <div class="wz-gauge">
+            <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇧🇯 BÉNIN · <span data-nb-pro-bj>…</span> / 5 000 membres Pro</div>
+            <div class="wz-gauge-track"><div data-nb-pro-bj-fill class="wz-gauge-fill" style="height:100%;width:0%;"></div></div>
+            <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-bj>5 000</span> Pro pour ouvrir la Bourse du Bénin.</div>
           </div>
         </div>
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="flex-shrink:0;font-size:22px;">🔓</div>
-          <div>
-            <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">Étape 2 · DÉBLOQUÉE</div>
-            <p style="font-size:13px;color:rgba(252,224,168,.65);line-height:1.6;margin:0;">Le jour où ton pays atteint 5 000 Pro, sa Bourse s'ouvre. Définitivement. Le premier classement démarre le mois suivant, et tourne ensuite chaque mois, sans interruption.</p>
+        <p style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,.5);text-align:center;margin:16px 0 0;">Le premier pays qui atteint 5 000 Pro ouvre sa Bourse. L'autre suit dès qu'il y arrive.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wz-hairline"></div>
+
+
+  <!-- ══ 03 · LE CLASSEMENT AU MÉRITE ══ -->
+  <section class="wzf-pane">
+    <div class="container">
+      <div class="wzf-pane-head wz-reveal">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">03 · Le classement au mérite</div>
+        <h2 class="wz-h2">Pas le plus connu.<br><em class="wz-gold-it">Le plus sérieux.</em></h2>
+        <p class="wzf-sub">L'algorithme ne triche pas. Il regarde ton travail : tes avis clients vérifiés, ta note, ta constance, ton usage réel de la plateforme. Pas tes abonnés, pas tes vues. Chaque mois, les 10 profils avec le meilleur Score Mérite de ton pays gagnent chacun un salaire.</p>
+      </div>
+
+      <div style="max-width:760px;margin:0 auto;">
+
+        <!-- Widget état du membre connecté -->
+        <div id="recomp-bourse-widget"></div>
+
+        <!-- Checklist dynamique Bourse de Croissance -->
+        <div id="bourse-checklist-dynamic" style="margin-top:20px;background:linear-gradient(160deg,#26200F 0%,#1E180E 60%);border:1px solid rgba(232,148,10,.3);border-radius:18px;padding:24px 22px;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+            <h3 style="font-size:11px;color:#E8940A;font-family:'Geist Mono',monospace;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin:0">Mes chances de gagner ce mois</h3>
+            <span id="bourse-ratio-badge" style="background:rgba(232,148,10,0.15);color:#E8940A;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:800;font-family:'Geist Mono',monospace">…</span>
+          </div>
+          <div id="bourse-conditions-list" style="display:grid;gap:8px;font-size:13px;color:rgba(252, 224, 168,.85)">Chargement…</div>
+          <div id="bourse-status-msg" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,0.15);font-size:13px;color:rgba(252, 224, 168,.7);font-style:italic"></div>
+        </div>
+
+        <!-- Conditions affichées pour tous (publique) -->
+        <div class="wzf-card wz-reveal" style="margin-top:20px;">
+          <div class="wzf-step-num">Conditions d'éligibilité</div>
+          <div style="display:grid;gap:9px;font-size:13.5px;line-height:1.6;color:rgba(252, 224, 168,.72)">
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Plan Pro actif <strong style="color:#FCE0A8;">ce mois-ci</strong></div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Ton pays a débloqué sa Bourse (5 000 membres Pro atteints)</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Profil complet (photo + métier + ville/quartier + numéro)</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Score WOZALI ≥ 80 points sur 100</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Au moins <strong style="color:#FCE0A8;">3 avis clients</strong> sur les 30 derniers jours</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Note moyenne ≥ 4,2 étoiles sur 30 jours</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Connexion récente (≤ 14 jours)</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> Pas gagné les 3 derniers mois (la Bourse fait tourner, jamais une rente)</div>
           </div>
         </div>
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="flex-shrink:0;font-size:22px;">🏆</div>
-          <div>
-            <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">Étape 3 · CHAQUE MOIS, 10 SALAIRES</div>
-            <p style="font-size:13px;color:rgba(252,224,168,.65);line-height:1.6;margin:0;">Le dernier vendredi du mois, à 18h, heure de Lomé et Cotonou, le classement du mois est arrêté. WOZALI verse un salaire à chacun des 10 meilleurs profils du mois. Puis tout repart à zéro. Nouveau mois, nouveau classement, nouveaux gagnants. Personne ne s'installe. Tout le monde se bat.</p>
+
+        <!-- Ce qui compte -->
+        <div class="wzf-card wz-reveal" data-d="1" style="margin-top:20px;">
+          <div class="wzf-step-num">Ce qui compte</div>
+          <div style="display:grid;gap:9px;font-size:13.5px;line-height:1.65;color:rgba(252, 224, 168,.72)">
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> <strong style="color:#FCE0A8;">La qualité de tes avis clients vérifiés</strong> (la plus grosse part du score). 10 avis excellents battent 200 avis moyens.</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> <strong style="color:#FCE0A8;">Le nombre d'avis vérifiés</strong>, avec un plafond : au-delà d'un certain nombre, les avis supplémentaires ne rapportent presque plus rien.</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> <strong style="color:#FCE0A8;">Les clients qui reviennent</strong> te noter sur plusieurs mois. Le signal de qualité le plus fort qui existe.</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> <strong style="color:#FCE0A8;">Tes photos de réalisations</strong> publiées sur ton profil.</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> <strong style="color:#FCE0A8;">Ton profil complet</strong> et ta <strong style="color:#FCE0A8;">régularité</strong> sur la plateforme.</div>
+            <div><span style="color:#E8940A;font-weight:700;">✓</span> <strong style="color:#FCE0A8;">Ton usage réel des outils WOZALI</strong> (Coach Sandy comprise) : un profil qui travaille vraiment sa présence monte plus vite.</div>
+          </div>
+        </div>
+
+        <!-- Ce qui ne compte pas -->
+        <div class="wzf-card wz-reveal" data-d="1" style="margin-top:20px;">
+          <div class="wzf-step-num" style="color:rgba(252, 224, 168,.5);">Ce qui ne compte pas · Zéro point</div>
+          <div style="display:grid;gap:9px;font-size:13.5px;line-height:1.6;color:rgba(252, 224, 168,.55);margin-bottom:14px">
+            <div><span style="font-weight:700;">✗</span> Tes abonnés TikTok, Instagram ou Facebook</div>
+            <div><span style="font-weight:700;">✗</span> Les vues de ton profil</div>
+            <div><span style="font-weight:700;">✗</span> Les partages et les likes</div>
+          </div>
+          <p style="font-size:13.5px;color:rgba(252, 224, 168,.72);line-height:1.65;margin:0">Une coiffeuse de quartier avec 12 clientes satisfaites passe devant un compte à 100 000 abonnés avec des avis moyens. C'est voulu. <strong style="color:#FCE0A8;">Ton audience ne joue pas. Ton travail joue.</strong></p>
+        </div>
+
+        <!-- Anti-triche -->
+        <div class="wzf-card wzf-card-hl wz-reveal" data-d="2" style="margin-top:20px;">
+          <div class="wzf-step-num">Règles anti-triche</div>
+          <div style="display:grid;gap:9px;font-size:13.5px;line-height:1.65;color:rgba(252, 224, 168,.72)">
+            <div><span style="color:#E8940A;font-weight:700;">·</span> Un avis n'est vérifié que s'il est lié à un numéro WhatsApp réel (jamais affiché publiquement).</div>
+            <div><span style="color:#E8940A;font-weight:700;">·</span> Un même client ne peut te noter qu'une fois par mois.</div>
+            <div><span style="color:#E8940A;font-weight:700;">·</span> Les avis suspects (arrivées en masse, faux numéros) sont écartés du classement.</div>
+            <div><span style="color:#E8940A;font-weight:700;">·</span> Les 10 premiers du classement sont vérifiés manuellement avant chaque virement.</div>
+          </div>
+        </div>
+
+        <!-- Palmarès Bourse -->
+        <div id="recomp-palmares-bourse" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wz-hairline"></div>
+
+  <!-- ══ 04 · COACH SANDY : le chemin vers le classement ══ -->
+  <section class="wz-sandy" aria-labelledby="recomp-sandy-title">
+    <div class="container wz-sandy-grid">
+      <div class="wz-sandy-text wz-reveal">
+        <div class="wz-eyebrow">04 · Coach Sandy</div>
+        <h2 id="recomp-sandy-title" class="wz-h2">Le classement récompense les meilleurs. <em class="wz-gold-it">Sandy t'y amène.</em></h2>
+        <p class="wz-lead">Sandy, c'est ta coach business dans ton espace WOZALI. Gratuite. Chaque jour, elle regarde tes vues, tes avis, ta note, et elle te dit <strong>une chose à améliorer</strong> pour faire monter ton Score.</p>
+        <ul class="wz-sandy-points">
+          <li><span class="wz-pt-dot"></span>Un conseil concret par jour, basé sur tes vrais chiffres</li>
+          <li><span class="wz-pt-dot"></span>Elle te montre exactement ce qui te manque pour monter</li>
+          <li><span class="wz-pt-dot"></span>Travailler ton profil avec Sandy compte dans ton Score</li>
+        </ul>
+        <button class="btn-wozali-primary wz-btn-sheen" onclick="showPage('inscription')">Rencontrer Sandy</button>
+      </div>
+      <div class="wz-sandy-visual wz-reveal" data-d="1" aria-hidden="true">
+        <div class="wz-chat">
+          <div class="wz-chat-head">
+            <div class="wz-chat-avatar">S</div>
+            <div>
+              <div class="wz-chat-name">Sandy</div>
+              <div class="wz-chat-role">Coach business · WOZALI</div>
+            </div>
+            <span class="wz-chat-live"><span class="wz-live-dot"></span>En ligne</span>
+          </div>
+          <div class="wz-chat-body">
+            <div class="wz-msg wz-msg-sandy wz-msg-a1">Bonjour Sena. Ton Score a pris <strong>6 points</strong> cette semaine. Mais tes deux derniers clients ne t'ont pas encore noté.</div>
+            <div class="wz-msg wz-msg-sandy wz-msg-a2">Une chose à faire aujourd'hui : envoie-leur ton lien d'avis. Deux avis vérifiés de plus, et tu montes au classement.</div>
+            <div class="wz-msg wz-msg-me wz-msg-a3">C'est envoyé. Les deux ont noté.</div>
+            <div class="wz-chat-day wz-msg-a4">Fin du mois</div>
+            <div class="wz-msg wz-msg-sandy wz-msg-a5">Regarde le classement : tu fais partie des profils qui montent le plus ce mois-ci. On continue ?</div>
+            <div class="wz-typing wz-msg-a6"><span></span><span></span><span></span></div>
           </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- Compteur 2 pays : la course au déblocage -->
-    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:24px;margin-bottom:24px;text-align:center;">
-      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:2px;color:#E8940A;margin-bottom:6px;">🇹🇬 vs 🇧🇯 · LA COURSE AU DÉBLOCAGE</div>
-      <p style="font-size:13px;color:rgba(252,224,168,.6);margin:0 0 18px;">Deux pays. Deux Bourses. Quel marché prouvera en premier qu'il est prêt ?</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;text-align:left;">
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇹🇬 TOGO · <span data-nb-pro-tg>…</span> / 5 000</div>
-          <div style="height:8px;border-radius:99px;background:rgba(252,224,168,.12);overflow:hidden;"><div data-nb-pro-tg-fill style="height:100%;width:0%;background:#E8940A;border-radius:99px;"></div></div>
-          <div style="font-size:12px;color:rgba(252,224,168,.5);margin-top:8px;">Il manque <span data-reste-tg>5 000</span> Pro.</div>
-        </div>
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;">
-          <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇧🇯 BÉNIN · <span data-nb-pro-bj>…</span> / 5 000</div>
-          <div style="height:8px;border-radius:99px;background:rgba(252,224,168,.12);overflow:hidden;"><div data-nb-pro-bj-fill style="height:100%;width:0%;background:#E8940A;border-radius:99px;"></div></div>
-          <div style="font-size:12px;color:rgba(252,224,168,.5);margin-top:8px;">Il manque <span data-reste-bj>5 000</span> Pro.</div>
-        </div>
+  <div class="wz-hairline"></div>
+
+  <!-- ══ 05 · FAQ BOURSE ══ -->
+  <section class="wzf-faq-section">
+    <div class="container" style="max-width:760px;">
+      <div class="wzf-pane-head wz-reveal" style="margin-bottom:28px;">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">05 · Questions fréquentes</div>
+        <h2 class="wz-h2">La Bourse, <em class="wz-gold-it">sans zone d'ombre.</em></h2>
       </div>
-      <p style="font-size:12px;color:rgba(252,224,168,.45);margin:16px 0 0;">Chaque pays a sa propre Bourse et son propre classement. Un Togolais est classé face aux Togolais. Un Béninois face aux Béninois. Le mérite se mesure chez soi.</p>
+      <div class="wzf-faq wz-reveal" data-d="1">
+        <div class="faq-item"><div class="faq-q">Un salaire, c'est combien exactement ?</div><div class="faq-r">Le salaire minimum légal de ton pays. Au Togo, 52 500 FCFA. Au Bénin, 52 000 FCFA. WOZALI a choisi le mot salaire parce que c'est exactement ce que c'est : la reconnaissance d'un mois de travail sérieux, versée en un seul virement sur ton Mobile Money.</div></div>
+        <div class="faq-item"><div class="faq-q">D'où vient l'argent ?</div><div class="faq-r">La Bourse est un engagement budgétaire de WOZALI, versé sur ses propres fonds, via FedaPay et CinetPay. WOZALI ne détient jamais l'argent de ses membres. Les virements sont publics, vérifiables, et versés le dernier vendredi du mois.</div></div>
+        <div class="faq-item"><div class="faq-q">Pourquoi 5 000 membres Pro avant l'ouverture ?</div><div class="faq-r">Par équité. En dessous de 5 000 profils Pro, un classement national ne mesure rien : trop peu de profils, trop peu d'avis pour distinguer les vrais meilleurs. Ouvrir plus tôt, ce serait récompenser au hasard. La Bourse s'ouvre quand le marché est réel et que le classement veut dire quelque chose.</div></div>
+        <div class="faq-item"><div class="faq-q">Je peux gagner plusieurs mois de suite ?</div><div class="faq-r">Non. Un gagnant laisse la place pendant 3 mois avant de pouvoir regagner. La Bourse récompense le mérite du mois, jamais les mêmes noms en boucle. Chaque mois, le classement repart à zéro pour tout le monde.</div></div>
+        <div class="faq-item"><div class="faq-q">Et si je suis bon mais que mon pays n'a pas encore débloqué ?</div><div class="faq-r">Ton Score WOZALI travaille déjà pour toi : visibilité, clients, avis. Le jour du déblocage, ceux qui ont construit leur profil depuis des mois partent devant. La Bourse ne crée pas les meilleurs. Elle les révèle.</div></div>
+      </div>
     </div>
+  </section>
 
-
-    <!-- Section Bourse -->
-    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:20px;padding:28px 24px;margin-bottom:24px">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-        <span style="font-size:32px">🏆</span>
-        <div>
-          <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;color:#FCE0A8;margin:0">Bourse de Croissance</h2>
-          <p style="font-size:13px;color:#E8940A;margin:2px 0 0;font-family:'Geist Mono',monospace">Un salaire × 10 / mois</p>
-        </div>
+  <!-- ══ CTA PRO (affiché uniquement pour les non-Pro, géré par loadPageRecompenses) ══ -->
+  <section id="recomp-cta-pro" class="wzf-final" style="display:none;">
+    <div class="container">
+      <div style="max-width:640px;margin:0 auto;text-align:center;background:linear-gradient(160deg,rgba(232,148,10,.14),rgba(232,148,10,.04) 70%);border:2px solid #E8940A;border-radius:20px;padding:38px 28px;box-shadow:0 24px 60px -24px rgba(232,148,10,.35);position:relative;z-index:1;">
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">Réservé aux membres Pro</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(24px,3.4vw,30px);line-height:1.15;color:#FCE0A8;margin:0 0 12px">La Bourse se joue <em class="wz-gold-it">côté Pro.</em></h3>
+        <p style="color:rgba(252, 224, 168,.65);font-size:14.5px;line-height:1.7;max-width:480px;margin:0 auto 24px">Le Plan Pro, c'est ton profil en premier dans les recherches, la Bourse de Croissance, le chat en temps réel avec Sandy, le boost de ta visibilité et les outils business. Passe au Pro, construis ton Score, et sois prêt le jour où ton pays débloque.</p>
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('dashboard');setTimeout(()=>showDashSection('abonnement'),300)">Passer au Pro · 2 500 FCFA/mois →</button>
       </div>
-      <p style="color:rgba(252, 224, 168,.7);font-size:14px;line-height:1.7;margin-bottom:8px"><strong style="color:#E8940A;font-size:16px;font-family:'DM Serif Display',serif">Pas le plus connu. Le plus sérieux.</strong></p>
-      <p style="color:rgba(252, 224, 168,.7);font-size:14px;line-height:1.7;margin-bottom:20px">L'algorithme ne triche pas. Il regarde ton travail : tes avis clients vérifiés, ta note, ta constance, ton usage réel de la plateforme. Pas tes abonnés, pas tes vues. Les 10 meilleurs profils du mois de ton pays gagnent chacun un salaire. Classement 100% mérite, zéro tirage au sort, remis à zéro chaque mois.</p>
-
-      <!-- Widget état du membre connecté (V1, legacy) -->
-      <div id="recomp-bourse-widget"></div>
-
-      <!-- 🆕 Checklist dynamique Bourse de Croissance -->
-      <div id="bourse-checklist-dynamic" style="margin-top:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:18px;display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <h3 style="font-size:13px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin:0">🏆 MES CHANCES DE GAGNER CE MOIS</h3>
-          <span id="bourse-ratio-badge" style="background:rgba(232,148,10,0.15);color:#E8940A;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:800;font-family:'Geist Mono',monospace">—</span>
-        </div>
-        <div id="bourse-conditions-list" style="display:grid;gap:8px;font-size:13px;color:rgba(252, 224, 168,.85)">Chargement…</div>
-        <div id="bourse-status-msg" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,0.15);font-size:13px;color:rgba(252, 224, 168,.7);font-style:italic"></div>
-      </div>
-
-      <!-- Conditions affichées pour tous (publique) -->
-      <div style="margin-top:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:16px">
-        <h3 style="font-size:13px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</h3>
-        <div style="display:grid;gap:8px;font-size:13px;color:rgba(252, 224, 168,.7)">
-          <div>✓ Plan Pro actif <strong>ce mois-ci</strong></div>
-          <div>✓ Ton pays a débloqué sa Bourse (5 000 membres Pro atteints)</div>
-          <div>✓ Profil complet (photo + métier + ville/quartier + numéro)</div>
-          <div>✓ Score WOZALI ≥ 80 points sur 100</div>
-          <div>✓ Au moins <strong>3 avis clients</strong> sur les 30 derniers jours</div>
-          <div>✓ Note moyenne ≥ 4,2 étoiles sur 30 jours</div>
-          <div>✓ Connexion récente (≤ 14 jours)</div>
-          <div>✓ Pas gagné les 3 derniers mois (la Bourse fait tourner, jamais une rente)</div>
-        </div>
-      </div>
-
-      <!-- Règles du classement au mérite (publiques, transparentes) -->
-      <div style="margin-top:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:16px">
-        <h3 style="font-size:13px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:6px">COMMENT LE CLASSEMENT EST CALCULÉ</h3>
-        <p style="font-size:13px;color:rgba(252, 224, 168,.75);line-height:1.7;margin-bottom:14px"><strong style="color:#E8940A">Pas le plus connu. Le plus sérieux.</strong> Le classement regarde ton travail. Rien d'autre. Chaque mois, les 10 profils avec le meilleur Score Mérite de ton pays gagnent chacun un salaire.</p>
-
-        <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:8px">✓ CE QUI COMPTE</div>
-        <div style="display:grid;gap:7px;font-size:13px;color:rgba(252, 224, 168,.75);margin-bottom:14px">
-          <div>✓ <strong>La qualité de tes avis clients vérifiés</strong> (la plus grosse part du score). 10 avis excellents battent 200 avis moyens.</div>
-          <div>✓ <strong>Le nombre d'avis vérifiés</strong>, avec un plafond : au-delà d'un certain nombre, les avis supplémentaires ne rapportent presque plus rien.</div>
-          <div>✓ <strong>Les clients qui reviennent</strong> te noter sur plusieurs mois. Le signal de qualité le plus fort qui existe.</div>
-          <div>✓ <strong>Tes photos de réalisations</strong> publiées sur ton profil.</div>
-          <div>✓ <strong>Ton profil complet</strong> et ta <strong>régularité</strong> sur la plateforme.</div>
-          <div>✓ <strong>Ton usage réel des outils WOZALI</strong> (Coach Sandy compris) : un profil qui travaille vraiment sa présence monte plus vite.</div>
-        </div>
-
-        <div style="font-size:12px;color:#ef4444;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:8px">✗ CE QUI NE COMPTE PAS — ZÉRO POINT</div>
-        <div style="display:grid;gap:7px;font-size:13px;color:rgba(252, 224, 168,.6);margin-bottom:14px">
-          <div>✗ Tes abonnés TikTok, Instagram ou Facebook</div>
-          <div>✗ Les vues de ton profil</div>
-          <div>✗ Les partages et les likes</div>
-        </div>
-        <p style="font-size:13px;color:rgba(252, 224, 168,.75);line-height:1.6;margin-bottom:14px">Une coiffeuse de quartier avec 12 clientes satisfaites passe devant un compte à 100 000 abonnés avec des avis moyens. C'est voulu. <strong>Ton audience ne joue pas. Ton travail joue.</strong></p>
-
-        <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:8px">🛡 RÈGLES ANTI-TRICHE</div>
-        <div style="display:grid;gap:7px;font-size:13px;color:rgba(252, 224, 168,.7)">
-          <div>• Un avis n'est vérifié que s'il est lié à un numéro WhatsApp réel (jamais affiché publiquement).</div>
-          <div>• Un même client ne peut te noter qu'une fois par mois.</div>
-          <div>• Les avis suspects (arrivées en masse, faux numéros) sont écartés du classement.</div>
-          <div>• Les 10 premiers du classement sont vérifiés manuellement avant chaque virement.</div>
-        </div>
-      </div>
-
-      <!-- Palmarès Bourse -->
-      <div id="recomp-palmares-bourse" style="margin-top:20px"></div>
     </div>
-
-    <!-- FAQ Bourse -->
-    <div style="margin-top:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:16px 16px 4px;">
-      <h3 style="font-size:13px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">❓ QUESTIONS FRÉQUENTES · BOURSE DE CROISSANCE</h3>
-      <div class="faq-item"><div class="faq-q">Un salaire, c'est combien exactement ?</div><div class="faq-r">Le salaire minimum légal de ton pays. Au Togo, 52 500 FCFA. Au Bénin, 52 000 FCFA. WOZALI a choisi le mot salaire parce que c'est exactement ce que c'est : la reconnaissance d'un mois de travail sérieux, versée en un seul virement sur ton Mobile Money.</div></div>
-      <div class="faq-item"><div class="faq-q">D'où vient l'argent ?</div><div class="faq-r">La Bourse est un engagement budgétaire de WOZALI, versé sur ses propres fonds, via FedaPay et CinetPay. WOZALI ne détient jamais l'argent de ses membres. Les virements sont publics, vérifiables, et versés le dernier vendredi du mois.</div></div>
-      <div class="faq-item"><div class="faq-q">Pourquoi 5 000 membres Pro avant l'ouverture ?</div><div class="faq-r">Par équité. En dessous de 5 000 profils Pro, un classement national ne mesure rien : trop peu de profils, trop peu d'avis pour distinguer les vrais meilleurs. Ouvrir plus tôt, ce serait récompenser au hasard. La Bourse s'ouvre quand le marché est réel et que le classement veut dire quelque chose.</div></div>
-      <div class="faq-item"><div class="faq-q">Je peux gagner plusieurs mois de suite ?</div><div class="faq-r">Non. Un gagnant laisse la place pendant 3 mois avant de pouvoir regagner. La Bourse récompense le mérite du mois, jamais les mêmes noms en boucle. Chaque mois, le classement repart à zéro pour tout le monde.</div></div>
-      <div class="faq-item"><div class="faq-q">Et si je suis bon mais que mon pays n'a pas encore débloqué ?</div><div class="faq-r">Ton Score WOZALI travaille déjà pour toi : visibilité, clients, avis. Le jour du déblocage, ceux qui ont construit leur profil depuis des mois partent devant. La Bourse ne crée pas les meilleurs. Elle les révèle.</div></div>
-    </div>
-
-    <!-- CTA Pro -->
-    <div id="recomp-cta-pro" style="display:none;text-align:center;background:linear-gradient(135deg,rgba(232,148,10,.08),rgba(232,148,10,.02));border:2px solid rgba(232,148,10,.3);border-radius:16px;padding:28px 20px;margin-top:20px">
-      <div style="font-size:28px;margin-bottom:8px">🔒</div>
-      <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin-bottom:8px">Réservé aux membres Pro</h3>
-      <p style="color:rgba(252, 224, 168,.6);font-size:14px;margin-bottom:20px">La Bourse de Croissance est réservée aux membres Pro. Passe au Plan Pro, construis ton Score, et sois prêt le jour où ton pays débloque.</p>
-      <button onclick="showPage('dashboard');setTimeout(()=>showDashSection('abonnement'),300)" style="background:#E8940A;color:#14100A;border:none;padding:14px 28px;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer">Passer au Pro · 2 500 FCFA/mois →</button>
-    </div>
-  </div>
+  </section>
 </div>
 
 
