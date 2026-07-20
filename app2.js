@@ -71,7 +71,7 @@ const faqData = [
   },
   {
     q: "C'est quoi la Bourse de Croissance exactement ?",
-    a: "Chaque mois, WOZALI verse <strong>100 000 FCFA chacun aux 5 meilleurs profils</strong> du Togo et du Bénin — 500 000 FCFA au total. Réservée aux membres Pro. Le classement est 100% au mérite : tes avis clients vérifiés, ta note, ta constance. Pas tes abonnés, pas ton nombre de vues. Pas de dossier à remplir, pas de tirage au sort — si tu remplis les conditions, tu es automatiquement dans le classement. Résultats le dernier vendredi du mois, premiers résultats le 25 septembre 2026."
+    a: "Chaque mois, WOZALI verse <strong>un salaire à chacun des 10 meilleurs profils</strong> du mois, dans ton pays. Réservée aux membres Pro, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro atteints). Le classement est 100% au mérite : tes avis clients vérifiés, ta note, ta constance. Pas tes abonnés, pas ton nombre de vues. Pas de dossier à remplir, pas de tirage au sort : si tu remplis les conditions, tu es automatiquement dans le classement. Résultats le dernier vendredi du mois."
   }
 ];
 

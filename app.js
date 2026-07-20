@@ -3637,10 +3637,10 @@ window.updatePushCard = updatePushCard;
 // NAVIGATION
 // ══════════════════════════════════════════
 const _seoPageMeta = {
-  home:         { title: 'WOZALI — Visibilité. Emploi. Revenus. Bénin & Togo.', desc: 'Trouve un prestataire ou un emploi au Bénin et au Togo. Profils vérifiés, 500 000 FCFA distribués chaque mois.' },
+  home:         { title: 'WOZALI · Trouve un prestataire ou un emploi au Bénin et au Togo', desc: 'WOZALI : trouve un prestataire vérifié ou un emploi à Lomé et Cotonou. Avis clients réels, profils sur Google. Chaque mois, les 10 meilleurs profils gagnent un salaire.' },
   search:       { title: 'Trouver un pro — WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOZALI Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
-  recompenses:  { title: 'Récompenses WOZALI — 500 000 FCFA/mois', desc: 'Bourse de Croissance : 100 000 FCFA chacun pour les 5 meilleurs profils du mois (Pro, Togo + Bénin). Classement 100% mérite : avis clients vérifiés, note, constance. Premiers résultats le 25 septembre 2026.' },
+  recompenses:  { title: 'La Bourse de Croissance — WOZALI', desc: 'Chaque mois, les 10 meilleurs profils du mois gagnent un salaire. Au mérite. Jamais au hasard. Réservé aux membres Pro, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro).' },
   inscription:  { title: 'Inscription gratuite — WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche — WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
 };
@@ -12270,7 +12270,7 @@ async function submitInscription(e) {
 
 // Point 58/59 — Partager son profil sur WhatsApp apres inscription
 function shareInscriptionWhatsApp() {
-  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOZALI règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier, enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. 500 000 FCFA versés chaque mois aux meilleurs.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wozali.africa\n\nTon travail nourrit. Pas ton réseau.");
+  var msg = encodeURIComponent("Au Togo et au Bénin, on connaît tous le problème :\n👉 Le travail ne manque pas. C’est l’argent qui circule pas.\n👉 Les jeunes ont des métiers. Personne ne les voit.\n👉 Les business du quartier tournent au ralenti. Pas de visibilité, pas de clients.\n👉 Toi t’as besoin d’un coiffeur, d’un mécano, d’une couturière. Sans contact, c’est l’arnaque.\n\nWOZALI règle ça en 30 secondes.\n\n🇹🇬🇧🇯 Lomé · Cotonou. Tous les pros de ton quartier, enfin trouvables.\nGPS. WhatsApp direct. Avis vérifiés. Profils contrôlés.\n\nT’es pro ? Crée ton profil gratuit en 2 minutes. Tes clients te trouvent dès le 1er jour. Chaque mois, un salaire pour les 10 meilleurs profils.\n\nT’as besoin d’un pro ? Trouve celui de ton quartier sans chercher 2 heures.\n\n🔗 wozali.africa\n\nTon travail nourrit. Pas ton réseau.");
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
@@ -13310,10 +13310,10 @@ async function injectSprint6Upgrade(){
   block.innerHTML = `
     <div style="background:#14100A;border:2px solid #E8940A;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
       <div style="font-size:40px;margin-bottom:6px">🏆</div>
-      <div style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:4px">500 000 FCFA distribués chaque mois</div>
-      <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:14px">Bourse de Croissance — les 5 meilleurs profils du mois (Pro, 100% mérite)</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:4px">Un salaire chaque mois pour les 10 meilleurs</div>
+      <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:14px">Bourse de Croissance : les 10 meilleurs profils du mois de ton pays (Pro, 100% mérite)</div>
       <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Geist Mono'">100K × 5</strong></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Geist Mono'">Salaire × 10</strong></div>
       </div>
     </div>
 
@@ -13327,7 +13327,7 @@ async function injectSprint6Upgrade(){
         ${rowKo('Badge Pro')}
         ${rowKo('Priorité résultats')}
         ${sectionTitle('RÉCOMPENSES')}
-        ${rowKo('Bourse 100 000 FCFA × 5/mois (Pro only)')}
+        ${rowKo('Bourse : un salaire × 10/mois (Pro only)')}
         ${rowKo('Commissions parrainage')}
       </div>
       <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
@@ -13340,7 +13340,7 @@ async function injectSprint6Upgrade(){
         ${rowOk('Priorité résultats')}
         ${rowOk('À la Une homepage')}
         ${sectionTitle('RÉCOMPENSES')}
-        ${rowOk('<strong>Bourse 100 000 FCFA × 5/mois</strong>')}
+        ${rowOk('<strong>Bourse : un salaire × 10/mois</strong>')}
         ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
       </div>
     </div>
@@ -13375,7 +13375,7 @@ function sp6ShowSuccess(){
     <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es Pro !</div>
     <div style="font-size:14px;color:rgba(252, 224, 168,.7);margin-bottom:28px">Ton Plan Pro est actif jusqu'au ${dateFin.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
     <div style="max-width:360px;width:100%">
-      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#FCE0A8">🏆 <strong>Bourse de Croissance 100 000 FCFA × 5</strong> — les 5 meilleurs profils du mois · prochains résultats vendredi 18h00</div>
+      <div style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);border-radius:12px;padding:14px;margin-bottom:10px;text-align:left;font-size:13px;color:#FCE0A8">🏆 <strong>Bourse de Croissance : un salaire × 10</strong> · les 10 meilleurs profils du mois de ton pays · résultats le dernier vendredi du mois à 18h</div>
       <button onclick="this.closest('[style*=fixed]').remove();showDashSection('profil')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:10px;font-weight:800;cursor:pointer;margin-bottom:8px">Aller au dashboard →</button>
     </div>`;
   document.body.appendChild(overlay);
@@ -13400,10 +13400,10 @@ async function loadRecompensesWidgets() {
             <span style="font-size:36px">🏆</span>
             <div>
               <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;">Bourse de Croissance</div>
-              <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">100 000 FCFA × 5 · LES 5 MEILLEURS PROFILS · PRO</div>
+              <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;">UN SALAIRE × 10 · LES 10 MEILLEURS PROFILS · PRO</div>
             </div>
           </div>
-          <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px">Chaque mois, les 5 Pro les plus sérieux du Bénin et du Togo gagnent <strong>100 000 FCFA chacun</strong>. Le classement regarde ton travail — tes avis, ta note, ta constance — pas tes abonnés. Pas de dossier à remplir — si tu remplis les conditions, tu es dans le classement automatiquement. Résultats le dernier vendredi du mois.</p>
+          <p style="color:rgba(252,224,168,.8);font-size:14px;line-height:1.7;margin-bottom:20px">Chaque mois, les 10 Pro les plus sérieux de ton pays gagnent <strong>chacun un salaire</strong>, le salaire minimum légal de ton pays. Le classement regarde ton travail : tes avis, ta note, ta constance, pas tes abonnés. Pas de dossier à remplir, si tu remplis les conditions, tu es dans le classement automatiquement. Résultats le dernier vendredi du mois, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro).</p>
           <div style="background:rgba(255,255,255,.03);border-radius:12px;padding:16px;margin-bottom:16px">
             <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:12px">CONDITIONS D'ÉLIGIBILITÉ</div>
             <div style="display:grid;gap:8px;font-size:13px;color:rgba(252,224,168,.8)">
@@ -13419,9 +13419,9 @@ async function loadRecompensesWidgets() {
           <button onclick="showDashSection('abonnement')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
         </div>
         <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
-          <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Premiers résultats</div>
-          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">25 septembre 2026</div>
-          <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Puis le dernier vendredi du mois · Classement 100% automatique, au mérite</div>
+          <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Résultats</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;font-weight:900;">Le dernier vendredi du mois</div>
+          <div style="font-size:12px;color:rgba(252,224,168,.4);margin-top:4px">Dans les pays qui ont débloqué leur Bourse (5 000 membres Pro) · Classement 100% automatique, au mérite</div>
         </div>
       </div>`;
     return;
@@ -13464,7 +13464,7 @@ function _widgetBourse(bourse, countdown) {
         <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Le virement sera effectué sous 48h.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Mon abonnement</button>
-          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 Je fais partie des 5 meilleurs profils de la Bourse de Croissance WOZALI ! 100 000 FCFA pour les membres Pro les plus méritants. Rejoins WOZALI : wozali.africa'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
+          <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 Je fais partie des 10 meilleurs profils de la Bourse de Croissance WOZALI ! Un salaire pour les membres Pro les plus méritants. Rejoins WOZALI : wozali.africa'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
         </div>
       </div>`;
   }
@@ -13484,7 +13484,7 @@ function _widgetBourse(bourse, countdown) {
       <div style="background:rgba(232,148,10,.05);border:2px solid rgba(232,148,10,.4);border-radius:16px;padding:24px;text-align:center">
         <div style="font-size:36px;margin-bottom:8px;animation:pulse 2s infinite">🏆</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es dans la course pour la Bourse de Croissance !</h3>
-        <div style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;margin-bottom:12px">100 000 FCFA</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;margin-bottom:12px">Un salaire</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px">
           <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Pro 2+ mois</span>
           <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Score ≥ 80</span>
@@ -13507,7 +13507,7 @@ function _widgetBourse(bourse, countdown) {
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
         <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(252, 224, 168,.3)">🔒</div>
         <div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin:0">Bourse de Croissance · 100 000 FCFA × 5</h3>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin:0">Bourse de Croissance · Un salaire × 10</h3>
           <p style="font-size:12px;color:rgba(252, 224, 168,.5);margin:2px 0 0">Tu n'es pas encore éligible ce mois</p>
         </div>
       </div>
@@ -18685,7 +18685,7 @@ const AGENT_DOCUMENTS = [
   { slug: '02-plateforme-az',         titre: 'Comment fonctionne WOZALI de A à Z',                    desc: 'Tour complet de la plateforme avant de la présenter.' },
   { slug: '03-geolocalisation',       titre: 'La géolocalisation — pourquoi ça change tout',           desc: 'Le moteur invisible qui met les pros en avant.' },
   { slug: '04-parrainage',            titre: 'Le parrainage WOZALI',                                  desc: 'Comment fonctionne le système de commission.' },
-  { slug: '05-recompenses',           titre: 'Les récompenses mensuelles',                            desc: '500 000 FCFA distribués chaque mois — les règles.' },
+  { slug: '05-recompenses',           titre: 'Les récompenses mensuelles',                            desc: 'Un salaire chaque mois pour les 10 meilleurs, au mérite : les règles.' },
   { slug: '06-wozali-jobs',           titre: 'WOZALI Jobs',                                           desc: 'Le module emploi expliqué simplement.' },
   { slug: '07-lire-une-personne',     titre: 'Lire une personne avant de lui parler',                 desc: 'Observer avant d\'ouvrir la bouche.' },
   { slug: '08-creer-confiance',       titre: 'Créer la confiance avec un inconnu en 2 minutes',       desc: 'Les premiers mots qui ouvrent ou ferment une porte.' },
@@ -20317,7 +20317,7 @@ const AMBASSADEUR_DOCUMENTS = [
   { slug: 'ambs-08-histoire-mission',   num: '08', titre: 'L\'histoire et la mission',    desc: 'Pourquoi WOZALI existe. L\'essentiel pour parler avec conviction.' },
   { slug: 'ambs-09-plateforme-az',      num: '09', titre: 'La plateforme de A à Z',       desc: 'Tour complet pour répondre aux questions de ton audience.' },
   { slug: 'ambs-10-geolocalisation',    num: '10', titre: 'La géolocalisation',           desc: 'Le concept le plus visuel et le plus fort pour ton contenu.' },
-  { slug: 'ambs-11-recompenses',        num: '11', titre: 'Les récompenses mensuelles',   desc: '500 000 FCFA/mois - comment en parler sans survendre.' },
+  { slug: 'ambs-11-recompenses',        num: '11', titre: 'Les récompenses mensuelles',   desc: 'Un salaire chaque mois pour les 10 meilleurs - comment en parler sans survendre.' },
   { slug: 'ambs-12-wozali-jobs',        num: '12', titre: 'WOZALI Jobs',                  desc: 'Le module emploi - double ta cible de contenu.' },
   { slug: 'ambs-13-score-wozali',       num: '13', titre: 'Le Score WOZALI',              desc: 'Le coeur du système. Ton argument le plus fort.' },
 ];
