@@ -7197,34 +7197,35 @@ setTimeout(function(){
 <div id="page-apropos" class="page">
 
   <!-- HERO STORY -->
-  <section style="background:var(--noir);padding:0;position:relative;overflow:hidden;min-height:90vh;display:flex;align-items:center;">
+  <section style="background:#14100A;padding:0;position:relative;overflow:hidden;min-height:90vh;display:flex;align-items:center;">
     <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 100% at 100% 50%,rgba(232,148,10,0.12) 0%,transparent 60%);"></div>
+    <div class="wzf-grain" aria-hidden="true"></div>
 
     <!-- Photo en fond partiel -->
     <div style="position:absolute;right:0;top:0;bottom:0;width:45%;overflow:hidden;">
       <img src="/assets/fondateur.jpg" id="schealtiel-photo" loading="lazy" alt="Schealtiel Lawson" style="width:100%;height:100%;object-fit:cover;object-position:top center;opacity:0.5;">
-      <div style="position:absolute;inset:0;background:linear-gradient(to right,var(--noir) 0%,transparent 40%,var(--noir) 100%);"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,#14100A 0%,transparent 40%,#14100A 100%);"></div>
     </div>
 
     <div class="container" style="position:relative;z-index:1;padding-top:80px;padding-bottom:80px;">
       <div style="max-width:600px;">
-        <div class="badge" style="background:rgba(232,148,10,0.2);color:#F5B82E;margin-bottom:24px;">L'HISTOIRE · LA MISSION · WOZALI</div>
-        <h1 style="color:white;font-size:clamp(36px,5vw,60px);line-height:1.05;margin-bottom:20px;">
-          WOZALI n'est pas une startup tech.<br><span style="color:var(--or);font-style:italic;">C'est une réponse à une injustice.</span>
+        <div class="wz-eyebrow" style="margin-bottom:24px;">Notre histoire</div>
+        <h1 style="font-family:'DM Serif Display',serif;font-weight:400;color:#FCE0A8;font-size:clamp(36px,5vw,60px);line-height:1.05;margin-bottom:20px;">
+          WOZALI n'est pas une startup tech.<br><em class="wz-gold-it">C'est une réponse à une injustice.</em>
         </h1>
-        <p style="color:rgba(255,255,255,0.7);font-size:18px;line-height:1.7;margin-bottom:32px;">
+        <p style="font-family:'Geist',sans-serif;color:rgba(252,224,168,0.72);font-size:17px;line-height:1.75;margin-bottom:32px;">
           Lomé. Cotonou. 2026.<br>
           Un menuisier qui travaille depuis 15 ans à Akpakpa n'existe pas à 500 mètres de chez lui.<br>
           Un diplômé de l'Université d'Abomey-Calavi envoie des CV dans le vide depuis 2 ans.<br>
           La coiffeuse d'Adidogomé attend que le voisin parle d'elle.<br><br>
           Ce n'est pas un problème de compétences.<br>
-          C'est un problème de visibilité. De paiement. De revenus.<br><br>
-          <strong style="color:var(--or);">WOZALI est la réponse.</strong>
+          C'est l'argent qui ne circule pas vers ceux qui travaillent bien.<br><br>
+          <strong style="color:#E8940A;">J'ai construit WOZALI pour changer ça.</strong>
         </p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;">
-          <div style="background:rgba(255,255,255,0.08);border-radius:100px;padding:8px 18px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);">🇧🇯🇹🇬 Bénin & Togo</div>
-          <div style="background:rgba(255,255,255,0.08);border-radius:100px;padding:8px 18px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);">🇫🇷 Formé en France</div>
-          <div style="background:rgba(255,255,255,0.08);border-radius:100px;padding:8px 18px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);">🌍 Revenu construire en Afrique</div>
+          <div style="font-family:'Geist Mono',monospace;background:rgba(252,224,168,0.06);border:1px solid rgba(232,148,10,0.25);border-radius:100px;padding:8px 18px;font-size:12px;font-weight:600;color:rgba(252,224,168,0.8);">🇧🇯🇹🇬 Bénin & Togo</div>
+          <div style="font-family:'Geist Mono',monospace;background:rgba(252,224,168,0.06);border:1px solid rgba(232,148,10,0.25);border-radius:100px;padding:8px 18px;font-size:12px;font-weight:600;color:rgba(252,224,168,0.8);">Formé en France</div>
+          <div style="font-family:'Geist Mono',monospace;background:rgba(252,224,168,0.06);border:1px solid rgba(232,148,10,0.25);border-radius:100px;padding:8px 18px;font-size:12px;font-weight:600;color:rgba(252,224,168,0.8);">Revenu construire en Afrique</div>
         </div>
 
         <!-- RÉSEAUX SOCIAUX -->
@@ -7251,53 +7252,64 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- SPRINT 2 — BLOC FONDATEUR -->
+  <!-- BLOC FONDATEUR -->
   <section style="background:#14100A;padding:80px 24px;border-top:1px solid rgba(232,148,10,0.15);">
     <div class="container" style="max-width:780px;">
-      <span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:16px;padding:6px 14px;border:1px solid rgba(232,148,10,0.35);border-radius:100px;">MOT DU FONDATEUR</span>
-      <h1 style="font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,52px);font-weight:900;color:#FCE0A8;line-height:1.1;margin:0 0 24px;">WOZALI t'appartient.</h1>
+      <div class="wz-eyebrow" style="margin-bottom:16px;">01 · Mot du fondateur</div>
+      <h2 class="wz-h2" style="margin:0 0 24px;">WOZALI <em class="wz-gold-it">t'appartient.</em></h2>
+      <p style="font-family:'Geist',sans-serif;font-size:16px;line-height:1.9;color:rgba(252,224,168,0.78);margin:0;">
+        Je n'ai pas construit WOZALI pour la tech. Je l'ai construit parce que j'ai vu des gens qui travaillent bien vivre comme s'ils ne travaillaient pas.<br><br>
+        Ici, ton profil est à toi. Tes avis sont à toi. Ta réputation est à toi. Personne ne peut te l'acheter, personne ne peut te la retirer.<br><br>
+        Ton travail nourrit. Pas ton réseau. C'est la seule promesse que je te fais. Et je compte la tenir.
+      </p>
     </div>
   </section>
 
-  <!-- SPRINT 12 — LES TROIS PILIERS -->
+  <!-- LES TROIS PILIERS -->
   <section style="background:#14100A;padding:80px 24px;border-top:1px solid rgba(232,148,10,0.15);">
     <div class="container" style="max-width:900px;text-align:center;">
-      <span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;text-transform:uppercase;margin-bottom:16px;padding:6px 14px;border:1px solid rgba(232,148,10,0.35);border-radius:100px;">CE QU'EST WOZALI</span>
-      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4.5vw,44px);font-weight:900;color:#FCE0A8;line-height:1.15;margin:0 0 8px;">Visibilité. Paiements. Revenus.</h2>
-      <p style="font-family:'DM Serif Display',serif;font-size:20px;color:rgba(252, 224, 168,0.6);margin:0 0 24px;">Tout au même endroit.</p>
-      <p style="font-family:'Geist',sans-serif;font-size:16px;line-height:1.8;color:rgba(252, 224, 168,0.75);margin:0 auto 40px;max-width:700px;">Artisans, prestataires, commerçants de Cotonou et Lomé — enfin visibles. Pas une appli de plus. Un outil concret, construit pour le marché ouest-africain. Opérationnel dès aujourd'hui.</p>
+      <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;margin-bottom:16px;">02 · Ce qu'est WOZALI</div>
+      <h2 class="wz-h2" style="margin:0 0 8px;">Visibilité. <em class="wz-gold-it">Coaching.</em> Revenus.</h2>
+      <p style="font-family:'DM Serif Display',serif;font-size:20px;color:rgba(252,224,168,0.6);margin:0 0 24px;">Tout au même endroit.</p>
+      <p style="font-family:'Geist',sans-serif;font-size:16px;line-height:1.8;color:rgba(252,224,168,0.75);margin:0 auto 40px;max-width:700px;">Artisans, prestataires, commerçants, chercheurs d'emploi de Cotonou et de Lomé : enfin visibles. Pas une appli de plus. Un outil concret, construit pour le marché ouest-africain. Opérationnel dès aujourd'hui.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;text-align:left;">
         <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.25);border-radius:12px;padding:24px;">
           <div style="font-size:28px;margin-bottom:12px;color:#E8940A;">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </div>
           <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:10px;">VISIBILITÉ</h3>
-          <p style="font-size:14px;line-height:1.7;color:rgba(252, 224, 168,0.75);margin:0;">Ton profil professionnel. Tes réalisations. Tes avis clients vérifiés. Ton Score WOZALI. Visible sur Google. Partageable sur WhatsApp. Trouvable par n'importe quel client à Cotonou ou Lomé — même à 2h du matin, même si Facebook est coupé.</p>
+          <p style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.75);margin:0;">Ton profil professionnel. Tes réalisations. Tes avis clients vérifiés. Ton Score WOZALI. Visible sur Google. Partageable sur WhatsApp. Trouvable par les clients et les recruteurs de Cotonou et de Lomé, même à 2h du matin, même si Facebook est coupé.</p>
         </div>
         <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.25);border-radius:12px;padding:24px;">
           <div style="font-size:28px;margin-bottom:12px;color:#E8940A;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
           </div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:10px;">EMPLOI — WOZALI JOBS</h3>
-          <p style="font-size:14px;line-height:1.7;color:rgba(252, 224, 168,0.75);margin:0;">Trouve un emploi ou recrute directement sur la plateforme. Offres vérifiées, candidatures en un clic, notifications WhatsApp. Le marché de l'emploi de Lomé et Cotonou — enfin digitalisé.</p>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:10px;">COACHING</h3>
+          <p style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.75);margin:0;">Sandy, ta coach business, dans ton espace WOZALI. Fixer tes prix, trouver des clients, gérer un client difficile, faire grandir ton activité : tu poses ta question, elle répond. Des leçons courtes, un langage simple, gratuit pour commencer.</p>
         </div>
         <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.25);border-radius:12px;padding:24px;">
           <div style="font-size:28px;margin-bottom:12px;color:#E8940A;">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7s5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"></path><path d="M6 9l6 11 6-11"></path></svg>
           </div>
           <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:10px;">REVENUS</h3>
-          <p style="font-size:14px;line-height:1.7;color:rgba(252, 224, 168,0.75);margin:0;">Chaque mois, WOZALI verse un salaire à chacun des 10 meilleurs profils Pro du mois, classement 100% mérite. 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton sérieux aussi.</p>
+          <p style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.75);margin:0;">Chaque mois, WOZALI verse un salaire à chacun des 10 meilleurs profils Pro du mois, classement 100% mérite. 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton sérieux aussi.</p>
         </div>
       </div>
+      <div class="wzf-strip wz-reveal" style="margin-top:24px;"><strong>Et WOZALI Jobs.</strong> Il y a deux invisibles : l'artisan que personne ne trouve, et le chercheur d'emploi que personne ne rappelle. WOZALI existe pour les deux. Offres vérifiées, candidature en un clic, suivi en temps réel.</div>
+      <div style="margin-top:24px;background:linear-gradient(160deg,rgba(232,148,10,0.12),#1E180E 65%);border:1.5px solid rgba(232,148,10,0.4);border-radius:16px;padding:32px 28px;text-align:left;">
+        <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;margin-bottom:12px;">Des premières</div>
+        <p style="font-family:'DM Serif Display',serif;font-size:clamp(18px,2.5vw,23px);color:#FCE0A8;line-height:1.55;margin:0;">La première coach business IA d'Afrique de l'Ouest, gratuite, dans la poche d'un artisan. Et des profils d'artisans qui ressortent sur Google comme des mini-sites. Personne ne l'avait fait. <em class="wz-gold-it">On l'a fait ici, pour ici.</em></p>
+      </div>
+      <p style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,0.5);margin:20px 0 0;">Gratuit pour commencer · Plan Pro 2 500 FCFA/mois, réglé en mobile money · Zéro commission sur ton travail</p>
     </div>
   </section>
 
-  <!-- SPRINT 2 — BLOC BENIN -->
+  <!-- BLOC BENIN -->
   <section style="background:#14100A;padding:80px 24px;border-top:1px solid rgba(232,148,10,0.2);border-bottom:1px solid rgba(232,148,10,0.2);">
     <div class="container" style="max-width:820px;">
-      <span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:18px;padding:6px 14px;border:1px solid rgba(232,148,10,0.4);border-radius:100px;">🇧🇯 DOMICILIATION</span>
-      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,4.5vw,44px);font-weight:900;color:#FCE0A8;line-height:1.15;margin:0 0 24px;">Pourquoi le Bénin.</h2>
-      <p style="font-family:'Geist',sans-serif;font-size:16px;line-height:1.8;color:rgba(252, 224, 168,0.8);margin:0;">WOZALI est domicilié à Cotonou, Bénin — et ce n'est pas un hasard.<br><br>Le Bénin a fait des avancées majeures dans la digitalisation et l'inclusion numérique. WOZALI s'inscrit dans cet écosystème en pleine croissance. Mais WOZALI n'appartient pas à un pays — il appartient à ceux qui travaillent.<br><br>Nous construisons depuis le Bénin, pour le Bénin, pour le Togo, et pour le continent.</p>
+      <div class="wz-eyebrow" style="margin-bottom:18px;">03 · Domiciliation</div>
+      <h2 class="wz-h2" style="margin:0 0 24px;">Pourquoi <em class="wz-gold-it">le Bénin.</em></h2>
+      <p style="font-family:'Geist',sans-serif;font-size:16px;line-height:1.8;color:rgba(252,224,168,0.8);margin:0;">WOZALI est domicilié à Cotonou, au Bénin. Et ce n'est pas un hasard.<br><br>Le Bénin a fait des avancées majeures dans la digitalisation et l'inclusion numérique. WOZALI s'inscrit dans cet écosystème en pleine croissance. Mais WOZALI n'appartient pas à un pays. Il appartient à ceux qui travaillent.<br><br>On construit depuis le Bénin, pour le Bénin, pour le Togo. Et pour la suite.</p>
     </div>
   </section>
 
@@ -7306,119 +7318,120 @@ setTimeout(function(){
     <img id="schealtiel-photo-mobile" src="/assets/apropos-photo-2.jpeg" loading="lazy" alt="Schealtiel Lawson" style="width:100%;max-height:400px;object-fit:cover;object-position:top;">
   </div>
 
-  <!-- SECTION MISSION — LE PONT -->
-  <section style="background:white;padding:80px 0;">
+  <!-- POURQUOI WOZALI EXISTE (fusion des deux anciennes sections mission) -->
+  <section style="background:#14100A;padding:80px 0;">
     <div class="container" style="max-width:860px;">
       <div style="text-align:center;margin-bottom:52px;">
-        <div class="badge badge-vert" style="margin-bottom:16px;">Pourquoi WOZALI existe</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(30px,4vw,46px);font-weight:900;line-height:1.1;margin-bottom:20px;">Rendre visible ce qui ne l'est pas.<br><em style="color:var(--or);">Payer ce qui mérite d'être payé.</em><br>Récompenser ce qui mérite d'être récompensé.</h2>
-        <p style="font-size:17px;color:var(--gris);line-height:1.8;max-width:640px;margin:0 auto;">86% des travailleurs du Bénin et du Togo sont dans le secteur informel — invisibles en ligne. 46% des jeunes diplômés togolais sont sans emploi. Près de 40% au Bénin. Lomé et Cotonou figurent parmi les villes les plus chères d'Afrique de l'Ouest — avec des salaires qui ne suivent pas.</p>
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;margin-bottom:16px;">04 · Pourquoi WOZALI existe</div>
+        <h2 class="wz-h2" style="margin-bottom:20px;">Rendre visible ce qui ne l'est pas.<br><em class="wz-gold-it">Récompenser ce qui mérite de l'être.</em></h2>
+        <p style="font-family:'Geist',sans-serif;font-size:17px;color:rgba(252,224,168,0.65);line-height:1.8;max-width:640px;margin:0 auto;">87% des travailleurs du Bénin et du Togo sont dans le secteur informel, invisibles en ligne. 46% des jeunes diplômés togolais sont sans emploi. Près de 40% au Bénin. Le travail est là. L'argent, lui, ne circule pas vers ceux qui le méritent.</p>
       </div>
 
       <!-- Chiffres -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:52px;">
-        <div style="text-align:center;padding:28px;background:var(--blanc);border-radius:20px;border:1.5px solid rgba(232,148,10,0.1);">
-          <div style="font-family:'DM Serif Display',serif;font-size:44px;font-weight:900;color:var(--vert);margin-bottom:8px;">87%</div>
-          <p style="font-size:14px;color:var(--gris-fonce);font-weight:600;line-height:1.5;">des travailleurs sont dans l'informel. Ils n'ont pas de site web. Pas de portfolio. Pas d'avis clients.</p>
+        <div style="text-align:center;padding:28px;background:#1E180E;border-radius:20px;border:1px solid rgba(232,148,10,0.25);">
+          <div style="font-family:'DM Serif Display',serif;font-size:44px;color:#E8940A;margin-bottom:8px;">87%</div>
+          <p style="font-size:14px;color:rgba(252,224,168,0.65);font-weight:500;line-height:1.5;">des travailleurs sont dans l'informel. Ils n'ont pas de site web. Pas de portfolio. Pas d'avis clients.</p>
         </div>
-        <div style="text-align:center;padding:28px;background:var(--blanc);border-radius:20px;border:1.5px solid rgba(232,148,10,0.1);">
-          <div style="font-family:'DM Serif Display',serif;font-size:44px;font-weight:900;color:var(--or);margin-bottom:8px;">46%</div>
-          <p style="font-size:14px;color:var(--gris-fonce);font-weight:600;line-height:1.5;">des jeunes diplômés sans emploi malgré leurs diplômes. Le réseau remplace le mérite depuis trop longtemps.</p>
+        <div style="text-align:center;padding:28px;background:#1E180E;border-radius:20px;border:1px solid rgba(232,148,10,0.25);">
+          <div style="font-family:'DM Serif Display',serif;font-size:44px;color:#E8940A;margin-bottom:8px;">46%</div>
+          <p style="font-size:14px;color:rgba(252,224,168,0.65);font-weight:500;line-height:1.5;">des jeunes diplômés sans emploi malgré leurs diplômes. Le réseau remplace le mérite depuis trop longtemps.</p>
         </div>
-        <div style="text-align:center;padding:28px;background:var(--blanc);border-radius:20px;border:1.5px solid rgba(220,38,38,0.1);">
-          <div style="font-family:'DM Serif Display',serif;font-size:44px;font-weight:900;color:#dc2626;margin-bottom:8px;">0</div>
-          <p style="font-size:14px;color:var(--gris-fonce);font-weight:600;line-height:1.5;">solution qui répondait à tout ça, construite pour le marché togolais, avant WOZALI.</p>
+        <div style="text-align:center;padding:28px;background:#1E180E;border-radius:20px;border:1px solid rgba(232,148,10,0.25);">
+          <div style="font-family:'DM Serif Display',serif;font-size:44px;color:#FCE0A8;margin-bottom:8px;">0</div>
+          <p style="font-size:14px;color:rgba(252,224,168,0.65);font-weight:500;line-height:1.5;">solution qui répondait à tout ça, construite ici, pour ici, avant WOZALI.</p>
         </div>
       </div>
 
       <!-- Manifeste texte -->
-      <div style="background:var(--gris-light);border-radius:24px;padding:48px 40px;margin-bottom:52px;">
-        <p style="font-size:16px;color:var(--gris-fonce);line-height:1.9;margin-bottom:20px;">
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,0.2);border-radius:24px;padding:48px 40px;margin-bottom:52px;">
+        <p style="font-size:16px;color:rgba(252,224,168,0.72);line-height:1.9;margin-bottom:20px;">
           En face de ces travailleurs invisibles : des clients qui cherchent un plombier fiable. Des entreprises qui ont besoin d'un commercial. Des particuliers qui veulent trouver quelqu'un de confiance dans leur quartier.
         </p>
-        <p style="font-size:16px;color:var(--gris-fonce);line-height:1.9;margin-bottom:20px;">
-          Ils cherchent. Les autres existent. <strong>Mais ils ne se trouvent pas.</strong><br>Et quand ils se trouvent — le paiement est compliqué, la confiance n'est pas là, l'argent part en fumée.
+        <p style="font-size:16px;color:rgba(252,224,168,0.72);line-height:1.9;margin-bottom:20px;">
+          Ils cherchent. Les autres existent. <strong style="color:#FCE0A8;">Mais ils ne se trouvent pas.</strong><br>Et pendant ce temps, l'argent passe à côté de ceux qui travaillent bien.
         </p>
-        <p style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:900;color:var(--or);text-align:center;margin-bottom:12px;">WOZALI ne résout pas tout. Mais il donne à chacun ce qu'il n'a jamais eu : une présence en ligne professionnelle, un système de paiement sécurisé, et une chance de gagner plus que son simple travail.</p>
-        <p style="font-size:16px;color:var(--gris);text-align:center;margin-top:12px;line-height:1.7;">Indépendante. Visible. Gratuite pour commencer.<br>Ici, c'est ton travail qui parle.</p>
+        <p style="font-family:'DM Serif Display',serif;font-size:26px;color:#E8940A;text-align:center;line-height:1.45;margin-bottom:12px;">WOZALI ne résout pas tout. Mais il donne à chacun ce qu'il n'a jamais eu : une vraie présence en ligne, une coach business dans la poche, et une chance d'être récompensé pour son sérieux.</p>
+        <p style="font-size:16px;color:rgba(252,224,168,0.55);text-align:center;margin-top:12px;line-height:1.7;">Indépendant. Visible. Gratuit pour commencer.<br>Ici, c'est ton travail qui parle.</p>
       </div>
 
       <!-- Ce que WOZALI n'est pas / est -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-        <div style="background:rgba(220,38,38,0.08);border:1.5px solid rgba(220,38,38,0.15);border-radius:20px;padding:28px;">
-          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#dc2626;margin-bottom:16px;">Ce que WOZALI n'est pas :</h3>
+        <div style="background:rgba(252,224,168,0.03);border:1.5px solid rgba(252,224,168,0.14);border-radius:20px;padding:28px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:rgba(252,224,168,0.85);margin-bottom:16px;">Ce que WOZALI n'est pas :</h3>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Une promesse de plus qui ne se concrétise jamais</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Une appli pensée pour Londres ou Paris</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Un réseau social où tu postes dans le vide</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Un service qui prend une commission sur tes prestations</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>❌</span> Quelque chose qui disparaît si Facebook ou TikTok sont coupés</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:rgba(252,224,168,0.35);">✕</span> Une promesse de plus qui ne se concrétise jamais</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:rgba(252,224,168,0.35);">✕</span> Une appli pensée pour Londres ou Paris</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:rgba(252,224,168,0.35);">✕</span> Un réseau social où tu postes dans le vide</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:rgba(252,224,168,0.35);">✕</span> Un service qui prend une commission sur tes prestations</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:rgba(252,224,168,0.35);">✕</span> Quelque chose qui disparaît si Facebook ou TikTok sont coupés</li>
           </ul>
         </div>
-        <div style="background:rgba(232,148,10,0.08);border:1.5px solid rgba(232,148,10,0.2);border-radius:20px;padding:28px;">
+        <div style="background:rgba(232,148,10,0.08);border:1.5px solid rgba(232,148,10,0.3);border-radius:20px;padding:28px;">
           <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:16px;">Ce que WOZALI est :</h3>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Un outil local construit pour le marché ouest-africain — Cotonou, Lomé, et au-delà</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Un profil professionnel qui remplace le CV et le bouche-à-oreille</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Une source de revenus passifs via le parrainage</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Une Bourse mensuelle : chaque mois, les 10 meilleurs profils Pro du mois gagnent un salaire. 100% mérite, zéro hasard.</li>
-            <li style="font-size:14px;color:var(--gris-fonce);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span>✅</span> Un service indépendant — visible 24h/24, même quand les réseaux sont coupés</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Un outil local construit pour le marché ouest-africain, Cotonou, Lomé, et au-delà</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Un profil professionnel qui remplace le CV et le bouche-à-oreille</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Une coach business, Sandy, qui t'aide à mieux vendre ton travail</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Une Bourse mensuelle : chaque mois, les 10 meilleurs profils Pro du mois gagnent un salaire. 100% mérite, zéro hasard.</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Un service indépendant, visible 24h/24, même quand les réseaux sont coupés</li>
           </ul>
         </div>
       </div>
 
       <div style="text-align:center;margin-top:40px;">
-        <button class="btn btn-primary btn-lg" onclick="showPage('inscription')">→ Créer mon profil WOZALI — c'est gratuit</button>
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="showPage('inscription')">✦ Créer mon profil WOZALI, c'est gratuit</button>
       </div>
     </div>
   </section>
 
   <!-- HISTOIRE -->
-  <section class="section" style="background:var(--blanc);">
+  <section class="section" style="background:#14100A;border-top:1px solid rgba(232,148,10,0.15);">
     <div class="container" style="max-width:800px;">
       <div style="text-align:center;margin-bottom:52px;">
-        <div class="badge badge-or" style="margin-bottom:14px;">Le fondateur · WOZALI</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;">Parti à 7 ans. Formé en Europe. Revenu construire.</h2>
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;margin-bottom:14px;">05 · Le parcours</div>
+        <h2 class="wz-h2">Parti à 7 ans. Formé en Europe.<br><em class="wz-gold-it">Revenu construire.</em></h2>
       </div>
 
       <!-- Timeline story -->
       <div style="position:relative;padding-left:40px;">
-        <div style="position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--vert),var(--or));border-radius:2px;"></div>
+        <div style="position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,rgba(232,148,10,0.15),#E8940A);border-radius:2px;"></div>
 
         <div style="margin-bottom:44px;position:relative;">
-          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--vert);border:3px solid white;box-shadow:0 0 0 3px var(--vert-light);"></div>
-          <div style="font-size:12px;font-weight:700;color:var(--vert);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Les premières années</div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;margin-bottom:12px;">Lomé. L'école de la vraie vie.</h3>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Le fondateur de WOZALI a grandi à Lomé. Il a quitté le Togo à 7 ans, s'est formé en France, et est revenu avec une conviction : les frontières physiques ne doivent plus être des barrières numériques.<br><br>Après des années dans la vente à haut niveau en Europe, il a regardé Lomé et vu ce que tout le monde voyait sans que personne ne règle le problème.<br><br>Des artisans invisibles dans leur propre quartier. Des diplômés qui cherchent du travail depuis des années. Des recruteurs qui cherchent sur WhatsApp. Des clients qui ne trouvent personne de confiance. Des prestataires qui n'ont aucun moyen de recevoir un paiement sécurisé sans courir après leur argent.<br><br>Il aurait pu rester en Europe. Il a choisi de revenir construire.<br><br><strong>WOZALI, du Lingala : nous existons.</strong><br>C'est exactement ce qu'on vient faire. Pour chaque artisan. Chaque diplômé. Chaque recruteur. Dans chaque quartier. Dans chaque pays.</p>
+          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:#E8940A;border:3px solid #14100A;box-shadow:0 0 0 3px rgba(232,148,10,0.25);"></div>
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;color:rgba(232,148,10,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Les premières années</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin-bottom:12px;">Lomé. L'école de la vraie vie.</h3>
+          <p style="font-size:16px;color:rgba(252,224,168,0.68);line-height:1.8;">J'ai grandi à Lomé. J'ai quitté le Togo à 7 ans, je me suis formé en France, et je suis revenu avec une conviction : les frontières physiques ne doivent plus être des barrières numériques.<br><br>Après des années dans la vente à haut niveau en Europe, j'ai regardé Lomé et j'ai vu ce que tout le monde voyait sans que personne ne règle le problème.<br><br>Des artisans invisibles dans leur propre quartier. Des diplômés qui cherchent du travail depuis des années. Des recruteurs qui cherchent sur WhatsApp. Des clients qui ne trouvent personne de confiance. Des pros sérieux qui courent après leur argent.<br><br><strong style="color:#E8940A;">WOZALI, du Lingala : nous existons.</strong><br>C'est exactement ce qu'on vient faire. Pour chaque artisan. Chaque diplômé. Chaque recruteur. Dans chaque quartier.</p>
           <div style="margin-top:20px;text-align:center;">
-            <img src="/assets/apropos-photo-3.jpeg" loading="lazy" alt="Schealtiel Lawson enfant, le jour du départ du Togo" style="max-width:220px;width:100%;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);border:3px solid white;">
-            <p style="font-size:12px;color:var(--gris);margin-top:10px;font-style:italic;">Le jour du départ.</p>
+            <div style="width:180px;height:240px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid rgba(232,148,10,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+              <img src="/assets/apropos-photo-3.jpeg" loading="lazy" alt="Schealtiel Lawson enfant, le jour du départ du Togo" style="width:100%;height:100%;object-fit:cover;object-position:top center;">
+            </div>
+            <p style="font-size:12px;color:rgba(252,224,168,0.45);margin-top:10px;font-style:italic;">Le jour du départ.</p>
           </div>
         </div>
 
         <div style="margin-bottom:44px;position:relative;">
-          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--or);border:3px solid white;box-shadow:0 0 0 3px var(--or-light);"></div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">La France · Closing, direction commerciale, growth</div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;margin-bottom:12px;">Closing, direction commerciale, growth.</h3>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Grandir dans un cadre familial compliqué, dans une France qui ne te donne rien facilement, ça forge ou ça brise. J'ai choisi d'être forgé.<br><br>J'ai appris la vente, le marketing, le closing high ticket. J'ai ouvert des boîtes, fermé des boîtes, recommencé. J'ai accompagné des entrepreneurs, construit des systèmes de vente à plusieurs milliers d'euros, managé des équipes.<br><br>Et à chaque résultat, la même question revenait, de plus en plus forte : <em style="color:var(--or);">tout ça pour construire quoi, exactement ?</em></p>
+          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:#E8940A;border:3px solid #14100A;box-shadow:0 0 0 3px rgba(232,148,10,0.25);"></div>
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;color:rgba(232,148,10,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">La France</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin-bottom:12px;">Closing, direction commerciale, growth.</h3>
+          <p style="font-size:16px;color:rgba(252,224,168,0.68);line-height:1.8;">Grandir dans un cadre familial compliqué, dans une France qui ne te donne rien facilement, ça forge ou ça brise. J'ai choisi d'être forgé.<br><br>J'ai appris la vente, le marketing, le closing high ticket. J'ai ouvert des boîtes, fermé des boîtes, recommencé. J'ai accompagné des entrepreneurs, construit des systèmes de vente à plusieurs milliers d'euros, managé des équipes.<br><br>Et à chaque résultat, la même question revenait, de plus en plus forte : <em class="wz-gold-it">tout ça pour construire quoi, exactement ?</em></p>
         </div>
 
         <div style="margin-bottom:44px;position:relative;">
-          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--vert);border:3px solid white;box-shadow:0 0 0 3px var(--vert-light);"></div>
-          <div style="font-size:12px;font-weight:700;color:var(--vert);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Fin 2025 · Le retour définitif</div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;margin-bottom:12px;">Il aurait pu rester en Europe. Il a choisi de revenir construire.</h3>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;">Fin 2025, je prends la décision : je quitte la France définitivement. Pas un voyage — un retour.<br><br>Et en posant les pieds à Lomé, tout ce que j'avais vu enfant m'a frappé avec une force nouvelle. Un maçon excellent assis devant sa maison à attendre. Une coiffeuse douée que personne ne cherche au-delà de sa rue. Des entrepreneurs sérieux, capables — et pourtant invisibles. Des artisans qui n'ont aucun moyen de recevoir un paiement sécurisé. Qui perdent des clients par manque de monnaie. Qui n'ont pas de vitrine.<br><br>Aujourd'hui, j'accompagne déjà des entrepreneurs togolais : je les aide à se structurer, à trouver des clients, à scaler. Et chaque échange confirme exactement la même réalité.<br><br>Le travail est là.<br>Ce qui manque, c'est la visibilité.<br>Ce qui manque, c'est le paiement sécurisé.<br>Ce qui manque, c'est un endroit qui récompense ceux qui travaillent vraiment.</p>
-          <p style="font-size:16px;color:var(--gris-fonce);line-height:1.8;margin-top:12px;">Le travail est là. <strong>Ce qui manque, c'est la visibilité.</strong></p>
+          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:#E8940A;border:3px solid #14100A;box-shadow:0 0 0 3px rgba(232,148,10,0.25);"></div>
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;color:rgba(232,148,10,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Fin 2025 · Le retour définitif</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin-bottom:12px;">J'aurais pu rester en Europe. J'ai choisi de revenir construire.</h3>
+          <p style="font-size:16px;color:rgba(252,224,168,0.68);line-height:1.8;">Fin 2025, je prends la décision : je quitte la France définitivement. Pas un voyage. Un retour.<br><br>Et en posant les pieds à Lomé, tout ce que j'avais vu enfant m'a frappé avec une force nouvelle. Un maçon excellent assis devant sa maison à attendre. Une coiffeuse douée que personne ne cherche au-delà de sa rue. Des entrepreneurs sérieux, capables, et pourtant invisibles. Des artisans sans vitrine, qui perdent des clients faute d'être trouvés.<br><br>Aujourd'hui, j'accompagne déjà des entrepreneurs togolais : je les aide à se structurer, à trouver des clients, à grandir. Et chaque échange confirme exactement la même réalité.<br><br>Le travail est là.<br>Ce qui manque, c'est la visibilité.<br>Ce qui manque, c'est un endroit qui récompense ceux qui travaillent vraiment.</p>
         </div>
 
         <div style="position:relative;">
-          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--or);border:3px solid white;box-shadow:0 0 0 3px var(--or-light);"></div>
-          <div style="font-size:12px;font-weight:700;color:var(--or);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">WOZALI · Le socle économique</div>
-          <p style="font-size:17px;color:var(--gris-fonce);line-height:1.8;font-style:italic;">Ce n'est pas un plan. C'est une architecture.<br>WOZALI est construit dès aujourd'hui<br>pour fonctionner dans chaque pays d'Afrique.<br><strong style="color:var(--or);font-style:normal;">Un nom. Un système. Un continent.</strong></p>
+          <div style="position:absolute;left:-34px;top:4px;width:16px;height:16px;border-radius:50%;background:#E8940A;border:3px solid #14100A;box-shadow:0 0 0 3px rgba(232,148,10,0.25);"></div>
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;color:rgba(232,148,10,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">WOZALI · Le socle économique</div>
+          <p style="font-family:'DM Serif Display',serif;font-size:19px;color:rgba(252,224,168,0.8);line-height:1.7;font-style:italic;">Pas un plan. Une architecture.<br>WOZALI est construit dès aujourd'hui pour durer.<br><strong style="color:#E8940A;font-style:normal;">Un nom. Un système. Une méthode : prouver ici d'abord.</strong></p>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;">
-            <button class="btn btn-primary" onclick="showPage('inscription')">→ Créer mon profil WOZALI — c'est gratuit</button>
-            <a href="#" class="btn btn-secondary" onclick="event.preventDefault();showPage('inscription');">→ Gagner de l'argent avec le parrainage WOZALI</a>
-            <a href="mailto:contact@wozali.africa" style="color:var(--or);font-weight:700;text-align:center;padding:12px;">→ contact@wozali.africa</a>
+            <button class="btn btn-or wz-btn-sheen" onclick="showPage('inscription')">✦ Créer mon profil WOZALI, c'est gratuit</button>
+            <a href="#" class="btn btn-secondary" onclick="event.preventDefault();showPage('inscription');">Gagner de l'argent avec le parrainage WOZALI →</a>
+            <a href="mailto:contact@wozali.africa" style="color:#E8940A;font-weight:700;text-align:center;padding:12px;">contact@wozali.africa</a>
           </div>
         </div>
       </div>
@@ -7428,8 +7441,8 @@ setTimeout(function(){
 <section class="wozali-timeline-section" id="expansion">
   <div class="wozali-timeline-inner">
     <div class="tl-header" data-anim="up">
-      <span class="tl-eyebrow">WOZALI · EXPANSION CONTINENTALE</span>
-      <h2 class="tl-title">De Lomé au continent — en 18 mois.</h2>
+      <span class="tl-eyebrow">WOZALI · LA ROUTE</span>
+      <h2 class="tl-title">D'abord prouver au Togo et au Bénin. Ensuite, l'Afrique de l'Ouest.</h2>
     </div>
     <div class="tl-track-wrap" data-anim="up" data-anim-delay="1">
       <svg class="tl-line-svg" viewBox="0 0 640 12" preserveAspectRatio="none" aria-hidden="true">
@@ -7439,45 +7452,41 @@ setTimeout(function(){
       <div class="tl-nodes" id="tl-nodes">
         <div class="tl-node tl-active" data-index="0" onclick="wozalitlSelect(0)">
           <div class="tl-dot-wrap"><div class="tl-dot-ring"></div><div class="tl-dot"><span class="tl-flag">🇹🇬</span></div></div>
-          <div class="tl-label"><span class="tl-node-title">Togo · Bénin</span><span class="tl-node-date">Mai 2026</span><span class="tl-badge tl-badge-live">En cours</span></div>
+          <div class="tl-label"><span class="tl-node-title">Togo · Bénin</span><span class="tl-node-date">1er septembre 2026</span><span class="tl-badge tl-badge-live">En cours</span></div>
         </div>
         <div class="tl-node tl-upcoming" data-index="1" onclick="wozalitlSelect(1)">
           <div class="tl-dot-wrap"><div class="tl-dot-ring"></div><div class="tl-dot"><span class="tl-flag">🌍</span></div></div>
-          <div class="tl-label"><span class="tl-node-title">Afrique de l'Ouest</span><span class="tl-node-date">Fin 2026</span><span class="tl-badge tl-badge-soon">Q3–Q4 2026</span></div>
-        </div>
-        <div class="tl-node tl-future" data-index="2" onclick="wozalitlSelect(2)">
-          <div class="tl-dot-wrap"><div class="tl-dot-ring"></div><div class="tl-dot"><span class="tl-flag">🌍</span></div></div>
-          <div class="tl-label"><span class="tl-node-title">Le Continent</span><span class="tl-node-date">2027</span><span class="tl-badge tl-badge-future">2027</span></div>
+          <div class="tl-label"><span class="tl-node-title">Afrique de l'Ouest</span><span class="tl-node-date">Ensuite</span><span class="tl-badge tl-badge-soon">À venir</span></div>
         </div>
       </div>
     </div>
     <div class="tl-progress-wrap" data-anim="up" data-anim-delay="2">
-      <div class="tl-progress-bar"><div class="tl-progress-fill" id="tl-progress-fill" style="width:18%"></div></div>
-      <div class="tl-progress-labels"><span>Mai 2026</span><span id="tl-progress-label">Lancement — Togo + Bénin</span><span>2027</span></div>
+      <div class="tl-progress-bar"><div class="tl-progress-fill" id="tl-progress-fill" style="width:30%"></div></div>
+      <div class="tl-progress-labels"><span>1er septembre 2026</span><span id="tl-progress-label">Lancement Togo + Bénin</span><span>Afrique de l'Ouest</span></div>
     </div>
     <div class="tl-detail-panel" id="tl-detail-panel" data-anim="up" data-anim-delay="3"></div>
   </div>
 </section>
 
   <!-- PHOTO + CITATION -->
-  <section style="background:white;padding:72px 0;">
+  <section style="background:#14100A;padding:72px 0;border-top:1px solid rgba(232,148,10,0.15);">
     <div class="container">
       <div style="display:grid;grid-template-columns:1fr 2fr;gap:48px;align-items:center;">
         <div>
-          <img id="schealtiel-photo-2" src="/assets/apropos-photo-4.jpeg" loading="lazy" alt="Schealtiel Lawson" style="width:100%;border-radius:24px;box-shadow:var(--shadow-lg);">
+          <img id="schealtiel-photo-2" src="/assets/apropos-photo-4.jpeg" loading="lazy" alt="Schealtiel Lawson" style="width:100%;max-height:460px;object-fit:cover;object-position:top center;border-radius:24px;border:1px solid rgba(232,148,10,0.25);box-shadow:0 12px 40px rgba(0,0,0,0.45);">
         </div>
         <div>
-          <div style="font-size:64px;color:var(--vert);font-family:'DM Serif Display',serif;line-height:0.5;margin-bottom:20px;">"</div>
-          <blockquote style="font-family:'DM Serif Display',serif;font-size:clamp(20px,3vw,28px);font-weight:700;line-height:1.5;color:var(--noir);margin-bottom:24px;">
-            Au marché de Lomé, tu n'as pas besoin d'une carte de visite pour vendre — tout le monde te voit, tout le monde t'entend. En ligne, sans visibilité, tu n'existes pas.<br><br><em style="color:var(--or);">WOZALI, c'est le marché de Lomé — en numérique, 24h/24, visible partout au Bénin et au Togo. Avec en plus : un système de paiement sécurisé, des récompenses pour les meilleurs, et un réseau qui travaille pour toi.</em><br><br>Parce que chaque prestataire sérieux mérite d'être trouvé par les clients qu'il mérite — et payé sans friction.
+          <div style="font-size:64px;color:#E8940A;font-family:'DM Serif Display',serif;line-height:0.5;margin-bottom:20px;">"</div>
+          <blockquote style="font-family:'DM Serif Display',serif;font-size:clamp(20px,3vw,28px);font-weight:400;line-height:1.5;color:#FCE0A8;margin-bottom:24px;">
+            Au marché de Lomé, tu n'as pas besoin d'une carte de visite pour vendre. Tout le monde te voit, tout le monde t'entend. En ligne, sans visibilité, tu n'existes pas.<br><br><em class="wz-gold-it">WOZALI, c'est le marché de Lomé en numérique. Ouvert 24h/24, visible partout au Bénin et au Togo. Avec une coach business dans ta poche et des récompenses pour les plus sérieux.</em><br><br>Parce que chaque prestataire sérieux mérite d'être trouvé par les clients qu'il mérite.
           </blockquote>
           <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));overflow:hidden;">
+            <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#F5B82E);overflow:hidden;">
               <img id="schealtiel-photo-small" src="/assets/apropos-photo-5.jpeg" loading="lazy" alt="" style="width:100%;height:100%;object-fit:cover;">
             </div>
             <div>
-              <div style="font-weight:800;font-size:15px;">Le fondateur WOZALI</div>
-              <div style="font-size:13px;color:var(--gris);">Fondateur & Directeur Général, WOZALI · Lomé, 2026</div>
+              <div style="font-weight:800;font-size:15px;color:#FCE0A8;">Schealtiel Lawson</div>
+              <div style="font-size:13px;color:rgba(252,224,168,0.55);">Fondateur & Directeur Général, WOZALI · Lomé, 2026</div>
             </div>
           </div>
         </div>
@@ -7485,62 +7494,13 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- MISSION REWRITTEN -->
-  <section style="background:white;padding:72px 0;">
-    <div class="container" style="max-width:760px;margin:0 auto;text-align:center;">
-      <div class="badge badge-vert" style="margin-bottom:20px;">Pourquoi WOZALI existe</div>
-      <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,40px);font-weight:900;margin-bottom:24px;line-height:1.3;">Le pont entre ceux qui ont des compétences<br>et ceux qui en ont besoin.</h2>
-      <p style="font-size:17px;color:var(--gris-fonce);line-height:1.8;margin-bottom:20px;">Le nom WOZALI vient du Lingala, nous existons. C'est exactement ce qu'on vient faire. Pour chaque artisan. Chaque diplômé. Chaque recruteur. Dans chaque quartier. Dans chaque pays.<br><br>Trois piliers. Un seul endroit.<br>Visibilité — pour être trouvé.<br>Paiements — pour être payé sans friction.<br>Revenus — pour que ton réseau travaille aussi pour toi.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;margin:32px 0;">
-        <div style="background:rgba(232,148,10,0.12);border-radius:16px;padding:20px;text-align:center;">
-          <div style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;color:var(--vert);">87%</div>
-          <p style="font-size:13px;color:var(--gris);margin-top:4px;">des travailleurs dans l'informel</p>
-        </div>
-        <div style="background:rgba(232,148,10,0.12);border-radius:16px;padding:20px;text-align:center;">
-          <div style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;color:var(--or);">46%</div>
-          <p style="font-size:13px;color:var(--gris);margin-top:4px;">des jeunes sans emploi</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;text-align:center;">
-          <div style="font-size:32px;">🚫</div>
-          <p style="font-size:13px;color:var(--gris);margin-top:4px;">le réseau comme seule voie</p>
-        </div>
-      </div>
-      <blockquote style="border-left:4px solid var(--vert);padding:16px 24px;background:rgba(255,255,255,0.04);border-radius:0 12px 12px 0;text-align:left;font-size:16px;line-height:1.8;color:#FCE0A8;margin:0;">
-        "Des artisans qualifiés cherchent des clients. Des candidats qualifiés cherchent du travail. Des entreprises cherchent des profils fiables.<br>
-        Ils ne se trouvent pas.<br>Et quand ils se trouvent — le paiement bloque. La confiance n'est pas là.<br><br>
-        <strong>WOZALI construit ce territoire.</strong> Avec la visibilité. Avec le paiement sécurisé. Avec les récompenses pour ceux qui méritent.<br><br>Pays par pays. Quartier par quartier. Bénin + Togo — c'est le lancement. Côte d'Ivoire + Sénégal — c'est la suite. Ghana + Nigeria — c'est l'ambition."
-      </blockquote>
-    </div>
-  </section>
-
   <!-- VISION -->
-  <section class="section" style="background:linear-gradient(135deg,var(--vert-dark),var(--vert));">
-    <div class="container" style="text-align:center;max-width:700px;">
-      <div class="badge" style="background:rgba(255,255,255,0.15);color:white;margin-bottom:20px;">La vision</div>
-      <h2 style="font-family:'DM Serif Display',serif;font-size:36px;font-weight:900;color:white;margin-bottom:20px;">WOZALI aujourd'hui — Bénin & Togo.<br>Demain, toute l'Afrique de l'Ouest.</h2>
-      <p style="color:rgba(255,255,255,0.8);font-size:17px;line-height:1.7;margin-bottom:36px;">On commence au Bénin et au Togo. On valide, on perfectionne, on prouve que ça marche dans nos rues, avec nos artisans, pour nos gens.<br><br>On prouve qu'un artisan peut être trouvé, payé, et récompensé — depuis son téléphone, sans banque, sans intermédiaire.<br><br>Puis on porte ce modèle dans toute l'Afrique de l'Ouest — Côte d'Ivoire, Sénégal, Ghana, Nigeria. Parce que ce problème de visibilité et de paiement, il est identique à Abidjan, à Dakar, à Accra.<br><br>L'Afrique a les pros. Il lui manquait l'outil.</p>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px;">
-        <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:22px;margin-bottom:6px;">🇹🇬</div>
-          <div style="color:white;font-weight:700;font-size:13px;">WOZALI</div>
-          <div style="color:rgba(255,255,255,0.5);font-size:11px;">2026 · En cours</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center;opacity:0.7;">
-          <div style="font-size:22px;margin-bottom:6px;">🇨🇮</div>
-          <div style="color:white;font-weight:700;font-size:13px;">Côte d'Ivoire</div>
-          <div style="color:rgba(255,255,255,0.5);font-size:11px;">2027</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center;opacity:0.7;">
-          <div style="font-size:22px;margin-bottom:6px;">🇸🇳</div>
-          <div style="color:white;font-weight:700;font-size:13px;">Sénégal</div>
-          <div style="color:rgba(255,255,255,0.5);font-size:11px;">2027</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center;opacity:0.7;">
-          <div style="font-size:22px;margin-bottom:6px;">🌍</div>
-          <div style="color:white;font-weight:700;font-size:13px;">Afrique de l'Ouest</div>
-          <div style="color:rgba(255,255,255,0.5);font-size:11px;">2028+</div>
-        </div>
-      </div>
+  <section class="section" style="background:#14100A;border-top:1px solid rgba(232,148,10,0.15);position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(232,148,10,0.1) 0%,transparent 60%);"></div>
+    <div class="container" style="text-align:center;max-width:700px;position:relative;z-index:1;">
+      <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;margin-bottom:20px;">06 · La vision</div>
+      <h2 class="wz-h2" style="margin-bottom:20px;">WOZALI aujourd'hui : Bénin et Togo.<br><em class="wz-gold-it">Ensuite, l'Afrique de l'Ouest.</em></h2>
+      <p style="color:rgba(252,224,168,0.7);font-size:17px;line-height:1.7;margin-bottom:36px;">On commence au Bénin et au Togo. On valide, on perfectionne, on prouve que ça marche dans nos rues, avec nos artisans, pour nos gens.<br><br>On prouve qu'un artisan peut être trouvé, choisi et récompensé depuis son téléphone, sans intermédiaire.<br><br>D'abord prouver au Togo et au Bénin. Ensuite, l'Afrique de l'Ouest.<br><br>L'Afrique a les pros. Il lui manquait l'outil.</p>
       <!-- Mur des témoignages anonymes (Chantier 8 Dignité) -->
       <div id="mur-temoignages" style="max-width:720px;margin:0 auto 56px;padding:0 4px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -8416,16 +8376,12 @@ async function repondreMatch(demandeId, clientId) {
 const WOZALI_TL_PANELS = [
   { eyebrow:'PHASE 1 · LANCEMENT', title:'Togo + Bénin simultanément',
     countries:[{flag:'🇹🇬',name:'Lomé, Togo',on:true},{flag:'🇧🇯',name:'Cotonou, Bénin',on:true}],
-    stat:'Lancement 1er septembre 2026 · <strong>Bourse de Croissance mensuelle</strong> · 20 agents terrain WOZALI · Domiciliation juridique Cotonou',
-    progress:18, progressLabel:'Lancement — Togo + Bénin' },
-  { eyebrow:'PHASE 2 · EXPANSION OUEST-AFRICAINE', title:"Toute l'Afrique de l'Ouest",
-    countries:[{flag:'🇹🇬',name:'Togo',on:true},{flag:'🇧🇯',name:'Bénin',on:true},{flag:'🇨🇮',name:"Côte d'Ivoire",on:true},{flag:'🇸🇳',name:'Sénégal',on:true},{flag:'🇬🇭',name:'Ghana',on:true},{flag:'🇳🇬',name:'Nigeria',on:true},{flag:'🇲🇱',name:'Mali',on:false},{flag:'🇧🇫',name:'Burkina',on:false}],
-    stat:'Fin 2026 · Déclencheur : validation terrain Togo + Bénin · <strong>3 000–3 500 FCFA/mois</strong> pour les nouveaux marchés · Même outil, adaptation locale · Agents terrain WOZALI par pays',
-    progress:62, progressLabel:"Expansion Afrique de l'Ouest" },
-  { eyebrow:'PHASE 3 · CONTINENT', title:"Toute l'Afrique",
-    countries:[{flag:'🌍',name:'Afrique Centrale',on:true},{flag:'🌍',name:"Afrique de l'Est",on:true},{flag:'🌍',name:'Afrique du Nord',on:true},{flag:'🌍',name:'Afrique Australe',on:true}],
-    stat:'2027 · Un nom universel — WOZALI signifie "nous existons" en Lingala · <strong>Architecture multi-pays déjà en place dès le premier jour</strong> · Même ADN, mêmes mécaniques de récompenses · Le continent entier',
-    progress:100, progressLabel:'Le Continent — 2027' }
+    stat:'Lancement 1er septembre 2026 · <strong>Bourse de Croissance mensuelle</strong> · Agents terrain WOZALI · Domiciliation juridique Cotonou',
+    progress:30, progressLabel:'Lancement Togo + Bénin' },
+  { eyebrow:'PHASE 2 · LA SUITE', title:"L'Afrique de l'Ouest",
+    countries:[{flag:'🇹🇬',name:'Togo',on:true},{flag:'🇧🇯',name:'Bénin',on:true},{flag:'🌍',name:"Afrique de l'Ouest",on:false}],
+    stat:"D'abord prouver au Togo et au Bénin : la densité, la liquidité, les artisans qui gagnent vraiment. <strong>Ensuite, l'Afrique de l'Ouest.</strong> Même outil, adaptation locale, aucun calendrier gonflé.",
+    progress:100, progressLabel:"Afrique de l'Ouest" }
 ];
 let WOZALI_TL_CURRENT = 0;
 function wozalitlSelect(index) {
