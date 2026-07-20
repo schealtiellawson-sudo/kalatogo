@@ -8194,18 +8194,20 @@ setTimeout(function(){
   }
   window.chargerNbProLive=chargerNbProLive;
 
-  // FAQ accordion
+  // FAQ accordion : delegation globale (couvre .wozali-faq-pro ET la FAQ Bourse page Recompenses, quel que soit le moment d'injection)
   function initFaqPro(){
-    document.querySelectorAll('.wozali-faq-pro .faq-q').forEach(function(q){
-      if(q.__bound)return;q.__bound=true;
-      q.addEventListener('click',function(){
-        var item=q.closest('.faq-item');
-        if(!item)return;
-        item.classList.toggle('open');
-      });
+    if(window.__faqDelegated)return;
+    window.__faqDelegated=true;
+    document.addEventListener('click',function(e){
+      var q=e.target.closest?e.target.closest('.faq-q'):null;
+      if(!q)return;
+      var item=q.closest('.faq-item');
+      if(!item)return;
+      item.classList.toggle('open');
     });
   }
   window.initFaqPro=initFaqPro;
+  initFaqPro();
 
   // Mur des gagnants (Supabase)
   async function afficherMurGagnants(){
