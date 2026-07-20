@@ -15942,7 +15942,7 @@ function renderOffreEmploi(offre, forceMode) {
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</div>
     <div class="offre-actions" onclick="event.stopPropagation();">
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('${_titreJsArg}','${_safeOffreId}')">📤 Partager</button>
-      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;">💬 Contacter</a>` : ''}
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#E8940A;color:#14100A;border:none;">💬 Contacter</a>` : ''}
       <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler</button>
     </div>
   </div>`;
@@ -16022,7 +16022,7 @@ function showOffreDetail(offreId) {
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn btn-primary" style="flex:2;justify-content:center;min-width:200px;padding:14px;" onclick="document.getElementById('modal-offre-detail').style.display='none';ouvrirModalCandidature('${_safeOffreIdD}','${_titreJsArgD}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOZALI</button>
-      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumD}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25d366;color:white;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumD}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#E8940A;color:#14100A;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${_titreJsArgD}','${_safeOffreIdD}')">📤 Partager</button>
     </div>
     <div style="margin-top:12px;text-align:center;">
@@ -17228,7 +17228,7 @@ async function topCandidatsForOffre(offreId) {
         ${scoreBadge}
         <div style="display:flex;flex-direction:column;gap:4px;">
           <button onclick="document.getElementById('wozali-top-cand-modal').remove();showPage('profil');loadPublicProfile('${p.id}')" style="background:rgba(232,148,10,.12);color:#E8940A;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Profil</button>
-          ${wa ? `<a href="https://wa.me/${wa}?text=${encodeURIComponent('Bonjour '+(f['Nom complet']||'')+', un poste pour toi : '+(offre.fields['Titre']||'')+' sur WOZALI')}" target="_blank" style="background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;">Inviter</a>` : ''}
+          ${wa ? `<a href="https://wa.me/${wa}?text=${encodeURIComponent('Bonjour '+(f['Nom complet']||'')+', un poste pour toi : '+(offre.fields['Titre']||'')+' sur WOZALI')}" target="_blank" style="background:rgba(232,148,10,.15);color:#E8940A;text-decoration:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;">Inviter</a>` : ''}
         </div>
       </div>`;
     }).join('') + `<div style="text-align:center;margin-top:14px;font-size:11px;color:rgba(252, 224, 168,.4);">Scoring IA limité à 5/run pour préserver le quota. Reclique pour scorer 5 de plus.</div>`;
@@ -17866,7 +17866,7 @@ function renderRecrutCandidatures(cands) {
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
             <button onclick="openMessagerieRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;">💬 Message</button>
             <button onclick="openEntretienRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">📅 Entretien</button>
-            ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;">💬 WhatsApp</a>` : ''}
+            ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.15);color:#E8940A;text-decoration:none;">💬 WhatsApp</a>` : ''}
             <button onclick="updateStatutCandidature('${c.id}','Retenue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.15);color:#E8940A;border:none;cursor:pointer;">✓ Retenir</button>
             <button onclick="updateStatutCandidature('${c.id}','Refusée')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;">✗ Refuser</button>
             <button onclick="updateStatutCandidature('${c.id}','Vue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">👁 Vue</button>
@@ -17926,7 +17926,7 @@ function renderRecrutCandidatures(cands) {
                 <div style="display:flex;gap:4px;flex-wrap:wrap;">
                   <button onclick="openMessagerieRecru('${c.id}')" title="Message" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:12px;">💬</button>
                   <button onclick="openEntretienRecru('${c.id}')" title="Planifier entretien" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">📅</button>
-                  ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25d366;text-decoration:none;font-size:12px;">📱</a>` : ''}
+                  ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.15);color:#E8940A;text-decoration:none;font-size:12px;">📱</a>` : ''}
                   <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.15);color:#E8940A;border:none;cursor:pointer;font-size:12px;">✓</button>
                   <button onclick="updateStatutCandidature('${c.id}','Refusée')" title="Refuser" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;">✗</button>
                   <button onclick="updateStatutCandidature('${c.id}','Vue')" title="Marquer vue" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">👁</button>
@@ -18310,7 +18310,7 @@ async function loadMonEquipe() {
             <div style="font-size:11px;color:rgba(252,224,168,.3);">Embauché le ${dateEmb}</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="padding:7px 14px;border-radius:8px;background:rgba(37,211,102,.12);color:#25d366;text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">📲 WhatsApp</a>` : ''}
+            ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.12);color:#E8940A;text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">📲 WhatsApp</a>` : ''}
             ${e.statut === 'actif' ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat')" style="padding:7px 14px;border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Fin de contrat</button>` : `<button onclick="_updateEquipeStatut('${e.id}','actif')" style="padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Réactiver</button>`}
           </div>
         </div>`;

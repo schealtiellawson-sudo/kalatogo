@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260720d">
+<link rel="stylesheet" href="/style.css?v=20260720e">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -632,12 +632,55 @@ setTimeout(function(){
 
 
   <!-- ══════════════════════════════════════════
+       SECTION SANDY — Coach business IA
+  ══════════════════════════════════════════ -->
+  <section class="wz-sandy" aria-labelledby="wz-sandy-title">
+    <div class="container wz-sandy-grid">
+      <div class="wz-sandy-text wz-reveal">
+        <div class="wz-eyebrow">01 · Coach Sandy</div>
+        <h2 id="wz-sandy-title" class="wz-h2">Une experte business <em class="wz-gold-it">dans ta poche.</em></h2>
+        <p class="wz-lead">Chaque matin, Sandy regarde ton profil, tes vues, tes avis. Et elle te dit <strong>une chose à faire aujourd'hui</strong> pour avoir plus de clients. Le lendemain, elle te montre ce que ça a changé.</p>
+        <p class="wz-lead wz-lead-2">Gratuite. Dans ton dashboard. Personne d'autre ne fait ça en Afrique de l'Ouest.</p>
+        <ul class="wz-sandy-points">
+          <li><span class="wz-pt-dot"></span>Un conseil concret par jour, jamais de blabla</li>
+          <li><span class="wz-pt-dot"></span>Basé sur tes vrais chiffres : vues, appels, avis</li>
+          <li><span class="wz-pt-dot"></span>Le lendemain, elle mesure le résultat avec toi</li>
+        </ul>
+        <button class="btn-wozali-primary wz-btn-sheen" onclick="showPage('inscription')">Rencontrer Sandy</button>
+      </div>
+
+      <div class="wz-sandy-visual wz-reveal" data-d="1" aria-hidden="true">
+        <div class="wz-chat">
+          <div class="wz-chat-head">
+            <div class="wz-chat-avatar">S</div>
+            <div>
+              <div class="wz-chat-name">Sandy</div>
+              <div class="wz-chat-role">Coach business · WOZALI</div>
+            </div>
+            <span class="wz-chat-live"><span class="wz-live-dot"></span>En ligne</span>
+          </div>
+          <div class="wz-chat-body">
+            <div class="wz-msg wz-msg-sandy wz-msg-a1">Bonjour Afi. Hier, ton profil a été vu <strong>14 fois</strong>. Mais tes dernières photos datent de 3 semaines.</div>
+            <div class="wz-msg wz-msg-sandy wz-msg-a2">Une chose à faire aujourd'hui : ajoute 2 photos de ta dernière cliente. Les profils avec photos récentes reçoivent beaucoup plus d'appels.</div>
+            <div class="wz-msg wz-msg-me wz-msg-a3">C'est fait. J'ai mis les photos du tissage d'hier.</div>
+            <div class="wz-chat-day wz-msg-a4">Le lendemain</div>
+            <div class="wz-msg wz-msg-sandy wz-msg-a5">Bien joué. Résultat : <strong>31 vues</strong> et 2 clientes t'ont appelée. On continue ?</div>
+            <div class="wz-typing wz-msg-a6"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wz-hairline"></div>
+
+  <!-- ══════════════════════════════════════════
        SECTION VEDETTE : Prestataires en vedette
   ══════════════════════════════════════════ -->
   <section class="vedette-section" id="vedette-section">
     <div class="container">
-      <div class="vedette-eyebrow">ILS SONT SUR WOZALI</div>
-      <h2 class="vedette-title">Des prestataires près de chez toi.</h2>
+      <div class="wz-eyebrow wz-reveal">02 · Ils sont sur WOZALI</div>
+      <h2 class="vedette-title wz-h2 wz-reveal" data-d="1">Les mains qu'on ne <em class="wz-gold-it">voyait pas.</em></h2>
       <div id="vedette-grid" class="vedette-grid">
         <div class="vedette-loading">Chargement des prestataires...</div>
       </div>
@@ -655,17 +698,17 @@ setTimeout(function(){
       <div class="wozali-loc-grid">
 
         <!-- TEXTE -->
-        <div class="wozali-loc-content">
-          <span class="wozali-loc-eyebrow">📍 GÉOLOCALISATION</span>
-          <h2 class="wozali-loc-title">Épingle ta position.<br><span>Les clients te trouvent.</span></h2>
-          <p class="wozali-loc-desc">Sans position sur ta fiche, tu n'existes que si quelqu'un te connaît déjà. Ajoute ton quartier — les clients qui cherchent près de chez eux voient ton profil en premier.</p>
+        <div class="wozali-loc-content wz-reveal">
+          <span class="wz-eyebrow">03 · Proximité</span>
+          <h2 class="wozali-loc-title wz-h2">Le client voit que tu es <em class="wz-gold-it">proche.</em></h2>
+          <p class="wozali-loc-desc">Sans position sur ta fiche, tu n'existes que si quelqu'un te connaît déjà. Ajoute ton quartier : les clients qui cherchent près de chez eux voient ton profil en premier.</p>
 
           <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px;">
             <div style="display:flex;align-items:flex-start;gap:14px;">
               <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📍</div>
               <div>
                 <div style="font-family:'Geist',sans-serif;font-weight:700;font-size:14px;color:#FCE0A8;margin-bottom:2px;">Tu épingles ta position</div>
-                <div style="font-size:13px;color:rgba(252,224,168,0.55);line-height:1.5;">Agoè, Akpakpa, Bè, Cadjèhoun — où que tu sois, le client voit que tu es proche.</div>
+                <div style="font-size:13px;color:rgba(252,224,168,0.55);line-height:1.5;">Agoè, Akpakpa, Bè, Cadjèhoun. Où que tu sois, le client voit que tu es proche.</div>
               </div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:14px;">
@@ -679,18 +722,18 @@ setTimeout(function(){
               <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">⚡</div>
               <div>
                 <div style="font-family:'Geist',sans-serif;font-weight:700;font-size:14px;color:#FCE0A8;margin-bottom:2px;">Disponible maintenant</div>
-                <div style="font-size:13px;color:rgba(252,224,168,0.55);line-height:1.5;">Active le mode "disponible" — les urgences vont direct chez toi, pas chez celui qui est à 10 km.</div>
+                <div style="font-size:13px;color:rgba(252,224,168,0.55);line-height:1.5;">Active le mode "disponible" : les urgences vont direct chez toi, pas chez celui qui est à 10 km.</div>
               </div>
             </div>
           </div>
 
-          <button onclick="showPage('inscription')" style="display:inline-flex;align-items:center;gap:8px;background:#E8940A;color:#14100A;border:none;border-radius:999px;padding:14px 28px;font-family:'Geist',sans-serif;font-weight:900;font-size:15px;cursor:pointer;">
-            📍 Épingler ma position — gratuit
+          <button class="btn-wozali-primary wz-btn-sheen" onclick="showPage('inscription')">
+            Épingler ma position, gratuit
           </button>
         </div>
 
         <!-- MAP UI VISUELLE -->
-        <div class="wozali-loc-visual" aria-hidden="true">
+        <div class="wozali-loc-visual wz-reveal" data-d="1" aria-hidden="true">
           <div class="wloc-map-ui">
             <!-- Barre de recherche simulée -->
             <div class="wloc-searchbar">
@@ -797,9 +840,10 @@ setTimeout(function(){
   ══════════════════════════════════════════ -->
   <section class="wv2-cats" aria-labelledby="wv2-cats-title">
     <div class="container">
-      <div class="wv2-cats-head">
-        <h2 id="wv2-cats-title" class="wv2-cats-h2">Explore par métier</h2>
-        <p class="wv2-cats-sub">Trouve vite. Choisis bien.</p>
+      <div class="wv2-cats-head wz-reveal">
+        <div class="wz-eyebrow" style="justify-content:center;">04 · Métiers</div>
+        <h2 id="wv2-cats-title" class="wv2-cats-h2 wz-h2">Chaque métier a sa place <em class="wz-gold-it">ici.</em></h2>
+        <p class="wv2-cats-sub">De la coiffure à la maçonnerie, du fil à l'objectif. Ton savoir-faire est une catégorie, pas une exception.</p>
       </div>
       <div class="wv2-cats-grid" role="list" id="wv2-cats-grid">
         <button class="wv2-cat" role="listitem" data-cat-metier="Menuisier" onclick="showPage('search')"><span class="wv2-cat-ico"><i data-lucide="hammer"></i></span><span class="wv2-cat-lbl">Menuiserie</span><span class="wv2-cat-cnt" data-cat-count="Menuisier">—</span><span class="wv2-cat-seo">Menuisiers qualifies a Lome et Cotonou</span></button>
@@ -817,41 +861,52 @@ setTimeout(function(){
   </section>
 
   <!-- ══════════════════════════════════════════
-       WOZALI v2 — SECTION 8 : BOURSE CROISSANCE (sticky recap)
+       SECTION PROFIL GOOGLE — visibilité moteur de recherche
   ══════════════════════════════════════════ -->
-  <section class="wv2-bourse" aria-labelledby="wv2-bourse-title">
-    <div class="container wv2-bourse-inner">
-      <span class="wv2-bourse-eyebrow"><i data-lucide="trophy" style="width:14px;height:14px;"></i> LA BOURSE DE CROISSANCE</span>
-      <h2 id="wv2-bourse-title" class="wv2-bourse-h2">Pas le plus connu. Le plus sérieux.</h2>
-      <p class="wv2-bourse-sub">Chaque mois, WOZALI verse un salaire aux 10 meilleurs profils du mois. Un vrai salaire, le salaire minimum légal de ton pays, viré sur ton Mobile Money.<br>Le classement regarde ton travail : tes avis clients vérifiés, ta note, ta constance. Jamais tes abonnés. Jamais le hasard.<br>Nouveau mois, nouveau classement, nouveaux gagnants.</p>
-      <!-- Jauges déblocage (ex-countdown wv2-bourse-cd, data-wv2bcd neutralisé : plus d'éléments [data-wv2bcd] dans le DOM, wv2TickBourse() no-op proprement) -->
-      <div class="wv2-bourse-jauges" aria-live="polite" style="max-width:640px;margin:24px auto 0;text-align:left;">
-        <p style="font-size:13px;color:rgba(252,224,168,.65);line-height:1.6;margin:0 0 18px;text-align:center;">La Bourse d'un pays s'ouvre à 5 000 membres Pro. En dessous, un classement national ne veut rien dire : trop peu de profils, trop peu d'avis pour départager les meilleurs. La Bourse s'ouvre quand le marché est réel. Quel pays le prouvera en premier ?</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
-          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;">
-            <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇹🇬 TOGO · <span data-nb-pro-tg>…</span> / 5 000 membres Pro</div>
-            <div style="height:8px;border-radius:99px;background:rgba(252,224,168,.12);overflow:hidden;"><div data-nb-pro-tg-fill style="height:100%;width:0%;background:#E8940A;border-radius:99px;"></div></div>
-            <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-tg>5 000</span> Pro pour ouvrir la Bourse du Togo.</div>
+  <section class="wz-google" aria-labelledby="wz-google-title">
+    <div class="container wz-google-grid">
+      <div class="wz-google-text wz-reveal">
+        <div class="wz-eyebrow">05 · Visibilité</div>
+        <h2 id="wz-google-title" class="wz-h2">Tape « électricien Lomé » <em class="wz-gold-it">sur Google.</em></h2>
+        <p class="wz-lead">Les profils WOZALI ressortent, avec leurs étoiles et leurs avis. Chaque profil est une page publique, référencée, qui travaille pour toi pendant que tu travailles.</p>
+        <p class="wz-lead wz-lead-2"><strong>Le tien peut être le prochain.</strong></p>
+        <button class="btn-wozali-primary wz-btn-sheen" onclick="showPage('inscription')">Créer mon profil gratuit</button>
+      </div>
+
+      <div class="wz-google-visual wz-reveal" data-d="1" aria-hidden="true">
+        <div class="wz-serp">
+          <div class="wz-serp-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+            <span class="wz-serp-q">électricien Lomé</span>
+            <span class="wz-serp-key">⏎</span>
           </div>
-          <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:16px 18px;">
-            <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇧🇯 BÉNIN · <span data-nb-pro-bj>…</span> / 5 000 membres Pro</div>
-            <div style="height:8px;border-radius:99px;background:rgba(252,224,168,.12);overflow:hidden;"><div data-nb-pro-bj-fill style="height:100%;width:0%;background:#E8940A;border-radius:99px;"></div></div>
-            <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-bj>5 000</span> Pro pour ouvrir la Bourse du Bénin.</div>
+          <div class="wz-serp-results">
+            <div class="wz-serp-item wz-serp-wozali">
+              <div class="wz-serp-src"><span class="wz-serp-fav">W</span><span>wozali.africa › electricien-lome</span></div>
+              <div class="wz-serp-title">Kossi A. · Électricien à Bè, Lomé · Profil WOZALI</div>
+              <div class="wz-serp-stars"><span class="wz-stars">★★★★★</span><span class="wz-serp-note">4,9 · 23 avis vérifiés</span></div>
+              <div class="wz-serp-desc">Dépannage, installation, câblage. Disponible aujourd'hui. Appel direct, sans intermédiaire.</div>
+            </div>
+            <div class="wz-serp-item wz-serp-dim">
+              <div class="wz-serp-src"><span class="wz-serp-fav wz-fav-dim"></span><span>annuaire-generique.com</span></div>
+              <div class="wz-serp-title">Liste d'électriciens · page 12</div>
+              <div class="wz-serp-desc">Aucune note. Aucune photo. Numéros plus à jour.</div>
+            </div>
+            <div class="wz-serp-item wz-serp-dim">
+              <div class="wz-serp-src"><span class="wz-serp-fav wz-fav-dim"></span><span>forum-bricolage.net</span></div>
+              <div class="wz-serp-title">Quelqu'un connaît un bon électricien ?</div>
+              <div class="wz-serp-desc">Posté il y a 4 ans. 0 réponse.</div>
+            </div>
           </div>
         </div>
-        <p style="font-size:12px;color:rgba(252,224,168,.5);text-align:center;margin:16px 0 0;">Le premier pays qui atteint 5 000 Pro ouvre sa Bourse. L'autre suit dès qu'il y arrive. Ton pays compte sur ses meilleurs.</p>
-      </div>
-      <div style="text-align:center;margin-top:20px;">
-        <button type="button" class="btn-wozali-secondary" onclick="showPage('recompenses')">Voir les récompenses →</button>
       </div>
     </div>
   </section>
 
-
   <section id="home-gagnants" style="display:none;background:#14100A;padding:40px 0;border-top:1px solid rgba(232,148,10,.15);border-bottom:1px solid rgba(232,148,10,.15);"></section>
 
-  <!-- PRESTATAIRES RÉCENTS -->
-  <section class="section" style="background:#14100A;border-top:1px solid rgba(232,148,10,0.08);">
+  <!-- PRESTATAIRES RÉCENTS (masqué : redondant avec la section vedette, #home-cards conservé pour le JS initHome) -->
+  <section class="section" style="display:none;background:#14100A;border-top:1px solid rgba(232,148,10,0.08);">
     <div class="container">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
         <div>
@@ -869,10 +924,11 @@ setTimeout(function(){
   <!-- SECTION : OFFRES D'EMPLOI RÉCENTES -->
   <section style="background:#14100A;padding:72px 0;border-top:1px solid rgba(232,148,10,0.08);">
     <div class="container">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
+      <div class="wz-reveal" style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div class="badge badge-vert" style="margin-bottom:8px;">Nouvelles opportunités</div>
-          <h2 style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#FCE0A8;">WOZALI Jobs — offres récentes</h2>
+          <div class="wz-eyebrow">06 · WOZALI Jobs</div>
+          <h2 class="wz-h2" style="margin:0;">Le deuxième invisible : <em class="wz-gold-it">l'emploi.</em></h2>
+          <p style="font-size:14px;color:rgba(252,224,168,0.6);margin:10px 0 0;max-width:520px;line-height:1.6;">Des offres réelles, près de chez toi. Postule en un clic, avec ton profil WOZALI comme CV.</p>
         </div>
         <button class="btn btn-secondary" onclick="showPage('emploi')">Voir toutes les offres →</button>
       </div>
@@ -882,46 +938,33 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- Bourse de Croissance — section homepage (remplace ancienne Bourse des Mains d'Or) -->
-  <section class="wozali-awards-section" id="wozali-awards-section" style="padding:72px 0;">
-    <div class="wozali-container" style="max-width:1100px;margin:0 auto;padding:0 24px;">
-      <div style="text-align:center;margin-bottom:32px;">
-        <span class="eyebrow" style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:3px;color:#E8940A;margin-bottom:10px;">LA BOURSE DE CROISSANCE</span>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,40px);font-weight:900;color:#FCE0A8;margin:0 0 14px;line-height:1.15;">
-          Pas le plus connu.<br>
-          <span style="color:#E8940A;">Le plus sérieux.</span>
-        </h2>
-        <p style="max-width:680px;margin:0 auto;color:rgba(252, 224, 168,.75);font-size:15px;line-height:1.7;">
-          Chaque mois, WOZALI verse <strong style="color:#E8940A;">un salaire à chacun des 10 meilleurs profils du mois</strong> du Togo et du Bénin. Le classement regarde ton travail : tes avis clients vérifiés, ta note, ta constance. Pas tes abonnés. Pas tes contacts. <strong>Ton travail parle, le classement écoute.</strong>
-        </p>
+  <!-- ══════════════════════════════════════════
+       WOZALI v2 — SECTION BOURSE CROISSANCE (jauges déblocage par pays)
+  ══════════════════════════════════════════ -->
+  <section class="wv2-bourse" aria-labelledby="wv2-bourse-title">
+    <div class="container wv2-bourse-inner">
+      <span class="wz-eyebrow wz-reveal" style="justify-content:center;">07 · La Bourse de Croissance</span>
+      <h2 id="wv2-bourse-title" class="wv2-bourse-h2 wz-reveal" data-d="1">Pas le plus connu.<br><em class="wz-gold-it">Le plus sérieux.</em></h2>
+      <p class="wv2-bourse-sub wz-reveal" data-d="2">Chaque mois, WOZALI verse un salaire aux 10 meilleurs profils du mois. Un vrai salaire, le salaire minimum légal de ton pays, viré sur ton Mobile Money.<br>Le classement regarde ton travail : tes avis clients vérifiés, ta note, ta constance. Jamais tes abonnés. Jamais le hasard.<br>Nouveau mois, nouveau classement, nouveaux gagnants.</p>
+      <!-- Jauges déblocage (ex-countdown wv2-bourse-cd, data-wv2bcd neutralisé : plus d'éléments [data-wv2bcd] dans le DOM, wv2TickBourse() no-op proprement) -->
+      <div class="wv2-bourse-jauges wz-reveal" data-d="2" aria-live="polite" style="max-width:640px;margin:24px auto 0;text-align:left;">
+        <p style="font-size:13px;color:rgba(252,224,168,.65);line-height:1.6;margin:0 0 18px;text-align:center;">La Bourse d'un pays s'ouvre à 5 000 membres Pro. En dessous, un classement national ne veut rien dire : trop peu de profils, trop peu d'avis pour départager les meilleurs. La Bourse s'ouvre quand le marché est réel. Quel pays le prouvera en premier ?</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
+          <div class="wz-gauge">
+            <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇹🇬 TOGO · <span data-nb-pro-tg>…</span> / 5 000 membres Pro</div>
+            <div class="wz-gauge-track"><div data-nb-pro-tg-fill class="wz-gauge-fill" style="height:100%;width:0%;"></div></div>
+            <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-tg>5 000</span> Pro pour ouvrir la Bourse du Togo.</div>
+          </div>
+          <div class="wz-gauge">
+            <div style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#FCE0A8;letter-spacing:1px;margin-bottom:8px;">🇧🇯 BÉNIN · <span data-nb-pro-bj>…</span> / 5 000 membres Pro</div>
+            <div class="wz-gauge-track"><div data-nb-pro-bj-fill class="wz-gauge-fill" style="height:100%;width:0%;"></div></div>
+            <div style="font-size:12px;color:rgba(252,224,168,.55);margin-top:8px;">Il manque <span data-reste-bj>5 000</span> Pro pour ouvrir la Bourse du Bénin.</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:rgba(252,224,168,.5);text-align:center;margin:16px 0 0;">Le premier pays qui atteint 5 000 Pro ouvre sa Bourse. L'autre suit dès qu'il y arrive. Ton pays compte sur ses meilleurs.</p>
       </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:32px;">
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:18px;text-align:center;">
-          <div style="font-size:30px;margin-bottom:4px;">🛠️</div>
-          <div style="font-family:'DM Serif Display',serif;font-weight:900;font-size:16px;color:#FCE0A8;margin-bottom:4px;">Travaille bien</div>
-          <div style="font-size:12px;color:rgba(252, 224, 168,.55);">Profil complet, photos de tes réalisations, clients satisfaits.</div>
-        </div>
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:18px;text-align:center;">
-          <div style="font-size:30px;margin-bottom:4px;">⭐</div>
-          <div style="font-family:'DM Serif Display',serif;font-weight:900;font-size:16px;color:#FCE0A8;margin-bottom:4px;">Tes clients notent</div>
-          <div style="font-size:12px;color:rgba(252, 224, 168,.55);">Chaque avis vérifié compte. La qualité pèse plus que la quantité.</div>
-        </div>
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:18px;text-align:center;">
-          <div style="font-size:30px;margin-bottom:4px;">🏆</div>
-          <div style="font-family:'DM Serif Display',serif;font-weight:900;font-size:16px;color:#FCE0A8;margin-bottom:4px;">Un salaire chaque mois</div>
-          <div style="font-size:12px;color:rgba(252, 224, 168,.55);">Les 10 meilleurs profils du mois (Togo + Bénin) · Nouveau classement chaque mois, remis à zéro.</div>
-        </div>
-        <div style="background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.2);border-radius:14px;padding:18px;text-align:center;">
-          <div style="font-size:30px;margin-bottom:4px;">🔍</div>
-          <div style="font-family:'DM Serif Display',serif;font-weight:900;font-size:16px;color:#FCE0A8;margin-bottom:4px;">100% mérite</div>
-          <div style="font-size:12px;color:rgba(252, 224, 168,.55);">Score WOZALI + avis clients vérifiés · Réservée Pro · Aucun tirage au sort.</div>
-        </div>
-      </div>
-
-      <div style="text-align:center;">
-        <button onclick="showPage('recompenses')" style="padding:14px 32px;background:#E8940A;color:#14100A;border:none;border-radius:999px;font-weight:900;font-size:15px;cursor:pointer;">Voir les récompenses →</button>
-        <div style="margin-top:12px;font-size:12px;color:rgba(252, 224, 168,.5);font-family:'Geist Mono',monospace;">#BourseDeCroissance · #WOZALI</div>
+      <div class="wz-reveal" data-d="3" style="text-align:center;margin-top:20px;">
+        <button type="button" class="btn-wozali-secondary" onclick="showPage('recompenses')">Voir les récompenses →</button>
       </div>
     </div>
   </section>
@@ -929,10 +972,10 @@ setTimeout(function(){
   <!-- Sprint 4 — Top 50 WOZALI -->
   <section class="wozali-top50-section" id="top50">
     <div class="wozali-container">
-      <div class="top50-header">
+      <div class="top50-header wz-reveal">
         <div>
-          <span class="eyebrow">MUR DE LA GLOIRE</span>
-          <h2>TOP 50 WOZALI</h2>
+          <span class="wz-eyebrow">Mur de la gloire</span>
+          <h2 class="wz-h2" style="margin-top:8px;">Top 50 <em class="wz-gold-it">WOZALI.</em></h2>
           <p>Les 50 meilleurs professionnels du Bénin et du Togo. Mis à jour toutes les 6h.</p>
         </div>
         <div class="top50-filtres">
@@ -950,21 +993,21 @@ setTimeout(function(){
   <section style="background:linear-gradient(135deg,#14100A 0%,#1a1610 50%,#14100A 100%);padding:72px 0;border-top:1px solid rgba(232,148,10,0.15);">
     <div class="container" style="max-width:960px;">
 
-      <div style="text-align:center;margin-bottom:40px;">
-        <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:4px;color:#E8940A;margin-bottom:10px;">💰 PROGRAMME D'AFFILIATION WOZALI</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(26px,4vw,38px);font-weight:900;color:#FCE0A8;margin:0 0 10px;line-height:1.2;">Tu connais des gens qui devraient être sur WOZALI ?<br><em style="color:#E8940A;">Chaque Pro que tu leur fais découvrir te rapporte une commission.</em></h2>
+      <div class="wz-reveal" style="text-align:center;margin-bottom:40px;">
+        <div class="wz-eyebrow" style="justify-content:center;">08 · Parrainage</div>
+        <h2 class="wz-h2" style="margin:0 0 10px;">Tu connais des gens qui devraient être ici ?<br><em class="wz-gold-it">Chaque Pro que tu fais découvrir te rapporte.</em></h2>
         <p style="font-size:15px;color:rgba(252, 224, 168,0.6);max-width:600px;margin:0 auto;line-height:1.7;">Chaque personne que tu inscris et qui passe Pro te rapporte <strong style="color:#E8940A;">1 000 FCFA par mois</strong>. Pas une fois. <strong style="color:#FCE0A8;">Chaque mois</strong>. Tant qu'elle reste Pro, tu touches. Automatiquement.</p>
       </div>
 
       <!-- SIMULATEUR INTERACTIF -->
-      <div style="background:rgba(232,148,10,0.06);border:2px solid rgba(232,148,10,0.25);border-radius:20px;padding:32px;margin-bottom:32px;">
+      <div class="wz-reveal" style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.25);border-radius:20px;padding:32px;margin-bottom:32px;">
         <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin:0 0 6px;text-align:center;">Combien tu peux gagner ?</h3>
         <p style="font-size:13px;color:rgba(252, 224, 168,0.5);text-align:center;margin:0 0 20px;">Déplace le curseur. Le calcul se fait tout seul.</p>
 
         <div style="text-align:center;margin-bottom:16px;">
-          <input type="range" id="parrain-slider" min="1" max="500" value="20" oninput="updateParrainSimulator(this.value)" style="width:100%;max-width:600px;accent-color:#E8940A;height:8px;cursor:pointer;">
+          <input type="range" id="parrain-slider" min="1" max="100" value="20" oninput="updateParrainSimulator(this.value)" style="width:100%;max-width:600px;accent-color:#E8940A;height:8px;cursor:pointer;">
           <div style="display:flex;justify-content:space-between;max-width:600px;margin:6px auto 0;font-size:10px;color:rgba(252, 224, 168,0.35);font-family:'Geist Mono',monospace;">
-            <span>1</span><span>50</span><span>100</span><span>200</span><span>300</span><span>500</span>
+            <span>1</span><span>25</span><span>50</span><span>75</span><span>100</span>
           </div>
         </div>
 
@@ -1025,95 +1068,30 @@ setTimeout(function(){
             </tr>
             <tr style="border-top:1px solid rgba(255,255,255,0.04);">
               <td style="padding:10px 16px;font-weight:600;">100 filleuls</td>
-              <td style="padding:10px 16px;text-align:right;font-family:'Geist Mono',monospace;color:#f59e0b;">100 000 FCFA</td>
+              <td style="padding:10px 16px;text-align:right;font-family:'Geist Mono',monospace;color:#E8940A;">100 000 FCFA</td>
               <td style="padding:10px 16px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252, 224, 168,0.5);">1 200 000</td>
-              <td style="padding:10px 16px;text-align:center;font-size:11px;color:#f59e0b;">×2 le SMIG</td>
-            </tr>
-            <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-              <td style="padding:10px 16px;font-weight:600;">200 filleuls</td>
-              <td style="padding:10px 16px;text-align:right;font-family:'Geist Mono',monospace;color:#f59e0b;">200 000 FCFA</td>
-              <td style="padding:10px 16px;text-align:right;font-family:'Geist Mono',monospace;color:rgba(252, 224, 168,0.5);">2 400 000</td>
-              <td style="padding:10px 16px;text-align:center;font-size:11px;color:#f59e0b;">×4 le SMIG</td>
-            </tr>
-            <tr style="border-top:1px solid rgba(255,255,255,0.04);background:rgba(232,148,10,0.08);">
-              <td style="padding:10px 16px;font-weight:900;color:#E8940A;">500 filleuls</td>
-              <td style="padding:10px 16px;text-align:right;font-family:'Geist Mono',monospace;font-weight:900;color:#E8940A;font-size:16px;">500 000 FCFA</td>
-              <td style="padding:10px 16px;text-align:right;font-family:'Geist Mono',monospace;color:#E8940A;font-weight:700;">6 000 000</td>
-              <td style="padding:10px 16px;text-align:center;font-size:11px;font-weight:900;color:#E8940A;">×10 le SMIG</td>
+              <td style="padding:10px 16px;text-align:center;font-size:11px;color:#E8940A;">×2 le SMIG</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- PROFILS-TYPES -->
-      <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin:0 0 16px;text-align:center;">Eux, ils l'ont compris.</h3>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:32px;">
-        <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:14px;padding:20px;">
-          <div style="font-size:24px;margin-bottom:8px;">🎓</div>
-          <div style="font-weight:700;color:#FCE0A8;margin-bottom:4px;">Kofi, étudiant à l'UCAO</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.6);line-height:1.6;margin-bottom:10px;">2h par jour entre les cours. Il parle de WOZALI dans les groupes WhatsApp de la fac et aux commerçants autour du campus.</div>
-          <div style="display:flex;gap:8px;">
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">30 filleuls</div>
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">30 000 FCFA/mois</div>
-          </div>
-        </div>
-        <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:14px;padding:20px;">
-          <div style="font-size:24px;margin-bottom:8px;">👩‍🍳</div>
-          <div style="font-weight:700;color:#FCE0A8;margin-bottom:4px;">Mama Adjo, marché Dantokpa</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.6);line-height:1.6;margin-bottom:10px;">Elle connaît tout le marché. Elle parle de WOZALI à chaque commerçante qui passe. Son stand est devenu un point d'inscription.</div>
-          <div style="display:flex;gap:8px;">
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">80 filleuls</div>
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">80 000 FCFA/mois</div>
-          </div>
-        </div>
-        <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:14px;padding:20px;">
-          <div style="font-size:24px;margin-bottom:8px;">💇‍♀️</div>
+      <!-- PROFIL TERRAIN -->
+      <div class="wz-reveal" style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:14px;padding:22px 24px;margin-bottom:32px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;">
+        <div class="wz-parrain-avatar">A</div>
+        <div style="flex:1;min-width:220px;">
           <div style="font-weight:700;color:#FCE0A8;margin-bottom:4px;">Ama, coiffeuse à Bè</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.6);line-height:1.6;margin-bottom:10px;">Chaque cliente qui s'assoit sur sa chaise repart avec le lien WOZALI. Elle ne force personne — elle montre son propre profil. Les gens comprennent.</div>
-          <div style="display:flex;gap:8px;">
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">150 filleuls</div>
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">150 000 FCFA/mois</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROFILS INFLUENCEURS -->
-      <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;color:#FCE0A8;margin:0 0 6px;text-align:center;">Tu as une audience ?</h3>
-      <p style="font-size:14px;color:rgba(252, 224, 168,0.5);text-align:center;margin:0 0 16px;">TikTok, Instagram, YouTube, groupe WhatsApp — chaque abonné est un filleul potentiel.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:32px;">
-        <div style="background:linear-gradient(135deg,rgba(232,148,10,0.1),rgba(232,148,10,0.03));border:1px solid rgba(232,148,10,0.3);border-radius:14px;padding:20px;">
-          <div style="font-size:24px;margin-bottom:8px;">📱</div>
-          <div style="font-weight:700;color:#FCE0A8;margin-bottom:4px;">5 000 abonnés TikTok</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.6);line-height:1.6;margin-bottom:10px;">Une vidéo qui parle de WOZALI. 2% de conversion = 100 inscrits. Si 50 passent Pro :</div>
+          <div style="font-size:13px;color:rgba(252, 224, 168,0.6);line-height:1.6;margin-bottom:10px;">Chaque cliente qui s'assoit sur sa chaise repart avec le lien WOZALI. Elle ne force personne : elle montre son propre profil. Les gens comprennent.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">50 filleuls Pro</div>
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">50 000 FCFA/mois</div>
+            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">40 filleuls</div>
+            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">40 000 FCFA/mois</div>
           </div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(232,148,10,0.1),rgba(232,148,10,0.03));border:1px solid rgba(232,148,10,0.3);border-radius:14px;padding:20px;">
-          <div style="font-size:24px;margin-bottom:8px;">🎬</div>
-          <div style="font-weight:700;color:#FCE0A8;margin-bottom:4px;">50 000 abonnés</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.6);line-height:1.6;margin-bottom:10px;">Tu fais 3 vidéos par mois sur WOZALI. Tes abonnés s'inscrivent. 500 passent Pro :</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">500 filleuls Pro</div>
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:900;">500 000 FCFA/mois</div>
-          </div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(232,148,10,0.15),rgba(232,148,10,0.05));border:2px solid rgba(232,148,10,0.4);border-radius:14px;padding:20px;">
-          <div style="font-size:24px;margin-bottom:8px;">🌟</div>
-          <div style="font-weight:700;color:#E8940A;margin-bottom:4px;">500 000+ abonnés</div>
-          <div style="font-size:13px;color:rgba(252, 224, 168,0.6);line-height:1.6;margin-bottom:10px;">Un seul partenariat WOZALI. Une story. Un lien en bio. 2 000 filleuls Pro en quelques semaines :</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <div style="background:rgba(232,148,10,0.15);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700;">2 000 filleuls Pro</div>
-            <div style="background:rgba(232,148,10,0.2);padding:6px 10px;border-radius:8px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:900;">2 000 000 FCFA/mois</div>
-          </div>
-          <div style="font-size:11px;color:rgba(252, 224, 168,0.4);margin-top:8px;">Récurrent. Chaque mois. Sans tourner une seule vidéo de plus.</div>
         </div>
       </div>
 
       <!-- RÈGLES CLAIRES -->
-      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:24px;margin-bottom:32px;">
-        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin:0 0 14px;">Comment ça marche — en 30 secondes</h3>
+      <div class="wz-reveal" style="background:rgba(0,0,0,0.3);border:1px solid rgba(232,148,10,0.15);border-radius:14px;padding:24px;margin-bottom:32px;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin:0 0 14px;">Comment ça marche, en 30 secondes</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <div style="background:#E8940A;color:#14100A;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;">1</div>
@@ -1121,11 +1099,11 @@ setTimeout(function(){
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <div style="background:#E8940A;color:#14100A;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;">2</div>
-            <div style="font-size:13px;color:rgba(252, 224, 168,0.8);line-height:1.6;"><strong style="color:#FCE0A8;">Partage ton lien</strong> — WhatsApp, TikTok, bouche-à-oreille, marché, salon, campus</div>
+            <div style="font-size:13px;color:rgba(252, 224, 168,0.8);line-height:1.6;"><strong style="color:#FCE0A8;">Partage ton lien</strong> : WhatsApp, bouche-à-oreille, marché, salon, campus</div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <div style="background:#E8940A;color:#14100A;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;">3</div>
-            <div style="font-size:13px;color:rgba(252, 224, 168,0.8);line-height:1.6;"><strong style="color:#FCE0A8;">Tu touches 1 000 FCFA/mois</strong> pour chaque filleul qui passe Pro. Automatique. Récurrent. Sans plafond.</div>
+            <div style="font-size:13px;color:rgba(252, 224, 168,0.8);line-height:1.6;"><strong style="color:#FCE0A8;">Tu touches 1 000 FCFA/mois</strong> pour chaque filleul qui passe Pro. Automatique. Récurrent.</div>
           </div>
         </div>
       </div>
@@ -1150,7 +1128,7 @@ setTimeout(function(){
     document.getElementById('dash-parrain-pct').textContent = pct + '%';
     document.getElementById('dash-parrain-bar').style.width = Math.min(pct, 100) + '%';
     var label = '';
-    if (pct < 50) label = 'Continue — chaque filleul compte.';
+    if (pct < 50) label = 'Continue, chaque filleul compte.';
     else if (pct < 100) label = 'Tu te rapproches du SMIG. Encore un effort.';
     else if (pct < 200) label = 'Tu dépasses le SMIG. Beaucoup en rêvent.';
     else if (pct < 400) label = 'Tu gagnes plus que la majorité des salariés de la sous-région.';
@@ -1168,11 +1146,9 @@ setTimeout(function(){
     document.getElementById('parrain-sim-pct').textContent = pct + '%';
     document.getElementById('parrain-sim-bar').style.width = Math.min(pct, 100) + '%';
     var label = '';
-    if (pct < 50) label = 'Continue — chaque filleul compte.';
+    if (pct < 50) label = 'Continue, chaque filleul compte.';
     else if (pct < 100) label = 'Tu te rapproches du SMIG. Encore un effort.';
-    else if (pct < 200) label = 'Tu dépasses le SMIG. Beaucoup de Togolais et Béninois en rêvent.';
-    else if (pct < 400) label = 'Tu gagnes plus que la majorité des salariés de la sous-région.';
-    else label = 'Tu as construit un vrai business. Récurrent. Sans patron.';
+    else label = 'Tu dépasses le SMIG. Beaucoup de Togolais et Béninois en rêvent.';
     document.getElementById('parrain-sim-smig-label').textContent = label;
   }
   </script>
@@ -6607,7 +6583,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260720d" defer></script>
+<script src="/app.js?v=20260720e" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -8589,12 +8565,12 @@ window.addEventListener('beforeinstallprompt', function(e){
     section.innerHTML = ''
       + '<div class="wv2-hero-v2-inner">'
       +   '<div class="wv2-hero-v2-text">'
-      +     '<div class="wv2-hero-eyebrow">L\'emploi et les services au Bénin et au Togo</div>'
+      +     '<div class="wv2-hero-eyebrow">Togo · Bénin</div>'
       +     '<h1>Ton travail parle.</h1>'
       +     '<h2><em style="font-style:italic;color:#E8940A;">Pas tes connexions.</em></h2>'
-      +     '<p style="font-family:DM Serif Display,serif;font-style:italic;font-size:clamp(16px,2.2vw,22px);color:rgba(255,255,255,0.75);line-height:1.6;margin:16px 0 24px;max-width:600px;">Ce soir, quelqu\'un cherche exactement ce que tu sais faire. Il ne te trouve pas.<br><span style="color:#E8940A;font-style:normal;font-weight:700;">Ton profil sort en premier. Les clients t\'appellent directement.</span></p>'
-      +     '<p class="wv2-hero-v2-sub">Artisans, prestataires, commerçants de Cotonou et Lomé. Ici, ce n\'est pas qui tu connais qui compte. C\'est ce que tu sais faire.</p>'
-      +     '<p style="margin:8px 0 14px;border-left:2px solid #E8940A;padding:6px 0 6px 14px;font-family:\'Geist Mono\',monospace;font-size:12px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;flex-wrap:wrap;gap:4px 14px;"><span><span style="color:#E8940A;font-weight:700;">80%</span> des contrats passent par réseau</span><span style="opacity:0.3;">·</span><span><span style="color:#E8940A;font-weight:700;">46%</span> des jeunes sans emploi au Togo</span></p>'
+      +     '<p class="wv2-hero-lead">L\'argent ne circule plus entre ceux qui cherchent et ceux qui savent faire.<br><span class="wv2-hero-lead-or">Ton profil sort en premier. Les clients t\'appellent directement.</span></p>'
+      +     '<p class="wv2-hero-pivot">Il y a deux invisibles. L\'artisan que personne ne trouve. Et le chercheur d\'emploi que personne n\'appelle. <strong>WOZALI existe pour les deux.</strong></p>'
+      +     '<p class="wv2-hero-stats"><span><span class="st">80%</span> des contrats passent par réseau</span><span class="sep">·</span><span><span class="st">46%</span> de chômage chez les jeunes</span></p>'
       +     '<div class="wv2-hero-v2-ctas">'
       +       '<button class="btn-wozali-primary" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button>'
       +       '<button class="btn-wozali-secondary" onclick="showPage(\'search\')">Explorer les prestataires</button>'
@@ -8650,6 +8626,35 @@ window.addEventListener('beforeinstallprompt', function(e){
   } else {
     document.addEventListener('DOMContentLoaded', wv2InitHeroV2);
   }
+})();
+
+// ══ Accueil premium — reveals au scroll (transform/opacity uniquement) ══
+// Le contenu est visible par défaut : la classe html.wz-anim n'est posée que si
+// IntersectionObserver existe ET que l'utilisateur n'a pas demandé moins de
+// mouvement. Jamais de section vide en attente de JS.
+(function(){
+  function wzInitReveals(){
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) return;
+    document.documentElement.classList.add('wz-anim');
+    var els = document.querySelectorAll('.wz-reveal');
+    if (!els.length) return;
+    // rootMargin top très large : tout élément déjà passé (au-dessus du viewport,
+    // ex. saut d'ancre ou scroll très rapide) est toujours révélé, jamais bloqué caché.
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { rootMargin:'100000px 0px -8% 0px', threshold:0.01 });
+    els.forEach(function(el){
+      // Si déjà à l'écran au chargement, révéler immédiatement (pas de flash caché)
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) { el.classList.add('in'); return; }
+      io.observe(el);
+    });
+  }
+  if (document.readyState !== 'loading') { wzInitReveals(); }
+  else { document.addEventListener('DOMContentLoaded', wzInitReveals); }
 })();
 
 // ══ WOZALI v2 — Section 9 : Patch showProfil (banner/avatar/distribution avis/bouton Pro) ══
