@@ -2598,7 +2598,7 @@ nav .nav-logo circle[fill="#14100A"] { fill: #14100A; stroke: #E8940A; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-anim] { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  [data-anim] { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; animation: none !important; }
   .wozali-award-card::before,
   .wozali-score-fill,
   .score-fill,
@@ -5331,22 +5331,45 @@ body.wozali-v2-active #page-home > .hero { display:none; }
 }
 .wv2-hero-v2::before {
   content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 20% top, rgba(232,148,10,.12), transparent 60%);
+  background:
+    radial-gradient(ellipse at 20% top, rgba(232,148,10,.12), transparent 60%),
+    radial-gradient(circle at 88% 12%, rgba(232,148,10,.15), transparent 46%),
+    radial-gradient(ellipse 60% 45% at 8% 100%, rgba(252,224,168,.05), transparent 62%);
   pointer-events:none;
+}
+/* Grain photographique : SVG feTurbulence inline, zéro coût réseau */
+.wv2-hero-v2::after {
+  content:''; position:absolute; inset:0; z-index:3; pointer-events:none;
+  opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .wv2-hero-v2-inner {
   max-width:1200px; margin:0 auto; position:relative; z-index:2;
   display:grid; grid-template-columns:1fr 420px; gap:48px; align-items:center;
 }
 .wv2-hero-v2-text { display:flex; flex-direction:column; }
+
+/* Eyebrow éditorial : Geist Mono, tiret or, zéro emoji */
+.wv2-hero-v2 .wv2-hero-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'Geist Mono',monospace; font-weight:500;
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--wv2-or); margin:0 0 16px; width:fit-content;
+}
+.wv2-hero-v2 .wv2-hero-eyebrow::before {
+  content:''; width:22px; height:1px; background:var(--wv2-or);
+  display:inline-block; flex-shrink:0; opacity:.85;
+}
+@media(max-width:900px){ .wv2-hero-v2 .wv2-hero-eyebrow { margin-left:auto; margin-right:auto; } }
+
 .wv2-hero-v2 h1 {
   font-family:'DM Serif Display',serif; font-weight:900;
-  font-size:clamp(36px,5.5vw,64px); line-height:1.02;
+  font-size:clamp(38px,6vw,72px); line-height:1.02;
   color:var(--wv2-creme); margin:0 0 6px; letter-spacing:-0.02em;
 }
 .wv2-hero-v2 h2 {
   font-family:'DM Serif Display',serif; font-style:italic; font-weight:700;
-  font-size:clamp(28px,4.5vw,52px); line-height:1.05;
+  font-size:clamp(30px,5vw,58px); line-height:1.05;
   color:var(--wv2-or); margin:0 0 24px; letter-spacing:-0.01em;
 }
 .wv2-hero-v2 p.wv2-hero-v2-sub {
@@ -5365,6 +5388,49 @@ body.wozali-v2-active #page-home > .hero { display:none; }
 .wv2-hero-v2-count .wv2-dot { width:8px; height:8px; border-radius:50%; background:var(--wv2-or); animation:wv2-pulse 2s infinite; }
 .wv2-fade-up { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
 .wv2-fade-up.wv2-in { opacity:1; transform:translateY(0); }
+
+/* CTA principal : dégradé + sheen au hover (scopé au hero v2, ne touche pas
+   .btn-wozali-primary ailleurs sur le site) */
+.wv2-hero-v2 .btn-wozali-primary {
+  position:relative; overflow:hidden;
+  background:linear-gradient(135deg,#f5b13d 0%,var(--wv2-or) 46%,#b56f06 120%);
+  box-shadow:0 6px 24px -10px rgba(232,148,10,.5);
+  transition:transform .35s cubic-bezier(.22,.7,.28,1), box-shadow .35s cubic-bezier(.22,.7,.28,1), background .35s ease;
+}
+.wv2-hero-v2 .btn-wozali-primary::before {
+  content:''; position:absolute; top:0; bottom:0; left:-70%; width:45%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.42),transparent);
+  transform:skewX(-20deg);
+  transition:transform .7s cubic-bezier(.22,.7,.28,1);
+  pointer-events:none;
+}
+.wv2-hero-v2 .btn-wozali-primary:hover {
+  background:linear-gradient(135deg,#f5b13d 0%,var(--wv2-or) 46%,#b56f06 120%);
+  transform:translateY(-2px);
+  box-shadow:0 14px 44px -12px rgba(232,148,10,.55);
+}
+.wv2-hero-v2 .btn-wozali-primary:hover::before { transform:skewX(-20deg) translateX(340%); }
+
+/* Reveals snappy : le contenu est visible PAR DÉFAUT (opacity:1 statique,
+   la section wv2-hero-v2 reçoit déjà wv2-in au moment de sa création côté JS,
+   donc jamais de hero vide). L'anim ne fait que sublimer (léger flou +
+   décalage), elle ne conditionne jamais la visibilité. */
+.wv2-hero-v2-text > * {
+  opacity:1;
+  animation:heroSublime .5s cubic-bezier(.16,1,.3,1) both;
+}
+.wv2-hero-v2-text > *:nth-child(1) { animation-delay:0s; }
+.wv2-hero-v2-text > *:nth-child(2) { animation-delay:.03s; }
+.wv2-hero-v2-text > *:nth-child(3) { animation-delay:.05s; }
+.wv2-hero-v2-text > *:nth-child(4) { animation-delay:.07s; }
+.wv2-hero-v2-text > *:nth-child(5) { animation-delay:.09s; }
+.wv2-hero-v2-text > *:nth-child(6) { animation-delay:.11s; }
+.wv2-hero-v2-text > *:nth-child(7) { animation-delay:.13s; }
+.wv2-hero-v2-text > *:nth-child(8) { animation-delay:.15s; }
+@media (prefers-reduced-motion: reduce) {
+  .wv2-hero-v2-text > * { animation:none !important; opacity:1 !important; transform:none !important; filter:none !important; }
+}
+
 @media(max-width:900px){
   .wv2-hero-v2-inner { grid-template-columns:1fr; gap:32px; }
   .wv2-hero-v2 { text-align:center; padding:48px 16px 40px; }
@@ -7391,6 +7457,114 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .ho-card, .ho-caption { opacity: 1; transform: none; animation: none; }
   .ho-bar-fill { width: var(--pct, 80%); animation: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HERO PREMIUM — grain photographique, typo éditoriale, sheen CTA
+   Élève le hero existant au niveau de la maquette validée
+   accueil-premium.html — n'écrase aucun id/hook fonctionnel.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Grain photographique : SVG feTurbulence inline, zéro coût réseau */
+.hero-grain {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  opacity: .05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Halo or supplémentaire en profondeur, haut-droite */
+.hero-halo-top {
+  position: absolute; z-index: 0; pointer-events: none;
+  width: min(900px, 120vw); aspect-ratio: 1;
+  top: -22%; right: -20%;
+  background: radial-gradient(circle at center, rgba(232,148,10,.16) 0%, rgba(232,148,10,.05) 40%, transparent 70%);
+  filter: blur(2px);
+}
+@media (max-width: 900px) { .hero-halo-top { opacity: .55; } }
+
+/* Eyebrow éditorial : Geist Mono, tiret or, zéro emoji */
+#page-home .hero .hero-eyebrow {
+  font-family: 'Geist Mono', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  color: var(--or);
+}
+#page-home .hero .hero-eyebrow::before {
+  content: "";
+  width: 22px; height: 1px; background: var(--or);
+  display: inline-block; flex-shrink: 0; opacity: .85;
+}
+
+/* Titre énorme, hiérarchie éditoriale généreuse (2e ligne déjà en or italique via h1 em) */
+#page-home .hero .hero-title {
+  font-size: clamp(42px, 6.4vw, 78px);
+  letter-spacing: -.01em;
+  margin-bottom: 22px;
+}
+
+/* Bloc stats mono à liseré or gauche */
+#page-home .hero .hero-villain-stats {
+  border-left: 2px solid var(--or);
+  padding: 6px 0 6px 14px;
+}
+
+/* CTA principal du hero : dégradé + sheen au hover (scopé au hero, ne touche pas .btn-or ailleurs) */
+#page-home .hero .hero-actions .btn-or {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5b13d 0%, var(--or) 46%, #b56f06 120%);
+  box-shadow: 0 6px 24px -10px rgba(232,148,10,.5);
+  transition: transform .35s cubic-bezier(.22,.7,.28,1), box-shadow .35s cubic-bezier(.22,.7,.28,1);
+}
+#page-home .hero .hero-actions .btn-or::before {
+  content: "";
+  position: absolute; top: 0; bottom: 0; left: -70%; width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.42), transparent);
+  transform: skewX(-20deg);
+  transition: transform .7s cubic-bezier(.22,.7,.28,1);
+  pointer-events: none;
+}
+#page-home .hero .hero-actions .btn-or:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 44px -12px rgba(232,148,10,.55);
+}
+#page-home .hero .hero-actions .btn-or:hover::before {
+  transform: skewX(-20deg) translateX(340%);
+}
+
+/* ── Reveals snappy au-dessus de la ligne de flottaison ──
+   Le contenu du hero est visible PAR DÉFAUT (opacity:1 statique) :
+   même si le JS IntersectionObserver traîne ou échoue, rien n'est
+   jamais invisible. L'animation ne fait que sublimer (léger flou +
+   décalage vertical), elle ne conditionne jamais la visibilité. */
+.hero [data-anim] {
+  opacity: 1;
+  animation: heroSublime .5s cubic-bezier(.16,1,.3,1) both;
+}
+.hero [data-anim="scale"] {
+  animation-name: heroSublimeScale;
+}
+@keyframes heroSublime {
+  from { transform: translateY(10px); filter: blur(1.5px); }
+  to   { transform: translateY(0); filter: blur(0); }
+}
+@keyframes heroSublimeScale {
+  from { transform: scale(.97); filter: blur(2px); }
+  to   { transform: scale(1); filter: blur(0); }
+}
+.hero [data-anim-delay="1"] { animation-delay: .04s; }
+.hero [data-anim-delay="2"] { animation-delay: .08s; }
+.hero [data-anim-delay="3"] { animation-delay: .12s; }
+.hero [data-anim-delay="4"] { animation-delay: .16s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero [data-anim] { animation: none !important; opacity: 1 !important; transform: none !important; filter: none !important; }
 }
 
 /* ══════════════════════════════════════════════════════════════

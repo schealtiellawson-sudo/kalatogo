@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260718c">
+<link rel="stylesheet" href="/style.css?v=20260720d">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -533,11 +533,13 @@ setTimeout(function(){
       <div class="hero-particle hp4"></div>
       <div class="hero-particle hp5"></div>
     </div>
+    <div class="hero-halo-top" aria-hidden="true"></div>
+    <div class="hero-grain" aria-hidden="true"></div>
     <div class="container hero-content">
       <div class="hero-grid">
         <div>
-          <div class="hero-eyebrow" data-anim="up">✦ L'emploi et les services au Bénin et au Togo</div>
-          <h1 class="hero-title" data-anim="up" data-anim-delay="1">Ton travail parle.<br>Pas tes connexions.</h1>
+          <div class="hero-eyebrow" data-anim="up">L'emploi et les services au Bénin et au Togo</div>
+          <h1 class="hero-title" data-anim="up" data-anim-delay="1">Ton travail parle.<br><em>Pas tes connexions.</em></h1>
           <p class="hero-sub" data-anim="up" data-anim-delay="2">L'argent ne circule plus entre ceux qui cherchent et ceux qui savent faire.</p>
           <p class="hero-sub" data-anim="up" data-anim-delay="2" style="color:var(--wolo-orange);font-weight:700;font-size:clamp(15px,2.2vw,20px);margin-top:-6px;">Ton profil sort en premier. Les clients t'appellent directement.</p>
           <p class="hero-sub" data-anim="up" data-anim-delay="2" style="margin-top:4px;">Artisans, prestataires, commerçants, à Cotonou et Lomé. Sans connexions. Sans favoritisme. Ton profil, tes avis, ton Score, et les clients te trouvent.</p>
@@ -602,7 +604,7 @@ setTimeout(function(){
               <div class="ho-badges"><span class="ho-badge ho-badge-or">PRO</span><span class="ho-badge ho-badge-dim">⭐ 4,9 · 27 AVIS</span></div>
             </div>
 
-            <div class="ho-caption">Chaque profil s'élève du noir vers la lumière.<br><button class="ho-cta" onclick="showPage('inscription')">✦ Créer mon profil — gratuit · 2 min</button></div>
+            <div class="ho-caption">Chaque profil s'élève du noir vers la lumière.<br><button class="ho-cta" onclick="showPage('inscription')">✦ Créer mon profil gratuit · 2 min</button></div>
           </div>
         </div>
       </div>
@@ -6605,7 +6607,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260720c" defer></script>
+<script src="/app.js?v=20260720d" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -8578,7 +8580,7 @@ window.addEventListener('beforeinstallprompt', function(e){
 
 // ══ WOZALI v2 — Section 5 : Hero homepage v2 ══
 (function(){
-  document.addEventListener('DOMContentLoaded', function(){
+  function wv2InitHeroV2(){
     var home = document.getElementById('page-home');
     if (!home || home.querySelector('.wv2-hero-v2')) return;
     var legacyHero = home.querySelector(':scope > .hero');
@@ -8587,11 +8589,12 @@ window.addEventListener('beforeinstallprompt', function(e){
     section.innerHTML = ''
       + '<div class="wv2-hero-v2-inner">'
       +   '<div class="wv2-hero-v2-text">'
+      +     '<div class="wv2-hero-eyebrow">L\'emploi et les services au Bénin et au Togo</div>'
       +     '<h1>Ton travail parle.</h1>'
       +     '<h2><em style="font-style:italic;color:#E8940A;">Pas tes connexions.</em></h2>'
       +     '<p style="font-family:DM Serif Display,serif;font-style:italic;font-size:clamp(16px,2.2vw,22px);color:rgba(255,255,255,0.75);line-height:1.6;margin:16px 0 24px;max-width:600px;">Ce soir, quelqu\'un cherche exactement ce que tu sais faire. Il ne te trouve pas.<br><span style="color:#E8940A;font-style:normal;font-weight:700;">Ton profil sort en premier. Les clients t\'appellent directement.</span></p>'
       +     '<p class="wv2-hero-v2-sub">Artisans, prestataires, commerçants de Cotonou et Lomé. Ici, ce n\'est pas qui tu connais qui compte. C\'est ce que tu sais faire.</p>'
-      +     '<p style="margin:8px 0 14px;font-family:\'Geist Mono\',monospace;font-size:12px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;flex-wrap:wrap;gap:4px 14px;"><span><span style="color:#E8940A;font-weight:700;">80%</span> des contrats passent par réseau</span><span style="opacity:0.3;">·</span><span><span style="color:#E8940A;font-weight:700;">46%</span> des jeunes sans emploi au Togo</span></p>'
+      +     '<p style="margin:8px 0 14px;border-left:2px solid #E8940A;padding:6px 0 6px 14px;font-family:\'Geist Mono\',monospace;font-size:12px;color:rgba(252,224,168,0.6);line-height:1.6;display:flex;flex-wrap:wrap;gap:4px 14px;"><span><span style="color:#E8940A;font-weight:700;">80%</span> des contrats passent par réseau</span><span style="opacity:0.3;">·</span><span><span style="color:#E8940A;font-weight:700;">46%</span> des jeunes sans emploi au Togo</span></p>'
       +     '<div class="wv2-hero-v2-ctas">'
       +       '<button class="btn-wozali-primary" onclick="showPage(\'inscription\')">Créer mon profil gratuit</button>'
       +       '<button class="btn-wozali-secondary" onclick="showPage(\'search\')">Explorer les prestataires</button>'
@@ -8638,7 +8641,15 @@ window.addEventListener('beforeinstallprompt', function(e){
       }, { threshold:0.15 });
       io.observe(section);
     } catch(e){ section.classList.add('wv2-in'); }
-  });
+  }
+  // Exécution immédiate (pas d'attente DOMContentLoaded) : le hero doit
+  // apparaître dès que possible, pas seulement après le chargement complet
+  // du document (~9000 lignes). #page-home existe déjà à ce point du parsing.
+  if (document.getElementById('page-home')) {
+    wv2InitHeroV2();
+  } else {
+    document.addEventListener('DOMContentLoaded', wv2InitHeroV2);
+  }
 })();
 
 // ══ WOZALI v2 — Section 9 : Patch showProfil (banner/avatar/distribution avis/bouton Pro) ══
