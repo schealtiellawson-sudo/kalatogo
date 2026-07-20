@@ -3640,7 +3640,7 @@ const _seoPageMeta = {
   home:         { title: 'WOZALI · Trouve un prestataire ou un emploi au Bénin et au Togo', desc: 'WOZALI : trouve un prestataire vérifié ou un emploi à Lomé et Cotonou. Avis clients réels, profils sur Google. Chaque mois, les 10 meilleurs profils gagnent un salaire.' },
   search:       { title: 'Trouver un pro — WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOZALI Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
-  recompenses:  { title: 'La Bourse de Croissance — WOZALI', desc: 'Chaque mois, les 10 meilleurs profils du mois gagnent un salaire. Au mérite. Jamais au hasard. Réservé aux membres Pro, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro).' },
+  recompenses:  { title: 'La Bourse de Croissance · WOZALI', desc: 'Chaque mois, les 10 meilleurs profils du mois gagnent un salaire. Au mérite. Jamais au hasard. Réservé aux membres Pro, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro).' },
   inscription:  { title: 'Inscription gratuite — WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche — WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
 };
@@ -13416,7 +13416,7 @@ async function loadRecompensesWidgets() {
               <div>✓ Pas gagné les 3 derniers mois</div>
             </div>
           </div>
-          <button onclick="showDashSection('abonnement')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">🚀 Passer au Pro — 2 500 FCFA/mois →</button>
+          <button onclick="showDashSection('abonnement')" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;">🚀 Passer au Pro · 2 500 FCFA/mois →</button>
         </div>
         <div style="background:rgba(255,255,255,.03);border-radius:14px;padding:20px;text-align:center">
           <div style="font-size:13px;color:rgba(252,224,168,.5);margin-bottom:6px">Résultats</div>
