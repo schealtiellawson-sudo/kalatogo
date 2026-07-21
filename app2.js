@@ -3,23 +3,23 @@
 const faqData = [
   {
     q: "C'est vraiment gratuit ? Sans arnaque, sans commission cachée ?",
-    a: "Oui — gratuit à vie. Pas de carte bancaire. Pas de commission sur tes prestations. Ce que tu gagnes appartient entièrement à toi. Le Plan Pro (2 500 FCFA/mois via TMoney ou Flooz) est optionnel — il te place en tête des résultats et débloque le parrainage rémunéré et le recrutement. Pour démarrer et recevoir des clients aujourd'hui ? Zéro franc."
+    a: "Oui : gratuit à vie. Pas de carte bancaire. Pas de commission sur tes prestations. Ce que tu gagnes appartient entièrement à toi. Le Plan Pro (2 500 FCFA/mois via TMoney ou Flooz) est optionnel : il te place en tête des résultats et débloque le parrainage rémunéré et le recrutement. Pour démarrer et recevoir des clients aujourd'hui ? Zéro franc."
   },
   {
     q: "TikTok et Facebook ont été bloqués en 2025. WOZALI peut aussi disparaître du jour au lendemain ?",
-    a: "C'est exactement la bonne question. TikTok et Facebook appartiennent à des entreprises américaines — si elles ferment ou si l'accès est coupé, tu perds tout en 24h. Des milliers de business togolais l'ont vécu en juin 2025. WOZALI est 100% togolais, hébergé indépendamment. Ton profil t'appartient. Aucun réseau étranger entre toi et tes clients."
+    a: "C'est exactement la bonne question. TikTok et Facebook appartiennent à des entreprises américaines : si elles ferment ou si l'accès est coupé, tu perds tout en 24h. Des milliers de business togolais l'ont vécu en juin 2025. WOZALI est 100% togolais, hébergé indépendamment. Ton profil t'appartient. Aucun réseau étranger entre toi et tes clients."
   },
   {
     q: "J'ai un bon bouche-à-oreille dans mon quartier. WOZALI m'apporte quoi en plus ?",
-    a: "Le bouche-à-oreille s'arrête au coin de ta rue. Sur WOZALI, quelqu'un à Bè qui cherche un électricien — et toi tu travailles à Tokoin — il te trouve. À 3h du matin. Quand tu es sur un chantier. Quand tu dors. Pendant les coupures de courant. WOZALI c'est ton bouche-à-oreille permanent, sans salaire à payer, qui travaille 24h/24. À Cotonou comme à Lomé."
+    a: "Le bouche-à-oreille s'arrête au coin de ta rue. Sur WOZALI, quelqu'un à Bè qui cherche un électricien (et toi tu travailles à Tokoin), il te trouve. À 3h du matin. Quand tu es sur un chantier. Quand tu dors. Pendant les coupures de courant. WOZALI c'est ton bouche-à-oreille permanent, sans salaire à payer, qui travaille 24h/24. À Cotonou comme à Lomé."
   },
   {
     q: "WOZALI prend une commission sur ce que je gagne avec mes clients ?",
-    a: "Jamais. Zéro. Le client te paie directement — cash, TMoney, Flooz, comme vous vous arrangez. WOZALI ne touche pas à cet argent. Ce que tu gagnes est entièrement à toi. Toujours. C'est pour ça qu'on existe : te donner de la visibilité sans prendre une part de ta sueur."
+    a: "Jamais. Zéro. Le client te paie directement : cash, TMoney, Flooz, comme vous vous arrangez. WOZALI ne touche pas à cet argent. Ce que tu gagnes est entièrement à toi. Toujours. C'est pour ça qu'on existe : te donner de la visibilité sans prendre une part de ta sueur."
   },
   {
     q: "Je n'ai pas de smartphone récent. Ça marche quand même ?",
-    a: "Oui. WOZALI est conçu pour les téléphones de la zone — pas les iPhone dernière génération. Si tu peux ouvrir WhatsApp, tu peux utiliser WOZALI. Léger, testé en 2G/3G. Lomé, Kpalimé, Sokodé, Kara — ça marche partout. Même avec le réseau qui coupe."
+    a: "Oui. WOZALI est conçu pour les téléphones de la zone, pas les iPhone dernière génération. Si tu peux ouvrir WhatsApp, tu peux utiliser WOZALI. Léger, testé en 2G/3G. Lomé, Kpalimé, Sokodé, Kara : ça marche partout. Même avec le réseau qui coupe."
   },
   {
     q: "Comment mes clients me trouvent concrètement ?",
@@ -27,19 +27,19 @@ const faqData = [
   },
   {
     q: "C'est quoi le parrainage et combien ça rapporte vraiment ?",
-    a: "Pour chaque prestataire que tu inscris qui passe au Plan Pro — tu touches 40% de son abonnement chaque mois, à vie. 40% de 2 500 FCFA = 1 000 FCFA par filleul actif. 10 filleuls = 10 000 FCFA/mois sans rien faire. 50 filleuls = plus que le SMIG — juste en partageant ton lien. Disponible uniquement en Plan Pro."
+    a: "Pour chaque prestataire que tu inscris qui passe au Plan Pro, tu touches 40% de son abonnement chaque mois, à vie. 40% de 2 500 FCFA = 1 000 FCFA par filleul actif. 10 filleuls = 10 000 FCFA/mois sans rien faire. 50 filleuls = plus que le SMIG, juste en partageant ton lien. Disponible uniquement en Plan Pro."
   },
   {
     q: "Le Plan Pro à 2 500 FCFA, c'est rentable en combien de temps ?",
-    a: "Un seul client supplémentaire trouvé via WOZALI rembourse l'abonnement du mois. Coiffeur à 3 000 FCFA la séance — un seul RDV WOZALI et c'est rentabilisé. Le Pro te place 1er dans les recherches, débloque les stats, le parrainage et le recrutement. Si tu ne récupères pas 2 500 FCFA de clients en plus ce mois — repasse en gratuit. Mais ça n'arrive jamais."
+    a: "Un seul client supplémentaire trouvé via WOZALI rembourse l'abonnement du mois. Coiffeur à 3 000 FCFA la séance : un seul RDV WOZALI et c'est rentabilisé. Le Pro te place 1er dans les recherches, débloque les stats, le parrainage et le recrutement. Si tu ne récupères pas 2 500 FCFA de clients en plus ce mois, repasse en gratuit. Mais ça n'arrive jamais."
   },
   {
     q: "Comment je paie le Plan Pro ? Je n'ai pas de carte bancaire.",
-    a: "TMoney ou Flooz — depuis ton téléphone. Tu envoies 2 500 FCFA au numéro WOZALI avec ton code unique en note. Ton Plan Pro est activé dans les 24h. Aucune carte bancaire. Aucun compte en ligne. Juste ton mobile money, comme tu fais tous les jours."
+    a: "TMoney ou Flooz, depuis ton téléphone. Tu envoies 2 500 FCFA au numéro WOZALI avec ton code unique en note. Ton Plan Pro est activé dans les 24h. Aucune carte bancaire. Aucun compte en ligne. Juste ton mobile money, comme tu fais tous les jours."
   },
   {
-    q: "Je suis une boulangerie, un restaurant, une pharmacie — ça marche aussi ?",
-    a: "Absolument. WOZALI n'est pas que pour les artisans. Boulangers, restaurateurs, coiffeurs, pharmacies, salons, garages, traiteurs, couturiers — tout commerce local peut créer son profil. Les clients cherchent 'boulangerie Lomé', 'restaurant Adidogomé' — tu apparais. Ton profil devient ta vitrine permanente. Et en Plan Pro tu peux aussi publier des offres d'emploi pour recruter du personnel."
+    q: "Je suis une boulangerie, un restaurant, une pharmacie : ça marche aussi ?",
+    a: "Absolument. WOZALI n'est pas que pour les artisans. Boulangers, restaurateurs, coiffeurs, pharmacies, salons, garages, traiteurs, couturiers : tout commerce local peut créer son profil. Les clients cherchent 'boulangerie Lomé', 'restaurant Adidogomé', tu apparais. Ton profil devient ta vitrine permanente. Et en Plan Pro tu peux aussi publier des offres d'emploi pour recruter du personnel."
   },
   {
     q: "Mes infos personnelles sont en sécurité ? Qui voit mon numéro ?",
@@ -47,27 +47,27 @@ const faqData = [
   },
   {
     q: "Je suis déjà sur Instagram et Facebook. WOZALI m'apporte quoi en plus ?",
-    a: "Facebook et Instagram ne sont pas cherchés par des clients avec un besoin MAINTENANT. Personne ne tape 'coiffeur Adidogomé disponible aujourd'hui' sur Instagram. Sur WOZALI, si. Et Facebook a été coupé en 2025. WOZALI c'est un moteur de recherche intentionnel — les gens viennent avec une intention d'achat. C'est fondamentalement différent des réseaux sociaux."
+    a: "Facebook et Instagram ne sont pas cherchés par des clients avec un besoin MAINTENANT. Personne ne tape 'coiffeur Adidogomé disponible aujourd'hui' sur Instagram. Sur WOZALI, si. Et Facebook a été coupé en 2025. WOZALI c'est un moteur de recherche intentionnel : les gens viennent avec une intention d'achat. C'est fondamentalement différent des réseaux sociaux."
   },
   {
     q: "Comment fonctionne le Score WOZALI ?",
-    a: "Une jauge 0-100 qui mesure la qualité de ton profil : profil rempli (30 pts) + note moyenne (25 pts) + avis clients (15 pts) + photos de réalisations (10 pts) + vues de ton profil (10 pts) + commentaires écrits (10 pts). Plus ton score monte, plus tu remontes dans les résultats. Le mérite récompensé — pas les connexions, pas l'argent."
+    a: "Une jauge 0-100 qui mesure la qualité de ton profil : profil rempli (30 pts) + note moyenne (25 pts) + avis clients (15 pts) + photos de réalisations (10 pts) + vues de ton profil (10 pts) + commentaires écrits (10 pts). Plus ton score monte, plus tu remontes dans les résultats. Le mérite récompensé, pas les connexions, pas l'argent."
   },
   {
     q: "Combien de temps ça prend de créer mon profil ?",
-    a: "2 minutes. Nom, métier, quartier, photo de profil — visible de suite. Tu complètes le reste au fil du temps : photos de réalisations, tarifs, description, GPS. Chaque élément ajouté améliore ton Score WOZALI et ta position. Tu commences aujourd'hui, tu optimises demain."
+    a: "2 minutes. Nom, métier, quartier, photo de profil : visible de suite. Tu complètes le reste au fil du temps : photos de réalisations, tarifs, description, GPS. Chaque élément ajouté améliore ton Score WOZALI et ta position. Tu commences aujourd'hui, tu optimises demain."
   },
   {
     q: "Je cherche du travail. WOZALI c'est aussi pour moi ?",
-    a: "Oui. WOZALI n'est pas que pour les prestataires qui cherchent des clients. Si tu cherches un emploi ou une mission — crée ton profil, active le Mode Emploi dans ton dashboard, et ton profil devient visible pour les recruteurs qui cherchent ton métier. Tu peux aussi parcourir les offres publiées et postuler en 1 clic. Ton profil WOZALI, c'est ton CV vivant — photos de réalisations, avis clients, Score WOZALI — que n'importe quel recruteur peut vérifier."
+    a: "Oui. WOZALI n'est pas que pour les prestataires qui cherchent des clients. Si tu cherches un emploi ou une mission : crée ton profil, active le Mode Emploi dans ton dashboard, et ton profil devient visible pour les recruteurs qui cherchent ton métier. Tu peux aussi parcourir les offres publiées et postuler en 1 clic. Ton profil WOZALI, c'est ton CV vivant (photos de réalisations, avis clients, Score WOZALI) que n'importe quel recruteur peut vérifier."
   },
   {
     q: "Je recrute. Comment ça marche pour moi ?",
-    a: "Avec le Plan Pro, tu accèdes au tableau de bord recruteur. Tu publies une offre d'emploi en 3 minutes — métier, quartier, contrat, salaire, description. Les candidats qui cherchent ce poste la voient. Tu reçois leurs candidatures avec le profil complet : photo, métier, Score WOZALI, avis clients. Tu retiens qui t'intéresse. Tu les contactes sur WhatsApp. Pas d'agence. Pas de commission sur l'embauche. 2 500 FCFA/mois, c'est tout."
+    a: "Avec le Plan Pro, tu accèdes au tableau de bord recruteur. Tu publies une offre d'emploi en 3 minutes : métier, quartier, contrat, salaire, description. Les candidats qui cherchent ce poste la voient. Tu reçois leurs candidatures avec le profil complet : photo, métier, Score WOZALI, avis clients. Tu retiens qui t'intéresse. Tu les contactes sur WhatsApp. Pas d'agence. Pas de commission sur l'embauche. 2 500 FCFA/mois, c'est tout."
   },
   {
     q: "WOZALI remplace mon téléphone, mon WhatsApp, ma façon de travailler ?",
-    a: "Non. WOZALI s'ajoute à ce que tu fais déjà. Les clients te trouvent sur WOZALI, te contactent sur WhatsApp — comme avant, mais en beaucoup plus grand. Tu gardes ta façon de travailler, tes prix, tes habitudes. Tu ajoutes juste une vitrine permanente visible par tout le Bénin et le Togo. Rien ne change — sauf le nombre de clients."
+    a: "Non. WOZALI s'ajoute à ce que tu fais déjà. Les clients te trouvent sur WOZALI, te contactent sur WhatsApp, comme avant, mais en beaucoup plus grand. Tu gardes ta façon de travailler, tes prix, tes habitudes. Tu ajoutes juste une vitrine permanente visible par tout le Bénin et le Togo. Rien ne change, sauf le nombre de clients."
   },
   {
     q: "C'est quoi la Bourse de Croissance exactement ?",

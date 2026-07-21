@@ -178,7 +178,7 @@ async function afficherWidgetBourse(userId){
   }
   if(!eligible){
     const act={scoreOk:`→ Il te manque ${80-r.scoreActuel} points de Score WOZALI`,avisOk:`→ Il te manque ${4-r.nbAvisRecents} avis clients récents`,noteOk:`→ Ta note moyenne (${r.noteMoyenne}★) doit atteindre 4,2★`};
-    c.innerHTML=`<div class="widget-bourse etat-incomplet"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut orange">Incomplet</span></div><p>Résultats le <strong>${dateFmt}</strong> — dans ${joursRestants} jours.</p><p>Tu es éligible en durée. Mais il te manque :</p><ul class="widget-manque">${manque.filter(m=>act[m]).map(m=>`<li>${act[m]}</li>`).join('')}</ul><p class="widget-urgence">Il reste ${joursRestants} jours avant le classement.</p></div>`;return;
+    c.innerHTML=`<div class="widget-bourse etat-incomplet"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut orange">Incomplet</span></div><p>Résultats le <strong>${dateFmt}</strong>, dans ${joursRestants} jours.</p><p>Tu es éligible en durée. Mais il te manque :</p><ul class="widget-manque">${manque.filter(m=>act[m]).map(m=>`<li>${act[m]}</li>`).join('')}</ul><p class="widget-urgence">Il reste ${joursRestants} jours avant le classement.</p></div>`;return;
   }
   c.innerHTML=`<div class="widget-bourse etat-eligible"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut or">✓ Éligible</span></div><div class="widget-eligible-checks"><span>✓ Plan Pro actif</span><span>✓ Score WOZALI : ${r.scoreActuel}/100</span><span>✓ ${r.nbAvisRecents} avis clients récents</span></div><p>Prochains résultats : <strong>${dateFmt} à 18h00</strong></p><p class="widget-countdown-mini" id="bourse-mini-countdown"></p><p class="widget-sub">Reste actif. Reste Pro. Tu es dans la course.</p></div>`;
   lancerMiniCountdown('bourse-mini-countdown',new Date(prochainTirage));
@@ -689,7 +689,7 @@ document.addEventListener('DOMContentLoaded',()=>{
               ${d.ville ? '<span>📍 ' + escapeHtml(d.ville) + '</span>' : ''}
               ${d.budget_max ? '<span>💰 Budget max: ' + d.budget_max.toLocaleString() + ' FCFA</span>' : ''}
             </div>
-            <button class="wozali-btn-primary" style="font-size:13px;padding:10px 16px;width:100%;" onclick="repondreMatch('${d.id}', '${d.client_id}')">💼 Je suis intéressé — répondre</button>
+            <button class="wozali-btn-primary" style="font-size:13px;padding:10px 16px;width:100%;" onclick="repondreMatch('${d.id}', '${d.client_id}')">💼 Je suis intéressé · répondre</button>
           </div>
         `;
       }).join('');
@@ -746,10 +746,10 @@ function updateRecrutQuartiers() {
   if (ville.indexOf('Lom') > -1) quartiers = RECRUT_QUARTIERS['Lomé (Togo)'];
   else if (ville.indexOf('Coton') > -1) quartiers = RECRUT_QUARTIERS['Cotonou (Bénin)'];
   if (!quartiers) {
-    qSel.innerHTML = '<option value="">— Choisis d\'abord ta ville —</option>';
+    qSel.innerHTML = '<option value="">- Choisis d\'abord ta ville -</option>';
     return;
   }
-  qSel.innerHTML = '<option value="">— Choisis ton quartier —</option>';
+  qSel.innerHTML = '<option value="">- Choisis ton quartier -</option>';
   quartiers.forEach(function(q) {
     var opt = document.createElement('option');
     opt.value = q; opt.textContent = q;
@@ -1080,16 +1080,16 @@ window.CAND_WA_TEMPLATES = {
   'Présélectionné': function(f){
     return 'Salut ' + (f['Prénom']||'') + ' !\n\n' +
            'Ta candidature pour rejoindre l\'équipe d\'agents terrain WOZALI nous a marqués.\n\n' +
-           'Tu passes à l\'étape suivante — tu es **présélectionné(e)** parmi les meilleurs profils de ' + (f['Ville']||'ta ville') + '.\n\n' +
+           'Tu passes à l\'étape suivante : tu es **présélectionné(e)** parmi les meilleurs profils de ' + (f['Ville']||'ta ville') + '.\n\n' +
            'Prochaine étape : un court échange pour valider ta motivation. On te recontacte cette semaine.\n\n' +
-           'À très vite.\n— L\'équipe WOZALI';
+           'À très vite.\n- L\'équipe WOZALI';
   },
   'Refusé': function(f){
     return 'Salut ' + (f['Prénom']||'') + ',\n\n' +
            'Merci d\'avoir postulé pour rejoindre l\'équipe d\'agents terrain WOZALI.\n\n' +
-           'Cette fois-ci, ta candidature n\'a pas été retenue pour la vague de lancement — mais on garde ton profil. On recrute tout au long de 2026 au fur et à mesure que WOZALI grandit dans ta ville.\n\n' +
+           'Cette fois-ci, ta candidature n\'a pas été retenue pour la vague de lancement, mais on garde ton profil. On recrute tout au long de 2026 au fur et à mesure que WOZALI grandit dans ta ville.\n\n' +
            'Continue de nous suivre sur wozali.africa - et reste dispo, on peut revenir vers toi.\n\n' +
-           'Merci pour ton intérêt.\n— L\'équipe WOZALI';
+           'Merci pour ton intérêt.\n- L\'équipe WOZALI';
   }
 };
 
@@ -1329,7 +1329,7 @@ function _renderIAPanel() {
   // Bouton global
   var allPending = allTop.filter(function(r){ return (r.fields['Statut']||'En attente') === 'En attente'; });
   if (allPending.length) {
-    html += '<button onclick="window._preselectAllTop()" style="width:100%;padding:12px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:10px;color:#E8940A;font-size:13px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">⭐ Présélectionner TOUT le top — ' + allPending.length + ' profils (5H+5F Lomé · 5H+5F Cotonou)</button>';
+    html += '<button onclick="window._preselectAllTop()" style="width:100%;padding:12px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:10px;color:#E8940A;font-size:13px;font-weight:700;cursor:pointer;font-family:Geist,sans-serif;">⭐ Présélectionner TOUT le top · ' + allPending.length + ' profils (5H+5F Lomé · 5H+5F Cotonou)</button>';
   }
 
   html += '</div>';
@@ -1352,7 +1352,7 @@ window._preselectAllTop = async function() {
   });
   pending = pending.filter(function(r){ return (r.fields['Statut']||'En attente') === 'En attente'; });
   if (!pending.length) { toast('Tous les tops sont déjà présélectionnés ou validés', 'error'); return; }
-  if (!confirm('Présélectionner ' + pending.length + ' profil(s) recommandés par l\'IA ?\n\nCette action est réversible — tu peux refuser individuellement ensuite.')) return;
+  if (!confirm('Présélectionner ' + pending.length + ' profil(s) recommandés par l\'IA ?\n\nCette action est réversible : tu peux refuser individuellement ensuite.')) return;
   await _batchPreselect(pending);
 };
 

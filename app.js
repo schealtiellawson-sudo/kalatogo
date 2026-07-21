@@ -1230,13 +1230,13 @@ async function loadDashOverview() {
   const ctaEl  = document.getElementById('kpi-completion-cta');
   if (hintEl) {
     if (missingCount === 0) {
-      hintEl.textContent = 'Profil complet — tu apparais en priorité dans les recherches.';
+      hintEl.textContent = 'Profil complet : tu apparais en priorité dans les recherches.';
     } else if (!f['Photo de profil']) {
-      hintEl.textContent = 'Photo manquante — les profils avec photo reçoivent 3× plus de contacts.';
+      hintEl.textContent = 'Photo manquante : les profils avec photo reçoivent 3× plus de contacts.';
     } else if (!f['Photo Réalisation 1']) {
-      hintEl.textContent = `${missingCount} élément${missingCount > 1 ? 's' : ''} manquant${missingCount > 1 ? 's' : ''} — les profils complets reçoivent 3× plus de contacts.`;
+      hintEl.textContent = `${missingCount} élément${missingCount > 1 ? 's' : ''} manquant${missingCount > 1 ? 's' : ''} : les profils complets reçoivent 3× plus de contacts.`;
     } else {
-      hintEl.textContent = `${missingCount} élément${missingCount > 1 ? 's' : ''} manquant${missingCount > 1 ? 's' : ''} — complète ton profil pour plus de visibilité.`;
+      hintEl.textContent = `${missingCount} élément${missingCount > 1 ? 's' : ''} manquant${missingCount > 1 ? 's' : ''} : complète ton profil pour plus de visibilité.`;
     }
   }
   if (ctaEl) {
@@ -1607,7 +1607,7 @@ function dashDetectGPS() {
     const lat = pos.coords.latitude, lon = pos.coords.longitude;
     document.getElementById('dash-lat').value = lat.toFixed(6);
     document.getElementById('dash-lon').value = lon.toFixed(6);
-    if (status) status.textContent = `📍 Position détectée : ${lat.toFixed(4)}, ${lon.toFixed(4)} — confirme et enregistre ci-dessous`;
+    if (status) status.textContent = `📍 Position détectée : ${lat.toFixed(4)}, ${lon.toFixed(4)}. Confirme et enregistre ci-dessous`;
     if (btn) { btn.disabled = false; btn.textContent = '📍 Utiliser ma position actuelle'; }
     if (_dashLocMap && _dashLocMarker) {
       _dashLocMap.setView([lat, lon], 17); _dashLocMarker.setLatLng([lat, lon]);
@@ -1662,7 +1662,7 @@ async function saveDashLiveMode() {
       currentPrestataire.fields['Latitude'] = lat;
       currentPrestataire.fields['Longitude'] = lon;
       localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
-      if (status) status.textContent = `✅ Position mise à jour — ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+      if (status) status.textContent = `✅ Position mise à jour : ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
       toast('📡 Position GPS mise à jour avec succès !', 'success');
     } catch(e2) {
       if (status) status.textContent = '❌ Erreur réseau';
@@ -1819,7 +1819,7 @@ function renderRealisationsAudioGrid() {
     const existing = audios[slot];
     return `
     <div style="border:1px solid rgba(232,148,10,0.15);border-radius:12px;padding:10px 12px;">
-      <div style="font-size:12px;font-weight:700;color:var(--or);margin-bottom:6px;">🎤 Photo ${slot} — explique en vocal ce que tu as fait</div>
+      <div style="font-size:12px;font-weight:700;color:var(--or);margin-bottom:6px;">🎤 Photo ${slot} : explique en vocal ce que tu as fait</div>
       ${existing?.url ? `<div style="margin-bottom:8px;">${wzVoicePlayer(existing.url, existing.duree)}</div>` : ''}
       <div id="${ns}-vocal-idle">
         <button type="button" class="wz-voice-record-btn" onclick="startVocalRec('${ns}')">
@@ -3248,7 +3248,7 @@ async function generatePostStory(recordId, postId) {
   _wzShowStoryModal(dataUrl, {
     filename, waText,
     title: '📤 Ta publication est prête à partager !',
-    subtitle: 'Mets-la en Statut WhatsApp — tes contacts verront ton travail.'
+    subtitle: 'Mets-la en Statut WhatsApp, tes contacts verront ton travail.'
   });
 }
 
@@ -3529,7 +3529,7 @@ async function updatePushCard() {
   btn.textContent = 'Activer';
   btn.style.opacity = '1';
   btn.style.cursor = 'pointer';
-  status.textContent = "Reçois les messages WOZALI sur ton téléphone — même quand l'app est fermée.";
+  status.textContent = "Reçois les messages WOZALI sur ton téléphone, même quand l'app est fermée.";
 }
 
 async function enablePushNotifications() {
@@ -3638,11 +3638,11 @@ window.updatePushCard = updatePushCard;
 // ══════════════════════════════════════════
 const _seoPageMeta = {
   home:         { title: 'WOZALI · Trouve un prestataire ou un emploi au Bénin et au Togo', desc: 'WOZALI : trouve un prestataire vérifié ou un emploi à Lomé et Cotonou. Avis clients réels, profils sur Google. Chaque mois, les 10 meilleurs profils gagnent un salaire.' },
-  search:       { title: 'Trouver un pro — WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
-  emploi:       { title: 'WOZALI Jobs — Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
+  search:       { title: 'Trouver un pro · WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
+  emploi:       { title: 'WOZALI Jobs · Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
   recompenses:  { title: 'La Bourse de Croissance · WOZALI', desc: 'Chaque mois, les 10 meilleurs profils du mois gagnent un salaire. Au mérite. Jamais au hasard. Réservé aux membres Pro, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro).' },
-  inscription:  { title: 'Inscription gratuite — WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
-  fonctionnement: { title: 'Comment ça marche — WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
+  inscription:  { title: 'Inscription gratuite · WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
+  fonctionnement: { title: 'Comment ça marche · WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
 };
 function _updateSeoMeta(page) {
   const m = _seoPageMeta[page]; if (!m) return;
@@ -4728,7 +4728,7 @@ function renderCard(record, forceMode) {
         <div class="pcard-price">
           ${tarifMin ? `À partir de ${tarifMin.toLocaleString()} <span>FCFA</span>` : '<span style="font-size:13px;color:var(--gris);">Tarif à définir</span>'}
         </div>
-        ${tel ? `<a href="${waLink}" target="_blank" class="btn btn-sm" style="background:#E8940A;color:white;border:none;font-weight:700;border-radius:100px;padding:8px 16px;font-size:13px;text-decoration:none;" onclick="event.stopPropagation();">→ Contacter sur WhatsApp</a>` : `<button class="btn btn-sm" style="background:#111;color:white;border:none;font-weight:700;border-radius:100px;padding:8px 16px;font-size:13px;" onclick="event.stopPropagation();showProfil('${record.id}')">→ Voir profil</button>`}
+        ${tel ? `<a href="${waLink}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;border:none;font-weight:700;border-radius:100px;padding:8px 16px;font-size:13px;text-decoration:none;" onclick="event.stopPropagation();">→ Contacter sur WhatsApp</a>` : `<button class="btn btn-sm" style="background:#111;color:white;border:none;font-weight:700;border-radius:100px;padding:8px 16px;font-size:13px;" onclick="event.stopPropagation();showProfil('${record.id}')">→ Voir profil</button>`}
       </div>
     </div>`;
 }
@@ -6166,7 +6166,7 @@ function renderFondateurInbox() {
           const dateStr = new Date(m.created_at || Date.now()).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
           const unreadDot = !m.read ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#E8940A;margin-right:6px;"></span>' : '';
           const isDemande = m.type === 'demande_client';
-          const fromTxt = isDemande ? 'Demande client · WOZALI' : ('— ' + (m.from || 'Le fondateur WOZALI'));
+          const fromTxt = isDemande ? 'Demande client · WOZALI' : ('- ' + (m.from || 'Le fondateur WOZALI'));
           const sectionTarget = (m.action_url && m.action_url.indexOf('section=') >= 0)
             ? (m.action_url.split('section=')[1] || '').replace(/['"]/g,'') : '';
           return `<div onclick="_handleFondateurMessageClick('${m.id}','${sectionTarget}')" style="background:${m.read ? 'rgba(252, 224, 168,0.04)' : 'rgba(232,148,10,0.08)'};border:1px solid ${m.read ? 'rgba(252, 224, 168,0.08)' : 'rgba(232,148,10,0.25)'};border-radius:12px;padding:14px 16px;cursor:pointer;">
@@ -6293,7 +6293,7 @@ async function sendWozaliChatMessage() {
         </div>`;
     } else {
       // Escalade fondateur — message neutre
-      const msgAffiche = data.message_affiche || 'Message envoyé — nous reviendrons vers toi bientôt.';
+      const msgAffiche = data.message_affiche || 'Message envoyé. Nous reviendrons vers toi bientôt.';
       responseEl.innerHTML = `
         <div style="background:rgba(232,148,10,0.05);border:1px solid rgba(232,148,10,0.2);border-radius:16px;padding:18px 20px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
@@ -7210,7 +7210,7 @@ function renderNotifications(recordId) {
       msg = `Paiement reçu : <strong>${n.montant?.toLocaleString('fr-FR')} FCFA</strong> pour ${n.desc || 'une prestation'}`;
     } else if (n.type === 'client_payment') {
       icon = '💳'; bg = '#FCE0A8';
-      msg = `<strong style='color:#E8940A;'>💸 Paiement Flooz/TMoney — ${(n.montant||0).toLocaleString('fr-FR')} FCFA</strong> confirmé par un client via ton profil`;
+      msg = `<strong style='color:#E8940A;'>💸 Paiement Flooz/TMoney · ${(n.montant||0).toLocaleString('fr-FR')} FCFA</strong> confirmé par un client via ton profil`;
     } else if (n.type === 'avis') {
       icon = '⭐'; bg = '#fef3c7';
       msg = `<strong>${n.auteur || 'Client'}</strong> a laissé un avis : <em style="color:#888;">"${(n.texte||'').substring(0,50)}${(n.texte||'').length>50?'...':''}"</em>`;
@@ -10351,11 +10351,11 @@ async function showProfil(recordId) {
     // slug stocké (source de vérité serveur, gère les homonymes) sinon calcul
     const _seoSlug = f['slug'] || f['Slug'] || _buildProfilSlug(nomRaw, metierRaw, _seoVille);
     const _seoUrl = `https://wozali.africa/profil/${_seoSlug}`;
-    document.title = `${nomRaw} — ${metierRaw} à ${_seoVille} · WOZALI`;
+    document.title = `${nomRaw} · ${metierRaw} à ${_seoVille} · WOZALI`;
     _setMeta('description', nbAvis > 0
       ? `${nomRaw}, ${metierRaw} à ${quartierRaw}, ${_seoVille}. ${note.toFixed(1)}/5 · ${nbAvis} avis clients vérifiés. Contacte-le directement sur WOZALI.`
       : `${nomRaw}, ${metierRaw} à ${quartierRaw}, ${_seoVille}. Contacte-le directement sur WOZALI.`);
-    _setOg('og:title', `${nomRaw} — ${metierRaw} à ${_seoVille}`);
+    _setOg('og:title', `${nomRaw} · ${metierRaw} à ${_seoVille}`);
     _setOg('og:description', nbAvis > 0
       ? `${note.toFixed(1)}/5 étoiles · ${nbAvis} avis · Score WOZALI ${score}/100. Trouve les meilleurs prestataires de Cotonou et Lomé.`
       : `Trouve les meilleurs prestataires de Cotonou et Lomé.`);
@@ -10366,7 +10366,7 @@ async function showProfil(recordId) {
     const _seoCountry = (_seoVille.toLowerCase().includes('lom') || _seoVille.toLowerCase().includes('kara')) ? 'TG' : 'BJ';
     const _seoSchema = {
       '@context': 'https://schema.org', '@type': 'LocalBusiness',
-      name: `${nomRaw} — ${metierRaw}`,
+      name: `${nomRaw} · ${metierRaw}`,
       description: (descriptionRaw || '').slice(0, 300),
       address: { '@type': 'PostalAddress', addressLocality: _seoVille, addressRegion: quartierRaw, addressCountry: _seoCountry },
       url: _seoUrl,
@@ -10438,7 +10438,7 @@ async function showProfil(recordId) {
     const avisHtml = avisRecords.length === 0
       ? `<div style="text-align:center;padding:32px 16px;">
         <p style="color:rgba(255,255,255,0.5);font-size:15px;font-weight:600;margin-bottom:8px;">${nom.split(' ')[0]} n'a pas encore d'avis clients.</p>
-        <p style="color:rgba(255,255,255,0.35);font-size:13px;line-height:1.7;margin-bottom:16px;">Si tu as fait appel à ses services —<br>laisse un avis. C'est gratuit. Ça change tout pour lui.</p>
+        <p style="color:rgba(255,255,255,0.35);font-size:13px;line-height:1.7;margin-bottom:16px;">Si tu as fait appel à ses services,<br>laisse un avis. C'est gratuit. Ça change tout pour lui.</p>
         <button class="btn btn-secondary btn-sm" onclick="openModalAvis('${recordId}','${nom}')">→ Laisser le premier avis</button>
       </div>`
       : avisRecords.slice(0, 3).map(a => renderAvis(a)).join('');
@@ -10460,7 +10460,7 @@ async function showProfil(recordId) {
     // Albums — 2 cartes compactes style Facebook (clic = page dédiée)
     const albumsPreview = `
 <div class="profil-section profil-animate">
-  <h3 style="margin:0 0 12px;font-size:16px;">📸 Le travail de ${nom.split(' ')[0]} — en images.</h3>
+  <h3 style="margin:0 0 12px;font-size:16px;">📸 Le travail de ${nom.split(' ')[0]}, en images.</h3>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
     <div onclick="showAlbumsPage('${recordId}')" style="cursor:pointer;border-radius:14px;overflow:hidden;position:relative;height:110px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
       ${realisations[0] ? `<img src="${realisations[0]}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.2;">🔨</div>`}
@@ -10748,8 +10748,8 @@ async function showProfil(recordId) {
           <div class="profil-section profil-animate">
             <h3 style="margin-bottom:12px;">Quand contacter ${nom.split(' ')[0]} ?</h3>
             ${dispo
-              ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> — répond généralement en moins d'1h.</p>`
-              : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp — ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
+              ? `<p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;"><span style="color:#E8940A;">⭐</span> <strong>Disponible</strong> : répond généralement en moins d'1h.</p>`
+              : `<p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.7;">Occupé pour l'instant. Envoie un message WhatsApp, ${nom.split(' ')[0]} te répondra dès que possible.</p>`}
             <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:8px;">Lun–Ven : 8h–18h / Samedi : 9h–14h</p>
           </div>
         </div>
@@ -10764,7 +10764,7 @@ async function showProfil(recordId) {
             <div class="tarif-range">${tarifMin ? 'À partir de ' + tarifMin.toLocaleString() + ' FCFA' : ''}${tarifMax ? '<br>Jusqu\'à ' + tarifMax.toLocaleString() + ' FCFA' : ''}</div>
             <div class="tarif-label">Prix négociables directement avec ${nom.split(' ')[0]}.<br>Paiement : TMoney · Flooz / MTN · Moov Money</div>
           </div>` : ''}
-          ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#E8940A;color:white;" target="_blank">→ Contacter sur WhatsApp</a>` : ''}
+          ${tel ? `<a href="${waLink}" class="btn btn-wa" style="width:100%;justify-content:center;margin-bottom:8px;background:#25D366;color:#fff;" target="_blank">→ Contacter sur WhatsApp</a>` : ''}
         </div>
         <div class="sidebar-card">
           <h4>Informations</h4>
@@ -11589,7 +11589,7 @@ function _resetSeoMeta() {
   document.title = 'WOZALI · Visibilité. Coaching. Revenus. Bénin & Togo.';
   _setMeta('description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé. Crée ton profil gratuit en 2 minutes. Ton travail nourrit. Pas ton réseau.');
   _setOg('og:title', 'WOZALI · Visibilité. Coaching. Revenus. Bénin & Togo.');
-  _setOg('og:description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé — crée ton profil gratuit en 2 minutes.');
+  _setOg('og:description', 'Artisans, prestataires et chercheurs d\'emploi à Cotonou et Lomé : crée ton profil gratuit en 2 minutes.');
   _setOg('og:url', 'https://wozali.africa');
   _setOg('og:image', '');
   const canon = document.querySelector('link[rel="canonical"]');
@@ -11625,13 +11625,13 @@ function shareProfile(recordId, nom) {
   }
   // Preuve sociale si disponible
   if (nbAvis >= 3) {
-    lines.push(`${note.toFixed(1)}/5 — ${nbAvis} clients satisfaits. Score WOZALI ${score}/100.`);
+    lines.push(`${note.toFixed(1)}/5 · ${nbAvis} clients satisfaits. Score WOZALI ${score}/100.`);
   } else if (nbAvis > 0) {
     lines.push(`Déjà ${nbAvis} avis client${nbAvis > 1 ? 's' : ''}. Score WOZALI ${score}/100.`);
   }
   lines.push('');
   // Bénéfice concret + lien
-  lines.push('Photos vraies, tarifs réels, avis de vrais clients — tout est là :');
+  lines.push('Photos vraies, tarifs réels, avis de vrais clients, tout est là :');
   lines.push(`👉 ${profileUrl}`);
   lines.push('');
   lines.push('Si tu cherches quelqu\'un de sérieux, passe voir. wozali.africa');
@@ -11722,13 +11722,13 @@ function renderStatutsForMetier(metier, containerId, hiddenId) {
   const optsHtml = cfg.statuts.map(s => `
     <label style="display:flex;gap:10px;padding:11px 12px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;align-items:flex-start;" onclick="onStatutArtisanSelect(this,'${s.value}','${containerId}','${hiddenId}')">
       <input type="radio" name="${radioName}" value="${s.value}" style="margin-top:3px;flex-shrink:0;">
-      <span style="font-size:13px;line-height:1.5;color:#14100A;"><strong>${s.emoji || ''} ${(s.label || s.value).replace(/</g,'&lt;')}</strong> — ${(s.description || '').replace(/</g,'&lt;')}</span>
+      <span style="font-size:13px;line-height:1.5;color:#14100A;"><strong>${s.emoji || ''} ${(s.label || s.value).replace(/</g,'&lt;')}</strong> : ${(s.description || '').replace(/</g,'&lt;')}</span>
     </label>
   `).join('');
   // Statut OBLIGATOIRE pour les métiers où une config statut existe (asterisque rouge)
   sa.innerHTML = `
     <label style="font-weight:700;font-size:14px;display:block;margin-bottom:4px;color:#14100A;">👩‍🎨 Quel est ton statut ? <span class="req" style="color:#dc2626;">*</span></label>
-    <p style="font-size:12px;color:var(--gris);margin:0 0 12px;">${(cfg.intro || 'Important pour t\'envoyer les bons conseils. Sois honnête — il n\'y a pas de jugement.').replace(/</g,'&lt;')}</p>
+    <p style="font-size:12px;color:var(--gris);margin:0 0 12px;">${(cfg.intro || 'Important pour t\'envoyer les bons conseils. Sois honnête, il n\'y a pas de jugement.').replace(/</g,'&lt;')}</p>
     <div style="display:grid;gap:8px;">${optsHtml}</div>
     <input type="hidden" id="${hiddenId}" value="">
   `;
@@ -11769,7 +11769,7 @@ function wozaliFillDescTemplate() {
   // place le curseur à la fin pour personnalisation rapide
   ta.focus();
   try { ta.setSelectionRange(tpl.length, tpl.length); } catch(e) {}
-  if (window.toast) toast('Texte d\'exemple ajouté — personnalise-le si tu veux', 'success');
+  if (window.toast) toast('Texte d\'exemple ajouté, personnalise-le si tu veux', 'success');
 }
 
 function wozaliApplyTarifPreset(presetVal) {
@@ -12357,7 +12357,7 @@ async function loadParrainage() {
   const lockableEls = document.querySelectorAll('#ds-parrainage .edit-form-section[data-lock-idx]');
 
   const features = [
-    { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes — chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.africa?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
+    { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes : chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.africa?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
     { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#FCE0A8;border:1px solid #E8940A;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+2 500 FCFA</div></div>`).join('')}</div>` },
     { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#6b7280;">5 filleuls</span><span style="color:var(--or);font-weight:800;">12 500 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">20 filleuls</span><span style="color:var(--or);font-weight:800;">50 000 FCFA/mois</span></div></div>` },
   ];
@@ -12485,7 +12485,7 @@ function _renderFilleulsCRM(filleuls) {
     listEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--gris);">
       <div style="font-size:40px;margin-bottom:10px;">🔗</div>
       <p style="font-weight:700;font-size:15px;margin-bottom:6px;">Aucun filleul pour l'instant</p>
-      <p style="font-size:13px;">Partage ton lien sur WhatsApp — chaque inscription te rapporte !</p>
+      <p style="font-size:13px;">Partage ton lien sur WhatsApp : chaque inscription te rapporte !</p>
     </div>`;
     if (countEl) countEl.textContent = '';
     return;
@@ -12548,7 +12548,7 @@ function _renderFilleulsCRM(filleuls) {
           <div style="display:flex;gap:4px;flex-shrink:0;">
             ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#FCE0A8;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
             ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#FCE0A8;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
-            ${email ? `<a href="mailto:${email}?subject=WOZALI Pro — Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
+            ${email ? `<a href="mailto:${email}?subject=WOZALI Pro : Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
           </div>
         </div>
         <!-- Barre de progression filleul — 3 étapes — aucune donnée personnelle exposée -->
@@ -12693,7 +12693,7 @@ function showParrainQR() {
       this.style.display = 'none';
       const fb = document.createElement('p');
       fb.style.cssText = 'color:rgba(255,255,255,0.5);font-size:12px;text-align:center;margin-bottom:12px;';
-      fb.textContent = 'QR temporairement indisponible — partage le lien ci-dessous.';
+      fb.textContent = 'QR temporairement indisponible : partage le lien ci-dessous.';
       display.insertBefore(fb, display.firstChild);
     };
     display.insertBefore(qrImgEl, display.firstChild);
@@ -13345,11 +13345,11 @@ async function injectSprint6Upgrade(){
 
     <div style="background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:20px;margin-bottom:16px">
       <div style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:6px">Payer avec FedaPay</div>
-      <div style="font-size:13px;color:rgba(252, 224, 168,.6);margin-bottom:18px">Plan Pro — 2 500 FCFA / mois · Résiliable à tout moment</div>
+      <div style="font-size:13px;color:rgba(252, 224, 168,.6);margin-bottom:18px">Plan Pro · 2 500 FCFA / mois · Résiliable à tout moment</div>
       <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px">
         <div style="font-weight:700;font-size:15px;margin-bottom:4px">📱 Payer avec Mobile Money</div>
         <div style="font-size:11px;color:rgba(252, 224, 168,.5);margin-bottom:12px">MTN Mobile Money · Moov Money · TMoney · Flooz</div>
-        <button onclick="sp6PayFedapay()" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">📱 Payer 2 500 FCFA — Plan Pro</button>
+        <button onclick="sp6PayFedapay()" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">📱 Payer 2 500 FCFA · Plan Pro</button>
       </div>
     </div>
   `;
@@ -13668,10 +13668,10 @@ function renderChecklist(prefix, d) {
     note_42: 'Note moyenne ≥ 4.2★ sur 30 jours',
     activite_recente: 'Connexion récente (≤ 14 jours)',
     pas_gagne_recent: 'Pas gagné dans les 3 derniers mois',
-    tiktok_wolomarket: '⚡ Bonus — Suivre @wozali sur TikTok',
-    tiktok_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur TikTok',
-    insta_suivi_wozali: '⚡ Bonus — Suivre @wozali sur Instagram',
-    insta_suivi_schealtiel: '⚡ Bonus — Suivre @schealtiellawson sur Instagram',
+    tiktok_wolomarket: '⚡ Bonus : Suivre @wozali sur TikTok',
+    tiktok_schealtiel: '⚡ Bonus : Suivre @schealtiellawson sur TikTok',
+    insta_suivi_wozali: '⚡ Bonus : Suivre @wozali sur Instagram',
+    insta_suivi_schealtiel: '⚡ Bonus : Suivre @schealtiellawson sur Instagram',
   };
 
   const conds = d.conditions || {};
@@ -14150,9 +14150,9 @@ function showFedaPayModal(plan, amount, code) {
         <div style="display:flex;justify-content:space-between;padding:4px 0;color:#E8940A;font-weight:700;"><span>Total</span><span>${amount.toLocaleString('fr-FR')} FCFA</span></div>
       </div>
     </div>
-    <button onclick="initFedaPayCheckout('${code}', ${amount})" style="width:100%;padding:16px;background:linear-gradient(135deg,#E8940A,#d4820a);color:#14100A;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;">📱 Payer maintenant — ${amount.toLocaleString('fr-FR')} FCFA</button>
+    <button onclick="initFedaPayCheckout('${code}', ${amount})" style="width:100%;padding:16px;background:linear-gradient(135deg,#E8940A,#d4820a);color:#14100A;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;">📱 Payer maintenant · ${amount.toLocaleString('fr-FR')} FCFA</button>
     <div style="background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);border-radius:12px;padding:12px;font-size:12px;color:#FCE0A8;line-height:1.7;text-align:center;">
-      Paiement 100% sécurisé via <strong>FedaPay</strong>.<br>MTN · Moov · TMoney · Flooz — sans carte bancaire.
+      Paiement 100% sécurisé via <strong>FedaPay</strong>.<br>MTN · Moov · TMoney · Flooz, sans carte bancaire.
     </div>
     <p style="font-size:11px;color:var(--gris);text-align:center;margin-top:10px;">Réf : <strong>${code}</strong> · Plan Pro activé instantanément.</p>
   `;
@@ -14165,7 +14165,7 @@ function initFedaPayCheckout(code, amount) {
       public_key: window._FEDAPAY_PUBLIC_KEY || '',
       transaction: {
         amount: amount,
-        description: 'Plan Pro WOZALI — ' + code,
+        description: 'Plan Pro WOZALI · ' + code,
         currency: { iso: 'XOF' },
         callback_url: window.location.origin + '/api/wozali-pay/abonnement-fedapay?code=' + code,
         custom_metadata: { code: code, user_id: currentUser?.id || '', email: currentUser?.email || '' }
@@ -15578,7 +15578,7 @@ function renderAdminRetraits(records) {
             <div style="flex:1;min-width:0;">
               <div style="font-weight:700;color:white;font-size:16px;">${nom}</div>
               <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">${method} · ${tel}</div>
-              ${alerte ? `<div style="font-size:11px;color:#f87171;font-weight:700;margin-top:4px;">⚠️ Montant demandé (${montantDemande.toLocaleString('fr-FR')} FCFA) > Commission disponible (${commDisp.toLocaleString('fr-FR')} FCFA) — BLOQUÉ</div>` : ''}
+              ${alerte ? `<div style="font-size:11px;color:#f87171;font-weight:700;margin-top:4px;">⚠️ Montant demandé (${montantDemande.toLocaleString('fr-FR')} FCFA) > Commission disponible (${commDisp.toLocaleString('fr-FR')} FCFA) : BLOQUÉ</div>` : ''}
             </div>
             <div style="text-align:right;flex-shrink:0;">
               <div style="font-size:22px;font-weight:900;color:${alerte ? '#f87171' : '#fbbf24'};font-family:monospace;">${montantDemande.toLocaleString('fr-FR')} FCFA</div>
@@ -15607,7 +15607,7 @@ async function payerRetraitsSelected() {
   let success = 0, skipped = 0, errors = 0;
 
   if (btn) { btn.textContent = '💸 Marquer payé'; btn.disabled = false; }
-  const msg = `✅ ${success} payé${success > 1 ? 's' : ''}${skipped ? ` · ${skipped} bloqué(s) — montant supérieur` : ''}${errors ? ` · ${errors} erreur(s)` : ''}`;
+  const msg = `✅ ${success} payé${success > 1 ? 's' : ''}${skipped ? ` · ${skipped} bloqué(s) : montant supérieur` : ''}${errors ? ` · ${errors} erreur(s)` : ''}`;
   toast(msg, success > 0 ? 'success' : 'error');
   await loadAdminRetraits();
 }
@@ -15655,7 +15655,7 @@ function toggleMobileNav() {
     if (authEl) {
       if (currentUser && currentPrestataire) {
         const nom = currentPrestataire.fields['Nom complet'] || 'Mon espace';
-        authEl.innerHTML = `<button onclick="showPage('dashboard');showDashSection('overview');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">👤 ${nom} — Dashboard</button>`;
+        authEl.innerHTML = `<button onclick="showPage('dashboard');showDashSection('overview');closeMobileNav()" style="background:var(--vert);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;">👤 ${nom} · Dashboard</button>`;
       } else {
         authEl.innerHTML = `
           <button onclick="showPage('login');closeMobileNav()" style="background:none;border:2px solid var(--vert);color:var(--vert);padding:14px;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">Se connecter</button>
@@ -15816,7 +15816,7 @@ async function _enrichOffresTrustBadges() {
     if (trust.flagged) {
       span.outerHTML = '<span style="display:inline-block;background:rgba(220,38,38,0.15);color:#f87171;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(220,38,38,0.3);" title="Ce recruteur a ete signale 3 fois ou plus par la communaute WOZALI">⚠️ Signalé</span>';
     } else if (trust.trusted && verifie) {
-      span.outerHTML = '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance — zero signalement, identite verifiee par WOZALI">🛡️ Confiance</span>';
+      span.outerHTML = '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance : zero signalement, identite verifiee par WOZALI">🛡️ Confiance</span>';
     } else {
       span.remove();
     }
@@ -15940,7 +15940,7 @@ function renderOffreEmploi(offre, forceMode) {
     <div style="font-size:12px;color:var(--gris);margin-bottom:10px;">Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</div>
     <div class="offre-actions" onclick="event.stopPropagation();">
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);" onclick="partagerOffre('${_titreJsArg}','${_safeOffreId}')">📤 Partager</button>
-      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#E8940A;color:#14100A;border:none;">💬 Contacter</a>` : ''}
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumOffre}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;border:none;">💬 Contacter</a>` : ''}
       <button class="btn btn-primary btn-sm" onclick="ouvrirModalCandidature('${_safeOffreId}','${_titreJsArg}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler</button>
     </div>
   </div>`;
@@ -16020,7 +16020,7 @@ function showOffreDetail(offreId) {
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn btn-primary" style="flex:2;justify-content:center;min-width:200px;padding:14px;" onclick="document.getElementById('modal-offre-detail').style.display='none';ouvrirModalCandidature('${_safeOffreIdD}','${_titreJsArgD}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOZALI</button>
-      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumD}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#E8940A;color:#14100A;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
+      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumD}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
       <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${_titreJsArgD}','${_safeOffreIdD}')">📤 Partager</button>
     </div>
     <div style="margin-top:12px;text-align:center;">
@@ -16648,7 +16648,7 @@ async function submitCandidature() {
       _confDiv.className = 'modal-overlay active';
       _confDiv.style.zIndex = '10002';
       const _recName = (offreData.fields?.['Recruteur Nom'] || 'le recruteur');
-      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:16px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Candidature envoyée à ' + _recName + '.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:16px;"><strong>' + _recName + '</strong> reçoit ton profil WOZALI complet — tes avis clients, tes photos, ta localisation, ta disponibilité.</p><p style="font-size:13px;color:#111;font-weight:700;margin-bottom:14px;">Ce que tu peux faire maintenant :</p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'dashboard\');this.closest(\'.modal-overlay\').remove();">→ Compléter ton profil pour maximiser tes chances</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'emploi\');this.closest(\'.modal-overlay\').remove();">→ Voir d\'autres offres qui correspondent à ton profil</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="this.closest(\'.modal-overlay\').remove();">→ Activer WOZALI Match pour recevoir les prochaines offres</button></div><p style="font-size:11px;color:var(--gris);margin-top:14px;line-height:1.6;">Si tu n\'as pas de réponse dans 7 jours — postule à d\'autres offres. Ne reste pas sur une seule chance.</p></div>';
+      _confDiv.innerHTML = '<div class="modal" style="max-width:500px;text-align:center;padding:36px;"><div style="font-size:48px;margin-bottom:16px;color:#E8940A;">✓</div><h3 style="font-family:\'DM Serif Display\',serif;font-size:22px;font-weight:900;margin-bottom:10px;">Candidature envoyée à ' + _recName + '.</h3><p style="color:var(--gris);font-size:14px;line-height:1.7;margin-bottom:16px;"><strong>' + _recName + '</strong> reçoit ton profil WOZALI complet : tes avis clients, tes photos, ta localisation, ta disponibilité.</p><p style="font-size:13px;color:#111;font-weight:700;margin-bottom:14px;">Ce que tu peux faire maintenant :</p><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'dashboard\');this.closest(\'.modal-overlay\').remove();">→ Compléter ton profil pour maximiser tes chances</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="showPage(\'emploi\');this.closest(\'.modal-overlay\').remove();">→ Voir d\'autres offres qui correspondent à ton profil</button><button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="this.closest(\'.modal-overlay\').remove();">→ Activer WOZALI Match pour recevoir les prochaines offres</button></div><p style="font-size:11px;color:var(--gris);margin-top:14px;line-height:1.6;">Si tu n\'as pas de réponse dans 7 jours, postule à d\'autres offres. Ne reste pas sur une seule chance.</p></div>';
       document.body.appendChild(_confDiv);
       _confDiv.onclick = function(e) { if (e.target === _confDiv) _confDiv.remove(); };
     } else {
@@ -17234,7 +17234,7 @@ async function topCandidatsForOffre(offreId) {
         ${scoreBadge}
         <div style="display:flex;flex-direction:column;gap:4px;">
           <button onclick="document.getElementById('wozali-top-cand-modal').remove();showPage('profil');loadPublicProfile('${p.id}')" style="background:rgba(232,148,10,.12);color:#E8940A;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Profil</button>
-          ${wa ? `<a href="https://wa.me/${wa}?text=${encodeURIComponent('Bonjour '+(f['Nom complet']||'')+', un poste pour toi : '+(offre.fields['Titre']||'')+' sur WOZALI')}" target="_blank" style="background:rgba(232,148,10,.15);color:#E8940A;text-decoration:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;">Inviter</a>` : ''}
+          ${wa ? `<a href="https://wa.me/${wa}?text=${encodeURIComponent('Bonjour '+(f['Nom complet']||'')+', un poste pour toi : '+(offre.fields['Titre']||'')+' sur WOZALI')}" target="_blank" style="background:rgba(37,211,102,.15);color:#25D366;text-decoration:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;">Inviter</a>` : ''}
         </div>
       </div>`;
     }).join('') + `<div style="text-align:center;margin-top:14px;font-size:11px;color:rgba(252, 224, 168,.4);">Scoring IA limité à 5/run pour préserver le quota. Reclique pour scorer 5 de plus.</div>`;
@@ -17872,7 +17872,7 @@ function renderRecrutCandidatures(cands) {
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
             <button onclick="openMessagerieRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;">💬 Message</button>
             <button onclick="openEntretienRecru('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">📅 Entretien</button>
-            ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.15);color:#E8940A;text-decoration:none;">💬 WhatsApp</a>` : ''}
+            ${wa ? `<a href="https://wa.me/${_safeWa}" target="_blank" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(37,211,102,.15);color:#25D366;text-decoration:none;">💬 WhatsApp</a>` : ''}
             <button onclick="updateStatutCandidature('${c.id}','Retenue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(232,148,10,.15);color:#E8940A;border:none;cursor:pointer;">✓ Retenir</button>
             <button onclick="updateStatutCandidature('${c.id}','Refusée')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;">✗ Refuser</button>
             <button onclick="updateStatutCandidature('${c.id}','Vue')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;">👁 Vue</button>
@@ -17932,7 +17932,7 @@ function renderRecrutCandidatures(cands) {
                 <div style="display:flex;gap:4px;flex-wrap:wrap;">
                   <button onclick="openMessagerieRecru('${c.id}')" title="Message" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.12);color:#E8940A;border:none;cursor:pointer;font-size:12px;">💬</button>
                   <button onclick="openEntretienRecru('${c.id}')" title="Planifier entretien" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">📅</button>
-                  ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.15);color:#E8940A;text-decoration:none;font-size:12px;">📱</a>` : ''}
+                  ${wa ? `<a href="https://wa.me/${_safeWaT}" target="_blank" title="WhatsApp" style="padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.15);color:#25D366;text-decoration:none;font-size:12px;">📱</a>` : ''}
                   <button onclick="updateStatutCandidature('${c.id}','Retenue')" title="Retenir" style="padding:4px 8px;border-radius:6px;background:rgba(232,148,10,.15);color:#E8940A;border:none;cursor:pointer;font-size:12px;">✓</button>
                   <button onclick="updateStatutCandidature('${c.id}','Refusée')" title="Refuser" style="padding:4px 8px;border-radius:6px;background:rgba(239,68,68,.12);color:#f87171;border:none;cursor:pointer;font-size:12px;">✗</button>
                   <button onclick="updateStatutCandidature('${c.id}','Vue')" title="Marquer vue" style="padding:4px 8px;border-radius:6px;background:rgba(59,130,246,.12);color:#60a5fa;border:none;cursor:pointer;font-size:12px;">👁</button>
@@ -17993,7 +17993,7 @@ function renderAntiGhostingWidget(cands) {
       ${m.vieilles > 0 ? `
         <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;flex:1;min-width:220px;">
           <div style="font-size:13px;color:#f87171;font-weight:700;margin-bottom:4px;">⚠️ ${m.vieilles} candidature${m.vieilles>1?'s':''} en attente depuis 14j+</div>
-          <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:8px;">Réponds-leur même par un refus poli — ton score visibilité augmente, les candidats arrêtent d'attendre.</div>
+          <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:8px;">Réponds-leur même par un refus poli : ton score visibilité augmente, les candidats arrêtent d'attendre.</div>
           <button onclick="filterGhostedCandidatures()" style="background:#f87171;color:#14100A;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Filtrer les concernées</button>
         </div>
       ` : `<div style="font-size:12px;color:rgba(252, 224, 168,.45);font-style:italic;flex:1;min-width:200px;">Aucun candidat en attente depuis longtemps. 👏</div>`}
@@ -18316,7 +18316,7 @@ async function loadMonEquipe() {
             <div style="font-size:11px;color:rgba(252,224,168,.3);">Embauché le ${dateEmb}</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.12);color:#E8940A;text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">📲 WhatsApp</a>` : ''}
+            ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="padding:7px 14px;border-radius:8px;background:rgba(37,211,102,.12);color:#25D366;text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">📲 WhatsApp</a>` : ''}
             ${e.statut === 'actif' ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat')" style="padding:7px 14px;border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Fin de contrat</button>` : `<button onclick="_updateEquipeStatut('${e.id}','actif')" style="padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Réactiver</button>`}
           </div>
         </div>`;
@@ -18690,24 +18690,24 @@ async function _loadRecrutTrustSection() {
 // ══════════════════════════════════════════════════════════════════════
 
 const AGENT_DOCUMENTS = [
-  { slug: '01-histoire-mission',      titre: 'WOZALI — L\'histoire et la mission',                    desc: 'Comprendre d\'où vient WOZALI et pourquoi ça change tout.' },
+  { slug: '01-histoire-mission',      titre: 'WOZALI · L\'histoire et la mission',                    desc: 'Comprendre d\'où vient WOZALI et pourquoi ça change tout.' },
   { slug: '02-plateforme-az',         titre: 'Comment fonctionne WOZALI de A à Z',                    desc: 'Tour complet de la plateforme avant de la présenter.' },
-  { slug: '03-geolocalisation',       titre: 'La géolocalisation — pourquoi ça change tout',           desc: 'Le moteur invisible qui met les pros en avant.' },
+  { slug: '03-geolocalisation',       titre: 'La géolocalisation : pourquoi ça change tout',           desc: 'Le moteur invisible qui met les pros en avant.' },
   { slug: '04-parrainage',            titre: 'Le parrainage WOZALI',                                  desc: 'Comment fonctionne le système de commission.' },
   { slug: '05-recompenses',           titre: 'Les récompenses mensuelles',                            desc: 'Un salaire chaque mois pour les 10 meilleurs, au mérite : les règles.' },
   { slug: '06-wozali-jobs',           titre: 'WOZALI Jobs',                                           desc: 'Le module emploi expliqué simplement.' },
   { slug: '07-lire-une-personne',     titre: 'Lire une personne avant de lui parler',                 desc: 'Observer avant d\'ouvrir la bouche.' },
   { slug: '08-creer-confiance',       titre: 'Créer la confiance avec un inconnu en 2 minutes',       desc: 'Les premiers mots qui ouvrent ou ferment une porte.' },
-  { slug: '09-pourquoi-non',          titre: 'Pourquoi les gens disent non — et comment répondre',    desc: 'Décoder le refus et le transformer.' },
-  { slug: '10-20-objections',         titre: 'Les 20 objections terrain — réponses mot pour mot',     desc: 'Chaque excuse, sa réponse prête à l\'emploi.' },
-  { slug: '11-scripts-metier',        titre: 'Scripts d\'approche par métier',                        desc: 'Coiffeuse, mécanicien, couturier — script adapté.' },
+  { slug: '09-pourquoi-non',          titre: 'Pourquoi les gens disent non, et comment répondre',    desc: 'Décoder le refus et le transformer.' },
+  { slug: '10-20-objections',         titre: 'Les 20 objections terrain : réponses mot pour mot',     desc: 'Chaque excuse, sa réponse prête à l\'emploi.' },
+  { slug: '11-scripts-metier',        titre: 'Scripts d\'approche par métier',                        desc: 'Coiffeuse, mécanicien, couturier : script adapté.' },
   { slug: '12-storytelling',          titre: 'Le storytelling pour convaincre',                       desc: 'Raconter une histoire qui fait agir.' },
   { slug: '13-creer-urgence',         titre: 'Créer l\'urgence sans mentir',                          desc: 'Accélérer la décision de façon honnête.' },
-  { slug: '14-psychologie-influence', titre: 'Vendre sans vendre — la psychologie de l\'influence',   desc: 'Les principes qui font dire oui naturellement.' },
+  { slug: '14-psychologie-influence', titre: 'Vendre sans vendre : la psychologie de l\'influence',   desc: 'Les principes qui font dire oui naturellement.' },
   { slug: '15-inscription-pas-a-pas', titre: 'Faire une inscription pas à pas',                       desc: 'Le flow complet de l\'inscription en 5 minutes.' },
-  { slug: '16-photos-smartphone',     titre: 'Prendre de bonnes photos avec un smartphone',           desc: 'Lumière, angle, fond — les bases en terrain.' },
+  { slug: '16-photos-smartphone',     titre: 'Prendre de bonnes photos avec un smartphone',           desc: 'Lumière, angle, fond : les bases en terrain.' },
   { slug: '17-geoloc-pratique',       titre: 'La géolocalisation en pratique',                        desc: 'Activer et tester la géoloc avec le nouveau membre.' },
-  { slug: '18-commission-battle',     titre: 'Ta commission et le Battle — comprendre et maximiser',  desc: 'Comment ton score monte et ta paie augmente.' },
+  { slug: '18-commission-battle',     titre: 'Ta commission et le Battle : comprendre et maximiser',  desc: 'Comment ton score monte et ta paie augmente.' },
   { slug: '19-semaine-terrain',       titre: 'Organiser ta semaine terrain + fixer ses objectifs',    desc: 'Planifier pour ne pas improviser.' },
   { slug: '20-passer-a-50',           titre: 'Atteindre 100 000 FCFA par mois : l\'effet cumulé, le suivi membres et les KPI',  desc: 'Le système de suivi qui fait la différence.' },
 ];
@@ -19468,7 +19468,7 @@ async function loadAgentContrat() {
       if (!doc) return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.18);border-radius:10px;">
         <div style="font-size:20px;flex-shrink:0;">📄</div>
         <div style="flex:1;">
-          <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:2px;">${label} — Non signe</div>
+          <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:2px;">${label} · Non signe</div>
           <div style="font-size:12px;color:rgba(252,224,168,.45);">Ouvre le document et signe directement.</div>
         </div>
         <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:8px 12px;background:#E8940A;color:#14100A;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;white-space:nowrap;">Signer →</a>
@@ -19477,14 +19477,14 @@ async function loadAgentContrat() {
         const d = doc.fondateur_signed_at ? new Date(doc.fondateur_signed_at).toLocaleDateString('fr-FR') : '-';
         return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;">
           <div style="font-size:20px;flex-shrink:0;">✅</div>
-          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">${label} — Valide</div><div style="font-size:12px;color:rgba(252,224,168,.45);">Cosigne le ${d}.</div></div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">${label} · Valide</div><div style="font-size:12px;color:rgba(252,224,168,.45);">Cosigne le ${d}.</div></div>
           <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:6px 10px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.2);color:#E8940A;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;">Voir →</a>
         </div>`;
       }
       const d = doc.signed_at ? new Date(doc.signed_at).toLocaleDateString('fr-FR') : '-';
       return `<div style="display:flex;gap:12px;align-items:center;padding:12px 14px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.18);border-radius:10px;">
         <div style="font-size:20px;flex-shrink:0;">✍️</div>
-        <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">${label} — Signe le ${d}</div><div style="font-size:12px;color:rgba(252,224,168,.45);">En attente de contresignature du fondateur.</div></div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#E8940A;margin-bottom:2px;">${label} · Signe le ${d}</div><div style="font-size:12px;color:rgba(252,224,168,.45);">En attente de contresignature du fondateur.</div></div>
         <a href="/formation-responsable/${slug}.html" target="_blank" style="flex-shrink:0;padding:6px 10px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.2);color:#E8940A;font-size:11px;font-weight:700;border-radius:7px;text-decoration:none;font-family:'Geist Mono',monospace;">Voir →</a>
       </div>`;
     }
@@ -20801,7 +20801,7 @@ async function loadAdminTemoignagesAbus(statut) {
         if (alertEl) {
           alertEl.innerHTML = `<div style="background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);border-radius:12px;padding:14px 18px;margin-bottom:20px;">
             <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#f87171;margin-bottom:10px;">🚨 ALERTES RECRUTEURS (${alertes.length})</div>
-            ${alertes.map(([uid, n]) => `<div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(248,113,113,0.8);padding:4px 0;">⛔ ${uid.substring(0,8)}... — <strong>${n} signalement${n>1?'s':''} publiés</strong></div>`).join('')}
+            ${alertes.map(([uid, n]) => `<div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(248,113,113,0.8);padding:4px 0;">⛔ ${uid.substring(0,8)}... · <strong>${n} signalement${n>1?'s':''} publiés</strong></div>`).join('')}
           </div>`;
           alertEl.style.display = 'block';
         }

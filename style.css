@@ -120,7 +120,7 @@ body {
 .btn-sm { padding:8px 16px; font-size:15px; }
 .btn-lg { padding:16px 32px; font-size:19px; }
 .btn-wa { background:#25D366; color:white; }
-.btn-wa:hover { background:#C47A08; }
+.btn-wa:hover { background:#1DA851; }
 
 
 /* ══ RDV / CALENDRIER COMPLET ══ */
@@ -6167,8 +6167,8 @@ input::placeholder, textarea::placeholder {
 /* Bouton WhatsApp dans profil : garder vert WA */
 .profil-actions .btn-wa,
 .sidebar-card .btn-wa {
-  background: #E8940A !important;
-  color: #0A0A0A !important;
+  background: #25D366 !important;
+  color: #fff !important;
 }
 
 /* Boutons outline dark */
