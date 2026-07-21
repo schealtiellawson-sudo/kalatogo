@@ -1,6 +1,6 @@
 // ================================================================
-// SÉQUENCE FONDATEUR J1-J5 — générée jour par jour par le cron
-// (appelée par api/cron/score-wozali.js, comme le Coach Zali)
+// SÉQUENCE FONDATEUR J1-J5 : générée jour par jour par le cron
+// (appelée par api/cron/score-wozali.js, comme le Coach Sandy)
 //
 // Avant : les 6 messages étaient pré-écrits d'un bloc à l'inscription
 // dans le JSON Notifications (dates futures). Ils ne s'adaptaient à
@@ -17,7 +17,7 @@ function _msg(id, title, body, actionLabel, actionSection) {
   return {
     id, type: 'message_fondateur', title, body,
     action_label: actionLabel, action_section: actionSection,
-    created_at: new Date().toISOString(), read: false, from: 'Schealtiel',
+    created_at: new Date().toISOString(), read: false, from: 'Fondateur WOZALI',
   };
 }
 
@@ -27,196 +27,161 @@ const JOURS = {
   1: (c) => {
     // Adaptation : s'il a déjà mis sa photo, l'action du jour devient le statut du jour.
     const actionTxt = c.aPhoto
-      ? `Aujourd'hui, écris ton statut du jour. Une phrase sur ton profil qui dit au quartier que tu es là, disponible, maintenant. Ceux qui hésitaient viennent aujourd'hui.`
-      : `Aujourd'hui, ajoute une photo de ta dernière réalisation.\nUne seule suffit pour commencer.\n\nParce que chaque photo que tu ajoutes, c'est un client qui voit la qualité de ton travail avant même de t'appeler. Et un client qui voit, c'est un client qui fait confiance. Et la confiance, ça se transforme en argent.`;
-    return _msg('w_j1', 'Le Score qui change tout',
+      ? `Aujourd'hui, une seule action : écris ton statut du jour. Une phrase sur ton profil qui dit au quartier que tu es là, disponible, maintenant. Celui qui hésitait ce matin peut t'appeler ce soir.`
+      : `Aujourd'hui, une seule action : ajoute une photo de ta dernière réalisation. Une seule suffit.\n\nUn client qui voit ton travail avant de t'appeler, c'est un client qui arrive déjà convaincu. Et un client convaincu discute moins le prix.`;
+    return _msg('w_j1', "Chez qui l'argent s'arrête",
 `${c.prenom},
 
-Imagine quelqu'un dans ton quartier qui cherche ton métier en ce moment.
+Ce soir, dans ton quartier, quelqu'un a été payé pour un travail que tu fais aussi bien que lui. Peut-être mieux.
 
-Il ouvre WOZALI. Il tape son quartier.
+L'argent est sorti de la poche d'un client. Il est rentré chez un autre.
 
-La liste des prestataires apparaît. Il appelle le premier.
-Pas forcément le meilleur. Le premier.
-
-C'est là que le Score WOZALI change tout pour toi.
+Pas chez le meilleur. Chez celui que le client a trouvé en premier.
 
 ---
 
-Le Score, c'est ton rang dans les résultats de recherche.
-Plus il est élevé, plus tu apparais en haut de la liste.
-Et celui qui est en haut reçoit l'appel.
+Sur WOZALI, celui qu'on trouve en premier, c'est celui qui a le meilleur Score.
 
-Pas le plus connu. Pas le mieux connecté.
-Celui dont le profil montre qu'il est sérieux.
-
-Trois choses font monter ton Score :
+Le Score WOZALI, c'est ton rang dans les résultats de recherche. Trois choses le font monter :
 
 Ton profil complet.
-Photo de profil, description, tarifs, photos de tes réalisations. Chaque élément manquant, c'est une place perdue dans les résultats.
+Photo, description, tarifs, réalisations. Chaque case vide te coûte des places.
 
 Les avis de tes clients.
-Chaque étoile laissée sur ton profil dit aux autres clients : cette personne fait bien son travail. C'est le carburant de ton Score.
+Chaque étoile dit au client suivant : ici, le travail est sérieux.
 
-Ta présence régulière.
-Connecte-toi, mets ton profil à jour, réponds vite. WOZALI récompense ceux qui sont actifs, jusqu'aux badges "Répond vite" et "Très demandé" que les clients voient sur ton profil.
+Ta régularité.
+Tu te connectes, tu mets à jour, tu réponds vite. WOZALI le voit et te fait monter, jusqu'aux badges "Répond vite" et "Très demandé" que les clients voient sur ton profil.
+
+Aucune relation là-dedans. Aucun cousin bien placé. Du travail, des preuves, de la constance.
 
 ---
 
 ${actionTxt}
 
-A demain.`,
+L'argent de ton quartier circule tous les jours. Fais-le s'arrêter chez toi.`,
       c.aPhoto ? 'Écrire mon statut du jour' : 'Ajouter ma photo', c.aPhoto ? 'overview' : 'photos');
   },
   2: (c) => _msg('w_j2', "L'emploi sans compromis",
 `${c.prenom},
 
-Combien de personnes autour de toi ont eu un emploi grâce à quelqu'un qui voulait quelque chose en retour ?
+Combien de CV envoyés sur WhatsApp sans réponse ? Combien de « je te rappelle » qui ne rappellent jamais ?
 
-Un contact. Un intermédiaire. Un chef qui fixe ses conditions avant même que tu commences à travailler.
+Pendant ce temps, le loyer n'attend pas. L'école des enfants n'attend pas.
 
-C'est le marché de l'emploi ici. Et ce n'est pas normal.
+Ici, un poste se donne souvent avant même d'être annoncé. À un cousin. À une connaissance. Et parfois, on exige d'une candidate ce qu'on n'a pas le droit de demander à quelqu'un qui veut juste travailler.
 
 ---
 
-WOZALI Jobs existe pour que ça ne soit plus ton seul chemin.
+WOZALI Jobs fonctionne autrement.
 
-Quand un employeur publie une offre sur WOZALI, il voit ton profil, ton Score, tes réalisations, les avis de tes clients. Il te contacte parce que ton travail lui convient.
+Un employeur publie une offre. Il voit ton profil, ton Score, tes réalisations, les avis de tes clients. Il te contacte parce que ton dossier tient debout.
 
 Pas parce que tu connais quelqu'un.
 Pas parce que tu as accepté quelque chose.
-Pas parce que tu viens de la bonne famille.
+Pas parce que tu portes le bon nom de famille.
 
-Juste ton dossier qui parle pour toi.
-
-Et toi tu postules depuis ton téléphone, en deux clics, sans te déplacer, sans intermédiaire entre vous.
+Tu postules depuis ton téléphone, en deux clics. Postuler est gratuit. Publier une offre aussi, si un jour c'est toi qui recrutes.
 
 ---
 
-Regarde les offres disponibles dans ta ville. Si quelque chose te correspond, envoie ta candidature.
+Regarde les offres dans ta ville. Si une te correspond, envoie ta candidature aujourd'hui.
 
-Un emploi trouvé proprement, c'est aussi ce que tu mérites.
-
-A demain.`,
+Ta valeur, c'est ton travail. Personne sur WOZALI n'a le droit de te demander autre chose.`,
     'Voir les offres près de chez moi', 'emploi-mode'),
-  3: (c) => _msg('w_j3', "De l'argent même quand tu ne travailles pas",
+  3: (c) => _msg('w_j3', "L'argent qui rentre chaque mois",
 `${c.prenom},
 
-Il y a deux types de revenus.
+Autour de toi, il y a des gens qui travaillent bien et que personne ne trouve. Le mécanicien du coin. La couturière de ta rue. Peut-être ta propre sœur.
 
-Celui que tu gagnes quand tu travailles.
-Et celui qui rentre même quand tu ne travailles pas.
-
-Le premier, tu le connais déjà. Tu travailles, tu es payé. Tu ne travailles pas, il ne rentre rien. C'est épuisant de dépendre uniquement de ça.
-
-Le deuxième, c'est ce que le parrainage WOZALI te donne.
+Tu peux les faire entrer sur WOZALI. Et être payé pour ça.
 
 ---
 
-Voici comment ça fonctionne.
-
-Tu as un code de parrainage unique. Chaque personne qui s'inscrit avec ton code et passe au Plan Pro te rapporte 1 000 FCFA par mois. Tant qu'elle reste Pro.
+Tu as un code de parrainage unique. Chaque personne qui s'inscrit avec ton code et passe au Plan Pro te rapporte 1 000 FCFA par mois. Tant qu'elle reste abonnée.
 
 Pas une seule fois. Chaque mois.
 
-3 filleuls Pro - 3 000 FCFA par mois.
-10 filleuls Pro - 10 000 FCFA par mois.
-50 filleuls Pro - 50 000 FCFA par mois.
+3 filleuls Pro : 3 000 FCFA par mois.
+10 filleuls Pro : 10 000 FCFA par mois.
+50 filleuls Pro : 50 000 FCFA par mois.
 
-Le SMIG au Togo est de 52 500 FCFA.
-53 filleuls Pro suffisent pour le dépasser.
-Sans travailler plus. Juste parce que tu as parlé de WOZALI aux bonnes personnes.
+Toi tu aides quelqu'un à trouver des clients. Lui il fait tourner son commerce. Et toi tu touches ta part, mois après mois, pour l'avoir amené.
 
 ---
 
-Ton lien et ton code sont prêts, avec un simulateur pour voir exactement ce que ça peut donner. Partage ton lien aujourd'hui à des gens qui travaillent, qui ont un métier, qui cherchent à être vus.
+Ton lien et ton code sont prêts, avec un simulateur pour voir exactement ce que ça peut donner. Partage-les aujourd'hui à des gens qui travaillent, qui ont un métier, qui cherchent des clients.
 
-Tu te demandes sûrement ce qu'est le Plan Pro.
-Demain je t'explique tout.
+Tu te demandes ce qu'est le Plan Pro. Demain, je te l'explique en entier.
 
-A demain.`,
+Ton premier filleul, tu connais déjà son nom.`,
     'Voir mon code de parrainage', 'parrainage'),
   4: (c) => _msg('w_j4', 'Le Plan Pro',
 `${c.prenom},
 
-Je t'avais promis de t'expliquer le Plan Pro.
+Hier je t'ai promis de t'expliquer le Plan Pro.
 
-Sur WOZALI il y a deux façons d'être présent.
+Sur WOZALI, ton profil gratuit existe déjà et travaille pour toi. Mais il est dans la liste, avec tout le monde.
 
-Le Plan Gratuit : ton profil existe, tu es visible.
-C'est déjà bien. Mais tu es dans la liste avec tout le monde.
-
-Le Plan Pro : tu passes devant tout le monde. Toujours.
+Le Plan Pro te met devant. Toujours.
 
 ---
 
-Voilà ce que ça change concrètement.
+Concrètement, voilà ce qui change.
 
-Quand quelqu'un cherche ton métier dans ton quartier, les profils Pro apparaissent en premier dans les résultats. Systématiquement. Peu importe qui s'est inscrit avant toi.
+Quand quelqu'un cherche ton métier dans ton quartier, les profils Pro sortent en premier. Systématiquement. Un prestataire gratuit inscrit depuis deux ans passe après toi.
 
-En clair : un prestataire gratuit inscrit depuis 2 ans apparaît après toi si tu es Pro.
+Tu vois QUI a regardé ton profil. Pas juste un chiffre : la liste des personnes, leur métier, leur quartier. Un client qui hésite, tu le rattrapes avant qu'il aille voir ailleurs.
 
-C'est ça la priorité Pro.
+Le parrainage d'hier, les 1 000 FCFA par filleul par mois, s'active avec le Pro.
 
----
-
-Mais il y a plus.
-
-Tu vois QUI a regardé ton profil. Pas juste un chiffre : la liste des personnes, leur métier, leur quartier. Un client qui hésite, tu le rappelles avant qu'il aille voir ailleurs.
-
-Le parrainage dont je t'ai parlé hier, les 1 000 FCFA par filleul par mois, n'est actif qu'en Plan Pro.
-
-Et Coach Sandy va plus loin avec toi : tu lui poses TES questions, elle analyse TES chiffres.
+Et Coach Sandy passe en direct avec toi : tu lui poses tes questions quand tu veux, elle te répond en temps réel, sur ton commerce à toi.
 
 ---
 
 Le Plan Pro coûte 2 500 FCFA par mois.
 
-C'est le prix d'un repas. Pour une visibilité qui peut te rapporter dix, vingt, cinquante fois plus que ça.
+Le prix d'un repas. Un repas par mois pour passer devant tout le monde, fais le calcul.
 
-Et demain je te parle de quelque chose que peu de plateformes font : payer chaque mois ses membres les plus sérieux, un salaire chacun.
+Demain je te parle de ce que presque aucune plateforme ne fait : payer chaque mois ses membres les plus sérieux. Un salaire chacun.
 
-A demain. Ce que je t'annonce mérite que tu sois là.`,
+Sois là demain. Ce message-là, tu voudras l'avoir lu.`,
     'Découvrir le Plan Pro', 'abonnement'),
   5: (c) => _msg('w_j5', "Ce qui s'ouvre devant toi",
 `${c.prenom},
 
-Cette semaine je t'ai parlé de plusieurs choses.
+Cette semaine je t'ai montré quatre choses.
 
-Ton Score qui fait venir les clients sans chercher.
-WOZALI Jobs qui te donne accès à l'emploi sans compromis.
-Le parrainage qui construit un revenu récurrent.
-Le Plan Pro qui te met devant tout le monde.
+Ton Score, qui fait venir les clients sans supplier personne.
+WOZALI Jobs, où ton dossier parle à ta place.
+Le parrainage, qui te paie chaque mois pour ceux que tu amènes.
+Le Plan Pro, qui te met devant tout le monde.
 
-Tout ça existe. Tout ça est disponible pour toi maintenant.
+Tout ça est là, disponible, maintenant.
 
-Mais aujourd'hui je veux te parler de ce que WOZALI fait qu'aucune autre plateforme ne fait ici.
+Aujourd'hui, la dernière pièce. Celle que je t'ai promise hier.
 
 ---
 
-Chaque mois, WOZALI paie ses membres les plus sérieux. Pas un bonus symbolique : un salaire.
+Chaque mois, WOZALI paie ses membres les plus sérieux. Pas un bonus symbolique. Un salaire.
 
-Pas les plus connus. Les plus constants.
+La Bourse de Croissance : dans chaque pays, dès que 5 000 membres Pro sont réunis, elle se débloque. Le Togo et le Bénin courent l'un contre l'autre. Une fois ouverte, les 10 meilleurs profils du mois touchent chacun un salaire, le salaire minimum légal de leur pays, versé en Crédit WOZALI sur leur compte WOZALI.
 
-La Bourse de Croissance : dans chaque pays, une fois 5 000 membres Pro atteints, les 10 meilleurs profils du mois gagnent chacun un salaire, le salaire minimum légal de leur pays. Togo ou Bénin, chaque pays son classement. Conditions : Plan Pro, profil complet, Score WOZALI à 80 sur 100 minimum, 3 avis clients sur les 30 derniers jours.
+Le classement repart de zéro le 1er de chaque mois. Personne ne s'assoit sur sa place.
 
-Le classement regarde ton travail. Tes avis clients, ta note, ta constance. Pas tes abonnés. Pas ton nombre de vues. Quelqu'un avec 10 clientes satisfaites passe devant quelqu'un avec 100 000 abonnés et des avis moyens.
+Et il regarde ton travail. Tes avis vérifiés, ta note, ta constance. Zéro tirage au sort. Les abonnés ne comptent pas, les vues non plus. Une couturière avec 10 clientes satisfaites passe devant une vedette avec 100 000 abonnés et des avis moyens.
 
-Résultats chaque dernier vendredi du mois, dans les pays qui ont débloqué leur Bourse.
+Les conditions : Plan Pro, profil complet, Score WOZALI à 80 sur 100 minimum, 3 avis clients sur les 30 derniers jours. Résultats chaque dernier vendredi du mois, dans les pays qui ont débloqué leur Bourse.
 
 ---
 
 Une dernière chose, et elle compte.
 
-À partir de demain, ta coach WOZALI prend le relais. Elle s'appelle Coach Sandy : une intelligence artificielle experte du marché d'ici, formée sur ton métier, ta ville, tes réalités. Chaque matin, un conseil, une action précise, tes chiffres réels. Elle connaît ton profil et elle sait exactement ce qui te bloque.
+À partir de demain, Coach Sandy prend le relais. Sandy est une intelligence artificielle, entraînée sur le commerce du Togo et du Bénin. Chaque jour, un conseil et des leçons pour faire avancer ton activité. En Pro, tu lui parles librement, elle te répond en temps réel.
 
-Moi je reviendrai te parler aux grands moments : ton premier avis, ton Score qui décolle, le jour où tu deviens éligible à la Bourse.
+Moi je reviendrai aux grands moments : ton premier avis, ton Score qui décolle, le jour où la Bourse commence à te regarder.
 
-Les gens qui gagnent sur WOZALI ne sont pas plus talentueux que toi. Ils sont juste plus constants.
-
-Sois de ceux-là.
-
-Schealtiel`,
+Ceux qui gagnent sur WOZALI ne sont pas plus doués que toi. Ils sont plus constants. Sois de ceux-là.`,
     'Faire connaissance avec Coach Sandy', 'coach'),
 };
 
@@ -232,15 +197,13 @@ const EVENEMENTS = [
     build: (c) => _msg('ev_avis1', 'Ton premier avis est arrivé',
 `${c.prenom},
 
-Quelqu'un a pris le temps d'écrire publiquement que ton travail vaut quelque chose.
+Quelqu'un vient d'écrire publiquement que ton travail vaut quelque chose.
 
-Réfléchis à ce que ça veut dire. Cette personne n'y gagne rien. Elle l'a fait parce que tu l'as mérité.
+Cette personne n'y gagne rien. Elle l'a fait parce que tu l'as mérité.
 
-Ce premier avis, personne ne pourra te l'enlever. Et chaque client qui visite ton profil à partir d'aujourd'hui le lira avant de te contacter.
+Ce premier avis, personne ne peut te le retirer. Chaque client qui ouvre ton profil à partir d'aujourd'hui le lira avant de t'appeler.
 
-Le premier est le plus dur. Maintenant, demande le deuxième.
-
-Schealtiel`,
+Le premier est le plus dur à obtenir. Va chercher le deuxième pendant que c'est chaud.`,
       'Lire mon avis', 'avis'),
   },
   {
@@ -251,13 +214,11 @@ Schealtiel`,
 
 Tu es Pro maintenant.
 
-Concrètement, à partir de cette minute : quand quelqu'un cherche ton métier dans ton quartier, tu apparais avant les autres. Ton parrainage est actif, chaque filleul Pro te rapporte 1 000 FCFA par mois. Et tu vois QUI regarde ton profil.
+À partir de cette minute : quand quelqu'un cherche ton métier dans ton quartier, tu sors avant les autres. Ton parrainage est actif, chaque filleul Pro te rapporte 1 000 FCFA par mois. Tu vois QUI regarde ton profil. Et Coach Sandy te répond en direct, quand tu veux.
 
-Tu as investi dans ton travail. La plupart des gens n'osent pas faire ça.
+Tu as mis 2 500 FCFA sur ton propre travail. La plupart des gens n'osent pas.
 
-Maintenant fais travailler cet investissement : regarde qui est passé sur ton profil, et rappelle ceux qui hésitent.
-
-Schealtiel`,
+Maintenant fais-les travailler : ouvre la liste de ceux qui ont vu ton profil, et rappelle ceux qui hésitent.`,
       'Voir qui a regardé mon profil', 'vues'),
   },
   {
@@ -268,13 +229,11 @@ Schealtiel`,
 
 Ton Score WOZALI vient de passer 80.
 
-Tu sais ce que ça veut dire ? La majorité des profils n'y arrivent jamais. Toi tu y es, parce que tu as fait le travail : profil complet, clients satisfaits, présence régulière.
+La majorité des profils n'y arrivent jamais. Toi tu y es, parce que tu as fait le travail : profil complet, clients satisfaits, présence régulière.
 
 À ce niveau, tu sors en haut des recherches. Et la Bourse de Croissance, un salaire chaque mois pour les 10 meilleurs profils de ton pays, exige exactement ce score.
 
-Tu n'es plus en train de découvrir WOZALI. Tu es en train de gagner dessus.
-
-Schealtiel`,
+Tu n'es plus en train de découvrir WOZALI. Tu es en train de gagner dessus.`,
       'Voir les récompenses', 'recompenses'),
   },
   {
@@ -286,13 +245,11 @@ Schealtiel`,
 
 Plan Pro. Score au-dessus de 80. Des avis clients réels.
 
-Tu coches les conditions principales de la Bourse de Croissance : un salaire pour chacun des 10 meilleurs profils de ton pays, ce mois. Le classement regarde ton travail, tes avis, ta constance. Rien d'autre.
+Tu coches les conditions de la Bourse de Croissance : un salaire pour chacun des 10 meilleurs profils de ton pays ce mois-ci. Le classement regarde tes avis, ta note, ta constance. Rien d'autre. Et il repart de zéro chaque 1er du mois.
 
-Beaucoup rêvent de ce genre de reconnaissance. Toi tu l'as construite, avis après avis, client après client.
+Cette place, personne ne te l'a donnée. Tu l'as construite, avis après avis, client après client.
 
-Reste constant jusqu'au tirage. C'est tout ce qui te sépare de la liste des gagnants.
-
-Schealtiel`,
+Reste constant jusqu'au dernier vendredi du mois. C'est tout ce qui te sépare de la liste.`,
       'Voir où j\'en suis', 'recompenses'),
   },
 ];
