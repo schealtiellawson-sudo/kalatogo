@@ -6538,7 +6538,7 @@ function _coachProLock(question) {
     <div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 16px;text-align:center;margin:4px 0;">
       <div style="filter:blur(4px);opacity:.55;font-size:13px;line-height:1.6;text-align:left;margin-bottom:14px;color:rgba(252,224,168,.8);">Bonne question. J'ai regardé tes données : tes visites de la semaine, tes demandes, ce qui manque encore sur ton profil. En général ça vient de trois choses, et chez toi je vois surtout que…</div>
       <div style="font-size:14.5px;color:#FCE0A8;font-weight:800;margin-bottom:6px;">Sandy a la réponse. Elle est dans tes données.</div>
-      <p style="font-size:12.5px;color:rgba(252,224,168,.6);margin:0 0 14px;line-height:1.5;">Avec Pro, tu discutes avec ton coach quand tu veux : tu poses TES questions, il analyse TES chiffres et te répond tout de suite.</p>
+      <p style="font-size:12.5px;color:rgba(252,224,168,.6);margin:0 0 14px;line-height:1.5;">Avec Pro, tu discutes avec Sandy quand tu veux : tu poses TES questions, elle analyse TES chiffres et te répond tout de suite.</p>
       <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:13.5px;font-family:inherit;cursor:pointer;">Passer Pro et discuter avec Sandy</button>
       <div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.4);margin-top:8px;">2 500 FCFA / mois</div>
     </div>`;
