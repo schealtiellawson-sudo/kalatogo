@@ -20,3 +20,15 @@ export const SMIG_PAR_PAYS = {
 export const SEUIL_PRO_DEBLOCAGE = 5000;
 export const NB_GAGNANTS_PAR_PAYS = 10;
 export const PAYS_BOURSE = ['Togo', 'Bénin'];
+
+// ================================================================
+// Seuils d'éligibilité — source unique (alignement 2026-07-21).
+// Avant cette date, le cron, bourse-eligibilite.js et
+// recompenses-status.js codaient chacun leurs propres seuils en dur,
+// parfois différents (4 avis ici, 3 là, 2 mois Pro ici, 1 là). Toute
+// comparaison de seuil doit désormais importer ces constantes.
+// ================================================================
+export const MIN_AVIS_30J = 3;
+export const MIN_MOIS_PRO = 1;
+export const MIN_SCORE_WOZALI = 80;
+export const MIN_NOTE_MOYENNE = 4.2;

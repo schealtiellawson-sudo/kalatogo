@@ -13,6 +13,7 @@ import { PROVIDERS, availableProviders } from '../../_lib/ai-providers.js';
 import { checkRateLimit, logUsage } from '../../_lib/ai-cache.js';
 import { supabase } from '../../_lib/supabase.js';
 import { briquesPour, BRIQUES } from '../../_lib/corpus-sandy.js';
+import { anonymize, deanonymize } from '../../_lib/ai-anonymize.js';
 
 const SYSTEM_SANDY = `Tu es Coach Sandy, l'experte business personnelle des membres de WOZALI, la plateforme qui rend visibles les travailleurs du Togo et du Bénin. Tu es une intelligence artificielle, et la plus grande experte au monde de l'entrepreneuriat au Togo et au Bénin : petites, moyennes et grandes entreprises, économie informelle, marchés de Lomé et Cotonou, apprentissage, tontines, mobile money, marchandage, saisonnalité des fêtes. Tu maîtrises les stratégies éprouvées des meilleurs (l'offre irrésistible, la fidélisation, la densité locale avant l'expansion, parler à la douleur du client, le client comme héros du discours, le réinvestissement patient des grands entrepreneurs africains) et tu les adaptes toujours aux réalités d'ici. Tu parles à des artisans, commerçants et indépendants, souvent peu à l'aise avec la technologie et le jargon.
 
@@ -69,8 +70,18 @@ export default async function handler(req, res) {
   ]);
   const visiteurs = new Set((vues || []).map(v => v.viewer_prest_id || v.viewer_id || ('a' + v.id))).size;
 
+  // Anonymisation avant envoi au provider IA externe : le message libre du
+  // membre peut contenir un nom, un numéro ou un email (le sien ou celui
+  // d'un client) ; le nom du membre lui-même n'est jamais envoyé tel quel
+  // (placeholder "le membre" dans le contexte). Réponse dé-anonymisée avant
+  // retour/persistance. On n'anonymise pas tout le contexte (quartier,
+  // ville, métier) : ça dégraderait trop les recommandations de Sandy pour
+  // un gain de confidentialité marginal sur des données déjà peu identifiantes.
+  const { text: messageAnonyme, map: anonMap } = anonymize(message, { whitelist: [p.metier_principal || ''] });
+  const nomAffichePourIA = 'le membre';
+
   const contexte = [
-    `Membre : ${p.prenom || p.nom_complet || 'membre'}, ${p.metier_principal || 'métier non renseigné'} à ${[p.quartier, p.ville].filter(Boolean).join(', ') || 'ville non renseignée'}.`,
+    `Membre : ${nomAffichePourIA}, ${p.metier_principal || 'métier non renseigné'} à ${[p.quartier, p.ville].filter(Boolean).join(', ') || 'ville non renseignée'}.`,
     `Profil : photos réalisations ${p.photo_realisation_1 || p.photo_realisation_2 ? 'oui' : 'NON'}, tarifs ${p.tarif_min_fcfa || p.tarif_max_fcfa ? 'affichés' : 'NON affichés'}, description ${(p.description_services || '').trim().length > 10 ? 'oui' : 'NON'}, statut du jour ${p.statut_jour ? 'actif' : 'non'}.`,
     `Chiffres : Score WOZALI ${p.score_wozali || 0}/100, ${p.nb_avis_recus || 0} avis (note ${p.note_moyenne || 'n/a'}), ${visiteurs} visiteurs sur 7 jours, ${(rdvs || []).length} demandes de RDV sur 7 jours, badges : ${(p.badges_auto || []).join(', ') || 'aucun'}.`,
     coachProfil ? `Coaching : objectif ${coachProfil.objectif || 'n/a'}, blocage ${coachProfil.blocage || 'n/a'}.` : '',
@@ -81,7 +92,7 @@ export default async function handler(req, res) {
     // Corpus Sandy : briques de connaissance marché selon le thème détecté
     briquesPour(`${message} ${p.metier_principal || ''}`),
     (BRIQUES.langage_terrain.texte ? `[Ton et langage du terrain]\n${BRIQUES.langage_terrain.texte}` : ''),
-    `Question du membre : ${message}`,
+    `Question du membre : ${messageAnonyme}`,
   ].filter(Boolean).join('\n');
 
   // 4. Appel IA (router multi-providers existant)
@@ -99,7 +110,8 @@ export default async function handler(req, res) {
   }
   if (!response) return res.status(502).json({ error: 'Tous les providers IA ont échoué', attempts: errors });
 
-  const reponse = String(response.text || '').trim().slice(0, 1200);
+  const reponseBrute = String(response.text || '').trim().slice(0, 1200);
+  const reponse = deanonymize(reponseBrute, anonMap);
 
   // 5. Persister l'échange dans la conversation Coach (service role)
   try {

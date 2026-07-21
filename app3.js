@@ -138,82 +138,18 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 // === Sprint 3 — Bourse de Croissance ===
-async function verifierEligibiliteBourse(userId){
-  if(typeof supabase==='undefined'||!supabase) return {eligible:false,raison:'supabase_indisponible'};
-  const {data:profil,error}=await supabase.from('wozali_prestataires').select('abonnement, score_wozali').eq('user_id',userId).maybeSingle();
-  if(error||!profil) return {eligible:false,raison:'profil_introuvable'};
-  const maintenant=new Date();
-  const estPro=profil?.abonnement==='Pro';
-  const moisPro=2; // pro_since absent de wozali_prestataires — vérif durée gérée server-side
-  const deuxMoisPro=moisPro>=2;
-  const scoreOk=(profil.score_wozali||0)>=80;
-  const il_y_a_30j=new Date(maintenant-30*86400000);
-  const {count:nbAvisRecents}=await supabase.from('avis').select('*',{count:'exact',head:true}).eq('prestataire_id',userId).gte('created_at',il_y_a_30j.toISOString());
-  const avisOk=(nbAvisRecents||0)>=4;
-  const {data:avisRecents}=await supabase.from('avis').select('note').eq('prestataire_id',userId).gte('created_at',il_y_a_30j.toISOString());
-  const noteMoyenne=avisRecents&&avisRecents.length>0?avisRecents.reduce((s,a)=>s+a.note,0)/avisRecents.length:0;
-  const noteOk=noteMoyenne>=4.2;
-  const nonGagnantRecent=true;
-  const conditions={estPro,deuxMoisPro,scoreOk,avisOk,noteOk,nonGagnantRecent};
-  const eligible=Object.values(conditions).every(Boolean);
-  const prochainTirage=prochainVendrediFinMois();
-  const joursRestants=Math.ceil((prochainTirage-maintenant)/86400000);
-  return {eligible,conditions,manque:Object.entries(conditions).filter(([,v])=>!v).map(([k])=>k),nbAvisRecents:nbAvisRecents||0,noteMoyenne:Math.round(noteMoyenne*10)/10,moisPro:Math.floor(moisPro),scoreActuel:profil.score_wozali||0,prochainTirage,joursRestants};
-}
-function prochainVendrediFinMois(){
-  function dernierVendredi(y,mo){var fin=new Date(y,mo+1,0,18,0,0,0);var j=fin.getDay();fin.setDate(fin.getDate()-((j>=5)?j-5:j+2));return fin;}
-  var now=new Date();var y=now.getFullYear(),mo=now.getMonth();
-  var dv=dernierVendredi(y,mo);
-  if(dv.getTime()<=now.getTime()){mo++;if(mo>11){mo=0;y++;}dv=dernierVendredi(y,mo);}
-  return dv.getTime();
-}
-async function afficherWidgetBourse(userId){
-  const c=document.getElementById('widget-bourse');if(!c)return;
-  const r=await verifierEligibiliteBourse(userId);
-  if(r.raison){c.innerHTML='';return;}
-  const {eligible,conditions,manque,joursRestants,prochainTirage}=r;
-  const dateFmt=new Date(prochainTirage).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-  if(!conditions.estPro){
-    c.innerHTML=`<div class="widget-bourse etat-non-pro"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut rouge">Non éligible</span></div><p class="widget-montant-preview"><span class="montant-juillet">Un salaire × 10</span><span class="montant-label">les 10 meilleurs profils du mois</span></p><p>La Bourse de Croissance est réservée aux membres Pro.</p><a href="#abonnement" class="widget-cta">→ Passer au Plan Pro pour participer</a></div>`;return;
-  }
-  if(!eligible){
-    const act={scoreOk:`→ Il te manque ${80-r.scoreActuel} points de Score WOZALI`,avisOk:`→ Il te manque ${4-r.nbAvisRecents} avis clients récents`,noteOk:`→ Ta note moyenne (${r.noteMoyenne}★) doit atteindre 4,2★`};
-    c.innerHTML=`<div class="widget-bourse etat-incomplet"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut orange">Incomplet</span></div><p>Résultats le <strong>${dateFmt}</strong>, dans ${joursRestants} jours.</p><p>Tu es éligible en durée. Mais il te manque :</p><ul class="widget-manque">${manque.filter(m=>act[m]).map(m=>`<li>${act[m]}</li>`).join('')}</ul><p class="widget-urgence">Il reste ${joursRestants} jours avant le classement.</p></div>`;return;
-  }
-  c.innerHTML=`<div class="widget-bourse etat-eligible"><div class="widget-header"><span class="widget-icon">🏆</span><span class="widget-titre">BOURSE DE CROISSANCE</span><span class="badge-statut or">✓ Éligible</span></div><div class="widget-eligible-checks"><span>✓ Plan Pro actif</span><span>✓ Score WOZALI : ${r.scoreActuel}/100</span><span>✓ ${r.nbAvisRecents} avis clients récents</span></div><p>Prochains résultats : <strong>${dateFmt} à 18h00</strong></p><p class="widget-countdown-mini" id="bourse-mini-countdown"></p><p class="widget-sub">Reste actif. Reste Pro. Tu es dans la course.</p></div>`;
-  lancerMiniCountdown('bourse-mini-countdown',new Date(prochainTirage));
-}
-function lancerMiniCountdown(id,cible){function maj(){const e=document.getElementById(id);if(!e)return;const d=cible-new Date();if(d<=0){e.textContent='Le classement est calculé maintenant.';return;}const j=Math.floor(d/86400000),h=Math.floor((d%86400000)/3600000),m=Math.floor((d%3600000)/60000);e.textContent=`J-${j} · ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}min`;}maj();setInterval(maj,60000);}
+// VAGUE 0b (2026-07-21) : le moteur client verifierEligibiliteBourse / afficherWidgetBourse /
+// prochainVendrediFinMois / lancerMiniCountdown a été supprimé. Il recalculait l'éligibilité et
+// la date de tirage dans le navigateur avec des règles périmées (montants faux, table `avis`
+// inexistante au lieu de `wozali_avis`, date "31 juillet 2026" fausse) et écrivait même
+// score_wozali en base depuis le client, une faille sur un champ qui conditionne de l'argent.
+// Le conteneur #widget-bourse est maintenant alimenté par chargerWidgetBourseOverview() (app.js),
+// appelée depuis loadDashOverview() une fois l'utilisateur chargé, via le même endpoint serveur
+// /api/wozali-pay/recompenses-status que la page Récompenses.
 
-// === Recalcul Score WOZALI ===
-async function majActiviteEtScore(userId){
-  if(typeof supabase==='undefined'||!supabase)return;
-  // activité trackée côté server (cron score-wozali) — pas de mise à jour directe ici
-  await recalculerScoreWozali(userId);
-}
-async function recalculerScoreWozali(userId){
-  if(typeof supabase==='undefined'||!supabase)return 0;
-  const {data:p}=await supabase.from('wozali_prestataires').select('*').eq('user_id',userId).maybeSingle();
-  if(!p)return 0;
-  const {data:avis}=await supabase.from('avis').select('note').eq('prestataire_id',userId);
-  const nbPhotos=0; // photos trackées dans wozali_prestataires colonnes photo_realisation_*
-  const profilComplet=calculerCompletudeProfile(p)*0.30;
-  const noteMoyenne=avis&&avis.length>0?(avis.reduce((s,a)=>s+a.note,0)/avis.length/5)*25:0;
-  const nbAvis=Math.min((avis?.length||0),20)/20*15;
-  const photos=Math.min((nbPhotos||0),5)/5*10;
-  const vues=Math.min((p.nb_vues||0),500)/500*10;
-  const activite=p.derniere_activite&&(new Date()-new Date(p.derniere_activite))<14*86400000?10:0;
-  const total=Math.min(Math.round(profilComplet+noteMoyenne+nbAvis+photos+vues+activite),100);
-  await supabase.from('wozali_prestataires').update({score_wozali:total}).eq('user_id',userId);
-  return total;
-}
-function calculerCompletudeProfile(p){const c=[p.nom_complet||p.nom,p.telephone,p.metier_principal||p.metier,p.description_services||p.description,p.photo_profil||p.photo_url,p.ville,p.quartier,p.tarif_min];return c.filter(Boolean).length/c.length*100;}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  if(typeof window!=='undefined'&&window.currentUser&&window.currentUser.id){
-    afficherWidgetBourse(window.currentUser.id);
-  }
-});
+// recalculerScoreWozali / majActiviteEtScore supprimés (écrivaient score_wozali depuis le
+// navigateur). Un fallback no-op window.majActiviteEtScore est installé plus bas dans ce fichier
+// pour les appelants existants ; le vrai recalcul se fait uniquement côté serveur (cron score-wozali).
 
 // =========================================================
 // === Sprint 4 — Top 50 + WOZALI Match ========
@@ -253,7 +189,7 @@ async function calculerMatchsCandidatPourDashboard(userId){
   try{
     const {data:p}=await supabase.from('wozali_prestataires').select('metier_principal, ville, pays, score_wozali').eq('user_id',userId).maybeSingle();
     if(!p)return [];
-    const {data:offres}=await supabase.from('offres_emploi').select('*').eq('actif',true).limit(50);
+    const {data:offres}=await supabase.from('wozali_offres_emploi').select('*').eq('active',true).limit(50);
     if(!offres)return [];
     const mProfil=normaliserMetier(p.metier_principal||p.metier);
     return offres.map(o=>{
@@ -285,6 +221,7 @@ async function calculerMatchsEmployeurPourOffre(offre){
 
 async function afficherMatchsDashboard(userId){
   const c=document.getElementById('section-matchs-prioritaires');if(!c)return;
+  if(!userId)return;
   const matchs=await calculerMatchsCandidatPourDashboard(userId);
   if(!matchs.length){c.innerHTML=`<div class="matchs-header"><h4>🎯 Offres pour toi</h4></div><p class="matchs-vide">Pas de match aujourd'hui. On t'alerte dès qu'une offre correspond.</p><button class="match-btn" onclick="activerAlerteMatch('${userId}')">Activer les alertes</button>`;return;}
   c.innerHTML=`<div class="matchs-header"><h4>🎯 Offres prioritaires pour toi</h4><p>Ton profil matche avec ${matchs.length} offre(s).</p></div><div class="matchs-liste">${matchs.map(o=>`<div class="match-card"><div class="match-score-badge">${o.match_score}%</div><div class="match-info"><strong>${o.titre||o.metier||'Offre'}</strong><span>${o.ville||''} ${o.pays?('· '+o.pays):''}</span></div><button class="match-btn" onclick="showPage('emploi')">Voir</button></div>`).join('')}</div><a class="voir-toutes-offres" href="#" onclick="showPage('emploi');return false;">Voir toutes les offres →</a>`;
@@ -302,22 +239,24 @@ async function afficherTalentsRecommandesApresPublication(offre){
 }
 // alias sans "Apres" au cas où référencé
 const afficherTalentsRecommandesAprePublication=afficherTalentsRecommandesApresPublication;
+window.afficherMatchsDashboard=afficherMatchsDashboard;
 
-// --- Realtime offres_emploi ---
+// --- Realtime wozali_offres_emploi ---
 try{
   if(typeof supabase!=='undefined'&&supabase?.channel){
-    supabase.channel('offres_emploi_realtime').on('postgres_changes',{event:'INSERT',schema:'public',table:'offres_emploi'},(payload)=>{
+    supabase.channel('offres_emploi_realtime').on('postgres_changes',{event:'INSERT',schema:'public',table:'wozali_offres_emploi'},(payload)=>{
       if(window.currentUser?.id)afficherMatchsDashboard(window.currentUser.id);
     }).subscribe();
   }
 }catch(e){console.warn('[realtime offres]',e);}
 
 // --- Auto-init Sprint 4 ---
+// afficherMatchsDashboard(userId) n'est plus appelée ici : au DOMContentLoaded,
+// window.currentUser n'est pas encore chargé (race condition avec initAuth), donc
+// section-matchs-prioritaires restait vide silencieusement. Elle est maintenant
+// appelée depuis loadDashOverview() (app.js) une fois le profil réellement chargé.
 document.addEventListener('DOMContentLoaded',()=>{
   try{afficherTop50('tous');}catch(e){}
-  if(window.currentUser?.id){
-    try{afficherMatchsDashboard(window.currentUser.id);}catch(e){}
-  }
 });
 
 
@@ -1521,16 +1460,12 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
           }
         }
 
-        // B) Bourse de Croissance : classement le dernier vendredi du mois, notif J-1 (jeudi)
-        var now = new Date();
-        var isTwentyNinth = now.getDay() === 4 && (prochainVendrediFinMois() - now.getTime()) < 86400000 * 1.5;
-        if (isTwentyNinth && (f['Abonnement']||'Base') !== 'Base') {
-          var lastBourse = localStorage.getItem('wozali_notif_bourse_date');
-          if (lastBourse !== today) {
-            window.wozaliNotifPush(window.currentPrestataire.id, 'bourse', {});
-            localStorage.setItem('wozali_notif_bourse_date', today);
-          }
-        }
+        // B) Notification J-1 Bourse SUPPRIMÉE (VAGUE 0b, 2026-07-21).
+        // Elle annonçait un classement à date fixe, calculé côté client par
+        // prochainVendrediFinMois(). Or la Bourse reste verrouillée tant que le
+        // pays n'a pas atteint le seuil de membres Pro : la notification promettait
+        // donc un versement qui n'aurait pas lieu. Le rappel sera renvoyé par le
+        // serveur, et seulement pour les pays réellement débloqués.
       } catch(e) { console.warn('cron notif client:', e); }
     }, 3000);
   });
@@ -1565,7 +1500,7 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
       { icon:'crown',     eyebrow:'Ta valeur',     title:"Fini de demander. Fini de quémander.", text:"Combien de fois t'as dû connaître quelqu'un pour décrocher un contrat ? Ici c'est différent. Ton travail parle à ta place. Tu ne demandes plus une faveur, tu montres ce que tu sais faire. Ta valeur a enfin une place.", primary:'Suivant' },
       { icon:'map-pin',   eyebrow:'Tes clients',   title:"Tes clients te trouvent. Sans réseau.", text:"Le client de Bè qui cherche un coiffeur. La famille d'Akpakpa qui veut un mécano. La mariée d'Adidogomé qui cherche une couturière. Ton GPS, ton WhatsApp, tes avis vérifiés. Ils te trouvent en 30 secondes et te contactent direct. Tu vends plus, plus souvent.", primary:'Suivant' },
       { icon:'briefcase', eyebrow:"L'emploi",      title:"Trouver un job, sans galère.", text:"Marre des annonces floues et des « envoie ton CV et attends » ? Marre qu'on te demande des choses en échange d'un poste ? Sur WOZALI, les offres sont claires : métier, quartier, salaire affiché, contact direct. Tu postules en deux clics depuis ton téléphone. On te choisit pour ton travail, pas pour tes relations.", primary:'Suivant' },
-      { icon:'trophy',    eyebrow:'La récompense', title:"Ton sérieux te rapporte. Chaque mois.", text:"Chaque mois, WOZALI verse un salaire à ses membres les plus sérieux. Pas une promesse, un virement. La Bourse de Croissance : les 10 meilleurs profils du mois de ton pays gagnent chacun un salaire. Classement 100% mérite : tes avis clients, ta note, ta constance. Pas tes abonnés. Ton travail te paye enfin.", primary:'Suivant' },
+      { icon:'trophy',    eyebrow:'La récompense', title:"Ton sérieux te rapporte. Chaque mois.", text:"Chaque mois, WOZALI verse un salaire à ses membres les plus sérieux. La Bourse de Croissance : les 10 meilleurs profils du mois de ton pays gagnent chacun un salaire, crédité sur leur compte WOZALI. Classement 100% mérite : tes avis clients, ta note, ta constance. Pas tes abonnés. Ton travail te paye enfin.", primary:'Suivant' },
       { icon:'sparkles',  eyebrow:'Bienvenue',     title:"WOZALI t'appartient.", text:"Tu as fait le premier pas que beaucoup n'osent pas faire. À partir d'aujourd'hui, ton travail te ramène des clients, pas des faveurs. Ajoute tes photos, complète ton profil, et laisse ton travail parler. Bienvenue sur WOZALI. Ta place est ici, et elle t'attendait.", primary:'Voir mon espace' }
     ];
     var idx = 0;

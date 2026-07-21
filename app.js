@@ -12326,7 +12326,16 @@ async function loadParrainage() {
       const _to = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000));
       const r = await Promise.race([wozaliFetch(`/api/wozali-pay/parrainage-stats`), _to]);
       const d = await r.json();
-      if (d?.ok) supabaseCode = d.code_parrainage || '';
+      if (d?.ok) {
+        supabaseCode = d.code_parrainage || '';
+        // VAGUE 0b (2026-07-21) : les commissions viennent du serveur, plus des
+        // champs 'Commission Disponible/Totale FCFA' qui n'existent dans aucune
+        // table et affichaient donc 0 FCFA à vie.
+        window._parrainCommissions = {
+          dispo: Number(d.solde_disponible ?? d.ce_mois ?? 0) || 0,
+          total: Number(d.total_commissions ?? 0) || 0
+        };
+      }
     }
   } catch(e) { console.warn('[parrainage] supabase fetch:', e); }
 
@@ -12343,8 +12352,9 @@ async function loadParrainage() {
   const isBase = plan === 'Base';
 
   const code = supabaseCode || f['Code Parrainage'] || '';
-  const commDisp = f['Commission Disponible FCFA'] || 0;
-  const commTotal = f['Commission Totale FCFA'] || 0;
+  const _comm = window._parrainCommissions || { dispo: 0, total: 0 };
+  const commDisp = _comm.dispo;
+  const commTotal = _comm.total;
   const refLink = 'https://wozali.africa?ref=' + code;
 
   // Mettre à jour les chiffres
@@ -12358,8 +12368,8 @@ async function loadParrainage() {
 
   const features = [
     { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes : chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.africa?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
-    { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#FCE0A8;border:1px solid #E8940A;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+2 500 FCFA</div></div>`).join('')}</div>` },
-    { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#6b7280;">5 filleuls</span><span style="color:var(--or);font-weight:800;">12 500 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">20 filleuls</span><span style="color:var(--or);font-weight:800;">50 000 FCFA/mois</span></div></div>` },
+    { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#FCE0A8;border:1px solid #E8940A;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+1 000 FCFA/mois</div></div>`).join('')}</div>` },
+    { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#6b7280;">5 filleuls</span><span style="color:var(--or);font-weight:800;">5 000 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">20 filleuls</span><span style="color:var(--or);font-weight:800;">20 000 FCFA/mois</span></div></div>` },
   ];
 
   lockableEls.forEach(el => {
@@ -12514,7 +12524,7 @@ function _renderFilleulsCRM(filleuls) {
       const planColor = plan === 'Pro' ? '#f59e0b' : '#9ca3af';
       const planBg    = plan === 'Pro' ? '#fffbeb' : '#f9fafb';
 
-      const waMsg = encodeURIComponent(`Bonjour ${nom} ! 👋\nJe vois que tu es encore sur le plan gratuit WOZALI. Pour seulement 2 500 FCFA/mois, le plan Pro te donne accès à plus de visibilité, le système de paiement et bien plus. Tu veux qu'on en parle ? 😊`);
+      const waMsg = encodeURIComponent(`Bonjour ${nom} ! 👋\nJe vois que tu es encore sur le plan gratuit WOZALI. Pour seulement 2 500 FCFA/mois, le plan Pro te donne la priorité dans les résultats, la Bourse de Croissance et le chat libre avec Sandy. Tu veux qu'on en parle ? 😊`);
 
       return `
       <div style="border-radius:12px;margin-bottom:6px;border:1.5px solid ${isPro ? '#f0f0f0' : '#fde68a'};overflow:hidden;transition:.15s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
@@ -13276,10 +13286,11 @@ async function addCommissionToParrain(parrainCode, amount, filleulNom) {
 
 function requestWithdrawal() {
   if (!currentPrestataire) return;
-  const commDisp = currentPrestataire.fields['Commission Disponible FCFA'] || 0;
+  // VAGUE 0b : valeur serveur (parrainage-stats), plus le champ fantôme.
+  const commDisp = (window._parrainCommissions || {}).dispo || 0;
   if (commDisp < 3000) { toast('Minimum de retrait : 3 000 FCFA (3 filleuls actifs)', 'error'); return; }
   // Pré-remplir le modal
-  const phone = (currentPrestataire.fields['Numéro de téléphone'] || '').replace(/\D/g,'').replace(/^(228|00228)/, '');
+  const phone = (currentPrestataire.fields['Numéro de téléphone'] || '').replace(/\D/g,'').replace(/^(00228|00229|228|229)/, '');
   const el = document.getElementById('retrait-phone-input');
   if (el) el.value = phone;
   const amountEl = document.getElementById('retrait-modal-amount');
@@ -13381,6 +13392,21 @@ function sp6ShowSuccess(){
 
 
 
+// Lit pays_debloque / nb_pro_pays / seuil_pro depuis la réponse recompenses-status.
+// Repli sûr : si l'API ne renvoie pas encore ces champs, debloque reste undefined
+// (jamais false ni true) — dans ce cas précis, _widgetBourse n'affiche aucun compte à rebours.
+function _extractPaysInfo(d) {
+  const b = d && d.bourse || {};
+  return {
+    debloque: (typeof d?.pays_debloque === 'boolean') ? d.pays_debloque
+             : (typeof b.pays_debloque === 'boolean') ? b.pays_debloque
+             : undefined,
+    nbPro: d?.nb_pro_pays ?? b.nb_pro_pays,
+    seuil: d?.seuil_pro ?? b.seuil_pro,
+    paysLabel: b.pays || d?.pays || null,
+  };
+}
+
 // ══ SPRINT 7 — WIDGETS RÉCOMPENSES DASHBOARD ══
 async function loadRecompensesWidgets() {
   const host = document.getElementById('recompenses-widgets');
@@ -13439,9 +13465,10 @@ async function loadRecompensesWidgets() {
     const heures = Math.floor((tirageRestant % 86400000) / 3600000);
     const minutes = Math.floor((tirageRestant % 3600000) / 60000);
     const countdownStr = tirageRestant > 0 ? `${jours}j ${heures}h ${minutes}min` : 'Résultats imminents';
+    const paysInfo = _extractPaysInfo(d);
 
     host.innerHTML = `
-      ${_widgetBourse(d.bourse, countdownStr)}
+      ${_widgetBourse(d.bourse, countdownStr, paysInfo)}
       <div style="height:20px"></div>
       ${_widgetPalmares(d.palmares)}
     `;
@@ -13450,8 +13477,61 @@ async function loadRecompensesWidgets() {
   }
 }
 
-function _widgetBourse(bourse, countdown) {
+// ══ VAGUE 0b — Widget Bourse compact pour la vue d'ensemble du dashboard (#widget-bourse) ══
+// Remplace l'ancien moteur client app3.js::afficherWidgetBourse (supprimé). Appelée depuis
+// loadDashOverview() une fois currentUser/currentPrestataire chargés — jamais au DOMContentLoaded.
+async function chargerWidgetBourseOverview() {
+  const host = document.getElementById('widget-bourse');
+  if (!host || !currentUser?.id) return;
+  const plan = currentPrestataire?.fields?.['Abonnement'] || 'Base';
+  if (plan === 'Base') { host.innerHTML = ''; return; }
+  try {
+    const r = await wozaliFetch(`/api/wozali-pay/recompenses-status?user_id=${currentUser.id}`);
+    const d = await r.json();
+    if (!d.ok) { host.innerHTML = ''; return; }
+    const tirage = new Date(d.tirage_date);
+    const rest = Math.max(0, tirage - new Date());
+    const j = Math.floor(rest / 86400000), h = Math.floor((rest % 86400000) / 3600000), m = Math.floor((rest % 3600000) / 60000);
+    const countdownStr = rest > 0 ? `${j}j ${h}h ${m}min` : 'Résultats imminents';
+    const paysInfo = _extractPaysInfo(d);
+    host.innerHTML = _widgetBourse(d.bourse, countdownStr, paysInfo);
+  } catch(e) {
+    console.warn('[widget-bourse overview]', e);
+    host.innerHTML = '';
+  }
+}
+
+// Jauge "pays verrouillé" — affichée tant que le pays du membre n'a pas atteint le seuil
+// de déblocage (5 000 Pro). Met en avant l'acquis + la course entre pays, jamais "il manque X".
+function _widgetBoursePaysVerrouille(nbPro, seuil, paysLabel) {
+  const n = Number.isFinite(nbPro) ? nbPro : null;
+  const s = Number.isFinite(seuil) ? seuil : 5000;
+  const pct = n != null ? Math.min(100, Math.round((n / s) * 100)) : null;
+  return `
+    <div style="background:#1E180E;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(252, 224, 168,.3)">🔒</div>
+        <div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#FCE0A8;margin:0">Bourse de Croissance · Un salaire × 10</h3>
+          <p style="font-size:12px;color:rgba(252, 224, 168,.5);margin:2px 0 0">${paysLabel ? escapeHtml(paysLabel) + ' ' : ''}en course pour débloquer sa Bourse</p>
+        </div>
+      </div>
+      ${n != null ? `
+      <div style="margin-bottom:6px;display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;font-weight:700">
+        <span>${n.toLocaleString('fr-FR')} membres Pro déjà acquis</span>
+        <span>${pct}%</span>
+      </div>
+      <div style="height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:#E8940A;border-radius:4px"></div>
+      </div>` : ''}
+      <p style="font-size:12.5px;color:rgba(252, 224, 168,.6);margin-top:12px;line-height:1.6">La Bourse s'ouvre au premier pays qui atteint ${s.toLocaleString('fr-FR')} membres Pro. Togo contre Bénin, chaque nouveau Pro rapproche ton pays de la ligne. Ton Score WOZALI travaille déjà pour toi en attendant.</p>
+      <button onclick="showPage('fonctionnement')" style="margin-top:14px;background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">Voir comment améliorer mon score</button>
+    </div>`;
+}
+
+function _widgetBourse(bourse, countdown, paysInfo) {
   const { etat, conditions, gagnant_nom, montant } = bourse;
+  const debloque = paysInfo ? paysInfo.debloque : undefined;
 
   if (etat === 'gagnant') {
     return `
@@ -13459,7 +13539,7 @@ function _widgetBourse(bourse, countdown) {
         <div style="font-size:48px;margin-bottom:8px">🏆</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es classé(e) dans la Bourse de Croissance !</h3>
         <div style="font-family:'Geist Mono',monospace;font-size:36px;font-weight:900;color:#FCE0A8;margin-bottom:12px">${montant.toLocaleString('fr-FR')} FCFA</div>
-        <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Le virement sera effectué sous 48h.</p>
+        <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Versé en Crédit WOZALI sur ton compte.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Mon abonnement</button>
           <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('🏆 Je fais partie des 10 meilleurs profils de la Bourse de Croissance WOZALI ! Un salaire pour les membres Pro les plus méritants. Rejoins WOZALI : wozali.africa'),'_blank')" style="background:#25D366;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Partager sur WhatsApp</button>
@@ -13477,21 +13557,28 @@ function _widgetBourse(bourse, countdown) {
       </div>`;
   }
 
+  // Tant que le pays n'a pas débloqué sa Bourse, aucun compte à rebours : jauge + statut d'abord.
+  if (debloque === false) {
+    return _widgetBoursePaysVerrouille(paysInfo && paysInfo.nbPro, paysInfo && paysInfo.seuil, paysInfo && paysInfo.paysLabel);
+  }
+
   if (etat === 'eligible') {
+    // Repli sûr : si on ne sait pas si le pays est débloqué (champ absent), pas de compte à rebours.
+    const countdownBlock = debloque === true
+      ? `<div style="background:rgba(232,148,10,.1);border-radius:10px;padding:12px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:700">⏱️ Résultats dans ${countdown}</div>`
+      : `<div style="background:rgba(232,148,10,.1);border-radius:10px;padding:12px;font-size:13px;color:#E8940A;font-weight:700">Résultats dès que ton pays débloque sa Bourse</div>`;
     return `
       <div style="background:rgba(232,148,10,.05);border:2px solid rgba(232,148,10,.4);border-radius:16px;padding:24px;text-align:center">
         <div style="font-size:36px;margin-bottom:8px;animation:pulse 2s infinite">🏆</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es dans la course pour la Bourse de Croissance !</h3>
         <div style="font-family:'Geist Mono',monospace;font-size:28px;font-weight:900;color:#FCE0A8;margin-bottom:12px">Un salaire</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px">
-          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Pro 2+ mois</span>
+          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Pro actif</span>
           <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Score ≥ 80</span>
-          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ 4+ avis</span>
+          <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ 3+ avis</span>
           <span style="background:rgba(232,148,10,.15);color:#E8940A;padding:4px 10px;border-radius:6px;font-size:12px">✓ Note ≥ 4.2</span>
         </div>
-        <div style="background:rgba(232,148,10,.1);border-radius:10px;padding:12px;font-family:'Geist Mono',monospace;font-size:14px;color:#E8940A;font-weight:700">
-          ⏱️ Résultats dans ${countdown}
-        </div>
+        ${countdownBlock}
         <p style="font-size:12px;color:rgba(252, 224, 168,.4);margin-top:8px">Score actuel : ${conditions?.score_actuel || '—'}/100</p>
       </div>`;
   }
@@ -13512,7 +13599,7 @@ function _widgetBourse(bourse, countdown) {
       <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:12px">
         ${check(conds.estPro, `Plan Pro actif ce mois`)}
         ${check(conds.score_80, `Score WOZALI : ${conds.score_actuel || 0}/100 (minimum 80)`)}
-        ${check(conds.avis_4, `Avis ce mois : ${conds.nb_avis_actuel || 0}/4 (minimum 4)`)}
+        ${check(conds.avis_4, `Avis (30j) : ${conds.nb_avis_actuel || 0}/3 (minimum 3)`)}
         ${check(conds.note_42, `Note moyenne : ${(conds.note_actuelle || 0).toFixed(1)}/5 (minimum 4.2)`)}
       </div>
       <button onclick="showPage('fonctionnement')" style="margin-top:14px;background:rgba(232,148,10,.15);color:#E8940A;border:1px solid rgba(232,148,10,.3);padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;width:100%">Voir comment améliorer mon score</button>
@@ -13552,8 +13639,8 @@ async function loadPageRecompenses() {
   // Jauges Bourse par pays (Pro/5000) — rafraîchies à chaque ouverture de la page
   try { if (window.chargerJaugesBourse) window.chargerJaugesBourse(); } catch(e) { console.warn('[jauges bourse]', e); }
 
-  // 🆕 Section TikTok partagée + Checklists dynamiques (si user connecté)
-  try { renderTikTokSharedSection(); } catch(e) { console.warn('[tiktok shared]', e); }
+  // Checklist dynamique (si user connecté) — le bloc TikTok partagé a été retiré
+  // (le backend ne renvoie plus ces conditions, #recomp-tiktok-shared n'existe plus dans le DOM)
   try { loadChecklistsRecompenses(); } catch(e) { console.warn('[checklists recompenses]', e); }
 
   try {
@@ -13584,55 +13671,10 @@ async function loadPageRecompenses() {
 // 🆕 Refonte Récompenses 2026-05-15 — TikTok partagé + Checklists
 // ════════════════════════════════════════════════════════════════
 
-function renderTikTokSharedSection() {
-  const box = document.getElementById('recomp-tiktok-shared');
-  if (!box) return;
-  if (!currentUser || !currentPrestataire) {
-    box.style.display = 'none';
-    return;
-  }
-  box.style.display = 'block';
-
-  const f = currentPrestataire.fields || {};
-  const slots = [
-    { key: 'tiktok_suivi_wozali',  iconId: 'tiktok-icon-wozali', btnId: 'tiktok-btn-wozali' },
-    { key: 'tiktok_suivi_schealtiel',  iconId: 'tiktok-icon-schealtiel',  btnId: 'tiktok-btn-schealtiel' },
-    { key: 'insta_suivi_wozali',   iconId: 'insta-icon-wozali',   btnId: 'insta-btn-wozali' },
-    { key: 'insta_suivi_schealtiel',   iconId: 'insta-icon-schealtiel',   btnId: 'insta-btn-schealtiel' },
-  ];
-  slots.forEach(({ key, iconId, btnId }) => {
-    const ok = Boolean(f[key]);
-    const icon = document.getElementById(iconId);
-    const btn  = document.getElementById(btnId);
-    if (icon) icon.textContent = ok ? '✅' : '⭕';
-    if (btn) {
-      btn.innerHTML = ok ? '✓ Déclaré' : '☐ Déclaré';
-      btn.style.background = ok ? '#E8940A' : 'transparent';
-      btn.style.color = ok ? '#14100A' : '#E8940A';
-    }
-  });
-}
-
-async function toggleTikTokSuivi(field) {
-  if (!currentPrestataire) {
-    toast('Connecte-toi pour valider', 'error');
-    return;
-  }
-  const f = currentPrestataire.fields || {};
-  const newVal = !Boolean(f[field] || f[field.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase())]);
-  try {
-    if (window.supaPrest && typeof window.supaPrest.update === 'function') {
-      await window.supaPrest.update(currentPrestataire.id, { [field]: newVal });
-    }
-    currentPrestataire.fields[field] = newVal;
-    renderTikTokSharedSection();
-    loadChecklistsRecompenses(); // refresh ratio
-    toast(newVal ? 'Merci ! Tu marques +1 condition.' : 'Décoché.', 'success');
-  } catch (e) {
-    console.warn('[toggleTikTokSuivi]', e);
-    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
-  }
-}
+// renderTikTokSharedSection / toggleTikTokSuivi supprimées (VAGUE 0b, 2026-07-21) : le backend
+// ne renvoie plus les conditions tiktok_wolomarket/tiktok_schealtiel/insta_suivi_wozali/
+// insta_suivi_schealtiel, #recomp-tiktok-shared n'existe plus dans le DOM. Toute condition
+// TikTok/handle a été purgée du modèle Bourse définitif (voir renderChecklist ci-dessous).
 
 async function loadChecklistsRecompenses() {
   if (!currentUser) return;
@@ -13668,10 +13710,6 @@ function renderChecklist(prefix, d) {
     note_42: 'Note moyenne ≥ 4.2★ sur 30 jours',
     activite_recente: 'Connexion récente (≤ 14 jours)',
     pas_gagne_recent: 'Pas gagné dans les 3 derniers mois',
-    tiktok_wolomarket: '⚡ Bonus : Suivre @wozali sur TikTok',
-    tiktok_schealtiel: '⚡ Bonus : Suivre @schealtiellawson sur TikTok',
-    insta_suivi_wozali: '⚡ Bonus : Suivre @wozali sur Instagram',
-    insta_suivi_schealtiel: '⚡ Bonus : Suivre @schealtiellawson sur Instagram',
   };
 
   const conds = d.conditions || {};

@@ -147,12 +147,16 @@ async function traiterPays(pays, moisCourant) {
       .eq('id', gagnant.id);
 
     // 7. Enregistrer dans gains_recompenses
+    // Statut 'credite' (pas 'versé') : le gain est crédité en Crédit WOZALI
+    // (solde interne), pas viré. Aucune contrainte CHECK sur cette colonne
+    // (migration 20260412_sprint7_recompenses.sql, statut a un DEFAULT sans
+    // CHECK) donc 'credite' est accepté sans migration supplémentaire.
     await supabase.from('gains_recompenses').insert({
       user_id: gagnant.user_id,
       type: 'bourse_croissance',
       montant,
       mois: moisCourant,
-      statut: 'versé',
+      statut: 'credite',
     });
 
     // 8. Notification

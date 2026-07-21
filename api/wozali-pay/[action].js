@@ -9,16 +9,16 @@ import parrainageApply from './_impl/parrainage-apply.js';
 import abonnementFedapay from './_impl/abonnement-fedapay.js';
 // Récompenses
 import recompensesStatus from './_impl/recompenses-status.js';
-import awardsCandidats from './_impl/awards-candidats.js';
-import awardsVote from './_impl/awards-vote.js';
-import awardsCandidater from './_impl/awards-candidater.js';
+// awards-candidats / awards-vote / awards-candidater désinscrites du routeur
+// 2026-07-21 (purge WOZALI Awards, alignement Bourse de Croissance seule).
+// Fichiers _impl/ conservés en stub 410 (même pattern que mdr-*).
 // Admin
 import adminVerify from './_impl/admin-verify.js';
 import agentsTerrain from './_impl/agents-terrain.js';
 // Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP début juillet)
 // Imports retirés : invitation-create / invitation-get / invitation-accept / paie-pay / paie-bulletin / annonces-broadcast
 // Les fichiers _impl/ sont conservés pour réactivation future
-// Sprint 14 — Bourse des Mains d'Or + King & Queen
+// Sprint 14 — Bourse des Mains d'Or (feed photos, historique — voir purges ci-dessous)
 import feedList from './_impl/feed-list.js';
 import feedPost from './_impl/feed-post.js';
 import feedLike from './_impl/feed-like.js';
@@ -105,8 +105,8 @@ import employeUpdate from './_impl/employe-update.js';
 
 const PUBLIC_ACTIONS = new Set([
   'temoignage-list',           // lecture publique (texte + mois seulement) ; admin via Bearer optionnel
-  'awards-candidats',
-  // 'awards-vote' retiré 2026-07-10 : doit être authentifié (le votant vient du token, anti-fraude)
+  // 'awards-candidats' / 'awards-vote' / 'awards-candidater' retirées du routeur
+  // 2026-07-21 (purge WOZALI Awards) — voir les imports plus haut.
   'recompenses-status',
   'admin-verify',
   'agents-terrain',
@@ -160,9 +160,7 @@ const handlers = {
   'parrainage-apply': parrainageApply,
   'abonnement-fedapay': abonnementFedapay,
   'recompenses-status': recompensesStatus,
-  'awards-candidats': awardsCandidats,
-  'awards-vote': awardsVote,
-  'awards-candidater': awardsCandidater,
+  // 'awards-candidats' / 'awards-vote' / 'awards-candidater' désinscrites 2026-07-21
   'admin-verify': adminVerify,
   'agents-terrain': agentsTerrain,
   'feed-list': feedList,

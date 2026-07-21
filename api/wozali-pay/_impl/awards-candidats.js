@@ -1,61 +1,17 @@
 // ================================================================
-// WOZALI Awards — Liste des candidats du mois
-// GET /api/wozali-pay/awards-candidats?mois=YYYY-MM&pays=BJ|TG
+// WOZALI Awards — DÉPRÉCIÉ 2026-07-21
 // ================================================================
-import { supabase } from '../../_lib/supabase.js';
+// Supprimé par décision fondateur : une seule récompense subsiste,
+// la Bourse de Croissance (par pays, 10 gagnants/pays/mois au mérite,
+// gain = un salaire, le SMIG du pays). Voir bourse-eligibilite.js et
+// api/cron/tirage-bourse.js. Désinscrit du routeur
+// (api/wozali-pay/[action].js) — ce stub reste sur disque en cas
+// d'appel direct oublié quelque part.
+// ================================================================
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' });
-
-  const mois = req.query.mois || new Date().toISOString().slice(0, 7);
-  const pays = req.query.pays; // optionnel, filtre par pays
-
-  try {
-    let query = supabase
-      .from('wozali_awards')
-      .select('id, user_id, pays, video_url, video_validee, nb_votes, gagnant, vice_champion, created_at')
-      .eq('mois', mois)
-      .eq('video_validee', true)
-      .order('nb_votes', { ascending: false });
-
-    if (pays) query = query.eq('pays', pays);
-
-    const { data: candidats, error } = await query;
-    if (error) throw error;
-
-    // Enrichir avec noms + photos depuis profiles
-    const userIds = (candidats || []).map(c => c.user_id);
-    let profilesMap = {};
-    if (userIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from('wozali_prestataires')
-        .select('user_id, nom_complet, ville, photo_profil')
-        .in('user_id', userIds);
-      for (const p of (profiles || [])) profilesMap[p.user_id] = p;
-    }
-
-    // Enrichir avec Airtable (photo, métier)
-    const AIRTABLE_BASE = process.env.AIRTABLE_BASE_ID;
-    const AT_HEADERS = { Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}` };
-
-    const enrichis = (candidats || []).map(c => {
-      const p = profilesMap[c.user_id] || {};
-      return {
-        id: c.id,
-        user_id: c.user_id,
-        nom: p.nom_complet || '—',
-        pays: c.pays || (p.ville && /cotonou|porto|abomey|parakou|bohicon/i.test(p.ville) ? 'BJ' : (p.ville ? 'TG' : '')) || '',
-        photo: p.photo_profil || '',
-        video_url: c.video_url,
-        nb_votes: c.nb_votes || 0,
-        gagnant: c.gagnant,
-        vice_champion: c.vice_champion,
-      };
-    });
-
-    return res.status(200).json({ ok: true, mois, candidats: enrichis });
-  } catch (err) {
-    console.error('[awards-candidats]', err);
-    return res.status(500).json({ error: 'Erreur interne' });
-  }
+  return res.status(410).json({
+    error: 'Endpoint déprécié',
+    message: 'WOZALI Awards est supprimé. Seule la Bourse de Croissance (par pays, au mérite) est active — voir bourse-eligibilite / api/cron/tirage-bourse.js.',
+  });
 }

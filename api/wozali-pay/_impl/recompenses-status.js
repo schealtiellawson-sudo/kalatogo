@@ -8,7 +8,7 @@
 // api/cron/tirage-bourse.js pour le calcul des gagnants.
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
-import { SMIG_PAR_PAYS } from '../../_lib/smig.js';
+import { SMIG_PAR_PAYS, SEUIL_PRO_DEBLOCAGE, MIN_AVIS_30J, MIN_MOIS_PRO, MIN_SCORE_WOZALI, MIN_NOTE_MOYENNE } from '../../_lib/smig.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' });
@@ -38,6 +38,20 @@ export default async function handler(req, res) {
         .eq('user_id', user_id)
         .maybeSingle();
       userPays = profilUser?.pays || null;
+    }
+
+    // État de déblocage du pays du membre (le front cesse d'afficher un
+    // countdown vers un tirage qui n'aura pas lieu si le seuil n'est pas atteint).
+    let nbProPays = 0;
+    let paysDebloque = false;
+    if (userPays) {
+      const { count } = await supabase
+        .from('wozali_prestataires')
+        .select('*', { count: 'exact', head: true })
+        .eq('abonnement', 'Pro')
+        .eq('pays', userPays);
+      nbProPays = count || 0;
+      paysDebloque = nbProPays >= SEUIL_PRO_DEBLOCAGE;
     }
 
     // Tous les gagnants du mois courant, toutes pays confondus (jusqu'à
@@ -76,18 +90,23 @@ export default async function handler(req, res) {
         .join(', ') || null;
     }
 
-    // Montant applicable au membre : ce qu'il a réellement gagné s'il est
-    // gagnant, sinon le SMIG de son pays (le montant qu'il gagnerait).
-    const montantBourse = bourse?.montant_gagne || SMIG_PAR_PAYS[userPays] || SMIG_PAR_PAYS[paysAffiche] || null;
+    // Montant applicable au membre : ce qu'il a RÉELLEMENT gagné uniquement
+    // s'il est gagnant (montant_gagne a un DEFAULT en base, ne jamais s'y fier
+    // pour un non-gagnant) ; sinon le SMIG de son pays (le montant qu'il
+    // gagnerait s'il était classé).
+    const montantBourse = (bourse?.gagnant && bourse?.montant_gagne)
+      ? bourse.montant_gagne
+      : (SMIG_PAR_PAYS[userPays] || SMIG_PAR_PAYS[paysAffiche] || null);
 
-    // Conditions détaillées pour le widget (clés alignées sur le front)
+    // Conditions détaillées pour le widget (clés alignées sur le front,
+    // seuils désormais tirés de api/_lib/smig.js — source unique)
     let conditions = null;
     if (bourse) {
       conditions = {
-        estPro: (bourse.pro_mois_consecutifs || 0) >= 1,
-        score_80: (bourse.score_wozali || 0) >= 80,
-        avis_4: (bourse.nb_avis || 0) >= 4,
-        note_42: (bourse.note_moyenne || 0) >= 4.2,
+        estPro: (bourse.pro_mois_consecutifs || 0) >= MIN_MOIS_PRO,
+        score_80: (bourse.score_wozali || 0) >= MIN_SCORE_WOZALI,
+        avis_4: (bourse.nb_avis || 0) >= MIN_AVIS_30J,
+        note_42: (bourse.note_moyenne || 0) >= MIN_NOTE_MOYENNE,
         score_actuel: bourse.score_wozali || 0,
         nb_avis_actuel: bourse.nb_avis || 0,
         note_actuelle: bourse.note_moyenne || 0,
@@ -105,52 +124,9 @@ export default async function handler(req, res) {
       etatBourse = 'eligible';
     }
 
-    // ── WOZALI Awards ──
-    const { data: candidature } = isPublic ? { data: null } : await supabase
-      .from('wozali_awards')
-      .select('*')
-      .eq('user_id', user_id)
-      .eq('mois', moisCourant)
-      .maybeSingle();
-
-    // Gagnant Awards du mois ?
-    const { data: gagnantAwards } = await supabase
-      .from('wozali_awards')
-      .select('user_id, nb_votes')
-      .eq('mois', moisCourant)
-      .eq('gagnant', true)
-      .maybeSingle();
-
-    let gagnantAwardsNom = null;
-    if (gagnantAwards) {
-      const { data: pGA } = await supabase
-        .from('wozali_prestataires')
-        .select('nom_complet')
-        .eq('user_id', gagnantAwards.user_id)
-        .maybeSingle();
-      gagnantAwardsNom = pGA?.nom_complet || null;
-    }
-
-    // Vote de l'utilisateur ce mois
-    const { data: monVote } = isPublic ? { data: null } : await supabase
-      .from('votes_awards')
-      .select('candidat_id')
-      .eq('votant_id', user_id)
-      .eq('mois', moisCourant)
-      .maybeSingle();
-
-    let etatAwards = 'non_candidat';
-    if (candidature?.gagnant) {
-      etatAwards = 'gagnant';
-    } else if (candidature?.vice_champion) {
-      etatAwards = 'vice_champion';
-    } else if (gagnantAwards) {
-      etatAwards = candidature ? 'perdu' : 'non_candidat';
-    } else if (candidature?.video_validee) {
-      etatAwards = 'candidat_actif';
-    } else if (candidature) {
-      etatAwards = 'en_attente_validation';
-    }
+    // WOZALI Awards, bloc de réponse supprimé (purge 2026-07-21 — modèle
+    // remplacé par la Bourse de Croissance seule). Le palmarès historique
+    // (gains_recompenses type='wozali_awards') reste affiché ci-dessous.
 
     // ── Palmarès (6 derniers gagnants) ──
     const { data: palmaresBourse } = await supabase
@@ -199,15 +175,9 @@ export default async function handler(req, res) {
         gagnant_user_id: gagnantBourse?.user_id || null,
         pays: paysAffiche,
         montant: montantBourse,
-      },
-      awards: {
-        etat: etatAwards,
-        candidature: candidature || null,
-        gagnant_nom: gagnantAwardsNom,
-        gagnant_user_id: gagnantAwards?.user_id || null,
-        a_vote: !!monVote,
-        vote_candidat: monVote?.candidat_id || null,
-        montant: 100000,
+        nb_pro_pays: nbProPays,
+        seuil_pro: SEUIL_PRO_DEBLOCAGE,
+        pays_debloque: paysDebloque,
       },
       palmares: {
         bourse: enrichir(palmaresBourse),

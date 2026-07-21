@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260721b">
+<link rel="stylesheet" href="/style.css?v=20260721c">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -945,7 +945,7 @@ setTimeout(function(){
     <div class="container wv2-bourse-inner">
       <span class="wz-eyebrow wz-reveal" style="justify-content:center;">07 · La Bourse de Croissance</span>
       <h2 id="wv2-bourse-title" class="wv2-bourse-h2 wz-reveal" data-d="1">Pas le plus connu.<br><em class="wz-gold-it">Le plus sérieux.</em></h2>
-      <p class="wv2-bourse-sub wz-reveal" data-d="2">Chaque mois, WOZALI verse un salaire aux 10 meilleurs profils du mois. Un vrai salaire, le salaire minimum légal de ton pays, viré sur ton Mobile Money.<br>Le classement regarde ton travail : tes avis clients vérifiés, ta note, ta constance. Jamais tes abonnés. Jamais le hasard.<br>Nouveau mois, nouveau classement, nouveaux gagnants.</p>
+      <p class="wv2-bourse-sub wz-reveal" data-d="2">Chaque mois, WOZALI verse un salaire aux 10 meilleurs profils du mois. Un vrai salaire, le salaire minimum légal de ton pays, versé en Crédit WOZALI.<br>Le classement regarde ton travail : tes avis clients vérifiés, ta note, ta constance. Jamais tes abonnés. Jamais le hasard.<br>Nouveau mois, nouveau classement, nouveaux gagnants.</p>
       <!-- Jauges déblocage (ex-countdown wv2-bourse-cd, data-wv2bcd neutralisé : plus d'éléments [data-wv2bcd] dans le DOM, wv2TickBourse() no-op proprement) -->
       <div class="wv2-bourse-jauges wz-reveal" data-d="2" aria-live="polite" style="max-width:640px;margin:24px auto 0;text-align:left;">
         <p style="font-size:13px;color:rgba(252,224,168,.65);line-height:1.6;margin:0 0 18px;text-align:center;">La Bourse d'un pays s'ouvre à 5 000 membres Pro. En dessous, un classement national ne veut rien dire : trop peu de profils, trop peu d'avis pour départager les meilleurs. La Bourse s'ouvre quand le marché est réel. Quel pays le prouvera en premier ?</p>
@@ -1983,7 +1983,7 @@ setTimeout(function(){
           <input id="post-inscription-ref-link" readonly style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.25);border-radius:10px;padding:10px 12px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:12px;" value="">
           <button onclick="navigator.clipboard.writeText(document.getElementById('post-inscription-ref-link').value);toast('Lien copié !','success')" style="background:#E8940A;color:#14100A;border:none;padding:10px 14px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;">Copier</button>
         </div>
-        <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Salut 👋\n\nTu galères à trouver des clients ? Tu fais ton travail bien mais à 500 m de chez toi personne sait que tu existes ?\n\nJe suis sur WOZALI, la plateforme des pros à Lomé et Cotonou. GPS, WhatsApp direct, avis vérifiés. Mes clients me trouvent enfin.\n\nCrée ton profil gratuit avec mon lien :\n🔗 '+document.getElementById('post-inscription-ref-link').value+'\n\nCe que ça change pour toi :\n✅ Tes premiers vrais clients (sans connaître personne)\n✅ Un salaire chaque mois pour les 10 meilleurs (Bourse de Croissance, 100% mérite)\n✅ 1 000 FCFA/mois × ami que tu invites Pro, chaque mois, à vie\n\n30 amis sur WOZALI = 30 000 FCFA chaque mois automatique. C’est un vrai revenu. Sans bouger de chez toi.\n\nTon travail nourrit. Pas ton réseau.'),'_blank')" style="width:100%;background:#25d366;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">📱 Partager mon lien sur WhatsApp</button>
+        <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Salut 👋\n\nTu galères à trouver des clients ? Tu fais ton travail bien mais à 500 m de chez toi personne sait que tu existes ?\n\nJe suis sur WOZALI, la plateforme des pros à Lomé et Cotonou. GPS, WhatsApp direct, avis vérifiés. Mes clients me trouvent enfin.\n\nCrée ton profil gratuit avec mon lien :\n🔗 '+document.getElementById('post-inscription-ref-link').value+'\n\nCe que ça change pour toi :\n✅ Tes premiers vrais clients (sans connaître personne)\n✅ Un salaire chaque mois pour les 10 meilleurs (Bourse de Croissance, 100% mérite)\n✅ 1 000 FCFA/mois × ami que tu invites Pro, chaque mois, tant qu\'il reste Pro\n\n30 amis sur WOZALI = 30 000 FCFA chaque mois automatique. C’est un vrai revenu. Sans bouger de chez toi.\n\nTon travail nourrit. Pas ton réseau.'),'_blank')" style="width:100%;background:#25d366;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">📱 Partager mon lien sur WhatsApp</button>
         <p style="font-size:11px;color:rgba(252, 224, 168,0.4);margin-top:8px;">5 filleuls Pro = 5 000 FCFA/mois · 20 filleuls Pro = 20 000 FCFA/mois</p>
       </div>
 
@@ -5742,7 +5742,7 @@ setTimeout(function(){
               </div>
               <div class="gains-total">
                 <div class="gains-total-label">Chaque mois, WOZALI verse un salaire à chacun des 10 meilleurs profils Pro du mois de ton pays.</div>
-                <div class="gains-total-montant">Un vrai salaire. Viré sur ton Mobile Money.</div>
+                <div class="gains-total-montant">Un vrai salaire. Versé en Crédit WOZALI.</div>
                 <div class="gains-total-context">Le dernier vendredi du mois, à 18h. Le classement repart à zéro chaque mois : personne ne s'installe, tout le monde a sa chance.</div>
               </div>
               <div class="gains-condition">⚠️ Réservée aux membres Pro, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro). Classement 100% mérite : avis clients vérifiés, note, constance, usage des outils. Pas tes abonnés, pas tes contacts.</div>
@@ -5761,7 +5761,7 @@ setTimeout(function(){
               <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Bourse de Croissance</strong> : <span class="montant-or">chaque mois, les 10 meilleurs profils Pro du mois gagnent un salaire</span>. Toi aussi, si ton travail parle</span></li>
               <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité dans les résultats de recherche</strong> : tu apparais avant les profils gratuits</span></li>
               <li class="avantage-item"><span class="avantage-icon">⭐</span><span class="avantage-texte"><strong>Badge Pro visible</strong> par tous les clients</span></li>
-              <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Parrainage actif</strong> : 1 000 FCFA/filleul/mois, récurrent, à vie</span></li>
+              <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Parrainage actif</strong> : 1 000 FCFA/filleul/mois, chaque mois tant qu'il reste Pro</span></li>
               <li class="avantage-item"><span class="avantage-icon">📈</span><span class="avantage-texte"><strong>Score WOZALI boosté</strong> : monte plus vite dans le classement</span></li>
               <li class="avantage-item"><span class="avantage-icon">💼</span><span class="avantage-texte"><strong>Publier des offres d'emploi</strong> : recrute des profils vérifiés</span></li>
               <li class="avantage-item"><span class="avantage-icon">📊</span><span class="avantage-texte">Statistiques de vues et contacts reçus</span></li>
@@ -5817,9 +5817,6 @@ setTimeout(function(){
           <div class="faq-item"><div class="faq-q">Je peux tester et arrêter si ça me convient pas ?</div><div class="faq-r">Oui : résiliation à tout moment, sans explication, sans pénalité. Tu gardes tous les avantages du mois en cours. Aucun risque.</div></div>
         </div>
 
-        <!-- D. Mur des gagnants -->
-        <div id="mur-gagnants"></div>
-
         <!-- Paiement sécurisé FedaPay -->
         <div style="background:var(--noir);border-radius:16px;padding:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:16px;">
           <div style="flex:1;min-width:200px;">
@@ -5857,8 +5854,8 @@ setTimeout(function(){
           <p>Chaque mois, les 10 meilleurs profils Pro du mois de ton pays gagnent un salaire. Réservé membres Pro.</p>
         </div>
         <div class="dash-explainer">
-          🏆 <strong>C'est quoi la Bourse de Croissance ?</strong> Chaque mois, les 10 membres Pro qui travaillent le mieux dans ton pays reçoivent chacun <strong>un salaire</strong>, le salaire minimum légal de ton pays, directement sur leur Mobile Money. Pas une loterie. Pas un concours de popularité. C'est un classement au mérite : profil complet, avis clients réels, activité régulière, Score WOZALI.<br><br>
-          <strong>Un salaire, versé en un seul virement.</strong> Le classement est calculé automatiquement chaque dernier vendredi du mois à 18h, sur ton Score WOZALI et ton activité. Si tu remplis les conditions, tu es dans la course, sans rien faire de plus.<br><br>
+          🏆 <strong>C'est quoi la Bourse de Croissance ?</strong> Chaque mois, les 10 membres Pro qui travaillent le mieux dans ton pays reçoivent chacun <strong>un salaire</strong>, le salaire minimum légal de ton pays, versé en Crédit WOZALI. Pas une loterie. Pas un concours de popularité. C'est un classement au mérite : profil complet, avis clients réels, activité régulière, Score WOZALI.<br><br>
+          <strong>Un salaire, versé en Crédit WOZALI.</strong> Le classement est calculé automatiquement chaque dernier vendredi du mois à 18h, sur ton Score WOZALI et ton activité. Si tu remplis les conditions, tu es dans la course, sans rien faire de plus.<br><br>
           <strong>Les conditions pour être éligible :</strong> Ton pays a débloqué sa Bourse (5 000 membres Pro atteints) · Plan Pro actif ce mois · Score WOZALI ≥ 80 · Au moins 3 avis clients récents · Note ≥ 4,2★ · Profil actif (connexion dans les 14 derniers jours) · Pas gagné les 3 derniers mois.<br><br>
           <strong>Ce qui ne compte pas :</strong> tes abonnés TikTok ou Instagram, les vues de ton profil, les partages. Zéro point pour l'audience. Un avis n'est vérifié que s'il vient d'un numéro WhatsApp réel, et un même client ne peut te noter qu'une fois par mois. Les 10 premiers sont vérifiés manuellement avant chaque virement.
         </div>
@@ -6096,11 +6093,11 @@ setTimeout(function(){
         </div>
         </div>
 
-        <!-- Guide pratique affiliation --><div style="background:rgba(232,148,10,0.06);border:2px solid rgba(232,148,10,0.35);border-radius:16px;padding:20px 24px;margin-bottom:24px;"><h3 style="color:#E8940A;font-weight:900;margin-bottom:14px;font-size:16px;font-family:Lora,serif;font-style:italic;">Comment gagner avec le parrainage</h3><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">1.</span><span>Copie ton lien de parrainage ci-dessus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">2.</span><span>Partage-le : WhatsApp, TikTok, Instagram, groupes, bouche-à-oreille, marché, campus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">3.</span><span>Chaque personne qui s'inscrit via ton lien apparaît dans ta liste de filleuls</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">4.</span><span><strong style="color:#E8940A;">Chaque filleul qui passe Pro = 1 000 FCFA/mois pour toi, à vie</strong></span></div></div><p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px;">Ton lien trace automatiquement chaque inscription. Tu vois tout ici en temps réel.</p></div>
+        <!-- Guide pratique affiliation --><div style="background:rgba(232,148,10,0.06);border:2px solid rgba(232,148,10,0.35);border-radius:16px;padding:20px 24px;margin-bottom:24px;"><h3 style="color:#E8940A;font-weight:900;margin-bottom:14px;font-size:16px;font-family:Lora,serif;font-style:italic;">Comment gagner avec le parrainage</h3><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">1.</span><span>Copie ton lien de parrainage ci-dessus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">2.</span><span>Partage-le : WhatsApp, TikTok, Instagram, groupes, bouche-à-oreille, marché, campus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">3.</span><span>Chaque personne qui s'inscrit via ton lien apparaît dans ta liste de filleuls</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">4.</span><span><strong style="color:#E8940A;">Chaque filleul qui passe Pro = 1 000 FCFA/mois pour toi, chaque mois tant qu'il reste Pro</strong></span></div></div><p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px;">Ton lien trace automatiquement chaque inscription. Tu vois tout ici en temps réel.</p></div>
         <!-- Retrait -->
         <div class="edit-form-section" style="border:2px solid var(--vert);">
           <h3 style="margin-bottom:8px;">💸 Retirer mes commissions</h3>
-          <p style="font-size:14px;color:var(--gris);margin-bottom:16px;">Minimum 3 000 FCFA (= 3 filleuls actifs). Paiement via TMoney ou Flooz sous 24h.</p>
+          <p style="font-size:14px;color:var(--gris);margin-bottom:16px;">Minimum 3 000 FCFA (= 3 filleuls actifs). Paiement via TMoney, Flooz, MTN Mobile Money ou Moov Money sous 24h.</p>
           <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
             <div style="font-size:24px;font-weight:900;color:var(--vert);font-family:'DM Serif Display',serif;" id="retrait-amount-display">0 FCFA disponible</div>
             <button class="btn btn-primary" id="retrait-btn" onclick="requestWithdrawal()">Demander le retrait →</button>
@@ -6604,7 +6601,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260721b" defer></script>
+<script src="/app.js?v=20260721c" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -7617,13 +7614,27 @@ setTimeout(function(){
               <div style="font-weight:700;font-size:13px;">Wave</div>
             </div>
           </label>
+          <label style="flex:1;min-width:100px;">
+            <input type="radio" name="retrait-method" value="MTN" style="display:none;">
+            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'MTN')" style="border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:white;">
+              <div style="font-size:22px;">📱</div>
+              <div style="font-weight:700;font-size:13px;">MTN MoMo</div>
+            </div>
+          </label>
+          <label style="flex:1;min-width:100px;">
+            <input type="radio" name="retrait-method" value="Moov" style="display:none;">
+            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'Moov')" style="border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:white;">
+              <div style="font-size:22px;">📲</div>
+              <div style="font-weight:700;font-size:13px;">Moov Money</div>
+            </div>
+          </label>
         </div>
       </div>
       <div class="form-group" style="margin-top:16px;">
         <label class="form-label">Numéro de réception</label>
         <input type="tel" id="retrait-phone-input" class="form-input" placeholder="Ex: 90 00 00 00" style="font-size:16px;letter-spacing:1px;">
       </div>
-      <p style="font-size:12px;color:var(--gris);margin-top:8px;">Virement sous 24h après validation. Minimum 3 000 FCFA.</p>
+      <p style="font-size:12px;color:var(--gris);margin-top:8px;">Ta demande est vérifiée avant envoi. Tu reçois l'argent sur ton Mobile Money, et tu es prévenu ici dès que c'est parti. Minimum 3 000 FCFA.</p>
     </div>
     <div class="modal-footer" style="display:flex;gap:10px;">
       <button class="btn" style="flex:1;" onclick="document.getElementById('modal-retrait').classList.remove('active')">Annuler</button>
@@ -7880,8 +7891,8 @@ setTimeout(function(){
         <h2 class="wz-h2">La Bourse, <em class="wz-gold-it">sans zone d'ombre.</em></h2>
       </div>
       <div class="wzf-faq wz-reveal" data-d="1">
-        <div class="faq-item"><div class="faq-q">Un salaire, c'est combien exactement ?</div><div class="faq-r">Le salaire minimum légal de ton pays. Au Togo, 52 500 FCFA. Au Bénin, 52 000 FCFA. WOZALI a choisi le mot salaire parce que c'est exactement ce que c'est : la reconnaissance d'un mois de travail sérieux, versée en un seul virement sur ton Mobile Money.</div></div>
-        <div class="faq-item"><div class="faq-q">D'où vient l'argent ?</div><div class="faq-r">La Bourse est un engagement budgétaire de WOZALI, versé sur ses propres fonds, via FedaPay et CinetPay. WOZALI ne détient jamais l'argent de ses membres. Les virements sont publics, vérifiables, et versés le dernier vendredi du mois.</div></div>
+        <div class="faq-item"><div class="faq-q">Un salaire, c'est combien exactement ?</div><div class="faq-r">Le salaire minimum légal de ton pays. Au Togo, 52 500 FCFA. Au Bénin, 52 000 FCFA. WOZALI a choisi le mot salaire parce que c'est exactement ce que c'est : la reconnaissance d'un mois de travail sérieux, versée en Crédit WOZALI sur ton compte.</div></div>
+        <div class="faq-item"><div class="faq-q">D'où vient l'argent ?</div><div class="faq-r">La Bourse est un engagement budgétaire de WOZALI, financé sur ses propres fonds. WOZALI ne détient jamais l'argent de ses membres. Les gains sont crédités en Crédit WOZALI, visibles sur ton compte, chaque dernier vendredi du mois.</div></div>
         <div class="faq-item"><div class="faq-q">Pourquoi 5 000 membres Pro avant l'ouverture ?</div><div class="faq-r">Par équité. En dessous de 5 000 profils Pro, un classement national ne mesure rien : trop peu de profils, trop peu d'avis pour distinguer les vrais meilleurs. Ouvrir plus tôt, ce serait récompenser au hasard. La Bourse s'ouvre quand le marché est réel et que le classement veut dire quelque chose.</div></div>
         <div class="faq-item"><div class="faq-q">Je peux gagner plusieurs mois de suite ?</div><div class="faq-r">Non. Un gagnant laisse la place pendant 3 mois avant de pouvoir regagner. La Bourse récompense le mérite du mois, jamais les mêmes noms en boucle. Chaque mois, le classement repart à zéro pour tout le monde.</div></div>
         <div class="faq-item"><div class="faq-q">Et si je suis bon mais que mon pays n'a pas encore débloqué ?</div><div class="faq-r">Ton Score WOZALI travaille déjà pour toi : visibilité, clients, avis. Le jour du déblocage, ceux qui ont construit leur profil depuis des mois partent devant. La Bourse ne crée pas les meilleurs. Elle les révèle.</div></div>
@@ -8120,80 +8131,23 @@ setTimeout(function(){
   window.initFaqPro=initFaqPro;
   initFaqPro();
 
-  // Mur des gagnants (Supabase)
-  async function afficherMurGagnants(){
-    var host=document.getElementById('mur-gagnants');
-    if(!host)return;
-    var html='';
-    try{
-      var supa=window.supabase;
-      var records=[];
-      if(supa){
-        var {data}=await supa.from('wozali_awards').select('id,mois,pays,montant,user_id,categorie').eq('gagnant',true).order('created_at',{ascending:false}).limit(6);
-        if(data&&data.length){
-          // Enrich with prestataire data
-          var ids=data.map(function(r){return r.user_id;}).filter(Boolean);
-          var prests={};
-          if(ids.length){
-            var {data:pd}=await supa.from('wozali_prestataires').select('user_id,nom_complet,photo_profil').in('user_id',ids);
-            (pd||[]).forEach(function(p){prests[p.user_id]=p;});
-          }
-          records=data.map(function(r){
-            var p=prests[r.user_id]||{};
-            return {nom:p.nom_complet||'Anonyme',photo:p.photo_profil||null,montant:(r.montant||52500).toLocaleString('fr-FR'),mois:r.mois||''};
-          });
-        }
-      }
-      if(records.length){
-        html='<h3 style="font-family:\'DM Serif Display\',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Ils ont déjà gagné</h3>';
-        html+='<div class="gagnants-liste">';
-        records.forEach(function(r){
-          var ini=(r.nom.charAt(0)||'?').toUpperCase();
-          html+='<div class="gagnant-card">';
-          html+='<div style="display:flex;gap:12px;align-items:center;">';
-          if(r.photo){html+='<img class="gagnant-photo" src="'+r.photo+'" alt="" style="object-fit:cover;">';}
-          else{html+='<div class="gagnant-photo"><span class="gagnant-initiale">'+ini+'</span></div>';}
-          html+='<div class="gagnant-info">'+r.nom+'</div></div>';
-          html+='<div class="gagnant-montant">'+r.montant+' FCFA</div>';
-          html+='</div>';
-        });
-        html+='</div>';
-      }else{
-        html=''
-          +'<h3 style="font-family:\'DM Serif Display\',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Mur des gagnants</h3>'
-          +'<div class="gagnant-placeholder">'
-          +'<div class="placeholder-icon">🏆</div>'
-          +'<div class="placeholder-montant">Un salaire</div>'
-          +'<div class="placeholder-question">Le prochain classement sera calculé à la fin du mois.<br>Et si c\'était toi ?</div>'
-          +'</div>';
-      }
-    }catch(e){
-      console.warn('[Sprint5] mur fail',e);
-      html=''
-        +'<h3 style="font-family:\'DM Serif Display\',serif;color:#E8940A;font-size:22px;font-weight:900;margin:24px 0 16px;">🏆 Mur des gagnants</h3>'
-        +'<div class="gagnant-placeholder">'
-        +'<div class="placeholder-icon">🏆</div>'
-        +'<div class="placeholder-montant">Un salaire</div>'
-        +'<div class="placeholder-question">Prochains résultats : fin du mois.<br>Et si c\'était toi ?</div>'
-        +'</div>';
-    }
-    host.innerHTML=html;
-  }
-  window.afficherMurGagnants=afficherMurGagnants;
+  // afficherMurGagnants() supprimée (VAGUE 0b, 2026-07-21) : lisait la table wozali_awards
+  // (WOZALI Awards / Mains d'Or, fonctionnalité supprimée) pour alimenter #mur-gagnants sur la
+  // page Mon abonnement, un bloc qui n'était plus référencé nulle part ailleurs. Les vrais
+  // gagnants de la Bourse de Croissance vivent dans gains_recompenses, déjà affichés par
+  // _widgetPalmares() (app.js) sur la page Récompenses et la vue d'ensemble du dashboard.
 
   document.addEventListener('DOMContentLoaded',function(){
     lancerCountdownJuillet();
     initFaqPro();
     chargerNbProLive();
     chargerJaugesBourse();
-    afficherMurGagnants();
   });
   if(document.readyState!=='loading'){
     lancerCountdownJuillet();
     initFaqPro();
     chargerNbProLive();
     chargerJaugesBourse();
-    afficherMurGagnants();
   }
 })();
 </script>
@@ -8761,7 +8715,7 @@ window.addEventListener('beforeinstallprompt', function(e){
         <h2 style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;margin:0 0 14px;">Article 3 · Paiements et abonnements</h2>
         <p style="font-size:15px;line-height:1.75;color:rgba(252, 224, 168,0.85);margin:0 0 14px;">Les paiements sur WOZALI (abonnement Plan Pro, commissions de parrainage) sont traités par FedaPay, prestataire de paiement agréé opérant au Bénin et au Togo. WOZALI DIGITAL SERVICES SARL ne collecte, ne stocke et ne traite aucune donnée de paiement directement.</p>
         <p style="font-size:15px;line-height:1.75;color:rgba(252, 224, 168,0.85);margin:0 0 14px;">Les modes de paiement acceptés incluent : MTN Mobile Money, Moov Money (Bénin), TMoney, Flooz (Togo). Aucune carte bancaire n'est requise.</p>
-        <p style="font-size:15px;line-height:1.75;color:rgba(252, 224, 168,0.85);margin:0;">Les gains issus des récompenses mensuelles (Bourse de Croissance) sont versés par virement bancaire ou mobile money au bénéficiaire dans un délai de 48 heures suivant la proclamation des résultats.</p>
+        <p style="font-size:15px;line-height:1.75;color:rgba(252, 224, 168,0.85);margin:0;">Les gains issus des récompenses mensuelles (Bourse de Croissance) sont versés en Crédit WOZALI (solde interne) au bénéficiaire, dans le pays où la Bourse a été débloquée, suivant la proclamation des résultats le dernier vendredi du mois.</p>
       </article>
     </div>
   </section>

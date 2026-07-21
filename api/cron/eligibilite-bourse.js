@@ -6,6 +6,7 @@
 import { supabase } from '../_lib/supabase.js';
 import { envoyerNotification } from '../_utils/credit.js';
 import { calculerScoreMerite } from '../_lib/score-merite.js';
+import { MIN_AVIS_30J, MIN_MOIS_PRO, MIN_SCORE_WOZALI, MIN_NOTE_MOYENNE } from '../_lib/smig.js';
 
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -89,7 +90,6 @@ export default async function handler(req, res) {
     // 6. Vérifier éligibilité pour chaque membre Pro
     let eligibles = 0;
     let nouveauxEligibles = 0;
-    const il14jours = new Date(now.getTime() - 14 * 86400000).toISOString();
 
     for (const abo of abos) {
       const userId = abo.user_id;
@@ -113,25 +113,36 @@ export default async function handler(req, res) {
         noteMoyRecente = sum / nbAvisRecents;
       }
 
-      // Condition 5 : aucun avis de moins de 14 jours (anti-manipulation)
-      const avisRecentsOk = !avisRecents.some(a => {
-        const d = a.date_avis || a.created_at;
-        return d > il14jours;
-      });
+      // Condition 5 (remplace l'ancienne "pasAvisRecent14j" — c'était une
+      // inversion de logique qui excluait un membre simplement parce qu'il
+      // venait de recevoir un avis récent, ce qui aurait vidé le classement).
+      // Nouvelle logique : détection d'afflux anormal. Si plus de la moitié
+      // des avis du mois sont tombés le même jour, c'est un signal de
+      // manipulation (avis groupés/achetés), pas de l'activité normale.
+      const pasAffluxAnormal = (() => {
+        if (nbAvisRecents === 0) return true;
+        const parJour = {};
+        for (const a of avisRecents) {
+          const d = (a.date_avis || a.created_at || '').slice(0, 10);
+          parJour[d] = (parJour[d] || 0) + 1;
+        }
+        const maxAvisMemeJour = Math.max(...Object.values(parJour));
+        return maxAvisMemeJour <= nbAvisRecents / 2;
+      })();
 
       // Les 6 conditions
       const conditions = {
-        proDepuis2mois:    moisPro >= 2,
-        scoreMin80:        scoreWozali >= 80,
-        avisMin4:          nbAvisRecents >= 4,
-        noteMin42:         noteMoyRecente >= 4.2,
-        pasAvisRecent14j:  avisRecentsOk,
+        proDepuisNMois:    moisPro >= MIN_MOIS_PRO,
+        scoreMinimum:      scoreWozali >= MIN_SCORE_WOZALI,
+        avisMinimum:       nbAvisRecents >= MIN_AVIS_30J,
+        noteMinimum:       noteMoyRecente >= MIN_NOTE_MOYENNE,
+        pasAffluxAnormal,
         nonGagnant3mois:   !gagnantsSet.has(userId),
       };
 
       const estEligible = Object.values(conditions).every(v => v);
 
-      // Score Mérite — le classement qui désigne les 5 gagnants.
+      // Score Mérite — le classement qui désigne les 10 gagnants par pays.
       // Zéro point pour les vues, les abonnés ou les partages.
       const merite = calculerScoreMerite({
         prestataire: profile,

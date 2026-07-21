@@ -3,8 +3,9 @@
 // ════════════════════════════════════════════════════════════════
 // Ce fichier doublonnait api/cron/tirage-bourse.js avec un mécanisme
 // différent (tirage aléatoire, split 300K par pays) devenu incohérent
-// avec le modèle validé : classement au MÉRITE, 100 000 FCFA aux 3
-// membres Pro les mieux classés (Togo + Bénin confondus).
+// avec le modèle validé : classement au MÉRITE, par pays (Togo/Bénin),
+// 10 gagnants par pays et par mois, gain = un salaire (le SMIG du pays
+// du gagnant).
 //
 // Neutralisé pour éviter tout double crédit si jamais appelé — la
 // seule implémentation active est api/cron/tirage-bourse.js.
