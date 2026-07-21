@@ -1,0 +1,612 @@
+<meta charset="utf-8">
+<title>Audit Dashboard WOZALI · 21 juillet 2026</title>
+<style>
+  @page { size: A4; margin: 0; }
+  html { background: #14100A; }
+  :root{
+    --night-0:#0F0C07; --night-1:#14100A; --night-2:#1E180E; --night-3:#241D11;
+    --cream:#FCE0A8; --cream-dim:rgba(252,224,168,.72); --cream-faint:rgba(252,224,168,.5);
+    --or:#E8940A; --or-soft:rgba(232,148,10,.14); --or-line:rgba(232,148,10,.28);
+    --crit:#F87171; --maj:#E8940A; --min:#B9A88A;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--night-1); color:var(--cream);
+    font-family:"Geist","Helvetica Neue",Arial,sans-serif; font-size:10.5pt; line-height:1.62;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .page{padding:16mm 14mm 18mm; min-height:297mm}
+  .brk{break-before:page; page-break-before:always}
+  .avoid{break-inside:avoid; page-break-inside:avoid}
+
+  h1{font-family:"DM Serif Display",Georgia,serif; font-weight:400; font-size:31pt; line-height:1.08; margin:0 0 10px}
+  h1 em{color:var(--or); font-style:italic}
+  h2{font-family:"DM Serif Display",Georgia,serif; font-weight:400; font-size:19pt; line-height:1.15; margin:30px 0 4px; color:var(--cream)}
+  h2 em{color:var(--or); font-style:italic}
+  h3{font-family:"Geist",sans-serif; font-weight:700; font-size:11.5pt; margin:20px 0 6px; color:var(--cream)}
+  p{margin:0 0 9px}
+  .eyebrow{font-family:"Geist Mono",ui-monospace,Menlo,monospace; font-size:8pt; letter-spacing:.20em;
+    text-transform:uppercase; color:var(--or); margin:0 0 12px; display:flex; align-items:center; gap:9px}
+  .eyebrow:before{content:""; width:26px; height:1px; background:var(--or); display:inline-block}
+  .lead{font-size:11.5pt; color:var(--cream-dim); line-height:1.7}
+  .muted{color:var(--cream-faint)}
+  strong{color:var(--cream); font-weight:700}
+  code{font-family:"Geist Mono",ui-monospace,Menlo,monospace; font-size:8.6pt; color:var(--or);
+    background:rgba(232,148,10,.09); padding:1px 5px; border-radius:3px}
+
+  .cover{min-height:297mm; padding:0 18mm; display:flex; flex-direction:column; justify-content:center;
+    background:radial-gradient(ellipse 70% 60% at 88% 12%, rgba(232,148,10,.16) 0%, transparent 62%), var(--night-1);
+    }
+  .logo{font-family:"DM Serif Display",Georgia,serif; font-size:23pt; letter-spacing:.06em; color:var(--cream)}
+  .logo b{color:var(--or); font-style:italic; font-weight:400}
+  .rule{height:2px; width:64px; background:var(--or); margin:22px 0}
+  .meta{font-family:"Geist Mono",ui-monospace,monospace; font-size:8.6pt; color:var(--cream-faint); line-height:2}
+
+  .card{background:var(--night-2); border:1px solid rgba(232,148,10,.16); border-left:3px solid var(--or);
+    border-radius:9px; padding:15px 17px; margin:12px 0}
+  .card.crit{border-left-color:var(--crit)}
+  .card.ok{border-left-color:#7BA05B}
+  .card h3{margin-top:0}
+
+  table{width:100%; border-collapse:collapse; margin:12px 0; font-size:9.4pt}
+  th{text-align:left; font-family:"Geist Mono",ui-monospace,monospace; font-size:7.8pt; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--or); border-bottom:1px solid var(--or-line); padding:7px 9px 7px 0; vertical-align:bottom}
+  td{padding:8px 9px 8px 0; border-bottom:1px solid rgba(252,224,168,.09); vertical-align:top; color:var(--cream-dim)}
+  td strong{color:var(--cream)}
+  tr{break-inside:avoid}
+
+  .sev{font-family:"Geist Mono",ui-monospace,monospace; font-size:7.4pt; letter-spacing:.1em; text-transform:uppercase;
+    padding:2px 7px; border-radius:100px; white-space:nowrap; display:inline-block}
+  .s-crit{background:rgba(248,113,113,.15); color:var(--crit); border:1px solid rgba(248,113,113,.35)}
+  .s-maj{background:rgba(232,148,10,.14); color:var(--or); border:1px solid var(--or-line)}
+  .s-min{background:rgba(252,224,168,.07); color:var(--min); border:1px solid rgba(252,224,168,.18)}
+
+  ul{margin:0 0 10px; padding-left:17px} li{margin-bottom:5px; color:var(--cream-dim)}
+  li strong{color:var(--cream)}
+  .num{font-family:"DM Serif Display",Georgia,serif; font-size:15pt; color:var(--or); margin-right:8px}
+  .kpi{display:flex; gap:10px; margin:16px 0; flex-wrap:wrap}
+  .kpi div{flex:1; min-width:104px; background:var(--night-2); border:1px solid rgba(232,148,10,.16);
+    border-radius:8px; padding:12px 13px}
+  .kpi b{display:block; font-family:"DM Serif Display",Georgia,serif; font-size:24pt; color:var(--or); line-height:1}
+  .kpi span{font-family:"Geist Mono",ui-monospace,monospace; font-size:7.6pt; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--cream-faint)}
+  .foot{margin-top:30px; padding-top:12px; border-top:1px solid rgba(232,148,10,.2);
+    font-family:"Geist Mono",ui-monospace,monospace; font-size:7.6pt; color:var(--cream-faint); letter-spacing:.05em}
+</style>
+
+<div class="cover">
+  <div class="logo">W<b>OZALI</b></div>
+  <div class="rule"></div>
+  <div class="eyebrow">Audit interne · Dashboard et écosystème connecté</div>
+  <h1>Ce que voit<br>l'utilisateur <em>après<br>la connexion.</em></h1>
+  <p class="lead" style="max-width:118mm; margin-top:16px">
+    Six audits de code en lecture seule, menés en parallèle sur l'intégralité de l'espace connecté :
+    structure et navigation, espace prestataire, emploi côté candidat, espace recruteur,
+    Bourse et parrainage, social et messagerie. Chaque constat a été vérifié dans le code source,
+    fichier et ligne à l'appui.
+  </p>
+  <div class="kpi" style="max-width:118mm">
+    <div><b>6</b><span>Domaines audités</span></div>
+    <div><b>21</b><span>Ruptures critiques</span></div>
+    <div><b>7</b><span>Décisions fondateur</span></div>
+  </div>
+  <div class="meta" style="margin-top:26px">
+    21 juillet 2026 · Version 1<br>
+    Périmètre : index.html, app.js, app2.js, app3.js, style.css, api/, components/, supabase/migrations/<br>
+    Référence produit : lancement 15 août 2026 · premier tirage 25 septembre 2026<br>
+    Document interne. Ne pas diffuser.
+  </div>
+</div>
+
+<!-- ─────────────────────────────── VERDICT ─────────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">01 · Verdict</div>
+  <h2>Le dashboard n'a pas <em>suivi le produit.</em></h2>
+
+  <p class="lead">L'intuition de départ est confirmée, et elle est mesurable. Le dashboard ne contient
+  <strong>aucune</strong> classe de la refonte premium, contre 139 sur la seule page « Comment ça marche ».
+  Il porte entre 1 800 et 2 500 attributs de style écrits à la main, là où les pages publiques refaites en portent
+  63. Sa barre latérale est peinte en <code>#0a0e0c</code>, un noir teinté vert qui est un résidu direct
+  de l'ancienne palette abandonnée.</p>
+
+  <p>Mais l'écart visuel est le moins grave des problèmes. L'audit a mis au jour une réalité plus dure :
+  <strong>plusieurs boucles fonctionnelles centrales sont interrompues, silencieusement, depuis un moment.</strong>
+  Elles ne produisent aucune erreur visible. Elles ne font simplement rien.</p>
+
+  <div class="card crit">
+    <h3>Les quatre boucles rompues</h3>
+    <ul>
+      <li><strong>Postuler à une offre</strong> ne prévient aucun recruteur. Répondre à une candidature ne prévient aucun candidat.</li>
+      <li><strong>Aimer, commenter, noter, suivre</strong> n'envoie de notification à personne : elle est écrite dans le téléphone de celui qui agit.</li>
+      <li><strong>Consulter un profil</strong> n'incrémente aucun compteur, ce qui plafonne mécaniquement tous les Scores WOZALI à 90 sur 100.</li>
+      <li><strong>Payer un boost d'annonce</strong> ne fait pas remonter l'annonce.</li>
+    </ul>
+  </div>
+
+  <p>Aucune de ces ruptures n'est un chantier lourd. Ce sont, pour l'essentiel, des champs oubliés, des noms de
+  tables périmés et des fonctions écrites puis jamais appelées. Ce qui est lourd, c'est ce qu'elles coûteraient
+  au lancement : une plateforme qui a l'air vide alors qu'elle est pleine, et des membres convaincus que
+  personne ne les regarde.</p>
+
+  <h3>La règle de lecture de ce document</h3>
+  <p>Une fonctionnalité qui échoue en silence est plus dangereuse qu'une fonctionnalité absente. L'utilisateur
+  n'attribue jamais l'échec au code. Il en conclut que le marché est vide, que la plateforme est morte, ou qu'on
+  lui a menti. Les priorités ci-après suivent cette logique : <strong>réparer ce qui ment avant d'embellir ce qui
+  fonctionne.</strong></p>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 2</div>
+</div>
+
+<!-- ─────────────────────────── RUPTURES CRITIQUES ─────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">02 · Ruptures critiques</div>
+  <h2>Vingt-et-un points qui <em>cassent le produit.</em></h2>
+  <p class="muted" style="font-size:9.5pt">Fusionnés et dédoublonnés depuis les six audits. Un même défaut relevé
+  par plusieurs lots n'apparaît qu'une fois.</p>
+
+  <h3>Boucle emploi</h3>
+  <table>
+    <tr><th style="width:23%">Constat</th><th style="width:47%">Ce qui se passe dans le code</th><th style="width:30%">Correctif</th></tr>
+    <tr><td><strong>Le recruteur ne reçoit aucune candidature</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>À la candidature, le champ <code>Recruteur User ID</code> n'est jamais renseigné. Or le tableau de bord filtre uniquement sur ce champ, et la sécurité Supabase n'autorise lecture et modification que par lui. Aucun déclencheur SQL ne le remplit.</td>
+      <td>Copier l'identifiant depuis l'offre à la création, plus un trigger SQL en filet.</td></tr>
+    <tr><td><strong>Le candidat n'est jamais informé</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>La notification de changement de statut est écrite depuis le navigateur du recruteur dans la fiche du candidat. La sécurité l'interdit. L'erreur est avalée par un bloc silencieux.</td>
+      <td>Passer par un point d'accès serveur avec les droits de service.</td></tr>
+    <tr><td><strong>Le candidat s'écrit à lui-même</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Faute d'identifiant recruteur, la messagerie retombe sur une valeur de secours qui est l'identifiant du candidat. Le fil de discussion est créé entre lui et lui.</td>
+      <td>Supprimer la valeur de secours côté candidat.</td></tr>
+    <tr><td><strong>La vue par défaut du recruteur plante</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le bouton « Embaucher » de la vue grille appelle une variable qui n'existe pas dans ce contexte. Dès qu'il y a une candidature, tout le rendu échoue et affiche « Erreur de chargement ».</td>
+      <td>Une ligne de déclaration.</td></tr>
+    <tr><td><strong>Embaucher échoue en base</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le statut « Embauché » n'est pas dans la liste autorisée par la contrainte SQL. La fiche employé se crée, puis la mise à jour est rejetée. Le candidat embauché ne reçoit aucune notification.</td>
+      <td>Migration de la contrainte, plus le message le plus important du produit.</td></tr>
+    <tr><td><strong>Alertes et dates mortes</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le champ de date de création n'est pas relié. Conséquences : le filtre « moins de 48h » vide toute la liste, les cartes affichent « il y a ? jour », et aucune alerte nouvelle offre ne peut se déclencher.</td>
+      <td>Une ligne de correspondance.</td></tr>
+  </table>
+
+  <h3>Notifications et circulation nerveuse</h3>
+  <table>
+    <tr><th style="width:23%">Constat</th><th style="width:47%">Ce qui se passe dans le code</th><th style="width:30%">Correctif</th></tr>
+    <tr><td><strong>Les notifications vont au mauvais téléphone</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>La fonction de notification écrit dans la mémoire locale du navigateur de <em>celui qui agit</em>. Le destinataire ne l'a jamais. Cela concerne les mentions j'aime, commentaires, avis, abonnements, favoris et rendez-vous.</td>
+      <td>Table de notifications serveur avec règles d'accès.</td></tr>
+    <tr><td><strong>Elles sont détruites en silence</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>À l'ouverture d'Activité, toutes les notifications sont marquées lues, puis affichées dans un conteneur resté masqué depuis la refonte messagerie. Le badge s'éteint, l'information disparaît.</td>
+      <td>Onglet Notifications visible, ou suppression du système mort.</td></tr>
+    <tr><td><strong>Le push existe et ne sert à rien</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>Toute l'infrastructure de notification push est en place. Un seul événement l'utilise, une tâche planifiée quotidienne. Ni la leçon de Sandy, ni un message, ni une réponse à une story, ni un avis ne déclenchent quoi que ce soit.</td>
+      <td>Brancher quatre événements, avec une limite de cinq par jour.</td></tr>
+  </table>
+
+  <h3>Argent et confiance</h3>
+  <table>
+    <tr><th style="width:23%">Constat</th><th style="width:47%">Ce qui se passe dans le code</th><th style="width:30%">Correctif</th></tr>
+    <tr><td><strong>Le chat « fondateur » est une IA qui nie l'être</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le prompt serveur ordonne de répondre au nom du fondateur et de ne jamais dire qu'il s'agit d'une IA. L'écran affiche son nom, sa photo et un statut « En ligne » figé. Deux conversations plus bas, Sandy annonce correctement être un agent IA.</td>
+      <td>Basculer sur « L'équipe WOZALI » ou Sandy, avec escalade humaine.</td></tr>
+    <tr><td><strong>Les commissions de parrainage sont invisibles et irretirables</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>L'écran lit deux champs qui n'existent dans aucune correspondance de données. Ils valent donc zéro à vie. Le backend calcule pourtant les vraies commissions, et l'écran jette cette réponse. Aucun écran d'administration ne permet de payer.</td>
+      <td>Brancher sur les données déjà servies par l'API, livrer l'écran de retrait.</td></tr>
+    <tr><td><strong>Le versement promis n'est pas celui qui est exécuté</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>L'interface annonce un virement Mobile Money sous 48 heures. Le code crédite un solde interne, et marque le gain « versé » alors que rien n'est parti.</td>
+      <td>Décision fondateur, puis alignement complet.</td></tr>
+    <tr><td><strong>Le Score peut être écrit depuis le navigateur</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Une fonction cliente calcule un score avec sa propre formule et l'écrit directement en base. Le Score conditionne l'attribution d'un salaire.</td>
+      <td>Supprimer la fonction, verrouiller la colonne en écriture serveur seule.</td></tr>
+    <tr><td><strong>Chacun peut supprimer les avis qu'il reçoit</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Chaque avis porte une corbeille, et le point d'accès autorise explicitement l'évalué à supprimer, sans limite ni trace. Tout le produit vend pourtant « avis vérifiés » et « classement 100 % mérite ».</td>
+      <td>Remplacer par un signalement et une médiation.</td></tr>
+    <tr><td><strong>Le boost est vendu et non livré</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>De 2 500 à 15 000 FCFA payés vers un numéro Wave français, avec la promesse « ton offre remonte en tête sous 2h ». Aucune activation, aucun tri par boost dans la liste, aucune expiration, aucun écran d'administration. Et un recruteur peut s'auto-booster gratuitement depuis la console.</td>
+      <td>Masquer le bouton jusqu'à ce que la chaîne soit complète.</td></tr>
+    <tr><td><strong>« Tu es Pro » s'affiche sans confirmation serveur</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>Le message de succès apparaît dès le retour du module de paiement côté client, sans vérifier que l'abonnement a bien basculé. Si le rappel serveur tarde, le membre a payé, a vu « Tu es Pro », et reste Gratuit.</td>
+      <td>Interroger le profil jusqu'à confirmation, avec message d'attente.</td></tr>
+    <tr><td><strong>Référence de paiement au nom de l'ancien projet</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>Le code de paiement affiché au moment de payer commence par <code>KAL-</code>, préfixe de KalaTogo.</td>
+      <td>Préfixe <code>WZ-</code>.</td></tr>
+  </table>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 3</div>
+</div>
+
+<div class="page brk">
+  <div class="eyebrow">02 · Ruptures critiques (suite)</div>
+
+  <h3>Promesses qui ne sont pas tenues</h3>
+  <table>
+    <tr><th style="width:23%">Constat</th><th style="width:47%">Ce qui se passe dans le code</th><th style="width:30%">Correctif</th></tr>
+    <tr><td><strong>« Localisation désactivée » ne désactive rien</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le choix est enregistré uniquement dans le navigateur du prestataire. Les coordonnées restent en base et le profil public continue de les afficher. Le commentaire du code l'admet : « pas de champ pour la visibilité ».</td>
+      <td>Colonne dédiée, et conditionner tout rendu public. Sujet de sécurité des personnes.</td></tr>
+    <tr><td><strong>Le « statut du jour » n'est visible par personne</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Il est saisi, enregistré, et aucun rendu public ne le lit. Seule Sandy le consulte, et pousse activement l'artisan à le remplir.</td>
+      <td>L'afficher sur le profil public et les cartes de recherche.</td></tr>
+    <tr><td><strong>Les vues de profil ne sont jamais comptées</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le compteur appelle une fonction qui écrit dans une table abandonnée. Les colonnes de vues ne sont donc jamais alimentées. Cela plafonne le Score serveur à 90 sur 100 pour tout le monde, alors que la Bourse exige 80.</td>
+      <td>Agréger la table de vues déjà existante dans la tâche planifiée.</td></tr>
+    <tr><td><strong>Une statistique Pro qui affichera toujours zéro</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>« Contacts WhatsApp » est verrouillée derrière le Pro. Aucun code ne compte les clics WhatsApp. Un Pro paie pour débloquer un zéro permanent.</td>
+      <td>Compter réellement, ou retirer la carte.</td></tr>
+    <tr><td><strong>Trois réglages d'agenda qui ne font rien</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>Durée de créneau, jours de réservation à l'avance et nombre de clients maximum par jour ne sont lus par aucun code. L'artisan configure, voit « Horaires sauvegardés », et rien n'existe.</td>
+      <td>Câbler, ou retirer les trois champs.</td></tr>
+    <tr><td><strong>Le « Mode Emploi » ne branche rien</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>Il promet que les recruteurs peuvent te trouver et que des alertes arrivent automatiquement. Aucune recherche recruteur ne filtre dessus, aucune alerte automatique n'existe.</td>
+      <td>Brancher un annuaire de candidats disponibles, ou réécrire la promesse.</td></tr>
+    <tr><td><strong>La vidéo ne peut physiquement pas être publiée</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le composeur propose Reel jusqu'à 3 minutes et story vidéo. L'envoi passe par un service d'images, via une fonction limitée à 4,5 Mo. L'utilisateur filme, attend en 3G, et reçoit une erreur. Une fonction d'envoi adaptée existe déjà, non appelée.</td>
+      <td>Router la vidéo vers le stockage Supabase, ou masquer le format.</td></tr>
+    <tr><td><strong>Ville et pays ne sont jamais enregistrés</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>Le formulaire de modification propose la cascade Pays, Ville, Quartier, mais seul le quartier est écrit. Un déménagement produit un profil incohérent, ce qui pollue la recherche locale et l'éligibilité par pays.</td>
+      <td>Ajouter les deux champs à l'enregistrement.</td></tr>
+    <tr><td><strong>Erreur technique brute à l'inscription</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Si l'adresse existe déjà et que le mot de passe ne correspond pas, le rattrapage échoue en silence et l'artisan reçoit un message d'erreur de base de données, en anglais. L'écran de succès parle par ailleurs encore d'un e-mail de confirmation qui n'existe plus.</td>
+      <td>Message clair avec bouton vers connexion et mot de passe oublié.</td></tr>
+    <tr><td><strong>Faille de sécurité dans « Mes avis »</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le texte d'un avis, écrit par un client anonyme, est injecté sans filtrage dans la page du prestataire. Un avis piégé peut exécuter du code dans sa session.</td>
+      <td>Échapper systématiquement, remplacer les gestionnaires en ligne.</td></tr>
+  </table>
+
+  <h3>Vestiges de décisions déjà prises</h3>
+  <table>
+    <tr><th style="width:30%">Décision</th><th style="width:70%">Ce qui traîne encore dans le code</th></tr>
+    <tr><td><strong>Bourse, nouveau modèle</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Le widget de la vue d'ensemble tourne sur son propre moteur : date fixe « 31 juillet 2026, dans 11 jours », conditions périmées, interrogation d'une table qui n'existe plus, aucune notion de pays ni de seuil. Il annonce une date de versement ferme alors que la Bourse est verrouillée tant que le pays n'a pas 5 000 Pro.</td></tr>
+    <tr><td><strong>TikTok retiré</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Quatre conditions avec les comptes personnels s'affichent toujours en croix rouges dans la checklist Récompenses. Le backend les a purgées ; l'écran itère sur sa propre liste.</td></tr>
+    <tr><td><strong>Awards supprimés</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>Trois points d'accès de candidature vidéo et de vote restent actifs, et l'API renvoie encore un montant de 100 000 FCFA. La colonne de montant en base a toujours 300 000 comme valeur par défaut.</td></tr>
+    <tr><td><strong>Publier une offre est gratuit</strong><br><span class="sev s-crit">Critique</span></td>
+      <td>La page tarifs affirme « Publier une offre est gratuit », puis 140 lignes plus bas coche une croix rouge sur « Publier des offres d'emploi » dans le plan Gratuit et le vend comme avantage Pro. La page « Mon abonnement » et la FAQ répètent l'erreur. La fenêtre de verrouillage Pro dort toujours dans le code.</td></tr>
+    <tr><td><strong>Pas de sortie WhatsApp</strong><br><span class="sev s-maj">Majeur</span></td>
+      <td>Chaque inscription met en file deux séquences WhatsApp sortantes. Aujourd'hui elles retombent en interne faute de jeton. Le jour où un jeton est configuré, le flux interdit s'active seul.</td></tr>
+    <tr><td><strong>Voix de Sandy coupée</strong><br><span class="sev s-min">Mineur</span></td>
+      <td>Le questionnaire demande toujours « tu préfères que je t'écrive ou que je te parle », et enregistre une préférence audio qui ne sera jamais honorée.</td></tr>
+  </table>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 4</div>
+</div>
+
+<!-- ─────────────────────────── DÉCISIONS ─────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">03 · Décisions</div>
+  <h2>Sept arbitrages qui <em>te reviennent.</em></h2>
+  <p class="lead">Ces points ne peuvent pas être tranchés par le code. Quatre concernent de l'argent réel
+  et doivent être réglés avant le premier versement.</p>
+
+  <div class="card crit avoid">
+    <h3><span class="num">01</span>Trois avis ou quatre ?</h3>
+    <p>La tâche planifiée qui décide de l'éligibilité en exige <strong>quatre</strong>. La page publique, la FAQ,
+    la checklist, Sandy et la carte non-Pro annoncent tous <strong>trois</strong>. Un membre à trois avis se croira
+    éligible partout et ne sera jamais classé.</p>
+    <p class="muted">Recommandation : trois, la valeur la plus communiquée, centralisée dans une constante partagée
+    d'où toute la copy sera générée.</p>
+  </div>
+
+  <div class="card crit avoid">
+    <h3><span class="num">02</span>Un mois de Pro ou deux ?</h3>
+    <p>Le code qui distribue l'argent exige <strong>deux mois</strong>. La FAQ dit « un mois Pro suffit pour être
+    classé dès le premier mois », Sandy le répète, l'écran de compte à rebours l'affiche. Mais une pastille du
+    dashboard affiche, elle, « Pro 2+ mois ».</p>
+    <p class="muted">Recommandation : un mois. C'est la promesse commerciale déjà diffusée, et exiger deux mois
+    revient à vendre un abonnement dont le bénéfice principal n'arrive qu'au deuxième prélèvement.</p>
+  </div>
+
+  <div class="card crit avoid">
+    <h3><span class="num">03</span>La règle cachée des quatorze jours</h3>
+    <p>La tâche planifiée rend inéligible tout membre ayant reçu <strong>au moins un avis dans les quatorze
+    derniers jours</strong>. Combinée à l'exigence d'avis sur trente jours, elle impose des avis tous datés entre
+    J-30 et J-14, et aucun client qui note dans la quinzaine. Elle punit exactement le comportement que Sandy
+    encourage. Aucune interface ne la mentionne.</p>
+    <p class="muted">Recommandation : supprimer. C'est très probablement une inversion de logique, l'intention
+    initiale visant à écarter les comptes dont tous les avis arrivent d'un bloc. La remplacer par une détection
+    d'afflux anormal. En l'état, le classement du 25 septembre serait vide ou absurde.</p>
+  </div>
+
+  <div class="card crit avoid">
+    <h3><span class="num">04</span>Virement Mobile Money, ou Crédit WOZALI assumé ?</h3>
+    <p>L'interface promet un virement Mobile Money sous 48 heures. Le code crédite un solde interne et marque le
+    gain « versé » alors que rien n'est parti. Le même écart existe sur les commissions de parrainage, sans écran
+    d'administration pour payer.</p>
+    <p class="muted">Recommandation : assumer le Crédit WOZALI dans toute la copy, et livrer un vrai parcours de
+    retrait avant le premier versement. C'est plus rapide à construire qu'une chaîne de paiement sortante, et
+    plus honnête que la promesse actuelle.</p>
+  </div>
+
+  <div class="card avoid">
+    <h3><span class="num">05</span>Le chat au nom du fondateur</h3>
+    <p>Faut-il continuer à faire parler une IA sous ton nom, ta photo et un statut « En ligne » ?</p>
+    <p class="muted">Recommandation : non. Basculer sur « L'équipe WOZALI », ou sur Sandy en mode support, avec
+    escalade vers toi pour les vraies réponses. Retirer l'instruction de nier être une IA. Le risque n'est pas
+    la crédibilité du chat, c'est celle de tout ce que tu diras ensuite en ton nom.</p>
+  </div>
+
+  <div class="card avoid">
+    <h3><span class="num">06</span>La carte « WOZALI recrute » dans la liste d'offres</h3>
+    <p>Elle affiche « 100 000 FCFA dès le 1er mois » à l'emplacement du salaire, et annonce un lancement au
+    1er septembre. La règle gravée est zéro fixe, commission récurrente uniquement, et la date validée est le
+    15 août.</p>
+    <p class="muted">Recommandation : reformuler sur l'angle portefeuille, corriger la date. Aucune modification
+    faite sans ton accord.</p>
+  </div>
+
+  <div class="card avoid">
+    <h3><span class="num">07</span>Le vocabulaire de navigation</h3>
+    <p>« Activité » porte une icône de cloche et contient une messagerie. Le mot ne veut rien dire pour un artisan,
+    là où « Messages » est un mot que WhatsApp lui a déjà appris.</p>
+    <p class="muted">Recommandation : <strong>Accueil · Trouver · Jobs · Messages · Profil</strong>, avec une icône
+    de bulle. À l'intérieur, deux zones distinctes : une rangée compacte d'activité en haut (j'aime, avis, vues,
+    candidatures), les conversations en dessous. C'est le découpage d'Instagram et de TikTok, et il résout au
+    passage le problème des notifications perdues.</p>
+  </div>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 5</div>
+</div>
+
+<!-- ─────────────────────────── NAVIGATION PC ─────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">04 · Parité mobile et bureau</div>
+  <h2>Sur ordinateur, l'écosystème social <em>n'existe pas.</em></h2>
+
+  <p class="lead">La barre du bas est le seul point d'entrée vers le fil, et le seul raccourci vers les messages.
+  Une règle de style la supprime purement et simplement au-delà de 769 pixels de large. Tout ce qui a été construit
+  côté social, les stories, les réactions, les sondages, le statut du jour, la découverte, est donc invisible pour
+  un recruteur au bureau, pour la diaspora, et pour n'importe qui en cybercafé.</p>
+
+  <p>Un angle mort supplémentaire a été relevé : entre 769 et 900 pixels, ni la barre du bas ni le tiroir mobile
+  ne s'appliquent, et la barre latérale devient un bandeau horizontal empilant plus de trente boutons au-dessus
+  du contenu. C'est une plage de tailles très réelle sur tablette et petite fenêtre.</p>
+
+  <h3>Trois directions possibles</h3>
+  <table>
+    <tr><th style="width:20%">Option</th><th style="width:52%">Principe</th><th style="width:14%">Effort</th><th style="width:14%">Verdict</th></tr>
+    <tr><td><strong>En-tête enrichi</strong></td>
+      <td>Ajouter trois icônes dans la navigation haute connectée : fil, messages avec compteur, profil. Environ trente lignes.</td>
+      <td>Une demi-journée</td><td>Rapide, mais le fil reste un lien parmi d'autres.</td></tr>
+    <tr><td><strong>Rail latéral persistant</strong></td>
+      <td>Un rail fixe à gauche sur toutes les pages connectées au-delà de 1024 pixels, reprenant les cinq entrées de la barre du bas et son compteur. La fonction de navigation existante est déjà indépendante de la taille d'écran, elle est réutilisable telle quelle.</td>
+      <td>Deux à trois jours</td><td><strong>Recommandé.</strong> C'est ce que font LinkedIn, X et Instagram.</td></tr>
+    <tr><td><strong>Fil intégré au dashboard</strong></td>
+      <td>Ressusciter la section de fil morte et l'ajouter à la barre latérale.</td>
+      <td>Une journée</td><td>Parité partielle, et le fil vivrait dans deux conteneurs. Dette.</td></tr>
+  </table>
+
+  <p>Le rail règle aussi un problème de fond : aujourd'hui la barre latérale du dashboard sert à la fois de plan
+  de l'espace personnel et de navigation générale. Avec un rail dédié à l'écosystème social, la barre latérale
+  redevient ce qu'elle doit être, le plan d'une seule maison.</p>
+
+  <h3>Structure de barre latérale proposée</h3>
+  <p class="muted" style="font-size:9.5pt">Regroupée par ce que l'utilisateur cherche à faire, et non par
+  ordre chronologique des sprints qui l'ont produite.</p>
+  <table>
+    <tr><th style="width:26%">Groupe</th><th style="width:74%">Contenu</th></tr>
+    <tr><td><strong>Mon activité</strong></td><td>Vue d'ensemble · Messages · Mon agenda · Disponibilité</td></tr>
+    <tr><td><strong>Ma vitrine</strong></td><td>Mon profil · Mes photos · Mes publications · Mes avis · Qui a vu ton profil</td></tr>
+    <tr><td><strong>Emploi</strong></td><td>Trouver un emploi · Mes candidatures · Mon CV</td></tr>
+    <tr><td><strong>Je recrute</strong></td><td>Tableau de bord · Publier · Mes offres · Candidatures · Mon équipe</td></tr>
+    <tr><td><strong>Gagner plus</strong></td><td>Récompenses · Parrainage · Mon abonnement Pro</td></tr>
+    <tr><td><strong>Plus</strong></td><td>Enregistrés · Comptes suivis · Mes outils · Économie de données · Aide</td></tr>
+  </table>
+
+  <p>Trois collisions de vocabulaire sont à corriger au passage. « Vue d'ensemble » et « Mon équipe » existent
+  chacun deux fois dans la barre latérale. « Mon abonnement » désigne le plan Pro, « Mes abonnements » désigne les
+  comptes suivis : un caractère d'écart entre deux notions opposées. Et « Mes favoris » coexiste avec
+  « Enregistrés » sans distinction lisible.</p>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 6</div>
+</div>
+
+<!-- ─────────────────────────── NIVEAU PREMIUM ─────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">05 · Niveau visuel</div>
+  <h2>La promesse premium s'arrête <em>à la connexion.</em></h2>
+
+  <div class="kpi">
+    <div><b>0</b><span>classes premium dans le dashboard</span></div>
+    <div><b>139</b><span>sur la seule page Comment ça marche</span></div>
+    <div><b>2 560</b><span>styles écrits à la main</span></div>
+  </div>
+
+  <p class="lead">C'est exactement là où le membre paie 2 500 FCFA par mois que le produit cesse de ressembler à
+  ce qu'on lui a vendu. Le dashboard n'a hérité d'aucun élément de la refonte : ni grain, ni halos, ni intitulés
+  en monospace numérotés, ni titres serif à accent or, ni révélations au défilement.</p>
+
+  <h3>Ce qui trahit l'ancien produit</h3>
+  <ul>
+    <li>La barre latérale est en <code>#0a0e0c</code>, un noir teinté vert, résidu de la palette abandonnée. La messagerie est en <code>#0d0d0d</code>, les cartes du réseau terrain en <code>#161616</code>.</li>
+    <li>Plusieurs écrans sont restés en thème clair : disponibilité, photos, publications, cartes d'avis, fiches de filleuls. La carte « Plan Gratuit » cumule un fond blanc et un texte crème, ce qui la rend presque illisible.</li>
+    <li>Les liens de la barre latérale s'éclairent en crème clair au survol dans une interface sombre, et l'état actif est en texte blanc sur or.</li>
+    <li>Du vert subsiste hors de l'exception WhatsApp, notamment sur le bouton GPS, l'état du statut du jour, et surtout <strong>sur le visuel de story généré pour le partage WhatsApp</strong>, qui sort avec une pastille verte en pleine charte or et noir.</li>
+    <li>Les titres de section sont des émojis suivis d'un intitulé, là où la vitrine utilise des intitulés numérotés et des titres serif.</li>
+    <li>Les cartes d'offres et de candidatures alignent sept à neuf boutons de poids visuel identique, sans hiérarchie.</li>
+  </ul>
+
+  <h3>Méthode recommandée</h3>
+  <p>Ne pas tout refaire d'un bloc. Extraire une dizaine de classes réutilisables calquées sur celles de la vitrine
+  (carte, bouton or, bouton fantôme, bulle entrante et sortante, pastille, état vide, champ de saisie), puis migrer
+  écran par écran en commençant par les deux plus vus après le lancement : Messages et le fil.</p>
+  <p><strong>Condition préalable :</strong> supprimer d'abord le code mort recensé au chapitre suivant. Il ne sert
+  à rien de styler des écrans que personne ne peut atteindre.</p>
+
+  <h3>Poids et consommation de données</h3>
+  <p>Le démarrage de la plateforme représente environ 2,8 Mo de fichiers non minifiés, auxquels s'ajoutent six
+  bibliothèques externes, dont le module de paiement chargé sur toutes les pages. Deux anomalies coûteuses :</p>
+  <ul>
+    <li><strong>Une photo de 490 Ko est encodée en dur dans un fichier JavaScript</strong> chargé sur toutes les pages. La sortir en fichier image économise un demi-mégaoctet par visiteur, immédiatement.</li>
+    <li><strong>Aucune compression avant envoi d'image.</strong> Une photo de téléphone fait 3 à 8 Mo, encodée elle grossit d'un tiers. Trente lignes de redimensionnement ramènent 6 Mo à 300 Ko. C'est le meilleur rapport effort sur bénéfice de tout l'audit.</li>
+  </ul>
+  <p>S'y ajoute le chargement du fil, qui enchaîne jusqu'à huit allers-retours réseau successifs. Sur la latence
+  mobile locale, cela représente trois à cinq secondes même avec peu de contenu. Une fonction serveur unique
+  ramènerait cela à un seul aller-retour.</p>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 7</div>
+</div>
+
+<!-- ─────────────────────────── SUPPRIMER / AJOUTER ─────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">06 · Alléger</div>
+  <h2>Ce qu'il faut <em>supprimer.</em></h2>
+  <p class="lead">Une fonctionnalité à demi branchée coûte plus cher qu'une fonctionnalité absente : elle occupe
+  de la place, elle réclame de la maintenance, et elle donne l'impression que le produit est en panne.</p>
+
+  <table>
+    <tr><th style="width:34%">Élément</th><th style="width:66%">Raison</th></tr>
+    <tr><td><strong>Filtres âge, expérience, distance et quartier</strong> (candidatures reçues)</td>
+      <td>Les données ne sont jamais enregistrées. Sélectionner l'un de ces filtres fait disparaître tous les candidats, et le recruteur en conclut qu'il n'a personne. Surdimensionné pour une TPE avec cinq candidatures.</td></tr>
+    <tr><td><strong>Vue Kanban</strong></td>
+      <td>Troisième mode d'affichage pour trier cinq candidatures, inutilisable sur mobile (quatre colonnes compressées sur 360 pixels), sans glisser-déposer réel.</td></tr>
+    <tr><td><strong>Bouton Booster</strong></td>
+      <td>À masquer jusqu'à ce que l'activation, le tri et l'expiration existent. Vendre un boost qui ne booste pas est pire que ne rien vendre.</td></tr>
+    <tr><td><strong>Second bloc tarifaire de « Mon abonnement »</strong></td>
+      <td>Une fonction ajoute en bas de page un deuxième comparatif Gratuit contre Pro complet, avec un second bouton de paiement et un design différent. La page de conversion fait deux fois la même chose.</td></tr>
+    <tr><td><strong>Réglages d'agenda non câblés</strong></td>
+      <td>Durée de créneau, jours à l'avance, clients par jour : trois réglages avec confirmation de succès et aucun effet.</td></tr>
+    <tr><td><strong>Section de fil morte, boîte du fondateur héritée, ancien widget de chat</strong></td>
+      <td>Environ six cents lignes inatteignables, dont une partie rend des cartes blanches hors charte.</td></tr>
+    <tr><td><strong>Troisième formule de Score</strong></td>
+      <td>Fonction cliente qui écrirait un score faux si elle était réveillée, et qui constitue une faille.</td></tr>
+    <tr><td><strong>Tâche planifiée « Coup du jour »</strong></td>
+      <td>Interroge une table disparue, écrit dans une table que personne ne lit, génère un lien vers un domaine interdit et une route inexistante. Elle occupe l'un des quatre créneaux de tâches disponibles.</td></tr>
+    <tr><td><strong>Reels vidéo dans le composeur</strong></td>
+      <td>Tant que l'envoi vidéo n'est pas réel. Mieux vaut un format absent qu'un format qui échoue après avoir consommé deux mégaoctets de forfait.</td></tr>
+    <tr><td><strong>Fausse barre de recherche des messages</strong></td>
+      <td>Élément purement décoratif, sans champ ni gestionnaire, au-dessus de deux conversations.</td></tr>
+    <tr><td><strong>Points d'accès Awards et fenêtre de verrouillage Pro</strong></td>
+      <td>Décisions déjà prises, code encore vivant.</td></tr>
+  </table>
+
+  <h2 style="margin-top:34px">Ce qu'il faut <em>ajouter.</em></h2>
+  <table>
+    <tr><th style="width:34%">Ajout</th><th style="width:52%">Pourquoi</th><th style="width:14%">Effort</th></tr>
+    <tr><td><strong>Table de notifications serveur, plus push sur quatre événements</strong></td>
+      <td>Leçon de Sandy, statut de candidature, message reçu, nouvel avis. Sans cela, rien ne fait revenir personne. C'est une fondation, pas une fonctionnalité.</td><td>Élevé</td></tr>
+    <tr><td><strong>Compression d'image avant envoi</strong></td>
+      <td>Améliore chaque envoi du produit, sur un marché où la donnée coûte cher.</td><td>Très faible</td></tr>
+    <tr><td><strong>Recommandation de pros après publication d'offre</strong></td>
+      <td>Le code existe intégralement et n'est appelé nulle part. Il donne de la valeur au recruteur avant même sa première candidature, ce qui est exactement le problème du démarrage.</td><td>Une ligne</td></tr>
+    <tr><td><strong>Réponse bidirectionnelle aux stories</strong></td>
+      <td>Aujourd'hui, répondre à une story crée une conversation sans réponse possible, et l'auteur de la réponse n'en garde aucune trace. C'est le chemin le moins cher vers une vraie conversation interne plutôt qu'une fuite immédiate vers WhatsApp.</td><td>Moyen</td></tr>
+    <tr><td><strong>Partage WhatsApp automatique après publication</strong></td>
+      <td>L'écran de confirmation n'offre même pas le bouton de partage qui existe déjà. C'est le moment exact où l'offre doit circuler.</td><td>Très faible</td></tr>
+    <tr><td><strong>Lien profond vers une offre</strong></td>
+      <td>Les liens de partage d'offre ne sont lus par aucun code : chaque partage tombe sur la page d'accueil. Une page d'offre adressable est aussi indexable par Google.</td><td>Faible</td></tr>
+    <tr><td><strong>CV WOZALI imprimable</strong></td>
+      <td>La section a disparu alors que tout le discours dit « ton profil est ton CV ». Au lancement il y aura peu d'offres : c'est précisément l'utilité immédiate qui retient un candidat.</td><td>Faible</td></tr>
+    <tr><td><strong>Republier une offre passée</strong></td>
+      <td>Le geste le plus fréquent d'un patron qui recrute le même poste chaque saison.</td><td>Faible</td></tr>
+    <tr><td><strong>Rang provisoire au mérite</strong></td>
+      <td>Voir « ton profil te classerait 7e au Togo aujourd'hui » rend le seuil désirable au lieu de décourageant.</td><td>Moyen</td></tr>
+  </table>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 8</div>
+</div>
+
+<!-- ─────────────────────────── AVANT LE LANCEMENT ─────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">07 · Avant le seuil</div>
+  <h2>Ce que verra un membre <em>pendant des mois.</em></h2>
+
+  <p class="lead">La Bourse se débloque à 5 000 membres Pro par pays. Au lendemain du lancement, la jauge affichera
+  environ zéro pour cent, et le message « il manque 4 998 Pro ». C'est techniquement honnête et psychologiquement
+  démoralisant. Or c'est l'écran que verront tous les premiers membres, ceux dont dépend tout le reste.</p>
+
+  <p>Plus grave : <strong>aucun des compteurs connectés ne vérifie si le pays est débloqué.</strong> Le dernier
+  vendredi d'août, le décompte tombera à zéro, la tâche de tirage sautera pour cause de seuil non atteint, et rien
+  ne sera versé. Un membre qui aura lu « tu es dans la course, résultats dans 3 jours » vivra cela comme une
+  promesse trahie, et il le revivra chaque mois.</p>
+
+  <div class="card">
+    <h3>Cinq correctifs pour l'expérience d'avant-seuil</h3>
+    <ul>
+      <li>Faire du déblocage <strong>l'état racine</strong> de tous les écrans de récompense. Tant que le seuil n'est pas atteint, pas de compte à rebours, mais une jauge et un statut personnel.</li>
+      <li>Célébrer des <strong>paliers intermédiaires</strong> (500, 1 000, 2 500) et renormaliser la barre sur le prochain palier plutôt que sur les 5 000.</li>
+      <li>Mettre <strong>la course entre les deux pays</strong> au premier plan. L'écart entre le Togo et le Bénin est motivant dès cinquante membres contre trente, là où la distance au seuil ne l'est jamais.</li>
+      <li>Afficher la <strong>dynamique</strong> plutôt que le manque : « 124 Pro de plus cette semaine » vaut mieux que « il manque 4 998 ».</li>
+      <li>Montrer à chacun son <strong>rang provisoire au mérite</strong>. C'est déjà écrit dans la FAQ, ça n'existe dans aucun écran.</li>
+    </ul>
+  </div>
+
+  <h2 style="margin-top:30px">Ce qui <em>fonctionne bien.</em></h2>
+  <p class="lead">L'audit a aussi confirmé des fondations saines, à préserver telles quelles.</p>
+
+  <div class="card ok">
+    <ul>
+      <li><strong>Le moteur de tirage de la Bourse est fidèle au modèle validé.</strong> Par pays, seuil de 5 000, dix gagnants, montant égal au salaire minimum du pays, tri entièrement déterministe sans aucun hasard, zéro point attribué aux vues ou aux abonnés, remise à zéro mensuelle, versement le dernier vendredi. Vérifié ligne à ligne.</li>
+      <li><strong>Le verrouillage gratuit contre Pro de Sandy est propre et honnête.</strong> Le gratuit voit sa question et un aperçu flouté sans aucun appel serveur ; même en forçant l'appel, le serveur refuse. Le texte flouté est générique, pas une vraie réponse cachée dans la page.</li>
+      <li><strong>« Qui a vu ton profil » est le meilleur argumentaire du dashboard.</strong> Liste floutée, texte honnête, prix rappelé. C'est le modèle à reproduire pour tous les autres verrous.</li>
+      <li><strong>Les états vides de la liste d'offres sont bien pensés</strong> pour un lancement : ils retournent le vide en opportunité au lieu de le subir.</li>
+      <li><strong>Connexion, mot de passe oublié et réinitialisation</strong> sont solides : erreurs traduites, sécurité contre l'énumération d'adresses, gestion des sessions lentes.</li>
+      <li><strong>Le mode hors ligne du fil</strong> et le cache de profil fonctionnent réellement.</li>
+      <li><strong>Les signets, les sondages de story, le repartage et les vues de story</strong> sont complets et conformes aux références du secteur.</li>
+    </ul>
+  </div>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 9</div>
+</div>
+
+<!-- ─────────────────────────── PLAN ─────────────────────────── -->
+<div class="page brk">
+  <div class="eyebrow">08 · Plan</div>
+  <h2>Quatre vagues, <em>dans cet ordre.</em></h2>
+  <p class="lead">L'ordre n'est pas négociable : chaque vague est la condition de la suivante. Embellir un écran
+  dont les données mentent ne fait que rendre le mensonge plus crédible.</p>
+
+  <div class="card crit avoid">
+    <h3>Vague 0 · Ce qui ment sur l'argent</h3>
+    <p class="muted" style="font-size:9.3pt">Bloque le premier versement. À traiter avant tout le reste.</p>
+    <ul>
+      <li>Trancher les quatre arbitrages d'argent (avis, ancienneté Pro, règle des quatorze jours, mode de versement) et centraliser les seuils dans une constante unique dont toute la copy sera générée.</li>
+      <li>Retirer le moteur de Bourse périmé de la vue d'ensemble et le brancher sur l'API officielle, avec l'état de déblocage en premier.</li>
+      <li>Purger les vestiges : conditions TikTok et comptes personnels, points d'accès Awards, valeur par défaut de 300 000 en base.</li>
+      <li>Verrouiller l'écriture du Score côté serveur uniquement.</li>
+      <li>Brancher les commissions de parrainage sur les vraies données, corriger les montants d'aperçu erronés, retirer la mention « à vie ».</li>
+    </ul>
+  </div>
+
+  <div class="card crit avoid">
+    <h3>Vague 1 · Les boucles rompues</h3>
+    <p class="muted" style="font-size:9.3pt">Sans elles, la plateforme paraît vide le jour du lancement.</p>
+    <ul>
+      <li>Réparer la chaîne de candidature de bout en bout : identifiant recruteur, notification serveur, messagerie, date de création, statut « Embauché » en base.</li>
+      <li>Corriger le plantage de la vue par défaut du recruteur, une ligne.</li>
+      <li>Construire la table de notifications serveur et brancher le push sur quatre événements.</li>
+      <li>Alimenter les compteurs de vues depuis la table qui existe déjà, ce qui débloque au passage les Scores plafonnés à 90.</li>
+      <li>Corriger la faille des avis, la localisation qui ne se désactive pas, et l'erreur technique brute à l'inscription.</li>
+      <li>Masquer le bouton de boost, retirer les réglages d'agenda sans effet et les filtres morts.</li>
+    </ul>
+  </div>
+
+  <div class="card avoid">
+    <h3>Vague 2 · Cohérence et navigation</h3>
+    <ul>
+      <li>Aligner toute la copy sur la gratuité de publication : page tarifs, page abonnement, FAQ, Sandy.</li>
+      <li>Trancher le chat au nom du fondateur et appliquer la décision.</li>
+      <li>Renommer Activité en Messages, séparer les notifications des conversations.</li>
+      <li>Construire le rail latéral et rétablir la parité sur ordinateur. Corriger la plage 769 à 900 pixels.</li>
+      <li>Supprimer le code mort recensé, corriger les collisions de vocabulaire de la barre latérale.</li>
+      <li>Réécrire la page d'abonnement autour des vrais arguments, à commencer par Sandy, aujourd'hui absente de la page de vente.</li>
+    </ul>
+  </div>
+
+  <div class="card avoid">
+    <h3>Vague 3 · Niveau premium et performance</h3>
+    <ul>
+      <li>Extraire les classes réutilisables, migrer écran par écran en commençant par Messages et le fil.</li>
+      <li>Purger les fonds hors charte et les derniers verts, y compris sur le visuel de partage WhatsApp.</li>
+      <li>Sortir la photo encodée en dur, compresser les images avant envoi, minifier, charger le module de paiement à la demande.</li>
+      <li>Regrouper le chargement du fil en un seul appel serveur.</li>
+      <li>Rendre les zones tactiles conformes et corriger les contrastes faibles.</li>
+    </ul>
+  </div>
+
+  <p style="margin-top:22px"><strong>Note de méthode.</strong> Deux constats de cet audit portent sur des colonnes
+  de base de données susceptibles de diverger entre le dépôt et la production, la production ayant reçu du SQL
+  appliqué à la main. Ils doivent être vérifiés par un test réel avant correctif : la colonne de Score sur la table
+  des candidatures, et la contrainte de statut. Un test de candidature en production les tranche en deux minutes.</p>
+
+  <div class="foot">WOZALI · Audit Dashboard · 21 juillet 2026 · page 10 · fin</div>
+</div>
