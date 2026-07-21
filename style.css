@@ -1031,11 +1031,11 @@ h1 .gold { color:var(--or); }
   cursor:pointer; background:rgba(255,255,255,0.06); transition:all 0.2s; color:#FCE0A8;
 }
 .filter-dispo.active { background:var(--vert); color:#14100A !important; border-color:var(--vert); }
-/* Bouton filtre digital actif */
-#digital-btn.active { background:#6366f1; color:white !important; border-color:#6366f1; }
+/* Bouton filtre digital actif — charte or (zéro bleu) */
+#digital-btn.active { background:var(--vert); color:#14100A !important; border-color:var(--vert); }
 .results-meta { font-size:14px; color:var(--gris); margin-top:20px; font-weight:500; }
 .pcard-distance { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--vert); background:#FCE0A8; border-radius:20px; padding:2px 8px; margin-top:4px; }
-#search-map { background:#EFE9DC; width:100%; height:580px; border-radius:18px; overflow:hidden; display:none; box-shadow:0 4px 24px rgba(0,0,0,0.10); margin-top:0; }
+#search-map { background:#1E180E; width:100%; height:580px; border-radius:18px; overflow:hidden; display:none; border:1px solid rgba(232,148,10,0.18); box-shadow:0 4px 24px rgba(0,0,0,0.35); margin-top:0; }
 #search-map .leaflet-popup-content-wrapper { border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,.18); padding:14px 20px; border:none; }
 #search-map .leaflet-popup-tip-container { display:none; }
 #search-map .leaflet-popup-content { margin:0; }
@@ -8635,4 +8635,98 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 /* ---------- prefers-reduced-motion ---------- */
 @media (prefers-reduced-motion:reduce){
   .wzf-card, .wzf-card:hover, .wzf-tab, .wzf-tab:hover { transform:none !important; transition:none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE TROUVER UN PRO — refonte premium 2026-07-20 (Fable)
+   Même langage que Accueil / Comment ça marche / Jobs : hero wzf,
+   eyebrow mono, DM Serif + accent or italique, surfaces Nuit.
+   Charte verrouillée : #14100A / #1E180E / #FCE0A8 / #E8940A.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ---------- Deck recherche (barre + filtres) ---------- */
+.wsp-deck { background:#14100A; padding:0 0 10px; }
+
+.wsp-bar {
+  display:flex; align-items:stretch; gap:0;
+  background:#1E180E; border:1.5px solid rgba(232,148,10,.28);
+  border-radius:16px; overflow:hidden;
+  box-shadow:0 18px 44px -22px rgba(0,0,0,.7);
+  transition:border-color .25s ease, box-shadow .25s ease;
+}
+.wsp-bar:focus-within {
+  border-color:#E8940A;
+  box-shadow:0 18px 44px -22px rgba(0,0,0,.7), 0 0 40px -18px rgba(232,148,10,.45);
+}
+.wsp-bar select, .wsp-bar input {
+  flex:1; min-width:0; border:none; background:transparent;
+  padding:15px 18px; font-family:'Geist',sans-serif;
+  font-size:14.5px; font-weight:500; color:#FCE0A8; outline:none;
+}
+.wsp-bar select { cursor:pointer; max-width:230px; border-right:1px solid rgba(252,224,168,.08); }
+.wsp-bar select option, .wsp-bar select optgroup { background:#1E180E; color:#FCE0A8; }
+.wsp-bar input { min-width:140px; }
+.wsp-bar input::placeholder { color:rgba(252,224,168,.4); }
+.wsp-bar .s-mic { align-self:center; margin:0 8px 0 4px; }
+.wsp-btn {
+  background:linear-gradient(90deg,#E8940A,#f5b13d); color:#14100A;
+  border:none; padding:15px 26px; font-family:'Geist',sans-serif;
+  font-weight:800; font-size:14.5px; cursor:pointer; white-space:nowrap;
+  transition:filter .2s ease;
+}
+.wsp-btn:hover { filter:brightness(1.06); }
+
+/* ---------- Filtres pills (Nuit unifiée, écrase les overrides legacy) ---------- */
+.wsp-filters { display:flex; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap; }
+#page-search .wsp-filters .filter-select,
+#page-search .wsp-filters .filter-dispo {
+  background:#1E180E !important; border:1.5px solid rgba(232,148,10,.26) !important;
+  color:rgba(252,224,168,.82) !important; border-radius:999px !important;
+  padding:9px 15px; font-family:'Geist',sans-serif; font-size:12.5px; font-weight:700;
+  cursor:pointer; transition:border-color .2s ease, color .2s ease, background .2s ease;
+}
+#page-search .wsp-filters .filter-select:hover,
+#page-search .wsp-filters .filter-select:focus,
+#page-search .wsp-filters .filter-dispo:hover {
+  border-color:#E8940A !important; color:#FCE0A8 !important;
+}
+#page-search .wsp-filters .filter-dispo.active {
+  background:#E8940A !important; border-color:#E8940A !important; color:#14100A !important;
+}
+#page-search .wsp-filters .filter-select option,
+#page-search .wsp-filters .filter-select optgroup { background:#1E180E; color:#FCE0A8; }
+
+/* ---------- Méta résultats + états ---------- */
+#page-search .results-meta {
+  font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; color:rgba(252,224,168,.55); margin-top:0; font-weight:500;
+}
+#page-search .map-toggle-bar { margin-top:18px; }
+#page-search .loading { color:rgba(252,224,168,.55); }
+#page-search .empty-state { color:rgba(252,224,168,.6); }
+#page-search .empty-state p { color:rgba(252,224,168,.6); }
+
+/* ---------- Cartes prestataires : glow premium au survol ---------- */
+#page-search .pcard {
+  transition:transform .35s cubic-bezier(.22,.7,.28,1), border-color .35s ease, box-shadow .35s ease;
+}
+#page-search .pcard:hover {
+  box-shadow:0 22px 50px -20px rgba(0,0,0,.8), 0 0 50px -26px rgba(232,148,10,.4) !important;
+  border-color:rgba(232,148,10,.35) !important;
+}
+
+/* ---------- Responsive ---------- */
+@media(max-width:700px){
+  .wsp-bar { flex-wrap:wrap; border-radius:14px; }
+  .wsp-bar select {
+    flex:1 1 100%; max-width:none;
+    border-right:none; border-bottom:1px solid rgba(252,224,168,.08);
+  }
+  .wsp-bar input { flex:1 1 auto; border-bottom:1px solid rgba(252,224,168,.08); }
+  .wsp-bar .s-mic { margin-right:12px; }
+  .wsp-btn { flex:1 1 100%; padding:14px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  #page-search .pcard, #page-search .pcard:hover { transform:none !important; transition:none !important; }
 }

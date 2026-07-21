@@ -1205,12 +1205,21 @@ setTimeout(function(){
      PAGE RECHERCHE
 ══════════════════════════════════════════ -->
 <div id="page-search" class="page">
-  <div class="search-page-header">
+  <!-- HERO : Trouver un pro (premium Nuit) -->
+  <section class="wzf-hero" style="padding:clamp(56px,8vw,88px) 0 clamp(24px,3.5vw,36px);">
+    <div class="wzf-grain" aria-hidden="true"></div>
     <div class="container">
-      <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;color:#E8940A;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;">BÉNIN · TOGO · PARTOUT OÙ TU ES</div>
-      <h2 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(30px,4.5vw,44px);font-weight:900;line-height:1.08;margin-bottom:10px;color:#FCE0A8;">Trouve un pro<br>près de toi.</h2>
-      <p style="font-size:15px;color:rgba(252,224,168,0.6);margin-bottom:24px;max-width:460px;">Des mains d'or, vérifiées, notées, à côté de chez toi.</p>
-      <div class="search-bar">
+      <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">Trouver un pro · Bénin · Togo</div>
+      <h1 class="wzf-h1" style="font-size:clamp(32px,4.8vw,52px);">Trouve un pro<br><em>près de chez toi.</em></h1>
+      <p class="wzf-hero-sub">Des pros vérifiés, notés par de vrais clients, à côté de chez toi.</p>
+      <p class="wzf-hero-note">Recherche gratuite · Sans compte · À Cotonou, à Lomé, maintenant</p>
+    </div>
+  </section>
+
+  <!-- BARRE DE RECHERCHE + FILTRES (Nuit unifiée) -->
+  <div class="wsp-deck">
+    <div class="container">
+      <div class="wsp-bar">
         <select id="s-metier" onchange="loadSearch()">
           <option value="">Quel métier cherches-tu ?</option>
           <optgroup label="Beauté &amp; Bien-être">
@@ -1340,23 +1349,23 @@ setTimeout(function(){
           </optgroup>
         </select>
         <select id="s-quartier" onchange="loadSearch()"><option value="">Toutes les villes</option></select>
-        <button class="search-bar-btn" onclick="loadSearch()">Trouver maintenant →</button>
-        <input type="text" id="s-text" placeholder="Nom, prénom, description..." oninput="rechercheDebounce(loadSearch)" style="flex:1;padding:10px 16px;border:none;background:transparent;font-size:15px;font-family:inherit;outline:none;color:var(--noir);min-width:140px;">
+        <input type="text" id="s-text" placeholder="Nom, prénom, description..." oninput="rechercheDebounce(loadSearch)">
         <button class="s-mic" id="s-mic-btn" onclick="wzVoiceSearch()" title="Chercher en parlant" aria-label="Chercher en parlant">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
         </button>
+        <button class="wsp-btn wz-btn-sheen" onclick="loadSearch()">Trouver maintenant →</button>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;">
-        <select class="filter-select" id="s-pays" onchange="loadSearch()" style="padding:8px 14px;border-radius:100px;border:1.5px solid rgba(232,148,10,0.4);background:white;font-weight:700;color:#E8940A;font-family:inherit;cursor:pointer;">
+      <div class="wsp-filters">
+        <select class="filter-select" id="s-pays" onchange="loadSearch()">
           <option value="">🌍 Les deux pays</option>
           <option value="benin">🇧🇯 Bénin uniquement</option>
           <option value="togo">🇹🇬 Togo uniquement</option>
         </select>
-        <button class="filter-dispo" id="dispo-btn" onclick="toggleDispo()" style="border-color:rgba(232,148,10,0.4);color:#E8940A;">⭐ Disponibles maintenant</button>
-        <button class="filter-dispo" id="digital-btn" onclick="toggleDigitalFilter()" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;">🎓 Métiers du Web</button>
-        <button class="filter-dispo" id="pro-btn" onclick="toggleProFilter()" style="border-color:rgba(232,148,10,0.4);color:#E8940A;">⭐ Pro uniquement</button>
-        <button class="filter-dispo" id="top50-btn" onclick="toggleTop50Filter()" style="border-color:rgba(232,148,10,0.4);color:#E8940A;">🏆 Top 50 WOZALI</button>
-        <button class="filter-dispo" id="verif-btn" onclick="toggleVerifFilter()" style="border-color:rgba(232,148,10,0.4);color:#E8940A;">✅ Vérifiés uniquement</button>
+        <button class="filter-dispo" id="dispo-btn" onclick="toggleDispo()">⭐ Disponibles maintenant</button>
+        <button class="filter-dispo" id="digital-btn" onclick="toggleDigitalFilter()">🎓 Métiers du Web</button>
+        <button class="filter-dispo" id="pro-btn" onclick="toggleProFilter()">⭐ Pro uniquement</button>
+        <button class="filter-dispo" id="top50-btn" onclick="toggleTop50Filter()">🏆 Top 50 WOZALI</button>
+        <button class="filter-dispo" id="verif-btn" onclick="toggleVerifFilter()">✅ Vérifiés uniquement</button>
         <select class="filter-select" id="s-tarif" onchange="loadSearch()">
           <option value="">Tous les tarifs</option>
           <option value="5000">Moins de 5 000 FCFA</option>
@@ -1375,9 +1384,9 @@ setTimeout(function(){
       <div class="map-toggle-bar">
         <div class="results-meta" id="results-meta">Chargement...</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button id="search-view-list" onclick="setSearchView('list')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">☰ Liste</button>
-          <button id="search-view-grid" onclick="setSearchView('grid')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">▦ Grille</button>
-          <button id="search-view-map" onclick="setSearchView('map')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;">🗺️ Carte</button>
+          <button id="search-view-list" onclick="setSearchView('list')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:rgba(252,224,168,.65);font-size:12px;font-weight:700;cursor:pointer;">☰ Liste</button>
+          <button id="search-view-grid" onclick="setSearchView('grid')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:rgba(252,224,168,.65);font-size:12px;font-weight:700;cursor:pointer;">▦ Grille</button>
+          <button id="search-view-map" onclick="setSearchView('map')" style="padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:rgba(252,224,168,.65);font-size:12px;font-weight:700;cursor:pointer;">🗺️ Carte</button>
           <button id="search-view-discover" onclick="openDiscover()" style="padding:7px 14px;border-radius:10px;border:1px solid #E8940A;background:#E8940A;color:#14100A;font-size:12px;font-weight:800;cursor:pointer;">✨ Découvrir</button>
         </div>
       </div>
@@ -1385,10 +1394,10 @@ setTimeout(function(){
   </div>
 
   <div class="container" style="padding-top:32px;padding-bottom:60px;">
-    <div id="search-map-notice" style="display:none;align-items:center;gap:10px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:10px 16px;margin-bottom:10px;font-size:13px;color:#92400e;">
+    <div id="search-map-notice" style="display:none;align-items:center;gap:10px;background:#1E180E;border:1px solid rgba(232,148,10,0.3);border-radius:12px;padding:10px 16px;margin-bottom:10px;font-size:13px;color:rgba(252,224,168,0.8);">
       <span style="font-size:18px;">ℹ️</span>
       <span id="search-map-notice-text"></span>
-      <button onclick="toggleMapView()" style="margin-left:auto;background:#111;color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">📋 Voir tous</button>
+      <button onclick="toggleMapView()" style="margin-left:auto;background:#E8940A;color:#14100A;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">📋 Voir tous</button>
     </div>
     <div id="search-map"></div>
     <div id="search-cards" class="cards-grid">

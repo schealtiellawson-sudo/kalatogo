@@ -5105,7 +5105,7 @@ function _applySearchLayout(cardsEl) {
 
 function _syncSearchViewButtons() {
   const onStyle  = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:#E8940A;color:#14100A;font-size:12px;font-weight:700;cursor:pointer;';
-  const offStyle = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:var(--gris-fonce);font-size:12px;font-weight:700;cursor:pointer;';
+  const offStyle = 'padding:7px 14px;border-radius:10px;border:1px solid rgba(232,148,10,.3);background:transparent;color:rgba(252,224,168,.65);font-size:12px;font-weight:700;cursor:pointer;';
   const active = _mapViewActive ? 'map' : _searchViewMode;
   const btns = {
     list: document.getElementById('search-view-list'),
@@ -5378,7 +5378,7 @@ function renderSearchMap(records) {
   if (noticeEl && noticeText) {
     if (countWithoutGPS > 0) {
       const total = countWithGPS + countWithoutGPS;
-      noticeText.innerHTML = `<strong>${countWithGPS} prestataire${countWithGPS > 1 ? 's' : ''} sur ${total}</strong> sont visibles sur la carte. <strong>${countWithoutGPS}</strong> autre${countWithoutGPS > 1 ? 's' : ''} (pros du web, sans adresse fixe) n'apparaissent pas ici — utilise la <strong>vue liste</strong> pour les voir tous.`;
+      noticeText.innerHTML = `<strong>${countWithGPS} pro${countWithGPS > 1 ? 's' : ''} sur ${total}</strong> sont visibles sur la carte. <strong>${countWithoutGPS}</strong> autre${countWithoutGPS > 1 ? 's' : ''} (pros du web, sans adresse fixe) n'apparaissent pas ici : utilise la <strong>vue liste</strong> pour les voir tous.`;
       noticeEl.style.display = 'flex';
     } else {
       noticeEl.style.display = 'none';
@@ -5423,11 +5423,11 @@ async function loadSearch() {
     var seoVille = quartier || '';
     var metaDesc = document.querySelector('meta[name="description"]');
     if (seoMetier) {
-      var titre = seoMetier + (seoVille ? ' a ' + seoVille : ' a Lome et Cotonou') + ' — WOZALI';
+      var titre = seoMetier + (seoVille ? ' a ' + seoVille : ' a Lome et Cotonou') + ' · WOZALI';
       document.title = titre;
       if (metaDesc) metaDesc.setAttribute('content', 'Trouve un ' + seoMetier.toLowerCase() + (seoVille ? ' a ' + seoVille : ' a Lome ou Cotonou') + '. Profils verifies, avis clients, contact direct. WOZALI.');
     } else {
-      document.title = 'Trouver un prestataire — WOZALI';
+      document.title = 'Trouver un pro · WOZALI';
       if (metaDesc) metaDesc.setAttribute('content', 'Trouve un prestataire de confiance a Lome ou Cotonou. Coiffure, couture, mecanique, plomberie et plus. WOZALI.');
     }
   })();
@@ -5481,17 +5481,14 @@ async function loadSearch() {
       if (_qQuartier) {
         container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
           <div class="empty-icon">🔍</div>
-          <h3>Aucun prestataire trouvé pour "${_qMetier}" à "${_qQuartier}".</h3>
+          <h3>Aucun pro trouvé pour "${_qMetier}" à "${_qQuartier}".</h3>
           <p style="margin-bottom:14px;line-height:1.7;">Essaie :<br>→ Un quartier proche<br>→ La ville entière<br>→ Les deux pays simultanément</p>
-          <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Ou deviens le premier <strong>${_qMetier}</strong> référencé ici :</p>
-          <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil WOZALI — c'est gratuit</button>
         </div>`;
       } else {
         container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
           <div class="empty-icon">🔍</div>
-          <h3>Personne pour "${_qMetier}" pour l'instant.</h3>
-          <p style="margin-bottom:14px;line-height:1.7;">Ce métier n'est pas encore représenté sur WOZALI.<br><strong>Sois le premier</strong> — et sois trouvé avant tout le monde.</p>
-          <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil maintenant</button>
+          <h3>Aucun pro trouvé pour "${_qMetier}" pour l'instant.</h3>
+          <p style="margin-bottom:14px;line-height:1.7;">Essaie un autre métier, un autre quartier, ou élargis ta recherche aux deux pays.</p>
         </div>`;
       }
       if (_mapViewActive) renderSearchMap([]);
@@ -5503,19 +5500,19 @@ async function loadSearch() {
     if (_cardsHtml.length > 6) {
       const _mLabel = metier || 'ce métier';
       const _nbSearch = Math.max(12, Math.floor(records.length * 2));
-      const _banner = `<div class="pcard" style="grid-column:1/-1;background:linear-gradient(135deg,#fff8e6,#fef3dc);border:2px solid #E8940A;padding:24px;text-align:center;">
+      const _banner = `<div class="pcard" style="grid-column:1/-1;background:linear-gradient(160deg,#26200F 0%,#1E180E 60%);border:1px solid rgba(232,148,10,0.35);padding:24px;text-align:center;">
         <div style="font-size:32px;margin-bottom:8px;">💡</div>
-        <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:900;color:#14100A;margin-bottom:10px;">Tu es ${_mLabel} à Cotonou ou à Lomé ?</h3>
-        <p style="font-size:14px;color:#374151;line-height:1.7;margin-bottom:6px;"><strong>${_nbSearch}</strong> personnes ont cherché "<em>${_mLabel}</em>" ce mois sur WOZALI. Aucune ne t'a trouvé.</p>
-        <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:14px;">Ton concurrent qui est Pro apparaît en premier. Toi, tu n'apparais pas encore.</p>
-        <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil gratuit — 2 minutes</button>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:10px;">Tu es ${_mLabel} à Cotonou ou à Lomé ?</h3>
+        <p style="font-size:14px;color:rgba(252,224,168,0.75);line-height:1.7;margin-bottom:6px;"><strong style="color:#E8940A;">${_nbSearch}</strong> personnes ont cherché "<em>${_mLabel}</em>" ce mois sur WOZALI. Aucune ne t'a trouvé.</p>
+        <p style="font-size:13px;color:rgba(252,224,168,0.6);line-height:1.6;margin-bottom:14px;">Ton concurrent qui est Pro apparaît en premier. Toi, tu n'apparais pas encore.</p>
+        <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Créer mon profil gratuit, 2 minutes</button>
       </div>`;
       _cardsHtml.splice(6, 0, _banner);
     }
     container.innerHTML = _cardsHtml.join('') + `
-      <div style="grid-column:1/-1;margin-top:40px;padding:28px;background:#fff8e6;border:1.5px solid #f3d38a;border-radius:16px;text-align:center;">
-        <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:900;margin-bottom:10px;">Tu n'as pas trouvé le bon prestataire ?</h3>
-        <p style="font-size:14px;color:#374151;margin-bottom:16px;">Publie ta demande — les prestataires disponibles te contactent.</p>
+      <div style="grid-column:1/-1;margin-top:40px;padding:28px;background:linear-gradient(160deg,#26200F 0%,#1E180E 60%);border:1px solid rgba(232,148,10,0.3);border-radius:16px;text-align:center;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:#FCE0A8;margin-bottom:10px;">Tu n'as pas trouvé le bon pro ?</h3>
+        <p style="font-size:14px;color:rgba(252,224,168,0.7);margin-bottom:16px;">Publie ta demande : les pros disponibles te contactent.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
           <button class="btn btn-primary btn-sm" onclick="showPage('inscription')">→ Publier ma demande de service</button>
           <button class="btn btn-secondary btn-sm" onclick="showPage('emploi')">→ Voir les offres actives au Bénin et au Togo</button>
@@ -5534,7 +5531,7 @@ async function loadSearch() {
     meta.textContent = `${filtered.length} prestataire${filtered.length !== 1 ? 's' : ''} (démo)`;
     container.innerHTML = filtered.length
       ? filtered.map(r => renderCard(r)).join('')
-      : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🔍</div><h3>Aucun prestataire trouvé.</h3><p>Essaie d'élargir ta recherche ou <a href="javascript:showPage('inscription')" style="color:var(--or);font-weight:700;">crée ton profil</a>.</p></div>`;
+      : `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🔍</div><h3>Aucun pro trouvé.</h3><p>Essaie un autre métier, un autre quartier, ou élargis ta recherche aux deux pays.</p></div>`;
     if (_mapViewActive) renderSearchMap(filtered);
   }
 }
