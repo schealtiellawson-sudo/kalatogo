@@ -597,7 +597,7 @@ function showDashSection(section) {
   if (section === 'abonnement') { injectSprint6Upgrade(); loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
     if (section === 'parrainage') loadParrainage();
-  if (section === 'notifications' && currentPrestataire?.id) { renderNotifications(currentPrestataire.id); try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
+  if (section === 'notifications' && currentPrestataire?.id) { window._notifBadgeFetchAt = 0; try { updateNotifBadge(currentPrestataire.id); } catch(e){} try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
   if (section === 'support-admin') loadSupportAdmin();
   if (section === 'favoris') loadFavoris();
   if (section === 'enregistres') loadDashEnregistres();
@@ -3803,16 +3803,25 @@ function bntSetActive(tab) {
   document.querySelectorAll('.bnt-item').forEach(function(b) { b.classList.remove('active'); });
   var btn = document.getElementById('bnt-' + tab);
   if (btn) btn.classList.add('active');
+  // Rail latéral desktop : même état actif
+  document.querySelectorAll('.wz-rail-item').forEach(function(b) { b.classList.remove('active'); });
+  var railBtn = document.getElementById('rail-' + tab);
+  if (railBtn) railBtn.classList.add('active');
 }
 
 function showBottomNav() {
   var nav = document.getElementById('bottom-nav');
   if (nav) { nav.style.display = 'flex'; document.body.classList.add('has-bottom-nav'); }
+  // Le rail desktop est piloté par la même classe body (CSS par plage de tailles)
+  var rail = document.getElementById('wz-rail');
+  if (rail) rail.removeAttribute('hidden');
 }
 
 function hideBottomNav() {
   var nav = document.getElementById('bottom-nav');
   if (nav) { nav.style.display = 'none'; document.body.classList.remove('has-bottom-nav'); }
+  var rail = document.getElementById('wz-rail');
+  if (rail) rail.setAttribute('hidden', '');
   var rp = document.getElementById('dash-right-panel');
   if (rp) rp.classList.remove('visible');
 }
@@ -6035,45 +6044,114 @@ async function sharePost(recordId, postId) {
 }
 
 // ── SYSTÈME DE NOTIFICATIONS / ACTIVITÉ ──
-function pushNotif(recordId, notif) {
-  const key = `wozali_notifs_${recordId}`;
-  const notifs = JSON.parse(localStorage.getItem(key) || '[]');
-  notifs.unshift({ ...notif, id: Date.now().toString(), date: new Date().toISOString(), read: false });
-  if (notifs.length > 100) notifs.splice(100);
-  localStorage.setItem(key, JSON.stringify(notifs));
-  updateNotifBadge(recordId);
+// Chemin principal : table serveur wozali_notifications, via la fonction SQL
+// notifier_utilisateur (SECURITY DEFINER). L'ancien localStorage n'atteignait
+// jamais le destinataire (écrit dans le navigateur de celui qui agit).
+// Le localStorage reste uniquement en repli silencieux si l'appel échoue.
+
+// Résout un id prestataire (wozali_prestataires.id) vers son auth user_id.
+async function _notifResolveUserId(recordId) {
+  if (!recordId) return null;
+  window._notifUserIdCache = window._notifUserIdCache || {};
+  if (Object.prototype.hasOwnProperty.call(window._notifUserIdCache, recordId)) {
+    return window._notifUserIdCache[recordId];
+  }
+  let uid = null;
+  try {
+    const sb = window.supabase || (typeof supa !== 'undefined' ? supa : null);
+    if (sb) {
+      const { data } = await sb.from('wozali_prestataires').select('user_id').eq('id', recordId).maybeSingle();
+      uid = data?.user_id || null;
+    }
+  } catch (e) { /* réseau : on retentera au prochain appel */ return null; }
+  window._notifUserIdCache[recordId] = uid;
+  return uid;
 }
 
-function updateNotifBadge(recordId) {
-  if (!recordId) return;
-  const key = `wozali_notifs_${recordId}`;
-  const notifs = JSON.parse(localStorage.getItem(key) || '[]');
-  let unread = notifs.filter(n => !n.read).length;
-  // Ajouter les messages du fondateur non lus depuis Supabase notifications
+// Repli local (ancien comportement) — seulement si le serveur est injoignable.
+function _pushNotifLocal(recordId, notif) {
+  try {
+    const key = `wozali_notifs_${recordId}`;
+    const notifs = JSON.parse(localStorage.getItem(key) || '[]');
+    notifs.unshift({ ...notif, id: Date.now().toString(), date: new Date().toISOString(), read: false });
+    if (notifs.length > 100) notifs.splice(100);
+    localStorage.setItem(key, JSON.stringify(notifs));
+  } catch (e) {}
+}
+
+function pushNotif(recordId, notif) {
+  // Fire-and-forget : ne bloque jamais l'action qui la déclenche (like, avis...).
+  (async () => {
+    try {
+      const sb = window.supabase || (typeof supa !== 'undefined' ? supa : null);
+      if (!sb || !window.currentUser) throw new Error('non connecté');
+      const uid = await _notifResolveUserId(recordId);
+      if (!uid) throw new Error('destinataire introuvable');
+      if (uid === window.currentUser.id) return; // pas de notification à soi-même
+      const { type, ...payload } = notif || {};
+      const { error } = await sb.rpc('notifier_utilisateur', {
+        p_user_id: uid,
+        p_type: type || 'info',
+        p_payload: payload,
+      });
+      if (error) throw error;
+    } catch (e) {
+      _pushNotifLocal(recordId, notif);
+    }
+  })();
+}
+
+// Applique le compteur connu (serveur + fondateur + stories) sur tous les badges.
+function _applyNotifBadge() {
+  let unread = window._notifUnreadServer || 0;
   try {
     const fondateur = _getFondateurMessages();
     unread += fondateur.filter(m => !m.read).length;
   } catch(e){}
   unread += (window._storyRepsUnread || 0);
+  const label = unread > 99 ? '99+' : String(unread);
   const badge = document.getElementById('notif-badge');
   if (badge) {
-    if (unread > 0) {
-      badge.textContent = unread > 99 ? '99+' : String(unread);
-      badge.style.display = 'inline-block';
-    } else {
-      badge.style.display = 'none';
-    }
+    badge.textContent = label;
+    badge.style.display = unread > 0 ? 'inline-block' : 'none';
   }
   // Même badge sur l'onglet Messages de la barre de navigation mobile
   const bntBadge = document.getElementById('bnt-messages-badge');
   if (bntBadge) {
-    if (unread > 0) {
-      bntBadge.textContent = unread > 99 ? '99+' : String(unread);
-      bntBadge.style.display = 'flex';
-    } else {
-      bntBadge.style.display = 'none';
-    }
+    bntBadge.textContent = label;
+    bntBadge.style.display = unread > 0 ? 'flex' : 'none';
   }
+  // Rail latéral desktop
+  const railBadge = document.getElementById('rail-messages-badge');
+  if (railBadge) {
+    railBadge.textContent = label;
+    railBadge.style.display = unread > 0 ? 'flex' : 'none';
+  }
+  // Rangée Activité (uniquement les notifications serveur)
+  const actBadge = document.getElementById('dm-activity-badge');
+  if (actBadge) {
+    const srv = window._notifUnreadServer || 0;
+    actBadge.textContent = srv > 99 ? '99+' : String(srv);
+    actBadge.style.display = srv > 0 ? 'flex' : 'none';
+  }
+  document.getElementById('dm-conv-activity')?.classList.toggle('unread', (window._notifUnreadServer || 0) > 0);
+}
+
+function updateNotifBadge(recordId) {
+  // Affichage immédiat avec le dernier compte connu, puis rafraîchissement serveur.
+  _applyNotifBadge();
+  if (!window.currentUser) return;
+  const now = Date.now();
+  if (window._notifBadgeFetchAt && now - window._notifBadgeFetchAt < 15000) return; // anti-rafale
+  window._notifBadgeFetchAt = now;
+  wozaliFetch('/api/wozali-pay/notifications-list?limit=1')
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      if (!j || !j.ok) return;
+      window._notifUnreadServer = j.unread_count || 0;
+      _applyNotifBadge();
+    })
+    .catch(() => {});
 }
 
 // ══ RÉPONSES AUX STORIES — conversations dans l'Activité (étape 6) ══
@@ -6665,6 +6743,9 @@ async function _loadCoachThread() {
   if (av) { av.style.overflow = ''; av.style.padding = ''; av.style.background = 'linear-gradient(135deg,#E8940A,#b56f05)'; av.innerHTML = '<span style="font-family:\'DM Serif Display\',serif;font-style:italic;color:#14100A;">S</span>'; }
   const nm = document.getElementById('dm-thread-name');
   if (nm) nm.textContent = 'Coach Sandy';
+  // Honnêteté + argument de vente : Sandy est un agent IA, pas une présence humaine simulée
+  const st = document.getElementById('dm-thread-status');
+  if (st) st.textContent = 'Agent IA, répond tout de suite';
   // Pas de composer libre (conversation guidée — le chat libre arrive avec Pro)
   const composer = document.querySelector('.dm-compose-bar');
   if (composer) { composer.style.display = 'none'; composer.dataset.hiddenForStory = '1'; }
@@ -6817,7 +6898,7 @@ async function _loadCoachPreview() {
     const time = document.getElementById('dm-coach-time');
     const badge = document.getElementById('dm-coach-badge');
     if (!last || !last.length) {
-      if (preview) preview.textContent = 'Ton agent IA business';
+      if (preview) preview.textContent = 'Agent IA, répond tout de suite';
       if (badge) { badge.style.display = 'inline-flex'; badge.textContent = '1'; }
       return;
     }
@@ -6928,6 +7009,8 @@ function _applyFondateurProfileToUI(profil) {
   setAvatar(document.getElementById('dm-thread-avatar'));
   const threadName = document.getElementById('dm-thread-name');
   if (threadName) threadName.textContent = nomAffiche;
+  const threadStatus = document.getElementById('dm-thread-status');
+  if (threadStatus) threadStatus.textContent = 'En ligne';
 
   // Mettre à jour les messages déjà affichés pour refléter le vrai nom
   if (document.getElementById('dm-messages-list')?.children.length > 1) {
@@ -6975,12 +7058,36 @@ function openDmThread(threadId) {
     document.getElementById('dm-thread-panel')?.classList.add('dm-thread-open');
   }
 
-  const emptyState   = document.getElementById('dm-empty-state');
+  const emptyState    = document.getElementById('dm-empty-state');
   const threadContent = document.getElementById('dm-thread-content');
+  const activityPanel = document.getElementById('dm-activity-panel');
   if (emptyState) emptyState.style.display = 'none';
+  if (activityPanel) activityPanel.style.display = 'none';
   if (threadContent) threadContent.style.display = 'flex';
 
   loadDmMessages(threadId);
+}
+
+// Ouvre la rangée Activité : les notifications (j'aime, avis, vues,
+// candidatures, abonnements) dans le panneau de droite. C'est ici, et
+// seulement ici, qu'elles sont affichées puis marquées lues.
+function openDmActivity() {
+  document.querySelectorAll('.dm-conv-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('dm-conv-activity')?.classList.add('active');
+
+  if (window.innerWidth <= 768) {
+    document.getElementById('dm-col-left')?.classList.add('dm-thread-open');
+    document.getElementById('dm-thread-panel')?.classList.add('dm-thread-open');
+  }
+
+  const emptyState    = document.getElementById('dm-empty-state');
+  const threadContent = document.getElementById('dm-thread-content');
+  const activityPanel = document.getElementById('dm-activity-panel');
+  if (emptyState) emptyState.style.display = 'none';
+  if (threadContent) threadContent.style.display = 'none';
+  if (activityPanel) activityPanel.style.display = 'flex';
+
+  renderNotifications(window.currentPrestataire?.id);
 }
 
 function closeDmThread() {
@@ -7232,69 +7339,125 @@ async function toggleWozaliHistory() {
 // FIN CHAT WOZALI
 // ──────────────────────────────────────────────
 
-function renderNotifications(recordId) {
-  const key = `wozali_notifs_${recordId}`;
-  const notifs = JSON.parse(localStorage.getItem(key) || '[]');
-  // Marquer tout comme lu
-  notifs.forEach(n => n.read = true);
-  localStorage.setItem(key, JSON.stringify(notifs));
-  updateNotifBadge(recordId);
+// Construit le message d'une notification (payload serveur OU objet local).
+function _notifMessageHtml(type, p) {
+  const e = escapeHtml;
+  const cut = (s, n) => { s = String(s || ''); return e(s.substring(0, n)) + (s.length > n ? '...' : ''); };
+  switch (type) {
+    case 'like':
+      return `<strong>${e(p.auteur || 'Un visiteur')}</strong> a aimé ta publication` +
+        (p.postTexte ? ` : <em style="color:rgba(252,224,168,.45);">"${cut(p.postTexte, 50)}"</em>` : '');
+    case 'comment':
+      return `<strong>${e(p.auteur || 'Un visiteur')}</strong> a commenté : <em style="color:rgba(252,224,168,.45);">"${cut(p.texte, 60)}"</em>`;
+    case 'vue':
+      return `Quelqu'un a consulté ton profil`;
+    case 'rdv':
+      return `<strong>${e(p.clientNom || 'Client')}</strong> a demandé un RDV${p.date ? ' le ' + e(p.date) : ''}`;
+    case 'payment':
+      return `Paiement reçu : <strong>${(p.montant || 0).toLocaleString('fr-FR')} FCFA</strong> pour ${e(p.desc || 'une prestation')}`;
+    case 'client_payment':
+      return `<strong style='color:#E8940A;'>Paiement Flooz/TMoney · ${(p.montant || 0).toLocaleString('fr-FR')} FCFA</strong> confirmé par un client via ton profil`;
+    case 'avis':
+      return `<strong>${e(p.auteur || 'Client')}</strong> a laissé un avis : <em style="color:rgba(252,224,168,.45);">"${cut(p.texte, 50)}"</em>`;
+    case 'suivi':
+      return `<strong>${e(p.auteur || 'Un utilisateur')}</strong> suit maintenant ton profil`;
+    case 'favori':
+      return `<strong>${e(p.auteur || 'Un utilisateur')}</strong> a ajouté ton profil à ses favoris`;
+    case 'photo_like':
+      return `<strong>${e(p.auteur || 'Un utilisateur')}</strong> a aimé une de tes photos`;
+    case 'photo_comment':
+      return `<strong>${e(p.auteur || 'Un visiteur')}</strong> a commenté ta photo : <em style="color:rgba(252,224,168,.45);">"${cut(p.texte, 60)}"</em>`;
+    case 'candidature_statut':
+      return `<strong>${e(p.titre || 'Candidature')}</strong><br><span style="color:rgba(252,224,168,.6);">${e(p.message || '')}</span>`;
+    default:
+      // Type serveur inconnu : rendre titre/message si présents, sinon le type.
+      if (p.titre || p.message) {
+        return `${p.titre ? '<strong>' + e(p.titre) + '</strong>' : ''}${p.titre && p.message ? '<br>' : ''}${p.message ? '<span style="color:rgba(252,224,168,.6);">' + e(p.message) + '</span>' : ''}`;
+      }
+      return e(type || 'Notification');
+  }
+}
+
+function _notifIcon(type) {
+  const map = {
+    like: '❤️', comment: '💬', vue: '👁️', rdv: '📅', payment: '💳',
+    client_payment: '💳', avis: '⭐', suivi: '👥', favori: '❤️',
+    photo_like: '📸', photo_comment: '💬', candidature_statut: '💼',
+  };
+  return map[type] || '🔔';
+}
+
+// Charge les notifications RÉELLES depuis le serveur, les affiche, puis
+// seulement une fois affichées, les marque lues (notifications-read).
+async function renderNotifications(recordId) {
   const el = document.getElementById('notifs-list');
   if (!el) return;
+  el.innerHTML = `<div style="text-align:center;padding:32px 0;color:rgba(252,224,168,.3);font-size:13px;font-family:'Geist',sans-serif;">Chargement...</div>`;
+
+  let notifs = [];
+  let fromServer = false;
+  try {
+    const res = await wozaliFetch('/api/wozali-pay/notifications-list?limit=30');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'réponse invalide');
+    fromServer = true;
+    window._notifUnreadServer = j.unread_count || 0;
+    notifs = (j.notifications || []).map(n => ({
+      id: n.id,
+      type: n.type,
+      payload: n.payload || {},
+      date: n.created_at,
+      read: !!n.lu,
+    }));
+  } catch (e) {
+    // Repli : notifications locales historiques (ancien système)
+    try {
+      const local = JSON.parse(localStorage.getItem(`wozali_notifs_${recordId}`) || '[]');
+      notifs = local.map(n => ({ id: n.id, type: n.type, payload: n, date: n.date, read: !!n.read }));
+    } catch (e2) { notifs = []; }
+  }
+
   if (notifs.length === 0) {
-    el.innerHTML = `<div style="text-align:center;padding:48px 0;color:#999;">
-      <div style="font-size:48px;margin-bottom:12px;">🔔</div>
-      <div style="font-weight:600;margin-bottom:6px;">Pas encore d'activité</div>
-      <div style="font-size:13px;">Tu verras ici les likes, commentaires et vues sur ton profil.</div>
+    el.innerHTML = `<div style="text-align:center;padding:48px 16px;color:rgba(252,224,168,.35);font-family:'Geist',sans-serif;">
+      <div style="font-size:40px;margin-bottom:12px;">🔔</div>
+      <div style="font-weight:700;margin-bottom:6px;color:rgba(252,224,168,.6);">Pas encore d'activité</div>
+      <div style="font-size:13px;line-height:1.6;">Tu verras ici les j'aime, avis, vues et candidatures sur ton profil.</div>
     </div>`;
     return;
   }
-  el.innerHTML = `<div style="display:flex;flex-direction:column;gap:0;">` + notifs.map(n => {
-    const dateStr = new Date(n.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-    let icon = '🔔', msg = '', bg = '#f9fafb';
-    if (n.type === 'like') {
-      icon = '❤️'; bg = '#fff5f5';
-      msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a aimé ta publication`;
-      if (n.postTexte) msg += ` : <em style="color:#888;">"${n.postTexte.substring(0,50)}${n.postTexte.length>50?'...':''}"</em>`;
-    } else if (n.type === 'comment') {
-      icon = '💬'; bg = '#eff6ff';
-      msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a commenté : <em style="color:#888;">"${(n.texte||'').substring(0,60)}${(n.texte||'').length>60?'...':''}"</em>`;
-    } else if (n.type === 'vue') {
-      icon = '👁️'; bg = '#FCE0A8';
-      msg = `Quelqu'un a consulté ton profil`;
-    } else if (n.type === 'rdv') {
-      icon = '📅'; bg = '#fff7ed';
-      msg = `<strong>${n.clientNom || 'Client'}</strong> a demandé un RDV le ${n.date || 'à une date'}`;
-    } else if (n.type === 'payment') {
-      icon = '💳'; bg = '#FCE0A8';
-      msg = `Paiement reçu : <strong>${n.montant?.toLocaleString('fr-FR')} FCFA</strong> pour ${n.desc || 'une prestation'}`;
-    } else if (n.type === 'client_payment') {
-      icon = '💳'; bg = '#FCE0A8';
-      msg = `<strong style='color:#E8940A;'>💸 Paiement Flooz/TMoney · ${(n.montant||0).toLocaleString('fr-FR')} FCFA</strong> confirmé par un client via ton profil`;
-    } else if (n.type === 'avis') {
-      icon = '⭐'; bg = '#fef3c7';
-      msg = `<strong>${n.auteur || 'Client'}</strong> a laissé un avis : <em style="color:#888;">"${(n.texte||'').substring(0,50)}${(n.texte||'').length>50?'...':''}"</em>`;
-    } else if (n.type === 'suivi') {
-      icon = '👥'; bg = '#FCE0A8';
-      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> suit maintenant ton profil`;
-    } else if (n.type === 'favori') {
-      icon = '❤️'; bg = '#fff1f2';
-      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> a ajouté ton profil à ses favoris`;
-    } else if (n.type === 'photo_like') {
-      icon = '📸'; bg = '#fff5f5';
-      msg = `<strong>${n.auteur || 'Un utilisateur'}</strong> a aimé une de tes photos`;
-    } else if (n.type === 'photo_comment') {
-      icon = '💬'; bg = '#eff6ff';
-      msg = `<strong>${n.auteur || 'Un visiteur'}</strong> a commenté ta photo : <em style="color:#888;">"${(n.texte||'').substring(0,60)}"</em>`;
-    }
-    return `<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-bottom:1px solid #f0f0f0;background:${n.read?'white':bg};transition:background 0.3s;">
-      <div style="font-size:18px;flex-shrink:0;width:38px;height:38px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;">${icon}</div>
+
+  el.innerHTML = `<div style="display:flex;flex-direction:column;">` + notifs.map(n => {
+    const d = n.date ? new Date(n.date) : null;
+    const dateStr = d && !isNaN(d) ? d.toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+    const msg = _notifMessageHtml(n.type, n.payload || {});
+    const unreadBg = n.read ? 'transparent' : 'rgba(232,148,10,.06)';
+    const dot = n.read ? '' : `<span style="width:8px;height:8px;border-radius:50%;background:#E8940A;flex-shrink:0;margin-top:6px;"></span>`;
+    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;min-height:44px;border-bottom:1px solid rgba(232,148,10,.07);background:${unreadBg};">
+      <div style="font-size:16px;flex-shrink:0;width:38px;height:38px;border-radius:50%;background:#1E180E;border:1px solid rgba(232,148,10,.18);display:flex;align-items:center;justify-content:center;">${_notifIcon(n.type)}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:14px;color:#111;line-height:1.5;">${msg}</div>
-        <div style="font-size:12px;color:#aaa;margin-top:3px;">${dateStr}</div>
+        <div style="font-size:13.5px;color:#FCE0A8;line-height:1.55;font-family:'Geist',sans-serif;">${msg}</div>
+        <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:3px;font-family:'Geist Mono',monospace;">${dateStr}</div>
       </div>
+      ${dot}
     </div>`;
   }).join('') + `</div>`;
+
+  // Les notifications viennent d'être RÉELLEMENT affichées : on peut les marquer lues.
+  if (fromServer) {
+    const unreadIds = notifs.filter(n => !n.read).map(n => n.id);
+    if (unreadIds.length) {
+      try {
+        await wozaliFetch('/api/wozali-pay/notifications-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: unreadIds }),
+        });
+        window._notifUnreadServer = Math.max(0, (window._notifUnreadServer || 0) - unreadIds.length);
+      } catch (e) { /* le badge restera, elles seront re-marquées à la prochaine ouverture */ }
+    }
+    _applyNotifBadge();
+  }
 }
 
 async function likePost(recordId, postId) {

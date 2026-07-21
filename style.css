@@ -1768,7 +1768,7 @@ footer {
 #page-dashboard .wchip-sable      { background: rgba(232,181,74,.16);  color: #E8B54A; }
 .dash-link.dash-big.active { background: rgba(232,148,10,.14); color: #E8940A; }
 #page-dashboard .dash-link.dash-big.active .dash-big-chip { background: #E8940A; color: #14100A; }
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .dash-link.dash-big { padding: 14px 14px; font-size: 16px; }
   .dash-big-chip { width: 40px; height: 40px; }
 }
@@ -1839,11 +1839,14 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
 .avis-dash-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 .avis-dash-author { font-weight:700; font-size:14px; }
 
-@media (max-width:900px) {
+/* Aligné sur 1024px : en dessous, UN SEUL système s'applique
+   (barre du bas + tiroir). L'ancien 900px laissait un angle mort 769-900px
+   sans barre du bas ni tiroir, avec un bandeau de 30+ boutons empilés. */
+@media (max-width:1024px) {
   .dashboard-layout { grid-template-columns:1fr; }
   .dashboard-sidebar { position:static; height:auto; padding:16px; display:flex; gap:8px; flex-wrap:wrap; border-right:none; border-bottom:1px solid var(--gris-light); }
   .dashboard-sidebar h3 { display:none; }
-  .dash-link { padding:8px 12px; font-size:14px; }
+  .dash-link { padding:11px 12px; font-size:14px; min-height:44px; }
   .dashboard-main { padding:20px; }
 }
 
@@ -1900,7 +1903,8 @@ input:checked + .toggle-slider:before { transform:translateX(24px); }
   .dashboard-layout { grid-template-columns:1fr !important; }
   .dashboard-sidebar { padding:12px !important; gap:4px !important; flex-wrap:nowrap !important; overflow-x:auto !important; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
   .dashboard-sidebar::-webkit-scrollbar { display:none; }
-  .dash-link { padding:8px 10px !important; font-size:13px !important; flex:0 0 auto; white-space:nowrap; }
+  /* Zone tactile ≥ 44px, y compris dans le tiroir mobile */
+  .dash-link { padding:11px 12px !important; font-size:14px !important; min-height:44px !important; flex:0 0 auto; white-space:nowrap; display:flex; align-items:center; }
   .dashboard-main { padding:16px !important; }
   .stat-cards { grid-template-columns:repeat(2,1fr) !important; gap:10px !important; }
   .stat-card { padding:14px !important; }
@@ -3358,11 +3362,12 @@ nav .nav-logo circle[fill="#14100A"] { fill: #14100A; stroke: #E8940A; }
   padding:6px 12px 4px;
 }
 
-/* Mobile : sidebar dashboard en accordéon, groupes restent collapsibles */
-@media (max-width:768px){
+/* Mobile/tablette : sidebar dashboard en accordéon, groupes restent collapsibles */
+@media (max-width:1024px){
   #page-dashboard .dashboard-sidebar { display:block !important; flex-wrap:initial !important; }
   #page-dashboard .dash-group-body { padding-left:10px; }
-  #page-dashboard .dash-link { padding:10px 12px !important; font-size:14px !important; flex:initial !important; }
+  #page-dashboard .dash-link { padding:11px 12px !important; font-size:14px !important; min-height:44px !important; flex:initial !important; }
+  #page-dashboard .dash-group-head { min-height:44px; }
 }
 
 /* ══ Fonds clairs → thème nuit (dashboard + modals + toutes pages) ══ */
@@ -6865,7 +6870,9 @@ input::placeholder, textarea::placeholder {
   height:60px !important;
   box-shadow:0 -4px 24px rgba(0,0,0,.5);
 }
-@media (min-width:769px) { #bottom-nav { display:none !important; } }
+/* Au-delà de 1024px, le rail latéral gauche prend le relais (parité ordinateur).
+   Un seul système par plage : ≤1024px barre du bas + tiroir, ≥1025px rail. */
+@media (min-width:1025px) { #bottom-nav { display:none !important; } }
 
 .bnt-item {
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -6885,17 +6892,20 @@ input::placeholder, textarea::placeholder {
   font-family:'Geist Mono',monospace; line-height:1; padding:0 3px;
 }
 
-/* Padding pour que le contenu ne soit pas masque par la barre */
-body.has-bottom-nav .page.active { padding-bottom:68px; }
-body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
+/* Padding pour que le contenu ne soit pas masque par la barre
+   (uniquement quand la barre du bas existe, c'est-a-dire ≤1024px) */
+@media (max-width:1024px) {
+  body.has-bottom-nav .page.active { padding-bottom:68px; }
+  body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
+}
 
 /* En-tête tiroir + overlay + bouton flottant : cachés sur desktop */
 .dash-drawer-head { display:none; }
 #dash-menu-overlay { display:none; }
 #dash-menu-fab { display:none; }
 
-/* Bouton menu flottant — visible sur mobile dans le dashboard */
-@media (max-width:768px) {
+/* Bouton menu flottant — visible sur mobile/tablette dans le dashboard */
+@media (max-width:1024px) {
   #dash-menu-fab {
     display:flex; align-items:center; gap:8px;
     position:fixed; top:64px; left:12px; z-index:180;
@@ -6916,8 +6926,8 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
   body.dash-menu-locked #dash-menu-fab { opacity:0; pointer-events:none; }
 }
 
-/* Sidebar dashboard = tiroir coulissant sur mobile (accès à toutes les sections) */
-@media (max-width:768px) {
+/* Sidebar dashboard = tiroir coulissant sur mobile/tablette (accès à toutes les sections) */
+@media (max-width:1024px) {
   body.has-bottom-nav #page-dashboard .dashboard-sidebar {
     display:block !important;
     position:fixed !important;
@@ -6970,6 +6980,50 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
     color:#E8940A; cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
   .dash-drawer-close:active { background:rgba(232,148,10,.22); }
+}
+
+/* ═══════════════════════════════════════════
+   RAIL LATÉRAL GAUCHE (ordinateur ≥1025px)
+   Porte l'écosystème social : Accueil · Trouver ·
+   Jobs · Messages · Profil. La barre latérale du
+   dashboard reste le plan de l'espace personnel.
+═══════════════════════════════════════════ */
+#wz-rail { display:none; }
+@media (min-width:1025px) {
+  /* !important : une règle globale body { padding:0 !important } existe plus haut */
+  body.has-bottom-nav { padding-left:88px !important; }
+  body.has-bottom-nav #wz-rail:not([hidden]) { display:flex; }
+  #wz-rail {
+    position:fixed; top:68px; left:0; bottom:0; width:88px;
+    flex-direction:column; align-items:stretch; gap:4px;
+    padding:18px 10px 20px;
+    background:#14100A;
+    border-right:1px solid rgba(232,148,10,.12);
+    z-index:4950;
+  }
+  .wz-rail-item {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:5px; min-height:60px; min-width:44px;
+    border:none; background:none; border-radius:12px;
+    color:rgba(252,224,168,.4);
+    font-family:'Geist',sans-serif; font-size:10.5px; font-weight:600;
+    cursor:pointer; position:relative;
+    transition:color .15s, background .15s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .wz-rail-item:hover { color:#FCE0A8; background:rgba(232,148,10,.07); }
+  .wz-rail-item.active { color:#E8940A; background:rgba(232,148,10,.09); }
+  .wz-rail-item svg { display:block; }
+  .wz-rail-badge {
+    position:absolute; top:8px; right:calc(50% - 22px);
+    background:#ef4444; min-width:16px; height:16px;
+    border-radius:8px; font-size:9px; font-weight:800; color:white;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Geist Mono',monospace; line-height:1; padding:0 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wz-rail-item, .dash-link, .bnt-item { transition:none !important; }
 }
 
 /* ═══════════════════════════════════════════
@@ -7027,12 +7081,7 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
   font-family:'Geist',sans-serif; transition:background .15s;
 }
 .dm-col-new-btn:hover { background:rgba(232,148,10,.22); }
-.dm-col-search { padding:8px 12px; flex-shrink:0; }
-.dm-search-inner {
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06);
-  border-radius:10px; padding:7px 12px; display:flex; align-items:center; gap:8px;
-}
-.dm-search-placeholder { font-size:12px; color:rgba(255,255,255,.25); font-family:'Geist',sans-serif; }
+/* (fausse barre de recherche décorative retirée — Vague 2a) */
 .dm-conv-list {
   flex:1; overflow-y:auto;
   scrollbar-width:thin; scrollbar-color:rgba(232,148,10,.12) transparent;
@@ -7218,6 +7267,29 @@ body.has-bottom-nav #page-dashboard { padding-bottom:68px; }
 }
 .dm-send-btn:hover { background:#f0a020; }
 .dm-send-btn:disabled { background:rgba(232,148,10,.28); cursor:not-allowed; }
+
+/* ── Rangée Activité + panneau Activité (notifications réelles) ── */
+.dm-activity-row { border-bottom:1px solid rgba(232,148,10,.1); min-height:64px; }
+.dm-ia-tag {
+  display:inline-block; margin-left:6px; padding:1px 7px; border-radius:100px;
+  background:rgba(232,148,10,.12); border:1px solid rgba(232,148,10,.3);
+  color:#E8940A; font-size:9px; font-weight:700;
+  font-family:'Geist Mono',monospace; letter-spacing:.5px; text-transform:uppercase;
+  vertical-align:middle;
+}
+#dm-activity-panel { flex:1; flex-direction:column; overflow:hidden; background:#14100A; min-width:0; }
+.dm-activity-list {
+  flex:1; overflow-y:auto;
+  scrollbar-width:thin; scrollbar-color:rgba(232,148,10,.08) transparent;
+}
+
+/* ── TABLETTE 769-1024px : la section messages suit le padding 20px ── */
+@media (min-width:769px) and (max-width:1024px) {
+  #ds-notifications.active {
+    margin: -20px;
+    height: calc(100vh - 128px);
+  }
+}
 
 /* ── MOBILE : navigation WhatsApp ── */
 @media (max-width: 768px) {
