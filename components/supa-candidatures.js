@@ -14,7 +14,7 @@
     'Candidat WhatsApp':   'candidat_whatsapp',
     'Candidat Photo':      'candidat_photo',
     'Candidat Quartier':   'candidat_quartier',
-    'Candidat Score WOZALI': 'candidat_score_wozali',
+    'Candidat Score WOZALI': 'candidat_score_wozali', // colonne renommée par migration 20260721_candidatures_notifications.sql
     'Recruteur ID':        'recruteur_prestataire_id',
     'Recruteur User ID':   'recruteur_user_id',
     'Recruteur Nom':       'recruteur_nom',
@@ -27,6 +27,9 @@
   };
 
   function _supa() { return window.supabase || window.supa; }
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  function _isUuid(v) { return typeof v === 'string' && UUID_RE.test(v); }
 
   function _toAirtableRecord(row) {
     if (!row) return null;
@@ -43,6 +46,16 @@
     for (const [atName, value] of Object.entries(fields || {})) {
       const supaCol = AT_TO_SUPA[atName];
       if (supaCol) row[supaCol] = value;
+    }
+    // Le lien candidature → offre doit être écrit sur les DEUX colonnes :
+    // offre_airtable_id (texte, compat historique, sans clé étrangère) et
+    // offre_id (UUID, avec ON DELETE CASCADE vers wozali_offres_emploi).
+    // Avant ce fix, seul offre_airtable_id était renseigné : la cascade ne
+    // s'appliquait jamais et les jointures propres échouaient.
+    const offreRef = row.offre_id || row.offre_airtable_id;
+    if (offreRef) {
+      if (!row.offre_airtable_id) row.offre_airtable_id = offreRef;
+      if (!row.offre_id && _isUuid(offreRef)) row.offre_id = offreRef;
     }
     return row;
   }

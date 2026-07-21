@@ -15,6 +15,8 @@
     'Quartier': 'quartier',
     'Pays': 'pays',
     'Télétravail': 'teletravail',
+    'Télétravail possible': 'teletravail', // alias écrit par le formulaire de publication
+    'Créée le': 'created_at', // manquant auparavant : cassait le filtre "moins de 48h", les alertes et l'affichage des dates
     'Salaire min FCFA': 'salaire_min_fcfa',
     'Salaire max FCFA': 'salaire_max_fcfa',
     'Salaire minimum FCFA': 'salaire_min_fcfa',
@@ -144,15 +146,19 @@
     return true;
   }
 
-  // Incrémenter nb_vues atomiquement (best-effort)
+  // Incrémenter nb_vues atomiquement (best-effort).
+  // Passe par la fonction SQL increment_vues_offre() en SECURITY DEFINER :
+  // un non-propriétaire ne peut pas faire d'UPDATE direct sur l'offre
+  // (RLS "offres_update_own" réservée au recruteur), donc l'ancienne version
+  // de cette fonction échouait silencieusement pour tout visiteur/candidat.
+  // Voir supabase/migrations/20260721_candidatures_notifications.sql
   async function incrementVues(id) {
     const supa = _supa();
-    if (!supa) return null;
+    if (!supa || !id) return null;
     try {
-      const { data: row } = await supa.from('wozali_offres_emploi').select('nb_vues').eq('id', id).maybeSingle();
-      const next = (row?.nb_vues || 0) + 1;
-      await supa.from('wozali_offres_emploi').update({ nb_vues: next }).eq('id', id);
-      return next;
+      const { data, error } = await supa.rpc('increment_vues_offre', { p_offre_id: id });
+      if (error) throw error;
+      return typeof data === 'number' ? data : null;
     } catch (e) { return null; }
   }
 

@@ -84,7 +84,13 @@
     } else {
       // Création de thread : besoin des user_ids des deux côtés
       const candidatUserId = f['Candidat User ID'] || f['Candidat Supabase ID'] || null;
-      const recruteurUserId = f['Recruteur User ID'] || f['Recruteur Supabase ID'] || (window.currentUser?.id || null);
+      // Le repli sur window.currentUser?.id n'a de sens QUE côté recruteur
+      // (c'est alors lui l'utilisateur connecté). Côté candidat, ce repli
+      // faisait pointer "Recruteur User ID" vers le candidat lui-même dès
+      // que le champ était absent : le fil de discussion se créait avec le
+      // candidat en face de lui-même. On affiche l'erreur prévue à la place.
+      const recruteurUserId = f['Recruteur User ID'] || f['Recruteur Supabase ID']
+        || (role === 'recruteur' ? (window.currentUser?.id || null) : null);
       if (!candidatUserId || !recruteurUserId) {
         throw new Error('Identifiants manquants pour créer le fil. Contacte par WhatsApp en attendant.');
       }

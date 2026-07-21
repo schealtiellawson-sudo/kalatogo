@@ -1483,6 +1483,8 @@ async function saveProfile() {
   const tarifMax = document.getElementById('edit-tarif-max').value;
   const metier = document.getElementById('edit-metier').value;
   const quartier = document.getElementById('edit-quartier').value;
+  const pays = document.getElementById('edit-pays')?.value || '';
+  const ville = document.getElementById('edit-ville')?.value || '';
 
   if (nom)         fields['Nom complet']            = nom;
   if (prenomReel)  fields['Prénom']                 = prenomReel;
@@ -1494,6 +1496,8 @@ async function saveProfile() {
   if (tarifMax)  fields['Tarif maximum FCFA']       = parseInt(tarifMax);
   if (metier)    fields['Métier principal']         = metier;
   if (quartier)  fields['Quartier']                 = quartier;
+  if (pays)      fields['Pays']                     = pays;
+  if (ville)     fields['Ville']                    = ville;
 
   // Statut socio-économique : sauvé pour TOUS les métiers (apprenti / patron / indépendant / etc.)
   const editStatut = document.getElementById('edit-statut-artisan')?.value || '';
@@ -1556,7 +1560,8 @@ function saveProfileExtras(obj) {
 // ══ LOCALISATION DASHBOARD ══
 let _dashLocMap = null, _dashLocMarker = null;
 
-function setLocMode(mode) {
+async function setLocMode(mode, opts) {
+  const persist = !opts || opts.persist !== false;
   ['off','pin','live'].forEach(m => {
     const lbl = document.getElementById(`loc-mode-${m}-label`);
     if (lbl) {
@@ -1569,9 +1574,35 @@ function setLocMode(mode) {
   if (pinArea) pinArea.style.display = mode === 'pin' ? 'block' : 'none';
   if (liveArea) liveArea.style.display = mode === 'live' ? 'block' : 'none';
   if (mode === 'pin') setTimeout(initDashPinMap, 150);
-  if (mode === 'off' && currentPrestataire) {
-    // Pas de champ Airtable pour la visibilité — on stocke uniquement en localStorage
-    localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'off');
+  if (!currentPrestataire) return;
+
+  localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, mode);
+  if (!persist) return; // simple synchro d'affichage au chargement, pas une vraie action utilisateur
+
+  // Le choix doit vraiment désactiver le rendu public de la position (profil, recherche, distance),
+  // pas juste être mémorisé sur ce navigateur. Persisté en base via 'Mode Localisation'.
+  try {
+    const fieldsUpdate = { 'Mode Localisation': mode };
+    if (mode === 'off') {
+      // En mode off, on vide aussi les coordonnées pour qu'aucun repli ne puisse les réafficher.
+      fieldsUpdate['Latitude'] = null;
+      fieldsUpdate['Longitude'] = null;
+    }
+    const updated = await window.supaPrest.update(currentPrestataire.id, fieldsUpdate);
+    if (updated) { currentPrestataire = updated; window.currentPrestataire = updated; }
+  } catch (e) {
+    // ⚠️ Repli : si la colonne 'Mode Localisation' n'existe pas encore en base (migration non appliquée),
+    // l'update ci-dessus échoue en bloc. En mode off, on retente au moins avec lat/lon à null,
+    // pour que la promesse de confidentialité soit tenue même sans la colonne dédiée.
+    console.warn('[setLocMode] Écriture "Mode Localisation" échouée (migration Supabase manquante ?) :', e?.message || e);
+    if (mode === 'off') {
+      try {
+        const updated2 = await window.supaPrest.update(currentPrestataire.id, { 'Latitude': null, 'Longitude': null });
+        if (updated2) { currentPrestataire = updated2; window.currentPrestataire = updated2; }
+      } catch (e2) {
+        console.warn('[setLocMode] Repli lat/lon=null également échoué :', e2?.message || e2);
+      }
+    }
   }
 }
 
@@ -1625,6 +1656,17 @@ function dashDetectGPS() {
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
+// Écrit Latitude/Longitude + Mode Localisation, avec repli si la colonne 'Mode Localisation'
+// n'existe pas encore en base (migration non appliquée) : au moins lat/lon partent quand même.
+async function _saveLatLonAndMode(id, lat, lon, mode) {
+  try {
+    return await window.supaPrest.update(id, { 'Latitude': lat, 'Longitude': lon, 'Mode Localisation': mode });
+  } catch (e) {
+    console.warn('[_saveLatLonAndMode] repli sans Mode Localisation :', e?.message || e);
+    return await window.supaPrest.update(id, { 'Latitude': lat, 'Longitude': lon });
+  }
+}
+
 async function saveDashLocation() {
   const latRaw = document.getElementById('dash-lat')?.value;
   const lonRaw = document.getElementById('dash-lon')?.value;
@@ -1637,9 +1679,10 @@ async function saveDashLocation() {
   const btn = document.querySelector('#dash-loc-pin-area button[onclick*="saveDashLocation"]');
   if (btn) { btn.textContent = '⏳ Enregistrement...'; btn.disabled = true; }
   try {
-    await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+    await _saveLatLonAndMode(currentPrestataire.id, lat, lon, 'pin');
     currentPrestataire.fields['Latitude'] = lat;
     currentPrestataire.fields['Longitude'] = lon;
+    currentPrestataire.fields['Mode Localisation'] = 'pin';
     localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'pin');
     const status = document.getElementById('dash-gps-status');
     if (status) status.textContent = `✅ Position enregistrée (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
@@ -1658,9 +1701,10 @@ async function saveDashLiveMode() {
   navigator.geolocation.getCurrentPosition(async pos => {
     const lat = pos.coords.latitude, lon = pos.coords.longitude;
     try {
-      await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+      await _saveLatLonAndMode(currentPrestataire.id, lat, lon, 'live');
       currentPrestataire.fields['Latitude'] = lat;
       currentPrestataire.fields['Longitude'] = lon;
+      currentPrestataire.fields['Mode Localisation'] = 'live';
       localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
       if (status) status.textContent = `✅ Position mise à jour : ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
       toast('📡 Position GPS mise à jour avec succès !', 'success');
@@ -1684,9 +1728,10 @@ async function wizardActiverGPS() {
   navigator.geolocation.getCurrentPosition(async pos => {
     const lat = pos.coords.latitude, lon = pos.coords.longitude;
     try {
-      await window.supaPrest.update(currentPrestataire.id, { 'Latitude': lat, 'Longitude': lon });
+      await _saveLatLonAndMode(currentPrestataire.id, lat, lon, 'live');
       currentPrestataire.fields['Latitude'] = lat;
       currentPrestataire.fields['Longitude'] = lon;
+      currentPrestataire.fields['Mode Localisation'] = 'live';
       localStorage.setItem(`wozali_locmode_${currentPrestataire.id}`, 'live');
       toast('📍 Position enregistrée ! Tu es visible sur la carte.', 'success');
       if (typeof renderWizardPremierPas === 'function') renderWizardPremierPas();
@@ -1703,14 +1748,14 @@ async function wizardActiverGPS() {
 
 function loadDashLocation() {
   if (!currentPrestataire) return;
-  // Visibilité gérée uniquement en localStorage (pas de champ Airtable dédié)
+  // Source de vérité : champ profil 'Mode Localisation' ; repli sur localStorage (ancien schéma / colonne pas encore migrée)
   const hasCoords = currentPrestataire.fields?.['Latitude'] && currentPrestataire.fields?.['Longitude'];
-  const savedMode = localStorage.getItem(`wozali_locmode_${currentPrestataire.id}`);
+  const savedMode = currentPrestataire.fields?.['Mode Localisation'] || localStorage.getItem(`wozali_locmode_${currentPrestataire.id}`);
   let mode = hasCoords ? (savedMode || 'pin') : (savedMode === 'live' ? 'live' : 'off');
   if (savedMode === 'off') mode = 'off';
   const radio = document.getElementById(`loc-mode-${mode}`);
   if (radio) radio.checked = true;
-  setLocMode(mode);
+  setLocMode(mode, { persist: false }); // simple synchro d'affichage, pas une nouvelle action utilisateur
 }
 
 // Compat backward
@@ -2517,15 +2562,18 @@ async function loadDashAvis() {
     const prefixMatch = rawComment.match(/^\[([^\]]+)\]\n?/);
     const auteur = prefixMatch ? prefixMatch[1] : 'Client';
     const comment = prefixMatch ? rawComment.slice(prefixMatch[0].length) : rawComment;
-    const initiale = auteur.charAt(0).toUpperCase();
+    const initiale = escapeHtml(auteur.charAt(0).toUpperCase());
     const stars = '★'.repeat(note) + '☆'.repeat(5 - note);
+    // Avis écrits par un client anonyme : ne jamais injecter bruts, ni en HTML ni en attribut.
+    const safeAuteur = escapeHtml(auteur);
+    const safeComment = escapeHtml(comment);
     return `<div id="dash-avis-${a.id}" style="background:white;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,0.06);border:1px solid #f0f0f0;transition:opacity 0.3s;">
       <div style="display:flex;align-items:flex-start;gap:12px;">
         <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;flex-shrink:0;">${initiale}</div>
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
             <div>
-              <span style="font-weight:700;font-size:14px;color:var(--noir);">${auteur}</span>
+              <span style="font-weight:700;font-size:14px;color:var(--noir);">${safeAuteur}</span>
               ${date ? `<span style="font-size:12px;color:var(--gris);margin-left:8px;">${date}</span>` : ''}
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
@@ -2536,12 +2584,22 @@ async function loadDashAvis() {
             </div>
           </div>
           ${f['Audio URL'] ? `<div style="margin-top:8px;">${wzVoicePlayer(f['Audio URL'], f['Audio Durée'])}</div>` : ''}
-          ${comment ? `<p style="font-size:13px;color:var(--gris-fonce);line-height:1.6;margin-top:6px;margin-bottom:0;">${comment}</p>` : ''}
-          ${note >= 4 ? `<button onclick="generateStory('${a.id}',${note},'${auteur.replace(/'/g,"\\'")}','${comment.replace(/'/g,"\\'").replace(/\n/g,' ')}')" style="margin-top:10px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">⭐ Générer ma Story</button>` : ''}
+          ${comment ? `<p style="font-size:13px;color:var(--gris-fonce);line-height:1.6;margin-top:6px;margin-bottom:0;">${safeComment}</p>` : ''}
+          ${note >= 4 ? `<button data-generate-story data-avis-id="${escapeHtml(a.id)}" data-note="${escapeHtml(String(note))}" data-auteur="${safeAuteur}" data-comment="${escapeHtml(comment.replace(/\n/g,' '))}" style="margin-top:10px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">⭐ Générer ma Story</button>` : ''}
         </div>
       </div>
     </div>`;
   }).join('');
+
+  // Délégation d'événement : évite tout onclick inline avec du contenu client non fiable.
+  if (!container.dataset.storyDelegationBound) {
+    container.dataset.storyDelegationBound = '1';
+    container.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-generate-story]');
+      if (!btn || !container.contains(btn)) return;
+      generateStory(btn.dataset.avisId, parseInt(btn.dataset.note, 10) || 0, btn.dataset.auteur || 'Client', btn.dataset.comment || '');
+    });
+  }
 }
 
 async function deleteDashAvis(avisId) {
@@ -4666,10 +4724,11 @@ function renderCard(record, forceMode) {
   const photoProfil = escapeHtml(rawPhoto);
   const emoji = METIER_EMOJI[f['Métier principal']] || '⚡';
 
-  // Distance badge
+  // Distance badge — jamais si le prestataire a désactivé sa localisation publique
   let distBadge = '';
-  const pLat = parseFloat(f['GPS Lat'] || 0), pLon = parseFloat(f['GPS Lon'] || 0);
-  if (pLat && pLon && window._userLat !== undefined) {
+  const _distLocMode = f['Mode Localisation'] || 'pin';
+  const pLat = parseFloat(f['GPS Lat'] || f['Latitude'] || 0), pLon = parseFloat(f['GPS Lon'] || f['Longitude'] || 0);
+  if (_distLocMode !== 'off' && pLat && pLon && window._userLat !== undefined) {
     const d = haversineDistance(window._userLat, window._userLon, pLat, pLon);
     distBadge = `<span class="pcard-distance">📍 à ${formatDistance(d)}</span>`;
   }
@@ -5270,8 +5329,9 @@ function renderSearchMap(records) {
   const bounds = [];
   records.forEach(r => {
     const f = r.fields;
-    const lat = parseFloat(f['GPS Lat'] || 0);
-    const lon = parseFloat(f['GPS Lon'] || 0);
+    if ((f['Mode Localisation'] || 'pin') === 'off') { countWithoutGPS++; return; }
+    const lat = parseFloat(f['GPS Lat'] || f['Latitude'] || 0);
+    const lon = parseFloat(f['GPS Lon'] || f['Longitude'] || 0);
     if (!lat || !lon) { countWithoutGPS++; return; }
     countWithGPS++;
     bounds.push([lat, lon]);
@@ -10303,8 +10363,10 @@ async function showProfil(recordId) {
     const dispo = f['Disponible maintenant'];
     const verifie = f['Badge vérifié'];
     const tel = (f['Numéro de téléphone'] || '').replace(/\D/g,'');
-    const gpsLat = f['Latitude'] || null;
-    const gpsLon = f['Longitude'] || null;
+    // Confidentialité : ne jamais rendre la position publique si le mode est 'off'.
+    const _locModePublic = f['Mode Localisation'] || 'pin';
+    const gpsLat = (_locModePublic !== 'off') ? (f['Latitude'] || null) : null;
+    const gpsLon = (_locModePublic !== 'off') ? (f['Longitude'] || null) : null;
     const tiktok    = f['Lien TikTok']    || '';
     const instagram = f['Lien Instagram'] || '';
     const photoProfil = f['Photo de profil'] || f['WhatsApp'] || '';
@@ -11932,6 +11994,24 @@ async function submitInscription(e) {
       if (!signInErr && signInData?.session) {
         effectiveUser = signInData.user;
         effectiveSession = signInData.session;
+      } else if (alreadyRegistered) {
+        // Adresse déjà associée à un compte, et le mot de passe saisi ne correspond pas.
+        // On arrête proprement au lieu de laisser le flux continuer sans session
+        // (ce qui remontait une erreur PostgreSQL brute en anglais plus tard).
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (formEl) formEl.classList.remove('form-hidden');
+        if (progressEl) progressEl.classList.remove('form-hidden');
+        btn.textContent = '✦ Créer mon profil';
+        btn.disabled = false;
+        toast('Cette adresse a déjà un compte WOZALI. Connecte-toi, ou utilise "mot de passe oublié" si besoin.', 'error');
+        try {
+          const loginEmailEl = document.getElementById('login-email');
+          if (loginEmailEl) loginEmailEl.value = email;
+          const forgotEmailEl = document.getElementById('forgot-email');
+          if (forgotEmailEl) forgotEmailEl.value = email;
+        } catch (e) {}
+        showPage('login');
+        return;
       }
     }
 
@@ -11996,10 +12076,14 @@ async function submitInscription(e) {
     const quartier = document.getElementById('f-quartier').value;
     const education = document.getElementById('f-education').value;
     const dispo = document.getElementById('f-dispo').value;
+    const pays = document.getElementById('f-pays')?.value || '';
+    const ville = document.getElementById('f-ville')?.value || '';
 
     if (genre && genre !== '') fields['Genre'] = genre;
     if (metier && metier !== '') fields['Métier principal'] = metier;
     if (quartier && quartier !== '') fields['Quartier'] = quartier;
+    if (pays && pays !== '') fields['Pays'] = pays;
+    if (ville && ville !== '') fields['Ville'] = ville;
     // Diplômes/expériences et flag Talent Digital
     const diplomes = document.getElementById('f-diplomes')?.value?.trim();
     if (diplomes) fields['Diplomes'] = diplomes;
@@ -12208,36 +12292,27 @@ async function submitInscription(e) {
       // Afficher l'email dans la page de succès
       const successEmailEl = document.getElementById('success-email');
       if (successEmailEl) successEmailEl.textContent = email;
-      // U4 — Si session créée immédiatement, masquer le bloc "Vérifie ton email"
+      // La confirmation par e-mail est désactivée en permanence sur ce projet (Supabase "Confirm email" OFF) :
+      // le bloc "Vérifie ta boîte mail" n'a plus de raison d'être, il ne fait qu'envoyer les gens
+      // attendre un message qui n'arrivera jamais. On affiche toujours le message "déjà connecté".
       try {
-        const verifyBlock = document.getElementById('post-inscription-verify-email');
         const loggedBlock = document.getElementById('post-inscription-already-logged');
-        const fallbackMsg = document.getElementById('post-inscription-fallback-msg');
-        const sessionOk = !!(authData && authData.session);
-        if (sessionOk) {
-          if (verifyBlock) verifyBlock.style.display = 'none';
-          if (loggedBlock) loggedBlock.style.display = 'block';
-          if (fallbackMsg) fallbackMsg.style.display = 'none';
-          // Quick Win J+0 — message personnalisé (Hormozi + SB7 Success + LF7)
-          try {
-            const prenom = (document.getElementById('f-prenom')?.value || '').trim() || (document.getElementById('f-nom')?.value || '').trim().split(' ')[0];
-            const metier = document.getElementById('f-metier')?.value || '';
-            const quartier = document.getElementById('f-quartier')?.value || '';
-            const hl = document.getElementById('pi-ql-headline');
-            const bd = document.getElementById('pi-ql-body');
-            if (hl && prenom) hl.textContent = prenom + ', tu existes maintenant.';
-            if (bd && metier && quartier) {
-              bd.textContent = 'Ce soir, quelqu\'un cherche un ' + metier + ' à ' + quartier + '. Avant, il ne te trouvait pas. Maintenant, si.';
-            } else if (bd && metier) {
-              bd.textContent = 'Ce soir, quelqu\'un cherche un ' + metier + ' près de chez lui. Maintenant, il peut te trouver.';
-            }
-          } catch(e) {}
-        } else {
-          if (verifyBlock) verifyBlock.style.display = 'block';
-          if (loggedBlock) loggedBlock.style.display = 'none';
-          if (fallbackMsg) fallbackMsg.style.display = 'block';
-        }
-      } catch(e) { console.warn('[U4 verify-email toggle]', e); }
+        if (loggedBlock) loggedBlock.style.display = 'block';
+        // Quick Win J+0 — message personnalisé (Hormozi + SB7 Success + LF7)
+        try {
+          const prenom = (document.getElementById('f-prenom')?.value || '').trim() || (document.getElementById('f-nom')?.value || '').trim().split(' ')[0];
+          const metier = document.getElementById('f-metier')?.value || '';
+          const quartier = document.getElementById('f-quartier')?.value || '';
+          const hl = document.getElementById('pi-ql-headline');
+          const bd = document.getElementById('pi-ql-body');
+          if (hl && prenom) hl.textContent = prenom + ', tu existes maintenant.';
+          if (bd && metier && quartier) {
+            bd.textContent = 'Ce soir, quelqu\'un cherche un ' + metier + ' à ' + quartier + '. Avant, il ne te trouvait pas. Maintenant, si.';
+          } else if (bd && metier) {
+            bd.textContent = 'Ce soir, quelqu\'un cherche un ' + metier + ' près de chez lui. Maintenant, il peut te trouver.';
+          }
+        } catch(e) {}
+      } catch(e) { console.warn('[post-inscription success toggle]', e); }
       toast('Profil créé avec succès ! 🎉', 'success');
       // Afficher le bloc parrainage post-inscription avec le lien personnalisé
       try {
@@ -12783,9 +12858,9 @@ function initDispoEditor() {
   } else {
     currentDispoHebdo = getDefaultDispoHebdo();
   }
+  // Réglage "Durée créneau" retiré du dashboard (n'était jamais persisté ni appliqué) :
+  // on garde la lecture du champ existant pour compat avec les valeurs déjà en base.
   currentSlotDuration = parseInt(currentPrestataire?.fields?.['Durée Créneau'] || 60);
-  const durationSel = document.getElementById('slot-duration');
-  if (durationSel) durationSel.value = currentSlotDuration;
 }
 
 function renderDispoEditor() {
@@ -12845,7 +12920,7 @@ function removeDispoSlot(dayNum, i) {
 async function saveDispoHebdo(btn) {
   if (!currentPrestataire) return;
   const msgEl = document.getElementById('dispo-save-msg');
-  currentSlotDuration = parseInt(document.getElementById('slot-duration').value);
+  // Sélecteur "Durée créneau" retiré de l'UI (n'était jamais persisté) : on garde la valeur déjà chargée.
   btn.disabled = true; btn.textContent = '⏳ Sauvegarde...';
   try {
     const json = JSON.stringify(currentDispoHebdo);
@@ -16623,6 +16698,7 @@ async function submitCandidature() {
     let offreTitre = '';
     let offreRecruteurNom = '';
     let offreNbCandidatures = 0;
+    let offreRecruteurUserId = '';
     if (window.supaOffres) {
       try {
         const o = await window.supaOffres.findById(_currentOffreId);
@@ -16630,15 +16706,21 @@ async function submitCandidature() {
           offreTitre = o.fields['Titre'] || '';
           offreRecruteurNom = o.fields['Recruteur Nom'] || '';
           offreNbCandidatures = o.fields['Nb candidatures'] || 0;
+          offreRecruteurUserId = o.fields['Recruteur User ID'] || '';
         }
       } catch (e) { /* fallback */ }
     }
-    let offreData = { fields: { 'Titre': offreTitre, 'Recruteur Nom': offreRecruteurNom, 'Nb candidatures': offreNbCandidatures } };
+    let offreData = { fields: { 'Titre': offreTitre, 'Recruteur Nom': offreRecruteurNom, 'Nb candidatures': offreNbCandidatures, 'Recruteur User ID': offreRecruteurUserId } };
     if (!offreTitre && window.supaOffres) {
       try {
         const o2 = await window.supaOffres.findById(_currentOffreId);
-        if (o2) { offreData = o2; offreTitre = o2.fields['Titre'] || ''; }
+        if (o2) { offreData = o2; offreTitre = o2.fields['Titre'] || ''; offreRecruteurUserId = o2.fields['Recruteur User ID'] || offreRecruteurUserId; }
       } catch(e) { /* best-effort */ }
+    }
+    // Repli : chercher dans le cache d'offres déjà chargé si l'appel direct n'a rien donné
+    if (!offreRecruteurUserId && Array.isArray(_offresCache)) {
+      const _oCache = _offresCache.find(o => o.id === _currentOffreId);
+      if (_oCache) offreRecruteurUserId = _oCache.fields?.['Recruteur User ID'] || '';
     }
 
     const score = calculScoreWozali(currentPrestataire);
@@ -16646,11 +16728,13 @@ async function submitCandidature() {
 
     const candidatureFields = {
       'Offre ID': _currentOffreId,
+      'offre_id': _currentOffreId,
       'Offre Titre': offreTitre,
       'Candidat ID': currentPrestataire.id,
       'Candidat User ID': window.currentUser?.id,
       'Candidat Nom': f['Nom complet'] || '',
       'Candidat Métier': f['Métier principal'] || '',
+      'Candidat Quartier': f['Quartier'] || '',
       'Candidat WhatsApp': f['WhatsApp'] || f['Numéro de téléphone'] || '',
       'Candidat Score WOZALI': score,
       'Candidat Photo': photo,
@@ -16658,7 +16742,8 @@ async function submitCandidature() {
       'Statut': 'En attente',
       'Date candidature': new Date().toISOString(),
       'Recruteur ID': recruteurId,
-      'Recruteur Nom': offreData.fields?.['Recruteur Nom'] || ''
+      'Recruteur Nom': offreData.fields?.['Recruteur Nom'] || '',
+      'Recruteur User ID': offreRecruteurUserId
     };
 
     let data = null;
@@ -17167,7 +17252,10 @@ function renderMesOffres(offres) {
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button onclick="showDashSection('recrut-candidatures');loadCandidaturesRecues().then(()=>{const s=document.getElementById('recrut-cand-filter-offre');if(s){s.value='${_safeIdO}';filterRecrutCandidatures();}})" style="background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">👥 Candidatures</button>
         <button onclick="topCandidatsForOffre('${_safeIdO}')" style="background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">🤖 Top candidats IA</button>
-        ${!isBoosted && boostStatut !== 'en_attente' ? `<button onclick="ouvrirBoostModal('${_safeIdO}')" style="background:linear-gradient(135deg,rgba(232,148,10,.2),rgba(232,148,10,.08));color:#E8940A;border:1px solid rgba(232,148,10,.4);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚀 Booster</button>` : ''}
+        ${/* Bouton "Booster" masqué : chaîne incomplète (pas d'activation réelle, pas de tri par boost,
+             pas d'expiration, pas d'écran admin) — vendre un boost qui ne booste pas est pire que ne
+             rien vendre. Code conservé (ouvrirBoostModal) pour réactivation une fois la chaîne câblée. */ ''}
+        ${false && !isBoosted && boostStatut !== 'en_attente' ? `<button onclick="ouvrirBoostModal('${_safeIdO}')" style="background:linear-gradient(135deg,rgba(232,148,10,.2),rgba(232,148,10,.08));color:#E8940A;border:1px solid rgba(232,148,10,.4);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">🚀 Booster</button>` : ''}
         <button onclick="ouvrirEditionOffre('${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Modifier</button>
         <button onclick="partagerOffre('${titre}','${_safeIdO}')" style="background:rgba(252, 224, 168,.06);color:#FCE0A8;border:1px solid rgba(252, 224, 168,.12);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">📤 Partager</button>
         <button onclick="toggleOffreActive('${_safeIdO}',${!isActive})" style="background:${isActive?'rgba(220,38,38,.08)':'rgba(232,148,10,.08)'};color:${isActive?'#ef4444':'#E8940A'};border:1px solid ${isActive?'rgba(220,38,38,.2)':'rgba(232,148,10,.2)'};border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">${isActive?'⏸ Désactiver':'▶ Réactiver'}</button>
@@ -17627,39 +17715,24 @@ async function loadCandidaturesRecues() {
         ).join('');
     }
 
-    // Peupler dropdown quartiers (depuis le champ Candidat Quartier si disponible)
-    const selQuartier = document.getElementById('recrut-cand-filter-quartier');
-    if (selQuartier) {
-      const quartiers = [...new Set(
-        allRecrutCandidatures
-          .map(c => c.fields['Candidat Quartier'])
-          .filter(Boolean)
-      )].sort();
-      const currentQ = selQuartier.value;
-      selQuartier.innerHTML = '<option value="">Tous les quartiers</option>' +
-        quartiers.map(q => `<option value="${escapeHtml(q)}" ${q === currentQ ? 'selected' : ''}>${escapeHtml(q)}</option>`).join('');
-    }
-
     filterRecrutCandidatures();
   } catch(e) {
     container.innerHTML = '<p style="color:#dc2626;padding:20px;">Erreur de chargement.</p>';
   }
 }
 
+// Filtres âge / expérience / distance / quartier retirés (Task H) : les données correspondantes
+// n'étaient jamais enregistrées côté candidature, donc filtrer dessus faisait disparaître tout le monde.
+// On garde offre, statut, recherche texte et tri.
 function filterRecrutCandidatures() {
   const offre    = document.getElementById('recrut-cand-filter-offre')?.value   || '';
   const statut   = document.getElementById('recrut-cand-filter-statut')?.value  || '';
-  const quartier = document.getElementById('recrut-cand-filter-quartier')?.value || '';
   const search   = (document.getElementById('recrut-cand-search')?.value || '').toLowerCase().trim();
-  const ageBand  = document.getElementById('recrut-cand-filter-age')?.value || '';
-  const expBand  = document.getElementById('recrut-cand-filter-exp')?.value || '';
-  const distBand = document.getElementById('recrut-cand-filter-distance')?.value || '';
 
   let filtered = allRecrutCandidatures.filter(c => {
     const f = c.fields;
     if (offre    && f['Offre ID']          !== offre)    return false;
     if (statut   && (f['Statut'] || 'En attente') !== statut)  return false;
-    if (quartier && f['Candidat Quartier'] !== quartier) return false;
     if (search) {
       const haystack = [
         f['Candidat Nom']     || '',
@@ -17667,38 +17740,6 @@ function filterRecrutCandidatures() {
         f['Candidat Quartier']|| ''
       ].join(' ').toLowerCase();
       if (!haystack.includes(search)) return false;
-    }
-    // Tranche d'âge (depuis Candidat Date naissance)
-    if (ageBand) {
-      const age = _wozaliAgeFromDateNaissance(f['Candidat Date naissance'] || f['Candidat Date de naissance']);
-      if (age == null) return false;
-      if (ageBand === '18-25' && !(age >= 18 && age <= 25)) return false;
-      if (ageBand === '26-35' && !(age >= 26 && age <= 35)) return false;
-      if (ageBand === '36-45' && !(age >= 36 && age <= 45)) return false;
-      if (ageBand === '45+'   && !(age > 45))               return false;
-    }
-    // Expérience (depuis Candidat Années expérience)
-    if (expBand) {
-      const exp = Number(f['Candidat Années expérience'] ?? f['Candidat Annees experience'] ?? f['Candidat Experience'] ?? NaN);
-      if (!Number.isFinite(exp)) return false;
-      if (expBand === 'junior'   && !(exp <= 2)) return false;
-      if (expBand === 'confirme' && !(exp >= 3 && exp <= 5)) return false;
-      if (expBand === 'senior'   && !(exp > 5))  return false;
-    }
-    // Distance candidat <-> quartier de l'offre
-    if (distBand) {
-      const qCand  = f['Candidat Quartier'];
-      const qOffre = f['Offre Quartier'] || f['Quartier Offre'] || f['Quartier'];
-      if (!qCand || !qOffre) return false;
-      if (distBand === 'same') {
-        if (qCand !== qOffre) return false;
-      } else {
-        const km = _wozaliDistanceQuartiers(qCand, qOffre);
-        if (km == null) return false;
-        if (distBand === 'lt2'  && !(km < 2))                return false;
-        if (distBand === '2to5' && !(km >= 2 && km <= 5))    return false;
-        if (distBand === 'gt5'  && !(km > 5))                return false;
-      }
     }
     return true;
   });
@@ -17743,8 +17784,7 @@ function setRecrutCandSort(mode) {
 }
 
 function resetRecrutFilters() {
-  ['recrut-cand-filter-offre','recrut-cand-filter-statut','recrut-cand-filter-quartier',
-   'recrut-cand-filter-age','recrut-cand-filter-exp','recrut-cand-filter-distance'
+  ['recrut-cand-filter-offre','recrut-cand-filter-statut'
   ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   const search = document.getElementById('recrut-cand-search'); if (search) search.value = '';
   const sortEl = document.getElementById('recrut-cand-sort'); if (sortEl) sortEl.value = 'recent';
@@ -17871,6 +17911,7 @@ function renderRecrutCandidatures(cands) {
       cands.map(c => {
         const f = c.fields;
         const statut  = f['Statut'] || 'En attente';
+        const isRetenue = statut === 'Retenue';
         const sc      = statutColors[statut] || statutColors['En attente'];
         const date    = f['Date candidature'] ? new Date(f['Date candidature']).toLocaleDateString('fr-FR') : '·';
         const photo   = f['Candidat Photo'] || '';
@@ -18506,104 +18547,44 @@ async function _runSignalerSearch() {
   }).join('');
 }
 
-// Notif candidat sur planification entretien (réutilise Prestataires.Notifications JSON)
-window.notifyCandidatEntretien = async function(candidature, body) {
+// ── Appel centralisé vers l'endpoint de notification candidature ──
+// Contrat partagé avec le backend : POST /api/wozali-pay/candidature-notifier { candidature_id, statut, ...extra }
+async function _callCandidatureNotifier(candidatureId, statut, extra) {
+  if (!candidatureId || !statut) return false;
   try {
-    const f = candidature.fields || {};
-    const candidatId = f['Candidat ID'];
-    if (!candidatId) return;
-    let prestataire = null;
-    if (window.supaPrest) {
-      prestataire = await window.supaPrest.findById(candidatId);
+    const jwt = (await (window.supabase || window.supa)?.auth?.getSession())?.data?.session?.access_token;
+    const resp = await fetch('/api/wozali-pay/candidature-notifier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(jwt ? { 'Authorization': `Bearer ${jwt}` } : {}) },
+      body: JSON.stringify({ candidature_id: candidatureId, statut, ...(extra || {}) }),
+    });
+    if (!resp.ok) {
+      const json = await resp.json().catch(() => ({}));
+      throw new Error(json.error || 'Erreur notification candidat');
     }
-    if (!prestataire) return; // supaPrest non chargé — pas de notif
-    const labels = { presentiel: 'présentiel', visio: 'visio', telephone: 'téléphone' };
-    const date = new Date(body.date_heure).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-    const nouvelleNotif = {
-      id: 'notif_' + Date.now(),
-      type: 'entretien_planifie',
-      titre: 'Tu as un entretien !',
-      message: `Entretien ${labels[body.type] || ''} le ${date} pour « ${f['Offre Titre'] || 'une offre'} ». Sois prêt.`,
-      date: new Date().toISOString(),
-      lu: false,
-      lien: 'emploi-candidatures'
-    };
-    let notifs = [];
-    try { const raw = prestataire.fields?.['Notifications']; if (raw) notifs = JSON.parse(raw); } catch(e) {}
-    notifs.unshift(nouvelleNotif);
-    notifs = notifs.slice(0, 50);
-    if (window.supaPrest) {
-      await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
-    }
+    return true;
   } catch (err) {
-    console.warn('[notifyCandidatEntretien]', err);
+    console.warn('[candidature-notifier] Erreur silencieuse:', err?.message || err);
+    return false;
   }
+}
+
+// Notif candidat sur planification entretien
+window.notifyCandidatEntretien = async function(candidature, body) {
+  const candidatureId = candidature?.id;
+  if (!candidatureId) return;
+  await _callCandidatureNotifier(candidatureId, 'Entretien planifié', {
+    date_heure: body?.date_heure || null,
+    type_entretien: body?.type || null
+  });
 };
 
 // ── Sprint E : Notification candidat sur changement statut ──
 async function notifyCandidatStatut(candidatureId, nouveauStatut) {
-  try {
-    // Récupérer la candidature : Supabase d'abord, fallback Airtable
-    let candidature = null;
-    if (window.supaCandidatures) {
-      try {
-        candidature = await window.supaCandidatures.findById(candidatureId);
-      } catch (e) {
-        console.warn('[notifyCandidatStatut supa fail]', e?.message || e);
-      }
-    }
-    if (!candidature) { console.warn('[notifyCandidatStatut] Candidature introuvable:', candidatureId); return; }
-    const fields = candidature.fields || {};
-    const candidatId = fields['Candidat ID'];
-    const offreTitre = fields['Offre Titre'] || 'une offre';
-    const recruteurNom = fields['Recruteur Nom'] || 'Le recruteur';
-    if (!candidatId) { console.warn('[notifyCandidatStatut] Pas de Candidat ID'); return; }
-
-    // Récupérer le prestataire (candidat) — Supabase si possible
-    let prestataire = null;
-    if (window.supaPrest) {
-      prestataire = await window.supaPrest.findById(candidatId);
-    }
-    if (!prestataire) { console.warn('[notifyCandidatStatut] Prestataire introuvable:', candidatId); return; }
-
-    let titre, message;
-    switch (nouveauStatut) {
-      case 'Retenue':
-        titre = 'Ta candidature a été retenue !';
-        message = `Bonne nouvelle ! ${recruteurNom} a retenu ta candidature pour « ${offreTitre} ». Il va te contacter bientôt.`;
-        break;
-      case 'Refusée':
-        titre = 'Candidature non retenue';
-        message = `${recruteurNom} n'a pas retenu ta candidature pour « ${offreTitre} ». Continue de postuler, ton profil est visible !`;
-        break;
-      case 'Vue':
-        titre = 'Ta candidature a été consultée';
-        message = `${recruteurNom} a consulté ta candidature pour « ${offreTitre} ».`;
-        break;
-      default: return;
-    }
-
-    const nouvelleNotif = {
-      id: 'notif_' + Date.now(),
-      type: 'candidature_statut',
-      titre, message,
-      date: new Date().toISOString(),
-      lu: false,
-      lien: 'emploi-candidatures'
-    };
-
-    let notifs = [];
-    try { const raw = prestataire.fields?.['Notifications']; if (raw) notifs = JSON.parse(raw); } catch(e) {}
-    notifs.unshift(nouvelleNotif);
-    notifs = notifs.slice(0, 50);
-
-    // Update — Supabase
-    if (window.supaPrest) {
-      await window.supaPrest.update(candidatId, { 'Notifications': JSON.stringify(notifs) });
-    }
-  } catch(err) {
-    console.warn('[notifyCandidatStatut] Erreur silencieuse:', err);
-  }
+  // Embauché doit déclencher une notification : c'est le message le plus important de la plateforme.
+  const statutsNotifiables = ['Retenue', 'Refusée', 'Vue', 'Embauché'];
+  if (!statutsNotifiables.includes(nouveauStatut)) return;
+  await _callCandidatureNotifier(candidatureId, nouveauStatut);
 }
 
 // ── Dashboard Global Recruteur ──

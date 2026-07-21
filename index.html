@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260721c">
+<link rel="stylesheet" href="/style.css?v=20260721d">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1959,20 +1959,12 @@ setTimeout(function(){
         <p style="font-size:12px;color:rgba(252,224,168,0.6);margin-top:10px;">💾 Note bien ces informations quelque part.</p>
       </div>
 
-      <!-- U4 — Email confirmation notice (affiché seulement si session non créée immédiatement) -->
-      <div id="post-inscription-verify-email" style="background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.4);border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
-        <p style="font-weight:700;color:#E8940A;margin-bottom:6px;">📬 Vérifie ta boîte mail</p>
-        <p style="font-size:14px;color:#FCE0A8;line-height:1.6;">Tu vas recevoir un email de confirmation de la part de WOZALI. <strong>Clique sur le lien dans cet email</strong> pour activer ton compte et pouvoir te connecter.</p>
-        <p style="font-size:12px;color:rgba(252,224,168,0.7);margin-top:8px;">Si tu ne vois pas l'email, vérifie tes spams.</p>
-      </div>
-
-      <!-- U4 — Bloc affiché si session créée immédiatement (Confirm email désactivé côté Supabase) -->
-      <div id="post-inscription-already-logged" style="display:none;background:rgba(232,148,10,0.08);border:1.5px solid rgba(232,148,10,0.4);border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
+      <!-- La confirmation par e-mail est désactivée en permanence (Supabase "Confirm email" OFF) :
+           la session est toujours créée immédiatement à l'inscription. -->
+      <div id="post-inscription-already-logged" style="background:rgba(232,148,10,0.08);border:1.5px solid rgba(232,148,10,0.4);border-radius:14px;padding:16px 20px;margin-bottom:20px;text-align:left;">
         <p style="font-weight:800;color:#E8940A;margin-bottom:6px;font-size:15px;">✅ <span id="pi-ql-headline">Tu existes maintenant.</span></p>
         <p style="font-size:14px;color:#FCE0A8;line-height:1.7;" id="pi-ql-body">Ton profil est en ligne. Les clients de Cotonou et Lomé peuvent déjà te trouver.</p>
       </div>
-
-      <p id="post-inscription-fallback-msg" style="color:var(--gris);font-size:14px;margin-bottom:24px;">Tu es maintenant visible sur WOZALI. Les clients de tout le Bénin et du Togo peuvent te trouver dès que ton email est confirmé.</p>
 
       <!-- PARRAINAGE AUTOMATISÉ POST-INSCRIPTION -->
       <div id="post-inscription-parrainage" style="display:none;background:linear-gradient(135deg,#14100A,#1E180E);border:1.5px solid rgba(232,148,10,.3);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center;">
@@ -3125,44 +3117,13 @@ setTimeout(function(){
                 <span>Coche les jours où tu travailles et indique tes heures. Les clients pourront prendre RDV uniquement dans ces créneaux. Tu peux modifier ça à tout moment !</span>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <label style="font-size:13px;color:var(--gris);font-weight:600;">Durée créneau :</label>
-              <select id="slot-duration" style="border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 12px;font-size:14px;font-weight:600;background:white;cursor:pointer;">
-                <option value="30">30 min</option>
-                <option value="60" selected>1 heure</option>
-                <option value="90">1h30</option>
-                <option value="120">2 heures</option>
-              </select>
-            </div>
           </div>
           <div id="dispo-days-editor">
             <!-- Généré par renderDispoEditor() -->
           </div>
 
-          <!-- LIMITES DE RÉSERVATION -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;">
-            <div style="background:var(--vert-light);border:1.5px solid var(--vert);border-radius:12px;padding:16px;">
-              <div style="display:flex;align-items:flex-start;gap:10px;">
-                <span style="font-size:24px;margin-top:-2px;">📅</span>
-                <div style="flex:1;">
-                  <h4 style="font-weight:800;margin:0 0 8px 0;color:var(--vert);font-size:14px;">Jusqu'à combien de jours à l'avance ?</h4>
-                  <p style="font-size:12px;color:var(--gris);margin:0 0 12px 0;line-height:1.5;">Les clients ne pourront réserver que dans cette fenêtre. Par ex. si tu choisis 7 jours, ils ne peuvent prendre RDV que pour la semaine qui vient.</p>
-                  <input type="number" id="booking-days-limit" min="1" max="365" placeholder="Ex: 30" style="width:100%;border:1.5px solid var(--vert);border-radius:8px;padding:10px;font-size:14px;font-weight:600;background:white;">
-                </div>
-              </div>
-            </div>
-
-            <div style="background:var(--or-light);border:1.5px solid var(--or);border-radius:12px;padding:16px;">
-              <div style="display:flex;align-items:flex-start;gap:10px;">
-                <span style="font-size:24px;margin-top:-2px;">👥</span>
-                <div style="flex:1;">
-                  <h4 style="font-weight:800;margin:0 0 8px 0;color:var(--or);font-size:14px;">Combien de clients par jour max ?</h4>
-                  <p style="font-size:12px;color:var(--gris);margin:0 0 12px 0;line-height:1.5;">Une fois ce nombre atteint, tous les créneaux de la journée seront bloqués automatiquement. Ex: 4 clients max = après 4 RDV confirmés, personne ne peut plus réserver ce jour.</p>
-                  <input type="number" id="daily-limit" min="1" max="50" placeholder="Ex: 4" style="width:100%;border:1.5px solid var(--or);border-radius:8px;padding:10px;font-size:14px;font-weight:600;background:white;">
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Réglages "Durée créneau" / "Jours de réservation à l'avance" / "Clients max par jour" retirés :
+               ils n'étaient jamais persistés ni appliqués (confirmation de sauvegarde sans effet réel). -->
 
           <button id="save-dispo-btn" onclick="saveDispoHebdo(this)" style="margin-top:20px;width:100%;padding:13px;background:var(--vert);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;">💾 Sauvegarder mes horaires</button>
           <div id="dispo-save-msg" style="display:none;text-align:center;margin-top:10px;font-size:14px;font-weight:600;"></div>
@@ -6469,34 +6430,13 @@ setTimeout(function(){
             <option value="Retenue">Retenue</option>
             <option value="Refusée">Refusée</option>
           </select>
-          <select id="recrut-cand-filter-quartier" onchange="filterRecrutCandidatures()" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;outline:none;">
-            <option value="">Tous les quartiers</option>
-          </select>
           <input type="text" id="recrut-cand-search" oninput="filterRecrutCandidatures()" placeholder="Rechercher nom, métier..." style="flex:1;min-width:160px;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Geist,sans-serif;outline:none;">
         </div>
 
-        <!-- SPRINT B+ : FILTRES AVANCÉS (âge, expérience, distance) + TRI -->
+        <!-- Filtres âge / expérience / distance / quartier retirés : les données correspondantes
+             n'étaient jamais enregistrées, donc sélectionner l'un d'eux faisait disparaître tous les
+             candidats. On garde offre, statut, recherche et tri. -->
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center;">
-          <select id="recrut-cand-filter-age" onchange="filterRecrutCandidatures()" title="Tranche d'âge candidat" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;outline:none;">
-            <option value="">Tous les âges</option>
-            <option value="18-25">18 – 25 ans</option>
-            <option value="26-35">26 – 35 ans</option>
-            <option value="36-45">36 – 45 ans</option>
-            <option value="45+">45 ans et +</option>
-          </select>
-          <select id="recrut-cand-filter-exp" onchange="filterRecrutCandidatures()" title="Expérience candidat" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;outline:none;">
-            <option value="">Toute expérience</option>
-            <option value="junior">Junior (0 – 2 ans)</option>
-            <option value="confirme">Confirmé (3 – 5 ans)</option>
-            <option value="senior">Senior (5 ans et +)</option>
-          </select>
-          <select id="recrut-cand-filter-distance" onchange="filterRecrutCandidatures()" title="Distance candidat / lieu de l'offre" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;outline:none;">
-            <option value="">Toutes distances</option>
-            <option value="lt2">Moins de 2 km</option>
-            <option value="2to5">2 – 5 km</option>
-            <option value="gt5">Plus de 5 km</option>
-            <option value="same">Même quartier</option>
-          </select>
           <select id="recrut-cand-sort" onchange="setRecrutCandSort(this.value)" title="Trier les candidatures" style="background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.3);color:#E8940A;padding:9px 12px;border-radius:10px;font-size:13px;font-family:Geist,sans-serif;cursor:pointer;outline:none;font-weight:700;">
             <option value="recent">↓ Récent (défaut)</option>
             <option value="wozali_desc">⚡ Score WOZALI décroissant</option>
@@ -6601,7 +6541,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260721c" defer></script>
+<script src="/app.js?v=20260721d" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

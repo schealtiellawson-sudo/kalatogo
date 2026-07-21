@@ -40,6 +40,10 @@ import entretienList from './_impl/entretien-list.js';
 import entretienUpsert from './_impl/entretien-upsert.js';
 import signalementCreate from './_impl/signalement-create.js';
 import signalementList from './_impl/signalement-list.js';
+// Notification candidat sur changement de statut + fondation notifications serveur (2026-07-21)
+import candidatureNotifier from './_impl/candidature-notifier.js';
+import notificationsList from './_impl/notifications-list.js';
+import notificationsRead from './_impl/notifications-read.js';
 // WhatsApp sequences (V1.1 — 2026-04-28)
 import whatsappEnqueue from './_impl/whatsapp-enqueue.js';
 import whatsappFlush from './_impl/whatsapp-flush.js';
@@ -180,6 +184,10 @@ const handlers = {
   'entretien-upsert': entretienUpsert,
   'signalement-create': signalementCreate,
   'signalement-list': signalementList,
+  // Notification candidat + notifications serveur (2026-07-21)
+  'candidature-notifier': candidatureNotifier,
+  'notifications-list': notificationsList,
+  'notifications-read': notificationsRead,
   'whatsapp-enqueue': whatsappEnqueue,
   'whatsapp-flush': whatsappFlush,
   'feed-tag-stats': feedTagStats,
