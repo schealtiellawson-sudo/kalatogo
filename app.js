@@ -12893,7 +12893,7 @@ function renderSlotRow(dayNum, i, slot, total) {
   return `
     <div class="dispo-slot-row">
       <select class="time-sel" onchange="updateDispoSlot(${dayNum},${i},'start',this.value)">${genTimeOptions(slot.start)}</select>
-      <span style="color:var(--gris);">—</span>
+      <span style="color:rgba(252,224,168,.55);font-size:13px;">à</span>
       <select class="time-sel" onchange="updateDispoSlot(${dayNum},${i},'end',this.value)">${genTimeOptions(slot.end)}</select>
       ${total > 1 ? `<button class="remove-slot-btn" onclick="removeDispoSlot(${dayNum},${i})">×</button>` : ''}
     </div>`;
