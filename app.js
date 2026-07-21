@@ -6623,7 +6623,7 @@ async function _loadCoachThread() {
       const f = window.currentPrestataire?.fields || {};
       const metier = (f['Métier principal'] || '').toLowerCase();
       await _coachInsertMsg({ type: 'systeme', corps:
-        `Salut${prenom ? ' ' + prenom : ''} 👋🏾\n\nMoi c'est Coach Sandy. Je suis ton experte business personnelle sur WOZALI, une intelligence artificielle formée sur le marché d'ici. Pas une personne, mais je connais ton marché mieux que personne.\n\nMon travail : t'aider à faire rentrer plus d'argent${metier ? ' avec ton métier de ' + metier : ' avec ton travail'}.\n\nJ'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.` });
+        `Salut${prenom ? ' ' + prenom : ''} 👋🏾\n\nMoi c'est Sandy, ta coach business sur WOZALI. Je suis un agent IA, pas une humaine. J'ai été entraînée sur le commerce du Togo et du Bénin, donc je connais ton marché.\n\nMon travail : t'aider à faire rentrer plus d'argent${metier ? ' avec ton métier de ' + metier : ' avec ton travail'}.\n\nJ'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.` });
       await _coachInsertMsg({ type: 'systeme', corps:
         "Avant de commencer, j'ai 4 petites questions pour te connaître. Tu réponds juste en appuyant sur un bouton. Ça prend 1 minute." });
     }
@@ -6757,7 +6757,7 @@ async function _loadCoachPreview() {
     const time = document.getElementById('dm-coach-time');
     const badge = document.getElementById('dm-coach-badge');
     if (!last || !last.length) {
-      if (preview) preview.textContent = 'Ton experte business';
+      if (preview) preview.textContent = 'Ton agent IA business';
       if (badge) { badge.style.display = 'inline-flex'; badge.textContent = '1'; }
       return;
     }
