@@ -594,7 +594,7 @@ function showDashSection(section) {
   if (section === 'avis') loadDashAvis();
   if (section === 'photos') loadDashPhotos();
   if (section === 'posts') loadDashPosts();
-  if (section === 'abonnement') { injectSprint6Upgrade(); loadAbonnement(); }
+  if (section === 'abonnement') { loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
     if (section === 'parrainage') loadParrainage();
   if (section === 'notifications' && currentPrestataire?.id) { window._notifBadgeFetchAt = 0; try { updateNotifBadge(currentPrestataire.id); } catch(e){} try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
@@ -13539,79 +13539,12 @@ function requestWithdrawal() {
 
 
 // ════════════════════════════════════════════════════════════════
-// SPRINT 6 — Upgrade Pro (FedaPay) + Dashboard parrainage
+// SPRINT 6 — Upgrade Pro (FedaPay)
+// injectSprint6Upgrade() + sp6PayFedapay() supprimées (VAGUE 2c, 2026-07-22) :
+// le bloc comparatif Gratuit/Pro injecté en bas de #ds-abonnement doublonnait la
+// page de conversion du haut. Le paiement passe par upgradePlan('Pro', 2500)
+// (boutons de la page) → showFedaPayModal → initFedaPayCheckout → sp6ShowSuccess.
 // ════════════════════════════════════════════════════════════════
-async function injectSprint6Upgrade(){
-  const host = document.getElementById('ds-abonnement');
-  if (!host || host.querySelector('#sp6-upgrade-block')) return;
-  if (!currentUser?.id) return;
-
-  const block = document.createElement('div');
-  block.id = 'sp6-upgrade-block';
-  block.style.cssText = 'max-width:720px;margin:24px auto;padding:0 16px;color:#FCE0A8';
-
-  const rowOk = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:#FCE0A8"><span style="color:#E8940A;font-weight:700">✓</span><span>${txt}</span></div>`;
-  const rowKo = txt => `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;color:rgba(252, 224, 168,.4)"><span style="color:#ef4444">✗</span><span style="text-decoration:line-through">${txt}</span></div>`;
-  const sectionTitle = t => `<div style="font-size:10px;color:#E8940A;font-family:'Geist Mono';letter-spacing:2px;margin:14px 0 4px;padding-bottom:4px;border-bottom:1px solid rgba(232,148,10,.15)">${t}</div>`;
-
-  block.innerHTML = `
-    <div style="background:#14100A;border:2px solid #E8940A;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
-      <div style="font-size:40px;margin-bottom:6px">🏆</div>
-      <div style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:4px">Un salaire chaque mois pour les 10 meilleurs</div>
-      <div style="font-size:12px;color:rgba(252, 224, 168,.6);margin-bottom:14px">Bourse de Croissance : les 10 meilleurs profils du mois de ton pays (Pro, 100% mérite)</div>
-      <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto 10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,148,10,.08);border-radius:8px;padding:10px 14px"><span style="font-size:13px">🏆 Bourse de Croissance</span><strong style="color:#E8940A;font-family:'Geist Mono'">Salaire × 10</strong></div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px">
-        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin-bottom:2px">Gratuit</div>
-        <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:rgba(252, 224, 168,.75);margin-bottom:8px">0 FCFA<span style="font-size:11px;color:rgba(252, 224, 168,.5)">/mois</span></div>
-        ${sectionTitle('PLATEFORME')}
-        ${rowOk('Profil visible')}
-        ${rowOk('Avis clients')}
-        ${rowKo('Badge Pro')}
-        ${rowKo('Priorité résultats')}
-        ${sectionTitle('RÉCOMPENSES')}
-        ${rowKo('Bourse : un salaire × 10/mois (Pro only)')}
-        ${rowKo('Commissions parrainage')}
-      </div>
-      <div style="background:rgba(232,148,10,.05);border:2px solid #E8940A;border-radius:12px;padding:14px;position:relative">
-        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#E8940A;color:#fff;font-size:9px;font-weight:800;padding:3px 12px;border-radius:100px;letter-spacing:1px">RECOMMANDÉ</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;color:#E8940A;margin-top:4px">Pro</div>
-        <div style="font-family:'Geist Mono';font-size:18px;font-weight:700;color:#E8940A">2 500 FCFA<span style="font-size:11px">/mois</span></div>
-        <div style="font-size:10px;color:rgba(252, 224, 168,.5);margin-bottom:8px">Soit 83 FCFA par jour</div>
-        ${sectionTitle('PLATEFORME')}
-        ${rowOk('<strong>Badge Pro</strong> visible')}
-        ${rowOk('Priorité résultats')}
-        ${rowOk('À la Une homepage')}
-        ${sectionTitle('RÉCOMPENSES')}
-        ${rowOk('<strong>Bourse : un salaire × 10/mois</strong>')}
-        ${rowOk('Commissions parrainage 1 000 FCFA/filleul')}
-      </div>
-    </div>
-
-    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:16px;padding:20px;margin-bottom:16px">
-      <div style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:900;margin-bottom:6px">Payer avec FedaPay</div>
-      <div style="font-size:13px;color:rgba(252, 224, 168,.6);margin-bottom:18px">Plan Pro · 2 500 FCFA / mois · Résiliable à tout moment</div>
-      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px">
-        <div style="font-weight:700;font-size:15px;margin-bottom:4px">📱 Payer avec Mobile Money</div>
-        <div style="font-size:11px;color:rgba(252, 224, 168,.5);margin-bottom:12px">MTN Mobile Money · Moov Money · TMoney · Flooz</div>
-        <button onclick="sp6PayFedapay()" style="width:100%;background:#E8940A;color:#14100A;border:none;padding:14px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">📱 Payer 2 500 FCFA · Plan Pro</button>
-      </div>
-    </div>
-  `;
-  host.appendChild(block);
-}
-
-
-
-
-function sp6PayFedapay(){
-  if (!currentUser || !currentPrestataire) { toast('Connecte-toi pour continuer', 'error'); return; }
-  upgradePlan('Pro', 2500);
-}
 
 function sp6ShowSuccess(){
   const overlay = document.createElement('div');
@@ -14387,7 +14320,7 @@ function loadAbonnement() {
 
 function generatePaymentCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = 'KAL-';
+  let code = 'WZ-';
   for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
   return code;
 }
@@ -17102,12 +17035,11 @@ function signalerOffreCandidat(candidatureId) {
 
 
 // ── Dashboard : Publier une offre ──
+// Publication d'offres GRATUITE pour tous (décision fondateur 2026-07-20).
+// Le verrou Pro (#recrut-pro-lock) a été supprimé du DOM (VAGUE 2c, 2026-07-22).
 function initRecrutPublier() {
   if (!currentPrestataire) return;
-  // Publication d'offres GRATUITE pour tous (décision fondateur 2026-07-20) : le verrou Pro reste masqué.
-  const lockEl = document.getElementById('recrut-pro-lock');
   const formEl = document.getElementById('recrut-form-wrap');
-  if (lockEl) lockEl.style.display = 'none';
   if (formEl) formEl.style.display = 'block';
 }
 
@@ -17968,11 +17900,7 @@ function _saveRecrutFilters() {
     const state = {
       offre:    document.getElementById('recrut-cand-filter-offre')?.value    || '',
       statut:   document.getElementById('recrut-cand-filter-statut')?.value   || '',
-      quartier: document.getElementById('recrut-cand-filter-quartier')?.value || '',
       search:   document.getElementById('recrut-cand-search')?.value          || '',
-      age:      document.getElementById('recrut-cand-filter-age')?.value      || '',
-      exp:      document.getElementById('recrut-cand-filter-exp')?.value      || '',
-      distance: document.getElementById('recrut-cand-filter-distance')?.value || '',
       sort:     recrutCandSort,
       view:     recrutCandView
     };
@@ -17987,11 +17915,7 @@ function _restoreRecrutFilters() {
     const s = JSON.parse(raw);
     const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
     set('recrut-cand-filter-statut',   s.statut);
-    set('recrut-cand-filter-quartier', s.quartier);
     set('recrut-cand-search',          s.search);
-    set('recrut-cand-filter-age',      s.age);
-    set('recrut-cand-filter-exp',      s.exp);
-    set('recrut-cand-filter-distance', s.distance);
     set('recrut-cand-sort',            s.sort);
     // Note : l'offre est repeuplée dynamiquement, on tente aussi mais elle peut être vide
     set('recrut-cand-filter-offre',    s.offre);

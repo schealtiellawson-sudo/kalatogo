@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260721e">
+<link rel="stylesheet" href="/style.css?v=20260722a">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5726,6 +5726,7 @@ setTimeout(function(){
               <div style="font-size:13px;color:rgba(252,224,168,0.7);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Photos de réalisations</div>
               <div style="font-size:13px;color:rgba(252,224,168,0.7);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Contact WhatsApp direct</div>
               <div style="font-size:13px;color:rgba(252,224,168,0.7);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Avis clients</div>
+              <div style="font-size:13px;color:rgba(252,224,168,0.7);display:flex;gap:7px;"><span style="color:var(--vert);">✓</span> Publier des offres d'emploi (WOZALI Jobs)</div>
               <div style="font-size:13px;color:var(--gris);display:flex;gap:7px;opacity:0.5;"><span style="color:#e74c3c;">✗</span> <span style="text-decoration:line-through;">Programme parrainage</span> <span style="font-size:11px;background:#f59e0b;color:black;padding:1px 6px;border-radius:100px;font-weight:700;margin-left:4px;">PRO</span></div>
               <div style="font-size:13px;color:#ccc;display:flex;gap:7px;"><span>✗</span> Priorité dans les résultats</div>
               <div style="font-size:13px;color:#ccc;display:flex;gap:7px;"><span>✗</span> Badge Pro visible</div>
@@ -5770,16 +5771,20 @@ setTimeout(function(){
               ⚡ Un électricien. Une prestation de 5 000 FCFA. C'est tout ce qu'il faut pour que le Plan Pro se rembourse. Le reste du mois, c'est du gain pur.
             </div>
 
-            <!-- A2. Liste avantages Pro refondue -->
+            <!-- Sandy : le différenciateur unique -->
+            <div style="background:rgba(232,148,10,0.1);border:1.5px solid rgba(232,148,10,0.3);border-radius:14px;padding:16px 18px;margin:0 0 16px;">
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;margin-bottom:6px;">💬 Sandy · Ton agent IA business</div>
+              <p style="font-size:13px;color:#FCE0A8;line-height:1.7;margin:0;">En Pro, tu discutes avec Sandy en temps réel, quand tu veux. Ton prix, ton client difficile, ta prochaine offre : elle te répond tout de suite. Sandy est un agent IA, pas une humaine, entraînée sur le commerce du Togo et du Bénin. En gratuit, tu as son conseil du jour et ses leçons. En Pro, le chat est libre.</p>
+            </div>
+
+            <!-- A2. Liste avantages Pro refondue (VAGUE 2c) -->
             <ul class="wozali-avantages-pro">
-              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Bourse de Croissance</strong> : <span class="montant-or">chaque mois, les 10 meilleurs profils Pro du mois gagnent un salaire</span>. Toi aussi, si ton travail parle</span></li>
-              <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité dans les résultats de recherche</strong> : tu apparais avant les profils gratuits</span></li>
-              <li class="avantage-item"><span class="avantage-icon">⭐</span><span class="avantage-texte"><strong>Badge Pro visible</strong> par tous les clients</span></li>
+              <li class="avantage-item"><span class="avantage-icon">🔝</span><span class="avantage-texte"><strong>Priorité dans les résultats de recherche</strong> : tu apparais avant les profils gratuits, à chaque recherche</span></li>
+              <li class="avantage-item"><span class="avantage-star">★</span><span class="avantage-texte"><strong>Bourse de Croissance</strong> : <span class="montant-or">un salaire pour chacun des 10 meilleurs profils du mois</span> de ton pays. Toi aussi, si ton travail parle</span></li>
+              <li class="avantage-item"><span class="avantage-icon">💬</span><span class="avantage-texte"><strong>Chat libre avec Sandy</strong> : ton agent IA business répond en temps réel, quand tu veux</span></li>
+              <li class="avantage-item"><span class="avantage-icon">👀</span><span class="avantage-texte"><strong>Qui a vu ton profil</strong> : les clients qui t'ont regardé, tu les vois</span></li>
               <li class="avantage-item"><span class="avantage-icon">💰</span><span class="avantage-texte"><strong>Parrainage actif</strong> : 1 000 FCFA/filleul/mois, chaque mois tant qu'il reste Pro</span></li>
-              <li class="avantage-item"><span class="avantage-icon">📈</span><span class="avantage-texte"><strong>Score WOZALI boosté</strong> : monte plus vite dans le classement</span></li>
-              <li class="avantage-item"><span class="avantage-icon">💼</span><span class="avantage-texte"><strong>Publier des offres d'emploi</strong> : recrute des profils vérifiés</span></li>
-              <li class="avantage-item"><span class="avantage-icon">📊</span><span class="avantage-texte">Statistiques de vues et contacts reçus</span></li>
-              <li class="avantage-item"><span class="avantage-icon">🎯</span><span class="avantage-texte">Support WOZALI prioritaire et gestion d'avis</span></li>
+              <li class="avantage-item"><span class="avantage-icon">⭐</span><span class="avantage-texte"><strong>Badge Pro visible</strong> par tous les clients</span></li>
             </ul>
 
             <!-- A3. CTA refondu -->
@@ -5826,6 +5831,7 @@ setTimeout(function(){
           <div class="faq-item"><div class="faq-q">2 500 FCFA, c'est pas trop cher ?</div><div class="faq-r">2 500 FCFA = 83 FCFA par jour. Moins qu'un pain beurre. Une seule prestation de 3 000 FCFA dans le mois, et l'abonnement est remboursé. Le reste du mois, tu gardes 100%. Les clients qui te voient en priorité, ils viennent pas gratuitement. Ton profil sort en tête des résultats, avant tous les profils gratuits. C'est ça que tu paies.</div></div>
           <div class="faq-item"><div class="faq-q">Combien je gagne de plus avec le Plan Pro ?</div><div class="faq-r">Ton profil passe en tête des résultats. Les clients te voient avant les autres. Tu reçois plus de demandes. Et chaque mois, tu entres automatiquement dans le classement de la Bourse de Croissance : conditions Plan Pro actif, Score WOZALI ≥ 80, au moins 3 avis clients récents, note ≥ 4,2 étoiles. Un mois Pro suffit pour être classé dès le premier mois.</div></div>
           <div class="faq-item"><div class="faq-q">C'est quoi la Bourse de Croissance ?</div><div class="faq-r">Chaque mois, WOZALI verse un salaire, le salaire minimum légal de ton pays, à chacun des 10 membres Pro qui travaillent le mieux : avis clients vérifiés, note, constance, profil complet, usage des outils. Zéro tirage au sort, zéro concours de popularité : tes abonnés et tes vues ne comptent pas. Le classement repart à zéro chaque mois. Elle s'ouvre dans ton pays dès que le marché est prêt : 5 000 membres Pro.</div></div>
+          <div class="faq-item"><div class="faq-q">Sandy, c'est qui exactement ?</div><div class="faq-r">Sandy est un agent IA, pas une humaine, entraînée sur le commerce du Togo et du Bénin. En gratuit, elle te donne un conseil chaque jour et des leçons business. En Pro, tu discutes avec elle librement, en temps réel : tes prix, un client difficile, une idée à tester, elle répond tout de suite.</div></div>
           <div class="faq-item"><div class="faq-q">Comment je paie sans carte bancaire ?</div><div class="faq-r">MTN Mobile Money, Moov Money, TMoney, Flooz : directement depuis ton téléphone. 30 secondes. Plan Pro activé immédiatement. Pas de carte. Pas de compte en banque requis.</div></div>
           <div class="faq-item"><div class="faq-q">Le parrainage 1 000 FCFA/filleul, c'est réel ?</div><div class="faq-r">Oui. Pour chaque pro que tu amènes sur WOZALI et qui passe en Plan Pro, tu touches 1 000 FCFA par mois tant qu'il reste actif. Amène 10 personnes → 10 000 FCFA récurrents. Amène 50 → 50 000 FCFA. Sans rien faire de plus. Réservé aux membres Pro.</div></div>
           <div class="faq-item"><div class="faq-q">Je peux tester et arrêter si ça me convient pas ?</div><div class="faq-r">Oui : résiliation à tout moment, sans explication, sans pénalité. Tu gardes tous les avantages du mois en cours. Aucun risque.</div></div>
@@ -5849,7 +5855,7 @@ setTimeout(function(){
         <section class="wozali-score-explication" data-anim="up" style="background:#14100A;color:#FCE0A8;padding:48px 32px;border-radius:24px;border:1px solid rgba(232,148,10,0.25);margin:48px auto;max-width:800px">
           <h2 style="color:#E8940A;font-size:1.5rem;margin-bottom:24px">TON SCORE WOZALI EST SUR 100 POINTS</h2>
           <ul style="list-style:none;padding:0;line-height:1.8;font-family:monospace">
-            <li><strong>Profil complet</strong> ........... 30 pts<br><span style="opacity:.65;font-family:inherit">Photo, description, tarif, téléphone, localisation</span></li>
+            <li><strong>Profil complet</strong> ........... 30 pts<br><span style="opacity:.65;font-family:inherit">Photo, description, métier, ville et quartier, numéro vérifié</span></li>
             <li style="margin-top:12px"><strong>Note moyenne clients</strong> ...... 25 pts<br><span style="opacity:.65">Basée sur tous tes avis</span></li>
             <li style="margin-top:12px"><strong>Nombre d'avis clients</strong> ..... 15 pts<br><span style="opacity:.65">Chaque avis compte : demande à tes clients de noter</span></li>
             <li style="margin-top:12px"><strong>Photos de réalisations</strong> .... 10 pts<br><span style="opacity:.65">Au moins 3 photos publiées</span></li>
@@ -6249,14 +6255,6 @@ setTimeout(function(){
           <p style="color:rgba(252, 224, 168,.35);font-family:Geist,sans-serif;font-size:12px;margin:6px 0 0;">Petite annonce d'emploi WOZALI Jobs : les candidats postulent directement, gratuitement, aucun frais ne leur est jamais demandé.</p>
         </div>
 
-        <!-- Lock Pro (thème sombre) -->
-        <div id="recrut-pro-lock" style="display:none;background:rgba(232,148,10,.08);border:1px solid rgba(232,148,10,.35);border-radius:16px;padding:32px 28px;max-width:640px;margin-bottom:24px;text-align:center;">
-          <div style="font-size:36px;margin-bottom:12px;">🔒</div>
-          <h3 style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;margin:0 0 8px;">Fonctionnalité Pro</h3>
-          <p style="color:rgba(252, 224, 168,.6);font-family:Geist,sans-serif;font-size:14px;margin:0 0 20px;line-height:1.6;">La publication d'offres est réservée aux comptes Pro.<br>Passe au Pro pour recruter sur WOZALI Jobs.</p>
-          <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:12px 28px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">🚀 Passer au Pro · 2 500 FCFA/mois →</button>
-        </div>
-
         <div id="recrut-form-wrap">
           <div style="background:rgba(255,255,255,.03);border:1px solid rgba(232,148,10,.12);border-radius:16px;padding:28px;max-width:640px;">
 
@@ -6594,7 +6592,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260721e" defer></script>
+<script src="/app.js?v=20260722a" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -6871,13 +6869,13 @@ setTimeout(function(){
             <div class="ok"><span>✓</span> Contact WhatsApp direct</div>
             <div class="ok"><span>✓</span> Système d'avis clients</div>
             <div class="ok"><span>✓</span> Postuler aux offres d'emploi</div>
+            <div class="ok"><span>✓</span> Publier des offres d'emploi (WOZALI Jobs)</div>
             <div class="ok"><span>✓</span> Sandy, ton agent IA : un conseil chaque jour</div>
             <div class="wzf-plan-sep"></div>
             <div class="off"><span>✗</span> Priorité dans les résultats</div>
             <div class="off"><span>✗</span> Chat en temps réel avec Sandy</div>
             <div class="off"><span>✗</span> Bourse de Croissance</div>
             <div class="off"><span>✗</span> Programme parrainage</div>
-            <div class="off"><span>✗</span> Publier des offres d'emploi</div>
             <div class="off"><span>✗</span> Stats de vues et contacts</div>
           </div>
           <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:24px;" onclick="showPage('inscription')">Commencer gratuitement</button>
@@ -6963,10 +6961,10 @@ setTimeout(function(){
               </div>
             </div>
             <div class="wozali-pro-feature-item">
-              <div class="icon">💼</div>
+              <div class="icon">👀</div>
               <div class="body">
-                <div class="titre">Publier des offres WOZALI Jobs</div>
-                <div class="sous">Recrute du personnel en quelques clics. Pas d'agence, pas de commission.</div>
+                <div class="titre">Tu vois qui a regardé ton profil</div>
+                <div class="sous">Les clients qui t'ont visité récemment, visibles en clair. Réservé Pro.</div>
               </div>
             </div>
           </div>
@@ -7049,28 +7047,15 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- ══ 06 · MUR DES GAGNANTS ══ -->
-  <section class="wozali-gagnants-section">
-    <div class="container">
-      <div class="wz-eyebrow wz-reveal" style="justify-content:center;margin-left:auto;margin-right:auto;">06 · Le mur des gagnants</div>
-      <p class="wozali-gagnants-sub">Noms réels. Salaires réels. Vérifiés publiquement.</p>
-      <div id="wozali-gagnants-liste" class="wozali-gagnants-liste">
-        <div class="wozali-gagnant-card wozali-gagnant-placeholder">
-          <div class="icon">🏆</div>
-          <h4>Les 10 premiers noms s'écriront ici</h4>
-          <p>Dès que ton pays débloque sa Bourse, les 10 meilleurs profils du mois s'affichent ici. Nom, métier, quartier, Score. Publiquement. Puis le mois suivant, le classement repart de zéro et dix nouveaux noms s'écrivent.</p>
-          <div class="montant">Un salaire</div>
-          <div class="question">Ce nom, c'est le tien ?</div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Mur des gagnants supprimé (VAGUE 2c, 2026-07-22) : le bloc était alimenté par
+       chargerGagnants() (app3.js) qui lit la table morte wozali_awards (Awards supprimés).
+       Les vrais gagnants Bourse vivent dans gains_recompenses via _widgetPalmares(). -->
 
-  <!-- ══ 07 · LA GARANTIE WOZALI ══ -->
+  <!-- ══ 06 · LA GARANTIE WOZALI ══ -->
   <section class="wzf-pane" style="border-top:1px solid rgba(232,148,10,.08);">
     <div class="container">
       <div class="wzf-pane-head wz-reveal">
-        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">07 · La garantie WOZALI</div>
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">06 · La garantie WOZALI</div>
         <h2 class="wz-h2">Tu es protégé. <em class="wz-gold-it">On a tout prévu.</em></h2>
       </div>
       <div class="wzf-steps" style="max-width:1020px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));">
@@ -7098,11 +7083,11 @@ setTimeout(function(){
     </div>
   </section>
 
-  <!-- ══ 08 · FAQ ══ -->
+  <!-- ══ 07 · FAQ ══ -->
   <section class="wzf-faq-section">
     <div class="container" style="max-width:820px;">
       <div class="wzf-pane-head wz-reveal">
-        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">08 · Questions</div>
+        <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">07 · Questions</div>
         <h2 class="wz-h2">Les questions que <em class="wz-gold-it">tu te poses.</em></h2>
         <p class="wzf-sub">On a entendu les mêmes doutes de la bouche de centaines de prestataires au Bénin et au Togo. Voilà les vraies réponses.</p>
       </div>
