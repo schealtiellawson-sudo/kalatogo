@@ -65,6 +65,7 @@
     'Realisations Audio': 'realisations_audio',
     'Statut Jour': 'statut_jour',
     'Statut Jour Date': 'statut_jour_at',
+    'Rang Top 50': 'rang_top_50',
   };
 
   function _supa() { return window.supabase || window.supa; }

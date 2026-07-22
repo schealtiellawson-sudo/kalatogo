@@ -6,7 +6,16 @@
 import { supabase } from '../_lib/supabase.js';
 import { envoyerNotification } from '../_utils/credit.js';
 import { calculerScoreMerite } from '../_lib/score-merite.js';
-import { MIN_AVIS_30J, MIN_MOIS_PRO, MIN_SCORE_WOZALI, MIN_NOTE_MOYENNE } from '../_lib/smig.js';
+import { MIN_AVIS_30J, MIN_MOIS_PRO, MIN_SCORE_WOZALI, MIN_NOTE_MOYENNE, PAYS_BOURSE } from '../_lib/smig.js';
+
+// Top 50 — mécanique de visibilité INDÉPENDANTE de la Bourse de Croissance
+// (décision fondateur 2026-07-22). Vit dès le lancement, même avant les
+// 5 000 Pro/pays. Classement sur le même score_merite, Pro uniquement,
+// par pays, recalculé chaque jour par ce cron. "Actif" = mis à jour son
+// profil dans les 14 derniers jours (même proxy que ptsConstance dans
+// score-merite.js — pas de colonne derniere_activite dédiée en base).
+const TOP50_ACTIVITE_JOURS = 14;
+const TOP50_TAILLE = 50;
 
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -33,7 +42,7 @@ export default async function handler(req, res) {
     const userIds = abos.map(a => a.user_id);
     const { data: profiles } = await supabase
       .from('wozali_prestataires')
-      .select('user_id, score_wozali, photo_profil, photo_realisation_1, photo_realisation_2, photo_realisation_3, albums, description_services, metier_principal, quartier, ville, numero_telephone, whatsapp, updated_at')
+      .select('user_id, score_wozali, photo_profil, photo_realisation_1, photo_realisation_2, photo_realisation_3, albums, description_services, metier_principal, quartier, ville, numero_telephone, whatsapp, updated_at, pays, created_at, rang_top_50')
       .in('user_id', userIds);
 
     const profileMap = {};
@@ -90,6 +99,9 @@ export default async function handler(req, res) {
     // 6. Vérifier éligibilité pour chaque membre Pro
     let eligibles = 0;
     let nouveauxEligibles = 0;
+
+    // Entrées collectées pour le classement Top 50 (indépendant de la Bourse)
+    const meriteEntries = [];
 
     for (const abo of abos) {
       const userId = abo.user_id;
@@ -193,7 +205,90 @@ export default async function handler(req, res) {
       }
 
       if (estEligible) eligibles++;
+
+      // Collecte pour le classement Top 50 — Pro + pays connu + actif
+      // (mis à jour son profil dans les TOP50_ACTIVITE_JOURS derniers jours)
+      if (profile.pays) {
+        const derniereMaj = profile.updated_at ? new Date(profile.updated_at) : null;
+        const estActif = derniereMaj
+          ? (now.getTime() - derniereMaj.getTime()) <= TOP50_ACTIVITE_JOURS * 86400000
+          : false;
+        if (estActif) {
+          meriteEntries.push({
+            userId,
+            pays: profile.pays,
+            merite: merite.total,
+            nbAvisTotal: (avisTousParPrest[userId] || []).length,
+            createdAt: profile.created_at || null,
+            prevRang: profile.rang_top_50 || null,
+          });
+        }
+      }
     }
+
+    // 7. Classement Top 50 par pays — badge de visibilité indépendant de
+    //    la Bourse. Écrit rang_top_50 (1..50) sur les entrants, remet à
+    //    NULL les sortants (pour éteindre le badge côté front app.js:4767).
+    let top50Ecritures = 0;
+    let top50Entrees = 0;
+    let top50Sorties = 0;
+
+    for (const pays of PAYS_BOURSE) {
+      const entriesPays = meriteEntries.filter(e => e.pays === pays);
+
+      // Tri : score_merite DESC, puis nb avis DESC, puis ancienneté (created_at ASC)
+      entriesPays.sort((a, b) => {
+        if (b.merite !== a.merite) return b.merite - a.merite;
+        if (b.nbAvisTotal !== a.nbAvisTotal) return b.nbAvisTotal - a.nbAvisTotal;
+        const ca = a.createdAt ? new Date(a.createdAt).getTime() : Infinity;
+        const cb = b.createdAt ? new Date(b.createdAt).getTime() : Infinity;
+        return ca - cb;
+      });
+
+      const top50 = entriesPays.slice(0, TOP50_TAILLE);
+      const top50Ids = new Set(top50.map(e => e.userId));
+
+      // Sortants du pays : avaient un rang, n'en ont plus
+      const sortants = entriesPays.filter(e => e.prevRang && !top50Ids.has(e.userId));
+
+      const rows = [];
+      for (let i = 0; i < top50.length; i++) {
+        const e = top50[i];
+        const nouveauRang = i + 1;
+        rows.push({ user_id: e.userId, rang_top_50: nouveauRang });
+        // Notifier uniquement une vraie entrée (n'était pas classé avant)
+        if (!e.prevRang) {
+          top50Entrees++;
+          await envoyerNotification({
+            user_id: e.userId,
+            titre: `🏆 Tu es Top ${nouveauRang} des profils les plus sérieux du ${pays} ce mois`,
+            corps: 'Ton profil est mis en avant partout sur WOZALI.'
+          });
+        }
+      }
+      for (const e of sortants) {
+        rows.push({ user_id: e.userId, rang_top_50: null });
+        top50Sorties++;
+        await envoyerNotification({
+          user_id: e.userId,
+          titre: "Tu n'es plus dans le Top 50 ce mois",
+          corps: 'Reste actif, garde tes bons avis, tu peux y revenir.'
+        });
+      }
+
+      if (rows.length > 0) {
+        const { error: upsertErr } = await supabase
+          .from('wozali_prestataires')
+          .upsert(rows, { onConflict: 'user_id' });
+        if (upsertErr) {
+          console.error('[cron/eligibilite-bourse] upsert rang_top_50', pays, upsertErr.message || upsertErr);
+        } else {
+          top50Ecritures += rows.length;
+        }
+      }
+    }
+
+    console.log(`[cron/eligibilite-bourse] Top 50 : ${top50Ecritures} écritures, ${top50Entrees} entrées, ${top50Sorties} sorties`);
 
     return res.status(200).json({
       ok: true,
@@ -201,6 +296,9 @@ export default async function handler(req, res) {
       total_pro: abos.length,
       eligibles,
       nouveaux_eligibles: nouveauxEligibles,
+      top50_ecritures: top50Ecritures,
+      top50_entrees: top50Entrees,
+      top50_sorties: top50Sorties,
     });
   } catch (err) {
     console.error('[cron/eligibilite-bourse]', err);

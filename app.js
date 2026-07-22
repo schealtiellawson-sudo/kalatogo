@@ -1035,6 +1035,26 @@ function markPremierPasShared(waUrl) {
   setTimeout(() => { try { renderPremierPasWizard(); } catch(e) {} }, 200);
 }
 
+// D7 — Bandeau de félicitation Top 50 sur la vue d'ensemble du dashboard.
+// Cadrage VISIBILITÉ uniquement (jamais "gagnant" ni montant). Indépendant
+// de la Bourse de Croissance : rang_top_50 vient du cron eligibilite-bourse.js.
+function _renderTop50BannerOverview(f) {
+  const host = document.getElementById('ov-top50-banner');
+  if (!host) return;
+  const topRank = f['Rang Top 50'] || 0;
+  if (!topRank || topRank > 50) { host.style.display = 'none'; host.innerHTML = ''; return; }
+  const recordId = currentPrestataire?.id || '';
+  host.style.display = 'block';
+  host.innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(232,148,10,.14),rgba(232,148,10,.04));border:1.5px solid rgba(232,148,10,.35);border-radius:14px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;cursor:pointer;" onclick="showProfil('${escapeHtml(recordId)}')">
+      <span style="font-size:26px;">🏆</span>
+      <div style="flex:1;">
+        <div style="font-family:'DM Serif Display',serif;font-size:15px;font-weight:900;color:#E8940A;">Tu es Top ${topRank} ce mois</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.55);margin-top:2px;">Ton profil est mis en avant partout sur WOZALI. Voir mon profil public →</div>
+      </div>
+    </div>`;
+}
+
 async function loadDashOverview() {
   if (!currentPrestataire) return;
   const f = currentPrestataire.fields;
@@ -1043,6 +1063,9 @@ async function loadDashOverview() {
   // U2 — Wizard Premier pas (avant les KPI)
   try { renderPremierPasWizard(); } catch(e) { console.warn('[premier-pas]', e); }
   try { _wzPrefillStatutJour(); } catch(e) {}
+
+  // D7 — Bandeau Top 50 (visibilité, indépendant de la Bourse)
+  try { _renderTop50BannerOverview(f); } catch(e) { console.warn('[top50-banner]', e); }
 
   // Date
   const now = new Date();
@@ -10710,6 +10733,8 @@ async function showProfil(recordId) {
     const nbTransactions = f['Nombre de transactions'] || 0;
     const dispo = f['Disponible maintenant'];
     const verifie = f['Badge vérifié'];
+    const topRank = f['Rang Top 50'] || 0;
+    const paysProfil = f['Pays'] || '';
     const tel = (f['Numéro de téléphone'] || '').replace(/\D/g,'');
     // Confidentialité : ne jamais rendre la position publique si le mode est 'off'.
     const _locModePublic = f['Mode Localisation'] || 'pin';
@@ -10989,7 +11014,16 @@ async function showProfil(recordId) {
                 ${((f['Badge Fondateur'] || f['Fondateur']) && (f['Email']||'').toLowerCase() !== 'schealtiellawson@gmail.com') ? '<span class="profil-chip chip-dk">🏅 Fondateur</span>' : ''}
                 ${note > 0 ? `<span class="profil-chip chip-star">★ ${note.toFixed(1)}</span>` : ''}
                 ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="profil-chip chip-vert">🏆 Éligible Bourse</span>' : ''}
+                ${(topRank && topRank <= 50) ? `<span class="profil-chip chip-or">🏆 TOP ${topRank}</span>` : ''}
               </div>
+              ${(topRank && topRank <= 50) ? `
+              <div style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(232,148,10,.16),rgba(232,148,10,.05));border:1.5px solid rgba(232,148,10,.4);border-radius:14px;padding:14px 18px;margin-top:10px;">
+                <span style="font-size:28px;">🏆</span>
+                <div>
+                  <div style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:900;color:#E8940A;">Top ${topRank} des profils les plus sérieux${paysProfil ? ` du ${escapeHtml(paysProfil)}` : ''}</div>
+                  <div style="font-size:12.5px;color:rgba(252,224,168,.7);margin-top:2px;">Ce profil est mis en avant partout sur WOZALI ce mois-ci.</div>
+                </div>
+              </div>` : ''}
             </div>
 
             <!-- Stats strip -->
@@ -13760,6 +13794,7 @@ function _extractPaysInfo(d) {
              : (typeof b.pays_debloque === 'boolean') ? b.pays_debloque
              : undefined,
     nbPro: d?.nb_pro_pays ?? b.nb_pro_pays,
+    deltaMois: d?.nb_pro_pays_delta_mois ?? b.nb_pro_pays_delta_mois,
     seuil: d?.seuil_pro ?? b.seuil_pro,
     paysLabel: b.pays || d?.pays || null,
   };
@@ -13887,7 +13922,40 @@ function _widgetBoursePaysVerrouille(nbPro, seuil, paysLabel) {
     </div>`;
 }
 
+// D6 — Compteur de fierté post-déblocage. Une fois le pays débloqué, la
+// jauge de progression (_widgetBoursePaysVerrouille) disparaît sans rien la
+// remplacer. Ce widget comble ce trou : cadrage APPARTENANCE/fierté
+// collective (combien de pros sérieux dans le pays), jamais des gagnants
+// ni un montant. Coexiste visuellement à côté du bloc Bourse individuel
+// (10 gagnants / countdown), jamais fondu dedans.
+function _widgetFierteDebloque(nbPro, deltaMois, paysLabel) {
+  const n = Number.isFinite(nbPro) ? nbPro : null;
+  const delta = Number.isFinite(deltaMois) ? deltaMois : null;
+  const deltaLine = (delta != null && delta > 0)
+    ? `<div style="margin-top:8px;font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;color:#E8940A;">+${delta.toLocaleString('fr-FR')} ce mois</div>`
+    : `<div style="margin-top:8px;font-size:12.5px;color:rgba(252, 224, 168,.6);">Le compteur repart, chaque nouveau Pro fait grandir le pays.</div>`;
+  return `
+    <div style="background:#1E180E;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px">
+      <div style="font-size:11px;font-family:'Geist Mono',monospace;letter-spacing:1.5px;color:rgba(252, 224, 168,.45);margin-bottom:10px">${paysLabel ? escapeHtml(paysLabel).toUpperCase() + ' · ' : ''}COMMUNAUTÉ PRO</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:30px;font-weight:900;color:#FCE0A8;">${n != null ? n.toLocaleString('fr-FR') : '—'} pros sérieux${paysLabel ? ` au ${escapeHtml(paysLabel)}` : ''}</div>
+      ${deltaLine}
+    </div>`;
+}
+
+// Wrapper : préfixe le compteur de fierté collective (D6) quand le pays est
+// débloqué, AU-DESSUS du bloc individuel (gagnant/perdu/éligible/non-éligible)
+// rendu par _widgetBourseCorps. Les deux restent visuellement séparés :
+// le compteur collectif n'est jamais fondu dans la récompense individuelle.
 function _widgetBourse(bourse, countdown, paysInfo) {
+  const debloque = paysInfo ? paysInfo.debloque : undefined;
+  const corps = _widgetBourseCorps(bourse, countdown, paysInfo);
+  if (debloque === true) {
+    return _widgetFierteDebloque(paysInfo && paysInfo.nbPro, paysInfo && paysInfo.deltaMois, paysInfo && paysInfo.paysLabel) + corps;
+  }
+  return corps;
+}
+
+function _widgetBourseCorps(bourse, countdown, paysInfo) {
   const { etat, conditions, gagnant_nom, montant } = bourse;
   const debloque = paysInfo ? paysInfo.debloque : undefined;
 
@@ -13896,7 +13964,7 @@ function _widgetBourse(bourse, countdown, paysInfo) {
       <div style="background:linear-gradient(135deg,rgba(232,148,10,.15),rgba(232,148,10,.05));border:2px solid #E8940A;border-radius:16px;padding:24px;text-align:center">
         <div style="font-size:48px;margin-bottom:8px">🏆</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#E8940A;margin-bottom:8px">Tu es classé(e) dans la Bourse de Croissance !</h3>
-        <div style="font-family:'Geist Mono',monospace;font-size:36px;font-weight:900;color:#FCE0A8;margin-bottom:12px">${montant.toLocaleString('fr-FR')} FCFA</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#FCE0A8;margin-bottom:12px">Un salaire</div>
         <p style="color:rgba(252, 224, 168,.7);font-size:14px;margin-bottom:20px">Versé en Crédit WOZALI sur ton compte.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">Mon abonnement</button>
@@ -13975,7 +14043,7 @@ function _widgetPalmares(palmares) {
         <div style="font-size:13px;font-weight:700;color:#FCE0A8">${g.nom}</div>
         <div style="font-size:11px;color:rgba(252, 224, 168,.4)">${g.mois}</div>
       </div>
-      <div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A">${g.montant.toLocaleString('fr-FR')} FCFA</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A">Un salaire</div>
     </div>`;
 
   let html = '<div style="margin-top:20px">';
@@ -14014,7 +14082,7 @@ async function loadPageRecompenses() {
           const rest = Math.max(0, tirage - new Date());
           const j = Math.floor(rest / 86400000), h = Math.floor((rest % 86400000) / 3600000), m = Math.floor((rest % 3600000) / 60000);
           const cd = rest > 0 ? `${j}j ${h}h ${m}min` : 'Résultats imminents';
-          bw.innerHTML = _widgetBourse(d.bourse, cd);
+          bw.innerHTML = _widgetBourse(d.bourse, cd, _extractPaysInfo(d));
         }
         // Palmarès Bourse
         const pb = document.getElementById('recomp-palmares-bourse');
@@ -14298,7 +14366,7 @@ async function loadHomeGagnants() {
         <div style="font-size:36px;margin-bottom:8px">${emoji}</div>
         <div style="font-size:12px;color:#E8940A;font-family:'Geist Mono',monospace;letter-spacing:1px;margin-bottom:6px">${titre}</div>
         <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:4px">${nom}</div>
-        <div style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;color:#E8940A">${montant.toLocaleString('fr-FR')} FCFA remportés</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;color:#E8940A">Un salaire remporté</div>
       </div>`;
 
     host.style.display = 'block';

@@ -44,6 +44,9 @@ export default async function handler(req, res) {
     // countdown vers un tirage qui n'aura pas lieu si le seuil n'est pas atteint).
     let nbProPays = 0;
     let paysDebloque = false;
+    // D6 — compteur de fierté : nouveaux Pro du pays depuis le début du mois
+    // calendaire courant. Cadrage appartenance collective, pas un classement.
+    let nbProPaysDeltaMois = 0;
     if (userPays) {
       const { count } = await supabase
         .from('wozali_prestataires')
@@ -52,6 +55,15 @@ export default async function handler(req, res) {
         .eq('pays', userPays);
       nbProPays = count || 0;
       paysDebloque = nbProPays >= SEUIL_PRO_DEBLOCAGE;
+
+      const premierJourMois = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const { count: countDelta } = await supabase
+        .from('wozali_prestataires')
+        .select('*', { count: 'exact', head: true })
+        .eq('abonnement', 'Pro')
+        .eq('pays', userPays)
+        .gte('created_at', premierJourMois);
+      nbProPaysDeltaMois = countDelta || 0;
     }
 
     // Tous les gagnants du mois courant, toutes pays confondus (jusqu'à
@@ -176,6 +188,7 @@ export default async function handler(req, res) {
         pays: paysAffiche,
         montant: montantBourse,
         nb_pro_pays: nbProPays,
+        nb_pro_pays_delta_mois: nbProPaysDeltaMois,
         seuil_pro: SEUIL_PRO_DEBLOCAGE,
         pays_debloque: paysDebloque,
       },
