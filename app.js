@@ -1286,7 +1286,9 @@ async function loadDispo() {
 }
 
 function updateDispoUI(dispo) {
-  document.getElementById('dispo-label').textContent = dispo ? '🟢 Tu es disponible' : '🔴 Tu n\'es pas disponible';
+  document.getElementById('dispo-label').textContent = dispo ? 'Tu es disponible' : 'Tu n\'es pas disponible';
+  const dl = document.getElementById('dispo-label');
+  if (dl) dl.style.color = dispo ? '#E8940A' : 'rgba(252,224,168,.6)';
   document.getElementById('dispo-sublabel').textContent = dispo
     ? 'Les clients te voient en priorité dans les recherches'
     : 'Tu n\'apparais pas dans le filtre "disponible maintenant"';
@@ -1300,7 +1302,7 @@ async function updateDispo() {
   try {
     await window.supaPrest.update(currentPrestataire.id, { 'Disponible maintenant': dispo });
     currentPrestataire.fields['Disponible maintenant'] = dispo;
-    toast(dispo ? '🟢 Tu es maintenant disponible !' : '🔴 Disponibilité désactivée', 'success');
+    toast(dispo ? 'Tu es maintenant disponible !' : 'Disponibilité désactivée', 'success');
   } catch (e) { toast('Problème de connexion : ' + e.message, 'error'); }
 }
 
@@ -1327,7 +1329,7 @@ function _wzPrefillStatutJour() {
     if (frais) {
       const h = Math.max(0, 24 - Math.floor((Date.now() - new Date(f['Statut Jour Date']).getTime()) / 3600000));
       etat.textContent = `Visible encore ~${h}h`;
-      etat.style.color = '#4ade80';
+      etat.style.color = '#E8940A';
     } else {
       etat.textContent = 'Aucun statut en ce moment';
       etat.style.color = 'rgba(255,255,255,0.4)';
@@ -1818,20 +1820,20 @@ function renderRealisationsGrid() {
     const url = f[field];
     if (url) filled++;
     return url
-      ? `<div id="real-slot-${slot}" style="position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;background:#f5f5f5;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      ? `<div id="real-slot-${slot}" style="position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;background:#1E180E;border:1px solid rgba(232,148,10,.15);">
            <img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
-           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 50%);opacity:0;transition:opacity 0.2s;" class="real-overlay" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0"></div>
+           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(20,16,10,0.7) 0%,transparent 50%);opacity:0;transition:opacity 0.2s;" class="real-overlay" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0"></div>
            <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:4px;padding:6px;justify-content:center;">
-             <button onclick="document.getElementById('real-input-${slot}').click()" title="Remplacer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#333;box-shadow:0 1px 4px rgba(0,0,0,0.2);">✏️</button>
-             <button onclick="recadrerRealisationPhoto(${slot})" title="Recadrer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#555;box-shadow:0 1px 4px rgba(0,0,0,0.2);">✂️</button>
-             <button onclick="deleteRealisationPhoto(${slot})" title="Supprimer" style="background:rgba(255,255,255,0.92);border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#dc2626;box-shadow:0 1px 4px rgba(0,0,0,0.2);">🗑️</button>
+             <button onclick="document.getElementById('real-input-${slot}').click()" title="Remplacer" style="background:rgba(20,16,10,0.85);border:1px solid rgba(232,148,10,.35);border-radius:8px;min-width:40px;min-height:32px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#FCE0A8;">✏️</button>
+             <button onclick="recadrerRealisationPhoto(${slot})" title="Recadrer" style="background:rgba(20,16,10,0.85);border:1px solid rgba(232,148,10,.35);border-radius:8px;min-width:40px;min-height:32px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#FCE0A8;">✂️</button>
+             <button onclick="deleteRealisationPhoto(${slot})" title="Supprimer" style="background:rgba(20,16,10,0.85);border:1px solid rgba(220,38,38,.45);border-radius:8px;min-width:40px;min-height:32px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#f87171;">🗑️</button>
            </div>
-           <div style="position:absolute;top:8px;left:8px;background:rgba(232,148,10,0.85);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">Photo ${slot}</div>
+           <div style="position:absolute;top:8px;left:8px;background:rgba(232,148,10,0.9);color:#14100A;font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;">Photo ${slot}</div>
          </div>`
       : `<div id="real-slot-${slot}" onclick="document.getElementById('real-input-${slot}').click()" style="border-radius:14px;aspect-ratio:1;background:#1E180E;border:2px dashed rgba(232,148,10,0.35);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;gap:6px;" onmouseover="this.style.background='#251d11';this.style.borderColor='#E8940A'" onmouseout="this.style.background='#1E180E';this.style.borderColor='rgba(232,148,10,0.35)'">
              <div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;">➕</div>
              <span style="font-size:11px;font-weight:600;color:#E8940A;">Photo ${slot}</span>
-             <span style="font-size:10px;color:var(--gris);">Ajouter</span>
+             <span style="font-size:10px;color:rgba(252,224,168,.45);">Ajouter</span>
            </div>`;
   }).join('');
 
@@ -2545,10 +2547,11 @@ async function loadDashAvis() {
   const avis = await fetchAvis(currentPrestataire.id);
 
   if (avis.length === 0) {
-    container.innerHTML = `<div class="empty-state">
+    container.innerHTML = `<div class="empty-state" style="padding:56px 24px;">
       <div class="empty-icon">⭐</div>
-      <h3>Pas encore d'avis</h3>
-      <p>Tes clients peuvent laisser un avis depuis ton profil public.</p>
+      <h3>Ton premier avis se demande</h3>
+      <p style="max-width:420px;margin:0 auto;">Après chaque prestation, montre ton profil au client : 30 secondes pour lui, une preuve de plus pour toi. Partage ta carte profil pour lancer la machine.</p>
+      <button onclick="generateProfilStory()" style="margin-top:18px;min-height:48px;padding:12px 28px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;">Partager mon profil</button>
     </div>`;
     return;
   }
@@ -2567,25 +2570,25 @@ async function loadDashAvis() {
     // Avis écrits par un client anonyme : ne jamais injecter bruts, ni en HTML ni en attribut.
     const safeAuteur = escapeHtml(auteur);
     const safeComment = escapeHtml(comment);
-    return `<div id="dash-avis-${a.id}" style="background:white;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,0.06);border:1px solid #f0f0f0;transition:opacity 0.3s;">
+    return `<div id="dash-avis-${a.id}" style="background:#1E180E;border-radius:14px;padding:16px 18px;margin-bottom:12px;border:1px solid rgba(232,148,10,.15);transition:opacity 0.3s;">
       <div style="display:flex;align-items:flex-start;gap:12px;">
-        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:15px;flex-shrink:0;">${initiale}</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(232,148,10,.15);border:1px solid rgba(232,148,10,.35);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-weight:400;color:#E8940A;font-size:18px;flex-shrink:0;">${initiale}</div>
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
             <div>
-              <span style="font-weight:700;font-size:14px;color:var(--noir);">${safeAuteur}</span>
-              ${date ? `<span style="font-size:12px;color:var(--gris);margin-left:8px;">${date}</span>` : ''}
+              <span style="font-weight:700;font-size:14px;color:#FCE0A8;">${safeAuteur}</span>
+              ${date ? `<span style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.45);margin-left:8px;">${date}</span>` : ''}
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
-              <span style="color:var(--or);font-size:14px;">${stars}</span>
+              <span style="color:#E8940A;font-size:14px;">${stars}</span>
               <button onclick="deleteDashAvis('${a.id}')" title="Supprimer cet avis"
-                style="background:none;border:1px solid #fecaca;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;color:#dc2626;transition:all 0.2s;"
-                onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">🗑️</button>
+                style="background:none;border:1px solid rgba(220,38,38,.35);border-radius:8px;min-width:44px;min-height:36px;padding:4px 8px;cursor:pointer;font-size:13px;color:#f87171;transition:all 0.2s;"
+                onmouseover="this.style.background='rgba(220,38,38,.12)'" onmouseout="this.style.background='none'">🗑️</button>
             </div>
           </div>
           ${f['Audio URL'] ? `<div style="margin-top:8px;">${wzVoicePlayer(f['Audio URL'], f['Audio Durée'])}</div>` : ''}
-          ${comment ? `<p style="font-size:13px;color:var(--gris-fonce);line-height:1.6;margin-top:6px;margin-bottom:0;">${safeComment}</p>` : ''}
-          ${note >= 4 ? `<button data-generate-story data-avis-id="${escapeHtml(a.id)}" data-note="${escapeHtml(String(note))}" data-auteur="${safeAuteur}" data-comment="${escapeHtml(comment.replace(/\n/g,' '))}" style="margin-top:10px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">⭐ Générer ma Story</button>` : ''}
+          ${comment ? `<p style="font-size:13px;color:rgba(252,224,168,.75);line-height:1.6;margin-top:6px;margin-bottom:0;">${safeComment}</p>` : ''}
+          ${note >= 4 ? `<button data-generate-story data-avis-id="${escapeHtml(a.id)}" data-note="${escapeHtml(String(note))}" data-auteur="${safeAuteur}" data-comment="${escapeHtml(comment.replace(/\n/g,' '))}" style="margin-top:10px;background:#E8940A;color:#14100A;border:none;border-radius:100px;min-height:44px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform 0.15s;" onmouseenter="if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">⭐ Générer ma Story</button>` : ''}
         </div>
       </div>
     </div>`;
@@ -2642,7 +2645,7 @@ function _wzSyncDataLightUI() {
   const on = !!window.wzDataLight;
   document.querySelectorAll('[data-wz-dl-state]').forEach(el => {
     el.textContent = on ? 'Activé' : 'Désactivé';
-    el.style.color = on ? '#4ade80' : 'rgba(255,255,255,0.4)';
+    el.style.color = on ? '#E8940A' : 'rgba(255,255,255,0.4)';
   });
   document.querySelectorAll('[data-wz-dl-switch]').forEach(el => {
     el.classList.toggle('on', on);
@@ -3178,10 +3181,13 @@ async function generateProfilStory() {
   let afterAvatarY = avCy + avR + 60;
   if (dispo) {
     const bw = 260, bh = 46, bx = avCx - bw / 2, by = avCy + avR + 20;
-    ctx.fillStyle = 'rgba(34,197,94,0.15)'; ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1.5;
+    ctx.fillStyle = 'rgba(232,148,10,0.15)'; ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 100); ctx.fill(); ctx.stroke();
-    ctx.font = '700 18px Geist, sans-serif'; ctx.fillStyle = '#4ade80'; ctx.textAlign = 'center';
-    ctx.fillText('🟢 Disponible maintenant', avCx, by + bh / 2 + 6);
+    // Point or + libellé (zéro vert : charte Nuit stricte sur un visuel public)
+    ctx.fillStyle = '#E8940A';
+    ctx.beginPath(); ctx.arc(bx + 32, by + bh / 2, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.font = '700 18px Geist, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Disponible maintenant', avCx + 12, by + bh / 2 + 6);
     afterAvatarY = by + bh + 50;
   }
 
@@ -5914,7 +5920,7 @@ async function renderPostsFeed(recordId) {
 
   if (posts.length === 0) {
     const isOwner = currentUser && currentPrestataire?.id === recordId;
-    feedEl.innerHTML = `<div style="text-align:center;padding:32px;color:rgba(255,255,255,0.3);font-size:14px;"><div style="font-size:32px;margin-bottom:10px;">📭</div>Aucune publication pour l'instant.${isOwner ? '<br><span style="font-size:12px;">Partage ta première réalisation !</span>' : ''}</div>`;
+    feedEl.innerHTML = `<div style="text-align:center;padding:32px 20px;color:rgba(252,224,168,.45);font-size:14px;border:1px dashed rgba(232,148,10,.25);border-radius:16px;"><div style="font-size:32px;margin-bottom:10px;">📭</div>Aucune publication pour l'instant.${isOwner ? '<br><span style="font-size:12px;color:rgba(252,224,168,.6);">Une photo de ton travail suffit pour lancer ton fil. Les clients regardent ce que tu publies avant de t\'appeler.</span>' : ''}</div>`;
     return;
   }
 
@@ -8083,9 +8089,9 @@ async function loadFil() {
               <div style="font-weight:800;font-size:14px;color:var(--noir);">${escapeHtml(nom)}</div>
               <div style="font-size:11px;color:var(--gris);">${escapeHtml(metier)}${datePost ? ' · '+datePost : ''}</div>
             </div>
-            <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:var(--vert);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
+            <button onclick="event.stopPropagation();showProfil('${prestId}');showPage('profil');" style="background:#E8940A;color:#14100A;border:none;border-radius:20px;font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;">Voir →</button>
           </div>
-          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#1a1a2e;line-height:1.6;">${escapeHtml(contenu)}</div>` : ''}
+          ${contenu ? `<div style="padding:0 14px 12px;font-size:14px;color:#FCE0A8;line-height:1.6;">${escapeHtml(contenu)}</div>` : ''}
           ${mediaUrl && (mediaType === 'photo' || mediaType === 'image') ? `<img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">` : ''}
           ${mediaUrl && mediaType === 'video' ? `<video src="${mediaUrl}" controls style="width:100%;max-height:360px;background:#000;"></video>` : ''}
           <div style="display:flex;align-items:center;gap:16px;padding:10px 14px;border-top:1px solid #f5f5f5;">
@@ -12605,9 +12611,9 @@ async function loadParrainage() {
   const lockableEls = document.querySelectorAll('#ds-parrainage .edit-form-section[data-lock-idx]');
 
   const features = [
-    { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes : chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:13px;color:#6b7280;margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.africa?ref=</span><span style="background:var(--vert);color:white;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
-    { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:#FCE0A8;border:1px solid #E8940A;border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:#6b7280;font-size:11px;">+1 000 FCFA/mois</div></div>`).join('')}</div>` },
-    { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#6b7280;">5 filleuls</span><span style="color:var(--or);font-weight:800;">5 000 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:#6b7280;">20 filleuls</span><span style="color:var(--or);font-weight:800;">20 000 FCFA/mois</span></div></div>` },
+    { icon: '🔗', title: 'Ton lien de parrainage unique', desc: 'Partage-le sur WhatsApp, TikTok, dans tes groupes : chaque personne qui s\'inscrit via ton lien devient ton filleul.', preview: `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(252,224,168,.14);border-radius:10px;padding:12px 16px;font-size:13px;color:rgba(252,224,168,.55);margin-top:8px;display:flex;align-items:center;gap:6px;"><span style="filter:blur(5px);user-select:none;letter-spacing:1px;">wozali.africa?ref=</span><span style="background:#E8940A;color:#14100A;border-radius:6px;padding:2px 8px;font-weight:700;font-size:11px;filter:blur(4px);">XXXX-CODE</span></div>` },
+    { icon: '👥', title: 'Arbre de tes filleuls', desc: 'Vois en temps réel combien de prestataires tu as parrainés et combien tu gagnes grâce à chacun d\'eux.', preview: `<div style="display:flex;gap:8px;margin-top:8px;justify-content:center;flex-wrap:wrap;">${[1,2,3].map(i=>`<div style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.4);border-radius:8px;padding:8px 14px;font-size:12px;text-align:center;"><div style="font-size:18px;">👤</div><div style="color:#E8940A;font-weight:700;font-size:13px;">Filleul ${i}</div><div style="color:rgba(252,224,168,.55);font-size:11px;">+1 000 FCFA/mois</div></div>`).join('')}</div>` },
+    { icon: '📊', title: 'Simulateur de revenus', desc: 'Calcule exactement combien tu peux gagner selon le nombre de filleuls que tu recrutes.', preview: `<div style="background:rgba(232,148,10,.07);border:1px solid rgba(232,148,10,.28);border-radius:10px;padding:12px 16px;margin-top:8px;font-size:13px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:rgba(252,224,168,.55);">5 filleuls</span><span style="color:var(--or);font-weight:800;">5 000 FCFA/mois</span></div><div style="display:flex;justify-content:space-between;"><span style="color:rgba(252,224,168,.55);">20 filleuls</span><span style="color:var(--or);font-weight:800;">20 000 FCFA/mois</span></div></div>` },
   ];
 
   lockableEls.forEach(el => {
@@ -12620,12 +12626,12 @@ async function loadParrainage() {
     if (isBase) {
       el.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 0 4px;">
-          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px;box-shadow:0 4px 14px rgba(245,158,11,0.3);">🔒</div>
-          <div style="font-size:11px;font-weight:700;color:var(--or);letter-spacing:0.08em;margin-bottom:4px;">RÉSERVÉ PRO</div>
-          <div style="font-weight:900;font-size:15px;color:var(--noir);font-family:'DM Serif Display',serif;margin-bottom:6px;">${feat.icon} ${feat.title}</div>
-          <div style="font-size:13px;color:#555;line-height:1.6;max-width:320px;margin-bottom:8px;">${feat.desc}</div>
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(232,148,10,.14);border:1px solid rgba(232,148,10,.45);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px;">🔒</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;color:var(--or);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:4px;">Réservé Pro</div>
+          <div style="font-weight:400;font-size:17px;color:#FCE0A8;font-family:'DM Serif Display',serif;margin-bottom:6px;">${feat.icon} ${feat.title}</div>
+          <div style="font-size:13px;color:rgba(252,224,168,.65);line-height:1.6;max-width:320px;margin-bottom:8px;">${feat.desc}</div>
           ${feat.preview}
-          <button onclick="showDashSection('abonnement')" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:10px 24px;border-radius:100px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.35);margin-top:14px;">Débloquer avec Pro →</button>
+          <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;padding:12px 26px;min-height:44px;border-radius:100px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px -6px rgba(232,148,10,.5);margin-top:14px;">Débloquer avec Pro →</button>
         </div>
       `;
     }
@@ -12705,15 +12711,15 @@ function _renderFilleulsCRM(filleuls) {
 
   const kpiEl = document.getElementById('parrain-kpis');
   if (kpiEl) kpiEl.innerHTML = [
-    { label:'Total filleuls',  val: total,                            color:'var(--vert)',   icon:'👥' },
-    { label:'Plan Pro',        val: nbPro,                            color:'#f59e0b',       icon:'⭐' },
-    { label:'Plan Base',       val: nbBase,                           color:'#6b7280',       icon:'🆓' },
-    { label:'Revenus/mois',    val: commMois.toLocaleString('fr-FR') + ' FCFA', color:'#8b5cf6', icon:'💰' },
+    { label:'Total filleuls',  val: total,                            color:'#E8940A',              icon:'👥' },
+    { label:'Plan Pro',        val: nbPro,                            color:'#E8940A',              icon:'⭐' },
+    { label:'Plan Base',       val: nbBase,                           color:'rgba(252,224,168,.6)', icon:'🆓' },
+    { label:'Revenus/mois',    val: commMois.toLocaleString('fr-FR') + ' FCFA', color:'#E8940A',    icon:'💰' },
   ].map(k => `
-    <div style="background:white;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);border-top:3px solid ${k.color};">
+    <div style="background:linear-gradient(160deg,#26200F 0%,#1E180E 60%);border:1px solid rgba(252,224,168,.12);border-top:2px solid ${k.color};border-radius:14px;padding:14px 16px;">
       <div style="font-size:20px;margin-bottom:4px;">${k.icon}</div>
-      <div style="font-size:20px;font-weight:900;font-family:'DM Serif Display',serif;color:${k.color};">${k.val}</div>
-      <div style="font-size:12px;color:var(--gris);font-weight:600;">${k.label}</div>
+      <div style="font-size:20px;font-weight:400;font-family:'DM Serif Display',serif;color:${k.color};">${k.val}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.5);">${k.label}</div>
     </div>`).join('');
 
   // ── Bannière upsell ──
@@ -12743,7 +12749,7 @@ function _renderFilleulsCRM(filleuls) {
 
   listEl.innerHTML = `
     <!-- Header tableau -->
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding:8px 12px;background:#f9fafb;border-radius:10px;margin-bottom:6px;font-size:11px;font-weight:800;color:var(--gris);text-transform:uppercase;letter-spacing:0.05em;">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding:8px 12px;background:rgba(232,148,10,.06);border:1px solid rgba(232,148,10,.15);border-radius:10px;margin-bottom:6px;font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:0.12em;">
       <div>Prestataire</div><div>Plan</div><div>Contact</div><div>Commission</div><div></div>
     </div>
     ${filleuls.map(r => {
@@ -12759,64 +12765,65 @@ function _renderFilleulsCRM(filleuls) {
       // Booléens de progression — valorisés par _loadFilleulsProgression (false par défaut si pas encore chargé)
       const aRdv = !!r._hasPremierRdv;
       const initiale = nom.charAt(0).toUpperCase();
-      const planColor = plan === 'Pro' ? '#f59e0b' : '#9ca3af';
-      const planBg    = plan === 'Pro' ? '#fffbeb' : '#f9fafb';
+      const planColor = plan === 'Pro' ? '#E8940A' : 'rgba(252,224,168,.55)';
+      const planBg    = plan === 'Pro' ? 'rgba(232,148,10,.14)' : 'rgba(255,255,255,.05)';
+      const planBorder= plan === 'Pro' ? 'rgba(232,148,10,.45)' : 'rgba(252,224,168,.2)';
 
       const waMsg = encodeURIComponent(`Bonjour ${nom} ! 👋\nJe vois que tu es encore sur le plan gratuit WOZALI. Pour seulement 2 500 FCFA/mois, le plan Pro te donne la priorité dans les résultats, la Bourse de Croissance et le chat libre avec Sandy. Tu veux qu'on en parle ? 😊`);
 
       return `
-      <div style="border-radius:12px;margin-bottom:6px;border:1.5px solid ${isPro ? '#f0f0f0' : '#fde68a'};overflow:hidden;transition:.15s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='none'">
+      <div style="border-radius:12px;margin-bottom:6px;border:1px solid ${isPro ? 'rgba(232,148,10,.35)' : 'rgba(252,224,168,.14)'};overflow:hidden;transition:box-shadow .15s;" onmouseenter="this.style.boxShadow='0 10px 30px -14px rgba(0,0,0,.7), 0 0 30px -18px rgba(232,148,10,.4)'" onmouseleave="this.style.boxShadow='none'">
         <!-- Ligne principale -->
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:12px;background:${isPro ? 'white' : '#fffbeb'};">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:12px;background:${isPro ? 'linear-gradient(160deg,rgba(232,148,10,.08),#1E180E 70%)' : '#1E180E'};">
           <!-- Nom + métier -->
           <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:14px;flex-shrink:0;">${initiale}</div>
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,148,10,.16);border:1px solid rgba(232,148,10,.45);display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:14px;flex-shrink:0;">${initiale}</div>
             <div style="min-width:0;">
-              <div style="font-weight:700;font-size:14px;color:var(--noir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
-              <div style="font-size:11px;color:var(--gris);">${metier}${date ? ' · '+date : ''}</div>
+              <div style="font-weight:700;font-size:14px;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}</div>
+              <div style="font-size:11px;color:rgba(252,224,168,.5);">${metier}${date ? ' · '+date : ''}</div>
             </div>
           </div>
           <!-- Plan -->
           <div>
-            <span style="background:${planBg};color:${planColor};border:1.5px solid ${planColor}33;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:800;">${plan}</span>
+            <span style="background:${planBg};color:${planColor};border:1px solid ${planBorder};padding:3px 10px;border-radius:100px;font-size:11px;font-weight:800;">${plan}</span>
           </div>
           <!-- Contact -->
-          <div style="font-size:12px;color:var(--gris);line-height:1.6;">
+          <div style="font-size:12px;color:rgba(252,224,168,.55);line-height:1.6;">
             ${tel ? `<div>📞 ${tel}</div>` : ''}
             ${email ? `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;" title="${email}">✉️ ${email}</div>` : ''}
-            ${!tel && !email ? '<span style="color:#d1d5db;">—</span>' : ''}
+            ${!tel && !email ? '<span style="color:rgba(252,224,168,.3);">—</span>' : ''}
           </div>
           <!-- Commission -->
           <div>
             ${comm > 0
-              ? `<div style="font-weight:800;font-size:14px;color:var(--vert);">+${comm.toLocaleString('fr-FR')} FCFA</div><div style="font-size:10px;color:var(--gris);">par mois</div>`
-              : `<div style="font-size:12px;color:#f59e0b;font-weight:700;">0 FCFA<br><span style="font-size:10px;color:#9ca3af;">plan gratuit</span></div>`}
+              ? `<div style="font-weight:800;font-size:14px;color:#E8940A;">+${comm.toLocaleString('fr-FR')} FCFA</div><div style="font-size:10px;color:rgba(252,224,168,.5);">par mois</div>`
+              : `<div style="font-size:12px;color:#E8940A;font-weight:700;">0 FCFA<br><span style="font-size:10px;color:rgba(252,224,168,.45);">plan gratuit</span></div>`}
           </div>
           <!-- Actions -->
           <div style="display:flex;gap:4px;flex-shrink:0;">
-            ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:30px;height:30px;border-radius:8px;background:#FCE0A8;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">📞</a>` : ''}
-            ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:30px;height:30px;border-radius:8px;background:#FCE0A8;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">💬</a>` : ''}
-            ${email ? `<a href="mailto:${email}?subject=WOZALI Pro : Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:30px;height:30px;border-radius:8px;background:#eff6ff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;">✉️</a>` : ''}
+            ${tel ? `<a href="tel:${tel}" title="Appeler" style="width:44px;height:44px;border-radius:10px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:15px;">📞</a>` : ''}
+            ${tel ? `<a href="https://wa.me/${tel.replace(/\D/g,'')}?text=${!isPro ? waMsg : encodeURIComponent('Bonjour '+nom+' !')}" target="_blank" title="WhatsApp" style="width:44px;height:44px;border-radius:10px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:15px;">💬</a>` : ''}
+            ${email ? `<a href="mailto:${email}?subject=WOZALI Pro : Passe au niveau supérieur&body=Bonjour ${encodeURIComponent(nom)}," target="_blank" title="Email" style="width:44px;height:44px;border-radius:10px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:15px;">✉️</a>` : ''}
           </div>
         </div>
         <!-- Barre de progression filleul — 3 étapes — aucune donnée personnelle exposée -->
-        <div style="border-top:1px dashed #e5e7eb;padding:7px 12px;background:${isPro?'#fafafa':'#fffef5'};display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+        <div style="border-top:1px dashed rgba(252,224,168,.15);padding:7px 12px;background:${isPro?'rgba(232,148,10,.04)':'rgba(255,255,255,.02)'};display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
           <!-- Étape 1 : Inscrit — toujours atteinte si le filleul est dans la liste -->
-          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#E8940A;background:#FCE0A8;padding:3px 8px;border-radius:100px;border:1px solid #E8940A;">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#E8940A;background:rgba(232,148,10,.14);padding:3px 8px;border-radius:100px;border:1px solid rgba(232,148,10,.5);">
             <span style="font-size:9px;">✓</span> Inscrit
           </span>
-          <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
+          <span style="color:rgba(252,224,168,.3);font-size:9px;font-weight:800;margin:0 2px;">→</span>
           <!-- Étape 2 : Premier RDV booké (booléen uniquement, aucun détail du RDV) -->
-          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${aRdv?'#E8940A':'#9ca3af'};background:${aRdv?'#FCE0A8':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${aRdv?'#E8940A':'#e5e7eb'};">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${aRdv?'#E8940A':'rgba(252,224,168,.45)'};background:${aRdv?'rgba(232,148,10,.14)':'rgba(255,255,255,.04)'};padding:3px 8px;border-radius:100px;border:1px solid ${aRdv?'rgba(232,148,10,.5)':'rgba(252,224,168,.15)'};">
             <span style="font-size:9px;">${aRdv?'✓':'○'}</span> 1er RDV booké
           </span>
-          ${aRdv ? `<span style="background:#FCE0A8;color:#E8940A;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
-          <span style="color:#d1d5db;font-size:9px;font-weight:800;margin:0 2px;">→</span>
+          ${aRdv ? `<span style="background:rgba(232,148,10,.14);color:#E8940A;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
+          <span style="color:rgba(252,224,168,.3);font-size:9px;font-weight:800;margin:0 2px;">→</span>
           <!-- Étape 3 : Passé en Pro (déjà connu depuis Abonnement, aucune requête supplémentaire) -->
-          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${isPro?'#d97706':'#9ca3af'};background:${isPro?'#fffbeb':'#f9fafb'};padding:3px 8px;border-radius:100px;border:1px solid ${isPro?'#fde68a':'#e5e7eb'};">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:${isPro?'#E8940A':'rgba(252,224,168,.45)'};background:${isPro?'rgba(232,148,10,.14)':'rgba(255,255,255,.04)'};padding:3px 8px;border-radius:100px;border:1px solid ${isPro?'rgba(232,148,10,.5)':'rgba(252,224,168,.15)'};">
             <span style="font-size:9px;">${isPro?'✓':'○'}</span> Plan Pro
           </span>
-          ${isPro ? `<span style="background:#fef3c7;color:#d97706;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
+          ${isPro ? `<span style="background:rgba(232,148,10,.14);color:#E8940A;font-size:9px;font-weight:800;padding:2px 6px;border-radius:100px;margin-left:2px;">Bonus débloqué</span>` : ''}
         </div>
       </div>`;
     }).join('')}`;
@@ -13036,29 +13043,30 @@ function renderDispoEditor() {
   container.innerHTML = order.map(dayNum => {
     const d = currentDispoHebdo[dayNum];
     return `
-      <div class="dispo-day-row">
-        <div class="dispo-day-header">
-          <label class="dispo-day-toggle">
-            <input type="checkbox" ${d.active ? 'checked' : ''} onchange="toggleDispoDay(${dayNum},this.checked)">
-            <span class="dispo-day-name">${DAY_LABELS[dayNum]}</span>
+      <div class="dispo-day-row" style="border-bottom:1px solid rgba(252,224,168,.08);">
+        <div class="dispo-day-header" style="min-height:44px;">
+          <label class="dispo-day-toggle" style="display:flex;align-items:center;gap:8px;cursor:pointer;min-height:44px;">
+            <input type="checkbox" ${d.active ? 'checked' : ''} onchange="toggleDispoDay(${dayNum},this.checked)" style="width:18px;height:18px;accent-color:#E8940A;cursor:pointer;">
+            <span class="dispo-day-name" style="color:#FCE0A8;font-weight:700;">${DAY_LABELS[dayNum]}</span>
           </label>
-          ${!d.active ? '<span style="font-size:12px;color:var(--gris);margin-left:8px;">Indisponible</span>' : ''}
+          ${!d.active ? '<span style="font-family:\'Geist Mono\',monospace;font-size:11px;color:rgba(252,224,168,.4);margin-left:8px;">Indisponible</span>' : ''}
         </div>
         <div class="dispo-slots-container" style="display:${d.active ? 'flex' : 'none'};">
           ${(d.slots || []).map((slot, i) => renderSlotRow(dayNum, i, slot, d.slots.length)).join('')}
-          <button class="add-slot-btn" onclick="addDispoSlot(${dayNum})">+ Ajouter un créneau</button>
+          <button class="add-slot-btn" style="min-height:44px;padding:10px 16px;" onclick="addDispoSlot(${dayNum})">+ Ajouter un créneau</button>
         </div>
       </div>`;
   }).join('');
 }
 
 function renderSlotRow(dayNum, i, slot, total) {
+  const selStyle = 'background:#14100A;color:#FCE0A8;border:1.5px solid rgba(232,148,10,.25);border-radius:8px;padding:10px;min-height:44px;font-size:14px;font-weight:600;cursor:pointer;';
   return `
     <div class="dispo-slot-row">
-      <select class="time-sel" onchange="updateDispoSlot(${dayNum},${i},'start',this.value)">${genTimeOptions(slot.start)}</select>
+      <select class="time-sel" style="${selStyle}" onchange="updateDispoSlot(${dayNum},${i},'start',this.value)">${genTimeOptions(slot.start)}</select>
       <span style="color:rgba(252,224,168,.55);font-size:13px;">à</span>
-      <select class="time-sel" onchange="updateDispoSlot(${dayNum},${i},'end',this.value)">${genTimeOptions(slot.end)}</select>
-      ${total > 1 ? `<button class="remove-slot-btn" onclick="removeDispoSlot(${dayNum},${i})">×</button>` : ''}
+      <select class="time-sel" style="${selStyle}" onchange="updateDispoSlot(${dayNum},${i},'end',this.value)">${genTimeOptions(slot.end)}</select>
+      ${total > 1 ? `<button class="remove-slot-btn" style="width:44px;height:44px;background:rgba(220,38,38,.12);color:#f87171;border:1px solid rgba(220,38,38,.35);" onclick="removeDispoSlot(${dayNum},${i})" aria-label="Retirer ce créneau">×</button>` : ''}
     </div>`;
 }
 
@@ -13107,7 +13115,7 @@ async function saveDispoHebdo(btn) {
     msgEl.textContent = '❌ Erreur lors de la sauvegarde';
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
   }
-  btn.disabled = false; btn.textContent = '💾 Sauvegarder mes horaires';
+  btn.disabled = false; btn.textContent = 'Sauvegarder mes horaires';
 }
 
 // ── DASHBOARD RDV ──
@@ -14212,7 +14220,12 @@ async function loadDashPosts() {
   const commentsList = document.getElementById('posts-comments-list');
   const recentComments = comments.slice().reverse().slice(0, 20);
   if (recentComments.length === 0) {
-    commentsList.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;">Aucun commentaire pour l\'instant.</p>';
+    commentsList.innerHTML = posts.length === 0
+      ? `<div style="text-align:center;padding:20px 12px;">
+          <p style="color:rgba(252,224,168,.6);font-size:13px;line-height:1.6;margin:0 0 14px;">Ta première publication attend. Une photo de ton travail suffit : elle fait remonter ton profil dans les recherches.</p>
+          <button onclick="openFilComposer()" style="min-height:48px;padding:12px 26px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;">Publier ma première photo</button>
+        </div>`
+      : '<p style="color:rgba(252,224,168,.55);font-size:13px;padding:12px 0;">Pas encore de commentaires. Continue de publier : les réactions viennent avec la régularité.</p>';
   } else {
     commentsList.innerHTML = recentComments.map(c => {
       const cDate = new Date(c.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
@@ -14221,12 +14234,12 @@ async function loadDashPosts() {
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
             ${c.auteurPhoto ? `<img src="${c.auteurPhoto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" loading="lazy">` : `<div style="width:32px;height:32px;border-radius:50%;background:#E8940A;display:flex;align-items:center;justify-content:center;font-weight:800;color:#14100A;font-size:13px;">${(c.auteur || '?').charAt(0).toUpperCase()}</div>`}
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:700;font-size:13px;color:var(--cream);">${c.auteur || 'Utilisateur'}</div>
-              <div style="font-size:11px;color:var(--gris);">${cDate}</div>
+              <div style="font-weight:700;font-size:13px;color:var(--cream);">${escapeHtml(c.auteur || 'Utilisateur')}</div>
+              <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.45);">${cDate}</div>
             </div>
           </div>
-          <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;font-size:13px;color:var(--cream);margin-bottom:6px;line-height:1.5;">${c.texte}</div>
-          <div style="font-size:11px;color:var(--gris);">Sur: <strong>${c.postPreview}</strong></div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;font-size:13px;color:var(--cream);margin-bottom:6px;line-height:1.5;">${escapeHtml(c.texte || '')}</div>
+          <div style="font-size:11px;color:rgba(252,224,168,.45);">Sur : <strong style="color:rgba(252,224,168,.7);">${escapeHtml(c.postPreview || '')}</strong></div>
         </div>`;
     }).join('');
   }
@@ -14235,19 +14248,19 @@ async function loadDashPosts() {
   const likesList = document.getElementById('posts-likes-list');
   const likesEntries = Object.entries(likesByPost);
   if (likesEntries.length === 0) {
-    likesList.innerHTML = '<p style="color:var(--gris);font-size:13px;padding:12px 0;">Aucun like pour l\'instant.</p>';
+    likesList.innerHTML = '<p style="color:rgba(252,224,168,.55);font-size:13px;padding:12px 0;">Pas encore de j\'aime. Publie une réalisation dont tu es fier : c\'est ce genre de photo qui en récolte.</p>';
   } else {
     likesList.innerHTML = likesEntries.map(([postId, count]) => {
       const post = posts.find(p => p.id === postId);
       return `
-        <div style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-radius:10px;padding:12px;border-left:3px solid #ef4444;">
+        <div style="background:#14100A;border:1px solid rgba(232,148,10,.12);border-radius:10px;padding:12px;border-left:3px solid #E8940A;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
             <span style="font-size:20px;">❤️</span>
             <div>
-              <div style="font-weight:700;font-size:14px;color:#991b1b;">${count} personne${count > 1 ? 's' : ''} a${count > 1 ? 'iment' : ''} aimé</div>
+              <div style="font-weight:700;font-size:14px;color:#FCE0A8;">${count} personne${count > 1 ? 's' : ''} a${count > 1 ? 'iment' : ''} aimé</div>
             </div>
           </div>
-          <div style="font-size:12px;color:var(--noir);">Post: <strong>${post?.texte?.substring(0, 60)}</strong></div>
+          <div style="font-size:12px;color:rgba(252,224,168,.55);">Post : <strong style="color:rgba(252,224,168,.8);">${post?.texte?.substring(0, 60) || ''}</strong></div>
         </div>`;
     }).join('');
   }

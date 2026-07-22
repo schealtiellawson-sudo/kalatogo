@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260722a">
+<link rel="stylesheet" href="/style.css?v=20260722b">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2361,7 +2361,7 @@ setTimeout(function(){
 
         <div class="form-group">
           <label>🎵 TikTok <span style="font-weight:500;color:var(--gris);">(fortement recommandé)</span></label>
-          <div style="background:linear-gradient(135deg,#010101,#1a1a2e);border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+          <div style="background:linear-gradient(135deg,#14100A,#1E180E);border:1px solid rgba(232,148,10,.18);border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
             <span style="font-size:22px;">🎵</span>
             <span style="font-size:13px;color:white;line-height:1.5;">Ton compte TikTok est affiché sur ton profil WOZALI. Les clients découvrent ton travail en vidéo → <strong style="color:#E8940A;">+60% de contacts en plus.</strong></span>
           </div>
@@ -3135,8 +3135,9 @@ setTimeout(function(){
       <!-- DISPONIBILITÉ -->
       <div class="dash-section" id="ds-dispo">
         <div class="dash-header">
-          <h2>Ma disponibilité</h2>
-          <p>Configure tes horaires et gère ta disponibilité en temps réel</p>
+          <div class="wz-eyebrow">Vitrine · Disponibilité</div>
+          <h2 style="font-weight:400;color:#FCE0A8;">Ma <em style="color:#E8940A;font-style:italic;">disponibilité</em></h2>
+          <p>Tes horaires, ton panneau Ouvert ou Fermé. Les clients réservent uniquement quand tu le décides.</p>
         </div>
 
         <div class="dash-explainer">
@@ -3160,11 +3161,11 @@ setTimeout(function(){
         </div>
 
         <!-- Éditeur heures de travail style Calendly -->
-        <div style="background:white;border-radius:16px;padding:24px;box-shadow:var(--shadow);margin-top:20px;">
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:24px;margin-top:20px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
             <div>
-              <h4 style="font-weight:800;font-size:16px;margin:0 0 4px;">⏰ Mes heures de travail</h4>
-              <p style="font-size:13px;color:var(--gris);margin:0;">Définis quand tu es disponible pour tes clients</p>
+              <h4 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:18px;margin:0 0 4px;color:#FCE0A8;">Mes heures de travail</h4>
+              <p style="font-size:13px;color:rgba(252,224,168,.55);margin:0;">Définis quand tu es disponible pour tes clients</p>
               <div class="info-tip" style="margin-top:10px;">
                 <span class="info-tip-icon">💡</span>
                 <span>Coche les jours où tu travailles et indique tes heures. Les clients pourront prendre RDV uniquement dans ces créneaux. Tu peux modifier ça à tout moment !</span>
@@ -3178,7 +3179,7 @@ setTimeout(function(){
           <!-- Réglages "Durée créneau" / "Jours de réservation à l'avance" / "Clients max par jour" retirés :
                ils n'étaient jamais persistés ni appliqués (confirmation de sauvegarde sans effet réel). -->
 
-          <button id="save-dispo-btn" onclick="saveDispoHebdo(this)" style="margin-top:20px;width:100%;padding:13px;background:var(--vert);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;">💾 Sauvegarder mes horaires</button>
+          <button id="save-dispo-btn" onclick="saveDispoHebdo(this)" style="margin-top:20px;width:100%;min-height:48px;padding:13px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-size:15px;font-weight:800;cursor:pointer;transition:.2s;">Sauvegarder mes horaires</button>
           <div id="dispo-save-msg" style="display:none;text-align:center;margin-top:10px;font-size:14px;font-weight:600;"></div>
         </div>
       </div>
@@ -3449,7 +3450,7 @@ setTimeout(function(){
               <div id="dash-loc-pin-area" style="display:none;">
                 <!-- Bouton GPS -->
                 <button type="button" id="dash-detect-gps-btn" onclick="dashDetectGPS()"
-                  style="width:100%;background:linear-gradient(135deg,#E8940A,#14a35e);color:white;border:none;padding:11px 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                  style="width:100%;background:linear-gradient(135deg,#E8940A,#d4820a);color:#14100A;border:none;padding:11px 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
                   📍 Utiliser ma position actuelle
                 </button>
                 <span id="dash-gps-status" style="display:block;font-size:12px;color:var(--vert);font-weight:600;margin-bottom:10px;min-height:16px;"></span>
@@ -3517,7 +3518,8 @@ setTimeout(function(){
       <!-- PHOTOS -->
       <div class="dash-section" id="ds-photos">
         <div class="dash-header">
-          <h2>📸 Mes Photos · Ta vitrine visuelle</h2>
+          <div class="wz-eyebrow">Vitrine · Photos</div>
+          <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">photos</em></h2>
           <p>Les profils avec 3+ photos reçoivent 3× plus de contacts.</p>
         </div>
         <div class="dash-explainer">
@@ -3525,49 +3527,43 @@ setTimeout(function(){
         </div>
 
         <!-- Photo de profil -->
-        <div style="background:white;border-radius:20px;padding:24px;box-shadow:var(--shadow);margin-bottom:20px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-            <span style="font-size:20px;">🪪</span>
-            <div>
-              <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin:0;">Photo de profil</h3>
-              <p style="font-size:12px;color:var(--gris);margin:0;">Visible sur ta carte et ton profil public</p>
-            </div>
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <div style="margin-bottom:16px;">
+            <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin:0;color:#FCE0A8;">Photo de <em style="color:#E8940A;font-style:italic;">profil</em></h3>
+            <p style="font-size:12px;color:rgba(252,224,168,.55);margin:2px 0 0;">Visible sur ta carte et ton profil public</p>
           </div>
           <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
             <!-- Aperçu + bouton recadrer superposé -->
             <div style="position:relative;flex-shrink:0;">
-              <div id="edit-photo-preview" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--or));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:white;overflow:hidden;border:3px solid rgba(232,148,10,0.2);"></div>
+              <div id="edit-photo-preview" style="width:90px;height:90px;border-radius:50%;background:#14100A;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:32px;font-weight:900;color:#E8940A;overflow:hidden;border:3px solid rgba(232,148,10,0.35);"></div>
               <button id="btn-recadrer-profil" onclick="recadrerPhotoProfil()" title="Recadrer la photo actuelle"
-                style="display:none;position:absolute;bottom:0;right:0;background:#111;border:2px solid white;color:white;width:28px;height:28px;border-radius:50%;font-size:13px;cursor:pointer;align-items:center;justify-content:center;line-height:1;">✂️</button>
+                style="display:none;position:absolute;bottom:0;right:0;background:#14100A;border:2px solid #E8940A;color:#FCE0A8;width:28px;height:28px;border-radius:50%;font-size:13px;cursor:pointer;align-items:center;justify-content:center;line-height:1;">✂️</button>
             </div>
             <div style="flex:1;">
               <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('edit-photo-input').click()">📸 Changer</button>
-                <button class="btn btn-secondary btn-sm" id="btn-recadrer-label" onclick="recadrerPhotoProfil()" style="display:none;">✂️ Recadrer</button>
+                <button onclick="document.getElementById('edit-photo-input').click()" style="min-height:44px;padding:10px 20px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-size:13px;font-weight:800;cursor:pointer;">Changer ma photo</button>
+                <button id="btn-recadrer-label" onclick="recadrerPhotoProfil()" style="display:none;min-height:44px;padding:10px 20px;background:transparent;color:#FCE0A8;border:1px solid rgba(232,148,10,.35);border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;">Recadrer</button>
               </div>
               <input type="file" id="edit-photo-input" accept="image/*" style="display:none" onchange="uploadNewPhoto()">
-              <p style="font-size:12px;color:var(--gris);margin:0;">JPG ou PNG · Max 5MB</p>
+              <p style="font-size:12px;color:rgba(252,224,168,.55);margin:0;">JPG ou PNG · Max 5MB</p>
               <div id="photo-upload-status" style="margin-top:8px;font-size:13px;display:none;"></div>
             </div>
           </div>
         </div>
 
         <!-- Album réalisations -->
-        <div style="background:white;border-radius:20px;padding:24px;box-shadow:var(--shadow);">
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span style="font-size:20px;">🖼️</span>
-              <div>
-                <h3 style="font-family:'DM Serif Display',serif;font-size:16px;font-weight:700;margin:0;">Tes réalisations : montre ce que tu sais faire</h3>
-                <p style="font-size:12px;color:var(--gris);margin:0;">Chaque photo est un argument de vente silencieux.</p>
-              </div>
+            <div>
+              <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;margin:0;color:#FCE0A8;">Tes <em style="color:#E8940A;font-style:italic;">réalisations</em></h3>
+              <p style="font-size:12px;color:rgba(252,224,168,.55);margin:2px 0 0;">Chaque photo est un argument de vente silencieux.</p>
             </div>
-            <div id="real-counter" style="font-size:13px;font-weight:700;color:var(--vert);background:rgba(232,148,10,0.08);padding:4px 12px;border-radius:20px;">0 / 3</div>
+            <div id="real-counter" style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,.25);padding:4px 12px;border-radius:20px;">0 / 3</div>
           </div>
 
           <!-- Progress bar -->
-          <div style="height:5px;background:#f0f0f0;border-radius:10px;margin-bottom:20px;overflow:hidden;">
-            <div id="real-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--vert),var(--or));border-radius:10px;transition:width 0.4s ease;width:0%;"></div>
+          <div style="height:5px;background:rgba(252,224,168,.12);border-radius:10px;margin-bottom:20px;overflow:hidden;">
+            <div id="real-progress-bar" style="height:100%;background:#E8940A;border-radius:10px;transition:width 0.4s ease;width:0%;"></div>
           </div>
 
           <!-- Grid 3 slots -->
@@ -3591,14 +3587,13 @@ setTimeout(function(){
 
       <!-- POSTS -->
       <div class="dash-section" id="ds-posts">
-        <div class="dash-header">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
           <div>
-            <h2>📝 Mes Publications</h2>
-            <p style="color:var(--gris);font-size:14px;margin-top:4px;">Publie 1 fois par semaine, ça suffit pour rester visible et monter dans les résultats.</p>
+            <div class="wz-eyebrow">Vitrine · Publications</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">publications</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Publie 1 fois par semaine, ça suffit pour rester visible et monter dans les résultats.</p>
           </div>
-          <button onclick="openFilComposer()" class="btn btn-primary btn-sm" style="white-space:nowrap;">
-            + Publier
-          </button>
+          <button onclick="openFilComposer()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-size:14px;font-weight:800;cursor:pointer;">+ Publier</button>
         </div>
         <div class="dash-explainer">
           📝 <strong>C'est quoi un post et pourquoi c'est important ?</strong> Un post, c'est comme afficher une pancarte dans la rue, sauf que toute la ville peut la voir. Tu partages une photo de ton travail, une info sur tes tarifs, une disponibilité urgente. Chaque fois que tu publies, ton profil remonte dans les résultats de recherche. Les prestataires qui publient régulièrement reçoivent jusqu'à 3× plus de demandes que ceux qui ne publient pas.<br><br>
@@ -3607,29 +3602,29 @@ setTimeout(function(){
 
         <!-- Stats -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;">
-          <div style="background:white;border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
-            <div style="font-size:32px;font-weight:900;color:var(--vert);" id="posts-count">0</div>
-            <div style="font-size:12px;color:var(--gris);margin-top:4px;font-weight:600;">Posts créés</div>
+          <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:400;color:#E8940A;" id="posts-count">0</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.55);margin-top:4px;letter-spacing:.08em;text-transform:uppercase;">Posts créés</div>
           </div>
-          <div style="background:white;border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
-            <div style="font-size:32px;font-weight:900;color:var(--or);" id="comments-count">0</div>
-            <div style="font-size:12px;color:var(--gris);margin-top:4px;font-weight:600;">Commentaires</div>
+          <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:400;color:#FCE0A8;" id="comments-count">0</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.55);margin-top:4px;letter-spacing:.08em;text-transform:uppercase;">Commentaires</div>
           </div>
-          <div style="background:white;border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
-            <div style="font-size:32px;font-weight:900;color:#ef4444;" id="likes-count">0</div>
-            <div style="font-size:12px;color:var(--gris);margin-top:4px;font-weight:600;">J'aime</div>
+          <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-family:'DM Serif Display',serif;font-size:32px;font-weight:400;color:#FCE0A8;" id="likes-count">0</div>
+            <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.55);margin-top:4px;letter-spacing:.08em;text-transform:uppercase;">J'aime</div>
           </div>
         </div>
 
         <!-- Commentaires reçus -->
-        <div class="edit-form-section" style="margin-bottom:20px;">
-          <h3 style="margin-bottom:14px;">💬 Ce que les gens disent de tes publications</h3>
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">Ce que les gens <em style="color:#E8940A;font-style:italic;">disent</em> de tes publications</h3>
           <div id="posts-comments-list" style="display:flex;flex-direction:column;gap:10px;"></div>
         </div>
 
         <!-- Likes reçus -->
-        <div class="edit-form-section">
-          <h3 style="margin-bottom:14px;">❤️ Likes reçus</h3>
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">J'aime <em style="color:#E8940A;font-style:italic;">reçus</em></h3>
           <div id="posts-likes-list" style="display:flex;flex-direction:column;gap:10px;"></div>
         </div>
       </div>
@@ -3743,8 +3738,9 @@ setTimeout(function(){
       <!-- AVIS -->
       <div class="dash-section" id="ds-avis">
         <div class="dash-header">
-          <h2>⭐ Mes avis clients</h2>
-          <p>Les avis = ta réputation visible. Les profils avec 3+ avis reçoivent 5× plus de contacts.</p>
+          <div class="wz-eyebrow">Vitrine · Réputation</div>
+          <h2 style="font-weight:400;color:#FCE0A8;">Mes avis <em style="color:#E8940A;font-style:italic;">clients</em></h2>
+          <p>Un avis, c'est ta réputation visible. Les profils avec 3+ avis reçoivent 5× plus de contacts.</p>
         </div>
         <div class="dash-explainer">
           ⭐ <strong>Un avis, c'est un client qui dit à tout le monde que tu travailles bien.</strong> À Lomé ou Cotonou, les gens font confiance à ce que les autres ont vécu. Chaque avis sur ton profil remplace 10 recommandations bouche-à-oreille, et il est visible 24h/24 par tous les clients qui te cherchent.<br><br>
@@ -5914,50 +5910,54 @@ setTimeout(function(){
           <p>Partage ton lien : touche une commission sur l'abonnement Pro de chaque filleul, chaque mois où il reste abonné.</p>
         </div>
 
-        <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:24px;margin-bottom:24px;border-left:4px solid #f59e0b;">
-          <div style="font-size:28px;margin-bottom:12px;">💰</div>
-          <h3 style="color:#f59e0b;font-weight:900;margin-bottom:12px;font-size:18px;">Une commission sur chaque Pro que tu accompagnes vers WOZALI</h3>
-          <p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.8;margin-bottom:16px;">
-            Étudiant, commerçante, influenceur, mère au foyer, livreur : peu importe qui tu es. Chaque personne que tu aides à découvrir WOZALI et qui devient Pro te rapporte <strong style="color:#f59e0b;">1 000 FCFA par mois</strong>, tant qu'elle reste abonnée. C'est une commission sur un abonnement réel, pas un bonus de recrutement.
+        <div style="position:relative;overflow:hidden;background:linear-gradient(160deg,#26200F 0%,#1E180E 60%);border:1px solid rgba(232,148,10,.3);border-radius:18px;padding:26px 24px;margin-bottom:24px;">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#E8940A 35%,#f5b13d 55%,transparent);"></div>
+          <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 60% at 85% 0%, rgba(232,148,10,.08), transparent 70%);"></div>
+          <div style="position:relative;">
+          <div style="display:flex;align-items:center;gap:10px;font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#E8940A;margin-bottom:14px;">Programme parrainage<span style="flex:1;height:1px;background:rgba(232,148,10,.25);"></span></div>
+          <h3 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(20px,4vw,26px);line-height:1.2;color:#FCE0A8;margin:0 0 12px;">Une commission sur chaque Pro que tu <em style="color:#E8940A;font-style:italic;">accompagnes</em> vers WOZALI</h3>
+          <p style="font-family:'Geist',sans-serif;color:rgba(252,224,168,.72);font-size:14px;line-height:1.8;margin:0 0 18px;">
+            Étudiant, commerçante, influenceur, mère au foyer, livreur : peu importe qui tu es. Chaque personne que tu aides à découvrir WOZALI et qui devient Pro te rapporte <strong style="color:#E8940A;">1 000 FCFA par mois</strong>, tant qu'elle reste abonnée. C'est une commission sur un abonnement réel, pas un bonus de recrutement.
           </p>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-            <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:10px;text-align:center;">
-              <div style="font-size:20px;font-weight:900;color:#E8940A;">53</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.6);">filleuls = 1 SMIG</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(252,224,168,.12);padding:12px;border-radius:12px;text-align:center;">
+              <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;">53</div>
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.5);">filleuls = 1 SMIG</div>
             </div>
-            <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:10px;text-align:center;">
-              <div style="font-size:20px;font-weight:900;color:#f59e0b;">200</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.6);">filleuls = ×4 SMIG</div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(252,224,168,.12);padding:12px;border-radius:12px;text-align:center;">
+              <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;">200</div>
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.5);">filleuls = ×4 SMIG</div>
             </div>
-            <div style="background:rgba(232,148,10,0.15);padding:12px;border-radius:10px;text-align:center;">
-              <div style="font-size:20px;font-weight:900;color:#E8940A;">500</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.6);">filleuls = ×10 SMIG</div>
+            <div style="background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.4);padding:12px;border-radius:12px;text-align:center;">
+              <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#E8940A;">500</div>
+              <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.5);">filleuls = ×10 SMIG</div>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(252,224,168,.75);">
               <span style="color:#E8940A;font-weight:900;">✓</span> Zéro capital : juste ton téléphone et ta voix
             </div>
-            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(252,224,168,.75);">
               <span style="color:#E8940A;font-weight:900;">✓</span> Récurrent : tant que tes filleuls restent Pro, tu touches chaque mois
             </div>
-            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(252,224,168,.75);">
               <span style="color:#E8940A;font-weight:900;">✓</span> Sans plafond : chaque filleul Pro actif compte, autant que tu en accompagnes
             </div>
-            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(252,224,168,.75);">
               <span style="color:#E8940A;font-weight:900;">✓</span> Pour tous : étudiant, influenceur, commerçante, livreur, mère au foyer
             </div>
-            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8);">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(252,224,168,.75);">
               <span style="color:#E8940A;font-weight:900;">✓</span> TikTok, WhatsApp, bouche-à-oreille, marché : partage où tu veux
             </div>
+          </div>
           </div>
         </div>
 
         <!-- Carte gains -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;">
-          <div class="stat-card" style="background:linear-gradient(135deg,var(--vert-dark),var(--vert));color:white;">
-            <div class="stat-card-num" id="p-comm-dispo" style="color:white;">0 FCFA</div>
-            <div class="stat-card-label" style="color:rgba(255,255,255,0.7);">Disponible à retirer</div>
+          <div class="stat-card" style="background:linear-gradient(160deg,rgba(232,148,10,.16),#1E180E 70%);border:1px solid rgba(232,148,10,.45);">
+            <div class="stat-card-num" id="p-comm-dispo" style="color:#E8940A;">0 FCFA</div>
+            <div class="stat-card-label" style="color:rgba(252,224,168,.6);">Disponible à retirer</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-num" id="p-comm-total">0 FCFA</div>
@@ -6006,12 +6006,12 @@ setTimeout(function(){
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
             <h3 style="margin:0;">👥 Mes filleuls</h3>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <select id="filleul-filter-plan" onchange="filterFilleuls()" style="font-size:13px;padding:6px 12px;border:1.5px solid #e5e7eb;border-radius:8px;background:white;cursor:pointer;">
+              <select id="filleul-filter-plan" onchange="filterFilleuls()" style="font-size:13px;padding:10px 12px;min-height:44px;border:1px solid rgba(232,148,10,.3);border-radius:10px;background:#1E180E;color:#FCE0A8;cursor:pointer;">
                 <option value="">Tous les plans</option>
                 <option value="Base">Plan Base uniquement</option>
                 <option value="Pro">Plan Pro uniquement</option>
               </select>
-              <input type="text" id="filleul-search" placeholder="🔍 Rechercher..." oninput="filterFilleuls()" style="font-size:13px;padding:6px 12px;border:1.5px solid #e5e7eb;border-radius:8px;width:160px;">
+              <input type="text" id="filleul-search" placeholder="🔍 Rechercher..." oninput="filterFilleuls()" style="font-size:13px;padding:10px 12px;min-height:44px;border:1px solid rgba(232,148,10,.3);border-radius:10px;background:#1E180E;color:#FCE0A8;width:160px;">
             </div>
           </div>
 
@@ -6023,7 +6023,7 @@ setTimeout(function(){
                 <div style="font-weight:800;font-size:14px;color:#E8940A;">Opportunités d'upsell</div>
                 <div style="font-size:13px;color:#FCE0A8;" id="upsell-desc">— filleuls encore en plan Base → relance-les pour passer Pro</div>
               </div>
-              <button onclick="filterUpsell()" style="background:#f59e0b;color:white;border:none;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">Voir les → relancer</button>
+              <button onclick="filterUpsell()" style="background:#E8940A;color:#14100A;border:none;padding:10px 18px;min-height:44px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">Voir les → relancer</button>
             </div>
           </div>
 
@@ -6058,7 +6058,7 @@ setTimeout(function(){
               <span style="color:#E8940A;font-weight:700;" id="dash-parrain-pct">19%</span>
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:10px;height:9px;overflow:hidden;margin-bottom:8px;">
-              <div id="dash-parrain-bar" style="height:100%;background:linear-gradient(90deg,#E8940A,#f59e0b);border-radius:10px;transition:width 0.25s;width:19%;"></div>
+              <div id="dash-parrain-bar" style="height:100%;background:linear-gradient(90deg,#E8940A,#f5b13d);border-radius:10px;transition:width 0.25s;width:19%;"></div>
             </div>
             <div id="dash-parrain-label" style="font-size:11px;color:rgba(252,224,168,0.4);text-align:center;">Continue, chaque filleul compte.</div>
           </div>
@@ -6086,11 +6086,11 @@ setTimeout(function(){
             </div>
             <div class="parrain-calc-row">
               <span style="color:rgba(255,255,255,0.8);font-weight:600;">100 filleuls actifs</span>
-              <span class="parrain-comm-badge" style="background:#c084fc;">100 000 FCFA/mois</span>
+              <span class="parrain-comm-badge" style="background:rgba(232,148,10,.75);">100 000 FCFA/mois</span>
             </div>
             <div class="parrain-calc-row">
               <span style="color:rgba(255,255,255,0.8);font-weight:600;">200 filleuls actifs</span>
-              <span class="parrain-comm-badge" style="background:#f59e0b;">200 000 FCFA/mois</span>
+              <span class="parrain-comm-badge" style="background:rgba(232,148,10,.9);">200 000 FCFA/mois</span>
             </div>
             <div class="parrain-calc-row" style="border:1px solid rgba(232,148,10,0.4);background:rgba(232,148,10,0.1);border-radius:10px;padding:8px;">
               <span style="color:#E8940A;font-weight:900;">500 filleuls actifs</span>
@@ -6105,7 +6105,7 @@ setTimeout(function(){
             <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;">
               <span style="color:rgba(255,255,255,0.7);">53 filleuls = <strong style="color:#E8940A;">1 SMIG</strong></span>
               <span style="color:rgba(255,255,255,0.5);">·</span>
-              <span style="color:rgba(255,255,255,0.7);">100 filleuls = <strong style="color:#f59e0b;">×2 SMIG</strong></span>
+              <span style="color:rgba(255,255,255,0.7);">100 filleuls = <strong style="color:#E8940A;">×2 SMIG</strong></span>
               <span style="color:rgba(255,255,255,0.5);">·</span>
               <span style="color:rgba(255,255,255,0.7);">500 filleuls = <strong style="color:#E8940A;">×10 SMIG</strong></span>
             </div>
@@ -6113,7 +6113,7 @@ setTimeout(function(){
         </div>
         </div>
 
-        <!-- Guide pratique affiliation --><div style="background:rgba(232,148,10,0.06);border:2px solid rgba(232,148,10,0.35);border-radius:16px;padding:20px 24px;margin-bottom:24px;"><h3 style="color:#E8940A;font-weight:900;margin-bottom:14px;font-size:16px;font-family:Lora,serif;font-style:italic;">Comment gagner avec le parrainage</h3><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">1.</span><span>Copie ton lien de parrainage ci-dessus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">2.</span><span>Partage-le : WhatsApp, TikTok, Instagram, groupes, bouche-à-oreille, marché, campus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">3.</span><span>Chaque personne qui s'inscrit via ton lien apparaît dans ta liste de filleuls</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">4.</span><span><strong style="color:#E8940A;">Chaque filleul qui passe Pro = 1 000 FCFA/mois pour toi, chaque mois tant qu'il reste Pro</strong></span></div></div><p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px;">Ton lien trace automatiquement chaque inscription. Tu vois tout ici en temps réel.</p></div>
+        <!-- Guide pratique affiliation --><div style="background:rgba(232,148,10,0.06);border:2px solid rgba(232,148,10,0.35);border-radius:16px;padding:20px 24px;margin-bottom:24px;"><h3 style="color:#E8940A;font-weight:400;margin-bottom:14px;font-size:18px;font-family:'DM Serif Display',serif;font-style:italic;">Comment gagner avec le parrainage</h3><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">1.</span><span>Copie ton lien de parrainage ci-dessus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">2.</span><span>Partage-le : WhatsApp, TikTok, Instagram, groupes, bouche-à-oreille, marché, campus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">3.</span><span>Chaque personne qui s'inscrit via ton lien apparaît dans ta liste de filleuls</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;"><span style="color:#E8940A;font-weight:900;font-size:16px;">4.</span><span><strong style="color:#E8940A;">Chaque filleul qui passe Pro = 1 000 FCFA/mois pour toi, chaque mois tant qu'il reste Pro</strong></span></div></div><p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px;">Ton lien trace automatiquement chaque inscription. Tu vois tout ici en temps réel.</p></div>
         <!-- Retrait -->
         <div class="edit-form-section" style="border:2px solid var(--vert);">
           <h3 style="margin-bottom:8px;">💸 Retirer mes commissions</h3>
@@ -6592,7 +6592,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260722a" defer></script>
+<script src="/app.js?v=20260722b" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

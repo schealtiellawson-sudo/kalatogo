@@ -1617,7 +1617,8 @@ textarea { resize:vertical; min-height:110px; }
 .form-hidden { display:none !important; }
 
 .tiktok-tip {
-  background: linear-gradient(135deg, #010101, #1a1a2e);
+  background: linear-gradient(135deg, #14100A, #1E180E);
+  border: 1px solid rgba(232,148,10,.18);
   border-radius: 14px; padding: 16px 20px;
   display: flex; align-items: flex-start; gap: 14px;
   margin-top: 8px;
@@ -1725,7 +1726,7 @@ footer {
 /* ══ DASHBOARD ══ */
 .dashboard-layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 68px); }
 .dashboard-sidebar {
-  background:#0a0e0c; border-right:1px solid rgba(232,148,10,0.1);
+  background:#14100A; border-right:1px solid rgba(232,148,10,0.1);
   padding:32px 20px; position:sticky; top:68px; height:calc(100vh - 68px); overflow-y:auto;
 }
 .dashboard-sidebar h3 { font-size:13px; font-weight:700; color:rgba(252, 224, 168,0.4); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; margin-top:24px; padding-left:12px; }
@@ -1736,8 +1737,8 @@ footer {
   cursor:pointer; transition:all 0.2s; border:none; background:none; width:100%; text-align:left;
   font-family:'Geist',sans-serif;
 }
-.dash-link:hover { background:var(--vert-light); color:var(--vert); }
-.dash-link.active { background:var(--vert); color:white; }
+.dash-link:hover { background:rgba(232,148,10,.08); color:#E8940A; }
+.dash-link.active { background:rgba(232,148,10,.14); color:#E8940A; }
 .dash-link .icon { font-size:18px; width:20px; text-align:center; }
 
 /* ── Étape 4 : dashboard à plat — grandes entrées icône+mot+couleur ── */
@@ -2848,85 +2849,6 @@ nav .nav-logo circle[fill="#14100A"] { fill: #14100A; stroke: #E8940A; }
 }
 .wozali-countdown-cta strong{color:#E8940A;}
 
-/* --- Mur des gagnants --- */
-.wozali-gagnants-section{
-  background:#14100A;
-  padding:56px 24px;
-  border-top:1px solid rgba(232,148,10,0.15);
-  border-bottom:1px solid rgba(232,148,10,0.15);
-}
-.wozali-gagnants-section .container{max-width:960px;margin:0 auto;}
-.wozali-gagnants-eyebrow{
-  font-family:'Geist Mono',monospace;
-  font-size:11px;color:#E8940A;
-  letter-spacing:2px;text-transform:uppercase;
-  text-align:center;margin-bottom:10px;
-}
-.wozali-gagnants-sub{
-  text-align:center;color:rgba(252, 224, 168,0.55);
-  font-size:14px;margin-bottom:36px;font-style:italic;
-}
-.wozali-gagnants-liste{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:20px;
-}
-.wozali-gagnant-card{
-  background:rgba(232,148,10,0.04);
-  border:1px solid rgba(232,148,10,0.25);
-  border-radius:16px;
-  padding:24px;
-}
-.wozali-gagnant-placeholder{
-  border:2px dashed rgba(232,148,10,0.5);
-  background:rgba(232,148,10,0.03);
-  text-align:center;
-  grid-column:1/-1;
-  max-width:560px;margin:0 auto;
-}
-.wozali-gagnant-placeholder .icon{font-size:42px;margin-bottom:10px;}
-.wozali-gagnant-placeholder h4{
-  font-family:Georgia,serif;color:#E8940A;
-  font-size:18px;margin-bottom:14px;
-}
-.wozali-gagnant-placeholder p{
-  color:rgba(252, 224, 168,0.65);font-size:14px;
-  line-height:1.7;margin-bottom:14px;
-}
-.wozali-gagnant-placeholder .montant{
-  font-family:'Geist Mono',monospace;
-  font-size:36px;color:#E8940A;font-weight:700;
-  margin:14px 0 8px;
-}
-.wozali-gagnant-placeholder .question{
-  color:#E8940A;font-style:italic;font-size:15px;
-}
-.wozali-gagnant-card .head{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
-.wozali-gagnant-avatar{
-  width:54px;height:54px;border-radius:50%;
-  border:2px solid #E8940A;
-  background:rgba(232,148,10,0.15);
-  display:flex;align-items:center;justify-content:center;
-  font-family:Georgia,serif;font-size:22px;color:#E8940A;
-  background-size:cover;background-position:center;
-  flex-shrink:0;
-}
-.wozali-gagnant-card .nom{color:#FCE0A8;font-weight:800;font-size:15px;}
-.wozali-gagnant-card .meta{color:rgba(252, 224, 168,0.5);font-size:12px;}
-.wozali-gagnant-card .score{
-  font-family:'Geist Mono',monospace;
-  color:#E8940A;font-size:11px;margin:8px 0 12px;
-}
-.wozali-gagnant-card .temoignage{
-  color:rgba(252, 224, 168,0.7);
-  font-size:13px;font-style:italic;
-  line-height:1.6;margin-bottom:12px;
-}
-.wozali-gagnant-card .montant-gagne{
-  font-family:'Geist Mono',monospace;
-  color:#E8940A;font-size:20px;font-weight:700;
-}
-.wozali-gagnant-card .mois{color:rgba(252, 224, 168,0.4);font-size:11px;}
 
 /* --- FAQ Pro accordéon --- */
 .wozali-faq-pro{
@@ -5639,7 +5561,7 @@ nav, .top-nav, .navbar, [class*="top-bar"], [class*="nav-bar"] {
 
 /* 3 — KPI cards : cold surface + border-top or */
 .kpi-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 10px !important;
@@ -5682,7 +5604,7 @@ nav, .top-nav, .navbar, [class*="top-bar"], [class*="nav-bar"] {
 
 /* 8 — stat-cards (parrainage) : meme traitement */
 .stat-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 10px !important;
 }
@@ -5735,12 +5657,12 @@ input::placeholder, textarea::placeholder {
 
 /* 14 — Cards génériques fond sombre */
 .card, [class*="-card"]:not(.kpi-card):not(.stat-card) {
-  background: #161616 !important;
+  background: #1E180E !important;
 }
 
 /* 15 — Profil page bg */
 .profil-page-bg { background: #0A0A0A !important; }
-.profil-section { background: #161616 !important; border-radius: 10px; }
+.profil-section { background: #1E180E !important; border-radius: 10px; }
 
 /* ═══════════════════════════════════════════════════════
    DIRECTION C — SIDEBAR NAVIGATION
@@ -5749,7 +5671,7 @@ input::placeholder, textarea::placeholder {
 
 /* Sidebar container : fond solide Direction C */
 #page-dashboard .dashboard-sidebar {
-  background: #0D0D0D !important;
+  background: #14100A !important;
   border: none !important;
   border-right: 1px solid rgba(232,148,10,0.1) !important;
   border-radius: 0 !important;
@@ -5885,7 +5807,7 @@ input::placeholder, textarea::placeholder {
 
 /* Blocs formulaire (edit-form-section) */
 #page-dashboard .edit-form-section {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -5914,7 +5836,7 @@ input::placeholder, textarea::placeholder {
 
 /* dash-card générique */
 #page-dashboard .dash-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -5983,7 +5905,7 @@ input::placeholder, textarea::placeholder {
 /* Profil-section-card */
 #page-dashboard .profil-section-card,
 #page-dashboard .profil-section {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.1) !important;
   border-radius: 12px !important;
   padding: 20px !important;
@@ -5993,7 +5915,7 @@ input::placeholder, textarea::placeholder {
 /* Avatar wrapper in dashboard */
 #page-dashboard .avatar-upload-wrap,
 #page-dashboard .avatar-preview-wrap {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 2px solid rgba(232,148,10,0.2) !important;
   border-radius: 50% !important;
 }
@@ -6007,7 +5929,7 @@ input::placeholder, textarea::placeholder {
 /* Fil d'actualité */
 #page-dashboard .fil-post,
 #page-dashboard .post-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.08) !important;
   border-radius: 12px !important;
   padding: 16px !important;
@@ -6036,7 +5958,7 @@ input::placeholder, textarea::placeholder {
 /* Pagination */
 #page-dashboard .pagination button,
 #page-dashboard .page-btn {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.2) !important;
   color: rgba(255,255,255,0.6) !important;
   border-radius: 6px !important;
@@ -6061,7 +5983,7 @@ input::placeholder, textarea::placeholder {
 
 /* empty-state */
 #page-dashboard .empty-state {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px dashed rgba(232,148,10,0.2) !important;
   border-radius: 12px !important;
   padding: 40px 20px !important;
@@ -6195,7 +6117,7 @@ input::placeholder, textarea::placeholder {
 
 /* Sections profil : Direction C card */
 .profil-section {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.08) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6224,7 +6146,7 @@ input::placeholder, textarea::placeholder {
 
 /* Sidebar cards : Direction C */
 .profil-page-bg .sidebar-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.08) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6283,7 +6205,7 @@ input::placeholder, textarea::placeholder {
 /* Profils similaires (carte prestataire dans profil public) */
 .profil-page-bg .prest-card,
 .profil-page-bg [class*="prest-card"] {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.08) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6342,7 +6264,7 @@ input::placeholder, textarea::placeholder {
   backdrop-filter: blur(12px) !important;
 }
 .filter-select, .filter-chip {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1.5px solid rgba(232,148,10,0.2) !important;
   color: rgba(255,255,255,0.75) !important;
   border-radius: 100px !important;
@@ -6352,7 +6274,7 @@ input::placeholder, textarea::placeholder {
   color: #FFFFFF !important;
 }
 .filter-dispo {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1.5px solid rgba(232,148,10,0.2) !important;
   color: rgba(255,255,255,0.75) !important;
 }
@@ -6362,7 +6284,7 @@ input::placeholder, textarea::placeholder {
   color: #0A0A0A !important;
 }
 .qf-chip {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1.5px solid rgba(232,148,10,0.15) !important;
   color: rgba(255,255,255,0.6) !important;
 }
@@ -6374,7 +6296,7 @@ input::placeholder, textarea::placeholder {
 
 /* Map toggle */
 .map-toggle-btn {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1.5px solid rgba(232,148,10,0.2) !important;
   color: rgba(255,255,255,0.7) !important;
   border-radius: 100px !important;
@@ -6388,7 +6310,7 @@ input::placeholder, textarea::placeholder {
 
 /* Search bar */
 .search-bar {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1.5px solid rgba(232,148,10,0.2) !important;
 }
 .search-bar:focus-within { border-color: #E8940A !important; }
@@ -6407,7 +6329,7 @@ input::placeholder, textarea::placeholder {
 
 /* Carte prestataire — Direction C */
 .wozali-card-prestataire {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.08) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6421,7 +6343,7 @@ input::placeholder, textarea::placeholder {
 
 /* pcard (autre format de card prestataire) */
 .pcard {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.08) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6515,7 +6437,7 @@ input::placeholder, textarea::placeholder {
   border-bottom: 1px solid rgba(255,255,255,0.04) !important;
 }
 .sous-filtre {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(255,255,255,0.08) !important;
   color: rgba(255,255,255,0.5) !important;
   border-radius: 100px !important;
@@ -6526,13 +6448,13 @@ input::placeholder, textarea::placeholder {
   color: #E8940A !important;
 }
 .talent-select {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1.5px solid rgba(232,148,10,0.15) !important;
   color: rgba(255,255,255,0.75) !important;
   border-radius: 8px !important;
 }
 .feed-post {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(255,255,255,0.05) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6565,13 +6487,13 @@ input::placeholder, textarea::placeholder {
   letter-spacing: 1px !important;
 }
 .wozali-award-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.15) !important;
   border-top: 3px solid #E8940A !important;
 }
 .widget-bourse-wrap, .widget-awards,
 [class*="bourse-card"], [class*="award-card"] {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.1) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6596,7 +6518,7 @@ input::placeholder, textarea::placeholder {
 #page-apropos h3, #page-a-propos h3 { color: #E8940A !important; }
 #page-apropos p, #page-a-propos p { color: rgba(255,255,255,0.6) !important; }
 #page-apropos [class*="card"], #page-a-propos [class*="card"] {
-  background: #161616 !important;
+  background: #1E180E !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
 }
@@ -6619,13 +6541,13 @@ input::placeholder, textarea::placeholder {
 #page-home .wozali-card-prestataire,
 #page-home .pcard,
 #page-home [class*="-card"]:not(.hero-card) {
-  background: #161616 !important;
+  background: #1E180E !important;
   border-top: 3px solid #E8940A !important;
 }
 
 /* Countdown / stats home */
 #page-home .metric {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
   border-radius: 12px !important;
 }
@@ -6640,7 +6562,7 @@ input::placeholder, textarea::placeholder {
   border: none !important;
 }
 .btn.btn-dark {
-  background: #161616 !important;
+  background: #1E180E !important;
   color: rgba(255,255,255,0.85) !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
 }
@@ -6680,13 +6602,13 @@ input::placeholder, textarea::placeholder {
    Remplace bleu/vert/rouge → palette #0A0A0A uniforme
 ═══════════════════════════════════════════════════════ */
 
-/* Fond de toutes les KPI cards → #161616 + bande or */
+/* Fond de toutes les KPI cards → #1E180E + bande or */
 #ds-recrut-candidatures div[style*="rgba(59,130,246"],
 #ds-recrut-candidatures div[style*="rgba(232,148,10"],
 #ds-recrut-candidatures div[style*="rgba(220,38,38"],
 #ds-recrut-candidatures div[style*="rgba(252, 224, 168,.04)"],
 #ds-recrut-candidatures div[style*="rgba(232,148,10,.06)"] {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6735,7 +6657,7 @@ input::placeholder, textarea::placeholder {
   color: rgba(255,255,255,0.6) !important;
 }
 
-/* Cards avec fond rgba or verre → #161616 + bande or haut */
+/* Cards avec fond rgba or verre → #1E180E + bande or haut */
 #page-agent-wozali div[style*="rgba(232,148,10,0.04)"],
 #page-agent-wozali div[style*="rgba(232,148,10,.04)"],
 #page-influenceurs div[style*="rgba(232,148,10,0.04)"],
@@ -6743,16 +6665,16 @@ input::placeholder, textarea::placeholder {
 #page-recrutement-agents div[style*="rgba(232,148,10,0.04)"],
 #page-recrutement-agents div[style*="rgba(232,148,10,.04)"],
 #page-recrutement-agents div[style*="rgba(232,148,10,0.06)"] {
-  background: #161616 !important;
+  background: #1E180E !important;
   border-color: rgba(232,148,10,0.15) !important;
   border-top: 3px solid #E8940A !important;
   border-top-left-radius: 12px !important;
   border-top-right-radius: 12px !important;
 }
 
-/* Bloc rémunération #161b17 (vert résiduel) → #161616 propre */
+/* Bloc rémunération #161b17 (vert résiduel) → #1E180E propre */
 #page-recrutement-agents div[style*="161b17"] {
-  background: #161616 !important;
+  background: #1E180E !important;
 }
 
 /* Match page — surface et form */
@@ -6764,7 +6686,7 @@ input::placeholder, textarea::placeholder {
 .match-hero h1 { color: #FFFFFF !important; }
 .match-hero p { color: rgba(255,255,255,0.55) !important; }
 .match-form-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 16px !important;
@@ -6799,7 +6721,7 @@ input::placeholder, textarea::placeholder {
   color: rgba(255,255,255,0.45) !important;
 }
 .match-result-card {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.08) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 12px !important;
@@ -6812,7 +6734,7 @@ input::placeholder, textarea::placeholder {
 }
 #page-inscription h1, #page-login h1, #page-forgot h1 { color: #FFFFFF !important; }
 .auth-card, .login-card, .signup-card, [class*="auth-form"] {
-  background: #161616 !important;
+  background: #1E180E !important;
   border: 1px solid rgba(232,148,10,0.12) !important;
   border-top: 3px solid #E8940A !important;
   border-radius: 16px !important;
@@ -6838,21 +6760,21 @@ input::placeholder, textarea::placeholder {
 
 /* Bannière info WhatsApp (fond vert rgba(37,211,102)) → surface neutre */
 #agent-panel-candidatures div[style*="rgba(37,211,102"] {
-  background: #161616 !important;
+  background: #1E180E !important;
   border-color: rgba(232,148,10,0.15) !important;
 }
 
-/* Page admin agents — KPI cards + modal : #161b17 → #161616 */
+/* Page admin agents — KPI cards + modal : #161b17 → #1E180E */
 #page-admin-agents div[style*="161b17"] {
-  background: #161616 !important;
+  background: #1E180E !important;
 }
 #modal-agent-detail > div[style*="161b17"] {
-  background: #161616 !important;
+  background: #1E180E !important;
 }
 
 /* Section storytelling page-recrutement-agents (#161b17 sur balise section) */
 #page-recrutement-agents section[style*="161b17"] {
-  background: #161616 !important;
+  background: #1E180E !important;
 }
 
 /* ═══════════════════════════════════════════
@@ -7033,7 +6955,7 @@ input::placeholder, textarea::placeholder {
   display:none;
   position:fixed; right:0; top:68px;
   width:252px; height:calc(100vh - 68px);
-  overflow-y:auto; background:#0a0e0c;
+  overflow-y:auto; background:#14100A;
   border-left:1px solid rgba(232,148,10,.08);
   padding:20px 16px; z-index:90;
   scrollbar-width:none;
@@ -7056,7 +6978,7 @@ input::placeholder, textarea::placeholder {
   margin: -36px;
   height: calc(100vh - 68px);
   overflow: hidden;
-  background: #0d0d0d;
+  background: #14100A;
   animation: none !important;
 }
 
@@ -7066,7 +6988,7 @@ input::placeholder, textarea::placeholder {
 /* ── Colonne gauche (liste conversations) ── */
 .dm-col-left {
   width: 280px; min-width:180px; max-width:440px;
-  background:#0d0d0d; display:flex; flex-direction:column;
+  background:#14100A; display:flex; flex-direction:column;
   flex-shrink:0; overflow:hidden;
   border-right:1px solid rgba(232,148,10,.08);
 }
@@ -7105,7 +7027,7 @@ input::placeholder, textarea::placeholder {
 }
 .dm-online-dot {
   position:absolute; bottom:0; right:0; width:12px; height:12px;
-  border-radius:50%; background:#E8940A; border:2px solid #0d0d0d;
+  border-radius:50%; background:#E8940A; border:2px solid #14100A;
 }
 .dm-conv-info { flex:1; min-width:0; }
 .dm-conv-name-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
@@ -8069,7 +7991,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 
 /* ── Cards de la section Mes outils ── */
 .wzo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-.wzo-card { background: #161616; border-radius: 14px; padding: 20px; border-top: 3px solid #E8940A; }
+.wzo-card { background: #1E180E; border-radius: 14px; padding: 20px; border-top: 3px solid #E8940A; }
 .wzo-card h4 { font-family: 'DM Serif Display', serif; font-size: 17px; color: #FCE0A8; margin: 0 0 6px; }
 .wzo-card .wzo-where { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #E8940A; margin-bottom: 10px; }
 .wzo-card p { font-size: 13px; line-height: 1.65; color: rgba(255,255,255,0.55); margin: 0 0 14px; }
@@ -8801,4 +8723,14 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 
 @media (prefers-reduced-motion:reduce){
   #page-search .pcard, #page-search .pcard:hover { transform:none !important; transition:none !important; }
+}
+
+/* ══ PARRAINAGE — Vague 3a : zones tactiles + motion ══ */
+#ds-parrainage .btn,
+#ds-parrainage button,
+#ds-parrainage select,
+#ds-parrainage input[type="text"] { min-height:44px; }
+#ds-parrainage a[title] { min-width:44px; min-height:44px; }
+@media (prefers-reduced-motion: reduce) {
+  #ds-parrainage * { transition:none !important; animation:none !important; }
 }
