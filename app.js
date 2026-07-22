@@ -559,6 +559,13 @@ function showDashSection(section) {
   // Fermer le tiroir menu mobile après sélection d'une section
   if (typeof closeDashMenu === 'function') closeDashMenu();
 
+  // Réinitialiser le tiroir mobile de la messagerie (Messages/Sandy). Sans ça,
+  // quitter "Messages" pendant qu'un thread est ouvert (ex. CTA de Sandy qui
+  // navigue vers "Mes photos") laisse #dm-col-left avec la classe
+  // dm-thread-open : la liste des conversations reste translateX(-100%),
+  // donc invisible/inatteignable au clic quand on revient sur Messages.
+  if (typeof closeDmThread === 'function') closeDmThread();
+
   document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.dash-link').forEach(l => l.classList.remove('active'));
   document.getElementById('ds-' + section)?.classList.add('active');
@@ -702,6 +709,9 @@ async function loadDashboard() {
   } catch(e){}
   loadDashOverview();
   updateNotifBadge(currentPrestataire?.id);
+  // Compte les messages non lus de Sandy dès la connexion, pour allumer le
+  // point sur Messages sans avoir à ouvrir la conversation.
+  try { _loadCoachPreview(); } catch(e){}
   injectApprentieBanner();
   // Afficher la sidebar "Je recrute" pour tous les users connectés.
   const recrutSection = document.getElementById('dl-recrut-section');
@@ -6115,6 +6125,7 @@ function _applyNotifBadge() {
     unread += fondateur.filter(m => !m.read).length;
   } catch(e){}
   unread += (window._storyRepsUnread || 0);
+  unread += (window._coachUnread || 0);
   const label = unread > 99 ? '99+' : String(unread);
   const badge = document.getElementById('notif-badge');
   if (badge) {
@@ -6496,6 +6507,7 @@ const _COACH_TREE = {
   q3: {
     clients:      { question: "Aujourd'hui, tes clients te trouvent comment ?", opts: [
       { k: 'bouche',   l: 'Bouche-à-oreille' },
+      { k: 'tiktok',   l: 'TikTok (posts, lives)' },
       { k: 'whatsapp', l: 'WhatsApp' },
       { k: 'passage',  l: 'Les gens passent devant' },
       { k: 'rien',     l: 'Justement, ils me trouvent pas' } ]},
@@ -6512,9 +6524,10 @@ const _COACH_TREE = {
       { k: 'marche',  l: 'Comme tout le monde au marché' },
       { k: 'affiche', l: "J'ai des prix fixes affichés" } ]},
   },
-  q4: { question: "Dernière chose : tu préfères que je t'écrive ou que je te parle ?", opts: [
-    { k: 'lire',    l: 'Je préfère lire' },
-    { k: 'ecouter', l: 'Je préfère écouter 🔊' },
+  q4: { question: 'Dernière chose : tu vends plutôt à qui ?', opts: [
+    { k: 'particuliers', l: 'Aux particuliers' },
+    { k: 'boutiques',    l: 'Aux boutiques et revendeurs' },
+    { k: 'deux',         l: 'Aux deux' },
   ]},
 };
 
@@ -6609,56 +6622,147 @@ function _coachOptButtons(opts, handler) {
   ).join('') + `</div>`;
 }
 
-function _coachRenderThread() {
+// ── Effet "conversation qui s'écrit" ──
+// Purement visuel : le message est déjà stocké intégralement en base et
+// dans _coachState.msgs au moment où le streaming démarre (rechargement
+// du thread = affichage instantané, comportement normal et voulu).
+function _coachScrollMsgsList() {
   const list = document.getElementById('dm-messages-list');
-  if (!list) return;
+  if (list) list.scrollTop = list.scrollHeight;
+}
+
+function _coachReduceMotion() {
+  try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  catch (e) { return false; }
+}
+
+// Affiche `texte` progressivement dans `el`, par petits groupes de mots.
+// 25-45ms/mot, plafonné pour qu'un message long ne dépasse jamais ~3.4s.
+function _coachStreamMsg(el, texte, opts) {
+  opts = opts || {};
+  return new Promise((resolve) => {
+    if (!el) { resolve(); return; }
+    const full = String(texte || '');
+    if (_coachReduceMotion() || !full) { el.textContent = full; _coachScrollMsgsList(); resolve(); return; }
+
+    // Tokens = mots + espaces/sauts de ligne conservés tels quels (white-space:pre-line
+    // reproduit alors fidèlement la mise en forme du texte final).
+    const tokens = full.split(/(\s+)/);
+    const wordCount = tokens.filter(t => t.trim().length).length || 1;
+    const maxMs = opts.maxDurationMs || 3400;
+    let msPerWord = opts.msPerWord || (26 + Math.random() * 16); // ~26-42ms/mot
+    if (msPerWord * wordCount > maxMs) msPerWord = Math.max(6, maxMs / wordCount);
+
+    let acc = '';
+    let i = 0;
+    const step = () => {
+      if (i >= tokens.length) { _coachScrollMsgsList(); resolve(); return; }
+      acc += tokens[i];
+      el.textContent = acc;
+      const isWord = tokens[i].trim().length > 0;
+      i++;
+      _coachScrollMsgsList();
+      setTimeout(step, isWord ? msPerWord : 0);
+    };
+    step();
+  });
+}
+
+// Coquille vide d'une bulle Sandy (même gabarit visuel que _coachBubble,
+// mais le corps est un <span> vide qu'on remplit progressivement).
+function _coachBubbleShell(m, idx) {
+  const esc = (s) => escapeHtml(s || '');
+  const id = 'coach-stream-' + (m.id || ('tmp' + idx));
+  if (m.type === 'lecon' || m.type === 'defi' || m.type === 'radar' || m.type === 'bilan') {
+    const eyebrow = m.type === 'defi' ? 'Défi de la semaine' : m.type === 'radar' ? 'Radar du marché · Pro' : m.type === 'bilan' ? 'Ton bilan du mois · Pro' : 'Ton action du moment';
+    return { id, html: `<div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:16px;overflow:hidden;margin:6px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);">
+        <span style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#E8940A;text-transform:uppercase;">${eyebrow}</span>
+      </div>
+      <div style="padding:14px;">
+        <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:18px;color:#FCE0A8;margin-bottom:8px;">${esc(m.titre)}</div>
+        <div id="${id}" style="font-size:13.5px;line-height:1.6;color:rgba(252,224,168,.85);white-space:pre-line;"></div>
+      </div>
+    </div>` };
+  }
+  return { id, html: `<div style="align-self:flex-start;max-width:86%;background:#1E180E;border:1px solid rgba(232,148,10,.18);border-radius:16px;border-bottom-left-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.6;color:#FCE0A8;white-space:pre-line;margin:4px 0;">${m.titre ? `<div style="color:#E8940A;font-weight:800;margin-bottom:5px;">${esc(m.titre)}</div>` : ''}<span id="${id}"></span></div>` };
+}
+
+// Messages "parlés" par Sandy (jamais les réponses du membre, instantanées).
+function _coachIsSandyMsg(m) {
+  return !!m && ['systeme', 'question', 'lecon', 'defi', 'radar', 'bilan'].includes(m.type);
+}
+
+// opts.streamLast = true → le tout dernier message (s'il est de Sandy) est
+// affiché vide puis animé mot par mot ; les boutons/interact n'apparaissent
+// qu'une fois l'écriture terminée (re-rendu final "settle"). Retourne une
+// Promise pour permettre aux appelants d'enchaîner proprement (dots, insert
+// suivant) après la fin réelle de l'animation.
+function _coachRenderThread(opts) {
+  opts = opts || {};
+  const list = document.getElementById('dm-messages-list');
+  if (!list) return Promise.resolve();
   const p = _coachState.profil;
+  const msgs = _coachState.msgs;
+  const lastMsg = msgs[msgs.length - 1];
+  const doStream = !!opts.streamLast && !_coachReduceMotion() && _coachIsSandyMsg(lastMsg);
+  const streamIdx = doStream ? msgs.length - 1 : -1;
+  let shellId = null;
   let interact = '';
 
-  if (_coachState.step === 'q1' || _coachState.step === 'q2' || _coachState.step === 'q3' || _coachState.step === 'q4') {
+  // Pendant le streaming ET pendant l'état transitoire '_wait' (bulle "Sandy
+  // réfléchit" entre la réponse du membre et la question suivante), aucun
+  // bouton ne doit être visible.
+  const showControls = !doStream && _coachState.step !== '_wait';
+  const isQStep = _coachState.step === 'q1' || _coachState.step === 'q2' || _coachState.step === 'q3' || _coachState.step === 'q4';
+  if (showControls && isQStep) {
     const node = _coachState.step === 'q1' ? _COACH_TREE.q1
       : _coachState.step === 'q4' ? _COACH_TREE.q4
       : _COACH_TREE[_coachState.step][_coachState.answers.objectif];
     interact = _coachOptButtons(node.opts, 'wzCoachAnswer');
-  } else if (_coachState.step === 'libre') {
+  } else if (showControls && _coachState.step === 'libre') {
+    // Composer texte seul (voix Sandy coupée — décision fondateur). Le
+    // système vocal générique (startVocalRec/stopVocalRec/wzCoachFreeSendVocal)
+    // reste dans le code pour les autres usages (stories, avis vocaux),
+    // simplement plus jamais invoqué depuis l'UI de Sandy.
     interact = `
-      <div id="coach-vocal-idle" style="display:flex;gap:8px;align-items:center;">
-        <textarea id="coach-libre-input" rows="2" placeholder="Écris ici… ou appuie sur le micro et parle" style="flex:1;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:11px 14px;color:#FCE0A8;font-size:13.5px;font-family:inherit;resize:none;"></textarea>
-        <button onclick="startVocalRec('coach', 60)" aria-label="Parler" style="width:44px;height:44px;border-radius:50%;background:#E8940A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14100A" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-        </button>
-      </div>
-      <div id="coach-vocal-rec" style="display:none;align-items:center;gap:10px;background:#1E180E;border:1px solid rgba(232,148,10,.4);border-radius:14px;padding:11px 14px;">
-        <span style="width:9px;height:9px;border-radius:50%;background:#f87171;animation:pulse 1s infinite;"></span>
-        <span id="coach-vocal-timer" style="font-family:'Geist Mono',monospace;font-size:12px;color:#FCE0A8;flex:1;">0:00 / 1:00</span>
-        <button onclick="stopVocalRec('coach')" style="background:#E8940A;color:#14100A;border:none;border-radius:100px;padding:8px 16px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;">■ Terminer</button>
-      </div>
-      <div id="coach-vocal-done" style="display:none;flex-direction:column;gap:8px;">
-        <div id="coach-vocal-player"></div>
-        <div style="display:flex;gap:8px;">
-          <button onclick="resetVocalRec('coach')" style="flex:1;background:none;border:1px dashed rgba(255,255,255,.2);color:rgba(252,224,168,.5);border-radius:12px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;">Recommencer</button>
-          <button onclick="wzCoachFreeSendVocal()" style="flex:1;background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:10px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit;">Envoyer le vocal</button>
-        </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <textarea id="coach-libre-input" rows="2" placeholder="Écris ici…" style="flex:1;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:11px 14px;color:#FCE0A8;font-size:13.5px;font-family:inherit;resize:none;"></textarea>
       </div>
       <div style="display:flex;gap:8px;margin-top:8px;">
         <button onclick="wzCoachFreeSendText()" style="flex:1;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:11px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">Envoyer</button>
         <button onclick="wzCoachFinish()" style="flex:1;background:none;border:1px dashed rgba(255,255,255,.18);color:rgba(252,224,168,.5);border-radius:13px;padding:11px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Terminer</button>
       </div>`;
-  } else if (!p || p.questionnaire_etat === 'a_faire') {
+  } else if (showControls && (!p || p.questionnaire_etat === 'a_faire')) {
     interact = _coachOptButtons([{ k: 'go', l: "C'est parti →" }], 'wzCoachStart')
       + `<div style="padding:2px;"><button onclick="wzCoachLater()" style="width:100%;background:none;border:1.5px dashed rgba(255,255,255,.18);color:rgba(252,224,168,.5);border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:600;text-align:left;font-family:inherit;cursor:pointer;">Plus tard</button></div>`;
-  } else if (p.questionnaire_etat === 'passe') {
+  } else if (showControls && p.questionnaire_etat === 'passe') {
     interact = `<div style="padding:2px;margin-bottom:8px;"><button onclick="wzCoachStart('go')" style="width:100%;background:rgba(232,148,10,.09);border:1.5px solid rgba(232,148,10,.45);color:#FCE0A8;border-radius:13px;padding:12px 15px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;">Répondre aux 4 questions de Sandy</button></div>`
       + _coachChatComposer();
-  } else {
+  } else if (showControls) {
     // Questionnaire fait : la conversation libre (Pro) ou le verrou (gratuit au moment d'envoyer)
     interact = _coachChatComposer();
   }
+  // !showControls (streaming en cours, ou état transitoire '_wait') : interact reste vide, pas de boutons.
+
+  const bubblesHtml = msgs.map((m, i) => {
+    if (i === streamIdx) {
+      const shell = _coachBubbleShell(m, i);
+      shellId = shell.id;
+      return shell.html;
+    }
+    return _coachBubble(m);
+  }).join('');
 
   list.innerHTML = `<div style="display:flex;flex-direction:column;gap:2px;padding:6px 2px;">`
-    + _coachState.msgs.map(_coachBubble).join('')
+    + bubblesHtml
     + `</div><div id="wz-coach-interact" style="padding:8px 2px 16px;">${interact}</div>`;
   list.scrollTop = list.scrollHeight;
+
+  if (!doStream) return Promise.resolve();
+
+  const el = document.getElementById(shellId);
+  return _coachStreamMsg(el, lastMsg.corps || '').then(() => _coachRenderThread());
 }
 
 // ── Conversation libre avec Sandy (Pro) ──
@@ -6723,8 +6827,19 @@ async function wzCoachChatSend() {
     const typing = document.getElementById('coach-typing');
     if (data?.ok && data.reponse) {
       const badge = !pro ? _coachDiagnosticBadge(data.diagnostic) : '';
-      if (typing) typing.outerHTML = _coachBubble({ type: 'chat', corps: data.reponse }) + badge;
       _coachState.msgs.push({ type: 'reponse_membre', corps: question }, { type: 'chat', corps: data.reponse });
+      if (typing) {
+        // Réponse déjà en base/en mémoire : le texte s'écrit progressivement,
+        // exactement comme les messages du questionnaire.
+        const shell = _coachBubbleShell({ type: 'chat', corps: data.reponse }, 'chat-' + Date.now());
+        typing.outerHTML = shell.html;
+        const el = document.getElementById(shell.id);
+        await _coachStreamMsg(el, data.reponse);
+        if (badge) {
+          const z0 = document.getElementById('dm-messages-list')?.querySelector('div');
+          if (z0) z0.insertAdjacentHTML('beforeend', badge);
+        }
+      }
       // Diagnostic gratuit conclu par Sandy elle-même (closing livré) :
       // le verrou Pro apparaît à la suite, sans autre appel serveur.
       if (!pro && data.diagnostic?.termine) {
@@ -6773,21 +6888,31 @@ async function _loadCoachThread() {
       supa.from('wozali_coach_messages').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: true }).limit(200),
     ]);
     _coachState = { profil, msgs: msgs || [], step: null, answers: {} };
+    const isFirstEver = !_coachState.msgs.length;
 
     // Premier passage : Sandy se présente (messages persistés une seule fois)
-    if (!_coachState.msgs.length) {
+    if (isFirstEver) {
       const prenom = _coachPrenom();
       const f = window.currentPrestataire?.fields || {};
-      const metier = (f['Métier principal'] || '').toLowerCase();
+      // Métier : on ne le nomme que s'il est renseigné ET pas générique
+      // ("Autre", "Autre (préciser...)"), sinon on dit "avec ton travail".
+      const metierRaw = (f['Métier principal'] || '').trim();
+      const metierBas = metierRaw.toLowerCase();
+      const metierUtile = metierRaw && !metierBas.startsWith('autre') && !metierBas.includes('précis') && !metierBas.includes('precis');
+      const avecMetier = metierUtile ? ' avec ton métier de ' + metierBas : ' avec ton travail';
       await _coachInsertMsg({ type: 'systeme', corps:
-        `Salut${prenom ? ' ' + prenom : ''} 👋🏾\n\nMoi c'est Sandy, ta coach business sur WOZALI. Je suis un agent IA, pas une humaine. J'ai été entraînée sur le commerce du Togo et du Bénin, donc je connais ton marché.\n\nMon travail : t'aider à faire rentrer plus d'argent${metier ? ' avec ton métier de ' + metier : ' avec ton travail'}.\n\nJ'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.` });
+        `Salut${prenom ? ' ' + prenom : ''} 👋🏾\n\nMoi c'est Sandy, ta coach business sur WOZALI. Je suis un agent IA, pas une humaine. J'ai été entraînée sur le commerce du Togo et du Bénin, donc je connais ton marché.\n\nUne chose tout de suite : je te parle seulement ici, dans ton compte. Je ne te demanderai jamais de code, jamais d'argent, jamais de transfert. Si un message te demande ça au nom de WOZALI, bloque-le.\n\nMon travail : t'aider à faire rentrer plus d'argent${avecMetier}. J'analyse ton profil, tes visites, tes clients. Et chaque jour, je te montre UNE chose précise à faire pour avancer.` });
+      await _coachRenderThread({ streamLast: true });
+      await _coachThinkDots(800 + Math.floor(Math.random() * 500));
       await _coachInsertMsg({ type: 'systeme', corps:
         "Avant de commencer, j'ai 4 petites questions pour te connaître. Tu réponds juste en appuyant sur un bouton. Ça prend 1 minute." });
     }
 
     // Marquer lu
     supa.from('wozali_coach_messages').update({ lu: true }).eq('user_id', currentUser.id).eq('lu', false).then(() => { _loadCoachPreview(); }, () => {});
-    _coachRenderThread();
+    // Premier passage : la 2e ligne de bienvenue s'écrit aussi progressivement.
+    // Rechargements suivants (historique déjà en base) : affichage instantané normal.
+    await _coachRenderThread(isFirstEver ? { streamLast: true } : undefined);
   } catch (e) {
     list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.4);font-size:13px;">Impossible de charger le Coach. Vérifie ta connexion et réessaie.</div>';
   }
@@ -6798,14 +6923,31 @@ async function wzCoachStart() {
   await _coachUpsertProfil({ questionnaire_etat: 'a_faire' });
   _coachState.step = 'q1';
   await _coachInsertMsg({ type: 'question', titre: 'Question 1 sur 4', corps: _COACH_TREE.q1.question });
-  _coachRenderThread();
+  await _coachRenderThread({ streamLast: true });
 }
 
 async function wzCoachLater() {
   await _coachUpsertProfil({ questionnaire_etat: 'passe' });
   await _coachInsertMsg({ type: 'systeme', corps: "Pas de souci. Je suis là quand tu veux. En attendant, je continue d'observer ton profil et je te donnerai quand même mes conseils." });
   _coachState.step = null;
-  _coachRenderThread();
+  await _coachRenderThread({ streamLast: true });
+}
+
+// Bulle "Sandy réfléchit" (3 points) affichée entre la réponse du membre et
+// la question suivante, pour que l'échange respire (pas d'enchaînement sec).
+function _coachThinkDots(ms) {
+  return new Promise((resolve) => {
+    const list = document.getElementById('dm-messages-list');
+    const zone = list ? list.querySelector('div') : null;
+    if (!zone) { resolve(); return; }
+    const el = document.createElement('div');
+    el.id = 'coach-q-typing';
+    el.style.cssText = 'align-self:flex-start;background:#1E180E;border:1px solid rgba(232,148,10,.18);border-radius:16px;border-bottom-left-radius:5px;padding:13px 18px;margin:4px 0;display:inline-flex;gap:5px;align-items:center;';
+    el.innerHTML = ['0s', '.18s', '.36s'].map(d => `<span style="width:7px;height:7px;border-radius:50%;background:rgba(252,224,168,.55);animation:pulse 1.1s infinite ${d};"></span>`).join('');
+    zone.appendChild(el);
+    if (list) list.scrollTop = list.scrollHeight;
+    setTimeout(resolve, ms); // le prochain rendu du thread retire ce noeud
+  });
 }
 
 async function wzCoachAnswer(key) {
@@ -6814,6 +6956,12 @@ async function wzCoachAnswer(key) {
   const opt = (node.opts || []).find(o => o.k === key);
   if (!opt) return;
   await _coachInsertMsg({ type: 'reponse_membre', corps: opt.l });
+
+  // Le membre voit son choix, les boutons disparaissent, Sandy "réfléchit"
+  // 1,5 à 2,6 secondes avant de poser la suite.
+  _coachState.step = '_wait';
+  _coachRenderThread();
+  await _coachThinkDots(1500 + Math.floor(Math.random() * 1100));
 
   if (step === 'q1') {
     _coachState.answers.objectif = key;
@@ -6828,18 +6976,21 @@ async function wzCoachAnswer(key) {
     _coachState.step = 'q4';
     await _coachInsertMsg({ type: 'question', titre: 'Question 4 sur 4', corps: _COACH_TREE.q4.question });
   } else if (step === 'q4') {
-    _coachState.answers.audio = (key === 'ecouter');
+    // Réponse gardée en mémoire de session (personnalisation immédiate des
+    // leçons). Pas encore persistée en base : nécessite une colonne dédiée
+    // (ex. type_clientele) sur wozali_coach_profil — signalé au fondateur,
+    // pas ajoutée ici pour ne pas risquer de casser l'upsert existant.
+    _coachState.answers.clientele = key;
     await _coachUpsertProfil({
       objectif: _coachState.answers.objectif,
       blocage: _coachState.answers.blocage,
       canal: _coachState.answers.canal,
-      prefere_audio: _coachState.answers.audio,
       questionnaire_etat: 'fait',
     });
     _coachState.step = 'libre';
-    await _coachInsertMsg({ type: 'systeme', corps: "Une dernière chose.\n\nSi tu as un besoin précis que je ne t'ai pas demandé, dis-le moi ici. Écris une phrase claire, ou appuie sur le micro et parle.\n\nSinon, appuie sur Terminer." });
+    await _coachInsertMsg({ type: 'systeme', corps: "Une dernière chose.\n\nSi tu as un besoin précis que je ne t'ai pas demandé, dis-le moi ici. Écris une phrase claire.\n\nSinon, appuie sur Terminer." });
   }
-  _coachRenderThread();
+  await _coachRenderThread({ streamLast: true });
 }
 
 // ── Champ libre (texte ou vocal) ──
@@ -6866,6 +7017,15 @@ async function wzCoachFreeSendVocal() {
   }
 }
 
+// Un membre a au moins une photo de réalisation dès qu'un des 3 slots est
+// rempli (Airtable = [{url}], Supabase = string brute — _wPhotoUrl gère
+// les deux formats). Avant, seuls les slots 1 et 2 étaient vérifiés : un
+// membre avec UNIQUEMENT une photo au slot 3 se voyait donc à tort dire
+// qu'il n'avait "pas encore de photos de son travail".
+function _wCoachHasRealisationPhoto(f) {
+  return !!(_wPhotoUrl(f['Photo Réalisation 1']) || _wPhotoUrl(f['Photo Réalisation 2']) || _wPhotoUrl(f['Photo Réalisation 3']));
+}
+
 // ── Reformulation + première leçon IMMÉDIATE ──
 async function wzCoachFinish(hadNote) {
   _coachState.step = null;
@@ -6874,6 +7034,8 @@ async function wzCoachFinish(hadNote) {
   };
   if (hadNote) {
     await _coachInsertMsg({ type: 'systeme', corps: "C'est noté. On va commencer par ce qui dépend de toi ici : ton business." });
+    await _coachRenderThread({ streamLast: true });
+    await _coachThinkDots(900 + Math.floor(Math.random() * 500));
   }
   const prenom = _coachPrenom();
   const objLabel = (_COACH_TREE.q1.opts.find(o => o.k === a.objectif) || {}).l || '';
@@ -6882,17 +7044,19 @@ async function wzCoachFinish(hadNote) {
   const plan = _COACH_PLANS[a.objectif] || _COACH_PLANS.clients;
   await _coachInsertMsg({ type: 'systeme', corps:
     `OK${prenom ? ' ' + prenom : ''}. Je résume :\n\n🎯 Ton objectif : ${objLabel.toLowerCase() || 'avancer'}.${blocLabel ? '\n🧱 Ton blocage : ' + blocLabel.toLowerCase() + '.' : ''}\n\nVoilà mon plan pour toi :\n\n${plan}\n\nEt on commence tout de suite.` });
+  await _coachRenderThread({ streamLast: true });
+  await _coachThinkDots(1200 + Math.floor(Math.random() * 600));
 
   // Première leçon choisie par SES données (jamais "demain matin")
   const f = window.currentPrestataire?.fields || {};
   let key = 'statut_jour';
-  if (!f['Photo Réalisation 1'] && !f['Photo Réalisation 2']) key = 'photos';
+  if (!_wCoachHasRealisationPhoto(f)) key = 'photos';
   else if (!f['Tarif minimum FCFA'] && !f['Tarif maximum FCFA']) key = 'tarifs';
   else if (!f['Latitude']) key = 'gps';
   const lecon = _COACH_STARTER_LECONS[key];
   await _coachInsertMsg({ type: 'lecon', lecon_key: key, titre: lecon.titre, corps: lecon.corps, cta_label: lecon.cta, cta_target: lecon.target });
   await _coachUpsertProfil({ derniere_lecon_at: new Date().toISOString() });
-  _coachRenderThread();
+  await _coachRenderThread({ streamLast: true });
 }
 
 // ── CTA d'une leçon : action faite + deep link ──
@@ -6916,6 +7080,9 @@ async function _loadCoachPreview() {
     if (!last || !last.length) {
       if (preview) preview.textContent = 'Agent IA, répond tout de suite';
       if (badge) { badge.style.display = 'inline-flex'; badge.textContent = '1'; }
+      // Pas de vrai message non lu : on ne met pas de point sur la nav
+      // (le "1" ci-dessus est une invitation à découvrir Sandy, pas un non-lu).
+      window._coachUnread = 0; try { _applyNotifBadge(); } catch(e){}
       return;
     }
     const m = last[0];
@@ -6926,6 +7093,8 @@ async function _loadCoachPreview() {
       badge.style.display = unread > 0 ? 'inline-flex' : 'none';
       badge.textContent = unread > 9 ? '9+' : String(unread);
     }
+    // Remonter les non-lus de Sandy au badge de la nav (Messages)
+    window._coachUnread = unread; try { _applyNotifBadge(); } catch(e){}
   } catch (e) {}
 }
 
