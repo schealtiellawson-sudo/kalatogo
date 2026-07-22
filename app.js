@@ -6674,18 +6674,27 @@ function _coachChatComposer() {
     </div>`;
 }
 
-// Verrou Pro (écran 8 de la maquette) : la question s'affiche, la
-// réponse floutée derrière le CTA Passer Pro.
+// Verrou Pro (écran 8 de la maquette) : s'affiche UNE FOIS le
+// diagnostic gratuit du mois consommé (jamais avant, jamais en plein
+// milieu d'un échange). La question posée reste visible au-dessus.
 function _coachProLock(question) {
   return `
-    <div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${escapeHtml(question)}</div>
+    ${question ? `<div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${escapeHtml(question)}</div>` : ''}
     <div style="align-self:stretch;background:#1E180E;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:18px 16px;text-align:center;margin:4px 0;">
-      <div style="filter:blur(4px);opacity:.55;font-size:13px;line-height:1.6;text-align:left;margin-bottom:14px;color:rgba(252,224,168,.8);">Bonne question. J'ai regardé tes données : tes visites de la semaine, tes demandes, ce qui manque encore sur ton profil. En général ça vient de trois choses, et chez toi je vois surtout que…</div>
-      <div style="font-size:14.5px;color:#FCE0A8;font-weight:800;margin-bottom:6px;">Sandy a la réponse. Elle est dans tes données.</div>
+      <div style="font-size:14.5px;color:#FCE0A8;font-weight:800;margin-bottom:6px;">Ton diagnostic gratuit du mois est fait.</div>
       <p style="font-size:12.5px;color:rgba(252,224,168,.6);margin:0 0 14px;line-height:1.5;">Avec Pro, tu discutes avec Sandy quand tu veux : tu poses TES questions, elle analyse TES chiffres et te répond tout de suite.</p>
       <button onclick="showDashSection('abonnement')" style="background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:13.5px;font-family:inherit;cursor:pointer;">Passer Pro et discuter avec Sandy</button>
       <div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.4);margin-top:8px;">2 500 FCFA / mois</div>
     </div>`;
+}
+
+// Compteur discret du diagnostic gratuit (non anxiogène : affiché
+// seulement en dessous de 5 messages restants).
+function _coachDiagnosticBadge(diagnostic) {
+  if (!diagnostic || diagnostic.termine) return '';
+  if (diagnostic.restant > 4) return '';
+  const mot = diagnostic.restant <= 1 ? 'dernier message' : `${diagnostic.restant} messages`;
+  return `<div style="text-align:center;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.5px;color:rgba(252,224,168,.4);margin:6px 0 2px;">${mot} dans ton diagnostic gratuit ce mois-ci</div>`;
 }
 
 async function wzCoachChatSend() {
@@ -6694,16 +6703,9 @@ async function wzCoachChatSend() {
   if (!question) { input?.focus(); return; }
   const list = document.getElementById('dm-messages-list');
   const zone = list?.querySelector('div'); // conteneur des bulles
+  const pro = isProUser();
 
-  // Gratuit : le verrou s'affiche à la place de la réponse (aucun appel serveur)
-  if (!isProUser()) {
-    if (zone) { zone.insertAdjacentHTML('beforeend', _coachProLock(question)); }
-    if (input) input.value = '';
-    if (list) list.scrollTop = list.scrollHeight;
-    return;
-  }
-
-  // Pro : bulle optimiste + appel Sandy
+  // Bulle optimiste + appel Sandy (gratuit = diagnostic, Pro = continu)
   if (zone) {
     zone.insertAdjacentHTML('beforeend',
       `<div style="align-self:flex-end;max-width:86%;background:#E8940A;color:#14100A;font-weight:700;border-radius:16px;border-bottom-right-radius:5px;padding:11px 14px;font-size:13.5px;line-height:1.55;margin:4px 0;">${escapeHtml(question)}</div>
@@ -6720,14 +6722,22 @@ async function wzCoachChatSend() {
     const data = await r.json();
     const typing = document.getElementById('coach-typing');
     if (data?.ok && data.reponse) {
-      if (typing) typing.outerHTML = _coachBubble({ type: 'chat', corps: data.reponse });
+      const badge = !pro ? _coachDiagnosticBadge(data.diagnostic) : '';
+      if (typing) typing.outerHTML = _coachBubble({ type: 'chat', corps: data.reponse }) + badge;
       _coachState.msgs.push({ type: 'reponse_membre', corps: question }, { type: 'chat', corps: data.reponse });
+      // Diagnostic gratuit conclu par Sandy elle-même (closing livré) :
+      // le verrou Pro apparaît à la suite, sans autre appel serveur.
+      if (!pro && data.diagnostic?.termine) {
+        const z = document.getElementById('dm-messages-list')?.querySelector('div');
+        if (z) z.insertAdjacentHTML('beforeend', _coachProLock(''));
+      }
     } else if (r.status === 429) {
       if (typing) typing.textContent = data?.message || "On a beaucoup discuté aujourd'hui. Je reviens demain.";
-    } else if (r.status === 403) {
+    } else if (r.status === 403 && data?.error === 'diagnostic_termine') {
+      // Diagnostic déjà consommé plus tôt ce mois-ci (avant même l'appel IA)
       if (typing) typing.remove();
       const z = document.getElementById('dm-messages-list')?.querySelector('div');
-      if (z) z.insertAdjacentHTML('beforeend', _coachProLock(question));
+      if (z) z.insertAdjacentHTML('beforeend', _coachProLock(''));
     } else {
       if (typing) typing.textContent = 'Ça a calé. Réessaie dans quelques secondes.';
     }

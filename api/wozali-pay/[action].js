@@ -231,7 +231,7 @@ const handlers = {
   'health-metrics': healthMetrics,
   // Chat interne WOZALI — IA auto-reply + escalade fondateur (2026-05-20)
   // Un seul module gère les 4 actions, le router lui passe req.query.action
-  // Coach Sandy — conversation libre (Pro, vérifié serveur) (2026-07-17)
+  // Coach Sandy — diagnostic gratuit (1/mois) + conversation continue Pro (2026-07-17, diagnostic gratuit 2026-07-22)
   'coach-chat': coachChat,
   // Mur des témoignages anonymes (Chantier 8 Dignité, 2026-07-18)
   'temoignage-create': temoignages,

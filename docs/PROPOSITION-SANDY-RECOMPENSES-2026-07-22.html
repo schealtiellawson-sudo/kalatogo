@@ -1,0 +1,336 @@
+<meta charset="utf-8">
+<title>Sandy & Récompenses · Proposition et décisions · 22 juillet 2026</title>
+<style>
+  @page { size: A4; margin: 0; }
+  html { background:#14100A; }
+  :root{
+    --night-1:#14100A; --night-2:#1E180E; --night-3:#241D11;
+    --cream:#FCE0A8; --cream-dim:rgba(252,224,168,.74); --cream-faint:rgba(252,224,168,.5);
+    --or:#E8940A; --crit:#F87171; --go:#7BA05B;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--night-1);color:var(--cream);
+    font-family:"Geist","Helvetica Neue",Arial,sans-serif;font-size:10.5pt;line-height:1.62;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{padding:16mm 15mm 18mm;min-height:297mm}
+  .brk{break-before:page;page-break-before:always}
+  .avoid{break-inside:avoid;page-break-inside:avoid}
+  h1{font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:30pt;line-height:1.08;margin:0 0 10px}
+  h1 em{color:var(--or);font-style:italic}
+  h2{font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:18pt;line-height:1.15;margin:26px 0 4px}
+  h2 em{color:var(--or);font-style:italic}
+  h3{font-weight:700;font-size:11.5pt;margin:18px 0 5px;color:var(--cream)}
+  p{margin:0 0 9px}
+  .eyebrow{font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:8pt;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--or);margin:0 0 12px;display:flex;align-items:center;gap:9px}
+  .eyebrow:before{content:"";width:26px;height:1px;background:var(--or)}
+  .lead{font-size:11.5pt;color:var(--cream-dim);line-height:1.7}
+  .muted{color:var(--cream-faint)}
+  strong{color:var(--cream);font-weight:700}
+  code{font-family:"Geist Mono",ui-monospace,monospace;font-size:8.6pt;color:var(--or);
+    background:rgba(232,148,10,.09);padding:1px 5px;border-radius:3px}
+  .cover{min-height:297mm;display:flex;flex-direction:column;justify-content:center;padding:0 18mm;
+    background:radial-gradient(ellipse 70% 55% at 85% 15%,rgba(232,148,10,.16),transparent 62%),var(--night-1)}
+  .logo{font-family:"DM Serif Display",Georgia,serif;font-size:22pt;letter-spacing:.06em}
+  .logo b{color:var(--or);font-style:italic;font-weight:400}
+  .rule{height:2px;width:60px;background:var(--or);margin:22px 0}
+  .meta{font-family:"Geist Mono",ui-monospace,monospace;font-size:8.4pt;color:var(--cream-faint);line-height:1.9}
+  .card{background:var(--night-2);border:1px solid rgba(232,148,10,.16);border-left:3px solid var(--or);
+    border-radius:9px;padding:14px 16px;margin:11px 0}
+  .card.crit{border-left-color:var(--crit)}
+  .card.go{border-left-color:var(--go)}
+  .card h3{margin-top:0}
+  .dec{background:var(--night-3);border:1px solid rgba(232,148,10,.3);border-radius:9px;padding:13px 16px;margin:11px 0}
+  .dec .tag{font-family:"Geist Mono",ui-monospace,monospace;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--or);display:block;margin-bottom:4px}
+  .dec b{color:var(--cream)}
+  ul{margin:0 0 10px;padding-left:17px}li{margin-bottom:5px;color:var(--cream-dim)}
+  li strong{color:var(--cream)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:9.4pt}
+  th{text-align:left;font-family:"Geist Mono",ui-monospace,monospace;font-size:7.6pt;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--or);border-bottom:1px solid rgba(232,148,10,.28);padding:6px 8px 6px 0}
+  td{padding:7px 8px 7px 0;border-bottom:1px solid rgba(252,224,168,.09);vertical-align:top;color:var(--cream-dim)}
+  td strong{color:var(--cream)}
+  .kpi{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
+  .kpi div{flex:1;min-width:120px;background:var(--night-2);border:1px solid rgba(232,148,10,.16);border-radius:8px;padding:12px 13px}
+  .kpi b{display:block;font-family:"DM Serif Display",Georgia,serif;font-size:22pt;color:var(--or);line-height:1}
+  .kpi span{font-family:"Geist Mono",ui-monospace,monospace;font-size:7.4pt;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-faint)}
+  .foot{margin-top:26px;padding-top:11px;border-top:1px solid rgba(232,148,10,.2);
+    font-family:"Geist Mono",ui-monospace,monospace;font-size:7.4pt;color:var(--cream-faint)}
+  .badge{display:inline-block;font-family:"Geist Mono",ui-monospace,monospace;font-size:7.2pt;letter-spacing:.08em;
+    text-transform:uppercase;padding:2px 7px;border-radius:100px;white-space:nowrap}
+  .b-crit{background:rgba(248,113,113,.15);color:var(--crit);border:1px solid rgba(248,113,113,.35)}
+  .b-keep{background:rgba(123,160,91,.15);color:var(--go);border:1px solid rgba(123,160,91,.35)}
+</style>
+
+<div class="cover">
+  <div class="logo">W<b>OZALI</b></div>
+  <div class="rule"></div>
+  <div class="eyebrow">Proposition interne · À valider avant tout code</div>
+  <h1>Sandy la closeuse,<br>et le partage <em>du salaire.</em></h1>
+  <p class="lead" style="max-width:120mm;margin-top:16px">
+    Deux chantiers, une même exigence : être efficace sans jamais ressembler à une arnaque, sur un marché
+    où tout gain promis par un inconnu déclenche le réflexe brouteur. Ce document présente la proposition,
+    les failles qu'un examen adverse a fait remonter, et les huit décisions qui te reviennent.
+  </p>
+  <div class="meta" style="margin-top:26px">
+    22 juillet 2026 · Version 1<br>
+    Sources : lecture du code Sandy (corpus, prompt, chat) · recherche web sourcée (SPIN, Sandler, Cialdini,
+    Eyal, marchés africains) · challenge adverse<br>
+    Aucune ligne de code écrite. Rien ne s'implémente sans ta validation.
+  </div>
+</div>
+
+<!-- ─────────── TENSIONS ─────────── -->
+<div class="page brk">
+  <div class="eyebrow">01 · Le terrain</div>
+  <h2>Deux vérités qui <em>commandent tout le reste.</em></h2>
+  <p class="lead">Avant de parler de scripts, deux faits de la recherche fixent les limites du possible. Les ignorer,
+  c'est construire une Sandy qui échoue.</p>
+
+  <div class="card go avoid">
+    <h3>Un · Décision fondateur : transparence structurelle, pas divulgation frontale</h3>
+    <p>Une étude terrain sur 6 200 clients (Luo, 2019, <em>Marketing Science</em>) mesure une chute de conversion
+    d'environ 80% dès qu'un agent <em>ouvre</em> en clamant être une intelligence artificielle. Face à cette donnée,
+    le fondateur a tranché : on lâche la règle stricte "Sandy annonce toujours qu'elle est une IA". La nouvelle règle,
+    la bonne, calquée sur GPT : <strong>la plateforme dit clairement que Sandy est une IA (transparence structurelle),
+    Sandy ne le répète pas à chaque message, et si on le lui demande elle répond sans détour, sans jamais se faire
+    passer pour une humaine ni nier sa nature.</strong> Sandy n'est plus handicapée, elle convertit par la compétence,
+    l'honnêteté reste intacte.</p>
+  </div>
+
+  <div class="card crit avoid">
+    <h3>Deux · Le pitch de Sandy a la forme exacte d'une arnaque</h3>
+    <p>Contact digital non sollicité, promesse de gain, demande de paiement : c'est le script du brouteur, documenté
+    par les alertes des ambassades US au Togo et au Bénin, connu de tout le monde ici. Un artisan reconnaît la
+    <em>structure</em> avant le contenu. Une Sandy qui pousse, qui crée de l'urgence, qui promet des gains,
+    <strong>déclenche le réflexe arnaque et tue la confiance, quelle que soit son honnêteté réelle.</strong></p>
+  </div>
+
+  <h3>La conclusion stratégique</h3>
+  <p>Sandy n'est plus freinée par son statut d'IA, mais la deuxième tension, elle, ne bouge pas : le pattern arnaque.
+  Sur ce marché, la meilleure closeuse n'est pas la plus insistante, c'est la plus crédible et la moins pressante.
+  Elle vend par la preuve locale vérifiable et par le retrait de pression (la recherche appelle ça le
+  <em>negative reverse selling</em> : "Pro, c'est pas obligatoire"), jamais par l'urgence. C'est ce point-là, pas
+  celui de l'IA, qui commande tout ce qui suit.</p>
+
+  <div class="kpi">
+    <div><b>−80%</b><span>Conversion si on dit "IA" (Luo 2019)</span></div>
+    <div><b>4×</b><span>Questions d'implication chez les meilleurs vendeurs (SPIN)</span></div>
+    <div><b>66%</b><span>Confiance interpersonnelle Afrique de l'Ouest, mais liée à la proximité</span></div>
+  </div>
+
+  <div class="foot">WOZALI · Sandy & Récompenses · 22 juillet 2026 · page 2</div>
+</div>
+
+<!-- ─────────── SANDY ─────────── -->
+<div class="page brk">
+  <div class="eyebrow">02 · Sandy</div>
+  <h2>Ce que le challenge <em>a cassé.</em></h2>
+  <p class="lead">Ma première proposition tenait sur trois idées fragiles. L'examen adverse les a démolies. Voici ce
+  qui ne passait pas.</p>
+
+  <div class="card crit avoid">
+    <h3><span class="badge b-crit">Cassé</span> &nbsp;Le free-tier à 3 messages par jour</h3>
+    <p>Il coupe l'artisan en plein milieu de la phase où il raconte ses problèmes d'argent. Ressenti :
+    "elle m'a posé des questions sur mes soucis, puis elle m'a coupé pour que je paie". De l'extorsion, pas du désir.
+    Et contournable en 30 secondes : ici, un artisan a deux ou trois SIM (MTN, Moov, TMoney, Flooz), il recrée un
+    compte et repart à zéro.</p>
+  </div>
+
+  <div class="card crit avoid">
+    <h3><span class="badge b-crit">Cassé</span> &nbsp;Le closing d'une IA qui dit être une IA</h3>
+    <p>Ma proposition espérait que "l'honnêteté" compense les −80%. L'honnêteté est une contrainte éthique, pas une
+    stratégie de conversion. Rien dans le protocole n'expliquait <em>comment</em> Sandy regagne ce terrain. Il manque
+    deux mécanismes concrets : une <strong>preuve vérifiable par l'artisan en 5 secondes</strong>, et un
+    <strong>relais humain proposé au moment du doute</strong>, pas seulement en cas de litige d'argent.</p>
+  </div>
+
+  <div class="card crit avoid">
+    <h3><span class="badge b-crit">Cassé</span> &nbsp;La collecte de données sans déclaration APDP</h3>
+    <p>Sandy collecte métier, localisation, situation financière, habitudes : c'est du profilage économique individuel
+    par IA, et WOZALI détient la donnée en clair côté serveur. Ta déclaration APDP / IPDCP est en attente depuis
+    juillet. Déployer cette collecte avant la déclaration ajoute un risque légal sur un chantier déjà ouvert.</p>
+  </div>
+
+  <h3>L'objection qui manquait, et c'est la plus grave</h3>
+  <p>Ma liste des cinq objections oubliait la première de ce marché : <strong>"comment je sais que c'est vraiment
+  WOZALI et pas un pirate qui imite l'appli ?"</strong> Le phishing mobile money est endémique (faux agents MTN,
+  faux SMS Flooz). L'objection de légitimité passe avant "ça ressemble à une arnaque". Elle doit être neutralisée au
+  tout premier message.</p>
+
+  <div class="foot">WOZALI · Sandy & Récompenses · 22 juillet 2026 · page 3</div>
+</div>
+
+<div class="page brk">
+  <div class="eyebrow">02 · Sandy</div>
+  <h2>La proposition <em>corrigée.</em></h2>
+
+  <div class="card go avoid">
+    <h3>Le protocole en 4 phases, réordonné</h3>
+    <table>
+      <tr><th style="width:22%">Phase</th><th style="width:78%">Ce que Sandy fait</th></tr>
+      <tr><td><strong>0 · Légitimité</strong></td><td>Avant toute question : elle établit qu'elle est bien WOZALI (elle vit dans l'appli où l'artisan est déjà connecté, jamais de lien externe, jamais de demande de code ou mot de passe) et neutralise l'arnaque d'entrée. C'est la phase que ma première version oubliait.</td></tr>
+      <tr><td><strong>1 · Découverte</strong></td><td>Questions de situation puis de problème (SPIN). Réciprocité stricte : jamais plus d'une question sensible sans d'abord donner un conseil concret et utile en retour.</td></tr>
+      <tr><td><strong>2 · Ancrage</strong></td><td>L'artisan nomme lui-même sa perte, l'argent qui ne circule pas. Sandy approfondit par des questions, jamais par des affirmations.</td></tr>
+      <tr><td><strong>3 · Solution</strong></td><td>Un insight vrai et vérifiable sur son propre profil (pas un chiffre abstrait). Preuve par un cas concret consultable, pas un agrégat anonyme. Prix annoncé tôt et clair.</td></tr>
+      <tr><td><strong>4 · Closing</strong></td><td>L'artisan formule le bénéfice, porte de sortie toujours ouverte, et au moindre doute exprimé, un vrai humain WOZALI joignable en un clic.</td></tr>
+    </table>
+  </div>
+
+  <h3>Le free-tier, refait</h3>
+  <p>On abandonne les 3 messages par jour. À la place : <strong>un diagnostic complet gratuit, mené de bout en bout,
+  jamais coupé en plein flux.</strong> La valeur est livrée en entier. La bascule Pro se fait au bon moment, une fois
+  le diagnostic terminé : "ton diagnostic est fait, pour qu'on en parle quand tu veux, c'est le Pro." Le conseil du
+  jour gratuit continue par ailleurs. Budget zéro, inchangé.</p>
+
+  <h3>Sur la preuve sociale au lancement</h3>
+  <p>Le challenge a raison : au démarrage, citer "4 artisans de ton métier sont Pro" fait l'effet inverse, ça paraît
+  louche. Tant que les nombres sont petits, Sandy ne cite <strong>aucun chiffre</strong> et montre <strong>un seul cas
+  réel</strong> consultable. On rebranche les nombres quand ils deviennent impressionnants.</p>
+
+  <div class="foot">WOZALI · Sandy & Récompenses · 22 juillet 2026 · page 4</div>
+</div>
+
+<div class="page brk">
+  <div class="eyebrow">02 · Sandy · décisions</div>
+  <h2>Ce que tu dois <em>trancher.</em></h2>
+
+  <div class="dec avoid"><span class="tag">Décision 1 · Free-tier</span>
+    <p><b>Un diagnostic complet gratuit</b> (jamais coupé), au lieu de 3 messages par jour. Le conseil du jour gratuit
+    continue. Le chat illimité reste réservé au Pro.</p></div>
+
+  <div class="dec avoid"><span class="tag">Décision 2 · Ordre de conversation</span>
+    <p>Sandy <b>établit sa légitimité et désamorce l'arnaque d'abord</b>, pose ses questions ensuite, et donne toujours
+    quelque chose avant de demander. Jamais d'urgence fabriquée.</p></div>
+
+  <div class="dec avoid"><span class="tag">Décision 3 · Preuve</span>
+    <p>Preuve par <b>un cas réel consultable</b>, pas par un chiffre agrégé. Zéro nombre cité tant que les nombres sont
+    petits.</p></div>
+
+  <div class="dec avoid"><span class="tag">Décision 4 · Prérequis légal · bloquant</span>
+    <p>La collecte conversationnelle de Sandy ne se déploie pas <b>avant que tu aies avancé la déclaration APDP / IPDCP</b>.
+    Le protocole peut s'écrire et se tester, mais la mise en ligne attend ce feu vert. Je te le pose comme un blocage
+    assumé, pas comme un détail.</p></div>
+
+  <h3>Les 6 scripts, une fois le concept validé</h3>
+  <p class="muted">Écrits seulement après ton accord sur les décisions ci-dessus, pour ne pas rédiger six scripts qui
+  seraient à refaire. Cadrage retenu grâce au challenge :</p>
+  <ul>
+    <li><strong>Accueil</strong> : légitimité et anti-arnaque dès le premier message.</li>
+    <li><strong>Relance J7 / J30</strong> : un nouvel angle à chaque fois, jamais le même refrain.</li>
+    <li><strong>Closing Pro</strong> : le flux des 4 phases, avec relais humain au doute.</li>
+    <li><strong>Objections</strong> : "c'est vraiment WOZALI ?" (nouvelle, en premier), "j'ai pas l'argent", "pas sûr que ça marche", "ça ressemble à une arnaque" (anticipée dès l'accueil), "je vais réfléchir" (refus poli, relance J+2 à J+3). L'objection "je préfère WhatsApp" est traitée en amont comme un positionnement, pas au closing.</li>
+    <li><strong>Affiliation</strong> : le gain calculé en direct, honnêtement, sans promesse.</li>
+    <li><strong>Push recrutement et partage</strong> : bénéfice concret, sans forcing.</li>
+  </ul>
+
+  <div class="foot">WOZALI · Sandy & Récompenses · 22 juillet 2026 · page 5</div>
+</div>
+
+<!-- ─────────── RÉCOMPENSES ─────────── -->
+<div class="page brk">
+  <div class="eyebrow">03 · Récompenses</div>
+  <h2>Le chiffre que je t'avais <em>mal donné.</em></h2>
+  <p class="lead">Je t'avais dit que récompenser coûte 4,2% du chiffre d'affaires. C'est faux, et le challenge a eu
+  raison de le casser. Ce 4,2% est calculé sur le CA brut, un chiffre qui n'existe pas dans ta poche.</p>
+
+  <table>
+    <tr><th style="width:55%">Ce qu'on retire du CA brut</th><th style="width:45%">Effet</th></tr>
+    <tr><td><strong>Commission des agents terrain</strong> (~50% du CA Pro qu'ils amènent)</td><td>Le poste le plus lourd</td></tr>
+    <tr><td>Frais mobile money / FedaPay, à l'entrée <em>et</em> à la sortie du salaire versé</td><td>1,5 à 3% deux fois</td></tr>
+    <tr><td>Churn mensuel (2 500 FCFA = 4 à 5% du revenu d'un artisan)</td><td>10 à 15% à réacquérir en continu</td></tr>
+    <tr><td>Échecs de prélèvement en zone à connexion variable</td><td>5 à 10% par cycle</td></tr>
+  </table>
+
+  <div class="card crit avoid">
+    <h3>Le vrai chiffre</h3>
+    <p>À 5 000 Pro par pays, le CA brut est de 12,5M FCFA, mais le CA <strong>net réellement disponible</strong> tourne
+    plutôt autour de 5 à 6M. Sur cette base, verser un salaire à dix gagnants ne coûte plus 4,2% mais
+    <strong>9 à 10% du net</strong>. C'est encore soutenable, la Bourse reste auto-financée par les Pro, mais on calibre
+    le montant sur le net, pas sur le rêve.</p>
+  </div>
+
+  <h3>Le mérite garde une faille, mais le hasard n'est pas la réponse</h3>
+  <p>Le challenge pointe un vrai défaut du mérite pur : les 4 990 qui voient dès le 15 du mois qu'ils sont hors du
+  top 10 décrochent. Le hasard, lui, garde l'espoir de tous jusqu'au bout. Mais revenir au tirage au sort te ferait
+  trois torts d'un coup : incohérence avec ta marque ("le Score, c'est ton travail, pas tes contacts"), risque
+  réglementaire de loterie, et démotivation ("pourquoi bien travailler si c'est au hasard ?"). La bonne réponse n'est
+  pas le hasard, c'est <strong>de donner une raison de continuer à celui qui n'est pas dans le top 10.</strong></p>
+
+  <div class="foot">WOZALI · Sandy & Récompenses · 22 juillet 2026 · page 6</div>
+</div>
+
+<div class="page brk">
+  <div class="eyebrow">03 · Récompenses · proposition</div>
+  <h2>Mérite, paliers, <em>et un badge pour le milieu.</em></h2>
+
+  <div class="card go avoid">
+    <h3>Ce qu'on garde de ton idée</h3>
+    <p>Ta mécanique de <strong>paliers progressifs</strong> est juste : plus le pays compte de Pro, plus il y a de
+    gagnants, sans limite. "Plus on est nombreux, plus il y a de gagnants" est un excellent message de partage. On la
+    garde entièrement. On remplace juste le moteur : <strong>le mérite, pas le hasard.</strong></p>
+  </div>
+
+  <h3>Trois ajouts qui répondent au challenge</h3>
+  <div class="card avoid">
+    <p><strong>1 · Des paliers intermédiaires.</strong> Attendre 5 000 Pro pour débloquer la première Bourse peut
+    prendre trois à six mois. Un artisan qui paie au lancement ne voit aucune récompense dans sa fenêtre de décision.
+    On ajoute des seuils plus tôt (par exemple 1 000, puis 2 500, puis 5 000) avec un nombre de gagnants qui grandit,
+    pour qu'une gratification existe dès les premières semaines et qu'on ait toujours un "prochain palier" à viser.</p>
+  </div>
+  <div class="card avoid">
+    <p><strong>2 · Un badge public pour le milieu de classement.</strong> Le cash reste pour le top 10 (un salaire).
+    Mais un badge "Top 50 du mois" affiché sur le profil, visible par les clients, donne une raison de se battre à
+    ceux qui ne seront jamais dans les dix premiers. Valeur économique réelle (plus de clients), coût pour WOZALI
+    proche de zéro. C'est ça qui retient les 4 990.</p>
+  </div>
+  <div class="card avoid">
+    <p><strong>3 · Zéro hasard nulle part.</strong> Même pour départager deux ex-aequo, on utilise un critère
+    déterministe (ancienneté, date du premier avis), jamais un tirage. Ça garde le système à 100% mérite et écarte
+    tout risque de qualification en loterie, un chantier réglementaire qu'on n'ouvre pas en plus de l'APDP.</p>
+  </div>
+
+  <div class="dec avoid"><span class="tag">Décision 5 · Moteur</span>
+    <p><b>Mérite, pas hasard.</b> On refuse le tirage au sort, on garde le classement au mérite déjà en prod.</p></div>
+  <div class="dec avoid"><span class="tag">Décision 6 · Paliers</span>
+    <p><b>Ajouter des paliers intermédiaires</b> (1 000 / 2 500 / 5 000) pour une première récompense plus tôt.</p></div>
+  <div class="dec avoid"><span class="tag">Décision 7 · Milieu de classement</span>
+    <p><b>Un badge public "Top 50"</b> en plus du cash pour le top 10, pour retenir ceux qui ne gagnent pas d'argent.</p></div>
+  <div class="dec avoid"><span class="tag">Décision 8 · Montant</span>
+    <p><b>Calibrer le salaire versé sur le CA net</b> (5 à 6M), pas sur le brut. Le SMIG reste la cible si le net le porte,
+    sinon on ajuste le nombre de gagnants, jamais la promesse "un salaire".</p></div>
+
+  <div class="foot">WOZALI · Sandy & Récompenses · 22 juillet 2026 · page 7</div>
+</div>
+
+<!-- ─────────── RÉCAP ─────────── -->
+<div class="page brk">
+  <div class="eyebrow">04 · À valider</div>
+  <h2>Huit décisions, <em>puis on avance.</em></h2>
+  <p class="lead">Dis-moi oui, non ou "à discuter" sur chacune. Sur ton accord, j'écris les six scripts de Sandy (là,
+  c'est de l'écriture ancrée, donc un agent Fable), je les fais re-challenger une dernière fois, et on code. Rien
+  avant.</p>
+
+  <table>
+    <tr><th style="width:8%">#</th><th style="width:30%">Sujet</th><th style="width:62%">Décision proposée</th></tr>
+    <tr><td><strong>D1</strong></td><td>Sandy · free-tier</td><td>Un diagnostic complet gratuit, jamais coupé, au lieu de 3 messages/jour.</td></tr>
+    <tr><td><strong>D2</strong></td><td>Sandy · ordre</td><td>Légitimité et anti-arnaque d'abord, questions ensuite, donner avant de demander.</td></tr>
+    <tr><td><strong>D3</strong></td><td>Sandy · preuve</td><td>Un cas réel consultable, pas de chiffre agrégé tant qu'ils sont petits.</td></tr>
+    <tr><td><strong>D4</strong></td><td>Sandy · légal</td><td>Déploiement bloqué tant que l'APDP n'a pas avancé. Prérequis assumé.</td></tr>
+    <tr><td><strong>D5</strong></td><td>Bourse · moteur</td><td>Mérite, pas hasard. Tirage au sort refusé.</td></tr>
+    <tr><td><strong>D6</strong></td><td>Bourse · paliers</td><td>Paliers intermédiaires 1 000 / 2 500 / 5 000.</td></tr>
+    <tr><td><strong>D7</strong></td><td>Bourse · milieu</td><td>Badge public Top 50, en plus du cash Top 10.</td></tr>
+    <tr><td><strong>D8</strong></td><td>Bourse · montant</td><td>Calibré sur le CA net, pas le brut.</td></tr>
+  </table>
+
+  <div class="card avoid" style="margin-top:20px">
+    <h3>Ce sur quoi j'attends surtout ton avis</h3>
+    <p><strong>D4 (APDP).</strong> C'est le seul point qui peut retarder la mise en ligne de Sandy améliorée. Si tu veux
+    déployer avant la déclaration, on en parle, mais je te dois de te dire que c'est un risque réel, pas une formalité.</p>
+    <p><strong>D7 (badge Top 50).</strong> C'est l'ajout le plus important au système de récompenses, celui qui empêche
+    les neuf artisans sur dix de décrocher. Il ne coûte presque rien et change beaucoup. Je le recommande fortement.</p>
+  </div>
+
+  <div class="foot">WOZALI · Sandy & Récompenses · 22 juillet 2026 · page 8 · fin</div>
+</div>
