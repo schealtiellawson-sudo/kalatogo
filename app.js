@@ -604,6 +604,7 @@ function showDashSection(section) {
   if (section === 'abonnement') { loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
     if (section === 'parrainage') loadParrainage();
+  if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'notifications' && currentPrestataire?.id) { window._notifBadgeFetchAt = 0; try { updateNotifBadge(currentPrestataire.id); } catch(e){} try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
   if (section === 'support-admin') loadSupportAdmin();
   if (section === 'favoris') loadFavoris();
@@ -13172,6 +13173,237 @@ function showParrainQR() {
   }
 
   display.style.display = 'block';
+}
+
+// ══════════════════════════════════════════
+// ESPACE CRÉATEUR — maquette validée fondateur
+// ══════════════════════════════════════════
+// Réutilise EXACTEMENT la source de données du Parrainage (aucun nouvel
+// endpoint) : loadParrainage() peuple window._allFilleuls (via wozali_prestataires
+// filtré par parrain_code, Supabase) + window._parrainCommissions (via
+// /api/wozali-pay/parrainage-stats) + le lien perso dans #parrain-link-box.
+
+const EC_ICONS = {
+  lock:  '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  copy:  '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  reels: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 8l5 4-5 4V8z"/>',
+  stories: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 12h8M8 17h5"/>',
+  posts: '<rect x="3" y="4" width="8" height="8" rx="1.5"/><rect x="13" y="4" width="8" height="8" rx="1.5"/><rect x="3" y="14" width="8" height="6" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/>',
+  live:  '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>',
+  doc:   '<path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 4v5h5"/>',
+  coach: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+  banner:'<path d="M4 4h16v12H7l-3 3V4z"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  star:  '<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L12 3z"/>',
+  crown: '<path d="M3 8l4 3 5-6 5 6 4-3-2 10H5L3 8z"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  frame: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16"/>',
+  info:  '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 11h1v5h1"/>'
+};
+function _ecSvg(name, strokeW) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeW||1.6}">${EC_ICONS[name]||''}</svg>`;
+}
+
+function ecKitToast() { toast('Ce pack arrive très bientôt.', 'info'); }
+
+function ecOpenSandy() {
+  showDashSection('notifications');
+  setTimeout(function () {
+    if (typeof openDmThread === 'function') openDmThread('coach');
+  }, 80);
+}
+
+async function loadEspaceCreateurSection() {
+  const containerEl = document.getElementById('espace-createur-content');
+  if (!containerEl || !currentPrestataire) return;
+
+  // Réutilise le loader Parrainage tel quel : mêmes filleuls, mêmes commissions,
+  // même lien perso. Aucune donnée de démo, tout vient de cette source réelle.
+  try { await loadParrainage(); } catch (e) { console.warn('[espace-createur] loadParrainage:', e); }
+
+  const allFilleuls = window._allFilleuls || [];
+  // TODO (prochaine étape) : distinguer "Pro actifs sur 60 jours" quand une
+  // colonne de dernière activité/churn sera exposée par l'API parrainage-stats.
+  // Pour l'instant, "Pro" = abonnement Pro courant (même logique que le
+  // dashboard Parrainage existant, cf. _renderFilleulsCRM).
+  const nbFilleulsPro = allFilleuls.filter(r => (r.fields['Abonnement'] || 'Base') !== 'Base').length;
+  const nbInscrits = allFilleuls.length;
+  const comm = window._parrainCommissions || { dispo: 0, total: 0 };
+  const gainsMois = comm.dispo || 0;
+  const gainsVie = comm.total || 0;
+
+  const rawLink = (document.getElementById('parrain-link-box')?.textContent || '').trim();
+  const link = (!rawLink || rawLink === 'Chargement...') ? 'wozali.africa' : rawLink;
+  const linkSafe = escapeHtml(link);
+
+  const fmt = n => (Number(n) || 0).toLocaleString('fr-FR') + ' FCFA';
+
+  const soonCard = (label) => `
+    <div class="ec-soon-card">${_ecSvg('info')}<span>${label}</span></div>`;
+
+  const classementSoon = `
+    <h3 class="ec-block-title">Classement du mois</h3>
+    <div class="ec-section-gap">${soonCard('Classement du mois : bientôt disponible.')}</div>`;
+
+  const kitCard = (icon, name, desc, locked) => `
+    <div class="ec-kit-card${locked ? ' ec-locked' : ''}" ${locked ? '' : 'onclick="ecKitToast()"'}>
+      ${locked ? `<div class="ec-lock-badge">${_ecSvg('lock')}</div>` : ''}
+      <div class="ec-kit-icon">${_ecSvg(icon)}</div>
+      <div><div class="ec-kit-name">${name}</div>${desc ? `<div class="ec-kit-desc">${desc}</div>` : ''}</div>
+    </div>`;
+
+  const linkRow = `
+    <div class="ec-link-row">
+      <span class="ec-lk">${linkSafe}</span>
+      <button class="ec-btn-copy" onclick="copyParrainLink()">${_ecSvg('copy')} Copier</button>
+    </div>`;
+
+  let html = '';
+
+  if (nbFilleulsPro < 3) {
+    // ── ÉTAT 1 — VERROUILLÉ ──
+    const pct = Math.min(100, Math.round((nbFilleulsPro / 3) * 100));
+    const reste = 3 - nbFilleulsPro;
+    html = `
+      <div class="ec-eyebrow">Espace Créateur</div>
+      <h1 class="ec-title">Ton influence vaut <em>de l'or.</em></h1>
+      <p class="ec-subtitle">Les Créateurs WOZALI ont des outils pros, une coach dédiée et une vitrine sur toute la plateforme. Ça se débloque avec tes filleuls Pro.</p>
+
+      <div class="ec-card-glow ec-section-gap" style="padding:22px 20px;">
+        <div class="ec-gauge-head">
+          <div class="ec-gauge-label">Progression vers les outils Créateur</div>
+          <div class="ec-gauge-count">${nbFilleulsPro} / 3 Pro</div>
+        </div>
+        <div class="ec-gauge-track"><div class="ec-gauge-fill" style="width:${pct}%;"></div></div>
+        <div class="ec-gauge-note">Encore <strong>${reste} filleul${reste > 1 ? 's' : ''} Pro</strong> et tes outils de créateur s'ouvrent.</div>
+        ${linkRow}
+      </div>
+
+      <div class="ec-stats-grid ec-section-gap">
+        <div class="ec-stat accent"><div class="ec-stat-num">${fmt(gainsMois)}</div><div class="ec-stat-label">Gains ce mois</div></div>
+        <div class="ec-stat"><div class="ec-stat-num">${nbFilleulsPro}</div><div class="ec-stat-label">Pro actif${nbFilleulsPro > 1 ? 's' : ''}</div></div>
+        <div class="ec-stat"><div class="ec-stat-num">${nbInscrits}</div><div class="ec-stat-label">Inscrits via ton lien</div></div>
+      </div>
+
+      <h3 class="ec-block-title">Ce qui t'attend</h3>
+      <div class="ec-kit-grid">
+        ${kitCard('reels', 'Pack Reels', "Covers, scripts et sons prêts à tourner.", true)}
+        ${kitCard('stories', 'Pack Stories', "Séries prêtes pour ta story permanente.", true)}
+        ${kitCard('posts', 'Pack Posts', 'Posts et carrousels à ton nom.', true)}
+        ${kitCard('live', 'Fond Live TikTok', 'Ton lien affiché pendant tes lives.', true)}
+        ${kitCard('doc', 'Mini-formations', 'Le reel qui convertit, pitcher en story.', true)}
+        ${kitCard('coach', 'Sandy Coach Créateur', 'Elle te dit quoi poster et t\'analyse.', true)}
+      </div>`;
+  } else if (nbFilleulsPro < 25) {
+    // ── ÉTAT 2 — OUTILS DÉBLOQUÉS ──
+    const pct = Math.min(100, Math.round((nbFilleulsPro / 25) * 100));
+    html = `
+      <div class="ec-eyebrow">Espace Créateur</div>
+      <h1 class="ec-title">Ton influence vaut <em>de l'or.</em></h1>
+      <p class="ec-subtitle">Les Créateurs WOZALI ont des outils pros, une coach dédiée et une vitrine sur toute la plateforme.</p>
+
+      <div class="ec-banner-success">${_ecSvg('check', 1.8)}<span>Tes outils de créateur sont ouverts.</span></div>
+
+      <div class="ec-card ec-section-gap">
+        <div class="ec-stats-grid" style="margin-bottom:16px;">
+          <div class="ec-stat"><div class="ec-stat-num">${nbInscrits}</div><div class="ec-stat-label">Inscrits</div></div>
+          <div class="ec-stat accent"><div class="ec-stat-num">${nbFilleulsPro}</div><div class="ec-stat-label">Pro actifs</div></div>
+          <div class="ec-stat accent"><div class="ec-stat-num">${fmt(gainsMois)}</div><div class="ec-stat-label">Gains ce mois</div></div>
+          <div class="ec-stat"><div class="ec-stat-num">${fmt(gainsVie)}</div><div class="ec-stat-label">Gains à vie</div></div>
+        </div>
+        <div class="ec-link-row" style="margin-top:0;">
+          <span class="ec-lk">${linkSafe}</span>
+          <button class="ec-btn-copy" onclick="copyParrainLink()">${_ecSvg('copy')} Copier</button>
+        </div>
+      </div>
+
+      <h3 class="ec-block-title">Ton kit Créateur</h3>
+      <div class="ec-kit-grid ec-section-gap">
+        ${kitCard('reels', 'Pack Reels', 'Covers, 5 scripts et sons prêts à tourner.')}
+        ${kitCard('stories', 'Pack Stories', 'Séries prêtes pour ta story permanente.')}
+        ${kitCard('posts', 'Pack Posts et Carrousels', 'Auto-personnalisés à ton nom et ton lien.')}
+        ${kitCard('live', 'Fond Live TikTok', 'Ton lien lisible à l\'écran pendant tes lives.')}
+        ${kitCard('banner', 'Bannières et fonds', 'Visuels pour tes profils sociaux.')}
+        ${kitCard('doc', 'Mini-formations', 'Le reel qui convertit, pitcher en story, répondre en DM.')}
+      </div>
+
+      <div class="ec-sandy-card ec-section-gap">
+        <div class="ec-sandy-avatar">S</div>
+        <div class="ec-sandy-body">
+          <div class="ec-sandy-name">Sandy, ta coach créateur</div>
+          <div class="ec-sandy-text">Elle te dit quoi poster, analyse tes résultats et te pousse au palier suivant.</div>
+          <button class="ec-btn-sandy" onclick="ecOpenSandy()">Parler à Sandy ${_ecSvg('arrow', 2)}</button>
+        </div>
+      </div>
+
+      <div class="ec-card">
+        <div class="ec-gauge-head">
+          <div class="ec-gauge-label">Vers le badge Créateur WOZALI</div>
+          <div class="ec-gauge-count">${nbFilleulsPro} / 25 Pro</div>
+        </div>
+        <div class="ec-gauge-track"><div class="ec-gauge-fill" style="width:${pct}%;"></div></div>
+        <div class="ec-gauge-note">À 25 Pro actifs, ton <strong>badge Créateur WOZALI</strong> devient public sur ton profil.</div>
+      </div>`;
+  } else if (nbFilleulsPro < 50) {
+    // ── ÉTAT 3 — CRÉATEUR ──
+    const pct = Math.min(100, Math.round((nbFilleulsPro / 50) * 100));
+    html = `
+      <div class="ec-eyebrow">Espace Créateur</div>
+
+      <div class="ec-badge-header">
+        <div class="ec-badge-pill">${_ecSvg('star')}<span>Créateur WOZALI</span></div>
+        <div class="ec-badge-sub">Visible sur ton profil public</div>
+      </div>
+
+      <div class="ec-card ec-section-gap">
+        <div class="ec-gauge-head">
+          <div class="ec-gauge-label">Vers le Badge Or</div>
+          <div class="ec-gauge-count">${nbFilleulsPro} / 50 Pro</div>
+        </div>
+        <div class="ec-gauge-track"><div class="ec-gauge-fill" style="width:${pct}%;"></div></div>
+        <div class="ec-gauge-note">À 50 Pro actifs, ton profil sera mis en avant sur la <strong>page d'accueil WOZALI</strong>.</div>
+      </div>
+
+      ${classementSoon}
+
+      <h3 class="ec-block-title">Ton kit Créateur</h3>
+      <div class="ec-kit-grid ec-condensed">
+        ${kitCard('reels', 'Pack Reels')}
+        ${kitCard('stories', 'Pack Stories')}
+        ${kitCard('posts', 'Pack Posts')}
+        ${kitCard('live', 'Fond Live TikTok')}
+      </div>`;
+  } else {
+    // ── ÉTAT 4 — OR ──
+    html = `
+      <div class="ec-eyebrow">Espace Créateur</div>
+
+      <div class="ec-badge-header">
+        <div class="ec-badge-pill ec-gold">${_ecSvg('star')}<span>Badge Or</span></div>
+        <div class="ec-badge-sub">Ton profil est mis en avant sur la page d'accueil WOZALI.</div>
+      </div>
+
+      <h3 class="ec-block-title">Assets exclusifs</h3>
+      <div class="ec-exclusive-grid ec-section-gap">
+        <div class="ec-exclusive-card">
+          <div class="ec-kit-icon">${_ecSvg('live')}</div>
+          <div class="ec-kit-name">Fond Live Premium</div>
+          <div class="ec-kit-desc">Animation exclusive pour tes lives.</div>
+        </div>
+        <div class="ec-exclusive-card">
+          <div class="ec-kit-icon">${_ecSvg('frame')}</div>
+          <div class="ec-kit-name">Cadre signature</div>
+          <div class="ec-kit-desc">Ton cadre unique pour tous tes visuels.</div>
+        </div>
+      </div>
+
+      ${classementSoon}
+
+      <div class="ec-maintain-note">${_ecSvg('clock')}<span>Ton statut Or se maintient tant que tu gardes tes Pro actifs.</span></div>`;
+  }
+
+  containerEl.innerHTML = html;
 }
 
 // ══════════════════════════════════════════
