@@ -605,6 +605,7 @@ function showDashSection(section) {
   if (section === 'recompenses') loadRecompensesWidgets();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
+  if (section === 'faistoivoir') loadFaisToiVoirSection();
   if (section === 'notifications' && currentPrestataire?.id) { window._notifBadgeFetchAt = 0; try { updateNotifBadge(currentPrestataire.id); } catch(e){} try { updatePushCard(); } catch(e){} setTimeout(initDmInterface, 0); try { loadStoryReponsesConvs(); } catch(e){} }
   if (section === 'support-admin') loadSupportAdmin();
   if (section === 'favoris') loadFavoris();
@@ -13199,7 +13200,10 @@ const EC_ICONS = {
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   frame: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16"/>',
-  info:  '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 11h1v5h1"/>'
+  info:  '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 11h1v5h1"/>',
+  pin:   '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  ring:  '<circle cx="12" cy="12" r="8.5" stroke-width="3.4"/>',
+  megaphone: '<path d="M3 11v2a2 2 0 0 0 2 2h1l3 5V4l-3 5H5a2 2 0 0 0-2 2z"/><path d="M11 8l8-4v16l-8-4"/>'
 };
 function _ecSvg(name, strokeW) {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeW||1.6}">${EC_ICONS[name]||''}</svg>`;
@@ -13212,6 +13216,1566 @@ function ecOpenSandy() {
   setTimeout(function () {
     if (typeof openDmThread === 'function') openDmThread('coach');
   }, 80);
+}
+
+// ══════════════════════════════════════════
+// ESPACE CRÉATEUR — Ton kit de base (3 visuels auto-personnalisés)
+// ══════════════════════════════════════════
+// Réutilise le pattern Canvas déjà en place (generateProfilStory / genererVisuelParrainage) :
+// canvas offscreen → toDataURL('image/png') → aperçu + téléchargement/partage.
+// Différence : pas de modale ici, les 3 aperçus vivent directement dans les cards
+// de la section, avec 2 boutons fins par carte (Télécharger / Partager).
+
+function _ecKitBaseBlockHtml() {
+  const card = (type, label, tall) => `
+    <div class="ec-kitbase-card">
+      <div class="ec-kitbase-thumb-wrap ${tall ? 'ec-kitbase-thumb-tall' : 'ec-kitbase-thumb-square'}">
+        <span class="ec-kitbase-loading" id="ec-kb-loading-${type}">Génération…</span>
+        <img class="ec-kitbase-img" id="ec-kb-img-${type}" alt="Aperçu ${label}" style="display:none;" onclick="_ecOpenLightbox(this.src)">
+      </div>
+      <div class="ec-kitbase-name">${label}</div>
+      <div class="ec-kitbase-actions">
+        <button class="ec-btn-thin" onclick="ecDownloadKitBase('${type}')" title="Télécharger">${_ecSvg('copy')}<span class="ec-btn-thin-label">Télécharger</span></button>
+        <button class="ec-btn-thin ec-btn-thin-accent" onclick="ecShareKitBase('${type}')" title="Partager">${_ecSvg('arrow')}<span class="ec-btn-thin-label">Partager</span></button>
+      </div>
+    </div>`;
+
+  return `
+    <div class="ec-kitbase-block ec-section-gap">
+      <h3 class="ec-block-title">Ton kit de base</h3>
+      <p class="ec-kitbase-intro">Tes premiers visuels, prêts à partager avec ton lien.</p>
+      <div class="ec-kitbase-grid">
+        ${card('story', 'Story d\'annonce', true)}
+        ${card('post', 'Post feed', false)}
+        ${card('highlight', 'Story permanente', true)}
+      </div>
+    </div>`;
+}
+
+// Charge les fonts avant le rendu canvas (fallback silencieux serif/monospace système si échec)
+async function _ecEnsureFontsLoaded() {
+  if (!document.fonts || !document.fonts.load) return;
+  try {
+    await Promise.all([
+      document.fonts.load('900 74px "DM Serif Display"'),
+      document.fonts.load('italic 900 64px "DM Serif Display"'),
+      document.fonts.load('italic 400 30px "DM Serif Display"'),
+      document.fonts.load('400 30px "Geist"'),
+      document.fonts.load('600 30px "Geist"'),
+      document.fonts.load('700 30px "Geist"'),
+      document.fonts.load('700 34px "Geist Mono"'),
+      document.fonts.ready
+    ]);
+  } catch (e) { /* fallback silencieux */ }
+}
+
+// Retire le protocole (https://, http://) pour l'affichage visuel du lien
+// (le lien technique complet reste utilisé pour copier/partager côté ecShareKitBase/ecDownloadKitBase)
+function _ecStripProtocol(link) { return (link || '').replace(/^https?:\/\//i, ''); }
+
+// Dégradé radial or (glow), centré en haut du visuel — façon .hero-halo-top / .ho-halo de la vitrine
+function _ecTopGlow(ctx, W, H, radius) {
+  const g = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, radius);
+  g.addColorStop(0, 'rgba(232,148,10,0.22)');
+  g.addColorStop(1, 'rgba(232,148,10,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+// Ombre douce réutilisable (façon carte vitrine .ho-card / .wz-serp)
+function _ecCardShadow(ctx) {
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 46;
+  ctx.shadowOffsetY = 22;
+}
+function _ecClearShadow(ctx) {
+  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+}
+
+// Avatar cercle dégradé or avec initiale serif italic (façon .ho-avatar / .wloc-card-avatar de la vitrine)
+function _ecAvatar(ctx, cx, cy, r, initiale) {
+  const g = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.1, cx, cy, r);
+  g.addColorStop(0, '#f5b13d');
+  g.addColorStop(1, '#b56f06');
+  ctx.save();
+  ctx.shadowColor = 'rgba(232,148,10,0.55)'; ctx.shadowBlur = 20; ctx.shadowOffsetY = 6;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill();
+  ctx.restore();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `italic 900 ${Math.round(r * 1.0)}px "DM Serif Display", serif`;
+  ctx.fillStyle = '#14100A';
+  ctx.fillText(initiale, cx, cy + r * 0.06);
+  ctx.textBaseline = 'alphabetic';
+}
+
+// Pill badge (façon .ho-badge / .ho-badge-or de la vitrine) — retourne sa largeur pour enchaîner les pills
+function _ecPill(ctx, x, y, text, opts) {
+  opts = opts || {};
+  const gold = !!opts.gold;
+  const font = opts.font || '700 20px "Geist Mono", monospace';
+  ctx.font = font;
+  const padX = 22;
+  const tw = ctx.measureText(text).width;
+  const h = 44;
+  const w = tw + padX * 2;
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2);
+  ctx.fillStyle = gold ? '#E8940A' : 'rgba(252,224,168,0.08)';
+  ctx.fill();
+  if (!gold) { ctx.strokeStyle = 'rgba(252,224,168,0.18)'; ctx.lineWidth = 1.5; ctx.stroke(); }
+  ctx.fillStyle = gold ? '#14100A' : '#FCE0A8';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, x + padX, y + h / 2 + 1);
+  ctx.textBaseline = 'alphabetic';
+  return w;
+}
+
+// Étoiles pleines or (façon .wz-stars du mockup Google de la vitrine)
+function _ecStars(ctx, x, y, n, size) {
+  n = n || 5; size = size || 26;
+  ctx.textAlign = 'left';
+  ctx.font = `${size}px Geist, sans-serif`;
+  ctx.fillStyle = '#E8940A';
+  ctx.shadowColor = 'rgba(232,148,10,0.5)'; ctx.shadowBlur = 10;
+  ctx.fillText('★'.repeat(n), x, y);
+  ctx.shadowBlur = 0;
+}
+
+// Réduit la taille de police jusqu'à ce que le texte tienne dans maxWidth (utile pour le lien, longueur variable)
+function _ecFitFontSize(ctx, text, maxWidth, fontFamily, weight, startSize, minSize) {
+  let size = startSize;
+  while (size > minSize) {
+    ctx.font = `${weight} ${size}px ${fontFamily}`;
+    if (ctx.measureText(text).width <= maxWidth) break;
+    size -= 2;
+  }
+  return size;
+}
+
+// VISUEL A — Story d'annonce (1080x1920, fond Nuit + glow or, grande carte profil premium façon vitrine)
+function _ecDrawStoryA(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 900);
+  const linkClean = _ecStripProtocol(link);
+
+  const padL = 84, padR = 84;
+  const contentW = W - padL - padR;
+
+  // Logo W italic or + OZALI crème + eyebrow mono
+  ctx.textAlign = 'left';
+  const logoY = 128;
+  ctx.font = 'italic 900 58px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText('W', padL, logoY);
+  const wWidth = ctx.measureText('W').width;
+  ctx.font = '400 34px "DM Serif Display", serif';
+  ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('OZALI', padL + wWidth + 4, logoY);
+
+  ctx.font = '700 22px "Geist Mono", monospace';
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText('MON PROFIL WOZALI', padL, logoY + 46);
+
+  // Titre serif
+  let y = _wzWrapText(ctx, "Ton travail mérite d'être vu.", padL, 300, contentW, 76, '900 66px "DM Serif Display", serif', '#FCE0A8', 'left');
+
+  // ─── Grande carte profil premium (le centre du visuel, reproduit .ho-card / .ho-avatar / .ho-score / .ho-bar / .ho-badge de la vitrine) ───
+  const cardX = padL, cardW = contentW;
+  const cardY = y + 46;
+  const cardH = 800;
+  const r = 28;
+
+  _ecCardShadow(ctx);
+  const cardBg = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
+  cardBg.addColorStop(0, 'rgba(38,30,17,0.96)');
+  cardBg.addColorStop(1, 'rgba(20,16,9,0.98)');
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, r);
+  ctx.fillStyle = cardBg; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.28)'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Liseré or dégradé en haut de carte
+  const liseGrad = ctx.createLinearGradient(cardX, 0, cardX + cardW, 0);
+  liseGrad.addColorStop(0, '#b56f06'); liseGrad.addColorStop(0.5, '#E8940A'); liseGrad.addColorStop(1, '#f5b13d');
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, r + 8, r); ctx.clip();
+  ctx.fillStyle = liseGrad; ctx.fillRect(cardX, cardY, cardW, 7);
+  ctx.restore();
+
+  const padIn = 50;
+  let cy = cardY + padIn + 10;
+
+  // Avatar cercle dégradé or + initiale
+  const avR = 60;
+  const avCx = cardX + padIn + avR, avCy = cy + avR;
+  const initiale = (prenom || 'T').trim().charAt(0).toUpperCase() || 'T';
+  _ecAvatar(ctx, avCx, avCy, avR, initiale);
+
+  ctx.textAlign = 'left';
+  ctx.font = '700 38px Geist, sans-serif';
+  ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(prenom || 'Toi', avCx + avR + 30, avCy - 8);
+  ctx.font = '400 24px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Ton métier · Ton quartier', avCx + avR + 30, avCy + 28);
+
+  // Score (droite, serif italic or, façon .ho-score-num)
+  ctx.textAlign = 'right';
+  ctx.font = 'italic 900 92px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A';
+  ctx.shadowColor = 'rgba(232,148,10,0.45)'; ctx.shadowBlur = 22;
+  ctx.fillText('87', cardX + cardW - padIn, avCy);
+  ctx.shadowBlur = 0;
+  ctx.font = '700 17px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('SCORE', cardX + cardW - padIn, avCy + 28);
+
+  cy = avCy + avR + 44;
+
+  ctx.textAlign = 'left';
+  ctx.font = '700 17px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('SCORE DE CONFIANCE', cardX + padIn, cy);
+  cy += 26;
+
+  // Barre de progression remplie (façon .ho-bar-fill)
+  const barX = cardX + padIn, barW = cardW - padIn * 2, barH = 16;
+  ctx.beginPath(); ctx.roundRect(barX, cy, barW, barH, barH / 2);
+  ctx.fillStyle = 'rgba(252,224,168,0.1)'; ctx.fill();
+  const fillW = barW * 0.87;
+  const barGrad = ctx.createLinearGradient(barX, 0, barX + fillW, 0);
+  barGrad.addColorStop(0, '#b56f06'); barGrad.addColorStop(0.6, '#E8940A'); barGrad.addColorStop(1, '#f5b13d');
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(barX, cy, fillW, barH, barH / 2); ctx.clip();
+  ctx.fillStyle = barGrad; ctx.shadowColor = 'rgba(232,148,10,0.5)'; ctx.shadowBlur = 14;
+  ctx.fillRect(barX, cy, fillW, barH);
+  ctx.restore();
+  cy += barH + 40;
+
+  // Pills PRO / avis / disponible
+  let px = barX;
+  px += _ecPill(ctx, px, cy, 'PRO', { gold: true }) + 14;
+  px += _ecPill(ctx, px, cy, '★ 4,8 · avis') + 14;
+  _ecPill(ctx, px, cy, 'DISPONIBLE');
+  cy += 44 + 44;
+
+  // Rangée mini-stats (densité supplémentaire)
+  const stats = [['18', 'AVIS'], ['2 ANS', 'SUR WOZALI'], ['92%', 'SATISFAITS']];
+  const colW = barW / 3;
+  stats.forEach((s, i) => {
+    const sx = barX + colW * i;
+    ctx.textAlign = 'left';
+    ctx.font = '900 44px "DM Serif Display", serif';
+    ctx.fillStyle = '#E8940A';
+    ctx.fillText(s[0], sx, cy);
+    ctx.font = '700 15px "Geist Mono", monospace';
+    ctx.fillStyle = 'rgba(252,224,168,0.4)';
+    ctx.fillText(s[1], sx, cy + 24);
+  });
+  cy += 56;
+
+  ctx.strokeStyle = 'rgba(252,224,168,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(barX, cy); ctx.lineTo(cardX + cardW - padIn, cy); ctx.stroke();
+  cy += 40;
+
+  ctx.textAlign = 'left';
+  ctx.font = 'italic 400 24px "DM Serif Display", serif';
+  ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText('wozali.africa', barX, cy);
+  ctx.textAlign = 'right';
+  ctx.font = '700 16px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(232,148,10,0.7)';
+  ctx.fillText('PROFIL VÉRIFIÉ', cardX + cardW - padIn, cy);
+  cy += 56;
+
+  ctx.strokeStyle = 'rgba(252,224,168,0.08)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(barX, cy); ctx.lineTo(cardX + cardW - padIn, cy); ctx.stroke();
+  cy += 42;
+
+  ctx.textAlign = 'left';
+  ctx.font = 'italic 400 24px "DM Serif Display", serif';
+  ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  _wzWrapText(ctx, '« Toujours à l\'heure, travail soigné », dit un client', barX, cy, barW, 34, 'italic 400 24px "DM Serif Display", serif', 'rgba(252,224,168,0.5)', 'left');
+
+  // ─── Sous la carte : citation ───
+  ctx.textAlign = 'center';
+  y = cardY + cardH + 70;
+  y = _wzWrapText(ctx, "Chaque profil s'élève du noir vers la lumière.", W / 2, y, contentW - 60, 40, 'italic 400 30px "DM Serif Display", serif', 'rgba(252,224,168,0.7)', 'center');
+
+  // ─── Bas : invite + cartouche lien (sans https://) ───
+  ctx.textAlign = 'left';
+  ctx.font = '700 26px "Geist Mono", monospace';
+  ctx.fillStyle = '#E8940A';
+  const inviteY = y + 66;
+  ctx.fillText(`${prenom || 'Il'} t'invite`, padL, inviteY);
+
+  const boxW = contentW, boxH = 148, boxY = inviteY + 38;
+  const boxGrad = ctx.createLinearGradient(padL, boxY, padL + boxW, boxY);
+  boxGrad.addColorStop(0, 'rgba(232,148,10,0.16)'); boxGrad.addColorStop(1, 'rgba(232,148,10,0.05)');
+  ctx.beginPath(); ctx.roundRect(padL, boxY, boxW, boxH, 22);
+  ctx.fillStyle = boxGrad; ctx.fill();
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.font = '700 16px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText('TON LIEN', padL + 32, boxY + 42);
+  const fitSize = _ecFitFontSize(ctx, linkClean, boxW - 64, '"Geist Mono", monospace', 700, 40, 22);
+  ctx.font = `700 ${fitSize}px "Geist Mono", monospace`;
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, padL + 32, boxY + 104);
+}
+
+// VISUEL B — Post feed (1080x1080, fond Or, mockup résultat de recherche sur carte sombre — reproduit .wz-serp de la vitrine)
+function _ecDrawPostB(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#E8940A'; ctx.fillRect(0, 0, W, H);
+  const linkClean = _ecStripProtocol(link);
+
+  const padL = 74, padR = 74;
+  const contentW = W - padL - padR;
+  ctx.textAlign = 'left';
+
+  ctx.font = '700 20px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(20,16,10,0.55)';
+  ctx.fillText('VISIBILITÉ · WOZALI', padL, 74);
+
+  let y = _wzWrapText(ctx, "L'argent ne circule pas ? Ton profil peut changer ça.", padL, 146, contentW, 52, '900 46px "DM Serif Display", serif', '#14100A', 'left');
+
+  // ─── Mockup résultat de recherche (carte sombre posée sur l'or, contraste fort) ───
+  const cardX = padL, cardW = contentW;
+  const cardY = y + 28;
+  const cardH = 534;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 26);
+  ctx.fillStyle = '#14100A'; ctx.fill();
+  _ecClearShadow(ctx);
+
+  const padIn = 34;
+  let iy = cardY + padIn;
+
+  // Barre de recherche simulée
+  const sbH = 56;
+  ctx.beginPath(); ctx.roundRect(cardX + padIn, iy, cardW - padIn * 2, sbH, sbH / 2);
+  ctx.fillStyle = 'rgba(252,224,168,0.07)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(252,224,168,0.14)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.font = '22px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('⌕', cardX + padIn + 22, iy + sbH / 2 + 8);
+  ctx.font = '400 22px Geist, sans-serif'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('ton métier + ta ville', cardX + padIn + 56, iy + sbH / 2 + 8);
+  iy += sbH + 24;
+
+  // Résultat WOZALI mis en avant (façon .wz-serp-wozali)
+  const resH = 210;
+  const resGrad = ctx.createLinearGradient(cardX, iy, cardX, iy + resH);
+  resGrad.addColorStop(0, 'rgba(232,148,10,0.14)'); resGrad.addColorStop(1, 'rgba(232,148,10,0.04)');
+  ctx.beginPath(); ctx.roundRect(cardX + padIn, iy, cardW - padIn * 2, resH, 18);
+  ctx.fillStyle = resGrad; ctx.fill();
+  ctx.strokeStyle = 'rgba(232,148,10,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  const rx = cardX + padIn + 26;
+  ctx.beginPath(); ctx.arc(rx + 11, iy + 32, 11, 0, Math.PI * 2);
+  const favGrad = ctx.createLinearGradient(rx, iy + 20, rx + 22, iy + 44);
+  favGrad.addColorStop(0, '#f5b13d'); favGrad.addColorStop(1, '#E8940A');
+  ctx.fillStyle = favGrad; ctx.fill();
+  ctx.font = 'italic 900 13px "DM Serif Display", serif'; ctx.fillStyle = '#14100A';
+  ctx.textAlign = 'center'; ctx.fillText('W', rx + 11, iy + 36); ctx.textAlign = 'left';
+
+  ctx.font = '400 18px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText('wozali.africa › ton-profil', rx + 32, iy + 38);
+
+  ctx.font = '700 26px Geist, sans-serif'; ctx.fillStyle = '#f5b13d';
+  ctx.fillText('Ton nom · Ton métier · Profil WOZALI', rx, iy + 82);
+
+  _ecStars(ctx, rx, iy + 120, 5, 22);
+  ctx.font = '400 19px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.6)';
+  ctx.fillText('4,9 · avis vérifiés', rx + 132, iy + 120);
+
+  ctx.font = '400 20px Geist, sans-serif'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText("Disponible aujourd'hui. Appel direct.", rx, iy + 162);
+
+  iy += resH + 20;
+
+  // Résultat concurrent grisé (annuaire générique)
+  const resH2 = 100;
+  ctx.beginPath(); ctx.roundRect(cardX + padIn, iy, cardW - padIn * 2, resH2, 16);
+  ctx.fillStyle = 'rgba(252,224,168,0.03)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(252,224,168,0.07)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.globalAlpha = 0.55;
+  ctx.beginPath(); ctx.arc(rx + 9, iy + 26, 9, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(252,224,168,0.18)'; ctx.fill();
+  ctx.font = '400 16px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('annuaire-generique.com', rx + 26, iy + 32);
+  ctx.font = '600 21px Geist, sans-serif'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('Aucune note. Aucune photo.', rx, iy + 68);
+  ctx.globalAlpha = 1;
+
+  iy += resH2 + 26;
+
+  // Footer bullets courts (puces rondes or, jamais de tiret long)
+  const bullets = ['Profil gratuit', 'Score qui grandit', 'Contact direct'];
+  let bx = cardX + padIn;
+  ctx.font = '700 18px "Geist Mono", monospace';
+  bullets.forEach((b) => {
+    ctx.fillStyle = '#E8940A';
+    ctx.beginPath(); ctx.arc(bx + 5, iy - 6, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(252,224,168,0.6)';
+    ctx.fillText(b, bx + 18, iy);
+    bx += ctx.measureText(b).width + 54;
+  });
+
+  // ─── Bas : cartouche noir lien (sans https://) ───
+  const boxH = 176;
+  const boxY = H - boxH - 56;
+  ctx.beginPath(); ctx.roundRect(padL, boxY, contentW, boxH, 22);
+  ctx.fillStyle = '#14100A'; ctx.fill();
+
+  ctx.font = '700 16px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('TON LIEN', padL + 32, boxY + 42);
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW - 64, '"Geist Mono", monospace', 700, 38, 20);
+  ctx.font = `700 ${fitSize}px "Geist Mono", monospace`;
+  ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(linkClean, padL + 32, boxY + 104);
+
+  ctx.font = '400 22px Geist, sans-serif';
+  ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText(`Invité par ${prenom || 'un ami'}`, padL + 32, boxY + 148);
+}
+
+// VISUEL C — Story permanente / highlight (1080x1920, fond Nuit, mockup carte du quartier — reproduit .wloc-map-ui de la vitrine)
+function _ecDrawHighlightC(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 780);
+  const linkClean = _ecStripProtocol(link);
+
+  const padL = 84, padR = 84;
+  const contentW = W - padL - padR;
+
+  ctx.textAlign = 'center';
+  ctx.font = '900 74px "DM Serif Display", serif';
+  ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('Rejoins WOZALI', W / 2, 180);
+  ctx.font = 'italic 400 28px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText('Le travail parle. Pas les connexions.', W / 2, 226);
+
+  // ─── Mockup carte du quartier (centre, le gros du visuel) ───
+  const cardX = padL, cardW = contentW;
+  const cardY = 292;
+  const cardH = 1020;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 26);
+  ctx.fillStyle = '#0f110d'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Barre de recherche simulée
+  const sbH = 76;
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 26); ctx.clip();
+  ctx.fillStyle = '#14100A'; ctx.fillRect(cardX, cardY, cardW, sbH);
+  ctx.restore();
+  ctx.font = '26px Geist, sans-serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'left';
+  ctx.fillText('⌕', cardX + 30, cardY + sbH / 2 + 10);
+  ctx.font = '400 24px Geist, sans-serif'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Coiffeuse près de moi…', cardX + 66, cardY + sbH / 2 + 9);
+  ctx.font = '700 18px "Geist Mono", monospace';
+  const pillTxt = '📍 Ton quartier';
+  const ptw = ctx.measureText(pillTxt).width;
+  ctx.beginPath(); ctx.roundRect(cardX + cardW - ptw - 60, cardY + 20, ptw + 36, 36, 18);
+  ctx.fillStyle = 'rgba(232,148,10,0.16)'; ctx.fill();
+  ctx.fillStyle = '#E8940A'; ctx.fillText(pillTxt, cardX + cardW - ptw - 42, cardY + 44);
+
+  // Zone carte (grille fine + pins lumineux)
+  const mapY = cardY + sbH, mapH = cardH - sbH - 76;
+  const mapGrad = ctx.createLinearGradient(cardX, mapY, cardX, mapY + mapH);
+  mapGrad.addColorStop(0, '#0d1210'); mapGrad.addColorStop(1, '#0e1108');
+  ctx.fillStyle = mapGrad; ctx.fillRect(cardX, mapY, cardW, mapH);
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(cardX, mapY, cardW, mapH); ctx.clip();
+  ctx.strokeStyle = 'rgba(232,148,10,0.07)'; ctx.lineWidth = 1;
+  for (let gx = cardX; gx < cardX + cardW; gx += 54) { ctx.beginPath(); ctx.moveTo(gx, mapY); ctx.lineTo(gx, mapY + mapH); ctx.stroke(); }
+  for (let gy = mapY; gy < mapY + mapH; gy += 54) { ctx.beginPath(); ctx.moveTo(cardX, gy); ctx.lineTo(cardX + cardW, gy); ctx.stroke(); }
+
+  const pins = [
+    { x: 0.24, y: 0.24 }, { x: 0.64, y: 0.18 }, { x: 0.76, y: 0.56 },
+    { x: 0.36, y: 0.78 }, { x: 0.14, y: 0.86 }, { x: 0.88, y: 0.42 }
+  ];
+  pins.forEach(p => {
+    const px2 = cardX + cardW * p.x, py2 = mapY + mapH * p.y;
+    const haloR = 34;
+    const halo = ctx.createRadialGradient(px2, py2, 0, px2, py2, haloR);
+    halo.addColorStop(0, 'rgba(232,148,10,0.35)'); halo.addColorStop(1, 'rgba(232,148,10,0)');
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(px2, py2, haloR, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#E8940A';
+    ctx.shadowColor = 'rgba(232,148,10,0.6)'; ctx.shadowBlur = 10;
+    ctx.beginPath(); ctx.arc(px2, py2, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+  ctx.restore();
+
+  // 2 mini cartes flottantes de pro (façon .wloc-pin-card)
+  function _ecMiniCard(mx, my, initiale, nom, meta, dist) {
+    const mw = 300, mh = 108;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 8;
+    ctx.beginPath(); ctx.roundRect(mx, my, mw, mh, 16);
+    ctx.fillStyle = '#1E180E'; ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(232,148,10,0.35)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    _ecAvatar(ctx, mx + 40, my + mh / 2, 26, initiale);
+    ctx.textAlign = 'left';
+    ctx.font = '700 21px Geist, sans-serif'; ctx.fillStyle = '#FCE0A8';
+    ctx.fillText(nom, mx + 76, my + 38);
+    ctx.font = '400 16px Geist, sans-serif'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+    ctx.fillText(meta, mx + 76, my + 62);
+    ctx.font = '400 15px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+    ctx.fillText(dist, mx + 76, my + 86);
+  }
+  _ecMiniCard(cardX + cardW * 0.24 - 30, mapY + mapH * 0.24 - 128, 'A', 'Aminata K.', 'Coiffeuse · Akpakpa', '0,8 km · Disponible');
+  _ecMiniCard(cardX + cardW * 0.64 - 160, mapY + mapH * 0.56 + 38, 'K', 'Kodjo M.', 'Électricien · Bè', '2,1 km');
+
+  // Footer carte
+  const footY = mapY + mapH;
+  ctx.textAlign = 'left';
+  ctx.font = '700 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.6)';
+  ctx.fillText('Des pros dans ton quartier', cardX + 30, footY + 46);
+  ctx.textAlign = 'right'; ctx.font = '700 22px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('Voir sur la carte →', cardX + cardW - 30, footY + 46);
+
+  // ─── Puces rondes sous la carte ───
+  ctx.textAlign = 'left';
+  const puces = ['Crée ton profil gratuit', 'Les clients de ton quartier te trouvent', 'Ton Score parle pour toi'];
+  let y = cardY + cardH + 56;
+  puces.forEach(p => {
+    ctx.fillStyle = '#E8940A';
+    ctx.beginPath(); ctx.arc(padL + 8, y - 10, 8, 0, Math.PI * 2); ctx.fill();
+    y = _wzWrapText(ctx, p, padL + 40, y, contentW - 40, 38, '400 28px Geist, sans-serif', '#FCE0A8', 'left') + 14;
+  });
+
+  // ─── Bas : lien (sans https://) + partagé par ───
+  ctx.textAlign = 'center';
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW, '"Geist Mono", monospace', 700, 44, 24);
+  ctx.font = `700 ${fitSize}px "Geist Mono", monospace`;
+  ctx.fillStyle = '#E8940A';
+  const linkY = y + 56;
+  ctx.fillText(linkClean, W / 2, linkY);
+
+  ctx.font = '400 20px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText(`Partagé par ${prenom || 'un ami'}`, W / 2, linkY + 42);
+}
+
+async function _ecGenerateKitBaseCanvas(type, { prenom, link }) {
+  const isPost = type === 'post';
+  const W = 1080, H = isPost ? 1080 : 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  if (type === 'story') _ecDrawStoryA(ctx, W, H, prenom, link);
+  else if (type === 'post') _ecDrawPostB(ctx, W, H, prenom, link);
+  else _ecDrawHighlightC(ctx, W, H, prenom, link);
+  return canvas;
+}
+
+function _ecKitBaseFilename(type, prenom) {
+  const slug = (prenom || 'moi').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '') || 'moi';
+  const map = { story: 'wozali-story-', post: 'wozali-post-', highlight: 'wozali-highlight-' };
+  return (map[type] || 'wozali-') + slug + '.png';
+}
+
+// Génère les 3 visuels et remplit les aperçus miniatures + le cache download/partage.
+// Appelée sans await depuis loadEspaceCreateurSection() : chaque carte affiche
+// "Génération…" jusqu'à ce que son image soit prête (quasi-instantané, aucune
+// photo distante à charger, uniquement du texte + formes vectorielles).
+async function _ecRenderKitBase() {
+  if (!currentPrestataire) return;
+  const f = currentPrestataire.fields || {};
+  const prenom = (f['Prénom'] || (f['Nom complet'] || '').split(' ')[0] || 'Toi').trim();
+  const rawLink = (document.getElementById('parrain-link-box')?.textContent || '').trim();
+  const link = (!rawLink || rawLink === 'Chargement...') ? ('https://wozali.africa?ref=' + (f['Code Parrainage'] || '')) : rawLink;
+
+  window._ecKitBasePrenom = prenom;
+  window._ecKitBaseLink = link;
+  window._ecKitBaseCache = window._ecKitBaseCache || {};
+
+  await _ecEnsureFontsLoaded();
+
+  for (const type of ['story', 'post', 'highlight']) {
+    try {
+      const canvas = await _ecGenerateKitBaseCanvas(type, { prenom, link });
+      const dataUrl = canvas.toDataURL('image/png');
+      window._ecKitBaseCache[type] = dataUrl;
+      const imgEl = document.getElementById(`ec-kb-img-${type}`);
+      const loadingEl = document.getElementById(`ec-kb-loading-${type}`);
+      if (imgEl) { imgEl.src = dataUrl; imgEl.style.display = 'block'; }
+      if (loadingEl) loadingEl.style.display = 'none';
+    } catch (e) {
+      console.warn('[ec-kitbase] génération', type, e);
+      const loadingEl = document.getElementById(`ec-kb-loading-${type}`);
+      if (loadingEl) loadingEl.textContent = 'Indisponible';
+    }
+  }
+}
+
+function ecDownloadKitBase(type) {
+  const dataUrl = window._ecKitBaseCache?.[type];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = _ecKitBaseFilename(type, window._ecKitBasePrenom);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+async function ecShareKitBase(type) {
+  const dataUrl = window._ecKitBaseCache?.[type];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const filename = _ecKitBaseFilename(type, window._ecKitBasePrenom);
+  const link = window._ecKitBaseLink || 'https://wozali.africa';
+
+  try {
+    if (navigator.canShare && navigator.share) {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: `Rejoins-moi sur WOZALI.\n${link}` });
+        return;
+      }
+    }
+  } catch (e) {
+    if (e?.name === 'AbortError') return;
+  }
+  // Fallback : téléchargement + toast (pas de Web Share API ou échec)
+  ecDownloadKitBase(type);
+  toast('Visuel téléchargé. Partage-le depuis tes photos.', 'info');
+}
+
+// ══════════════════════════════════════════
+// ESPACE CRÉATEUR — Packs Créateur (Reels / Stories / Posts-Carrousels /
+// Fond Live TikTok / Bannières) — panneau plein écran + génération canvas
+// ══════════════════════════════════════════
+// Réutilise les helpers premium existants (_ecTopGlow, _ecCardShadow, _ecAvatar,
+// _ecPill, _ecStars, _ecStripProtocol, _ecFitFontSize, _ecEnsureFontsLoaded)
+// et le pattern download/share du kit de base, généralisés pour N assets/pack.
+
+// Scripts Reels — à remplir dès validation des textes (5 attendus). Tant que
+// vide, le panneau affiche un placeholder propre.
+const _EC_REEL_SCRIPTS = [
+  { titre: "Le maçon d'Agoè", hook: "Le meilleur maçon d'Agoè passe des semaines sans chantier.",
+    texte: "Le meilleur maçon d'Agoè passe des semaines sans chantier. Des semaines sans rien rentrer. Des semaines à calculer le repas du soir, à repousser le loyer, à éviter le regard de sa femme. Pourtant il travaille mieux que la moitié de la ville. Les chantiers vont chez ceux qu'on connaît, et lui, personne ne le connaît au-delà de sa rue. Moi je suis sur WOZALI. Tu crées ton profil, et quand quelqu'un cherche ton métier dans ton quartier, il tombe sur toi. Prends mon lien, inscris-toi, c'est gratuit, deux minutes. Et la prochaine fois qu'on cherche un maçon à Agoè, ce sera toi." },
+  { titre: "Quarante CV dans le vide", hook: "Ton CV dort dans des groupes WhatsApp.",
+    texte: "Ton CV dort dans des groupes WhatsApp. J'ai une amie à Cadjèhoun, diplômée, sérieuse. Quarante CV envoyés cette année. Zéro rappel. Quarante fois le même espoir, quarante fois le même silence. Le patron qui recrute, lui, il demande autour de lui, et ton nom ne sort jamais dans sa conversation. Sur WOZALI, ton profil est visible, tu postules directement aux offres, et tu vois quand on a regardé ta candidature. Prends mon lien, inscris-toi, c'est gratuit, ça prend deux minutes. Quarante CV dans le vide, ou un profil qu'on voit vraiment. Tu choisis quoi ?" },
+  { titre: "Encore une arnaque ?", hook: "Oui, je sais, encore un truc d'internet.",
+    texte: "Oui, je sais, encore un truc d'internet. On a tous quelqu'un qui a perdu son argent dans une affaire en ligne, alors je comprends la méfiance. Mais pose tes questions. On va me demander de payer ? Non, l'inscription est gratuite. On va me demander un code, un transfert, un dépôt ? Jamais. Personne ne te demande d'envoyer quoi que ce soit. Alors ça sert à quoi ? À ce que les clients de ton quartier te trouvent quand ils cherchent ton métier. Coiffeur, couturière, mécanicien, peu importe. Prends mon lien, inscris-toi, regarde par toi-même, tu risques zéro franc. Vérifie." },
+  { titre: "Le bouche-à-oreille est fatigué", hook: "Le bouche-à-oreille ne remplit plus la marmite.",
+    texte: "Le bouche-à-oreille ne remplit plus la marmite. Une couturière de Hédzranawoé m'a dit qu'elle tourne avec les cinq mêmes clientes depuis trois ans. Cinq clientes, ça paie pas l'école des enfants. Ta voisine trouve sa série turque en deux clics. Mais pour trouver une bonne couturière, il faut encore demander à trois personnes. Les gens cherchent tout sur leur téléphone maintenant, même un maçon, même une coiffeuse. Sur WOZALI, ton profil sort quand quelqu'un cherche ton métier près de chez lui. Prends mon lien, crée ton profil, c'est gratuit, deux minutes. Le bouche-à-oreille t'a amenée jusqu'ici. Ton téléphone va t'amener plus loin." },
+  { titre: "Ton travail parle pour toi", hook: "Personne ne devrait supplier pour travailler.",
+    texte: "Personne ne devrait supplier pour travailler. Une fille d'Akpakpa, qualifiée, sérieuse, cherchait une place en atelier, juste de quoi vivre de ses mains. On lui a fait comprendre que le poste se donnait après autre chose. Elle est repartie, et elle a bien fait. Oui, il existe des patrons corrects, il y en a, j'en connais. Mais tant que ton nom circule de bouche en bouche, tu dépends du bon vouloir d'une seule personne. Sur WOZALI, c'est ton profil qui parle. Tes photos, tes avis, ton sérieux, visibles par tout le monde. Prends mon lien, inscris-toi, c'est gratuit, deux minutes. Ta valeur, c'est ton travail. Rien d'autre." }
+];
+
+function _ecPackReelsExtraHtml() {
+  const scriptsHtml = _EC_REEL_SCRIPTS.length
+    ? _EC_REEL_SCRIPTS.map((s, i) => `
+        <div class="ec-pack-script-card">
+          <div class="ec-pack-script-num">0${i + 1}</div>
+          <div class="ec-pack-script-body">
+            <div class="ec-pack-script-titre">${escapeHtml(s.titre || '')}</div>
+            ${s.hook ? `<div class="ec-pack-script-hook">${escapeHtml(s.hook)}</div>` : ''}
+            ${s.texte ? `<div class="ec-pack-script-texte">${escapeHtml(s.texte)}</div>` : ''}
+          </div>
+        </div>`).join('')
+    : `<div class="ec-soon-card">${_ecSvg('info')}<span>Tes 5 scripts arrivent ici.</span></div>`;
+
+  return `
+    <h4 class="ec-pack-sub">Scripts</h4>
+    ${scriptsHtml}
+    <h4 class="ec-pack-sub">Sons recommandés</h4>
+    <div class="ec-pack-tip-list">
+      <div class="ec-pack-tip"><span class="ec-pack-tip-emoji">🎵</span><span>Un son tendance local du moment (TikTok Togo/Bénin) : ça change chaque semaine, regarde ce qui tourne avant de filmer.</span></div>
+      <div class="ec-pack-tip"><span class="ec-pack-tip-emoji">🎙️</span><span>Voix directe, sans musique : le plus efficace pour la confiance. Laisse ta voix porter le message.</span></div>
+      <div class="ec-pack-tip"><span class="ec-pack-tip-emoji">🌙</span><span>Un son calme et posé pour le storytelling. Jamais un son qui écrase ta voix.</span></div>
+    </div>`;
+}
+
+// VISUEL — Cover Reel (1080x1920) : titre accrocheur + bouton play or cerclé
+// entouré d'une carte profil floutée (construction premium, pas de texte plat)
+function _ecDrawReelCover(ctx, W, H, prenom, link, titre) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 950);
+  const linkClean = _ecStripProtocol(link);
+
+  const barW = 16;
+  const barGrad = ctx.createLinearGradient(0, 0, 0, H);
+  barGrad.addColorStop(0, '#f5b13d'); barGrad.addColorStop(0.5, '#E8940A'); barGrad.addColorStop(1, '#b56f06');
+  ctx.fillStyle = barGrad; ctx.fillRect(0, 0, barW, H);
+
+  const padL = barW + 68, padR = 68;
+  const contentW = W - padL - padR;
+
+  ctx.textAlign = 'left';
+  const logoY = 128;
+  ctx.font = 'italic 900 52px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText('W', padL, logoY);
+  const wWidth = ctx.measureText('W').width;
+  ctx.font = '400 30px "DM Serif Display", serif';
+  ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('OZALI', padL + wWidth + 4, logoY);
+  ctx.font = '700 20px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.45)';
+  ctx.fillText('REEL WOZALI', padL, logoY + 40);
+
+  _wzWrapText(ctx, titre, padL, 320, contentW, 92, '900 82px "DM Serif Display", serif', '#FCE0A8', 'left');
+
+  // ─── Construction centrale : carte profil floutée + halo + bouton play or cerclé ───
+  const cardCx = padL + contentW / 2, cardCy = H * 0.62;
+  const cardW = contentW, cardH = 560;
+  const cardX = padL, cardY = cardCy - cardH / 2;
+
+  ctx.save();
+  ctx.globalAlpha = 0.6;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 28);
+  ctx.fillStyle = 'rgba(30,24,14,0.92)'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.25)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.4;
+  _ecAvatar(ctx, cardX + 96, cardY + 104, 46, (prenom || 'T').trim().charAt(0).toUpperCase() || 'T');
+  ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.beginPath(); ctx.roundRect(cardX + 162, cardY + 76, 240, 20, 10); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(cardX + 162, cardY + 108, 160, 16, 8); ctx.fill();
+  ctx.fillStyle = 'rgba(232,148,10,0.4)';
+  ctx.beginPath(); ctx.roundRect(cardX + 44, cardY + 200, cardW - 88, 12, 6); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(cardX + 44, cardY + 244, cardW - 220, 12, 6); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(cardX + 44, cardY + cardH - 96, 130, 34, 17); ctx.fill();
+  ctx.restore();
+
+  const haloR = 190;
+  const halo = ctx.createRadialGradient(cardCx, cardCy, 0, cardCx, cardCy, haloR);
+  halo.addColorStop(0, 'rgba(232,148,10,0.42)'); halo.addColorStop(1, 'rgba(232,148,10,0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(cardCx, cardCy, haloR, 0, Math.PI * 2); ctx.fill();
+
+  const playR = 84;
+  ctx.save();
+  ctx.shadowColor = 'rgba(232,148,10,0.6)'; ctx.shadowBlur = 34; ctx.shadowOffsetY = 10;
+  ctx.beginPath(); ctx.arc(cardCx, cardCy, playR, 0, Math.PI * 2);
+  const playGrad = ctx.createRadialGradient(cardCx - playR * 0.3, cardCy - playR * 0.3, playR * 0.1, cardCx, cardCy, playR);
+  playGrad.addColorStop(0, '#f5b13d'); playGrad.addColorStop(1, '#b56f06');
+  ctx.fillStyle = playGrad; ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(252,224,168,0.7)'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cardCx - playR * 0.28, cardCy - playR * 0.42);
+  ctx.lineTo(cardCx - playR * 0.28, cardCy + playR * 0.42);
+  ctx.lineTo(cardCx + playR * 0.46, cardCy);
+  ctx.closePath();
+  ctx.fillStyle = '#14100A'; ctx.fill();
+
+  ctx.textAlign = 'center';
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW - 40, '"Geist Mono", monospace', 700, 32, 20);
+  ctx.font = `700 ${fitSize}px "Geist Mono", monospace`;
+  ctx.fillStyle = 'rgba(232,148,10,0.8)';
+  ctx.fillText(linkClean, W / 2, H - 96);
+  ctx.font = '400 18px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.35)';
+  ctx.fillText(`${prenom || 'Créateur'} · WOZALI`, W / 2, H - 58);
+}
+
+// VISUEL — Story preuve (1080x1920) : grande carte profil premium
+function _ecDrawStoryProof(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 850);
+  const linkClean = _ecStripProtocol(link);
+  const padL = 84, padR = 84;
+  const contentW = W - padL - padR;
+
+  ctx.textAlign = 'left';
+  ctx.font = 'italic 900 52px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A'; ctx.fillText('W', padL, 118);
+  const wWidth = ctx.measureText('W').width;
+  ctx.font = '400 30px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('OZALI', padL + wWidth + 4, 118);
+
+  let y = _wzWrapText(ctx, 'Voilà à quoi ressemble un profil qui travaille.', padL, 240, contentW, 62, '900 54px "DM Serif Display", serif', '#FCE0A8', 'left');
+
+  const cardX = padL, cardW = contentW, cardY = y + 40, cardH = 1130, r = 28;
+  _ecCardShadow(ctx);
+  const cardBg = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
+  cardBg.addColorStop(0, 'rgba(38,30,17,0.96)'); cardBg.addColorStop(1, 'rgba(20,16,9,0.98)');
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, r);
+  ctx.fillStyle = cardBg; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.28)'; ctx.lineWidth = 2; ctx.stroke();
+
+  const liseGrad = ctx.createLinearGradient(cardX, 0, cardX + cardW, 0);
+  liseGrad.addColorStop(0, '#b56f06'); liseGrad.addColorStop(0.5, '#E8940A'); liseGrad.addColorStop(1, '#f5b13d');
+  ctx.save(); ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, r + 8, r); ctx.clip();
+  ctx.fillStyle = liseGrad; ctx.fillRect(cardX, cardY, cardW, 7); ctx.restore();
+
+  const padIn = 50; let cy = cardY + padIn + 10;
+  const avR = 64;
+  const avCx = cardX + padIn + avR, avCy = cy + avR;
+  const initiale = (prenom || 'T').trim().charAt(0).toUpperCase() || 'T';
+  _ecAvatar(ctx, avCx, avCy, avR, initiale);
+
+  ctx.textAlign = 'left'; ctx.font = '700 40px Geist, sans-serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(prenom || 'Toi', avCx + avR + 30, avCy - 6);
+  ctx.font = '400 24px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Ton métier · Ton quartier', avCx + avR + 30, avCy + 30);
+
+  ctx.textAlign = 'right'; ctx.font = 'italic 900 96px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.shadowColor = 'rgba(232,148,10,0.45)'; ctx.shadowBlur = 22;
+  ctx.fillText('87', cardX + cardW - padIn, avCy); ctx.shadowBlur = 0;
+  ctx.font = '700 17px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('SCORE', cardX + cardW - padIn, avCy + 28);
+
+  cy = avCy + avR + 50;
+  ctx.textAlign = 'left'; ctx.font = '700 17px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('SCORE DE CONFIANCE', cardX + padIn, cy); cy += 26;
+
+  const barX = cardX + padIn, barW = cardW - padIn * 2, barH = 16;
+  ctx.beginPath(); ctx.roundRect(barX, cy, barW, barH, barH / 2); ctx.fillStyle = 'rgba(252,224,168,0.1)'; ctx.fill();
+  const fillW = barW * 0.87;
+  const barGrad2 = ctx.createLinearGradient(barX, 0, barX + fillW, 0);
+  barGrad2.addColorStop(0, '#b56f06'); barGrad2.addColorStop(0.6, '#E8940A'); barGrad2.addColorStop(1, '#f5b13d');
+  ctx.save(); ctx.beginPath(); ctx.roundRect(barX, cy, fillW, barH, barH / 2); ctx.clip();
+  ctx.fillStyle = barGrad2; ctx.shadowColor = 'rgba(232,148,10,0.5)'; ctx.shadowBlur = 14;
+  ctx.fillRect(barX, cy, fillW, barH); ctx.restore();
+  cy += barH + 40;
+
+  let px = barX;
+  px += _ecPill(ctx, px, cy, 'PRO', { gold: true }) + 14;
+  px += _ecPill(ctx, px, cy, '★ 4,8 · avis') + 14;
+  _ecPill(ctx, px, cy, 'DISPONIBLE');
+  cy += 44 + 46;
+
+  const stats = [['18', 'AVIS'], ['2 ANS', 'SUR WOZALI'], ['92%', 'SATISFAITS']];
+  const colW = barW / 3;
+  stats.forEach((s, i) => {
+    const sx = barX + colW * i;
+    ctx.textAlign = 'left'; ctx.font = '900 46px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+    ctx.fillText(s[0], sx, cy);
+    ctx.font = '700 15px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+    ctx.fillText(s[1], sx, cy + 24);
+  });
+  cy += 60;
+
+  ctx.strokeStyle = 'rgba(252,224,168,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(barX, cy); ctx.lineTo(cardX + cardW - padIn, cy); ctx.stroke(); cy += 44;
+
+  ctx.textAlign = 'left'; ctx.font = 'italic 400 26px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  cy = _wzWrapText(ctx, '« Toujours à l\'heure, travail soigné », dit un client', barX, cy, barW, 36, 'italic 400 26px "DM Serif Display", serif', 'rgba(252,224,168,0.55)', 'left') + 26;
+
+  ctx.textAlign = 'left'; ctx.font = '700 16px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(232,148,10,0.7)';
+  ctx.fillText('PROFIL VÉRIFIÉ', barX, cy);
+
+  ctx.textAlign = 'center';
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW - 40, '"Geist Mono", monospace', 700, 40, 24);
+  ctx.font = `700 ${fitSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, cardY + cardH + 88);
+}
+
+// VISUEL — Story question (1080x1920) : mockup sondage OUI / NON
+function _ecDrawStoryQuestion(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 800);
+  const linkClean = _ecStripProtocol(link);
+  const padL = 84, padR = 84;
+  const contentW = W - padL - padR;
+
+  ctx.textAlign = 'left';
+  ctx.font = 'italic 900 52px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('W', padL, 118);
+  const wWidth = ctx.measureText('W').width;
+  ctx.font = '400 30px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('OZALI', padL + wWidth + 4, 118);
+  ctx.font = '700 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.45)';
+  ctx.fillText('QUESTION DU JOUR', padL, 158);
+
+  let y = _wzWrapText(ctx, "Tu connais quelqu'un qui cherche des clients ?", padL, 280, contentW, 70, '900 62px "DM Serif Display", serif', '#FCE0A8', 'left');
+  y = _wzWrapText(ctx, 'Tague-le en story. Il te remerciera.', padL, y + 40, contentW, 40, 'italic 400 28px "DM Serif Display", serif', 'rgba(252,224,168,0.6)', 'left');
+
+  const sbY = y + 70, sbH = 640;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(padL, sbY, contentW, sbH, 30);
+  ctx.fillStyle = '#1E180E'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  const btnPad = 44, btnGap = 28;
+  const btnW = contentW - btnPad * 2;
+  const btnH = (sbH - btnPad * 2 - btnGap) / 2;
+
+  let by = sbY + btnPad;
+  ctx.beginPath(); ctx.roundRect(padL + btnPad, by, btnW, btnH, 24);
+  const ouiGrad = ctx.createLinearGradient(padL + btnPad, by, padL + btnPad, by + btnH);
+  ouiGrad.addColorStop(0, '#f5b13d'); ouiGrad.addColorStop(1, '#E8940A');
+  ctx.save();
+  ctx.shadowColor = 'rgba(232,148,10,0.5)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 10;
+  ctx.fillStyle = ouiGrad; ctx.fill();
+  ctx.restore();
+  ctx.textAlign = 'center'; ctx.font = '900 64px "DM Serif Display", serif'; ctx.fillStyle = '#14100A';
+  ctx.fillText('OUI', padL + btnPad + btnW / 2, by + btnH / 2 + 22);
+
+  by += btnH + btnGap;
+  ctx.beginPath(); ctx.roundRect(padL + btnPad, by, btnW, btnH, 24);
+  ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(252,224,168,0.25)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText('NON', padL + btnPad + btnW / 2, by + btnH / 2 + 22);
+
+  ctx.textAlign = 'center';
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW - 40, '"Geist Mono", monospace', 700, 44, 24);
+  ctx.font = `700 ${fitSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, sbY + sbH + 84);
+  ctx.font = '400 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText(`Envoyé par ${prenom || 'un ami'}`, W / 2, sbY + sbH + 126);
+}
+
+// VISUEL — Story urgence douce (1080x1920) : mockup carte du quartier, pin "toi" au centre
+function _ecDrawStoryUrgence(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 780);
+  const linkClean = _ecStripProtocol(link);
+  const padL = 84, padR = 84;
+  const contentW = W - padL - padR;
+
+  ctx.textAlign = 'center';
+  ctx.font = '900 62px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('Les clients de ton quartier', W / 2, 168);
+  ctx.fillText('cherchent déjà.', W / 2, 236);
+  ctx.font = 'italic 400 28px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('Ils tombent sur qui, en premier ?', W / 2, 282);
+
+  const cardX = padL, cardW = contentW, cardY = 340, cardH = 1020;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 26);
+  ctx.fillStyle = '#0f110d'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  const sbH = 76;
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 26); ctx.clip();
+  ctx.fillStyle = '#14100A'; ctx.fillRect(cardX, cardY, cardW, sbH);
+  ctx.restore();
+  ctx.font = '26px Geist, sans-serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'left';
+  ctx.fillText('⌕', cardX + 30, cardY + sbH / 2 + 10);
+  ctx.font = '400 24px Geist, sans-serif'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Coiffeuse près de moi…', cardX + 66, cardY + sbH / 2 + 9);
+  ctx.font = '700 18px "Geist Mono", monospace';
+  const pillTxt = '📍 Ton quartier';
+  const ptw = ctx.measureText(pillTxt).width;
+  ctx.beginPath(); ctx.roundRect(cardX + cardW - ptw - 60, cardY + 20, ptw + 36, 36, 18);
+  ctx.fillStyle = 'rgba(232,148,10,0.16)'; ctx.fill();
+  ctx.fillStyle = '#E8940A'; ctx.fillText(pillTxt, cardX + cardW - ptw - 42, cardY + 44);
+
+  const mapY = cardY + sbH, mapH = cardH - sbH - 76;
+  const mapGrad = ctx.createLinearGradient(cardX, mapY, cardX, mapY + mapH);
+  mapGrad.addColorStop(0, '#0d1210'); mapGrad.addColorStop(1, '#0e1108');
+  ctx.fillStyle = mapGrad; ctx.fillRect(cardX, mapY, cardW, mapH);
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(cardX, mapY, cardW, mapH); ctx.clip();
+  ctx.strokeStyle = 'rgba(232,148,10,0.07)'; ctx.lineWidth = 1;
+  for (let gx = cardX; gx < cardX + cardW; gx += 54) { ctx.beginPath(); ctx.moveTo(gx, mapY); ctx.lineTo(gx, mapY + mapH); ctx.stroke(); }
+  for (let gy = mapY; gy < mapY + mapH; gy += 54) { ctx.beginPath(); ctx.moveTo(cardX, gy); ctx.lineTo(cardX + cardW, gy); ctx.stroke(); }
+
+  const pins = [{ x: 0.22, y: 0.26 }, { x: 0.72, y: 0.2 }, { x: 0.78, y: 0.68 }, { x: 0.18, y: 0.82 }];
+  pins.forEach(p => {
+    const px2 = cardX + cardW * p.x, py2 = mapY + mapH * p.y;
+    const haloR = 30;
+    const halo = ctx.createRadialGradient(px2, py2, 0, px2, py2, haloR);
+    halo.addColorStop(0, 'rgba(232,148,10,0.3)'); halo.addColorStop(1, 'rgba(232,148,10,0)');
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(px2, py2, haloR, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#E8940A'; ctx.shadowColor = 'rgba(232,148,10,0.55)'; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.arc(px2, py2, 7, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+  });
+
+  const meX = cardX + cardW * 0.5, meY = mapY + mapH * 0.5;
+  const meHalo = ctx.createRadialGradient(meX, meY, 0, meX, meY, 76);
+  meHalo.addColorStop(0, 'rgba(232,148,10,0.5)'); meHalo.addColorStop(1, 'rgba(232,148,10,0)');
+  ctx.fillStyle = meHalo; ctx.beginPath(); ctx.arc(meX, meY, 76, 0, Math.PI * 2); ctx.fill();
+  _ecAvatar(ctx, meX, meY, 42, (prenom || 'T').trim().charAt(0).toUpperCase() || 'T');
+  ctx.restore();
+
+  const footY = mapY + mapH;
+  ctx.textAlign = 'left';
+  ctx.font = '700 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.6)';
+  ctx.fillText('Toi, au centre de ton quartier', cardX + 30, footY + 46);
+  ctx.textAlign = 'right'; ctx.font = '700 22px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('Voir sur la carte →', cardX + cardW - 30, footY + 46);
+
+  ctx.textAlign = 'left';
+  const puces = ['Crée ton profil gratuit', 'Les clients de ton quartier te trouvent', 'Ton Score parle pour toi'];
+  let y = cardY + cardH + 56;
+  puces.forEach(p => {
+    ctx.fillStyle = '#E8940A';
+    ctx.beginPath(); ctx.arc(padL + 8, y - 10, 8, 0, Math.PI * 2); ctx.fill();
+    y = _wzWrapText(ctx, p, padL + 40, y, contentW - 40, 38, '400 28px Geist, sans-serif', '#FCE0A8', 'left') + 14;
+  });
+
+  ctx.textAlign = 'center';
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW, '"Geist Mono", monospace', 700, 44, 24);
+  ctx.font = `700 ${fitSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  const linkY = y + 56;
+  ctx.fillText(linkClean, W / 2, linkY);
+  ctx.font = '400 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('Toi aussi, sois trouvé.', W / 2, linkY + 42);
+}
+
+// Copy des 4 slides du carrousel — Template A Editorial (texte pur, alternance Nuit/Or)
+const _EC_CAROUSEL_COPY = [
+  { main: 'Ton travail parle. Ton lien le montre.' },
+  { main: 'Ton profil sort quand on te cherche sur Google.', sub: 'Score qui monte avec chaque avis client.' },
+  { main: 'Chaque avis te fait monter.', sub: 'Gratuit pour commencer. Aucune carte bancaire.' },
+  { main: 'Ton lien. Maintenant.', linkBig: true }
+];
+
+// VISUEL — Slide de carrousel (1080x1350), idx 0-3
+function _ecDrawCarouselSlide(ctx, W, H, prenom, link, idx) {
+  const copy = _EC_CAROUSEL_COPY[idx] || {};
+  const total = _EC_CAROUSEL_COPY.length;
+  const isGold = idx % 2 === 1;
+  const bg = isGold ? '#E8940A' : '#14100A';
+  const fg = isGold ? '#14100A' : '#FCE0A8';
+  const fgMuted = isGold ? 'rgba(20,16,10,0.55)' : 'rgba(252,224,168,0.45)';
+  const accent = isGold ? '#14100A' : '#E8940A';
+
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  if (!isGold) _ecTopGlow(ctx, W, H, 750);
+
+  const barW = 14;
+  if (isGold) {
+    ctx.fillStyle = 'rgba(20,16,10,0.5)'; ctx.fillRect(0, 0, barW, H);
+  } else {
+    const barGrad = ctx.createLinearGradient(0, 0, 0, H);
+    barGrad.addColorStop(0, '#f5b13d'); barGrad.addColorStop(0.5, '#E8940A'); barGrad.addColorStop(1, '#b56f06');
+    ctx.fillStyle = barGrad; ctx.fillRect(0, 0, barW, H);
+  }
+
+  const padL = barW + 78, padR = 78;
+  const contentW = W - padL - padR;
+
+  // Grand chiffre serif décoratif en fond (remplit la zone basse, reste "texte pur")
+  ctx.save();
+  ctx.globalAlpha = isGold ? 0.1 : 0.07;
+  ctx.textAlign = 'right';
+  ctx.font = 'italic 900 620px "DM Serif Display", serif';
+  ctx.fillStyle = isGold ? '#14100A' : '#E8940A';
+  ctx.fillText(`0${idx + 1}`, W - padR + 60, H + 60);
+  ctx.restore();
+
+  ctx.textAlign = 'left';
+  ctx.font = '700 20px "Geist Mono", monospace';
+  ctx.fillStyle = fgMuted;
+  ctx.fillText(`0${idx + 1} / 0${total}`, padL, 90);
+
+  let y = _wzWrapText(ctx, copy.main || '', padL, H * 0.32, contentW, 88, '900 78px "DM Serif Display", serif', fg, 'left');
+
+  if (copy.sub) {
+    y = _wzWrapText(ctx, copy.sub, padL, y + 44, contentW, 44, 'italic 400 30px "DM Serif Display", serif', isGold ? 'rgba(20,16,10,0.65)' : 'rgba(252,224,168,0.6)', 'left');
+  }
+
+  if (copy.linkBig) {
+    const linkClean = _ecStripProtocol(link);
+    y = _wzWrapText(ctx, `${prenom || 'Il'} t'invite. Regarde.`, padL, y + 44, contentW, 44, 'italic 400 30px "DM Serif Display", serif', isGold ? 'rgba(20,16,10,0.65)' : 'rgba(252,224,168,0.6)', 'left');
+    ctx.textAlign = 'left';
+    const fitSize = _ecFitFontSize(ctx, linkClean, contentW, '"Geist Mono", monospace', 900, 88, 40);
+    ctx.font = `900 ${fitSize}px "Geist Mono", monospace`;
+    ctx.fillStyle = accent;
+    ctx.fillText(linkClean, padL, y + 66);
+
+    // Cartouche autour du lien pour ancrer visuellement le CTA
+    const linkBoxY = y + 30;
+    ctx.strokeStyle = isGold ? 'rgba(20,16,10,0.3)' : 'rgba(232,148,10,0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(padL - 20, linkBoxY, contentW + 40, 110, 20); ctx.stroke();
+  }
+
+  // Petit trait or fin au-dessus du logo (ancrage bas, pas une bande pleine largeur)
+  ctx.strokeStyle = isGold ? 'rgba(20,16,10,0.35)' : 'rgba(232,148,10,0.4)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(padL, H - 118); ctx.lineTo(padL + 64, H - 118); ctx.stroke();
+
+  ctx.textAlign = 'left';
+  ctx.font = 'italic 900 34px "DM Serif Display", serif';
+  ctx.fillStyle = accent;
+  ctx.fillText('W', padL, H - 74);
+  const wWidth = ctx.measureText('W').width;
+  ctx.font = '400 20px "DM Serif Display", serif';
+  ctx.fillStyle = fg;
+  ctx.fillText('OZALI', padL + wWidth + 3, H - 74);
+}
+
+// VISUEL — Fond Live TikTok A (1080x1920) : cadre or élégant + lien géant centré bas
+function _ecDrawLiveBgA(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 1100);
+  const linkClean = _ecStripProtocol(link);
+
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  ctx.fillStyle = '#E8940A';
+  for (let gx = 60; gx < W; gx += 90) {
+    for (let gy = 60; gy < H; gy += 90) { ctx.beginPath(); ctx.arc(gx, gy, 2, 0, Math.PI * 2); ctx.fill(); }
+  }
+  ctx.restore();
+
+  const fm = 44;
+  ctx.strokeStyle = 'rgba(232,148,10,0.5)'; ctx.lineWidth = 2;
+  ctx.strokeRect(fm, fm, W - fm * 2, H - fm * 2);
+  const corner = 46;
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 3;
+  [[fm, fm, 1, 1], [W - fm, fm, -1, 1], [fm, H - fm, 1, -1], [W - fm, H - fm, -1, -1]].forEach(([x, y, dx, dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x, y + corner * dy); ctx.lineTo(x, y); ctx.lineTo(x + corner * dx, y);
+    ctx.stroke();
+  });
+
+  ctx.textAlign = 'center';
+  ctx.font = 'italic 900 60px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText('W', W / 2, 200);
+  ctx.font = '700 22px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('EN DIRECT SUR WOZALI', W / 2, 246);
+
+  ctx.font = '900 78px "DM Serif Display", serif';
+  ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('REJOINS', W / 2, H * 0.42);
+  ctx.font = 'italic 900 92px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A';
+  ctx.shadowColor = 'rgba(232,148,10,0.5)'; ctx.shadowBlur = 30;
+  ctx.fillText('WOZALI', W / 2, H * 0.42 + 100);
+  ctx.shadowBlur = 0;
+
+  // Pastilles d'engagement live (remplit l'espace entre le titre et le lien, cohérent avec un direct)
+  const pillY = H * 0.42 + 200;
+  const liveStats = [['❤', '2,4 k'], ['👁', '890'], ['💬', '312']];
+  const pillGapCenter = 210;
+  liveStats.forEach((s, i) => {
+    const px = W / 2 + (i - 1) * pillGapCenter;
+    ctx.beginPath(); ctx.roundRect(px - 78, pillY, 156, 62, 31);
+    ctx.fillStyle = 'rgba(232,148,10,0.1)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(232,148,10,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = '26px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+    ctx.fillText(s[0], px - 34, pillY + 40);
+    ctx.font = '700 22px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.75)';
+    ctx.fillText(s[1], px + 18, pillY + 40);
+  });
+
+  ctx.font = 'italic 400 26px "DM Serif Display", serif';
+  ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Le travail parle. Pas les connexions.', W / 2, pillY + 140);
+
+  const boxW = W - fm * 2 - 60, boxH = 210, boxY = H - fm - boxH - 40, boxX = (W - boxW) / 2;
+  const boxGrad = ctx.createLinearGradient(boxX, boxY, boxX + boxW, boxY);
+  boxGrad.addColorStop(0, 'rgba(232,148,10,0.18)'); boxGrad.addColorStop(1, 'rgba(232,148,10,0.06)');
+  ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, boxH, 26);
+  ctx.fillStyle = boxGrad; ctx.fill();
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.font = '700 20px "Geist Mono", monospace';
+  ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText('TON LIEN', W / 2, boxY + 48);
+  const fitSize = _ecFitFontSize(ctx, linkClean, boxW - 80, '"Geist Mono", monospace', 900, 76, 34);
+  ctx.font = `900 ${fitSize}px "Geist Mono", monospace`;
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, boxY + 150);
+}
+
+// VISUEL — Fond Live TikTok B (1080x1920) : carte profil compacte + lien géant
+function _ecDrawLiveBgB(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 900);
+  const linkClean = _ecStripProtocol(link);
+  const padL = 84, padR = 84, contentW = W - padL - padR;
+
+  const cardX = padL, cardW = contentW, cardY = 110, cardH = 320;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 26);
+  ctx.fillStyle = 'rgba(30,24,14,0.95)'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.3)'; ctx.lineWidth = 2; ctx.stroke();
+
+  const padIn = 36, avR = 52;
+  const avCx = cardX + padIn + avR, avCy = cardY + padIn + avR;
+  _ecAvatar(ctx, avCx, avCy, avR, (prenom || 'T').trim().charAt(0).toUpperCase() || 'T');
+  ctx.textAlign = 'left'; ctx.font = '700 34px Geist, sans-serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(prenom || 'Toi', avCx + avR + 26, avCy - 6);
+  ctx.font = '400 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('EN DIRECT · WOZALI', avCx + avR + 26, avCy + 24);
+
+  ctx.textAlign = 'right'; ctx.font = 'italic 900 60px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('87', cardX + cardW - padIn, avCy);
+  ctx.font = '700 15px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('SCORE', cardX + cardW - padIn, avCy + 22);
+
+  const py = avCy + avR + 30;
+  let px = cardX + padIn;
+  px += _ecPill(ctx, px, py, 'PRO', { gold: true }) + 12;
+  _ecPill(ctx, px, py, '★ 4,8 · avis');
+
+  // Citation client (remplit l'espace entre la carte et le titre)
+  const quoteY = cardY + cardH + 130;
+  ctx.textAlign = 'center';
+  ctx.font = 'italic 400 32px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  _wzWrapText(ctx, '« Toujours à l\'heure, travail soigné », dit un client', W / 2, quoteY, contentW - 100, 44, 'italic 400 32px "DM Serif Display", serif', 'rgba(252,224,168,0.55)', 'center');
+
+  ctx.textAlign = 'center';
+  ctx.font = '900 66px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('Rejoins-moi sur', W / 2, H * 0.52);
+  ctx.font = 'italic 900 84px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.shadowColor = 'rgba(232,148,10,0.5)'; ctx.shadowBlur = 26;
+  ctx.fillText('WOZALI', W / 2, H * 0.52 + 92);
+  ctx.shadowBlur = 0;
+
+  // Pastilles d'engagement live (remplit l'espace entre le titre et le lien)
+  const pillY = H * 0.52 + 170;
+  const liveStats = [['❤', '2,4 k'], ['👁', '890'], ['💬', '312']];
+  const pillGapCenter = 210;
+  liveStats.forEach((s, i) => {
+    const px2 = W / 2 + (i - 1) * pillGapCenter;
+    ctx.beginPath(); ctx.roundRect(px2 - 78, pillY, 156, 62, 31);
+    ctx.fillStyle = 'rgba(232,148,10,0.1)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(232,148,10,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = '26px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+    ctx.fillText(s[0], px2 - 34, pillY + 40);
+    ctx.font = '700 22px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.75)';
+    ctx.fillText(s[1], px2 + 18, pillY + 40);
+  });
+
+  ctx.textAlign = 'center';
+  ctx.font = 'italic 400 26px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Le travail parle. Pas les connexions.', W / 2, pillY + 140);
+
+  const boxW = contentW, boxH = 220, boxY = H - 220, boxX = padL;
+  const boxGrad = ctx.createLinearGradient(boxX, boxY, boxX + boxW, boxY);
+  boxGrad.addColorStop(0, 'rgba(232,148,10,0.18)'); boxGrad.addColorStop(1, 'rgba(232,148,10,0.06)');
+  ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, boxH, 26);
+  ctx.fillStyle = boxGrad; ctx.fill();
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.font = '700 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText('TON LIEN', W / 2, boxY + 50);
+  const fitSize = _ecFitFontSize(ctx, linkClean, boxW - 80, '"Geist Mono", monospace', 900, 80, 34);
+  ctx.font = `900 ${fitSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, boxY + 156);
+}
+
+// VISUEL — Bannière de couverture (1500x500)
+function _ecDrawBannerCover(ctx, W, H, prenom, link) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 700);
+  const linkClean = _ecStripProtocol(link);
+  const padL = 70;
+
+  ctx.save();
+  ctx.globalAlpha = 0.05;
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1;
+  for (let x = -H; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, H); ctx.lineTo(x + H, 0); ctx.stroke(); }
+  ctx.restore();
+
+  const barGrad = ctx.createLinearGradient(0, 0, 0, H);
+  barGrad.addColorStop(0, '#f5b13d'); barGrad.addColorStop(1, '#b56f06');
+  ctx.fillStyle = barGrad; ctx.fillRect(0, 0, 10, H);
+
+  ctx.textAlign = 'left';
+  ctx.font = 'italic 900 70px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('W', padL, H / 2 - 44);
+  const wWidth = ctx.measureText('W').width;
+  ctx.font = '400 38px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('OZALI', padL + wWidth + 6, H / 2 - 44);
+
+  ctx.font = '700 22px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('CRÉATEUR WOZALI', padL, H / 2);
+
+  ctx.font = 'italic 400 30px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(252,224,168,0.6)';
+  ctx.fillText(`${prenom || 'Un créateur'} qui fait grandir WOZALI.`, padL, H / 2 + 46);
+
+  const bx = W - 340, by = H / 2 - 90;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(bx, by, 270, 180, 22);
+  ctx.fillStyle = 'rgba(30,24,14,0.9)'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.3)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.font = 'italic 900 70px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('87', bx + 135, by + 95);
+  ctx.font = '700 16px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('SCORE WOZALI', bx + 135, by + 130);
+
+  const linkFontSize = _ecFitFontSize(ctx, linkClean, W - padL - 420, '"Geist Mono", monospace', 700, 34, 20);
+  ctx.font = `700 ${linkFontSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  ctx.textAlign = 'right';
+  ctx.fillText(linkClean, W - 60, H - 60);
+}
+
+// VISUEL — Cadre photo de profil (1080x1080, PNG transparent au centre)
+function _ecDrawBannerRing(ctx, W, H) {
+  ctx.clearRect(0, 0, W, H);
+  const cx = W / 2, cy = H / 2;
+  const outerR = W / 2 - 20;
+  const ringW = 46;
+  const innerR = outerR - ringW;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+  ctx.arc(cx, cy, innerR, 0, Math.PI * 2, true);
+  ctx.closePath();
+  if (ctx.createConicGradient) {
+    const grad = ctx.createConicGradient(0, cx, cy);
+    grad.addColorStop(0, '#f5b13d'); grad.addColorStop(0.25, '#E8940A');
+    grad.addColorStop(0.5, '#b56f06'); grad.addColorStop(0.75, '#E8940A'); grad.addColorStop(1, '#f5b13d');
+    ctx.fillStyle = grad;
+  } else {
+    const lg = ctx.createLinearGradient(cx - outerR, cy - outerR, cx + outerR, cy + outerR);
+    lg.addColorStop(0, '#f5b13d'); lg.addColorStop(0.5, '#E8940A'); lg.addColorStop(1, '#b56f06');
+    ctx.fillStyle = lg;
+  }
+  ctx.shadowColor = 'rgba(232,148,10,0.5)'; ctx.shadowBlur = 30;
+  ctx.fill('evenodd');
+  ctx.restore();
+
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.font = '700 26px "Geist Mono", monospace';
+  ctx.fillStyle = '#14100A';
+  ctx.translate(cx, cy + outerR - ringW / 2);
+  ctx.fillText('WOZALI', 0, 8);
+  ctx.restore();
+}
+
+// Registre des packs Créateur — chaque asset = {label, dims:[W,H], draw(ctx,W,H,prenom,link)}
+const _EC_PACKS = {
+  reels: {
+    titre: 'Pack Reels',
+    assets: [
+      { label: "Cover 1 · L'argent ne circule pas", dims: [1080, 1920], draw: (ctx, W, H, p, l) => _ecDrawReelCover(ctx, W, H, p, l, "L'argent ne circule pas.") },
+      { label: 'Cover 2 · Personne ne te rappelle', dims: [1080, 1920], draw: (ctx, W, H, p, l) => _ecDrawReelCover(ctx, W, H, p, l, 'Personne ne te rappelle ?') },
+      { label: "Cover 3 · On m'a dit que c'était une arnaque", dims: [1080, 1920], draw: (ctx, W, H, p, l) => _ecDrawReelCover(ctx, W, H, p, l, "On m'a dit que c'était une arnaque.") }
+    ],
+    extraHtml: _ecPackReelsExtraHtml
+  },
+  stories: {
+    titre: 'Pack Stories',
+    assets: [
+      { label: 'Story · Preuve', dims: [1080, 1920], draw: _ecDrawStoryProof },
+      { label: 'Story · Question', dims: [1080, 1920], draw: _ecDrawStoryQuestion },
+      { label: 'Story · Urgence douce', dims: [1080, 1920], draw: _ecDrawStoryUrgence }
+    ]
+  },
+  // Pack Posts et Carrousels — retiré du kit Créateur (directive fondateur
+  // 2026-07-23), en réserve. Le code de dessin (_ecDrawCarouselSlide,
+  // _EC_CAROUSEL_COPY) reste défini plus haut, juste débranché d'ici.
+  // posts: {
+  //   titre: 'Pack Posts et Carrousels',
+  //   assets: [0, 1, 2, 3].map(i => ({
+  //     label: `Carrousel · Slide 0${i + 1}`,
+  //     dims: [1080, 1350],
+  //     draw: (ctx, W, H, p, l) => _ecDrawCarouselSlide(ctx, W, H, p, l, i)
+  //   }))
+  // },
+  live: {
+    titre: 'Fond Live TikTok',
+    assets: [
+      { label: 'Fond Live · Lien géant', dims: [1080, 1920], draw: _ecDrawLiveBgA },
+      { label: 'Fond Live · Carte + lien', dims: [1080, 1920], draw: _ecDrawLiveBgB }
+    ]
+  }
+  // Bannières et cadres — retiré du kit Créateur (déménage dans « Fais-toi
+  // voir », ouvert à tous). Le code de dessin (_ecDrawBannerCover,
+  // _ecDrawBannerRing) reste défini plus haut, juste débranché d'ici.
+  // ,banners: {
+  //   titre: 'Bannières et cadres',
+  //   assets: [
+  //     { label: 'Bannière de couverture', dims: [1500, 500], draw: _ecDrawBannerCover },
+  //     { label: 'Cadre photo de profil', dims: [1080, 1080], draw: (ctx, W, H) => _ecDrawBannerRing(ctx, W, H) }
+  //   ]
+  // }
+};
+
+function _ecGetPrenomLink() {
+  const f = currentPrestataire?.fields || {};
+  const prenom = (f['Prénom'] || (f['Nom complet'] || '').split(' ')[0] || 'Toi').trim();
+  const rawLink = (document.getElementById('parrain-link-box')?.textContent || '').trim();
+  const link = (!rawLink || rawLink === 'Chargement...') ? ('https://wozali.africa?ref=' + (f['Code Parrainage'] || '')) : rawLink;
+  return { prenom, link };
+}
+
+function _ecPackFilename(packId, idx, prenom) {
+  const slug = (prenom || 'moi').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '') || 'moi';
+  return `wozali-${packId}-${idx + 1}-${slug}.png`;
+}
+
+function _ecPackCardHtml(packId, idx, asset) {
+  const [w, h] = asset.dims;
+  const ratio = w / h;
+  const shapeClass = ratio > 1.4 ? 'ec-kitbase-thumb-wide' : (ratio < 0.8 ? 'ec-kitbase-thumb-tall' : 'ec-kitbase-thumb-square');
+  return `
+    <div class="ec-kitbase-card">
+      <div class="ec-kitbase-thumb-wrap ${shapeClass}">
+        <span class="ec-kitbase-loading" id="ec-pk-loading-${packId}-${idx}">Génération…</span>
+        <img class="ec-kitbase-img" id="ec-pk-img-${packId}-${idx}" alt="Aperçu ${escapeHtml(asset.label)}" style="display:none;" onclick="_ecOpenLightbox(this.src)">
+      </div>
+      <div class="ec-kitbase-name">${escapeHtml(asset.label)}</div>
+      <div class="ec-kitbase-actions">
+        <button class="ec-btn-thin" onclick="_ecPackDownload('${packId}',${idx})" title="Télécharger">${_ecSvg('copy')}<span class="ec-btn-thin-label">Télécharger</span></button>
+        <button class="ec-btn-thin ec-btn-thin-accent" onclick="_ecPackShare('${packId}',${idx})" title="Partager">${_ecSvg('arrow')}<span class="ec-btn-thin-label">Partager</span></button>
+      </div>
+    </div>`;
+}
+
+// ── Panneau plein écran généralisé (ec-pack-sheet) — utilisé par l'Espace
+// Créateur (#ec-pack-modal) ET par « Fais-toi voir » (#ftv-pack-modal), deux
+// jeux d'éléments DOM distincts (mêmes classes CSS, dupliquées/scoping double
+// dans le <style> de chaque section) pour éviter le piège du `.dash-section
+// { display:none }` : un modal fixed niché dans une section inactive ne
+// s'affiche jamais, même en position:fixed, tant que l'ancêtre a display:none.
+const _EC_MODAL_IDS  = { modal: 'ec-pack-modal',  title: 'ec-pack-title',  body: 'ec-pack-body' };
+const _FTV_MODAL_IDS = { modal: 'ftv-pack-modal', title: 'ftv-pack-title', body: 'ftv-pack-body' };
+
+function _ecOpenPanel(ids, titre) {
+  const modal = document.getElementById(ids.modal);
+  const titleEl = document.getElementById(ids.title);
+  const bodyEl = document.getElementById(ids.body);
+  if (!modal || !bodyEl || !titleEl) return null;
+  titleEl.textContent = titre;
+  bodyEl.innerHTML = '';
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  bodyEl.scrollTop = 0;
+  return bodyEl;
+}
+
+function _ecClosePanel(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function ecOpenPack(packId) {
+  const pack = _EC_PACKS[packId];
+  if (!pack) { ecKitToast(); return; }
+  const bodyEl = _ecOpenPanel(_EC_MODAL_IDS, pack.titre);
+  if (!bodyEl) return;
+
+  const gridHtml = `<div class="ec-pack-grid">${pack.assets.map((a, i) => _ecPackCardHtml(packId, i, a)).join('')}</div>`;
+  bodyEl.innerHTML = gridHtml + (typeof pack.extraHtml === 'function' ? pack.extraHtml() : '');
+
+  await _ecRenderPackAssets(packId);
+}
+
+function ecClosePackModal() {
+  _ecClosePanel('ec-pack-modal');
+}
+
+function ftvClosePanel() {
+  _ecClosePanel('ftv-pack-modal');
+}
+
+// ── Lightbox plein écran pour tout aperçu de visuel généré (Espace Créateur
+// ET Fais-toi voir) : clic sur une miniature .ec-kitbase-img (ou le canvas de
+// l'anneau) → image en pleine taille, overlay sombre, fermeture par croix ou
+// clic sur le fond. Élément unique créé à la demande, au-dessus de tous les
+// panneaux (z-index supérieur à ec-pack-modal/ftv-pack-modal).
+function _ecOpenLightbox(src) {
+  if (!src) return;
+  let lb = document.getElementById('ec-lightbox');
+  if (!lb) {
+    lb = document.createElement('div');
+    lb.id = 'ec-lightbox';
+    lb.style.cssText = 'position:fixed;inset:0;z-index:10200;background:rgba(5,4,2,.94);display:none;align-items:center;justify-content:center;padding:32px;cursor:zoom-out;';
+    lb.innerHTML = `
+      <button type="button" id="ec-lightbox-close" aria-label="Fermer" style="position:absolute;top:18px;right:18px;background:rgba(20,16,10,.6);border:1px solid rgba(252,224,168,.3);color:#FCE0A8;width:38px;height:38px;border-radius:50%;font-size:19px;line-height:1;cursor:pointer;">×</button>
+      <img id="ec-lightbox-img" src="" alt="Aperçu en grand" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.65);cursor:default;">
+    `;
+    document.body.appendChild(lb);
+    lb.addEventListener('click', (e) => { if (e.target === lb) _ecCloseLightbox(); });
+    lb.querySelector('#ec-lightbox-close').addEventListener('click', _ecCloseLightbox);
+  }
+  lb.querySelector('#ec-lightbox-img').src = src;
+  lb.style.display = 'flex';
+}
+function _ecCloseLightbox() {
+  const lb = document.getElementById('ec-lightbox');
+  if (lb) lb.style.display = 'none';
+}
+
+// Placeholder Pack Reels : covers/scripts en réserve (cf. _EC_REEL_SCRIPTS et
+// _EC_PACKS.reels plus bas), débranchés de l'UI en attendant la production
+// vidéo via Higgsfield. Directive fondateur 2026-07-23.
+function ecReelsSoonPanel() {
+  const bodyEl = _ecOpenPanel(_EC_MODAL_IDS, 'Pack Reels');
+  if (!bodyEl) return;
+  bodyEl.innerHTML = `<div class="ec-soon-card" style="justify-content:center;text-align:center;padding:40px 20px;">${_ecSvg('info')}<span>Tes reels arrivent bientôt.</span></div>`;
+}
+
+async function _ecRenderPackAssets(packId) {
+  const pack = _EC_PACKS[packId];
+  if (!pack || !currentPrestataire) return;
+  const { prenom, link } = _ecGetPrenomLink();
+  await _ecEnsureFontsLoaded();
+
+  window._ecPackCache = window._ecPackCache || {};
+  window._ecPackCache[packId] = window._ecPackCache[packId] || {};
+  window._ecPackPrenom = prenom;
+  window._ecPackLink = link;
+
+  for (let i = 0; i < pack.assets.length; i++) {
+    const asset = pack.assets[i];
+    try {
+      const [W, H] = asset.dims;
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      asset.draw(ctx, W, H, prenom, link);
+      const dataUrl = canvas.toDataURL('image/png');
+      window._ecPackCache[packId][i] = dataUrl;
+      const imgEl = document.getElementById(`ec-pk-img-${packId}-${i}`);
+      const loadingEl = document.getElementById(`ec-pk-loading-${packId}-${i}`);
+      if (imgEl) { imgEl.src = dataUrl; imgEl.style.display = 'block'; }
+      if (loadingEl) loadingEl.style.display = 'none';
+    } catch (e) {
+      console.warn('[ec-pack] génération', packId, i, e);
+      const loadingEl = document.getElementById(`ec-pk-loading-${packId}-${i}`);
+      if (loadingEl) loadingEl.textContent = 'Indisponible';
+    }
+  }
+}
+
+function _ecPackDownload(packId, idx) {
+  const dataUrl = window._ecPackCache?.[packId]?.[idx];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = _ecPackFilename(packId, idx, window._ecPackPrenom);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+async function _ecPackShare(packId, idx) {
+  const dataUrl = window._ecPackCache?.[packId]?.[idx];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const filename = _ecPackFilename(packId, idx, window._ecPackPrenom);
+  const link = window._ecPackLink || 'https://wozali.africa';
+
+  try {
+    if (navigator.canShare && navigator.share) {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: `Rejoins-moi sur WOZALI.\n${link}` });
+        return;
+      }
+    }
+  } catch (e) {
+    if (e?.name === 'AbortError') return;
+  }
+  _ecPackDownload(packId, idx);
+  toast('Visuel téléchargé. Partage-le depuis tes photos.', 'info');
 }
 
 async function loadEspaceCreateurSection() {
@@ -13246,8 +14810,8 @@ async function loadEspaceCreateurSection() {
     <h3 class="ec-block-title">Classement du mois</h3>
     <div class="ec-section-gap">${soonCard('Classement du mois : bientôt disponible.')}</div>`;
 
-  const kitCard = (icon, name, desc, locked) => `
-    <div class="ec-kit-card${locked ? ' ec-locked' : ''}" ${locked ? '' : 'onclick="ecKitToast()"'}>
+  const kitCard = (icon, name, desc, locked, packId) => `
+    <div class="ec-kit-card${locked ? ' ec-locked' : ''}" ${locked ? '' : `onclick="${packId === 'reels-soon' ? 'ecReelsSoonPanel()' : (packId ? `ecOpenPack('${packId}')` : 'ecKitToast()')}"`}>
       ${locked ? `<div class="ec-lock-badge">${_ecSvg('lock')}</div>` : ''}
       <div class="ec-kit-icon">${_ecSvg(icon)}</div>
       <div><div class="ec-kit-name">${name}</div>${desc ? `<div class="ec-kit-desc">${desc}</div>` : ''}</div>
@@ -13290,7 +14854,6 @@ async function loadEspaceCreateurSection() {
       <div class="ec-kit-grid">
         ${kitCard('reels', 'Pack Reels', "Covers, scripts et sons prêts à tourner.", true)}
         ${kitCard('stories', 'Pack Stories', "Séries prêtes pour ta story permanente.", true)}
-        ${kitCard('posts', 'Pack Posts', 'Posts et carrousels à ton nom.', true)}
         ${kitCard('live', 'Fond Live TikTok', 'Ton lien affiché pendant tes lives.', true)}
         ${kitCard('doc', 'Mini-formations', 'Le reel qui convertit, pitcher en story.', true)}
         ${kitCard('coach', 'Sandy Coach Créateur', 'Elle te dit quoi poster et t\'analyse.', true)}
@@ -13320,11 +14883,9 @@ async function loadEspaceCreateurSection() {
 
       <h3 class="ec-block-title">Ton kit Créateur</h3>
       <div class="ec-kit-grid ec-section-gap">
-        ${kitCard('reels', 'Pack Reels', 'Covers, 5 scripts et sons prêts à tourner.')}
-        ${kitCard('stories', 'Pack Stories', 'Séries prêtes pour ta story permanente.')}
-        ${kitCard('posts', 'Pack Posts et Carrousels', 'Auto-personnalisés à ton nom et ton lien.')}
-        ${kitCard('live', 'Fond Live TikTok', 'Ton lien lisible à l\'écran pendant tes lives.')}
-        ${kitCard('banner', 'Bannières et fonds', 'Visuels pour tes profils sociaux.')}
+        ${kitCard('reels', 'Pack Reels', 'Tes reels arrivent bientôt.', false, 'reels-soon')}
+        ${kitCard('stories', 'Pack Stories', 'Séries prêtes pour ta story permanente.', false, 'stories')}
+        ${kitCard('live', 'Fond Live TikTok', 'Ton lien lisible à l\'écran pendant tes lives.', false, 'live')}
         ${kitCard('doc', 'Mini-formations', 'Le reel qui convertit, pitcher en story, répondre en DM.')}
       </div>
 
@@ -13369,10 +14930,9 @@ async function loadEspaceCreateurSection() {
 
       <h3 class="ec-block-title">Ton kit Créateur</h3>
       <div class="ec-kit-grid ec-condensed">
-        ${kitCard('reels', 'Pack Reels')}
-        ${kitCard('stories', 'Pack Stories')}
-        ${kitCard('posts', 'Pack Posts')}
-        ${kitCard('live', 'Fond Live TikTok')}
+        ${kitCard('reels', 'Pack Reels', undefined, false, 'reels-soon')}
+        ${kitCard('stories', 'Pack Stories', undefined, false, 'stories')}
+        ${kitCard('live', 'Fond Live TikTok', undefined, false, 'live')}
       </div>`;
   } else {
     // ── ÉTAT 4 — OR ──
@@ -13403,7 +14963,1056 @@ async function loadEspaceCreateurSection() {
       <div class="ec-maintain-note">${_ecSvg('clock')}<span>Ton statut Or se maintient tant que tu gardes tes Pro actifs.</span></div>`;
   }
 
-  containerEl.innerHTML = html;
+  containerEl.innerHTML = _ecKitBaseBlockHtml() + html;
+  _ecRenderKitBase();
+}
+
+// ══════════════════════════════════════════
+// FAIS-TOI VOIR — Vague 1 (ouvert à TOUS les membres connectés)
+// ══════════════════════════════════════════
+// Utilise EXCLUSIVEMENT le lien de PROFIL PUBLIC (_buildProfilSlug, comme
+// generateProfilStory/generatePostStory/generateStory), JAMAIS le lien de
+// parrainage/affiliation. Réutilise les helpers premium _ec* (glow, ombre,
+// avatar, pill, étoiles, fit-font, fonts) et le panneau généralisé
+// _ecOpenPanel/_ecClosePanel (cf. plus haut, système ec-pack-sheet).
+
+// ── Accroche « Fais-toi voir » — écrite par le membre, proposée par Sandy ──
+// Vague 1 : le membre décrit ce qu'il fait, Sandy (placeholder heuristique
+// local, cf. _ftvGenerateAccroche) lui propose une phrase vendeuse. Stockage
+// léger localStorage (vague 2 : migrer vers un vrai champ profil Supabase).
+// Fallback si rien n'est encore renseigné : formulation neutre à partir du
+// métier (jamais la table punchy — l'objectif est que le membre écrive la sienne).
+function _ftvAccrocheKey(prestId) { return `wozali_ftv_accroche_${prestId || 'anon'}`; }
+
+function _ftvNeutralMetierPhrase(metier) {
+  return metier ? metier : 'Prestataire WOZALI';
+}
+
+function _ftvGetAccroche(prestId, metier) {
+  try {
+    const saved = localStorage.getItem(_ftvAccrocheKey(prestId));
+    if (saved && saved.trim()) return saved.trim();
+  } catch (e) { /* localStorage indisponible */ }
+  return _ftvNeutralMetierPhrase(metier);
+}
+
+function _ftvSaveAccroche(prestId, text) {
+  try { localStorage.setItem(_ftvAccrocheKey(prestId), (text || '').trim()); } catch (e) { /* silencieux */ }
+}
+
+// Seed heuristique (verbe-métier) utilisé UNIQUEMENT comme matière première par
+// le générateur placeholder ci-dessous — ce n'est plus le mécanisme d'affichage,
+// juste un ingrédient pour produire une proposition correcte en vague 1.
+const _FTV_METIER_VERB_SEED = {
+  'Coiffeur/Coiffeuse': 'coiffe chez toi ou au salon',
+  'Couturier/Couturière': 'couds tes tenues sur mesure',
+  'Électricien': 'répare tes pannes électriques',
+  'Menuisier': 'fabrique tes meubles sur mesure',
+  'Mécanicien auto': 'répare ta voiture',
+  'Mécanicien moto': 'répare ta moto',
+  'Maçon': 'construis et je rénove chez toi',
+  'Plombier': 'répare tes fuites et installations',
+  'Photographe': 'capture tes plus beaux moments',
+  'Cuisinier/Cuisinière à domicile': 'cuisine pour toi à domicile',
+  'Peintre en bâtiment': 'repeins tes murs avec soin',
+  'Soudeur': 'soude tes portails et structures',
+  'Traiteur': 'régale tes événements',
+  'Chauffeur/Taxi': 'te conduis où tu veux',
+  'Femme de ménage': 'rends ta maison impeccable',
+  'Esthéticienne': 'prends soin de ta peau',
+  'Barbier': 'rase et je te coiffe',
+};
+
+// TODO vague 2 : brancher sur le vrai Sandy (coach-chat IA) — remplacer ce
+// corps par un appel au endpoint coach (analyse de `description` + `metier`,
+// retourne une accroche vendeuse générée par le modèle). Signature `async`
+// conservée pour que le câblage réel n'impose aucun changement d'appelant.
+async function _ftvGenerateAccroche(description, metier) {
+  const desc = (description || '').trim();
+  const seed = _FTV_METIER_VERB_SEED[metier];
+  // Le membre commence parfois déjà sa description par "je"/"j'" (ex : "j'installe
+  // des paraboles"). Dans ce cas on ne préfixe PAS un "Je" en plus (ça donnait le
+  // doublon "Je j'installe...") : on garde sa phrase telle quelle, casse corrigée.
+  const JE_PREFIX_RE = /^(je\s|j['’ʼ`]\s*)/i;
+  let phrase;
+  let dejaJe = false;
+  if (desc) {
+    const firstClause = desc.split(/[.,\n]/)[0].trim();
+    if (firstClause && JE_PREFIX_RE.test(firstClause)) {
+      dejaJe = true;
+      phrase = firstClause.charAt(0).toUpperCase() + firstClause.slice(1);
+    } else {
+      phrase = firstClause ? firstClause.charAt(0).toLowerCase() + firstClause.slice(1) : (seed || (metier ? `m'occupe de ${metier.toLowerCase()}` : 'travaille pour toi'));
+    }
+  } else {
+    phrase = seed || (metier ? `m'occupe de ${metier.toLowerCase()}` : 'travaille pour toi');
+  }
+  phrase = phrase.replace(/\.$/, '');
+  return dejaJe ? phrase : `Je ${phrase}`;
+}
+
+// Rassemble toutes les données membre nécessaires aux visuels FTV, y compris
+// le lien de PROFIL PUBLIC (jamais le lien de parrainage).
+function _ftvGetData() {
+  const f = currentPrestataire?.fields || {};
+  const nom = f['Nom complet'] || 'Toi';
+  const prenom = (f['Prénom'] || nom.split(' ')[0] || 'Toi').trim();
+  const metier = f['Métier principal'] || '';
+  const metierPitch = _ftvGetAccroche(currentPrestataire?.id, metier);
+  const quartier = f['Quartier'] || '';
+  const ville = f['Ville'] || '';
+  const photoUrl = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['WhatsApp']) || '';
+  const score = Math.round(f['Score WOZALI'] || 0);
+  const slug = _buildProfilSlug(nom, metier, ville);
+  const link = `https://wozali.africa/profil/${slug}`;
+  const desc = (f['Description des services'] || '').trim();
+  const services = desc
+    ? desc.split(/[.\n,]/).map(s => s.trim()).filter(Boolean).slice(0, 3)
+    : [];
+  return { nom, prenom, metier, metierPitch, quartier, ville, photoUrl, score, link, services };
+}
+
+// Avis récents (source réelle fetchAvis, aucune donnée de démo) : compte,
+// note moyenne, liste complète (pour le sélecteur) et avis mis en avant pour
+// l'Épingle 2. Par défaut (aucun choix mémorisé) on prend le MEILLEUR avis
+// (note la plus haute, puis le plus récent en cas d'égalité), pas juste le
+// dernier posté. Si le fondateur a choisi un avis précis (voir
+// _ftvSetAvisPreuve), ce choix est mémorisé en localStorage et prime.
+async function _ftvGetAvisInfo() {
+  if (!currentPrestataire?.id) return { nbAvis: 0, note: 0, dernier: null, liste: [] };
+  try {
+    const recs = await fetchAvis(currentPrestataire.id);
+    const nbAvis = recs.length;
+    let note = 0;
+    if (nbAvis) note = recs.reduce((s, r) => s + (r.fields['Note globale sur 5'] || 0), 0) / nbAvis;
+    const liste = recs.map(r => {
+      const { nom: nomParse, comment } = parseAvisCommentaire(r.fields['Commentaire'] || '');
+      // Champ réel Auteur Nom (colonne auteur_nom, cf. submitAvis + supa-avis.js) en
+      // priorité, comme le reste du dashboard (section Mes avis) : le parsing du
+      // préfixe [Nom|id|photo] du Commentaire n'est qu'un fallback historique.
+      const nomReel = (r.fields['Auteur Nom'] || r.fields['Auteur'] || nomParse || '').trim();
+      return {
+        id: r.id,
+        note: r.fields['Note globale sur 5'] || 0,
+        comment: (comment || '').trim(),
+        nom: nomReel || 'Client vérifié',
+        date: r.fields["Date de l'avis"] || r.createdTime || null,
+      };
+    });
+    let dernier = null;
+    if (nbAvis) {
+      const choisiId = _ftvGetAvisChoisi(currentPrestataire.id);
+      const choisi = choisiId ? liste.find(a => a.id === choisiId) : null;
+      dernier = choisi || _ftvBestAvis(liste);
+    }
+    return { nbAvis, note, dernier, liste };
+  } catch (e) {
+    return { nbAvis: 0, note: 0, dernier: null, liste: [] };
+  }
+}
+
+// 4-5 avis mock variés, utilisés uniquement en fallback quand le sélecteur
+// d'avis est ouvert sans avis réels disponibles (démo, test hors connexion).
+const _FTV_AVIS_MOCK = [
+  { id: 'mock-1', note: 5, comment: "Toujours à l'heure, travail impeccable. Je recommande direct.", nom: 'Kossi A.', date: '2026-07-10' },
+  { id: 'mock-2', note: 5, comment: "Sérieux du début à la fin, il a réglé mon problème en une seule visite.", nom: 'Ama D.', date: '2026-07-02' },
+  { id: 'mock-3', note: 4, comment: "Bon travail, juste un peu en retard le jour du rendez-vous.", nom: 'Fifi K.', date: '2026-06-28' },
+  { id: 'mock-4', note: 5, comment: "Prix honnête, résultat au top. Je fais appel à lui à chaque fois.", nom: 'Yao M.', date: '2026-06-15' },
+  { id: 'mock-5', note: 4, comment: "Bonne communication, il explique bien avant de commencer.", nom: 'Abla S.', date: '2026-06-01' },
+];
+
+// Meilleur avis d'une liste : note la plus haute, puis le plus récent.
+function _ftvBestAvis(liste) {
+  if (!liste || !liste.length) return null;
+  return [...liste].sort((a, b) => (b.note - a.note) || (new Date(b.date || 0) - new Date(a.date || 0)))[0];
+}
+
+function _ftvAvisChoisiKey(prestataireId) {
+  return `wozali_ftv_avis_choisi_${prestataireId}`;
+}
+function _ftvGetAvisChoisi(prestataireId) {
+  try { return localStorage.getItem(_ftvAvisChoisiKey(prestataireId)) || null; } catch (e) { return null; }
+}
+function _ftvSaveAvisChoisi(prestataireId, avisId) {
+  try { localStorage.setItem(_ftvAvisChoisiKey(prestataireId), avisId); } catch (e) { /* ignore */ }
+}
+
+// Réutilisable (servira aussi au futur visuel d'avis à partager, Outil 4,
+// vague 2) : régénère l'Épingle 2 · Preuve avec l'avis choisi, met à jour le
+// cache d'aperçu et mémorise le choix pour Télécharger/Partager.
+async function _ftvSetAvisPreuve(avis) {
+  if (!avis || !currentPrestataire) return;
+  _ftvSaveAvisChoisi(currentPrestataire.id, avis.id);
+  const avisInfo = window._ftvAvisInfoCache || { nbAvis: 0, note: 0, liste: [] };
+  avisInfo.dernier = avis;
+  window._ftvAvisInfoCache = avisInfo;
+  const data = _ftvGetData();
+  await _ecEnsureFontsLoaded();
+  const photoImg = data.photoUrl ? await _wzLoadImg(data.photoUrl).catch(() => null) : null;
+  await _ftvRenderPin('preuve', 1080, 1350, (ctx, W, H) => _ftvDrawPinPreuve(ctx, W, H, data, photoImg, avisInfo));
+}
+
+function _ftvAvisSelectorItemHtml(avis, checked) {
+  const noteRound = Math.max(0, Math.min(5, Math.round(Number(avis.note) || 0)));
+  const starsFull = '★'.repeat(noteRound);
+  const starsEmpty = '☆'.repeat(5 - noteRound);
+  return `
+    <div onclick="_ftvChoisirAvis('${avis.id}')" style="padding:12px 14px;border:1px solid ${checked ? 'rgba(232,148,10,.55)' : 'var(--line)'};border-radius:12px;margin-bottom:8px;cursor:pointer;background:${checked ? 'rgba(232,148,10,.08)' : 'rgba(255,255,255,.02)'};">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <span style="font-size:13px;letter-spacing:1px;"><span style="color:#E8940A;">${starsFull}</span><span style="color:rgba(252,224,168,.25);">${starsEmpty}</span></span>
+        ${checked ? `<span style="width:16px;height:16px;color:#E8940A;">${_ecSvg('check', 2.2)}</span>` : ''}
+      </div>
+      <p style="margin:8px 0 4px;font-size:13px;color:var(--cream);line-height:1.5;">${escapeHtml(avis.comment || 'Avis sans commentaire.')}</p>
+      <span style="font-size:11.5px;color:var(--cream-muted);">${escapeHtml(avis.nom || 'Client vérifié')}</span>
+    </div>`;
+}
+
+async function _ftvToggleAvisSelector() {
+  const box = document.getElementById('ftv-avis-selector');
+  if (!box) return;
+  if (box.style.display !== 'none' && box.innerHTML.trim()) {
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+  box.style.display = 'block';
+  box.innerHTML = '<div style="text-align:center;padding:14px 0;font-size:12.5px;color:var(--cream-muted);">Chargement des avis…</div>';
+  const avisInfo = window._ftvAvisInfoCache || await _ftvGetAvisInfo();
+  if (!avisInfo.liste || !avisInfo.liste.length) avisInfo.liste = _FTV_AVIS_MOCK;
+  window._ftvAvisInfoCache = avisInfo;
+  const choisiId = avisInfo.dernier?.id || null;
+  box.innerHTML = avisInfo.liste.map(a => _ftvAvisSelectorItemHtml(a, a.id === choisiId)).join('');
+}
+
+async function _ftvChoisirAvis(avisId) {
+  const avisInfo = window._ftvAvisInfoCache;
+  const liste = (avisInfo && avisInfo.liste && avisInfo.liste.length) ? avisInfo.liste : _FTV_AVIS_MOCK;
+  const avis = liste.find(a => a.id === avisId);
+  if (!avis) return;
+  await _ftvSetAvisPreuve(avis);
+  const box = document.getElementById('ftv-avis-selector');
+  if (box) box.innerHTML = liste.map(a => _ftvAvisSelectorItemHtml(a, a.id === avisId)).join('');
+  toast('Cet avis est maintenant mis en avant sur ton épingle Preuve.', 'success');
+}
+
+function _ftvKitCard(icon, name, desc, fn) {
+  return `
+    <div class="ec-kit-card" onclick="${fn}()">
+      <div class="ec-kit-icon">${_ecSvg(icon)}</div>
+      <div><div class="ec-kit-name">${escapeHtml(name)}</div><div class="ec-kit-desc">${escapeHtml(desc)}</div></div>
+    </div>`;
+}
+
+function loadFaisToiVoirSection() {
+  const el = document.getElementById('faistoivoir-content');
+  if (!el || !currentPrestataire) return;
+  const metier = currentPrestataire.fields?.['Métier principal'] || '';
+  const savedRaw = (() => { try { return localStorage.getItem(_ftvAccrocheKey(currentPrestataire.id)) || ''; } catch (e) { return ''; } })();
+  const currentAccroche = savedRaw.trim() || _ftvNeutralMetierPhrase(metier);
+
+  el.innerHTML = `
+    <div class="ec-eyebrow">Fais-toi voir</div>
+    <h1 class="ec-title">L'argent va vers ceux qu'<em>on voit.</em></h1>
+    <p class="ec-subtitle">Tes visuels prêts à poster, pour que ton activité soit vue partout.</p>
+
+    <div class="ec-card ec-card-glow ec-section-gap">
+      <h3 class="ec-block-title" style="margin-bottom:8px;">Ton accroche</h3>
+      <p class="ec-kitbase-intro" style="margin-top:0;">Dis en une phrase ce que tu fais ou vends. C'est elle qui apparaît en grand sur tes visuels.</p>
+      <textarea id="ftv-accroche-input" rows="2" placeholder="Ex : je répare les pannes électriques à domicile, rapide et sérieux" style="width:100%;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--cream);font-family:var(--font-sans);font-size:13.5px;resize:vertical;min-height:64px;">${escapeHtml(savedRaw)}</textarea>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+        <button class="ec-btn-sandy" id="ftv-accroche-sandy-btn" onclick="ftvSandySuggestAccroche()">Sandy te propose une accroche ${_ecSvg('arrow', 2)}</button>
+        <button class="ec-btn-copy" onclick="ftvSaveAccrocheManual()">Enregistrer telle quelle</button>
+      </div>
+      <div class="ec-link-row" style="margin-top:14px;">
+        <span class="ec-lk" style="white-space:normal;overflow:visible;">${escapeHtml(currentAccroche)}</span>
+      </div>
+    </div>
+
+    <div class="ec-kit-grid">
+      ${_ftvKitCard('pin', 'Mes 3 posts à épingler', "Le funnel complet : vitrine, preuve, mode d'emploi.", 'ftvOpenFunnel')}
+      ${_ftvKitCard('ring', 'Ma photo de profil or', "Ton anneau signature WOZALI, prêt pour tes réseaux.", 'ftvOpenAnneau')}
+      ${_ftvKitCard('banner', 'Ma bannière', "Ta couverture pro Facebook et LinkedIn.", 'ftvOpenBanniere')}
+      ${_ftvKitCard('arrow', 'Partager', "Les templates prêts pour tes posts et tes avis.", 'ftvOpenPartager')}
+    </div>`;
+}
+
+function ftvSaveAccrocheManual() {
+  const input = document.getElementById('ftv-accroche-input');
+  const val = (input?.value || '').trim();
+  if (!val) { toast('Écris d\'abord ce que tu fais ou vends.', 'info'); return; }
+  _ftvSaveAccroche(currentPrestataire?.id, val);
+  toast('Ton accroche est enregistrée.', 'success');
+  loadFaisToiVoirSection();
+}
+
+async function ftvSandySuggestAccroche() {
+  const input = document.getElementById('ftv-accroche-input');
+  const desc = (input?.value || '').trim();
+  if (!desc) { toast('Décris d\'abord ce que tu fais, même en quelques mots.', 'info'); return; }
+  const btn = document.getElementById('ftv-accroche-sandy-btn');
+  if (btn) { btn.disabled = true; btn.style.opacity = '.6'; btn.textContent = 'Sandy réfléchit…'; }
+  try {
+    const metier = currentPrestataire?.fields?.['Métier principal'] || '';
+    const proposal = await _ftvGenerateAccroche(desc, metier);
+    if (input) input.value = proposal;
+    _ftvSaveAccroche(currentPrestataire?.id, proposal);
+    toast('Sandy a proposé une accroche. Elle est enregistrée.', 'success');
+  } finally {
+    loadFaisToiVoirSection();
+  }
+}
+
+// ── OUTIL 1 — Mes 3 posts à épingler (le funnel) ──
+
+function _ftvPinShellCard(id, label, extraHtml) {
+  // Épingles = 1080x1350 (ratio 0.8) : plus proche du carré que du 9/16.
+  return `
+    <div class="ec-kitbase-card">
+      <div class="ec-kitbase-thumb-wrap ec-kitbase-thumb-square">
+        <span class="ec-kitbase-loading" id="ftv-pin-loading-${id}">Génération…</span>
+        <img class="ec-kitbase-img" id="ftv-pin-img-${id}" alt="${escapeHtml(label)}" style="display:none;" onclick="_ecOpenLightbox(this.src)">
+      </div>
+      <div class="ec-kitbase-name">${escapeHtml(label)}</div>
+      <div class="ec-kitbase-actions">
+        <button class="ec-btn-thin" onclick="_ftvPinDownload('${id}')" title="Télécharger">${_ecSvg('copy')}<span class="ec-btn-thin-label">Télécharger</span></button>
+        <button class="ec-btn-thin ec-btn-thin-accent" onclick="_ftvPinShare('${id}')" title="Partager">${_ecSvg('arrow')}<span class="ec-btn-thin-label">Partager</span></button>
+      </div>
+      ${extraHtml || ''}
+    </div>`;
+}
+
+async function ftvOpenFunnel() {
+  if (!currentPrestataire) return;
+  const bodyEl = _ecOpenPanel(_FTV_MODAL_IDS, "Mes 3 posts à épingler");
+  if (!bodyEl) return;
+
+  const data = _ftvGetData();
+  const avisInfo = await _ftvGetAvisInfo();
+  const locked = avisInfo.nbAvis < 3;
+  window._ftvAvisInfoCache = avisInfo;
+
+  const lockedCard = `
+    <div class="ec-kitbase-card">
+      <div class="ec-kitbase-thumb-wrap ec-kitbase-thumb-tall" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;color:var(--cream-muted);">
+        <span style="width:34px;height:34px;">${_ecSvg('lock', 1.6)}</span>
+        <span style="font-size:12.5px;">Débloque ce post avec tes 3 premiers avis clients.</span>
+      </div>
+      <div class="ec-kitbase-name">Épingle 2 · Preuve</div>
+      <div class="ec-gauge-head" style="margin-top:2px;">
+        <div class="ec-gauge-label">Avis clients</div>
+        <div class="ec-gauge-count">${avisInfo.nbAvis} / 3</div>
+      </div>
+      <div class="ec-gauge-track"><div class="ec-gauge-fill" style="width:${Math.min(100, Math.round(avisInfo.nbAvis / 3 * 100))}%;"></div></div>
+    </div>`;
+
+  const preuveExtra = `
+      <button class="ec-btn-thin" style="width:100%;justify-content:center;margin-top:8px;" onclick="_ftvToggleAvisSelector()">${_ecSvg('star')}<span class="ec-btn-thin-label">Choisir un avis client</span></button>
+      <div id="ftv-avis-selector" style="display:none;margin-top:10px;"></div>`;
+
+  bodyEl.innerHTML = `<div class="ec-pack-grid">
+      ${_ftvPinShellCard('vitrine', 'Épingle 1 · Vitrine')}
+      ${locked ? lockedCard : _ftvPinShellCard('preuve', 'Épingle 2 · Preuve', preuveExtra)}
+      ${_ftvPinShellCard('mode', "Épingle 3 · Mode d'emploi")}
+    </div>`;
+
+  window._ftvPinCache = {};
+  window._ftvPinPrenom = data.prenom;
+
+  await _ecEnsureFontsLoaded();
+  const photoImg = data.photoUrl ? await _wzLoadImg(data.photoUrl).catch(() => null) : null;
+
+  await _ftvRenderPin('vitrine', 1080, 1350, (ctx, W, H) => _ftvDrawPinVitrine(ctx, W, H, data, photoImg));
+
+  if (!locked) {
+    await _ftvRenderPin('preuve', 1080, 1350, (ctx, W, H) => _ftvDrawPinPreuve(ctx, W, H, data, photoImg, avisInfo));
+  }
+
+  const qrImg = await _wzLoadImg(_ftvQrUrl(data.link)).catch(() => null);
+  await _ftvRenderPin('mode', 1080, 1350, (ctx, W, H) => _ftvDrawPinModeEmploi(ctx, W, H, data, qrImg));
+}
+
+function _ftvQrUrl(link) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=340x340&data=${encodeURIComponent(link)}&color=14100a&bgcolor=ffffff&qzone=1&format=png`;
+}
+
+async function _ftvRenderPin(id, W, H, drawFn) {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    await drawFn(ctx, W, H);
+    const dataUrl = canvas.toDataURL('image/png');
+    window._ftvPinCache[id] = dataUrl;
+    const imgEl = document.getElementById(`ftv-pin-img-${id}`);
+    const loadingEl = document.getElementById(`ftv-pin-loading-${id}`);
+    if (imgEl) { imgEl.src = dataUrl; imgEl.style.display = 'block'; }
+    if (loadingEl) loadingEl.style.display = 'none';
+  } catch (e) {
+    console.warn('[ftv-pin] génération', id, e);
+    const loadingEl = document.getElementById(`ftv-pin-loading-${id}`);
+    if (loadingEl) loadingEl.textContent = 'Indisponible';
+  }
+}
+
+function _ftvSlug(str) {
+  return (str || 'moi').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '') || 'moi';
+}
+function _ftvPinFilename(id) {
+  return `wozali-${id}-${_ftvSlug(window._ftvPinPrenom)}.png`;
+}
+function _ftvPinDownload(id) {
+  const dataUrl = window._ftvPinCache?.[id];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const a = document.createElement('a');
+  a.href = dataUrl; a.download = _ftvPinFilename(id);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+async function _ftvPinShare(id) {
+  const dataUrl = window._ftvPinCache?.[id];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const filename = _ftvPinFilename(id);
+  try {
+    if (navigator.canShare && navigator.share) {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    }
+  } catch (e) { if (e?.name === 'AbortError') return; }
+  _ftvPinDownload(id);
+  toast('Visuel téléchargé. Partage-le depuis tes photos.', 'info');
+}
+
+// VISUEL — Épingle 1 · Vitrine (1080x1350) : grande photo, métier côté client
+// en très gros, quartier/ville, 2-3 services, lien profil en bas.
+function _ftvDrawPinVitrine(ctx, W, H, data, photoImg) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 950);
+  const linkClean = _ecStripProtocol(data.link);
+  const padL = 74, padR = 74, contentW = W - padL - padR;
+
+  const photoR = 232, photoCx = W / 2, photoCy = 336;
+  ctx.save();
+  ctx.shadowColor = 'rgba(232,148,10,0.45)'; ctx.shadowBlur = 40;
+  ctx.beginPath(); ctx.arc(photoCx, photoCy, photoR + 8, 0, Math.PI * 2);
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 8; ctx.stroke();
+  ctx.restore();
+  ctx.save();
+  ctx.beginPath(); ctx.arc(photoCx, photoCy, photoR, 0, Math.PI * 2); ctx.clip();
+  if (photoImg) {
+    const ratio = photoImg.width / photoImg.height;
+    let dw = photoR * 2, dh = photoR * 2;
+    if (ratio > 1) dw = dh * ratio; else dh = dw / ratio;
+    ctx.drawImage(photoImg, photoCx - dw / 2, photoCy - dh / 2, dw, dh);
+  } else {
+    _ecAvatar(ctx, photoCx, photoCy, photoR, (data.prenom || 'T').charAt(0).toUpperCase());
+  }
+  ctx.restore();
+
+  let y = photoCy + photoR + 84;
+  ctx.textAlign = 'center';
+  ctx.font = '400 34px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(data.nom, W / 2, y);
+
+  // Taille dynamique selon la longueur de l'accroche (texte libre du membre,
+  // pas une phrase courte figée) pour rester lisible sans déborder.
+  {
+    const accroche = data.metierPitch || '';
+    let vSize = 58, vLineH = 64;
+    if (accroche.length > 90) { vSize = 38; vLineH = 44; }
+    else if (accroche.length > 60) { vSize = 46; vLineH = 52; }
+    else if (accroche.length > 40) { vSize = 52; vLineH = 58; }
+    y = _wzWrapText(ctx, accroche, W / 2, y + 66, contentW, vLineH, `900 ${vSize}px "DM Serif Display", serif`, '#E8940A', 'center');
+  }
+
+  ctx.font = '700 21px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText([data.quartier, data.ville].filter(Boolean).join(' · ') || 'Togo · Bénin', W / 2, y + 34);
+  y += 74;
+
+  const services = data.services.length ? data.services : ['Sérieux', 'À l\'heure', 'Travail soigné'];
+  ctx.font = '400 23px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.68)';
+  services.forEach(s => { y += 42; ctx.fillText(s, W / 2, y); });
+
+  ctx.strokeStyle = 'rgba(232,148,10,0.35)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(W / 2 - 40, y + 44); ctx.lineTo(W / 2 + 40, y + 44); ctx.stroke();
+
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW, '"Geist Mono", monospace', 900, 56, 30);
+  ctx.font = `900 ${fitSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, H - 96);
+  ctx.font = 'italic 900 30px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('WOZALI', W / 2, H - 48);
+}
+
+// VISUEL — Épingle 2 · Preuve (1080x1350) : carte profil premium (Score,
+// étoiles, nb avis) + dernier avis client cité.
+function _ftvDrawPinPreuve(ctx, W, H, data, photoImg, avisInfo) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 900);
+  const padL = 70, padR = 70, contentW = W - padL - padR;
+
+  const cardX = padL, cardW = contentW, cardY = 130, cardH = 980, r = 28;
+  _ecCardShadow(ctx);
+  const cardBg = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
+  cardBg.addColorStop(0, 'rgba(38,30,17,0.96)'); cardBg.addColorStop(1, 'rgba(20,16,9,0.98)');
+  ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, r); ctx.fillStyle = cardBg; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.28)'; ctx.lineWidth = 2; ctx.stroke();
+
+  const liseGrad = ctx.createLinearGradient(cardX, 0, cardX + cardW, 0);
+  liseGrad.addColorStop(0, '#b56f06'); liseGrad.addColorStop(0.5, '#E8940A'); liseGrad.addColorStop(1, '#f5b13d');
+  ctx.save(); ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, r + 8, r); ctx.clip();
+  ctx.fillStyle = liseGrad; ctx.fillRect(cardX, cardY, cardW, 7); ctx.restore();
+
+  const padIn = 48; let cy = cardY + padIn + 20;
+  const avR = 62, avCx = cardX + padIn + avR, avCy = cy + avR;
+  if (photoImg) {
+    ctx.save(); ctx.beginPath(); ctx.arc(avCx, avCy, avR, 0, Math.PI * 2); ctx.clip();
+    const ratio = photoImg.width / photoImg.height;
+    let dw = avR * 2, dh = avR * 2;
+    if (ratio > 1) dw = dh * ratio; else dh = dw / ratio;
+    ctx.drawImage(photoImg, avCx - dw / 2, avCy - dh / 2, dw, dh); ctx.restore();
+  } else {
+    _ecAvatar(ctx, avCx, avCy, avR, (data.prenom || 'T').charAt(0).toUpperCase());
+  }
+  ctx.textAlign = 'left'; ctx.font = '700 38px Geist, sans-serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(data.prenom, avCx + avR + 28, avCy - 6);
+  ctx.font = '400 22px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText(data.metier || 'Prestataire WOZALI', avCx + avR + 28, avCy + 28);
+
+  ctx.textAlign = 'right'; ctx.font = 'italic 900 88px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.shadowColor = 'rgba(232,148,10,0.4)'; ctx.shadowBlur = 20;
+  ctx.fillText(String(data.score || 0), cardX + cardW - padIn, avCy); ctx.shadowBlur = 0;
+  ctx.font = '700 16px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.4)';
+  ctx.fillText('SCORE', cardX + cardW - padIn, avCy + 26);
+
+  cy = avCy + avR + 54;
+  _ecStars(ctx, cardX + padIn, cy, 5, 30);
+  const noteTxt = (avisInfo.note || 0).toFixed(1);
+  ctx.textAlign = 'left'; ctx.font = '700 20px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.6)';
+  ctx.fillText(`${noteTxt} · ${avisInfo.nbAvis} avis`, cardX + padIn + 170, cy + 2);
+
+  cy += 56;
+  ctx.strokeStyle = 'rgba(252,224,168,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cardX + padIn, cy); ctx.lineTo(cardX + cardW - padIn, cy); ctx.stroke();
+  cy += 50;
+
+  const q = avisInfo.dernier?.comment || 'Toujours à l\'heure, travail soigné.';
+  cy = _wzWrapText(ctx, `« ${q} »`, cardX + padIn, cy, cardW - padIn * 2, 38, 'italic 400 30px "DM Serif Display", serif', 'rgba(252,224,168,0.72)', 'left');
+  ctx.font = '700 17px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(232,148,10,0.75)';
+  ctx.fillText(`— ${avisInfo.dernier?.nom || 'Client vérifié'}`, cardX + padIn, cy + 24);
+
+  cy += 70;
+  ctx.strokeStyle = 'rgba(252,224,168,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cardX + padIn, cy); ctx.lineTo(cardX + cardW - padIn, cy); ctx.stroke();
+  cy += 20;
+
+  const stats = [[String(avisInfo.nbAvis), 'AVIS'], ['SUR WOZALI', ''], ['VÉRIFIÉ', '']];
+  ctx.font = '700 16px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(232,148,10,0.7)';
+  ctx.fillText('PROFIL VÉRIFIÉ', cardX + padIn, cy + 24);
+
+  ctx.textAlign = 'center';
+  const linkClean = _ecStripProtocol(data.link);
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW - 40, '"Geist Mono", monospace', 900, 52, 28);
+  ctx.font = `900 ${fitSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, cardY + cardH + 96);
+}
+
+// VISUEL — Épingle 3 · Mode d'emploi (1080x1350) : 3 étapes + QR code du lien profil.
+function _ftvDrawPinModeEmploi(ctx, W, H, data, qrImg) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 850);
+  const linkClean = _ecStripProtocol(data.link);
+  const padL = 86, padR = 86, contentW = W - padL - padR;
+
+  ctx.textAlign = 'center';
+  let y = _wzWrapText(ctx, "Me contacter en 30 secondes", W / 2, 156, contentW, 62, '900 58px "DM Serif Display", serif', '#FCE0A8', 'center');
+  ctx.font = 'italic 400 26px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(data.prenom, W / 2, y + 38);
+  y += 100;
+
+  const steps = [
+    ['1', 'Ouvre mon profil WOZALI'],
+    ['2', 'Regarde mes réalisations et mes avis'],
+    ['3', 'Contacte-moi direct'],
+  ];
+  steps.forEach(([n, txt]) => {
+    ctx.textAlign = 'left';
+    ctx.font = '900 46px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+    ctx.fillText(n, padL, y + 12);
+    _wzWrapText(ctx, txt, padL + 66, y, contentW - 66, 34, '700 26px "Geist Mono", monospace', '#FCE0A8', 'left');
+    y += 106;
+  });
+
+  const qrS = 340, qrX = W / 2 - qrS / 2, qrY = y + 30;
+  ctx.save();
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(qrX - 26, qrY - 26, qrS + 52, qrS + 52, 26);
+  ctx.fillStyle = '#fff'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.restore();
+  if (qrImg) ctx.drawImage(qrImg, qrX, qrY, qrS, qrS);
+
+  ctx.textAlign = 'center';
+  const fitSize = _ecFitFontSize(ctx, linkClean, contentW, '"Geist Mono", monospace', 900, 48, 26);
+  ctx.font = `900 ${fitSize}px "Geist Mono", monospace`; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, qrY + qrS + 78);
+}
+
+// ── OUTIL 2 — Ma photo de profil or (l'anneau) ──
+
+function ftvOpenAnneau() {
+  if (!currentPrestataire) return;
+  const bodyEl = _ecOpenPanel(_FTV_MODAL_IDS, 'Ma photo de profil or');
+  if (!bodyEl) return;
+  window._ftvRing = { step: 1, prenom: _ftvGetData().prenom };
+  _ftvRenderRingStep();
+}
+
+function _ftvRenderRingStep() {
+  const bodyEl = document.getElementById('ftv-pack-body');
+  if (!bodyEl) return;
+  const st = window._ftvRing || (window._ftvRing = { step: 1 });
+  const data = _ftvGetData();
+
+  if (st.step === 1) {
+    bodyEl.innerHTML = `
+      <div style="text-align:center;padding:10px 0 24px;">
+        <canvas id="ftv-ring-step1-canvas" width="1080" height="1080" style="width:180px;height:180px;border-radius:50%;display:block;margin:0 auto;"></canvas>
+        <p style="margin-top:18px;font-size:13.5px;color:var(--cream-muted);">On part de ta photo de profil WOZALI. Voici ton anneau, tel qu'il sera.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:280px;margin:20px auto 0;">
+          <button class="ec-btn-sandy" style="justify-content:center;${data.photoUrl ? '' : 'opacity:.4;cursor:not-allowed;'}" onclick="${data.photoUrl ? '_ftvRingUseProfilePhoto()' : ''}">Utiliser cette photo</button>
+          <button class="ec-btn-copy" style="justify-content:center;" onclick="document.getElementById('ftv-ring-file-input').click()">Choisir une autre photo</button>
+          <input type="file" id="ftv-ring-file-input" accept="image/*" style="display:none;" onchange="_ftvRingFileChosen(this)">
+        </div>
+      </div>`;
+    _ftvRenderRingPreview('ftv-ring-step1-canvas', data.photoUrl, data.prenom);
+    return;
+  }
+
+  if (st.step === 3) {
+    bodyEl.innerHTML = `
+      <div style="text-align:center;padding:10px 0 24px;">
+        <canvas id="ftv-ring-final-canvas" width="1080" height="1080" style="width:260px;height:260px;border-radius:50%;display:block;margin:0 auto;cursor:pointer;" onclick="_ecOpenLightbox(window._ftvRingFinalDataUrl)" title="Voir en grand"></canvas>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px;">
+          <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid #E8940A;flex-shrink:0;"><img id="ftv-ring-vignette" style="width:100%;height:100%;object-fit:cover;" alt="Aperçu WhatsApp"></div>
+          <span style="font-size:11.5px;color:var(--cream-muted);">Vu dans WhatsApp</span>
+        </div>
+        <p style="margin-top:16px;font-size:13.5px;color:var(--cream-muted);">Ton anneau or WOZALI, prêt pour tous tes réseaux.</p>
+        <button class="ec-btn-sandy" style="margin-top:14px;" onclick="_ftvRingDownload()">Télécharger ma photo</button>
+      </div>`;
+    _ftvRingRenderFinal();
+    return;
+  }
+}
+
+function _ftvRingUseProfilePhoto() {
+  const data = _ftvGetData();
+  if (!data.photoUrl) { toast('Ajoute d\'abord une photo de profil.', 'error'); return; }
+  fetch(data.photoUrl).then(r => r.blob()).then(blob => {
+    const reader = new FileReader();
+    reader.onload = e => _ftvRingOpenCrop(e.target.result);
+    reader.readAsDataURL(blob);
+  }).catch(() => toast('Impossible de charger ta photo. Choisis-en une autre.', 'error'));
+}
+
+function _ftvRingFileChosen(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => _ftvRingOpenCrop(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+// Recadrage circulaire : réutilise l'infra globale Cropper.js (#modal-crop,
+// _openCropModal/_cropCallback) déjà en place pour le profil/inscription.
+function _ftvRingOpenCrop(dataUrl) {
+  _cropTarget = null;
+  _cropCallback = (blob, croppedDataUrl) => {
+    window._ftvRing = window._ftvRing || {};
+    window._ftvRing.croppedDataUrl = croppedDataUrl;
+    window._ftvRing.step = 3;
+    _ftvRenderRingStep();
+  };
+  _openCropModal(dataUrl, 1);
+}
+
+// Rendu partagé de l'aperçu "anneau or" : photo (ou avatar initiale en
+// fallback) + anneau + swoop par-dessus, sur un canvas déjà présent dans le
+// DOM. Utilisé à l'écran 1 (aperçu tel-que-tu-l'auras, avant recadrage) ET à
+// l'écran final (après recadrage circulaire).
+async function _ftvRenderRingPreview(canvasId, imgSrc, prenom) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return null;
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  ctx.clearRect(0, 0, W, H);
+  const cx = W / 2, cy = H / 2;
+  const outerR = W / 2 - 10;
+  const ringW = Math.round(outerR * 2 * 0.065);
+  const photoR = outerR - ringW - 6;
+
+  let drawn = false;
+  if (imgSrc) {
+    try {
+      const img = await _wzLoadImg(imgSrc);
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, photoR, 0, Math.PI * 2); ctx.clip();
+      const ratio = img.width / img.height;
+      let dw = photoR * 2, dh = photoR * 2;
+      if (ratio > 1) dw = dh * ratio; else dh = dw / ratio;
+      ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+      ctx.restore();
+      drawn = true;
+    } catch (e) { /* fallback avatar ci-dessous */ }
+  }
+  if (!drawn) {
+    _ecAvatar(ctx, cx, cy, photoR, (prenom || 'T').charAt(0).toUpperCase());
+  }
+
+  _ftvDrawGoldRing(ctx, cx, cy, outerR, ringW);
+  return canvas.toDataURL('image/png');
+}
+
+async function _ftvRingRenderFinal() {
+  if (!window._ftvRing?.croppedDataUrl) return;
+  const dataUrl = await _ftvRenderRingPreview('ftv-ring-final-canvas', window._ftvRing.croppedDataUrl, window._ftvRing.prenom);
+  window._ftvRingFinalDataUrl = dataUrl;
+  const vignette = document.getElementById('ftv-ring-vignette');
+  if (vignette && dataUrl) vignette.src = dataUrl;
+}
+
+// Anneau or plein, sans texte, terminé par un swoop courbe qui dépasse
+// légèrement de l'anneau en bas-droite (façon logo WOZALI, cf. logos/logo.svg).
+function _ftvDrawGoldRing(ctx, cx, cy, outerR, ringW) {
+  const innerR = outerR - ringW;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+  ctx.arc(cx, cy, innerR, 0, Math.PI * 2, true);
+  ctx.closePath();
+  if (ctx.createConicGradient) {
+    const grad = ctx.createConicGradient(-Math.PI / 2, cx, cy);
+    grad.addColorStop(0, '#f5b13d'); grad.addColorStop(0.25, '#E8940A');
+    grad.addColorStop(0.5, '#b56f06'); grad.addColorStop(0.75, '#E8940A'); grad.addColorStop(1, '#f5b13d');
+    ctx.fillStyle = grad;
+  } else {
+    const lg = ctx.createLinearGradient(cx - outerR, cy - outerR, cx + outerR, cy + outerR);
+    lg.addColorStop(0, '#f5b13d'); lg.addColorStop(0.5, '#E8940A'); lg.addColorStop(1, '#b56f06');
+    ctx.fillStyle = lg;
+  }
+  ctx.fill('evenodd');
+  ctx.restore();
+
+  // Swoop, position ~4h30 (bas-droite), dépasse légèrement l'anneau
+  const swAngle = Math.PI * 0.28;
+  const swCx = cx + Math.cos(swAngle) * (outerR - ringW / 2);
+  const swCy = cy + Math.sin(swAngle) * (outerR - ringW / 2);
+  ctx.save();
+  ctx.translate(swCx, swCy);
+  ctx.rotate(swAngle + Math.PI / 2);
+  ctx.beginPath();
+  ctx.moveTo(-ringW * 1.3, ringW * 0.35);
+  ctx.quadraticCurveTo(0, -ringW * 0.95, ringW * 1.3, ringW * 0.22);
+  ctx.lineWidth = ringW * 0.6;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#f5b13d';
+  ctx.shadowColor = 'rgba(232,148,10,0.55)'; ctx.shadowBlur = 14;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function _ftvRingDownload() {
+  const dataUrl = window._ftvRingFinalDataUrl;
+  if (!dataUrl) { toast('Prépare ta photo d\'abord.', 'info'); return; }
+  const data = _ftvGetData();
+  const a = document.createElement('a');
+  a.href = dataUrl; a.download = `wozali-photo-${_ftvSlug(data.prenom)}.png`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ── OUTIL 3 — Ma bannière (851x315) ──
+
+async function ftvOpenBanniere() {
+  if (!currentPrestataire) return;
+  const bodyEl = _ecOpenPanel(_FTV_MODAL_IDS, 'Ma bannière');
+  if (!bodyEl) return;
+
+  bodyEl.innerHTML = `
+    <div class="ec-kitbase-card" style="max-width:540px;margin:0 auto;">
+      <div class="ec-kitbase-thumb-wrap ec-kitbase-thumb-wide">
+        <span class="ec-kitbase-loading" id="ftv-banniere-loading">Génération…</span>
+        <img class="ec-kitbase-img" id="ftv-banniere-img" alt="Ma bannière" style="display:none;" onclick="_ecOpenLightbox(this.src)">
+      </div>
+      <div class="ec-kitbase-name">851 × 315 — Facebook / LinkedIn</div>
+      <div class="ec-kitbase-actions">
+        <button class="ec-btn-thin" onclick="_ftvBanniereDownload()" title="Télécharger">${_ecSvg('copy')}<span class="ec-btn-thin-label">Télécharger</span></button>
+        <button class="ec-btn-thin ec-btn-thin-accent" onclick="_ftvBanniereShare()" title="Partager">${_ecSvg('arrow')}<span class="ec-btn-thin-label">Partager</span></button>
+      </div>
+    </div>`;
+
+  const data = _ftvGetData();
+  await _ecEnsureFontsLoaded();
+
+  const canvas = document.createElement('canvas'); canvas.width = 851; canvas.height = 315;
+  const ctx = canvas.getContext('2d');
+  _ftvDrawBanniere(ctx, 851, 315, data);
+  const dataUrl = canvas.toDataURL('image/png');
+  window._ftvBanniereCache = dataUrl;
+  window._ftvBanniereFilename = `wozali-banniere-${_ftvSlug(data.prenom)}.png`;
+
+  const imgEl = document.getElementById('ftv-banniere-img');
+  const loadingEl = document.getElementById('ftv-banniere-loading');
+  if (imgEl) { imgEl.src = dataUrl; imgEl.style.display = 'block'; }
+  if (loadingEl) loadingEl.style.display = 'none';
+}
+
+// VISUEL — Bannière : la personne en héros (anneau or à gauche), nom + métier
+// pitch au centre, mention discrète + logo en bas-droite (retirer le logo
+// laisse une belle bannière pro autonome).
+// VISUEL — Bannière de couverture PURE TEXTE (851x315, Facebook/LinkedIn) :
+// zéro photo. Le membre est héros par son accroche, pas par son visage.
+// Glow radial or + motif WOZALI abstrait discret (grand W translucide ancré à
+// droite) + typo serif géante pour l'accroche + lien CTA en Geist Mono or.
+function _ftvDrawBanniere(ctx, W, H, data) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 620);
+
+  // Motif abstrait WOZALI : grand W serif italic très transparent, ancré à droite
+  ctx.save();
+  ctx.globalAlpha = 0.07;
+  ctx.textAlign = 'right';
+  ctx.font = 'italic 900 440px "DM Serif Display", serif';
+  ctx.fillStyle = '#E8940A';
+  ctx.fillText('W', W - 10, H + 80);
+  ctx.restore();
+
+  const barGrad = ctx.createLinearGradient(0, 0, 0, H);
+  barGrad.addColorStop(0, '#f5b13d'); barGrad.addColorStop(1, '#b56f06');
+  ctx.fillStyle = barGrad; ctx.fillRect(0, 0, 8, H);
+
+  const padL = 60, padR = 60, contentW = W - padL - padR;
+  ctx.textAlign = 'left';
+  ctx.font = '700 15px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  const eyebrow = `${(data.nom || '').toUpperCase()} · ${([data.quartier, data.ville].filter(Boolean).join(' · ') || 'TOGO · BÉNIN').toUpperCase()}`;
+  ctx.fillText(eyebrow, padL, 62);
+
+  ctx.strokeStyle = 'rgba(232,148,10,0.35)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(padL, 82); ctx.lineTo(padL + 54, 82); ctx.stroke();
+
+  // Taille dynamique : une accroche longue (rédigée librement par le membre)
+  // ne doit jamais chevaucher la ligne CTA du bas — on réduit la police en
+  // fonction de la longueur plutôt que de tronquer le propos du membre.
+  const accroche = data.metierPitch || '';
+  let afSize = 42, afLineH = 46;
+  if (accroche.length > 90) { afSize = 25; afLineH = 29; }
+  else if (accroche.length > 60) { afSize = 31; afLineH = 35; }
+  else if (accroche.length > 40) { afSize = 36; afLineH = 40; }
+  _wzWrapText(ctx, accroche, padL, 150, contentW * 0.72, afLineH, `900 ${afSize}px "DM Serif Display", serif`, '#FCE0A8', 'left');
+
+  ctx.textAlign = 'left';
+  const linkClean = _ecStripProtocol(data.link);
+  ctx.font = '700 19px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(`Contacte-moi → ${linkClean}`, padL, H - 40);
+}
+
+function _ftvBanniereDownload() {
+  if (!window._ftvBanniereCache) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const a = document.createElement('a');
+  a.href = window._ftvBanniereCache; a.download = window._ftvBanniereFilename || 'wozali-banniere.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+async function _ftvBanniereShare() {
+  const dataUrl = window._ftvBanniereCache;
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const filename = window._ftvBanniereFilename || 'wozali-banniere.png';
+  try {
+    if (navigator.canShare && navigator.share) {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    }
+  } catch (e) { if (e?.name === 'AbortError') return; }
+  _ftvBanniereDownload();
+  toast('Visuel téléchargé. Partage-le depuis tes photos.', 'info');
+}
+
+// ── OUTIL 4 — Partager (templates démo, câblage réel = vague 2) ──
+
+function _ftvShareCardShell(id, label, shape) {
+  return `
+    <div class="ec-kitbase-card">
+      <div class="ec-kitbase-thumb-wrap ${shape === 'square' ? 'ec-kitbase-thumb-square' : 'ec-kitbase-thumb-tall'}">
+        <span class="ec-kitbase-loading" id="ftv-share-loading-${id}">Génération…</span>
+        <img class="ec-kitbase-img" id="ftv-share-img-${id}" alt="${escapeHtml(label)}" style="display:none;" onclick="_ecOpenLightbox(this.src)">
+      </div>
+      <div class="ec-kitbase-name">${escapeHtml(label)}</div>
+      <div class="ec-kitbase-actions">
+        <button class="ec-btn-thin" onclick="_ftvShareDownload('${id}')" title="Télécharger">${_ecSvg('copy')}<span class="ec-btn-thin-label">Télécharger</span></button>
+        <button class="ec-btn-thin ec-btn-thin-accent" onclick="_ftvShareShare('${id}')" title="Partager">${_ecSvg('arrow')}<span class="ec-btn-thin-label">Partager</span></button>
+      </div>
+    </div>`;
+}
+
+async function ftvOpenPartager() {
+  if (!currentPrestataire) return;
+  const bodyEl = _ecOpenPanel(_FTV_MODAL_IDS, 'Partager');
+  if (!bodyEl) return;
+
+  bodyEl.innerHTML = `
+    <h4 class="ec-pack-sub">Partage de post</h4>
+    <div class="ec-pack-grid">
+      ${_ftvShareCardShell('post-photo', 'Post photo · démo', 'tall')}
+      ${_ftvShareCardShell('post-texte', 'Post texte · démo', 'tall')}
+    </div>
+    <h4 class="ec-pack-sub">Visuel d'avis</h4>
+    <div class="ec-pack-grid">
+      ${_ftvShareCardShell('avis', 'Nouvel avis · démo', 'square')}
+    </div>
+    <div class="ec-soon-card ec-section-gap" style="margin-top:26px;">${_ecSvg('info')}<span>Bientôt : un bouton Partager sur chacun de tes posts et de tes avis.</span></div>`;
+
+  const data = _ftvGetData();
+  await _ecEnsureFontsLoaded();
+  const photoImg = data.photoUrl ? await _wzLoadImg(data.photoUrl).catch(() => null) : null;
+
+  window._ftvShareCache = {};
+  window._ftvSharePrenom = data.prenom;
+
+  await _ftvRenderShare('post-photo', 1080, 1920, (ctx, W, H) => _ftvDrawSharePostPhoto(ctx, W, H, data, photoImg));
+  await _ftvRenderShare('post-texte', 1080, 1920, (ctx, W, H) => _ftvDrawSharePostTexte(ctx, W, H, data));
+  await _ftvRenderShare('avis', 1080, 1350, (ctx, W, H) => _ftvDrawShareAvis(ctx, W, H, data, photoImg));
+}
+
+async function _ftvRenderShare(id, W, H, drawFn) {
+  try {
+    const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    await drawFn(ctx, W, H);
+    const dataUrl = canvas.toDataURL('image/png');
+    window._ftvShareCache[id] = dataUrl;
+    const imgEl = document.getElementById(`ftv-share-img-${id}`);
+    const loadingEl = document.getElementById(`ftv-share-loading-${id}`);
+    if (imgEl) { imgEl.src = dataUrl; imgEl.style.display = 'block'; }
+    if (loadingEl) loadingEl.style.display = 'none';
+  } catch (e) {
+    console.warn('[ftv-share] génération', id, e);
+    const loadingEl = document.getElementById(`ftv-share-loading-${id}`);
+    if (loadingEl) loadingEl.textContent = 'Indisponible';
+  }
+}
+function _ftvShareFilename(id) {
+  return `wozali-partage-${id}-${_ftvSlug(window._ftvSharePrenom)}.png`;
+}
+function _ftvShareDownload(id) {
+  const dataUrl = window._ftvShareCache?.[id];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const a = document.createElement('a');
+  a.href = dataUrl; a.download = _ftvShareFilename(id);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+async function _ftvShareShare(id) {
+  const dataUrl = window._ftvShareCache?.[id];
+  if (!dataUrl) { toast('Le visuel est encore en préparation, réessaie dans un instant.', 'info'); return; }
+  const filename = _ftvShareFilename(id);
+  try {
+    if (navigator.canShare && navigator.share) {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], filename, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    }
+  } catch (e) { if (e?.name === 'AbortError') return; }
+  _ftvShareDownload(id);
+  toast('Visuel téléchargé. Partage-le depuis tes photos.', 'info');
+}
+
+// Carte auteur compacte réutilisée par les 3 templates de partage
+function _ftvAuthorStrip(ctx, x, y, w, data, photoImg) {
+  const h = 120, r = 20;
+  _ecCardShadow(ctx);
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fillStyle = 'rgba(20,16,10,0.92)'; ctx.fill();
+  _ecClearShadow(ctx);
+  ctx.strokeStyle = 'rgba(232,148,10,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+  const avR = 38, avCx = x + 32 + avR, avCy = y + h / 2;
+  if (photoImg) {
+    ctx.save(); ctx.beginPath(); ctx.arc(avCx, avCy, avR, 0, Math.PI * 2); ctx.clip();
+    const ratio = photoImg.width / photoImg.height;
+    let dw = avR * 2, dh = avR * 2;
+    if (ratio > 1) dw = dh * ratio; else dh = dw / ratio;
+    ctx.drawImage(photoImg, avCx - dw / 2, avCy - dh / 2, dw, dh); ctx.restore();
+  } else {
+    _ecAvatar(ctx, avCx, avCy, avR, (data.prenom || 'T').charAt(0).toUpperCase());
+  }
+  ctx.textAlign = 'left'; ctx.font = '700 27px Geist, sans-serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(data.nom, avCx + avR + 24, avCy - 8);
+  ctx.font = '400 18px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText(`${data.metier || 'WOZALI'} · Score ${data.score || '—'}`, avCx + avR + 24, avCy + 22);
+  return y + h;
+}
+
+// TEMPLATE — Partage de post photo (1080x1920, story) : photo plein cadre 80%,
+// carte auteur compacte, lien + mention "Lien dans ma bio".
+function _ftvDrawSharePostPhoto(ctx, W, H, data, photoImg) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  const photoH = H * 0.8;
+  if (photoImg) {
+    const ratio = photoImg.width / photoImg.height;
+    let dw = W, dh = photoH;
+    if (ratio > W / photoH) dw = photoH * ratio; else dh = W / ratio;
+    ctx.drawImage(photoImg, (W - dw) / 2, (photoH - dh) / 2, dw, dh);
+  } else {
+    ctx.fillStyle = '#1E180E'; ctx.fillRect(0, 0, W, photoH);
+  }
+  const gradBot = ctx.createLinearGradient(0, photoH * 0.6, 0, photoH);
+  gradBot.addColorStop(0, 'transparent'); gradBot.addColorStop(1, 'rgba(20,16,10,0.95)');
+  ctx.fillStyle = gradBot; ctx.fillRect(0, photoH * 0.6, W, photoH * 0.4);
+
+  const stripBottom = _ftvAuthorStrip(ctx, 70, photoH + 30, W - 140, data, photoImg);
+
+  ctx.textAlign = 'center';
+  const linkClean = _ecStripProtocol(data.link);
+  ctx.font = '700 26px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, stripBottom + 66);
+  ctx.font = 'italic 400 22px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Lien dans ma bio', W / 2, stripBottom + 104);
+}
+
+// TEMPLATE — Partage de post texte (1080x1920, story) : texte en héros sur
+// fond Nuit, carte auteur compacte, lien + mention.
+function _ftvDrawSharePostTexte(ctx, W, H, data) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 950);
+  const padL = 84, padR = 84, contentW = W - padL - padR;
+  const demoTexte = "Un client m'a dit merci deux fois en une semaine. C'est ça, être vu.";
+  let y = _wzWrapText(ctx, demoTexte, W / 2, H * 0.38, contentW, 80, '900 66px "DM Serif Display", serif', '#FCE0A8', 'center');
+  ctx.font = 'italic 400 28px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(`— ${data.prenom}`, W / 2, y + 54);
+
+  const stripY = H - 280;
+  const stripBottom = _ftvAuthorStrip(ctx, padL, stripY, contentW, data, null);
+  ctx.textAlign = 'center';
+  const linkClean = _ecStripProtocol(data.link);
+  ctx.font = '700 26px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, stripBottom + 66);
+  ctx.font = 'italic 400 22px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(252,224,168,0.5)';
+  ctx.fillText('Lien dans ma bio', W / 2, stripBottom + 104);
+}
+
+// TEMPLATE — Visuel d'avis (1080x1350) : avis en héros, étoiles or, carte
+// auteur compacte, lien. Auto-générable à chaque nouvel avis (vague 2).
+function _ftvDrawShareAvis(ctx, W, H, data, photoImg) {
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
+  _ecTopGlow(ctx, W, H, 850);
+  const padL = 84, padR = 84, contentW = W - padL - padR;
+  _ecStars(ctx, W / 2 - 108, 230, 5, 44);
+
+  const demoAvis = "Toujours à l'heure, travail soigné, je recommande les yeux fermés.";
+  let y = _wzWrapText(ctx, `« ${demoAvis} »`, W / 2, 360, contentW, 58, 'italic 900 42px "DM Serif Display", serif', '#FCE0A8', 'center');
+  ctx.font = '700 21px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(232,148,10,0.8)';
+  ctx.fillText('— Fatou, Tokoin', W / 2, y + 50);
+
+  const stripY = H - 260;
+  const stripBottom = _ftvAuthorStrip(ctx, padL, stripY, contentW, data, photoImg);
+  ctx.textAlign = 'center';
+  const linkClean = _ecStripProtocol(data.link);
+  ctx.font = '700 26px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
+  ctx.fillText(linkClean, W / 2, stripBottom + 66);
 }
 
 // ══════════════════════════════════════════
