@@ -4855,6 +4855,7 @@ function renderCard(record, forceMode) {
           ${isProUser({fields:f}) ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,#E8940A,#f59e0b);color:white;">⭐ Pro</span>' : ''}
           ${verifie ? '<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;border:1px solid #f3d38a;">✓ Vérifié</span>' : ''}
           ${topRank && topRank <= 50 ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">🏆 TOP ${topRank}</span>` : ''}
+          ${f['Createur Niveau'] === 'or' ? '<span class="badge" style="font-size:11px;background:linear-gradient(135deg,#E8940A,#f59e0b);color:white;">✦ Créateur Or</span>' : (f['Createur Niveau'] === 'createur' ? '<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;border:1px solid #f3d38a;">✦ Créateur</span>' : '')}
           ${champion ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">⚔️ Champion ${champion}</span>` : ''}
           ${(f['Badge Fondateur'] || f['Fondateur']) ? '<span class="badge" style="font-size:11px;background:linear-gradient(135deg,rgba(232,148,10,0.3),rgba(255,200,0,0.2));color:#E8940A;border:1px solid rgba(232,148,10,0.4);">🏅 Fondateur</span>' : ''}
         </div>
