@@ -15239,6 +15239,15 @@ const _FTV_METIER_VERB_SEED = {
 // retourne une accroche vendeuse générée par le modèle). Signature `async`
 // conservée pour que le câblage réel n'impose aucun changement d'appelant.
 async function _ftvGenerateAccroche(description, metier) {
+  // Vague 2 : vraie Sandy (endpoint IA), repli sur l'heuristique locale si indispo.
+  try {
+    const r = await (window.wozaliFetch || fetch)('/api/wozali-pay/ftv-accroche', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: description || '', metier: metier || '' })
+    });
+    const d = await r.json();
+    if (d && d.ok && d.accroche) return d.accroche;
+  } catch (e) { /* repli heuristique ci-dessous */ }
   const desc = (description || '').trim();
   const seed = _FTV_METIER_VERB_SEED[metier];
   // Le membre commence parfois déjà sa description par "je"/"j'" (ex : "j'installe

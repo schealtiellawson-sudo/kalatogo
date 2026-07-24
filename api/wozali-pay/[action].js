@@ -15,6 +15,7 @@ import recompensesStatus from './_impl/recompenses-status.js';
 // Admin
 import adminVerify from './_impl/admin-verify.js';
 import adminAnalytics from './_impl/admin-analytics.js';
+import ftvAccroche from './_impl/ftv-accroche.js';
 import agentsTerrain from './_impl/agents-terrain.js';
 // Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP début juillet)
 // Imports retirés : invitation-create / invitation-get / invitation-accept / paie-pay / paie-bulletin / annonces-broadcast
@@ -168,6 +169,7 @@ const handlers = {
   // 'awards-candidats' / 'awards-vote' / 'awards-candidater' désinscrites 2026-07-21
   'admin-verify': adminVerify,
   'admin-analytics': adminAnalytics,
+  'ftv-accroche': ftvAccroche,
   'agents-terrain': agentsTerrain,
   'feed-list': feedList,
   'feed-post': feedPost,
