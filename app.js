@@ -17656,6 +17656,7 @@ async function checkAdminForDashboard() {
 // ══════════════════════════════════════════
 let _pilotageData = null;
 let _pilProfilesState = { page: 0, sort: 'created_at', dir: 'desc', filters: {} };
+let _pilChat = []; // conversation stratégique avec Sandy (fondateur)
 
 function _pilEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 function _pilNum(n) { return (n == null ? 0 : Number(n)).toLocaleString('fr-FR'); }
@@ -17774,12 +17775,32 @@ function renderAdminPilotage(d) {
     ${_pilCard('Abonnement', _pilBarList(dem.abonnement))}
   </div>`;
 
-  box.innerHTML = trafic + activite + funnel +
+  const sandyCard = `<div style="background:linear-gradient(135deg,rgba(232,148,10,.11),rgba(232,148,10,.03));border:1px solid rgba(232,148,10,.32);border-radius:18px;padding:16px 20px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:rgba(232,148,10,.16);display:flex;align-items:center;justify-content:center;font-size:18px;">✦</div>
+        <div><div style="font-family:'DM Serif Display',serif;font-size:17px;color:#FCE0A8;">Analyse de Sandy</div><div style="font-size:12px;color:rgba(252,224,168,.55);">Elle lit tes chiffres et te dit où ça fuit</div></div>
+      </div>
+      <button id="pil-sandy-btn" onclick="loadSandyAnalyse()" style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:10px 18px;font-weight:800;font-size:13px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;">Demander l'analyse</button>
+    </div>
+    <div id="pil-sandy-out"></div>
+  </div>`;
+  box.innerHTML = sandyCard + trafic + activite + funnel +
     `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">${pages}${clics}</div>` +
     `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:22px 0 12px;">Démographie des inscrits</h3>` + demo +
     `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:24px 0 12px;">Explorateur de profils</h3>` +
-    _pilProfilesShell();
+    _pilProfilesShell() +
+    `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:24px 0 12px;">Discuter avec Sandy</h3>
+     <div style="background:#14100A;border:1px solid rgba(232,148,10,.22);border-radius:18px;padding:16px 18px;">
+       <div style="font-size:12px;color:rgba(252,224,168,.5);margin-bottom:12px;">Conseillère stratégie de croissance. Elle voit tes chiffres en continu, pose-lui tes questions.</div>
+       <div id="pil-chat-msgs" style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding-right:4px;"></div>
+       <div style="display:flex;gap:8px;">
+         <input id="pil-chat-input" placeholder="Stratégie, diagnostic, priorité du mois, arbitrage..." onkeydown="if(event.key==='Enter')pilChatSend()" style="flex:1;background:#1E180E;border:1px solid rgba(232,148,10,.25);color:#FCE0A8;border-radius:10px;padding:11px 13px;font-family:'Geist',sans-serif;font-size:13px;">
+         <button id="pil-chat-send" onclick="pilChatSend()" style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:0 18px;font-weight:800;font-size:13px;cursor:pointer;font-family:'Geist',sans-serif;">Envoyer</button>
+       </div>
+     </div>`;
   try { loadPilotageProfiles(); } catch (e) {}
+  try { _pilChatRender(); } catch (e) {}
 }
 
 function _pilProfilesShell() {
@@ -17869,6 +17890,78 @@ async function loadPilotageProfiles() {
   }
 }
 window.loadPilotageProfiles = loadPilotageProfiles;
+
+// Analyse de Sandy sur les KPI de pilotage (registre analyste)
+async function loadSandyAnalyse() {
+  const out = document.getElementById('pil-sandy-out');
+  const btn = document.getElementById('pil-sandy-btn');
+  if (!out) return;
+  const days = parseInt(document.getElementById('pilotage-days')?.value || '30', 10);
+  out.innerHTML = '<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,.2);color:rgba(252,224,168,.55);font-size:13px;">Sandy analyse tes chiffres…</div>';
+  if (btn) { btn.disabled = true; btn.style.opacity = '.55'; }
+  try {
+    const r = await (window.wozaliFetch || fetch)('/api/wozali-pay/admin-analytics', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'sandy', days })
+    });
+    const d = await r.json();
+    if (!d || !d.ok) throw new Error(d?.error || 'Erreur');
+    const html = _pilEsc(d.analyse).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#FCE0A8;">$1</strong>').replace(/\n/g, '<br>');
+    out.innerHTML = '<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,.2);font-size:13.5px;line-height:1.62;color:rgba(252,224,168,.85);">' + html + '</div>';
+  } catch (e) {
+    out.innerHTML = '<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(232,148,10,.2);color:#e08a8a;font-size:13px;">Analyse indisponible : ' + _pilEsc(e.message || '') + '</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.textContent = "Relancer l'analyse"; }
+  }
+}
+window.loadSandyAnalyse = loadSandyAnalyse;
+
+// ── Chat stratégique temps réel avec Sandy (pilotage) ──
+function _pilChatBubble(role, text) {
+  const isS = role === 'assistant';
+  const html = _pilEsc(text).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#FCE0A8;">$1</strong>').replace(/\n/g, '<br>');
+  return `<div style="display:flex;justify-content:${isS ? 'flex-start' : 'flex-end'};">
+    <div style="max-width:84%;background:${isS ? '#1E180E' : 'rgba(232,148,10,.14)'};border:1px solid ${isS ? 'rgba(255,255,255,.07)' : 'rgba(232,148,10,.3)'};border-radius:${isS ? '12px 12px 12px 3px' : '12px 12px 3px 12px'};padding:10px 13px;font-size:13px;line-height:1.55;color:${isS ? 'rgba(252,224,168,.9)' : '#FCE0A8'};">${html}</div>
+  </div>`;
+}
+function _pilChatRender() {
+  const el = document.getElementById('pil-chat-msgs');
+  if (!el) return;
+  const greeting = _pilChatBubble('assistant', 'Je regarde tes chiffres en continu. Demande-moi un diagnostic, une priorité du mois, un arbitrage. Je réponds avec la donnée.');
+  el.innerHTML = greeting + _pilChat.map(m => _pilChatBubble(m.role, m.content)).join('');
+  el.scrollTop = el.scrollHeight;
+}
+async function pilChatSend() {
+  const inp = document.getElementById('pil-chat-input');
+  const btn = document.getElementById('pil-chat-send');
+  const el = document.getElementById('pil-chat-msgs');
+  if (!inp || !el) return;
+  const message = inp.value.trim();
+  if (!message) return;
+  const days = parseInt(document.getElementById('pilotage-days')?.value || '30', 10);
+  const history = _pilChat.slice();
+  _pilChat.push({ role: 'user', content: message });
+  inp.value = '';
+  _pilChatRender();
+  el.insertAdjacentHTML('beforeend', '<div id="pil-chat-typing" style="color:rgba(252,224,168,.4);font-size:12px;padding:2px 4px;">Sandy réfléchit…</div>');
+  el.scrollTop = el.scrollHeight;
+  if (btn) { btn.disabled = true; btn.style.opacity = '.55'; }
+  try {
+    const r = await (window.wozaliFetch || fetch)('/api/wozali-pay/admin-analytics', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'sandy-chat', days, message, history })
+    });
+    const d = await r.json();
+    if (!d || !d.ok) throw new Error(d?.error || 'Erreur');
+    _pilChat.push({ role: 'assistant', content: d.reply });
+  } catch (e) {
+    _pilChat.push({ role: 'assistant', content: 'Je ne peux pas répondre là (' + (e.message || '') + '). Réessaie dans un instant.' });
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    _pilChatRender();
+    if (inp) inp.focus();
+  }
+}
+window.pilChatSend = pilChatSend;
 
 async function checkAgentTerrainForDashboard(session) {
   try {

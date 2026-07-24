@@ -112,7 +112,8 @@ RETURNS TABLE(tranche text, total bigint) LANGUAGE sql STABLE AS $$
     WHEN a BETWEEN 18 AND 25 THEN '18-25'
     WHEN a BETWEEN 26 AND 35 THEN '26-35'
     WHEN a BETWEEN 36 AND 45 THEN '36-45'
-    ELSE '45+' END AS tranche,
+    WHEN a BETWEEN 46 AND 55 THEN '46-55'
+    ELSE '56+' END AS tranche,
     count(*)
   FROM ages GROUP BY 1
   ORDER BY 1;
