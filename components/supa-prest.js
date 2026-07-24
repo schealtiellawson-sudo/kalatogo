@@ -67,6 +67,7 @@
     'Statut Jour Date': 'statut_jour_at',
     'Rang Top 50': 'rang_top_50',
     'FTV Accroche': 'ftv_accroche',
+    'Createur Niveau': 'createur_niveau',
   };
 
   function _supa() { return window.supabase || window.supa; }

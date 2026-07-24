@@ -23,6 +23,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Recalcul quotidien des paliers Programme Créateur (best-effort, ne bloque rien)
+    try { await supabase.rpc('wz_createur_recompute'); } catch (e) { console.warn('[cron] wz_createur_recompute:', e?.message); }
+
     const now = new Date();
     const moisCourant = now.toISOString().slice(0, 7); // YYYY-MM
     const il30jours = new Date(now.getTime() - 30 * 86400000).toISOString();

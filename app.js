@@ -11076,6 +11076,7 @@ async function showProfil(recordId) {
                 ${note > 0 ? `<span class="profil-chip chip-star">★ ${note.toFixed(1)}</span>` : ''}
                 ${(abonnementRaw !== 'Base' && score >= 80) ? '<span class="profil-chip chip-vert">🏆 Éligible Bourse</span>' : ''}
                 ${(topRank && topRank <= 50) ? `<span class="profil-chip chip-or">🏆 TOP ${topRank}</span>` : ''}
+                ${f['Createur Niveau'] === 'or' ? '<span class="profil-chip chip-or">✦ Créateur Or</span>' : (f['Createur Niveau'] === 'createur' ? '<span class="profil-chip chip-or">✦ Créateur WOZALI</span>' : '')}
               </div>
               ${(topRank && topRank <= 50) ? `
               <div style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(232,148,10,.16),rgba(232,148,10,.05));border:1.5px solid rgba(232,148,10,.4);border-radius:14px;padding:14px 18px;margin-top:10px;">
@@ -14976,12 +14977,41 @@ async function loadEspaceCreateurSection() {
   try { await loadParrainage(); } catch (e) { console.warn('[espace-createur] loadParrainage:', e); }
 
   const allFilleuls = window._allFilleuls || [];
-  // TODO (prochaine étape) : distinguer "Pro actifs sur 60 jours" quand une
-  // colonne de dernière activité/churn sera exposée par l'API parrainage-stats.
-  // Pour l'instant, "Pro" = abonnement Pro courant (même logique que le
-  // dashboard Parrainage existant, cf. _renderFilleulsCRM).
-  const nbFilleulsPro = allFilleuls.filter(r => (r.fields['Abonnement'] || 'Base') !== 'Base').length;
   const nbInscrits = allFilleuls.length;
+
+  // Paliers RÉELS depuis le serveur : Pro actifs = Pro abonné ET connecté < 60j,
+  // Togo/Bénin uniquement. Respecte la suspension (kill switch) et l'interrupteur
+  // global du programme. Repli client-side si le réseau tombe.
+  let nbFilleulsPro = allFilleuls.filter(r => (r.fields['Abonnement'] || 'Base') !== 'Base').length;
+  let ecServerNiveau = null, ecSuspendu = false, ecCharteOk = true, ecProgActif = true, ecProMois = 0, ecVille = currentPrestataire.fields['Ville'] || '';
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/createur', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'status' }) });
+    const j = await r.json();
+    if (j && j.ok) {
+      nbFilleulsPro = j.pro_actifs || 0;
+      ecServerNiveau = j.niveau; ecSuspendu = !!j.suspendu; ecCharteOk = !!j.charte_ok;
+      ecProgActif = j.programme_actif !== false; ecProMois = j.pro_mois || 0;
+      ecVille = j.ville || ecVille;
+    }
+  } catch (e) { console.warn('[espace-createur] status serveur indispo, repli client:', e); }
+  window._ecVille = ecVille;
+
+  // Programme en pause (kill switch global) : message unique, pas d'outils.
+  if (!ecProgActif) {
+    containerEl.innerHTML = `
+      <div class="ec-eyebrow">Espace Créateur</div>
+      <h1 class="ec-title">Le programme Créateur <em>est en pause.</em></h1>
+      <p class="ec-subtitle">On peaufine le programme. Ton lien et tes commissions d'affiliation continuent de fonctionner normalement, ils sont dans « Parrainage ».</p>`;
+    return;
+  }
+  // Créateur suspendu (kill switch individuel)
+  if (ecSuspendu) {
+    containerEl.innerHTML = `
+      <div class="ec-eyebrow">Espace Créateur</div>
+      <h1 class="ec-title">Ton accès Créateur est <em>suspendu.</em></h1>
+      <p class="ec-subtitle">Ton statut Créateur est en pause suite à un signalement sur ta façon de promouvoir WOZALI. Écris-nous depuis « Messages » pour le rétablir. Ton affiliation reste active.</p>`;
+    return;
+  }
   const comm = window._parrainCommissions || { dispo: 0, total: 0 };
   const gainsMois = comm.dispo || 0;
   const gainsVie = comm.total || 0;
@@ -14995,9 +15025,29 @@ async function loadEspaceCreateurSection() {
   const soonCard = (label) => `
     <div class="ec-soon-card">${_ecSvg('info')}<span>${label}</span></div>`;
 
-  const classementSoon = `
-    <h3 class="ec-block-title">Classement du mois</h3>
-    <div class="ec-section-gap">${soonCard('Classement du mois : bientôt disponible.')}</div>`;
+  // Classement du mois par ville : conteneur chargé en async (_ecLoadLeaderboard)
+  const classementBlock = `
+    <h3 class="ec-block-title">Classement du mois${ecVille ? ' · ' + escapeHtml(ecVille) : ''}</h3>
+    <div class="ec-section-gap" id="ec-leaderboard">${soonCard('Chargement du classement...')}</div>`;
+
+  // ── PORTE CHARTE : outils débloqués (>= 3 Pro) mais charte pas encore acceptée ──
+  if (nbFilleulsPro >= 3 && !ecCharteOk) {
+    containerEl.innerHTML = `
+      <div class="ec-eyebrow">Espace Créateur</div>
+      <h1 class="ec-title">Bienvenue chez les <em>Créateurs.</em></h1>
+      <p class="ec-subtitle">Avant d'ouvrir tes outils, une règle du jeu simple. Elle protège ta réputation et celle de WOZALI.</p>
+      <div class="ec-card-glow ec-section-gap" style="padding:22px 20px;">
+        <div class="ec-charte-list">
+          <div class="ec-charte-item">${_ecSvg('check', 1.5)}<span>Je promeus WOZALI honnêtement. Je ne promets jamais d'argent facile ni de gains garantis.</span></div>
+          <div class="ec-charte-item">${_ecSvg('check', 1.5)}<span>Je ne spamme pas et je n'achète pas de faux abonnés ou de faux Pro.</span></div>
+          <div class="ec-charte-item">${_ecSvg('check', 1.5)}<span>Je parle vrai de mon métier et de mon expérience, jamais de fausses histoires.</span></div>
+          <div class="ec-charte-item">${_ecSvg('check', 1.5)}<span>Je respecte les gens. Pas de contenu trompeur, choquant ou politique.</span></div>
+          <div class="ec-charte-item">${_ecSvg('info', 1.5)}<span>WOZALI peut retirer mon statut Créateur si je ne respecte pas ces règles.</span></div>
+        </div>
+        <button class="ec-btn-sandy" style="margin-top:18px;width:100%;justify-content:center;" onclick="_ecAcceptCharte(this)">J'accepte la charte Créateur ${_ecSvg('arrow', 2)}</button>
+      </div>`;
+    return;
+  }
 
   const kitCard = (icon, name, desc, locked, packId) => `
     <div class="ec-kit-card${locked ? ' ec-locked' : ''}" ${locked ? '' : `onclick="${packId === 'reels-soon' ? 'ecReelsSoonPanel()' : (packId === 'formations' ? 'ecOpenFormations()' : (packId ? `ecOpenPack('${packId}')` : 'ecKitToast()'))}"`}>
@@ -15094,7 +15144,9 @@ async function loadEspaceCreateurSection() {
         </div>
         <div class="ec-gauge-track"><div class="ec-gauge-fill" style="width:${pct}%;"></div></div>
         <div class="ec-gauge-note">À 25 Pro actifs, ton <strong>badge Créateur WOZALI</strong> devient public sur ton profil.</div>
-      </div>`;
+      </div>
+
+      ${classementBlock}`;
   } else if (nbFilleulsPro < 50) {
     // ── ÉTAT 3 — CRÉATEUR ──
     const pct = Math.min(100, Math.round((nbFilleulsPro / 50) * 100));
@@ -15115,7 +15167,7 @@ async function loadEspaceCreateurSection() {
         <div class="ec-gauge-note">À 50 Pro actifs, ton profil sera mis en avant sur la <strong>page d'accueil WOZALI</strong>.</div>
       </div>
 
-      ${classementSoon}
+      ${classementBlock}
 
       <h3 class="ec-block-title">Ton kit Créateur</h3>
       <div class="ec-kit-grid ec-condensed">
@@ -15148,14 +15200,61 @@ async function loadEspaceCreateurSection() {
         </div>
       </div>
 
-      ${classementSoon}
+      ${classementBlock}
 
       <div class="ec-maintain-note">${_ecSvg('clock')}<span>Ton statut Or se maintient tant que tu gardes tes Pro actifs.</span></div>`;
   }
 
   containerEl.innerHTML = _ecKitBaseBlockHtml() + html;
   _ecRenderKitBase();
+  if (document.getElementById('ec-leaderboard')) _ecLoadLeaderboard(ecVille);
 }
+
+// Accepte la charte Créateur puis ré-affiche la section (outils ouverts)
+async function _ecAcceptCharte(btn) {
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+  try {
+    await wozaliFetch('/api/wozali-pay/createur', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'accept-charte' }) });
+    toast('Bienvenue chez les Créateurs WOZALI 🎉', 'success');
+    loadEspaceCreateurSection();
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window._ecAcceptCharte = _ecAcceptCharte;
+
+// Charge le classement du mois de la ville (Créateurs, tri Pro signés ce mois)
+async function _ecLoadLeaderboard(ville) {
+  const el = document.getElementById('ec-leaderboard');
+  if (!el) return;
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/createur', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'leaderboard', ville: ville || '' }) });
+    const j = await r.json();
+    const list = (j && j.ok && j.classement) || [];
+    if (!list.length) {
+      el.innerHTML = `<div class="ec-soon-card">${_ecSvg('info')}<span>Le classement se remplit ce mois-ci. Sois le premier à signer des Pro dans ta ville.</span></div>`;
+      return;
+    }
+    const moiId = j.moi_id;
+    const medaille = ['🥇', '🥈', '🥉'];
+    el.innerHTML = `<div class="ec-lb-list">` + list.map((c, i) => {
+      const rang = medaille[i] || `<span class="ec-lb-rank">${i + 1}</span>`;
+      const isMoi = c.id === moiId;
+      const av = c.photo ? `<img src="${escapeHtml(c.photo)}" class="ec-lb-av" alt="">` : `<div class="ec-lb-av ec-lb-av-empty">${escapeHtml((c.nom || '?').charAt(0).toUpperCase())}</div>`;
+      const orPill = c.niveau === 'or' ? ` <span class="ec-lb-gold">Or</span>` : (c.niveau === 'createur' ? ` <span class="ec-lb-cr">Créateur</span>` : '');
+      return `<div class="ec-lb-row${isMoi ? ' ec-lb-me' : ''}">
+        <div class="ec-lb-pos">${rang}</div>
+        ${av}
+        <div class="ec-lb-info"><div class="ec-lb-name">${escapeHtml(c.nom || 'Créateur')}${orPill}${isMoi ? ' <span class="ec-lb-you">toi</span>' : ''}</div><div class="ec-lb-metier">${escapeHtml(c.metier || '')}</div></div>
+        <div class="ec-lb-score"><strong>${c.pro_mois || 0}</strong><span>ce mois</span></div>
+      </div>`;
+    }).join('') + `</div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="ec-soon-card">${_ecSvg('info')}<span>Classement indisponible pour l'instant.</span></div>`;
+  }
+}
+window._ecLoadLeaderboard = _ecLoadLeaderboard;
 
 // ══════════════════════════════════════════
 // FAIS-TOI VOIR — Vague 1 (ouvert à TOUS les membres connectés)
@@ -17906,10 +18005,62 @@ function renderAdminPilotage(d) {
          <input id="pil-chat-input" placeholder="Stratégie, diagnostic, priorité du mois, arbitrage..." onkeydown="if(event.key==='Enter')pilChatSend()" style="flex:1;background:#1E180E;border:1px solid rgba(232,148,10,.25);color:#FCE0A8;border-radius:10px;padding:11px 13px;font-family:'Geist',sans-serif;font-size:13px;">
          <button id="pil-chat-send" onclick="pilChatSend()" style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:0 18px;font-weight:800;font-size:13px;cursor:pointer;font-family:'Geist',sans-serif;">Envoyer</button>
        </div>
-     </div>`;
+     </div>` +
+    `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:24px 0 12px;">Programme Créateur — modération</h3>
+     <div id="createur-admin" style="background:#14100A;border:1px solid rgba(232,148,10,.22);border-radius:18px;padding:16px 18px;"><div style="color:rgba(252,224,168,.4);font-size:13px;">Chargement...</div></div>`;
   try { loadPilotageProfiles(); } catch (e) {}
   try { _pilChatRender(); } catch (e) {}
+  try { loadCreateurAdmin(); } catch (e) {}
 }
+
+// ── Admin : kill switch programme Créateur (global + par-Créateur) ──
+async function loadCreateurAdmin() {
+  const box = document.getElementById('createur-admin');
+  if (!box) return;
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/createur', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'admin-list' }) });
+    const j = await r.json();
+    if (!j || !j.ok) { box.innerHTML = `<div style="color:#ff9a9a;font-size:13px;">${escapeHtml((j && j.error) || 'Accès refusé')}</div>`; return; }
+    const actif = j.programme_actif !== false;
+    const list = j.createurs || [];
+    const toggle = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+      <div><div style="font-weight:700;color:#FCE0A8;font-size:14px;">Interrupteur global</div><div style="font-size:12px;color:rgba(252,224,168,.5);">${actif ? 'Le programme est actif pour tous.' : 'Le programme est en pause pour tous.'}</div></div>
+      <button onclick="_createurAdminProgram(${actif ? 'false' : 'true'})" style="background:${actif ? 'transparent' : '#E8940A'};color:${actif ? '#ff9a9a' : '#14100A'};border:1px solid ${actif ? 'rgba(255,120,120,.5)' : '#E8940A'};border-radius:9px;padding:9px 16px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;">${actif ? 'Mettre en pause' : 'Réactiver'}</button>
+    </div>`;
+    const rows = list.length ? list.map(c => {
+      const susp = !!c.createur_suspendu;
+      const niv = susp ? 'suspendu' : (c.createur_niveau || 'none');
+      return `<div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(232,148,10,.08);padding:10px 2px;">
+        <div style="flex:1;min-width:0;"><div style="font-weight:700;color:#FCE0A8;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(c.nom_complet || 'Sans nom')}</div>
+          <div style="font-size:11.5px;color:rgba(252,224,168,.45);">${escapeHtml(c.ville || '')} · ${c.createur_pro_actifs || 0} Pro actifs · <span style="color:${susp ? '#ff9a9a' : '#E8940A'};">${niv}</span></div></div>
+        <button onclick="_createurAdminSuspend('${c.id}', ${susp ? 'false' : 'true'}, this)" style="background:${susp ? '#E8940A' : 'transparent'};color:${susp ? '#14100A' : '#ff9a9a'};border:1px solid ${susp ? '#E8940A' : 'rgba(255,120,120,.5)'};border-radius:8px;padding:7px 12px;font-weight:800;font-size:11.5px;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;">${susp ? 'Réactiver' : 'Suspendre'}</button>
+      </div>`;
+    }).join('') : `<div style="color:rgba(252,224,168,.4);font-size:13px;padding:8px 0;">Aucun Créateur (≥ 3 Pro actifs) pour l'instant.</div>`;
+    box.innerHTML = toggle + `<div style="font-size:12px;color:rgba(252,224,168,.5);margin-bottom:6px;">Créateurs (≥ 3 Pro actifs)</div>` + rows;
+  } catch (e) {
+    box.innerHTML = `<div style="color:#ff9a9a;font-size:13px;">Erreur de chargement.</div>`;
+  }
+}
+async function _createurAdminProgram(actif) {
+  if (!confirm(actif ? 'Réactiver le programme Créateur pour tous ?' : 'Mettre TOUT le programme Créateur en pause ?')) return;
+  try {
+    await wozaliFetch('/api/wozali-pay/createur', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'admin-program', actif }) });
+    toast(actif ? 'Programme réactivé.' : 'Programme mis en pause.', 'success');
+    loadCreateurAdmin();
+  } catch (e) { toast('Échec.', 'error'); }
+}
+async function _createurAdminSuspend(id, suspendu, btn) {
+  if (suspendu && !confirm('Suspendre ce Créateur ? Ses badges disparaissent et il sort du classement.')) return;
+  if (btn) btn.disabled = true;
+  try {
+    await wozaliFetch('/api/wozali-pay/createur', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'admin-suspend', id, suspendu }) });
+    toast(suspendu ? 'Créateur suspendu.' : 'Créateur réactivé.', 'success');
+    loadCreateurAdmin();
+  } catch (e) { if (btn) btn.disabled = false; toast('Échec.', 'error'); }
+}
+window.loadCreateurAdmin = loadCreateurAdmin;
+window._createurAdminProgram = _createurAdminProgram;
+window._createurAdminSuspend = _createurAdminSuspend;
 
 function _pilProfilesShell() {
   const inp = 'background:#1E180E;border:1px solid rgba(232,148,10,.2);color:#FCE0A8;border-radius:9px;padding:8px 10px;font-family:Geist,sans-serif;font-size:12.5px;';

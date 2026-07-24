@@ -15,6 +15,7 @@ import recompensesStatus from './_impl/recompenses-status.js';
 // Admin
 import adminVerify from './_impl/admin-verify.js';
 import adminAnalytics from './_impl/admin-analytics.js';
+import createur from './_impl/createur.js';
 import ftvAccroche from './_impl/ftv-accroche.js';
 import agentsTerrain from './_impl/agents-terrain.js';
 // Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP début juillet)
@@ -159,6 +160,7 @@ const OPTIONAL_AUTH_ACTIONS = new Set([
   'commande-patisserie-create',
   'reservation-chambre-create',
   'rdv-create', // client peut être connecté ou non
+  'createur',   // cron recompute via CRON_SECRET ; auth membre vérifiée dans le handler
 ]);
 
 const handlers = {
@@ -169,6 +171,7 @@ const handlers = {
   // 'awards-candidats' / 'awards-vote' / 'awards-candidater' désinscrites 2026-07-21
   'admin-verify': adminVerify,
   'admin-analytics': adminAnalytics,
+  'createur': createur,
   'ftv-accroche': ftvAccroche,
   'agents-terrain': agentsTerrain,
   'feed-list': feedList,
