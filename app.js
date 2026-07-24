@@ -12407,7 +12407,9 @@ async function submitInscription(e) {
     // Nom d'affichage public = ce que le prestataire a saisi, sinon "Prénom Nom"
     const nom = nomAffiche || `${prenomReel} ${nomReel}`.trim();
     const email = document.getElementById('f-email').value.trim();
-    const tel = document.getElementById('f-tel').value.trim();
+    const _indic = document.getElementById('f-indicatif')?.value || '+228';
+    const _local = document.getElementById('f-tel').value.trim().replace(/[^\d]/g, '').replace(/^0+/, '');
+    const tel = _local ? `${_indic} ${_local}` : document.getElementById('f-tel').value.trim();
 
     if (!prenomReel || !nomReel) {
       toast('Prénom et nom obligatoires', 'error');

@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260722g">
+<link rel="stylesheet" href="/style.css?v=20260724q">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2070,7 +2070,14 @@ setTimeout(function(){
 
         <div class="form-group">
           <label>Téléphone / WhatsApp <span class="req">*</span></label>
-          <input type="tel" id="f-tel" placeholder="+228 90 00 00 00" required>
+          <div class="tel-row">
+            <select id="f-indicatif" class="tel-indicatif" aria-label="Indicatif pays">
+              <option value="+228">🇹🇬 +228</option>
+              <option value="+229">🇧🇯 +229</option>
+            </select>
+            <input type="tel" id="f-tel" class="tel-local" placeholder="90 12 34 56" inputmode="tel" required>
+          </div>
+          <small style="color:#888;font-size:12px;margin-top:4px;display:block;">Ton numéro sans l'indicatif. Choisis ton pays à gauche.</small>
         </div>
 
         <div class="form-group">
@@ -6805,7 +6812,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260724m" defer></script>
+<script src="/app.js?v=20260724n" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

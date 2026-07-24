@@ -8734,3 +8734,135 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 @media (prefers-reduced-motion: reduce) {
   #ds-parrainage * { transition:none !important; animation:none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   PHASE AUTH PREMIUM — inscription / connexion / mdp
+   Fond ambiance or + carte vitrine, niveau premium WOZALI
+═══════════════════════════════════════════════════════ */
+#page-inscription, #page-login, #page-forgot, #page-reset-password {
+  background-color:#14100A !important;
+  background-image:
+    radial-gradient(1100px 620px at 82% -8%, rgba(232,148,10,0.16), transparent 60%),
+    radial-gradient(900px 560px at 8% 108%, rgba(232,148,10,0.10), transparent 62%),
+    radial-gradient(700px 700px at 50% 45%, rgba(232,148,10,0.04), transparent 70%) !important;
+}
+/* Carte vitrine autour du formulaire (kill du grand vide) */
+#page-login .auth-page,
+#page-forgot .auth-page,
+#page-reset-password .auth-page,
+#page-inscription .form-page {
+  background:linear-gradient(165deg, rgba(30,24,14,0.92), rgba(20,16,10,0.92)) !important;
+  border:1px solid rgba(232,148,10,0.22) !important;
+  border-radius:24px !important;
+  padding:44px 34px !important;
+  margin:40px auto !important;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,0.8), 0 0 0 1px rgba(232,148,10,0.04), inset 0 1px 0 rgba(255,255,255,0.03) !important;
+  position:relative;
+  overflow:hidden;
+}
+/* Filet or lumineux en haut de la carte */
+#page-login .auth-page::before,
+#page-forgot .auth-page::before,
+#page-reset-password .auth-page::before,
+#page-inscription .form-page::before {
+  content:''; position:absolute; top:0; left:22px; right:22px; height:2px;
+  background:linear-gradient(90deg, transparent, #E8940A, transparent);
+  opacity:0.7;
+}
+/* Halo doux derrière le titre */
+#page-login .auth-page::after,
+#page-inscription .form-page::after {
+  content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%);
+  width:280px; height:180px; border-radius:50%;
+  background:radial-gradient(circle, rgba(232,148,10,0.20), transparent 70%);
+  pointer-events:none; z-index:0;
+}
+#page-login .auth-page > *, #page-inscription .form-page > * { position:relative; z-index:1; }
+
+/* Eyebrow premium (remplace le vieux badge) */
+#page-inscription .form-header .badge,
+#page-login .auth-page > .badge,
+#page-forgot .auth-page > .badge,
+#page-reset-password .auth-page > .badge {
+  display:inline-block !important;
+  background:rgba(232,148,10,0.10) !important;
+  color:#E8940A !important;
+  border:1px solid rgba(232,148,10,0.30) !important;
+  font-family:'Geist Mono', monospace !important;
+  font-size:11px !important; letter-spacing:2px !important; text-transform:uppercase !important;
+  padding:7px 14px !important; border-radius:100px !important;
+}
+/* Titres + sous-titres */
+#page-inscription .form-header h2, #page-login .auth-page h2,
+#page-forgot .auth-page h2, #page-reset-password .auth-page h2 {
+  color:#FCE0A8 !important; font-family:'DM Serif Display',serif !important;
+}
+/* Inputs premium (surface Nuit + focus or lumineux) */
+#page-inscription input, #page-login input, #page-forgot input, #page-reset-password input,
+#page-inscription select, #page-inscription textarea {
+  background:#14100A !important;
+  border:1.5px solid rgba(232,148,10,0.22) !important;
+  color:#FCE0A8 !important;
+  border-radius:12px !important;
+  transition:border-color .2s ease, box-shadow .2s ease !important;
+}
+#page-inscription input:focus, #page-login input:focus, #page-forgot input:focus,
+#page-reset-password input:focus, #page-inscription select:focus, #page-inscription textarea:focus {
+  border-color:#E8940A !important;
+  box-shadow:0 0 0 3px rgba(232,148,10,0.15) !important;
+  outline:none !important;
+}
+#page-inscription input::placeholder, #page-login input::placeholder,
+#page-forgot input::placeholder, #page-reset-password input::placeholder {
+  color:rgba(252,224,168,0.35) !important;
+}
+/* CTA auth : dégradé or premium */
+#page-login #login-btn, #page-forgot #forgot-btn, #page-reset-password #reset-pw-btn {
+  background:linear-gradient(135deg,#E8940A,#d97706) !important;
+  color:#14100A !important; border:none !important; font-weight:800 !important;
+  border-radius:100px !important; box-shadow:0 10px 24px -8px rgba(232,148,10,0.5) !important;
+}
+/* Barre de progression : actif = or */
+#page-inscription .progress-step.active { background:#E8940A !important; }
+/* Bloc manifeste inscription : passe en Nuit premium */
+#page-inscription .form-page > div[style*="var(--gris-light)"] {
+  background:rgba(232,148,10,0.06) !important;
+  border-left:3px solid #E8940A !important;
+  border-radius:0 14px 14px 0 !important;
+}
+#page-inscription .form-page > div[style*="var(--gris-light)"] p {
+  color:rgba(252,224,168,0.75) !important;
+}
+@media (max-width:560px){
+  #page-login .auth-page, #page-forgot .auth-page, #page-reset-password .auth-page,
+  #page-inscription .form-page { padding:32px 20px !important; margin:24px 14px !important; border-radius:20px !important; }
+}
+
+/* Étapes inscription : dropzone Nuit + libellés premium */
+#page-inscription .upload-zone {
+  background:#14100A !important;
+  border:2px dashed rgba(232,148,10,0.32) !important;
+  border-radius:16px !important;
+}
+#page-inscription .upload-zone:hover {
+  border-color:#E8940A !important;
+  background:rgba(232,148,10,0.06) !important;
+}
+#page-inscription .upload-zone.has-file { border-style:solid !important; border-color:#E8940A !important; }
+#page-inscription .upload-text { color:rgba(252,224,168,0.65) !important; }
+#page-inscription .upload-text strong { color:#E8940A !important; }
+#page-inscription .step-label {
+  display:inline-block; font-family:'Geist Mono',monospace !important;
+  font-size:11px !important; letter-spacing:2px !important; text-transform:uppercase !important;
+  color:#E8940A !important; background:rgba(232,148,10,0.08); border:1px solid rgba(232,148,10,0.22);
+  padding:5px 12px; border-radius:100px; margin-bottom:18px !important; font-weight:700 !important;
+}
+#page-inscription .step-title { color:#FCE0A8 !important; font-size:28px !important; }
+#page-inscription label { color:rgba(252,224,168,0.85) !important; font-weight:600 !important; }
+/* Petits textes d'aide gris (#888 / #666) → crème atténué */
+#page-inscription small[style*="#888"], #page-inscription small[style*="#666"],
+#page-inscription small[style*="color:#888"] { color:rgba(252,224,168,0.5) !important; }
+/* Champ téléphone : indicatif pays + numéro local */
+#page-inscription .tel-row { display:flex; gap:8px; align-items:stretch; }
+#page-inscription .tel-indicatif { flex:0 0 auto; width:auto !important; min-width:104px; font-weight:700 !important; padding-right:8px !important; }
+#page-inscription .tel-local { flex:1 1 auto; min-width:0; }
