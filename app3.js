@@ -1481,33 +1481,70 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
     wrap.id = 'wozali-onboarding-modal';
     wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,8,5,0.97);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Geist,sans-serif;';
     wrap.innerHTML = ''
-      + '<div style="max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;">'
-      +   '<div style="font-family:\'DM Serif Display\',serif;font-style:italic;font-size:20px;color:#E8940A;letter-spacing:.5px;margin-bottom:18px;">WOZALI</div>'
-      +   '<div style="width:100%;background:#181209;border:1px solid rgba(232,148,10,0.22);border-radius:24px;padding:34px 26px 26px;text-align:center;color:#FCE0A8;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;">'
-      +     '<div style="position:absolute;top:0;left:26px;right:26px;height:1px;background:rgba(252,224,168,0.14);"></div>'
-      +     '<div id="wozali-onb-icon" style="width:86px;height:86px;margin:6px auto 20px;border-radius:50%;background:#20180C;border:1px solid rgba(232,148,10,0.45);display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px rgba(232,148,10,0.22);"></div>'
-      +     '<div id="wozali-onb-eyebrow" style="font-family:\'Geist Mono\',monospace;font-size:11px;letter-spacing:2.5px;color:#E8940A;text-transform:uppercase;margin-bottom:14px;"></div>'
-      +     '<h2 id="wozali-onb-title" style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:400;margin:0 0 14px;color:#FCE0A8;line-height:1.16;"></h2>'
-      +     '<p id="wozali-onb-text" style="font-size:14px;line-height:1.66;color:rgba(252,224,168,0.66);margin:0 0 26px;"></p>'
-      +     '<div id="wozali-onb-dots" style="display:flex;gap:7px;justify-content:center;margin-bottom:22px;"></div>'
+      + '<style>@keyframes wzobPulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.05);opacity:1}}@keyframes wzobFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}@keyframes wzobRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}</style>'
+      + '<div style="max-width:440px;width:100%;display:flex;flex-direction:column;align-items:center;">'
+      +   '<div style="font-family:\'DM Serif Display\',serif;font-style:italic;font-size:20px;color:#E8940A;letter-spacing:.5px;margin-bottom:16px;">WOZALI</div>'
+      +   '<div style="width:100%;background:linear-gradient(180deg,#1a130a,#120D07);border:1px solid rgba(232,148,10,0.22);border-radius:26px;padding:20px 22px 24px;text-align:center;color:#FCE0A8;box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative;overflow:hidden;">'
+      +     '<div style="position:absolute;top:-90px;left:50%;transform:translateX(-50%);width:340px;height:200px;background:radial-gradient(ellipse at center,rgba(232,148,10,0.14),transparent 70%);pointer-events:none;"></div>'
+      +     '<div id="wozali-onb-visual" style="position:relative;width:100%;height:198px;margin:2px auto 20px;border-radius:18px;overflow:hidden;background:radial-gradient(120% 100% at 50% 0%,rgba(232,148,10,0.09),transparent 62%),#0f0b06;border:1px solid rgba(232,148,10,0.14);"></div>'
+      +     '<div id="wozali-onb-eyebrow" style="font-family:\'Geist Mono\',monospace;font-size:11px;letter-spacing:2.5px;color:#E8940A;text-transform:uppercase;margin-bottom:12px;"></div>'
+      +     '<h2 id="wozali-onb-title" style="font-family:\'DM Serif Display\',serif;font-size:25px;font-weight:400;margin:0 0 13px;color:#FCE0A8;line-height:1.18;"></h2>'
+      +     '<p id="wozali-onb-text" style="font-size:14px;line-height:1.62;color:rgba(252,224,168,0.66);margin:0 0 22px;"></p>'
+      +     '<div id="wozali-onb-dots" style="display:flex;gap:7px;justify-content:center;margin-bottom:20px;"></div>'
       +     '<div id="wozali-onb-btns"></div>'
       +   '</div>'
       + '</div>';
     document.body.appendChild(wrap);
 
+    var _coin = '<span style="width:19px;height:19px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#f7cd75,#E8940A);box-shadow:0 3px 10px rgba(232,148,10,.45);display:inline-block;"></span>';
+    function _pill(t){ return '<span style="font-size:9.5px;color:#E8940A;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.25);border-radius:100px;padding:3px 9px;white-space:nowrap;">'+t+'</span>'; }
+    function _res(hl,w){ return '<div style="display:flex;align-items:center;gap:10px;background:'+(hl?'rgba(232,148,10,.10)':'rgba(255,255,255,.03)')+';border:1px solid '+(hl?'rgba(232,148,10,.35)':'rgba(255,255,255,.06)')+';border-radius:10px;padding:7px 10px;margin-bottom:7px;"><div style="width:26px;height:26px;border-radius:50%;background:#2a2013;flex:0 0 auto;"></div><div style="flex:1;text-align:left;"><div style="height:7px;width:'+w+'px;background:rgba(252,224,168,.42);border-radius:4px;margin-bottom:5px;"></div><div style="color:#E8940A;font-size:9px;letter-spacing:2px;">★★★★★</div></div><span style="font-family:\'Geist Mono\',monospace;font-size:9px;color:#14100A;background:#E8940A;padding:3px 8px;border-radius:6px;font-weight:700;">Voir</span></div>'; }
+    function _postcard(rot,z,dim){ return '<div style="position:absolute;top:24px;left:50%;margin-left:-37px;width:74px;height:100px;background:linear-gradient(180deg,#1E180E,#150f07);border:1px solid rgba(232,148,10,'+(dim?'.16':'.30')+');border-radius:10px;transform:translateX('+(rot*4.2)+'px) rotate('+rot+'deg);box-shadow:0 10px 22px rgba(0,0,0,.45);padding:8px;z-index:'+z+';opacity:'+(dim?'.85':'1')+';"><div style="width:22px;height:22px;border-radius:50%;background:#2a2013;margin-bottom:7px;"></div><div style="height:5px;width:80%;background:rgba(252,224,168,.32);border-radius:3px;margin-bottom:5px;"></div><div style="height:5px;width:55%;background:rgba(252,224,168,.18);border-radius:3px;margin-bottom:auto;"></div><div style="margin-top:20px;height:14px;background:#E8940A;border-radius:5px;"></div></div>'; }
+
+    var visArgent = '<div style="position:absolute;inset:0;">'
+      + '<div style="position:absolute;left:20px;bottom:24px;display:flex;align-items:center;gap:10px;opacity:.55;"><div style="width:44px;height:44px;border-radius:50%;background:#241a0e;border:1px solid rgba(252,224,168,.15);"></div><div style="text-align:left;"><div style="height:8px;width:66px;background:rgba(252,224,168,.32);border-radius:4px;margin-bottom:6px;"></div><div style="height:7px;width:44px;background:rgba(252,224,168,.16);border-radius:4px;"></div></div></div>'
+      + '<div style="position:absolute;left:118px;top:28px;bottom:28px;width:2px;background:repeating-linear-gradient(180deg,rgba(232,148,10,.45) 0 7px,transparent 7px 15px);"></div>'
+      + '<div style="position:absolute;right:16px;top:24px;display:flex;align-items:center;gap:8px;animation:wzobFloat 3s ease-in-out infinite;">'+_coin+_coin+_coin+'<span style="color:#E8940A;font-size:26px;font-weight:700;line-height:1;">&rsaquo;</span></div>'
+      + '<div style="position:absolute;right:22px;bottom:26px;font-family:\'Geist Mono\',monospace;font-size:10px;color:rgba(252,224,168,.4);">le client va ailleurs</div>'
+      + '</div>';
+
+    var visVu = '<div style="position:absolute;inset:0;padding:15px 16px;text-align:left;">'
+      + '<div style="display:flex;align-items:center;gap:8px;background:#1E180E;border:1px solid rgba(232,148,10,.32);border-radius:11px;padding:9px 12px;margin-bottom:11px;"><span style="color:#E8940A;font-size:13px;">◎</span><span style="font-size:12.5px;color:#FCE0A8;">couturière à Cotonou</span></div>'
+      + _res(true,72) + _res(false,58) + _res(false,64)
+      + '</div>';
+
+    var visProfil = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">'
+      + '<div style="width:82%;background:linear-gradient(180deg,#1E180E,#171106);border:1px solid rgba(232,148,10,.28);border-radius:16px;padding:14px;text-align:left;box-shadow:0 14px 32px rgba(0,0,0,.45);">'
+      +   '<div style="display:flex;align-items:center;gap:11px;margin-bottom:11px;"><div style="width:48px;height:48px;border-radius:50%;padding:2.5px;background:conic-gradient(from 210deg,#E8940A,#f6c667,#E8940A);"><div style="width:100%;height:100%;border-radius:50%;background:#2a2013;"></div></div><div style="flex:1;"><div style="font-family:\'DM Serif Display\',serif;color:#FCE0A8;font-size:15px;">Akossiwa B.</div><div style="font-size:11px;color:rgba(252,224,168,.5);">Couturière · Lomé</div></div><span style="color:#E8940A;font-size:9px;letter-spacing:1px;">★★★★★</span></div>'
+      +   '<div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(252,224,168,.5);margin-bottom:5px;"><span>Score WOZALI</span><span style="color:#E8940A;font-family:\'Geist Mono\',monospace;">82</span></div>'
+      +   '<div style="height:8px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;margin-bottom:11px;"><div style="height:100%;width:82%;background:linear-gradient(90deg,#E8940A,#f6c667);border-radius:5px;"></div></div>'
+      +   '<div style="display:flex;gap:6px;">'+_pill('Sur-mesure')+_pill('Retouches')+_pill('Wax')+'</div>'
+      + '</div></div>';
+
+    var visOutils = '<div style="position:absolute;inset:0;">'
+      + '<div style="position:absolute;top:0;left:0;right:0;height:150px;">'+_postcard(-11,1,true)+_postcard(11,1,true)+_postcard(0,3,false)+'</div>'
+      + '<div style="position:absolute;right:14px;bottom:14px;background:#1E180E;border:1px solid rgba(232,148,10,.32);border-radius:12px 12px 12px 3px;padding:8px 11px;max-width:172px;text-align:left;box-shadow:0 8px 20px rgba(0,0,0,.4);"><div style="font-family:\'Geist Mono\',monospace;font-size:9px;letter-spacing:1.5px;color:#E8940A;margin-bottom:3px;">SANDY</div><div style="font-size:11px;color:rgba(252,224,168,.82);line-height:1.4;">« Voilà ton accroche prête à coller. »</div></div>'
+      + '</div>';
+
+    var visOuvre = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><div style="text-align:center;">'
+      + '<div style="width:100px;height:100px;margin:0 auto 14px;border-radius:50%;background:conic-gradient(#E8940A 0% 40%,rgba(255,255,255,.08) 40% 100%);display:flex;align-items:center;justify-content:center;animation:wzobPulse 2.2s ease-in-out infinite;box-shadow:0 0 30px rgba(232,148,10,.28);"><div style="width:78px;height:78px;border-radius:50%;background:#12100a;display:flex;align-items:center;justify-content:center;font-family:\'Geist Mono\',monospace;color:#E8940A;font-size:20px;">40%</div></div>'
+      + '<div style="font-family:\'Geist Mono\',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(252,224,168,.55);">TON PROFIL EST PRÊT À OUVRIR</div>'
+      + '</div></div>';
+
     var steps = [
-      { icon:'wallet',    eyebrow:'Le démarrage',  title:"Le problème, c'est pas ton travail.", text:"Tu bosses dur. Tu connais ton métier. Et pourtant l'argent ne rentre pas comme il devrait. Au Togo et au Bénin, le travail ne manque pas. C'est l'argent qui circule pas. Pas parce que tu vaux moins. Parce que personne ne te voit.", primary:'Suivant' },
-      { icon:'crown',     eyebrow:'Ta valeur',     title:"Fini de demander. Fini de quémander.", text:"Combien de fois t'as dû connaître quelqu'un pour décrocher un contrat ? Ici c'est différent. Ton travail parle à ta place. Tu ne demandes plus une faveur, tu montres ce que tu sais faire. Ta valeur a enfin une place.", primary:'Suivant' },
-      { icon:'map-pin',   eyebrow:'Tes clients',   title:"Tes clients te trouvent. Sans réseau.", text:"Le client de Bè qui cherche un coiffeur. La famille d'Akpakpa qui veut un mécano. La mariée d'Adidogomé qui cherche une couturière. Ton GPS, ton WhatsApp, tes avis vérifiés. Ils te trouvent en 30 secondes et te contactent direct. Tu vends plus, plus souvent.", primary:'Suivant' },
-      { icon:'briefcase', eyebrow:"L'emploi",      title:"Trouver un job, sans galère.", text:"Marre des annonces floues et des « envoie ton CV et attends » ? Marre qu'on te demande des choses en échange d'un poste ? Sur WOZALI, les offres sont claires : métier, quartier, salaire affiché, contact direct. Tu postules en deux clics depuis ton téléphone. On te choisit pour ton travail, pas pour tes relations.", primary:'Suivant' },
-      { icon:'trophy',    eyebrow:'La récompense', title:"Ton sérieux te rapporte. Chaque mois.", text:"Chaque mois, WOZALI verse un salaire à ses membres les plus sérieux. La Bourse de Croissance : les 10 meilleurs profils du mois de ton pays gagnent chacun un salaire, crédité sur leur compte WOZALI. Classement 100% mérite : tes avis clients, ta note, ta constance. Pas tes abonnés. Ton travail te paye enfin.", primary:'Suivant' },
-      { icon:'sparkles',  eyebrow:'Bienvenue',     title:"WOZALI t'appartient.", text:"Tu as fait le premier pas que beaucoup n'osent pas faire. À partir d'aujourd'hui, ton travail te ramène des clients, pas des faveurs. Ajoute tes photos, complète ton profil, et laisse ton travail parler. Bienvenue sur WOZALI. Ta place est ici, et elle t'attendait.", primary:'Voir mon espace' }
+      { visual:visArgent, eyebrow:'Le vrai problème', title:"Tu travailles. L'argent passe à côté.", text:"Tu fais bien ton travail. Mais les clients et les recruteurs vont chez ceux qu'ils connaissent. Et l'argent passe à côté de toi.", primary:'Suivant' },
+      { visual:visVu, eyebrow:'Le déclic', title:"Ceux qui gagnent ne travaillent pas mieux. On les voit, c'est tout.", text:"Le travail, tu l'as déjà. Ce qui manque, c'est qu'on te voie. WOZALI casse ce mur-là.", primary:'Suivant' },
+      { visual:visProfil, eyebrow:'Ta vitrine', title:"Ton profil, c'est ta boutique. Ton Score, ta réputation.", text:"Ton profil te rend trouvable par un inconnu. Ton Score WOZALI monte avec tes avis et te fait sortir en premier dans ton quartier.", primary:'Suivant' },
+      { visual:visOutils, eyebrow:'Tes outils', title:"Fais-toi voir. Partout. Gratuitement.", text:"Trois posts à épingler, ta photo avec l'anneau or, ta bannière, et Sandy qui t'écrit ton accroche. Gratuit, pour tout le monde.", primary:'Suivant' },
+      { visual:visOuvre, eyebrow:'Bienvenue', title:"Ta boutique ouvre maintenant.", text:"Ta place est prête. Complète ton profil, ajoute tes photos, et laisse ton travail parler.", primary:'Compléter mon profil' }
     ];
     var idx = 0;
 
     function render(){
       var s = steps[idx];
-      document.getElementById('wozali-onb-icon').innerHTML = '<i data-lucide="'+s.icon+'" style="width:40px;height:40px;color:#E8940A;"></i>';
+      var vis = document.getElementById('wozali-onb-visual');
+      vis.innerHTML = s.visual || '';
+      vis.style.animation = 'none'; void vis.offsetWidth; vis.style.animation = 'wzobRise .45s ease both';
       document.getElementById('wozali-onb-eyebrow').textContent = s.eyebrow || '';
       document.getElementById('wozali-onb-title').textContent = s.title;
       document.getElementById('wozali-onb-text').textContent = s.text;
@@ -1523,8 +1560,8 @@ window.wozaliNotifPush = async function(prestataireId, key, vars){
         else {
           close();
           if (window.currentUser) {
-            if (typeof viewMyProfile === 'function') viewMyProfile();
-            else if (typeof showPage === 'function') showPage('dashboard');
+            if (typeof showPage === 'function') showPage('dashboard');
+            if (typeof showDashSection === 'function') setTimeout(function(){ showDashSection('profil'); }, 140);
           } else {
             if (typeof showPage === 'function') showPage('inscription');
           }
