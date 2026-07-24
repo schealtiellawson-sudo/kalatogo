@@ -7,7 +7,7 @@ import { supabase } from '../_lib/supabase.js';
 import { recalculerTousLesScores } from '../_lib/score-wozali.js';
 import { envoyerNotification } from '../_utils/credit.js';
 import { runCoachSandy } from '../_lib/coach-sandy.js';
-import { runSequenceFondateur, runFondateurEvents } from '../_lib/sequence-fondateur.js';
+import { runSequenceFondateur, runFondateurEvents, runFondateurRelance } from '../_lib/sequence-fondateur.js';
 
 export default async function handler(req, res) {
   // Auth cron Vercel
@@ -178,6 +178,12 @@ export default async function handler(req, res) {
     try {
       evenements = await runFondateurEvents(supabase);
     } catch (e) { console.warn('[score-wozali] fondateur events', e); }
+
+    // ── Relance douce sur inactivité (M6, 21-25 jours sans connexion) ──
+    let relances = { relances: 0 };
+    try {
+      relances = await runFondateurRelance(supabase);
+    } catch (e) { console.warn('[score-wozali] fondateur relance', e); }
 
     // Reset vues_mois au 1er du mois
     const now = new Date();

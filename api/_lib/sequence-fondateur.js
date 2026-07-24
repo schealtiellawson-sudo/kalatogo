@@ -207,6 +207,21 @@ Le premier est le plus dur à obtenir. Va chercher le deuxième pendant que c'es
       'Lire mon avis', 'avis'),
   },
   {
+    id: 'ev_faistoivoir',
+    cond: (p) => !!(p.photo_realisation_1 || p.photo_realisation_2),
+    build: (c) => _msg('ev_faistoivoir', 'Ton compte social, une boutique ouverte',
+`${c.prenom}, une chose que beaucoup de membres découvrent trop tard.
+
+Tes abonnés sur TikTok ou WhatsApp te connaissent déjà. Mais quand l'un d'eux a besoin de toi, ou connaît quelqu'un qui a besoin de toi, il ne sait pas comment t'envoyer ce client. Le mur est là.
+
+J'ai préparé pour toi des posts déjà prêts, avec ton lien WOZALI dessus. C'est gratuit, pour tout le monde. Clique sur le bouton en bas, prends le premier et épingle-le en haut de ton compte.
+
+Comme ça, toute personne qui tombe sur ta page atterrit sur ton profil, voit ton travail, et peut te contacter direct.
+
+Le mur entre toi et tes clients, tu viens de le casser toi-même.`,
+      'Ouvrir Fais-toi voir', 'faistoivoir'),
+  },
+  {
     id: 'ev_pro',
     cond: (p) => String(p.abonnement || '').trim().toLowerCase() === 'pro',
     build: (c) => _msg('ev_pro', 'Tu viens de passer devant tout le monde',
@@ -258,7 +273,7 @@ Reste constant jusqu'au dernier vendredi du mois. C'est tout ce qui te sépare d
 export async function runFondateurEvents(supabase) {
   const { data: rows } = await supabase
     .from('wozali_prestataires')
-    .select('id, user_id, prenom, nom_complet, notifications, abonnement, score_wozali, nb_avis_recus');
+    .select('id, user_id, prenom, nom_complet, notifications, abonnement, score_wozali, nb_avis_recus, photo_realisation_1, photo_realisation_2');
   if (!rows || !rows.length) return { evenements: 0 };
 
   let envoyes = 0;
@@ -321,4 +336,41 @@ export async function runSequenceFondateur(supabase) {
     if (!error) envoyes++;
   }
   return { envoyes };
+}
+
+// ── Relance douce sur inactivité (M6) ──
+// Une seule fois, aux membres sans connexion depuis 21 à 25 jours
+// (fenêtre courte + dédup par id 'w_relance' = jamais de spam).
+export async function runFondateurRelance(supabase) {
+  const now = Date.now();
+  const min25 = new Date(now - 25 * 86400000).toISOString();
+  const max21 = new Date(now - 21 * 86400000).toISOString();
+  const { data: rows } = await supabase
+    .from('wozali_prestataires')
+    .select('id, prenom, nom_complet, notifications, derniere_connexion')
+    .not('derniere_connexion', 'is', null)
+    .lte('derniere_connexion', max21)
+    .gte('derniere_connexion', min25);
+  if (!rows || !rows.length) return { relances: 0 };
+
+  let envoyes = 0;
+  for (const r of rows) {
+    let arr = [];
+    try { arr = typeof r.notifications === 'string' ? JSON.parse(r.notifications) : (r.notifications || []); } catch (e) { arr = []; }
+    if (!Array.isArray(arr)) arr = [];
+    if (arr.some(m => m && m.id === 'w_relance')) continue;
+    const prenom = (r.prenom || (r.nom_complet || '').split(' ')[0] || '').trim();
+    arr.push({
+      id: 'w_relance', type: 'message_fondateur', from: 'Schealtiel',
+      title: "Ta place t'attend", read: false, created_at: new Date().toISOString(),
+      action_label: 'Revenir sur mon profil', action_section: 'profil',
+      body: `${prenom}, c'est Schealtiel. Ça fait un moment que je ne t'ai pas vu passer.\n\nPeut-être que la semaine était chargée. Peut-être que tu te demandes si ça vaut le coup. Je comprends les deux, et je ne suis pas là pour te mettre la pression.\n\nJe te dis juste ceci : ton profil est toujours là, exactement où tu l'as laissé. Rien n'est perdu. Et pendant ce temps, des gens cherchent ton métier dans ton quartier.\n\nReviens cinq minutes aujourd'hui. Juste cinq. Regarde ton profil, ajuste une chose, une seule.\n\nLa place que tu as prise ici, personne ne l'a prise à ta place. Elle t'attend.`,
+    });
+    const { error } = await supabase
+      .from('wozali_prestataires')
+      .update({ notifications: JSON.stringify(arr) })
+      .eq('id', r.id);
+    if (!error) envoyes++;
+  }
+  return { relances: envoyes };
 }
