@@ -14869,6 +14869,108 @@ async function _ecPackShare(packId, idx) {
   toast('Visuel téléchargé. Partage-le depuis tes photos.', 'info');
 }
 
+// ── Mini-formations Créateur (3 modules validés) ──
+const _EC_FORMATIONS = [
+  {
+    titre: 'Le reel qui convertit',
+    objectif: 'Structurer une vidéo face cam de 30 à 60 secondes qui donne envie de cliquer sur ton lien.',
+    steps: [
+      { t: 'Les 3 premières secondes décident de tout.', p: "Pas de bonjour, pas de aujourd'hui je vais vous parler de. Ta première phrase, c'est la thèse complète. Si elle ne pique pas, la personne swipe." },
+      { t: 'Des hooks qui marchent, à dire avec tes mots.', p: '', hooks: [
+        "Le meilleur mécanicien d'Adidogomé a passé la semaine sans un seul client.",
+        "Tu travailles bien et pourtant l'argent ne rentre pas. Je t'explique pourquoi.",
+        "Une couturière à Akpakpa m'a dit : je couds mieux que celle qui a tous les clients."
+      ] },
+      { t: 'Enchaîne sur la douleur concrète.', p: "L'argent qui ne circule pas, le loyer qui stresse, les clients qui vont toujours chez les mêmes. Nomme un métier réel et un quartier réel." },
+      { t: 'Donne la preuve, pas la promesse.', p: "Montre ton propre profil WOZALI à l'écran. Voilà à quoi ça ressemble quand un client te cherche est plus fort que c'est génial, inscris-toi." },
+      { t: 'Un seul message par reel.', p: 'Si tu veux parler de trois choses, fais trois reels. Une vidéo, une idée, un clic.' },
+      { t: "L'appel à l'action doit être physique et précis.", p: "Dis exactement où est le lien : le lien est dans ma bio, tu cliques, tu crées ton profil, c'est gratuit. Répète-le une fois à l'oral et une fois en texte à l'écran." },
+      { t: 'Termine sec.', p: "Pas de résumé. Ta dernière phrase reprend ton hook et le retourne : lui il travaille bien, toi aussi, la différence c'est que maintenant on peut te trouver." },
+      { t: 'Vérifie avant de poster.', p: 'Son propre au calme, visage éclairé, sous-titres activés. Beaucoup regardent sans le son, dans les taxis et les zémidjans.' }
+    ]
+  },
+  {
+    titre: 'Pitcher WOZALI en story',
+    objectif: 'Présenter WOZALI en story (Insta, TikTok, WhatsApp) et pousser vers ton lien, sans être lourd.',
+    steps: [
+      { t: "Parle du bénéfice pour l'autre, jamais de toi.", p: '' },
+      { t: '3 stories maximum.', p: 'Douleur (une question), solution en une phrase, le lien.' },
+      { t: "À l'écran.", p: 'Ton visage ou une capture de profil WOZALI, texte court et gros (5 à 10 mots), sticker lien sur la dernière.' },
+      { t: 'Exemple prêt à dire.', p: "Tu connais quelqu'un qui travaille bien mais qui n'a pas assez de clients ? Un coiffeur, une couturière, un maçon ? Envoie-lui ça. WOZALI c'est un profil gratuit où les clients de son quartier peuvent le trouver. Le lien est là, il clique et crée son profil en cinq minutes." },
+      { t: 'Utilise les stickers questions et sondages.', p: 'Par exemple : tu connais un bon plombier dans ton quartier ?' },
+      { t: 'Erreur à éviter : la story catalogue.', p: 'Une story égale un bénéfice égale être trouvé.' },
+      { t: 'Sur WhatsApp, parle comme à un ami.', p: 'Statut vocal ou texte simple.' },
+      { t: 'Reposte une preuve sociale dès que tu en as une.', p: '' }
+    ]
+  },
+  {
+    titre: 'Répondre en DM sans perdre la personne',
+    objectif: 'Transformer un DM de curieux en inscription, sans harceler.',
+    steps: [
+      { t: 'Réponds vite.', p: 'Un DM sans réponse 2 jours, c\'est mort.' },
+      { t: "Rassure sur l'arnaque avant qu'on te le demande.", p: 'Gratuit, pas de code à donner, pas de transfert, pas de frais cachés.' },
+      { t: 'Explique en une phrase.', p: "C'est un profil en ligne gratuit, les clients de ton quartier peuvent te trouver et te contacter directement." },
+      { t: "Envoie le lien dans le même message que l'explication.", p: '' },
+      { t: 'Relance une SEULE fois après 2-3 jours, puis lâche.', p: '' },
+      { t: 'Modèles prêts à copier.', p: '', models: [
+        { label: 'Premier contact', text: "Salut ! WOZALI c'est simple : tu crées ton profil gratuit avec ton métier et ton quartier, et les clients qui cherchent quelqu'un comme toi te trouvent directement. Pas de frais, pas de code à donner, pas de transfert. Voici le lien : [ton lien]. Si tu bloques quelque part, écris-moi." },
+        { label: "C'est pas une arnaque ?", text: "Bonne question, et t'as raison de la poser. C'est gratuit, personne ne te demandera jamais d'envoyer de l'argent ni un code. Tu crées juste ton profil avec ton métier et tes photos de travail. Regarde par toi-même : [ton lien]." },
+        { label: 'Ça sert à quoi concrètement ?', text: "Concrètement : quelqu'un à Cotonou cherche une couturière dans son quartier, il tape sur WOZALI, ton profil sort avec tes photos et ton contact. Il t'écrit directement. Toi tu fais ton travail, la plateforme te rend visible. Le lien : [ton lien]." },
+        { label: 'Relance unique', text: "Salut, je repasse juste une fois : t'avais demandé pour WOZALI l'autre jour. Le lien est toujours là si tu veux créer ton profil : [ton lien]. Si c'est pas pour toi, pas de souci, pense juste à quelqu'un de ton entourage qui travaille bien et qui mérite plus de clients." }
+      ] },
+      { t: "Si la personne hésite, propose de l'aider à créer son profil.", p: '' },
+      { t: 'Note qui t\'a dit plus tard.', p: 'Pour la preuve sociale en story, jamais pour harceler.' }
+    ]
+  }
+];
+let _ecFormTab = 0;
+function ecOpenFormations() {
+  _ecFormTab = 0;
+  const old = document.getElementById('ec-form-modal');
+  if (old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'ec-form-modal';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,8,5,.94);backdrop-filter:blur(8px);display:flex;justify-content:center;overflow-y:auto;font-family:Geist,sans-serif;';
+  ov.innerHTML = '<div style="max-width:460px;width:100%;min-height:100%;background:#14100A;position:relative;">'
+    + '<div style="position:sticky;top:0;z-index:2;background:#14100A;padding:18px 20px 12px;border-bottom:1px solid rgba(255,255,255,.06);">'
+    +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
+    +     '<div style="font-family:\'Geist Mono\',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(252,224,168,.45);">KIT CRÉATEUR · MINI-FORMATIONS</div>'
+    +     '<button onclick="document.getElementById(\'ec-form-modal\').remove()" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:none;color:#FCE0A8;cursor:pointer;font-size:14px;">✕</button>'
+    +   '</div>'
+    +   '<div id="ec-form-tabs" style="display:flex;gap:8px;"></div>'
+    + '</div>'
+    + '<div id="ec-form-body" style="padding:20px 20px 44px;"></div>'
+    + '</div>';
+  document.body.appendChild(ov);
+  _ecRenderFormations();
+}
+window.ecOpenFormations = ecOpenFormations;
+function ecFormTab(i) { _ecFormTab = i; _ecRenderFormations(); const b = document.getElementById('ec-form-body'); if (b) b.scrollTop = 0; window.scrollTo(0, 0); }
+window.ecFormTab = ecFormTab;
+function _ecRenderFormations() {
+  const tabsEl = document.getElementById('ec-form-tabs');
+  const bodyEl = document.getElementById('ec-form-body');
+  if (!tabsEl || !bodyEl) return;
+  tabsEl.innerHTML = _EC_FORMATIONS.map(function (f, i) {
+    const on = i === _ecFormTab;
+    return '<div onclick="ecFormTab(' + i + ')" style="flex:1;text-align:center;padding:10px 6px;border-radius:11px;cursor:pointer;border:1px solid ' + (on ? 'rgba(232,148,10,.5)' : 'rgba(255,255,255,.08)') + ';background:' + (on ? 'linear-gradient(135deg,rgba(232,148,10,.18),rgba(232,148,10,.05))' : 'rgba(255,255,255,.02)') + ';"><div style="font-family:\'Geist Mono\',monospace;font-size:11px;color:#E8940A;font-weight:600;margin-bottom:3px;">0' + (i + 1) + '</div><div style="font-size:10.5px;line-height:1.25;color:' + (on ? '#FCE0A8' : 'rgba(252,224,168,.55)') + ';font-weight:600;">' + escapeHtml(f.titre) + '</div></div>';
+  }).join('');
+  const f = _EC_FORMATIONS[_ecFormTab];
+  const stepsHtml = f.steps.map(function (s, idx) {
+    const hot = idx === 0;
+    let extra = '';
+    if (s.hooks) extra = '<div style="margin-top:11px;background:#1E180E;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;">' + s.hooks.map(function (h, hi) { return '<p style="font-family:\'DM Serif Display\',serif;font-style:italic;font-size:13.5px;color:#FCE0A8;line-height:1.5;margin:0 0 ' + (hi === s.hooks.length - 1 ? '0' : '9px') + ';">&laquo; ' + escapeHtml(h) + ' &raquo;</p>'; }).join('') + '</div>';
+    if (s.models) extra = '<div style="margin-top:11px;display:flex;flex-direction:column;gap:9px;">' + s.models.map(function (m) { return '<div style="background:#1E180E;border:1px solid rgba(232,148,10,.18);border-radius:11px;padding:11px 13px;"><div style="font-family:\'Geist Mono\',monospace;font-size:9.5px;letter-spacing:1px;color:#E8940A;margin-bottom:5px;text-transform:uppercase;">' + escapeHtml(m.label) + '</div><div style="font-size:12.5px;line-height:1.5;color:rgba(252,224,168,.82);">' + escapeHtml(m.text) + '</div></div>'; }).join('') + '</div>';
+    return '<div style="display:flex;gap:14px;padding:16px 0;border-top:1px solid rgba(255,255,255,.06);"><div style="flex:0 0 auto;width:30px;height:30px;border-radius:9px;' + (hot ? 'background:linear-gradient(135deg,#E8940A,#f0a92e);color:#14100A;box-shadow:0 4px 12px rgba(232,148,10,.28);' : 'background:rgba(232,148,10,.12);color:#E8940A;') + 'font-family:\'Geist Mono\',monospace;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;">' + (idx + 1) + '</div><div style="flex:1;"><h4 style="font-size:14.5px;font-weight:700;color:#FCE0A8;line-height:1.35;margin:0 0 5px;">' + escapeHtml(s.t) + '</h4>' + (s.p ? '<p style="font-size:13px;line-height:1.55;color:rgba(252,224,168,.66);margin:0;">' + escapeHtml(s.p) + '</p>' : '') + extra + '</div></div>';
+  }).join('');
+  const next = _ecFormTab < _EC_FORMATIONS.length - 1 ? '<button onclick="ecFormTab(' + (_ecFormTab + 1) + ')" style="margin-top:22px;width:100%;padding:15px;border-radius:13px;background:linear-gradient(135deg,#E8940A,#f0a92e);color:#14100A;font-weight:800;font-size:14px;border:none;cursor:pointer;font-family:Geist,sans-serif;">Formation suivante : ' + escapeHtml(_EC_FORMATIONS[_ecFormTab + 1].titre) + ' &rarr;</button>' : '';
+  bodyEl.innerHTML = '<div style="font-family:\'Geist Mono\',monospace;font-size:11px;letter-spacing:2px;color:#E8940A;margin-bottom:10px;">MINI-FORMATION 0' + (_ecFormTab + 1) + '</div>'
+    + '<h2 style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:400;color:#FCE0A8;line-height:1.1;margin:0 0 14px;">' + escapeHtml(f.titre) + '</h2>'
+    + '<div style="display:flex;gap:10px;align-items:flex-start;background:rgba(232,148,10,.07);border:1px solid rgba(232,148,10,.22);border-radius:13px;padding:12px 14px;margin-bottom:6px;"><span style="color:#E8940A;font-size:15px;">&#9678;</span><p style="font-size:13px;line-height:1.5;color:rgba(252,224,168,.85);margin:0;">' + escapeHtml(f.objectif) + '</p></div>'
+    + stepsHtml + next
+    + '<div style="text-align:center;font-family:\'Geist Mono\',monospace;font-size:11px;color:rgba(252,224,168,.4);margin-top:16px;">FORMATION ' + (_ecFormTab + 1) + ' SUR ' + _EC_FORMATIONS.length + '</div>';
+}
+
 async function loadEspaceCreateurSection() {
   const containerEl = document.getElementById('espace-createur-content');
   if (!containerEl || !currentPrestataire) return;
@@ -14902,7 +15004,7 @@ async function loadEspaceCreateurSection() {
     <div class="ec-section-gap">${soonCard('Classement du mois : bientôt disponible.')}</div>`;
 
   const kitCard = (icon, name, desc, locked, packId) => `
-    <div class="ec-kit-card${locked ? ' ec-locked' : ''}" ${locked ? '' : `onclick="${packId === 'reels-soon' ? 'ecReelsSoonPanel()' : (packId ? `ecOpenPack('${packId}')` : 'ecKitToast()')}"`}>
+    <div class="ec-kit-card${locked ? ' ec-locked' : ''}" ${locked ? '' : `onclick="${packId === 'reels-soon' ? 'ecReelsSoonPanel()' : (packId === 'formations' ? 'ecOpenFormations()' : (packId ? `ecOpenPack('${packId}')` : 'ecKitToast()'))}"`}>
       ${locked ? `<div class="ec-lock-badge">${_ecSvg('lock')}</div>` : ''}
       <div class="ec-kit-icon">${_ecSvg(icon)}</div>
       <div><div class="ec-kit-name">${name}</div>${desc ? `<div class="ec-kit-desc">${desc}</div>` : ''}</div>
@@ -14977,7 +15079,7 @@ async function loadEspaceCreateurSection() {
         ${kitCard('reels', 'Pack Reels', 'Tes reels arrivent bientôt.', false, 'reels-soon')}
         ${kitCard('stories', 'Pack Stories', 'Séries prêtes pour ta story permanente.', false, 'stories')}
         ${kitCard('live', 'Fond Live TikTok', 'Ton lien lisible à l\'écran pendant tes lives.', false, 'live')}
-        ${kitCard('doc', 'Mini-formations', 'Le reel qui convertit, pitcher en story, répondre en DM.')}
+        ${kitCard('doc', 'Mini-formations', 'Le reel qui convertit, pitcher en story, répondre en DM.', false, 'formations')}
       </div>
 
       <div class="ec-sandy-card ec-section-gap">
@@ -15024,6 +15126,7 @@ async function loadEspaceCreateurSection() {
         ${kitCard('reels', 'Pack Reels', undefined, false, 'reels-soon')}
         ${kitCard('stories', 'Pack Stories', undefined, false, 'stories')}
         ${kitCard('live', 'Fond Live TikTok', undefined, false, 'live')}
+        ${kitCard('doc', 'Mini-formations', undefined, false, 'formations')}
       </div>`;
   } else {
     // ── ÉTAT 4 — OR ──
