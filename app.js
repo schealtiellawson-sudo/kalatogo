@@ -3453,153 +3453,98 @@ async function generateStory(avisId, note, auteur, commentaire) {
   const metier = f['Métier principal'] || '';
   const ville = f['Ville'] || '';
   const photoProfil = _wPhotoUrl(f['Photo de profil']) || _wPhotoUrl(f['WhatsApp']) || '';
-  const photoReal = _wPhotoUrl(f['Photo Réalisation 1']);
-  const emoji = window.METIER_EMOJI?.[metier] || '⚡';
+  const n = Math.max(0, Math.min(5, parseInt(note, 10) || 5));
+  const clientNom = (String(auteur || 'Client').split(' ')[0]) || 'Client';
+  const comm = String(commentaire || '').trim();
 
-  const W = 1080, H = 1920;
+  // Format 4:5 premium (pas de grand vide), palette Nuit
+  const W = 1080, H = 1350;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
 
-  // Fond
-  ctx.fillStyle = '#14100A';
-  ctx.fillRect(0, 0, W, H);
+  // Glow or radial doux
+  const glow = ctx.createRadialGradient(W / 2, H * 0.40, 80, W / 2, H * 0.40, W * 0.85);
+  glow.addColorStop(0, 'rgba(232,148,10,0.15)'); glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
 
-  // Helper: charger image
-  const loadImg = (src) => new Promise((ok, fail) => {
-    const img = new Image(); img.crossOrigin = 'anonymous';
-    img.onload = () => ok(img); img.onerror = fail; img.src = src;
-  });
+  // Marque WOZALI (haut)
+  ctx.textAlign = 'center';
+  ctx.font = '900 40px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('W', W / 2, H * 0.085);
+  ctx.font = '700 11px "Geist Mono", monospace'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText('W  O  Z  A  L  I', W / 2, H * 0.085 + 24);
 
-  // Helper: texte centré avec retour à la ligne
-  const wrapText = (text, x, y, maxW, lineH, font, color, align) => {
-    ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align || 'center';
-    const words = text.split(' '); let line = '';
-    for (const w of words) {
-      const test = line + w + ' ';
-      if (ctx.measureText(test).width > maxW && line) {
-        ctx.fillText(line.trim(), x, y); y += lineH; line = w + ' ';
-      } else { line = test; }
-    }
-    ctx.fillText(line.trim(), x, y);
-    return y + lineH;
-  };
+  // Eyebrow
+  ctx.font = '700 15px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.45)';
+  ctx.fillText('A V I S   C L I E N T   V É R I F I É', W / 2, H * 0.155);
 
-  // ── ZONE LOGO (15%) ──
-  const logoY = H * 0.06;
-  ctx.font = '900 48px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
-  ctx.fillText('W', W / 2, logoY);
-  // Ligne or
-  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(W * 0.2, logoY + 20); ctx.lineTo(W * 0.8, logoY + 20); ctx.stroke();
-  // MARKET
-  ctx.font = '700 10px "Geist Mono", monospace'; ctx.fillStyle = '#FCE0A8'; ctx.letterSpacing = '4px';
-  ctx.fillText('M  A  R  K  E  T', W / 2, logoY + 42);
+  // Étoiles
+  ctx.font = '54px sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n), W / 2, H * 0.235);
 
-  // ── ZONE PHOTO (40%) ──
-  const photoTop = H * 0.15, photoH = H * 0.40;
-  try {
-    if (photoReal) {
-      const img = await loadImg(photoReal);
-      const ratio = img.width / img.height;
-      let dw = W, dh = photoH;
-      if (ratio > W / photoH) { dh = W / ratio; } else { dw = photoH * ratio; }
-      ctx.drawImage(img, (W - dw) / 2, photoTop, dw, dh);
-    } else {
-      ctx.fillStyle = '#1E180E'; ctx.fillRect(0, photoTop, W, photoH);
-      ctx.font = '80px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
-      ctx.fillText(emoji, W / 2, photoTop + photoH / 2 + 28);
-    }
-  } catch(e) {
-    ctx.fillStyle = '#1E180E'; ctx.fillRect(0, photoTop, W, photoH);
-    ctx.font = '80px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
-    ctx.fillText(emoji, W / 2, photoTop + photoH / 2 + 28);
-  }
-  // Overlay dégradé
-  const grad = ctx.createLinearGradient(0, photoTop + photoH * 0.5, 0, photoTop + photoH);
-  grad.addColorStop(0, 'transparent'); grad.addColorStop(1, 'rgba(15,20,16,0.85)');
-  ctx.fillStyle = grad; ctx.fillRect(0, photoTop + photoH * 0.5, W, photoH * 0.5);
+  // Citation (guillemet + texte serif crème)
+  ctx.font = '900 120px "DM Serif Display", serif'; ctx.fillStyle = 'rgba(232,148,10,0.30)';
+  ctx.fillText('“', W / 2, H * 0.34);
+  const trunc = comm.length > 180 ? comm.slice(0, 177) + '…' : (comm || 'Un travail sérieux, je recommande.');
+  const quoteEndY = _wzWrapText(ctx, trunc, W / 2, H * 0.40, W * 0.80, 52, '400 40px "DM Serif Display", serif', '#FCE0A8', 'center');
 
-  // ── ZONE NOTE (10%) ──
-  const noteY = photoTop + photoH + H * 0.04;
-  const starStr = '★'.repeat(note) + '☆'.repeat(5 - note);
-  ctx.font = '32px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E8940A';
-  ctx.fillText(starStr, W / 2, noteY);
+  // Signature client
+  ctx.font = '700 20px Geist, sans-serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+  ctx.fillText('— ' + clientNom + ', client vérifié', W / 2, Math.min(quoteEndY + 30, H * 0.70));
 
-  // ── ZONE IDENTITÉ (15%) ──
-  const idY = noteY + H * 0.04;
-  // Fond encadré
-  const idBoxX = W * 0.08, idBoxW = W * 0.84, idBoxH = H * 0.12;
-  ctx.fillStyle = 'rgba(232,148,10,0.1)'; ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1.5;
-  const rr = 16;
-  ctx.beginPath(); ctx.roundRect(idBoxX, idY, idBoxW, idBoxH, rr); ctx.fill(); ctx.stroke();
-  // Avatar
-  const avX = idBoxX + 30, avY = idY + idBoxH / 2 - 28, avS = 56;
+  // Carte identité prestataire (bas) : avatar anneau + nom + métier·ville
+  const cardY = H * 0.80;
+  const avS = 92, avCX = W / 2, avCY = cardY;
   try {
     if (photoProfil) {
-      const avImg = await loadImg(photoProfil);
-      ctx.save(); ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.clip();
-      ctx.drawImage(avImg, avX, avY, avS, avS); ctx.restore();
-      ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.stroke();
+      const avImg = await _wzLoadImg(photoProfil);
+      ctx.save(); ctx.beginPath(); ctx.arc(avCX, avCY, avS / 2, 0, Math.PI * 2); ctx.clip();
+      ctx.drawImage(avImg, avCX - avS / 2, avCY - avS / 2, avS, avS); ctx.restore();
     } else {
-      ctx.fillStyle = '#E8940A';
-      ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
-      ctx.font = '900 24px "DM Serif Display", serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
-      ctx.fillText(nom.charAt(0).toUpperCase(), avX + avS / 2, avY + avS / 2 + 9);
+      ctx.fillStyle = '#2a2013'; ctx.beginPath(); ctx.arc(avCX, avCY, avS / 2, 0, Math.PI * 2); ctx.fill();
+      ctx.font = '900 40px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
+      ctx.fillText(nom.charAt(0).toUpperCase(), avCX, avCY + 14);
     }
-  } catch(e) {
-    ctx.fillStyle = '#E8940A';
-    ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
-    ctx.font = '900 24px "DM Serif Display", serif'; ctx.fillStyle = '#14100A'; ctx.textAlign = 'center';
-    ctx.fillText(nom.charAt(0).toUpperCase(), avX + avS / 2, avY + avS / 2 + 9);
+  } catch (e) {
+    ctx.fillStyle = '#2a2013'; ctx.beginPath(); ctx.arc(avCX, avCY, avS / 2, 0, Math.PI * 2); ctx.fill();
   }
-  // Textes identité
-  const txX = avX + avS + 20;
-  ctx.textAlign = 'left';
-  ctx.font = '700 20px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
-  ctx.fillText(nom, txX, idY + idBoxH * 0.35);
-  ctx.font = '400 14px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
-  ctx.fillText(metier, txX, idY + idBoxH * 0.55);
-  ctx.font = '400 12px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252, 224, 168,0.5)';
-  ctx.fillText(ville, txX, idY + idBoxH * 0.72);
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(avCX, avCY, avS / 2, 0, Math.PI * 2); ctx.stroke();
 
-  // ── ZONE COMMENTAIRE (12%) ──
-  const comY = idY + idBoxH + H * 0.03;
-  const truncComment = commentaire.length > 120 ? commentaire.slice(0, 117) + '...' : commentaire;
-  ctx.font = '700 22px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
-  ctx.fillText('\u201C', W / 2 - ctx.measureText(truncComment.slice(0, 20)).width / 2 - 16, comY);
-  let comEndY = wrapText(truncComment, W / 2, comY + 6, W * 0.76, 26, 'italic 16px Geist, sans-serif', '#FCE0A8', 'center');
-  ctx.font = '700 22px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
-  ctx.fillText('\u201D', W / 2 + 10, comEndY - 10);
-  ctx.font = '400 11px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
-  ctx.fillText('\u2014 Client v\u00e9rifi\u00e9 \u2705', W / 2, comEndY + 14);
+  ctx.textAlign = 'center';
+  ctx.font = '700 30px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(nom, W / 2, cardY + avS / 2 + 42);
+  ctx.font = '400 19px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText([metier, ville].filter(Boolean).join(' · '), W / 2, cardY + avS / 2 + 72);
 
-  // ── ZONE BAS (8%) ──
-  const footY = H * 0.92;
-  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(W * 0.1, footY); ctx.lineTo(W * 0.9, footY); ctx.stroke();
-  ctx.font = '400 11px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252, 224, 168,0.6)'; ctx.textAlign = 'center';
-  ctx.fillText('D\u00e9couvre mon profil complet', W / 2, footY + 28);
-  ctx.font = '700 13px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
-  ctx.fillText('wozali.africa', W / 2, footY + 50);
+  // Footer
+  ctx.font = '700 18px "Geist Mono", monospace'; ctx.fillStyle = 'rgba(252,224,168,0.55)';
+  ctx.fillText('wozali.africa', W / 2, H * 0.955);
 
-  // ── Convertir et afficher modale ──
   const dataUrl = canvas.toDataURL('image/png');
   const slug = _buildProfilSlug(nom, metier, ville);
   const profilUrl = `https://wozali.africa/profil/${slug}`;
   const prenom = nom.split(' ')[0] || nom;
   const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `WOZALI-Story-${prenom}-${dateStr}.png`;
-
-  const waText = `\u2B50 J'ai re\u00e7u un nouvel avis client sur WOZALI !\nD\u00e9couvre mon profil et mes r\u00e9alisations :\n\uD83D\uDC49 ${profilUrl}\n\uD83D\uDCF2 Rejoins WOZALI \u2014 cr\u00e9e ton profil gratuit.`;
+  const filename = `WOZALI-Avis-${prenom}-${dateStr}.png`;
+  const waText = `⭐ Nouvel avis client sur WOZALI !\nDécouvre mon profil et mes réalisations :\n👉 ${profilUrl}`;
 
   _wzShowStoryModal(dataUrl, {
     filename, waText,
-    title: '\u2B50 Ta Story est pr\u00eate !',
-    subtitle: 'Partage-la sur tes r\u00e9seaux pour attirer de nouveaux clients.'
+    title: '⭐ Ton avis en visuel est prêt !',
+    subtitle: 'Partage-la en story ou en message : WhatsApp, Instagram, TikTok, Facebook…'
   });
 }
+
+// Partager un avis reçu en story (depuis une notification)
+function _wzShareAvisFromNotif(notifId) {
+  const p = (window._notifAvisPayloads || {})[notifId];
+  if (!p) { toast('Avis introuvable. Recharge la page.', 'error'); return; }
+  generateStory(notifId, p.note, p.auteur, p.texte);
+}
+window._wzShareAvisFromNotif = _wzShareAvisFromNotif;
 
 // ══ VOIR MON PROFIL PUBLIC ══
 function viewMyPublicProfil() {
@@ -7668,8 +7613,12 @@ function _notifMessageHtml(type, p) {
       return `Paiement reçu : <strong>${(p.montant || 0).toLocaleString('fr-FR')} FCFA</strong> pour ${e(p.desc || 'une prestation')}`;
     case 'client_payment':
       return `<strong style='color:#E8940A;'>Paiement Flooz/TMoney · ${(p.montant || 0).toLocaleString('fr-FR')} FCFA</strong> confirmé par un client via ton profil`;
-    case 'avis':
-      return `<strong>${e(p.auteur || 'Client')}</strong> a laissé un avis : <em style="color:rgba(252,224,168,.45);">"${cut(p.texte, 50)}"</em>`;
+    case 'avis': {
+      const nb = Math.max(0, Math.min(5, parseInt(p.note, 10) || 0));
+      const stars = nb ? ` <span style="color:#E8940A;">${'★'.repeat(nb)}</span>` : '';
+      return `🎉 Nouvel avis${stars} de <strong>${e(p.auteur || 'Client')}</strong>` +
+        (p.texte ? ` : <em style="color:rgba(252,224,168,.45);">"${cut(p.texte, 50)}"</em>` : '');
+    }
     case 'suivi':
       return `<strong>${e(p.auteur || 'Un utilisateur')}</strong> suit maintenant ton profil`;
     case 'favori':
@@ -7738,17 +7687,26 @@ async function renderNotifications(recordId) {
     return;
   }
 
+  window._notifAvisPayloads = {};
   el.innerHTML = `<div style="display:flex;flex-direction:column;">` + notifs.map(n => {
     const d = n.date ? new Date(n.date) : null;
     const dateStr = d && !isNaN(d) ? d.toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
-    const msg = _notifMessageHtml(n.type, n.payload || {});
+    const p = n.payload || {};
+    const msg = _notifMessageHtml(n.type, p);
     const unreadBg = n.read ? 'transparent' : 'rgba(232,148,10,.06)';
     const dot = n.read ? '' : `<span style="width:8px;height:8px;border-radius:50%;background:#E8940A;flex-shrink:0;margin-top:6px;"></span>`;
+    // Avis reçu : bouton pour transformer l'avis en visuel premium à partager
+    let avisCta = '';
+    if (n.type === 'avis') {
+      window._notifAvisPayloads[n.id] = { note: p.note || 5, auteur: p.auteur || 'Client', texte: p.texte || '' };
+      avisCta = `<div style="margin-top:8px;"><button onclick="event.stopPropagation();_wzShareAvisFromNotif('${n.id}')" style="background:#E8940A;color:#14100A;border:none;border-radius:10px;padding:8px 14px;font-weight:800;font-size:12.5px;font-family:'Geist',sans-serif;cursor:pointer;">📤 Partager cet avis en story</button></div>`;
+    }
     return `<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;min-height:44px;border-bottom:1px solid rgba(232,148,10,.07);background:${unreadBg};">
       <div style="font-size:16px;flex-shrink:0;width:38px;height:38px;border-radius:50%;background:#1E180E;border:1px solid rgba(232,148,10,.18);display:flex;align-items:center;justify-content:center;">${_notifIcon(n.type)}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13.5px;color:#FCE0A8;line-height:1.55;font-family:'Geist',sans-serif;">${msg}</div>
         <div style="font-size:11px;color:rgba(252,224,168,.35);margin-top:3px;font-family:'Geist Mono',monospace;">${dateStr}</div>
+        ${avisCta}
       </div>
       ${dot}
     </div>`;
@@ -11977,6 +11935,15 @@ async function submitAvis() {
         'Auteur Photo':       auteurPhoto || '',
         ...(audioUrl ? { 'Audio URL': audioUrl, 'Audio Durée': _avisVocalDuree || null } : {}),
       });
+      // Notif auto au prestataire : nouvel avis reçu (célébration + partage story côté dashboard)
+      try {
+        pushNotif(currentAvisPrestataire, {
+          type: 'avis',
+          auteur: auteurNom || 'Un client',
+          texte: hasVocal && !comment ? 'A laissé un avis vocal 🎙️' : comment,
+          note: selectedStars,
+        });
+      } catch (e) {}
     } else {
       _restoreBtn();
       toast('Les avis sont indisponibles pour l\'instant. Recharge la page et réessaie.', 'error'); return;
