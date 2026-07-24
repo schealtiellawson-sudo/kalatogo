@@ -697,6 +697,7 @@ function showDashSection(section) {
   if (section === 'agent-classement') loadAgentClassement();
   if (section === 'agent-contrat') loadAgentContrat();
   if (section === 'admin-contrats') loadAdminContrats();
+  if (section === 'admin-pilotage') loadAdminPilotage();
   if (section === 'agents-terrain') { loadCandidatures(); loadAgentsTerrain(); }
   if (section === 'battle') loadBattle('');
   if (section === 'admin-ambassadeurs') loadAdminAmbassadeurs();
@@ -17636,7 +17637,7 @@ async function checkAdminForDashboard() {
     const d = await r.json();
     if (d.ok) {
       _isAdminDash = true;
-      ['dash-admin-label','dash-admin-agents-group','dash-admin-ambassadeurs-group','dash-admin-responsable-group','dash-admin-temoignages-group','dash-admin-end'].forEach(id => {
+      ['dash-admin-label','dash-admin-pilotage-group','dash-admin-agents-group','dash-admin-ambassadeurs-group','dash-admin-responsable-group','dash-admin-temoignages-group','dash-admin-end'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = id.endsWith('-label') || id.endsWith('-end') ? 'block' : 'block';
       });
@@ -17649,6 +17650,225 @@ async function checkAdminForDashboard() {
   // Vérifier si l'utilisateur est un ambassadeur validé
   try { await checkAmbassadeurForDashboard(session); } catch (e) { console.error('[ambs-dash]', e); }
 }
+
+// ══════════════════════════════════════════
+// ADMIN — PILOTAGE (analytics / KPI)
+// ══════════════════════════════════════════
+let _pilotageData = null;
+let _pilProfilesState = { page: 0, sort: 'created_at', dir: 'desc', filters: {} };
+
+function _pilEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function _pilNum(n) { return (n == null ? 0 : Number(n)).toLocaleString('fr-FR'); }
+function _pilPct(part, whole) { if (!whole) return 0; return Math.round((part / whole) * 100); }
+
+function _pilStat(label, value, sub, accent) {
+  return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.14);border-radius:16px;padding:16px 18px;min-width:0;">
+    <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(252,224,168,.45);margin-bottom:8px;">${_pilEsc(label)}</div>
+    <div style="font-family:'Geist Mono',monospace;font-size:26px;font-weight:600;color:${accent || '#FCE0A8'};line-height:1;">${value}</div>
+    ${sub ? `<div style="font-size:11.5px;color:rgba(252,224,168,.5);margin-top:6px;">${_pilEsc(sub)}</div>` : ''}
+  </div>`;
+}
+
+function _pilBarList(rows, opts) {
+  opts = opts || {};
+  const key = opts.key || 'cle', val = opts.val || 'total';
+  if (!rows || !rows.length) return '<div style="color:rgba(252,224,168,.4);font-size:12px;padding:10px 0;">Aucune donnée pour l\'instant.</div>';
+  const max = Math.max(...rows.map(r => Number(r[val]) || 0), 1);
+  return rows.map(r => {
+    const v = Number(r[val]) || 0;
+    const w = Math.max(2, Math.round((v / max) * 100));
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
+      <div style="flex:0 0 40%;font-size:12.5px;color:rgba(252,224,168,.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_pilEsc(r[key])}</div>
+      <div style="flex:1;height:9px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;"><div style="height:100%;width:${w}%;background:linear-gradient(90deg,#E8940A,#f0a92e);border-radius:6px;"></div></div>
+      <div style="flex:0 0 auto;font-family:'Geist Mono',monospace;font-size:12px;color:#FCE0A8;min-width:38px;text-align:right;">${_pilNum(v)}</div>
+    </div>`;
+  }).join('');
+}
+
+function _pilCard(title, inner) {
+  return `<div style="background:#14100A;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:18px 20px;margin-bottom:16px;">
+    <h3 style="font-family:'DM Serif Display',serif;font-size:17px;color:#FCE0A8;margin:0 0 14px;">${_pilEsc(title)}</h3>${inner}</div>`;
+}
+
+function _pilFunnel(f) {
+  const steps = [
+    { k: 'arrivee', label: 'Arrivée sur l\'inscription' },
+    { k: 'etape2', label: 'Étape 1 remplie' },
+    { k: 'etape3', label: 'Étape 2 remplie' },
+    { k: 'etape4', label: 'Étape 3 atteinte' },
+    { k: 'complete', label: 'Compte créé' }
+  ];
+  const top = Number(f.arrivee) || 0;
+  return steps.map((s, i) => {
+    const v = Number(f[s.k]) || 0;
+    const w = _pilPct(v, top || 1);
+    const prev = i === 0 ? v : (Number(f[steps[i-1].k]) || 0);
+    const drop = i === 0 ? 0 : (prev - v);
+    const dropPct = i === 0 ? 0 : _pilPct(drop, prev || 1);
+    return `<div style="margin-bottom:11px;">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(252,224,168,.85);margin-bottom:4px;">
+        <span>${_pilEsc(s.label)}</span>
+        <span style="font-family:'Geist Mono',monospace;">${_pilNum(v)} · ${w}%${i>0 && drop>0 ? ` <span style="color:#e08a8a;">-${dropPct}%</span>` : ''}</span>
+      </div>
+      <div style="height:11px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;"><div style="height:100%;width:${Math.max(2,w)}%;background:linear-gradient(90deg,#E8940A,#f0a92e);border-radius:6px;"></div></div>
+    </div>`;
+  }).join('');
+}
+
+async function loadAdminPilotage() {
+  const box = document.getElementById('admin-pilotage-content');
+  if (!box) return;
+  if (!_isAdminDash) { box.innerHTML = '<p style="color:rgba(252,224,168,.5);padding:20px;">Accès réservé.</p>'; return; }
+  const days = parseInt(document.getElementById('pilotage-days')?.value || '30', 10);
+  box.innerHTML = '<div style="padding:44px;text-align:center;color:rgba(252,224,168,.5);font-family:\'Geist Mono\',monospace;font-size:13px;">Chargement des données…</div>';
+  try {
+    const r = await (window.wozaliFetch || fetch)('/api/wozali-pay/admin-analytics', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ days })
+    });
+    const d = await r.json();
+    if (!d || !d.ok) throw new Error(d?.error || 'Erreur serveur');
+    _pilotageData = d;
+    renderAdminPilotage(d);
+  } catch (e) {
+    box.innerHTML = '<div style="padding:26px;color:#e08a8a;font-size:13px;">Impossible de charger les analytics : ' + _pilEsc(e.message || '') + '</div>';
+  }
+}
+window.loadAdminPilotage = loadAdminPilotage;
+
+function renderAdminPilotage(d) {
+  const box = document.getElementById('admin-pilotage-content');
+  if (!box) return;
+  const t = d.trafic || {}, a = d.activite || {}, dem = d.demographie || {};
+  const grid = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;';
+
+  // Bloc 1 — Trafic
+  const trafic = `<div style="${grid}margin-bottom:16px;">
+    ${_pilStat('Vues de pages', _pilNum(t.total_views), 'sur la période', '#E8940A')}
+    ${_pilStat('Visiteurs uniques', _pilNum(t.unique_sessions), 'sessions distinctes')}
+    ${_pilStat('Clics tracés', _pilNum(t.total_clicks))}
+    ${_pilStat('Connexions', _pilNum(t.total_logins))}
+  </div>`;
+
+  // Bloc 2 — Membres & activité
+  const activite = `<div style="${grid}margin-bottom:16px;">
+    ${_pilStat('Membres inscrits', _pilNum(a.membres_total), (_pilNum(a.nouveaux_30j)) + ' ce mois', '#E8940A')}
+    ${_pilStat('Membres Pro', _pilNum(a.pro_total), _pilPct(a.pro_total, a.membres_total) + '% des membres')}
+    ${_pilStat('Actifs 7 jours', _pilNum(a.actifs_7j))}
+    ${_pilStat('Actifs 30 jours', _pilNum(a.actifs_30j))}
+    ${_pilStat('Jamais connectés', _pilNum(a.jamais_connecte), 'après inscription')}
+    ${_pilStat('Nouveaux 7 jours', _pilNum(a.nouveaux_7j))}
+  </div>`;
+
+  const funnel = _pilCard('Funnel d\'inscription (où ça décroche)', _pilFunnel(d.funnel || {}) +
+    (d.abandons_par_metier && d.abandons_par_metier.length ? `<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,.06);padding-top:14px;"><div style="font-size:12px;color:rgba(252,224,168,.5);margin-bottom:10px;">Abandons par métier</div>${_pilBarList(d.abandons_par_metier, { key: 'metier', val: 'abandons' })}</div>` : ''));
+
+  const pages = _pilCard('Vues par page', _pilBarList(d.vues_par_page, { key: 'page', val: 'views' }));
+  const clics = _pilCard('Clics les plus fréquents', _pilBarList(d.top_clics, { key: 'label', val: 'clics' }));
+
+  const demo = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+    ${_pilCard('Genre', _pilBarList(dem.genre))}
+    ${_pilCard('Tranche d\'âge', _pilBarList(dem.age, { key: 'tranche' }))}
+    ${_pilCard('Pays', _pilBarList(dem.pays))}
+    ${_pilCard('Ville', _pilBarList(dem.ville))}
+    ${_pilCard('Métier', _pilBarList(dem.metier))}
+    ${_pilCard('Abonnement', _pilBarList(dem.abonnement))}
+  </div>`;
+
+  box.innerHTML = trafic + activite + funnel +
+    `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">${pages}${clics}</div>` +
+    `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:22px 0 12px;">Démographie des inscrits</h3>` + demo +
+    `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:24px 0 12px;">Explorateur de profils</h3>` +
+    _pilProfilesShell();
+  try { loadPilotageProfiles(); } catch (e) {}
+}
+
+function _pilProfilesShell() {
+  const inp = 'background:#1E180E;border:1px solid rgba(232,148,10,.2);color:#FCE0A8;border-radius:9px;padding:8px 10px;font-family:Geist,sans-serif;font-size:12.5px;';
+  return `<div style="background:#14100A;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:18px 20px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      <input id="pil-f-search" placeholder="Rechercher nom / métier / ville" style="${inp}flex:1;min-width:170px;" onkeydown="if(event.key==='Enter')pilProfilesApply()">
+      <select id="pil-f-genre" style="${inp}" onchange="pilProfilesApply()"><option value="">Genre (tous)</option><option>Homme</option><option>Femme</option></select>
+      <select id="pil-f-abo" style="${inp}" onchange="pilProfilesApply()"><option value="">Abonnement (tous)</option><option>Base</option><option>Pro</option></select>
+      <input id="pil-f-pays" placeholder="Pays" style="${inp}width:110px;" onkeydown="if(event.key==='Enter')pilProfilesApply()">
+      <input id="pil-f-metier" placeholder="Métier" style="${inp}width:130px;" onkeydown="if(event.key==='Enter')pilProfilesApply()">
+      <select id="pil-sort" style="${inp}" onchange="pilProfilesApply()">
+        <option value="created_at">Tri : Récent</option>
+        <option value="derniere_connexion">Tri : Dernière connexion</option>
+        <option value="score_wozali">Tri : Score WOZALI</option>
+        <option value="age">Tri : Âge</option>
+        <option value="nom_complet">Tri : Nom</option>
+      </select>
+      <button onclick="pilProfilesApply()" style="background:#E8940A;color:#14100A;border:none;border-radius:9px;padding:8px 16px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:Geist,sans-serif;">Filtrer</button>
+    </div>
+    <div id="pil-profiles-list" style="overflow-x:auto;"></div>
+    <div id="pil-profiles-pager" style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;"></div>
+  </div>`;
+}
+
+function pilProfilesApply() {
+  _pilProfilesState.page = 0;
+  _pilProfilesState.sort = document.getElementById('pil-sort')?.value || 'created_at';
+  _pilProfilesState.filters = {
+    search: document.getElementById('pil-f-search')?.value?.trim() || '',
+    genre: document.getElementById('pil-f-genre')?.value || '',
+    abonnement: document.getElementById('pil-f-abo')?.value || '',
+    pays: document.getElementById('pil-f-pays')?.value?.trim() || '',
+    metier: document.getElementById('pil-f-metier')?.value?.trim() || ''
+  };
+  loadPilotageProfiles();
+}
+window.pilProfilesApply = pilProfilesApply;
+
+function pilProfilesPage(delta) { _pilProfilesState.page = Math.max(0, _pilProfilesState.page + delta); loadPilotageProfiles(); }
+window.pilProfilesPage = pilProfilesPage;
+
+async function loadPilotageProfiles() {
+  const list = document.getElementById('pil-profiles-list');
+  if (!list) return;
+  list.innerHTML = '<div style="padding:18px;color:rgba(252,224,168,.4);font-size:12px;">Chargement…</div>';
+  const s = _pilProfilesState;
+  try {
+    const r = await (window.wozaliFetch || fetch)('/api/wozali-pay/admin-analytics', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'profiles', sort: s.sort, dir: s.dir, page: s.page, pageSize: 50, filters: s.filters })
+    });
+    const d = await r.json();
+    if (!d || !d.ok) throw new Error(d?.error || 'Erreur');
+    const rows = d.profiles || [];
+    if (!rows.length) { list.innerHTML = '<div style="padding:18px;color:rgba(252,224,168,.4);font-size:12px;">Aucun profil ne correspond.</div>'; document.getElementById('pil-profiles-pager').innerHTML = ''; return; }
+    const th = 'text-align:left;padding:8px 10px;font-family:\'Geist Mono\',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:rgba(252,224,168,.4);border-bottom:1px solid rgba(255,255,255,.08);white-space:nowrap;';
+    const td = 'padding:8px 10px;font-size:12.5px;color:rgba(252,224,168,.85);border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap;';
+    const dConn = v => v ? new Date(v).toLocaleDateString('fr-FR') : '—';
+    list.innerHTML = `<table style="width:100%;border-collapse:collapse;min-width:720px;">
+      <thead><tr>
+        <th style="${th}">Nom</th><th style="${th}">Genre</th><th style="${th}">Âge</th>
+        <th style="${th}">Métier</th><th style="${th}">Ville</th><th style="${th}">Pays</th>
+        <th style="${th}">Plan</th><th style="${th}">Score</th><th style="${th}">Dern. connexion</th>
+      </tr></thead><tbody>
+      ${rows.map(p => `<tr>
+        <td style="${td}color:#FCE0A8;font-weight:600;">${_pilEsc(p.nom_complet || '—')}</td>
+        <td style="${td}">${_pilEsc(p.genre || '—')}</td>
+        <td style="${td}">${p.age != null ? _pilEsc(p.age) : '—'}</td>
+        <td style="${td}">${_pilEsc(p.metier_principal || '—')}</td>
+        <td style="${td}">${_pilEsc(p.ville || '—')}</td>
+        <td style="${td}">${_pilEsc(p.pays || '—')}</td>
+        <td style="${td}">${p.abonnement === 'Pro' ? '<span style="color:#E8940A;font-weight:700;">Pro</span>' : _pilEsc(p.abonnement || 'Base')}</td>
+        <td style="${td}font-family:'Geist Mono',monospace;">${p.score_wozali != null ? _pilEsc(p.score_wozali) : '0'}</td>
+        <td style="${td}">${dConn(p.derniere_connexion)}</td>
+      </tr>`).join('')}
+      </tbody></table>`;
+    const totalPages = Math.max(1, Math.ceil((d.total || 0) / (d.pageSize || 50)));
+    document.getElementById('pil-profiles-pager').innerHTML =
+      `<span style="font-size:12px;color:rgba(252,224,168,.5);">${_pilNum(d.total)} profils · page ${s.page + 1}/${totalPages}</span>
+       <span style="display:flex;gap:8px;">
+         <button ${s.page <= 0 ? 'disabled' : ''} onclick="pilProfilesPage(-1)" style="background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.25);color:#E8940A;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;${s.page<=0?'opacity:.4;cursor:default;':''}">← Précédent</button>
+         <button ${s.page + 1 >= totalPages ? 'disabled' : ''} onclick="pilProfilesPage(1)" style="background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.25);color:#E8940A;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;${s.page+1>=totalPages?'opacity:.4;cursor:default;':''}">Suivant →</button>
+       </span>`;
+  } catch (e) {
+    list.innerHTML = '<div style="padding:18px;color:#e08a8a;font-size:12px;">Erreur : ' + _pilEsc(e.message || '') + '</div>';
+  }
+}
+window.loadPilotageProfiles = loadPilotageProfiles;
 
 async function checkAgentTerrainForDashboard(session) {
   try {

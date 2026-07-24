@@ -14,6 +14,7 @@ import recompensesStatus from './_impl/recompenses-status.js';
 // Fichiers _impl/ conservés en stub 410 (même pattern que mdr-*).
 // Admin
 import adminVerify from './_impl/admin-verify.js';
+import adminAnalytics from './_impl/admin-analytics.js';
 import agentsTerrain from './_impl/agents-terrain.js';
 // Business Suite Phases B→G désinscrites 2026-05-07 — report V1.2 (simplification MVP début juillet)
 // Imports retirés : invitation-create / invitation-get / invitation-accept / paie-pay / paie-bulletin / annonces-broadcast
@@ -166,6 +167,7 @@ const handlers = {
   'recompenses-status': recompensesStatus,
   // 'awards-candidats' / 'awards-vote' / 'awards-candidater' désinscrites 2026-07-21
   'admin-verify': adminVerify,
+  'admin-analytics': adminAnalytics,
   'agents-terrain': agentsTerrain,
   'feed-list': feedList,
   'feed-post': feedPost,
