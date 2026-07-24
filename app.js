@@ -9,6 +9,72 @@ window.supabase = supa; // exposer pour le feed IIFE (_sb())
 // Helper global _sb() — accessible depuis toutes les fonctions hors IIFE (WOZALI Match, etc.)
 function _sb() { return window.supabase || null; }
 
+// ══════════════════════════════════════════
+// ANALYTICS / PILOTAGE — tracking maison (table wozali_events)
+// Fire-and-forget : ne jette jamais, ne ralentit jamais le site.
+// ══════════════════════════════════════════
+function _wzSessionId() {
+  try {
+    let sid = localStorage.getItem('wz_sid');
+    if (!sid) { sid = 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('wz_sid', sid); }
+    return sid;
+  } catch (e) { return null; }
+}
+// event_type : 'page_view' | 'click' | 'login' | 'signup_step' | 'search' ...
+function wzTrack(eventType, props) {
+  try {
+    const sb = _sb(); if (!sb || !eventType) return;
+    props = props || {};
+    sb.from('wozali_events').insert({
+      event_type: eventType,
+      page: props.page || null,
+      label: props.label || null,
+      user_id: (window.currentUser && window.currentUser.id) || null,
+      session_id: _wzSessionId(),
+      pays: props.pays || null,
+      metadata: props.metadata || null
+    }).then(function(){}, function(){});
+  } catch (e) {}
+}
+window.wzTrack = wzTrack;
+// page_view débouncé (évite les doublons quand une page se re-render)
+let _wzLastPV = '';
+function wzTrackPage(page) {
+  if (!page) return;
+  const key = page + '|' + Math.floor(Date.now() / 4000);
+  if (key === _wzLastPV) return;
+  _wzLastPV = key;
+  wzTrack('page_view', { page: page });
+}
+window.wzTrackPage = wzTrackPage;
+// Vraie dernière connexion (1x par session) + événement login
+let _wzConnexionMarked = false;
+function wzMarkConnexion() {
+  try {
+    if (_wzConnexionMarked) return;
+    const uid = window.currentUser && window.currentUser.id;
+    const sb = _sb(); if (!uid || !sb) return;
+    _wzConnexionMarked = true;
+    sb.from('wozali_prestataires').update({ derniere_connexion: new Date().toISOString() }).eq('user_id', uid).then(function(){}, function(){});
+    wzTrack('login', {});
+  } catch (e) {}
+}
+window.wzMarkConnexion = wzMarkConnexion;
+// Funnel inscription : upsert par session, etape_max monotone (1=arrivée ... 5=créé)
+function wzFunnel(etape, extra) {
+  try {
+    const sb = _sb(); if (!sb) return;
+    const row = Object.assign({
+      session_id: _wzSessionId(),
+      etape_max: etape,
+      user_id: (window.currentUser && window.currentUser.id) || null,
+      updated_at: new Date().toISOString()
+    }, extra || {});
+    sb.from('wozali_inscription_funnel').upsert(row, { onConflict: 'session_id' }).then(function(){}, function(){});
+  } catch (e) {}
+}
+window.wzFunnel = wzFunnel;
+
 let currentUser = null;
 window.currentUser = null;
 let currentPrestataire = null; // record Airtable du user connecté
@@ -51,6 +117,7 @@ async function initAuth() {
   if (session?.user) {
     currentUser = session.user;
     window.currentUser = currentUser;
+    try { wzMarkConnexion(); } catch (e) {}
     // Attendre supaPrest (max 4s) avant de charger le profil
     if (!window.supaPrest) {
       for (let _si = 0; _si < 8; _si++) {
@@ -86,6 +153,7 @@ async function initAuth() {
       const alreadyLoaded = currentUser?.id === session.user.id && currentPrestataire?.id;
       currentUser = session.user;
       window.currentUser = currentUser;
+      try { wzMarkConnexion(); } catch (e) {}
       if (!alreadyLoaded) {
         await loadCurrentPrestataire();
       }
@@ -555,6 +623,8 @@ function showDashSection(section) {
   if (window.DASH_SECTION_ALIASES && window.DASH_SECTION_ALIASES[section]) {
     section = window.DASH_SECTION_ALIASES[section];
   }
+
+  try { wzTrackPage('ds-' + section); } catch (e) {}
 
   // Fermer le tiroir menu mobile après sélection d'une section
   if (typeof closeDashMenu === 'function') closeDashMenu();
@@ -3755,6 +3825,7 @@ function showPage(page, _fromPop) {
   _updateSeoMeta(page);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
+  try { wzTrackPage(page); if (page === 'inscription') wzFunnel(1); } catch (e) {}
   document.querySelectorAll('.nav-link[data-nav]').forEach(b => b.classList.toggle('active', b.getAttribute('data-nav') === page));
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(applyResponsiveGrids, 50);
@@ -12140,6 +12211,20 @@ function nextStep(step) {
   document.getElementById('fs-' + currentStep).classList.add('active');
   document.getElementById('pb-' + currentStep).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Funnel : étape franchie (+ démographie dispo pour analyser les abandons)
+  try {
+    const extra = {};
+    const gv = id => { const el = document.getElementById(id); return el && el.value ? el.value : null; };
+    if (gv('f-metier')) extra.metier = gv('f-metier');
+    if (gv('f-ville')) extra.ville = gv('f-ville');
+    if (gv('f-pays')) extra.pays = gv('f-pays');
+    if (gv('f-genre')) extra.genre = gv('f-genre');
+    const ageV = gv('f-age') || gv('f-annee-naissance');
+    if (ageV && !isNaN(parseInt(ageV, 10))) extra.age = parseInt(ageV, 10);
+    wzFunnel(step, extra);
+    wzTrack('signup_step', { label: 'step' + step });
+  } catch (e) {}
 }
 
 // Affiche/masque le champ portfolio selon le métier choisi + rend dynamiquement
@@ -12602,6 +12687,11 @@ async function submitInscription(e) {
     if (createOk) {
       currentPrestataire = record;
       window.currentPrestataire = record;
+      // Funnel : inscription complétée (+ démographie pour analyse pilotage)
+      try {
+        wzFunnel(5, { complete: true, genre: genre || null, metier: metier || null, pays: pays || null, ville: ville || null, user_id: (authData?.user?.id || currentUser?.id || null) });
+        wzTrack('signup_complete', { metadata: { metier: metier || null, pays: pays || null } });
+      } catch (e) {}
       if (authData?.user) {
         currentUser = authData.user;
         window.currentUser = currentUser;
@@ -14988,16 +15078,33 @@ function _ftvNeutralMetierPhrase(metier) {
   return metier ? metier : 'Prestataire WOZALI';
 }
 
+// Vague 2 : priorité au champ profil Supabase (FTV Accroche, persistant et
+// partagé entre appareils), fallback localStorage (avant migration SQL ou
+// hors ligne), fallback neutre sinon.
 function _ftvGetAccroche(prestId, metier) {
   try {
+    if (currentPrestataire?.id && prestId === currentPrestataire.id) {
+      const fromProfil = (currentPrestataire.fields?.['FTV Accroche'] || '').trim();
+      if (fromProfil) return fromProfil;
+    }
     const saved = localStorage.getItem(_ftvAccrocheKey(prestId));
     if (saved && saved.trim()) return saved.trim();
   } catch (e) { /* localStorage indisponible */ }
   return _ftvNeutralMetierPhrase(metier);
 }
 
+// Écrit toujours en localStorage (source instantanée, fonctionne même hors
+// ligne ou avant migration SQL), puis tente le profil Supabase en tâche de
+// fond (fire-and-forget) : si la colonne FTV Accroche n'existe pas encore,
+// l'échec est silencieux et localStorage reste la source de vérité.
 function _ftvSaveAccroche(prestId, text) {
-  try { localStorage.setItem(_ftvAccrocheKey(prestId), (text || '').trim()); } catch (e) { /* silencieux */ }
+  const val = (text || '').trim();
+  try { localStorage.setItem(_ftvAccrocheKey(prestId), val); } catch (e) { /* silencieux */ }
+  if (prestId && currentPrestataire?.id === prestId && window.supaPrest) {
+    supaPrest.update(prestId, { 'FTV Accroche': val }).then(() => {
+      if (currentPrestataire) currentPrestataire.fields['FTV Accroche'] = val;
+    }).catch(e => console.warn('[ftv] save accroche profil (colonne pas encore migrée ?)', e));
+  }
 }
 
 // Seed heuristique (verbe-métier) utilisé UNIQUEMENT comme matière première par
