@@ -79,7 +79,7 @@ RETURNS TABLE (
   id text, nom text, photo text, metier text, ville text,
   niveau text, pro_mois integer, pro_actifs integer
 ) LANGUAGE sql STABLE AS $$
-  SELECT id, nom_complet, photo_profil, metier_principal, ville,
+  SELECT id::text, nom_complet, photo_profil, metier_principal, ville,
          createur_niveau, createur_pro_mois, createur_pro_actifs
   FROM wozali_prestataires
   WHERE ville = p_ville
