@@ -3201,11 +3201,11 @@ function _wzShowStoryModal(dataUrl, { filename, waText, title, subtitle }) {
     <div style="background:#1E180E;border-radius:20px;max-width:400px;width:100%;overflow:hidden;border:1px solid rgba(232,148,10,0.3);">
       <div style="padding:16px;text-align:center;">
         <div style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#FCE0A8;margin-bottom:4px;">${title || '✅ Ta carte est prête !'}</div>
-        <p style="font-size:13px;color:rgba(252,224,168,0.5);">${subtitle || 'Partage-la en Statut WhatsApp pour attirer de nouveaux clients.'}</p>
+        <p style="font-size:13px;color:rgba(252,224,168,0.5);">${subtitle || 'Partage-la sur WhatsApp, Instagram, TikTok, Facebook pour attirer de nouveaux clients.'}</p>
       </div>
       <img src="${dataUrl}" style="width:100%;display:block;" alt="Carte WOZALI" loading="lazy">
       <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
-        ${canShareFiles ? `<button id="wz-story-share-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">📤 Partager sur mon Statut</button>` : ''}
+        ${canShareFiles ? `<button id="wz-story-share-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#E8940A,#d97706);color:white;border:none;border-radius:100px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;">📤 Partager (WhatsApp, Instagram, TikTok…)</button>` : ''}
         <a href="${dataUrl}" download="${filename}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:${canShareFiles ? 'transparent' : 'linear-gradient(135deg,#E8940A,#d97706)'};color:${canShareFiles ? '#FCE0A8' : 'white'};border:${canShareFiles ? '1px solid rgba(255,255,255,0.15)' : 'none'};border-radius:100px;padding:12px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;">⬇️ Télécharger</a>
         ${!canShareFiles ? `<button onclick="window.open('https://wa.me/?text=${encodeURIComponent(waText || '')}','_blank')" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;border:none;border-radius:100px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">📱 Partager sur WhatsApp</button>` : ''}
         <button onclick="this.closest('[style*=fixed]').remove()" style="background:transparent;color:rgba(252,224,168,0.6);border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:10px;font-size:13px;cursor:pointer;">Fermer</button>
@@ -3335,7 +3335,7 @@ async function generateProfilStory() {
   _wzShowStoryModal(dataUrl, {
     filename, waText,
     title: '📤 Ta carte profil est prête !',
-    subtitle: 'Partage-la en Statut WhatsApp pour que tes contacts te trouvent.'
+    subtitle: 'Partage-la en story ou en message : WhatsApp, Instagram, TikTok, Facebook…'
   });
 }
 
@@ -3343,71 +3343,95 @@ async function generateProfilStory() {
 async function generatePostStory(recordId, postId) {
   const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
   const p = posts.find(x => String(x.id) === String(postId));
-  if (!p || !p.photo) { toast('Cette publication n\'a pas de photo à exporter.', 'error'); return; }
+  if (!p) { toast('Publication introuvable.', 'error'); return; }
   const f = currentPrestataire?.fields || {};
   const nom = p.auteur || f['Nom complet'] || 'Prestataire';
   const metier = f['Métier principal'] || '';
   const ville = f['Ville'] || '';
   const photoAuteur = p.auteurPhoto || _wPhotoUrl(f['Photo de profil']) || '';
 
-  const W = 1080, H = 1920;
+  const hasPhoto = !!p.photo;
+  const W = 1080, H = hasPhoto ? 1350 : 1080; // 4:5 pour photo, carré pour texte (pas de grand vide)
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#14100A'; ctx.fillRect(0, 0, W, H);
 
-  const photoH = H * 0.78;
-  try {
-    const img = await _wzLoadImg(p.photo);
-    const ratio = img.width / img.height;
-    let dw = W, dh = photoH;
-    if (ratio > W / photoH) { dw = photoH * ratio; } else { dh = W / ratio; }
-    ctx.drawImage(img, (W - dw) / 2, (photoH - dh) / 2, dw, dh);
-  } catch (e) {
-    ctx.fillStyle = '#1E180E'; ctx.fillRect(0, 0, W, photoH);
-  }
-  const gradTop = ctx.createLinearGradient(0, 0, 0, photoH * 0.25);
-  gradTop.addColorStop(0, 'rgba(20,16,10,0.7)'); gradTop.addColorStop(1, 'transparent');
-  ctx.fillStyle = gradTop; ctx.fillRect(0, 0, W, photoH * 0.25);
-  const gradBot = ctx.createLinearGradient(0, photoH * 0.55, 0, photoH);
-  gradBot.addColorStop(0, 'transparent'); gradBot.addColorStop(1, 'rgba(20,16,10,0.95)');
-  ctx.fillStyle = gradBot; ctx.fillRect(0, photoH * 0.55, W, photoH * 0.45);
-
-  ctx.font = '900 40px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
-  ctx.fillText('W', W / 2, H * 0.06);
-  ctx.font = '700 11px "Geist Mono", monospace'; ctx.fillStyle = '#FCE0A8';
-  ctx.fillText('W  O  Z  A  L  I', W / 2, H * 0.06 + 26);
-
-  if (p.texte) {
-    _wzWrapText(ctx, p.texte.length > 140 ? p.texte.slice(0, 137) + '...' : p.texte, W / 2, photoH - 60, W * 0.82, 30, '600 24px Geist, sans-serif', '#FCE0A8', 'center');
+  const photoH = hasPhoto ? H * 0.78 : H * 0.70;
+  if (hasPhoto) {
+    try {
+      const img = await _wzLoadImg(p.photo);
+      const ratio = img.width / img.height;
+      let dw = W, dh = photoH;
+      if (ratio > W / photoH) { dw = photoH * ratio; } else { dh = W / ratio; }
+      ctx.drawImage(img, (W - dw) / 2, (photoH - dh) / 2, dw, dh);
+    } catch (e) {
+      ctx.fillStyle = '#1E180E'; ctx.fillRect(0, 0, W, photoH);
+    }
+    const gradTop = ctx.createLinearGradient(0, 0, 0, photoH * 0.25);
+    gradTop.addColorStop(0, 'rgba(20,16,10,0.7)'); gradTop.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradTop; ctx.fillRect(0, 0, W, photoH * 0.25);
+    const gradBot = ctx.createLinearGradient(0, photoH * 0.55, 0, photoH);
+    gradBot.addColorStop(0, 'transparent'); gradBot.addColorStop(1, 'rgba(20,16,10,0.95)');
+    ctx.fillStyle = gradBot; ctx.fillRect(0, photoH * 0.55, W, photoH * 0.45);
+  } else {
+    // Post texte seul : fond premium + glow or, barre or, citation en grand serif
+    const glow = ctx.createRadialGradient(W / 2, photoH * 0.42, 60, W / 2, photoH * 0.42, W * 0.78);
+    glow.addColorStop(0, 'rgba(232,148,10,0.16)'); glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, photoH);
   }
 
-  const idY = photoH + H * 0.03;
-  const avS = 64, avX = W * 0.12, avY = idY;
+  // Marque WOZALI : en haut pour les posts photo, en bas pour les posts texte
+  // (pour laisser l'en-tête identité en haut à gauche, comme un vrai post).
+  const _wzWordmark = (cy) => {
+    ctx.textAlign = 'center';
+    ctx.font = '900 38px "DM Serif Display", serif'; ctx.fillStyle = '#E8940A';
+    ctx.fillText('W', W / 2, cy);
+    ctx.font = '700 10px "Geist Mono", monospace'; ctx.fillStyle = '#FCE0A8';
+    ctx.fillText('W  O  Z  A  L  I', W / 2, cy + 22);
+  };
+  if (hasPhoto) _wzWordmark(H * 0.06);
+
+  // En-tête identité : avatar + nom + métier. Bas de la photo, ou haut-gauche (texte).
+  const avS = hasPhoto ? 64 : 78;
+  const avX = W * 0.11;
+  const avY = hasPhoto ? (photoH + H * 0.03) : H * 0.07;
   try {
     if (photoAuteur) {
       const avImg = await _wzLoadImg(photoAuteur);
       ctx.save(); ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.clip();
       ctx.drawImage(avImg, avX, avY, avS, avS); ctx.restore();
     } else {
-      ctx.fillStyle = '#E8940A'; ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#2a2013'; ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
     }
   } catch (e) {
-    ctx.fillStyle = '#E8940A'; ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#2a2013'; ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.fill();
   }
-  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2;
+  ctx.strokeStyle = '#E8940A'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, Math.PI * 2); ctx.stroke();
   ctx.textAlign = 'left';
-  ctx.font = '700 26px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
-  ctx.fillText(nom, avX + avS + 20, avY + 30);
-  ctx.font = '400 16px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
-  ctx.fillText([metier, ville].filter(Boolean).join(' · '), avX + avS + 20, avY + 56);
+  ctx.font = '700 ' + (hasPhoto ? '26' : '30') + 'px "DM Serif Display", serif'; ctx.fillStyle = '#FCE0A8';
+  ctx.fillText(nom, avX + avS + 20, avY + avS * 0.44);
+  ctx.font = '400 ' + (hasPhoto ? '16' : '18') + 'px Geist, sans-serif'; ctx.fillStyle = '#E8940A';
+  ctx.fillText([metier, ville].filter(Boolean).join(' · '), avX + avS + 20, avY + avS * 0.44 + 27);
 
-  const footY = H * 0.94;
+  // Corps du post
+  if (p.texte) {
+    if (hasPhoto) {
+      _wzWrapText(ctx, p.texte.length > 140 ? p.texte.slice(0, 137) + '...' : p.texte, W / 2, photoH - 60, W * 0.82, 30, '600 24px Geist, sans-serif', '#FCE0A8', 'center');
+    } else {
+      const quote = p.texte.length > 240 ? p.texte.slice(0, 237) + '...' : p.texte;
+      _wzWrapText(ctx, quote, avX, avY + avS + 86, W - avX * 2, 50, '400 37px Geist, sans-serif', '#FCE0A8', 'left');
+    }
+  }
+
+  // Footer : lien profil (+ marque pour les posts texte)
   const slug = _buildProfilSlug(nom, metier, ville);
   const profilUrl = `https://wozali.africa/profil/${slug}`;
-  ctx.font = '700 18px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A'; ctx.textAlign = 'center';
-  ctx.fillText('wozali.africa', W / 2, footY);
+  if (!hasPhoto) _wzWordmark(H * 0.87);
+  ctx.textAlign = 'center';
+  ctx.font = '700 18px "Geist Mono", monospace'; ctx.fillStyle = '#E8940A';
+  ctx.fillText('wozali.africa', W / 2, H * 0.94);
 
   const dataUrl = canvas.toDataURL('image/png');
   const prenom = nom.split(' ')[0] || nom;
@@ -3418,7 +3442,7 @@ async function generatePostStory(recordId, postId) {
   _wzShowStoryModal(dataUrl, {
     filename, waText,
     title: '📤 Ta publication est prête à partager !',
-    subtitle: 'Mets-la en Statut WhatsApp, tes contacts verront ton travail.'
+    subtitle: 'Partage-la en story ou en message : WhatsApp, Instagram, TikTok, Facebook…'
   });
 }
 
@@ -6096,8 +6120,7 @@ function _renderPostsFeedCards(recordId) {
       <div class="pf-card-actions">
         <button class="pf-actbtn ${hasLiked ? 'liked' : ''}" onclick="likePost('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span>${p.likes || 0}</span></button>
         <button class="pf-actbtn" onclick="toggleCommentBox('${recordId}','${p.id}')">💬 <span>${comments.length}</span></button>
-        <button class="pf-actbtn" onclick="sharePost('${recordId}','${p.id}')">➤ <span id="pf-share-${p.id}">${p.partages || 0}</span></button>
-        ${(isOwner && p.photo) ? `<button class="pf-actbtn" onclick="generatePostStory('${recordId}','${p.id}')" title="Exporter en Statut WhatsApp">📤</button>` : ''}
+        <button class="pf-actbtn" onclick="sharePost('${recordId}','${p.id}')" title="${isOwner ? 'Créer un visuel et partager' : 'Partager'}">➤ <span id="pf-share-${p.id}">${p.partages || 0}</span></button>
       </div>
       <div id="comments-section-${p.id}" class="pf-comments" style="display:none;">
         ${commentsHtml}
@@ -6147,7 +6170,13 @@ async function sharePost(recordId, postId) {
       if (el) el.textContent = p.partages;
     }
   } catch (e) {}
-  // Ouvrir le partage natif (ou WhatsApp en fallback)
+  // Pour le membre sur SON post : ouvrir le générateur de visuel premium
+  // (photo ou citation), avec partage WhatsApp/téléchargement vers son profil.
+  const isOwner = currentUser && currentPrestataire?.id === recordId;
+  if (isOwner) {
+    try { await generatePostStory(recordId, postId); return; } catch (e) { /* repli texte */ }
+  }
+  // Partage simple (post de quelqu'un d'autre, ou repli)
   const txt = (p.texte ? p.texte + '\n\n' : '') + 'Vu sur WOZALI';
   const url = 'https://wozali.africa';
   try {
