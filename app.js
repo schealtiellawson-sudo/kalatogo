@@ -17993,7 +17993,7 @@ function renderAdminPilotage(d) {
     </div>
     <div id="pil-sandy-out"></div>
   </div>`;
-  box.innerHTML = sandyCard + trafic + activite + funnel +
+  box.innerHTML = _pilObjectifsCard() + sandyCard + trafic + activite + funnel +
     `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">${pages}${clics}</div>` +
     `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:22px 0 12px;">Démographie des inscrits</h3>` + demo +
     `<h3 style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin:24px 0 12px;">Explorateur de profils</h3>` +
@@ -18062,6 +18062,42 @@ async function _createurAdminSuspend(id, suspendu, btn) {
 window.loadCreateurAdmin = loadCreateurAdmin;
 window._createurAdminProgram = _createurAdminProgram;
 window._createurAdminSuspend = _createurAdminSuspend;
+
+// Carte repliable : objectifs + moteur de croissance (pilotage fondateur)
+function _pilObjectifsCard() {
+  const boucles = [
+    ['Membre-panneau', 'le membre épingle/partage ses posts → ses abonnés voient WOZALI → certains s\'inscrivent. Levier : épinglage quasi obligatoire (Sandy, onboarding).'],
+    ['Avis-preuve', 'client satisfait → avis → monte le Score + contenu partageable → confiance et contacts. Levier : avis beau, partage 1 clic, demande coachée par Sandy.'],
+    ['Parrainage', 'moteur d\'acquisition. Payer sur l\'ACTIVATION du filleul, jamais l\'inscription brute.'],
+    ['Créateurs', 'voix locales qui amplifient. Leur fournir les preuves des quartiers qui marchent.'],
+    ['Sandy', 'active chaque inscrit jusqu\'à visible et armé. Chaque activé devient panneau + récolteur d\'avis + parrain.'],
+    ['Recherche', 'chaque profil = page Google indexable. Lent, gratuit, composé.'],
+  ];
+  const metriques = [
+    ['Liquidité (reine)', 'part de membres actifs recevant ≥ 1 contact / mois, taux de recherche aboutie, délai de réponse des pros.'],
+    ['Activation', 'profil complété < 7j, un outil Fais-toi voir posé < 14j, une conversation Sandy la 1re semaine.'],
+    ['Rétention en 2 courbes', 'actifs 30/90j séparés en « a reçu un contact » vs « non ». L\'écart mesure la valeur de la liquidité.'],
+    ['Part organique', 'inscriptions via parrainage / posts / Créateurs / recherche. Doit monter chaque mois.'],
+  ];
+  const li = (arr) => arr.map(([t, d]) => `<div style="margin-bottom:9px;"><span style="color:#E8940A;font-weight:800;font-size:12.5px;">${t}</span><span style="color:rgba(252,224,168,.65);font-size:12.5px;"> — ${d}</span></div>`).join('');
+  return `<details style="background:#14100A;border:1px solid rgba(232,148,10,.22);border-radius:18px;padding:4px 18px;margin-bottom:16px;">
+    <summary style="cursor:pointer;list-style:none;padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <span style="font-family:'DM Serif Display',serif;font-size:17px;color:#FCE0A8;">Objectifs &amp; moteur de croissance</span>
+      <span style="font-size:11px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;">déplier</span>
+    </summary>
+    <div style="padding:4px 0 18px;">
+      <div style="background:rgba(232,148,10,.06);border-left:2px solid #E8940A;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:16px;">
+        <div style="color:#FCE0A8;font-size:13.5px;line-height:1.55;">Fil rouge : <strong>rendre visible l'invisible pour que l'argent circule.</strong> Test de toute idée : ça rend un membre plus visible OU ça fait circuler de l'argent vers lui ? Sinon aux deux, on ne construit pas.</div>
+        <div style="color:#E8940A;font-size:12.5px;margin-top:8px;font-weight:700;">Règle d'or : densité avant expansion. On sature un couple quartier × métier à la fois, jamais s'étaler.</div>
+      </div>
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:1px;color:rgba(252,224,168,.45);text-transform:uppercase;margin-bottom:8px;">Les 6 boucles de croissance</div>
+      ${li(boucles)}
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:1px;color:rgba(252,224,168,.45);text-transform:uppercase;margin:14px 0 8px;">Métriques qui comptent (bannir la vanité)</div>
+      ${li(metriques)}
+      <div style="color:rgba(252,224,168,.5);font-size:12px;margin-top:12px;font-style:italic;">À suivre par couple quartier × métier, jamais en global : le global masque 3 quartiers vivants et 20 morts.</div>
+    </div>
+  </details>`;
+}
 
 function _pilProfilesShell() {
   const inp = 'background:#1E180E;border:1px solid rgba(232,148,10,.2);color:#FCE0A8;border-radius:9px;padding:8px 10px;font-family:Geist,sans-serif;font-size:12.5px;';
