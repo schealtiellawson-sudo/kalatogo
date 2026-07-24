@@ -2566,7 +2566,7 @@ async function _doUploadAlbumPhoto(albumId, blob) {
     if (statusEl) { statusEl.style.color = 'var(--vert)'; statusEl.textContent = '✅ Photo ajoutée !'; setTimeout(()=>{ statusEl.style.display='none'; }, 2500); }
     toast('Photo ajoutée à l\'album !', 'success');
   } else {
-    if (statusEl) { statusEl.style.color = '#dc2626'; statusEl.textContent = '❌ Erreur Airtable'; }
+    if (statusEl) { statusEl.style.color = '#f87171'; statusEl.textContent = 'Ça a calé. Réessaie dans 2 secondes.'; }
   }
 }
 
@@ -22255,6 +22255,7 @@ async function loadMonEquipe() {
     if (!resp.ok) throw new Error(json.error || 'Erreur');
 
     const employes = json.employes || [];
+    window._equipeEmployes = employes;
     if (countEl) countEl.textContent = `${employes.length} membre${employes.length > 1 ? 's' : ''}`;
 
     if (!employes.length) {
@@ -22282,7 +22283,7 @@ async function loadMonEquipe() {
       const sc = statutColors[e.statut] || statutColors.actif;
 
       return `
-        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;">
+        <div onclick="if(!event.target.closest('a,button'))_openEmployeDetail('${e.id}')" style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:border-color .2s ease;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.15)'">
           <div style="display:flex;gap:12px;align-items:flex-start;">
             <div style="width:48px;height:48px;border-radius:50%;background:rgba(232,148,10,.15);border:2px solid rgba(232,148,10,.3);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#E8940A;overflow:hidden;flex-shrink:0;">
               ${photo ? `<img src="${encodeURI(photo)}" style="width:100%;height:100%;object-fit:cover;">` : nom[0].toUpperCase()}
@@ -22313,6 +22314,60 @@ async function loadMonEquipe() {
     grid.innerHTML = `<div style="font-size:14px;color:#f87171;padding:20px;">Erreur : ${escapeHtml(e?.message || 'Réessaie')}</div>`;
   }
 }
+
+// Fiche employé détaillée (modal premium)
+function _openEmployeDetail(id) {
+  const e = (window._equipeEmployes || []).find(x => String(x.id) === String(id));
+  if (!e) return;
+  const esc = escapeHtml;
+  const photo = e.employe_photo;
+  const nom = esc(e.employe_nom || '—');
+  const metier = esc(e.employe_metier || '—');
+  const wa = (e.employe_whatsapp || '').replace(/\D/g, '');
+  const loc = esc([e.employe_quartier, e.employe_ville].filter(Boolean).join(', '));
+  const contrat = esc(e.type_contrat || '');
+  const salaire = e.salaire_fcfa ? e.salaire_fcfa.toLocaleString('fr-FR') + ' FCFA/mois' : null;
+  const dateEmb = e.date_embauche ? new Date(e.date_embauche).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+  const offre = esc(e.offre_titre || '—');
+  const sc = { actif: ['rgba(232,148,10,.14)', '#E8940A', 'Actif'], fin_contrat: ['rgba(239,68,68,.12)', '#f87171', 'Fin de contrat'], suspendu: ['rgba(234,179,8,.12)', '#fbbf24', 'Suspendu'] }[e.statut] || ['rgba(232,148,10,.14)', '#E8940A', 'Actif'];
+  const row = (label, val) => val ? `<div style="display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid rgba(232,148,10,.08);"><span style="font-size:12.5px;color:rgba(252,224,168,.5);">${label}</span><span style="font-size:13px;color:#FCE0A8;font-weight:600;text-align:right;">${val}</span></div>` : '';
+
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px;';
+  ov.onclick = (ev) => { if (ev.target === ov) ov.remove(); };
+  ov.innerHTML = `
+    <div style="background:linear-gradient(165deg,#1E180E,#14100A);border:1px solid rgba(232,148,10,.28);border-radius:22px;max-width:440px;width:100%;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.85);">
+      <div style="position:relative;padding:26px 24px 20px;background:radial-gradient(600px 200px at 50% -40%, rgba(232,148,10,.18), transparent 70%);">
+        <button onclick="this.closest('.modal-overlay').remove()" style="position:absolute;top:14px;right:14px;background:rgba(252,224,168,.08);border:none;color:#FCE0A8;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <div style="width:72px;height:72px;border-radius:50%;background:rgba(232,148,10,.15);border:2.5px solid rgba(232,148,10,.4);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#E8940A;overflow:hidden;flex-shrink:0;">
+            ${photo ? `<img src="${encodeURI(photo)}" style="width:100%;height:100%;object-fit:cover;">` : nom[0].toUpperCase()}
+          </div>
+          <div style="min-width:0;">
+            <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;line-height:1.1;">${nom}</div>
+            <div style="font-size:13px;color:#E8940A;margin-top:3px;">${metier}</div>
+            <span style="display:inline-block;margin-top:7px;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;background:${sc[0]};color:${sc[1]};">${sc[2]}</span>
+          </div>
+        </div>
+      </div>
+      <div style="padding:6px 24px 8px;">
+        ${row('Poste occupé', offre)}
+        ${row('Type de contrat', contrat)}
+        ${row('Salaire', salaire ? `<span style="color:#E8940A;">${salaire}</span>` : '')}
+        ${row('Lieu', loc)}
+        ${row('Embauché le', dateEmb)}
+      </div>
+      <div style="padding:14px 24px 22px;display:flex;gap:10px;flex-wrap:wrap;">
+        ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="flex:1;min-width:130px;text-align:center;padding:12px;border-radius:100px;background:#25D366;color:#fff;text-decoration:none;font-weight:800;font-size:13px;">📲 WhatsApp</a>` : ''}
+        ${e.statut === 'actif'
+          ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat');this.closest('.modal-overlay').remove();" style="flex:1;min-width:130px;padding:12px;border-radius:100px;background:transparent;color:#f87171;border:1px solid rgba(239,68,68,.4);cursor:pointer;font-weight:800;font-size:13px;">Fin de contrat</button>`
+          : `<button onclick="_updateEquipeStatut('${e.id}','actif');this.closest('.modal-overlay').remove();" style="flex:1;min-width:130px;padding:12px;border-radius:100px;background:linear-gradient(135deg,#E8940A,#d97706);color:#14100A;border:none;cursor:pointer;font-weight:800;font-size:13px;">Réactiver</button>`}
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+}
+window._openEmployeDetail = _openEmployeDetail;
 
 function filterEquipe(statut) {
   _equipeStatutFilter = statut;
