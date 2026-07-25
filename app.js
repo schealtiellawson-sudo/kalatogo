@@ -8389,7 +8389,34 @@ let _storyCreatorURL = null;
 
 async function loadFilPage() {
   await Promise.all([loadFilStories(), loadFilFeed()]);
+  try { loadFilSuggestions(); } catch (e) {}
 }
+
+// Colonne suggestions (desktop) : quelques pros à suivre
+async function loadFilSuggestions() {
+  const box = document.getElementById('fil-suggestions');
+  if (!box || !window.supaPrest) return;
+  try {
+    const recs = await window.supaPrest.list({ limit: 6, orderBy: 'score_wozali', orderDir: 'desc' });
+    const list = (recs || []).filter(r => r.fields && r.fields['Nom complet']).slice(0, 5);
+    if (!list.length) { box.innerHTML = `<div style="color:rgba(252,224,168,.35);font-size:12.5px;padding:8px 0;">Explore des pros et suis-les.</div>`; return; }
+    box.innerHTML = list.map(r => {
+      const f = r.fields;
+      const nom = escapeHtml(f['Nom complet'] || 'Pro');
+      const metier = escapeHtml([f['Métier principal'], f['Quartier'] || f['Ville']].filter(Boolean).join(' · '));
+      const photo = _wPhotoUrl(f['Photo de profil']) || '';
+      const id = escapeHtml(r.id);
+      return `<div class="fil-sugg-row">
+        <div class="fil-sugg-av" onclick="showProfil('${id}');showPage('profil');" style="cursor:pointer;">${photo ? `<img src="${escapeHtml(photo)}" alt="">` : nom.charAt(0).toUpperCase()}</div>
+        <div class="fil-sugg-info" onclick="showProfil('${id}');showPage('profil');" style="cursor:pointer;"><div class="fil-sugg-name">${nom}</div><div class="fil-sugg-sub">${metier}</div></div>
+        <button class="fil-sugg-btn" data-suivi-prest="${id}" onclick="toggleSuivi('${id}')">Suivre</button>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = `<div style="color:rgba(252,224,168,.35);font-size:12.5px;padding:8px 0;">Explore des pros et suis-les.</div>`;
+  }
+}
+window.loadFilSuggestions = loadFilSuggestions;
 
 // ── STORIES ─────────────────────────────────────────────────────────
 async function loadFilStories() {

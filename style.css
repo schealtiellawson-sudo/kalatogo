@@ -8896,3 +8896,43 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 #page-inscription .tel-row { display:flex; gap:8px; align-items:stretch; }
 #page-inscription .tel-indicatif { flex:0 0 auto; width:auto !important; min-width:104px; font-weight:700 !important; padding-right:8px !important; }
 #page-inscription .tel-local { flex:1 1 auto; min-width:0; }
+
+/* ═══════════════════════════════════════════════════════
+   FEED FIL — vue 3 colonnes desktop façon Instagram
+═══════════════════════════════════════════════════════ */
+.fil-shell { display:block; }
+.fil-left, .fil-right { display:none; }
+@media (min-width:1000px){
+  #page-fil > div:first-child { border-bottom:none; } /* topbar mobile discret sur desktop */
+  .fil-shell {
+    display:grid;
+    grid-template-columns: 210px minmax(0,470px) 300px;
+    gap:30px; max-width:1050px; margin:0 auto; justify-content:center;
+    align-items:start; padding:8px 20px 60px;
+  }
+  .fil-left, .fil-right { display:block; position:sticky; top:140px; align-self:start; }
+  .fil-main { min-width:0; }
+  #fil-feed { margin:0 !important; }
+  #page-fil .fil-main #fil-stories-bar { border-radius:16px; border:1px solid var(--line,rgba(232,148,10,.14)); margin-bottom:16px; }
+  #page-fil > button[onclick*="openFilComposer"] { display:none !important; } /* FAB caché, rail a "Publier" */
+}
+.fil-rail { display:flex; flex-direction:column; gap:4px; position:static !important; top:auto !important; width:100% !important; background:none !important; box-shadow:none !important; }
+.fil-rail-item {
+  display:flex; align-items:center; gap:15px; padding:12px 14px; border-radius:12px;
+  background:transparent; border:none; cursor:pointer; color:#FCE0A8;
+  font-family:'Geist',sans-serif; font-size:15px; font-weight:600; text-align:left; width:100%;
+  transition:background .15s ease;
+}
+.fil-rail-item svg { width:23px; height:23px; flex-shrink:0; color:#FCE0A8; }
+.fil-rail-item:hover { background:rgba(232,148,10,.08); }
+.fil-rail-item.active { font-weight:800; }
+.fil-rail-item.active svg { color:#E8940A; }
+.fil-sugg-head { font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(252,224,168,.4); margin-bottom:12px; padding:0 4px; }
+.fil-sugg-row { display:flex; align-items:center; gap:11px; padding:8px 4px; }
+.fil-sugg-av { width:44px; height:44px; border-radius:50%; overflow:hidden; flex-shrink:0; border:1.5px solid rgba(232,148,10,.3); background:#1A1208; display:flex; align-items:center; justify-content:center; color:#E8940A; font-weight:900; }
+.fil-sugg-av img { width:100%; height:100%; object-fit:cover; }
+.fil-sugg-info { flex:1; min-width:0; }
+.fil-sugg-name { font-size:13.5px; font-weight:700; color:#FCE0A8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fil-sugg-sub { font-size:11.5px; color:rgba(252,224,168,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fil-sugg-btn { background:none; border:none; color:#E8940A; font-family:'Geist',sans-serif; font-size:12.5px; font-weight:800; cursor:pointer; flex-shrink:0; }
+.fil-foot { margin-top:22px; font-size:12px; color:rgba(252,224,168,.35); line-height:1.6; padding:0 4px; }
