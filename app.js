@@ -8392,13 +8392,36 @@ async function loadFilPage() {
   try { loadFilSuggestions(); } catch (e) {}
 }
 
-// Colonne suggestions (desktop) : quelques pros à suivre
+// Colonne suggestions (desktop) : pros locaux à suivre, hors déjà suivis + soi
 async function loadFilSuggestions() {
   const box = document.getElementById('fil-suggestions');
   if (!box || !window.supaPrest) return;
   try {
-    const recs = await window.supaPrest.list({ limit: 6, orderBy: 'score_wozali', orderDir: 'desc' });
-    const list = (recs || []).filter(r => r.fields && r.fields['Nom complet']).slice(0, 5);
+    const f = currentPrestataire?.fields || {};
+    const maVille = f['Ville'] || '';
+    const monId = currentPrestataire?.id;
+    // Qui je suis déjà (pour les exclure)
+    let dejaSuivis = new Set();
+    try {
+      const { data: sv } = await window.supabase.from('wozali_suivis')
+        .select('suivi_prestataire_id').eq('suiveur_user_id', currentUser?.id).limit(200);
+      dejaSuivis = new Set((sv || []).map(r => r.suivi_prestataire_id));
+    } catch (e) {}
+    // Locaux d'abord (même ville), sinon top Score global
+    let recs = [];
+    if (maVille) {
+      try { recs = await window.supaPrest.list({ ville: maVille, limit: 15, orderBy: 'score_wozali', orderDir: 'desc' }); } catch (e) {}
+    }
+    if (!recs || recs.length < 5) {
+      try {
+        const top = await window.supaPrest.list({ limit: 15, orderBy: 'score_wozali', orderDir: 'desc' });
+        const ids = new Set((recs || []).map(r => r.id));
+        recs = [...(recs || []), ...(top || []).filter(r => !ids.has(r.id))];
+      } catch (e) {}
+    }
+    const list = (recs || [])
+      .filter(r => r.fields && r.fields['Nom complet'] && r.id !== monId && !dejaSuivis.has(r.id))
+      .slice(0, 5);
     if (!list.length) { box.innerHTML = `<div style="color:rgba(252,224,168,.35);font-size:12.5px;padding:8px 0;">Explore des pros et suis-les.</div>`; return; }
     box.innerHTML = list.map(r => {
       const f = r.fields;
