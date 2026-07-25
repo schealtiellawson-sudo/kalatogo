@@ -691,6 +691,7 @@ function showDashSection(section) {
   if (section === 'recrut-candidatures') loadCandidaturesRecues();
   if (section === 'recrut-dashboard') loadRecrutDashboard();
   if (section === 'mon-equipe') loadMonEquipe();
+  if (section === 'mon-travail') loadMonTravail();
   if (section === 'wozali-match') loadDashWozaliMatch();
   if (section === 'agents-ressources') loadAgentsRessourcesSection();
   if (section === 'agent-journal') loadAgentJournalSection();
@@ -785,6 +786,7 @@ async function loadDashboard() {
   // Compte les messages non lus de Sandy dès la connexion, pour allumer le
   // point sur Messages sans avoir à ouvrir la conversation.
   try { _loadCoachPreview(); } catch(e){}
+  try { _revealMonTravailIfEmploye(); } catch(e){}
   injectApprentieBanner();
   // Afficher la sidebar "Je recrute" pour tous les users connectés.
   const recrutSection = document.getElementById('dl-recrut-section');
@@ -22258,6 +22260,22 @@ async function loadMonEquipe() {
     window._equipeEmployes = employes;
     if (countEl) countEl.textContent = `${employes.length} membre${employes.length > 1 ? 's' : ''}`;
 
+    // KPI header + bouton Annonce (calculés sur le set affiché)
+    const actifs = employes.filter(x => x.statut === 'actif');
+    const masse = actifs.reduce((s, x) => s + (x.salaire_fcfa || 0), 0);
+    const il30 = Date.now() - 30 * 864e5;
+    const recent = employes.filter(x => x.date_embauche && new Date(x.date_embauche).getTime() >= il30).length;
+    const kpiBox = document.getElementById('equipe-kpi');
+    if (kpiBox) {
+      kpiBox.style.display = employes.length ? 'grid' : 'none';
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set('eq-kpi-actifs', actifs.length);
+      set('eq-kpi-masse', masse.toLocaleString('fr-FR'));
+      set('eq-kpi-recent', recent);
+    }
+    const bcBtn = document.getElementById('eq-broadcast-btn');
+    if (bcBtn) bcBtn.style.display = actifs.filter(x => x.employe_user_id || x.a_compte).length >= 2 ? 'inline-block' : 'none';
+
     if (!employes.length) {
       grid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:48px 20px;">
@@ -22302,8 +22320,10 @@ async function loadMonEquipe() {
             <div style="font-size:11px;color:rgba(252,224,168,.3);">Embauché le ${dateEmb}</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="padding:7px 14px;border-radius:8px;background:rgba(37,211,102,.12);color:#25D366;text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">📲 WhatsApp</a>` : ''}
-            ${e.statut === 'actif' ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat')" style="padding:7px 14px;border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Fin de contrat</button>` : `<button onclick="_updateEquipeStatut('${e.id}','actif')" style="padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Réactiver</button>`}
+            ${(e.employe_user_id || e.a_compte)
+              ? `<button onclick="event.stopPropagation();_eqOpenChat('${e.id}')" style="position:relative;padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.14);color:#E8940A;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">💬 Message${(e.unread_messages || 0) > 0 ? ` <span style="background:#E8940A;color:#14100A;border-radius:100px;padding:0 6px;font-size:10px;font-weight:900;">${e.unread_messages}</span>` : ''}</button>`
+              : (wa ? `<a href="https://wa.me/${wa}" target="_blank" onclick="event.stopPropagation();" style="padding:7px 14px;border-radius:8px;background:rgba(252,224,168,.06);color:rgba(252,224,168,.75);border:1px solid rgba(252,224,168,.15);text-decoration:none;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">WhatsApp</a>` : '')}
+            ${e.statut === 'actif' ? `<button onclick="event.stopPropagation();_updateEquipeStatut('${e.id}','fin_contrat')" style="padding:7px 14px;border-radius:8px;background:rgba(239,68,68,.1);color:#f87171;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Fin de contrat</button>` : `<button onclick="event.stopPropagation();_updateEquipeStatut('${e.id}','actif')" style="padding:7px 14px;border-radius:8px;background:rgba(232,148,10,.1);color:#E8940A;border:none;cursor:pointer;font-family:Geist,sans-serif;font-size:12px;font-weight:700;">Réactiver</button>`}
           </div>
         </div>`;
     }).join('');
@@ -22315,7 +22335,22 @@ async function loadMonEquipe() {
   }
 }
 
-// Fiche employé détaillée (modal premium)
+// ══════════════════════════════════════════
+// ESPACE ÉQUIPE — Fiche à onglets + Documents + Messagerie interne
+// ══════════════════════════════════════════
+async function _equipeFetch(action, body) {
+  const jwt = (await (window.supabase || window.supa)?.auth?.getSession())?.data?.session?.access_token;
+  const resp = await fetch('/api/wozali-pay/' + action, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(jwt ? { 'Authorization': `Bearer ${jwt}` } : {}) },
+    body: JSON.stringify(body),
+  });
+  const json = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(json.error || 'Erreur réseau');
+  return json;
+}
+
+// Fiche employé détaillée (modal premium, onglets Infos + Documents)
 function _openEmployeDetail(id) {
   const e = (window._equipeEmployes || []).find(x => String(x.id) === String(id));
   if (!e) return;
@@ -22324,6 +22359,7 @@ function _openEmployeDetail(id) {
   const nom = esc(e.employe_nom || '—');
   const metier = esc(e.employe_metier || '—');
   const wa = (e.employe_whatsapp || '').replace(/\D/g, '');
+  const aCompte = !!e.employe_user_id || !!e.a_compte;
   const loc = esc([e.employe_quartier, e.employe_ville].filter(Boolean).join(', '));
   const contrat = esc(e.type_contrat || '');
   const salaire = e.salaire_fcfa ? e.salaire_fcfa.toLocaleString('fr-FR') + ' FCFA/mois' : null;
@@ -22337,37 +22373,332 @@ function _openEmployeDetail(id) {
   ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px;';
   ov.onclick = (ev) => { if (ev.target === ov) ov.remove(); };
   ov.innerHTML = `
-    <div style="background:linear-gradient(165deg,#1E180E,#14100A);border:1px solid rgba(232,148,10,.28);border-radius:22px;max-width:440px;width:100%;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.85);">
-      <div style="position:relative;padding:26px 24px 20px;background:radial-gradient(600px 200px at 50% -40%, rgba(232,148,10,.18), transparent 70%);">
+    <div style="background:linear-gradient(165deg,#1E180E,#14100A);border:1px solid rgba(232,148,10,.28);border-radius:22px;max-width:460px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px -30px rgba(0,0,0,.85);">
+      <div style="position:relative;padding:24px 24px 16px;background:radial-gradient(600px 200px at 50% -40%, rgba(232,148,10,.18), transparent 70%);flex-shrink:0;">
         <button onclick="this.closest('.modal-overlay').remove()" style="position:absolute;top:14px;right:14px;background:rgba(252,224,168,.08);border:none;color:#FCE0A8;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
         <div style="display:flex;gap:16px;align-items:center;">
-          <div style="width:72px;height:72px;border-radius:50%;background:rgba(232,148,10,.15);border:2.5px solid rgba(232,148,10,.4);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#E8940A;overflow:hidden;flex-shrink:0;">
+          <div style="width:66px;height:66px;border-radius:50%;background:rgba(232,148,10,.15);border:2.5px solid rgba(232,148,10,.4);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#E8940A;overflow:hidden;flex-shrink:0;">
             ${photo ? `<img src="${encodeURI(photo)}" style="width:100%;height:100%;object-fit:cover;">` : nom[0].toUpperCase()}
           </div>
           <div style="min-width:0;">
-            <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;line-height:1.1;">${nom}</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:21px;color:#FCE0A8;line-height:1.1;">${nom}</div>
             <div style="font-size:13px;color:#E8940A;margin-top:3px;">${metier}</div>
             <span style="display:inline-block;margin-top:7px;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;background:${sc[0]};color:${sc[1]};">${sc[2]}</span>
           </div>
         </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="eq-tab" data-tab="infos" onclick="_eqTab(this,'infos')" style="flex:1;padding:9px;border-radius:10px;border:none;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:1px;font-weight:700;cursor:pointer;text-transform:uppercase;">Infos</button>
+          <button class="eq-tab" data-tab="docs" onclick="_eqTab(this,'docs')" style="flex:1;padding:9px;border-radius:10px;border:1px solid rgba(232,148,10,.25);background:transparent;color:rgba(252,224,168,.6);font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:1px;font-weight:700;cursor:pointer;text-transform:uppercase;">Documents</button>
+        </div>
       </div>
-      <div style="padding:6px 24px 8px;">
-        ${row('Poste occupé', offre)}
-        ${row('Type de contrat', contrat)}
-        ${row('Salaire', salaire ? `<span style="color:#E8940A;">${salaire}</span>` : '')}
-        ${row('Lieu', loc)}
-        ${row('Embauché le', dateEmb)}
+      <div style="overflow-y:auto;flex:1;">
+        <div class="eq-pane" data-pane="infos" style="padding:6px 24px 8px;">
+          ${row('Poste occupé', offre)}
+          ${row('Type de contrat', contrat)}
+          ${row('Salaire', salaire ? `<span style="color:#E8940A;">${salaire}</span>` : '')}
+          ${row('Lieu', loc)}
+          ${row('Embauché le', dateEmb)}
+          ${e.notes ? `<div style="margin-top:12px;padding:12px 14px;background:rgba(232,148,10,.05);border-radius:10px;font-size:12.5px;color:rgba(252,224,168,.7);line-height:1.5;"><strong style="color:#E8940A;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Note privée</strong><br>${esc(e.notes)}</div>` : ''}
+        </div>
+        <div class="eq-pane" data-pane="docs" style="padding:16px 24px 8px;display:none;">
+          <button onclick="_eqUploadPrompt('${e.id}')" style="width:100%;padding:11px;border-radius:12px;border:1.5px dashed rgba(232,148,10,.4);background:rgba(232,148,10,.05);color:#E8940A;font-weight:800;font-size:13px;cursor:pointer;margin-bottom:14px;">+ Ajouter un document</button>
+          <div id="eq-docs-list"><div style="color:rgba(252,224,168,.4);font-size:13px;padding:10px 0;">Chargement…</div></div>
+        </div>
       </div>
-      <div style="padding:14px 24px 22px;display:flex;gap:10px;flex-wrap:wrap;">
-        ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="flex:1;min-width:130px;text-align:center;padding:12px;border-radius:100px;background:#25D366;color:#fff;text-decoration:none;font-weight:800;font-size:13px;">📲 WhatsApp</a>` : ''}
+      <div style="padding:14px 24px 20px;display:flex;gap:10px;flex-wrap:wrap;flex-shrink:0;border-top:1px solid rgba(232,148,10,.1);">
+        ${aCompte
+          ? `<button onclick="_eqOpenChat('${e.id}')" style="flex:1;min-width:130px;padding:12px;border-radius:100px;background:linear-gradient(135deg,#E8940A,#d97706);color:#14100A;border:none;cursor:pointer;font-weight:800;font-size:13px;">💬 Message</button>`
+          : (wa ? `<a href="https://wa.me/${wa}" target="_blank" style="flex:1;min-width:130px;text-align:center;padding:12px;border-radius:100px;background:transparent;border:1px solid rgba(252,224,168,.2);color:#FCE0A8;text-decoration:none;font-weight:700;font-size:13px;">WhatsApp (pas de compte)</a>` : '')}
         ${e.statut === 'actif'
           ? `<button onclick="_updateEquipeStatut('${e.id}','fin_contrat');this.closest('.modal-overlay').remove();" style="flex:1;min-width:130px;padding:12px;border-radius:100px;background:transparent;color:#f87171;border:1px solid rgba(239,68,68,.4);cursor:pointer;font-weight:800;font-size:13px;">Fin de contrat</button>`
-          : `<button onclick="_updateEquipeStatut('${e.id}','actif');this.closest('.modal-overlay').remove();" style="flex:1;min-width:130px;padding:12px;border-radius:100px;background:linear-gradient(135deg,#E8940A,#d97706);color:#14100A;border:none;cursor:pointer;font-weight:800;font-size:13px;">Réactiver</button>`}
+          : `<button onclick="_updateEquipeStatut('${e.id}','actif');this.closest('.modal-overlay').remove();" style="flex:1;min-width:130px;padding:12px;border-radius:100px;background:transparent;color:#E8940A;border:1px solid rgba(232,148,10,.4);cursor:pointer;font-weight:800;font-size:13px;">Réactiver</button>`}
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  window._eqCurrentEmploye = e.id;
+}
+window._openEmployeDetail = _openEmployeDetail;
+
+function _eqTab(btn, tab) {
+  const modal = btn.closest('.modal-overlay');
+  modal.querySelectorAll('.eq-tab').forEach(b => {
+    const on = b.dataset.tab === tab;
+    b.style.background = on ? '#E8940A' : 'transparent';
+    b.style.color = on ? '#14100A' : 'rgba(252,224,168,.6)';
+    b.style.border = on ? 'none' : '1px solid rgba(232,148,10,.25)';
+  });
+  modal.querySelectorAll('.eq-pane').forEach(p => { p.style.display = p.dataset.pane === tab ? '' : 'none'; });
+  if (tab === 'docs') _eqLoadDocs(window._eqCurrentEmploye);
+}
+
+async function _eqLoadDocs(employeId) {
+  const el = document.getElementById('eq-docs-list');
+  if (!el) return;
+  try {
+    const j = await _equipeFetch('equipe-docs', { op: 'list', employe_id: employeId });
+    const docs = j.docs || [];
+    if (!docs.length) {
+      el.innerHTML = `<div style="text-align:center;padding:24px 10px;color:rgba(252,224,168,.5);font-size:12.5px;line-height:1.6;"><div style="width:44px;height:44px;border-radius:50%;background:rgba(232,148,10,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px;">📄</div>Range ici son contrat, sa pièce, ses attestations.<br>Toi et lui seulement y avez accès.</div>`;
+      return;
+    }
+    const icon = { contrat: '📄', piece_identite: '🪪', cv: '📋', diplome: '🎓', fiche_paie: '💶', attestation: '📜', autre: '📎' };
+    const labels = { contrat: 'Contrat', piece_identite: 'Pièce', cv: 'CV', diplome: 'Diplôme', fiche_paie: 'Fiche de paie', attestation: 'Attestation', autre: 'Autre' };
+    el.innerHTML = docs.map(d => {
+      const ko = d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : '';
+      const date = d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+      return `<div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(232,148,10,.08);">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(232,148,10,.12);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${icon[d.type_doc] || '📎'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(d.titre)}</div>
+          <div style="font-size:10.5px;color:rgba(252,224,168,.4);font-family:'Geist Mono',monospace;">${labels[d.type_doc] || 'Doc'} · ${ko} · ${date}${d.visible_employe ? '' : ' · 🔒 privé'}</div>
+        </div>
+        ${d.url ? `<a href="${d.url}" target="_blank" style="padding:6px 12px;border-radius:8px;background:rgba(232,148,10,.12);color:#E8940A;text-decoration:none;font-size:12px;font-weight:700;">Voir</a>` : ''}
+        <button onclick="_eqDeleteDoc('${d.id}','${employeId}')" title="Supprimer" style="background:transparent;border:none;color:rgba(248,113,113,.7);cursor:pointer;font-size:15px;padding:4px;">🗑</button>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    el.innerHTML = `<div style="color:#f87171;font-size:12.5px;padding:10px 0;">${escapeHtml(err.message || 'Erreur')}</div>`;
+  }
+}
+
+function _eqUploadPrompt(employeId) {
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px;';
+  ov.onclick = (ev) => { if (ev.target === ov) ov.remove(); };
+  const inp = 'width:100%;background:#14100A;border:1.5px solid rgba(232,148,10,.25);color:#FCE0A8;border-radius:10px;padding:11px 13px;font-family:Geist,sans-serif;font-size:13px;box-sizing:border-box;';
+  ov.innerHTML = `
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.28);border-radius:20px;max-width:400px;width:100%;padding:24px;">
+      <div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin-bottom:16px;">Ajouter un document</div>
+      <label style="font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;">Type</label>
+      <select id="eq-up-type" style="${inp}margin:4px 0 14px;">
+        <option value="contrat">Contrat</option><option value="piece_identite">Pièce d'identité</option>
+        <option value="cv">CV</option><option value="diplome">Diplôme</option>
+        <option value="attestation">Attestation</option><option value="autre">Autre</option>
+      </select>
+      <label style="font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;">Titre</label>
+      <input id="eq-up-titre" placeholder="Ex : Contrat CDD signé" style="${inp}margin:4px 0 14px;">
+      <label style="font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;">Fichier (PDF ou image, max 10 Mo)</label>
+      <input id="eq-up-file" type="file" accept="application/pdf,image/*" style="${inp}margin:4px 0 12px;">
+      <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(252,224,168,.7);margin-bottom:16px;cursor:pointer;">
+        <input id="eq-up-visible" type="checkbox" checked style="width:auto;accent-color:#E8940A;"> Visible par l'employé
+      </label>
+      <div id="eq-up-status" style="font-size:12px;color:rgba(252,224,168,.5);margin-bottom:10px;display:none;"></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="this.closest('.modal-overlay').remove()" style="flex:1;padding:11px;border-radius:100px;background:transparent;border:1px solid rgba(252,224,168,.2);color:rgba(252,224,168,.6);font-weight:700;cursor:pointer;">Annuler</button>
+        <button id="eq-up-btn" onclick="_eqDoUpload('${employeId}')" style="flex:2;padding:11px;border-radius:100px;background:linear-gradient(135deg,#E8940A,#d97706);color:#14100A;border:none;font-weight:800;cursor:pointer;">Envoyer</button>
       </div>
     </div>`;
   document.body.appendChild(ov);
 }
-window._openEmployeDetail = _openEmployeDetail;
+
+// Compresse une image en WebP (< ~300Ko) ; renvoie le File d'origine si PDF
+async function _eqCompressIfImage(file) {
+  if (file.type === 'application/pdf' || !file.type.startsWith('image/')) return file;
+  try {
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = URL.createObjectURL(file); });
+    const max = 1400; let w = img.width, h = img.height;
+    if (w > max || h > max) { const r = Math.min(max / w, max / h); w = Math.round(w * r); h = Math.round(h * r); }
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    const blob = await new Promise(res => c.toBlob(res, 'image/webp', 0.8));
+    return blob ? new File([blob], file.name.replace(/\.\w+$/, '.webp'), { type: 'image/webp' }) : file;
+  } catch (e) { return file; }
+}
+
+async function _eqDoUpload(employeId) {
+  const btn = document.getElementById('eq-up-btn');
+  const st = document.getElementById('eq-up-status');
+  const fileInp = document.getElementById('eq-up-file');
+  const titre = (document.getElementById('eq-up-titre').value || '').trim();
+  const type = document.getElementById('eq-up-type').value;
+  const visible = document.getElementById('eq-up-visible').checked;
+  const file = fileInp.files[0];
+  const show = (m) => { if (st) { st.style.display = 'block'; st.textContent = m; } };
+  if (!file) return show('Choisis un fichier.');
+  if (!titre) return show('Donne un titre.');
+  if (file.size > 10 * 1024 * 1024) return show('Fichier trop lourd (max 10 Mo).');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi…'; }
+  try {
+    const supa = window.supabase || window.supa;
+    const uid = (await supa.auth.getSession())?.data?.session?.user?.id;
+    if (!uid) throw new Error('Session expirée');
+    show('Préparation du fichier…');
+    const finalFile = await _eqCompressIfImage(file);
+    const ext = (finalFile.name.split('.').pop() || 'bin').toLowerCase();
+    const rand = (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.round(Math.random() * 1e6));
+    const path = `${uid}/${employeId}/${rand}.${ext}`;
+    show('Envoi…');
+    const { error: upErr } = await supa.storage.from('wozali-docs-equipe').upload(path, finalFile, { contentType: finalFile.type, upsert: false });
+    if (upErr) throw new Error(upErr.message);
+    await _equipeFetch('equipe-docs', { op: 'create', employe_id: employeId, type_doc: type, titre, storage_path: path, mime_type: finalFile.type, taille_octets: finalFile.size, visible_employe: visible });
+    toast('Document ajouté', 'success');
+    document.querySelectorAll('.modal-overlay')[document.querySelectorAll('.modal-overlay').length - 1].remove();
+    _eqLoadDocs(employeId);
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer'; }
+    show(err.message || 'Échec de l\'envoi.');
+  }
+}
+
+async function _eqDeleteDoc(docId, employeId) {
+  if (!confirm('Supprimer ce document ?')) return;
+  try { await _equipeFetch('equipe-docs', { op: 'delete', doc_id: docId }); toast('Document supprimé', 'success'); _eqLoadDocs(employeId); }
+  catch (e) { toast('Échec de la suppression', 'error'); }
+}
+window._eqTab = _eqTab; window._eqLoadDocs = _eqLoadDocs; window._eqUploadPrompt = _eqUploadPrompt;
+window._eqDoUpload = _eqDoUpload; window._eqDeleteDoc = _eqDeleteDoc;
+
+// ── Messagerie interne équipe (panneau conversation) ──
+function _eqOpenChat(employeId) {
+  const e = (window._equipeEmployes || []).find(x => String(x.id) === String(employeId)) || {};
+  const nom = escapeHtml(e.employe_nom || 'Employé');
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay eq-chat-ov';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100001;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center;';
+  ov.onclick = (ev) => { if (ev.target === ov) { _eqStopPoll(); ov.remove(); } };
+  ov.innerHTML = `
+    <div style="background:#14100A;border:1px solid rgba(232,148,10,.25);border-radius:22px 22px 0 0;max-width:560px;width:100%;height:82vh;display:flex;flex-direction:column;box-shadow:0 -20px 60px rgba(0,0,0,.6);">
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(232,148,10,.15);display:flex;align-items:center;gap:12px;flex-shrink:0;">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(232,148,10,.15);border:2px solid rgba(232,148,10,.35);display:flex;align-items:center;justify-content:center;color:#E8940A;font-weight:900;">${(e.employe_nom || '?')[0].toUpperCase()}</div>
+        <div style="flex:1;"><div style="font-weight:800;color:#FCE0A8;font-size:15px;">${nom}</div><div style="font-size:11px;color:rgba(252,224,168,.4);">Messagerie équipe · privée</div></div>
+        <button onclick="_eqStopPoll();this.closest('.modal-overlay').remove()" style="background:rgba(252,224,168,.08);border:none;color:#FCE0A8;width:32px;height:32px;border-radius:50%;cursor:pointer;">✕</button>
+      </div>
+      <div id="eq-chat-msgs" style="flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;"><div style="text-align:center;color:rgba(252,224,168,.4);font-size:13px;">Chargement…</div></div>
+      <div style="padding:12px 16px;border-top:1px solid rgba(232,148,10,.15);display:flex;gap:8px;flex-shrink:0;">
+        <input id="eq-chat-input" placeholder="Écris à ${nom}…" onkeydown="if(event.key==='Enter')_eqSendMsg('${employeId}')" style="flex:1;background:#1E180E;border:1px solid rgba(232,148,10,.25);color:#FCE0A8;border-radius:100px;padding:11px 16px;font-family:Geist,sans-serif;font-size:14px;">
+        <button onclick="_eqSendMsg('${employeId}')" style="background:linear-gradient(135deg,#E8940A,#d97706);color:#14100A;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;flex-shrink:0;">➤</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  _eqLoadMsgs(employeId);
+  _eqStartPoll(employeId);
+}
+async function _eqLoadMsgs(employeId) {
+  try {
+    const j = await _equipeFetch('equipe-messages', { op: 'messages', employe_id: employeId });
+    _eqRenderMsgs(j.messages || [], j.as_recruteur);
+  } catch (e) {
+    const box = document.getElementById('eq-chat-msgs');
+    if (box) box.innerHTML = `<div style="text-align:center;color:#f87171;font-size:13px;">${escapeHtml(e.message || 'Erreur')}</div>`;
+  }
+}
+function _eqRenderMsgs(msgs, asRecruteur) {
+  const box = document.getElementById('eq-chat-msgs');
+  if (!box) return;
+  if (!msgs.length) { box.innerHTML = `<div style="text-align:center;color:rgba(252,224,168,.4);font-size:13px;padding:20px;">Aucun message. Écris le premier.</div>`; return; }
+  box.innerHTML = msgs.map(m => {
+    if (m.sender_role === 'annonce') return `<div style="align-self:stretch;border-left:3px solid #E8940A;background:rgba(232,148,10,.07);border-radius:0 12px 12px 0;padding:10px 14px;"><div style="font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:#E8940A;margin-bottom:4px;">ANNONCE ÉQUIPE</div><div style="font-size:13px;color:#FCE0A8;line-height:1.5;">${escapeHtml(m.content)}</div></div>`;
+    if (m.sender_role === 'systeme') return `<div style="align-self:center;font-size:11px;color:rgba(252,224,168,.4);text-align:center;">${escapeHtml(m.content)}</div>`;
+    const mine = (m.sender_role === 'recruteur') === !!asRecruteur;
+    return `<div style="align-self:${mine ? 'flex-end' : 'flex-start'};max-width:80%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.45;${mine ? 'background:rgba(232,148,10,.16);border:1px solid rgba(232,148,10,.25);color:#FCE0A8;' : 'background:#1E180E;border:1px solid rgba(252,224,168,.08);color:#FCE0A8;'}">${escapeHtml(m.content)}</div>`;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+async function _eqSendMsg(employeId) {
+  const inp = document.getElementById('eq-chat-input');
+  const content = (inp?.value || '').trim();
+  if (!content) return;
+  inp.value = '';
+  try { await _equipeFetch('equipe-messages', { op: 'send', employe_id: employeId, content }); _eqLoadMsgs(employeId); }
+  catch (e) { toast(e.message || 'Envoi échoué', 'error'); if (inp) inp.value = content; }
+}
+let _eqPollTimer = null;
+function _eqStartPoll(employeId) { _eqStopPoll(); _eqPollTimer = setInterval(() => { if (document.querySelector('.eq-chat-ov')) _eqLoadMsgs(employeId); else _eqStopPoll(); }, 8000); }
+function _eqStopPoll() { if (_eqPollTimer) { clearInterval(_eqPollTimer); _eqPollTimer = null; } }
+window._eqOpenChat = _eqOpenChat; window._eqSendMsg = _eqSendMsg;
+
+// ── Annonce à toute l'équipe (broadcast) ──
+async function equipeBroadcast() {
+  const content = prompt('Annonce à toute ton équipe active :');
+  if (!content || !content.trim()) return;
+  try { const j = await _equipeFetch('equipe-messages', { op: 'broadcast', content: content.trim() }); toast(`Annonce envoyée à ${j.envoyes} membre${j.envoyes > 1 ? 's' : ''}`, 'success'); }
+  catch (e) { toast(e.message || 'Échec', 'error'); }
+}
+window.equipeBroadcast = equipeBroadcast;
+
+// ── Espace employé (mode dual) ──
+async function _employeFetchGet(qs) {
+  const jwt = (await (window.supabase || window.supa)?.auth?.getSession())?.data?.session?.access_token;
+  const resp = await fetch('/api/wozali-pay/employe-list?' + qs, { headers: jwt ? { 'Authorization': `Bearer ${jwt}` } : {} });
+  const json = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(json.error || 'Erreur');
+  return json;
+}
+
+// Révèle le lien "Mon travail" si l'utilisateur est employé quelque part
+async function _revealMonTravailIfEmploye() {
+  try {
+    const j = await _employeFetchGet('role=employe&statut=all');
+    const has = (j.employes || []).length > 0;
+    const link = document.getElementById('dl-mon-travail');
+    if (link) link.style.display = has ? '' : 'none';
+    window._mesContratsEmploye = j.employes || [];
+  } catch (e) {}
+}
+window._revealMonTravailIfEmploye = _revealMonTravailIfEmploye;
+
+async function loadMonTravail() {
+  const box = document.getElementById('mon-travail-content');
+  if (!box) return;
+  box.innerHTML = '<div style="color:rgba(252,224,168,.4);font-size:13px;padding:20px;">Chargement…</div>';
+  try {
+    const j = await _employeFetchGet('role=employe&statut=all');
+    const contrats = j.employes || [];
+    window._equipeEmployes = contrats; // pour que _eqOpenChat retrouve la fiche
+    if (!contrats.length) {
+      box.innerHTML = `<div style="text-align:center;padding:48px 20px;"><div style="font-size:40px;margin-bottom:12px;">💼</div><div style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin-bottom:8px;">Pas encore d'employeur</div><div style="font-size:13px;color:rgba(252,224,168,.5);">Quand une entreprise t'embauche via WOZALI, ton espace employé apparaît ici.</div></div>`;
+      return;
+    }
+    const sc = { actif: ['rgba(232,148,10,.14)', '#E8940A', 'En poste'], fin_contrat: ['rgba(239,68,68,.12)', '#f87171', 'Terminé'], suspendu: ['rgba(234,179,8,.12)', '#fbbf24', 'Suspendu'] };
+    box.innerHTML = contrats.map(e => {
+      const s = sc[e.statut] || sc.actif;
+      const salaire = e.salaire_fcfa ? e.salaire_fcfa.toLocaleString('fr-FR') + ' FCFA/mois' : '—';
+      const dateEmb = e.date_embauche ? new Date(e.date_embauche).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+      const unread = e.unread_messages || 0;
+      const rowl = (l, v) => `<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(232,148,10,.08);"><span style="font-size:12px;color:rgba(252,224,168,.5);">${l}</span><span style="font-size:13px;color:#FCE0A8;font-weight:600;">${v}</span></div>`;
+      return `<div style="background:linear-gradient(165deg,#1E180E,#14100A);border:1px solid rgba(232,148,10,.2);border-radius:18px;padding:20px 22px;margin-bottom:16px;max-width:520px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;">
+          <div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(252,224,168,.4);text-transform:uppercase;">Ton poste</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;margin-top:3px;">${escapeHtml(e.offre_titre || e.employe_metier || 'Poste')}</div></div>
+          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:${s[0]};color:${s[1]};white-space:nowrap;">${s[2]}</span>
+        </div>
+        ${rowl('Type de contrat', escapeHtml(e.type_contrat || '—'))}
+        ${rowl('Salaire', `<span style="color:#E8940A;">${salaire}</span>`)}
+        ${rowl('Depuis le', dateEmb)}
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button onclick="_eqOpenChat('${e.id}')" style="flex:1;min-width:140px;padding:11px;border-radius:100px;background:linear-gradient(135deg,#E8940A,#d97706);color:#14100A;border:none;cursor:pointer;font-weight:800;font-size:13px;position:relative;">💬 Écrire à mon employeur${unread > 0 ? ` <span style="background:#14100A;color:#E8940A;border-radius:100px;padding:0 6px;font-size:10px;">${unread}</span>` : ''}</button>
+          <button onclick="_eqEmployeDocs('${e.id}',this)" style="flex:1;min-width:120px;padding:11px;border-radius:100px;background:transparent;border:1px solid rgba(232,148,10,.35);color:#E8940A;cursor:pointer;font-weight:800;font-size:13px;">📄 Mes documents</button>
+        </div>
+        <div id="emp-docs-${e.id}" style="display:none;margin-top:14px;"></div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = `<div style="color:#f87171;font-size:13px;padding:20px;">${escapeHtml(e.message || 'Erreur')}</div>`;
+  }
+}
+window.loadMonTravail = loadMonTravail;
+
+// Documents côté employé (lecture seule, docs visibles uniquement)
+async function _eqEmployeDocs(employeId, btn) {
+  const box = document.getElementById('emp-docs-' + employeId);
+  if (!box) return;
+  if (box.style.display === 'block') { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = '<div style="color:rgba(252,224,168,.4);font-size:12.5px;padding:8px 0;">Chargement…</div>';
+  try {
+    const j = await _equipeFetch('equipe-docs', { op: 'list', employe_id: employeId });
+    const docs = j.docs || [];
+    if (!docs.length) { box.innerHTML = '<div style="color:rgba(252,224,168,.4);font-size:12.5px;padding:8px 0;">Aucun document partagé pour l\'instant.</div>'; return; }
+    const icon = { contrat: '📄', piece_identite: '🪪', cv: '📋', diplome: '🎓', fiche_paie: '💶', attestation: '📜', autre: '📎' };
+    box.innerHTML = docs.map(d => `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(232,148,10,.08);">
+      <span style="font-size:16px;">${icon[d.type_doc] || '📎'}</span>
+      <span style="flex:1;font-size:12.5px;color:#FCE0A8;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(d.titre)}</span>
+      ${d.url ? `<a href="${d.url}" target="_blank" style="padding:5px 11px;border-radius:8px;background:rgba(232,148,10,.12);color:#E8940A;text-decoration:none;font-size:11.5px;font-weight:700;">Voir</a>` : ''}
+    </div>`).join('');
+  } catch (e) { box.innerHTML = `<div style="color:#f87171;font-size:12.5px;padding:8px 0;">${escapeHtml(e.message || 'Erreur')}</div>`; }
+}
+window._eqEmployeDocs = _eqEmployeDocs;
 
 function filterEquipe(statut) {
   _equipeStatutFilter = statut;
@@ -22376,7 +22707,7 @@ function filterEquipe(statut) {
 }
 
 function _updateEquipeFilterBtns() {
-  ['actif','fin_contrat','all'].forEach(s => {
+  ['actif','suspendu','fin_contrat','all'].forEach(s => {
     const btn = document.getElementById(`eq-filter-${s}`);
     if (!btn) return;
     const active = s === _equipeStatutFilter;

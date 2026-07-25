@@ -66,8 +66,25 @@ export default async function handler(req, res) {
     .single();
 
   if (error) {
+    // Anti-doublon : index unique sur candidature_id (fiche active déjà existante)
+    const msg = String(error.message || error.code || '');
+    if (msg.includes('23505') || msg.toLowerCase().includes('duplicate') || msg.includes('uniq_employe_candidature')) {
+      return res.status(409).json({ error: 'Ce candidat est déjà dans ton équipe.' });
+    }
     console.error('[employe-create]', error);
     return res.status(500).json({ error: error.message });
+  }
+
+  // Notifier l'employé qu'il a été embauché (s'il a un compte WOZALI)
+  if (data.employe_user_id) {
+    try {
+      const { pushNotification } = await import('../../_lib/notifications.js');
+      pushNotification(data.employe_user_id, 'equipe_embauche', {
+        titre: 'Tu as été embauché 🎉',
+        message: `Ta fiche est dans ton espace WOZALI${data.offre_titre ? ' pour le poste : ' + data.offre_titre : ''}.`,
+        employe_id: data.id,
+      }, { push: true, pushTitle: 'WOZALI', pushBody: 'Tu as été embauché, ta fiche est prête.' });
+    } catch (e) {}
   }
 
   return res.status(201).json({ ok: true, employe: data });

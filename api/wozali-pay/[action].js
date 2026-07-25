@@ -109,6 +109,8 @@ import avisDelete from './_impl/avis-delete.js';
 import employeCreate from './_impl/employe-create.js';
 import employeList   from './_impl/employe-list.js';
 import employeUpdate from './_impl/employe-update.js';
+import equipeDocs     from './_impl/equipe-docs.js';
+import equipeMessages from './_impl/equipe-messages.js';
 
 const PUBLIC_ACTIONS = new Set([
   'temoignage-list',           // lecture publique (texte + mois seulement) ; admin via Bearer optionnel
@@ -260,6 +262,8 @@ const handlers = {
   'employe-create': employeCreate,
   'employe-list':   employeList,
   'employe-update': employeUpdate,
+  'equipe-docs':     equipeDocs,
+  'equipe-messages': equipeMessages,
 };
 
 export default async function handler(req, res) {

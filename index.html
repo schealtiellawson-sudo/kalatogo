@@ -2595,6 +2595,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('emploi-candidatures')" id="dl-emploi-candidatures">
             <i data-lucide="clipboard-list"></i> <span>Mes candidatures</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('mon-travail')" id="dl-mon-travail" style="display:none;">
+            <i data-lucide="briefcase"></i> <span>Mon travail</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('favoris')" id="dl-favoris">
             <i data-lucide="heart"></i> <span>Mes favoris</span>
           </button>
@@ -6745,14 +6748,34 @@ setTimeout(function(){
      MON ÉQUIPE — Sprint K (2026-05-23)
 ════════════════════════════════════════════════════════ -->
 <div class="dash-section" id="ds-mon-equipe">
-  <div class="dash-header" style="margin-bottom:24px;">
-    <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin:0 0 6px;">Mon équipe</h2>
-    <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin:0;">Les personnes que tu as embauchées via WOZALI Jobs.</p>
+  <div class="dash-header" style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+    <div>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin:0 0 6px;">Mon équipe</h2>
+      <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin:0;">Les personnes que tu as embauchées via WOZALI Jobs.</p>
+    </div>
+    <button id="eq-broadcast-btn" onclick="equipeBroadcast()" style="display:none;padding:10px 16px;border-radius:100px;background:rgba(232,148,10,.14);color:#E8940A;border:1px solid rgba(232,148,10,.35);cursor:pointer;font-family:Geist,sans-serif;font-size:12.5px;font-weight:800;white-space:nowrap;">📣 Annonce équipe</button>
+  </div>
+
+  <!-- KPI équipe -->
+  <div id="equipe-kpi" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px 16px;">
+      <div id="eq-kpi-actifs" style="font-family:'Geist Mono',monospace;font-size:24px;font-weight:800;color:#E8940A;">0</div>
+      <div style="font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Actifs</div>
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px 16px;">
+      <div id="eq-kpi-masse" style="font-family:'Geist Mono',monospace;font-size:20px;font-weight:800;color:#FCE0A8;">0</div>
+      <div style="font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">FCFA/mois</div>
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px 16px;">
+      <div id="eq-kpi-recent" style="font-family:'Geist Mono',monospace;font-size:24px;font-weight:800;color:#FCE0A8;">0</div>
+      <div style="font-size:11px;color:rgba(252,224,168,.5);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Embauches 30j</div>
+    </div>
   </div>
 
   <!-- Filtres statut -->
   <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
     <button onclick="filterEquipe('actif')" id="eq-filter-actif" style="padding:7px 16px;border-radius:20px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;background:#E8940A;color:#14100A;border:none;cursor:pointer;">Actifs</button>
+    <button onclick="filterEquipe('suspendu')" id="eq-filter-suspendu" style="padding:7px 16px;border-radius:20px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;background:rgba(252,224,168,.08);color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.15);cursor:pointer;">Suspendus</button>
     <button onclick="filterEquipe('fin_contrat')" id="eq-filter-fin_contrat" style="padding:7px 16px;border-radius:20px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;background:rgba(252,224,168,.08);color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.15);cursor:pointer;">Fin de contrat</button>
     <button onclick="filterEquipe('all')" id="eq-filter-all" style="padding:7px 16px;border-radius:20px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;background:rgba(252,224,168,.08);color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.15);cursor:pointer;">Tous</button>
   </div>
@@ -6762,6 +6785,15 @@ setTimeout(function(){
 
   <!-- Grille employés -->
   <div id="equipe-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"></div>
+</div>
+
+<!-- ESPACE EMPLOYÉ (mode dual) -->
+<div class="dash-section" id="ds-mon-travail">
+  <div class="dash-header" style="margin-bottom:20px;">
+    <h2 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:700;color:#FCE0A8;margin:0 0 6px;">Mon travail</h2>
+    <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin:0;">Ton espace employé : tes contrats, tes documents, tes échanges avec ton employeur.</p>
+  </div>
+  <div id="mon-travail-content"><div style="color:rgba(252,224,168,.4);font-size:13px;padding:20px;">Chargement…</div></div>
 </div>
 
 <!-- PANEL DROIT DESKTOP (Direction C) — visible uniquement >= 1280px -->
@@ -6812,7 +6844,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260724o" defer></script>
+<script src="/app.js?v=20260725a" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
