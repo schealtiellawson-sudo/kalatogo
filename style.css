@@ -8736,6 +8736,36 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 }
 
 /* ═══════════════════════════════════════════════════════
+   FEED FIL — format Instagram premium (Nuit WOZALI)
+═══════════════════════════════════════════════════════ */
+#fil-feed { max-width: 470px !important; }
+#page-fil .wzp {
+  background:#1A140B; border:1px solid rgba(232,148,10,.13); border-radius:16px;
+  margin:0 auto 20px; overflow:hidden;
+}
+#page-fil .wzp-head { display:flex; align-items:center; gap:11px; padding:12px 14px 11px; }
+#page-fil .wzp-av {
+  width:44px; height:44px; border-radius:50%; overflow:hidden; flex-shrink:0;
+  background:#1A1208; display:flex; align-items:center; justify-content:center;
+  color:#E8940A; font-weight:900; font-size:16px;
+  border:2px solid #14100A; box-shadow:0 0 0 2px rgba(232,148,10,.45);
+}
+#page-fil .wzp-name { font-size:14px; font-weight:700; color:#FCE0A8; display:flex; align-items:center; gap:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#page-fil .wzp-dot { width:8px; height:8px; border-radius:50%; background:#E8940A; display:inline-block; flex-shrink:0; }
+#page-fil .wzp-sub { font-size:11.5px; color:rgba(252,224,168,.42); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px; }
+#page-fil .wzp-time { font-size:11px; color:rgba(252,224,168,.35); font-family:'Geist Mono',monospace; flex-shrink:0; }
+#page-fil .wzp-media { width:100%; aspect-ratio:4/5; object-fit:cover; display:block; background:#1A1208; cursor:pointer; }
+#page-fil .wzp-text { padding:2px 16px 14px; font-size:15px; line-height:1.55; color:#FCE0A8; }
+#page-fil .wzp-cap { padding:2px 16px 6px; font-size:13.5px; line-height:1.5; color:rgba(252,224,168,.85); }
+#page-fil .wzp-cap .wzp-capn { font-weight:700; color:#FCE0A8; }
+#page-fil .wzp-coms { padding:0 16px 12px; font-size:12.5px; color:rgba(252,224,168,.4); cursor:pointer; }
+#page-fil .wzp .wz-fil-actions { padding:8px 12px 8px !important; gap:6px !important; }
+@media (max-width:640px){
+  #fil-feed { max-width:100% !important; }
+  #page-fil .wzp { border-radius:0; border-left:none; border-right:none; border-top:none; margin-bottom:0; border-bottom:1px solid rgba(255,255,255,.05); }
+}
+
+/* ═══════════════════════════════════════════════════════
    PHASE AUTH PREMIUM — inscription / connexion / mdp
    Fond ambiance or + carte vitrine, niveau premium WOZALI
 ═══════════════════════════════════════════════════════ */

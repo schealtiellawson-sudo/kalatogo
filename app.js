@@ -8673,26 +8673,36 @@ function _renderFilPostCard(post, pr, hasLiked, myReaction, original) {
   // Sur un repost : mon propre contenu = le commentaire optionnel + l'original imbriqué
   const estMien = !!(currentUser && post.auteur_id === currentUser.id);
   const peutRepartager = !!(currentUser && !isRepost && !estMien);
-  return `<div style="border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:4px;">
-    ${isRepost ? `<div style="display:flex;align-items:center;gap:6px;padding:9px 14px 2px;font-size:11px;color:rgba(252,224,168,0.45);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> ${nom} a partagé</div>` : ''}
-    <div style="display:flex;align-items:center;gap:10px;padding:${isRepost ? '4px' : '11px'} 14px 8px;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
-      <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;overflow:hidden;border:1.5px solid rgba(232,148,10,0.28);background:#1A1208;display:flex;align-items:center;justify-content:center;font-weight:900;color:#E8940A;font-size:14px;">
-        ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : initiale}
+  const nbComs = ((window._filComments || {})[post.id] || []).length;
+  const dot = score >= 80 ? '<span class="wzp-dot"></span>' : '';
+  const avatar = `<div class="wzp-av" onclick="showProfil('${prestId}');showPage('profil');" style="cursor:pointer;">${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : initiale}</div>`;
+  const header = `<div class="wzp-head">
+      ${avatar}
+      <div style="flex:1;min-width:0;cursor:pointer;" onclick="showProfil('${prestId}');showPage('profil');">
+        <div class="wzp-name">${nom}${dot}</div>
+        <div class="wzp-sub">${metier}${quartier ? ' · ' + quartier : ''}</div>
       </div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:12.5px;font-weight:700;color:#FCE0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nom}${score>=80?' <span style="display:inline-block;width:9px;height:9px;background:#E8940A;border-radius:50%;vertical-align:middle;margin-left:3px;"></span>':''}</div>
-        <div style="font-size:10px;color:rgba(252,224,168,0.32);">${metier}${quartier?' · '+quartier:''}${depuis?' · '+depuis:''}</div>
-      </div>
-    </div>
-    ${contenu ? `<div style="padding:0 14px 10px;font-size:13px;color:rgba(252,224,168,0.8);line-height:1.65;">${contenu}</div>` : ''}
-    ${isRepost ? _renderOriginalInline(original) : (mediaUrl ? `<div style="overflow:hidden;background:#1A1208;"><img src="${mediaUrl}" style="width:100%;max-height:400px;object-fit:cover;display:block;cursor:pointer;" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');"></div>` : '')}
-    ${!isRepost && (score>0||quartier) ? `<div style="padding:6px 14px 2px;display:flex;gap:6px;flex-wrap:wrap;">
-      ${score>=70 ? `<span style="font-size:9px;font-weight:800;color:#E8940A;background:rgba(232,148,10,0.1);border:1px solid rgba(232,148,10,0.22);border-radius:20px;padding:2px 8px;">Score ${score}</span>` : ''}
-      ${quartier ? `<span style="font-size:9px;color:rgba(252,224,168,0.32);background:rgba(255,255,255,0.04);border-radius:20px;padding:2px 8px;">📍 ${quartier}</span>` : ''}
-    </div>` : ''}
+      ${depuis ? `<div class="wzp-time">${depuis}</div>` : ''}
+    </div>`;
+  // Corps : repost imbriqué, sinon média (photo), sinon texte seul (façon Threads)
+  const body = isRepost
+    ? _renderOriginalInline(original)
+    : (mediaUrl
+        ? `<img class="wzp-media" src="${mediaUrl}" loading="lazy" onclick="showProfil('${prestId}');showPage('profil');">`
+        : (contenu ? `<div class="wzp-text">${contenu}</div>` : ''));
+  // Légende sous la photo (seulement si média + texte)
+  const caption = (mediaUrl && contenu && !isRepost) ? `<div class="wzp-cap"><span class="wzp-capn">${nom}</span> ${contenu}</div>` : '';
+  const comsLink = nbComs > 0 ? `<div class="wzp-coms" onclick="wzToggleFilComments('${post.id}')">Voir les ${nbComs} commentaire${nbComs > 1 ? 's' : ''}</div>` : '';
+  const repostTag = isRepost ? `<div style="display:flex;align-items:center;gap:6px;padding:10px 14px 0;font-size:11px;color:rgba(252,224,168,0.45);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#E8940A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> ${nom} a partagé</div>` : '';
+  return `<article class="wzp">
+    ${repostTag}
+    ${header}
+    ${body}
     ${_wzFilActions(post, likes, myReaction, peutRepartager, prestId, !!(window._filSaved && window._filSaved.has(post.id)))}
-    <div class="wz-fil-comments" id="wz-fil-comments-${post.id}" style="display:none;padding:0 14px 12px;"></div>
-  </div>`;
+    ${caption}
+    ${comsLink}
+    <div class="wz-fil-comments" id="wz-fil-comments-${post.id}" style="display:none;padding:0 16px 12px;"></div>
+  </article>`;
 }
 
 // ── Posts enregistrés (signet façon Insta/TikTok) ──
@@ -9059,7 +9069,7 @@ function _wzFilActions(post, likes, myReaction, peutRepartager, prestId, isSaved
 function _wzRenderFilComments(postId) {
   const box = document.getElementById(`wz-fil-comments-${postId}`);
   if (!box) return;
-  const coms = (window._filComments || {})[postId] || [];
+  const coms = ((window._filComments || {})[postId] || []).filter(c => c && ((c.auteur || '').trim() || (c.texte || '').trim()));
   const list = coms.length
     ? coms.map(c => {
         const ini = (c.auteur || '?').charAt(0).toUpperCase();
