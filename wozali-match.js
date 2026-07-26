@@ -399,7 +399,7 @@
     if (container) container.style.display = 'block';
     if (count) count.textContent = '';
     if (liste) liste.innerHTML = _wzmSkeletonHtml(3);
-    _wzmBtnLoading('wzm-cta-travail', true, 'Recherche en cours...', 'Voir les demandes qui me correspondent');
+    _wzmBtnLoading('wzm-cta-travail', true, 'Recherche en cours...', 'Voir les opportunités pour moi');
 
     try {
       var famille = _wzmFamilleDe(metier);
@@ -431,15 +431,6 @@
       demandes.sort(function(a, b) { return (b._wzmScore - a._wzmScore) || (new Date(b.created_at) - new Date(a.created_at)); });
       demandes = demandes.slice(0, 20);
 
-      if (!demandes.length) {
-        if (liste) liste.innerHTML = _wzmEmptyHtml(
-          'Pas encore de demande pour toi',
-          'Aucun client ne cherche un ' + escapeHtml(metier) + (ville ? ' à ' + escapeHtml(ville) : '') + ' en ce moment. Complète ton profil : dès qu\'une demande tombe, tu remontes en premier.',
-          '<button class="wzm-btn-plein" style="flex:none;padding:10px 20px;" onclick="showPage(\'dashboard\')">Compléter mon profil</button>'
-        );
-        return;
-      }
-
       var clientIds = demandes.map(function(d) { return d.client_id; }).filter(Boolean)
         .filter(function(v, i, arr) { return arr.indexOf(v) === i; });
       var clientMap = {};
@@ -448,34 +439,112 @@
         ((rc && rc.data) || []).forEach(function(c) { clientMap[c.user_id] = c; });
       }
 
-      if (count) count.innerHTML = '<b>' + demandes.length + '</b> demande' + (demandes.length > 1 ? 's' : '') + ' ouverte' + (demandes.length > 1 ? 's' : '') + ' · triées par pertinence';
-      if (liste) liste.innerHTML = demandes.map(function(d) {
-        var client = clientMap[d.client_id] || {};
-        var nomClient = client.nom_complet || 'Client';
-        var chips = [];
-        if (_wzmNorm(d.metier_recherche) === nMetier) chips.push({ label: 'Métier exact', fort: true });
-        else chips.push({ label: 'Ta famille de métier', fort: false });
-        if (ville && _wzmNorm(d.ville) === _wzmNorm(ville)) chips.push({ label: 'Ta ville', fort: true });
-        var ageH = (Date.now() - new Date(d.created_at).getTime()) / 36e5;
-        if (ageH <= 24) chips.push({ label: 'Publiée aujourd\'hui', fort: false });
+      // Chaque mission devient un item unifié
+      var items = demandes.map(function(d) {
+        return { type: 'mission', score: d._wzmScore, created: d.created_at, data: d };
+      });
+
+      // ── FUSION : ajouter les offres d'emploi WOZALI Jobs correspondantes ──
+      try {
+        if (typeof window.wzFetchOffres === 'function') {
+          var offres = await window.wzFetchOffres();
+          (offres || []).forEach(function(o) {
+            var f = o.fields || {};
+            if (f['Active'] === false) return;
+            var mOff = _wzmNorm(f['Métier'] || f['Titre'] || '');
+            var famOff = _wzmFamilleDe(f['Métier'] || f['Titre'] || '');
+            var matchMetier = (mOff === nMetier) || (famille && famOff && famille.id === famOff.id) ||
+              (mOff && nMetier && (mOff.indexOf(nMetier) !== -1 || nMetier.indexOf(mOff) !== -1));
+            if (!matchMetier) return;
+            var s = (mOff === nMetier) ? 50 : 25;
+            if (ville && _wzmNorm(f['Ville']) === _wzmNorm(ville)) s += 30; else if (!ville) s += 15;
+            var created = f['Créée le'] || f['created_at'] || null;
+            var ageHo = created ? (Date.now() - new Date(created).getTime()) / 36e5 : 999;
+            if (ageHo <= 24) s += 15; else if (ageHo <= 72) s += 8;
+            if (f['Urgente']) s += 6;
+            items.push({ type: 'emploi', score: s, created: created, data: o });
+          });
+        }
+      } catch (eOff) { console.warn('[wzm offres]', eOff); }
+
+      items.sort(function(a, b) { return (b.score - a.score) || (new Date(b.created || 0) - new Date(a.created || 0)); });
+      items = items.slice(0, 24);
+
+      if (!items.length) {
+        if (liste) liste.innerHTML = _wzmEmptyHtml(
+          'Pas encore d\'opportunité pour toi',
+          'Aucune mission ni offre en ' + escapeHtml(metier) + (ville ? ' à ' + escapeHtml(ville) : '') + ' en ce moment. Complète ton profil : dès qu\'une opportunité tombe, tu remontes en premier.',
+          '<button class="wzm-btn-plein" style="flex:none;padding:10px 20px;" onclick="showPage(\'dashboard\')">Compléter mon profil</button>'
+        );
+        return;
+      }
+
+      var nbEmploi = items.filter(function(i) { return i.type === 'emploi'; }).length;
+      var nbMission = items.length - nbEmploi;
+      var lbl = [];
+      if (nbMission) lbl.push('<b>' + nbMission + '</b> mission' + (nbMission > 1 ? 's' : ''));
+      if (nbEmploi) lbl.push('<b>' + nbEmploi + '</b> offre' + (nbEmploi > 1 ? 's' : '') + ' d\'emploi');
+      if (count) count.innerHTML = lbl.join(' · ') + ' · triées par pertinence';
+
+      if (liste) liste.innerHTML = items.map(function(it) {
+        if (it.type === 'mission') {
+          var d = it.data;
+          var client = clientMap[d.client_id] || {};
+          var nomClient = client.nom_complet || 'Client';
+          var chips = [];
+          if (_wzmNorm(d.metier_recherche) === nMetier) chips.push({ label: 'Métier exact', fort: true });
+          else chips.push({ label: 'Ta famille de métier', fort: false });
+          if (ville && _wzmNorm(d.ville) === _wzmNorm(ville)) chips.push({ label: 'Ta ville', fort: true });
+          var ageH = (Date.now() - new Date(d.created_at).getTime()) / 36e5;
+          if (ageH <= 24) chips.push({ label: 'Publiée aujourd\'hui', fort: false });
+          return '<div class="wzm-card">' +
+            '<div class="wzm-card-top">' +
+              _wzmAvatarHtml(client.photo_profil || '', nomClient, false) +
+              '<div class="wzm-card-id">' +
+                '<div class="wzm-card-nom">' + escapeHtml(nomClient) + '</div>' +
+                '<div class="wzm-card-meta">' + getDateRelative(d.created_at) + '</div>' +
+              '</div>' +
+              '<span class="wzm-type wzm-type-mission">Mission</span>' +
+            '</div>' +
+            '<p class="wzm-dem-desc">' + escapeHtml(d.description) + '</p>' +
+            '<div class="wzm-dem-meta">' +
+              '<span><b>' + escapeHtml(d.metier_recherche) + '</b></span>' +
+              (d.ville ? '<span>' + escapeHtml(d.ville) + '</span>' : '') +
+              (d.budget_max ? '<span>Budget max <b>' + Number(d.budget_max).toLocaleString('fr-FR') + ' FCFA</b></span>' : '') +
+            '</div>' +
+            _wzmChipsHtml(chips.slice(0, 3)) +
+            '<div class="wzm-card-actions">' +
+              '<button class="wzm-btn-plein" onclick="contacterAuteur(\'' + escapeHtml(d.client_id || '') + '\')">Répondre au client</button>' +
+            '</div>' +
+          '</div>';
+        }
+        // ── Offre d'emploi WOZALI Jobs ──
+        var o = it.data, f = o.fields || {};
+        var recNom = f['Recruteur Nom'] || 'Recruteur';
+        var contrat = f['Type de contrat'] || '';
+        var lieu = [f['Quartier'], f['Ville']].filter(Boolean).map(escapeHtml).join(', ');
+        var sal = (f['Salaire affiché'] && f['Salaire min FCFA'])
+          ? Number(f['Salaire min FCFA']).toLocaleString('fr-FR') + (f['Salaire max FCFA'] ? ' à ' + Number(f['Salaire max FCFA']).toLocaleString('fr-FR') : '') + ' FCFA'
+          : '';
+        var chipsO = [];
+        if (_wzmNorm(f['Métier'] || '') === nMetier) chipsO.push({ label: 'Métier exact', fort: true });
+        else chipsO.push({ label: 'Ta famille de métier', fort: false });
+        if (ville && _wzmNorm(f['Ville']) === _wzmNorm(ville)) chipsO.push({ label: 'Ta ville', fort: true });
+        if (f['Urgente']) chipsO.push({ label: 'Recrute en urgence', fort: true });
         return '<div class="wzm-card">' +
           '<div class="wzm-card-top">' +
-            _wzmAvatarHtml(client.photo_profil || '', nomClient, false) +
+            _wzmAvatarHtml('', recNom, false) +
             '<div class="wzm-card-id">' +
-              '<div class="wzm-card-nom">' + escapeHtml(nomClient) + '</div>' +
-              '<div class="wzm-card-meta">' + getDateRelative(d.created_at) + '</div>' +
+              '<div class="wzm-card-nom">' + escapeHtml(f['Titre'] || 'Offre d\'emploi') + '</div>' +
+              '<div class="wzm-card-meta">' + escapeHtml(recNom) + (contrat ? ' · ' + escapeHtml(contrat) : '') + '</div>' +
             '</div>' +
-            '<span class="wzm-demande-statut"><span class="wzm-statut-dot wzm-dot-ouvert"></span>Ouverte</span>' +
+            '<span class="wzm-type wzm-type-emploi">Emploi</span>' +
           '</div>' +
-          '<p class="wzm-dem-desc">' + escapeHtml(d.description) + '</p>' +
-          '<div class="wzm-dem-meta">' +
-            '<span><b>' + escapeHtml(d.metier_recherche) + '</b></span>' +
-            (d.ville ? '<span>' + escapeHtml(d.ville) + '</span>' : '') +
-            (d.budget_max ? '<span>Budget max <b>' + Number(d.budget_max).toLocaleString('fr-FR') + ' FCFA</b></span>' : '') +
-          '</div>' +
-          _wzmChipsHtml(chips.slice(0, 3)) +
+          (sal ? '<div class="wzm-dem-meta" style="margin-top:12px;"><span>💰 <b style="color:#E8940A;">' + sal + '</b></span>' + (lieu ? '<span>' + lieu + '</span>' : '') + '</div>' :
+            (lieu ? '<div class="wzm-dem-meta" style="margin-top:12px;"><span>' + lieu + '</span></div>' : '')) +
+          _wzmChipsHtml(chipsO.slice(0, 3)) +
           '<div class="wzm-card-actions">' +
-            '<button class="wzm-btn-plein" onclick="contacterAuteur(\'' + escapeHtml(d.client_id || '') + '\')">Répondre au client</button>' +
+            '<button class="wzm-btn-plein" onclick="wzEnsureOffreThenDetail(\'' + escapeHtml(o.id) + '\')">Voir l\'offre</button>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -485,7 +554,7 @@
       if (liste) liste.innerHTML = '';
       window.toast && toast('Ça a calé pendant la recherche. Réessaie dans 2 secondes.', 'error');
     } finally {
-      _wzmBtnLoading('wzm-cta-travail', false, '', 'Voir les demandes qui me correspondent');
+      _wzmBtnLoading('wzm-cta-travail', false, '', 'Voir les opportunités pour moi');
     }
   };
 

@@ -20363,6 +20363,22 @@ window.retourOffres = retourOffres;
 window.partagerOffreCourante = partagerOffreCourante;
 window.signalerOffreCourante = signalerOffreCourante;
 
+// Ouvre la page détail d'une offre depuis n'importe où (ex: WOZALI Match),
+// en garantissant que l'offre est dans le cache avant l'affichage.
+window.wzEnsureOffreThenDetail = async function(offreId) {
+  try {
+    if (!(_offresCache || []).find(o => o.id === offreId)) {
+      _offresCache = await loadOffresEmploi();
+      _offresCurrent = _offresCache;
+    }
+  } catch (e) { console.warn('[wzEnsureOffre]', e); }
+  showOffreDetail(offreId);
+};
+// Expose loadOffresEmploi filtrable pour les autres modules (WOZALI Match)
+window.wzFetchOffres = async function() {
+  try { return await loadOffresEmploi(); } catch (e) { return []; }
+};
+
 // ── Page emploi principale ──
 async function showPageEmploi() {
   const container = document.getElementById('emploi-list');

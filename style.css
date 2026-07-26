@@ -9348,3 +9348,8 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
   .wzm-shimmer { animation-duration: 3s; }
 }
 
+
+/* Badges type (WOZALI Match — mode travail fusionné missions + emplois) */
+.wzm-type { flex-shrink:0; align-self:flex-start; font-family:'Geist Mono',monospace; font-size:9px; letter-spacing:1px; text-transform:uppercase; padding:4px 9px; border-radius:7px; font-weight:700; }
+.wzm-type-mission { background:rgba(252,224,168,.1); color:#FCE0A8; border:1px solid rgba(252,224,168,.28); }
+.wzm-type-emploi { background:rgba(232,148,10,.16); color:#E8940A; border:1px solid rgba(232,148,10,.45); }
