@@ -31,7 +31,8 @@
     { id: 'digital',   label: 'digital et image',     stems: ['developpeur','graphiste','photographe','videaste','infograph','informatic','webdesign','communit'] },
     { id: 'evenement', label: 'événementiel',         stems: ['dj','decorateur','decoration','animateur','sono','evenement'] },
     { id: 'sport',     label: 'sport et bien-être',   stems: ['coach','entraineur','masseur','massage'] },
-    { id: 'agri',      label: 'agriculture',          stems: ['agricult','maraich','jardinier','eleveur','elevage'] }
+    { id: 'agri',      label: 'agriculture',          stems: ['agricult','maraich','jardinier','eleveur','elevage'] },
+    { id: 'immobilier', label: 'immobilier',       stems: ['immobili','demarcheur','courtier','syndic','agence immobil'] }
   ];
 
   function _wzmNorm(s) {

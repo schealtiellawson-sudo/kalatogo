@@ -1886,6 +1886,57 @@ function initProfileMiniMap(lat, lon, containerId) {
   _profileMiniMaps[containerId] = map;
 }
 
+// ══ Offres d'emploi actives du prestataire, affichées sur son profil public (Tâche 2) ══
+// La section n'apparaît que si le prestataire a au moins une offre active.
+async function renderProfilOffresSection(userId, containerId) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supaOffres) return;
+  let offres = [];
+  try { offres = await window.supaOffres.list({ active: true, recruteur_user_id: userId, limit: 20 }); }
+  catch (e) { return; }
+  if (!offres || !offres.length) return; // rien à afficher = section masquée
+  const rows = offres.map(o => {
+    const f = o.fields || {};
+    const titre = escapeHtml(f['Titre'] || 'Offre');
+    const oid = escapeHtml(o.id);
+    const created = f['Créée le'] || o.createdTime;
+    let dateTxt = '';
+    if (created) { const j = Math.floor((Date.now() - new Date(created)) / 86400000); dateTxt = j <= 0 ? "Publiée aujourd'hui" : (j === 1 ? 'Publiée hier' : 'Publiée il y a ' + j + ' jours'); }
+    const contrat = escapeHtml(f['Type de contrat'] || '');
+    const titreArg = (f['Titre'] || '').replace(/'/g, "\\'").replace(/</g, '&lt;');
+    const recruId = escapeHtml(f['Recruteur ID'] || '');
+    return `<div class="profil-offre-item">
+        <div class="profil-offre-info">
+          <div class="profil-offre-titre">${titre}</div>
+          <div class="profil-offre-meta">${[contrat, dateTxt].filter(Boolean).join(' · ')}</div>
+        </div>
+        <button class="profil-offre-cta" onclick="event.stopPropagation();ouvrirModalCandidature('${oid}','${titreArg}','${recruId}')">Postuler</button>
+      </div>`;
+  }).join('');
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">💼 ${offres.length} offre${offres.length > 1 ? 's' : ''} d'emploi</div>
+      ${rows}
+    </div>`;
+}
+
+// ══ Carte localisation allégée pour mobile (Tâche 3) ══
+// La sidebar (et sa carte Leaflet) est masquée < 768px ; on affiche ici une tuile
+// statique légère + lien Google Maps, visible sur tous les écrans (vieux tel. inclus).
+function renderProfilMobileLoc(lat, lon, quartier, containerId) {
+  const el = document.getElementById(containerId);
+  if (!el || !lat || !lon || isNaN(lat) || isNaN(lon)) return;
+  const z = 15, n = Math.pow(2, z);
+  const x = Math.floor((lon + 180) / 360 * n);
+  const y = Math.floor((1 - Math.asinh(Math.tan(lat * Math.PI / 180)) / Math.PI) / 2 * n);
+  const tile = `https://a.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}.png`;
+  const dir = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+  el.innerHTML = `<div class="profil-mloc-card">
+      <div class="profil-mloc-map"><img src="${tile}" alt="Carte" loading="lazy" onerror="this.style.display='none'"><span class="profil-mloc-pin">📍</span></div>
+      ${quartier ? `<div class="profil-mloc-zone">📍 <strong>Zone</strong> · ${escapeHtml(quartier)}</div>` : ''}
+      <a href="${dir}" target="_blank" rel="noopener" class="profil-mloc-btn">🗺️ Voir l'itinéraire</a>
+    </div>`;
+}
+
 // ══ PHOTOS DASHBOARD ══
 function loadDashPhotos() {
   if (!currentPrestataire) return;
@@ -4693,7 +4744,7 @@ const METIER_EMOJI = {
   'Baby-sitter/Garde enfant':'👶','Aide-soignant/Infirmier à domicile':'🏥',
   'Professeur particulier':'📚','Formateur/Coach':'🎯',
   'Traducteur (Ewe/Français/Anglais)':'🌍',
-  'Agent immobilier':'🏘️','Comptable':'📊',
+  'Agent immobilier':'🏘️','Agence immobilière':'🏢','Démarcheur immobilier':'🏠','Courtier immobilier':'🔑','Gestionnaire immobilier / Syndic':'🏘️','Comptable':'📊',
   'DJ/Animateur':'🎧','Musicien':'🎵','Vidéaste':'🎬','Graphiste':'🎨',
   'Vendeur vêtements':'👗','Cordonnier':'👟','Teinturier/Tie-dye':'🎨',
   'Épicier':'🛒','Boucherie/Poissonnerie':'🐟','Légumes & Fruits':'🥬',
@@ -4730,7 +4781,7 @@ const DIGITAL_METIERS = new Set([
   // Métiers déjà présents qui sont aussi digitaux/intellectuels
   'Graphiste','Photographe','Vidéaste','Informaticien/Technicien PC',
   'Réparateur téléphones','Formateur/Coach','Comptable',
-  'Traducteur (Ewe/Français/Anglais)','Agent immobilier',
+  'Traducteur (Ewe/Français/Anglais)','Agent immobilier','Agence immobilière','Démarcheur immobilier','Courtier immobilier','Gestionnaire immobilier / Syndic',
   'DJ/Animateur','Professeur particulier'
 ]);
 
@@ -10266,7 +10317,7 @@ function renderMetierBanner(metier, recordId, nom) {
     { keys:['architecte','ingénieur'],       color:'#1e1b4b', color2:'#3730a3', emoji:'📐' },
     { keys:['professeur','formateur','coach'], color:'#0c4a6e', color2:'#0284c7', emoji:'📚' },
     { keys:['infirmier','infirmière','médecin'], color:'#0c4a6e', color2:'#0369a1', emoji:'🩺' },
-    { keys:['agent immobilier','immobilier'], color:'#1e3a5f', color2:'#1d4ed8', emoji:'🏠' },
+    { keys:['agent immobilier','immobili','demarcheur','courtier','syndic','agence immobil'], color:'#1e3a5f', color2:'#1d4ed8', emoji:'🏠' },
     { keys:['déménageur','livreur'],         color:'#1c1917', color2:'#44403c', emoji:'📦' },
   ];
   let cfg = { color:'#1a1710', color2:'#E8940A', emoji:'🛠️' };
@@ -11259,6 +11310,8 @@ async function showProfil(recordId) {
 
       <!-- ═══════════ TAB POSTS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
+        <div id="profil-offres-${recordId}"></div>
+        <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
         ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
         <!-- Composer (propriétaire) -->
@@ -11498,6 +11551,9 @@ async function showProfil(recordId) {
     }, 500);
     // Mini map localisation
     if (gpsLat && gpsLon) setTimeout(() => initProfileMiniMap(gpsLat, gpsLon, `profil-minimap-${recordId}`), 300);
+    // Offres emploi du prestataire + carte localisation mobile (Taches 2 et 3)
+    if (_profilUserId) renderProfilOffresSection(_profilUserId, `profil-offres-${recordId}`);
+    if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés
     setTimeout(() => updateSuiviBtn(recordId), 200);
     setTimeout(() => loadFollowerCount(recordId), 300);
@@ -17598,6 +17654,7 @@ async function chargerCompteurMetiers() {
     'Couturier': ['Couturier','Couturière','Couture'],
     'Plombier': ['Plombier','Plomberie'],
     'Informaticien': ['Informaticien','Informatique','Développeur','Développeur web'],
+    'Agent immobilier': ['Agent immobilier','Immobilier','Agence immobilière','Démarcheur immobilier','Courtier immobilier','Gestionnaire immobilier'],
     'Transport': ['Transport','Chauffeur','Livreur','Coursier'],
     'Cuisinier': ['Cuisinier','Cuisinière','Cuisine','Chef cuisinier'],
     'Nettoyage': ['Nettoyage','Agent d\'entretien','Ménage']
@@ -21745,7 +21802,7 @@ function ouvrirEditionOffre(offreId) {
   const offre = allMesOffres.find(o => o.id === offreId);
   if (!offre) { toast('Offre introuvable', 'error'); return; }
   const f = offre.fields;
-  const metiersOpts = ['Plombier','Électricien','Menuisier','Maçon','Peintre','Soudeur','Mécanicien','Coiffeur','Couturier','Cuisinier','Photographe','Graphiste','Développeur web','Commercial/Agent','Gardien','Chauffeur','Enseignant/Formateur','Comptable','Secrétaire','Agent de sécurité','Infirmier','Autre'];
+  const metiersOpts = ['Plombier','Électricien','Menuisier','Maçon','Peintre','Soudeur','Mécanicien','Coiffeur','Couturier','Cuisinier','Photographe','Graphiste','Développeur web','Commercial/Agent','Gardien','Chauffeur','Enseignant/Formateur','Comptable','Secrétaire','Agent de sécurité','Infirmier','Agent immobilier','Agence immobilière','Démarcheur immobilier','Courtier immobilier','Autre'];
   const quartiersOpts = ['Lomé Centre','Adidogomé','Tokoin','Bè','Agoè','Hédzranawoé','Kodjoviakopé','Djidjolé','Nyékonakpoè','Cassablanca','Avédji','Attiégou','Autre'];
   const contratsOpts = ['CDI','CDD','Freelance','Mission ponctuelle','Stage','Bénévole','Alternance'];
   const expOpts = ['Aucune','1-2 ans','3-5 ans','5+ ans'];
