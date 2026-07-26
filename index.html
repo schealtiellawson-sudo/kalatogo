@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260726c">
+<link rel="stylesheet" href="/style.css?v=20260726e">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1607,74 +1607,32 @@ setTimeout(function(){
      PAGE WOZALI MATCH — Bidirectionnel
 ══════════════════════════════════════════ -->
 <div id="page-match" class="page">
-  <div class="wozali-match-page">
-    <div class="match-hero">
-      <span class="eyebrow" style="color:#E8940A;letter-spacing:3px;font-family:'Geist Mono',monospace;font-size:10px;">WOZALI MATCH</span>
-      <h1 style="font-family:'DM Serif Display',serif;font-size:28px;color:#FCE0A8;margin:8px 0;">Le bon match.</h1>
-      <p style="color:rgba(252, 224, 168,0.6);font-size:14px;max-width:480px;margin:0 auto;line-height:1.6;">Tu cherches un pro pour un chantier ? Ou tu cherches du travail dans ton métier ?<br>WOZALI Match te connecte avec la bonne personne, en 30 secondes.</p>
-    </div>
+<div class="wzm-page">
 
-    <!-- SÉLECTEUR DE MODE -->
-    <div class="match-mode-toggle" style="display:flex;gap:0;margin:0 16px 20px;border-radius:12px;overflow:hidden;border:1px solid rgba(232,148,10,0.25);">
-      <button id="match-mode-client" class="match-mode-btn match-mode-active" onclick="switchMatchMode('client')" style="flex:1;padding:14px 16px;background:rgba(232,148,10,0.15);color:#E8940A;border:none;font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.5px;cursor:pointer;transition:all .2s;">🔍 JE CHERCHE UN PRESTATAIRE</button>
-      <button id="match-mode-travail" class="match-mode-btn" onclick="switchMatchMode('travail')" style="flex:1;padding:14px 16px;background:rgba(255,255,255,0.02);color:rgba(252, 224, 168,0.5);border:none;border-left:1px solid rgba(232,148,10,0.15);font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.5px;cursor:pointer;transition:all .2s;">💼 JE CHERCHE DU TRAVAIL</button>
-    </div>
+  <!-- HÉROS -->
+  <div class="wzm-hero">
+    <span class="wzm-eyebrow">WOZALI MATCH</span>
+    <h1>Le bon match.</h1>
+    <p>Décris ce que tu cherches. WOZALI Match classe les profils par pertinence réelle : métier, quartier, fiabilité. Et te dit pourquoi chacun remonte.</p>
+  </div>
 
-    <!-- FORMULAIRE MODE CLIENT (cherche un prestataire) -->
-    <div class="match-form-card" id="match-form-client">
-      <div class="match-field">
-        <label>Que cherches-tu ?</label>
-        <textarea id="match-description" rows="3" placeholder="Ex: Je cherche un plombier pour installer un chauffe-eau..." maxlength="500"></textarea>
-      </div>
-      <div class="match-field-row">
-        <div class="match-field" style="flex:1;">
-          <label>Métier recherché</label>
-          <select id="match-metier">
-            <option value="">Sélectionner...</option>
-            <option value="Coiffeur">Coiffeur</option>
-            <option value="Couturier">Couturier</option>
-            <option value="Électricien">Électricien</option>
-            <option value="Plombier">Plombier</option>
-            <option value="Mécanicien">Mécanicien</option>
-            <option value="Photographe">Photographe</option>
-            <option value="Peintre">Peintre</option>
-            <option value="Menuisier">Menuisier</option>
-            <option value="Maçon">Maçon</option>
-            <option value="Carreleur">Carreleur</option>
-            <option value="Soudeur">Soudeur</option>
-            <option value="Décorateur">Décorateur</option>
-            <option value="Traiteur">Traiteur</option>
-            <option value="DJ">DJ</option>
-            <option value="Coach sportif">Coach sportif</option>
-            <option value="Développeur">Développeur</option>
-            <option value="Graphiste">Graphiste</option>
-            <option value="Tresseur/Tresseuse">Tresseur/Tresseuse</option>
-            <option value="Zémidjan / Taxi-moto">Zémidjan / Taxi-moto</option>
-            <option value="Agriculture / Maraîchage">Agriculture / Maraîchage</option>
-          </select>
-        </div>
-        <div class="match-field" style="flex:1;">
-          <label>Ville</label>
-          <select id="match-ville">
-            <option value="">Toutes</option>
-            <optgroup label="🇹🇬 Togo"><option value="Lomé">Lomé</option><option value="Kpalimé">Kpalimé</option><option value="Atakpamé">Atakpamé</option><option value="Sokodé">Sokodé</option><option value="Kara">Kara</option><option value="Tsévié">Tsévié</option><option value="Aného">Aného</option><option value="Dapaong">Dapaong</option></optgroup>
-            <optgroup label="🇧🇯 Bénin"><option value="Cotonou">Cotonou</option><option value="Porto-Novo">Porto-Novo</option><option value="Parakou">Parakou</option><option value="Abomey-Calavi">Abomey-Calavi</option><option value="Abomey">Abomey</option><option value="Natitingou">Natitingou</option><option value="Bohicon">Bohicon</option><option value="Lokossa">Lokossa</option><option value="Ouidah">Ouidah</option><option value="Djougou">Djougou</option></optgroup>
-          </select>
-        </div>
-      </div>
-      <div class="match-field">
-        <label>Budget maximum (FCFA, optionnel)</label>
-        <input type="number" id="match-budget" placeholder="Ex: 50000" min="0" step="1000">
-      </div>
-      <button class="wozali-btn-primary" style="width:100%;padding:14px;font-size:15px;border-radius:10px;" onclick="lancerWozaliMatch()">🔍 Trouver un prestataire</button>
-    </div>
+  <!-- TOGGLE 2 MODES -->
+  <div class="wzm-toggle" role="tablist">
+    <button id="match-mode-client" class="wzm-mode-btn wzm-active" onclick="switchMatchMode('client')">Je cherche un pro</button>
+    <button id="match-mode-travail" class="wzm-mode-btn" onclick="switchMatchMode('travail')">Je cherche du travail</button>
+  </div>
 
-    <!-- FORMULAIRE MODE TRAVAIL (cherche du travail) -->
-    <div class="match-form-card" id="match-form-travail" style="display:none;">
-      <div class="match-field">
-        <label>Ton métier / spécialité</label>
-        <select id="match-travail-metier">
-          <option value="">Sélectionner ton métier...</option>
+  <!-- FORMULAIRE MODE CLIENT -->
+  <div class="wzm-form-card" id="match-form-client">
+    <div class="wzm-field">
+      <label for="match-description">Que cherches-tu ?</label>
+      <textarea id="match-description" rows="3" placeholder="Ex : Je cherche un plombier pour installer un chauffe-eau à Bè..." maxlength="500"></textarea>
+    </div>
+    <div class="wzm-field-row">
+      <div class="wzm-field">
+        <label for="match-metier">Métier recherché</label>
+        <select id="match-metier">
+          <option value="">Sélectionner...</option>
           <option value="Coiffeur">Coiffeur</option>
           <option value="Couturier">Couturier</option>
           <option value="Électricien">Électricien</option>
@@ -1697,50 +1655,119 @@ setTimeout(function(){
           <option value="Agriculture / Maraîchage">Agriculture / Maraîchage</option>
         </select>
       </div>
-      <div class="match-field">
-        <label>Ta ville</label>
-        <select id="match-travail-ville">
+      <div class="wzm-field">
+        <label for="match-ville">Ville</label>
+        <select id="match-ville">
           <option value="">Toutes</option>
           <optgroup label="🇹🇬 Togo"><option value="Lomé">Lomé</option><option value="Kpalimé">Kpalimé</option><option value="Atakpamé">Atakpamé</option><option value="Sokodé">Sokodé</option><option value="Kara">Kara</option><option value="Tsévié">Tsévié</option><option value="Aného">Aného</option><option value="Dapaong">Dapaong</option></optgroup>
           <optgroup label="🇧🇯 Bénin"><option value="Cotonou">Cotonou</option><option value="Porto-Novo">Porto-Novo</option><option value="Parakou">Parakou</option><option value="Abomey-Calavi">Abomey-Calavi</option><option value="Abomey">Abomey</option><option value="Natitingou">Natitingou</option><option value="Bohicon">Bohicon</option><option value="Lokossa">Lokossa</option><option value="Ouidah">Ouidah</option><option value="Djougou">Djougou</option></optgroup>
         </select>
       </div>
-      <div class="match-field">
-        <label>Présente-toi en quelques mots (optionnel)</label>
-        <textarea id="match-travail-description" rows="3" placeholder="Ex: Plombier depuis 8 ans, spécialisé chauffe-eau et installations sanitaires..." maxlength="500"></textarea>
+    </div>
+    <div class="wzm-field-row">
+      <div class="wzm-field">
+        <label for="wzm-quartier">Ton quartier (optionnel)</label>
+        <input type="text" id="wzm-quartier" placeholder="Ex : Bè, Akpakpa, Agoè..." maxlength="60">
+        <div class="wzm-field-hint">Les pros de ton quartier remontent en premier.</div>
       </div>
-      <button class="wozali-btn-primary" style="width:100%;padding:14px;font-size:15px;border-radius:10px;" onclick="lancerWozaliMatchTravail()">💼 Voir les offres qui me correspondent</button>
-      <p style="text-align:center;font-size:11px;color:rgba(252, 224, 168,0.35);margin-top:10px;">Tu dois avoir un compte WOZALI pour voir les résultats.</p>
-    </div>
-
-    <!-- Résultats mode client -->
-    <div id="match-resultats" style="display:none;">
-      <h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:18px;margin:24px 0 16px;padding:0 16px;">Prestataires correspondants</h3>
-      <div id="match-resultats-liste" class="match-resultats-grid"></div>
-    </div>
-
-    <!-- Résultats mode travail -->
-    <div id="match-resultats-travail" style="display:none;">
-      <h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:18px;margin:24px 0 16px;padding:0 16px;">Offres qui correspondent à ton profil</h3>
-      <div id="match-travail-liste" class="match-resultats-grid"></div>
-    </div>
-
-    <!-- Mes demandes -->
-    <div id="match-mes-demandes" style="margin-top:32px;padding:0 16px;">
-      <h3 style="font-family:'DM Serif Display',serif;color:#FCE0A8;font-size:18px;margin-bottom:16px;">Mes demandes en cours</h3>
-      <div id="match-demandes-liste"></div>
-    </div>
-
-    <!-- Explication WOZALI Match -->
-    <div style="margin:40px 16px 0;padding:24px;background:rgba(232,148,10,0.04);border:1px solid rgba(232,148,10,0.12);border-radius:16px;">
-      <h3 style="font-family:'DM Serif Display',serif;font-size:18px;color:#E8940A;margin:0 0 12px;">Comment fonctionne WOZALI Match ?</h3>
-      <div style="font-size:13px;color:rgba(252, 224, 168,0.65);line-height:1.7;">
-        <p style="margin:0 0 10px;"><strong style="color:#FCE0A8;">Tu cherches un prestataire ?</strong><br>Décris ton besoin, choisis le métier et la ville. WOZALI Match te montre les meilleurs pros disponibles, classés par Score WOZALI. Le prestataire est notifié instantanément.</p>
-        <p style="margin:0 0 10px;"><strong style="color:#FCE0A8;">Tu cherches du travail ?</strong><br>Sélectionne ton métier et ta ville. WOZALI Match te montre toutes les demandes de clients qui cherchent exactement ton profil. Tu réponds en un clic.</p>
-        <p style="margin:0;"><strong style="color:#E8940A;">Pas de connexions. Pas de favoritisme. Juste le match.</strong></p>
+      <div class="wzm-field">
+        <label for="match-budget">Budget max en FCFA (optionnel)</label>
+        <input type="number" id="match-budget" placeholder="Ex : 50000" min="0" step="1000">
       </div>
     </div>
+    <button id="wzm-cta-client" class="wzm-cta" onclick="lancerWozaliMatch()">Trouver mon prestataire</button>
   </div>
+
+  <!-- FORMULAIRE MODE TRAVAIL -->
+  <div class="wzm-form-card" id="match-form-travail" style="display:none;">
+    <div class="wzm-field">
+      <label for="match-travail-metier">Ton métier</label>
+      <select id="match-travail-metier">
+        <option value="">Sélectionner ton métier...</option>
+        <option value="Coiffeur">Coiffeur</option>
+        <option value="Couturier">Couturier</option>
+        <option value="Électricien">Électricien</option>
+        <option value="Plombier">Plombier</option>
+        <option value="Mécanicien">Mécanicien</option>
+        <option value="Photographe">Photographe</option>
+        <option value="Peintre">Peintre</option>
+        <option value="Menuisier">Menuisier</option>
+        <option value="Maçon">Maçon</option>
+        <option value="Carreleur">Carreleur</option>
+        <option value="Soudeur">Soudeur</option>
+        <option value="Décorateur">Décorateur</option>
+        <option value="Traiteur">Traiteur</option>
+        <option value="DJ">DJ</option>
+        <option value="Coach sportif">Coach sportif</option>
+        <option value="Développeur">Développeur</option>
+        <option value="Graphiste">Graphiste</option>
+        <option value="Tresseur/Tresseuse">Tresseur/Tresseuse</option>
+        <option value="Zémidjan / Taxi-moto">Zémidjan / Taxi-moto</option>
+        <option value="Agriculture / Maraîchage">Agriculture / Maraîchage</option>
+      </select>
+    </div>
+    <div class="wzm-field">
+      <label for="match-travail-ville">Ta ville</label>
+      <select id="match-travail-ville">
+        <option value="">Toutes</option>
+        <optgroup label="🇹🇬 Togo"><option value="Lomé">Lomé</option><option value="Kpalimé">Kpalimé</option><option value="Atakpamé">Atakpamé</option><option value="Sokodé">Sokodé</option><option value="Kara">Kara</option><option value="Tsévié">Tsévié</option><option value="Aného">Aného</option><option value="Dapaong">Dapaong</option></optgroup>
+        <optgroup label="🇧🇯 Bénin"><option value="Cotonou">Cotonou</option><option value="Porto-Novo">Porto-Novo</option><option value="Parakou">Parakou</option><option value="Abomey-Calavi">Abomey-Calavi</option><option value="Abomey">Abomey</option><option value="Natitingou">Natitingou</option><option value="Bohicon">Bohicon</option><option value="Lokossa">Lokossa</option><option value="Ouidah">Ouidah</option><option value="Djougou">Djougou</option></optgroup>
+      </select>
+    </div>
+    <div class="wzm-field">
+      <label for="match-travail-description">Présente-toi en quelques mots (optionnel)</label>
+      <textarea id="match-travail-description" rows="3" placeholder="Ex : Plombier depuis 8 ans, spécialisé chauffe-eau et installations sanitaires..." maxlength="500"></textarea>
+    </div>
+    <button id="wzm-cta-travail" class="wzm-cta" onclick="lancerWozaliMatchTravail()">Voir les demandes qui me correspondent</button>
+    <p class="wzm-form-note">Il te faut un compte WOZALI pour voir les résultats.</p>
+  </div>
+
+  <!-- Bannière confirmation demande créée -->
+  <div id="wzm-confirm" class="wzm-confirm"></div>
+
+  <!-- Résultats mode client -->
+  <div id="match-resultats" style="display:none;">
+    <div class="wzm-res-head">
+      <h3>Tes matchs</h3>
+      <span class="wzm-res-count" id="wzm-res-count"></span>
+    </div>
+    <div id="match-resultats-liste" class="wzm-grid"></div>
+  </div>
+
+  <!-- Résultats mode travail -->
+  <div id="match-resultats-travail" style="display:none;">
+    <div class="wzm-res-head">
+      <h3>Des clients te cherchent</h3>
+      <span class="wzm-res-count" id="wzm-travail-count"></span>
+    </div>
+    <div id="match-travail-liste" class="wzm-grid"></div>
+  </div>
+
+  <!-- Mes demandes -->
+  <div id="match-mes-demandes" class="wzm-mes-demandes">
+    <h3>Mes demandes en cours</h3>
+    <div id="match-demandes-liste"></div>
+  </div>
+
+  <!-- Comment ça marche -->
+  <div class="wzm-how">
+    <h3>Comment ça marche</h3>
+    <div class="wzm-how-step">
+      <div class="wzm-how-num">1</div>
+      <p><strong>Tu décris ton besoin.</strong> Métier, ville, quartier si tu veux. 30 secondes.</p>
+    </div>
+    <div class="wzm-how-step">
+      <div class="wzm-how-num">2</div>
+      <p><strong>WOZALI Match classe les profils.</strong> Métier, proximité, Score WOZALI. Chaque profil affiche son pourcentage de match et pourquoi il remonte.</p>
+    </div>
+    <div class="wzm-how-step">
+      <div class="wzm-how-num">3</div>
+      <p><strong>Tu contactes directement.</strong> Les meilleurs profils sont prévenus de ta demande en même temps.</p>
+    </div>
+    <div class="wzm-how-punch">Le travail décide. Pas les connexions.</div>
+  </div>
+
+</div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -9054,6 +9081,7 @@ window.addEventListener('beforeinstallprompt', function(e){
      SPRINT 2 — ONBOARDING + NOTIF TEMPLATES
 ════════════════════════════════════════════ -->
 <script src="/app3.js?v=20260724c" defer></script>
+<script src="/wozali-match.js?v=20260726a" defer></script>
 
 <!-- TODO wozali-v2 — Sections reportées (risque de casser JS existant) :
   * Header fixe 64px avec recherche centrée : non injecté automatiquement (chevauchement avec nav existante). Classe .wozali-v2-header + body.wozali-v2-active prêtes à l'emploi.
