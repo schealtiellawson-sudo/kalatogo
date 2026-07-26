@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260725f">
+<link rel="stylesheet" href="/style.css?v=20260726b">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1568,7 +1568,34 @@ setTimeout(function(){
   </div>
 </div>
 
-<!-- MODAL DÉTAIL OFFRE D'EMPLOI (style page Indeed) -->
+<!-- ══════════════════════════════════════════
+     PAGE DÉTAIL OFFRE D'EMPLOI — /offre/{slug} (refonte 2026-07-26)
+     Vraie page, lien partageable, SEO JobPosting
+     ══════════════════════════════════════════ -->
+<div id="page-offre-detail" class="page">
+  <div class="offd-wrap">
+    <div class="offd-topbar">
+      <button class="offd-back" onclick="retourOffres()">← Toutes les offres</button>
+      <div class="offd-topactions">
+        <button class="offd-icon" title="Partager cette offre" onclick="partagerOffreCourante()">📤</button>
+        <button class="offd-icon" title="Signaler cette offre" onclick="signalerOffreCourante()">🚩</button>
+      </div>
+    </div>
+    <div id="offd-body"><!-- injecté par renderOffrePremium() --></div>
+  </div>
+  <!-- Barre CTA collante -->
+  <div id="offd-sticky" class="offd-sticky">
+    <div class="offd-sticky-inner">
+      <div class="offd-sticky-info">
+        <div class="offd-sticky-sal" id="offd-sticky-sal">À négocier</div>
+        <div class="offd-sticky-sub" id="offd-sticky-sub">Postule avec ton profil WOZALI</div>
+      </div>
+      <button class="offd-sticky-btn" id="offd-sticky-btn">Postuler →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ancienne modale conservée (fallback, non utilisée) -->
 <div class="modal-overlay" id="modal-offre-detail" style="display:none;z-index:10000;">
   <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
     <button class="modal-close" onclick="document.getElementById('modal-offre-detail').style.display='none'">✕</button>
@@ -6865,7 +6892,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260725e" defer></script>
+<script src="/app.js?v=20260726b" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

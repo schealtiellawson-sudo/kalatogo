@@ -92,6 +92,10 @@
       "destination": "/api/profil-seo"
     },
     {
+      "source": "/offre/:slug",
+      "destination": "/index.html"
+    },
+    {
       "source": "/pay/:id",
       "destination": "/pay.html"
     },

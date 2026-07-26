@@ -8936,3 +8936,77 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 .fil-sugg-sub { font-size:11.5px; color:rgba(252,224,168,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .fil-sugg-btn { background:none; border:none; color:#E8940A; font-family:'Geist',sans-serif; font-size:12.5px; font-weight:800; cursor:pointer; flex-shrink:0; }
 .fil-foot { margin-top:22px; font-size:12px; color:rgba(252,224,168,.35); line-height:1.6; padding:0 4px; }
+
+/* ════════════════════════════════════════════════
+   PAGE DÉTAIL OFFRE — /offre/{slug} (refonte 2026-07-26)
+   Palette Nuit : #14100A / #1E180E / #FCE0A8 / #E8940A
+   ════════════════════════════════════════════════ */
+#page-offre-detail { background:#14100A; min-height:100vh; padding:0 0 120px; }
+.offd-wrap { max-width:820px; margin:0 auto; padding:18px 18px 0; }
+.offd-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.offd-back { background:none; border:none; color:rgba(252,224,168,.65); font-family:'Geist',sans-serif; font-size:14px; font-weight:600; cursor:pointer; padding:8px 2px; transition:color .15s; }
+.offd-back:hover { color:#E8940A; }
+.offd-topactions { display:flex; gap:8px; }
+.offd-icon { width:40px; height:40px; border-radius:12px; background:#1E180E; border:1px solid rgba(252,224,168,.12); color:#FCE0A8; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color .15s, transform .1s; }
+.offd-icon:hover { border-color:rgba(232,148,10,.5); transform:translateY(-1px); }
+.offd-hero { position:relative; background:linear-gradient(160deg, #211a0e 0%, #1E180E 60%, #191309 100%); border:1px solid rgba(232,148,10,.18); border-radius:22px; padding:30px 28px 26px; overflow:hidden; margin-bottom:16px; }
+.offd-hero::before { content:''; position:absolute; top:-90px; right:-70px; width:280px; height:280px; background:radial-gradient(circle, rgba(232,148,10,.16), transparent 70%); pointer-events:none; }
+.offd-eyebrow { display:flex; align-items:center; gap:8px; font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#E8940A; margin-bottom:14px; position:relative; z-index:1; }
+.offd-eyebrow .dot { width:4px; height:4px; border-radius:50%; background:rgba(252,224,168,.35); }
+.offd-title { font-family:'DM Serif Display',serif; font-size:30px; line-height:1.18; color:#FCE0A8; margin:0 0 18px; font-weight:400; letter-spacing:-.3px; position:relative; z-index:1; }
+@media(max-width:560px){ .offd-title{ font-size:24px; } .offd-hero{ padding:24px 20px; } }
+.offd-recruteur { display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
+.offd-rec-ava { width:46px; height:46px; border-radius:13px; background:linear-gradient(135deg,#E8940A,#b5710a); display:flex; align-items:center; justify-content:center; font-family:'DM Serif Display',serif; font-size:22px; color:#14100A; flex-shrink:0; overflow:hidden; }
+.offd-rec-ava img { width:100%; height:100%; object-fit:cover; }
+.offd-rec-meta { min-width:0; }
+.offd-rec-name { font-family:'Geist',sans-serif; font-weight:700; font-size:15px; color:#FCE0A8; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.offd-rec-name .lnk { color:#E8940A; cursor:pointer; text-decoration:none; }
+.offd-rec-name .lnk:hover { text-decoration:underline; }
+.offd-rec-sub { font-size:12.5px; color:rgba(252,224,168,.5); margin-top:2px; }
+.offd-badge-v { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#E8940A; background:rgba(232,148,10,.12); border:1px solid rgba(232,148,10,.28); border-radius:6px; padding:2px 7px; }
+.offd-badge-trust { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#FCE0A8; background:rgba(252,224,168,.1); border:1px solid rgba(252,224,168,.22); border-radius:6px; padding:2px 7px; }
+.offd-badge-warn { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#f87171; background:rgba(220,38,38,.14); border:1px solid rgba(220,38,38,.3); border-radius:6px; padding:2px 7px; }
+.offd-badge-urg { display:inline-block; font-size:11px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#fff; background:#dc2626; border-radius:100px; padding:4px 12px; margin-bottom:14px; position:relative; z-index:1; }
+.offd-salaire { display:flex; align-items:center; gap:16px; background:linear-gradient(135deg, rgba(232,148,10,.1), rgba(232,148,10,.03)); border:1px solid rgba(232,148,10,.28); border-radius:18px; padding:20px 24px; margin-bottom:16px; }
+.offd-salaire-ic { font-size:26px; }
+.offd-salaire-lbl { font-family:'Geist Mono',monospace; font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(252,224,168,.5); margin-bottom:3px; }
+.offd-salaire-val { font-family:'DM Serif Display',serif; font-size:26px; color:#E8940A; line-height:1; }
+@media(max-width:560px){ .offd-salaire-val{ font-size:21px; } }
+.offd-conds { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:16px; }
+.offd-cond { background:#1E180E; border:1px solid rgba(252,224,168,.1); border-radius:14px; padding:14px 16px; }
+.offd-cond-lbl { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:1.3px; text-transform:uppercase; color:rgba(252,224,168,.45); margin-bottom:5px; }
+.offd-cond-val { font-family:'Geist',sans-serif; font-size:15px; font-weight:700; color:#FCE0A8; }
+.offd-gallery { display:flex; gap:10px; overflow-x:auto; margin-bottom:16px; padding-bottom:4px; scrollbar-width:thin; }
+.offd-gallery img { height:200px; border-radius:14px; border:1px solid rgba(252,224,168,.1); object-fit:cover; cursor:pointer; flex-shrink:0; transition:transform .15s; }
+.offd-gallery img:hover { transform:scale(1.02); }
+.offd-sec { background:#1E180E; border:1px solid rgba(252,224,168,.08); border-radius:18px; padding:24px 26px; margin-bottom:16px; }
+.offd-sec-h { font-family:'DM Serif Display',serif; font-size:19px; color:#FCE0A8; margin:0 0 14px; font-weight:400; }
+.offd-desc { font-family:'Geist',sans-serif; font-size:15px; line-height:1.8; color:rgba(252,224,168,.8); }
+.offd-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.offd-tag { font-size:12.5px; font-weight:600; color:rgba(252,224,168,.7); background:rgba(252,224,168,.06); border:1px solid rgba(252,224,168,.12); border-radius:100px; padding:6px 14px; }
+.offd-rec-card { display:flex; align-items:center; gap:16px; }
+.offd-rec-card .offd-rec-ava { width:58px; height:58px; font-size:27px; border-radius:16px; }
+.offd-rec-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.offd-rec-btn { flex:1; min-width:150px; text-align:center; font-family:'Geist',sans-serif; font-weight:700; font-size:14px; border-radius:12px; padding:13px; cursor:pointer; text-decoration:none; transition:transform .1s, border-color .15s; border:1px solid; }
+.offd-rec-btn.ghost { background:rgba(252,224,168,.05); border-color:rgba(252,224,168,.18); color:#FCE0A8; }
+.offd-rec-btn.ghost:hover { border-color:rgba(232,148,10,.5); transform:translateY(-1px); }
+.offd-safe { display:flex; gap:14px; background:rgba(252,224,168,.04); border:1px dashed rgba(232,148,10,.35); border-radius:16px; padding:18px 20px; margin-bottom:16px; }
+.offd-safe-ic { font-size:22px; flex-shrink:0; }
+.offd-safe-txt { font-family:'Geist',sans-serif; font-size:13px; line-height:1.65; color:rgba(252,224,168,.72); }
+.offd-safe-txt b { color:#FCE0A8; }
+.offd-sim { display:grid; grid-template-columns:1fr; gap:10px; }
+.offd-sim-card { display:flex; align-items:center; gap:14px; background:#1E180E; border:1px solid rgba(252,224,168,.1); border-radius:14px; padding:14px 16px; cursor:pointer; transition:border-color .15s, transform .1s; }
+.offd-sim-card:hover { border-color:rgba(232,148,10,.4); transform:translateY(-1px); }
+.offd-sim-ic { width:44px; height:44px; border-radius:12px; background:rgba(232,148,10,.12); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.offd-sim-info { min-width:0; flex:1; }
+.offd-sim-t { font-family:'Geist',sans-serif; font-weight:700; font-size:14.5px; color:#FCE0A8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.offd-sim-s { font-size:12.5px; color:rgba(252,224,168,.5); margin-top:2px; }
+.offd-sim-sal { font-family:'Geist Mono',monospace; font-size:12.5px; font-weight:700; color:#E8940A; flex-shrink:0; }
+.offd-sticky { position:fixed; bottom:0; left:0; right:0; z-index:60; display:none; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px; background:rgba(20,16,10,.92); backdrop-filter:blur(14px); border-top:1px solid rgba(232,148,10,.22); }
+.offd-sticky-inner { max-width:820px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.offd-sticky-sal { font-family:'DM Serif Display',serif; font-size:19px; color:#E8940A; line-height:1; }
+.offd-sticky-sub { font-size:11.5px; color:rgba(252,224,168,.5); margin-top:3px; }
+.offd-sticky-btn { background:#E8940A; color:#14100A; border:none; border-radius:13px; font-family:'Geist',sans-serif; font-weight:800; font-size:15px; padding:14px 28px; cursor:pointer; white-space:nowrap; transition:transform .1s, box-shadow .15s; box-shadow:0 4px 20px rgba(232,148,10,.3); }
+.offd-sticky-btn:hover { transform:translateY(-1px); box-shadow:0 6px 26px rgba(232,148,10,.45); }
+@media(max-width:560px){ .offd-sticky-btn{ padding:13px 20px; font-size:14px; } .offd-sticky-sal{ font-size:16px; } }
+#page-offre-detail.active .offd-sticky { display:flex; }

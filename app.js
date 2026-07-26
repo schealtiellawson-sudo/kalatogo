@@ -3963,6 +3963,13 @@ function _restorePageFromURL() {
     return;
   }
 
+  // ── SEO : détecter /offre/[slug] dans le pathname ──
+  const offreMatch = window.location.pathname.match(/^\/offre\/([a-z0-9-]+)/);
+  if (offreMatch) {
+    _resolveOffreBySlug(offreMatch[1]);
+    return;
+  }
+
   const lastPage = localStorage.getItem('wozali_last_page');
   if (!lastPage || lastPage === 'home') return;
 
@@ -3985,6 +3992,32 @@ function _restorePageFromURL() {
     // Sinon on reste sur home (normal — session expirée)
   } else {
     showPage(lastPage);
+  }
+}
+
+// Recherche client-side d'une offre par slug (chargement direct de /offre/{slug})
+async function _resolveOffreBySlug(slug) {
+  try {
+    if (!_offresCache || !_offresCache.length) {
+      _offresCache = await loadOffresEmploi();
+      _offresCurrent = _offresCache;
+    }
+    // Le slug se termine par les 6 derniers caractères de l'id
+    const suffix = slug.split('-').pop();
+    let match = (_offresCache||[]).find(o => {
+      const idTail = (o.id||'').toString().replace(/[^a-z0-9]/gi,'').slice(-6).toLowerCase();
+      return idTail === suffix;
+    });
+    // Fallback : reconstruire le slug complet de chaque offre
+    if (!match) {
+      match = (_offresCache||[]).find(o =>
+        _buildOffreSlug(o.fields['Titre']||'', o.fields['Ville']||'', o.id) === slug);
+    }
+    if (match) { showOffreDetail(match.id); return; }
+    showPage('emploi');
+  } catch (e) {
+    console.warn('[SEO] offre slug resolve error:', e);
+    showPage('emploi');
   }
 }
 
@@ -12174,8 +12207,8 @@ function _resetSeoMeta() {
   if (canon) canon.remove();
   const jsonld = document.getElementById('wozali-jsonld');
   if (jsonld) jsonld.remove();
-  // Restaurer l'URL de base si on était sur /profil/
-  if (window.location.pathname.startsWith('/profil/')) {
+  // Restaurer l'URL de base si on était sur /profil/ ou /offre/
+  if (window.location.pathname.startsWith('/profil/') || window.location.pathname.startsWith('/offre/')) {
     history.replaceState(null, '', '/');
   }
 }
@@ -20037,90 +20070,245 @@ function renderOffreEmploi(offre, forceMode) {
 }
 
 // ── Page détail offre (style Indeed) ──
+// ══════════════════════════════════════════════════════════
+//  DÉTAIL OFFRE — vraie page /offre/{slug} (refonte 2026-07-26)
+// ══════════════════════════════════════════════════════════
+function _buildOffreSlug(titre, ville, id) {
+  const base = [titre, ville].filter(Boolean).join(' ')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const suffix = (id || '').toString().replace(/[^a-z0-9]/gi, '').slice(-6).toLowerCase();
+  return (base ? base + '-' : '') + (suffix || 'offre');
+}
+function _offrePays(f) {
+  const _loc = ((f['Quartier']||'') + ' ' + (f['Ville']||'')).toLowerCase();
+  const _isBJ = ['cotonou','porto-novo','porto novo','parakou','abomey','ouidah','natitingou','bohicon','djougou'].some(v=>_loc.includes(v));
+  return { isBJ: _isBJ, flag: _isBJ ? '🇧🇯' : '🇹🇬' };
+}
+function _offreSalaire(f) {
+  return (f['Salaire affiché'] && f['Salaire min FCFA'])
+    ? `${(f['Salaire min FCFA']).toLocaleString('fr-FR')}${f['Salaire max FCFA'] ? ' à ' + f['Salaire max FCFA'].toLocaleString('fr-FR') : ''} FCFA`
+    : 'À négocier';
+}
+
+// Entrée publique : ouvre la page détail d'une offre
 function showOffreDetail(offreId) {
   const offre = (_offresCache || []).find(o => o.id === offreId);
   if (!offre) { toast('Offre introuvable', 'error'); return; }
+  window._offreCourante = offre;
   const f = offre.fields;
-  const contrat = f['Type de contrat'] || 'Non précisé';
-  const salaire = f['Salaire affiché'] && f['Salaire min FCFA']
-    ? `${(f['Salaire min FCFA']).toLocaleString()}${f['Salaire max FCFA'] ? ' – ' + f['Salaire max FCFA'].toLocaleString() : ''} FCFA`
-    : 'À négocier';
-  const _loc = ((f['Quartier']||'') + ' ' + (f['Ville']||'')).toLowerCase();
-  const _isBJ = ['cotonou','porto-novo','parakou','abomey','ouidah','natitingou'].some(v=>_loc.includes(v));
-  const _flag = _isBJ ? '🇧🇯' : '🇹🇬';
-  const nbCand = f['Nb candidatures'] || 0;
-  const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : '?';
-  // Description : escape avant le replace pour éviter XSS, puis convertir les sauts de ligne
-  const desc = escapeHtml(f['Description'] || 'Pas de description fournie par le recruteur.').replace(/\n/g, '<br>');
-  const _safeTitreD = escapeHtml(f['Titre'] || 'Sans titre');
-  const _safeRecruteurNomD = escapeHtml(f['Recruteur Nom'] || 'Recruteur');
-  const _safeRecruteurIdD = escapeHtml(f['Recruteur ID'] || '');
-  const _safeContratD = escapeHtml(contrat);
-  const _safeLieuD = escapeHtml(f['Quartier'] || f['Ville'] || 'Non précisé');
-  const _safeExpD = escapeHtml(f['Expérience requise'] || '');
-  const _safeOffreIdD = escapeHtml(offre.id);
-  const _waNumD = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
-  const _titreJsArgD = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
-  // Trust badge modal (cache sync + async enrichment)
-  const _ruidD = escapeHtml(f['Recruteur User ID'] || '');
-  const _trustD = _ruidD ? window._recruteurTrustCache[_ruidD] : undefined;
-  const _trustBadgeD = _trustD?.flagged
-    ? '<span style="display:inline-block;background:rgba(220,38,38,0.15);color:#f87171;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:800;border:1px solid rgba(220,38,38,0.3);" title="Ce recruteur a ete signale 3 fois ou plus par la communaute WOZALI">⚠️ Signalé par la communauté</span>'
-    : (_trustD?.trusted && f['Recruteur vérifié'])
-      ? '<span style="display:inline-block;background:rgba(252,224,168,0.12);color:#FCE0A8;border-radius:4px;padding:2px 9px;font-size:11px;font-weight:800;border:1px solid rgba(252,224,168,0.25);" title="Recruteur de confiance : zero signalement, identite verifiee">🛡️ Recruteur de confiance</span>'
-      : (_ruidD ? `<span data-trust-badge="${_ruidD}" data-trust-verifie="${f['Recruteur vérifié']?'1':'0'}"></span>` : '');
-
-  const container = document.getElementById('offre-detail-content');
-  container.innerHTML = `
-    <div style="margin-bottom:24px;">
-      ${f['Urgente'] ? '<span style="display:inline-block;background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🔴 URGENTE</span>' : ''}
-      <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:900;color:#FCE0A8;line-height:1.3;margin:0 0 8px;">${_safeTitreD}</h2>
-      <div style="font-size:13px;color:rgba(252, 224, 168,0.6);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        ${f['Recruteur ID'] ? `<span onclick="showProfil('${_safeRecruteurIdD}');showPage('profil');document.getElementById('modal-offre-detail').style.display='none'" style="cursor:pointer;color:#E8940A;text-decoration:underline;text-underline-offset:3px;font-weight:600;">🏢 ${_safeRecruteurNomD}</span>` : `🏢 ${_safeRecruteurNomD}`}
-        ${f['Recruteur vérifié'] ? '<span style="color:#E8940A;font-weight:800;" title="Recruteur vérifié WOZALI">✓ Vérifié</span>' : ''}
-        ${_trustBadgeD}
-        <span>· Publié ${joursDepuis === 0 ? "aujourd'hui" : 'il y a ' + joursDepuis + ' jour' + (joursDepuis>1?'s':'')}</span>
-      </div>
-    </div>
-
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
-      <div style="background:rgba(232,148,10,0.06);border:1px solid rgba(232,148,10,0.2);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
-        <div style="font-size:11px;color:rgba(252, 224, 168,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Salaire</div>
-        <div style="font-size:16px;font-weight:800;color:#E8940A;">💰 ${salaire}</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
-        <div style="font-size:11px;color:rgba(252, 224, 168,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contrat</div>
-        <div style="font-size:15px;font-weight:700;color:#FCE0A8;">${_safeContratD}</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;flex:1;min-width:140px;">
-        <div style="font-size:11px;color:rgba(252, 224, 168,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Lieu</div>
-        <div style="font-size:15px;font-weight:700;color:#FCE0A8;">${_flag} ${_safeLieuD}</div>
-      </div>
-    </div>
-
-    ${f['Expérience requise'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:rgba(252, 224, 168,0.7);">💼 Expérience requise : ${_safeExpD}</span></div>` : ''}
-    ${f['Télétravail possible'] ? `<div style="margin-bottom:16px;"><span style="background:rgba(232,148,10,0.08);border:1px solid rgba(232,148,10,0.2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;color:#E8940A;">💻 Télétravail possible</span></div>` : ''}
-
-    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;margin-bottom:24px;">
-      <h3 style="font-family:'DM Serif Display',serif;font-size:17px;font-weight:800;color:#FCE0A8;margin:0 0 12px;">Description du poste</h3>
-      <div style="font-size:14px;color:rgba(252, 224, 168,0.75);line-height:1.8;">${desc}</div>
-    </div>
-
-    <div style="font-size:13px;color:rgba(252, 224, 168,0.5);margin-bottom:20px;">👥 <strong style="color:#FCE0A8;">${nbCand}</strong> candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
-
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-primary" style="flex:2;justify-content:center;min-width:200px;padding:14px;" onclick="document.getElementById('modal-offre-detail').style.display='none';ouvrirModalCandidature('${_safeOffreIdD}','${_titreJsArgD}','${escapeHtml(f['Recruteur ID']||'')}')">→ Postuler avec mon profil WOZALI</button>
-      ${f['Recruteur WhatsApp'] ? `<a href="https://wa.me/${_waNumD}?text=Bonjour, j'ai vu ton offre '${encodeURIComponent(f['Titre']||'')}' sur WOZALI" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;border:none;padding:14px 20px;flex:1;justify-content:center;text-align:center;">💬 Contacter le recruteur</a>` : ''}
-      <button class="btn btn-sm" style="background:rgba(232,148,10,0.08);color:#E8940A;border:1px solid rgba(232,148,10,0.25);padding:14px 20px;flex:1;justify-content:center;" onclick="partagerOffre('${_titreJsArgD}','${_safeOffreIdD}')">📤 Partager</button>
-    </div>
-    <div style="margin-top:12px;text-align:center;">
-      <button onclick="window.wozaliSignalement?.open({offreId:'${_safeOffreIdD}',contextLabel:'Offre : ${_titreJsArgD.replace(/"/g,'&quot;')}'})" style="background:none;border:none;color:rgba(252, 224, 168,.4);font-size:12px;cursor:pointer;text-decoration:underline;">🚨 Offre suspecte ou faux recruteur ? Signaler cette offre</button>
-    </div>
-  `;
-
-  document.getElementById('modal-offre-detail').style.display = 'flex';
+  const slug = _buildOffreSlug(f['Titre'] || '', f['Ville'] || '', offre.id);
+  renderOffrePremium(offre);
+  showPage('offre-detail');
+  // URL partageable réelle (après showPage qui pousse #offre-detail)
+  try { history.replaceState({ offreSlug: slug, offreId: offre.id }, '', `/offre/${slug}`); } catch(e) {}
+  // SEO : title + JobPosting JSON-LD (Google for Jobs)
+  try { _setOffreSeo(offre, slug); } catch(e) {}
+  window.scrollTo({ top: 0, behavior: 'auto' });
   setTimeout(_enrichOffresTrustBadges, 0);
 }
+
+// Construit tout le corps premium de la page
+function renderOffrePremium(offre) {
+  const f = offre.fields;
+  const contrat = f['Type de contrat'] || 'Non précisé';
+  const salaire = _offreSalaire(f);
+  const { flag } = _offrePays(f);
+  const nbCand = f['Nb candidatures'] || 0;
+  const nbVues = f['Vues'] || 0;
+  const joursDepuis = f['Créée le'] ? Math.floor((Date.now() - new Date(f['Créée le'])) / 86400000) : null;
+  const publieTxt = joursDepuis === null ? 'récemment'
+    : joursDepuis === 0 ? "aujourd'hui"
+    : joursDepuis === 1 ? 'hier'
+    : 'il y a ' + joursDepuis + ' jours';
+  const desc = escapeHtml(f['Description'] || 'Pas de description fournie par le recruteur.').replace(/\n/g, '<br>');
+  const titre = escapeHtml(f['Titre'] || 'Sans titre');
+  const metier = escapeHtml(f['Métier'] || contrat);
+  const recNom = escapeHtml(f['Recruteur Nom'] || 'Recruteur');
+  const recId = escapeHtml(f['Recruteur ID'] || '');
+  const lieu = escapeHtml([f['Quartier'], f['Ville']].filter(Boolean).join(', ') || 'Non précisé');
+  const exp = escapeHtml(f['Expérience requise'] || '');
+  const offreIdEsc = escapeHtml(offre.id);
+  const titreArg = (f['Titre']||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  const waNum = (f['Recruteur WhatsApp'] || '').replace(/\D/g,'');
+  const recInit = (f['Recruteur Nom'] || 'R').trim().charAt(0).toUpperCase();
+
+  // Trust badge (cache sync + enrichissement async par data-attr)
+  const ruid = escapeHtml(f['Recruteur User ID'] || '');
+  const trust = ruid ? (window._recruteurTrustCache||{})[ruid] : undefined;
+  let trustBadge = '';
+  if (trust?.flagged) {
+    trustBadge = '<span class="offd-badge-warn" title="Signalé 3 fois ou plus par la communauté WOZALI">⚠️ Signalé</span>';
+  } else if (trust?.trusted && f['Recruteur vérifié']) {
+    trustBadge = '<span class="offd-badge-trust" title="Zéro signalement, identité vérifiée">🛡️ Confiance</span>';
+  } else if (ruid) {
+    trustBadge = `<span data-trust-badge="${ruid}" data-trust-verifie="${f['Recruteur vérifié']?'1':'0'}"></span>`;
+  }
+  const verifBadge = f['Recruteur vérifié'] ? '<span class="offd-badge-v" title="Recruteur vérifié WOZALI">✓ Vérifié</span>' : '';
+
+  // Photos de l'offre
+  const photos = [f['Photo 1'], f['Photo 2'], f['Photo 3']].map(p => _wPhotoUrl ? _wPhotoUrl(p) : p).filter(Boolean);
+  const galerie = photos.length
+    ? `<div class="offd-gallery">${photos.map(u => `<img src="${escapeHtml(u)}" alt="Photo de l'offre" onclick="openPhotoLightbox && openPhotoLightbox('${escapeHtml(u)}')">`).join('')}</div>`
+    : '';
+
+  // Conditions
+  const conds = [];
+  conds.push(`<div class="offd-cond"><div class="offd-cond-lbl">Contrat</div><div class="offd-cond-val">${escapeHtml(contrat)}</div></div>`);
+  conds.push(`<div class="offd-cond"><div class="offd-cond-lbl">Lieu</div><div class="offd-cond-val">${flag} ${lieu}</div></div>`);
+  if (exp) conds.push(`<div class="offd-cond"><div class="offd-cond-lbl">Expérience</div><div class="offd-cond-val">${exp}</div></div>`);
+  if (f['Télétravail possible']) conds.push(`<div class="offd-cond"><div class="offd-cond-lbl">Mode</div><div class="offd-cond-val">💻 Télétravail possible</div></div>`);
+
+  // Recruteur clickable
+  const recNameHtml = recId
+    ? `<span class="lnk" onclick="showProfil('${recId}');showPage('profil');">${recNom}</span>`
+    : recNom;
+
+  // Offres similaires (même métier ou même ville, exclut l'offre courante)
+  const similaires = (_offresCache||[]).filter(o => {
+    if (o.id === offre.id) return false;
+    const of = o.fields;
+    return (f['Métier'] && of['Métier'] === f['Métier']) || (f['Ville'] && of['Ville'] === f['Ville']);
+  }).slice(0, 4);
+  const simHtml = similaires.length ? `
+    <div class="offd-sec">
+      <h3 class="offd-sec-h">Offres similaires</h3>
+      <div class="offd-sim">
+        ${similaires.map(o => {
+          const of = o.fields;
+          return `<div class="offd-sim-card" onclick="showOffreDetail('${escapeHtml(o.id)}')">
+            <div class="offd-sim-ic">💼</div>
+            <div class="offd-sim-info">
+              <div class="offd-sim-t">${escapeHtml(of['Titre']||'Offre')}</div>
+              <div class="offd-sim-s">${_offrePays(of).flag} ${escapeHtml([of['Quartier'],of['Ville']].filter(Boolean).join(', ')||'')} · ${escapeHtml(of['Type de contrat']||'')}</div>
+            </div>
+            <div class="offd-sim-sal">${_offreSalaire(of)==='À négocier'?'À nég.':_offreSalaire(of).replace(' FCFA','')}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
+  document.getElementById('offd-body').innerHTML = `
+    <div class="offd-hero">
+      ${f['Urgente'] ? '<span class="offd-badge-urg">🔴 Recrute en urgence</span>' : ''}
+      <div class="offd-eyebrow"><span>${metier}</span><span class="dot"></span><span>${escapeHtml(contrat)}</span></div>
+      <h1 class="offd-title">${titre}</h1>
+      <div class="offd-recruteur">
+        <div class="offd-rec-ava">${recInit}</div>
+        <div class="offd-rec-meta">
+          <div class="offd-rec-name">${recNameHtml} ${verifBadge} ${trustBadge}</div>
+          <div class="offd-rec-sub">Publié ${publieTxt} · ${nbVues} vue${nbVues>1?'s':''} · ${nbCand} candidat${nbCand>1?'s':''}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="offd-salaire">
+      <div class="offd-salaire-ic">💰</div>
+      <div>
+        <div class="offd-salaire-lbl">Rémunération</div>
+        <div class="offd-salaire-val">${salaire}</div>
+      </div>
+    </div>
+
+    <div class="offd-conds">${conds.join('')}</div>
+
+    ${galerie}
+
+    <div class="offd-sec">
+      <h3 class="offd-sec-h">Description du poste</h3>
+      <div class="offd-desc">${desc}</div>
+    </div>
+
+    <div class="offd-sec">
+      <h3 class="offd-sec-h">Le recruteur</h3>
+      <div class="offd-rec-card">
+        <div class="offd-rec-ava">${recInit}</div>
+        <div class="offd-rec-meta">
+          <div class="offd-rec-name">${recNameHtml} ${verifBadge} ${trustBadge}</div>
+          <div class="offd-rec-sub">${nbCand} candidat${nbCand>1?'s ont':' a'} déjà postulé</div>
+        </div>
+      </div>
+      <div class="offd-rec-actions">
+        ${recId ? `<button class="offd-rec-btn ghost" onclick="showProfil('${recId}');showPage('profil');">Voir le profil WOZALI</button>` : ''}
+        <button class="offd-rec-btn ghost" onclick="ouvrirModalCandidature('${offreIdEsc}','${titreArg}','${escapeHtml(f['Recruteur ID']||'')}')">Postuler et contacter</button>
+      </div>
+    </div>
+
+    <div class="offd-safe">
+      <div class="offd-safe-ic">🛡️</div>
+      <div class="offd-safe-txt">
+        <b>Reste prudent.</b> Un vrai recruteur ne te demandera <b>jamais d'argent</b> pour postuler, passer un test ou "réserver" le poste. Ne verse rien, ne donne aucun code. Un doute ? <a href="javascript:void(0)" onclick="signalerOffreCourante()" style="color:#E8940A;">Signale cette offre en un clic</a>.
+      </div>
+    </div>
+
+    ${simHtml}
+  `;
+
+  // Barre CTA collante
+  const stickySal = document.getElementById('offd-sticky-sal');
+  const stickyBtn = document.getElementById('offd-sticky-btn');
+  if (stickySal) stickySal.textContent = salaire;
+  if (stickyBtn) stickyBtn.onclick = () => ouvrirModalCandidature(offre.id, f['Titre']||'', f['Recruteur ID']||'');
+}
+
+// SEO : JobPosting JSON-LD + meta (Google for Jobs)
+function _setOffreSeo(offre, slug) {
+  const f = offre.fields;
+  const titre = f['Titre'] || 'Offre d\'emploi';
+  const ville = f['Ville'] || '';
+  const { isBJ } = _offrePays(f);
+  document.title = `${titre}${ville ? ' · ' + ville : ''} · WOZALI Jobs`;
+  const descTxt = (f['Description'] || `Offre ${titre} à ${ville}. Postule avec ton profil WOZALI.`).slice(0, 160);
+  _setMeta('description', descTxt);
+  _setOg('og:title', `${titre} · WOZALI Jobs`);
+  _setOg('og:description', descTxt);
+  _setOg('og:url', `https://wozali.africa/offre/${slug}`);
+  _setOg('og:type', 'website');
+  const ph = [f['Photo 1']].map(p => _wPhotoUrl ? _wPhotoUrl(p) : p).filter(Boolean)[0];
+  if (ph) _setOg('og:image', ph);
+  _setCanonical(`https://wozali.africa/offre/${slug}`);
+  const jsonld = {
+    '@context': 'https://schema.org/',
+    '@type': 'JobPosting',
+    'title': titre,
+    'description': f['Description'] || titre,
+    'datePosted': f['Créée le'] || new Date().toISOString(),
+    'employmentType': (f['Type de contrat']||'').toUpperCase().includes('CDI') ? 'FULL_TIME' : 'OTHER',
+    'hiringOrganization': { '@type': 'Organization', 'name': f['Recruteur Nom'] || 'Recruteur WOZALI' },
+    'jobLocation': { '@type': 'Place', 'address': { '@type': 'PostalAddress',
+      'addressLocality': ville, 'addressCountry': isBJ ? 'BJ' : 'TG' } }
+  };
+  if (f['Salaire min FCFA']) {
+    jsonld.baseSalary = { '@type': 'MonetaryAmount', 'currency': 'XOF',
+      'value': { '@type': 'QuantitativeValue', 'minValue': f['Salaire min FCFA'],
+        'maxValue': f['Salaire max FCFA'] || f['Salaire min FCFA'], 'unitText': 'MONTH' } };
+  }
+  _setJsonLd(jsonld);
+}
+
+// Retour à la liste des offres
+function retourOffres() {
+  showPage('emploi');
+}
+// Partage de l'offre courante
+function partagerOffreCourante() {
+  const o = window._offreCourante;
+  if (!o) return;
+  const slug = _buildOffreSlug(o.fields['Titre']||'', o.fields['Ville']||'', o.id);
+  const url = `https://wozali.africa/offre/${slug}`;
+  const txt = `Offre : ${o.fields['Titre']||'emploi'} sur WOZALI`;
+  if (navigator.share) { navigator.share({ title: txt, url }).catch(()=>{}); }
+  else { navigator.clipboard?.writeText(url); toast('Lien de l\'offre copié', 'success'); }
+}
+// Signalement de l'offre courante
+function signalerOffreCourante() {
+  const o = window._offreCourante;
+  if (!o) return;
+  window.wozaliSignalement?.open({ offreId: o.id, contextLabel: 'Offre : ' + (o.fields['Titre']||'') });
+}
+window.retourOffres = retourOffres;
+window.partagerOffreCourante = partagerOffreCourante;
+window.signalerOffreCourante = signalerOffreCourante;
 
 // ── Page emploi principale ──
 async function showPageEmploi() {
