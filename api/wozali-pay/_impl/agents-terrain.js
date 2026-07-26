@@ -1,11 +1,11 @@
 // ================================================================
-// Agents Terrain — CRUD + recherche prestataires + sync Airtable
+// Agents Terrain — CRUD + recherche prestataires
 // POST /api/wozali-pay/agents-terrain { action, token, ... }
 // Actions: list, search, add, remove, update
 // Admin-only (vérifié via ADMIN_EMAILS)
+// Sync Airtable retirée 2026 (module airtable-sync.js supprimé, base Airtable morte)
 // ================================================================
 import { supabase } from '../../_lib/supabase.js';
-import { syncToAirtable, updateAirtable } from '../../_lib/airtable-sync.js';
 
 async function verifyAdmin(token) {
   const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
@@ -143,18 +143,7 @@ export default async function handler(req, res) {
 
       if (error) throw error;
 
-      // Sync Airtable backup (fire-and-forget)
-      syncToAirtable('Agents Terrain', {
-        'Nom': nom,
-        'Téléphone': telephone || '',
-        'Email': email || '',
-        'Ville': ville,
-        'Genre': genre,
-        'Code Parrainage': code_parrainage || '',
-        'Actif': true,
-        'Supabase ID': inserted.id,
-        'User ID': user_id || ''
-      });
+      // Sync Airtable retirée 2026 (base Airtable supprimée)
 
       return res.status(200).json({ ok: true, agent: inserted });
     }

@@ -1,7 +1,7 @@
 // POST /api/wozali-pay/parrainage-apply  { user_id, code }
 // Lie un filleul à un parrain via son code WOZALI-XXXXXX
+// Sync Airtable retirée 2026 (module airtable-sync.js supprimé, base Airtable morte)
 import { supabase } from '../../_lib/supabase.js';
-import { syncToAirtable } from '../../_lib/airtable-sync.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -46,14 +46,7 @@ export default async function handler(req, res) {
       .single();
     if (error) throw error;
 
-    // 4) Sync Airtable (backup)
-    syncToAirtable('Parrainages', {
-      'Parrain Email': parrain.email || '',
-      'Filleul ID': user_id,
-      'Code': codeNorm,
-      'Date': new Date().toISOString(),
-      'Statut': 'actif'
-    });
+    // Sync Airtable retirée 2026 (base Airtable supprimée)
 
     return res.status(200).json({
       ok: true,

@@ -27,6 +27,7 @@ export async function verifyAuth(req) {
 
     return { user_id: user.id, email: user.email };
   } catch (e) {
+    console.error('[verifyAuth]', e?.message || e);
     return null;
   }
 }
