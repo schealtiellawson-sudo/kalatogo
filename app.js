@@ -8742,17 +8742,18 @@ function _renderOriginalInline(orig) {
 
 function _renderFilPostCard(post, pr, hasLiked, myReaction, original) {
   const isRepost = !!post.repost_of;
-  const nom = pr.nom_complet || 'Pro';
-  const metier = pr.metier_principal || '';
-  const quartier = pr.quartier || '';
+  const rawNom = pr.nom_complet || 'Pro';
+  const nom = escapeHtml(rawNom);                       // saisi par l'user → échappé (anti-XSS)
+  const metier = escapeHtml(pr.metier_principal || '');
+  const quartier = escapeHtml(pr.quartier || '');
   const score = pr.score_wozali || 0;
-  const photo = pr.photo_profil || '';
+  const photo = escapeHtml(pr.photo_profil || '');
   const prestId = post.prestataire_id;
   const likes = post.nb_likes || 0;
   const contenu = (post.contenu || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const mediaUrl = post.media_url || '';
+  const mediaUrl = escapeHtml(post.media_url || '');
   const depuis = _relativeTime(post.created_at);
-  const initiale = nom.charAt(0).toUpperCase();
+  const initiale = rawNom.charAt(0).toUpperCase();
   // Sur un repost : mon propre contenu = le commentaire optionnel + l'original imbriqué
   const estMien = !!(currentUser && post.auteur_id === currentUser.id);
   const peutRepartager = !!(currentUser && !isRepost && !estMien);
@@ -16715,7 +16716,6 @@ function renderRDVList(list) {
           <button onclick="updateRDVStatut('${r.id}','Confirmé')" style="flex:1;padding:10px;background:var(--vert);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;">✅ Confirmer</button>
           <button onclick="updateRDVStatut('${r.id}','Annulé')" style="flex:1;padding:10px;background:#fee2e2;color:#dc2626;border:none;border-radius:10px;font-weight:700;cursor:pointer;">❌ Annuler</button>
           ` : ''}
-          <button onclick="openPaymentLinkModal('${r.id}','${(f['Nom client']||'Client').replace(/'/g,'&apos;')}','${f['Email client']||''}')" style="flex:1;padding:10px;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;">💳 Lien paiement</button>
         </div>
       </div>`;
   }).join('');
@@ -17010,6 +17010,59 @@ function requestWithdrawal() {
   if (amountEl) amountEl.textContent = commDisp.toLocaleString('fr-FR') + ' FCFA';
   document.getElementById('modal-retrait').classList.add('active');
 }
+
+// Sélection visuelle de la méthode de retrait (palette Nuit)
+function selectRetraitMethod(el, method) {
+  document.querySelectorAll('#retrait-method-selector .retrait-method-card').forEach(c => {
+    c.style.border = '2px solid rgba(252,224,168,.12)';
+    c.style.background = 'rgba(255,255,255,.04)';
+    c.style.color = '#FCE0A8';
+  });
+  if (el) {
+    el.style.border = '2px solid #E8940A';
+    el.style.background = 'rgba(232,148,10,.15)';
+    el.style.color = '#FCE0A8';
+  }
+  const radio = el?.parentElement?.querySelector('input[name="retrait-method"]');
+  if (radio) radio.checked = true;
+}
+
+// Confirme la demande de retrait → insertion dans wozali_retraits
+async function confirmWithdrawal() {
+  if (!currentPrestataire) return;
+  const methode = document.querySelector('#retrait-method-selector input[name="retrait-method"]:checked')?.value || 'TMoney';
+  const phoneRaw = (document.getElementById('retrait-phone-input')?.value || '').replace(/\s/g, '');
+  const montant = (window._parrainCommissions || {}).dispo || 0;
+
+  if (phoneRaw.replace(/\D/g, '').length < 8) { toast('Entre un numéro de réception valide', 'error'); return; }
+  if (montant < 3000) { toast('Minimum de retrait : 3 000 FCFA', 'error'); return; }
+
+  const btn = document.querySelector('#modal-retrait .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
+  try {
+    if (!window.supabase) throw new Error('Connexion indisponible');
+    const { error } = await window.supabase.from('wozali_retraits').insert({
+      user_id: currentUser?.id || null,
+      prestataire_id: currentPrestataire.id,
+      montant_fcfa: montant,
+      methode: methode,
+      telephone: phoneRaw,
+      statut: 'en_attente'
+    });
+    if (error) throw error;
+    document.getElementById('modal-retrait').classList.remove('active');
+    toast('Demande de retrait envoyée. Tu es prévenu ici dès que c\'est parti.', 'success');
+    // Rafraîchir les stats parrainage si dispo
+    try { if (typeof loadParrainageStats === 'function') loadParrainageStats(); } catch(e) {}
+  } catch (e) {
+    console.error('[confirmWithdrawal]', e);
+    toast('La demande n\'a pas pu être envoyée. Réessaie dans un instant.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirmer la demande →'; }
+  }
+}
+window.selectRetraitMethod = selectRetraitMethod;
+window.confirmWithdrawal = confirmWithdrawal;
 
 
 
@@ -17520,7 +17573,7 @@ function getLastFridayOfMonth(d) {
         const photo = f['Photo de profil'] || '';
         const nom = (f['Nom complet'] || '').split(' ')[0];
         const metier = f['Métier principal'] || '';
-        return `<div class="hc-real-card" onclick="voirProfil('${r.id}')">
+        return `<div class="hc-real-card" onclick="showProfil('${r.id}');showPage('profil')">
           <img src="${photo}" alt="${nom}" onerror="this.parentElement.style.display='none'" loading="lazy">
           <div class="hc-rc-info">
             <div class="hc-rc-name">${nom}</div>
@@ -17894,7 +17947,7 @@ function initFedaPayCheckout(code, amount) {
         custom_metadata: { code: code, user_id: currentUser?.id || '', email: currentUser?.email || '' }
       },
       customer: {
-        email: currentUser?.email || 'client@wozali.com',
+        email: currentUser?.email || 'client@wozali.africa',
         firstname: (currentPrestataire?.fields?.['Nom complet'] || 'Client').split(' ')[0],
         lastname: (currentPrestataire?.fields?.['Nom complet'] || '').split(' ').slice(1).join(' ') || 'WOZALI'
       },
@@ -21110,6 +21163,11 @@ function initRecrutPublier() {
   if (!currentPrestataire) return;
   const formEl = document.getElementById('recrut-form-wrap');
   if (formEl) formEl.style.display = 'block';
+  // Toujours démarrer l'assistant à l'étape 1
+  try { if (typeof _recrutStep === 'function') _recrutStep(1); } catch(e){}
+  // Rafraîchir le template quand le métier change
+  const met = document.getElementById('recrut-metier');
+  if (met && !met._tplBound) { met._tplBound = true; met.addEventListener('change', () => { try { _recrutRefreshTemplate(); } catch(e){} }); }
 }
 
 // ── Photos offre d'emploi (max 3) ──
@@ -21213,6 +21271,131 @@ function _recrutUpdateQuartiers(ville) {
     if (autreQ) autreQ.style.display = this.value === 'Autre' ? 'block' : 'none';
   };
 }
+// ══════════════════════════════════════════════════════════
+//  ASSISTANT RECRUTEUR 4 ÉTAPES (refonte 2026-07-26)
+// ══════════════════════════════════════════════════════════
+let _recrutCurStep = 1;
+
+// Templates de description par famille de métier
+const _RECRUT_TEMPLATES = {
+  'Coiffeur':"Salon recherche un(e) coiffeur(se) sérieux(se) et ponctuel(le).\n\nCompétences attendues : tresses, tissage, défrisage, soin capillaire.\nHoraires : à préciser. Rémunération : fixe + primes sur objectif.\nAmbiance conviviale, clientèle fidèle.",
+  'Tresseur/Tresseuse':"Recherche tresseur(se) rapide et soigneux(se).\n\nMaîtrise des tresses collées, rajouts, vanilles et coiffures protectrices.\nHoraires et rémunération à préciser. Bonne ambiance d'équipe.",
+  'Couturier':"Atelier recherche un(e) couturier(ère) minutieux(se).\n\nMaîtrise de la coupe, de l'assemblage et des finitions.\nCapacité à respecter les délais clients. Rémunération à préciser.",
+  'Électricien':"Recherche électricien qualifié pour installations et dépannages.\n\nMaîtrise du câblage, tableaux, normes de sécurité.\nPermis/expérience appréciés. Rémunération selon profil.",
+  'Plombier':"Recherche plombier autonome pour installations et réparations.\n\nMaîtrise sanitaire, tuyauterie, dépannage rapide.\nRémunération selon profil et expérience.",
+  'Maçon':"Recherche maçon expérimenté pour chantier.\n\nMaîtrise fondations, élévation, enduits.\nSérieux et ponctualité indispensables. Rémunération à préciser.",
+  'Menuisier':"Atelier recherche menuisier qualifié.\n\nMaîtrise du bois, assemblage, finitions.\nLecture de plans appréciée. Rémunération selon profil.",
+  'Mécanicien':"Garage recherche mécanicien polyvalent.\n\nDiagnostic, réparation, entretien moto/auto.\nAutonomie et rigueur attendues. Rémunération à préciser.",
+  'Cuisinier':"Recherche cuisinier(ère) pour service quotidien.\n\nMaîtrise des plats locaux et de l'hygiène en cuisine.\nRapidité et régularité attendues. Rémunération à préciser.",
+  'Chauffeur':"Recherche chauffeur sérieux et prudent.\n\nPermis valide, bonne connaissance de la ville.\nPonctualité indispensable. Rémunération à préciser.",
+  'Commercial/Agent':"Recherche commercial(e) motivé(e) pour développer les ventes.\n\nAisance relationnelle, sens du résultat.\nFixe + commissions attractives. Rémunération à préciser.",
+  'Secrétaire':"Recherche secrétaire organisé(e) et rigoureux(se).\n\nGestion des appels, agenda, documents.\nMaîtrise de l'outil informatique appréciée. Rémunération à préciser.",
+  'Gardien':"Recherche gardien sérieux et vigilant.\n\nSurveillance des lieux, contrôle des accès.\nDisponibilité et fiabilité indispensables. Rémunération à préciser."
+};
+
+// Motifs d'arnaque : demande d'argent au candidat (renvoie le motif trouvé, sinon '')
+function _recrutScamCheck(txt) {
+  const t = (txt || '').toLowerCase();
+  const patterns = [
+    'frais de dossier','frais d\'inscription','frais d inscription','frais de formation',
+    'caution de','verser une caution','payer une caution','paye une caution',
+    'envoie de l\'argent','envoyer de l\'argent','transfert d\'argent avant',
+    'payer pour postuler','payez pour','paiement obligatoire pour','frais avant embauche',
+    'achète un kit','acheter le kit','frais de test'
+  ];
+  for (const p of patterns) { if (t.includes(p)) return p; }
+  return '';
+}
+
+// Navigation entre étapes
+function _recrutStep(n) {
+  _recrutCurStep = n;
+  document.querySelectorAll('.recrut-wiz .recrut-step').forEach(s => {
+    s.classList.toggle('active', String(s.dataset.step) === String(n));
+  });
+  document.querySelectorAll('#recrut-stepper .rstep-item').forEach(it => {
+    const g = Number(it.dataset.goto);
+    it.classList.toggle('active', g === n);
+    it.classList.toggle('done', g < n);
+  });
+  if (n === 2) _recrutRefreshTemplate();
+  if (n === 4) _recrutRenderPreview();
+  try { document.querySelector('.recrut-wiz')?.scrollIntoView({ block:'start', behavior:'smooth' }); } catch(e){}
+}
+
+// Affiche le bouton template si un modèle existe pour le métier choisi
+function _recrutRefreshTemplate() {
+  const metier = document.getElementById('recrut-metier')?.value || '';
+  const box = document.getElementById('recrut-templates');
+  if (!box) return;
+  if (_RECRUT_TEMPLATES[metier] && !(document.getElementById('recrut-description')?.value||'').trim()) {
+    document.getElementById('recrut-tpl-metier').textContent = metier;
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+function _recrutApplyTemplate() {
+  const metier = document.getElementById('recrut-metier')?.value || '';
+  const tpl = _RECRUT_TEMPLATES[metier];
+  const ta = document.getElementById('recrut-description');
+  if (tpl && ta) { ta.value = tpl; document.getElementById('recrut-templates').style.display = 'none'; toast('Modèle appliqué, personnalise-le', 'success'); }
+}
+
+// Aperçu live : mini carte offre depuis les champs saisis
+function _recrutRenderPreview() {
+  const g = id => document.getElementById(id)?.value?.trim() || '';
+  const chk = id => document.getElementById(id)?.checked || false;
+  const titre = g('recrut-titre');
+  const metier = g('recrut-metier');
+  const contrat = g('recrut-contrat');
+  const desc = g('recrut-description');
+  const villeSel = g('recrut-ville-offre') === 'Autre' ? g('recrut-autre-ville') : g('recrut-ville-offre');
+  const quartier = g('job-quartier') === 'Autre' ? g('recrut-autre-quartier') : g('job-quartier');
+  const exp = g('recrut-experience');
+  const smin = g('recrut-salaire-min'), smax = g('recrut-salaire-max');
+  const showSal = chk('recrut-afficher-salaire');
+  const lieu = [quartier, villeSel].filter(Boolean).join(', ');
+  const paysBJ = ['cotonou','porto','parakou','abomey','ouidah','natitingou','bohicon'].some(v => (lieu||'').toLowerCase().includes(v)) || g('recrut-pays') === 'Bénin';
+  const flag = paysBJ ? '🇧🇯' : '🇹🇬';
+  const salTxt = (showSal && smin) ? `${Number(smin).toLocaleString('fr-FR')}${smax ? ' à ' + Number(smax).toLocaleString('fr-FR') : ''} FCFA` : '';
+
+  const box = document.getElementById('recrut-preview');
+  if (!box) return;
+  if (!titre && !desc) {
+    box.innerHTML = '<div class="rpv-empty">Remplis les étapes précédentes pour voir l\'aperçu de ton offre.</div>';
+  } else {
+    const pills = [];
+    if (contrat) pills.push(`<span class="rpv-pill">${escapeHtml(contrat)}</span>`);
+    if (lieu) pills.push(`<span class="rpv-pill">${flag} ${escapeHtml(lieu)}</span>`);
+    if (exp) pills.push(`<span class="rpv-pill">💼 ${escapeHtml(exp)}</span>`);
+    if (chk('recrut-teletravail')) pills.push(`<span class="rpv-pill">💻 Télétravail</span>`);
+    box.innerHTML = `
+      ${chk('recrut-urgente') ? '<span class="rpv-urg">🔴 Recrute en urgence</span>' : ''}
+      <div class="rpv-eyebrow">${escapeHtml(metier || 'Métier')}${contrat ? ' · ' + escapeHtml(contrat) : ''}</div>
+      <div class="rpv-title">${escapeHtml(titre || 'Titre de ton offre')}</div>
+      ${salTxt ? `<div class="rpv-sal">💰 ${salTxt}</div>` : ''}
+      ${pills.length ? `<div class="rpv-pills">${pills.join('')}</div>` : ''}
+      <div class="rpv-desc">${escapeHtml(desc || 'Description du poste…')}</div>`;
+  }
+
+  // Anti-arnaque en direct dans l'aperçu
+  const scam = _recrutScamCheck(titre + ' ' + desc);
+  const warn = document.getElementById('recrut-scam-warn');
+  if (warn) {
+    if (scam) {
+      warn.style.display = 'flex';
+      warn.innerHTML = `<div>⚠️</div><div><b>Bloqué :</b> ton texte contient « ${escapeHtml(scam)} ». Une offre WOZALI ne demande jamais d'argent au candidat. Retire cette mention pour publier.</div>`;
+    } else {
+      warn.style.display = 'none';
+    }
+  }
+}
+window._recrutStep = _recrutStep;
+window._recrutApplyTemplate = _recrutApplyTemplate;
+window._recrutRenderPreview = _recrutRenderPreview;
+window._recrutScamCheck = _recrutScamCheck;
+
 async function publierOffre() {
   if (!currentPrestataire) return;
   // Publication d'offres GRATUITE pour tous (décision fondateur 2026-07-20) : plus de gating Pro ici.
@@ -21227,6 +21410,14 @@ async function publierOffre() {
 
   if (!titre || !metier || !contrat || !description) {
     toast('Remplis les champs obligatoires (*, titre, métier, contrat, description)', 'error'); return;
+  }
+
+  // Anti-arnaque : bloque toute demande d'argent au candidat
+  const scam = _recrutScamCheck(titre + ' ' + description);
+  if (scam) {
+    _recrutStep(4);
+    toast('Une offre WOZALI ne demande jamais d\'argent au candidat. Retire la mention "' + scam + '".', 'error');
+    return;
   }
 
   // Upload photos si présentes
@@ -21302,6 +21493,7 @@ async function publierOffre() {
       _recrutPhotosFiles.length = 0;
       document.getElementById('recrut-photos-previews').innerHTML = '';
       document.getElementById('recrut-photo-add').style.display = '';
+      try { _recrutStep(1); } catch(e){}
       setTimeout(() => showDashSection('recrut-offres'), 500);
     } else {
       throw new Error(data.error?.message || 'Erreur');

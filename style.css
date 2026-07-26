@@ -9010,3 +9010,44 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 .offd-sticky-btn:hover { transform:translateY(-1px); box-shadow:0 6px 26px rgba(232,148,10,.45); }
 @media(max-width:560px){ .offd-sticky-btn{ padding:13px 20px; font-size:14px; } .offd-sticky-sal{ font-size:16px; } }
 #page-offre-detail.active .offd-sticky { display:flex; }
+
+/* ════════════════════════════════════════════════
+   ASSISTANT RECRUTEUR 4 ÉTAPES (refonte 2026-07-26)
+   ════════════════════════════════════════════════ */
+.rstep-head { display:flex; align-items:center; gap:6px; margin-bottom:26px; }
+.rstep-item { display:flex; align-items:center; gap:8px; cursor:pointer; opacity:.5; transition:opacity .2s; }
+.rstep-item.active, .rstep-item.done { opacity:1; }
+.rstep-dot { width:28px; height:28px; border-radius:50%; background:rgba(252,224,168,.08); border:1.5px solid rgba(252,224,168,.2); color:rgba(252,224,168,.6); font-family:'Geist Mono',monospace; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; }
+.rstep-item.active .rstep-dot { background:#E8940A; border-color:#E8940A; color:#14100A; box-shadow:0 0 14px rgba(232,148,10,.4); }
+.rstep-item.done .rstep-dot { background:rgba(232,148,10,.18); border-color:#E8940A; color:#E8940A; }
+.rstep-lbl { font-family:'Geist',sans-serif; font-size:12.5px; font-weight:600; color:#FCE0A8; white-space:nowrap; }
+.rstep-bar { flex:1; height:1.5px; background:rgba(252,224,168,.12); min-width:8px; }
+@media(max-width:560px){ .rstep-lbl{ display:none; } .rstep-bar{ min-width:14px; } }
+
+.recrut-step { display:none; }
+.recrut-step.active { display:block; animation:rstepIn .25s ease; }
+@keyframes rstepIn { from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+
+.rstep-nav { display:flex; gap:12px; margin-top:4px; }
+.rstep-btn { font-family:'Geist',sans-serif; font-weight:700; font-size:14.5px; border-radius:12px; padding:14px 22px; cursor:pointer; border:1px solid; transition:transform .1s, box-shadow .15s; }
+.rstep-btn.ghost { flex:1; background:#E8940A; color:#14100A; border-color:#E8940A; box-shadow:0 4px 18px rgba(232,148,10,.28); }
+.rstep-btn.ghost:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(232,148,10,.42); }
+.rstep-btn.back { background:rgba(252,224,168,.05); border-color:rgba(252,224,168,.18); color:#FCE0A8; }
+.rstep-btn.back:hover { border-color:rgba(232,148,10,.5); }
+.rstep-btn.publish { flex:1; background:#E8940A; color:#14100A; border-color:#E8940A; box-shadow:0 4px 18px rgba(232,148,10,.3); }
+.rstep-btn.publish:hover { transform:translateY(-1px); box-shadow:0 6px 26px rgba(232,148,10,.45); }
+
+/* Aperçu live (mini carte offre) */
+.recrut-preview { background:linear-gradient(160deg,#211a0e,#1E180E 70%); border:1px solid rgba(232,148,10,.2); border-radius:18px; padding:22px 22px 20px; position:relative; overflow:hidden; }
+.recrut-preview::before { content:''; position:absolute; top:-70px; right:-60px; width:200px; height:200px; background:radial-gradient(circle,rgba(232,148,10,.14),transparent 70%); pointer-events:none; }
+.rpv-urg { display:inline-block; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#fff; background:#dc2626; border-radius:100px; padding:3px 11px; margin-bottom:10px; }
+.rpv-eyebrow { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#E8940A; margin-bottom:8px; }
+.rpv-title { font-family:'DM Serif Display',serif; font-size:22px; line-height:1.2; color:#FCE0A8; margin:0 0 14px; position:relative; z-index:1; }
+.rpv-sal { font-family:'DM Serif Display',serif; font-size:19px; color:#E8940A; margin-bottom:12px; }
+.rpv-pills { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.rpv-pill { font-family:'Geist',sans-serif; font-size:12px; font-weight:600; color:rgba(252,224,168,.75); background:rgba(252,224,168,.06); border:1px solid rgba(252,224,168,.12); border-radius:100px; padding:5px 12px; }
+.rpv-desc { font-family:'Geist',sans-serif; font-size:13.5px; line-height:1.7; color:rgba(252,224,168,.75); white-space:pre-wrap; }
+.rpv-empty { font-family:'Geist',sans-serif; font-size:13px; color:rgba(252,224,168,.4); font-style:italic; }
+
+.recrut-scam { display:flex; gap:12px; background:rgba(220,38,38,.1); border:1px solid rgba(220,38,38,.35); border-radius:14px; padding:14px 16px; margin-top:16px; font-family:'Geist',sans-serif; font-size:13px; line-height:1.6; color:#fca5a5; }
+.recrut-scam b { color:#fff; }

@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260726b">
+<link rel="stylesheet" href="/style.css?v=20260726c">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2955,8 +2955,7 @@ setTimeout(function(){
           </div>
         </div>
 
-        <!-- Bannière apprentie + wizard -->
-        <div id="apprentie-banner-host"></div>
+        <!-- Bannière apprentie : hôte unique en haut de .dashboard-main (doublon retiré 2026-07-26) -->
         <div id="ds-overview-intro" style="display:none;"></div>
         <div id="wozali-premier-pas-wizard" style="display:none;margin-bottom:20px;"></div>
         <div id="ov-top50-banner" style="display:none;"></div>
@@ -6216,7 +6215,7 @@ setTimeout(function(){
           <h3 style="margin-bottom:8px;">💸 Retirer mes commissions</h3>
           <p style="font-size:14px;color:var(--gris);margin-bottom:16px;">Minimum 3 000 FCFA (= 3 filleuls actifs). Paiement via TMoney, Flooz, MTN Mobile Money ou Moov Money sous 24h.</p>
           <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-            <div style="font-size:24px;font-weight:900;color:var(--vert);font-family:'DM Serif Display',serif;" id="retrait-amount-display">0 FCFA disponible</div>
+            <div style="font-size:24px;font-weight:900;color:#E8940A;font-family:'DM Serif Display',serif;" id="retrait-amount-display">0 FCFA disponible</div>
             <button class="btn btn-primary" id="retrait-btn" onclick="requestWithdrawal()">Demander le retrait →</button>
           </div>
         </div>
@@ -6527,9 +6526,21 @@ setTimeout(function(){
         </div>
 
         <div id="recrut-form-wrap">
-          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(232,148,10,.12);border-radius:16px;padding:28px;max-width:640px;">
+          <div class="recrut-wiz" style="background:rgba(255,255,255,.03);border:1px solid rgba(232,148,10,.12);border-radius:16px;padding:28px;max-width:640px;">
 
-            <!-- SECTION 1 : L'ESSENTIEL -->
+            <!-- STEPPER -->
+            <div class="rstep-head" id="recrut-stepper">
+              <div class="rstep-item active" data-goto="1"><span class="rstep-dot">1</span><span class="rstep-lbl">L'essentiel</span></div>
+              <div class="rstep-bar"></div>
+              <div class="rstep-item" data-goto="2"><span class="rstep-dot">2</span><span class="rstep-lbl">Détails</span></div>
+              <div class="rstep-bar"></div>
+              <div class="rstep-item" data-goto="3"><span class="rstep-dot">3</span><span class="rstep-lbl">Options</span></div>
+              <div class="rstep-bar"></div>
+              <div class="rstep-item" data-goto="4"><span class="rstep-dot">4</span><span class="rstep-lbl">Aperçu</span></div>
+            </div>
+
+            <!-- ÉTAPE 1 : L'ESSENTIEL -->
+            <div class="recrut-step active" data-step="1">
             <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">01 · L'essentiel</p>
 
             <div style="margin-bottom:18px;">
@@ -6598,9 +6609,19 @@ setTimeout(function(){
               </div>
             </div>
 
-            <!-- SECTION 2 : DÉTAILS -->
-            <div style="border-top:1px solid rgba(232,148,10,.08);margin-bottom:28px;"></div>
+            <div class="rstep-nav">
+              <button type="button" class="rstep-btn ghost" onclick="_recrutStep(2)">Continuer →</button>
+            </div>
+            </div><!-- /étape 1 -->
+
+            <!-- ÉTAPE 2 : DÉTAILS -->
+            <div class="recrut-step" data-step="2">
             <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">02 · Détails</p>
+
+            <div id="recrut-templates" style="margin-bottom:16px;display:none;">
+              <p style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.5);margin:0 0 8px;">💡 Modèle prêt pour <span id="recrut-tpl-metier" style="color:#E8940A;font-weight:700;"></span> : clique pour pré-remplir la description.</p>
+              <button type="button" id="recrut-tpl-btn" onclick="_recrutApplyTemplate()" style="background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.3);color:#E8940A;font-family:Geist,sans-serif;font-size:12.5px;font-weight:700;border-radius:100px;padding:7px 16px;cursor:pointer;">✨ Utiliser le modèle</button>
+            </div>
 
             <div style="margin-bottom:18px;">
               <label style="display:block;color:rgba(252, 224, 168,.7);font-family:Geist,sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;">Description du poste * <span style="color:rgba(252, 224, 168,.35);font-weight:400;">missions, conditions, ce que tu attends</span></label>
@@ -6618,8 +6639,14 @@ setTimeout(function(){
               </div>
             </div>
 
-            <!-- SECTION 3 : OPTIONS -->
-            <div style="border-top:1px solid rgba(232,148,10,.08);margin-bottom:28px;"></div>
+            <div class="rstep-nav">
+              <button type="button" class="rstep-btn back" onclick="_recrutStep(1)">← Retour</button>
+              <button type="button" class="rstep-btn ghost" onclick="_recrutStep(3)">Continuer →</button>
+            </div>
+            </div><!-- /étape 2 -->
+
+            <!-- ÉTAPE 3 : OPTIONS + PHOTOS -->
+            <div class="recrut-step" data-step="3">
             <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">03 · Options</p>
 
             <div style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:18px;">
@@ -6639,9 +6666,9 @@ setTimeout(function(){
               <input type="date" id="recrut-expiration" style="background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.15);color:#FCE0A8;padding:11px 14px;border-radius:10px;font-size:14px;font-family:Geist,sans-serif;outline:none;box-sizing:border-box;max-width:240px;color-scheme:dark;">
             </div>
 
-            <!-- SECTION 4 : PHOTOS -->
+            <!-- PHOTOS (dans l'étape 3) -->
             <div style="border-top:1px solid rgba(232,148,10,.08);margin-bottom:28px;"></div>
-            <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">04 · Photos <span style="color:rgba(252, 224, 168,.35);font-weight:400;letter-spacing:0;text-transform:none;font-size:11px;">(max 3)</span></p>
+            <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 18px;">Photos du poste <span style="color:rgba(252, 224, 168,.35);font-weight:400;letter-spacing:0;text-transform:none;font-size:11px;">(max 3 · optionnel)</span></p>
 
             <div id="recrut-photos-container" style="margin-bottom:24px;">
               <label id="recrut-photo-add" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed rgba(232,148,10,.3);border-radius:12px;padding:24px 20px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='#E8940A'" onmouseout="this.style.borderColor='rgba(232,148,10,.3)'">
@@ -6653,9 +6680,33 @@ setTimeout(function(){
               <div id="recrut-photos-previews" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;"></div>
             </div>
 
-            <!-- CTA -->
-            <button onclick="publierOffre()" style="width:100%;background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:15px 24px;font-family:Geist,sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">📢 Publier sur WOZALI Jobs</button>
+            <div class="rstep-nav">
+              <button type="button" class="rstep-btn back" onclick="_recrutStep(2)">← Retour</button>
+              <button type="button" class="rstep-btn ghost" onclick="_recrutStep(4)">Voir l'aperçu →</button>
+            </div>
+            </div><!-- /étape 3 -->
+
+            <!-- ÉTAPE 4 : APERÇU + PUBLICATION -->
+            <div class="recrut-step" data-step="4">
+            <p style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1.5px;color:rgba(232,148,10,.7);text-transform:uppercase;margin:0 0 6px;">04 · Aperçu</p>
+            <p style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin:0 0 18px;">Voici exactement ce que verront les candidats sur leur téléphone.</p>
+
+            <div id="recrut-preview" class="recrut-preview"><!-- injecté par _recrutRenderPreview() --></div>
+
+            <div id="recrut-scam-warn" class="recrut-scam" style="display:none;"></div>
+
+            <div class="offd-safe" style="margin:18px 0 0;">
+              <div class="offd-safe-ic">🛡️</div>
+              <div class="offd-safe-txt"><b>Rappel WOZALI.</b> Ne demande jamais d'argent à un candidat (frais de dossier, caution, test payant). Les offres transparentes reçoivent 3× plus de candidatures sérieuses.</div>
+            </div>
+
+            <div class="rstep-nav">
+              <button type="button" class="rstep-btn back" onclick="_recrutStep(3)">← Modifier</button>
+              <button onclick="publierOffre()" class="rstep-btn publish">📢 Publier sur WOZALI Jobs</button>
+            </div>
             <div id="talents-recommandes-container"></div>
+            </div><!-- /étape 4 -->
+
           </div>
         </div>
       </div>
@@ -6892,7 +6943,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260726b" defer></script>
+<script src="/app.js?v=20260726d" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -7858,13 +7909,13 @@ setTimeout(function(){
 
 <!-- Modal Retrait Commissions -->
 <div class="modal-overlay" id="modal-retrait">
-  <div class="modal" style="max-width:420px;">
+  <div class="modal" style="max-width:420px;background:#1E180E;border:1px solid rgba(232,148,10,.18);color:#FCE0A8;">
     <div class="modal-header">
-      <h3 class="modal-title">💸 Récupérer mes Frais de traitement</h3>
+      <h3 class="modal-title" style="color:#FCE0A8;">💸 Récupérer mes gains</h3>
       <button class="modal-close" onclick="document.getElementById('modal-retrait').classList.remove('active')">✕</button>
     </div>
     <div class="modal-body">
-      <div id="retrait-solde-display" style="background:var(--vert);color:white;border-radius:14px;padding:16px;text-align:center;margin-bottom:20px;">
+      <div id="retrait-solde-display" style="background:linear-gradient(135deg,#E8940A,#b5710a);color:#14100A;border-radius:14px;padding:16px;text-align:center;margin-bottom:20px;">
         <div style="font-size:28px;font-weight:900;font-family:'DM Serif Display',serif;" id="retrait-modal-amount">0 FCFA</div>
         <div style="font-size:13px;opacity:0.85;margin-top:4px;">Disponible à retirer</div>
       </div>
@@ -7873,35 +7924,35 @@ setTimeout(function(){
         <div style="display:flex;gap:10px;flex-wrap:wrap;" id="retrait-method-selector">
           <label style="flex:1;min-width:100px;">
             <input type="radio" name="retrait-method" value="TMoney" checked style="display:none;">
-            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'TMoney')" style="border:2px solid var(--vert);border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:var(--vert);color:white;">
+            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'TMoney')" style="border:2px solid #E8940A;border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:rgba(232,148,10,.15);color:#FCE0A8;">
               <div style="font-size:22px;">📱</div>
               <div style="font-weight:700;font-size:13px;">TMoney</div>
             </div>
           </label>
           <label style="flex:1;min-width:100px;">
             <input type="radio" name="retrait-method" value="Flooz" style="display:none;">
-            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'Flooz')" style="border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:white;">
+            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'Flooz')" style="border:2px solid rgba(252,224,168,.12);border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:rgba(255,255,255,.04);color:#FCE0A8;">
               <div style="font-size:22px;">📲</div>
               <div style="font-weight:700;font-size:13px;">Flooz</div>
             </div>
           </label>
           <label style="flex:1;min-width:100px;">
             <input type="radio" name="retrait-method" value="Wave" style="display:none;">
-            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'Wave')" style="border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:white;">
+            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'Wave')" style="border:2px solid rgba(252,224,168,.12);border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:rgba(255,255,255,.04);color:#FCE0A8;">
               <div style="font-size:22px;">🌊</div>
               <div style="font-weight:700;font-size:13px;">Wave</div>
             </div>
           </label>
           <label style="flex:1;min-width:100px;">
             <input type="radio" name="retrait-method" value="MTN" style="display:none;">
-            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'MTN')" style="border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:white;">
+            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'MTN')" style="border:2px solid rgba(252,224,168,.12);border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:rgba(255,255,255,.04);color:#FCE0A8;">
               <div style="font-size:22px;">📱</div>
               <div style="font-weight:700;font-size:13px;">MTN MoMo</div>
             </div>
           </label>
           <label style="flex:1;min-width:100px;">
             <input type="radio" name="retrait-method" value="Moov" style="display:none;">
-            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'Moov')" style="border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:white;">
+            <div class="retrait-method-card" onclick="selectRetraitMethod(this,'Moov')" style="border:2px solid rgba(252,224,168,.12);border-radius:12px;padding:12px;text-align:center;cursor:pointer;background:rgba(255,255,255,.04);color:#FCE0A8;">
               <div style="font-size:22px;">📲</div>
               <div style="font-weight:700;font-size:13px;">Moov Money</div>
             </div>
@@ -7909,10 +7960,10 @@ setTimeout(function(){
         </div>
       </div>
       <div class="form-group" style="margin-top:16px;">
-        <label class="form-label">Numéro de réception</label>
-        <input type="tel" id="retrait-phone-input" class="form-input" placeholder="Ex: 90 00 00 00" style="font-size:16px;letter-spacing:1px;">
+        <label class="form-label" style="color:rgba(252,224,168,.7);">Numéro de réception</label>
+        <input type="tel" id="retrait-phone-input" class="form-input" placeholder="Ex: 90 00 00 00" style="font-size:16px;letter-spacing:1px;background:rgba(255,255,255,.06);border:1px solid rgba(232,148,10,.2);color:#FCE0A8;">
       </div>
-      <p style="font-size:12px;color:var(--gris);margin-top:8px;">Ta demande est vérifiée avant envoi. Tu reçois l'argent sur ton Mobile Money, et tu es prévenu ici dès que c'est parti. Minimum 3 000 FCFA.</p>
+      <p style="font-size:12px;color:rgba(252,224,168,.5);margin-top:8px;">Ta demande est vérifiée avant envoi. Tu reçois l'argent sur ton Mobile Money, et tu es prévenu ici dès que c'est parti. Minimum 3 000 FCFA.</p>
     </div>
     <div class="modal-footer" style="display:flex;gap:10px;">
       <button class="btn" style="flex:1;" onclick="document.getElementById('modal-retrait').classList.remove('active')">Annuler</button>
