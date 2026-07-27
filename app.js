@@ -678,6 +678,7 @@ function showDashSection(section) {
   if (section === 'realisations') loadRealisationsSection();
   if (section === 'modeles') loadModelesSection();
   if (section === 'packs') loadPacksSection();
+  if (section === 'menu') loadMenuSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -3441,6 +3442,314 @@ async function togglePackActive(id) {
 }
 window.togglePackActive = togglePackActive;
 window.loadPacksSection = loadPacksSection;
+
+// ══════════════════════════════════════════════════════════════════
+// Restauration & Traiteur — cluster métier « Ma carte » (wozali_menu)
+// Cuisinier, traiteur, pâtissier/boulanger, restaurateur, bar/maquis…
+// Le pro affiche sa carte regroupée par catégorie (Plats, Boissons,
+// Desserts…) sur son profil public. Bouton « Commander » par item →
+// commande EN INTERNE (wozali_commandes type 'menu' + pushNotif), jamais WhatsApp.
+// Calqué sur renderProfilPacks / la boutique (photo via uploadToImgBB).
+// recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
+// ══════════════════════════════════════════════════════════════════
+async function renderProfilMenu(userId, containerId, recordId) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let items = [];
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_menu')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .order('ordre', { ascending: true });
+    if (error) return;
+    items = data || [];
+  } catch (e) { return; }
+  if (!items.length) return; // rien à afficher = section masquée
+
+  // État partagé pour commanderPlat (destinataire de la notif + libellés)
+  const map = {};
+  window._menuState = { userId, recordId: recordId || null, items: map };
+
+  // Groupement par catégorie, dans l'ordre d'apparition (ordre déjà appliqué au fetch).
+  const groupes = [];
+  const idxCat = {};
+  items.forEach(it => {
+    const cat = (it.categorie || '').trim() || 'À la carte';
+    if (idxCat[cat] === undefined) { idxCat[cat] = groupes.length; groupes.push({ cat, items: [] }); }
+    groupes[idxCat[cat]].items.push(it);
+  });
+
+  const groupesHtml = groupes.map(g => {
+    const lignes = g.items.map(it => {
+      const mid = escapeHtml(it.id);
+      const nomP = escapeHtml(it.nom || 'Plat');
+      const prixTxt = (it.prix || it.prix === 0)
+        ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F')
+        : '';
+      map[it.id] = { nom: it.nom || 'Plat', prixTxt };
+      const photo = it.photo_url
+        ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+        : '';
+      const badge = it.plat_du_jour
+        ? `<span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:#14100A;background:#E8940A;padding:2px 7px;border-radius:100px;font-weight:800;">Plat du jour</span>`
+        : '';
+      return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;">
+          ${photo}
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+              <span style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomP}</span>
+              ${badge}
+            </div>
+            ${prixTxt ? `<div style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;margin-top:4px;">${prixTxt}</div>` : ''}
+          </div>
+          <button onclick="event.stopPropagation();commanderPlat('${mid}')" style="flex-shrink:0;min-height:40px;padding:9px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Commander</button>
+        </div>`;
+    }).join('');
+    return `<div style="margin-top:14px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:8px;">${escapeHtml(g.cat)}</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">${lignes}</div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">🍽️ La carte</div>
+      ${groupesHtml}
+    </div>`;
+}
+window.renderProfilMenu = renderProfilMenu;
+
+// Crée une commande de plat EN INTERNE (wozali_commandes type 'menu') + notifie le pro.
+// Aucun WhatsApp : le client est prévenu dans la messagerie WOZALI.
+async function commanderPlat(itemId, nom, prixTxt) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander.', 'error'); return; }
+  const st = window._menuState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const known = (st.items || {})[itemId] || {};
+  const itemNom = nom || known.nom || 'Plat';
+  const pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: puid,
+    type:                'menu',
+    item_id:             itemId,
+    item_nom:            itemNom,
+    prix_txt:            pTxt,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        prixTxt: pTxt || '',
+        titre: 'Nouvelle commande',
+        message: `${clientNom} veut commander « ${itemNom} ».`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast(`Commande envoyée, tu suis ça dans la messagerie.`, 'success');
+  } catch (e) {
+    console.error('❌ commanderPlat', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+window.commanderPlat = commanderPlat;
+
+// ══ Restauration — éditeur dashboard (section ds-menu) ══
+// Mirroir de la boutique : CRUD sur wozali_menu, s'affiche sur le profil
+// public via renderProfilMenu + bouton « Commander » (commande interne).
+let _menuItems = [];
+let _menuEditId = null;
+
+async function loadMenuSection() {
+  const formWrap = document.getElementById('menu-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _menuEditId = null;
+  _renderMenuList(); // rendu immédiat (état de chargement)
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_menu')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _menuItems = data || []; _renderMenuList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderMenuList() {
+  const list = document.getElementById('menu-list');
+  if (!list) return;
+  if (!_menuItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Ta carte est vide. Ajoute ton premier plat (nom + catégorie + prix), il apparaîtra sur ton profil avec un bouton « Commander ».</div>`;
+    return;
+  }
+  list.innerHTML = _menuItems.map(it => {
+    const iid = escapeHtml(it.id);
+    const nomP = escapeHtml(it.nom || 'Plat');
+    const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '—';
+    const cat = it.categorie ? escapeHtml(it.categorie) : '';
+    const actif = it.actif !== false;
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+      : `<div style="width:64px;height:64px;border-radius:10px;background:#14100A;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.4;flex-shrink:0;">🍽️</div>`;
+    const badge = it.plat_du_jour
+      ? `<div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#E8940A;margin-top:4px;">★ Plat du jour</div>`
+      : '';
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        ${photo}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomP}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${prixTxt}${cat ? ` · <span style="color:rgba(252,224,168,.55);">${cat}</span>` : ''}</div>
+          ${badge}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="ouvrirFormMenuItem('${iid}')" style="min-height:36px;padding:6px 12px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Modifier</button>
+          <button onclick="toggleMenuItemActive('${iid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerMenuItem('${iid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormMenuItem(id) {
+  _menuEditId = id || null;
+  const wrap = document.getElementById('menu-form-wrap');
+  if (!wrap) return;
+  const it = id ? _menuItems.find(x => x.id === id) : null;
+  const nomEl = document.getElementById('menu-f-nom');
+  const catEl = document.getElementById('menu-f-cat');
+  const prixEl = document.getElementById('menu-f-prix');
+  const pjEl = document.getElementById('menu-f-platdujour');
+  const prev = document.getElementById('menu-f-photo-preview');
+  if (nomEl) nomEl.value = it ? (it.nom || '') : '';
+  if (catEl) catEl.value = it ? (it.categorie || '') : '';
+  if (prixEl) prixEl.value = it && (it.prix || it.prix === 0) ? String(it.prix) : '';
+  if (pjEl) pjEl.checked = !!(it && it.plat_du_jour);
+  if (prev) {
+    const u = it && it.photo_url ? it.photo_url : '';
+    prev.dataset.url = u;
+    prev.innerHTML = u ? `<img src="${encodeURI(u)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : '';
+  }
+  const titre = document.getElementById('menu-form-titre');
+  if (titre) titre.innerHTML = it ? 'Modifier le <em style="color:#E8940A;font-style:italic;">plat</em>' : 'Nouveau <em style="color:#E8940A;font-style:italic;">plat</em>';
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.ouvrirFormMenuItem = ouvrirFormMenuItem;
+
+function fermerFormMenuItem() {
+  const wrap = document.getElementById('menu-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _menuEditId = null;
+}
+window.fermerFormMenuItem = fermerFormMenuItem;
+
+async function uploadMenuPhoto(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const prev = document.getElementById('menu-f-photo-preview');
+  if (prev) prev.innerHTML = `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.55);">Envoi de la photo…</div>`;
+  const url = await uploadToImgBB(file);
+  if (url && prev) {
+    prev.dataset.url = url;
+    prev.innerHTML = `<img src="${encodeURI(url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+  } else if (prev) {
+    prev.innerHTML = '';
+  }
+}
+window.uploadMenuPhoto = uploadMenuPhoto;
+
+async function saveMenuItem() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer ta carte.', 'error'); return; }
+  const nom = (document.getElementById('menu-f-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un nom à ce plat.', 'error'); return; }
+  const categorie = (document.getElementById('menu-f-cat')?.value || '').trim() || null;
+  const prixRaw = (document.getElementById('menu-f-prix')?.value || '').replace(/\D/g, '');
+  const prix = prixRaw ? parseInt(prixRaw) : null;
+  const plat_du_jour = !!document.getElementById('menu-f-platdujour')?.checked;
+  const photo_url = document.getElementById('menu-f-photo-preview')?.dataset.url || null;
+
+  const btn = document.getElementById('menu-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_menuEditId) {
+      const { error } = await window.supabase.from('wozali_menu')
+        .update({ nom, categorie, prix, plat_du_jour, photo_url })
+        .eq('id', _menuEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _menuItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        nom, categorie, prix, plat_du_jour, photo_url,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_menu').insert(row);
+      if (error) throw error;
+    }
+    toast('Plat enregistré.', 'success');
+    fermerFormMenuItem();
+    await loadMenuSection();
+  } catch (e) {
+    console.error('❌ saveMenuItem', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer le plat'; }
+  }
+}
+window.saveMenuItem = saveMenuItem;
+
+async function supprimerMenuItem(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer ce plat de ta carte ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_menu')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _menuItems = _menuItems.filter(it => it.id !== id);
+    _renderMenuList();
+    toast('Plat supprimé.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerMenuItem', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.supprimerMenuItem = supprimerMenuItem;
+
+async function toggleMenuItemActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _menuItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_menu')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderMenuList();
+  } catch (e) {
+    console.error('❌ toggleMenuItemActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.toggleMenuItemActive = toggleMenuItemActive;
+window.loadMenuSection = loadMenuSection;
 
 // ══ Carte localisation allégée pour mobile (Tâche 3) ══
 // La sidebar (et sa carte Leaflet) est masquée < 768px ; on affiche ici une tuile
@@ -12847,6 +13156,7 @@ async function showProfil(recordId) {
         <div id="profil-catalogue-${recordId}"></div>
         <div id="profil-atelier-${recordId}"></div>
         <div id="profil-packs-${recordId}"></div>
+        <div id="profil-menu-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
@@ -13094,6 +13404,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw);
     if (_profilUserId) renderProfilAtelier(_profilUserId, `profil-atelier-${recordId}`, recordId);
     if (_profilUserId) renderProfilPacks(_profilUserId, `profil-packs-${recordId}`, recordId);
+    if (_profilUserId) renderProfilMenu(_profilUserId, `profil-menu-${recordId}`, recordId);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés

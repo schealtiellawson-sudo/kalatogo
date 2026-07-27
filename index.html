@@ -2667,6 +2667,10 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-caramel"><i data-lucide="palette"></i></span>
         <span>Mes offres / packs</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('menu')" id="dl-menu">
+        <span class="dash-big-chip wchip-orclair"><i data-lucide="utensils"></i></span>
+        <span>Ma carte</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
         <span>Mes avis</span>
@@ -4011,6 +4015,67 @@ setTimeout(function(){
 
         <!-- Liste des packs -->
         <div id="packs-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- MA CARTE / MENU (Restauration & Traiteur) -->
+      <div class="dash-section" id="ds-menu">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Restauration</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Ma <em style="color:#E8940A;font-style:italic;">carte</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Cuisinier, traiteur, pâtissier, restaurateur, maquis… Affiche ta carte regroupée par catégorie (Plats, Boissons, Desserts…) avec photo et prix. Marque un plat « du jour » pour le mettre en avant. Le client commande direct sur WOZALI, tu es prévenu ici.</p>
+          </div>
+          <button onclick="ouvrirFormMenuItem()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter un plat</button>
+        </div>
+
+        <!-- Formulaire plat (masqué par défaut) -->
+        <div id="menu-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 id="menu-form-titre" style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouveau <em style="color:#E8940A;font-style:italic;">plat</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Nom du plat *</label>
+              <input id="menu-f-nom" type="text" maxlength="80" placeholder="Ex : Poulet braisé + attiéké" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Catégorie</label>
+                <input id="menu-f-cat" type="text" maxlength="40" placeholder="Ex : Plats" list="menu-cat-suggestions" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+                <datalist id="menu-cat-suggestions">
+                  <option value="Plats"></option>
+                  <option value="Entrées"></option>
+                  <option value="Boissons"></option>
+                  <option value="Desserts"></option>
+                  <option value="Accompagnements"></option>
+                </datalist>
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Prix (FCFA)</label>
+                <input id="menu-f-prix" type="text" inputmode="numeric" maxlength="12" placeholder="Ex : 2000" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Photo du plat (optionnel)</label>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div id="menu-f-photo-preview" style="width:88px;height:88px;border-radius:12px;background:#14100A;border:1px solid rgba(232,148,10,.2);overflow:hidden;flex-shrink:0;"></div>
+                <label style="cursor:pointer;min-height:40px;display:inline-flex;align-items:center;padding:9px 18px;background:rgba(232,148,10,.15);color:#E8940A;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;">
+                  Choisir une photo
+                  <input type="file" accept="image/*" onchange="uploadMenuPhoto(this)" style="display:none;">
+                </label>
+              </div>
+            </div>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;">
+              <input id="menu-f-platdujour" type="checkbox" style="width:18px;height:18px;accent-color:#E8940A;cursor:pointer;">
+              Mettre en avant comme <strong style="color:#E8940A;">Plat du jour</strong>
+            </label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="menu-f-save" onclick="saveMenuItem()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer le plat</button>
+              <button onclick="fermerFormMenuItem()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des plats -->
+        <div id="menu-list" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
 
 
