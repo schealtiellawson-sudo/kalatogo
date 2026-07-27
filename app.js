@@ -14470,7 +14470,6 @@ async function showProfil(recordId) {
         <div id="profil-maison-${recordId}"></div>
         <div id="profil-etablissement-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
-        <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
         ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
         <!-- Composer (propriétaire) -->
@@ -14550,6 +14549,7 @@ async function showProfil(recordId) {
       <div class="profil-tab-pane" id="profil-tab-apropos-${recordId}" style="display:none;">
         <div class="profil-apropos-main">
           <div id="profil-offres-${recordId}"></div>
+          <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
           ${(description || f['Bio Audio URL']) ? `
           <div class="profil-section profil-animate">
             <h3>À propos</h3>
