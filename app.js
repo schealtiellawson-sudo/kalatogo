@@ -681,6 +681,8 @@ function showDashSection(section) {
   if (section === 'menu') loadMenuSection();
   if (section === 'courses') loadCoursesSection();
   if (section === 'formules') loadFormulesSection();
+  if (section === 'seances') loadSeancesSection();
+  if (section === 'biens') loadBiensSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -3444,6 +3446,561 @@ async function togglePackActive(id) {
 }
 window.togglePackActive = togglePackActive;
 window.loadPacksSection = loadPacksSection;
+
+// ══════════════════════════════════════════════════════════════════
+// Savoir & Conseil (+ Immobilier) — cluster « Mes séances / Mes biens »
+// (wozali_seances + wozali_biens). DEUX sous-blocs sur le profil public :
+//   1) Séances & tarifs (prof particulier, formateur, comptable, juriste…)
+//   2) Annonces de biens (agent/agence, démarcheur, courtier immobilier)
+// Réservation de séance ET demande de visite = 100% INTERNE
+// (wozali_commandes type 'seance' / 'visite' + pushNotif type 'commande'),
+// JAMAIS via WhatsApp. Calqué sur renderProfilPacks (liste) +
+// renderProfilCatalogue (grille cards photo). recordId = wozali_prestataires.id.
+// ══════════════════════════════════════════════════════════════════
+const _CONSEIL_FORMAT_LABEL = { domicile: 'À domicile', en_ligne: 'En ligne' };
+const _BIEN_TRANSACTION_LABEL = { vente: 'Vente', location: 'Location' };
+const _BIEN_STATUT_LABEL = { vendu: 'Vendu', loue: 'Loué' };
+function _conseilCap(s) {
+  if (!s) return '';
+  s = String(s);
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// UNE fonction qui rend les 2 sous-blocs. Si les DEUX vides → n'affiche rien.
+async function renderProfilConseil(userId, containerId, recordId) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let seances = [], biens = [];
+  try {
+    const [rs, rb] = await Promise.all([
+      window.supabase.from('wozali_seances').select('*')
+        .eq('user_id', userId).eq('actif', true).order('ordre', { ascending: true }),
+      window.supabase.from('wozali_biens').select('*')
+        .eq('user_id', userId).eq('actif', true).order('ordre', { ascending: true }),
+    ]);
+    if (!rs.error) seances = rs.data || [];
+    if (!rb.error) biens = rb.data || [];
+  } catch (e) { return; }
+  if (!seances.length && !biens.length) return; // rien à afficher = section masquée
+
+  // ── Sous-bloc 1 : Séances & tarifs ──
+  let blocSeances = '';
+  if (seances.length) {
+    const sMap = {};
+    window._seancesState = { userId, recordId: recordId || null, items: sMap };
+    const rows = seances.map(it => {
+      const sid = escapeHtml(it.id);
+      const nomS = escapeHtml(it.nom || 'Séance');
+      const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '';
+      sMap[it.id] = { nom: it.nom || 'Séance', prixTxt };
+      const fmt = it.format ? (_CONSEIL_FORMAT_LABEL[it.format] || _conseilCap(it.format)) : '';
+      const fmtTxt = fmt
+        ? `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.55);">${escapeHtml(fmt)}</span>`
+        : '';
+      return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomS}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px;">
+              ${prixTxt ? `<span style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;">${prixTxt}</span>` : ''}
+              ${fmtTxt}
+            </div>
+          </div>
+          <button onclick="event.stopPropagation();reserverSeance('${sid}')" style="flex-shrink:0;min-height:40px;padding:9px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Réserver</button>
+        </div>`;
+    }).join('');
+    blocSeances = `<div class="profil-offres-card">
+        <div class="profil-offres-head">📋 Séances &amp; tarifs</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">${rows}</div>
+      </div>`;
+  }
+
+  // ── Sous-bloc 2 : Annonces de biens ──
+  let blocBiens = '';
+  if (biens.length) {
+    const bMap = {};
+    window._biensState = { userId, recordId: recordId || null, items: bMap };
+    const cards = biens.map(it => {
+      const bid = escapeHtml(it.id);
+      const titreB = escapeHtml(it.titre || 'Bien');
+      bMap[it.id] = { titre: it.titre || 'Bien' };
+      const prixTxt = it.prix_txt
+        ? escapeHtml(it.prix_txt)
+        : ((it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '');
+      const typeTxt = it.type_bien ? _conseilCap(it.type_bien) : '';
+      const transTxt = it.transaction ? (_BIEN_TRANSACTION_LABEL[it.transaction] || _conseilCap(it.transaction)) : '';
+      const typeLine = [typeTxt, transTxt].filter(Boolean).map(escapeHtml).join(' · ');
+      const metaBits = [];
+      if (it.superficie_m2 && parseInt(it.superficie_m2) > 0) metaBits.push(`${parseInt(it.superficie_m2)} m²`);
+      if (it.pieces && parseInt(it.pieces) > 0) metaBits.push(`${parseInt(it.pieces)} pièce${parseInt(it.pieces) > 1 ? 's' : ''}`);
+      const metaLine = metaBits.length
+        ? `<div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:rgba(252,224,168,.5);">${escapeHtml(metaBits.join(' · '))}</div>`
+        : '';
+      const quartierLine = it.quartier
+        ? `<div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.6);">📍 ${escapeHtml(it.quartier)}</div>`
+        : '';
+      const indispo = (it.statut === 'vendu' || it.statut === 'loue');
+      const statutBadge = indispo
+        ? `<span style="position:absolute;top:8px;right:8px;background:#1E180E;color:#E8940A;border:1px solid rgba(232,148,10,.4);font-family:'Geist Mono',monospace;font-weight:800;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:100px;">${_BIEN_STATUT_LABEL[it.statut]}</span>`
+        : '';
+      const photo = it.photo_url
+        ? `<img src="${encodeURI(it.photo_url)}" alt="${titreB}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">🏘️</div>`;
+      return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;${indispo ? 'opacity:.7;' : ''}">
+          <div style="position:relative;width:100%;aspect-ratio:1/1;background:#1E180E;">
+            ${photo}
+            ${statutBadge}
+            ${prixTxt ? `<span style="position:absolute;bottom:8px;left:8px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;padding:4px 10px;border-radius:100px;box-shadow:0 2px 8px rgba(0,0,0,.35);">${prixTxt}</span>` : ''}
+          </div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:6px;flex:1;">
+            <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:600;color:#FCE0A8;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${titreB}</div>
+            ${typeLine ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#E8940A;">${typeLine}</div>` : ''}
+            ${quartierLine}
+            ${metaLine}
+            <button onclick="event.stopPropagation();visiterBien('${bid}')" ${indispo ? 'disabled' : ''} style="margin-top:auto;min-height:40px;padding:9px 14px;background:${indispo ? 'rgba(252,224,168,.08)' : '#E8940A'};color:${indispo ? 'rgba(252,224,168,.4)' : '#14100A'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:${indispo ? 'not-allowed' : 'pointer'};">Visiter</button>
+          </div>
+        </div>`;
+    }).join('');
+    blocBiens = `<div class="profil-offres-card">
+        <div class="profil-offres-head">🏘️ Annonces de biens</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px;">${cards}</div>
+      </div>`;
+  }
+
+  el.innerHTML = blocSeances + blocBiens;
+}
+window.renderProfilConseil = renderProfilConseil;
+
+// Réservation de séance EN INTERNE (wozali_commandes type 'seance') + notifie le pro.
+async function reserverSeance(seanceId, nom, prixTxt) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour réserver cette séance.', 'error'); return; }
+  const st = window._seancesState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const known = (st.items || {})[seanceId] || {};
+  const itemNom = nom || known.nom || 'Séance';
+  const pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: puid,
+    type:                'seance',
+    item_id:             seanceId,
+    item_nom:            itemNom,
+    prix_txt:            pTxt,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        prixTxt: pTxt || '',
+        titre: 'Nouvelle réservation de séance',
+        message: `${clientNom} veut réserver « ${itemNom} ».`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast('Réservation envoyée, tu suis ça dans la messagerie.', 'success');
+  } catch (e) {
+    console.error('❌ reserverSeance', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+window.reserverSeance = reserverSeance;
+
+// Demande de visite d'un bien EN INTERNE (wozali_commandes type 'visite') + notifie le pro.
+async function visiterBien(bienId, titre) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour demander une visite.', 'error'); return; }
+  const st = window._biensState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const known = (st.items || {})[bienId] || {};
+  const itemNom = titre || known.titre || 'Bien';
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: puid,
+    type:                'visite',
+    item_id:             bienId,
+    item_nom:            itemNom,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        titre: 'Nouvelle demande de visite',
+        message: `${clientNom} veut visiter « ${itemNom} ».`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast('Demande de visite envoyée', 'success');
+  } catch (e) {
+    console.error('❌ visiterBien', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+window.visiterBien = visiterBien;
+
+// ══ Savoir & Conseil — éditeur dashboard SÉANCES (section ds-seances) ══
+// Mirroir de ds-packs (pas de photo). CRUD sur wozali_seances.
+let _seancesItems = [];
+let _seanceEditId = null;
+
+async function loadSeancesSection() {
+  const formWrap = document.getElementById('seance-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _seanceEditId = null;
+  _renderSeancesList();
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_seances')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _seancesItems = data || []; _renderSeancesList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderSeancesList() {
+  const list = document.getElementById('seances-list');
+  if (!list) return;
+  if (!_seancesItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucune séance pour l'instant. Ajoute ta première séance (nom + format + prix), elle apparaîtra sur ton profil avec un bouton « Réserver ».</div>`;
+    return;
+  }
+  list.innerHTML = _seancesItems.map(it => {
+    const sid = escapeHtml(it.id);
+    const nomS = escapeHtml(it.nom || 'Séance');
+    const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '—';
+    const fmt = it.format ? (_CONSEIL_FORMAT_LABEL[it.format] || _conseilCap(it.format)) : '';
+    const meta = [prixTxt, fmt].filter(Boolean).join(' · ');
+    const actif = it.actif !== false;
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomS}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${escapeHtml(meta)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="ouvrirFormSeance('${sid}')" style="min-height:36px;padding:6px 12px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Modifier</button>
+          <button onclick="toggleSeanceActive('${sid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerSeance('${sid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormSeance(id) {
+  _seanceEditId = id || null;
+  const wrap = document.getElementById('seance-form-wrap');
+  if (!wrap) return;
+  const it = id ? _seancesItems.find(x => x.id === id) : null;
+  const nomEl = document.getElementById('seance-f-nom');
+  const fmtEl = document.getElementById('seance-f-format');
+  const prixEl = document.getElementById('seance-f-prix');
+  if (nomEl) nomEl.value = it ? (it.nom || '') : '';
+  if (fmtEl) fmtEl.value = it && it.format ? it.format : 'domicile';
+  if (prixEl) prixEl.value = it && (it.prix || it.prix === 0) ? String(it.prix) : '';
+  const titre = document.getElementById('seance-form-titre');
+  if (titre) titre.innerHTML = it ? 'Modifier la <em style="color:#E8940A;font-style:italic;">séance</em>' : 'Nouvelle <em style="color:#E8940A;font-style:italic;">séance</em>';
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.ouvrirFormSeance = ouvrirFormSeance;
+
+function fermerFormSeance() {
+  const wrap = document.getElementById('seance-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _seanceEditId = null;
+}
+window.fermerFormSeance = fermerFormSeance;
+
+async function saveSeance() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer tes séances.', 'error'); return; }
+  const nom = (document.getElementById('seance-f-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un nom à ta séance.', 'error'); return; }
+  const format = document.getElementById('seance-f-format')?.value || null;
+  const prixRaw = (document.getElementById('seance-f-prix')?.value || '').replace(/\D/g, '');
+  const prix = prixRaw ? parseInt(prixRaw) : null;
+
+  const btn = document.getElementById('seance-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_seanceEditId) {
+      const { error } = await window.supabase.from('wozali_seances')
+        .update({ nom, format, prix })
+        .eq('id', _seanceEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _seancesItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        nom, format, prix,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_seances').insert(row);
+      if (error) throw error;
+    }
+    toast('Séance enregistrée.', 'success');
+    fermerFormSeance();
+    await loadSeancesSection();
+  } catch (e) {
+    console.error('❌ saveSeance', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la séance'; }
+  }
+}
+window.saveSeance = saveSeance;
+
+async function supprimerSeance(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer cette séance de ton profil ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_seances')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _seancesItems = _seancesItems.filter(it => it.id !== id);
+    _renderSeancesList();
+    toast('Séance supprimée.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerSeance', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.supprimerSeance = supprimerSeance;
+
+async function toggleSeanceActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _seancesItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_seances')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderSeancesList();
+  } catch (e) {
+    console.error('❌ toggleSeanceActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.toggleSeanceActive = toggleSeanceActive;
+window.loadSeancesSection = loadSeancesSection;
+
+// ══ Savoir & Conseil — éditeur dashboard BIENS (section ds-biens) ══
+// Mirroir de ds-boutique (avec photo via uploadToImgBB). CRUD sur wozali_biens.
+let _biensItems = [];
+let _bienEditId = null;
+
+async function loadBiensSection() {
+  const formWrap = document.getElementById('bien-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _bienEditId = null;
+  _renderBiensList();
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_biens')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _biensItems = data || []; _renderBiensList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderBiensList() {
+  const list = document.getElementById('biens-list');
+  if (!list) return;
+  if (!_biensItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucun bien pour l'instant. Ajoute ta première annonce (photo + prix + type + quartier), elle apparaîtra sur ton profil avec un bouton « Visiter ».</div>`;
+    return;
+  }
+  const STATUT_LABEL = { actif: 'Actif', vendu: 'Vendu', loue: 'Loué', retire: 'Retiré' };
+  list.innerHTML = _biensItems.map(it => {
+    const bid = escapeHtml(it.id);
+    const titreB = escapeHtml(it.titre || 'Bien');
+    const prixTxt = it.prix_txt
+      ? escapeHtml(it.prix_txt)
+      : ((it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '—');
+    const typeTxt = it.type_bien ? escapeHtml(_conseilCap(it.type_bien)) : '';
+    const transTxt = it.transaction ? escapeHtml(_BIEN_TRANSACTION_LABEL[it.transaction] || _conseilCap(it.transaction)) : '';
+    const line2 = [typeTxt, transTxt].filter(Boolean).join(' · ');
+    const actif = it.actif !== false;
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+      : `<div style="width:64px;height:64px;border-radius:10px;background:#14100A;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.4;flex-shrink:0;">🏘️</div>`;
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        ${photo}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${titreB}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${prixTxt}${line2 ? ` · <span style="color:rgba(252,224,168,.55);">${line2}</span>` : ''}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.45);margin-top:4px;">${it.quartier ? escapeHtml(it.quartier) + ' · ' : ''}${STATUT_LABEL[it.statut] || 'Actif'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="ouvrirFormBien('${bid}')" style="min-height:36px;padding:6px 12px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Modifier</button>
+          <button onclick="toggleBienActive('${bid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerBien('${bid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormBien(id) {
+  _bienEditId = id || null;
+  const wrap = document.getElementById('bien-form-wrap');
+  if (!wrap) return;
+  const it = id ? _biensItems.find(x => x.id === id) : null;
+  const set = (elId, val) => { const e = document.getElementById(elId); if (e) e.value = val; };
+  set('bien-f-titre', it ? (it.titre || '') : '');
+  set('bien-f-transaction', it && it.transaction ? it.transaction : 'vente');
+  set('bien-f-typebien', it ? (it.type_bien || '') : '');
+  set('bien-f-prix', it && (it.prix || it.prix === 0) ? String(it.prix) : '');
+  set('bien-f-quartier', it ? (it.quartier || '') : '');
+  set('bien-f-superficie', it && it.superficie_m2 ? String(it.superficie_m2) : '');
+  set('bien-f-pieces', it && it.pieces ? String(it.pieces) : '');
+  set('bien-f-statut', it && it.statut ? it.statut : 'actif');
+  set('bien-f-desc', it ? (it.description || '') : '');
+  const prev = document.getElementById('bien-f-photo-preview');
+  if (prev) {
+    const url = it && it.photo_url ? it.photo_url : '';
+    prev.dataset.url = url;
+    prev.innerHTML = url ? `<img src="${encodeURI(url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : '';
+  }
+  const titre = document.getElementById('bien-form-titre');
+  if (titre) titre.innerHTML = it ? 'Modifier le <em style="color:#E8940A;font-style:italic;">bien</em>' : 'Nouvelle <em style="color:#E8940A;font-style:italic;">annonce</em>';
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.ouvrirFormBien = ouvrirFormBien;
+
+function fermerFormBien() {
+  const wrap = document.getElementById('bien-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _bienEditId = null;
+}
+window.fermerFormBien = fermerFormBien;
+
+async function uploadBienPhoto(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const prev = document.getElementById('bien-f-photo-preview');
+  if (prev) prev.innerHTML = `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.55);">Envoi de la photo…</div>`;
+  const url = await uploadToImgBB(file);
+  if (url && prev) {
+    prev.dataset.url = url;
+    prev.innerHTML = `<img src="${encodeURI(url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+  } else if (prev) {
+    prev.innerHTML = '';
+  }
+}
+window.uploadBienPhoto = uploadBienPhoto;
+
+async function saveBien() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer tes biens.', 'error'); return; }
+  const titre = (document.getElementById('bien-f-titre')?.value || '').trim();
+  if (!titre) { toast('Donne au moins un titre à ton annonce.', 'error'); return; }
+  const transaction = document.getElementById('bien-f-transaction')?.value || null;
+  const type_bien = (document.getElementById('bien-f-typebien')?.value || '').trim() || null;
+  const prixRaw = (document.getElementById('bien-f-prix')?.value || '').replace(/\D/g, '');
+  const prix = prixRaw ? parseInt(prixRaw) : null;
+  const quartier = (document.getElementById('bien-f-quartier')?.value || '').trim() || null;
+  const supRaw = (document.getElementById('bien-f-superficie')?.value || '').replace(/\D/g, '');
+  const superficie_m2 = supRaw ? parseInt(supRaw) : null;
+  const piecesRaw = (document.getElementById('bien-f-pieces')?.value || '').replace(/\D/g, '');
+  const pieces = piecesRaw ? parseInt(piecesRaw) : null;
+  const statut = document.getElementById('bien-f-statut')?.value || 'actif';
+  const description = (document.getElementById('bien-f-desc')?.value || '').trim() || null;
+  const photo_url = document.getElementById('bien-f-photo-preview')?.dataset.url || null;
+
+  const btn = document.getElementById('bien-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_bienEditId) {
+      const { error } = await window.supabase.from('wozali_biens')
+        .update({ titre, transaction, type_bien, prix, quartier, superficie_m2, pieces, statut, description, photo_url })
+        .eq('id', _bienEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _biensItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        titre, transaction, type_bien, prix, quartier, superficie_m2, pieces, statut, description, photo_url,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_biens').insert(row);
+      if (error) throw error;
+    }
+    toast('Annonce enregistrée.', 'success');
+    fermerFormBien();
+    await loadBiensSection();
+  } catch (e) {
+    console.error('❌ saveBien', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer l\'annonce'; }
+  }
+}
+window.saveBien = saveBien;
+
+async function supprimerBien(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer cette annonce de ton profil ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_biens')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _biensItems = _biensItems.filter(it => it.id !== id);
+    _renderBiensList();
+    toast('Annonce supprimée.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerBien', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.supprimerBien = supprimerBien;
+
+async function toggleBienActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _biensItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_biens')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderBiensList();
+  } catch (e) {
+    console.error('❌ toggleBienActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.toggleBienActive = toggleBienActive;
+window.loadBiensSection = loadBiensSection;
 
 // ══════════════════════════════════════════════════════════════════
 // Transport & Courses — cluster métier « Mes courses » (wozali_courses)
@@ -13676,6 +14233,7 @@ async function showProfil(recordId) {
         <div id="profil-packs-${recordId}"></div>
         <div id="profil-menu-${recordId}"></div>
         <div id="profil-transport-${recordId}"></div>
+        <div id="profil-conseil-${recordId}"></div>
         <div id="profil-maison-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
@@ -13926,6 +14484,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilPacks(_profilUserId, `profil-packs-${recordId}`, recordId);
     if (_profilUserId) renderProfilMenu(_profilUserId, `profil-menu-${recordId}`, recordId);
     if (_profilUserId) renderProfilTransport(_profilUserId, `profil-transport-${recordId}`, recordId, !!(record.fields && record.fields['Disponible maintenant']));
+    if (_profilUserId) renderProfilConseil(_profilUserId, `profil-conseil-${recordId}`, recordId);
     if (_profilUserId) renderProfilMaison(_profilUserId, `profil-maison-${recordId}`, recordId, !!verifie);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);

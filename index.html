@@ -2679,6 +2679,14 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-caramel"><i data-lucide="house"></i></span>
         <span>🏠 Mes formules</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('seances')" id="dl-seances">
+        <span class="dash-big-chip wchip-orclair"><i data-lucide="graduation-cap"></i></span>
+        <span>📋 Mes séances</span>
+      </button>
+      <button class="dash-link dash-big" onclick="showDashSection('biens')" id="dl-biens">
+        <span class="dash-big-chip wchip-caramel"><i data-lucide="building-2"></i></span>
+        <span>🏘️ Mes biens</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
         <span>Mes avis</span>
@@ -4095,6 +4103,135 @@ setTimeout(function(){
 
         <!-- Liste des formules -->
         <div id="formules-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- MES SÉANCES (Savoir & Conseil) -->
+      <div class="dash-section" id="ds-seances">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Savoir &amp; Conseil</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">séances</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Prof particulier, formateur, traducteur, comptable, juriste, expert Excel, secrétaire, commercial… Affiche tes séances de cours ou de conseil avec le format (à domicile ou en ligne) et le prix. Le client réserve direct sur WOZALI, tu es prévenu ici.</p>
+          </div>
+          <button onclick="ouvrirFormSeance()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter une séance</button>
+        </div>
+
+        <!-- Formulaire séance (masqué par défaut) -->
+        <div id="seance-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 id="seance-form-titre" style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouvelle <em style="color:#E8940A;font-style:italic;">séance</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Nom de la séance *</label>
+              <input id="seance-f-nom" type="text" maxlength="80" placeholder="Ex : Cours de maths niveau lycée" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Format</label>
+                <select id="seance-f-format" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+                  <option value="domicile">À domicile</option>
+                  <option value="en_ligne">En ligne</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Prix (FCFA)</label>
+                <input id="seance-f-prix" type="text" inputmode="numeric" maxlength="12" placeholder="Ex : 3000" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="seance-f-save" onclick="saveSeance()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer la séance</button>
+              <button onclick="fermerFormSeance()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des séances -->
+        <div id="seances-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- MES BIENS (Immobilier) -->
+      <div class="dash-section" id="ds-biens">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Immobilier</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">biens</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Agent immobilier, agence, démarcheur, courtier… Publie tes annonces : photo, prix, vente ou location, quartier, surface et pièces. Le client demande une visite direct sur WOZALI, tu es prévenu ici.</p>
+          </div>
+          <button onclick="ouvrirFormBien()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter un bien</button>
+        </div>
+
+        <!-- Formulaire bien (masqué par défaut) -->
+        <div id="bien-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 id="bien-form-titre" style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouvelle <em style="color:#E8940A;font-style:italic;">annonce</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Titre de l'annonce *</label>
+              <input id="bien-f-titre" type="text" maxlength="90" placeholder="Ex : Appartement 2 chambres, Agla" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Transaction</label>
+                <select id="bien-f-transaction" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+                  <option value="vente">Vente</option>
+                  <option value="location">Location</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Type de bien</label>
+                <input id="bien-f-typebien" type="text" maxlength="40" placeholder="Ex : Appartement" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Prix (FCFA)</label>
+                <input id="bien-f-prix" type="text" inputmode="numeric" maxlength="15" placeholder="Ex : 80000" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Quartier</label>
+                <input id="bien-f-quartier" type="text" maxlength="60" placeholder="Ex : Agla" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Surface (m²)</label>
+                <input id="bien-f-superficie" type="text" inputmode="numeric" maxlength="6" placeholder="Ex : 65" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Pièces</label>
+                <input id="bien-f-pieces" type="text" inputmode="numeric" maxlength="3" placeholder="Ex : 3" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Statut</label>
+                <select id="bien-f-statut" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+                  <option value="actif">Actif</option>
+                  <option value="vendu">Vendu</option>
+                  <option value="loue">Loué</option>
+                  <option value="retire">Retiré</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Photo du bien</label>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div id="bien-f-photo-preview" style="width:88px;height:88px;border-radius:12px;background:#14100A;border:1px solid rgba(232,148,10,.2);overflow:hidden;flex-shrink:0;"></div>
+                <label style="cursor:pointer;min-height:40px;display:inline-flex;align-items:center;padding:9px 18px;background:rgba(232,148,10,.15);color:#E8940A;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;">
+                  Choisir une photo
+                  <input type="file" accept="image/*" onchange="uploadBienPhoto(this)" style="display:none;">
+                </label>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Description (optionnel)</label>
+              <textarea id="bien-f-desc" rows="2" maxlength="400" placeholder="Étage, cuisine équipée, cour, proximité marché…" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="bien-f-save" onclick="saveBien()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer l'annonce</button>
+              <button onclick="fermerFormBien()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des biens -->
+        <div id="biens-list" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
 
       <!-- MA CARTE / MENU (Restauration & Traiteur) -->
