@@ -680,6 +680,7 @@ function showDashSection(section) {
   if (section === 'packs') loadPacksSection();
   if (section === 'menu') loadMenuSection();
   if (section === 'courses') loadCoursesSection();
+  if (section === 'formules') loadFormulesSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -3693,6 +3694,272 @@ async function toggleCourseActive(id) {
 }
 window.toggleCourseActive = toggleCourseActive;
 window.loadCoursesSection = loadCoursesSection;
+
+// ══════════════════════════════════════════════════════════════════
+// Maison & Aide à la personne — cluster métier « Mes formules » (wozali_formules)
+// Jardinier, femme de ménage, gardien, agent de sécurité, repasseuse,
+// baby-sitter, aide-soignant… Le frein n°1 = la confiance (on fait entrer
+// quelqu'un chez soi). Le profil public affiche un bloc « confiance »
+// (identité vérifiée si le flag profil est vrai + recommandation quartier)
+// puis une liste de FORMULES, dont des abonnements récurrents
+// (ex « Ménage 2×/semaine : 20 000 F/mois »). Bouton « Réserver » par
+// formule → réservation EN INTERNE (wozali_commandes type 'service' +
+// pushNotif), jamais WhatsApp. Calqué sur renderProfilTransport / loadCoursesSection.
+// recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
+// verifie = flag « Badge vérifié » du profil (bloc confiance en lecture seule).
+// ══════════════════════════════════════════════════════════════════
+async function renderProfilMaison(userId, containerId, recordId, verifie) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let items = [];
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_formules')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .order('ordre', { ascending: true });
+    if (error) return;
+    items = data || [];
+  } catch (e) { return; }
+  if (!items.length) return; // rien à afficher = section masquée
+
+  // État partagé pour reserverFormule (destinataire de la notif + libellés)
+  const map = {};
+  window._formulesState = { userId, recordId: recordId || null, items: map };
+
+  const rows = items.map(it => {
+    const fid = escapeHtml(it.id);
+    const nomF = escapeHtml(it.nom || 'Formule');
+    const prixTxt = it.prix_txt ? escapeHtml(it.prix_txt) : '';
+    const recurrent = it.recurrent === true;
+    map[it.id] = { nom: it.nom || 'Formule', prixTxt: it.prix_txt || '' };
+    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomF}</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+            ${prixTxt ? `<span style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;">${prixTxt}</span>` : ''}
+            ${recurrent ? `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#E8940A;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:100px;padding:2px 9px;font-weight:700;">Abonnement</span>` : ''}
+          </div>
+        </div>
+        <button onclick="event.stopPropagation();reserverFormule('${fid}')" style="flex-shrink:0;min-height:40px;padding:9px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Réserver</button>
+      </div>`;
+  }).join('');
+
+  // Bloc confiance sobre (charte or) — « Identité vérifiée » seulement si le flag profil est vrai.
+  const chips = [];
+  if (verifie) chips.push('✓ Identité vérifiée');
+  chips.push('Recommandée dans le quartier');
+  const trust = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      ${chips.map(c => `<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(232,148,10,.10);border:1px solid rgba(232,148,10,.28);border-radius:100px;padding:6px 13px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;color:#E8940A;font-weight:700;">${escapeHtml(c)}</span>`).join('')}
+    </div>`;
+
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">🏠 Formules</div>
+      ${trust}
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${rows}
+      </div>
+    </div>`;
+}
+window.renderProfilMaison = renderProfilMaison;
+
+// Crée une réservation de formule EN INTERNE (wozali_commandes type 'service') + notifie le pro.
+// Aucun WhatsApp : le client est prévenu dans la messagerie WOZALI.
+async function reserverFormule(formuleId, nom, prixTxt) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour réserver cette formule.', 'error'); return; }
+  const st = window._formulesState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const known = (st.items || {})[formuleId] || {};
+  const itemNom = nom || known.nom || 'Formule';
+  const pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: puid,
+    type:                'service',
+    item_id:             formuleId,
+    item_nom:            itemNom,
+    prix_txt:            pTxt,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        prixTxt: pTxt || '',
+        titre: 'Nouvelle réservation de formule',
+        message: `${clientNom} veut réserver « ${itemNom} ».`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast(`Réservation envoyée, tu suis ça dans la messagerie.`, 'success');
+  } catch (e) {
+    console.error('❌ reserverFormule', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+window.reserverFormule = reserverFormule;
+
+// ══ Maison & Aide à la personne — éditeur dashboard (section ds-formules) ══
+// Mirroir de ds-courses : CRUD sur wozali_formules (nom + prix_txt + récurrent,
+// pas de photo), s'affiche sur le profil public via renderProfilMaison + bouton « Réserver ».
+let _formulesItems = [];
+let _formuleEditId = null;
+
+async function loadFormulesSection() {
+  const formWrap = document.getElementById('formule-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _formuleEditId = null;
+  _renderFormulesList(); // rendu immédiat (état de chargement)
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_formules')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _formulesItems = data || []; _renderFormulesList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderFormulesList() {
+  const list = document.getElementById('formules-list');
+  if (!list) return;
+  if (!_formulesItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucune formule pour l'instant. Ajoute ta première formule (ex : « Ménage 2×/semaine : 20 000 F/mois »), elle apparaîtra sur ton profil avec un bouton « Réserver ».</div>`;
+    return;
+  }
+  list.innerHTML = _formulesItems.map(it => {
+    const fid = escapeHtml(it.id);
+    const nomF = escapeHtml(it.nom || 'Formule');
+    const prixTxt = it.prix_txt ? escapeHtml(it.prix_txt) : '—';
+    const recurrent = it.recurrent === true;
+    const actif = it.actif !== false;
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomF}${recurrent ? ` <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#E8940A;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:100px;padding:1px 8px;font-weight:700;vertical-align:middle;">Abonnement</span>` : ''}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${prixTxt}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="ouvrirFormFormule('${fid}')" style="min-height:36px;padding:6px 12px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Modifier</button>
+          <button onclick="toggleFormuleActive('${fid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerFormule('${fid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormFormule(id) {
+  _formuleEditId = id || null;
+  const wrap = document.getElementById('formule-form-wrap');
+  if (!wrap) return;
+  const it = id ? _formulesItems.find(x => x.id === id) : null;
+  const nomEl = document.getElementById('formule-f-nom');
+  const prixEl = document.getElementById('formule-f-prix');
+  const recEl = document.getElementById('formule-f-recurrent');
+  if (nomEl) nomEl.value = it ? (it.nom || '') : '';
+  if (prixEl) prixEl.value = it ? (it.prix_txt || '') : '';
+  if (recEl) recEl.checked = it ? (it.recurrent === true) : false;
+  const titre = document.getElementById('formule-form-titre');
+  if (titre) titre.innerHTML = it ? 'Modifier la <em style="color:#E8940A;font-style:italic;">formule</em>' : 'Nouvelle <em style="color:#E8940A;font-style:italic;">formule</em>';
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.ouvrirFormFormule = ouvrirFormFormule;
+
+function fermerFormFormule() {
+  const wrap = document.getElementById('formule-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _formuleEditId = null;
+}
+window.fermerFormFormule = fermerFormFormule;
+
+async function saveFormule() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer tes formules.', 'error'); return; }
+  const nom = (document.getElementById('formule-f-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un intitulé à ta formule.', 'error'); return; }
+  const prix_txt = (document.getElementById('formule-f-prix')?.value || '').trim() || null;
+  const recurrent = !!document.getElementById('formule-f-recurrent')?.checked;
+
+  const btn = document.getElementById('formule-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_formuleEditId) {
+      const { error } = await window.supabase.from('wozali_formules')
+        .update({ nom, prix_txt, recurrent })
+        .eq('id', _formuleEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _formulesItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        nom, prix_txt, recurrent,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_formules').insert(row);
+      if (error) throw error;
+    }
+    toast('Formule enregistrée.', 'success');
+    fermerFormFormule();
+    await loadFormulesSection();
+  } catch (e) {
+    console.error('❌ saveFormule', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la formule'; }
+  }
+}
+window.saveFormule = saveFormule;
+
+async function supprimerFormule(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer cette formule de ton profil ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_formules')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _formulesItems = _formulesItems.filter(it => it.id !== id);
+    _renderFormulesList();
+    toast('Formule supprimée.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerFormule', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.supprimerFormule = supprimerFormule;
+
+async function toggleFormuleActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _formulesItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_formules')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderFormulesList();
+  } catch (e) {
+    console.error('❌ toggleFormuleActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.toggleFormuleActive = toggleFormuleActive;
+window.loadFormulesSection = loadFormulesSection;
 
 // ══════════════════════════════════════════════════════════════════
 // Restauration & Traiteur — cluster métier « Ma carte » (wozali_menu)
@@ -13409,6 +13676,7 @@ async function showProfil(recordId) {
         <div id="profil-packs-${recordId}"></div>
         <div id="profil-menu-${recordId}"></div>
         <div id="profil-transport-${recordId}"></div>
+        <div id="profil-maison-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
@@ -13658,6 +13926,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilPacks(_profilUserId, `profil-packs-${recordId}`, recordId);
     if (_profilUserId) renderProfilMenu(_profilUserId, `profil-menu-${recordId}`, recordId);
     if (_profilUserId) renderProfilTransport(_profilUserId, `profil-transport-${recordId}`, recordId, !!(record.fields && record.fields['Disponible maintenant']));
+    if (_profilUserId) renderProfilMaison(_profilUserId, `profil-maison-${recordId}`, recordId, !!verifie);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés

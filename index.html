@@ -2675,6 +2675,10 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-caramel"><i data-lucide="bike"></i></span>
         <span>🛵 Mes courses</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('formules')" id="dl-formules">
+        <span class="dash-big-chip wchip-caramel"><i data-lucide="house"></i></span>
+        <span>🏠 Mes formules</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
         <span>Mes avis</span>
@@ -4053,6 +4057,44 @@ setTimeout(function(){
 
         <!-- Liste des courses -->
         <div id="courses-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- MES FORMULES (Maison & Aide à la personne) -->
+      <div class="dash-section" id="ds-formules">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Maison &amp; Aide à la personne</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">formules</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Jardinier, femme de ménage, gardien, agent de sécurité, repasseuse, baby-sitter, aide-soignant… On te fait entrer chez soi : la confiance passe avant tout. Affiche tes formules claires, dont des abonnements récurrents (ex : « Ménage 2×/semaine : 20 000 F/mois »). Le client réserve direct sur WOZALI, tu es prévenu ici.</p>
+          </div>
+          <button onclick="ouvrirFormFormule()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter une formule</button>
+        </div>
+
+        <!-- Formulaire formule (masqué par défaut) -->
+        <div id="formule-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 id="formule-form-titre" style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouvelle <em style="color:#E8940A;font-style:italic;">formule</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Intitulé de la formule *</label>
+              <input id="formule-f-nom" type="text" maxlength="80" placeholder="Ex : Ménage 2×/semaine" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Tarif (texte libre)</label>
+              <input id="formule-f-prix" type="text" maxlength="40" placeholder="Ex : 20 000 F/mois" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;">
+              <input id="formule-f-recurrent" type="checkbox" style="width:18px;height:18px;accent-color:#E8940A;cursor:pointer;">
+              Abonnement récurrent (revient chaque semaine/mois)
+            </label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="formule-f-save" onclick="saveFormule()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer la formule</button>
+              <button onclick="fermerFormFormule()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des formules -->
+        <div id="formules-list" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
 
       <!-- MA CARTE / MENU (Restauration & Traiteur) -->
