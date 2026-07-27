@@ -2651,6 +2651,10 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-caramel"><i data-lucide="shopping-bag"></i></span>
         <span>Ma boutique</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('prestations')" id="dl-prestations">
+        <span class="dash-big-chip wchip-orclair"><i data-lucide="sparkles"></i></span>
+        <span>Mes prestations</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
         <span>Mes avis</span>
@@ -3780,6 +3784,56 @@ setTimeout(function(){
 
         <!-- Liste des produits -->
         <div id="boutique-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- PRESTATIONS & TARIFS (Module RDV) -->
+      <div class="dash-section" id="ds-prestations">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Prestations</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">prestations</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Coupe, tresses, soin, manucure… Affiche tes prestations et tarifs. Le client réserve un créneau direct sur WOZALI, tu es prévenu ici.</p>
+          </div>
+          <button onclick="ouvrirFormPrestation()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter une prestation</button>
+        </div>
+
+        <!-- Formulaire prestation (masqué par défaut) -->
+        <div id="prestation-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouvelle <em style="color:#E8940A;font-style:italic;">prestation</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Nom de la prestation *</label>
+              <input id="prestation-f-nom" type="text" maxlength="80" placeholder="Ex : Tresses collées" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Groupe (optionnel)</label>
+                <input id="prestation-f-groupe" type="text" maxlength="40" placeholder="Ex : Coiffure" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Durée (minutes)</label>
+                <input id="prestation-f-duree" type="text" inputmode="numeric" placeholder="Ex : 90" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Prix min (FCFA)</label>
+                <input id="prestation-f-prixmin" type="text" inputmode="numeric" placeholder="Ex : 5000" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Prix max (optionnel)</label>
+                <input id="prestation-f-prixmax" type="text" inputmode="numeric" placeholder="Ex : 8000" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="prestation-f-save" onclick="savePrestation()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer la prestation</button>
+              <button onclick="fermerFormPrestation()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des prestations -->
+        <div id="prestations-list" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
 
 

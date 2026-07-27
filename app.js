@@ -674,6 +674,7 @@ function showDashSection(section) {
   if (section === 'abonnement') { loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
   if (section === 'boutique') loadBoutiqueSection();
+  if (section === 'prestations') loadPrestationsSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -2000,6 +2001,218 @@ function commanderProduitWhatsApp(itemId) {
 window.renderProfilCatalogue = renderProfilCatalogue;
 window.commanderProduitWhatsApp = commanderProduitWhatsApp;
 
+// ══ Prestations & tarifs (Module RDV : coiffure, beauté, soins…) — profil public ══
+// Calqué sur renderProfilCatalogue : masqué si 0 prestation active. La réservation
+// se fait EN INTERNE (calendrier → wozali_rdv), jamais sur WhatsApp.
+// recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
+function _fmtDureePrest(min) {
+  min = parseInt(min);
+  if (!min || min <= 0) return '';
+  const h = Math.floor(min / 60), m = min % 60;
+  if (h && m) return `${h} h ${String(m).padStart(2, '0')}`;
+  if (h) return `${h} h`;
+  return `${m} min`;
+}
+function _fmtPrixPrest(pmin, pmax) {
+  const a = (pmin || pmin === 0) ? parseInt(pmin) : null;
+  const b = (pmax || pmax === 0) ? parseInt(pmax) : null;
+  const f = n => n.toLocaleString('fr-FR') + ' F';
+  if (a !== null && b !== null && b > a) return `${f(a)} – ${f(b)}`;
+  if (a !== null) return `à partir de ${f(a)}`;
+  if (b !== null) return `jusqu'à ${f(b)}`;
+  return '';
+}
+
+async function renderProfilPrestations(userId, containerId, recordId) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let items = [];
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_prestations')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .order('ordre', { ascending: true });
+    if (error) return;
+    items = data || [];
+  } catch (e) { return; }
+  if (!items.length) return; // rien à afficher = section masquée
+
+  // État partagé pour ouvrirCalendrierReservation (destinataire de la notif + libellés)
+  const map = {};
+  window._prestationsState = { userId, recordId: recordId || null, items: map };
+
+  const rows = items.map(it => {
+    const pid = escapeHtml(it.id);
+    map[it.id] = { nom: it.nom || 'Prestation' };
+    const nomP = escapeHtml(it.nom || 'Prestation');
+    const dureeTxt = _fmtDureePrest(it.duree_min);
+    const prixTxt = _fmtPrixPrest(it.prix_min, it.prix_max);
+    const meta = [dureeTxt ? `⏱ ${dureeTxt}` : '', prixTxt].filter(Boolean).join(' · ');
+    const nomArg = (it.nom || 'Prestation').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `<div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-top:1px solid rgba(232,148,10,.12);">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomP}</div>
+          ${meta ? `<div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:3px;">${meta}</div>` : ''}
+        </div>
+        <button onclick="event.stopPropagation();ouvrirCalendrierReservation('${pid}','${nomArg}')" style="flex-shrink:0;min-height:40px;padding:9px 18px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Réserver</button>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">✨ Prestations &amp; tarifs</div>
+      <div style="margin-top:4px;">${rows}</div>
+    </div>`;
+}
+window.renderProfilPrestations = renderProfilPrestations;
+
+// Modale calendrier : sélection date (14 prochains jours) + créneau horaire.
+const _PREST_SLOTS = ['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'];
+let _reservState = { prestationId: null, nom: '', date: null, slot: null };
+
+function ouvrirCalendrierReservation(prestationId, nom) {
+  const st = window._prestationsState || {};
+  if (!window.currentUser) { toast('Connecte-toi pour réserver un créneau.', 'error'); return; }
+  _reservState = { prestationId, nom: nom || 'Prestation', date: null, slot: null };
+
+  const old = document.getElementById('resa-modal');
+  if (old) old.remove();
+
+  // 14 prochains jours en pastilles
+  const jours = [];
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  for (let i = 1; i <= 14; i++) {
+    const d = new Date(now); d.setDate(now.getDate() + i);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    jours.push({ iso, dow: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d.getDay()], jour: d.getDate(), mois: ['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'][d.getMonth()] });
+  }
+  const pastilles = jours.map(j => `
+    <button data-resa-date="${j.iso}" onclick="selectResaDate('${j.iso}')" style="flex-shrink:0;width:60px;padding:10px 0;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:14px;color:#FCE0A8;font-family:Geist,sans-serif;cursor:pointer;text-align:center;transition:.15s;">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.55);">${j.dow}</div>
+      <div style="font-size:19px;font-weight:800;line-height:1.4;">${j.jour}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.45);">${j.mois}</div>
+    </button>`).join('');
+
+  const modal = document.createElement('div');
+  modal.id = 'resa-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100000;display:flex;align-items:flex-end;justify-content:center;padding:0;';
+  modal.innerHTML = `
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:24px 20px 28px;box-shadow:0 -10px 40px rgba(0,0,0,.5);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
+        <div>
+          <div class="wz-eyebrow" style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;">Réservation</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:#FCE0A8;margin-top:2px;">${escapeHtml(_reservState.nom)}</h3>
+        </div>
+        <button onclick="document.getElementById('resa-modal').remove()" style="flex-shrink:0;background:rgba(252,224,168,.08);border:none;color:#FCE0A8;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;">✕</button>
+      </div>
+
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:10px;">Choisis un jour</div>
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;">${pastilles}</div>
+
+      <div id="resa-slots-wrap" style="display:none;margin-top:20px;">
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:10px;">Choisis une heure</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;">
+          ${_PREST_SLOTS.map(s => `<button data-resa-slot="${s}" onclick="selectResaSlot('${s}')" style="min-height:44px;padding:10px 0;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:100px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;cursor:pointer;transition:.15s;">${s}</button>`).join('')}
+        </div>
+      </div>
+
+      <button id="resa-confirm-btn" onclick="confirmerReservation()" disabled style="margin-top:24px;width:100%;min-height:50px;padding:14px;background:rgba(232,148,10,.35);color:rgba(20,16,10,.6);border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:not-allowed;transition:.15s;">Confirmer la réservation</button>
+      <p style="text-align:center;font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.45);margin-top:12px;line-height:1.5;">Ta demande part directement au pro sur WOZALI. Tu es prévenu ici dès qu'il confirme.</p>
+    </div>`;
+  document.body.appendChild(modal);
+}
+window.ouvrirCalendrierReservation = ouvrirCalendrierReservation;
+
+function _resaRefreshConfirm() {
+  const btn = document.getElementById('resa-confirm-btn');
+  if (!btn) return;
+  const ok = _reservState.date && _reservState.slot;
+  btn.disabled = !ok;
+  btn.style.background = ok ? '#E8940A' : 'rgba(232,148,10,.35)';
+  btn.style.color = ok ? '#14100A' : 'rgba(20,16,10,.6)';
+  btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+}
+
+function selectResaDate(iso) {
+  _reservState.date = iso;
+  document.querySelectorAll('#resa-modal [data-resa-date]').forEach(b => {
+    const sel = b.getAttribute('data-resa-date') === iso;
+    b.style.background = sel ? '#E8940A' : '#14100A';
+    b.style.color = sel ? '#14100A' : '#FCE0A8';
+    b.style.borderColor = sel ? '#E8940A' : 'rgba(232,148,10,.2)';
+  });
+  const wrap = document.getElementById('resa-slots-wrap');
+  if (wrap) wrap.style.display = 'block';
+  _resaRefreshConfirm();
+}
+window.selectResaDate = selectResaDate;
+
+function selectResaSlot(slot) {
+  _reservState.slot = slot;
+  document.querySelectorAll('#resa-modal [data-resa-slot]').forEach(b => {
+    const sel = b.getAttribute('data-resa-slot') === slot;
+    b.style.background = sel ? '#E8940A' : '#14100A';
+    b.style.color = sel ? '#14100A' : '#FCE0A8';
+    b.style.borderColor = sel ? '#E8940A' : 'rgba(232,148,10,.2)';
+  });
+  _resaRefreshConfirm();
+}
+window.selectResaSlot = selectResaSlot;
+
+async function confirmerReservation() {
+  const st = window._prestationsState || {};
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour réserver.', 'error'); return; }
+  if (!_reservState.date || !_reservState.slot) { toast('Choisis un jour et une heure.', 'error'); return; }
+  if (!st.userId) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+
+  const btn = document.getElementById('resa-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi…'; }
+
+  // Nom du client (client_nom est NOT NULL sur wozali_rdv)
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Client WOZALI';
+
+  const row = {
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: st.userId,
+    client_user_id:      cu.id,
+    client_nom:          clientNom,
+    date_rdv:            _reservState.date,
+    heure_rdv:           _reservState.slot,
+    service:             _reservState.nom,
+    prestation_id:       _reservState.prestationId,
+    prestation_nom:      _reservState.nom,
+    statut:              'Demandé',
+    message:             'Réservation prestation via profil WOZALI'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_rdv').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications
+    try {
+      pushNotif(st.recordId || st.userId, {
+        type: 'rdv',
+        clientNom,
+        date: _reservState.date,
+        time: _reservState.slot,
+        prestation: _reservState.nom
+      });
+    } catch (e) { /* fire-and-forget */ }
+    const modal = document.getElementById('resa-modal');
+    if (modal) modal.remove();
+    toast('Demande envoyée, le pro confirme bientôt (tu es prévenu ici).', 'success');
+  } catch (e) {
+    console.error('❌ confirmerReservation', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirmer la réservation'; }
+  }
+}
+window.confirmerReservation = confirmerReservation;
+
 // ══ Catalogue produits — éditeur dashboard (section ds-boutique) ══
 let _boutiqueItems = [];
 let _boutiqueEditId = null;
@@ -2167,6 +2380,156 @@ window.uploadProduitPhoto = uploadProduitPhoto;
 window.saveProduitCatalogue = saveProduitCatalogue;
 window.supprimerProduitCatalogue = supprimerProduitCatalogue;
 window.toggleProduitActif = toggleProduitActif;
+
+// ══ Prestations & tarifs — éditeur dashboard (section ds-prestations) ══
+// Mirroir de la boutique : CRUD sur wozali_prestations, s'affiche sur le profil
+// public via renderProfilPrestations + bouton Réserver (calendrier interne).
+let _prestationsItems = [];
+let _prestationEditId = null;
+
+async function loadPrestationsSection() {
+  const formWrap = document.getElementById('prestation-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _prestationEditId = null;
+  _renderPrestationsList(); // rendu immédiat (état de chargement)
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_prestations')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _prestationsItems = data || []; _renderPrestationsList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderPrestationsList() {
+  const list = document.getElementById('prestations-list');
+  if (!list) return;
+  if (!_prestationsItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucune prestation pour l'instant. Ajoute ta première (coupe, tresses, soin…), elle apparaîtra sur ton profil avec un bouton Réserver.</div>`;
+    return;
+  }
+  list.innerHTML = _prestationsItems.map(it => {
+    const pid = escapeHtml(it.id);
+    const nomP = escapeHtml(it.nom || 'Prestation');
+    const groupe = it.groupe ? escapeHtml(it.groupe) : '';
+    const dureeTxt = _fmtDureePrest(it.duree_min);
+    const prixTxt = _fmtPrixPrest(it.prix_min, it.prix_max) || '—';
+    const actif = it.actif !== false;
+    const meta = [dureeTxt ? `⏱ ${dureeTxt}` : '', prixTxt].filter(Boolean).join(' · ');
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomP}${groupe ? ` <span style="font-size:12px;color:rgba(252,224,168,.5);">· ${groupe}</span>` : ''}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${meta}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="togglePrestationActive('${pid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masquée'}</button>
+          <button onclick="supprimerPrestation('${pid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormPrestation() {
+  _prestationEditId = null;
+  const wrap = document.getElementById('prestation-form-wrap');
+  if (!wrap) return;
+  document.getElementById('prestation-f-nom').value = '';
+  document.getElementById('prestation-f-groupe').value = '';
+  document.getElementById('prestation-f-prixmin').value = '';
+  document.getElementById('prestation-f-prixmax').value = '';
+  document.getElementById('prestation-f-duree').value = '';
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function fermerFormPrestation() {
+  const wrap = document.getElementById('prestation-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _prestationEditId = null;
+}
+
+async function savePrestation() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer tes prestations.', 'error'); return; }
+  const nom = (document.getElementById('prestation-f-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un nom à ta prestation.', 'error'); return; }
+  const groupe = (document.getElementById('prestation-f-groupe')?.value || '').trim() || null;
+  const prixMinRaw = (document.getElementById('prestation-f-prixmin')?.value || '').replace(/\D/g, '');
+  const prixMaxRaw = (document.getElementById('prestation-f-prixmax')?.value || '').replace(/\D/g, '');
+  const dureeRaw = (document.getElementById('prestation-f-duree')?.value || '').replace(/\D/g, '');
+  const prix_min = prixMinRaw ? parseInt(prixMinRaw) : null;
+  const prix_max = prixMaxRaw ? parseInt(prixMaxRaw) : null;
+  const duree_min = dureeRaw ? parseInt(dureeRaw) : null;
+
+  const btn = document.getElementById('prestation-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_prestationEditId) {
+      const { error } = await window.supabase.from('wozali_prestations')
+        .update({ nom, groupe, prix_min, prix_max, duree_min })
+        .eq('id', _prestationEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _prestationsItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        nom, groupe, prix_min, prix_max, duree_min,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_prestations').insert(row);
+      if (error) throw error;
+    }
+    toast('Prestation enregistrée.', 'success');
+    fermerFormPrestation();
+    await loadPrestationsSection();
+  } catch (e) {
+    console.error('❌ savePrestation', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la prestation'; }
+  }
+}
+
+async function supprimerPrestation(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer cette prestation de ton profil ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_prestations')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _prestationsItems = _prestationsItems.filter(it => it.id !== id);
+    _renderPrestationsList();
+    toast('Prestation supprimée.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerPrestation', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+
+async function togglePrestationActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _prestationsItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_prestations')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderPrestationsList();
+  } catch (e) {
+    console.error('❌ togglePrestationActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.loadPrestationsSection = loadPrestationsSection;
+window.ouvrirFormPrestation = ouvrirFormPrestation;
+window.fermerFormPrestation = fermerFormPrestation;
+window.savePrestation = savePrestation;
+window.supprimerPrestation = supprimerPrestation;
+window.togglePrestationActive = togglePrestationActive;
 
 // ══ Carte localisation allégée pour mobile (Tâche 3) ══
 // La sidebar (et sa carte Leaflet) est masquée < 768px ; on affiche ici une tuile
@@ -11560,6 +11923,7 @@ async function showProfil(recordId) {
       <!-- ═══════════ TAB POSTS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
         <div id="profil-offres-${recordId}"></div>
+        <div id="profil-prestations-${recordId}"></div>
         <div id="profil-catalogue-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
@@ -11803,6 +12167,7 @@ async function showProfil(recordId) {
     if (gpsLat && gpsLon) setTimeout(() => initProfileMiniMap(gpsLat, gpsLon, `profil-minimap-${recordId}`), 300);
     // Offres emploi du prestataire + carte localisation mobile (Taches 2 et 3)
     if (_profilUserId) renderProfilOffresSection(_profilUserId, `profil-offres-${recordId}`);
+    if (_profilUserId) renderProfilPrestations(_profilUserId, `profil-prestations-${recordId}`, recordId);
     if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés
