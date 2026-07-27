@@ -6780,25 +6780,26 @@ input::placeholder, textarea::placeholder {
 /* ═══════════════════════════════════════════
    BOTTOM NAV MOBILE (Direction C)
 ═══════════════════════════════════════════ */
-/* Barre du bas flottante premium (verre dépoli translucide, façon Instagram) :
-   détachée des bords, coins arrondis, blur d'arrière-plan, bordure or discrète. */
+/* Barre du bas flottante premium façon Instagram : pile sombre translucide,
+   détachée des bords, coins très arrondis, icônes seules (pas de labels),
+   actif = icône or. Verre dépoli net (fond dense, pas laiteux). */
 #bottom-nav {
   position:fixed; top:auto !important;
-  bottom:calc(env(safe-area-inset-bottom, 0px) + 10px) !important;
-  left:12px; right:12px;
-  background:rgba(20,16,10,.62) !important;
-  -webkit-backdrop-filter:blur(24px) saturate(160%) !important;
-  backdrop-filter:blur(24px) saturate(160%) !important;
-  border:1px solid rgba(232,148,10,.2) !important;
-  border-radius:26px !important;
-  display:flex;
+  bottom:calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
+  left:14px; right:14px;
+  background:rgba(16,12,7,.8) !important;
+  -webkit-backdrop-filter:blur(26px) saturate(180%) !important;
+  backdrop-filter:blur(26px) saturate(180%) !important;
+  border:1px solid rgba(252,224,168,.09) !important;
+  border-radius:30px !important;
+  display:flex; align-items:center;
   z-index:4900;
-  height:62px !important;
-  box-shadow:0 10px 32px rgba(0,0,0,.55), inset 0 1px 0 rgba(252,224,168,.06);
+  height:58px !important;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
 }
-/* Repli si le navigateur ne supporte pas le flou : fond plus opaque */
+/* Repli si le navigateur ne supporte pas le flou : fond quasi opaque */
 @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))) {
-  #bottom-nav { background:rgba(20,16,10,.94) !important; }
+  #bottom-nav { background:rgba(16,12,7,.96) !important; }
 }
 /* Au-delà de 1024px, le rail latéral gauche prend le relais (parité ordinateur).
    Un seul système par plage : ≤1024px barre du bas + tiroir, ≥1025px rail. */
@@ -6806,14 +6807,15 @@ input::placeholder, textarea::placeholder {
 
 .bnt-item {
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:3px; cursor:pointer; color:rgba(252,224,168,.4);
-  font-family:'Geist',sans-serif; font-size:10px; font-weight:600;
-  border:none; background:none; padding:6px 2px; margin:6px 4px; border-radius:16px;
-  transition:color .15s, background .2s; position:relative;
+  gap:0; cursor:pointer; color:rgba(252,224,168,.5);
+  font-size:0; /* masque les labels texte, façon Instagram (icônes seules) */
+  border:none; background:none; padding:0; height:100%;
+  transition:color .15s, transform .15s; position:relative;
   -webkit-tap-highlight-color:transparent;
 }
-.bnt-item.active { color:#E8940A; background:rgba(232,148,10,.12); }
-.bnt-item svg { display:block; margin:0 auto; }
+.bnt-item.active { color:#E8940A; }
+.bnt-item.active svg { transform:scale(1.08); }
+.bnt-item svg { display:block; margin:0 auto; width:26px; height:26px; transition:transform .15s; }
 .bnt-badge {
   position:absolute; top:8px; right:calc(50% - 20px);
   background:#ef4444; min-width:16px; height:16px;
