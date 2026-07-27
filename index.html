@@ -2679,6 +2679,10 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-caramel"><i data-lucide="house"></i></span>
         <span>🏠 Mes formules</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('etablissement')" id="dl-etablissement">
+        <span class="dash-big-chip wchip-caramel"><i data-lucide="building"></i></span>
+        <span>🏢 Mon établissement</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('seances')" id="dl-seances">
         <span class="dash-big-chip wchip-orclair"><i data-lucide="graduation-cap"></i></span>
         <span>📋 Mes séances</span>
@@ -4103,6 +4107,35 @@ setTimeout(function(){
 
         <!-- Liste des formules -->
         <div id="formules-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- MON ÉTABLISSEMENT (Établissements & Événementiel) -->
+      <div class="dash-section" id="ds-etablissement">
+        <div class="dash-header">
+          <div class="wz-eyebrow">Vitrine · Établissements &amp; Événementiel</div>
+          <h2 style="font-weight:400;color:#FCE0A8;">Mon <em style="color:#E8940A;font-style:italic;">établissement</em></h2>
+          <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Hôtel, clinique, cybercafé, pressing, institut, salon, boîte de nuit, DJ, organisateur d'événements… Affiche tes horaires et tes équipements. Le client réserve une place ou un événement direct sur WOZALI, tu es prévenu ici.</p>
+        </div>
+
+        <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-top:16px;">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Horaires</label>
+              <textarea id="etab-f-horaires" rows="3" maxlength="200" placeholder="Ex : Lun-Sam 8h-20h · Dim fermé" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;resize:vertical;"></textarea>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Équipements (séparés par des virgules)</label>
+              <input id="etab-f-equipements" type="text" maxlength="200" placeholder="Ex : Wi-Fi, Climatisation, Parking, CB acceptée" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;">
+              <input id="etab-f-reservation" type="checkbox" checked style="width:18px;height:18px;accent-color:#E8940A;cursor:pointer;">
+              Accepter les réservations (affiche le bouton « Réserver » sur ton profil)
+            </label>
+            <div>
+              <button id="etab-f-save" onclick="saveEtablissement()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- MES SÉANCES (Savoir & Conseil) -->

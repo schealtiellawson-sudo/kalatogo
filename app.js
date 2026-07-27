@@ -681,6 +681,7 @@ function showDashSection(section) {
   if (section === 'menu') loadMenuSection();
   if (section === 'courses') loadCoursesSection();
   if (section === 'formules') loadFormulesSection();
+  if (section === 'etablissement') loadEtablissementSection();
   if (section === 'seances') loadSeancesSection();
   if (section === 'biens') loadBiensSection();
     if (section === 'parrainage') loadParrainage();
@@ -4517,6 +4518,203 @@ async function toggleFormuleActive(id) {
 }
 window.toggleFormuleActive = toggleFormuleActive;
 window.loadFormulesSection = loadFormulesSection;
+
+// ══════════════════════════════════════════════════════════════════
+// Établissements & Événementiel — cluster métier « Mon établissement »
+// (wozali_etablissement). Hôtel, clinique, cybercafé, pressing,
+// institut/salon, boîte de nuit, DJ, organisateur d'événements…
+// Sur le profil public : une FICHE ÉTABLISSEMENT (SINGLETON, 1 ligne/pro)
+// = horaires (texte libre) + équipements (chips), puis, si les
+// réservations sont ouvertes, un bouton « Réserver une place / un
+// événement » → réservation EN INTERNE (wozali_commandes type
+// 'reservation' + pushNotif), jamais WhatsApp.
+// Calqué sur renderProfilMaison / loadFormulesSection mais SANS liste
+// (pas de CRUD d'items) : un seul enregistrement édité par upsert manuel.
+// recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
+// nom = nom du prestataire (libellé de la réservation).
+// ══════════════════════════════════════════════════════════════════
+async function renderProfilEtablissement(userId, containerId, recordId, nom) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let row = null;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_etablissement')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .limit(1);
+    if (error) return;
+    row = (data && data[0]) || null;
+  } catch (e) { return; }
+  if (!row) return; // aucune fiche active = section masquée
+
+  const horaires = (row.horaires || '').trim();
+  const equipements = (row.equipements || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (!horaires && !equipements.length) return; // fiche vide = section masquée
+
+  // État partagé pour reserverEtablissement (destinataire de la notif + libellé)
+  window._etablissementState = {
+    userId,
+    recordId: recordId || null,
+    nom: (nom || '').trim() || 'Réservation'
+  };
+
+  const chipsHtml = equipements.map(c =>
+    `<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(232,148,10,.10);border:1px solid rgba(232,148,10,.28);border-radius:100px;padding:6px 13px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;color:#E8940A;font-weight:700;">${escapeHtml(c)}</span>`
+  ).join('');
+
+  const horaireHtml = horaires
+    ? `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:${equipements.length ? '14px' : '0'};">
+        <span style="flex-shrink:0;font-size:16px;line-height:1.3;">🕐</span>
+        <div style="font-family:Geist,sans-serif;font-size:15px;color:#FCE0A8;line-height:1.4;white-space:pre-line;">${escapeHtml(horaires)}</div>
+      </div>`
+    : '';
+
+  const chipsWrap = equipements.length
+    ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">${chipsHtml}</div>`
+    : '';
+
+  const btn = (row.reservation_ouverte !== false)
+    ? `<button onclick="event.stopPropagation();reserverEtablissement('${escapeHtml(recordId || '')}')" style="margin-top:16px;min-height:44px;padding:11px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Réserver une place / un événement</button>`
+    : '';
+
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">🏢 L'établissement</div>
+      ${horaireHtml}
+      ${chipsWrap}
+      ${btn}
+    </div>`;
+}
+window.renderProfilEtablissement = renderProfilEtablissement;
+
+// Crée une réservation d'établissement EN INTERNE (wozali_commandes type
+// 'reservation') + notifie le pro. Aucun WhatsApp : le client est prévenu
+// dans la messagerie WOZALI.
+async function reserverEtablissement(recordId) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour réserver.', 'error'); return; }
+  const st = window._etablissementState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Établissement introuvable, réessaie.', 'error'); return; }
+  const itemNom = st.nom || 'Réservation';
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || recordId || null,
+    prestataire_user_id: puid,
+    type:                'reservation',
+    item_id:             null,
+    item_nom:            itemNom,
+    prix_txt:            null,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        prixTxt: '',
+        titre: 'Nouvelle demande de réservation',
+        message: `${clientNom} veut réserver une place / un événement.`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast('Demande de réservation envoyée', 'success');
+  } catch (e) {
+    console.error('❌ reserverEtablissement', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+window.reserverEtablissement = reserverEtablissement;
+
+// ══ Établissements & Événementiel — éditeur dashboard (section ds-etablissement) ══
+// Formulaire SINGLETON (pas une liste) : 1 enregistrement par pro, édité par
+// upsert manuel (lit la ligne existante, update si présente sinon insert).
+// horaires (textarea) + equipements (input virgules) + reservation_ouverte (checkbox).
+let _etablissementRow = null;
+
+async function loadEtablissementSection() {
+  const hEl = document.getElementById('etab-f-horaires');
+  const eEl = document.getElementById('etab-f-equipements');
+  const rEl = document.getElementById('etab-f-reservation');
+  // Pré-remplissage optimiste (vide) puis fetch
+  if (hEl) hEl.value = '';
+  if (eEl) eEl.value = '';
+  if (rEl) rEl.checked = true;
+  _etablissementRow = null;
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_etablissement')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .limit(1);
+    if (error) return;
+    _etablissementRow = (data && data[0]) || null;
+    if (_etablissementRow) {
+      if (hEl) hEl.value = _etablissementRow.horaires || '';
+      if (eEl) eEl.value = _etablissementRow.equipements || '';
+      if (rEl) rEl.checked = _etablissementRow.reservation_ouverte !== false;
+    }
+  } catch (e) { /* ignore */ }
+}
+window.loadEtablissementSection = loadEtablissementSection;
+
+async function saveEtablissement() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer ton établissement.', 'error'); return; }
+  const horaires = (document.getElementById('etab-f-horaires')?.value || '').trim() || null;
+  const equipements = (document.getElementById('etab-f-equipements')?.value || '')
+    .split(',').map(s => s.trim()).filter(Boolean).join(',') || null;
+  const reservation_ouverte = !!document.getElementById('etab-f-reservation')?.checked;
+
+  const btn = document.getElementById('etab-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    // Upsert manuel par user_id : lit d'abord la ligne existante (contrainte UNIQUE),
+    // update si présente sinon insert.
+    let existing = _etablissementRow;
+    if (!existing) {
+      const { data } = await window.supabase
+        .from('wozali_etablissement')
+        .select('id')
+        .eq('user_id', currentUser.id)
+        .limit(1);
+      existing = (data && data[0]) || null;
+    }
+    if (existing) {
+      const { error } = await window.supabase.from('wozali_etablissement')
+        .update({ horaires, equipements, reservation_ouverte })
+        .eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        horaires, equipements, reservation_ouverte,
+        actif: true
+      };
+      const { error } = await window.supabase.from('wozali_etablissement').insert(row);
+      if (error) throw error;
+    }
+    toast('Établissement enregistré.', 'success');
+    await loadEtablissementSection();
+  } catch (e) {
+    console.error('❌ saveEtablissement', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer'; }
+  }
+}
+window.saveEtablissement = saveEtablissement;
 
 // ══════════════════════════════════════════════════════════════════
 // Restauration & Traiteur — cluster métier « Ma carte » (wozali_menu)
@@ -14235,6 +14433,7 @@ async function showProfil(recordId) {
         <div id="profil-transport-${recordId}"></div>
         <div id="profil-conseil-${recordId}"></div>
         <div id="profil-maison-${recordId}"></div>
+        <div id="profil-etablissement-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
@@ -14486,6 +14685,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilTransport(_profilUserId, `profil-transport-${recordId}`, recordId, !!(record.fields && record.fields['Disponible maintenant']));
     if (_profilUserId) renderProfilConseil(_profilUserId, `profil-conseil-${recordId}`, recordId);
     if (_profilUserId) renderProfilMaison(_profilUserId, `profil-maison-${recordId}`, recordId, !!verifie);
+    if (_profilUserId) renderProfilEtablissement(_profilUserId, `profil-etablissement-${recordId}`, recordId, nomRaw);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés
