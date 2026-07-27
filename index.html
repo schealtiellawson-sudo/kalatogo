@@ -2655,6 +2655,10 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-orclair"><i data-lucide="sparkles"></i></span>
         <span>Mes prestations</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('realisations')" id="dl-realisations">
+        <span class="dash-big-chip wchip-terracotta"><i data-lucide="hard-hat"></i></span>
+        <span>Mes réalisations</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
         <span>Mes avis</span>
@@ -3834,6 +3838,66 @@ setTimeout(function(){
 
         <!-- Liste des prestations -->
         <div id="prestations-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- CHANTIERS & INTERVENTIONS (Module bâtiment : maçon, plombier, élec…) -->
+      <div class="dash-section" id="ds-realisations">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Chantiers</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">réalisations</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Maçon, plombier, électricien, peintre, mécanicien… Montre tes chantiers finis. Le client voit ton travail et te demande un devis direct sur WOZALI.</p>
+          </div>
+          <button onclick="ouvrirFormRealisation()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter une réalisation</button>
+        </div>
+
+        <!-- Formulaire réalisation (masqué par défaut) -->
+        <div id="realisation-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouvelle <em style="color:#E8940A;font-style:italic;">réalisation</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Titre du chantier *</label>
+              <input id="realisation-f-titre" type="text" maxlength="80" placeholder="Ex : Réfection toiture villa" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Type de travaux</label>
+                <input id="realisation-f-type" type="text" maxlength="40" placeholder="Ex : Plomberie" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Quartier / lieu</label>
+                <input id="realisation-f-quartier" type="text" maxlength="60" placeholder="Ex : Agoè, Lomé" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Coût indicatif</label>
+                <input id="realisation-f-cout" type="text" maxlength="40" placeholder="Ex : à partir de 150 000 F" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Durée indicative</label>
+                <input id="realisation-f-duree" type="text" maxlength="40" placeholder="Ex : 3 jours" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Photo du chantier</label>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div id="realisation-f-photo-preview" style="width:88px;height:88px;border-radius:12px;background:#14100A;border:1px solid rgba(232,148,10,.2);overflow:hidden;flex-shrink:0;"></div>
+                <label style="cursor:pointer;min-height:40px;display:inline-flex;align-items:center;padding:9px 18px;background:rgba(232,148,10,.15);color:#E8940A;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;">
+                  Choisir une photo
+                  <input type="file" accept="image/*" onchange="uploadChantierPhoto(this)" style="display:none;">
+                </label>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="realisation-f-save" onclick="saveRealisation()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer la réalisation</button>
+              <button onclick="fermerFormRealisation()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des réalisations -->
+        <div id="realisations-list" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
 
 

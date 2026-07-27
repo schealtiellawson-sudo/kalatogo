@@ -675,6 +675,7 @@ function showDashSection(section) {
   if (section === 'recompenses') loadRecompensesWidgets();
   if (section === 'boutique') loadBoutiqueSection();
   if (section === 'prestations') loadPrestationsSection();
+  if (section === 'realisations') loadRealisationsSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -2530,6 +2531,358 @@ window.fermerFormPrestation = fermerFormPrestation;
 window.savePrestation = savePrestation;
 window.supprimerPrestation = supprimerPrestation;
 window.togglePrestationActive = togglePrestationActive;
+
+// ══ Chantiers & Interventions (Module bâtiment : maçon, plombier, élec…) — profil public ══
+// Calqué sur renderProfilPrestations : carte réalisations masquée si 0 réalisation active,
+// PUIS bloc encadré or « Besoin d'un devis ? » avec bouton Demander un devis.
+// La demande de devis se crée EN INTERNE (wozali_devis + pushNotif), jamais WhatsApp.
+// recordId = wozali_prestataires.id (sert au libellé de notif du pro).
+async function renderProfilChantiers(userId, containerId, recordId) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let items = [];
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_realisations')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .order('ordre', { ascending: true });
+    if (error) return;
+    items = data || [];
+  } catch (e) { return; }
+
+  // CHOIX D'AFFICHAGE : comme les autres modules (catalogue/prestations), on reste
+  // safe et on n'affiche RIEN s'il n'y a aucune réalisation active. Le bloc devis
+  // n'est donc visible que sur un profil qui a ≥1 réalisation (signal fiable que le
+  // pro appartient à ce cluster), ce qui évite d'afficher un CTA devis sur tous les
+  // profils sans champ métier dédié.
+  if (!items.length) return;
+
+  // État partagé pour ouvrirDemandeDevis (destinataire de la notif)
+  window._chantiersState = { userId, recordId: recordId || null };
+
+  const cards = items.map(it => {
+    const titre = escapeHtml(it.titre || 'Chantier');
+    const type = it.type ? escapeHtml(it.type) : '';
+    const quartier = it.quartier ? escapeHtml(it.quartier) : '';
+    const duree = it.duree_txt ? escapeHtml(it.duree_txt) : '';
+    const cout = it.cout_txt ? escapeHtml(it.cout_txt) : '';
+    const meta = [type, quartier, duree, cout].filter(Boolean).join(' · ');
+    const desc = it.description ? escapeHtml(it.description) : '';
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="${titre}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">🧱</div>`;
+    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="position:relative;width:100%;aspect-ratio:4/3;background:#1E180E;">${photo}</div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:6px;flex:1;">
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;color:#FCE0A8;line-height:1.25;">${titre}</div>
+          ${meta ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.03em;color:#E8940A;">${meta}</div>` : ''}
+          ${desc ? `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${desc}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  const puid = escapeHtml(userId);
+  const rid = escapeHtml(recordId || '');
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">🧱 Chantiers réalisés</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:12px;">
+        ${cards}
+      </div>
+      <div style="margin-top:16px;background:#14100A;border:1px solid rgba(232,148,10,.35);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;">
+        <div style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;font-style:italic;">Besoin d'un devis ?</div>
+        <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);line-height:1.5;">Décris ton chantier, il te répond direct sur WOZALI. Pas de numéro à donner.</div>
+        <button onclick="event.stopPropagation();ouvrirDemandeDevis('${puid}','${rid}')" style="min-height:46px;padding:12px 26px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Demander un devis</button>
+      </div>
+    </div>`;
+}
+window.renderProfilChantiers = renderProfilChantiers;
+
+// Modale Nuit : demande de devis (interne). Insert wozali_devis + pushNotif au pro.
+function ouvrirDemandeDevis(prestataireUserId, recordId) {
+  if (!window.currentUser) { toast('Connecte-toi pour demander un devis.', 'error'); return; }
+  const st = window._chantiersState || {};
+  const puid = prestataireUserId || st.userId || null;
+  const rid = recordId || st.recordId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  window._devisTarget = { userId: puid, recordId: rid, photoUrl: '' };
+
+  const old = document.getElementById('devis-modal');
+  if (old) old.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'devis-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100000;display:flex;align-items:flex-end;justify-content:center;padding:0;';
+  modal.innerHTML = `
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:24px 20px 28px;box-shadow:0 -10px 40px rgba(0,0,0,.5);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
+        <div>
+          <div class="wz-eyebrow" style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;">Demande de devis</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;color:#FCE0A8;margin-top:2px;">Décris ton chantier</h3>
+        </div>
+        <button onclick="document.getElementById('devis-modal').remove()" style="flex-shrink:0;background:rgba(252,224,168,.08);border:none;color:#FCE0A8;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;">✕</button>
+      </div>
+
+      <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">De quoi tu as besoin ? *</label>
+      <textarea id="devis-f-desc" rows="4" maxlength="600" placeholder="Ex : Refaire la plomberie de la salle de bain, remplacer 2 robinets qui fuient…" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;resize:vertical;margin-bottom:14px;"></textarea>
+
+      <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Quartier / où ?</label>
+      <input id="devis-f-quartier" type="text" maxlength="80" placeholder="Ex : Tokoin, Lomé" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;margin-bottom:14px;">
+
+      <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Photo (optionnel)</label>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+        <div id="devis-f-photo-preview" style="width:72px;height:72px;border-radius:12px;background:#14100A;border:1px solid rgba(232,148,10,.2);overflow:hidden;flex-shrink:0;"></div>
+        <label style="cursor:pointer;min-height:40px;display:inline-flex;align-items:center;padding:9px 18px;background:rgba(232,148,10,.15);color:#E8940A;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;">
+          Ajouter une photo
+          <input type="file" accept="image/*" onchange="uploadDevisPhoto(this)" style="display:none;">
+        </label>
+      </div>
+
+      <button id="devis-f-send" onclick="envoyerDemandeDevis()" style="width:100%;min-height:50px;padding:14px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Envoyer la demande</button>
+      <p style="text-align:center;font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.45);margin-top:12px;line-height:1.5;">Ta demande part directement au pro sur WOZALI. Tu es prévenu ici dès qu'il répond.</p>
+    </div>`;
+  document.body.appendChild(modal);
+}
+window.ouvrirDemandeDevis = ouvrirDemandeDevis;
+
+async function uploadDevisPhoto(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const prev = document.getElementById('devis-f-photo-preview');
+  if (prev) prev.innerHTML = `<div style="font-family:Geist,sans-serif;font-size:11px;color:rgba(252,224,168,.55);padding:6px;text-align:center;">Envoi…</div>`;
+  const url = await uploadToImgBB(file);
+  if (url) {
+    if (window._devisTarget) window._devisTarget.photoUrl = url;
+    if (prev) prev.innerHTML = `<img src="${encodeURI(url)}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+  } else if (prev) {
+    prev.innerHTML = '';
+  }
+}
+window.uploadDevisPhoto = uploadDevisPhoto;
+
+async function envoyerDemandeDevis() {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour demander un devis.', 'error'); return; }
+  const t = window._devisTarget || {};
+  if (!t.userId) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const description = (document.getElementById('devis-f-desc')?.value || '').trim();
+  if (!description) { toast('Décris au moins ton besoin.', 'error'); return; }
+  const quartier = (document.getElementById('devis-f-quartier')?.value || '').trim() || null;
+  const photo_url = t.photoUrl || null;
+
+  const btn = document.getElementById('devis-f-send');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi…'; }
+
+  const row = {
+    client_user_id:      window.currentUser.id,
+    prestataire_id:      t.recordId || null,
+    prestataire_user_id: t.userId,
+    description,
+    quartier,
+    photo_url,
+    statut: 'demande'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_devis').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
+    // Type 'devis' : rendu proprement par le case dédié de _notifMessageHtml (fallback
+    // gracieux sur titre/message si non matché).
+    try {
+      const cu = window.currentUser;
+      const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+        || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+        || cu.email || 'Un client';
+      pushNotif(t.recordId || t.userId, {
+        type: 'devis',
+        clientNom,
+        description,
+        quartier: quartier || '',
+        titre: 'Nouvelle demande de devis',
+        message: `${clientNom} veut un devis${quartier ? ' à ' + quartier : ''}.`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    const modal = document.getElementById('devis-modal');
+    if (modal) modal.remove();
+    toast('Demande de devis envoyée, le pro te répond bientôt ici.', 'success');
+  } catch (e) {
+    console.error('❌ envoyerDemandeDevis', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer la demande'; }
+  }
+}
+window.envoyerDemandeDevis = envoyerDemandeDevis;
+
+// ══ Chantiers & Interventions — éditeur dashboard (section ds-realisations) ══
+// Mirroir de la boutique : CRUD sur wozali_realisations, s'affiche sur le profil
+// public via renderProfilChantiers + bloc « Demander un devis » (interne).
+let _realisationsItems = [];
+let _realisationEditId = null;
+
+async function loadRealisationsSection() {
+  const formWrap = document.getElementById('realisation-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _realisationEditId = null;
+  _renderRealisationsList(); // rendu immédiat (état de chargement)
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_realisations')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _realisationsItems = data || []; _renderRealisationsList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderRealisationsList() {
+  const list = document.getElementById('realisations-list');
+  if (!list) return;
+  if (!_realisationsItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucun chantier pour l'instant. Ajoute ta première réalisation (photo + type + lieu), elle apparaîtra sur ton profil avec un bouton « Demander un devis ».</div>`;
+    return;
+  }
+  list.innerHTML = _realisationsItems.map(it => {
+    const rid = escapeHtml(it.id);
+    const titre = escapeHtml(it.titre || 'Chantier');
+    const type = it.type ? escapeHtml(it.type) : '';
+    const quartier = it.quartier ? escapeHtml(it.quartier) : '';
+    const duree = it.duree_txt ? escapeHtml(it.duree_txt) : '';
+    const cout = it.cout_txt ? escapeHtml(it.cout_txt) : '';
+    const meta = [type, quartier, duree, cout].filter(Boolean).join(' · ') || '—';
+    const actif = it.actif !== false;
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+      : `<div style="width:64px;height:64px;border-radius:10px;background:#14100A;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.4;flex-shrink:0;">🧱</div>`;
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        ${photo}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${titre}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${meta}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="toggleRealisationActive('${rid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerRealisation('${rid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormRealisation() {
+  _realisationEditId = null;
+  const wrap = document.getElementById('realisation-form-wrap');
+  if (!wrap) return;
+  document.getElementById('realisation-f-titre').value = '';
+  document.getElementById('realisation-f-type').value = '';
+  document.getElementById('realisation-f-quartier').value = '';
+  document.getElementById('realisation-f-cout').value = '';
+  document.getElementById('realisation-f-duree').value = '';
+  const prev = document.getElementById('realisation-f-photo-preview');
+  if (prev) { prev.innerHTML = ''; prev.dataset.url = ''; }
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.ouvrirFormRealisation = ouvrirFormRealisation;
+
+function fermerFormRealisation() {
+  const wrap = document.getElementById('realisation-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _realisationEditId = null;
+}
+window.fermerFormRealisation = fermerFormRealisation;
+
+async function uploadChantierPhoto(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const prev = document.getElementById('realisation-f-photo-preview');
+  if (prev) prev.innerHTML = `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.55);">Envoi de la photo…</div>`;
+  const url = await uploadToImgBB(file);
+  if (url && prev) {
+    prev.dataset.url = url;
+    prev.innerHTML = `<img src="${encodeURI(url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+  } else if (prev) {
+    prev.innerHTML = '';
+  }
+}
+window.uploadChantierPhoto = uploadChantierPhoto;
+
+async function saveRealisation() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer tes réalisations.', 'error'); return; }
+  const titre = (document.getElementById('realisation-f-titre')?.value || '').trim();
+  if (!titre) { toast('Donne au moins un titre à ta réalisation.', 'error'); return; }
+  const type = (document.getElementById('realisation-f-type')?.value || '').trim() || null;
+  const quartier = (document.getElementById('realisation-f-quartier')?.value || '').trim() || null;
+  const cout_txt = (document.getElementById('realisation-f-cout')?.value || '').trim() || null;
+  const duree_txt = (document.getElementById('realisation-f-duree')?.value || '').trim() || null;
+  const photo_url = document.getElementById('realisation-f-photo-preview')?.dataset.url || null;
+
+  const btn = document.getElementById('realisation-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_realisationEditId) {
+      const { error } = await window.supabase.from('wozali_realisations')
+        .update({ titre, type, quartier, cout_txt, duree_txt, photo_url })
+        .eq('id', _realisationEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _realisationsItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        titre, type, quartier, cout_txt, duree_txt, photo_url,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_realisations').insert(row);
+      if (error) throw error;
+    }
+    toast('Réalisation enregistrée.', 'success');
+    fermerFormRealisation();
+    await loadRealisationsSection();
+  } catch (e) {
+    console.error('❌ saveRealisation', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la réalisation'; }
+  }
+}
+window.saveRealisation = saveRealisation;
+
+async function supprimerRealisation(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer cette réalisation de ton profil ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_realisations')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _realisationsItems = _realisationsItems.filter(it => it.id !== id);
+    _renderRealisationsList();
+    toast('Réalisation supprimée.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerRealisation', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.supprimerRealisation = supprimerRealisation;
+
+async function toggleRealisationActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _realisationsItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_realisations')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderRealisationsList();
+  } catch (e) {
+    console.error('❌ toggleRealisationActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.toggleRealisationActive = toggleRealisationActive;
+window.loadRealisationsSection = loadRealisationsSection;
 
 // ══ Carte localisation allégée pour mobile (Tâche 3) ══
 // La sidebar (et sa carte Leaflet) est masquée < 768px ; on affiche ici une tuile
@@ -8308,6 +8661,10 @@ function _notifMessageHtml(type, p) {
       return `Quelqu'un a consulté ton profil`;
     case 'rdv':
       return `<strong>${e(p.clientNom || 'Client')}</strong> a demandé un RDV${p.date ? ' le ' + e(p.date) : ''}`;
+    case 'devis':
+      return `<strong>${e(p.clientNom || 'Un client')}</strong> te demande un devis` +
+        (p.quartier ? ` à ${e(p.quartier)}` : '') +
+        (p.description ? ` : <em style="color:rgba(252,224,168,.45);">"${cut(p.description, 60)}"</em>` : '');
     case 'payment':
       return `Paiement reçu : <strong>${(p.montant || 0).toLocaleString('fr-FR')} FCFA</strong> pour ${e(p.desc || 'une prestation')}`;
     case 'client_payment':
@@ -8341,7 +8698,7 @@ function _notifIcon(type) {
   const map = {
     like: '❤️', comment: '💬', vue: '👁️', rdv: '📅', payment: '💳',
     client_payment: '💳', avis: '⭐', suivi: '👥', favori: '❤️',
-    photo_like: '📸', photo_comment: '💬', candidature_statut: '💼',
+    photo_like: '📸', photo_comment: '💬', candidature_statut: '💼', devis: '🧱',
   };
   return map[type] || '🔔';
 }
@@ -11925,6 +12282,7 @@ async function showProfil(recordId) {
         <div id="profil-offres-${recordId}"></div>
         <div id="profil-prestations-${recordId}"></div>
         <div id="profil-catalogue-${recordId}"></div>
+        <div id="profil-chantiers-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
         ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
@@ -12169,6 +12527,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilOffresSection(_profilUserId, `profil-offres-${recordId}`);
     if (_profilUserId) renderProfilPrestations(_profilUserId, `profil-prestations-${recordId}`, recordId);
     if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw);
+    if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés
     setTimeout(() => updateSuiviBtn(recordId), 200);
