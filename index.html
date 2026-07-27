@@ -2659,6 +2659,10 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="hard-hat"></i></span>
         <span>Mes réalisations</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('modeles')" id="dl-modeles">
+        <span class="dash-big-chip wchip-orclair"><i data-lucide="shirt"></i></span>
+        <span>Mes modèles</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
         <span>Mes avis</span>
@@ -3898,6 +3902,66 @@ setTimeout(function(){
 
         <!-- Liste des réalisations -->
         <div id="realisations-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <!-- MES MODÈLES (Atelier & Sur-mesure) -->
+      <div class="dash-section" id="ds-modeles">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Atelier</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">modèles</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Couturier, brodeur, cordonnier, teinturier… Montre ton book de modèles. Le client choisit et commande direct sur WOZALI, avec ton délai de confection annoncé.</p>
+          </div>
+          <button onclick="ouvrirFormModele()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter un modèle</button>
+        </div>
+
+        <!-- Formulaire modèle (masqué par défaut) -->
+        <div id="modele-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouveau <em style="color:#E8940A;font-style:italic;">modèle</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Nom du modèle *</label>
+              <input id="modele-f-nom" type="text" maxlength="80" placeholder="Ex : Boubou brodé grand modèle" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Prix façon (FCFA)</label>
+                <input id="modele-f-prix" type="text" inputmode="numeric" maxlength="12" placeholder="Ex : 15000" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Délai de confection (jours)</label>
+                <input id="modele-f-delai" type="text" inputmode="numeric" maxlength="4" placeholder="Ex : 7" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+            </div>
+            <div>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:Geist,sans-serif;font-size:14px;color:#FCE0A8;">
+                <input id="modele-f-tissu" type="checkbox" style="width:18px;height:18px;accent-color:#E8940A;cursor:pointer;">
+                Tissu inclus dans le prix (sinon « tissu non compris » s'affiche)
+              </label>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Description (optionnel)</label>
+              <textarea id="modele-f-desc" rows="2" maxlength="300" placeholder="Ex : Coupe ample, broderie sur col et manches, plusieurs coloris possibles." style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;resize:vertical;"></textarea>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Photo du modèle</label>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div id="modele-f-photo-preview" style="width:88px;height:88px;border-radius:12px;background:#14100A;border:1px solid rgba(232,148,10,.2);overflow:hidden;flex-shrink:0;"></div>
+                <label style="cursor:pointer;min-height:40px;display:inline-flex;align-items:center;padding:9px 18px;background:rgba(232,148,10,.15);color:#E8940A;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;">
+                  Choisir une photo
+                  <input type="file" accept="image/*" onchange="uploadModelePhoto(this)" style="display:none;">
+                </label>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="modele-f-save" onclick="saveModele()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer le modèle</button>
+              <button onclick="fermerFormModele()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des modèles -->
+        <div id="modeles-list" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
 
 

@@ -676,6 +676,7 @@ function showDashSection(section) {
   if (section === 'boutique') loadBoutiqueSection();
   if (section === 'prestations') loadPrestationsSection();
   if (section === 'realisations') loadRealisationsSection();
+  if (section === 'modeles') loadModelesSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -2883,6 +2884,295 @@ async function toggleRealisationActive(id) {
 }
 window.toggleRealisationActive = toggleRealisationActive;
 window.loadRealisationsSection = loadRealisationsSection;
+
+// ══ Atelier & Sur-mesure — book de modèles (profil public) ══
+// Cluster confection sur-mesure : couturier, brodeur, cordonnier, teinturier.
+// Calqué sur renderProfilCatalogue/renderProfilChantiers : masqué si 0 modèle actif.
+// La commande se crée EN INTERNE (wozali_commandes + pushNotif), jamais sur WhatsApp.
+// recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
+async function renderProfilAtelier(userId, containerId, recordId) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let items = [];
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_modeles')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .order('ordre', { ascending: true });
+    if (error) return;
+    items = data || [];
+  } catch (e) { return; }
+  if (!items.length) return; // rien à afficher = section masquée
+
+  // État partagé pour commanderModele (destinataire de la notif + libellés)
+  const map = {};
+  window._atelierState = { userId, recordId: recordId || null, items: map };
+
+  // Délai le plus court annoncé (affiché en tête si au moins un modèle en a un)
+  const delais = items.map(it => parseInt(it.delai_jours)).filter(n => n && n > 0);
+  const delaiMin = delais.length ? Math.min(...delais) : null;
+
+  const cards = items.map(it => {
+    const mid = escapeHtml(it.id);
+    const nomP = escapeHtml(it.nom || 'Modèle');
+    const prixTxt = (it.prix_facon || it.prix_facon === 0)
+      ? (parseInt(it.prix_facon).toLocaleString('fr-FR') + ' F façon')
+      : '';
+    map[it.id] = { nom: it.nom || 'Modèle', prixTxt };
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="${nomP}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">👗</div>`;
+    const delaiTxt = (it.delai_jours && parseInt(it.delai_jours) > 0)
+      ? `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.55);">⏱ ${parseInt(it.delai_jours)} j</span>`
+      : '';
+    const tissuTxt = it.tissu_inclus
+      ? `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#E8940A;">Tissu inclus</span>`
+      : `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.5);">Tissu non compris</span>`;
+    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="position:relative;width:100%;aspect-ratio:3/4;background:#1E180E;">
+          ${photo}
+          ${prixTxt ? `<span style="position:absolute;bottom:8px;left:8px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-weight:800;font-size:12px;padding:4px 10px;border-radius:100px;box-shadow:0 2px 8px rgba(0,0,0,.35);">${prixTxt}</span>` : ''}
+        </div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;">
+          <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:600;color:#FCE0A8;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${nomP}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">${tissuTxt}${delaiTxt}</div>
+          <button onclick="event.stopPropagation();commanderModele('${mid}')" style="margin-top:auto;min-height:40px;padding:9px 14px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Je veux ce modèle</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">👗 Book de modèles</div>
+      ${delaiMin ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.05em;color:#E8940A;margin-top:6px;">Délai actuel : ${delaiMin} jour${delaiMin > 1 ? 's' : ''}</div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px;">
+        ${cards}
+      </div>
+    </div>`;
+}
+window.renderProfilAtelier = renderProfilAtelier;
+
+// Crée une commande de modèle EN INTERNE (wozali_commandes) + notifie le pro.
+// Aucun WhatsApp : le client est prévenu dans la messagerie WOZALI.
+async function commanderModele(modeleId, nom, prixTxt) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander ce modèle.', 'error'); return; }
+  const st = window._atelierState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const known = (st.items || {})[modeleId] || {};
+  const itemNom = nom || known.nom || 'Modèle';
+  const pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: puid,
+    type:                'modele',
+    item_id:             modeleId,
+    item_nom:            itemNom,
+    prix_txt:            pTxt,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        prixTxt: pTxt || '',
+        titre: 'Nouvelle commande de modèle',
+        message: `${clientNom} veut le modèle « ${itemNom} ».`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast(`Commande envoyée, ${itemNom} te répond dans la messagerie.`, 'success');
+  } catch (e) {
+    console.error('❌ commanderModele', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+window.commanderModele = commanderModele;
+
+// ══ Atelier & Sur-mesure — éditeur dashboard (section ds-modeles) ══
+// Mirroir de la boutique : CRUD sur wozali_modeles, s'affiche sur le profil
+// public via renderProfilAtelier + bouton « Je veux ce modèle » (commande interne).
+let _modelesItems = [];
+let _modeleEditId = null;
+
+async function loadModelesSection() {
+  const formWrap = document.getElementById('modele-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _modeleEditId = null;
+  _renderModelesList(); // rendu immédiat (état de chargement)
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_modeles')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _modelesItems = data || []; _renderModelesList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderModelesList() {
+  const list = document.getElementById('modeles-list');
+  if (!list) return;
+  if (!_modelesItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucun modèle pour l'instant. Ajoute ton premier modèle (photo + nom + prix façon + délai), il apparaîtra sur ton profil avec un bouton « Je veux ce modèle ».</div>`;
+    return;
+  }
+  list.innerHTML = _modelesItems.map(it => {
+    const mid = escapeHtml(it.id);
+    const nomP = escapeHtml(it.nom || 'Modèle');
+    const prixTxt = (it.prix_facon || it.prix_facon === 0) ? (parseInt(it.prix_facon).toLocaleString('fr-FR') + ' F façon') : '—';
+    const delai = (it.delai_jours && parseInt(it.delai_jours) > 0) ? `${parseInt(it.delai_jours)} j` : '';
+    const tissu = it.tissu_inclus ? 'Tissu inclus' : 'Tissu non compris';
+    const meta = [prixTxt, delai, tissu].filter(Boolean).join(' · ');
+    const actif = it.actif !== false;
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+      : `<div style="width:64px;height:64px;border-radius:10px;background:#14100A;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.4;flex-shrink:0;">👗</div>`;
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        ${photo}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomP}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${meta}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="toggleModeleActive('${mid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerModele('${mid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormModele() {
+  _modeleEditId = null;
+  const wrap = document.getElementById('modele-form-wrap');
+  if (!wrap) return;
+  document.getElementById('modele-f-nom').value = '';
+  document.getElementById('modele-f-prix').value = '';
+  document.getElementById('modele-f-delai').value = '';
+  const tissu = document.getElementById('modele-f-tissu');
+  if (tissu) tissu.checked = false;
+  document.getElementById('modele-f-desc').value = '';
+  const prev = document.getElementById('modele-f-photo-preview');
+  if (prev) { prev.innerHTML = ''; prev.dataset.url = ''; }
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.ouvrirFormModele = ouvrirFormModele;
+
+function fermerFormModele() {
+  const wrap = document.getElementById('modele-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _modeleEditId = null;
+}
+window.fermerFormModele = fermerFormModele;
+
+async function uploadModelePhoto(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const prev = document.getElementById('modele-f-photo-preview');
+  if (prev) prev.innerHTML = `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.55);">Envoi de la photo…</div>`;
+  const url = await uploadToImgBB(file);
+  if (url && prev) {
+    prev.dataset.url = url;
+    prev.innerHTML = `<img src="${encodeURI(url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+  } else if (prev) {
+    prev.innerHTML = '';
+  }
+}
+window.uploadModelePhoto = uploadModelePhoto;
+
+async function saveModele() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer tes modèles.', 'error'); return; }
+  const nom = (document.getElementById('modele-f-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un nom à ton modèle.', 'error'); return; }
+  const prixRaw = (document.getElementById('modele-f-prix')?.value || '').replace(/\D/g, '');
+  const prix_facon = prixRaw ? parseInt(prixRaw) : null;
+  const delaiRaw = (document.getElementById('modele-f-delai')?.value || '').replace(/\D/g, '');
+  const delai_jours = delaiRaw ? parseInt(delaiRaw) : null;
+  const tissu_inclus = !!document.getElementById('modele-f-tissu')?.checked;
+  const description = (document.getElementById('modele-f-desc')?.value || '').trim() || null;
+  const photo_url = document.getElementById('modele-f-photo-preview')?.dataset.url || null;
+
+  const btn = document.getElementById('modele-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_modeleEditId) {
+      const { error } = await window.supabase.from('wozali_modeles')
+        .update({ nom, prix_facon, delai_jours, tissu_inclus, description, photo_url })
+        .eq('id', _modeleEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _modelesItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        nom, prix_facon, delai_jours, tissu_inclus, description, photo_url,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_modeles').insert(row);
+      if (error) throw error;
+    }
+    toast('Modèle enregistré.', 'success');
+    fermerFormModele();
+    await loadModelesSection();
+  } catch (e) {
+    console.error('❌ saveModele', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer le modèle'; }
+  }
+}
+window.saveModele = saveModele;
+
+async function supprimerModele(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer ce modèle de ton book ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_modeles')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _modelesItems = _modelesItems.filter(it => it.id !== id);
+    _renderModelesList();
+    toast('Modèle supprimé.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerModele', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.supprimerModele = supprimerModele;
+
+async function toggleModeleActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _modelesItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_modeles')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderModelesList();
+  } catch (e) {
+    console.error('❌ toggleModeleActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.toggleModeleActive = toggleModeleActive;
+window.loadModelesSection = loadModelesSection;
 
 // ══ Carte localisation allégée pour mobile (Tâche 3) ══
 // La sidebar (et sa carte Leaflet) est masquée < 768px ; on affiche ici une tuile
@@ -8665,6 +8955,10 @@ function _notifMessageHtml(type, p) {
       return `<strong>${e(p.clientNom || 'Un client')}</strong> te demande un devis` +
         (p.quartier ? ` à ${e(p.quartier)}` : '') +
         (p.description ? ` : <em style="color:rgba(252,224,168,.45);">"${cut(p.description, 60)}"</em>` : '');
+    case 'commande':
+      return `🧵 <strong>${e(p.clientNom || 'Un client')}</strong> veut ce modèle : <strong>${e(p.itemNom || 'Modèle')}</strong>` +
+        (p.prixTxt ? ` <span style="color:#E8940A;">(${e(p.prixTxt)})</span>` : '') +
+        (p.note ? ` — <em style="color:rgba(252,224,168,.45);">"${cut(p.note, 50)}"</em>` : '');
     case 'payment':
       return `Paiement reçu : <strong>${(p.montant || 0).toLocaleString('fr-FR')} FCFA</strong> pour ${e(p.desc || 'une prestation')}`;
     case 'client_payment':
@@ -8699,6 +8993,7 @@ function _notifIcon(type) {
     like: '❤️', comment: '💬', vue: '👁️', rdv: '📅', payment: '💳',
     client_payment: '💳', avis: '⭐', suivi: '👥', favori: '❤️',
     photo_like: '📸', photo_comment: '💬', candidature_statut: '💼', devis: '🧱',
+    commande: '🧵',
   };
   return map[type] || '🔔';
 }
@@ -12282,6 +12577,7 @@ async function showProfil(recordId) {
         <div id="profil-offres-${recordId}"></div>
         <div id="profil-prestations-${recordId}"></div>
         <div id="profil-catalogue-${recordId}"></div>
+        <div id="profil-atelier-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
@@ -12527,6 +12823,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilOffresSection(_profilUserId, `profil-offres-${recordId}`);
     if (_profilUserId) renderProfilPrestations(_profilUserId, `profil-prestations-${recordId}`, recordId);
     if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw);
+    if (_profilUserId) renderProfilAtelier(_profilUserId, `profil-atelier-${recordId}`, recordId);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés
