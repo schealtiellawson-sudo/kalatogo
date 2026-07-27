@@ -673,6 +673,7 @@ function showDashSection(section) {
   if (section === 'posts') loadDashPosts();
   if (section === 'abonnement') { loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
+  if (section === 'boutique') loadBoutiqueSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -1918,6 +1919,254 @@ async function renderProfilOffresSection(userId, containerId) {
       ${rows}
     </div>`;
 }
+
+// ══ Catalogue produits (Module "Ma boutique") — affichage profil public ══
+// Calqué sur renderProfilOffresSection : masqué si 0 item actif.
+// tel/nom = numéro WhatsApp + nom du prestataire (exposés par showProfil) pour
+// pré-remplir le message de commande.
+async function renderProfilCatalogue(userId, containerId, tel, nom) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let items = [];
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_items')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .order('ordre', { ascending: true });
+    if (error) return;
+    items = data || [];
+  } catch (e) { return; }
+  if (!items.length) return; // rien à afficher = section masquée
+
+  // État partagé pour commanderProduitWhatsApp (tel + libellés produits)
+  const map = {};
+  window._catalogueState = { tel: (tel || '').replace(/\D/g, ''), nom: nom || '', items: map };
+
+  const STOCK_LABEL = { en_stock: 'En stock', sur_commande: 'Sur commande', epuise: 'Épuisé' };
+  const STOCK_STYLE = {
+    en_stock:     'background:rgba(232,148,10,.15);color:#E8940A;',
+    sur_commande: 'background:rgba(252,224,168,.12);color:#FCE0A8;',
+    epuise:       'background:rgba(252,224,168,.06);color:rgba(252,224,168,.45);'
+  };
+
+  const cards = items.map(it => {
+    const iid = escapeHtml(it.id);
+    map[it.id] = { nom: it.nom || 'Produit', prix: it.prix };
+    const nomP = escapeHtml(it.nom || 'Produit');
+    const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '';
+    const statut = it.stock_statut || 'en_stock';
+    const badge = `<span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:100px;${STOCK_STYLE[statut] || STOCK_STYLE.en_stock}">${STOCK_LABEL[statut] || 'En stock'}</span>`;
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="${nomP}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">🛍️</div>`;
+    const epuise = statut === 'epuise';
+    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="position:relative;width:100%;aspect-ratio:1/1;background:#1E180E;">
+          ${photo}
+          ${prixTxt ? `<span style="position:absolute;bottom:8px;left:8px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;padding:4px 10px;border-radius:100px;box-shadow:0 2px 8px rgba(0,0,0,.35);">${prixTxt}</span>` : ''}
+        </div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;">
+          <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:600;color:#FCE0A8;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${nomP}</div>
+          <div>${badge}</div>
+          <button onclick="event.stopPropagation();commanderProduitWhatsApp('${iid}')" ${epuise ? 'disabled' : ''} style="margin-top:auto;min-height:40px;padding:9px 14px;background:${epuise ? 'rgba(252,224,168,.08)' : '#E8940A'};color:${epuise ? 'rgba(252,224,168,.4)' : '#14100A'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:${epuise ? 'not-allowed' : 'pointer'};">Commander</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">🛍️ La boutique</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px;">
+        ${cards}
+      </div>
+    </div>`;
+}
+
+// Ouvre WhatsApp du prestataire avec un message de commande pré-rempli.
+function commanderProduitWhatsApp(itemId) {
+  const st = window._catalogueState || {};
+  const it = (st.items || {})[itemId];
+  if (!it) return;
+  const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' FCFA') : 'prix à confirmer';
+  const msg = `Bonjour, je veux commander : ${it.nom} — ${prixTxt} (vu sur ton profil WOZALI)`;
+  const tel = (st.tel || '').replace(/\D/g, '');
+  if (tel) {
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+  } else {
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+}
+window.renderProfilCatalogue = renderProfilCatalogue;
+window.commanderProduitWhatsApp = commanderProduitWhatsApp;
+
+// ══ Catalogue produits — éditeur dashboard (section ds-boutique) ══
+let _boutiqueItems = [];
+let _boutiqueEditId = null;
+
+async function loadBoutiqueSection() {
+  const formWrap = document.getElementById('boutique-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _boutiqueEditId = null;
+  _renderBoutiqueList(); // rendu immédiat (état de chargement)
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_items')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _boutiqueItems = data || []; _renderBoutiqueList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderBoutiqueList() {
+  const list = document.getElementById('boutique-list');
+  if (!list) return;
+  if (!_boutiqueItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucun produit pour l'instant. Ajoute ton premier article, il apparaîtra sur ton profil public.</div>`;
+    return;
+  }
+  const STOCK_LABEL = { en_stock: 'En stock', sur_commande: 'Sur commande', epuise: 'Épuisé' };
+  list.innerHTML = _boutiqueItems.map(it => {
+    const iid = escapeHtml(it.id);
+    const nomP = escapeHtml(it.nom || 'Produit');
+    const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '—';
+    const cat = it.categorie ? escapeHtml(it.categorie) : '';
+    const actif = it.actif !== false;
+    const photo = it.photo_url
+      ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+      : `<div style="width:64px;height:64px;border-radius:10px;background:#14100A;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.4;flex-shrink:0;">🛍️</div>`;
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        ${photo}
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomP}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${prixTxt}${cat ? ` · <span style="color:rgba(252,224,168,.55);">${cat}</span>` : ''}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.45);margin-top:4px;">${STOCK_LABEL[it.stock_statut] || 'En stock'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="toggleProduitActif('${iid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerProduitCatalogue('${iid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormProduitCatalogue() {
+  _boutiqueEditId = null;
+  const wrap = document.getElementById('boutique-form-wrap');
+  if (!wrap) return;
+  document.getElementById('boutique-f-nom').value = '';
+  document.getElementById('boutique-f-prix').value = '';
+  document.getElementById('boutique-f-cat').value = '';
+  document.getElementById('boutique-f-stock').value = 'en_stock';
+  document.getElementById('boutique-f-desc').value = '';
+  const prev = document.getElementById('boutique-f-photo-preview');
+  if (prev) { prev.innerHTML = ''; prev.dataset.url = ''; }
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function fermerFormProduitCatalogue() {
+  const wrap = document.getElementById('boutique-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _boutiqueEditId = null;
+}
+
+async function uploadProduitPhoto(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const prev = document.getElementById('boutique-f-photo-preview');
+  if (prev) prev.innerHTML = `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.55);">Envoi de la photo…</div>`;
+  const url = await uploadToImgBB(file);
+  if (url && prev) {
+    prev.dataset.url = url;
+    prev.innerHTML = `<img src="${encodeURI(url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+  } else if (prev) {
+    prev.innerHTML = '';
+  }
+}
+
+async function saveProduitCatalogue() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer ta boutique.', 'error'); return; }
+  const nom = (document.getElementById('boutique-f-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un nom à ton produit.', 'error'); return; }
+  const prixRaw = (document.getElementById('boutique-f-prix')?.value || '').replace(/\D/g, '');
+  const prix = prixRaw ? parseInt(prixRaw) : null;
+  const categorie = (document.getElementById('boutique-f-cat')?.value || '').trim() || null;
+  const stock_statut = document.getElementById('boutique-f-stock')?.value || 'en_stock';
+  const description = (document.getElementById('boutique-f-desc')?.value || '').trim() || null;
+  const photo_url = document.getElementById('boutique-f-photo-preview')?.dataset.url || null;
+
+  const btn = document.getElementById('boutique-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_boutiqueEditId) {
+      const { error } = await window.supabase.from('wozali_items')
+        .update({ nom, prix, categorie, stock_statut, description, photo_url })
+        .eq('id', _boutiqueEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _boutiqueItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        nom, prix, categorie, stock_statut, description, photo_url,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_items').insert(row);
+      if (error) throw error;
+    }
+    toast('Produit enregistré.', 'success');
+    fermerFormProduitCatalogue();
+    await loadBoutiqueSection();
+  } catch (e) {
+    console.error('❌ saveProduitCatalogue', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer le produit'; }
+  }
+}
+
+async function supprimerProduitCatalogue(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer ce produit de ta boutique ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_items')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _boutiqueItems = _boutiqueItems.filter(it => it.id !== id);
+    _renderBoutiqueList();
+    toast('Produit supprimé.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerProduitCatalogue', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+
+async function toggleProduitActif(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _boutiqueItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_items')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderBoutiqueList();
+  } catch (e) {
+    console.error('❌ toggleProduitActif', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.loadBoutiqueSection = loadBoutiqueSection;
+window.ouvrirFormProduitCatalogue = ouvrirFormProduitCatalogue;
+window.fermerFormProduitCatalogue = fermerFormProduitCatalogue;
+window.uploadProduitPhoto = uploadProduitPhoto;
+window.saveProduitCatalogue = saveProduitCatalogue;
+window.supprimerProduitCatalogue = supprimerProduitCatalogue;
+window.toggleProduitActif = toggleProduitActif;
 
 // ══ Carte localisation allégée pour mobile (Tâche 3) ══
 // La sidebar (et sa carte Leaflet) est masquée < 768px ; on affiche ici une tuile
@@ -11311,6 +11560,7 @@ async function showProfil(recordId) {
       <!-- ═══════════ TAB POSTS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
         <div id="profil-offres-${recordId}"></div>
+        <div id="profil-catalogue-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
         ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
@@ -11553,6 +11803,7 @@ async function showProfil(recordId) {
     if (gpsLat && gpsLon) setTimeout(() => initProfileMiniMap(gpsLat, gpsLon, `profil-minimap-${recordId}`), 300);
     // Offres emploi du prestataire + carte localisation mobile (Taches 2 et 3)
     if (_profilUserId) renderProfilOffresSection(_profilUserId, `profil-offres-${recordId}`);
+    if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés
     setTimeout(() => updateSuiviBtn(recordId), 200);
