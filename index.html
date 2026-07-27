@@ -1377,7 +1377,7 @@ setTimeout(function(){
             <option>Éleveur</option>
           </optgroup>
           <optgroup label="Divers">
-            <option>Autre (préciser dans la description)</option>
+            <option value="Polyvalent">Autre / Mon activité n'est pas dans la liste</option>
           </optgroup>
         </select>
         <select id="s-quartier" onchange="loadSearch()"><option value="">Toutes les villes</option></select>
@@ -2354,9 +2354,11 @@ setTimeout(function(){
                 <option>Éleveur</option>
               </optgroup>
               <optgroup label="Divers">
-                <option>Autre (préciser dans la description)</option>
+                <option value="Polyvalent">Autre / Mon activité n'est pas dans la liste</option>
               </optgroup>
             </select>
+            <!-- Micro-ligne : explique brièvement à quoi le profil est optimisé selon le métier -->
+            <div id="metier-hint" style="display:none;margin-top:10px;font-size:13px;line-height:1.5;color:#7a5c12;background:rgba(232,148,10,0.08);border:1px solid rgba(232,148,10,0.22);border-radius:10px;padding:10px 12px;"></div>
 
             <!-- Champ diplômes/expérience — affiché uniquement pour les métiers digitaux -->
             <div id="portfolio-field" style="display:none;margin-top:16px;">
@@ -3567,7 +3569,7 @@ setTimeout(function(){
                   <option>Éleveur</option>
                 </optgroup>
                 <optgroup label="Divers">
-                  <option>Autre (préciser dans la description)</option>
+                  <option value="Polyvalent">Autre / Mon activité n'est pas dans la liste</option>
                 </optgroup>
               </select>
               <!-- Statut socio-économique — auto-rendu par renderStatutsForMetier() depuis WozaliMetierStatuts -->

@@ -14460,7 +14460,6 @@ async function showProfil(recordId) {
 
       <!-- ═══════════ TAB POSTS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
-        <div id="profil-offres-${recordId}"></div>
         <div id="profil-prestations-${recordId}"></div>
         <div id="profil-catalogue-${recordId}"></div>
         <div id="profil-atelier-${recordId}"></div>
@@ -14550,6 +14549,7 @@ async function showProfil(recordId) {
       <!-- ═══════════ TAB À PROPOS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-apropos-${recordId}" style="display:none;">
         <div class="profil-apropos-main">
+          <div id="profil-offres-${recordId}"></div>
           ${(description || f['Bio Audio URL']) ? `
           <div class="profil-section profil-animate">
             <h3>À propos</h3>
@@ -15556,6 +15556,53 @@ function onMetierChange(metier) {
 
   // Statut socio-économique — affiché pour TOUS les métiers via WozaliMetierStatuts
   renderStatutsForMetier(metier, 'statut-artisan-field', 'f-statut-artisan');
+
+  // Micro-ligne rassurante : à quoi le profil est optimisé selon le métier choisi
+  const hint = document.getElementById('metier-hint');
+  if (hint) {
+    const txt = _metierHintInscription(metier);
+    if (txt) { hint.innerHTML = txt; hint.style.display = 'block'; }
+    else { hint.style.display = 'none'; hint.innerHTML = ''; }
+  }
+}
+
+// Retourne une phrase courte (bénéfice concret, zéro jargon) selon le métier.
+// Modèle LinkedIn : l'utilisateur dit son activité, WOZALI adapte automatiquement.
+function _metierHintInscription(metier) {
+  if (!metier) return '';
+  const m = metier.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // Profil polyvalent (Autre) : aucun module métier, profil libre
+  if (m.includes('polyvalent') || m.includes('autre')) {
+    return '✨ <strong>Profil polyvalent</strong> : présente ton travail, tes photos et ton CV WOZALI à ta façon.';
+  }
+  // Règles par groupe de métier → module vitrine adapté
+  const RULES = [
+    { k: ['restaurant', 'institut de beaute', 'hotel', 'auberge', 'pharmacie', 'supermarche', 'quincaillerie', 'pressing', 'laverie', 'cybercafe', 'clinique', 'cabinet', 'bar / maquis', 'boite de nuit', 'club', 'librairie', 'papeterie', 'boutique mode', 'friperie', 'boulangerie / patisserie (commerce)'],
+      t: '✨ Ton profil aura une page <strong>établissement</strong> : horaires, équipements et réservations en ligne.' },
+    { k: ['coiffeur', 'coiffeuse', 'estheticienne', 'barbier', 'tresseur', 'tresseuse', 'tatoueur', 'onglerie', 'nail', 'maquilleur', 'maquilleuse', 'masseur', 'masseuse', 'spa', 'kinesitherapeute'],
+      t: '✨ Ton profil sera optimisé pour tes <strong>prestations</strong> : tes soins, tes prix, et des rendez-vous en ligne.' },
+    { k: ['couturier', 'couturiere', 'brodeur', 'brodeuse', 'cordonnier', 'teinturier'],
+      t: '✨ Ton profil aura un <strong>book de modèles</strong> sur-mesure : tes créations, tes prix façon, tes commandes.' },
+    { k: ['macon', 'menuisier', 'electricien', 'plombier', 'peintre', 'soudeur', 'carreleur', 'ferronnier', 'vitrier', 'tapissier', 'climatiseur', 'froid'],
+      t: '✨ Ton profil montrera tes <strong>chantiers réalisés</strong> et permettra aux clients de demander un <strong>devis</strong>.' },
+    { k: ['photographe', 'videaste', 'graphiste', 'dj', 'animateur', 'organisateur', 'musicien', 'motion', 'monteur video', 'community manager', 'redacteur', 'copywriter'],
+      t: '✨ Ton profil aura tes <strong>packs créatifs</strong> : tes offres, tes tarifs, ton portfolio.' },
+    { k: ['restaurateur', 'traiteur', 'patissier', 'boulanger', 'cuisinier', 'cuisiniere', 'tenancier', 'maquis'],
+      t: '✨ Ton profil aura une <strong>carte / un menu</strong> : tes plats, tes prix, le plat du jour, les commandes.' },
+    { k: ['zemidjan', 'taxi-moto', 'chauffeur', 'taxi', 'livreur', 'laveur auto'],
+      t: '✨ Ton profil aura tes <strong>courses & livraisons</strong> : tes trajets, tes tarifs, tes demandes.' },
+    { k: ['femme de menage', 'menage', 'jardinier', 'gardien', 'vigile', 'agent de securite', 'repasseuse', 'baby-sitter', 'garde enfant', 'aide-soignant', 'infirmier'],
+      t: '✨ Ton profil aura tes <strong>formules</strong> : ménage, entretien, garde… régulier ou ponctuel.' },
+    { k: ['professeur', 'formateur', 'coach', 'traducteur', 'comptable', 'juriste', 'conseiller', 'consultant', 'agent immobilier', 'agence immobiliere', 'demarcheur', 'courtier', 'syndic', 'gestionnaire immobilier'],
+      t: '✨ Ton profil aura tes <strong>séances / biens</strong> : cours, consultations, ou annonces immobilières.' },
+    { k: ['vendeur', 'vendeuse', 'epicier', 'boucherie', 'poissonnerie', 'legumes', 'fruits', 'fleuriste', 'recharges', 'etale', 'commerc'],
+      t: '✨ Ton profil aura une <strong>boutique</strong> : tes articles, tes prix, tes photos, les commandes.' },
+  ];
+  for (const r of RULES) {
+    if (r.k.some(kw => m.includes(kw))) return r.t;
+  }
+  // Métier reconnu mais sans module dédié → profil standard, message générique positif
+  return '✨ Ton profil mettra en avant ton <strong>travail</strong>, tes photos et tes avis clients.';
 }
 
 // Rend les options de statut dynamiquement selon le métier choisi.
