@@ -2663,6 +2663,10 @@ setTimeout(function(){
         <span class="dash-big-chip wchip-orclair"><i data-lucide="shirt"></i></span>
         <span>Mes modèles</span>
       </button>
+      <button class="dash-link dash-big" onclick="showDashSection('packs')" id="dl-packs">
+        <span class="dash-big-chip wchip-caramel"><i data-lucide="palette"></i></span>
+        <span>Mes offres / packs</span>
+      </button>
       <button class="dash-link dash-big" onclick="showDashSection('avis')" id="dl-avis">
         <span class="dash-big-chip wchip-terracotta"><i data-lucide="star"></i></span>
         <span>Mes avis</span>
@@ -3962,6 +3966,51 @@ setTimeout(function(){
 
         <!-- Liste des modèles -->
         <div id="modeles-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+
+      <!-- CRÉATIF & DIGITAL — OFFRES / PACKS -->
+      <div class="dash-section" id="ds-packs">
+        <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div class="wz-eyebrow">Vitrine · Créatif &amp; Digital</div>
+            <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">offres / packs</em></h2>
+            <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Photographe, vidéaste, graphiste, monteur, développeur, community manager, rédacteur… Propose tes services en packs à prix fixe (ex : « Logo + charte : 25 000 F · 5 jours »). Ton portfolio, lui, se gère dans « Mes réalisations ». Le client commande direct sur WOZALI.</p>
+          </div>
+          <button onclick="ouvrirFormPack()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter un pack</button>
+        </div>
+
+        <!-- Formulaire pack (masqué par défaut) -->
+        <div id="pack-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
+          <h3 id="pack-form-titre" style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#FCE0A8;margin-bottom:16px;">Nouveau <em style="color:#E8940A;font-style:italic;">pack</em></h3>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Nom du pack *</label>
+              <input id="pack-f-nom" type="text" maxlength="80" placeholder="Ex : Logo + charte graphique" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;">
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Prix (FCFA)</label>
+                <input id="pack-f-prix" type="text" inputmode="numeric" maxlength="12" placeholder="Ex : 25000" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+              <div>
+                <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Délai de livraison (jours)</label>
+                <input id="pack-f-delai" type="text" inputmode="numeric" maxlength="4" placeholder="Ex : 5" style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;">
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Description (optionnel)</label>
+              <textarea id="pack-f-desc" rows="2" maxlength="300" placeholder="Ex : Logo vectoriel + déclinaisons + charte couleurs et typographies, 2 allers-retours inclus." style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="pack-f-save" onclick="savePack()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer le pack</button>
+              <button onclick="fermerFormPack()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des packs -->
+        <div id="packs-list" style="display:flex;flex-direction:column;gap:12px;"></div>
       </div>
 
 

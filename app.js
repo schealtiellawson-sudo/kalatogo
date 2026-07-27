@@ -677,6 +677,7 @@ function showDashSection(section) {
   if (section === 'prestations') loadPrestationsSection();
   if (section === 'realisations') loadRealisationsSection();
   if (section === 'modeles') loadModelesSection();
+  if (section === 'packs') loadPacksSection();
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -3173,6 +3174,273 @@ async function toggleModeleActive(id) {
 }
 window.toggleModeleActive = toggleModeleActive;
 window.loadModelesSection = loadModelesSection;
+
+// ══ Créatif & Digital — offres en packs (profil public) ══
+// Cluster créatif : photographe, vidéaste, graphiste, monteur, motion designer,
+// développeur, community manager, rédacteur, modèle/influenceur…
+// Le PORTFOLIO réutilise le module « Mes réalisations » (renderProfilChantiers).
+// Ici on rend uniquement les OFFRES EN PACKS (prix fixe + délai en jours).
+// Calqué sur renderProfilAtelier : masqué si 0 pack actif.
+// La commande se crée EN INTERNE (wozali_commandes type 'pack' + pushNotif), jamais WhatsApp.
+// recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
+async function renderProfilPacks(userId, containerId, recordId) {
+  const el = document.getElementById(containerId);
+  if (!el || !userId || !window.supabase) return;
+  let items = [];
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_packs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('actif', true)
+      .order('ordre', { ascending: true });
+    if (error) return;
+    items = data || [];
+  } catch (e) { return; }
+  if (!items.length) return; // rien à afficher = section masquée
+
+  // État partagé pour commanderPack (destinataire de la notif + libellés)
+  const map = {};
+  window._packsState = { userId, recordId: recordId || null, items: map };
+
+  const rows = items.map(it => {
+    const pid = escapeHtml(it.id);
+    const nomP = escapeHtml(it.nom || 'Pack');
+    const prixTxt = (it.prix || it.prix === 0)
+      ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F')
+      : '';
+    map[it.id] = { nom: it.nom || 'Pack', prixTxt };
+    const delaiTxt = (it.delai_jours && parseInt(it.delai_jours) > 0)
+      ? `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.55);">⏱ ${parseInt(it.delai_jours)} j</span>`
+      : '';
+    const descTxt = it.description
+      ? `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);line-height:1.4;margin-top:2px;">${escapeHtml(it.description)}</div>`
+      : '';
+    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomP}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px;">
+            ${prixTxt ? `<span style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;">${prixTxt}</span>` : ''}
+            ${delaiTxt}
+          </div>
+          ${descTxt}
+        </div>
+        <button onclick="event.stopPropagation();commanderPack('${pid}')" style="flex-shrink:0;min-height:40px;padding:9px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Commander</button>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="profil-offres-card">
+      <div class="profil-offres-head">🎨 Mes offres</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">
+        ${rows}
+      </div>
+    </div>`;
+}
+window.renderProfilPacks = renderProfilPacks;
+
+// Crée une commande de pack EN INTERNE (wozali_commandes type 'pack') + notifie le pro.
+// Aucun WhatsApp : le client est prévenu dans la messagerie WOZALI.
+async function commanderPack(packId, nom, prixTxt) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander ce pack.', 'error'); return; }
+  const st = window._packsState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const known = (st.items || {})[packId] || {};
+  const itemNom = nom || known.nom || 'Pack';
+  const pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: puid,
+    type:                'pack',
+    item_id:             packId,
+    item_nom:            itemNom,
+    prix_txt:            pTxt,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        prixTxt: pTxt || '',
+        titre: 'Nouvelle commande de pack',
+        message: `${clientNom} veut le pack « ${itemNom} ».`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast(`Commande envoyée, tu suis ça dans la messagerie.`, 'success');
+  } catch (e) {
+    console.error('❌ commanderPack', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+  }
+}
+window.commanderPack = commanderPack;
+
+// ══ Créatif & Digital — éditeur dashboard (section ds-packs) ══
+// Mirroir de la boutique/atelier : CRUD sur wozali_packs, s'affiche sur le profil
+// public via renderProfilPacks + bouton « Commander » (commande interne).
+let _packsItems = [];
+let _packEditId = null;
+
+async function loadPacksSection() {
+  const formWrap = document.getElementById('pack-form-wrap');
+  if (formWrap) formWrap.style.display = 'none';
+  _packEditId = null;
+  _renderPacksList(); // rendu immédiat (état de chargement)
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_packs')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('ordre', { ascending: true });
+    if (!error) { _packsItems = data || []; _renderPacksList(); }
+  } catch (e) { /* ignore */ }
+}
+
+function _renderPacksList() {
+  const list = document.getElementById('packs-list');
+  if (!list) return;
+  if (!_packsItems.length) {
+    list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucune offre pour l'instant. Ajoute ton premier pack (nom + prix + délai), il apparaîtra sur ton profil avec un bouton « Commander ».</div>`;
+    return;
+  }
+  list.innerHTML = _packsItems.map(it => {
+    const pid = escapeHtml(it.id);
+    const nomP = escapeHtml(it.nom || 'Pack');
+    const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '—';
+    const delai = (it.delai_jours && parseInt(it.delai_jours) > 0) ? `${parseInt(it.delai_jours)} j` : '';
+    const meta = [prixTxt, delai].filter(Boolean).join(' · ');
+    const actif = it.actif !== false;
+    return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomP}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${meta}</div>
+          ${it.description ? `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin-top:4px;line-height:1.4;">${escapeHtml(it.description)}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="ouvrirFormPack('${pid}')" style="min-height:36px;padding:6px 12px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Modifier</button>
+          <button onclick="togglePackActive('${pid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
+          <button onclick="supprimerPack('${pid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function ouvrirFormPack(id) {
+  _packEditId = id || null;
+  const wrap = document.getElementById('pack-form-wrap');
+  if (!wrap) return;
+  const it = id ? _packsItems.find(x => x.id === id) : null;
+  const nomEl = document.getElementById('pack-f-nom');
+  const prixEl = document.getElementById('pack-f-prix');
+  const delaiEl = document.getElementById('pack-f-delai');
+  const descEl = document.getElementById('pack-f-desc');
+  if (nomEl) nomEl.value = it ? (it.nom || '') : '';
+  if (prixEl) prixEl.value = it && (it.prix || it.prix === 0) ? String(it.prix) : '';
+  if (delaiEl) delaiEl.value = it && it.delai_jours ? String(it.delai_jours) : '';
+  if (descEl) descEl.value = it ? (it.description || '') : '';
+  const titre = document.getElementById('pack-form-titre');
+  if (titre) titre.innerHTML = it ? 'Modifier le <em style="color:#E8940A;font-style:italic;">pack</em>' : 'Nouveau <em style="color:#E8940A;font-style:italic;">pack</em>';
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+window.ouvrirFormPack = ouvrirFormPack;
+
+function fermerFormPack() {
+  const wrap = document.getElementById('pack-form-wrap');
+  if (wrap) wrap.style.display = 'none';
+  _packEditId = null;
+}
+window.fermerFormPack = fermerFormPack;
+
+async function savePack() {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer tes offres.', 'error'); return; }
+  const nom = (document.getElementById('pack-f-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un nom à ton pack.', 'error'); return; }
+  const prixRaw = (document.getElementById('pack-f-prix')?.value || '').replace(/\D/g, '');
+  const prix = prixRaw ? parseInt(prixRaw) : null;
+  const delaiRaw = (document.getElementById('pack-f-delai')?.value || '').replace(/\D/g, '');
+  const delai_jours = delaiRaw ? parseInt(delaiRaw) : null;
+  const description = (document.getElementById('pack-f-desc')?.value || '').trim() || null;
+
+  const btn = document.getElementById('pack-f-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    if (_packEditId) {
+      const { error } = await window.supabase.from('wozali_packs')
+        .update({ nom, prix, delai_jours, description })
+        .eq('id', _packEditId).eq('user_id', currentUser.id);
+      if (error) throw error;
+    } else {
+      const ordre = _packsItems.length;
+      const row = {
+        user_id: currentUser.id,
+        prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
+        nom, prix, delai_jours, description,
+        actif: true, ordre
+      };
+      const { error } = await window.supabase.from('wozali_packs').insert(row);
+      if (error) throw error;
+    }
+    toast('Offre enregistrée.', 'success');
+    fermerFormPack();
+    await loadPacksSection();
+  } catch (e) {
+    console.error('❌ savePack', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer le pack'; }
+  }
+}
+window.savePack = savePack;
+
+async function supprimerPack(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer cette offre de ton profil ?')) return;
+  try {
+    const { error } = await window.supabase.from('wozali_packs')
+      .delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _packsItems = _packsItems.filter(it => it.id !== id);
+    _renderPacksList();
+    toast('Offre supprimée.', 'success');
+  } catch (e) {
+    console.error('❌ supprimerPack', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.supprimerPack = supprimerPack;
+
+async function togglePackActive(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  const it = _packsItems.find(x => x.id === id);
+  if (!it) return;
+  const nouveau = !(it.actif !== false);
+  try {
+    const { error } = await window.supabase.from('wozali_packs')
+      .update({ actif: nouveau }).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    it.actif = nouveau;
+    _renderPacksList();
+  } catch (e) {
+    console.error('❌ togglePackActive', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+window.togglePackActive = togglePackActive;
+window.loadPacksSection = loadPacksSection;
 
 // ══ Carte localisation allégée pour mobile (Tâche 3) ══
 // La sidebar (et sa carte Leaflet) est masquée < 768px ; on affiche ici une tuile
@@ -12578,6 +12846,7 @@ async function showProfil(recordId) {
         <div id="profil-prestations-${recordId}"></div>
         <div id="profil-catalogue-${recordId}"></div>
         <div id="profil-atelier-${recordId}"></div>
+        <div id="profil-packs-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
         <div id="profil-mobileloc-${recordId}" class="profil-mobile-loc"></div>
         <!-- Strip photos discret -->
@@ -12824,6 +13093,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilPrestations(_profilUserId, `profil-prestations-${recordId}`, recordId);
     if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw);
     if (_profilUserId) renderProfilAtelier(_profilUserId, `profil-atelier-${recordId}`, recordId);
+    if (_profilUserId) renderProfilPacks(_profilUserId, `profil-packs-${recordId}`, recordId);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Mettre à jour le bouton Suivre + compteur abonnés
