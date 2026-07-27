@@ -209,6 +209,9 @@ body {
 }
 /* Le bouton Besoin d'aide ne chevauche jamais la bottom bar mobile */
 body.has-bottom-nav #aide-fab { bottom: 84px !important; }
+/* La bannière d'installation PWA est fixée au même endroit que la barre du bas
+   flottante : on la remonte AU-DESSUS de la barre pour éviter le double cadre. */
+body.has-bottom-nav .wozali-v2-pwa-banner { bottom: calc(env(safe-area-inset-bottom, 0px) + 82px) !important; }
 
 .toast-aide-btn {
   background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.3); color:#fff;
