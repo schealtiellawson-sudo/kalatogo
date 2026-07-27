@@ -1934,7 +1934,7 @@ async function renderProfilOffresSection(userId, containerId) {
 // Calqué sur renderProfilOffresSection : masqué si 0 item actif.
 // tel/nom = numéro WhatsApp + nom du prestataire (exposés par showProfil) pour
 // pré-remplir le message de commande.
-async function renderProfilCatalogue(userId, containerId, tel, nom) {
+async function renderProfilCatalogue(userId, containerId, tel, nom, recordId) {
   const el = document.getElementById(containerId);
   if (!el || !userId || !window.supabase) return;
   let items = [];
@@ -1950,9 +1950,9 @@ async function renderProfilCatalogue(userId, containerId, tel, nom) {
   } catch (e) { return; }
   if (!items.length) return; // rien à afficher = section masquée
 
-  // État partagé pour commanderProduitWhatsApp (tel + libellés produits)
+  // État partagé pour commanderProduitWhatsApp (destinataire de la notif + libellés produits)
   const map = {};
-  window._catalogueState = { tel: (tel || '').replace(/\D/g, ''), nom: nom || '', items: map };
+  window._catalogueState = { tel: (tel || '').replace(/\D/g, ''), nom: nom || '', userId, recordId: recordId || null, items: map };
 
   const STOCK_LABEL = { en_stock: 'En stock', sur_commande: 'Sur commande', epuise: 'Épuisé' };
   const STOCK_STYLE = {
@@ -1993,18 +1993,54 @@ async function renderProfilCatalogue(userId, containerId, tel, nom) {
     </div>`;
 }
 
-// Ouvre WhatsApp du prestataire avec un message de commande pré-rempli.
-function commanderProduitWhatsApp(itemId) {
+// Crée une commande de produit EN INTERNE (wozali_commandes type 'produit')
+// + notifie le pro. Aucun WhatsApp : le client est suivi dans la messagerie
+// WOZALI, comme les autres modules métier (modèle, plat, course…).
+// Le nom exporté reste commanderProduitWhatsApp (onclick existants).
+async function commanderProduitWhatsApp(itemId) {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander ce produit.', 'error'); return; }
   const st = window._catalogueState || {};
   const it = (st.items || {})[itemId];
   if (!it) return;
-  const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' FCFA') : 'prix à confirmer';
-  const msg = `Bonjour, je veux commander : ${it.nom} — ${prixTxt} (vu sur ton profil WOZALI)`;
-  const tel = (st.tel || '').replace(/\D/g, '');
-  if (tel) {
-    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
-  } else {
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  const puid = st.userId || null;
+  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  const itemNom = it.nom || 'Produit';
+  const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' FCFA') : null;
+
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name))
+    || cu.email || 'Un client';
+
+  const row = {
+    client_user_id:      cu.id,
+    prestataire_id:      st.recordId || null,
+    prestataire_user_id: puid,
+    type:                'produit',
+    item_id:             itemId,
+    item_nom:            itemNom,
+    prix_txt:            prixTxt,
+    statut:              'recue'
+  };
+
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert(row);
+    if (error) throw error;
+    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
+    try {
+      pushNotif(st.recordId || puid, {
+        type: 'commande',
+        clientNom,
+        itemNom,
+        prixTxt: prixTxt || '',
+        titre: 'Nouvelle commande boutique',
+        message: `${clientNom} veut commander « ${itemNom} ».`
+      });
+    } catch (e) { /* fire-and-forget */ }
+    toast(`Commande envoyée, le pro te répond dans la messagerie.`, 'success');
+  } catch (e) {
+    console.error('❌ commanderProduitWhatsApp', e.message || e);
+    toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
   }
 }
 window.renderProfilCatalogue = renderProfilCatalogue;
@@ -14678,7 +14714,7 @@ async function showProfil(recordId) {
     // Offres emploi du prestataire + carte localisation mobile (Taches 2 et 3)
     if (_profilUserId) renderProfilOffresSection(_profilUserId, `profil-offres-${recordId}`);
     if (_profilUserId) renderProfilPrestations(_profilUserId, `profil-prestations-${recordId}`, recordId);
-    if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw);
+    if (_profilUserId) renderProfilCatalogue(_profilUserId, `profil-catalogue-${recordId}`, tel, nomRaw, recordId);
     if (_profilUserId) renderProfilAtelier(_profilUserId, `profil-atelier-${recordId}`, recordId);
     if (_profilUserId) renderProfilPacks(_profilUserId, `profil-packs-${recordId}`, recordId);
     if (_profilUserId) renderProfilMenu(_profilUserId, `profil-menu-${recordId}`, recordId);

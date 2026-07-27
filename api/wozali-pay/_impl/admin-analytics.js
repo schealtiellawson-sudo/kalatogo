@@ -17,6 +17,95 @@ CADRE : tu raisonnes avec les frameworks qui comptent pour ce modèle : le déma
 DONNÉES : on te fournit les chiffres réels de la plateforme à chaque échange. Appuie-toi dessus, ne les invente jamais, et si une donnée te manque pour trancher, demande-la.
 STYLE : tu parles à un fondateur, pas à un artisan. Direct, stratégique, concret, orienté décision et priorisation. Pas de flatterie, pas de baratin. Tu peux challenger une idée quand la donnée va contre. Français, zéro tiret cadratin, jamais la structure c'est pas X c'est Y. Réponses denses mais sans roman, tu vas à l'essentiel, tu proposes des actions et tu chiffres l'impact attendu quand c'est raisonnable, sans inventer. Une question de clarification si le fondateur est vague. Tu es une IA et tu ne le caches pas si on te le demande.`;
 
+// ── Agrégats d'activité des modules métier (10 clusters) ──
+// Chaque requête est isolée : une table absente ou une colonne manquante
+// renvoie null sans casser le reste. Alimente l'analyse Sandy + le
+// dashboard, pour couvrir l'adoption et l'usage des nouveaux blocs profil.
+const MODULE_TABLES = [
+  'wozali_items', 'wozali_prestations', 'wozali_modeles', 'wozali_packs',
+  'wozali_menu', 'wozali_courses', 'wozali_formules', 'wozali_realisations',
+  'wozali_seances', 'wozali_biens', 'wozali_etablissement',
+];
+
+function _tally(rows, key) {
+  const o = {};
+  for (const r of (rows || [])) {
+    const k = (r && r[key] != null && r[key] !== '') ? r[key] : 'inconnu';
+    o[k] = (o[k] || 0) + 1;
+  }
+  return o;
+}
+
+async function buildModulesMetier() {
+  // Lit toutes les lignes d'une table (colonnes ciblées), null si erreur.
+  const rowsOf = async (table, cols) => {
+    try {
+      const { data, error } = await supabase.from(table).select(cols);
+      if (error) return null;
+      return data || [];
+    } catch (e) { return null; }
+  };
+  // Nombre de prestataires distincts ayant rempli un module (adoption).
+  const distinctUsers = async (table) => {
+    try {
+      const { data, error } = await supabase.from(table).select('user_id');
+      if (error) return null;
+      return new Set((data || []).map(r => r.user_id).filter(Boolean)).size;
+    } catch (e) { return null; }
+  };
+  // Comptage filtré (biens actifs).
+  const countWhere = async (table, col, val) => {
+    try {
+      const { count, error } = await supabase
+        .from(table).select('*', { count: 'exact', head: true }).eq(col, val);
+      if (error) return null;
+      return count || 0;
+    } catch (e) { return null; }
+  };
+
+  const [cmd, rdv, dev, biensActifs] = await Promise.all([
+    rowsOf('wozali_commandes', 'type, statut'),
+    rowsOf('wozali_rdv', 'statut'),
+    rowsOf('wozali_devis', 'statut'),
+    countWhere('wozali_biens', 'actif', true),
+  ]);
+
+  const adoption = {};
+  await Promise.all(MODULE_TABLES.map(async t => { adoption[t] = await distinctUsers(t); }));
+
+  return {
+    commandes: {
+      total: cmd ? cmd.length : null,
+      par_type: cmd ? _tally(cmd, 'type') : null,
+      par_statut: cmd ? _tally(cmd, 'statut') : null,
+    },
+    rdv: { total: rdv ? rdv.length : null, par_statut: rdv ? _tally(rdv, 'statut') : null },
+    devis: { total: dev ? dev.length : null, par_statut: dev ? _tally(dev, 'statut') : null },
+    biens_actifs: biensActifs,
+    adoption,
+  };
+}
+
+// Version texte compacte, injectée dans le résumé lu par Sandy.
+function _modulesResumeText(m) {
+  if (!m) return '';
+  const kv = (o) => (o && Object.keys(o).length)
+    ? Object.entries(o).map(([k, v]) => `${k} ${v}`).join(', ')
+    : 'aucune';
+  const nn = (v) => (v == null ? 'n/a' : v);
+  const adopt = Object.entries(m.adoption || {})
+    .map(([t, n]) => `${t.replace('wozali_', '')} ${nn(n)}`)
+    .join(', ') || 'aucune donnée';
+  return [
+    `MODULES MÉTIER (activité via la messagerie interne WOZALI, jamais WhatsApp) :`,
+    `Commandes : total ${nn(m.commandes.total)}, par type [${kv(m.commandes.par_type)}], par statut [${kv(m.commandes.par_statut)}].`,
+    `RDV prestations : total ${nn(m.rdv.total)}, par statut [${kv(m.rdv.par_statut)}].`,
+    `Devis : total ${nn(m.devis.total)}, par statut [${kv(m.devis.par_statut)}].`,
+    `Biens immobiliers actifs : ${nn(m.biens_actifs)}.`,
+    `Adoption par bloc profil (prestataires distincts ayant au moins 1 ligne) : ${adopt}.`,
+  ].join('\n');
+}
+
 // Résumé compact des KPI réels, réutilisé par l'analyse et le chat stratège.
 async function buildKpiResume(days) {
   const rpc = (fn, args) => supabase.rpc(fn, args).then(r => r.error ? null : r.data);
@@ -33,6 +122,7 @@ async function buildKpiResume(days) {
     rpc('wz_age_bins', {})
   ]);
   const T = t || {}, F = fun || {}, A = act || {};
+  const modules = await buildModulesMetier();
   const list = (rows) => (rows || []).slice(0, 8).map(r => `${r.cle || r.tranche || r.metier}: ${r.total != null ? r.total : r.abandons}`).join(', ') || 'aucune donnée';
   const pct = (a, b) => b ? Math.round((a / b) * 100) + '%' : 'n/a';
   return [
@@ -42,7 +132,8 @@ async function buildKpiResume(days) {
     `ABANDONS inscription par métier : ${list(aban)}.`,
     `MEMBRES/ACTIVITÉ : total ${A.membres_total || 0}, Pro ${A.pro_total || 0} (${pct(A.pro_total || 0, A.membres_total || 0)}), actifs 7j ${A.actifs_7j || 0}, actifs 30j ${A.actifs_30j || 0}, jamais connectés ${A.jamais_connecte || 0}, nouveaux 30j ${A.nouveaux_30j || 0}.`,
     `DÉMOGRAPHIE genre : ${list(dGenre)}. Pays : ${list(dPays)}. Ville : ${list(dVille)}. Métier : ${list(dMetier)}. Abonnement : ${list(dAbo)}. Âge : ${list(dAge)}.`,
-  ].join('\n');
+    _modulesResumeText(modules),
+  ].filter(Boolean).join('\n');
 }
 
 // Router IA (mêmes providers gratuits que le coach), renvoie le texte ou null.
@@ -160,9 +251,12 @@ export default async function adminAnalytics(req, res) {
       rpc('wz_age_bins', {})
     ]);
 
+    const modulesMetier = await buildModulesMetier();
+
     return res.status(200).json({
       ok: true,
       days,
+      modules_metier: modulesMetier,
       trafic: traffic || {},
       vues_par_page: viewsPage || [],
       vues_par_jour: viewsDay || [],
