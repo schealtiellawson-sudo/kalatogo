@@ -117,6 +117,39 @@ WOZALI est une application à deux faces (prestataires/artisans côté offre, cl
 
 ---
 
+## ✅ SESSION 2026-07-28 — Profil (offre/carte → À propos), compte Polyvalent, barre du bas premium, Higgsfield branché
+
+**Commits poussés :** `a7749b2`, `164e723`, `6bb7acd`, `fbbe86d`, `3d3ee75`
+
+### 1. Profil — déplacements de blocs
+- **Carte offre d'emploi** (`renderProfilOffresSection`, placeholder `#profil-offres-${recordId}`) déplacée du pane **POSTS** vers le pane **À PROPOS** de `showProfil` (app.js). Commit `a7749b2`.
+- **Carte localisation mobile** (`#profil-mobileloc-${recordId}`, classe `.profil-mobile-loc`, visible <768px) déplacée de POSTS vers **À PROPOS** aussi. Sur PC inchangé (la carte reste dans `.profil-sidebar-col`, le bloc mobile est `display:none` ≥768px). Commit `3d3ee75`.
+- Les blocs vitrine métier (boutique, prestations, book…) **restent** sur POSTS.
+
+### 2. Compte « Polyvalent » (compte classique sans module métier)
+- Nouvelle option **« Autre / Mon activité n'est pas dans la liste »** (`value="Polyvalent"`) dans les **3 dropdowns métier** (recherche l.1380, inscription l.2357, edit l.3570 — ex « Autre (préciser dans la description) »). Modèle LinkedIn : l'utilisateur dit son activité, WOZALI adapte. PAS d'écran « choisis ton type de compte ». Polyvalent = aucun `renderProfilXxx` (modules data-driven, vide = caché).
+- **Micro-ligne inscription** : `_metierHintInscription(metier)` (app.js, après `onMetierChange`) écrit dans `#metier-hint` (div sous `#f-metier`) une phrase courte selon le cluster (« ✨ Ton profil aura une boutique… / tes prestations… / profil polyvalent… »). Commit `a7749b2`.
+
+### 3. Dashboard — colonne droite (`#dash-right-panel`) allégée
+- Retrait **« Actions rapides »** (Mon profil / Messages / Parrainage / WOZALI Jobs) + **« Voir mon profil public »** = doublons de la sidebar/nav. Gardé : **Score WOZALI** + **Bourse du mois**. Commit `164e723`.
+
+### 4. Barre du bas mobile — premium façon Instagram (`#bottom-nav`, style.css)
+- Barre **flottante translucide** (verre dépoli) : détachée des bords (`left/right:14px`, `bottom: safe+12px`), radius 30, `backdrop-filter:blur(26px) saturate(180%)`, bordure crème discrète, fallback fond opaque si pas de blur.
+- **Icônes seules** (labels masqués `font-size:0`), icônes 22→26px, onglet actif = or + léger scale (plus de boîte). Commits `164e723`, `6bb7acd`.
+- **Fix double cadre** : la bannière PWA `.wozali-v2-pwa-banner` était fixée au même endroit (bottom:12/left:12/right:12, bordure or) → son contour dépassait autour de la barre. `body.has-bottom-nav .wozali-v2-pwa-banner` remonte à `bottom: safe+82px`. Commit `fbbe86d`.
+- Padding contenu ajusté : `body.has-bottom-nav .page.active/#page-dashboard { padding-bottom: safe+92px }`.
+
+### 5. Accès pré-lancement (rappel, pas un changement)
+- `wozali.africa` a un verrou (`index.html` l.44 → `/bientot.html`) actif jusqu'au lancement. **Verrou gardé** (décision fondateur). Accès fondateur : `https://wozali.africa/?acces=coulisses2026` (mémorise 60 j, cookie+localStorage). Ne PAS retirer le verrou sans validation = ouverture publique.
+
+### 6. Higgsfield branché (campagne marketing vidéo/UGC à démarrer)
+- **Connecteur d'app Higgsfield connecté + authentifié : 81 outils** (`https://mcp.higgsfield.ai/mcp`). ⚠️ Les outils `mcp__higgsfield__*` ne se chargent que dans une **NOUVELLE conversation**.
+- **7 skills** installées dans `repo/.agents/skills/` : higgsfield-generate, higgsfield-soul-id, higgsfield-product-photoshoot, higgsfield-video-explainer, higgsfield-marketplace-cards, higgsfield-game-generation, higgsfield-websites. (Installer via chemin absolu du npx nvm — le hook RTK casse `npx` en bare.)
+- Le doublon ajouté en CLI a été **retiré** (le connecteur d'app suffit, ne pas re-ajouter en CLI).
+- **Brief campagne + 3 arbitrages en attente** détaillés dans la mémoire `wozali-higgsfield-campagne-2026-07-28.md`. Arbitrage bloquant : **date de lancement** — ce fichier (gravé 28 mai) dit **15 août 2026 / tirage 25 sept** ; le CLAUDE.md global dit 1er juillet / 28 août (déjà passé, probablement obsolète). À TRANCHER avant tout calendrier de contenu.
+
+---
+
 ## 🚧 PROCHAINE SESSION — REPRENDRE ICI (mis à jour 2026-06-01)
 
 ### État actuel — tout est opérationnel
