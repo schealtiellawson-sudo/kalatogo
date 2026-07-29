@@ -31,7 +31,7 @@ Avant de répondre, vérifier et confirmer explicitement :
    - Commission agents : 40% normal (1 000 FCFA/Pro), 60% si battle gagnée (1 500 FCFA/Pro)
    - 100 000 FCFA = 100 membres Pro actifs
    - Pas de fixe. Pas de prime.
-   - Date lancement : 15 août 2026
+   - Date lancement : 1er septembre 2026
    - Premier tirage : 25 septembre 2026
    - JAMAIS em dash "—"
    - JAMAIS "agent terrain" → "agent terrain WOZALI"
@@ -146,7 +146,13 @@ WOZALI est une application à deux faces (prestataires/artisans côté offre, cl
 - **Connecteur d'app Higgsfield connecté + authentifié : 81 outils** (`https://mcp.higgsfield.ai/mcp`). ⚠️ Les outils `mcp__higgsfield__*` ne se chargent que dans une **NOUVELLE conversation**.
 - **7 skills** installées dans `repo/.agents/skills/` : higgsfield-generate, higgsfield-soul-id, higgsfield-product-photoshoot, higgsfield-video-explainer, higgsfield-marketplace-cards, higgsfield-game-generation, higgsfield-websites. (Installer via chemin absolu du npx nvm — le hook RTK casse `npx` en bare.)
 - Le doublon ajouté en CLI a été **retiré** (le connecteur d'app suffit, ne pas re-ajouter en CLI).
-- **Brief campagne + 3 arbitrages en attente** détaillés dans la mémoire `wozali-higgsfield-campagne-2026-07-28.md`. Arbitrage bloquant : **date de lancement** — ce fichier (gravé 28 mai) dit **15 août 2026 / tirage 25 sept** ; le CLAUDE.md global dit 1er juillet / 28 août (déjà passé, probablement obsolète). À TRANCHER avant tout calendrier de contenu.
+- **Brief campagne** détaillé dans la mémoire `wozali-higgsfield-campagne-2026-07-28.md`. Direction créative validée : **aucune vidéo du fondateur → personnages/modèles IA récurrents (Soul Character)**.
+
+### 7. DATE DE LANCEMENT DÉPLACÉE → 1er septembre 2026 (décision fondateur 28 juil.)
+- Nouveau lancement : **1er septembre 2026** (avant : 15 août). Propagé partout où nécessaire :
+  - **Code/site** : `bientot.html` (compte à rebours TARGET → `2026-09-01`, + `<title>`), `postuler.html`, `merci.html`, `offre-agents-terrain.html` (dont count-n → « 1er sept. »), `ambassadeurs.html`, `cgu.html`. `index.html` était **déjà** à 1er septembre (verrou s'ouvre auto le `2026-09-01`, hero timeline, roadmap). `app.js/app2/app3` : rien à changer.
+  - **Docs** : règle « Date lancement » de ce CLAUDE.md (ligne ~34) + CLAUDE.md racine (lignes 13, 21).
+- ⚠️ **NON changé (en attente validation fondateur, règles récompenses verrouillées)** : le **premier tirage** (`index.html` l.9482 `lastFri(2026,8)` = 25 sept ; CLAUDE.md racine dit 28 août = incohérent avec 1er sept) + les **montants récompenses** (repo vs racine divergent). À TRANCHER séparément.
 
 ---
 
