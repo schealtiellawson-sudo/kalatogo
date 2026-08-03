@@ -158,6 +158,13 @@ const LECONS = [
     corps: "Ta carte de visite WOZALI avec ton code QR : il la scanne, il tombe sur ton profil, tes photos, tes avis. Il la montre à quelqu'un, et ce quelqu'un devient ton client. Imprime-la, pose-la où tes clients passent.",
     cta: 'Voir mes outils à imprimer', target: 'outils',
   },
+  {
+    key: 'menu_qr',
+    cond: (c) => c.fam === FAMILLES.resto,
+    titre: "Ta carte, sur chaque table, sans menu papier.",
+    corps: "Crée ta carte dans WOZALI : tes plats, tes prix, ton plat du jour. Ensuite, dans Mes outils à imprimer, tu génères un petit QR à poser sur les tables. Le client s'assoit, il scanne, il voit toute ta carte sur son téléphone, toujours à jour. Et il découvre WOZALI au passage. Plus de menu papier abîmé, plus de prix raturés.",
+    cta: 'Créer ma carte', target: 'menu',
+  },
   // ── Engagement & diffusion (features vivantes) ──
   {
     key: 'story_sondage',

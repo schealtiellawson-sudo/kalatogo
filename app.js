@@ -4813,7 +4813,6 @@ async function renderProfilMenu(userId, containerId, recordId) {
             </div>
             ${prixTxt ? `<div style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;margin-top:4px;">${prixTxt}</div>` : ''}
           </div>
-          <button onclick="event.stopPropagation();commanderPlat('${mid}')" style="flex-shrink:0;min-height:40px;padding:9px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Commander</button>
         </div>`;
     }).join('');
     return `<div style="margin-top:14px;">
@@ -4826,6 +4825,20 @@ async function renderProfilMenu(userId, containerId, recordId) {
       <div class="profil-offres-head">🍽️ La carte</div>
       ${groupesHtml}
     </div>`;
+
+  // Mode "scan QR de table" (?vue=menu) : on met le menu en avant + hook d'acquisition WOZALI.
+  // Le client arrive directement sur la carte ; le pied l'invite à découvrir WOZALI (acquisition).
+  if (window._menuViewMode) {
+    el.insertAdjacentHTML('beforeend', `
+      <div style="margin-top:16px;text-align:center;padding-top:16px;border-top:1px solid rgba(232,148,10,.12);">
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;line-height:1;">
+          <span style="font-style:italic;color:#E8940A;">W</span><span style="color:#FCE0A8;letter-spacing:1px;">OZALI</span>
+        </div>
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.4);margin-top:5px;">Menu digital · wozali.africa</div>
+        <a href="/#search" style="display:inline-block;margin-top:14px;color:#E8940A;font-family:Geist,sans-serif;font-weight:700;font-size:13px;text-decoration:none;">🧭 Découvrir les pros autour de toi →</a>
+      </div>`);
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+  }
 }
 window.renderProfilMenu = renderProfilMenu;
 
@@ -4896,7 +4909,13 @@ async function loadMenuSection() {
       .select('*')
       .eq('user_id', currentUser.id)
       .order('ordre', { ascending: true });
-    if (!error) { _menuItems = data || []; _renderMenuList(); }
+    if (!error) {
+      _menuItems = data || [];
+      _renderMenuList();
+      // Révèle le chevalet QR menu (dans "Mes outils à imprimer") seulement si le resto a des plats.
+      const _mc = document.getElementById('wzo-card-menu');
+      if (_mc) _mc.style.display = _menuItems.length ? '' : 'none';
+    }
   } catch (e) { /* ignore */ }
 }
 
@@ -6228,6 +6247,35 @@ function _wzoAffiche(kind, mode, d) {
   const lieu = [d.quartier, d.ville].filter(Boolean).join(' · ');
   const dateStr = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
+  // Chevalet de table — QR qui pointe vers le menu digital (?vue=menu).
+  // À poser sur les tables : le client scanne → voit la carte → découvre WOZALI (acquisition).
+  if (kind === 'menu') {
+    return `
+    <div>
+      <div class="wzo-page-lbl">Chevalet de table · A4 (à plier en deux)</div>
+      <div class="wzo-doc wzo-a4 wzo-caisse wzo-${mode}">
+        <div class="wzo-side"></div><div class="wzo-glow"></div>
+        <div class="wzo-p-head">${_wzoLogo()}<span class="wzo-badge">NOTRE CARTE</span></div>
+        <div class="wzo-p-titre" style="margin-top:16mm;font-size:16mm;">Scanne.<br>Découvre le menu.</div>
+        <div class="wzo-p-sub">Tous nos plats, toujours à jour, sur ton téléphone.</div>
+        <div class="wzo-p-qrwrap">
+          <div class="wzo-qr" data-wzo-qr="menu" data-size="82"></div>
+          <div style="flex:1;">
+            <div class="wzo-p-instr">Ouvre l'appareil photo. Vise le carré.</div>
+            <div class="wzo-p-instr-sub">Pas besoin d'appeler le serveur.</div>
+          </div>
+        </div>
+        <div class="wzo-p-foot">
+          <div>
+            ${_wzoLogo()}
+            <div class="wzo-p-lieu" style="margin-top:2mm;">${escapeHtml([d.nom, d.quartier].filter(Boolean).join(' · '))}</div>
+          </div>
+          <span class="wzo-dom">wozali.africa</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
   if (kind === 'caisse') {
     return `
     <div>
@@ -6345,7 +6393,9 @@ function _wzoRender() {
   // QR : profil pour la vitrine et la carte, formulaire d'avis direct pour la caisse
   const base = `https://wozali.africa/profil/${data.slug}`;
   stage.querySelectorAll('[data-wzo-qr]').forEach(el => {
-    const url = el.dataset.wzoQr === 'avis' ? `${base}?action=avis` : base;
+    const url = el.dataset.wzoQr === 'avis' ? `${base}?action=avis`
+              : el.dataset.wzoQr === 'menu' ? `${base}?vue=menu`
+              : base;
     const mm = el.dataset.size;
     el.innerHTML = '';
     new QRCode(el, { text: url, width: 420, height: 420, colorDark: '#14100A', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
@@ -7139,10 +7189,11 @@ function _restorePageFromURL() {
   if (pathMatch) {
     const slug = pathMatch[1];
     // QR contextuel (affiche Caisse) : ?action=avis → showProfil ouvrira le formulaire d'avis
+    // QR menu de table : ?vue=menu → renderProfilMenu passe en mode "scan" (menu mis en avant + hook WOZALI)
     try {
-      if (new URLSearchParams(window.location.search).get('action') === 'avis') {
-        window._pendingAvisAction = true;
-      }
+      const _qp = new URLSearchParams(window.location.search);
+      if (_qp.get('action') === 'avis') window._pendingAvisAction = true;
+      if (_qp.get('vue') === 'menu') window._menuViewMode = true;
     } catch (e) {}
     // Le profil-seo API a injecté l'ID Airtable dans meta[name=wozali-profil-id]
     const metaId = document.querySelector('meta[name="wozali-profil-id"]');
