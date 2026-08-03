@@ -4813,6 +4813,7 @@ async function renderProfilMenu(userId, containerId, recordId) {
               <span style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomP}</span>
               ${badge}
             </div>
+            ${it.description ? `<div style="color:rgba(252,224,168,.55);font-size:12px;margin-top:3px;line-height:1.4;">${escapeHtml(it.description)}</div>` : ''}
             ${prixTxt ? `<div style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;margin-top:4px;">${prixTxt}</div>` : ''}
           </div>
         </div>`;
@@ -4989,6 +4990,8 @@ function ouvrirFormMenuItem(id) {
   const pjEl = document.getElementById('menu-f-platdujour');
   const prev = document.getElementById('menu-f-photo-preview');
   if (nomEl) nomEl.value = it ? (it.nom || '') : '';
+  const descEl = document.getElementById('menu-f-desc');
+  if (descEl) descEl.value = it ? (it.description || '') : '';
   if (catEl) catEl.value = it ? (it.categorie || '') : '';
   if (prixEl) prixEl.value = it && (it.prix || it.prix === 0) ? String(it.prix) : '';
   if (pjEl) pjEl.checked = !!(it && it.plat_du_jour);
@@ -5035,13 +5038,14 @@ async function saveMenuItem() {
   const prix = prixRaw ? parseInt(prixRaw) : null;
   const plat_du_jour = !!document.getElementById('menu-f-platdujour')?.checked;
   const photo_url = document.getElementById('menu-f-photo-preview')?.dataset.url || null;
+  const description = (document.getElementById('menu-f-desc')?.value || '').trim() || null;
 
   const btn = document.getElementById('menu-f-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
   try {
     if (_menuEditId) {
       const { error } = await window.supabase.from('wozali_menu')
-        .update({ nom, categorie, prix, plat_du_jour, photo_url })
+        .update({ nom, categorie, prix, plat_du_jour, photo_url, description })
         .eq('id', _menuEditId).eq('user_id', currentUser.id);
       if (error) throw error;
     } else {
@@ -5049,7 +5053,7 @@ async function saveMenuItem() {
       const row = {
         user_id: currentUser.id,
         prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
-        nom, categorie, prix, plat_du_jour, photo_url,
+        nom, categorie, prix, plat_du_jour, photo_url, description,
         actif: true, ordre
       };
       const { error } = await window.supabase.from('wozali_menu').insert(row);
