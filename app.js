@@ -4777,9 +4777,29 @@ async function renderProfilMenu(userId, containerId, recordId) {
   } catch (e) { return; }
   if (!items.length) return; // rien à afficher = section masquée
 
-  // État partagé pour commanderPlat (destinataire de la notif + libellés)
+  // État partagé pour commanderPlat + re-render après réaction
   const map = {};
-  window._menuState = { userId, recordId: recordId || null, items: map };
+  window._menuState = { userId, recordId: recordId || null, containerId, items: map };
+
+  // Réactions (👍 aimé / 👎 pas aimé) par plat — agrégées en une seule requête.
+  const _ids = items.map(i => i.id);
+  const _rx = {};
+  _ids.forEach(id => { _rx[id] = { like: 0, dislike: 0, mine: null }; });
+  const _myId = (window.currentUser && window.currentUser.id) || null;
+  try {
+    const { data: _rdata } = await window.supabase
+      .from('wozali_menu_reactions')
+      .select('menu_item_id,reaction,user_id')
+      .in('menu_item_id', _ids);
+    (_rdata || []).forEach(r => {
+      const a = _rx[r.menu_item_id]; if (!a) return;
+      if (r.reaction === 'like') a.like++; else if (r.reaction === 'dislike') a.dislike++;
+      if (_myId && r.user_id === _myId) a.mine = r.reaction;
+    });
+  } catch (e) { /* la table peut ne pas exister encore */ }
+  // Plat le plus aimé (badge) — celui qui a le plus de 👍 (> 0).
+  let _bestId = null, _bestLikes = 0;
+  _ids.forEach(id => { if (_rx[id].like > _bestLikes) { _bestLikes = _rx[id].like; _bestId = id; } });
 
   // Groupement par catégorie, dans l'ordre d'apparition (ordre déjà appliqué au fetch).
   const groupes = [];
@@ -4806,16 +4826,27 @@ async function renderProfilMenu(userId, containerId, recordId) {
       const badge = it.plat_du_jour
         ? `<span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:#14100A;background:#E8940A;padding:2px 7px;border-radius:100px;font-weight:800;">Plat du jour</span>`
         : '';
+      const _a = _rx[it.id] || { like: 0, dislike: 0, mine: null };
+      const _topBadge = (it.id === _bestId && _bestLikes > 0)
+        ? `<span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:#14100A;background:#E8940A;padding:2px 7px;border-radius:100px;font-weight:800;">🔥 Le plus aimé</span>`
+        : '';
+      const _lOn = _a.mine === 'like', _dOn = _a.mine === 'dislike';
+      const _reactions = `<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button onclick="event.stopPropagation();reactMenu('${mid}','like')" style="min-height:34px;padding:5px 11px;border:1px solid ${_lOn?'#E8940A':'rgba(232,148,10,.2)'};background:${_lOn?'rgba(232,148,10,.16)':'transparent'};color:${_lOn?'#E8940A':'rgba(252,224,168,.7)'};border-radius:100px;font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">👍 ${_a.like}</button>
+          <button onclick="event.stopPropagation();reactMenu('${mid}','dislike')" style="min-height:34px;padding:5px 11px;border:1px solid ${_dOn?'rgba(252,224,168,.4)':'rgba(252,224,168,.12)'};background:${_dOn?'rgba(252,224,168,.1)':'transparent'};color:rgba(252,224,168,.55);border-radius:100px;font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">👎 ${_a.dislike}</button>
+        </div>`;
       return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;">
           ${photo}
           <div style="flex:1;min-width:0;">
             <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
               <span style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomP}</span>
               ${badge}
+              ${_topBadge}
             </div>
             ${it.description ? `<div style="color:rgba(252,224,168,.55);font-size:12px;margin-top:3px;line-height:1.4;">${escapeHtml(it.description)}</div>` : ''}
             ${prixTxt ? `<div style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;margin-top:4px;">${prixTxt}</div>` : ''}
           </div>
+          ${_reactions}
         </div>`;
     }).join('');
     return `<div style="margin-top:14px;">
@@ -4865,6 +4896,35 @@ window.openMenuPhoto = function(url, nom) {
     + (nom ? '<div style="color:#FCE0A8;font-family:Geist,sans-serif;font-weight:700;margin-top:16px;font-size:16px;text-align:center;">' + nom + '</div>' : '')
     + '<div style="color:rgba(252,224,168,.4);font-family:Geist Mono,monospace;font-size:11px;margin-top:8px;">Touche pour fermer</div>';
   ov.style.display = 'flex';
+};
+
+// Réagir à un plat (👍 aimé / 👎 pas aimé). Compte WOZALI requis → sinon on incite à s'inscrire (acquisition).
+window.reactMenu = async function(itemId, reaction) {
+  if (!window.currentUser) {
+    if (typeof toast === 'function') toast('Crée ton compte WOZALI (2 min) pour donner ton avis sur les plats 👇', 'info');
+    setTimeout(() => { if (typeof showPage === 'function') showPage('inscription'); }, 1100);
+    return;
+  }
+  if (!window.supabase || !itemId) return;
+  const uid = window.currentUser.id;
+  try {
+    const { data: ex } = await window.supabase.from('wozali_menu_reactions')
+      .select('id,reaction').eq('menu_item_id', itemId).eq('user_id', uid).maybeSingle();
+    if (ex) {
+      if (ex.reaction === reaction) {
+        await window.supabase.from('wozali_menu_reactions').delete().eq('id', ex.id); // re-clic = annuler
+      } else {
+        await window.supabase.from('wozali_menu_reactions').update({ reaction }).eq('id', ex.id); // change d'avis
+      }
+    } else {
+      await window.supabase.from('wozali_menu_reactions').insert({ menu_item_id: itemId, user_id: uid, reaction });
+    }
+    const st = window._menuState;
+    if (st && st.userId && st.containerId) renderProfilMenu(st.userId, st.containerId, st.recordId);
+  } catch (e) {
+    console.error('reactMenu', e.message || e);
+    if (typeof toast === 'function') toast('Ça a calé, réessaie.', 'error');
+  }
 };
 
 // Crée une commande de plat EN INTERNE (wozali_commandes type 'menu') + notifie le pro.
