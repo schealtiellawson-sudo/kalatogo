@@ -4798,8 +4798,10 @@ async function renderProfilMenu(userId, containerId, recordId) {
         ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F')
         : '';
       map[it.id] = { nom: it.nom || 'Plat', prixTxt };
+      const _pu = it.photo_url ? encodeURI(it.photo_url) : '';
+      const _pn = (it.nom || 'Plat').replace(/\\/g, '').replace(/'/g, "\\'");
       const photo = it.photo_url
-        ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
+        ? `<img src="${_pu}" alt="" loading="lazy" onclick="event.stopPropagation();openMenuPhoto('${_pu}','${_pn}')" style="width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;cursor:zoom-in;">`
         : '';
       const badge = it.plat_du_jour
         ? `<span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:#14100A;background:#E8940A;padding:2px 7px;border-radius:100px;font-weight:800;">Plat du jour</span>`
@@ -4837,10 +4839,32 @@ async function renderProfilMenu(userId, containerId, recordId) {
         <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.4);margin-top:5px;">Menu digital · wozali.africa</div>
         <a href="/#search" style="display:inline-block;margin-top:14px;color:#E8940A;font-family:Geist,sans-serif;font-weight:700;font-size:13px;text-decoration:none;">🧭 Découvrir les pros autour de toi →</a>
       </div>`);
+    // Le menu vit sur l'onglet CARTE (masqué par défaut). En mode scan QR, on le révèle et on bascule dessus.
+    try {
+      const _cb = document.getElementById('profil-tab-btn-carte-' + (recordId || ''));
+      if (_cb) _cb.style.display = '';
+      if (recordId && typeof switchProfilTab === 'function') switchProfilTab(recordId, 'carte', _cb);
+    } catch (e) {}
     try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
   }
 }
 window.renderProfilMenu = renderProfilMenu;
+
+// Lightbox photo de plat : clic sur une photo de la carte → grand format (fermer en touchant).
+window.openMenuPhoto = function(url, nom) {
+  let ov = document.getElementById('menu-photo-lightbox');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'menu-photo-lightbox';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(10,8,4,.94);display:none;align-items:center;justify-content:center;flex-direction:column;padding:24px;cursor:zoom-out;';
+    ov.onclick = function(){ ov.style.display = 'none'; };
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = '<img src="' + url + '" style="max-width:94vw;max-height:80vh;border-radius:18px;object-fit:contain;box-shadow:0 30px 90px rgba(0,0,0,.6);">'
+    + (nom ? '<div style="color:#FCE0A8;font-family:Geist,sans-serif;font-weight:700;margin-top:16px;font-size:16px;text-align:center;">' + nom + '</div>' : '')
+    + '<div style="color:rgba(252,224,168,.4);font-family:Geist Mono,monospace;font-size:11px;margin-top:8px;">Touche pour fermer</div>';
+  ov.style.display = 'flex';
+};
 
 // Crée une commande de plat EN INTERNE (wozali_commandes type 'menu') + notifie le pro.
 // Aucun WhatsApp : le client est prévenu dans la messagerie WOZALI.
@@ -14504,13 +14528,14 @@ async function showProfil(recordId) {
       <!-- ═══════════ TABS NAV ═══════════ -->
       <div class="profil-tabs-nav" id="profil-tabs-nav-${recordId}">
         <button class="profil-tab-btn active" onclick="switchProfilTab('${recordId}','posts',this)">POSTS</button>
+        <button class="profil-tab-btn" id="profil-tab-btn-carte-${recordId}" style="display:none;" onclick="switchProfilTab('${recordId}','carte',this)">${/restau|cuisin|traiteur|patiss|maquis|grill|boulang/i.test(metierRaw)?'CARTE':/vendeu|commerc|boutiq|épic|epic|march|aliment/i.test(metierRaw)?'BOUTIQUE':'VITRINE'}</button>
         <button class="profil-tab-btn" onclick="switchProfilTab('${recordId}','photos',this)">PHOTOS</button>
         <button class="profil-tab-btn" onclick="switchProfilTab('${recordId}','avis',this)">AVIS${nbAvis > 0 ? `<span class="profil-tab-badge">${nbAvis}</span>` : ''}</button>
         <button class="profil-tab-btn" onclick="switchProfilTab('${recordId}','apropos',this)">À PROPOS</button>
       </div>
 
-      <!-- ═══════════ TAB POSTS ═══════════ -->
-      <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
+      <!-- ═══════════ TAB CARTE / VITRINE (blocs métier — plus sur POSTS) ═══════════ -->
+      <div class="profil-tab-pane" id="profil-tab-carte-${recordId}" style="display:none;">
         <div id="profil-prestations-${recordId}"></div>
         <div id="profil-catalogue-${recordId}"></div>
         <div id="profil-atelier-${recordId}"></div>
@@ -14521,6 +14546,10 @@ async function showProfil(recordId) {
         <div id="profil-maison-${recordId}"></div>
         <div id="profil-etablissement-${recordId}"></div>
         <div id="profil-chantiers-${recordId}"></div>
+      </div>
+
+      <!-- ═══════════ TAB POSTS (uniquement les publications) ═══════════ -->
+      <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
         <!-- Strip photos discret -->
         ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
         <!-- Composer (propriétaire) -->
@@ -14775,6 +14804,12 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilEtablissement(_profilUserId, `profil-etablissement-${recordId}`, recordId, nomRaw);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
+    // Révèle l'onglet CARTE/VITRINE uniquement si un bloc métier a du contenu (sinon il reste masqué).
+    setTimeout(() => {
+      const _cp = document.getElementById('profil-tab-carte-' + recordId);
+      const _cb = document.getElementById('profil-tab-btn-carte-' + recordId);
+      if (_cp && _cb && _cp.innerText.trim().length > 0) _cb.style.display = '';
+    }, 900);
     // Mettre à jour le bouton Suivre + compteur abonnés
     setTimeout(() => updateSuiviBtn(recordId), 200);
     setTimeout(() => loadFollowerCount(recordId), 300);
@@ -14824,7 +14859,7 @@ async function showProfil(recordId) {
         const nav = document.getElementById('profil-tabs-nav-' + recordId);
         if (nav) nav.querySelectorAll('.profil-tab-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['posts','photos','avis','apropos'].forEach(t => {
+        ['posts','carte','photos','avis','apropos'].forEach(t => {
           const pane = document.getElementById('profil-tab-' + t + '-' + recordId);
           if (pane) pane.style.display = t === tab ? '' : 'none';
         });
