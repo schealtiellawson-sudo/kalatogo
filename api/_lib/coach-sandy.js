@@ -165,6 +165,13 @@ const LECONS = [
     corps: "Crée ta carte dans WOZALI : tes plats, tes prix, ton plat du jour. Ensuite, dans Mes outils à imprimer, tu génères un petit QR à poser sur les tables. Le client s'assoit, il scanne, il voit toute ta carte sur son téléphone, toujours à jour. Et il découvre WOZALI au passage. Plus de menu papier abîmé, plus de prix raturés.",
     cta: 'Créer ma carte', target: 'menu',
   },
+  {
+    key: 'menu_photos',
+    cond: (c) => c.fam === FAMILLES.resto,
+    titre: "Une photo par plat, et le client a déjà faim.",
+    corps: "Sur ta carte WOZALI, chaque plat peut avoir sa photo. C'est ce qui change tout : le client voit ton poisson braisé, ton riz gras, ton poulet DG, et il choisit avec les yeux avant même de s'asseoir. Pas besoin d'un photographe : fais un vrai petit shooting de tes plats un par un, avec ton téléphone, à la lumière du jour, l'assiette bien dressée. Dix minutes, et ta carte devient vivante. Ajoute-les dans Ma carte.",
+    cta: 'Ajouter des photos à mes plats', target: 'menu',
+  },
   // ── Engagement & diffusion (features vivantes) ──
   {
     key: 'story_sondage',
