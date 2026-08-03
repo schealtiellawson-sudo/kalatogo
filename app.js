@@ -4870,6 +4870,9 @@ async function renderProfilMenu(userId, containerId, recordId, _rxPre) {
       ${groupesHtml}
     </div>`;
 
+  // Révèle l'onglet CARTE dès que la carte est rendue (robuste, sans dépendre du poll de showProfil).
+  try { const _cbtab = document.getElementById('profil-tab-btn-carte-' + (recordId || '')); if (_cbtab) _cbtab.style.display = ''; } catch (e) {}
+
   // Mode "scan QR de table" (?vue=menu) : on met le menu en avant + hook d'acquisition WOZALI.
   // Le client arrive directement sur la carte ; le pied l'invite à découvrir WOZALI (acquisition).
   if (window._menuViewMode) {
@@ -14208,11 +14211,12 @@ async function showProfil(recordId) {
     let statutCompte = 'actif';
     if (_profilUserId) {
       try {
-        const { data: _scData } = await supa
-          .from('wolo_statut_compte')
-          .select('statut')
-          .eq('user_id', _profilUserId)
-          .maybeSingle();
+        // Cap à 2s : cette table résiduelle (wolo_*) ne doit jamais bloquer l'affichage du profil.
+        const _scP = supa.from('wolo_statut_compte').select('statut').eq('user_id', _profilUserId).maybeSingle();
+        const { data: _scData } = await Promise.race([
+          _scP,
+          new Promise(res => setTimeout(() => res({ data: null }), 2000))
+        ]);
         if (_scData?.statut) statutCompte = _scData.statut;
       } catch (_) {}
     }
