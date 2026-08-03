@@ -4761,7 +4761,7 @@ window.saveEtablissement = saveEtablissement;
 // Calqué sur renderProfilPacks / la boutique (photo via uploadToImgBB).
 // recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
 // ══════════════════════════════════════════════════════════════════
-async function renderProfilMenu(userId, containerId, recordId) {
+async function renderProfilMenu(userId, containerId, recordId, _rxPre) {
   const el = document.getElementById(containerId);
   if (!el || !userId || !window.supabase) return;
   let items = [];
@@ -4783,20 +4783,30 @@ async function renderProfilMenu(userId, containerId, recordId) {
 
   // Réactions (👍 aimé / 👎 pas aimé) par plat — agrégées en une seule requête.
   const _ids = items.map(i => i.id);
-  const _rx = {};
-  _ids.forEach(id => { _rx[id] = { like: 0, dislike: 0, mine: null }; });
   const _myId = (window.currentUser && window.currentUser.id) || null;
-  try {
-    const { data: _rdata } = await window.supabase
-      .from('wozali_menu_reactions')
-      .select('menu_item_id,reaction,user_id')
-      .in('menu_item_id', _ids);
-    (_rdata || []).forEach(r => {
-      const a = _rx[r.menu_item_id]; if (!a) return;
-      if (r.reaction === 'like') a.like++; else if (r.reaction === 'dislike') a.dislike++;
-      if (_myId && r.user_id === _myId) a.mine = r.reaction;
-    });
-  } catch (e) { /* la table peut ne pas exister encore */ }
+  let _rx = _rxPre;
+  if (!_rx) {
+    // Rendu immédiat (compteurs à 0) → la carte apparaît vite. Les réactions se chargent en arrière-plan
+    // puis on re-render avec les vraies valeurs (sans bloquer l'affichage du menu).
+    _rx = {};
+    _ids.forEach(id => { _rx[id] = { like: 0, dislike: 0, mine: null }; });
+    (async () => {
+      const rx2 = {};
+      _ids.forEach(id => { rx2[id] = { like: 0, dislike: 0, mine: null }; });
+      try {
+        const { data } = await window.supabase
+          .from('wozali_menu_reactions')
+          .select('menu_item_id,reaction,user_id')
+          .in('menu_item_id', _ids);
+        (data || []).forEach(r => {
+          const a = rx2[r.menu_item_id]; if (!a) return;
+          if (r.reaction === 'like') a.like++; else if (r.reaction === 'dislike') a.dislike++;
+          if (_myId && r.user_id === _myId) a.mine = r.reaction;
+        });
+        if (document.getElementById(containerId)) renderProfilMenu(userId, containerId, recordId, rx2);
+      } catch (e) { /* table réactions absente = pas de réactions */ }
+    })();
+  }
   // Plat le plus aimé (badge) — celui qui a le plus de 👍 (> 0).
   let _bestId = null, _bestLikes = 0;
   _ids.forEach(id => { if (_rx[id].like > _bestLikes) { _bestLikes = _rx[id].like; _bestId = id; } });
