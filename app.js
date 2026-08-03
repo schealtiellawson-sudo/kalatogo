@@ -14868,12 +14868,13 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilEtablissement(_profilUserId, `profil-etablissement-${recordId}`, recordId, nomRaw);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
-    // Révèle l'onglet CARTE/VITRINE uniquement si un bloc métier a du contenu (sinon il reste masqué).
-    setTimeout(() => {
+    // Révèle l'onglet CARTE/VITRINE dès qu'un bloc métier a du contenu (poll : robuste même si le chargement est lent).
+    (function _revealCarte(tries) {
       const _cp = document.getElementById('profil-tab-carte-' + recordId);
       const _cb = document.getElementById('profil-tab-btn-carte-' + recordId);
-      if (_cp && _cb && _cp.innerText.trim().length > 0) _cb.style.display = '';
-    }, 900);
+      if (_cp && _cb && _cp.innerText.trim().length > 0) { _cb.style.display = ''; return; }
+      if (tries > 0) setTimeout(() => _revealCarte(tries - 1), 500);
+    })(30);
     // Mettre à jour le bouton Suivre + compteur abonnés
     setTimeout(() => updateSuiviBtn(recordId), 200);
     setTimeout(() => loadFollowerCount(recordId), 300);
