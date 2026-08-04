@@ -1963,24 +1963,37 @@ async function renderProfilCatalogue(userId, containerId, tel, nom, recordId) {
 
   const cards = items.map(it => {
     const iid = escapeHtml(it.id);
-    map[it.id] = { nom: it.nom || 'Produit', prix: it.prix };
+    // statut public : le nombre en stock reste PRIVÉ. On expose juste en_stock / sur_commande / épuisé.
+    // Épuisé auto si stock chiffré à 0 (même si le pro a laissé "en stock").
+    let statut = it.stock_statut || 'en_stock';
+    if (typeof it.stock_qty === 'number' && it.stock_qty <= 0 && statut !== 'sur_commande') statut = 'epuise';
+    const taillesArr = (it.tailles || '').split(/[,;·]/).map(s => s.trim()).filter(Boolean);
+    map[it.id] = { nom: it.nom || 'Produit', prix: it.prix, tailles: taillesArr, description: it.description || '', photo_url: it.photo_url || '', statut };
     const nomP = escapeHtml(it.nom || 'Produit');
     const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '';
-    const statut = it.stock_statut || 'en_stock';
     const badge = `<span style="display:inline-block;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:100px;${STOCK_STYLE[statut] || STOCK_STYLE.en_stock}">${STOCK_LABEL[statut] || 'En stock'}</span>`;
     const photo = it.photo_url
       ? `<img src="${encodeURI(it.photo_url)}" alt="${nomP}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
       : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">🛍️</div>`;
     const epuise = statut === 'epuise';
-    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;">
+    const taillesChips = taillesArr.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:5px;">${taillesArr.slice(0, 6).map(t => `<span style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.7);border:1px solid rgba(232,148,10,.25);border-radius:6px;padding:2px 7px;">${escapeHtml(t)}</span>`).join('')}</div>`
+      : '';
+    const note = it.description
+      ? `<div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.55);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(it.description)}</div>`
+      : '';
+    return `<div onclick="ouvrirArticleDetail('${iid}')" style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:border-color .15s;" onmouseover="this.style.borderColor='rgba(232,148,10,.4)'" onmouseout="this.style.borderColor='rgba(232,148,10,.15)'">
         <div style="position:relative;width:100%;aspect-ratio:1/1;background:#1E180E;">
           ${photo}
+          <span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(20,16,10,.6);display:flex;align-items:center;justify-content:center;font-size:13px;">🔍</span>
           ${prixTxt ? `<span style="position:absolute;bottom:8px;left:8px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;padding:4px 10px;border-radius:100px;box-shadow:0 2px 8px rgba(0,0,0,.35);">${prixTxt}</span>` : ''}
         </div>
         <div style="padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;">
           <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:600;color:#FCE0A8;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${nomP}</div>
+          ${taillesChips}
+          ${note}
           <div>${badge}</div>
-          <button onclick="event.stopPropagation();commanderProduitWhatsApp('${iid}')" ${epuise ? 'disabled' : ''} style="margin-top:auto;min-height:40px;padding:9px 14px;background:${epuise ? 'rgba(252,224,168,.08)' : '#E8940A'};color:${epuise ? 'rgba(252,224,168,.4)' : '#14100A'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:${epuise ? 'not-allowed' : 'pointer'};">Commander</button>
+          <button onclick="event.stopPropagation();ouvrirCommandeArticle('${iid}')" ${epuise ? 'disabled' : ''} style="margin-top:auto;min-height:40px;padding:9px 14px;background:${epuise ? 'rgba(252,224,168,.08)' : '#E8940A'};color:${epuise ? 'rgba(252,224,168,.4)' : '#14100A'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:${epuise ? 'not-allowed' : 'pointer'};">${epuise ? 'Épuisé' : 'Commander'}</button>
         </div>
       </div>`;
   }).join('');
@@ -1993,18 +2006,124 @@ async function renderProfilCatalogue(userId, containerId, tel, nom, recordId) {
     </div>`;
 }
 
-// Crée une commande de produit EN INTERNE (wozali_commandes type 'produit')
-// + notifie le pro. Aucun WhatsApp : le client est suivi dans la messagerie
-// WOZALI, comme les autres modules métier (modèle, plat, course…).
-// Le nom exporté reste commanderProduitWhatsApp (onclick existants).
-async function commanderProduitWhatsApp(itemId) {
-  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander ce produit.', 'error'); return; }
+// ── Vue agrandie d'un article (photo plein + prix + tailles + note + Commander) ──
+function ouvrirArticleDetail(itemId) {
   const st = window._catalogueState || {};
   const it = (st.items || {})[itemId];
   if (!it) return;
+  const nomP = escapeHtml(it.nom || 'Produit');
+  const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '';
+  const STOCK_LABEL = { en_stock: 'En stock', sur_commande: 'Sur commande', epuise: 'Épuisé' };
+  const epuise = it.statut === 'epuise';
+  const photo = it.photo_url
+    ? `<img src="${encodeURI(it.photo_url)}" alt="${nomP}" onclick="ouvrirZoomPhoto('${encodeURI(it.photo_url)}')" style="width:100%;max-height:52vh;object-fit:cover;cursor:zoom-in;display:block;">`
+    : `<div style="width:100%;height:220px;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:.4;background:#1E180E;">🛍️</div>`;
+  const taillesChips = (it.tailles && it.tailles.length)
+    ? `<div style="margin-top:14px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:7px;">Tailles disponibles</div><div style="display:flex;flex-wrap:wrap;gap:7px;">${it.tailles.map(t => `<span style="font-family:'Geist Mono',monospace;font-size:13px;color:#FCE0A8;border:1px solid rgba(232,148,10,.3);border-radius:8px;padding:5px 11px;">${escapeHtml(t)}</span>`).join('')}</div></div>`
+    : '';
+  const note = it.description
+    ? `<div style="margin-top:14px;font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.75);line-height:1.6;">${escapeHtml(it.description)}</div>`
+    : '';
+  const old = document.getElementById('article-detail-modal');
+  if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'article-detail-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100000;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;">
+      <div style="position:relative;">${photo}
+        <button onclick="document.getElementById('article-detail-modal').remove()" style="position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(20,16,10,.7);color:#FCE0A8;border:none;font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div style="padding:20px 22px 26px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <div style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;line-height:1.2;">${nomP}</div>
+          ${prixTxt ? `<div style="font-family:'Geist Mono',monospace;font-weight:800;font-size:18px;color:#E8940A;white-space:nowrap;">${prixTxt}</div>` : ''}
+        </div>
+        <div style="margin-top:8px;"><span style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:${epuise ? 'rgba(252,224,168,.45)' : '#E8940A'};">● ${STOCK_LABEL[it.statut] || 'En stock'}</span></div>
+        ${taillesChips}
+        ${note}
+        <button onclick="document.getElementById('article-detail-modal').remove();ouvrirCommandeArticle('${escapeHtml(itemId)}')" ${epuise ? 'disabled' : ''} style="margin-top:22px;width:100%;min-height:50px;background:${epuise ? 'rgba(252,224,168,.08)' : '#E8940A'};color:${epuise ? 'rgba(252,224,168,.4)' : '#14100A'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:${epuise ? 'not-allowed' : 'pointer'};">${epuise ? 'Épuisé' : 'Commander'}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+// ── Zoom photo plein écran (réutilisable partout) ──
+function ouvrirZoomPhoto(url) {
+  if (!url) return;
+  const old = document.getElementById('zoom-photo-ov');
+  if (old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'zoom-photo-ov';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.95);z-index:100010;display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;';
+  ov.onclick = () => ov.remove();
+  ov.innerHTML = `<img src="${url}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;">`;
+  document.body.appendChild(ov);
+}
+
+// ── Modale Commander : taille + quantité + mot, puis crée la commande ──
+function ouvrirCommandeArticle(itemId) {
+  if (!window.currentUser) { toast('Connecte-toi (2 min) pour commander.', 'error'); showPage('inscription'); return; }
+  const st = window._catalogueState || {};
+  const it = (st.items || {})[itemId];
+  if (!it) return;
+  window._commandeArticle = { itemId, taille: (it.tailles && it.tailles[0]) || null, quantite: 1 };
+  const nomP = escapeHtml(it.nom || 'Produit');
+  const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F') : '';
+  const taillesBloc = (it.tailles && it.tailles.length)
+    ? `<div style="margin-bottom:16px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Ta taille</div><div id="cmd-tailles" style="display:flex;flex-wrap:wrap;gap:8px;">${it.tailles.map((t, i) => `<button onclick="_cmdSetTaille(this,'${escapeHtml(t)}')" style="font-family:'Geist Mono',monospace;font-size:14px;color:${i === 0 ? '#14100A' : '#FCE0A8'};background:${i === 0 ? '#E8940A' : 'transparent'};border:1px solid rgba(232,148,10,.35);border-radius:9px;padding:8px 14px;cursor:pointer;">${escapeHtml(t)}</button>`).join('')}</div></div>`
+    : '';
+  const old = document.getElementById('commande-modal');
+  if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'commande-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;">
+        <div><div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;">Commander</div><div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-top:2px;">${nomP}${prixTxt ? ' · ' + prixTxt : ''}</div></div>
+        <button onclick="document.getElementById('commande-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button>
+      </div>
+      ${taillesBloc}
+      <div style="margin-bottom:16px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Quantité</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button onclick="_cmdQty(-1)" style="width:42px;height:42px;border-radius:12px;background:rgba(232,148,10,.15);color:#E8940A;border:none;font-size:22px;cursor:pointer;">−</button>
+          <span id="cmd-qty" style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;min-width:32px;text-align:center;">1</span>
+          <button onclick="_cmdQty(1)" style="width:42px;height:42px;border-radius:12px;background:rgba(232,148,10,.15);color:#E8940A;border:none;font-size:22px;cursor:pointer;">+</button>
+        </div>
+      </div>
+      <div style="margin-bottom:20px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Un mot (optionnel)</div>
+        <textarea id="cmd-message" rows="2" maxlength="200" placeholder="Couleur, quartier de livraison, question…" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:11px 13px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;resize:vertical;"></textarea>
+      </div>
+      <button id="cmd-send" onclick="confirmerCommandeArticle()" style="width:100%;min-height:50px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Envoyer ma commande</button>
+      <div style="text-align:center;margin-top:10px;font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.4);">La boutique reçoit ta commande et te recontacte.</div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function _cmdSetTaille(btn, t) {
+  window._commandeArticle && (window._commandeArticle.taille = t);
+  document.querySelectorAll('#cmd-tailles button').forEach(b => { b.style.background = 'transparent'; b.style.color = '#FCE0A8'; });
+  btn.style.background = '#E8940A'; btn.style.color = '#14100A';
+}
+function _cmdQty(d) {
+  const st = window._commandeArticle; if (!st) return;
+  st.quantite = Math.max(1, Math.min(99, (st.quantite || 1) + d));
+  const el = document.getElementById('cmd-qty'); if (el) el.textContent = st.quantite;
+}
+
+// Crée une commande de produit EN INTERNE (wozali_commandes) + notifie le pro.
+async function confirmerCommandeArticle() {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander.', 'error'); return; }
+  const cst = window._commandeArticle || {};
+  const st = window._catalogueState || {};
+  const it = (st.items || {})[cst.itemId];
+  if (!it) return;
   const puid = st.userId || null;
-  if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
+  if (!puid) { toast('Boutique introuvable, réessaie.', 'error'); return; }
   const itemNom = it.nom || 'Produit';
+  const quantite = cst.quantite || 1;
+  const taille = cst.taille || null;
+  const message = (document.getElementById('cmd-message')?.value || '').trim() || null;
   const prixTxt = (it.prix || it.prix === 0) ? (parseInt(it.prix).toLocaleString('fr-FR') + ' FCFA') : null;
 
   const cu = window.currentUser;
@@ -2017,33 +2136,44 @@ async function commanderProduitWhatsApp(itemId) {
     prestataire_id:      st.recordId || null,
     prestataire_user_id: puid,
     type:                'produit',
-    item_id:             itemId,
+    item_id:             cst.itemId,
     item_nom:            itemNom,
+    client_nom:          clientNom,
+    taille, quantite, message,
     prix_txt:            prixTxt,
     statut:              'recue'
   };
 
+  const btn = document.getElementById('cmd-send');
+  if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
   try {
     const { error } = await window.supabase.from('wozali_commandes').insert(row);
     if (error) throw error;
-    // Notification interne au pro (jamais WhatsApp) — réutilise pushNotif → wozali_notifications.
     try {
+      const detail = [taille ? 'Taille ' + taille : '', quantite > 1 ? '×' + quantite : ''].filter(Boolean).join(' · ');
       pushNotif(st.recordId || puid, {
-        type: 'commande',
-        clientNom,
-        itemNom,
-        prixTxt: prixTxt || '',
+        type: 'commande', clientNom, itemNom, prixTxt: prixTxt || '',
         titre: 'Nouvelle commande boutique',
-        message: `${clientNom} veut commander « ${itemNom} ».`
+        message: `${clientNom} veut commander « ${itemNom} »${detail ? ' (' + detail + ')' : ''}.`
       });
     } catch (e) { /* fire-and-forget */ }
-    toast(`Commande envoyée, le pro te répond dans la messagerie.`, 'success');
+    document.getElementById('commande-modal')?.remove();
+    toast('Commande envoyée ✓ La boutique te recontacte.', 'success');
   } catch (e) {
-    console.error('❌ commanderProduitWhatsApp', e.message || e);
+    console.error('❌ confirmerCommandeArticle', e.message || e);
     toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ma commande'; }
   }
 }
+// Alias de compat (anciens onclick éventuels)
+function commanderProduitWhatsApp(itemId) { ouvrirCommandeArticle(itemId); }
 window.renderProfilCatalogue = renderProfilCatalogue;
+window.ouvrirArticleDetail = ouvrirArticleDetail;
+window.ouvrirZoomPhoto = ouvrirZoomPhoto;
+window.ouvrirCommandeArticle = ouvrirCommandeArticle;
+window._cmdSetTaille = _cmdSetTaille;
+window._cmdQty = _cmdQty;
+window.confirmerCommandeArticle = confirmerCommandeArticle;
 window.commanderProduitWhatsApp = commanderProduitWhatsApp;
 
 // ══ Prestations & tarifs (Module RDV : coiffure, beauté, soins…) — profil public ══
@@ -2276,6 +2406,7 @@ async function loadBoutiqueSection() {
       .order('ordre', { ascending: true });
     if (!error) { _boutiqueItems = data || []; _renderBoutiqueList(); }
   } catch (e) { /* ignore */ }
+  loadCommandesRecues();   // commandes reçues (+ alimente le tableau de bord)
 }
 
 function _renderBoutiqueList() {
@@ -2285,7 +2416,6 @@ function _renderBoutiqueList() {
     list.innerHTML = `<div style="background:#1E180E;border:1px dashed rgba(232,148,10,.25);border-radius:16px;padding:32px;text-align:center;color:rgba(252,224,168,.5);font-family:Geist,sans-serif;font-size:14px;">Aucun produit pour l'instant. Ajoute ton premier article, il apparaîtra sur ton profil public.</div>`;
     return;
   }
-  const STOCK_LABEL = { en_stock: 'En stock', sur_commande: 'Sur commande', epuise: 'Épuisé' };
   list.innerHTML = _boutiqueItems.map(it => {
     const iid = escapeHtml(it.id);
     const nomP = escapeHtml(it.nom || 'Produit');
@@ -2295,32 +2425,76 @@ function _renderBoutiqueList() {
     const photo = it.photo_url
       ? `<img src="${encodeURI(it.photo_url)}" alt="" loading="lazy" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0;">`
       : `<div style="width:64px;height:64px;border-radius:10px;background:#14100A;display:flex;align-items:center;justify-content:center;font-size:24px;opacity:.4;flex-shrink:0;">🛍️</div>`;
+    // Feux de stock : rupture / faible / OK, calculés sur la quantité (interne)
+    const qty = (typeof it.stock_qty === 'number') ? it.stock_qty : null;
+    const seuil = (typeof it.seuil_stock === 'number') ? it.seuil_stock : 3;
+    let feuColor = '#3FB27F', feuLabel = 'En stock';
+    if (it.stock_statut === 'sur_commande' && qty === null) { feuColor = '#FCE0A8'; feuLabel = 'Sur commande'; }
+    else if (qty !== null) {
+      if (qty <= 0) { feuColor = '#E5533C'; feuLabel = 'Rupture'; }
+      else if (qty <= seuil) { feuColor = '#E8940A'; feuLabel = 'Stock faible'; }
+      else { feuColor = '#3FB27F'; feuLabel = 'En stock'; }
+    } else if (it.stock_statut === 'epuise') { feuColor = '#E5533C'; feuLabel = 'Épuisé'; }
+    const qtyTxt = qty !== null ? `<span style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;">${qty}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.4);"> en stock</span>` : `<span style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.4);">stock non suivi</span>`;
+    const taillesTxt = it.tailles ? `<span style="color:rgba(252,224,168,.45);"> · ${escapeHtml(it.tailles)}</span>` : '';
     return `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;${actif ? '' : 'opacity:.55;'}">
         ${photo}
         <div style="flex:1;min-width:0;">
           <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nomP}</div>
-          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${prixTxt}${cat ? ` · <span style="color:rgba(252,224,168,.55);">${cat}</span>` : ''}</div>
-          <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.45);margin-top:4px;">${STOCK_LABEL[it.stock_statut] || 'En stock'}</div>
+          <div style="font-family:'Geist Mono',monospace;font-size:12px;color:#E8940A;margin-top:2px;">${prixTxt}${cat ? ` · <span style="color:rgba(252,224,168,.55);">${cat}</span>` : ''}${taillesTxt}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:7px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:${feuColor};flex-shrink:0;"></span>
+            <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:${feuColor};">${feuLabel}</span>
+            <span style="color:rgba(252,224,168,.2);">·</span>
+            ${qtyTxt}
+          </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-          <button onclick="toggleProduitActif('${iid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:36px;padding:6px 12px;background:${actif ? 'rgba(232,148,10,.15)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">${actif ? '👁 Visible' : '🚫 Masqué'}</button>
-          <button onclick="supprimerProduitCatalogue('${iid}')" style="min-height:36px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Supprimer</button>
+          <button onclick="reapproProduit('${iid}')" style="min-height:36px;padding:6px 14px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">↻ Réappro</button>
+          <button onclick="editProduitCatalogue('${iid}')" style="min-height:36px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Modifier</button>
+          <div style="display:flex;gap:6px;">
+            <button onclick="toggleProduitActif('${iid}')" title="${actif ? 'Masquer' : 'Afficher'}" style="min-height:34px;padding:5px 10px;background:${actif ? 'rgba(232,148,10,.1)' : 'rgba(252,224,168,.08)'};color:${actif ? '#E8940A' : 'rgba(252,224,168,.5)'};border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;flex:1;">${actif ? '👁' : '🚫'}</button>
+            <button onclick="supprimerProduitCatalogue('${iid}')" title="Supprimer" style="min-height:34px;padding:5px 10px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">🗑</button>
+          </div>
         </div>
       </div>`;
   }).join('');
 }
 
+function _setBoutiqueField(id, val) { const el = document.getElementById(id); if (el) el.value = (val == null ? '' : val); }
+
 function ouvrirFormProduitCatalogue() {
   _boutiqueEditId = null;
   const wrap = document.getElementById('boutique-form-wrap');
   if (!wrap) return;
-  document.getElementById('boutique-f-nom').value = '';
-  document.getElementById('boutique-f-prix').value = '';
-  document.getElementById('boutique-f-cat').value = '';
-  document.getElementById('boutique-f-stock').value = 'en_stock';
-  document.getElementById('boutique-f-desc').value = '';
+  ['boutique-f-nom','boutique-f-prix','boutique-f-cat','boutique-f-desc','boutique-f-tailles','boutique-f-qty','boutique-f-seuil','boutique-f-cout'].forEach(id => _setBoutiqueField(id, ''));
+  _setBoutiqueField('boutique-f-stock', 'en_stock');
   const prev = document.getElementById('boutique-f-photo-preview');
   if (prev) { prev.innerHTML = ''; prev.dataset.url = ''; }
+  const sv = document.getElementById('boutique-f-save'); if (sv) sv.textContent = 'Enregistrer le produit';
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Ouvre le formulaire pré-rempli pour modifier un article existant
+function editProduitCatalogue(id) {
+  const it = _boutiqueItems.find(x => x.id === id);
+  if (!it) return;
+  const wrap = document.getElementById('boutique-form-wrap');
+  if (!wrap) return;
+  _boutiqueEditId = id;
+  _setBoutiqueField('boutique-f-nom', it.nom || '');
+  _setBoutiqueField('boutique-f-prix', it.prix != null ? it.prix : '');
+  _setBoutiqueField('boutique-f-cat', it.categorie || '');
+  _setBoutiqueField('boutique-f-stock', it.stock_statut || 'en_stock');
+  _setBoutiqueField('boutique-f-desc', it.description || '');
+  _setBoutiqueField('boutique-f-tailles', it.tailles || '');
+  _setBoutiqueField('boutique-f-qty', it.stock_qty != null ? it.stock_qty : '');
+  _setBoutiqueField('boutique-f-seuil', it.seuil_stock != null ? it.seuil_stock : '');
+  _setBoutiqueField('boutique-f-cout', it.cout_achat != null ? it.cout_achat : '');
+  const prev = document.getElementById('boutique-f-photo-preview');
+  if (prev) { prev.dataset.url = it.photo_url || ''; prev.innerHTML = it.photo_url ? `<img src="${encodeURI(it.photo_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : ''; }
+  const sv = document.getElementById('boutique-f-save'); if (sv) sv.textContent = 'Enregistrer les modifications';
   wrap.style.display = 'block';
   wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -2352,16 +2526,28 @@ async function saveProduitCatalogue() {
   const prixRaw = (document.getElementById('boutique-f-prix')?.value || '').replace(/\D/g, '');
   const prix = prixRaw ? parseInt(prixRaw) : null;
   const categorie = (document.getElementById('boutique-f-cat')?.value || '').trim() || null;
-  const stock_statut = document.getElementById('boutique-f-stock')?.value || 'en_stock';
+  let stock_statut = document.getElementById('boutique-f-stock')?.value || 'en_stock';
   const description = (document.getElementById('boutique-f-desc')?.value || '').trim() || null;
   const photo_url = document.getElementById('boutique-f-photo-preview')?.dataset.url || null;
+  const tailles = (document.getElementById('boutique-f-tailles')?.value || '').trim() || null;
+  const qtyRaw = (document.getElementById('boutique-f-qty')?.value || '').replace(/\D/g, '');
+  const stock_qty = qtyRaw !== '' ? parseInt(qtyRaw) : null;
+  const seuilRaw = (document.getElementById('boutique-f-seuil')?.value || '').replace(/\D/g, '');
+  const seuil_stock = seuilRaw !== '' ? parseInt(seuilRaw) : 3;
+  const coutRaw = (document.getElementById('boutique-f-cout')?.value || '').replace(/\D/g, '');
+  const cout_achat = coutRaw !== '' ? parseInt(coutRaw) : null;
+  // Cohérence auto : quantité 0 → épuisé ; quantité > 0 et statut épuisé → repasse en stock
+  if (stock_qty !== null) {
+    if (stock_qty <= 0 && stock_statut !== 'sur_commande') stock_statut = 'epuise';
+    else if (stock_qty > 0 && stock_statut === 'epuise') stock_statut = 'en_stock';
+  }
 
   const btn = document.getElementById('boutique-f-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
   try {
     if (_boutiqueEditId) {
       const { error } = await window.supabase.from('wozali_items')
-        .update({ nom, prix, categorie, stock_statut, description, photo_url })
+        .update({ nom, prix, categorie, stock_statut, description, photo_url, tailles, stock_qty, seuil_stock, cout_achat })
         .eq('id', _boutiqueEditId).eq('user_id', currentUser.id);
       if (error) throw error;
     } else {
@@ -2370,6 +2556,7 @@ async function saveProduitCatalogue() {
         user_id: currentUser.id,
         prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
         nom, prix, categorie, stock_statut, description, photo_url,
+        tailles, stock_qty, seuil_stock, cout_achat,
         actif: true, ordre
       };
       const { error } = await window.supabase.from('wozali_items').insert(row);
@@ -2418,13 +2605,246 @@ async function toggleProduitActif(id) {
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
   }
 }
+// ── Réapprovisionner : ajoute de la quantité (+ coût d'achat optionnel), journalise le mouvement ──
+function reapproProduit(id) {
+  const it = _boutiqueItems.find(x => x.id === id);
+  if (!it) return;
+  window._reapproId = id;
+  const nomP = escapeHtml(it.nom || 'Produit');
+  const cur = (typeof it.stock_qty === 'number') ? it.stock_qty : 0;
+  const old = document.getElementById('reappro-modal');
+  if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'reappro-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;">Réapprovisionner</div>
+        <button onclick="document.getElementById('reappro-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button>
+      </div>
+      <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-bottom:18px;">${nomP} · stock actuel : <b style="color:#FCE0A8;">${cur}</b></div>
+      <div style="margin-bottom:16px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Quantité ajoutée</div>
+        <input id="reappro-qty" type="text" inputmode="numeric" placeholder="Ex : 20" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:16px;">
+      </div>
+      <div style="margin-bottom:20px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Coût d'achat unitaire (optionnel)</div>
+        <input id="reappro-cout" type="text" inputmode="numeric" placeholder="${it.cout_achat != null ? it.cout_achat : 'Ex : 4500'}" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:16px;">
+      </div>
+      <button id="reappro-send" onclick="confirmerReappro()" style="width:100%;min-height:50px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Ajouter au stock</button>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('reappro-qty')?.focus(), 100);
+}
+
+async function confirmerReappro() {
+  const id = window._reapproId;
+  const it = _boutiqueItems.find(x => x.id === id);
+  if (!it || !currentUser || !window.supabase) return;
+  const add = parseInt((document.getElementById('reappro-qty')?.value || '').replace(/\D/g, '') || '0');
+  if (!add || add <= 0) { toast('Indique une quantité à ajouter.', 'error'); return; }
+  const coutRaw = (document.getElementById('reappro-cout')?.value || '').replace(/\D/g, '');
+  const cout_achat = coutRaw !== '' ? parseInt(coutRaw) : (it.cout_achat != null ? it.cout_achat : null);
+  const cur = (typeof it.stock_qty === 'number') ? it.stock_qty : 0;
+  const newQty = cur + add;
+  let newStatut = it.stock_statut || 'en_stock';
+  if (newQty > 0 && newStatut === 'epuise') newStatut = 'en_stock';
+  const btn = document.getElementById('reappro-send');
+  if (btn) { btn.disabled = true; btn.textContent = 'Ajout…'; }
+  try {
+    const upd = { stock_qty: newQty, stock_statut: newStatut };
+    if (cout_achat != null) upd.cout_achat = cout_achat;
+    const { error } = await window.supabase.from('wozali_items').update(upd).eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    // Journalise le mouvement (best-effort : ne bloque pas si la table n'est pas encore là)
+    try {
+      await window.supabase.from('wozali_stock_mouvements').insert({
+        user_id: currentUser.id, item_id: id, delta: add, motif: 'reappro', cout_achat: cout_achat || null
+      });
+    } catch (e) { /* table optionnelle */ }
+    it.stock_qty = newQty; it.stock_statut = newStatut; if (cout_achat != null) it.cout_achat = cout_achat;
+    document.getElementById('reappro-modal')?.remove();
+    _renderBoutiqueList();
+    toast(`+${add} ajouté. Stock : ${newQty}.`, 'success');
+  } catch (e) {
+    console.error('❌ confirmerReappro', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Ajouter au stock'; }
+  }
+}
+
 window.loadBoutiqueSection = loadBoutiqueSection;
 window.ouvrirFormProduitCatalogue = ouvrirFormProduitCatalogue;
+window.editProduitCatalogue = editProduitCatalogue;
 window.fermerFormProduitCatalogue = fermerFormProduitCatalogue;
 window.uploadProduitPhoto = uploadProduitPhoto;
 window.saveProduitCatalogue = saveProduitCatalogue;
 window.supprimerProduitCatalogue = supprimerProduitCatalogue;
 window.toggleProduitActif = toggleProduitActif;
+window.reapproProduit = reapproProduit;
+window.confirmerReappro = confirmerReappro;
+
+// ══════════ COMMANDES REÇUES + TABLEAU DE BORD BOUTIQUE ══════════
+let _boutiqueCommandes = [];
+const _CMD_STATUTS = {
+  recue:    { label: 'À traiter',  color: '#E8940A', bg: 'rgba(232,148,10,.15)' },
+  confirmee:{ label: 'Confirmée',  color: '#FCE0A8', bg: 'rgba(252,224,168,.12)' },
+  livree:   { label: 'Livrée',     color: '#3FB27F', bg: 'rgba(63,178,127,.14)' },
+  annulee:  { label: 'Annulée',    color: '#E5533C', bg: 'rgba(229,83,60,.14)' }
+};
+function _cmdPrixNum(txt) { const n = parseInt(String(txt || '').replace(/\D/g, '')); return isNaN(n) ? 0 : n; }
+
+async function loadCommandesRecues() {
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { data, error } = await window.supabase
+      .from('wozali_commandes')
+      .select('*')
+      .eq('prestataire_user_id', currentUser.id)
+      .limit(200);
+    if (!error) {
+      _boutiqueCommandes = (data || []).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
+  } catch (e) { _boutiqueCommandes = []; }
+  renderCommandesRecues();
+  renderBoutiqueDash();
+}
+
+function renderCommandesRecues() {
+  const el = document.getElementById('boutique-commandes');
+  if (!el) return;
+  const cmds = _boutiqueCommandes || [];
+  const enAttente = cmds.filter(c => c.statut === 'recue').length;
+  const rows = cmds.slice(0, 30).map(c => {
+    const st = _CMD_STATUTS[c.statut] || _CMD_STATUTS.recue;
+    const nom = escapeHtml(c.client_nom || 'Client');
+    const item = escapeHtml(c.item_nom || 'Article');
+    const detail = [c.taille ? 'Taille ' + escapeHtml(c.taille) : '', (c.quantite && c.quantite > 1) ? '×' + c.quantite : ''].filter(Boolean).join(' · ');
+    const prix = c.prix_txt ? escapeHtml(c.prix_txt) : '';
+    let when = '';
+    if (c.created_at) { const j = Math.floor((Date.now() - new Date(c.created_at)) / 86400000); when = j <= 0 ? "aujourd'hui" : (j === 1 ? 'hier' : 'il y a ' + j + ' j'); }
+    const msg = c.message ? `<div style="font-family:Geist,sans-serif;font-size:12.5px;color:rgba(252,224,168,.6);margin-top:5px;font-style:italic;">« ${escapeHtml(c.message)} »</div>` : '';
+    let actions = '';
+    if (c.statut === 'recue') actions = `<button onclick="updateCommandeStatut('${escapeHtml(c.id)}','confirmee')" style="min-height:34px;padding:6px 14px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">✓ Confirmer</button><button onclick="updateCommandeStatut('${escapeHtml(c.id)}','annulee')" style="min-height:34px;padding:6px 12px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Annuler</button>`;
+    else if (c.statut === 'confirmee') actions = `<button onclick="updateCommandeStatut('${escapeHtml(c.id)}','livree')" style="min-height:34px;padding:6px 14px;background:rgba(63,178,127,.15);color:#3FB27F;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">📦 Marquer livrée</button>`;
+    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.12);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+          <div style="min-width:0;">
+            <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:600;color:#FCE0A8;">${nom} · <span style="color:#E8940A;">${item}</span></div>
+            <div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.5);margin-top:3px;">${[detail, prix, when].filter(Boolean).join(' · ')}</div>
+            ${msg}
+          </div>
+          <span style="flex-shrink:0;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:${st.bg};color:${st.color};">${st.label}</span>
+        </div>
+        ${actions ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">${actions}</div>` : ''}
+      </div>`;
+  }).join('');
+  el.innerHTML = `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:20px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${cmds.length ? '16px' : '0'};">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:#FCE0A8;">📥 Commandes reçues</h3>
+        ${enAttente ? `<span style="font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;background:#E8940A;color:#14100A;padding:3px 9px;border-radius:100px;">${enAttente} à traiter</span>` : ''}
+      </div>
+      ${cmds.length ? `<div style="display:flex;flex-direction:column;gap:10px;">${rows}</div>` : `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.45);padding:6px 0;">Pas encore de commande. Quand un client commande un article, il apparaît ici.</div>`}
+    </div>`;
+}
+
+async function updateCommandeStatut(id, statut) {
+  const c = _boutiqueCommandes.find(x => x.id === id);
+  if (!c || !currentUser || !window.supabase) return;
+  const wasConfirmed = c.statut === 'confirmee' || c.statut === 'livree';
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').update({ statut }).eq('id', id).eq('prestataire_user_id', currentUser.id);
+    if (error) throw error;
+    c.statut = statut;
+    // À la confirmation (1re fois), on décrémente le stock de l'article commandé
+    if (statut === 'confirmee' && !wasConfirmed && c.item_id) {
+      const it = _boutiqueItems.find(x => x.id === c.item_id);
+      if (it && typeof it.stock_qty === 'number') {
+        const dec = c.quantite || 1;
+        const newQty = Math.max(0, it.stock_qty - dec);
+        let newStatut = it.stock_statut || 'en_stock';
+        if (newQty <= 0 && newStatut !== 'sur_commande') newStatut = 'epuise';
+        try {
+          await window.supabase.from('wozali_items').update({ stock_qty: newQty, stock_statut: newStatut }).eq('id', it.id).eq('user_id', currentUser.id);
+          await window.supabase.from('wozali_stock_mouvements').insert({ user_id: currentUser.id, item_id: it.id, delta: -dec, motif: 'vente' });
+        } catch (e) { /* best-effort */ }
+        it.stock_qty = newQty; it.stock_statut = newStatut;
+        _renderBoutiqueList();
+      }
+    }
+    renderCommandesRecues();
+    renderBoutiqueDash();
+    toast(statut === 'confirmee' ? 'Commande confirmée. Stock mis à jour.' : statut === 'livree' ? 'Commande livrée ✓' : 'Commande annulée.', 'success');
+  } catch (e) {
+    console.error('❌ updateCommandeStatut', e.message || e);
+    toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
+  }
+}
+
+// Tableau de bord : KPI + best-sellers + articles qui dorment. Analytics = Pro (flouté en gratuit).
+function renderBoutiqueDash() {
+  const el = document.getElementById('boutique-dash');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const cmds = _boutiqueCommandes || [];
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const cmdsMois = cmds.filter(c => !c.created_at || new Date(c.created_at) >= monthStart);
+  const vendues = cmdsMois.filter(c => c.statut === 'confirmee' || c.statut === 'livree');
+  const nbMois = cmdsMois.length;
+  const ca = vendues.reduce((s, c) => s + _cmdPrixNum(c.prix_txt) * (c.quantite || 1), 0);
+  // best-sellers par article (qté vendue)
+  const byItem = {};
+  vendues.forEach(c => { const k = c.item_nom || 'Article'; byItem[k] = (byItem[k] || 0) + (c.quantite || 1); });
+  const best = Object.entries(byItem).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const maxV = best.length ? best[0][1] : 1;
+  // articles qui dorment : actifs, jamais vendus ce mois
+  const venduIds = new Set(vendues.map(c => c.item_id).filter(Boolean));
+  const dorment = (_boutiqueItems || []).filter(it => it.actif !== false && !venduIds.has(it.id)).slice(0, 3);
+  const ruptures = (_boutiqueItems || []).filter(it => typeof it.stock_qty === 'number' && it.stock_qty <= (typeof it.seuil_stock === 'number' ? it.seuil_stock : 3));
+
+  const kpi = (lab, val, sub) => `<div style="flex:1;min-width:120px;background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:16px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#FCE0A8;margin-top:8px;line-height:1;">${val}</div>
+      ${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.45);margin-top:6px;">${sub}</div>` : ''}
+    </div>`;
+
+  // Bloc analytics (best-sellers + dorment + ruptures) — réservé Pro
+  const bestBars = best.length ? best.map(([nom, v]) => `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><b style="font-weight:600;color:#FCE0A8;">${escapeHtml(nom)}</b><span style="font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);">${v} vendu${v > 1 ? 's' : ''}</span></div>
+      <div style="height:10px;background:#2a2113;border-radius:100px;overflow:hidden;"><div style="height:100%;width:${Math.round(v / maxV * 100)}%;background:linear-gradient(90deg,#E8940A,#f2ad3c);border-radius:100px;"></div></div>
+    </div>`).join('') : `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Pas encore de vente ce mois. Confirme tes commandes, tes best-sellers apparaîtront ici.</div>`;
+  const dormentTxt = dorment.length ? dorment.map(it => `<span style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.15);border-radius:8px;padding:3px 9px;">💤 ${escapeHtml(it.nom || 'Article')}</span>`).join(' ') : '<span style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Tous tes articles tournent 👏</span>';
+  const rupturesTxt = ruptures.length ? `<div style="margin-top:14px;background:rgba(229,83,60,.08);border:1px solid rgba(229,83,60,.25);border-radius:12px;padding:12px 14px;font-family:Geist,sans-serif;font-size:13px;color:#FCE0A8;">🔴 <b>${ruptures.length} article${ruptures.length > 1 ? 's' : ''} à recommander</b> — ${ruptures.slice(0, 3).map(it => escapeHtml(it.nom || 'Article')).join(', ')}.</div>` : '';
+
+  const analytics = `<div style="margin-top:16px;">
+      <div style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;margin-bottom:14px;">Ce qui marche, ce qui dort</div>
+      ${bestBars}
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">${dormentTxt}</div>
+      ${rupturesTxt}
+    </div>`;
+
+  const analyticsGated = isPro ? analytics : `<div style="position:relative;margin-top:16px;border-radius:16px;overflow:hidden;">
+      <div style="filter:blur(6px);opacity:.5;pointer-events:none;">${analytics}</div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(20,16,10,.55);text-align:center;padding:20px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:22px;">🔒</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;">Passe Pro pour voir tes chiffres</div>
+        <div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);max-width:280px;">Best-sellers, valeur du stock, alertes de rupture et bientôt ton bénéfice. 2 500 F/mois.</div>
+        <button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:13px;padding:10px 20px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button>
+      </div>
+    </div>`;
+
+  el.innerHTML = `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:20px;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        ${kpi('Commandes · ce mois', nbMois, isPro ? (vendues.length + ' confirmée' + (vendues.length > 1 ? 's' : '')) : '')}
+        ${isPro ? kpi('CA · ce mois', ca ? ca.toLocaleString('fr-FR') + ' F' : '—', 'commandes confirmées') : ''}
+        ${isPro ? kpi('Articles', (_boutiqueItems || []).length, ruptures.length ? ruptures.length + ' à recommander' : 'stock OK') : ''}
+      </div>
+      ${analyticsGated}
+    </div>`;
+}
+
+window.loadCommandesRecues = loadCommandesRecues;
+window.updateCommandeStatut = updateCommandeStatut;
+window.renderBoutiqueDash = renderBoutiqueDash;
 
 // ══ Prestations & tarifs — éditeur dashboard (section ds-prestations) ══
 // Mirroir de la boutique : CRUD sur wozali_prestations, s'affiche sur le profil
