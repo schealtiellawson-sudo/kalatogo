@@ -11603,10 +11603,10 @@ async function sendDmMessage() {
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
 
-  // Conversation client↔pro (peer) : insert direct dans wozali_messages
+  // Conversation client↔pro (peer) : insert direct dans wozali_dm_messages
   if (window._activeDmPeer && window.currentUser && window.supabase) {
     try {
-      await window.supabase.from('wozali_messages').insert({
+      await window.supabase.from('wozali_dm_messages').insert({
         expediteur_id: window.currentUser.id,
         destinataire_id: window._activeDmPeer,
         contenu: message, type: 'texte'
@@ -11659,7 +11659,7 @@ async function loadDmConversations() {
   let msgs = [];
   try {
     const me = window.currentUser.id;
-    const { data } = await window.supabase.from('wozali_messages')
+    const { data } = await window.supabase.from('wozali_dm_messages')
       .select('*').or(`expediteur_id.eq.${me},destinataire_id.eq.${me}`)
       .order('created_at', { ascending: false }).limit(400);
     msgs = data || [];
@@ -11726,7 +11726,7 @@ async function _loadPeerThread(peerId) {
   const me = window.currentUser.id;
   let msgs = [];
   try {
-    const { data } = await window.supabase.from('wozali_messages')
+    const { data } = await window.supabase.from('wozali_dm_messages')
       .select('*').or(`and(expediteur_id.eq.${me},destinataire_id.eq.${peerId}),and(expediteur_id.eq.${peerId},destinataire_id.eq.${me})`)
       .order('created_at', { ascending: true }).limit(300);
     msgs = data || [];
@@ -11744,7 +11744,7 @@ async function _loadPeerThread(peerId) {
   list.scrollTop = list.scrollHeight;
 
   // Marque lus les messages reçus
-  try { await window.supabase.from('wozali_messages').update({ lu: true }).eq('destinataire_id', me).eq('expediteur_id', peerId).eq('lu', false); } catch (e) {}
+  try { await window.supabase.from('wozali_dm_messages').update({ lu: true }).eq('destinataire_id', me).eq('expediteur_id', peerId).eq('lu', false); } catch (e) {}
 
   _stopDmPoll();
   _dmPollTimer = setInterval(() => { if (window._activeDmPeer === peerId && document.getElementById('dm-thread-content')?.style.display !== 'none') _pollPeerThread(peerId); else _stopDmPoll(); }, 5000);
@@ -11756,7 +11756,7 @@ async function _pollPeerThread(peerId) {
   if (!list || !window.currentUser || !window.supabase) return;
   const me = window.currentUser.id;
   try {
-    const { data } = await window.supabase.from('wozali_messages')
+    const { data } = await window.supabase.from('wozali_dm_messages')
       .select('*').eq('expediteur_id', peerId).eq('destinataire_id', me).eq('lu', false)
       .order('created_at', { ascending: true }).limit(30);
     if (data && data.length) {
@@ -11768,7 +11768,7 @@ async function _pollPeerThread(peerId) {
         if (w.firstElementChild) list.appendChild(w.firstElementChild);
       });
       list.scrollTop = list.scrollHeight;
-      await window.supabase.from('wozali_messages').update({ lu: true }).eq('destinataire_id', me).eq('expediteur_id', peerId).eq('lu', false);
+      await window.supabase.from('wozali_dm_messages').update({ lu: true }).eq('destinataire_id', me).eq('expediteur_id', peerId).eq('lu', false);
     }
   } catch (e) { /* ignore */ }
 }
@@ -11777,7 +11777,7 @@ async function _pollPeerThread(peerId) {
 async function demarrerConversation(peerUserId, contenu, systemeMeta) {
   if (!peerUserId || !window.currentUser || !window.supabase) return;
   try {
-    await window.supabase.from('wozali_messages').insert({
+    await window.supabase.from('wozali_dm_messages').insert({
       expediteur_id: window.currentUser.id, destinataire_id: peerUserId,
       contenu: contenu || '', type: systemeMeta ? 'systeme' : 'texte', meta: systemeMeta || null
     });
