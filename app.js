@@ -4321,7 +4321,7 @@ async function saveDevis(apercuAfter) {
       if (error) throw error; saved = r && r[0];
       const idx = _chantierDevis.findIndex(x => x.id === window._devisEditId); if (idx >= 0 && saved) _chantierDevis[idx] = saved;
     } else {
-      const row = { ...data, prestataire_user_id: currentUser.id, prestataire_id: (currentPrestataire && currentPrestataire.id) || null, statut: 'envoye' };
+      const row = { ...data, description: data.objet || data.client_nom || 'Devis', prestataire_user_id: currentUser.id, prestataire_id: (currentPrestataire && currentPrestataire.id) || null, statut: 'envoye' };
       const { data: r, error } = await window.supabase.from('wozali_devis').insert(row).select();
       if (error) throw error; saved = r && r[0];
       if (saved) _chantierDevis.unshift(saved);
