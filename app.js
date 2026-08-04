@@ -677,13 +677,13 @@ function showDashSection(section) {
   if (section === 'prestations') loadPrestationsSection();
   if (section === 'realisations') { loadRealisationsSection(); loadChantierPro(); }
   if (section === 'modeles') { loadModelesSection(); loadAtelierPro(); }
-  if (section === 'packs') loadPacksSection();
+  if (section === 'packs') { loadPacksSection(); loadActivitePro(); }
   if (section === 'menu') { loadMenuSection(); loadRestoPro(); }
-  if (section === 'courses') loadCoursesSection();
-  if (section === 'formules') loadFormulesSection();
-  if (section === 'etablissement') loadEtablissementSection();
-  if (section === 'seances') loadSeancesSection();
-  if (section === 'biens') loadBiensSection();
+  if (section === 'courses') { loadCoursesSection(); loadActivitePro(); }
+  if (section === 'formules') { loadFormulesSection(); loadActivitePro(); }
+  if (section === 'etablissement') { loadEtablissementSection(); loadActivitePro(); }
+  if (section === 'seances') { loadSeancesSection(); loadActivitePro(); }
+  if (section === 'biens') { loadBiensSection(); loadActivitePro(); }
     if (section === 'parrainage') loadParrainage();
   if (section === 'espace-createur') loadEspaceCreateurSection();
   if (section === 'faistoivoir') loadFaisToiVoirSection();
@@ -4438,6 +4438,222 @@ window.renderChantierFinances = renderChantierFinances;
 window.saveChantierObjectif = saveChantierObjectif;
 window.supprimerDepenseChantier = supprimerDepenseChantier;
 
+// ══════════════════════════════════════════════════════════════
+// SUITE PRO LÉGÈRE — « MON ACTIVITÉ » (Transport, Maison, Conseil, Établissement, Packs)
+// Moteur unique lisant wozali_commandes (types pack/seance/course/service/reservation),
+// branché dans les 6 sections dashboard. Demandes reçues + revenus + Sandy.
+// ══════════════════════════════════════════════════════════════
+let _activiteCmds = [], _activiteDepenses = [], _activiteObjectif = null, _activiteVue = 'demandes';
+const _ACT_TYPES = ['pack', 'seance', 'course', 'service', 'reservation'];
+const _ACT_ST = {
+  recue:    { label: 'Nouvelle',  color: '#E8940A', bg: 'rgba(232,148,10,.16)' },
+  confirmee:{ label: 'Confirmée', color: '#b9a5ff', bg: 'rgba(126,92,255,.15)' },
+  terminee: { label: 'Terminée ✓',color: 'rgba(252,224,168,.6)', bg: 'rgba(252,224,168,.1)' },
+  annulee:  { label: 'Annulée',   color: '#E5533C', bg: 'rgba(229,83,60,.14)' }
+};
+function _actPrix(c) { return (typeof c.montant === 'number') ? c.montant : _cmdPrixNum(c.prix_txt); }
+
+function _activiteHost() {
+  const sec = document.querySelector('.dash-section.active');
+  if (!sec) return null;
+  let host = sec.querySelector('.activite-pro-host');
+  if (!host) { host = document.createElement('div'); host.className = 'activite-pro-host'; host.style.marginBottom = '20px'; const hdr = sec.querySelector('.dash-header'); if (hdr) hdr.insertAdjacentElement('afterend', host); else sec.insertBefore(host, sec.firstChild); }
+  return host;
+}
+
+async function loadActivitePro() {
+  if (!currentUser || !window.supabase) return;
+  try { const { data } = await window.supabase.from('wozali_commandes').select('*').eq('prestataire_user_id', currentUser.id).in('type', _ACT_TYPES).order('created_at', { ascending: false }).limit(200); _activiteCmds = data || []; } catch (e) { _activiteCmds = []; }
+  try { const { data } = await window.supabase.from('wozali_depenses').select('*').eq('user_id', currentUser.id).limit(200); _activiteDepenses = data || []; } catch (e) { _activiteDepenses = []; }
+  try { const { data } = await window.supabase.from('wozali_objectifs').select('*').eq('user_id', currentUser.id).eq('mois', _moisKey()).maybeSingle(); _activiteObjectif = data || null; } catch (e) { _activiteObjectif = null; }
+  renderActivite();
+}
+
+function computeActivite() {
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const aTraiter = _activiteCmds.filter(c => c.statut === 'recue').length;
+  const enCours = _activiteCmds.filter(c => c.statut === 'confirmee').length;
+  const termMois = _activiteCmds.filter(c => c.statut === 'terminee' && (!c.created_at || new Date(c.created_at) >= monthStart));
+  const ca = termMois.reduce((s, c) => s + _actPrix(c), 0);
+  return { aTraiter, enCours, ca };
+}
+
+function switchActiviteVue(vue) {
+  _activiteVue = vue;
+  const isR = vue === 'revenus';
+  const bd = document.getElementById('btn-act-dem'), br = document.getElementById('btn-act-rev');
+  if (bd) { bd.style.background = isR ? 'transparent' : '#E8940A'; bd.style.color = isR ? 'rgba(252,224,168,.6)' : '#14100A'; }
+  if (br) { br.style.background = isR ? '#E8940A' : 'transparent'; br.style.color = isR ? '#14100A' : 'rgba(252,224,168,.6)'; }
+  const a = document.getElementById('act-vue-dem'), r = document.getElementById('act-vue-rev');
+  if (a) a.style.display = isR ? 'none' : '';
+  if (r) r.style.display = isR ? '' : 'none';
+  if (isR) renderActiviteRevenus();
+}
+
+function renderActivite() {
+  const host = _activiteHost();
+  if (!host) return;
+  host.innerHTML = `
+    <div style="display:inline-flex;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:4px;margin-bottom:16px;">
+      <button id="btn-act-dem" onclick="switchActiviteVue('demandes')" style="min-height:38px;padding:8px 18px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">📋 Demandes</button>
+      <button id="btn-act-rev" onclick="switchActiviteVue('revenus')" style="min-height:38px;padding:8px 18px;background:transparent;color:rgba(252,224,168,.6);border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">💰 Revenus</button>
+    </div>
+    <div id="act-vue-dem"></div>
+    <div id="act-vue-rev" style="display:none;"></div>`;
+  renderActiviteDemandes();
+}
+
+function renderActiviteDemandes() {
+  const el = document.getElementById('act-vue-dem');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const m = computeActivite();
+  const kpi = (lab, val, sub, col) => `<div style="flex:1;min-width:120px;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:16px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:26px;color:#FCE0A8;margin-top:8px;line-height:1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${col || 'rgba(252,224,168,.45)'};margin-top:6px;">${sub}</div>` : ''}</div>`;
+  const rows = _activiteCmds.slice(0, 40).map(c => {
+    const st = _ACT_ST[c.statut] || _ACT_ST.recue;
+    const nom = escapeHtml(c.client_nom || 'Client');
+    const item = escapeHtml(c.item_nom || 'Prestation');
+    const prix = _actPrix(c); const prixTxt = prix ? _fmtF(prix) + ' F' : (c.prix_txt ? escapeHtml(c.prix_txt) : '');
+    let when = '';
+    if (c.created_at) { const mn = Math.floor((Date.now() - new Date(c.created_at)) / 60000); when = mn < 1 ? "à l'instant" : (mn < 60 ? mn + ' min' : (mn < 1440 ? Math.floor(mn / 60) + ' h' : Math.floor(mn / 1440) + ' j')); }
+    const msg = c.message ? `<div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.55);margin-top:4px;font-style:italic;">« ${escapeHtml(c.message)} »</div>` : '';
+    let act = '';
+    if (c.statut === 'recue') act = `<button onclick="updateActiviteStatut('${escapeHtml(c.id)}','confirmee')" style="min-height:32px;padding:6px 13px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">Confirmer</button><button onclick="updateActiviteStatut('${escapeHtml(c.id)}','annulee')" style="min-height:32px;padding:6px 10px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Refuser</button>`;
+    else if (c.statut === 'confirmee') act = `<button onclick="terminerActivite('${escapeHtml(c.id)}')" style="min-height:32px;padding:6px 13px;background:rgba(63,178,127,.15);color:#3FB27F;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">Terminer</button>`;
+    return `<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 0;border-top:1px solid rgba(252,224,168,.07);">
+        <div style="min-width:0;"><div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nom} · <span style="color:#E8940A;">${item}</span></div><div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.5);margin-top:2px;">${when}</div>${msg}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">${prixTxt ? `<span style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:#E8940A;">${prixTxt}</span>` : ''}<span style="font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:${st.bg};color:${st.color};">${st.label}</span>${act}</div>
+      </div>`;
+  }).join('');
+  let sandyMsg;
+  if (!_activiteCmds.length) sandyMsg = `Ici arrivent les demandes de tes clients. Dès qu'un client réserve, tu la confirmes en 1 clic et tu notes « Terminé » quand c'est fait — je calcule alors ce que tu gagnes. <b>La plupart des gens dans ton métier ne suivent rien</b> ; toi tu vas piloter ton activité comme un pro, et savoir exactement combien tu gagnes.`;
+  else {
+    const p = [];
+    if (m.aTraiter) p.push(`⏳ <b>${m.aTraiter} demande${m.aTraiter > 1 ? 's' : ''} à traiter</b> — confirme vite, un client qui attend en appelle un autre.`);
+    p.push(`Note « Terminé » à chaque prestation finie : c'est comme ça que tu vois ton <b>vrai revenu</b>. Onglet Revenus pour ton bénéfice.`);
+    sandyMsg = p.join('<br><br>');
+  }
+  const sandy = `<div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:20px;"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:21px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;">Sandy · ton assistante</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;">Elle suit tes demandes &amp; tes revenus</div></div></div><div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${sandyMsg}</div></div>`;
+  el.innerHTML = `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+      ${kpi('Demandes à traiter', m.aTraiter, m.aTraiter ? 'réponds vite' : '—', m.aTraiter ? '#E8940A' : 'rgba(252,224,168,.45)')}
+      ${kpi('En cours', m.enCours, 'confirmées')}
+      ${isPro ? kpi('CA du mois', m.ca ? _fmtF(m.ca) + ' F' : '—', 'prestations terminées') : ''}
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:8px;">📋 Demandes reçues</h3>
+      ${_activiteCmds.length ? rows : `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.45);padding:8px 0;">Aucune demande pour l'instant. Quand un client réserve, elle apparaît ici.</div>`}
+    </div>
+    ${isPro ? sandy : `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(6px);opacity:.5;pointer-events:none;">${sandy}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(20,16,10,.55);text-align:center;padding:20px;"><div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:20px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;">Sandy suit ton activité</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:13px;padding:10px 20px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`}`;
+}
+
+async function updateActiviteStatut(id, statut) {
+  const c = _activiteCmds.find(x => x.id === id);
+  if (!c || !currentUser || !window.supabase) return;
+  try {
+    await window.supabase.from('wozali_commandes').update({ statut }).eq('id', id).eq('prestataire_user_id', currentUser.id);
+    c.statut = statut;
+    renderActiviteDemandes();
+    if (_activiteVue === 'revenus') renderActiviteRevenus();
+    toast(statut === 'confirmee' ? 'Demande confirmée ✓' : 'Demande refusée.', statut === 'annulee' ? 'error' : 'success');
+    if (c.client_user_id && statut === 'confirmee') { try { pushNotif(c.client_user_id, { type: 'commande', titre: 'Demande confirmée', message: `Ta demande « ${c.item_nom || ''} » est confirmée ✓` }); } catch (e) {} }
+  } catch (e) { console.error('❌ updateActiviteStatut', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+// Terminer : le pro saisit le montant réellement facturé (pré-rempli si prix fixe)
+function terminerActivite(id) {
+  const c = _activiteCmds.find(x => x.id === id);
+  if (!c) return;
+  window._actTermId = id;
+  const pre = _actPrix(c);
+  const old = document.getElementById('act-montant-modal'); if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'act-montant-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:440px;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;"><div style="font-family:'DM Serif Display',serif;font-size:21px;color:#FCE0A8;">Prestation terminée</div><button onclick="document.getElementById('act-montant-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button></div>
+      <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-bottom:16px;">${escapeHtml(c.client_nom || 'Client')} · ${escapeHtml(c.item_nom || 'Prestation')}</div>
+      <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Montant facturé (FCFA)</div>
+      <input id="act-montant-input" type="text" inputmode="numeric" value="${pre ? pre : ''}" placeholder="Ce que tu as fait payer" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:12px;padding:13px 15px;color:#FCE0A8;font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:18px;">
+      <button onclick="confirmerTerminerActivite()" style="width:100%;min-height:50px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Valider · compté dans mon CA</button>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('act-montant-input')?.focus(), 100);
+}
+async function confirmerTerminerActivite() {
+  const id = window._actTermId;
+  const c = _activiteCmds.find(x => x.id === id);
+  if (!c || !currentUser || !window.supabase) return;
+  const montant = parseInt((document.getElementById('act-montant-input')?.value || '').replace(/\D/g, '') || '0') || 0;
+  try {
+    await window.supabase.from('wozali_commandes').update({ statut: 'terminee', montant }).eq('id', id).eq('prestataire_user_id', currentUser.id);
+    c.statut = 'terminee'; c.montant = montant;
+    document.getElementById('act-montant-modal')?.remove();
+    renderActiviteDemandes();
+    if (_activiteVue === 'revenus') renderActiviteRevenus();
+    toast('Terminé ✓ compté dans ton CA.', 'success');
+  } catch (e) { console.error('❌ confirmerTerminerActivite', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+function renderActiviteRevenus() {
+  const el = document.getElementById('act-vue-rev');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const per = _finRange().label;
+  const termPer = _activiteCmds.filter(c => c.statut === 'terminee' && _finInRange(c.created_at));
+  const caPer = termPer.reduce((s, c) => s + _actPrix(c), 0);
+  const charges = (_activiteDepenses || []).filter(d => _finInRange(d.created_at)).reduce((s, d) => s + (d.montant || 0), 0);
+  const benefice = caPer - charges;
+  const box = (lab, val, sub, accent) => `<div style="flex:1;min-width:150px;background:#1E180E;border:1px solid ${accent ? 'rgba(63,178,127,.35)' : 'rgba(232,148,10,.15)'};border-radius:18px;padding:20px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:${accent ? '#3FB27F' : '#FCE0A8'};margin-top:10px;line-height:1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${accent ? '#3FB27F' : 'rgba(252,224,168,.45)'};margin-top:7px;">${sub}</div>` : ''}</div>`;
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const caMonth = _activiteCmds.filter(c => c.statut === 'terminee' && (!c.created_at || new Date(c.created_at) >= monthStart)).reduce((s, c) => s + _actPrix(c), 0);
+  let objBloc;
+  if (_activiteObjectif && _activiteObjectif.montant) {
+    const pct = Math.max(0, Math.min(100, Math.round(caMonth / _activiteObjectif.montant * 100)));
+    objBloc = `<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;"><span style="font-family:'DM Serif Display',serif;font-size:28px;color:#FCE0A8;">${_fmtF(caMonth)} F</span><span style="font-family:'Geist Mono',monospace;font-size:13px;color:rgba(252,224,168,.5);">/ ${_fmtF(_activiteObjectif.montant)} F ce mois</span></div><div style="height:14px;background:#2a2113;border-radius:100px;overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#E8940A,#f2ad3c);border-radius:100px;"></div></div><div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);">${pct}% de ton objectif du mois</div>`;
+  } else {
+    objBloc = `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-bottom:14px;">Fixe ton objectif de revenu du mois.</div><div style="display:flex;gap:10px;flex-wrap:wrap;"><input id="act-obj-input" type="text" inputmode="numeric" placeholder="Ex : 150000" style="flex:1;min-width:160px;background:#14100A;border:1px solid rgba(232,148,10,.25);border-radius:12px;padding:11px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;"><button onclick="saveActiviteObjectif()" style="min-height:44px;padding:10px 20px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Fixer</button></div>`;
+  }
+  const bilan = [];
+  if (!termPer.length) bilan.push(`Note « Terminé » à chaque prestation — je calcule ton CA et ton bénéfice, et tu sais enfin exactement combien tu gagnes. <b>Ce que presque personne ne fait dans ton métier.</b>`);
+  else {
+    bilan.push(`Sur <b>${per}</b> : <b class="kfig">${_fmtF(caPer)} F</b> de revenus${charges ? `, bénéfice <b class="kfig">${_fmtF(benefice)} F</b>` : ''}.`);
+    if (!charges) bilan.push(`Ajoute tes charges (transport, matériel…) pour connaître ton <b>vrai bénéfice</b> — c'est ça qui compte.`);
+  }
+  const contenu = `
+    ${_finPeriodeSelect('renderActiviteRevenus')}
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+      ${box('CA · ' + per, _fmtF(caPer) + ' F', termPer.length + ' prestation' + (termPer.length > 1 ? 's' : '') + ' terminée' + (termPer.length > 1 ? 's' : ''))}
+      ${box('Charges · ' + per, _fmtF(charges) + ' F', 'transport, matériel…')}
+      ${box('Bénéfice net', _fmtF(benefice) + ' F', 'CA − charges', true)}
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">🎯 Objectif du mois</h3>${objBloc}</div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>${(_activiteDepenses || []).filter(d => _finInRange(d.created_at)).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${_fmtF(d.montant || 0)} F</span><button onclick="supprimerDepenseActivite('${escapeHtml(d.id)}')" style="background:none;border:none;color:rgba(252,224,168,.4);cursor:pointer;">✕</button></span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge sur la période.</div>`}</div>
+    <div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:22px;"><div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;"><div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:22px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;">Sandy · ton bilan</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#E8940A;">Lu sur tes prestations</div></div></div><div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${bilan.map(l => `<div style="margin-bottom:8px;">${l}</div>`).join('')}</div></div>`;
+  if (isPro) { el.innerHTML = contenu; return; }
+  el.innerHTML = `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(7px);opacity:.5;pointer-events:none;">${contenu}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,16,10,.6);text-align:center;padding:24px;"><div style="width:54px;height:54px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:26px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;">Tes revenus, avec Sandy</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:14px;padding:12px 24px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`;
+}
+async function saveActiviteObjectif() {
+  const raw = (document.getElementById('act-obj-input')?.value || '').replace(/\D/g, '');
+  const montant = raw ? parseInt(raw) : 0;
+  if (!montant || montant < 1000) { toast('Indique un objectif.', 'error'); return; }
+  if (!currentUser || !window.supabase) return;
+  try { await window.supabase.from('wozali_objectifs').upsert({ user_id: currentUser.id, mois: _moisKey(), type: 'ca', montant }, { onConflict: 'user_id,mois' }); _activiteObjectif = { mois: _moisKey(), type: 'ca', montant }; renderActiviteRevenus(); toast('Objectif fixé 🎯', 'success'); } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+async function supprimerDepenseActivite(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  try { await window.supabase.from('wozali_depenses').delete().eq('id', id).eq('user_id', currentUser.id); _activiteDepenses = _activiteDepenses.filter(d => d.id !== id); renderActiviteRevenus(); } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+window.loadActivitePro = loadActivitePro;
+window.switchActiviteVue = switchActiviteVue;
+window.updateActiviteStatut = updateActiviteStatut;
+window.terminerActivite = terminerActivite;
+window.confirmerTerminerActivite = confirmerTerminerActivite;
+window.saveActiviteObjectif = saveActiviteObjectif;
+window.supprimerDepenseActivite = supprimerDepenseActivite;
+
 // ══ Prestations & tarifs — éditeur dashboard (section ds-prestations) ══
 // Mirroir de la boutique : CRUD sur wozali_prestations, s'affiche sur le profil
 // public via renderProfilPrestations + bouton Réserver (calendrier interne).
@@ -5319,6 +5535,7 @@ async function commanderPack(packId, nom, prixTxt) {
     type:                'pack',
     item_id:             packId,
     item_nom:            itemNom,
+    client_nom:          clientNom,
     prix_txt:            pTxt,
     statut:              'recue'
   };
@@ -5645,6 +5862,7 @@ async function reserverSeance(seanceId, nom, prixTxt) {
     type:                'seance',
     item_id:             seanceId,
     item_nom:            itemNom,
+    client_nom:          clientNom,
     prix_txt:            pTxt,
     statut:              'recue'
   };
@@ -6108,8 +6326,44 @@ async function renderProfilTransport(userId, containerId, recordId, dispo) {
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">
         ${rows}
       </div>
+      <div style="margin-top:16px;background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;padding:16px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#FCE0A8;margin-bottom:4px;">Une course sur mesure ?</div>
+        <div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);margin-bottom:12px;">Dis d'où à où, il te donne son prix direct sur WOZALI.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input id="course-depart" type="text" maxlength="60" placeholder="Départ (ex : Akpakpa)" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:11px 13px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;">
+          <input id="course-arrivee" type="text" maxlength="60" placeholder="Arrivée (ex : Cadjehoun)" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:11px 13px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;">
+          <button onclick="event.stopPropagation();reserverCourseSurMesure()" style="min-height:44px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;margin-top:2px;">Demander cette course</button>
+        </div>
+      </div>
     </div>`;
 }
+// Course sur mesure : le client indique départ→arrivée, le chauffeur donne son prix (pas de calcul auto)
+async function reserverCourseSurMesure() {
+  if (!window.currentUser || !window.supabase) { toast('Connecte-toi (2 min) pour demander une course.', 'error'); showPage('inscription'); return; }
+  const st = window._coursesState || {};
+  const puid = st.userId || null;
+  if (!puid) { toast('Chauffeur introuvable, réessaie.', 'error'); return; }
+  const dep = (document.getElementById('course-depart')?.value || '').trim();
+  const arr = (document.getElementById('course-arrivee')?.value || '').trim();
+  if (!dep || !arr) { toast('Indique le départ et l\'arrivée.', 'error'); return; }
+  const itemNom = `Course : ${dep} → ${arr}`;
+  const cu = window.currentUser;
+  const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
+    || (cu.user_metadata && (cu.user_metadata.nom_complet || cu.user_metadata.full_name || cu.user_metadata.name)) || cu.email || 'Un client';
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').insert({
+      client_user_id: cu.id, prestataire_id: st.recordId || null, prestataire_user_id: puid,
+      type: 'course', item_nom: itemNom, client_nom: clientNom, prix_txt: null, statut: 'recue',
+      message: `Course de ${dep} à ${arr}`
+    });
+    if (error) throw error;
+    try { pushNotif(st.recordId || puid, { type: 'commande', clientNom, itemNom, titre: 'Nouvelle demande de course', message: `${clientNom} veut une course : ${dep} → ${arr}.` }); } catch (e) {}
+    try { await demarrerConversation(puid, itemNom, { kind: 'course', item: itemNom }); } catch (e) {}
+    toast('Demande envoyée ✓ Le chauffeur te donne son prix dans Messages.', 'success');
+    const d = document.getElementById('course-depart'), a = document.getElementById('course-arrivee'); if (d) d.value = ''; if (a) a.value = '';
+  } catch (e) { console.error('❌ reserverCourseSurMesure', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+window.reserverCourseSurMesure = reserverCourseSurMesure;
 window.renderProfilTransport = renderProfilTransport;
 
 // Crée une réservation de course EN INTERNE (wozali_commandes type 'course') + notifie le pro.
@@ -6135,6 +6389,7 @@ async function reserverCourse(courseId, nom, prixTxt) {
     type:                'course',
     item_id:             courseId,
     item_nom:            itemNom,
+    client_nom:          clientNom,
     prix_txt:            pTxt,
     statut:              'recue'
   };
@@ -6397,6 +6652,7 @@ async function reserverFormule(formuleId, nom, prixTxt) {
     type:                'service',
     item_id:             formuleId,
     item_nom:            itemNom,
+    client_nom:          clientNom,
     prix_txt:            pTxt,
     statut:              'recue'
   };
@@ -6662,6 +6918,7 @@ async function reserverEtablissement(recordId) {
     type:                'reservation',
     item_id:             null,
     item_nom:            itemNom,
+    client_nom:          clientNom,
     prix_txt:            null,
     statut:              'recue'
   };
@@ -6979,6 +7236,7 @@ async function commanderPlat(itemId, nom, prixTxt) {
     type:                'menu',
     item_id:             itemId,
     item_nom:            itemNom,
+    client_nom:          clientNom,
     prix_txt:            pTxt,
     statut:              'recue'
   };
