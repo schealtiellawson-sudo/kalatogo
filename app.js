@@ -676,7 +676,7 @@ function showDashSection(section) {
   if (section === 'boutique') loadBoutiqueSection();
   if (section === 'prestations') loadPrestationsSection();
   if (section === 'realisations') loadRealisationsSection();
-  if (section === 'modeles') loadModelesSection();
+  if (section === 'modeles') { loadModelesSection(); loadAtelierPro(); }
   if (section === 'packs') loadPacksSection();
   if (section === 'menu') loadMenuSection();
   if (section === 'courses') loadCoursesSection();
@@ -3113,10 +3113,12 @@ async function saveDepense() {
     if (data && data[0]) {
       if (typeof _boutiqueDepenses !== 'undefined') _boutiqueDepenses.unshift(data[0]);
       if (typeof _salonDepenses !== 'undefined') _salonDepenses.unshift(data[0]);
+      if (typeof _atelierDepenses !== 'undefined') _atelierDepenses.unshift(data[0]);
     }
     document.getElementById('depense-modal')?.remove();
     if (typeof renderFinances === 'function' && document.getElementById('boutique-finances')) renderFinances();
     if (typeof renderSalonFinances === 'function' && document.getElementById('salon-vue-finances')) renderSalonFinances();
+    if (typeof renderAtelierFinances === 'function' && document.getElementById('atelier-vue-fin')) renderAtelierFinances();
     toast('Charge enregistrée.', 'success');
   } catch (e) { console.error('❌ saveDepense', e.message || e); toast('Ça a calé. Réessaie.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la charge'; } }
 }
@@ -3412,6 +3414,380 @@ window.switchSalonVue = switchSalonVue;
 window.updateRdvStatutSalon = updateRdvStatutSalon;
 window.saveSalonObjectif = saveSalonObjectif;
 window.supprimerDepenseSalon = supprimerDepenseSalon;
+
+// ══════════════════════════════════════════════════════════════
+// CLUSTER COUTURE — « MON ATELIER » (commandes modèles + fiches mesures + Sandy assistant)
+// ══════════════════════════════════════════════════════════════
+let _atelierCommandes = [], _atelierClientes = [], _atelierVue = 'commandes';
+let _atelierDepenses = [], _atelierObjectif = null;
+const _MOD_STATUTS = {
+  recue:   { label: 'Nouvelle',  color: '#E8940A', bg: 'rgba(232,148,10,.16)', next: 'en_cours', nextLabel: 'Commencer' },
+  en_cours:{ label: 'En couture',color: '#b9a5ff', bg: 'rgba(126,92,255,.15)', next: 'prete',    nextLabel: 'Prête ✓' },
+  prete:   { label: 'Prête',     color: '#3FB27F', bg: 'rgba(63,178,127,.15)', next: 'livree',   nextLabel: 'Livrée' },
+  livree:  { label: 'Livrée',    color: 'rgba(252,224,168,.6)', bg: 'rgba(252,224,168,.1)', next: null },
+  annulee: { label: 'Annulée',   color: '#E5533C', bg: 'rgba(229,83,60,.14)', next: null }
+};
+const _MESURE_CHAMPS = [['poitrine','Poitrine'],['taille','Taille'],['hanches','Hanches'],['longueur','Longueur'],['epaule','Épaule'],['manche','Manche']];
+
+async function loadAtelierPro() {
+  const host = document.getElementById('atelier-pro');
+  if (!host || !currentUser || !window.supabase) return;
+  try {
+    const { data } = await window.supabase.from('wozali_commandes').select('*').eq('prestataire_user_id', currentUser.id).eq('type', 'modele').limit(200);
+    _atelierCommandes = (data || []).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  } catch (e) { _atelierCommandes = []; }
+  try {
+    const { data } = await window.supabase.from('wozali_clientes').select('*').eq('user_id', currentUser.id).order('updated_at', { ascending: false });
+    _atelierClientes = data || [];
+  } catch (e) { _atelierClientes = []; }
+  try { const { data } = await window.supabase.from('wozali_depenses').select('*').eq('user_id', currentUser.id).limit(200); _atelierDepenses = data || []; } catch (e) { _atelierDepenses = []; }
+  try { const { data } = await window.supabase.from('wozali_objectifs').select('*').eq('user_id', currentUser.id).eq('mois', _moisKey()).maybeSingle(); _atelierObjectif = data || null; } catch (e) { _atelierObjectif = null; }
+  renderAtelier();
+}
+
+function computeAtelier() {
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7);
+  const livrees = _atelierCommandes.filter(c => c.statut === 'livree' && (!c.created_at || new Date(c.created_at) >= monthStart));
+  const ca = livrees.reduce((s, c) => s + _cmdPrixNum(c.prix_txt) * (c.quantite || 1), 0);
+  const enCours = _atelierCommandes.filter(c => ['recue', 'en_cours', 'prete'].includes(c.statut)).length;
+  const aLivrer = _atelierCommandes.filter(c => c.statut !== 'livree' && c.statut !== 'annulee' && c.date_livraison && new Date(c.date_livraison + 'T00:00:00') >= today && new Date(c.date_livraison + 'T00:00:00') < weekEnd).length;
+  return { ca, enCours, aLivrer, livrees };
+}
+
+function switchAtelierVue(vue) {
+  _atelierVue = vue;
+  const isFin = vue === 'finances';
+  const bb = document.getElementById('btn-atelier-cmd'), bf = document.getElementById('btn-atelier-fin');
+  if (bb) { bb.style.background = isFin ? 'transparent' : '#E8940A'; bb.style.color = isFin ? 'rgba(252,224,168,.6)' : '#14100A'; }
+  if (bf) { bf.style.background = isFin ? '#E8940A' : 'transparent'; bf.style.color = isFin ? '#14100A' : 'rgba(252,224,168,.6)'; }
+  const a = document.getElementById('atelier-vue-cmd'), f = document.getElementById('atelier-vue-fin');
+  if (a) a.style.display = isFin ? 'none' : '';
+  if (f) f.style.display = isFin ? '' : 'none';
+  if (isFin) renderAtelierFinances();
+}
+
+function renderAtelier() {
+  const host = document.getElementById('atelier-pro');
+  if (!host) return;
+  host.innerHTML = `
+    <div style="display:inline-flex;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:4px;margin-bottom:18px;">
+      <button id="btn-atelier-cmd" onclick="switchAtelierVue('commandes')" style="min-height:38px;padding:8px 18px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">🧵 Commandes</button>
+      <button id="btn-atelier-fin" onclick="switchAtelierVue('finances')" style="min-height:38px;padding:8px 18px;background:transparent;color:rgba(252,224,168,.6);border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">💰 Finances</button>
+    </div>
+    <div id="atelier-vue-cmd"></div>
+    <div id="atelier-vue-fin" style="display:none;"></div>`;
+  renderAtelierCommandes();
+}
+
+function _clienteOrders(nom) {
+  const n = (nom || '').trim().toLowerCase();
+  return _atelierCommandes.filter(c => (c.client_nom || '').trim().toLowerCase() === n);
+}
+
+function renderAtelierCommandes() {
+  const el = document.getElementById('atelier-vue-cmd');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const m = computeAtelier();
+
+  const kpi = (lab, val, sub) => `<div style="flex:1;min-width:130px;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:16px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:26px;color:#FCE0A8;margin-top:8px;line-height:1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.45);margin-top:6px;">${sub}</div>` : ''}</div>`;
+
+  // Commandes en cours
+  const enCours = _atelierCommandes.filter(c => c.statut !== 'livree' && c.statut !== 'annulee')
+    .sort((a, b) => (a.date_livraison || '9999').localeCompare(b.date_livraison || '9999'));
+  const cmdRows = enCours.slice(0, 12).map(c => {
+    const st = _MOD_STATUTS[c.statut] || _MOD_STATUTS.recue;
+    const nom = escapeHtml(c.client_nom || 'Cliente');
+    const mod = escapeHtml(c.item_nom || 'Modèle');
+    const prix = c.prix_txt ? escapeHtml(c.prix_txt) : '';
+    let livr = '';
+    if (c.date_livraison) { const d = new Date(c.date_livraison + 'T00:00:00'); livr = 'à livrer ' + d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }); }
+    const meta = [prix, livr].filter(Boolean).join(' · ');
+    const nextBtn = st.next ? `<button onclick="updateModeleStatut('${escapeHtml(c.id)}','${st.next}')" style="min-height:32px;padding:6px 13px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">${st.nextLabel}</button>` : '';
+    return `<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 0;border-top:1px solid rgba(252,224,168,.07);">
+        <div style="min-width:0;"><div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${nom} · <span style="color:#E8940A;">${mod}</span></div><div style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,.55);margin-top:2px;">${meta || 'reçue'}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <button onclick="ouvrirDateLivraison('${escapeHtml(c.id)}')" title="Date de livraison" style="min-height:32px;padding:6px 10px;background:rgba(232,148,10,.12);color:#E8940A;border:none;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;">📅</button>
+          <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:${st.bg};color:${st.color};">${st.label}</span>
+          ${nextBtn}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Fiches clientes
+  const cliCards = _atelierClientes.map(cl => {
+    const mez = cl.mesures || {};
+    const resume = _MESURE_CHAMPS.filter(([k]) => mez[k]).slice(0, 3).map(([k, lab]) => `${lab.charAt(0)}:${escapeHtml(String(mez[k]))}`).join(' · ');
+    const orders = _clienteOrders(cl.nom).filter(o => o.statut !== 'livree' && o.statut !== 'annulee' && o.date_livraison).sort((a, b) => a.date_livraison.localeCompare(b.date_livraison));
+    const nextLiv = orders[0] ? ('📅 ' + new Date(orders[0].date_livraison + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + ' · ' + escapeHtml(orders[0].item_nom || '')) : '';
+    const initial = escapeHtml((cl.nom || 'C').charAt(0).toUpperCase());
+    return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#E8940A,#b56f05);color:#14100A;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:17px;flex-shrink:0;">${initial}</div>
+          <div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;color:#FCE0A8;">${escapeHtml(cl.nom)}</div>${resume ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.5);margin-top:2px;">${resume}</div>` : '<div style="font-family:Geist,sans-serif;font-size:11px;color:rgba(252,224,168,.4);margin-top:2px;">Pas de mesures</div>'}</div>
+          <button onclick="ouvrirFicheCliente('${escapeHtml(cl.id)}')" style="background:rgba(232,148,10,.12);color:#E8940A;border:none;border-radius:100px;padding:6px 12px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Voir</button>
+        </div>
+        ${nextLiv ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:#3FB27F;">${nextLiv}</div>` : ''}
+      </div>`;
+  }).join('');
+
+  // Modèles qui plaisent
+  const byMod = {}; _atelierCommandes.forEach(c => { if (c.statut !== 'annulee') { const k = c.item_nom || 'Modèle'; byMod[k] = (byMod[k] || 0) + 1; } });
+  const best = Object.entries(byMod).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const maxB = best.length ? best[0][1] : 1;
+  const bestBars = best.length ? best.map(([n, v]) => `<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><b style="font-weight:600;color:#FCE0A8;">${escapeHtml(n)}</b><span style="font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);">${v} commande${v > 1 ? 's' : ''}</span></div><div style="height:10px;background:#2a2113;border-radius:100px;overflow:hidden;"><div style="height:100%;width:${Math.round(v / maxB * 100)}%;background:linear-gradient(90deg,#E8940A,#f2ad3c);border-radius:100px;"></div></div></div>`).join('') : `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Tes modèles les plus demandés apparaîtront ici.</div>`;
+
+  const cliBloc = `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">📏 Fiches mesures clientes</h3><button onclick="ouvrirFicheCliente()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Nouvelle cliente</button></div>
+      ${_atelierClientes.length ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">${cliCards}</div>` : `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.45);">Ajoute une cliente et note ses mesures — tu les retrouves à chaque modèle, fini le carnet.</div>`}
+    </div>`;
+
+  const analytics = `<div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">Modèles qui plaisent</h3>${bestBars}</div>`;
+
+  // Sandy assistant
+  const sandyBox = `<div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:20px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;">Demande à Sandy</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;">Ton assistante · elle connaît tes clientes</div></div></div>
+      <div id="atelier-sandy-rep" style="display:none;background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px 16px;font-family:Geist,sans-serif;font-size:14px;line-height:1.6;color:rgba(252,224,168,.85);margin-bottom:12px;"></div>
+      <div style="display:flex;gap:10px;align-items:center;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:6px 6px 6px 16px;">
+        <input id="atelier-sandy-input" type="text" placeholder="Ex : les mesures de Aïcha ? · c'est pour quand la livraison de Rita ?" onkeydown="if(event.key==='Enter')atelierSandyAsk()" style="flex:1;background:transparent;border:none;outline:none;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;">
+        <button onclick="atelierSandyAsk()" style="width:38px;height:38px;border-radius:50%;background:#E8940A;color:#14100A;border:none;font-weight:800;cursor:pointer;flex-shrink:0;">↑</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+        <button onclick="atelierSandyQuick('mes commandes en cours')" style="font-family:Geist,sans-serif;font-size:12px;background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:6px 12px;cursor:pointer;">Mes commandes en cours</button>
+        <button onclick="atelierSandyQuick('prochaines livraisons')" style="font-family:Geist,sans-serif;font-size:12px;background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:6px 12px;cursor:pointer;">Prochaines livraisons</button>
+        <button onclick="atelierSandyQuick('mon meilleur modèle')" style="font-family:Geist,sans-serif;font-size:12px;background:rgba(232,148,10,.1);color:#E8940A;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:6px 12px;cursor:pointer;">Mon meilleur modèle</button>
+      </div>
+    </div>`;
+
+  const analyticsGated = isPro ? (cliBloc + analytics + sandyBox) : `<div style="position:relative;border-radius:18px;overflow:hidden;">${cliBloc}<div style="filter:blur(6px);opacity:.5;pointer-events:none;">${analytics + sandyBox}</div><div style="position:absolute;left:0;right:0;bottom:0;top:${_atelierClientes.length ? '200px' : '120px'};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(20,16,10,.55);text-align:center;padding:20px;"><div style="width:46px;height:46px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:22px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;">Passe Pro pour l'atelier complet</div><div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);max-width:280px;">Modèles qui plaisent, Sandy ton assistante, et ton bénéfice. 2 500 F/mois.</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:13px;padding:10px 20px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`;
+
+  el.innerHTML = `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+      ${kpi('Commandes en cours', m.enCours, 'à confectionner')}
+      ${kpi('À livrer cette semaine', m.aLivrer, m.aLivrer ? 'tiens tes délais' : '—')}
+      ${isPro ? kpi('CA du mois', m.ca ? m.ca.toLocaleString('fr-FR') + ' F' : '—', 'modèles livrés') : ''}
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:8px;">🧵 Commandes en cours</h3>
+      ${enCours.length ? cmdRows : `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.45);padding:8px 0;">Aucune commande en cours. Quand une cliente commande un modèle, il apparaît ici.</div>`}
+    </div>
+    ${analyticsGated}`;
+}
+
+async function updateModeleStatut(id, statut) {
+  const c = _atelierCommandes.find(x => x.id === id);
+  if (!c || !currentUser || !window.supabase) return;
+  try {
+    const { error } = await window.supabase.from('wozali_commandes').update({ statut }).eq('id', id).eq('prestataire_user_id', currentUser.id);
+    if (error) throw error;
+    c.statut = statut;
+    renderAtelierCommandes();
+    if (_atelierVue === 'finances') renderAtelierFinances();
+    toast(statut === 'livree' ? 'Modèle livré ✓ compté dans ton CA.' : statut === 'en_cours' ? 'En couture 🧵' : 'Modèle prêt ✓', 'success');
+    if (c.client_user_id && statut !== c.client_user_id) { try { pushNotif(c.client_user_id, { type: 'commande', titre: 'Ta commande avance', message: `Ton ${c.item_nom || 'modèle'} est ${(_MOD_STATUTS[statut] || {}).label || statut}.` }); } catch (e) {} }
+  } catch (e) { console.error('❌ updateModeleStatut', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+function ouvrirDateLivraison(id) {
+  const c = _atelierCommandes.find(x => x.id === id);
+  if (!c) return;
+  const old = document.getElementById('datelivr-modal'); if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'datelivr-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:440px;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;"><div style="font-family:'DM Serif Display',serif;font-size:21px;color:#FCE0A8;">Date de livraison</div><button onclick="document.getElementById('datelivr-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button></div>
+      <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-bottom:14px;">${escapeHtml(c.client_nom || 'Cliente')} · ${escapeHtml(c.item_nom || 'Modèle')}</div>
+      <input id="datelivr-input" type="date" value="${c.date_livraison || ''}" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:16px;margin-bottom:18px;">
+      <button onclick="saveDateLivraison('${escapeHtml(id)}')" style="width:100%;min-height:50px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Enregistrer</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+async function saveDateLivraison(id) {
+  const c = _atelierCommandes.find(x => x.id === id);
+  const val = document.getElementById('datelivr-input')?.value || null;
+  if (!c || !currentUser || !window.supabase) return;
+  try {
+    await window.supabase.from('wozali_commandes').update({ date_livraison: val }).eq('id', id).eq('prestataire_user_id', currentUser.id);
+    c.date_livraison = val;
+    document.getElementById('datelivr-modal')?.remove();
+    renderAtelierCommandes();
+    toast('Date enregistrée 📅', 'success');
+  } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+// ── Fiche cliente (mesures) ──
+function ouvrirFicheCliente(id) {
+  const cl = id ? _atelierClientes.find(x => x.id === id) : null;
+  const mez = (cl && cl.mesures) || {};
+  const old = document.getElementById('cliente-modal'); if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'cliente-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  const champs = _MESURE_CHAMPS.map(([k, lab]) => `<div><label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:5px;">${lab} (cm)</label><input id="cli-mez-${k}" type="text" inputmode="numeric" value="${mez[k] != null ? escapeHtml(String(mez[k])) : ''}" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;"></div>`).join('');
+  const orders = cl ? _clienteOrders(cl.nom) : [];
+  const ordersHtml = orders.length ? `<div style="margin-top:16px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Ses commandes</div>${orders.map(o => { const st = _MOD_STATUTS[o.statut] || _MOD_STATUTS.recue; const liv = o.date_livraison ? ' · à livrer ' + new Date(o.date_livraison + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''; return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:#FCE0A8;">${escapeHtml(o.item_nom || 'Modèle')}${liv}</span><span style="font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;padding:3px 9px;border-radius:100px;background:${st.bg};color:${st.color};">${st.label}</span></div>`; }).join('')}</div>` : '';
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;"><div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;">${cl ? 'Fiche cliente' : 'Nouvelle cliente'}</div><button onclick="document.getElementById('cliente-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div><label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:5px;">Nom *</label><input id="cli-nom" type="text" value="${cl ? escapeHtml(cl.nom || '') : ''}" placeholder="Ex : Aïcha K." style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;"></div>
+        <div><label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:5px;">Téléphone</label><input id="cli-tel" type="text" value="${cl ? escapeHtml(cl.telephone || '') : ''}" placeholder="Optionnel" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;"></div>
+      </div>
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;margin-bottom:8px;">📏 Mesures (cm)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">${champs}</div>
+      <div><label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:5px;">Notes</label><textarea id="cli-notes" rows="2" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:10px 12px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;resize:vertical;">${cl ? escapeHtml(cl.notes || '') : ''}</textarea></div>
+      ${ordersHtml}
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button onclick="saveFicheCliente('${cl ? escapeHtml(cl.id) : ''}')" style="flex:1;min-height:48px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Enregistrer</button>
+        ${cl ? `<button onclick="supprimerCliente('${escapeHtml(cl.id)}')" style="min-height:48px;padding:0 18px;background:transparent;color:rgba(229,83,60,.8);border:1px solid rgba(229,83,60,.3);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Supprimer</button>` : ''}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('cli-nom')?.focus(), 100);
+}
+async function saveFicheCliente(id) {
+  const nom = (document.getElementById('cli-nom')?.value || '').trim();
+  if (!nom) { toast('Donne au moins un nom.', 'error'); return; }
+  const telephone = (document.getElementById('cli-tel')?.value || '').trim() || null;
+  const notes = (document.getElementById('cli-notes')?.value || '').trim() || null;
+  const mesures = {};
+  _MESURE_CHAMPS.forEach(([k]) => { const v = (document.getElementById('cli-mez-' + k)?.value || '').replace(/[^\d.]/g, ''); if (v) mesures[k] = v; });
+  if (!currentUser || !window.supabase) return;
+  try {
+    if (id) {
+      await window.supabase.from('wozali_clientes').update({ nom, telephone, mesures, notes, updated_at: new Date().toISOString() }).eq('id', id).eq('user_id', currentUser.id);
+      const cl = _atelierClientes.find(x => x.id === id); if (cl) Object.assign(cl, { nom, telephone, mesures, notes });
+    } else {
+      const { data } = await window.supabase.from('wozali_clientes').insert({ user_id: currentUser.id, nom, telephone, mesures, notes }).select();
+      if (data && data[0]) _atelierClientes.unshift(data[0]);
+    }
+    document.getElementById('cliente-modal')?.remove();
+    renderAtelierCommandes();
+    toast('Fiche cliente enregistrée.', 'success');
+  } catch (e) { console.error('❌ saveFicheCliente', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+async function supprimerCliente(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  if (!confirm('Supprimer cette fiche cliente ?')) return;
+  try {
+    await window.supabase.from('wozali_clientes').delete().eq('id', id).eq('user_id', currentUser.id);
+    _atelierClientes = _atelierClientes.filter(x => x.id !== id);
+    document.getElementById('cliente-modal')?.remove();
+    renderAtelierCommandes();
+    toast('Fiche supprimée.', 'success');
+  } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+// ── Sandy assistante (rule-based, lit les vraies données de l'atelier) ──
+function atelierSandyQuick(q) { const i = document.getElementById('atelier-sandy-input'); if (i) i.value = q; atelierSandyAsk(); }
+function atelierSandyAsk() {
+  const input = document.getElementById('atelier-sandy-input');
+  const rep = document.getElementById('atelier-sandy-rep');
+  if (!input || !rep) return;
+  const q = (input.value || '').trim(); if (!q) return;
+  const ql = q.toLowerCase();
+  let out = '';
+  const findCliente = () => {
+    // cherche un nom de cliente mentionné dans la question
+    return _atelierClientes.find(cl => ql.includes((cl.nom || '').toLowerCase().split(' ')[0]) && (cl.nom || '').length > 1)
+      || _atelierClientes.find(cl => ql.includes((cl.nom || '').toLowerCase()));
+  };
+  if (/mesure/.test(ql)) {
+    const cl = findCliente();
+    if (cl && cl.mesures && Object.keys(cl.mesures).length) {
+      const m = cl.mesures;
+      out = `📏 Mesures de <b>${escapeHtml(cl.nom)}</b> : ` + _MESURE_CHAMPS.filter(([k]) => m[k]).map(([k, lab]) => `${lab} ${escapeHtml(String(m[k]))} cm`).join(' · ') + (cl.notes ? `<br><span style="color:rgba(252,224,168,.6);">Note : ${escapeHtml(cl.notes)}</span>` : '');
+    } else if (cl) out = `J'ai la fiche de <b>${escapeHtml(cl.nom)}</b> mais pas encore ses mesures. Ouvre sa fiche pour les ajouter.`;
+    else out = _atelierClientes.length ? `Dis-moi laquelle : ${_atelierClientes.slice(0, 6).map(c => escapeHtml(c.nom)).join(', ')}.` : `Tu n'as pas encore de fiche cliente. Ajoute-en une avec « + Nouvelle cliente ».`;
+  } else if (/livr|quand|délai|delai/.test(ql)) {
+    const cl = findCliente();
+    let orders = _atelierCommandes.filter(o => o.statut !== 'livree' && o.statut !== 'annulee' && o.date_livraison);
+    if (cl) orders = orders.filter(o => (o.client_nom || '').toLowerCase().includes((cl.nom || '').toLowerCase().split(' ')[0]));
+    orders.sort((a, b) => a.date_livraison.localeCompare(b.date_livraison));
+    if (orders.length) out = (cl ? `Pour <b>${escapeHtml(cl.nom)}</b> : ` : `Tes prochaines livraisons : `) + orders.slice(0, 5).map(o => `${escapeHtml(o.item_nom || 'Modèle')} (${escapeHtml(o.client_nom || '')}) le <b>${new Date(o.date_livraison + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</b>`).join(' · ');
+    else out = cl ? `Aucune livraison datée pour ${escapeHtml(cl.nom)}. Mets une date avec le 📅 sur sa commande.` : `Aucune date de livraison enregistrée. Mets-en avec le bouton 📅 sur tes commandes.`;
+  } else if (/combien|en cours|commande/.test(ql)) {
+    const m = computeAtelier();
+    out = `Tu as <b>${m.enCours}</b> commande${m.enCours > 1 ? 's' : ''} en cours, dont <b>${m.aLivrer}</b> à livrer cette semaine.`;
+  } else if (/meilleur|phare|plait|plais|cartonne|vend/.test(ql)) {
+    const byMod = {}; _atelierCommandes.forEach(c => { if (c.statut !== 'annulee') { const k = c.item_nom || 'Modèle'; byMod[k] = (byMod[k] || 0) + 1; } });
+    const top = Object.entries(byMod).sort((a, b) => b[1] - a[1])[0];
+    out = top ? `🔥 Ton modèle phare c'est <b>${escapeHtml(top[0])}</b> (${top[1]} commande${top[1] > 1 ? 's' : ''}). Mets-le en avant dans ton book.` : `Pas encore assez de commandes pour te dire ça.`;
+  } else {
+    out = `Je peux te dire : les <b>mesures</b> d'une cliente, la <b>date de livraison</b> d'une commande, tes <b>commandes en cours</b> ou ton <b>meilleur modèle</b>. Demande-moi 🙂`;
+  }
+  rep.style.display = 'block';
+  rep.innerHTML = out;
+  input.value = '';
+}
+
+function renderAtelierFinances() {
+  const el = document.getElementById('atelier-vue-fin');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const m = computeAtelier();
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const charges = (_atelierDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).reduce((s, d) => s + (d.montant || 0), 0);
+  const benefice = m.ca - charges;
+  const box = (lab, val, sub, accent) => `<div style="flex:1;min-width:150px;background:#1E180E;border:1px solid ${accent ? 'rgba(63,178,127,.35)' : 'rgba(232,148,10,.15)'};border-radius:18px;padding:20px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:${accent ? '#3FB27F' : '#FCE0A8'};margin-top:10px;line-height:1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${accent ? '#3FB27F' : 'rgba(252,224,168,.45)'};margin-top:7px;">${sub}</div>` : ''}</div>`;
+  let objBloc;
+  if (_atelierObjectif && _atelierObjectif.montant) {
+    const pct = Math.max(0, Math.min(100, Math.round(m.ca / _atelierObjectif.montant * 100)));
+    const today = new Date().getDate(), dim = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+    const proj = today > 0 ? Math.round(m.ca / today * dim) : m.ca;
+    objBloc = `<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;"><span style="font-family:'DM Serif Display',serif;font-size:28px;color:#FCE0A8;">${m.ca.toLocaleString('fr-FR')} F</span><span style="font-family:'Geist Mono',monospace;font-size:13px;color:rgba(252,224,168,.5);">/ ${_atelierObjectif.montant.toLocaleString('fr-FR')} F</span></div><div style="height:14px;background:#2a2113;border-radius:100px;overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#E8940A,#f2ad3c);border-radius:100px;"></div></div><div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);">${pct}% atteint · à ce rythme tu finis à <b style="color:${proj >= _atelierObjectif.montant ? '#3FB27F' : '#FCE0A8'};">${proj.toLocaleString('fr-FR')} F</b></div>`;
+  } else {
+    objBloc = `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-bottom:14px;">Fixe ton objectif de CA du mois.</div><div style="display:flex;gap:10px;flex-wrap:wrap;"><input id="atelier-obj-input" type="text" inputmode="numeric" placeholder="Ex : 120000" style="flex:1;min-width:160px;background:#14100A;border:1px solid rgba(232,148,10,.25);border-radius:12px;padding:11px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;"><button onclick="saveAtelierObjectif()" style="min-height:44px;padding:10px 20px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Fixer</button></div>`;
+  }
+  const bilan = [];
+  if (!m.livrees.length) bilan.push(`Marque tes modèles « Livrée » au fur et à mesure — je te fais ton bilan dès que l'argent rentre.`);
+  else {
+    if (_atelierObjectif && _atelierObjectif.montant) { const pct = Math.round(m.ca / _atelierObjectif.montant * 100); bilan.push(`Tu es à <b>${pct}%</b> de ton objectif (<b class="kfig">${m.ca.toLocaleString('fr-FR')} F</b>).`); }
+    const byMod = {}; m.livrees.forEach(c => { const k = c.item_nom || 'Modèle'; byMod[k] = (byMod[k] || 0) + 1; });
+    const top = Object.entries(byMod).sort((a, b) => b[1] - a[1])[0];
+    if (top) bilan.push(`🔥 <b>${escapeHtml(top[0])}</b> est ton modèle phare — propose un tarif « fêtes » ou un lot.`);
+    if (m.enCours >= 4) bilan.push(`Tu as ${m.enCours} commandes en cours — attention aux délais, note bien tes dates de livraison.`);
+  }
+  const contenu = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+      ${box('CA du mois', m.ca.toLocaleString('fr-FR') + ' F', m.livrees.length + ' modèle' + (m.livrees.length > 1 ? 's' : '') + ' livré' + (m.livrees.length > 1 ? 's' : ''))}
+      ${box('Charges du mois', charges.toLocaleString('fr-FR') + ' F', 'tissu, fils, loyer…')}
+      ${box('Bénéfice net · ce mois', benefice.toLocaleString('fr-FR') + ' F', 'CA − charges', true)}
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">🎯 Objectif du mois</h3>${objBloc}</div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>${(_atelierDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge ce mois.</div>`}</div>
+    <div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:22px;"><div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;"><div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:22px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;">Sandy · ton bilan</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#E8940A;">Lu sur tes commandes</div></div></div><div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${bilan.map(l => `<div style="margin-bottom:8px;">${l}</div>`).join('')}</div></div>`;
+  if (isPro) { el.innerHTML = contenu; return; }
+  el.innerHTML = `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(7px);opacity:.5;pointer-events:none;">${contenu}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,16,10,.6);text-align:center;padding:24px;"><div style="width:54px;height:54px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:26px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;">Tes finances, avec Sandy</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:14px;padding:12px 24px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`;
+}
+async function saveAtelierObjectif() {
+  const raw = (document.getElementById('atelier-obj-input')?.value || '').replace(/\D/g, '');
+  const montant = raw ? parseInt(raw) : 0;
+  if (!montant || montant < 1000) { toast('Indique un objectif.', 'error'); return; }
+  if (!currentUser || !window.supabase) return;
+  try {
+    await window.supabase.from('wozali_objectifs').upsert({ user_id: currentUser.id, mois: _moisKey(), type: 'ca', montant }, { onConflict: 'user_id,mois' });
+    _atelierObjectif = { mois: _moisKey(), type: 'ca', montant };
+    renderAtelierFinances();
+    toast('Objectif fixé 🎯', 'success');
+  } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+window.loadAtelierPro = loadAtelierPro;
+window.switchAtelierVue = switchAtelierVue;
+window.updateModeleStatut = updateModeleStatut;
+window.ouvrirDateLivraison = ouvrirDateLivraison;
+window.saveDateLivraison = saveDateLivraison;
+window.ouvrirFicheCliente = ouvrirFicheCliente;
+window.saveFicheCliente = saveFicheCliente;
+window.supprimerCliente = supprimerCliente;
+window.atelierSandyAsk = atelierSandyAsk;
+window.atelierSandyQuick = atelierSandyQuick;
+window.saveAtelierObjectif = saveAtelierObjectif;
 
 // ══ Prestations & tarifs — éditeur dashboard (section ds-prestations) ══
 // Mirroir de la boutique : CRUD sur wozali_prestations, s'affiche sur le profil
@@ -4006,6 +4382,7 @@ async function commanderModele(modeleId, nom, prixTxt) {
     type:                'modele',
     item_id:             modeleId,
     item_nom:            itemNom,
+    client_nom:          clientNom,
     prix_txt:            pTxt,
     statut:              'recue'
   };
@@ -4024,7 +4401,9 @@ async function commanderModele(modeleId, nom, prixTxt) {
         message: `${clientNom} veut le modèle « ${itemNom} ».`
       });
     } catch (e) { /* fire-and-forget */ }
-    toast(`Commande envoyée, ${itemNom} te répond dans la messagerie.`, 'success');
+    // Démarre une conversation (carte système modèle)
+    try { await demarrerConversation(puid, `Commande : ${itemNom}`, { kind: 'modele', item: itemNom, prix: pTxt || '' }); } catch (e) {}
+    toast(`Commande envoyée ✓ Suis ça dans Messages.`, 'success');
   } catch (e) {
     console.error('❌ commanderModele', e.message || e);
     toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
