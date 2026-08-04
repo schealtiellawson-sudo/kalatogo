@@ -2582,6 +2582,7 @@ async function supprimerProduitCatalogue(id) {
     if (error) throw error;
     _boutiqueItems = _boutiqueItems.filter(it => it.id !== id);
     _renderBoutiqueList();
+    if (typeof renderBoutiqueDash === 'function') renderBoutiqueDash();
     toast('Produit supprimé.', 'success');
   } catch (e) {
     console.error('❌ supprimerProduitCatalogue', e.message || e);
@@ -2600,6 +2601,7 @@ async function toggleProduitActif(id) {
     if (error) throw error;
     it.actif = nouveau;
     _renderBoutiqueList();
+    if (typeof renderBoutiqueDash === 'function') renderBoutiqueDash();
   } catch (e) {
     console.error('❌ toggleProduitActif', e.message || e);
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
@@ -2664,6 +2666,7 @@ async function confirmerReappro() {
     it.stock_qty = newQty; it.stock_statut = newStatut; if (cout_achat != null) it.cout_achat = cout_achat;
     document.getElementById('reappro-modal')?.remove();
     _renderBoutiqueList();
+    renderBoutiqueDash(); // rafraîchit KPI + alertes rupture après réappro
     toast(`+${add} ajouté. Stock : ${newQty}.`, 'success');
   } catch (e) {
     console.error('❌ confirmerReappro', e.message || e);
