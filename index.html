@@ -3924,8 +3924,11 @@ setTimeout(function(){
             <h2 style="font-weight:400;color:#FCE0A8;">Mes <em style="color:#E8940A;font-style:italic;">réalisations</em></h2>
             <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Maçon, plombier, électricien, peintre, mécanicien… Montre tes chantiers finis. Le client voit ton travail et te demande un devis direct sur WOZALI.</p>
           </div>
-          <button onclick="ouvrirFormRealisation()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter une réalisation</button>
+          <button id="btn-ajouter-realisation" onclick="ouvrirFormRealisation()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter une réalisation</button>
         </div>
+
+        <!-- MON CHANTIER — dashboard pro (devis + pipeline + finances) -->
+        <div id="chantier-pro" style="margin-bottom:22px;"></div>
 
         <!-- Formulaire réalisation (masqué par défaut) -->
         <div id="realisation-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
@@ -7658,7 +7661,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260804resto1" defer></script>
+<script src="/app.js?v=20260804btp1" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

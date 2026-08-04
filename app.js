@@ -675,7 +675,7 @@ function showDashSection(section) {
   if (section === 'recompenses') loadRecompensesWidgets();
   if (section === 'boutique') loadBoutiqueSection();
   if (section === 'prestations') loadPrestationsSection();
-  if (section === 'realisations') loadRealisationsSection();
+  if (section === 'realisations') { loadRealisationsSection(); loadChantierPro(); }
   if (section === 'modeles') { loadModelesSection(); loadAtelierPro(); }
   if (section === 'packs') loadPacksSection();
   if (section === 'menu') { loadMenuSection(); loadRestoPro(); }
@@ -3152,12 +3152,14 @@ async function saveDepense() {
       if (typeof _salonDepenses !== 'undefined') _salonDepenses.unshift(data[0]);
       if (typeof _atelierDepenses !== 'undefined') _atelierDepenses.unshift(data[0]);
       if (typeof _restoDepenses !== 'undefined') _restoDepenses.unshift(data[0]);
+      if (typeof _chantierDepenses !== 'undefined') _chantierDepenses.unshift(data[0]);
     }
     document.getElementById('depense-modal')?.remove();
     if (typeof renderFinances === 'function' && document.getElementById('boutique-finances')) renderFinances();
     if (typeof renderSalonFinances === 'function' && document.getElementById('salon-vue-finances')) renderSalonFinances();
     if (typeof renderAtelierFinances === 'function' && document.getElementById('atelier-vue-fin')) renderAtelierFinances();
     if (typeof renderRestoRecettes === 'function' && document.getElementById('resto-vue-recettes')) renderRestoRecettes();
+    if (typeof renderChantierFinances === 'function' && document.getElementById('chantier-vue-fin')) renderChantierFinances();
     toast('Charge enregistrée.', 'success');
   } catch (e) { console.error('❌ saveDepense', e.message || e); toast('Ça a calé. Réessaie.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la charge'; } }
 }
@@ -4032,6 +4034,410 @@ window.renderRestoRecettes = renderRestoRecettes;
 window.saveRecetteJour = saveRecetteJour;
 window.supprimerDepenseResto = supprimerDepenseResto;
 
+// ══════════════════════════════════════════════════════════════
+// CLUSTER BTP — « MON CHANTIER » (créateur de devis + pipeline + finances)
+// ══════════════════════════════════════════════════════════════
+let _chantierDevis = [], _chantierDepenses = [], _chantierObjectif = null, _chantierVue = 'pipeline', _chantierFiltre = 'tous';
+const _DEVIS_ST = {
+  demande:   { label: 'Demande client', color: '#E8940A', bg: 'rgba(232,148,10,.16)' },
+  a_chiffrer:{ label: 'À chiffrer',     color: '#E8940A', bg: 'rgba(232,148,10,.16)' },
+  envoye:    { label: 'Devis envoyé',   color: '#b9a5ff', bg: 'rgba(126,92,255,.15)' },
+  accepte:   { label: 'Accepté',        color: '#3FB27F', bg: 'rgba(63,178,127,.15)' },
+  refuse:    { label: 'Refusé',         color: '#E5533C', bg: 'rgba(229,83,60,.14)' },
+  en_cours:  { label: 'En cours',       color: '#3FB27F', bg: 'rgba(63,178,127,.15)' },
+  termine:   { label: 'Terminé ✓',      color: 'rgba(252,224,168,.6)', bg: 'rgba(252,224,168,.1)' },
+  annule:    { label: 'Annulé',         color: '#E5533C', bg: 'rgba(229,83,60,.14)' }
+};
+const _fmtF = n => (Math.round(n) || 0).toLocaleString('fr-FR');
+
+async function loadChantierPro() {
+  const host = document.getElementById('chantier-pro');
+  if (!host || !currentUser || !window.supabase) return;
+  try { const { data } = await window.supabase.from('wozali_devis').select('*').eq('prestataire_user_id', currentUser.id).order('created_at', { ascending: false }).limit(200); _chantierDevis = data || []; } catch (e) { _chantierDevis = []; }
+  try { const { data } = await window.supabase.from('wozali_depenses').select('*').eq('user_id', currentUser.id).limit(200); _chantierDepenses = data || []; } catch (e) { _chantierDepenses = []; }
+  try { const { data } = await window.supabase.from('wozali_objectifs').select('*').eq('user_id', currentUser.id).eq('mois', _moisKey()).maybeSingle(); _chantierObjectif = data || null; } catch (e) { _chantierObjectif = null; }
+  renderChantier();
+}
+
+function computeChantier() {
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const aChiffrer = _chantierDevis.filter(d => ['demande', 'a_chiffrer'].includes(d.statut)).length;
+  const enCours = _chantierDevis.filter(d => ['accepte', 'en_cours'].includes(d.statut)).length;
+  const termMois = _chantierDevis.filter(d => d.statut === 'termine' && new Date((d.date_termine || d.created_at) + (String(d.date_termine || d.created_at).length === 10 ? 'T00:00:00' : '')) >= monthStart);
+  const ca = termMois.reduce((s, d) => s + (d.total || 0), 0);
+  const chiffres = _chantierDevis.filter(d => ['envoye', 'accepte', 'refuse', 'en_cours', 'termine'].includes(d.statut));
+  const gagnes = _chantierDevis.filter(d => ['accepte', 'en_cours', 'termine'].includes(d.statut));
+  const taux = chiffres.length ? Math.round(gagnes.length / chiffres.length * 100) : 0;
+  return { aChiffrer, enCours, ca, taux, nbChiffres: chiffres.length, nbGagnes: gagnes.length };
+}
+
+function switchChantierVue(vue) {
+  _chantierVue = vue;
+  const isF = vue === 'finances';
+  const bp = document.getElementById('btn-chantier-pipe'), bf = document.getElementById('btn-chantier-fin');
+  if (bp) { bp.style.background = isF ? 'transparent' : '#E8940A'; bp.style.color = isF ? 'rgba(252,224,168,.6)' : '#14100A'; }
+  if (bf) { bf.style.background = isF ? '#E8940A' : 'transparent'; bf.style.color = isF ? '#14100A' : 'rgba(252,224,168,.6)'; }
+  const a = document.getElementById('chantier-vue-pipe'), f = document.getElementById('chantier-vue-fin');
+  if (a) a.style.display = isF ? 'none' : '';
+  if (f) f.style.display = isF ? '' : 'none';
+  if (isF) renderChantierFinances();
+}
+
+function renderChantier() {
+  const host = document.getElementById('chantier-pro');
+  if (!host) return;
+  host.innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+      <div style="display:inline-flex;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:4px;">
+        <button id="btn-chantier-pipe" onclick="switchChantierVue('pipeline')" style="min-height:38px;padding:8px 18px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">📐 Devis &amp; chantiers</button>
+        <button id="btn-chantier-fin" onclick="switchChantierVue('finances')" style="min-height:38px;padding:8px 18px;background:transparent;color:rgba(252,224,168,.6);border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">💰 Finances</button>
+      </div>
+      <button onclick="ouvrirDevisEditeur()" style="margin-left:auto;min-height:44px;padding:10px 20px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">🧾 Nouveau devis</button>
+    </div>
+    <div id="chantier-vue-pipe"></div>
+    <div id="chantier-vue-fin" style="display:none;"></div>`;
+  renderChantierPipeline();
+}
+
+function renderChantierPipeline() {
+  const el = document.getElementById('chantier-vue-pipe');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const m = computeChantier();
+  const kpi = (lab, val, sub, col) => `<div style="flex:1;min-width:130px;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:16px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:26px;color:#FCE0A8;margin-top:8px;line-height:1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${col || 'rgba(252,224,168,.45)'};margin-top:6px;">${sub}</div>` : ''}</div>`;
+
+  // Filtre statut (chantiers passés / en cours…)
+  const filtres = [['tous', 'Tous'], ['a_chiffrer', 'À chiffrer'], ['envoye', 'Envoyés'], ['en_cours', 'En cours'], ['termine', 'Terminés']];
+  const filtreBar = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">${filtres.map(([v, l]) => `<button onclick="setChantierFiltre('${v}')" style="font-family:Geist,sans-serif;font-size:12px;font-weight:${_chantierFiltre === v ? '800' : '600'};background:${_chantierFiltre === v ? '#E8940A' : 'rgba(232,148,10,.1)'};color:${_chantierFiltre === v ? '#14100A' : '#E8940A'};border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:7px 14px;cursor:pointer;">${l}</button>`).join('')}</div>`;
+
+  let liste = _chantierDevis.slice();
+  if (_chantierFiltre === 'a_chiffrer') liste = liste.filter(d => ['demande', 'a_chiffrer'].includes(d.statut));
+  else if (_chantierFiltre === 'envoye') liste = liste.filter(d => d.statut === 'envoye');
+  else if (_chantierFiltre === 'en_cours') liste = liste.filter(d => ['accepte', 'en_cours'].includes(d.statut));
+  else if (_chantierFiltre === 'termine') liste = liste.filter(d => d.statut === 'termine');
+
+  const rows = liste.slice(0, 40).map(d => {
+    const st = _DEVIS_ST[d.statut] || _DEVIS_ST.a_chiffrer;
+    const client = escapeHtml(d.client_nom || 'Client');
+    const objet = escapeHtml(d.objet || d.description || 'Chantier');
+    const mt = d.total ? _fmtF(d.total) + ' F' : '';
+    // actions selon statut
+    let act = '';
+    if (['demande', 'a_chiffrer'].includes(d.statut)) act = `<button onclick="ouvrirDevisEditeur('${escapeHtml(d.id)}')" style="min-height:32px;padding:6px 13px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">Faire le devis</button>`;
+    else if (d.statut === 'envoye') act = `<button onclick="majDevisStatut('${escapeHtml(d.id)}','accepte')" style="min-height:32px;padding:6px 13px;background:rgba(63,178,127,.15);color:#3FB27F;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">Accepté</button><button onclick="majDevisStatut('${escapeHtml(d.id)}','refuse')" style="min-height:32px;padding:6px 10px;background:transparent;color:rgba(252,224,168,.5);border:1px solid rgba(252,224,168,.15);border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Refusé</button>`;
+    else if (d.statut === 'accepte') act = `<button onclick="majDevisStatut('${escapeHtml(d.id)}','en_cours')" style="min-height:32px;padding:6px 13px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">Démarrer</button>`;
+    else if (d.statut === 'en_cours') act = `<button onclick="majDevisStatut('${escapeHtml(d.id)}','termine')" style="min-height:32px;padding:6px 13px;background:rgba(63,178,127,.15);color:#3FB27F;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:800;cursor:pointer;">Terminé</button>`;
+    const voir = d.lignes ? `<button onclick="apercuDevis('${escapeHtml(d.id)}')" title="Voir / PDF" style="min-height:32px;padding:6px 11px;background:rgba(232,148,10,.12);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Voir</button>` : '';
+    let when = '';
+    if (d.created_at) { const j = Math.floor((Date.now() - new Date(d.created_at)) / 86400000); when = j <= 0 ? "aujourd'hui" : (j === 1 ? 'hier' : 'il y a ' + j + ' j'); }
+    return `<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 0;border-top:1px solid rgba(252,224,168,.07);">
+        <div style="min-width:0;"><div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;">${client} · <span style="color:#E8940A;">${objet}</span></div><div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.5);margin-top:2px;">${[d.quartier ? escapeHtml(d.quartier) : '', when].filter(Boolean).join(' · ')}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">${mt ? `<span style="font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;color:#E8940A;">${mt}</span>` : ''}<span style="font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;padding:4px 10px;border-radius:100px;background:${st.bg};color:${st.color};">${st.label}</span>${voir}${act}</div>
+      </div>`;
+  }).join('');
+
+  // Sandy
+  let sandyMsg;
+  if (!_chantierDevis.length) sandyMsg = `Crée ton <b>premier devis</b> avec le bouton 🧾 — remplis tes lignes (ciment, main d'œuvre…), le total se calcule seul, tu l'envoies au client propre et pro en 2 minutes. <b>Aucun maçon du quartier ne donne un vrai devis écrit</b> — celui qui le fait gagne le chantier, c'est aussi simple que ça.`;
+  else {
+    const p = [];
+    if (m.aChiffrer) p.push(`⏳ Tu as <b>${m.aChiffrer} devis à faire</b> — réponds dans la journée, un client qui attend appelle un autre artisan demain.`);
+    if (m.nbChiffres >= 2) p.push(`Ton <b>taux d'acceptation est ${m.taux}%</b> (${m.nbGagnes}/${m.nbChiffres}). Ajoute une <b>photo de chantier fini</b> à tes devis, le client dit oui plus vite.`);
+    if (!p.length) p.push(`Continue à chiffrer proprement — un devis écrit et clair, c'est ce qui fait la différence avec les autres.`);
+    sandyMsg = p.join('<br><br>');
+  }
+  const sandy = `<div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:20px;"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:21px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;">Sandy · ton bras droit</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;">Elle suit tes devis pour toi</div></div></div><div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${sandyMsg}</div></div>`;
+
+  el.innerHTML = `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+      ${kpi('Devis à chiffrer', m.aChiffrer, m.aChiffrer ? 'réponds vite' : '—', m.aChiffrer ? '#E8940A' : 'rgba(252,224,168,.45)')}
+      ${kpi('Chantiers en cours', m.enCours, 'en travaux')}
+      ${isPro ? kpi('CA du mois', m.ca ? _fmtF(m.ca) + ' F' : '—', 'chantiers terminés') : ''}
+      ${isPro ? kpi('Devis acceptés', m.nbChiffres ? m.taux + '%' : '—', m.nbGagnes + '/' + m.nbChiffres) : ''}
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:12px;">📐 Tes devis &amp; chantiers</h3>
+      ${filtreBar}
+      ${liste.length ? rows : `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.45);padding:8px 0;">${_chantierDevis.length ? 'Aucun chantier dans ce filtre.' : 'Aucun devis. Clique « 🧾 Nouveau devis » pour créer ton premier.'}</div>`}
+    </div>
+    ${isPro ? sandy : `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(6px);opacity:.5;pointer-events:none;">${sandy}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(20,16,10,.55);text-align:center;padding:20px;"><div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:20px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;">Sandy suit tes devis pour toi</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:13px;padding:10px 20px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`}`;
+}
+function setChantierFiltre(v) { _chantierFiltre = v; renderChantierPipeline(); }
+
+async function majDevisStatut(id, statut) {
+  const d = _chantierDevis.find(x => x.id === id);
+  if (!d || !currentUser || !window.supabase) return;
+  const patch = { statut };
+  if (statut === 'termine') patch.date_termine = (() => { const x = new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })();
+  try {
+    await window.supabase.from('wozali_devis').update(patch).eq('id', id).eq('prestataire_user_id', currentUser.id);
+    Object.assign(d, patch);
+    renderChantierPipeline();
+    if (_chantierVue === 'finances') renderChantierFinances();
+    toast(statut === 'termine' ? 'Chantier terminé ✓ compté dans ton CA.' : statut === 'en_cours' ? 'Chantier démarré 🧱' : statut === 'accepte' ? 'Devis accepté ✓' : 'Devis mis à jour.', statut === 'refuse' ? 'error' : 'success');
+  } catch (e) { console.error('❌ majDevisStatut', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+// ── Créateur de devis (modale éditable, calcul live) ──
+function _devisEntDefaut() {
+  const f = (window.currentPrestataire && window.currentPrestataire.fields) || {};
+  const nom = f['Nom complet'] || f['Entreprise'] || 'Mon entreprise';
+  const metier = f['Métier principal'] || f['Métier'] || '';
+  const ville = [f['Quartier'], f['Ville']].filter(Boolean).join(', ');
+  const tel = f['WhatsApp'] || f['Téléphone'] || '';
+  const infos = [metier, ville, tel].filter(Boolean).join(' · ');
+  return { nom, infos };
+}
+function _devisLigneRow(l) {
+  l = l || { designation: '', qte: 1, unite: 'u', pu: 0 };
+  return `<tr>
+      <td style="padding:6px 8px;"><input class="dvf dv-des" value="${escapeHtml(l.designation || '')}" placeholder="Désignation" style="width:100%;background:rgba(232,148,10,.08);border:none;border-bottom:1px dashed #e2c78d;border-radius:4px;padding:6px;color:#14100A;font-family:Geist,sans-serif;font-size:13px;"></td>
+      <td style="padding:6px 8px;width:64px;"><input class="dvf dv-qte" value="${l.qte != null ? l.qte : 1}" inputmode="decimal" style="width:100%;text-align:right;background:rgba(232,148,10,.08);border:none;border-bottom:1px dashed #e2c78d;border-radius:4px;padding:6px;color:#14100A;font-family:'Geist Mono',monospace;font-size:13px;"></td>
+      <td style="padding:6px 8px;width:72px;"><input class="dvf dv-uni" value="${escapeHtml(l.unite || 'u')}" style="width:100%;background:rgba(232,148,10,.08);border:none;border-bottom:1px dashed #e2c78d;border-radius:4px;padding:6px;color:#14100A;font-family:Geist,sans-serif;font-size:13px;"></td>
+      <td style="padding:6px 8px;width:96px;"><input class="dvf dv-pu" value="${_fmtF(l.pu || 0)}" inputmode="numeric" style="width:100%;text-align:right;background:rgba(232,148,10,.08);border:none;border-bottom:1px dashed #e2c78d;border-radius:4px;padding:6px;color:#14100A;font-family:'Geist Mono',monospace;font-size:13px;"></td>
+      <td style="padding:6px 8px;width:96px;text-align:right;font-family:'Geist Mono',monospace;font-weight:600;color:#14100A;" class="dv-mt">0</td>
+      <td style="width:30px;"><button onclick="this.closest('tr').remove();_devisRecompute();" style="border:none;background:transparent;color:#c9bfae;font-size:15px;cursor:pointer;">✕</button></td>
+    </tr>`;
+}
+function _devisAddLigne() { document.getElementById('dv-lignes').insertAdjacentHTML('beforeend', _devisLigneRow()); _devisRecompute(); }
+function _devisNum(v) { return parseFloat((v || '').toString().replace(/[^\d.]/g, '')) || 0; }
+function _devisRecompute() {
+  let st = 0;
+  document.querySelectorAll('#dv-lignes tr').forEach(tr => {
+    const q = _devisNum(tr.querySelector('.dv-qte')?.value), pu = _devisNum(tr.querySelector('.dv-pu')?.value);
+    const mt = q * pu; st += mt;
+    const c = tr.querySelector('.dv-mt'); if (c) c.textContent = _fmtF(mt);
+  });
+  const remise = _devisNum(document.getElementById('dv-remise')?.value);
+  const total = Math.max(0, st - remise);
+  const acc = _devisNum(document.getElementById('dv-acompte')?.value);
+  const stEl = document.getElementById('dv-soustotal'); if (stEl) stEl.textContent = _fmtF(st) + ' F';
+  const tEl = document.getElementById('dv-total'); if (tEl) tEl.textContent = _fmtF(total) + ' FCFA';
+  const aEl = document.getElementById('dv-acompte-val'); if (aEl) aEl.textContent = _fmtF(total * acc / 100) + ' F';
+  window._devisCur = { sousTotal: st, remise, total };
+}
+
+function ouvrirDevisEditeur(id) {
+  const d = id ? _chantierDevis.find(x => x.id === id) : null;
+  const ent = _devisEntDefaut();
+  const entNom = d && d.ent_nom ? d.ent_nom : ent.nom;
+  const entInfos = d && d.ent_infos ? d.ent_infos : ent.infos;
+  const clientNom = d ? (d.client_nom || '') : '';
+  const clientInfos = d ? (d.client_infos || d.quartier || '') : '';
+  const objet = d ? (d.objet || d.description || '') : '';
+  const lignes = (d && Array.isArray(d.lignes) && d.lignes.length) ? d.lignes : [{ designation: 'Main d\'œuvre', qte: 1, unite: 'forfait', pu: 0 }];
+  const numero = d && d.numero ? d.numero : ('DV-' + new Date().getFullYear() + '-' + String(_chantierDevis.length + 1).padStart(3, '0'));
+  window._devisEditId = d ? d.id : null;
+  window._devisEditClientUid = d ? d.client_user_id : null;
+
+  const old = document.getElementById('devis-editeur-modal'); if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'devis-editeur-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.9);z-index:100002;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 12px 60px;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  const inp = 'background:rgba(232,148,10,.08);border:none;border-bottom:1px dashed #e2c78d;border-radius:4px;padding:6px 8px;color:#14100A;font-family:Geist,sans-serif;font-size:14px;width:100%;';
+  modal.innerHTML = `<div style="width:100%;max-width:760px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;">${d ? 'Modifier le devis' : 'Nouveau devis'}</div>
+        <div style="display:flex;gap:8px;"><button onclick="_devisAddLigne()" style="background:#E8940A;color:#14100A;border:none;border-radius:100px;padding:9px 15px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">+ Ligne</button><button onclick="document.getElementById('devis-editeur-modal').remove()" style="background:rgba(252,224,168,.1);color:#FCE0A8;border:none;border-radius:100px;width:38px;height:38px;font-size:17px;cursor:pointer;">✕</button></div>
+      </div>
+      <div style="background:#fffdf8;color:#14100A;border-radius:12px;overflow:hidden;">
+        <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:22px 24px 18px;border-bottom:3px solid #E8940A;">
+          <div style="flex:1;min-width:220px;">
+            <input class="dvf" id="dv-ent-nom" value="${escapeHtml(entNom)}" style="${inp};font-family:Georgia,serif;font-size:20px;font-weight:600;">
+            <div style="font-family:'Geist Mono',monospace;font-size:9px;color:#b7ad9c;margin:2px 0 6px;">NOM DE TON ENTREPRISE</div>
+            <input class="dvf" id="dv-ent-infos" value="${escapeHtml(entInfos)}" placeholder="Activité · adresse · contact · RCCM" style="${inp};font-size:12px;color:#6b6357;">
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:Georgia,serif;font-size:32px;color:#E8940A;">DEVIS</div>
+            <input class="dvf" id="dv-num" value="${escapeHtml(numero)}" style="${inp};text-align:right;font-family:'Geist Mono',monospace;font-size:12px;width:150px;margin-top:6px;">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e7e1d6;">
+          <div style="padding:14px 24px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;color:#E8940A;margin-bottom:6px;">CLIENT</div>
+            <input class="dvf" id="dv-client-nom" value="${escapeHtml(clientNom)}" placeholder="Nom du client" style="${inp}">
+            <input class="dvf" id="dv-client-infos" value="${escapeHtml(clientInfos)}" placeholder="Adresse · téléphone" style="${inp};margin-top:6px;font-size:13px;">
+          </div>
+          <div style="padding:14px 24px;border-left:1px solid #e7e1d6;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;color:#E8940A;margin-bottom:6px;">OBJET DU CHANTIER</div>
+            <textarea class="dvf" id="dv-objet" rows="2" placeholder="Ex : Dalle terrasse 20 m²…" style="${inp};resize:vertical;font-size:13px;">${escapeHtml(objet)}</textarea>
+          </div>
+        </div>
+        <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:520px;">
+          <thead><tr style="border-bottom:2px solid #14100A;"><th style="text-align:left;padding:10px 8px 10px 24px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;text-transform:uppercase;">Désignation</th><th style="text-align:right;padding:10px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;text-transform:uppercase;">Qté</th><th style="text-align:left;padding:10px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;text-transform:uppercase;">Unité</th><th style="text-align:right;padding:10px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;text-transform:uppercase;">P.U.</th><th style="text-align:right;padding:10px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;text-transform:uppercase;">Montant</th><th></th></tr></thead>
+          <tbody id="dv-lignes">${lignes.map(_devisLigneRow).join('')}</tbody>
+        </table></div>
+        <div style="display:flex;justify-content:flex-end;padding:12px 24px 16px;"><div style="width:320px;">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;color:#6b6357;"><span>Sous-total</span><span id="dv-soustotal" style="font-family:'Geist Mono',monospace;">0 F</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px;color:#6b6357;"><span>Remise (FCFA)</span><input class="dvf" id="dv-remise" value="${d ? _fmtF(d.remise || 0) : '0'}" inputmode="numeric" style="${inp};width:110px;text-align:right;font-family:'Geist Mono',monospace;"></div>
+          <div style="display:flex;justify-content:space-between;border-top:2px solid #14100A;margin-top:8px;padding-top:12px;font-family:Georgia,serif;font-size:24px;"><span>TOTAL</span><span id="dv-total" style="color:#E8940A;font-weight:700;font-family:'Geist Mono',monospace;">0 FCFA</span></div>
+        </div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 24px;background:#f7f3ec;border-top:1px solid #e7e1d6;">
+          <div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;margin-bottom:4px;">ACOMPTE</div><div style="font-size:14px;display:flex;align-items:baseline;gap:6px;"><input class="dvf" id="dv-acompte" value="${d && d.acompte_pct != null ? d.acompte_pct : 50}" inputmode="numeric" style="${inp};width:48px;"> % soit <b id="dv-acompte-val">0 F</b></div></div>
+          <div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;margin-bottom:4px;">DÉLAI</div><input class="dvf" id="dv-delai" value="${d && d.delai ? escapeHtml(d.delai) : '5 jours après acompte'}" style="${inp};font-size:13px;"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+        <button id="dv-save" onclick="saveDevis()" style="flex:1;min-width:180px;min-height:50px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Enregistrer le devis</button>
+        <button onclick="saveDevis(true)" style="min-height:50px;padding:0 22px;background:rgba(252,224,168,.1);color:#FCE0A8;border:1px solid rgba(232,148,10,.3);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Aperçu / PDF</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('input', (e) => { if (e.target.classList.contains('dvf')) _devisRecompute(); });
+  _devisRecompute();
+}
+
+function _collectDevis() {
+  const lignes = [...document.querySelectorAll('#dv-lignes tr')].map(tr => ({
+    designation: tr.querySelector('.dv-des')?.value || '',
+    qte: _devisNum(tr.querySelector('.dv-qte')?.value),
+    unite: tr.querySelector('.dv-uni')?.value || 'u',
+    pu: _devisNum(tr.querySelector('.dv-pu')?.value)
+  })).filter(l => l.designation || l.pu);
+  const cur = window._devisCur || { total: 0, remise: 0 };
+  return {
+    numero: document.getElementById('dv-num')?.value || null,
+    ent_nom: document.getElementById('dv-ent-nom')?.value || null,
+    ent_infos: document.getElementById('dv-ent-infos')?.value || null,
+    client_nom: document.getElementById('dv-client-nom')?.value || null,
+    client_infos: document.getElementById('dv-client-infos')?.value || null,
+    objet: document.getElementById('dv-objet')?.value || null,
+    lignes, remise: cur.remise || 0, total: cur.total || 0,
+    acompte_pct: _devisNum(document.getElementById('dv-acompte')?.value),
+    delai: document.getElementById('dv-delai')?.value || null
+  };
+}
+
+async function saveDevis(apercuAfter) {
+  if (!currentUser || !window.supabase) { toast('Connecte-toi.', 'error'); return; }
+  const data = _collectDevis();
+  if (!data.total) { toast('Ajoute au moins une ligne avec un prix.', 'error'); return; }
+  const btn = document.getElementById('dv-save'); if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    let saved;
+    if (window._devisEditId) {
+      const cur = _chantierDevis.find(x => x.id === window._devisEditId);
+      const newStatut = (cur && ['accepte', 'en_cours', 'termine'].includes(cur.statut)) ? cur.statut : 'envoye';
+      const { data: r, error } = await window.supabase.from('wozali_devis').update({ ...data, statut: newStatut }).eq('id', window._devisEditId).eq('prestataire_user_id', currentUser.id).select();
+      if (error) throw error; saved = r && r[0];
+      const idx = _chantierDevis.findIndex(x => x.id === window._devisEditId); if (idx >= 0 && saved) _chantierDevis[idx] = saved;
+    } else {
+      const row = { ...data, prestataire_user_id: currentUser.id, prestataire_id: (currentPrestataire && currentPrestataire.id) || null, statut: 'envoye' };
+      const { data: r, error } = await window.supabase.from('wozali_devis').insert(row).select();
+      if (error) throw error; saved = r && r[0];
+      if (saved) _chantierDevis.unshift(saved);
+    }
+    document.getElementById('devis-editeur-modal')?.remove();
+    renderChantierPipeline();
+    toast('Devis enregistré ✓', 'success');
+    if (apercuAfter && saved) apercuDevis(saved.id);
+  } catch (e) { console.error('❌ saveDevis', e.message || e); toast('Ça a calé. Réessaie.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer le devis'; } }
+}
+
+function _devisDocHtml(d) {
+  const lignes = Array.isArray(d.lignes) ? d.lignes : [];
+  const rows = lignes.map(l => `<tr><td style="padding:11px 30px;border-bottom:1px solid #e7e1d6;font-size:14px;">${escapeHtml(l.designation || '')}</td><td style="padding:11px 8px;border-bottom:1px solid #e7e1d6;text-align:right;font-family:'Geist Mono',monospace;">${l.qte || 0}</td><td style="padding:11px 8px;border-bottom:1px solid #e7e1d6;font-size:13px;">${escapeHtml(l.unite || '')}</td><td style="padding:11px 8px;border-bottom:1px solid #e7e1d6;text-align:right;font-family:'Geist Mono',monospace;">${_fmtF(l.pu || 0)}</td><td style="padding:11px 30px;border-bottom:1px solid #e7e1d6;text-align:right;font-family:'Geist Mono',monospace;font-weight:600;">${_fmtF((l.qte || 0) * (l.pu || 0))}</td></tr>`).join('');
+  const acc = d.acompte_pct || 0;
+  return `<div style="background:#fffdf8;color:#14100A;border-radius:12px;overflow:hidden;max-width:760px;margin:0 auto;">
+      <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:26px 30px 20px;border-bottom:3px solid #E8940A;">
+        <div><div style="font-family:Georgia,serif;font-size:21px;font-weight:600;">${escapeHtml(d.ent_nom || '')}</div><div style="font-size:12px;color:#6b6357;margin-top:5px;line-height:1.6;">${escapeHtml(d.ent_infos || '')}</div></div>
+        <div style="text-align:right;"><div style="font-family:Georgia,serif;font-size:34px;color:#E8940A;">DEVIS</div><div style="font-family:'Geist Mono',monospace;font-size:12px;color:#6b6357;margin-top:4px;">${escapeHtml(d.numero || '')}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e7e1d6;">
+        <div style="padding:16px 30px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;color:#E8940A;margin-bottom:6px;">CLIENT</div><div style="font-size:14px;font-weight:600;">${escapeHtml(d.client_nom || '')}</div><div style="font-size:13px;color:#6b6357;">${escapeHtml(d.client_infos || '')}</div></div>
+        <div style="padding:16px 30px;border-left:1px solid #e7e1d6;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;color:#E8940A;margin-bottom:6px;">OBJET</div><div style="font-size:14px;">${escapeHtml(d.objet || '')}</div></div>
+      </div>
+      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:520px;"><thead><tr style="border-bottom:2px solid #14100A;"><th style="text-align:left;padding:12px 30px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;text-transform:uppercase;">Désignation</th><th style="text-align:right;padding:12px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;">Qté</th><th style="text-align:left;padding:12px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;">Unité</th><th style="text-align:right;padding:12px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;">P.U.</th><th style="text-align:right;padding:12px 30px;font-family:'Geist Mono',monospace;font-size:10px;color:#6b6357;">Montant</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div style="display:flex;justify-content:flex-end;padding:16px 30px;"><div style="width:320px;"><div style="display:flex;justify-content:space-between;padding:6px 0;color:#6b6357;font-size:14px;"><span>Sous-total</span><span style="font-family:'Geist Mono',monospace;">${_fmtF((d.total || 0) + (d.remise || 0))} F</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;color:#6b6357;font-size:14px;"><span>Remise</span><span style="font-family:'Geist Mono',monospace;">${_fmtF(d.remise || 0)} F</span></div><div style="display:flex;justify-content:space-between;border-top:2px solid #14100A;margin-top:8px;padding-top:12px;font-family:Georgia,serif;font-size:24px;"><span>TOTAL</span><span style="color:#E8940A;font-weight:700;font-family:'Geist Mono',monospace;">${_fmtF(d.total || 0)} FCFA</span></div></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:18px 30px;background:#f7f3ec;border-top:1px solid #e7e1d6;"><div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">ACOMPTE</div><div style="font-size:14px;">${acc}% soit <b>${_fmtF((d.total || 0) * acc / 100)} F</b></div></div><div><div style="font-family:'Geist Mono',monospace;font-size:10px;color:#E8940A;">DÉLAI</div><div style="font-size:14px;">${escapeHtml(d.delai || '')}</div></div></div>
+      <div style="text-align:center;padding:13px;background:#14100A;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.1em;">DEVIS ÉTABLI SUR WOZALI · wozali.africa</div>
+    </div>`;
+}
+
+function apercuDevis(id) {
+  const d = _chantierDevis.find(x => x.id === id);
+  if (!d) return;
+  if (!document.getElementById('devis-print-style')) {
+    const st = document.createElement('style'); st.id = 'devis-print-style';
+    st.textContent = '@media print{body.printing-devis>*:not(#devis-apercu-ov){display:none!important}body.printing-devis #devis-apercu-ov{position:static!important;background:#fff!important;padding:0!important}body.printing-devis #devis-apercu-ov .devis-ov-bar{display:none!important}}';
+    document.head.appendChild(st);
+  }
+  const old = document.getElementById('devis-apercu-ov'); if (old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'devis-apercu-ov';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.92);z-index:100003;overflow-y:auto;padding:20px 12px 60px;';
+  ov.innerHTML = `<div style="max-width:760px;margin:0 auto;">
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-bottom:12px;" class="devis-ov-bar">
+        <button onclick="document.body.classList.add('printing-devis');window.print();document.body.classList.remove('printing-devis');" style="background:#E8940A;color:#14100A;border:none;border-radius:100px;padding:11px 20px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">🖨 Imprimer / PDF</button>
+        <button onclick="document.getElementById('devis-apercu-ov').remove()" style="background:rgba(252,224,168,.1);color:#FCE0A8;border:none;border-radius:100px;padding:11px 20px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Fermer</button>
+      </div>
+      <div id="devis-print-area">${_devisDocHtml(d)}</div>
+    </div>`;
+  document.body.appendChild(ov);
+}
+
+function renderChantierFinances() {
+  const el = document.getElementById('chantier-vue-fin');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const per = _finRange().label;
+  const termPer = _chantierDevis.filter(d => d.statut === 'termine' && _finInRange(d.date_termine || d.created_at));
+  const caPer = termPer.reduce((s, d) => s + (d.total || 0), 0);
+  const charges = (_chantierDepenses || []).filter(d => _finInRange(d.created_at)).reduce((s, d) => s + (d.montant || 0), 0);
+  const benefice = caPer - charges;
+  const box = (lab, val, sub, accent) => `<div style="flex:1;min-width:150px;background:#1E180E;border:1px solid ${accent ? 'rgba(63,178,127,.35)' : 'rgba(232,148,10,.15)'};border-radius:18px;padding:20px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:${accent ? '#3FB27F' : '#FCE0A8'};margin-top:10px;line-height:1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${accent ? '#3FB27F' : 'rgba(252,224,168,.45)'};margin-top:7px;">${sub}</div>` : ''}</div>`;
+  let objBloc;
+  const monthTerm = _chantierDevis.filter(d => { const ms = new Date(); ms.setDate(1); ms.setHours(0, 0, 0, 0); return d.statut === 'termine' && new Date((d.date_termine || d.created_at)) >= ms; });
+  const caMonth = monthTerm.reduce((s, d) => s + (d.total || 0), 0);
+  if (_chantierObjectif && _chantierObjectif.montant) {
+    const pct = Math.max(0, Math.min(100, Math.round(caMonth / _chantierObjectif.montant * 100)));
+    objBloc = `<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;"><span style="font-family:'DM Serif Display',serif;font-size:28px;color:#FCE0A8;">${_fmtF(caMonth)} F</span><span style="font-family:'Geist Mono',monospace;font-size:13px;color:rgba(252,224,168,.5);">/ ${_fmtF(_chantierObjectif.montant)} F ce mois</span></div><div style="height:14px;background:#2a2113;border-radius:100px;overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#E8940A,#f2ad3c);border-radius:100px;"></div></div><div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);">${pct}% de ton objectif du mois</div>`;
+  } else {
+    objBloc = `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-bottom:14px;">Fixe ton objectif de CA du mois.</div><div style="display:flex;gap:10px;flex-wrap:wrap;"><input id="chantier-obj-input" type="text" inputmode="numeric" placeholder="Ex : 400000" style="flex:1;min-width:160px;background:#14100A;border:1px solid rgba(232,148,10,.25);border-radius:12px;padding:11px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;"><button onclick="saveChantierObjectif()" style="min-height:44px;padding:10px 20px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Fixer</button></div>`;
+  }
+  const bilan = [];
+  if (!termPer.length) bilan.push(`Marque tes chantiers « Terminé » quand ils sont finis — je calcule ton CA et ton bénéfice, et je te dis si tu gagnes assez sur chaque chantier.`);
+  else {
+    bilan.push(`Sur <b>${per}</b> : <b class="kfig">${_fmtF(caPer)} F</b> de chantiers terminés${charges ? `, bénéfice <b class="kfig">${_fmtF(benefice)} F</b>` : ''}.`);
+    if (!charges) bilan.push(`Ajoute tes charges (matériaux, ouvriers, transport) pour connaître ton <b>vrai bénéfice</b> par chantier — beaucoup d'artisans travaillent à perte sans le savoir.`);
+  }
+  const contenu = `
+    ${_finPeriodeSelect('renderChantierFinances')}
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+      ${box('CA · ' + per, _fmtF(caPer) + ' F', termPer.length + ' chantier' + (termPer.length > 1 ? 's' : '') + ' terminé' + (termPer.length > 1 ? 's' : ''))}
+      ${box('Charges · ' + per, _fmtF(charges) + ' F', 'matériaux, ouvriers…')}
+      ${box('Bénéfice net', _fmtF(benefice) + ' F', 'CA − charges', true)}
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">🎯 Objectif du mois</h3>${objBloc}</div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>${(_chantierDepenses || []).filter(d => _finInRange(d.created_at)).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${_fmtF(d.montant || 0)} F</span><button onclick="supprimerDepenseChantier('${escapeHtml(d.id)}')" style="background:none;border:none;color:rgba(252,224,168,.4);cursor:pointer;">✕</button></span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge sur la période.</div>`}</div>
+    <div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:22px;"><div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;"><div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:22px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;">Sandy · ton bilan</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#E8940A;">Lu sur tes chantiers</div></div></div><div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${bilan.map(l => `<div style="margin-bottom:8px;">${l}</div>`).join('')}</div></div>`;
+  if (isPro) { el.innerHTML = contenu; return; }
+  el.innerHTML = `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(7px);opacity:.5;pointer-events:none;">${contenu}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,16,10,.6);text-align:center;padding:24px;"><div style="width:54px;height:54px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:26px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;">Tes finances de chantier, avec Sandy</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:14px;padding:12px 24px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`;
+}
+async function saveChantierObjectif() {
+  const raw = (document.getElementById('chantier-obj-input')?.value || '').replace(/\D/g, '');
+  const montant = raw ? parseInt(raw) : 0;
+  if (!montant || montant < 1000) { toast('Indique un objectif.', 'error'); return; }
+  if (!currentUser || !window.supabase) return;
+  try { await window.supabase.from('wozali_objectifs').upsert({ user_id: currentUser.id, mois: _moisKey(), type: 'ca', montant }, { onConflict: 'user_id,mois' }); _chantierObjectif = { mois: _moisKey(), type: 'ca', montant }; renderChantierFinances(); toast('Objectif fixé 🎯', 'success'); } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+async function supprimerDepenseChantier(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  try { await window.supabase.from('wozali_depenses').delete().eq('id', id).eq('user_id', currentUser.id); _chantierDepenses = _chantierDepenses.filter(d => d.id !== id); renderChantierFinances(); } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+window.loadChantierPro = loadChantierPro;
+window.switchChantierVue = switchChantierVue;
+window.setChantierFiltre = setChantierFiltre;
+window.majDevisStatut = majDevisStatut;
+window.ouvrirDevisEditeur = ouvrirDevisEditeur;
+window._devisAddLigne = _devisAddLigne;
+window._devisRecompute = _devisRecompute;
+window.saveDevis = saveDevis;
+window.apercuDevis = apercuDevis;
+window.renderChantierFinances = renderChantierFinances;
+window.saveChantierObjectif = saveChantierObjectif;
+window.supprimerDepenseChantier = supprimerDepenseChantier;
+
 // ══ Prestations & tarifs — éditeur dashboard (section ds-prestations) ══
 // Mirroir de la boutique : CRUD sur wozali_prestations, s'affiche sur le profil
 // public via renderProfilPrestations + bouton Réserver (calendrier interne).
@@ -4355,7 +4761,8 @@ async function envoyerDemandeDevis() {
     } catch (e) { /* fire-and-forget */ }
     const modal = document.getElementById('devis-modal');
     if (modal) modal.remove();
-    toast('Demande de devis envoyée, le pro te répond bientôt ici.', 'success');
+    try { await demarrerConversation(t.userId, description, { kind: 'devis', item: 'Demande de devis', taille: quartier || '' }); } catch (e) {}
+    toast('Demande de devis envoyée ✓ Suis ça dans Messages.', 'success');
   } catch (e) {
     console.error('❌ envoyerDemandeDevis', e.message || e);
     toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
