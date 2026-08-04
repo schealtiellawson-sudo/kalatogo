@@ -5,6 +5,11 @@
 alter table wozali_rdv add column if not exists prestation_id  uuid;
 alter table wozali_rdv add column if not exists prestation_nom text;
 
+-- Le workflow ajoute les statuts 'Honoré' et 'Absent' → on élargit la contrainte
+alter table wozali_rdv drop constraint if exists wolo_rdv_statut_check;
+alter table wozali_rdv add constraint wolo_rdv_statut_check
+  check (statut in ('Demandé','En attente','Confirmé','Honoré','Absent','Annulé','Vue','Retenue','Refusée','Terminé'));
+
 alter table wozali_rdv enable row level security;
 drop policy if exists "rdv_select_party" on wozali_rdv;
 drop policy if exists "rdv_insert_client" on wozali_rdv;
