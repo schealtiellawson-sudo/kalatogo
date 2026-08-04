@@ -2157,8 +2157,13 @@ async function confirmerCommandeArticle() {
         message: `${clientNom} veut commander « ${itemNom} »${detail ? ' (' + detail + ')' : ''}.`
       });
     } catch (e) { /* fire-and-forget */ }
+    // Démarre la conversation dans la messagerie (carte système + mot éventuel du client)
+    try {
+      await demarrerConversation(puid, `Commande : ${itemNom}`, { kind: 'commande', item: itemNom, taille: taille || '', quantite, prix: prixTxt || '' });
+      if (message) await demarrerConversation(puid, message);
+    } catch (e) { /* fire-and-forget */ }
     document.getElementById('commande-modal')?.remove();
-    toast('Commande envoyée ✓ La boutique te recontacte.', 'success');
+    toast('Commande envoyée ✓ Réponds/suis ça dans Messages.', 'success');
   } catch (e) {
     console.error('❌ confirmerCommandeArticle', e.message || e);
     toast('Ça a calé. Vérifie ta connexion et réessaie.', 'error');
@@ -11269,6 +11274,9 @@ function initDmInterface() {
   // Coach Sandy : aperçu + badge non-lu de la conversation épinglée
   try { _loadCoachPreview(); } catch (e) {}
 
+  // Conversations réelles client↔pro
+  try { loadDmConversations(); } catch (e) {}
+
   // Sur desktop : ouvrir le thread WOZALI d'office
   if (window.innerWidth > 768) openDmThread('wozali');
 }
@@ -11435,12 +11443,10 @@ async function loadDmMessages(threadId) {
   const list = document.getElementById('dm-messages-list');
   if (!list) return;
 
+  window._activeDmPeer = null; if (typeof _stopDmPoll === 'function') _stopDmPoll();
   if (String(threadId).startsWith('story-')) { return _loadStoryThread(threadId.slice(6)); }
   if (threadId === 'coach') { return _loadCoachThread(); }
-  if (threadId !== 'wozali') {
-    list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;font-family:\'Geist\',sans-serif;">Bientôt disponible.</div>';
-    return;
-  }
+  if (threadId !== 'wozali') { return _loadPeerThread(threadId); }
   // Thread fondateur : restaurer le header + le composer (un thread story a pu les modifier)
   try { if (window._fondateurNom) _applyFondateurProfileToUI({ id: window._fondateurRecordId, fields: { 'Nom complet': window._fondateurNom, 'Photo de profil': window._fondateurPhotoUrl } }); } catch(e){}
   const composerW = document.querySelector('[data-hidden-for-story="1"]');
@@ -11597,6 +11603,20 @@ async function sendDmMessage() {
   input.value = ''; input.style.height = 'auto';
   sendBtn.disabled = true;
 
+  // Conversation client↔pro (peer) : insert direct dans wozali_messages
+  if (window._activeDmPeer && window.currentUser && window.supabase) {
+    try {
+      await window.supabase.from('wozali_messages').insert({
+        expediteur_id: window.currentUser.id,
+        destinataire_id: window._activeDmPeer,
+        contenu: message, type: 'texte'
+      });
+      try { pushNotif(window._activeDmPeer, { type: 'message', titre: 'Nouveau message', message: (message.length > 60 ? message.slice(0, 60) + '…' : message) }); } catch (e) {}
+    } catch (e) { console.error('[dm peer send]', e.message || e); toast('Message pas parti, réessaie.', 'error'); }
+    sendBtn.disabled = false; input.focus();
+    return;
+  }
+
   try {
     await wozaliFetch('/api/wozali-pay/chat-wozali-send', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -11608,6 +11628,164 @@ async function sendDmMessage() {
 
   sendBtn.disabled = false; input.focus();
 }
+
+// ══════════ MESSAGERIE 2 SENS (client ↔ pro) ══════════
+window._activeDmPeer = null;
+let _dmPeerCache = {};   // user_id -> { nom, photo, recordId }
+let _dmPollTimer = null;
+
+function _stopDmPoll() { if (_dmPollTimer) { clearInterval(_dmPollTimer); _dmPollTimer = null; } }
+
+async function _resolvePeers(ids) {
+  const missing = ids.filter(id => id && !_dmPeerCache[id]);
+  if (!missing.length || !window.supabase) return;
+  try {
+    const { data } = await window.supabase.from('wozali_prestataires').select('id,user_id,nom_complet,photo_profil').in('user_id', missing);
+    (data || []).forEach(r => {
+      _dmPeerCache[r.user_id] = {
+        nom: r.nom_complet || 'Client',
+        photo: (typeof _wPhotoUrl === 'function' ? _wPhotoUrl(r.photo_profil) : (r.photo_profil || '')) || '',
+        recordId: r.id || ''
+      };
+    });
+  } catch (e) { /* ignore */ }
+  missing.forEach(id => { if (!_dmPeerCache[id]) _dmPeerCache[id] = { nom: 'Client', photo: '', recordId: '' }; });
+}
+
+// Liste des conversations réelles (groupées par interlocuteur) → #dm-more-convs
+async function loadDmConversations() {
+  const host = document.getElementById('dm-more-convs');
+  if (!host || !window.currentUser || !window.supabase) return;
+  let msgs = [];
+  try {
+    const me = window.currentUser.id;
+    const { data } = await window.supabase.from('wozali_messages')
+      .select('*').or(`expediteur_id.eq.${me},destinataire_id.eq.${me}`)
+      .order('created_at', { ascending: false }).limit(400);
+    msgs = data || [];
+  } catch (e) { return; }
+  const me = window.currentUser.id;
+  const byPeer = {};
+  msgs.forEach(m => {
+    const peer = m.expediteur_id === me ? m.destinataire_id : m.expediteur_id;
+    if (!byPeer[peer]) byPeer[peer] = { last: m, unread: 0 };
+    if (m.destinataire_id === me && !m.lu) byPeer[peer].unread++;
+  });
+  const peerIds = Object.keys(byPeer);
+  await _resolvePeers(peerIds);
+  if (!peerIds.length) { host.innerHTML = ''; return; }
+  host.innerHTML = peerIds.map(pid => {
+    const info = _dmPeerCache[pid] || { nom: 'Client', photo: '', recordId: '' };
+    const c = byPeer[pid];
+    const last = c.last;
+    let preview = last.type === 'systeme' ? ('📦 ' + (last.meta?.item || 'Commande')) : (last.contenu || '');
+    if (last.expediteur_id === me && last.type !== 'systeme') preview = 'Toi : ' + preview;
+    preview = preview.length > 40 ? preview.slice(0, 40) + '…' : preview;
+    let when = '';
+    if (last.created_at) { const j = Math.floor((Date.now() - new Date(last.created_at)) / 86400000); const mn = Math.floor((Date.now() - new Date(last.created_at)) / 60000); when = j >= 1 ? (j === 1 ? 'hier' : j + ' j') : (mn < 1 ? "à l'instant" : (mn < 60 ? mn + ' min' : Math.floor(mn / 60) + ' h')); }
+    const initial = (info.nom || 'C').trim().charAt(0).toUpperCase();
+    const avatar = info.photo
+      ? `<div class="dm-conv-avatar" style="overflow:hidden;"><img src="${encodeURI(info.photo)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.textContent='${initial}'"></div>`
+      : `<div class="dm-conv-avatar" style="background:linear-gradient(135deg,#3FB27F,#2a7a56);color:#fff;">${initial}</div>`;
+    return `<div class="dm-conv-item" id="dm-conv-${pid}" onclick="openDmThread('${pid}')">
+        <div class="dm-conv-avatar-link">${avatar}</div>
+        <div class="dm-conv-info">
+          <div class="dm-conv-name-row"><span class="dm-conv-name">${escapeHtml(info.nom)}</span><span class="dm-conv-time">${when}</span></div>
+          <div class="dm-conv-preview-row"><span class="dm-conv-preview">${escapeHtml(preview)}</span>${c.unread ? `<div class="dm-unread-badge">${c.unread}</div>` : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function _dmSystemCard(m) {
+  const meta = m.meta || {};
+  const ligne = [meta.item, meta.taille ? 'Taille ' + meta.taille : '', (meta.quantite && meta.quantite > 1) ? '×' + meta.quantite : '', meta.prix].filter(Boolean).map(escapeHtml).join(' · ');
+  const label = meta.kind === 'rdv' ? '📅 Nouvelle réservation' : meta.kind === 'devis' ? '📐 Demande de devis' : meta.kind === 'modele' ? '🧵 Commande de modèle' : '📦 Nouvelle commande';
+  return `<div style="align-self:center;max-width:80%;background:rgba(232,148,10,.10);border:1px solid rgba(232,148,10,.3);border-radius:14px;padding:12px 15px;margin:6px 0;">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;margin-bottom:5px;">${label}</div>
+      <div style="font-size:13.5px;color:#FCE0A8;line-height:1.5;">${ligne || escapeHtml(m.contenu || '')}</div>
+    </div>`;
+}
+
+async function _loadPeerThread(peerId) {
+  const list = document.getElementById('dm-messages-list');
+  if (!list || !window.currentUser || !window.supabase) return;
+  window._activeDmPeer = peerId;
+  await _resolvePeers([peerId]);
+  const info = _dmPeerCache[peerId] || { nom: 'Client', photo: '', recordId: '' };
+  // Header
+  const nameEl = document.getElementById('dm-thread-name'); if (nameEl) nameEl.textContent = info.nom;
+  const statusEl = document.getElementById('dm-thread-status'); if (statusEl) statusEl.textContent = 'sur WOZALI';
+  const av = document.getElementById('dm-thread-avatar');
+  if (av) { if (info.photo) { av.innerHTML = `<img src="${encodeURI(info.photo)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`; } else { av.textContent = (info.nom || 'C').charAt(0).toUpperCase(); } }
+  const plink = document.getElementById('dm-thread-profile-link'); if (plink && info.recordId) { plink.onclick = (e) => { e.preventDefault(); showProfil(info.recordId); showPage('profil'); }; plink.removeAttribute('href'); }
+  const compose = document.getElementById('wozali-chat-input'); if (compose) compose.placeholder = 'Écris à ' + (info.nom || '') + '…';
+  const pushCard = document.getElementById('wozali-push-card'); if (pushCard) pushCard.style.display = 'none';
+  list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.3);font-size:13px;">Chargement…</div>';
+
+  const me = window.currentUser.id;
+  let msgs = [];
+  try {
+    const { data } = await window.supabase.from('wozali_messages')
+      .select('*').or(`and(expediteur_id.eq.${me},destinataire_id.eq.${peerId}),and(expediteur_id.eq.${peerId},destinataire_id.eq.${me})`)
+      .order('created_at', { ascending: true }).limit(300);
+    msgs = data || [];
+  } catch (e) { list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(252,224,168,.4);font-size:13px;">Impossible de charger la conversation.</div>'; return; }
+
+  if (!msgs.length) { list.innerHTML = '<div style="text-align:center;padding:30px 20px;color:rgba(252,224,168,.4);font-size:13px;">Démarrez la conversation 👋</div>'; }
+  else {
+    list.innerHTML = msgs.map(m => {
+      const t = m.created_at ? new Date(m.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+      if (m.type === 'systeme') return _dmSystemCard(m);
+      if (m.expediteur_id === me) return _dmBubbleOut(m.contenu || '', t);
+      return _dmBubbleIn(info.nom, (info.nom || 'C').charAt(0).toUpperCase(), (m.contenu || '').replace(/</g, '&lt;'), t, null, info.photo || null, info.recordId || null);
+    }).join('');
+  }
+  list.scrollTop = list.scrollHeight;
+
+  // Marque lus les messages reçus
+  try { await window.supabase.from('wozali_messages').update({ lu: true }).eq('destinataire_id', me).eq('expediteur_id', peerId).eq('lu', false); } catch (e) {}
+
+  _stopDmPoll();
+  _dmPollTimer = setInterval(() => { if (window._activeDmPeer === peerId && document.getElementById('dm-thread-content')?.style.display !== 'none') _pollPeerThread(peerId); else _stopDmPoll(); }, 5000);
+}
+
+// Rafraîchissement léger : ajoute uniquement les nouveaux messages reçus
+async function _pollPeerThread(peerId) {
+  const list = document.getElementById('dm-messages-list');
+  if (!list || !window.currentUser || !window.supabase) return;
+  const me = window.currentUser.id;
+  try {
+    const { data } = await window.supabase.from('wozali_messages')
+      .select('*').eq('expediteur_id', peerId).eq('destinataire_id', me).eq('lu', false)
+      .order('created_at', { ascending: true }).limit(30);
+    if (data && data.length) {
+      const info = _dmPeerCache[peerId] || { nom: 'Client' };
+      data.forEach(m => {
+        const t = m.created_at ? new Date(m.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+        const w = document.createElement('div');
+        w.innerHTML = m.type === 'systeme' ? _dmSystemCard(m) : _dmBubbleIn(info.nom, (info.nom || 'C').charAt(0).toUpperCase(), (m.contenu || '').replace(/</g, '&lt;'), t, null, info.photo || null, info.recordId || null);
+        if (w.firstElementChild) list.appendChild(w.firstElementChild);
+      });
+      list.scrollTop = list.scrollHeight;
+      await window.supabase.from('wozali_messages').update({ lu: true }).eq('destinataire_id', me).eq('expediteur_id', peerId).eq('lu', false);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+// Démarre/complète une conversation (appelé par les flux commande/rdv/devis)
+async function demarrerConversation(peerUserId, contenu, systemeMeta) {
+  if (!peerUserId || !window.currentUser || !window.supabase) return;
+  try {
+    await window.supabase.from('wozali_messages').insert({
+      expediteur_id: window.currentUser.id, destinataire_id: peerUserId,
+      contenu: contenu || '', type: systemeMeta ? 'systeme' : 'texte', meta: systemeMeta || null
+    });
+  } catch (e) { console.error('[demarrerConversation]', e.message || e); }
+}
+
+window.loadDmConversations = loadDmConversations;
+window.demarrerConversation = demarrerConversation;
 
 let _wozaliHistoryVisible = false;
 
