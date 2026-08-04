@@ -2407,6 +2407,8 @@ async function loadBoutiqueSection() {
     if (!error) { _boutiqueItems = data || []; _renderBoutiqueList(); }
   } catch (e) { /* ignore */ }
   loadCommandesRecues();   // commandes reçues (+ alimente le tableau de bord)
+  loadBoutiqueFinances();  // dépenses + objectif (écran 2)
+  if (typeof switchBoutiqueVue === 'function') switchBoutiqueVue('boutique'); // vue par défaut
 }
 
 function _renderBoutiqueList() {
@@ -2848,6 +2850,281 @@ function renderBoutiqueDash() {
 window.loadCommandesRecues = loadCommandesRecues;
 window.updateCommandeStatut = updateCommandeStatut;
 window.renderBoutiqueDash = renderBoutiqueDash;
+
+// ══════════ ÉCRAN 2 — FINANCES + OBJECTIF + SANDY COACH ══════════
+let _boutiqueDepenses = [];
+let _boutiqueObjectif = null;   // { mois, type, montant }
+let _boutiqueVue = 'boutique';
+
+function _moisKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+
+async function loadBoutiqueFinances() {
+  if (!currentUser || !window.supabase) { renderFinances(); return; }
+  try {
+    const { data } = await window.supabase.from('wozali_depenses').select('*').eq('user_id', currentUser.id).limit(200);
+    _boutiqueDepenses = data || [];
+  } catch (e) { _boutiqueDepenses = []; }
+  try {
+    const { data } = await window.supabase.from('wozali_objectifs').select('*').eq('user_id', currentUser.id).eq('mois', _moisKey()).maybeSingle();
+    _boutiqueObjectif = data || null;
+  } catch (e) { _boutiqueObjectif = null; }
+  renderFinances();
+}
+
+// Calcule les finances du mois en cours à partir des commandes vendues + coûts + charges
+function computeFinancesBoutique() {
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const vendues = (_boutiqueCommandes || []).filter(c => (c.statut === 'confirmee' || c.statut === 'livree') && (!c.created_at || new Date(c.created_at) >= monthStart));
+  const itemsById = {}; (_boutiqueItems || []).forEach(it => itemsById[it.id] = it);
+  let ca = 0, cogs = 0, missingCost = false;
+  vendues.forEach(c => {
+    const q = c.quantite || 1;
+    ca += _cmdPrixNum(c.prix_txt) * q;
+    const it = itemsById[c.item_id];
+    if (it && typeof it.cout_achat === 'number') cogs += it.cout_achat * q;
+    else if (it) missingCost = true;
+  });
+  const charges = (_boutiqueDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).reduce((s, d) => s + (d.montant || 0), 0);
+  const benefice = ca - cogs - charges;
+  const marge = ca > 0 ? Math.round((ca - cogs) / ca * 100) : 0;
+  return { ca, cogs, charges, benefice, marge, missingCost, nbVentes: vendues.length };
+}
+
+function switchBoutiqueVue(vue) {
+  _boutiqueVue = vue;
+  const isFin = vue === 'finances';
+  const main = document.getElementById('boutique-vue-main');
+  const fin = document.getElementById('boutique-finances');
+  const list = document.getElementById('boutique-list');
+  const form = document.getElementById('boutique-form-wrap');
+  const addBtn = document.getElementById('btn-ajouter-produit');
+  if (main) main.style.display = isFin ? 'none' : '';
+  if (list) list.style.display = isFin ? 'none' : '';
+  if (form && isFin) form.style.display = 'none';
+  if (addBtn) addBtn.style.display = isFin ? 'none' : '';
+  if (fin) fin.style.display = isFin ? '' : 'none';
+  const bb = document.getElementById('btn-vue-boutique'), bf = document.getElementById('btn-vue-finances');
+  if (bb) { bb.style.background = isFin ? 'transparent' : '#E8940A'; bb.style.color = isFin ? 'rgba(252,224,168,.6)' : '#14100A'; bb.style.fontWeight = isFin ? '700' : '800'; }
+  if (bf) { bf.style.background = isFin ? '#E8940A' : 'transparent'; bf.style.color = isFin ? '#14100A' : 'rgba(252,224,168,.6)'; bf.style.fontWeight = isFin ? '800' : '700'; }
+  if (isFin) renderFinances();
+}
+
+// Bilan Sandy calculé sur les vrais chiffres (règles). Le LLM se branchera dessus plus tard.
+function _sandyBilanBoutique(fin) {
+  const lignes = [];
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const vendues = (_boutiqueCommandes || []).filter(c => (c.statut === 'confirmee' || c.statut === 'livree') && (!c.created_at || new Date(c.created_at) >= monthStart));
+  const venduIds = new Set(vendues.map(c => c.item_id).filter(Boolean));
+  if (!fin.nbVentes) {
+    lignes.push(`Pas encore de vente confirmée ce mois. Confirme tes commandes dès qu'elles arrivent — je te ferai ton bilan et je te dirai où tu gagnes de l'argent.`);
+    return lignes;
+  }
+  // Objectif
+  if (_boutiqueObjectif && _boutiqueObjectif.montant) {
+    const ref = _boutiqueObjectif.type === 'benefice' ? fin.benefice : fin.ca;
+    const pct = Math.max(0, Math.round(ref / _boutiqueObjectif.montant * 100));
+    const today = new Date().getDate();
+    const dim = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+    const proj = today > 0 ? Math.round(ref / today * dim) : ref;
+    const cible = _boutiqueObjectif.type === 'benefice' ? 'bénéfice' : 'CA';
+    if (proj >= _boutiqueObjectif.montant) lignes.push(`Tu es à <b>${pct}%</b> de ton objectif ${cible}. À ce rythme tu finis à <b class="kfig">${proj.toLocaleString('fr-FR')} F</b> — tu vas le dépasser 👏.`);
+    else lignes.push(`Tu es à <b>${pct}%</b> de ton objectif ${cible}. À ce rythme tu finis à <b>${proj.toLocaleString('fr-FR')} F</b>, un peu court — pousse tes best-sellers pour rattraper.`);
+  }
+  // Coût manquant
+  if (fin.missingCost) lignes.push(`Renseigne le <b>coût d'achat</b> de tes articles (bouton Modifier) — sans ça ton bénéfice est estimé, pas exact.`);
+  // Marge faible sur un article qui se vend
+  const byItem = {}; vendues.forEach(c => { byItem[c.item_id] = (byItem[c.item_id] || 0) + (c.quantite || 1); });
+  let lowMarge = null;
+  (_boutiqueItems || []).forEach(it => {
+    if (typeof it.cout_achat === 'number' && it.prix && byItem[it.id]) {
+      const m = Math.round((it.prix - it.cout_achat) / it.prix * 100);
+      if (m < 25 && (!lowMarge || m < lowMarge.m)) lowMarge = { nom: it.nom || 'Article', m };
+    }
+  });
+  if (lowMarge) lignes.push(`Ton <b>${escapeHtml(lowMarge.nom)}</b> se vend mais sa marge est faible (<b>${lowMarge.m}%</b>) — monte le prix ou négocie ton fournisseur.`);
+  // Best-seller
+  const best = Object.entries(byItem).sort((a, b) => b[1] - a[1])[0];
+  if (best) { const it = (_boutiqueItems || []).find(x => x.id === best[0]); if (it) lignes.push(`🔥 Ton <b>${escapeHtml(it.nom || 'Article')}</b> est ton best-seller (${best[1]} vendu${best[1] > 1 ? 's' : ''}) — mets-en plus en avant.`); }
+  // Article qui dort avec du stock
+  const dort = (_boutiqueItems || []).find(it => it.actif !== false && !venduIds.has(it.id) && typeof it.stock_qty === 'number' && it.stock_qty > 0);
+  if (dort) lignes.push(`💤 Ton <b>${escapeHtml(dort.nom || 'Article')}</b> dort et immobilise du stock — une petite promo pour le relancer ?`);
+  return lignes.slice(0, 4);
+}
+
+function renderFinances() {
+  const el = document.getElementById('boutique-finances');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const fin = computeFinancesBoutique();
+  const depenses = fin.cogs + fin.charges;
+  const estime = fin.missingCost || fin.ca === 0;
+
+  const box = (lab, val, sub, accent) => `<div style="flex:1;min-width:150px;background:#1E180E;border:1px solid ${accent ? 'rgba(63,178,127,.35)' : 'rgba(232,148,10,.15)'};border-radius:18px;padding:20px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:32px;color:${accent ? '#3FB27F' : '#FCE0A8'};margin-top:10px;line-height:1;">${val}</div>
+      ${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${accent ? '#3FB27F' : 'rgba(252,224,168,.45)'};margin-top:7px;">${sub}</div>` : ''}
+    </div>`;
+
+  // Marge par article
+  const margeRows = (_boutiqueItems || []).filter(it => typeof it.cout_achat === 'number' && it.prix).slice(0, 6).map(it => {
+    const m = Math.round((it.prix - it.cout_achat) / it.prix * 100);
+    const col = m >= 35 ? '#3FB27F' : (m >= 20 ? '#E8940A' : '#E5533C');
+    return `<div style="display:grid;grid-template-columns:1fr 80px 80px 64px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(252,224,168,.08);font-size:13px;">
+        <div style="color:#FCE0A8;">${escapeHtml(it.nom || 'Article')}</div>
+        <div style="font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">${parseInt(it.cout_achat).toLocaleString('fr-FR')}</div>
+        <div style="font-family:'Geist Mono',monospace;color:rgba(252,224,168,.6);">${parseInt(it.prix).toLocaleString('fr-FR')}</div>
+        <div style="font-family:'Geist Mono',monospace;font-weight:700;color:${col};">${m}%</div>
+      </div>`;
+  }).join('');
+
+  // Objectif
+  let objBloc;
+  if (_boutiqueObjectif && _boutiqueObjectif.montant) {
+    const ref = _boutiqueObjectif.type === 'benefice' ? fin.benefice : fin.ca;
+    const pct = Math.max(0, Math.min(100, Math.round(ref / _boutiqueObjectif.montant * 100)));
+    const today = new Date().getDate();
+    const dim = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+    const proj = today > 0 ? Math.round(ref / today * dim) : ref;
+    const okProj = proj >= _boutiqueObjectif.montant;
+    objBloc = `<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;"><span style="font-family:'DM Serif Display',serif;font-size:28px;color:#FCE0A8;">${ref.toLocaleString('fr-FR')} F</span><span style="font-family:'Geist Mono',monospace;font-size:13px;color:rgba(252,224,168,.5);">/ ${_boutiqueObjectif.montant.toLocaleString('fr-FR')} F ${_boutiqueObjectif.type === 'benefice' ? 'bénéfice' : 'CA'}</span></div>
+      <div style="height:14px;background:#2a2113;border-radius:100px;overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#E8940A,#f2ad3c);border-radius:100px;"></div></div>
+      <div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);">${pct}% atteint · à ce rythme tu finis à <b style="color:${okProj ? '#3FB27F' : '#FCE0A8'};">${proj.toLocaleString('fr-FR')} F</b> ${okProj ? '🎯' : ''} <button onclick="ouvrirObjectif()" style="background:none;border:none;color:#E8940A;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline;">modifier</button></div>`;
+  } else {
+    objBloc = `<div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);margin-bottom:14px;">Fixe-toi un objectif de CA pour ce mois — Sandy t'aide à l'atteindre.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input id="obj-input" type="text" inputmode="numeric" placeholder="Ex : 250000" style="flex:1;min-width:160px;background:#14100A;border:1px solid rgba(232,148,10,.25);border-radius:12px;padding:11px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:15px;">
+        <button onclick="saveObjectif()" style="min-height:44px;padding:10px 20px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Fixer l'objectif</button>
+      </div>`;
+  }
+
+  // Charges du mois
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+  const chargesMois = (_boutiqueDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart);
+  const chargesList = chargesMois.length ? chargesMois.slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(252,224,168,.07);font-size:13px;">
+      <span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span>
+      <span style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span><button onclick="supprimerDepense('${escapeHtml(d.id)}')" style="background:none;border:none;color:rgba(252,224,168,.4);cursor:pointer;font-size:14px;">✕</button></span>
+    </div>`).join('') : `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);padding:4px 0;">Aucune charge saisie ce mois.</div>`;
+
+  // Sandy
+  const bilan = _sandyBilanBoutique(fin);
+
+  const contenu = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+      ${box("Chiffre d'affaires · ce mois", (fin.ca).toLocaleString('fr-FR') + ' F', fin.nbVentes + ' vente' + (fin.nbVentes > 1 ? 's' : '') + ' confirmée' + (fin.nbVentes > 1 ? 's' : ''))}
+      ${box('Dépenses · ce mois', depenses.toLocaleString('fr-FR') + ' F', 'Achat ' + fin.cogs.toLocaleString('fr-FR') + ' · charges ' + fin.charges.toLocaleString('fr-FR'))}
+      ${box('Bénéfice net' + (estime ? ' (estimé)' : '') + ' · ce mois', (fin.benefice).toLocaleString('fr-FR') + ' F', 'Marge globale ' + fin.marge + '%', true)}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">🎯 Objectif du mois</h3>
+        ${objBloc}
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">Marge par article</h3>
+        ${margeRows ? `<div style="display:grid;grid-template-columns:1fr 80px 80px 64px;gap:8px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.4);padding-bottom:6px;border-bottom:1px solid rgba(232,148,10,.2);"><div>Article</div><div>Achat</div><div>Vente</div><div>Marge</div></div>${margeRows}` : `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.45);">Renseigne le coût d'achat de tes articles (bouton Modifier) pour voir tes marges.</div>`}
+      </div>
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>
+        ${chargesList}
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:22px;">
+      <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:24px;color:#14100A;flex-shrink:0;">S</div>
+        <div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;">Sandy · ton bilan</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#E8940A;">Lu sur tes vrais chiffres</div></div>
+      </div>
+      <div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">
+        ${bilan.map(l => `<div style="margin-bottom:8px;">${l}</div>`).join('')}
+      </div>
+      <button onclick="try{showDashSection('messages')}catch(e){};setTimeout(function(){try{openDmThread('coach')}catch(e){}},400);" style="margin-top:14px;background:#E8940A;color:#14100A;border:none;border-radius:100px;padding:11px 20px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Parler à Sandy →</button>
+    </div>`;
+
+  if (isPro) { el.innerHTML = contenu; return; }
+  el.innerHTML = `<div style="position:relative;border-radius:20px;overflow:hidden;">
+      <div style="filter:blur(7px);opacity:.5;pointer-events:none;">${contenu}</div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,16,10,.6);text-align:center;padding:24px;">
+        <div style="width:54px;height:54px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:26px;">🔒</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;">Tes finances, avec Sandy</div>
+        <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.65);max-width:320px;">Bénéfice calculé, objectif du mois et un coach qui lit tes chiffres et te dit quoi faire. Réservé au plan Pro · 2 500 F/mois.</div>
+        <button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:14px;padding:12px 24px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button>
+      </div>
+    </div>`;
+}
+
+// Objectif
+function ouvrirObjectif() { switchBoutiqueVue('finances'); const el = document.getElementById('obj-input'); if (el) el.focus(); else { _boutiqueObjectif = null; renderFinances(); setTimeout(() => document.getElementById('obj-input')?.focus(), 50); } }
+async function saveObjectif() {
+  const raw = (document.getElementById('obj-input')?.value || '').replace(/\D/g, '');
+  const montant = raw ? parseInt(raw) : 0;
+  if (!montant || montant < 1000) { toast('Indique un objectif (ex : 250000).', 'error'); return; }
+  if (!currentUser || !window.supabase) return;
+  try {
+    const { error } = await window.supabase.from('wozali_objectifs').upsert({ user_id: currentUser.id, mois: _moisKey(), type: 'ca', montant }, { onConflict: 'user_id,mois' });
+    if (error) throw error;
+    _boutiqueObjectif = { mois: _moisKey(), type: 'ca', montant };
+    renderFinances();
+    toast('Objectif fixé 🎯', 'success');
+  } catch (e) { console.error('❌ saveObjectif', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+// Charges / dépenses
+function ouvrirDepense() {
+  const old = document.getElementById('depense-modal'); if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'depense-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;"><div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;">Ajouter une charge</div><button onclick="document.getElementById('depense-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button></div>
+      <div style="margin-bottom:14px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Montant (FCFA)</div><input id="dep-montant" type="text" inputmode="numeric" placeholder="Ex : 25000" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:'Geist Mono',monospace;font-size:16px;"></div>
+      <div style="margin-bottom:14px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Quoi ?</div><input id="dep-libelle" type="text" maxlength="60" placeholder="Ex : Loyer boutique, transport tissu…" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;"></div>
+      <div style="margin-bottom:20px;"><div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.5);margin-bottom:8px;">Catégorie</div>
+        <select id="dep-cat" style="width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;"><option value="loyer">Loyer</option><option value="transport">Transport</option><option value="fournitures">Fournitures</option><option value="autre">Autre</option></select>
+      </div>
+      <button id="dep-send" onclick="saveDepense()" style="width:100%;min-height:50px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Enregistrer la charge</button>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('dep-montant')?.focus(), 100);
+}
+async function saveDepense() {
+  const montant = parseInt((document.getElementById('dep-montant')?.value || '').replace(/\D/g, '') || '0');
+  if (!montant || montant <= 0) { toast('Indique le montant.', 'error'); return; }
+  const libelle = (document.getElementById('dep-libelle')?.value || '').trim() || null;
+  const categorie = document.getElementById('dep-cat')?.value || 'autre';
+  if (!currentUser || !window.supabase) return;
+  const btn = document.getElementById('dep-send'); if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
+  try {
+    const { data, error } = await window.supabase.from('wozali_depenses').insert({ user_id: currentUser.id, montant, libelle, categorie }).select();
+    if (error) throw error;
+    if (data && data[0]) _boutiqueDepenses.unshift(data[0]);
+    document.getElementById('depense-modal')?.remove();
+    renderFinances();
+    toast('Charge enregistrée.', 'success');
+  } catch (e) { console.error('❌ saveDepense', e.message || e); toast('Ça a calé. Réessaie.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la charge'; } }
+}
+async function supprimerDepense(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  try {
+    const { error } = await window.supabase.from('wozali_depenses').delete().eq('id', id).eq('user_id', currentUser.id);
+    if (error) throw error;
+    _boutiqueDepenses = _boutiqueDepenses.filter(d => d.id !== id);
+    renderFinances();
+  } catch (e) { console.error('❌ supprimerDepense', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+window.loadBoutiqueFinances = loadBoutiqueFinances;
+window.switchBoutiqueVue = switchBoutiqueVue;
+window.renderFinances = renderFinances;
+window.ouvrirObjectif = ouvrirObjectif;
+window.saveObjectif = saveObjectif;
+window.ouvrirDepense = ouvrirDepense;
+window.saveDepense = saveDepense;
+window.supprimerDepense = supprimerDepense;
 
 // ══ Prestations & tarifs — éditeur dashboard (section ds-prestations) ══
 // Mirroir de la boutique : CRUD sur wozali_prestations, s'affiche sur le profil

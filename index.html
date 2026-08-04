@@ -3770,13 +3770,25 @@ setTimeout(function(){
             <h2 style="font-weight:400;color:#FCE0A8;">Ma <em style="color:#E8940A;font-style:italic;">boutique</em></h2>
             <p style="color:rgba(252,224,168,.55);font-size:14px;margin-top:4px;">Tes articles, ton stock, tes commandes — tout ton business au même endroit. Le client commande direct sur WOZALI.</p>
           </div>
-          <button onclick="ouvrirFormProduitCatalogue()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter un produit</button>
+          <button id="btn-ajouter-produit" onclick="ouvrirFormProduitCatalogue()" style="white-space:nowrap;min-height:44px;padding:10px 22px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">+ Ajouter un produit</button>
         </div>
 
-        <!-- Tableau de bord (KPI + best-sellers, gating Pro) -->
-        <div id="boutique-dash" style="margin-bottom:20px;"></div>
-        <!-- Commandes reçues -->
-        <div id="boutique-commandes" style="margin-bottom:20px;"></div>
+        <!-- Sélecteur Boutique / Finances -->
+        <div style="display:inline-flex;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:4px;margin-bottom:18px;">
+          <button id="btn-vue-boutique" onclick="switchBoutiqueVue('boutique')" style="min-height:38px;padding:8px 18px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">🛍️ Boutique</button>
+          <button id="btn-vue-finances" onclick="switchBoutiqueVue('finances')" style="min-height:38px;padding:8px 18px;background:transparent;color:rgba(252,224,168,.6);border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">💰 Finances</button>
+        </div>
+
+        <!-- VUE BOUTIQUE -->
+        <div id="boutique-vue-main">
+          <!-- Tableau de bord (KPI + best-sellers, gating Pro) -->
+          <div id="boutique-dash" style="margin-bottom:20px;"></div>
+          <!-- Commandes reçues -->
+          <div id="boutique-commandes" style="margin-bottom:20px;"></div>
+        </div>
+
+        <!-- VUE FINANCES (écran 2) -->
+        <div id="boutique-finances" style="display:none;margin-bottom:20px;"></div>
 
         <!-- Formulaire produit (masqué par défaut) -->
         <div id="boutique-form-wrap" style="display:none;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:20px;padding:24px;margin-bottom:20px;">
@@ -7636,7 +7648,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260804boutique2" defer></script>
+<script src="/app.js?v=20260804boutique3" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
