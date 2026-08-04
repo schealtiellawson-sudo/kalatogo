@@ -678,7 +678,7 @@ function showDashSection(section) {
   if (section === 'realisations') loadRealisationsSection();
   if (section === 'modeles') { loadModelesSection(); loadAtelierPro(); }
   if (section === 'packs') loadPacksSection();
-  if (section === 'menu') loadMenuSection();
+  if (section === 'menu') { loadMenuSection(); loadRestoPro(); }
   if (section === 'courses') loadCoursesSection();
   if (section === 'formules') loadFormulesSection();
   if (section === 'etablissement') loadEtablissementSection();
@@ -2867,6 +2867,43 @@ let _boutiqueVue = 'boutique';
 
 function _moisKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
 
+// ── Sélecteur de période PARTAGÉ pour toutes les finances (ce mois / mois précis / année / tout) ──
+window._finPeriode = window._finPeriode || { mode: 'mois', ym: _moisKey() };
+function _finRange() {
+  const p = window._finPeriode || { mode: 'mois', ym: _moisKey() };
+  if (p.mode === 'tout') return { start: new Date(2020, 0, 1), end: new Date(2999, 0, 1), label: 'depuis le début' };
+  if (p.mode === 'annee') { const y = parseInt((p.ym || _moisKey()).slice(0, 4)); return { start: new Date(y, 0, 1), end: new Date(y + 1, 0, 1), label: 'année ' + y }; }
+  const [y, m] = (p.ym || _moisKey()).split('-').map(Number);
+  const start = new Date(y, m - 1, 1), end = new Date(y, m, 1);
+  return { start, end, label: start.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) };
+}
+function _finInRange(dateVal) {
+  const { start, end } = _finRange();
+  const d = dateVal ? new Date(typeof dateVal === 'string' && dateVal.length === 10 ? dateVal + 'T00:00:00' : dateVal) : new Date();
+  return d >= start && d < end;
+}
+function _finPeriodeSelect(rerenderFnName) {
+  const p = window._finPeriode || { mode: 'mois', ym: _moisKey() };
+  const cur = _moisKey();
+  const opts = [['mois:' + cur, 'Ce mois-ci']];
+  for (let i = 1; i <= 5; i++) { const d = new Date(); d.setMonth(d.getMonth() - i); const ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); const lab = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }); opts.push(['mois:' + ym, lab.charAt(0).toUpperCase() + lab.slice(1)]); }
+  opts.push(['annee:' + cur.slice(0, 4), 'Toute l\'année ' + cur.slice(0, 4)]);
+  opts.push(['tout:', 'Depuis le début']);
+  const curVal = p.mode + ':' + (p.mode === 'tout' ? '' : (p.ym || cur));
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);">Période</span>
+      <select onchange="setFinPeriode(this.value,'${rerenderFnName}')" style="background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:100px;padding:8px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:13px;font-weight:600;cursor:pointer;outline:none;">
+        ${opts.map(([v, l]) => `<option value="${v}" ${v === curVal ? 'selected' : ''}>${l}</option>`).join('')}
+      </select>
+    </div>`;
+}
+function setFinPeriode(val, rerenderFnName) {
+  const idx = val.indexOf(':'); const mode = val.slice(0, idx), ym = val.slice(idx + 1);
+  window._finPeriode = { mode, ym: ym || _moisKey() };
+  if (typeof window[rerenderFnName] === 'function') window[rerenderFnName]();
+}
+window.setFinPeriode = setFinPeriode;
+
 async function loadBoutiqueFinances() {
   if (!currentUser || !window.supabase) { renderFinances(); return; }
   try {
@@ -2882,8 +2919,7 @@ async function loadBoutiqueFinances() {
 
 // Calcule les finances du mois en cours à partir des commandes vendues + coûts + charges
 function computeFinancesBoutique() {
-  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-  const vendues = (_boutiqueCommandes || []).filter(c => (c.statut === 'confirmee' || c.statut === 'livree') && (!c.created_at || new Date(c.created_at) >= monthStart));
+  const vendues = (_boutiqueCommandes || []).filter(c => (c.statut === 'confirmee' || c.statut === 'livree') && _finInRange(c.created_at));
   const itemsById = {}; (_boutiqueItems || []).forEach(it => itemsById[it.id] = it);
   let ca = 0, cogs = 0, missingCost = false;
   vendues.forEach(c => {
@@ -2893,7 +2929,7 @@ function computeFinancesBoutique() {
     if (it && typeof it.cout_achat === 'number') cogs += it.cout_achat * q;
     else if (it) missingCost = true;
   });
-  const charges = (_boutiqueDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).reduce((s, d) => s + (d.montant || 0), 0);
+  const charges = (_boutiqueDepenses || []).filter(d => _finInRange(d.created_at)).reduce((s, d) => s + (d.montant || 0), 0);
   const benefice = ca - cogs - charges;
   const marge = ca > 0 ? Math.round((ca - cogs) / ca * 100) : 0;
   return { ca, cogs, charges, benefice, marge, missingCost, nbVentes: vendues.length };
@@ -3007,8 +3043,7 @@ function renderFinances() {
   }
 
   // Charges du mois
-  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-  const chargesMois = (_boutiqueDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart);
+  const chargesMois = (_boutiqueDepenses || []).filter(d => _finInRange(d.created_at));
   const chargesList = chargesMois.length ? chargesMois.slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(252,224,168,.07);font-size:13px;">
       <span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span>
       <span style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span><button onclick="supprimerDepense('${escapeHtml(d.id)}')" style="background:none;border:none;color:rgba(252,224,168,.4);cursor:pointer;font-size:14px;">✕</button></span>
@@ -3017,11 +3052,13 @@ function renderFinances() {
   // Sandy
   const bilan = _sandyBilanBoutique(fin);
 
+  const per = _finRange().label;
   const contenu = `
+    ${_finPeriodeSelect('renderFinances')}
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
-      ${box("Chiffre d'affaires · ce mois", (fin.ca).toLocaleString('fr-FR') + ' F', fin.nbVentes + ' vente' + (fin.nbVentes > 1 ? 's' : '') + ' confirmée' + (fin.nbVentes > 1 ? 's' : ''))}
-      ${box('Dépenses · ce mois', depenses.toLocaleString('fr-FR') + ' F', 'Achat ' + fin.cogs.toLocaleString('fr-FR') + ' · charges ' + fin.charges.toLocaleString('fr-FR'))}
-      ${box('Bénéfice net' + (estime ? ' (estimé)' : '') + ' · ce mois', (fin.benefice).toLocaleString('fr-FR') + ' F', 'Marge globale ' + fin.marge + '%', true)}
+      ${box("Chiffre d'affaires · " + per, (fin.ca).toLocaleString('fr-FR') + ' F', fin.nbVentes + ' vente' + (fin.nbVentes > 1 ? 's' : '') + ' confirmée' + (fin.nbVentes > 1 ? 's' : ''))}
+      ${box('Dépenses · ' + per, depenses.toLocaleString('fr-FR') + ' F', 'Achat ' + fin.cogs.toLocaleString('fr-FR') + ' · charges ' + fin.charges.toLocaleString('fr-FR'))}
+      ${box('Bénéfice net' + (estime ? ' (estimé)' : ''), (fin.benefice).toLocaleString('fr-FR') + ' F', 'Marge globale ' + fin.marge + '%', true)}
     </div>
 
     <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;">
@@ -3114,11 +3151,13 @@ async function saveDepense() {
       if (typeof _boutiqueDepenses !== 'undefined') _boutiqueDepenses.unshift(data[0]);
       if (typeof _salonDepenses !== 'undefined') _salonDepenses.unshift(data[0]);
       if (typeof _atelierDepenses !== 'undefined') _atelierDepenses.unshift(data[0]);
+      if (typeof _restoDepenses !== 'undefined') _restoDepenses.unshift(data[0]);
     }
     document.getElementById('depense-modal')?.remove();
     if (typeof renderFinances === 'function' && document.getElementById('boutique-finances')) renderFinances();
     if (typeof renderSalonFinances === 'function' && document.getElementById('salon-vue-finances')) renderSalonFinances();
     if (typeof renderAtelierFinances === 'function' && document.getElementById('atelier-vue-fin')) renderAtelierFinances();
+    if (typeof renderRestoRecettes === 'function' && document.getElementById('resto-vue-recettes')) renderRestoRecettes();
     toast('Charge enregistrée.', 'success');
   } catch (e) { console.error('❌ saveDepense', e.message || e); toast('Ça a calé. Réessaie.', 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Enregistrer la charge'; } }
 }
@@ -3331,9 +3370,11 @@ function renderSalonFinances() {
   if (!el) return;
   const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
   const m = computeSalon();
-  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-  const charges = (_salonDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).reduce((s, d) => s + (d.montant || 0), 0);
-  const benefice = m.ca - charges;
+  const per = _finRange().label;
+  const honoredPer = _salonRdvs.filter(r => _statutNorm(r.statut) === 'Honoré' && _finInRange(r.date_rdv));
+  const caPer = honoredPer.reduce((s, r) => s + _rdvPrix(r), 0);
+  const charges = (_salonDepenses || []).filter(d => _finInRange(d.created_at)).reduce((s, d) => s + (d.montant || 0), 0);
+  const benefice = caPer - charges;
 
   const box = (lab, val, sub, accent) => `<div style="flex:1;min-width:150px;background:#1E180E;border:1px solid ${accent ? 'rgba(63,178,127,.35)' : 'rgba(232,148,10,.15)'};border-radius:18px;padding:20px;">
       <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div>
@@ -3367,16 +3408,17 @@ function renderSalonFinances() {
   }
 
   const contenu = `
+    ${_finPeriodeSelect('renderSalonFinances')}
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
-      ${box('CA du mois', m.ca.toLocaleString('fr-FR') + ' F', m.honoredMois.length + ' prestation' + (m.honoredMois.length > 1 ? 's' : '') + ' honorée' + (m.honoredMois.length > 1 ? 's' : ''))}
-      ${box('Charges du mois', charges.toLocaleString('fr-FR') + ' F', 'loyer, produits…')}
-      ${box('Bénéfice net · ce mois', benefice.toLocaleString('fr-FR') + ' F', 'CA − charges', true)}
+      ${box('CA · ' + per, caPer.toLocaleString('fr-FR') + ' F', honoredPer.length + ' prestation' + (honoredPer.length > 1 ? 's' : '') + ' honorée' + (honoredPer.length > 1 ? 's' : ''))}
+      ${box('Charges · ' + per, charges.toLocaleString('fr-FR') + ' F', 'loyer, produits…')}
+      ${box('Bénéfice net', benefice.toLocaleString('fr-FR') + ' F', 'CA − charges', true)}
     </div>
     <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;">
       <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">🎯 Objectif du mois</h3>${objBloc}</div>
     <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>
-      ${(_salonDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span><button onclick="supprimerDepenseSalon('${escapeHtml(d.id)}')" style="background:none;border:none;color:rgba(252,224,168,.4);cursor:pointer;">✕</button></span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge ce mois.</div>`}
+      ${(_salonDepenses || []).filter(d => _finInRange(d.created_at)).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span><button onclick="supprimerDepenseSalon('${escapeHtml(d.id)}')" style="background:none;border:none;color:rgba(252,224,168,.4);cursor:pointer;">✕</button></span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge sur la période.</div>`}
     </div>
     <div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:22px;">
       <div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;"><div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:22px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;">Sandy · ton bilan</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#E8940A;">Lu sur ton agenda</div></div></div>
@@ -3730,9 +3772,11 @@ function renderAtelierFinances() {
   if (!el) return;
   const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
   const m = computeAtelier();
-  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-  const charges = (_atelierDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).reduce((s, d) => s + (d.montant || 0), 0);
-  const benefice = m.ca - charges;
+  const per = _finRange().label;
+  const livreesPer = _atelierCommandes.filter(c => c.statut === 'livree' && _finInRange(c.created_at));
+  const caPer = livreesPer.reduce((s, c) => s + _cmdPrixNum(c.prix_txt) * (c.quantite || 1), 0);
+  const charges = (_atelierDepenses || []).filter(d => _finInRange(d.created_at)).reduce((s, d) => s + (d.montant || 0), 0);
+  const benefice = caPer - charges;
   const box = (lab, val, sub, accent) => `<div style="flex:1;min-width:150px;background:#1E180E;border:1px solid ${accent ? 'rgba(63,178,127,.35)' : 'rgba(232,148,10,.15)'};border-radius:18px;padding:20px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:32px;color:${accent ? '#3FB27F' : '#FCE0A8'};margin-top:10px;line-height:1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${accent ? '#3FB27F' : 'rgba(252,224,168,.45)'};margin-top:7px;">${sub}</div>` : ''}</div>`;
   let objBloc;
   if (_atelierObjectif && _atelierObjectif.montant) {
@@ -3753,13 +3797,14 @@ function renderAtelierFinances() {
     if (m.enCours >= 4) bilan.push(`Tu as ${m.enCours} commandes en cours — attention aux délais, note bien tes dates de livraison.`);
   }
   const contenu = `
+    ${_finPeriodeSelect('renderAtelierFinances')}
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
-      ${box('CA du mois', m.ca.toLocaleString('fr-FR') + ' F', m.livrees.length + ' modèle' + (m.livrees.length > 1 ? 's' : '') + ' livré' + (m.livrees.length > 1 ? 's' : ''))}
-      ${box('Charges du mois', charges.toLocaleString('fr-FR') + ' F', 'tissu, fils, loyer…')}
-      ${box('Bénéfice net · ce mois', benefice.toLocaleString('fr-FR') + ' F', 'CA − charges', true)}
+      ${box('CA · ' + per, caPer.toLocaleString('fr-FR') + ' F', livreesPer.length + ' modèle' + (livreesPer.length > 1 ? 's' : '') + ' livré' + (livreesPer.length > 1 ? 's' : ''))}
+      ${box('Charges · ' + per, charges.toLocaleString('fr-FR') + ' F', 'tissu, fils, loyer…')}
+      ${box('Bénéfice net', benefice.toLocaleString('fr-FR') + ' F', 'CA − charges', true)}
     </div>
     <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:14px;">🎯 Objectif du mois</h3>${objBloc}</div>
-    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>${(_atelierDepenses || []).filter(d => !d.created_at || new Date(d.created_at) >= monthStart).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge ce mois.</div>`}</div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>${(_atelierDepenses || []).filter(d => _finInRange(d.created_at)).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge sur la période.</div>`}</div>
     <div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:22px;"><div style="display:flex;align-items:center;gap:13px;margin-bottom:14px;"><div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:22px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:20px;color:#FCE0A8;">Sandy · ton bilan</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#E8940A;">Lu sur tes commandes</div></div></div><div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${bilan.map(l => `<div style="margin-bottom:8px;">${l}</div>`).join('')}</div></div>`;
   if (isPro) { el.innerHTML = contenu; return; }
   el.innerHTML = `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(7px);opacity:.5;pointer-events:none;">${contenu}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,16,10,.6);text-align:center;padding:24px;"><div style="width:54px;height:54px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:26px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;">Tes finances, avec Sandy</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:14px;padding:12px 24px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`;
@@ -3788,6 +3833,204 @@ window.supprimerCliente = supprimerCliente;
 window.atelierSandyAsk = atelierSandyAsk;
 window.atelierSandyQuick = atelierSandyQuick;
 window.saveAtelierObjectif = saveAtelierObjectif;
+
+// ══════════════════════════════════════════════════════════════
+// CLUSTER RESTO — « MON RESTO » (avis plats + carnet recettes + Sandy éducation)
+// PAS de commande (règle fondateur). S'appuie sur les 👍/👎 du menu + recette du jour.
+// ══════════════════════════════════════════════════════════════
+let _restoPlats = [], _restoReacRows = [], _restoRecettes = [], _restoDepenses = [], _restoObjectif = null, _restoVue = 'menu';
+
+async function loadRestoPro() {
+  const host = document.getElementById('resto-pro');
+  if (!host || !currentUser || !window.supabase) return;
+  try { const { data } = await window.supabase.from('wozali_menu').select('*').eq('user_id', currentUser.id); _restoPlats = data || []; } catch (e) { _restoPlats = []; }
+  if (!_restoPlats.length) { host.innerHTML = ''; return; } // pas un resto → rien
+  const ids = _restoPlats.map(p => p.id);
+  try { const { data } = await window.supabase.from('wozali_menu_reactions').select('menu_item_id,reaction,created_at').in('menu_item_id', ids); _restoReacRows = data || []; } catch (e) { _restoReacRows = []; }
+  try { const { data } = await window.supabase.from('wozali_recettes').select('*').eq('user_id', currentUser.id).order('jour', { ascending: false }).limit(120); _restoRecettes = data || []; } catch (e) { _restoRecettes = []; }
+  try { const { data } = await window.supabase.from('wozali_depenses').select('*').eq('user_id', currentUser.id).limit(200); _restoDepenses = data || []; } catch (e) { _restoDepenses = []; }
+  try { const { data } = await window.supabase.from('wozali_objectifs').select('*').eq('user_id', currentUser.id).eq('mois', _moisKey()).maybeSingle(); _restoObjectif = data || null; } catch (e) { _restoObjectif = null; }
+  renderResto();
+}
+
+function _restoPlatStats() {
+  const map = {}; _restoPlats.forEach(p => map[p.id] = { plat: p, like: 0, dislike: 0 });
+  _restoReacRows.forEach(r => { const s = map[r.menu_item_id]; if (s) { if (r.reaction === 'like') s.like++; else if (r.reaction === 'dislike') s.dislike++; } });
+  return Object.values(map);
+}
+
+function switchRestoVue(vue) {
+  _restoVue = vue;
+  const isR = vue === 'recettes';
+  const bm = document.getElementById('btn-resto-menu'), br = document.getElementById('btn-resto-recettes');
+  if (bm) { bm.style.background = isR ? 'transparent' : '#E8940A'; bm.style.color = isR ? 'rgba(252,224,168,.6)' : '#14100A'; }
+  if (br) { br.style.background = isR ? '#E8940A' : 'transparent'; br.style.color = isR ? '#14100A' : 'rgba(252,224,168,.6)'; }
+  const a = document.getElementById('resto-vue-menu'), r = document.getElementById('resto-vue-recettes');
+  if (a) a.style.display = isR ? 'none' : '';
+  if (r) r.style.display = isR ? '' : 'none';
+  if (isR) renderRestoRecettes();
+}
+
+function renderResto() {
+  const host = document.getElementById('resto-pro');
+  if (!host) return;
+  host.innerHTML = `
+    <div style="display:inline-flex;background:#1E180E;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:4px;margin-bottom:18px;">
+      <button id="btn-resto-menu" onclick="switchRestoVue('menu')" style="min-height:38px;padding:8px 18px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">🍽️ Menu &amp; avis</button>
+      <button id="btn-resto-recettes" onclick="switchRestoVue('recettes')" style="min-height:38px;padding:8px 18px;background:transparent;color:rgba(252,224,168,.6);border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">💰 Recettes</button>
+    </div>
+    <div id="resto-vue-menu"></div>
+    <div id="resto-vue-recettes" style="display:none;"></div>`;
+  renderRestoAvis();
+}
+
+function renderRestoAvis() {
+  const el = document.getElementById('resto-vue-menu');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const stats = _restoPlatStats();
+  const totalReac = _restoReacRows.length;
+  const adored = stats.filter(s => s.like > 0).sort((a, b) => b.like - a.like);
+  const arevoir = stats.filter(s => s.dislike >= 2).sort((a, b) => b.dislike - a.dislike);
+  const dorment = stats.filter(s => s.like === 0 && s.dislike === 0);
+  const n1 = adored[0];
+
+  const kpi = (lab, val, sub) => `<div style="flex:1;min-width:130px;background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:16px;padding:16px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:${String(val).length > 8 ? '18px' : '26px'};color:#FCE0A8;margin-top:8px;line-height:1.1;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.45);margin-top:6px;">${sub}</div>` : ''}</div>`;
+
+  const dishRow = (s, kind) => {
+    const nomP = escapeHtml(s.plat.nom || 'Plat');
+    const prix = (s.plat.prix || s.plat.prix === 0) ? (parseInt(s.plat.prix).toLocaleString('fr-FR') + ' F') : '';
+    const val = kind === 'up' ? `<span style="color:#3FB27F;font-family:'Geist Mono',monospace;font-weight:700;">👍 ${s.like}</span>` : `<span style="color:#E5533C;font-family:'Geist Mono',monospace;font-weight:700;">👎 ${s.dislike}</span>`;
+    const star = (kind === 'up' && n1 && s.plat.id === n1.plat.id) ? '<span style="font-family:\'Geist Mono\',monospace;font-size:9px;text-transform:uppercase;background:rgba(232,148,10,.18);color:#E8940A;padding:2px 8px;border-radius:100px;margin-left:8px;">🔥 star</span>' : '';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid rgba(252,224,168,.07);">
+        <div style="width:40px;height:40px;border-radius:10px;background:#2a2113;overflow:hidden;flex-shrink:0;">${s.plat.photo_url ? `<img src="${encodeURI(s.plat.photo_url)}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;">🍽️</div>'}</div>
+        <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:#FCE0A8;">${nomP}${star}</div>${prix ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.5);margin-top:2px;">${prix}</div>` : ''}</div>
+        ${val}
+      </div>`;
+  };
+
+  // Sandy éducation/valeur
+  let sandyMsg;
+  if (!totalReac) {
+    sandyMsg = `Ta carte est en ligne, mais personne n'a encore donné son avis. <b>Imprime ton QR de table</b> (bouton dans « Chevalet Menu ») et pose-le sur les tables : chaque client scanne, voit tes plats en photo et met 👍 ou 👎. En 1 semaine tu sauras <b>exactement</b> quel plat les gens adorent — <b>aucun maquis de Cotonou n'a ça, même les restos en Europe le paient très cher.</b>`;
+  } else {
+    const parts = [];
+    if (n1) parts.push(`🔥 Ton <b>${escapeHtml(n1.plat.nom)}</b> est ce que les clients adorent (👍 ${n1.like}) — mets-le en <b>photo tout en haut de ta carte</b> et propose-le en « plat du jour ». C'est lui qui remplit ton resto.`);
+    if (arevoir[0]) parts.push(`⚠️ Ton <b>${escapeHtml(arevoir[0].plat.nom)}</b> déçoit (👎 ${arevoir[0].dislike}) — change la recette ou retire-le. Un plat qui déçoit fait fuir le client pour TOUS tes plats.`);
+    if (dorment.length) parts.push(`👀 ${dorment.length} plat${dorment.length > 1 ? 's' : ''} n'${dorment.length > 1 ? 'ont' : 'a'} aucun avis — souvent parce qu'il manque une photo. Une belle photo = 2× plus de commandes en salle.`);
+    sandyMsg = parts.join('<br><br>');
+  }
+
+  const sandy = `<div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:20px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:21px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;">Sandy · ta conseillère</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;">Elle lit les avis de tes clients</div></div></div>
+      <div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${sandyMsg}</div>
+    </div>`;
+
+  const contenu = `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+      ${kpi('Plats au menu', _restoPlats.length, '')}
+      ${kpi('Avis clients', totalReac, totalReac ? 'via le QR de table' : 'imprime ton QR')}
+      ${kpi('Plat n°1', n1 ? escapeHtml(n1.plat.nom) : '—', n1 ? '👍 ' + n1.like + ' j\'aime' : 'pas encore d\'avis')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:8px;">❤️ Ce que les clients adorent</h3>${adored.length ? adored.slice(0, 5).map(s => dishRow(s, 'up')).join('') : `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.45);padding:8px 0;">Encore aucun 👍. Pose ton QR de table pour recueillir les avis.</div>`}</div>
+      <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:8px;">🤔 À revoir</h3>${arevoir.length ? arevoir.slice(0, 5).map(s => dishRow(s, 'down')).join('') : `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.45);padding:8px 0;">Aucun plat ne déçoit 👌</div>`}</div>
+    </div>
+    ${isPro ? sandy : `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(6px);opacity:.5;pointer-events:none;">${sandy}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(20,16,10,.55);text-align:center;padding:20px;"><div style="width:44px;height:44px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:20px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:18px;color:#FCE0A8;">Sandy te dit quoi pousser, quoi changer</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:13px;padding:10px 20px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`}`;
+  el.innerHTML = contenu;
+}
+
+function renderRestoRecettes() {
+  const el = document.getElementById('resto-vue-recettes');
+  if (!el) return;
+  const isPro = !!(window.isProUser && window.isProUser(window.currentPrestataire));
+  const per = _finRange().label;
+  const todayIso = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+  const recToday = _restoRecettes.find(r => r.jour === todayIso);
+  const caPer = _restoRecettes.filter(r => _finInRange(r.jour)).reduce((s, r) => s + (r.montant || 0), 0);
+  const charges = (_restoDepenses || []).filter(d => _finInRange(d.created_at)).reduce((s, d) => s + (d.montant || 0), 0);
+  const benefice = caPer - charges;
+
+  // Semaine en cours (lun→dim)
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const weekStart = new Date(today); weekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  const jn = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  const wk = jn.map((lab, i) => {
+    const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
+    const iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const r = _restoRecettes.find(x => x.jour === iso);
+    const isToday = iso === todayIso;
+    const v = r ? Math.round(r.montant / 1000) + 'k' : '—';
+    return `<div style="flex:1;text-align:center;background:#14100A;border:1px solid ${isToday ? 'rgba(232,148,10,.5)' : 'rgba(232,148,10,.15)'};border-radius:10px;padding:8px 4px;"><div style="font-family:'Geist Mono',monospace;font-size:9px;color:rgba(252,224,168,.4);text-transform:uppercase;">${lab}</div><div style="font-family:'Geist Mono',monospace;font-size:12px;color:#FCE0A8;margin-top:4px;">${v}</div></div>`;
+  }).join('');
+
+  const box = (lab, val, sub, accent) => `<div style="flex:1;min-width:150px;background:#14100A;border:1px solid ${accent ? 'rgba(63,178,127,.35)' : 'rgba(232,148,10,.15)'};border-radius:14px;padding:16px;"><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);">${lab}</div><div style="font-family:'DM Serif Display',serif;font-size:24px;color:${accent ? '#3FB27F' : '#FCE0A8'};margin-top:8px;">${val}</div>${sub ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;color:${accent ? '#3FB27F' : 'rgba(252,224,168,.4)'};margin-top:6px;">${sub}</div>` : ''}</div>`;
+
+  // Sandy recettes (valeur/éducation)
+  let bilan;
+  const nbJours = _restoRecettes.filter(r => _finInRange(r.jour)).length;
+  if (!_restoRecettes.length) {
+    bilan = `Chaque soir en fermant, note ta recette du jour ici — <b>30 secondes</b>. Au bout d'un mois tu verras <b>combien tu gagnes vraiment</b>, quels jours marchent, et si tu perds de l'argent sans le savoir. <b>Fini le carnet et le "à peu près"</b> — pilote ton maquis comme un vrai patron.`;
+  } else {
+    const bits = [];
+    bits.push(`Sur <b>${per}</b> : <b class="kfig">${caPer.toLocaleString('fr-FR')} F</b> de recettes${charges ? `, bénéfice <b class="kfig">${benefice.toLocaleString('fr-FR')} F</b>` : ''}.`);
+    if (!charges) bits.push(`Ajoute tes charges (courses, gaz, personnel) pour connaître ton <b>vrai bénéfice</b> — c'est ça qui compte, pas juste ce qui rentre dans la caisse.`);
+    bits.push(`Note ta recette <b>chaque jour</b> : plus tu es régulière, plus je peux te dire quels jours pousser et où tu perds.`);
+    bilan = bits.join('<br><br>');
+  }
+  const sandy = `<div style="background:linear-gradient(155deg,rgba(232,148,10,.10),rgba(30,24,14,.5));border:1px solid rgba(232,148,10,.32);border-radius:20px;padding:20px;"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#E8940A,#f2ad3c);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:21px;color:#14100A;">S</div><div><div style="font-family:'DM Serif Display',serif;font-size:19px;color:#FCE0A8;">Sandy · ton bilan</div><div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#E8940A;">Lu sur tes recettes</div></div></div><div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:16px;border-top-left-radius:4px;padding:16px 18px;font-family:Geist,sans-serif;font-size:14px;line-height:1.7;color:rgba(252,224,168,.85);">${bilan}</div></div>`;
+
+  const contenu = `
+    ${_finPeriodeSelect('renderRestoRecettes')}
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;">
+      <h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;margin-bottom:4px;">💰 Ta recette d'aujourd'hui</h3>
+      <div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.5);margin-bottom:14px;">Ce que tu as encaissé aujourd'hui, tous plats confondus.</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <div style="flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:#14100A;border:1px solid rgba(232,148,10,.25);border-radius:14px;padding:12px 16px;">
+          <span style="font-family:'Geist Mono',monospace;color:rgba(252,224,168,.5);font-size:15px;">FCFA</span>
+          <input id="resto-recette-input" type="text" inputmode="numeric" value="${recToday ? recToday.montant : ''}" placeholder="Ex : 48000" style="flex:1;background:transparent;border:none;outline:none;color:#FCE0A8;font-family:'DM Serif Display',serif;font-size:22px;">
+        </div>
+        <button onclick="saveRecetteJour()" style="min-height:50px;padding:13px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">${recToday ? 'Mettre à jour' : 'Enregistrer'}</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;">${wk}</div>
+    </div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;">
+      ${box('Recettes · ' + per, caPer.toLocaleString('fr-FR') + ' F', nbJours + ' jour' + (nbJours > 1 ? 's' : '') + ' noté' + (nbJours > 1 ? 's' : ''))}
+      ${box('Charges · ' + per, charges.toLocaleString('fr-FR') + ' F', 'courses, gaz, personnel')}
+      ${box('Bénéfice net', benefice.toLocaleString('fr-FR') + ' F', 'recettes − charges', true)}
+    </div>
+    <div style="background:#1E180E;border:1px solid rgba(232,148,10,.15);border-radius:18px;padding:20px;margin-bottom:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;">Mes charges</h3><button onclick="ouvrirDepense()" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ Ajouter</button></div>${(_restoDepenses || []).filter(d => _finInRange(d.created_at)).slice(0, 6).map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(252,224,168,.07);font-size:13px;"><span style="color:rgba(252,224,168,.75);">${escapeHtml(d.libelle || d.categorie || 'Dépense')}</span><span style="display:flex;align-items:center;gap:10px;"><span style="font-family:'Geist Mono',monospace;color:#FCE0A8;">${(d.montant || 0).toLocaleString('fr-FR')} F</span><button onclick="supprimerDepenseResto('${escapeHtml(d.id)}')" style="background:none;border:none;color:rgba(252,224,168,.4);cursor:pointer;">✕</button></span></div>`).join('') || `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.4);">Aucune charge sur la période.</div>`}</div>
+    ${sandy}`;
+
+  if (isPro) { el.innerHTML = contenu; return; }
+  el.innerHTML = `<div style="position:relative;border-radius:20px;overflow:hidden;"><div style="filter:blur(7px);opacity:.5;pointer-events:none;">${contenu}</div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(20,16,10,.6);text-align:center;padding:24px;"><div style="width:54px;height:54px;border-radius:50%;background:#E8940A;color:#14100A;display:flex;align-items:center;justify-content:center;font-size:26px;">🔒</div><div style="font-family:'DM Serif Display',serif;font-size:24px;color:#FCE0A8;">Ton carnet de recettes, avec Sandy</div><div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.65);max-width:320px;">Suis tes recettes, tes charges, ton vrai bénéfice — et Sandy qui te pilote. Plan Pro · 2 500 F/mois.</div><button onclick="showDashSection('abonnement')" style="margin-top:2px;background:#E8940A;color:#14100A;font-weight:800;font-size:14px;padding:12px 24px;border:none;border-radius:100px;cursor:pointer;">Passer Pro →</button></div></div>`;
+}
+
+async function saveRecetteJour() {
+  const raw = (document.getElementById('resto-recette-input')?.value || '').replace(/\D/g, '');
+  const montant = raw ? parseInt(raw) : 0;
+  if (!montant || montant < 0) { toast('Indique ta recette du jour.', 'error'); return; }
+  if (!currentUser || !window.supabase) return;
+  const jour = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+  try {
+    const { error } = await window.supabase.from('wozali_recettes').upsert({ user_id: currentUser.id, jour, montant }, { onConflict: 'user_id,jour' });
+    if (error) throw error;
+    const ex = _restoRecettes.find(r => r.jour === jour);
+    if (ex) ex.montant = montant; else _restoRecettes.unshift({ jour, montant });
+    renderRestoRecettes();
+    toast('Recette enregistrée 💰', 'success');
+  } catch (e) { console.error('❌ saveRecetteJour', e.message || e); toast('Ça a calé. Réessaie.', 'error'); }
+}
+async function supprimerDepenseResto(id) {
+  if (!id || !currentUser || !window.supabase) return;
+  try { await window.supabase.from('wozali_depenses').delete().eq('id', id).eq('user_id', currentUser.id); _restoDepenses = _restoDepenses.filter(d => d.id !== id); renderRestoRecettes(); } catch (e) { toast('Ça a calé. Réessaie.', 'error'); }
+}
+
+window.loadRestoPro = loadRestoPro;
+window.switchRestoVue = switchRestoVue;
+window.renderRestoRecettes = renderRestoRecettes;
+window.saveRecetteJour = saveRecetteJour;
+window.supprimerDepenseResto = supprimerDepenseResto;
 
 // ══ Prestations & tarifs — éditeur dashboard (section ds-prestations) ══
 // Mirroir de la boutique : CRUD sur wozali_prestations, s'affiche sur le profil
