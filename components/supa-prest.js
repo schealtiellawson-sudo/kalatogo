@@ -211,6 +211,41 @@
   async function list(options = {}) {
     const supa = _supa();
     if (!supa) throw new Error('Supabase client non chargé');
+
+    // ── Recherche par mot-clé → fonction serveur qui balaie AUSSI les
+    //    catalogues métier (services, prestations, articles, plats, modèles…).
+    //    Repli gracieux sur l'ancienne recherche prestataires-seule si la
+    //    fonction wozali_search n'est pas encore déployée.
+    if (options.search && String(options.search).trim()) {
+      const term = String(options.search).trim();
+      let rows = null;
+      try {
+        const { data, error } = await supa.rpc('wozali_search', { term });
+        if (error) throw error;
+        rows = data || [];
+      } catch (e) {
+        console.warn('[supaPrest] wozali_search indisponible, repli prestataires-seule:', e?.message);
+        const s = term.replace(/[%_]/g, '');
+        const { data } = await supa.from('wozali_prestataires').select('*')
+          .or(`nom_complet.ilike.%${s}%,metier_principal.ilike.%${s}%,description_services.ilike.%${s}%,quartier.ilike.%${s}%,ville.ilike.%${s}%`)
+          .limit(200);
+        rows = data || [];
+      }
+      // Filtres additionnels appliqués côté client sur l'ensemble ramené
+      if (options.metier)     rows = rows.filter(r => r.metier_principal === options.metier);
+      if (options.quartier)   rows = rows.filter(r => r.quartier === options.quartier);
+      if (options.ville)      rows = rows.filter(r => r.ville === options.ville);
+      if (options.pays)       rows = rows.filter(r => r.pays === options.pays);
+      if (options.abonnement) rows = rows.filter(r => r.abonnement === options.abonnement);
+      if (options.disponible === true) rows = rows.filter(r => r.disponible_maintenant === true);
+      if (Array.isArray(options.ids) && options.ids.length) rows = rows.filter(r => options.ids.includes(r.id));
+      const ob = options.orderBy || 'note_moyenne';
+      rows.sort((a, b) => (Number(b[ob]) || 0) - (Number(a[ob]) || 0));
+      if (options.orderDir === 'asc') rows.reverse();
+      if (options.limit) rows = rows.slice(0, options.limit);
+      return rows.map(_toAirtableRecord);
+    }
+
     let q = supa.from('wozali_prestataires').select('*');
 
     if (options.metier)    q = q.eq('metier_principal', options.metier);

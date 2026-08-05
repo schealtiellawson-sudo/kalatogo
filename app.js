@@ -10006,7 +10006,7 @@ async function uploadToImgBB(file) {
 // Une revisite de page avec les mêmes filtres dans les 45s s'affiche instantanément.
 window._prestListCache = window._prestListCache || {};
 const _PREST_TTL = 45000;
-function _prestKey(o) { return (o.metier||'') + '|' + (o.quartier||'') + '|' + (o.dispo||'') + '|' + (o.tarifMax||''); }
+function _prestKey(o) { return (o.metier||'') + '|' + (o.quartier||'') + '|' + (o.dispo||'') + '|' + (o.tarifMax||'') + '|' + (o.search||''); }
 function _prestCacheFresh(o) {
   const e = window._prestListCache[_prestKey(o)];
   return (e && (Date.now() - e.t) < _PREST_TTL) ? e.records : null;
@@ -10025,6 +10025,7 @@ async function fetchPrestataires(opts = {}) {
         metier: opts.metier || undefined,
         quartier: opts.quartier || undefined,
         disponible: opts.dispo || undefined,
+        search: opts.search || undefined,
         limit: 50,
         orderBy: 'note_moyenne',
         orderDir: 'desc',
@@ -11238,8 +11239,10 @@ async function loadSearch() {
   })();
   const tarifMax = document.getElementById('s-tarif')?.value || '';
 
+  const searchText = (document.getElementById('s-text')?.value || '').trim();
+
   try {
-    let records = await fetchPrestataires({ metier, quartier, dispo: dispoFilter, tarifMax: tarifMax ? parseInt(tarifMax) : null });
+    let records = await fetchPrestataires({ metier, quartier, dispo: dispoFilter, tarifMax: tarifMax ? parseInt(tarifMax) : null, search: searchText || undefined });
     // Filtre Talents Digitaux côté client (pas de champ Airtable requis)
     if (digitalFilter) records = records.filter(r => isDigitalMetier(r.fields['Métier principal'] || ''));
     if (proFilter) records = records.filter(r => (r.fields['Abonnement']||'Base') !== 'Base');
@@ -11262,15 +11265,10 @@ async function loadSearch() {
       const top50Ids = new Set(sorted.slice(0,50).map(r=>r.id));
       records = records.filter(r => top50Ids.has(r.id));
     }
-    // Filtre texte libre
-    const textQ = (document.getElementById('s-text')?.value || '').trim().toLowerCase();
-    if (textQ) records = records.filter(r => {
-      const f = r.fields;
-      return (f['Nom complet']||'').toLowerCase().includes(textQ)
-          || (f['Métier principal']||'').toLowerCase().includes(textQ)
-          || (f['Description des services']||'').toLowerCase().includes(textQ)
-          || (f['Quartier']||'').toLowerCase().includes(textQ);
-    });
+    // Filtre texte libre : géré côté serveur par fetchPrestataires({search})
+    // qui balaie aussi les catalogues métier (services, articles, plats…).
+    // On ne re-filtre PAS ici — sinon on rejetterait les pros trouvés
+    // uniquement via un item de vitrine (ex : service « Ménage » d'un plombier).
     // Tri
     const tri = document.getElementById('s-tri')?.value || '';
     if (tri === 'note') records.sort((a,b) => (b.fields['Note moyenne']||0) - (a.fields['Note moyenne']||0));
