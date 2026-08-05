@@ -14825,15 +14825,7 @@ async function loadTemoignages(listId = 'mur-temoignages-list') {
     if (!items.length) {
       box.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(252,224,168,.4);font-size:13px;">Les premières histoires arrivent bientôt. La tienne peut ouvrir le mur.</div>`;
     } else {
-      box.innerHTML = items.map(t => {
-        const sig = t.auteur
-          ? `<div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:#E8940A;margin-top:10px;">— ${escapeHtml(t.auteur)}</div>`
-          : `<div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.35);margin-top:10px;">Membre WOZALI · ${escapeHtml(t.mois || '')}</div>`;
-        return `<div style="background:rgba(255,255,255,.04);border-left:3px solid #E8940A;border-radius:0 14px 14px 0;padding:18px 20px;margin-bottom:14px;">
-          <div style="font-size:14.5px;line-height:1.7;color:#FCE0A8;font-style:italic;">« ${escapeHtml(t.texte)} »</div>
-          ${sig}
-        </div>`;
-      }).join('');
+      box.innerHTML = items.map(_temoCard).join('');
     }
   } catch (e) { box.innerHTML = ''; }
 
@@ -14859,6 +14851,129 @@ async function loadTemoignages(listId = 'mur-temoignages-list') {
           </div>`).join('')}
       </div>`;
   } catch (e) { modBox.innerHTML = ''; }
+}
+
+// ── Carte témoignage interactive (soutien + fil de réponses) ──
+function _temoReactBtn(t, type, emoji, label) {
+  const n = (t.reactions && t.reactions[type]) || 0;
+  return `<button type="button" onclick="_temoReact('${t.id}','${type}',this)" data-type="${type}" style="display:inline-flex;align-items:center;gap:6px;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:100px;padding:6px 12px;font-size:12px;color:#FCE0A8;cursor:pointer;font-family:inherit;">${emoji} ${label} <span class="temo-n" style="font-family:'Geist Mono',monospace;font-size:11px;color:rgba(252,224,168,.55);">${n}</span></button>`;
+}
+function _temoCard(t) {
+  const sig = t.auteur
+    ? `<div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:#E8940A;margin-top:10px;">— ${escapeHtml(t.auteur)}</div>`
+    : `<div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.35);margin-top:10px;">Membre WOZALI · ${escapeHtml(t.mois || '')}</div>`;
+  const reacts = `<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(252,224,168,.08);">
+      ${_temoReactBtn(t,'crois','🤍','Je te crois')}${_temoReactBtn(t,'courage','💪','Courage')}${_temoReactBtn(t,'merci','🙏','Merci')}${_temoReactBtn(t,'moi_aussi','✊','Moi aussi')}
+    </div>`;
+  const bar = `<button type="button" onclick="_temoToggleThread('${t.id}',this)" style="margin-top:12px;background:none;border:none;color:rgba(252,224,168,.6);font-size:12.5px;cursor:pointer;font-family:inherit;padding:0;">💬 <span id="temo-nbrep-${t.id}">${t.nb_reponses || 0}</span> réponse(s) · se soutenir</button>`;
+  const thread = `<div id="temo-thread-${t.id}" style="display:none;margin-top:12px;">
+      <div style="display:flex;align-items:center;gap:8px;background:rgba(232,148,10,.06);border:1px dashed rgba(232,148,10,.3);border-radius:10px;padding:9px 12px;font-size:11.5px;color:rgba(252,224,168,.6);margin-bottom:12px;line-height:1.5;">🛡️ On soutient. On ne juge pas. On ne nomme personne. Chaque message est filtré.</div>
+      <div id="temo-rep-list-${t.id}"></div>
+      <div id="temo-rep-fb-${t.id}" style="font-size:12px;line-height:1.5;margin:8px 0;"></div>
+      <div style="display:flex;align-items:center;gap:6px;background:#14100A;border:1px solid rgba(232,148,10,.22);border-radius:100px;padding:6px 6px 6px 14px;">
+        <input id="temo-rep-input-${t.id}" type="text" maxlength="500" placeholder="Écris un mot de soutien…" style="flex:1;min-width:0;background:none;border:none;outline:none;color:#FCE0A8;font-size:13px;font-family:inherit;">
+        <button type="button" id="temo-rep-anon-${t.id}" onclick="_temoReplySetMode('${t.id}',true)" style="font-size:10px;font-family:'Geist Mono',monospace;text-transform:uppercase;padding:5px 8px;border-radius:100px;border:none;background:#E8940A;color:#14100A;font-weight:700;cursor:pointer;">Anon</button>
+        <button type="button" id="temo-rep-sign-${t.id}" onclick="_temoReplySetMode('${t.id}',false)" style="font-size:10px;font-family:'Geist Mono',monospace;text-transform:uppercase;padding:5px 8px;border-radius:100px;border:none;background:#1E180E;color:rgba(252,224,168,.5);cursor:pointer;">Signé</button>
+        <button type="button" onclick="_temoSendReply('${t.id}')" style="width:32px;height:32px;flex-shrink:0;border-radius:50%;background:#E8940A;color:#14100A;border:none;font-weight:800;cursor:pointer;">↑</button>
+      </div>
+    </div>`;
+  return `<div style="background:rgba(255,255,255,.04);border-left:3px solid #E8940A;border-radius:0 14px 14px 0;padding:18px 20px;margin-bottom:14px;">
+      <div style="font-size:14.5px;line-height:1.7;color:#FCE0A8;font-style:italic;">« ${escapeHtml(t.texte)} »</div>
+      ${sig}${reacts}${bar}${thread}
+    </div>`;
+}
+async function _temoReact(id, type, btn) {
+  if (!currentUser) { toast('Connecte-toi pour soutenir.', 'info'); return; }
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/temoignage-react', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ temoignage_id: id, type }),
+    });
+    const d = await r.json();
+    if (!d?.ok) return;
+    btn.parentElement.querySelectorAll('button[data-type]').forEach(b => {
+      const ty = b.getAttribute('data-type');
+      const mine = (d.mine || []).includes(ty);
+      const span = b.querySelector('.temo-n');
+      if (span) { span.textContent = (d.reactions && d.reactions[ty]) || 0; span.style.color = mine ? '#E8940A' : 'rgba(252,224,168,.55)'; }
+      b.style.background = mine ? 'rgba(232,148,10,.14)' : '#14100A';
+      b.style.borderColor = mine ? '#E8940A' : 'rgba(232,148,10,.2)';
+    });
+  } catch (e) {}
+}
+async function _temoToggleThread(id, btn) {
+  const th = document.getElementById('temo-thread-' + id);
+  if (!th) return;
+  if (th.style.display !== 'none') { th.style.display = 'none'; return; }
+  th.style.display = 'block';
+  window._temoRepMode = window._temoRepMode || {};
+  if (window._temoRepMode[id] === undefined) window._temoRepMode[id] = true;
+  await _temoLoadReponses(id);
+}
+async function _temoLoadReponses(id) {
+  const list = document.getElementById('temo-rep-list-' + id);
+  if (!list) return;
+  try {
+    const r = await fetch('/api/wozali-pay/temoignage-reponses?temoignage_id=' + encodeURIComponent(id));
+    const d = await r.json();
+    const reps = d.reponses || [];
+    const nb = document.getElementById('temo-nbrep-' + id); if (nb) nb.textContent = reps.length;
+    if (!reps.length) { list.innerHTML = '<div style="font-size:12.5px;color:rgba(252,224,168,.4);padding:2px 0 8px;">Sois la première personne à envoyer un mot de soutien.</div>'; return; }
+    list.innerHTML = reps.map(rp => {
+      const who = rp.autrice
+        ? `<span style="font-size:12.5px;font-weight:700;">${escapeHtml(rp.auteur || 'Membre WOZALI')}</span><span style="font-family:'Geist Mono',monospace;font-size:8.5px;text-transform:uppercase;color:#14100A;background:#E8940A;border-radius:5px;padding:2px 6px;font-weight:700;">Autrice</span>`
+        : (rp.auteur
+            ? `<span style="font-size:12.5px;font-weight:700;">${escapeHtml(rp.auteur)}</span>`
+            : `<span style="font-size:12.5px;font-weight:600;color:rgba(252,224,168,.6);">Membre WOZALI</span>`);
+      const initiale = rp.autrice ? '★' : (rp.auteur ? escapeHtml(rp.auteur[0]) : '?');
+      return `<div style="display:flex;gap:10px;padding:8px 0;">
+        <div style="width:28px;height:28px;border-radius:50%;flex-shrink:0;background:#2a2113;color:#E8940A;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">${initiale}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${who}<span style="font-family:'Geist Mono',monospace;font-size:10px;color:rgba(252,224,168,.35);">${escapeHtml(rp.quand || '')}</span></div>
+          <div style="font-size:13.5px;line-height:1.6;color:rgba(252,224,168,.9);margin-top:2px;">${escapeHtml(rp.texte)}</div>
+          <span onclick="_temoSignalerRep('${rp.id}',this)" style="font-family:'Geist Mono',monospace;font-size:9.5px;color:rgba(252,224,168,.3);cursor:pointer;margin-top:4px;display:inline-block;">Signaler</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) { list.innerHTML = ''; }
+}
+function _temoReplySetMode(id, anon) {
+  window._temoRepMode = window._temoRepMode || {};
+  window._temoRepMode[id] = anon;
+  const a = document.getElementById('temo-rep-anon-' + id);
+  const s = document.getElementById('temo-rep-sign-' + id);
+  if (a) { a.style.background = anon ? '#E8940A' : '#1E180E'; a.style.color = anon ? '#14100A' : 'rgba(252,224,168,.5)'; }
+  if (s) { s.style.background = anon ? '#1E180E' : '#E8940A'; s.style.color = anon ? 'rgba(252,224,168,.5)' : '#14100A'; }
+}
+async function _temoSendReply(id) {
+  if (!currentUser) { toast('Connecte-toi pour répondre.', 'info'); showPage('login'); return; }
+  const input = document.getElementById('temo-rep-input-' + id);
+  const fb = document.getElementById('temo-rep-fb-' + id);
+  const texte = (input?.value || '').trim();
+  if (!texte) return;
+  window._temoRepMode = window._temoRepMode || {};
+  const anon = window._temoRepMode[id] !== false;
+  const auteur = anon ? null : ((currentPrestataire?.fields?.['Nom complet'] || '').trim().split(' ')[0] || null);
+  if (fb) fb.textContent = '';
+  try {
+    const r = await wozaliFetch('/api/wozali-pay/temoignage-reponse-create', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ temoignage_id: id, texte, anonyme: anon, auteur_affiche: auteur }),
+    });
+    const d = await r.json();
+    if (d?.ok) { if (input) input.value = ''; await _temoLoadReponses(id); }
+    else if (fb) { fb.style.color = '#E8940A'; fb.innerHTML = '🛡️ ' + escapeHtml(d?.message || 'Message bloqué pour protéger cet espace.'); }
+  } catch (e) { if (fb) { fb.style.color = '#f87171'; fb.textContent = 'Ça a calé. Réessaie.'; } }
+}
+async function _temoSignalerRep(rid, el) {
+  try {
+    await fetch('/api/wozali-pay/temoignage-reponse-signaler', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reponse_id: rid }),
+    });
+    if (el) { el.textContent = 'Signalé ✓'; el.style.pointerEvents = 'none'; el.style.color = 'rgba(252,224,168,.25)'; }
+    toast('Merci. On relit ce message.', 'success');
+  } catch (e) {}
 }
 
 async function modererTemoignage(id, decision) {

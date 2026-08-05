@@ -114,6 +114,8 @@ import equipeMessages from './_impl/equipe-messages.js';
 
 const PUBLIC_ACTIONS = new Set([
   'temoignage-list',           // lecture publique (texte + mois seulement) ; admin via Bearer optionnel
+  'temoignage-reponses',       // fil de réponses lisible par tous
+  'temoignage-reponse-signaler', // signalement ouvert (best-effort, auto-masque)
   // 'awards-candidats' / 'awards-vote' / 'awards-candidater' retirées du routeur
   // 2026-07-21 (purge WOZALI Awards) — voir les imports plus haut.
   'recompenses-status',
@@ -155,6 +157,7 @@ const PUBLIC_ACTIONS = new Set([
 // (ex: une demande de devis tag son client_user_id si connecté).
 const OPTIONAL_AUTH_ACTIONS = new Set([
   'temoignage-list',
+  'temoignage-reponses',  // si connecté, on marque "mes réactions"
   'reservation-table-create',
   'devis-chantier-create',
   'commande-facon-create',
@@ -246,6 +249,10 @@ const handlers = {
   'temoignage-create': temoignages,
   'temoignage-list': temoignages,
   'temoignage-moderer': temoignages,
+  'temoignage-react': temoignages,               // toggle réaction de soutien (auth)
+  'temoignage-reponses': temoignages,            // fil de réponses d'un témoignage (public)
+  'temoignage-reponse-create': temoignages,      // poster une réponse (auth + modération)
+  'temoignage-reponse-signaler': temoignages,    // signaler une réponse (public, auto-masque)
   'chat-wozali-send':         chatWozali,
   'chat-wozali-history':      chatWozali,
   'chat-wozali-admin-list':   chatWozali,
