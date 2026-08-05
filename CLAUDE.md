@@ -1372,7 +1372,7 @@ git push
 
 - **Frontend** : HTML/CSS/JS vanilla, tout dans `index.html`
 - **Auth** : Supabase (`wikgdksyeygwpmqzmhez.supabase.co`)
-- **Base de données** : Airtable REST API (base `applmj1RDrJkR8C4w`)
+- **Base de données : Supabase (Postgres)** — ⚠️ migration Airtable → Supabase TERMINÉE, PLUS d'Airtable. Tables `wolo_*` / `wozali_*` (ex : `wolo_prestataires`, `wozali_rdv`, 9 tables widgets métier). Le fondateur travaille via le **SQL Editor Supabase**. Toute section « Tables Airtable » ci-dessous = historique des noms, désormais dans Supabase.
 - **Photos** : ImgBB (upload via API)
 - **Crop photos** : Cropper.js v1.6.2 (CDN)
 - **Cartes** : Leaflet.js + OpenStreetMap
