@@ -107,18 +107,16 @@ export default async function handler(req, res) {
     const rows = data || [];
     const ids = rows.map(t => t.id);
 
-    // Compteurs de soutien + de réponses (une requête chacun, agrégés en mémoire)
+    // Compteurs agrégés côté SQL (évite le plafond 1000 lignes de PostgREST)
     const reacts = {}, reps = {};
     if (ids.length) {
-      const { data: rx } = await supabase.from('wozali_temoignage_reactions')
-        .select('temoignage_id, type').in('temoignage_id', ids);
+      const { data: rx } = await supabase.rpc('wozali_temo_reaction_counts', { ids });
       (rx || []).forEach(r => {
         reacts[r.temoignage_id] = reacts[r.temoignage_id] || {};
-        reacts[r.temoignage_id][r.type] = (reacts[r.temoignage_id][r.type] || 0) + 1;
+        reacts[r.temoignage_id][r.type] = Number(r.n) || 0;
       });
-      const { data: rp } = await supabase.from('wozali_temoignage_reponses')
-        .select('temoignage_id').eq('statut', 'approuve').in('temoignage_id', ids);
-      (rp || []).forEach(r => { reps[r.temoignage_id] = (reps[r.temoignage_id] || 0) + 1; });
+      const { data: rp } = await supabase.rpc('wozali_temo_reponse_counts', { ids });
+      (rp || []).forEach(r => { reps[r.temoignage_id] = Number(r.n) || 0; });
     }
 
     const temoignages = rows.map(t => ({
