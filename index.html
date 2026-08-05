@@ -2730,6 +2730,9 @@ setTimeout(function(){
           <button class="dash-link" onclick="showDashSection('parrainage')" id="dl-parrainage">
             <i data-lucide="gift"></i> <span>Parrainage</span>
           </button>
+          <button class="dash-link" onclick="showDashSection('mur-temoignages')" id="dl-mur-temoignages">
+            <i data-lucide="feather"></i> <span>Le Mur des témoignages</span>
+          </button>
           <button class="dash-link" onclick="showDashSection('espace-createur')" id="dl-espace-createur">
             <i data-lucide="sparkles"></i> <span>Espace Créateur</span>
           </button>
@@ -3146,6 +3149,17 @@ setTimeout(function(){
           <button id="chart-btn-7"></button><button id="chart-btn-30"></button>
           <div id="dash-qr-block"><div id="dash-qr-img"><img id="dash-qr-src" alt=""></div></div>
           <svg style="display:none;"><circle id="score-gauge-dash"/><span id="score-gauge-val"></span></svg>
+        </div>
+      </div>
+
+      <!-- LE MUR DES TÉMOIGNAGES (accès connecté) -->
+      <div class="dash-section" id="ds-mur-temoignages">
+        <div style="max-width:640px;margin:0 auto;padding:8px 4px 40px;">
+          <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:2.5px;color:#E8940A;text-transform:uppercase;margin-bottom:10px;">🕊️ Le mur des témoignages</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(22px,5vw,28px);color:#FCE0A8;margin:0 0 10px;">Personne ne devrait coucher pour travailler.</h2>
+          <p style="color:rgba(252,224,168,0.6);font-size:14px;line-height:1.65;margin:0 0 18px;">Un espace pour dire le harcèlement et les faveurs sexuelles exigées pour obtenir ou garder un emploi. Anonyme, ou signé si tu le décides. Aucun nom d'agresseur publié, chaque histoire relue avant d'apparaître.</p>
+          <button onclick="openTemoignageModal()" style="background:#E8940A;color:#14100A;border:none;border-radius:100px;padding:12px 26px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;margin-bottom:22px;">Raconter mon histoire →</button>
+          <div id="dsmur-list"></div>
         </div>
       </div>
 
@@ -7661,7 +7675,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260805search1" defer></script>
+<script src="/app.js?v=20260805temo1" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -8570,13 +8584,13 @@ setTimeout(function(){
       <div id="mur-temoignages" style="max-width:720px;margin:0 auto 56px;padding:0 4px;">
         <div style="text-align:center;margin-bottom:24px;">
           <div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:2.5px;color:#E8940A;text-transform:uppercase;margin-bottom:10px;">Le mur des témoignages</div>
-          <h2 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(24px,5vw,34px);color:#FCE0A8;margin:0 0 10px;">Ce qu'on ne devrait plus jamais accepter.</h2>
-          <p style="color:rgba(252,224,168,0.6);font-size:14px;line-height:1.6;max-width:520px;margin:0 auto;">Des histoires vraies, racontées anonymement par des membres. Aucun nom, jamais. Juste la vérité de ce que ce marché fait vivre aux gens qui travaillent bien.</p>
+          <h2 style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(24px,5vw,34px);color:#FCE0A8;margin:0 0 10px;">Personne ne devrait coucher pour travailler.</h2>
+          <p style="color:rgba(252,224,168,0.6);font-size:14px;line-height:1.6;max-width:520px;margin:0 auto;">Un espace pour dire le harcèlement et les faveurs sexuelles exigées pour obtenir ou garder un emploi. Anonyme, ou signé si tu le décides. On protège d'abord : aucun nom d'agresseur publié, chaque histoire relue avant d'apparaître.</p>
         </div>
         <div id="mur-temoignages-list"></div>
         <div id="mur-moderation"></div>
         <div style="text-align:center;margin-top:20px;">
-          <button onclick="openTemoignageModal()" style="background:none;border:1.5px solid rgba(232,148,10,.5);color:#E8940A;border-radius:100px;padding:12px 26px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;">Raconter mon histoire, anonymement</button>
+          <button onclick="openTemoignageModal()" style="background:none;border:1.5px solid rgba(232,148,10,.5);color:#E8940A;border-radius:100px;padding:12px 26px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;">Raconter mon histoire</button>
         </div>
       </div>
 

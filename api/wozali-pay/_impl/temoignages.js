@@ -52,12 +52,15 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, temoignages: data || [] });
     }
     const { data } = await supabase.from('wozali_temoignages')
-      .select('texte, created_at')
+      .select('texte, created_at, anonyme, auteur_affiche')
       .eq('statut', 'approuve')
       .order('created_at', { ascending: false }).limit(30);
     const temoignages = (data || []).map(t => ({
       texte: t.texte,
       mois: new Date(t.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+      // Anonyme par défaut ; on ne renvoie le nom d'affichage QUE si la personne a signé
+      anonyme: t.anonyme !== false,
+      auteur: (t.anonyme === false && t.auteur_affiche) ? t.auteur_affiche : null,
     }));
     return res.status(200).json({ ok: true, temoignages });
   }
@@ -97,14 +100,24 @@ export default async function handler(req, res) {
       });
     }
 
+    // Choix de la personne : anonyme (défaut) ou signé avec un nom d'affichage
+    const anonyme = req.body?.anonyme !== false;
+    let auteur_affiche = null;
+    if (!anonyme) {
+      auteur_affiche = String(req.body?.auteur_affiche || '').trim().slice(0, 60) || null;
+    }
+
     const { error } = await supabase.from('wozali_temoignages').insert({
       user_id: userId, texte,
+      anonyme, auteur_affiche,
       ia_verdict: verdict?.verdict || 'non_analyse',
     });
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json({
       ok: true,
-      message: 'Reçu. Ton histoire sera relue puis publiée sans aucun nom, même pas le tien. Merci de l\'avoir dite : chaque histoire publiée rappelle pourquoi WOZALI existe.',
+      message: anonyme
+        ? 'Reçu. Ton histoire sera relue puis publiée sans aucun nom, même pas le tien. Merci de l\'avoir dite : chaque histoire publiée rappelle pourquoi WOZALI existe.'
+        : 'Reçu. Ton histoire sera relue puis publiée avec ton prénom, comme tu l\'as choisi. Merci de la porter à visage découvert : ton courage en protège d\'autres.',
     });
   }
 

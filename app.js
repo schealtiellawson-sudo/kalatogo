@@ -671,6 +671,7 @@ function showDashSection(section) {
   if (section === 'avis') loadDashAvis();
   if (section === 'photos') loadDashPhotos();
   if (section === 'posts') loadDashPosts();
+  if (section === 'mur-temoignages') loadTemoignages('dsmur-list');
   if (section === 'abonnement') { loadAbonnement(); }
   if (section === 'recompenses') loadRecompensesWidgets();
   if (section === 'boutique') loadBoutiqueSection();
@@ -14813,8 +14814,8 @@ async function loadDashVues() {
 // ── Mur des témoignages anonymes (Chantier 8 Dignité) ──
 // Lecture publique + dépôt (membre connecté, filtre IA anti-noms côté
 // serveur) + modération inline pour l'admin. Aucun nom, jamais.
-async function loadTemoignages() {
-  const box = document.getElementById('mur-temoignages-list');
+async function loadTemoignages(listId = 'mur-temoignages-list') {
+  const box = document.getElementById(listId);
   if (!box) return;
   try {
     const wf = window.wozaliFetch || fetch;
@@ -14824,11 +14825,15 @@ async function loadTemoignages() {
     if (!items.length) {
       box.innerHTML = `<div style="text-align:center;padding:24px;color:rgba(252,224,168,.4);font-size:13px;">Les premières histoires arrivent bientôt. La tienne peut ouvrir le mur.</div>`;
     } else {
-      box.innerHTML = items.map(t => `
-        <div style="background:rgba(255,255,255,.04);border-left:3px solid #E8940A;border-radius:0 14px 14px 0;padding:18px 20px;margin-bottom:14px;">
+      box.innerHTML = items.map(t => {
+        const sig = t.auteur
+          ? `<div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:#E8940A;margin-top:10px;">— ${escapeHtml(t.auteur)}</div>`
+          : `<div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.35);margin-top:10px;">Membre WOZALI · ${escapeHtml(t.mois || '')}</div>`;
+        return `<div style="background:rgba(255,255,255,.04);border-left:3px solid #E8940A;border-radius:0 14px 14px 0;padding:18px 20px;margin-bottom:14px;">
           <div style="font-size:14.5px;line-height:1.7;color:#FCE0A8;font-style:italic;">« ${escapeHtml(t.texte)} »</div>
-          <div style="font-family:'Geist Mono',monospace;font-size:10.5px;color:rgba(252,224,168,.35);margin-top:10px;">Membre WOZALI · ${escapeHtml(t.mois || '')}</div>
-        </div>`).join('');
+          ${sig}
+        </div>`;
+      }).join('');
     }
   } catch (e) { box.innerHTML = ''; }
 
@@ -14877,16 +14882,50 @@ function openTemoignageModal() {
   ov.innerHTML = `
     <div style="background:#14100A;border:1px solid rgba(232,148,10,.3);border-radius:16px;width:min(520px,100%);padding:22px 20px;">
       <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:20px;color:#FCE0A8;margin-bottom:6px;">Raconte ce que tu as vécu.</div>
-      <p style="font-size:12.5px;color:rgba(252,224,168,.6);line-height:1.6;margin:0 0 6px;">Ton histoire sera publiée <b>sans aucun nom, même pas le tien</b>. Une seule règle : ne nomme personne. Ni personne, ni salon, ni entreprise. Dis "ma patronne", "un recruteur", "un atelier de mon quartier".</p>
-      <textarea id="temoignage-input" rows="6" maxlength="800" placeholder="Ex : Après 3 ans d'apprentissage, ma patronne refusait de me libérer tant que je ne payais pas encore..." style="width:100%;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;margin:10px 0 4px;"></textarea>
+      <p style="font-size:12.5px;color:rgba(252,224,168,.62);line-height:1.6;margin:0 0 4px;">Un espace pour dire le harcèlement et les faveurs sexuelles exigées pour obtenir ou garder un emploi. Une seule règle : <b>ne nomme pas l'agresseur</b> (ni son nom, ni son entreprise, ni le lieu précis). Dis "mon patron", "un recruteur", "le gérant". On te protège.</p>
+      <textarea id="temoignage-input" rows="6" maxlength="800" placeholder="Ex : À l'entretien, le responsable m'a laissé entendre que j'aurais le poste si j'acceptais de coucher avec lui. J'ai refusé..." style="width:100%;background:#1E180E;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;margin:10px 0 4px;"></textarea>
       <div id="temoignage-feedback" style="font-size:12.5px;line-height:1.5;margin:6px 0;"></div>
-      <div style="display:flex;gap:8px;margin-top:8px;">
+      <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(252,224,168,.4);margin:10px 0 8px;">Comment veux-tu apparaître ?</div>
+      <div style="display:flex;gap:8px;">
+        <button type="button" id="temo-opt-anon" onclick="_temoSetMode(true)" style="flex:1;text-align:left;border:1px solid #E8940A;background:rgba(232,148,10,.08);border-radius:12px;padding:11px 13px;color:#FCE0A8;cursor:pointer;font-family:inherit;">
+          <div style="font-size:13px;font-weight:700;">🔒 Anonyme</div>
+          <div style="font-size:11px;color:rgba(252,224,168,.6);margin-top:3px;">Aucun nom. « Membre WOZALI ».</div>
+        </button>
+        <button type="button" id="temo-opt-sign" onclick="_temoSetMode(false)" style="flex:1;text-align:left;border:1px solid rgba(255,255,255,.12);background:none;border-radius:12px;padding:11px 13px;color:#FCE0A8;cursor:pointer;font-family:inherit;">
+          <div style="font-size:13px;font-weight:700;">✍️ Signé</div>
+          <div style="font-size:11px;color:rgba(252,224,168,.6);margin-top:3px;">Ton prénom, si tu l'assumes.</div>
+        </button>
+      </div>
+      <input id="temoignage-auteur" type="text" maxlength="60" placeholder="Prénom (+ ville si tu veux)" style="display:none;width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:10px;padding:11px 13px;color:#FCE0A8;font-size:13.5px;font-family:inherit;margin-top:10px;">
+      <div style="display:flex;gap:8px;margin-top:14px;">
         <button onclick="submitTemoignage()" id="temoignage-send" style="flex:1;background:#E8940A;color:#14100A;border:none;border-radius:12px;padding:13px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;">Envoyer anonymement</button>
         <button onclick="document.getElementById('temoignage-modal').remove()" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(252,224,168,.55);border-radius:12px;padding:13px 18px;font-size:13px;cursor:pointer;font-family:inherit;">Annuler</button>
       </div>
+      <div style="font-size:11px;color:rgba(252,224,168,.35);text-align:center;margin-top:10px;line-height:1.5;">Chaque témoignage est relu avant d'apparaître. Aucun nom d'agresseur publié.</div>
     </div>`;
+  window._temoMode = true; // anonyme par défaut
   document.body.appendChild(ov);
   setTimeout(() => document.getElementById('temoignage-input')?.focus(), 60);
+}
+
+// Bascule Anonyme (true) / Signé (false) dans la modale témoignage
+function _temoSetMode(anonyme) {
+  window._temoMode = anonyme;
+  const anon = document.getElementById('temo-opt-anon');
+  const sign = document.getElementById('temo-opt-sign');
+  const champ = document.getElementById('temoignage-auteur');
+  const send = document.getElementById('temoignage-send');
+  if (anon) { anon.style.borderColor = anonyme ? '#E8940A' : 'rgba(255,255,255,.12)'; anon.style.background = anonyme ? 'rgba(232,148,10,.08)' : 'none'; }
+  if (sign) { sign.style.borderColor = anonyme ? 'rgba(255,255,255,.12)' : '#E8940A'; sign.style.background = anonyme ? 'none' : 'rgba(232,148,10,.08)'; }
+  if (champ) {
+    champ.style.display = anonyme ? 'none' : 'block';
+    if (!anonyme && !champ.value) {
+      const prenom = (currentPrestataire?.fields?.['Nom complet'] || '').trim().split(' ')[0] || '';
+      if (prenom) champ.value = prenom;
+      setTimeout(() => champ.focus(), 30);
+    }
+  }
+  if (send) send.textContent = anonyme ? 'Envoyer anonymement' : 'Publier signé';
 }
 
 async function submitTemoignage() {
@@ -14894,11 +14933,17 @@ async function submitTemoignage() {
   const fb = document.getElementById('temoignage-feedback');
   const btn = document.getElementById('temoignage-send');
   const texte = (input?.value || '').trim();
+  const anonyme = window._temoMode !== false;
+  const auteur = anonyme ? null : ((document.getElementById('temoignage-auteur')?.value || '').trim() || null);
+  if (!anonyme && !auteur) {
+    if (fb) { fb.style.color = '#E8940A'; fb.textContent = 'Tu as choisi « signé » : mets au moins ton prénom, ou repasse en anonyme.'; }
+    return;
+  }
   if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
   try {
     const r = await wozaliFetch('/api/wozali-pay/temoignage-create', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texte }),
+      body: JSON.stringify({ texte, anonyme, auteur_affiche: auteur }),
     });
     const data = await r.json();
     if (data?.ok) {
@@ -14911,7 +14956,7 @@ async function submitTemoignage() {
         </div>`;
     } else {
       if (fb) { fb.style.color = '#E8940A'; fb.textContent = data?.message || 'Ça n\'est pas passé. Réessaie.'; }
-      if (btn) { btn.disabled = false; btn.textContent = 'Envoyer anonymement'; }
+      if (btn) { btn.disabled = false; btn.textContent = anonyme ? 'Envoyer anonymement' : 'Publier signé'; }
     }
   } catch (e) {
     if (fb) { fb.style.color = '#f87171'; fb.textContent = 'Ça a calé. Vérifie ta connexion et réessaie.'; }
