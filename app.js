@@ -9399,7 +9399,7 @@ const _seoPageMeta = {
   home:         { title: 'WOZALI · Trouve un prestataire ou un emploi au Bénin et au Togo', desc: 'WOZALI : trouve un prestataire vérifié ou un emploi à Lomé et Cotonou. Avis clients réels, profils sur Google. Chaque mois, les 10 meilleurs profils gagnent un salaire.' },
   search:       { title: 'Trouver un pro · WOZALI', desc: 'Coiffeur, plombier, électricien, couturier à Lomé et Cotonou. Profils vérifiés, avis clients, disponibles maintenant.' },
   emploi:       { title: 'WOZALI Jobs · Offres d\'emploi Bénin & Togo', desc: 'Offres d\'emploi à Cotonou et Lomé. Postule en 1 clic avec ton profil WOZALI.' },
-  recompenses:  { title: 'La Bourse de Croissance · WOZALI', desc: 'Chaque mois, les 10 meilleurs profils du mois gagnent un salaire. Au mérite. Jamais au hasard. Réservé aux membres Pro, dans les pays qui ont débloqué leur Bourse (5 000 membres Pro).' },
+  recompenses:  { title: 'Le Coup de Projecteur · WOZALI', desc: 'Chaque mois, les 10 meilleurs profils passent en lumière, et WOZALI paie leur pub dès 1 000 Pro. Au mérite. Jamais au hasard. Réservé aux membres Pro.' },
   inscription:  { title: 'Inscription gratuite · WOZALI', desc: 'Crée ton profil professionnel en 2 minutes. Gratuit. Visible à Cotonou et Lomé.' },
   fonctionnement: { title: 'Comment ça marche · WOZALI', desc: '3 étapes pour être visible. Inscription gratuite, profil pro, clients trouvés.' },
 };
