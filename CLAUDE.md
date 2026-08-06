@@ -4,6 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 🚧 REPRISE — session du 2026-08-06 (démarrer ici)
+
+**Prochaine action : produire les VIDÉOS TUTO/ONBOARDING dans l'ordre.** Commencer par **#1 « C'est quoi WOZALI »** (script voix Sandy style `wozali-script-video` + storyboard → valider avec le fondateur → produire), puis pilote **Couture** (vitrine + dashboard). Format = **captures d'écran réelles animées**, PAS motion abstrait. Chaque vidéo **FR d'abord, EN ensuite**. Plan complet des 40 vidéos = mémoire `wozali-plan-videos-tuto`.
+
+**Fait & poussé (session 2026-08-05) :** 10 profils modèles complets · recherche globale catalogues (`wozali_search`) · Mur des témoignages (anonyme/signé + réactions soutien + commentaires modérés double couche) · Récompense **« Le Coup de Projecteur »** (remplace le cash, voir RÈGLES ABSOLUES du CLAUDE.md racine ; vagues 1+2 de copy poussées).
+
+**⚠️ Chantiers ouverts à finir :**
+1. **Récompenses vague 2 — résidus** : grep `bourse|salaire|Crédit WOZALI|Mains d'Or|tirage|5 000` → labels formation (app.js ~29508/31140), partage WhatsApp post-inscription (index.html ~2095), éligibilité fondateur (~6024/6036), `loadPageRecompenses()` dynamique (app.js ~23409).
+2. **i18n bilingue FR/EN** (expansion Nigeria/Ghana) : bouton langue + dictionnaire clés sur tout le site + Sandy EN + vidéos EN. Chantier dédié.
+3. **Purger les données démo** (`seed_demo`, profils modèles, témoignages) du compte fondateur avant le lancement (1er sept 2026).
+
+Note : projet Remotion prêt dans le scratchpad (rend un MP4). La vidéo Récompenses motion a été faite mais fondateur pas fan → mise de côté.
+
+---
+
 ## 🧠 CERVEAU CLAUDE — RÈGLE ABSOLUE 100% DU TEMPS (gravée 2026-05-28)
 
 **CHAQUE RÉPONSE. SANS EXCEPTION. PEU IMPORTE LA NATURE DE LA TÂCHE.**
