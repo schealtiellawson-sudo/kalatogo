@@ -63,13 +63,13 @@
     var k = clusterOf(metier);
     state.answers._cluster = k;
     var tail = [
-      { id: 'age', q: 'Quel âge tu as ? Les recruteurs aiment le savoir.', ph: 'Ex: 27', min: 1 },
+      { id: 'age', q: 'Quel âge tu as ?', ph: 'Ex: 27', min: 1 },
       { id: 'etudes', q: 'Jusqu\'où tu as étudié, et tu as un diplôme ou une formation dans ton métier ? Si tu n\'en as pas, ce n\'est pas grave, ton travail parle pour toi.', ph: 'Ex: CAP couture, ou appris sur le tas', min: 1 },
-      { id: 'exp', q: 'Raconte-moi : depuis combien de temps tu fais ça, et qu\'est-ce que tu as déjà fait ?', ph: 'Ex: 6 ans, robes, uniformes, retouches...', min: 8, probe: true }
+      { id: 'exp', q: 'Raconte-moi : depuis combien de temps tu fais ça, et qu\'est-ce que tu as déjà fait ? Parle normalement, comme à un client.', ph: 'Ex: 6 ans, robes, uniformes, retouches...', min: 8, probe: true }
     ];
     (METIER_Q[k] || METIER_Q.generic).forEach(function (mq) { tail.push({ id: mq.id, q: mq.q, ph: 'Ta réponse', min: 3, probe: true }); });
-    tail.push({ id: 'skills', q: 'Qu\'est-ce que tu sais bien faire ? Cite 3 ou 4 choses.', ph: 'Ex: coupe, broderie, mesures...', min: 3, probe: true });
-    tail.push({ id: 'zone', q: 'Où tu travailles (quartier), et tu es disponible quand ?', ph: 'Ex: Tokoin, Lomé, tous les jours', min: 2 });
+    tail.push({ id: 'skills', q: 'Et qu\'est-ce que tu sais bien faire ? Cite-moi trois ou quatre choses.', ph: 'Ex: coupe, broderie, mesures...', min: 3, probe: true });
+    tail.push({ id: 'zone', q: 'Dernière chose : tu travailles dans quel quartier, et tu es disponible quand ?', ph: 'Ex: Tokoin, Lomé, tous les jours', min: 2 });
     return tail;
   }
 
@@ -84,7 +84,7 @@
     }
     root.innerHTML = html;
   }
-  function close() { if (root) { root.remove(); root = null; } }
+  function close() { try { stopAud(); } catch (e) {} if (root) { root.remove(); root = null; } }
 
   var CSS = ''
     + '#wz-emploi-onb .wrap{max-width:460px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:16px 16px 26px;}'
@@ -106,40 +106,92 @@
     + '#wz-emploi-onb .hint{font-size:11px;color:rgba(252,224,168,.4);text-align:center;}'
     + '#wz-emploi-onb .dots{display:inline-flex;gap:5px;align-items:center;padding:3px 2px;}'
     + '#wz-emploi-onb .dots span{width:7px;height:7px;border-radius:50%;background:rgba(252,224,168,.55);animation:wzonbpulse 1.1s infinite;}'
-    + '@keyframes wzonbpulse{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}';
+    + '@keyframes wzonbpulse{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}'
+    + '#wz-emploi-onb .play{display:inline-block;margin-top:8px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#E8940A;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.24);border-radius:20px;padding:5px 10px;cursor:pointer;user-select:none;}'
+    + '#wz-emploi-onb .play.playing{background:#E8940A;color:#241500;}'
+    + '#wz-emploi-onb .vtoggle{background:none;border:none;color:#E8940A;font-size:18px;cursor:pointer;margin-right:8px;}'
+    + '#wz-emploi-onb .inrow{display:flex;gap:8px;align-items:flex-end;}#wz-emploi-onb .inrow textarea{flex:1;}'
+    + '#wz-emploi-onb .micbtn{width:48px;height:48px;border-radius:50%;background:#1E180E;border:1px solid #E8940A;color:#E8940A;font-size:20px;cursor:pointer;flex:0 0 auto;}'
+    + '#wz-emploi-onb .micbtn.rec{background:#E8940A;color:#241500;animation:wzonbpulse 1s infinite;}';
 
   function shell() {
     return '<style>' + CSS + '</style><div class="wrap"><div class="top"><div class="logo"><em>W</em>OZALI · Ouvert au travail</div>'
-      + '<button class="x" id="wz-onb-x" aria-label="Fermer">✕</button></div>'
+      + '<div><button class="vtoggle" id="wz-onb-voice" aria-label="Voix">🔊</button><button class="x" id="wz-onb-x" aria-label="Fermer">✕</button></div></div>'
       + '<div class="trk"><i id="wz-onb-bar"></i></div><div class="thread" id="wz-onb-thread"></div>'
       + '<div class="composer" id="wz-onb-composer"></div></div>';
   }
   function thread() { return document.getElementById('wz-onb-thread'); }
   function composer() { return document.getElementById('wz-onb-composer'); }
-  function sandy(t) { var r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<div class="av">S</div><div class="msg s">' + esc(t) + '</div>'; thread().appendChild(r); scroll(); }
+  var curAudio = null, curBtn = null, voiceOn = true;
+  function setPlayBtn(b, p) { if (b) { b.textContent = p ? '⏸ Pause' : '▶ Écouter'; b.classList.toggle('playing', !!p); } }
+  function stopAud() { if (curAudio) { try { curAudio.pause(); } catch (e) {} } curAudio = null; if (curBtn) { setPlayBtn(curBtn, false); curBtn = null; } }
+  function playAud(audId, btn) {
+    if (!audId) return;
+    if (curBtn === btn && curAudio) { stopAud(); return; }
+    stopAud();
+    try {
+      curAudio = new Audio('/assets/sandy/' + audId + '.mp3'); curBtn = btn || null; setPlayBtn(btn, true);
+      curAudio.onended = function () { if (curBtn === btn) { setPlayBtn(btn, false); curBtn = null; curAudio = null; } };
+      curAudio.play().catch(function () { if (curBtn === btn) { setPlayBtn(btn, false); curBtn = null; curAudio = null; } });
+    } catch (e) { setPlayBtn(btn, false); }
+  }
+  function sandy(t, audId) {
+    var r = document.createElement('div'); r.className = 'row';
+    var pb = audId ? '<span class="play">▶ Écouter</span>' : '';
+    r.innerHTML = '<div class="av">S</div><div class="msg s">' + esc(t) + pb + '</div>';
+    thread().appendChild(r); scroll();
+    if (audId) {
+      var b = r.querySelector('.play');
+      if (b) b.onclick = function () { playAud(audId, b); };
+      if (voiceOn) playAud(audId, b);
+    }
+  }
   function me(t) { var r = document.createElement('div'); r.className = 'row me'; r.innerHTML = '<div class="msg m">' + esc(t) + '</div>'; thread().appendChild(r); scroll(); }
   function scroll() { var t = thread(); if (t) t.scrollTop = t.scrollHeight; }
   function bar(pct) { var b = document.getElementById('wz-onb-bar'); if (b) b.style.width = Math.round(pct) + '%'; }
   // Indicateur « Sandy écrit... » (facon WhatsApp) : dots animés pendant un délai
   // réaliste proportionnel à la longueur du message, puis affiche la bulle.
-  function typing(text) {
+  function typing(text, audId) {
     return new Promise(function (resolve) {
       var c = composer(); if (c) c.innerHTML = '';
       var r = document.createElement('div'); r.className = 'row';
       r.innerHTML = '<div class="av">S</div><div class="msg s"><span class="dots"><span style="animation-delay:0s"></span><span style="animation-delay:.18s"></span><span style="animation-delay:.36s"></span></span></div>';
       var t = thread(); if (t) { t.appendChild(r); scroll(); }
       var delay = Math.min(2400, 850 + String(text || '').length * 22);
-      setTimeout(function () { r.remove(); sandy(text); resolve(); }, delay);
+      setTimeout(function () { r.remove(); sandy(text, audId); resolve(); }, delay);
     });
   }
+  function audIdFor(step) {
+    if (step.kind === 'probe') { return step.baseId === 'exp' ? 'probe_exp' : step.baseId === 'skills' ? 'probe_skills' : 'probe_default'; }
+    return step.id; // age/etudes/exp/skills/zone + questions metier ont tous un clip du meme nom
+  }
 
+  function startMic(mic, ta) {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { ta.placeholder = 'Micro non supporté ici, écris ta réponse.'; ta.focus(); return; }
+    try {
+      var r = new SR(); r.lang = 'fr-FR'; r.interimResults = false; mic.classList.add('rec');
+      r.onresult = function (e) { ta.value = (ta.value ? ta.value + ' ' : '') + e.results[0][0].transcript; };
+      r.onend = function () { mic.classList.remove('rec'); };
+      r.onerror = function () { mic.classList.remove('rec'); ta.placeholder = 'Micro indisponible, écris ta réponse.'; ta.focus(); };
+      r.start();
+    } catch (e) { mic.classList.remove('rec'); ta.focus(); }
+  }
+  function inputRow(ph) {
+    var row = document.createElement('div'); row.className = 'inrow';
+    var ta = document.createElement('textarea'); ta.id = 'wz-onb-inp'; ta.placeholder = ph || 'Ta réponse';
+    var mic = document.createElement('button'); mic.className = 'micbtn'; mic.type = 'button'; mic.textContent = '🎙️';
+    mic.onclick = function () { startMic(mic, ta); };
+    row.appendChild(ta); row.appendChild(mic);
+    return { row: row, ta: ta };
+  }
   function askText(step) {
     var c = composer(); c.innerHTML = '';
-    var ta = document.createElement('textarea'); ta.id = 'wz-onb-inp'; ta.placeholder = step.ph || 'Ta réponse';
+    var ir = inputRow(step.ph);
     var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Valider ✓';
     btn.onclick = function () { validate(step); };
-    var h = document.createElement('div'); h.className = 'hint'; h.textContent = 'Écris ta réponse, puis Valider. (La voix arrive bientôt.)';
-    c.appendChild(ta); c.appendChild(btn); c.appendChild(h); ta.focus();
+    var h = document.createElement('div'); h.className = 'hint'; h.textContent = 'Écris, ou appuie sur le micro pour parler.';
+    c.appendChild(ir.row); c.appendChild(btn); c.appendChild(h); ir.ta.focus();
   }
   function validate(step) {
     var inp = document.getElementById('wz-onb-inp'); if (!inp) return;
@@ -159,7 +211,7 @@
     if (state.idx >= state.queue.length) return finish();
     bar(state.idx / state.queue.length * 100);
     var step = state.queue[state.idx];
-    await typing(step.q);
+    await typing(step.q, audIdFor(step));
     askText(step);
   }
 
@@ -189,12 +241,12 @@
 
   async function finish() {
     bar(100);
-    await typing('C\'est fait ! J\'enregistre ton profil « Ouvert au travail ». Le recruteur voit ton métier, tes compétences et ton quartier.');
+    await typing('C\'est fait ! J\'enregistre ton profil « Ouvert au travail ». Le recruteur voit ton métier, tes compétences et ton quartier.', 'finish1');
     composer().innerHTML = '<div class="hint">Enregistrement...</div>';
     var res = await save();
     var c = composer(); c.innerHTML = '';
     if (res.ok) {
-      await typing('Ton profil est prêt. On te prévient dès qu\'un recruteur cherche ton métier près de toi. En attendant, ajoute des photos de ton travail : ton profil sera bien plus fort.');
+      await typing('Ton profil est prêt. On te prévient dès qu\'un recruteur cherche ton métier près de toi. En attendant, ajoute des photos de ton travail : ton profil sera bien plus fort.', 'finish_ok');
     } else {
       await typing('J\'ai tes réponses, mais l\'enregistrement a calé (' + esc(res.reason || '') + '). Réessaie dans un instant, tes réponses ne sont pas perdues.');
     }
@@ -206,15 +258,18 @@
   function open() {
     if (!window.currentUser) { try { toast('Connecte-toi d\'abord pour créer ton profil emploi.', 'error'); } catch (e) {} return; }
     state = { queue: [], idx: 0, answers: {}, probed: {} };
+    voiceOn = true;
     ov(shell());
     document.getElementById('wz-onb-x').onclick = close;
+    var vb = document.getElementById('wz-onb-voice');
+    if (vb) vb.onclick = function () { voiceOn = !voiceOn; vb.textContent = voiceOn ? '🔊' : '🔇'; if (!voiceOn) stopAud(); };
     // Q0 : Sandy comprend D'ABORD pourquoi la personne est la. Elle ne lance le
     // flux emploi QUE si l'objectif est de trouver du travail.
     askGoal();
   }
 
   async function askGoal() {
-    await typing('Salut ! Moi c\'est Sandy. Dis-moi d\'abord : qu\'est-ce que tu cherches sur WOZALI ?');
+    await typing('Salut ! Moi c\'est Sandy. Dis-moi d\'abord : qu\'est-ce que tu cherches sur WOZALI ?', 'goal');
     var c = composer(); c.innerHTML = '';
     [{ k: 'emploi', l: 'Trouver du travail' },
      { k: 'clients', l: 'Trouver des clients' },
@@ -228,25 +283,25 @@
   async function pickGoal(o) {
     me(o.l); state.answers.but = o.k;
     if (o.k === 'emploi') {
-      await typing('Super. On va rendre ton profil « Ouvert au travail ». D\'abord : c\'est quoi ton métier ?');
+      await typing('Super. On va rendre ton profil « Ouvert au travail ». D\'abord : c\'est quoi ton métier ?', 'metier_prompt');
       askMetier();
     } else if (o.k === 'clients' || o.k === 'promo') {
-      await typing('Bien reçu. Pour ça, ta vitrine WOZALI (ton profil public, tes photos, tes avis) est ta meilleure arme. Cette partie arrive très bientôt. En attendant, complète ton profil, c\'est ce qui te rend visible.');
+      await typing('Bien reçu. Pour ça, ta vitrine WOZALI (ton profil public, tes photos, tes avis) est ta meilleure arme. Cette partie arrive très bientôt. En attendant, complète ton profil, c\'est ce qui te rend visible.', 'clients_promo');
       endBtn();
     } else {
-      await typing('Pas de souci ! Explore librement. Je suis là dès que tu veux avancer, dans ton espace.');
+      await typing('Pas de souci ! Explore librement. Je suis là dès que tu veux avancer, dans ton espace.', 'curieux');
       endBtn();
     }
   }
   function askMetier() {
     var c = composer(); c.innerHTML = '';
-    var ta = document.createElement('textarea'); ta.id = 'wz-onb-inp'; ta.placeholder = 'Ex: couturière, électricien, vendeuse...';
+    var ir = inputRow('Ex: couturière, électricien, vendeuse...');
     var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Continuer';
     btn.onclick = function () {
-      var v = (ta.value || '').trim(); if (!v) { ta.focus(); return; }
+      var v = (ir.ta.value || '').trim(); if (!v) { ir.ta.focus(); return; }
       me(v); state.answers.metier = v; state.queue = buildQueue(v); state.idx = 0; render();
     };
-    c.appendChild(ta); c.appendChild(btn); ta.focus();
+    c.appendChild(ir.row); c.appendChild(btn); ir.ta.focus();
   }
   function endBtn() {
     var c = composer(); c.innerHTML = '';
