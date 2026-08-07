@@ -4,6 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 🔁 GRAPHIFY — CONSIGNE PERMANENTE (gravée 2026-08-07)
+
+Un **knowledge graph du code** existe dans `graphify-out/` (build AST-only, JS + SQL, 2524 nodes / 5206 edges / 327 communautés, 0 token). But : **économiser les tokens** — ne PLUS relire `index.html` (24k lignes) + `app.js`/`app3.js` en entier à chaque tâche.
+
+- **Avant de toucher une feature** : requêter le graphe pour cibler (`graphify query "..."` depuis le cwd wolomarket, OU lister la communauté dans `graphify-out/graph.json` via `community_name`) → obtenir fichier + fonction + numéro de ligne + dépendances, puis lire SEULEMENT ces plages.
+- **Après CHAQUE gros changement code/contenu** (surtout après commit) : `graphify repo/ --update` (incrémental, rapide, gratuit) — sinon les numéros de ligne dérivent.
+- **À CHAQUE fin de session** : (1) noter l'avancement ici + en mémoire, (2) rafraîchir le graphe.
+- Interpréteur : `graphify-out/.graphify_python`. Le graphe couvre le code, PAS la prose des docs `.md`/PDF (passe sémantique = coûteuse, seulement si demandé).
+
+---
+
 ## 🚧 REPRISE — session du 2026-08-06 (démarrer ici)
 
 **Prochaine action : produire les VIDÉOS TUTO/ONBOARDING dans l'ordre.** Commencer par **#1 « C'est quoi WOZALI »** (script voix Sandy style `wozali-script-video` + storyboard → valider avec le fondateur → produire), puis pilote **Couture** (vitrine + dashboard). Format = **captures d'écran réelles animées**, PAS motion abstrait. Chaque vidéo **FR d'abord, EN ensuite**. Plan complet des 40 vidéos = mémoire `wozali-plan-videos-tuto`.
