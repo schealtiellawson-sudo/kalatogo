@@ -102,7 +102,10 @@
     + '#wz-emploi-onb textarea{background:#1E180E;border:1px solid rgba(232,148,10,.24);border-radius:14px;color:#FCE0A8;font-family:inherit;font-size:15px;padding:11px 12px;resize:none;min-height:48px;}'
     + '#wz-emploi-onb .send{background:#E8940A;color:#241500;font-weight:700;font-size:14px;border:none;border-radius:13px;padding:14px;cursor:pointer;font-family:inherit;}'
     + '#wz-emploi-onb .opt{background:#1E180E;border:1px solid rgba(232,148,10,.24);color:#FCE0A8;border-radius:12px;padding:12px;font-size:14px;cursor:pointer;font-family:inherit;text-align:left;width:100%;margin-bottom:8px;}'
-    + '#wz-emploi-onb .hint{font-size:11px;color:rgba(252,224,168,.4);text-align:center;}';
+    + '#wz-emploi-onb .hint{font-size:11px;color:rgba(252,224,168,.4);text-align:center;}'
+    + '#wz-emploi-onb .dots{display:inline-flex;gap:5px;align-items:center;padding:3px 2px;}'
+    + '#wz-emploi-onb .dots span{width:7px;height:7px;border-radius:50%;background:rgba(252,224,168,.55);animation:wzonbpulse 1.1s infinite;}'
+    + '@keyframes wzonbpulse{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}';
 
   function shell() {
     return '<style>' + CSS + '</style><div class="wrap"><div class="top"><div class="logo"><em>W</em>OZALI · Ouvert au travail</div>'
@@ -116,9 +119,20 @@
   function me(t) { var r = document.createElement('div'); r.className = 'row me'; r.innerHTML = '<div class="msg m">' + esc(t) + '</div>'; thread().appendChild(r); scroll(); }
   function scroll() { var t = thread(); if (t) t.scrollTop = t.scrollHeight; }
   function bar(pct) { var b = document.getElementById('wz-onb-bar'); if (b) b.style.width = Math.round(pct) + '%'; }
+  // Indicateur « Sandy écrit... » (facon WhatsApp) : dots animés pendant un délai
+  // réaliste proportionnel à la longueur du message, puis affiche la bulle.
+  function typing(text) {
+    return new Promise(function (resolve) {
+      var c = composer(); if (c) c.innerHTML = '';
+      var r = document.createElement('div'); r.className = 'row';
+      r.innerHTML = '<div class="av">S</div><div class="msg s"><span class="dots"><span style="animation-delay:0s"></span><span style="animation-delay:.18s"></span><span style="animation-delay:.36s"></span></span></div>';
+      var t = thread(); if (t) { t.appendChild(r); scroll(); }
+      var delay = Math.min(2400, 850 + String(text || '').length * 22);
+      setTimeout(function () { r.remove(); sandy(text); resolve(); }, delay);
+    });
+  }
 
   function askText(step) {
-    sandy(step.q);
     var c = composer(); c.innerHTML = '';
     var ta = document.createElement('textarea'); ta.id = 'wz-onb-inp'; ta.placeholder = step.ph || 'Ta réponse';
     var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Valider ✓';
@@ -140,10 +154,12 @@
   }
   function next() { state.idx++; render(); }
 
-  function render() {
+  async function render() {
     if (state.idx >= state.queue.length) return finish();
     bar(state.idx / state.queue.length * 100);
-    askText(state.queue[state.idx]);
+    var step = state.queue[state.idx];
+    await typing(step.q);
+    askText(step);
   }
 
   async function save() {
@@ -170,14 +186,14 @@
 
   async function finish() {
     bar(100);
-    sandy('C\'est fait ! J\'enregistre ton profil « Ouvert au travail ». Le recruteur voit ton métier, tes compétences et ton quartier.');
+    await typing('C\'est fait ! J\'enregistre ton profil « Ouvert au travail ». Le recruteur voit ton métier, tes compétences et ton quartier.');
     composer().innerHTML = '<div class="hint">Enregistrement...</div>';
     var res = await save();
     var c = composer(); c.innerHTML = '';
     if (res.ok) {
-      sandy('Ton profil est prêt. On te prévient dès qu\'un recruteur cherche ton métier près de toi. En attendant, ajoute des photos de ton travail : ton profil sera bien plus fort.');
+      await typing('Ton profil est prêt. On te prévient dès qu\'un recruteur cherche ton métier près de toi. En attendant, ajoute des photos de ton travail : ton profil sera bien plus fort.');
     } else {
-      sandy('J\'ai tes réponses, mais l\'enregistrement a calé (' + esc(res.reason || '') + '). Réessaie dans un instant, tes réponses ne sont pas perdues.');
+      await typing('J\'ai tes réponses, mais l\'enregistrement a calé (' + esc(res.reason || '') + '). Réessaie dans un instant, tes réponses ne sont pas perdues.');
     }
     var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Terminer';
     btn.onclick = function () { close(); try { if (typeof showDashSection === 'function') showDashSection('overview'); } catch (e) {} };
@@ -189,9 +205,38 @@
     state = { queue: [], idx: 0, answers: {}, probed: {} };
     ov(shell());
     document.getElementById('wz-onb-x').onclick = close;
-    // Q0 : metier (on demande le metier tout de suite ; le nom/profil existent deja sur le compte)
-    sandy('Salut ! Moi c\'est Sandy. On va rendre ton profil « Ouvert au travail » en 2 minutes. D\'abord : c\'est quoi ton métier ?');
-    var c = composer();
+    // Q0 : Sandy comprend D'ABORD pourquoi la personne est la. Elle ne lance le
+    // flux emploi QUE si l'objectif est de trouver du travail.
+    askGoal();
+  }
+
+  async function askGoal() {
+    await typing('Salut ! Moi c\'est Sandy. Dis-moi d\'abord : qu\'est-ce que tu cherches sur WOZALI ?');
+    var c = composer(); c.innerHTML = '';
+    [{ k: 'emploi', l: 'Trouver du travail' },
+     { k: 'clients', l: 'Trouver des clients' },
+     { k: 'promo', l: 'Faire connaître mon activité' },
+     { k: 'curieux', l: 'Juste regarder pour l\'instant' }]
+      .forEach(function (o) {
+        var b = document.createElement('button'); b.className = 'opt'; b.textContent = o.l;
+        b.onclick = function () { pickGoal(o); }; c.appendChild(b);
+      });
+  }
+  async function pickGoal(o) {
+    me(o.l); state.answers.but = o.k;
+    if (o.k === 'emploi') {
+      await typing('Super. On va rendre ton profil « Ouvert au travail ». D\'abord : c\'est quoi ton métier ?');
+      askMetier();
+    } else if (o.k === 'clients' || o.k === 'promo') {
+      await typing('Bien reçu. Pour ça, ta vitrine WOZALI (ton profil public, tes photos, tes avis) est ta meilleure arme. Cette partie arrive très bientôt. En attendant, complète ton profil, c\'est ce qui te rend visible.');
+      endBtn();
+    } else {
+      await typing('Pas de souci ! Explore librement. Je suis là dès que tu veux avancer, dans ton espace.');
+      endBtn();
+    }
+  }
+  function askMetier() {
+    var c = composer(); c.innerHTML = '';
     var ta = document.createElement('textarea'); ta.id = 'wz-onb-inp'; ta.placeholder = 'Ex: couturière, électricien, vendeuse...';
     var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Continuer';
     btn.onclick = function () {
@@ -199,6 +244,12 @@
       me(v); state.answers.metier = v; state.queue = buildQueue(v); state.idx = 0; render();
     };
     c.appendChild(ta); c.appendChild(btn); ta.focus();
+  }
+  function endBtn() {
+    var c = composer(); c.innerHTML = '';
+    var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Fermer';
+    btn.onclick = function () { close(); };
+    c.appendChild(btn);
   }
 
   window.wozaliEmploiOnboarding = { open: open, flagOn: flagOn };
