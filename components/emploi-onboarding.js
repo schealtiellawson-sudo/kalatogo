@@ -63,6 +63,7 @@
     var k = clusterOf(metier);
     state.answers._cluster = k;
     var tail = [
+      { id: 'age', q: 'Quel âge tu as ? Les recruteurs aiment le savoir.', ph: 'Ex: 27', min: 1 },
       { id: 'etudes', q: 'Jusqu\'où tu as étudié, et tu as un diplôme ou une formation dans ton métier ? Si tu n\'en as pas, ce n\'est pas grave, ton travail parle pour toi.', ph: 'Ex: CAP couture, ou appris sur le tas', min: 1 },
       { id: 'exp', q: 'Raconte-moi : depuis combien de temps tu fais ça, et qu\'est-ce que tu as déjà fait ?', ph: 'Ex: 6 ans, robes, uniformes, retouches...', min: 8, probe: true }
     ];
@@ -169,6 +170,7 @@
     var skills = (a.skills || '').split(/[,;/]|\bet\b/).map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 8);
     var details = {};
     ['c_type', 'c_machine', 'e_type', 'e_habil', 'v_prod', 'v_role', 'k_type', 'k_lieu', 'ma_type', 'ma_eq', 'me_type', 'me_lieu', 'r_type', 'mn_type', 't_permis', 't_veh', 'g_task'].forEach(function (id) { if (a[id]) details[id] = a[id]; });
+    var ageNum = parseInt(String(a.age || '').replace(/\D/g, ''), 10);
     var patch = {
       ouvert_au_travail: true,
       cluster_metier: a._cluster || null,
@@ -177,6 +179,7 @@
       onboarding_transcript: [a.exp, a.skills].filter(Boolean).join('\n') || null,
       metier_details: Object.keys(details).length ? details : null
     };
+    if (ageNum >= 10 && ageNum <= 99) patch.age = ageNum;  // n'ecrase pas un age existant si saisie invalide
     try {
       var r = await sb.from('wozali_prestataires').update(patch).eq('user_id', window.currentUser.id);
       if (r && r.error) return { ok: false, reason: r.error.message };
