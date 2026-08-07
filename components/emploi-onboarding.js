@@ -1,0 +1,220 @@
+/* ============================================================
+   WOZALI Jobs — Onboarding « Le travail te trouve » (Lot 3)
+   Module AUTONOME, ADDITIF, GATED. Ne touche pas le coach diagnostic.
+   - Flux texte adaptatif (cluster metier + relance + etudes + competences + preuve)
+   - Sauvegarde dans la table de base wozali_prestataires (colonnes marche 1)
+   - INERTE tant que le flag n'est pas actif :
+       localStorage['wz_emploi_onboarding_beta'] === '1'  OU  URL ?onboarding=beta
+   - Voix Celine + extraction IA = lots ulterieurs (ici : texte, sauvegarde reelle)
+   Ouvre via : window.wozaliEmploiOnboarding.open()
+   ============================================================ */
+(function () {
+  'use strict';
+
+  function flagOn() {
+    try {
+      if (location.search.indexOf('onboarding=beta') !== -1) { localStorage.setItem('wz_emploi_onboarding_beta', '1'); }
+      return localStorage.getItem('wz_emploi_onboarding_beta') === '1';
+    } catch (e) { return false; }
+  }
+  function sbClient() {
+    var c = window.supabase;
+    return (c && typeof c.from === 'function') ? c : null;
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function words(s) { return String(s || '').trim().split(/\s+/).filter(Boolean).length; }
+
+  var CLUSTERS = [
+    { re: /coutur|tailleur|stylist|brod|mode/i, k: 'couture' },
+    { re: /electric|electro/i, k: 'electricite' },
+    { re: /vend|commerc|boutiq|march|vente/i, k: 'vente' },
+    { re: /coiff|tress|barb|beaut/i, k: 'coiffure' },
+    { re: /macon|maçon|btp|batiment|carrel|peintre|plomb/i, k: 'maconnerie' },
+    { re: /mecan|garage|moto|auto|tolier/i, k: 'mecanique' },
+    { re: /cuisin|restau|chef|patiss|traiteur/i, k: 'restauration' },
+    { re: /menage|ménage|nettoy|domestiq|linge/i, k: 'menage' },
+    { re: /chauff|taxi|zemi|livr|transport|conduct/i, k: 'transport' }
+  ];
+  var METIER_Q = {
+    couture: [{ id: 'c_type', q: 'Tu fais plutôt du sur-mesure, du prêt-à-porter, ou surtout des retouches ?' }, { id: 'c_machine', q: 'Quelles machines tu maîtrises ? (droite, surjeteuse, brodeuse...)' }],
+    electricite: [{ id: 'e_type', q: 'Tu fais des installations dans les maisons, ou aussi de l\'industriel ?' }, { id: 'e_habil', q: 'Tu as une habilitation ou une attestation électrique ? Laquelle ?' }],
+    vente: [{ id: 'v_prod', q: 'Tu vends quels produits, exactement ?' }, { id: 'v_role', q: 'Tu tiens la caisse et tu gères le stock, ou tu vends seulement ?' }],
+    coiffure: [{ id: 'k_type', q: 'Tu fais quoi le mieux : tresses, tissage, coupe homme, soins ?' }, { id: 'k_lieu', q: 'Tu travailles dans un salon, ou tu te déplaces chez les clientes ?' }],
+    maconnerie: [{ id: 'ma_type', q: 'Tu fais du gros œuvre, du carrelage, de la peinture, ou plusieurs ?' }, { id: 'ma_eq', q: 'Tu travailles seul, ou tu peux amener une équipe ?' }],
+    mecanique: [{ id: 'me_type', q: 'Tu répares surtout des motos, des voitures, ou les deux ?' }, { id: 'me_lieu', q: 'Tu as ton propre garage, ou tu te déplaces ?' }],
+    restauration: [{ id: 'r_type', q: 'Tu cuisines quoi le mieux, et pour combien de personnes tu peux servir ?' }],
+    menage: [{ id: 'mn_type', q: 'Tu fais du ménage, de la lessive, la garde d\'enfants, ou plusieurs ?' }],
+    transport: [{ id: 't_permis', q: 'Tu as le permis, et depuis combien de temps tu conduis ?' }, { id: 't_veh', q: 'Tu as ton propre véhicule (moto, voiture, tricycle) ?' }],
+    generic: [{ id: 'g_task', q: 'Décris-moi une mission typique que tu fais très bien, du début à la fin.' }]
+  };
+  var PROBE = {
+    exp: 'Donne-moi un exemple concret : qu\'est-ce que tu as fait récemment, et pour qui ?',
+    skills: 'Ajoute une ou deux choses de plus. Qu\'est-ce que peu de gens font aussi bien que toi ?',
+    _default: 'Tu peux m\'en dire un peu plus ? Deux mots de plus suffisent.'
+  };
+  function clusterOf(metier) {
+    for (var i = 0; i < CLUSTERS.length; i++) { if (CLUSTERS[i].re.test(metier || '')) return CLUSTERS[i].k; }
+    return 'generic';
+  }
+
+  var state = { queue: [], idx: 0, answers: {}, probed: {} };
+
+  function buildQueue(metier) {
+    var k = clusterOf(metier);
+    state.answers._cluster = k;
+    var tail = [
+      { id: 'etudes', q: 'Jusqu\'où tu as étudié, et tu as un diplôme ou une formation dans ton métier ? Si tu n\'en as pas, ce n\'est pas grave, ton travail parle pour toi.', ph: 'Ex: CAP couture, ou appris sur le tas', min: 1 },
+      { id: 'exp', q: 'Raconte-moi : depuis combien de temps tu fais ça, et qu\'est-ce que tu as déjà fait ?', ph: 'Ex: 6 ans, robes, uniformes, retouches...', min: 8, probe: true }
+    ];
+    (METIER_Q[k] || METIER_Q.generic).forEach(function (mq) { tail.push({ id: mq.id, q: mq.q, ph: 'Ta réponse', min: 3, probe: true }); });
+    tail.push({ id: 'skills', q: 'Qu\'est-ce que tu sais bien faire ? Cite 3 ou 4 choses.', ph: 'Ex: coupe, broderie, mesures...', min: 3, probe: true });
+    tail.push({ id: 'zone', q: 'Où tu travailles (quartier), et tu es disponible quand ?', ph: 'Ex: Tokoin, Lomé, tous les jours', min: 2 });
+    return tail;
+  }
+
+  // ── Rendu overlay (charte Nuit) ──
+  var root = null;
+  function ov(html) {
+    if (!root) {
+      root = document.createElement('div');
+      root.id = 'wz-emploi-onb';
+      root.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#0d0a06;overflow-y:auto;font-family:Geist,system-ui,sans-serif;color:#FCE0A8;';
+      document.body.appendChild(root);
+    }
+    root.innerHTML = html;
+  }
+  function close() { if (root) { root.remove(); root = null; } }
+
+  var CSS = ''
+    + '#wz-emploi-onb .wrap{max-width:460px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:16px 16px 26px;}'
+    + '#wz-emploi-onb .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}'
+    + '#wz-emploi-onb .logo{font-family:"DM Serif Display",Georgia,serif;font-size:16px;}#wz-emploi-onb .logo em{color:#E8940A;font-style:italic;}'
+    + '#wz-emploi-onb .x{background:none;border:none;color:rgba(252,224,168,.5);font-size:22px;cursor:pointer;}'
+    + '#wz-emploi-onb .trk{height:5px;background:rgba(252,224,168,.12);border-radius:4px;overflow:hidden;margin-bottom:14px;}'
+    + '#wz-emploi-onb .trk i{display:block;height:100%;background:#E8940A;transition:width .4s;}'
+    + '#wz-emploi-onb .thread{flex:1;display:flex;flex-direction:column;gap:10px;}'
+    + '#wz-emploi-onb .row{display:flex;gap:9px;align-items:flex-end;}#wz-emploi-onb .row.me{justify-content:flex-end;}'
+    + '#wz-emploi-onb .av{width:34px;height:34px;border-radius:50%;background:#2a2113;border:1px solid #E8940A;display:grid;place-items:center;font-family:"DM Serif Display",Georgia,serif;color:#E8940A;flex:0 0 auto;}'
+    + '#wz-emploi-onb .msg{max-width:80%;font-size:14px;line-height:1.5;padding:11px 13px;border-radius:15px;}'
+    + '#wz-emploi-onb .msg.s{background:#1E180E;border:1px solid rgba(232,148,10,.24);border-bottom-left-radius:5px;}'
+    + '#wz-emploi-onb .msg.m{background:#E8940A;color:#241500;border-bottom-right-radius:5px;font-weight:600;}'
+    + '#wz-emploi-onb .composer{margin-top:12px;display:flex;flex-direction:column;gap:8px;}'
+    + '#wz-emploi-onb textarea{background:#1E180E;border:1px solid rgba(232,148,10,.24);border-radius:14px;color:#FCE0A8;font-family:inherit;font-size:15px;padding:11px 12px;resize:none;min-height:48px;}'
+    + '#wz-emploi-onb .send{background:#E8940A;color:#241500;font-weight:700;font-size:14px;border:none;border-radius:13px;padding:14px;cursor:pointer;font-family:inherit;}'
+    + '#wz-emploi-onb .opt{background:#1E180E;border:1px solid rgba(232,148,10,.24);color:#FCE0A8;border-radius:12px;padding:12px;font-size:14px;cursor:pointer;font-family:inherit;text-align:left;width:100%;margin-bottom:8px;}'
+    + '#wz-emploi-onb .hint{font-size:11px;color:rgba(252,224,168,.4);text-align:center;}';
+
+  function shell() {
+    return '<style>' + CSS + '</style><div class="wrap"><div class="top"><div class="logo"><em>W</em>OZALI · Ouvert au travail</div>'
+      + '<button class="x" id="wz-onb-x" aria-label="Fermer">✕</button></div>'
+      + '<div class="trk"><i id="wz-onb-bar"></i></div><div class="thread" id="wz-onb-thread"></div>'
+      + '<div class="composer" id="wz-onb-composer"></div></div>';
+  }
+  function thread() { return document.getElementById('wz-onb-thread'); }
+  function composer() { return document.getElementById('wz-onb-composer'); }
+  function sandy(t) { var r = document.createElement('div'); r.className = 'row'; r.innerHTML = '<div class="av">S</div><div class="msg s">' + esc(t) + '</div>'; thread().appendChild(r); scroll(); }
+  function me(t) { var r = document.createElement('div'); r.className = 'row me'; r.innerHTML = '<div class="msg m">' + esc(t) + '</div>'; thread().appendChild(r); scroll(); }
+  function scroll() { var t = thread(); if (t) t.scrollTop = t.scrollHeight; }
+  function bar(pct) { var b = document.getElementById('wz-onb-bar'); if (b) b.style.width = Math.round(pct) + '%'; }
+
+  function askText(step) {
+    sandy(step.q);
+    var c = composer(); c.innerHTML = '';
+    var ta = document.createElement('textarea'); ta.id = 'wz-onb-inp'; ta.placeholder = step.ph || 'Ta réponse';
+    var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Valider ✓';
+    btn.onclick = function () { validate(step); };
+    var h = document.createElement('div'); h.className = 'hint'; h.textContent = 'Écris ta réponse, puis Valider. (La voix arrive bientôt.)';
+    c.appendChild(ta); c.appendChild(btn); c.appendChild(h); ta.focus();
+  }
+  function validate(step) {
+    var inp = document.getElementById('wz-onb-inp'); if (!inp) return;
+    var v = (inp.value || '').trim(); if (!v) { inp.focus(); return; }
+    me(v);
+    if (step.kind === 'probe') { state.answers[step.baseId] = (state.answers[step.baseId] ? state.answers[step.baseId] + ' ' : '') + v; return next(); }
+    state.answers[step.id] = v;
+    if (step.probe && words(v) < (step.min || 6) && !state.probed[step.id]) {
+      state.probed[step.id] = true;
+      state.queue.splice(state.idx + 1, 0, { id: step.id + '_probe', kind: 'probe', baseId: step.id, q: PROBE[step.id] || PROBE._default, min: 1 });
+    }
+    next();
+  }
+  function next() { state.idx++; render(); }
+
+  function render() {
+    if (state.idx >= state.queue.length) return finish();
+    bar(state.idx / state.queue.length * 100);
+    askText(state.queue[state.idx]);
+  }
+
+  async function save() {
+    var sb = sbClient();
+    if (!sb || !window.currentUser) return { ok: false, reason: 'no-client' };
+    var a = state.answers;
+    var skills = (a.skills || '').split(/[,;/]|\bet\b/).map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 8);
+    var details = {};
+    ['c_type', 'c_machine', 'e_type', 'e_habil', 'v_prod', 'v_role', 'k_type', 'k_lieu', 'ma_type', 'ma_eq', 'me_type', 'me_lieu', 'r_type', 'mn_type', 't_permis', 't_veh', 'g_task'].forEach(function (id) { if (a[id]) details[id] = a[id]; });
+    var patch = {
+      ouvert_au_travail: true,
+      cluster_metier: a._cluster || null,
+      competences_brut: skills.length ? skills : null,
+      niveau_etudes: a.etudes || null,
+      onboarding_transcript: [a.exp, a.skills].filter(Boolean).join('\n') || null,
+      metier_details: Object.keys(details).length ? details : null
+    };
+    try {
+      var r = await sb.from('wozali_prestataires').update(patch).eq('user_id', window.currentUser.id);
+      if (r && r.error) return { ok: false, reason: r.error.message };
+      return { ok: true };
+    } catch (e) { return { ok: false, reason: String(e) }; }
+  }
+
+  async function finish() {
+    bar(100);
+    sandy('C\'est fait ! J\'enregistre ton profil « Ouvert au travail ». Le recruteur voit ton métier, tes compétences et ton quartier.');
+    composer().innerHTML = '<div class="hint">Enregistrement...</div>';
+    var res = await save();
+    var c = composer(); c.innerHTML = '';
+    if (res.ok) {
+      sandy('Ton profil est prêt. On te prévient dès qu\'un recruteur cherche ton métier près de toi. En attendant, ajoute des photos de ton travail : ton profil sera bien plus fort.');
+    } else {
+      sandy('J\'ai tes réponses, mais l\'enregistrement a calé (' + esc(res.reason || '') + '). Réessaie dans un instant, tes réponses ne sont pas perdues.');
+    }
+    var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Terminer';
+    btn.onclick = function () { close(); try { if (typeof showDashSection === 'function') showDashSection('overview'); } catch (e) {} };
+    c.appendChild(btn);
+  }
+
+  function open() {
+    if (!window.currentUser) { try { toast('Connecte-toi d\'abord pour créer ton profil emploi.', 'error'); } catch (e) {} return; }
+    state = { queue: [], idx: 0, answers: {}, probed: {} };
+    ov(shell());
+    document.getElementById('wz-onb-x').onclick = close;
+    // Q0 : metier (on demande le metier tout de suite ; le nom/profil existent deja sur le compte)
+    sandy('Salut ! Moi c\'est Sandy. On va rendre ton profil « Ouvert au travail » en 2 minutes. D\'abord : c\'est quoi ton métier ?');
+    var c = composer();
+    var ta = document.createElement('textarea'); ta.id = 'wz-onb-inp'; ta.placeholder = 'Ex: couturière, électricien, vendeuse...';
+    var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Continuer';
+    btn.onclick = function () {
+      var v = (ta.value || '').trim(); if (!v) { ta.focus(); return; }
+      me(v); state.answers.metier = v; state.queue = buildQueue(v); state.idx = 0; render();
+    };
+    c.appendChild(ta); c.appendChild(btn); ta.focus();
+  }
+
+  window.wozaliEmploiOnboarding = { open: open, flagOn: flagOn };
+
+  // Entree GATED : bouton flottant visible uniquement si le flag beta est actif.
+  // Aucune modification du core ; invisible aux vrais utilisateurs.
+  function injectBetaBtn() {
+    if (!flagOn() || document.getElementById('wz-onb-beta-btn')) return;
+    var b = document.createElement('button');
+    b.id = 'wz-onb-beta-btn';
+    b.textContent = '🎙️ Onboarding emploi (beta)';
+    b.style.cssText = 'position:fixed;left:14px;bottom:96px;z-index:9998;background:#E8940A;color:#241500;border:none;border-radius:22px;padding:11px 16px;font-weight:700;font-size:13px;font-family:Geist,system-ui,sans-serif;box-shadow:0 8px 22px -8px rgba(0,0,0,.6);cursor:pointer;';
+    b.onclick = function () { window.wozaliEmploiOnboarding.open(); };
+    document.body.appendChild(b);
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', injectBetaBtn); }
+  else { injectBetaBtn(); }
+})();
+
