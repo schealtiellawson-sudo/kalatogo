@@ -27093,7 +27093,7 @@ function _updateEmploiModeUI(actif) {
 
   if (track) track.style.background = actif ? 'var(--vert)' : 'rgba(252,224,168,0.15)';
   if (thumb) thumb.style.transform = actif ? 'translateX(30px)' : 'translateX(0)';
-  if (statusText) statusText.textContent = actif ? '✅ Mode emploi activé : tu apparais dans les recherches des recruteurs' : 'Mode emploi désactivé';
+  if (statusText) statusText.textContent = actif ? '✅ Ouvert au travail : tu apparais dans les recherches des recruteurs' : 'Ouvert au travail : désactivé';
   if (labelOn) labelOn.style.opacity = actif ? '1' : '0.4';
   if (labelOff) labelOff.style.opacity = actif ? '0.4' : '1';
   if (currentPrestataire) currentPrestataire.fields['Mode Emploi'] = actif;
@@ -27107,7 +27107,7 @@ async function toggleModeEmploi() {
     if (window.supaPrest) {
       await window.supaPrest.update(currentPrestataire.id, { 'Mode Emploi': actif });
     }
-    toast(actif ? '✅ Mode emploi activé !' : 'Mode emploi désactivé', 'info');
+    toast(actif ? '✅ Ouvert au travail activé !' : 'Ouvert au travail désactivé', 'info');
   } catch(e) {
     _updateEmploiModeUI(!actif);
     toast('Tes changements ne sont pas enregistrés. Vérifie ta connexion et réessaie.', 'error');

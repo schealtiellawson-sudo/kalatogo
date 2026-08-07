@@ -59,7 +59,7 @@ const faqData = [
   },
   {
     q: "Je cherche du travail. WOZALI c'est aussi pour moi ?",
-    a: "Oui. WOZALI n'est pas que pour les prestataires qui cherchent des clients. Si tu cherches un emploi ou une mission : crée ton profil, active le Mode Emploi dans ton dashboard, et ton profil devient visible pour les recruteurs qui cherchent ton métier. Tu peux aussi parcourir les offres publiées et postuler en 1 clic. Ton profil WOZALI, c'est ton CV vivant (photos de réalisations, avis clients, Score WOZALI) que n'importe quel recruteur peut vérifier."
+    a: "Oui. WOZALI n'est pas que pour les prestataires qui cherchent des clients. Si tu cherches un emploi ou une mission : crée ton profil, active « Ouvert au travail » dans ton dashboard, et ton profil devient visible pour les recruteurs qui cherchent ton métier. Tu peux aussi parcourir les offres publiées et postuler en 1 clic. Ton profil WOZALI, c'est ton CV vivant (photos de réalisations, avis clients, Score WOZALI) que n'importe quel recruteur peut vérifier."
   },
   {
     q: "Je recrute. Comment ça marche pour moi ?",
