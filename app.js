@@ -1154,6 +1154,11 @@ async function loadDashOverview() {
   // D7 — Bandeau Top 50 (visibilité, indépendant de la Bourse)
   try { _renderTop50BannerOverview(f); } catch(e) { console.warn('[top50-banner]', e); }
 
+  // « Le travail te trouve » — offres prioritaires poussées au candidat.
+  // Branché UNIQUEMENT ici (jamais au DOMContentLoaded) pour éviter la race init.
+  // Fire-and-forget : si zéro offre, affiche l'empty state honnête, ne bloque rien.
+  try { window.afficherMatchsDashboard?.(currentUser?.id); } catch(e) { console.warn('[matchs-dash]', e); }
+
   // Date
   const now = new Date();
   const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -27086,7 +27091,7 @@ function _updateEmploiModeUI(actif) {
   const labelOn = document.getElementById('emploi-mode-label-on');
   const labelOff = document.getElementById('emploi-mode-label-off');
 
-  if (track) track.style.background = actif ? 'var(--vert)' : '#e5e7eb';
+  if (track) track.style.background = actif ? 'var(--vert)' : 'rgba(252,224,168,0.15)';
   if (thumb) thumb.style.transform = actif ? 'translateX(30px)' : 'translateX(0)';
   if (statusText) statusText.textContent = actif ? '✅ Mode emploi activé : tu apparais dans les recherches des recruteurs' : 'Mode emploi désactivé';
   if (labelOn) labelOn.style.opacity = actif ? '1' : '0.4';
