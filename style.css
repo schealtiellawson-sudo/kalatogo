@@ -7348,6 +7348,37 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 }
 .hero .container.hero-content { position: relative; z-index: 2; }
 
+/* ══ HERO CINÉMATIQUE PLEIN CADRE — variante A validée 2026-08-08 ══ */
+.hero-photo {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: #0d0a06 url('/assets/hero-atelier.jpg') center right / cover no-repeat;
+  animation: heroKenBurns 26s ease-in-out infinite alternate;
+  transform-origin: 72% 42%;
+}
+@keyframes heroKenBurns { from { transform: scale(1.05); } to { transform: scale(1.15); } }
+.hero-photo-scrim {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(13,10,6,0.96) 0%, rgba(13,10,6,0.74) 34%, rgba(13,10,6,0.14) 64%, rgba(13,10,6,0) 100%),
+    linear-gradient(180deg, rgba(13,10,6,0.32) 0%, rgba(13,10,6,0.12) 40%, rgba(13,10,6,0.55) 78%, rgba(13,10,6,0.90) 100%);
+}
+/* Une seule colonne : le texte à gauche, l'artisan de la photo à droite */
+.hero-grid { grid-template-columns: 1fr; }
+.hero-grid > div:first-child { max-width: 620px; }
+@media (max-width: 820px) {
+  /* Mobile : MÊME photo plein cadre derrière le texte, recentrée pour le portrait */
+  .hero { padding: 88px 0 60px; }
+  .hero-photo {
+    background-position: 72% 26%;
+    animation: none; transform: none; /* léger sur mobile, pas de Ken Burns */
+  }
+  .hero-photo-scrim {
+    background: linear-gradient(180deg, rgba(13,10,6,0.70) 0%, rgba(13,10,6,0.54) 30%, rgba(13,10,6,0.74) 68%, rgba(13,10,6,0.95) 100%);
+  }
+  .hero-grid > div:first-child { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-photo { animation: none; } }
+
 /* Scène des cartes */
 .hero-ombre {
   position: relative; min-height: 460px;
