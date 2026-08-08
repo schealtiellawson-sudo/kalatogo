@@ -1,5 +1,5 @@
 // WOZALI — Service Worker (PWA install + Web Push)
-const CACHE_NAME = 'wozali-v3';
+const CACHE_NAME = 'wozali-v4';
 const PRECACHE = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', function(e) {
@@ -24,10 +24,29 @@ self.addEventListener('activate', function(e) {
 });
 
 self.addEventListener('fetch', function(e) {
-  // Network-first strategy — always try network, fallback to cache
+  // La coquille HTML (requêtes de navigation) doit TOUJOURS venir fraîche de
+  // l'origine : sinon un cache HTTP navigateur peut servir un vieil index.html
+  // qui pointe vers d'anciennes versions d'assets (?v=...). On force cache:'reload'
+  // pour bypasser le cache HTTP du navigateur, avec repli cache si hors-ligne.
+  var isNav = e.request.mode === 'navigate' ||
+    (e.request.method === 'GET' && (e.request.headers.get('accept') || '').indexOf('text/html') !== -1);
+  if (isNav) {
+    e.respondWith(
+      fetch(e.request, { cache: 'reload' }).then(function(response) {
+        if (response && response.status === 200) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function(cache) { cache.put(e.request, clone); });
+        }
+        return response;
+      }).catch(function() {
+        return caches.match(e.request).then(function(m) { return m || caches.match('/index.html'); });
+      })
+    );
+    return;
+  }
+  // Reste (assets, API) : network-first — réseau d'abord, cache en repli hors-ligne
   e.respondWith(
     fetch(e.request).then(function(response) {
-      // Cache successful GET responses
       if (e.request.method === 'GET' && response.status === 200) {
         var clone = response.clone();
         caches.open(CACHE_NAME).then(function(cache) {
