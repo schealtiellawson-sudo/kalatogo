@@ -121,7 +121,7 @@
     + '#wz-emploi-onb .dots{display:inline-flex;gap:5px;align-items:center;padding:3px 2px;}'
     + '#wz-emploi-onb .dots span{width:7px;height:7px;border-radius:50%;background:rgba(252,224,168,.55);animation:wzonbpulse 1.1s infinite;}'
     + '@keyframes wzonbpulse{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}'
-    + '#wz-emploi-onb .play{display:inline-block;margin-top:8px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#E8940A;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.24);border-radius:20px;padding:5px 10px;cursor:pointer;user-select:none;}'
+    + '#wz-emploi-onb .play{display:block;width:fit-content;margin-top:12px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#E8940A;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.24);border-radius:20px;padding:6px 12px;cursor:pointer;user-select:none;}'
     + '#wz-emploi-onb .play.playing{background:#E8940A;color:#241500;}'
     + '#wz-emploi-onb .vtoggle{background:none;border:none;color:#E8940A;font-size:18px;cursor:pointer;margin-right:8px;}'
     + '#wz-emploi-onb .inrow{display:flex;gap:8px;align-items:flex-end;}#wz-emploi-onb .inrow textarea{flex:1;}'
