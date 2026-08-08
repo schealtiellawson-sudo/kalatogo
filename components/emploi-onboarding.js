@@ -64,7 +64,23 @@
   var PROBE = {
     exp: 'Donne-moi un exemple concret : qu\'est-ce que tu as fait récemment, et pour qui ?',
     skills: 'Ajoute une ou deux choses de plus. Qu\'est-ce que peu de gens font aussi bien que toi ?',
+    situ: 'Explique-moi ta façon de faire, étape par étape. C\'est ça qui montre ton vrai savoir-faire.',
+    fiab: 'Raconte un peu plus : le client était content ? Tu as fini à temps ?',
     _default: 'Tu peux m\'en dire un peu plus ? Deux mots de plus suffisent.'
+  };
+  // Mise en situation par metier (equivalent du bloc comportemental Mercor, adapte).
+  // Revele le vrai savoir-faire (jugement metier), pas le discours.
+  var SITU = {
+    couture: 'Mise en situation : une cliente veut sa tenue pour demain, mais en coupant tu vois qu\'il manque du tissu. Tu fais quoi ?',
+    electricite: 'Mise en situation : un client dit que ça disjoncte souvent chez lui. Par où tu commences ?',
+    vente: 'Mise en situation : un client hésite et trouve que c\'est trop cher. Tu fais quoi ?',
+    coiffure: 'Mise en situation : une cliente arrive avec la photo d\'une coupe difficile pour ses cheveux. Tu fais quoi ?',
+    maconnerie: 'Mise en situation : en plein chantier, le client change d\'avis sur ce qu\'il veut. Tu gères comment ?',
+    mecanique: 'Mise en situation : un client dit que sa moto fait un bruit bizarre mais roule encore. Par où tu commences ?',
+    restauration: 'Mise en situation : une grosse commande tombe à la dernière minute pour ce soir. Tu fais quoi ?',
+    menage: 'Mise en situation : le client n\'est pas content d\'une pièce que tu as nettoyée. Tu réagis comment ?',
+    transport: 'Mise en situation : ton client est pressé mais il y a beaucoup d\'embouteillage. Tu fais quoi ?',
+    generic: 'Mise en situation : un client n\'est pas satisfait de ton travail. Tu fais quoi ?'
   };
   function clusterOf(metier) {
     for (var i = 0; i < CLUSTERS.length; i++) { if (CLUSTERS[i].re.test(metier || '')) return CLUSTERS[i].k; }
@@ -81,8 +97,10 @@
       { id: 'etudes', q: 'Jusqu\'où tu as étudié, et tu as un diplôme ou une formation dans ton métier ? Si tu n\'en as pas, ce n\'est pas grave, ton travail parle pour toi.', ph: 'Ex: CAP couture, ou appris sur le tas', min: 1 },
       { id: 'exp', q: 'Raconte-moi : depuis combien de temps tu fais ça, et qu\'est-ce que tu as déjà fait ? Parle normalement, comme à un client.', ph: 'Ex: 6 ans, robes, uniformes, retouches...', min: 8, probe: true }
     ];
+    tail.push({ id: 'situ', q: SITU[k] || SITU.generic, ph: 'Explique ta façon de faire', min: 6, probe: true });
     (METIER_Q[k] || METIER_Q.generic).forEach(function (mq) { tail.push({ id: mq.id, q: mq.q, ph: 'Ta réponse', min: 3, probe: true }); });
     tail.push({ id: 'skills', q: 'Et qu\'est-ce que tu sais bien faire ? Cite-moi trois ou quatre choses.', ph: 'Ex: coupe, broderie, mesures...', min: 3, probe: true });
+    tail.push({ id: 'fiab', q: 'Sur ton dernier travail, tu as tenu le délai promis ? Raconte vite.', ph: 'Ex: oui, livré en 3 jours comme prévu', min: 3, probe: true });
     tail.push({ id: 'zone', q: 'Dernière chose : tu travailles dans quel quartier, et tu es disponible quand ?', ph: 'Ex: Tokoin, Lomé, tous les jours', min: 2 });
     return tail;
   }
@@ -217,13 +235,15 @@
     var skills = (a.skills || '').split(/[,;/]|\bet\b/).map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 8);
     var details = {};
     ['c_type', 'c_machine', 'e_type', 'e_habil', 'v_prod', 'v_role', 'k_type', 'k_lieu', 'ma_type', 'ma_eq', 'me_type', 'me_lieu', 'r_type', 'mn_type', 't_permis', 't_veh', 'g_task'].forEach(function (id) { if (a[id]) details[id] = a[id]; });
+    if (a.situ) details.mise_en_situation = a.situ;
+    if (a.fiab) details.fiabilite_declaree = a.fiab;
     var ageNum = parseInt(String(a.age || '').replace(/\D/g, ''), 10);
     var patch = {
       ouvert_au_travail: true,
       cluster_metier: a._cluster || null,
       competences_brut: skills.length ? skills : null,
       niveau_etudes: a.etudes || null,
-      onboarding_transcript: [a.exp, a.skills].filter(Boolean).join('\n') || null,
+      onboarding_transcript: [a.exp, a.situ, a.skills, a.fiab].filter(Boolean).join('\n') || null,
       metier_details: Object.keys(details).length ? details : null
     };
     state._pres = buildPresentation(a); state._score = computeScore(a);
