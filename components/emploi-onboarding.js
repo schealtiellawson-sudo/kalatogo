@@ -252,9 +252,11 @@
       onboarding_transcript: [a.exp, a.situ, a.behav_conflit, a.behav_explain, a.skills, a.fiab].filter(Boolean).join('\n') || null,
       metier_details: Object.keys(details).length ? details : null
     };
-    state._pres = buildPresentation(a); state._score = computeScore(a);
+    state._pres = state._pres || buildPresentation(a);
+    state._score = (typeof state._score === 'number') ? state._score : computeScore(a);
     patch.presentation_pro = state._pres;
     patch.score_competence = state._score;
+    if (state._iaCompetences && state._iaCompetences.length) patch.competences_brut = state._iaCompetences.slice(0, 8);
     if (ageNum >= 10 && ageNum <= 99) patch.age = ageNum;  // n'ecrase pas un age existant si saisie invalide
     try {
       var r = await sb.from('wozali_prestataires').update(patch).eq('user_id', window.currentUser.id);
@@ -265,7 +267,8 @@
 
   function renderCV() {
     var a = state.answers;
-    var chips = skillList(a).slice(0, 6).map(function (s) { return '<span class="cvchip">' + esc(s) + '</span>'; }).join('') || '<span class="cvchip">à compléter</span>';
+    var cs = (state._iaCompetences && state._iaCompetences.length) ? state._iaCompetences : skillList(a);
+    var chips = cs.slice(0, 6).map(function (s) { return '<span class="cvchip">' + esc(s) + '</span>'; }).join('') || '<span class="cvchip">à compléter</span>';
     var details = [];
     ['c_type', 'c_machine', 'e_type', 'e_habil', 'v_prod', 'v_role', 'k_type', 'k_lieu', 'ma_type', 'ma_eq', 'me_type', 'me_lieu', 'r_type', 'mn_type', 't_permis', 't_veh', 'g_task'].forEach(function (id) { if (a[id]) details.push(esc(a[id])); });
     var card = document.createElement('div'); card.className = 'cvcard';
@@ -284,9 +287,23 @@
     thread().appendChild(card); scroll();
   }
 
+  function iaAnswers() {
+    var a = state.answers, d = {};
+    ['c_type', 'c_machine', 'e_type', 'e_habil', 'v_prod', 'v_role', 'k_type', 'k_lieu', 'ma_type', 'ma_eq', 'me_type', 'me_lieu', 'r_type', 'mn_type', 't_permis', 't_veh', 'g_task'].forEach(function (id) { if (a[id]) d[id] = a[id]; });
+    return { metier: a.metier, exp: a.exp, situ: a.situ, behav_conflit: a.behav_conflit, behav_explain: a.behav_explain, skills: a.skills, fiab: a.fiab, etudes: a.etudes, metier_details: d };
+  }
   async function finish() {
     bar(100);
     await typing('C\'est fait ! J\'enregistre ton profil « Ouvert au travail ». Le recruteur voit ton métier, tes compétences et ton quartier.', 'finish1');
+    composer().innerHTML = '<div class="hint">Sandy analyse tes réponses...</div>';
+    try {
+      var ia = await iaCall({ mode: 'score', answers: iaAnswers() });
+      if (ia && ia.ok) {
+        if (ia.presentation_pro) state._pres = ia.presentation_pro;
+        if (typeof ia.score_competence === 'number') state._score = ia.score_competence;
+        if (ia.competences && ia.competences.length) state._iaCompetences = ia.competences;
+      }
+    } catch (e) { /* repli client-side */ }
     composer().innerHTML = '<div class="hint">Enregistrement...</div>';
     var res = await save();
     var c = composer(); c.innerHTML = '';
@@ -339,11 +356,54 @@
       endBtn();
     }
   }
+  async function iaCall(payload) {
+    var wf = window.woloFetch || window.fetch;
+    try {
+      var r = await wf('/api/wozali-pay/onboarding-ia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      return await r.json();
+    } catch (e) { return { ok: false, reason: 'network' }; }
+  }
+  function fileToB64(file) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { var s = String(r.result || ''); var i = s.indexOf(','); resolve(i >= 0 ? s.slice(i + 1) : s); };
+      r.onerror = reject; r.readAsDataURL(file);
+    });
+  }
   async function pickCv(o) {
     me(o.l);
-    if (o.k === 'cv') { await typing('Parfait. L\'import de ton CV arrive très bientôt. Pour l\'instant, on le fait ensemble, ça va vite. C\'est quoi ton métier ?'); }
-    else { await typing('D\'accord, on le fait ensemble. C\'est quoi ton métier ?'); }
-    askMetier();
+    if (o.k === 'cv') { await typing('Parfait. Envoie-moi ton CV (photo ou PDF), je le lis et je remplis ton profil.'); askCvFile(); }
+    else { await typing('D\'accord, on le fait ensemble. C\'est quoi ton métier ?'); askMetier(); }
+  }
+  function askCvFile() {
+    var c = composer(); c.innerHTML = '';
+    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/pdf,image/*'; inp.style.cssText = 'color:#FCE0A8;font-family:inherit;font-size:13px;';
+    var btn = document.createElement('button'); btn.className = 'send'; btn.textContent = 'Lire mon CV';
+    btn.onclick = function () { handleCvFile(inp.files && inp.files[0]); };
+    var skip = document.createElement('button'); skip.className = 'send'; skip.style.cssText = 'background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(232,148,10,.24);'; skip.textContent = 'Finalement, on le fait ensemble';
+    skip.onclick = function () { typing('Pas de souci. C\'est quoi ton métier ?').then(askMetier); };
+    c.appendChild(inp); c.appendChild(btn); c.appendChild(skip);
+  }
+  async function handleCvFile(file) {
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) { await typing('Ce fichier est trop lourd. Essaie une photo plus légère, ou on le fait ensemble : c\'est quoi ton métier ?'); askMetier(); return; }
+    composer().innerHTML = '<div class="hint">Sandy lit ton CV...</div>';
+    var b64 = await fileToB64(file);
+    var ia = await iaCall({ mode: 'cv', file_base64: b64, mime: file.type || 'application/pdf' });
+    if (ia && ia.ok) {
+      var a = state.answers;
+      if (ia.metier) a.metier = ia.metier;
+      if (ia.niveau_etudes) a.etudes = ia.niveau_etudes;
+      if (ia.competences && ia.competences.length) a.skills = ia.competences.join(', ');
+      if (ia.parcours_resume) a.exp = ia.parcours_resume;
+      me('📄 CV lu');
+      await typing('J\'ai lu ton CV. Ton métier : ' + (a.metier || 'à préciser') + '. Je complète avec quelques questions rapides.');
+      state.answers.metier = a.metier || 'Mon métier';
+      state.queue = buildQueue(state.answers.metier); state.idx = 0; render();
+    } else {
+      await typing('Je n\'ai pas réussi à lire ce CV. Pas grave, on le fait ensemble. C\'est quoi ton métier ?');
+      askMetier();
+    }
   }
   function askMetier() {
     var c = composer(); c.innerHTML = '';

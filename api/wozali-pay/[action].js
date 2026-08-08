@@ -35,6 +35,8 @@ import bourseTirageMensuel from './_impl/bourse-tirage-mensuel.js';
 // Fichiers _impl/ conservés sur disque
 // IA Router (T1-T4 consolidés)
 import aiQuery from './_impl/ai-query.js';
+// Onboarding Jobs — scoring/extraction IA + lecture CV (2026-08-08)
+import onboardingIa from './_impl/onboarding-ia.js';
 // Messagerie + entretiens + signalement (Sprint I)
 import threadList from './_impl/thread-list.js';
 import messageList from './_impl/message-list.js';
@@ -189,6 +191,7 @@ const handlers = {
   'bourse-tirage-mensuel': bourseTirageMensuel,
   // Endpoints jeux désinscrits 2026-05-15 : feed-discover, badges-list, leaderboard, duels-list, vote-share, boost-acheter
   'ai-query': aiQuery,
+  'onboarding-ia': onboardingIa,
   'thread-list': threadList,
   'message-list': messageList,
   'message-send': messageSend,
