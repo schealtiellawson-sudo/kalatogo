@@ -27084,6 +27084,17 @@ async function loadEmploiMode() {
   _updateEmploiModeUI(actif);
 }
 
+// Lance l'onboarding emploi conversationnel de Sandy ("Le travail te trouve").
+// Le module components/emploi-onboarding.js expose window.wozaliEmploiOnboarding.open().
+function startSandyEmploiOnboarding() {
+  if (window.wozaliEmploiOnboarding && typeof window.wozaliEmploiOnboarding.open === 'function') {
+    window.wozaliEmploiOnboarding.open();
+  } else {
+    try { toast('Sandy se prépare, réessaie dans un instant.', 'error'); } catch (e) {}
+  }
+}
+window.startSandyEmploiOnboarding = startSandyEmploiOnboarding;
+
 function _updateEmploiModeUI(actif) {
   const track = document.getElementById('emploi-mode-track');
   const thumb = document.getElementById('emploi-mode-thumb');
