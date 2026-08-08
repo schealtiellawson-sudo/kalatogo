@@ -8526,7 +8526,7 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
     linear-gradient(180deg, rgba(13,10,6,0.52) 0%, rgba(13,10,6,0.34) 42%, rgba(13,10,6,0.60) 78%, rgba(13,10,6,0.92) 100%);
 }
 @media (max-width: 820px) {
-  .wzf-hero-photo { background-position: center center; animation:none; transform:none; }
+  .wzf-hero-photo { background-position: 74% 26%; animation:none; transform:none; }
   .wzf-hero-scrim {
     background:
       radial-gradient(ellipse 120% 60% at 50% 32%, rgba(13,10,6,0.55), transparent 75%),
