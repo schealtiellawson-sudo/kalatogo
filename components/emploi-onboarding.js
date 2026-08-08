@@ -66,6 +66,8 @@
     skills: 'Ajoute une ou deux choses de plus. Qu\'est-ce que peu de gens font aussi bien que toi ?',
     situ: 'Explique-moi ta façon de faire, étape par étape. C\'est ça qui montre ton vrai savoir-faire.',
     fiab: 'Raconte un peu plus : le client était content ? Tu as fini à temps ?',
+    behav_conflit: 'Donne un exemple réel : c\'est déjà arrivé ? Tu as réagi comment ?',
+    behav_explain: 'Continue, avec des mots simples, comme si tu parlais à un voisin.',
     _default: 'Tu peux m\'en dire un peu plus ? Deux mots de plus suffisent.'
   };
   // Mise en situation par metier (equivalent du bloc comportemental Mercor, adapte).
@@ -98,6 +100,8 @@
       { id: 'exp', q: 'Raconte-moi : depuis combien de temps tu fais ça, et qu\'est-ce que tu as déjà fait ? Parle normalement, comme à un client.', ph: 'Ex: 6 ans, robes, uniformes, retouches...', min: 8, probe: true }
     ];
     tail.push({ id: 'situ', q: SITU[k] || SITU.generic, ph: 'Explique ta façon de faire', min: 6, probe: true });
+    tail.push({ id: 'behav_conflit', q: 'Un client n\'est pas content et hausse le ton. Tu fais quoi ?', ph: 'Ta façon de gérer', min: 6, probe: true });
+    tail.push({ id: 'behav_explain', q: 'Explique-moi ton métier comme si je n\'y connaissais rien du tout.', ph: 'Avec des mots simples', min: 6, probe: true });
     (METIER_Q[k] || METIER_Q.generic).forEach(function (mq) { tail.push({ id: mq.id, q: mq.q, ph: 'Ta réponse', min: 3, probe: true }); });
     tail.push({ id: 'skills', q: 'Et qu\'est-ce que tu sais bien faire ? Cite-moi trois ou quatre choses.', ph: 'Ex: coupe, broderie, mesures...', min: 3, probe: true });
     tail.push({ id: 'fiab', q: 'Sur ton dernier travail, tu as tenu le délai promis ? Raconte vite.', ph: 'Ex: oui, livré en 3 jours comme prévu', min: 3, probe: true });
@@ -236,6 +240,8 @@
     var details = {};
     ['c_type', 'c_machine', 'e_type', 'e_habil', 'v_prod', 'v_role', 'k_type', 'k_lieu', 'ma_type', 'ma_eq', 'me_type', 'me_lieu', 'r_type', 'mn_type', 't_permis', 't_veh', 'g_task'].forEach(function (id) { if (a[id]) details[id] = a[id]; });
     if (a.situ) details.mise_en_situation = a.situ;
+    if (a.behav_conflit) details.gestion_conflit = a.behav_conflit;
+    if (a.behav_explain) details.explication_metier = a.behav_explain;
     if (a.fiab) details.fiabilite_declaree = a.fiab;
     var ageNum = parseInt(String(a.age || '').replace(/\D/g, ''), 10);
     var patch = {
@@ -243,7 +249,7 @@
       cluster_metier: a._cluster || null,
       competences_brut: skills.length ? skills : null,
       niveau_etudes: a.etudes || null,
-      onboarding_transcript: [a.exp, a.situ, a.skills, a.fiab].filter(Boolean).join('\n') || null,
+      onboarding_transcript: [a.exp, a.situ, a.behav_conflit, a.behav_explain, a.skills, a.fiab].filter(Boolean).join('\n') || null,
       metier_details: Object.keys(details).length ? details : null
     };
     state._pres = buildPresentation(a); state._score = computeScore(a);
