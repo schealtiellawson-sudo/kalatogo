@@ -23,6 +23,20 @@
   }
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function words(s) { return String(s || '').trim().split(/\s+/).filter(Boolean).length; }
+  function cap(s) { s = String(s || '').trim(); return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  function skillList(a) { return String(a.skills || '').split(/[,;/]|\bet\b/).map(function (x) { return x.trim(); }).filter(Boolean); }
+  // Reecriture pro (client-side, en attendant l'IA serveur Gemini/ameliorerCv).
+  function buildPresentation(a) {
+    var m = a.metier ? cap(a.metier) : 'Professionnel';
+    var yrs = (String(a.exp || '').match(/(\d+)\s*an/) || [])[1];
+    var head = m + (yrs ? (', ' + yrs + ' ans d\'expérience') : '') + '. ';
+    var body = String(a.exp || '').replace(/^(je |j'|j’)/i, '').replace(/\s+/g, ' ').trim();
+    return head + (body ? cap(body) : 'Travail soigné, livré dans les délais') + '. Sérieux, ponctuel, attentif aux détails.';
+  }
+  function computeScore(a) {
+    var s = 45 + Math.min(20, String(a.exp || '').length / 12) + Math.min(12, skillList(a).length * 3) + (a.etudes ? 6 : 0);
+    return Math.min(88, Math.round(s));
+  }
 
   var CLUSTERS = [
     { re: /coutur|tailleur|stylist|brod|mode/i, k: 'couture' },
@@ -112,17 +126,35 @@
     + '#wz-emploi-onb .vtoggle{background:none;border:none;color:#E8940A;font-size:18px;cursor:pointer;margin-right:8px;}'
     + '#wz-emploi-onb .inrow{display:flex;gap:8px;align-items:flex-end;}#wz-emploi-onb .inrow textarea{flex:1;}'
     + '#wz-emploi-onb .micbtn{width:48px;height:48px;border-radius:50%;background:#1E180E;border:1px solid #E8940A;color:#E8940A;font-size:20px;cursor:pointer;flex:0 0 auto;}'
-    + '#wz-emploi-onb .micbtn.rec{background:#E8940A;color:#241500;animation:wzonbpulse 1s infinite;}';
+    + '#wz-emploi-onb .micbtn.rec{background:#E8940A;color:#241500;animation:wzonbpulse 1s infinite;}'
+    + '#wz-emploi-onb .cvcard{background:#1E180E;border:1px solid #E8940A;border-radius:16px;overflow:hidden;margin-top:6px;}'
+    + '#wz-emploi-onb .cvhead{display:flex;gap:11px;align-items:center;padding:14px;border-bottom:1px solid rgba(232,148,10,.2);}'
+    + '#wz-emploi-onb .cvav{width:46px;height:46px;border-radius:50%;background:#2a2113;border:1px solid #E8940A;display:grid;place-items:center;font-family:"DM Serif Display",Georgia,serif;color:#E8940A;font-size:20px;flex:0 0 auto;}'
+    + '#wz-emploi-onb .cvname{font-family:"DM Serif Display",Georgia,serif;font-size:19px;}'
+    + '#wz-emploi-onb .cvsub{font-size:12px;color:rgba(252,224,168,.6);}'
+    + '#wz-emploi-onb .cvbadge{display:inline-block;margin-top:5px;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:#0d3a1f;background:#7bd88f;border-radius:20px;padding:3px 8px;font-weight:700;}'
+    + '#wz-emploi-onb .cvscores{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px 0;}'
+    + '#wz-emploi-onb .cvsc{background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:9px;text-align:center;}'
+    + '#wz-emploi-onb .cvsc .v{font-family:"DM Serif Display",Georgia,serif;font-size:24px;color:#E8940A;line-height:1;}'
+    + '#wz-emploi-onb .cvsc .l{font-family:ui-monospace,Menlo,monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.4);margin-top:4px;}'
+    + '#wz-emploi-onb .cveye{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#E8940A;margin:12px 14px 6px;}'
+    + '#wz-emploi-onb .cvtxt{font-size:13px;color:rgba(252,224,168,.75);line-height:1.5;padding:0 14px;}'
+    + '#wz-emploi-onb .cvchips{padding:0 14px;}'
+    + '#wz-emploi-onb .cvchip{display:inline-block;font-size:12px;background:rgba(232,148,10,.13);border:1px solid rgba(232,148,10,.24);color:#FCE0A8;border-radius:18px;padding:5px 10px;margin:0 5px 6px 0;}'
+    + '#wz-emploi-onb .cvkv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:6px 14px;border-top:1px solid rgba(232,148,10,.08);}'
+    + '#wz-emploi-onb .cvkv span:first-child{color:rgba(252,224,168,.4);}'
+    + '#wz-emploi-onb .cvpro{margin:12px 14px 14px;background:rgba(232,148,10,.1);border:1px solid rgba(232,148,10,.24);border-radius:12px;padding:11px;font-size:12px;color:rgba(252,224,168,.7);}'
+    + '#wz-emploi-onb .cvpro b{color:#FCE0A8;}';
 
   function shell() {
     return '<style>' + CSS + '</style><div class="wrap"><div class="top"><div class="logo"><em>W</em>OZALI · Ouvert au travail</div>'
-      + '<div><button class="vtoggle" id="wz-onb-voice" aria-label="Voix">🔊</button><button class="x" id="wz-onb-x" aria-label="Fermer">✕</button></div></div>'
+      + '<div><button class="vtoggle" id="wz-onb-voice" aria-label="Lecture auto">🔇</button><button class="x" id="wz-onb-x" aria-label="Fermer">✕</button></div></div>'
       + '<div class="trk"><i id="wz-onb-bar"></i></div><div class="thread" id="wz-onb-thread"></div>'
       + '<div class="composer" id="wz-onb-composer"></div></div>';
   }
   function thread() { return document.getElementById('wz-onb-thread'); }
   function composer() { return document.getElementById('wz-onb-composer'); }
-  var curAudio = null, curBtn = null, voiceOn = true;
+  var curAudio = null, curBtn = null, voiceOn = false; // auto-lecture OFF par defaut : l'utilisateur clique « Ecouter »
   function setPlayBtn(b, p) { if (b) { b.textContent = p ? '⏸ Pause' : '▶ Écouter'; b.classList.toggle('playing', !!p); } }
   function stopAud() { if (curAudio) { try { curAudio.pause(); } catch (e) {} } curAudio = null; if (curBtn) { setPlayBtn(curBtn, false); curBtn = null; } }
   function playAud(audId, btn) {
@@ -231,12 +263,36 @@
       onboarding_transcript: [a.exp, a.skills].filter(Boolean).join('\n') || null,
       metier_details: Object.keys(details).length ? details : null
     };
+    state._pres = buildPresentation(a); state._score = computeScore(a);
+    patch.presentation_pro = state._pres;
+    patch.score_competence = state._score;
     if (ageNum >= 10 && ageNum <= 99) patch.age = ageNum;  // n'ecrase pas un age existant si saisie invalide
     try {
       var r = await sb.from('wozali_prestataires').update(patch).eq('user_id', window.currentUser.id);
       if (r && r.error) return { ok: false, reason: r.error.message };
       return { ok: true };
     } catch (e) { return { ok: false, reason: String(e) }; }
+  }
+
+  function renderCV() {
+    var a = state.answers;
+    var chips = skillList(a).slice(0, 6).map(function (s) { return '<span class="cvchip">' + esc(s) + '</span>'; }).join('') || '<span class="cvchip">à compléter</span>';
+    var details = [];
+    ['c_type', 'c_machine', 'e_type', 'e_habil', 'v_prod', 'v_role', 'k_type', 'k_lieu', 'ma_type', 'ma_eq', 'me_type', 'me_lieu', 'r_type', 'mn_type', 't_permis', 't_veh', 'g_task'].forEach(function (id) { if (a[id]) details.push(esc(a[id])); });
+    var card = document.createElement('div'); card.className = 'cvcard';
+    card.innerHTML =
+      '<div class="cvhead"><div class="cvav">' + esc(cap(a.metier || '?').charAt(0)) + '</div>'
+      + '<div><div class="cvname">' + esc(cap(a.metier || 'Mon métier')) + '</div>'
+      + '<div class="cvsub">' + esc(a.zone || '') + '</div><div class="cvbadge">● Ouvert au travail</div></div></div>'
+      + '<div class="cvscores"><div class="cvsc"><div class="v">' + (state._score || '—') + '</div><div class="l">Compétence</div></div>'
+      + '<div class="cvsc"><div class="v">—</div><div class="l">Fiabilité · 1res missions</div></div></div>'
+      + '<div class="cveye">Présentation · écrite par Sandy</div><div class="cvtxt">' + esc(state._pres || '') + '</div>'
+      + '<div class="cveye">Compétences</div><div class="cvchips">' + chips + '</div>'
+      + (a.etudes ? '<div class="cvkv"><span>Formation</span><span>' + esc(a.etudes) + '</span></div>' : '')
+      + (a.age ? '<div class="cvkv"><span>Âge</span><span>' + esc(a.age) + ' ans</span></div>' : '')
+      + (details.length ? '<div class="cvkv"><span>Spécialité</span><span>' + details.join(' · ') + '</span></div>' : '')
+      + '<div class="cvpro"><b>Passe Pro</b> : Pro te met devant, ton score te garde devant. Ajoute des photos de ton travail pour monter ton score.</div>';
+    thread().appendChild(card); scroll();
   }
 
   async function finish() {
@@ -247,6 +303,7 @@
     var c = composer(); c.innerHTML = '';
     if (res.ok) {
       await typing('Ton profil est prêt. On te prévient dès qu\'un recruteur cherche ton métier près de toi. En attendant, ajoute des photos de ton travail : ton profil sera bien plus fort.', 'finish_ok');
+      renderCV();
     } else {
       await typing('J\'ai tes réponses, mais l\'enregistrement a calé (' + esc(res.reason || '') + '). Réessaie dans un instant, tes réponses ne sont pas perdues.');
     }
@@ -258,7 +315,7 @@
   function open() {
     if (!window.currentUser) { try { toast('Connecte-toi d\'abord pour créer ton profil emploi.', 'error'); } catch (e) {} return; }
     state = { queue: [], idx: 0, answers: {}, probed: {} };
-    voiceOn = true;
+    voiceOn = false;
     ov(shell());
     document.getElementById('wz-onb-x').onclick = close;
     var vb = document.getElementById('wz-onb-voice');
