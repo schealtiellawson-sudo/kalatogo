@@ -85,7 +85,11 @@
     generic: 'Mise en situation : un client n\'est pas satisfait de ton travail. Tu fais quoi ?'
   };
   function clusterOf(metier) {
-    for (var i = 0; i < CLUSTERS.length; i++) { if (CLUSTERS[i].re.test(metier || '')) return CLUSTERS[i].k; }
+    // Normaliser les accents : "électricien" -> "electricien" pour matcher /electric/,
+    // "couturière" -> "couturiere", "maçon" -> "macon", etc. Sans ça, tout metier
+    // accentue retombait sur le cluster 'generic' (questions genero au lieu du metier).
+    var m = String(metier || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    for (var i = 0; i < CLUSTERS.length; i++) { if (CLUSTERS[i].re.test(m)) return CLUSTERS[i].k; }
     return 'generic';
   }
 
