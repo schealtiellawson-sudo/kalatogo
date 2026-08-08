@@ -8145,6 +8145,61 @@ html.wz-anim .wz-reveal.in { opacity:1; transform:none; }
 html.wz-anim .wz-reveal[data-d="1"] { transition-delay:.1s; }
 html.wz-anim .wz-reveal[data-d="2"] { transition-delay:.2s; }
 html.wz-anim .wz-reveal[data-d="3"] { transition-delay:.3s; }
+html.wz-anim .wz-reveal[data-d="4"] { transition-delay:.4s; }
+html.wz-anim .wz-reveal[data-d="5"] { transition-delay:.5s; }
+
+/* ═══════════════════════════════════════════════════════════════
+   COUCHE MOTION PREMIUM (opt-in, additive, low-data, reduced-motion safe)
+   Rien ne s'active sans html.wz-anim (posé seulement si IO + pas reduced-motion).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Variantes de reveal directionnelles / scale / blur (choréographie plus riche) */
+html.wz-anim .wz-reveal--left  { transform:translateX(-34px); }
+html.wz-anim .wz-reveal--right { transform:translateX(34px); }
+html.wz-anim .wz-reveal--scale { transform:scale(.94); }
+html.wz-anim .wz-reveal--blur  { filter:blur(10px); transition:opacity .9s cubic-bezier(.22,.7,.28,1), transform .9s cubic-bezier(.22,.7,.28,1), filter .9s ease; }
+html.wz-anim .wz-reveal--left.in,
+html.wz-anim .wz-reveal--right.in,
+html.wz-anim .wz-reveal--scale.in { transform:none; }
+html.wz-anim .wz-reveal--blur.in { filter:blur(0); }
+
+/* Hover premium opt-in : lift + halo or (cartes vitrine) */
+.wz-lift { transition:transform .38s cubic-bezier(.22,.7,.28,1), box-shadow .38s ease, border-color .38s ease; will-change:transform; }
+@media (hover:hover){
+  .wz-lift:hover { transform:translateY(-6px); box-shadow:0 22px 48px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(232,148,10,.35); border-color:rgba(232,148,10,.5); }
+}
+/* Zoom doux d'image dans une carte au survol */
+.wz-zoom-wrap { overflow:hidden; }
+.wz-zoom-wrap img { transition:transform .7s cubic-bezier(.22,.7,.28,1); will-change:transform; }
+@media (hover:hover){ .wz-zoom-wrap:hover img { transform:scale(1.06); } }
+
+/* Compteurs animés (les chiffres montent quand révélés) : pas de style requis,
+   piloté par JS via [data-countup]. On évite juste le reflow avec tabular-nums. */
+.wz-countup { font-variant-numeric:tabular-nums; }
+
+/* Parallaxe léger scroll-linked du grain hero — progressive enhancement pure CSS.
+   Uniquement si le navigateur supporte animation-timeline (GPU, dégrade sans JS). */
+@supports (animation-timeline: view()) {
+  html.wz-anim .wzf-hero .wzf-grain { animation:wzGrainDrift linear both; animation-timeline:view(); }
+  @keyframes wzGrainDrift { from { transform:translateY(-3%); } to { transform:translateY(3%); } }
+}
+
+/* Shimmer or discret sur les eyebrows (accent premium, très subtil) */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  html.wz-anim .wz-eyebrow.wz-shimmer {
+    background:linear-gradient(100deg, var(--wolo-orange,#E8940A) 30%, #ffd68a 50%, var(--wolo-orange,#E8940A) 70%);
+    background-size:200% 100%;
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    animation:wzShimmer 5.5s ease-in-out infinite;
+  }
+  @keyframes wzShimmer { 0%,100% { background-position:150% 0; } 50% { background-position:-50% 0; } }
+}
+
+@media (prefers-reduced-motion: reduce){
+  html.wz-anim .wz-reveal--blur { filter:none; }
+  .wz-lift:hover { transform:none; }
+  html.wz-anim .wz-eyebrow.wz-shimmer { animation:none; }
+}
 
 /* ---------- CTA sheen générique ---------- */
 .wz-btn-sheen { position:relative; overflow:hidden; }
