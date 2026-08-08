@@ -27095,6 +27095,18 @@ function startSandyEmploiOnboarding() {
 }
 window.startSandyEmploiOnboarding = startSandyEmploiOnboarding;
 
+// Depuis une page publique (hero Jobs) : si connecté, ouvre la section emploi
+// + lance Sandy ; sinon, envoie vers l'inscription (Sandy prend le relais après).
+function startSandyEmploiFromPublic() {
+  if (window.currentUser) {
+    try { showPage('dashboard'); showDashSection('emploi-mode'); } catch (e) {}
+    setTimeout(function () { startSandyEmploiOnboarding(); }, 500);
+  } else {
+    try { showPage('inscription'); } catch (e) {}
+  }
+}
+window.startSandyEmploiFromPublic = startSandyEmploiFromPublic;
+
 function _updateEmploiModeUI(actif) {
   const track = document.getElementById('emploi-mode-track');
   const thumb = document.getElementById('emploi-mode-thumb');

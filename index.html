@@ -1448,11 +1448,12 @@ setTimeout(function(){
     <div class="wzf-grain" aria-hidden="true"></div>
     <div class="container">
       <div class="wz-eyebrow" style="justify-content:center;margin-left:auto;margin-right:auto;">WOZALI Jobs · Bénin · Togo</div>
-      <h1 class="wzf-h1">Les offres qui t'attendent.<br><em>Ton profil WOZALI suffit.</em></h1>
-      <p class="wzf-hero-sub">Pas de CV Word, pas de connexion requise. Tu postules en 1 clic avec ton profil WOZALI : le recruteur voit ton métier, tes avis, ton quartier. Ici, c'est ton travail qui parle. Pas tes connexions.</p>
-      <p class="wzf-hero-note">Postuler est gratuit · Publier une offre est gratuit · À Cotonou, à Lomé, maintenant</p>
-      <div class="wzf-ctas" style="margin-top:26px;">
-        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="document.getElementById('emploi-list')?.scrollIntoView({behavior:'smooth'})">Voir les offres et postuler →</button>
+      <h1 class="wzf-h1">Arrête d'envoyer ton CV dans le vide.<br><em>Le travail te trouve.</em></h1>
+      <p class="wzf-hero-sub">En 2 minutes, Sandy construit ton CV WOZALI vivant : ton métier, tes preuves, ton quartier. Tu deviens « Ouvert au travail », les recruteurs te voient, et tu es prévenu dès qu'une offre te correspond. Tu peux aussi chercher et postuler en 1 clic. Ton travail parle. Pas tes connexions.</p>
+      <p class="wzf-hero-note">Créer ton CV avec Sandy est gratuit · Postuler est gratuit · À Cotonou, à Lomé, maintenant</p>
+      <div class="wzf-ctas" style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+        <button class="btn btn-or btn-lg wz-btn-sheen" onclick="startSandyEmploiFromPublic()">🎙️ Créer mon CV avec Sandy →</button>
+        <button class="btn btn-lg" style="background:transparent;border:1.5px solid rgba(232,148,10,.4);color:#FCE0A8;" onclick="document.getElementById('emploi-list')?.scrollIntoView({behavior:'smooth'})">Voir les offres et postuler</button>
       </div>
       <p style="margin:16px 0 0;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;">
         <a href="#" onclick="event.preventDefault();showDashSection('recrut-publier');showPage('dashboard')" style="color:rgba(252,224,168,.55);text-decoration:underline;text-underline-offset:4px;">Je recrute · publier une offre gratuitement</a>
@@ -1464,10 +1465,10 @@ setTimeout(function(){
   <section style="background:#14100A;padding:0 0 clamp(36px,5vw,52px);">
     <div class="container">
       <div class="wzf-strip wz-reveal" style="max-width:720px;margin:0 auto;">
-        <strong>Des semaines de démarches, zéro réponse, zéro salaire qui tombe.</strong> Ici le recruteur voit ton profil, tes avis, ton quartier, et te répond dans la plateforme.
+        <strong>Des semaines de démarches, zéro réponse, zéro salaire qui tombe.</strong> Ici, tu ne repars pas de zéro à chaque offre : Sandy bâtit ton CV WOZALI une fois, le recruteur voit ton métier, tes preuves, ton quartier, et te répond dans la plateforme.
       </div>
       <p class="wz-reveal" data-d="1" style="max-width:680px;margin:18px auto 0;text-align:center;font-family:'Geist',sans-serif;font-size:13.5px;line-height:1.75;color:rgba(252,224,168,.62);">
-        Il y a deux invisibles. L'artisan que personne ne trouve. Et le chercheur d'emploi que personne n'appelle. Cette page existe pour le deuxième : celui qui sait travailler et qui attend juste qu'on le voie.
+        Il y a deux invisibles. L'artisan que personne ne trouve. Et le chercheur d'emploi que personne n'appelle. Cette page existe pour le deuxième : celui qui sait travailler et qui attend juste qu'on le voie. Ton profil devient ta candidature permanente : tu le crées une fois, et il travaille pour toi.
       </p>
     </div>
   </section>
@@ -7145,7 +7146,7 @@ setTimeout(function(){
       <div class="dash-section" id="ds-emploi-mode">
         <div class="dash-header">
           <h2>💼 Trouver un emploi</h2>
-          <p>Ton profil WOZALI est ton CV. Quand tu postules, le recruteur reçoit tout automatiquement.</p>
+          <p>Crée ton CV WOZALI vivant avec Sandy, deviens « Ouvert au travail », et laisse le travail te trouver. Quand tu postules, le recruteur reçoit tout automatiquement.</p>
         </div>
 
         <!-- SANDY ONBOARDING — "Le travail te trouve" (entrée réelle) -->
@@ -7684,7 +7685,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260808a" defer></script>
+<script src="/app.js?v=20260808b" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE
@@ -8383,10 +8384,10 @@ setTimeout(function(){
           <p style="font-size:14px;line-height:1.7;color:rgba(252,224,168,0.75);margin:0;">Chaque mois, WOZALI verse un salaire à chacun des 10 meilleurs profils Pro du mois, classement 100% mérite. 1 000 FCFA par filleul actif chaque mois via le programme de parrainage. Ton travail te paye. Ton sérieux aussi.</p>
         </div>
       </div>
-      <div class="wzf-strip wz-reveal" style="margin-top:24px;"><strong>Et WOZALI Jobs.</strong> Il y a deux invisibles : l'artisan que personne ne trouve, et le chercheur d'emploi que personne ne rappelle. WOZALI existe pour les deux. Offres vérifiées, candidature en un clic, suivi en temps réel.</div>
+      <div class="wzf-strip wz-reveal" style="margin-top:24px;"><strong>Et WOZALI Jobs.</strong> Il y a deux invisibles : l'artisan que personne ne trouve, et le chercheur d'emploi que personne ne rappelle. WOZALI existe pour les deux. Le CV Word qui part dans le vide, c'est fini : Sandy te pose quelques questions et bâtit ton CV WOZALI vivant. Tu deviens « Ouvert au travail », tu deviens trouvable, et le travail vient à toi. Tu peux toujours chercher et postuler en un clic.</div>
       <div style="margin-top:24px;background:linear-gradient(160deg,rgba(232,148,10,0.12),#1E180E 65%);border:1.5px solid rgba(232,148,10,0.4);border-radius:16px;padding:32px 28px;text-align:left;">
         <div style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#E8940A;margin-bottom:12px;">Des premières</div>
-        <p style="font-family:'DM Serif Display',serif;font-size:clamp(18px,2.5vw,23px);color:#FCE0A8;line-height:1.55;margin:0;">La première coach business IA d'Afrique de l'Ouest, gratuite, dans la poche d'un artisan. Et des profils d'artisans qui ressortent sur Google comme des mini-sites. Personne ne l'avait fait. <em class="wz-gold-it">On l'a fait ici, pour ici.</em></p>
+        <p style="font-family:'DM Serif Display',serif;font-size:clamp(18px,2.5vw,23px);color:#FCE0A8;line-height:1.55;margin:0;">La première coach business IA d'Afrique de l'Ouest, gratuite, dans la poche d'un artisan. Et le premier CV vivant du continent : tu n'écris plus un CV, tu parles à Sandy, elle le construit, et il te rend trouvable. Pendant que le reste du monde attend que les gens sachent rédiger un CV, ici on a retiré le CV du chemin. Personne ne l'avait fait. <em class="wz-gold-it">On l'a fait ici, pour ici.</em></p>
       </div>
       <p style="font-family:'Geist Mono',monospace;font-size:12px;color:rgba(252,224,168,0.5);margin:20px 0 0;">Gratuit pour commencer · Plan Pro 2 500 FCFA/mois, réglé en mobile money · Zéro commission sur ton travail</p>
     </div>
@@ -8459,8 +8460,8 @@ setTimeout(function(){
           <h3 style="font-family:'DM Serif Display',serif;font-size:18px;font-weight:900;color:#E8940A;margin-bottom:16px;">Ce que WOZALI est :</h3>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
             <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Un outil local construit pour le marché ouest-africain, Cotonou, Lomé, et au-delà</li>
-            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Un profil professionnel qui remplace le CV et le bouche-à-oreille</li>
-            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Sandy, un agent IA qui t'aide à mieux vendre ton travail</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Un CV WOZALI vivant, bâti par Sandy en 2 minutes, qui remplace le CV Word et le bouche-à-oreille : tu deviens trouvable, le travail vient à toi</li>
+            <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Sandy, le premier agent IA qui t'aide à mieux vendre ton travail et bâtit ta candidature à ta place</li>
             <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Une Bourse mensuelle : chaque mois, les 10 meilleurs profils Pro du mois gagnent un salaire. 100% mérite, zéro hasard.</li>
             <li style="font-size:14px;color:rgba(252,224,168,0.72);line-height:1.6;display:flex;gap:10px;align-items:flex-start;"><span style="color:#E8940A;">✓</span> Un service indépendant, visible 24h/24, même quand les réseaux sont coupés</li>
           </ul>
