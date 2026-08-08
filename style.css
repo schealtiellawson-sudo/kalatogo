@@ -8513,6 +8513,26 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .wzf-hero .container { position:relative; z-index:2; text-align:center; }
+/* ══ HERO JOBS CINÉMATIQUE — photo chercheuse d'emploi derrière le texte centré (2026-08-08) ══ */
+.wzf-hero-photo {
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:#0d0a06 url('/assets/jobs-hero.jpg') right center / cover no-repeat;
+  animation:heroKenBurns 28s ease-in-out infinite alternate; transform-origin:80% 45%;
+}
+.wzf-hero-scrim {
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(ellipse 82% 74% at 40% 44%, rgba(13,10,6,0.80), transparent 72%),
+    linear-gradient(180deg, rgba(13,10,6,0.52) 0%, rgba(13,10,6,0.34) 42%, rgba(13,10,6,0.60) 78%, rgba(13,10,6,0.92) 100%);
+}
+@media (max-width: 820px) {
+  .wzf-hero-photo { background-position: center center; animation:none; transform:none; }
+  .wzf-hero-scrim {
+    background:
+      radial-gradient(ellipse 120% 60% at 50% 32%, rgba(13,10,6,0.55), transparent 75%),
+      linear-gradient(180deg, rgba(13,10,6,0.62) 0%, rgba(13,10,6,0.5) 34%, rgba(13,10,6,0.72) 70%, rgba(13,10,6,0.95) 100%);
+  }
+}
 .wzf-h1 {
   font-family:'DM Serif Display',serif; font-weight:400;
   font-size:clamp(34px,5.6vw,60px); line-height:1.08; letter-spacing:-.01em;
