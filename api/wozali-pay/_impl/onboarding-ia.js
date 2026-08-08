@@ -42,7 +42,7 @@ async function scoreProfile(body, res) {
     + '"score_breakdown":{"precision":0,"savoir_faire":0,"raisonnement":0,"fiabilite":0,"communication":0},'
     + '"score_justification":"1 phrase"}\n'
     + "Bareme du score_competence (0-100) : precision 0-20 (chiffres, outils, contexte nommes), savoir_faire 0-30 (qualite de la mise en situation), raisonnement 0-25 (process explique etape par etape), fiabilite 0-15, communication 0-10 (clarte de l'explication au novice). Additionne les 5 sous-scores.";
-  const r = await callGemini({ system, user, jsonMode: true, maxTokens: 900 });
+  const r = await callGemini({ system, user, jsonMode: true, maxTokens: 1200 });
   var data;
   try { data = JSON.parse(r.text); } catch (e) { return res.status(200).json({ ok: false, reason: 'parse', raw: (r.text || '').slice(0, 300) }); }
   if (Array.isArray(data.competences)) data.competences = data.competences.map(function (s) { return String(s).trim(); }).filter(Boolean).slice(0, 8);
@@ -61,7 +61,7 @@ async function parseCv(body, res) {
     + '{"metier":"le metier principal","annees_experience":"ex: 6 ans","niveau_etudes":"diplome/formation","competences":["4 a 8 competences"],"parcours_resume":"3 a 4 phrases a la premiere personne resumant l\'experience","langues":"langues parlees"}';
   const gbody = {
     contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: b64 } }] }],
-    generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 900, temperature: 0.2 }
+    generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 1200, temperature: 0.2, thinkingConfig: { thinkingBudget: 0 } }
   };
   const gres = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(gbody) });
   if (!gres.ok) { const t = await gres.text(); return res.status(200).json({ ok: false, reason: 'gemini', detail: t.slice(0, 200) }); }

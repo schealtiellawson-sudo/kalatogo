@@ -29,7 +29,10 @@ export async function callGemini({ system, user, jsonMode = false, maxTokens = 1
     generationConfig: {
       maxOutputTokens: maxTokens,
       temperature: 0.3,
-      ...(jsonMode ? { responseMimeType: 'application/json' } : {}),
+      // gemini-2.5-flash a le "thinking" activé par défaut : il consomme le budget
+      // maxOutputTokens AVANT de produire la réponse, ce qui tronque le JSON structuré
+      // (parse fail). En jsonMode on coupe le thinking pour garantir un JSON complet.
+      ...(jsonMode ? { responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } } : {}),
     },
   };
 

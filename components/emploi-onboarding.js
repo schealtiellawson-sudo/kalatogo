@@ -357,7 +357,7 @@
     }
   }
   async function iaCall(payload) {
-    var wf = window.woloFetch || window.fetch;
+    var wf = window.wozaliFetch || window.fetch;
     try {
       var r = await wf('/api/wozali-pay/onboarding-ia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       return await r.json();
