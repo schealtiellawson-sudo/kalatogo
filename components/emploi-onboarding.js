@@ -249,7 +249,7 @@
       + '<div class="cvsub">' + esc(a.zone || '') + '</div><div class="cvbadge">● Ouvert au travail</div></div></div>'
       + '<div class="cvscores"><div class="cvsc"><div class="v">' + (state._score || '—') + '</div><div class="l">Compétence</div></div>'
       + '<div class="cvsc"><div class="v">—</div><div class="l">Fiabilité · 1res missions</div></div></div>'
-      + '<div class="cveye">Présentation · écrite par Sandy</div><div class="cvtxt">' + esc(state._pres || '') + '</div>'
+      + '<div class="cveye">Présentation</div><div class="cvtxt">' + esc(state._pres || '') + '</div>'
       + '<div class="cveye">Compétences</div><div class="cvchips">' + chips + '</div>'
       + (a.etudes ? '<div class="cvkv"><span>Formation</span><span>' + esc(a.etudes) + '</span></div>' : '')
       + (a.age ? '<div class="cvkv"><span>Âge</span><span>' + esc(a.age) + ' ans</span></div>' : '')
@@ -300,8 +300,11 @@
   async function pickGoal(o) {
     me(o.l); state.answers.but = o.k;
     if (o.k === 'emploi') {
-      await typing('Super. On va rendre ton profil « Ouvert au travail ». D\'abord : c\'est quoi ton métier ?', 'metier_prompt');
-      askMetier();
+      await typing('Super. Tu as déjà un CV tout prêt ? Tu peux me l\'envoyer, je le lis pour toi. Sinon, on le fait ensemble, ça va vite.');
+      var cc = composer(); cc.innerHTML = '';
+      [{ k: 'ensemble', l: 'On le fait ensemble' }, { k: 'cv', l: 'J\'ai un CV' }].forEach(function (op) {
+        var b = document.createElement('button'); b.className = 'opt'; b.textContent = op.l; b.onclick = function () { pickCv(op); }; cc.appendChild(b);
+      });
     } else if (o.k === 'clients' || o.k === 'promo') {
       await typing('Bien reçu. Pour ça, ta vitrine WOZALI (ton profil public, tes photos, tes avis) est ta meilleure arme. Cette partie arrive très bientôt. En attendant, complète ton profil, c\'est ce qui te rend visible.', 'clients_promo');
       endBtn();
@@ -309,6 +312,12 @@
       await typing('Pas de souci ! Explore librement. Je suis là dès que tu veux avancer, dans ton espace.', 'curieux');
       endBtn();
     }
+  }
+  async function pickCv(o) {
+    me(o.l);
+    if (o.k === 'cv') { await typing('Parfait. L\'import de ton CV arrive très bientôt. Pour l\'instant, on le fait ensemble, ça va vite. C\'est quoi ton métier ?'); }
+    else { await typing('D\'accord, on le fait ensemble. C\'est quoi ton métier ?'); }
+    askMetier();
   }
   function askMetier() {
     var c = composer(); c.innerHTML = '';
