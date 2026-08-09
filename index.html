@@ -169,7 +169,7 @@
 })();
 </script>
 <!-- CSS critique (chargé en priorité, mis en cache) -->
-<link rel="stylesheet" href="/style.css?v=20260808f">
+<link rel="stylesheet" href="/style.css?v=20260809a">
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -653,6 +653,52 @@ setTimeout(function(){
       </div>
     </div>
   </section>
+
+  <!-- ══════════════════════════════════════════
+       SECTION LES DEUX INVISIBLES + VIDÉO (refonte premium 2026-08-08)
+  ══════════════════════════════════════════ -->
+  <section class="wz-invisibles">
+    <div class="container">
+      <div class="wz-inv-head wz-reveal">
+        <div class="wz-inv-rule"></div>
+        <h2 class="wz-inv-title">Il y a <em>deux invisibles.</em></h2>
+        <p class="wz-inv-lead">L'artisan que personne ne trouve. Et le chercheur d'emploi que personne n'appelle. WOZALI existe pour les deux.</p>
+      </div>
+      <div class="wz-inv-cards">
+        <div class="wz-inv-card wz-reveal" data-d="1">
+          <div class="wz-inv-n">01 · L'artisan</div>
+          <h3>Il travaille bien. Personne ne le sait.</h3>
+          <p>Le meilleur menuisier du quartier, invisible à 500 mètres de chez lui parce qu'il n'a pas de réseau.</p>
+        </div>
+        <div class="wz-inv-card wz-reveal" data-d="2">
+          <div class="wz-inv-n">02 · Le chercheur d'emploi</div>
+          <h3>Il envoie son CV. Dans le vide.</h3>
+          <p>Le diplômé de l'UAC qui postule depuis deux ans. La couturière qui cherche une place sans savoir à qui parler.</p>
+        </div>
+      </div>
+      <div class="wz-video wz-reveal" data-d="2" role="button" tabindex="0" onclick="wzPlayIntro(this)" onkeypress="if(event.key==='Enter')wzPlayIntro(this)">
+        <div class="wz-video-scrim"></div>
+        <div class="wz-video-title">Comprends WOZALI en 90 secondes.</div>
+        <div class="wz-video-play"><span class="wz-video-disc" aria-hidden="true"></span><span class="wz-video-label">▶ Regarder</span></div>
+      </div>
+      <p class="wz-video-note">La vidéo se lance au clic · légère, pensée pour ta connexion</p>
+    </div>
+  </section>
+  <script>
+    window.wzPlayIntro = function(el){
+      if (window.WZ_INTRO_VIDEO_URL) {
+        var v = document.createElement('video');
+        v.src = window.WZ_INTRO_VIDEO_URL; v.controls = true; v.autoplay = true; v.playsInline = true;
+        v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:5';
+        el.appendChild(v);
+        el.querySelector('.wz-video-play').style.display = 'none';
+        el.querySelector('.wz-video-title').style.display = 'none';
+      } else {
+        var note = el.parentElement.querySelector('.wz-video-note');
+        if (note) { note.textContent = '🎬 La vidéo arrive très bientôt. En attendant, crée ton profil gratuit.'; note.style.color = '#E8940A'; }
+      }
+    };
+  </script>
 
   <div class="wz-hairline"></div>
 

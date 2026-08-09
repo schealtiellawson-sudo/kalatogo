@@ -9494,3 +9494,26 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 .profil-mloc-zone { padding:11px 14px 0; color:rgba(252,224,168,0.75); font-size:14px; }
 .profil-mloc-zone strong { color:#FCE0A8; }
 .profil-mloc-btn { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px 16px; margin-top:11px; background:linear-gradient(135deg,#1a73e8,#1557b0); color:white; font-size:14px; font-weight:800; text-decoration:none; }
+
+/* ══ SECTION LES DEUX INVISIBLES + VIDÉO — refonte accueil premium (2026-08-08) ══ */
+.wz-invisibles { padding: clamp(72px,10vw,120px) 0; background: linear-gradient(180deg,#14100A,#1E180E); }
+.wz-inv-head { text-align:center; max-width:760px; margin:0 auto 46px; }
+.wz-inv-rule { width:44px; height:2px; background:#E8940A; margin:0 auto 22px; }
+.wz-inv-title { font-family:'DM Serif Display',serif; font-weight:400; font-size:clamp(32px,4.6vw,54px); line-height:1.06; color:#FCE0A8; letter-spacing:-.01em; margin:0; }
+.wz-inv-title em { font-style:italic; color:#E8940A; }
+.wz-inv-lead { font-size:clamp(15px,2vw,18px); line-height:1.75; color:rgba(252,224,168,.66); max-width:620px; margin:16px auto 0; }
+.wz-inv-cards { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px; }
+.wz-inv-card { background:#1E180E; border:1px solid rgba(232,148,10,.16); border-radius:20px; padding:30px; }
+.wz-inv-n { font-family:'Geist Mono',monospace; font-size:12px; letter-spacing:2px; color:#E8940A; }
+.wz-inv-card h3 { font-family:'DM Serif Display',serif; font-weight:400; font-size:24px; color:#FCE0A8; margin:12px 0 10px; }
+.wz-inv-card p { color:rgba(252,224,168,.66); font-size:15px; line-height:1.65; margin:0; }
+.wz-video { position:relative; border-radius:24px; overflow:hidden; aspect-ratio:16/9; background:#0d0a06 url('/assets/video-poster.jpg') center/cover no-repeat; box-shadow:0 30px 90px rgba(0,0,0,.55); cursor:pointer; border:1px solid rgba(232,148,10,.2); }
+.wz-video-scrim { position:absolute; inset:0; background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(13,10,6,.35),rgba(13,10,6,.72)); }
+.wz-video-play { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:2; }
+.wz-video-disc { width:82px; height:82px; border-radius:50%; background:rgba(232,148,10,.94); display:grid; place-items:center; box-shadow:0 12px 40px rgba(232,148,10,.5); transition:.25s; }
+.wz-video:hover .wz-video-disc { transform:scale(1.08); }
+.wz-video-disc::after { content:""; border-left:24px solid #1a1200; border-top:15px solid transparent; border-bottom:15px solid transparent; margin-left:6px; }
+.wz-video-label { font-family:'Geist Mono',monospace; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#FCE0A8; background:rgba(13,10,6,.5); padding:8px 16px; border-radius:100px; }
+.wz-video-title { position:absolute; left:26px; bottom:24px; z-index:2; font-family:'DM Serif Display',serif; font-size:clamp(20px,3vw,30px); color:#FCE0A8; max-width:70%; text-shadow:0 2px 20px rgba(0,0,0,.6); }
+.wz-video-note { text-align:center; font-family:'Geist Mono',monospace; font-size:11.5px; color:rgba(252,224,168,.4); margin-top:16px; }
+@media (max-width:760px) { .wz-inv-cards { grid-template-columns:1fr; } .wz-video-title { left:18px; bottom:16px; max-width:82%; } }
