@@ -2536,8 +2536,109 @@ async function uploadProduitPhoto(input) {
   }
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// AUTO-POST VITRINE : tout ajout produit / modèle / menu propose un post sur le
+// mur du pro. Légende générée automatiquement, MODIFIABLE avant publication.
+// Le pro valide (« Publier sur mon mur ») ou ferme (« Plus tard »). Zéro friction.
+// ══════════════════════════════════════════════════════════════════════════
+function proposerPostVitrine(opts) {
+  opts = opts || {};
+  const prestId = (window.currentPrestataire && currentPrestataire.id) || opts.prestataireId || null;
+  // Silencieux si on n'est pas le propriétaire connecté (pas de post possible)
+  if (!window.currentUser || !window.supabase || !prestId) return;
+
+  const nom = (opts.nom || 'Nouveauté').trim();
+  const prix = (opts.prix || opts.prix === 0) ? parseInt(opts.prix) : null;
+  const prixTxt = (prix || prix === 0) ? prix.toLocaleString('fr-FR') + ' F' : '';
+  const photoUrl = opts.photoUrl || '';
+  const desc = (opts.description || '').trim();
+  const kind = opts.kind || 'produit';
+
+  // Légende auto (voix WOZALI : concrète, CTA « écris-moi ici », pas d'em dash)
+  let cap;
+  if (kind === 'modele') {
+    cap = `🧵 Nouveau modèle à l'atelier : ${nom}.` + (prixTxt ? ` ${prixTxt} façon.` : '')
+        + (desc ? `\n${desc}` : '') + `\nJe te couds le tien, écris-moi ici pour commander. 👇`;
+  } else if (kind === 'menu') {
+    cap = `🍽️ Nouveau sur ma carte : ${nom}.` + (prixTxt ? ` ${prixTxt}.` : '')
+        + (desc ? `\n${desc}` : '') + `\nCommande ou réserve ta table ici. 👇`;
+  } else if (kind === 'vitrine') {
+    cap = `🛒 Aujourd'hui je vends : ${nom}.` + (prixTxt ? ` ${prixTxt}.` : '')
+        + (desc ? `\n${desc}` : '') + `\nJe suis dispo, écris-moi ici. 👇`;
+  } else {
+    cap = `✨ Nouveau au catalogue : ${nom}.` + (prixTxt ? ` ${prixTxt}.` : '')
+        + (desc ? `\n${desc}` : '') + `\nDispo maintenant, écris-moi ici pour commander. 👇`;
+  }
+
+  window._postVitrinePending = { prestId, photoUrl };
+
+  const old = document.getElementById('post-vitrine-modal');
+  if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'post-vitrine-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  const photoBlock = photoUrl
+    ? `<img src="${encodeURI(photoUrl)}" alt="" style="width:100%;max-height:34vh;object-fit:cover;display:block;">`
+    : '';
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;">
+      <div style="position:relative;">${photoBlock}
+        <button onclick="document.getElementById('post-vitrine-modal').remove()" style="position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(20,16,10,.7);color:#FCE0A8;border:none;font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div style="padding:20px 22px 26px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;line-height:1.2;">Poste-le sur ton mur 👀</div>
+        <div style="margin-top:6px;font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);line-height:1.5;">Chaque ajout peut devenir un post. Tes clients voient tes nouveautés, ton profil reste vivant. Relis la légende, modifie-la si tu veux.</div>
+        <textarea id="post-vitrine-caption" rows="5" style="margin-top:14px;width:100%;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:14px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;line-height:1.5;resize:vertical;box-sizing:border-box;">${escapeHtml(cap)}</textarea>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button onclick="document.getElementById('post-vitrine-modal').remove()" style="flex:0 0 auto;min-height:48px;padding:12px 18px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(232,148,10,.25);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Plus tard</button>
+          <button id="post-vitrine-go" onclick="_publierPostVitrine()" style="flex:1;min-height:48px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:15px;font-weight:800;cursor:pointer;">Publier sur mon mur</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+window.proposerPostVitrine = proposerPostVitrine;
+
+async function _publierPostVitrine() {
+  const pend = window._postVitrinePending || {};
+  const prestId = pend.prestId;
+  const url = pend.photoUrl || null;
+  if (!prestId) { document.getElementById('post-vitrine-modal')?.remove(); return; }
+  const ta = document.getElementById('post-vitrine-caption');
+  const contenu = ((ta && ta.value) || '').trim();
+  const btn = document.getElementById('post-vitrine-go');
+  if (btn) { btn.disabled = true; btn.textContent = 'Publication…'; }
+  try {
+    const supa = window.supabase;
+    const { error } = await supa.from('wozali_posts').insert({
+      auteur_id:      (window.currentUser && currentUser.id) || null,
+      prestataire_id: prestId,
+      type:           'produit',
+      contenu:        contenu,
+      media_url:      url || null,
+      media_type:     url ? 'photo' : 'text',
+      actif:          true,
+    });
+    if (error) throw error;
+    document.getElementById('post-vitrine-modal')?.remove();
+    toast('Publié sur ton mur. 🎉', 'success');
+    if (url && typeof _addToPublicationsAlbum === 'function' && window.currentPrestataire && currentPrestataire.id === prestId) {
+      try { await _addToPublicationsAlbum(url, 'photo', ''); currentPrestataire.fields['Albums'] = JSON.stringify(_getAlbums()); } catch(e){}
+    }
+    if (typeof renderPostsFeed === 'function' && window.currentPrestataire && currentPrestataire.id === prestId) {
+      try { await renderPostsFeed(prestId); } catch(e){}
+    }
+  } catch (e) {
+    console.error('[_publierPostVitrine]', e);
+    toast('Le post n\'est pas parti. Réessaie.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Publier sur mon mur'; }
+  }
+}
+window._publierPostVitrine = _publierPostVitrine;
+
 async function saveProduitCatalogue() {
   if (!currentUser || !window.supabase) { toast('Connecte-toi pour gérer ta boutique.', 'error'); return; }
+  const _isNew = !_boutiqueEditId;
   const nom = (document.getElementById('boutique-f-nom')?.value || '').trim();
   if (!nom) { toast('Donne au moins un nom à ton produit.', 'error'); return; }
   const prixRaw = (document.getElementById('boutique-f-prix')?.value || '').replace(/\D/g, '');
@@ -2582,6 +2683,7 @@ async function saveProduitCatalogue() {
     toast('Produit enregistré.', 'success');
     fermerFormProduitCatalogue();
     await loadBoutiqueSection();
+    if (_isNew) proposerPostVitrine({ kind: 'produit', nom, prix, photoUrl: photo_url, description });
   } catch (e) {
     console.error('❌ saveProduitCatalogue', e.message || e);
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
@@ -5389,6 +5491,7 @@ async function saveModele() {
   const description = (document.getElementById('modele-f-desc')?.value || '').trim() || null;
   const photo_url = document.getElementById('modele-f-photo-preview')?.dataset.url || null;
 
+  const _isNew = !_modeleEditId;
   const btn = document.getElementById('modele-f-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
   try {
@@ -5411,6 +5514,7 @@ async function saveModele() {
     toast('Modèle enregistré.', 'success');
     fermerFormModele();
     await loadModelesSection();
+    if (_isNew) proposerPostVitrine({ kind: 'modele', nom, prix: prix_facon, photoUrl: photo_url, description });
   } catch (e) {
     console.error('❌ saveModele', e.message || e);
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
@@ -7394,6 +7498,7 @@ async function saveMenuItem() {
   const photo_url = document.getElementById('menu-f-photo-preview')?.dataset.url || null;
   const description = (document.getElementById('menu-f-desc')?.value || '').trim() || null;
 
+  const _isNew = !_menuEditId;
   const btn = document.getElementById('menu-f-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
   try {
@@ -7416,6 +7521,7 @@ async function saveMenuItem() {
     toast('Plat enregistré.', 'success');
     fermerFormMenuItem();
     await loadMenuSection();
+    if (_isNew) proposerPostVitrine({ kind: 'menu', nom, prix, photoUrl: photo_url, description });
   } catch (e) {
     console.error('❌ saveMenuItem', e.message || e);
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
