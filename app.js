@@ -13914,29 +13914,33 @@ async function toggleSuivi(prestataireId) {
 async function loadFollowerCount(prestataireId) {
   const el = document.getElementById(`pstat-abonnes-${prestataireId}`);
   if (!el) return;
+  const cell = el.closest('.profil-stat-cell');
+  const setN = (n) => { if (n > 0) { el.textContent = n; if (cell) cell.style.display = ''; } else if (cell) cell.style.display = 'none'; };
   try {
     const supa = window.supabase;
-    if (!supa) { el.textContent = '0'; return; }
+    if (!supa) { setN(0); return; }
     const { count } = await supa.from('wozali_suivis')
       .select('id', { count: 'exact', head: true })
       .eq('suivi_prestataire_id', prestataireId);
-    el.textContent = count || 0;
-  } catch { el.textContent = '0'; }
+    setN(count || 0);
+  } catch { setN(0); }
 }
 
 // Compteur d'abonnements (qui ce profil suit)
 async function loadFollowingCount(userId, recordId) {
   const el = document.getElementById(`pstat-abonnements-${recordId}`);
   if (!el) return;
-  if (!userId) { el.textContent = '0'; return; }
+  const cell = el.closest('.profil-stat-cell');
+  const setN = (n) => { if (n > 0) { el.textContent = n; if (cell) cell.style.display = ''; } else if (cell) cell.style.display = 'none'; };
+  if (!userId) { setN(0); return; }
   try {
     const supa = window.supabase;
-    if (!supa) { el.textContent = '0'; return; }
+    if (!supa) { setN(0); return; }
     const { count } = await supa.from('wozali_suivis')
       .select('id', { count: 'exact', head: true })
       .eq('suiveur_user_id', userId);
-    el.textContent = count || 0;
-  } catch { el.textContent = '0'; }
+    setN(count || 0);
+  } catch { setN(0); }
 }
 
 // ── Modal liste Abonnés / Abonnements (style Insta/TikTok) ──────────────
