@@ -4849,10 +4849,11 @@ async function renderProfilChantiers(userId, containerId, recordId) {
     const meta = [type, quartier, duree, cout].filter(Boolean).join(' · ');
     const desc = it.description ? escapeHtml(it.description) : '';
     const photo = it.photo_url
-      ? `<img src="${encodeURI(it.photo_url)}" alt="${titre}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
-      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">🧱</div>`;
+      ? `<img src="${encodeURI(it.photo_url)}" alt="${titre}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">📷</div>`;
+    const _lbTitle = (it.titre || '').replace(/['\\<>]/g, ' ');
     return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;">
-        <div style="position:relative;width:100%;aspect-ratio:4/3;background:#1E180E;">${photo}</div>
+        <div ${it.photo_url ? `onclick="event.stopPropagation();openLightboxFull('${encodeURI(it.photo_url)}','${_lbTitle}')" ` : ''}style="position:relative;width:100%;aspect-ratio:4/3;background:#1E180E;${it.photo_url ? 'cursor:zoom-in;' : ''}">${photo}</div>
         <div style="padding:12px;display:flex;flex-direction:column;gap:6px;flex:1;">
           <div style="font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;color:#FCE0A8;line-height:1.25;">${titre}</div>
           ${meta ? `<div style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.03em;color:#E8940A;">${meta}</div>` : ''}
@@ -4864,13 +4865,13 @@ async function renderProfilChantiers(userId, containerId, recordId) {
   const puid = escapeHtml(userId);
   const rid = escapeHtml(recordId || '');
   el.innerHTML = `<div class="profil-offres-card">
-      <div class="profil-offres-head">🧱 Chantiers réalisés</div>
+      <div class="profil-offres-head">✨ Réalisations</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:12px;">
         ${cards}
       </div>
       <div style="margin-top:16px;background:#14100A;border:1px solid rgba(232,148,10,.35);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;">
         <div style="font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#FCE0A8;font-style:italic;">Besoin d'un devis ?</div>
-        <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);line-height:1.5;">Décris ton chantier, il te répond direct sur WOZALI. Pas de numéro à donner.</div>
+        <div style="font-family:Geist,sans-serif;font-size:14px;color:rgba(252,224,168,.6);line-height:1.5;">Décris ton besoin, il te répond direct sur WOZALI. Pas de numéro à donner.</div>
         <button onclick="event.stopPropagation();ouvrirDemandeDevis('${puid}','${rid}')" style="min-height:46px;padding:12px 26px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Demander un devis</button>
       </div>
     </div>`;
