@@ -17466,7 +17466,8 @@ async function showProfil(recordId) {
       // Métier non pertinent (Autre / non précisé) → on masque la section
       if (!metierRaw || /^Autre/i.test(metierRaw)) { if (sec) sec.style.display = 'none'; return; }
       try {
-        const similar = await fetchPrestataires({ metier: metierRaw });
+        const _simTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000));
+        const similar = await Promise.race([fetchPrestataires({ metier: metierRaw }), _simTimeout]);
         const filtered = (similar || []).filter(r => r.id !== recordId).slice(0, 4);
         if (filtered.length === 0) {
           if (sec) sec.style.display = 'none';
@@ -17492,7 +17493,7 @@ async function showProfil(recordId) {
             </div>`;
           }).join('');
         }
-      } catch { box.innerHTML = ''; }
+      } catch { if (sec) sec.style.display = 'none'; box.innerHTML = ''; }
     }, 500);
     // Mini map localisation
     if (gpsLat && gpsLon) setTimeout(() => initProfileMiniMap(gpsLat, gpsLon, `profil-minimap-${recordId}`), 300);
