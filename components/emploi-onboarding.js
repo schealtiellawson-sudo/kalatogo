@@ -431,13 +431,12 @@
   // Entree GATED : bouton flottant visible uniquement si le flag beta est actif.
   // Aucune modification du core ; invisible aux vrais utilisateurs.
   function injectBetaBtn() {
-    if (!flagOn() || document.getElementById('wz-onb-beta-btn')) return;
-    var b = document.createElement('button');
-    b.id = 'wz-onb-beta-btn';
-    b.textContent = '🎙️ Onboarding emploi (beta)';
-    b.style.cssText = 'position:fixed;left:14px;bottom:96px;z-index:9998;background:#E8940A;color:#241500;border:none;border-radius:22px;padding:11px 16px;font-weight:700;font-size:13px;font-family:Geist,system-ui,sans-serif;box-shadow:0 8px 22px -8px rgba(0,0,0,.6);cursor:pointer;';
-    b.onclick = function () { window.wozaliEmploiOnboarding.open(); };
-    document.body.appendChild(b);
+    // Bouton flottant "Onboarding emploi (beta)" RETIRÉ (demande fondateur 2026-08-09).
+    // On nettoie aussi le flag persistant + un éventuel bouton résiduel dans le DOM.
+    try { localStorage.removeItem('wz_emploi_onboarding_beta'); } catch (e) {}
+    var old = document.getElementById('wz-onb-beta-btn');
+    if (old) old.remove();
+    // window.wozaliEmploiOnboarding.open() reste dispo pour "Créer mon CV avec Sandy".
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', injectBetaBtn); }
   else { injectBetaBtn(); }
