@@ -4980,6 +4980,67 @@ async function renderProfilChantiers(userId, containerId, recordId) {
 }
 window.renderProfilChantiers = renderProfilChantiers;
 
+// ══════════════════════════════════════════════════════════════════════════
+// CHANTIER C : la galerie du profil agrège les VRAIES photos du pro
+// (posts + réalisations + produits catalogue/modèles/menu), pas seulement les
+// 3 slots figés photo_realisation. Async, best-effort, met à jour le strip
+// (onglet POSTS) + la grille (onglet PHOTOS) + le compteur. Réutilise le global
+// window['_pgal_'+recordId] { photos, audio } lu par les onclick openLightboxDark.
+// ══════════════════════════════════════════════════════════════════════════
+async function enrichProfilGallery(userId, recordId) {
+  if (!userId || !recordId || !window.supabase) return;
+  const g = window['_pgal_' + recordId];
+  if (!g) return;
+  const supa = window.supabase;
+  const seen = new Set((g.photos || []).map(u => (u || '').split('?')[0]));
+  const extra = [];
+  const pushUrl = (u) => {
+    const url = _wPhotoUrl(u);
+    if (!url) return;
+    const key = url.split('?')[0];
+    if (seen.has(key)) return;
+    seen.add(key);
+    extra.push(url);
+  };
+  try {
+    const [posts, reals, items, modeles, menu] = await Promise.all([
+      supa.from('wozali_posts').select('media_url,media_type,created_at').eq('prestataire_id', recordId).eq('actif', true).order('created_at', { ascending: false }).limit(60),
+      supa.from('wozali_realisations').select('photo_url,ordre').eq('user_id', userId).eq('actif', true).order('ordre', { ascending: true }),
+      supa.from('wozali_items').select('photo_url,ordre').eq('user_id', userId).eq('actif', true).order('ordre', { ascending: true }),
+      supa.from('wozali_modeles').select('photo_url,ordre').eq('user_id', userId).eq('actif', true).order('ordre', { ascending: true }),
+      supa.from('wozali_menu').select('photo_url,ordre').eq('user_id', userId).eq('actif', true).order('ordre', { ascending: true }),
+    ]);
+    (posts.data || []).forEach(p => { if ((p.media_type || 'photo') !== 'video') pushUrl(p.media_url); });
+    (reals.data || []).forEach(r => pushUrl(r.photo_url));
+    (items.data || []).forEach(r => pushUrl(r.photo_url));
+    (modeles.data || []).forEach(r => pushUrl(r.photo_url));
+    (menu.data || []).forEach(r => pushUrl(r.photo_url));
+  } catch (e) { return; }
+  if (!extra.length) return;
+
+  const CAP = 60;
+  const photos = [...(g.photos || []), ...extra].slice(0, CAP);
+  const audio  = [...(g.audio || []), ...extra.map(() => null)].slice(0, CAP);
+  window['_pgal_' + recordId] = { photos, audio };
+  const total = photos.length;
+
+  const cnt = document.getElementById('profil-strip-count-' + recordId);
+  if (cnt) cnt.textContent = `📸 ${total} photo${total > 1 ? 's' : ''}`;
+
+  const strip = document.getElementById('profil-strip-' + recordId);
+  if (strip) {
+    let html = photos.slice(0, 7).map((url, i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',window['_pgal_${recordId}'].photos,${i},window['_pgal_${recordId}'].audio)"><img src="${_wThumb(url,220,220)}" alt="Photo ${i+1}" loading="lazy" onerror="this.onerror=null;this.src='${url}'"></div>`).join('');
+    if (total > 7) html += `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${total - 7}</span></div>`;
+    strip.innerHTML = html;
+  }
+
+  const grid = document.getElementById('profil-ig-grid-' + recordId);
+  if (grid) {
+    grid.innerHTML = photos.map((url, i) => `<div class="profil-ig-item" onclick="openLightboxDark('lb-real-${recordId}',window['_pgal_${recordId}'].photos,${i},window['_pgal_${recordId}'].audio)"><img src="${_wThumb(url,420,420)}" alt="Photo ${i+1}" loading="lazy" onerror="this.onerror=null;this.src='${url}'"></div>`).join('');
+  }
+}
+window.enrichProfilGallery = enrichProfilGallery;
+
 // Modale Nuit : demande de devis (interne). Insert wozali_devis + pushNotif au pro.
 function ouvrirDemandeDevis(prestataireUserId, recordId) {
   if (!window.currentUser) { toast('Connecte-toi pour demander un devis.', 'error'); return; }
@@ -17071,6 +17132,9 @@ async function showProfil(recordId) {
     const photosMe = photoProfil ? [photoProfil] : [];
     const allPhotos = [...photosMe, ...realisations];
     const allPhotosAudio = [...photosMe.map(() => null), ...realisationsAudioAligned];
+    // Galerie référencée par un global (évite le JSON cassé dans les onclick + permet
+    // l'enrichissement async avec les vraies photos du pro : posts + réalisations + produits).
+    window['_pgal_' + recordId] = { photos: allPhotos.slice(), audio: allPhotosAudio.slice() };
 
     // Étoiles note
     const starsHtml = (n) => {
@@ -17363,7 +17427,7 @@ async function showProfil(recordId) {
       <!-- ═══════════ TAB POSTS (uniquement les publications) ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-posts-${recordId}">
         <!-- Strip photos discret -->
-        ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
+        ${allPhotos.length > 0 ? `<div class="profil-photo-strip-wrap" id="profil-strip-wrap-${recordId}"><div class="profil-photo-strip-head"><span class="profil-photo-strip-label" id="profil-strip-count-${recordId}">📸 ${allPhotos.length} photo${allPhotos.length > 1 ? 's' : ''}</span><button class="profil-photo-strip-link" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)">Voir tout →</button></div><div class="profil-photo-strip" id="profil-strip-${recordId}">${allPhotos.slice(0,7).map((url,i) => `<div class="profil-strip-thumb" onclick="openLightboxDark('lb-real-${recordId}',window['_pgal_${recordId}'].photos,${i},window['_pgal_${recordId}'].audio)"><img src="${_wThumb(url,220,220)}" alt="Photo ${i+1}" loading="lazy" onerror="this.onerror=null;this.src='${url}'"></div>`).join('')}${allPhotos.length > 7 ? `<div class="profil-strip-thumb profil-strip-more" onclick="var b=document.querySelectorAll('#profil-tabs-nav-${recordId} .profil-tab-btn')[1];switchProfilTab('${recordId}','photos',b)"><span>+${allPhotos.length - 7}</span></div>` : ''}</div></div>` : ''}
         <!-- Composer (propriétaire) -->
         ${isOwner ? `
         <div class="profil-composer-wrap">
@@ -17397,8 +17461,8 @@ async function showProfil(recordId) {
       <!-- ═══════════ TAB PHOTOS ═══════════ -->
       <div class="profil-tab-pane" id="profil-tab-photos-${recordId}" style="display:none;">
         ${allPhotos.length > 0 ? `
-        <div class="profil-ig-grid">
-          ${allPhotos.map((url,i) => `<div class="profil-ig-item" onclick="openLightboxDark('lb-real-${recordId}',${JSON.stringify(allPhotos)},${i},${JSON.stringify(allPhotosAudio)})"><img src="${url}" alt="Photo ${i+1}" loading="lazy"></div>`).join('')}
+        <div class="profil-ig-grid" id="profil-ig-grid-${recordId}">
+          ${allPhotos.map((url,i) => `<div class="profil-ig-item" onclick="openLightboxDark('lb-real-${recordId}',window['_pgal_${recordId}'].photos,${i},window['_pgal_${recordId}'].audio)"><img src="${_wThumb(url,420,420)}" alt="Photo ${i+1}" loading="lazy" onerror="this.onerror=null;this.src='${url}'"></div>`).join('')}
         </div>` : `
         <div style="text-align:center;padding:60px 20px;color:rgba(252,224,168,0.25);">
           <div style="font-size:40px;margin-bottom:12px;">📷</div>
@@ -17616,6 +17680,7 @@ async function showProfil(recordId) {
     if (_profilUserId) renderProfilMaison(_profilUserId, `profil-maison-${recordId}`, recordId, !!verifie);
     if (_profilUserId) renderProfilEtablissement(_profilUserId, `profil-etablissement-${recordId}`, recordId, nomRaw);
     if (_profilUserId) renderProfilChantiers(_profilUserId, `profil-chantiers-${recordId}`, recordId);
+    if (_profilUserId) setTimeout(() => enrichProfilGallery(_profilUserId, recordId), 400);
     if (gpsLat && gpsLon) renderProfilMobileLoc(gpsLat, gpsLon, (typeof quartierRaw !== "undefined" ? quartierRaw : ""), `profil-mobileloc-${recordId}`);
     // Révèle l'onglet CARTE/VITRINE dès qu'un bloc métier a du contenu (poll : robuste même si le chargement est lent).
     (function _revealCarte(tries) {
