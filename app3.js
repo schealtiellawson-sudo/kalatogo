@@ -167,6 +167,7 @@ async function afficherTop50(paysFiltre){
   const container=document.getElementById('top50-liste');if(!container)return;
   container.innerHTML='<div class="awards-vide">Chargement du Top 50…</div>';
   let list=await calculerEtSauvegarderTop50();
+  list=list.filter(p=>!/schealtiel|kpomblawoun/i.test(p.nom_complet||''));
   if(paysFiltre&&paysFiltre!=='tous')list=list.filter(p=>(p.pays||'').toLowerCase().includes(paysFiltre.toLowerCase()));
   if(!list.length){container.innerHTML='<div class="awards-vide">Aucun prestataire classé pour le moment. Active ton profil pour apparaître ici.</div>';return;}
   container.innerHTML=list.map((p,i)=>{

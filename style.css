@@ -9533,3 +9533,6 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
     background: linear-gradient(180deg, rgba(13,10,6,.66) 0%, rgba(13,10,6,.5) 30%, rgba(13,10,6,.78) 70%, rgba(13,10,6,.95) 100%) !important;
   }
 }
+
+/* Métiers : label "Sois le premier" au lieu de "0 pro" (transforme le vide en hook) */
+.wv2-cat-cnt-empty { color:#E8940A !important; font-style:italic; opacity:.9; }
