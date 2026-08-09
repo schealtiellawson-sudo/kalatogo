@@ -5332,6 +5332,23 @@ window.loadRealisationsSection = loadRealisationsSection;
 // Calqué sur renderProfilCatalogue/renderProfilChantiers : masqué si 0 modèle actif.
 // La commande se crée EN INTERNE (wozali_commandes + pushNotif), jamais sur WhatsApp.
 // recordId = wozali_prestataires.id (sert à notifier le pro via pushNotif).
+// Normalise le champ formules (jsonb array ou string JSON) → [{nom,prix,delai,inclus}] max 3, ou null.
+function _normFormules(raw) {
+  let f = raw;
+  if (typeof f === 'string') { try { f = JSON.parse(f); } catch { return null; } }
+  if (!Array.isArray(f)) return null;
+  const out = f.filter(x => x && (x.nom || x.prix || x.prix === 0))
+    .slice(0, 3)
+    .map(x => ({
+      nom: String(x.nom || 'Formule'),
+      prix: (x.prix || x.prix === 0) ? parseInt(x.prix) : null,
+      delai: (x.delai || x.delai === 0) ? parseInt(x.delai) : null,
+      inclus: x.inclus ? String(x.inclus) : ''
+    }));
+  return out.length ? out : null;
+}
+window._normFormules = _normFormules;
+
 async function renderProfilAtelier(userId, containerId, recordId) {
   const el = document.getElementById(containerId);
   if (!el || !userId || !window.supabase) return;
@@ -5359,10 +5376,12 @@ async function renderProfilAtelier(userId, containerId, recordId) {
   const cards = items.map(it => {
     const mid = escapeHtml(it.id);
     const nomP = escapeHtml(it.nom || 'Modèle');
+    // Formules optionnelles (jusqu'à 3). Si absentes → comportement historique (1 prix).
+    const formules = _normFormules(it.formules);
     const prixTxt = (it.prix_facon || it.prix_facon === 0)
       ? (parseInt(it.prix_facon).toLocaleString('fr-FR') + ' F façon')
       : '';
-    map[it.id] = { nom: it.nom || 'Modèle', prixTxt };
+    map[it.id] = { nom: it.nom || 'Modèle', prixTxt, formules };
     const photo = it.photo_url
       ? `<img src="${encodeURI(it.photo_url)}" alt="${nomP}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`
       : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.4;">👗</div>`;
@@ -5372,15 +5391,31 @@ async function renderProfilAtelier(userId, containerId, recordId) {
     const tissuTxt = it.tissu_inclus
       ? `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#E8940A;">Tissu inclus</span>`
       : `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.5);">Tissu non compris</span>`;
+
+    // Badge photo : prix unique OU « dès X F » si formules
+    let badgeTxt = prixTxt;
+    if (formules) {
+      const minP = Math.min(...formules.map(f => f.prix).filter(n => n || n === 0));
+      badgeTxt = isFinite(minP) ? `dès ${minP.toLocaleString('fr-FR')} F` : '';
+    }
+    // Corps : formules (mini-lignes) OU tissu+délai historique
+    const bodyMeta = formules
+      ? `<div style="display:flex;flex-direction:column;gap:5px;">${formules.map(f => `
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;">
+            <span style="font-family:Geist,sans-serif;font-size:12px;color:#FCE0A8;">${escapeHtml(f.nom)}${f.delai ? `<span style="color:rgba(252,224,168,.45);font-family:'Geist Mono',monospace;font-size:10px;"> · ${parseInt(f.delai)}j</span>` : ''}</span>
+            <span style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#E8940A;white-space:nowrap;">${(f.prix || f.prix === 0) ? parseInt(f.prix).toLocaleString('fr-FR') + ' F' : ''}</span>
+          </div>`).join('')}</div>`
+      : `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">${tissuTxt}${delaiTxt}</div>`;
+
     return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;">
         <div style="position:relative;width:100%;aspect-ratio:3/4;background:#1E180E;">
           ${photo}
-          ${prixTxt ? `<span style="position:absolute;bottom:8px;left:8px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-weight:800;font-size:12px;padding:4px 10px;border-radius:100px;box-shadow:0 2px 8px rgba(0,0,0,.35);">${prixTxt}</span>` : ''}
+          ${badgeTxt ? `<span style="position:absolute;bottom:8px;left:8px;background:#E8940A;color:#14100A;font-family:'Geist Mono',monospace;font-weight:800;font-size:12px;padding:4px 10px;border-radius:100px;box-shadow:0 2px 8px rgba(0,0,0,.35);">${badgeTxt}</span>` : ''}
         </div>
         <div style="padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;">
           <div style="font-family:Geist,sans-serif;font-size:14px;font-weight:600;color:#FCE0A8;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${nomP}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">${tissuTxt}${delaiTxt}</div>
-          <button onclick="event.stopPropagation();commanderModele('${mid}')" style="margin-top:auto;min-height:40px;padding:9px 14px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Je veux ce modèle</button>
+          ${bodyMeta}
+          <button onclick="event.stopPropagation();commanderModele('${mid}')" style="margin-top:auto;min-height:40px;padding:9px 14px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">${formules ? 'Choisir ma formule' : 'Je veux ce modèle'}</button>
         </div>
       </div>`;
   }).join('');
@@ -5397,14 +5432,60 @@ window.renderProfilAtelier = renderProfilAtelier;
 
 // Crée une commande de modèle EN INTERNE (wozali_commandes) + notifie le pro.
 // Aucun WhatsApp : le client est prévenu dans la messagerie WOZALI.
-async function commanderModele(modeleId, nom, prixTxt) {
+// Sélecteur de formule (modale Nuit) : affiché quand le modèle a des formules.
+function _choisirFormuleModele(modeleId) {
+  const st = window._atelierState || {};
+  const known = (st.items || {})[modeleId] || {};
+  const formules = known.formules;
+  if (!formules || !formules.length) { commanderModele(modeleId); return; }
+  const nomP = escapeHtml(known.nom || 'Modèle');
+  const old = document.getElementById('formule-modal');
+  if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'formule-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  const rows = formules.map((f, i) => `
+    <button onclick="document.getElementById('formule-modal').remove();commanderModele('${escapeHtml(modeleId)}',${i})" style="width:100%;text-align:left;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+      <span>
+        <span style="display:block;font-family:Geist,sans-serif;font-size:15px;font-weight:700;color:#FCE0A8;">${escapeHtml(f.nom)}${f.delai ? `<span style="color:rgba(252,224,168,.5);font-family:'Geist Mono',monospace;font-size:11px;font-weight:400;"> · livré en ${f.delai}j</span>` : ''}</span>
+        ${f.inclus ? `<span style="display:block;font-family:Geist,sans-serif;font-size:12.5px;color:rgba(252,224,168,.6);margin-top:3px;line-height:1.4;">${escapeHtml(f.inclus)}</span>` : ''}
+      </span>
+      <span style="font-family:'Geist Mono',monospace;font-weight:800;font-size:17px;color:#E8940A;white-space:nowrap;">${(f.prix || f.prix === 0) ? parseInt(f.prix).toLocaleString('fr-FR') + ' F' : ''}</span>
+    </button>`).join('');
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;">Choisis ta formule</div>
+        <button onclick="document.getElementById('formule-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button>
+      </div>
+      <div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);margin-bottom:18px;">${nomP}</div>
+      ${rows}
+      <div style="text-align:center;font-family:Geist,sans-serif;font-size:11px;color:rgba(252,224,168,.4);margin-top:6px;line-height:1.5;">Tu envoies ta demande, vous réglez entre vous par TMoney / Moov comme d'habitude.</div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+window._choisirFormuleModele = _choisirFormuleModele;
+
+async function commanderModele(modeleId, formuleIdxOrNom, prixTxt) {
   if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander ce modèle.', 'error'); return; }
   const st = window._atelierState || {};
   const puid = st.userId || null;
   if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
   const known = (st.items || {})[modeleId] || {};
-  const itemNom = nom || known.nom || 'Modèle';
-  const pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+  // Si le modèle a des formules et qu'aucune n'est encore choisie → ouvrir le sélecteur.
+  if (known.formules && known.formules.length && (formuleIdxOrNom === undefined || formuleIdxOrNom === null)) {
+    _choisirFormuleModele(modeleId);
+    return;
+  }
+  let itemNom, pTxt;
+  if (known.formules && typeof formuleIdxOrNom === 'number' && known.formules[formuleIdxOrNom]) {
+    const f = known.formules[formuleIdxOrNom];
+    itemNom = `${known.nom || 'Modèle'} — ${f.nom}`;
+    pTxt = [(f.prix || f.prix === 0) ? parseInt(f.prix).toLocaleString('fr-FR') + ' F' : '', f.delai ? `livré en ${f.delai}j` : ''].filter(Boolean).join(' · ') || null;
+  } else {
+    itemNom = (typeof formuleIdxOrNom === 'string' ? formuleIdxOrNom : null) || known.nom || 'Modèle';
+    pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+  }
 
   const cu = window.currentUser;
   const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
