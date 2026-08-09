@@ -10512,6 +10512,7 @@ function renderCard(record, forceMode) {
           </div>
         </div>
         <div class="pcard-badges">
+          ${(Array.isArray(f['Tags']) && f['Tags'].includes('modele')) ? '<span class="badge" style="font-size:11px;background:#26200f;color:#E8940A;border:1px solid rgba(232,148,10,0.45);">🧩 Modèle</span>' : ''}
           ${isProUser({fields:f}) ? '<span class="badge badge-or" style="font-size:11px;background:linear-gradient(135deg,#E8940A,#f59e0b);color:white;">⭐ Pro</span>' : ''}
           ${verifie ? '<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;border:1px solid #f3d38a;">✓ Vérifié</span>' : ''}
           ${topRank && topRank <= 50 ? `<span class="badge" style="font-size:11px;background:#fef3dc;color:#E8940A;">🏆 TOP ${topRank}</span>` : ''}
@@ -17131,6 +17132,7 @@ async function showProfil(recordId) {
               </div>
               ${(() => { const sj = _wzStatutJourFrais(f); return sj ? `<div style="display:inline-flex;align-items:center;gap:7px;background:rgba(232,148,10,0.12);border:1px solid rgba(232,148,10,0.3);border-radius:100px;padding:6px 13px;margin-top:8px;font-size:13px;color:#FCE0A8;font-weight:600;">💬 ${escapeHtml(sj)}</div>` : ''; })()}
               <div class="profil-chips-row">
+                ${(Array.isArray(f['Tags']) && f['Tags'].includes('modele')) ? '<span class="profil-chip chip-modele" title="Profil de démonstration WOZALI">🧩 Profil modèle</span>' : ''}
                 ${((f['Email']||'').toLowerCase() === 'schealtiellawson@gmail.com') ? '<span class="profil-chip chip-founder">👑 Fondateur WOZALI</span>' : ''}
                 ${abonnementRaw !== 'Base' ? `<span class="profil-chip chip-or">⭐ PRO</span>` : ''}
                 ${verifie ? '<span class="profil-chip chip-vert">✓ Vérifié</span>' : ''}

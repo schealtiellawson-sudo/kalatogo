@@ -9536,3 +9536,6 @@ a.wozali-btn-secondary:hover, .wozali-btn-secondary:hover {
 
 /* Métiers : label "Sois le premier" au lieu de "0 pro" (transforme le vide en hook) */
 .wv2-cat-cnt-empty { color:#E8940A !important; font-style:italic; opacity:.9; }
+
+/* Badge "Profil modèle" (profils de démonstration WOZALI) */
+.profil-chip.chip-modele { background:#26200f; color:#E8940A; border:1px solid rgba(232,148,10,.45); }
