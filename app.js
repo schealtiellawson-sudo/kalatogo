@@ -2570,7 +2570,7 @@ function proposerPostVitrine(opts) {
         + (desc ? `\n${desc}` : '') + `\nDispo maintenant, écris-moi ici pour commander. 👇`;
   }
 
-  window._postVitrinePending = { prestId, photoUrl };
+  window._postVitrinePending = { prestId, photoUrl, kind };
 
   const old = document.getElementById('post-vitrine-modal');
   if (old) old.remove();
@@ -2617,6 +2617,7 @@ async function _publierPostVitrine() {
       contenu:        contenu,
       media_url:      url || null,
       media_type:     url ? 'photo' : 'text',
+      vitrine_ref:    pend.kind ? { kind: pend.kind } : null,
       actif:          true,
     });
     if (error) throw error;
@@ -12055,6 +12056,7 @@ async function renderPostsFeed(recordId) {
         partages:    r.nb_partages  || 0,
         ordre:       (r.ordre ?? null),
         hasLiked:    myLikes.has(r.id),
+        vitrineRef:  r.vitrine_ref || null,
         comments:    commentsByPost[r.id] || []
       };
     });
@@ -12127,7 +12129,8 @@ function _renderPostsFeedCards(recordId) {
         </div>
       </div>
       ${p.texte ? `<div class="pf-card-text">${escapeHtml(p.texte).replace(/\n/g,'<br>')}</div>` : ''}
-      ${media ? `<div class="pf-card-media-wrap">${media}</div>` : ''}
+      ${media ? `<div class="pf-card-media-wrap" ${p.vitrineRef ? `onclick="ouvrirVitrineDepuisPost('${recordId}')" style="cursor:pointer;"` : ''}>${media}</div>` : ''}
+      ${p.vitrineRef ? `<button onclick="event.stopPropagation();ouvrirVitrineDepuisPost('${recordId}')" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;margin-top:8px;padding:11px 14px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:12px;color:#E8940A;font-family:Geist,sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;"><span>${({realisation:'✨ Voir la réalisation dans la vitrine',produit:'🛍️ Voir l\'article dans la vitrine',modele:'👗 Voir le modèle dans la vitrine',menu:'🍽️ Voir sur la carte'})[p.vitrineRef.kind] || '🛍️ Voir dans la vitrine'}</span><span style="font-size:16px;">→</span></button>` : ''}
       <div class="pf-card-actions">
         <button class="pf-actbtn ${hasLiked ? 'liked' : ''}" onclick="likePost('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span>${p.likes || 0}</span></button>
         <button class="pf-actbtn" onclick="toggleCommentBox('${recordId}','${p.id}')">💬 <span>${comments.length}</span></button>
@@ -12154,6 +12157,22 @@ function toggleReorderMode(recordId) {
   window._pfReorder = (window._pfReorder === recordId) ? null : recordId;
   _renderPostsFeedCards(recordId);
 }
+
+// Post « vitrine » : le clic renvoie à l'onglet VITRINE du profil du pro (l'article/offre).
+function ouvrirVitrineDepuisPost(prestId) {
+  const clickVitrine = () => {
+    const nav = document.getElementById('profil-tabs-nav-' + prestId);
+    let vb = null;
+    (nav ? nav.querySelectorAll('.profil-tab-btn') : document.querySelectorAll('.profil-tab-btn'))
+      .forEach(b => { if (!vb && /vitrine|carte/i.test(b.textContent)) vb = b; });
+    if (vb) { vb.click(); try { vb.scrollIntoView({ block: 'start' }); } catch (e) {} }
+  };
+  if (window.currentProfilId === prestId && document.getElementById('profil-tabs-nav-' + prestId)) { clickVitrine(); return; }
+  try { showProfil(prestId); showPage('profil'); } catch (e) {}
+  let n = 0;
+  const t = setInterval(() => { n++; if (document.getElementById('profil-tabs-nav-' + prestId) || n > 25) { clearInterval(t); setTimeout(clickVitrine, 250); } }, 300);
+}
+window.ouvrirVitrineDepuisPost = ouvrirVitrineDepuisPost;
 
 async function movePost(recordId, postId, dir) {
   const posts = (window._profilPosts && window._profilPosts[recordId]) || [];
