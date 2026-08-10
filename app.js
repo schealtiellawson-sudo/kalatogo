@@ -5349,6 +5349,127 @@ function _normFormules(raw) {
 }
 window._normFormules = _normFormules;
 
+// ══════════════════════════════════════════════════════════════════════════
+// ÉDITEUR DE FORMULES réutilisable (dashboard) — brancher sur n'importe quel
+// cluster : le formulaire embarque <div id="{prefix}-formules-rows"></div> et
+// les boutons appellent ces fonctions avec le même prefix. Max 3 formules.
+// Vide = prix unique (comportement historique). Aucun paiement géré ici.
+// ══════════════════════════════════════════════════════════════════════════
+function _formuleRowHtml(data) {
+  data = data || {};
+  const esc = (v) => (v === undefined || v === null) ? '' : String(v).replace(/"/g, '&quot;');
+  const inp = 'background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:10px;padding:9px 11px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:14px;width:100%;box-sizing:border-box;';
+  return `<div class="formule-row" style="border:1px solid rgba(232,148,10,.12);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;">
+      <div style="display:grid;grid-template-columns:1fr 96px 78px 34px;gap:8px;align-items:center;">
+        <input data-f="nom" maxlength="24" placeholder="Formule (ex : Pro)" value="${esc(data.nom)}" style="${inp}">
+        <input data-f="prix" inputmode="numeric" maxlength="10" placeholder="Prix F" value="${esc(data.prix)}" style="${inp}">
+        <input data-f="delai" inputmode="numeric" maxlength="4" placeholder="Jours" value="${esc(data.delai)}" style="${inp}">
+        <button type="button" onclick="removeFormuleRow(this)" title="Retirer" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:rgba(252,224,168,.6);border:none;font-size:15px;cursor:pointer;">✕</button>
+      </div>
+      <input data-f="inclus" maxlength="60" placeholder="Ce qui est inclus (ex : façon + retouches + doublure)" value="${esc(data.inclus)}" style="${inp}">
+    </div>`;
+}
+function ajouterFormuleRow(prefix, data) {
+  const rows = document.getElementById(prefix + '-formules-rows');
+  if (!rows) return;
+  if (rows.querySelectorAll('.formule-row').length >= 3) { toast('3 formules maximum.', 'info'); return; }
+  rows.insertAdjacentHTML('beforeend', _formuleRowHtml(data));
+}
+window.ajouterFormuleRow = ajouterFormuleRow;
+function removeFormuleRow(btn) {
+  const row = btn && btn.closest('.formule-row');
+  if (row) row.remove();
+}
+window.removeFormuleRow = removeFormuleRow;
+function clearFormulesEditor(prefix) {
+  const rows = document.getElementById(prefix + '-formules-rows');
+  if (rows) rows.innerHTML = '';
+}
+window.clearFormulesEditor = clearFormulesEditor;
+function fillFormulesEditor(prefix, formules) {
+  clearFormulesEditor(prefix);
+  const f = _normFormules(formules);
+  if (f) f.forEach(x => ajouterFormuleRow(prefix, x));
+}
+window.fillFormulesEditor = fillFormulesEditor;
+function collectFormulesEditor(prefix) {
+  const rows = document.getElementById(prefix + '-formules-rows');
+  if (!rows) return null;
+  const out = [];
+  rows.querySelectorAll('.formule-row').forEach(r => {
+    const g = (k) => (r.querySelector('[data-f="' + k + '"]')?.value || '').trim();
+    const nom = g('nom');
+    const prixRaw = g('prix').replace(/\D/g, '');
+    const delaiRaw = g('delai').replace(/\D/g, '');
+    const inclus = g('inclus');
+    if (!nom && !prixRaw) return; // ligne vide ignorée
+    out.push({
+      nom: nom || 'Formule',
+      prix: prixRaw ? parseInt(prixRaw) : null,
+      delai: delaiRaw ? parseInt(delaiRaw) : null,
+      inclus: inclus || ''
+    });
+  });
+  return out.length ? out : null;
+}
+window.collectFormulesEditor = collectFormulesEditor;
+
+// Sandy propose 3 formules à partir du prix de base + du type de métier.
+// Règles simples (pas d'appel IA) : Essentiel = base, Pro ≈ 1.7×, Premium ≈ 2.7×,
+// délais dégressifs, « inclus » par cluster. Le pro ajuste ensuite.
+function sandyProposeFormules(prefix, kind, basePriceInputId) {
+  const baseRaw = (document.getElementById(basePriceInputId)?.value || '').replace(/\D/g, '');
+  const DEFAULTS = { modele: 15000, produit: 10000, menu: 3000, prestation: 5000 };
+  const base = baseRaw ? parseInt(baseRaw) : (DEFAULTS[kind] || 10000);
+  const round = (n) => Math.max(500, Math.round(n / 500) * 500);
+  const T = {
+    modele:    [['Essentiel','Façon, 1 essayage',7],['Pro','Façon + retouches + doublure',5],['Premium','Tissu inclus + finitions main',3]],
+    produit:   [['Essentiel','Le produit seul',3],['Pro','Produit + option au choix',2],['Premium','Produit + livraison + garantie',1]],
+    menu:      [['Simple','La portion',0],['Complet','Portion + boisson',0],['Familial','Grand plat à partager',0]],
+    prestation:[['Essentiel','La prestation de base',0],['Pro','Prestation + finitions',0],['Premium','Prestation complète + soin',0]],
+  };
+  const tpl = T[kind] || T.produit;
+  const mult = [1, 1.7, 2.7];
+  const formules = tpl.map((t, i) => ({ nom: t[0], prix: round(base * mult[i]), delai: t[2] || null, inclus: t[1] }));
+  fillFormulesEditor(prefix, formules);
+  toast('Sandy a proposé 3 formules — ajuste les prix si besoin.', 'success');
+}
+window.sandyProposeFormules = sandyProposeFormules;
+
+// Sélecteur de formule générique (modale Nuit). onPick(index) rappelé au choix.
+// Utilisé par tous les clusters. Aucun paiement : la commande part ensuite,
+// le règlement se fait entre eux (TMoney / Moov).
+function openFormuleChooser(titre, formules, onPick) {
+  const f = _normFormules(formules);
+  if (!f) { if (typeof onPick === 'function') onPick(-1); return; }
+  window._formulePickHandler = (i) => { document.getElementById('formule-modal')?.remove(); if (typeof onPick === 'function') onPick(i); };
+  const old = document.getElementById('formule-modal');
+  if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'formule-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,10,.86);z-index:100001;display:flex;align-items:flex-end;justify-content:center;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  const rows = f.map((x, i) => `
+    <button onclick="window._formulePickHandler(${i})" style="width:100%;text-align:left;background:#1E180E;border:1px solid rgba(232,148,10,.25);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+      <span>
+        <span style="display:block;font-family:Geist,sans-serif;font-size:15px;font-weight:700;color:#FCE0A8;">${escapeHtml(x.nom)}${x.delai ? `<span style="color:rgba(252,224,168,.5);font-family:'Geist Mono',monospace;font-size:11px;font-weight:400;"> · livré en ${x.delai}j</span>` : ''}</span>
+        ${x.inclus ? `<span style="display:block;font-family:Geist,sans-serif;font-size:12.5px;color:rgba(252,224,168,.6);margin-top:3px;line-height:1.4;">${escapeHtml(x.inclus)}</span>` : ''}
+      </span>
+      <span style="font-family:'Geist Mono',monospace;font-weight:800;font-size:17px;color:#E8940A;white-space:nowrap;">${(x.prix || x.prix === 0) ? parseInt(x.prix).toLocaleString('fr-FR') + ' F' : ''}</span>
+    </button>`).join('');
+  modal.innerHTML = `<div style="background:#14100A;border-top:1px solid rgba(232,148,10,.25);border-radius:24px 24px 0 0;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:22px 22px 28px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#FCE0A8;">Choisis ta formule</div>
+        <button onclick="document.getElementById('formule-modal').remove()" style="width:34px;height:34px;border-radius:50%;background:rgba(252,224,168,.08);color:#FCE0A8;border:none;font-size:17px;cursor:pointer;">✕</button>
+      </div>
+      <div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);margin-bottom:18px;">${escapeHtml(titre || '')}</div>
+      ${rows}
+      <div style="text-align:center;font-family:Geist,sans-serif;font-size:11px;color:rgba(252,224,168,.4);margin-top:6px;line-height:1.5;">Tu envoies ta demande, vous réglez entre vous par TMoney / Moov comme d'habitude.</div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+window.openFormuleChooser = openFormuleChooser;
+
 async function renderProfilAtelier(userId, containerId, recordId) {
   const el = document.getElementById(containerId);
   if (!el || !userId || !window.supabase) return;
@@ -5592,6 +5713,7 @@ function ouvrirFormModele() {
   const tissu = document.getElementById('modele-f-tissu');
   if (tissu) tissu.checked = false;
   document.getElementById('modele-f-desc').value = '';
+  clearFormulesEditor('modele');
   const prev = document.getElementById('modele-f-photo-preview');
   if (prev) { prev.innerHTML = ''; prev.dataset.url = ''; }
   wrap.style.display = 'block';
@@ -5632,6 +5754,7 @@ async function saveModele() {
   const tissu_inclus = !!document.getElementById('modele-f-tissu')?.checked;
   const description = (document.getElementById('modele-f-desc')?.value || '').trim() || null;
   const photo_url = document.getElementById('modele-f-photo-preview')?.dataset.url || null;
+  const formules = collectFormulesEditor('modele');
 
   const _isNew = !_modeleEditId;
   const btn = document.getElementById('modele-f-save');
@@ -5639,7 +5762,7 @@ async function saveModele() {
   try {
     if (_modeleEditId) {
       const { error } = await window.supabase.from('wozali_modeles')
-        .update({ nom, prix_facon, delai_jours, tissu_inclus, description, photo_url })
+        .update({ nom, prix_facon, delai_jours, tissu_inclus, description, photo_url, formules })
         .eq('id', _modeleEditId).eq('user_id', currentUser.id);
       if (error) throw error;
     } else {
@@ -5647,7 +5770,7 @@ async function saveModele() {
       const row = {
         user_id: currentUser.id,
         prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
-        nom, prix_facon, delai_jours, tissu_inclus, description, photo_url,
+        nom, prix_facon, delai_jours, tissu_inclus, description, photo_url, formules,
         actif: true, ordre
       };
       const { error } = await window.supabase.from('wozali_modeles').insert(row);
