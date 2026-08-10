@@ -14323,7 +14323,7 @@ async function loadFollowerCount(prestataireId) {
   const el = document.getElementById(`pstat-abonnes-${prestataireId}`);
   if (!el) return;
   const cell = el.closest('.profil-stat-cell');
-  const setN = (n) => { if (n > 0) { el.textContent = n; if (cell) cell.style.display = ''; } else if (cell) cell.style.display = 'none'; };
+  const setN = (n) => { el.textContent = n; if (cell) cell.style.display = ''; };
   try {
     const supa = window.supabase;
     if (!supa) { setN(0); return; }
@@ -14339,7 +14339,7 @@ async function loadFollowingCount(userId, recordId) {
   const el = document.getElementById(`pstat-abonnements-${recordId}`);
   if (!el) return;
   const cell = el.closest('.profil-stat-cell');
-  const setN = (n) => { if (n > 0) { el.textContent = n; if (cell) cell.style.display = ''; } else if (cell) cell.style.display = 'none'; };
+  const setN = (n) => { el.textContent = n; if (cell) cell.style.display = ''; };
   if (!userId) { setN(0); return; }
   try {
     const supa = window.supabase;
