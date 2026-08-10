@@ -4105,6 +4105,15 @@ setTimeout(function(){
               <label style="display:block;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);margin-bottom:6px;">Description (optionnel)</label>
               <textarea id="pack-f-desc" rows="2" maxlength="300" placeholder="Ex : Logo vectoriel + déclinaisons + charte couleurs et typographies, 2 allers-retours inclus." style="width:100%;background:#14100A;border:1px solid rgba(232,148,10,.2);border-radius:12px;padding:12px 14px;color:#FCE0A8;font-family:Geist,sans-serif;font-size:15px;resize:vertical;"></textarea>
             </div>
+            <div style="border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;background:#14100A;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;">
+                <label style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(252,224,168,.55);">Formules (optionnel)</label>
+                <button type="button" onclick="sandyProposeFormules('pack','pack','pack-f-prix')" style="min-height:34px;padding:6px 14px;background:rgba(232,148,10,.15);color:#E8940A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">✨ Sandy propose</button>
+              </div>
+              <div style="font-family:Geist,sans-serif;font-size:12px;color:rgba(252,224,168,.5);line-height:1.5;margin-bottom:10px;">Laisse vide pour un prix unique. Sinon propose jusqu'à 3 niveaux (ex : Essentiel / Pro / Premium) avec prix et délai — le client choisit sa formule.</div>
+              <div id="pack-formules-rows"></div>
+              <button type="button" onclick="ajouterFormuleRow('pack')" style="min-height:38px;padding:8px 16px;background:transparent;color:#E8940A;border:1px dashed rgba(232,148,10,.4);border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">+ Ajouter une formule</button>
+            </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
               <button id="pack-f-save" onclick="savePack()" style="min-height:44px;padding:11px 24px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:800;cursor:pointer;">Enregistrer le pack</button>
               <button onclick="fermerFormPack()" style="min-height:44px;padding:11px 24px;background:transparent;color:rgba(252,224,168,.6);border:1px solid rgba(252,224,168,.2);border-radius:100px;font-family:Geist,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Annuler</button>
@@ -7698,7 +7707,7 @@ setTimeout(function(){
 
 </div>
 
-<script src="/app.js?v=20260810a" defer></script>
+<script src="/app.js?v=20260810b" defer></script>
 
 <!-- ══════════════════════════════════════════
      PAGE COMMENT ÇA MARCHE

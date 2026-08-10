@@ -5419,7 +5419,7 @@ window.collectFormulesEditor = collectFormulesEditor;
 // délais dégressifs, « inclus » par cluster. Le pro ajuste ensuite.
 function sandyProposeFormules(prefix, kind, basePriceInputId) {
   const baseRaw = (document.getElementById(basePriceInputId)?.value || '').replace(/\D/g, '');
-  const DEFAULTS = { modele: 15000, produit: 10000, menu: 3000, prestation: 5000 };
+  const DEFAULTS = { modele: 15000, produit: 10000, menu: 3000, prestation: 5000, pack: 25000 };
   const base = baseRaw ? parseInt(baseRaw) : (DEFAULTS[kind] || 10000);
   const round = (n) => Math.max(500, Math.round(n / 500) * 500);
   const T = {
@@ -5427,6 +5427,7 @@ function sandyProposeFormules(prefix, kind, basePriceInputId) {
     produit:   [['Essentiel','Le produit seul',3],['Pro','Produit + option au choix',2],['Premium','Produit + livraison + garantie',1]],
     menu:      [['Simple','La portion',0],['Complet','Portion + boisson',0],['Familial','Grand plat à partager',0]],
     prestation:[['Essentiel','La prestation de base',0],['Pro','Prestation + finitions',0],['Premium','Prestation complète + soin',0]],
+    pack:      [['Essentiel','La base, 1 proposition, 2 retouches',5],['Pro','3 propositions, retouches illimitées, tous formats',3],['Premium','Le tout + fichiers source + déclinaisons',2]],
   };
   const tpl = T[kind] || T.produit;
   const mult = [1, 1.7, 2.7];
@@ -5856,26 +5857,35 @@ async function renderProfilPacks(userId, containerId, recordId) {
   const rows = items.map(it => {
     const pid = escapeHtml(it.id);
     const nomP = escapeHtml(it.nom || 'Pack');
+    const formules = _normFormules(it.formules);
     const prixTxt = (it.prix || it.prix === 0)
       ? (parseInt(it.prix).toLocaleString('fr-FR') + ' F')
       : '';
-    map[it.id] = { nom: it.nom || 'Pack', prixTxt };
+    map[it.id] = { nom: it.nom || 'Pack', prixTxt, formules };
     const delaiTxt = (it.delai_jours && parseInt(it.delai_jours) > 0)
       ? `<span style="font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:rgba(252,224,168,.55);">⏱ ${parseInt(it.delai_jours)} j</span>`
       : '';
     const descTxt = it.description
       ? `<div style="font-family:Geist,sans-serif;font-size:13px;color:rgba(252,224,168,.6);line-height:1.4;margin-top:2px;">${escapeHtml(it.description)}</div>`
       : '';
+    // Bloc prix : formules (mini-lignes) OU prix unique + délai
+    const priceBlock = formules
+      ? `<div style="display:flex;flex-direction:column;gap:5px;margin-top:8px;">${formules.map(f => `
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+            <span style="font-family:Geist,sans-serif;font-size:13px;color:#FCE0A8;">${escapeHtml(f.nom)}${f.delai ? `<span style="color:rgba(252,224,168,.45);font-family:'Geist Mono',monospace;font-size:10px;"> · ${parseInt(f.delai)}j</span>` : ''}</span>
+            <span style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:800;color:#E8940A;white-space:nowrap;">${(f.prix || f.prix === 0) ? parseInt(f.prix).toLocaleString('fr-FR') + ' F' : ''}</span>
+          </div>`).join('')}</div>`
+      : `<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px;">
+            ${prixTxt ? `<span style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;">${prixTxt}</span>` : ''}
+            ${delaiTxt}
+          </div>`;
     return `<div style="background:#14100A;border:1px solid rgba(232,148,10,.15);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
         <div style="flex:1;min-width:0;">
           <div style="font-family:Geist,sans-serif;font-size:15px;font-weight:600;color:#FCE0A8;line-height:1.3;">${nomP}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px;">
-            ${prixTxt ? `<span style="font-family:'Geist Mono',monospace;font-weight:800;font-size:13px;color:#E8940A;">${prixTxt}</span>` : ''}
-            ${delaiTxt}
-          </div>
           ${descTxt}
+          ${priceBlock}
         </div>
-        <button onclick="event.stopPropagation();commanderPack('${pid}')" style="flex-shrink:0;min-height:40px;padding:9px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Commander</button>
+        <button onclick="event.stopPropagation();commanderPack('${pid}')" style="flex-shrink:0;min-height:40px;padding:9px 16px;background:#E8940A;color:#14100A;border:none;border-radius:100px;font-family:Geist,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">${formules ? 'Choisir ma formule' : 'Commander'}</button>
       </div>`;
   }).join('');
 
@@ -5890,14 +5900,26 @@ window.renderProfilPacks = renderProfilPacks;
 
 // Crée une commande de pack EN INTERNE (wozali_commandes type 'pack') + notifie le pro.
 // Aucun WhatsApp : le client est prévenu dans la messagerie WOZALI.
-async function commanderPack(packId, nom, prixTxt) {
+async function commanderPack(packId, formuleIdxOrNom, prixTxt) {
   if (!window.currentUser || !window.supabase) { toast('Connecte-toi pour commander ce pack.', 'error'); return; }
   const st = window._packsState || {};
   const puid = st.userId || null;
   if (!puid) { toast('Prestataire introuvable, réessaie.', 'error'); return; }
   const known = (st.items || {})[packId] || {};
-  const itemNom = nom || known.nom || 'Pack';
-  const pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+  // Si le pack a des formules et qu'aucune n'est choisie → ouvrir le sélecteur générique.
+  if (known.formules && known.formules.length && (formuleIdxOrNom === undefined || formuleIdxOrNom === null)) {
+    openFormuleChooser(known.nom || 'Offre', known.formules, (i) => { if (i >= 0) commanderPack(packId, i); });
+    return;
+  }
+  let itemNom, pTxt;
+  if (known.formules && typeof formuleIdxOrNom === 'number' && known.formules[formuleIdxOrNom]) {
+    const f = known.formules[formuleIdxOrNom];
+    itemNom = `${known.nom || 'Offre'} — ${f.nom}`;
+    pTxt = [(f.prix || f.prix === 0) ? parseInt(f.prix).toLocaleString('fr-FR') + ' F' : '', f.delai ? `livré en ${f.delai}j` : ''].filter(Boolean).join(' · ') || null;
+  } else {
+    itemNom = (typeof formuleIdxOrNom === 'string' ? formuleIdxOrNom : null) || known.nom || 'Pack';
+    pTxt = (prixTxt !== undefined && prixTxt !== null && prixTxt !== '') ? prixTxt : (known.prixTxt || null);
+  }
 
   const cu = window.currentUser;
   const clientNom = (currentPrestataire && currentPrestataire.fields && currentPrestataire.fields['Nom complet'])
@@ -6002,6 +6024,7 @@ function ouvrirFormPack(id) {
   if (prixEl) prixEl.value = it && (it.prix || it.prix === 0) ? String(it.prix) : '';
   if (delaiEl) delaiEl.value = it && it.delai_jours ? String(it.delai_jours) : '';
   if (descEl) descEl.value = it ? (it.description || '') : '';
+  fillFormulesEditor('pack', it ? it.formules : null);
   const titre = document.getElementById('pack-form-titre');
   if (titre) titre.innerHTML = it ? 'Modifier le <em style="color:#E8940A;font-style:italic;">pack</em>' : 'Nouveau <em style="color:#E8940A;font-style:italic;">pack</em>';
   wrap.style.display = 'block';
@@ -6025,13 +6048,14 @@ async function savePack() {
   const delaiRaw = (document.getElementById('pack-f-delai')?.value || '').replace(/\D/g, '');
   const delai_jours = delaiRaw ? parseInt(delaiRaw) : null;
   const description = (document.getElementById('pack-f-desc')?.value || '').trim() || null;
+  const formules = collectFormulesEditor('pack');
 
   const btn = document.getElementById('pack-f-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
   try {
     if (_packEditId) {
       const { error } = await window.supabase.from('wozali_packs')
-        .update({ nom, prix, delai_jours, description })
+        .update({ nom, prix, delai_jours, description, formules })
         .eq('id', _packEditId).eq('user_id', currentUser.id);
       if (error) throw error;
     } else {
@@ -6039,7 +6063,7 @@ async function savePack() {
       const row = {
         user_id: currentUser.id,
         prestataire_id: (currentPrestataire && currentPrestataire.id) || null,
-        nom, prix, delai_jours, description,
+        nom, prix, delai_jours, description, formules,
         actif: true, ordre
       };
       const { error } = await window.supabase.from('wozali_packs').insert(row);
