@@ -12163,11 +12163,14 @@ function ouvrirVitrineDepuisPost(prestId) {
   const clickVitrine = () => {
     const nav = document.getElementById('profil-tabs-nav-' + prestId);
     let vb = null;
-    (nav ? nav.querySelectorAll('.profil-tab-btn') : document.querySelectorAll('.profil-tab-btn'))
-      .forEach(b => { if (!vb && /vitrine|carte/i.test(b.textContent)) vb = b; });
-    if (vb) { vb.click(); try { vb.scrollIntoView({ block: 'start' }); } catch (e) {} }
+    if (nav) nav.querySelectorAll('.profil-tab-btn').forEach(b => { if (!vb && /vitrine|carte/i.test(b.textContent)) vb = b; });
+    if (!vb) document.querySelectorAll('.profil-tab-btn').forEach(b => { if (!vb && /vitrine|carte/i.test(b.textContent)) vb = b; });
+    if (vb) { vb.click(); try { vb.scrollIntoView({ block: 'start' }); } catch (e) {} return true; }
+    return false;
   };
-  if (window.currentProfilId === prestId && document.getElementById('profil-tabs-nav-' + prestId)) { clickVitrine(); return; }
+  // Onglets déjà présents (on est sur le mur du pro) → bascule directe.
+  if (clickVitrine()) return;
+  // Sinon (mur d'accueil / feed) → aller sur le profil du pro puis basculer.
   try { showProfil(prestId); showPage('profil'); } catch (e) {}
   let n = 0;
   const t = setInterval(() => { n++; if (document.getElementById('profil-tabs-nav-' + prestId) || n > 25) { clearInterval(t); setTimeout(clickVitrine, 250); } }, 300);
