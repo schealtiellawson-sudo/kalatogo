@@ -2549,7 +2549,7 @@ function proposerPostVitrine(opts) {
 
   const nom = (opts.nom || 'Nouveauté').trim();
   const prix = (opts.prix || opts.prix === 0) ? parseInt(opts.prix) : null;
-  const prixTxt = (prix || prix === 0) ? prix.toLocaleString('fr-FR') + ' F' : '';
+  const prixTxt = opts.prixTxt || ((prix || prix === 0) ? prix.toLocaleString('fr-FR') + ' F' : '');
   const photoUrl = opts.photoUrl || '';
   const desc = (opts.description || '').trim();
   const kind = opts.kind || 'produit';
@@ -2565,6 +2565,12 @@ function proposerPostVitrine(opts) {
   } else if (kind === 'vitrine') {
     cap = `🛒 Aujourd'hui je vends : ${nom}.` + (prixTxt ? ` ${prixTxt}.` : '')
         + (desc ? `\n${desc}` : '') + `\nJe suis dispo, écris-moi ici. 👇`;
+  } else if (kind === 'prestation') {
+    cap = `📅 Nouvelle prestation : ${nom}.` + (prixTxt ? ` ${prixTxt}.` : '')
+        + (desc ? `\n${desc}` : '') + `\nRéserve ton créneau ici. 👇`;
+  } else if (kind === 'pack') {
+    cap = `🎨 Nouvelle offre : ${nom}.` + (prixTxt ? ` ${prixTxt}.` : '')
+        + (desc ? `\n${desc}` : '') + `\nCommande la tienne, on en parle ici. 👇`;
   } else {
     cap = `✨ Nouveau au catalogue : ${nom}.` + (prixTxt ? ` ${prixTxt}.` : '')
         + (desc ? `\n${desc}` : '') + `\nDispo maintenant, écris-moi ici pour commander. 👇`;
@@ -4844,6 +4850,8 @@ async function savePrestation() {
   const prix_max = prixMaxRaw ? parseInt(prixMaxRaw) : null;
   const duree_min = dureeRaw ? parseInt(dureeRaw) : null;
 
+  const _isNew = !_prestationEditId;
+  const _prixTxt = (prix_min && prix_max) ? `${prix_min.toLocaleString('fr-FR')} F à ${prix_max.toLocaleString('fr-FR')} F` : (prix_min ? `à partir de ${prix_min.toLocaleString('fr-FR')} F` : '');
   const btn = document.getElementById('prestation-f-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
   try {
@@ -4866,6 +4874,7 @@ async function savePrestation() {
     toast('Prestation enregistrée.', 'success');
     fermerFormPrestation();
     await loadPrestationsSection();
+    if (_isNew) proposerPostVitrine({ kind: 'prestation', nom, prixTxt: _prixTxt });
   } catch (e) {
     console.error('❌ savePrestation', e.message || e);
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
@@ -6050,6 +6059,7 @@ async function savePack() {
   const delai_jours = delaiRaw ? parseInt(delaiRaw) : null;
   const description = (document.getElementById('pack-f-desc')?.value || '').trim() || null;
   const formules = collectFormulesEditor('pack');
+  const _isNew = !_packEditId;
 
   const btn = document.getElementById('pack-f-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Enregistrement…'; }
@@ -6073,6 +6083,7 @@ async function savePack() {
     toast('Offre enregistrée.', 'success');
     fermerFormPack();
     await loadPacksSection();
+    if (_isNew) proposerPostVitrine({ kind: 'pack', nom, prix, description });
   } catch (e) {
     console.error('❌ savePack', e.message || e);
     toast('Ça a calé. Réessaie dans 2 secondes.', 'error');
@@ -12130,7 +12141,7 @@ function _renderPostsFeedCards(recordId) {
       </div>
       ${p.texte ? `<div class="pf-card-text">${escapeHtml(p.texte).replace(/\n/g,'<br>')}</div>` : ''}
       ${media ? `<div class="pf-card-media-wrap" ${p.vitrineRef ? `onclick="ouvrirVitrineDepuisPost('${recordId}')" style="cursor:pointer;"` : ''}>${media}</div>` : ''}
-      ${p.vitrineRef ? `<button onclick="event.stopPropagation();ouvrirVitrineDepuisPost('${recordId}')" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;margin-top:8px;padding:11px 14px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:12px;color:#E8940A;font-family:Geist,sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;"><span>${({realisation:'✨ Voir la réalisation dans la vitrine',produit:'🛍️ Voir l\'article dans la vitrine',modele:'👗 Voir le modèle dans la vitrine',menu:'🍽️ Voir sur la carte'})[p.vitrineRef.kind] || '🛍️ Voir dans la vitrine'}</span><span style="font-size:16px;">→</span></button>` : ''}
+      ${p.vitrineRef ? `<button onclick="event.stopPropagation();ouvrirVitrineDepuisPost('${recordId}')" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;margin-top:8px;padding:11px 14px;background:rgba(232,148,10,.12);border:1px solid rgba(232,148,10,.3);border-radius:12px;color:#E8940A;font-family:Geist,sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;"><span>${({realisation:'✨ Voir la réalisation dans la vitrine',produit:'🛍️ Voir l\'article dans la vitrine',modele:'👗 Voir le modèle dans la vitrine',menu:'🍽️ Voir sur la carte',prestation:'📅 Voir la prestation et réserver',pack:'🎨 Voir l\'offre dans la vitrine'})[p.vitrineRef.kind] || '🛍️ Voir dans la vitrine'}</span><span style="font-size:16px;">→</span></button>` : ''}
       <div class="pf-card-actions">
         <button class="pf-actbtn ${hasLiked ? 'liked' : ''}" onclick="likePost('${recordId}','${p.id}')">${hasLiked ? '❤️' : '🤍'} <span>${p.likes || 0}</span></button>
         <button class="pf-actbtn" onclick="toggleCommentBox('${recordId}','${p.id}')">💬 <span>${comments.length}</span></button>
