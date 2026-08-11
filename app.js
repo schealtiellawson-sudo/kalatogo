@@ -18346,6 +18346,12 @@ function renderAvis(record) {
 }
 
 function openModalAvis(prestatairesId, prestataireNom) {
+  // Un avis nécessite un compte : rediriger vers l'inscription normale si pas connecté
+  if (!window.currentUser) {
+    toast('Crée ton compte (2 min) pour laisser un avis.', 'info');
+    showPage('inscription');
+    return;
+  }
   currentAvisPrestataire = prestatairesId;
   document.getElementById('modal-avis-nom').textContent = `Pour : ${prestataireNom}`;
   selectedStars = 0;
