@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WOZALI — 1er septembre 2026</title>
+<title>WOZALI — 1er octobre 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;background:#14100A;}
-  body{font-family:'Geist',sans-serif;color:#FCE0A8;overflow:hidden;}
+  body{font-family:'Geist',sans-serif;color:#FCE0A8;min-height:100%;}
   .stage{position:fixed;inset:0;overflow:hidden;}
 
   /* colonnes défilantes */
@@ -27,9 +27,9 @@
   .job{font-family:'DM Serif Display',serif;font-style:italic;font-size:18px;line-height:1.05;text-align:center;opacity:.45;white-space:nowrap;}
 
   /* panneau central */
-  .panel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3;pointer-events:none;}
-  .card{width:100%;max-width:430px;text-align:center;padding:36px 32px;
-        background:rgba(14,11,7,.85);backdrop-filter:blur(3px);
+  .panel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:3;pointer-events:none;padding:20px 0;overflow:auto;}
+  .card{width:100%;max-width:430px;text-align:center;padding:34px 30px;pointer-events:auto;
+        background:rgba(14,11,7,.88);backdrop-filter:blur(4px);
         border-top:1px solid rgba(232,148,10,.28);border-bottom:1px solid rgba(232,148,10,.28);}
   @media(min-width:768px){.card{border-radius:24px;border:1px solid rgba(232,148,10,.28);box-shadow:0 20px 80px rgba(0,0,0,.55);}}
 
@@ -41,21 +41,37 @@
   .logo-swoop svg{width:100%;height:8px;}
   @media(min-width:768px){.logo-w{font-size:52px;}.logo-oz{font-size:37px;}}
 
-  .tag{font-family:'DM Serif Display',serif;font-style:italic;font-size:22px;line-height:1.3;margin-top:18px;color:#FCE0A8;opacity:.9;}
+  .tag{font-family:'DM Serif Display',serif;font-style:italic;font-size:20px;line-height:1.3;margin-top:14px;color:#FCE0A8;opacity:.9;}
   .tag span{color:#E8940A;font-style:normal;}
-  @media(min-width:768px){.tag{font-size:30px;margin-top:22px;}}
+  @media(min-width:768px){.tag{font-size:27px;margin-top:18px;}}
 
-  .cd{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Geist Mono',monospace;margin-top:18px;}
-  .cd b{font-size:26px;font-weight:700;color:#E8940A;line-height:1;}
+  .open{font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#E8940A;margin-top:16px;}
+
+  .cd{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Geist Mono',monospace;margin-top:8px;}
+  .cd b{font-size:24px;font-weight:700;color:#E8940A;line-height:1;}
   .cd b.sec{color:#FCE0A8;}
   .cd s{font-size:9px;letter-spacing:.14em;color:#FCE0A8;opacity:.45;text-transform:uppercase;text-decoration:none;}
-  @media(min-width:768px){.cd b{font-size:38px;}.cd{gap:9px;margin-top:24px;}}
+  @media(min-width:768px){.cd b{font-size:34px;}.cd{gap:9px;}}
 
-  /* footer tagline */
+  /* capture */
+  .cta{margin-top:22px;}
+  .cta-note{font-size:12px;color:rgba(252,224,168,.62);margin-bottom:12px;line-height:1.55;}
+  .cta-note b{color:#E8940A;}
+  #wl{display:flex;flex-direction:column;gap:9px;}
+  #tel{height:50px;border-radius:12px;border:1px solid rgba(232,148,10,.32);background:rgba(255,255,255,.05);
+       color:#FCE0A8;font-size:15px;padding:0 14px;font-family:inherit;text-align:center;outline:none;}
+  #tel:focus{border-color:#E8940A;}
+  #tel::placeholder{color:rgba(252,224,168,.42);}
+  #wl button{height:52px;border-radius:12px;border:none;background:#E8940A;color:#14100A;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;}
+  #wl button:disabled{opacity:.6;}
+  .chan{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;height:48px;width:100%;
+        border-radius:12px;border:1px solid #25D366;color:#25D366;text-decoration:none;font-weight:600;font-size:14px;font-family:inherit;}
+  .ok{margin-top:11px;font-size:13px;min-height:18px;line-height:1.4;}
+  .privacy{margin-top:12px;font-size:10.5px;color:rgba(252,224,168,.34);}
+
   .footer{position:absolute;left:0;right:0;bottom:0;z-index:4;display:flex;flex-direction:column;align-items:center;
-          padding:18px 24px calc(30px + env(safe-area-inset-bottom));
-          background:linear-gradient(0deg,#14100A 55%,rgba(20,16,10,0));}
-  @media(min-width:768px){.footer{padding-bottom:44px;}}
+          padding:14px 24px calc(20px + env(safe-area-inset-bottom));
+          background:linear-gradient(0deg,#14100A 55%,rgba(20,16,10,0));pointer-events:none;}
   .footer-note{font-size:12px;color:rgba(252,224,168,.35);letter-spacing:.06em;text-transform:uppercase;font-family:'Geist Mono',monospace;}
 </style>
 </head>
@@ -78,11 +94,23 @@
         </div>
       </div>
       <div class="tag">Ton travail nourrit.<br><span>Pas ton réseau.</span></div>
+
+      <div class="open">Ouverture le 1ᵉʳ octobre · Togo &amp; Bénin</div>
       <div class="cd">
         <b id="dd">00</b><s>j</s>
         <b id="hh">00</b><s>h</s>
         <b id="mm">00</b><s>m</s>
         <b class="sec" id="ss">00</b><s>s</s>
+      </div>
+
+      <div class="cta">
+        <div class="cta-note">Laisse ton numéro et rejoins le canal — on te prévient le jour J.<br>Les <b>500 premiers = Membres Fondateurs</b> (mise en avant + 1 mois Pro offert).</div>
+        <form id="wl">
+          <input id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ton numéro WhatsApp" required>
+          <button type="submit">Rejoindre WOZALI &rarr;</button>
+        </form>
+        <div id="ok" class="ok"></div>
+        <div class="privacy">Ton numéro sert juste à te prévenir. Jamais de spam.</div>
       </div>
     </div>
   </div>
@@ -112,7 +140,7 @@ document.getElementById('c1').style.animationDuration='34s';
 document.getElementById('c2').style.animationDuration='30s';
 document.getElementById('c3').style.animationDuration='38s';
 
-var TARGET=new Date('2026-09-01T00:00:00+01:00').getTime();
+var TARGET=new Date('2026-10-01T00:00:00+00:00').getTime();
 function pad(n){return String(n).padStart(2,'0');}
 function tick(){
   var s=Math.max(0,Math.floor((TARGET-Date.now())/1000));
@@ -123,6 +151,31 @@ function tick(){
 }
 tick(); setInterval(tick,1000);
 
+/* Capture liste possédée (Supabase) */
+var SB='https://wikgdksyeygwpmqzmhez.supabase.co';
+var KEY='sb_publishable_sakHYR_n46YFOq4msulssg_ahtXvacU';
+var CHANNEL='https://whatsapp.com/channel/REMPLACER';
+document.getElementById('wl').addEventListener('submit',function(e){
+  e.preventDefault();
+  var raw=(document.getElementById('tel').value||'').replace(/\D/g,'');
+  var ok=document.getElementById('ok');
+  if(raw.length<8){ok.style.color='#e0888a';ok.textContent='Entre un numéro valide (au moins 8 chiffres).';return;}
+  var btn=this.querySelector('button');btn.disabled=true;btn.textContent='Un instant…';
+  fetch(SB+'/rest/v1/wozali_waitlist',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({telephone:raw,source:'bientot'})})
+   .then(function(r){
+     if(r.ok||r.status===409){
+       document.getElementById('wl').style.display='none';
+       ok.style.color='#43c07a';
+       if(CHANNEL.indexOf('REMPLACER')===-1){
+         ok.innerHTML='✅ Bienvenue chez les Fondateurs !<br>On t\'emmène sur le Canal WhatsApp…';
+         setTimeout(function(){ window.location.href=CHANNEL; }, 1400);
+       } else {
+         ok.innerHTML='✅ C\'est noté ! On te prévient le 1ᵉʳ octobre.';
+       }
+     } else { throw new Error(); }
+   })
+   .catch(function(){ok.style.color='#e0888a';ok.textContent='Réseau capricieux, réessaie dans un instant.';btn.disabled=false;btn.textContent='Rejoindre WOZALI →';});
+});
 </script>
 </body>
 </html>
